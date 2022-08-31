@@ -12,8 +12,6 @@ implement arty control center industry
 implement condition for arty and control center placement
 item effects (iff faker, targetting module)
 
-implement special item drop listener
-
 --------------------------- known issues -----------------------------
 
 Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
