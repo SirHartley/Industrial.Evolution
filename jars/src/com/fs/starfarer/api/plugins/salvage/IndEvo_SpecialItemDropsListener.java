@@ -54,7 +54,7 @@ public class IndEvo_SpecialItemDropsListener implements ShowLootListener {
             if (data.group == null) continue;
             if (data.value == -1) continue;
 
-            IndEvo_modPlugin.log(String.format("Got [%s] value and [%s] valueMult in DropData", data.value, data.valueMult));
+            IndEvo_modPlugin.log(String.format("DropData " + data.group +" [%s] value and [%s] valueMult", data.value, data.valueMult));
 
 
             if (data.group.equals("rare_tech") || data.group.equals("rare_tech_low")) {
@@ -111,7 +111,7 @@ public class IndEvo_SpecialItemDropsListener implements ShowLootListener {
             if (data.group == null) continue;
             if (data.chances == -1) continue;
 
-            IndEvo_modPlugin.log(String.format("Got [%s] chances and [%s] maxChances in DropData", data.chances, data.maxChances));
+            IndEvo_modPlugin.log(String.format("DropData " + data.group + " [%s] chances and [%s] maxChances", data.chances, data.maxChances));
 
             if (data.group.contains("_tech")) {
                 int chances = -1;

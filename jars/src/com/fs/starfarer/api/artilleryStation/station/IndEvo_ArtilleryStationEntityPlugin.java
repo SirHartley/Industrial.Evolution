@@ -137,7 +137,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         if (interval.intervalElapsed()) {
             SectorEntityToken target = loc.getEntityById(s);
             IndEvo_modPlugin.log(s + " - checking");
-            boolean isForced = target.getMemoryWithoutUpdate().getBoolean(FORCED_TARGET);
+            boolean isForced = target.getMemoryWithoutUpdate().contains(FORCED_TARGET);
 
             if(!isForced){
                 if (!isValid(target)) return;
@@ -198,7 +198,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         boolean hostile = !(t instanceof CampaignEntity) || (t instanceof CampaignFleetAPI && isHostileTo((CampaignFleetAPI) t));
 
         return t != null
-                && (hostile || t.getMemoryWithoutUpdate().getBoolean(FORCED_TARGET)) //if it's a forced target, hostility does not matter
+                && (hostile || t.getMemoryWithoutUpdate().contains(FORCED_TARGET)) //if it's a forced target, hostility does not matter
                 && t.isAlive()
                 && Misc.getDistance(t, entity) <= RANGE
                 && t.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY)

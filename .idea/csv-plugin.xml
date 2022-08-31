@@ -45,6 +45,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\campaign\procgen\drop_groups_old.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\campaign\procgen\salvage_entity_gen_data.csv">
           <value>
             <Attribute>

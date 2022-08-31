@@ -1,23 +1,23 @@
 commodity,group,freq
-item_IndEvo_log_core,indEvo_tech_addition,40
-item_IndEvo_neurals,indEvo_tech_addition,40
-item_IndEvo_transmitter,indEvo_tech_addition,40
-item_IndEvo_simulator,indEvo_tech_addition,40
-"item_IndEvo_ForgeTemplate_1:{tags:[rare_bp, !no_drop]}",indEvo_tech_addition,30
-"item_IndEvo_ForgeTemplate_2:{tags:[rare_bp, !no_drop]}",indEvo_tech_addition,10
-item_:{tags:[IndEvo_FT]},indEvo_tech_addition,50
-item_:{tags:[IndEvo_VPC_common]},indEvo_tech_addition,500
-item_:{tags:[IndEvo_VPC_uncommon]},indEvo_tech_addition,150
-item_:{tags:[IndEvo_VPC_rare]},indEvo_tech_addition,50
-nothing,indEvo_tech_addition,1000
+item_:{tags:[IndEvo_VPC_common]},techmining_first_find,4
+item_:{tags:[IndEvo_VPC_uncommon]},techmining_first_find,2
+item_:{tags:[IndEvo_VPC_rare]},techmining_first_find,1
+item_:{tags:[IndEvo_consumable]},techmining_first_find,2
 ,,
-item_:{tags:[IndEvo_VPC_common]},indEvo_mining_addition,250
-item_:{tags:[IndEvo_VPC_uncommon]},indEvo_mining_addition,30
-item_:{tags:[IndEvo_VPC_rare]},indEvo_mining_addition,10
-item_:{tags:[IndEvo_consumable]},indEvo_mining_addition,250
-"item_IndEvo_ForgeTemplate_1:{tags:[rare_bp, !no_drop]}",indEvo_mining_addition,3
-item_:{tags:[IndEvo_FT]},indEvo_mining_addition,10
-nothing,indEvo_mining_addition,700
+"item_IndEvo_ForgeTemplate_1:{tags:[rare_bp, !no_drop]}",techmining_first_find,1
+item_:{tags:[IndEvo_FT]},techmining_first_find,2
+,,
+item_:{tags:[IndEvo_VPC_common]},rare_tech_low,15
+item_:{tags:[IndEvo_VPC_uncommon]},rare_tech_low,10
+item_:{tags:[IndEvo_VPC_rare]},rare_tech_low,5
+,,
+"item_IndEvo_ForgeTemplate_1:{tags:[rare_bp, !no_drop]}",rare_tech_low,4
+"item_IndEvo_ForgeTemplate_2:{tags:[rare_bp, !no_drop]}",rare_tech_low,3
+item_:{tags:[IndEvo_FT]},rare_tech_low,7
+,,
+"item_IndEvo_ForgeTemplate_1:{tags:[rare_bp, !no_drop]}",rare_tech,4
+"item_IndEvo_ForgeTemplate_2:{tags:[rare_bp, !no_drop]}",rare_tech,3
+item_:{tags:[IndEvo_FT]},rare_tech,7
 ,,
 item_:{tags:[IndEvo_VPC_common]},indEvo_tech,65
 item_:{tags:[IndEvo_VPC_uncommon]},indEvo_tech,35
@@ -25,6 +25,7 @@ item_:{tags:[IndEvo_VPC_rare]},indEvo_tech,10
 "item_IndEvo_ForgeTemplate_1:{tags:[rare_bp, !no_drop]}",indEvo_tech,7
 "item_IndEvo_ForgeTemplate_2:{tags:[rare_bp, !no_drop]}",indEvo_tech,3
 item_:{tags:[IndEvo_FT]},indEvo_tech,15
+item_:{tags:[IndEvo_consumable]},indEvo_tech,40
 nothing,indEvo_tech,170
 ,,
 hand_weapons,indEvo_weapons,10
@@ -33,6 +34,11 @@ drugs,indEvo_weapons,1
 IndEvo_parts,indEvo_weapons,1
 ,,
 IndEvo_parts,extended,10
+,,
+item_IndEvo_log_core,rare_tech_low,7
+item_IndEvo_neurals,rare_tech_low,7
+item_IndEvo_transmitter,rare_tech_low,10
+item_IndEvo_simulator,rare_tech_low,7
 ,,
 item_IndEvo_consumable_nanites,indEvo_consumables,8
 item_IndEvo_consumable_locator,indEvo_consumables,7

@@ -59,9 +59,11 @@ beta 2 - Sensor decoy now baits artillery fire
 Added - Consumable Item: Nanite Repair Module - Repairs your fleet, restores CR
 Added - Consumable Item: Tech Locator - Grav Scan for hyperspace, indicates systems with lots of loot
 Added - Consumable Item: Drive Bubble Spike - Deploys a mine that fires an interdiction pulse when an enemy fleet is in range
-Added - Consumable Item: Sensor Decoy - Attracts military fleets in a large radius
+Added - Consumable Item: Sensor Decoy - Attracts military fleets in a large radius, baits artillery fire
 Added - Consumable Item: Fuel Scoop - Succs juicy space fuel from a nearby star or nebula, courtesy of the Sindrian Fuel Company
 Note - Some can be bought, all can be found through combat and exploration
+Adjusted - Switch to non-vanilla drop group system
+Adjusted - Drop rates on all IndEvo items and loot overhauled
 
 Artillery Stations
 beta 2 - Added - 3 Types of artillery that shoot you on the campaign layer
