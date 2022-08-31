@@ -5,12 +5,12 @@ todo item that fakes IFF to be firendly for minefields
 todo item that fakes IFF to be firendly for artillery
 
 artillery disabled when station disabled
-item effects (iff faker, targetting module)
 watchtower interactions
 exploration placement of watchtowers and arty
 implement arty as ship (later)
 implement arty control center industry
 implement condition for arty and control center placement
+item effects (iff faker, targetting module)
 
 implement special item drop listener
 

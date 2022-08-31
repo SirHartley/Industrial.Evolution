@@ -35,6 +35,7 @@ import com.fs.starfarer.api.plugins.economy.IndEvo_ConsumableItemMarketAdder;
 import com.fs.starfarer.api.plugins.economy.IndEvo_PartsManager;
 import com.fs.starfarer.api.plugins.notifications.IndEvo_depositMessage;
 import com.fs.starfarer.api.plugins.salvage.IndEvo_ConsumableItemDropListener;
+import com.fs.starfarer.api.plugins.salvage.IndEvo_SpecialItemDropsListener;
 import com.fs.starfarer.api.plugins.timers.IndEvo_TimeTracker;
 import com.fs.starfarer.api.plugins.timers.IndEvo_raidTimeout;
 import com.fs.starfarer.api.plugins.update.IndEvo_DetachmentAbilityAdder;
@@ -264,6 +265,7 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         IndEvo_LocatorSystemRatingUpdater.register();
         IndEvo_ConsumableItemDropListener.register();
         IndEvo_ConsumableItemMarketAdder.register();
+        IndEvo_SpecialItemDropsListener.register();
     }
 
     private void setScriptsIfNeeded() {

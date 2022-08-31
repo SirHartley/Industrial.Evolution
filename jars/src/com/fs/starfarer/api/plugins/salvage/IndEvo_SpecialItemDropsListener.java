@@ -1,5 +1,6 @@
 package com.fs.starfarer.api.plugins.salvage;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -22,6 +23,11 @@ import java.util.Random;
  */
 
 public class IndEvo_SpecialItemDropsListener implements ShowLootListener {
+
+    public static void register(){
+        if (!Global.getSector().getListenerManager().hasListenerOfClass(IndEvo_SpecialItemDropsListener.class)) Global.getSector().getListenerManager().addListener(new IndEvo_SpecialItemDropsListener(), true);
+    }
+
     @Override
     public void reportAboutToShowLootToPlayer(CargoAPI loot, InteractionDialogAPI dialog) {
         SectorEntityToken entity = dialog.getInteractionTarget();
@@ -50,23 +56,42 @@ public class IndEvo_SpecialItemDropsListener implements ShowLootListener {
 
             IndEvo_modPlugin.log(String.format("Got [%s] value and [%s] valueMult in DropData", data.value, data.valueMult));
 
-            int value = -1;
-            //rare_tech is more valuable tech-wise than rare_tech_low
-            if (data.group.equals("rare_tech")) {
-                value = data.value;
-            } else if (data.group.equals("rare_tech_low")) {
-                value = Math.round(data.value * 0.75f);
+
+            if (data.group.equals("rare_tech") || data.group.equals("rare_tech_low")) {
+
+                int value = -1;
+                //rare_tech is more valuable tech-wise than rare_tech_low
+                if (data.group.equals("rare_tech")) {
+                    value = data.value;
+                } else {
+                    value = Math.round(data.value * 0.5f);
+                }
+
+                if (value != -1) {
+                    SalvageEntityGenDataSpec.DropData dropValue = new SalvageEntityGenDataSpec.DropData();
+                    dropValue.group = "indEvo_tech_addition";
+                    dropValue.valueMult = data.valueMult;
+                    dropValue.value = value;
+
+                    IndEvo_modPlugin.log(String.format("Added [%s] value and [%s] valueMult to DropData", dropValue.value, dropValue.valueMult));
+
+                    dropValueList.add(dropValue);
+                }
             }
 
-            if(value != -1) {
-                SalvageEntityGenDataSpec.DropData dropValue = new SalvageEntityGenDataSpec.DropData();
-                dropValue.group = "esr_augment";
-                dropValue.valueMult = data.valueMult;
-                dropValue.value = value;
+            if (data.group.contains("techmining_first_find")) {
+                int value = Math.round(data.value);
 
-                IndEvo_modPlugin.log(String.format("Added [%s] value and [%s] valueMult to DropData", dropValue.value, dropValue.valueMult));
+                if (value != -1) {
+                    SalvageEntityGenDataSpec.DropData dropValue = new SalvageEntityGenDataSpec.DropData();
+                    dropValue.group = "indEvo_mining_addition";
+                    dropValue.valueMult = data.valueMult;
+                    dropValue.value = value;
 
-                dropValueList.add(dropValue);
+                    IndEvo_modPlugin.log(String.format("Added [%s] value and [%s] valueMult to DropData", dropValue.value, dropValue.valueMult));
+
+                    dropValueList.add(dropValue);
+                }
             }
         }
 
@@ -76,6 +101,11 @@ public class IndEvo_SpecialItemDropsListener implements ShowLootListener {
     private static List<SalvageEntityGenDataSpec.DropData> generateDropRandomList(List<SalvageEntityGenDataSpec.DropData> dropData) {
         List<SalvageEntityGenDataSpec.DropData> dropRandomList = new ArrayList<>();
 
+        //group
+        //indEvo_tech_addition
+        //indEvo_mining_addition
+        //techmining_first_find
+
         //iterate through drop groups to find groups that should add drops
         for (SalvageEntityGenDataSpec.DropData data : dropData) {
             if (data.group == null) continue;
@@ -83,28 +113,47 @@ public class IndEvo_SpecialItemDropsListener implements ShowLootListener {
 
             IndEvo_modPlugin.log(String.format("Got [%s] chances and [%s] maxChances in DropData", data.chances, data.maxChances));
 
-            int chances = -1;
-            //rare_tech is more valuable tech-wise than rare_tech_low
-            if (data.group.equals("rare_tech")) {
-                chances = data.chances * 4;
-            } else if (data.group.equals("rare_tech_low")) {
-                chances = (int) Math.round(data.chances * 2f);
+            if (data.group.contains("_tech")) {
+                int chances = -1;
+                //rare_tech is more valuable tech-wise than rare_tech_low
+                if (data.group.equals("rare_tech")) {
+                    chances = data.chances * 4;
+                } else if (data.group.equals("rare_tech_low")) {
+                    chances = (int) Math.round(data.chances);
+                }
+
+                if (chances != -1) {
+                    SalvageEntityGenDataSpec.DropData dropRandom = new SalvageEntityGenDataSpec.DropData();
+                    dropRandom.group = "indEvo_tech_addition";
+                    dropRandom.maxChances = data.maxChances;
+                    dropRandom.chances = chances;
+
+                    IndEvo_modPlugin.log(String.format("Added [%s] chances and [%s] maxChances to DropData", dropRandom.chances, dropRandom.maxChances));
+
+                    dropRandomList.add(dropRandom);
+                }
             }
 
-            if(chances != -1) {
-                SalvageEntityGenDataSpec.DropData dropRandom = new SalvageEntityGenDataSpec.DropData();
-                dropRandom.group = "esr_augment";
-                dropRandom.maxChances = data.maxChances;
-                dropRandom.chances = chances;
+            if (data.group.equals("techmining_first_find")) {
+                int chances = (int) Math.round(data.chances);
 
-                IndEvo_modPlugin.log(String.format("Added [%s] chances and [%s] maxChances to DropData", dropRandom.chances, dropRandom.maxChances));
+                if (chances != -1) {
+                    SalvageEntityGenDataSpec.DropData dropRandom = new SalvageEntityGenDataSpec.DropData();
+                    dropRandom.group = "indEvo_mining_addition";
+                    dropRandom.maxChances = data.maxChances;
+                    dropRandom.chances = chances;
 
-                dropRandomList.add(dropRandom);
+                    IndEvo_modPlugin.log(String.format("Added [%s] chances and [%s] maxChances to DropData", dropRandom.chances, dropRandom.maxChances));
+
+                    dropRandomList.add(dropRandom);
+                }
             }
+
         }
 
         return dropRandomList;
     }
+
     private static List<SalvageEntityGenDataSpec.DropData> getDropDataFromEntity(SectorEntityToken entity) {
         List<SalvageEntityGenDataSpec.DropData> dropData = new ArrayList<>();
 
