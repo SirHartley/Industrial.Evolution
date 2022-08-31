@@ -1,0 +1,11 @@
+trail,projectile,sprite,minLength,fadeIn,duration,fadeOut,sizeIn,sizeOut,colorIn,colorOut,opacity,textLength,textScroll,randomTextureOffset,distance,dispersion,drift,fadeOnFadeOut,angleAdjustment,additive,velocityIn,velocityOut,randomVelocity,angle,rotationIn,rotationOut,randomRotation,renderBelowExplosions
+IndEvo_cryo_trail,IndEvo_Cryo_Shot,IndEvo_trail_foggy,10,0,0,0.6,40,160,"[100,150,255]","[100,150,255]",0.3,512,0,TRUE,0,5,1,TRUE,FALSE,TRUE,0,0,0,0,0,0,false,false
+IndEvo_cryo_trail2,IndEvo_Cryo_Shot,IndEvo_trail_foggy,10,0,0,0.8,20,80,"[200,200,255]","[200,200,255]",0.4,512,0,TRUE,0,10,1,TRUE,FALSE,TRUE,0,0,0,0,0,0,false,false
+IndEvo_cryo_trail4,IndEvo_Cryo_Shot,IndEvo_trail_stream,10,0,0,0.5,20,30,"[200,200,255]","[100,150,255]",0.6,512,0,TRUE,0,5,1,TRUE,FALSE,TRUE,0,0,0,0,0,0,false,false
+IndEvo_cryo_trail_a,IndEvo_Cryo_Shot,IndEvo_trail_spatter,10,0,0,1.8,120,240,"[220,220,255]","[220,220,255]",0.6,256,0,TRUE,0,0,1,TRUE,FALSE,TRUE,10,10,0.2,0,0,0,false,false
+IndEvo_cryo_trail_b,IndEvo_Cryo_Shot,IndEvo_trail_spatter,10,0.4,0,1.4,120,180,"[220,220,255]","[220,220,255]",0.6,256,0,TRUE,0,0,1,TRUE,FALSE,TRUE,10,10,0.2,45,0,0,false,false
+IndEvo_cryo_trail_c,IndEvo_Cryo_Shot,IndEvo_trail_spatter,10,0.4,0,1.4,120,180,"[220,220,255]","[220,220,255]",0.6,256,0,TRUE,0,0,1,TRUE,FALSE,TRUE,10,10,0.2,-45,0,0,false,false
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+IndEvo_riftgun_trail,IndEvo_riftgun_shot,IndEvo_trail_stream,10,0,0,0.2,20,5,"[255,255,255]","[255,255,255]",1,256,0,TRUE,10,0,1,TRUE,FALSE,TRUE,0,0,0,0,0,0,false,false
+IndEvo_riftgun_trail2,IndEvo_riftgun_shot,IndEvo_trail_stream,10,0,0,0.3,40,10,"[100,60,255]","[200,20,255]",0.8,256,0,TRUE,10,0,1,TRUE,FALSE,TRUE,0,0,0,0,0,0,false,false
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,

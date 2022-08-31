@@ -1,0 +1,230 @@
+{
+  #Documentation is for nerds
+
+        #Vanilla changes:
+        "IndEvo_CommerceBalanceChanges":TRUE, #Commerce balance changes. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).
+        "IndEvo_TechMiningBalanceChanges":TRUE, #Techmining changes - adds the tooltip and removes industry tag
+
+  #No gurantees for stability if you fuck with anything past here because I did not test it and probably never will.
+  #Enabled industries
+  #Note that disabling the Variable industries will not stop VPCs from dropping - you will have to remove the entries from drop_groups.csv to achive that.
+  #Change to FALSE if you wish to disable the industry.
+  #Only works before game start!
+  "Assembler": TRUE,
+  "Manufactory": TRUE,
+  "ComForge": TRUE,
+  "MilArray": TRUE,
+  "CentBureau": TRUE,
+  "ScrapYard": TRUE, #disable this to disable starship components. No, you can not have one without the other, go suck a dick. Dont forget the drop group.
+  "SupCom": TRUE,
+  "Embassy": TRUE, #also disables Ambassador management scripts
+  "PirateHaven": TRUE,
+  "Senate": TRUE,
+  "dryDock": TRUE,
+  "Academy": TRUE,
+  "EngHub": TRUE,
+  "ReqCenter": TRUE,
+  "PrivatePort": TRUE,
+
+  #Campaign Features
+  "Enable_IndEvo_minefields": TRUE,
+  "Enable_Indevo_Derelicts": TRUE, #Also includes salvage events and station types
+  "IndEvo_SpecialApplicationChance": 0.9f, #master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing.
+  "IndEvo_derelictDeliverToGathering": FALSE, #All derelict industry output will be delivered to the gathering point instead of local storage. Remember - courier port exists.
+  "IndEvo_enable_derelict_stations": TRUE, #Enables the custom station types
+  "IndEvo_derelictStationAmount": 0.2f, #amount of additional stations with custom types spawned on top of existing ones (0.2 = 20% additional)
+  "IndEvo_DerInfraBuildRed": 0.5f, #derelict infra build cost and time reductuction
+  "IndEvo_PartsDropInCampaign": TRUE, #makes starship components drop from combat - Relic components will still drop even if you disable this.
+
+  #After here works during a campaign as well
+  #Salvage Yards
+  "IndEvo_RarePartsAmountPerFP": 2,
+  "IndEvo_SYBaseDMods": 5,
+  "IndEvo_SYPartValueMult": 1.2f,
+  "IndEvo_SYHullDeliveryTime":60,
+  "IndEvo_SYDModMoveBaseCostMult":0.8f,
+
+  #Privateer Base
+  "IndEvo_RaidForUnknownOnly": FALSE, #Allows the Priateer base to raid for blueprints you already know. Setting this to TRUE will make it only generate BPs you do not know, instead of a mix.
+
+  #RiftGen
+  "RG_cooldownTime": 90,
+  "RG_range": 9,
+
+  #Laboratory
+  "reslab_autoDeliverToClosestDecon": FALSE, #Auto-deliver restored forge templates to the closest HullDecon  Remember - courier port exists.
+
+  #HullDecon
+  "IndEvo_DeconIgnoreWhitelists": TRUE, #you want the blueprints too, dont you - look below - this turns off the whitelist and allows any ship to be deconstructed
+  "hullDecon_autoDeliverToClosestForge": FALSE, #Auto-deliver finished forge templates to the closest HullForge  Remember - courier port exists.
+  "hullDecon_days_FRIGATE": 10,
+  "hullDecon_days_DESTROYER": 20,
+  "hullDecon_days_CRUISER": 30,
+  "hullDecon_days_CAPITAL_SHIP": 40,
+
+  #HullForge
+  "hullForge_autoQueueShipsUntilEmpty": TRUE, #Print ships off a template until it is empty - else deposit in storage after one run
+  "hullForge_autoDeliverToClosestLab": FALSE, #Auto-deliver degraded forge templates to the closest lab - or empty ones to a Deconstructor (AI Core Effect only)  Remember - courier port exists.
+  "hullForge_days_FRIGATE": 5,
+  "hullForge_days_DESTROYER": 10,
+  "hullForge_days_CRUISER": 15,
+  "hullForge_days_CAPITAL_SHIP": 20,
+
+  #Supercomputer:
+  #Core run time in days until burn out. Tooltips will be broken if number is not a multiple of 31.
+  "alpha_core_runtime": 558,
+  "beta_core_runtime": 279,
+  "gamma_core_runtime": 93,
+
+  #Restoration Dock:
+  #AI mode restoration Fees per dMod
+  "restoFee_FRIGATE": 1000,
+  "restoFee_DESTROYER": 3000,
+  "restoFee_CRUISER": 7000,
+  "restoFee_CAPITAL": 10000,
+
+  #Academy:
+  "dailyOfficerSpawnChance": 0.15f,
+  "dailyAdminSpawnChance": 0.10f,
+  "personalityTrainingDayCount": 93,
+  "personalityTrainingCost": 30000,
+  "adminTrainingDayCount": 124,
+  "adminTrainingCost": 20000,
+  "monthlyAIStorageCost": 2000,
+  "adminSalaryTier1":10000,
+  "adminSalaryTier2":20000,
+  "adminSalaryTier3":30000,
+
+  #Engineering Hub
+  "IndEvo_EngHubIgnoreWhitelists": FALSE, #Yes, this is the one you are looking for   - this turns off the whitelist and allows any ship to be reverse engineered
+  "IndEvo_AutoshipBPToGatheringPoint":FALSE,
+
+  #Variable Industries
+  "VarInd_deliverToProductionPoint": FALSE, #Auto-deliver to production point (default - To local storage)  Remember - courier port exists.
+
+  #Variable industriy deposition amounts:
+  #This is calculated: Amount = (round(((increase*ln(marketSize-2)+amount)/10))*10)*ai_core_factor
+  "IndEvo_AdAssem": {
+        "IndEvo_parts":55,
+        "supplies": 90,
+        "fuel": 300,
+        "marines": 50,
+        "heavy_machinery": 60,
+        "domestic_goods": 180,
+        "drugs": 50,
+        "hand_weapons": 20,
+        "luxury_goods": 90,
+        "logIncrease": 55,
+  },
+
+  "IndEvo_AdManuf": {
+        "IndEvo_parts":125,
+        "supplies": 210,
+        "fuel": 600,
+        "marines": 90,
+        "heavy_machinery": 140,
+        "domestic_goods": 420,
+        "drugs": 110,
+        "hand_weapons": 40,
+        "luxury_goods": 210,
+        "logIncrease": 150,
+  },
+
+  "IndEvo_ComForge": {
+        "IndEvo_parts":280,
+        "supplies": 480,
+        "fuel": 1200,
+        "marines": 240,
+        "heavy_machinery": 320,
+        "domestic_goods": 960,
+        "drugs": 240,
+        "hand_weapons": 100,
+        "luxury_goods": 480,
+        "logIncrease": 250,
+  },
+
+  #If you touch this dont come complaining when it crashes
+  "IndEvo_embassyList": "data/config/indEvo/embassy_whitelist.csv",
+  "IndEvo_reverseList": "data/config/indEvo/reverse_engineering_whitelist.csv",
+  "IndEvo_printList": "data/config/indEvo/printing_whitelist.csv",
+  "IndEvo_shipingList": "data/config/indEvo/shipping_submarkets_whitelist.csv",
+  "IndEvo_custOrderList": "data/config/indEvo/custom_order_blacklist.csv",
+  "IndEvo_buerauList": "data/config/indEvo/bureau_industry_whitelist.csv",
+  "IndEvo_ruindList": "data/config/indEvo/ruins_industry_whitelist.csv",
+
+  #wheeeeeeeeeeeeeeeeeeeeeeeeee
+  "IndEvo_ToggleMagicRandomSelector": false,
+
+  "ruleCommandPackages":[
+  "com.fs.starfarer.api.impl.campaign.rulecmd.academyRules",
+  "com.fs.starfarer.api.impl.campaign.rulecmd.ambassadorRules",
+  "com.fs.starfarer.api.impl.campaign.rulecmd.edictRules",
+  "com.fs.starfarer.api.impl.campaign.rulecmd.riftGenRules",
+  "com.fs.starfarer.api.impl.campaign.rulecmd.portRules",
+  "com.fs.starfarer.api.impl.campaign.rulecmd.salvageYardsRules",
+  "com.fs.starfarer.api.splinterFleet.plugins.dialogue",
+  "com.fs.starfarer.api.impl.campaign.rulecmd.researchProjects",
+  "com.fs.starfarer.api.impl.campaign.econ.impl.courierPort.dialogue"
+  ],
+
+  "designTypeColors":{
+  "Experimental":[50, 168, 82, 255],
+  "Nvidia Corporation":[118, 185, 0, 255],
+  "Consumable":[100,10,200,255]
+  },
+
+  "bonusXP": {
+  "IndEvo_SYDoubleCapBonusXP": 0.5,
+  },
+
+  "graphics": {
+      "fx":{
+          "IndEvo_trail_stream":"graphics/fx/trails_stream.png",
+          "IndEvo_trail_foggy":"graphics/fx/trails_foggy.png",
+          "IndEvo_trail_spatter":"graphics/fx/trails_spatter.png",
+          "IndEvo_stream_fringe":"graphics/fx/IndEvo_stream_fringe.png",
+          "IndEvo_stream_core":"graphics/fx/IndEvo_stream_core.png",
+          "IndEvo_target":"graphics/fx/IndEvo_target.png",
+          "IndEvo_target_reticule":"graphics/fx/IndEvo_target_only.png",
+          "IndEvo_danger_notif":"graphics/fx/IndEvo_danger_notif.png",
+          "IndEvo_line":"graphics/fx/IndEvo_straight_line.png",
+          "IndEvo_target_cone": "graphics/fx/IndEvo_target_cone.png",
+          "IndEvo_missile_target": "graphics/fx/IndEvo_missileTarget.png",
+          "IndEvo_carrier_missile": "graphics/mines/campaign_missile_carrier.png",
+          "IndEvo_sub_missile": "graphics/mines/campaign_missile_submunition.png",
+          "IndEvo_sub_missile_explosion": "graphics/fx/missile_explosion.png",
+  },
+      "IndEvo": {
+          "dysonswarm_texture":"graphics/planets/dyson_swarm.png",
+          "amb_pers": "graphics/industry/embassy/emb_league.png",
+          "amb_heg": "graphics/industry/embassy/emb_hegemony.png",
+          "amb_tt": "graphics/industry/embassy/emb_tritach.png",
+          "amb_church": "graphics/industry/embassy/emb_church.png",
+          "amb_sind": "graphics/industry/embassy/emb_sindria.png",
+          "amb_mod": "graphics/industry/embassy/emb_modded.png",
+          "assembler": "graphics/industry/assembler_active.png",
+          "manufactorium": "graphics/industry/manufactorium_active.png",
+          "comforge": "graphics/industry/comforge_active.png",
+          "supcom_cold": "graphics/industry/supcom_cold.png",
+          "supcom_vcold": "graphics/industry/supcom_vcold.png",
+          "VPCRemovalIcon": "graphics/icons/reports/vpcgone.png",
+          "productionwarning": "graphics/icons/reports/prodwarn.png",
+          "alpha_core": "graphics/icons/reports/ai_core_alpha.png",
+          "beta_core": "graphics/icons/reports/ai_core_beta.png",
+          "gamma_core": "graphics/icons/reports/ai_core_gamma.png",
+          "notification": "graphics/icons/reports/notifikation.png",
+          "warning": "graphics/icons/reports/achtung.png",
+          "reputation": "graphics/icons/reports/rep.png",
+          "trainingdone": "graphics/icons/reports/traindone.png",
+          "FTIcon": "graphics/icons/cargo/forge_template_empty.png",
+          "revBP": "graphics/icons/reports/blueprint_deco.png",
+          "rift_flare": "graphics/planets/IndEvo_flash.png",
+          "rift_hole": "graphics/planets/IndEvo_blackhole.png",
+          "mine4": "graphics/mines/mine4.png",
+          "mineGlow": "graphics/mines/mineGlow.png",
+          "shortFrame": "graphics/fx/IndEvo_short_frame.png",
+          "frameBG": "graphics/fx/IndEvo_BG_mask.png",
+          "broadFrame": "graphics/fx/IndEvo_frame.png",
+},
+  },
+}

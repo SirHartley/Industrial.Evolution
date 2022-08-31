@@ -1,0 +1,25 @@
+{
+	#
+	# terrain with gameplay effects
+	#
+	"IndEvo_mine_belt":{
+		"plugin":"com.fs.starfarer.api.impl.campaign.terrain.IndEvo_MineBeltTerrainPlugin",
+		"loopOne":"terrain_asteroid_field",
+	},
+
+	"IndEvo_mine_field":{
+		"plugin":"com.fs.starfarer.api.impl.campaign.terrain.IndEvo_MineFieldTerrainPlugin",
+		"musicSuppression":0.25,
+		"loopOne":"terrain_asteroid_field",
+	},
+
+	"IndEvo_artillery_range_terrain":{
+		"plugin":"com.fs.starfarer.api.artilleryStation.terrain.IndEvo_ArtilleryTerrain",
+	},
+
+	"IndEvo_slowfield":{
+		"plugin":"com.fs.starfarer.api.artilleryStation.terrain.IndEvo_SlowFieldTerrain",
+		"musicSuppression":0.50,
+	}
+}
+

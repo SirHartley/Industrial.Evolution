@@ -1,0 +1,11 @@
+{
+    "masterVersionFile":"https://raw.githubusercontent.com/SirHartley/Industrial_Evolution/master/IndEvo.version",
+    "modName":"Industrial.Evolution",
+    "modThreadId":18011,
+    "modVersion":
+    {
+        "major":3,
+        "minor":1,
+        "patch":"1"
+    },
+}

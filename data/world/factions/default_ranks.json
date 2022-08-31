@@ -1,0 +1,10 @@
+{
+
+"ranks":{
+"factionRep":{"name":"Faction Representative"},
+},
+
+"posts":{
+"ambassador":{"name":"Ambassador"}, #DO NOT TRANSLATE THIS
+},
+}

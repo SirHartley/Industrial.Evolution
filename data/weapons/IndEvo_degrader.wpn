@@ -1,0 +1,68 @@
+{
+  "id": "IndEvo_degrader",
+  "specClass": "projectile",
+  "projectileSpecId": "IndEvo_degrader_shot",
+  "type": "BALLISTIC",
+  "mountTypeOverride": "HYBRID",
+  "size": "SMALL",
+  "turretSprite": "graphics/weapons/IndEvo_degrader_turret.png",
+  "turretGlowSprite": "graphics/weapons/IndEvo_degrader_turret_glow.png",
+  "hardpointSprite": "graphics/weapons/IndEvo_degrader_hardpoint.png",
+  "hardpointGlowSprite": "graphics/weapons/IndEvo_degrader_hardpoint_glow.png",
+  "renderAboveAllWeapons": 0,
+  "glowColor": [
+    183,
+    65,
+    13,
+    255
+  ],
+  "turretOffsets": [
+    13,
+    0.5,
+    13,
+    0.5,
+    13,
+    0.5,
+    13,
+    0.5
+  ],
+  "turretAngleOffsets": [
+    1.5,
+    -1.5,
+    4.5,
+    -4.5
+  ],
+  "hardpointOffsets": [
+    16.5,
+    0.5,
+    16.5,
+    0.5,
+    16.5,
+    0.5,
+    16.5,
+    0.5
+  ],
+  "hardpointAngleOffsets": [
+    1.5,
+    -1.5,
+    4.5,
+    -4.5
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 20, # only used if animationType = MUZZLE_FLASH
+    "spread": 10,
+    "particleSizeMin": 10,
+    "particleSizeRange": 5,
+    "particleDuration": 0.24,
+    "particleCount": 10,
+    "particleColor": [
+      183,
+      95,
+      70,
+      255
+    ]
+  },
+  "fireSoundTwo": "IndEvo_degrader_fire"
+}

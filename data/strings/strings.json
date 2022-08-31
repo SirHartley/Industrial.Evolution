@@ -1,0 +1,287 @@
+{
+	"IndEvo_misc": {
+		"andWithSpaces": " and ",
+		"theLocalStorage": "the local storage.",
+		"unitsWithFrontSpace": " units",
+		"monthWithFrontSpace": " month",
+		"monthsWithFrontSpace": " months",
+		"daysWithFrontSpace": " days",
+		"days":"days",
+		"day":"day",
+		"shortage": "shortage", #Might cause issues - Whatever you translate this to all other in-game shortage text must use the same word!
+		"he": "he",
+		"she": "she",
+		"him": "him",
+		"her": "her",
+		"colonies": "Colonies", #Might cause issues when translated as it is used for the monthly report
+		"frig": "Frigate",
+		"dest": "Destroyer",
+		"cruiser": "Cruiser",
+		"cap": "Capital",
+		"dmods": "D-Mods",
+		"take": "Take",
+		"leave": "Leave",
+		"hulltype": "Hull Type",
+		"dmod": "D-Mod",
+		"perDMod": "Per D-Mod",
+		"totalMax":  "Total max.",
+		"colonySize": "colony size"
+	},
+
+	"IndEvo_BaseIndustryTooltips": {
+		"t1": " - Industry", #this is the vanilla industry tooltip text
+		"t2": " - Structure",
+		"t3": "Maximum number of industries reached",
+		"t4": "Operations disrupted! %s $days until return to normal function.",
+		"t5": "Click to manage or upgrade",
+		"t6": "Click to manage",
+		"t7": "Click to remove or adjust position in queue",
+		"t8": "Currently queued for construction. Does not have any impact on the colony.",
+		"t9": "Requires %s $days to build.",
+		"t10": "Currently under construction and not producing anything or providing other benefits.",
+		"t11": "Requires %s more $days to finish building.",
+		"t12": "%s and %s $days to upgrade. You have %s.",
+		"t13": "%s and %s $days to build. You have %s.",
+		"t14": "%s refunded for downgrade.",
+		"t15": "Monthly income: %s",
+		"t16": "Monthly upkeep: %s",
+		"t17": "Production",
+		"t18": "Demand & effects",
+		"t19": "*Shown production and demand values are already adjusted based on current market size and local conditions."
+	},
+
+	"IndEvo_items":{
+		"items": "items",
+		"currentlyInstalled": " currently installed. ",
+		"noItems": "No items installed",
+		"install": "Install $itemName ...",
+		"manage": "Manage $itemName ...",
+		"uninstall": "Uninstall $itemName ",
+		"noCurrent": "No $itemName currently installed",
+		"noAvailable": "No $itemName available",
+		"noStorage": "No $itemName available in storage",
+		"selectForIndustry": "Select $itemName to install for $industryName",
+		"vpcIndTooltip": "Installing a Tri-Tachyon Variable Production Chip (VPC) will change the economic properties of this industry. ",
+		"VPC": "VPC",
+		"VPCs": "VPC"
+	},
+
+	"IndEvo_AmbassadorItem": {
+		"currentlyInstalled": " currently in office.",
+		"noItems": "No items installed",
+		"install": "Inaugurate Ambassador ...",
+		"manage": "Manage Ambassador ...",
+		"uninstall": "Remove Ambassador",
+		"noCurrent": "No Ambassador currently in office",
+		"noAvailable": "No Ambassador available",
+		"noStorage": "No Ambassador available in storage",
+		"selectForIndustry": "Select Ambassador to induct for this $industryName",
+		"itemTooltip": "$personName is an official faction representative to $personFaction",
+		"indTooltip": "Inducting an Ambassador here is required for this structure to have an Effect. It will allow the polity to gain reputation with to the Ambassadors' faction."
+	},
+
+	"IndEvo_AICores": {
+		"aiCores": "AI-Cores",
+		"aCoreAssignedLong": "Alpha-level AI core currently assigned. ",
+		"aCoreAssignedShort": "Alpha-level AI core. ",
+		"bCoreAssignedLong": "Beta-level AI core currently assigned. ",
+		"bCoreAssignedShort": "Beta-level AI core. ",
+		"gCoreAssignedLong": "Gamma-level AI core currently assigned. ",
+		"gCoreAssignedShort": "Gamma-level AI core. ",
+		"aCoreStatModAssigned": "Alpha Core assigned",
+		"bCoreStatModAssigned": "Beta Core assigned",
+		"gCoreStatModAssigned": "Gamma Core assigned"
+	},
+
+	"IndEvo_VarInd": {
+		"vpcNotice": "This structure requires a Variable Production Chip (VPC) to function",
+		"rampUp": "Production ramp up: output temporarily decreased by %s",
+		"singleOutput": "Currently outputs %s $commodityName1 per month.",
+		"doubleOutput": "Currently outputs %s $commodityName1 and %s $commodityName2 per month.",
+		"vpc_rare_desc": "This rare, top of the line chip contains handling and production protocols for both %s.",
+		"vpc_uncommon_desc": "This uncommon chip contains handling and production protocols for %s.",
+		"vpc_common_desc": "This relatively common chip contains handling and production protocols for %s.",
+		"shortageTooltip": "Reduced commodity output due to shortage.",
+		"deliveryNotice": "Commodities have been delivered to $targetLocation",
+		"gCoreEffect":"Reduces upkeep cost by %s."
+	},
+
+	"IndEvo_AdAssem":{
+		"outputRestriction": "Assembler capacity insufficient",
+		"aCoreEffect":"Reduces upkeep cost by %s. Increases commodity output by %s.",
+		"bCoreEffect":"Increases commodity output by %s."
+	},
+
+	"IndEvo_ComForge":{
+		"canRemoveVPC": "VPC change/removal possible for another $days days.",
+		"canNotRemoveVPC": "VPC is locked. Replacement possible after the current one burns out.",
+		"vpcLockTime": "The installed chip will be destroyed in %s.",
+		"burnOutMessage": "A Variable Production Chip has burned out at ",
+		"indStorageMessage": "A Commodity Forge has taken a %s from the industrial storage at %s.",
+		"indStorageTooltip": "Commodity Forge: Pulls %s from this storage to use.",
+		"aCoreEffect":"Reduces VPC runtime by %s. The total produced commodity amount stays the same.",
+		"bCoreEffect":"Reduces upkeep cost by %s if no VPC is installed."
+	},
+
+	"IndEvo_AdInfra": {
+		"sufficient": "sufficient",
+		"insufficient": "insufficient",
+		"onlyOneInstanceAllowed": "There can only be one Centralization Bureau in a star system.",
+		"noDuplicates": "There are no duplicate industries in this system.",
+		"noAICore": "This structure requires an AI core to function.",
+		"aiCoreSufficient": "The AI core installed in this structure is $sufficient.",
+		"aiCoreInsufficient": "The AI core installed in this structure is $insufficient. Maximum supported bonus: %s",
+		"additionalOutputs": "Additional production output",
+		"additionalDemands": "Additional demand requirements",
+		"aCoreEffect": "The maximum bonus production this high level intelligence can provide is %s",
+		"bCoreEffect": "The maximum bonus production this intelligence can provide is %s",
+		"gCoreEffect": "The maximum bonus production this low level intelligence can provide is %s"
+	},
+
+	"IndEvo_ComArray": {
+		"operateAsHQ": "Operating as Patrol HQ",
+		"aiCoreNoEffect": "Local AI cores do not have any effect. Install them in a High Command instead!",
+		"inHighCommand": " [High Command]",
+		"notFunctional": "Not functional, there is no Military Base or High Command in the star system!",
+		"unavailableReason": "Requires a Military Base or High Command in the star system.",
+		"isBest": "This colony has the largest fleet and does not receive a bonus.",
+		"isBestHighlights": "does not receive a bonus.",
+		"currentBonus": "Current bonus: %s from %s",
+		"currentBonusInt": "Current bonus: %s from %s in %s.",
+		"canImprove": "Bonus can be improved by building a %s anywhere in the star system.",
+		"aiCoreNotice": "This building is affected by %s installed in a local %s",
+		"commRelayNotice": "The Interstellar Relay acts as %s.",
+		"aCoreEffect": "Increases the local fleet size bonus by %s",
+		"bCoreEffect": "Reduces relay upkeep cost by %s.",
+		"gCoreEffect": "Does not provide any benefits to the relay."
+	},
+
+	"IndEvo_ScrapYard": {
+		"lowMaterial": "The Salvage Yards at $marketName are running out of usable material!",
+		"lowMaterialAdd": "They are at, or beneath 30% capacity.",
+		"incursionSuccess": "An incursion against the $systemName was successful. Salvage units recovered from the carnage: $amt",
+		"incursionFailed": "An incursion against the $systemName has failed without your interference. Salvage units recovered from the carnage: $amt",
+		"sUnitsAvailableTooltip": "There are %s salvage units available, %s are needed per additional output.",
+		"unavailableReason": "There can only be one Salvage Yard in a star system.",
+		"aCoreEffect": "Reduces salvage units required per output by %s, and decreases monthly salvage unit decay to %s",
+		"bCoreEffect": "Causes the output to scale with %s, but increases the salvage units required per output by %s",
+		"gCoreEffect": "Decreases the monthly salvage unit decay to %s."
+	},
+
+	"IndEvo_embassy": {
+		"increaseMessage": "Relationship with the $factionName $increasedByInt",
+		"decreaseMessage": "Relationship with the $factionName $decreasedByPenalty",
+		"increasedByInt": "increased by ",
+		"decreasedByInt": "decreased by ",
+		"currentAt": "Currently at %s",
+		"changeCausedBy": "Change caused by the Embassy at $marketName",
+		"requiresAmbassador": "This structure requires an Ambassador to function!",
+		"canHireAt": "You can hire one on every larger planet.",
+		"currentlyTakingOffice": "The Ambassador is currently taking office. Please wait a day for this to finish.",
+		"currentPersonInOffice": "Current Ambassador in office: %s",
+		"factionJusrisdiction": "This Embassy operates under %s jurisdiction",
+		"currentStanding": "Current status for passive relations increase: %s",
+		"betaCorePenalty": "Relationship with the $factionName $decreasedByPenalty",
+		"betaCorePenaltyChange": "Change caused by removal of a Beta core at the Embassy at $marketName",
+		"aCoreEffect": "Reduces the reputation penalty on negative change by %s",
+		"bCoreEffect": "Increases the limit for the passive reputation gain to %s. Causes a %s reputation penalty on removal if a month has passed.",
+		"gCoreEffect": "Reduces upkeep cost by %s.",
+
+		"embassyRepChange": "Your Embassies have caused the following reputation changes:",
+		"warning": "You have another month to bring the $factionName Ambassador, $personName, to an Embassy.",
+		"delay1": "$factionName personnel could not contact $personName at the Embassy $heOrShe was supposed to be at.",
+		"delay2": "$factionName personnel have issued a notice: should $personName not take office within a month, $heOrShe must return to faction space.",
+		"delay3": "$personName has returned to $factionName space. This is treated as a Diplomatic incident and has strained relations.",
+		"ambassadorSold": "$personName, the $factionName Ambassador, has been sold on a market like cattle.",
+		"ambassadorSoldFlavour": "This is not a good way to foster positive relations.",
+		"ambassadorSuffocated": "$personName, the $factionName Ambassador, has suffocated in a cargo pod.",
+		"ambassadorSuffocatedFlavour": "What a rotten way to die.", #HE WAS A GOOD MAN *SMACKS LIPS*
+		"ambassadorLost": "$factionName Agents failed to track the movement of $personName.",
+		"ambassadorLostFlavour":  "The Ambassador is now suspected to be compromised.",
+		"ambassadorSuicide": "$factionName was eradicated. $personName has taken an escape pod.",
+		"ambassadorSuicideFlavour": "The pod did not have a destination set.",
+		"ambassadorChickenedOut": "$personName has taken an escape shuttle and ran for $factionName space.",
+		"ambassadorChickenedOutFlavour": "You can request a new Ambassador once you are no longer at war.", #WITH 11 HERBS AND SPICES
+		"ambassadorRecall": "$personName has taken a shuttle and returned to $factionName space.",
+		"ambassadorRecallFlavour": "The faction has recalled all ambassadors",
+		"ambassadorRetrieved": "$personName has been arrested and returned to $factionName space for questioning.",
+		"ambassadorRetrievedFlavour": "$heOrShe is suspected to be compromised.",
+		"ambassadorVacated": "The ambassador to $factionName at $marketName has vacated their office.",
+		"ambassadorFactionEradicatedFlavour": "Considering their position, you will probably never see them again.",
+		"ambassadorFactionAliveFlavour": "You will have to request a new one after the war has ended.",
+		"ambassadorRecalledFlavour": "He has been recalled by the faction authorities."
+	},
+
+	"IndEvo_dryDock":{
+		"indNodeTitle": "Ship Hull Restoration",
+		"repairedAt": "Ships have been repaired at %s:",
+		"totalCost": "Total cost: %s",
+		"totalCostWIthFee": "Total cost: %s, plus %s in repair fees.",
+		"capTooltip": "No AI core - will remove D-Mods from random ships until capacity is reached.",
+		"currentCap": "Current capacity: $dModAmt per month, repaired at $discountAmt base price.",
+		"addFee": "Restoring ships here will cost an additional fee depending on your standing with $factionName.",
+		"repFee": "Additional repair fees: %s: %s",
+		"hsCost": "Hull size: %s: %s per D-Mod",
+		"hostile": "You are hostile to $factionName - no repairs will be performed.",
+		"lastMonthHeader": "Repaired last month:",
+		"lastMonthText": "The following ships have been worked on:",
+		"repairBullet": "$hullName: repaired $dModAmt, cost: $amt",
+		"commissionFee": "Repair commission fees: %s",
+		"totalRepairCost": "Total repair cost: %s",
+		"expensesBilled": "Expenses have been billed to you on month end.",
+		"expensesDetracted": "Expenses have been subtracted with upkeep on month end.",
+
+		"cannotTransfer": "Cannot store ships without D-Mods",
+		"cannotRepair": "Can not be repaired by the Docks",
+		"costPredictionShips": "Cost prediction only possible if there are ships in storage!",
+		"shipPrediction": "Cost prediction for $shipPredictionHL:",
+		"shipPredictionHL": "all ships currently in storage",
+		"noShips": "There are no ships in storage",
+		"shitBroke": "Either something broke or there is no eligible ship in storage.",
+		"exactPredictionHL": "Exact cost prediction",
+		"gCoreNoPred": "$exactPredictionHL only possible if total D-Mod amount in storage is lower or equal to repair capacity.",
+		"pred": "$exactPredictionHL for repairs on the ships currently in storage: %s, excluding possible fees.",
+		"noPred": "$exactPredictionHL is possible only with Gamma or Beta core installed.",
+		"expand": "Expand the Tooltip for cost predictions!",
+		"noCore": "No AI core, will remove D-Mods from random ships until capacity is reached.",
+
+		"aCoreHighlights": "total repaired D-Mod amount",
+		"bCoreHighlights": "the least damaged ships",
+		"gCoreHighlights": "D-Mod per ship",
+		"aCoreEffect": "Increases the $aCoreHighlights by %s, decreases upkeep by %s while no ship is being repaired.",
+		"bCoreEffect": "Reduces the repair cost by %s, changes behaviour to prioritize $bCoreHighlights.",
+		"gCoreEffect": "Caps the repairs to %s $gCoreHighlights per month."
+	},
+
+	"IndEvo_ReqCenter": {
+      "imports": "Weapon Imports",
+      "minRep": "The minimum reputation for weapon imports is %s",
+      "w0": "nothing cause shit broke, tell @SirHartley on Discord or the Forums.",
+      "w1": "no weapons",
+      "w2": "a low amount",
+      "w3" : "a medium amount",
+      "w4":"a high amount",
+      "none": "none",
+      "low": "low",
+      "medium": "medium",
+      "high": "high"
+	},
+
+	"IndEvo_HullDecon": {
+		"aCoreHighlights": "increased scanning errors.",
+		"bCoreHighlights": "increased scanning errors.",
+		"gCoreHighlights": "decreased scanning errors.",
+		"aCoreEffect": "Adds a permanent logistics hullmod to the ship. The AI will try to integrate a fitting modification, causing $aCoreHighlights",
+		"bCoreEffect": "Forge templates gain an additional charge, but will have $bCoreHighlights",
+		"gCoreEffect": "Reduces upkeep by %s while no ship is being deconstructed, and Forge Templates have $gCoreHighlights"
+	},
+
+	"IndEvo_HullForge": {
+		"aCoreHighlights": "increased construction errors.",
+		"bCoreHighlights": "increase construction errors.",
+		"gCoreHighlights": "decreased construction errors.",
+		"aCoreEffect": "Adds two permanent hullmods to the ship. The AI will try to integrate fitting modifications, causing $aCoreHighlights",
+		"bCoreEffect": "Causes Forge Templates to have a chance not to degrade when empty, and reduces construction costs - but will $bCoreHighlights",
+		"gCoreEffect": "Reduces upkeep by %s while no ship is being deconstructed, and Forge Templates have $gCoreHighlights"
+	},
+}

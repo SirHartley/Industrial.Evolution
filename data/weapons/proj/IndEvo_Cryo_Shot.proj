@@ -1,0 +1,19 @@
+{
+	"id":"IndEvo_Cryo_Shot",
+	"specClass":"projectile",
+	"onHitEffect":"com.fs.starfarer.api.impl.combat.CryoblasterEffect",
+	"onFireEffect":"data.scripts.weapons.IndEvo_cryoOnFireEffect",
+	"spawnType":"BALLISTIC_AS_BEAM",
+	"collisionClass":"RAY",
+	"collisionClassByFighter":"RAY_FIGHTER",
+	"length":50.0,
+	"width":25.0,
+	"hitGlowRadius":100,
+	"fadeTime":0.5,
+	"fringeColor":[100,150,255,255],
+	"coreColor":[230,230,255,255],
+	#"coreColor":[255,255,255,50],
+	"textureType":"ROUGH",  # only needed for BEAM spawnType
+	"textureScrollSpeed":-256,
+	"pixelsPerTexel":5.0
+}

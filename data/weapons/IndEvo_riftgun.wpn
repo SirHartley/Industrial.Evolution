@@ -1,0 +1,32 @@
+{
+  "id": "IndEvo_riftgun",
+  "specClass": "projectile",
+  "projectileSpecId": "IndEvo_riftgun_shot",
+  "type": "BALLISTIC",
+  "mountTypeOverride": "HYBRID",
+  "size": "SMALL",
+  "turretSprite": "graphics/weapons/IndEvo_riftbolter_turret.png",
+  "turretGlowSprite": "graphics/weapons/IndEvo_riftbolter_turret_glow.png",
+  "hardpointSprite": "graphics/weapons/IndEvo_riftbolter_hardpoint.png",
+  "hardpointGlowSprite": "graphics/weapons/IndEvo_riftbolter_hardpoint_glow.png",
+  "renderAboveAllWeapons": 0,
+  "glowColor": [100,60,255,255],
+  "turretOffsets": [11,0],
+  "turretAngleOffsets": [0],
+  "hardpointOffsets": [12,0],
+  "hardpointAngleOffsets": [0],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "autocharge": true,
+  "muzzleFlashSpec": {
+    "length": 23, # only used if animationType = MUZZLE_FLASH
+    "spread": 5,
+    "particleSizeMin": 10,
+    "particleSizeRange": 12,
+    "particleDuration": 0.12,
+    "particleCount": 12,
+    "particleColor": [100,60,255,255]
+  },
+  "textureType": "ROUGH,",
+  "fireSoundTwo": "IndEvo_riftgun_fire"
+}

@@ -1,0 +1,61 @@
+{
+	"IndEvo_warp_start":[
+	{"file":"IndEvo/sounds/IndEvo_planet_warp_start.ogg","pitch":1,"volume":1},
+	],
+
+	"IndEvo_warp_loop":[
+	{"file":"IndEvo/sounds/IndEvo_planet_warp_loop.ogg","pitch":1,"volume":1},
+	],
+
+	"IndEvo_warp_end":[
+	{"file":"IndEvo/sounds/IndEvo_planet_warp_end.ogg","pitch":1,"volume":1},
+	],
+
+	"IndEvo_converter_hostile":[
+		{"file":"IndEvo/sounds/converter_hostile_interaction.ogg","pitch":1,"volume":1},
+	],
+
+    "IndEvo_succ":[
+      {"file":"IndEvo/sounds/IndEvo_succ.ogg","pitch":1,"volume":1},
+    ],
+
+	"IndEvo_cryo_fire":[
+    {"file":"IndEvo/sounds/weapons/IndEvo_cryo_fire.ogg","pitch":1.0,"volume":0.9},
+    {"file":"IndEvo/sounds/weapons/IndEvo_cryo_fire.ogg","pitch":0.9,"volume":0.9},
+    {"file":"IndEvo/sounds/weapons/IndEvo_cryo_fire.ogg","pitch":0.95,"volume":0.9},
+    {"file":"IndEvo/sounds/weapons/IndEvo_cryo_fire.ogg","pitch":1.05,"volume":0.9},
+    {"file":"IndEvo/sounds/weapons/IndEvo_cryo_fire.ogg","pitch":1.1,"volume":0.9},
+  ],
+
+  "IndEvo_degrader_fire":[
+    {"file":"IndEvo/sounds/weapons/IndEvo_degrader_fire.ogg","pitch":1.0,"volume":1},
+    {"file":"IndEvo/sounds/weapons/IndEvo_degrader_fire.ogg","pitch":0.95,"volume":1},
+    {"file":"IndEvo/sounds/weapons/IndEvo_degrader_fire.ogg","pitch":1.05,"volume":1},
+  ],
+
+  "IndEvo_causalitygun_intro":[
+    {"file":"IndEvo/sounds/weapons/IndEvo_causalitygun_fire.ogg","pitch":1.3,"volume":0.8},
+  ],
+
+  "IndEvo_causalitygun_loop":[
+    {"file":"IndEvo/sounds/weapons/IndEvo_causalitygun_loop.ogg","pitch":0.9,"volume":1.1},
+  ],
+
+  "IndEvo_pulsed_fire":[
+    {"file":"sounds/sfx_wpn_energy/volatile_particle_driver_fire_01.ogg","pitch":0.87,"volume":0.9},
+    {"file":"sounds/sfx_wpn_energy/volatile_particle_driver_fire_01.ogg","pitch":0.88,"volume":0.9},
+    {"file":"sounds/sfx_wpn_energy/volatile_particle_driver_fire_01.ogg","pitch":0.89,"volume":0.9},
+    {"file":"sounds/sfx_wpn_energy/volatile_particle_driver_fire_01.ogg","pitch":0.90,"volume":0.9},
+  ],
+
+  "IndEvo_riftgun_fire":[
+    {"file":"IndEvo/sounds/weapons/IndEvo_riftgun_fire.ogg","pitch":1.0,"volume":0.5},
+    {"file":"IndEvo/sounds/weapons/IndEvo_riftgun_fire.ogg","pitch":0.98,"volume":0.5},
+    {"file":"IndEvo/sounds/weapons/IndEvo_riftgun_fire.ogg","pitch":0.96,"volume":0.5},
+    {"file":"IndEvo/sounds/weapons/IndEvo_riftgun_fire.ogg","pitch":0.94,"volume":0.5},
+  ],
+}
+
+
+
+

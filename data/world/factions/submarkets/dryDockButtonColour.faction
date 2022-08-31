@@ -1,0 +1,35 @@
+{
+	id:"dryDockButtonColor",
+	"color":[140,75,0,255],
+	"displayName":"ddbc",
+	"displayNameWithArticle":"ddbc",
+	"displayNameLong":"ddbc",
+	"displayNameLongWithArticle":"ddbc",
+	"entityNamePrefix":"ddbc",
+	"personNamePrefix":"ddbc",
+	"personNamePrefixAOrAn":"a",
+	"displayNameIsOrAre":"are",
+	"showInIntelTab":false,
+	"logo":"graphics/factions/neutral_traders.png",
+	"crest":"graphics/factions/crest_neutral.png",
+	"shipNamePrefix":"ddbc",
+	"shipNameSources":{
+		"GENERAL":1,
+	},
+	"description":"No description yet.",
+	"names":{
+		"modern":1,
+	},
+	"portraits":{
+		"standard_male":[
+			"graphics/portraits/portrait_hegemony02.png",
+		],
+		"standard_female":[
+			"graphics/portraits/portrait_hegemony03.png",
+		],
+	},
+	"custom":{
+		"offersCommissions":false,
+		"engagesInHostilities":false,
+	},
+},	

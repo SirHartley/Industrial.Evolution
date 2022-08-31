@@ -1,0 +1,46 @@
+{
+  "id": "IndEvo_causalitygun",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "mountTypeOverride": "BALLISTIC",
+  "size": "LARGE",
+  "fireSoundTwo":"IndEvo_causalitygun_loop",
+  "fireSoundOne":"IndEvo_causalitygun_intro",
+  "beamEffect":"data.scripts.weapons.IndEvo_causalityGunEffect",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/IndEvo_causalitygun_turret.png",
+  "turretGlowSprite": "graphics/weapons/IndEvo_causalitygun_turret_glow.png",
+  "hardpointSprite": "graphics/weapons/IndEvo_causalitygun_hardpoint.png",
+  "hardpointGlowSprite": "graphics/weapons/IndEvo_causalitygun_hardpoint_glow.png",
+  "renderAboveAllWeapons": 0,
+  "glowColor":[255,30,60,255],
+  "hitGlowRadius": 100,
+  "turretOffsets": [
+    6,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    8.5,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "beamFireOnlyOnFullCharge": true,
+  "fringeColor": [255,20,70,185],
+  "coreColor": [255,255,255,255],
+  "width": 50,
+  "coreWidthMult": 0.5,
+  "textureType": [
+    "graphics/fx/IndEvo_stream_fringe.png",
+    "graphics/fx/IndEvo_stream_core.png"
+  ],
+  "textureScrollSpeed": 3000,
+  "fringeScrollSpeedMult":0.8,
+  "pixelsPerTexel": 2,
+  "pierceSet":[PROJECTILE_FF,PROJECTILE_NO_FF,PROJECTILE_FIGHTER,MISSILE_FF,MISSILE_NO_FF],
+}

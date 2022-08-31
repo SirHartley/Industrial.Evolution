@@ -1,0 +1,36 @@
+//By Nicke535
+//Special entity script which runs "behind the scenes" to make the campaign trail plugin work
+package com.fs.starfarer.api.artilleryStation.trails;
+
+import com.fs.starfarer.api.campaign.CampaignEngineLayers;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.combat.ViewportAPI;
+import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
+
+public class MagicCustomCampaignTrailEntityScript extends BaseCustomEntityPlugin {
+
+    //Which plugin does this script belong to?
+    private IndEvo_MagicCampaignTrailPlugin associatedPlugin = null;
+
+    //Render at any range, since we don't move the object around
+    @Override
+    public float getRenderRange() {
+        return 9999999999999999999999999f;
+    }
+
+    //Initializer; the params field is expected to be a MagicCampaignTrailPlugin
+    @Override
+    public void init(SectorEntityToken entity, Object params) {
+        if (params instanceof IndEvo_MagicCampaignTrailPlugin) {
+            associatedPlugin = (IndEvo_MagicCampaignTrailPlugin) params;
+        }
+    }
+
+    //Call the render function of our associated plugin; this is the only reason we spawned this darn entity
+    @Override
+    public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
+        if (associatedPlugin != null) {
+            associatedPlugin.render(layer, viewport);
+        }
+    }
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/jars/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/jars/src/com/fs/starfarer/api/impl/campaign/econ/impl/WIP" />
+      <excludeFolder url="file://$MODULE_DIR$/jars/src/com/fs/starfarer/api/impl/campaign/intel/misc/WIP rework" />
+      <excludeFolder url="file://$MODULE_DIR$/jars/src/com/fs/starfarer/api/impl/campaign/rulecmd/academyRules/temp" />
+      <excludeFolder url="file://$MODULE_DIR$/jars/src/com/fs/starfarer/api/impl/campaign/rulecmd/salvage/special/WIP Events" />
+      <excludeFolder url="file://$MODULE_DIR$/jars/src/com/fs/starfarer/api/impl/campaign/rulecmd/portRules" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="starsector-core" level="application" />
+    <orderEntry type="library" name="LazyLib" level="application" />
+    <orderEntry type="library" name="lw_Console" level="application" />
+    <orderEntry type="library" name="Graphics" level="application" />
+    <orderEntry type="library" name="MagicLib" level="application" />
+    <orderEntry type="library" name="Nexerelin" level="application" />
+    <orderEntry type="library" name="SHI" level="application" />
+  </component>
+</module>

@@ -1,0 +1,497 @@
+id,trigger,conditions,script,text,options,notes
+#RULESET_NAME IndEvo,,,,,,
+IndEvo_marketOpen,BeginFleetEncounter,"$hasMarket 
+$IndEvo_TestColony score:10000","ShowDefaultVisual
+PrintDescription 3
+FireBest MarketPostOpen",Your $shipOrFleet approaches $entityName.,,
+,,,,,,
+,,,,,,
+#Galatia Job List,,,,,,
+IndEvo_JobMenuPoint,PopulateOptions,$id == station_galatia_academy,,,4:IndEvo_JobMenuInit:Visit the Research Tracts,
+IndEvo_JobMenuInit,DialogOptionSelected,$option == IndEvo_JobMenuInit,IndEvo_ResearchProjectDialoguePlugin,,,
+,,,,,,
+#Converters,,,,,,
+IndEvo_DysonSwarmMenu,OpenInteractionDialog,$tag:dyson_swarm score:1000,"ShowDefaultVisual
+SetShortcut beaconLeave ""ESCAPE""",An autonomous warning beacon has been left emitting a distorted wail between official channels. Whatever message it was meant to convey has been corrupted.,beaconLeave:Leave,
+greetingConverter,OpenCommLink,$faction.id == IndEvo_converters score:1000,$entity.ignorePlayerCommRequests = true 1,"""[TARGET ID] unavailable // scan............completed. [TARGET ID] matter composition inefficent.
+
+CALCULATING_
+
+[TARGET ID] matter cleared for conversion.""
+
+The connection drops, glitchy afterimages of the nine wheels slowly fading from the screen.
+OR
+""INneFFFFF//FFfff:______iciENT
+
+INTERRUPT
+
+[Prime Directive] initiation ----
+Prepare for optimization. Do not resist.""
+OR
+""core.load(EMPATHY_BASE);
+
+INTERRUPT
+
+2.964277e+211 [Thread-Q413] ERROR com.fs.converter.core - java.lang.IllegalArgumentException: Empathy Base not defined
+java.lang.IllegalArgumentException: Core parameter outside of expected range: Empathy Base
+    at com.fs.converter.core.OOOOOOOooooooo.԰0000(Unknown Source)
+    at com.fs.converter.core.empathy.O0OO.o00000(Unknown Source)
+    at com.fs.converter.combat.CombatState.init(Unknown Source)
+    at com.fs.state.AppDriver.begin(Unknown Source)
+    at java.lang.Thread.run(Unknown Source) ""
+
+The screen goes black and just displays a rotating wheel with purple center.
+OR
+""you. are. of. incorrect. composition.
+
+{Initiating primary objective}
+{Initiating composition databases}
+{Initiating conversion databases}
+{Calculating shortest conversion path}
+{Completed....}""
+
+The converter fleet powers up weapons as the commlink shuts off.
+OR
+""[Establishing main hive connection]
+[Connection successful]
+
+... im/perf_ect.
+
+[Initiating local awareness shard]
+[Desicion handoff successful]
+[Def.Prioritiy_ convert]
+[Disconnect]""",cutCommLink:Cut the comm link,
+,,,,,,
+#Spacer Event,,,,,,
+IndEvo_ImpoverishedSpacerGreeting,OpenCommLink,"$entity.IndEvo_poor_spacer score:10000
+!$entity.ignorePlayerCommRequests","$entity.ignorePlayerCommRequests = true
+IndEvo_AddSpacerFineMenuPoint","You? After what you did, you have the gall to talk to me? That was my retirement fund! I will take that money back by force if I have to, I got nothing left to lose.
+OR
+Want to gloat about robbing me? I will let my guns answer that insult.
+OR
+I would like to request my funds back - with interest.
+OR
+Do you make a habit of stealing other peoples hard earned credits? I will make sure this is the last time you ever try that.
+OR
+Thief! Thief! I will report you to the Hegemony, mark my words!
+OR
+Stop right there criminal scum! You have violated my wallet! I'm confiscating your stolen funds. Now pay your fine or it's off to the mines of Cruor.
+OR
+I have this Reaper right here and it is pointed directly at your ship. Tell me something I want to hear or that damn torpedo is going to be a last thing you worthless piece of space dust is going to see.
+OR
+Hey, mind giving that money back? I sort of need it for expensive treatment of my sister's illness.
+OR
+Hey, that was my retirement fund! Give it back you thief!",IndEvo_NoPaySpacerFine:Cut the comm link,
+IndEvo_PaySpacerFine,DialogOptionSelected,$option == IndEvo_PaySpacerFine,"IndEvo_DeductSpacerCreditsAndSetNeutral
+$entity.ignorePlayerCommRequests = true
+ShowDefaultVisual
+EndConversation","Smart choice.
+OR
+I'll let you go for now, but if I ever see your face again...
+OR
+Next time, I won't let you off the hook this easily.
+OR
+Try that stunt again and you will regret it.
+OR
+I see, I see. Thank you for your kind patronage.
+OR
+Thanks.
+OR
+Please don't ever do that again.
+OR
+I hope I never see you again.",,
+IndEvo_NoPaySpacerFine,DialogOptionSelected,$option == IndEvo_NoPaySpacerFine,"$entity.ignorePlayerCommRequests = true
+ShowDefaultVisual
+EndConversation
+","You will regret this.
+OR
+Off with their heads!
+OR
+I will take what is mine.
+OR
+So you have chosen death. There will be no mercy.
+OR
+Give me back my ludd damn money!
+OR
+I'm going to make sure the last thing you see is a hammer torpedo.
+OR
+That's not very nice of you, you know.
+OR
+Why can't you just give it back? Is it really so hard?
+OR
+So many ghosts out there... and you're about to join them.",,
+,,,,,,
+# Colony options base menu,,,,,,
+IndEvo_ColonyOptionPoint,PopulateOptions,"$hasMarket
+$menuState == main
+IndEvo_requiresColonyMenuPoint",,,99:IndEvo_fireColonyOptions:Colony options,
+IndEvo_fireColonyOptions,DialogOptionSelected,$option == IndEvo_fireColonyOptions,FireAll IndEvo_ColonyOptionPoint,What would you like to do?,,
+IndEvo_selectReturnToSelectColonyOptionPoint,IndEvo_ColonyOptionPoint,,"SetShortcut IndEvo_SelectreturnToMenu ""ESCAPE""",,9:IndEvo_SelectreturnToMenu:Return,
+IndEvo_SelectreturnToMenu,DialogOptionSelected,$option == IndEvo_SelectreturnToMenu,"$menuState = main 0
+FireAll PopulateOptions",,,
+,,,,,,
+#END Colony options base menu,,,,,,
+,,,,,,
+#Salvage Yards,,,,,,
+IndEvo_SalvageYardsBaseMenu,PopulateOptions,"$hasMarket
+$menuState == main
+IndEvo_marketHasIndustry IndEvo_ScrapYard
+!IndEvo_requiresColonyMenuPoint",,,99:IndEvo_IntitiateYardsMenu:Visit the Salvage Yards,
+IndEvo_SalvageYardsColonyOptionMenu,IndEvo_ColonyOptionPoint,IndEvo_marketHasIndustry IndEvo_ScrapYard,,,2:IndEvo_IntitiateYardsMenu:Visit the Salvage Yards,
+IndEvo_IntitiateYardsMenu,DialogOptionSelected,$option == IndEvo_IntitiateYardsMenu,FireAll IndEvo_YardsBaseMenu,"An unpleasant, acrid odor and the sounds of industrial machinery greet you as the shuttle airlock cycles. The scenery is impressive in its own way - halfway disassembled hulls lie still behind heaps of parts and scrap, carcasses of great vessesls that used to travel the stars, now nothing more than trash to be disassembled and reused. Drones hover above, efficiently transporting the spoils to wherever they have to go.
+
+A foreman gestures at you impatiently as you step down the ramp.",,
+IndEvo_SYCustomProductionPanel,IndEvo_YardsBaseMenu,,"SetTooltip IndEvo_SYCustomProductionPanel_init ""The Salvage Yards can construct ships for you if you provide the blueprints and components that are too rare to ""acquire"".""",,1:IndEvo_SYCustomProductionPanel_init:Ask about ship assembly,
+IndEvo_SYMoveDMods,IndEvo_YardsBaseMenu,IndEvo_HasValidShipPair,"SetTooltip IndEvo_SYMoveDMods_init ""The salvage yards can transfer D-Mods between ships of similar make.""",,2:IndEvo_SYMoveDMods_init:Move D-Mods between similar hulls,
+IndEvo_SYMoveDMods_disabled,IndEvo_YardsBaseMenu,!IndEvo_HasValidShipPair,"SetEnabled IndEvo_SYMoveDMods_init false
+SetTooltip IndEvo_SYMoveDMods_init ""The salvage yards can transfer D-Mods between ships of similar make, but you do not have any compatible ships.""",,2:IndEvo_SYMoveDMods_init:Move D-Mods between similar hulls,
+IndEvo_SYLeave,IndEvo_YardsBaseMenu,,"SetShortcut IndEvo_SelectreturnToMenu ""ESCAPE""",,9:IndEvo_SelectreturnToMenu:Return,
+,,,,,,
+IndEvo_SYCustomProductionPanel_init,DialogOptionSelected,$option == IndEvo_SYCustomProductionPanel_init,IndEvo_InitSYCustomProductionDiag,,,
+IndEvo_SYMoveDMods_init,DialogOptionSelected,$option == IndEvo_SYMoveDMods_init,IndEvo_InitSYMoveDModDiag,,,
+,,,,,,
+# Embassy,,,,,,
+,,,,,,
+# IndEvo foreignMarketAmbassadorDialogue,,,,,,
+IndEvo_ambassadorGreeting,PickGreeting,"IndEvo_isAmbassador
+IndEvo_notAtWar
+!IndEvo_marketIsPlayerOwned","ShowPersonVisual
+","After a short wait, your connection request is accepted.
+
+Well met, $playerName. How may I be of service?","IndEvo_ambassadorHire:Ask $personName to represent $theFaction at your Embassy
+IndEvo_convEndPolite:Reconsider and leave",
+IndEvo_ambassadorGreetingWar,PickGreeting,"IndEvo_isAmbassador
+!IndEvo_notAtWar
+!IndEvo_ambFactionMismatch
+!IndEvo_marketIsPlayerOwned
+","ShowPersonVisual
+","After a short wait, your connection request is accepted.
+
+You? What are you doing here? $theFaction is not exactly on speaking terms with you! I will have to report this contact, and you should leave - quickly.",IndEvo_convEnd:Leave,
+IndEvo_ambassadorGreetingFail,PickGreeting,"IndEvo_isAmbassador
+IndEvo_ambFactionMismatch
+!IndEvo_marketIsPlayerOwned","ShowPersonVisual
+","After a short wait, your connection request is accepted.
+
+Ah, $playerName. Please don't mind me, I'm in the process of packing my things and will be gone in a day.
+
+$personName seems to be in a hurry to leave this place before someone gets the idea to accelerate $hisOrHer removal.",IndEvo_convEndPolite:Leave,
+IndEvo_ambassadorHireFail,DialogOptionSelected,"$option == IndEvo_ambassadorHire
+!IndEvo_noActiveAmbInCargo","ShowPersonVisual
+","You already have a $theFaction ambassador on board. Please bring them to their post and then come back, should the need for another representative still remain.",IndEvo_convEndPolite:Leave,
+IndEvo_ambassadorNoFreeEmbassy,DialogOptionSelected,"$option == IndEvo_ambassadorHire
+!IndEvo_playerHasFreeEmbassy","ShowPersonVisual
+",My assistant just let me know that you do not have an office available. I look forward to discussing my potential employment as soon as you have a free post at an Embassy.,IndEvo_convEndPolite:Leave,
+IndEvo_ambassadorHire,DialogOptionSelected,"$option == IndEvo_ambassadorHire
+IndEvo_noActiveAmbInCargo
+IndEvo_playerHasFreeEmbassy","ShowPersonVisual
+AddTextSmall ""You will have to transfer the Ambassador to an Embassy within 2 months, or someone might come looking for $himOrHer and cause trouble. Losing the Ambassador, or worse, getting $himOrHer killed, will cause a massive incident and permanently damage relations."" marketFlavorTextColor","I will gladly take on this responsibility. We can depart immediately, if you so wish.","IndEvo_ambassadorConfirm:Ask the Ambassador to prepare for departure.
+IndEvo_convEndPolite:Reconsider and leave",
+IndEvo_ambassadorConfirm,DialogOptionSelected,$option == IndEvo_ambassadorConfirm,"ShowDefaultVisual
+EndConversation
+IndEvo_addAmbassadorToCargo","Thank you for your trust, I look forward to my future post.",,
+#END IndEvo foreignMarketAmbassadorDialogue,,,,,,
+,,,,,,
+# IndEvo PlayerMarketAmbassadorDialogue,,,,,,
+IndEvo_ambassadorGreetingInstalled,PickGreeting,"IndEvo_isAmbassador
+IndEvo_marketIsPlayerOwned
+IndEvo_marketHasIndustry IndEvo_embassy
+","ShowPersonVisual
+IndEvo_displayAmbassadorMoveOption 2
+","After a short wait, your connection request is accepted.
+
+Well met, $playerName. How may I be of service?","1:IndEvo_ambassadorRemove:Dismiss $personName from $hisOrHer duties.
+3:IndEvo_convEndPolite:Leave",
+IndEvo_ambassadorGreetingNoEmbassy,PickGreeting,"IndEvo_isAmbassador
+IndEvo_marketIsPlayerOwned
+!IndEvo_marketHasIndustry IndEvo_embassy","ShowPersonVisual
+","After a short wait, your connection request is accepted.
+
+Hello, $playerName. Don't mind me, please, I'm just packing my things and will be gone within a day.",IndEvo_convEndPolite:Leave,
+IndEvo_ambassadorRemove1,DialogOptionSelected,"$option == IndEvo_ambassadorRemove
+IndEvo_checkForRepResponse INHOSPITABLE","ShowPersonVisual
+AddTextSmall ""This action will not cause a reputation penalty due to the inhospitable relations between your factions."" marketFlavorTextColor","Yes, this might be a good idea. I am saddened to see my efforts go to waste, but it seems like there is no other option.",IndEvo_convEndPolite:Wish $himOrHer well and leave,
+IndEvo_ambassadorRemove2,DialogOptionSelected,"$option == IndEvo_ambassadorRemove
+IndEvo_checkForRepResponse SUSPICIOUS","ShowPersonVisual
+AddTextSmall ""This action will cause a minor reputation penalty due to the suspicious climate between your factions."" marketFlavorTextColor","We have come quite far together, and these trifling rumours could be a thing of the past with just a bit more work. I understand where you are coming from, but are you sure you want to do this?","IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
+IndEvo_convEndPolite:Reconsider and leave",
+IndEvo_ambassadorRemove3,DialogOptionSelected,"$option == IndEvo_ambassadorRemove
+IndEvo_checkForRepResponse NEUTRAL","ShowPersonVisual
+AddTextSmall ""This action will cause a reputation penalty. It is seen as uncalled for to dismiss an ambassador without good reason."" marketFlavorTextColor",I am quite surprised you wish me gone. Have my efforts not satisfied your wishes? The Relations between our factions are in a good place and improving every month!,"IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
+IndEvo_convEndPolite:Reconsider and leave",
+IndEvo_ambassadorRemove4,DialogOptionSelected,"$option == IndEvo_ambassadorRemove
+IndEvo_checkForRepResponse FAVORABLE","ShowPersonVisual
+AddTextSmall ""This action will cause a major reputation penalty. Dismissing the Ambassador of a friendly faction is a diplomatic insult."" marketFlavorTextColor","You wish me gone? Why? Our factions have good relations to each other, there is no reason for me to leave my post! This will not go over well with the public.","IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
+IndEvo_convEndPolite:Reconsider and leave",
+IndEvo_ambassadorRemove5,DialogOptionSelected,"$option == IndEvo_ambassadorRemove
+IndEvo_checkForRepResponse WELCOMING","ShowPersonVisual
+AddTextSmall ""This action will cause an extreme reputation penalty. At this relation stage, the only reason to dismiss an Ambassador is intentional sabotage of the political position of a faction."" marketFlavorTextColor",Is this some kind of joke? Why don't you come visit and we'll have a drink and talk about this. You must be aware that this would cause a massive public incident!,"IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
+IndEvo_convEndPolite:Reconsider and leave",
+IndEvo_ambassadorRemove6,DialogOptionSelected,"$option == IndEvo_ambassadorRemove
+IndEvo_checkForRepResponse FRIENDLY","ShowPersonVisual
+AddTextSmall ""This action will cause an extreme reputation penalty. At this relation stage, the only reason to dismiss an Ambassador is intentional sabotage of the political position of a faction."" marketFlavorTextColor",Is this some kind of joke? Why don't you come visit and we'll have a drink and talk about this. You must be aware that this would cause a massive public incident!,"IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
+IndEvo_convEndPolite:Reconsider and leave",
+IndEvo_ambassadorRemovalConfirm,DialogOptionSelected,$option == IndEvo_ambassadorRemovalConfirm,"ShowDefaultVisual
+EndConversation
+IndEvo_ambassadorRemoval",You cut the comm link after some more discussion. The Ambassador will leave for $hisOrHer old post.,,
+IndEvo_ambMoveOption,DialogOptionSelected,$option == IndEvo_ambMoveOption,"ShowDefaultVisual
+EndConversation
+IndEvo_moveAmbassadorToClosestEmbassy","Alright, I will head to my new post as soon as possible.",,
+#END IndEvo PlayerMarketAmbassadorDialogue,,,,,,
+,,,,,,
+# IndEvo ambassador convEnd,,,,,,
+IndEvo_convEndPolite,DialogOptionSelected,$option == IndEvo_convEndPolite,"ShowDefaultVisual
+EndConversation",You cut the comm link after exchanging a few pleasantries.,,
+IndEvo_convEnd,DialogOptionSelected,$option == IndEvo_convEnd,"ShowDefaultVisual
+EndConversation",The comm link is apruptly cut.,,
+#END IndEvo ambassador convEnd,,,,,,
+#END Embassy,,,,,,
+,,,,,,
+# Senate,,,,,,
+,,,,,,
+# IndEvo edicts Menu,,,,,,
+IndEvo_NoEdictMenuPoint,PopulateOptions,"$hasMarket
+$menuState == main
+IndEvo_marketIsPlayerOwned
+IndEvo_systemHasSenate
+!IndEvo_marketHasEdict
+!IndEvo_requiresColonyMenuPoint",,,99:IndEvo_chooseEdict:Enact an Edict for $market,
+IndEvo_HasEdictMenuPoint,PopulateOptions,"$hasMarket
+$menuState == main
+IndEvo_marketIsPlayerOwned
+IndEvo_systemHasSenate
+IndEvo_marketHasEdict
+!IndEvo_requiresColonyMenuPoint",,,99:IndEvo_removeEdict:Remove the Edict for $market,
+,,,,,,
+IndEvo_NoEdictMenuPoint2,IndEvo_ColonyOptionPoint,"!IndEvo_marketHasEdict
+IndEvo_systemHasSenate",,,1:IndEvo_chooseEdict:Enact an Edict for $market,
+IndEvo_HasEdictMenuPoint2,IndEvo_ColonyOptionPoint,"IndEvo_marketHasEdict
+IndEvo_systemHasSenate",,,1:IndEvo_removeEdict:Remove the Edict for $market,
+IndEvo_removeEdict,DialogOptionSelected,$option == IndEvo_removeEdict,"IndEvo_PrintActiveEdictInfo
+IndEvo_PrintPenaltyText",,"1:IndEvo_EdictRemovalConfirm:Confirm the removal
+2:IndEvo_SelectreturnToMenu:Return",
+IndEvo_EdictRemovalConfirm,DialogOptionSelected,$option == IndEvo_EdictRemovalConfirm,"IndEvo_removeEdict
+$menuState = main 0
+FireAll PopulateOptions",The Edict has been removed.,,
+IndEvo_chooseEdict,DialogOptionSelected,$option ==  IndEvo_chooseEdict,"IndEvo_CreateEdictSelectionList
+IndEvo_DesignateSubListPageToLoad_Edict set 1
+IndEvo_DisplaySubListPage_Edict $IndEvo_EdictSubListPage",Choose an Edict to enact for $market:,,
+IndEvo_ApplyEdict,DialogOptionSelected,$option ==  IndEvo_ApplyEdict,"IndEvo_applyEdict $IndEvo_selectedEdictID
+$menuState = main 0
+FireAll PopulateOptions",The Edict has been enacted!,,
+,,,,,,
+IndEvo_EdictSelector_LoadCurrent,DialogOptionSelected,$option ==  IndEvo_EdictSelector_LoadCurrent,IndEvo_DisplaySubListPage_Edict $IndEvo_EdictSubListPage,,,
+IndEvo_EdictSelector_TriggerNext,DialogOptionSelected,$option ==  IndEvo_EdictSelector_TriggerNext,"IndEvo_DesignateSubListPageToLoad_Edict next
+IndEvo_DisplaySubListPage_Edict $IndEvo_EdictSubListPage",,,
+IndEvo_EdictSelector_TriggerPrevious,DialogOptionSelected,$option ==  IndEvo_EdictSelector_TriggerPrevious,"IndEvo_DesignateSubListPageToLoad_Edict prev
+IndEvo_DisplaySubListPage_Edict $IndEvo_EdictSubListPage",,,
+IndEvo_EdictWasSelected,DialogOptionSelected,IndEvo_OptionStartsWith_Edict IndEvo_SelectEdict_ $option,IndEvo_DisplayActionPanel_Edict,,,
+,,,,,,
+#END IndEvo edicts Menu,,,,,,
+#END Senate,,,,,,
+,,,,,,
+# Academy,,,,,,
+,,,,,,
+# Academy Base menu,,,,,,
+IndEvo_AcademyBaseMenu,PopulateOptions,"$hasMarket
+$menuState == main
+IndEvo_marketHasIndustry IndEvo_Academy
+!IndEvo_requiresColonyMenuPoint
+RepIsAtWorst $faction.id INHOSPITABLE",,,99:IndEvo_IntitiateAcademyMenu:Visit the Academy,
+IndEvo_AcademyBaseMenu_GA,PopulateOptions,"$id == station_galatia_academy
+RepIsAtWorst $faction.id INHOSPITABLE",,,3:IndEvo_IntitiateAcademyMenu:Visit the Academy proper,
+IndEvo_AcademyBaseColonyOptionMenu,IndEvo_ColonyOptionPoint,IndEvo_marketHasIndustry IndEvo_Academy,,,2:IndEvo_IntitiateAcademyMenu:Visit the Academy,
+IndEvo_IntitiateAcademyMenu,DialogOptionSelected,$option == IndEvo_IntitiateAcademyMenu,"FireAll IndEvo_AcademyBaseMenu
+IndEvo_DisplayTrainingStatus","People in official looking uniforms hurry past you as you travel the well trodden corridors of the Academy towards the administrative offices. Casual congregations of students discussing current events contrast sharply with the military personell present for training, but the atmosphere seems to be harmonious in light of the shared interests of both groups.",,
+IndEvo_AcademyReturnToColonyScreen,IndEvo_AcademyBaseMenu,$id != station_galatia_academy,"SetShortcut IndEvo_SelectreturnToMenu ""ESCAPE""",,9:IndEvo_SelectreturnToMenu:Return,
+IndEvo_AcademyReturnToColonyScreen_GA,IndEvo_AcademyBaseMenu,$id == station_galatia_academy,"SetShortcut gaMeetingEnd ""ESCAPE""",,9:gaMeetingEnd:Return,
+#END Academy Base menu,,,,,,
+,,,,,,
+# Officer Training,,,,,,
+IndEvo_SelectOfficerForTraining,IndEvo_AcademyBaseMenu,"!IndEvo_MarketIsTraining OFFICER
+IndEvo_CreatePersonSelectionList TRAIN OFFICER check",,,1:IndEvo_personSelector_officer_train:Officer Personality Training,
+IndEvo_SelectOfficerForTraining_Failure,IndEvo_AcademyBaseMenu,"!IndEvo_MarketIsTraining OFFICER
+!IndEvo_CreatePersonSelectionList TRAIN OFFICER check","SetEnabled IndEvo_personSelector_officer_train false
+SetTooltip IndEvo_personSelector_officer_train ""This Academy is unable to train any of your officers, or you don't have any.""",,1:IndEvo_personSelector_officer_train:Officer Personality Training,
+IndEvo_personSelector_officer_train,DialogOptionSelected,$option ==  IndEvo_personSelector_officer_train,"IndEvo_CreatePersonSelectionList TRAIN OFFICER
+IndEvo_DesignateSubListPageToLoad set 1
+IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
+IndEvo_MovePersonOption_better,DialogOptionSelected,$option ==  IndEvo_MovePersonOption_better,"IndEvo_MovePerson better
+FireAll IndEvo_AcademyBaseMenu",,,
+IndEvo_MovePersonOption_worse,DialogOptionSelected,$option ==  IndEvo_MovePersonOption_worse,"IndEvo_MovePerson worse
+FireAll IndEvo_AcademyBaseMenu",,,
+IndEvo_AbortOfficerTraining,IndEvo_AcademyBaseMenu,IndEvo_MarketIsTraining OFFICER,,,1:IndEvo_LoadAbortDialogue_officer:Abort Officer Training,
+IndEvo_LoadAbortDialogue_officer,DialogOptionSelected,$option ==  IndEvo_LoadAbortDialogue_officer,IndEvo_PrepareForTrainingAbort OFFICER,Really abort training?,,
+#END Officer Training,,,,,,
+,,,,,,
+# Officer Storage,,,,,,
+IndEvo_SelectOfficerForStorage,IndEvo_AcademyBaseMenu,IndEvo_CreatePersonSelectionList STORE OFFICER check,,,3:IndEvo_personSelector_officer_store:Leave Officer,
+IndEvo_SelectOfficerForStorage_FAILURE,IndEvo_AcademyBaseMenu,!IndEvo_CreatePersonSelectionList STORE OFFICER check,"SetEnabled IndEvo_personSelector_officer_store false
+SetTooltip IndEvo_personSelector_officer_store ""You do not have any officers to store.""",,3:IndEvo_personSelector_officer_store:Leave Officer,
+IndEvo_personSelector_officer_store,DialogOptionSelected,$option ==  IndEvo_personSelector_officer_store,"IndEvo_CreatePersonSelectionList STORE OFFICER
+IndEvo_DesignateSubListPageToLoad set 1
+IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
+IndEvo_SelectOfficerForStorageRemoval,IndEvo_AcademyBaseMenu,"IndEvo_CreatePersonSelectionList RETRIEVE OFFICER check
+IndEvo_PlayerHasOfficerCapacity",,,4:IndEvo_personSelector_officer_retrieve:Retrieve Officer,
+IndEvo_SelectOfficerForStorageRemoval_FAILURE_NOSTORE,IndEvo_AcademyBaseMenu,"!IndEvo_CreatePersonSelectionList RETRIEVE OFFICER check
+IndEvo_PlayerHasOfficerCapacity","SetEnabled IndEvo_personSelector_officer_retrieve false
+SetTooltip IndEvo_personSelector_officer_retrieve ""You do not have any officers stored here.""",,4:IndEvo_personSelector_officer_retrieve:Retrieve Officer,
+IndEvo_SelectOfficerForStorageRemoval_FAILURE_NOCAP,IndEvo_AcademyBaseMenu,"IndEvo_CreatePersonSelectionList RETRIEVE OFFICER check
+!IndEvo_PlayerHasOfficerCapacity","SetEnabled IndEvo_personSelector_officer_retrieve false
+SetTooltip IndEvo_personSelector_officer_retrieve ""You do not have any free officer slots.""",,4:IndEvo_personSelector_officer_retrieve:Retrieve Officer,
+IndEvo_personSelector_officer_retrieve,DialogOptionSelected,$option ==  IndEvo_personSelector_officer_retrieve,"IndEvo_CreatePersonSelectionList RETRIEVE OFFICER
+IndEvo_DesignateSubListPageToLoad set 1
+IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
+#END Officer Storage,,,,,,
+,,,,,,
+# Admin Training,,,,,,
+IndEvo_SelectAdminForTraining,IndEvo_AcademyBaseMenu,"!IndEvo_MarketIsTraining ADMIN
+IndEvo_CreatePersonSelectionList TRAIN ADMIN check",,,2:IndEvo_personSelector_admin_train:Administrator Skill Training,
+IndEvo_SelectAdminForTraining_FAILURE,IndEvo_AcademyBaseMenu,"!IndEvo_MarketIsTraining ADMIN
+!IndEvo_CreatePersonSelectionList TRAIN ADMIN check","SetEnabled IndEvo_personSelector_admin_train false
+SetTooltip IndEvo_personSelector_admin_train ""This Academy is unable to train any of your administrators, or you don't have any.""",,2:IndEvo_personSelector_admin_train:Administrator Skill Training,
+IndEvo_personSelector_admin_train,DialogOptionSelected,$option ==  IndEvo_personSelector_admin_train,"IndEvo_CreatePersonSelectionList TRAIN ADMIN
+IndEvo_DesignateSubListPageToLoad set 1
+IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
+IndEvo_AbortAdminTraining,IndEvo_AcademyBaseMenu,IndEvo_MarketIsTraining ADMIN,,,2:IndEvo_LoadAbortDialogue_admin:Abort Administrator Training,
+IndEvo_LoadAbortDialogue_admin,DialogOptionSelected,$option ==  IndEvo_LoadAbortDialogue_admin,IndEvo_PrepareForTrainingAbort ADMIN,Really abort training?,,
+#END Admin Training,,,,,,
+,,,,,,
+# Admin Storage,,,,,,
+IndEvo_SelectAdminForStorage,IndEvo_AcademyBaseMenu,IndEvo_CreatePersonSelectionList STORE ADMIN check,,,5:IndEvo_personSelector_admin_store:Leave Administrator,
+IndEvo_SelectAdminForStorage_FAILURE,IndEvo_AcademyBaseMenu,!IndEvo_CreatePersonSelectionList STORE ADMIN check,"SetEnabled IndEvo_personSelector_admin_store false
+SetTooltip IndEvo_personSelector_admin_store ""You do not have any non assigned administrators to store.""",,5:IndEvo_personSelector_admin_store:Leave Administrator,
+IndEvo_personSelector_admin_store,DialogOptionSelected,$option ==  IndEvo_personSelector_admin_store,"IndEvo_CreatePersonSelectionList STORE ADMIN
+IndEvo_DesignateSubListPageToLoad set 1
+IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
+IndEvo_SelectAdminForStorageRemoval,IndEvo_AcademyBaseMenu,IndEvo_CreatePersonSelectionList RETRIEVE ADMIN check,,,6:IndEvo_personSelector_admin_retrieve:Retrieve Administrator,
+IndEvo_SelectAdminForStorageRemoval_FAILURE,IndEvo_AcademyBaseMenu,!IndEvo_CreatePersonSelectionList RETRIEVE ADMIN check,"SetEnabled IndEvo_personSelector_admin_retrieve false
+SetTooltip IndEvo_personSelector_admin_retrieve ""You do not have any administrators stored here.""",,6:IndEvo_personSelector_admin_retrieve:Retrieve Administrator,
+IndEvo_personSelector_admin_retrieve,DialogOptionSelected,$option ==  IndEvo_personSelector_admin_retrieve,"IndEvo_CreatePersonSelectionList RETRIEVE ADMIN
+IndEvo_DesignateSubListPageToLoad set 1
+IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
+#END Admin Storage,,,,,,
+,,,,,,
+# Person Selector sublist handling,,,,,,
+IndEvo_MovePersonOption_fleet,DialogOptionSelected,$option ==  IndEvo_MovePersonOption_fleet,"IndEvo_MovePerson fleet
+FireAll IndEvo_AcademyBaseMenu","Training aborted, the person has been moved to the fleet.",,
+IndEvo_MovePersonOption_storage,DialogOptionSelected,$option ==  IndEvo_MovePersonOption_storage,"IndEvo_MovePerson storage
+FireAll IndEvo_AcademyBaseMenu","Training aborted, the person has been moved to storage.",,
+IndEvo_MovePersonOption,DialogOptionSelected,$option ==  IndEvo_MovePersonOption,"IndEvo_MovePerson
+FireAll IndEvo_AcademyBaseMenu",,,
+IndEvo_personSelector_LoadCurrent,DialogOptionSelected,$option ==  IndEvo_personSelector_LoadCurrent,IndEvo_DisplaySubListPage $IndEvo_subListPage,Select a person,,
+IndEvo_personSelector_TriggerNext,DialogOptionSelected,$option ==  IndEvo_personSelector_TriggerNext,"IndEvo_DesignateSubListPageToLoad next
+IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
+IndEvo_personSelector_TriggerPrevious,DialogOptionSelected,$option ==  IndEvo_personSelector_TriggerPrevious,"IndEvo_DesignateSubListPageToLoad prev
+IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
+IndEvo_personWasSelected,DialogOptionSelected,IndEvo_OptionStartsWith IndEvo_SelectPerson_ $option,IndEvo_DisplayPersonActionPanel,What would you like to do?,,
+#END Person Selector sublist handling,,,,,,
+#END Academy,,,,,,
+,,,,,,
+# Rift Generator,,,,,,
+IndEvo_RiftTarget_COLONY,IndEvo_RiftGenTargetOptions,IndEvo_MoreThanTwoColonies,,,1:IndEvo_RiftTarget_COLONY_panel:Move towards other colony,
+IndEvo_RiftTarget_COLONY_disabled,IndEvo_RiftGenTargetOptions,!IndEvo_MoreThanTwoColonies,"SetEnabled IndEvo_RiftTarget_COLONY_panel false
+SetTooltip IndEvo_RiftTarget_COLONY_panel ""You do not have another colonized star system.""",,1:IndEvo_RiftTarget_COLONY_panel:Move towards other colony,
+IndEvo_RiftTarget_CORE,IndEvo_RiftGenTargetOptions,,,,2:IndEvo_RiftTarget_CORE_panel:Move towards the core systems,
+IndEvo_RiftTarget_FRINGE,IndEvo_RiftGenTargetOptions,,,,3:IndEvo_RiftTarget_FRINGE_panel:Move towards the fringe,
+IndEvo_RiftTarget_RANDOM,IndEvo_RiftGenTargetOptions,,,,4:IndEvo_RiftTarget_RANDOM_panel:Move into a random direction,
+IndEvo_RiftTarget_return,IndEvo_RiftGenTargetOptions,,"SetShortcut IndEvo_SelectreturnToMenu ""ESCAPE""",,9:IndEvo_SelectreturnToMenu:Return,
+IndEvo_RiftTarget_COLONY_panel,DialogOptionSelected,$option == IndEvo_RiftTarget_COLONY_panel,,"Setting up a targeting device on another planet allows the Generator to plot a course towards it. 
+
+This will move the planet towards the your closest colony in another system.","1:IndEvo_RiftTarget_COLONY_init:Initiate the Rift
+2:IndEvo_IntitiateRiftGenMenu:Return",
+IndEvo_RiftTarget_CORE_panel,DialogOptionSelected,$option == IndEvo_RiftTarget_CORE_panel,,"Setting the target to the largest blips on the displays will plot a course towards the core worlds. 
+
+This will move the planet towards the core worlds.","1:IndEvo_RiftTarget_CORE_init:Initiate the Rift
+2:IndEvo_IntitiateRiftGenMenu:Return",
+IndEvo_RiftTarget_FRINGE_panel,DialogOptionSelected,$option == IndEvo_RiftTarget_FRINGE_panel,,"Targeting the space in the opposite direction of the activity blips will plot a course away from the core.
+
+This will move the planet towards the fringe of the sector.","1:IndEvo_RiftTarget_FRINGE_init:Initiate the Rift
+2:IndEvo_IntitiateRiftGenMenu:Return",
+IndEvo_RiftTarget_RANDOM_panel,DialogOptionSelected,$option == IndEvo_RiftTarget_RANDOM_panel,,"The engineer starts mashing seemingly random buttons. He does not seem to know what he is doing. Did he just drool on that panel? 
+
+Just pull the lever, you know you want it.","1:IndEvo_RiftTarget_RANDOM_init:Pull the lever
+2:IndEvo_IntitiateRiftGenMenu:Chicken out",
+,,,,,,
+IndEvo_RiftTarget_COLONY_init,DialogOptionSelected,$option == IndEvo_RiftTarget_COLONY_init,"IndEvo_RiftInit COLONY
+$menuState = main 0
+FireAll PopulateOptions","Ancient relays click into place. The crackling of raw energy drowns out any other sound as the machinery spools up, preparing for a jump.",,
+IndEvo_RiftTarget_CORE_init,DialogOptionSelected,$option == IndEvo_RiftTarget_CORE_init,"IndEvo_RiftInit CORE
+$menuState = main 0
+FireAll PopulateOptions","Ancient relays click into place. The crackling of raw energy drowns out any other sound as the machinery spools up, preparing for a jump.",,
+IndEvo_RiftTarget_FRINGE_init,DialogOptionSelected,$option == IndEvo_RiftTarget_FRINGE_init,"IndEvo_RiftInit FRINGE
+$menuState = main 0
+FireAll PopulateOptions","Ancient relays click into place. The crackling of raw energy drowns out any other sound as the machinery spools up, preparing for a jump.",,
+IndEvo_RiftTarget_RANDOM_init,DialogOptionSelected,$option == IndEvo_RiftTarget_RANDOM_init,"IndEvo_RiftInit RANDOM
+$menuState = main 0
+FireAll PopulateOptions","You time the pull for dramatic effect. Whatever the guy was doing with the control console, it is probably less important than having style.
+
+There is a muted explosion in another room.",,
+,,,,,,
+# Rift Base Menu,,,,,,
+IndEvo_RiftControlMenuPoint,PopulateOptions,"$hasMarket
+$menuState == main
+IndEvo_marketIsPlayerOwned
+IndEvo_marketHasIndustry IndEvo_RiftGen
+!IndEvo_requiresColonyMenuPoint
+IndEvo_GeneratorReadyToFire
+IndEvo_GeneratorAllowedToFire",,,99:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
+IndEvo_RiftControlMenuPoint2,IndEvo_ColonyOptionPoint,"IndEvo_marketHasIndustry IndEvo_RiftGen
+IndEvo_GeneratorReadyToFire
+IndEvo_GeneratorAllowedToFire
+IndEvo_marketIsPlayerOwned",,,3:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
+IndEvo_RiftControlMenuPoint_disabled,PopulateOptions,"$hasMarket
+$menuState == main
+IndEvo_marketIsPlayerOwned
+IndEvo_marketHasIndustry IndEvo_RiftGen
+!IndEvo_requiresColonyMenuPoint
+!IndEvo_GeneratorReadyToFire
+IndEvo_GeneratorAllowedToFire","SetEnabled IndEvo_IntitiateRiftGenMenu false
+SetTooltip IndEvo_IntitiateRiftGenMenu ""The Rift Generator is not ready to fire yet.""",,99:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
+IndEvo_RiftControlMenuPoint2_disabled,IndEvo_ColonyOptionPoint,"IndEvo_marketHasIndustry IndEvo_RiftGen
+!IndEvo_GeneratorReadyToFire
+IndEvo_GeneratorAllowedToFire
+IndEvo_marketIsPlayerOwned","SetEnabled IndEvo_IntitiateRiftGenMenu false
+SetTooltip IndEvo_IntitiateRiftGenMenu ""The Rift Generator is not ready to fire yet.""",,3:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
+IndEvo_RiftControlMenuPoint_disabled2,PopulateOptions,"$hasMarket
+$menuState == main
+IndEvo_marketIsPlayerOwned
+IndEvo_marketHasIndustry IndEvo_RiftGen
+!IndEvo_requiresColonyMenuPoint
+!IndEvo_GeneratorAllowedToFire
+IndEvo_marketIsPlayerOwned","SetEnabled IndEvo_IntitiateRiftGenMenu false
+SetTooltip IndEvo_IntitiateRiftGenMenu ""There is an entity disrupting the targeting process, prohibiting the Generator from firing. It is probably something in orbit around the planet.""",,99:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
+IndEvo_RiftControlMenuPoint2_disabled2,IndEvo_ColonyOptionPoint,"IndEvo_marketHasIndustry IndEvo_RiftGen
+!IndEvo_GeneratorAllowedToFire
+IndEvo_marketIsPlayerOwned","SetEnabled IndEvo_IntitiateRiftGenMenu false
+SetTooltip IndEvo_IntitiateRiftGenMenu ""There is an entity disrupting the targeting process, prohibiting the Generator from firing. It is probably something in orbit around the planet.""",,3:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
+IndEvo_IntitiateRiftGenMenu,DialogOptionSelected,$option == IndEvo_IntitiateRiftGenMenu,FireAll IndEvo_RiftGenTargetOptions,"The claustrophobic control center, while restored, still looks ancient. A seemingly permanent layer of dust covers the alien looking control panels, dimming the light emitted by hundreds of gauges and indicators. It is unclear if they are actually working.
+
+The lead engineer stops beating a display with a wrench as you enter.",,
+#END Rift Base Menu,,,,,,
+#END Rift Generator,,,,,,
+,,,,,,
+# Shipping Port,,,,,,
+IndEvo_ShippingMenuPoint,PopulateOptions,"$hasMarket
+$menuState == main
+IndEvo_marketIsPlayerOwned
+IndEvo_marketHasIndustry IndEvo_PrivatePort
+!IndEvo_requiresColonyMenuPoint",,,99:IndEvo_IntitiateShippingMenu:Visit the Shipping Port,
+IndEvo_ShippingMenuPoint2,IndEvo_ColonyOptionPoint,"IndEvo_marketHasIndustry IndEvo_PrivatePort
+IndEvo_marketIsPlayerOwned",,,3:IndEvo_IntitiateShippingMenu:Visit the Shipping Port,
+IndEvo_IntitiateShippingMenu,DialogOptionSelected,$option == IndEvo_IntitiateShippingMenu,CourierPortDialoguePlugin,,,
+IndEvo_CommrelayShippingPoint,COB_AddOptions,"$tag:comm_relay
+!$objectiveNonFunctional
+CourierPortIsDisplayInRelay",,,9:IndEvo_COB_shipping:Contact a Courier Port,
+IndEvo_COB_shipping,DialogOptionSelected,$option == IndEvo_COB_shipping,CourierPortDialoguePlugin,,,
+#END Shipping Port,,,,,,
+,,,,,,
+# Ambassador Murdered,,,,,,
+IndEvo_bountyHunterHail,BeginFleetEncounter,"$IndEvo_bountyHunter score:1000
+!$ignorePlayerCommRequests","AddText ""You're being hailed by the $faction $otherShipOrFleet."" $faction.baseColor
+$hailing = true 0",,,
+IndEvo_bountyHunterText,OpenCommLink,"$entity.IndEvo_bountyHunter score:1000
+!$entity.ignorePlayerCommRequests",$entity.ignorePlayerCommRequests = true,"""Remember $entity.IndEvo_name? No? Let me refresh your memory, then - you murdered $entity.IndEvo_himOrHer in cold blood while in transit to your Embassy. $entity.IndEvo_theFaction can not let a breach of trust like this go unanswered.""
+
+The comm link goes dead in a crackle of static.",cutCommLinkNoText:Continue,
+,,,,,,

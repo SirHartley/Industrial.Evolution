@@ -1,0 +1,3 @@
+name,id,demand class,base price,export value,price variability,utility,origin,tags,stack size,cargo space,icon,sound id,sound id drop,order,economyTier,econUnitOrigUnused,econUnit,baseRaidDanger,eU * base value,iconWidthMult,plugin,desc
+Ship Components,IndEvo_parts,IndEvo_parts,120,3000,3,1,,expensive,1000,1,graphics/icons/cargo/starship_parts.png,ui_cargo_machinery,ui_cargo_machinery_drop,8.5,2.2,0,300,,,1,,
+Relic Components,IndEvo_rare_parts,IndEvo_rare_parts,500,,0,1,,nonecon,1000,1,graphics/icons/cargo/rare_parts.png,ui_cargo_machinery,ui_cargo_machinery_drop,8.4,,,,,,1,,

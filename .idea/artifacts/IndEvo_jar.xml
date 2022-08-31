@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="IndEvo:jar">
+    <output-path>$PROJECT_DIR$/jars</output-path>
+    <root id="archive" name="IndEvo.jar">
+      <element id="module-output" name="IndEvo" />
+    </root>
+  </artifact>
+</component>

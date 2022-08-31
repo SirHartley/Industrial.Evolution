@@ -1,0 +1,11 @@
+id
+# NOTES
+# Blacklist for Requisitions Center
+# Factions on this list will not have their weapons for sale/order by the structure.
+# Custom order for a friendly entity would be supported by even the most hostile factions - so only extremely reclusive factions should be on this list
+"# If your faction has an open, unregulated market it sells weapons on, there is no reason to blacklist it here"
+
+"#In-campaign toggle: Set !!faction!! memory key ""$IndEvo_customOrderAllowed"". True = allowed (even if on this list), false = prohbited (even if not on this list)."
+
+#FACTION IDs BELOW:
+templars

@@ -1,0 +1,24 @@
+id
+# NOTES
+# Whitelist for centralization bureau industries.
+"# If you fuck with this and it crashes, do not complain to me."
+
+farming
+aquaculture
+mining
+refining
+lightindustry
+heavyindustry
+orbitalworks
+fuelprod
+militarybase
+highcommand
+
+ms_modularFac
+ms_massIndustry
+ms_militaryProduction
+ms_orbitalShipyard
+ms_supersolar
+ms_medCenter
+
+loa_void_extraction

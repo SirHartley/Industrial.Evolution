@@ -1,0 +1,35 @@
+{
+	id:"reqSellStorageColour",
+	"color":[150, 50, 208, 255],
+	"displayName":"Requisitions Centre",
+	"displayNameWithArticle":"the Requisitions Centre",
+	"displayNameLong":"Requisitions Centre",
+	"displayNameLongWithArticle":"the Requisitions Centre",
+	"entityNamePrefix":"the",
+	"personNamePrefix":"the",
+	"personNamePrefixAOrAn":"a",
+	"displayNameIsOrAre":"are",
+	"showInIntelTab":false,
+	"logo":"graphics/factions/neutral.png",
+	"crest":"graphics/factions/crest_neutral.png",
+	"shipNamePrefix":"HIS GREAT AND ALL POWERFUL MAJESTY SIR HARTLEY THE FIRST",
+	"shipNameSources":{
+		"GENERAL":1,
+	},
+	"description":"No description yet.",
+	"names":{
+		"modern":1,
+	},
+	"portraits":{
+		"standard_male":[
+			"graphics/portraits/portrait_hegemony02.png",
+		],
+		"standard_female":[
+			"graphics/portraits/portrait_hegemony03.png",
+		],
+	},
+	"custom":{
+		"offersCommissions":false,
+		"engagesInHostilities":false,
+	},
+},	

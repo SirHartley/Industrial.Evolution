@@ -1,0 +1,351 @@
+{
+	"SplinterFleet_OrbitFocus":{
+	#"development_SplinterFleet_OrbitFocus":{
+		"defaultRadius":75, # used if radius<0 in addCustomEntity()
+		"showInCampaign":false, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable
+		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+	},
+
+	"development_SplinterFleet_OrbitFocus":{
+	#"SplinterFleet_OrbitFocus":{
+		"defaultRadius":75, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true,
+		"showIconOnMap":true,
+		"showNameOnMap":true,
+		"icon":"graphics/icons/station0.png",
+		"nameFontScale":1,
+		"nameAngle":0,
+		"nameColor":[70,200,255,255],
+		"nameShadowColor":[0,0,0,255],
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"renderCircleIndicator":true,
+		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+	},
+
+	"IndEvo_ECMExplosion":{
+		"defaultName":"Brrzt >:3", # used if name=null in addCustomEntity()
+		"defaultRadius":0, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true,
+		"showIconOnMap":false,
+		"renderCircleIndicator":false,
+		"tags":["expires"],
+		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_ECMExplosion",
+	},
+
+	"IndEvo_mine_explosion":{
+		"defaultName":"Boom >:3", # used if name=null in addCustomEntity()
+		"defaultRadius":0, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true,
+		"showIconOnMap":false,
+		"renderCircleIndicator":false,
+		"tags":["expires"],
+		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+		"pluginClass":"com.fs.starfarer.api.impl.campaign.terrain.IndEvo_MineExplosionEntityPlugin",
+	},
+
+	"IndEvo_campaign_trail_custom_entity":{
+		"defaultName":"YOU SHOULDN'T SEE THIS", # used if name=null in addCustomEntity()
+		"defaultRadius":85, # used if radius<0 in addCustomEntity()
+		"iconWidth":1,
+		"iconHeight":1,
+		"renderShadow":false, #true,
+		"useLightColor":true,
+		"showInCampaign":true,
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"layers":[ABOVE, FLEETS, ASTEROIDS, JUMP_POINTS, PLANETS, RINGS, STATIONS, TERRAIN_7A], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+		"pluginClass":"com.fs.starfarer.api.artilleryStation.trails.MagicCustomCampaignTrailEntityScript",
+	},
+
+	"IndEvo_decoy_mine":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"com.fs.starfarer.api.campaign.impl.items.consumables.entities.DecoyEntityPlugin"
+	},
+
+	"IndEvo_ArtilleryStation":{
+		"defaultName":"Artillery Station", # used if name=null in addCustomEntity()
+		"defaultRadius":60, # used if radius<0 in addCustomEntity()
+		"customDescriptionId":"IndEvo_artilleryStation",
+		"interactionImage":"graphics/illustrations/orbital_construction.jpg",
+		"icon":"graphics/icons/station0.png",
+		"iconWidth":25,
+		"iconHeight":25,
+		"sprite":"graphics/ships/IndEvo_mortar_station.png",
+		"spriteWidth":55,
+		"spriteHeight":55,
+		"renderShadow":false, #true,
+		"useLightColor":true,
+		"showInCampaign":true,
+		"showIconOnMap":true,
+		"showNameOnMap":false,
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"tags":["station"],
+		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+		"pluginClass":"com.fs.starfarer.api.artilleryStation.station.IndEvo_ArtilleryStationEntityPlugin"
+	},
+
+	"IndEvo_Watchtower":{
+		"defaultName":"Watchtower", # used if name=null in addCustomEntity()
+		"defaultRadius":60, # used if radius<0 in addCustomEntity()
+		"customDescriptionId":"IndEvo_Watchtower",
+		"interactionImage":"graphics/illustrations/orbital_construction.jpg",
+		"icon":"graphics/icons/entity.png",
+		"iconWidth":20,
+		"iconHeight":20,
+		"sprite":"graphics/stations/station_side05.png",
+		"spriteWidth":30,
+		"spriteHeight":30,
+		"renderShadow":false, #true,
+		"useLightColor":true,
+		"showInCampaign":true,
+		"showIconOnMap":true,
+		"showNameOnMap":false,
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"tags":["objective"],
+		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+		"pluginClass":"com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEntityPlugin"
+	},
+
+	"IndEvo_tempIndicator":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"icon":"graphics/fx/IndEvo_danger_notif.png",
+		"iconColor":[255,255,0,255],
+		"iconWidth":12,
+		"iconHeight":12,
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":true,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_RenderTemporaryIndicator"
+	},
+
+	"IndEvo_missileSubmunition":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_MissileSubmunitionEntity"
+	},
+
+	"IndEvo_missileCarrierPlugin":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_MissileCarrierEntityPlugin"
+	},
+
+	"IndEvo_railgun_projectile":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_RailgunProjectileEntityPlugin"
+	},
+
+	"IndEvo_artillery_projectile":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_ArtilleryProjectileEntityPlugin"
+	},
+
+	"IndEvo_RailgunShotEntity":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_RailgunShotEntity"
+	},
+
+	"IndEvo_field_spike":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"com.fs.starfarer.api.campaign.impl.items.consumables.entities.SpikeEntityPlugin"
+	},
+
+	"IndEvo_mine":{
+		"defaultRadius":1, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable,
+		"tags":["IndEvo_Mine"], # DO NOT CHANGE!
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"com.fs.starfarer.api.impl.campaign.terrain.IndEvo_MineCustomEntityPlugin"
+	},
+
+	"IndEvo_objective_overlay":{
+		"defaultRadius":75, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true,
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"interactionImage":"graphics/illustrations/comm_relay.jpg",
+		"nameFontScale":1,
+		"nameAngle":0,
+		"nameColor":[70,200,255,255],
+		"nameShadowColor":[0,0,0,255],
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"renderCircleIndicator":true,
+		"renderCircleIndicatorSelectionFlash":true,
+		"layers":[TERRAIN_7A], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+		"tags":["has_interaction_dialog", "dyson_swarm"],
+	},
+
+	"IndEvo_int_array":{
+		"defaultName":"Interstellar Relay", # used if name=null in addCustomEntity()
+		"nameInText":"interstellar relay",
+		"shortName":"relay",
+		"icon":"graphics/icons/relay_makeshift.png",
+		"iconWidth":12,
+		"iconHeight":12,
+		"sprite":"graphics/ships/com_relay_makeshift.png",
+		"spriteWidth":89,
+		"spriteHeight":48,
+		"customDescriptionId":"int_array",
+		"interactionImage":"graphics/illustrations/comm_relay.jpg",
+		"defaultRadius":0, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"nameFontScale":1,
+		"nameAngle":0,
+		"nameColor":[70,200,255,255],
+		"nameShadowColor":[0,0,0,255],
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"renderCircleIndicator":false, # make clickable
+		"renderCircleIndicatorSelectionFlash":false,
+		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"tags":["comm_relay", "makeshift", "IndEvo_intArray"],
+		"pluginClass":"com.fs.starfarer.api.impl.campaign.entityplugins.IndEvo_IntArrayEntityPlugin",
+	},
+
+	"IndEvo_pristine_int_array":{
+		"defaultName":"Interstellar Relay", # used if name=null in addCustomEntity()
+		"nameInText":"interstellar relay",
+		"shortName":"relay",
+		"icon":"graphics/icons/relay.png",
+		"iconWidth":24,
+		"iconHeight":24,
+		"sprite":"graphics/ships/com_relay.png",
+		"spriteWidth":89,
+		"spriteHeight":48,
+		"customDescriptionId":"int_array",
+		"interactionImage":"graphics/illustrations/comm_relay.jpg",
+		"defaultRadius":0, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"nameFontScale":1,
+		"nameAngle":0,
+		"nameColor":[70,200,255,255],
+		"nameShadowColor":[0,0,0,255],
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"renderCircleIndicator":false, # make clickable
+		"renderCircleIndicatorSelectionFlash":false,
+		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"tags":["comm_relay", "IndEvo_intArray"],
+		"pluginClass":"com.fs.starfarer.api.impl.campaign.CommRelayEntityPlugin",
+	},
+
+	"IndEvo_arsenalStation":{
+		"defaultName":"Arsenal Station", # used if name=null in addCustomEntity()
+		"defaultRadius":45, # used if radius<0 in addCustomEntity()
+		"nameInText":"arsenal station",
+		"shortName":"station",
+		"customDescriptionId":"IndEvo_arsenalStation",
+		"interactionImage":"graphics/illustrations/orbital_construction.jpg",
+		"icon":"graphics/icons/station0.png",
+		"iconWidth":20,
+		"iconHeight":20,
+		"sprite":"graphics/stations/IndEvo_station_02.png",
+		"spriteWidth":40,
+		"spriteHeight":40,
+		"renderShadow":true,
+		"useLightColor":true,
+		"showInCampaign":true,
+		"showIconOnMap":true,
+		"showNameOnMap":false,
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"tags":["has_interaction_dialog", "salvageable", "neutrino"],
+		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+	},
+
+	"IndEvo_orbitalLaboratory":{
+		"defaultName":"Orbital Laboratory", # used if name=null in addCustomEntity()
+		"defaultRadius":45, # used if radius<0 in addCustomEntity()
+		"nameInText":"orbital laboratory",
+		"shortName":"laboratory",
+		"customDescriptionId":"IndEvo_orbitalLaboratory",
+		"interactionImage":"graphics/illustrations/orbital_construction.jpg",
+		"icon":"graphics/icons/station0.png",
+		"iconWidth":20,
+		"iconHeight":20,
+		"sprite":"graphics/stations/IndEvo_station_01.png",
+		"spriteWidth":52,
+		"spriteHeight":52,
+		"renderShadow":true,
+		"useLightColor":true,
+		"showInCampaign":true,
+		"showIconOnMap":true,
+		"showNameOnMap":false,
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"tags":["has_interaction_dialog", "salvageable", "neutrino"],
+		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+	},
+
+	"IndEvo_WarpEffect":{
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable
+		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"com.fs.starfarer.api.impl.campaign.entityplugins.IndEvo_WarpEffectPlugin",
+	},
+
+	"IndEvo_WormHoleEffect":{
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable
+		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"com.fs.starfarer.api.impl.campaign.entityplugins.IndEvo_HoleEffectPlugin",
+	}
+}
+
+

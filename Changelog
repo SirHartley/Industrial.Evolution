@@ -1,0 +1,1137 @@
+
+--------------------------- to do -----------------------------
+todo consumable item that allows forced targetting of artillery on mouse pos
+todo item that fakes IFF to be firendly for minefields
+todo item that fakes IFF to be firendly for artillery
+
+artillery disabled when station disabled
+item effects (iff faker, targetting module)
+watchtower interactions
+exploration placement of watchtowers and arty
+implement arty as ship (later)
+implement arty control center industry
+implement condition for arty and control center placement
+
+implement special item drop listener
+
+--------------------------- known issues -----------------------------
+
+Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
+todo: DELIVER FLEETS REFUSE TO LEAVE SYSTEM AFTER DELIVERY; MAYBE MOVE INTO HYPERSPACE OR MANUALLY SET MOVE TARGET?
+
+hey with the current IndEvo patch all my crew in the detachment are getting eaten up after a day has passed.
+ The pattern is 1 full day after creating the detachment.
+ So if I create the detachment half way through Feb 19th, the crew disappear when it turns Feb 21st.
+
+ok so uh, one more issue if you arent aware, if you have a detachment stationed in another system, and you are in a different solar system
+i dont think the detachment actually moves
+
+--------------------------- upcoming -----------------------------
+merc industry
+https://discord.com/channels/815017574642483240/984638767279251468/1009925859630661783
+
+Colony Ship
+
+Optional:
+add ambassadors as contacts see https://discord.com/channels/815017574642483240/815039421656203274/932024688543158293
+Story point option for academy, "Recruit Local Talent", for when you really want an officer or admin
+Arena
+
+adjust salvage event "Ship Roulette" -
+    add the option to connect the output of a colony to the station
+    always require Metal, ship components and machinery
+    Let player choose between runtime of 1 month, 2, 3 or 4 then deliver the output and the station salvage to the colony
+    add an intel entry showing the progress
+
+-----------------------o-----------------------
+
+3.1.1 - unreleased
+General
+Fixed - Corrected all those getList tooltips to get
+
+Items
+beta 2 - bound item drop rates to destroyed fleet FP
+beta 2 - fixed being able to activate items in planet cargo
+beta 2 - nerfed decoy range (5k -> 3k)
+beta 2 - changed the red border on cooldown to something that I know doesn't break everything
+beta 2 - fixed the render issues I hope
+beta 2 - Sensor decoy now baits artillery fire
+Added - Consumable Item: Nanite Repair Module - Repairs your fleet, restores CR
+Added - Consumable Item: Tech Locator - Grav Scan for hyperspace, indicates systems with lots of loot
+Added - Consumable Item: Drive Bubble Spike - Deploys a mine that fires an interdiction pulse when an enemy fleet is in range
+Added - Consumable Item: Sensor Decoy - Attracts military fleets in a large radius
+Added - Consumable Item: Fuel Scoop - Succs juicy space fuel from a nearby star or nebula, courtesy of the Sindrian Fuel Company
+Note - Some can be bought, all can be found through combat and exploration
+
+Artillery Stations
+beta 2 - Added - 3 Types of artillery that shoot you on the campaign layer
+beta 2 - Added - Artillery to Eochu Bres, Chicomoztoc, todo the third one
+todo beta 2 - Added - Derelict Artilleries that can be found via exploration
+
+Research Projects
+Added - Project Transistor - Trade Relic Components for consumable items
+
+Minefields
+beta 2 - Adjusted - Bounty and "Important" Fleets are no longer affected by minefields
+beta 2 - Adjusted - Friendly fleets ignore minefields and will no longer get stuck trying to pass them
+beta 2 - Adjusted - Increased immunity time after strike for NPC fleets
+Fixed - Visual IFF check now matches explosion IFF (properly turns green when friendly ect...)
+
+Embassies
+Added - Faction: UAF
+
+Engineering Hub
+Fixed - No longer removes all blueprints of a size from IndStorage when creating a new one
+
+Courier Port
+Fixed - Shipping intel now vanishes after finishing (just like your dad back then)
+Fixed - Crash when shipping port intel could not find valid map location
+
+Privateer Base
+Adjusted - Failed raids now give 30% more output than before (to compensate the unplanned decay nerf)
+Fixed - No more infinite output stacking with industrial incentives
+Fixed - Now ignores bonus supply for output decay
+Note - 2 base output (+ 3 bonus) - 2 decay = 0 supply next month, where up until now it would have been 3
+
+Academy
+Adjusted - Manually blacklisted that one Oculian Armada skill everyone was getting
+Fixed - No longer counts mercenaries against the officer limit
+
+World Wonders
+Fixed - Stability Bonus for other in-System worlds is now properly permanent
+
+Derelict Industries
+Adjusted - Laboratory bonus can no longer resolve to modded commodities
+Fixed - Hull Forge crash when printing a ship (Mod Incompatibility with something recent...)
+Fixed - Rift Generator can no longer spawn on planets with minefields (new game)
+
+Detachments
+Fixed - Ability now gets added to your hotbar after the tutorial ends
+Fixed - Now properly transfers weapons and fighters on creation
+Fixed - Crash when orbit focus had no orbit
+
+3.0.d
+General
+Added - Vanguard and Eradicator to whitelist files
+Added - More useful tips
+Adjusted - Meme tips now show up 10x less than useful tips
+Adjusted - All IndEvo fleet member pickers now have 8 columns instead of 5 by default
+
+Minefields
+Added - Tooltip showing the chance to blow up due to your fleet size (low/med/high/extreme)
+Added - Even more IFF checks - NONE OF WHICH HELP IF YOU FORGET TO TURN YOUR TRANSPONDER ON
+Added - Setting to turn em off (will not fix your skill issue)
+Adjusted - Player owned minefields no longer care about transponder status
+Adjusted - Visuals look less shit
+Adjusted - Moons with an arsenal stations will now have the primary planet spawn the minefield
+Fixed - Made minefield IFF more reliable for NPC fleets (New game)
+Fixed - Now properly orbits
+Fixed - Crash when saving/loading in a minefield
+
+Research Projects
+Fixed - Tooltips
+
+Courier Port
+Added - Custom faction for courier fleets (invisible to player)
+Fixed - Marines no longer lose XP when transferred via courier
+Fixed - No longer bills you money every time it checks what to remove from the stockpile
+Fixed - Crash during planet selection
+Fixed - Duplication bug
+Fixed - Crash when courier fleet is despawning
+Fixed - Alignment issue on contract listing (IT WAS 2 PIXELS OUT OF LINE, OK??)
+
+Detachments
+Added - Escort and Intercept detachments will now aggressively attack hostile fleets that the player targets
+Fixed - Marines are now considered in the cargo tooltips and counts
+Fixed - Crash when a detachment goes dormant in a system without any entities
+Known issue - Marine and Crew in excess of the fleet capacity are lost after a day
+Known issue - Detachments get stuck when recalled from another star system
+
+Derelict industries
+Adjusted - Ruins spawn on colony establishment should be more consistent now
+Adjusted - Changed Derelict Industry spawn algorithm (New game)
+Adjusted - Derelict Industry type is now set on sector generation (New game)
+Adjusted - Forge and Decon have a higher chance to spawn together (New game)
+Fixed - Derelict industries will no longer change type (I hope)
+Fixed - Ruins no longer (sometimes) count as industry
+Fixed - Rift Generator cryorevival disabler condition no longer applies 100 times in a row
+Fixed - Deconstructor ignore whitelists setting now properly works
+
+3.0.c
+General
+Fixed - Minefields should no longer blow up friendly NPC fleets. Should.
+
+Items
+Adjusted - Terrible typo in Relic Components description (Made the mod hightly unplayable)
+Fixed - Logistics Core no longer installable in certain industries
+
+Supercomputer
+Fixed - Orbital Lamp now properly affects output
+
+Courier Port
+Fixed - No longer crashes when transporting ships from a planet you haven't been to
+Fixed - No longer crashes when transporting ships in general
+Fixed - Now correctly bills you for ship transports
+Fixed - Intel now displays correct costs
+
+Weapons
+Adjusted - Drastically reduced Causality Gun arcing chance (Courtesy of Nia Tahl)
+Fixed - Crash on Linux systems due to lowercase pathing, again
+
+Research Projects
+Adjusted - New projects notification will now also trigger if you find omega weapons through something scripted (on month end)
+Fixed - Spyglass (Gacha) Now properly returns the best result of 5 rolls. Rewards will be much, much better now.
+
+Exploration
+Adjusted - D-mod repair event repairs 1 d-mod less on average (on new game)
+Fixed - Ruined Infrastructure no longer causes two buildings to be built at the same time when finishing construction
+
+Detachments
+Fixed - Detachment spawn supply requirement now matches tooltip
+Fixed - Rare crash when clicking transport detachment after interacting with it
+Fixed - AI core officers no longer appear as regular officers when merging a detachment
+Fixed - AI cores in ships no longer sometimes get cleared on merge or split
+Fixed - AI core officers can no longer be "recovered" as full officer person when an AI ship is destroyed in combat
+Fixed - Crash when dormant transport detachment AI updates
+
+3.0.b
+General
+Fixed - Nex Random mode Crash
+Removed - some names that should not have shown up in game yet
+
+Items
+Adjusted - VPC Ship Components sprite updated
+
+Weapons
+Fixed - Crash on Linux systems due to lowercase pathing
+
+3.0.a
+General
+Added - Minefields (this changelog is starting off great, isn't it?)
+Added - Some settings
+Added - Admin salary at 2 skills is now 20.000c (Vanilla balance change)
+Adjusted - reduced Admin salary at 1 skill from 20.000c to 10.000c (Vanilla balance change)
+
+Items
+Adjusted - New Icon for Ship Components
+Adjusted - New Icon for Relic Components
+Adjusted - Item drop rates across the board. IndEvo Industry items now rarer, as are VPCs.
+Removed - Unfinished industry items are now no longer present in the files and will maybe STOP FUCKING DROPPING
+
+Weapons
+Added - Research Projects at the Galatian Academy
+Added - 5 different researchable Weapons (Courtesy of Nia Tahl)
+Added - Research Project for Relic Components
+
+Abilities
+Added - Ability to create detachments from your fleet (with different behaviour modes)
+Added - Behaviour: Stay - Stay in place, do not engage enemy fleets unless attacked.
+Added - Behaviour: Follow - Follow the main force, do not engage enemy fleets unless attacked.
+Added - Behaviour: Hide - Go dark, attempt to hide in a good location, and avoid other fleets.
+Added - Behaviour: Escort - Escort the main force, attack equal-strength visible hostile fleets.
+Added - Behaviour: Intercept - Escort, only intercept enemy fleets that target the main force.
+Added - Behaviour: Transport - Transport cargo to selected colony, then store fleet and cargo.
+
+Tech Mining
+Added - compatibility with Yunru Techmining (Yunrus Mod will take precedence)
+Added - implemented the Better Colonies changes (Diplays a tooltip showing the total remaining salvage)
+Fucked - T*chpriest, lmao
+
+Embassy
+Adjusted - No longer buildable on Nexerelin Governed Colonies,
+Fixed - Ambassadors can no longer be installed on Nex Governed Colonies (Fixes the "Compromised" bug)
+Fixed - No longer allows hiring ambassadors when the only open embassy is on a Nex Governed Colony
+Fixed - No longer crashes when a world with an ambassador decivilizes
+Note - The "Governed Colony" problem is not fixable without a complete re-write of the system...
+
+Senate
+Added - Edict: Mandated Overtime. Doubles building construction speed, halves all commodity production.
+Added - Info about active edict to edict removal screen
+Fixed - Labour restrictions are now actually unavailable when market is a freeport
+
+Privateer Base
+Adjusted - Minor sprite contrast touch-ups
+
+Salvage Yards
+Adjusted - Moving D-Mods now works between ships of similar tech type and hull size (Midline cruiser to midline cruiser...)
+Fixed - Ship building budget should no longer display 0 or negative values, and should no longer throw an occasional Nullpointer
+
+Academy
+Added - 3 additional colony admin skills that can be obtained by training an admin at the academy
+Adjusted - Hire-able Admins spawned by the academy have a 10% chance to spawn with one of the new Admin skills
+Fixed - can no longer replace an admins brain with an AI core (can't train admins in hypercognition)
+Fixed - no longer crashes when training an admin with a skill
+Fixed - "ESC" shortcut on leave option at galatia academy
+
+Courier Port
+Added - Proper User Interface
+Added - Timed failsafe to refund the shipment cargo if it does not arrive where it should
+Adjusted - Now allows shipping from stockpile
+Adjusted - Can now ship from and to any planet, not only planets you have things in storage at
+Adjusted - Gamma core now makes the interface accessible at any comm relay
+Fixed - No longer loses shipments
+Removed - Insurance
+Removed - Item drops on fleet death
+
+Derelict Industries
+Adjusted - Rift Generator - added a failsafe to make sure the colony teleports even if the animation fails
+Adjusted - Rift Generator - the jump points it makes now point towards the location of the planet
+Adjusted - Fleet Members with Unremoveable, Non-AI officers can no longer be deconstructed
+Fixed - Rift Generator - no longer considers nex outposts as colonies
+Fixed - Printed Ships now properly work with Starship Legends
+Fixed - Forge templates should no longer display a nebula when fed with D-Modded ships (probably)
+Fixed - Forge templates no longer build in hullmods with the "no_build_in" tag
+Fixed - Deconstructor now moves AI cores installed in ships to the storage when deconstructing a hull
+
+Exploration
+Added - Arsenal stations orbiting planets will now spawn with a special surprise
+Adjusted - Arsenal station officer sleeper pod events now conform to the new vanilla max officer levels
+Adjusted - Reduced the requirement to get relic components from hard battles
+Adjusted - Increased relic component drops from derelict Survey and Motherships
+
+2.2.h
+General
+Fixed - Crash on removal for all industries that add submarkets
+
+Items
+Adjusted - Relay Hypertransmitter tooltip effect clarified
+Fixed - WIP Items no longer show up with the historian (for real this time)
+
+Derelict Industries
+Fixed - Rift Generator no longer triples the hyperspace jump points of a system when used
+Adjusted - Rift Generator Jump points now lead to the planet
+
+2.2.g
+General
+Adjusted - Normal Storage now gets unlocked for free if ships/carge are transferred in case of IndEvo storage removal (Resto docks...)
+Fixed - Commerce no longer instantly finishes building after reloading the game
+Fixed - Rare crash after salvaging a wreck
+Fixed - Unimplemented special items should no longer be available via the Historian (Emphasis - should)
+Fixed - Starpocalypse no longer applies D-Mods to ships in the repair docks
+Fixed - Starpocalypse no longer regulates the inventory of the Requisitions Centre
+
+Centralization Bureau
+Fixed - Now works for the Manufactory
+Fixed - Now properly recognizes Heavy Industry and Orbital Works
+
+Senate
+Fixed - Edict Tooltips again
+
+Military/Interstellar Relay
+Adjusted - Will now properly spawn patrols if only military building on the market
+Adjusted - Can no longer improve with story points (was causing issues)
+
+Salvage Yards
+Adjusted - Added a base budget of 75.000 (any output is in addition to that)
+Adjusted - Reduced the required amount of Relic Components (3 per DP -> 2 per DP)
+Fixed - Now has budget to custom produce ships if HI is present on the planet
+
+World Wonders
+Fixed - Typos
+
+Exploration
+Fixed - Forge Templates can no longer resolve into (D) hulls
+Fixed - Player Faction can no longer be a choice in the "Rumors" salvage Event
+
+Derelict Industries
+Fixed - Ancient Lab can no longer suddenly change bonus commodities
+Fixed - Ancient Lab now properly applies production bonus on save load
+Fixed - Ancient Lab now applies bonus output to Manufactory
+
+2.2.e
+General
+Fixed - Crash on save load
+Fixed - Weird edict re-application bug
+Fixed - Weird Lawless Subpop application bug
+
+Items
+Adjusted - Reduced drop chance (now has a lower drop chance than vanilla items, stop crying)
+
+Commodity Forge
+Fixed - Now recognizes the Parts VPC
+
+Salvage Yards
+Adjusted - Increased NPC base output by 1
+
+Privateer Base
+Adjusted - Buffed base raid fleet size (x1,66)
+
+Derelict Industries
+Fixed - Decon totally and absolutely will never build in Militarized Subsystems into a non-civ ship ever again I swear to god if it does it again
+
+2.2.d
+Commerce
+Fixed - Now buildable again (bit too much of a nerf there)
+
+Military/Interstellar Relays
+Fixed - Crash on hover
+
+Derelict Industries
+Fixed - No longer builds in Militarized Subsystems if the ship is not civilian (for real this time, I swear)
+
+2.2.c
+General
+Fixed - Parts now properly drop from combat
+Fixed - Parts now properly drop when salvaging a ship wreck
+Fixed - "nullpointerException" when docking at abandoned stations
+
+Commerce (vanilla balance changes, only takes effect for newly built ones, can be disabled in settings)
+Added - Can only have one in the system
+Adjusted - Dealmaker Holosute from 50 to 25% income bonus
+Adjusted - Story Point increase from 25 to 10% income bonus
+Adjusted - Alpha core now reduces tariffs on the open market by 25%
+
+Military Base/High Command
+Added - Special item (Relay Hypertransmitter)
+
+Variable Industries
+Fixed - Capacity too low tooltip (Missing String: "outputRestriction")
+
+Supercomputer
+Added - Special item (Simulation Engine)
+Added - Now displays the second AI core as sprite on the industry
+Fixed - Now properly recognizes if a condition is active or not (Supressing Cold with the Lamp no longer works)
+Fixed - No longer vanishes from selection if unavailable to build
+
+Centralisation Bureau
+Added - Special Item (Logistics AI core)
+Added - Whitelisted Shadowyards Industries
+Added - Whitelisted LOA Void Extraction
+
+Military/Interstellar Relays
+Added - Special item (Relay Hypertransmitter)
+Adjusted - Now needs a military base or a high command in the system to be built (reverted to old system)
+Adjusted - Build cost increased by 1.2x when no Patrol HQ is present
+
+Restoration Docks
+Adjusted - Can't restore in-built D-mods if they are specified in the hull variant (vanilla game limitation)
+Adjusted - Tooltip now better communicates this
+Fixed - Alpha Core upkeep modifier no longer displays as Gamma Core
+Fixed - Tooltip now correctly displays ship names instead of planet faction
+
+Salvage Yards
+Added - Option to trade in ships for production budget
+Added - Option for Story point usage to double production budget
+Adjusted - Max bonus output is now colony size + 4 (that's still a lot!)
+Fixed - No longer spam the raid message, don't report anything if not under player control
+
+Senate
+Added - Special item (Neuroconditioning Compounds)
+Fixed - Forced Reloaction no longer enactable at max colony size
+Fixed - Edicts no longer randomly cancel after being enacted
+
+Privateer Base
+Adjusted - Fleets are now actually called "Privateers" (It's the small things)
+
+Engineering Hub
+Fixed - Tooltip properly displays unavailability reason for printing defects
+
+World Wonders
+Adjusted - Stability bonus longer stacks
+
+Derelict Infrastructure
+Fixed - Infinite loop that only wasn't one because it always crashed due an unrelated bug before it got stuck
+Fixed - World Wonders now properly award the SP when built via Infrastructure
+
+Derelict Industries
+Adjusted - "Deliver to closest X" setting now delivers to Industrial Storage
+Fixed - No longer builds in Militarized Subsystems if the ship is not civilian
+
+2.2.a/b
+General
+Fixed - Buildings in core worlds spawn again
+
+Restoration Dock
+Fixed - Crash when docking at planets with a Restoration Dock
+
+Embassy
+Fixed - Ambassador no longer drops to inventory when structure is removed
+
+Derelict Industries
+Fixed - Ruins spawning in core worlds
+Fixed - Are now upgradeable again
+
+2.1.c
+Added - Ship Component drops to the general combat loot pool
+Adjusted - Cleaned up the excess quotation marks in all dialogue
+
+Variable Industries
+Added - VPC Ship Components (uncommon)
+Added - Manufactory with Ship Components VPC to Eochu Bres (the only real source, raid it for the VPC)
+Fixed - Tooltip (output description String)
+
+Salvage Yards
+Added - Yards to Suddene and Donn
+Added - Interaction - can now trade in components/rare components to build ships for you
+Added - Interaction - can now move D-Mods between similar ships
+Adjusted - Now exports Ship Components, imports hulls. The output can be increased the old way (battles in system, weapons in storage ect.)
+Adjusted - Now applies bonus output to a local heavy industry (or equivalent) instead of having one. If no HI is present, it will export hulls with a quality penalty.
+Adjusted - Beta core now switches the industry to "vanilla" behaviour, outputs scaling with colony size, while increasing the SU required for additional output to 90 (base 50)
+Fixed - Potential High-impact Save file bloating problem
+Fixed - No longer accrues salvage units while not functional
+Removed - Low Output reminder message
+Removed - Base Ship Quality Penalty
+Removed - Yards on Laicaille Habitat and Qaras (Over industry limit)
+
+Academy
+Fixed - Can no longer remove unremoveable officers from ships (Sorry JRG, no aggressive Sierra anymore)
+
+Restoration Docks
+Added - Ship Components import while repairing
+Adjusted - Now recognizes and removes in-built D-Mods
+Fixed - Tooltips
+Fixed - Crash in build menu under specific circumstances
+
+Senate
+Added - Edict: Single-Child Policy (stops the colony from growing)
+
+Shadowyards Modular Fabricators and Upgrades
+Added - Ship Components imports/Exports. If not fulfilled, reduces output by up to 2 and reduces ship quality by up to -50 (-40 with Corrupted, -30 with Pristine NF).
+
+Heavy Industry
+Added - Now produces components.
+Added - Nanoforges now reduce ship component demand
+
+Orbital Works
+Removed - No longer produces Ship Components
+Added - Nanoforges now reduce ship component demand
+
+World Wonders
+Added - Now award a bonus story point when constructed (Only once per colony!)
+
+Exploration
+Added - "Ship Components" as after combat drop
+Added - "Ancient Components" as after combat drop to exploration things
+
+Derelict Industries
+Added - "IndEvo_RuinsAlways" Planet Tag, needed for mod authors that want to have ruins on a planet - it'll clear them otherwise.
+Added - Variation on the Industrial Ruins - Old Infrastructure
+    Spawns on planets that have ruins
+    Can be restored into a random structure/industry at half cost/time of the usual build cost
+    Yes, this was Techpriests idea
+Adjusted - Hull Deconstructor no longer takes an industry slot
+Adjusted - Forge now less likely to build in IPDAI
+Fixed - Preview after surveying works again
+Fixed - Modular ships on Forge Templates no longer spawn without modules
+Fixed - Ruins spawning in core worlds
+
+2.1.b
+
+Salvage Yards
+Added - Now exports Ship Components: Ship parts and machines that can, for a number of reasons, no longer be reliably produced by the degraded infrastructure of the sector. They have to be recycled instead."
+Added - There are now Yards on Qaras, Agreus, and Laicaille Habitat
+
+Heavy Industry
+Added - Ship Components imports. If not fulfilled, reduces output by up to 2 and reduces ship quality by up to -40.
+
+Exploration
+Fixed - Can no longer pick the same faction twice for rumors event
+
+Derelict Industries
+Fixed - Can no longer install AI cores in the ruins
+
+2.1.a
+General
+Fixed - Some tooltip adjustments
+
+Military + Interstellar Relays
+Adjusted - Now needs either a military base in the system, or a High Command on any player owned colony (can be outside of system).
+
+Embassy
+Adjusted - Negative Rep Change Penalty now trails into a new month (if you cause a -5 change, you will lose 2,5 the first month, then 1 the second, then 0)
+Fixed - No longer applies the beta core penalty every day
+Fixed - Crash when the planet changes faction, or becomes hostile, or is removed, or because it felt like crashing.
+
+Supercomputer
+Fixed - Bonus is no longer kept if there is no AI core or the SupCom is removed
+
+Privateer Base
+Fixed - No longer applies lawless subpopulation when just being looked at in the build menu
+
+Engineering Hub
+Adjusted - Removed Guardian from whitelist
+
+World Wonders
+Fixed - No longer allow for AI cores to be installed
+
+Derelict Industries
+Added - Indicator as to what type of ruins are on the planet without colonizing it. READ, PEOPLE, FOR LUDDS SAKE
+Adjusted - Changed Forge template in-builts to S-Mods (do not count against the limit)
+Fixed - FT in-built mods no longer vanish when clicking the "build in" button
+Fixed - Rift Generator can no longer spawn on worlds with solar arrays
+Fixed - Ruins no longer switch between upgrades when another building is removed
+
+Exploration
+Added - Setting to change the base chance of a special to be assigned to an entity
+Adjusted - Changed the item choice special dialogue text to give you a better understanding of the explosion chance
+Adjusted - Print Ship Special now only applies one free built-in
+Fixed - Salvage specials no longer overwrite ship recovery specials (quests...)
+Fixed - The impoverished merc will no longer try to charge you double for your sins (you are still a bad person)
+Fixed - No longer spawns salvageable stations in the core worlds
+
+2.0.b + c
+Salvage Yards
+Fixed - Now properly adds to production budget
+
+Restoration Docks:
+Fixed - Crash during Nex Random Sector generation (getMemory())
+
+Academy
+Fixed - Nullpointer when accessing, now properly works
+
+Exploration
+Fixed - Non-Exitable Dialogue/Nullpointer for the secure room event
+Fixed - Forge Templates no longer crash the secure room event
+Fixed - Crash when not sacrificing enough ships to the Machine God
+Fixed - Impoverished Merc now lets you exit the conversation if you don't want to pay him (you monster)
+
+2.0.a
+Variable Industries
+Adjusted - VPC Drop Chances
+Adjusted - Merged into single drop group as to not affect other item drop chances too much
+
+Salvage Yards
+Removed - Salvage Market. Now works via direct modification of budget (no longer makes a weird pseudo colony)
+
+Senate
+Added - Edict: Exact Clearances (Increases ship Quality, decreases hull output)
+Removed - Edict: Growth Reinvestment
+
+Academy
+Added - Academy to Fikenhild (since the one in Galatia doesn't spawn hireable officers)
+Adjusted - Spawned hireable officer max level reduced to match 0.95a
+Adjusted - Hireable officer has a chance to have an elite skill
+Adjusted - Now accessible at Galatia Academy Station instead of Ancyra
+
+Engineering Hub
+Adjusted - Updated Whitelists
+
+Derelict Industries
+Adjusted - Merged Forge Templates into single drop group as to not affect other item drop chances too much
+Adjusted - Updated whitelists
+
+Exploration
+Added - Another event (secret)
+Adjusted - D-Mod event no longer eats the Nanoforge, but was nerfed in turn
+Adjusted - Chances (no, you still can't savescum it)
+Removed - Marine Cryopod Event (is now Vanilla)
+
+1.9.d
+
+Variable Industries
+Added - Deposit amounts now get reduced in the case of deficits (Deficit% of max output)
+Adjusted - Switched Commodity Forge over to Monthly Deposits
+Adjusted - Commodity Forge deposits are now also reported by the monthly summary report
+Adjusted - Commodity Forge Alpha Core effect from -31 days to - 1 Month (yes, there is a difference)
+Fixed - No longer has a free VPC installed when built on Nex governed markets
+Fixed - Tooltip now correctly states "local storage" instead of "production gathering point" as output destination
+Fixed - Tooltip now properly denotes deficits
+Fixed - Crash when there was no storage on the colony on month end (how does that even happen)
+
+Centralization Bureau
+Added - Now works off a whitelist. Adjust at your own risk, will not properly work with scripted things.
+Adjusted - Removed "Insufficient AI Core" message spam
+Adjusted - No longer works with Variable Manufactory (It never properly did in the first place.)
+Fixed - Now properly applies bonuses
+Fixed - Displays additional demands above 1 unit
+Fixed - no longer displays "Can only have one" in the build menu when available to build.
+
+Military/Interstellar Relay
+Added - While no other military is present, acts as Patrol HQ +
+Added - While no military is present, costs/build time is as much as a patrol HQ. If a HQ is present, costs/time are reduced to normal.
+Added - While acting as Patrol HQ, spawns patrol fleets depending on colony size / fleet size (always less than a military base)
+Adjusted - Removed Patrol HQ build requirement
+Adjusted - Removed local AI Core installed tooltip line, bound it to High Command instead (It now looks better)
+
+Salvage Yards
+Added - Now unlocks the Custom Order menu (Like Heavy Industry)
+Added - Will pull weapons from the Industrial Storage (dark blue) and convert them to salvage points (depending on weapon size).
+Adjusted - Auto-changes gathering point if set to salvage yards market, no longer spams warnings.
+
+Embassy
+Added - Support for the Star Federation and VIC
+Added - Factions will now respond appropriately to hostile action against Ambassadors
+Adjusted - Rep penalty now calculates monthly
+Adjusted - Embassy rep changes now have a summary notification like Variable Industries
+
+Senate
+Adjusted - Overhauled Edict rules.csv
+Fixed - no longer displays "Can only have one" in the build menu when available to build.
+
+Privateer Base
+Adjusted - Is now less likely to go on suicide missions while there are weaker targets available
+
+Academy
+Fixed - No longer gets stuck with a NullPointer on officer selection when using a translated version of Starsector (Chinese/Russian...)
+
+Requisitions Centre
+Fixed - Can no longer gain rep with the ReqCenter dummy faction when trading (I hope.)
+
+Engineering Hub
+Added - Whitelisted Vayras' stuff
+Fixed - No longer uses the wrong whitelist (changes to reverse engineering now actually take effect)
+Fixed - Tooltip now denotes toggle function when not extended
+
+Courier Port
+Fixed - Can now transport multiple ships of the same kind at once without bugging out
+
+Exploration
+Added - Two new derelict station types (Like research stations)
+Added - 10 additional types of salvage events
+
+Derelicts
+Added - Whitelisted Vayras' stuff
+Adjusted - Reduced the price of working Forge Templates
+Adjusted - Increased the chance for Ruins to spawn in pairs in high danger systems
+Adjusted - If one part of a pair of Ruins in a system is a Forge, the other will usually be a Deconstructor, and vice versa.
+Adjusted - Reworked how Printing defects work (they are now removeable, but come with additional D-mods depending on the chosen AI cores)
+Adjusted - Reworked Hull Decon/Hull Forge AI core effects
+Adjusted - Forge/Decon can now bake Hullmods into a ship (check the new AI core effects)
+Fixed - RiftGen no longer causes planets to sometimes orbit at burn 20
+Fixed - Rare CTD for the Rift Generator on mouseover (I hope)
+
+World Symbols
+Added - Build one of 5 different structures with the same effect
+Effect - Reduces temporary unrest by one point a month
+Effect - Increases population growth by 10
+Effect - All worlds in the system have +1 stability
+Note - These are mostly for flavour and might get a proper effect in the future, when I can think of something cool.
+
+1.8.c
+General
+Adjusted - optimized data loading behaviour
+
+Variable Industries
+Adjusted - Misspellings in VPC tooltips
+
+Interstellar Relay
+Fixed - No longer crashes the game/Prevents saving when built in a nebula
+
+Supercomputer
+Fixed - no longer ticks down cores if not functional
+
+Embassy
+Added - Dialogue choice to move ambassador to another embassy
+
+Privateer base
+Added - Roider Union retrofit template support
+Added - Setting allow the base to acquire unknown blueprints
+Fixed - Lawless SubPop Tooltip
+
+Engineering hub
+Added - Roider Union Retrofit Template support
+Adjusted - No longer continues pulling ships that have reached 100% progress
+Fixed - THI Retrofit Template support works again
+
+Courier Port
+Fixed - Boggled Astropoli - transfer is now immediate and no longer freezes the delivery
+Fixed - Ship selection no longer soft locks the game when closing selection window with ESC
+Fixed - Will now correctly transfer ships from one point to another
+Fixed - Intel now correctly displays lost ships
+Fixed - No longer auto-fails on moving in and out of the origin system
+Fixed - Item selection screen items no longer overlap
+
+Requisitions Centre
+Fixed - Game freeze on cargo update in rare cases when an Alpha Core is installed
+
+Derelict Industries
+Adjusted - Forge Template tooltips to provide more hints
+Fixed - Ruins can now be removed and no longer spawn double
+Fixed - Printed Ships sometimes did not get printing defects
+Fixed - AutoDelivery setting now actually works
+
+RiftGen
+Added - Sound for the Transition Effect
+Adjusted -Flare effect timing looks less weird
+Adjusted - Orbit now gets normalized to fit the target system (No more speedy planet boi)
+Adjusted - Can no longer spawn on Gas Giants (Cannot move a gravity well...)
+Fixed - Rare bug that would cause an orbital station to despawn
+Fixed - Colony targetting option (again!)
+Fixed - Planets from a Nebula now properly orbit a sun
+Fixed - Colony no longer gets stuck when exiting the system before the animation has finished
+Fixed - Salvage yards no longer misbehave when stacked in a system
+
+1.8.b
+Salvage Yards
+Fixed - No longer notifies you that it is running out of material while building
+Fixed - Added functionality for the Salvage Market to despawn when the system no longer has a Yard (Ghost colony, takes a day)
+
+Privateer Base
+Fixed - No longer gives you "failed" messages for raids by other factions
+
+Requisitions Centre
+Fixed - Eternal loading bug (I hope)
+
+Engineering Hub
+Fixed - Crash when installing a scripted blueprint (no hull size...)
+
+Courier Port
+Adjusted - Allowed submarkets now run off a whitelist (Avoid mod conflicts)
+Fixed - No longer displays Null on market check with LTA/VS installed
+
+Derelict Industries
+Fixed - Crash when an AI colony attempts to upgrade the ruins
+Fixed - Upgrades no longer change randomly
+Fixed - No longer blocks out upgrades while another colony has a similar ruin
+Fixed - RiftGen target option "other colony" now works when there are multiple colonies in the original location
+Fixed - Hull Forge no longer crashes when doing its' thing
+Fixed - Hull Forge no longer takes only one day after completing the first hull
+
+1.8.a
+General
+Added - Now requires MagicLib
+Added - A few console commands
+Added - More tips, stupid tips separated from useful ones
+Adjusted - ID change from deconomics to IndEvo
+Adjusted - Some slight artwork adjustments
+Adjusted - All industries now behave properly on AI markets.
+Fixed - Migrated version file (fuck you bitbucket)
+
+Variable Industries
+Added - Storage for Commodity Forge to auto-pull VPCs from
+Adjusted - Reduced Commodity Forge base Upkeep by 2000
+Adjusted - No longer ships to production gathering point (Can be changed in settings, look at courier port first)
+Adjusted - Rare VPC drop chance reduced
+Adjusted - General VPC drop chance slightly reduced
+Adjusted - Commodity Forge no longer takes an Industry Slot
+
+Centralization Bureau
+Adjusted - Reduced base upkeep by 1000
+Fixed - Crash when changing out Variable Manufactory VPC
+Fixed - Crash when a Variable Assembler/Manufactory did not have a VPC installed
+
+Military/Interstellar Relay
+Adjusted - Reduced Upkeep
+Adjusted - Can no longer increase fleet size above the highest size in the network
+Fixed - Massive fleet size increase bug
+
+Supercomputer
+Adjusted - Removed AI-Core Storage, Added Shared Storage
+Fixed - Very cold planets now provide higher bonuses than cold (oops)
+
+Embassy
+Added - Support for Spindle (ScalarTech), Pearson Exotronics, Free Stars Union
+Added - Faction enabling/disabling via memory tag
+Adjusted - Proper tooltips for Ambassadors
+Adjusted - Code overhaul for Ambassador Items, Whitelisting custom factions now easier
+Fixed - Crash on removing beta core from embassy without installed ambassador
+Fixed - Nex no longer resets the increases/decreases while commissioned
+
+Restoration Docks
+Adjusted - Reduced build time from 60 to 40 days
+Adjusted - Tooltip changes
+Adjusted - Alpha core now increases repair cap by 3
+Adjusted - Can no longer put ships without D-Mods into storage
+Adjusted - Now also repairs built in D-mods (ex. Champion)
+Fixed - No longer repairs one D-Mod too many
+Fixed - Alpha core tooltip now correctly displays the upkeep reduction
+Fixed - Beta core now displays cost prediction instead of "Something broke"
+
+Senate
+Fixed - Edict: Forced Relocation no longer considers Salvage Yards a colony
+Fixed - Dialogue text is no longer small after selecting "Remove Edict" option
+
+Privateer Base
+Added - Will now start raids while on AI markets, but not bring back spoils
+Added - Tooltip now states the build limits
+Adjusted - Can now build two in a star system
+Adjusted - System timeout reduced to 1 month on raid failure (was 3)
+Fixed - No longer gains output whenever a raid of any kind finishes
+Fixed - No more stupid high output when raiding systems with many planets
+Fixed - System Raid Timeouts no longer carry over into other saves (yup...)
+Fixed - Can no longer provide blueprints of Tiandong ships (only Retrofit templates)
+Fixed - Can no longer target a colony in hyperspace (and subsequently crash)
+
+Academy
+Adjusted - Reduced build time to 60 days
+Adjusted - Systemwide officer quality increase no longer stacks
+Fixed - Retrieve Officer menu point no longer invisible while at full officer capacity
+Fixed - Can no longer access the Academy before it finished building
+Fixed - NullPointerError on Abandoned Stations
+
+Requisition Centre
+Added - Sources weapons from all factions you have good standing with.
+Added - Can be set to only source from a specific faction by building an embassy on the same planet.
+Added - This can easily source specific rare and large weapons, and has powerful AI core effects.
+Added - Present on Baetis, Eos Exodus - can be unlocked for a fee.
+
+Engineering Hub
+Added - Reverse engineer ships, turn them into blueprints after enough hulls have been sacrificed.
+Added - You have to overwrite a blueprint of matching hull size (cap for cap, frig for frig)
+
+Courier Port
+Added - Ship Cargo between colonies (From any with cargo, to player colonies)
+Added - Can target specific storage for deliveries (Resupply Supercomputer, Ships to/from Restoration Docks...)
+
+Derelict Industries
+Added - Find powerful, rare industries in dangerous parts of the sector, and restore their Ruins to working order.
+
+1.7.c
+Restoration Docks
+Adjusted - Fee now correctly scales to +/- 50% cost depending on standing
+Fixed - AI core effects now actually apply under AI control
+Fixed - Fixed cost calculations, again - it doesn't rip you off anymore
+
+Military Relay
+Adjusted - Reworked descriptions
+
+Interstellar Relay
+Added - Extends Military Relay effects to every star system with this structure.
+Added - Works as Makeshift Communications Relay in a star system without taking a stable location
+Note - There is a FAQ for this, since both military relay and this seem to cause confusion.
+
+1.7.a
+General
+Added - Loading screen tips
+Adjusted - ModUpdater now also replaces Submarkets
+Fixed - Item removal bug when updating the mod with an Ambassador in cargo
+
+Variable Industries
+Adjusted - VPCs no longer all have the same drop chance - rare stuff is now rare
+Fixed - No longer replaces a pre-installed VPC under AI faction control
+
+Military Arrays
+Adjusted - Functionality change - now depends on the highest total fleet size between arrays.
+Note - It now works the way you always thought it did, and it scales better.
+
+Centralization Bureau
+Added - Now supports Variable Manufactory if the same chip is installed (Exports only)
+Fixed - Crash when removing/changing other industries
+Fixed - Tooltip always showing "No duplicate industries" even if there are some
+
+Supercomputer
+Fixed - Storage no longer visible on AI colonies
+Adjusted - removed the "Repair when destroyed" feature due to it causing crashes
+
+Salvage Yards
+Fixed - "Running out of salvage" message spam on removal
+Adjusted - Ship hull output cap increased (buffed) to market size +2
+Adjusted - Build cost from 250k to 200k
+
+Embassy
+Added - Mod Authors can now enable and disable ambassador availability via a memory key
+Added - Support for Metelson Industries
+Added - Support for Caparice Trade Co. (Yuri)
+Added - Support for Creatures' other Faction
+Fixed - Dismissal of an Ambassador via dialogue is no longer impossible
+Fixed - Timers for Ambassador installation mini quest works again
+Fixed - No longer spams "Vacated Office" message after reconquering a planet with an embassy
+Fixed - Ambassadors that are installed after reconquering a planet now correctly appear
+
+Senate
+Adjusted - Edict: Forced Labour - Growth penalty increase to Market size * 2
+Adjusted - Edict: Wartime Lockdown - Buffed bonuses, changed accessibility penalty to export penalty
+Fixed - Removing the senate no longer causes Edicts to fail multiple times in succession
+Fixed - Fixed the "counts down multiple days per day" bug
+
+Restoration Docks
+Added - Some factions now have restoration docks on their planets, which you can use for a fee.
+Adjusted - New storage icon and colour (this is now a faction mod)
+
+Privateer Base
+Adjusted - Pirate Subpopulation Tooltip properly displays prefixes
+Fixed - Can no longer raid for remnant and station part blueprints.
+Fixed - Crash when you are non hostile to all factions
+
+Academy
+Added - Store and retrieve officers or administrators
+Added - Train officers towards a different personality (1 increment, 2 with an Alpha core)
+Added - Train administrators to have them gain more skills (2 max, like vanilla)
+Added - Has a high daily chance to spawn a hireable Officer/Admin on the planet if there is none
+Added - Increases officer spawn rate and quality for the planet it is built on (Defense fleets)
+Added - Increases officer quality for all faction planets in the system (Defense fleets)
+Added - Academy on Galatia and Eochu Bres which the player can access while non-hostile.
+
+1.6.a
+General
+Added - Cleanup and Preparation Script for Save compatibility - still not 1.4 compatible
+
+Centralization Bureau
+Fixed - Now actually works again
+
+Supercomputer
+Fixed - "Missing an AI core" message no longer appears during construction
+
+Salvage Yards
+Fixed - Concurrent Modification Exception crash
+
+Embassy
+Added - Support for Hazard Mining Incorporated
+Added - Support for the Brighton Federation
+Added - Support for the First Persean Empire
+Fixed - Dialogue not loading correctly when docking at abandoned stations
+Fixed - Ambassador shows wrong dialogue after market change
+Fixed - Ambassador of the wrong faction deposited in inventory
+Fixed - Crash after conquering a planet
+
+Senate
+Added - Edict: Hard Deadlines (+ Production budget, - Ship Quality)
+Added - Edict selection now has a "next page" feature for small screens
+Fixed - Edicts no longer cause all text to be smaller than it should be
+
+Restoration Docks
+Fixed - Adjusted cost on repair - Now actually costs 50% of vanilla restoration costs.
+
+Privateer Base
+Adjusted - no longer raids and exports ship hulls (also fixes fleet quality issue)
+Adjusted - Output decay changed from general to individual for commodity exports
+Adjusted - Output decay starts immediately instead of 1 month time out
+Adjusted - Output decay now 2/month, up from 1
+Adjusted - Spoil now contain more weapons, less high-value blueprints
+Adjusted - Reduced exports on failed raid by 30%
+Fixed - correctly factors in fleet size for raid strength
+Fixed - Only get output on failed raid fleet reached the target system
+Fixed - Crash when Target Picker only finds bad systems
+
+1.5.g / 1.5.f
+Privateer Base
+Fixed - rare bug that caused infinite exports
+
+Supercomputer
+Fixed - Crash when built if no Restoration docks exist on the same planet
+
+1.5.e
+General
+Code adjustment - fixed memory leaks - massively improved long time performance
+Code adjustment - highly improved general performance
+Settings - you can now enable/disable industries, and modify some parameters.
+
+Variable Industries
+Adjusted - Output messages are now a single monthly summary report for Assembler/Manufactory
+Adjusted - Assembler commodity export locked to maximum of 3, regardless of skills or market size.
+Adjusted - Supply and demand are no longer always legal
+Fixed - crash on month end if colony is owned by a different faction, but governed by the player (Nexerelin)
+Fixed - no longer has import demands while building/disrupted
+
+Centralization Bureau
+Adjusted - Now modifies supply and demand of the affected industries directly.
+Adjusted - Removed all supply and demand from this structure (no longer generates boatloads of free money)
+Fixed - "Insufficient AI core" notification when Alpha core is installed.
+Fixed - shortage handling
+
+Military Relay
+Fixed - Unfinished military installations no longer count towards the prerequisites
+
+Salvage Yards
+Fixed - No longer causes a colony to decivilize in certain cases
+Fixed - Salvage market removal on market faction transfer
+Fixed - Concurrent modification exception crash (probably)
+
+Supercomputer
+Adjusted - Income increase now 5/15/20% (up from 5/10/15%)
+Adjusted - AI core runtime now 3/9/18 months (up from 1/3/12)
+Adjusted - Now takes 50 days to build
+Adjusted - No longer produces new AI cores (toggleable in settings)
+Fixed - Can no longer store ships in AI-Core storage
+Fixed - Storage no longer present after industry removal
+Fixed - Storage gets properly removed on AI colonies
+
+Embassy
+Fixed - being able to dismiss ambassadors that are already in the process of leaving
+Fixed - relations increase limit tooltip (for real this time)
+Fixed - crash when docking at a planet you govern for another faction (Nexerelin)
+Fixed - wrong ambassador getting arrested on inauguration when compromised
+
+Senate
+Added - Comes free with floating platforms and shitty alien costumes.
+Added - Edicts! Enslave your populace! Cleanse your planet of undesirables! Allow more vacation time for your workers!
+
+Restoration Docks
+Added - Slowly repairs D-Mods of ships placed into a custom storage at a hefty discount.
+Added - Be careful, the cost might still exceed what you can afford and might land you in debt - Gamma Core is your friend!
+
+Privateer Base
+Added - Automatically raids people you don't like.
+Added - Output depending on the raided planets, will bring back spoils of war for you after a successful raid.
+
+1.4.b
+Embassy
+Added - case handling for a faction being eradicated
+Added - dialogue for ambassadors on planets that were just taken over
+Fixed - crash when taking over a planet
+
+1.4.a
+Variable Industries
+Fixed Luxury good deposition notice
+
+Salvage Yards
+Fixed a crash related to stations
+
+Embassy
+Added - Monthly reputation increase with a changeable faction, with a 50% increased penalty on negative relation change.
+Added - get your own Ambassador at a market near you, today!
+Added - compatible with most modded factions, see list in the description.
+
+1.3.b
+Supercomputer
+Adjusted AI-Core runtimes
+
+1.3.a
+Variable Industries
+Adjusted all deposit outputs from linear increase to logarithmic increase
+Adjusted output is now delivered to the production gathering point.
+
+Centralization Bureau
+Fixed tooltip - again
+Fixed not getting a bonus between heavy industry and orbital works
+
+Supercomputer
+Added AI core consumption: the industry will now require AI cores to work, and destroy them in the process.
+Added AI-core storage: this is where the Supercomputer takes the AI cores from.
+Fixed gamma core giving better hidden bonuses than alpha core
+Adjusted beta core tooltip for better understanding (Thanks Coherent Watermelon!)
+Adjusted some under-the-hood parts for AI behaviour
+Adjusted (reduced) the chance for a certain event to happen
+
+1.2.a
+Variable Industries
+Added AI-mode for non-player controlled markets
+Fixed VPC for Luxury goods is now usable
+Adjusted VPC War Package now displays correct description on deposit
+Adjusted warnings to text colour yellow
+
+Military Relays
+Fixed tootip displaying the market ID instead of market name
+
+Centralization Bureau
+Added AI-mode for non-player controlled markets
+Adjusted warnings to text colour yellow
+
+Salvage Yards
+Added AI-mode for non-player controlled markets
+Added notification about raid success/failure and received SU
+Fixed Production output/cargo transfer from Salvage market now transfers everything (thanks for the pointer LazyWizard)
+Fixed a crash when trying to remove heavy industry from a planet with salvage yards
+Fixed Salvage Yards Admin not getting replaced when switched out
+Fixed Salvage Yards market not getting removed on industry removal
+Fixed build time to 45 days (was 54)
+Adjusted warnings to text colour yellow
+
+Supercomputer
+Added AI-mode for non-player controlled markets
+Added Increase system wide colony income, depending on planet temperature.
+Added Tri-Tachyon would like to remind you to disregard any rumors of AI creation you might have heard.
+From dev release: increased diminishing effect on stacking from 0.9 to 0.88
+From dev release: fixed alpha AI core giving 44% bonus instead of 20%
+
+1.1.a
+
+Variable Industries
+Fixed AI cores randomly not working (All)
+Slightly decreased pather interest in Manufactory
+Removed pather interest in Commodity Forge (it destroys tech, they shouldn't care)
+
+Military Relays
+Changed build requirement from High Command to Military Base in Star System
+Reduced effect if no High command is present
+Fixed not buildable if planet only has a military base
+Fixed relays applying the bonus even if the colony had the highest fleet size
+Increased beta core effect to 25% upkeep reduction
+Is now unraidable
+
+Centralization Bureau
+Changed Industry blacklist to whitelist (No more issues with other modded industries)
+Is now unraidable
+
+Salvage Yards
+Added

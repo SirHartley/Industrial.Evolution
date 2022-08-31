@@ -1,0 +1,92 @@
+Todo:
+    TransMat network + item (teleport small fleets to other transmats (also items)
+
+    Paperclip factory easter egg
+
+    Training grounds, marine training facilities
+    Core idea: Training grounds. Building (maybe uses industry maybe not) that causes the local garrison of marines (storage or otherwise) to slowly have their XP increase. Would increase ground strength of any fleets deployed from the planet (like raids, invasions, suppression). Would also probably be capped at a certain XP limit without a certain item(s).
+    Could require a military base/high command on the planet. Should probably have a high upkeep as well as high demand for marines, heavy armaments, ship hulls, supplies, etc. everything that would be used to simulate battle. Would probably also affect ground defense, either negatively or positively. My idea was that it would decrease ground defense at first, as marines are tired and busy, but slowly have their discipline improve over time. Bonus would decay slowly if grounds are disrupted or removed.
+    AI core effects: Gamma reduces upkeep by 10%, beta increases XP training rate by (insert amount here) but significantly reduces ground defense rating (maybe reduces stability too?), alpha makes XP limit 100%, increases training rate.
+    Colony item: Hyper-quantum VR network, drastically reduces upkeep, removes ground defense malice, increases training rate, and replaces commodites needed with only things like supplies, volatiles, etc. all things needed to keep a VR network running.
+    I'm also wondering if maybe it could affect the ground defense of other colonies in system? Maybe also have an upgraded version that will slowly increase officer quality of ships?
+
+    Dyson sphere + subspace
+        Make rotating eyeball suns that follow the player and change position when out of view
+        make lightning arcs from eye to eye, last a second or two, cause damage to fleet if it hits
+        add nebulas and stuff
+        add gravitational anomalies
+        add suddenly appearing "holes" that push everything away from them
+        jump points corresponding to the stable location gates in the overworld
+        save the fleet the player uses every time they access the space, and spawn them as "echo" fleets they can fight
+            normal behaviour - just travel from eye to eye
+            when engaged, fight, never drop ships, sometimes drop organs
+        mote minefields?
+        spawn pirate fleets and smugglers using it
+
+    Black hole Anchor + item for Techmining (Re-Setting the colony to the exact state it was at installation)
+        re-sets any colony to the state when the item was installed (change loot key for ruins and re-set)
+
+    Pulsar Cannon + Item
+
+    item for academy (train level 7 officers, duplicate officers below level 4)
+    item for Privateer base (increase raid strengh and 2 raids at the same time)
+
+Interactions
+Old AI core is very lonely, asks you to take them with you
+    Download into robot body (will join as AI officer)
+    Disconnect it to gain a A/B core, depending on officer level
+    Or blow it up for no reward because heresy
+
+    if officer X% chance to steal the ship you assigned him on and run off, set a special bounty with a guaranteed alpha and ship drop!
+            "Seems like a loyal fellow"
+            "Is a bit shifty, but might stand by his words nonetheless"
+            "Will obviously betray you the first chance he gets"
+
+ can activate weapon manufactories and get few copies of a weapon (with a DP budget, make "warning" sign if you exceed it in the picker)
+
+ maybe a drone ship or two in case of drone manufactories
+
+ Intel that leads to a bounty with a higher-than normal value?
+         "Data from the ship's databanks reveals that so and so wears socks with slippers. Turning this intel in to the fashion police will result in a bounty with a higher payout."
+
+todo: Add the Research Nexus (Consumable item seller / CBCC experimental ship overhaul when HI is present)
+todo: Add the Explorers Guild (Rep-system on exploration stuff trade-in basis, look at discord notes)
+
+Requisitions Centre
+todo weiterübersetzen ab publicAddAfterDescriptionSection()
+
+For version after that:
+General:
+todo: Adjusted - Externalized all strings. The mod can now be easily translated.
+todo: General code overhaul. Now with better, more readable, and decidedly faster bugs.
+todo: Implement MagicLib csv whitelist loading (maybe version after that?)
+
+todo: Quest/Size growth blocker system
+
+todo: Sun Laser to murder planets and auto-murder pirate stations
+todo: Beacon
+todo: Terraforming Ring / Drone Control center
+
+todo: Bar Event (Aurica) - Find Ruins Constellation
+See a group of scavengers sharing tales and drinking in a corner.
+Overhear them talking about some kind of "strange ruins" or something and has the option to ask the salvagers about it.
+"You eavesdroppin' or what?"
+Trade them survey data in order to get information about a constellation that has industrial ruins in.
+They need a certain credit value in lvl 4 or 5 Survey data to be convinced, depending on dist. to core, ruins amt, system rating.
+Can hand them drugs to reduce the requried value by fixed amt?
+
+todo: Quest Event - Get a Forge Template
+Steal it from a muesum via a "heist" questline, or buy it for ludicrous money
+
+todo: Quest - Terraforming
+Retrieve Terraforming Core from guarded station without being seen?
+- Once terraforming Ring is found, get notification that an archeologist tried contacting you
+- Go visit the Archeologist on "random Planet"
+- He'll give you quest for Terraforming Core
+- Enter heavily guarded system
+- Find the station (Station is guarded by patrols)
+- Make "outlook stations" that have large sensor range guarding the jump points (Except outer)
+- If seen, alert entire system, spawn heavy patrols and increase station defence dp, beeline to player
+- If not, small station guard dp (Like, one remnant cruiser and a few dests, to make sure the player doesn't speedrun it with a frig)
+- Once done, get core, run tf away
+- Bring it to a mechanic to have it repaired (He will offer you 450k or two rare forge templates, or keep the core)

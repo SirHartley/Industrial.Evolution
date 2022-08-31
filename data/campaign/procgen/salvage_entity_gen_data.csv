@@ -1,0 +1,12 @@
+id,rating,detection_range,type,autoXP,xpDiscover,xpSalvage,tags,drop_value,drop_random,defFaction,defQuality,probDefenders,minStr,maxStr,maxSize,probStation,stationRole
+IndEvo_orbitalLaboratory,1,2200,DISCOVERABLE,2200,1000,3000,,basic:8000,"ai_cores2:5,
+ai_cores3:5,
+blueprints_low:5,
+indEvo_tech:4,
+extended:20x3000",,,,,,,,
+IndEvo_arsenalStation,0.75,2200,DISCOVERABLE,1700,1000,3000,,"basic:5000,
+indEvo_weapons:4000","indEvo_weapons:20x3000,
+weapons2:20,
+any_hullmod_medium:1,
+weapon_bp:3,
+fighter_bp:1",,,,,,,,
