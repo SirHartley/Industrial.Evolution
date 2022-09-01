@@ -20,6 +20,7 @@ import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGeneratorPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.MarketCMD;
+import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import org.json.JSONException;
@@ -55,10 +56,12 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
         matchCommanderToAICore(aiCoreId);
 
         if (!isFunctional()) {
+            getArtilleryPlugin().setDisrupted(true);
             supply.clear();
             unapply();
         } else {
             applyCRToStation();
+            getArtilleryPlugin().setDisrupted(false);
         }
     }
 
@@ -101,7 +104,6 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
             deficit = 0f;
         }
 
-
         float q = Misc.getShipQuality(market);
         if (q < 0) q = 0;
         if (q > 1) q = 1;
@@ -110,8 +112,6 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
         if (d < 0) d = 0;
         if (d > 1) d = 1;
 
-        //float cr = 0.2f + 0.4f * d + 0.4f * q;
-        //float cr = 0.2f + 0.8f * Math.min(d, q);
         float cr = 0.5f + 0.5f * Math.min(d, q);
         if (cr > 1) cr = 1;
 
@@ -136,6 +136,9 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
             float bonus = DEFENSE_BONUS_BASE;
 
             addGroundDefensesImpactSection(tooltip, bonus, Commodities.HEAVY_MACHINERY, Commodities.METALS);
+
+            IndEvo_ArtilleryStationEntityPlugin plugin = getArtilleryPlugin();
+            if(plugin != null) tooltip.addPara("Current range: %s", 10f, Misc.getHighlightColor(), (int) Math.round(plugin.getRange()) + " SU");
         }
     }
 
@@ -188,6 +191,8 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
             CustomCampaignEntityPlugin plugin = t.getCustomPlugin();
 
             if (plugin instanceof IndEvo_DerelictArtilleryStationEntityPlugin){
+                IndEvo_modPlugin.log("removing derelict station");
+
                 ((IndEvo_DerelictArtilleryStationEntityPlugin) plugin).preRemoveActions();
                 market.getConnectedEntities().remove(t);
 
@@ -198,6 +203,8 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
 
     protected void removeStationEntityAndFleetIfNeeded() {
         removeDerelictArtilleryStation();
+
+        IndEvo_modPlugin.log("removing artillery station at " + market.getName());
 
         if (stationEntity != null) {
 
@@ -235,11 +242,12 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
     public void notifyColonyRenamed() {
         super.notifyColonyRenamed();
 
-        stationFleet.setName(market.getName() + " " + getCurrentName() + " Station");
-        stationEntity.setName(market.getName() + " " + getCurrentName() + " Station");
+        if (stationFleet != null ) stationFleet.setName(market.getName() + " " + getCurrentName() + " Station");
+        if (stationEntity != null) stationEntity.setName(market.getName() + " " + getCurrentName() + " Station");
     }
 
     protected void spawnStation() {
+
         FleetParamsV3 fParams = new FleetParamsV3(null, null,
                 market.getFactionId(),
                 1f,
@@ -275,16 +283,19 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
         stationFleet.setHidden(true);
 
         matchStationAndCommanderToCurrentIndustry();
+        notifyColonyRenamed();
     }
 
     protected void ensureStationEntityIsSetOrCreated() {
         if (stationEntity == null) {
-            stationEntity = IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(market, getType());
+            IndEvo_modPlugin.log("spawning artillery station at " + market.getName());
+
+            stationEntity = IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(market, getType(), true);
         }
     }
 
     public String getType(){
-        return getSpec().getId().substring("IndEvo_Artillery_".length() - 1);
+        return getSpec().getId().substring("IndEvo_Artillery_".length());
     }
 
     protected void matchStationAndCommanderToCurrentIndustry() {
@@ -533,7 +544,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
 
     @Override
     public boolean isAvailableToBuild() {
-        if (!market.hasTag(IndEvo_ids.TAG_ARTILLERY_STATION)) return false;
+        //if (!market.hasTag(IndEvo_ids.TAG_ARTILLERY_STATION)) return false;
 
         boolean canBuild = false;
         for (Industry ind : market.getIndustries()) {
@@ -550,6 +561,6 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
 
     @Override
     public boolean showWhenUnavailable() {
-        return false;
+        return true;
     }
 }

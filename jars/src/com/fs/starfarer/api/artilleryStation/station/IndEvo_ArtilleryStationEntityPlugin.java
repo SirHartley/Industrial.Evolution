@@ -18,6 +18,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.campaign.CampaignEntity;
+import com.fs.starfarer.campaign.fleet.CampaignFleet;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -72,10 +73,10 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
     public void advance(float amount) {
         super.advance(amount);
 
-        if(!entity.isInCurrentLocation()) return;
+        if (!entity.isInCurrentLocation()) return;
         matchTerrainRange();
 
-        if(disrupted) return;
+        if (disrupted) return;
 
         advanceStationFireInterval(amount);
         advanceBlockedLocations(amount);
@@ -96,19 +97,20 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         if (!forcedTargetMap.isEmpty()) for (Map.Entry<String, IntervalUtil> e : forcedTargetMap.entrySet()) {
             IndEvo_modPlugin.log("Artillery Forced Targets iterating");
             fireAtTarget(e, loc);
-        } else for (Map.Entry<String, IntervalUtil> e : targetMap.entrySet()) {
+        }
+        else for (Map.Entry<String, IntervalUtil> e : targetMap.entrySet()) {
             IndEvo_modPlugin.log("Artillery Regular Targets iterating");
             fireAtTarget(e, loc);
         }
     }
 
-    public void forceTarget(SectorEntityToken t, float timeout){
+    public void forceTarget(SectorEntityToken t, float timeout) {
         if (forcedTargetMap.containsKey(t.getId())) return;
 
         IndEvo_modPlugin.log("Adding Forced Target " + t.getId());
 
-        t.getMemoryWithoutUpdate().set(FORCED_TARGET, true);
-        t.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY);
+        t.getMemoryWithoutUpdate().set(FORCED_TARGET, true, timeout);
+        t.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, timeout);
 
         IntervalUtil interval = new IntervalUtil(timeout, timeout);
         interval.forceIntervalElapsed();
@@ -116,7 +118,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         forcedTargetMap.put(t.getId(), interval);
     }
 
-    public void fireAtTarget(Map.Entry<String, IntervalUtil> e, LocationAPI loc){
+    public void fireAtTarget(Map.Entry<String, IntervalUtil> e, LocationAPI loc) {
         String s = e.getKey();
         IntervalUtil interval = e.getValue();
 
@@ -125,7 +127,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
             IndEvo_modPlugin.log(s + " - checking");
             boolean isForced = target.getMemoryWithoutUpdate().contains(FORCED_TARGET);
 
-            if(!isForced){
+            if (!isForced) {
                 if (!isValid(target)) return;
 
                 if (isInCombat(target)) {
@@ -152,12 +154,12 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
                 //not part of IsValid as to not remove targets that are temporarily safe
                 interval.setElapsed(interval.getIntervalDuration() - 1f);
 
-                //forced target in safe spot would never time out so we remove it
-                if (isForced) target.getMemoryWithoutUpdate().set(FORCE_INVALID, true);
+                //forced target in safe spot would never time out so we remove it in nebula
+                if (loc.isNebula()) target.getMemoryWithoutUpdate().set(FORCE_INVALID, true, MAX_DELAY_BETWEEN_SHOTS + 0.1f);
                 return;
             }
 
-            IndEvo_modPlugin.log("artillery firing");
+            IndEvo_modPlugin.log(s + " - artillery firing on target, type " + type);
 
             switch (type) {
                 case TYPE_RAILGUN:
@@ -175,24 +177,33 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
             interval.advance(0.01f); //reset the cooldown
 
             //forced targets get cleared after one shot, not when they become invalid
-            if (isForced) target.getMemoryWithoutUpdate().set(FORCE_INVALID, true);
+            if (isForced) {
+                IndEvo_modPlugin.log(s + " Timing out forced target");
+                target.getMemoryWithoutUpdate().set(FORCE_INVALID, true, stationFireInterval.getIntervalDuration());
+            }
+
         } else IndEvo_modPlugin.log(e.getKey() + " not ready - " + e.getValue().getElapsed());
     }
 
     private boolean isValid(SectorEntityToken t) {
         //it exists, is hostile, is in range and was seen
-        boolean hostile = !(t instanceof CampaignEntity) || (t instanceof CampaignFleetAPI && isHostileTo((CampaignFleetAPI) t));
+        boolean hostile = !(t instanceof CampaignFleetAPI) || isHostileTo((CampaignFleetAPI) t);
+        boolean isNotNullAI = !(t instanceof CampaignFleetAPI) || ((CampaignFleetAPI) t).getAI() != null;
 
         return t != null
-                && (hostile || t.getMemoryWithoutUpdate().contains(FORCED_TARGET)) //if it's a forced target, hostility does not matter
+                && hostile
                 && t.isAlive()
+                && isNotNullAI
                 && Misc.getDistance(t, entity) <= range
-                && t.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY)
-                && !t.getMemoryWithoutUpdate().contains(FORCE_INVALID);
+                && t.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY);
     }
 
-    private boolean isInCombat(SectorEntityToken target){
-        if (target instanceof CampaignFleetAPI){
+    private boolean isForcedValid(SectorEntityToken t){
+        return t != null && Misc.getDistance(t, entity) <= range && !t.getMemoryWithoutUpdate().contains(FORCE_INVALID);
+    }
+
+    private boolean isInCombat(SectorEntityToken target) {
+        if (target instanceof CampaignFleetAPI) {
             return ((CampaignFleetAPI) target).getBattle() != null;
         }
 
@@ -205,7 +216,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         for (Map.Entry<String, IntervalUtil> e : new HashSet<>(forcedTargetMap.entrySet())) {
             SectorEntityToken t = loc.getEntityById(e.getKey());
 
-            if (e.getValue().intervalElapsed() && !isValid(t)) {
+            if (e.getValue().intervalElapsed() && !isForcedValid(t)) {
                 IndEvo_modPlugin.log(e.getKey() + " removing forced target");
                 forcedTargetMap.remove(e.getKey());
             }
@@ -232,11 +243,13 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
             }
         }
 
-        if (Global.getSettings().isDevMode()) {
+        if (Global.getSettings().isDevMode() && devmodeInterval.intervalElapsed()) {
             CampaignFleetAPI player = Global.getSector().getPlayerFleet();
             forceTarget(player, 20f);
         }
     }
+
+    public IntervalUtil devmodeInterval = new IntervalUtil(5f, 5f);
 
     public void blockArea(Vector2f targetLoc) {
         blockedAreas.put(targetLoc, new IntervalUtil(IndEvo_ArtilleryShotScript.AVERAGE_PROJ_IMPACT_TIME, IndEvo_ArtilleryShotScript.AVERAGE_PROJ_IMPACT_TIME));
@@ -315,6 +328,8 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         //else, advance until ready
         if (targetMap.isEmpty() && forcedTargetMap.isEmpty()) stationFireInterval.setElapsed(0f);
         else if (!stationFireInterval.intervalElapsed()) stationFireInterval.advance(amount);
+
+        devmodeInterval.advance(amount);
     }
 
     private void advanceBlockedLocations(float amount) {
@@ -325,14 +340,14 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         }
     }
 
-    public static SectorEntityToken placeAtMarket(MarketAPI m, String forceType) {
+    public static SectorEntityToken placeAtMarket(MarketAPI m, String forceType, boolean showFleetVisual) {
         if (m.getPrimaryEntity() == null) return null;
 
         SectorEntityToken primaryEntity = m.getPrimaryEntity();
         SectorEntityToken station = getOrbitalStationAtMarket(m);
 
         float angle = station != null ? station.getCircularOrbitAngle() - 180 : (float) Math.random() * 360f;
-        float radius = station != null ?  station.getCircularOrbitRadius() : primaryEntity.getRadius() + 150f;
+        float radius = station != null ? station.getCircularOrbitRadius() : primaryEntity.getRadius() + 150f;
         float period = station != null ? station.getCircularOrbitPeriod() : radius / 10f;
 
         LocationAPI loc = primaryEntity.getContainingLocation();
@@ -349,6 +364,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         m.getConnectedEntities().add(artillery);
         artillery.setMarket(m);
         artillery.addTag(IndEvo_ids.TAG_ARTILLERY_STATION);
+        if (showFleetVisual) artillery.addTag(Tags.USE_STATION_VISUAL);
 
         SectorEntityToken t = loc.addTerrain("IndEvo_artillery_range_terrain", new BaseRingTerrain.RingParams(RANGE, 0f, artillery, "In artillery range"));
         t.setCircularOrbit(artillery, 0, 0, 0);
@@ -356,7 +372,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         return artillery;
     }
 
-    public static SectorEntityToken getOrbitalStationAtMarket(MarketAPI market){
+    public static SectorEntityToken getOrbitalStationAtMarket(MarketAPI market) {
         SectorEntityToken station = null;
 
         for (SectorEntityToken t : market.getConnectedEntities()) {
@@ -369,7 +385,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         return station;
     }
 
-    public void preRemoveActions(){
+    public void preRemoveActions() {
         targetMap.clear();
         forcedTargetMap.clear();
         blockedAreas.clear();
@@ -377,15 +393,15 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         getTerrainPlugin().remove();
     }
 
-    public void matchTerrainRange(){
-        if (Math.round(range) != Math.round(terrainRange)){
+    public void matchTerrainRange() {
+        if (Math.round(range) != Math.round(terrainRange)) {
             adjustTerrainRange(range);
         }
     }
 
-    public IndEvo_ArtilleryTerrain getTerrainPlugin(){
-        for (CampaignTerrainAPI t : entity.getContainingLocation().getTerrainCopy()){
-            if (t.getPlugin() instanceof IndEvo_ArtilleryTerrain){
+    public IndEvo_ArtilleryTerrain getTerrainPlugin() {
+        for (CampaignTerrainAPI t : entity.getContainingLocation().getTerrainCopy()) {
+            if (t.getPlugin() instanceof IndEvo_ArtilleryTerrain) {
                 IndEvo_ArtilleryTerrain p = ((IndEvo_ArtilleryTerrain) t.getPlugin());
 
                 if (p.getRelatedEntity() != null && p.getRelatedEntity().getId().equals(entity.getId())) return p;
@@ -395,7 +411,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         return null;
     }
 
-    public void adjustTerrainRange(float range){
+    public void adjustTerrainRange(float range) {
         getTerrainPlugin().setRange(range);
         terrainRange = range;
     }
@@ -408,15 +424,19 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         this.disrupted = disrupted;
     }
 
-    public void addToRange(float range){
+    public void addToRange(float range) {
         this.range += range;
     }
 
-    public void resetRange(){
+    public void resetRange() {
         this.range = RANGE;
     }
 
-    public static List<SectorEntityToken> getArtilleriesInLoc(LocationAPI loc){
+    public float getRange() {
+        return range;
+    }
+
+    public static List<SectorEntityToken> getArtilleriesInLoc(LocationAPI loc) {
         return loc.getEntitiesWithTag(IndEvo_ids.TAG_ARTILLERY_STATION);
     }
 
@@ -424,13 +444,13 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         return type;
     }
 
-    public Industry getRelatedIndustry(){
+    public Industry getRelatedIndustry() {
         MarketAPI m = entity.getMarket();
 
         if (m.isPlanetConditionMarketOnly()) return null;
         Industry ind = null;
 
-        for (Industry i : m.getIndustries()){
+        for (Industry i : m.getIndustries()) {
             if (i instanceof IndEvo_ArtilleryStation) {
                 ind = i;
                 break;
@@ -447,12 +467,11 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         float spad = 3f;
         Color highlight = Misc.getHighlightColor();
 
-        if (disrupted){
-            tooltip.addPara("This defence platform is %s.", opad, Misc.getNegativeHighlightColor(), "disrupted or destroyed");
-            return;
-        }
+        IndEvo_modPlugin.log("call");
 
-        switch (type) {
+        if (disrupted) {
+            tooltip.addPara("This defence platform is %s.", opad, Misc.getNegativeHighlightColor(), "not functional");
+        } else switch (type) {
             case TYPE_RAILGUN:
                 tooltip.addPara("The defence platform is armed with a %s.\n" +
                         "It will fire multiple extremely fast projectiles at an extreme range.", opad, highlight, "railgun");

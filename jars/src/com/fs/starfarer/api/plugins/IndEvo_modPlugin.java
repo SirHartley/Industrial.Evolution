@@ -90,9 +90,8 @@ public class IndEvo_modPlugin extends BaseModPlugin {
 
         //IndEvo_ArtilleryOriginEntityPlugin.devModePlace();
 
-        IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(Global.getSector().getEconomy().getMarket("eochu_bres"), IndEvo_ArtilleryStationEntityPlugin.TYPE_MISSILE);
-
-        IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(Global.getSector().getEconomy().getMarket("chicomoztoc"));
+        IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(Global.getSector().getEconomy().getMarket("eochu_bres"), IndEvo_ArtilleryStationEntityPlugin.TYPE_MISSILE, false);
+        IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(Global.getSector().getEconomy().getMarket("chicomoztoc"), IndEvo_ArtilleryStationEntityPlugin.TYPE_MORTAR, false);
 
         ModManagerAPI mm = Global.getSettings().getModManager();
         boolean yunruindustries = mm.isModEnabled("yunruindustries");
