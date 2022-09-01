@@ -4,13 +4,12 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_ArtilleryShotScript;
 import com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_MissileShotScript;
 import com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_RailgunShotEntity;
-import com.fs.starfarer.api.campaign.CampaignFleetAPI;
-import com.fs.starfarer.api.campaign.FactionAPI;
-import com.fs.starfarer.api.campaign.LocationAPI;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.artilleryStation.terrain.IndEvo_ArtilleryTerrain;
+import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
+import com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation;
 import com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
@@ -52,8 +51,10 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
 
     private String type;
     private IntervalUtil stationFireInterval = new IntervalUtil(MIN_DELAY_BETWEEN_SHOTS, MAX_DELAY_BETWEEN_SHOTS);
-
     private Map<String, IntervalUtil> forcedTargetMap = new HashMap<>();
+
+    public float range = RANGE;
+    public float terrainRange = 0f; //we save this here because getting the terrain is expensive
 
     @Override
     public void init(SectorEntityToken entity, Object pluginParams) {
@@ -68,6 +69,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         super.advance(amount);
 
         if(!entity.isInCurrentLocation()) return;
+        matchTerrainRange();
         updateName();
 
         advanceStationFireInterval(amount);
@@ -200,7 +202,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         return t != null
                 && (hostile || t.getMemoryWithoutUpdate().contains(FORCED_TARGET)) //if it's a forced target, hostility does not matter
                 && t.isAlive()
-                && Misc.getDistance(t, entity) <= RANGE
+                && Misc.getDistance(t, entity) <= range
                 && t.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY)
                 && !t.getMemoryWithoutUpdate().contains(FORCE_INVALID);
     }
@@ -339,25 +341,26 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         }
     }
 
-    public static void placeAtMarket(MarketAPI m, String forceType) {
-        if (m.getPrimaryEntity() == null) return;
+    public static SectorEntityToken placeAtMarket(MarketAPI m, String forceType) {
+        if (m.getPrimaryEntity() == null) return null;
 
         SectorEntityToken primaryEntity = m.getPrimaryEntity();
-        SectorEntityToken station = null;
+        SectorEntityToken station = getOrbitalStationAtMarket(m);
 
-        for (SectorEntityToken t : m.getConnectedEntities()) {
-            if (t.hasTag(Tags.STATION)) {
-                station = t;
-                break;
-            }
-        }
-
-        if (station == null) return;
+        float angle = station != null ? station.getCircularOrbitAngle() - 180 : (float) Math.random() * 360f;
+        float radius = station != null ?  station.getCircularOrbitRadius() : primaryEntity.getRadius() + 150f;
+        float period = station != null ? station.getCircularOrbitPeriod() : radius / 10f;
 
         LocationAPI loc = primaryEntity.getContainingLocation();
 
         SectorEntityToken artillery = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_ArtilleryStation", m.getFactionId(), forceType);
-        artillery.setCircularOrbitWithSpin(primaryEntity, station.getCircularOrbitAngle() - 180, station.getCircularOrbitRadius(), station.getCircularOrbitPeriod(), 5f, 5f);
+
+        artillery.setCircularOrbitWithSpin(primaryEntity,
+                angle,
+                radius,
+                period,
+                5f,
+                5f);
 
         m.getConnectedEntities().add(artillery);
         artillery.setMarket(m);
@@ -365,17 +368,79 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
 
         SectorEntityToken t = loc.addTerrain("IndEvo_artillery_range_terrain", new BaseRingTerrain.RingParams(RANGE, 0f, artillery, "In artillery range"));
         t.setCircularOrbit(artillery, 0, 0, 0);
+
+        return artillery;
+    }
+
+    public static SectorEntityToken getOrbitalStationAtMarket(MarketAPI market){
+        SectorEntityToken station = null;
+
+        for (SectorEntityToken t : market.getConnectedEntities()) {
+            if (t.hasTag(Tags.STATION)) {
+                station = t;
+                break;
+            }
+        }
+
+        return station;
+    }
+
+    public void preRemoveActions(){
+        targetMap.clear();
+        forcedTargetMap.clear();
+        blockedAreas.clear();
+
+        getTerrainPlugin().remove();
+    }
+
+    public void matchTerrainRange(){
+        if (Math.round(range) != Math.round(terrainRange)){
+            adjustTerrainRange(range);
+        }
+    }
+
+    public IndEvo_ArtilleryTerrain getTerrainPlugin(){
+        for (CampaignTerrainAPI t : entity.getContainingLocation().getTerrainCopy()){
+            if (t.getPlugin() instanceof IndEvo_ArtilleryTerrain){
+                IndEvo_ArtilleryTerrain p = ((IndEvo_ArtilleryTerrain) t.getPlugin());
+
+                if (p.getRelatedEntity() != null && p.getRelatedEntity().getId().equals(entity.getId())) return p;
+            }
+        }
+
+        return null;
+    }
+
+    public void adjustTerrainRange(float range){
+        getTerrainPlugin().setRange(range);
+        terrainRange = range;
+    }
+
+    public void addToRange(float range){
+        this.range += range;
+    }
+
+    public void resetRange(){
+        this.range = RANGE;
+    }
+
+    public void matchOrbitalStationType(){
+        Industry ind = getRelatedIndustry();
+        SectorEntityToken orbital = getOrbitalStationAtMarket(entity.getMarket());
+        if (ind == null || orbital == null) return;
+
+        this.type = getStationTypeForMarket(entity.getMarket());
     }
 
     public static List<SectorEntityToken> getArtilleriesInLoc(LocationAPI loc){
         return loc.getEntitiesWithTag(IndEvo_ids.TAG_ARTILLERY_STATION);
     }
 
-    public static void placeAtMarket(MarketAPI m) {
-        placeAtMarket(m, getStationTypeForMarket(m));
+    public static SectorEntityToken placeAtMarket(MarketAPI m) {
+        return placeAtMarket(m, getStationTypeForMarket(m));
     }
 
-    private static String getStationTypeForMarket(MarketAPI m) {
+    public static String getStationTypeForMarket(MarketAPI m) {
         Industry ind = null;
 
         for (Industry i : m.getIndustries()) {
@@ -397,11 +462,40 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         return type;
     }
 
+    public Industry getRelatedIndustry(){
+        MarketAPI m = entity.getMarket();
+
+        if (m.isPlanetConditionMarketOnly()) return null;
+        Industry ind = null;
+
+        for (Industry i : m.getIndustries()){
+            if (i instanceof IndEvo_ArtilleryStation) {
+                ind = i;
+                break;
+            }
+        }
+
+        return ind;
+    }
+
     @Override
     public void appendToCampaignTooltip(TooltipMakerAPI tooltip, SectorEntityToken.VisibilityLevel level) {
         super.appendToCampaignTooltip(tooltip, level);
         float opad = 10f;
+        float spad = 3f;
         Color highlight = Misc.getHighlightColor();
+
+        Industry ind = getRelatedIndustry();
+        if (ind != null && ind.getSpec().getId().equals(IndEvo_ids.ARTILLERY_INACTIVE)){
+            tooltip.addPara("The defence platform is %s.\n" +
+                    "The main armament will depend on the orbital station tech level.", opad, Misc.getNegativeHighlightColor(), "inactive");
+
+            tooltip.addPara("Low Tech: %s", opad, Global.getSettings().getDesignTypeColor("Low Tech"), "Mortar");
+            tooltip.addPara("Midline: %s", spad, Global.getSettings().getDesignTypeColor("Midline"), "Missile launcher");
+            tooltip.addPara("High Tech: %s", opad, Global.getSettings().getDesignTypeColor("High Tech"), "Railgun");
+
+            return;
+        }
 
         switch (type) {
             case TYPE_RAILGUN:

@@ -15,6 +15,14 @@ import static com.fs.starfarer.api.artilleryStation.station.IndEvo_ArtilleryStat
 
 public class IndEvo_ArtilleryTerrain extends BaseRingTerrain {
 
+    public void setRange(float range){
+        params.bandWidthInEngine = range;
+    }
+
+    public void remove(){
+        Misc.fadeAndExpire(entity, 0f);
+    }
+
     @Override
     public boolean canPlayerHoldStationIn() {
         return false;

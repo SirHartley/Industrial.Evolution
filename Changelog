@@ -29,6 +29,8 @@ i dont think the detachment actually moves
 merc industry
 https://discord.com/channels/815017574642483240/984638767279251468/1009925859630661783
 
+trade hub
+
 Colony Ship
 
 Optional:
@@ -46,6 +48,7 @@ adjust salvage event "Ship Roulette" -
 
 3.1.1 - unreleased
 General
+Added - @President Matt Damon#001 added to credits of this mod for help with vectors, math and script contributions. Thank you!
 Fixed - Corrected all those getList tooltips to get
 
 Items
@@ -59,9 +62,9 @@ Added - Consumable Item: Nanite Repair Module - Repairs your fleet, restores CR
 Added - Consumable Item: Tech Locator - Grav Scan for hyperspace, indicates systems with lots of loot
 Added - Consumable Item: Drive Bubble Spike - Deploys a mine that fires an interdiction pulse when an enemy fleet is in range
 Added - Consumable Item: Sensor Decoy - Attracts military fleets in a large radius, baits artillery fire
-Added - Consumable Item: Fuel Scoop - Succs juicy space fuel from a nearby star or nebula, courtesy of the Sindrian Fuel Company
+Added - Consumable Item: Fuel Scoop - Succs juicy space fuel from a nearby star or nebula
 Note - Some can be bought, all can be found through combat and exploration
-Adjusted - Switch to non-vanilla drop group system
+Adjusted - Switch to non-vanilla drop group system, courtesy of Matt
 Adjusted - Drop rates on all IndEvo items and loot overhauled
 
 Artillery Stations
