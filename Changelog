@@ -11,6 +11,7 @@ implement arty as ship (later)
 implement arty control center industry
 implement condition for arty and control center placement
 item effects (iff faker, targetting module)
+fix missile tracking - move to vector so it stops going in circles
 
 --------------------------- known issues -----------------------------
 
@@ -72,6 +73,7 @@ Research Projects
 Added - Project Transistor - Trade Relic Components for consumable items
 
 Minefields
+beta 2 - Adjusted - No longer blows up on fleets in combat
 beta 2 - Adjusted - Bounty and "Important" Fleets are no longer affected by minefields
 beta 2 - Adjusted - Friendly fleets ignore minefields and will no longer get stuck trying to pass them
 beta 2 - Adjusted - Increased immunity time after strike for NPC fleets
@@ -95,7 +97,7 @@ Note - 2 base output (+ 3 bonus) - 2 decay = 0 supply next month, where up until
 
 Academy
 Adjusted - Manually blacklisted that one Oculian Armada skill everyone was getting
-Fixed - No longer counts mercenaries against the officer limit
+beta 2 - Fixed - No longer counts mercenaries against the officer limit
 
 World Wonders
 Fixed - Stability Bonus for other in-System worlds is now properly permanent

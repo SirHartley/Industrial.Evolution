@@ -5,6 +5,7 @@ import com.fs.starfarer.api.IndEvo_StringHelper;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.CargoTransferHandlerAPI;
+import com.fs.starfarer.api.campaign.CoreUITabId;
 import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
 import com.fs.starfarer.api.campaign.impl.items.consumables.itemAbilities.IndEvo_SingleUseItemAbility;
 import com.fs.starfarer.api.characters.AbilityPlugin;
@@ -46,7 +47,9 @@ public class IndEvo_BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
     }
 
     public boolean isInPlayerCargo(){
-        return stack.getCargo().getFleetData() != null && stack.getCargo().getFleetData().getFleet().isPlayerFleet() && Global.getSector().getCampaignUI().getCurrentInteractionDialog().getInteractionTarget() == null;
+        return stack.getCargo().getFleetData() != null
+                && stack.getCargo().getFleetData().getFleet().isPlayerFleet()
+                && Global.getSector().getCampaignUI().getCurrentCoreTab() == CoreUITabId.CARGO;
     }
 
     protected AbilityPlugin getAbilityPlugin() {
@@ -194,6 +197,8 @@ public class IndEvo_BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
         else if (isCooldown()) {
             int cd = (int) Math.ceil(getAbilityPlugin().getCooldownLeft());
             tooltip.addPara("On cooldown for " + cd + " " + IndEvo_StringHelper.getDayOrDays(cd), r, opad);
+        } else if (!hasRightClickAction()){
+            tooltip.addPara("Can not activate in current situation", h, opad);
         }
     }
 }

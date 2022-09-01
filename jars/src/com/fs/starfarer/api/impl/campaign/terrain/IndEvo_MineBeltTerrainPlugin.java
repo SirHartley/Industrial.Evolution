@@ -193,7 +193,7 @@ public class IndEvo_MineBeltTerrainPlugin extends BaseRingTerrain implements Ast
                         fleet.getStats().getDetectedRangeMod());
             }
 
-            if (!isFriend(fleet)) {
+            if (!isFriend(fleet) && fleet.getBattle() == null) {
                 String key = "$mineImpactTimeout";
                 String sKey = "$skippedImpacts";
                 String recentKey = "$recentImpact";
