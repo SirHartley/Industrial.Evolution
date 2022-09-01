@@ -52,8 +52,9 @@ public class IndEvo_ids {
     public static final String RUINFRA = "IndEvo_RuinedInfra";
     public static final String PORT = "IndEvo_PrivatePort";
     public static final String CHAMELION = "IndEvo_ChamelionIndustry";
-    public static final String ARTILLERY_ACTIVE = "IndEvo_Artillery";
-    public static final String ARTILLERY_INACTIVE = "IndEvo_Artillery_Inactive";
+    public static final String ARTILLERY_MORTAR = "IndEvo_Artillery_mortar";
+    public static final String ARTILLERY_MISSILE = "IndEvo_Artillery_missile";
+    public static final String ARTILLERY_RAILGUN = "IndEvo_Artillery_railgun";
 
     public static final String PIRATEHAVEN_SECONDARY = "IndEvo_pirateHavenSecondary";
     public static final String COMMERCE = "commerce";

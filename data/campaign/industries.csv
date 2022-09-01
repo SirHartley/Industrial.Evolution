@@ -50,8 +50,30 @@ Place ships into the storage to reverse engineer them. Once you have achieved 10
 IndEvo_PrivatePort,Courier Port,30,40,,5,,,"structure, spaceport, tactical_bombardment",,graphics/industry/shipping_port.png,com.fs.starfarer.api.impl.campaign.econ.impl.courierPort.industry.CourierPortV2,"Privatized docking facilities allow for a much more direct approach to shipping - and have the distinct advantage of circumventing nosy government officials. Anything can be sent anywhere, as long as you have the funds.
 
 Allows you to transfer cargo between colonies via recurrent shipping contracts.",500
-IndEvo_Artillery_Inactive,Derelict Artillery,0,0,,0,,IndEvo_Artillery,"structure, unraidable",,graphics/industry/artilleryStation_inactive.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation,"A remnant of domain military power hangs over this planet, limp and leaking atmosphere. The imposing main armament still reminds onlookers of the promise it once held - swift death to anyone that dares tresspassing.",500
-IndEvo_Artillery,Orbital Artillery,100,60,,10,IndEvo_Artillery_Inactive,,"structure, important, unraidable",,graphics/industry/artilleryStation_active.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation,"An ancient, domain-built strategic system defence platform. It operates semi-autonomously as the control core does not seem to accept contemporary auth keys. Despite this, the cruiser sized main armament remains a deterrent to anyone with more than two brain cells. ",500
+IndEvo_Artillery_base,Orbital Artillery,,,,,,,"artillery, parent_item, important, structure",,graphics/icons/industry/station_category.png,com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation,"The remains of an ancient strategic artillery station hang listless over $market. Repairing it will provide you with a defensive weapons system of unrivalled effectiveness.
+
+Refitting the original system is possible thanks to the automated construction drones the platform is equipped with - you can choose from several variations.",2000
+IndEvo_Artillery_mortar,Mortar Artillery,100,60,,10,,,"artillery, sub_item, structure, important, unraidable","{
+radius:55,
+variant:station1_Standard,
+fleetName:Orbital Station,
+}",graphics/industry/artilleryStation_active.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation,"An ancient, domain-built strategic system defence platform. The massive mortar bombards targets with a high volume of explosive ordinance at extreme range.
+
+It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500
+IndEvo_Artillery_missile,Missile Artillery,100,60,,10,,,"artillery, sub_item, structure, important, unraidable","{
+radius:55,
+variant:station1_midline_Standard,
+fleetName:Orbital Station,
+}",graphics/industry/artilleryStation_active.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation,"An ancient, domain-built strategic system defence platform. Launches oversized long-range target seeking ECM missiles to interdict and slow hostiles.
+
+It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500
+IndEvo_Artillery_railgun,Railgun Artillery,100,60,,10,,,"artillery, sub_item, structure, important, unraidable","{
+radius:55,
+variant:station1_hightech_Standard,
+fleetName:Orbital Station,
+}",graphics/industry/artilleryStation_active.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation,"An ancient, domain-built strategic system defence platform. The cruiser-sized railgun fires multiple extremely fast projectiles at high range.
+
+It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500
 ,,,,,,,,,,,,,
 #Secondaries,,,,,,,,,,,,,
 IndEvo_pirateHavenSecondary,Privateer Base Secondary,0,0,,0,,,"industry, unraidable, no_saturation_bombardment",,graphics/industry/pirateHaven.png,com.fs.starfarer.api.impl.campaign.econ.impl.subindustries.IndEvo_pirateHavenSecondary,This industry blocks the second industry slot required by the Privateer Base.,9999

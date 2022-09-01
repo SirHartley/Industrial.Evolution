@@ -35,6 +35,9 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
     public static float DEFENSE_BONUS_BASE = 0.5f;
     public static final float IMPROVE_RANGE_BONUS = 2000f;
 
+    protected CampaignFleetAPI stationFleet = null;
+    protected SectorEntityToken stationEntity = null;
+
     @Override
     public void apply() {
         super.apply(false);
@@ -143,10 +146,6 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
         return this;
     }
 
-    protected CampaignFleetAPI stationFleet = null;
-    protected boolean usingExistingStation = false;
-    protected SectorEntityToken stationEntity = null;
-
     @Override
     public void advance(float amount) {
         super.advance(amount);
@@ -164,7 +163,6 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
             }
         }
     }
-
 
     @Override
     protected void buildingFinished() {
@@ -186,29 +184,6 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
         }
     }
 
-    @Override
-    protected void upgradeFinished(Industry previous) {
-        super.upgradeFinished(previous);
-
-        if (previous instanceof OrbitalStation) {
-            OrbitalStation prev = (OrbitalStation) previous;
-            stationEntity = prev.stationEntity;
-            stationFleet = prev.stationFleet;
-            usingExistingStation = prev.usingExistingStation;
-
-            if (stationFleet != null) {
-                stationFleet.removeEventListener(prev);
-                stationFleet.addEventListener(this);
-            }
-
-            if (stationEntity != null && stationFleet != null) {
-                matchStationAndCommanderToCurrentIndustry();
-            } else {
-                spawnStation();
-            }
-        }
-    }
-
     protected void removeStationEntityAndFleetIfNeeded() {
         if (stationEntity != null) {
 
@@ -219,7 +194,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
 
             stationEntity.getContainingLocation().removeEntity(stationFleet);
 
-            if (stationEntity.getContainingLocation() != null && !usingExistingStation) {
+            if (stationEntity.getContainingLocation() != null) {
                 stationEntity.getContainingLocation().removeEntity(stationEntity);
                 market.getConnectedEntities().remove(stationEntity);
 
@@ -245,10 +220,9 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
     @Override
     public void notifyColonyRenamed() {
         super.notifyColonyRenamed();
-        if (!usingExistingStation) {
-            stationFleet.setName(market.getName() + " Station");
-            stationEntity.setName(market.getName() + " Station");
-        }
+
+        stationFleet.setName(market.getName() + " " + getCurrentName() + " Station");
+        stationEntity.setName(market.getName() + " " + getCurrentName() + " Station");
     }
 
     protected void spawnStation() {
@@ -277,7 +251,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
         ensureStationEntityIsSetOrCreated();
 
         if (stationEntity instanceof CustomCampaignEntityAPI) {
-            if (!usingExistingStation || stationEntity.hasTag(Tags.USE_STATION_VISUAL)) {
+            if (stationEntity.hasTag(Tags.USE_STATION_VISUAL)) {
                 ((CustomCampaignEntityAPI) stationEntity).setFleetForVisual(stationFleet);
             }
         }
@@ -291,16 +265,6 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
 
     protected void ensureStationEntityIsSetOrCreated() {
         if (stationEntity == null) {
-            for (SectorEntityToken entity : market.getConnectedEntities()) {
-                if (entity.hasTag(IndEvo_ids.TAG_ARTILLERY_STATION)) {
-                    stationEntity = entity;
-                    usingExistingStation = true;
-                    break;
-                }
-            }
-        }
-
-        if (stationEntity == null) {
             stationEntity = IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(market);
         }
     }
@@ -311,12 +275,6 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
         String fleetName = null;
         String variantId = null;
         float radius = 60f;
-
-        //{
-        //radius:55,
-        //variant:station1_Standard,
-        //fleetName:Orbital Station,
-        //}
 
         try {
             JSONObject json = new JSONObject(getSpec().getData());
@@ -340,7 +298,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
         stationFleet.getFleetData().addFleetMember(member);
         applyCRToStation();
 
-        if (!usingExistingStation && stationEntity instanceof CustomCampaignEntityAPI) {
+        if (stationEntity instanceof CustomCampaignEntityAPI) {
             ((CustomCampaignEntityAPI) stationEntity).setRadius(radius);
         } else if (stationEntity.hasTag(Tags.USE_STATION_VISUAL)) {
             ((CustomCampaignEntityAPI) stationEntity).setRadius(radius);
@@ -546,13 +504,12 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
 
     public String getUnavailableReason() {
         if (!Misc.hasOrbitalStation(market)) return "Requires an Orbital Station";
-        if (!Misc.isMilitary(market)) return "Requires Military Presence";
         return "Requires a functional spaceport";
     }
 
     @Override
     public boolean isAvailableToBuild() {
-        if (spec.getId().equals(IndEvo_ids.ARTILLERY_INACTIVE)) return false;
+        if (!market.hasTag(IndEvo_ids.TAG_ARTILLERY_STATION)) return false;
 
         boolean canBuild = false;
         for (Industry ind : market.getIndustries()) {
@@ -564,12 +521,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
             }
         }
 
-        return canBuild && Misc.hasOrbitalStation(market) && Misc.isMilitary(market);
-    }
-
-    @Override
-    public boolean canDowngrade() {
-        return false;
+        return canBuild && Misc.hasOrbitalStation(market);
     }
 
     @Override

@@ -10,7 +10,6 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation;
-import com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
@@ -46,6 +45,9 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
     public static final String TYPE_MORTAR = "artillery_mortar";
     public static final String TYPE_MISSILE = "artillery_missile";
 
+    public static final String FORCED_TARGET = "$IndEvo_ForcedTarget";
+    public static final String FORCE_INVALID = "$IndEvo_FORCE";
+
     private Map<String, IntervalUtil> targetMap = new HashMap<>();
     private Map<Vector2f, IntervalUtil> blockedAreas = new HashMap<>();
 
@@ -55,6 +57,8 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
 
     public float range = RANGE;
     public float terrainRange = 0f; //we save this here because getting the terrain is expensive
+
+    public boolean disrupted = false;
 
     @Override
     public void init(SectorEntityToken entity, Object pluginParams) {
@@ -70,31 +74,14 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
 
         if(!entity.isInCurrentLocation()) return;
         matchTerrainRange();
-        updateName();
+
+        if(disrupted) return;
 
         advanceStationFireInterval(amount);
         advanceBlockedLocations(amount);
         advanceTargetCooldowns(amount);
         updateTargets(); //call BEFORE fireAtTargets to remove any invalid targets
         fireAtTargets();
-    }
-
-    private void updateName(){
-        String name = entity.getMarket().getName();
-
-        switch (type) {
-            case TYPE_RAILGUN:
-                name += " Railgun";
-                break;
-            case TYPE_MISSILE:
-                name += " Missile Launcher";
-                break;
-            case TYPE_MORTAR:
-                name += " Mortar";
-                break;
-        }
-
-        entity.setName(name);
     }
 
     private void fireAtTargets() {
@@ -114,9 +101,6 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
             fireAtTarget(e, loc);
         }
     }
-
-    public static final String FORCED_TARGET = "$IndEvo_ForcedTarget";
-    public static final String FORCE_INVALID = "$IndEvo_FORCE";
 
     public void forceTarget(SectorEntityToken t, float timeout){
         if (forcedTargetMap.containsKey(t.getId())) return;
@@ -424,38 +408,8 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         this.range = RANGE;
     }
 
-    public void matchOrbitalStationType(){
-        Industry ind = getRelatedIndustry();
-        SectorEntityToken orbital = getOrbitalStationAtMarket(entity.getMarket());
-        if (ind == null || orbital == null) return;
-
-        this.type = getStationTypeForMarket(entity.getMarket());
-    }
-
     public static List<SectorEntityToken> getArtilleriesInLoc(LocationAPI loc){
         return loc.getEntitiesWithTag(IndEvo_ids.TAG_ARTILLERY_STATION);
-    }
-
-    public static SectorEntityToken placeAtMarket(MarketAPI m) {
-        return placeAtMarket(m, getStationTypeForMarket(m));
-    }
-
-    public static String getStationTypeForMarket(MarketAPI m) {
-        Industry ind = null;
-
-        for (Industry i : m.getIndustries()) {
-            if (i instanceof OrbitalStation) {
-                ind = i;
-                break;
-            }
-        }
-
-        if (ind == null) return null;
-
-        String id = ind.getSpec().getId();
-        if (id.contains("mid")) return TYPE_MISSILE;
-        if (id.contains("high")) return TYPE_RAILGUN;
-        return TYPE_MORTAR;
     }
 
     public String getType() {
@@ -485,15 +439,8 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         float spad = 3f;
         Color highlight = Misc.getHighlightColor();
 
-        Industry ind = getRelatedIndustry();
-        if (ind != null && ind.getSpec().getId().equals(IndEvo_ids.ARTILLERY_INACTIVE)){
-            tooltip.addPara("The defence platform is %s.\n" +
-                    "The main armament will depend on the orbital station tech level.", opad, Misc.getNegativeHighlightColor(), "inactive");
-
-            tooltip.addPara("Low Tech: %s", opad, Global.getSettings().getDesignTypeColor("Low Tech"), "Mortar");
-            tooltip.addPara("Midline: %s", spad, Global.getSettings().getDesignTypeColor("Midline"), "Missile launcher");
-            tooltip.addPara("High Tech: %s", opad, Global.getSettings().getDesignTypeColor("High Tech"), "Railgun");
-
+        if (disrupted){
+            tooltip.addPara("This defence platform is %s.", opad, Misc.getNegativeHighlightColor(), "disrupted or destroyed");
             return;
         }
 
@@ -504,7 +451,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
                 break;
             case TYPE_MISSILE:
                 tooltip.addPara("The defence platform is armed with a %s.\n" +
-                        "It will launch long-range target seeking missiles.", opad, highlight, "missile launcher");
+                        "It will launch long-range target seeking ECM missiles.", opad, highlight, "missile launcher");
                 break;
             case TYPE_MORTAR:
                 tooltip.addPara("The defence platform is armed with a %s.\n" +
