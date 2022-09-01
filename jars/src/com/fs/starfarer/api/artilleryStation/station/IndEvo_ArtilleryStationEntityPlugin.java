@@ -41,9 +41,9 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
     public static final float ARTILLERY_BLOCKOUT_RANGE = 400f;
     public static final float INHABITED_AREA_SAFE_RADIUS = 700f;
 
-    public static final String TYPE_RAILGUN = "artillery_railgun";
-    public static final String TYPE_MORTAR = "artillery_mortar";
-    public static final String TYPE_MISSILE = "artillery_missile";
+    public static final String TYPE_RAILGUN = "railgun";
+    public static final String TYPE_MORTAR = "mortar";
+    public static final String TYPE_MISSILE = "missile";
 
     public static final String FORCED_TARGET = "$IndEvo_ForcedTarget";
     public static final String FORCE_INVALID = "$IndEvo_FORCE";
@@ -398,6 +398,14 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
     public void adjustTerrainRange(float range){
         getTerrainPlugin().setRange(range);
         terrainRange = range;
+    }
+
+    public boolean isDisrupted() {
+        return disrupted;
+    }
+
+    public void setDisrupted(boolean disrupted) {
+        this.disrupted = disrupted;
     }
 
     public void addToRange(float range){

@@ -2,6 +2,7 @@ package com.fs.starfarer.api.impl.campaign.econ.impl;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.artilleryStation.station.IndEvo_ArtilleryStationEntityPlugin;
+import com.fs.starfarer.api.artilleryStation.station.IndEvo_DerelictArtilleryStationEntityPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
@@ -21,16 +22,14 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGenerator
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.MarketCMD;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.Pair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.awt.*;
 
 public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventListener {
-    //upgrade from broken version - requires orbital station and military base
-    //requires metal and machinery to run, when deficit, do not fire
-    //station has to be defeated before colonizing?
+    //we'll make 2 versions - one for industry and one for derelict interaction
+    //the derelict one should probably extend the normal one
 
     public static float DEFENSE_BONUS_BASE = 0.5f;
     public static final float IMPROVE_RANGE_BONUS = 2000f;
@@ -184,7 +183,22 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
         }
     }
 
+    protected void removeDerelictArtilleryStation(){
+        for (SectorEntityToken t : market.getConnectedEntities()){
+            CustomCampaignEntityPlugin plugin = t.getCustomPlugin();
+
+            if (plugin instanceof IndEvo_DerelictArtilleryStationEntityPlugin){
+                ((IndEvo_DerelictArtilleryStationEntityPlugin) plugin).preRemoveActions();
+                market.getConnectedEntities().remove(t);
+
+                Misc.fadeAndExpire(t, 0f);
+            }
+        }
+    }
+
     protected void removeStationEntityAndFleetIfNeeded() {
+        removeDerelictArtilleryStation();
+
         if (stationEntity != null) {
 
             stationEntity.getMemoryWithoutUpdate().unset(MemFlags.STATION_FLEET);
@@ -265,8 +279,12 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
 
     protected void ensureStationEntityIsSetOrCreated() {
         if (stationEntity == null) {
-            stationEntity = IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(market);
+            stationEntity = IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(market, getType());
         }
+    }
+
+    public String getType(){
+        return getSpec().getId().substring("IndEvo_Artillery_".length() - 1);
     }
 
     protected void matchStationAndCommanderToCurrentIndustry() {
@@ -386,12 +404,18 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
     protected void disruptionFinished() {
         super.disruptionFinished();
 
+        IndEvo_ArtilleryStationEntityPlugin p = getArtilleryPlugin();
+        if (p != null) p.setDisrupted(false);
+
         matchStationAndCommanderToCurrentIndustry();
     }
 
     @Override
     protected void notifyDisrupted() {
         super.notifyDisrupted();
+
+        IndEvo_ArtilleryStationEntityPlugin p = getArtilleryPlugin();
+        if (p != null) p.setDisrupted(true);
 
         matchStationAndCommanderToCurrentIndustry();
     }
@@ -450,9 +474,11 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
 
     }
 
-    public SectorEntityToken getArtillery(){
+    public IndEvo_ArtilleryStationEntityPlugin getArtilleryPlugin(){
+        if (stationEntity != null) return (IndEvo_ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin();
+
         for (SectorEntityToken t : market.getConnectedEntities()){
-            if (t.getCustomPlugin() instanceof IndEvo_ArtilleryStationEntityPlugin) return t;
+            if (t.getCustomPlugin() instanceof IndEvo_ArtilleryStationEntityPlugin) return (IndEvo_ArtilleryStationEntityPlugin) t.getCustomPlugin();
         }
 
         return null;
@@ -464,9 +490,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
     }
 
     protected void applyImproveModifiers() {
-        SectorEntityToken t = getArtillery();
-        IndEvo_ArtilleryStationEntityPlugin p = t != null ? (IndEvo_ArtilleryStationEntityPlugin) t.getCustomPlugin() : null;
-
+        IndEvo_ArtilleryStationEntityPlugin p = getArtilleryPlugin();
         if (p == null) return;
 
         if (isImproved()) {
