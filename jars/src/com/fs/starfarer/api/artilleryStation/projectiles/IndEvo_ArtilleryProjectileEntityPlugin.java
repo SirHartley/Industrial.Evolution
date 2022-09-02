@@ -216,7 +216,7 @@ public class IndEvo_ArtilleryProjectileEntityPlugin extends BaseCustomEntityPlug
             phase += amount * GLOW_FREQUENCY;
             while (phase > 1) phase--;
             flicker.advance(amount);
-        }
+        } else if(!finishing) entity.setLocation(origin.getLocation().x, origin.getLocation().y);
     }
 
     public void advanceEntityPosition(float amount) {

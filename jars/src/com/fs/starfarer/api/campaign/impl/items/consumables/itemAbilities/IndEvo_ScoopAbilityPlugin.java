@@ -159,7 +159,10 @@ public class IndEvo_ScoopAbilityPlugin extends IndEvo_BaseConsumableAbilityPlugi
         ageTypes.put(StarAge.ANY.toString(), 0.7f);
 
         float starMult = starTypes.get(type);
-        float ageMult = ageTypes.get(age.toString());
+        float ageMult;
+
+        if (age != null && ageTypes.containsKey(age.toString())) ageMult = ageTypes.get(age.toString());
+        else ageMult = 0.7f;
 
         float dur = getDurationDays() * CampaignClock.SECONDS_PER_GAME_DAY;
         float amt = targetType == TargetType.NEBULA ? (MAX_FUEL_AMT / dur) * ageMult : (MAX_FUEL_AMT / dur) * starMult;

@@ -2,6 +2,7 @@ package com.fs.starfarer.api.campaign.impl.items.consumables.singleUseItemPlugin
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.IndEvo_StringHelper;
+import com.fs.starfarer.api.ModPlugin;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.CargoTransferHandlerAPI;
@@ -11,6 +12,7 @@ import com.fs.starfarer.api.campaign.impl.items.consumables.itemAbilities.IndEvo
 import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
+import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
 import com.fs.starfarer.api.plugins.timers.IndEvo_IntervalTracker;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -47,9 +49,7 @@ public class IndEvo_BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
     }
 
     public boolean isInPlayerCargo(){
-        return stack.getCargo().getFleetData() != null
-                && stack.getCargo().getFleetData().getFleet().isPlayerFleet()
-                && Global.getSector().getCampaignUI().getCurrentCoreTab() == CoreUITabId.CARGO;
+        return Global.getSector().getCampaignUI().getCurrentCoreTab() == CoreUITabId.CARGO && Global.getSector().getCampaignUI().getCurrentInteractionDialog() == null;
     }
 
     protected AbilityPlugin getAbilityPlugin() {
@@ -72,20 +72,20 @@ public class IndEvo_BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
 
     @Override
     public void render(float x, float y, float w, float h, float alphaMult, float glowMult, SpecialItemRendererAPI renderer) {
-        if(!isActive() || !isCooldown()) return;
+        if(!isActive() && !isCooldown()) return;
 
         //when active, do the alcohol thing
         //when on cooldown, do a pulsing red border - border breaks everything, revert to default spinny boi
-
+        final SpriteAPI sprite = this.shortFrame;
+        final SpriteAPI mask = this.mask;
         float cx = x + w / 2f;
         float cy = y + h / 2f;
         float secondFraction = isCooldown() ? IndEvo_IntervalTracker.getInstance().getIntervalFraction2s() : IndEvo_IntervalTracker.getInstance().getIntervalFraction1s();
+        float maskAlpha = isCooldown() ? 0.5f : 0.9f;
         Color baseColor = isCooldown() ? Color.RED : Misc.getBasePlayerColor();
 
-        final SpriteAPI sprite = this.shortFrame;
-        final SpriteAPI mask = this.mask;
-
         if (sprite != null && mask != null) {
+
             sprite.setSize(90f,90f);
 
             //sprite render
@@ -103,7 +103,7 @@ public class IndEvo_BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
             sprite.setBlendFunc(GL11.GL_ONE, GL11.GL_ZERO);
             sprite.renderAtCenter(cx, cy);
 
-            mask.setAlphaMult(alphaMult * 0.9f);
+            mask.setAlphaMult(alphaMult * maskAlpha);
             mask.setAngle(-secondFraction * 90f);
             mask.setBlendFunc(GL11.GL_ZERO, GL11.GL_SRC_ALPHA);
             mask.renderAtCenter(cx, cy);
@@ -112,38 +112,6 @@ public class IndEvo_BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
             mask.setBlendFunc(GL11.GL_DST_ALPHA, GL11.GL_ONE_MINUS_DST_ALPHA);
             mask.renderAtCenter(cx, cy);
         }
-
-        /*if(isCooldown()){
-            sprite = this.frame;
-
-            if (IndEvo_IntervalTracker.getInstance().isElapsed1s() || IndEvo_IntervalTracker.getInstance().isElapsed2s()) reverse = !reverse;
-
-            if (sprite != null) {
-
-                Color baseColor = Color.RED;
-                sprite.setSize(100f, 100f);
-
-                secondFraction = reverse ? 1 - secondFraction : secondFraction;
-                if (prev < 0.5f && secondFraction == 1f) secondFraction = 0f;
-                else if (prev > 0.5f && secondFraction == 0f) secondFraction = 1f;
-
-                prev = secondFraction;
-
-                //sprite render
-                sprite.setColor(baseColor);
-                sprite.setNormalBlend();
-                sprite.setAlphaMult(alphaMult * 0.6f * secondFraction);
-                sprite.renderAtCenter(cx, cy);
-
-                GL11.glColorMask(false, false, false, true);
-                GL11.glPushMatrix();
-                GL11.glTranslatef(cx, cy, 0);
-                Misc.renderQuadAlpha(x * 3f, y * 3f, w * 3f, h * 3f, Misc.zeroColor, 0f);
-                GL11.glPopMatrix();
-                sprite.setBlendFunc(GL11.GL_ONE, GL11.GL_ZERO);
-                sprite.renderAtCenter(cx, cy);
-            }
-        }*/
     }
 
     public boolean isAbilityAvailable(){
@@ -192,7 +160,7 @@ public class IndEvo_BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
 
         addCostLabel(tooltip, opad, transferHandler, stackSource);
 
-        if(isAbilityAvailable()) tooltip.addPara("Right-click to use", b, opad);
+        if(hasRightClickAction()) tooltip.addPara("Right-click to use", b, opad);
         else if (isActive()) tooltip.addPara("Currently active", h, opad);
         else if (isCooldown()) {
             int cd = (int) Math.ceil(getAbilityPlugin().getCooldownLeft());

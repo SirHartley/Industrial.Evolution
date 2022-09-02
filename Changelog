@@ -10,8 +10,6 @@ implement arty as ship (later)
 item effects (iff faker, targetting module)
 fix missile tracking - move to vector so it stops going in circles
 
-todo mortar station projectile origin does not move with station
-
 --------------------------- known issues -----------------------------
 
 Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
