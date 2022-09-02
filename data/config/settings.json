@@ -27,6 +27,7 @@
   "PrivatePort": TRUE,
 
   #Campaign Features
+  "Enable_IndEvo_Artillery": TRUE,
   "Enable_IndEvo_minefields": TRUE,
   "Enable_Indevo_Derelicts": TRUE, #Also includes salvage events and station types
   "IndEvo_SpecialApplicationChance": 0.9f, #master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing.

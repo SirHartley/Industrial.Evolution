@@ -8,7 +8,6 @@ artillery disabled when station disabled
 watchtower interactions
 exploration placement of watchtowers and arty
 implement arty as ship (later)
-implement arty control center industry
 implement condition for arty and control center placement
 item effects (iff faker, targetting module)
 fix missile tracking - move to vector so it stops going in circles

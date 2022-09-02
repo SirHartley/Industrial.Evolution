@@ -22,6 +22,24 @@ public class IndEvo_NewGameIndustryPlacer {
         placeCourierPorts();
     }
 
+    public static void placeArtilleries(){
+        if (Global.getSector().getEconomy().getMarket("culann") == null || !Global.getSettings().getBoolean("Enable_IndEvo_Artillery") || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedArtilleries")) return;
+
+        MarketAPI m = Global.getSector().getEconomy().getMarket("culann");
+        m.addIndustry(IndEvo_ids.ARTILLERY_RAILGUN);
+        m.getIndustry(IndEvo_ids.ARTILLERY_RAILGUN).setAICoreId(Commodities.ALPHA_CORE);
+
+        m = Global.getSector().getEconomy().getMarket("chicomoztoc");
+        m.addIndustry(IndEvo_ids.ARTILLERY_MORTAR);
+
+        m = Global.getSector().getEconomy().getMarket("kazeron");
+        m.addIndustry(IndEvo_ids.ARTILLERY_MISSILE);
+        m.getIndustry(IndEvo_ids.ARTILLERY_MISSILE).setAICoreId(Commodities.GAMMA_CORE);
+
+        Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedArtilleries", true);
+    }
+
+
     public static void placeManufactories() {
         if (!Global.getSettings().getBoolean("Manufactory")) {
             return;

@@ -4,6 +4,21 @@ IndEvo_arsenalStation,CUSTOM,"An abandoned arsenal station, built to outlast wha
 IndEvo_orbitalLaboratory,CUSTOM,"An abandoned orbital laboratory. Stations like this were built to keep experimental tech away from prying eyes. A cursory scan indicates that it has been cold and dead for tens of cycles at the very least, possibly hundreds. Closer inspection may yield salvage.",,,
 IndEvo_Watchtower,CUSTOM,"This automated remnant of old domain system defence transmits targetting data to nearby artillery. The encrypted target data is inaccessible to the controlling faction, and does not expose the actual position of the observed fleet.",,,
 IndEvo_artilleryStation,CUSTOM,"A massive, domain-built strategic system defence weapon, this behemoth of forgotten technology can secure a large area all by itself. It operates semi-autonomously, comes with integrated nanoforges for ammunition, and will target any hostile entities that are spotted within range.",,,
+IndEvo_Artillery_mortar,CUSTOM,"A massive, domain-built strategic system defence weapon, this behemoth of forgotten technology can secure a large area all by itself. It operates semi-autonomously, comes with integrated nanoforges for ammunition, and will target any hostile entities that are spotted within range.
+
+The defence platform is armed with a mortar, bombarding targets with a high volume of explosive ordinance at extreme range.
+
+Old safety protocols prohibit targeting of inhabited areas.",,,
+IndEvo_Artillery_missile,CUSTOM,"A massive, domain-built strategic system defence weapon, this behemoth of forgotten technology can secure a large area all by itself. It operates semi-autonomously, comes with integrated nanoforges for ammunition, and will target any hostile entities that are spotted within range.
+
+The defence platform is armed with a missile launcher, firing oversized long-range target seeking ECM missiles to interdict and slow hostiles.
+
+Old safety protocols prohibit targeting of inhabited areas.",,,
+IndEvo_Artillery_railgun,CUSTOM,"A massive, domain-built strategic system defence weapon, this behemoth of forgotten technology can secure a large area all by itself. It operates semi-autonomously, comes with integrated nanoforges for ammunition, and will target any hostile entities that are spotted within range.
+
+The defence platform is armed with a railgun, firing multiple extremely fast projectiles at an long range.
+
+Old safety protocols prohibit targeting of inhabited areas.",,,
 ,,,,,
 IndEvo_parts,RESOURCE,"Old starship parts which can no longer be properly produced by the decaying Sector infrastructure. Their only reliable source is the deconstruction of existing ships. A shortage of these will not prohibit the construction of new ships by much, but it will seriously affect their quality.",,,
 IndEvo_rare_parts,RESOURCE,"Ancient or highly advanced technology which can no longer be manufactured in the Persean Sector. These components are essential to building new, pristine spaceships - they do not get traded on the open market, and are the reason Salvage Yards are usually viciously guarded.",,,

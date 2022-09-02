@@ -58,6 +58,8 @@ public class IndEvo_modPlugin extends BaseModPlugin {
        if(Global.getSettings().isDevMode()) Global.getLogger(IndEvo_modPlugin.class).info(Text);
     }
 
+    public static int DEALMAKER_INCOME_PERCENT_BONUS = 25;
+
     @Override
     public void onApplicationLoad() throws Exception {
         boolean hasLazyLib = Global.getSettings().getModManager().isModEnabled("lw_lazylib");
@@ -79,19 +81,7 @@ public class IndEvo_modPlugin extends BaseModPlugin {
 
     @Override
     public void onGameLoad(boolean newGame) {
-
-        //Global.getSector().addTransientScript(new debug());
-
-        //ColonyMemoryEntry e = MobileColonyFactory.create();
-        //Global.getSector().getPlayerFleet().getContainingLocation().spawnFleet(Global.getSector().getPlayerFleet(), 20f, 20f, e.getFleet());
-
-        //IndEvo_DerelictStationPlacer.addDebugStation();
-        //IndEvo_SuperStructureManager.addDysonSwarmEntity(Global.getSector().getStarSystem("corvus"));
-
-        //IndEvo_ArtilleryOriginEntityPlugin.devModePlace();
-
-        IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(Global.getSector().getEconomy().getMarket("eochu_bres"), IndEvo_ArtilleryStationEntityPlugin.TYPE_MISSILE, false);
-        IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(Global.getSector().getEconomy().getMarket("chicomoztoc"), IndEvo_ArtilleryStationEntityPlugin.TYPE_MORTAR, false);
+        IndEvo_NewGameIndustryPlacer.placeArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next one
 
         ModManagerAPI mm = Global.getSettings().getModManager();
         boolean yunruindustries = mm.isModEnabled("yunruindustries");
@@ -114,14 +104,13 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         IndEvo_LocatorSystemRatingUpdater.updateAllSystems();
     }
 
-    public static int DEALMAKER_INCOME_PERCENT_BONUS = 25;
-
     @Override
     public void onNewGameAfterEconomyLoad() {
         super.onNewGameAfterEconomyLoad();
 
         IndEvo_RuinsManager.forceCleanCoreRuins();
         IndEvo_NewGameIndustryPlacer.run();
+        IndEvo_NewGameIndustryPlacer.placeArtilleries();
         createAcademyMarket();
 
         if (Global.getSettings().getBoolean("Enable_Indevo_Derelicts")) {

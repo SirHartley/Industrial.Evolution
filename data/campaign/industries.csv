@@ -50,27 +50,29 @@ Place ships into the storage to reverse engineer them. Once you have achieved 10
 IndEvo_PrivatePort,Courier Port,30,40,,5,,,"structure, spaceport, tactical_bombardment",,graphics/industry/shipping_port.png,com.fs.starfarer.api.impl.campaign.econ.impl.courierPort.industry.CourierPortV2,"Privatized docking facilities allow for a much more direct approach to shipping - and have the distinct advantage of circumventing nosy government officials. Anything can be sent anywhere, as long as you have the funds.
 
 Allows you to transfer cargo between colonies via recurrent shipping contracts.",500
+,,,,,,,,,,,,,
+#Artillery,,,,,,,,,,,,,
 IndEvo_Artillery_base,Orbital Artillery,,,,,,,"artillery, parent_item, important, structure",artillery,graphics/icons/industry/station_category.png,com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation,"The remains of an ancient strategic artillery station hang listless over $market. Repairing it will provide you with a defensive weapons system of unrivalled effectiveness.
 
 Refitting the original system is possible thanks to the automated construction drones the platform is equipped with - you can choose from several variations.",2000
 IndEvo_Artillery_mortar,Mortar Artillery,100,60,,10,,,"artillery, sub_item, structure, important, unraidable","{
-radius:55,
+radius:40,
 variant:station1_Standard,
-fleetName:Orbital Station,
-}",graphics/industry/artilleryStation_active.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation,"An ancient, domain-built strategic system defence platform. The massive mortar bombards targets with a high volume of explosive ordinance at extreme range.
+fleetName:Orbital Artillery,
+}",graphics/industry/artilleryStation_active.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation,"An ancient, domain-built strategic system defence platform. It will bombard targets with a high volume of explosive ordinance at extreme range..
 
 It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500
 IndEvo_Artillery_missile,Missile Artillery,100,60,,10,,,"artillery, sub_item, structure, important, unraidable","{
-radius:55,
+radius:40,
 variant:station1_midline_Standard,
-fleetName:Orbital Station,
+fleetName:Orbital Artillery,
 }",graphics/industry/artilleryStation_active.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation,"An ancient, domain-built strategic system defence platform. Launches oversized long-range target seeking ECM missiles to interdict and slow hostiles.
 
 It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500
 IndEvo_Artillery_railgun,Railgun Artillery,100,60,,10,,,"artillery, sub_item, structure, important, unraidable","{
-radius:55,
+radius:40,
 variant:station1_hightech_Standard,
-fleetName:Orbital Station,
+fleetName:Orbital Artillery,
 }",graphics/industry/artilleryStation_active.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation,"An ancient, domain-built strategic system defence platform. The cruiser-sized railgun fires multiple extremely fast projectiles at high range.
 
 It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500

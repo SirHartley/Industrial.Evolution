@@ -185,6 +185,25 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         } else IndEvo_modPlugin.log(e.getKey() + " not ready - " + e.getValue().getElapsed());
     }
 
+    @Override
+    public boolean hasCustomMapTooltip() {
+        return true;
+    }
+
+    @Override
+    public void createMapTooltip(TooltipMakerAPI tooltip, boolean expanded) {
+        Color color = entity.getFaction().getBaseUIColor();
+
+        tooltip.addPara(Misc.ucFirst(type) + " Artillery", color, 0);
+        tooltip.addPara("Targets enemy fleets at %s range", 3f, Misc.getHighlightColor(), (int) Math.round(range) + " SU");
+
+        boolean hostile = isHostileTo(Global.getSector().getPlayerFleet());
+        Color c = hostile ? Misc.getNegativeHighlightColor() : Misc.getPositiveHighlightColor();
+        String s = hostile ? "hostile" : " not hostile";
+
+        tooltip.addPara("You are %s to the controlling faction.", 3f, c, s);
+    }
+
     private boolean isValid(SectorEntityToken t) {
         //it exists, is hostile, is in range and was seen
         boolean hostile = !(t instanceof CampaignFleetAPI) || isHostileTo((CampaignFleetAPI) t);

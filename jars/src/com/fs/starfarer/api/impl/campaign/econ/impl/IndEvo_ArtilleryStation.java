@@ -54,14 +54,16 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
                 .modifyMult(getModId(), 1f + bonus, getNameForModifier());
 
         matchCommanderToAICore(aiCoreId);
+        IndEvo_ArtilleryStationEntityPlugin plugin = getArtilleryPlugin();
 
         if (!isFunctional()) {
-            getArtilleryPlugin().setDisrupted(true);
+            if (plugin != null) getArtilleryPlugin().setDisrupted(true);
+
             supply.clear();
             unapply();
         } else {
             applyCRToStation();
-            getArtilleryPlugin().setDisrupted(false);
+            if (plugin != null) getArtilleryPlugin().setDisrupted(false);
         }
     }
 
@@ -275,6 +277,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
         if (stationEntity instanceof CustomCampaignEntityAPI) {
             if (stationEntity.hasTag(Tags.USE_STATION_VISUAL)) {
                 ((CustomCampaignEntityAPI) stationEntity).setFleetForVisual(stationFleet);
+                stationEntity.setCustomDescriptionId(getSpec().getId());
             }
         }
 
@@ -556,11 +559,11 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
             }
         }
 
-        return canBuild && Misc.hasOrbitalStation(market);
+        return canBuild && Misc.hasOrbitalStation(market) && Global.getSettings().getBoolean("Enable_IndEvo_Artillery");
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return true;
+        return market.hasTag(IndEvo_ids.TAG_ARTILLERY_STATION);
     }
 }
