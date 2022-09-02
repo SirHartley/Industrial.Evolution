@@ -4,13 +4,13 @@ todo consumable item that allows forced targetting of artillery on mouse pos
 todo item that fakes IFF to be firendly for minefields
 todo item that fakes IFF to be firendly for artillery
 
-artillery disabled when station disabled
 watchtower interactions
 exploration placement of watchtowers and arty
 implement arty as ship (later)
-implement condition for arty and control center placement
 item effects (iff faker, targetting module)
 fix missile tracking - move to vector so it stops going in circles
+
+todo mortar station projectile origin does not move with station
 
 --------------------------- known issues -----------------------------
 

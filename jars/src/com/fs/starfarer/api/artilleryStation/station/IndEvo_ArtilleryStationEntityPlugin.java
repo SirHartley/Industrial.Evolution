@@ -10,6 +10,7 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
@@ -365,13 +366,14 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         SectorEntityToken primaryEntity = m.getPrimaryEntity();
         SectorEntityToken station = getOrbitalStationAtMarket(m);
 
+        String factionID = m.isPlanetConditionMarketOnly() ? Factions.DERELICT : m.getFactionId();
+
+        LocationAPI loc = primaryEntity.getContainingLocation();
+        SectorEntityToken artillery = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_ArtilleryStation", factionID, forceType);
+
         float angle = station != null ? station.getCircularOrbitAngle() - 180 : (float) Math.random() * 360f;
         float radius = station != null ? station.getCircularOrbitRadius() : primaryEntity.getRadius() + 150f;
         float period = station != null ? station.getCircularOrbitPeriod() : radius / 10f;
-
-        LocationAPI loc = primaryEntity.getContainingLocation();
-
-        SectorEntityToken artillery = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_ArtilleryStation", m.getFactionId(), forceType);
 
         artillery.setCircularOrbitWithSpin(primaryEntity,
                 angle,
@@ -380,8 +382,11 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
                 5f,
                 5f);
 
-        m.getConnectedEntities().add(artillery);
-        artillery.setMarket(m);
+        if(!m.isPlanetConditionMarketOnly()) {
+            m.getConnectedEntities().add(artillery);
+            artillery.setMarket(m);
+        }
+
         artillery.addTag(IndEvo_ids.TAG_ARTILLERY_STATION);
         if (showFleetVisual) artillery.addTag(Tags.USE_STATION_VISUAL);
 
@@ -395,7 +400,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         SectorEntityToken station = null;
 
         for (SectorEntityToken t : market.getConnectedEntities()) {
-            if (t.hasTag(Tags.STATION)) {
+            if (t.hasTag(Tags.STATION) && !t.hasTag(IndEvo_ids.TAG_ARTILLERY_STATION)) {
                 station = t;
                 break;
             }

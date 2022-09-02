@@ -26,3 +26,4 @@ LogCoreCond,IndEvo_LogCoreCond,,TRUE,com.fs.starfarer.api.impl.campaign.econ.con
 WorldWonderCondition,IndEvo_WorldWonderCondition,,TRUE,com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_WorldWonderCondition,internal hidden condition for world wonder functionality,graphics/icons/markets/placeholder.png,1000
 ,,,,,,,
 Self-Replicating Minefield,IndEvo_mineFieldCondition,,FALSE,com.fs.starfarer.api.impl.campaign.terrain.conditions.IndEvo_MineFieldCondition,"An old, autonomous replicating minefield surrounds this planet. Despite their age, the mines continue to replenish themselves and are very much in working order. The internal IFF appears to be based on the polity controlling the planet. ",graphics/mines/mineCondition.png,140
+Domain Artillery Station,IndEvo_ArtilleryStationCondition,,FALSE,com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_ArtilleryStationCondition,A domain weapons platform looms over this planet.,graphics/mines/mineCondition.png,140
