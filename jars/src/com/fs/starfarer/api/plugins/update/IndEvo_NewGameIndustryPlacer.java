@@ -25,7 +25,7 @@ public class IndEvo_NewGameIndustryPlacer {
     public static void placeArtilleries(){
         if (Global.getSector().getEconomy().getMarket("culann") == null || !Global.getSettings().getBoolean("Enable_IndEvo_Artillery") || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedArtilleries")) return;
 
-        MarketAPI m = Global.getSector().getEconomy().getMarket("culann");
+        MarketAPI m = Global.getSector().getEconomy().getMarket("eochu_bres");
         m.addIndustry(IndEvo_ids.ARTILLERY_RAILGUN);
         m.getIndustry(IndEvo_ids.ARTILLERY_RAILGUN).setAICoreId(Commodities.ALPHA_CORE);
 

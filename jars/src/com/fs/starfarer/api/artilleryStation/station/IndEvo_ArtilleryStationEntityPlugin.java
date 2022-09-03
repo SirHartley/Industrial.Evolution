@@ -9,6 +9,7 @@ import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
+import com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_ArtilleryStationCondition;
 import com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
@@ -382,13 +383,12 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
                 5f,
                 5f);
 
-        if(!m.isPlanetConditionMarketOnly()) {
-            m.getConnectedEntities().add(artillery);
-            artillery.setMarket(m);
-        }
+        m.getConnectedEntities().add(artillery);
+        artillery.setMarket(m);
 
         artillery.addTag(IndEvo_ids.TAG_ARTILLERY_STATION);
         if (showFleetVisual) artillery.addTag(Tags.USE_STATION_VISUAL);
+        artillery.getMemoryWithoutUpdate().set(IndEvo_ArtilleryStationCondition.ARTILLERY_KEY, true);
 
         SectorEntityToken t = loc.addTerrain("IndEvo_artillery_range_terrain", new BaseRingTerrain.RingParams(RANGE, 0f, artillery, "In artillery range"));
         t.setCircularOrbit(artillery, 0, 0, 0);

@@ -5,9 +5,21 @@ $IndEvo_TestColony score:10000","ShowDefaultVisual
 PrintDescription 3
 FireBest MarketPostOpen",Your $shipOrFleet approaches $entityName.,,
 ,,,,,,
+#artillery,,,,,,
+IndEvo_ArtilleryInitialPlanet,OpenInteractionDialog,"$IndEvo_ArtilleryStation score:1000
+!$defenderFleetDefeated",SalvageDefenderInteraction,ARTILLERY STATION DEFENDER INTERACTION,,
+IndEvo_ArtilleryInitialStation,OpenInteractionDialog,"$IndEvo_ArtilleryStation score:1000
+!$defenderFleetDefeated
+$tag:IndEvo_Artillery",SalvageDefenderInteraction,ARTILLERY STATION DEFENDER INTERACTION,,
+IndEvo_ArtilleryBeatPlanet,BeatDefendersContinue,$IndEvo_ArtilleryStation score:1000,,"With the autmated defense platform out of the way, your $shipOrFleet may finish its approach to the planet.",0:IndEvo_ArtilleryDefeatPopulateOptions:Continue,
+IndEvo_ArtilleryBeatStation,BeatDefendersContinue,"$IndEvo_ArtilleryStation score:1000
+$tag:IndEvo_Artillery",,Your $shipOrFleet disengages as the defence stations loses any structural integrity it might have had left in a fiery display. The way to the planet is now clear.,0:defaultLeave:Continue,
+IndEvo_ArtilleryDefeatPopulateOptions,DialogOptionSelected,$option == IndEvo_ArtilleryDefeatPopulateOptions,FireAll OpenInteractionDialog,,,
+,,,,,,
 ,,,,,,
 #Galatia Job List,,,,,,
-IndEvo_JobMenuPoint,PopulateOptions,$id == station_galatia_academy,,,4:IndEvo_JobMenuInit:Visit the Research Tracts,
+IndEvo_JobMenuPoint,PopulateOptions,"$id == station_galatia_academy
+$tag:IndEvo_Artillery",,,4:IndEvo_JobMenuInit:Visit the Research Tracts,
 IndEvo_JobMenuInit,DialogOptionSelected,$option == IndEvo_JobMenuInit,IndEvo_ResearchProjectDialoguePlugin,,,
 ,,,,,,
 #Converters,,,,,,
@@ -58,7 +70,7 @@ OR
 ... im/perf_ect.
 
 [Initiating local awareness shard]
-[Desicion handoff successful]
+[Mind matrix handoff successful]
 [Def.Prioritiy_ convert]
 [Disconnect]""",cutCommLink:Cut the comm link,
 ,,,,,,

@@ -6,6 +6,9 @@ todo item that fakes IFF to be firendly for artillery
 
 watchtower interactions
 exploration placement of watchtowers and arty
+arty station combat interaction
+arty station planet lockout until killed
+
 implement arty as ship (later)
 item effects (iff faker, targetting module)
 fix missile tracking - move to vector so it stops going in circles
@@ -45,7 +48,7 @@ adjust salvage event "Ship Roulette" -
 
 3.1.1 - unreleased
 General
-Added - @President Matt Damon#001 added to credits of this mod for help with vectors, math and script contributions. Thank you!
+Added - President Matt Damon added to credits of this mod for help with vectors and math. Thank you!
 Fixed - Corrected all those getList tooltips to get
 
 Items
@@ -53,7 +56,7 @@ beta 2 - bound item drop rates to destroyed fleet FP
 beta 2 - fixed being able to activate items in planet cargo
 beta 2 - nerfed decoy range (5k -> 3k)
 beta 2 - changed the red border on cooldown to something that I know doesn't break everything
-beta 2 - fixed the render issues I hope
+beta 2 - fixed the render issues
 beta 2 - Sensor decoy now baits artillery fire
 Added - Consumable Item: Nanite Repair Module - Repairs your fleet, restores CR
 Added - Consumable Item: Tech Locator - Grav Scan for hyperspace, indicates systems with lots of loot
@@ -66,7 +69,7 @@ Adjusted - Drop rates on all IndEvo items and loot overhauled
 
 Artillery Stations
 beta 2 - Added - 3 Types of artillery that shoot you on the campaign layer
-beta 2 - Added - Artillery to Eochu Bres, Chicomoztoc, todo the third one
+beta 2 - Added - Artillery to Eochu Bres, Chicomoztoc, Kazeron
 todo beta 2 - Added - Derelict Artilleries that can be found via exploration
 
 Research Projects

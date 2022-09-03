@@ -2,7 +2,6 @@ package com.fs.starfarer.api.impl.campaign.econ.impl;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.artilleryStation.station.IndEvo_ArtilleryStationEntityPlugin;
-import com.fs.starfarer.api.artilleryStation.station.IndEvo_DerelictArtilleryStationEntityPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
@@ -188,24 +187,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
         }
     }
 
-    protected void removeDerelictArtilleryStation(){
-        for (SectorEntityToken t : market.getConnectedEntities()){
-            CustomCampaignEntityPlugin plugin = t.getCustomPlugin();
-
-            if (plugin instanceof IndEvo_DerelictArtilleryStationEntityPlugin){
-                IndEvo_modPlugin.log("removing derelict station");
-
-                ((IndEvo_DerelictArtilleryStationEntityPlugin) plugin).preRemoveActions();
-                market.getConnectedEntities().remove(t);
-
-                Misc.fadeAndExpire(t, 0f);
-            }
-        }
-    }
-
     protected void removeStationEntityAndFleetIfNeeded() {
-        removeDerelictArtilleryStation();
-
         IndEvo_modPlugin.log("removing artillery station at " + market.getName());
 
         if (stationEntity != null) {
