@@ -5,7 +5,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.IndEvo_IndustryHelper;
 import com.fs.starfarer.api.ModManagerAPI;
 import com.fs.starfarer.api.artilleryStation.IndEvo_FleetVisibilityManager;
-import com.fs.starfarer.api.artilleryStation.station.IndEvo_ArtilleryStationEntityPlugin;
 import com.fs.starfarer.api.artilleryStation.trails.IndEvo_MagicCampaignTrailPlugin;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -28,6 +27,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.conditions.IndEvo_MineFieldCon
 import com.fs.starfarer.api.mobileColony.listeners.ColonyFleetDialogueInterceptListener;
 import com.fs.starfarer.api.plugins.ambassadorPlugins.IndEvo_ambassadorPersonManager;
 import com.fs.starfarer.api.plugins.converters.IndEvo_ConverterRepResetScript;
+import com.fs.starfarer.api.plugins.derelicts.IndEvo_ArtilleryStationPlacer;
 import com.fs.starfarer.api.plugins.derelicts.IndEvo_DerelictStationPlacer;
 import com.fs.starfarer.api.plugins.derelicts.IndEvo_RuinsManager;
 import com.fs.starfarer.api.plugins.derelicts.IndEvo_SalvageSpecialAssigner;
@@ -81,7 +81,8 @@ public class IndEvo_modPlugin extends BaseModPlugin {
 
     @Override
     public void onGameLoad(boolean newGame) {
-        IndEvo_NewGameIndustryPlacer.placeArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next one
+        IndEvo_ArtilleryStationPlacer.placeCoreWorldArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next save breaking one
+        IndEvo_ArtilleryStationPlacer.placeDerelictArtilleries(); //same here
 
         ModManagerAPI mm = Global.getSettings().getModManager();
         boolean yunruindustries = mm.isModEnabled("yunruindustries");
@@ -110,7 +111,8 @@ public class IndEvo_modPlugin extends BaseModPlugin {
 
         IndEvo_RuinsManager.forceCleanCoreRuins();
         IndEvo_NewGameIndustryPlacer.run();
-        IndEvo_NewGameIndustryPlacer.placeArtilleries();
+        IndEvo_ArtilleryStationPlacer.placeCoreWorldArtilleries();
+        IndEvo_ArtilleryStationPlacer.placeDerelictArtilleries();
         createAcademyMarket();
 
         if (Global.getSettings().getBoolean("Enable_Indevo_Derelicts")) {

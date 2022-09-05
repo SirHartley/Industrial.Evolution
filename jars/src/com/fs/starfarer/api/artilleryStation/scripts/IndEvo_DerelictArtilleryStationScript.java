@@ -37,10 +37,13 @@ import java.util.Arrays;
 
 public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, FleetEventListener {
 
-    public IndEvo_DerelictArtilleryStationScript(MarketAPI market, boolean addCondition) {
+    public static void addDerelictArtyToPlanet(SectorEntityToken planet){
+        if (!planet.hasScriptOfClass(IndEvo_DerelictArtilleryStationScript.class)) planet.addScript(new IndEvo_DerelictArtilleryStationScript(planet.getMarket()));
+    }
+
+    public IndEvo_DerelictArtilleryStationScript(MarketAPI market) {
         this.market = market;
         this.primaryEntity = market.getPrimaryEntity();
-        this.addCondition = addCondition;
     }
 
     @Override
@@ -65,14 +68,13 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
     protected MarketAPI market;
     protected SectorEntityToken primaryEntity;
-    private boolean addCondition;
 
     private boolean init = false;
 
     public void init(){
         if(!init) {
-            if (addCondition) market.addCondition(IndEvo_ArtilleryStationCondition.ID);
             spawnStation();
+            init = true;
         }
     }
 
@@ -82,29 +84,31 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
         if (Global.getSector().getEconomy().isSimMode() || !primaryEntity.isInCurrentLocation()) return;
 
-        if(isDestroyed){
-            if(brokenStationEntity != null && (orbitMatched == null)){
-                SectorEntityToken station = IndEvo_ArtilleryStationEntityPlugin.getOrbitalStationAtMarket(market);
-                if (!orbitMatched.equals(station.getId())) matchOrbitalstationOrbit(brokenStationEntity, station);
-            }
+        if (isDestroyed) destroyedActions();
+        else aliveActions();
+    }
 
-            if (marketHasArtilleryIndustry()) {
-                IndEvo_ArtilleryStationCondition.setDestroyed(false, market);
-                removeBrokenStationEntityIfNeeded();
-            }
-            else {
-                IndEvo_ArtilleryStationCondition.setDestroyed(true, market);
-                spawnBrokenStationEntityIfNeeded();
-
-                IndEvo_ArtilleryStationEntityPlugin plugin = getArtilleryPlugin();
-                if(plugin != null) plugin.setDisrupted(true);
-
-                matchCommanderToAICore(null);
-            }
-
-            return;
+    public void destroyedActions(){
+        if(brokenStationEntity != null && (orbitMatched == null)){
+            SectorEntityToken station = IndEvo_ArtilleryStationEntityPlugin.getOrbitalStationAtMarket(market);
+            if (station != null && !station.getId().equals(orbitMatched)) matchOrbitalstationOrbit(brokenStationEntity, station);
         }
 
+        if (marketHasArtilleryIndustry()) {
+            IndEvo_ArtilleryStationCondition.setDestroyed(false, market);
+            removeBrokenStationEntityIfNeeded();
+        } else {
+            IndEvo_ArtilleryStationCondition.setDestroyed(true, market);
+            spawnBrokenStationEntityIfNeeded();
+
+            IndEvo_ArtilleryStationEntityPlugin plugin = getArtilleryPlugin();
+            if(plugin != null) plugin.setDisrupted(true);
+
+            matchCommanderToAICore(null);
+        }
+    }
+
+    public void aliveActions(){
         if (stationEntity == null) {
             spawnStation();
         }
@@ -331,7 +335,10 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     }
 
     public String getType() {
-        return market.getMemoryWithoutUpdate().getString(TYPE_KEY);
+        MemoryAPI mem = market.getMemoryWithoutUpdate();
+        if(!mem.contains(TYPE_KEY)) setType();
+
+        return mem.getString(TYPE_KEY);
     }
 
     public IndustrySpecAPI getSpec() {

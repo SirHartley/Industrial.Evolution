@@ -529,8 +529,6 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
 
     @Override
     public boolean isAvailableToBuild() {
-        //if (!market.hasTag(IndEvo_ids.TAG_ARTILLERY_STATION)) return false;
-
         boolean canBuild = false;
         for (Industry ind : market.getIndustries()) {
             if (ind == this) continue;
@@ -541,7 +539,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
             }
         }
 
-        return canBuild && Misc.hasOrbitalStation(market) && Global.getSettings().getBoolean("Enable_IndEvo_Artillery");
+        return market.hasTag(IndEvo_ids.TAG_ARTILLERY_STATION) && canBuild && Misc.hasOrbitalStation(market) && Global.getSettings().getBoolean("Enable_IndEvo_Artillery");
     }
 
     @Override
