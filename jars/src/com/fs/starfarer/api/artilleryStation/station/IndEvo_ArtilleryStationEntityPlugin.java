@@ -24,20 +24,18 @@ import com.fs.starfarer.campaign.fleet.CampaignFleet;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 import static com.fs.starfarer.api.artilleryStation.IndEvo_FleetVisibilityManager.WAS_SEEN_BY_HOSTILE_ENTITY;
 
 public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
 
-    public static final float MIN_DELAY_BETWEEN_SHOTS = 3f;
-    public static final float MAX_DELAY_BETWEEN_SHOTS = 5f;
-    public static final float MIN_RELOAD_TIME = 16f;
-    public static final float MAX_RELOAD_TIME = 20f;
-    public static final float RANGE = 8000f;
+    public static final float MIN_DELAY_BETWEEN_SHOTS = 1f;
+    public static final float MAX_DELAY_BETWEEN_SHOTS = 2f;
+    public static final float MIN_RELOAD_TIME = 10;
+    public static final float MAX_RELOAD_TIME = 13f;
+    public static final float RANGE = 12000f;
     public static final float MIN_RANGE = 500f;
 
     //exclusions
@@ -98,11 +96,15 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         //fire at forced targets
         if (!forcedTargetMap.isEmpty()) for (Map.Entry<String, IntervalUtil> e : forcedTargetMap.entrySet()) {
             IndEvo_modPlugin.log("Artillery Forced Targets iterating");
-            fireAtTarget(e, loc);
-        }
-        else for (Map.Entry<String, IntervalUtil> e : targetMap.entrySet()) {
+            boolean fired = fireAtTarget(e, loc);
+
+            if(fired) return;
+
+        } else for (Map.Entry<String, IntervalUtil> e : targetMap.entrySet()) {
             IndEvo_modPlugin.log("Artillery Regular Targets iterating");
-            fireAtTarget(e, loc);
+            boolean fired = fireAtTarget(e, loc);
+
+            if(fired) return;
         }
     }
 
@@ -120,7 +122,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         forcedTargetMap.put(t.getId(), interval);
     }
 
-    public void fireAtTarget(Map.Entry<String, IntervalUtil> e, LocationAPI loc) {
+    public boolean fireAtTarget(Map.Entry<String, IntervalUtil> e, LocationAPI loc) {
         String s = e.getKey();
         IntervalUtil interval = e.getValue();
 
@@ -130,12 +132,12 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
             boolean isForced = target.getMemoryWithoutUpdate().contains(FORCED_TARGET);
 
             if (!isForced) {
-                if (!isValid(target)) return;
+                if (!isValid(target)) return false;
 
                 if (isInCombat(target)) {
                     IndEvo_modPlugin.log("combat, skipping");
                     interval.setElapsed(interval.getIntervalDuration() - 10f);
-                    return;
+                    return false;
                 }
 
                 //area blocking by artillery to avoid overlap when multiple hostiles are in one location
@@ -145,7 +147,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
                         IndEvo_modPlugin.log("mortar invalid target, skipping");
                         //check again after the location is free so we don't overlap too much
                         interval.setElapsed(interval.getIntervalDuration() - 0.1f - getRemainingBlockTime(anticipatedArea));
-                        return;
+                        return false;
                     }
                 }
             }
@@ -158,7 +160,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
 
                 //forced target in safe spot would never time out so we remove it in nebula
                 if (loc.isNebula()) target.getMemoryWithoutUpdate().set(FORCE_INVALID, true, MAX_DELAY_BETWEEN_SHOTS + 0.1f);
-                return;
+                return false;
             }
 
             IndEvo_modPlugin.log(s + " - artillery firing on target, type " + type);
@@ -184,7 +186,11 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
                 target.getMemoryWithoutUpdate().set(FORCE_INVALID, true, stationFireInterval.getIntervalDuration());
             }
 
+            return true;
+
         } else IndEvo_modPlugin.log(e.getKey() + " not ready - " + e.getValue().getElapsed());
+
+        return false;
     }
 
     @Override
@@ -216,11 +222,15 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
                 && t.isAlive()
                 && isNotNullAI
                 && Misc.getDistance(t, entity) <= range
+                && Misc.getDistance(t, entity) >= MIN_RANGE
                 && t.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY);
     }
 
     private boolean isForcedValid(SectorEntityToken t){
-        return t != null && Misc.getDistance(t, entity) <= range && !t.getMemoryWithoutUpdate().contains(FORCE_INVALID);
+        return t != null
+                && Misc.getDistance(t, entity) <= range
+                && Misc.getDistance(t, entity) >= MIN_RANGE
+                && !t.getMemoryWithoutUpdate().contains(FORCE_INVALID);
     }
 
     private boolean isInCombat(SectorEntityToken target) {
@@ -301,7 +311,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         FactionAPI faction = entity.getFaction();
         FactionAPI targetFaction = target.getFaction();
 
-        if (faction == null || faction.isNeutralFaction()) return true;
+        if (faction == null || faction.isNeutralFaction()) return !targetFaction.getId().equals(Factions.REMNANTS);
         else return faction.isHostileTo(targetFaction);
     }
 

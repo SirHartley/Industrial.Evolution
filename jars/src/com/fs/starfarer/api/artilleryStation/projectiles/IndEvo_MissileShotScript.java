@@ -14,7 +14,7 @@ import java.util.Random;
 import static com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_MissileCarrierEntityPlugin.AVERAGE_PROJ_IMPACT_TIME;
 
 /**
- * time spent making basic trigonometry cooperate with me: 23 hours (includes missile carrier, submunitions and frustrated youtube watching)
+ * time spent making basic trigonometry cooperate with me: 25 hours (includes missile carrier, submunitions and frustrated youtube watching)
  */
 public class IndEvo_MissileShotScript implements EveryFrameScript {
     //fire missile at projected target + some fudge
@@ -25,7 +25,7 @@ public class IndEvo_MissileShotScript implements EveryFrameScript {
 
     public static final int DEFAULT_MISSILE_AMT = 4; //MUST BE DIVISIBLE BY 2
     public static final float MISSILE_TRAJECTORY_BEND_FACTOR = 0.4f; //the higher, the more circular the trajectory, MAXIMUM 1f
-    public static final float AVG_IMPACT_SECONDS = 10f;
+    public static final float AVG_IMPACT_SECONDS = 8f;
 
     public static final float FUZZ_FACTOR = 1f; //the higher, the more fuzz
     public static final float MAX_FUZZ_DIST = 800f;

@@ -227,12 +227,16 @@ public class IndEvo_MineBeltTerrainPlugin extends BaseRingTerrain implements Ast
                     if (!isSlowAndSmall && (float) Math.random() < chance) {
                         fleet.addScript(new IndEvo_MineImpact(fleet));
                         mem.set(sKey, true, 0);
-                        mem.set(recentKey, true, 0.5f + 1f * (float) Math.random());
+
+                        float timeoutNPC = (float) (5f + 2f * Math.random());
+                        float timeoutPlayer = (float) (0.05f + 1f * Math.random());
+
+                        mem.set(recentKey, true, fleet.isPlayerFleet() ? timeoutPlayer : timeoutNPC);
                     } else {
                         mem.set(sKey, true, Math.min(expire + durPerSkip, maxSkipsToTrack * durPerSkip));
                     }
 
-                    float timeoutNPC = (float) (1f + 2f * Math.random());
+                    float timeoutNPC = (float) (0.5f + 1f * Math.random());
                     float timeoutPlayer = (float) (0.05f + 0.1f * Math.random());
 
                     mem.set(key, true, fleet.isPlayerFleet() ? timeoutPlayer : timeoutNPC);
@@ -375,7 +379,7 @@ public class IndEvo_MineBeltTerrainPlugin extends BaseRingTerrain implements Ast
     }
 
     public boolean hasAIFlag(Object flag, CampaignFleetAPI fleet) {
-        if (isFriend(fleet)) return flag == TerrainAIFlags.REDUCES_SPEED_LARGE;
+        if (isFriend(fleet) || fleet.getMemoryWithoutUpdate().contains("$recentImpact")) return flag == TerrainAIFlags.REDUCES_SPEED_LARGE;
         else return flag == TerrainAIFlags.REDUCES_SPEED_LARGE || flag == TerrainAIFlags.DANGEROUS_UNLESS_GO_SLOW;
     }
 

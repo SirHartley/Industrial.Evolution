@@ -78,6 +78,7 @@ beta 2 - Adjusted - No longer blows up on fleets in combat
 beta 2 - Adjusted - Bounty and "Important" Fleets are no longer affected by minefields
 beta 2 - Adjusted - Friendly fleets ignore minefields and will no longer get stuck trying to pass them
 beta 2 - Adjusted - Increased immunity time after strike for NPC fleets
+beta 2 - Adjusted - NPC fleets in "immunity time" now treat the minefield as if it was not there
 Fixed - Visual IFF check now matches explosion IFF (properly turns green when friendly ect...)
 
 Embassies

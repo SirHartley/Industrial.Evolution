@@ -21,7 +21,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCustomEntityPlugin {
     //can be disabled for a month
 
     public static final float RANGE = 2000f;
-    public static float PINGS_PER_SECOND = 0.1f;
+    public static float PINGS_PER_SECOND = 0.2f;
     public static float WATCHTOWER_FLEET_SEEN_DURATION = 30f;
 
     protected float phase = 0f;
@@ -57,14 +57,14 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCustomEntityPlugin {
         FactionAPI faction = entity.getFaction();
         FactionAPI targetFaction = target.getFaction();
 
-        if (faction == null || faction.isNeutralFaction()) return true;
+        if (faction == null || faction.getId().equals(Factions.DERELICT)) return true;
         else return faction.isHostileTo(targetFaction);
     }
 
     protected void showRangePing() {
         SectorEntityToken.VisibilityLevel vis = entity.getVisibilityLevelToPlayerFleet();
         if (vis == SectorEntityToken.VisibilityLevel.NONE || vis == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT) return;
-        FactionAPI f = entity.getFaction() == null ? Global.getSector().getFaction(Factions.NEUTRAL) : entity.getFaction();
+        FactionAPI f = entity.getFaction() == null ? Global.getSector().getFaction(Factions.DERELICT) : entity.getFaction();
 
         CampaignPingSpec custom = new CampaignPingSpec();
         custom.setColor(f.getColor());
