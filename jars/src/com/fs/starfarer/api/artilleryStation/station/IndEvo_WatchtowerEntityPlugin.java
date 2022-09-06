@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.MilitaryResponseScript;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.util.Misc;
@@ -21,16 +22,20 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCustomEntityPlugin {
     //can be disabled for a month
 
     public static final float RANGE = 2000f;
-    public static float PINGS_PER_SECOND = 0.2f;
+    public static float PINGS_PER_SECOND = 0.1f;
     public static float WATCHTOWER_FLEET_SEEN_DURATION = 30f;
 
     protected float phase = 0f;
 
-    public static void spawn(SectorEntityToken primaryEntity, FactionAPI faction){
+    public static SectorEntityToken spawn(SectorEntityToken primaryEntity, FactionAPI faction){
+
+        if (faction == null) faction = Global.getSector().getFaction(IndEvo_ids.DERELICT);
         SectorEntityToken t = primaryEntity.getContainingLocation().addCustomEntity(Misc.genUID(), faction.getDisplayName() + " Watchtower", "IndEvo_Watchtower",faction.getId(),null);
 
-        float orbitRadius = primaryEntity.getRadius() + 150f;
+        float orbitRadius = primaryEntity.getRadius() + 250f;
         t.setCircularOrbitWithSpin(primaryEntity, (float) Math.random() * 360f, orbitRadius, orbitRadius / 10f, 5f, 5f);
+
+        return t;
     }
 
     public void advance(float amount) {
@@ -57,21 +62,23 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCustomEntityPlugin {
         FactionAPI faction = entity.getFaction();
         FactionAPI targetFaction = target.getFaction();
 
-        if (faction == null || faction.getId().equals(Factions.DERELICT)) return true;
+        if (faction == null || faction.getId().equals(IndEvo_ids.DERELICT)) return true;
         else return faction.isHostileTo(targetFaction);
     }
 
     protected void showRangePing() {
         SectorEntityToken.VisibilityLevel vis = entity.getVisibilityLevelToPlayerFleet();
         if (vis == SectorEntityToken.VisibilityLevel.NONE || vis == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT) return;
-        FactionAPI f = entity.getFaction() == null ? Global.getSector().getFaction(Factions.DERELICT) : entity.getFaction();
+
+        FactionAPI f = entity.getFaction();
+        if (!f.isHostileTo(Factions.PLAYER)) return;
 
         CampaignPingSpec custom = new CampaignPingSpec();
         custom.setColor(f.getColor());
         custom.setWidth(7);
         custom.setMinRange(RANGE - 100f);
         custom.setRange(RANGE);
-        custom.setDuration(3f);
+        custom.setDuration(2f);
         custom.setAlphaMult(0.25f);
         custom.setInFraction(0.2f);
         custom.setNum(1);

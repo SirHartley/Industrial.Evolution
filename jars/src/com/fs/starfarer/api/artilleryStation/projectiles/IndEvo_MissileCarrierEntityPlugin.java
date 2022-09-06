@@ -142,8 +142,8 @@ public class IndEvo_MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
             //explode when fleet in range
             for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()){
                 if(friendlyFireDelayPassed
-                        && (fleet.isHostileTo(origin) || origin.getFaction().isNeutralFaction())
-                        && Misc.getDistance(entity, origin) > IndEvo_ArtilleryStationEntityPlugin.MIN_RANGE
+                        && fleet.isHostileTo(origin)
+                        && Misc.getDistance(entity, origin) >= IndEvo_ArtilleryStationEntityPlugin.MIN_RANGE
                         && Misc.getDistance(entity, fleet) <= DETECTION_RADIUS) {
 
                     spawnExplosion(EXPLOSION_SIZE);

@@ -5,6 +5,7 @@ import com.fs.starfarer.api.Global;
 public class IndEvo_ids {
     //factions
     public static final String CONVERTERS_FACTION_ID = "IndEvo_converters";
+    public static final String DERELICT = "IndEvo_derelict";
 
     //memory Keys
     public static final String EMBASSY_LIST = Global.getSettings().getString("IndEvo_embassyList");

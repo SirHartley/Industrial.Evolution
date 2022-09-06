@@ -102,7 +102,7 @@ public class IndEvo_MissileSubmunitionEntity extends BaseCustomEntityPlugin {
     public void searchForTarget() {
         //track fleet when in range
         for (CampaignFleetAPI fleet : Misc.getNearbyFleets(entity, TRACKING_DISTANCE)) {
-            if ((fleet.isHostileTo(entity) || entity.getFaction().isNeutralFaction())
+            if (fleet.isHostileTo(entity)
                     || (Global.getSettings().isDevMode() && fleet.isPlayerFleet())) {
                 currentTarget = fleet;
                 break;
@@ -127,7 +127,7 @@ public class IndEvo_MissileSubmunitionEntity extends BaseCustomEntityPlugin {
             //explode when fleet in range
             for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()) {
                 boolean devmodePlayerFleet = (Global.getSettings().isDevMode() && fleet.isPlayerFleet() && Misc.getDistance(entity, fleet) <= INITIATE_EXPLOSION_DISTANCE);
-                boolean hostileAndClose = (fleet.isHostileTo(entity) || entity.getFaction().isNeutralFaction()) && Misc.getDistance(entity, fleet) <= INITIATE_EXPLOSION_DISTANCE;
+                boolean hostileAndClose = fleet.isHostileTo(entity) && Misc.getDistance(entity, fleet) <= INITIATE_EXPLOSION_DISTANCE;
 
                 if (devmodePlayerFleet || hostileAndClose){
                     spawnExplosion();

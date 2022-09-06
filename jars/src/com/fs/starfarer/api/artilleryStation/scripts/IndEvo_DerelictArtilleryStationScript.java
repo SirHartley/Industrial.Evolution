@@ -158,7 +158,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
     public void spawnBrokenStationEntityIfNeeded() {
         if (brokenStationEntity == null) {
-            SectorEntityToken brokenStation = market.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_DestroyedArtilleryStation", Factions.DERELICT, null);
+            SectorEntityToken brokenStation = market.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_DestroyedArtilleryStation", IndEvo_ids.DERELICT, null);
 
             if (stationEntity != null) brokenStation.setOrbit(stationEntity.getOrbit());
             else {
@@ -279,7 +279,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     protected void spawnStation() {
 
         FleetParamsV3 fParams = new FleetParamsV3(null, null,
-                Factions.DERELICT,
+                IndEvo_ids.DERELICT,
                 1f,
                 FleetTypes.PATROL_SMALL,
                 0,

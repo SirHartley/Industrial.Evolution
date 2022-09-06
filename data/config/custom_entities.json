@@ -121,13 +121,13 @@
 
 	"IndEvo_Watchtower":{
 		"defaultName":"Watchtower", # used if name=null in addCustomEntity()
-		"defaultRadius":60, # used if radius<0 in addCustomEntity()
+		"defaultRadius":35, # used if radius<0 in addCustomEntity()
 		"customDescriptionId":"IndEvo_Watchtower",
 		"interactionImage":"graphics/illustrations/orbital_construction.jpg",
 		"icon":"graphics/icons/entity.png",
-		"iconWidth":20,
-		"iconHeight":20,
-		"sprite":"graphics/stations/station_side05.png",
+		"iconWidth":10,
+		"iconHeight":10,
+		"sprite":"graphics/stations/IndEvo_station_03.png",
 		"spriteWidth":30,
 		"spriteHeight":30,
 		"renderShadow":false, #true,

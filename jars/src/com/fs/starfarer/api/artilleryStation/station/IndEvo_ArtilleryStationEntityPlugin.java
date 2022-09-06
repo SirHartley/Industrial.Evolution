@@ -213,12 +213,13 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
     }
 
     private boolean isValid(SectorEntityToken t) {
+        if (t == null) return false;
+
         //it exists, is hostile, is in range and was seen
         boolean hostile = !(t instanceof CampaignFleetAPI) || isHostileTo((CampaignFleetAPI) t);
-        boolean isNotNullAI = !(t instanceof CampaignFleetAPI) || ((CampaignFleetAPI) t).getAI() != null;
+        boolean isNotNullAI = !t.isPlayerFleet() && (!(t instanceof CampaignFleetAPI) || ((CampaignFleetAPI) t).getAI() != null);
 
-        return t != null
-                && hostile
+        return hostile
                 && t.isAlive()
                 && isNotNullAI
                 && Misc.getDistance(t, entity) <= range
@@ -311,7 +312,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         FactionAPI faction = entity.getFaction();
         FactionAPI targetFaction = target.getFaction();
 
-        if (faction == null || faction.isNeutralFaction()) return !targetFaction.getId().equals(Factions.REMNANTS);
+        if (faction == null) return !targetFaction.getId().equals(Factions.REMNANTS);
         else return faction.isHostileTo(targetFaction);
     }
 
@@ -377,7 +378,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         SectorEntityToken primaryEntity = m.getPrimaryEntity();
         SectorEntityToken station = getOrbitalStationAtMarket(m);
 
-        String factionID = m.isPlanetConditionMarketOnly() ? Factions.DERELICT : m.getFactionId();
+        String factionID = m.isPlanetConditionMarketOnly() ? IndEvo_ids.DERELICT : m.getFactionId();
 
         LocationAPI loc = primaryEntity.getContainingLocation();
         SectorEntityToken artillery = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_ArtilleryStation", factionID, forceType);

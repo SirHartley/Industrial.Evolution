@@ -6,6 +6,7 @@ import com.fs.starfarer.api.IndEvo_IndustryHelper;
 import com.fs.starfarer.api.ModManagerAPI;
 import com.fs.starfarer.api.artilleryStation.IndEvo_FleetVisibilityManager;
 import com.fs.starfarer.api.artilleryStation.trails.IndEvo_MagicCampaignTrailPlugin;
+import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.SpecialItemData;
@@ -51,6 +52,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids.CONVERTERS_FACTION_ID;
 import static com.fs.starfarer.api.impl.campaign.rulecmd.academyRules.IndEvo_AcademyVariables.ACADEMY_MARKET_ID;
 
 public class IndEvo_modPlugin extends BaseModPlugin {
@@ -103,6 +105,7 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         loadTransientMemory();
 
         IndEvo_LocatorSystemRatingUpdater.updateAllSystems();
+        resetDerelictRep();
     }
 
     @Override
@@ -325,5 +328,15 @@ public class IndEvo_modPlugin extends BaseModPlugin {
                 ind.setImproved(improved);
             }
         }
+    }
+
+    public void resetDerelictRep(){
+        for (FactionAPI f : Global.getSector().getAllFactions()) {
+            f.setRelationship(IndEvo_ids.DERELICT, -1);
+        }
+
+        Global.getSector().getPlayerFaction().setRelationship(IndEvo_ids.DERELICT, -1);
+        Global.getSector().getFaction(Factions.REMNANTS).setRelationship(IndEvo_ids.DERELICT, 1);
+        Global.getSector().getFaction(Factions.DERELICT).setRelationship(IndEvo_ids.DERELICT, 1);
     }
 }
