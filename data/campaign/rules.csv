@@ -16,6 +16,12 @@ IndEvo_ArtilleryBeatStation,BeatDefendersContinue,"$IndEvo_ArtilleryStation scor
 $tag:IndEvo_Artillery",,Your $shipOrFleet disengages as the defence stations loses any structural integrity it might have had left in a fiery display. The way to the planet is now clear.,0:defaultLeave:Continue,
 IndEvo_ArtilleryDefeatPopulateOptions,DialogOptionSelected,$option == IndEvo_ArtilleryDefeatPopulateOptions,FireAll OpenInteractionDialog,,,
 ,,,,,,
+#watchtower,,,,,,
+cob_hackPrompt_watchtower,COB_ConfirmPrompt,"$cob_action == hack
+$tag:IndEvo_watchtower",,"Hacking $aOrAn $shortName will clear your current target data out of the system, and stop it from registering your fleet while the hack is ongoing.
+
+The hack will eventually be picked up and cleared out by maintenance subroutines, but should remain effective for at least two months.",,
+,,,,,,
 ,,,,,,
 #Galatia Job List,,,,,,
 IndEvo_JobMenuPoint,PopulateOptions,"$id == station_galatia_academy

@@ -137,7 +137,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
-		"tags":["objective"],
+		"tags":["objective, story_critical, IndEvo_watchtower"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 		"pluginClass":"com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEntityPlugin"
 	},
