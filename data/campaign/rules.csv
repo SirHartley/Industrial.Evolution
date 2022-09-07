@@ -22,7 +22,6 @@ $tag:IndEvo_watchtower",,"Hacking $aOrAn $shortName will clear your current targ
 
 The hack will eventually be picked up and cleared out by maintenance subroutines, but should remain effective for at least two months.",,
 ,,,,,,
-,,,,,,
 #Galatia Job List,,,,,,
 IndEvo_JobMenuPoint,PopulateOptions,"$id == station_galatia_academy
 $tag:IndEvo_Artillery",,,4:IndEvo_JobMenuInit:Visit the Research Tracts,

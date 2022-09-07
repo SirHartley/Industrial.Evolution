@@ -65,6 +65,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
     public boolean isDestroyed = false;
     private String orbitMatched = null;
+    public boolean isDiscoverable = true;
 
     protected MarketAPI market;
     protected SectorEntityToken primaryEntity;
@@ -84,6 +85,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
         if (Global.getSector().getEconomy().isSimMode() || !primaryEntity.isInCurrentLocation()) return;
 
+        isDiscoverable = stationEntity.isDiscoverable();
         if (isDestroyed) destroyedActions();
         else aliveActions();
     }
@@ -232,8 +234,6 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         }
     }
 
-    public boolean isDiscoverable = true;
-
     protected void removeStationEntityAndFleetIfNeeded() {
         if (stationEntity != null) {
             IndEvo_modPlugin.log("removing artillery station at " + market.getName());
@@ -250,7 +250,6 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
             ((IndEvo_ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin()).preRemoveActions();
 
-            isDiscoverable = stationEntity.isDiscoverable();
             stationEntity.getContainingLocation().removeEntity(stationFleet);
 
             if (stationEntity.getContainingLocation() != null) {
@@ -318,7 +317,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         stationFleet.setName(market.getName() + " " + Misc.ucFirst(getType()) + " Station");
         stationEntity.setName(market.getName() + " " + Misc.ucFirst(getType()) + " Station");
 
-        stationEntity.setDiscoverable(!isDiscoverable);
+        stationEntity.setDiscoverable(isDiscoverable);
         if(isDiscoverable) stationEntity.setDiscoveryXP(500f);
 
         MemoryAPI planetMemory = primaryEntity.getMemoryWithoutUpdate();
@@ -339,6 +338,8 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             stationEntity = IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(market, getType(), true);
         }
     }
+
+
 
     public String getType() {
         MemoryAPI mem = market.getMemoryWithoutUpdate();

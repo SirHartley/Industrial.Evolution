@@ -51,7 +51,7 @@ public class IndEvo_MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
     public static final float PROJECTILE_VELOCITY = 700f;
     public static final float PROJECTILE_SIZE = 30f;
     public static final float FRIENDLY_FIRE_IMMUNITY_PROJ_FLIGHT_TIME_FRACT = 0.3f;
-    public static final float EXPLOSION_SIZE = 550f;
+    public static final float EXPLOSION_SIZE = 600f;
     public static final float DETECTION_RADIUS = 150f;
 
     public static final float SUBMUNITION_DEPLOY_EXPLOSION_SIZE = 100f;
@@ -146,7 +146,7 @@ public class IndEvo_MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
                         && Misc.getDistance(entity, origin) >= IndEvo_ArtilleryStationEntityPlugin.MIN_RANGE
                         && Misc.getDistance(entity, fleet) <= DETECTION_RADIUS) {
 
-                    spawnExplosion(EXPLOSION_SIZE);
+                    spawnECCMExplosion(EXPLOSION_SIZE);
                     Misc.fadeAndExpire(entity, 0.1f);
                     finishing = true;
                 }
@@ -167,6 +167,16 @@ public class IndEvo_MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
                 finishing = true;
             }
         }
+    }
+
+    public void spawnECCMExplosion(float size) {
+        IndEvo_ECMExplosion.ECMExplosionParams p = new IndEvo_ECMExplosion.ECMExplosionParams(
+                entity.getContainingLocation(),
+                entity.getLocation(),
+                IndEvo_ECMExplosion.DURATION,
+                size);
+
+        IndEvo_ECMExplosion.spawn(p);
     }
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {

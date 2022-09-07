@@ -116,6 +116,7 @@ public class IndEvo_ArtilleryStationPlacer {
             if (loc != null) {
                 SectorEntityToken t = system.addCustomEntity(Misc.genUID(), faction.getDisplayName() + " Watchtower", "IndEvo_Watchtower", faction.getId(),null);
                 t.setOrbit(loc.orbit);
+                t.setDiscoverable(true);
                 break;
             }
         }
@@ -134,6 +135,7 @@ public class IndEvo_ArtilleryStationPlacer {
                 if (loc != null) {
                     SectorEntityToken t = system.addCustomEntity(Misc.genUID(), faction.getDisplayName() + " Watchtower", "IndEvo_Watchtower", faction.getId(),null);
                     t.setOrbit(loc.orbit);
+                    t.setDiscoverable(true);
                     break;
                 }
             }

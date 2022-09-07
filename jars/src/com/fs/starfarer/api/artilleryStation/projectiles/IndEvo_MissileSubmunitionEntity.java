@@ -124,7 +124,7 @@ public class IndEvo_MissileSubmunitionEntity extends BaseCustomEntityPlugin {
             if (currentTarget == null) advanceProjectileNoTarget(amount); //go in a wibbly wobbly straight line
             else advanceProjectileTowardsEnemy(amount); //chase the cunt that entered range
 
-            //explode when fleet in range
+            //splode when fleet in range
             for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()) {
                 boolean devmodePlayerFleet = (Global.getSettings().isDevMode() && fleet.isPlayerFleet() && Misc.getDistance(entity, fleet) <= INITIATE_EXPLOSION_DISTANCE);
                 boolean hostileAndClose = fleet.isHostileTo(entity) && Misc.getDistance(entity, fleet) <= INITIATE_EXPLOSION_DISTANCE;
@@ -148,6 +148,8 @@ public class IndEvo_MissileSubmunitionEntity extends BaseCustomEntityPlugin {
     }
 
     public void advanceProjectileTowardsEnemy(float amount){
+        //FRONT TOWARDS ENEMY
+
         float dist = PROJECTILE_VELOCITY * amount;
         float turn = MAX_ANGLE_TURN_DIST_PER_SECOND * amount;
         float currAngle = Misc.getAngleInDegrees(entity.getLocation(), currentTarget.getLocation());

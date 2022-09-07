@@ -33,8 +33,8 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
 
     public static final float MIN_DELAY_BETWEEN_SHOTS = 1f;
     public static final float MAX_DELAY_BETWEEN_SHOTS = 2f;
-    public static final float MIN_RELOAD_TIME = 10;
-    public static final float MAX_RELOAD_TIME = 13f;
+    public static final float MIN_RELOAD_TIME = 13f;
+    public static final float MAX_RELOAD_TIME = 15f;
     public static final float RANGE = 12000f;
     public static final float MIN_RANGE = 500f;
 
@@ -217,7 +217,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
 
         //it exists, is hostile, is in range and was seen
         boolean hostile = !(t instanceof CampaignFleetAPI) || isHostileTo((CampaignFleetAPI) t);
-        boolean isNotNullAI = !t.isPlayerFleet() && (!(t instanceof CampaignFleetAPI) || ((CampaignFleetAPI) t).getAI() != null);
+        boolean isNotNullAI = t.isPlayerFleet() || !(t instanceof CampaignFleetAPI) || ((CampaignFleetAPI) t).getAI() != null;
 
         return hostile
                 && t.isAlive()

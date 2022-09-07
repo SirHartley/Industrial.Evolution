@@ -36,6 +36,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
         float orbitRadius = primaryEntity.getRadius() + 250f;
         t.setCircularOrbitWithSpin(primaryEntity, (float) Math.random() * 360f, orbitRadius, orbitRadius / 10f, 5f, 5f);
+        t.setDiscoverable(true);
 
         return t;
     }
@@ -116,8 +117,11 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
     @Override
     public void addHackStatusToTooltip(TooltipMakerAPI text, float pad) {
-        text.addPara("%s your fleet",
+        if(isHacked()) text.addPara("%s your fleet",
                 pad, Misc.getHighlightColor(), "Ignores");
+        else if(entity.isInCurrentLocation() && Misc.getDistance(entity, Global.getSector().getPlayerFleet()) < RANGE) text.addPara("%s your fleet",
+                pad, Misc.getHighlightColor(), "Tracking");
+        else text.addPara("Out of range", pad);
 
         super.addHackStatusToTooltip(text, pad);
     }

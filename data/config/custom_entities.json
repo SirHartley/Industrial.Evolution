@@ -121,7 +121,11 @@
 
 	"IndEvo_Watchtower":{
 		"defaultName":"Watchtower", # used if name=null in addCustomEntity()
-		"defaultRadius":35, # used if radius<0 in addCustomEntity()
+		"defaultRadius":35, # used if radius<0 in addCustomEntity(),
+		"nameInText":"watchtower",
+		"shortName":"watchtower",
+		"aOrAn":"a",
+		"isOrAre":"is",
 		"customDescriptionId":"IndEvo_Watchtower",
 		"interactionImage":"graphics/illustrations/orbital_construction.jpg",
 		"icon":"graphics/icons/entity.png",
@@ -137,7 +141,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
-		"tags":["objective, story_critical, IndEvo_watchtower"],
+		"tags":["objective", "story_critical", "IndEvo_watchtower"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 		"pluginClass":"com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEntityPlugin"
 	},
