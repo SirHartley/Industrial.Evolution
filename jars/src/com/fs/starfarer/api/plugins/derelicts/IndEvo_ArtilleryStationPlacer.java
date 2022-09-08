@@ -36,16 +36,46 @@ public class IndEvo_ArtilleryStationPlacer {
         MarketAPI m = Global.getSector().getEconomy().getMarket("eochu_bres");
         m.addIndustry(IndEvo_ids.ARTILLERY_RAILGUN);
         m.getIndustry(IndEvo_ids.ARTILLERY_RAILGUN).setAICoreId(Commodities.ALPHA_CORE);
+        m.addCondition(IndEvo_ArtilleryStationCondition.ID);
+        IndEvo_DerelictArtilleryStationScript s = new IndEvo_DerelictArtilleryStationScript(m);
+        s.setDestroyed(true);
+        s.setInit(false);
+        m.getPrimaryEntity().addScript(s);
         m.addTag(IndEvo_ids.TAG_ARTILLERY_STATION);
+        placeWatchtowers(m.getStarSystem(), Factions.TRITACHYON);
 
         m = Global.getSector().getEconomy().getMarket("chicomoztoc");
         m.addIndustry(IndEvo_ids.ARTILLERY_MORTAR);
         m.addTag(IndEvo_ids.TAG_ARTILLERY_STATION);
+        m.addCondition(IndEvo_ArtilleryStationCondition.ID);
+        s = new IndEvo_DerelictArtilleryStationScript(m);
+        s.setDestroyed(true);
+        s.setInit(false);
+        m.getPrimaryEntity().addScript(s);
+        m.addTag(IndEvo_ids.TAG_ARTILLERY_STATION);
+        placeWatchtowers(m.getStarSystem(), Factions.HEGEMONY);
 
         m = Global.getSector().getEconomy().getMarket("kazeron");
         m.addIndustry(IndEvo_ids.ARTILLERY_MISSILE);
         m.getIndustry(IndEvo_ids.ARTILLERY_MISSILE).setAICoreId(Commodities.GAMMA_CORE);
+        m.addCondition(IndEvo_ArtilleryStationCondition.ID);
+        s = new IndEvo_DerelictArtilleryStationScript(m);
+        s.setDestroyed(true);
+        s.setInit(false);
+        m.getPrimaryEntity().addScript(s);
         m.addTag(IndEvo_ids.TAG_ARTILLERY_STATION);
+        placeWatchtowers(m.getStarSystem(), Factions.PERSEAN);
+
+        m = Global.getSector().getEconomy().getMarket("sindria");
+        m.addIndustry(IndEvo_ids.ARTILLERY_MISSILE);
+        m.addTag(IndEvo_ids.TAG_ARTILLERY_STATION);
+        m.addCondition(IndEvo_ArtilleryStationCondition.ID);
+        s = new IndEvo_DerelictArtilleryStationScript(m);
+        s.setDestroyed(true);
+        s.setInit(false);
+        m.getPrimaryEntity().addScript(s);
+        m.addTag(IndEvo_ids.TAG_ARTILLERY_STATION);
+        placeWatchtowers(m.getStarSystem(), Factions.DIKTAT);
 
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedArtilleries", true);
     }
@@ -81,7 +111,7 @@ public class IndEvo_ArtilleryStationPlacer {
                     IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(p);
                     p.getMarket().addCondition(IndEvo_ArtilleryStationCondition.ID);
 
-                    placeWatchtowers(s);
+                    placeWatchtowers(s, IndEvo_ids.DERELICT);
 
                     IndEvo_modPlugin.log("Placed artillery at " + p.getName() + " system: " + s.getName());
                     currentCount++;
@@ -95,17 +125,17 @@ public class IndEvo_ArtilleryStationPlacer {
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedDerelictArtilleries", true);
     }
 
-    public static void placeWatchtowers(StarSystemAPI system){
+    public static void placeWatchtowers(StarSystemAPI system, String factionId){
         float minGap = 100f;
         Random random = new Random();
-        FactionAPI faction = Global.getSector().getFaction(IndEvo_ids.DERELICT);
+        FactionAPI faction = Global.getSector().getFaction(factionId);
 
         //jump points
         for (SectorEntityToken t : system.getJumpPoints()){
             IndEvo_WatchtowerEntityPlugin.spawn(t, Global.getSector().getFaction(IndEvo_ids.DERELICT));
         }
 
-        //gas giant
+        //gas giants
         for (PlanetAPI planet : system.getPlanets()) {
             if (planet.isStar()) continue;
             if (!planet.isGasGiant()) continue;
@@ -117,12 +147,13 @@ public class IndEvo_ArtilleryStationPlacer {
                 SectorEntityToken t = system.addCustomEntity(Misc.genUID(), faction.getDisplayName() + " Watchtower", "IndEvo_Watchtower", faction.getId(),null);
                 t.setOrbit(loc.orbit);
                 t.setDiscoverable(true);
-                break;
             }
         }
 
         for (CampaignTerrainAPI terrain : system.getTerrainCopy()) {
             if (terrain.hasTag(Tags.ACCRETION_DISK)) continue;
+            if (terrain.getOrbitFocus() != null && !terrain.getOrbitFocus().isStar()) continue; //we only do debris fields aound the sun
+
             CampaignTerrainPlugin plugin = terrain.getPlugin();
 
             if (plugin instanceof RingSystemTerrainPlugin) {

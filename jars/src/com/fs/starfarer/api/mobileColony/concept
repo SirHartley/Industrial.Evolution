@@ -1,0 +1,103 @@
+Mobile colony ship
+
+Two modes:
+    - Mobile
+        - Movement modes:
+            - Stay
+            - Summon
+            - Follow
+            - Move to location
+        - While mobile, can explore, but no management, upgrades halted
+        - No artillery while moving
+        - Hyperspace Travel reduces stability slowly
+                - Stops player from moving it with him all the time, cheesing the game
+                - Staying stationary replenishes it fast (because deploying takes a while anyway)
+    - Deployed
+        - Unlocks colony management, upgrades, cargo management ect
+        - Allows arty to fire (when unlocked)
+    - Toggling between modes takes more time the more upgrades you have
+        - 7 to 31 days
+        - Upgrade option to shorten that time
+
+Features
+- Upgrades to each aspect
+    - Departments
+        - Pop Size
+        - Engine (Burn)
+        - Storage & Hangar capacity (limited, never infinite)
+        - Artillery (weaponry)
+        - Infrastructure (unlock building slots)
+        - Deployment time reduction
+    - Upgrades are done with money and commodities
+    - High tier upgrades need industry items as input
+- Colony Management
+    - Unlock building slots for structures and Industries
+        - Require population, resources and exploration progress to unlock
+    - "Build out" your colony
+        - After exploring an area, secure it and establish infrastructure
+        - Prerequisite to pop size increase
+    - Establish law / make choices that impact stability, production, growth, exploration and possible events
+    - Specify escort ships for the colony
+        - Specific Submarket (Hangar) - ships in there get deployed to the colony fleet
+    - Management events
+        - Department X wants to secede, allow them, or deploy marines
+            - Once! Only after enough upgrades unlocked
+            - if denied and brutally beat down, add stab penalty and try again with different department after some time
+            - Add open market and tribute payment
+            - Lose upgrade ability for one area
+            - Subjugate them to get rid of benefits and unlock upgrade again
+
+        - Maybe later on:
+              - Crew of [Ship in Hangar] wishes to [Escort Colony - Go with you - Move out on their own - Stay on planet X (in storage)]
+                    - Limited amount of time on the actions (2 months? 3?)
+                    - Allowing gives PPT boost for a year
+                    - Rejecting does nothing because cost of opportunity included in choice
+              - If military laws: X crew in storage wishes to become marines
+              - If civilian laws: X marines in storage wish to lay down weapons
+              - X crew want to build themselves a ship (frig/dest, special hullmod, lotsa d-mods)
+              - Population needs material X/Y for stuff, provide within X months or -1 stab, if provided, +1 growth?
+- Exploration
+    - Make visual GUI, timeline-like, for "rooms", newest on top, scroll down for older
+    - Most upgrades are locked behind exploration
+        - One exploration party, 2 later on to avoid swamping player with events
+        - Dispatch to specific area in ship ("upgrade path")
+        - Recall to center to re-deploy to different area
+        - Exploration unlocks upgrades, exploring the area is the requirement for each upgrade level
+            - Ex.: You explored a few rooms engine, now you want to explore cargo for more space: redeploy squad
+        - Establish base camp (takes "1 Turn", saves progress if you wipe or redeploy)
+            - Can deploy marines to base camp for fast access if you die
+        - Dying
+            - If you lose all marines, you have to re-tread the non-built-out-rooms, which takes time
+            - If you already built out all the explored rooms, it takes no time
+            - Re-Deploying from local base camp is faster
+            - Maybe morale/stability penalty?
+    - Dispatch a marine party to explore the ship
+        - Combat
+            - Hostile drones
+            - Hostile Tribe
+            - Bandits
+            - Environment
+            - Failed experiments (animals, plants, fungi)
+            - Cosmic Horror
+            - Nanites
+            - Automatic defenses
+            - Betrayal / Mutiny
+        - Diplomacy
+            - AI
+            - Friendly tribe
+            - Scavengers
+            - Descendants of builders
+            - Stranded spacer crew
+            - Sentient plant
+        - Simple choices
+            - Move to next area X or Y
+            - Follow screams
+            - Rest to Heal or press on
+            - Examine machine, fiddle with it, dismantle it
+            - Find old ship, fix up?
+        - Lore
+            - Where do we come from, where do we go?
+            - Gonna make some 5head shit yo
+            - Maybe a small story line for each department?
+    - Find rewards during exploration like metal or food stores, items ect later
+    - Should take some time to go through each event, total duration 4 cycles (?? - will need playtesting)

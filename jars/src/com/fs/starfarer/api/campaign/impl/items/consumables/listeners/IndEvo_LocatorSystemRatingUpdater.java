@@ -11,6 +11,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySpecial;
+import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
 import com.fs.starfarer.api.util.Misc;
 
 import java.util.HashMap;
@@ -60,9 +61,18 @@ public class IndEvo_LocatorSystemRatingUpdater extends BaseCampaignEventListener
 
         if (!fleet.isPlayerFleet()) return;
 
-        if(from != null && from.getContainingLocation() != null && !from.getContainingLocation().isHyperspace()){
-            LocationAPI loc = from.getContainingLocation();
-            updateLoc(loc);
+        try {
+            if(from != null
+                    && from.getContainingLocation() != null
+                    && !from.getContainingLocation().isHyperspace()){
+
+                LocationAPI loc = from.getContainingLocation();
+                updateLoc(loc);
+            }
+        } catch (NullPointerException e){
+            //in vanilla, there are no hyperspace to hyperspace jumps, but the hyperdrive mod has them and crashes this, for no apparent reason.
+            //since I can't be bothered to fix someone elses mod, this is good enough
+            IndEvo_modPlugin.log("Hyper to Hyper jump - IndEvo_LocatorSystemRatingUpdater null");
         }
     }
 

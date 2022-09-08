@@ -79,6 +79,14 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         }
     }
 
+    public void setInit(boolean init) {
+        this.init = init;
+    }
+
+    public void setDestroyed(boolean destroyed) {
+        isDestroyed = destroyed;
+    }
+
     @Override
     public void advance(float amount) {
         init();

@@ -9,6 +9,7 @@
       <excludeFolder url="file://$MODULE_DIR$/jars/src/com/fs/starfarer/api/impl/campaign/rulecmd/academyRules/temp" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/com/fs/starfarer/api/impl/campaign/rulecmd/salvage/special/WIP Events" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/com/fs/starfarer/api/impl/campaign/rulecmd/portRules" />
+      <excludeFolder url="file://$MODULE_DIR$/jars/src/com/fs/starfarer/api/mobileColony" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

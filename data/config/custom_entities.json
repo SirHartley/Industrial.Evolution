@@ -128,7 +128,7 @@
 		"isOrAre":"is",
 		"customDescriptionId":"IndEvo_Watchtower",
 		"interactionImage":"graphics/illustrations/orbital_construction.jpg",
-		"icon":"graphics/icons/entity.png",
+		"icon":"graphics/icons/IndEvo_station1.png",
 		"iconWidth":10,
 		"iconHeight":10,
 		"sprite":"graphics/stations/IndEvo_station_03.png",
