@@ -25,7 +25,6 @@ import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
 import com.fs.starfarer.api.impl.campaign.rulecmd.researchProjects.IndEvo_DoritoGunFoundChecker;
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
 import com.fs.starfarer.api.impl.campaign.terrain.conditions.IndEvo_MineFieldCondition;
-import com.fs.starfarer.api.mobileColony.listeners.ColonyFleetDialogueInterceptListener;
 import com.fs.starfarer.api.plugins.ambassadorPlugins.IndEvo_ambassadorPersonManager;
 import com.fs.starfarer.api.plugins.converters.IndEvo_ConverterRepResetScript;
 import com.fs.starfarer.api.plugins.derelicts.IndEvo_ArtilleryStationPlacer;
@@ -252,7 +251,7 @@ public class IndEvo_modPlugin extends BaseModPlugin {
 
         IndEvo_RuinsManager.DerelictRuinsPlacer.register();
         IndEvo_RuinsManager.ResolveRuinsToUpgradeListener.register();
-        ColonyFleetDialogueInterceptListener.register();
+        //ColonyFleetDialogueInterceptListener.register();
         ShippingManager.getInstanceOrRegister();
         IndEvo_DetachmentAbilityAdder.register();
         IndEvo_LocatorSystemRatingUpdater.register();

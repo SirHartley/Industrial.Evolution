@@ -191,17 +191,8 @@ public class IndEvo_MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
         float fractionTrajectoryPassed = (Math.max(0, timePassedSeconds - Math.max(projectileDelaySeconds, 0))) / projectileFlightTime;
 
-        //direction
-        float nextAngle;
-        if(originAngle > 180){
-            float A = originAngle - 180;
-            boolean targetIsInLeftHemisphere = targetAngle < originAngle && targetAngle > A;
-            nextAngle = Misc.getAngleInDegrees(trajectoryCenter, originLocation) + totalAngle * fractionTrajectoryPassed * (targetIsInLeftHemisphere ? -1 : 1);
-        } else {
-            float A = originAngle + 180;
-            boolean targetIsInLeftHemisphere = targetAngle > originAngle && targetAngle < A;
-            nextAngle = Misc.getAngleInDegrees(trajectoryCenter, originLocation) + totalAngle * fractionTrajectoryPassed * (targetIsInLeftHemisphere ? 1 : -1);
-        }
+        float turn = Misc.getClosestTurnDirection(Misc.getAngleInDegrees(originLocation, getPointForTrajectoryAngle(splitAngleOnTrajectory)), originLocation, target);
+        float nextAngle = Misc.getAngleInDegrees(trajectoryCenter, originLocation) + totalAngle * fractionTrajectoryPassed * turn;
 
         Vector2f nextPos = getPointForTrajectoryAngle(nextAngle);
         float projRotation = Misc.getAngleInDegrees(entity.getLocation(), nextPos);

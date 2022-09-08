@@ -70,12 +70,12 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     protected MarketAPI market;
     protected SectorEntityToken primaryEntity;
 
-    private boolean init = false;
+    private boolean init = true;
 
     public void init(){
-        if(!init) {
+        if(init) {
             spawnStation();
-            init = true;
+            init = false;
         }
     }
 
@@ -93,7 +93,6 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
         if (Global.getSector().getEconomy().isSimMode() || !primaryEntity.isInCurrentLocation()) return;
 
-        isDiscoverable = stationEntity.isDiscoverable();
         if (isDestroyed) destroyedActions();
         else aliveActions();
     }
@@ -123,6 +122,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             spawnStation();
         }
 
+        isDiscoverable = stationEntity.isDiscoverable();
         getArtilleryPlugin().setDisrupted(false);
         IndEvo_ArtilleryStationCondition.setDestroyed(false, market);
 

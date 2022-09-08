@@ -132,7 +132,7 @@ public class IndEvo_ArtilleryStationPlacer {
 
         //jump points
         for (SectorEntityToken t : system.getJumpPoints()){
-            IndEvo_WatchtowerEntityPlugin.spawn(t, Global.getSector().getFaction(IndEvo_ids.DERELICT));
+            IndEvo_WatchtowerEntityPlugin.spawn(t, Global.getSector().getFaction(factionId));
         }
 
         //gas giants
@@ -152,7 +152,7 @@ public class IndEvo_ArtilleryStationPlacer {
 
         for (CampaignTerrainAPI terrain : system.getTerrainCopy()) {
             if (terrain.hasTag(Tags.ACCRETION_DISK)) continue;
-            if (terrain.getOrbitFocus() != null && !terrain.getOrbitFocus().isStar()) continue; //we only do debris fields aound the sun
+            //if (terrain.getOrbit() == null || (terrain.getOrbit().getFocus() != null && !terrain.getOrbit().getFocus().isStar())) continue; //we only do debris fields around the sun
 
             CampaignTerrainPlugin plugin = terrain.getPlugin();
 

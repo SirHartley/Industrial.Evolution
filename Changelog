@@ -6,8 +6,6 @@ todo item that fakes IFF to be firendly for artillery
 
 implement arty as ship
 item effects (iff faker, targetting module)
-fix missile tracking - move to vector so it stops going in circles?
- - Piece of shit angle issues with 270° angles
 
 --------------------------- known issues -----------------------------
 

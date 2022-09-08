@@ -122,7 +122,7 @@ public class IndEvo_MissileSubmunitionEntity extends BaseCustomEntityPlugin {
 
             if (currentTarget == null) searchForTarget();
             if (currentTarget == null) advanceProjectileNoTarget(amount); //go in a wibbly wobbly straight line
-            else advanceProjectileTowardsEnemy(amount); //chase the cunt that entered range
+            else advanceProjectileTowardsEnemyV2(amount); //chase the cunt that entered range
 
             //splode when fleet in range
             for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()) {
@@ -163,6 +163,36 @@ public class IndEvo_MissileSubmunitionEntity extends BaseCustomEntityPlugin {
         entity.setLocation(nextPos.x, nextPos.y);
         entity.setFacing(nextAngle);
     }
+
+    public void advanceProjectileTowardsEnemyV2(float amount){
+        //FRONT TOWARDS ENEMY IN THE CORRECT DIRECTION
+
+        float dist = PROJECTILE_VELOCITY * amount;
+        float turn = MAX_ANGLE_TURN_DIST_PER_SECOND * amount;
+        float moveAngle = entity.getFacing();
+        float targetAngle = Misc.getAngleInDegrees(entity.getLocation(), currentTarget.getLocation());
+        float angleDiff = Misc.getAngleDiff(targetAngle, moveAngle);
+
+        if (angleDiff < turn) turn = angleDiff;
+
+        //direction
+        float nextAngle;
+        if(moveAngle > 180){
+            float A = moveAngle - 180;
+            boolean targetIsInLeftHemisphere = targetAngle < moveAngle && targetAngle > A;
+            nextAngle = entity.getFacing() + turn * (targetIsInLeftHemisphere ? 1 : -1);
+        } else {
+            float A = moveAngle + 180;
+            boolean targetIsInLeftHemisphere = targetAngle > moveAngle && targetAngle < A;
+            nextAngle = entity.getFacing() + turn * (targetIsInLeftHemisphere ? 1 : -1);
+        }
+
+        //IndEvo_modPlugin.log("current angle " + currAngle + " current diff " + angleDiff + " TURN " + turn + " next angle " + nextAngle);
+        Vector2f nextPos = MathUtils.getPointOnCircumference(entity.getLocation(), dist, nextAngle);
+        entity.setLocation(nextPos.x, nextPos.y);
+        entity.setFacing(nextAngle);
+    }
+
 
     public void advanceProjectileNoTarget(float amount) {
         float nextAngle = (float) (startAngle + Math.sin(timePassedSeconds * duration * 0.1f) * cadence);
