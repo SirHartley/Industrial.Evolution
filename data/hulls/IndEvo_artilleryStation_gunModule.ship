@@ -1,0 +1,111 @@
+{
+  "hullName": "Artillery Station Gun Platform",
+  "hullId": "IndEvo_artilleryStation_gunModule",
+  "hullSize": "CAPITAL_SHIP",
+  "spriteName": "graphics/ships/artillery_gun_module.png",
+  "style": "HIGH_TECH",
+  "height": 82,
+  "width": 178,
+  "center": [89, 41],
+  "collisionRadius": 122,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 93,
+  "viewOffset": 0,
+  "builtInMods": [
+      "supercomputer",
+      "reduced_explosion",
+      "missile_reload"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "LARGE",
+      "type": "COMPOSITE",
+      "mount": "TURRET",
+      "arc": 180,
+      "angle": 0,
+      "locations": [-19, -0]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "HYBRID",
+      "mount": "TURRET",
+      "arc": 100,
+      "angle": 0,
+      "locations": [-18, 37.5]
+    },
+    {
+      "id": "WS0004",
+      "size": "MEDIUM",
+      "type": "HYBRID",
+      "mount": "TURRET",
+      "arc": 100,
+      "angle": -0.5,
+      "locations": [-18, -37.5]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 130,
+      "angle": 25,
+      "locations": [-19, 66]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 130,
+      "angle": -25,
+      "locations": [-19, -66]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "HYBRID",
+      "mount": "TURRET",
+      "arc": 100,
+      "angle": -18,
+      "locations": [4, -22]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "HYBRID",
+      "mount": "TURRET",
+      "arc": 100,
+      "angle": 18,
+      "locations": [4, 22]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    -37.5, 7.5,
+    -27, 19,
+    -26.5, 68,
+    -9, 86.5,
+    -2.5, 86.5,
+    -0.5, 79.5,
+    5, 78,
+    5.5, 68,
+    11, 65.5,
+    19, 48.5,
+    17.5, 44,
+    28, 13.5,
+    28, -13.5,
+    17.5, -44,
+    19, -48.5,
+    11, -65.5,
+    5.5, -68,
+    5, -78,
+    -0.5, -79.5,
+    -2.5, -86.5,
+    -9, -86.5,
+    -26.5, -68,
+    -27, -19,
+    -37.5, -7.5
+  ]
+}
