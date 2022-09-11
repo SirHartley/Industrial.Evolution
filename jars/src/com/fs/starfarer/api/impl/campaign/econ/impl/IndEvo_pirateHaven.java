@@ -372,7 +372,7 @@ public class IndEvo_pirateHaven extends BaseIndustry implements EconomyTickListe
     }
 
     private int getBaseSupply(String id){
-        return supplyMemory.get(id);
+        return supplyMemory.containsKey(id) ? supplyMemory.get(id) : 0;
     }
 
     private void setRaidIndustryOutput(StarSystemAPI raidedSystem, boolean successful) {

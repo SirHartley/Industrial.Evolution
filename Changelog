@@ -4,8 +4,10 @@ todo consumable item that allows forced targetting of artillery on mouse pos
 todo item that fakes IFF to be firendly for minefields
 todo item that fakes IFF to be firendly for artillery
 
-implement arty as ship
-item effects (iff faker, targetting module)
+- steal that one illustration with the bunker for the arty
+- force default visual for arty with market
+- implement the 3 turret types as weapons
+- update variants for each type in industries.csv
 
 --------------------------- known issues -----------------------------
 
@@ -40,7 +42,7 @@ adjust salvage event "Ship Roulette" -
 
 -----------------------o-----------------------
 
-3.1.1 - unreleased
+3.1.2 - unreleased
 General
 Added - President Matt Damon added to credits of this mod for help with vectors and math. Thank you!
 Fixed - Corrected all those getList tooltips to get
@@ -62,9 +64,10 @@ Adjusted - Switch to non-vanilla drop group system, courtesy of Matt
 Adjusted - Drop rates on all IndEvo items and loot overhauled
 
 Artillery Stations
-beta 2 - Added - 3 Types of artillery that shoot you on the campaign layer
-beta 2 - Added - Artillery to Eochu Bres, Chicomoztoc, Kazeron
-todo beta 2 - Added - Derelict Artilleries that can be found via exploration
+beta 2 - Added - Tear harvester 3000: 3 Types of artillery that shoot you on the campaign layer
+beta 2 - Added - Artillery to Eochu Bres, Chicomoztoc, Kazeron, Sindria
+beta 2 - Added - Derelict Artilleries that can be found via exploration
+beta 2 - Added - Watchtower stations to hack or take over, that report your location to the artillery
 
 Research Projects
 Added - Project Transistor - Trade Relic Components for consumable items

@@ -2,7 +2,7 @@
 	"id":"IndEvo", # internal id
 	"name":"Industrial.Evolution", # displayed to the player
 	"author":"SirHartley",
-	"version":"3.0.e",
+	"version":"3.1.2",
 	"description":"Expands the available campaign content through addition of buildings, interactions, abilities, events, terrain and exploration content.",
 	"gameVersion":"0.95.1a",
 	"jars":["jars/IndEvo.jar"],

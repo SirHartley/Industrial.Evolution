@@ -7,10 +7,23 @@ FireBest MarketPostOpen",Your $shipOrFleet approaches $entityName.,,
 ,,,,,,
 #artillery,,,,,,
 IndEvo_ArtilleryInitialPlanet,OpenInteractionDialog,"$IndEvo_ArtilleryStation score:1000
-!$defenderFleetDefeated",SalvageDefenderInteraction,ARTILLERY STATION DEFENDER INTERACTION,,
+!$defenderFleetDefeated
+$market.isPlanetConditionMarketOnly","SalvageGenFromSeed
+SalvageDefenderInteraction","The giant weapons platform in orbit around $entityName denies any chance of approach - and while the oversized armament lays silent for now, you get the feeling that this might change the moment the station is approached.
+
+Long-range sensors report a large amount of moving robotic signatures in and on the entity. According to your sensor liason, these are usually old-era repair bots.
+
+There is a good chance that the platform can be restored to functionality under your control after, it has been disabled by combat.",,
 IndEvo_ArtilleryInitialStation,OpenInteractionDialog,"$IndEvo_ArtilleryStation score:1000
 !$defenderFleetDefeated
-$tag:IndEvo_Artillery",SalvageDefenderInteraction,ARTILLERY STATION DEFENDER INTERACTION,,
+$tag:IndEvo_Artillery
+$market.isPlanetConditionMarketOnly","SalvageGenFromSeed
+SalvageDefenderInteraction","Most warning lights on your sensor consoles go off as the massive turret turns to face you. 
+This might not have been such a grand idea, after all.
+
+You can see hundreds of multi-legged repair bots crawling over the outer station armor, testament to the incredibly robust, ancient repair systems.
+
+There is a good chance that the platform can be restored to functionality under your control, after it has been disabled by combat.",,
 IndEvo_ArtilleryBeatPlanet,BeatDefendersContinue,$IndEvo_ArtilleryStation score:1000,,"With the autmated defense platform out of the way, your $shipOrFleet may finish its approach to the planet.",0:IndEvo_ArtilleryDefeatPopulateOptions:Continue,
 IndEvo_ArtilleryBeatStation,BeatDefendersContinue,"$IndEvo_ArtilleryStation score:1000
 $tag:IndEvo_Artillery",,Your $shipOrFleet disengages as the defence stations loses any structural integrity it might have had left in a fiery display. The way to the planet is now clear.,0:defaultLeave:Continue,
@@ -18,7 +31,7 @@ IndEvo_ArtilleryDefeatPopulateOptions,DialogOptionSelected,$option == IndEvo_Art
 ,,,,,,
 #watchtower,,,,,,
 cob_hackPrompt_watchtower,COB_ConfirmPrompt,"$cob_action == hack
-$tag:IndEvo_watchtower",,"Hacking $aOrAn $shortName will clear your current target data out of the system, and stop it from registering your fleet while the hack is ongoing.
+$tag:IndEvo_watchtower score:1000",,"Hacking $aOrAn $shortName will clear your current target data out of the system, and stop it from registering your fleet while the hack is ongoing.
 
 The hack will eventually be picked up and cleared out by maintenance subroutines, but should remain effective for at least two months.",,
 ,,,,,,

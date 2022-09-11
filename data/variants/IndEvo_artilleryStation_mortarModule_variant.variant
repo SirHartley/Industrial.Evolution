@@ -1,0 +1,14 @@
+{
+  "variantId": "IndEvo_artilleryStation_mortarModule_variant",
+  "hullId": "IndEvo_artilleryStation_mortarModule",
+  "displayName": "Artillery Mortar Gun",
+  "goalVariant": false,
+  "fluxCapacitors": 50,
+  "fluxVents": 50,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}
