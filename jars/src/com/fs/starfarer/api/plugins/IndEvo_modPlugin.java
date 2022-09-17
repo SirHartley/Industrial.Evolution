@@ -4,7 +4,7 @@ import com.fs.starfarer.api.BaseModPlugin;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.IndEvo_IndustryHelper;
 import com.fs.starfarer.api.ModManagerAPI;
-import com.fs.starfarer.api.artilleryStation.IndEvo_FleetVisibilityManager;
+import com.fs.starfarer.api.artilleryStation.scripts.IndEvo_FleetVisibilityScript;
 import com.fs.starfarer.api.artilleryStation.trails.IndEvo_MagicCampaignTrailPlugin;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
@@ -51,7 +51,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids.CONVERTERS_FACTION_ID;
 import static com.fs.starfarer.api.impl.campaign.rulecmd.academyRules.IndEvo_AcademyVariables.ACADEMY_MARKET_ID;
 
 public class IndEvo_modPlugin extends BaseModPlugin {
@@ -269,7 +268,7 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         }
 
         IndEvo_MagicCampaignTrailPlugin.register();
-        IndEvo_FleetVisibilityManager.register();
+        IndEvo_FleetVisibilityScript.register();
 
         //PlayerFleetFollower.register();
     }

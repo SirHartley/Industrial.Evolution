@@ -14,7 +14,7 @@ import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
-import static com.fs.starfarer.api.artilleryStation.IndEvo_FleetVisibilityManager.WAS_SEEN_BY_HOSTILE_ENTITY;
+import static com.fs.starfarer.api.artilleryStation.scripts.IndEvo_FleetVisibilityScript.WAS_SEEN_BY_HOSTILE_ENTITY;
 
 public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     //this flags any fleets around it as seen
@@ -24,7 +24,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
     public static final float RANGE = 3000f;
     public static float PINGS_PER_SECOND = 0.05f;
-    public static float WATCHTOWER_FLEET_SEEN_DURATION_SECONDS = 30f;
+    public static float WATCHTOWER_FLEET_SEEN_DURATION_DAYS = 5f;
     public static final float HACK_DURATION_DAYS_WT = 30f;
 
     protected float phase = 0f;
@@ -55,7 +55,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
                     if (isHacked() && f.isPlayerFleet()) continue;
 
                     boolean showMessage = !f.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY);
-                    f.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, WATCHTOWER_FLEET_SEEN_DURATION_SECONDS);
+                    f.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, WATCHTOWER_FLEET_SEEN_DURATION_DAYS);
 
                     if(showMessage) f.addFloatingText("Detected by Watchtower", Misc.getNegativeHighlightColor(), 1f);
                 }

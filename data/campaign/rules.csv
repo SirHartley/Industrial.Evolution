@@ -8,8 +8,7 @@ FireBest MarketPostOpen",Your $shipOrFleet approaches $entityName.,,
 #artillery,,,,,,
 IndEvo_ArtilleryInitialPlanet,OpenInteractionDialog,"$IndEvo_ArtilleryStation score:1000
 !$defenderFleetDefeated
-$market.isPlanetConditionMarketOnly","SalvageGenFromSeed
-SalvageDefenderInteraction","The giant weapons platform in orbit around $entityName denies any chance of approach - and while the oversized armament lays silent for now, you get the feeling that this might change the moment the station is approached.
+$market.isPlanetConditionMarketOnly",IndEvo_SalvageDefenderInteraction,"The giant weapons platform in orbit around $entityName denies any chance of approach - and while the oversized armament lays silent for now, you get the feeling that this might change the moment the station is approached.
 
 Long-range sensors report a large amount of moving robotic signatures in and on the entity. According to your sensor liason, these are usually old-era repair bots.
 
@@ -17,8 +16,7 @@ There is a good chance that the platform can be restored to functionality under 
 IndEvo_ArtilleryInitialStation,OpenInteractionDialog,"$IndEvo_ArtilleryStation score:1000
 !$defenderFleetDefeated
 $tag:IndEvo_Artillery
-$market.isPlanetConditionMarketOnly","SalvageGenFromSeed
-SalvageDefenderInteraction","Most warning lights on your sensor consoles go off as the massive turret turns to face you. 
+$market.isPlanetConditionMarketOnly",IndEvo_SalvageDefenderInteraction,"Most warning lights on your sensor consoles go off as the massive turret turns to face you. 
 This might not have been such a grand idea, after all.
 
 You can see hundreds of multi-legged repair bots crawling over the outer station armor, testament to the incredibly robust, ancient repair systems.

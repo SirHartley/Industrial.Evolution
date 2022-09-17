@@ -165,7 +165,8 @@
   "com.fs.starfarer.api.impl.campaign.rulecmd.salvageYardsRules",
   "com.fs.starfarer.api.splinterFleet.plugins.dialogue",
   "com.fs.starfarer.api.impl.campaign.rulecmd.researchProjects",
-  "com.fs.starfarer.api.impl.campaign.econ.impl.courierPort.dialogue"
+  "com.fs.starfarer.api.impl.campaign.econ.impl.courierPort.dialogue",
+  "com.fs.starfarer.api.artilleryStation.rules"
   ],
 
   "designTypeColors":{

@@ -19,15 +19,13 @@ import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.campaign.CampaignEntity;
-import com.fs.starfarer.campaign.fleet.CampaignFleet;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-import static com.fs.starfarer.api.artilleryStation.IndEvo_FleetVisibilityManager.WAS_SEEN_BY_HOSTILE_ENTITY;
+import static com.fs.starfarer.api.artilleryStation.scripts.IndEvo_FleetVisibilityScript.WAS_SEEN_BY_HOSTILE_ENTITY;
 
 public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
 

@@ -21,6 +21,7 @@ import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflaterParams;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
 import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.procgen.DefenderDataOverride;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGeneratorPlugin;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
@@ -30,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * PERMANENT
@@ -37,11 +39,18 @@ import java.util.Arrays;
 
 public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, FleetEventListener {
 
-    public static void addDerelictArtyToPlanet(SectorEntityToken planet){
-        if (!planet.hasScriptOfClass(IndEvo_DerelictArtilleryStationScript.class)) planet.addScript(new IndEvo_DerelictArtilleryStationScript(planet.getMarket()));
+    public static void addDerelictArtyToPlanet(SectorEntityToken planet, boolean isDestroyed){
+        if (!planet.hasScriptOfClass(IndEvo_DerelictArtilleryStationScript.class)) {
+
+            IndEvo_DerelictArtilleryStationScript script = new IndEvo_DerelictArtilleryStationScript(planet.getMarket());
+            script.setDestroyed(isDestroyed);
+            planet.addScript(script);
+            planet.getMemoryWithoutUpdate().set(SCRIPT_KEY, script);
+            planet.getMarket().addTag(IndEvo_ids.TAG_ARTILLERY_STATION);
+        }
     }
 
-    public IndEvo_DerelictArtilleryStationScript(MarketAPI market) {
+    private IndEvo_DerelictArtilleryStationScript(MarketAPI market) {
         this.market = market;
         this.primaryEntity = market.getPrimaryEntity();
     }
@@ -58,6 +67,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
     public static final String TYPE_KEY = "$IndEvo_ArtilleryType";
     public static final String ARTILLERY_KEY = "$IndEvo_ArtilleryStation";
+    public static final String SCRIPT_KEY = "$IndEvo_ArtilleryStationScript";
 
     protected CampaignFleetAPI stationFleet = null;
     protected SectorEntityToken stationEntity = null;
@@ -70,27 +80,21 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     protected MarketAPI market;
     protected SectorEntityToken primaryEntity;
 
-    private boolean init = true;
-
-    public void init(){
-        if(init) {
-            spawnStation();
-            init = false;
-        }
-    }
-
-    public void setInit(boolean init) {
-        this.init = init;
+    public static CampaignFleetAPI getStationFleet(SectorEntityToken planet){
+        IndEvo_DerelictArtilleryStationScript script = (IndEvo_DerelictArtilleryStationScript) planet.getMemoryWithoutUpdate().get(SCRIPT_KEY);
+        return script.getStationFleet();
     }
 
     public void setDestroyed(boolean destroyed) {
         isDestroyed = destroyed;
     }
 
+    public CampaignFleetAPI getStationFleet() {
+        return stationFleet;
+    }
+
     @Override
     public void advance(float amount) {
-        init();
-
         if (Global.getSector().getEconomy().isSimMode() || !primaryEntity.isInCurrentLocation()) return;
 
         if (isDestroyed) destroyedActions();
@@ -250,11 +254,9 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             memory.unset(MemFlags.STATION_FLEET);
             memory.unset(MemFlags.STATION_BASE_FLEET);
             memory.unset("$hasDefenders");
-            memory.unset("$defenderFleet");
 
             MemoryAPI planetMemory = primaryEntity.getMemoryWithoutUpdate();
             planetMemory.unset("$hasDefenders");
-            planetMemory.unset("$defenderFleet");
 
             ((IndEvo_ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin()).preRemoveActions();
 
@@ -328,14 +330,17 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         stationEntity.setDiscoverable(isDiscoverable);
         if(isDiscoverable) stationEntity.setDiscoveryXP(500f);
 
+        //spawn defence fleet on player system enter
+        //attach listener
+        //station visual is arty visual even if defender fleet changes
+        //despawn defender fleet when player leaves system
+
         MemoryAPI planetMemory = primaryEntity.getMemoryWithoutUpdate();
         planetMemory.set("$hasDefenders", true);
-        planetMemory.set("$defenderFleet", stationFleet);
         planetMemory.set(ARTILLERY_KEY, true);
 
         MemoryAPI stationMemory = stationEntity.getMemoryWithoutUpdate();
         stationMemory.set("$hasDefenders", true);
-        stationMemory.set("$defenderFleet", stationFleet);
         stationMemory.set(ARTILLERY_KEY, true);
     }
 
@@ -346,8 +351,6 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             stationEntity = IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(market, getType(), true);
         }
     }
-
-
 
     public String getType() {
         MemoryAPI mem = market.getMemoryWithoutUpdate();
@@ -380,7 +383,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             fleetName = stationEntity.getName();
         }
 
-        stationFleet.setName(fleetName);
+        stationFleet.setName(Misc.ucFirst(getType()) + " defence platform");
 
         FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variantId);
         String name = fleetName;
@@ -481,11 +484,10 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         if (stationFleet.getMembersWithFightersCopy().isEmpty()) {
             matchStationAndCommanderToCurrentIndustry();
         }
-        stationFleet.setAbortDespawn(true);
 
+        stationFleet.setAbortDespawn(true);
         isDestroyed = true;
         spawnBrokenStationEntityIfNeeded();
-        primaryEntity.getMemoryWithoutUpdate().set("$defenderFleetDefeated", true);
     }
 
     public IndEvo_ArtilleryStationEntityPlugin getArtilleryPlugin() {
