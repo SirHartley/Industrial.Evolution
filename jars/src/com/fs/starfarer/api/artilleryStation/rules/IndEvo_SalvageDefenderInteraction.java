@@ -111,6 +111,7 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
                         boolean persistDefenders = false;
                         if (context.isEngagedInHostilities()) {
                             persistDefenders |= !Misc.getSnapshotMembersLost(defenders).isEmpty();
+
                             for (FleetMemberAPI member : defenders.getFleetData().getMembersListCopy()) {
                                 if (member.getStatus().needsRepairs()) {
                                     persistDefenders = true;

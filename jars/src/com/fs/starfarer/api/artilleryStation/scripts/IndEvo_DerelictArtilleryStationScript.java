@@ -22,6 +22,7 @@ import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.procgen.DefenderDataOverride;
+import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGeneratorPlugin;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
@@ -47,11 +48,11 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             planet.addScript(script);
             planet.getMemoryWithoutUpdate().set(SCRIPT_KEY, script);
             planet.getMarket().addTag(IndEvo_ids.TAG_ARTILLERY_STATION);
+            planet.getMarket().addCondition(IndEvo_ArtilleryStationCondition.ID);
         }
     }
 
     private IndEvo_DerelictArtilleryStationScript(MarketAPI market) {
-        this.market = market;
         this.primaryEntity = market.getPrimaryEntity();
     }
 
@@ -77,11 +78,17 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     private String orbitMatched = null;
     public boolean isDiscoverable = true;
 
-    protected MarketAPI market;
     protected SectorEntityToken primaryEntity;
 
-    public static CampaignFleetAPI getStationFleet(SectorEntityToken planet){
-        IndEvo_DerelictArtilleryStationScript script = (IndEvo_DerelictArtilleryStationScript) planet.getMemoryWithoutUpdate().get(SCRIPT_KEY);
+    public static CampaignFleetAPI getStationFleet(SectorEntityToken entity){
+        IndEvo_DerelictArtilleryStationScript script;
+
+        if (entity instanceof PlanetAPI){
+            script = (IndEvo_DerelictArtilleryStationScript) entity.getMemoryWithoutUpdate().get(SCRIPT_KEY);
+        } else {
+            script = (IndEvo_DerelictArtilleryStationScript) entity.getOrbitFocus().getMemoryWithoutUpdate().get(SCRIPT_KEY);
+        }
+
         return script.getStationFleet();
     }
 
@@ -97,14 +104,21 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     public void advance(float amount) {
         if (Global.getSector().getEconomy().isSimMode() || !primaryEntity.isInCurrentLocation()) return;
 
+        //market = primaryEntity.getMarket();
         if (isDestroyed) destroyedActions();
         else aliveActions();
     }
 
     public void destroyedActions(){
-        if(brokenStationEntity != null && (orbitMatched == null)){
+        MarketAPI market = primaryEntity.getMarket();
+
+        if(brokenStationEntity != null && orbitMatched == null){
             SectorEntityToken station = IndEvo_ArtilleryStationEntityPlugin.getOrbitalStationAtMarket(market);
-            if (station != null && !station.getId().equals(orbitMatched)) matchOrbitalstationOrbit(brokenStationEntity, station);
+
+            if (station != null && !station.getId().equals(orbitMatched)) {
+                matchOrbitalstationOrbit(brokenStationEntity, station);
+                IndEvo_modPlugin.log("destroyed matching orbit");
+            }
         }
 
         if (marketHasArtilleryIndustry()) {
@@ -127,7 +141,10 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         }
 
         isDiscoverable = stationEntity.isDiscoverable();
+
         getArtilleryPlugin().setDisrupted(false);
+
+        MarketAPI market = primaryEntity.getMarket();
         IndEvo_ArtilleryStationCondition.setDestroyed(false, market);
 
         if (stationFleet != null) {
@@ -143,6 +160,8 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
     public boolean marketHasArtilleryIndustry() {
         boolean hasArty = false;
+
+        MarketAPI market = primaryEntity.getMarket();
 
         if (!market.isPlanetConditionMarketOnly()) {
             for (Industry i : market.getIndustries()) {
@@ -167,11 +186,13 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         if (brokenStationEntity != null) {
             Misc.fadeAndExpire(brokenStationEntity, 0f);
             brokenStationEntity = null;
+            IndEvo_modPlugin.log("destroyed removing broken");
         }
     }
 
     public void spawnBrokenStationEntityIfNeeded() {
         if (brokenStationEntity == null) {
+            MarketAPI market = primaryEntity.getMarket();
             SectorEntityToken brokenStation = market.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_DestroyedArtilleryStation", IndEvo_ids.DERELICT, null);
 
             if (stationEntity != null) brokenStation.setOrbit(stationEntity.getOrbit());
@@ -181,6 +202,8 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             }
 
             brokenStationEntity = brokenStation;
+
+            IndEvo_modPlugin.log("destroyed adding broken");
         }
 
         removeStationEntityAndFleetIfNeeded();
@@ -219,6 +242,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     }
 
     public void setType() {
+        MarketAPI market = primaryEntity.getMarket();
         WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
         picker.addAll(Arrays.asList("mortar", "railgun", "missile"));
         market.getMemoryWithoutUpdate().set(TYPE_KEY, picker.pick());
@@ -237,6 +261,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
                     stationFleet.deflate();
                 }
 
+                MarketAPI market = primaryEntity.getMarket();
                 inflater.setQuality(Misc.getShipQuality(market));
                 if (inflater instanceof DefaultFleetInflater) {
                     DefaultFleetInflater dfi = (DefaultFleetInflater) inflater;
@@ -248,6 +273,8 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
     protected void removeStationEntityAndFleetIfNeeded() {
         if (stationEntity != null) {
+
+            MarketAPI market = primaryEntity.getMarket();
             IndEvo_modPlugin.log("removing artillery station at " + market.getName());
 
             MemoryAPI memory =  stationEntity.getMemoryWithoutUpdate();
@@ -318,6 +345,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             }
         }
 
+        MarketAPI market = primaryEntity.getMarket();
         stationFleet.setCircularOrbit(stationEntity, 0, 0, 100);
         stationFleet.getMemoryWithoutUpdate().set(MemFlags.STATION_MARKET, market);
         stationFleet.setHidden(true);
@@ -328,7 +356,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         stationEntity.setName(market.getName() + " " + Misc.ucFirst(getType()) + " Station");
 
         stationEntity.setDiscoverable(isDiscoverable);
-        if(isDiscoverable) stationEntity.setDiscoveryXP(500f);
+        if(isDiscoverable) if (Misc.getMarketsInLocation(primaryEntity.getContainingLocation()).isEmpty()) MiscellaneousThemeGenerator.makeDiscoverable(stationEntity, 300f, 2000f);
 
         //spawn defence fleet on player system enter
         //attach listener
@@ -346,6 +374,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
     protected void ensureStationEntityIsSetOrCreated() {
         if (stationEntity == null) {
+            MarketAPI market = primaryEntity.getMarket();
             IndEvo_modPlugin.log("spawning artillery station at " + market.getName());
 
             stationEntity = IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(market, getType(), true);
@@ -353,6 +382,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     }
 
     public String getType() {
+        MarketAPI market = primaryEntity.getMarket();
         MemoryAPI mem = market.getMemoryWithoutUpdate();
         if(!mem.contains(TYPE_KEY)) setType();
 
@@ -451,6 +481,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
                 PersonAPI current = stationFleet.getFlagship().getCaptain();
                 if (level > 0) {
                     if (current.isAICore() || current.getStats().getLevel() != level) {
+                        MarketAPI market = primaryEntity.getMarket();
                         commander = OfficerManagerEvent.createOfficer(
                                 Global.getSector().getFaction(market.getFactionId()), level, true);
                     }
@@ -485,13 +516,20 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             matchStationAndCommanderToCurrentIndustry();
         }
 
+        primaryEntity.getMemoryWithoutUpdate().unset("$hasDefenders");
+        primaryEntity.getMemoryWithoutUpdate().set("$defenderFleetDefeated", true);
+
         stationFleet.setAbortDespawn(true);
         isDestroyed = true;
         spawnBrokenStationEntityIfNeeded();
+
+        IndEvo_modPlugin.log(primaryEntity.getName() + " Artillery station destroyed");
     }
 
     public IndEvo_ArtilleryStationEntityPlugin getArtilleryPlugin() {
         if (stationEntity != null) return (IndEvo_ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin();
+
+        MarketAPI market = primaryEntity.getMarket();
 
         for (SectorEntityToken t : market.getConnectedEntities()) {
             if (t.getCustomPlugin() instanceof IndEvo_ArtilleryStationEntityPlugin)

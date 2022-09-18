@@ -14,6 +14,7 @@ import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
+import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidBeltTerrainPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.RingSystemTerrainPlugin;
 import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
@@ -36,26 +37,22 @@ public class IndEvo_ArtilleryStationPlacer {
         MarketAPI m = Global.getSector().getEconomy().getMarket("eochu_bres");
         m.addIndustry(IndEvo_ids.ARTILLERY_RAILGUN);
         m.getIndustry(IndEvo_ids.ARTILLERY_RAILGUN).setAICoreId(Commodities.ALPHA_CORE);
-        m.addCondition(IndEvo_ArtilleryStationCondition.ID);
         IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
         placeWatchtowers(m.getStarSystem(), Factions.TRITACHYON);
 
         m = Global.getSector().getEconomy().getMarket("chicomoztoc");
         m.addIndustry(IndEvo_ids.ARTILLERY_MORTAR);
-        m.addCondition(IndEvo_ArtilleryStationCondition.ID);
         IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
         placeWatchtowers(m.getStarSystem(), Factions.HEGEMONY);
 
         m = Global.getSector().getEconomy().getMarket("kazeron");
         m.addIndustry(IndEvo_ids.ARTILLERY_MISSILE);
         m.getIndustry(IndEvo_ids.ARTILLERY_MISSILE).setAICoreId(Commodities.GAMMA_CORE);
-        m.addCondition(IndEvo_ArtilleryStationCondition.ID);
         IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
         placeWatchtowers(m.getStarSystem(), Factions.PERSEAN);
 
         m = Global.getSector().getEconomy().getMarket("sindria");
         m.addIndustry(IndEvo_ids.ARTILLERY_MISSILE);
-        m.addCondition(IndEvo_ArtilleryStationCondition.ID);
         IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
         placeWatchtowers(m.getStarSystem(), Factions.DIKTAT);
 
@@ -90,9 +87,8 @@ public class IndEvo_ArtilleryStationPlacer {
 
                 if (r.nextFloat() < planetMod){
                     if (hasRemnantStation) p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, IndEvo_ArtilleryStationEntityPlugin.TYPE_MISSILE);
-                    IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(p, false);
-                    p.getMarket().addCondition(IndEvo_ArtilleryStationCondition.ID);
 
+                    IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(p, false);
                     placeWatchtowers(s, IndEvo_ids.DERELICT);
 
                     IndEvo_modPlugin.log("Placed artillery at " + p.getName() + " system: " + s.getName());
@@ -128,7 +124,7 @@ public class IndEvo_ArtilleryStationPlacer {
             if (loc != null) {
                 SectorEntityToken t = system.addCustomEntity(Misc.genUID(), faction.getDisplayName() + " Watchtower", "IndEvo_Watchtower", faction.getId(),null);
                 t.setOrbit(loc.orbit);
-                t.setDiscoverable(true);
+                if (Misc.getMarketsInLocation(system).isEmpty()) MiscellaneousThemeGenerator.makeDiscoverable(t, 200f, 2000f);
             }
         }
 
@@ -148,7 +144,7 @@ public class IndEvo_ArtilleryStationPlacer {
                 if (loc != null) {
                     SectorEntityToken t = system.addCustomEntity(Misc.genUID(), faction.getDisplayName() + " Watchtower", "IndEvo_Watchtower", faction.getId(),null);
                     t.setOrbit(loc.orbit);
-                    t.setDiscoverable(true);
+                    if (Misc.getMarketsInLocation(system).isEmpty()) MiscellaneousThemeGenerator.makeDiscoverable(t, 200f, 2000f);
                     break;
                 }
             }

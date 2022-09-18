@@ -6,6 +6,7 @@
         "IndEvo_TechMiningBalanceChanges":TRUE, #Techmining changes - adds the tooltip and removes industry tag
 
   #No gurantees for stability if you fuck with anything past here because I did not test it and probably never will.
+
   #Enabled industries
   #Note that disabling the Variable industries will not stop VPCs from dropping - you will have to remove the entries from drop_groups.csv to achive that.
   #Change to FALSE if you wish to disable the industry.
@@ -27,7 +28,6 @@
   "PrivatePort": TRUE,
 
   #Campaign Features
-  "Enable_IndEvo_Artillery": TRUE,
   "Enable_IndEvo_minefields": TRUE,
   "Enable_Indevo_Derelicts": TRUE, #Also includes salvage events and station types
   "IndEvo_SpecialApplicationChance": 0.9f, #master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing.
@@ -36,6 +36,17 @@
   "IndEvo_derelictStationAmount": 0.2f, #amount of additional stations with custom types spawned on top of existing ones (0.2 = 20% additional)
   "IndEvo_DerInfraBuildRed": 0.5f, #derelict infra build cost and time reductuction
   "IndEvo_PartsDropInCampaign": TRUE, #makes starship components drop from combat - Relic components will still drop even if you disable this.
+
+  #Artillery
+  "Enable_IndEvo_Artillery": TRUE, #disabling this means you have weak bones. Lucky for you, this does not matter, considering you will never amount to much in your life anyway.
+  "IndEvo_Artillery_minDelayBetweenShots":2f,
+  "IndEvo_Artillery_maxDelayBetweenShots":3f,
+  "IndEvo_Artillery_minCooldown":13f,
+  "IndEvo_Artillery_maxCooldown":15f,
+  "IndEvo_Artillery_cooldownNPCMult":2f, #multiplies cooldown for NPC fleets because they get demolished otherwise
+  "IndEvo_Artillery_minRange":500f,
+  "IndEvo_Artillery_maxRange":12000f, # =6 map cells
+  "IndEvo_Artillery_WatchtowerRange":3000f,
 
   #After here works during a campaign as well
   #Salvage Yards
@@ -50,7 +61,7 @@
 
   #RiftGen
   "RG_cooldownTime": 90,
-  "RG_range": 9,
+  "RG_range": 9, # in LY
 
   #Laboratory
   "reslab_autoDeliverToClosestDecon": FALSE, #Auto-deliver restored forge templates to the closest HullDecon  Remember - courier port exists.
@@ -64,7 +75,7 @@
   "hullDecon_days_CAPITAL_SHIP": 40,
 
   #HullForge
-  "hullForge_autoQueueShipsUntilEmpty": TRUE, #Print ships off a template until it is empty - else deposit in storage after one run
+  "hullForge_autoQueueShipsUntilEmpty": TRUE, #Print ships off a template until it is empty - FALSE = deposit in storage after one run
   "hullForge_autoDeliverToClosestLab": FALSE, #Auto-deliver degraded forge templates to the closest lab - or empty ones to a Deconstructor (AI Core Effect only)  Remember - courier port exists.
   "hullForge_days_FRIGATE": 5,
   "hullForge_days_DESTROYER": 10,
@@ -97,7 +108,7 @@
   "adminSalaryTier3":30000,
 
   #Engineering Hub
-  "IndEvo_EngHubIgnoreWhitelists": FALSE, #Yes, this is the one you are looking for   - this turns off the whitelist and allows any ship to be reverse engineered
+  "IndEvo_EngHubIgnoreWhitelists": FALSE, #Yes, this is the one you are looking for - this turns off the whitelist and allows any ship to be reverse engineered
   "IndEvo_AutoshipBPToGatheringPoint":FALSE,
 
   #Variable Industries

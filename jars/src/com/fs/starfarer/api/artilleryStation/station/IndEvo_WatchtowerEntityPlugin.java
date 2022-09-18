@@ -10,6 +10,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
+import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
 import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -18,11 +19,9 @@ import static com.fs.starfarer.api.artilleryStation.scripts.IndEvo_FleetVisibili
 
 public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     //this flags any fleets around it as seen
-
-    // TODO: 22.08.2022 should always have some kinda defender fleet according to the controlling faction
     //can be disabled for a month
 
-    public static final float RANGE = 3000f;
+    public static final float RANGE = Global.getSettings().getFloat("IndEvo_Artillery_WatchtowerRange");
     public static float PINGS_PER_SECOND = 0.05f;
     public static float WATCHTOWER_FLEET_SEEN_DURATION_DAYS = 5f;
     public static final float HACK_DURATION_DAYS_WT = 30f;
@@ -36,7 +35,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
         float orbitRadius = primaryEntity.getRadius() + 250f;
         t.setCircularOrbitWithSpin(primaryEntity, (float) Math.random() * 360f, orbitRadius, orbitRadius / 10f, 5f, 5f);
-        t.setDiscoverable(true);
+        if (Misc.getMarketsInLocation(primaryEntity.getContainingLocation()).isEmpty()) MiscellaneousThemeGenerator.makeDiscoverable(t, 200f, 2000f);
 
         return t;
     }
@@ -78,7 +77,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         if (vis == SectorEntityToken.VisibilityLevel.NONE || vis == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT) return;
 
         FactionAPI f = entity.getFaction();
-        if (!f.isHostileTo(Factions.PLAYER)) return;
+        if (!f.isHostileTo(Factions.PLAYER) || isHacked()) return;
 
         CampaignPingSpec custom = new CampaignPingSpec();
         custom.setColor(f.getColor());
@@ -98,7 +97,11 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     }
 
     public void printEffect(TooltipMakerAPI text, float pad) {
-        text.addPara(BaseIntelPlugin.INDENT + "Transmits target telemetry within %s range",
+        if(isHacked()) {
+            text.addPara(BaseIntelPlugin.INDENT + "%s, ignoring your fleet",
+                    pad, Misc.getHighlightColor(), "Hacked");
+
+        } else text.addPara(BaseIntelPlugin.INDENT + "Transmits target telemetry within %s range",
                 pad, Misc.getHighlightColor(), Math.round(RANGE) + " su");
 
         if (isReset()) {

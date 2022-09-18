@@ -11,6 +11,7 @@ import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
+import com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_ArtilleryStationCondition;
 import com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent;
 import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflater;
 import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflaterParams;
@@ -539,11 +540,11 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
             }
         }
 
-        return market.hasTag(IndEvo_ids.TAG_ARTILLERY_STATION) && canBuild && Misc.hasOrbitalStation(market) && Global.getSettings().getBoolean("Enable_IndEvo_Artillery");
+        return market.hasCondition(IndEvo_ArtilleryStationCondition.ID) && canBuild && Misc.hasOrbitalStation(market) && Global.getSettings().getBoolean("Enable_IndEvo_Artillery");
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return market.hasTag(IndEvo_ids.TAG_ARTILLERY_STATION);
+        return market.hasCondition(IndEvo_ArtilleryStationCondition.ID);
     }
 }

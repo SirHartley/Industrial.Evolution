@@ -11,9 +11,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_ArtilleryStationCondition;
 import com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
-import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -29,12 +27,13 @@ import static com.fs.starfarer.api.artilleryStation.scripts.IndEvo_FleetVisibili
 
 public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
 
-    public static final float MIN_DELAY_BETWEEN_SHOTS = 1f;
-    public static final float MAX_DELAY_BETWEEN_SHOTS = 2f;
-    public static final float MIN_RELOAD_TIME = 13f;
-    public static final float MAX_RELOAD_TIME = 15f;
-    public static final float RANGE = 12000f;
-    public static final float MIN_RANGE = 500f;
+    public static final float NPC_RELOAD_FACTOR = Global.getSettings().getFloat("IndEvo_Artillery_cooldownNPCMult");
+    public static final float MIN_DELAY_BETWEEN_SHOTS = Global.getSettings().getFloat("IndEvo_Artillery_minDelayBetweenShots");
+    public static final float MAX_DELAY_BETWEEN_SHOTS = Global.getSettings().getFloat("IndEvo_Artillery_maxDelayBetweenShots");
+    public static final float MIN_RELOAD_TIME = Global.getSettings().getFloat("IndEvo_Artillery_minCooldown");
+    public static final float MAX_RELOAD_TIME = Global.getSettings().getFloat("IndEvo_Artillery_maxCooldown");
+    public static final float RANGE = Global.getSettings().getFloat("IndEvo_Artillery_maxRange");
+    public static final float MIN_RANGE = Global.getSettings().getFloat("IndEvo_Artillery_minRange");
 
     //exclusions
     public static final float ARTILLERY_BLOCKOUT_RANGE = 400f;
@@ -267,7 +266,9 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
             if (targetMap.containsKey(f.getId())) continue;
 
             if (isHostileTo(f) && isValid(f)) {
-                IntervalUtil interval = new IntervalUtil(MIN_RELOAD_TIME, MAX_RELOAD_TIME);
+                float reloadTimeFactor = f.isPlayerFleet() ? 1f : NPC_RELOAD_FACTOR;
+
+                IntervalUtil interval = new IntervalUtil(MIN_RELOAD_TIME * reloadTimeFactor, MAX_RELOAD_TIME* reloadTimeFactor);
                 interval.forceIntervalElapsed();
                 targetMap.put(f.getId(), interval);
             }
@@ -412,6 +413,17 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
             if (t.hasTag(Tags.STATION) && !t.hasTag(IndEvo_ids.TAG_ARTILLERY_STATION)) {
                 station = t;
                 break;
+            }
+        }
+
+        if(station == null){
+            for (SectorEntityToken t : market.getStarSystem().getEntitiesWithTag(Tags.STATION)){
+                if (t.getCustomEntityType().equals(Entities.STATION_BUILT_FROM_INDUSTRY) && !t.hasTag(IndEvo_ids.TAG_ARTILLERY_STATION)){
+                    if (t.getOrbitFocus() != null && t.getOrbitFocus().getId().equals(market.getPrimaryEntity().getId())) {
+                        station = t;
+                        break;
+                    }
+                }
             }
         }
 

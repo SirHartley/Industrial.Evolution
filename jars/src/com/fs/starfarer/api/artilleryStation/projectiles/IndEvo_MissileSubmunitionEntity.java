@@ -45,6 +45,7 @@ public class IndEvo_MissileSubmunitionEntity extends BaseCustomEntityPlugin {
     }
 
     public static final float PROJECTILE_VELOCITY = 200f;
+    public static final float MIN_TRAVEL_TIME = 0.5f;
     public static final float EXPLOSION_SIZE = 350f;
     public static final float INITIATE_EXPLOSION_DISTANCE = 50f;
     public static final float SINE_WAVE_MAX_VARIANCE = 40f;
@@ -120,7 +121,7 @@ public class IndEvo_MissileSubmunitionEntity extends BaseCustomEntityPlugin {
                 currentTarget = null;
             }
 
-            if (currentTarget == null) searchForTarget();
+            if (timePassedSeconds > MIN_TRAVEL_TIME && currentTarget == null) searchForTarget();
             if (currentTarget == null) advanceProjectileNoTarget(amount); //go in a wibbly wobbly straight line
             else advanceProjectileTowardsEnemyV2(amount); //chase the cunt that entered range
 

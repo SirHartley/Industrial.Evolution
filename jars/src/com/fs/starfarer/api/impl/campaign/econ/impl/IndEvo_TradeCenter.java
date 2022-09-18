@@ -137,7 +137,6 @@ public class IndEvo_TradeCenter extends BaseIndustry implements MarketImmigratio
         if (balanceChange)
             isAvailable = IndEvo_IndustryHelper.isOnlyInstanceInSystemExcludeMarket(IndEvo_ids.COMMERCE, market.getStarSystem(), market, market.getFaction());
 
-        Global.getLogger(IndEvo_TradeCenter.class).info(super.isAvailableToBuild() + " " + market.hasSpaceport() + " " + isAvailable);
         return super.isAvailableToBuild() && market.hasSpaceport() && isAvailable;
     }
 

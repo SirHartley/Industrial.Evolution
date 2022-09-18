@@ -67,7 +67,7 @@ public class IndEvo_ArtilleryDefenderGen {
     public static final float MAX_HAZARD = 200f;
 
     public static CampaignFleetAPI createDefenderFleet(MarketAPI market){
-        float defenderBonus = 1 + Math.max(1, (MAX_HAZARD - market.getHazardValue()) / 100f);
+        float defenderBonus = 1 + Math.min(1, (MAX_HAZARD - market.getHazardValue()) / 100f);
 
         long seed = market.getPrimaryEntity().getMemoryWithoutUpdate().getLong(MemFlags.SALVAGE_SEED);
         Random random = Misc.getRandom(seed, 1);
@@ -84,6 +84,9 @@ public class IndEvo_ArtilleryDefenderGen {
 
         fParams.withOfficers = faction.getCustomBoolean(Factions.CUSTOM_OFFICERS_ON_AUTOMATED_DEFENSES);
         fParams.random = random;
+        fParams.ignoreMarketFleetSizeMult = true;
+        fParams.withOfficers = true;
+        fParams.officerNumberMult = 1.5f;
 
         CampaignFleetAPI defenders = FleetFactoryV3.createFleet(fParams);
 
