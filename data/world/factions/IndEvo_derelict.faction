@@ -1,11 +1,11 @@
 {
 	id:"IndEvo_derelict",
-	"displayName":"Derelict",
-	"displayNameWithArticle":"the derelict",
-	"displayNameLong":"Domain Defense Derelict",
-	"displayNameLongWithArticle":"the Domain Defense Derelict",
-	"entityNamePrefix":"",
-	"personNamePrefix":"",
+	"displayName":"Domain System Defence",
+	"displayNameWithArticle":"the Domain System Defence",
+	"displayNameLong":"Domain System Defence",
+	"displayNameLongWithArticle":"the Domain System Defence",
+	"entityNamePrefix":"DSD",
+	"personNamePrefix":"DSD",
 	"personNamePrefixAOrAn":"a",
 	"displayNameIsOrAre":"are",
 	

@@ -15,6 +15,7 @@ import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.impl.items.consumables.listeners.IndEvo_LocatorSystemRatingUpdater;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
+import com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_ArtilleryStationCondition;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;

@@ -59,10 +59,12 @@ public class IndEvo_ArtilleryTerrain extends BaseRingTerrain {
         IndEvo_ArtilleryStationEntityPlugin p = (IndEvo_ArtilleryStationEntityPlugin) artillery.getCustomPlugin();
         if(p == null) return;
 
-        String name = "In " + artillery.getName() + " range";
+        boolean isDiscoverable = artillery.isDiscoverable();
+        String artyNamy = isDiscoverable ? "artillery" : artillery.getName();
+        String name = "In " + artyNamy + " range";
         String disposition = artillery.getFaction().getRelationshipLevel(player.getFaction()).getDisplayName().toLowerCase();
         SectorEntityToken focus = artillery.getOrbitFocus();
-        String focusName = focus != null ? focus.getName() : "an unknown location";
+        String focusName = focus != null && !isDiscoverable ? focus.getName() : "an unknown location";
         boolean isHostile = p.isHostileTo(player);
         String willOrWont = isHostile ? "will target you" : "will not target you";
         Color relColour = isHostile ? Misc.getNegativeHighlightColor() : Misc.getRelColor(artillery.getFaction().getRelationship(player.getFaction().getId()));
@@ -75,6 +77,8 @@ public class IndEvo_ArtilleryTerrain extends BaseRingTerrain {
         Color[] hlColours = new Color[]{artillery.getFaction().getColor(), relColour, willOrWontColour};
         tooltip.addPara("The artillery orbiting %s is controlled by a %s faction.\n" +
                 "It %s if your location is known.", pad, hlColours, focusName, disposition, willOrWont);
+
+        if (isDiscoverable) return;
 
         switch (p.getType()) {
             case TYPE_RAILGUN:

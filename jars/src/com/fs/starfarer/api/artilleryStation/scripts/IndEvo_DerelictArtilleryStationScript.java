@@ -3,7 +3,9 @@ package com.fs.starfarer.api.artilleryStation.scripts;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.artilleryStation.station.IndEvo_ArtilleryStationEntityPlugin;
+import com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEntityPlugin;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
@@ -21,6 +23,8 @@ import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflaterParams;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
 import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.intel.bases.LuddicPathBaseIntel;
+import com.fs.starfarer.api.impl.campaign.intel.bases.PirateBaseIntel;
 import com.fs.starfarer.api.impl.campaign.procgen.DefenderDataOverride;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGeneratorPlugin;
@@ -40,7 +44,7 @@ import java.util.Random;
 
 public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, FleetEventListener {
 
-    public static void addDerelictArtyToPlanet(SectorEntityToken planet, boolean isDestroyed){
+    public static void addDerelictArtyToPlanet(SectorEntityToken planet, boolean isDestroyed) {
         if (!planet.hasScriptOfClass(IndEvo_DerelictArtilleryStationScript.class)) {
 
             IndEvo_DerelictArtilleryStationScript script = new IndEvo_DerelictArtilleryStationScript(planet.getMarket());
@@ -48,7 +52,8 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             planet.addScript(script);
             planet.getMemoryWithoutUpdate().set(SCRIPT_KEY, script);
             planet.getMarket().addTag(IndEvo_ids.TAG_ARTILLERY_STATION);
-            planet.getMarket().addCondition(IndEvo_ArtilleryStationCondition.ID);
+            if (!planet.getMarket().hasCondition(IndEvo_ArtilleryStationCondition.ID))
+                planet.getMarket().addCondition(IndEvo_ArtilleryStationCondition.ID);
         }
     }
 
@@ -80,10 +85,10 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
     protected SectorEntityToken primaryEntity;
 
-    public static CampaignFleetAPI getStationFleet(SectorEntityToken entity){
+    public static CampaignFleetAPI getStationFleet(SectorEntityToken entity) {
         IndEvo_DerelictArtilleryStationScript script;
 
-        if (entity instanceof PlanetAPI){
+        if (entity instanceof PlanetAPI) {
             script = (IndEvo_DerelictArtilleryStationScript) entity.getMemoryWithoutUpdate().get(SCRIPT_KEY);
         } else {
             script = (IndEvo_DerelictArtilleryStationScript) entity.getOrbitFocus().getMemoryWithoutUpdate().get(SCRIPT_KEY);
@@ -109,10 +114,10 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         else aliveActions();
     }
 
-    public void destroyedActions(){
+    public void destroyedActions() {
         MarketAPI market = primaryEntity.getMarket();
 
-        if(brokenStationEntity != null && orbitMatched == null){
+        if (brokenStationEntity != null && orbitMatched == null && market.getPrimaryEntity() instanceof PlanetAPI) { //we only match planets
             SectorEntityToken station = IndEvo_ArtilleryStationEntityPlugin.getOrbitalStationAtMarket(market);
 
             if (station != null && !station.getId().equals(orbitMatched)) {
@@ -129,18 +134,60 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             spawnBrokenStationEntityIfNeeded();
 
             IndEvo_ArtilleryStationEntityPlugin plugin = getArtilleryPlugin();
-            if(plugin != null) plugin.setDisrupted(true);
+            if (plugin != null) plugin.setDisrupted(true);
 
             matchCommanderToAICore(null);
         }
     }
 
-    public void aliveActions(){
+    public void updateFaction() {
+        String faction = null;
+        String currentFaction = stationEntity.getFaction().getId();
+
+        for (MarketAPI m : Misc.getMarketsInLocation(primaryEntity.getContainingLocation())) {
+            if (m.isPlayerOwned() || m.getFaction().isPlayerFaction()) continue;
+
+            faction = m.getFactionId();
+            break;
+        }
+
+        if (faction == null) {
+            for (CampaignFleetAPI fleet : primaryEntity.getContainingLocation().getFleets()) {
+                if (fleet.isStationMode() && !fleet.getFaction().isPlayerFaction()) {
+                    faction = fleet.getFaction().getId();
+                    break;
+                }
+            }
+        }
+
+        if (faction != null && !faction.equals(currentFaction)) {
+            updateFaction(faction);
+
+        } else if (faction == null
+                && !primaryEntity.isInCurrentLocation()
+                && (currentFaction.equals(Factions.PIRATES) || currentFaction.equals(Factions.LUDDIC_PATH))) {
+
+            updateFaction(IndEvo_ids.DERELICT); //revert to derelict if player is out of system and the path/pirate base is gone
+            //we do not revert if the faction is of a station fleet
+        }
+    }
+
+    public void updateFaction(String id) {
+        stationEntity.setFaction(id);
+        stationFleet.setFaction(id, false);
+
+        for (SectorEntityToken t : primaryEntity.getContainingLocation().getEntitiesWithTag("IndEvo_watchtower")) {
+            if (!t.getFaction().isPlayerFaction()) t.setFaction(id);
+        }
+    }
+
+    public void aliveActions() {
         if (stationEntity == null) {
             spawnStation();
         }
 
         isDiscoverable = stationEntity.isDiscoverable();
+        updateFaction();
 
         getArtilleryPlugin().setDisrupted(false);
 
@@ -198,7 +245,8 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             if (stationEntity != null) brokenStation.setOrbit(stationEntity.getOrbit());
             else {
                 SectorEntityToken station = IndEvo_ArtilleryStationEntityPlugin.getOrbitalStationAtMarket(market);
-                if(!matchOrbitalstationOrbit(brokenStation, station)) addRandomOrbit(brokenStation); //matches station orbit, if it can't, adds random orbit
+                if (!matchOrbitalstationOrbit(brokenStation, station))
+                    addRandomOrbit(brokenStation); //matches station orbit, if it can't, adds random orbit
             }
 
             brokenStationEntity = brokenStation;
@@ -277,7 +325,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             MarketAPI market = primaryEntity.getMarket();
             IndEvo_modPlugin.log("removing artillery station at " + market.getName());
 
-            MemoryAPI memory =  stationEntity.getMemoryWithoutUpdate();
+            MemoryAPI memory = stationEntity.getMemoryWithoutUpdate();
             memory.unset(MemFlags.STATION_FLEET);
             memory.unset(MemFlags.STATION_BASE_FLEET);
             memory.unset("$hasDefenders");
@@ -356,7 +404,8 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         stationEntity.setName(market.getName() + " " + Misc.ucFirst(getType()) + " Station");
 
         stationEntity.setDiscoverable(isDiscoverable);
-        if(isDiscoverable) if (Misc.getMarketsInLocation(primaryEntity.getContainingLocation()).isEmpty()) MiscellaneousThemeGenerator.makeDiscoverable(stationEntity, 300f, 2000f);
+        if (isDiscoverable) if (Misc.getMarketsInLocation(primaryEntity.getContainingLocation()).isEmpty())
+            MiscellaneousThemeGenerator.makeDiscoverable(stationEntity, 300f, 2000f);
 
         //spawn defence fleet on player system enter
         //attach listener
@@ -384,7 +433,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     public String getType() {
         MarketAPI market = primaryEntity.getMarket();
         MemoryAPI mem = market.getMemoryWithoutUpdate();
-        if(!mem.contains(TYPE_KEY)) setType();
+        if (!mem.contains(TYPE_KEY)) setType();
 
         return mem.getString(TYPE_KEY);
     }

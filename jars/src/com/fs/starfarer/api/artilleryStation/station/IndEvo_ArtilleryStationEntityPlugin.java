@@ -221,7 +221,8 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
                 && isNotNullAI
                 && Misc.getDistance(t, entity) <= range
                 && Misc.getDistance(t, entity) >= MIN_RANGE
-                && t.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY);
+                && t.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY)
+                && !t.getMemoryWithoutUpdate().getBoolean(MemFlags.ENTITY_MISSION_IMPORTANT);
     }
 
     private boolean isForcedValid(SectorEntityToken t){
@@ -375,7 +376,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         if (m.getPrimaryEntity() == null) return null;
 
         SectorEntityToken primaryEntity = m.getPrimaryEntity();
-        SectorEntityToken station = getOrbitalStationAtMarket(m);
+        SectorEntityToken station = primaryEntity.getTags().contains(Tags.STATION) ? null : getOrbitalStationAtMarket(m); //only get orbital if station is not orbital station
 
         String factionID = m.isPlanetConditionMarketOnly() ? IndEvo_ids.DERELICT : m.getFactionId();
 
@@ -512,7 +513,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         float spad = 3f;
         Color highlight = Misc.getHighlightColor();
 
-        IndEvo_modPlugin.log("call");
+        if (entity.isDiscoverable()) return;
 
         if (disrupted) {
             tooltip.addPara("This defence platform is %s.", opad, Misc.getNegativeHighlightColor(), "not functional");

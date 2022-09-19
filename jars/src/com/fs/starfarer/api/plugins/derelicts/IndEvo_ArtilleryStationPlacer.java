@@ -35,26 +35,26 @@ public class IndEvo_ArtilleryStationPlacer {
                 || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedArtilleries")) return;
 
         MarketAPI m = Global.getSector().getEconomy().getMarket("eochu_bres");
-        m.addIndustry(IndEvo_ids.ARTILLERY_RAILGUN);
-        m.getIndustry(IndEvo_ids.ARTILLERY_RAILGUN).setAICoreId(Commodities.ALPHA_CORE);
         IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
         placeWatchtowers(m.getStarSystem(), Factions.TRITACHYON);
+        m.addIndustry(IndEvo_ids.ARTILLERY_RAILGUN);
+        m.getIndustry(IndEvo_ids.ARTILLERY_RAILGUN).setAICoreId(Commodities.ALPHA_CORE);
 
         m = Global.getSector().getEconomy().getMarket("chicomoztoc");
-        m.addIndustry(IndEvo_ids.ARTILLERY_MORTAR);
         IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
         placeWatchtowers(m.getStarSystem(), Factions.HEGEMONY);
+        m.addIndustry(IndEvo_ids.ARTILLERY_MORTAR);
 
         m = Global.getSector().getEconomy().getMarket("kazeron");
-        m.addIndustry(IndEvo_ids.ARTILLERY_MISSILE);
-        m.getIndustry(IndEvo_ids.ARTILLERY_MISSILE).setAICoreId(Commodities.GAMMA_CORE);
         IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
         placeWatchtowers(m.getStarSystem(), Factions.PERSEAN);
+        m.addIndustry(IndEvo_ids.ARTILLERY_MISSILE);
+        m.getIndustry(IndEvo_ids.ARTILLERY_MISSILE).setAICoreId(Commodities.GAMMA_CORE);
 
         m = Global.getSector().getEconomy().getMarket("sindria");
-        m.addIndustry(IndEvo_ids.ARTILLERY_MISSILE);
         IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
         placeWatchtowers(m.getStarSystem(), Factions.DIKTAT);
+        m.addIndustry(IndEvo_ids.ARTILLERY_MISSILE);
 
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedArtilleries", true);
     }

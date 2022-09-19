@@ -41,6 +41,24 @@ adjust salvage event "Ship Roulette" -
     add an intel entry showing the progress
 
 -----------------------o-----------------------
+beta
+- Artillery will now switch allegiance when NPC faction is present in system (remnant, pirate bases...)
+- Friendly fleets no longer tag you as visible for arty
+- You no longer report your own location to a hostile arty (big brain move right there)
+- Fleets now have to get into "visible" sensor range to see you (formerly sensor contact)
+- No longer shoots important / bounty / quest fleets
+- campaign desc no longer shows up on undiscovered arty
+- terrain desc no longer spoils arty location
+- watchtowers can no longer be interacted with when artillery is derelict or remnant (too easy...)
+- watchtowers no longer show range pings when arty is dead
+
+todo
+nerf mine damage
+nerf railgun and mortar damage (scales with FP, should be fixed 100 supplies to certain ships?)
+exotica affects arty
+add a pre-combat dialogue stage to the arty interaction
+change mortar reticules to be rotation 0 with slight fuzz so it looks good
+make battle count as station battle
 
 3.1.2 - unreleased
 General
@@ -48,12 +66,6 @@ Added - President Matt Damon added to credits of this mod for help with vectors 
 Fixed - Corrected all those getList tooltips to get
 
 Items
-beta 2 - bound item drop rates to destroyed fleet FP
-beta 2 - fixed being able to activate items in planet cargo
-beta 2 - nerfed decoy range (5k -> 3k)
-beta 2 - changed the red border on cooldown to something that I know doesn't break everything
-beta 2 - fixed the render issues
-beta 2 - Sensor decoy now baits artillery fire
 Added - Consumable Item: Nanite Repair Module - Repairs your fleet, restores CR
 Added - Consumable Item: Tech Locator - Grav Scan for hyperspace, indicates systems with lots of loot
 Added - Consumable Item: Drive Bubble Spike - Deploys a mine that fires an interdiction pulse when an enemy fleet is in range
@@ -64,20 +76,20 @@ Adjusted - Switch to non-vanilla drop group system, courtesy of Matt
 Adjusted - Drop rates on all IndEvo items and loot overhauled
 
 Artillery Stations
-beta 2 - Added - Tear harvester 3000: 3 Types of artillery that shoot you on the campaign layer
-beta 2 - Added - Artillery to Eochu Bres, Chicomoztoc, Kazeron, Sindria
-beta 2 - Added - Derelict Artilleries that can be found via exploration
-beta 2 - Added - Watchtower stations to hack or take over, that report your location to the artillery
+Added - Tear harvester 3000: 3 Types of artillery that shoot you on the campaign layer
+Added - Artillery to Eochu Bres, Chicomoztoc, Kazeron, Sindria
+Added - Derelict Artilleries that can be found via exploration
+Added - Watchtower stations to hack or take over, that report your location to the artillery
 
 Research Projects
 Added - Project Transistor - Trade Relic Components for consumable items
 
 Minefields
-beta 2 - Adjusted - No longer blows up on fleets in combat
-beta 2 - Adjusted - Bounty and "Important" Fleets are no longer affected by minefields
-beta 2 - Adjusted - Friendly fleets ignore minefields and will no longer get stuck trying to pass them
-beta 2 - Adjusted - Increased immunity time after strike for NPC fleets
-beta 2 - Adjusted - NPC fleets in "immunity time" now treat the minefield as if it was not there
+Adjusted - No longer blows up on fleets in combat
+Adjusted - Bounty and "Important" Fleets are no longer affected by minefields
+Adjusted - Friendly fleets ignore minefields and will no longer get stuck trying to pass them
+Adjusted - Increased immunity time after strike for NPC fleets
+Adjusted - NPC fleets in "immunity time" now treat the minefield as if it was not there
 Fixed - Visual IFF check now matches explosion IFF (properly turns green when friendly ect...)
 
 Embassies
@@ -87,6 +99,7 @@ Engineering Hub
 Fixed - No longer removes all blueprints of a size from IndStorage when creating a new one
 
 Courier Port
+Adjusted - No longer gets placed on core worlds randomly
 Fixed - Shipping intel now vanishes after finishing (just like your dad back then)
 Fixed - Crash when shipping port intel could not find valid map location
 
@@ -98,7 +111,7 @@ Note - 2 base output (+ 3 bonus) - 2 decay = 0 supply next month, where up until
 
 Academy
 Adjusted - Manually blacklisted that one Oculian Armada skill everyone was getting
-beta 2 - Fixed - No longer counts mercenaries against the officer limit
+Fixed - No longer counts mercenaries against the officer limit
 
 World Wonders
 Fixed - Stability Bonus for other in-System worlds is now properly permanent

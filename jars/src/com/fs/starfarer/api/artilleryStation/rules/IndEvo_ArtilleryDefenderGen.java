@@ -23,20 +23,20 @@ import static com.fs.starfarer.api.artilleryStation.scripts.IndEvo_DerelictArtil
 
 public class IndEvo_ArtilleryDefenderGen {
 
-    public static CampaignFleetAPI getFleetForPlanet(SectorEntityToken planet){
+    public static CampaignFleetAPI getFleetForPlanet(SectorEntityToken planet, String factionID){
         CampaignFleetAPI defenders = planet.getMemoryWithoutUpdate().getFleet("$defenderFleet");
         if (defenders != null) return defenders;
         else {
-            defenders = getNewFleet(planet);
+            defenders = getNewFleet(planet, factionID);
         }
 
         return defenders;
     }
 
-    public static CampaignFleetAPI getNewFleet(SectorEntityToken planet){
+    public static CampaignFleetAPI getNewFleet(SectorEntityToken planet, String factionID){
         MarketAPI m = planet.getMarket();
 
-        CampaignFleetAPI defenders = createDefenderFleet(m);
+        CampaignFleetAPI defenders = createDefenderFleet(m, factionID);
 
         //add station
         String variantId = null;
@@ -66,12 +66,11 @@ public class IndEvo_ArtilleryDefenderGen {
     public static final float MIN_FLEET_SIZE = 100f;
     public static final float MAX_HAZARD = 200f;
 
-    public static CampaignFleetAPI createDefenderFleet(MarketAPI market){
+    public static CampaignFleetAPI createDefenderFleet(MarketAPI market, String factionId){
         float defenderBonus = 1 + Math.min(1, (MAX_HAZARD - market.getHazardValue()) / 100f);
 
         long seed = market.getPrimaryEntity().getMemoryWithoutUpdate().getLong(MemFlags.SALVAGE_SEED);
         Random random = Misc.getRandom(seed, 1);
-        String factionId = IndEvo_ids.DERELICT;
 
         FleetParamsV3 fParams = new FleetParamsV3(null, null,
                 factionId,

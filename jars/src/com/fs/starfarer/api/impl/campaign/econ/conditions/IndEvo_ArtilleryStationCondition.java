@@ -1,5 +1,6 @@
 package com.fs.starfarer.api.impl.campaign.econ.conditions;
 
+import com.fs.starfarer.api.artilleryStation.scripts.IndEvo_DerelictArtilleryStationScript;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -10,6 +11,18 @@ public class IndEvo_ArtilleryStationCondition extends BaseHazardCondition {
     public static final String ID = "IndEvo_ArtilleryStationCondition";
     public static final String ARTILLERY_KEY = "$IndEvo_ArtilleryStation";
     public static final String ARTILLERY_DESTROYED = "$IndEvo_ArtilleryStation_Destroyed";
+
+    public boolean script = true;
+
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
+
+        if(script) {
+            IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(market.getPrimaryEntity(), true);
+            script = false;
+        }
+    }
 
     public boolean isDestroyed(){
         return market.getMemoryWithoutUpdate().getBoolean(ARTILLERY_DESTROYED);

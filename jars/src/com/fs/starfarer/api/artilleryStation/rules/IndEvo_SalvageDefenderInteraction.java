@@ -31,7 +31,7 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
         final SectorEntityToken entity = dialog.getInteractionTarget();
         final MemoryAPI memory = getEntityMemory(memoryMap);
 
-        final CampaignFleetAPI defenders = IndEvo_ArtilleryDefenderGen.getFleetForPlanet(entity);
+        final CampaignFleetAPI defenders = IndEvo_ArtilleryDefenderGen.getFleetForPlanet(entity, entity.getFaction().getId());
 
         dialog.setInteractionTarget(defenders);
 

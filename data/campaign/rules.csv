@@ -28,6 +28,10 @@ $tag:IndEvo_Artillery",,Your $shipOrFleet disengages as the defence stations los
 IndEvo_ArtilleryDefeatPopulateOptions,DialogOptionSelected,$option == IndEvo_ArtilleryDefeatPopulateOptions,FireAll OpenInteractionDialog,,,
 ,,,,,,
 #watchtower,,,,,,
+IndEvo_derelictWatchtower,OpenInteractionDialog,"$IndEvo_isArtilleryActive score:1000
+$tag:IndEvo_watchtower",,"Any attempts at connecting to the $entityName get stifled by an obviously AI-backed counter-hack. Your engineers concede defeat after a few minutes to avoid a network breach.
+
+Disabling the entity backing the hacks will probably fix this.",0:defaultLeave:Leave,
 cob_hackPrompt_watchtower,COB_ConfirmPrompt,"$cob_action == hack
 $tag:IndEvo_watchtower score:1000",,"Hacking $aOrAn $shortName will clear your current target data out of the system, and stop it from registering your fleet while the hack is ongoing.
 

@@ -1,10 +1,12 @@
 package com.fs.starfarer.api.artilleryStation.station;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.artilleryStation.scripts.IndEvo_DerelictArtilleryStationScript;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCampaignObjectivePlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
@@ -19,9 +21,9 @@ import static com.fs.starfarer.api.artilleryStation.scripts.IndEvo_FleetVisibili
 
 public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     //this flags any fleets around it as seen
-    //can be disabled for a month
 
     public static final float RANGE = Global.getSettings().getFloat("IndEvo_Artillery_WatchtowerRange");
+    public static final String MEM_DERELICT_ARTILLERY_ACTIVE = "$IndEvo_isArtilleryActive";
     public static float PINGS_PER_SECOND = 0.05f;
     public static float WATCHTOWER_FLEET_SEEN_DURATION_DAYS = 5f;
     public static final float HACK_DURATION_DAYS_WT = 30f;
@@ -40,13 +42,35 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         return t;
     }
 
+    public boolean checkDerelictArtilleryActive(){
+        MemoryAPI mem = entity.getMemoryWithoutUpdate();
+        mem.set(MEM_DERELICT_ARTILLERY_ACTIVE, false);
+
+        for (SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag(IndEvo_DerelictArtilleryStationScript.ARTILLERY_KEY)){
+            String faction = t.getFaction().getId();
+
+            if (IndEvo_ids.DERELICT.equals(faction) || Factions.REMNANTS.equals(faction)) {
+                mem.set(MEM_DERELICT_ARTILLERY_ACTIVE, true);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void advance(float amount) {
         super.advance(amount);
 
         phase += amount * PINGS_PER_SECOND;
 
         if(phase >= 1) {
-            if(!isHacked()) showRangePing();
+            String factionID = entity.getFaction().getId();
+            boolean isAI = factionID.equals(IndEvo_ids.DERELICT) || factionID.equals(Factions.REMNANTS);
+            boolean isAIActive = checkDerelictArtilleryActive();
+
+            if(isAI){
+                if (isAIActive && !isHacked()) showRangePing();
+            } else if(!isHacked()) showRangePing();
 
             for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, RANGE))  {
                 if (isHostileTo(f)){

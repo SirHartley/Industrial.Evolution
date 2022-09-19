@@ -19,7 +19,7 @@ public class IndEvo_NewGameIndustryPlacer {
         placeReqCenter();
         placeSalvageYards();
         placeManufactories();
-        placeCourierPorts();
+        //placeCourierPorts();
     }
 
     public static void placeManufactories() {
