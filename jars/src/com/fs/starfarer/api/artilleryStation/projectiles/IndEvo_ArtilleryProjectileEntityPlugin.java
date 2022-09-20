@@ -15,6 +15,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.Misc;
+import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -158,7 +159,7 @@ public class IndEvo_ArtilleryProjectileEntityPlugin extends BaseCustomEntityPlug
 
             float projectileFlightTime = Misc.getDistance(origin.getLocation(), target) / PROJECTILE_VELOCITY;
             this.projectileDelayTime = impactSeconds - projectileFlightTime;
-            this.angle = Misc.getAngleInDegrees(target, Global.getSector().getPlayerFleet().getLocation());
+            this.angle = MathUtils.getRandomNumberInRange(-20, 20);
         }
 
         readResolve();

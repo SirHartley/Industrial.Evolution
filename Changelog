@@ -9,6 +9,12 @@ todo item that fakes IFF to be firendly for artillery
 - implement the 3 turret types as weapons
 - update variants for each type in industries.csv
 
+exotica affects arty
+
+add item that changes player fleet faction
+    change it back when other fleet is within 100su of fleet
+    scroll wheel in inventory to change target faction
+
 --------------------------- known issues -----------------------------
 
 Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
@@ -42,23 +48,10 @@ adjust salvage event "Ship Roulette" -
 
 -----------------------o-----------------------
 beta
-- Artillery will now switch allegiance when NPC faction is present in system (remnant, pirate bases...)
-- Friendly fleets no longer tag you as visible for arty
-- You no longer report your own location to a hostile arty (big brain move right there)
-- Fleets now have to get into "visible" sensor range to see you (formerly sensor contact)
-- No longer shoots important / bounty / quest fleets
-- campaign desc no longer shows up on undiscovered arty
-- terrain desc no longer spoils arty location
-- watchtowers can no longer be interacted with when artillery is derelict or remnant (too easy...)
-- watchtowers no longer show range pings when arty is dead
-
-todo
-nerf mine damage
-nerf railgun and mortar damage (scales with FP, should be fixed 100 supplies to certain ships?)
-exotica affects arty
-add a pre-combat dialogue stage to the arty interaction
-change mortar reticules to be rotation 0 with slight fuzz so it looks good
-make battle count as station battle
+Mine damage reduced by 50%
+Added 2s invulnerability period after jump
+Watchtowers can now only spawn in asteroid belts around the sun
+Applied Avas station nerfs to the arty modules
 
 3.1.2 - unreleased
 General
@@ -76,20 +69,23 @@ Adjusted - Switch to non-vanilla drop group system, courtesy of Matt
 Adjusted - Drop rates on all IndEvo items and loot overhauled
 
 Artillery Stations
-Added - Tear harvester 3000: 3 Types of artillery that shoot you on the campaign layer
+Added - 3 Types of artillery that shoot you on the campaign layer
 Added - Artillery to Eochu Bres, Chicomoztoc, Kazeron, Sindria
-Added - Derelict Artilleries that can be found via exploration
+Added - Derelict Artilleries that will find you while exploring
 Added - Watchtower stations to hack or take over, that report your location to the artillery
 
 Research Projects
 Added - Project Transistor - Trade Relic Components for consumable items
 
 Minefields
+Added - 2 seconds of invulnerability after a jump
+Adjusted - Phase ships now only add 0.3x their hull size weight to hit chance calc
+Adjusted - Damage reduced by 50% (they still hurt)
 Adjusted - No longer blows up on fleets in combat
-Adjusted - Bounty and "Important" Fleets are no longer affected by minefields
+Adjusted - Bounty and "Important" Fleets are no longer affected by minefields (cheaters, man, amirite)
 Adjusted - Friendly fleets ignore minefields and will no longer get stuck trying to pass them
 Adjusted - Increased immunity time after strike for NPC fleets
-Adjusted - NPC fleets in "immunity time" now treat the minefield as if it was not there
+Adjusted - NPC fleets in "immunity time" now treat the minefield as if it was not there = much smoother transition
 Fixed - Visual IFF check now matches explosion IFF (properly turns green when friendly ect...)
 
 Embassies

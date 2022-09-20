@@ -3,7 +3,6 @@ package com.fs.starfarer.api.impl.campaign.terrain;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
@@ -27,6 +26,13 @@ public class IndEvo_MineBeltTerrainPlugin extends BaseRingTerrain implements Ast
 
     public static float MIN_MINE_SIZE = 2f;
     public static float MAX_MINE_SIZE = 8f;
+
+    public static final float CIVILIAN_EFFECT_MULT = 0.5f;
+    public static final float PHASE_EFFECT_MULT = 0.3f;
+    public static final float MAX_FLEET_SIZE_BEFORE_MALUS = 0.5f;
+
+    public static final float RECENT_JUMP_TIMEOUT_SECONDS = 2f;
+    public static final String RECENT_JUMP_KEY = "$IndEvo_recentlyJumped";
 
     public static final Logger log = Global.getLogger(IndEvo_MineBeltTerrainPlugin.class);
 
@@ -176,9 +182,6 @@ public class IndEvo_MineBeltTerrainPlugin extends BaseRingTerrain implements Ast
         super.render(layer, viewport);
     }
 
-    public static final float CIVILIAN_EFFECT_MULT = 0.5f;
-    public static final float MAX_FLEET_SIZE_BEFORE_MALUS = 0.5f;
-
     @Override
     public void applyEffect(SectorEntityToken entity, float days) {
         if (!Global.getSettings().getBoolean("Enable_IndEvo_minefields")) return;
@@ -193,7 +196,7 @@ public class IndEvo_MineBeltTerrainPlugin extends BaseRingTerrain implements Ast
                         fleet.getStats().getDetectedRangeMod());
             }
 
-            if (!isFriend(fleet) && fleet.getBattle() == null) {
+            if (!isFriend(fleet) && fleet.getBattle() == null && !fleet.getMemoryWithoutUpdate().contains(RECENT_JUMP_KEY)) {
                 String key = "$mineImpactTimeout";
                 String sKey = "$skippedImpacts";
                 String recentKey = "$recentImpact";
@@ -290,9 +293,13 @@ public class IndEvo_MineBeltTerrainPlugin extends BaseRingTerrain implements Ast
             if (!hullSizeChanceMap.containsKey(hullSize)) continue;
 
             boolean isCivilian = m.isCivilian();
-            float effect = hullSizeChanceMap.get(hullSize);
+            boolean isPhase = m.isPhaseShip();
 
-            fleetCompBaseHitChance += isCivilian ? effect * CIVILIAN_EFFECT_MULT : effect;
+            float effect = hullSizeChanceMap.get(hullSize);
+            if (isCivilian) effect *= CIVILIAN_EFFECT_MULT;
+            if (isPhase) effect *= PHASE_EFFECT_MULT;
+
+            fleetCompBaseHitChance += effect;
         }
 
         return fleetCompBaseHitChance;

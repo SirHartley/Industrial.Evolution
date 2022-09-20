@@ -31,9 +31,6 @@ Increases the income of all colonies in the star system, stacking with diminishe
 IndEvo_embassy,Embassy,30,30,,4,,,"structure, unraidable",,graphics/industry/emb_base.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_embassy,"Embassies have existed ever since humans first formed countries - the need to represent oneself to another party is present even in the unstable political climate of the Persean Sector.
 
 This structure improves relationsIndEvo_pirateHaven,Privateer Base with a faction each month, but increases any negative reputation changes by 50%.",500
-,90,90,,10,,,"industry, tactical_bombardment",,graphics/industry/pirateHaven.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_pirateHaven,"The Privateer Base allows the shady part of your populace to live out their chosen way of life in a semi-legal way, which can net you a tidy profit on what would otherwise be a nuisance. It will also cause a pirate subpopulation to appear on your planet.
-
-This will stage raids on hostile star systems, and bring back spoils of war depending on the industrialisation of the raided planets. Output decays after some time if no new material is ""liberated"".",500
 IndEvo_senate,Senate,60,60,,8,,,"structure, unraidable",,graphics/industry/council.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_senate,"A senate is the political heart of a star system. Representatives of every planet meet here, deciding legislature, policies and treaties. It enables a more direct approach to planetary law, handling all the small issues that come with rapid regulation changes.",500
 IndEvo_dryDock,Restoration Docks,40,40,,5,,,"structure, unraidable",,graphics/industry/repairDocks.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_dryDock,"Dry docks and facilities to repair damaged starships, bustling with activity - there is always the next wreck to restore for a client too attached to a pile of scrap to see reason.
 
@@ -50,6 +47,9 @@ Place ships into the storage to reverse engineer them. Once you have achieved 10
 IndEvo_PrivatePort,Courier Port,30,40,,5,,,"structure, spaceport, tactical_bombardment",,graphics/industry/shipping_port.png,com.fs.starfarer.api.impl.campaign.econ.impl.courierPort.industry.CourierPortV2,"Privatized docking facilities allow for a much more direct approach to shipping - and have the distinct advantage of circumventing nosy government officials. Anything can be sent anywhere, as long as you have the funds.
 
 Allows you to transfer cargo between colonies via recurrent shipping contracts.",500
+IndEvo_pirateHaven,Privateer Base,90,90,,10,,,"industry, tactical_bombardment",,graphics/industry/pirateHaven.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_pirateHaven,"The Privateer Base allows the shady part of your populace to live out their chosen way of life in a semi-legal way, which can net you a tidy profit on what would otherwise be a nuisance. It will also cause a pirate subpopulation to appear on your planet.
+
+This will stage raids on hostile star systems, and bring back spoils of war depending on the industrialisation of the raided planets. Output decays after some time if no new material is ""liberated"".",500
 ,,,,,,,,,,,,,
 #Artillery,,,,,,,,,,,,,
 IndEvo_Artillery_base,Orbital Artillery,,,,,,,"artillery, parent_item, important, structure",artillery,graphics/icons/industry/station_category.png,com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation,"The remains of an ancient strategic artillery station hang listless over $market. Repairing it will provide you with a defensive weapons system of unrivalled effectiveness.

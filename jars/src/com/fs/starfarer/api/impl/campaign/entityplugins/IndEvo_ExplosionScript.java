@@ -20,12 +20,10 @@ public class IndEvo_ExplosionScript implements EveryFrameScript {
 
     protected SectorEntityToken entity;
 
-
     public IndEvo_ExplosionScript(SectorEntityToken entity) {
         this.entity = entity;
         delay = 0.6f;
     }
-
 
     public void advance(float amount) {
         if (done) return;
@@ -46,7 +44,6 @@ public class IndEvo_ExplosionScript implements EveryFrameScript {
             explosion = cl.addCustomEntity(Misc.genUID(), "Explosion",
                     Entities.EXPLOSION, Factions.NEUTRAL, params);
             explosion.setLocation(loc.x, loc.y);
-
         }
 
         if (explosion != null) {

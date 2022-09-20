@@ -10,15 +10,18 @@ import com.fs.starfarer.api.util.Misc;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class IndEvo_MineExplosionEntityPlugin extends ExplosionEntityPlugin {
 
     public static class MineExplosionParams extends ExplosionEntityPlugin.ExplosionParams {
         public CampaignFleetAPI alwaysHit;
+        public float baseDamageMult;
 
-        public MineExplosionParams(CampaignFleetAPI alwaysHit, Color color, LocationAPI where, Vector2f loc, float radius, float durationMult) {
+        public MineExplosionParams(CampaignFleetAPI alwaysHit, float damageMult, Color color, LocationAPI where, Vector2f loc, float radius, float durationMult) {
             super(color, where, loc, radius, durationMult);
             this.alwaysHit = alwaysHit;
+            this.baseDamageMult = damageMult;
         }
     }
 
@@ -43,7 +46,7 @@ public class IndEvo_MineExplosionEntityPlugin extends ExplosionEntityPlugin {
                 if (dist < entity.getRadius() + params.radius * 0.1f) damageMult = 1f;
 
                 damagedAlready.add(id);
-                applyDamageToFleet(fleet, damageMult);
+                applyDamageToFleet(fleet, damageMult * ((MineExplosionParams) params).baseDamageMult);
             }
         }
 

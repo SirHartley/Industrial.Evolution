@@ -28,6 +28,8 @@ import org.json.JSONObject;
 
 import java.awt.*;
 
+import static com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids.TAG_ARTILLERY_STATION_FLEET;
+
 public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventListener {
     //we'll make 2 versions - one for industry and one for derelict interaction
     //the derelict one should probably extend the normal one
@@ -254,6 +256,8 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
 
         stationFleet.setAI(null);
         stationFleet.addEventListener(this);
+
+        stationFleet.addTag(TAG_ARTILLERY_STATION_FLEET);
 
         ensureStationEntityIsSetOrCreated();
 

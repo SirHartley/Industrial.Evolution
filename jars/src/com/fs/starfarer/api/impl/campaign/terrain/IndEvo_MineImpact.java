@@ -20,6 +20,7 @@ public class IndEvo_MineImpact implements EveryFrameScript {
 
     public static float DURATION_SECONDS = 0.3f;
     public static float EXPLOSION_SIZE = 150f;
+    public static float EXPLOSION_DAMAGE_MULT = 0.5f;
 
     protected CampaignFleetAPI fleet;
     protected float elapsed;
@@ -112,15 +113,14 @@ public class IndEvo_MineImpact implements EveryFrameScript {
 
             float size = EXPLOSION_SIZE;
             Color color = new Color(255, 165, 80);
-            IndEvo_MineExplosionEntityPlugin.MineExplosionParams params = new IndEvo_MineExplosionEntityPlugin.MineExplosionParams(fleet, color, cl, loc, size, 1f);
+            IndEvo_MineExplosionEntityPlugin.MineExplosionParams params = new IndEvo_MineExplosionEntityPlugin.MineExplosionParams(fleet, EXPLOSION_DAMAGE_MULT,color, cl, loc, size, 1f);
 
             int caps = 0;
             for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
                 if (m.getHullSpec().getHullSize() == ShipAPI.HullSize.CAPITAL_SHIP) caps++;
             }
 
-            //NPC fleets are allowed to cheat cause they be dumb af
-            params.damage = caps > 3 && fleet.isPlayerFleet() ? ExplosionEntityPlugin.ExplosionFleetDamage.MEDIUM : ExplosionEntityPlugin.ExplosionFleetDamage.LOW;
+            params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.LOW;
 
             explosion = cl.addCustomEntity(Misc.genUID(), "Explosion",
                     "IndEvo_mine_explosion", Factions.NEUTRAL, params);

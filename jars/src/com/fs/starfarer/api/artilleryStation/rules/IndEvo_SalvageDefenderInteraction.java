@@ -2,12 +2,14 @@ package com.fs.starfarer.api.artilleryStation.rules;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.artilleryStation.scripts.IndEvo_DerelictArtilleryStationScript;
+import com.fs.starfarer.api.artilleryStation.station.IndEvo_ArtilleryStationEntityPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.BattleCreationContext;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
 import com.fs.starfarer.api.impl.campaign.FleetInteractionDialogPluginImpl;
+import com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_ArtilleryStation;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
@@ -17,6 +19,7 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageGenFromSeed;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.combat.entities.terrain.Planet;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,7 +34,9 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
         final SectorEntityToken entity = dialog.getInteractionTarget();
         final MemoryAPI memory = getEntityMemory(memoryMap);
 
-        final CampaignFleetAPI defenders = IndEvo_ArtilleryDefenderGen.getFleetForPlanet(entity, entity.getFaction().getId());
+        String factionID = entity instanceof PlanetAPI ? IndEvo_DerelictArtilleryStationScript.getArtilleryStation(entity).getFaction().getId() : entity.getFaction().getId();
+
+        final CampaignFleetAPI defenders = IndEvo_ArtilleryDefenderGen.getFleetForPlanet(entity, factionID);
 
         dialog.setInteractionTarget(defenders);
 
@@ -49,6 +54,8 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
         config.pullInEnemies = false;
         config.pullInStations = false;
         config.lootCredits = false;
+
+        config.playerAttackingStation = true;
 
         config.firstTimeEngageOptionText = "Engage the artillery platform";
         config.afterFirstTimeEngageOptionText = "Re-engage the artillery platform";
@@ -129,6 +136,7 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
                                 entity.addScript(new FleetAdvanceScript(defenders));
                             }
                             memory.expire("$defenderFleet", 10); // defenders may have gotten damaged; persist them for a bit
+                            if (entity instanceof PlanetAPI) IndEvo_DerelictArtilleryStationScript.getArtilleryStation(entity).getMemoryWithoutUpdate().set("$defenderFleet", defenders, 10f);
                         }
                         dialog.dismiss();
                     }

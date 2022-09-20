@@ -97,12 +97,24 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         return script.getStationFleet();
     }
 
+    public static SectorEntityToken getArtilleryStation(SectorEntityToken planet) {
+        SectorEntityToken t = null;
+        IndEvo_DerelictArtilleryStationScript script = (IndEvo_DerelictArtilleryStationScript) planet.getMemoryWithoutUpdate().get(SCRIPT_KEY);
+        if (script != null) t = script.getStationEntity();
+
+        return t;
+    }
+
     public void setDestroyed(boolean destroyed) {
         isDestroyed = destroyed;
     }
 
     public CampaignFleetAPI getStationFleet() {
         return stationFleet;
+    }
+
+    public SectorEntityToken getStationEntity() {
+        return stationEntity;
     }
 
     @Override
@@ -153,7 +165,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
         if (faction == null) {
             for (CampaignFleetAPI fleet : primaryEntity.getContainingLocation().getFleets()) {
-                if (fleet.isStationMode() && !fleet.getFaction().isPlayerFaction()) {
+                if (fleet.isStationMode() && !fleet.getFaction().isPlayerFaction() && !fleet.getTags().contains(IndEvo_ids.TAG_ARTILLERY_STATION_FLEET)) {
                     faction = fleet.getFaction().getId();
                     break;
                 }

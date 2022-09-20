@@ -46,7 +46,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         MemoryAPI mem = entity.getMemoryWithoutUpdate();
         mem.set(MEM_DERELICT_ARTILLERY_ACTIVE, false);
 
-        for (SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag(IndEvo_DerelictArtilleryStationScript.ARTILLERY_KEY)){
+        for (SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag(IndEvo_ids.TAG_ARTILLERY_STATION)){
             String faction = t.getFaction().getId();
 
             if (IndEvo_ids.DERELICT.equals(faction) || Factions.REMNANTS.equals(faction)) {

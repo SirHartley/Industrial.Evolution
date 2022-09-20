@@ -19,6 +19,7 @@ public class IndEvo_ids {
     //tags
     public static final String TAG_NEVER_REMOVE_RUINS = "IndEvo_RuinsAlways";
     public static final String TAG_ARTILLERY_STATION = "IndEvo_Artillery";
+    public static final String TAG_ARTILLERY_STATION_FLEET = "IndEvo_ArtilleryFleet";
 
     //Submarkets
     public static final String REPSTORAGE = "IndEvo_RepairStorage";

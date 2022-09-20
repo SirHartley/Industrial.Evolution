@@ -26,6 +26,7 @@ import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
 import com.fs.starfarer.api.impl.campaign.rulecmd.researchProjects.IndEvo_DoritoGunFoundChecker;
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
 import com.fs.starfarer.api.impl.campaign.terrain.conditions.IndEvo_MineFieldCondition;
+import com.fs.starfarer.api.impl.campaign.terrain.listeners.IndEvo_RecentJumpListener;
 import com.fs.starfarer.api.plugins.ambassadorPlugins.IndEvo_ambassadorPersonManager;
 import com.fs.starfarer.api.plugins.converters.IndEvo_ConverterRepResetScript;
 import com.fs.starfarer.api.plugins.derelicts.IndEvo_ArtilleryStationPlacer;
@@ -258,6 +259,7 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         IndEvo_ConsumableItemDropListener.register();
         IndEvo_ConsumableItemMarketAdder.register();
         IndEvo_SpecialItemDropsListener.register();
+        IndEvo_RecentJumpListener.register();
     }
 
     private void setScriptsIfNeeded() {

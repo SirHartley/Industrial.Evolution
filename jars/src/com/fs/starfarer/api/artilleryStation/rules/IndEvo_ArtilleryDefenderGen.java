@@ -1,6 +1,7 @@
 package com.fs.starfarer.api.artilleryStation.rules;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.artilleryStation.scripts.IndEvo_DerelictArtilleryStationScript;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -13,6 +14,7 @@ import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
+import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
 import com.fs.starfarer.api.util.Misc;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,8 +27,17 @@ public class IndEvo_ArtilleryDefenderGen {
 
     public static CampaignFleetAPI getFleetForPlanet(SectorEntityToken planet, String factionID){
         CampaignFleetAPI defenders = planet.getMemoryWithoutUpdate().getFleet("$defenderFleet");
-        if (defenders != null) return defenders;
-        else {
+        SectorEntityToken station = IndEvo_DerelictArtilleryStationScript.getArtilleryStation(planet);
+        CampaignFleetAPI artilleryDefenders = station != null ? station.getMemoryWithoutUpdate().getFleet("$defenderFleet") : null;
+
+        if (defenders != null) {
+            IndEvo_modPlugin.log("returning existing planet defenders");
+            return defenders;
+        } else if (artilleryDefenders != null){
+            IndEvo_modPlugin.log("returning existing artillery station defenders");
+            return artilleryDefenders;
+        } else {
+            IndEvo_modPlugin.log("creating new defenders");
             defenders = getNewFleet(planet, factionID);
         }
 

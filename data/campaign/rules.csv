@@ -8,20 +8,23 @@ FireBest MarketPostOpen",Your $shipOrFleet approaches $entityName.,,
 #artillery,,,,,,
 IndEvo_ArtilleryInitialPlanet,OpenInteractionDialog,"$IndEvo_ArtilleryStation score:1000
 !$defenderFleetDefeated
-$market.isPlanetConditionMarketOnly",IndEvo_SalvageDefenderInteraction,"The giant weapons platform in orbit around $entityName denies any chance of approach - and while the oversized armament lays silent for now, you get the feeling that this might change the moment the station is approached.
+$market.isPlanetConditionMarketOnly",,"The giant weapons platform in orbit around $entityName denies any chance of approach - and while the oversized armament lays silent for now, you get the feeling that this might change the moment the station is approached.
 
 Long-range sensors report a large amount of moving robotic signatures in and on the entity. According to your sensor liason, these are usually old-era repair bots.
 
-There is a good chance that the platform can be restored to functionality under your control after, it has been disabled by combat.",,
+There is a good chance that the platform can be restored to functionality under your control after, it has been disabled by combat.","1:IndEvo_ArtilleryCombatInteraction:Approach the station
+2:defaultLeave:Leave",
 IndEvo_ArtilleryInitialStation,OpenInteractionDialog,"$IndEvo_ArtilleryStation score:1000
 !$defenderFleetDefeated
 $tag:IndEvo_Artillery
-$market.isPlanetConditionMarketOnly",IndEvo_SalvageDefenderInteraction,"Most warning lights on your sensor consoles go off as the massive turret turns to face you. 
+$market.isPlanetConditionMarketOnly",,"Most warning lights on your sensor consoles go off as the massive turret turns to face you. 
 This might not have been such a grand idea, after all.
 
 You can see hundreds of multi-legged repair bots crawling over the outer station armor, testament to the incredibly robust, ancient repair systems.
 
-There is a good chance that the platform can be restored to functionality under your control, after it has been disabled by combat.",,
+There is a good chance that the platform can be restored to functionality under your control, after it has been disabled by combat.","1:IndEvo_ArtilleryCombatInteraction:Approach the station
+2:defaultLeave:Leave",
+IndEvo_ArtilleryCombatInteraction,DialogOptionSelected,$option == IndEvo_ArtilleryCombatInteraction,IndEvo_SalvageDefenderInteraction,"As if the massive turret was not enough of a threat, more and more enemy signatures appear on the radar as soon as you maneuver closer.",,
 IndEvo_ArtilleryBeatPlanet,BeatDefendersContinue,$IndEvo_ArtilleryStation score:1000,,"With the autmated defense platform out of the way, your $shipOrFleet may finish its approach to the planet.",0:IndEvo_ArtilleryDefeatPopulateOptions:Continue,
 IndEvo_ArtilleryBeatStation,BeatDefendersContinue,"$IndEvo_ArtilleryStation score:1000
 $tag:IndEvo_Artillery",,Your $shipOrFleet disengages as the defence stations loses any structural integrity it might have had left in a fiery display. The way to the planet is now clear.,0:defaultLeave:Continue,

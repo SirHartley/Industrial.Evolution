@@ -131,6 +131,7 @@ public class IndEvo_ArtilleryStationPlacer {
         for (CampaignTerrainAPI terrain : system.getTerrainCopy()) {
             if (terrain.hasTag(Tags.ACCRETION_DISK)) continue;
             //if (terrain.getOrbit() == null || (terrain.getOrbit().getFocus() != null && !terrain.getOrbit().getFocus().isStar())) continue; //we only do debris fields around the sun
+            if (terrain.getOrbitFocus() != null && (!terrain.getOrbitFocus().isStar() || !terrain.getOrbitFocus().isSystemCenter())) continue;
 
             CampaignTerrainPlugin plugin = terrain.getPlugin();
 
