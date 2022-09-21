@@ -6,6 +6,7 @@ todo item that fakes IFF to be firendly for artillery
 
 - steal that one illustration with the bunker for the arty
 - force default visual for arty with market
+
 - implement the 3 turret types as weapons
 - update variants for each type in industries.csv
 
@@ -52,6 +53,8 @@ Mine damage reduced by 50%
 Added 2s invulnerability period after jump
 Watchtowers can now only spawn in asteroid belts around the sun
 Applied Avas station nerfs to the arty modules
+Fixed research projects
+courier port no longer moves ships and cargo to target planets that don't accept them
 
 3.1.2 - unreleased
 General
@@ -96,6 +99,7 @@ Fixed - No longer removes all blueprints of a size from IndStorage when creating
 
 Courier Port
 Adjusted - No longer gets placed on core worlds randomly
+Fixed - No longer transfers cargo/ships to inventories that can not hold them when "all" is selected
 Fixed - Shipping intel now vanishes after finishing (just like your dad back then)
 Fixed - Crash when shipping port intel could not find valid map location
 

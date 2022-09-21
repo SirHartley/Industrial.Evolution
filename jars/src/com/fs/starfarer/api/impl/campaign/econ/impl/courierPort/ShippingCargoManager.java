@@ -22,13 +22,16 @@ public class ShippingCargoManager {
         SubmarketAPI fromSubmarket = contract.getFromSubmarket();
         SubmarketAPI toSubmaket = contract.getToSubmarket();
 
+        boolean canHoldShips = toSubmaket.getPlugin().showInFleetScreen() && toSubmaket.getPlugin().showInFleetScreen();
+        boolean canHoldCargo = toSubmaket.getPlugin().showInCargoScreen() && toSubmaket.getPlugin().showInCargoScreen();
+
         CargoAPI fromSubmarketCargo = removeWhenFound ? fromSubmarket.getCargo() : IndEvo_IndustryHelper.getCargoCopy(fromSubmarket.getCargo());
         CargoAPI shippingCargo = Global.getFactory().createCargo(true);
 
         fromSubmarketCargo.initMothballedShips("player");
         shippingCargo.initMothballedShips("player");
 
-        if(cargo){
+        if(cargo && canHoldCargo){
             if(specific){
                 for (CargoStackAPI stack : contract.targetCargo.getStacksCopy()){
                     if(toSubmaket.isIllegalOnSubmarket(stack, SubmarketPlugin.TransferAction.PLAYER_SELL)) continue;
@@ -64,7 +67,7 @@ public class ShippingCargoManager {
             if(removeWhenFound) fromSubmarket.getPlugin().reportPlayerMarketTransaction(transaction);
         }
 
-        if(ships){
+        if(ships && canHoldShips){
             List<FleetMemberAPI> membersListCopy = fromSubmarketCargo.getMothballedShips().getMembersListCopy();
 
             if(specific){

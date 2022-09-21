@@ -83,6 +83,8 @@ public class IndEvo_modPlugin extends BaseModPlugin {
 
     @Override
     public void onGameLoad(boolean newGame) {
+        //Global.getSector().getPlayerFleet().setFaction("hegemony");
+
         IndEvo_ArtilleryStationPlacer.placeCoreWorldArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next save breaking one
         IndEvo_ArtilleryStationPlacer.placeDerelictArtilleries(); //same here
 

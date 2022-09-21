@@ -41,8 +41,7 @@ $tag:IndEvo_watchtower score:1000",,"Hacking $aOrAn $shortName will clear your c
 The hack will eventually be picked up and cleared out by maintenance subroutines, but should remain effective for at least two months.",,
 ,,,,,,
 #Galatia Job List,,,,,,
-IndEvo_JobMenuPoint,PopulateOptions,"$id == station_galatia_academy
-$tag:IndEvo_Artillery",,,4:IndEvo_JobMenuInit:Visit the Research Tracts,
+IndEvo_JobMenuPoint,PopulateOptions,$id == station_galatia_academy,,,4:IndEvo_JobMenuInit:Visit the Research Tracts,
 IndEvo_JobMenuInit,DialogOptionSelected,$option == IndEvo_JobMenuInit,IndEvo_ResearchProjectDialoguePlugin,,,
 ,,,,,,
 #Converters,,,,,,
