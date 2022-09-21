@@ -45,7 +45,10 @@ public class IndEvo_ConsumableItemMarketAdder implements SubmarketUpdateListener
             if (faction.equals(Factions.INDEPENDENT)) picker.add(IndEvo_Items.CONSUMABLE_LOCATOR, 5);
             if (isMil) picker.add(IndEvo_Items.CONSUMABLE_SPIKE, 20);
             picker.add(IndEvo_Items.CONSUMABLE_SCOOP, 10);
-            if (faction.equals(Factions.PIRATES)) picker.add(IndEvo_Items.CONSUMABLE_DECOY, 5);
+            if (faction.equals(Factions.PIRATES)) {
+                picker.add(IndEvo_Items.CONSUMABLE_DECOY, 5);
+                picker.add(IndEvo_Items.CONSUMABLE_SPOOFER, 5);
+            }
             picker.add("nothing", 300);
 
             for (int i = 0; i < 6; i++){

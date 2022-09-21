@@ -208,6 +208,7 @@
           "IndEvo_sub_missile_explosion": "graphics/fx/missile_explosion.png",
   },
       "IndEvo": {
+          "kadur_megachurch":"graphics/industry/flavour/megachurch_kadur.png",
           "dysonswarm_texture":"graphics/planets/dyson_swarm.png",
           "amb_pers": "graphics/industry/embassy/emb_league.png",
           "amb_heg": "graphics/industry/embassy/emb_hegemony.png",

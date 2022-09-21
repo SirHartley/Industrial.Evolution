@@ -21,6 +21,16 @@ public class IndEvo_WorldWonder extends BaseIndustry implements MarketImmigratio
     public static final float STABILITY_BONUS = 1f;
 
     public static final String HAS_AWARDED_SP = "$IndEvo_hasAwardedSP";
+    public static final String ALTERNATE_CHURCH_VISUAL = "$IndEvo_alternateWonderVisual";
+
+    @Override
+    public String getCurrentImage() {
+        if (market.getMemoryWithoutUpdate().getBoolean(ALTERNATE_CHURCH_VISUAL)) {
+            if (getId().equals(IndEvo_ids.CHURCH)) return Global.getSettings().getSpriteName("IndEvo", "kadur_megachurch");
+        }
+
+        return super.getCurrentImage();
+    }
 
     @Override
     public void apply() {
@@ -40,7 +50,7 @@ public class IndEvo_WorldWonder extends BaseIndustry implements MarketImmigratio
         super.finishBuildingOrUpgrading();
 
         MemoryAPI memory = market.getMemoryWithoutUpdate();
-        if (!memory.getBoolean(HAS_AWARDED_SP)) {
+        if (!memory.getBoolean(HAS_AWARDED_SP) && market.isPlayerOwned()) {
             Global.getSector().getCampaignUI().addMessage("Constructing the " + getCurrentName() + " on " + market.getName() + " has awarded you an additional story point.",
                     Misc.getPositiveHighlightColor());
             Global.getSector().getPlayerStats().addStoryPoints(1);

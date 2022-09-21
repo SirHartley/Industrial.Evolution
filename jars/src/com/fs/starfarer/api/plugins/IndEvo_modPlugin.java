@@ -14,6 +14,7 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.impl.items.consumables.listeners.IndEvo_LocatorSystemRatingUpdater;
+import com.fs.starfarer.api.campaign.impl.items.consumables.listeners.IndEvo_SpooferItemKeypressListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_ArtilleryStationCondition;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
@@ -262,6 +263,7 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         IndEvo_ConsumableItemMarketAdder.register();
         IndEvo_SpecialItemDropsListener.register();
         IndEvo_RecentJumpListener.register();
+        IndEvo_SpooferItemKeypressListener.register();
     }
 
     private void setScriptsIfNeeded() {

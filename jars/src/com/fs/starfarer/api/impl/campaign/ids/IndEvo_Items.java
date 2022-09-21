@@ -40,6 +40,7 @@ public class IndEvo_Items {
     public static final String CONSUMABLE_SCOOP = "IndEvo_consumable_scoop";
     public static final String CONSUMABLE_DRONES = "IndEvo_consumable_drones";
     public static final String CONSUMABLE_DECOY = "IndEvo_consumable_decoy";
+    public static final String CONSUMABLE_SPOOFER = "IndEvo_consumable_spoofer";
 
     //industry
     public static final String LOG_CORE = "IndEvo_log_core";

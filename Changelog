@@ -55,6 +55,7 @@ Watchtowers can now only spawn in asteroid belts around the sun
 Applied Avas station nerfs to the arty modules
 Fixed research projects
 courier port no longer moves ships and cargo to target planets that don't accept them
+World wonder NPC colony SP fix and kadur image for Tim
 
 3.1.2 - unreleased
 General
@@ -67,6 +68,7 @@ Added - Consumable Item: Tech Locator - Grav Scan for hyperspace, indicates syst
 Added - Consumable Item: Drive Bubble Spike - Deploys a mine that fires an interdiction pulse when an enemy fleet is in range
 Added - Consumable Item: Sensor Decoy - Attracts military fleets in a large radius, baits artillery fire
 Added - Consumable Item: Fuel Scoop - Succs juicy space fuel from a nearby star or nebula
+Added - Consumable Item: Transpoofer - Changes the faction of your fleet for a time
 Note - Some can be bought, all can be found through combat and exploration
 Adjusted - Switch to non-vanilla drop group system, courtesy of Matt
 Adjusted - Drop rates on all IndEvo items and loot overhauled
@@ -114,6 +116,8 @@ Adjusted - Manually blacklisted that one Oculian Armada skill everyone was getti
 Fixed - No longer counts mercenaries against the officer limit
 
 World Wonders
+Added - Custom image for Timids Kadur rework
+Fixed - No longer awards SP when an NPC builds one
 Fixed - Stability Bonus for other in-System worlds is now properly permanent
 
 Derelict Industries

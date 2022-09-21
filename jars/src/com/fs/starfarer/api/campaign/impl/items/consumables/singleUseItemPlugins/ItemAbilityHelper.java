@@ -16,6 +16,7 @@ public class ItemAbilityHelper {
         put(IndEvo_Items.CONSUMABLE_STABILIZER, IndEvo_ids.ABILITY_STABILIZER);
         put(IndEvo_Items.CONSUMABLE_SUPERCHARGER, IndEvo_ids.ABILITY_SUPERCHARGER);
         put(IndEvo_Items.CONSUMABLE_DECOY, IndEvo_ids.ABILITY_DECOY);
+        put(IndEvo_Items.CONSUMABLE_SPOOFER, IndEvo_ids.ABILITY_SPOOFER);
     }};
 
     public static String toggle(String s){

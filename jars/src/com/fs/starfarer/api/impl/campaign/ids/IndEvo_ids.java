@@ -54,6 +54,7 @@ public class IndEvo_ids {
     public static final String RUINFRA = "IndEvo_RuinedInfra";
     public static final String PORT = "IndEvo_PrivatePort";
     public static final String CHAMELION = "IndEvo_ChamelionIndustry";
+    public static final String CHURCH = "IndEvo_Megachurch";
     public static final String ARTILLERY_MORTAR = "IndEvo_Artillery_mortar";
     public static final String ARTILLERY_MISSILE = "IndEvo_Artillery_missile";
     public static final String ARTILLERY_RAILGUN = "IndEvo_Artillery_railgun";
@@ -99,6 +100,7 @@ public class IndEvo_ids {
     public static final String ABILITY_SCOOP = "IndEvo_ability_scoop";
     public static final String ABILITY_DRONES = "IndEvo_ability_drones";
     public static final String ABILITY_DECOY = "IndEvo_ability_decoy";
+    public static final String ABILITY_SPOOFER = "IndEvo_ability_spoofer";
     public static final String ABILITY_MINE_INTERDICT = "IndEvo_ability_mine_interdict";
     public static final String ABILITY_MINE_DECOY = "IndEvo_ability_mine_decoy";
 

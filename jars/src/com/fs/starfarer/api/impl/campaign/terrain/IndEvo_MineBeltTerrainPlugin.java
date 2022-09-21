@@ -273,7 +273,6 @@ public class IndEvo_MineBeltTerrainPlugin extends BaseRingTerrain implements Ast
             }
         }
 
-        if (fleet.isPlayerFleet() && !fleet.isTransponderOn()) friend = false;
         if (fleet.getMemoryWithoutUpdate().contains(MemFlags.MEMORY_KEY_MISSION_IMPORTANT)) friend = true;
 
         return friend;
