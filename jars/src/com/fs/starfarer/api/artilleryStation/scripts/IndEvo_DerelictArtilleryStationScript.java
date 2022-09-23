@@ -38,6 +38,8 @@ import org.json.JSONObject;
 import java.util.Arrays;
 import java.util.Random;
 
+import static com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEntityPlugin.MEM_DERELICT_ARTILLERY_ACTIVE;
+
 /**
  * PERMANENT
  */
@@ -128,6 +130,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
     public void destroyedActions() {
         MarketAPI market = primaryEntity.getMarket();
+        updateWatchtowers(false);
 
         if (brokenStationEntity != null && orbitMatched == null && market.getPrimaryEntity() instanceof PlanetAPI) { //we only match planets
             SectorEntityToken station = IndEvo_ArtilleryStationEntityPlugin.getOrbitalStationAtMarket(market);
@@ -182,6 +185,13 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             updateFaction(IndEvo_ids.DERELICT); //revert to derelict if player is out of system and the path/pirate base is gone
             //we do not revert if the faction is of a station fleet
         }
+
+        String factionID = stationEntity.getFaction().getId();
+        updateWatchtowers(factionID.equals(IndEvo_ids.DERELICT) || factionID.equals(Factions.REMNANTS));
+    }
+
+    private void updateWatchtowers(boolean active){
+        for (SectorEntityToken t : primaryEntity.getContainingLocation().getEntitiesWithTag("IndEvo_watchtower")) t.getMemoryWithoutUpdate().set(MEM_DERELICT_ARTILLERY_ACTIVE, active);
     }
 
     public void updateFaction(String id) {

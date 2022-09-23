@@ -33,7 +33,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     public static SectorEntityToken spawn(SectorEntityToken primaryEntity, FactionAPI faction){
 
         if (faction == null) faction = Global.getSector().getFaction(IndEvo_ids.DERELICT);
-        SectorEntityToken t = primaryEntity.getContainingLocation().addCustomEntity(Misc.genUID(), faction.getDisplayName() + " Watchtower", "IndEvo_Watchtower",faction.getId(),null);
+        SectorEntityToken t = primaryEntity.getContainingLocation().addCustomEntity(Misc.genUID(), "Watchtower", "IndEvo_Watchtower",faction.getId(),null);
 
         float orbitRadius = primaryEntity.getRadius() + 250f;
         t.setCircularOrbitWithSpin(primaryEntity, (float) Math.random() * 360f, orbitRadius, orbitRadius / 10f, 5f, 5f);
@@ -42,10 +42,15 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         return t;
     }
 
+    @Override
+    public void init(SectorEntityToken entity, Object pluginParams) {
+        super.init(entity, pluginParams);
+
+        checkDerelictArtilleryActive();
+    }
+
     public boolean checkDerelictArtilleryActive(){
         MemoryAPI mem = entity.getMemoryWithoutUpdate();
-        mem.set(MEM_DERELICT_ARTILLERY_ACTIVE, false);
-
         for (SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag(IndEvo_ids.TAG_ARTILLERY_STATION)){
             String faction = t.getFaction().getId();
 

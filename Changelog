@@ -2,18 +2,8 @@
 --------------------------- to do -----------------------------
 todo consumable item that allows forced targetting of artillery on mouse pos
 
-- steal that one illustration with the bunker for the arty
-- force default visual for arty with market
-
-- implement the 3 turret types as weapons
-- update variants for each type in industries.csv
-
-exotica affects arty
-
-arty can be built on planets without condition?
-check if the watchtower interaction now properly fires
-fix transpoofer range circle
-fix transpoofer not turning off
+- steal that one illustration with the bunker for the arty?
+- implement the 3 turret types as weapons properly
 
 --------------------------- known issues -----------------------------
 
@@ -47,17 +37,8 @@ adjust salvage event "Ship Roulette" -
     add an intel entry showing the progress
 
 -----------------------o-----------------------
-beta
-Mine damage reduced by 50%
-Added 2s invulnerability period after jump
-Watchtowers can now only spawn in asteroid belts around the sun
-Applied Avas station nerfs to the arty modules
-Fixed research projects
-Courier port no longer moves ships and cargo to target planets that don't accept them
-World wonder NPC colony SP fix and kadur image for Tim
-Halved industry item droprates
 
-3.1.2 - unreleased
+3.1.a - unreleased
 General
 Added - President Matt Damon added to credits of this mod for help with vectors and math. Thank you!
 Fixed - Corrected all those getList tooltips to get

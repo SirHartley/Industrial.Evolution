@@ -18,7 +18,7 @@ import java.awt.*;
 public class IndEvo_SpooferAbilityPlugin extends IndEvo_BaseConsumableAbilityPlugin {
 
     //change player fleet faction to selected faction
-    //if within 50 SU of enemy, disable
+    //if within 100 SU of enemy, disable
     //turn off when transponder turned off
 
     public static final float DISABLE_RANGE = 100f;
@@ -36,14 +36,14 @@ public class IndEvo_SpooferAbilityPlugin extends IndEvo_BaseConsumableAbilityPlu
     @Override
     protected void applyEffect(float amount, float level) {
         if (!entity.isTransponderOn()){
-            deactivateImpl();
+            deactivate();
             return;
         }
 
         for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, entity.getRadius() + DISABLE_RANGE)){
             boolean valid = !f.isStationMode() && f.getAI() != null && !f.getFaction().getId().equals(entity.getFaction().getId());
             if (valid) {
-                deactivateImpl();
+                deactivate();
                 return;
             }
         }
@@ -80,7 +80,7 @@ public class IndEvo_SpooferAbilityPlugin extends IndEvo_BaseConsumableAbilityPlu
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         super.render(layer, viewport);
 
-        if(Global.getSector().getCampaignUI().isShowingDialog() || Global.getSector().getCampaignUI().isShowingDialog()) return;
+        if(Global.getSector().getCampaignUI().isShowingDialog() || true) return;
 
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);

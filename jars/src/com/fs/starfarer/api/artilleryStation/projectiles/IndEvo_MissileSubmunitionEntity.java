@@ -67,7 +67,7 @@ public class IndEvo_MissileSubmunitionEntity extends BaseCustomEntityPlugin {
     public float startAngle;
 
     //tracking mode
-    public static final float MAX_ANGLE_TURN_DIST_PER_SECOND = 30f; //was 40f
+    public static final float MAX_ANGLE_TURN_DIST_PER_SECOND = 35f; //was 40f
     public SectorEntityToken currentTarget = null;
 
     public float trailID;
