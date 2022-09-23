@@ -1,0 +1,23 @@
+{
+  "hullName": "Mortar",
+  "hullId": "IndEvo_MortarDecoModule",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/weapons/IndEvo_artillery_mortar_turret.png",
+  "style": "LOW_TECH",
+  "height": 204,
+  "width": 98,
+  "center": [49, 102],
+  "collisionRadius": 113.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 109.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IndEvo_magicInvisibator"
+  ],
+  "weaponSlots": [],
+  "engineSlots": [],
+  "bounds": [
+    0.5, 0,
+    0.5, -0
+  ]
+}

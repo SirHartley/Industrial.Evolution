@@ -1,8 +1,6 @@
 
 --------------------------- to do -----------------------------
 todo consumable item that allows forced targetting of artillery on mouse pos
-todo item that fakes IFF to be firendly for minefields
-todo item that fakes IFF to be firendly for artillery
 
 - steal that one illustration with the bunker for the arty
 - force default visual for arty with market
@@ -12,14 +10,15 @@ todo item that fakes IFF to be firendly for artillery
 
 exotica affects arty
 
-add item that changes player fleet faction
-    change it back when other fleet is within 100su of fleet
-    scroll wheel in inventory to change target faction
+arty can be built on planets without condition?
+check if the watchtower interaction now properly fires
+fix transpoofer range circle
+fix transpoofer not turning off
 
 --------------------------- known issues -----------------------------
 
 Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
-todo: DELIVER FLEETS REFUSE TO LEAVE SYSTEM AFTER DELIVERY; MAYBE MOVE INTO HYPERSPACE OR MANUALLY SET MOVE TARGET?
+DELIVER FLEETS REFUSE TO LEAVE SYSTEM AFTER DELIVERY; MAYBE MOVE INTO HYPERSPACE OR MANUALLY SET MOVE TARGET?
 
 hey with the current IndEvo patch all my crew in the detachment are getting eaten up after a day has passed.
  The pattern is 1 full day after creating the detachment.
@@ -54,8 +53,9 @@ Added 2s invulnerability period after jump
 Watchtowers can now only spawn in asteroid belts around the sun
 Applied Avas station nerfs to the arty modules
 Fixed research projects
-courier port no longer moves ships and cargo to target planets that don't accept them
+Courier port no longer moves ships and cargo to target planets that don't accept them
 World wonder NPC colony SP fix and kadur image for Tim
+Halved industry item droprates
 
 3.1.2 - unreleased
 General
@@ -104,6 +104,7 @@ Adjusted - No longer gets placed on core worlds randomly
 Fixed - No longer transfers cargo/ships to inventories that can not hold them when "all" is selected
 Fixed - Shipping intel now vanishes after finishing (just like your dad back then)
 Fixed - Crash when shipping port intel could not find valid map location
+Fixed - Crash when shipping from a Nex goverened colony
 
 Privateer Base
 Adjusted - Failed raids now give 30% more output than before (to compensate the unplanned decay nerf)

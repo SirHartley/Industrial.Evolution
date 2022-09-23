@@ -1,6 +1,6 @@
 {
-  "variantId": "IndEvo_artilleryStation_base_variant",
-  "hullId": "IndEvo_artilleryStation_base",
+  "variantId": "IndEvo_artilleryStation_mortar_variant",
+  "hullId": "IndEvo_artilleryStation_mortar",
   "displayName": "Default",
   "goalVariant": false,
   "fluxCapacitors": 50,

@@ -88,21 +88,25 @@ public class ShippingManager implements IndEvo_newDayListener {
     }
 
     public static void chargePlayer(float amt, Shipment container) {
-        MonthlyReport report = SharedData.getData().getCurrentReport();
-        MonthlyReport.FDNode marketsNode = report.getNode(MonthlyReport.OUTPOSTS);
-        MonthlyReport.FDNode mNode = report.getNode(marketsNode, getClosestPort(container).getId());
-        MonthlyReport.FDNode indNode = report.getNode(mNode, "industries");
-        MonthlyReport.FDNode iNode = report.getNode(indNode, IndEvo_ids.PORT);
+        MarketAPI m = getClosestPort(container);
 
-        iNode.upkeep += amt;
+        if(m != null){
+            MonthlyReport report = SharedData.getData().getCurrentReport();
+            MonthlyReport.FDNode marketsNode = report.getNode(MonthlyReport.OUTPOSTS);
+            MonthlyReport.FDNode mNode = report.getNode(marketsNode, m.getId());
+            MonthlyReport.FDNode indNode = report.getNode(mNode, "industries");
+            MonthlyReport.FDNode iNode = report.getNode(indNode, IndEvo_ids.PORT);
+
+            iNode.upkeep += amt;
+        } else Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(amt);
     }
 
     public static MarketAPI getClosestPort(Shipment container) {
         MarketAPI market = IndEvo_IndustryHelper.getClosestMarketWithIndustry(container.contract.getFromMarket(), IndEvo_ids.PORT);
 
         if (market == null) {
-            for (MarketAPI m : Misc.getFactionMarkets(Global.getSector().getPlayerFaction())) {
-                if (m.hasIndustry(IndEvo_ids.PORT)) {
+            for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
+                if (m.hasIndustry(IndEvo_ids.PORT) && m.isPlayerOwned()) {
                     market = m;
                     break;
                 }

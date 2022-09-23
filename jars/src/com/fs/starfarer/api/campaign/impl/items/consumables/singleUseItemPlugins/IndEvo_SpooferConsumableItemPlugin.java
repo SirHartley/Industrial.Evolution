@@ -5,9 +5,11 @@ import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.CargoTransferHandlerAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
+import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
+import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,14 +40,29 @@ public class IndEvo_SpooferConsumableItemPlugin extends IndEvo_BaseConsumableIte
         List<String> factionList;
         MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
 
-        if (mem.contains(MEMKEY_CURRENT_FACTION_LIST)) factionList = (List<String>) mem.get(MEMKEY_CURRENT_FACTION_LIST);
+        if (mem.contains(MEMKEY_CURRENT_FACTION_LIST)) {
+            factionList = (List<String>) mem.get(MEMKEY_CURRENT_FACTION_LIST);
+            updateValidFactions(factionList);
+        }
         else {
             factionList = new LinkedList<>();
-            updateValidFactions();
-            mem.set(MEMKEY_CURRENT_FACTION_LIST, factionList);
+            updateValidFactions(factionList);
         }
 
         return factionList;
+    }
+
+    @Override
+    public void render(float x, float y, float w, float h, float alphaMult, float glowMult, SpecialItemRendererAPI renderer) {
+        super.render(x, y, w, h, alphaMult, glowMult, renderer);
+
+        SpriteAPI glow = (Global.getSettings().getSprite("fx", "IndEvo_transpoofer_glow"));
+        Color glowColor = Global.getSector().getFaction(getCurrentFaction()).getColor();
+
+        glow.setColor(glowColor);
+        glow.setAdditiveBlend();
+        glow.setAlphaMult(0.5f);
+        glow.renderAtCenter(0f, 0f);
     }
 
     public static void nextFaction(){
@@ -64,9 +81,7 @@ public class IndEvo_SpooferConsumableItemPlugin extends IndEvo_BaseConsumableIte
         else setCurrentFaction(next);
     }
 
-    public static void updateValidFactions(){
-        List<String> factionList = getFactionList();
-
+    public static void updateValidFactions(List<String> factionList){
         for (FactionAPI f : Global.getSector().getAllFactions()){
             String id = f.getId();
             boolean isValidFaction = f.isShowInIntelTab()
@@ -77,16 +92,5 @@ public class IndEvo_SpooferConsumableItemPlugin extends IndEvo_BaseConsumableIte
         }
 
         Global.getSector().getMemoryWithoutUpdate().set(MEMKEY_CURRENT_FACTION_LIST, factionList);
-    }
-
-    @Override
-    public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, CargoTransferHandlerAPI transferHandler, Object stackSource) {
-        super.createTooltip(tooltip, expanded, transferHandler, stackSource);
-        float opad = 10f;
-        float spad = 3f;
-
-        FactionAPI faction = Global.getSector().getFaction(getCurrentFaction());
-        tooltip.addPara("Spoofing " + faction.getPersonNamePrefixAOrAn() + " %s transponder.", opad, faction.getColor(), faction.getDisplayName());
-        tooltip.addPara("[Use arrow keys to change the faction]", spad, Misc.getGrayColor());
     }
 }

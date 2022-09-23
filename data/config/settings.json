@@ -192,6 +192,7 @@
 
   "graphics": {
       "fx":{
+          "IndEvo_transpoofer_glow":"graphics/fx/IndEvo_consumable_transpoofer_glow.png",
           "IndEvo_trail_stream":"graphics/fx/trails_stream.png",
           "IndEvo_trail_foggy":"graphics/fx/trails_foggy.png",
           "IndEvo_trail_spatter":"graphics/fx/trails_spatter.png",
@@ -239,6 +240,8 @@
           "shortFrame": "graphics/fx/IndEvo_short_frame.png",
           "frameBG": "graphics/fx/IndEvo_BG_mask.png",
           "broadFrame": "graphics/fx/IndEvo_frame.png",
+          "invisibleHull": "graphics/fx/IndEvo_frame.png",
+
 },
   },
 }

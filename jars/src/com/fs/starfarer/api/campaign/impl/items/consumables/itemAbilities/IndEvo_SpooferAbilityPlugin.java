@@ -4,9 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
-import com.fs.starfarer.api.campaign.impl.items.consumables.entities.SpikeEntityPlugin;
-import com.fs.starfarer.api.campaign.impl.items.consumables.entityAbilities.InterdictionMineAbility;
 import com.fs.starfarer.api.campaign.impl.items.consumables.singleUseItemPlugins.IndEvo_SpooferConsumableItemPlugin;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -24,7 +21,7 @@ public class IndEvo_SpooferAbilityPlugin extends IndEvo_BaseConsumableAbilityPlu
     //if within 50 SU of enemy, disable
     //turn off when transponder turned off
 
-    public static final float DISABLE_RANGE = 50f;
+    public static final float DISABLE_RANGE = 100f;
     public String originalFaction = null;
     private final static int CIRCLE_POINTS = 50;
 
@@ -32,10 +29,17 @@ public class IndEvo_SpooferAbilityPlugin extends IndEvo_BaseConsumableAbilityPlu
     protected void activateImpl() {
         originalFaction = entity.getFaction().getId();
         entity.setFaction(IndEvo_SpooferConsumableItemPlugin.getCurrentFaction());
+
+        entity.setTransponderOn(true);
     }
 
     @Override
     protected void applyEffect(float amount, float level) {
+        if (!entity.isTransponderOn()){
+            deactivateImpl();
+            return;
+        }
+
         for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, entity.getRadius() + DISABLE_RANGE)){
             boolean valid = !f.isStationMode() && f.getAI() != null && !f.getFaction().getId().equals(entity.getFaction().getId());
             if (valid) {
@@ -70,19 +74,14 @@ public class IndEvo_SpooferAbilityPlugin extends IndEvo_BaseConsumableAbilityPlu
         if (interval.intervalElapsed()) increase = !increase;
         float fraction = interval.getElapsed() / interval.getIntervalDuration();
         circleAlpha = increase ? MAX_ALPHA * fraction : MAX_ALPHA * (1 - fraction);
-
-        advRender();
     }
 
-    public void advRender() {
+    @Override
+    public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
+        super.render(layer, viewport);
+
         if(Global.getSector().getCampaignUI().isShowingDialog() || Global.getSector().getCampaignUI().isShowingDialog()) return;
-        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glPushMatrix();
-        GL11.glLoadIdentity();
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPushMatrix();
-        GL11.glLoadIdentity();
+
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -118,9 +117,13 @@ public class IndEvo_SpooferAbilityPlugin extends IndEvo_BaseConsumableAbilityPlu
         String id = isActiveOrInProgress() ? entity.getFaction().getId() : IndEvo_SpooferConsumableItemPlugin.getCurrentFaction();
         FactionAPI faction = Global.getSector().getFaction(id);
 
-        tooltip.addPara("Emits a %s transponder signal. " +
-                        "Lasts for %s days and gets disabled if another fleet comes too close. " +
-                        "Some entities might recognize you by sight or have alternative ways of identification and will ignore the effect.", opad, new Color[]{faction.getColor(), Misc.getHighlightColor()},
-                faction.getDisplayName(), Math.round(getDurationDays()) + " days");
+        tooltip.addPara("Emits a fake transponder signal. " +
+                        "Lasts for %s and gets disabled if another fleet comes too close. " +
+                        "Some entities might recognize you by sight or have alternative ways of identification and will ignore the effect.", opad, Misc.getHighlightColor(),
+                Math.round(getDurationDays()) + " days");
+
+        tooltip.addPara("Currently set to: %s", opad, faction.getColor(),
+                Misc.ucFirst(faction.getDisplayName()));
+        tooltip.addPara("[Use arrow keys to change the faction]",Misc.getGrayColor(), 3f);
     }
 }

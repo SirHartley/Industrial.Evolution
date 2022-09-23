@@ -17,6 +17,9 @@
     "supercomputer",
     "shared_flux_sink"
   ],
+    "builtInWeapons": {
+      "WS0005": "IndEvo_artillery_mortar"
+    },
   "weaponSlots": [
     {
       "id": "WS0001",
@@ -57,8 +60,17 @@
     {
       "id": "WS0005",
       "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [0, -0]
+    },
+    {
+      "id": "WS0006",
+      "size": "LARGE",
       "type": "STATION_MODULE",
-      "mount": "HARDPOINT",
+      "mount": "TURRET",
       "arc": 0,
       "angle": 0,
       "locations": [0, -0]

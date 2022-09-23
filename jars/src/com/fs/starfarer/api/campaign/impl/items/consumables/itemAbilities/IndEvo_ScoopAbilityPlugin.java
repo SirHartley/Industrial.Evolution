@@ -31,7 +31,7 @@ public class IndEvo_ScoopAbilityPlugin extends IndEvo_BaseConsumableAbilityPlugi
     public static final float RANGE_PING_SECONDS = 4f;
     public static final float PARTICLE_SPAWN_INTERVAL = 0.05f;
     public static final float SUCTION_CONE_DEFAULT_RADIUS = 300f;
-    public static final float PARTICLE_DEFAULT_RADIUS = 600f;
+    public static final float PARTICLE_DEFAULT_RADIUS = 400f;
     public static final float MAX_BOUNDS = 40f;
 
     private IntervalUtil interval = new IntervalUtil(PARTICLE_SPAWN_INTERVAL, PARTICLE_SPAWN_INTERVAL);

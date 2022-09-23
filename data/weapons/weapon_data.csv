@@ -5,4 +5,8 @@ Causality Disturber,IndEvo_causalitygun,3,,100000,1000,1500,,1500,0,7,30,,,,KINE
 Pulsar Carbine,IndEvo_pulsedcarbine,2,,50000,900,,80,,5,15,15,30,2.5,10,KINETIC,72,,0,0.1,,,,,,,,1000,,,,,,,"kinetic16, no_dealer, restricted",,Replicated,,Anti Shield,,,,,Shots may lose cohesion and dissolve. %s of the shots reach half the maximum range and %s of the shots reach full range.,100% | 50%,,,,22.25
 Riftpulse Cycler,IndEvo_riftgun,1,,25000,500,,40,,0,50,8,,,,ENERGY,64,,0.333333,0,,,,,,,,1000,,,,,,,"energy11, no_dealer, restricted",,Replicated,,General,,,,,"Projectiles have a chance to spawn rifts on impact, detonating for %s damage each.",200,,,,19.25
 Riftpulse Minelayer,IndEvo_riftgun_minelayer,0,,,,,200,,25,,,,,,ENERGY,0,,,,1,,,,,,,0,0,20,1000,,,SYSTEM,,,Unknown,,,,,,,,,,,,38.5
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,55
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Mortar Artillery,IndEvo_artillery_mortar,3,,0,5000,,5000,,100,5,0,,,,HIGH_EXPLOSIVE,0,,0,2,,,1,,,,,500,,,,,,SYSTEM,"he20, no_dealer, restricted",,DSD,,Anti Armor,,,,,,,,,,25.01
+Railgun Artillery,IndEvo_artillery_railgun,3,,0,5000,,5000,,100,5,0,,,,KINETIC,0,,0,2,,,,,,,,1000,,,,,,SYSTEM,"kinetic20, no_dealer, restricted",,DSD,,Anti Shield,,,,,,,,,,25.02
+Missile Artillery,IndEvo_artillery_missile,3,,0,5000,,5000,,100,5,0,,,,FRAGMENTATION,0,,0,2,,,,,,,,1000,,,,,,SYSTEM,"energy20, no_dealer, restricted",,DSD,,General,,,,,,,,,,25.02
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

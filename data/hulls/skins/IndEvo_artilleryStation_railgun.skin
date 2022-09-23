@@ -1,0 +1,19 @@
+{
+    "baseHullId":"IndEvo_artilleryStation_base",
+    "skinHullId":"IndEvo_artilleryStation_railgun",
+    "hullName":"Railgun Artillery",
+    "descriptionId":"",
+    "descriptionPrefix":"",
+    "tags":["IndEvo_Artillery"],
+    "tech":"DSD",
+    "spriteName":"graphics/ships/artillery_base_module.png",
+    "baseValueMult":1.0,
+    "removeWeaponSlots":[],         # ids
+    "removeEngineSlots":[],         # indices, as engine slots have no id in the .ship file
+    "removeBuiltInMods":[],         # hullmod ids
+    "removeBuiltInWeapons":["WS0005"],      # weapon slot ids
+    "builtInMods":["solar_shielding"],
+    "builtInWeapons":{
+        "WS0005": "IndEvo_artillery_railgun"
+    },
+}

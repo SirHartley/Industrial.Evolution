@@ -4,12 +4,17 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BaseHullMod;
 import com.fs.starfarer.api.combat.DamageType;
 import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.util.Misc;
 import org.lwjgl.util.vector.Vector2f;
 
-import java.util.List;
+public class IndEvo_MagicInvisibator extends BaseHullMod {
 
-public class IndEvo_ModuleDeathLinker extends BaseHullMod {
+    //IndEvo_magicInvisibator
+
+    @Override
+    public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
+        super.applyEffectsAfterShipCreation(ship, id);
+        ship.setAlphaMult(0);
+    }
 
     @Override
     public void advanceInCombat(ShipAPI ship, float amount) {
@@ -17,6 +22,21 @@ public class IndEvo_ModuleDeathLinker extends BaseHullMod {
 
         if (!ship.isAlive()) return;
 
+        ship.setFixedLocation(new Vector2f(100000f, 100000f));
+        ship.setSprite("IndEvo", "invisibleHull");
+
+        Vector2f damageFrom = new Vector2f(ship.getLocation());
+        Global.getCombatEngine().applyDamage(ship,
+                damageFrom,
+                1000000f,
+                DamageType.ENERGY,
+                0,
+                true,
+                false,
+                ship,
+                false);
+    }
+    /*
         List<ShipAPI> modules = ship.getParentStation().getChildModulesCopy();
         int aliveModules = modules.size();
 
@@ -41,6 +61,6 @@ public class IndEvo_ModuleDeathLinker extends BaseHullMod {
                     false,
                     ship,
                     false);
-        }
-    }
+        }*/
+
 }

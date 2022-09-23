@@ -26,7 +26,7 @@ public class IndEvo_SpooferItemKeypressListener implements CampaignInputListener
     @Override
     public void processCampaignInputPreCore(List<InputEventAPI> events) {
         CampaignUIAPI ui = Global.getSector().getCampaignUI();
-        if (ui.getCurrentCoreTab() != CoreUITabId.CARGO || ui.getCurrentInteractionDialog() != null) return;
+        if (ui.getCurrentInteractionDialog() != null) return;
 
         for (InputEventAPI input : events) {
             if (input.isConsumed()) continue;

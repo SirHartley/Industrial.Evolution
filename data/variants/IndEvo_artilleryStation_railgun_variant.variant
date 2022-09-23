@@ -1,6 +1,6 @@
 {
-  "variantId": "IndEvo_artilleryStation_base_variant",
-  "hullId": "IndEvo_artilleryStation_base",
+  "variantId": "IndEvo_artilleryStation_railgun_variant",
+  "hullId": "IndEvo_artilleryStation_railgun",
   "displayName": "Default",
   "goalVariant": false,
   "fluxCapacitors": 50,
@@ -23,7 +23,7 @@
       "WS0003": "IndEvo_artilleryStation_gunModule_variant"
     },
     {
-      "WS0006": "IndEvo_MortarDecoModule_variant"
+      "WS0006": "IndEvo_RailgunDecoModule_variant"
     },
 
   ],
