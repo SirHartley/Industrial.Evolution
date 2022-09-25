@@ -12,7 +12,8 @@
   "shieldRadius": 109.5,
   "viewOffset": 0,
   "builtInMods": [
-    "IndEvo_magicInvisibator"
+    "IndEvo_magicInvisibator",
+    "reduced_explosion"
   ],
   "weaponSlots": [],
   "engineSlots": [],

@@ -5,4 +5,5 @@ Artillery Station,IndEvo_artilleryStation_base,Artillery Station,,,100,40000,160
 ,IndEvo_MortarDecoModule,,,,0,1,0,0,0,0,0,,0,0,0,0,0,0,NONE,,0,0,0,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",,,0,,,,5002
 ,IndEvo_MissileDecoModule,,,,0,1,0,0,0,0,0,,0,0,0,0,0,0,NONE,,0,0,0,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",,,0,,,,5003
 ,IndEvo_RailgunDecoModule,,,,0,1,0,0,0,0,0,,0,0,0,0,0,0,NONE,,0,0,0,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",,,0,,,,5004
+,IndEvo_artilleryStation_mortarModule,Mortar,,,1,15000,2000,15000,25000,1000,1000,,0,0,0,10,10,1000,NONE,,0,0.4,0.7,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",,,0.5,2,4,,5002
 #ref,module_hightech_armour,Station Armour,,,1,20000,4000,0,2500,100,0,,0,0,0,3,6,1000,NONE,,0,0,0,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",module_hull_bar_only,,1,2,3,,2074

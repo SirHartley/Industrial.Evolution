@@ -7,10 +7,13 @@
   "turretSprite": "graphics/weapons/IndEvo_artillery_missile_turret.png",
   "hardpointSprite": "",
   "turretOffsets": [
-    100.5,
-    -2
+    10,
+    24.5,
+    10,
+    -3.5
   ],
   "turretAngleOffsets": [
+    0,
     0
   ],
   "hardpointOffsets": [

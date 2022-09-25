@@ -1,0 +1,19 @@
+{
+	"id":"IndEvo_railgun_projectile",
+	"specClass":"projectile",
+	"spawnType":"BALLISTIC",
+	"collisionClass":"PROJECTILE_FF",
+	"collisionClassByFighter":"PROJECTILE_FIGHTER",
+	"length":150.0,
+	"hitGlowRadius":800,
+	"width":20,
+	"fadeTime":1,
+	"fringeColor":[180,235,255,160],
+	"coreColor":[215,235,255,255],
+	"glowColor":[180,235,255,180],
+	"glowRadius":100,
+	"textureScrollSpeed":-64.0,
+	"pixelsPerTexel":5.0,
+	"passThroughMissiles":true,
+	"bulletSprite":"graphics/missiles/IndEvo_railgun_projectile.png"
+}

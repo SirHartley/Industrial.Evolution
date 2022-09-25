@@ -207,7 +207,11 @@
           "IndEvo_carrier_missile": "graphics/mines/campaign_missile_carrier.png",
           "IndEvo_sub_missile": "graphics/mines/campaign_missile_submunition.png",
           "IndEvo_sub_missile_explosion": "graphics/fx/missile_explosion.png",
-  },
+          "IndEvo_mortar_burn": "graphics/fx/IndEvo_mortar_burn.png",
+          "IndEvo_mortar_glow": "graphics/fx/IndEvo_mortar_glow.png",
+          "IndEvo_mortar_smoke": "graphics/fx/IndEvo_mortar_smoke.png",
+          "IndEvo_mortar_wave": "graphics/fx/IndEvo_mortar_wave.png"
+},
       "IndEvo": {
           "kadur_megachurch":"graphics/industry/flavour/megachurch_kadur.png",
           "dysonswarm_texture":"graphics/planets/dyson_swarm.png",

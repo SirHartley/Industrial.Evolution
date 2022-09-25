@@ -50,7 +50,10 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     }
 
     public boolean checkDerelictArtilleryActive(){
+        if(entity.getContainingLocation() == null) return false;
+
         MemoryAPI mem = entity.getMemoryWithoutUpdate();
+
         for (SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag(IndEvo_ids.TAG_ARTILLERY_STATION)){
             String faction = t.getFaction().getId();
 

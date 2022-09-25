@@ -1,21 +1,18 @@
 package com.fs.starfarer.api.plugins;
 
-import com.fs.starfarer.api.BaseModPlugin;
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.IndEvo_IndustryHelper;
-import com.fs.starfarer.api.ModManagerAPI;
+import com.fs.starfarer.api.*;
 import com.fs.starfarer.api.artilleryStation.scripts.IndEvo_FleetVisibilityScript;
 import com.fs.starfarer.api.artilleryStation.trails.IndEvo_MagicCampaignTrailPlugin;
-import com.fs.starfarer.api.campaign.FactionAPI;
-import com.fs.starfarer.api.campaign.LocationAPI;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
-import com.fs.starfarer.api.campaign.SpecialItemData;
+import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.impl.items.consumables.listeners.IndEvo_LocatorSystemRatingUpdater;
 import com.fs.starfarer.api.campaign.impl.items.consumables.listeners.IndEvo_SpooferItemKeypressListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
+import com.fs.starfarer.api.combat.MissileAIPlugin;
+import com.fs.starfarer.api.combat.MissileAPI;
+import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_ArtilleryStationCondition;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
@@ -47,6 +44,7 @@ import com.fs.starfarer.api.splinterFleet.plugins.SplinterFleetCampignPlugin;
 import com.fs.starfarer.api.splinterFleet.plugins.dialogue.DialogueInterceptListener;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
 import org.dark.shaders.light.LightData;
 import org.dark.shaders.util.ShaderLib;
 
@@ -191,6 +189,13 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         m = Global.getSector().getEconomy().getMarket("kantas_den");
         m.getMemoryWithoutUpdate().set(IndEvo_MineFieldCondition.NO_ADD_BELT_VISUAL, true);
         m.addCondition("IndEvo_mineFieldCondition");
+    }
+
+    @Override
+    public PluginPick<MissileAIPlugin> pickMissileAI(MissileAPI missile, ShipAPI launchingShip) {
+        if (missile.getProjectileSpecId().equals("IndEvo_mortar_projectile")) return new PluginPick<MissileAIPlugin>(new IndEvo_mortarProjectileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
+
+        return super.pickMissileAI(missile, launchingShip);
     }
 
     private void createAcademyMarket() {
