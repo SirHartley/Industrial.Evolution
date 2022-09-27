@@ -6,7 +6,7 @@ public class IndEvo_ConverterWarManager implements IndEvo_newDayListener {
 
     //converters take over a colony if a paperclip core is installed in any industry other than a centralization bureau
     //planet descriptions change depending on time it has been since takeover
-    //3 months - there is still a black market, but not an open one, description says "survivors willing to trade"
+    //3 months since takeover - there is still a black market, but not an open one, description says "survivors willing to trade"
     //6 months - No market, description "Resistance groups swarm comms with requests for rescure" mention children and women or something
     //past 9 months "Only static greets you on the once active resistance comms channels. You can see nanite swarms covering broken cities,
     //like grotesque snow on a silent grave."

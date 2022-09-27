@@ -38,6 +38,13 @@ adjust salvage event "Ship Roulette" -
 
 -----------------------o-----------------------
 
+beta
+halved VPC droprates
+added consumable items to general drop pool
+added weapons for arty
+sprite update for causality disturber by Nia
+changed Caus. Dist. to Hybrid
+
 3.1.a - unreleased
 General
 Added - President Matt Damon added to credits of this mod for help with vectors and math. Thank you!
@@ -53,6 +60,10 @@ Added - Consumable Item: Transpoofer - Changes the faction of your fleet for a t
 Note - Some can be bought, all can be found through combat and exploration
 Adjusted - Switch to non-vanilla drop group system, courtesy of Matt
 Adjusted - Drop rates on all IndEvo items and loot overhauled
+
+Weapons
+Adjusted - Causality Disturber is now Hybrid (what have you brought upon us)
+Adjusted - Causality Disturber Sprite Update (Courtesy of Nia)
 
 Artillery Stations
 Added - 3 Types of artillery that shoot you on the campaign layer

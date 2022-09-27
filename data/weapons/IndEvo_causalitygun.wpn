@@ -2,7 +2,7 @@
   "id": "IndEvo_causalitygun",
   "specClass": "beam",
   "type": "ENERGY",
-  "mountTypeOverride": "BALLISTIC",
+  "mountTypeOverride": "HYBRID",
   "size": "LARGE",
   "fireSoundTwo":"IndEvo_causalitygun_loop",
   "fireSoundOne":"IndEvo_causalitygun_intro",

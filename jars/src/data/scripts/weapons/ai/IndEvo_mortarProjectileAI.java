@@ -4,17 +4,17 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.loading.DamagingExplosionSpec;
 import com.fs.starfarer.api.util.IntervalUtil;
+import com.fs.starfarer.api.util.Misc;
 import data.scripts.util.MagicRender;
 import org.lazywizard.lazylib.MathUtils;
-import org.lazywizard.lazylib.combat.entities.SimpleEntity;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 
+/**Adapted from Tartiflettes Seeker**/
 public class IndEvo_mortarProjectileAI implements MissileAIPlugin, GuidedMissileAI {
 
     private CombatEngineAPI engine;
-    private boolean windup=false;
     private boolean runOnce=false;
     private final MissileAPI missile;
     private CombatEntityAPI target;
@@ -29,43 +29,22 @@ public class IndEvo_mortarProjectileAI implements MissileAIPlugin, GuidedMissile
 
     @Override
     public void advance(float amount) {
-        //skip the AI if the game is paused, the missile is engineless or fading
         if (engine.isPaused() || missile.isFading()) {return;}
-
-//        if(missile.getVelocity().lengthSquared()>1600){
-//            missile.giveCommand(ShipCommand.DECELERATE);
-//        }
 
         if(!runOnce){
             runOnce=true;
             missile.setCollisionClass(CollisionClass.SHIP);
-            missile.setMass(5000);
+            missile.setMass(1000);
         }
 
         if(missile.getFlightTime() > missile.getMaxFlightTime() - 0.1f){
-            /*
-            public DamagingExplosionSpec(
-                float duration,
-                float radius,
-                float coreRadius,
-                float maxDamage,
-                float minDamage,
-                CollisionClass collisionClass,
-                CollisionClass collisionClassByFighter,
-                float particleSizeMin,
-                float particleSizeRange,
-                float particleDuration,
-                int particleCount,
-                Color particleColor,
-                Color explosionColor
-            )
-            */
-            DamagingExplosionSpec boom = new DamagingExplosionSpec(
+
+            DamagingExplosionSpec explosion = new DamagingExplosionSpec(
                     0.5f,
-                    1500,
-                    500,
                     1000,
-                    250,
+                    200,
+                    3500,
+                    750,
                     CollisionClass.MISSILE_FF,
                     CollisionClass.MISSILE_FF,
                     2,
@@ -76,10 +55,10 @@ public class IndEvo_mortarProjectileAI implements MissileAIPlugin, GuidedMissile
                     new Color(200,100,25,64)
             );
 
-            boom.setDamageType(DamageType.HIGH_EXPLOSIVE);
-            boom.setShowGraphic(true);
-            boom.setSoundSetId("SKR_canister_explode");
-            engine.spawnDamagingExplosion(boom, missile.getSource(), missile.getLocation(),false);
+            explosion.setDamageType(DamageType.HIGH_EXPLOSIVE);
+            explosion.setShowGraphic(true);
+            explosion.setSoundSetId("SKR_canister_explode");
+            engine.spawnDamagingExplosion(explosion, missile.getSource(), missile.getLocation(),false);
 
             float angle=(float)Math.random()*360;
             //visual effect
@@ -153,6 +132,21 @@ public class IndEvo_mortarProjectileAI implements MissileAIPlugin, GuidedMissile
                     0f,
                     0.25f,
                     1f
+            );
+
+            MagicRender.battlespace(
+                    Global.getSettings().getSprite("graphics/fx/shields256.png"),
+                    new Vector2f(missile.getLocation()),
+                    Misc.ZERO,
+                    new Vector2f(500, 500),   // initial size
+                    new Vector2f(2000, 2000),  // expansion
+                    (float) (360f * Math.random()),
+                    0f,
+                    new Color(232, 104, 104, 100),
+                    true,
+                    0f,
+                    0.1f,
+                    0.8f
             );
 
             engine.addSmoothParticle(missile.getLocation(), new Vector2f(), 3000, 2, 0.1f, Color.white);

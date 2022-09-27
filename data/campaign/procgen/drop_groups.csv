@@ -6,10 +6,11 @@ item_IndEvo_simulator,indEvo_tech_addition,20
 "item_IndEvo_ForgeTemplate_1:{tags:[rare_bp, !no_drop]}",indEvo_tech_addition,20
 "item_IndEvo_ForgeTemplate_2:{tags:[rare_bp, !no_drop]}",indEvo_tech_addition,10
 item_:{tags:[IndEvo_FT]},indEvo_tech_addition,50
-item_:{tags:[IndEvo_VPC_common]},indEvo_tech_addition,500
-item_:{tags:[IndEvo_VPC_uncommon]},indEvo_tech_addition,150
-item_:{tags:[IndEvo_VPC_rare]},indEvo_tech_addition,50
-nothing,indEvo_tech_addition,1000
+item_:{tags:[IndEvo_VPC_common]},indEvo_tech_addition,250
+item_:{tags:[IndEvo_VPC_uncommon]},indEvo_tech_addition,75
+item_:{tags:[IndEvo_VPC_rare]},indEvo_tech_addition,20
+item_:{tags:[IndEvo_consumable]},indEvo_tech_addition,250
+nothing,indEvo_tech_addition,1100
 ,,
 item_:{tags:[IndEvo_VPC_common]},indEvo_mining_addition,250
 item_:{tags:[IndEvo_VPC_uncommon]},indEvo_mining_addition,30
