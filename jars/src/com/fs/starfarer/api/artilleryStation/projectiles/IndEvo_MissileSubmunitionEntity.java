@@ -3,25 +3,15 @@ package com.fs.starfarer.api.artilleryStation.projectiles;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.artilleryStation.trails.IndEvo_MagicCampaignTrailPlugin;
 import com.fs.starfarer.api.campaign.*;
-import com.fs.starfarer.api.campaign.impl.items.consumables.entityAbilities.InterdictionMineAbility;
-import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
-import com.fs.starfarer.api.impl.campaign.CoreReputationPlugin;
-import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
-import com.fs.starfarer.api.impl.campaign.ids.Abilities;
-import com.fs.starfarer.api.impl.campaign.ids.Entities;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.plugins.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
-
-import static com.fs.starfarer.api.campaign.impl.items.consumables.entityAbilities.InterdictionMineAbility.getInterdictSeconds;
 
 public class IndEvo_MissileSubmunitionEntity extends BaseCustomEntityPlugin {
     //travels in a wiggly line from spawn point for a certain duration

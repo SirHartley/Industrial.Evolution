@@ -33,7 +33,7 @@ public class IndEvo_mortarProjectileAI implements MissileAIPlugin, GuidedMissile
 
         if(!runOnce){
             runOnce=true;
-            missile.setCollisionClass(CollisionClass.SHIP);
+            //missile.setCollisionClass(CollisionClass.SHIP);
             missile.setMass(1000);
         }
 
@@ -57,7 +57,7 @@ public class IndEvo_mortarProjectileAI implements MissileAIPlugin, GuidedMissile
 
             explosion.setDamageType(DamageType.HIGH_EXPLOSIVE);
             explosion.setShowGraphic(true);
-            explosion.setSoundSetId("SKR_canister_explode");
+            //explosion.setSoundSetId("SKR_canister_explode");
             engine.spawnDamagingExplosion(explosion, missile.getSource(), missile.getLocation(),false);
 
             float angle=(float)Math.random()*360;
@@ -119,6 +119,7 @@ public class IndEvo_mortarProjectileAI implements MissileAIPlugin, GuidedMissile
                     0f,
                     0.5f
             );
+
             MagicRender.battlespace(
                     Global.getSettings().getSprite("fx", "IndEvo_mortar_burn"),
                     new Vector2f(missile.getLocation()),

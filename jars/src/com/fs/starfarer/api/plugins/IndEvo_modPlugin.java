@@ -44,6 +44,7 @@ import com.fs.starfarer.api.splinterFleet.plugins.SplinterFleetCampignPlugin;
 import com.fs.starfarer.api.splinterFleet.plugins.dialogue.DialogueInterceptListener;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
 import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
 import org.dark.shaders.light.LightData;
 import org.dark.shaders.util.ShaderLib;
@@ -194,6 +195,7 @@ public class IndEvo_modPlugin extends BaseModPlugin {
     @Override
     public PluginPick<MissileAIPlugin> pickMissileAI(MissileAPI missile, ShipAPI launchingShip) {
         if (missile.getProjectileSpecId().equals("IndEvo_mortar_projectile")) return new PluginPick<MissileAIPlugin>(new IndEvo_mortarProjectileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
+        if (missile.getProjectileSpecId().equals("IndEvo_missile_projectile")) return new PluginPick<MissileAIPlugin>(new IndEvo_missileProjectileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
 
         return super.pickMissileAI(missile, launchingShip);
     }
@@ -342,11 +344,17 @@ public class IndEvo_modPlugin extends BaseModPlugin {
 
     public void resetDerelictRep(){
         for (FactionAPI f : Global.getSector().getAllFactions()) {
-            f.setRelationship(IndEvo_ids.DERELICT, -1);
+            if(f.isShowInIntelTab()) f.setRelationship(IndEvo_ids.DERELICT, -1);
+            else f.setRelationship(IndEvo_ids.DERELICT, 1);
         }
 
         Global.getSector().getPlayerFaction().setRelationship(IndEvo_ids.DERELICT, -1);
-        Global.getSector().getFaction(Factions.REMNANTS).setRelationship(IndEvo_ids.DERELICT, 1);
-        Global.getSector().getFaction(Factions.DERELICT).setRelationship(IndEvo_ids.DERELICT, 1);
+
+        //just to make sure
+        Global.getSector().getFaction(Factions.DERELICT).setRelationship("ML_bounty", 1);
+
+        if(Global.getSettings().getModManager().isModEnabled("swp")){
+            Global.getSector().getFaction(Factions.DERELICT).setRelationship("famous_bounty", 1);
+        }
     }
 }

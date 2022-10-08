@@ -40,6 +40,7 @@ public class IndEvo_ArtilleryTerrain extends BaseRingTerrain {
         boolean isSafe = p.isInSafeSpot(player);
         boolean isHostile = p.isHostileTo(player);
 
+        if (artillery.isDiscoverable()) return "In Artillery Range";
         if (isHostile && isSafe) return "Artillery safe-spot";
         if (isHostile) return artillery.getName() + " - Hostile";
         return artillery.getName();

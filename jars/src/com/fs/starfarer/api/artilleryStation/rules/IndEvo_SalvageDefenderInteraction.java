@@ -48,7 +48,7 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
         config.showTransponderStatus = false;
         config.showWarningDialogWhenNotHostile = false;
         config.alwaysAttackVsAttack = true;
-        config.impactsAllyReputation = true;
+        config.impactsAllyReputation = false;
         config.impactsEnemyReputation = false;
         config.pullInAllies = true;
         config.pullInEnemies = false;
@@ -66,7 +66,6 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
 
         long seed = memory.getLong(MemFlags.SALVAGE_SEED);
         config.salvageRandom = Misc.getRandom(seed, 75);
-
 
         final FleetInteractionDialogPluginImpl plugin = new FleetInteractionDialogPluginImpl(config);
 

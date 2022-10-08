@@ -119,6 +119,12 @@ public class IndEvo_RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin
     public void advance(float amount) {
         timePassedSeconds += amount;
 
+        if(originLocation == null || target == null) {
+            Misc.fadeAndExpire(entity, 0.1f);
+            finishing = true;
+            return;
+        };
+
         //we update flight time and station location while the station is moving, once it gets shot, the values stay static so the projectile does not drift
         boolean projectileDelayPassed = timePassedSeconds > projectileDelayTime;
 
@@ -184,6 +190,8 @@ public class IndEvo_RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin
     }
 
     public void renderLine(){
+        if(targetLineSprite == null) targetLineSprite = Global.getSettings().getSprite("fx", "IndEvo_line");
+
         float timeRemainingMult = 1 - Math.min(timePassedSeconds / impactSeconds, 1);
         int gColour = Math.max( (int) Math.round(200 * timeRemainingMult), 0);
         int rColour = Math.max( (int) Math.round(100 * timeRemainingMult), 0);
@@ -245,6 +253,8 @@ public class IndEvo_RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin
     }
 
     public void renderProjectileGlow(ViewportAPI viewport) {
+        if(glow == null) glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
+
         float alphaMult = viewport.getAlphaMult();
         alphaMult *= entity.getSensorFaderBrightness();
         alphaMult *= entity.getSensorContactFaderBrightness();

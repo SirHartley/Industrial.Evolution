@@ -3,9 +3,7 @@ package com.fs.starfarer.api.artilleryStation.scripts;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.artilleryStation.station.IndEvo_ArtilleryStationEntityPlugin;
-import com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEntityPlugin;
 import com.fs.starfarer.api.campaign.*;
-import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
@@ -23,11 +21,9 @@ import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflaterParams;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
 import com.fs.starfarer.api.impl.campaign.ids.*;
-import com.fs.starfarer.api.impl.campaign.intel.bases.LuddicPathBaseIntel;
-import com.fs.starfarer.api.impl.campaign.intel.bases.PirateBaseIntel;
-import com.fs.starfarer.api.impl.campaign.procgen.DefenderDataOverride;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGeneratorPlugin;
+import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
 import com.fs.starfarer.api.util.Misc;
@@ -35,8 +31,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 
 import static com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEntityPlugin.MEM_DERELICT_ARTILLERY_ACTIVE;
 
@@ -211,6 +206,8 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         isDiscoverable = stationEntity.isDiscoverable();
         updateFaction();
 
+        saveDebrisFieldStatus();
+
         getArtilleryPlugin().setDisrupted(false);
 
         MarketAPI market = primaryEntity.getMarket();
@@ -224,6 +221,38 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             if (stationFleet.getOrbit() == null && stationEntity != null) {
                 stationFleet.setCircularOrbit(stationEntity, 0, 0, 100);
             }
+        }
+    }
+
+    public List<String> getDebrisFieldList(){
+        MemoryAPI mem = primaryEntity.getMemoryWithoutUpdate();
+
+        if (mem.contains("$IndEvo_debrisFieldList")) return (List<String>) mem.get("$IndEvo_debrisFieldList");
+        else {
+            List<String> l = new ArrayList<String>();
+            mem.set("$IndEvo_debrisFieldList", l);
+            return l;
+        }
+    }
+
+    public void addToDebrisFieldList(CampaignTerrainAPI t){
+        List<String> l = getDebrisFieldList();
+        String id = t.getId();
+
+        if(!l.contains(id)) {
+            IndEvo_modPlugin.log("adding debris field to memory: " + id);
+
+            DebrisFieldTerrainPlugin.DebrisFieldParams params = ((DebrisFieldTerrainPlugin) t.getPlugin()).getParams();
+            IndEvo_modPlugin.log(params.lastsDays + " " + params.name + " " + params.defFaction + " " + params.relatedEntity);
+
+            l.add(id);
+            primaryEntity.getMemoryWithoutUpdate().set("$IndEvo_debrisFieldList", l);
+        }
+    }
+
+    public void saveDebrisFieldStatus(){
+        for (CampaignTerrainAPI t : getCombatDebrisFields(primaryEntity.getContainingLocation())){
+            addToDebrisFieldList(t);
         }
     }
 
@@ -406,6 +435,9 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         stationFleet.setAI(null);
         stationFleet.addEventListener(this);
 
+        stationFleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_IGNORED_BY_OTHER_FLEETS, true);
+        stationFleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_IGNORES_OTHER_FLEETS, true);
+
         ensureStationEntityIsSetOrCreated();
 
         if (stationEntity instanceof CustomCampaignEntityAPI) {
@@ -575,7 +607,6 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     }
 
     public void reportBattleOccurred(CampaignFleetAPI fleet, CampaignFleetAPI primaryWinner, BattleAPI battle) {
-
     }
 
     public void reportFleetDespawnedToListener(CampaignFleetAPI fleet, CampaignEventListener.FleetDespawnReason reason, Object param) {
@@ -595,6 +626,32 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         spawnBrokenStationEntityIfNeeded();
 
         IndEvo_modPlugin.log(primaryEntity.getName() + " Artillery station destroyed");
+
+        //relocates the debris field that was spawned last, which gotta be the one from the station because there is one frame between station death and reportFleetDespawnedToListener, during which it gets spawned
+        //this is a crime against humanity
+        LocationAPI loc = primaryEntity.getContainingLocation();
+        List<String> l = getDebrisFieldList();
+        loc.getEntityById( l.get(l.size()-1)).setLocation(brokenStationEntity.getLocation().x, brokenStationEntity.getLocation().y);
+    }
+
+    public static List<CampaignTerrainAPI> getCombatDebrisFields(LocationAPI loc) {
+        List<CampaignTerrainAPI> results = new ArrayList<>();
+
+        for (CampaignTerrainAPI terrain : loc.getTerrainCopy()) {
+            if (terrain.getType().equals("debris_field")) {
+                DebrisFieldTerrainPlugin plugin = (DebrisFieldTerrainPlugin) terrain.getPlugin();
+
+                if (!plugin.isScavenged() && !plugin.isFadingOut()) {
+                    DebrisFieldTerrainPlugin.DebrisFieldParams params = ((DebrisFieldTerrainPlugin) terrain.getPlugin()).getParams();
+
+                    if (params.lastsDays < 60.0F && params.source == DebrisFieldTerrainPlugin.DebrisFieldSource.BATTLE) {
+                        results.add(terrain);
+                    }
+                }
+            }
+        }
+
+        return results;
     }
 
     public IndEvo_ArtilleryStationEntityPlugin getArtilleryPlugin() {

@@ -3,7 +3,10 @@
 todo consumable item that allows forced targetting of artillery on mouse pos
 
 - steal that one illustration with the bunker for the arty?
-- implement the 3 turret types as weapons properly
+- add roaming derelict fleets to uninhabited arty systems
+
+- Add something that lets you remove S-Mods
+- Change derelict industries to superstructures
 
 --------------------------- known issues -----------------------------
 
@@ -44,6 +47,15 @@ added consumable items to general drop pool
 added weapons for arty
 sprite update for causality disturber by Nia
 changed Caus. Dist. to Hybrid
+artillery terrain no longer spoils location (again)
+fixed consumable item market cargo behaviour
+fixed crash when saving during railgun targeting
+changed riftbolter modifiers to ballistic
+sprite updated for causality and bolter
+put in Nias revised causality disturber statline
+fixed bounties being hostile to arties (if they are derelict...)
+arty is now ignored by hostile fleets in the system (double safety against bounties)
+"fixed" the issue with debris fields
 
 3.1.a - unreleased
 General
@@ -62,8 +74,11 @@ Adjusted - Switch to non-vanilla drop group system, courtesy of Matt
 Adjusted - Drop rates on all IndEvo items and loot overhauled
 
 Weapons
+Adjusted - Rift Pulser now properly scales with ballistic hullmods
 Adjusted - Causality Disturber is now Hybrid (what have you brought upon us)
 Adjusted - Causality Disturber Sprite Update (Courtesy of Nia)
+Adjusted - Revised Causality Disturber Stats - less burst, more sustainability (Courtesy of Nia)
+Adjusted - Rift Pulser Sprite Update (Courtesy of Nia)
 
 Artillery Stations
 Added - 3 Types of artillery that shoot you on the campaign layer
@@ -73,6 +88,7 @@ Added - Watchtower stations to hack or take over, that report your location to t
 
 Research Projects
 Added - Project Transistor - Trade Relic Components for consumable items
+Fixed - Intel entry no longer shows up in decivilized tab and is now properly marked important
 
 Minefields
 Added - 2 seconds of invulnerability after a jump

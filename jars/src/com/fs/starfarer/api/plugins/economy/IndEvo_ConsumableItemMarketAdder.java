@@ -1,30 +1,35 @@
 package com.fs.starfarer.api.plugins.economy;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CargoAPI;
-import com.fs.starfarer.api.campaign.CargoStackAPI;
-import com.fs.starfarer.api.campaign.SpecialItemData;
-import com.fs.starfarer.api.campaign.SubmarketPlugin;
+import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
-import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
-import com.fs.starfarer.api.campaign.listeners.SubmarketUpdateListener;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_Items;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 
-public class IndEvo_ConsumableItemMarketAdder implements SubmarketUpdateListener {
+public class IndEvo_ConsumableItemMarketAdder extends BaseCampaignEventListener {
+
+    public IndEvo_ConsumableItemMarketAdder(boolean permaRegister) {
+        super(permaRegister);
+    }
 
     public static void register() {
-        ListenerManagerAPI manager = Global.getSector().getListenerManager();
-        if (!manager.hasListenerOfClass(IndEvo_ConsumableItemMarketAdder.class))
-            manager.addListener(new IndEvo_ConsumableItemMarketAdder(), true);
+        Global.getSector().addTransientListener(new IndEvo_ConsumableItemMarketAdder(false));
     }
 
     @Override
-    public void reportSubmarketCargoAndShipsUpdated(SubmarketAPI submarket) {
+    public void reportPlayerOpenedMarketAndCargoUpdated(MarketAPI market) {
+        super.reportPlayerOpenedMarketAndCargoUpdated(market);
+
+        for (SubmarketAPI sub : market.getSubmarketsCopy()){
+            updateSubmarketCargo(sub);
+        }
+    }
+
+    public void updateSubmarketCargo(SubmarketAPI submarket) {
         MarketAPI market = submarket.getMarket();
         if (market == null) return;
 

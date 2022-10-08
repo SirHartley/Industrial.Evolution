@@ -37,7 +37,7 @@ public class IndEvo_riftgunOnHitEffect implements OnHitEffectPlugin {
                 (float) Math.random() * 360f, null);
         if (source != null) {
             Global.getCombatEngine().applyDamageModifiersToSpawnedProjectileWithNullWeapon(
-                    source, WeaponAPI.WeaponType.MISSILE, false, mine.getDamage());
+                    source, WeaponAPI.WeaponType.BALLISTIC, false, mine.getDamage());
         }
 
 

@@ -63,7 +63,8 @@ public class IndEvo_GalatiaNewProjectsIntel extends BaseIntelPlugin {
     @Override
     public Set<String> getIntelTags(SectorMapAPI map) {
         Set<String> tags = super.getIntelTags(map);
-        tags.add(Tags.INTEL_DECIVILIZED);
+        tags.add(Tags.INTEL_MAJOR_EVENT);
+        tags.add(Tags.INTEL_IMPORTANT);
         return tags;
     }
 

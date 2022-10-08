@@ -1,15 +1,19 @@
 {
   "id": "IndEvo_artillery_missile",
   "specClass": "projectile",
-  "projectileSpecId": "tpc_shot",
-  "type": "BALLISTIC",
+  "projectileSpecId": "IndEvo_missile_projectile",
+  "type": "MISSILE",
   "size": "LARGE",
+  "displayArcRadius": 1000,
   "turretSprite": "graphics/weapons/IndEvo_artillery_missile_turret.png",
   "hardpointSprite": "",
+  "renderHints": [
+    RENDER_LOADED_MISSILES
+  ],
   "turretOffsets": [
-    10,
+    55,
     24.5,
-    10,
+    55,
     -3.5
   ],
   "turretAngleOffsets": [
@@ -25,5 +29,5 @@
   ],
   "barrelMode": "ALTERNATING",
   "animationType": "NONE",
-  "fireSoundTwo": "thermal_pulse_cannon_fire"
+  "fireSoundTwo": "reaper_fire"
 }
