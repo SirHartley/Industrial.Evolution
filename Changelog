@@ -7,6 +7,7 @@ todo consumable item that allows forced targetting of artillery on mouse pos
 
 - Add something that lets you remove S-Mods
 - Change derelict industries to superstructures
+- Artillery industry images
 
 --------------------------- known issues -----------------------------
 
@@ -41,23 +42,7 @@ adjust salvage event "Ship Roulette" -
 
 -----------------------o-----------------------
 
-beta
-halved VPC droprates
-added consumable items to general drop pool
-added weapons for arty
-sprite update for causality disturber by Nia
-changed Caus. Dist. to Hybrid
-artillery terrain no longer spoils location (again)
-fixed consumable item market cargo behaviour
-fixed crash when saving during railgun targeting
-changed riftbolter modifiers to ballistic
-sprite updated for causality and bolter
-put in Nias revised causality disturber statline
-fixed bounties being hostile to arties (if they are derelict...)
-arty is now ignored by hostile fleets in the system (double safety against bounties)
-"fixed" the issue with debris fields
-
-3.1.a - unreleased
+3.1.a
 General
 Added - President Matt Damon added to credits of this mod for help with vectors and math. Thank you!
 Fixed - Corrected all those getList tooltips to get
@@ -83,7 +68,7 @@ Adjusted - Rift Pulser Sprite Update (Courtesy of Nia)
 Artillery Stations
 Added - 3 Types of artillery that shoot you on the campaign layer
 Added - Artillery to Eochu Bres, Chicomoztoc, Kazeron, Sindria
-Added - Derelict Artilleries that will find you while exploring
+Added - Derelict Artilleries that will find you while exploring - conquer them to build your own!
 Added - Watchtower stations to hack or take over, that report your location to the artillery
 
 Research Projects
@@ -131,7 +116,7 @@ Fixed - Stability Bonus for other in-System worlds is now properly permanent
 
 Derelict Industries
 Adjusted - Laboratory bonus can no longer resolve to modded commodities
-Fixed - Hull Forge crash when printing a ship (Mod Incompatibility with something recent...)
+Fixed - Hull Forge crash when printing a ship (Mod Incompatibility with GundamGC...)
 Fixed - Rift Generator can no longer spawn on planets with minefields (new game)
 
 Detachments

@@ -19,7 +19,7 @@ public class IndEvo_CombatSlowFieldTerrain extends BaseEveryFrameCombatPlugin {
     public static final float RAMPUP_DUR = 1f;
     public static final float BASE_RADIUS = 1200;
     public static final float BASE_OVERLOAD_DUR = 0.5f;
-    public static final float SPEED_RED_MULT = 0.7f;
+    public static final float SPEED_RED_MULT = 0.5f;
 
     public Color color = new Color(20, 200, 255, 255);
 

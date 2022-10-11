@@ -1,7 +1,7 @@
 {
   "variantId": "IndEvo_artilleryStation_missile_variant",
   "hullId": "IndEvo_artilleryStation_missile",
-  "displayName": "Default",
+  "displayName": "Missile Artillery",
   "goalVariant": false,
   "fluxCapacitors": 50,
   "fluxVents": 50,

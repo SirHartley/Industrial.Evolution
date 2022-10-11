@@ -13,9 +13,9 @@ import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.combat.MissileAIPlugin;
 import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_ArtilleryStationCondition;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
+import com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_OrbitalStation;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
 import com.fs.starfarer.api.impl.campaign.econ.impl.courierPort.listeners.ShippingManager;
 import com.fs.starfarer.api.impl.campaign.econ.impl.installableItemPlugins.IndEvo_SpecialItemEffectsRepo;
@@ -25,6 +25,7 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.researchProjects.IndEvo_Dorito
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
 import com.fs.starfarer.api.impl.campaign.terrain.conditions.IndEvo_MineFieldCondition;
 import com.fs.starfarer.api.impl.campaign.terrain.listeners.IndEvo_RecentJumpListener;
+import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.plugins.ambassadorPlugins.IndEvo_ambassadorPersonManager;
 import com.fs.starfarer.api.plugins.converters.IndEvo_ConverterRepResetScript;
 import com.fs.starfarer.api.plugins.derelicts.IndEvo_ArtilleryStationPlacer;
@@ -44,6 +45,7 @@ import com.fs.starfarer.api.splinterFleet.plugins.SplinterFleetCampignPlugin;
 import com.fs.starfarer.api.splinterFleet.plugins.dialogue.DialogueInterceptListener;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.campaign.econ.Market;
 import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
 import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
 import org.dark.shaders.light.LightData;
@@ -95,6 +97,8 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         if (Global.getSettings().getBoolean("IndEvo_CommerceBalanceChanges")) overrideVanillaCommerce();
         if (Global.getSettings().getBoolean("IndEvo_TechMiningBalanceChanges") && !yunruindustries && !yunruTechmining) overrideVanillaTechMining();
 
+        overrideVanillaOrbitalStations();
+
         createAcademyMarket();
 
         //updateVersionIfNeeded(newGame);
@@ -108,6 +112,43 @@ public class IndEvo_modPlugin extends BaseModPlugin {
 
         IndEvo_LocatorSystemRatingUpdater.updateAllSystems();
         resetDerelictRep();
+    }
+
+    public void overrideVanillaOrbitalStations(){
+        for (IndustrySpecAPI spec : Global.getSettings().getAllIndustrySpecs()){
+            if (spec.hasTag(Tags.STATION) && spec.getPluginClass().equals("com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation")) {
+
+                log("replacing industry spec " + spec.getId());
+                spec.setPluginClass("com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_OrbitalStation");
+
+                String id = spec.getId();
+
+                for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
+                    if (m.hasIndustry(id) && !(m.getIndustry(id) instanceof IndEvo_OrbitalStation)) {
+                        log("replacing orbital station at " + m.getName());
+
+                        Industry ind = m.getIndustry(id);
+                        replaceIndustry(ind);
+                    }
+                }
+            }
+        }
+    }
+
+    //runcode com.fs.starfarer.api.plugins.IndEvo_modPlugin.report()
+
+    public static void report(){
+        for (IndustrySpecAPI spec : Global.getSettings().getAllIndustrySpecs()) {
+            if (spec.hasTag(Tags.STATION)) {
+                String id = spec.getId();
+
+                for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
+                    if (m.hasIndustry(id)) {
+                        log("station is new spec " + (m.getIndustry(id) instanceof IndEvo_OrbitalStation));
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -311,35 +352,43 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         });
 
         replaceIndustries(IndEvo_ids.COMMERCE);
-
     }
 
-    public static void replaceIndustries(String industryID) {
+    public static void replaceIndustries(String... industryIds) {
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            if (m.hasIndustry(industryID)) {
+            for (String id : industryIds){
+                if (m.hasIndustry(id)) {
 
-                Industry ind = m.getIndustry(industryID);
-                SpecialItemData special = ind.getSpecialItem();
-                String aiCore = ind.getAICoreId();
-                boolean improved = ind.isImproved();
-                boolean isBuilding = ind.isBuilding();
-                float buildProgress = ind.getBuildOrUpgradeProgress();
-
-                m.removeIndustry(industryID, null, false);
-                m.addIndustry(industryID);
-
-                ind = m.getIndustry(industryID);
-
-                if (isBuilding) {
-                    ind.startBuilding();
-                    ((BaseIndustry) ind).setBuildProgress(buildProgress);
+                    Industry ind = m.getIndustry(id);
+                    replaceIndustry(ind);
                 }
-
-                ind.setSpecialItem(special);
-                ind.setAICoreId(aiCore);
-                ind.setImproved(improved);
             }
         }
+    }
+
+    public static void replaceIndustry(Industry ind){
+        MarketAPI m = ind.getMarket();
+        String id = ind.getId();
+
+        SpecialItemData special = ind.getSpecialItem();
+        String aiCore = ind.getAICoreId();
+        boolean improved = ind.isImproved();
+        boolean isBuilding = ind.isBuilding();
+        float buildProgress = ind.getBuildOrUpgradeProgress();
+
+        m.removeIndustry(id, null, false);
+        m.addIndustry(id);
+
+        ind = m.getIndustry(id);
+
+        if (isBuilding) {
+            ind.startBuilding();
+            ((BaseIndustry) ind).setBuildProgress(buildProgress);
+        }
+
+        ind.setSpecialItem(special);
+        ind.setAICoreId(aiCore);
+        ind.setImproved(improved);
     }
 
     public void resetDerelictRep(){

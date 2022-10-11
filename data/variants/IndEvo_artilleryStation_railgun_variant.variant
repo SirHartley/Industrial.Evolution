@@ -1,7 +1,7 @@
 {
   "variantId": "IndEvo_artilleryStation_railgun_variant",
   "hullId": "IndEvo_artilleryStation_railgun",
-  "displayName": "Default",
+  "displayName": "Railgun Artillery",
   "goalVariant": false,
   "fluxCapacitors": 50,
   "fluxVents": 50,

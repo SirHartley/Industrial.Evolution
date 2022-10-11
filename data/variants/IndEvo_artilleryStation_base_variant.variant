@@ -1,7 +1,7 @@
 {
   "variantId": "IndEvo_artilleryStation_base_variant",
   "hullId": "IndEvo_artilleryStation_base",
-  "displayName": "Default",
+  "displayName": "Artillery Station Base",
   "goalVariant": false,
   "fluxCapacitors": 50,
   "fluxVents": 50,

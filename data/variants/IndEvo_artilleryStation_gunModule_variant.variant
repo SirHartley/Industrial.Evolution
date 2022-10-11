@@ -1,7 +1,7 @@
 {
   "variantId": "IndEvo_artilleryStation_gunModule_variant",
   "hullId": "IndEvo_artilleryStation_gunModule",
-  "displayName": "Artillery Gun Module",
+  "displayName": "Artillery Station Mortar",
   "goalVariant": false,
   "fluxCapacitors": 50,
   "fluxVents": 50,

@@ -1,7 +1,7 @@
 {
   "variantId": "IndEvo_artilleryStation_mortar_variant",
   "hullId": "IndEvo_artilleryStation_mortar",
-  "displayName": "Default",
+  "displayName": "Mortar Artillery",
   "goalVariant": false,
   "fluxCapacitors": 50,
   "fluxVents": 50,

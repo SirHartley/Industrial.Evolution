@@ -1,7 +1,7 @@
 {
   "variantId": "IndEvo_artilleryStation_hangarModule_variant",
   "hullId": "IndEvo_artilleryStation_hangarModule",
-  "displayName": "Artillery Hangar Module",
+  "displayName": "Artillery Station Hangar",
   "goalVariant": false,
   "fluxCapacitors": 50,
   "fluxVents": 50,

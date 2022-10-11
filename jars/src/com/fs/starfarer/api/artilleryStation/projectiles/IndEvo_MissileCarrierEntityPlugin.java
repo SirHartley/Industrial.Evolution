@@ -213,7 +213,7 @@ public class IndEvo_MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     private void updateProjectileFlightTime() {
-        this.originLocation = origin.getLocation();
+        this.originLocation = new Vector2f(origin.getLocation());;
         this.projectileFlightTime = getTotalDistToTarget() / PROJECTILE_VELOCITY;
         this.projectileDelaySeconds = impactSeconds - projectileFlightTime;
     }

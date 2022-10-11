@@ -58,7 +58,7 @@ public class IndEvo_RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin
     private float projectileDelayTime;
     private boolean finishing = false;
 
-    public Vector2f originLocation = null;
+    public Vector2f originLocation = new Vector2f();
 
     public static class ProjectileParams {
         public SectorEntityToken origin;
@@ -128,9 +128,9 @@ public class IndEvo_RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin
         //we update flight time and station location while the station is moving, once it gets shot, the values stay static so the projectile does not drift
         boolean projectileDelayPassed = timePassedSeconds > projectileDelayTime;
 
-        if(!projectileDelayPassed) {
+        if(!projectileDelayPassed && origin != null && origin.getLocation() != null) {
             updateProjectileFlightTime();
-            originLocation = origin.getLocation();
+            originLocation = new Vector2f(origin.getLocation().x, origin.getLocation().y);
         }
 
         //target reticule alpha

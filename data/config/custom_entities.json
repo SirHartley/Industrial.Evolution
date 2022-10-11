@@ -93,7 +93,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
-		"tags":["station"],
+		"tags":["station", "no_orbital_station"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 		"pluginClass":"com.fs.starfarer.api.artilleryStation.station.IndEvo_ArtilleryStationEntityPlugin"
 	},

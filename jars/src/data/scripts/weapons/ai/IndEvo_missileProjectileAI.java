@@ -3,6 +3,7 @@ package data.scripts.weapons.ai;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.loading.DamagingExplosionSpec;
+import com.fs.starfarer.api.util.Misc;
 import data.scripts.util.MagicRender;
 import data.scripts.weapons.combatEntities.IndEvo_CombatSlowFieldTerrain;
 import org.lazywizard.lazylib.MathUtils;
@@ -10,6 +11,7 @@ import org.lazywizard.lazylib.combat.AIUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
+import java.util.List;
 
 public class IndEvo_missileProjectileAI implements MissileAIPlugin, GuidedMissileAI {
 
@@ -41,7 +43,23 @@ public class IndEvo_missileProjectileAI implements MissileAIPlugin, GuidedMissil
         }
 
         if (missile.getFlightTime() > missile.getMaxFlightTime() - 0.1f) endOfFlightExplosion();
-        if (!AIUtils.getNearbyEnemies(missile, EXPLOSION_TRIGGER_RANGE).isEmpty()) endOfFlightExplosion();
+        if (!AIUtils.getNearbyEnemies(missile, EXPLOSION_TRIGGER_RANGE).isEmpty() || (!enemiesInPath() && enemiesInSideArcPresent())) endOfFlightExplosion();
+    }
+
+    public boolean enemiesInPath(){
+        for (ShipAPI s : AIUtils.getEnemiesOnMap(missile)){
+            if(Misc.isInArc(missile.getFacing(), 50f, Misc.getAngleInDegrees(missile.getLocation(), s.getLocation()))) return true;
+        }
+
+        return false;
+    }
+
+    public boolean enemiesInSideArcPresent(){
+        for (ShipAPI s : AIUtils.getEnemiesOnMap(missile)){
+            if(Misc.isInArc(missile.getFacing() - 180, 180, Misc.getAngleInDegrees(missile.getLocation(), s.getLocation())) && Misc.getDistance(missile.getLocation(), s.getLocation()) < 500f) return true;
+        }
+
+        return false;
     }
 
     public void spawnSlowTerrain() {

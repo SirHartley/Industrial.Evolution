@@ -7,6 +7,7 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.util.MagicRender;
 import org.lazywizard.lazylib.MathUtils;
+import org.lazywizard.lazylib.combat.AIUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -31,13 +32,13 @@ public class IndEvo_mortarProjectileAI implements MissileAIPlugin, GuidedMissile
     public void advance(float amount) {
         if (engine.isPaused() || missile.isFading()) {return;}
 
-        if(!runOnce){
+        if(!runOnce && !AIUtils.getNearbyEnemies(missile, 50f).isEmpty()){
             runOnce=true;
-            //missile.setCollisionClass(CollisionClass.SHIP);
-            missile.setMass(1000);
+            missile.setCollisionClass(CollisionClass.SHIP);
+            missile.setMass(100);
         }
 
-        if(missile.getFlightTime() > missile.getMaxFlightTime() - 0.1f){
+        if(missile.getFlightTime() > missile.getMaxFlightTime() - 0.1f ){
 
             DamagingExplosionSpec explosion = new DamagingExplosionSpec(
                     0.5f,

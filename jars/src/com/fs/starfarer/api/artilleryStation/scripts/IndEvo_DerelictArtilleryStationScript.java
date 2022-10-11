@@ -631,7 +631,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         //this is a crime against humanity
         LocationAPI loc = primaryEntity.getContainingLocation();
         List<String> l = getDebrisFieldList();
-        loc.getEntityById( l.get(l.size()-1)).setLocation(brokenStationEntity.getLocation().x, brokenStationEntity.getLocation().y);
+        if(!getDebrisFieldList().isEmpty()) loc.getEntityById( l.get(l.size()-1)).setLocation(brokenStationEntity.getLocation().x, brokenStationEntity.getLocation().y);
     }
 
     public static List<CampaignTerrainAPI> getCombatDebrisFields(LocationAPI loc) {

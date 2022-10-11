@@ -56,7 +56,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
     public float range = RANGE;
     public float terrainRange = 0f; //we save this here because getting the terrain is expensive
 
-    public boolean disrupted = false;
+    public boolean disrupted = true;
 
     @Override
     public void init(SectorEntityToken entity, Object pluginParams) {
