@@ -34,12 +34,12 @@ public class IndEvo_MissileSubmunitionEntity extends BaseCustomEntityPlugin {
         }
     }
 
-    public static final float PROJECTILE_VELOCITY = 200f;
+    public static final float PROJECTILE_VELOCITY = 250f;
     public static final float MIN_TRAVEL_TIME = 0.5f;
     public static final float EXPLOSION_SIZE = 350f;
     public static final float INITIATE_EXPLOSION_DISTANCE = 50f;
     public static final float SINE_WAVE_MAX_VARIANCE = 40f;
-    public static final float TRACKING_DISTANCE = 500f;
+    public static final float TRACKING_DISTANCE = 800f;
 
     //trail
     public static final float TRAIL_TIME = 0.4f;

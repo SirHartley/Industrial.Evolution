@@ -40,7 +40,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
     //the derelict one should probably extend the normal one
 
     public static float DEFENSE_BONUS_BASE = 0.5f;
-    public static final float IMPROVE_RANGE_BONUS = 2000f;
+    public static final float IMPROVE_RANGE_BONUS = 4000f;
 
     protected CampaignFleetAPI stationFleet = null;
     protected SectorEntityToken stationEntity = null;

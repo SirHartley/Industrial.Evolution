@@ -21,7 +21,7 @@ public class IndEvo_RailgunShotEntity extends BaseCustomEntityPlugin {
 
     //render the warning sign and add the X shots
     public static final int DEFAULT_PROJECTILE_AMT = 3;
-    public static final float AVERAGE_PROJ_IMPACT_TIME = 2f;
+    public static final float AVERAGE_PROJ_IMPACT_TIME = 1.5f;
     public static final float DANGER_SIGN_FADEOUT_TIME = 8f;
 
     public static float DANGER_SIGN_SIZE = 150f;

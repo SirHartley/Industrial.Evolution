@@ -22,6 +22,7 @@ public class IndEvo_DoritoGunFoundChecker implements ShowLootListener, EconomyTi
 
         IndEvo_GalatiaNewProjectsIntel intel = new IndEvo_GalatiaNewProjectsIntel();
         Global.getSector().getIntelManager().addIntel(intel);
+        intel.setImportant(true);
     }
 
     @Override

@@ -41,6 +41,30 @@ adjust salvage event "Ship Roulette" -
     add an intel entry showing the progress
 
 -----------------------o-----------------------
+3.1.c
+General
+Added - Better Colonies SP-Improvement Config data
+
+Items
+Fixed - Refreshing market no longer updates consumable item presence
+Fixed - Consumables no longer vanish from storage
+
+Artillery Stations
+Adjusted - S-Point improvement now increases range by 4000
+Adjusted - Tracking distance on missiles 400 -> 800 SU
+Adjusted - Missile speed 200 -> 250 SU/s
+Adjusted - Slightly decreased railgun projectile travel time
+Fixed - Nex colony fleets now auto-destroy the artillery when establishing a colony
+
+Research Projects
+Fixed - New Projects intel is no longer perma-important (does not fix currently stuck intel entries, sorry!)
+
+World Wonders
+Added - Toggle to switch between alternate visuals (if present)
+
+3.1.b
+General
+Fixed - CTD on new game
 
 3.1.a
 General

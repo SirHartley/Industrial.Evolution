@@ -8,6 +8,8 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_Items;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
+import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
+import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 
 public class IndEvo_ConsumableItemMarketAdder extends BaseCampaignEventListener {
@@ -25,7 +27,10 @@ public class IndEvo_ConsumableItemMarketAdder extends BaseCampaignEventListener 
         super.reportPlayerOpenedMarketAndCargoUpdated(market);
 
         for (SubmarketAPI sub : market.getSubmarketsCopy()){
-            updateSubmarketCargo(sub);
+            if(sub.getPlugin() instanceof BaseSubmarketPlugin && !Submarkets.SUBMARKET_STORAGE.equals(sub.getSpecId()) && ((BaseSubmarketPlugin) sub.getPlugin()).getSinceSWUpdate() == 0){
+                IndEvo_modPlugin.log("updating " + sub.getNameOneLine() + " on " + sub.getMarket().getName());
+                updateSubmarketCargo(sub);
+            }
         }
     }
 
@@ -60,6 +65,8 @@ public class IndEvo_ConsumableItemMarketAdder extends BaseCampaignEventListener 
                 String itemId = picker.pick();
                 if (!itemId.equals("nothing")) cargo.addSpecial(new SpecialItemData(itemId, null), 1f);
             }
+
+            ((BaseSubmarketPlugin) submarket.getPlugin()).setSinceSWUpdate(0.001f);
         }
     }
 }

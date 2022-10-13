@@ -203,14 +203,18 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             spawnStation();
         }
 
+        MarketAPI market = primaryEntity.getMarket();
+        if (!market.isPlanetConditionMarketOnly()) {
+            setDestroyedWithDestroyedActions();
+            return;
+        }
+
         isDiscoverable = stationEntity.isDiscoverable();
         updateFaction();
 
         saveDebrisFieldStatus();
 
         getArtilleryPlugin().setDisrupted(false);
-
-        MarketAPI market = primaryEntity.getMarket();
         IndEvo_ArtilleryStationCondition.setDestroyed(false, market);
 
         if (stationFleet != null) {
@@ -618,12 +622,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             matchStationAndCommanderToCurrentIndustry();
         }
 
-        primaryEntity.getMemoryWithoutUpdate().unset("$hasDefenders");
-        primaryEntity.getMemoryWithoutUpdate().set("$defenderFleetDefeated", true);
-
-        stationFleet.setAbortDespawn(true);
-        isDestroyed = true;
-        spawnBrokenStationEntityIfNeeded();
+        setDestroyedWithDestroyedActions();
 
         IndEvo_modPlugin.log(primaryEntity.getName() + " Artillery station destroyed");
 
@@ -632,6 +631,15 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         LocationAPI loc = primaryEntity.getContainingLocation();
         List<String> l = getDebrisFieldList();
         if(!getDebrisFieldList().isEmpty()) loc.getEntityById( l.get(l.size()-1)).setLocation(brokenStationEntity.getLocation().x, brokenStationEntity.getLocation().y);
+    }
+
+    private void setDestroyedWithDestroyedActions(){
+        primaryEntity.getMemoryWithoutUpdate().unset("$hasDefenders");
+        primaryEntity.getMemoryWithoutUpdate().set("$defenderFleetDefeated", true);
+
+        stationFleet.setAbortDespawn(true);
+        isDestroyed = true;
+        spawnBrokenStationEntityIfNeeded();
     }
 
     public static List<CampaignTerrainAPI> getCombatDebrisFields(LocationAPI loc) {

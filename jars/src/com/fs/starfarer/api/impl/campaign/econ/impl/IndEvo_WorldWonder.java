@@ -21,15 +21,68 @@ public class IndEvo_WorldWonder extends BaseIndustry implements MarketImmigratio
     public static final float STABILITY_BONUS = 1f;
 
     public static final String HAS_AWARDED_SP = "$IndEvo_hasAwardedSP";
-    public static final String ALTERNATE_CHURCH_VISUAL = "$IndEvo_alternateWonderVisual";
+    public static final String ALTERNATE_VISUAL = "$IndEvo_alternateWonderVisual";
+
+    // TODO: 13/10/2022 this should be a class variable but it has to be memory for save compatibility
+    public static final String ALTERNAT_VISUAL_SP = "$IndEvo_alternateVisualSP";
+    public boolean isAlternateVisual(){
+        return market.getMemoryWithoutUpdate().getBoolean(ALTERNAT_VISUAL_SP + getId());
+    }
+    public void setAlternateVisual(boolean alternate){
+        market.getMemoryWithoutUpdate().set(ALTERNAT_VISUAL_SP + getId(), alternate);
+    }
 
     @Override
     public String getCurrentImage() {
-        if (market.getMemoryWithoutUpdate().getBoolean(ALTERNATE_CHURCH_VISUAL)) {
-            if (getId().equals(IndEvo_ids.CHURCH)) return Global.getSettings().getSpriteName("IndEvo", "kadur_megachurch");
+        if (market.getMemoryWithoutUpdate().getBoolean(ALTERNATE_VISUAL) || isAlternateVisual()) {
+            if (getAlternateImagePath() != null) return getAlternateImagePath();
         }
 
         return super.getCurrentImage();
+    }
+
+    public String getAlternateImagePath(){
+        switch (id){
+            case IndEvo_ids.CHURCH: return Global.getSettings().getSpriteName("IndEvo", "kadur_megachurch");
+            default: return null;
+        }
+    }
+
+    public boolean canImprove() {
+        return getAlternateImagePath() != null;
+    }
+
+    public float getImproveBonusXP() {
+        return 0;
+    }
+
+    public String getImproveMenuText() {
+        return "Change Visual";
+    }
+
+    public int getImproveStoryPoints() {
+        return 0;
+    }
+
+    @Override
+    public void setImproved(boolean improved) {
+        setAlternateVisual(!isAlternateVisual());
+    }
+
+    public String getImproveDialogTitle() {
+        return "Changing visual for " + getSpec().getName();
+    }
+
+    public void addImproveDesc(TooltipMakerAPI info, ImprovementDescriptionMode mode) {
+        float opad = 10f;
+        Color highlight = Misc.getHighlightColor();
+
+        if (mode != ImprovementDescriptionMode.INDUSTRY_TOOLTIP) {
+            info.addPara("Changes the %s to an alternate version.", 0f, highlight, "building image");
+            info.addPara("Does not affect improvement cost of other buildings on this colony.", 3f);
+        }
+
+        info.addSpacer(opad);
     }
 
     @Override
