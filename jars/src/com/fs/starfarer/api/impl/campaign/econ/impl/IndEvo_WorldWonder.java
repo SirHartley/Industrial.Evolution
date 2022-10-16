@@ -10,6 +10,7 @@ import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
+import com.fs.starfarer.api.plugins.derelicts.IndEvo_ArtilleryStationPlacer;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
@@ -24,12 +25,12 @@ public class IndEvo_WorldWonder extends BaseIndustry implements MarketImmigratio
     public static final String ALTERNATE_VISUAL = "$IndEvo_alternateWonderVisual";
 
     // TODO: 13/10/2022 this should be a class variable but it has to be memory for save compatibility
-    public static final String ALTERNAT_VISUAL_SP = "$IndEvo_alternateVisualSP";
+    public static final String test = "$IndEvo_alternateVisualSP";
     public boolean isAlternateVisual(){
-        return market.getMemoryWithoutUpdate().getBoolean(ALTERNAT_VISUAL_SP + getId());
+        return market.getMemoryWithoutUpdate().getBoolean(test + getId());
     }
     public void setAlternateVisual(boolean alternate){
-        market.getMemoryWithoutUpdate().set(ALTERNAT_VISUAL_SP + getId(), alternate);
+        market.getMemoryWithoutUpdate().set(test + getId(), alternate);
     }
 
     @Override
@@ -38,7 +39,7 @@ public class IndEvo_WorldWonder extends BaseIndustry implements MarketImmigratio
             if (getAlternateImagePath() != null) return getAlternateImagePath();
         }
 
-        return super.getCurrentImage();
+         return super.getCurrentImage();
     }
 
     public String getAlternateImagePath(){

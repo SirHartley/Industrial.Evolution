@@ -14,6 +14,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.campaign.CampaignClock;
+import com.fs.starfarer.combat.entities.terrain.Planet;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -51,6 +52,8 @@ public class IndEvo_ScoopAbilityPlugin extends IndEvo_BaseConsumableAbilityPlugi
 
     public TargetType targetType = TargetType.NULL;
     public Vector2f currentTargetLoc = null;
+    public Color color = null;
+    public SectorEntityToken sunTarget = null;
 
     @Override
     protected void activateImpl() {
@@ -140,6 +143,8 @@ public class IndEvo_ScoopAbilityPlugin extends IndEvo_BaseConsumableAbilityPlugi
         StarAge age = system.getAge();
         String type = system.getStar().getTypeId();
 
+        IndEvo_modPlugin.log("STAR TYPE " + type + " AGE " + age);
+
         Map<String, Float> starTypes = new HashMap<>();
         starTypes.put("star_yellow", 0.8f);
         starTypes.put("star_white", 0.7f);
@@ -158,7 +163,7 @@ public class IndEvo_ScoopAbilityPlugin extends IndEvo_BaseConsumableAbilityPlugi
         ageTypes.put(StarAge.OLD.toString(), 0.7f);
         ageTypes.put(StarAge.ANY.toString(), 0.7f);
 
-        float starMult = starTypes.get(type);
+        float starMult = starTypes.containsKey(type) ? starTypes.get(type) : 0.75f;
         float ageMult;
 
         if (age != null && ageTypes.containsKey(age.toString())) ageMult = ageTypes.get(age.toString());
@@ -174,9 +179,23 @@ public class IndEvo_ScoopAbilityPlugin extends IndEvo_BaseConsumableAbilityPlugi
     private boolean updateTargetLoc() {
         LocationAPI loc = entity.getContainingLocation();
         if (loc instanceof StarSystemAPI) {
-            PlanetAPI star = ((StarSystemAPI) loc).getStar();
-            if (star != null && !loc.isNebula() && Misc.getDistance(star.getLocation(), entity.getLocation()) < MAX_SUCTION_RANGE) {
-                currentTargetLoc = star.getLocation();
+
+            float closest = Float.MIN_VALUE;
+            SectorEntityToken target = null;
+
+            for (PlanetAPI planet : loc.getPlanets()){
+                if (planet.isStar()){
+                    float dist = Misc.getDistance(planet.getLocation(), entity.getLocation());
+                    if (dist < MAX_SUCTION_RANGE && dist > closest) {
+                        target = planet;
+                    }
+                }
+            }
+
+            if(target != null) {
+                currentTargetLoc = target.getLocation();
+                color = target.getLightColor();
+                sunTarget = target;
                 targetType = TargetType.SUN;
                 return true;
             }
@@ -205,7 +224,7 @@ public class IndEvo_ScoopAbilityPlugin extends IndEvo_BaseConsumableAbilityPlugi
 
         float radius;
         if(targetType == TargetType.SUN){
-            radius = playerFleet.getStarSystem().getStar().getRadius();
+            radius = sunTarget == null ? playerFleet.getStarSystem().getStar().getRadius() : sunTarget.getRadius();
         } else {
             radius = SUCTION_CONE_DEFAULT_RADIUS;
         }
@@ -235,7 +254,7 @@ public class IndEvo_ScoopAbilityPlugin extends IndEvo_BaseConsumableAbilityPlugi
 
         Color color = null;
         if (targetType == TargetType.SUN) {
-            color = entity.getStarSystem().getStar().getLightColor();
+            color = this.color == null ? entity.getStarSystem().getStar().getLightColor() : this.color;
         }
 
         IndEvo_NebulaParticle data = new IndEvo_NebulaParticle(dir, size, baseAlphaMult, color);

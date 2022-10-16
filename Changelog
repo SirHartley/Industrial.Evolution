@@ -9,6 +9,10 @@ todo consumable item that allows forced targetting of artillery on mouse pos
 - Change derelict industries to superstructures
 - Artillery industry images
 
+missiles are underwhelming in combat, increase overload dur
+add explosion sound to mortar
+watchtower faction is irrellevant atm, make it care about which faction saw you
+
 --------------------------- known issues -----------------------------
 
 Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
@@ -41,6 +45,26 @@ adjust salvage event "Ship Roulette" -
     add an intel entry showing the progress
 
 -----------------------o-----------------------
+3.1.d
+Items
+Adjusted - Particle colour now properly works off sun colour
+Fixed - Scoop now also scoops from suns that are not the primary star
+Fixed - Scoop crash in dual-star systems
+Fixed - Scoop crash in nebulas
+
+Courier Port
+Fixed - Intel now actually removes itself 7 days after ending (whoops)
+Fixed - Intel now properly displays total cost instead of only cargo cost
+Note - use this console command to clear all the stuck intel entries (takes 7 days):
+runcode com.fs.starfarer.api.impl.campaign.econ.impl.courierPort.intel.ShippingIntel.removeAll();
+
+Artillery
+Adjusted - Railgun charge up 3s -> 5s
+Adjusted - Railgun damage 8000 -> 3000
+Adjusted - Railgun now fires a 3-shot burst
+Adjusted - Railgun shot interval 3s -> 10s
+Fixed - Watchtowers no longer permanently have the first faction they spawned under in their name (new game)
+
 3.1.c
 General
 Added - Better Colonies SP-Improvement Config data

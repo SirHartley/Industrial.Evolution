@@ -122,7 +122,7 @@ public class IndEvo_ArtilleryStationPlacer {
             List<BaseThemeGenerator.OrbitGap> gaps = BaseThemeGenerator.findGaps(planet, 100f, 100f + ow + minGap, minGap);
             BaseThemeGenerator.EntityLocation loc = createLocationAtRandomGap(random, planet, gaps, BaseThemeGenerator.LocationType.GAS_GIANT_ORBIT);
             if (loc != null) {
-                SectorEntityToken t = system.addCustomEntity(Misc.genUID(), faction.getDisplayName() + " Watchtower", "IndEvo_Watchtower", faction.getId(),null);
+                SectorEntityToken t = system.addCustomEntity(Misc.genUID(), "Watchtower", "IndEvo_Watchtower", faction.getId(),null);
                 t.setOrbit(loc.orbit);
                 if (Misc.getMarketsInLocation(system).isEmpty()) MiscellaneousThemeGenerator.makeDiscoverable(t, 200f, 2000f);
             }

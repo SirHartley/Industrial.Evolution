@@ -66,6 +66,8 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         return false;
     }
 
+
+
     public void advance(float amount) {
         super.advance(amount);
 

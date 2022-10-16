@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
@@ -19,6 +20,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
+import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.SectorMapAPI;
@@ -53,13 +55,10 @@ public class ShippingIntel extends BaseIntelPlugin {
         this.status = status;
     }
 
-    @Override
-    public void advance(float amount) {
-        super.advance(amount);
-
-        if(status == ShippingStatus.DONE_SUCCESS || status == ShippingStatus.DONE_ALTERNATE){
-            endAfterDelay();
-        }
+    protected void notifyEnded() {
+        IndEvo_modPlugin.log("Shipping Intel " + getName() + " ended, removing");
+        Global.getSector().getIntelManager().removeIntel(this);
+        Global.getSector().getScripts().remove(this);
     }
 
     protected void addBulletPoints(TooltipMakerAPI info, ListInfoMode mode, boolean isUpdate, Color tc, float initPad) {
@@ -70,9 +69,18 @@ public class ShippingIntel extends BaseIntelPlugin {
 
         bullet(info);
         info.addPara(shipment.contract.name, pad);
-        if(!status.toString().contains("done")) info.addPara("ETA: %s", pad, h, getETA() + " " + getDaysString(getETA()));
+        if(!shipment.done) info.addPara("ETA: %s", pad, h, getETA() + " " + getDaysString(getETA()));
         info.addPara("Total cost: %s" , pad, h, Misc.getDGSCredits(shipment.cost));
         unindent(info);
+    }
+
+    //runcode com.fs.starfarer.api.impl.campaign.econ.impl.courierPort.intel.ShippingIntel.removeAll();
+
+    public static void removeAll(){
+        for (IntelInfoPlugin intel : Global.getSector().getIntelManager().getIntel(ShippingIntel.class)){
+            ShippingIntel shippingIntel = (ShippingIntel) intel;
+            if (!Global.getSector().getScripts().contains(shippingIntel)) Global.getSector().addScript((shippingIntel));
+        }
     }
 
     // sidebar text description
@@ -88,6 +96,14 @@ public class ShippingIntel extends BaseIntelPlugin {
         info.addImages(width, 128, opad, opad, faction.getCrest(), otherFaction.getCrest());
 
         info.addSectionHeading("Current Status", faction.getBaseUIColor(), faction.getDarkUIColor(), Alignment.MID, opad);
+
+        if (Global.getSettings().isDevMode()){
+            info.addPara("DEV: status = " + status.toString(), 10f);
+            info.addPara("DEV: remaining time = " + endingTimeRemaining, 3f);
+            info.addPara("DEV: is ending: " + isEnding(), 3f);
+            info.addPara("DEV: shipment is done: " + shipment.done, 3f);
+            info.addPara("DEV: shipment intel matches: " + (shipment.intel == this), 3f);
+        }
 
         switch (status) {
             case ASSEMBLING:
@@ -308,11 +324,6 @@ public class ShippingIntel extends BaseIntelPlugin {
     @Override
     protected float getBaseDaysAfterEnd() {
         return 7;
-    }
-
-    @Override
-    public boolean shouldRemoveIntel() {
-        return super.shouldRemoveIntel();
     }
 
     @Override

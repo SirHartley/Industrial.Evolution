@@ -52,7 +52,7 @@ public class Shipment implements IndEvo_newDayListener, EveryFrameScript {
         this.cargo = cargo;
         this.fleet = fleet;
         this.intel = new ShippingIntel(this);
-        this.cost = ShippingCostCalculator.getContractCargoCost(cargo, contract);
+        this.cost = ShippingCostCalculator.getTotalContractCost(cargo, contract);
     }
 
     public void init(){
@@ -64,9 +64,7 @@ public class Shipment implements IndEvo_newDayListener, EveryFrameScript {
         setFailsafeTimer(contract.getFromMarket().getPrimaryEntity(), contract.getToMarket().getPrimaryEntity());
         fleet.addScript(new CourierFleetAssignmentAI(fleet, this));
         Global.getSector().getListenerManager().addListener(this, false);
-
-        float amt = ShippingCostCalculator.getTotalContractCost(cargo, contract);
-        chargePlayer(amt, this);
+        chargePlayer(cost, this);
     }
 
     public int setFailsafeTimer(SectorEntityToken from, SectorEntityToken to){
@@ -84,6 +82,7 @@ public class Shipment implements IndEvo_newDayListener, EveryFrameScript {
     }
 
     public void finalizeAndRemove(){
+        IndEvo_modPlugin.log("Shipment " + contract.name + " is done, cleaning up");
         done = true;
 
         Global.getSector().getListenerManager().removeListener(this);
@@ -105,6 +104,7 @@ public class Shipment implements IndEvo_newDayListener, EveryFrameScript {
             transfer(alternate);
         }
 
+        Global.getSector().addScript(intel);
         intel.endAfterDelay();
     }
 
