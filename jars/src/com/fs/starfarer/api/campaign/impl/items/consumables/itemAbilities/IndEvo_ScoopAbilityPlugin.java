@@ -136,14 +136,15 @@ public class IndEvo_ScoopAbilityPlugin extends IndEvo_BaseConsumableAbilityPlugi
         }
     }
 
-    private void depositFuelInCargo(){
-        if(!depositInterval.intervalElapsed() || targetType == TargetType.NULL) return;
+    private void depositFuelInCargo() {
+        if (!depositInterval.intervalElapsed() || targetType == TargetType.NULL) return;
+
+        float ageMult = 0.7F;
+        float starMult = 0.7F;
 
         StarSystemAPI system = getFleet().getStarSystem();
         StarAge age = system.getAge();
         String type = system.getStar().getTypeId();
-
-        IndEvo_modPlugin.log("STAR TYPE " + type + " AGE " + age);
 
         Map<String, Float> starTypes = new HashMap<>();
         starTypes.put("star_yellow", 0.8f);
@@ -163,11 +164,13 @@ public class IndEvo_ScoopAbilityPlugin extends IndEvo_BaseConsumableAbilityPlugi
         ageTypes.put(StarAge.OLD.toString(), 0.7f);
         ageTypes.put(StarAge.ANY.toString(), 0.7f);
 
-        float starMult = starTypes.containsKey(type) ? starTypes.get(type) : 0.75f;
-        float ageMult;
 
-        if (age != null && ageTypes.containsKey(age.toString())) ageMult = ageTypes.get(age.toString());
-        else ageMult = 0.7f;
+        if (type != null && starTypes.containsKey(type)) {
+            starMult = (Float) starTypes.get(type);
+        }
+        if (age != null && ageTypes.containsKey(age.toString())) {
+            ageMult = (Float) ageTypes.get(age.toString());
+        }
 
         float dur = getDurationDays() * CampaignClock.SECONDS_PER_GAME_DAY;
         float amt = targetType == TargetType.NEBULA ? (MAX_FUEL_AMT / dur) * ageMult : (MAX_FUEL_AMT / dur) * starMult;

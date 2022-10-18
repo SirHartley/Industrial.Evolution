@@ -50,8 +50,8 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
         checkSensorLockActive();
         entity.setSensorStrength(RANGE);
-        entity.forceSensorFaderOut();
         entity.getMemoryWithoutUpdate().set(MemFlags.SENSOR_INDICATORS_OVERRIDE, 2);
+        entity.getMemoryWithoutUpdate().set(MemFlags.EXTRA_SENSOR_INDICATORS, 2);
     }
 
     public boolean checkSensorLockActive(){
@@ -73,6 +73,12 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
     public void advance(float amount) {
         super.advance(amount);
+
+        //dev
+        entity.setSensorStrength(RANGE);
+        entity.getMemoryWithoutUpdate().set(MemFlags.SENSOR_INDICATORS_OVERRIDE, 2);
+        entity.getMemoryWithoutUpdate().set(MemFlags.EXTRA_SENSOR_INDICATORS, 2);
+        //dev end
 
         phase += amount * PINGS_PER_SECOND;
 
