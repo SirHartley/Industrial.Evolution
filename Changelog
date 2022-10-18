@@ -26,11 +26,8 @@ ok so uh, one more issue if you arent aware, if you have a detachment stationed 
 i dont think the detachment actually moves
 
 --------------------------- upcoming -----------------------------
-merc industry
-https://discord.com/channels/815017574642483240/984638767279251468/1009925859630661783
-
+merc industry - https://discord.com/channels/815017574642483240/984638767279251468/1009925859630661783
 trade hub
-
 Colony Ship
 
 Optional:
@@ -45,7 +42,8 @@ adjust salvage event "Ship Roulette" -
     add an intel entry showing the progress
 
 -----------------------o-----------------------
-3.1.d
+
+3.1.d - UNRELEASED
 Items
 Adjusted - Particle colour now properly works off sun colour
 Fixed - Scoop now also scoops from suns that are not the primary star
@@ -57,6 +55,9 @@ Fixed - Intel now actually removes itself 7 days after ending (whoops)
 Fixed - Intel now properly displays total cost instead of only cargo cost
 Note - use this console command to clear all the stuck intel entries (takes 7 days):
 runcode com.fs.starfarer.api.impl.campaign.econ.impl.courierPort.intel.ShippingIntel.removeAll();
+
+Embassy
+Fixed - Weird copy-paste typo in description (how did that even happen)
 
 Artillery
 Adjusted - Railgun charge up 3s -> 5s
