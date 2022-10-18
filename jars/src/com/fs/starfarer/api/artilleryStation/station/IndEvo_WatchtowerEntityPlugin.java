@@ -1,7 +1,6 @@
 package com.fs.starfarer.api.artilleryStation.station;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.artilleryStation.scripts.IndEvo_DerelictArtilleryStationScript;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -22,8 +21,11 @@ import static com.fs.starfarer.api.artilleryStation.scripts.IndEvo_FleetVisibili
 public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     //this flags any fleets around it as seen
 
+    /*watchtower faction is irrellevant atm, make it care about which faction saw you
+    make watchtower sensor profile in line with vanilla*/
+
     public static final float RANGE = Global.getSettings().getFloat("IndEvo_Artillery_WatchtowerRange");
-    public static final String MEM_DERELICT_ARTILLERY_ACTIVE = "$IndEvo_isArtilleryActive";
+    public static final String MEM_SENSOR_LOCK_ACTIVE = "$IndEvo_isArtilleryActive";
     public static float PINGS_PER_SECOND = 0.05f;
     public static float WATCHTOWER_FLEET_SEEN_DURATION_DAYS = 5f;
     public static final float HACK_DURATION_DAYS_WT = 30f;
@@ -46,10 +48,13 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     public void init(SectorEntityToken entity, Object pluginParams) {
         super.init(entity, pluginParams);
 
-        checkDerelictArtilleryActive();
+        checkSensorLockActive();
+        entity.setSensorStrength(RANGE);
+        entity.forceSensorFaderOut();
+        entity.getMemoryWithoutUpdate().set(MemFlags.SENSOR_INDICATORS_OVERRIDE, 2);
     }
 
-    public boolean checkDerelictArtilleryActive(){
+    public boolean checkSensorLockActive(){
         if(entity.getContainingLocation() == null) return false;
 
         MemoryAPI mem = entity.getMemoryWithoutUpdate();
@@ -58,15 +63,13 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
             String faction = t.getFaction().getId();
 
             if (IndEvo_ids.DERELICT.equals(faction) || Factions.REMNANTS.equals(faction)) {
-                mem.set(MEM_DERELICT_ARTILLERY_ACTIVE, true);
+                mem.set(MEM_SENSOR_LOCK_ACTIVE, true);
                 return true;
             }
         }
 
         return false;
     }
-
-
 
     public void advance(float amount) {
         super.advance(amount);
@@ -76,14 +79,14 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         if(phase >= 1) {
             String factionID = entity.getFaction().getId();
             boolean isAI = factionID.equals(IndEvo_ids.DERELICT) || factionID.equals(Factions.REMNANTS);
-            boolean isAIActive = checkDerelictArtilleryActive();
+            boolean isLocked = checkSensorLockActive();
 
             if(isAI){
-                if (isAIActive && !isHacked()) showRangePing();
+                if (isLocked && !isHacked()) showRangePing();
             } else if(!isHacked()) showRangePing();
 
             for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, RANGE))  {
-                if (isHostileTo(f)){
+                if (isHostileTo(f) && f.getVisibilityLevelTo(entity) == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT){
 
                     if (isHacked() && f.isPlayerFleet()) continue;
 

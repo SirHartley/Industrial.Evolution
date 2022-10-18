@@ -33,7 +33,7 @@ import org.json.JSONObject;
 
 import java.util.*;
 
-import static com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEntityPlugin.MEM_DERELICT_ARTILLERY_ACTIVE;
+import static com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEntityPlugin.MEM_SENSOR_LOCK_ACTIVE;
 
 /**
  * PERMANENT
@@ -186,7 +186,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     }
 
     private void updateWatchtowers(boolean active){
-        for (SectorEntityToken t : primaryEntity.getContainingLocation().getEntitiesWithTag("IndEvo_watchtower")) t.getMemoryWithoutUpdate().set(MEM_DERELICT_ARTILLERY_ACTIVE, active);
+        for (SectorEntityToken t : primaryEntity.getContainingLocation().getEntitiesWithTag("IndEvo_watchtower")) t.getMemoryWithoutUpdate().set(MEM_SENSOR_LOCK_ACTIVE, active);
     }
 
     public void updateFaction(String id) {
