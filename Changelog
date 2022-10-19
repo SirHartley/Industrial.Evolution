@@ -65,6 +65,7 @@ Adjusted - Railgun charge up 3s -> 5s
 Adjusted - Railgun damage 8000 -> 3000
 Adjusted - Railgun now fires a 3-shot burst
 Adjusted - Railgun shot interval 3s -> 10s
+Adjusted - Watchtower hack duration now actually up to 2 months (Was 1)
 Fixed - Watchtowers no longer permanently have the first faction they spawned under in their name (new game)
 
 3.1.c

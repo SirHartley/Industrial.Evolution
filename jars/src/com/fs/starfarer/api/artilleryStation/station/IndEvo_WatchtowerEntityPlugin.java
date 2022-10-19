@@ -54,6 +54,15 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         entity.getMemoryWithoutUpdate().set(MemFlags.EXTRA_SENSOR_INDICATORS, 2);
     }
 
+    //render eye above fleet
+    //slowly opens while in range
+    //faster the closer you are to watchtower
+    //sensor range depending on hidden fleet
+    //when going out of range, slowly close eye
+    //when eye completely open, render circle + fading eye silhouette pulse to denote having been seen
+    //last for 5 days
+    //when out of watchtower range +5d slowly close eye
+
     public boolean checkSensorLockActive(){
         if(entity.getContainingLocation() == null) return false;
 
@@ -127,16 +136,17 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         custom.setWidth(7);
         custom.setMinRange(RANGE - 100f);
         custom.setRange(RANGE);
-        custom.setDuration(3f);
+        custom.setDuration(4f);
         custom.setAlphaMult(0.25f);
         custom.setInFraction(0.2f);
-        custom.setNum(1);
+        custom.setNum(3);
+        custom.setDelay(0.25f);
 
         Global.getSector().addPing(entity, custom);
     }
 
     public void setHacked(boolean hacked) {
-        setHacked(hacked, HACK_DURATION_DAYS_WT + (float) Math.random() * 0.5f * HACK_DURATION_DAYS_WT);
+        setHacked(hacked, HACK_DURATION_DAYS_WT + (float) Math.random() * HACK_DURATION_DAYS_WT);
     }
 
     public void printEffect(TooltipMakerAPI text, float pad) {
