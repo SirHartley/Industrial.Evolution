@@ -30,6 +30,7 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lazywizard.lazylib.MathUtils;
 
 import java.awt.*;
 
@@ -143,18 +144,10 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
             deficit = 0f;
         }
 
-        float q = Misc.getShipQuality(market);
-        if (q < 0) q = 0;
-        if (q > 1) q = 1;
+        float q = MathUtils.clamp(Misc.getShipQuality(market), 0, 1);
+        float d = MathUtils.clamp((demand - deficit) / demand, 0, 1);
 
-        float d = (demand - deficit) / demand;
-        if (d < 0) d = 0;
-        if (d > 1) d = 1;
-
-        float cr = 0.5f + 0.5f * Math.min(d, q);
-        if (cr > 1) cr = 1;
-
-        return cr;
+        return MathUtils.clamp(0.5f + 0.5f * Math.min(d, q), 0, 1);
     }
 
 

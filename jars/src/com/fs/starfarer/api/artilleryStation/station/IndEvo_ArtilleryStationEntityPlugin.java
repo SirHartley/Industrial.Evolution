@@ -23,7 +23,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-import static com.fs.starfarer.api.artilleryStation.scripts.IndEvo_FleetVisibilityScript.WAS_SEEN_BY_HOSTILE_ENTITY;
+import static com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEyeIndicator.WAS_SEEN_BY_HOSTILE_ENTITY;
 
 public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
 

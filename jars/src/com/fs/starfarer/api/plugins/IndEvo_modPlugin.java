@@ -1,7 +1,7 @@
 package com.fs.starfarer.api.plugins;
 
 import com.fs.starfarer.api.*;
-import com.fs.starfarer.api.artilleryStation.scripts.IndEvo_FleetVisibilityScript;
+import com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEyeIndicator;
 import com.fs.starfarer.api.artilleryStation.trails.IndEvo_MagicCampaignTrailPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
@@ -323,8 +323,7 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         }
 
         IndEvo_MagicCampaignTrailPlugin.register();
-        IndEvo_FleetVisibilityScript.register();
-
+        IndEvo_WatchtowerEyeIndicator.init();
         //PlayerFleetFollower.register();
     }
 

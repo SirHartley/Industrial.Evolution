@@ -16,7 +16,7 @@ import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
-import static com.fs.starfarer.api.artilleryStation.scripts.IndEvo_FleetVisibilityScript.WAS_SEEN_BY_HOSTILE_ENTITY;
+import static com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEyeIndicator.WAS_SEEN_BY_HOSTILE_ENTITY;
 
 public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     //this flags any fleets around it as seen
@@ -49,9 +49,9 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         super.init(entity, pluginParams);
 
         checkSensorLockActive();
-        entity.setSensorStrength(RANGE);
+        /*entity.setSensorStrength(RANGE);
         entity.getMemoryWithoutUpdate().set(MemFlags.SENSOR_INDICATORS_OVERRIDE, 2);
-        entity.getMemoryWithoutUpdate().set(MemFlags.EXTRA_SENSOR_INDICATORS, 2);
+        entity.getMemoryWithoutUpdate().set(MemFlags.EXTRA_SENSOR_INDICATORS, 2);*/
     }
 
     //render eye above fleet
@@ -82,12 +82,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
     public void advance(float amount) {
         super.advance(amount);
-
-        //dev
-        entity.setSensorStrength(RANGE);
-        entity.getMemoryWithoutUpdate().set(MemFlags.SENSOR_INDICATORS_OVERRIDE, 2);
-        entity.getMemoryWithoutUpdate().set(MemFlags.EXTRA_SENSOR_INDICATORS, 2);
-        //dev end
+        if (!entity.isInCurrentLocation()) return;
 
         phase += amount * PINGS_PER_SECOND;
 
@@ -101,9 +96,8 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
             } else if(!isHacked()) showRangePing();
 
             for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, RANGE))  {
-                if (isHostileTo(f) && f.getVisibilityLevelTo(entity) == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT){
-
-                    if (isHacked() && f.isPlayerFleet()) continue;
+                if (isHostileTo(f)){ //&& f.getVisibilityLevelTo(entity) == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT){
+                    if (f.isPlayerFleet()) continue;
 
                     boolean showMessage = !f.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY);
                     f.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, WATCHTOWER_FLEET_SEEN_DURATION_DAYS);
