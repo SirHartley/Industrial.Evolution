@@ -2,6 +2,10 @@ package com.fs.starfarer.api.artilleryStation.station;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.characters.AbilityPlugin;
+import com.fs.starfarer.api.characters.PersonAPI;
+import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
@@ -14,7 +18,7 @@ import org.lwjgl.util.vector.Vector2f;
 import java.awt.*;
 import java.util.List;
 
-public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener implements CustomCampaignEntityPlugin {
+public class IndEvo_WatchtowerEyeIndicator implements CampaignEventListener, CustomCampaignEntityPlugin {
 
     public static final String WAS_SEEN_BY_HOSTILE_ENTITY = "$IndEvo_WasSeenByOtherEntity";
     public static final float BASE_NPC_KNOWN_DURATION = 5f;
@@ -27,13 +31,15 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
 
     public IntervalUtil checkInterval = new IntervalUtil(0.5f, 0.5f);
 
-    public IndEvo_WatchtowerEyeIndicator(boolean permaRegister) {
-        super(permaRegister);
-    }
-
-    public static void init(){
+    public static void register(){
         LocationAPI loc = Global.getSector().getPlayerFleet().getContainingLocation();
-        if(loc.getEntitiesWithTag("IndEvo_eye").isEmpty()) loc.addCustomEntity(Misc.genUID(), "", "IndEvo_Eye", null, null);
+
+        if(loc == null) loc = Global.getSector().getStarSystems().get(0);
+
+        if(loc.getEntitiesWithTag("IndEvo_eye").isEmpty()) {
+            SectorEntityToken t = loc.addCustomEntity(Misc.genUID(), "", "IndEvo_Eye", null, null);
+            Global.getSector().addListener((CampaignEventListener) t.getCustomPlugin());
+        }
     }
 
     //check where watchtowers are every frame
@@ -45,13 +51,10 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
 
     public void init(SectorEntityToken entity, Object pluginParams) {
         this.entity = entity;
-        Global.getSector().addListener(this);
     }
 
     @Override
     public void reportFleetJumped(CampaignFleetAPI fleet, SectorEntityToken from, JumpPointAPI.JumpDestination to) {
-        super.reportFleetJumped(fleet, from, to);
-
         fleet.getMemoryWithoutUpdate().unset(WAS_SEEN_BY_HOSTILE_ENTITY);
 
         if(fleet.isPlayerFleet()){
@@ -191,6 +194,107 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
     }
 
     public void appendToCampaignTooltip(TooltipMakerAPI tooltip, SectorEntityToken.VisibilityLevel level) {
+
+    }
+
+
+    @Override
+    public void reportPlayerOpenedMarket(MarketAPI market) {
+
+    }
+
+    @Override
+    public void reportPlayerClosedMarket(MarketAPI market) {
+
+    }
+
+    @Override
+    public void reportPlayerOpenedMarketAndCargoUpdated(MarketAPI market) {
+
+    }
+
+    @Override
+    public void reportEncounterLootGenerated(FleetEncounterContextPlugin plugin, CargoAPI loot) {
+
+    }
+
+    @Override
+    public void reportPlayerMarketTransaction(PlayerMarketTransaction transaction) {
+
+    }
+
+    @Override
+    public void reportBattleOccurred(CampaignFleetAPI primaryWinner, BattleAPI battle) {
+
+    }
+
+    @Override
+    public void reportBattleFinished(CampaignFleetAPI primaryWinner, BattleAPI battle) {
+
+    }
+
+    @Override
+    public void reportPlayerEngagement(EngagementResultAPI result) {
+
+    }
+
+    @Override
+    public void reportFleetDespawned(CampaignFleetAPI fleet, FleetDespawnReason reason, Object param) {
+
+    }
+
+    @Override
+    public void reportFleetSpawned(CampaignFleetAPI fleet) {
+
+    }
+
+    @Override
+    public void reportFleetReachedEntity(CampaignFleetAPI fleet, SectorEntityToken entity) {
+
+    }
+
+    @Override
+    public void reportShownInteractionDialog(InteractionDialogAPI dialog) {
+
+    }
+
+    @Override
+    public void reportPlayerReputationChange(String faction, float delta) {
+
+    }
+
+    @Override
+    public void reportPlayerReputationChange(PersonAPI person, float delta) {
+
+    }
+
+    @Override
+    public void reportPlayerActivatedAbility(AbilityPlugin ability, Object param) {
+
+    }
+
+    @Override
+    public void reportPlayerDeactivatedAbility(AbilityPlugin ability, Object param) {
+
+    }
+
+    @Override
+    public void reportPlayerDumpedCargo(CargoAPI cargo) {
+
+    }
+
+    @Override
+    public void reportPlayerDidNotTakeCargo(CargoAPI cargo) {
+
+    }
+
+    @Override
+    public void reportEconomyTick(int iterIndex) {
+
+    }
+
+    @Override
+    public void reportEconomyMonthEnd() {
 
     }
 }

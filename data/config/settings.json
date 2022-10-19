@@ -210,11 +210,11 @@
           "IndEvo_mortar_burn": "graphics/fx/IndEvo_mortar_burn.png",
           "IndEvo_mortar_glow": "graphics/fx/IndEvo_mortar_glow.png",
           "IndEvo_mortar_smoke": "graphics/fx/IndEvo_mortar_smoke.png",
-          "IndEvo_mortar_wave": "graphics/fx/IndEvo_mortar_wave.png"
-          "IndEvo_eye_0": "graphics/fx/IndEvo_watchtower_0.png"
-          "IndEvo_eye_1": "graphics/fx/IndEvo_watchtower_1.png"
-          "IndEvo_eye_2": "graphics/fx/IndEvo_watchtower_2.png"
-          "IndEvo_eye_3": "graphics/fx/IndEvo_watchtower_3.png"
+          "IndEvo_mortar_wave": "graphics/fx/IndEvo_mortar_wave.png",
+          "IndEvo_eye_0": "graphics/fx/IndEvo_watchtower_0.png",
+          "IndEvo_eye_1": "graphics/fx/IndEvo_watchtower_1.png",
+          "IndEvo_eye_2": "graphics/fx/IndEvo_watchtower_2.png",
+          "IndEvo_eye_3": "graphics/fx/IndEvo_watchtower_3.png",
       },
       "IndEvo": {
           "kadur_megachurch":"graphics/industry/flavour/megachurch_kadur.png",

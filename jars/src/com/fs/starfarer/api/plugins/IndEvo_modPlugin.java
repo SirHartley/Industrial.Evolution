@@ -45,7 +45,6 @@ import com.fs.starfarer.api.splinterFleet.plugins.SplinterFleetCampignPlugin;
 import com.fs.starfarer.api.splinterFleet.plugins.dialogue.DialogueInterceptListener;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.campaign.econ.Market;
 import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
 import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
 import org.dark.shaders.light.LightData;
@@ -323,7 +322,7 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         }
 
         IndEvo_MagicCampaignTrailPlugin.register();
-        IndEvo_WatchtowerEyeIndicator.init();
+        IndEvo_WatchtowerEyeIndicator.register();
         //PlayerFleetFollower.register();
     }
 
