@@ -2,7 +2,6 @@ package com.fs.starfarer.api.artilleryStation.station;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
-
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
@@ -34,11 +33,11 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
         super(false);
     }
 
-    public static void register(){
+    public static void register() {
         LocationAPI loc = Global.getSector().getPlayerFleet().getContainingLocation();
-        if(loc == null) loc = Global.getSector().getStarSystems().get(0);
+        if (loc == null) loc = Global.getSector().getStarSystems().get(0);
 
-        if(loc.getEntitiesWithTag("IndEvo_eye").isEmpty()) {
+        if (loc.getEntitiesWithTag("IndEvo_eye").isEmpty()) {
             SectorEntityToken t = loc.addCustomEntity(Misc.genUID(), "", "IndEvo_Eye", null, null);
             Global.getSector().addListener((CampaignEventListener) t.getCustomPlugin());
         }
@@ -56,7 +55,7 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
         readResolve();
     }
 
-    public void reset(){
+    public void reset() {
         elapsed = 0f;
         isLocked = false;
         Global.getSector().getPlayerFleet().getMemoryWithoutUpdate().unset(WAS_SEEN_BY_HOSTILE_ENTITY);
@@ -66,24 +65,25 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
     public void reportFleetJumped(CampaignFleetAPI fleet, SectorEntityToken from, JumpPointAPI.JumpDestination to) {
         fleet.getMemoryWithoutUpdate().unset(WAS_SEEN_BY_HOSTILE_ENTITY);
 
-        if(fleet.isPlayerFleet()){
+        if (fleet.isPlayerFleet()) {
             elapsed = 0f;
             isLocked = false;
-
-            if(to != null && to.getDestination() != null){
-                entity.setContainingLocation(to.getDestination().getContainingLocation());
-                entity.setLocation(0,0);
-            }
         }
     }
 
     public void advance(float amount) {
         checkInterval.advance(amount);
 
-        if (!entity.isInCurrentLocation()) return;
-        if (!checkInterval.intervalElapsed()) return;
-
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+
+        if (!entity.isInCurrentLocation()) {
+            entity.getContainingLocation().removeEntity(entity);
+            player.getContainingLocation().addEntity(entity);
+            entity.setLocation(0, 0);
+        }
+
+        if (!checkInterval.intervalElapsed()) return;
+        if (player.isInHyperspace()) return;
 
         amount += checkInterval.getIntervalDuration();
         LocationAPI loc = entity.getContainingLocation();
@@ -100,9 +100,9 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
                 if (otherFLeet.isHostileTo(f)
                         && otherFLeet.getAI() != null
                         && !otherFLeet.isStationMode()
-                        && Misc.getVisibleFleets(otherFLeet, false).contains(f)){
+                        && Misc.getVisibleFleets(otherFLeet, false).contains(f)) {
 
-                    if(f.isPlayerFleet()){
+                    if (f.isPlayerFleet()) {
                         elapsed = MAX_TIME_TO_TARGET_LOCK;
                         isLocked = true;
                         inFleetRange = true;
@@ -121,11 +121,11 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
         float closestDist = Float.MIN_VALUE;
         SectorEntityToken closestTower = null;
 
-        for (SectorEntityToken t : watchtowerList){
-            IndEvo_WatchtowerEntityPlugin p  = (IndEvo_WatchtowerEntityPlugin) t.getCustomPlugin();
+        for (SectorEntityToken t : watchtowerList) {
+            IndEvo_WatchtowerEntityPlugin p = (IndEvo_WatchtowerEntityPlugin) t.getCustomPlugin();
 
             float dist = Misc.getDistance(t, player);
-            if (!p.isHacked() && p.isHostileTo(player) && dist < IndEvo_WatchtowerEntityPlugin.RANGE){
+            if (!p.isHacked() && p.isHostileTo(player) && dist < IndEvo_WatchtowerEntityPlugin.RANGE) {
                 if (dist > closestDist) {
                     closestDist = dist;
                     closestTower = t;
@@ -135,7 +135,7 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
 
         float addition = 0f;
 
-        if (closestTower == null && !inFleetRange){ //null means we are out of range of any tower
+        if (closestTower == null && !inFleetRange) { //null means we are out of range of any tower
             addition = -amount;
 
         } else { //at this point we are in range because there is a closest hostile tower
@@ -147,13 +147,13 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
         elapsed = MathUtils.clamp(elapsed += addition, 0, MAX_TIME_TO_TARGET_LOCK);
     }
 
-    private void cycleActions(){
+    private void cycleActions() {
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
 
-        if (elapsed == 0f){
+        if (elapsed == 0f) {
             isLocked = false; //if it's locked we stay locked until the level is 0
             player.getMemoryWithoutUpdate().unset(WAS_SEEN_BY_HOSTILE_ENTITY);
-        } else if (elapsed == MAX_TIME_TO_TARGET_LOCK){
+        } else if (elapsed == MAX_TIME_TO_TARGET_LOCK) {
             isLocked = true;
             player.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, 0.5f);
         }
@@ -176,11 +176,11 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
 
         if (level < 0.33f) {
             sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_1");
-            if (!isLocked) color = new Color(255,255,150,255);
+            if (!isLocked) color = new Color(255, 255, 150, 255);
         } else if (level < 0.66f) {
             sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_2");
-            if (!isLocked)  color = new Color(255,200,50,255);
-        } else if (!isLocked) color = new Color(255,130,50,255);
+            if (!isLocked) color = new Color(255, 200, 50, 255);
+        } else if (!isLocked) color = new Color(255, 130, 50, 255);
 
         sprite.setAdditiveBlend();
         sprite.setAlphaMult(0.7f);
