@@ -2,13 +2,11 @@ package com.fs.starfarer.api.artilleryStation.station;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
-import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.characters.AbilityPlugin;
-import com.fs.starfarer.api.characters.PersonAPI;
-import com.fs.starfarer.api.combat.EngagementResultAPI;
+
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
+import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
@@ -18,22 +16,26 @@ import org.lwjgl.util.vector.Vector2f;
 import java.awt.*;
 import java.util.List;
 
-public class IndEvo_WatchtowerEyeIndicator implements CampaignEventListener, CustomCampaignEntityPlugin {
+public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener implements CustomCampaignEntityPlugin {
 
     public static final String WAS_SEEN_BY_HOSTILE_ENTITY = "$IndEvo_WasSeenByOtherEntity";
     public static final float BASE_NPC_KNOWN_DURATION = 5f;
-    public static final float MAX_TIME_TO_TARGET_LOCK = Global.getSector().getClock().getSecondsPerDay() * 2;
-    public static final float DISTANCE_MOD = 3; //max mult for distance
+    public static final float MAX_TIME_TO_TARGET_LOCK = 20f; //10s per day
+    public static final float DISTANCE_MOD = 2; //max mult for distance
 
     protected SectorEntityToken entity;
     private float elapsed = 0f;
     private boolean isLocked = false;
+    public transient SpriteAPI sprite;
 
     public IntervalUtil checkInterval = new IntervalUtil(0.5f, 0.5f);
 
+    public IndEvo_WatchtowerEyeIndicator() {
+        super(false);
+    }
+
     public static void register(){
         LocationAPI loc = Global.getSector().getPlayerFleet().getContainingLocation();
-
         if(loc == null) loc = Global.getSector().getStarSystems().get(0);
 
         if(loc.getEntitiesWithTag("IndEvo_eye").isEmpty()) {
@@ -51,6 +53,13 @@ public class IndEvo_WatchtowerEyeIndicator implements CampaignEventListener, Cus
 
     public void init(SectorEntityToken entity, Object pluginParams) {
         this.entity = entity;
+        readResolve();
+    }
+
+    public void reset(){
+        elapsed = 0f;
+        isLocked = false;
+        Global.getSector().getPlayerFleet().getMemoryWithoutUpdate().unset(WAS_SEEN_BY_HOSTILE_ENTITY);
     }
 
     @Override
@@ -74,6 +83,9 @@ public class IndEvo_WatchtowerEyeIndicator implements CampaignEventListener, Cus
         if (!entity.isInCurrentLocation()) return;
         if (!checkInterval.intervalElapsed()) return;
 
+        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+
+        amount += checkInterval.getIntervalDuration();
         LocationAPI loc = entity.getContainingLocation();
         if (loc.getEntitiesWithTag(IndEvo_ids.TAG_ARTILLERY_STATION).isEmpty()) return;
 
@@ -94,6 +106,9 @@ public class IndEvo_WatchtowerEyeIndicator implements CampaignEventListener, Cus
                         elapsed = MAX_TIME_TO_TARGET_LOCK;
                         isLocked = true;
                         inFleetRange = true;
+
+                        IndEvo_modPlugin.log("in fleet range, is seen");
+
                     } else f.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, BASE_NPC_KNOWN_DURATION);
                     break;
                 }
@@ -105,14 +120,13 @@ public class IndEvo_WatchtowerEyeIndicator implements CampaignEventListener, Cus
 
         float closestDist = Float.MIN_VALUE;
         SectorEntityToken closestTower = null;
-        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
 
         for (SectorEntityToken t : watchtowerList){
             IndEvo_WatchtowerEntityPlugin p  = (IndEvo_WatchtowerEntityPlugin) t.getCustomPlugin();
 
             float dist = Misc.getDistance(t, player);
             if (!p.isHacked() && p.isHostileTo(player) && dist < IndEvo_WatchtowerEntityPlugin.RANGE){
-                if (dist < closestDist) {
+                if (dist > closestDist) {
                     closestDist = dist;
                     closestTower = t;
                 }
@@ -143,38 +157,50 @@ public class IndEvo_WatchtowerEyeIndicator implements CampaignEventListener, Cus
             isLocked = true;
             player.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, 0.5f);
         }
+
+        IndEvo_modPlugin.log("Watchtower reporting " + elapsed + " locked " + isLocked);
     }
 
-    public float getRenderRange() {
-        return Float.MAX_VALUE;
+    Object readResolve() {
+        sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_3");
+        return this;
     }
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         if (elapsed == 0f) return;
+
         float level = elapsed / MAX_TIME_TO_TARGET_LOCK;
 
         Color color = Color.RED;
-        SpriteAPI sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_3");
+        sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_3");
 
-        if (level < 0.25f) {
-            sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_0");
-            if (!isLocked) color = Color.WHITE;
-        } else if (level < 0.50f) {
+        if (level < 0.33f) {
             sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_1");
             if (!isLocked) color = new Color(255,255,150,255);
-        } else if (level < 0.75f) {
+        } else if (level < 0.66f) {
             sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_2");
             if (!isLocked)  color = new Color(255,200,50,255);
         } else if (!isLocked) color = new Color(255,130,50,255);
 
         sprite.setAdditiveBlend();
-        sprite.setAngle(90);
-        sprite.setSize(20, 10);
-        sprite.setAlphaMult(0.8f);
+        sprite.setAlphaMult(0.7f);
         sprite.setColor(color);
 
-        Vector2f loc = Global.getSector().getPlayerFleet().getLocation();
-        sprite.renderAtCenter(loc.x, loc.y + 100f);
+        CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
+        Vector2f loc = fleet.getLocation();
+
+        //min zoom 0.5f
+        //max zoom 3.0f
+        float zoom = Global.getSector().getCampaignUI().getZoomFactor();
+        float size = 10 * zoom;
+        sprite.setSize(size * 2, size);
+
+        sprite.renderAtCenter(loc.x, loc.y + fleet.getRadius() + size + 10f);
+
+    }
+
+    public float getRenderRange() {
+        return 9999999999999f;
     }
 
     public boolean hasCustomMapTooltip() {
@@ -194,107 +220,6 @@ public class IndEvo_WatchtowerEyeIndicator implements CampaignEventListener, Cus
     }
 
     public void appendToCampaignTooltip(TooltipMakerAPI tooltip, SectorEntityToken.VisibilityLevel level) {
-
-    }
-
-
-    @Override
-    public void reportPlayerOpenedMarket(MarketAPI market) {
-
-    }
-
-    @Override
-    public void reportPlayerClosedMarket(MarketAPI market) {
-
-    }
-
-    @Override
-    public void reportPlayerOpenedMarketAndCargoUpdated(MarketAPI market) {
-
-    }
-
-    @Override
-    public void reportEncounterLootGenerated(FleetEncounterContextPlugin plugin, CargoAPI loot) {
-
-    }
-
-    @Override
-    public void reportPlayerMarketTransaction(PlayerMarketTransaction transaction) {
-
-    }
-
-    @Override
-    public void reportBattleOccurred(CampaignFleetAPI primaryWinner, BattleAPI battle) {
-
-    }
-
-    @Override
-    public void reportBattleFinished(CampaignFleetAPI primaryWinner, BattleAPI battle) {
-
-    }
-
-    @Override
-    public void reportPlayerEngagement(EngagementResultAPI result) {
-
-    }
-
-    @Override
-    public void reportFleetDespawned(CampaignFleetAPI fleet, FleetDespawnReason reason, Object param) {
-
-    }
-
-    @Override
-    public void reportFleetSpawned(CampaignFleetAPI fleet) {
-
-    }
-
-    @Override
-    public void reportFleetReachedEntity(CampaignFleetAPI fleet, SectorEntityToken entity) {
-
-    }
-
-    @Override
-    public void reportShownInteractionDialog(InteractionDialogAPI dialog) {
-
-    }
-
-    @Override
-    public void reportPlayerReputationChange(String faction, float delta) {
-
-    }
-
-    @Override
-    public void reportPlayerReputationChange(PersonAPI person, float delta) {
-
-    }
-
-    @Override
-    public void reportPlayerActivatedAbility(AbilityPlugin ability, Object param) {
-
-    }
-
-    @Override
-    public void reportPlayerDeactivatedAbility(AbilityPlugin ability, Object param) {
-
-    }
-
-    @Override
-    public void reportPlayerDumpedCargo(CargoAPI cargo) {
-
-    }
-
-    @Override
-    public void reportPlayerDidNotTakeCargo(CargoAPI cargo) {
-
-    }
-
-    @Override
-    public void reportEconomyTick(int iterIndex) {
-
-    }
-
-    @Override
-    public void reportEconomyMonthEnd() {
 
     }
 }

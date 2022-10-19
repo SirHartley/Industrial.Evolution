@@ -15,6 +15,7 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGener
 import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import org.lazywizard.lazylib.MathUtils;
 
 import static com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEyeIndicator.WAS_SEEN_BY_HOSTILE_ENTITY;
 
@@ -86,7 +87,8 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
         phase += amount * PINGS_PER_SECOND;
 
-        if(phase >= 1) {
+        // TODO: 19/10/2022 change this to an interval instead of this janky shit
+        if(phase >= 1 * MathUtils.getRandomNumberInRange(1, 1.1f)) {
             String factionID = entity.getFaction().getId();
             boolean isAI = factionID.equals(IndEvo_ids.DERELICT) || factionID.equals(Factions.REMNANTS);
             boolean isLocked = checkSensorLockActive();
@@ -125,11 +127,13 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         FactionAPI f = entity.getFaction();
         if (!f.isHostileTo(Factions.PLAYER) || isHacked()) return;
 
+        float range = RANGE / 2f;
+
         CampaignPingSpec custom = new CampaignPingSpec();
         custom.setColor(f.getColor());
         custom.setWidth(7);
-        custom.setMinRange(RANGE - 100f);
-        custom.setRange(RANGE);
+        custom.setMinRange(range - 100f);
+        custom.setRange(range);
         custom.setDuration(4f);
         custom.setAlphaMult(0.25f);
         custom.setInFraction(0.2f);
@@ -141,6 +145,10 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
     public void setHacked(boolean hacked) {
         setHacked(hacked, HACK_DURATION_DAYS_WT + (float) Math.random() * HACK_DURATION_DAYS_WT);
+
+        for(SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag("IndEvo_eye")){
+            ((IndEvo_WatchtowerEyeIndicator) t.getCustomPlugin()).reset();
+        }
     }
 
     public void printEffect(TooltipMakerAPI text, float pad) {

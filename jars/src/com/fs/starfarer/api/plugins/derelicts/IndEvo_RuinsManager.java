@@ -230,7 +230,11 @@ public class IndEvo_RuinsManager {
         for (Map.Entry<String, Float> entry : getChanceMap().entrySet()) industryIdPicker.add(entry.getKey(), entry.getValue());
 
         //remove riftGen if the planet has rings
-        if (market.hasCondition(Conditions.SOLAR_ARRAY) || market.hasCondition(IndEvo_ids.COND_MINERING) || IndEvo_IndustryHelper.planetHasRings(planet) || (planet.isGasGiant())) {
+        if (market.hasCondition(Conditions.SOLAR_ARRAY)
+                || market.hasCondition(IndEvo_ids.COND_MINERING)
+                || market.hasCondition("niko_MPC_antiAsteroidSatellites_derelict")
+                || IndEvo_IndustryHelper.planetHasRings(planet)
+                || (planet.isGasGiant())) {
             industryIdPicker.remove(IndEvo_ids.RIFTGEN);
         }
 

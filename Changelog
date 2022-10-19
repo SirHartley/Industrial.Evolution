@@ -11,8 +11,7 @@ todo consumable item that allows forced targetting of artillery on mouse pos
 
 missiles are underwhelming in combat, increase overload dur
 add explosion sound to mortar
-watchtower faction is irrellevant atm, make it care about which faction saw you
-make watchtower sensor profile in line with vanilla
+add some more settings for minefields
 
 --------------------------- known issues -----------------------------
 
@@ -43,8 +42,11 @@ adjust salvage event "Ship Roulette" -
     add an intel entry showing the progress
 
 -----------------------o-----------------------
+3.1.e - UNRELEASED
+Artillery
+Fixed - Hacking a watchtower now actually clears your targeting info
 
-3.1.d - UNRELEASED
+3.1.d
 Items
 Adjusted - Particle colour now properly works off sun colour
 Fixed - Scoop now also scoops from suns that are not the primary star
@@ -63,13 +65,18 @@ Fixed - Weird copy-paste typo in description (how did that even happen)
 Artillery
 Added - Indicator telling you if you are being detected by watchtowers
 Adjusted - Railgun charge up 3s -> 5s
-Adjusted - Railgun damage 8000 -> 3000
+Adjusted - Railgun damage 8000 -> 2500
 Adjusted - Railgun now fires a 3-shot burst
 Adjusted - Railgun shot interval 3s -> 10s
 Adjusted - Missile tracking range 800su -> 600su
 Adjusted - Watchtower hack duration now actually up to 2 months (Was 1)
 Adjusted - Watchtower now takes some time to get a target lock, depending on your distance to the tower
+Adjusted - Watchtower sensor ping now irregular
+Adjusted - Watchtower sensor range range 3000su -> 4000su
 Fixed - Watchtowers no longer permanently have the first faction they spawned under in their name (new game)
+
+Derelict Industries
+Added - Blacklisted Riftgen from spawning on Niko Satellite planets
 
 3.1.c
 General

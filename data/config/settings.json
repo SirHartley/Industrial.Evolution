@@ -46,7 +46,7 @@
   "IndEvo_Artillery_cooldownNPCMult":2f, #multiplies cooldown for NPC fleets because they get demolished otherwise
   "IndEvo_Artillery_minRange":500f,
   "IndEvo_Artillery_maxRange":12000f, # =6 map cells
-  "IndEvo_Artillery_WatchtowerRange":3000f,
+  "IndEvo_Artillery_WatchtowerRange":4000f,
 
   #After here works during a campaign as well
   #Salvage Yards

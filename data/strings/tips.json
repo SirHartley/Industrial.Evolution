@@ -102,5 +102,6 @@
           {"freq":0.1, "tip":"[Industrial.Evolution] Void Extraction is from Legacy of Arkgneisis, not Industrial.Evolution. Although I'll concede that it's a good one."},
           {"freq":0.1, "tip":"[Industrial.Evolution] Spacing an Ambassador is a very good idea and has no consequences at all."},
           {"freq":0.1, "tip":"[Industrial.Evolution] Did you know that you could, in theory, sell an ambassador on the open market? It's a risk-free transaction!"},
+          {"freq":0.001, "tip":"[Industrial.Evolution] I was told not to insult people. Please type out an insult of your choice and imagine I threw it at you. Thanks!"}
     ],
 }
