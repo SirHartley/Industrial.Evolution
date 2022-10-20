@@ -10,7 +10,7 @@ todo consumable item that allows forced targetting of artillery on mouse pos
 - Artillery industry images
 
 missiles are underwhelming in combat, increase overload dur
-add explosion sound to mortar
+add sounds
 add some more settings for minefields
 
 --------------------------- known issues -----------------------------
@@ -43,8 +43,7 @@ adjust salvage event "Ship Roulette" -
 
 -----------------------o-----------------------
 3.1.e - UNRELEASED
-Artillery
-Fixed - Hacking a watchtower now actually clears your targeting info
+
 
 3.1.d
 Items
@@ -74,6 +73,7 @@ Adjusted - Watchtower now takes some time to get a target lock, depending on you
 Adjusted - Watchtower sensor ping now irregular
 Adjusted - Watchtower sensor range range 3000su -> 4000su
 Fixed - Watchtowers no longer permanently have the first faction they spawned under in their name (new game)
+Fixed - Hacking a watchtower now actually clears your targeting info
 
 Derelict Industries
 Added - Blacklisted Riftgen from spawning on Niko Satellite planets

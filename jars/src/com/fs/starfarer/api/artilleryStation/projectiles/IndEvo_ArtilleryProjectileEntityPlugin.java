@@ -2,6 +2,7 @@ package com.fs.starfarer.api.artilleryStation.projectiles;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.artilleryStation.station.IndEvo_VariableExplosionEntityPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.ai.ModularFleetAIAPI;
 import com.fs.starfarer.api.campaign.impl.items.consumables.entityAbilities.InterdictionMineAbility;
@@ -232,11 +233,21 @@ public class IndEvo_ArtilleryProjectileEntityPlugin extends BaseCustomEntityPlug
         LocationAPI cl = entity.getContainingLocation();
 
         Color color = new Color(255, 120, 100);
-        ExplosionEntityPlugin.ExplosionParams params = new ExplosionEntityPlugin.ExplosionParams(color, cl, target, EFFECT_SIZE, 0.65f);
+        IndEvo_VariableExplosionEntityPlugin.VariableExplosionParams params =
+                new IndEvo_VariableExplosionEntityPlugin.VariableExplosionParams(
+                        "IndEvo_mortar_hit",
+                        true,
+                        1f,
+                        color,
+                        cl,
+                        target,
+                        EFFECT_SIZE,
+                        0.65f);
+
         params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.LOW;
 
         SectorEntityToken explosion = cl.addCustomEntity(Misc.genUID(), "Explosion",
-                Entities.EXPLOSION, Factions.NEUTRAL, params);
+               "IndEvo_VariableExplosion", Factions.NEUTRAL, params);
         explosion.setLocation(target.x, target.y);
     }
 

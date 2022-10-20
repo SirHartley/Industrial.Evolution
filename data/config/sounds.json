@@ -54,6 +54,30 @@
     {"file":"IndEvo/sounds/weapons/IndEvo_riftgun_fire.ogg","pitch":0.96,"volume":0.5},
     {"file":"IndEvo/sounds/weapons/IndEvo_riftgun_fire.ogg","pitch":0.94,"volume":0.5},
   ],
+
+  "IndEvo_mortar_fire":[
+    {"file":"IndEvo/sounds/IndEvo_Cannon_Arty.ogg","pitch":1,"volume":1},
+  ],
+
+  "IndEvo_railgun_fire":[
+    {"file":"IndEvo/sounds/IndEvo_Rail_Arty.ogg","pitch":1,"volume":1},
+  ],
+
+  "IndEvo_missile_fire":[
+    {"file":"IndEvo/sounds/IndEvo_Missile_Arty.ogg","pitch":1,"volume":1},
+  ],
+
+  "IndEvo_mortar_hit":[
+    {"file":"IndEvo/sounds/IndEvo_Cannon_Hit.ogg","pitch":1,"volume":1},
+  ],
+
+  "IndEvo_railgun_hit":[
+    {"file":"IndEvo/sounds/IndEvo_Rail_Hit.ogg","pitch":1,"volume":1},
+  ],
+
+  "IndEvo_missile_hit":[
+    {"file":"IndEvo/sounds/IndEvo_Missile_Hit.ogg","pitch":1,"volume":1},
+  ]
 }
 
 

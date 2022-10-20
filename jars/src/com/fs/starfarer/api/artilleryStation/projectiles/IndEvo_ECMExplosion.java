@@ -2,6 +2,7 @@ package com.fs.starfarer.api.artilleryStation.projectiles;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.IndEvo_IndustryHelper;
+import com.fs.starfarer.api.artilleryStation.station.IndEvo_VariableExplosionEntityPlugin;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
@@ -195,18 +196,23 @@ public class IndEvo_ECMExplosion extends BaseCustomEntityPlugin {
             if (cooldown > max) cooldown = max;
             ability.setCooldownLeft(cooldown);
         }
-
-        Global.getSoundPlayer().playSound("world_interdict_hit", 1f, 1f, other.getLocation(), other.getVelocity());
     }
 
     public void spawnExplosion(float size) {
         LocationAPI cl = entity.getContainingLocation();
 
-        ExplosionEntityPlugin.ExplosionParams params = new ExplosionEntityPlugin.ExplosionParams(color, cl, entity.getLocation(), size, 0.3f);
+        IndEvo_VariableExplosionEntityPlugin.VariableExplosionParams params =
+                new IndEvo_VariableExplosionEntityPlugin.VariableExplosionParams(
+                        "IndEvo_missile_hit",
+                        true,
+                        1f,
+                        color, cl, entity.getLocation(), size, 0.3f);
+
         params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.NONE;
 
         SectorEntityToken explosion = cl.addCustomEntity(Misc.genUID(), "Explosion",
-                Entities.EXPLOSION, Factions.NEUTRAL, params);
+                "IndEvo_VariableExplosion", Factions.NEUTRAL, params);
+
         explosion.setLocation(entity.getLocation().x, entity.getLocation().y);
     }
 

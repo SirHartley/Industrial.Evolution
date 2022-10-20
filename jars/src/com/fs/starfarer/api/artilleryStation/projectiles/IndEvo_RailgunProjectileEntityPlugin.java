@@ -2,6 +2,7 @@ package com.fs.starfarer.api.artilleryStation.projectiles;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.artilleryStation.station.IndEvo_ArtilleryStationEntityPlugin;
+import com.fs.starfarer.api.artilleryStation.station.IndEvo_VariableExplosionEntityPlugin;
 import com.fs.starfarer.api.artilleryStation.trails.IndEvo_MagicCampaignTrailPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.combat.ViewportAPI;
@@ -224,11 +225,18 @@ public class IndEvo_RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin
         LocationAPI cl = entity.getContainingLocation();
 
         Color color = new Color(100, 160, 255);
-        ExplosionEntityPlugin.ExplosionParams params = new ExplosionEntityPlugin.ExplosionParams(color, cl, entity.getLocation(), EXPLOSION_SIZE, 0.6f);
-        params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.LOW;
 
+        IndEvo_VariableExplosionEntityPlugin.VariableExplosionParams params =
+                new IndEvo_VariableExplosionEntityPlugin.VariableExplosionParams(
+                        "IndEvo_railgun_hit",
+                        true,
+                        1f,
+                        color, cl, entity.getLocation(), EXPLOSION_SIZE, 0.6f);
+
+        params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.LOW;
         SectorEntityToken explosion = cl.addCustomEntity(Misc.genUID(), "Explosion",
-                Entities.EXPLOSION, Factions.NEUTRAL, params);
+                "IndEvo_VariableExplosion", Factions.NEUTRAL, params);
+
         explosion.setLocation(entity.getLocation().x, entity.getLocation().y);
     }
 
