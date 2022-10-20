@@ -173,6 +173,7 @@ public class IndEvo_ArtilleryProjectileEntityPlugin extends BaseCustomEntityPlug
     }
 
     private boolean finishing = false;
+    private boolean sound = true;
 
     public void advance(float amount) {
         timePassedSeconds += amount;
@@ -205,6 +206,10 @@ public class IndEvo_ArtilleryProjectileEntityPlugin extends BaseCustomEntityPlug
 
         if (projectileDelayPassed && !finishing) {
             //advance projectile location
+            if (sound){
+                Global.getSoundPlayer().playSound("IndEvo_mortar_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.8f, origin.getLocation(), Misc.ZERO);
+                sound = false;
+            }
 
             advanceEntityPosition(amount);
 

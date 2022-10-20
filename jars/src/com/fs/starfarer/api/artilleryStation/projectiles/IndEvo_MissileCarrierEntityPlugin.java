@@ -91,6 +91,7 @@ public class IndEvo_MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
     public float trailID;
     public boolean finishing = false;
+    public boolean sound = true;
 
     public static void spawn(MissileParams params) {
         SectorEntityToken origin = params.origin;
@@ -133,6 +134,11 @@ public class IndEvo_MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
         if (timePassedSeconds > projectileDelaySeconds && !finishing){
             advanceProjectile();
+            if (sound){
+                Global.getSoundPlayer().playSound("IndEvo_missile_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.8f, origin.getLocation(), Misc.ZERO);
+                sound = false;
+            }
+
             if(timePassedSeconds > projectileDelaySeconds + 0.05f) addTrailToProj();
 
             boolean friendlyFireDelayPassed = timePassedSeconds > projectileDelaySeconds + (impactSeconds - projectileDelaySeconds) * FRIENDLY_FIRE_IMMUNITY_PROJ_FLIGHT_TIME_FRACT;

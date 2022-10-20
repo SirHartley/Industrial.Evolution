@@ -58,6 +58,7 @@ public class IndEvo_RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin
     public Vector2f target;
     private float projectileDelayTime;
     private boolean finishing = false;
+    private boolean sound = true;
 
     public Vector2f originLocation = new Vector2f();
 
@@ -143,6 +144,12 @@ public class IndEvo_RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin
         } else currentAlpha = MAX_LINE_ALPHA * (1 - smootherstep(maxFadeInTime, impactSeconds, timePassedSeconds));
 
         if (projectileDelayPassed && !finishing) {
+
+            if (sound){
+                Global.getSoundPlayer().playSound("IndEvo_railgun_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.8f, origin.getLocation(), Misc.ZERO);
+                sound = false;
+            }
+
             if(timePassedSeconds > projectileDelayTime + 0.05f) addTrailToProj(); //clips into station without the delay
             advanceEntityPosition(amount);
             boolean friendlyFireDelayPassed = timePassedSeconds > projectileDelayTime + (impactSeconds - projectileDelayTime) * FRIENDLY_FIRE_IMMUNITY_PROJ_FLIGHT_TIME_FRACT;
@@ -229,7 +236,7 @@ public class IndEvo_RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin
         IndEvo_VariableExplosionEntityPlugin.VariableExplosionParams params =
                 new IndEvo_VariableExplosionEntityPlugin.VariableExplosionParams(
                         "IndEvo_railgun_hit",
-                        true,
+                        false,
                         1f,
                         color, cl, entity.getLocation(), EXPLOSION_SIZE, 0.6f);
 

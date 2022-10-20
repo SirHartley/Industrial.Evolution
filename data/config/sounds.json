@@ -72,11 +72,11 @@
   ],
 
   "IndEvo_railgun_hit":[
-    {"file":"IndEvo/sounds/IndEvo_Rail_Hit.ogg","pitch":1,"volume":1},
+    {"file":"IndEvo/sounds/IndEvo_Rail_Hit.ogg","pitch":1,"volume":0.8},
   ],
 
   "IndEvo_missile_hit":[
-    {"file":"IndEvo/sounds/IndEvo_Missile_Hit.ogg","pitch":1,"volume":1},
+    {"file":"IndEvo/sounds/IndEvo_Missile_Hit.ogg","pitch":1,"volume":0.8},
   ]
 }
 

@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class IndEvo_VariableExplosionEntityPlugin extends ExplosionEntityPlugin {
 
-    public static final float FADEOUT_FRACTION = 0.8f;
+    public static final float FADEOUT_FRACTION = 0.5f;
     public float blastwaveRadius;
     public float blastwaveDuration;
     public float elapsed = 0f;
@@ -100,8 +100,10 @@ public class IndEvo_VariableExplosionEntityPlugin extends ExplosionEntityPlugin 
         shockwaveDuration = params.radius * 2f / shockwaveSpeed;
         shockwaveWidth = params.radius * 0.5f;
 
-        blastwaveRadius = params.radius * 1.2f;
-        blastwaveDuration = 0.05f + 0.2f * durMult;
+
+        blastwaveRadius = params.radius * 1.3f;
+        blastwaveDuration = 0.1f + 0.3f * durMult;
+
     }
 
     public void advance(float amount) {
@@ -114,23 +116,25 @@ public class IndEvo_VariableExplosionEntityPlugin extends ExplosionEntityPlugin 
         if(sprite == null) sprite = Global.getSettings().getSprite("misc", "nebula_particles");
         if(blastWaveSprite == null) blastWaveSprite = Global.getSettings().getSprite("graphics/fx/shields256.png");
 
-        //blastwave
-        float alphaMult = viewport.getAlphaMult();
-        alphaMult *= entity.getSensorFaderBrightness();
-        alphaMult *= entity.getSensorContactFaderBrightness();
-        if (alphaMult <= 0) return;
+        if(((VariableExplosionParams) params).withBlastwave){
+            //blastwave
+            float alphaMult = viewport.getAlphaMult();
+            alphaMult *= entity.getSensorFaderBrightness();
+            alphaMult *= entity.getSensorContactFaderBrightness();
+            if (alphaMult <= 0) return;
 
-        float fraction = MathUtils.clamp(elapsed / blastwaveDuration, 0f, 1f);
-        float size = blastwaveRadius * fraction;
-        float fadeoutDurStart = blastwaveDuration * FADEOUT_FRACTION;
-        float alpha = elapsed > fadeoutDurStart ? 1 - MathUtils.clamp((elapsed - fadeoutDurStart) / (blastwaveDuration - fadeoutDurStart), 0f, 1f) : 1f;
+            float fraction = MathUtils.clamp(elapsed / blastwaveDuration, 0f, 1f);
+            float size = blastwaveRadius * fraction;
+            float fadeoutDurStart = blastwaveDuration * FADEOUT_FRACTION;
+            float alpha = elapsed > fadeoutDurStart ? 1 - MathUtils.clamp((elapsed - fadeoutDurStart) / (blastwaveDuration - fadeoutDurStart), 0f, 1f) : 1f;
 
-        blastWaveSprite.setAdditiveBlend();
-        blastWaveSprite.setColor(Color.WHITE);
-        blastWaveSprite.setSize(size, size);
-        blastWaveSprite.setAlphaMult(alpha);
-        blastWaveSprite.setColor(params.color.brighter().brighter());
-        blastWaveSprite.renderAtCenter(entity.getLocation().x, entity.getLocation().y);
+            blastWaveSprite.setAdditiveBlend();
+            blastWaveSprite.setColor(Color.WHITE);
+            blastWaveSprite.setSize(size, size);
+            blastWaveSprite.setAlphaMult(alpha);
+            blastWaveSprite.setColor(params.color.brighter().brighter());
+            blastWaveSprite.renderAtCenter(entity.getLocation().x, entity.getLocation().y);
+        }
 
         super.render(layer, viewport);
     }
