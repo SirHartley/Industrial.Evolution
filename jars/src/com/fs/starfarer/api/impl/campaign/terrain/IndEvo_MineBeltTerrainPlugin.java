@@ -239,8 +239,8 @@ public class IndEvo_MineBeltTerrainPlugin extends BaseRingTerrain implements Ast
                         mem.set(sKey, true, Math.min(expire + durPerSkip, maxSkipsToTrack * durPerSkip));
                     }
 
-                    float timeoutNPC = (float) (1f + 2f * Math.random());
-                    float timeoutPlayer = (float) (0.05f + 1f * Math.random());
+                    float timeoutNPC = (float) (1f + 1f * Math.random());
+                    float timeoutPlayer = (float) (0.05f + 0.1f * Math.random());
 
                     mem.set(key, true, fleet.isPlayerFleet() ? timeoutPlayer : timeoutNPC);
                     //mem.set(key, true, (float) (0.01f + 0.02f * Math.random()));
