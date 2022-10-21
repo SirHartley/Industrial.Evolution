@@ -20,8 +20,8 @@ import static java.lang.Math.random;
 public class IndEvo_RailgunShotEntity extends BaseCustomEntityPlugin {
 
     //render the warning sign and add the X shots
-    public static final int DEFAULT_PROJECTILE_AMT = 3;
-    public static final float AVERAGE_PROJ_IMPACT_TIME = 1.5f;
+    public static final int DEFAULT_PROJECTILE_AMT = Global.getSettings().getInt("IndEvo_Artillery_railgun_projectilesPerShot");
+    public static final float AVERAGE_PROJ_IMPACT_TIME = Global.getSettings().getFloat("IndEvo_Artillery_railgun_projectilesImpactTime");
     public static final float DANGER_SIGN_FADEOUT_TIME = 8f;
 
     public static float DANGER_SIGN_SIZE = 150f;
@@ -29,7 +29,7 @@ public class IndEvo_RailgunShotEntity extends BaseCustomEntityPlugin {
     public static final float MAX_FADE_IN_SIZE_MULT = 1.5f;
     public static final float MAX_RETICULE_ALPHA = 0.7f;
 
-    private static final float BASE_FUZZ_MULT = 0.4f;
+    private static final float BASE_FUZZ_MULT = Global.getSettings().getFloat("IndEvo_Artillery_railgun_shotFuzzMult");
 
     //dangerSign
     transient private SpriteAPI dangerSign;

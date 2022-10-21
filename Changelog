@@ -9,9 +9,6 @@ todo consumable item that allows forced targetting of artillery on mouse pos
 - Change derelict industries to superstructures
 - Artillery industry images
 
-missiles are underwhelming in combat, increase overload dur
-add sounds
-add some more settings for minefields
 add a reusable ship gacha (requires relic components) at a superstructure like hypershunt
 
 --------------------------- known issues -----------------------------
@@ -49,7 +46,7 @@ Items
 Added - Settings for relic component combat drop rates (min FP, destroyed fraction)
 
 Artillery
-Added - Setting for artillery defender fleet size
+Added - A shitload of settings to make your bones harder (or weaker)
 Added - Sounds for combat weapons (Courtesy of Soren / Harmful Mechanic)
 Added - Sounds for campaign weapons (Courtesy of Soren / Harmful Mechanic)
 Adjusted - Visual adjustments for mortar explosions

@@ -26,8 +26,8 @@ import java.awt.*;
 import static com.fs.starfarer.api.campaign.impl.items.consumables.entityAbilities.InterdictionMineAbility.getInterdictSeconds;
 
 public class IndEvo_ECMExplosion extends BaseCustomEntityPlugin {
-    public static final float DURATION = 10f;
-    public static final float BASE_RADIUS = 200f;
+    public static final float DURATION = Global.getSettings().getFloat("IndEvo_Artillery_missile_duration");
+    public static final float BASE_RADIUS = Global.getSettings().getFloat("IndEvo_Artillery_missile_explosionRadius");
 
     public static final float RAMPUP_DUR_FRACT = 0.1f;
     public static final float PX_PER_PARTICLE = 100f;
@@ -204,7 +204,7 @@ public class IndEvo_ECMExplosion extends BaseCustomEntityPlugin {
         IndEvo_VariableExplosionEntityPlugin.VariableExplosionParams params =
                 new IndEvo_VariableExplosionEntityPlugin.VariableExplosionParams(
                         "IndEvo_missile_hit",
-                        true,
+                        false,
                         1f,
                         color, cl, entity.getLocation(), size, 0.3f);
 

@@ -23,12 +23,12 @@ public class IndEvo_MissileShotScript implements EveryFrameScript {
     //the submunitions are slow but track, if the player enters their radius, they intercept and make a slow field
     //slow field can just be nebula terrain with hit particles! Just spawn a nebula tile at the loc, make it larger and reduce alpha (dissipation)
 
-    public static final int DEFAULT_MISSILE_AMT = 4; //MUST BE DIVISIBLE BY 2
+    public static final int DEFAULT_MISSILE_AMT = Global.getSettings().getInt("IndEvo_Artillery_missile_projectilesPerShot"); //MUST BE DIVISIBLE BY 2
     public static final float MISSILE_TRAJECTORY_BEND_FACTOR = 0.4f; //the higher, the more circular the trajectory, MAXIMUM 1f
-    public static final float AVG_IMPACT_SECONDS = 8f;
+    public static final float AVG_IMPACT_SECONDS = Global.getSettings().getFloat("IndEvo_Artillery_missile_projectilesImpactTime");
 
-    public static final float FUZZ_FACTOR = 1f; //the higher, the more fuzz
-    public static final float MAX_FUZZ_DIST = 800f;
+    public static final float FUZZ_FACTOR = Global.getSettings().getFloat("IndEvo_Artillery_missile_fuzz"); //the higher, the more fuzz
+    public static final float MAX_FUZZ_DIST = Global.getSettings().getFloat("IndEvo_Artillery_missile_maxCoveredArea");
     public static final float MIN_FUZZ_DIST = 400f;
 
     public boolean done = false;

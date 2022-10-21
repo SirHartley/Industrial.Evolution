@@ -39,7 +39,7 @@
   "IndEvo_relicComponentFPDestroyedFract":0.5f, #how much of said fleet you have to destroy for it to drop relic components
 
   #Minefields
-  "Enable_IndEvo_minefields": TRUE, #might need new game
+  "Enable_IndEvo_minefields": TRUE, #might need new game idk
   "IndEvo_Minefield_HitChance_frigate":0.02f, #Every ship in the fleet is added up and adds to the chance of getting hit by a mine
   "IndEvo_Minefield_HitChance_destroyer":0.04f,
   "IndEvo_Minefield_HitChance_cruiser":0.06f,
@@ -48,7 +48,7 @@
   "IndEvo_Minefield_CivilianShipImpactMult":0.5f, #civ ships count half ect
   "IndEvo_Minefield_PhaseShipImpactMult":0.3f,
 
-  #Artillery
+  #General Artillery
   "Enable_IndEvo_Artillery": TRUE, #disabling this means you have weak bones. Lucky for you, this does not matter, considering you will never amount to much in your life anyway.
   "IndEvo_Artillery_minDelayBetweenShots":2f,
   "IndEvo_Artillery_maxDelayBetweenShots":3f,
@@ -59,6 +59,24 @@
   "IndEvo_Artillery_maxRange":12000f, # =6 map cells
   "IndEvo_Artillery_WatchtowerRange":4000f,
   "IndEvo_Artillery_defense_FP":100f, #base fleet size that spawns to defend artillery stations. Has to be 1 at minimum or it crashes.
+
+  #mortar artillery
+  "IndEvo_Artillery_mortar_projectilesPerShot":8,
+  "IndEvo_Artillery_mortar_projectilesImpactTime":5f,
+  "IndEvo_Artillery_mortar_explosionSize":300f,
+
+  #Railgun artillery
+  "IndEvo_Artillery_railgun_projectilesPerShot":3, #if you increase this you should also increase the fuzz mult
+  "IndEvo_Artillery_railgun_projectilesImpactTime":1.5f,
+  "IndEvo_Artillery_railgun_shotFuzzMult":0.4f, #by how much the shots miss their target, higher = more
+
+  #Missile Artillery
+  "IndEvo_Artillery_missile_projectilesPerShot":4, #must be divisible by 2
+  "IndEvo_Artillery_missile_projectilesImpactTime":8f,
+  "IndEvo_Artillery_missile_maxCoveredArea":800f, #maximum area the missiles cover - depends on fuzz
+  "IndEvo_Artillery_missile_fuzz":1, #how accurate the missiles anticipate your location, less than one is kinda useless
+  "IndEvo_Artillery_missile_explosionRadius":200f,
+  "IndEvo_Artillery_missile_duration":10f,
 
   #Salvage Yards
   "IndEvo_RarePartsAmountPerFP": 2,

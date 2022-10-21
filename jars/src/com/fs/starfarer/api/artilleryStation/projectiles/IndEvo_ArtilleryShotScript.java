@@ -1,6 +1,7 @@
 package com.fs.starfarer.api.artilleryStation.projectiles;
 
 import com.fs.starfarer.api.EveryFrameScript;
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
 import com.fs.starfarer.api.util.Misc;
@@ -14,10 +15,10 @@ import static java.lang.Math.*;
 
 public class IndEvo_ArtilleryShotScript implements EveryFrameScript {
 
-    public static final float AVERAGE_PROJ_IMPACT_TIME = 5f;
+    public static final float AVERAGE_PROJ_IMPACT_TIME = Global.getSettings().getFloat("IndEvo_Artillery_mortar_projectilesImpactTime");
     public static final float MIN_TARGET_RADIUS = 250f;
     public static final float MAX_TARGET_RADIUS = 700f;
-    public static final int DEFAULT_PROJECTILE_AMT = 8;
+    public static final int DEFAULT_PROJECTILE_AMT = Global.getSettings().getInt("IndEvo_Artillery_mortar_projectilesPerShot");
 
     public SectorEntityToken target;
     public SectorEntityToken origin;

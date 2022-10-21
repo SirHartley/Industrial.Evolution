@@ -29,7 +29,7 @@ public class IndEvo_ArtilleryProjectileEntityPlugin extends BaseCustomEntityPlug
     public static final float GLOW_SIZE = 30f;
     public static Color GLOW_COLOR = new Color(255, 80, 60, 255);
     public static float GLOW_FREQUENCY = 3f; // on/off cycles per second
-    public static float EFFECT_SIZE = 300f;
+    public static float EFFECT_SIZE = Global.getSettings().getFloat("IndEvo_Artillery_mortar_explosionSize");
 
     public static final float RETICULE_ALPHA_RAMPUP_FRACTION = 0.1f;
     public static final float RETICULE_ALPHA_FADEOUT_FRACTION = 0.8f;
