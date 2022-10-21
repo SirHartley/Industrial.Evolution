@@ -27,9 +27,9 @@ public class IndEvo_MineBeltTerrainPlugin extends BaseRingTerrain implements Ast
     public static float MIN_MINE_SIZE = 2f;
     public static float MAX_MINE_SIZE = 8f;
 
-    public static final float CIVILIAN_EFFECT_MULT = 0.5f;
-    public static final float PHASE_EFFECT_MULT = 0.3f;
-    public static final float MAX_FLEET_SIZE_BEFORE_MALUS = 0.5f;
+    public static final float CIVILIAN_EFFECT_MULT = Global.getSettings().getFloat("IndEvo_Minefield_CivilianShipImpactMult");
+    public static final float PHASE_EFFECT_MULT =  Global.getSettings().getFloat("IndEvo_Minefield_PhaseShipImpactMult");
+    public static final float MAX_FLEET_SIZE_BEFORE_MALUS =  Global.getSettings().getFloat("IndEvo_Minefield_NoHitUntilSum");
 
     public static final float RECENT_JUMP_TIMEOUT_SECONDS = 2f;
     public static final String RECENT_JUMP_KEY = "$IndEvo_recentlyJumped";
@@ -239,8 +239,8 @@ public class IndEvo_MineBeltTerrainPlugin extends BaseRingTerrain implements Ast
                         mem.set(sKey, true, Math.min(expire + durPerSkip, maxSkipsToTrack * durPerSkip));
                     }
 
-                    float timeoutNPC = (float) (0.5f + 1f * Math.random());
-                    float timeoutPlayer = (float) (0.05f + 0.1f * Math.random());
+                    float timeoutNPC = (float) (1f + 2f * Math.random());
+                    float timeoutPlayer = (float) (0.05f + 1f * Math.random());
 
                     mem.set(key, true, fleet.isPlayerFleet() ? timeoutPlayer : timeoutNPC);
                     //mem.set(key, true, (float) (0.01f + 0.02f * Math.random()));
@@ -280,10 +280,10 @@ public class IndEvo_MineBeltTerrainPlugin extends BaseRingTerrain implements Ast
 
     public static float getBaseFleetHitChance(CampaignFleetAPI fleet) {
         Map<ShipAPI.HullSize, Float> hullSizeChanceMap = new HashMap<>();
-        hullSizeChanceMap.put(ShipAPI.HullSize.FRIGATE, 0.02f);
-        hullSizeChanceMap.put(ShipAPI.HullSize.DESTROYER, 0.04f);
-        hullSizeChanceMap.put(ShipAPI.HullSize.CRUISER, 0.06f);
-        hullSizeChanceMap.put(ShipAPI.HullSize.CAPITAL_SHIP, 0.12f);
+        hullSizeChanceMap.put(ShipAPI.HullSize.FRIGATE, Global.getSettings().getFloat("IndEvo_Minefield_HitChance_frigate"));
+        hullSizeChanceMap.put(ShipAPI.HullSize.DESTROYER, Global.getSettings().getFloat("IndEvo_Minefield_HitChance_destroyer"));
+        hullSizeChanceMap.put(ShipAPI.HullSize.CRUISER, Global.getSettings().getFloat("IndEvo_Minefield_HitChance_cruiser"));
+        hullSizeChanceMap.put(ShipAPI.HullSize.CAPITAL_SHIP, Global.getSettings().getFloat("IndEvo_Minefield_HitChance_capital"));
 
         float fleetCompBaseHitChance = 0f;
         for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {

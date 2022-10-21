@@ -37,9 +37,6 @@ import java.awt.*;
 import static com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids.TAG_ARTILLERY_STATION_FLEET;
 
 public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventListener {
-    //we'll make 2 versions - one for industry and one for derelict interaction
-    //the derelict one should probably extend the normal one
-
     public static float DEFENSE_BONUS_BASE = 0.5f;
     public static final float IMPROVE_RANGE_BONUS = 4000f;
 

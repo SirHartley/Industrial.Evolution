@@ -74,7 +74,7 @@ public class IndEvo_ArtilleryDefenderGen {
         return Global.getSettings().getIndustrySpec("IndEvo_Artillery_" + getType(market));
     }
 
-    public static final float MIN_FLEET_SIZE = 100f;
+    public static final float MIN_FLEET_SIZE = Global.getSettings().getFloat("IndEvo_Artillery_defense_FP");
     public static final float MAX_HAZARD = 200f;
 
     public static CampaignFleetAPI createDefenderFleet(MarketAPI market, String factionId){

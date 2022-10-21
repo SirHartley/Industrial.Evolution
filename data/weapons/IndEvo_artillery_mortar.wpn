@@ -29,5 +29,5 @@
   					   "particleDuration":0.75,
   					   "particleCount":50,
   					   "particleColor":[255,120,50,245]},
-  	"fireSoundTwo":"hellbore_fire",
+  	"fireSoundTwo":"IndEvo_mortar_fire",
 }

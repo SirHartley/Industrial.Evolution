@@ -177,12 +177,12 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
                 && !primaryEntity.isInCurrentLocation()
                 && (currentFaction.equals(Factions.PIRATES) || currentFaction.equals(Factions.LUDDIC_PATH))) {
 
-            updateFaction(IndEvo_ids.DERELICT); //revert to derelict if player is out of system and the path/pirate base is gone
+            updateFaction(IndEvo_ids.DERELICT_FACTION_ID); //revert to derelict if player is out of system and the path/pirate base is gone
             //we do not revert if the faction is of a station fleet
         }
 
         String factionID = stationEntity.getFaction().getId();
-        updateWatchtowers(factionID.equals(IndEvo_ids.DERELICT) || factionID.equals(Factions.REMNANTS));
+        updateWatchtowers(factionID.equals(IndEvo_ids.DERELICT_FACTION_ID) || factionID.equals(Factions.REMNANTS));
     }
 
     private void updateWatchtowers(boolean active){
@@ -295,7 +295,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     public void spawnBrokenStationEntityIfNeeded() {
         if (brokenStationEntity == null) {
             MarketAPI market = primaryEntity.getMarket();
-            SectorEntityToken brokenStation = market.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_DestroyedArtilleryStation", IndEvo_ids.DERELICT, null);
+            SectorEntityToken brokenStation = market.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_DestroyedArtilleryStation", IndEvo_ids.DERELICT_FACTION_ID, null);
 
             if (stationEntity != null) brokenStation.setOrbit(stationEntity.getOrbit());
             else {
@@ -418,7 +418,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     protected void spawnStation() {
 
         FleetParamsV3 fParams = new FleetParamsV3(null, null,
-                IndEvo_ids.DERELICT,
+                IndEvo_ids.DERELICT_FACTION_ID,
                 1f,
                 FleetTypes.PATROL_SMALL,
                 0,

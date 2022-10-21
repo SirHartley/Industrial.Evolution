@@ -135,7 +135,7 @@ public class IndEvo_MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
         if (timePassedSeconds > projectileDelaySeconds && !finishing){
             advanceProjectile();
             if (sound){
-                Global.getSoundPlayer().playSound("IndEvo_missile_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.8f, origin.getLocation(), Misc.ZERO);
+                Global.getSoundPlayer().playSound("IndEvo_missile_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.5f, origin.getLocation(), Misc.ZERO);
                 sound = false;
             }
 

@@ -12,6 +12,7 @@ todo consumable item that allows forced targetting of artillery on mouse pos
 missiles are underwhelming in combat, increase overload dur
 add sounds
 add some more settings for minefields
+add a reusable ship gacha (requires relic components) at a superstructure like hypershunt
 
 --------------------------- known issues -----------------------------
 
@@ -44,6 +45,18 @@ adjust salvage event "Ship Roulette" -
 -----------------------o-----------------------
 3.1.e - UNRELEASED
 
+Items
+Added - Settings for relic component combat drop rates (min FP, destroyed fraction)
+
+Artillery
+Added - Setting for artillery defender fleet size
+Added - Sounds for combat weapons (Courtesy of Soren / Harmful Mechanic)
+Added - Sounds for campaign weapons (Courtesy of Soren / Harmful Mechanic)
+Adjusted - Visual adjustments for mortar explosions
+
+Minefields
+Added - Settings
+Adjusted - Explosion timeout 0.1s -> 1s
 
 3.1.d
 Items

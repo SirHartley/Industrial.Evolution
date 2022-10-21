@@ -11,7 +11,6 @@ import org.lazywizard.lazylib.combat.AIUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
-import java.util.List;
 
 public class IndEvo_missileProjectileAI implements MissileAIPlugin, GuidedMissileAI {
 
@@ -42,8 +41,8 @@ public class IndEvo_missileProjectileAI implements MissileAIPlugin, GuidedMissil
             missile.setMass(5000);
         }
 
-        if (missile.getFlightTime() > missile.getMaxFlightTime() - 0.1f) endOfFlightExplosion();
-        if (!AIUtils.getNearbyEnemies(missile, EXPLOSION_TRIGGER_RANGE).isEmpty() || (!enemiesInPath() && enemiesInSideArcPresent())) endOfFlightExplosion();
+        if (missile.getFlightTime() > missile.getMaxFlightTime() - 0.1f) splode();
+        if (!AIUtils.getNearbyEnemies(missile, EXPLOSION_TRIGGER_RANGE).isEmpty() || (!enemiesInPath() && enemiesInSideArcPresent())) splode();
     }
 
     public boolean enemiesInPath(){
@@ -66,7 +65,7 @@ public class IndEvo_missileProjectileAI implements MissileAIPlugin, GuidedMissil
         engine.addPlugin(new IndEvo_CombatSlowFieldTerrain(IndEvo_CombatSlowFieldTerrain.DURATION, IndEvo_CombatSlowFieldTerrain.BASE_RADIUS, missile.getLocation()));
     }
 
-    public void endOfFlightExplosion() {
+    public void splode() {
         spawnSlowTerrain();
 
         float maxRad = 300f;
@@ -90,8 +89,8 @@ public class IndEvo_missileProjectileAI implements MissileAIPlugin, GuidedMissil
 
         explosion.setDamageType(DamageType.HIGH_EXPLOSIVE);
         explosion.setShowGraphic(true);
+        explosion.setSoundSetId("IndEvo_missile_hit");
 
-        //explosion.setSoundSetId("SKR_canister_explode");
         engine.spawnDamagingExplosion(explosion, missile.getSource(), missile.getLocation(), false);
 
         float angle = (float) Math.random() * 360;

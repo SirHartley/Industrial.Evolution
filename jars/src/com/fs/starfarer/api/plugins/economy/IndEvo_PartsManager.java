@@ -12,6 +12,7 @@ import com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_RessourceCondit
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_Items;
+import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySpecial;
 import com.fs.starfarer.api.splinterFleet.plugins.FleetUtils;
 import com.fs.starfarer.api.util.Misc;
@@ -24,8 +25,9 @@ public class IndEvo_PartsManager {
         Global.getLogger(IndEvo_PartsManager.class).info(Text);
     }
 
-    public static float MIN_FLEET_POINT_ADVANTAGE_FOR_DROP = 1.5f;
+    public static float MIN_FLEET_POINT_ADVANTAGE_FOR_DROP = Global.getSettings().getFloat("IndEvo_relicComponentHardbattleFPAdvantage");
     public static float HARD_BATTLE_FP_TO_PARTS_RATION = 0.3f;
+    public static float FP_DESTROYED_FRACTION = Global.getSettings().getFloat("IndEvo_relicComponentFPDestroyedFract");
 
     public static class PartsLootAdder extends BaseCampaignEventListener {
 
@@ -40,7 +42,10 @@ public class IndEvo_PartsManager {
             String factionId = fleet.getFaction().getId();
             float fp = fleet.getFleetPoints();
 
-            if (Factions.OMEGA.equals(factionId) || Factions.REMNANTS.equals(factionId) || Factions.DERELICT.equals(factionId)) {
+            if (Factions.OMEGA.equals(factionId)
+                    || Factions.REMNANTS.equals(factionId)
+                    || Factions.DERELICT.equals(factionId)
+                    || IndEvo_ids.DERELICT_FACTION_ID.equals(factionId)) {
                 int amt = (int) Math.round(fp * 0.2f + (0.3 * random.nextFloat() * fp));
                 fleet.getCargo().addCommodity(IndEvo_Items.RARE_PARTS, amt);
             }
@@ -91,7 +96,7 @@ public class IndEvo_PartsManager {
                 log("Before Player: " + originalPlayerFP + " before enemy: " + totalFPbefore + " destroyed: " + fpDestroyed);
                 log("FP Qualification:" + (totalFPbefore > (originalPlayerFP * MIN_FLEET_POINT_ADVANTAGE_FOR_DROP)) + " destroyed qualification: " + (fpDestroyed > originalPlayerFP*0.5f));
 
-                if (totalFPbefore > (originalPlayerFP * MIN_FLEET_POINT_ADVANTAGE_FOR_DROP) && fpDestroyed > originalPlayerFP*0.5f) {
+                if (totalFPbefore > (originalPlayerFP * MIN_FLEET_POINT_ADVANTAGE_FOR_DROP) && fpDestroyed > originalPlayerFP * FP_DESTROYED_FRACTION) {
                     loot.addCommodity(IndEvo_Items.RARE_PARTS, fpDestroyed * HARD_BATTLE_FP_TO_PARTS_RATION);
                 }
             }

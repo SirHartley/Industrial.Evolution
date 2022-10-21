@@ -3,7 +3,7 @@
 
         #Vanilla changes:
         "IndEvo_CommerceBalanceChanges":TRUE, #Commerce balance changes. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).
-        "IndEvo_TechMiningBalanceChanges":TRUE, #Techmining changes - adds the tooltip and removes industry tag
+        "IndEvo_TechMiningBalanceChanges":TRUE, #Techmining changes - adds the tooltip
 
   #No gurantees for stability if you fuck with anything past here because I did not test it and probably never will.
 
@@ -28,7 +28,6 @@
   "PrivatePort": TRUE,
 
   #Campaign Features
-  "Enable_IndEvo_minefields": TRUE,
   "Enable_Indevo_Derelicts": TRUE, #Also includes salvage events and station types
   "IndEvo_SpecialApplicationChance": 0.9f, #master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing.
   "IndEvo_derelictDeliverToGathering": FALSE, #All derelict industry output will be delivered to the gathering point instead of local storage. Remember - courier port exists.
@@ -36,6 +35,18 @@
   "IndEvo_derelictStationAmount": 0.2f, #amount of additional stations with custom types spawned on top of existing ones (0.2 = 20% additional)
   "IndEvo_DerInfraBuildRed": 0.5f, #derelict infra build cost and time reductuction
   "IndEvo_PartsDropInCampaign": TRUE, #makes starship components drop from combat - Relic components will still drop even if you disable this.
+  "IndEvo_relicComponentHardbattleFPAdvantage":1.5f, #how much more FP an enemy fleet has to have for it to drop relic components on death
+  "IndEvo_relicComponentFPDestroyedFract":0.5f, #how much of said fleet you have to destroy for it to drop relic components
+
+  #Minefields
+  "Enable_IndEvo_minefields": TRUE, #might need new game
+  "IndEvo_Minefield_HitChance_frigate":0.02f, #Every ship in the fleet is added up and adds to the chance of getting hit by a mine
+  "IndEvo_Minefield_HitChance_destroyer":0.04f,
+  "IndEvo_Minefield_HitChance_cruiser":0.06f,
+  "IndEvo_Minefield_HitChance_capital":0.12f,
+  "IndEvo_Minefield_NoHitUntilSum":0.5f, #the minimum fleet size needed before mines can explode in your face when going slow
+  "IndEvo_Minefield_CivilianShipImpactMult":0.5f, #civ ships count half ect
+  "IndEvo_Minefield_PhaseShipImpactMult":0.3f,
 
   #Artillery
   "Enable_IndEvo_Artillery": TRUE, #disabling this means you have weak bones. Lucky for you, this does not matter, considering you will never amount to much in your life anyway.
@@ -47,8 +58,8 @@
   "IndEvo_Artillery_minRange":500f,
   "IndEvo_Artillery_maxRange":12000f, # =6 map cells
   "IndEvo_Artillery_WatchtowerRange":4000f,
+  "IndEvo_Artillery_defense_FP":100f, #base fleet size that spawns to defend artillery stations. Has to be 1 at minimum or it crashes.
 
-  #After here works during a campaign as well
   #Salvage Yards
   "IndEvo_RarePartsAmountPerFP": 2,
   "IndEvo_SYBaseDMods": 5,

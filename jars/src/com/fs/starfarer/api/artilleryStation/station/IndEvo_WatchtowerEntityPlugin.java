@@ -35,7 +35,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
     public static SectorEntityToken spawn(SectorEntityToken primaryEntity, FactionAPI faction){
 
-        if (faction == null) faction = Global.getSector().getFaction(IndEvo_ids.DERELICT);
+        if (faction == null) faction = Global.getSector().getFaction(IndEvo_ids.DERELICT_FACTION_ID);
         SectorEntityToken t = primaryEntity.getContainingLocation().addCustomEntity(Misc.genUID(), "Watchtower", "IndEvo_Watchtower",faction.getId(),null);
 
         float orbitRadius = primaryEntity.getRadius() + 250f;
@@ -72,7 +72,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         for (SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag(IndEvo_ids.TAG_ARTILLERY_STATION)){
             String faction = t.getFaction().getId();
 
-            if (IndEvo_ids.DERELICT.equals(faction) || Factions.REMNANTS.equals(faction)) {
+            if (IndEvo_ids.DERELICT_FACTION_ID.equals(faction) || Factions.REMNANTS.equals(faction)) {
                 mem.set(MEM_SENSOR_LOCK_ACTIVE, true);
                 return true;
             }
@@ -90,7 +90,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         // TODO: 19/10/2022 change this to an interval instead of this janky shit
         if(phase >= 1 * MathUtils.getRandomNumberInRange(1, 1.1f)) {
             String factionID = entity.getFaction().getId();
-            boolean isAI = factionID.equals(IndEvo_ids.DERELICT) || factionID.equals(Factions.REMNANTS);
+            boolean isAI = factionID.equals(IndEvo_ids.DERELICT_FACTION_ID) || factionID.equals(Factions.REMNANTS);
             boolean isLocked = checkSensorLockActive();
 
             if(isAI){

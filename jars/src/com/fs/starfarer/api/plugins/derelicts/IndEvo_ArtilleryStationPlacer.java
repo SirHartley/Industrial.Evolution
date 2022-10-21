@@ -6,7 +6,6 @@ import com.fs.starfarer.api.artilleryStation.station.IndEvo_ArtilleryStationEnti
 import com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEntityPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_ArtilleryStationCondition;
 import com.fs.starfarer.api.impl.campaign.econ.impl.TechMining;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
@@ -15,13 +14,11 @@ import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
-import com.fs.starfarer.api.impl.campaign.terrain.AsteroidBeltTerrainPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.RingSystemTerrainPlugin;
 import com.fs.starfarer.api.plugins.IndEvo_modPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -89,7 +86,7 @@ public class IndEvo_ArtilleryStationPlacer {
                     if (hasRemnantStation) p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, IndEvo_ArtilleryStationEntityPlugin.TYPE_MISSILE);
 
                     IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(p, false);
-                    placeWatchtowers(s, IndEvo_ids.DERELICT);
+                    placeWatchtowers(s, IndEvo_ids.DERELICT_FACTION_ID);
 
                     IndEvo_modPlugin.log("Placed artillery at " + p.getName() + " system: " + s.getName());
                     currentCount++;

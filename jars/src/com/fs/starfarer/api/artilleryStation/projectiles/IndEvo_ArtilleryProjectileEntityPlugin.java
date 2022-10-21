@@ -207,7 +207,7 @@ public class IndEvo_ArtilleryProjectileEntityPlugin extends BaseCustomEntityPlug
         if (projectileDelayPassed && !finishing) {
             //advance projectile location
             if (sound){
-                Global.getSoundPlayer().playSound("IndEvo_mortar_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.8f, origin.getLocation(), Misc.ZERO);
+                Global.getSoundPlayer().playSound("IndEvo_mortar_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.5f, origin.getLocation(), Misc.ZERO);
                 sound = false;
             }
 

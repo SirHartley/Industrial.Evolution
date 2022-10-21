@@ -58,7 +58,7 @@ public class IndEvo_mortarProjectileAI implements MissileAIPlugin, GuidedMissile
 
             explosion.setDamageType(DamageType.HIGH_EXPLOSIVE);
             explosion.setShowGraphic(true);
-            //explosion.setSoundSetId("SKR_canister_explode");
+            explosion.setSoundSetId("IndEvo_mortar_hit");
             engine.spawnDamagingExplosion(explosion, missile.getSource(), missile.getLocation(),false);
 
             float angle=(float)Math.random()*360;

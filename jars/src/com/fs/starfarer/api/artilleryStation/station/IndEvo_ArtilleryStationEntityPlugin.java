@@ -378,7 +378,7 @@ public class IndEvo_ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin 
         SectorEntityToken primaryEntity = m.getPrimaryEntity();
         SectorEntityToken station = primaryEntity.getTags().contains(Tags.STATION) ? null : getOrbitalStationAtMarket(m); //only get orbital if station is not orbital station
 
-        String factionID = m.isPlanetConditionMarketOnly() ? IndEvo_ids.DERELICT : m.getFactionId();
+        String factionID = m.isPlanetConditionMarketOnly() ? IndEvo_ids.DERELICT_FACTION_ID : m.getFactionId();
 
         LocationAPI loc = primaryEntity.getContainingLocation();
         SectorEntityToken artillery = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_ArtilleryStation", factionID, forceType);

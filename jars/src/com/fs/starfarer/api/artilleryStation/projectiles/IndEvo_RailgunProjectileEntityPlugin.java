@@ -146,7 +146,7 @@ public class IndEvo_RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin
         if (projectileDelayPassed && !finishing) {
 
             if (sound){
-                Global.getSoundPlayer().playSound("IndEvo_railgun_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.8f, origin.getLocation(), Misc.ZERO);
+                Global.getSoundPlayer().playSound("IndEvo_railgun_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.5f, origin.getLocation(), Misc.ZERO);
                 sound = false;
             }
 

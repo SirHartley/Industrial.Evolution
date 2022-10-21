@@ -391,11 +391,11 @@ public class IndEvo_modPlugin extends BaseModPlugin {
 
     public void resetDerelictRep(){
         for (FactionAPI f : Global.getSector().getAllFactions()) {
-            if(f.isShowInIntelTab()) f.setRelationship(IndEvo_ids.DERELICT, -1);
-            else f.setRelationship(IndEvo_ids.DERELICT, 1);
+            if(f.isShowInIntelTab()) f.setRelationship(IndEvo_ids.DERELICT_FACTION_ID, -1);
+            else f.setRelationship(IndEvo_ids.DERELICT_FACTION_ID, 1);
         }
 
-        Global.getSector().getPlayerFaction().setRelationship(IndEvo_ids.DERELICT, -1);
+        Global.getSector().getPlayerFaction().setRelationship(IndEvo_ids.DERELICT_FACTION_ID, -1);
 
         //just to make sure
         Global.getSector().getFaction(Factions.DERELICT).setRelationship("ML_bounty", 1);
