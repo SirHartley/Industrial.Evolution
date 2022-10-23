@@ -29,6 +29,7 @@
 
   #Campaign Features
   "Enable_Indevo_Derelicts": TRUE, #Also includes salvage events and station types
+  "IndEvo_AutomatedShipyardNum":1.5f, #Amount of Coronal Taps * number = amount of shipyards. Default taps is 2, so default shipyards is 3 (2 * 1.5). Rounds up.
   "IndEvo_SpecialApplicationChance": 0.9f, #master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing.
   "IndEvo_derelictDeliverToGathering": FALSE, #All derelict industry output will be delivered to the gathering point instead of local storage. Remember - courier port exists.
   "IndEvo_enable_derelict_stations": TRUE, #Enables the custom station types

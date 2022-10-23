@@ -19,6 +19,7 @@ IndEvo_Artillery_railgun,CUSTOM,"A massive, domain-built strategic system defenc
 The defence platform is armed with a railgun, firing multiple extremely fast projectiles at an long range.
 
 Old safety protocols prohibit targeting of inhabited areas.",,,
+IndEvo_GachaStation,CUSTOM,"The silent rings of this massive autofactory loom in front of a violent star, heatshields blackened by stellar emissions. Pillars of machinery, almost gothic in their complicated shapes and decorations, show the reverence with which this old station was built and kept - which obviously did not save it from abandonment.",,,
 ,,,,,
 IndEvo_parts,RESOURCE,"Old starship parts which can no longer be properly produced by the decaying Sector infrastructure. Their only reliable source is the deconstruction of existing ships. A shortage of these will not prohibit the construction of new ships by much, but it will seriously affect their quality.",,,
 IndEvo_rare_parts,RESOURCE,"Ancient or highly advanced technology which can no longer be manufactured in the Persean Sector. These components are essential to building new, pristine spaceships - they do not get traded on the open market, and are the reason Salvage Yards are usually viciously guarded.",,,

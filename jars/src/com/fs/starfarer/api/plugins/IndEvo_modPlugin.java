@@ -13,6 +13,8 @@ import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.combat.MissileAIPlugin;
 import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
+import com.fs.starfarer.api.gachaStation.IndEvo_GachaStationCampaignPlugin;
+import com.fs.starfarer.api.gachaStation.IndEvo_GachaStationPlacer;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_OrbitalStation;
@@ -88,6 +90,7 @@ public class IndEvo_modPlugin extends BaseModPlugin {
 
         IndEvo_ArtilleryStationPlacer.placeCoreWorldArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next save breaking one
         IndEvo_ArtilleryStationPlacer.placeDerelictArtilleries(); //same here
+        IndEvo_GachaStationPlacer.place(); // TODO: 23/10/2022 move to onNewGame
 
         ModManagerAPI mm = Global.getSettings().getModManager();
         boolean yunruindustries = mm.isModEnabled("yunruindustries");
@@ -316,6 +319,7 @@ public class IndEvo_modPlugin extends BaseModPlugin {
     private void setScriptsIfNeeded() {
         //Scripts:
         Global.getSector().registerPlugin(new SplinterFleetCampignPlugin());
+        Global.getSector().registerPlugin(new IndEvo_GachaStationCampaignPlugin());
 
         if (!Global.getSector().hasScript(IndEvo_TimeTracker.class)) {
             Global.getSector().addScript(new IndEvo_TimeTracker());
