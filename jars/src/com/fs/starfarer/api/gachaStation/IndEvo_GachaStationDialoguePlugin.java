@@ -37,8 +37,6 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
         LEAVE
     }
 
-    //ability can be called in hyperspace but will only allow ABANDON_FLEET
-
     protected InteractionDialogAPI dialog;
     protected TextPanelAPI text;
     protected OptionPanelAPI options;
