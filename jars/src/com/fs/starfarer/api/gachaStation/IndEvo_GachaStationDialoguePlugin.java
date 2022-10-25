@@ -10,19 +10,22 @@ import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
+import com.fs.starfarer.api.impl.campaign.DModManager;
+import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_Items;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.ValueDisplayMode;
 import com.fs.starfarer.api.util.ListMap;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import org.lwjgl.input.Keyboard;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static com.fs.starfarer.api.IndEvo_IndustryHelper.stripShipToCargoAndReturnVariant;
 
 public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugin {
 
@@ -32,6 +35,10 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
     public static final int METALS_REPAIR_COST = 10000;
     public static final int MACHINERY_REPAIR_COST = 1000;
     public static final int PARTS_REPAIR_COST = 4000;
+
+    public static final int PARTS_PER_DP = 100;
+
+    public static final String RANDOM = "$IndEvo_randomSeed";
 
     private enum Option {
         MAIN,
@@ -49,13 +56,14 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
     private List<FleetMemberAPI> selectedShips = new ArrayList<>();
     private float partsToSacrifice = 0f;
 
+
     @Override
     public void init(InteractionDialogAPI dialog) {
         this.dialog = dialog;
         this.options = dialog.getOptionPanel();
         this.text = dialog.getTextPanel();
 
-        displayDefaultOptions();
+        displayDefaultOptions(true);
     }
 
     public boolean isRepaired(){
@@ -66,8 +74,8 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
         dialog.getInteractionTarget().getMemoryWithoutUpdate().set(HAS_RESTORED_STATION, true);
     }
 
-    public void displayDefaultOptions() {
-        text.clear();
+    public void displayDefaultOptions(boolean clearText) {
+        if(clearText) text.clear();
         addDefaultTooltip();
 
         OptionPanelAPI opts = options;
@@ -100,6 +108,8 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
                     partsAvailable >= 1f ?
                             "Offer ship components - know that the residing mind might consider them inferior to the sanctified metal and soul of a true ship."
                             : "You do not have any ship components to sacrifice");
+
+            opts.setSelectorValue(Option.PARTS_SELECTOR, partsToSacrifice);
 
             option = Option.CONFIRM;
             isEnabled = (!selectedShips.isEmpty() || partsToSacrifice > 0) && playerFleet.getCargo().getCommodityQuantity(IndEvo_Items.RARE_PARTS) >= RARE_PART_COST_AMT;
@@ -140,7 +150,7 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
 
         switch (opt) {
             case MAIN:
-                displayDefaultOptions();
+                displayDefaultOptions(true);
                 break;
             case INITIAL_PAY_TO_RESTORE:
                 text.addPara("As your crew chants the last verses of the inscribed prayers, massive, multi-segmented arms unfold from the altar-like walls and slowly begin transferring the offerings into the multitude of openings formed by their emergence.");
@@ -161,8 +171,10 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
                 options.addOption("Continue", Option.MAIN);
                 break;
             case SELECT_SHIPS:
+                initFleetMemberPicker();
                 break;
             case CONFIRM:
+                cycleMember();
                 break;
             case LEAVE:
                 dialog.dismiss();
@@ -202,9 +214,10 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
     }
 
     public void addDefaultTooltip(){
-        text.addPara("Long banners of decaying synth-weave illuminated by chandeliers and wall sconces line the massive landing bays, inspiring awe amongst your crew despite their tattered appearance.");
+        text.addPara("\"In its eternal glory, it shall reward sacrifice with blessings.\"\n");
+
+        text.addPara("Long banners of decaying synth-weave illuminated by chandeliers and wall sconces line the massive landing bays, tattered, yet inspiring awe nonetheless.");
         text.addPara("Through the omnipresent religious iconography, it becomes clear that the soul contained in the reliquary core is very old - and very not human.");
-        text.addPara("\"For in its eternal glory, it shall reward sacrifice with blessings.\"\n");
     }
 
     public void addPreRestoreTooltip(){
@@ -220,12 +233,159 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
     }
 
     public void addPostRestoreTooltip(){
+        text.addPara("An archaic computer interface appears on a central dias as you approach, flickering in a sooty crimson blaze.");
+        text.addPara("Thousands of mechanical faces, revealed by the light, watch from above as you are once again presented with the primary tenet of the immortal engine.");
+        text.addPara("\"Give, and thou shalt be given unto.\"\n");
 
+        Misc.showCost(text, null, null,
+                new String[]{IndEvo_Items.RARE_PARTS},
+                new int[]{RARE_PART_COST_AMT});
+
+        if(selectedShips.isEmpty()) return;
+        text.addPara("Ships selected for sacrifice:");
+        TooltipMakerAPI tt = text.beginTooltip();
+        tt.addShipList(selectedShips.size(), 1, Math.min((int) Math.ceil((dialog.getTextWidth() * 0.8f) / selectedShips.size()), 40f), Misc.getBasePlayerColor(), selectedShips, 10f);
+        text.addTooltip();
+    }
+
+    public void cycleMember(){
+        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
+        CargoAPI cargo = playerFleet.getCargo();
+
+        float totalDP = 0;
+        for (FleetMemberAPI member : selectedShips) {
+            totalDP += member.getDeploymentPointsCost();
+            stripShipToCargoAndReturnVariant(member, cargo);
+            member.updateStats();
+            playerFleet.getFleetData().removeFleetMember(member);
+        }
+
+        totalDP += partsToSacrifice > 0 ? Math.round(partsToSacrifice / PARTS_PER_DP) : 0;
+
+        Global.getLogger(IndEvo_GachaStationDialoguePlugin.class).info("Combined input DP " + totalDP);
+
+        String bestID = null;
+        float currentHighest = 0;
+
+        for (Map.Entry<String, Float> e : createHullIdSelection().entrySet()) {
+            if (totalDP > e.getValue() && e.getValue() > currentHighest) {
+                bestID = e.getKey();
+                currentHighest = e.getValue();
+            }
+        }
+
+        cargo.removeCommodity(IndEvo_Items.PARTS, partsToSacrifice);
+        cargo.removeCommodity(IndEvo_Items.RARE_PARTS, RARE_PART_COST_AMT);
+
+        Global.getLogger(IndEvo_GachaStationDialoguePlugin.class).info("Player receives: " + bestID);
+
+        if (bestID == null || bestID.isEmpty()) {
+            text.addPara("With the last hull placed in the sacrificial coves and the last offerings prepared on the altars, your crew prepares to perform the ancient rites of activation. " +
+                    "As they chant, the waking faces join in with screeching voice, rhythmic thumping swelling up from the heart of the holy assembly, increasing in volume and intensity as the prayer carries through the empty halls.");
+            text.addPara("Hangar after hangar abruptly closes, anything inside swallowed into the depths, to be reformed through the power of a star and feeding whatever resides within this place.");
+            text.addPara("And as the cacophony reaches its apex, the screeching stops, the faces slacken - and nothing remains.");
+            text.addPara("\n\nYour offerings have been deemed insufficient.");
+
+            text.setHighlightColorsInLastPara(Misc.getNegativeHighlightColor());
+            text.highlightInLastPara("Your offerings might have been deemed insufficient.");
+        }
+
+        if (bestID != null) {
+            text.addPara("With the last hull placed in the sacrificial coves and the last offerings prepared on the altars, your crew prepares to perform the ancient rites of activation. " +
+                    "As they chant, the waking faces join in with screeching voice, rhythmic thumping swelling up from the heart of the holy assembly, increasing in volume and intensity as the prayer carries through the empty halls.");
+            text.addPara("Hangar after hangar abruptly closes, anything inside swallowed into the depths, to be reformed through the power of a star and feeding whatever resides deep inside this place.");
+            text.addPara("And as the cacophony reaches its apex, the screeching stops, the faces slacken - the interface flickers green, and a hangar number is displayed in large, gothic letters.");
+            text.addPara("The machine mind has deemed your offerings sufficient.");
+
+            FleetMemberAPI ship = createAndPrepareMember(bestID, 3);
+
+            dialog.getVisualPanel().showFleetMemberInfo(ship, true);
+            playerFleet.getFleetData().addFleetMember(ship);
+            if (partsToSacrifice > 0) AddRemoveCommodity.addCommodityLossText(IndEvo_Items.PARTS, Math.round(partsToSacrifice), text);
+            AddRemoveCommodity.addCommodityLossText(IndEvo_Items.RARE_PARTS, RARE_PART_COST_AMT, text);
+            AddRemoveCommodity.addFleetMemberGainText(ship,text);
+        }
+
+        displayDefaultOptions(false);
+    }
+
+    public void initFleetMemberPicker() {
+        List<FleetMemberAPI> fleetMemberListAll = Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy();
+        List<FleetMemberAPI> fleetMemberList = new ArrayList<>();
+
+        //remove quest relevant ships from selectables
+        for (FleetMemberAPI m : fleetMemberListAll) {
+            if (m.getHullSpec().getTags().contains(Tags.SHIP_CAN_NOT_SCUTTLE) || m.getVariant().getTags().contains(Tags.SHIP_CAN_NOT_SCUTTLE))
+                continue;
+            fleetMemberList.add(m);
+        }
+
+        int shipsPerRow = 8;
+
+        int rows = fleetMemberList.size() > shipsPerRow ? (int) Math.ceil(fleetMemberList.size() / (float) shipsPerRow) : 1;
+        int cols = Math.min(fleetMemberList.size(), shipsPerRow);
+
+        dialog.showFleetMemberPickerDialog("Select ships to sacrifice", "Confirm", "Cancel", rows,
+                cols, 80f, true, true, fleetMemberList, new FleetMemberPickerListener() {
+
+                    @Override
+                    public void pickedFleetMembers(List<FleetMemberAPI> members) {
+                        if (members != null && !members.isEmpty()) {
+                            selectedShips.clear();
+                            selectedShips.addAll(members);
+
+                            displayDefaultOptions(true);
+                        }
+                    }
+
+                    @Override
+                    public void cancelledFleetMemberPicking() {
+                    }
+                });
+    }
+
+    public FleetMemberAPI createAndPrepareMember(String hullID, int maxDmodAmt) {
+        List<String> l = Global.getSettings().getHullIdToVariantListMap().get(hullID);
+        WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
+        picker.addAll(l);
+
+        ShipVariantAPI variant = Global.getSettings().getVariant(picker.pick());
+        if (variant == null)
+            variant = Global.getSettings().createEmptyVariant(Misc.genUID(), Global.getSettings().getHullSpec(hullID));
+
+        FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant);
+
+        variant = variant.clone();
+        variant.setOriginalVariant(null);
+
+        Random random = (Random) dialog.getInteractionTarget().getMemoryWithoutUpdate().get(RANDOM);
+
+        int dModsAlready = DModManager.getNumDMods(variant);
+        int dmods = maxDmodAmt > 0 ? Math.max(0, random.nextInt(maxDmodAmt) - dModsAlready) : 0;
+
+        if (dmods > 0) {
+            DModManager.setDHull(variant);
+        }
+        member.setVariant(variant, false, true);
+
+        if (dmods > 0) {
+            DModManager.addDMods(member, false, dmods, random);
+        }
+
+        member.setVariant(variant, true, true);
+        member.updateStats();
+
+        float retain = 1f / maxDmodAmt;
+        FleetEncounterContext.prepareShipForRecovery(member, true, true, false, retain, retain, random);
+        member.getVariant().autoGenerateWeaponGroups();
+
+        member.updateStats();
+        return member;
     }
 
     private Map<String, Float> createHullIdSelection() {
         Map<String, Float> hullMap = new HashMap<>();
-        WeightedRandomPicker<ShipHullSpecAPI> picker = new WeightedRandomPicker<>();
+        WeightedRandomPicker<ShipHullSpecAPI> picker = new WeightedRandomPicker<>((Random) dialog.getInteractionTarget().getMemoryWithoutUpdate().get(RANDOM));
         ListMap<ShipHullSpecAPI> specAPIListMap = getHullSizeHullSpecListMap();
 
         for (ShipAPI.HullSize size : new ShipAPI.HullSize[]{
