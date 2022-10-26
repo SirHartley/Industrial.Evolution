@@ -93,6 +93,10 @@ public class IndEvo_CombatSlowFieldTerrain extends BaseEveryFrameCombatPlugin {
 
             ship.setInsideNebula(true);
             ship.getMutableStats().getMaxSpeed().modifyMult("IndEvo_slowfield_speed_mult", SPEED_RED_MULT, "Slow Field");
+
+            if (ship == Global.getCombatEngine().getPlayerShip()) {
+                Global.getCombatEngine().maintainStatusForPlayerShip("IndEvo_slowfield_speed_mult", "graphics/icons/tactical/nebula_slowdown2.png", "Slow Field", "reduced top speed -" + SPEED_RED_MULT + "%", true);
+            }
         }
     }
 

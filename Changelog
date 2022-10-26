@@ -45,6 +45,12 @@ adjust salvage event "Ship Roulette" -
 Items
 Added - Settings for relic component combat drop rates (min FP, destroyed fraction)
 
+Exploration
+Added - Automatic Shipyards, a superstructure to restore, giving access to MORE GACHA MECHANICS LETS FUCKING GO
+
+Weapons
+Added - Side bar indicator for combat slow field effect
+
 Artillery
 Added - A shitload of settings to make your bones harder (or weaker)
 Added - Sounds for combat weapons (Courtesy of Soren / Harmful Mechanic)
@@ -53,6 +59,9 @@ Adjusted - Visual adjustments for mortar explosions
 
 Minefields
 Added - Settings
+
+Embassy
+Fixed - Crash when NPC colony decivilizes in a non-standard way (Embassy moved up on rework priority once again)
 
 3.1.d
 Items

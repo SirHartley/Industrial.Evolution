@@ -284,10 +284,10 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
                     "As they chant, the waking faces join in with screeching voice, rhythmic thumping swelling up from the heart of the holy assembly, increasing in volume and intensity as the prayer carries through the empty halls.");
             text.addPara("Hangar after hangar abruptly closes, anything inside swallowed into the depths, to be reformed through the power of a star and feeding whatever resides within this place.");
             text.addPara("And as the cacophony reaches its apex, the screeching stops, the faces slacken - and nothing remains.");
-            text.addPara("\n\nYour offerings have been deemed insufficient.");
+            text.addPara("\n\nYour offerings have been deemed insignificant.");
 
             text.setHighlightColorsInLastPara(Misc.getNegativeHighlightColor());
-            text.highlightInLastPara("Your offerings might have been deemed insufficient.");
+            text.highlightInLastPara("Your offerings have been deemed insufficient.");
         }
 
         if (bestID != null) {

@@ -29,11 +29,22 @@ public class IndEvo_ambassadorRemoval extends BaseCommandPlugin {
     }
 
     public static void removeAmbassadorWithPenalty(MarketAPI market) {
+        if(market == null) return;
+
         PersonAPI person = IndEvo_ambassadorPersonManager.getAmbassador(market);
-        MarketAPI originalMarket = IndEvo_ambassadorPersonManager.getOriginalMarket(person);
-        FactionAPI ambFaction = person.getFaction();
+
+        MarketAPI originalMarket = null;
+        FactionAPI ambFaction = null;
+        float penaltyAmount = 0f;
+
+        if (person != null){
+            originalMarket =  IndEvo_ambassadorPersonManager.getOriginalMarket(person);
+            ambFaction = person.getFaction();
+            penaltyAmount = getPenaltyFor(market.getFaction().getRelationship(ambFaction.getId()));
+        }
 
         IndEvo_ambassadorPersonManager.removeAmbassadorFromMarket(market);
+
         if (originalMarket != null && IndEvo_ambassadorPersonManager.getAmbassador(originalMarket) != null) {
             IndEvo_ambassadorPersonManager.deleteAmbassador(originalMarket);
         }
@@ -42,7 +53,6 @@ public class IndEvo_ambassadorRemoval extends BaseCommandPlugin {
 
         market.getIndustry(IndEvo_ids.EMBASSY).setSpecialItem(null);
 
-        float penaltyAmount = getPenaltyFor(market.getFaction().getRelationship(ambFaction.getId()));
         if (penaltyAmount != 0) {
             market.getFaction().adjustRelationship(ambFaction.getId(), penaltyAmount);
 
