@@ -21,6 +21,8 @@ public class IndEvo_ids {
     public static final String TAG_ARTILLERY_STATION = "IndEvo_Artillery";
     public static final String TAG_ARTILLERY_STATION_FLEET = "IndEvo_ArtilleryFleet";
     public static final String TAG_WATCHTOWER = "IndEvo_watchtower";
+    public static final String TAG_SYSTEM_HAS_ARTILLERY = "IndEvo_SystemHasArtillery";
+    public static final String MEM_SYSTEM_DISABLE_WATCHTOWERS = "$IndEvo_SystemDisableWatchtowers";
 
     //Submarkets
     public static final String REPSTORAGE = "IndEvo_RepairStorage";
@@ -85,6 +87,7 @@ public class IndEvo_ids {
     public static final String PRISTINE_INTARRAY_ENTITY = "IndEvo_pristine_int_array";
     public static final String ARSENAL_ENTITY = "IndEvo_arsenalStation";
     public static final String LAB_ENTITY = "IndEvo_orbitalLaboratory";
+    public static final String GACHA_STATION = "IndEvo_GachaStation";
 
     //skills
     public static final String SKILL_FLEET_LOGISTICS = "indevo_FleetLogistics";

@@ -114,8 +114,15 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         return stationEntity;
     }
 
+    private void tagSystem(){
+        if (primaryEntity == null || primaryEntity.getContainingLocation() == null) return;
+
+        LocationAPI loc = primaryEntity.getContainingLocation();
+        if (!loc.hasTag(IndEvo_ids.TAG_SYSTEM_HAS_ARTILLERY)) loc.addTag(IndEvo_ids.TAG_SYSTEM_HAS_ARTILLERY);
+    }
     @Override
     public void advance(float amount) {
+        tagSystem();
         if (Global.getSector().getEconomy().isSimMode() || !primaryEntity.isInCurrentLocation()) return;
 
         //market = primaryEntity.getMarket();

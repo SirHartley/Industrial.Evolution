@@ -83,11 +83,11 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
         }
 
         if (!checkInterval.intervalElapsed()) return;
-        if (player.isInHyperspace()) return;
+        if (player.isInHyperspace() || player.getContainingLocation().getMemoryWithoutUpdate().getBoolean(IndEvo_ids.MEM_SYSTEM_DISABLE_WATCHTOWERS)) return;
 
         amount += checkInterval.getIntervalDuration();
         LocationAPI loc = entity.getContainingLocation();
-        if (loc.getEntitiesWithTag(IndEvo_ids.TAG_ARTILLERY_STATION).isEmpty()) return;
+        if (!loc.hasTag(IndEvo_ids.TAG_SYSTEM_HAS_ARTILLERY)) return;
 
         cycleActions();
 

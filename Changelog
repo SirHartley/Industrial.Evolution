@@ -46,17 +46,19 @@ Items
 Added - Settings for relic component combat drop rates (min FP, destroyed fraction)
 
 Exploration
-Added - Automatic Shipyards, a superstructure to restore, giving access to MORE GACHA MECHANICS LETS FUCKING GO
+Added - A new superstructure to restore, giving access to MORE GACHA MECHANICS LETS FUCKING GO
 
 Weapons
 Added - Side bar indicator for combat slow field effect
 
 Artillery
-Adjusted - Railgun damage 2500 -> 3500
+Added - Star System Tag "IndEvo_SystemHasArtillery" to denote any system with an artillery
+Added - Star System Memory Key (boolean) "$IndEvo_SystemDisableWatchtowers" which disables watchtowers and location reporting by fleets
 Added - A shitload of settings to make your bones harder (or weaker)
 Added - Sounds for combat weapons (Courtesy of Soren / Harmful Mechanic)
 Added - Sounds for campaign weapons (Courtesy of Soren / Harmful Mechanic)
 Adjusted - Visual adjustments for mortar explosions
+Adjusted - Railgun damage 2500 -> 3500
 
 Minefields
 Added - Settings

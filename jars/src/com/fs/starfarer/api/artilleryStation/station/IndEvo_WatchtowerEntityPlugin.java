@@ -22,8 +22,13 @@ import static com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEye
 public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     //this flags any fleets around it as seen
 
-    /*watchtower faction is irrellevant atm, make it care about which faction saw you
-    make watchtower sensor profile in line with vanilla*/
+    /*
+    watchtower faction is irrellevant atm, make it care about which faction saw you
+    make watchtower sensor profile in line with vanilla
+
+    ok no fuck that
+    you go do that future me
+    */
 
     public static final float RANGE = Global.getSettings().getFloat("IndEvo_Artillery_WatchtowerRange");
     public static final String MEM_SENSOR_LOCK_ACTIVE = "$IndEvo_isArtilleryActive";
@@ -87,6 +92,8 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
         phase += amount * PINGS_PER_SECOND;
 
+        setFunctional(!entity.getContainingLocation().getMemoryWithoutUpdate().getBoolean(IndEvo_ids.MEM_SYSTEM_DISABLE_WATCHTOWERS));
+
         // TODO: 19/10/2022 change this to an interval instead of this janky shit
         if(phase >= 1 * MathUtils.getRandomNumberInRange(1, 1.1f)) {
             String factionID = entity.getFaction().getId();
@@ -94,10 +101,10 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
             boolean isLocked = checkSensorLockActive();
 
             if(isAI){
-                if (isLocked && !isHacked()) showRangePing();
-            } else if(!isHacked()) showRangePing();
+                if (isLocked && !isHacked() && isFunctional()) showRangePing();
+            } else if(!isHacked() && isFunctional()) showRangePing();
 
-            for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, RANGE))  {
+            if(isFunctional()) for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, RANGE))  {
                 if (isHostileTo(f)){ //&& f.getVisibilityLevelTo(entity) == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT){
                     if (f.isPlayerFleet()) continue;
 
@@ -159,9 +166,17 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         } else text.addPara(BaseIntelPlugin.INDENT + "Transmits target telemetry within %s range",
                 pad, Misc.getHighlightColor(), Math.round(RANGE) + " su");
 
-        if (isReset()) {
-            text.addPara(BaseIntelPlugin.INDENT + "Auto-calibrating after factory reset; non-functional", 3f);
+        if (!isFunctional() || isReset()) {
+            text.addPara(BaseIntelPlugin.INDENT + "Not functional for unknown reasons", 3f);
         }
+    }
+
+    public boolean isFunctional(){
+        return entity.getMemoryWithoutUpdate().getBoolean(MemFlags.OBJECTIVE_NON_FUNCTIONAL);
+    }
+
+    public void setFunctional(boolean functional){
+        entity.getMemoryWithoutUpdate().set(MemFlags.OBJECTIVE_NON_FUNCTIONAL, functional);
     }
 
     public void printNonFunctionalAndHackDescription(TextPanelAPI text) {

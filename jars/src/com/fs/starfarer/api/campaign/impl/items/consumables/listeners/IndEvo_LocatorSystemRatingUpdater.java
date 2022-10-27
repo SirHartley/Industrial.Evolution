@@ -45,6 +45,7 @@ public class IndEvo_LocatorSystemRatingUpdater extends BaseCampaignEventListener
         put(Entities.CORONAL_TAP, 20);
         put(IndEvo_ids.ARSENAL_ENTITY, 10);
         put(IndEvo_ids.LAB_ENTITY, 20);
+        put(IndEvo_ids.GACHA_STATION, 20);
     }};
 
     public IndEvo_LocatorSystemRatingUpdater(boolean permaRegister) {

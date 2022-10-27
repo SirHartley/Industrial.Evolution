@@ -35,6 +35,7 @@ import org.lazywizard.lazylib.MathUtils;
 import java.awt.*;
 
 import static com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids.TAG_ARTILLERY_STATION_FLEET;
+import static com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids.TAG_SYSTEM_HAS_ARTILLERY;
 
 public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventListener {
     public static float DEFENSE_BONUS_BASE = 0.5f;
@@ -48,6 +49,8 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
         super.apply(false);
 
         int size = 5;
+
+        market.getStarSystem().addTag(TAG_SYSTEM_HAS_ARTILLERY);
 
         applyIncomeAndUpkeep(size);
 
@@ -107,6 +110,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
     public void unapply() {
         super.unapply();
 
+        market.getStarSystem().removeTag(TAG_SYSTEM_HAS_ARTILLERY);
         matchCommanderToAICore(null);
         market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD).unmodifyMult(getModId());
     }
