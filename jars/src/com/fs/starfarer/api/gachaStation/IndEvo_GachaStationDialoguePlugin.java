@@ -77,6 +77,7 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
     public void displayDefaultOptions(boolean clearText) {
         if(clearText) text.clear();
         addDefaultTooltip();
+        dialog.getVisualPanel().showImageVisual(dialog.getInteractionTarget().getCustomInteractionDialogImageVisual());
 
         OptionPanelAPI opts = options;
         opts.clearOptions();
@@ -106,7 +107,7 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
                     partsAvailable,
                     ValueDisplayMode.VALUE,
                     partsAvailable >= 1f ?
-                            "Offer ship components - know that the residing mind might consider them inferior to the sanctified metal and soul of a true ship."
+                            "Offer ship components - know that the residing mind might consider them inferior to the sanctified metal of a true ship."
                             : "You do not have any ship components to sacrifice");
 
             opts.setSelectorValue(Option.PARTS_SELECTOR, partsToSacrifice);

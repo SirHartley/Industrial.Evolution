@@ -5,7 +5,8 @@
 		"showInCampaign":false, # show in campaign layer
 		"showIconOnMap":false,
 		"showNameOnMap":false,
-		"renderCircleIndicator":false, # make clickable
+		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
 		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 	},
 
@@ -23,6 +24,7 @@
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
 		"renderCircleIndicator":true,
+		"interactable":false,
 		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 	},
 
@@ -32,6 +34,7 @@
 		"showInCampaign":true,
 		"showIconOnMap":false,
 		"renderCircleIndicator":false,
+		"interactable":false,
 		"tags":["expires"],
 		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_ECMExplosion",
@@ -43,6 +46,7 @@
 		"showInCampaign":true,
 		"showIconOnMap":false,
 		"renderCircleIndicator":false,
+		"interactable":false,
 		"tags":["expires"],
 		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 		"pluginClass":"com.fs.starfarer.api.artilleryStation.station.IndEvo_VariableExplosionEntityPlugin",
@@ -54,6 +58,7 @@
 		"showInCampaign":true,
 		"showIconOnMap":false,
 		"renderCircleIndicator":false,
+		"interactable":false,
 		"tags":["expires"],
 		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 		"pluginClass":"com.fs.starfarer.api.impl.campaign.terrain.IndEvo_MineExplosionEntityPlugin",
@@ -71,6 +76,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
+		"interactable":false,
 		"layers":[ABOVE, FLEETS, ASTEROIDS, JUMP_POINTS, PLANETS, RINGS, STATIONS, TERRAIN_7A], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 		"pluginClass":"com.fs.starfarer.api.artilleryStation.trails.MagicCustomCampaignTrailEntityScript",
 	},
@@ -137,7 +143,7 @@
 		"aOrAn":"an",
 		"isOrAre":"is",
 		"customDescriptionId":"IndEvo_GachaStation",
-		"interactionImage":"graphics/illustrations/orbital_construction.jpg",
+		"interactionImage":"graphics/illustrations/gacah_station_interaction_red.png",
 		"icon":"graphics/icons/IndEvo_station2.png",
 		"iconWidth":32,
 		"iconHeight":32,
@@ -187,7 +193,8 @@
 		"showInCampaign":true, # show in campaign layer
 		"showIconOnMap":false,
 		"showNameOnMap":false,
-		"renderCircleIndicator":false, # make clickable
+		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
 		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"tags":["IndEvo_Eye"],
 		"pluginClass":"com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEyeIndicator"
@@ -203,6 +210,7 @@
 		"showIconOnMap":true,
 		"showNameOnMap":false,
 		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_RenderTemporaryIndicator"
 	},
@@ -213,6 +221,7 @@
 		"showIconOnMap":false,
 		"showNameOnMap":false,
 		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_MissileSubmunitionEntity"
 	},
@@ -223,6 +232,7 @@
 		"showIconOnMap":false,
 		"showNameOnMap":false,
 		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_MissileCarrierEntityPlugin"
 	},
@@ -233,6 +243,7 @@
 		"showIconOnMap":false,
 		"showNameOnMap":false,
 		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_RailgunProjectileEntityPlugin"
 	},
@@ -243,6 +254,7 @@
 		"showIconOnMap":false,
 		"showNameOnMap":false,
 		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_ArtilleryProjectileEntityPlugin"
 	},
@@ -253,6 +265,7 @@
 		"showIconOnMap":false,
 		"showNameOnMap":false,
 		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_RailgunShotEntity"
 	},
@@ -263,6 +276,7 @@
 		"showIconOnMap":false,
 		"showNameOnMap":false,
 		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"com.fs.starfarer.api.campaign.impl.items.consumables.entities.SpikeEntityPlugin"
 	},
@@ -273,7 +287,8 @@
 		"showIconOnMap":false,
 		"showNameOnMap":false,
 		"renderCircleIndicator":false, # make clickable,
-		"tags":["IndEvo_Mine"], # DO NOT CHANGE!
+		"interactable":false,
+		"tags":["IndEvo_Mine"], # DO NOT CHANGE!,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"com.fs.starfarer.api.impl.campaign.terrain.IndEvo_MineCustomEntityPlugin"
 	},
@@ -406,7 +421,8 @@
 		"showInCampaign":true, # show in campaign layer
 		"showIconOnMap":false,
 		"showNameOnMap":false,
-		"renderCircleIndicator":false, # make clickable
+		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
 		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"com.fs.starfarer.api.impl.campaign.entityplugins.IndEvo_WarpEffectPlugin",
 	},
@@ -415,7 +431,8 @@
 		"showInCampaign":true, # show in campaign layer
 		"showIconOnMap":false,
 		"showNameOnMap":false,
-		"renderCircleIndicator":false, # make clickable
+		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
 		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"com.fs.starfarer.api.impl.campaign.entityplugins.IndEvo_HoleEffectPlugin",
 	}

@@ -9,8 +9,6 @@ todo consumable item that allows forced targetting of artillery on mouse pos
 - Change derelict industries to superstructures
 - Artillery industry images
 
-add a reusable ship gacha (requires relic components) at a superstructure like hypershunt
-
 --------------------------- known issues -----------------------------
 
 Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
@@ -41,6 +39,8 @@ adjust salvage event "Ship Roulette" -
 
 -----------------------o-----------------------
 3.1.e - UNRELEASED
+General
+Adjusted - Made most visual effects not interactable
 
 Items
 Added - Settings for relic component combat drop rates (min FP, destroyed fraction)
@@ -52,6 +52,7 @@ Weapons
 Added - Side bar indicator for combat slow field effect
 
 Artillery
+Adjusted - Railgun damage 2500 -> 3500
 Added - A shitload of settings to make your bones harder (or weaker)
 Added - Sounds for combat weapons (Courtesy of Soren / Harmful Mechanic)
 Added - Sounds for campaign weapons (Courtesy of Soren / Harmful Mechanic)

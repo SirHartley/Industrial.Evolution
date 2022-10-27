@@ -94,7 +94,8 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
         for (Industry ind : market.getIndustries()) {
             if (ind == this) continue;
             if (!ind.isFunctional()) continue;
-            if (ind.getSpec().hasTag(Tags.STATION) && ind.getSpec().getPluginClass().equals("com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_OrbitalStation")) {
+            if (ind.getSpec().hasTag(Tags.STATION)
+                    && ind.getSpec().getPluginClass().equals("com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_OrbitalStation")) {
                 return true;
             }
         }
