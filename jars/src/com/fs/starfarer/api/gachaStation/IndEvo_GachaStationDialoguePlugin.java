@@ -77,7 +77,7 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
     public void displayDefaultOptions(boolean clearText) {
         if(clearText) text.clear();
         addDefaultTooltip();
-        dialog.getVisualPanel().showImageVisual(dialog.getInteractionTarget().getCustomInteractionDialogImageVisual());
+        if(clearText) dialog.getVisualPanel().showImageVisual(dialog.getInteractionTarget().getCustomInteractionDialogImageVisual());
 
         OptionPanelAPI opts = options;
         opts.clearOptions();
@@ -278,6 +278,9 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
         cargo.removeCommodity(IndEvo_Items.PARTS, partsToSacrifice);
         cargo.removeCommodity(IndEvo_Items.RARE_PARTS, RARE_PART_COST_AMT);
 
+        partsToSacrifice = 0;
+        selectedShips.clear();
+
         Global.getLogger(IndEvo_GachaStationDialoguePlugin.class).info("Player receives: " + bestID);
 
         if (bestID == null || bestID.isEmpty()) {
@@ -289,6 +292,9 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
 
             text.setHighlightColorsInLastPara(Misc.getNegativeHighlightColor());
             text.highlightInLastPara("Your offerings have been deemed insufficient.");
+
+            if (partsToSacrifice > 0) AddRemoveCommodity.addCommodityLossText(IndEvo_Items.PARTS, Math.round(partsToSacrifice), text);
+            AddRemoveCommodity.addCommodityLossText(IndEvo_Items.RARE_PARTS, RARE_PART_COST_AMT, text);
         }
 
         if (bestID != null) {
@@ -307,7 +313,7 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
             AddRemoveCommodity.addFleetMemberGainText(ship,text);
         }
 
-        displayDefaultOptions(false);
+        options.addOption("Continue", Option.MAIN);
     }
 
     public void initFleetMemberPicker() {
@@ -341,6 +347,7 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
 
                     @Override
                     public void cancelledFleetMemberPicking() {
+                        displayDefaultOptions(true);
                     }
                 });
     }
