@@ -38,7 +38,11 @@ adjust salvage event "Ship Roulette" -
     add an intel entry showing the progress
 
 -----------------------o-----------------------
-3.1.e - UNRELEASED
+3.1.f - UNRELEASED
+Artillery
+Fixed - Crash when a NPC fleet fights the station and it dies to it
+
+3.1.e
 General
 Adjusted - Made most visual effects not interactable
 

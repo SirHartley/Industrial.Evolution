@@ -79,7 +79,7 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
         if (!entity.isInCurrentLocation()) {
             entity.getContainingLocation().removeEntity(entity);
             player.getContainingLocation().addEntity(entity);
-            entity.setLocation(0, 0);
+            entity.setLocation(1000000, 1000000);
         }
 
         if (!checkInterval.intervalElapsed()) return;
