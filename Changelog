@@ -8,6 +8,13 @@ todo consumable item that allows forced targetting of artillery on mouse pos
 - Add something that lets you remove S-Mods
 - Change derelict industries to superstructures
 - Artillery industry images
+- Casino
+    - Blackjack
+    - Roulette
+    - Slot machines
+    - add "spacer captain in debt" bar event: sells his last ship for half off to pay his debt
+    - add "officer in debt" bar event - hire for 3x salary
+    - add "spacers in debt" bar event - 10 spacers, hire for half pay to avoid indentured servitude
 
 --------------------------- known issues -----------------------------
 
@@ -38,9 +45,17 @@ adjust salvage event "Ship Roulette" -
     add an intel entry showing the progress
 
 -----------------------o-----------------------
-3.1.f - UNRELEASED
+3.1.f
+General
+Fixed - Performance issue that caused continued slowdown while game went on
+
 Artillery
+Adjusted - FP 100 -> 250 (this makes the tooltip display more stars, to indicate danger level better)
 Fixed - Crash when a NPC fleet fights the station and it dies to it
+Fixed - Missile hit sound name to prevent crash on linux
+
+Senate
+Adjusted - Industrial Incentives tooltip (200% -> Doubled)
 
 3.1.e
 General

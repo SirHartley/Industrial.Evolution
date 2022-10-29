@@ -4,3 +4,4 @@ indevo_spawnStation,com.fs.starfarer.api.plugins.commands.IndEvo_spawnStation,"i
 indevo_clearDisruption,com.fs.starfarer.api.plugins.commands.IndEvo_clearDisruption,"indevo,campaign",indevo_clearDisruption,removes disruption from all industries on a market
 indevo_spawnRuins,com.fs.starfarer.api.plugins.commands.IndEvo_spawnRuins,"indevo,campaign",indevo_spawnRuins,spawns ruins if procGen failed again
 indevo_printRaidTimeout,com.fs.starfarer.api.plugins.commands.IndEvo_printRaidTimeout,indevo,indevo_printRaidTimeout,displays a list of the current star system timeouts
+indevo_printModData,com.fs.starfarer.api.plugins.commands.IndEvo_printModData,indevo,indevo_printModData,displays a summary of mod data and classes

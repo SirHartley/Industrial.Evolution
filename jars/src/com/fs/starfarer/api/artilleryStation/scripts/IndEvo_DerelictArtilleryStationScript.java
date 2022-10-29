@@ -114,12 +114,14 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         return stationEntity;
     }
 
+    // TODO: 29/10/2022 move this to the artillery placer
     private void tagSystem(){
         if (primaryEntity == null || primaryEntity.getContainingLocation() == null) return;
 
         LocationAPI loc = primaryEntity.getContainingLocation();
         if (!loc.hasTag(IndEvo_ids.TAG_SYSTEM_HAS_ARTILLERY)) loc.addTag(IndEvo_ids.TAG_SYSTEM_HAS_ARTILLERY);
     }
+
     @Override
     public void advance(float amount) {
         tagSystem();

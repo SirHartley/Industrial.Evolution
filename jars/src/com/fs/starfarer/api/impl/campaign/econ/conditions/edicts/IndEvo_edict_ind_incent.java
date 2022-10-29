@@ -84,9 +84,9 @@ public class IndEvo_edict_ind_incent extends IndEvo_baseEdict {
     public void printEdictEffectText(TextPanelAPI text, MarketAPI market) {
         text.addParagraph("All industries on this colony have their output increased by 1.");
         text.highlightInLastPara(Misc.getPositiveHighlightColor(), "output increased by 1");
-        text.addParagraph("Upkeep for those industries is increased by 200%.");
+        text.addParagraph("Upkeep for those industries is doubled.");
         text.highlightInLastPara(Misc.getNegativeHighlightColor(), "Upkeep");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "increased by 200%");
+        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "doubled");
     }
 
     @Override

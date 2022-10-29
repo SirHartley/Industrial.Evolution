@@ -2,6 +2,7 @@ package com.fs.starfarer.api.artilleryStation.station;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ids.IndEvo_ids;
@@ -18,6 +19,7 @@ import java.util.List;
 public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener implements CustomCampaignEntityPlugin {
 
     public static final String WAS_SEEN_BY_HOSTILE_ENTITY = "$IndEvo_WasSeenByOtherEntity";
+    public static final String WATCHTOWER_EYE = "$IndEvo_eyeEntity";
     public static final float BASE_NPC_KNOWN_DURATION = 5f;
     public static final float MAX_TIME_TO_TARGET_LOCK = 20f; //10s per day
     public static final float DISTANCE_MOD = 2; //max mult for distance
@@ -37,9 +39,13 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
         LocationAPI loc = Global.getSector().getPlayerFleet().getContainingLocation();
         if (loc == null) loc = Global.getSector().getStarSystems().get(0);
 
-        if (loc.getEntitiesWithTag("IndEvo_eye").isEmpty()) {
+        MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
+        boolean hasEye = mem.contains(WATCHTOWER_EYE);
+
+        if (!hasEye) {
             SectorEntityToken t = loc.addCustomEntity(Misc.genUID(), "", "IndEvo_Eye", null, null);
             Global.getSector().addListener((CampaignEventListener) t.getCustomPlugin());
+            mem.set(WATCHTOWER_EYE, t);
         }
     }
 
@@ -72,6 +78,8 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
     }
 
     public void advance(float amount) {
+        if (!entity.isAlive()) return;
+
         checkInterval.advance(amount);
 
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
