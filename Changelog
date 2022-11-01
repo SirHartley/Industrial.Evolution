@@ -5,6 +5,8 @@ todo consumable item that allows forced targetting of artillery on mouse pos
 - steal that one illustration with the bunker for the arty?
 - add roaming derelict fleets to uninhabited arty systems
 
+- consumable item that makes your fleet look bigger than is is to NPCs
+    - maybe add a boat with like 200 dp to the fleet and remove it when ui window is opened so other fleets run from you
 - Add something that lets you remove S-Mods
 - Change derelict industries to superstructures
 - Artillery industry images
@@ -45,6 +47,12 @@ adjust salvage event "Ship Roulette" -
     add an intel entry showing the progress
 
 -----------------------o-----------------------
+3.1.g - UNRELEASED
+Artillery
+Adjusted - Now ignores Epta tradestations for faction change
+Fixed - Eye indicator now works reliably again
+Fixed - Now properly reverts to derelict station if there is no other faction claiming the system
+
 3.1.f
 General
 Fixed - Performance issue that caused continued slowdown while game went on

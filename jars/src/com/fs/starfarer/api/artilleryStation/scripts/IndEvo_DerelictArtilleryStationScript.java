@@ -164,7 +164,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         String currentFaction = stationEntity.getFaction().getId();
 
         for (MarketAPI m : Misc.getMarketsInLocation(primaryEntity.getContainingLocation())) {
-            if (m.isPlayerOwned() || m.getFaction().isPlayerFaction()) continue;
+            if (m.isPlayerOwned() || m.getFaction().isPlayerFaction() || m.hasTag("epta_tradebase_market")) continue;
 
             faction = m.getFactionId();
             break;
@@ -183,8 +183,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             updateFaction(faction);
 
         } else if (faction == null
-                && !primaryEntity.isInCurrentLocation()
-                && (currentFaction.equals(Factions.PIRATES) || currentFaction.equals(Factions.LUDDIC_PATH))) {
+                && !primaryEntity.isInCurrentLocation()) {
 
             updateFaction(IndEvo_ids.DERELICT_FACTION_ID); //revert to derelict if player is out of system and the path/pirate base is gone
             //we do not revert if the faction is of a station fleet

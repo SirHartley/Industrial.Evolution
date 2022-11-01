@@ -1,5 +1,6 @@
 package com.fs.starfarer.api.artilleryStation.station;
 
+import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
@@ -17,6 +18,8 @@ import java.awt.*;
 import java.util.List;
 
 public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener implements CustomCampaignEntityPlugin {
+
+    // TODO: 01/11/2022 move this to a script with an attached entity, it's currently the other way around
 
     public static final String WAS_SEEN_BY_HOSTILE_ENTITY = "$IndEvo_WasSeenByOtherEntity";
     public static final String WATCHTOWER_EYE = "$IndEvo_eyeEntity";
@@ -58,6 +61,7 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
 
     public void init(SectorEntityToken entity, Object pluginParams) {
         this.entity = entity;
+        Global.getSector().addScript(new EyeIndicatorAdvancementScript(this));
         readResolve();
     }
 
@@ -77,7 +81,7 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
         }
     }
 
-    public void advance(float amount) {
+    public void externalAdvance(float amount){
         if (!entity.isAlive()) return;
 
         checkInterval.advance(amount);
@@ -155,6 +159,14 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
         elapsed = MathUtils.clamp(elapsed += addition, 0, MAX_TIME_TO_TARGET_LOCK);
     }
 
+    public void advance(float amount) {
+        // TODO: 01/11/2022 this call should be moved to init but has to be here for save compat
+
+        if(!Global.getSector().hasScript(EyeIndicatorAdvancementScript.class)) {
+            Global.getSector().addScript(new EyeIndicatorAdvancementScript(this));
+        }
+    }
+
     private void cycleActions() {
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
 
@@ -229,5 +241,28 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
 
     public void appendToCampaignTooltip(TooltipMakerAPI tooltip, SectorEntityToken.VisibilityLevel level) {
 
+    }
+
+    public static class EyeIndicatorAdvancementScript implements EveryFrameScript {
+        IndEvo_WatchtowerEyeIndicator plugin;
+
+        public EyeIndicatorAdvancementScript (IndEvo_WatchtowerEyeIndicator indicator){
+            this.plugin = indicator;
+        }
+
+        @Override
+        public boolean isDone() {
+            return false;
+        }
+
+        @Override
+        public boolean runWhilePaused() {
+            return false;
+        }
+
+        @Override
+        public void advance(float amount) {
+            plugin.externalAdvance(amount);
+        }
     }
 }
