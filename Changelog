@@ -1,15 +1,38 @@
 
---------------------------- to do -----------------------------
-todo consumable item that allows forced targetting of artillery on mouse pos
+--------------------------- To-do -----------------------------
+Bugs
+- Artillery eye does not change location and does not target player reliably
+    1. the issue was that the watchtower eye indicator entity was not actually in the star system
+    (i went into askonia, ran
+    loc.getEntityById(Global.getSector().getMemoryWithoutUpdate().getEntity("$IndEvo_eyeEntity").getId()),
+    got null, so i just ran loc.addEntity(Global.getSector().getMemoryWithoutUpdate().getEntity("$IndEvo_eyeEntity"))
+    https://discord.com/channels/187635036525166592/824910699415207937/1041113233035112638
+- while you are hovering over the "World Symbols" category in the industry install tab it
+    will increase the colony stability by one, though removing that again once you hover over something else
+- World symbol bonus only applies while colony is open and doesn't apply at all to other colonies in system
+- Transpoofer should reset faction to base on docking so it doesn't pull your own fleet into station battles
+- add in support for "indevo_compat" tag on orbital station industries to work with artillery stations
+- add in support for starFed station
+- Detachment crash: https://discord.com/channels/187635036525166592/619635013201428481/1043634065917608088
+- blacklist planets with artillery for quests
+- stop artillery from spawning on planets that are quest targets, and from spawning in systems cut off from hyper
+- patrols can capture watchtowers, player can't, fix it so patrols can't if it's locked, either.
+- Seems like watchtowers are perma-locked due to nex interaction? Check that out
+- Artillery stations are stuck in perma-repair on game start and never repair themselves
 
-- steal that one illustration with the bunker for the arty?
-- add roaming derelict fleets to uninhabited arty systems
+Requests
+- Add keyboard shortcuts to all indEvo industry menu points
+- Make it so if we kill the artillery station we can convert its husk into a outpost without having to colonize the planet
+- Minefield and artillery as planet conditions so it shows up in search
 
+Upcoming
+- Add a secondary way to access colony options
 - consumable item that makes your fleet look bigger than is is to NPCs
     - maybe add a boat with like 200 dp to the fleet and remove it when ui window is opened so other fleets run from you
 - Add something that lets you remove S-Mods
 - Change derelict industries to superstructures
 - Artillery industry images
+- add roaming derelict fleets to uninhabited arty systems
 - Casino
     - Blackjack
     - Roulette
@@ -17,11 +40,14 @@ todo consumable item that allows forced targetting of artillery on mouse pos
     - add "spacer captain in debt" bar event: sells his last ship for half off to pay his debt
     - add "officer in debt" bar event - hire for 3x salary
     - add "spacers in debt" bar event - 10 spacers, hire for half pay to avoid indentured servitude
+- Consumable item that allows forced targetting of artillery on mouse pos
 
---------------------------- known issues -----------------------------
+--------------------------- known issues without fix -----------------------------
 
 Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
 DELIVER FLEETS REFUSE TO LEAVE SYSTEM AFTER DELIVERY; MAYBE MOVE INTO HYPERSPACE OR MANUALLY SET MOVE TARGET?
+
+There are some bugs with detachments crashing
 
 hey with the current IndEvo patch all my crew in the detachment are getting eaten up after a day has passed.
  The pattern is 1 full day after creating the detachment.

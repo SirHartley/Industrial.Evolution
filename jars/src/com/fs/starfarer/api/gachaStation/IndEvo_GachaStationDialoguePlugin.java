@@ -56,7 +56,6 @@ public class IndEvo_GachaStationDialoguePlugin implements InteractionDialogPlugi
     private List<FleetMemberAPI> selectedShips = new ArrayList<>();
     private float partsToSacrifice = 0f;
 
-
     @Override
     public void init(InteractionDialogAPI dialog) {
         this.dialog = dialog;
