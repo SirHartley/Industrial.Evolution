@@ -76,7 +76,7 @@ adjust salvage event "Ship Roulette" -
 3.1.g - UNRELEASED
 Artillery
 Adjusted - Now ignores Epta tradestations for faction change
-Fixed - Eye indicator now works reliably again
+todo might be a lie, rework this! Fixed - Eye indicator now works reliably again
 Fixed - Now properly reverts to derelict station if there is no other faction claiming the system
 
 3.1.f
