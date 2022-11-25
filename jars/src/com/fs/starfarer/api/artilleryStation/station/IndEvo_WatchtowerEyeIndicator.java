@@ -17,168 +17,44 @@ import org.lwjgl.util.vector.Vector2f;
 import java.awt.*;
 import java.util.List;
 
-public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener implements CustomCampaignEntityPlugin {
-
-    // TODO: 01/11/2022 move this to a script with an attached entity, it's currently the other way around
-
-    public static final String WAS_SEEN_BY_HOSTILE_ENTITY = "$IndEvo_WasSeenByOtherEntity";
-    public static final String WATCHTOWER_EYE = "$IndEvo_eyeEntity";
-    public static final float BASE_NPC_KNOWN_DURATION = 5f;
-    public static final float MAX_TIME_TO_TARGET_LOCK = 20f; //10s per day
-    public static final float DISTANCE_MOD = 2; //max mult for distance
+public class IndEvo_WatchtowerEyeIndicator implements CustomCampaignEntityPlugin {
 
     protected SectorEntityToken entity;
-    private float elapsed = 0f;
-    private boolean isLocked = false;
     public transient SpriteAPI sprite;
+    private boolean isLocked = false;
+    public State state = State.NONE;
 
-    public IntervalUtil checkInterval = new IntervalUtil(0.5f, 0.5f);
-
-    public IndEvo_WatchtowerEyeIndicator() {
-        super(false);
+    public enum State {
+        NONE,
+        CLOSED,
+        HALF,
+        FULL
     }
 
-    public static void register() {
+    public void setLocked(boolean locked) {
+        isLocked = locked;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public static SectorEntityToken create() {
         LocationAPI loc = Global.getSector().getPlayerFleet().getContainingLocation();
         if (loc == null) loc = Global.getSector().getStarSystems().get(0);
 
-        MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
-        boolean hasEye = mem.contains(WATCHTOWER_EYE);
+        SectorEntityToken t = loc.addCustomEntity(Misc.genUID(), "", "IndEvo_Eye", null, null);
+        Global.getSector().addListener((CampaignEventListener) t.getCustomPlugin());
 
-        if (!hasEye) {
-            SectorEntityToken t = loc.addCustomEntity(Misc.genUID(), "", "IndEvo_Eye", null, null);
-            Global.getSector().addListener((CampaignEventListener) t.getCustomPlugin());
-            mem.set(WATCHTOWER_EYE, t);
-        }
+        return t;
     }
-
-    //check where watchtowers are every frame
-    //if in range to non-hacked watchtower of same faction as any in-system artillery, display eye
-    //increment suspicion level with distance mod
-    //when at max, apply "seen" tag every frame
-    //once out of range, decay after a delay (3 days)
-    //change colour with level (white -> yellow -> orange -> red)
 
     public void init(SectorEntityToken entity, Object pluginParams) {
         this.entity = entity;
-        Global.getSector().addScript(new EyeIndicatorAdvancementScript(this));
         readResolve();
     }
 
-    public void reset() {
-        elapsed = 0f;
-        isLocked = false;
-        Global.getSector().getPlayerFleet().getMemoryWithoutUpdate().unset(WAS_SEEN_BY_HOSTILE_ENTITY);
-    }
-
-    @Override
-    public void reportFleetJumped(CampaignFleetAPI fleet, SectorEntityToken from, JumpPointAPI.JumpDestination to) {
-        fleet.getMemoryWithoutUpdate().unset(WAS_SEEN_BY_HOSTILE_ENTITY);
-
-        if (fleet.isPlayerFleet()) {
-            elapsed = 0f;
-            isLocked = false;
-        }
-    }
-
-    public void externalAdvance(float amount){
-        if (!entity.isAlive()) return;
-
-        checkInterval.advance(amount);
-
-        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
-
-        if (!entity.isInCurrentLocation()) {
-            entity.getContainingLocation().removeEntity(entity);
-            player.getContainingLocation().addEntity(entity);
-            entity.setLocation(1000000, 1000000);
-        }
-
-        if (!checkInterval.intervalElapsed()) return;
-        if (player.isInHyperspace() || player.getContainingLocation().getMemoryWithoutUpdate().getBoolean(IndEvo_ids.MEM_SYSTEM_DISABLE_WATCHTOWERS)) return;
-
-        amount += checkInterval.getIntervalDuration();
-        LocationAPI loc = entity.getContainingLocation();
-        if (!loc.hasTag(IndEvo_ids.TAG_SYSTEM_HAS_ARTILLERY)) return;
-
-        cycleActions();
-
-        boolean inFleetRange = false;
-        for (CampaignFleetAPI f : loc.getFleets()) {
-            //check if visible to other fleet
-            for (CampaignFleetAPI otherFLeet : loc.getFleets()) {
-                if (otherFLeet == f) continue;
-
-                if (otherFLeet.isHostileTo(f)
-                        && otherFLeet.getAI() != null
-                        && !otherFLeet.isStationMode()
-                        && Misc.getVisibleFleets(otherFLeet, false).contains(f)) {
-
-                    if (f.isPlayerFleet()) {
-                        elapsed = MAX_TIME_TO_TARGET_LOCK;
-                        isLocked = true;
-                        inFleetRange = true;
-
-                        IndEvo_modPlugin.log("in fleet range, is seen");
-
-                    } else f.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, BASE_NPC_KNOWN_DURATION);
-                    break;
-                }
-            }
-        }
-
-        List<SectorEntityToken> watchtowerList = loc.getEntitiesWithTag(IndEvo_ids.TAG_WATCHTOWER);
-        if (watchtowerList.isEmpty()) return;
-
-        float closestDist = Float.MIN_VALUE;
-        SectorEntityToken closestTower = null;
-
-        for (SectorEntityToken t : watchtowerList) {
-            IndEvo_WatchtowerEntityPlugin p = (IndEvo_WatchtowerEntityPlugin) t.getCustomPlugin();
-
-            float dist = Misc.getDistance(t, player);
-            if (!p.isHacked() && p.isHostileTo(player) && dist < IndEvo_WatchtowerEntityPlugin.RANGE) {
-                if (dist > closestDist) {
-                    closestDist = dist;
-                    closestTower = t;
-                }
-            }
-        }
-
-        float addition = 0f;
-
-        if (closestTower == null && !inFleetRange) { //null means we are out of range of any tower
-            addition = -amount;
-
-        } else { //at this point we are in range because there is a closest hostile tower
-            float distanceFraction = 1 - closestDist / IndEvo_WatchtowerEntityPlugin.RANGE;
-            float mult = 1 + (DISTANCE_MOD - 1) * distanceFraction;
-            addition = amount * mult;
-        }
-
-        elapsed = MathUtils.clamp(elapsed += addition, 0, MAX_TIME_TO_TARGET_LOCK);
-    }
-
     public void advance(float amount) {
-        // TODO: 01/11/2022 this call should be moved to init but has to be here for save compat
-
-        if(!Global.getSector().hasScript(EyeIndicatorAdvancementScript.class)) {
-            Global.getSector().addScript(new EyeIndicatorAdvancementScript(this));
-        }
-    }
-
-    private void cycleActions() {
-        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
-
-        if (elapsed == 0f) {
-            isLocked = false; //if it's locked we stay locked until the level is 0
-            player.getMemoryWithoutUpdate().unset(WAS_SEEN_BY_HOSTILE_ENTITY);
-        } else if (elapsed == MAX_TIME_TO_TARGET_LOCK) {
-            isLocked = true;
-            player.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, 0.5f);
-        }
-
-        IndEvo_modPlugin.log("Watchtower reporting " + elapsed + " locked " + isLocked);
     }
 
     Object readResolve() {
@@ -187,17 +63,15 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
     }
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
-        if (elapsed == 0f) return;
-
-        float level = elapsed / MAX_TIME_TO_TARGET_LOCK;
+        if (state == State.NONE) return;
 
         Color color = Color.RED;
         sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_3");
 
-        if (level < 0.33f) {
+        if (state == State.NONE) {
             sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_1");
             if (!isLocked) color = new Color(255, 255, 150, 255);
-        } else if (level < 0.66f) {
+        } else if (state == State.HALF) {
             sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_2");
             if (!isLocked) color = new Color(255, 200, 50, 255);
         } else if (!isLocked) color = new Color(255, 130, 50, 255);
@@ -216,7 +90,6 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
         sprite.setSize(size * 2, size);
 
         sprite.renderAtCenter(loc.x, loc.y + fleet.getRadius() + size + 10f);
-
     }
 
     public float getRenderRange() {
@@ -228,7 +101,7 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
     }
 
     public float getMapTooltipWidth() {
-        return 300f;
+        return 0f;
     }
 
     public boolean isMapTooltipExpandable() {
@@ -241,28 +114,5 @@ public class IndEvo_WatchtowerEyeIndicator extends BaseCampaignEventListener imp
 
     public void appendToCampaignTooltip(TooltipMakerAPI tooltip, SectorEntityToken.VisibilityLevel level) {
 
-    }
-
-    public static class EyeIndicatorAdvancementScript implements EveryFrameScript {
-        IndEvo_WatchtowerEyeIndicator plugin;
-
-        public EyeIndicatorAdvancementScript (IndEvo_WatchtowerEyeIndicator indicator){
-            this.plugin = indicator;
-        }
-
-        @Override
-        public boolean isDone() {
-            return false;
-        }
-
-        @Override
-        public boolean runWhilePaused() {
-            return false;
-        }
-
-        @Override
-        public void advance(float amount) {
-            plugin.externalAdvance(amount);
-        }
     }
 }

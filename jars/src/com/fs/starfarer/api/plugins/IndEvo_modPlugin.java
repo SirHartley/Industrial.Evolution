@@ -1,6 +1,7 @@
 package com.fs.starfarer.api.plugins;
 
 import com.fs.starfarer.api.*;
+import com.fs.starfarer.api.artilleryStation.scripts.IndEvo_EyeIndicatorScript;
 import com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEyeIndicator;
 import com.fs.starfarer.api.artilleryStation.trails.IndEvo_MagicCampaignTrailPlugin;
 import com.fs.starfarer.api.campaign.*;
@@ -84,13 +85,6 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         }
     }
 
-    public void cleanEyes(){
-        for (SectorEntityToken t : Global.getSector().getEntitiesWithTag("IndEvo_Eye")){
-            Global.getSector().removeListener((CampaignEventListener) t.getCustomPlugin());
-            t.getContainingLocation().removeEntity(t);
-        }
-    }
-
     @Override
     public void onGameLoad(boolean newGame) {
         //Global.getSector().getPlayerFleet().setFaction("hegemony");
@@ -98,8 +92,6 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         IndEvo_ArtilleryStationPlacer.placeCoreWorldArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next save breaking one
         IndEvo_ArtilleryStationPlacer.placeDerelictArtilleries(); //same here
         IndEvo_GachaStationPlacer.place(); // TODO: 23/10/2022 move to onNewGame
-
-        cleanEyes(); // TODO: 29/10/2022 remove for save breaking ver.
 
         ModManagerAPI mm = Global.getSettings().getModManager();
         boolean yunruindustries = mm.isModEnabled("yunruindustries");
@@ -335,7 +327,8 @@ public class IndEvo_modPlugin extends BaseModPlugin {
         }
 
         IndEvo_MagicCampaignTrailPlugin.register();
-        IndEvo_WatchtowerEyeIndicator.register();
+        IndEvo_EyeIndicatorScript.register();
+
         //PlayerFleetFollower.register();
     }
 

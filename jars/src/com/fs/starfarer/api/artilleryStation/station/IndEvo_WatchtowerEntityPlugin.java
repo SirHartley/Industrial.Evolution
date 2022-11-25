@@ -1,6 +1,7 @@
 package com.fs.starfarer.api.artilleryStation.station;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.artilleryStation.scripts.IndEvo_EyeIndicatorScript;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -17,7 +18,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import org.lazywizard.lazylib.MathUtils;
 
-import static com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEyeIndicator.WAS_SEEN_BY_HOSTILE_ENTITY;
+import static com.fs.starfarer.api.artilleryStation.scripts.IndEvo_EyeIndicatorScript.WAS_SEEN_BY_HOSTILE_ENTITY;
 
 public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     //this flags any fleets around it as seen
@@ -152,10 +153,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
     public void setHacked(boolean hacked) {
         setHacked(hacked, HACK_DURATION_DAYS_WT + (float) Math.random() * HACK_DURATION_DAYS_WT);
-
-        for(SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag("IndEvo_eye")){
-            ((IndEvo_WatchtowerEyeIndicator) t.getCustomPlugin()).reset();
-        }
+        IndEvo_EyeIndicatorScript.getInstance().reset();
     }
 
     public void printEffect(TooltipMakerAPI text, float pad) {
