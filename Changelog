@@ -16,6 +16,8 @@ Bugs
 - patrols can capture watchtowers, player can't, fix it so patrols can't if it's locked, either.
 - Seems like watchtowers are perma-locked due to nex interaction? Check that out
 - Artillery stations are stuck in perma-repair on game start and never repair themselves
+- reduce artillery station spawn rate
+- force presence in systems with nexus
 
 Requests
 - Add keyboard shortcuts to all indEvo industry menu points
