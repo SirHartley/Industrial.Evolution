@@ -18,7 +18,6 @@ Lawless Subpopulation,IndEvo_pirate_subpop,,TRUE,com.fs.starfarer.api.impl.campa
 
 Good relations with the more disreputable factions of the sector can have very positive effects on this colony - as long as a Privateer Base is present.",graphics/icons/markets/pirate_subpop.png,130
 Industrial Ruins,IndEvo_RuinsCondition,,FALSE,com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_RuinsCondition,Old buildings of unknown function and origin can be found on $market. The machinery seems to be mostly intact and is far more advanced than anything the post-collapse sector could ever hope to construct.,graphics/icons/markets/indRuins.png,10
-Light of the Beacon,IndEvo_BeaconCondition,,TRUE,com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_BeaconCondition,The eternal light of the beacon shines upon this colony.,graphics/icons/markets/indRuins.png,10
 Cryorevival Disabler (hidden),IndEvo_CryoRevivalDisabler,,TRUE,com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_CryoRevivalDisabler,internal hidden condition for riftGen special functions,graphics/icons/markets/placeholder.png,1000
 ressourceCondition,IndEvo_ressCond,,TRUE,com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_RessourceCondition,,graphics/icons/markets/placeholder.png,1000
 RuinfraCond,IndEvo_RuinedInfra,,FALSE,com.fs.starfarer.api.impl.campaign.econ.conditions.IndEvo_InfraCondition,,graphics/icons/markets/placeholder.png,1000

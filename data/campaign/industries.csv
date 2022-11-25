@@ -84,7 +84,6 @@ IndEvo_ChamelionIndustry,Chamelion Industry,0,0,,0,IndEvo_RuinedInfra,,structure
 #Derelicts,,,,,,,,,,,,,
 IndEvo_HullDecon,Hull Deconstructor,70,80,,7,IndEvo_Ruins,,"industrial, unraidable",,graphics/industry/hullDecon.png,com.fs.starfarer.api.impl.campaign.econ.impl.derelicts.IndEvo_HullDecon,,500
 IndEvo_HullForge,Hull Forge,70,80,,7,IndEvo_Ruins,,"industry, industrial, unraidable",,graphics/industry/hullForge.png,com.fs.starfarer.api.impl.campaign.econ.impl.derelicts.IndEvo_HullForge,,500
-IndEvo_Lighthouse,Ancient Beacon,90,90,,12,IndEvo_Ruins,,"industry, unraidable",,graphics/industry/beacon.png,com.fs.starfarer.api.impl.campaign.econ.impl.derelicts.IndEvo_Lighthouse,,500
 IndEvo_ResLab,Ancient Laboratory,60,60,,6,IndEvo_Ruins,,"structure, unraidable",,graphics/industry/resLab.png,com.fs.starfarer.api.impl.campaign.econ.impl.derelicts.IndEvo_ResLab,,500
 IndEvo_RiftGen,Rift Generator,60,60,,10,IndEvo_Ruins,,"structure, unraidable",,graphics/industry/riftGen.png,com.fs.starfarer.api.impl.campaign.econ.impl.derelicts.IndEvo_RiftGen,,500
 IndEvo_Ruins,Old Industrial Ruins,0,0,,0,,,"structure, unraidable, no_saturation_bombardment",,graphics/industry/derelict.png,com.fs.starfarer.api.impl.campaign.econ.impl.derelicts.IndEvo_Ruins,"Ancient, ruined industrial compounds can be found throughout the countryside of this world. Their origin or builder is unknown, but they look to be pre-collapse.
@@ -114,6 +113,3 @@ Causes recent unrest on this planet to decay at a rate of one point per month, a
 ,,,,,,,,,,,,,
 #Rebalancing,,,,,,,,,,,,,
 commerce,Commerce,90,90,,3,,,"industry, urban",,graphics/icons/industry/commerce.png,com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_TradeCenter,"Regulations, grants, and infrastructure to encourage thriving independent trade. Greatly reduces the degree of direct control the administration has over the colony.",1950
-techmining,Tech-Mining,30,45,,2,,,"techmining, industry, industrial",,graphics/icons/industry/techmining.png,com.fs.starfarer.api.betterColonies.BetterColoniesTechMining,"Techmining is the motley art of recovering valuable artifacts from Domain ruins. Requires special tools to deal with unique hazards and expert judgement to know where to look for a good haul of baubles. The oldest techminers are a strange lot, clutching luck-charms and refusing to work without their rituals.",400
-,,,,,,,,,,,,,
-,,,,,,,,,,,,,

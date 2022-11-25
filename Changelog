@@ -4,6 +4,7 @@ Validate
 - Artillery eye should be working and changing location as intended
 
 Bugs
+- Eye shows up in systems with friendly artillery
 - while you are hovering over the "World Symbols" category in the industry install tab it
     will increase the colony stability by one, though removing that again once you hover over something else
 - World symbol bonus only applies while colony is open and doesn't apply at all to other colonies in system
@@ -73,9 +74,13 @@ adjust salvage event "Ship Roulette" -
 
 -----------------------o-----------------------
 3.1.g - UNRELEASED
+Techmining
+Removed - Techmining progress indicator (Download Better Colonies instead!)
+
 Artillery
 Adjusted - Now ignores Epta tradestations for faction change
-todo might be a lie, rework this! Fixed - Eye indicator now works reliably again
+Fixed - Eye indicator now works reliably again
+Fixed - Artillery stations now properly target and shoot you upon target lock
 Fixed - Now properly reverts to derelict station if there is no other faction claiming the system
 
 3.1.f
