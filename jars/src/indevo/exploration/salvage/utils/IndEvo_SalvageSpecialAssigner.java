@@ -2,7 +2,8 @@ package indevo.exploration.salvage.utils;
 
 import com.fs.starfarer.api.Global;
 import indevo.exploration.salvage.specials.*;
-import indevo.utils.helper.IndEvo_IndustryHelper;
+import indevo.ids.Ids;
+import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
@@ -18,7 +19,6 @@ import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.SalvageSpecialAssigner;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.*;
 import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin;
-import indevo.ids.IndEvo_ids;
 import indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
@@ -88,7 +88,7 @@ public class IndEvo_SalvageSpecialAssigner {
 
         if (specialData != null) {
             //log.info("Adding " + specialData.getClass().getName() + " to " + entity.getCustomEntityType());
-            IndEvo_IndustryHelper.addOrIncrement(specialMap, specialData.getClass().getName(), 1);
+            IndustryHelper.addOrIncrement(specialMap, specialData.getClass().getName(), 1);
 
             Misc.setSalvageSpecial(entity, specialData);
         }
@@ -206,14 +206,14 @@ public class IndEvo_SalvageSpecialAssigner {
             picker.add(new JuicyRumorsSpecialCreator(random, 5, 10), 10f);
         }
 
-        if (IndEvo_ids.LAB_ENTITY.equals(type)) {
+        if (Ids.LAB_ENTITY.equals(type)) {
             picker.add(new ItemChoiceSpecialCreator(random, 0.1f, 0.4f), 5f);
             picker.add(new ChooseBlueprintSpecialCreator(random, ShipAPI.HullSize.CAPITAL_SHIP, 3, 4), 10f);
             picker.add(new PrintShipSpecialCreator(random, 0, 2), 20f);
             picker.add(new ShipRouletteSpecialCreator(random, 0, 1), 10f);
         }
 
-        if (IndEvo_ids.ARSENAL_ENTITY.equals(type)) {
+        if (Ids.ARSENAL_ENTITY.equals(type)) {
             picker.add(new NothingSpecialCreator(), 10f);
             picker.add(new ItemChoiceSpecialCreator(random, 0.2f, 0.95f), 5f);
             picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 20f);
@@ -334,7 +334,7 @@ public class IndEvo_SalvageSpecialAssigner {
                 log.info("Repicking for itemChoiceSpecial: " + safeguard);
             }
 
-            return new IndEvo_ItemChoiceSpecial.ItemChoiceSpecialData(item, explosionChance);
+            return new ItemChoiceSpecial.ItemChoiceSpecialData(item, explosionChance);
         }
     }
 
@@ -351,7 +351,7 @@ public class IndEvo_SalvageSpecialAssigner {
 
         public Object createSpecial(SectorEntityToken entity, SalvageSpecialAssigner.SpecialCreationContext context) {
             int level = min + random.nextInt(max - min + 1);
-            return new IndEvo_ShipRouletteSpecial.ShipRouletteSpecialData(level);
+            return new ShipRouletteSpecial.ShipRouletteSpecialData(level);
         }
     }
 
@@ -368,7 +368,7 @@ public class IndEvo_SalvageSpecialAssigner {
 
         public Object createSpecial(SectorEntityToken entity, SalvageSpecialAssigner.SpecialCreationContext context) {
             int level = min + random.nextInt(max - min + 1);
-            return new IndEvo_PrintShipSpecial.PrintShipSpecialData(level);
+            return new PrintShipSpecial.PrintShipSpecialData(level);
         }
     }
 
@@ -395,7 +395,7 @@ public class IndEvo_SalvageSpecialAssigner {
             FactionAPI faction_1 = picker.pick();
             float amt = (min + random.nextInt(max - min + 1)) / 100f;
 
-            return new IndEvo_JuicyRumorsSpecial.JuicyRumorsSpecialData(faction_1.getId(), amt);
+            return new JuicyRumorsSpecial.JuicyRumorsSpecialData(faction_1.getId(), amt);
         }
     }
 
@@ -412,8 +412,8 @@ public class IndEvo_SalvageSpecialAssigner {
         }
 
         public Object createSpecial(SectorEntityToken entity, SalvageSpecialAssigner.SpecialCreationContext context) {
-            IndEvo_ExtraFuelSpecial.ExtraFuelSpecialType type = random.nextFloat() > SUCCESS_CHANCE ? IndEvo_ExtraFuelSpecial.ExtraFuelSpecialType.EXPLOSION : IndEvo_ExtraFuelSpecial.ExtraFuelSpecialType.SUCCESS;
-            return new IndEvo_ExtraFuelSpecial.ExtraFuelSpecialData(type, min, max);
+            ExtraFuelSpecial.ExtraFuelSpecialType type = random.nextFloat() > SUCCESS_CHANCE ? ExtraFuelSpecial.ExtraFuelSpecialType.EXPLOSION : ExtraFuelSpecial.ExtraFuelSpecialType.SUCCESS;
+            return new ExtraFuelSpecial.ExtraFuelSpecialData(type, min, max);
         }
     }
 
@@ -430,7 +430,7 @@ public class IndEvo_SalvageSpecialAssigner {
 
         public Object createSpecial(SectorEntityToken entity, SalvageSpecialAssigner.SpecialCreationContext context) {
             int level = min + random.nextInt(max - min + 1);
-            return new IndEvo_DroneSurveyDataSpecial.DroneSurveyDataSpecialData(level);
+            return new DroneSurveyDataSpecial.DroneSurveyDataSpecialData(level);
         }
     }
 
@@ -447,7 +447,7 @@ public class IndEvo_SalvageSpecialAssigner {
 
         public Object createSpecial(SectorEntityToken entity, SalvageSpecialAssigner.SpecialCreationContext context) {
             int level = min + random.nextInt(max - min + 1);
-            return new IndEvo_DModRepairSpecial.DModRepairSpecialData(level);
+            return new DModRepairSpecial.DModRepairSpecialData(level);
         }
     }
 
@@ -487,7 +487,7 @@ public class IndEvo_SalvageSpecialAssigner {
             hullSize = picker.pick(random);
             amt = minAmt + random.nextInt(maxAmt - minAmt + 1);
 
-            return new IndEvo_ChooseBlueprintSpecial.ChooseBlueprintSpecialData(hullSize, amt);
+            return new ChooseBlueprintSpecial.ChooseBlueprintSpecialData(hullSize, amt);
         }
     }
 
@@ -504,7 +504,7 @@ public class IndEvo_SalvageSpecialAssigner {
 
         public Object createSpecial(SectorEntityToken entity, SalvageSpecialAssigner.SpecialCreationContext context) {
             float efficiency = minEfficiency + random.nextFloat() * (maxEfficiency - minEfficiency);
-            return new IndEvo_ConvertVPCSpecial.ConvertVPCSpecialData(efficiency);
+            return new ConvertVPCSpecial.ConvertVPCSpecialData(efficiency);
         }
     }
 
@@ -529,7 +529,7 @@ public class IndEvo_SalvageSpecialAssigner {
         }
 
         public Object createSpecial(SectorEntityToken entity, SalvageSpecialAssigner.SpecialCreationContext context) {
-            IndEvo_CreditStashSpecial.CreditStashSpecialData data = new IndEvo_CreditStashSpecial.CreditStashSpecialData();
+            CreditStashSpecial.CreditStashSpecialData data = new CreditStashSpecial.CreditStashSpecialData();
 
             int creditAmount = Math.round(minCreditAmount + (random.nextFloat() * (maxCeditAmount - minCreditAmount)));
             data.creditAmt = creditAmount;

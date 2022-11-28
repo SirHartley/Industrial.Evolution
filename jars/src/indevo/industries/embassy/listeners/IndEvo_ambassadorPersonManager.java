@@ -2,8 +2,9 @@ package indevo.industries.embassy.listeners;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_IndustryHelper;
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.ids.Ids;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.BaseCampaignEventListener;
 import com.fs.starfarer.api.campaign.CommDirectoryEntryAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
@@ -16,10 +17,9 @@ import com.fs.starfarer.api.characters.PersonAPI;
 import indevo.industries.embassy.industry.IndEvo_embassy;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import indevo.industries.embassy.IndEvo_AmbassadorItemHelper;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import indevo.utils.timers.IndEvo_newDayListener;
+import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import exerelin.campaign.DiplomacyManager;
@@ -29,7 +29,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-public class IndEvo_ambassadorPersonManager implements EconomyTickListener, IndEvo_newDayListener {
+public class IndEvo_ambassadorPersonManager implements EconomyTickListener, NewDayListener {
     private static final float NO_PENALTY = 0f;
 
     private final Map<FactionAPI, Float> lastDayRep = new HashMap<>();
@@ -66,12 +66,12 @@ public class IndEvo_ambassadorPersonManager implements EconomyTickListener, IndE
         }
 
         if (!mergedMap.isEmpty()) {
-            MessageIntel intel = new MessageIntel(IndEvo_StringHelper.getString(IndEvo_ids.EMBASSY, "embassyRepChange"), Misc.getTextColor());
+            MessageIntel intel = new MessageIntel(StringHelper.getString(Ids.EMBASSY, "embassyRepChange"), Misc.getTextColor());
             for (Map.Entry<FactionAPI, Float> e : mergedMap.entrySet()) {
                 FactionAPI faction = e.getKey();
-                String delta = IndEvo_StringHelper.getFloatToIntStrx100(e.getValue());
+                String delta = StringHelper.getFloatToIntStrx100(e.getValue());
                 String deltaStr = e.getValue() > 0f ? "+" + delta : delta;
-                Pair<String, Color> repInt = IndEvo_StringHelper.getRepIntTooltipPair(faction);
+                Pair<String, Color> repInt = StringHelper.getRepIntTooltipPair(faction);
                 String factionName = faction.getDisplayName();
                 Color deltaColor = e.getValue() >= 0 ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor();
 
@@ -157,7 +157,7 @@ public class IndEvo_ambassadorPersonManager implements EconomyTickListener, IndE
             if (getListOfIncativeFactions().contains(getAmbassador(market).getFaction())) {
                 displayMessage("ambassadorVacated", "ambassadorFactionEradicatedFlavour", person, market, NO_PENALTY);
                 IndEvo_ambassadorPersonManager.deleteAmbassador(market);
-                market.getIndustry(IndEvo_ids.EMBASSY).setSpecialItem(null);
+                market.getIndustry(Ids.EMBASSY).setSpecialItem(null);
                 continue;
             }
 
@@ -173,7 +173,7 @@ public class IndEvo_ambassadorPersonManager implements EconomyTickListener, IndE
 
                 displayMessage("ambassadorVacated", "ambassadorRecalledFlavour", person, market, NO_PENALTY);
                 IndEvo_ambassadorPersonManager.deleteAmbassador(market);
-                market.getIndustry(IndEvo_ids.EMBASSY).setSpecialItem(null);
+                market.getIndustry(Ids.EMBASSY).setSpecialItem(null);
             }
         }
     }
@@ -200,12 +200,12 @@ public class IndEvo_ambassadorPersonManager implements EconomyTickListener, IndE
             }
         }
 
-        if (market.isPlayerOwned() && hasAmbassador(market) && !market.hasIndustry(IndEvo_ids.EMBASSY)) {
+        if (market.isPlayerOwned() && hasAmbassador(market) && !market.hasIndustry(Ids.EMBASSY)) {
             deleteAmbassador(market);
             log("removed ambassador at " + market.getName() + ", no Embassy");
         }
 
-        if (market.isPlayerOwned() && hasAmbassador(market) && market.hasIndustry(IndEvo_ids.EMBASSY) && market.getIndustry(IndEvo_ids.EMBASSY).getSpecialItem() == null) {
+        if (market.isPlayerOwned() && hasAmbassador(market) && market.hasIndustry(Ids.EMBASSY) && market.getIndustry(Ids.EMBASSY).getSpecialItem() == null) {
             deleteAmbassador(market);
             log("removed ambassador at " + market.getName() + ", no specItem but ambassador present");
         }
@@ -245,23 +245,23 @@ public class IndEvo_ambassadorPersonManager implements EconomyTickListener, IndE
         Color color = Misc.getTextColor();
         FactionAPI faction = person.getFaction();
 
-        Pair<String, Color> repInt = IndEvo_StringHelper.getRepIntTooltipPair(faction);
+        Pair<String, Color> repInt = StringHelper.getRepIntTooltipPair(faction);
         Map<String, String> toReplace = new HashMap<>();
         if (market != null) toReplace.put("$marketName", market.getName());
         toReplace.put("$factionName", faction.getDisplayName());
         toReplace.put("$personName", person.getNameString());
-        toReplace.put("$heOrShe", IndEvo_StringHelper.getHeOrShe(person));
-        toReplace.put("$decreasedByPenalty", IndEvo_StringHelper.getString(IndEvo_ids.EMBASSY, "decreasedByInt") + IndEvo_StringHelper.getFloatToIntStrx100(-repDropAmount));
+        toReplace.put("$heOrShe", StringHelper.getHeOrShe(person));
+        toReplace.put("$decreasedByPenalty", StringHelper.getString(Ids.EMBASSY, "decreasedByInt") + StringHelper.getFloatToIntStrx100(-repDropAmount));
 
-        String message = IndEvo_StringHelper.getStringAndSubstituteTokens(IndEvo_ids.EMBASSY, mainText, toReplace);
+        String message = StringHelper.getStringAndSubstituteTokens(Ids.EMBASSY, mainText, toReplace);
         String[] highlights = new String[]{toReplace.get("$factionName"), toReplace.get("$personName")};
-        String flavour = IndEvo_StringHelper.getString(IndEvo_ids.EMBASSY, flavourText);
+        String flavour = StringHelper.getString(Ids.EMBASSY, flavourText);
 
         MessageIntel intel = new MessageIntel(message, color, highlights, faction.getColor());
         if (flavourText != null) intel.addLine(flavour, color);
         if (repDropAmount != 0f) {
-            intel.addLine(BaseIntelPlugin.BULLET + IndEvo_StringHelper.getStringAndSubstituteTokens(IndEvo_ids.EMBASSY, "decreaseMessage", toReplace), color, new String[]{toReplace.get("$factionName"), toReplace.get("$decreasedByPenalty")}, faction.getColor(), Misc.getNegativeHighlightColor());
-            intel.addLine(BaseIntelPlugin.BULLET + IndEvo_StringHelper.getString(IndEvo_ids.EMBASSY, "currentAt"), color, new String[]{repInt.one}, repInt.two);
+            intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getStringAndSubstituteTokens(Ids.EMBASSY, "decreaseMessage", toReplace), color, new String[]{toReplace.get("$factionName"), toReplace.get("$decreasedByPenalty")}, faction.getColor(), Misc.getNegativeHighlightColor());
+            intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getString(Ids.EMBASSY, "currentAt"), color, new String[]{repInt.one}, repInt.two);
             Global.getSoundPlayer().playUISound("ui_rep_drop", 1, 1);
         } else intel.setSound(BaseIntelPlugin.getSoundMinorMessage());
         intel.setIcon(faction.getCrest());
@@ -275,7 +275,7 @@ public class IndEvo_ambassadorPersonManager implements EconomyTickListener, IndE
         List<MarketAPI> list = new ArrayList<>();
 
         for (MarketAPI market : Global.getSector().getEconomy().getMarketsCopy()) {
-            if (market.isPlayerOwned() && hasAmbassador(market) && market.hasIndustry(IndEvo_ids.EMBASSY)) {
+            if (market.isPlayerOwned() && hasAmbassador(market) && market.hasIndustry(Ids.EMBASSY)) {
                 list.add(market);
             }
         }
@@ -404,7 +404,7 @@ public class IndEvo_ambassadorPersonManager implements EconomyTickListener, IndE
             IndEvo_ambassadorPersonManager.deleteAmbassador(originalMarket);
             IndEvo_ambassadorPersonManager.addAmbassadorToMarket(ambassador, originalMarket);
 
-            fromMarket.getIndustry(IndEvo_ids.EMBASSY).setSpecialItem(null);
+            fromMarket.getIndustry(Ids.EMBASSY).setSpecialItem(null);
         }
     }
 
@@ -412,9 +412,9 @@ public class IndEvo_ambassadorPersonManager implements EconomyTickListener, IndE
         Map<FactionAPI, Float> repMultMap = new HashMap<>();
 
         for (MarketAPI market : getPlayerMarketsWithEmbassy()) {
-            IndEvo_embassy emb = (IndEvo_embassy) market.getIndustry(IndEvo_ids.EMBASSY);
+            IndEvo_embassy emb = (IndEvo_embassy) market.getIndustry(Ids.EMBASSY);
             FactionAPI faction = emb.alignedFaction;
-            float aiCoreBonus = IndEvo_IndustryHelper.getAiCoreIdNotNull(emb).equals(Commodities.ALPHA_CORE) ? 0.5f : 1f;
+            float aiCoreBonus = IndustryHelper.getAiCoreIdNotNull(emb).equals(Commodities.ALPHA_CORE) ? 0.5f : 1f;
 
             if (repMultMap.containsKey(faction)) {
                 repMultMap.put(faction, repMultMap.get(faction) + 1 * aiCoreBonus);
@@ -434,12 +434,12 @@ public class IndEvo_ambassadorPersonManager implements EconomyTickListener, IndE
         Set<MarketAPI> marketSet = new HashSet<>();
         for (MarketAPI anyMarket : Global.getSector().getEconomy().getMarketsCopy()) {
             if (anyMarket.isPlayerOwned()
-                    && anyMarket.hasIndustry(IndEvo_ids.EMBASSY)
-                    && anyMarket.getIndustry(IndEvo_ids.EMBASSY).getSpecialItem() == null
+                    && anyMarket.hasIndustry(Ids.EMBASSY)
+                    && anyMarket.getIndustry(Ids.EMBASSY).getSpecialItem() == null
             ) marketSet.add(anyMarket);
         }
 
-        return IndEvo_IndustryHelper.getClosestPlayerMarketWithIndustryFromSet(market, IndEvo_ids.EMBASSY, marketSet);
+        return IndustryHelper.getClosestPlayerMarketWithIndustryFromSet(market, Ids.EMBASSY, marketSet);
     }
 
     public static class checkAmbassadorPresence extends BaseCampaignEventListener {
@@ -479,10 +479,10 @@ public class IndEvo_ambassadorPersonManager implements EconomyTickListener, IndE
             if (!isDone) {
 
                 MarketAPI market = source;
-                IndEvo_embassy embassy = market.hasIndustry(IndEvo_ids.EMBASSY) ? (IndEvo_embassy) market.getIndustry(IndEvo_ids.EMBASSY) : null;
+                IndEvo_embassy embassy = market.hasIndustry(Ids.EMBASSY) ? (IndEvo_embassy) market.getIndustry(Ids.EMBASSY) : null;
 
                 MarketAPI targetMarket = target;
-                IndEvo_embassy targetEmbassy = targetMarket != null && targetMarket.hasIndustry(IndEvo_ids.EMBASSY) ? (IndEvo_embassy) targetMarket.getIndustry(IndEvo_ids.EMBASSY) : null;
+                IndEvo_embassy targetEmbassy = targetMarket != null && targetMarket.hasIndustry(Ids.EMBASSY) ? (IndEvo_embassy) targetMarket.getIndustry(Ids.EMBASSY) : null;
 
                 //just to make super sure, check everything again
                 if (embassy != null

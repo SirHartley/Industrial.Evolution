@@ -1,7 +1,8 @@
 package indevo.industries.courierport.intel;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.utils.ModPlugin;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
@@ -20,7 +21,6 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
-import indevo.utils.IndEvo_modPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.SectorMapAPI;
@@ -56,7 +56,7 @@ public class ShippingIntel extends BaseIntelPlugin {
     }
 
     protected void notifyEnded() {
-        IndEvo_modPlugin.log("Shipping Intel " + getName() + " ended, removing");
+        ModPlugin.log("Shipping Intel " + getName() + " ended, removing");
         Global.getSector().getIntelManager().removeIntel(this);
         Global.getSector().getScripts().remove(this);
     }
@@ -194,7 +194,7 @@ public class ShippingIntel extends BaseIntelPlugin {
         tooltip.addPara("Cadence: " + (contract.getRecurrentDays() > 0 ? "every %s" : "%s"), pad, Misc.getHighlightColor(), cadenceString);
 
         if (fromMarket != null && toMarket != null) {
-            String alphaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.ALPHA_CORE) ? " [-" + IndEvo_StringHelper.getAbsPercentString(ShippingCostCalculator.TOTAL_FEE_REDUCTION, true) + ", Alpha Core]" : "";
+            String alphaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.ALPHA_CORE) ? " [-" + StringHelper.getAbsPercentString(ShippingCostCalculator.TOTAL_FEE_REDUCTION, true) + ", Alpha Core]" : "";
 
             if(shipment.isDone())  {
                 tooltip.addPara("Cost: %s", opad, Misc.getHighlightColor(), Misc.getDGSCredits(shipment.cost));
@@ -215,7 +215,7 @@ public class ShippingIntel extends BaseIntelPlugin {
                         "Ships transport",
                         Misc.getDGSCredits(shipCost) + alphaCoreStr);
 
-            String betaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.BETA_CORE) ? " [-" + IndEvo_StringHelper.getAbsPercentString(ShippingCostCalculator.DISTANCE_MULT_REDUCTION, true) + ", Beta Core]" : "";
+            String betaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.BETA_CORE) ? " [-" + StringHelper.getAbsPercentString(ShippingCostCalculator.DISTANCE_MULT_REDUCTION, true) + ", Beta Core]" : "";
             tooltip.addToGrid(0, 3, "Distance multiplier", "x" + lyMultStr + betaCoreStr);
 
             if (fromSubmarket != null && fromSubmarket.getSpecId().equals(Submarkets.LOCAL_RESOURCES)) {

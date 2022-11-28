@@ -10,9 +10,9 @@ import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
-import indevo.industries.IndEvo_SharedSubmarketUser;
-import indevo.items.installable.IndEvo_ForgeTemplateInstallableItemPlugin;
-import indevo.ids.IndEvo_ids;
+import indevo.industries.SharedSubmarketUser;
+import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
+import indevo.ids.Ids;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import org.apache.log4j.Logger;
@@ -23,7 +23,7 @@ import java.util.List;
 
 import static indevo.industries.derelicts.industry.IndEvo_Ruins.INDUSTRY_ID_MEMORY_KEY;
 
-public class IndEvo_BaseForgeTemplateUser extends IndEvo_SharedSubmarketUser {
+public class IndEvo_BaseForgeTemplateUser extends SharedSubmarketUser {
     //this is the base for any industry using forge templates - any extension MUST call super.apply/unapply, respectively
 
     public static Logger log = Global.getLogger(IndEvo_BaseForgeTemplateUser.class);
@@ -41,7 +41,7 @@ public class IndEvo_BaseForgeTemplateUser extends IndEvo_SharedSubmarketUser {
         String id = market.getMemoryWithoutUpdate().getString(INDUSTRY_ID_MEMORY_KEY);
 
         boolean check = (id != null && getId().equals(id))
-                && (market.hasIndustry(IndEvo_ids.RUINS) && !(market.getIndustry(IndEvo_ids.RUINS).isUpgrading())); //no ruins id specified or wrong general ID
+                && (market.hasIndustry(Ids.RUINS) && !(market.getIndustry(Ids.RUINS).isUpgrading())); //no ruins id specified or wrong general ID
 
         return check && super.isAvailableToBuild();
     }
@@ -83,10 +83,10 @@ public class IndEvo_BaseForgeTemplateUser extends IndEvo_SharedSubmarketUser {
     public void unapply() {
         super.unapply();
 
-        spec.setDowngrade(IndEvo_ids.RUINS);
+        spec.setDowngrade(Ids.RUINS);
 
         if (forgeTemplate != null) {
-            IndEvo_ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect effect = IndEvo_ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.get(forgeTemplate.getId());
+            ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect effect = ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.get(forgeTemplate.getId());
             if (effect != null) {
                 effect.unapply(this);
             }
@@ -103,7 +103,7 @@ public class IndEvo_BaseForgeTemplateUser extends IndEvo_SharedSubmarketUser {
 
     protected void applyForgeTemplateEffects() {
         if (forgeTemplate != null) {
-            IndEvo_ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect effect = IndEvo_ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.get(forgeTemplate.getId());
+            ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect effect = ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.get(forgeTemplate.getId());
 
             if (effect != null) {
                 effect.apply(this, forgeTemplate);
@@ -113,7 +113,7 @@ public class IndEvo_BaseForgeTemplateUser extends IndEvo_SharedSubmarketUser {
 
     public void setForgeTemplate(SpecialItemData forgeTemplate) {
         if (forgeTemplate == null && this.forgeTemplate != null) {
-            IndEvo_ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect effect = IndEvo_ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.get(this.forgeTemplate.getId());
+            ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect effect = ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.get(this.forgeTemplate.getId());
             if (effect != null) {
                 effect.unapply(this);
             }
@@ -133,7 +133,7 @@ public class IndEvo_BaseForgeTemplateUser extends IndEvo_SharedSubmarketUser {
     public boolean wantsToUseSpecialItem(SpecialItemData data) {
         return forgeTemplate == null &&
                 data != null &&
-                IndEvo_ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.containsKey(data.getId());
+                ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.containsKey(data.getId());
     }
 
     @Override
@@ -150,7 +150,7 @@ public class IndEvo_BaseForgeTemplateUser extends IndEvo_SharedSubmarketUser {
         SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(forgeTemplate.getId());
 
         TooltipMakerAPI text = tooltip.beginImageWithText(spec.getIconName(), 48);
-        IndEvo_ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect effect = IndEvo_ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.get(forgeTemplate.getId());
+        ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect effect = ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.get(forgeTemplate.getId());
         effect.addItemDescription(text, forgeTemplate, InstallableIndustryItemPlugin.InstallableItemDescriptionMode.INDUSTRY_TOOLTIP);
         tooltip.addImageWithText(opad);
 
@@ -160,7 +160,7 @@ public class IndEvo_BaseForgeTemplateUser extends IndEvo_SharedSubmarketUser {
     @Override
     public java.util.List<InstallableIndustryItemPlugin> getInstallableItems() {
         ArrayList<InstallableIndustryItemPlugin> list = new ArrayList<>();
-        list.add(new IndEvo_ForgeTemplateInstallableItemPlugin(this));
+        list.add(new ForgeTemplateInstallableItemPlugin(this));
         return list;
     }
 
@@ -169,7 +169,7 @@ public class IndEvo_BaseForgeTemplateUser extends IndEvo_SharedSubmarketUser {
         super.initWithParams(params);
 
         for (String str : params) {
-            if (IndEvo_ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.containsKey(str)) {
+            if (ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.containsKey(str)) {
                 setForgeTemplate(new SpecialItemData(str, null));
                 break;
             }

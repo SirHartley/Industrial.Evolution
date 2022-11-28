@@ -11,7 +11,7 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.impl.campaign.DebugFlags;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import indevo.ids.IndEvo_ids;
+import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Strings;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
@@ -59,8 +59,8 @@ public class IndEvo_Ruins extends BaseIndustry {
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
         super.notifyBeingRemoved(mode, forUpgrade);
 
-        if (market.hasCondition(IndEvo_ids.COND_RUINS)) {
-            market.removeSpecificCondition(market.getCondition(IndEvo_ids.COND_RUINS).getIdForPluginModifications());
+        if (market.hasCondition(Ids.COND_RUINS)) {
+            market.removeSpecificCondition(market.getCondition(Ids.COND_RUINS).getIdForPluginModifications());
         }
     }
 

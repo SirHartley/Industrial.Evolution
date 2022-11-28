@@ -2,7 +2,7 @@ package indevo.industries.academy.industry;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import indevo.utils.helper.IndEvo_IndustryHelper;
+import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.FleetDataAPI;
@@ -21,8 +21,8 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.plugins.OfficerLevelupPlugin;
-import indevo.ids.IndEvo_ids;
-import indevo.utils.timers.IndEvo_newDayListener;
+import indevo.ids.Ids;
+import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.DynamicStatsAPI;
@@ -35,7 +35,7 @@ import java.util.*;
 
 import static indevo.industries.academy.rules.IndEvo_AcademyVariables.ACADEMY_MARKET_ID;
 
-public class IndEvo_Academy extends BaseIndustry implements IndEvo_newDayListener, EconomyTickListener {
+public class IndEvo_Academy extends BaseIndustry implements NewDayListener, EconomyTickListener {
 
     public final String OFFICER_IS_TRAINING_KEY = "$IndEvo_officerIsTraining";
     public final String ADMIN_IS_TRAINING_KEY = "$IndEvo_adminIsTraining";
@@ -245,7 +245,7 @@ public class IndEvo_Academy extends BaseIndustry implements IndEvo_newDayListene
             MonthlyReport.FDNode indNode = report.getNode(mNode, "industries");
 
             for (Industry curr : market.getIndustries()) {
-                if (!curr.getId().equals(IndEvo_ids.REPAIRDOCKS)) { //Have to exclude repdock or player will not be billed repairs
+                if (!curr.getId().equals(Ids.REPAIRDOCKS)) { //Have to exclude repdock or player will not be billed repairs
                     MonthlyReport.FDNode iNode = report.getNode(indNode, curr.getId());
                     iNode.income = 0;
                     iNode.upkeep = 0;
@@ -285,7 +285,7 @@ public class IndEvo_Academy extends BaseIndustry implements IndEvo_newDayListene
     public static final float OFFICER_MAX_LEVEL_FOREIGN_MULT = 1.3f;
 
     private void increaseOfficerQuality() {
-        for (MarketAPI market : IndEvo_IndustryHelper.getMarketsInLocation(this.market.getContainingLocation(), this.market.getFactionId())) {
+        for (MarketAPI market : IndustryHelper.getMarketsInLocation(this.market.getContainingLocation(), this.market.getFactionId())) {
             DynamicStatsAPI stats = market.getStats().getDynamic();
             OfficerLevelupPlugin plugin = (OfficerLevelupPlugin) Global.getSettings().getPlugin("officerLevelUp");
 
@@ -304,7 +304,7 @@ public class IndEvo_Academy extends BaseIndustry implements IndEvo_newDayListene
     }
 
     private void unmodifyOfficerQualityIncrease() {
-        for (MarketAPI market : IndEvo_IndustryHelper.getMarketsInLocation(this.market.getContainingLocation(), this.market.getFactionId())) {
+        for (MarketAPI market : IndustryHelper.getMarketsInLocation(this.market.getContainingLocation(), this.market.getFactionId())) {
             market.getStats().getDynamic().getMod(Stats.OFFICER_MAX_LEVEL_MOD).unmodify(getModId());
             market.getStats().getDynamic().getMod(Stats.OFFICER_PROB_MOD).unmodify(getModId());
         }

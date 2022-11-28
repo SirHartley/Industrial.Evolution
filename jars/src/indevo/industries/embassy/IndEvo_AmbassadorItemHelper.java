@@ -1,11 +1,11 @@
 package indevo.industries.embassy;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_IndustryHelper;
+import indevo.items.specialitemdata.AmbassadorItemData;
+import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
-import indevo.ids.IndEvo_ids;
-import indevo.items.specialitemdata.IndEvo_AmbassadorItemData;
+import indevo.ids.Ids;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 
@@ -22,7 +22,7 @@ public class IndEvo_AmbassadorItemHelper {
     }
 
     public static Set<String> getAllowedFactionID() {
-        Set<String> allowedList = IndEvo_IndustryHelper.getCSVSetFromMemory(IndEvo_ids.EMBASSY_LIST);
+        Set<String> allowedList = IndustryHelper.getCSVSetFromMemory(Ids.EMBASSY_LIST);
         MemoryAPI memory = Global.getSector().getMemoryWithoutUpdate();
 
         for (String key : memory.getKeys()) {
@@ -35,8 +35,8 @@ public class IndEvo_AmbassadorItemHelper {
     }
 
     public static FactionAPI getFactionForItem(SpecialItemData itemData) {
-        if (itemData instanceof IndEvo_AmbassadorItemData) {
-            IndEvo_AmbassadorItemData item = (IndEvo_AmbassadorItemData) itemData;
+        if (itemData instanceof AmbassadorItemData) {
+            AmbassadorItemData item = (AmbassadorItemData) itemData;
             return item.getPerson() != null ? item.getPerson().getFaction() : null;
         }
 
@@ -44,8 +44,8 @@ public class IndEvo_AmbassadorItemHelper {
     }
 
     public static PersonAPI getPersonForItem(SpecialItemData itemData) {
-        if (itemData instanceof IndEvo_AmbassadorItemData) {
-            IndEvo_AmbassadorItemData item = (IndEvo_AmbassadorItemData) itemData;
+        if (itemData instanceof AmbassadorItemData) {
+            AmbassadorItemData item = (AmbassadorItemData) itemData;
             return item.getPerson();
         }
 

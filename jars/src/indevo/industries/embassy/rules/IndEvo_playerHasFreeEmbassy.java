@@ -4,7 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.ids.IndEvo_ids;
+import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import indevo.industries.embassy.listeners.IndEvo_ambassadorItemTrackerPlugin;
 import com.fs.starfarer.api.util.Misc;
@@ -20,8 +20,8 @@ public class IndEvo_playerHasFreeEmbassy extends BaseCommandPlugin {
 
         for (MarketAPI market : Misc.getFactionMarkets("player")) {
             if (market.isPlayerOwned()
-                    && market.hasIndustry(IndEvo_ids.EMBASSY)
-                    && market.getIndustry(IndEvo_ids.EMBASSY).getSpecialItem() == null) {
+                    && market.hasIndustry(Ids.EMBASSY)
+                    && market.getIndustry(Ids.EMBASSY).getSpecialItem() == null) {
 
                 freeEmbassies++;
             }

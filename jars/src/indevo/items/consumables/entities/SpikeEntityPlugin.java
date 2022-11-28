@@ -8,7 +8,7 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
-import indevo.ids.IndEvo_ids;
+import indevo.ids.Ids;
 import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.util.Misc;
 import org.lwjgl.util.vector.Vector2f;
@@ -117,8 +117,8 @@ public class SpikeEntityPlugin extends BaseCustomEntityPlugin {
         }
 
         if(state == State.FIRING){
-            entity.addAbility(IndEvo_ids.ABILITY_MINE_INTERDICT);
-            entity.getAbility(IndEvo_ids.ABILITY_MINE_INTERDICT).activate();
+            entity.addAbility(Ids.ABILITY_MINE_INTERDICT);
+            entity.getAbility(Ids.ABILITY_MINE_INTERDICT).activate();
         }
 
         //blinky ---------

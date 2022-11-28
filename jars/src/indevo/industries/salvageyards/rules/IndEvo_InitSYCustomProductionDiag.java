@@ -1,7 +1,8 @@
 package indevo.industries.salvageyards.rules;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.ids.ItemIds;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
@@ -9,12 +10,11 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import indevo.industries.salvageyards.industry.IndEvo_ScrapYard;
-import indevo.ids.IndEvo_Items;
-import indevo.ids.IndEvo_ids;
+import indevo.industries.salvageyards.industry.SalvageYards;
+import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.ids.Sounds;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
-import indevo.industries.salvageyards.intel.IndEvo_YardsCustomProductionIntel;
+import indevo.industries.salvageyards.intel.YardsCustomProductionIntel;
 import com.fs.starfarer.api.impl.campaign.rulecmd.*;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.ValueDisplayMode;
@@ -141,20 +141,20 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
         Option option = Option.valueOf(optionData.toString());
 
-        float rarePartsInCargo = Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(IndEvo_Items.RARE_PARTS);
-        float rarePartsInMarket = Misc.getStorageCargo(getMarket()).getCommodityQuantity(IndEvo_Items.RARE_PARTS);
+        float rarePartsInCargo = Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(ItemIds.RARE_PARTS);
+        float rarePartsInMarket = Misc.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.RARE_PARTS);
         float rarePartsAvailable = rarePartsInCargo + rarePartsInMarket;
 
-        float partsInCargo = Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(IndEvo_Items.PARTS);
-        float partsInMarket = Misc.getStorageCargo(getMarket()).getCommodityQuantity(IndEvo_Items.PARTS);
+        float partsInCargo = Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(ItemIds.PARTS);
+        float partsInMarket = Misc.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.PARTS);
         float partsAvailable = partsInCargo + partsInMarket;
-        float partTradeInPrice = Math.round(Global.getSettings().getCommoditySpec(IndEvo_Items.PARTS).getBasePrice() * PART_VALUE_MULT);
+        float partTradeInPrice = Math.round(Global.getSettings().getCommoditySpec(ItemIds.PARTS).getBasePrice() * PART_VALUE_MULT);
 
         log.info("available parts cargo " + rarePartsInCargo + " market " + rarePartsInMarket);
         log.info("selected ships " + getProductionData().productionList.size());
 
-        String rarepartsName = Global.getSettings().getCommoditySpec(IndEvo_Items.RARE_PARTS).getName();
-        String partsName = Global.getSettings().getCommoditySpec(IndEvo_Items.PARTS).getName();
+        String rarepartsName = Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName();
+        String partsName = Global.getSettings().getCommoditySpec(ItemIds.PARTS).getName();
 
         switch (option) {
             case MAIN:
@@ -355,15 +355,15 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         float storyPointBonus = isWantsToSpendSP() ? 2f : 1f;
         return 3
                 + getAdditionalCapByShips()
-                + (((IndEvo_ScrapYard) getMarket().getIndustry(IndEvo_ids.SCRAPYARD)).getHullCapacity() * Global.getSettings().getInt("productionCapacityPerSWUnit"))
+                + (((SalvageYards) getMarket().getIndustry(Ids.SCRAPYARD)).getHullCapacity() * Global.getSettings().getInt("productionCapacityPerSWUnit"))
                 * storyPointBonus;
     }
 
     private void addTooltip(TextPanelAPI panel) {
         float pad = 5f;
         YardsProductionData productionData = getProductionData();
-        String rarepartsName = Global.getSettings().getCommoditySpec(IndEvo_Items.RARE_PARTS).getName();
-        String partsName = Global.getSettings().getCommoditySpec(IndEvo_Items.PARTS).getName();
+        String rarepartsName = Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName();
+        String partsName = Global.getSettings().getCommoditySpec(ItemIds.PARTS).getName();
 
         panel.addPara("\"Spend enough time taking 'em apart, you get to know how to make one. It's probably even going to be spaceworthy! Bring us the parts we can't just scrounge up, pay us, and we'll build you a beauty!\" - The foreman lowers his voice, \"Without serial numbers, of course.\"");
         panel.addPara("The Salvage Yards can construct ships for you if you provide the blueprints and components that are too rare to \"acquire\".\n\n");
@@ -387,8 +387,8 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             panel.highlightInLastPara(Misc.getPositiveHighlightColor(), "Story Point");
         }
 
-        String costMultStr = IndEvo_StringHelper.getAbsPercentString(costMult, false);
-        Pair<String, Color> repInt = IndEvo_StringHelper.getRepIntTooltipPair(getMarket().getFaction());
+        String costMultStr = StringHelper.getAbsPercentString(costMult, false);
+        Pair<String, Color> repInt = StringHelper.getRepIntTooltipPair(getMarket().getFaction());
 
         panel.addPara("Produced at cost: " + costMultStr + " " + repInt.one);
 
@@ -397,8 +397,8 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         h.setColors(Misc.getHighlightColor(), repInt.two);
         panel.setHighlightsInLastPara(h);
 
-        panel.addPara("Delivery time: " + DELIVERY_TIME + " " + IndEvo_StringHelper.getDayOrDays(DELIVERY_TIME));
-        panel.highlightInLastPara(Misc.getHighlightColor(), DELIVERY_TIME + " " + IndEvo_StringHelper.getDayOrDays(DELIVERY_TIME));
+        panel.addPara("Delivery time: " + DELIVERY_TIME + " " + StringHelper.getDayOrDays(DELIVERY_TIME));
+        panel.highlightInLastPara(Misc.getHighlightColor(), DELIVERY_TIME + " " + StringHelper.getDayOrDays(DELIVERY_TIME));
 
         panel.addPara("Selected ships:");
 
@@ -451,7 +451,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
     public void finalizeSelection() {
         removeCostFromInventory();
 
-        IndEvo_YardsCustomProductionIntel intel = new IndEvo_YardsCustomProductionIntel(getMarket(), getProductionData());
+        YardsCustomProductionIntel intel = new YardsCustomProductionIntel(getMarket(), getProductionData());
         Global.getSector().getIntelManager().addIntel(intel);
         intel.init();
 
@@ -467,33 +467,33 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
         AddRemoveCommodity.addCreditsLossText(cost, dialog.getTextPanel());
         if (rarePartsToRemove > 0)
-            AddRemoveCommodity.addCommodityLossText(IndEvo_Items.RARE_PARTS, rarePartsToRemove, dialog.getTextPanel());
+            AddRemoveCommodity.addCommodityLossText(ItemIds.RARE_PARTS, rarePartsToRemove, dialog.getTextPanel());
         if (partsToRemove > 0)
-            AddRemoveCommodity.addCommodityLossText(IndEvo_Items.PARTS, partsToRemove, dialog.getTextPanel());
+            AddRemoveCommodity.addCommodityLossText(ItemIds.PARTS, partsToRemove, dialog.getTextPanel());
 
         CargoAPI fleetCargo = Global.getSector().getPlayerFleet().getCargo();
         CargoAPI storageCargo = Misc.getStorageCargo(getMarket());
         fleetCargo.getCredits().subtract(cost);
 
-        float rarePartsInCargo = fleetCargo.getCommodityQuantity(IndEvo_Items.RARE_PARTS);
+        float rarePartsInCargo = fleetCargo.getCommodityQuantity(ItemIds.RARE_PARTS);
 
         if (rarePartsInCargo >= rarePartsToRemove) {
-            fleetCargo.removeCommodity(IndEvo_Items.RARE_PARTS, rarePartsToRemove);
+            fleetCargo.removeCommodity(ItemIds.RARE_PARTS, rarePartsToRemove);
         } else {
-            fleetCargo.removeCommodity(IndEvo_Items.RARE_PARTS, rarePartsInCargo);
+            fleetCargo.removeCommodity(ItemIds.RARE_PARTS, rarePartsInCargo);
             rarePartsToRemove -= rarePartsInCargo;
 
-            storageCargo.removeCommodity(IndEvo_Items.RARE_PARTS, rarePartsToRemove);
+            storageCargo.removeCommodity(ItemIds.RARE_PARTS, rarePartsToRemove);
         }
 
-        float partsInCargo = fleetCargo.getCommodityQuantity(IndEvo_Items.PARTS);
+        float partsInCargo = fleetCargo.getCommodityQuantity(ItemIds.PARTS);
         if (partsInCargo >= partsToRemove) {
-            fleetCargo.removeCommodity(IndEvo_Items.PARTS, partsToRemove);
+            fleetCargo.removeCommodity(ItemIds.PARTS, partsToRemove);
         } else {
-            fleetCargo.removeCommodity(IndEvo_Items.RARE_PARTS, partsInCargo);
+            fleetCargo.removeCommodity(ItemIds.RARE_PARTS, partsInCargo);
             partsToRemove -= partsInCargo;
 
-            storageCargo.removeCommodity(IndEvo_Items.RARE_PARTS, partsToRemove);
+            storageCargo.removeCommodity(ItemIds.RARE_PARTS, partsToRemove);
         }
 
         TextPanelAPI panel = dialog.getTextPanel();
@@ -592,7 +592,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         public float baseCost = 0;
 
         public float getCost() {
-            float partCost = Math.round(Global.getSettings().getCommoditySpec(IndEvo_Items.PARTS).getBasePrice() * PART_VALUE_MULT);
+            float partCost = Math.round(Global.getSettings().getCommoditySpec(ItemIds.PARTS).getBasePrice() * PART_VALUE_MULT);
             return baseCost - (partsSpent * partCost);
         }
 
@@ -601,7 +601,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         }
 
         public int getMaxPartsAmt() {
-            float partCost = Math.round(Global.getSettings().getCommoditySpec(IndEvo_Items.PARTS).getBasePrice() * PART_VALUE_MULT);
+            float partCost = Math.round(Global.getSettings().getCommoditySpec(ItemIds.PARTS).getBasePrice() * PART_VALUE_MULT);
             return (int) Math.round((baseCost / 2) / partCost);
         }
 

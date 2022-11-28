@@ -1,7 +1,8 @@
 package indevo.industries.derelicts.utils;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_IndustryHelper;
+import indevo.ids.Ids;
+import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -11,9 +12,8 @@ import com.fs.starfarer.api.campaign.listeners.SurveyPlanetListener;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import indevo.industries.derelicts.conditions.IndEvo_RuinsCondition;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 
@@ -36,7 +36,7 @@ public class IndEvo_RuinsManager {
 
         @Override
         public void reportPlayerSurveyedPlanet(PlanetAPI planet) {
-            if (planet.getMarket().hasCondition(IndEvo_ids.COND_RUINS)
+            if (planet.getMarket().hasCondition(Ids.COND_RUINS)
                     && !planet.getMarket().getMemoryWithoutUpdate().contains(INDUSTRY_ID_MEMORY_KEY)) {
                 IndEvo_RuinsManager.setUpgradeSpec(planet);
             }
@@ -53,8 +53,8 @@ public class IndEvo_RuinsManager {
         public void reportPlayerColonizedPlanet(PlanetAPI planetAPI) {
             MarketAPI m = planetAPI.getMarket();
 
-            if(m.hasCondition(IndEvo_ids.COND_RUINS)){
-                IndEvo_RuinsCondition cond = (IndEvo_RuinsCondition) m.getCondition(IndEvo_ids.COND_RUINS).getPlugin();
+            if(m.hasCondition(Ids.COND_RUINS)){
+                IndEvo_RuinsCondition cond = (IndEvo_RuinsCondition) m.getCondition(Ids.COND_RUINS).getPlugin();
                 cond.addRuinsIfNeeded();
             }
         }
@@ -74,22 +74,22 @@ public class IndEvo_RuinsManager {
 
                 MarketAPI pMarket = p.getMarket();
 
-                if (pMarket.hasCondition(IndEvo_ids.COND_RUINS)) {
+                if (pMarket.hasCondition(Ids.COND_RUINS)) {
                     if (Misc.getMarketsInLocation(p.getContainingLocation()).size() > 0
                             || s.getTags().contains(THEME_CORE)
                             || s.getTags().contains(THEME_CORE_POPULATED)
                             || s.getTags().contains(THEME_CORE_UNPOPULATED)) {
 
                         if (!pMarket.getFactionId().equals("player")) {
-                            pMarket.removeCondition(IndEvo_ids.COND_RUINS);
+                            pMarket.removeCondition(Ids.COND_RUINS);
 
                             if (pMarket.isPlanetConditionMarketOnly()) continue;
 
-                            pMarket.removeIndustry(IndEvo_ids.RUINS, null, false);
-                            pMarket.removeIndustry(IndEvo_ids.HULLFORGE, null, false);
-                            pMarket.removeIndustry(IndEvo_ids.DECONSTRUCTOR, null, false);
-                            pMarket.removeIndustry(IndEvo_ids.RIFTGEN, null, false);
-                            pMarket.removeIndustry(IndEvo_ids.LAB, null, false);
+                            pMarket.removeIndustry(Ids.RUINS, null, false);
+                            pMarket.removeIndustry(Ids.HULLFORGE, null, false);
+                            pMarket.removeIndustry(Ids.DECONSTRUCTOR, null, false);
+                            pMarket.removeIndustry(Ids.RIFTGEN, null, false);
+                            pMarket.removeIndustry(Ids.LAB, null, false);
                         }
                     }
                 }
@@ -119,14 +119,14 @@ public class IndEvo_RuinsManager {
 
                 MarketAPI m = p.getMarket();
 
-                if (p.getTags().contains(IndEvo_ids.TAG_NEVER_REMOVE_RUINS)) {
-                    if (!m.hasCondition(IndEvo_ids.COND_RUINS)) m.addCondition(IndEvo_ids.COND_RUINS);
+                if (p.getTags().contains(Ids.TAG_NEVER_REMOVE_RUINS)) {
+                    if (!m.hasCondition(Ids.COND_RUINS)) m.addCondition(Ids.COND_RUINS);
                     seedRuinsIfNeeded(p);
                 }
 
-                if (m.hasCondition(IndEvo_ids.COND_RUINS)) {
+                if (m.hasCondition(Ids.COND_RUINS)) {
                     if (forbidden || !remnant || Misc.getMarketsInLocation(p.getContainingLocation()).size() > 0) {
-                        m.removeCondition(IndEvo_ids.COND_RUINS);
+                        m.removeCondition(Ids.COND_RUINS);
                     } else {
                         switch (currentCount) {
                             case 0:
@@ -136,9 +136,9 @@ public class IndEvo_RuinsManager {
                                     seedRuinsIfNeeded(p);
                                     setUpgradeSpec(p);
 
-                                    log(IndEvo_ids.COND_RUINS.toLowerCase() + " found on " + p.getName() + " (" + p.getTypeId() + ") in " + s.getName());
+                                    log(Ids.COND_RUINS.toLowerCase() + " found on " + p.getName() + " (" + p.getTypeId() + ") in " + s.getName());
                                     amount++;
-                                } else m.removeCondition(IndEvo_ids.COND_RUINS);
+                                } else m.removeCondition(Ids.COND_RUINS);
                                 break;
 
                             case 1:
@@ -148,12 +148,12 @@ public class IndEvo_RuinsManager {
                                     seedRuinsIfNeeded(p);
                                     setUpgradeSpec(p);
 
-                                    log(IndEvo_ids.COND_RUINS.toLowerCase() + " found on " + p.getName() + " (" + p.getTypeId() + ") in " + s.getName() + " - Second Planet");
+                                    log(Ids.COND_RUINS.toLowerCase() + " found on " + p.getName() + " (" + p.getTypeId() + ") in " + s.getName() + " - Second Planet");
                                     amount++;
-                                } else m.removeCondition(IndEvo_ids.COND_RUINS);
+                                } else m.removeCondition(Ids.COND_RUINS);
                                 break;
                             default:
-                                m.removeCondition(IndEvo_ids.COND_RUINS);
+                                m.removeCondition(Ids.COND_RUINS);
                         }
                     }
                 }
@@ -176,12 +176,12 @@ public class IndEvo_RuinsManager {
             if (m == null || m.getId().equals(market.getId())) continue;
 
             MemoryAPI localMem = m.getMemoryWithoutUpdate();
-            if (m.hasCondition(IndEvo_ids.COND_RUINS)) {
+            if (m.hasCondition(Ids.COND_RUINS)) {
                 if (localMem.contains(INDUSTRY_ID_MEMORY_KEY)) {
                     String id = localMem.getString(INDUSTRY_ID_MEMORY_KEY);
 
-                    if(id.equals(IndEvo_ids.DECONSTRUCTOR) || id.equals(IndEvo_ids.HULLFORGE)){
-                        id = id.equals(IndEvo_ids.DECONSTRUCTOR) ? IndEvo_ids.HULLFORGE : IndEvo_ids.DECONSTRUCTOR;
+                    if(id.equals(Ids.DECONSTRUCTOR) || id.equals(Ids.HULLFORGE)){
+                        id = id.equals(Ids.DECONSTRUCTOR) ? Ids.HULLFORGE : Ids.DECONSTRUCTOR;
                         market.getMemoryWithoutUpdate().set(INDUSTRY_ID_MEMORY_KEY, id);
                         return;
                     }
@@ -197,11 +197,11 @@ public class IndEvo_RuinsManager {
 
         //remove riftGen if the planet has rings
         if (market.hasCondition(Conditions.SOLAR_ARRAY)
-                || market.hasCondition(IndEvo_ids.COND_MINERING)
+                || market.hasCondition(Ids.COND_MINERING)
                 || market.hasCondition("niko_MPC_antiAsteroidSatellites_derelict")
-                || IndEvo_IndustryHelper.planetHasRings(planet)
+                || IndustryHelper.planetHasRings(planet)
                 || (planet.isGasGiant())) {
-            industryIdPicker.remove(IndEvo_ids.RIFTGEN);
+            industryIdPicker.remove(Ids.RIFTGEN);
         }
 
         Random random = new Random(Misc.getSalvageSeed(planet));
@@ -210,16 +210,16 @@ public class IndEvo_RuinsManager {
         market.getMemoryWithoutUpdate().set(INDUSTRY_ID_MEMORY_KEY, chosenIndustry);
 
 
-        IndEvo_modPlugin.log("resolving to - " + chosenIndustry);
+        ModPlugin.log("resolving to - " + chosenIndustry);
     }
 
     private static Map<String, Float> getChanceMap() {
         Map<String, Float> indMap = new HashMap<>();
-        indMap.put(IndEvo_ids.LAB, 100f);
-        indMap.put(IndEvo_ids.DECONSTRUCTOR, 70f);
-        indMap.put(IndEvo_ids.HULLFORGE, 70f);
-        indMap.put(IndEvo_ids.RIFTGEN, 30f);
-        //indMap.put(IndEvo_ids.BEACON, 0.1f);
+        indMap.put(Ids.LAB, 100f);
+        indMap.put(Ids.DECONSTRUCTOR, 70f);
+        indMap.put(Ids.HULLFORGE, 70f);
+        indMap.put(Ids.RIFTGEN, 30f);
+        //indMap.put(Ids.BEACON, 0.1f);
 
         return indMap;
     }

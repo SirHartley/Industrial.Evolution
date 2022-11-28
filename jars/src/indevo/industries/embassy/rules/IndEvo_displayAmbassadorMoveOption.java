@@ -8,8 +8,8 @@ import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.PersonAPI;
+import indevo.ids.Ids;
 import indevo.industries.embassy.industry.IndEvo_embassy;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager;
 import com.fs.starfarer.api.util.Misc;
@@ -38,7 +38,7 @@ public class IndEvo_displayAmbassadorMoveOption extends BaseCommandPlugin {
             return false;
         }
 
-        IndEvo_embassy embassy = (IndEvo_embassy) market.getIndustry(IndEvo_ids.EMBASSY);
+        IndEvo_embassy embassy = (IndEvo_embassy) market.getIndustry(Ids.EMBASSY);
 
         if (!embassy.isAmbMovementAllowed()) {
             panel.setEnabled(OPTION_ID, false);

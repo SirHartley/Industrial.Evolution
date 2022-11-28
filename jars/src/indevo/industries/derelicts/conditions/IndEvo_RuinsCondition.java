@@ -4,7 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
-import indevo.ids.IndEvo_ids;
+import indevo.ids.Ids;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import org.apache.log4j.Logger;
@@ -53,7 +53,7 @@ public class IndEvo_RuinsCondition extends BaseHazardCondition {
         if (market == null || isRuinsConditionSet()) return;
 
         log.info("Adding ruins to " + market.getName());
-        market.addIndustry(IndEvo_ids.RUINS);
+        market.addIndustry(Ids.RUINS);
         setRuinsCondition();
     }
 
@@ -67,7 +67,7 @@ public class IndEvo_RuinsCondition extends BaseHazardCondition {
     private void removeConditionIfRuinsNotPresent() {
         if (!market.getMemoryWithoutUpdate().getBoolean("$isPlanetConditionMarketOnly")
                 && isRuinsConditionSet()
-                && !market.hasIndustry(IndEvo_ids.RUINS)
+                && !market.hasIndustry(Ids.RUINS)
                 && !market.getFactionId().equals("neutral")
                 && !market.isPlanetConditionMarketOnly()) {
 
@@ -90,16 +90,16 @@ public class IndEvo_RuinsCondition extends BaseHazardCondition {
             String s = "Scans of the site strangely report nothing of note.";
 
             switch (memory.getString(INDUSTRY_ID_MEMORY_KEY)) {
-                case IndEvo_ids.LAB:
+                case Ids.LAB:
                     s = "Initial scans show a massive, largely underground complex filled with arcane energy signatures.";
                     break;
-                case IndEvo_ids.DECONSTRUCTOR:
+                case Ids.DECONSTRUCTOR:
                     s = "The first scan results misreported the presence of an enormous weapons array - but it seems to be pointed at itself for some reason.";
                     break;
-                case IndEvo_ids.HULLFORGE:
+                case Ids.HULLFORGE:
                     s = "Deep scans report a strange similarity to energy patterns usually emitted by a dormant nanoforge.";
                     break;
-                case IndEvo_ids.RIFTGEN:
+                case Ids.RIFTGEN:
                     s = "All scans of the site come back with nonsensical results - some even entirely misreport the location of the ruins.";
                     break;
             }

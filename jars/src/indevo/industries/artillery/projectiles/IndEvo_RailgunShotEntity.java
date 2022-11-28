@@ -6,7 +6,7 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -14,7 +14,7 @@ import org.lwjgl.util.vector.Vector2f;
 import java.awt.*;
 import java.util.Random;
 
-import static indevo.utils.helper.IndEvo_IndustryHelper.smootherstep;
+import static indevo.utils.helper.IndustryHelper.smootherstep;
 import static java.lang.Math.random;
 
 public class IndEvo_RailgunShotEntity extends BaseCustomEntityPlugin {
@@ -117,7 +117,7 @@ public class IndEvo_RailgunShotEntity extends BaseCustomEntityPlugin {
                 fuzzMult *= random.nextBoolean() ? -1 : 1;
                 fuzzMult += 1;
 
-                IndEvo_modPlugin.log("fuzzing at " + fuzzMult);
+                ModPlugin.log("fuzzing at " + fuzzMult);
             }
 
             float dist = vel.length() * impactTimeSeconds * fuzzMult;

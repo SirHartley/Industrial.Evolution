@@ -1,7 +1,8 @@
 package indevo.industries.salvageyards.rules;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.industries.RestorationDocks;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
@@ -11,7 +12,6 @@ import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.DModManager;
-import indevo.industries.IndEvo_dryDock;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
@@ -351,14 +351,14 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
         variant.setOriginalVariant(null);
         variant.setHullVariantId(Misc.genUID());
 
-        variant.setHullSpecAPI(IndEvo_dryDock.getBaseShipHullSpec(member.getVariant(), false));
+        variant.setHullSpecAPI(RestorationDocks.getBaseShipHullSpec(member.getVariant(), false));
         member.setVariant(variant, false, true);
     }
 
     public float getSingleCost() {
         if (originMember == null) return 0;
 
-        float baseVal = IndEvo_dryDock.getBaseShipHullSpec(originMember.getVariant(), true).getBaseValue();
+        float baseVal = RestorationDocks.getBaseShipHullSpec(originMember.getVariant(), true).getBaseValue();
         int numDMods = DModManager.getNumDMods(originMember.getVariant());
         float singleRepairCost = (float) (((baseVal / 2) * (Math.pow(1.2, numDMods) + 1)) / numDMods);
 
@@ -375,8 +375,8 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
         panel.addParagraph("-----------------------------------------------------------------------------");
 
-        String costMultStr = IndEvo_StringHelper.getAbsPercentString(costMult, false);
-        Pair<String, Color> repInt = IndEvo_StringHelper.getRepIntTooltipPair(getMarket().getFaction());
+        String costMultStr = StringHelper.getAbsPercentString(costMult, false);
+        Pair<String, Color> repInt = StringHelper.getRepIntTooltipPair(getMarket().getFaction());
 
         panel.addPara("Transfer at cost: " + costMultStr + " " + repInt.one);
         Highlights h = new Highlights();

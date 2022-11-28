@@ -13,7 +13,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,13 +30,13 @@ public class IndEvo_ArtilleryDefenderGen {
         CampaignFleetAPI artilleryDefenders = station != null ? station.getMemoryWithoutUpdate().getFleet("$defenderFleet") : null;
 
         if (defenders != null) {
-            IndEvo_modPlugin.log("returning existing planet defenders");
+            ModPlugin.log("returning existing planet defenders");
             return defenders;
         } else if (artilleryDefenders != null){
-            IndEvo_modPlugin.log("returning existing artillery station defenders");
+            ModPlugin.log("returning existing artillery station defenders");
             return artilleryDefenders;
         } else {
-            IndEvo_modPlugin.log("creating new defenders");
+            ModPlugin.log("creating new defenders");
             defenders = getNewFleet(planet, factionID);
         }
 

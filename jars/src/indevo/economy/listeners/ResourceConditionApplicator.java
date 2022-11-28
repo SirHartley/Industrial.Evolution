@@ -5,20 +5,20 @@ import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.PlayerColonizationListener;
-import indevo.economy.conditions.IndEvo_ResourceCondition;
+import indevo.economy.conditions.ResourceCondition;
 
 public class ResourceConditionApplicator implements PlayerColonizationListener, EconomyTickListener {
 
     public static void applyResourceConditionToAllMarkets() {
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            IndEvo_ResourceCondition.applyRessourceCond(m);
+            ResourceCondition.applyRessourceCond(m);
         }
     }
 
     @Override
     public void reportPlayerColonizedPlanet(PlanetAPI planetAPI) {
         MarketAPI m = planetAPI.getMarket();
-        IndEvo_ResourceCondition.applyRessourceCond(m);
+        ResourceCondition.applyRessourceCond(m);
     }
 
     @Override

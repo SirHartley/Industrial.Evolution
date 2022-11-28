@@ -13,7 +13,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 import com.fs.starfarer.api.util.Misc;
@@ -36,7 +36,7 @@ public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
     @Override
     protected void pickNext() {
         if (fleet.getAI() == null) return;
-        IndEvo_modPlugin.log("Transport Detachment AI setting up");
+        ModPlugin.log("Transport Detachment AI setting up");
 
         checkOrCorrectMarket();
         MarketAPI market = Global.getSector().getEconomy().getMarket(targetMarketId);
@@ -124,7 +124,7 @@ public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
 
         @Override
         public void run() {
-            IndEvo_modPlugin.log("running transfer script");
+            ModPlugin.log("running transfer script");
 
             MarketAPI market = Global.getSector().getEconomy().getMarket(marketID);
             if(market == null) market = Global.getSector().getEconomy().getMarket(getAlternateMarket(fleet));

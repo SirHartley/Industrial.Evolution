@@ -1,6 +1,7 @@
 package indevo.industries.artillery.entities;
 
 import com.fs.starfarer.api.Global;
+import indevo.ids.Ids;
 import indevo.industries.artillery.scripts.IndEvo_EyeIndicatorScript;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
@@ -9,7 +10,6 @@ import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCampaignObjectivePlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
@@ -41,7 +41,7 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
     public static SectorEntityToken spawn(SectorEntityToken primaryEntity, FactionAPI faction){
 
-        if (faction == null) faction = Global.getSector().getFaction(IndEvo_ids.DERELICT_FACTION_ID);
+        if (faction == null) faction = Global.getSector().getFaction(Ids.DERELICT_FACTION_ID);
         SectorEntityToken t = primaryEntity.getContainingLocation().addCustomEntity(Misc.genUID(), "Watchtower", "IndEvo_Watchtower",faction.getId(),null);
 
         float orbitRadius = primaryEntity.getRadius() + 250f;
@@ -75,10 +75,10 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
         MemoryAPI mem = entity.getMemoryWithoutUpdate();
 
-        for (SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag(IndEvo_ids.TAG_ARTILLERY_STATION)){
+        for (SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION)){
             String faction = t.getFaction().getId();
 
-            if (IndEvo_ids.DERELICT_FACTION_ID.equals(faction) || Factions.REMNANTS.equals(faction)) {
+            if (Ids.DERELICT_FACTION_ID.equals(faction) || Factions.REMNANTS.equals(faction)) {
                 mem.set(MEM_SENSOR_LOCK_ACTIVE, true);
                 return true;
             }
@@ -93,12 +93,12 @@ public class IndEvo_WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
         phase += amount * PINGS_PER_SECOND;
 
-        setFunctional(!entity.getContainingLocation().getMemoryWithoutUpdate().getBoolean(IndEvo_ids.MEM_SYSTEM_DISABLE_WATCHTOWERS));
+        setFunctional(!entity.getContainingLocation().getMemoryWithoutUpdate().getBoolean(Ids.MEM_SYSTEM_DISABLE_WATCHTOWERS));
 
         // TODO: 19/10/2022 change this to an interval instead of this janky shit
         if(phase >= 1 * MathUtils.getRandomNumberInRange(1, 1.1f)) {
             String factionID = entity.getFaction().getId();
-            boolean isAI = factionID.equals(IndEvo_ids.DERELICT_FACTION_ID) || factionID.equals(Factions.REMNANTS);
+            boolean isAI = factionID.equals(Ids.DERELICT_FACTION_ID) || factionID.equals(Factions.REMNANTS);
             boolean isLocked = checkSensorLockActive();
 
             if(isAI){

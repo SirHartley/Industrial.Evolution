@@ -10,7 +10,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import indevo.abilities.splitfleet.fleetAssignmentAIs.SplinterFleetAssignmentAIV2;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.CombatAndDerelictionScript;
@@ -45,7 +45,7 @@ public class FleetUtils {
     }
 
     public static void mergeFleetWithPlayerFleet(CampaignFleetAPI detachment) {
-        IndEvo_modPlugin.log("Merging " + detachment.getName() + " with player fleet");
+        ModPlugin.log("Merging " + detachment.getName() + " with player fleet");
         Global.getSector().getCampaignUI().addMessage("%s has returned to the main force", Misc.getTextColor(), detachment.getName(), "", Misc.getHighlightColor(), Misc.getTextColor());
 
         CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();

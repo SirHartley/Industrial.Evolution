@@ -1,22 +1,22 @@
 package indevo.items.consumables.singleUseItemPlugins;
 
-import indevo.ids.IndEvo_Items;
-import indevo.ids.IndEvo_ids;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ItemAbilityHelper {
     public static Map<String, String> ID_MAP = new HashMap<String, String>(){{
-        put(IndEvo_Items.CONSUMABLE_DRONES, IndEvo_ids.ABILITY_DRONES);
-        put(IndEvo_Items.CONSUMABLE_LOCATOR, IndEvo_ids.ABILITY_LOCATOR);
-        put(IndEvo_Items.CONSUMABLE_NANITES, IndEvo_ids.ABILITY_NANITES);
-        put(IndEvo_Items.CONSUMABLE_SCOOP, IndEvo_ids.ABILITY_SCOOP);
-        put(IndEvo_Items.CONSUMABLE_SPIKE, IndEvo_ids.ABILITY_SPIKE);
-        put(IndEvo_Items.CONSUMABLE_STABILIZER, IndEvo_ids.ABILITY_STABILIZER);
-        put(IndEvo_Items.CONSUMABLE_SUPERCHARGER, IndEvo_ids.ABILITY_SUPERCHARGER);
-        put(IndEvo_Items.CONSUMABLE_DECOY, IndEvo_ids.ABILITY_DECOY);
-        put(IndEvo_Items.CONSUMABLE_SPOOFER, IndEvo_ids.ABILITY_SPOOFER);
+        put(ItemIds.CONSUMABLE_DRONES, Ids.ABILITY_DRONES);
+        put(ItemIds.CONSUMABLE_LOCATOR, Ids.ABILITY_LOCATOR);
+        put(ItemIds.CONSUMABLE_NANITES, Ids.ABILITY_NANITES);
+        put(ItemIds.CONSUMABLE_SCOOP, Ids.ABILITY_SCOOP);
+        put(ItemIds.CONSUMABLE_SPIKE, Ids.ABILITY_SPIKE);
+        put(ItemIds.CONSUMABLE_STABILIZER, Ids.ABILITY_STABILIZER);
+        put(ItemIds.CONSUMABLE_SUPERCHARGER, Ids.ABILITY_SUPERCHARGER);
+        put(ItemIds.CONSUMABLE_DECOY, Ids.ABILITY_DECOY);
+        put(ItemIds.CONSUMABLE_SPOOFER, Ids.ABILITY_SPOOFER);
     }};
 
     public static String toggle(String s){

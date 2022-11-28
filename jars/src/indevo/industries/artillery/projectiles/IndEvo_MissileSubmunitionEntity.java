@@ -149,7 +149,7 @@ public class IndEvo_MissileSubmunitionEntity extends BaseCustomEntityPlugin {
         if (angleDiff < turn) turn = angleDiff;
         float nextAngle = entity.getFacing() + turn * (currAngle > entity.getFacing() ? 1 : -1);
 
-        //IndEvo_modPlugin.log("current angle " + currAngle + " current diff " + angleDiff + " TURN " + turn + " next angle " + nextAngle);
+        //ModPlugin.log("current angle " + currAngle + " current diff " + angleDiff + " TURN " + turn + " next angle " + nextAngle);
         Vector2f nextPos = MathUtils.getPointOnCircumference(entity.getLocation(), dist, nextAngle);
         entity.setLocation(nextPos.x, nextPos.y);
         entity.setFacing(nextAngle);
@@ -178,7 +178,7 @@ public class IndEvo_MissileSubmunitionEntity extends BaseCustomEntityPlugin {
             nextAngle = entity.getFacing() + turn * (targetIsInLeftHemisphere ? 1 : -1);
         }
 
-        //IndEvo_modPlugin.log("current angle " + currAngle + " current diff " + angleDiff + " TURN " + turn + " next angle " + nextAngle);
+        //ModPlugin.log("current angle " + currAngle + " current diff " + angleDiff + " TURN " + turn + " next angle " + nextAngle);
         Vector2f nextPos = MathUtils.getPointOnCircumference(entity.getLocation(), dist, nextAngle);
         entity.setLocation(nextPos.x, nextPos.y);
         entity.setFacing(nextAngle);

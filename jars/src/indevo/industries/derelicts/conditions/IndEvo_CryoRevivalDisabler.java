@@ -2,11 +2,11 @@ package indevo.industries.derelicts.conditions;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.econ.BaseMarketConditionPlugin;
-import indevo.utils.timers.IndEvo_newDayListener;
+import indevo.utils.timers.NewDayListener;
 
 import static com.fs.starfarer.api.impl.campaign.econ.impl.Cryorevival.getDistancePopulationMult;
 
-public class IndEvo_CryoRevivalDisabler extends BaseMarketConditionPlugin implements IndEvo_newDayListener {
+public class IndEvo_CryoRevivalDisabler extends BaseMarketConditionPlugin implements NewDayListener {
 
     //this class used to be a newDayListener, changed to manual time in 3.0.d due to a condition duplication issue
     //implement is the same to avoid breaking saves, but the listener is never added anywhere

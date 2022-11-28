@@ -2,17 +2,17 @@ package indevo.industries.embassy.industry;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import indevo.utils.helper.IndEvo_IndustryHelper;
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.items.specialitemdata.AmbassadorItemData;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.RepLevel;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import indevo.items.specialitemdata.IndEvo_AmbassadorItemData;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
-import indevo.items.installable.IndEvo_AmbassadorInstallableItemPlugin;
+import indevo.items.installable.AmbassadorInstallableItemPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import indevo.industries.embassy.IndEvo_AmbassadorItemHelper;
@@ -20,7 +20,7 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import indevo.industries.embassy.rules.IndEvo_ambassadorRemoval;
 import indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager;
-import indevo.utils.timers.IndEvo_newDayListener;
+import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
@@ -32,7 +32,7 @@ import java.util.Map;
 
 import static indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager.adjustRelationship;
 
-public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener, IndEvo_newDayListener {
+public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener, NewDayListener {
     private boolean debug = false;
 
     public FactionAPI alignedFaction = null;
@@ -74,7 +74,7 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
         PersonAPI amb = IndEvo_ambassadorPersonManager.createAmbassador(market, false, factionId);
 
         if(amb != null){
-            setAmbassadorItemData(new IndEvo_AmbassadorItemData(IndEvo_Items.AMBASSADOR, null, amb));
+            setAmbassadorItemData(new AmbassadorItemData(ItemIds.AMBASSADOR, null, amb));
             amb.getMemoryWithoutUpdate().set("$IndEvo_ForcedAmbassador", true);
         } else return false;
 
@@ -92,7 +92,7 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
         super.initWithParams(params);
 
         for (String str : params) {
-            if (IndEvo_AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.containsKey(str)) {
+            if (AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.containsKey(str)) {
                 setAmbassadorItemData(new SpecialItemData(str, null));
                 break;
             }
@@ -135,7 +135,7 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
 
     @Override
     public void onNewDay() {
-        if (market.isPlayerOwned() && betaCoreInstalled && !IndEvo_IndustryHelper.getAiCoreIdNotNull(this).equals(Commodities.BETA_CORE)) {
+        if (market.isPlayerOwned() && betaCoreInstalled && !IndustryHelper.getAiCoreIdNotNull(this).equals(Commodities.BETA_CORE)) {
             betaCoreRemovalPenalty();
             betaCoreInstalled = false;
         }
@@ -177,8 +177,8 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
             Color highlight = Misc.getHighlightColor();
             Color bad = Misc.getNegativeHighlightColor();
 
-            String warn1 = IndEvo_StringHelper.getString(getId(), "requiresAmbassador");
-            String warn2 = IndEvo_StringHelper.getString(getId(), "canHireAt");
+            String warn1 = StringHelper.getString(getId(), "requiresAmbassador");
+            String warn2 = StringHelper.getString(getId(), "canHireAt");
 
             if (currTooltipMode == IndustryTooltipMode.ADD_INDUSTRY) {
                 tooltip.addPara("%s", opad, highlight, warn1);
@@ -190,7 +190,7 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
 
             if (currTooltipMode == IndustryTooltipMode.NORMAL && getSpecialItem() != null) {
                 if (IndEvo_ambassadorPersonManager.getAmbassador(market) == null) {
-                    tooltip.addPara("%s", opad, Misc.getPositiveHighlightColor(), IndEvo_StringHelper.getString(getId(), "currentlyTakingOffice"));
+                    tooltip.addPara("%s", opad, Misc.getPositiveHighlightColor(), StringHelper.getString(getId(), "currentlyTakingOffice"));
                 } else {
                     FactionAPI player = Global.getSector().getPlayerFaction();
                     RepLevel level = player.getRelationshipLevel(alignedFaction.getId());
@@ -198,9 +198,9 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
                     int repInt = (int) Math.ceil((Math.round(player.getRelationship(alignedFaction.getId()) * 100f)));
                     String standing = "" + repInt + "/" + (int) (maxRelation * 100) + " (" + level.getDisplayName().toLowerCase() + ")";
 
-                    tooltip.addPara(IndEvo_StringHelper.getString(getId(), "currentPersonInOffice"), opad, Misc.getHighlightColor(), IndEvo_ambassadorPersonManager.getAmbassador(market).getNameString());
-                    tooltip.addPara(IndEvo_StringHelper.getString(getId(), "factionJusrisdiction"), opad, alignedFaction.getColor(), alignedFaction.getDisplayName());
-                    tooltip.addPara(IndEvo_StringHelper.getString(getId(), "currentStanding"), opad, relColor, standing);
+                    tooltip.addPara(StringHelper.getString(getId(), "currentPersonInOffice"), opad, Misc.getHighlightColor(), IndEvo_ambassadorPersonManager.getAmbassador(market).getNameString());
+                    tooltip.addPara(StringHelper.getString(getId(), "factionJusrisdiction"), opad, alignedFaction.getColor(), alignedFaction.getDisplayName());
+                    tooltip.addPara(StringHelper.getString(getId(), "currentStanding"), opad, relColor, standing);
                 }
             }
         } else if (isFunctional() && market.isPlayerOwned()) {
@@ -216,7 +216,7 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
         float opad = 10f;
 
         TooltipMakerAPI text = tooltip.beginImageWithText(IndEvo_AmbassadorItemHelper.getPersonForItem(ambassadorItemData).getPortraitSprite(), 48);
-        IndEvo_AmbassadorInstallableItemPlugin.IndEvo_AmbassadorEffect effect = IndEvo_AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.get(ambassadorItemData.getId());
+        AmbassadorInstallableItemPlugin.IndEvo_AmbassadorEffect effect = AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.get(ambassadorItemData.getId());
         effect.addItemDescription(text, ambassadorItemData, InstallableIndustryItemPlugin.InstallableItemDescriptionMode.INDUSTRY_TOOLTIP);
 
         tooltip.addImageWithText(opad);
@@ -236,16 +236,16 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
 
             Map<String, String> toReplace = new HashMap<>();
             toReplace.put("$factionName", alignedFaction.getDisplayName());
-            toReplace.put("$decreasedByPenalty", IndEvo_StringHelper.getString(getId(), "decreasedByInt") + IndEvo_StringHelper.getFloatToIntStrx100(-BETA_CORE_REP_PENALTY));
+            toReplace.put("$decreasedByPenalty", StringHelper.getString(getId(), "decreasedByInt") + StringHelper.getFloatToIntStrx100(-BETA_CORE_REP_PENALTY));
 
-            MessageIntel intel = new MessageIntel(IndEvo_StringHelper.getStringAndSubstituteTokens(getId(), "betaCorePenalty", toReplace),
+            MessageIntel intel = new MessageIntel(StringHelper.getStringAndSubstituteTokens(getId(), "betaCorePenalty", toReplace),
                     Misc.getTextColor(),
                     new String[]{toReplace.get("$factionName"), toReplace.get("$decreasedByPenalty")},
                     alignedFaction.getColor(),
                     Misc.getNegativeHighlightColor());
 
-            intel.addLine(BaseIntelPlugin.BULLET + IndEvo_StringHelper.getString(getId(), "currentAt"), null, new String[]{standing}, relColor);
-            intel.addLine(BaseIntelPlugin.BULLET + IndEvo_StringHelper.getStringAndSubstituteToken(getId(), "betaCorePenaltyChange", "$marketName", market.getName()), Misc.getTextColor());
+            intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getString(getId(), "currentAt"), null, new String[]{standing}, relColor);
+            intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getStringAndSubstituteToken(getId(), "betaCorePenaltyChange", "$marketName", market.getName()), Misc.getTextColor());
 
             intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "reputation"));
             intel.setSound(BaseIntelPlugin.getSoundMinorMessage());
@@ -258,7 +258,7 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
 
     protected void applyIndEvo_AmbassadorItemEffects() {
         if (ambassadorItemData != null) {
-            IndEvo_AmbassadorInstallableItemPlugin.IndEvo_AmbassadorEffect effect = IndEvo_AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.get(ambassadorItemData.getId());
+            AmbassadorInstallableItemPlugin.IndEvo_AmbassadorEffect effect = AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.get(ambassadorItemData.getId());
             if (effect != null) {
                 effect.apply(this);
             }
@@ -267,7 +267,7 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
 
     public void setAmbassadorItemData(SpecialItemData data) {
         if (data == null && ambassadorItemData != null) {
-            IndEvo_AmbassadorInstallableItemPlugin.IndEvo_AmbassadorEffect effect = IndEvo_AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.get(ambassadorItemData.getId());
+            AmbassadorInstallableItemPlugin.IndEvo_AmbassadorEffect effect = AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.get(ambassadorItemData.getId());
             if (effect != null) {
                 effect.unapply(this);
             }
@@ -283,7 +283,7 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
     public List<InstallableIndustryItemPlugin> getInstallableItems() {
         if (getAmbassadorItemData() == null && !isBuilding()) {
             ArrayList<InstallableIndustryItemPlugin> list = new ArrayList<>();
-            list.add(new IndEvo_AmbassadorInstallableItemPlugin(this));
+            list.add(new AmbassadorInstallableItemPlugin(this));
 
             return list;
         }
@@ -291,8 +291,8 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
         return new ArrayList<>();
     }
 
-    public IndEvo_AmbassadorItemData getAmbassadorItemData() {
-        return (IndEvo_AmbassadorItemData) ambassadorItemData;
+    public AmbassadorItemData getAmbassadorItemData() {
+        return (AmbassadorItemData) ambassadorItemData;
     }
 
     public SpecialItemData getSpecialItem() {
@@ -310,7 +310,7 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
         return market.getFactionId().equals("player") &&
                 ambassadorItemData == null &&
                 data != null &&
-                IndEvo_AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.containsKey(data.getId());
+                AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.containsKey(data.getId());
     }
 
     @Override
@@ -358,9 +358,9 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
-        String effect = IndEvo_StringHelper.getString(getId(), "aCoreEffect");
-        String highlightString = IndEvo_StringHelper.getAbsPercentString(ALPHA_CORE_REP_PENALTY_MULT, true);
+        String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
+        String effect = StringHelper.getString(getId(), "aCoreEffect");
+        String highlightString = StringHelper.getAbsPercentString(ALPHA_CORE_REP_PENALTY_MULT, true);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -377,9 +377,9 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
         Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
-        String effect = IndEvo_StringHelper.getString(getId(), "bCoreEffect");
-        String[] highlightString = new String[]{IndEvo_StringHelper.getFloatToIntStrx100(BETA_CORE_MAX_RELATION), IndEvo_StringHelper.getFloatToIntStrx100(-BETA_CORE_REP_PENALTY)};
+        String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
+        String effect = StringHelper.getString(getId(), "bCoreEffect");
+        String[] highlightString = new String[]{StringHelper.getFloatToIntStrx100(BETA_CORE_MAX_RELATION), StringHelper.getFloatToIntStrx100(-BETA_CORE_REP_PENALTY)};
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -396,9 +396,9 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
         Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
-        String effect = IndEvo_StringHelper.getString(getId(), "gCoreEffect");
-        String highlightString = IndEvo_StringHelper.getAbsPercentString(GAMMA_CORE_UPKEEP_RED_MULT, true);
+        String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
+        String effect = StringHelper.getString(getId(), "gCoreEffect");
+        String highlightString = StringHelper.getAbsPercentString(GAMMA_CORE_UPKEEP_RED_MULT, true);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -420,9 +420,9 @@ public class IndEvo_embassy extends BaseIndustry implements EconomyTickListener,
 
     protected void applyAICoreToIncomeAndUpkeep() {
         String name;
-        switch (IndEvo_IndustryHelper.getAiCoreIdNotNull(this)) {
+        switch (IndustryHelper.getAiCoreIdNotNull(this)) {
             case Commodities.GAMMA_CORE:
-                name = IndEvo_StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
+                name = StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
                 getUpkeep().modifyMult("ind_core", GAMMA_CORE_UPKEEP_RED_MULT, name);
                 break;
             default:

@@ -6,7 +6,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MonthlyReport;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.ids.IndEvo_ids;
+import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager;
@@ -32,7 +32,7 @@ public class IndEvo_moveAmbassadorToClosestEmbassy extends BaseCommandPlugin {
             MonthlyReport.FDNode marketsNode = report.getNode(MonthlyReport.OUTPOSTS);
             MonthlyReport.FDNode mNode = report.getNode(marketsNode, market.getId());
             MonthlyReport.FDNode indNode = report.getNode(mNode, "industries");
-            MonthlyReport.FDNode iNode = report.getNode(indNode, IndEvo_ids.EMBASSY);
+            MonthlyReport.FDNode iNode = report.getNode(indNode, Ids.EMBASSY);
             iNode.upkeep += cost;
         }
 

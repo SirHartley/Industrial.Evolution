@@ -3,7 +3,7 @@ package indevo.industries.artillery.projectiles;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -79,7 +79,7 @@ public class IndEvo_ArtilleryShotScript implements EveryFrameScript {
 
         float targetRadius = MathUtils.clamp(dist, MIN_TARGET_RADIUS, MAX_TARGET_RADIUS);
 
-        IndEvo_modPlugin.log("target radius " + targetRadius + " impact length " + dist);
+        ModPlugin.log("target radius " + targetRadius + " impact length " + dist);
 
         for (int i = 0; i < amt; i++){
             //spawn 5 reticules without overlap within the circle

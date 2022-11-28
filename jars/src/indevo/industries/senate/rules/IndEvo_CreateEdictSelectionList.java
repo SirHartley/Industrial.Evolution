@@ -6,12 +6,12 @@ import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.MarketConditionSpecAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
-import indevo.utils.memory.IndEvo_SessionTransientMemory;
+import indevo.utils.memory.SessionTransientMemory;
 import com.fs.starfarer.api.util.Misc;
 
 import java.util.*;
 
-import static indevo.utils.helper.IndEvo_IndustryHelper.splitList;
+import static indevo.utils.helper.IndustryHelper.splitList;
 import static indevo.industries.senate.rules.IndEvo_EdictVariables.*;
 
 public class IndEvo_CreateEdictSelectionList extends BaseCommandPlugin {
@@ -26,7 +26,7 @@ public class IndEvo_CreateEdictSelectionList extends BaseCommandPlugin {
     }
 
     public static Set<String> getEdictIdSet() {
-        IndEvo_SessionTransientMemory mem = IndEvo_SessionTransientMemory.getInstance();
+        SessionTransientMemory mem = SessionTransientMemory.getInstance();
 
         if (mem.contains(EDICT_LIST_KEY)) return (Set<String>) mem.getSet(EDICT_LIST_KEY);
 

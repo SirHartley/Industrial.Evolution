@@ -1,13 +1,13 @@
 package indevo.items.consumables.itemAbilities.WIP;
 
 import com.fs.starfarer.api.Global;
-import indevo.items.consumables.itemAbilities.IndEvo_BaseConsumableAbilityPlugin;
+import indevo.items.consumables.itemAbilities.BaseConsumableAbilityPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
 import java.awt.*;
 
-public class IndEvo_SuperchargerAbilityPlugin extends IndEvo_BaseConsumableAbilityPlugin {
+public class IndEvo_SuperchargerAbilityPlugin extends BaseConsumableAbilityPlugin {
 
     @Override
     protected void activateImpl() {

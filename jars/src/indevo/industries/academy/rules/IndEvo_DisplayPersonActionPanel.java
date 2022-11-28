@@ -10,9 +10,9 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.characters.SkillSpecAPI;
+import indevo.ids.Ids;
 import indevo.industries.academy.industry.IndEvo_Academy;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
 import org.lwjgl.input.Keyboard;
@@ -152,7 +152,7 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
         TextPanelAPI text = dialog.getTextPanel();
         MarketAPI market = getMarket(memoryMap);
 
-        IndEvo_Academy academy = (IndEvo_Academy) market.getIndustry(IndEvo_ids.ACADEMY);
+        IndEvo_Academy academy = (IndEvo_Academy) market.getIndustry(Ids.ACADEMY);
 
         boolean isNotPlayerOwned = !market.isPlayerOwned();
 
@@ -184,7 +184,7 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
 
                         break;
                     case OFFICER:
-                        boolean hasAlpha = market.getIndustry(IndEvo_ids.ACADEMY).getAICoreId() != null && market.getIndustry(IndEvo_ids.ACADEMY).getAICoreId().equals(Commodities.ALPHA_CORE);
+                        boolean hasAlpha = market.getIndustry(Ids.ACADEMY).getAICoreId() != null && market.getIndustry(Ids.ACADEMY).getAICoreId().equals(Commodities.ALPHA_CORE);
 
                         text.addParagraph("Training will change the officer personality by one increment.");
                         text.highlightInLastPara(hl, "officer personality");

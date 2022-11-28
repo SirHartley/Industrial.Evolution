@@ -1,0 +1,248 @@
+package indevo.dialogue.research;
+
+import com.fs.starfarer.api.Global;
+import indevo.utils.helper.StringHelper;
+import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
+import com.fs.starfarer.api.campaign.rules.MemKeys;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
+import com.fs.starfarer.api.combat.EngagementResultAPI;
+import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
+import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
+import com.fs.starfarer.api.impl.campaign.rulecmd.FireAll;
+import com.fs.starfarer.api.loading.WeaponSpecAPI;
+import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
+import indevo.dialogue.sidepanel.VisualCustomPanel;
+import com.fs.starfarer.api.ui.Alignment;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
+import org.apache.log4j.Logger;
+import org.lwjgl.input.Keyboard;
+
+import java.util.List;
+import java.util.Map;
+
+public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements InteractionDialogPlugin {
+
+    //on initial docking, Minerva explains the feature to you "...research projects...)
+
+    //run this thing off .json files, one for each research project
+    //specify
+    //  Title
+    //  required inputs (3 Arrays - ship/weapon/item/blueprint (just an array with ship ids), also specify points per input)
+    //  required total points to finish
+    //  rewards (3 Arrays - ship/weapon/item/blueprints (just an array with ship ids))
+    //  Text blurb
+
+    private enum Option {
+        RETURN
+    }
+
+    protected SectorEntityToken entity;
+    protected InteractionDialogPlugin originalPlugin;
+    protected InteractionDialogAPI dialog;
+    protected Map<String, MemoryAPI> memoryMap;
+
+    protected String inputProjId = null;
+    protected String rewardProjId = null;
+    protected CargoAPI rewardsCargo = null;
+
+    private static final String DIALOGUE_PLUGIN_TEMP_INSTANCE_KEY = "$IndEvo_tempDialogueInstance";
+
+    public static final Logger log = Global.getLogger(ResearchProjectDialoguePlugin.class);
+
+    @Override
+    public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
+        if (!(dialog instanceof IndEvo_InitSYCustomProductionDiag)) {
+            this.dialog = dialog;
+            this.memoryMap = memoryMap;
+            if (dialog == null) return false;
+
+            entity = dialog.getInteractionTarget();
+            originalPlugin = dialog.getPlugin();
+            dialog.setPlugin(this);
+        }
+
+        dialog.setPromptText("Select an Option");
+
+        init(dialog);
+        return true;
+    }
+
+    @Override
+    public void init(InteractionDialogAPI dialog) {
+        Global.getSector().getMemoryWithoutUpdate().set(DIALOGUE_PLUGIN_TEMP_INSTANCE_KEY, this, 0f);
+        VisualCustomPanel.createPanel(dialog, true);
+        displayDefaultOptions();
+    }
+
+    public void displayDefaultOptions() {
+        addTooltip(dialog.getTextPanel());
+
+        OptionPanelAPI opts = dialog.getOptionPanel();
+        opts.clearOptions();
+
+        opts.addOption("Return", Option.RETURN);
+        opts.setShortcut(Option.RETURN, Keyboard.KEY_ESCAPE, false, false, false, true);
+
+        refreshCustomPanel();
+    }
+
+    public void refreshCustomPanel() {
+        new ResearchProjectSidePanelCreator().showPanel(dialog);
+    }
+
+    @Override
+    public void optionSelected(String optionText, Object optionData) {
+        MemoryAPI memory = memoryMap.get(MemKeys.LOCAL);
+        OptionPanelAPI opts = dialog.getOptionPanel();
+
+        opts.clearOptions();
+
+        Option option = Option.valueOf(optionData.toString());
+
+        switch (option) {
+            case RETURN:
+                returnToMenu();
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected argument: " + option);
+        }
+    }
+
+
+    public static ResearchProjectDialoguePlugin getCurrentDialoguePlugin() {
+        return (ResearchProjectDialoguePlugin) Global.getSector().getMemoryWithoutUpdate().get(DIALOGUE_PLUGIN_TEMP_INSTANCE_KEY);
+    }
+
+    private void addTooltip(TextPanelAPI panel) {
+        panel.clear();
+
+        panel.addPara("Arriving at the front desk, you are greeted by a secretary and handed a few folders.");
+        int numOpen = ResearchProjectTemplateRepo.getNumProjectsPlayerCanContribute();
+        if (numOpen > 0)
+            panel.addPara("At a glance, are currently " + numOpen + " research projects that you could contribute to.");
+        else panel.addPara("There does not appear to be any ongoing project worth your time.");
+
+        // if (inputProjId == null && rewardProjId == null) {
+        panel.setFontSmallInsignia();
+        panel.addParagraph("-----------------------------------------------------------------------------", Misc.getGrayColor());
+
+        panel.addPara("You can donate certain items to research projects, causing them to advance.\n" +
+                "Once a project is finished, you will receive rewards, which can range from blueprints to unique weapons.", Misc.getGrayColor());
+        panel.addPara("");
+        panel.addPara("You will be notified when new projects become available.", Misc.getGrayColor());
+
+        panel.addParagraph("-----------------------------------------------------------------------------", Misc.getGrayColor());
+        panel.setFontInsignia();
+        //}
+
+        if (rewardProjId != null && inputProjId == null) {
+            ResearchProject project = ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(rewardProjId);
+            panel.beginTooltip().addSectionHeading(project.getName() + " - Rewards", Alignment.MID, 10f);
+            panel.addTooltip();
+
+            if(rewardsCargo != null) for (CargoStackAPI stack : rewardsCargo.getStacksCopy()) {
+                AddRemoveCommodity.addStackGainText(stack, panel);
+            }
+
+        } else if (inputProjId != null && rewardProjId == null) {
+            ResearchProject project = ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(inputProjId);
+            if (project != null) {
+                panel.beginTooltip().addSectionHeading(project.getName() + " - Required Items", Alignment.MID, 10f);
+                panel.addTooltip();
+
+                CargoAPI cargo = Global.getSector().getPlayerFleet().getCargo();
+                TooltipMakerAPI tt = panel.beginTooltip();
+                float requiredPoints = project.getRequiredPoints();
+
+                for (RequiredItem item : project.getRequiredItems()) {
+                    String progress = StringHelper.getAbsPercentString(item.points / requiredPoints, false);
+                    float count = cargo.getQuantity(item.type, item.id);
+
+                    if (item.type.equals(CargoAPI.CargoItemType.WEAPONS)) {
+                        WeaponSpecAPI spec = Global.getSettings().getWeaponSpec(item.id);
+                        TooltipMakerAPI imageWithText = tt.beginImageWithText(spec.getTurretSpriteName(), 30f);
+                        imageWithText.addPara("%s  -  Progress: %s  -  Available: %s",
+                                5f,
+                                Misc.getHighlightColor(),
+                                new String[]{spec.getWeaponName(), progress, (int) Math.round(count) + ""});
+
+                        tt.addImageWithText(2f);
+
+                    } else if (item.type.equals(CargoAPI.CargoItemType.RESOURCES)) {
+                        CommoditySpecAPI spec = Global.getSettings().getCommoditySpec(item.id);
+
+                        TooltipMakerAPI imageWithText = tt.beginImageWithText(spec.getIconName(), 30f);
+                        imageWithText.addPara("%s  -  Progress: %s  -  Available: %s",
+                                5f,
+                                Misc.getHighlightColor(),
+                                new String[]{spec.getName(), progress, (int) Math.round(count) + ""});
+                        tt.addImageWithText(2f);
+
+                    } else if (item.type.equals(CargoAPI.CargoItemType.SPECIAL)) {
+                        SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(item.id);
+
+                        TooltipMakerAPI imageWithText = tt.beginImageWithText(spec.getIconName(), 30f);
+                        imageWithText.addPara("%s  -  Progress: %s  -  Available: %s",
+                                5f,
+                                Misc.getHighlightColor(),
+                                new String[]{spec.getIconName(), progress, (int) Math.round(count) + ""});
+                        tt.addImageWithText(2f);
+                    }
+                }
+
+                panel.addTooltip();
+            }
+        }
+    }
+
+    private void returnToMenu() {
+        VisualCustomPanel.clearPanel();
+        dialog.getTextPanel().clear();
+
+        dialog.setPlugin(originalPlugin);
+        //new ShowDefaultVisual().execute(null, dialog, Misc.tokenize(""), memoryMap);
+        memoryMap.get(MemKeys.LOCAL).set("$option", "gaMeetingEnd", 0f);
+        FireAll.fire(null, dialog, memoryMap, "DialogOptionSelected");
+    }
+
+    public void setProjectIdForRewards(String id, CargoAPI cargo) {
+        this.inputProjId = null;
+        this.rewardsCargo = cargo.createCopy();
+        this.rewardProjId = id;
+
+        addTooltip(dialog.getTextPanel());
+    }
+
+    public void setProjectIdForInputs(String id) {
+        this.inputProjId = id;
+        this.rewardsCargo = null;
+        this.rewardProjId = null;
+
+        addTooltip(dialog.getTextPanel());
+    }
+
+    @Override
+    public void optionMousedOver(String optionText, Object optionData) {
+    }
+
+    @Override
+    public void advance(float amount) {
+    }
+
+    @Override
+    public void backFromEngagement(EngagementResultAPI battleResult) {
+
+    }
+
+    @Override
+    public Object getContext() {
+        return null;
+    }
+
+    @Override
+    public Map<String, MemoryAPI> getMemoryMap() {
+        return memoryMap;
+    }
+}

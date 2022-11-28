@@ -22,13 +22,13 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import indevo.utils.IndEvo_modPlugin;
-import indevo.utils.timers.IndEvo_newDayListener;
+import indevo.utils.ModPlugin;
+import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.util.Misc;
 
 import static indevo.industries.courierport.listeners.ShippingManager.chargePlayer;
 
-public class Shipment implements IndEvo_newDayListener, EveryFrameScript {
+public class Shipment implements NewDayListener, EveryFrameScript {
     public ShippingContract contract;
     public CargoAPI cargo;
     public CampaignFleetAPI fleet;
@@ -77,12 +77,12 @@ public class Shipment implements IndEvo_newDayListener, EveryFrameScript {
 
         this.maxDaysBeforeFailsafe = 7 + (int) Math.ceil(days * 3f);
 
-        IndEvo_modPlugin.log("Courier delivery " + contract.name + " setting failsafe at " + maxDaysBeforeFailsafe);
+        ModPlugin.log("Courier delivery " + contract.name + " setting failsafe at " + maxDaysBeforeFailsafe);
         return maxDaysBeforeFailsafe;
     }
 
     public void finalizeAndRemove(){
-        IndEvo_modPlugin.log("Shipment " + contract.name + " is done, cleaning up");
+        ModPlugin.log("Shipment " + contract.name + " is done, cleaning up");
         done = true;
 
         Global.getSector().getListenerManager().removeListener(this);
@@ -196,7 +196,7 @@ public class Shipment implements IndEvo_newDayListener, EveryFrameScript {
         daysPassed++;
 
         if(daysPassed > maxDaysBeforeFailsafe) {
-            IndEvo_modPlugin.log("Failsafe timer for " + contract.name + " expired, finalizing and aborting");
+            ModPlugin.log("Failsafe timer for " + contract.name + " expired, finalizing and aborting");
             finalizeAndRemove();
         }
     }

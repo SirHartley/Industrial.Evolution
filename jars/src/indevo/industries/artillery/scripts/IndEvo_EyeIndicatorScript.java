@@ -2,11 +2,11 @@ package indevo.industries.artillery.scripts;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
+import indevo.ids.Ids;
 import indevo.industries.artillery.entities.IndEvo_WatchtowerEntityPlugin;
 import indevo.industries.artillery.entities.IndEvo_WatchtowerEyeIndicator;
 import com.fs.starfarer.api.campaign.*;
-import indevo.ids.IndEvo_ids;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import org.lazywizard.lazylib.MathUtils;
@@ -54,12 +54,12 @@ public class IndEvo_EyeIndicatorScript extends BaseCampaignEventListener impleme
         }
 
         if (!checkInterval.intervalElapsed()) return;
-        if (player.isInHyperspace() || player.getContainingLocation().getMemoryWithoutUpdate().getBoolean(IndEvo_ids.MEM_SYSTEM_DISABLE_WATCHTOWERS)) return;
+        if (player.isInHyperspace() || player.getContainingLocation().getMemoryWithoutUpdate().getBoolean(Ids.MEM_SYSTEM_DISABLE_WATCHTOWERS)) return;
 
         amount += checkInterval.getIntervalDuration(); //increment by interval since the amount is missing from last advance
         LocationAPI loc = indicator.getContainingLocation();
 
-        if (!loc.hasTag(IndEvo_ids.TAG_SYSTEM_HAS_ARTILLERY)) return;
+        if (!loc.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY)) return;
 
         cycleActions();
 
@@ -79,7 +79,7 @@ public class IndEvo_EyeIndicatorScript extends BaseCampaignEventListener impleme
                         isLocked = true;
                         inFleetRange = true;
 
-                        IndEvo_modPlugin.log("in fleet range, is seen");
+                        ModPlugin.log("in fleet range, is seen");
 
                     } else f.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, BASE_NPC_KNOWN_DURATION);
                     break;
@@ -87,7 +87,7 @@ public class IndEvo_EyeIndicatorScript extends BaseCampaignEventListener impleme
             }
         }
 
-        List<SectorEntityToken> watchtowerList = loc.getEntitiesWithTag(IndEvo_ids.TAG_WATCHTOWER);
+        List<SectorEntityToken> watchtowerList = loc.getEntitiesWithTag(Ids.TAG_WATCHTOWER);
         if (watchtowerList.isEmpty()) return;
 
         float closestDist = Float.MIN_VALUE;
@@ -141,7 +141,7 @@ public class IndEvo_EyeIndicatorScript extends BaseCampaignEventListener impleme
 
         transferStateToEntity(state, isLocked);
 
-        IndEvo_modPlugin.log("Eye reporting " + elapsed + " locked " + isLocked);
+        ModPlugin.log("Eye reporting " + elapsed + " locked " + isLocked);
     }
 
     public void reset(){

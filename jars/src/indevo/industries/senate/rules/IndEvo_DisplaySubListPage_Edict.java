@@ -7,7 +7,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionPlugin;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.industries.senate.conditions.IndEvo_EdictAPI;
+import indevo.industries.senate.conditions.EdictAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
@@ -37,7 +37,7 @@ public class IndEvo_DisplaySubListPage_Edict extends BaseCommandPlugin {
         opts.clearOptions();
 
         for (String id : splitList.get(pageNumber - 1)) {
-            Pair<IndEvo_EdictAPI, String> optionData = generateEdictEntry(id, dialog);
+            Pair<EdictAPI, String> optionData = generateEdictEntry(id, dialog);
 
             if (!optionData.one.isPresenceConditionMet(market)) {
                 opts.setEnabled(optionData.two, false);
@@ -55,7 +55,7 @@ public class IndEvo_DisplaySubListPage_Edict extends BaseCommandPlugin {
         return true;
     }
 
-    private Pair<IndEvo_EdictAPI, String> generateEdictEntry(String id, InteractionDialogAPI dialog) {
+    private Pair<EdictAPI, String> generateEdictEntry(String id, InteractionDialogAPI dialog) {
         OptionPanelAPI opts = dialog.getOptionPanel();
 
         MarketAPI dummyMarket = Global.getFactory().createMarket(Misc.genUID(), Misc.genUID(), 1);
@@ -63,11 +63,11 @@ public class IndEvo_DisplaySubListPage_Edict extends BaseCommandPlugin {
         MarketConditionPlugin plugin = dummyMarket.getCondition(id).getPlugin();
 
         String title = plugin.getName();
-        String desc = ((IndEvo_EdictAPI) plugin).getShortDesc();
+        String desc = ((EdictAPI) plugin).getShortDesc();
         String optionId = EDICT_OPTION_PREFIX + id;
 
         opts.addOption(title, optionId, desc);
 
-        return new Pair<>((IndEvo_EdictAPI) plugin, optionId);
+        return new Pair<>((EdictAPI) plugin, optionId);
     }
 }

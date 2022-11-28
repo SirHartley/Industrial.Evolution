@@ -8,7 +8,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
-import indevo.ids.IndEvo_ids;
+import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
@@ -51,7 +51,7 @@ public class IndEvo_ambassadorRemoval extends BaseCommandPlugin {
 
         if (originalMarket != null) IndEvo_ambassadorPersonManager.addAmbassadorToMarket(person, originalMarket);
 
-        market.getIndustry(IndEvo_ids.EMBASSY).setSpecialItem(null);
+        market.getIndustry(Ids.EMBASSY).setSpecialItem(null);
 
         if (penaltyAmount != 0) {
             market.getFaction().adjustRelationship(ambFaction.getId(), penaltyAmount);

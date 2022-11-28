@@ -2,13 +2,13 @@ package indevo.dialogue.rules;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
-import indevo.utils.helper.IndEvo_IndustryHelper;
+import indevo.ids.Ids;
+import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.util.Misc;
 
 import java.util.List;
@@ -26,13 +26,13 @@ public class IndEvo_requiresColonyMenuPoint extends BaseCommandPlugin {
         boolean playerOwned = market.isPlayerOwned();
 
         boolean senate = playerOwned
-                && IndEvo_IndustryHelper.systemHasIndustry(IndEvo_ids.SENATE, market.getStarSystem(), market.getFaction());
-        boolean academy = market.hasIndustry(IndEvo_ids.ACADEMY);
+                && IndustryHelper.systemHasIndustry(Ids.SENATE, market.getStarSystem(), market.getFaction());
+        boolean academy = market.hasIndustry(Ids.ACADEMY);
         boolean riftGen = playerOwned
-                && market.hasIndustry(IndEvo_ids.RIFTGEN);
+                && market.hasIndustry(Ids.RIFTGEN);
         boolean shippingPort = playerOwned
-                && market.hasIndustry(IndEvo_ids.PORT);
-        boolean salvageYards = market.hasIndustry(IndEvo_ids.SCRAPYARD);
+                && market.hasIndustry(Ids.PORT);
+        boolean salvageYards = market.hasIndustry(Ids.SCRAPYARD);
 
         int howManyBooleansAreTrue =
                 (senate ? 1 : 0)

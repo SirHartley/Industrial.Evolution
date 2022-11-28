@@ -8,8 +8,8 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.AdminData;
 import com.fs.starfarer.api.characters.OfficerDataAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
+import indevo.ids.Ids;
 import indevo.industries.academy.industry.IndEvo_Academy;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
 
@@ -43,7 +43,7 @@ public class IndEvo_CreatePersonSelectionList extends BaseCommandPlugin {
 
 
         MarketAPI market = getMarket(memoryMap);
-        IndEvo_Academy academy = (IndEvo_Academy) market.getIndustry(IndEvo_ids.ACADEMY);
+        IndEvo_Academy academy = (IndEvo_Academy) market.getIndustry(Ids.ACADEMY);
 
         MemoryAPI memory = memoryMap.get(MemKeys.LOCAL);
         ArrayList<PersonAPI> personList = new ArrayList<>();

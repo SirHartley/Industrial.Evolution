@@ -1,8 +1,9 @@
 package indevo.industries.derelicts.industry;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_IndustryHelper;
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.ids.ItemIds;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
@@ -11,22 +12,21 @@ import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import indevo.items.IndEvo_EmptyForgeTemplateItemPlugin;
-import indevo.items.IndEvo_ForgeTemplateItemPlugin;
+import indevo.items.EmptyForgeTemplateItemPlugin;
+import indevo.items.ForgeTemplateItemPlugin;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
-import indevo.items.installable.IndEvo_ForgeTemplateInstallableItemPlugin;
+import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.loading.Description;
-import indevo.ids.IndEvo_Items;
-import indevo.ids.IndEvo_ids;
-import indevo.utils.scripts.IndEvo_subMarketAddOrRemovePlugin;
-import indevo.utils.timers.IndEvo_newDayListener;
+import indevo.ids.Ids;
+import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
+import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -37,9 +37,9 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.utils.helper.IndEvo_IndustryHelper.addOrIncrement;
+import static indevo.utils.helper.IndustryHelper.addOrIncrement;
 
-public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements IndEvo_newDayListener {
+public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements NewDayListener {
 
     public static Logger log = Global.getLogger(IndEvo_HullDecon.class);
     private boolean debug = false;
@@ -64,7 +64,7 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
         Global.getSector().getListenerManager().addListener(this, true);
 
         if (isFunctional()) {
-            Global.getSector().addScript(new IndEvo_subMarketAddOrRemovePlugin(market, IndEvo_ids.DECSTORAGE, false));
+            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.DECSTORAGE, false));
             refreshRequiredDays();
         }
 
@@ -78,7 +78,7 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
         Global.getSector().getListenerManager().removeListener(this);
 
         if (currTooltipMode != IndustryTooltipMode.ADD_INDUSTRY) {
-            Global.getSector().addScript(new IndEvo_subMarketAddOrRemovePlugin(market, IndEvo_ids.DECSTORAGE, true));
+            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.DECSTORAGE, true));
         }
 
         removeSharedSubmarket();
@@ -88,12 +88,12 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
         //autofeed
         if (getSpecialItem() == null) {
             //auto-feed from storage
-            if (!market.hasSubmarket(IndEvo_ids.SHAREDSTORAGE)) return;
+            if (!market.hasSubmarket(Ids.SHAREDSTORAGE)) return;
 
-            CargoAPI cargo = market.getSubmarket(IndEvo_ids.SHAREDSTORAGE).getCargo();
+            CargoAPI cargo = market.getSubmarket(Ids.SHAREDSTORAGE).getCargo();
 
             for (CargoStackAPI stack : cargo.getStacksCopy()) {
-                if (stack.getPlugin() instanceof IndEvo_EmptyForgeTemplateItemPlugin && stack.getSpecialDataIfSpecial().getId().equals(IndEvo_Items.EMPTYFORGETEMPLATE)) {
+                if (stack.getPlugin() instanceof EmptyForgeTemplateItemPlugin && stack.getSpecialDataIfSpecial().getId().equals(ItemIds.EMPTYFORGETEMPLATE)) {
                     setSpecialItem(stack.getSpecialDataIfSpecial());
                     cargo.removeItems(CargoAPI.CargoItemType.SPECIAL, stack.getSpecialDataIfSpecial(), 1);
                     Global.getSector().getCampaignUI().addMessage("A Hull Deconstructor has taken a %s from the industrial storage at %s.",
@@ -107,7 +107,7 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
     @Override
     public void onNewDay() {
         if (market.getSubmarket(Submarkets.SUBMARKET_STORAGE) == null
-                || market.getSubmarket(IndEvo_ids.DECSTORAGE) == null
+                || market.getSubmarket(Ids.DECSTORAGE) == null
                 || !isFunctional())
             return;
 
@@ -115,7 +115,7 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
 
         if (currentDeconShipVar == null
                 && getSpecialItem() != null
-                && getSpecialItem().getId().equals(IndEvo_Items.EMPTYFORGETEMPLATE)) {
+                && getSpecialItem().getId().equals(ItemIds.EMPTYFORGETEMPLATE)) {
 
             //initDeconstruction starts deon, returns bool
             boolean successful = initDeconstruction();
@@ -132,13 +132,13 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
             Random random = new Random();
 
             //add printing defects D-Mod
-            IndEvo_ForgeTemplateItemPlugin.addPrintDefectDMods(member, 0, random);
+            ForgeTemplateItemPlugin.addPrintDefectDMods(member, 0, random);
             if (getAiCoreIdNotNull().equals(Commodities.ALPHA_CORE)) addBuiltInLogisticsHullmods(1, member, random);
 
             //make new item
             String id = currentDeconShipVar.getHullSpec().getHullId();
-            SpecialItemData newFT = IndEvo_ForgeTemplateItemPlugin.createForgeTemplateData(getCharges(currentDeconShipVar), id, currentDeconShipVar);
-            IndEvo_ForgeTemplateItemPlugin.incrementForgeTemplateQualityLevel(newFT, qualityLevel);
+            SpecialItemData newFT = ForgeTemplateItemPlugin.createForgeTemplateData(getCharges(currentDeconShipVar), id, currentDeconShipVar);
+            ForgeTemplateItemPlugin.incrementForgeTemplateQualityLevel(newFT, qualityLevel);
 
             shipToCargo(newFT, 1);
 
@@ -234,10 +234,10 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
 
     private void shipToCargo(SpecialItemData specialItem, int quantity) {
         if (Global.getSettings().getBoolean("hullDecon_autoDeliverToClosestForge")) {
-            MarketAPI target = IndEvo_IndustryHelper.getClosestMarketWithIndustry(market, IndEvo_ids.HULLFORGE);
+            MarketAPI target = IndustryHelper.getClosestMarketWithIndustry(market, Ids.HULLFORGE);
 
             if (target != null) {
-                CargoAPI c = IndEvo_IndustryHelper.getIndustrialStorageCargo(target);
+                CargoAPI c = IndustryHelper.getIndustrialStorageCargo(target);
                 if (c != null) {
                     c.addSpecial(specialItem, quantity);
                     throwDeliveryMessage(market, target);
@@ -292,11 +292,11 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
     }
 
     private boolean initDeconstruction() {
-        CargoAPI decStorage = market.getSubmarket(IndEvo_ids.DECSTORAGE).getCargo();
+        CargoAPI decStorage = market.getSubmarket(Ids.DECSTORAGE).getCargo();
         if (decStorage.getMothballedShips().getMembersListCopy().isEmpty()) return false;
 
         FleetMemberAPI ship = decStorage.getMothballedShips().getMembersListCopy().get(0);
-        ShipVariantAPI shipVar = IndEvo_IndustryHelper.stripShipToCargoAndReturnVariant(ship, market);
+        ShipVariantAPI shipVar = IndustryHelper.stripShipToCargoAndReturnVariant(ship, market);
 
         decStorage.getMothballedShips().removeFleetMember(ship); //remove ship from storage
         currentDeconShipVar = shipVar;
@@ -332,7 +332,7 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
         ArrayList<InstallableIndustryItemPlugin> list = new ArrayList<>();
 
         if (currentDeconShipVar == null) {
-            list.add(new IndEvo_ForgeTemplateInstallableItemPlugin(this));
+            list.add(new ForgeTemplateInstallableItemPlugin(this));
         }
         return list;
     }
@@ -406,9 +406,9 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
-        String coreHighlights = IndEvo_StringHelper.getString(getId(), "aCoreHighlights");
-        String effect = IndEvo_StringHelper.getStringAndSubstituteToken(getId(), "aCoreEffect", "$aCoreHighlights", coreHighlights);
+        String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
+        String coreHighlights = StringHelper.getString(getId(), "aCoreHighlights");
+        String effect = StringHelper.getStringAndSubstituteToken(getId(), "aCoreEffect", "$aCoreHighlights", coreHighlights);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -425,9 +425,9 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
         Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
-        String coreHighlights = IndEvo_StringHelper.getString(getId(), "bCoreHighlights");
-        String effect = IndEvo_StringHelper.getStringAndSubstituteToken(getId(), "bCoreEffect", "$bCoreHighlights", coreHighlights);
+        String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
+        String coreHighlights = StringHelper.getString(getId(), "bCoreHighlights");
+        String effect = StringHelper.getStringAndSubstituteToken(getId(), "bCoreEffect", "$bCoreHighlights", coreHighlights);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -444,10 +444,10 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
         Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
-        String coreHighlights = IndEvo_StringHelper.getString(getId(), "gCoreHighlights");
-        String effect = IndEvo_StringHelper.getStringAndSubstituteToken(getId(), "gCoreEffect", "$gCoreHighlights", coreHighlights);
-        String[] highlightString = new String[]{IndEvo_StringHelper.getAbsPercentString(GAMMA_CORE_UPKEEP_RED_MULT, true), coreHighlights};
+        String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
+        String coreHighlights = StringHelper.getString(getId(), "gCoreHighlights");
+        String effect = StringHelper.getStringAndSubstituteToken(getId(), "gCoreEffect", "$gCoreHighlights", coreHighlights);
+        String[] highlightString = new String[]{StringHelper.getAbsPercentString(GAMMA_CORE_UPKEEP_RED_MULT, true), coreHighlights};
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -483,9 +483,9 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
     protected void applyAICoreToIncomeAndUpkeep() {
         String name;
 
-        switch (IndEvo_IndustryHelper.getAiCoreIdNotNull(this)) {
+        switch (IndustryHelper.getAiCoreIdNotNull(this)) {
             case Commodities.GAMMA_CORE:
-                name = IndEvo_StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
+                name = StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
 
                 if (currentDeconShipVar == null)
                     this.getUpkeep().modifyMult("ind_core", GAMMA_CORE_UPKEEP_RED_MULT, name);
@@ -501,7 +501,7 @@ public class IndEvo_HullDecon extends IndEvo_BaseForgeTemplateUser implements In
     @Override
     public boolean isLegalOnSharedSubmarket(CargoStackAPI stack) {
         if (!stack.isSpecialStack()) return false;
-        return stack.getSpecialItemSpecIfSpecial().getId().equals(IndEvo_Items.EMPTYFORGETEMPLATE);
+        return stack.getSpecialItemSpecIfSpecial().getId().equals(ItemIds.EMPTYFORGETEMPLATE);
     }
 
     @Override

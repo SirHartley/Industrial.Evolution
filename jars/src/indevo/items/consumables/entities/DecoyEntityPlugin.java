@@ -7,7 +7,7 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
-import indevo.ids.IndEvo_ids;
+import indevo.ids.Ids;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -97,8 +97,8 @@ public class DecoyEntityPlugin extends BaseCustomEntityPlugin {
         if (state == State.PASSIVE && amt > TIME_TO_ARM) state = State.FIRING;
 
         if (state == State.FIRING) {
-            entity.addAbility(IndEvo_ids.ABILITY_MINE_DECOY);
-            entity.getAbility(IndEvo_ids.ABILITY_MINE_DECOY).activate();
+            entity.addAbility(Ids.ABILITY_MINE_DECOY);
+            entity.getAbility(Ids.ABILITY_MINE_DECOY).activate();
         }
 
         //blinky ---------

@@ -16,7 +16,7 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import data.scripts.util.MagicTrailObject;
 import org.lazywizard.lazylib.FastTrig;
 import org.lazywizard.lazylib.MathUtils;
@@ -50,7 +50,7 @@ public class IndEvo_MagicCampaignTrailPlugin implements EveryFrameScript {
 
     public static void register(){
         if(!Global.getSector().hasScript(IndEvo_MagicCampaignTrailPlugin.class)) {
-            IndEvo_modPlugin.log("reg. campaign trail plugin");
+            ModPlugin.log("reg. campaign trail plugin");
             Global.getSector().addScript(new IndEvo_MagicCampaignTrailPlugin());
         }
     }

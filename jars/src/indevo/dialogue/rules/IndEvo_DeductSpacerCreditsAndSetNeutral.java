@@ -3,7 +3,7 @@ package indevo.dialogue.rules;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import static indevo.dialogue.rules.IndEvo_AddSpacerFineMenuPoint.PENALTY_AMT_FRACTION;
-import static indevo.exploration.salvage.specials.IndEvo_CreditStashSpecial.STOLEN_CREDIT_AMT_KEY;
+import static indevo.exploration.salvage.specials.CreditStashSpecial.STOLEN_CREDIT_AMT_KEY;
 
 public class IndEvo_DeductSpacerCreditsAndSetNeutral extends BaseCommandPlugin {
 
@@ -31,7 +31,7 @@ public class IndEvo_DeductSpacerCreditsAndSetNeutral extends BaseCommandPlugin {
         Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(total);
         AddRemoveCommodity.addCreditsLossText(Math.round(total), dialog.getTextPanel());
 
-        fleet.setName("No longer " + IndEvo_StringHelper.lcFirst(fleet.getName()));
+        fleet.setName("No longer " + StringHelper.lcFirst(fleet.getName()));
         fleet.getMemoryWithoutUpdate().unset(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE);
         fleet.getMemoryWithoutUpdate().unset(MemFlags.MEMORY_KEY_MAKE_HOSTILE);
         fleet.getMemoryWithoutUpdate().unset(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE_ONE_BATTLE_ONLY);

@@ -1,7 +1,7 @@
 package indevo.industries.derelicts.rules;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_IndustryHelper;
+import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -22,7 +22,7 @@ public class IndEvo_MoreThanTwoColonies extends BaseCommandPlugin {
         MarketAPI m = Global.getSector().getEconomy().getMarket(memoryMap.get(MemKeys.MARKET).getString("$id"));
 
         Set<StarSystemAPI> systemList = new HashSet<>();
-        for (MarketAPI ma : IndEvo_IndustryHelper.getFactionMarkets(m.getFaction())) {
+        for (MarketAPI ma : IndustryHelper.getFactionMarkets(m.getFaction())) {
             systemList.add(ma.getStarSystem());
         }
 

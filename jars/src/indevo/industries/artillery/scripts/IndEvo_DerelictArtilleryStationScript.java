@@ -2,6 +2,7 @@ package indevo.industries.artillery.scripts;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
+import indevo.ids.Ids;
 import indevo.industries.artillery.entities.IndEvo_ArtilleryStationEntityPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
@@ -25,8 +26,7 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGener
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGeneratorPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
-import indevo.ids.IndEvo_ids;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import org.json.JSONException;
@@ -49,7 +49,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
             script.setDestroyed(isDestroyed);
             planet.addScript(script);
             planet.getMemoryWithoutUpdate().set(SCRIPT_KEY, script);
-            planet.getMarket().addTag(IndEvo_ids.TAG_ARTILLERY_STATION);
+            planet.getMarket().addTag(Ids.TAG_ARTILLERY_STATION);
             if (!planet.getMarket().hasCondition(IndEvo_ArtilleryStationCondition.ID))
                 planet.getMarket().addCondition(IndEvo_ArtilleryStationCondition.ID);
         }
@@ -120,7 +120,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         if (primaryEntity == null || primaryEntity.getContainingLocation() == null) return;
 
         LocationAPI loc = primaryEntity.getContainingLocation();
-        if (!loc.hasTag(IndEvo_ids.TAG_SYSTEM_HAS_ARTILLERY)) loc.addTag(IndEvo_ids.TAG_SYSTEM_HAS_ARTILLERY);
+        if (!loc.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY)) loc.addTag(Ids.TAG_SYSTEM_HAS_ARTILLERY);
     }
 
     @Override
@@ -142,7 +142,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
             if (station != null && !station.getId().equals(orbitMatched)) {
                 matchOrbitalstationOrbit(brokenStationEntity, station);
-                IndEvo_modPlugin.log("destroyed matching orbit");
+                ModPlugin.log("destroyed matching orbit");
             }
         }
 
@@ -173,7 +173,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
         if (faction == null) {
             for (CampaignFleetAPI fleet : primaryEntity.getContainingLocation().getFleets()) {
-                if (fleet.isStationMode() && !fleet.getFaction().isPlayerFaction() && !fleet.getTags().contains(IndEvo_ids.TAG_ARTILLERY_STATION_FLEET)) {
+                if (fleet.isStationMode() && !fleet.getFaction().isPlayerFaction() && !fleet.getTags().contains(Ids.TAG_ARTILLERY_STATION_FLEET)) {
                     faction = fleet.getFaction().getId();
                     break;
                 }
@@ -186,12 +186,12 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         } else if (faction == null
                 && !primaryEntity.isInCurrentLocation()) {
 
-            updateFaction(IndEvo_ids.DERELICT_FACTION_ID); //revert to derelict if player is out of system and the path/pirate base is gone
+            updateFaction(Ids.DERELICT_FACTION_ID); //revert to derelict if player is out of system and the path/pirate base is gone
             //we do not revert if the faction is of a station fleet
         }
 
         String factionID = stationEntity.getFaction().getId();
-        updateWatchtowers(factionID.equals(IndEvo_ids.DERELICT_FACTION_ID) || factionID.equals(Factions.REMNANTS));
+        updateWatchtowers(factionID.equals(Ids.DERELICT_FACTION_ID) || factionID.equals(Factions.REMNANTS));
     }
 
     private void updateWatchtowers(boolean active){
@@ -253,10 +253,10 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         String id = t.getId();
 
         if(!l.contains(id)) {
-            IndEvo_modPlugin.log("adding debris field to memory: " + id);
+            ModPlugin.log("adding debris field to memory: " + id);
 
             DebrisFieldTerrainPlugin.DebrisFieldParams params = ((DebrisFieldTerrainPlugin) t.getPlugin()).getParams();
-            IndEvo_modPlugin.log(params.lastsDays + " " + params.name + " " + params.defFaction + " " + params.relatedEntity);
+            ModPlugin.log(params.lastsDays + " " + params.name + " " + params.defFaction + " " + params.relatedEntity);
 
             l.add(id);
             primaryEntity.getMemoryWithoutUpdate().set("$IndEvo_debrisFieldList", l);
@@ -297,14 +297,14 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         if (brokenStationEntity != null) {
             Misc.fadeAndExpire(brokenStationEntity, 0f);
             brokenStationEntity = null;
-            IndEvo_modPlugin.log("destroyed removing broken");
+            ModPlugin.log("destroyed removing broken");
         }
     }
 
     public void spawnBrokenStationEntityIfNeeded() {
         if (brokenStationEntity == null) {
             MarketAPI market = primaryEntity.getMarket();
-            SectorEntityToken brokenStation = market.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_DestroyedArtilleryStation", IndEvo_ids.DERELICT_FACTION_ID, null);
+            SectorEntityToken brokenStation = market.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_DestroyedArtilleryStation", Ids.DERELICT_FACTION_ID, null);
 
             if (stationEntity != null) brokenStation.setOrbit(stationEntity.getOrbit());
             else {
@@ -315,7 +315,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
             brokenStationEntity = brokenStation;
 
-            IndEvo_modPlugin.log("destroyed adding broken");
+            ModPlugin.log("destroyed adding broken");
         }
 
         removeStationEntityAndFleetIfNeeded();
@@ -387,7 +387,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
         if (stationEntity != null) {
 
             MarketAPI market = primaryEntity.getMarket();
-            IndEvo_modPlugin.log("removing artillery station at " + market.getName());
+            ModPlugin.log("removing artillery station at " + market.getName());
 
             MemoryAPI memory = stationEntity.getMemoryWithoutUpdate();
             memory.unset(MemFlags.STATION_FLEET);
@@ -427,7 +427,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     protected void spawnStation() {
 
         FleetParamsV3 fParams = new FleetParamsV3(null, null,
-                IndEvo_ids.DERELICT_FACTION_ID,
+                Ids.DERELICT_FACTION_ID,
                 1f,
                 FleetTypes.PATROL_SMALL,
                 0,
@@ -491,7 +491,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
     protected void ensureStationEntityIsSetOrCreated() {
         if (stationEntity == null) {
             MarketAPI market = primaryEntity.getMarket();
-            IndEvo_modPlugin.log("spawning artillery station at " + market.getName());
+            ModPlugin.log("spawning artillery station at " + market.getName());
 
             stationEntity = IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(market, getType(), true);
         }
@@ -633,7 +633,7 @@ public class IndEvo_DerelictArtilleryStationScript implements EveryFrameScript, 
 
         setDestroyedWithDestroyedActions();
 
-        IndEvo_modPlugin.log(primaryEntity.getName() + " Artillery station destroyed");
+        ModPlugin.log(primaryEntity.getName() + " Artillery station destroyed");
 
         //relocates the debris field that was spawned last, which gotta be the one from the station because there is one frame between station death and reportFleetDespawnedToListener, during which it gets spawned
         //this is a crime against humanity

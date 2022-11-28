@@ -1,19 +1,19 @@
 package indevo.industries.derelicts.industry;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_IndustryHelper;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.*;
-import indevo.items.IndEvo_EmptyForgeTemplateItemPlugin;
+import indevo.items.EmptyForgeTemplateItemPlugin;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.items.installable.IndEvo_ForgeTemplateInstallableItemPlugin;
+import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import indevo.ids.IndEvo_Items;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import indevo.utils.timers.IndEvo_newDayListener;
+import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class IndEvo_ResLab extends IndEvo_BaseForgeTemplateUser implements IndEvo_newDayListener {
+public class IndEvo_ResLab extends IndEvo_BaseForgeTemplateUser implements NewDayListener {
 
     boolean debug = false;
     private SpecialItemData current = null;
@@ -76,11 +76,11 @@ public class IndEvo_ResLab extends IndEvo_BaseForgeTemplateUser implements IndEv
     private void autoFeed() {
         //autofeed
         if (getSpecialItem() == null) {
-            if (!market.hasSubmarket(IndEvo_ids.SHAREDSTORAGE)) return;
-            CargoAPI cargo = market.getSubmarket(IndEvo_ids.SHAREDSTORAGE).getCargo();
+            if (!market.hasSubmarket(Ids.SHAREDSTORAGE)) return;
+            CargoAPI cargo = market.getSubmarket(Ids.SHAREDSTORAGE).getCargo();
 
             for (CargoStackAPI stack : cargo.getStacksCopy()) {
-                if (stack.getPlugin() instanceof IndEvo_EmptyForgeTemplateItemPlugin && stack.getSpecialDataIfSpecial().getId().equals(IndEvo_Items.BROKENFORGETEMPLATE)) {
+                if (stack.getPlugin() instanceof EmptyForgeTemplateItemPlugin && stack.getSpecialDataIfSpecial().getId().equals(ItemIds.BROKENFORGETEMPLATE)) {
                     setSpecialItem(stack.getSpecialDataIfSpecial());
                     cargo.removeItems(CargoAPI.CargoItemType.SPECIAL, stack.getSpecialDataIfSpecial(), 1);
                     Global.getSector().getCampaignUI().addMessage("An Ancient Laboratory has taken a %s from the industrial storage at %s.",
@@ -97,7 +97,7 @@ public class IndEvo_ResLab extends IndEvo_BaseForgeTemplateUser implements IndEv
             autoFeed();
 
             if (getSpecialItem() != null
-                    && getSpecialItem().getId().equals(IndEvo_Items.BROKENFORGETEMPLATE)
+                    && getSpecialItem().getId().equals(ItemIds.BROKENFORGETEMPLATE)
                     && current == null) {
                 initRepair();
 
@@ -151,8 +151,8 @@ public class IndEvo_ResLab extends IndEvo_BaseForgeTemplateUser implements IndEv
                 MutableCommodityQuantity m2 = ind.getSupply(bonusCommodityId2);
                 MutableCommodityQuantity m3 = ind.getSupply(bonusCommodityId2);
 
-                if (ind.getId().equals(IndEvo_ids.ADMANUF) && ind.getSpecialItem() != null) {
-                    Pair<String, String> p = IndEvo_Items.getVPCCommodityIds(ind.getSpecialItem().getId());
+                if (ind.getId().equals(Ids.ADMANUF) && ind.getSpecialItem() != null) {
+                    Pair<String, String> p = ItemIds.getVPCCommodityIds(ind.getSpecialItem().getId());
 
                     if (p.one.equals(bonusCommodityId1) || p.two.equals(bonusCommodityId1))
                         m1.getQuantity().modifyFlat(getModId(), bonusValue, getNameForModifier());
@@ -261,12 +261,12 @@ public class IndEvo_ResLab extends IndEvo_BaseForgeTemplateUser implements IndEv
 
     private boolean repairInstalledFT() {
         if (Global.getSettings().getBoolean("reslab_autoDeliverToClosestDecon")) {
-            MarketAPI target = IndEvo_IndustryHelper.getClosestMarketWithIndustry(market, IndEvo_ids.DECONSTRUCTOR);
+            MarketAPI target = IndustryHelper.getClosestMarketWithIndustry(market, Ids.DECONSTRUCTOR);
 
             if (target != null) {
-                CargoAPI c = IndEvo_IndustryHelper.getIndustrialStorageCargo(target);
+                CargoAPI c = IndustryHelper.getIndustrialStorageCargo(target);
                 if (c != null) {
-                    c.addSpecial(new SpecialItemData(IndEvo_Items.EMPTYFORGETEMPLATE, null), 1);
+                    c.addSpecial(new SpecialItemData(ItemIds.EMPTYFORGETEMPLATE, null), 1);
                     throwDeliveryMessage(market, target);
                     return true;
                 }
@@ -275,12 +275,12 @@ public class IndEvo_ResLab extends IndEvo_BaseForgeTemplateUser implements IndEv
 
         boolean toStorage = !Global.getSettings().getBoolean("IndEvo_derelictDeliverToGathering");
 
-        MarketAPI gather = IndEvo_IndustryHelper.getMarketForStorage(market);
+        MarketAPI gather = IndustryHelper.getMarketForStorage(market);
         MarketAPI target = toStorage ? market : gather;
 
         if (gather != null) {
             CargoAPI cargo = Misc.getStorageCargo(target);
-            cargo.addSpecial(new SpecialItemData(IndEvo_Items.EMPTYFORGETEMPLATE, null), 1);
+            cargo.addSpecial(new SpecialItemData(ItemIds.EMPTYFORGETEMPLATE, null), 1);
             throwDeliveryMessage(market, target);
             return true;
         }
@@ -331,7 +331,7 @@ public class IndEvo_ResLab extends IndEvo_BaseForgeTemplateUser implements IndEv
     @Override
     public java.util.List<InstallableIndustryItemPlugin> getInstallableItems() {
         ArrayList<InstallableIndustryItemPlugin> list = new ArrayList<>();
-        list.add(new IndEvo_ForgeTemplateInstallableItemPlugin(this));
+        list.add(new ForgeTemplateInstallableItemPlugin(this));
         return list;
     }
 
@@ -483,7 +483,7 @@ Gamma reduces template refit time*/
     @Override
     public boolean isLegalOnSharedSubmarket(CargoStackAPI stack) {
         if (!stack.isSpecialStack()) return false;
-        return stack.getSpecialItemSpecIfSpecial().getId().equals(IndEvo_Items.BROKENFORGETEMPLATE);
+        return stack.getSpecialItemSpecIfSpecial().getId().equals(ItemIds.BROKENFORGETEMPLATE);
     }
 
     @Override

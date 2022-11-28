@@ -4,7 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.fleetAssignmentAIs.*;
 import com.fs.starfarer.api.ui.Alignment;
@@ -155,7 +155,7 @@ public class Behaviour {
         fleet.getMemoryWithoutUpdate().set(DETACHMENT_BEHAVIOUR_MEMORY_KEY, behaviour);
         if(num > 0) LoadoutMemory.getLoadout(num).behaviour = behaviour;
 
-        IndEvo_modPlugin.log("changing detachment behaviour to " + behaviour.toString() + " for detachment " + num);
+        ModPlugin.log("changing detachment behaviour to " + behaviour.toString() + " for detachment " + num);
     }
 
     public static void setFleetBehaviourOverride(CampaignFleetAPI fleet, FleetBehaviour behaviour) {

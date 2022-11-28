@@ -21,7 +21,7 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 
-import static indevo.utils.helper.IndEvo_IndustryHelper.smootherstep;
+import static indevo.utils.helper.IndustryHelper.smootherstep;
 
 public class IndEvo_ArtilleryProjectileEntityPlugin extends BaseCustomEntityPlugin {
 

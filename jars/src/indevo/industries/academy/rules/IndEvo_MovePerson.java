@@ -7,7 +7,7 @@ import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import indevo.industries.academy.industry.IndEvo_Academy;
-import indevo.ids.IndEvo_ids;
+import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
 
@@ -50,7 +50,7 @@ public class IndEvo_MovePerson extends BaseCommandPlugin {
         PersonAPI person = (PersonAPI) memory.get(SELECTED_PERSON);
 
         MarketAPI market = getMarket(memoryMap);
-        IndEvo_Academy academy = (IndEvo_Academy) market.getIndustry(IndEvo_ids.ACADEMY);
+        IndEvo_Academy academy = (IndEvo_Academy) market.getIndustry(Ids.ACADEMY);
 
         switch (actionType) {
             case TRAIN:

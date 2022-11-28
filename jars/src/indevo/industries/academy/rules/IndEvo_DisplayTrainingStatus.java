@@ -1,13 +1,13 @@
 package indevo.industries.academy.rules;
 
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.ids.Ids;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import indevo.industries.academy.industry.IndEvo_Academy;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
 
@@ -23,7 +23,7 @@ public class IndEvo_DisplayTrainingStatus extends BaseCommandPlugin {
     public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
         MarketAPI market = getMarket(memoryMap);
         TextPanelAPI text = dialog.getTextPanel();
-        IndEvo_Academy academy = (IndEvo_Academy) market.getIndustry(IndEvo_ids.ACADEMY);
+        IndEvo_Academy academy = (IndEvo_Academy) market.getIndustry(Ids.ACADEMY);
 
         Color hl = Misc.getHighlightColor();
 
@@ -34,16 +34,16 @@ public class IndEvo_DisplayTrainingStatus extends BaseCommandPlugin {
         else {
             PersonAPI officer = academy.getOfficerInTraining();
             text.addParagraph("Currently training officer: " + officer.getNameString() + " from " + Misc.ucFirst(officer.getPersonalityAPI().getDisplayName()) + " to " + Misc.ucFirst(academy.getNextPersonalityForTooltip())
-                    + " for another " + academy.getRemainingOfficerTrainingDays() + " " + IndEvo_StringHelper.getDayOrDays(academy.getRemainingOfficerTrainingDays()));
-            text.highlightInLastPara(hl, academy.getRemainingOfficerTrainingDays() + " " + IndEvo_StringHelper.getDayOrDays(academy.getRemainingOfficerTrainingDays()));
+                    + " for another " + academy.getRemainingOfficerTrainingDays() + " " + StringHelper.getDayOrDays(academy.getRemainingOfficerTrainingDays()));
+            text.highlightInLastPara(hl, academy.getRemainingOfficerTrainingDays() + " " + StringHelper.getDayOrDays(academy.getRemainingOfficerTrainingDays()));
 
         }
 
         if (academy.getAdminInTraining() == null) text.addParagraph("No admin currently in training.");
         else {
             PersonAPI adminInTraining = academy.getAdminInTraining();
-            text.addParagraph("Currently training administrator: " + adminInTraining.getNameString() + " for another " + academy.getRemainingAdminTrainingDays() + " " + IndEvo_StringHelper.getDayOrDays(academy.getRemainingAdminTrainingDays()));
-            text.highlightInLastPara(hl, academy.getRemainingAdminTrainingDays() + " " + IndEvo_StringHelper.getDayOrDays(academy.getRemainingAdminTrainingDays()));
+            text.addParagraph("Currently training administrator: " + adminInTraining.getNameString() + " for another " + academy.getRemainingAdminTrainingDays() + " " + StringHelper.getDayOrDays(academy.getRemainingAdminTrainingDays()));
+            text.highlightInLastPara(hl, academy.getRemainingAdminTrainingDays() + " " + StringHelper.getDayOrDays(academy.getRemainingAdminTrainingDays()));
         }
         text.addParagraph("-----------------------------------------------------------------------------");
 

@@ -4,7 +4,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.impl.campaign.econ.BaseMarketConditionPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import indevo.ids.IndEvo_ids;
+import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -30,7 +30,7 @@ public class IndEvo_BeaconCondition extends BaseMarketConditionPlugin implements
     public void apply(String id) {
         super.apply(id);
 
-        if (market.hasIndustry(IndEvo_ids.PIRATEHAVEN)) {
+        if (market.hasIndustry(Ids.PIRATEHAVEN)) {
             STABILITY_PENALTY = market.getFaction().isHostileTo(Factions.PIRATES) ? 0 : 2;
         } else {
             STABILITY_PENALTY = market.getFaction().isHostileTo(Factions.PIRATES) ? -2 : 0;
@@ -55,7 +55,7 @@ public class IndEvo_BeaconCondition extends BaseMarketConditionPlugin implements
     protected float getImmigrationBonus() {
         float immigrationIncrease;
 
-        if (market.hasIndustry(IndEvo_ids.PIRATEHAVEN)) {
+        if (market.hasIndustry(Ids.PIRATEHAVEN)) {
             immigrationIncrease = market.getFaction().isHostileTo(Factions.PIRATES) ? 0 : market.getSize();
 
         } else {
@@ -66,7 +66,7 @@ public class IndEvo_BeaconCondition extends BaseMarketConditionPlugin implements
 
     protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
         super.createTooltipAfterDescription(tooltip, expanded);
-        if (!market.getFaction().isHostileTo(Factions.PIRATES) || !market.hasIndustry(IndEvo_ids.PIRATEHAVEN)) {
+        if (!market.getFaction().isHostileTo(Factions.PIRATES) || !market.hasIndustry(Ids.PIRATEHAVEN)) {
             String s = STABILITY_PENALTY > 0 ? "+" + STABILITY_PENALTY : "" + STABILITY_PENALTY;
             String t = getImmigrationBonus() > 0 ? "+" + getImmigrationBonus() : "" + getImmigrationBonus();
 

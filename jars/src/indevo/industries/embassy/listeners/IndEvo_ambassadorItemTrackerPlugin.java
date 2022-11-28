@@ -7,20 +7,20 @@ import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
-import indevo.items.specialitemdata.IndEvo_AmbassadorItemData;
+import indevo.ids.Ids;
+import indevo.items.specialitemdata.AmbassadorItemData;
 import com.fs.starfarer.api.characters.PersonAPI;
 import indevo.industries.embassy.fleet.IndEvo_AmbassadorMurderConsequences;
 import indevo.industries.embassy.IndEvo_AmbassadorItemHelper;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import indevo.utils.timers.IndEvo_newDayListener;
+import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.util.Misc;
 
 import static indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager.adjustRelationship;
 import static indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager.displayMessage;
 
-public class IndEvo_ambassadorItemTrackerPlugin implements IndEvo_newDayListener {
+public class IndEvo_ambassadorItemTrackerPlugin implements NewDayListener {
 
     private static final float NO_PENALTY = 0f;
     private static final float DELAY_1_REP_PENALTY = -0.1f;
@@ -30,13 +30,13 @@ public class IndEvo_ambassadorItemTrackerPlugin implements IndEvo_newDayListener
 
     public final FactionAPI faction;
     protected final PersonAPI person;
-    protected final IndEvo_AmbassadorItemData specialItem;
+    protected final AmbassadorItemData specialItem;
     private CargoAPI lastKnownLocation = null;
     private boolean isDone = false;
 
     private int daysPassed = 1;
 
-    public IndEvo_ambassadorItemTrackerPlugin(PersonAPI ambassadorPerson, IndEvo_AmbassadorItemData specialItem) {
+    public IndEvo_ambassadorItemTrackerPlugin(PersonAPI ambassadorPerson, AmbassadorItemData specialItem) {
         this.person = ambassadorPerson;
         this.specialItem = specialItem;
         this.faction = ambassadorPerson.getFaction();
@@ -53,7 +53,7 @@ public class IndEvo_ambassadorItemTrackerPlugin implements IndEvo_newDayListener
 
     private boolean findAmbassadorItem(boolean returnHome) {
         //check all storage locations for the item, starting with the most likely
-        IndEvo_AmbassadorItemData amb = specialItem;
+        AmbassadorItemData amb = specialItem;
         CargoAPI targetCargo;
 
         targetCargo = lastKnownLocation;
@@ -95,7 +95,7 @@ public class IndEvo_ambassadorItemTrackerPlugin implements IndEvo_newDayListener
 
     private boolean checkForIllegalPresence() {
         FactionAPI playerFaction = Global.getSector().getPlayerFaction();
-        IndEvo_AmbassadorItemData amb = specialItem;
+        AmbassadorItemData amb = specialItem;
         //past here is fuck up moment
 
         //they wouldn't sell it, right? It's not even worth anything.
@@ -190,9 +190,9 @@ public class IndEvo_ambassadorItemTrackerPlugin implements IndEvo_newDayListener
         FactionAPI playerFaction = Global.getSector().getPlayerFaction();
 
         for (MarketAPI market : Misc.getFactionMarkets(playerFaction)) {
-            if (market.hasIndustry(IndEvo_ids.EMBASSY)
-                    && market.getIndustry(IndEvo_ids.EMBASSY).getSpecialItem() != null
-                    && market.getIndustry(IndEvo_ids.EMBASSY).getSpecialItem().equals(specialItem)
+            if (market.hasIndustry(Ids.EMBASSY)
+                    && market.getIndustry(Ids.EMBASSY).getSpecialItem() != null
+                    && market.getIndustry(Ids.EMBASSY).getSpecialItem().equals(specialItem)
                     && IndEvo_ambassadorPersonManager.getAmbassador(market) == null) {
 
                 return market;
@@ -201,7 +201,7 @@ public class IndEvo_ambassadorItemTrackerPlugin implements IndEvo_newDayListener
         return null;
     }
 
-    private boolean checkCargo(CargoAPI cargo, IndEvo_AmbassadorItemData data, boolean removeWhenFound) {
+    private boolean checkCargo(CargoAPI cargo, AmbassadorItemData data, boolean removeWhenFound) {
         if (cargo == null) return false;
 
         if (cargo.getQuantity(CargoAPI.CargoItemType.SPECIAL, data) > 0) {

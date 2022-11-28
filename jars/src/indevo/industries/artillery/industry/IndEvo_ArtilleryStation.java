@@ -22,7 +22,7 @@ import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGeneratorPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.MarketCMD;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.IconRenderMode;
 import com.fs.starfarer.api.ui.LabelAPI;
@@ -35,8 +35,8 @@ import org.lazywizard.lazylib.MathUtils;
 
 import java.awt.*;
 
-import static indevo.ids.IndEvo_ids.TAG_ARTILLERY_STATION_FLEET;
-import static indevo.ids.IndEvo_ids.TAG_SYSTEM_HAS_ARTILLERY;
+import static indevo.ids.Ids.TAG_ARTILLERY_STATION_FLEET;
+import static indevo.ids.Ids.TAG_SYSTEM_HAS_ARTILLERY;
 
 public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventListener {
     public static float DEFENSE_BONUS_BASE = 0.5f;
@@ -99,7 +99,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
             if (ind == this) continue;
             if (!ind.isFunctional()) continue;
             if (ind.getSpec().hasTag(Tags.STATION)
-                    && ind.getSpec().getPluginClass().equals("com.fs.starfarer.api.impl.campaign.econ.impl.IndEvo_OrbitalStation")) {
+                    && ind.getSpec().getPluginClass().equals("com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation")) {
                 return true;
             }
         }
@@ -234,7 +234,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
     }
 
     protected void removeStationEntityAndFleetIfNeeded() {
-        IndEvo_modPlugin.log("removing artillery station at " + market.getName());
+        ModPlugin.log("removing artillery station at " + market.getName());
 
         if (stationEntity != null) {
 
@@ -321,7 +321,7 @@ public class IndEvo_ArtilleryStation extends BaseIndustry implements FleetEventL
 
     protected void ensureStationEntityIsSetOrCreated() {
         if (stationEntity == null) {
-            IndEvo_modPlugin.log("spawning artillery station at " + market.getName());
+            ModPlugin.log("spawning artillery station at " + market.getName());
 
             stationEntity = IndEvo_ArtilleryStationEntityPlugin.placeAtMarket(market, getType(), true);
         }

@@ -1,7 +1,7 @@
 package indevo.industries.artillery.projectiles;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_IndustryHelper;
+import indevo.utils.helper.IndustryHelper;
 import indevo.industries.artillery.entities.IndEvo_VariableExplosionEntityPlugin;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
@@ -219,7 +219,7 @@ public class IndEvo_ECMExplosion extends BaseCustomEntityPlugin {
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         super.render(layer, viewport);
 
-        float size = 3f * rad * IndEvo_IndustryHelper.smootherstep(0, (dur * RAMPUP_DUR_FRACT), timePassedSeconds);
+        float size = 3f * rad * IndustryHelper.smootherstep(0, (dur * RAMPUP_DUR_FRACT), timePassedSeconds);
         float alpha = 1 - Math.min(timePassedSeconds / (dur * RAMPUP_DUR_FRACT), 1);
 
         sprite.setAdditiveBlend();

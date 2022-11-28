@@ -1,7 +1,7 @@
 package indevo.industries.courierport.dialogue;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
@@ -14,7 +14,7 @@ import indevo.industries.courierport.listeners.SubmarketCargoPicker;
 import indevo.industries.courierport.listeners.SubmarketShipPicker;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import indevo.dialogue.sidepanel.InteractionDialogCustomPanelPlugin;
 import indevo.dialogue.sidepanel.NoFrameCustomPanelPlugin;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
@@ -306,7 +306,7 @@ public class ContractSidePanelCreator {
                         if (!textField.getText().isEmpty() && !textField.getText().equals(contract.name))
                             contract.name = textField.getText();
 
-                        IndEvo_modPlugin.log("buttonPress " + submarketID);
+                        ModPlugin.log("buttonPress " + submarketID);
 
                         contract.fromSubmarketId = submarketID;
                         contract.toSubmarketId = Submarkets.SUBMARKET_STORAGE;
@@ -343,7 +343,7 @@ public class ContractSidePanelCreator {
                 bgColour = fromMarket.getFaction().getDarkUIColor();
                 brightColor = fromMarket.getFaction().getBrightUIColor();
 
-                IndEvo_modPlugin.log("aspectRatio " + aspectRatio);
+                ModPlugin.log("aspectRatio " + aspectRatio);
 
                 anchor = originSelectionPanel.createUIElement(baseWidth, BUTTON_HEIGHT, false);
                 areaCheckbox = anchor.addAreaCheckbox("", new Object(), baseColor, bgColour, brightColor, //new Color(255,255,255,0)
@@ -360,7 +360,7 @@ public class ContractSidePanelCreator {
                         if (!textField.getText().isEmpty() && !textField.getText().equals(contract.name))
                             contract.name = textField.getText();
 
-                        IndEvo_modPlugin.log("buttonPress " + submarketID);
+                        ModPlugin.log("buttonPress " + submarketID);
 
                         contract.fromSubmarketId = submarketID;
                         contract.toSubmarketId = Submarkets.SUBMARKET_STORAGE;
@@ -878,7 +878,7 @@ public class ContractSidePanelCreator {
         panelTooltip.addPara("Cadence: " + (contract.getRecurrentDays() > 0 ? "every %s" : "%s"), pad, Misc.getHighlightColor(), cadenceString);
 
         if (fromMarket != null && toMarket != null) {
-            String alphaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.ALPHA_CORE) ? " [-" + IndEvo_StringHelper.getAbsPercentString(ShippingCostCalculator.TOTAL_FEE_REDUCTION, true) + ", Alpha Core]" : "";
+            String alphaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.ALPHA_CORE) ? " [-" + StringHelper.getAbsPercentString(ShippingCostCalculator.TOTAL_FEE_REDUCTION, true) + ", Alpha Core]" : "";
 
             panelTooltip.addPara("Cost forecast:", opad);
             panelTooltip.beginGridFlipped(300, 1, 100f, 3f);
@@ -904,7 +904,7 @@ public class ContractSidePanelCreator {
                     "Ship cost per 10 DP",
                     Misc.getDGSCredits(ShippingCostCalculator.getCostForShipSpace(10, lyMultVal)) + alphaCoreStr);
 
-            String betaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.BETA_CORE) ? " [-" + IndEvo_StringHelper.getAbsPercentString(ShippingCostCalculator.DISTANCE_MULT_REDUCTION, true) + ", Beta Core]" : "";
+            String betaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.BETA_CORE) ? " [-" + StringHelper.getAbsPercentString(ShippingCostCalculator.DISTANCE_MULT_REDUCTION, true) + ", Beta Core]" : "";
             panelTooltip.addToGrid(0, 3, "Distance multiplier", "x" + lyMultStr + betaCoreStr);
 
             if(fromSubmarket != null && fromSubmarket.getSpecId().equals(Submarkets.LOCAL_RESOURCES)){

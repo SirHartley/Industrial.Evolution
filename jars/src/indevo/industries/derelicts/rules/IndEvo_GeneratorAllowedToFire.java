@@ -5,8 +5,8 @@ import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
+import indevo.ids.Ids;
 import indevo.industries.derelicts.industry.IndEvo_RiftGen;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
 
@@ -18,7 +18,7 @@ public class IndEvo_GeneratorAllowedToFire extends BaseCommandPlugin {
     @Override
     public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
         MarketAPI market = Global.getSector().getEconomy().getMarket(memoryMap.get(MemKeys.MARKET).getString("$id"));
-        IndEvo_RiftGen rg = (IndEvo_RiftGen) market.getIndustry(IndEvo_ids.RIFTGEN);
+        IndEvo_RiftGen rg = (IndEvo_RiftGen) market.getIndustry(Ids.RIFTGEN);
 
         return rg.moveIsLegal();
     }

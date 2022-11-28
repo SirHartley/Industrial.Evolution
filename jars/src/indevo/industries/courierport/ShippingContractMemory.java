@@ -2,7 +2,7 @@ package indevo.industries.courierport;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class ShippingContractMemory {
     }
 
     public static void addOrReplaceContract(ShippingContract contract){
-        IndEvo_modPlugin.log("adding contract " + contract.name);
+        ModPlugin.log("adding contract " + contract.name);
 
         if(contract.isValid()) {
             List<ShippingContract> contractList = getContractList();
@@ -32,7 +32,7 @@ public class ShippingContractMemory {
             for (ShippingContract c : contractList){
                 if (c.getId().equals(contract.getId())) {
                     toRemove = c;
-                    IndEvo_modPlugin.log("replacing old one");
+                    ModPlugin.log("replacing old one");
                     break;
                 }
             }
@@ -40,10 +40,10 @@ public class ShippingContractMemory {
             if(toRemove != null) contractList.remove(toRemove);
             contractList.add(contract);
 
-            IndEvo_modPlugin.log("success");
-        } else IndEvo_modPlugin.log("failed");
+            ModPlugin.log("success");
+        } else ModPlugin.log("failed");
 
-        IndEvo_modPlugin.log(getContractList().size() + " contracts on the list");
+        ModPlugin.log(getContractList().size() + " contracts on the list");
     }
 
     public static ShippingContract getContract(String id){

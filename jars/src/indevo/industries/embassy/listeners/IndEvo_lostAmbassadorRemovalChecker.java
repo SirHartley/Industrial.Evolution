@@ -5,12 +5,12 @@ import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
+import indevo.ids.Ids;
 import indevo.industries.embassy.industry.IndEvo_embassy;
-import indevo.ids.IndEvo_ids;
-import indevo.utils.timers.IndEvo_newDayListener;
+import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.util.Misc;
 
-public class IndEvo_lostAmbassadorRemovalChecker implements IndEvo_newDayListener {
+public class IndEvo_lostAmbassadorRemovalChecker implements NewDayListener {
 
     public final FactionAPI faction;
     protected final PersonAPI person;
@@ -26,8 +26,8 @@ public class IndEvo_lostAmbassadorRemovalChecker implements IndEvo_newDayListene
     @Override
     public void onNewDay() {
         for (MarketAPI market : Misc.getFactionMarkets(Global.getSector().getPlayerFaction())) {
-            if (market.hasIndustry(IndEvo_ids.EMBASSY)) {
-                IndEvo_embassy emb = (IndEvo_embassy) market.getIndustry(IndEvo_ids.EMBASSY);
+            if (market.hasIndustry(Ids.EMBASSY)) {
+                IndEvo_embassy emb = (IndEvo_embassy) market.getIndustry(Ids.EMBASSY);
                 PersonAPI pers = emb.getAmbassadorItemData() != null ? emb.getAmbassadorItemData().getPerson() : null;
 
                 if (pers != null && pers == person) {

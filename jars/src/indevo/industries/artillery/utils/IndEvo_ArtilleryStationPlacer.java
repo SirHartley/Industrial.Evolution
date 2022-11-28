@@ -1,6 +1,7 @@
 package indevo.industries.artillery.utils;
 
 import com.fs.starfarer.api.Global;
+import indevo.ids.Ids;
 import indevo.industries.artillery.scripts.IndEvo_DerelictArtilleryStationScript;
 import indevo.industries.artillery.entities.IndEvo_ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.IndEvo_WatchtowerEntityPlugin;
@@ -9,13 +10,12 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.TechMining;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.terrain.RingSystemTerrainPlugin;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 
@@ -34,24 +34,24 @@ public class IndEvo_ArtilleryStationPlacer {
         MarketAPI m = Global.getSector().getEconomy().getMarket("eochu_bres");
         IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
         placeWatchtowers(m.getStarSystem(), Factions.TRITACHYON);
-        m.addIndustry(IndEvo_ids.ARTILLERY_RAILGUN);
-        m.getIndustry(IndEvo_ids.ARTILLERY_RAILGUN).setAICoreId(Commodities.ALPHA_CORE);
+        m.addIndustry(Ids.ARTILLERY_RAILGUN);
+        m.getIndustry(Ids.ARTILLERY_RAILGUN).setAICoreId(Commodities.ALPHA_CORE);
 
         m = Global.getSector().getEconomy().getMarket("chicomoztoc");
         IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
         placeWatchtowers(m.getStarSystem(), Factions.HEGEMONY);
-        m.addIndustry(IndEvo_ids.ARTILLERY_MORTAR);
+        m.addIndustry(Ids.ARTILLERY_MORTAR);
 
         m = Global.getSector().getEconomy().getMarket("kazeron");
         IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
         placeWatchtowers(m.getStarSystem(), Factions.PERSEAN);
-        m.addIndustry(IndEvo_ids.ARTILLERY_MISSILE);
-        m.getIndustry(IndEvo_ids.ARTILLERY_MISSILE).setAICoreId(Commodities.GAMMA_CORE);
+        m.addIndustry(Ids.ARTILLERY_MISSILE);
+        m.getIndustry(Ids.ARTILLERY_MISSILE).setAICoreId(Commodities.GAMMA_CORE);
 
         m = Global.getSector().getEconomy().getMarket("sindria");
         IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
         placeWatchtowers(m.getStarSystem(), Factions.DIKTAT);
-        m.addIndustry(IndEvo_ids.ARTILLERY_MISSILE);
+        m.addIndustry(Ids.ARTILLERY_MISSILE);
 
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedArtilleries", true);
     }
@@ -86,9 +86,9 @@ public class IndEvo_ArtilleryStationPlacer {
                     if (hasRemnantStation) p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, IndEvo_ArtilleryStationEntityPlugin.TYPE_MISSILE);
 
                     IndEvo_DerelictArtilleryStationScript.addDerelictArtyToPlanet(p, false);
-                    placeWatchtowers(s, IndEvo_ids.DERELICT_FACTION_ID);
+                    placeWatchtowers(s, Ids.DERELICT_FACTION_ID);
 
-                    IndEvo_modPlugin.log("Placed artillery at " + p.getName() + " system: " + s.getName());
+                    ModPlugin.log("Placed artillery at " + p.getName() + " system: " + s.getName());
                     currentCount++;
 
                     continue OUTER;
@@ -96,7 +96,7 @@ public class IndEvo_ArtilleryStationPlacer {
             }
         }
 
-        IndEvo_modPlugin.log("Placed " + currentCount + " Artillery Stations");
+        ModPlugin.log("Placed " + currentCount + " Artillery Stations");
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedDerelictArtilleries", true);
     }
 

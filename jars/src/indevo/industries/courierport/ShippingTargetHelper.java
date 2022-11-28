@@ -1,11 +1,11 @@
 package indevo.industries.courierport;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_IndustryHelper;
+import indevo.ids.Ids;
+import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class ShippingTargetHelper {
 
     public static List<SectorEntityToken> getValidOriginPlanets(){
         List<SectorEntityToken> marketList = new ArrayList<>();
-        Set<String> whitelist = IndEvo_IndustryHelper.getCSVSetFromMemory(IndEvo_ids.SHIPPING_LIST);
+        Set<String> whitelist = IndustryHelper.getCSVSetFromMemory(Ids.SHIPPING_LIST);
 
         OUTER: for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()){
             if(m.getFaction().isHostileTo("player")) continue;
@@ -66,7 +66,7 @@ public class ShippingTargetHelper {
 
     public static Set<SubmarketAPI> getValidOriginSubmarkets(MarketAPI market){
         Set<SubmarketAPI> finalSet = new LinkedHashSet<>();
-        Set<String> whitelist = IndEvo_IndustryHelper.getCSVSetFromMemory(IndEvo_ids.SHIPPING_LIST);
+        Set<String> whitelist = IndustryHelper.getCSVSetFromMemory(Ids.SHIPPING_LIST);
 
         if (market != null) {
             for (SubmarketAPI sub : market.getSubmarketsCopy()) {
@@ -86,7 +86,7 @@ public class ShippingTargetHelper {
         for (SubmarketAPI sub : onMarket.getSubmarketsCopy()) {
             if(sub.getSpecId().equals(Submarkets.LOCAL_RESOURCES)) continue;
 
-            Set<String> whitelist = IndEvo_IndustryHelper.getCSVSetFromMemory(IndEvo_ids.SHIPPING_LIST);
+            Set<String> whitelist = IndustryHelper.getCSVSetFromMemory(Ids.SHIPPING_LIST);
             boolean matchingCargoScreen = sub.getPlugin().showInCargoScreen() && fromSubmarket.getPlugin().showInCargoScreen();
             boolean matchingFleetScreen = sub.getPlugin().showInFleetScreen() && fromSubmarket.getPlugin().showInFleetScreen();
             boolean intersect = matchingCargoScreen || matchingFleetScreen;

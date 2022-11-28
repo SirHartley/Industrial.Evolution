@@ -1,7 +1,7 @@
 package indevo.industries.courierport.listeners;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_IndustryHelper;
+import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -9,17 +9,17 @@ import com.fs.starfarer.api.campaign.econ.MonthlyReport;
 import indevo.industries.courierport.ShippingCargoManager;
 import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingContractMemory;
-import indevo.ids.IndEvo_ids;
+import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.impl.campaign.shared.SharedData;
-import indevo.utils.timers.IndEvo_newDayListener;
+import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.util.Misc;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShippingManager implements IndEvo_newDayListener {
+public class ShippingManager implements NewDayListener {
 
     //on contract trigger, take the required stuff from the target storage and immediately store it in a magic box
     //spawn a fleet and attach a listener to check if it has reached its target
@@ -43,7 +43,7 @@ public class ShippingManager implements IndEvo_newDayListener {
 
         boolean allowed = false;
         for (MarketAPI m : Misc.getPlayerMarkets(true)){
-            if (m.hasIndustry(IndEvo_ids.PORT) && m.getIndustry(IndEvo_ids.PORT).isFunctional()){
+            if (m.hasIndustry(Ids.PORT) && m.getIndustry(Ids.PORT).isFunctional()){
                 allowed = true;
                 break;
             }
@@ -95,18 +95,18 @@ public class ShippingManager implements IndEvo_newDayListener {
             MonthlyReport.FDNode marketsNode = report.getNode(MonthlyReport.OUTPOSTS);
             MonthlyReport.FDNode mNode = report.getNode(marketsNode, m.getId());
             MonthlyReport.FDNode indNode = report.getNode(mNode, "industries");
-            MonthlyReport.FDNode iNode = report.getNode(indNode, IndEvo_ids.PORT);
+            MonthlyReport.FDNode iNode = report.getNode(indNode, Ids.PORT);
 
             iNode.upkeep += amt;
         } else Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(amt);
     }
 
     public static MarketAPI getClosestPort(Shipment container) {
-        MarketAPI market = IndEvo_IndustryHelper.getClosestMarketWithIndustry(container.contract.getFromMarket(), IndEvo_ids.PORT);
+        MarketAPI market = IndustryHelper.getClosestMarketWithIndustry(container.contract.getFromMarket(), Ids.PORT);
 
         if (market == null) {
             for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-                if (m.hasIndustry(IndEvo_ids.PORT) && m.isPlayerOwned()) {
+                if (m.hasIndustry(Ids.PORT) && m.isPlayerOwned()) {
                     market = m;
                     break;
                 }

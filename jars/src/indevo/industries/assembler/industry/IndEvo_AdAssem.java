@@ -3,18 +3,17 @@ package indevo.industries.assembler.industry;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.utils.helper.IndEvo_IndustryHelper;
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.ids.ItemIds;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
 import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
-import indevo.industries.IndEvo_VPCUserIndustryAPI;
-import indevo.items.installable.IndEvo_VPCInstallableItemPlugin;
+import indevo.items.installable.VPCInstallableItemPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import indevo.ids.IndEvo_Items;
-import indevo.ids.IndEvo_ids;
+import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -26,9 +25,9 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.ids.IndEvo_Items.NO_ENTRY;
+import static indevo.ids.ItemIds.NO_ENTRY;
 
-public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener, IndEvo_VPCUserIndustryAPI {
+public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener, VPCUserIndustryAPI {
 
     public static final Logger log = Global.getLogger(IndEvo_AdAssem.class);
 
@@ -78,13 +77,13 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
 
         Global.getSector().getListenerManager().removeListener(this);
 
-        if (!getId().equals(IndEvo_ids.COMFORGE)) unmodifySupDem();
+        if (!getId().equals(Ids.COMFORGE)) unmodifySupDem();
 
         supply.clear();
         demand.clear();
 
         if (currentVPC != null) {
-            IndEvo_VPCInstallableItemPlugin.IndEvo_ItemEffect effect = IndEvo_VPCInstallableItemPlugin.IndEvo_VPC_EFFECTS.get(currentVPC.getId());
+            VPCInstallableItemPlugin.IndEvo_ItemEffect effect = VPCInstallableItemPlugin.IndEvo_VPC_EFFECTS.get(currentVPC.getId());
             if (effect != null) {
                 effect.unapply(this);
             }
@@ -134,7 +133,7 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
 
     public Map<String, Integer> getDepositList() {
         Map<String, Integer> map = new LinkedHashMap<>();
-        Pair<String, String> p = IndEvo_Items.getVPCCommodityIds(getSpecialItem().getId());
+        Pair<String, String> p = ItemIds.getVPCCommodityIds(getSpecialItem().getId());
         boolean dual = !p.two.equals(NO_ENTRY);
 
         if (p.one != null) map.put(p.one, getDepositAmount(p.one, dual));
@@ -176,9 +175,9 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
         for (SpecialItemSpecAPI spec : Global.getSettings().getAllSpecialItemSpecs()) {
             int weight = 0;
 
-            if (spec.hasTag(IndEvo_Items.TAG_VPC_COMMON)) weight = 70;
-            if (spec.hasTag(IndEvo_Items.TAG_VPC_UNCOMMON)) weight = 25;
-            if (spec.hasTag(IndEvo_Items.TAG_VPC_RARE)) weight = 5;
+            if (spec.hasTag(ItemIds.TAG_VPC_COMMON)) weight = 70;
+            if (spec.hasTag(ItemIds.TAG_VPC_UNCOMMON)) weight = 25;
+            if (spec.hasTag(ItemIds.TAG_VPC_RARE)) weight = 5;
 
             VPCtype.add(spec.getId(), weight);
         }
@@ -203,12 +202,12 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
 
         for (MutableCommodityQuantity sup : getAllSupply()) {
             if (sup.getQuantity().getModifiedInt() > 3) {
-                sup.getQuantity().modifyFlat(getModId(), 3 - sup.getQuantity().getModifiedInt(), IndEvo_StringHelper.getString(getId(), "outputRestriction"));
+                sup.getQuantity().modifyFlat(getModId(), 3 - sup.getQuantity().getModifiedInt(), StringHelper.getString(getId(), "outputRestriction"));
             }
         }
         for (MutableCommodityQuantity dem : getAllDemand()) {
             if (dem.getQuantity().getModifiedInt() > 4) {
-                dem.getQuantity().modifyFlat(getModId(), 4 - dem.getQuantity().getModifiedInt(), IndEvo_StringHelper.getString(getId(), "outputRestriction"));
+                dem.getQuantity().modifyFlat(getModId(), 4 - dem.getQuantity().getModifiedInt(), StringHelper.getString(getId(), "outputRestriction"));
             }
         }
     }
@@ -280,7 +279,7 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
             Color bad = Misc.getNegativeHighlightColor();
 
             if (currTooltipMode.equals(IndustryTooltipMode.ADD_INDUSTRY) || currentVPC == null) {
-                tooltip.addPara("%s", opad, highlight, IndEvo_StringHelper.getString("IndEvo_VarInd", "vpcNotice"));
+                tooltip.addPara("%s", opad, highlight, StringHelper.getString("IndEvo_VarInd", "vpcNotice"));
             }
 
             if (isFunctional()
@@ -288,23 +287,23 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
                     && currTooltipMode.equals(IndustryTooltipMode.NORMAL)) {
 
                 if (!rampUpExpired) {
-                    tooltip.addPara(IndEvo_StringHelper.getString("IndEvo_VarInd", "rampUp"), 10, bad, IndEvo_StringHelper.getAbsPercentString(RAMP_UP_REDUCTION_MULT, true));
+                    tooltip.addPara(StringHelper.getString("IndEvo_VarInd", "rampUp"), 10, bad, StringHelper.getAbsPercentString(RAMP_UP_REDUCTION_MULT, true));
                 }
 
-                Pair<String, String> vpcCommodityIds = IndEvo_Items.getVPCCommodityIds(getSpecialItem().getId());
+                Pair<String, String> vpcCommodityIds = ItemIds.getVPCCommodityIds(getSpecialItem().getId());
                 boolean dual = !vpcCommodityIds.two.equals(NO_ENTRY);
 
                 Map<String, String> toReplace = new HashMap<>();
-                toReplace.put("$commodityName1", IndEvo_Items.getCommodityNameString(vpcCommodityIds.one));
+                toReplace.put("$commodityName1", ItemIds.getCommodityNameString(vpcCommodityIds.one));
 
                 if (!dual) {
-                    String str = IndEvo_StringHelper.getStringAndSubstituteTokens("IndEvo_VarInd", "singleOutput", toReplace);
+                    String str = StringHelper.getStringAndSubstituteTokens("IndEvo_VarInd", "singleOutput", toReplace);
                     String[] highlightString = new String[]{getDepositAmount(vpcCommodityIds.one, false) + ""};
 
                     tooltip.addPara(str, opad, highlight, highlightString);
                 } else {
-                    toReplace.put("$commodityName2", IndEvo_Items.getCommodityNameString(vpcCommodityIds.two));
-                    String str = IndEvo_StringHelper.getStringAndSubstituteTokens("IndEvo_VarInd", "doubleOutput", toReplace);
+                    toReplace.put("$commodityName2", ItemIds.getCommodityNameString(vpcCommodityIds.two));
+                    String str = StringHelper.getStringAndSubstituteTokens("IndEvo_VarInd", "doubleOutput", toReplace);
                     String[] highlightString = new String[]{getDepositAmount(vpcCommodityIds.one, true) + "", getDepositAmount(vpcCommodityIds.two, true) + ""};
 
                     tooltip.addPara(str, opad, highlight, highlightString);
@@ -322,7 +321,7 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
             boolean deficit = getAllDeficit().size() > 0;
 
             if (deficit) {
-                tooltip.addPara("%s", pad, h, IndEvo_StringHelper.getString("IndEvo_VarInd", "shortageTooltip"));
+                tooltip.addPara("%s", pad, h, StringHelper.getString("IndEvo_VarInd", "shortageTooltip"));
             }
         }
     }
@@ -351,7 +350,7 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
 
     protected void applyIndEvo_VPCEffects() {
         if (currentVPC != null) {
-            IndEvo_VPCInstallableItemPlugin.IndEvo_ItemEffect effect = IndEvo_VPCInstallableItemPlugin.IndEvo_VPC_EFFECTS.get(currentVPC.getId());
+            VPCInstallableItemPlugin.IndEvo_ItemEffect effect = VPCInstallableItemPlugin.IndEvo_VPC_EFFECTS.get(currentVPC.getId());
             if (effect != null) {
                 effect.apply(this);
             }
@@ -360,7 +359,7 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
 
     public void setCurrentVPC(SpecialItemData vpcItemData) {
         if (vpcItemData == null && this.currentVPC != null) {
-            IndEvo_VPCInstallableItemPlugin.IndEvo_ItemEffect effect = IndEvo_VPCInstallableItemPlugin.IndEvo_VPC_EFFECTS.get(this.currentVPC.getId());
+            VPCInstallableItemPlugin.IndEvo_ItemEffect effect = VPCInstallableItemPlugin.IndEvo_VPC_EFFECTS.get(this.currentVPC.getId());
             if (effect != null) {
                 effect.unapply(this);
             }
@@ -384,7 +383,7 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
     public boolean wantsToUseSpecialItem(SpecialItemData data) {
         return currentVPC == null &&
                 data != null &&
-                IndEvo_VPCInstallableItemPlugin.IndEvo_VPC_EFFECTS.containsKey(data.getId());
+                VPCInstallableItemPlugin.IndEvo_VPC_EFFECTS.containsKey(data.getId());
     }
 
     @Override
@@ -407,7 +406,7 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
         SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(currentVPC.getId());
 
         TooltipMakerAPI text = tooltip.beginImageWithText(spec.getIconName(), 48);
-        IndEvo_VPCInstallableItemPlugin.IndEvo_ItemEffect effect = IndEvo_VPCInstallableItemPlugin.IndEvo_VPC_EFFECTS.get(currentVPC.getId());
+        VPCInstallableItemPlugin.IndEvo_ItemEffect effect = VPCInstallableItemPlugin.IndEvo_VPC_EFFECTS.get(currentVPC.getId());
         effect.addItemDescription(text, currentVPC, InstallableIndustryItemPlugin.InstallableItemDescriptionMode.INDUSTRY_TOOLTIP);
         tooltip.addImageWithText(opad);
 
@@ -417,7 +416,7 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
     @Override
     public List<InstallableIndustryItemPlugin> getInstallableItems() {
         ArrayList<InstallableIndustryItemPlugin> list = new ArrayList<>();
-        list.add(new IndEvo_VPCInstallableItemPlugin(this));
+        list.add(new VPCInstallableItemPlugin(this));
         return list;
     }
 
@@ -426,7 +425,7 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
         super.initWithParams(params);
 
         for (String str : params) {
-            if (IndEvo_VPCInstallableItemPlugin.IndEvo_VPC_EFFECTS.containsKey(str)) {
+            if (VPCInstallableItemPlugin.IndEvo_VPC_EFFECTS.containsKey(str)) {
                 setCurrentVPC(new SpecialItemData(str, null));
                 break;
             }
@@ -455,9 +454,9 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
-        String effect = IndEvo_StringHelper.getString("IndEvo_AdAssem", "aCoreEffect");
-        String[] highlightString = new String[]{IndEvo_StringHelper.getAbsPercentString(ALPHA_CORE_UPKEEP_RED_MULT, true), IndEvo_StringHelper.getAbsPercentString(ALPHA_CORE_OUTPUT_MULT, true)};
+        String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
+        String effect = StringHelper.getString("IndEvo_AdAssem", "aCoreEffect");
+        String[] highlightString = new String[]{StringHelper.getAbsPercentString(ALPHA_CORE_UPKEEP_RED_MULT, true), StringHelper.getAbsPercentString(ALPHA_CORE_OUTPUT_MULT, true)};
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -474,9 +473,9 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
         Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
-        String effect = IndEvo_StringHelper.getString("IndEvo_AdAssem", "bCoreEffect");
-        String highlightString = IndEvo_StringHelper.getAbsPercentString(BETA_CORE_OUTPUT_MULT, true);
+        String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
+        String effect = StringHelper.getString("IndEvo_AdAssem", "bCoreEffect");
+        String highlightString = StringHelper.getAbsPercentString(BETA_CORE_OUTPUT_MULT, true);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -493,9 +492,9 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
         Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
-        String effect = IndEvo_StringHelper.getString("IndEvo_VarInd", "gCoreEffect");
-        String highlightString = IndEvo_StringHelper.getAbsPercentString(GAMMA_CORE_UPKEEP_RED_MULT, true);
+        String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
+        String effect = StringHelper.getString("IndEvo_VarInd", "gCoreEffect");
+        String highlightString = StringHelper.getAbsPercentString(GAMMA_CORE_UPKEEP_RED_MULT, true);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -522,13 +521,13 @@ public class IndEvo_AdAssem extends BaseIndustry implements EconomyTickListener,
     protected void applyAICoreToIncomeAndUpkeep() {
         String name;
 
-        switch (IndEvo_IndustryHelper.getAiCoreIdNotNull(this)) {
+        switch (IndustryHelper.getAiCoreIdNotNull(this)) {
             case Commodities.ALPHA_CORE:
-                name = IndEvo_StringHelper.getString("IndEvo_AICores", "aCoreStatModAssigned");
+                name = StringHelper.getString("IndEvo_AICores", "aCoreStatModAssigned");
                 getUpkeep().modifyMult("ind_core", ALPHA_CORE_UPKEEP_RED_MULT, name);
                 break;
             case Commodities.GAMMA_CORE:
-                name = IndEvo_StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
+                name = StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
                 getUpkeep().modifyMult("ind_core", GAMMA_CORE_UPKEEP_RED_MULT, name);
                 break;
             default:

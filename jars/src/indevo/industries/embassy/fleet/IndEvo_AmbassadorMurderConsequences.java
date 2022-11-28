@@ -5,7 +5,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.fleets.AutoDespawnScript;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.CampaignEventListener.FleetDespawnReason;
 import com.fs.starfarer.api.campaign.ai.CampaignFleetAIAPI.EncounterOption;
@@ -21,7 +21,7 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.util.Random;
 
-import static indevo.exploration.salvage.specials.IndEvo_CreditStashSpecial.makeFleetInterceptPlayer;
+import static indevo.exploration.salvage.specials.CreditStashSpecial.makeFleetInterceptPlayer;
 
 public class IndEvo_AmbassadorMurderConsequences implements EveryFrameScript, FleetEventListener {
 
@@ -141,7 +141,7 @@ public class IndEvo_AmbassadorMurderConsequences implements EveryFrameScript, Fl
             fleet.addEventListener(this);
 
             MemoryAPI memory = fleet.getMemoryWithoutUpdate();
-            String himOrHer = IndEvo_StringHelper.getHimOrHer(gender);
+            String himOrHer = StringHelper.getHimOrHer(gender);
 
             memory.set("$IndEvo_bountyHunter", true);
             memory.set("$IndEvo_himOrHer", himOrHer);

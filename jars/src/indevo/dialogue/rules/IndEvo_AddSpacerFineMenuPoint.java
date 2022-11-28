@@ -9,7 +9,7 @@ import com.fs.starfarer.api.util.Misc;
 import java.util.List;
 import java.util.Map;
 
-import static indevo.exploration.salvage.specials.IndEvo_CreditStashSpecial.STOLEN_CREDIT_AMT_KEY;
+import static indevo.exploration.salvage.specials.CreditStashSpecial.STOLEN_CREDIT_AMT_KEY;
 
 public class IndEvo_AddSpacerFineMenuPoint extends BaseCommandPlugin {
 

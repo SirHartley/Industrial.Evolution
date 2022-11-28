@@ -1,7 +1,7 @@
 package indevo.industries.courierport;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_IndustryHelper;
+import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
@@ -25,7 +25,7 @@ public class ShippingCargoManager {
         boolean canHoldShips = toSubmaket.getPlugin().showInFleetScreen() && toSubmaket.getPlugin().showInFleetScreen();
         boolean canHoldCargo = toSubmaket.getPlugin().showInCargoScreen() && toSubmaket.getPlugin().showInCargoScreen();
 
-        CargoAPI fromSubmarketCargo = removeWhenFound ? fromSubmarket.getCargo() : IndEvo_IndustryHelper.getCargoCopy(fromSubmarket.getCargo());
+        CargoAPI fromSubmarketCargo = removeWhenFound ? fromSubmarket.getCargo() : IndustryHelper.getCargoCopy(fromSubmarket.getCargo());
         CargoAPI shippingCargo = Global.getFactory().createCargo(true);
 
         fromSubmarketCargo.initMothballedShips("player");

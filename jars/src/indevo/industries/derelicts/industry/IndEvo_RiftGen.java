@@ -1,7 +1,8 @@
 package indevo.industries.derelicts.industry;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_IndustryHelper;
+import indevo.ids.Ids;
+import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
@@ -9,11 +10,10 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import indevo.ids.IndEvo_ids;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
-import indevo.utils.IndEvo_modPlugin;
+import indevo.utils.ModPlugin;
 import indevo.industries.derelicts.scripts.IndEvo_PlanetMovingScript;
-import indevo.utils.timers.IndEvo_newDayListener;
+import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import org.apache.log4j.Logger;
@@ -25,7 +25,7 @@ import java.util.Random;
 
 import static indevo.industries.derelicts.industry.IndEvo_Ruins.INDUSTRY_ID_MEMORY_KEY;
 
-public class IndEvo_RiftGen extends BaseIndustry implements IndEvo_newDayListener {
+public class IndEvo_RiftGen extends BaseIndustry implements NewDayListener {
     public static final Logger log = Global.getLogger(IndEvo_RiftGen.class);
 
     private boolean debug = false;
@@ -75,7 +75,7 @@ public class IndEvo_RiftGen extends BaseIndustry implements IndEvo_newDayListene
         super.unapply();
 
         //needed so it doesn't display as buildable
-        spec.setDowngrade(IndEvo_ids.RUINS);
+        spec.setDowngrade(Ids.RUINS);
 
         Global.getSector().getListenerManager().removeListener(this);
     }
@@ -85,7 +85,7 @@ public class IndEvo_RiftGen extends BaseIndustry implements IndEvo_newDayListene
         String id = market.getMemoryWithoutUpdate().getString(INDUSTRY_ID_MEMORY_KEY);
 
         boolean check = (id != null && getId().equals(id))
-                && (market.hasIndustry(IndEvo_ids.RUINS) && !(market.getIndustry(IndEvo_ids.RUINS).isUpgrading())); //no ruins id specified or wrong general ID
+                && (market.hasIndustry(Ids.RUINS) && !(market.getIndustry(Ids.RUINS).isUpgrading())); //no ruins id specified or wrong general ID
 
         return check && super.isAvailableToBuild();
     }
@@ -106,9 +106,9 @@ public class IndEvo_RiftGen extends BaseIndustry implements IndEvo_newDayListene
     public void advance(float amount) {
         super.advance(amount);
 
-        if (!market.isPlanetConditionMarketOnly() && !market.hasCondition(IndEvo_ids.COND_CRYODISABLE)) {
-            market.addCondition(IndEvo_ids.COND_CRYODISABLE);
-            IndEvo_modPlugin.log("Adding cryo_disabler to market " + market.getId());
+        if (!market.isPlanetConditionMarketOnly() && !market.hasCondition(Ids.COND_CRYODISABLE)) {
+            market.addCondition(Ids.COND_CRYODISABLE);
+            ModPlugin.log("Adding cryo_disabler to market " + market.getId());
         }
     }
 
@@ -141,7 +141,7 @@ public class IndEvo_RiftGen extends BaseIndustry implements IndEvo_newDayListene
     public boolean moveIsLegal() {
         boolean legal = true;
 
-        if (IndEvo_IndustryHelper.planetHasRings(market)) legal = false;
+        if (IndustryHelper.planetHasRings(market)) legal = false;
 
         for (SectorEntityToken e : market.getStarSystem().getAllEntities()) {
             if (e.getOrbitFocus() != null

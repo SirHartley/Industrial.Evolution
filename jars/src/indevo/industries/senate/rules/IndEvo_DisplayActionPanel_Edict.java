@@ -1,7 +1,7 @@
 package indevo.industries.senate.rules;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.OptionPanelAPI;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
@@ -9,7 +9,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionPlugin;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.industries.senate.conditions.IndEvo_EdictAPI;
+import indevo.industries.senate.conditions.EdictAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
 import org.lwjgl.input.Keyboard;
@@ -51,12 +51,12 @@ public class IndEvo_DisplayActionPanel_Edict extends BaseCommandPlugin {
 
     public static void printEdictDescriptionTooltip(String id, MarketConditionPlugin plugin, MarketAPI market, InteractionDialogAPI dialog) {
         TextPanelAPI text = dialog.getTextPanel();
-        IndEvo_EdictAPI edictPlugin = (IndEvo_EdictAPI) plugin;
+        EdictAPI edictPlugin = (EdictAPI) plugin;
 
         text.setFontSmallInsignia();
         text.addPara(plugin.getName());
 
-        text.addParagraph(IndEvo_StringHelper.HR);
+        text.addParagraph(StringHelper.HR);
 
         edictPlugin.printEdictFlavourText(text);
         text.addParagraph("");
@@ -64,7 +64,7 @@ public class IndEvo_DisplayActionPanel_Edict extends BaseCommandPlugin {
         text.addParagraph("");
         edictPlugin.printEdictRuntimeText(text);
 
-        text.addParagraph(IndEvo_StringHelper.HR);
+        text.addParagraph(StringHelper.HR);
         text.setFontInsignia();
     }
 }

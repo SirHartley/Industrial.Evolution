@@ -5,7 +5,7 @@ import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.industries.senate.conditions.IndEvo_baseEdict;
+import indevo.industries.senate.conditions.BaseEdict;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
 
@@ -20,7 +20,7 @@ public class IndEvo_removeEdict extends BaseCommandPlugin {
 
         for (String id : IndEvo_CreateEdictSelectionList.getEdictIdSet())
             if (market.hasCondition(id)) {
-                ((IndEvo_baseEdict) market.getCondition(id).getPlugin()).removeWithPenalty();
+                ((BaseEdict) market.getCondition(id).getPlugin()).removeWithPenalty();
                 break;
             }
 

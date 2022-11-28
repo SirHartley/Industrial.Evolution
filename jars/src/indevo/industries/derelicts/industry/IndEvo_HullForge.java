@@ -1,8 +1,10 @@
 package indevo.industries.derelicts.industry;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_IndustryHelper;
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
@@ -11,19 +13,17 @@ import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MonthlyReport;
-import indevo.items.IndEvo_ForgeTemplateItemPlugin;
+import indevo.items.ForgeTemplateItemPlugin;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import indevo.items.installable.IndEvo_ForgeTemplateInstallableItemPlugin;
+import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
-import indevo.ids.IndEvo_Items;
-import indevo.ids.IndEvo_ids;
-import indevo.utils.timers.IndEvo_newDayListener;
+import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -34,9 +34,9 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.utils.helper.IndEvo_IndustryHelper.addOrIncrement;
+import static indevo.utils.helper.IndustryHelper.addOrIncrement;
 
-public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements IndEvo_newDayListener {
+public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements NewDayListener {
 
     //ship starts at 0, a forge adds the mod level it's at and then applies D-mods accordingly
 
@@ -112,11 +112,11 @@ public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements In
     private void autoFeed() {
         //autofeed
         if (getSpecialItem() == null) {
-            if (!market.hasSubmarket(IndEvo_ids.SHAREDSTORAGE)) return;
-            CargoAPI cargo = market.getSubmarket(IndEvo_ids.SHAREDSTORAGE).getCargo();
+            if (!market.hasSubmarket(Ids.SHAREDSTORAGE)) return;
+            CargoAPI cargo = market.getSubmarket(Ids.SHAREDSTORAGE).getCargo();
 
             for (CargoStackAPI stack : cargo.getStacksCopy()) {
-                if (stack.getPlugin() instanceof IndEvo_ForgeTemplateItemPlugin) {
+                if (stack.getPlugin() instanceof ForgeTemplateItemPlugin) {
                     setSpecialItem(stack.getSpecialDataIfSpecial());
                     cargo.removeItems(CargoAPI.CargoItemType.SPECIAL, stack.getSpecialDataIfSpecial(), 1);
                     Global.getSector().getCampaignUI().addMessage("A Hull Forge has taken a %s from the industrial storage at %s.",
@@ -136,7 +136,7 @@ public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements In
         autoFeed();
 
         if (getSpecialItem() != null
-                && getSpecialItem().getId().contains(IndEvo_Items.FORGETEMPLATE + "_")
+                && getSpecialItem().getId().contains(ItemIds.FORGETEMPLATE + "_")
                 && currentShip == null) {
 
             boolean successful = initConstruction();
@@ -151,7 +151,7 @@ public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements In
             if (daysRequired <= daysPassed || debug) {
                 boolean toStorage = !Global.getSettings().getBoolean("IndEvo_derelictDeliverToGathering");
 
-                MarketAPI gather = IndEvo_IndustryHelper.getMarketForStorage(market);
+                MarketAPI gather = IndustryHelper.getMarketForStorage(market);
                 MarketAPI target = toStorage ? market : gather;
 
                 //this prints the ship:
@@ -180,25 +180,25 @@ public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements In
 
     private void depositOrShipTemplate() {
         //deliver the chip back to home if burnt
-        if (getSpecialItem().getId().equals(IndEvo_Items.BROKENFORGETEMPLATE)) {
+        if (getSpecialItem().getId().equals(ItemIds.BROKENFORGETEMPLATE)) {
 
             //ai core effect
             String add = "";
-            String targetIndustryId = IndEvo_ids.LAB;
+            String targetIndustryId = Ids.LAB;
 
             if (getAiCoreIdNotNull().equals(Commodities.BETA_CORE) && random.nextFloat() <= EMPTY_FORGE_TEMPLATE_CHANCE) {
                 //set item to emptFT
-                setSpecialItem(new SpecialItemData(IndEvo_Items.EMPTYFORGETEMPLATE, null));
-                targetIndustryId = IndEvo_ids.DECONSTRUCTOR;
+                setSpecialItem(new SpecialItemData(ItemIds.EMPTYFORGETEMPLATE, null));
+                targetIndustryId = Ids.DECONSTRUCTOR;
                 add = " It remains in workable condition due to beta core presence.";
             }
 
             //ship item to target
             if (Global.getSettings().getBoolean("hullForge_autoDeliverToClosestLab")) {
-                MarketAPI target = IndEvo_IndustryHelper.getClosestMarketWithIndustry(market, targetIndustryId);
+                MarketAPI target = IndustryHelper.getClosestMarketWithIndustry(market, targetIndustryId);
 
                 if (target != null) {
-                    CargoAPI c = IndEvo_IndustryHelper.getIndustrialStorageCargo(target);
+                    CargoAPI c = IndustryHelper.getIndustrialStorageCargo(target);
                     if (c != null) {
                         c.addSpecial(getSpecialItem(), 1);
                         setSpecialItem(null);
@@ -272,10 +272,10 @@ public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements In
     private boolean printShip(MarketAPI toMarket) {
         if (toMarket != null) {
             SpecialItemData data = getSpecialItem();
-            int ftQualityLevel = IndEvo_ForgeTemplateItemPlugin.getForgeTemplateQualityLevel(data) + qualityLevel;
+            int ftQualityLevel = ForgeTemplateItemPlugin.getForgeTemplateQualityLevel(data) + qualityLevel;
 
-            FleetMemberAPI ship = IndEvo_ForgeTemplateItemPlugin.createNakedFleetMemberFromForgeTemplate(data);
-            IndEvo_ForgeTemplateItemPlugin.addPrintDefectDMods(ship, ftQualityLevel, random);
+            FleetMemberAPI ship = ForgeTemplateItemPlugin.createNakedFleetMemberFromForgeTemplate(data);
+            ForgeTemplateItemPlugin.addPrintDefectDMods(ship, ftQualityLevel, random);
 
             if (getAiCoreIdNotNull().equals(Commodities.ALPHA_CORE)) {
                 if (market.getName().toLowerCase().equals("eurobeat") || Global.getSettings().getBoolean("IndEvo_ToggleMagicRandomSelector"))
@@ -286,7 +286,7 @@ public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements In
             toMarket.getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo().getMothballedShips().addFleetMember(ship);
 
             //reduce charge count
-            setSpecialItem(IndEvo_ForgeTemplateItemPlugin.incrementForgeTemplateData(getSpecialItem(), -1));
+            setSpecialItem(ForgeTemplateItemPlugin.incrementForgeTemplateData(getSpecialItem(), -1));
         } else {
             return false;
         }
@@ -476,7 +476,7 @@ public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements In
 
         ArrayList<InstallableIndustryItemPlugin> list = new ArrayList<>();
         if (currentShip == null) {
-            list.add(new IndEvo_ForgeTemplateInstallableItemPlugin(this));
+            list.add(new ForgeTemplateInstallableItemPlugin(this));
         }
 
         return list;
@@ -525,7 +525,7 @@ public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements In
     }
 
     private void addCompletedMessage(float cost, MarketAPI target) {
-        int c = IndEvo_ForgeTemplateItemPlugin.getForgeTemplateCharges(getSpecialItem().getId());
+        int c = ForgeTemplateItemPlugin.getForgeTemplateCharges(getSpecialItem().getId());
         String s = c > 1 ? c + " charges" : c + " charge";
         s = c < 1 ? "no charges" : s;
 
@@ -564,9 +564,9 @@ public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements In
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
-        String coreHighlights = IndEvo_StringHelper.getString(getId(), "aCoreHighlights");
-        String effect = IndEvo_StringHelper.getStringAndSubstituteToken(getId(), "aCoreEffect", "$aCoreHighlights", coreHighlights);
+        String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
+        String coreHighlights = StringHelper.getString(getId(), "aCoreHighlights");
+        String effect = StringHelper.getStringAndSubstituteToken(getId(), "aCoreEffect", "$aCoreHighlights", coreHighlights);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -583,9 +583,9 @@ public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements In
         Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
-        String coreHighlights = IndEvo_StringHelper.getString(getId(), "bCoreHighlights");
-        String effect = IndEvo_StringHelper.getStringAndSubstituteToken(getId(), "bCoreEffect", "$bCoreHighlights", coreHighlights);
+        String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
+        String coreHighlights = StringHelper.getString(getId(), "bCoreHighlights");
+        String effect = StringHelper.getStringAndSubstituteToken(getId(), "bCoreEffect", "$bCoreHighlights", coreHighlights);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -602,10 +602,10 @@ public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements In
         Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
-        String coreHighlights = IndEvo_StringHelper.getString(getId(), "gCoreHighlights");
-        String effect = IndEvo_StringHelper.getStringAndSubstituteToken(getId(), "gCoreEffect", "$gCoreHighlights", coreHighlights);
-        String[] highlightString = new String[]{IndEvo_StringHelper.getAbsPercentString(GAMMA_CORE_UPKEEP_RED_MULT, true), coreHighlights};
+        String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
+        String coreHighlights = StringHelper.getString(getId(), "gCoreHighlights");
+        String effect = StringHelper.getStringAndSubstituteToken(getId(), "gCoreEffect", "$gCoreHighlights", coreHighlights);
+        String[] highlightString = new String[]{StringHelper.getAbsPercentString(GAMMA_CORE_UPKEEP_RED_MULT, true), coreHighlights};
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -641,9 +641,9 @@ public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements In
     protected void applyAICoreToIncomeAndUpkeep() {
         String name;
 
-        switch (IndEvo_IndustryHelper.getAiCoreIdNotNull(this)) {
+        switch (IndustryHelper.getAiCoreIdNotNull(this)) {
             case Commodities.GAMMA_CORE:
-                name = IndEvo_StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
+                name = StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
 
                 if (currentShip == null)
                     this.getUpkeep().modifyMult("ind_core", GAMMA_CORE_UPKEEP_RED_MULT, name);
@@ -659,7 +659,7 @@ public class IndEvo_HullForge extends IndEvo_BaseForgeTemplateUser implements In
     @Override
     public boolean isLegalOnSharedSubmarket(CargoStackAPI stack) {
         if (!stack.isSpecialStack()) return false;
-        return stack.getSpecialItemSpecIfSpecial().getId().contains(IndEvo_Items.FORGETEMPLATE);
+        return stack.getSpecialItemSpecIfSpecial().getId().contains(ItemIds.FORGETEMPLATE);
     }
 
     @Override

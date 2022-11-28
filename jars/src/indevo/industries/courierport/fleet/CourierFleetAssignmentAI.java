@@ -122,7 +122,7 @@ public class CourierFleetAssignmentAI extends BaseAssignmentAI implements FleetE
     @Override
     public void reportFleetDespawnedToListener(CampaignFleetAPI fleet, CampaignEventListener.FleetDespawnReason reason, Object param) {
         if(fleet != null) fleet.removeEventListener(this);
-        //IndEvo_modPlugin.log("Courier fleet despawned, reason " + reason.toString() + " current assignment: " + fleet.getCurrentAssignment().getActionText());
+        //ModPlugin.log("Courier fleet despawned, reason " + reason.toString() + " current assignment: " + fleet.getCurrentAssignment().getActionText());
     }
 
     @Override

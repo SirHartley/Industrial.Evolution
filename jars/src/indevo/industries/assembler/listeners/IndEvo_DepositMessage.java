@@ -1,12 +1,12 @@
 package indevo.industries.assembler.listeners;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndEvo_StringHelper;
+import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
-import indevo.industries.IndEvo_VPCUserIndustryAPI;
-import indevo.ids.IndEvo_Items;
+import indevo.industries.assembler.industry.VPCUserIndustryAPI;
+import indevo.ids.ItemIds;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.util.Misc;
@@ -33,9 +33,9 @@ public class IndEvo_DepositMessage implements EconomyTickListener {
             if (!market.isPlayerOwned()) continue;
 
             for (Industry ind : market.getIndustries()) {
-                if (ind instanceof IndEvo_VPCUserIndustryAPI
+                if (ind instanceof VPCUserIndustryAPI
                         && ind.isFunctional()
-                        && ((IndEvo_VPCUserIndustryAPI) ind).hasVPC()) list.add(ind);
+                        && ((VPCUserIndustryAPI) ind).hasVPC()) list.add(ind);
             }
         }
 
@@ -46,7 +46,7 @@ public class IndEvo_DepositMessage implements EconomyTickListener {
         HashMap<String, Integer> totalsMap = new HashMap<>();
 
         for (Industry ind : getVarIndustries()) {
-            IndEvo_VPCUserIndustryAPI vpcInd = (IndEvo_VPCUserIndustryAPI) ind;
+            VPCUserIndustryAPI vpcInd = (VPCUserIndustryAPI) ind;
 
             Map<String, Integer> depList = vpcInd.getDepositList();
 
@@ -64,21 +64,21 @@ public class IndEvo_DepositMessage implements EconomyTickListener {
 
     private void makeMessage() {
         boolean varIndGath = Global.getSettings().getBoolean("VarInd_deliverToProductionPoint");
-        String targetLocation = varIndGath ? Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getName() : IndEvo_StringHelper.getString("theLocalStorage");
+        String targetLocation = varIndGath ? Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getName() : StringHelper.getString("theLocalStorage");
 
         MessageIntel intel = new MessageIntel(
-                IndEvo_StringHelper.getStringAndSubstituteToken("IndEvo_VarInd", "deliveryNotice", "$targetLocation", targetLocation),
+                StringHelper.getStringAndSubstituteToken("IndEvo_VarInd", "deliveryNotice", "$targetLocation", targetLocation),
                 Misc.getTextColor(),
                 new String[]{(targetLocation)},
                 Global.getSector().getPlayerFaction().getBrightUIColor());
 
         for (Map.Entry<String, Integer> entry : getTotalAmountList().entrySet()) {
-            String name = IndEvo_Items.getCommodityNameString(entry.getKey());
+            String name = ItemIds.getCommodityNameString(entry.getKey());
             int amount = entry.getValue();
 
             intel.addLine(BaseIntelPlugin.BULLET + name + ": %s",
                     Misc.getTextColor(),
-                    new String[]{(amount + IndEvo_StringHelper.getString("unitsWithFrontSpace"))},
+                    new String[]{(amount + StringHelper.getString("unitsWithFrontSpace"))},
                     Misc.getHighlightColor());
         }
 
