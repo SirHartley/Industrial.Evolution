@@ -22,7 +22,7 @@ import java.util.Random;
 
 import static indevo.industries.artillery.scripts.DerelictArtilleryStationScript.TYPE_KEY;
 
-public class ArtilleryDefenderGen {
+public class IndEvo_ArtilleryDefenderGen {
 
     public static CampaignFleetAPI getFleetForPlanet(SectorEntityToken planet, String factionID){
         CampaignFleetAPI defenders = planet.getMemoryWithoutUpdate().getFleet("$defenderFleet");

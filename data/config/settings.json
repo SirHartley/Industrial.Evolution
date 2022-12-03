@@ -206,7 +206,8 @@
   "indevo.industries.courierport.dialogue",
   "indevo.abilities.splitfleet.dialogue",
   "indevo.dialogue.research",
-  "indevo.dialogue.rules"
+  "indevo.dialogue.rules",
+
   ],
 
   "designTypeColors":{

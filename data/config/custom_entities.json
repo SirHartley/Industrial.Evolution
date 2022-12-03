@@ -267,7 +267,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"interactable":false,
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_RailgunShotEntity"
+		"pluginClass":"indevo.industries.artillery.projectiles.RailgunShotEntity"
 	},
 
 	"IndEvo_field_spike":{

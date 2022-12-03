@@ -99,8 +99,8 @@ public class CourierPortV2 extends BaseIndustry {
         return sort(daymap);
     }
 
-    // TODO: 22.09.2020 this should be a method in industryTools with no set obj, really
-    // TODO: 18/04/2022 status update: I do not care
+    // 22.09.2020 this should be a method in industryTools with no set obj, really
+    // 18/04/2022 status update: I do not care
     private static Map<ShippingContract, Integer> sort(Map<ShippingContract, Integer> hm) {
         // Create a list from elements of HashMap
         List<Map.Entry<ShippingContract, Integer>> list =

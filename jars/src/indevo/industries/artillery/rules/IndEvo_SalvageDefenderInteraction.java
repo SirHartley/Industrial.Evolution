@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class SalvageDefenderInteraction extends BaseCommandPlugin {
+public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
 
     public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params, final Map<String, MemoryAPI> memoryMap) {
         if (dialog == null) return false;
@@ -33,7 +33,7 @@ public class SalvageDefenderInteraction extends BaseCommandPlugin {
 
         String factionID = entity instanceof PlanetAPI ? DerelictArtilleryStationScript.getArtilleryStation(entity).getFaction().getId() : entity.getFaction().getId();
 
-        final CampaignFleetAPI defenders = ArtilleryDefenderGen.getFleetForPlanet(entity, factionID);
+        final CampaignFleetAPI defenders = IndEvo_ArtilleryDefenderGen.getFleetForPlanet(entity, factionID);
 
         dialog.setInteractionTarget(defenders);
 

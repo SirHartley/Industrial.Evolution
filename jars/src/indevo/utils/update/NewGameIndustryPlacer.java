@@ -112,7 +112,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeReqCenter() {
-        if (!Global.getSettings().getBoolean("RequisitionCenter")) {
+        if (!Global.getSettings().getBoolean("ReqCenter")) {
             return;
         }
 

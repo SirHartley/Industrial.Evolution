@@ -36,10 +36,7 @@ public class WatchtowerEyeIndicator implements CustomCampaignEntityPlugin {
         LocationAPI loc = Global.getSector().getPlayerFleet().getContainingLocation();
         if (loc == null) loc = Global.getSector().getStarSystems().get(0);
 
-        SectorEntityToken t = loc.addCustomEntity(Misc.genUID(), "", "IndEvo_Eye", null, null);
-        Global.getSector().addListener((CampaignEventListener) t.getCustomPlugin());
-
-        return t;
+        return loc.addCustomEntity(Misc.genUID(), "", "IndEvo_Eye", null, null);
     }
 
     public void init(SectorEntityToken entity, Object pluginParams) {

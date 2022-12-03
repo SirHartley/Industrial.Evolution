@@ -46,7 +46,7 @@ The hack will eventually be picked up and cleared out by maintenance subroutines
 ,,,,,,
 #Galatia Job List,,,,,,
 IndEvo_JobMenuPoint,PopulateOptions,$id == station_galatia_academy,,,4:IndEvo_JobMenuInit:Visit the Research Tracts,
-IndEvo_JobMenuInit,DialogOptionSelected,$option == IndEvo_JobMenuInit,IndEvo_ResearchProjectDialoguePlugin,,,
+IndEvo_JobMenuInit,DialogOptionSelected,$option == IndEvo_JobMenuInit,ResearchProjectDialoguePlugin,,,
 ,,,,,,
 #Converters,,,,,,
 IndEvo_DysonSwarmMenu,OpenInteractionDialog,$tag:dyson_swarm score:1000,"ShowDefaultVisual

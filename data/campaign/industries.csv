@@ -41,7 +41,7 @@ This structure increases the system-wide officer quality, officer quantity for d
 IndEvo_ReqCenter,Requisitions Centre,40,40,,6,,,"structure, unraidable",,graphics/industry/reqMarket.png,indevo.industries.RequisitionCenter,"Resembling an office rather than a market, the Requisitions Center is an institution frequented by picky ship captains, collectors and people looking for specific weapon imports.
 
 Creates a market selling weapons from factions you have good relations with. An Embassy with an active Ambassador on the same planet will cause the Center to source only from that faction.",500
-IndEvo_EngHub,Engineering Hub,50,60,,7,,,"structure, unraidable",,graphics/industry/engineeringHub.png,indevo.industries.EngineeringHub,"As the sector is decaying in knowledge an institution specialized in the disassembly of functional spacecraft is a rare sight, and can only be afforded by the rich or the desperate.
+IndEvo_EngHub,Engineering Hub,50,60,,7,,,"structure, unraidable",,graphics/industry/engHub.png,indevo.industries.EngineeringHub,"As the sector is decaying in knowledge an institution specialized in the disassembly of functional spacecraft is a rare sight, and can only be afforded by the rich or the desperate.
 
 Place ships into the storage to reverse engineer them. Once you have achieved 100% progress on a hull, install a blueprint to overwrite it.",500
 IndEvo_PrivatePort,Courier Port,30,40,,5,,,"structure, spaceport, tactical_bombardment",,graphics/industry/shipping_port.png,indevo.industries.courierport.industry.CourierPortV2,"Privatized docking facilities allow for a much more direct approach to shipping - and have the distinct advantage of circumventing nosy government officials. Anything can be sent anywhere, as long as you have the funds.

@@ -24,18 +24,11 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
     public static final String HAS_AWARDED_SP = "$IndEvo_hasAwardedSP";
     public static final String ALTERNATE_VISUAL = "$IndEvo_alternateWonderVisual";
 
-    // TODO: 13/10/2022 this should be a class variable but it has to be memory for save compatibility
-    public static final String test = "$IndEvo_alternateVisualSP";
-    public boolean isAlternateVisual(){
-        return market.getMemoryWithoutUpdate().getBoolean(test + getId());
-    }
-    public void setAlternateVisual(boolean alternate){
-        market.getMemoryWithoutUpdate().set(test + getId(), alternate);
-    }
+    public boolean isAlternateVisual = false;
 
     @Override
     public String getCurrentImage() {
-        if (market.getMemoryWithoutUpdate().getBoolean(ALTERNATE_VISUAL) || isAlternateVisual()) {
+        if (market.getMemoryWithoutUpdate().getBoolean(ALTERNATE_VISUAL) || isAlternateVisual) {
             if (getAlternateImagePath() != null) return getAlternateImagePath();
         }
 
@@ -67,7 +60,7 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
 
     @Override
     public void setImproved(boolean improved) {
-        setAlternateVisual(!isAlternateVisual());
+        isAlternateVisual = !isAlternateVisual;
     }
 
     public String getImproveDialogTitle() {

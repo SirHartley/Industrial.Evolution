@@ -100,7 +100,6 @@ public class ModPlugin extends BaseModPlugin {
         boolean yunruTechmining = mm.isModEnabled("yunrutechmining");
 
         if (Global.getSettings().getBoolean("IndEvo_CommerceBalanceChanges")) overrideVanillaCommerce();
-        if (Global.getSettings().getBoolean("IndEvo_TechMiningBalanceChanges") && !yunruindustries && !yunruTechmining) overrideVanillaTechMining();
 
         overrideVanillaOrbitalStations();
 
@@ -124,7 +123,7 @@ public class ModPlugin extends BaseModPlugin {
             if (spec.hasTag(Tags.STATION) && spec.getPluginClass().equals("com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation")) {
 
                 log("replacing industry spec " + spec.getId());
-                spec.setPluginClass("com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation");
+                spec.setPluginClass("indevo.industries.OrbitalStation");
 
                 String id = spec.getId();
 
@@ -332,10 +331,6 @@ public class ModPlugin extends BaseModPlugin {
         EyeIndicatorScript.register();
 
         //PlayerFleetFollower.register();
-    }
-
-    public void overrideVanillaTechMining() {
-        replaceIndustries(Industries.TECHMINING);
     }
 
     public void overrideVanillaCommerce() {

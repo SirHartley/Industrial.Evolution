@@ -14,7 +14,8 @@ public class ChamelionIndustry extends BaseIndustry {
     public static final float BUILD_PARAM_RED = Global.getSettings().getFloat("IndEvo_DerInfraBuildRed");
     private boolean isDone = false;
 
-    // TODO: 20.04.2021 check if this properly blocks the actual ind from being built, if not, make check that prohibits upgrading if it is added or stops the current upgrade if it is ongoing.
+    // 20.04.2021 check if this properly blocks the actual ind from being built, if not, make check that prohibits upgrading if it is added or stops the current upgrade if it is ongoing.
+    // 03/12/2022 it does
 
     @Override
     public void init(String id, MarketAPI market) {

@@ -100,6 +100,8 @@ public class ArtilleryStationPlacer {
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedDerelictArtilleries", true);
     }
 
+
+
     public static void placeWatchtowers(StarSystemAPI system, String factionId){
         float minGap = 100f;
         Random random = new Random();

@@ -50,8 +50,9 @@ public class DerelictArtilleryStationScript implements EveryFrameScript, FleetEv
             planet.addScript(script);
             planet.getMemoryWithoutUpdate().set(SCRIPT_KEY, script);
             planet.getMarket().addTag(Ids.TAG_ARTILLERY_STATION);
-            if (!planet.getMarket().hasCondition(ArtilleryStationCondition.ID))
-                planet.getMarket().addCondition(ArtilleryStationCondition.ID);
+            planet.getContainingLocation().addTag(Ids.TAG_SYSTEM_HAS_ARTILLERY);
+
+            if (!planet.getMarket().hasCondition(ArtilleryStationCondition.ID)) planet.getMarket().addCondition(ArtilleryStationCondition.ID);
         }
     }
 
@@ -115,17 +116,8 @@ public class DerelictArtilleryStationScript implements EveryFrameScript, FleetEv
         return stationEntity;
     }
 
-    // TODO: 29/10/2022 move this to the artillery placer
-    private void tagSystem(){
-        if (primaryEntity == null || primaryEntity.getContainingLocation() == null) return;
-
-        LocationAPI loc = primaryEntity.getContainingLocation();
-        if (!loc.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY)) loc.addTag(Ids.TAG_SYSTEM_HAS_ARTILLERY);
-    }
-
     @Override
     public void advance(float amount) {
-        tagSystem();
         if (Global.getSector().getEconomy().isSimMode() || !primaryEntity.isInCurrentLocation()) return;
 
         //market = primaryEntity.getMarket();
