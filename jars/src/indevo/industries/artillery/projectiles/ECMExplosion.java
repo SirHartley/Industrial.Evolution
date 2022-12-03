@@ -62,7 +62,7 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
     }
 
     public static void spawn(ECMExplosionParams params) {
-        params.loc.addCustomEntity(Misc.genUID(), null, "ECMExplosion", null, params);
+        params.loc.addCustomEntity(Misc.genUID(), null, "IndEvo_ECMExplosion", null, params);
     }
 
     @Override

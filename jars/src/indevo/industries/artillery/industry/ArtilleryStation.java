@@ -99,7 +99,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
             if (ind == this) continue;
             if (!ind.isFunctional()) continue;
             if (ind.getSpec().hasTag(Tags.STATION)
-                    && ind.getSpec().getPluginClass().equals("com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation")) {
+                    && ind.getSpec().getPluginClass().equals("indevo.industries.OrbitalStation")) {
                 return true;
             }
         }

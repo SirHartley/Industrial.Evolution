@@ -65,11 +65,11 @@ public class ArtilleryStationPlacer {
         OUTER: for (StarSystemAPI s : Global.getSector().getStarSystems()) {
             if (s == null || s.getPlanets().isEmpty() || !Misc.getMarketsInLocation(s).isEmpty()) continue;
 
-            float baseMod = 0.01f;
+            float baseMod = 0.002f;
             if (s.getTags().contains(Tags.THEME_REMNANT_SUPPRESSED)) baseMod += 0.02f;
             if (s.getTags().contains(Tags.THEME_REMNANT_RESURGENT)) baseMod += 0.1f;
             if (s.getTags().contains(Tags.THEME_DERELICT_CRYOSLEEPER)) baseMod += 0.05f;
-            if (s.getTags().contains(Tags.THEME_RUINS)) baseMod += 0.05f;
+            if (s.getTags().contains(Tags.THEME_RUINS)) baseMod += 0.01f;
 
             boolean hasRemnantStation = false;
             for (CampaignFleetAPI fleet : s.getFleets()){
@@ -80,7 +80,8 @@ public class ArtilleryStationPlacer {
                 if (p.isStar() || p.getMarket() == null) continue;
 
                 float planetMod = baseMod;
-                planetMod += TechMining.getTechMiningRuinSizeModifier(p.getMarket()) * 0.2f;
+                planetMod += TechMining.getTechMiningRuinSizeModifier(p.getMarket()) * 0.05f;
+                planetMod *= Global.getSettings().getFloat("IndEvo_Artillery_spawnWeight");
 
                 if (r.nextFloat() < planetMod){
                     if (hasRemnantStation) p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, ArtilleryStationEntityPlugin.TYPE_MISSILE);
@@ -100,6 +101,11 @@ public class ArtilleryStationPlacer {
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedDerelictArtilleries", true);
     }
 
+    public static void asd(){
+        // runcode int i = 0; for (StarSystemAPI s : Global.getSector().getStarSystems()){ if (s.hasTag("IndEvo_SystemHasArtillery")) i++;} indevo.utils.ModPlugin.log(i + " total " + Global.getSector().getStarSystems().size());
+
+        //default 10%
+    }
 
 
     public static void placeWatchtowers(StarSystemAPI system, String factionId){

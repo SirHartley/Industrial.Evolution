@@ -382,7 +382,7 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
         String factionID = m.isPlanetConditionMarketOnly() ? Ids.DERELICT_FACTION_ID : m.getFactionId();
 
         LocationAPI loc = primaryEntity.getContainingLocation();
-        SectorEntityToken artillery = loc.addCustomEntity(Misc.genUID(), null, "ArtilleryStation", factionID, forceType);
+        SectorEntityToken artillery = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_ArtilleryStation", factionID, forceType);
 
         float angle = station != null ? station.getCircularOrbitAngle() - 180 : (float) Math.random() * 360f;
         float radius = station != null ? station.getCircularOrbitRadius() : primaryEntity.getRadius() + 150f;

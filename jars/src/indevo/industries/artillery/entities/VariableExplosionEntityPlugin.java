@@ -100,7 +100,7 @@ public class VariableExplosionEntityPlugin extends ExplosionEntityPlugin {
         shockwaveWidth = params.radius * 0.5f;
 
 
-        blastwaveRadius = params.radius * 1.3f;
+        blastwaveRadius = params.radius * 1.5f;
         blastwaveDuration = 0.1f + 0.3f * durMult;
 
     }

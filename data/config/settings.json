@@ -50,6 +50,7 @@
 
   #General Artillery
   "Enable_IndEvo_Artillery": TRUE, #only works on new game. Disabling this means you have weak bones. There used to be another insult here but the weak boned snowflakes were offended by it because it was too true.
+  "IndEvo_Artillery_spawnWeight":1f, #how likely a system is to have an artillery station. Reduce this number to make them rarer. 1 = between 5-10% of all systems will have one.
   "IndEvo_Artillery_minDelayBetweenShots":2f,
   "IndEvo_Artillery_maxDelayBetweenShots":3f,
   "IndEvo_Artillery_minCooldown":13f,

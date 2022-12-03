@@ -19,6 +19,9 @@ Bugs
 - Artillery stations are stuck in perma-repair on game start and never repair themselves
 - reduce artillery station spawn rate
 - force presence in systems with nexus
+- move watchtower placement into the condition
+- artillery station interaction is broken
+- add a watchtower terrain that tells you if you are in wt range
 
 Requests
 - Add keyboard shortcuts to all indEvo industry menu points
@@ -81,9 +84,9 @@ Techmining
 Removed - Techmining progress indicator (Download Better Colonies instead!)
 Removed - Vanilla techmining override
 
-
-
 Artillery
+Added - Setting to adjust spawn chance
+Adjusted - Derelict artillery is now rarer (about half)
 Adjusted - Now ignores Epta tradestations for faction change
 Fixed - Eye indicator now works reliably again
 Fixed - Artillery stations now properly target and shoot you upon target lock

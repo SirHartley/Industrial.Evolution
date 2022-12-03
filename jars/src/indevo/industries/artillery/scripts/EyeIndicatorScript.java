@@ -50,7 +50,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
             indicator.getContainingLocation().removeEntity(indicator);
             player.getContainingLocation().addEntity(indicator);
             indicator.setLocation(1000000, 1000000);
-
+            ModPlugin.log("moving eye to current location");
         }
 
         if (!checkInterval.intervalElapsed()) return;
@@ -112,7 +112,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         } else { //at this point we are in range because there is a closest hostile tower
             float distanceFraction = 1 - closestDist / WatchtowerEntityPlugin.RANGE;
-            float mult = 1 + (DISTANCE_MOD - 1) * distanceFraction;
+            float mult = 1 + distanceFraction;
             addition = amount * mult;
         }
 
@@ -122,17 +122,20 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
     private void cycleActions() {
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
 
+        float fraction = elapsed / MAX_TIME_TO_TARGET_LOCK;
+
         WatchtowerEyeIndicator.State state = WatchtowerEyeIndicator.State.NONE;
 
-        if (elapsed < 0.33f) {
+        if (fraction < 0.33f) {
             state = WatchtowerEyeIndicator.State.CLOSED;
-        } else if (elapsed < 0.66f) {
+        } else if (fraction < 0.66f) {
             state = WatchtowerEyeIndicator.State.HALF;
-        } else if (elapsed > 0.66f) state = WatchtowerEyeIndicator.State.FULL;
+        } else if (fraction > 0.66f) state = WatchtowerEyeIndicator.State.FULL;
 
-        if (elapsed == 0f) {
+        if (fraction == 0f) {
             isLocked = false; //if it's locked we stay locked until the level is 0
             player.getMemoryWithoutUpdate().unset(WAS_SEEN_BY_HOSTILE_ENTITY);
+            state = WatchtowerEyeIndicator.State.NONE;
 
         } else if (elapsed == MAX_TIME_TO_TARGET_LOCK) {
             isLocked = true;
@@ -140,8 +143,6 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         }
 
         transferStateToEntity(state, isLocked);
-
-        ModPlugin.log("Eye reporting " + elapsed + " locked " + isLocked);
     }
 
     public void reset(){
@@ -154,6 +155,8 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         WatchtowerEyeIndicator plugin = (WatchtowerEyeIndicator) indicator.getCustomPlugin();
         plugin.setState(state);
         plugin.setLocked(isLocked);
+
+        ModPlugin.log("Eye reporting status " + plugin.state + " at " + elapsed + ", locked: " + isLocked);
     }
 
     @Override

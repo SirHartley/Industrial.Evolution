@@ -55,16 +55,20 @@ public class WatchtowerEyeIndicator implements CustomCampaignEntityPlugin {
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         if (state == State.NONE) return;
 
-        Color color = Color.RED;
-        sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_3");
+        Color color;
 
-        if (state == State.NONE) {
+        if (state == State.CLOSED) {
             sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_1");
-            if (!isLocked) color = new Color(255, 255, 150, 255);
+            color = new Color(255, 255, 150, 255);
         } else if (state == State.HALF) {
             sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_2");
-            if (!isLocked) color = new Color(255, 200, 50, 255);
-        } else if (!isLocked) color = new Color(255, 130, 50, 255);
+            color = new Color(255, 200, 50, 255);
+        } else {
+            sprite = Global.getSettings().getSprite("fx", "IndEvo_eye_3");
+            color = new Color(255, 130, 50, 255);
+        }
+
+        if (isLocked) color = Color.RED;
 
         sprite.setAdditiveBlend();
         sprite.setAlphaMult(0.7f);
