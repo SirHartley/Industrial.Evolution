@@ -35,26 +35,26 @@ public class Ids {
     //Industries
     public static final String ADMANUF = "IndEvo_AdManuf";
     public static final String ADASSEM = "IndEvo_AdAssem";
-    public static final String COMFORGE = "CommodityForge";
+    public static final String COMFORGE = "IndEvo_ComForge";
     public static final String COMARRAY = "IndEvo_ComArray";
-    public static final String ADINFRA = "CentralizationBureau";
-    public static final String SCRAPYARD = "SalvageYards";
-    public static final String SUPCOM = "Supercomputer";
+    public static final String ADINFRA = "IndEvo_AdInfra";
+    public static final String SCRAPYARD = "IndEvo_ScrapYard";
+    public static final String SUPCOM = "IndEvo_SupCom";
     public static final String EMBASSY = "IndEvo_embassy";
     public static final String PIRATEHAVEN = "IndEvo_pirateHaven";
-    public static final String SENATE = "Senate";
-    public static final String REPAIRDOCKS = "RestorationDocks";
+    public static final String SENATE = "IndEvo_senate";
+    public static final String REPAIRDOCKS = "IndEvo_dryDock";
     public static final String ACADEMY = "IndEvo_Academy";
     public static final String INTARRAY = "IndEvo_IntArray";
-    public static final String REQCENTER = "RequisitionCenter";
-    public static final String ENGHUB = "EngineeringHub";
+    public static final String REQCENTER = "IndEvo_ReqCenter";
+    public static final String ENGHUB = "IndEvo_EngHub";
     public static final String HULLFORGE = "IndEvo_HullForge";
     public static final String DECONSTRUCTOR = "IndEvo_HullDecon";
     public static final String LAB = "IndEvo_ResLab";
     public static final String BEACON = "IndEvo_Lighthouse";
     public static final String RIFTGEN = "IndEvo_RiftGen";
     public static final String RUINS = "IndEvo_Ruins";
-    public static final String RUINFRA = "RuinedInfrastructure";
+    public static final String RUINFRA = "IndEvo_RuinedInfra";
     public static final String PORT = "IndEvo_PrivatePort";
     public static final String CHAMELION = "IndEvo_ChamelionIndustry";
     public static final String CHURCH = "IndEvo_Megachurch";
@@ -70,10 +70,10 @@ public class Ids {
     public static final String COND_PIRATES = "IndEvo_pirate_subpop";
     public static final String COND_CRYODISABLE = "IndEvo_CryoRevivalDisabler";
     public static final String COND_RESSOURCES = "IndEvo_ressCond";
-    public static final String COND_INFRA = "RuinedInfrastructure";
+    public static final String COND_INFRA = "IndEvo_RuinedInfra";
     public static final String COND_LOG_CORE = "IndEvo_LogCoreCond";
     public static final String COND_MINERING = "IndEvo_mineFieldCondition";
-    public static final String COND_WORLD_WONDER = "WorldWonderCondition";
+    public static final String COND_WORLD_WONDER = "IndEvo_WorldWonderCondition";
 
     //Hullmods
     public static final String DEFECTS_LOW = "IndEvo_print_low";

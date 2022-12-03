@@ -37,7 +37,7 @@
 		"interactable":false,
 		"tags":["expires"],
 		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_ECMExplosion",
+		"pluginClass":"indevo.industries.artillery.projectiles.ECMExplosion",
 	},
 
 	"IndEvo_VariableExplosion":{
@@ -49,7 +49,7 @@
 		"interactable":false,
 		"tags":["expires"],
 		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"com.fs.starfarer.api.artilleryStation.station.IndEvo_VariableExplosionEntityPlugin",
+		"pluginClass":"indevo.industries.artillery.entities.VariableExplosionEntityPlugin",
 	},
 
 	"IndEvo_mine_explosion":{
@@ -61,7 +61,7 @@
 		"interactable":false,
 		"tags":["expires"],
 		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"com.fs.starfarer.api.impl.campaign.terrain.IndEvo_MineExplosionEntityPlugin",
+		"pluginClass":"indevo.exploration.minefields.MineExplosionEntityPlugin",
 	},
 
 	"IndEvo_campaign_trail_custom_entity":{
@@ -78,7 +78,7 @@
 		"scaleIconWithZoom":true,
 		"interactable":false,
 		"layers":[ABOVE, FLEETS, ASTEROIDS, JUMP_POINTS, PLANETS, RINGS, STATIONS, TERRAIN_7A], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"com.fs.starfarer.api.artilleryStation.trails.MagicCustomCampaignTrailEntityScript",
+		"pluginClass":"indevo.utils.trails.MagicCustomCampaignTrailEntityScript",
 	},
 
 	"IndEvo_decoy_mine":{
@@ -88,7 +88,7 @@
 		"showNameOnMap":false,
 		"renderCircleIndicator":false, # make clickable,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"com.fs.starfarer.api.campaign.impl.items.consumables.entities.DecoyEntityPlugin"
+		"pluginClass":"indevo.items.consumables.entities.DecoyEntityPlugin"
 	},
 
 	"IndEvo_ArtilleryStation":{
@@ -112,7 +112,7 @@
 		"scaleIconWithZoom":true,
 		"tags":["station", "no_orbital_station"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"com.fs.starfarer.api.artilleryStation.station.IndEvo_ArtilleryStationEntityPlugin"
+		"pluginClass":"indevo.industries.artillery.entities.ArtilleryStationEntityPlugin"
 	},
 
 	"IndEvo_DestroyedArtilleryStation":{
@@ -185,7 +185,7 @@
 		"scaleIconWithZoom":true,
 		"tags":["objective", "story_critical", "IndEvo_watchtower"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEntityPlugin"
+		"pluginClass":"indevo.industries.artillery.entities.WatchtowerEntityPlugin"
 	},
 
 	"IndEvo_Eye":{
@@ -197,7 +197,7 @@
 		"interactable":false,
 		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"tags":["IndEvo_Eye"],
-		"pluginClass":"com.fs.starfarer.api.artilleryStation.station.IndEvo_WatchtowerEyeIndicator"
+		"pluginClass":"indevo.industries.artillery.entities.WatchtowerEyeIndicator"
 	},
 
 	"IndEvo_tempIndicator":{
@@ -212,7 +212,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"interactable":false,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_RenderTemporaryIndicator"
+		"pluginClass":"indevo.industries.artillery.projectiles.RenderTemporaryIndicator"
 	},
 
 	"IndEvo_missileSubmunition":{
@@ -223,7 +223,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"interactable":false,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_MissileSubmunitionEntity"
+		"pluginClass":"indevo.industries.artillery.projectiles.MissileSubmunitionEntity"
 	},
 
 	"IndEvo_missileCarrierPlugin":{
@@ -234,7 +234,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"interactable":false,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_MissileCarrierEntityPlugin"
+		"pluginClass":"indevo.industries.artillery.projectiles.MissileCarrierEntityPlugin"
 	},
 
 	"IndEvo_railgun_projectile":{
@@ -245,7 +245,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"interactable":false,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_RailgunProjectileEntityPlugin"
+		"pluginClass":"indevo.industries.artillery.projectiles.RailgunProjectileEntityPlugin"
 	},
 
 	"IndEvo_artillery_projectile":{
@@ -256,7 +256,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"interactable":false,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"com.fs.starfarer.api.artilleryStation.projectiles.IndEvo_ArtilleryProjectileEntityPlugin"
+		"pluginClass":"indevo.industries.artillery.projectiles.MortarProjectileEntityPlugin"
 	},
 
 	"IndEvo_RailgunShotEntity":{
@@ -278,7 +278,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"interactable":false,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"com.fs.starfarer.api.campaign.impl.items.consumables.entities.SpikeEntityPlugin"
+		"pluginClass":"indevo.items.consumables.entities.SpikeEntityPlugin"
 	},
 
 	"IndEvo_mine":{
@@ -290,7 +290,7 @@
 		"interactable":false,
 		"tags":["IndEvo_Mine"], # DO NOT CHANGE!,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"com.fs.starfarer.api.impl.campaign.terrain.IndEvo_MineCustomEntityPlugin"
+		"pluginClass":"indevo.exploration.minefields.MineCustomEntityPlugin"
 	},
 
 	"IndEvo_objective_overlay":{
@@ -337,7 +337,7 @@
 		"renderCircleIndicatorSelectionFlash":false,
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"tags":["comm_relay", "makeshift", "IndEvo_intArray"],
-		"pluginClass":"com.fs.starfarer.api.impl.campaign.entityplugins.IndEvo_IntArrayEntityPlugin",
+		"pluginClass":"indevo.industries.relay.entities.RelayEntityPlugin",
 	},
 
 	"IndEvo_pristine_int_array":{
@@ -424,7 +424,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"interactable":false,
 		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"com.fs.starfarer.api.impl.campaign.entityplugins.IndEvo_WarpEffectPlugin",
+		"pluginClass":"indevo.industries.derelicts.entities.WarpEffectPlugin",
 	},
 
 	"IndEvo_WormHoleEffect":{
@@ -434,7 +434,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"interactable":false,
 		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"com.fs.starfarer.api.impl.campaign.entityplugins.IndEvo_HoleEffectPlugin",
+		"pluginClass":"indevo.industries.derelicts.entities.HoleEffectPlugin",
 	}
 }
 

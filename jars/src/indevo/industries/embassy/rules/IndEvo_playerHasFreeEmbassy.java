@@ -6,7 +6,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
-import indevo.industries.embassy.listeners.IndEvo_ambassadorItemTrackerPlugin;
+import indevo.industries.embassy.listeners.AmbassadorItemTrackerPlugin;
 import com.fs.starfarer.api.util.Misc;
 
 import java.util.List;
@@ -27,8 +27,8 @@ public class IndEvo_playerHasFreeEmbassy extends BaseCommandPlugin {
             }
         }
 
-        if (Global.getSector().getListenerManager().hasListener(IndEvo_ambassadorItemTrackerPlugin.class)) {
-            currentAmbassadorsInCargo = Global.getSector().getListenerManager().getListeners(IndEvo_ambassadorItemTrackerPlugin.class).size();
+        if (Global.getSector().getListenerManager().hasListener(AmbassadorItemTrackerPlugin.class)) {
+            currentAmbassadorsInCargo = Global.getSector().getListenerManager().getListeners(AmbassadorItemTrackerPlugin.class).size();
         }
 
         return freeEmbassies > currentAmbassadorsInCargo;

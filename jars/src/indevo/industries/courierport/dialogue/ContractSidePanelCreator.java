@@ -7,8 +7,6 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import com.fs.starfarer.api.impl.campaign.econ.impl.courierPort.*;
-import indevo.campaign.econ.impl.courierPort.*;
 import indevo.industries.courierport.*;
 import indevo.industries.courierport.listeners.SubmarketCargoPicker;
 import indevo.industries.courierport.listeners.SubmarketShipPicker;

@@ -3,7 +3,6 @@
 
         #Vanilla changes:
         "IndEvo_CommerceBalanceChanges":TRUE, #Commerce balance changes. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).
-        "IndEvo_TechMiningBalanceChanges":TRUE, #Techmining changes - adds the tooltip
 
   #No gurantees for stability if you fuck with anything past here because I did not test it and probably never will.
 
@@ -50,7 +49,7 @@
   "IndEvo_Minefield_PhaseShipImpactMult":0.3f,
 
   #General Artillery
-  "Enable_IndEvo_Artillery": TRUE, #disabling this means you have weak bones. Lucky for you, this does not matter, considering you will never amount to much in your life anyway.
+  "Enable_IndEvo_Artillery": TRUE, #only works on new game. Disabling this means you have weak bones. There used to be another insult here but the weak boned snowflakes were offended by it because it was too true.
   "IndEvo_Artillery_minDelayBetweenShots":2f,
   "IndEvo_Artillery_maxDelayBetweenShots":3f,
   "IndEvo_Artillery_minCooldown":13f,
@@ -74,10 +73,14 @@
   #Missile Artillery
   "IndEvo_Artillery_missile_projectilesPerShot":4, #must be divisible by 2
   "IndEvo_Artillery_missile_projectilesImpactTime":8f,
-  "IndEvo_Artillery_missile_maxCoveredArea":800f, #maximum area the missiles cover - depends on fuzz
-  "IndEvo_Artillery_missile_fuzz":1, #how accurate the missiles anticipate your location, less than one is kinda useless
+  "IndEvo_Artillery_missile_maxCoveredArea":800f, #maximum area the missiles cover - also depends on fuzz
+  "IndEvo_Artillery_missile_fuzz":1, #how accurate the missiles anticipate your location, less than 1 makes em kinda useless
   "IndEvo_Artillery_missile_explosionRadius":200f,
   "IndEvo_Artillery_missile_duration":10f,
+
+  #Engineering Hub
+  "IndEvo_EngHubIgnoreWhitelists": FALSE, #Yes, this is the one you are looking for - this turns off the whitelist and allows any ship to be reverse engineered
+  "IndEvo_AutoshipBPToGatheringPoint":FALSE,
 
   #Salvage Yards
   "IndEvo_RarePartsAmountPerFP": 2,
@@ -97,7 +100,7 @@
   "reslab_autoDeliverToClosestDecon": FALSE, #Auto-deliver restored forge templates to the closest HullDecon  Remember - courier port exists.
 
   #HullDecon
-  "IndEvo_DeconIgnoreWhitelists": TRUE, #you want the blueprints too, dont you - look below - this turns off the whitelist and allows any ship to be deconstructed
+  "IndEvo_DeconIgnoreWhitelists": TRUE, #leave this one alone, you want the engineering hub, look a few lines above
   "hullDecon_autoDeliverToClosestForge": FALSE, #Auto-deliver finished forge templates to the closest HullForge  Remember - courier port exists.
   "hullDecon_days_FRIGATE": 10,
   "hullDecon_days_DESTROYER": 20,
@@ -136,10 +139,6 @@
   "adminSalaryTier1":10000,
   "adminSalaryTier2":20000,
   "adminSalaryTier3":30000,
-
-  #Engineering Hub
-  "IndEvo_EngHubIgnoreWhitelists": FALSE, #Yes, this is the one you are looking for - this turns off the whitelist and allows any ship to be reverse engineered
-  "IndEvo_AutoshipBPToGatheringPoint":FALSE,
 
   #Variable Industries
   "VarInd_deliverToProductionPoint": FALSE, #Auto-deliver to production point (default - To local storage)  Remember - courier port exists.
@@ -198,16 +197,16 @@
   "IndEvo_ToggleMagicRandomSelector": false,
 
   "ruleCommandPackages":[
-  "com.fs.starfarer.api.impl.campaign.rulecmd.academyRules",
-  "com.fs.starfarer.api.impl.campaign.rulecmd.ambassadorRules",
-  "com.fs.starfarer.api.impl.campaign.rulecmd.edictRules",
-  "com.fs.starfarer.api.impl.campaign.rulecmd.riftGenRules",
-  "com.fs.starfarer.api.impl.campaign.rulecmd.portRules",
-  "com.fs.starfarer.api.impl.campaign.rulecmd.salvageYardsRules",
-  "com.fs.starfarer.api.splinterFleet.plugins.dialogue",
-  "com.fs.starfarer.api.impl.campaign.rulecmd.researchProjects",
-  "com.fs.starfarer.api.impl.campaign.econ.impl.courierPort.dialogue",
-  "com.fs.starfarer.api.artilleryStation.rules"
+  "indevo.industries.academy.rules",
+  "indevo.industries.embassy.rules",
+  "indevo.industries.senate.rules",
+  "indevo.industries.derelicts.rules",
+  "indevo.industries.salvageyards.rules",
+  "indevo.industries.artillery.rules",
+  "indevo.industries.courierport.dialogue",
+  "indevo.abilities.splitfleet.dialogue",
+  "indevo.dialogue.research",
+  "indevo.dialogue.rules"
   ],
 
   "designTypeColors":{

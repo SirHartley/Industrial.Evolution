@@ -6,7 +6,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
-import indevo.industries.academy.industry.IndEvo_Academy;
+import indevo.industries.academy.industry.Academy;
 import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
@@ -50,7 +50,7 @@ public class IndEvo_MovePerson extends BaseCommandPlugin {
         PersonAPI person = (PersonAPI) memory.get(SELECTED_PERSON);
 
         MarketAPI market = getMarket(memoryMap);
-        IndEvo_Academy academy = (IndEvo_Academy) market.getIndustry(Ids.ACADEMY);
+        Academy academy = (Academy) market.getIndustry(Ids.ACADEMY);
 
         switch (actionType) {
             case TRAIN:
@@ -58,9 +58,9 @@ public class IndEvo_MovePerson extends BaseCommandPlugin {
                     case OFFICER:
                         switch (direction) {
                             case "better":
-                                academy.setOfficerForTraining(person, IndEvo_Academy.trainingDirection.BETTER);
+                                academy.setOfficerForTraining(person, Academy.trainingDirection.BETTER);
                             case "worse":
-                                academy.setOfficerForTraining(person, IndEvo_Academy.trainingDirection.WEAKER);
+                                academy.setOfficerForTraining(person, Academy.trainingDirection.WEAKER);
                         }
                         break;
                     case ADMIN:

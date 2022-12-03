@@ -7,7 +7,7 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import indevo.industries.SharedSubmarketUserAPI;
-import indevo.industries.derelicts.industry.IndEvo_HullForge;
+import indevo.industries.derelicts.industry.HullForge;
 import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
@@ -18,7 +18,7 @@ import java.util.List;
 
 public class SharedSubmarketPlugin extends BaseSubmarketPlugin implements DynamicSubmarket {
 
-    public static final Logger log = Global.getLogger(IndEvo_HullForge.class);
+    public static final Logger log = Global.getLogger(HullForge.class);
 
     public boolean isSetForRemoval = false;
 

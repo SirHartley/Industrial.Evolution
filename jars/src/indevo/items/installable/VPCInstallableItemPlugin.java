@@ -1,12 +1,12 @@
 package indevo.items.installable;
 
 import indevo.ids.ItemIds;
+import indevo.industries.assembler.industry.VariableAssembler;
 import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableIndustryItemPlugin;
-import indevo.industries.assembler.industry.IndEvo_AdAssem;
 import indevo.industries.assembler.industry.VPCUserIndustryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -385,14 +385,14 @@ public class VPCInstallableItemPlugin extends BaseInstallableIndustryItemPlugin 
 
     @Override
     public SpecialItemData getCurrentlyInstalledItemData() {
-        if (industry instanceof IndEvo_AdAssem) return ((IndEvo_AdAssem) industry).getCurrentVPC();
+        if (industry instanceof VariableAssembler) return ((VariableAssembler) industry).getCurrentVPC();
 
         return null;
     }
 
     @Override
     public void setCurrentlyInstalledItemData(SpecialItemData data) {
-        if (industry instanceof IndEvo_AdAssem) ((IndEvo_AdAssem) industry).setCurrentVPC(data);
+        if (industry instanceof VariableAssembler) ((VariableAssembler) industry).setCurrentVPC(data);
 
     }
 
@@ -403,8 +403,8 @@ public class VPCInstallableItemPlugin extends BaseInstallableIndustryItemPlugin 
 
         tooltip.addPara(StringHelper.getString("IndEvo_items", "vpcIndTooltip"), 0f);
 
-        if (industry instanceof IndEvo_AdAssem) {
-            SpecialItemData data = ((IndEvo_AdAssem) industry).getCurrentVPC();
+        if (industry instanceof VariableAssembler) {
+            SpecialItemData data = ((VariableAssembler) industry).getCurrentVPC();
             toolTipCreate(tooltip, data, opad);
         }
     }

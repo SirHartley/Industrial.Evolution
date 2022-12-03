@@ -1,7 +1,7 @@
 package indevo.items.consumables.entityAbilities;
 
 import com.fs.starfarer.api.Global;
-import indevo.industries.artillery.entities.IndEvo_ArtilleryStationEntityPlugin;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -39,8 +39,8 @@ public class DecoyMineAbility extends BaseDurationAbility {
         }
 
         if (level == 1 && primed != null) {
-            for(SectorEntityToken t : IndEvo_ArtilleryStationEntityPlugin.getArtilleriesInLoc(entity.getContainingLocation())){
-                IndEvo_ArtilleryStationEntityPlugin p = (IndEvo_ArtilleryStationEntityPlugin) t.getCustomPlugin();
+            for(SectorEntityToken t : ArtilleryStationEntityPlugin.getArtilleriesInLoc(entity.getContainingLocation())){
+                ArtilleryStationEntityPlugin p = (ArtilleryStationEntityPlugin) t.getCustomPlugin();
                 p.forceTarget(entity, ARTILLERY_STATION_TIMEOUT);
             }
 

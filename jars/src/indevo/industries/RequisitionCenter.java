@@ -3,16 +3,16 @@ package indevo.industries;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import indevo.ids.Ids;
+import indevo.industries.embassy.industry.Embassy;
+import indevo.submarkets.RequisitionsCenterSubmarketPlugin;
 import indevo.utils.helper.IndustryHelper;
 import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.RepLevel;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import indevo.submarkets.ReqCenterSubmarketPlugin;
-import indevo.industries.embassy.industry.IndEvo_embassy;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
-import indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -75,10 +75,10 @@ public class RequisitionCenter extends BaseIndustry {
             tooltip.addPara("The minimum reputation for weapon imports is %s", opad, Misc.getTextColor(), Misc.getHighlightColor(), "+" + repInt);
 
             if (market.hasIndustry(Ids.EMBASSY)
-                    && IndEvo_ambassadorPersonManager.hasAmbassador(market)
+                    && AmbassadorPersonManager.hasAmbassador(market)
                     && IndustryHelper.getAiCoreIdNotNull(this).equals(Commodities.GAMMA_CORE)) {
 
-                FactionAPI alignedFaction = ((IndEvo_embassy) market.getIndustry(Ids.EMBASSY)).alignedFaction;
+                FactionAPI alignedFaction = ((Embassy) market.getIndustry(Ids.EMBASSY)).alignedFaction;
 
                 if (alignedFaction != null) {
                     float rel = marketFaction.getRelationship(alignedFaction.getId());
@@ -97,7 +97,7 @@ public class RequisitionCenter extends BaseIndustry {
                     }
                 }
             } else { //if it doesn't have an embassy
-                List<FactionAPI> activeFactionList = ReqCenterSubmarketPlugin.getActiveFactionList(MIN_REP_REQUIREMENT, marketFaction);
+                List<FactionAPI> activeFactionList = RequisitionsCenterSubmarketPlugin.getActiveFactionList(MIN_REP_REQUIREMENT, marketFaction);
 
                 tooltip.addPara("Weapon sourcing overview:", opad);
                 tooltip.beginTable(marketFaction, 20f, "Faction", 180f, "Weapon #", 80f, "Standing", 130f);
@@ -137,7 +137,7 @@ Gamma	Sets the submarket to ignore any ambassador present and continue sourcing 
 Beta	Stops sourcing weapons you have 5 or more of in storage (anywhere), increases the total amount of weapons for sale
 Alpha	Reduces stock-up time, Increases the amount of rare/large weapons for sale
 
-actual effect handling is in ReqCenterSubmarketPlugin*/
+actual effect handling is in RequisitionsCenterSubmarketPlugin*/
 
     //AI-Core tooltips
     @Override

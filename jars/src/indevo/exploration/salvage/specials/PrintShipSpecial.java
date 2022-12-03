@@ -6,7 +6,7 @@ import indevo.ids.ItemIds;
 import indevo.items.ForgeTemplateItemPlugin;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import indevo.industries.derelicts.industry.IndEvo_HullForge;
+import indevo.industries.derelicts.industry.HullForge;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
@@ -111,7 +111,7 @@ public class PrintShipSpecial extends BaseSalvageSpecial {
         int quality = ForgeTemplateItemPlugin.getForgeTemplateQualityLevel(getForgeTemplateStackForMember(member).getSpecialDataIfSpecial())
                 + data.qualityLevel;
         ForgeTemplateItemPlugin.addPrintDefectDMods(member, quality, random);
-        IndEvo_HullForge.addBuiltInHullmods(1, member, random);
+        HullForge.addBuiltInHullmods(1, member, random);
         //IndustryHelper.finalizeAndUpdateFleetMember(member);
 
         playerFleet.getFleetData().addFleetMember(member);

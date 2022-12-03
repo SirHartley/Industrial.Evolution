@@ -11,7 +11,7 @@ import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.characters.SkillSpecAPI;
 import indevo.ids.Ids;
-import indevo.industries.academy.industry.IndEvo_Academy;
+import indevo.industries.academy.industry.Academy;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
@@ -51,20 +51,20 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
                 switch (personType) {
                     case OFFICER:
                         opts.addOption("Increase Agression (Confirm)", "IndEvo_MovePersonOption_better");
-                        opts.setEnabled("IndEvo_MovePersonOption_better", IndEvo_Academy.isOfficerTrainingDirectionAllowed(person, IndEvo_Academy.trainingDirection.BETTER));
+                        opts.setEnabled("IndEvo_MovePersonOption_better", Academy.isOfficerTrainingDirectionAllowed(person, Academy.trainingDirection.BETTER));
 
                         if (!market.isPlayerOwned()) {
-                            if (!IndEvo_Academy.playerCanAffordCost(Global.getSettings().getInt("personalityTrainingCost"))) {
+                            if (!Academy.playerCanAffordCost(Global.getSettings().getInt("personalityTrainingCost"))) {
                                 opts.setEnabled("IndEvo_MovePersonOption_better", false);
                                 opts.setTooltip("IndEvo_MovePersonOption_better", "You can't afford the training fee!");
                             }
                         }
 
                         opts.addOption("Decrease Agression (Confirm)", "IndEvo_MovePersonOption_worse");
-                        opts.setEnabled("IndEvo_MovePersonOption_worse", IndEvo_Academy.isOfficerTrainingDirectionAllowed(person, IndEvo_Academy.trainingDirection.WEAKER));
+                        opts.setEnabled("IndEvo_MovePersonOption_worse", Academy.isOfficerTrainingDirectionAllowed(person, Academy.trainingDirection.WEAKER));
 
                         if (!market.isPlayerOwned()) {
-                            if (!IndEvo_Academy.playerCanAffordCost(Global.getSettings().getInt("personalityTrainingCost"))) {
+                            if (!Academy.playerCanAffordCost(Global.getSettings().getInt("personalityTrainingCost"))) {
                                 opts.setEnabled("IndEvo_MovePersonOption_worse", false);
                                 opts.setTooltip("IndEvo_MovePersonOption_worse", "You can't afford the training fee!");
                             }
@@ -75,7 +75,7 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
                         opts.addOption("Confirm", "IndEvo_MovePersonOption");
 
                         if (!market.isPlayerOwned()) {
-                            if (!IndEvo_Academy.playerCanAffordCost(Global.getSettings().getInt("adminTrainingCost"))) {
+                            if (!Academy.playerCanAffordCost(Global.getSettings().getInt("adminTrainingCost"))) {
                                 opts.setEnabled("IndEvo_MovePersonOption", false);
                                 opts.setTooltip("IndEvo_MovePersonOption", "You can't afford the training fee!");
                             }
@@ -152,7 +152,7 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
         TextPanelAPI text = dialog.getTextPanel();
         MarketAPI market = getMarket(memoryMap);
 
-        IndEvo_Academy academy = (IndEvo_Academy) market.getIndustry(Ids.ACADEMY);
+        Academy academy = (Academy) market.getIndustry(Ids.ACADEMY);
 
         boolean isNotPlayerOwned = !market.isPlayerOwned();
 

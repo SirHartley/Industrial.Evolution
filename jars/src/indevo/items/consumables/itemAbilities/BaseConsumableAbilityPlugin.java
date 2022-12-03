@@ -3,7 +3,7 @@ package indevo.items.consumables.itemAbilities;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
-import indevo.items.consumables.singleUseItemPlugins.ItemAbilityHelper;
+import indevo.items.consumables.ItemAbilityHelper;
 import com.fs.starfarer.api.impl.campaign.abilities.BaseDurationAbility;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 

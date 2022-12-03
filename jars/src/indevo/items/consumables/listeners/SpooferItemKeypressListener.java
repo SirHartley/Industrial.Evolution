@@ -2,7 +2,7 @@ package indevo.items.consumables.listeners;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignUIAPI;
-import indevo.items.consumables.singleUseItemPlugins.SpooferConsumableItemPlugin;
+import indevo.items.consumables.itemPlugins.SpooferConsumableItemPlugin;
 import com.fs.starfarer.api.campaign.listeners.CampaignInputListener;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.input.InputEventType;

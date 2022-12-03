@@ -8,7 +8,7 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.characters.SkillSpecAPI;
-import indevo.industries.academy.industry.IndEvo_Academy;
+import indevo.industries.academy.industry.Academy;
 import com.fs.starfarer.api.impl.campaign.ids.Personalities;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
@@ -117,7 +117,7 @@ public class IndEvo_DisplaySubListPage extends BaseCommandPlugin {
         List<String> allSkillIds = Global.getSettings().getSortedSkillIds();
         for (String skillId : allSkillIds) {
             SkillSpecAPI skill = Global.getSettings().getSkillSpec(skillId);
-            if (skill.isAdminSkill() && IndEvo_Academy.personHasSkill(person, skill)) {
+            if (skill.isAdminSkill() && Academy.personHasSkill(person, skill)) {
                 skillCount++;
             }
         }

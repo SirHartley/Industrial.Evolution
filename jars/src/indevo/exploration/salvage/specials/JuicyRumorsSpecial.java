@@ -2,11 +2,11 @@ package indevo.exploration.salvage.specials;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
-import indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
@@ -28,7 +28,7 @@ public class JuicyRumorsSpecial extends BaseSalvageSpecial {
         public JuicyRumorsSpecialData(String factionId, float repGainAmt) {
             FactionAPI faction1 = Global.getSector().getFaction(factionId);
 
-            this.factionPair = new Pair<>(factionId, getWorstEnemy(faction1, IndEvo_ambassadorPersonManager.getListOfIncativeFactions()).getId());
+            this.factionPair = new Pair<>(factionId, getWorstEnemy(faction1, AmbassadorPersonManager.getListOfIncativeFactions()).getId());
             this.repGainAmt = repGainAmt;
         }
 
@@ -76,7 +76,7 @@ public class JuicyRumorsSpecial extends BaseSalvageSpecial {
             addText("You send the slate towards " + faction_1.getDisplayName() + " space in an emergency courier drone. " +
                     "You do not have to wait long for the response - a short receipt confirmation, and a formal expression of gratitude.");
 
-            IndEvo_ambassadorPersonManager.adjustRelationship(Global.getSector().getPlayerFaction(), faction_1, data.repGainAmt);
+            AmbassadorPersonManager.adjustRelationship(Global.getSector().getPlayerFaction(), faction_1, data.repGainAmt);
             Pair<String, Color> repInt = StringHelper.getRepIntTooltipPair(faction_1);
             text.setFontSmallInsignia();
             text.addPara("Gained " + StringHelper.getFloatToIntStrx100(data.repGainAmt) + " reputation with " + faction_1.getDisplayNameWithArticle() + " - Now at " + repInt.one);
@@ -97,8 +97,8 @@ public class JuicyRumorsSpecial extends BaseSalvageSpecial {
 
             float repIncrease = data.repGainAmt * HOSTILE_INCREASE_FACT;
             float repReduce = Math.max(data.repGainAmt * HOSTILE_DECREASE_FACT, 0.01f);
-            IndEvo_ambassadorPersonManager.adjustRelationship(Global.getSector().getPlayerFaction(), faction_1, repReduce);
-            IndEvo_ambassadorPersonManager.adjustRelationship(Global.getSector().getPlayerFaction(), faction_2, repIncrease);
+            AmbassadorPersonManager.adjustRelationship(Global.getSector().getPlayerFaction(), faction_1, repReduce);
+            AmbassadorPersonManager.adjustRelationship(Global.getSector().getPlayerFaction(), faction_2, repIncrease);
 
             text.setFontSmallInsignia();
 
@@ -149,7 +149,7 @@ public class JuicyRumorsSpecial extends BaseSalvageSpecial {
     }
 
     private void initAndFixFactions() {
-        List<FactionAPI> inactiveFactions = IndEvo_ambassadorPersonManager.getListOfIncativeFactions();
+        List<FactionAPI> inactiveFactions = AmbassadorPersonManager.getListOfIncativeFactions();
         faction_1 = Global.getSector().getFaction(data.factionPair.one);
         faction_2 = Global.getSector().getFaction(data.factionPair.two);
 

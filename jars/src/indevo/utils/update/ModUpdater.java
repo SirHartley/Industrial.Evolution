@@ -15,9 +15,9 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import indevo.ids.Ids;
 import indevo.industries.EngineeringHub;
-import indevo.industries.academy.industry.IndEvo_Academy;
-import indevo.industries.derelicts.industry.IndEvo_HullDecon;
-import indevo.industries.derelicts.industry.IndEvo_HullForge;
+import indevo.industries.academy.industry.Academy;
+import indevo.industries.derelicts.industry.HullDeconstructor;
+import indevo.industries.derelicts.industry.HullForge;
 import com.fs.starfarer.api.util.Misc;
 
 import java.util.ArrayList;
@@ -85,19 +85,19 @@ public class ModUpdater {
             //remove stuff
             switch (id) {
                 case Ids.ACADEMY:
-                    ((IndEvo_Academy) ind).abortOfficerTraining(true);
-                    ((IndEvo_Academy) ind).abortAdminTraining(true);
-                    os = ((IndEvo_Academy) ind).getOfficerStorage();
-                    as = ((IndEvo_Academy) ind).getAdminStorage();
+                    ((Academy) ind).abortOfficerTraining(true);
+                    ((Academy) ind).abortAdminTraining(true);
+                    os = ((Academy) ind).getOfficerStorage();
+                    as = ((Academy) ind).getAdminStorage();
                     break;
                 case Ids.ENGHUB:
                     variant = ((EngineeringHub) ind).getCurrentDeconShipVar();
                     break;
                 case Ids.DECONSTRUCTOR:
-                    variant = ((IndEvo_HullDecon) ind).getCurrentDeconShipVar();
+                    variant = ((HullDeconstructor) ind).getCurrentDeconShipVar();
                     break;
                 case Ids.HULLFORGE:
-                    currentShip = ((IndEvo_HullForge) ind).getCurrentShip();
+                    currentShip = ((HullForge) ind).getCurrentShip();
                     break;
             }
 
@@ -126,20 +126,20 @@ public class ModUpdater {
             switch (id) {
                 case Ids.ACADEMY:
                     for (PersonAPI o : os) {
-                        ((IndEvo_Academy) ind).storeOfficer(o);
+                        ((Academy) ind).storeOfficer(o);
                     }
                     for (PersonAPI a : as) {
-                        ((IndEvo_Academy) ind).storeAdmin(a);
+                        ((Academy) ind).storeAdmin(a);
                     }
                     break;
                 case Ids.ENGHUB:
                     ((EngineeringHub) ind).setCurrentDeconShipVar(variant);
                     break;
                 case Ids.DECONSTRUCTOR:
-                    ((IndEvo_HullDecon) ind).setCurrentDeconShipVar(variant);
+                    ((HullDeconstructor) ind).setCurrentDeconShipVar(variant);
                     break;
                 case Ids.HULLFORGE:
-                    ((IndEvo_HullForge) ind).setCurrentShip(currentShip);
+                    ((HullForge) ind).setCurrentShip(currentShip);
                     break;
             }
         }

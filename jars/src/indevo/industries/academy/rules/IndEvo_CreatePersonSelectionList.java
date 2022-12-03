@@ -9,7 +9,7 @@ import com.fs.starfarer.api.characters.AdminData;
 import com.fs.starfarer.api.characters.OfficerDataAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import indevo.ids.Ids;
-import indevo.industries.academy.industry.IndEvo_Academy;
+import indevo.industries.academy.industry.Academy;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
 
@@ -43,7 +43,7 @@ public class IndEvo_CreatePersonSelectionList extends BaseCommandPlugin {
 
 
         MarketAPI market = getMarket(memoryMap);
-        IndEvo_Academy academy = (IndEvo_Academy) market.getIndustry(Ids.ACADEMY);
+        Academy academy = (Academy) market.getIndustry(Ids.ACADEMY);
 
         MemoryAPI memory = memoryMap.get(MemKeys.LOCAL);
         ArrayList<PersonAPI> personList = new ArrayList<>();
@@ -99,7 +99,7 @@ public class IndEvo_CreatePersonSelectionList extends BaseCommandPlugin {
         return splitList;
     }
 
-    private ArrayList<PersonAPI> getEligibleAdminPersonList(IndEvo_Academy academy, ActionTypes action) {
+    private ArrayList<PersonAPI> getEligibleAdminPersonList(Academy academy, ActionTypes action) {
         ArrayList<PersonAPI> finalList = new ArrayList<>();
 
         switch (action) {
@@ -141,7 +141,7 @@ public class IndEvo_CreatePersonSelectionList extends BaseCommandPlugin {
         return finalList;
     }
 
-    private ArrayList<PersonAPI> getEligibleOfficerPersonList(IndEvo_Academy academy, ActionTypes action) {
+    private ArrayList<PersonAPI> getEligibleOfficerPersonList(Academy academy, ActionTypes action) {
         ArrayList<PersonAPI> finalList = new ArrayList<>();
 
         switch (action) {

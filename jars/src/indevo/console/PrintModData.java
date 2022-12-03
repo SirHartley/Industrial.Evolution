@@ -5,7 +5,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEventListener;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
-import indevo.industries.embassy.IndEvo_AmbassadorItemHelper;
+import indevo.industries.embassy.AmbassadorItemHelper;
 import com.fs.starfarer.campaign.BaseCampaignEntity;
 import org.lazywizard.console.BaseCommand;
 import org.lazywizard.console.Console;
@@ -85,7 +85,7 @@ public class PrintModData implements BaseCommand {
             }
         }
 
-        int ambassadorAmt = Global.getSector().getImportantPeople().getPeopleWithPost(IndEvo_AmbassadorItemHelper.POST_AMBASSADOR).size();
+        int ambassadorAmt = Global.getSector().getImportantPeople().getPeopleWithPost(AmbassadorItemHelper.POST_AMBASSADOR).size();
         Console.showMessage("People: " + ambassadorAmt);
 
         Console.showMessage("--------------------- Listeners ---------------------");

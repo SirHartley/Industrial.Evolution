@@ -9,7 +9,7 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.shared.SharedData;
-import indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import com.fs.starfarer.api.util.Misc;
 
 import java.util.List;
@@ -20,11 +20,11 @@ public class IndEvo_moveAmbassadorToClosestEmbassy extends BaseCommandPlugin {
     @Override
     public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
         MarketAPI market = Global.getSector().getEconomy().getMarket(memoryMap.get(MemKeys.MARKET).getString("$id"));
-        MarketAPI closestEmbassy = IndEvo_ambassadorPersonManager.getClosestEmptyEmbassyToMarket(market);
+        MarketAPI closestEmbassy = AmbassadorPersonManager.getClosestEmptyEmbassyToMarket(market);
 
         if (market != null && closestEmbassy != null) {
 
-            Global.getSector().addTransientScript(new IndEvo_ambassadorPersonManager.moveAmbassadorToMarket(market, closestEmbassy));
+            Global.getSector().addTransientScript(new AmbassadorPersonManager.moveAmbassadorToMarket(market, closestEmbassy));
 
             float cost = IndEvo_displayAmbassadorMoveOption.getTransoportCost(market, closestEmbassy);
 

@@ -7,7 +7,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
-import indevo.industries.academy.industry.IndEvo_Academy;
+import indevo.industries.academy.industry.Academy;
 import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
@@ -35,7 +35,7 @@ public class IndEvo_PrepareForTrainingAbort extends BaseCommandPlugin {
 
         MarketAPI market = getMarket(memoryMap);
 
-        IndEvo_Academy academy = (IndEvo_Academy) market.getIndustry(Ids.ACADEMY);
+        Academy academy = (Academy) market.getIndustry(Ids.ACADEMY);
         PersonAPI person;
 
         memory.set(CURRENT_ACTION_TYPE, ActionTypes.ABORT.toString(), EXPIRE_TIME);
@@ -48,7 +48,7 @@ public class IndEvo_PrepareForTrainingAbort extends BaseCommandPlugin {
             case OFFICER:
                 person = academy.getOfficerInTraining();
 
-                if (academy.getCurrentDirection().equals(IndEvo_Academy.trainingDirection.WEAKER)) {
+                if (academy.getCurrentDirection().equals(Academy.trainingDirection.WEAKER)) {
                     text.addParagraph("Currently training to be less aggressive:");
                 } else {
                     text.addParagraph("Currently training to be more aggressive:");
@@ -57,9 +57,9 @@ public class IndEvo_PrepareForTrainingAbort extends BaseCommandPlugin {
                 IndEvo_DisplayPersonActionPanel.printPersonCharacterTooltip(person, personType, dialog);
 
                 opts.addOption("Abort, move to fleet", "IndEvo_MovePersonOption_fleet");
-                opts.setEnabled("IndEvo_MovePersonOption_fleet", IndEvo_Academy.playerHasOfficerCapacity());
+                opts.setEnabled("IndEvo_MovePersonOption_fleet", Academy.playerHasOfficerCapacity());
 
-                if (!IndEvo_Academy.playerHasOfficerCapacity()) {
+                if (!Academy.playerHasOfficerCapacity()) {
                     opts.setTooltip("IndEvo_MovePersonOption_fleet", "You do not have any free officer slots.");
                 }
 

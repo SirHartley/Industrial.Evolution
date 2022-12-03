@@ -74,8 +74,14 @@ adjust salvage event "Ship Roulette" -
 
 -----------------------o-----------------------
 3.1.g - UNRELEASED
+General
+Adjusted - Complete code restructuring
+
 Techmining
 Removed - Techmining progress indicator (Download Better Colonies instead!)
+Removed - Vanilla techmining override
+
+
 
 Artillery
 Adjusted - Now ignores Epta tradestations for faction change

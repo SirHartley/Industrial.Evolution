@@ -12,7 +12,7 @@ import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
-import indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import com.fs.starfarer.api.util.Misc;
 
 import java.awt.*;
@@ -31,25 +31,25 @@ public class IndEvo_ambassadorRemoval extends BaseCommandPlugin {
     public static void removeAmbassadorWithPenalty(MarketAPI market) {
         if(market == null) return;
 
-        PersonAPI person = IndEvo_ambassadorPersonManager.getAmbassador(market);
+        PersonAPI person = AmbassadorPersonManager.getAmbassador(market);
 
         MarketAPI originalMarket = null;
         FactionAPI ambFaction = null;
         float penaltyAmount = 0f;
 
         if (person != null){
-            originalMarket =  IndEvo_ambassadorPersonManager.getOriginalMarket(person);
+            originalMarket =  AmbassadorPersonManager.getOriginalMarket(person);
             ambFaction = person.getFaction();
             penaltyAmount = getPenaltyFor(market.getFaction().getRelationship(ambFaction.getId()));
         }
 
-        IndEvo_ambassadorPersonManager.removeAmbassadorFromMarket(market);
+        AmbassadorPersonManager.removeAmbassadorFromMarket(market);
 
-        if (originalMarket != null && IndEvo_ambassadorPersonManager.getAmbassador(originalMarket) != null) {
-            IndEvo_ambassadorPersonManager.deleteAmbassador(originalMarket);
+        if (originalMarket != null && AmbassadorPersonManager.getAmbassador(originalMarket) != null) {
+            AmbassadorPersonManager.deleteAmbassador(originalMarket);
         }
 
-        if (originalMarket != null) IndEvo_ambassadorPersonManager.addAmbassadorToMarket(person, originalMarket);
+        if (originalMarket != null) AmbassadorPersonManager.addAmbassadorToMarket(person, originalMarket);
 
         market.getIndustry(Ids.EMBASSY).setSpecialItem(null);
 

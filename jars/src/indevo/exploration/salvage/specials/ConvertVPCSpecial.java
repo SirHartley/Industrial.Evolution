@@ -19,7 +19,7 @@ import org.json.JSONException;
 
 import java.util.*;
 
-import static indevo.industries.assembler.industry.IndEvo_AdAssem.DUAL_OUTPUT_REDUCTION_MULT;
+import static indevo.industries.assembler.industry.VariableAssembler.DUAL_OUTPUT_REDUCTION_MULT;
 import static indevo.ids.ItemIds.NO_ENTRY;
 
 public class ConvertVPCSpecial extends BaseSalvageSpecial {

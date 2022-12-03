@@ -7,7 +7,7 @@ import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableIndustryItemPlugin;
 import indevo.ids.ItemIds;
-import indevo.industries.derelicts.industry.IndEvo_BaseForgeTemplateUser;
+import indevo.industries.derelicts.industry.BaseForgeTemplateUser;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
@@ -39,15 +39,15 @@ public class ForgeTemplateInstallableItemPlugin extends BaseInstallableIndustryI
         for (int i = 1; i <= 5; i++) {
             put(ItemIds.FORGETEMPLATE + "_" + i, new ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect() {
                 public void apply(Industry industry, SpecialItemData specItem) {
-                    if (industry instanceof IndEvo_BaseForgeTemplateUser) {
-                        IndEvo_BaseForgeTemplateUser b = (IndEvo_BaseForgeTemplateUser) industry;
+                    if (industry instanceof BaseForgeTemplateUser) {
+                        BaseForgeTemplateUser b = (BaseForgeTemplateUser) industry;
                         b.setForgeShip(Global.getSettings().getHullSpec(specItem.getData()));
                     }
                 }
 
                 public void unapply(Industry industry) {
-                    if (industry instanceof IndEvo_BaseForgeTemplateUser) {
-                        IndEvo_BaseForgeTemplateUser b = (IndEvo_BaseForgeTemplateUser) industry;
+                    if (industry instanceof BaseForgeTemplateUser) {
+                        BaseForgeTemplateUser b = (BaseForgeTemplateUser) industry;
                         b.unSetForgeShip();
                     }
                 }
@@ -110,15 +110,15 @@ public class ForgeTemplateInstallableItemPlugin extends BaseInstallableIndustryI
 
         put(ItemIds.BROKENFORGETEMPLATE, new ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect() {
             public void apply(Industry industry, SpecialItemData specItem) {
-                if (industry instanceof IndEvo_BaseForgeTemplateUser) {
-                    IndEvo_BaseForgeTemplateUser b = (IndEvo_BaseForgeTemplateUser) industry;
+                if (industry instanceof BaseForgeTemplateUser) {
+                    BaseForgeTemplateUser b = (BaseForgeTemplateUser) industry;
                     b.setForgeShip(Global.getSettings().getHullSpec(specItem.getData()));
                 }
             }
 
             public void unapply(Industry industry) {
-                if (industry instanceof IndEvo_BaseForgeTemplateUser) {
-                    IndEvo_BaseForgeTemplateUser b = (IndEvo_BaseForgeTemplateUser) industry;
+                if (industry instanceof BaseForgeTemplateUser) {
+                    BaseForgeTemplateUser b = (BaseForgeTemplateUser) industry;
                     b.unSetForgeShip();
                 }
             }
@@ -146,9 +146,9 @@ public class ForgeTemplateInstallableItemPlugin extends BaseInstallableIndustryI
         });
     }};
 
-    private final IndEvo_BaseForgeTemplateUser industry;
+    private final BaseForgeTemplateUser industry;
 
-    public ForgeTemplateInstallableItemPlugin(IndEvo_BaseForgeTemplateUser industry) {
+    public ForgeTemplateInstallableItemPlugin(BaseForgeTemplateUser industry) {
         this.industry = industry;
 
     }

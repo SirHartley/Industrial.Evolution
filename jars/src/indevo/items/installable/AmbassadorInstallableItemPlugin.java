@@ -1,6 +1,7 @@
 package indevo.items.installable;
 
 import indevo.ids.ItemIds;
+import indevo.industries.embassy.industry.Embassy;
 import indevo.items.specialitemdata.AmbassadorItemData;
 import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
@@ -8,8 +9,7 @@ import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableIndustryItemPlugin;
-import indevo.industries.embassy.industry.IndEvo_embassy;
-import indevo.industries.embassy.IndEvo_AmbassadorItemHelper;
+import indevo.industries.embassy.AmbassadorItemHelper;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 
 import java.util.HashMap;
@@ -34,7 +34,7 @@ public class AmbassadorInstallableItemPlugin extends BaseInstallableIndustryItem
 
             public void addItemDescription(TooltipMakerAPI text, SpecialItemData data, InstallableItemDescriptionMode mode) {
                 float pad = 10f;
-                PersonAPI person = IndEvo_AmbassadorItemHelper.getPersonForItem(data);
+                PersonAPI person = AmbassadorItemHelper.getPersonForItem(data);
 
                 Map<String, String> toReplace = new HashMap<>();
                 toReplace.put("$personName", person.getNameString());
@@ -47,9 +47,9 @@ public class AmbassadorInstallableItemPlugin extends BaseInstallableIndustryItem
         });
     }};
 
-    private final IndEvo_embassy industry;
+    private final Embassy industry;
 
-    public AmbassadorInstallableItemPlugin(IndEvo_embassy industry) {
+    public AmbassadorInstallableItemPlugin(Embassy industry) {
         this.industry = industry;
     }
 

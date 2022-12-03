@@ -19,7 +19,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.loading.RoleEntryAPI;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import indevo.utils.memory.SessionTransientMemory;
-import indevo.industries.derelicts.scripts.IndEvo_PlanetMovingScript;
+import indevo.industries.derelicts.scripts.PlanetMovingScript;
 import com.fs.starfarer.api.util.Misc;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -391,10 +391,10 @@ public class IndustryHelper {
 
     public static boolean planetHasRings(PlanetAPI planet) {
         boolean hasRings = false;
-        List<SectorEntityToken> tokenList = IndEvo_PlanetMovingScript.getEntitiesWithOrbitTarget(planet);
+        List<SectorEntityToken> tokenList = PlanetMovingScript.getEntitiesWithOrbitTarget(planet);
         if (tokenList != null) {
 
-            for (SectorEntityToken t : IndEvo_PlanetMovingScript.getEntitiesWithOrbitTarget(planet)) {
+            for (SectorEntityToken t : PlanetMovingScript.getEntitiesWithOrbitTarget(planet)) {
                 if (t instanceof RingBandAPI) {
                     hasRings = true;
                     break;
@@ -408,10 +408,10 @@ public class IndustryHelper {
     public static boolean planetHasRings(MarketAPI market) {
         PlanetAPI planet = market.getPlanetEntity();
         boolean hasRings = false;
-        List<SectorEntityToken> tokenList = IndEvo_PlanetMovingScript.getEntitiesWithOrbitTarget(planet);
+        List<SectorEntityToken> tokenList = PlanetMovingScript.getEntitiesWithOrbitTarget(planet);
         if (tokenList != null) {
 
-            for (SectorEntityToken t : IndEvo_PlanetMovingScript.getEntitiesWithOrbitTarget(planet)) {
+            for (SectorEntityToken t : PlanetMovingScript.getEntitiesWithOrbitTarget(planet)) {
                 if (t instanceof RingBandAPI) {
                     hasRings = true;
                     break;

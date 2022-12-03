@@ -9,9 +9,9 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.PersonAPI;
 import indevo.ids.Ids;
-import indevo.industries.embassy.industry.IndEvo_embassy;
+import indevo.industries.embassy.industry.Embassy;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
-import indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import com.fs.starfarer.api.util.Misc;
 
 import java.util.List;
@@ -25,9 +25,9 @@ public class IndEvo_displayAmbassadorMoveOption extends BaseCommandPlugin {
         OptionPanelAPI panel = dialog.getOptionPanel();
 
         MarketAPI market = Global.getSector().getEconomy().getMarket(memoryMap.get(MemKeys.MARKET).getString("$id"));
-        MarketAPI closestEmbassy = IndEvo_ambassadorPersonManager.getClosestEmptyEmbassyToMarket(market);
+        MarketAPI closestEmbassy = AmbassadorPersonManager.getClosestEmptyEmbassyToMarket(market);
 
-        PersonAPI person = IndEvo_ambassadorPersonManager.getAmbassador(market);
+        PersonAPI person = AmbassadorPersonManager.getAmbassador(market);
         String pronoun = person.getGender() == FullName.Gender.MALE ? "him" : "her";
 
         panel.addOption("Ask " + pronoun + " to relocate to the closest empty Embassy", OPTION_ID);
@@ -38,7 +38,7 @@ public class IndEvo_displayAmbassadorMoveOption extends BaseCommandPlugin {
             return false;
         }
 
-        IndEvo_embassy embassy = (IndEvo_embassy) market.getIndustry(Ids.EMBASSY);
+        Embassy embassy = (Embassy) market.getIndustry(Ids.EMBASSY);
 
         if (!embassy.isAmbMovementAllowed()) {
             panel.setEnabled(OPTION_ID, false);

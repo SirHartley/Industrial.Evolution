@@ -1,7 +1,7 @@
 command,class,tags,syntax,help
-indevo_assignSalvageSpecials,com.fs.starfarer.api.plugins.commands.IndEvo_assignSalvageSpecials,"indevo,campaign",indevo_assignSalvageSpecials,[DEVELOPMENT TOOL] assigns salvage specials to entities
-indevo_spawnStation,com.fs.starfarer.api.plugins.commands.IndEvo_spawnStation,"indevo,campaign",indevo_spawnStation <type>,spawns a station of <type> at your location
-indevo_clearDisruption,com.fs.starfarer.api.plugins.commands.IndEvo_clearDisruption,"indevo,campaign",indevo_clearDisruption,removes disruption from all industries on a market
-indevo_spawnRuins,com.fs.starfarer.api.plugins.commands.IndEvo_spawnRuins,"indevo,campaign",indevo_spawnRuins,spawns ruins if procGen failed again
-indevo_printRaidTimeout,com.fs.starfarer.api.plugins.commands.IndEvo_printRaidTimeout,indevo,indevo_printRaidTimeout,displays a list of the current star system timeouts
-indevo_printModData,com.fs.starfarer.api.plugins.commands.IndEvo_printModData,indevo,indevo_printModData,displays a summary of mod data and classes
+indevo_assignSalvageSpecials,indevo.console.AssignSalvageSpecials,"indevo,campaign",indevo_assignSalvageSpecials,[DEVELOPMENT TOOL] assigns salvage specials to entities
+indevo_spawnStation,indevo.console.SpawnStation,"indevo,campaign",indevo_spawnStation <type>,spawns a station of <type> at your location
+indevo_clearDisruption,indevo.console.ClearDisruption,"indevo,campaign",indevo_clearDisruption,removes disruption from all industries on a market
+indevo_spawnRuins,indevo.console.SpawnRuins,"indevo,campaign",indevo_spawnRuins,spawns ruins if procGen failed again
+indevo_printRaidTimeout,indevo.console.PrintRaidTimeout,indevo,indevo_printRaidTimeout,displays a list of the current star system timeouts
+indevo_printModData,indevo.console.PrintModData,indevo,indevo_printModData,displays a summary of mod data and classes

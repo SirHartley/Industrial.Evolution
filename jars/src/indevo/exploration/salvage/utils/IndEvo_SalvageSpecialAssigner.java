@@ -3,6 +3,7 @@ package indevo.exploration.salvage.utils;
 import com.fs.starfarer.api.Global;
 import indevo.exploration.salvage.specials.*;
 import indevo.ids.Ids;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
@@ -19,7 +20,6 @@ import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.SalvageSpecialAssigner;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.*;
 import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin;
-import indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import org.apache.log4j.Logger;
@@ -384,7 +384,7 @@ public class IndEvo_SalvageSpecialAssigner {
         }
 
         public Object createSpecial(SectorEntityToken entity, SalvageSpecialAssigner.SpecialCreationContext context) {
-            List<FactionAPI> inactiveFactions = IndEvo_ambassadorPersonManager.getListOfIncativeFactions();
+            List<FactionAPI> inactiveFactions = AmbassadorPersonManager.getListOfIncativeFactions();
 
             WeightedRandomPicker<FactionAPI> picker = new WeightedRandomPicker<>(random);
             for (FactionAPI faction : Global.getSector().getAllFactions()) {

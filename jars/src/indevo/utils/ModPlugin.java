@@ -3,13 +3,14 @@ package indevo.utils;
 import com.fs.starfarer.api.*;
 import indevo.ids.Ids;
 import indevo.industries.OrbitalStation;
-import indevo.industries.artillery.scripts.IndEvo_EyeIndicatorScript;
-import indevo.industries.artillery.trails.IndEvo_MagicCampaignTrailPlugin;
+import indevo.industries.artillery.scripts.EyeIndicatorScript;
+import indevo.utils.trails.MagicCampaignTrailPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import indevo.economy.listeners.ResourceConditionApplicator;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.items.consumables.listeners.LocatorSystemRatingUpdater;
 import indevo.items.consumables.listeners.SpooferItemKeypressListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
@@ -31,14 +32,13 @@ import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
 import indevo.exploration.minefields.listeners.RecentJumpListener;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
-import indevo.industries.embassy.listeners.IndEvo_ambassadorPersonManager;
-import indevo.industries.artillery.utils.IndEvo_ArtilleryStationPlacer;
+import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.exploration.stations.DerelictStationPlacer;
-import indevo.industries.derelicts.utils.IndEvo_RuinsManager;
+import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.items.consumables.listeners.ConsumableItemMarketAdder;
 import indevo.items.listeners.ShipComponentLootManager;
-import indevo.industries.assembler.listeners.IndEvo_DepositMessage;
+import indevo.industries.assembler.listeners.DepositMessage;
 import indevo.items.consumables.listeners.ConsumableItemDropListener;
 import indevo.items.listeners.SpecialItemDropsListener;
 import indevo.utils.helper.IndustryHelper;
@@ -91,8 +91,8 @@ public class ModPlugin extends BaseModPlugin {
     public void onGameLoad(boolean newGame) {
         //Global.getSector().getPlayerFleet().setFaction("hegemony");
 
-        IndEvo_ArtilleryStationPlacer.placeCoreWorldArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next save breaking one
-        IndEvo_ArtilleryStationPlacer.placeDerelictArtilleries(); //same here
+        ArtilleryStationPlacer.placeCoreWorldArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next save breaking one
+        ArtilleryStationPlacer.placeDerelictArtilleries(); //same here
         GachaStationPlacer.place(); // TODO: 23/10/2022 move to onNewGame
 
         ModManagerAPI mm = Global.getSettings().getModManager();
@@ -160,10 +160,10 @@ public class ModPlugin extends BaseModPlugin {
     public void onNewGameAfterEconomyLoad() {
         super.onNewGameAfterEconomyLoad();
 
-        IndEvo_RuinsManager.forceCleanCoreRuins();
+        RuinsManager.forceCleanCoreRuins();
         NewGameIndustryPlacer.run();
-        IndEvo_ArtilleryStationPlacer.placeCoreWorldArtilleries();
-        IndEvo_ArtilleryStationPlacer.placeDerelictArtilleries();
+        ArtilleryStationPlacer.placeCoreWorldArtilleries();
+        ArtilleryStationPlacer.placeDerelictArtilleries();
         createAcademyMarket();
 
         if (Global.getSettings().getBoolean("Enable_Indevo_Derelicts")) {
@@ -173,7 +173,7 @@ public class ModPlugin extends BaseModPlugin {
 
         spawnMineFields();
         DerelictInfrastructurePlacer.placeRuinedInfrastructure();
-        IndEvo_RuinsManager.placeIndustrialRuins();
+        RuinsManager.placeIndustrialRuins();
 
         //ConverterRepRestetter.resetConverterRep();
     }
@@ -289,11 +289,11 @@ public class ModPlugin extends BaseModPlugin {
 
         if (!l.hasListenerOfClass(ResourceConditionApplicator.class))
             l.addListener(new ResourceConditionApplicator(), true);
-        if (!l.hasListenerOfClass(IndEvo_RuinsManager.ResolveRuinsToUpgradeListener.class))
-            l.addListener(new IndEvo_RuinsManager.ResolveRuinsToUpgradeListener(), true);
-        if (!l.hasListenerOfClass(IndEvo_DepositMessage.class)) l.addListener(new IndEvo_DepositMessage(), true);
-        if (!l.hasListenerOfClass(IndEvo_ambassadorPersonManager.class))
-            l.addListener(new IndEvo_ambassadorPersonManager(), true);
+        if (!l.hasListenerOfClass(RuinsManager.ResolveRuinsToUpgradeListener.class))
+            l.addListener(new RuinsManager.ResolveRuinsToUpgradeListener(), true);
+        if (!l.hasListenerOfClass(DepositMessage.class)) l.addListener(new DepositMessage(), true);
+        if (!l.hasListenerOfClass(AmbassadorPersonManager.class))
+            l.addListener(new AmbassadorPersonManager(), true);
         if (!l.hasListenerOfClass(RaidTimeout.class)) l.addListener(new RaidTimeout(), true);
         if (!l.hasListenerOfClass(ShipComponentLootManager.PartsCargoInterceptor.class))
             l.addListener(new ShipComponentLootManager.PartsCargoInterceptor(), true);
@@ -303,11 +303,11 @@ public class ModPlugin extends BaseModPlugin {
 //            l.addListener(new ConverterRepRestetter(), true);
 
         Global.getSector().addTransientListener(new ShipComponentLootManager.PartsLootAdder(false));
-        Global.getSector().addTransientListener(new IndEvo_ambassadorPersonManager.checkAmbassadorPresence());
+        Global.getSector().addTransientListener(new AmbassadorPersonManager.checkAmbassadorPresence());
         Global.getSector().addTransientListener(new DialogueInterceptListener(false));
 
-        IndEvo_RuinsManager.DerelictRuinsPlacer.register();
-        IndEvo_RuinsManager.ResolveRuinsToUpgradeListener.register();
+        RuinsManager.DerelictRuinsPlacer.register();
+        RuinsManager.ResolveRuinsToUpgradeListener.register();
         //ColonyFleetDialogueInterceptListener.register();
         ShippingManager.getInstanceOrRegister();
         DetachmentAbilityAdder.register();
@@ -328,8 +328,8 @@ public class ModPlugin extends BaseModPlugin {
             Global.getSector().addScript(new TimeTracker());
         }
 
-        IndEvo_MagicCampaignTrailPlugin.register();
-        IndEvo_EyeIndicatorScript.register();
+        MagicCampaignTrailPlugin.register();
+        EyeIndicatorScript.register();
 
         //PlayerFleetFollower.register();
     }

@@ -2,7 +2,7 @@ package indevo.industries.academy.rules;
 
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.industries.academy.industry.IndEvo_Academy;
+import indevo.industries.academy.industry.Academy;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
 
@@ -13,6 +13,6 @@ public class IndEvo_PlayerHasOfficerCapacity extends BaseCommandPlugin {
 
     @Override
     public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
-        return IndEvo_Academy.playerHasOfficerCapacity();
+        return Academy.playerHasOfficerCapacity();
     }
 }
