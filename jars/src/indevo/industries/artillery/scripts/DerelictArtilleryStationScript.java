@@ -80,7 +80,7 @@ public class DerelictArtilleryStationScript implements EveryFrameScript, FleetEv
     }
 
     public static final String TYPE_KEY = "$IndEvo_ArtilleryType";
-    public static final String ARTILLERY_KEY = "$ArtilleryStation";
+    public static final String ARTILLERY_KEY = "$IndEvo_ArtilleryStation";
     public static final String SCRIPT_KEY = "$IndEvo_ArtilleryStationScript";
 
     protected CampaignFleetAPI stationFleet = null;

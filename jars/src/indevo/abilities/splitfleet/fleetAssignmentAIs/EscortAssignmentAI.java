@@ -79,7 +79,7 @@ public class EscortAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
     private void engageVisibleHostileFleetsPlayer() {
         if (inBattle || fleet == null) return;
 
-        FleetAssignment currentAssignment = fleet.getCurrentAssignment().getAssignment();
+        FleetAssignment currentAssignment = fleet.getCurrentAssignment() != null ? fleet.getCurrentAssignment().getAssignment() : null;
 
         //Default state means we can engage
         if (FleetAssignment.ORBIT_PASSIVE.equals(currentAssignment)) {

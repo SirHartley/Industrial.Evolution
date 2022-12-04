@@ -1,10 +1,7 @@
 
 --------------------------- To-do -----------------------------
 Bugs
-- Detachment crash: https://discord.com/channels/187635036525166592/619635013201428481/1043634065917608088
 - Artillery stations are stuck in perma-repair on game start and never repair themselves
-- move watchtower placement into the condition
-- artillery station interaction is broken
 - add a watchtower terrain that tells you if you are in wt range
 
 Requests
@@ -75,6 +72,9 @@ Fixed - Transpoofer no longer causes you to fight your own fleet when engaging a
 World Symbols
 Fixed - No longer applies stability bonus to planet when hovering over build menu
 Fixed - Stability bonus now properly spreads to other in-faction planets in the system without needing to open them
+
+Detachments
+Fixed - Mystery crash https://discord.com/channels/187635036525166592/619635013201428481/1043634065917608088
 
 Artillery
 Added - Setting to adjust spawn chance
