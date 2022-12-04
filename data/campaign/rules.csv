@@ -35,7 +35,7 @@ IndEvo_derelictWatchtower,OpenInteractionDialog,"$IndEvo_isArtilleryActive score
 $tag:IndEvo_watchtower",,"Any attempts at connecting to the $entityName get stifled by an obviously AI-backed counter-hack. Your engineers concede defeat after a few minutes to avoid a network breach.
 
 Disabling the entity backing the hacks will probably fix this.",0:defaultLeave:Leave,
-IndEvo_derelictWatchtower_notFunctional,OpenInteractionDialog,"$objectiveNonFunctional score:9999
+IndEvo_derelictWatchtower_notFunctional,OpenInteractionDialog,"$objectiveNonFunctional score:2001
 $tag:IndEvo_watchtower",,"The $entityName lies silent and any attempts at interfacing with it are unsuccessful - it might be in some kind of emergency shutdown.
 
 It is unknown if, and when, it might start working again.",0:defaultLeave:Leave,

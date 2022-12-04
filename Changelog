@@ -1,11 +1,7 @@
 
 --------------------------- To-do -----------------------------
 Bugs
-- add in support for "indevo_compat" tag on orbital station industries to work with artillery stations
-- add in support for starFed station
 - Detachment crash: https://discord.com/channels/187635036525166592/619635013201428481/1043634065917608088
-- blacklist planets with artillery for quests
-- stop artillery from spawning on planets that are quest targets, and from spawning in systems cut off from hyper
 - patrols can capture watchtowers, player can't, fix it so patrols can't if it's locked, either.
 - Seems like watchtowers are perma-locked due to nex interaction? Check that out
 - Artillery stations are stuck in perma-repair on game start and never repair themselves
@@ -93,6 +89,10 @@ Fixed - Eye indicator now works reliably again
 Fixed - Artillery stations now properly target and shoot you upon target lock
 Fixed - Eye no longer shows up in systems with friendly artillery
 Fixed - Now properly reverts to derelict station if there is no other faction claiming the system
+Fixed - Can no longer spawn on alpha site
+Fixed - Can no longer spawn in hidden systems
+Fixed - Planets with artillery are no longer valid targets for missions and quests
+Fixed - Watchtowers can now be interacted with and no longer display "doesn't work"
 
 3.1.f
 General

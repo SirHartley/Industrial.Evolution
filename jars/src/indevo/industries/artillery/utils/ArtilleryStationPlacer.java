@@ -63,7 +63,11 @@ public class ArtilleryStationPlacer {
         Random r = new Random();
 
         OUTER: for (StarSystemAPI s : Global.getSector().getStarSystems()) {
-            if (s == null || s.getPlanets().isEmpty() || !Misc.getMarketsInLocation(s).isEmpty()) continue;
+            if (s == null
+                    || s.getPlanets().isEmpty()
+                    || !Misc.getMarketsInLocation(s).isEmpty()
+                    || s.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)
+                    || s.hasTag(Tags.THEME_HIDDEN)) continue;
 
             float baseMod = 0.002f;
             if (s.getTags().contains(Tags.THEME_REMNANT_SUPPRESSED)) baseMod += 0.02f;
@@ -77,7 +81,7 @@ public class ArtilleryStationPlacer {
             }
 
             for (PlanetAPI p : s.getPlanets()) {
-                if (p.isStar() || p.getMarket() == null) continue;
+                if (p.isStar() || p.getMarket() == null || p.hasTag(Tags.NOT_RANDOM_MISSION_TARGET)) continue;
 
                 float planetMod = baseMod;
                 planetMod += TechMining.getTechMiningRuinSizeModifier(p.getMarket()) * 0.05f;

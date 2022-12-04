@@ -50,6 +50,7 @@ public class DerelictArtilleryStationScript implements EveryFrameScript, FleetEv
             planet.addScript(script);
             planet.getMemoryWithoutUpdate().set(SCRIPT_KEY, script);
             planet.getMarket().addTag(Ids.TAG_ARTILLERY_STATION);
+            planet.addTag(Tags.NOT_RANDOM_MISSION_TARGET);
             planet.getContainingLocation().addTag(Ids.TAG_SYSTEM_HAS_ARTILLERY);
 
             if (!planet.getMarket().hasCondition(ArtilleryStationCondition.ID)) planet.getMarket().addCondition(ArtilleryStationCondition.ID);

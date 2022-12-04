@@ -157,28 +157,29 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     }
 
     public void printEffect(TooltipMakerAPI text, float pad) {
+        if (!isFunctional() || isReset()) {
+            text.addPara(BaseIntelPlugin.INDENT + "Not functional for unknown reasons", 3f);
+            return;
+        }
+
         if(isHacked()) {
             text.addPara(BaseIntelPlugin.INDENT + "%s, ignoring your fleet",
                     pad, Misc.getHighlightColor(), "Hacked");
 
         } else text.addPara(BaseIntelPlugin.INDENT + "Transmits target telemetry within %s range",
                 pad, Misc.getHighlightColor(), Math.round(RANGE) + " su");
-
-        if (!isFunctional() || isReset()) {
-            text.addPara(BaseIntelPlugin.INDENT + "Not functional for unknown reasons", 3f);
-        }
     }
 
     public boolean isFunctional(){
-        return entity.getMemoryWithoutUpdate().getBoolean(MemFlags.OBJECTIVE_NON_FUNCTIONAL);
+        return !entity.getMemoryWithoutUpdate().getBoolean(MemFlags.OBJECTIVE_NON_FUNCTIONAL);
     }
 
     public void setFunctional(boolean functional){
-        entity.getMemoryWithoutUpdate().set(MemFlags.OBJECTIVE_NON_FUNCTIONAL, functional);
+        entity.getMemoryWithoutUpdate().set(MemFlags.OBJECTIVE_NON_FUNCTIONAL, !functional);
     }
 
     public void printNonFunctionalAndHackDescription(TextPanelAPI text) {
-        if (entity.getMemoryWithoutUpdate().getBoolean(MemFlags.OBJECTIVE_NON_FUNCTIONAL)) {
+        if (!isFunctional()) {
             text.addPara("This one, however, does not appear to be transmitting a target telemetry. The cause of its lack of function is unknown.");
         }
         if (isHacked()) {
