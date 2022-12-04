@@ -27,7 +27,7 @@ public class RequisitionCenter extends BaseIndustry {
     public static final float MED_REP_REQUIREMENT = 0.5f;
     public static final float HIGH_REP_REQUIREMENT = 0.7f;
 
-    public static final String IDENT = "RequisitionCenter";
+    public static final String IDENT = "IndEvo_RequCenter";
 
     public void apply() {
         super.apply(true);
@@ -47,12 +47,12 @@ public class RequisitionCenter extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Global.getSettings().getBoolean("RequisitionCenter");
+        return Global.getSettings().getBoolean("ReqCenter");
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("RequisitionCenter");
+        return Global.getSettings().getBoolean("ReqCenter");
     }
 
     @Override

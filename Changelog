@@ -1,13 +1,6 @@
 
 --------------------------- To-do -----------------------------
-Validate
-- Artillery eye should be working and changing location as intended
-
 Bugs
-- Eye shows up in systems with friendly artillery
-- while you are hovering over the "World Symbols" category in the industry install tab it
-    will increase the colony stability by one, though removing that again once you hover over something else
-- World symbol bonus only applies while colony is open and doesn't apply at all to other colonies in system
 - Transpoofer should reset faction to base on docking so it doesn't pull your own fleet into station battles
 - add in support for "indevo_compat" tag on orbital station industries to work with artillery stations
 - add in support for starFed station
@@ -27,6 +20,7 @@ Requests
 - Add keyboard shortcuts to all indEvo industry menu points
 - Make it so if we kill the artillery station we can convert its husk into a outpost without having to colonize the planet
 - Minefield and artillery as planet conditions so it shows up in search
+- Watchtowers buildable in stable loc
 
 Upcoming
 - Add a secondary way to access colony options
@@ -84,12 +78,17 @@ Techmining
 Removed - Techmining progress indicator (Download Better Colonies instead!)
 Removed - Vanilla techmining override
 
+World Symbols
+Fixed - No longer applies stability bonus to planet when hovering over build menu
+Fixed - Stability bonus now properly spreads to other in-faction planets in the system without needing to open them
+
 Artillery
 Added - Setting to adjust spawn chance
 Adjusted - Derelict artillery is now rarer (about half)
 Adjusted - Now ignores Epta tradestations for faction change
 Fixed - Eye indicator now works reliably again
 Fixed - Artillery stations now properly target and shoot you upon target lock
+Fixed - Eye no longer shows up in systems with friendly artillery
 Fixed - Now properly reverts to derelict station if there is no other faction claiming the system
 
 3.1.f

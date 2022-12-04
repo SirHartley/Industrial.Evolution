@@ -24,6 +24,8 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
     public static final String HAS_AWARDED_SP = "$IndEvo_hasAwardedSP";
     public static final String ALTERNATE_VISUAL = "$IndEvo_alternateWonderVisual";
 
+    public static final String TAG_SYSTEM_HAS_WONDER = "IndEvo_hasWonder";
+
     public boolean isAlternateVisual = false;
 
     @Override
@@ -83,8 +85,9 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
     public void apply() {
         super.apply(true);
 
-        if (isFunctional()) {
+        if (isFunctional() && currTooltipMode != IndustryTooltipMode.ADD_INDUSTRY) {
             Global.getSector().getListenerManager().addListener(this, true);
+            market.getStarSystem().addTag(TAG_SYSTEM_HAS_WONDER);
 
             for (MarketAPI market : Misc.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
                if(!market.hasCondition(Ids.COND_WORLD_WONDER)) market.addCondition(Ids.COND_WORLD_WONDER);
@@ -118,6 +121,7 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
     @Override
     public void unapply() {
         super.unapply();
+        market.getStarSystem().removeTag(TAG_SYSTEM_HAS_WONDER);
         Global.getSector().getListenerManager().removeListener(this);
     }
 

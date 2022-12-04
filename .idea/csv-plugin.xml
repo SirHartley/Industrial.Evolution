@@ -122,13 +122,6 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\data\config\indEvo\doritoguns_classes.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="\data\config\indEvo\embassy_whitelist.csv">
           <value>
             <Attribute>

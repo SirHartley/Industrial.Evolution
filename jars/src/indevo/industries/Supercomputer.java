@@ -344,12 +344,12 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
     }
 
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("Supercomputer");
+        return Global.getSettings().getBoolean("SupCom");
     }
 
     @Override
     public boolean isAvailableToBuild() {
-        if (!Global.getSettings().getBoolean("Supercomputer")) return false;
+        if (!Global.getSettings().getBoolean("SupCom")) return false;
 
         if (hascond(Conditions.HOT) || hascond(Conditions.VERY_HOT)) {
             return false;

@@ -98,11 +98,11 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
     @Override
     public boolean isAvailableToBuild() {
-        return Global.getSettings().getBoolean("CommodityForge");
+        return Global.getSettings().getBoolean("ComForge");
     }
 
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("CommodityForge");
+        return Global.getSettings().getBoolean("ComForge");
     }
 
     private void autoFeed() {
@@ -116,7 +116,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
                     setSpecialItem(stack.getSpecialDataIfSpecial());
                     cargo.removeItems(CargoAPI.CargoItemType.SPECIAL, stack.getSpecialDataIfSpecial(), 1);
 
-                    Global.getSector().getCampaignUI().addMessage(StringHelper.getString("CommodityForge", "indStorageMessage"),
+                    Global.getSector().getCampaignUI().addMessage(StringHelper.getString("IndEvo_ComForge", "indStorageMessage"),
                             Global.getSettings().getColor("standardTextColor"),
                             Global.getSettings().getSpecialItemSpec(stack.getSpecialDataIfSpecial().getId()).getName(),
                             market.getName(),
@@ -227,7 +227,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
     }
 
     private void fireBurnedOutMessage() {
-        MessageIntel intel = new MessageIntel(StringHelper.getString("CommodityForge", "burnOutMessage") + market.getName(), Misc.getNegativeHighlightColor());
+        MessageIntel intel = new MessageIntel(StringHelper.getString("IndEvo_ComForge", "burnOutMessage") + market.getName(), Misc.getNegativeHighlightColor());
         intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "VPCRemovalIcon"));
         intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
         Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
@@ -251,9 +251,9 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
                     && currTooltipMode.equals(IndustryTooltipMode.NORMAL)) {
 
                 if (!vpcIsLocked) {
-                    tooltip.addPara("%s", 10, bad, StringHelper.getStringAndSubstituteToken("CommodityForge", "canRemoveVPC", "$days", getVpcLockTimeDays() + ""));
+                    tooltip.addPara("%s", 10, bad, StringHelper.getStringAndSubstituteToken("IndEvo_ComForge", "canRemoveVPC", "$days", getVpcLockTimeDays() + ""));
                 } else {
-                    tooltip.addPara("%s", 10, bad, StringHelper.getString("CommodityForge", "canNotRemoveVPC"));
+                    tooltip.addPara("%s", 10, bad, StringHelper.getString("IndEvo_ComForge", "canNotRemoveVPC"));
                 }
 
                 Pair<String, String> vpcCommodityIds = ItemIds.getVPCCommodityIds(getSpecialItem().getId());
@@ -283,7 +283,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
                     timeString = (getDaysOfCurrentMonth() - Global.getSector().getClock().getDay() + 1) + StringHelper.getString("daysWithFrontSpace");
                 }
 
-                tooltip.addPara(StringHelper.getString("CommodityForge", "vpcLockTime"), opad, highlight, timeString);
+                tooltip.addPara(StringHelper.getString("IndEvo_ComForge", "vpcLockTime"), opad, highlight, timeString);
 
             }
         }
@@ -308,7 +308,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
-        String effect = StringHelper.getString("CommodityForge", "aCoreEffect");
+        String effect = StringHelper.getString("IndEvo_ComForge", "aCoreEffect");
         String highlightString = (DEFAULT_MAX_DEPOSITS - ALPHA_CORE_MAX_DEPOSITS) + StringHelper.getString("monthWithFrontSpace");
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -327,7 +327,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
-        String effect = StringHelper.getString("CommodityForge", "bCoreEffect");
+        String effect = StringHelper.getString("IndEvo_ComForge", "bCoreEffect");
         String highlightString = StringHelper.getAbsPercentString(BETA_CORE_UPKEEP_RED_MULT, true);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -390,7 +390,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
-        tooltip.addPara(StringHelper.getString("CommodityForge", "indStorageTooltip"), 10f, Misc.getHighlightColor(), StringHelper.getString("IndEvo_items", "VPCs"));
+        tooltip.addPara(StringHelper.getString("IndEvo_ComForge", "indStorageTooltip"), 10f, Misc.getHighlightColor(), StringHelper.getString("IndEvo_items", "VPCs"));
     }
 
     @Override
