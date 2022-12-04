@@ -2,7 +2,6 @@
 --------------------------- To-do -----------------------------
 Bugs
 - Artillery stations are stuck in perma-repair on game start and never repair themselves
-- add a watchtower terrain that tells you if you are in wt range
 
 Requests
 - Add keyboard shortcuts to all indEvo industry menu points
@@ -79,10 +78,11 @@ Fixed - Mystery crash https://discord.com/channels/187635036525166592/6196350132
 Artillery
 Added - Setting to adjust spawn chance
 Added - Tag "indevo_compat" and functionality to allow other authors to implement orbital station compatibility
-Adjusted - Derelict artillery is now rarer (about half)
+Adjusted - Derelict artillery is now rarer (about 30% less)
 Adjusted - Now ignores Epta tradestations for faction change
 Adjusted - Watchtowers now spawn when artillery condition is applied to planet
 Fixed - Eye indicator now works reliably again
+Fixed - Eye no longer shows up if artillery is not hostile or broken
 Fixed - Artillery stations now properly target and shoot you upon target lock
 Fixed - Eye no longer shows up in systems with friendly artillery
 Fixed - Now properly reverts to derelict station if there is no other faction claiming the system

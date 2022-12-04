@@ -2,7 +2,7 @@ package indevo.industries.artillery.utils;
 
 import com.fs.starfarer.api.Global;
 import indevo.ids.Ids;
-import indevo.industries.artillery.scripts.DerelictArtilleryStationScript;
+import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import com.fs.starfarer.api.campaign.*;
@@ -22,7 +22,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import java.util.List;
 import java.util.Random;
 
-import static indevo.industries.artillery.scripts.DerelictArtilleryStationScript.TYPE_KEY;
+import static indevo.industries.artillery.scripts.ArtilleryStationScript.TYPE_KEY;
 
 public class ArtilleryStationPlacer {
 
@@ -32,21 +32,21 @@ public class ArtilleryStationPlacer {
                 || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedArtilleries")) return;
 
         MarketAPI m = Global.getSector().getEconomy().getMarket("eochu_bres");
-        DerelictArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
+        ArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
         m.addIndustry(Ids.ARTILLERY_RAILGUN);
         m.getIndustry(Ids.ARTILLERY_RAILGUN).setAICoreId(Commodities.ALPHA_CORE);
 
         m = Global.getSector().getEconomy().getMarket("chicomoztoc");
-        DerelictArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
+        ArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
         m.addIndustry(Ids.ARTILLERY_MORTAR);
 
         m = Global.getSector().getEconomy().getMarket("kazeron");
-        DerelictArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
+        ArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
         m.addIndustry(Ids.ARTILLERY_MISSILE);
         m.getIndustry(Ids.ARTILLERY_MISSILE).setAICoreId(Commodities.GAMMA_CORE);
 
         m = Global.getSector().getEconomy().getMarket("sindria");
-        DerelictArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
+        ArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
         m.addIndustry(Ids.ARTILLERY_MISSILE);
 
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedArtilleries", true);
@@ -65,11 +65,11 @@ public class ArtilleryStationPlacer {
                     || s.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)
                     || s.hasTag(Tags.THEME_HIDDEN)) continue;
 
-            float baseMod = 0.002f;
+            float baseMod = 0.003f;
             if (s.getTags().contains(Tags.THEME_REMNANT_SUPPRESSED)) baseMod += 0.02f;
             if (s.getTags().contains(Tags.THEME_REMNANT_RESURGENT)) baseMod += 0.1f;
             if (s.getTags().contains(Tags.THEME_DERELICT_CRYOSLEEPER)) baseMod += 0.05f;
-            if (s.getTags().contains(Tags.THEME_RUINS)) baseMod += 0.01f;
+            if (s.getTags().contains(Tags.THEME_RUINS)) baseMod += 0.02f;
 
             boolean hasRemnantStation = false;
             for (CampaignFleetAPI fleet : s.getFleets()){
@@ -80,13 +80,13 @@ public class ArtilleryStationPlacer {
                 if (p.isStar() || p.getMarket() == null || p.hasTag(Tags.NOT_RANDOM_MISSION_TARGET)) continue;
 
                 float planetMod = baseMod;
-                planetMod += TechMining.getTechMiningRuinSizeModifier(p.getMarket()) * 0.05f;
+                planetMod += TechMining.getTechMiningRuinSizeModifier(p.getMarket()) * 0.1f;
                 planetMod *= Global.getSettings().getFloat("IndEvo_Artillery_spawnWeight");
 
                 if (r.nextFloat() < planetMod){
                     if (hasRemnantStation) p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, ArtilleryStationEntityPlugin.TYPE_MISSILE);
 
-                    DerelictArtilleryStationScript.addArtilleryToPlanet(p, false);
+                    ArtilleryStationScript.addArtilleryToPlanet(p, false);
 
                     ModPlugin.log("Placed artillery at " + p.getName() + " system: " + s.getName());
                     currentCount++;

@@ -41,12 +41,12 @@ import static indevo.industries.artillery.entities.WatchtowerEntityPlugin.MEM_SE
  * PERMANENT
  */
 
-public class DerelictArtilleryStationScript implements EveryFrameScript, FleetEventListener {
+public class ArtilleryStationScript implements EveryFrameScript, FleetEventListener {
 
     public static void addArtilleryToPlanet(SectorEntityToken planet, boolean isDestroyed) {
-        if (!planet.hasScriptOfClass(DerelictArtilleryStationScript.class)) {
+        if (!planet.hasScriptOfClass(ArtilleryStationScript.class)) {
 
-            DerelictArtilleryStationScript script = new DerelictArtilleryStationScript(planet.getMarket());
+            ArtilleryStationScript script = new ArtilleryStationScript(planet.getMarket());
             script.setDestroyed(isDestroyed);
             planet.addScript(script);
             planet.getMemoryWithoutUpdate().set(SCRIPT_KEY, script);
@@ -65,7 +65,7 @@ public class DerelictArtilleryStationScript implements EveryFrameScript, FleetEv
         }
     }
 
-    private DerelictArtilleryStationScript(MarketAPI market) {
+    private ArtilleryStationScript(MarketAPI market) {
         this.primaryEntity = market.getPrimaryEntity();
     }
 
@@ -94,12 +94,12 @@ public class DerelictArtilleryStationScript implements EveryFrameScript, FleetEv
     protected SectorEntityToken primaryEntity;
 
     public static CampaignFleetAPI getStationFleet(SectorEntityToken entity) {
-        DerelictArtilleryStationScript script;
+        ArtilleryStationScript script;
 
         if (entity instanceof PlanetAPI) {
-            script = (DerelictArtilleryStationScript) entity.getMemoryWithoutUpdate().get(SCRIPT_KEY);
+            script = (ArtilleryStationScript) entity.getMemoryWithoutUpdate().get(SCRIPT_KEY);
         } else {
-            script = (DerelictArtilleryStationScript) entity.getOrbitFocus().getMemoryWithoutUpdate().get(SCRIPT_KEY);
+            script = (ArtilleryStationScript) entity.getOrbitFocus().getMemoryWithoutUpdate().get(SCRIPT_KEY);
         }
 
         return script.getStationFleet();
@@ -107,7 +107,7 @@ public class DerelictArtilleryStationScript implements EveryFrameScript, FleetEv
 
     public static SectorEntityToken getArtilleryStation(SectorEntityToken planet) {
         SectorEntityToken t = null;
-        DerelictArtilleryStationScript script = (DerelictArtilleryStationScript) planet.getMemoryWithoutUpdate().get(SCRIPT_KEY);
+        ArtilleryStationScript script = (ArtilleryStationScript) planet.getMemoryWithoutUpdate().get(SCRIPT_KEY);
         if (script != null) t = script.getStationEntity();
 
         return t;

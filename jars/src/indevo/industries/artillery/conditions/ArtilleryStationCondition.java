@@ -1,6 +1,6 @@
 package indevo.industries.artillery.conditions;
 
-import indevo.industries.artillery.scripts.DerelictArtilleryStationScript;
+import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -19,7 +19,7 @@ public class ArtilleryStationCondition extends BaseHazardCondition {
         super.advance(amount);
 
         if(setup) {
-            DerelictArtilleryStationScript.addArtilleryToPlanet(market.getPrimaryEntity(), true);
+            ArtilleryStationScript.addArtilleryToPlanet(market.getPrimaryEntity(), true);
             setup = false;
         }
     }

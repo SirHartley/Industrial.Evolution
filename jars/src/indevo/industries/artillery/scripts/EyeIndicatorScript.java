@@ -53,14 +53,30 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
             ModPlugin.log("moving eye to current location");
         }
 
-        if (!checkInterval.intervalElapsed()) return;
-        if (player.isInHyperspace() || player.getContainingLocation().getMemoryWithoutUpdate().getBoolean(Ids.MEM_SYSTEM_DISABLE_WATCHTOWERS)) return;
-
-        amount += checkInterval.getIntervalDuration(); //increment by interval since the amount is missing from last advance
         LocationAPI loc = indicator.getContainingLocation();
 
-        if (!loc.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY)) return;
+        if (!checkInterval.intervalElapsed()
+                || player.isInHyperspace()
+                || loc.getMemoryWithoutUpdate().getBoolean(Ids.MEM_SYSTEM_DISABLE_WATCHTOWERS)
+                || !loc.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY)) return;
 
+        //check if there's a hostile arty, if not, we reset to 0 and cycle
+        boolean hostileArtilleryPresent = false;
+        for (SectorEntityToken t : loc.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION)){
+            if (t.getFaction().isHostileTo(player.getFaction())) {
+                hostileArtilleryPresent = true;
+                break;
+            }
+        }
+
+        if (!hostileArtilleryPresent) {
+            elapsed = 0f;
+            cycleActions();
+            return;
+        }
+
+        //otherwise, we do all the other stuff
+        amount += checkInterval.getIntervalDuration(); //increment by interval since the amount is missing from last advance
         cycleActions();
 
         boolean inFleetRange = false;
@@ -156,7 +172,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         plugin.setState(state);
         plugin.setLocked(isLocked);
 
-        ModPlugin.log("Eye reporting status " + plugin.state + " at " + elapsed + ", locked: " + isLocked);
+        //ModPlugin.log("Eye reporting status " + plugin.state + " at " + elapsed + ", locked: " + isLocked);
     }
 
     @Override

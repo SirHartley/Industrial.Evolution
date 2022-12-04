@@ -1,7 +1,7 @@
 package indevo.industries.artillery.rules;
 
 import com.fs.starfarer.api.Global;
-import indevo.industries.artillery.scripts.DerelictArtilleryStationScript;
+import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -20,13 +20,13 @@ import org.json.JSONObject;
 
 import java.util.Random;
 
-import static indevo.industries.artillery.scripts.DerelictArtilleryStationScript.TYPE_KEY;
+import static indevo.industries.artillery.scripts.ArtilleryStationScript.TYPE_KEY;
 
 public class IndEvo_ArtilleryDefenderGen {
 
     public static CampaignFleetAPI getFleetForPlanet(SectorEntityToken planet, String factionID){
         CampaignFleetAPI defenders = planet.getMemoryWithoutUpdate().getFleet("$defenderFleet");
-        SectorEntityToken station = DerelictArtilleryStationScript.getArtilleryStation(planet);
+        SectorEntityToken station = ArtilleryStationScript.getArtilleryStation(planet);
         CampaignFleetAPI artilleryDefenders = station != null ? station.getMemoryWithoutUpdate().getFleet("$defenderFleet") : null;
 
         if (defenders != null) {

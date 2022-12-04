@@ -1,7 +1,7 @@
 package indevo.industries.artillery.rules;
 
 import com.fs.starfarer.api.Global;
-import indevo.industries.artillery.scripts.DerelictArtilleryStationScript;
+import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.BattleCreationContext;
@@ -31,7 +31,7 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
         final SectorEntityToken entity = dialog.getInteractionTarget();
         final MemoryAPI memory = getEntityMemory(memoryMap);
 
-        String factionID = entity instanceof PlanetAPI ? DerelictArtilleryStationScript.getArtilleryStation(entity).getFaction().getId() : entity.getFaction().getId();
+        String factionID = entity instanceof PlanetAPI ? ArtilleryStationScript.getArtilleryStation(entity).getFaction().getId() : entity.getFaction().getId();
 
         final CampaignFleetAPI defenders = IndEvo_ArtilleryDefenderGen.getFleetForPlanet(entity, factionID);
 
@@ -93,7 +93,7 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
                                 SalvageGenFromSeed.SalvageDefenderModificationPlugin.class, p);
                         if (plugin != null) {
 
-                            CampaignFleetAPI stationEntity = DerelictArtilleryStationScript.getStationFleet(entity);
+                            CampaignFleetAPI stationEntity = ArtilleryStationScript.getStationFleet(entity);
                             Iterator var8 = stationEntity.getFleetData().getMembersListCopy().iterator();
 
                             while(var8.hasNext()) {
@@ -132,7 +132,7 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
                                 entity.addScript(new FleetAdvanceScript(defenders));
                             }
                             memory.expire("$defenderFleet", 10); // defenders may have gotten damaged; persist them for a bit
-                            if (entity instanceof PlanetAPI) DerelictArtilleryStationScript.getArtilleryStation(entity).getMemoryWithoutUpdate().set("$defenderFleet", defenders, 10f);
+                            if (entity instanceof PlanetAPI) ArtilleryStationScript.getArtilleryStation(entity).getMemoryWithoutUpdate().set("$defenderFleet", defenders, 10f);
                         }
                         dialog.dismiss();
                     }
