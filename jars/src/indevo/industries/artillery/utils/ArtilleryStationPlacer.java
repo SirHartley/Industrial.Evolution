@@ -32,25 +32,21 @@ public class ArtilleryStationPlacer {
                 || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedArtilleries")) return;
 
         MarketAPI m = Global.getSector().getEconomy().getMarket("eochu_bres");
-        DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
-        placeWatchtowers(m.getStarSystem(), Factions.TRITACHYON);
+        DerelictArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
         m.addIndustry(Ids.ARTILLERY_RAILGUN);
         m.getIndustry(Ids.ARTILLERY_RAILGUN).setAICoreId(Commodities.ALPHA_CORE);
 
         m = Global.getSector().getEconomy().getMarket("chicomoztoc");
-        DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
-        placeWatchtowers(m.getStarSystem(), Factions.HEGEMONY);
+        DerelictArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
         m.addIndustry(Ids.ARTILLERY_MORTAR);
 
         m = Global.getSector().getEconomy().getMarket("kazeron");
-        DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
-        placeWatchtowers(m.getStarSystem(), Factions.PERSEAN);
+        DerelictArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
         m.addIndustry(Ids.ARTILLERY_MISSILE);
         m.getIndustry(Ids.ARTILLERY_MISSILE).setAICoreId(Commodities.GAMMA_CORE);
 
         m = Global.getSector().getEconomy().getMarket("sindria");
-        DerelictArtilleryStationScript.addDerelictArtyToPlanet(m.getPrimaryEntity(), true);
-        placeWatchtowers(m.getStarSystem(), Factions.DIKTAT);
+        DerelictArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
         m.addIndustry(Ids.ARTILLERY_MISSILE);
 
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedArtilleries", true);
@@ -90,8 +86,7 @@ public class ArtilleryStationPlacer {
                 if (r.nextFloat() < planetMod){
                     if (hasRemnantStation) p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, ArtilleryStationEntityPlugin.TYPE_MISSILE);
 
-                    DerelictArtilleryStationScript.addDerelictArtyToPlanet(p, false);
-                    placeWatchtowers(s, Ids.DERELICT_FACTION_ID);
+                    DerelictArtilleryStationScript.addArtilleryToPlanet(p, false);
 
                     ModPlugin.log("Placed artillery at " + p.getName() + " system: " + s.getName());
                     currentCount++;

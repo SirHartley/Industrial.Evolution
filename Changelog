@@ -2,11 +2,7 @@
 --------------------------- To-do -----------------------------
 Bugs
 - Detachment crash: https://discord.com/channels/187635036525166592/619635013201428481/1043634065917608088
-- patrols can capture watchtowers, player can't, fix it so patrols can't if it's locked, either.
-- Seems like watchtowers are perma-locked due to nex interaction? Check that out
 - Artillery stations are stuck in perma-repair on game start and never repair themselves
-- reduce artillery station spawn rate
-- force presence in systems with nexus
 - move watchtower placement into the condition
 - artillery station interaction is broken
 - add a watchtower terrain that tells you if you are in wt range
@@ -85,6 +81,7 @@ Added - Setting to adjust spawn chance
 Added - Tag "indevo_compat" and functionality to allow other authors to implement orbital station compatibility
 Adjusted - Derelict artillery is now rarer (about half)
 Adjusted - Now ignores Epta tradestations for faction change
+Adjusted - Watchtowers now spawn when artillery condition is applied to planet
 Fixed - Eye indicator now works reliably again
 Fixed - Artillery stations now properly target and shoot you upon target lock
 Fixed - Eye no longer shows up in systems with friendly artillery
@@ -93,6 +90,7 @@ Fixed - Can no longer spawn on alpha site
 Fixed - Can no longer spawn in hidden systems
 Fixed - Planets with artillery are no longer valid targets for missions and quests
 Fixed - Watchtowers can now be interacted with and no longer display "doesn't work"
+Fixed - Watchtowers can now be captured by player when not under AI control (remnant/derelict)
 
 3.1.f
 General

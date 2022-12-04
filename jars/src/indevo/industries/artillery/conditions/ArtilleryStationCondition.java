@@ -12,15 +12,15 @@ public class ArtilleryStationCondition extends BaseHazardCondition {
     public static final String ARTILLERY_KEY = "$ArtilleryStation";
     public static final String ARTILLERY_DESTROYED = "$IndEvo_ArtilleryStation_Destroyed";
 
-    public boolean script = true;
+    public boolean setup = true;
 
     @Override
     public void advance(float amount) {
         super.advance(amount);
 
-        if(script) {
-            DerelictArtilleryStationScript.addDerelictArtyToPlanet(market.getPrimaryEntity(), true);
-            script = false;
+        if(setup) {
+            DerelictArtilleryStationScript.addArtilleryToPlanet(market.getPrimaryEntity(), true);
+            setup = false;
         }
     }
 

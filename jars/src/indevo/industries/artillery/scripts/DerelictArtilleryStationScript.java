@@ -26,6 +26,7 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGener
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGeneratorPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
+import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
@@ -42,7 +43,7 @@ import static indevo.industries.artillery.entities.WatchtowerEntityPlugin.MEM_SE
 
 public class DerelictArtilleryStationScript implements EveryFrameScript, FleetEventListener {
 
-    public static void addDerelictArtyToPlanet(SectorEntityToken planet, boolean isDestroyed) {
+    public static void addArtilleryToPlanet(SectorEntityToken planet, boolean isDestroyed) {
         if (!planet.hasScriptOfClass(DerelictArtilleryStationScript.class)) {
 
             DerelictArtilleryStationScript script = new DerelictArtilleryStationScript(planet.getMarket());
@@ -52,6 +53,13 @@ public class DerelictArtilleryStationScript implements EveryFrameScript, FleetEv
             planet.getMarket().addTag(Ids.TAG_ARTILLERY_STATION);
             planet.addTag(Tags.NOT_RANDOM_MISSION_TARGET);
             planet.getContainingLocation().addTag(Ids.TAG_SYSTEM_HAS_ARTILLERY);
+
+            StarSystemAPI starSystem = planet.getStarSystem();
+
+            if (starSystem.getEntitiesWithTag(Ids.TAG_WATCHTOWER).isEmpty()) {
+                String faction = planet.getMarket() != null && (planet.getMarket().isPlanetConditionMarketOnly() || Factions.NEUTRAL.equals(planet.getMarket().getFactionId())) ? Ids.DERELICT_FACTION_ID : planet.getMarket().getFactionId();
+                ArtilleryStationPlacer.placeWatchtowers(starSystem, faction);
+            }
 
             if (!planet.getMarket().hasCondition(ArtilleryStationCondition.ID)) planet.getMarket().addCondition(ArtilleryStationCondition.ID);
         }
