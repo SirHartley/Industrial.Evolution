@@ -4,6 +4,9 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
+import com.fs.starfarer.api.campaign.PlayerMarketTransaction;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.campaign.listeners.ColonyInteractionListener;
 import indevo.items.consumables.itemPlugins.SpooferConsumableItemPlugin;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -15,7 +18,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
-public class SpooferAbilityPlugin extends BaseConsumableAbilityPlugin {
+public class SpooferAbilityPlugin extends BaseConsumableAbilityPlugin implements ColonyInteractionListener {
 
     //change player fleet faction to selected faction
     //if within 100 SU of enemy, disable
@@ -23,13 +26,17 @@ public class SpooferAbilityPlugin extends BaseConsumableAbilityPlugin {
 
     public static final float DISABLE_RANGE = 100f;
     public String originalFaction = null;
+    public String targetFaction = null;
     private final static int CIRCLE_POINTS = 50;
 
     @Override
     protected void activateImpl() {
-        originalFaction = entity.getFaction().getId();
-        entity.setFaction(SpooferConsumableItemPlugin.getCurrentFaction());
+        Global.getSector().getListenerManager().addListener(this);
 
+        originalFaction = entity.getFaction().getId();
+        targetFaction = SpooferConsumableItemPlugin.getCurrentFaction();
+
+        entity.setFaction(targetFaction);
         entity.setTransponderOn(true);
     }
 
@@ -56,7 +63,7 @@ public class SpooferAbilityPlugin extends BaseConsumableAbilityPlugin {
 
     @Override
     protected void cleanupImpl() {
-
+        Global.getSector().getListenerManager().removeListener(this);
     }
 
     public static final float MAX_ALPHA = 0.4f;
@@ -125,5 +132,25 @@ public class SpooferAbilityPlugin extends BaseConsumableAbilityPlugin {
         tooltip.addPara("Currently set to: %s", opad, faction.getColor(),
                 Misc.ucFirst(faction.getDisplayName()));
         tooltip.addPara("[Use arrow keys to change the faction]",Misc.getGrayColor(), 3f);
+    }
+
+    @Override
+    public void reportPlayerOpenedMarket(MarketAPI market) {
+        entity.setFaction(originalFaction);
+    }
+
+    @Override
+    public void reportPlayerClosedMarket(MarketAPI market) {
+        entity.setFaction(targetFaction);
+    }
+
+    @Override
+    public void reportPlayerOpenedMarketAndCargoUpdated(MarketAPI market) {
+
+    }
+
+    @Override
+    public void reportPlayerMarketTransaction(PlayerMarketTransaction transaction) {
+
     }
 }

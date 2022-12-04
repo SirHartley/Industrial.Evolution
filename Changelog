@@ -1,7 +1,6 @@
 
 --------------------------- To-do -----------------------------
 Bugs
-- Transpoofer should reset faction to base on docking so it doesn't pull your own fleet into station battles
 - add in support for "indevo_compat" tag on orbital station industries to work with artillery stations
 - add in support for starFed station
 - Detachment crash: https://discord.com/channels/187635036525166592/619635013201428481/1043634065917608088
@@ -78,12 +77,16 @@ Techmining
 Removed - Techmining progress indicator (Download Better Colonies instead!)
 Removed - Vanilla techmining override
 
+Items
+Fixed - Transpoofer no longer causes you to fight your own fleet when engaging a station while it is active
+
 World Symbols
 Fixed - No longer applies stability bonus to planet when hovering over build menu
 Fixed - Stability bonus now properly spreads to other in-faction planets in the system without needing to open them
 
 Artillery
 Added - Setting to adjust spawn chance
+Added - Tag "indevo_compat" and functionality to allow other authors to implement orbital station compatibility
 Adjusted - Derelict artillery is now rarer (about half)
 Adjusted - Now ignores Epta tradestations for faction change
 Fixed - Eye indicator now works reliably again

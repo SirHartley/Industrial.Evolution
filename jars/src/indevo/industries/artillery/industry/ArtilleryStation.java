@@ -94,14 +94,19 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
         return isSuperFunctional && hasOrbital && hasValidStation();
     }
 
+    private boolean isValidOrbitalIndustry(Industry ind){
+        boolean isCorrectClass = ind.getSpec().getPluginClass().equals("indevo.industries.OrbitalStation");
+        boolean hasCompatTag = ind.getSpec().hasTag("indevo_compat");
+        boolean isStation = ind.getSpec().hasTag(Tags.STATION);
+
+        return isStation && (isCorrectClass || hasCompatTag);
+    }
+
     private boolean hasValidStation() {
         for (Industry ind : market.getIndustries()) {
             if (ind == this) continue;
             if (!ind.isFunctional()) continue;
-            if (ind.getSpec().hasTag(Tags.STATION)
-                    && ind.getSpec().getPluginClass().equals("indevo.industries.OrbitalStation")) {
-                return true;
-            }
+            if (isValidOrbitalIndustry(ind)) return true;
         }
 
         return false;
