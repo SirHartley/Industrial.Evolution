@@ -3,6 +3,7 @@ package indevo.exploration.minefields.conditions;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
+import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
 import com.fs.starfarer.api.impl.campaign.econ.BaseMarketConditionPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
@@ -14,7 +15,7 @@ import org.apache.log4j.Logger;
 
 import java.awt.*;
 
-public class MineFieldCondition extends BaseMarketConditionPlugin {
+public class MineFieldCondition extends BaseHazardCondition {
 
     public static final String NO_ADD_BELT_VISUAL = "$IndEvo_NoAsteroids";
     public static final String MINE_FIELD_ID_KEY = "$IndEvo_MineFieldRefKey";

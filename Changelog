@@ -6,7 +6,6 @@ Bugs
 Requests
 - Add keyboard shortcuts to all indEvo industry menu points
 - Make it so if we kill the artillery station we can convert its husk into a outpost without having to colonize the planet
-- Minefield and artillery as planet conditions so it shows up in search
 - Watchtowers buildable in stable loc
 
 Upcoming
@@ -75,12 +74,16 @@ Fixed - Stability bonus now properly spreads to other in-faction planets in the 
 Detachments
 Fixed - Mystery crash https://discord.com/channels/187635036525166592/619635013201428481/1043634065917608088
 
+Minefields
+Adjusted - Condition is now visible in planet search
+
 Artillery
 Added - Setting to adjust spawn chance
 Added - Tag "indevo_compat" and functionality to allow other authors to implement orbital station compatibility
 Adjusted - Derelict artillery is now rarer (about 30% less)
 Adjusted - Now ignores Epta tradestations for faction change
 Adjusted - Watchtowers now spawn when artillery condition is applied to planet
+Adjusted - Condition is now visible in planet search
 Fixed - Eye indicator now works reliably again
 Fixed - Eye no longer shows up if artillery is not hostile or broken
 Fixed - Artillery stations now properly target and shoot you upon target lock

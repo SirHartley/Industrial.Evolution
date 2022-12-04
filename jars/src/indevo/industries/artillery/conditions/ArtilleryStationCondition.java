@@ -12,6 +12,7 @@ public class ArtilleryStationCondition extends BaseHazardCondition {
     public static final String ARTILLERY_KEY = "$ArtilleryStation";
     public static final String ARTILLERY_DESTROYED = "$IndEvo_ArtilleryStation_Destroyed";
 
+
     public boolean setup = true;
 
     @Override
