@@ -9,9 +9,9 @@ Requests
 - Watchtowers buildable in stable loc
 
 Upcoming
-- Add a secondary way to access colony options
-- consumable item that makes your fleet look bigger than is is to NPCs
+- Consumable item that makes your fleet look bigger than is is to NPCs
     - maybe add a boat with like 200 dp to the fleet and remove it when ui window is opened so other fleets run from you
+- Consumable item that allows forced targetting of artillery on mouse pos
 - Add something that lets you remove S-Mods
 - Change derelict industries to superstructures
 - Artillery industry images
@@ -23,7 +23,7 @@ Upcoming
     - add "spacer captain in debt" bar event: sells his last ship for half off to pay his debt
     - add "officer in debt" bar event - hire for 3x salary
     - add "spacers in debt" bar event - 10 spacers, hire for half pay to avoid indentured servitude
-- Consumable item that allows forced targetting of artillery on mouse pos
+
 
 --------------------------- known issues without fix -----------------------------
 

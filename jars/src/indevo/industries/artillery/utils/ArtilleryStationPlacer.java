@@ -65,7 +65,7 @@ public class ArtilleryStationPlacer {
                     || s.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)
                     || s.hasTag(Tags.THEME_HIDDEN)) continue;
 
-            float baseMod = 0.003f;
+            float baseMod = 0.002f;
             if (s.getTags().contains(Tags.THEME_REMNANT_SUPPRESSED)) baseMod += 0.02f;
             if (s.getTags().contains(Tags.THEME_REMNANT_RESURGENT)) baseMod += 0.1f;
             if (s.getTags().contains(Tags.THEME_DERELICT_CRYOSLEEPER)) baseMod += 0.05f;
