@@ -56,7 +56,7 @@ adjust salvage event "Ship Roulette" -
     add an intel entry showing the progress
 
 -----------------------o-----------------------
-3.1.g - UNRELEASED
+3.2.a
 General
 Adjusted - Complete code restructuring
 
@@ -65,7 +65,11 @@ Removed - Techmining progress indicator (Download Better Colonies instead!)
 Removed - Vanilla techmining override
 
 Items
+Adjusted - Chance for patrols to ignore the Sensor Decoy reduced to 10% (from 30%)
 Fixed - Transpoofer no longer causes you to fight your own fleet when engaging a station while it is active
+
+Supercomputer
+Fixed - Crash if colony does not have primary entity
 
 World Symbols
 Fixed - No longer applies stability bonus to planet when hovering over build menu

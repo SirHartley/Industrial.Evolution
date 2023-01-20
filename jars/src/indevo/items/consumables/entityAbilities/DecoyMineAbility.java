@@ -21,7 +21,7 @@ public class DecoyMineAbility extends BaseDurationAbility {
 
     public static final float BASE_RANGE = 3000f;
     public static final float BASE_SEARCH_DAYS = 5f;
-    public static final float IGNORE_CHANCE = 0.3f;
+    public static final float IGNORE_CHANCE = 0.1f;
     public static final float ARTILLERY_STATION_TIMEOUT = 20f;
 
     @Override

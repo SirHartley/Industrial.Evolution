@@ -353,7 +353,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
 
         if (hascond(Conditions.HOT) || hascond(Conditions.VERY_HOT)) {
             return false;
-        } else if (this.market.getPrimaryEntity().hasTag("station") || this.market.getPlanetEntity().isGasGiant()) {
+        } else if (market.getPrimaryEntity() != null && this.market.getPrimaryEntity().hasTag("station") || this.market.getPlanetEntity().isGasGiant()) {
             return false;
         }
 
