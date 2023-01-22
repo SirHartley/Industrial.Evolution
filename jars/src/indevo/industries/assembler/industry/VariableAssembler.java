@@ -455,7 +455,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
         Color highlight = Misc.getHighlightColor();
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
-        String effect = StringHelper.getString("VariableAssembler", "aCoreEffect");
+        String effect = StringHelper.getString("IndEvo_AdAssem", "aCoreEffect");
         String[] highlightString = new String[]{StringHelper.getAbsPercentString(ALPHA_CORE_UPKEEP_RED_MULT, true), StringHelper.getAbsPercentString(ALPHA_CORE_OUTPUT_MULT, true)};
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -474,7 +474,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
-        String effect = StringHelper.getString("VariableAssembler", "bCoreEffect");
+        String effect = StringHelper.getString("IndEvo_AdAssem", "bCoreEffect");
         String highlightString = StringHelper.getAbsPercentString(BETA_CORE_OUTPUT_MULT, true);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {

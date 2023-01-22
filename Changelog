@@ -56,6 +56,13 @@ adjust salvage event "Ship Roulette" -
     add an intel entry showing the progress
 
 -----------------------o-----------------------
+3.2.b
+Variable Assembler
+Fixed - AI Core Tooltips
+
+Artillery
+Fixed - Crash when Railgun is shooting
+
 3.2.a
 General
 Adjusted - Complete code restructuring

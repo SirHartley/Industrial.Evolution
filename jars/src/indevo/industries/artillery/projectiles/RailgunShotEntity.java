@@ -56,7 +56,7 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
     }
 
     public static void spawn(SectorEntityToken origin, SectorEntityToken target, int num) {
-        SectorEntityToken t = origin.getContainingLocation().addCustomEntity(null, null, "RailgunShotEntity", null, new RailgunShotParams(num, origin, target));
+        SectorEntityToken t = origin.getContainingLocation().addCustomEntity(null, null, "IndEvo_RailgunShotEntity", null, new RailgunShotParams(num, origin, target));
         t.setLocation(origin.getLocation().x, origin.getLocation().y);
     }
 
