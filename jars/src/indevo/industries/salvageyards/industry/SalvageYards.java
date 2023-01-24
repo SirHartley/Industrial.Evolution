@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.econ.impl.HeavyIndustry;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.IndustryHelper;
 import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.BattleAPI;
@@ -60,6 +61,8 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     public void apply() {
         super.apply(true);
+
+        //Global.getLogger(SalvageYards.class).info("UPDATING SALVAGE YARDS: market " + market.getName() + " hasSystem" + (market.getStarSystem() != null ? market.getStarSystem().getName() : false));
 
         if(!isFunctional()) return;
 
@@ -196,6 +199,8 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     private void applyListenerToFleetsInSystem() {
         //throw all current ships in the system on a list
+        if(market == null || market.getStarSystem() == null) return; //somehow, it crashed here?? https://discord.com/channels/187635036525166592/619635013201428481/1067400301033820190
+
         List<CampaignFleetAPI> allFleets = new ArrayList<>(this.market.getStarSystem().getFleets());
 
         for (CampaignFleetAPI fleet : allFleets) {
