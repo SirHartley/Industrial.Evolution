@@ -58,6 +58,10 @@ adjust salvage event "Ship Roulette" -
 
 -----------------------o-----------------------
 3.2.c
+Privateer Base
+Added - Small interaction with Substance.Abuse
+Added - Setting to auto-deliver to gathering point (reverting the change below)
+Adjusted - Now delivers loot to local storage (use a courier port to transfer it.)
 
 Items
 Fixed - Transpoofer no longer causes faction change to get stuck when undocking

@@ -92,6 +92,7 @@
 
   #Privateer Base
   "IndEvo_RaidForUnknownOnly": FALSE, #Allows the Priateer base to raid for blueprints you already know. Setting this to TRUE will make it only generate BPs you do not know, instead of a mix.
+  "IndEvo_PrivateerDeliverToGatheringPoint": FALSE, #Auto-deliver the looted items to the gathering point. Remember - courier port exists.
 
   #RiftGen
   "RG_cooldownTime": 90,
@@ -185,7 +186,8 @@
         "logIncrease": 250,
   },
 
-  #If you touch this dont come complaining when it crashes
+  #---------------- If you touch anything below here dont come complaining when it crashes -------------------
+
   "IndEvo_embassyList": "data/config/indEvo/embassy_whitelist.csv",
   "IndEvo_reverseList": "data/config/indEvo/reverse_engineering_whitelist.csv",
   "IndEvo_printList": "data/config/indEvo/printing_whitelist.csv",
@@ -208,7 +210,6 @@
   "indevo.abilities.splitfleet.dialogue",
   "indevo.dialogue.research",
   "indevo.dialogue.rules",
-
   ],
 
   "designTypeColors":{

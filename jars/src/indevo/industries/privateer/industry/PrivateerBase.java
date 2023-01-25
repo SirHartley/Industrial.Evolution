@@ -1,16 +1,13 @@
 package indevo.industries.privateer.industry;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import indevo.ids.Ids;
 import indevo.industries.EngineeringHub;
 import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
-import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
-import com.fs.starfarer.api.campaign.econ.Industry;
-import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
@@ -22,6 +19,7 @@ import indevo.industries.privateer.intel.PrivateerBaseRaidIntel;
 import com.fs.starfarer.api.impl.campaign.intel.raid.*;
 import com.fs.starfarer.api.loading.FighterWingSpecAPI;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
+import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.IndustryAddOrRemovePlugin;
 import indevo.utils.timers.RaidTimeout;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -108,10 +106,10 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
     }
 
     public void reportEconomyTick(int iterIndex) {
-        /*if(debug) {
+        if(debug) {
             startRaid(getRaidTarget(), getBaseRaidFP());
             debugOutputs();
-        }*/
+        }
 
         if (isFunctional() && !market.hasCondition(Ids.COND_PIRATES)) {
             market.addCondition(Ids.COND_PIRATES);
@@ -143,7 +141,17 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     public float getBaseRaidFP() {
         //the ai core bonus calculates twice because I fucked up when making this, and it would be a nerf to remove it now (and I don't want to nerf it)
-        return ((((market.getSize() * 50) * market.getStats().getDynamic().getStat(Stats.COMBAT_FLEET_SIZE_MULT).computeMultMod()) * (0.75f + (float) Math.random() * 0.5f)) * aiCoreFPBonus) * aiCoreFPBonus;
+        float alcoholismBonus = 1f + getAlcoholBonus();
+        return ((((market.getSize() * 50) * market.getStats().getDynamic().getStat(Stats.COMBAT_FLEET_SIZE_MULT).computeMultMod()) * (0.75f + (float) Math.random() * 0.5f)) * aiCoreFPBonus) * aiCoreFPBonus * alcoholismBonus;
+    }
+
+    private float getAlcoholBonus(){
+        float alcoholismBonus = 0f;
+        for (CommodityOnMarketAPI commodity : market.getAllCommodities()){
+            if (commodity.getAvailable() > 0 && commodity.getId().contains("alcoholism")) alcoholismBonus += 0.03f * Math.min(commodity.getAvailable(), commodity.getMaxSupply());
+        }
+
+        return alcoholismBonus;
     }
 
     public void notifyRaidEnded(RaidIntel raid, RaidIntel.RaidStageStatus status) {
@@ -248,7 +256,10 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         FactionAPI playerFaction = Global.getSector().getPlayerFaction();
         float chanceOfDrop = 0.7f + (aiCoreId != null && aiCoreId.equals(Commodities.ALPHA_CORE) ? 0.2f : 0f);
         float chanceOfExtraDrop = 0.3f + (aiCoreId != null && aiCoreId.equals(Commodities.ALPHA_CORE) ? 0.1f : 0f);
-        CargoAPI cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket("storage").getCargo();
+
+        CargoAPI cargo = Misc.getStorageCargo(market);
+        if (cargo == null || Global.getSettings().getBoolean("IndEvo_PrivateerDeliverToGatheringPoint")) cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket("storage").getCargo();
+
         Random random = new Random();
 
         String ship = "MarketCMD_ship____";
@@ -676,6 +687,9 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
                 } else {
                     tooltip.addPara("There is currently %s. The next one can be attempted in about %s.", 10F, Misc.getHighlightColor(), new String[]{"no active raid", raidTimeoutMonths + " months"});
                 }
+
+                tooltip.addPara("Raid strength increased by %s through the power of alcohol. Yo ho ho!", 10f,
+                        Misc.getPositiveHighlightColor(), StringHelper.getAbsPercentString(getAlcoholBonus(), false));
             }
         }
     }
