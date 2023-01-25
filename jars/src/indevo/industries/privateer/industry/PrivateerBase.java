@@ -737,11 +737,9 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
     }
 
     protected void applyAICoreToIncomeAndUpkeep() {
-        if (aiCoreId != null && !Commodities.BETA_CORE.equals(aiCoreId) && !Commodities.GAMMA_CORE.equals(aiCoreId)) {
-            String name = "Senate: Alpha Core";
+        if (Commodities.ALPHA_CORE.equals(aiCoreId)) {
             aiCoreFPBonus = 1.2f;
         } else if (Commodities.BETA_CORE.equals(aiCoreId)) {
-            String name = "Beta Core assigned";
             aiCoreFPBonus = 1.1f;
         } else {
             aiCoreFPBonus = 1f;

@@ -59,11 +59,11 @@ public class SpooferAbilityPlugin extends BaseConsumableAbilityPlugin implements
     @Override
     protected void deactivateImpl() {
         entity.setFaction(originalFaction);
+        Global.getSector().getListenerManager().removeListener(this);
     }
 
     @Override
     protected void cleanupImpl() {
-        Global.getSector().getListenerManager().removeListener(this);
     }
 
     public static final float MAX_ALPHA = 0.4f;
