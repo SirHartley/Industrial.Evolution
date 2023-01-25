@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.PlayerMarketTransaction;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.ColonyInteractionListener;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import indevo.items.consumables.itemPlugins.SpooferConsumableItemPlugin;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -33,7 +34,9 @@ public class SpooferAbilityPlugin extends BaseConsumableAbilityPlugin implements
     protected void activateImpl() {
         Global.getSector().getListenerManager().addListener(this);
 
-        originalFaction = entity.getFaction().getId();
+        if (entity.isPlayerFleet()) originalFaction = Factions.PLAYER;
+        else originalFaction = entity.getFaction().getId();
+
         targetFaction = SpooferConsumableItemPlugin.getCurrentFaction();
 
         entity.setFaction(targetFaction);

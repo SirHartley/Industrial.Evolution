@@ -9,6 +9,7 @@ Requests
 - Watchtowers buildable in stable loc
 
 Upcoming
+- "Mimic Hulls", Derelict ships that change into remnant or pirate ambush fleets when approached
 - Consumable item that makes your fleet look bigger than is is to NPCs
     - maybe add a boat with like 200 dp to the fleet and remove it when ui window is opened so other fleets run from you
 - Consumable item that allows forced targetting of artillery on mouse pos
@@ -57,6 +58,11 @@ adjust salvage event "Ship Roulette" -
 
 -----------------------o-----------------------
 3.2.c
+
+Items
+Fixed - Transpoofer no longer causes faction change to get stuck when undocking
+
+Salvage Yards
 Fixed - Salvage Yard crash incompatibility with the ICE mod
 
 3.2.b
