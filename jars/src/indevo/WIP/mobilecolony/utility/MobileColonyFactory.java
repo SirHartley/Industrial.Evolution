@@ -1,4 +1,4 @@
-package com.fs.starfarer.api.mobileColony.utility;
+package indevo.WIP.mobilecolony.utility;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
@@ -10,10 +10,10 @@ import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
 import com.fs.starfarer.api.impl.campaign.intel.deciv.DecivTracker;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
-import com.fs.starfarer.api.mobileColony.memory.ColonyMemory;
-import com.fs.starfarer.api.mobileColony.memory.ColonyMemoryEntry;
-import com.fs.starfarer.api.mobileColony.scripts.ColonyFleetAssignmentAI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.WIP.mobilecolony.memory.ColonyMemory;
+import indevo.WIP.mobilecolony.memory.ColonyMemoryEntry;
+import indevo.WIP.mobilecolony.scripts.ColonyFleetAssignmentAI;
 
 public class MobileColonyFactory {
 

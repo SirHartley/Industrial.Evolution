@@ -11,9 +11,7 @@
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/industries/derelicts/industry/WIP" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/industries/WIP" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/industries/academy/rules/WIP" />
-      <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/WIP/mobilecolony" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/WIP/converters" />
-      <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/WIP" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/exploration/WIP" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/exploration/salvage/specials/WIP" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/items/consumables/itemAbilities/WIP" />

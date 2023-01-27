@@ -1,5 +1,33 @@
 Mobile colony ship
 
+Roadmap
+- Create move-able fleet colony (assign colony to fleet entity)
+    - while deployed, we'll just have it be a normal entity with a market
+    - while mobile, intercept dialogue and fake the colony screens
+    - make count as station!!
+- Implement model with trails (it should be flying around its orbit when in deployed mode)
+- Implement actual ship (fuck)
+- Create two mode toggle (via dialogue for now)
+ - When stationary, full colony access and behaviour
+ - when mobile, can't build anything, can't manage - how to prohibit?
+    - just make it not player owned, check how nex does autonomous colonies
+    - make sure to still add the upkeep/income to the report somehow
+    - add an invisible entity in a fake system with the actual market on it while it is mobile in hyperspace
+    - when any UI tab is open, add colony to ship as usual so it shows up correctly (location ect)
+- Give upgradeable attributes to fleet
+    - add limited cargo functionality
+- create Escort hangar and escort deployment function (sharing cargo with fleet storage)
+- add slot blockers
+- add ship movement AI (Follow, stay, goto)
+- Create ship management UI (load UI via side panel when interacting)
+ - upgrading
+ - navigation
+ - exploration button (disable for now)
+- Create exploration framework
+    - add test event
+- Create exploration UI
+- fill in events, story line and industry choices
+
 Two modes:
     - Mobile
         - Movement modes:

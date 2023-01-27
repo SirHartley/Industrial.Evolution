@@ -1,4 +1,4 @@
-package com.fs.starfarer.api.mobileColony.scripts;
+package indevo.WIP.mobilecolony.scripts;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;

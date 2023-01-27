@@ -1,21 +1,14 @@
-package com.fs.starfarer.api.mobileColony.dialogue;
+package indevo.WIP.mobilecolony.dialogue;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.splinterFleet.plugins.FleetUtils;
-import com.fs.starfarer.api.splinterFleet.plugins.dialogue.FleetStatus;
-import com.fs.starfarer.api.splinterFleet.plugins.fleetAssignmentAIs.BaseSplinterFleetAssignmentAIV2;
-import com.fs.starfarer.api.splinterFleet.plugins.fleetManagement.Behaviour;
-import com.fs.starfarer.api.splinterFleet.plugins.fleetManagement.DetachmentMemory;
 import com.fs.starfarer.api.util.Misc;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Map;
-
-import static com.fs.starfarer.api.splinterFleet.plugins.fleetManagement.Behaviour.updateActiveDetachmentBehaviour;
 
 public class MobileColonyInteractionDialoguePlugin implements InteractionDialogPlugin {
 
@@ -44,10 +37,6 @@ public class MobileColonyInteractionDialoguePlugin implements InteractionDialogP
 
         text.clear();
         text.addPara("Splinter Fleet Control");
-
-        //god I hate UI work
-        Behaviour.addBehaviourListTooltip(text);
-        FleetStatus.addFleetStatusTooltip(text, (CampaignFleetAPI) entity);
     }
 
     public void showBaseOptions() {
@@ -60,6 +49,7 @@ public class MobileColonyInteractionDialoguePlugin implements InteractionDialogP
         addTooltip(dialog.getTextPanel());
 
         opts.addOption("Trade or manage the colony", Option.OPEN_CORE);
+
         //dialog.makeOptionOpenCore(Option.OPEN_CORE, CoreUITabId.OUTPOSTS, CampaignUIAPI.CoreUITradeMode.OPEN);
 
         //repairs
@@ -84,33 +74,11 @@ public class MobileColonyInteractionDialoguePlugin implements InteractionDialogP
 
     @Override
     public void init(InteractionDialogAPI dialog) {
-        Behaviour.log.info("executing");
-
         this.dialog = dialog;
         this.entity = dialog.getInteractionTarget();
-
-        if (entity instanceof CampaignFleetAPI) {
-            detachmentNum = DetachmentMemory.getNumForFleet((CampaignFleetAPI) entity);
-            detachmentBehaviouIndex = Behaviour.getIndexForBehaviour(Behaviour.getFleetBehaviour((CampaignFleetAPI) entity, true));
-        } else dialog.dismiss();
+        // TODO: 27/01/2023 get colony memory data for fleet
 
         showBaseOptions();
-    }
-
-    private void addBehaviourOptionPoints() {
-        OptionPanelAPI opts = dialog.getOptionPanel();
-        opts.clearOptions();
-
-        for (int i = 1; i <= Behaviour.behaviourIndexMap.size(); i++) {
-
-            String pre = i == detachmentBehaviouIndex ? "> " : "";
-            String post = i == detachmentBehaviouIndex ? " <" : "";
-
-            opts.addOption(pre + Misc.ucFirst(Behaviour.getBehaviourForIndex(i).toString().toLowerCase()) + post, BEHAVIOUR_ITEM + i, Behaviour.getColourForBehaviour(Behaviour.getBehaviourForIndex(i)), Behaviour.behaviourTooltipMap.get(i));
-        }
-
-        opts.addOption("Return", Option.MAIN);
-        opts.setShortcut(Option.MAIN, Keyboard.KEY_ESCAPE, false, false, false, false);
     }
 
     @Override
@@ -125,8 +93,6 @@ public class MobileColonyInteractionDialoguePlugin implements InteractionDialogP
         if (optionString.startsWith(BEHAVIOUR_ITEM)) {
             detachmentBehaviouIndex = (int) Integer.parseInt(optionString.substring(BEHAVIOUR_ITEM.length()));
 
-            Behaviour.changeBehaviourAndUpdateAI((CampaignFleetAPI) entity, Behaviour.getBehaviourForIndex(detachmentBehaviouIndex));
-            addBehaviourOptionPoints();
 
         } else switch (optionString) {
             case "LEAVE":
@@ -137,19 +103,11 @@ public class MobileColonyInteractionDialoguePlugin implements InteractionDialogP
 
                 //if(((CampaignFleetAPI) entity).getCargo().getCommodityQuantity(Commodities.SUPPLIES) < 1) Behaviour.setFleetBehaviourOverride((CampaignFleetAPI) entity, Behaviour.FleetBehaviour.DORMANT);
                 if(fleet.getCargo().getSupplies() < 1) fleet.getCargo().addCommodity(Commodities.SUPPLIES, 1);
-
-                Behaviour.clearBehaviourOverride(fleet);
-                BaseSplinterFleetAssignmentAIV2 ai = (BaseSplinterFleetAssignmentAIV2) FleetUtils.getAssignmentAI(fleet);
-                if (ai != null) ai.advance(0f);
-
-                updateActiveDetachmentBehaviour();
-
                 dialog.dismiss();
+
                 break;
             case "MERGE":
-                Behaviour.setReturning(detachmentNum, true);
-                FleetUtils.mergeDetachment(detachmentNum);
-                updateActiveDetachmentBehaviour();
+
                 dialog.dismiss();
                 break;
             default:

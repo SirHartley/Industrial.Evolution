@@ -1,6 +1,7 @@
 package indevo.utils;
 
 import com.fs.starfarer.api.*;
+import indevo.WIP.mobilecolony.plugins.MobileColonyCampaignPlugin;
 import indevo.ids.Ids;
 import indevo.industries.OrbitalStation;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
@@ -322,6 +323,7 @@ public class ModPlugin extends BaseModPlugin {
         //Scripts:
         Global.getSector().registerPlugin(new SplinterFleetCampignPlugin());
         Global.getSector().registerPlugin(new GachaStationCampaignPlugin());
+        Global.getSector().registerPlugin(new MobileColonyCampaignPlugin());
 
         if (!Global.getSector().hasScript(TimeTracker.class)) {
             Global.getSector().addScript(new TimeTracker());

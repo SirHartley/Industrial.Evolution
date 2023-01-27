@@ -1,4 +1,4 @@
-package com.fs.starfarer.api.mobileColony.memory;
+package indevo.WIP.mobilecolony.memory;
 
 import com.fs.starfarer.api.Global;
 
