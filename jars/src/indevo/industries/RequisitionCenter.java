@@ -27,7 +27,7 @@ public class RequisitionCenter extends BaseIndustry {
     public static final float MED_REP_REQUIREMENT = 0.5f;
     public static final float HIGH_REP_REQUIREMENT = 0.7f;
 
-    public static final String IDENT = "IndEvo_RequCenter";
+    public static final String IDENT = "IndEvo_ReqCenter";
 
     public void apply() {
         super.apply(true);

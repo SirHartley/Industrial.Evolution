@@ -27,7 +27,7 @@ import static indevo.ids.Ids.REPAIRDOCKS;
 public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin implements DynamicSubmarket {
 
     public boolean isSetForRemoval = false;
-    private static final String IDENT = "RestorationDocks";
+    private static final String IDENT = "IndEvo_dryDock";
 
     public void init(SubmarketAPI submarket) {
         super.init(submarket);
