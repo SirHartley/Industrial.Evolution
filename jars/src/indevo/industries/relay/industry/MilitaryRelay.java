@@ -1024,21 +1024,12 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
                 String lights = "light-years";
                 if (dStr.equals("1")) lights = "light-year";
 
-                if (p.two > RANGE_LY_TEN) {
-                    text.addPara("The nearest Military Base or High Command with a Relay Hypertransmitter is located in the " +
-                                    p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away. The maximum " +
-                                    "range of the Transmitter is %s light-years.",
-                            opad, h,
-                            "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two),
-                            "" + (int) RANGE_LY_TEN);
-                } else {
-                    text.addPara("The nearest Military Base or High Command with a Relay Hypertransmitter is located in the " +
-                                    p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away, " +
-                                    "allowing you to build %s in this star system.",
-                            opad, h,
-                            "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two),
-                            "relays without any military presence");
-                }
+                text.addPara("The nearest Military Base or High Command with a Relay Hypertransmitter is located in the " +
+                                p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away, " +
+                                "allowing you to build %s in this star system.",
+                        opad, h,
+                        "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two),
+                        "relays without any military presence");
             }
         }
     }
