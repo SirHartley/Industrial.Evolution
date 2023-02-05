@@ -106,7 +106,6 @@ public class ArtilleryStationPlacer {
         //default 10%
     }
 
-
     public static void placeWatchtowers(StarSystemAPI system, String factionId){
         float minGap = 100f;
         Random random = new Random();
