@@ -57,6 +57,16 @@ adjust salvage event "Ship Roulette" -
     add an intel entry showing the progress
 
 -----------------------o-----------------------
+3.2.d
+Items
+Fixed - Planet "in Range" tooltip no longer incorrectly states 12 LY range restriction for hypertransmitter (it's infinite as intended)
+
+Restoration Docks
+Fixed - Broken Tooltips
+
+Requisitions center
+Fixed - Broken Tooltips
+
 3.2.c
 Privateer Base
 Added - Small interaction with Substance.Abuse

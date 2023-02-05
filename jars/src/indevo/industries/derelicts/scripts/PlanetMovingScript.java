@@ -17,9 +17,12 @@ import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.campaign.CircularOrbit;
 import com.fs.starfarer.campaign.CircularOrbitPointDown;
 import com.fs.starfarer.campaign.CircularOrbitWithSpin;
+import indevo.industries.derelicts.listeners.PlanetJumpListener;
+import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.fs.starfarer.api.impl.campaign.procgen.MagFieldGenPlugin.auroraColors;
@@ -74,6 +77,8 @@ public class PlanetMovingScript implements EveryFrameScript {
     public void advance(float amount) {
         elapsed += amount;
 
+        if (isDone()) return;
+
         if (market.getPlanetEntity() == null) {
             setDone();
             log.warn("Can't move entity, not a planet");
@@ -118,8 +123,19 @@ public class PlanetMovingScript implements EveryFrameScript {
 
                 reApplyStation();
 
+                triggerJumpListeners(newPlanet, oldSystem, targetSystem);
+
                 setDone();
                 break;
+        }
+    }
+
+    private void triggerJumpListeners(SectorEntityToken planet, StarSystemAPI oldSystem, StarSystemAPI newSystem){
+        List<PlanetJumpListener> list = Global.getSector().getListenerManager().getListeners(PlanetJumpListener.class);
+
+        for (Iterator<PlanetJumpListener> i = list.iterator(); i.hasNext(); ) {
+            PlanetJumpListener x = i.next();
+            x.reportPlanetJump(planet, oldSystem, newSystem);
         }
     }
 
