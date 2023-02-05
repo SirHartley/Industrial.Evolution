@@ -54,7 +54,7 @@ public class MineExplosionEntityPlugin extends ExplosionEntityPlugin {
         //if this fires the player was likely too fast, so they eat full damage.
         if (!damagedAlready.contains(params.alwaysHit.getId())) {
             damagedAlready.add(params.alwaysHit.getId());
-            applyDamageToFleet(params.alwaysHit, 1f);
+            applyDamageToFleet(params.alwaysHit, params.baseDamageMult);
         }
 
     }

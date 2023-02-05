@@ -58,6 +58,12 @@ adjust salvage event "Ship Roulette" -
 
 -----------------------o-----------------------
 3.2.d
+General
+Added - Planet Jump listener, interface to notify when a planet has finished jumping via rift generator
+
+Minefields
+Fixed - Damage halved and now scales with fleet size up to (hit chance is still fleet size and speed)
+
 Items
 Fixed - Planet "in Range" tooltip no longer incorrectly states 12 LY range restriction for hypertransmitter (it's infinite as intended)
 

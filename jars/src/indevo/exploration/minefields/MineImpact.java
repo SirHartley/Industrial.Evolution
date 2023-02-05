@@ -11,6 +11,7 @@ import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.terrain.HyperspaceTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
+import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -114,12 +115,9 @@ public class MineImpact implements EveryFrameScript {
 
             float size = EXPLOSION_SIZE;
             Color color = new Color(255, 165, 80);
-            MineExplosionEntityPlugin.MineExplosionParams params = new MineExplosionEntityPlugin.MineExplosionParams(fleet, EXPLOSION_DAMAGE_MULT,color, cl, loc, size, 1f);
 
-            int caps = 0;
-            for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
-                if (m.getHullSpec().getHullSize() == ShipAPI.HullSize.CAPITAL_SHIP) caps++;
-            }
+            float damageMult = MathUtils.clamp(MineBeltTerrainPlugin.getBaseFleetHitChance(fleet), 0f, 1f);
+            MineExplosionEntityPlugin.MineExplosionParams params = new MineExplosionEntityPlugin.MineExplosionParams(fleet, EXPLOSION_DAMAGE_MULT * damageMult,color, cl, loc, size, 1f);
 
             params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.LOW;
 
