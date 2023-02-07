@@ -9,8 +9,6 @@ public class VariableManufactory extends VariableAssembler {
     private static final int VPC_MARKET_SIZE_OVERRIDE = 1;
 
     public void apply() {
-        super.apply(true);
-
         Global.getSector().getListenerManager().addListener(this, true);
         applyIndEvo_VPCEffects();
         toggleRampUp();
@@ -27,6 +25,8 @@ public class VariableManufactory extends VariableAssembler {
         }
 
         applyDeficits();
+
+        super.apply(true);
     }
 
     @Override

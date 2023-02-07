@@ -205,6 +205,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
                 sup.getQuantity().modifyFlat(getModId(), 3 - sup.getQuantity().getModifiedInt(), StringHelper.getString(getId(), "outputRestriction"));
             }
         }
+
         for (MutableCommodityQuantity dem : getAllDemand()) {
             if (dem.getQuantity().getModifiedInt() > 4) {
                 dem.getQuantity().modifyFlat(getModId(), 4 - dem.getQuantity().getModifiedInt(), StringHelper.getString(getId(), "outputRestriction"));

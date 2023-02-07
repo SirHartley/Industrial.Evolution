@@ -3,6 +3,7 @@ package indevo.industries.derelicts.industry;
 import com.fs.starfarer.api.Global;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
@@ -151,8 +152,12 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
                 MutableCommodityQuantity m2 = ind.getSupply(bonusCommodityId2);
                 MutableCommodityQuantity m3 = ind.getSupply(bonusCommodityId2);
 
-                if (ind.getId().equals(Ids.ADMANUF) && ind.getSpecialItem() != null) {
+                if (ind.getId().equals(Ids.ADASSEM)) continue;
+
+                /*if (ind.getId().equals(Ids.ADMANUF) && ind.getSpecialItem() != null) {
                     Pair<String, String> p = ItemIds.getVPCCommodityIds(ind.getSpecialItem().getId());
+
+                    //ModPlugin.log("AdManuf lab output setup");
 
                     if (p.one.equals(bonusCommodityId1) || p.two.equals(bonusCommodityId1))
                         m1.getQuantity().modifyFlat(getModId(), bonusValue, getNameForModifier());
@@ -160,7 +165,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
                         m2.getQuantity().modifyFlat(getModId(), bonusValue, getNameForModifier());
                     if (p.one.equals(bonusCommodityId3) || p.two.equals(bonusCommodityId3))
                         m3.getQuantity().modifyFlat(getModId(), bonusValue, getNameForModifier());
-                }
+                }*/
 
                 if (m1.getQuantity().getModifiedInt() != 0f) {
                     m1.getQuantity().modifyFlat(getModId(), bonusValue, getNameForModifier());
