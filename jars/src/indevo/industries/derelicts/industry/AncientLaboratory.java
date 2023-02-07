@@ -386,8 +386,10 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
             if (bonusCommodityId1 != null && bonusCommodityId2 != null && bonusCommodityId3 != null) {
                 ArrayList<CommoditySpecAPI> a = new ArrayList<>();
                 a.add(Global.getSettings().getCommoditySpec(bonusCommodityId1));
+
                 if (!getAiCoreIdNotNull().equals(Commodities.BETA_CORE)) {
                     a.add(Global.getSettings().getCommoditySpec(bonusCommodityId2));
+
                     if (getAiCoreIdNotNull().equals(Commodities.ALPHA_CORE)) {
                         a.add(Global.getSettings().getCommoditySpec(bonusCommodityId3));
                     }
@@ -410,6 +412,50 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
                         opad);
             }
         }
+    }
+
+
+    public boolean canImprove() {
+        return Commodities.BETA_CORE.equals(aiCoreId);
+    }
+
+    public float getImproveBonusXP() {
+        return 0;
+    }
+
+    public String getImproveMenuText() {
+        return "Change output";
+    }
+
+    public int getImproveStoryPoints() {
+        return 0;
+    }
+
+    @Override
+    public void setImproved(boolean improved) {
+        String id1 = bonusCommodityId1;
+        bonusCommodityId1 = bonusCommodityId2;
+        bonusCommodityId2 = id1;
+    }
+
+    public String getImproveDialogTitle() {
+        return "Changing output for " + getSpec().getName();
+    }
+
+    public void addImproveDesc(TooltipMakerAPI info, ImprovementDescriptionMode mode) {
+        float opad = 10f;
+        Color highlight = Misc.getHighlightColor();
+
+        if (mode != ImprovementDescriptionMode.INDUSTRY_TOOLTIP) {
+            info.addPara("Changes the %s from %s to %s.", 0f, highlight,
+                    "commodity bonus",
+                    Global.getSettings().getCommoditySpec(bonusCommodityId1).getName(),
+                    Global.getSettings().getCommoditySpec(bonusCommodityId2).getName());
+
+            info.addPara("Does not affect improvement cost of other buildings on this colony.", 3f);
+        }
+
+        info.addSpacer(opad);
     }
 
        /* alpha unlocks a third bonus, but reduces the increase to from 2 to 1

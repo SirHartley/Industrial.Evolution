@@ -256,30 +256,31 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
     private boolean isFriend(CampaignFleetAPI fleet) {
         boolean friend = false;
 
-        MarketAPI m;
-        if (this.entity.getMemoryWithoutUpdate().contains(PLANET_KEY)) {
-            m = this.entity.getMemoryWithoutUpdate().getEntity(PLANET_KEY).getMarket();
-            if (m != null && !m.isPlanetConditionMarketOnly()) {
-                friend = (fleet.isPlayerFleet() && m.isPlayerOwned())
-                        || fleet.getFaction().getId().equals(m.getFactionId())
-                        || fleet.getFaction().getRelationshipLevel(m.getFactionId()).isAtWorst(RepLevel.INHOSPITABLE);
+        MarketAPI m = getPrimary();
 
-                if (!m.isPlayerOwned() && fleet.isPlayerFleet() && !fleet.isTransponderOn()) friend = false;
-            }
-        } else if (this.entity.getOrbitFocus() != null) {
-            m = this.entity.getOrbitFocus().getMarket();
-            if (m != null && !m.isPlanetConditionMarketOnly()) {
-                friend = (fleet.isPlayerFleet() && m.isPlayerOwned())
-                        || fleet.getFaction().getId().equals(m.getFactionId())
-                        || fleet.getFaction().getRelationshipLevel(m.getFactionId()).isAtWorst(RepLevel.INHOSPITABLE);
+        if (m != null && !m.isPlanetConditionMarketOnly()) {
+            friend = (fleet.isPlayerFleet() && m.isPlayerOwned())
+                    || fleet.getFaction().getId().equals(m.getFactionId())
+                    || fleet.getFaction().getRelationshipLevel(m.getFactionId()).isAtWorst(RepLevel.INHOSPITABLE);
 
-                if (!m.isPlayerOwned() && fleet.isPlayerFleet() && !fleet.isTransponderOn()) friend = false;
-            }
+            if (!m.isPlayerOwned() && fleet.isPlayerFleet() && !fleet.isTransponderOn()) friend = false;
         }
 
         if (fleet.getMemoryWithoutUpdate().contains(MemFlags.MEMORY_KEY_MISSION_IMPORTANT)) friend = true;
 
         return friend;
+    }
+
+    public MarketAPI getPrimary(){
+        MarketAPI m = null;
+
+        if (this.entity.getMemoryWithoutUpdate().contains(PLANET_KEY)) {
+            m = this.entity.getMemoryWithoutUpdate().getEntity(PLANET_KEY).getMarket();
+        } else if (this.entity.getOrbitFocus() != null) {
+            m = this.entity.getOrbitFocus().getMarket();
+        }
+
+        return m;
     }
 
     public static float getBaseFleetHitChance(CampaignFleetAPI fleet) {
@@ -362,6 +363,9 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
                 p.two,
                 p.one
         );
+
+        MarketAPI primary = getPrimary();
+        if (primary != null) tooltip.addPara("This minefield is controlled though hidden facilities on %s.", pad, primary.getFaction().getColor(),  primary.getPrimaryEntity().getName());
 
         String stop = Global.getSettings().getControlStringForEnumName("GO_SLOW");
         tooltip.addPara("Reduces the range at which stationary or slow-moving* fleets inside it can be detected by %s.", nextPad,
