@@ -4,6 +4,7 @@ import com.fs.starfarer.api.*;
 import indevo.ids.Ids;
 import indevo.industries.OrbitalStation;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
+import indevo.utils.listeners.UniqueFleetRespawnTracker;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
@@ -90,6 +91,8 @@ public class ModPlugin extends BaseModPlugin {
     @Override
     public void onGameLoad(boolean newGame) {
         //Global.getSector().getPlayerFleet().setFaction("hegemony");
+
+        if(newGame) UniqueFleetRespawnTracker.addGrandFuelFleet();
 
         ArtilleryStationPlacer.placeCoreWorldArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next save breaking one
         ArtilleryStationPlacer.placeDerelictArtilleries(); //same here

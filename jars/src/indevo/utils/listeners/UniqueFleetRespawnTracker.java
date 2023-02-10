@@ -3,11 +3,15 @@ package indevo.utils.listeners;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.ai.FleetAssignmentDataAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.RepairTrackerAPI;
 import com.fs.starfarer.api.impl.campaign.fleets.AutoDespawnScript;
+import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
+import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
+import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.util.Misc;
 
 import java.util.ArrayList;
@@ -15,38 +19,75 @@ import java.util.List;
 
 public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrameScript {
 
+    /**
+     * Script revolves around the flagship, which has to be killed by the player for the fleet to count as dead
+     * If the flagship is killed by an NPC and the player attacks the remaining fleet afterwards, the fleet will still respawn as if entirely defeated by an NPC
+     */
+
     //statics, change these to fit
-    private static final int DAYS_UNTIL_RESPAWN = 14;
-    private static final int DAYS_UNTIL_FP_RECOVERY = 14;
-    private static final boolean FLAGSHIP_MUST_BE_DEAD_TO_COUNT_AS_DEAD = true; //if this is false the player can softlock themselves because the fleet might go despawn even if the flagship aint dead
-    private static final boolean ALWAYS_RETURN_AND_DESPAWN_WHEN_FLAGSHIP_DEAD_BY_PLAYER = true; //if false the fleet will linger until someone takes it behind the barn even if it's just one ship
-    private static final float FP_LOST_PERCENT_TO_COUNT_AS_DEAD = 80f; //only relevant when any of the above is FALSE - if this much is lost the fleet will go die for reals
+    private static final int DAYS_UNTIL_RESPAWN = 1;
+    private static final int DAYS_UNTIL_FP_RECOVERY = 7;
     private static final String MEMORY_KEY_PLAYER_KILLED_FLEET = "$pagsm_grand_fleet_is_out_of_gas";
 
-    //script variables set when the script is registered
-    private MarketAPI respawnMarket;
-    private String requiredMarketFaction;
-    private CampaignFleetAPI fleet;
-    private FleetMemberAPI flagship;
-    private float originalFP;
+    //permanent memory entries set when the script is registered
+    private final MarketAPI respawnMarket;
+    private final String requiredMarketFaction;
+    private final FleetMemberAPI flagship;
+    private final List<FleetMemberAPI> originalMemberBackup;
+    private final FleetParamsV3 paramsBackup;
+    private final FleetParamsV3 paramsAfterDefeat;
+    private final FleetAssignmentDataAPI assignmentBackup;
 
-    //timekeeping
+    //fleet state tracking
+    private CampaignFleetAPI fleet;
+    private List<FleetMemberAPI> lostMembers = new ArrayList<>();
     private float daysPassed = 0f;
     private boolean isDamaged = false;
     private boolean isTemporaryDead = false;
-    private boolean isPermaDead = false;
-    private boolean playerInvolvedInLastEngagement = false;
+    private boolean defeated = false;
+    private boolean flagshipKilledByPlayer = false;
 
-    private List<FleetMemberAPI> lostMembers = new ArrayList<>();
+    public static void register(CampaignFleetAPI fleet, FleetParamsV3 originalSpawnParams, FleetParamsV3 paramsAfterDefeat){
+        Global.getSector().addScript(new UniqueFleetRespawnTracker(fleet, originalSpawnParams, paramsAfterDefeat));
+    }
 
-    public UniqueFleetRespawnTracker(CampaignFleetAPI fleet) {
+    private UniqueFleetRespawnTracker(CampaignFleetAPI fleet, FleetParamsV3 originalSpawnParams, FleetParamsV3 paramsAfterDefeat) {
         this.fleet = fleet;
         this.respawnMarket = Misc.getSourceMarket(fleet);
         this.requiredMarketFaction = fleet.getFaction().getId();
         this.flagship = fleet.getFlagship();
-        this.originalFP = fleet.getFleetPoints();
+        this.paramsAfterDefeat = paramsAfterDefeat;
+        this.originalMemberBackup = fleet.getFleetData().getMembersListCopy();
+        this.paramsBackup = originalSpawnParams;
+        this.assignmentBackup = fleet.getCurrentAssignment();
+        Misc.makeImportant(fleet, MemFlags.ENTITY_MISSION_IMPORTANT);
 
         fleet.addEventListener(this);
+    }
+
+
+    @Override
+    public void advance(float amount) {
+        //if the respawn market does not exist we don't do jack shit except an hero
+        boolean respawnMarketValid = respawnMarket != null && respawnMarket.getFactionId().equals(requiredMarketFaction);
+        if (!respawnMarketValid){
+            if (!isDespawningOrDead() && !fleet.getCurrentAssignment().getAssignment().equals(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN)) returnToPlanetAndDespawn();
+            daysPassed = 0;
+            return;
+        }
+
+        //schrödingers fleet checks
+        if (isTemporaryDead || isDamaged) daysPassed += Global.getSector().getClock().convertToDays(amount);
+
+        if (!isTemporaryDead && isDamaged && daysPassed > DAYS_UNTIL_FP_RECOVERY) {
+            respawnLostMembers();
+            if (!defeated) Misc.makeImportant(fleet, MemFlags.ENTITY_MISSION_IMPORTANT);
+            restoreInitialAssignment();
+        }
+
+        if (isTemporaryDead && daysPassed > DAYS_UNTIL_RESPAWN) {
+            respawnFleet();
+        }
     }
 
     private void setMemoryKeyPlayerKilledFleet(){
@@ -54,32 +95,124 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
     }
 
     private void returnToPlanetAndDespawn(){
-        MarketAPI target = respawnMarket != null && !respawnMarket.isPlanetConditionMarketOnly() ? respawnMarket : getAlternateMarket();
+        fleet.clearAssignments();
+        fleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_IGNORES_OTHER_FLEETS, true);
 
+        MarketAPI target = getTargetMarket();
+
+        //if market is null it means there is no alternate market and our market is dead, so we just yeet ourselves out the window
         if (target == null || target.getPrimaryEntity() == null) {
             fleet.addScript(new AutoDespawnScript(fleet));
             return;
         }
 
-        Misc.giveStandardReturnAssignments(fleet, target.getPrimaryEntity(), "Limping back to" ,true);
+        Misc.giveStandardReturnAssignments(fleet, target.getPrimaryEntity(), "Heading back to" ,true);
     }
 
-    private MarketAPI getAlternateMarket(){
+    private void returnToPlanetAndRecuperate(){
+        fleet.clearAssignments();
+        fleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_IGNORES_OTHER_FLEETS, true);
+        fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, respawnMarket.getPrimaryEntity(), DAYS_UNTIL_FP_RECOVERY, "Getting Repaired and Refuelled");
+    }
+
+    private MarketAPI getTargetMarket(){
+        if (respawnMarket != null && !respawnMarket.isPlanetConditionMarketOnly()) return respawnMarket;
+
         LocationAPI loc = fleet.getContainingLocation();
         List<MarketAPI> marketList = Misc.getMarketsInLocation(loc, requiredMarketFaction);
 
+        //there's another faction market, go there instead
         if (!marketList.isEmpty()) return marketList.get(0);
 
         marketList = Misc.getMarketsInLocation(loc);
+        MarketAPI target = null;
+        float maxRel = Float.MIN_VALUE;
 
-        if (marketList.isEmpty()) return null;
-        // TODO: 09/02/2023 finish
-        return null;
+        //we go to the market with the best relation to our faction that's not hostile
+        for (MarketAPI m : marketList){
+            if (m.getFaction().isHostileTo(requiredMarketFaction)) continue;
+
+            float rel = m.getFaction().getRelationship(requiredMarketFaction);
+            if (rel > maxRel) target = m;
+        }
+
+        return target;
+    }
+
+    private void overrideFleetBackupWithBlankCopy(){
+        String name = fleet.getName();
+        boolean noFactionInName = fleet.isNoFactionInName();
+
+        fleet = FleetFactoryV3.createFleet(paramsBackup);
+        fleet.setName(name);
+        fleet.setNoFactionInName(noFactionInName);
+
+        //purge the vigilance
+        //purge it
+        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()){
+            if (m.isFlagship()) continue;
+            fleet.getFleetData().removeFleetMember(m);
+        }
+    }
+
+    private void overrideFleetWithPostDefeatVersion(){
+        String name = fleet.getName();
+        boolean noFactionInName = fleet.isNoFactionInName();
+
+        fleet = FleetFactoryV3.createFleet(paramsAfterDefeat);
+        fleet.setName(name);
+        fleet.setNoFactionInName(noFactionInName);
+    }
+
+    private void initPostDefeatFleet(){
+        respawnMarket.getContainingLocation().addEntity(fleet);
+        fleet.setAI(Global.getFactory().createFleetAI(fleet));
+
+        fleet.setLocation(respawnMarket.getPrimaryEntity().getLocation().x, respawnMarket.getPrimaryEntity().getLocation().y);
+        fleet.setFacing((float) Math.random() * 360f);
+
+        fleet.getAI().addAssignment(FleetAssignment.DEFEND_LOCATION, respawnMarket.getPrimaryEntity(), Integer.MAX_VALUE, null);
+        fleet.setAI(Global.getFactory().createFleetAI(fleet));
+    }
+
+    private void initFleetBackup(){
+        for (FleetMemberAPI m : originalMemberBackup) {
+            if (m.isFlagship() || m.getId().equals(flagship.getId())) continue;
+
+            fleet.getFleetData().addFleetMember(m);
+        }
+
+        //flagship.setFlagship(true);
+        fleet.getFlagship().setCaptain(flagship.getCaptain());
+        fleet.setCommander(flagship.getCaptain());
+
+        respawnMarket.getContainingLocation().addEntity(fleet);
+        fleet.setAI(Global.getFactory().createFleetAI(fleet));
+
+        fleet.setLocation(respawnMarket.getPrimaryEntity().getLocation().x, respawnMarket.getPrimaryEntity().getLocation().y);
+        fleet.setFacing((float) Math.random() * 360f);
+
+        fleet.getAI().addAssignment(FleetAssignment.DEFEND_LOCATION, respawnMarket.getPrimaryEntity(), Integer.MAX_VALUE, null);
+        fleet.getMemoryWithoutUpdate().set("$chatter_introSplash_name", fleet.getCommander().getNameString());
+
+        Misc.makeImportant(fleet, MemFlags.ENTITY_MISSION_IMPORTANT);
+
+        fleet.setAI(Global.getFactory().createFleetAI(fleet));
     }
 
     public void respawnFleet(){
-        //or reset respawn time if market is wrong faction or dead
-        // TODO: 09/02/2023 respawn when semi dead
+        isDamaged = false;
+        lostMembers.clear();
+
+        isTemporaryDead = false;
+        daysPassed = 0;
+
+        if (!defeated) initFleetBackup();
+        else initPostDefeatFleet();
+
+        restoreInitialAssignment();
+
+        fleet.addEventListener(this);
     }
 
     public void respawnLostMembers(){
@@ -92,59 +225,74 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
             member.setStatUpdateNeeded(true);
         }
 
+        lostMembers.clear();
+
+        flagship.setFlagship(true);
+        fleet.setCommander(flagship.getCaptain());
+
         isDamaged = false;
+        daysPassed = 0;
+    }
+
+    public void restoreInitialAssignment(){
+        fleet.clearAssignments();
+        fleet.getMemoryWithoutUpdate().unset(MemFlags.FLEET_IGNORES_OTHER_FLEETS);
+        fleet.addAssignment(assignmentBackup.getAssignment(), assignmentBackup.getTarget(), assignmentBackup.getMaxDurationInDays());
     }
 
     @Override
     public void reportFleetDespawnedToListener(CampaignFleetAPI fleet, CampaignEventListener.FleetDespawnReason reason, Object param) {
-
-        //if player not involved in last engagement but it's dead we respawn after 14 days, otherwise, we are dead and never respawn
-        if (playerInvolvedInLastEngagement || isPermaDead) { // TODO: 09/02/2023 this sucks find a way to check if player was involved in engagement
-            isPermaDead = true;
+        //we only truly die if flagship was killed by player
+        if (flagshipKilledByPlayer && !defeated) {
+            defeated = true;
             setMemoryKeyPlayerKilledFleet();
-            fleet.removeEventListener(this);
-        } else {
-            isTemporaryDead = true;
-            daysPassed = 0;
-        }
+            overrideFleetWithPostDefeatVersion();
+
+        } else if (!defeated) overrideFleetBackupWithBlankCopy();
+        else overrideFleetWithPostDefeatVersion();
+
+        isTemporaryDead = true;
+        daysPassed = 0;
+
+        fleet.removeEventListener(this); //else we'll keep the empty fleet in memory.
     }
 
     @Override
     public void reportBattleOccurred(CampaignFleetAPI fleet, CampaignFleetAPI primaryWinner, BattleAPI battle) {
+        //if flagship dead we go fuck off, else we go recuperate
+
         List<FleetMemberAPI> membersLost = Misc.getSnapshotMembersLost(fleet);
-        float totalFPLost = originalFP - fleet.getFleetPoints();
-
-        boolean fpLimitLossExceeded = totalFPLost / originalFP >= FP_LOST_PERCENT_TO_COUNT_AS_DEAD;
         boolean playerInvolved = battle.isPlayerInvolved();
-        boolean flagshipDeadByPlayer = playerInvolved && membersLost.contains(flagship);
+        boolean flagshipDead = false;
 
-        // TODO: 09/02/2023 add return and despawn temporary when flagship killed by non player
-        // TODO: 09/02/2023 add handling when fleet attacked by player after losing flagship to npc fleet
-
-        if (flagshipDeadByPlayer && FLAGSHIP_MUST_BE_DEAD_TO_COUNT_AS_DEAD){
-            if (ALWAYS_RETURN_AND_DESPAWN_WHEN_FLAGSHIP_DEAD_BY_PLAYER || fpLimitLossExceeded){ //when flagship dead or flagship dead and limit exceeded then despawn
-                setPermaDead();
-                return;
+        for (FleetMemberAPI m : membersLost){
+            if (m.getVariant().getHullVariantId().equals(flagship.getVariant().getHullVariantId())) {
+                flagshipDead = true;
+                break;
             }
-
-        } else if (playerInvolved && !FLAGSHIP_MUST_BE_DEAD_TO_COUNT_AS_DEAD && fpLimitLossExceeded){ //flagship might be alive but losses so high we go die in a ditch
-            setPermaDead();
-            return;
         }
 
-        //if we are here the fleet was damaged but not killed
+        if (!flagshipKilledByPlayer){
+            if (playerInvolved && flagshipDead){
+                flagshipKilledByPlayer = true;
+                setMemoryKeyPlayerKilledFleet();
+                fleet.getMemoryWithoutUpdate().unset(MemFlags.ENTITY_MISSION_IMPORTANT);
+
+                if (!isDespawningOrDead()) returnToPlanetAndDespawn();
+                return;
+            }
+        }
+
+        //if we are here the fleet was damaged but not killed or it's in moes bar mode
         if (!membersLost.isEmpty()) {
             if (!isDamaged) daysPassed = 0; //if we are already damaged, don't reset the clock
 
             isDamaged = true;
             lostMembers.addAll(Misc.getSnapshotMembersLost(fleet));
-        }
-    }
 
-    private void setPermaDead(){
-        isPermaDead = true;
-        setMemoryKeyPlayerKilledFleet();
-        if (!isDespawningOrDead()) returnToPlanetAndDespawn();
+            if (flagshipDead) fleet.getMemoryWithoutUpdate().unset(MemFlags.ENTITY_MISSION_IMPORTANT);
+            if (!isDespawningOrDead()) returnToPlanetAndRecuperate();
+        }
     }
 
     private boolean isDespawningOrDead(){
@@ -159,15 +307,5 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
     @Override
     public boolean runWhilePaused() {
         return false;
-    }
-
-    @Override
-    public void advance(float amount) {
-        if (isPermaDead) return;
-
-        //schrödingers fleet checks
-        if (isTemporaryDead || isDamaged) daysPassed += Global.getSector().getClock().convertToDays(amount);
-        if (isDamaged && daysPassed > DAYS_UNTIL_FP_RECOVERY) respawnLostMembers();
-        if (isTemporaryDead && daysPassed > DAYS_UNTIL_RESPAWN) respawnFleet();
     }
 }
