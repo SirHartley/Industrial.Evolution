@@ -72,7 +72,6 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
         fleet.addEventListener(this);
     }
 
-
     @Override
     public void advance(float amount) {
         //if the respawn market does not exist we don't do jack shit
