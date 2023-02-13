@@ -1,4 +1,4 @@
-package indevo.utils.listeners;
+package indevo.other;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
