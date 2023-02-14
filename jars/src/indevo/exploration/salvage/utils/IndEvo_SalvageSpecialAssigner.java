@@ -324,6 +324,12 @@ public class IndEvo_SalvageSpecialAssigner {
                     picker.add(r.getSpecialItemId());
             }
 
+            for (DropGroupRow r : DropGroupRow.getPicker("indEvo_tech_event").getItems()) {
+                if (r.isNothing()) continue;
+                if (r.isSpecialItem() && r.getSpecialItemId() != null && !r.getSpecialItemId().isEmpty())
+                    picker.add(r.getSpecialItemId());
+            }
+
             //used to crash because the chosen item was "", no idea what happened, but we'll pick as long as we have to god damn it (or 10 times)
             String item = picker.pick();
             int safeguard = 0;
