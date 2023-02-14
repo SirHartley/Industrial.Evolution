@@ -48,3 +48,9 @@ item_IndEvo_consumable_spike,indEvo_consumables_always,12
 item_IndEvo_consumable_scoop,indEvo_consumables_always,3
 item_IndEvo_consumable_decoy,indEvo_consumables_always,4
 ,,
+item_IndEvo_log_core,indEvo_tech_event,1
+item_IndEvo_neurals,indEvo_tech_event,1
+item_IndEvo_transmitter,indEvo_tech_event,1
+item_IndEvo_simulator,indEvo_tech_event,1
+"item_IndEvo_ForgeTemplate_2:{tags:[rare_bp, !no_drop]}",indEvo_tech_event,1
+item_:{tags:[IndEvo_VPC_rare]},indEvo_tech_event,1
