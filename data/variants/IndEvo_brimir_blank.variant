@@ -1,0 +1,23 @@
+{
+  "variantId": "IndEvo_brimir_blank",
+  "hullId": "IndEvo_brimir",
+  "displayName": "blank",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [
+    {"FRONT_LEFT": "IndEvo_brimir_front_left_blank"},
+    {"FRONT_RIGHT": "IndEvo_brimir_front_right_blank"},
+    {"MIDFRONT_RIGHT": "IndEvo_brimir_upmid_right_blank"},
+    {"MIDFRONT_LEFT": "IndEvo_brimir_upmid_left_blank"},
+    {"MIDREAR_RIGHT": "IndEvo_brimir_lowmid_right_blank"},
+    {"MIDREAR_LEFT": "IndEvo_brimir_lowmid_left_blank"},
+    {"REAR_RIGHT": "IndEvo_brimir_rear_right_blank"},
+    {"REAR_LEFT": "IndEvo_brimir_rear_left_blank"}
+  ],
+  "wings": []
+}

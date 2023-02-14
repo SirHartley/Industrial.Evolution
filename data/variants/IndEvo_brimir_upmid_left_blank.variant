@@ -1,0 +1,14 @@
+{
+  "variantId": "IndEvo_brimir_upmid_left_blank",
+  "hullId": "IndEvo_brimir_upmid_left",
+  "displayName": "blank",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}

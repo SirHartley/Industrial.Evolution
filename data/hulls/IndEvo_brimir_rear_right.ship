@@ -1,0 +1,58 @@
+{
+  "hullName": "Gun Module",
+  "hullId": "IndEvo_brimir_rear_right",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/IndEvo_brimir/brimir_rear_right.png",
+  "style": "LOW_TECH",
+  "height": 168,
+  "width": 80,
+  "center": [40, 84],
+  "collisionRadius": 119,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 109.5,
+  "viewOffset": 0,
+  "builtInMods":[
+    "never_detaches"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "LARGE",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 124,
+      "angle": -119.5,
+      "locations": [-27, 9]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 124,
+      "angle": -106,
+      "locations": [12, 9]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 124,
+      "angle": -90,
+      "locations": [36, -0]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    83.5, -18,
+    72, -37.5,
+    -6, -29,
+    -35.5, -33,
+    -80, -8.5,
+    -78, 16.5,
+    -21, 33,
+    46, 7,
+    51, -8
+  ]
+}

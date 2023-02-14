@@ -1,0 +1,168 @@
+{
+  "hullName": "Gun Module",
+  "hullId": "IndEvo_brimir_front_left",
+  "hullSize": "CRUISER",
+  "spriteName": "graphics/ships/IndEvo_brimir/brimir_front_left.png",
+  "style": "LOW_TECH",
+  "height": 348,
+  "width": 192,
+  "center": [96, 174],
+  "collisionRadius": 231.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 219,
+  "viewOffset": 0,
+  "builtInMods":[
+    "never_detaches"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 86.5,
+      "locations": [-114, 56]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 76,
+      "locations": [-88, 50]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 57.5,
+      "locations": [-62, 42]
+    },
+    {
+      "id": "WS0004",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 51.5,
+      "locations": [-36, 33]
+    },
+    {
+      "id": "WS0005",
+      "size": "MEDIUM",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 37,
+      "locations": [-10, 22]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 77.5,
+      "locations": [-125, 88]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 77.5,
+      "locations": [-95, 82]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 66,
+      "locations": [-67, 74]
+    },
+    {
+      "id": "WS0009",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 56.5,
+      "locations": [-40, 64]
+    },
+    {
+      "id": "WS0010",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 45,
+      "locations": [-11, 51]
+    },
+    {
+      "id": "WS0011",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 32,
+      "locations": [18, 35]
+    },
+    {
+      "id": "WS0012",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 56.5,
+      "locations": [65, -30]
+    },
+    {
+      "id": "WS0013",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 50,
+      "locations": [83, -39]
+    },
+    {
+      "id": "WS0014",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 33.5,
+      "locations": [100, -49]
+    },
+    {
+      "id": "WS0015",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 125,
+      "angle": 22.5,
+      "locations": [117, -60]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    -162, 85,
+    -70.5, 69,
+    28, 22,
+    123, -22,
+    123, -47,
+    173.5, -88.5,
+    123, -91,
+    6.5, -30,
+    -6.5, 1.5,
+    -111, 35,
+    -172.5, 44.5
+  ]
+}

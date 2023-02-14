@@ -1,0 +1,7 @@
+upon approach - show message
+    - emergency cryopod eject detected - seems like it was triggered due to a sudden reactor overload.
+    A reactor meltdown can likely be avoided by immediate intervention - however, the pod is on an unstable trajectory and you will likely lose it unless you act quickly.
+
+display countdown via floating text above ship (10s?)
+
+on interaction despawn pod or explode ship, whatever is chosen

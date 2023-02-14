@@ -7,3 +7,15 @@ Artillery Station,IndEvo_artilleryStation_base,Artillery Station,,,250,40000,160
 ,IndEvo_RailgunDecoModule,,,,0,1,0,0,0,0,0,,0,0,0,0,0,0,NONE,,0,0,0,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",,,0,,,,5004
 ,IndEvo_artilleryStation_mortarModule,Mortar,,,1,15000,2000,15000,25000,1000,1000,,0,0,0,10,10,1000,NONE,,0,0.4,0.7,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",,,0.5,2,4,,5002
 #ref,module_hightech_armour,Station Armour,,,1,20000,4000,0,2500,100,0,,0,0,0,3,6,1000,NONE,,0,0,0,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",module_hull_bar_only,,1,2,3,,2074
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Brimir,IndEvo_brimir,Battleship,Low Tech,burndrive,28,20000,1750,17000,15000,600,360,,25,10,10,4,4,3500,FRONT,,180,0.4,1,,,750,1500,300,400,15,27,7,350000,3,12,720,0.25,40,40,,,,,,,SHIP_WITH_MODULES,,,0.4,2,4,,500
+,IndEvo_brimir_front_left,Module,,,1,10000,1200,10000,25000,800,100,,0,0,0,10,10,1000,FRONT,,120,0.4,0.7,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",,,0.5,2,4,,5001
+,IndEvo_brimir_front_right,Module,,,1,10000,1200,10000,25000,800,100,,0,0,0,10,10,1000,FRONT,,120,0.4,0.7,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",,,0.5,2,4,,5001
+,IndEvo_brimir_lowmid_left,Module,,,1,10000,1200,10000,25000,800,0,,0,0,0,10,10,1000,FRONT,,120,0.4,0.7,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",module_hull_bar_only,,0.5,2,4,,5001
+,IndEvo_brimir_lowmid_right,Module,,,1,10000,1200,10000,25000,800,0,,0,0,0,10,10,1000,FRONT,,120,0.4,0.7,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",module_hull_bar_only,,0.5,2,4,,5001
+,IndEvo_brimir_rear_left,Module,,,1,10000,1200,10000,25000,800,100,,0,0,0,10,10,1000,FRONT,,120,0.4,0.7,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",,,0.5,2,4,,5001
+,IndEvo_brimir_rear_right,Module,,,1,10000,1200,10000,25000,800,100,,0,0,0,10,10,1000,FRONT,,120,0.4,0.7,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",,,0.5,2,4,,5001
+,IndEvo_brimir_upmid_left,Module,,,1,10000,1200,10000,25000,800,0,,0,0,0,10,10,1000,FRONT,,120,0.4,0.7,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",module_hull_bar_only,,0.5,2,4,,5001
+,IndEvo_brimir_upmid_right,Module,,,1,10000,1200,10000,25000,800,0,,0,0,0,10,10,1000,FRONT,,120,0.4,0.7,,,0,0,0,0,1,0,,500000,,1,,,0,0,,,,,,,"UNBOARDABLE, HIDE_IN_CODEX",module_hull_bar_only,,0.5,2,4,,5001
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

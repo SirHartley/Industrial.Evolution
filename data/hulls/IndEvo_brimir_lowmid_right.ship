@@ -1,0 +1,40 @@
+{
+  "hullName": "Armor",
+  "hullId": "IndEvo_brimir_lowmid_right",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/IndEvo_brimir/brimir_lowmid_right.png",
+  "style": "LOW_TECH",
+  "height": 208,
+  "width": 68,
+  "center": [34, 104],
+  "collisionRadius": 138.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 128,
+  "viewOffset": 0,
+  "builtInMods":[
+    "always_detaches"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "BALLISTIC",
+      "mount": "TURRET",
+      "arc": 134,
+      "angle": -78.5,
+      "locations": [10, 11]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    -100.5, -26.5,
+    1.5, -30.5,
+    87.5, -17,
+    84.5, -5.5,
+    98, 3,
+    92, 32,
+    39.5, 18,
+    3.5, 25,
+    -98.5, -5
+  ]
+}

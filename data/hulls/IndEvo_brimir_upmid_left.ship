@@ -1,0 +1,29 @@
+{
+  "hullName": "Armor",
+  "hullId": "IndEvo_brimir_upmid_left",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/IndEvo_brimir/brimir_upmid_left.png",
+  "style": "LOW_TECH",
+  "height": 154,
+  "width": 60,
+  "center": [30, 77],
+  "collisionRadius": 104.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 99.5,
+  "viewOffset": 0,
+  "builtInMods":[
+    "always_detaches"
+  ],
+  "weaponSlots": [],
+  "engineSlots": [],
+  "bounds": [
+    -73.5, 23.5,
+    38, 12.5,
+    37, 1.5,
+    75.5, -13,
+    67, -24.5,
+    -5.5, -11.5,
+    -57, -10.5,
+    -75.5, 11
+  ]
+}
