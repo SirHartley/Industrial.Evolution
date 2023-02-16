@@ -91,6 +91,11 @@ public class ModPlugin extends BaseModPlugin {
     public void onGameLoad(boolean newGame) {
         //Global.getSector().getPlayerFleet().setFaction("hegemony");
 
+         if (newGame) {
+             SectorEntityToken t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity("brimir", null, "IndEvo_MobileColony", null, null);
+             t.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
+         }
+
         ArtilleryStationPlacer.placeCoreWorldArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next save breaking one
         ArtilleryStationPlacer.placeDerelictArtilleries(); //same here
         GachaStationPlacer.place(); // TODO: 23/10/2022 move to onNewGame

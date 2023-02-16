@@ -374,6 +374,12 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     }
 
     public float getResearchValue(ShipVariantAPI shipVar) {
+
+        if (shipVar == null) {
+            log.error("EngineeringHub ShipVar == null!");
+            return 0f;
+        }
+
         //get research value for specific hull
         Map<ShipAPI.HullSize, Float> valueMap = getBaseHullSizeValueMap();
 
@@ -396,8 +402,8 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     }
 
     private int getRequiredDaysForHull(ShipVariantAPI ship) {
-        int baseMod = Math.round(getBaseHullSizeValueMap().get(ship.getHullSize()) * 57);
-        baseMod -= 5; //reduce by 5 to get the day count I want, fuck you
+        int baseMod = Math.round(getBaseHullSizeValueMap().get(ship.getHullSize()) * 57); //what?
+        baseMod -= 5; //reduce by 5 to get the day count I want, fuck you (future me - what??)
 
         return baseMod;
     }

@@ -181,14 +181,14 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin imple
         //faction for colours, height of each row, [column 1 header, column 1 width, column 2 header, column 2 width, column 3...)
         tooltip.beginTable(marketFaction, 20f, "Ship Hull", 190f, "D-Mods", 100f, "Progress", 100f);
 
-        for (FleetMemberAPI ship : getCargo().getMothballedShips().getMembersListCopy()) {
+        for (FleetMemberAPI member : getCargo().getMothballedShips().getMembersListCopy()) {
 
             //define what you want in the row
             EngineeringHub engineeringHub = ((EngineeringHub) market.getIndustry(Ids.ENGHUB));
 
-            String designation = ship.getHullSpec().getHullName();
-            String dmods = engineeringHub.getNumNonBuiltInDMods(ship.getVariant()) + "";
-            String progress = "+ " + Math.round(engineeringHub.getResearchValue(ship.getVariant()) * 100) + "%";
+            String designation = member.getHullSpec().getHullName();
+            String dmods = engineeringHub.getNumNonBuiltInDMods(member.getVariant()) + "";
+            String progress = "+ " + Math.round(engineeringHub.getResearchValue(member.getVariant()) * 100) + "%";
 
             //add the row
             tooltip.addRow(designation, dmods, progress);

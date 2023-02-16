@@ -2,6 +2,8 @@
 --------------------------- To-do -----------------------------
 Bugs
 - Artillery stations are stuck in perma-repair on game start and never repair themselves
+    Fix by removing, then adding all industries one frame after game start
+- Replace the "stable loc" interaction dialogue to make it not count watchtowers as stable loc
 
 Requests
 - Make Lab switch the chosen commodity output for beta core bonus somehow
@@ -62,6 +64,9 @@ adjust salvage event "Ship Roulette" -
 General
 Added - Planet Jump listener, interface to notify when a planet has finished jumping via rift generator
 
+Salvage Interactions
+Fixed - "Exploding Room" special can now pick (certain) Industrial Evolution items again
+
 Minefields
 Added - Tooltip showing controlling entity
 Fixed - Damage halved and now scales with fleet size up to (hit chance is still fleet size and speed)
@@ -74,6 +79,9 @@ Fixed - Broken Tooltips
 
 Requisitions center
 Fixed - Broken Tooltips
+
+Engineering Hub
+"Fixed" - Crash when Variant is null (I don't know why it does that and the fix is a bandaid.)
 
 World Wonders
 Fixed - Dark Palace "Ressource" typo
