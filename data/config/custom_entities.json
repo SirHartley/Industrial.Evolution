@@ -1,18 +1,18 @@
 {
 	"IndEvo_MobileColony":{
 		"defaultName":"Brimir-Class Colony Ship", # used if name=null in addCustomEntity()
-		"defaultRadius":150, # used if radius<0 in addCustomEntity(),
+		"defaultRadius":80, # used if radius<0 in addCustomEntity(),
 		"nameInText":"mobile colony",
 		"shortName":"colony",
 		"aOrAn":"a",
 		"isOrAre":"is",
 		"interactionImage":"graphics/illustrations/gacha_station_interaction_red.png",
 		"icon":"graphics/icons/IndEvo_station3.png",
-		"iconWidth":45,
-		"iconHeight":89,
+		"iconWidth":18,
+		"iconHeight":36,
 		"sprite":"graphics/ships/IndEvo_brimir/campaign/brimir_campaign_mortar.png",
-		#"spriteWidth":118,
-		"spriteHeight":200,
+		"spriteWidth":73,
+		"spriteHeight":143,
 		"renderShadow":false, #true,
 		"useLightColor":true,
 		"showInCampaign":true,
