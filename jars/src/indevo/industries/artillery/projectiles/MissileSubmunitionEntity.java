@@ -137,6 +137,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
         }
     }
 
+    @Deprecated
     public void advanceProjectileTowardsEnemy(float amount){
         //FRONT TOWARDS ENEMY
 

@@ -117,8 +117,8 @@ public class MobileColonyInteractionDialoguePlugin implements InteractionDialogP
     }
 
     private void addTooltip(TextPanelAPI panel) {
-        CampaignFleetAPI f = DetachmentMemory.getDetachment(detachmentNum);
-        dialog.getVisualPanel().showFleetInfo(f.getName(), f, null, null);
+        //CampaignFleetAPI f = DetachmentMemory.getDetachment(detachmentNum);
+        //dialog.getVisualPanel().showFleetInfo(f.getName(), f, null, null);
     }
 
     @Override

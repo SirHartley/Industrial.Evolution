@@ -22,6 +22,7 @@
 		"scaleIconWithZoom":true,
 		"tags":["IndEvo_mobileColony"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+		"pluginClass":"indevo.WIP.mobilecolony.entities.MobileColonyEntityPlugin",
 	},
 
 	"SplinterFleet_OrbitFocus":{

@@ -5,7 +5,7 @@ Roadmap
     - while deployed, we'll just have it be a normal entity with a market
     - while mobile, intercept dialogue and fake the colony screens
     - make count as station!!
-- Implement model with trails (it should be flying around its orbit when in deployed mode)
+X Implement model with trails (it should be flying around its orbit when in deployed mode)
 - Implement actual ship (fuck)
 - Create two mode toggle (via dialogue for now)
  - When stationary, full colony access and behaviour
