@@ -47,7 +47,7 @@ public class SpecialItemEffectsRepo {
     }
 
     public static float SIMULATOR_BASE_INCREASE = 0.1f;
-    public static int RANGE_LY_TEN = 12;
+    public static int RANGE_LY_TWELVE = 12;
     public static float NEURAL_COMPOUNDS_UNREST_RED = 0.5f;
     public static String TRANSMITTER_UNLOCK_KEY = "$IndEvo_RelayUnlocked";
     public static int LOG_CORE_MAX_BONUS = 4;
@@ -69,10 +69,10 @@ public class SpecialItemEffectsRepo {
 
                 String s = StringHelper.getAbsPercentString(NEURAL_COMPOUNDS_UNREST_RED, false) + "%";
 
-                text.addPara(pre + "All industries within " + RANGE_LY_TEN + "LY wil be counted for Bureau bonuses," +
+                text.addPara(pre + "All industries within " + RANGE_LY_TWELVE + "LY wil be counted for Bureau bonuses," +
                                 " and the maximum bonus effect is increased to " + LOG_CORE_MAX_BONUS,
                         pad, Misc.getHighlightColor(),
-                        new String[]{RANGE_LY_TEN + "LY", LOG_CORE_MAX_BONUS + ""});
+                        new String[]{RANGE_LY_TWELVE + "LY", LOG_CORE_MAX_BONUS + ""});
             }
         });
 
@@ -136,10 +136,10 @@ public class SpecialItemEffectsRepo {
 
                 String s = StringHelper.getAbsPercentString(SIMULATOR_BASE_INCREASE, false) + "%";
 
-                text.addPara(pre + "Applies the Supercomputer Effect to any friendly colony within " + RANGE_LY_TEN + "LY" +
-                                " and increases the effect by " + s,
+                text.addPara(pre + "Applies the Supercomputer Effect to any friendly colony within " + RANGE_LY_TWELVE + "LY" +
+                                " and increases the effect by " + s + ", scaling with distance.",
                         pad, Misc.getHighlightColor(),
-                        new String[]{RANGE_LY_TEN + "LY", s});
+                        new String[]{RANGE_LY_TWELVE + "LY", s});
             }
         });
 
@@ -189,10 +189,10 @@ public class SpecialItemEffectsRepo {
 
                 String s = StringHelper.getAbsPercentString(NEURAL_COMPOUNDS_UNREST_RED, false) + "%";
 
-                text.addPara(pre + "Allows you to issue Edicts on any friendly colony within " + RANGE_LY_TEN + "LY" +
+                text.addPara(pre + "Allows you to issue Edicts on any friendly colony within " + RANGE_LY_TWELVE + "LY" +
                                 " and reduces the unrest after preliminary removal by " + s,
                         pad, Misc.getHighlightColor(),
-                        new String[]{RANGE_LY_TEN + "LY", s});
+                        new String[]{RANGE_LY_TWELVE + "LY", s});
             }
         });
 

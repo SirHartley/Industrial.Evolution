@@ -100,7 +100,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
         for (MarketAPI market : Misc.getNearbyMarkets(localMarket.getLocationInHyperspace(), 10)) {
             if (!market.isPlayerOwned()) continue;
 
-            if (Misc.getDistanceLY(market.getLocationInHyperspace(), localMarket.getLocationInHyperspace()) <= SpecialItemEffectsRepo.RANGE_LY_TEN) {
+            if (Misc.getDistanceLY(market.getLocationInHyperspace(), localMarket.getLocationInHyperspace()) <= SpecialItemEffectsRepo.RANGE_LY_TWELVE) {
                 if (market.hasIndustry(Ids.SENATE) && !market.getIndustry(Ids.SENATE).isBuilding() && market.getIndustry(Ids.SENATE).getSpecialItem() != null) {
                     senateInRange = true;
                     break;

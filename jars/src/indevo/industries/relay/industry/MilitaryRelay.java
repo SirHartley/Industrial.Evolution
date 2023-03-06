@@ -30,8 +30,6 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.items.installable.SpecialItemEffectsRepo.RANGE_LY_TEN;
-
 
 public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 

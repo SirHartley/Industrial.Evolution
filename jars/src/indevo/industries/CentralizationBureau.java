@@ -29,7 +29,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.items.installable.SpecialItemEffectsRepo.RANGE_LY_TEN;
+import static indevo.items.installable.SpecialItemEffectsRepo.RANGE_LY_TWELVE;
 
 public class CentralizationBureau extends BaseIndustry {
 
@@ -84,7 +84,7 @@ public class CentralizationBureau extends BaseIndustry {
         if (getSpecialItem() != null) {
             for (MarketAPI m : Misc.getFactionMarkets(market.getFaction())) {
                 float dist = Misc.getDistanceLY(m.getLocationInHyperspace(), market.getLocationInHyperspace());
-                if (dist <= SpecialItemEffectsRepo.RANGE_LY_TEN) {
+                if (dist <= SpecialItemEffectsRepo.RANGE_LY_TWELVE) {
                     targetMarkets.add(m);
                 }
             }
@@ -714,7 +714,7 @@ public class CentralizationBureau extends BaseIndustry {
 
                 if (ind.isFunctional() && ind.getSpecialItem() != null) {
                     float dist = Misc.getDistanceLY(locInHyper, ind.getMarket().getLocationInHyperspace());
-                    if (dist < RANGE_LY_TEN) {
+                    if (dist < RANGE_LY_TWELVE) {
                         marketAPISet.add(market);
                     }
                 }
@@ -741,13 +741,13 @@ public class CentralizationBureau extends BaseIndustry {
                 String lights = "light-years";
                 if (dStr.equals("1")) lights = "light-year";
 
-                if (p.two > RANGE_LY_TEN) {
+                if (p.two > RANGE_LY_TWELVE) {
                     text.addPara("The nearest Centralization Bureau with a Logistics AI core is located in the " +
                                     p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away. The maximum " +
                                     "range in which resource management is possible is %s light-years.",
                             opad, h,
                             "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two),
-                            "" + (int) RANGE_LY_TEN);
+                            "" + (int) RANGE_LY_TWELVE);
                 } else {
                     Set<MarketAPI> s = getListOfActiveBureausInRange(entity.getLocationInHyperspace());
 

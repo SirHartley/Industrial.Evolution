@@ -16,7 +16,7 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 
-import static indevo.items.installable.SpecialItemEffectsRepo.RANGE_LY_TEN;
+import static indevo.items.installable.SpecialItemEffectsRepo.RANGE_LY_TWELVE;
 
 public class Senate extends BaseIndustry {
 
@@ -199,13 +199,14 @@ public class Senate extends BaseIndustry {
                 String lights = "light-years";
                 if (dStr.equals("1")) lights = "light-year";
 
-                if (p.two > RANGE_LY_TEN) {
+                if (p.two > RANGE_LY_TWELVE) {
                     text.addPara("The nearest Senate with Neuroconditioning Compounds is located in the " +
                                     p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away. The maximum " +
-                                    "range in which covert compound deployment is possible is %s light-years.",
+                                    "range in which covert compound deployment is possible is %s light-years. It is %s to issue edicts through compound application here.",
                             opad, h,
                             "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two),
-                            "" + (int) RANGE_LY_TEN);
+                            "" + (int) RANGE_LY_TWELVE,
+                            "not possible");
                 } else {
                     text.addPara("The nearest Senate with Neuroconditioning Compounds is located in the " +
                                     p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away, allowing " +

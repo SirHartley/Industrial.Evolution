@@ -75,6 +75,8 @@ Added - Tooltip showing controlling entity
 Fixed - Damage halved and now scales with fleet size up to (hit chance is still fleet size and speed)
 
 Items
+Adjusted - Added info about scaling effect to supercomputer item ("Simulation Engine")
+Adjusted - Clarified tooltip if senate with item is in range or not ("Neural Compounds")
 Fixed - Planet "in Range" tooltip no longer incorrectly states 12 LY range restriction for hypertransmitter (it's infinite as intended)
 
 Restoration Docks

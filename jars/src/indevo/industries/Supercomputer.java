@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import static indevo.items.installable.SpecialItemEffectsRepo.RANGE_LY_TEN;
+import static indevo.items.installable.SpecialItemEffectsRepo.RANGE_LY_TWELVE;
 import static indevo.items.installable.SpecialItemEffectsRepo.SIMULATOR_BASE_INCREASE;
 
 public class Supercomputer extends SharedSubmarketUser implements EconomyTickListener, NewDayListener {
@@ -620,9 +620,9 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
                         minDist = dist;
                         nearest = market;
 
-                        if (dist > RANGE_LY_TEN) bonus = 0f;
+                        if (dist > RANGE_LY_TWELVE) bonus = 0f;
                         else {
-                            float f = 1f - dist / RANGE_LY_TEN;
+                            float f = 1f - dist / RANGE_LY_TWELVE;
                             if (f < 0f) f = 0f;
                             if (f > 1f) f = 1f;
 
@@ -663,9 +663,9 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
     public static float getDistanceIncomeMult(Vector2f locInHyper) {
         Pair<MarketAPI, Float> p = getNearestSupCom(locInHyper);
         if (p == null) return 0f;
-        if (p.two > RANGE_LY_TEN) return 0f;
+        if (p.two > RANGE_LY_TWELVE) return 0f;
 
-        float f = 1f - p.two / RANGE_LY_TEN;
+        float f = 1f - p.two / RANGE_LY_TWELVE;
         if (f < 0f) f = 0f;
         if (f > 1f) f = 1f;
 
@@ -692,13 +692,13 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
                 String lights = "light-years";
                 if (dStr.equals("1")) lights = "light-year";
 
-                if (p.two > RANGE_LY_TEN) {
+                if (p.two > RANGE_LY_TWELVE) {
                     text.addPara("The nearest Simulation Engine is located in the " +
                                     p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away. The maximum " +
                                     "range before the signal delay is too large for accurate calculations is %s light-years.",
                             opad, h,
                             "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two),
-                            "" + (int) RANGE_LY_TEN);
+                            "" + (int) RANGE_LY_TWELVE);
                 } else {
                     text.addPara("The nearest Simulation Engine is located in the " +
                                     p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away, allowing " +
