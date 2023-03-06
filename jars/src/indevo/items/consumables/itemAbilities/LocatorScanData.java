@@ -57,6 +57,7 @@ public class LocatorScanData {
 
         for (StarSystemAPI system : Global.getSector().getStarSystems()) {
             SectorEntityToken entity = system.getHyperspaceAnchor();
+            if(entity == null || entity.getLocation() == null) continue;
 
             float dist = Misc.getDistance(loc, entity.getLocation());
 

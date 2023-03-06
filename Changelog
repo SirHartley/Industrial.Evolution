@@ -67,6 +67,9 @@ Added - Planet Jump listener, interface to notify when a planet has finished jum
 Salvage Interactions
 Fixed - "Exploding Room" special can now pick (certain) Industrial Evolution items again
 
+Consumable Items
+Fixed - Crash when tech locator tries to point to a system that has no hyperspace anchor (ICE again...)
+
 Minefields
 Added - Tooltip showing controlling entity
 Fixed - Damage halved and now scales with fleet size up to (hit chance is still fleet size and speed)
