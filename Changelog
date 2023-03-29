@@ -62,22 +62,27 @@ adjust salvage event "Ship Roulette" -
 -----------------------o-----------------------
 3.2.d
 General
-Added - Planet Jump listener, interface to notify when a planet has finished jumping via rift generator
+Added - Planet Jump listener, interface to notify when a planet has finished jumping via rift generator (for modders)
+
+Automated Shipyards
+Adjusted - new interaction image (the old one was kinda trash)
 
 Salvage Interactions
 Fixed - "Exploding Room" special can now pick (certain) Industrial Evolution items again
 
-Consumable Items
-Fixed - Crash when tech locator tries to point to a system that has no hyperspace anchor (ICE again...)
-
 Minefields
 Added - Tooltip showing controlling entity
-Fixed - Damage halved and now scales with fleet size up to (hit chance is still fleet size and speed)
+Fixed - Base damage halved
+Fixed - Damage now properly scales with fleet size (hit chance is still fleet size and speed)
 
 Items
-Adjusted - Added info about scaling effect to supercomputer item ("Simulation Engine")
-Adjusted - Clarified tooltip if senate with item is in range or not ("Neural Compounds")
-Fixed - Planet "in Range" tooltip no longer incorrectly states 12 LY range restriction for hypertransmitter (it's infinite as intended)
+Adjusted - Simulation Engine - Added tooltip info about scaling effect
+Adjusted - Neural Compounds - Clarified tooltip if senate with item is in range or not
+Fixed - Planet "in Range" tooltip no longer incorrectly states 12 LY range restriction for hypertransmitter, it's infinite as intended
+Fixed - Crash when tech locator tries to point to a system that has no hyperspace anchor (????)
+
+Commerce
+Fixed - No longer resets build times on load/save
 
 Restoration Docks
 Fixed - Broken Tooltips
@@ -89,10 +94,10 @@ Engineering Hub
 "Fixed" - Crash when Variant is null (I don't know why it does that and the fix is a bandaid.)
 
 World Wonders
-Fixed - Dark Palace "Ressource" typo
+Fixed - Dark Palace "Ressource" typo (literally unplayable)
 
 Ancient Laboratory
-Added - Now supports switching the bonus commodity when a beta core is installed
+Added - Now supports switching the bonus commodity when a beta core is installed (via story point dialogue for 0 SP)
 
 3.2.c
 Privateer Base

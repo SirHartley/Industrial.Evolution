@@ -1,57 +1,60 @@
 package indevo.utils;
 
-import com.fs.starfarer.api.*;
-import indevo.ids.Ids;
-import indevo.industries.OrbitalStation;
-import indevo.industries.artillery.scripts.EyeIndicatorScript;
-import indevo.utils.trails.MagicCampaignTrailPlugin;
+import com.fs.starfarer.api.BaseModPlugin;
+import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.PluginPick;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import indevo.economy.listeners.ResourceConditionApplicator;
-import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.items.consumables.listeners.LocatorSystemRatingUpdater;
-import indevo.items.consumables.listeners.SpooferItemKeypressListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.combat.MissileAIPlugin;
 import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
-import indevo.industries.ruinfra.utils.DerelictInfrastructurePlacer;
-import indevo.exploration.gacha.GachaStationCampaignPlugin;
-import indevo.exploration.gacha.GachaStationPlacer;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
-import indevo.industries.courierport.listeners.ShippingManager;
-import indevo.items.installable.SpecialItemEffectsRepo;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
-import indevo.dialogue.research.DoritoGunFoundChecker;
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
-import indevo.exploration.minefields.conditions.MineFieldCondition;
-import indevo.exploration.minefields.listeners.RecentJumpListener;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
-import indevo.industries.artillery.utils.ArtilleryStationPlacer;
-import indevo.exploration.stations.DerelictStationPlacer;
-import indevo.industries.derelicts.utils.RuinsManager;
-import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
-import indevo.items.consumables.listeners.ConsumableItemMarketAdder;
-import indevo.items.listeners.ShipComponentLootManager;
-import indevo.industries.assembler.listeners.DepositMessage;
-import indevo.items.consumables.listeners.ConsumableItemDropListener;
-import indevo.items.listeners.SpecialItemDropsListener;
-import indevo.utils.helper.IndustryHelper;
-import indevo.utils.timers.TimeTracker;
-import indevo.utils.timers.RaidTimeout;
-import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
-import indevo.utils.update.NewGameIndustryPlacer;
-import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
-import indevo.abilities.splitfleet.dialogue.DialogueInterceptListener;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
 import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
+import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
+import indevo.abilities.splitfleet.dialogue.DialogueInterceptListener;
+import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
+import indevo.dialogue.research.DoritoGunFoundChecker;
+import indevo.economy.listeners.ResourceConditionApplicator;
+import indevo.exploration.gacha.GachaStationCampaignPlugin;
+import indevo.exploration.gacha.GachaStationPlacer;
+import indevo.exploration.minefields.conditions.MineFieldCondition;
+import indevo.exploration.minefields.listeners.RecentJumpListener;
+import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
+import indevo.exploration.stations.DerelictStationPlacer;
+import indevo.ids.Ids;
+import indevo.industries.OrbitalStation;
+import indevo.industries.TradeCenter;
+import indevo.industries.artillery.scripts.EyeIndicatorScript;
+import indevo.industries.artillery.utils.ArtilleryStationPlacer;
+import indevo.industries.assembler.listeners.DepositMessage;
+import indevo.industries.courierport.listeners.ShippingManager;
+import indevo.industries.derelicts.utils.RuinsManager;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
+import indevo.industries.ruinfra.utils.DerelictInfrastructurePlacer;
+import indevo.items.consumables.listeners.ConsumableItemDropListener;
+import indevo.items.consumables.listeners.ConsumableItemMarketAdder;
+import indevo.items.consumables.listeners.LocatorSystemRatingUpdater;
+import indevo.items.consumables.listeners.SpooferItemKeypressListener;
+import indevo.items.installable.SpecialItemEffectsRepo;
+import indevo.items.listeners.ShipComponentLootManager;
+import indevo.items.listeners.SpecialItemDropsListener;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.timers.RaidTimeout;
+import indevo.utils.timers.TimeTracker;
+import indevo.utils.trails.MagicCampaignTrailPlugin;
+import indevo.utils.update.NewGameIndustryPlacer;
 import org.dark.shaders.light.LightData;
 import org.dark.shaders.util.ShaderLib;
 
@@ -63,7 +66,7 @@ import static indevo.industries.academy.rules.IndEvo_AcademyVariables.ACADEMY_MA
 
 public class ModPlugin extends BaseModPlugin {
     public static void log(String Text) {
-       if(Global.getSettings().isDevMode()) Global.getLogger(ModPlugin.class).info(Text);
+        if (Global.getSettings().isDevMode()) Global.getLogger(ModPlugin.class).info(Text);
     }
 
     public static int DEALMAKER_INCOME_PERCENT_BONUS = 25;
@@ -83,7 +86,6 @@ public class ModPlugin extends BaseModPlugin {
         if (hasGraphicsLib) {
             ShaderLib.init();
             LightData.readLightDataCSV("data/lights/IndEvo_lights.csv");
-//            TextureData.readTextureDataCSV("data/lights/IndEvo_texture.csv");
         }
     }
 
@@ -91,26 +93,13 @@ public class ModPlugin extends BaseModPlugin {
     public void onGameLoad(boolean newGame) {
         //Global.getSector().getPlayerFleet().setFaction("hegemony");
 
-         if (newGame) {
-             SectorEntityToken t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity("brimir", null, "IndEvo_MobileColony", null, null);
-             t.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
-         }
+        if (newGame && Global.getSettings().isDevMode()) {
+            SectorEntityToken t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity("brimir", null, "IndEvo_MobileColony", null, null);
+            t.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
+        }
 
-        ArtilleryStationPlacer.placeCoreWorldArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next save breaking one
-        ArtilleryStationPlacer.placeDerelictArtilleries(); //same here
-        GachaStationPlacer.place(); // TODO: 23/10/2022 move to onNewGame
-
-        ModManagerAPI mm = Global.getSettings().getModManager();
-        boolean yunruindustries = mm.isModEnabled("yunruindustries");
-        boolean yunruTechmining = mm.isModEnabled("yunrutechmining");
-
-        if (Global.getSettings().getBoolean("IndEvo_CommerceBalanceChanges")) overrideVanillaCommerce();
-
-        overrideVanillaOrbitalStations();
-
+        //core
         createAcademyMarket();
-
-        //updateVersionIfNeeded(newGame);
         setListenersIfNeeded();
         setScriptsIfNeeded();
 
@@ -119,12 +108,21 @@ public class ModPlugin extends BaseModPlugin {
 
         loadTransientMemory();
 
+        //artillery
+        overrideVanillaOrbitalStations();
+        ArtilleryStationPlacer.placeCoreWorldArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next save breaking one
+        ArtilleryStationPlacer.placeDerelictArtilleries(); //same here
+        GachaStationPlacer.place(); // TODO: 23/10/2022 move to onNewGame
+
+        //balance changes
+        if (Global.getSettings().getBoolean("IndEvo_CommerceBalanceChanges")) overrideVanillaCommerce();
+
         LocatorSystemRatingUpdater.updateAllSystems();
         resetDerelictRep();
     }
 
-    public void overrideVanillaOrbitalStations(){
-        for (IndustrySpecAPI spec : Global.getSettings().getAllIndustrySpecs()){
+    public void overrideVanillaOrbitalStations() {
+        for (IndustrySpecAPI spec : Global.getSettings().getAllIndustrySpecs()) {
             if (spec.hasTag(Tags.STATION) && spec.getPluginClass().equals("com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation")) {
 
                 log("replacing industry spec " + spec.getId());
@@ -146,7 +144,7 @@ public class ModPlugin extends BaseModPlugin {
 
     //runcode com.fs.starfarer.api.plugins.ModPlugin.report()
 
-    public static void report(){
+    public static void report() {
         for (IndustrySpecAPI spec : Global.getSettings().getAllIndustrySpecs()) {
             if (spec.hasTag(Tags.STATION)) {
                 String id = spec.getId();
@@ -219,7 +217,7 @@ public class ModPlugin extends BaseModPlugin {
     }
 
     protected void restoreRemovedEntities() {
-        if(!Global.getSettings().getBoolean("Enable_IndEvo_minefields")) return;
+        if (!Global.getSettings().getBoolean("Enable_IndEvo_minefields")) return;
 
         for (SectorEntityToken mine : mines.keySet()) {
             ((LocationAPI) mines.get(mine)).addEntity(mine);
@@ -228,7 +226,8 @@ public class ModPlugin extends BaseModPlugin {
     }
 
     public void spawnMineFields() {
-        if (Global.getSector().getEconomy().getMarket("culann") == null || !Global.getSettings().getBoolean("Enable_IndEvo_minefields")) return;
+        if (Global.getSector().getEconomy().getMarket("culann") == null || !Global.getSettings().getBoolean("Enable_IndEvo_minefields"))
+            return;
 
         MarketAPI m = Global.getSector().getEconomy().getMarket("culann");
         m.addCondition("IndEvo_mineFieldCondition");
@@ -244,8 +243,10 @@ public class ModPlugin extends BaseModPlugin {
 
     @Override
     public PluginPick<MissileAIPlugin> pickMissileAI(MissileAPI missile, ShipAPI launchingShip) {
-        if (missile.getProjectileSpecId().equals("IndEvo_mortar_projectile")) return new PluginPick<MissileAIPlugin>(new IndEvo_mortarProjectileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
-        if (missile.getProjectileSpecId().equals("IndEvo_missile_projectile")) return new PluginPick<MissileAIPlugin>(new IndEvo_missileProjectileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
+        if (missile.getProjectileSpecId().equals("IndEvo_mortar_projectile"))
+            return new PluginPick<MissileAIPlugin>(new IndEvo_mortarProjectileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
+        if (missile.getProjectileSpecId().equals("IndEvo_missile_projectile"))
+            return new PluginPick<MissileAIPlugin>(new IndEvo_missileProjectileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
 
         return super.pickMissileAI(missile, launchingShip);
     }
@@ -358,22 +359,22 @@ public class ModPlugin extends BaseModPlugin {
             }
         });
 
-        replaceIndustries(Ids.COMMERCE);
+        replaceIndustries(TradeCenter.class, Ids.COMMERCE);
     }
 
-    public static void replaceIndustries(String... industryIds) {
+    public static void replaceIndustries(Class<?> targetClass, String... industryIds) {
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            for (String id : industryIds){
+            for (String id : industryIds) {
                 if (m.hasIndustry(id)) {
 
                     Industry ind = m.getIndustry(id);
-                    replaceIndustry(ind);
+                    if (!ind.getClass().isInstance(targetClass)) replaceIndustry(ind);
                 }
             }
         }
     }
 
-    public static void replaceIndustry(Industry ind){
+    public static void replaceIndustry(Industry ind) {
         MarketAPI m = ind.getMarket();
         String id = ind.getId();
 
@@ -398,9 +399,9 @@ public class ModPlugin extends BaseModPlugin {
         ind.setImproved(improved);
     }
 
-    public void resetDerelictRep(){
+    public void resetDerelictRep() {
         for (FactionAPI f : Global.getSector().getAllFactions()) {
-            if(f.isShowInIntelTab()) f.setRelationship(Ids.DERELICT_FACTION_ID, -1);
+            if (f.isShowInIntelTab()) f.setRelationship(Ids.DERELICT_FACTION_ID, -1);
             else f.setRelationship(Ids.DERELICT_FACTION_ID, 1);
         }
 
@@ -409,7 +410,7 @@ public class ModPlugin extends BaseModPlugin {
         //just to make sure
         Global.getSector().getFaction(Factions.DERELICT).setRelationship("ML_bounty", 1);
 
-        if(Global.getSettings().getModManager().isModEnabled("swp")){
+        if (Global.getSettings().getModManager().isModEnabled("swp")) {
             Global.getSector().getFaction(Factions.DERELICT).setRelationship("famous_bounty", 1);
         }
     }
