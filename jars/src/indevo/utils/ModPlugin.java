@@ -71,6 +71,7 @@ public class ModPlugin extends BaseModPlugin {
 
     public static int DEALMAKER_INCOME_PERCENT_BONUS = 25;
 
+
     @Override
     public void onApplicationLoad() throws Exception {
         boolean hasLazyLib = Global.getSettings().getModManager().isModEnabled("lw_lazylib");
@@ -97,6 +98,8 @@ public class ModPlugin extends BaseModPlugin {
             SectorEntityToken t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity("brimir", null, "IndEvo_MobileColony", null, null);
             t.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
         }
+
+        Global.getSettings().getIndustrySpec("refining").setUpgrade("IndEvo_SwitchableRefining");
 
         //core
         createAcademyMarket();

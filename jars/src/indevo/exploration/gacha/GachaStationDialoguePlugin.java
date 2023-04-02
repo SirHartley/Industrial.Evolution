@@ -21,6 +21,7 @@ import com.fs.starfarer.api.ui.ValueDisplayMode;
 import com.fs.starfarer.api.util.ListMap;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.utils.helper.Settings;
 import org.lwjgl.input.Keyboard;
 
 import java.util.*;
@@ -326,8 +327,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             fleetMemberList.add(m);
         }
 
-        int shipsPerRow = 8;
-
+        int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
         int rows = fleetMemberList.size() > shipsPerRow ? (int) Math.ceil(fleetMemberList.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(fleetMemberList.size(), shipsPerRow);
 

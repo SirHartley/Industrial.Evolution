@@ -2,6 +2,7 @@ package indevo.industries.salvageyards.rules;
 
 import com.fs.starfarer.api.Global;
 import indevo.ids.ItemIds;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -257,8 +258,10 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         tradeInList.clear();
         final List<FleetMemberAPI> validSelectionList = getValidFleetMemberList();
 
-        int rows = validSelectionList.size() > 8 ? (int) Math.ceil(validSelectionList.size() / 8f) : 1;
-        int cols = Math.min(validSelectionList.size(), 8);
+        int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
+        int rows = validSelectionList.size() > shipsPerRow ? (int) Math.ceil(validSelectionList.size() / (float) shipsPerRow) : 1;
+        int cols = Math.min(validSelectionList.size(), shipsPerRow);
+
         cols = Math.max(cols, 4);
 
         dialog.showFleetMemberPickerDialog("Select hulls to scrap", "Confirm", "Cancel", rows,

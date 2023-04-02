@@ -11,6 +11,7 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
+import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -119,8 +120,10 @@ public class PrintShipSpecial extends BaseSalvageSpecial {
 
     private void initHullPicker() {
         List<FleetMemberAPI> fleetMemberList = getForgeTemplateFleetMemberList();
-        int rows = fleetMemberList.size() > 8 ? (int) Math.ceil(fleetMemberList.size() / 8f) : 1;
-        int cols = Math.min(fleetMemberList.size(), 8);
+
+        int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
+        int rows = fleetMemberList.size() > shipsPerRow ? (int) Math.ceil(fleetMemberList.size() / (float) shipsPerRow) : 1;
+        int cols = Math.min(fleetMemberList.size(), shipsPerRow);
         cols = Math.max(cols, 4);
 
         dialog.showFleetMemberPickerDialog("Select a Hull", "Confirm", "Cancel", rows,

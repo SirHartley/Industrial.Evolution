@@ -37,6 +37,7 @@
   "IndEvo_PartsDropInCampaign": TRUE, #makes starship components drop from combat - Relic components will still drop even if you disable this.
   "IndEvo_relicComponentHardbattleFPAdvantage":1.5f, #how much more FP an enemy fleet has to have for it to drop relic components on death
   "IndEvo_relicComponentFPDestroyedFract":0.5f, #how much of said fleet you have to destroy for it to drop relic components
+  "IndEvo_shipPickerRowCount":8, #the row amount in most of the ship picker dialogues in the mod. This one is for DemonX3#6370 who badgered me to add this for a year straight.
 
   #Minefields
   "Enable_IndEvo_minefields": TRUE, #might need new game idk
@@ -249,6 +250,8 @@
           "IndEvo_eye_3": "graphics/fx/IndEvo_watchtower_3.png",
       },
       "IndEvo": {
+          "rare_ore_refining":"graphics/industry/rare_ore_refining.png",
+          "ore_refining":"graphics/industry/ore_refining.png",
           "kadur_megachurch":"graphics/industry/flavour/megachurch_kadur.png",
           "dysonswarm_texture":"graphics/planets/dyson_swarm.png",
           "amb_pers": "graphics/industry/embassy/emb_league.png",

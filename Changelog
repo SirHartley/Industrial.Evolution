@@ -6,7 +6,7 @@ Bugs
 - Replace the "stable loc" interaction dialogue to make it not count watchtowers as stable loc
 
 Requests
-- Make Lab switch the chosen commodity output for beta core bonus somehow
+- add a colony buff to automated shipyards (maybe a buff to HI? got item sprites for it anyway)
 - Add keyboard shortcuts to all indEvo industry menu points
 - Make it so if we kill the artillery station we can convert its husk into a outpost without having to colonize the planet
 - Watchtowers buildable in stable loc
@@ -68,6 +68,7 @@ Automated Shipyards
 Adjusted - new interaction image (the old one was kinda trash)
 
 Salvage Interactions
+Adjusted - Rows for ship picking on Ship Sacrifice event increased from 5 to 8
 Fixed - "Exploding Room" special can now pick (certain) Industrial Evolution items again
 
 Minefields

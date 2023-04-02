@@ -2,6 +2,7 @@ package indevo.industries.salvageyards.rules;
 
 import com.fs.starfarer.api.Global;
 import indevo.industries.RestorationDocks;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -270,8 +271,9 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     private void initOriginHullPicker() {
         List<FleetMemberAPI> validSelectionList = new ArrayList<>(getValidFleetMemberSetForInitialSelection());
 
-        int rows = validSelectionList.size() > 8 ? (int) Math.ceil(validSelectionList.size() / 8f) : 1;
-        int cols = Math.min(validSelectionList.size(), 8);
+        int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
+        int rows = validSelectionList.size() > shipsPerRow ? (int) Math.ceil(validSelectionList.size() / (float) shipsPerRow) : 1;
+        int cols = Math.min(validSelectionList.size(), shipsPerRow);
         cols = Math.max(cols, 4);
 
         dialog.showFleetMemberPickerDialog("Select hull to tranfer from", "Confirm", "Cancel", rows,
@@ -309,8 +311,9 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
         List<FleetMemberAPI> validSelectionList = new ArrayList<>(getValidTransferTargetsForMember(originMember, combinedFleet));
 
-        int rows = validSelectionList.size() > 8 ? (int) Math.ceil(validSelectionList.size() / 8f) : 1;
-        int cols = Math.min(validSelectionList.size(), 8);
+        int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
+        int rows = validSelectionList.size() > shipsPerRow ? (int) Math.ceil(validSelectionList.size() / (float) shipsPerRow) : 1;
+        int cols = Math.min(validSelectionList.size(), shipsPerRow);
         cols = Math.max(cols, 4);
 
         dialog.showFleetMemberPickerDialog("Select hull to tranfer from", "Confirm", "Cancel", rows,

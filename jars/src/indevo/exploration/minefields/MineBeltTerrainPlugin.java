@@ -38,6 +38,8 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
     public static final float RECENT_JUMP_TIMEOUT_SECONDS = 2f;
     public static final String RECENT_JUMP_KEY = "$IndEvo_recentlyJumped";
 
+    public static final String DISRUPTED_AREA_MEM_KEY = "$IndEvo_isDisrupted";
+
     public static final Logger log = Global.getLogger(MineBeltTerrainPlugin.class);
 
     public static class MineBeltParams extends RingParams {

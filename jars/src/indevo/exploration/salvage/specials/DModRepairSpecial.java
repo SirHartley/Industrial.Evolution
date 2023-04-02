@@ -13,6 +13,7 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpe
 import com.fs.starfarer.api.loading.HullModSpecAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.utils.helper.Settings;
 
 import java.util.*;
 
@@ -139,9 +140,10 @@ public class DModRepairSpecial extends BaseSalvageSpecial {
         for (FleetMemberAPI member : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
             if (DModManager.getNumNonBuiltInDMods(member.getVariant()) > 0) fleetMemberList.add(member);
         }
+        int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
+        int rows = fleetMemberList.size() > shipsPerRow ? (int) Math.ceil(fleetMemberList.size() / (float) shipsPerRow) : 1;
+        int cols = Math.min(fleetMemberList.size(), shipsPerRow);
 
-        int rows = fleetMemberList.size() > 8 ? (int) Math.ceil(fleetMemberList.size() / 8f) : 1;
-        int cols = Math.min(fleetMemberList.size(), 8);
         cols = Math.max(cols, 4);
 
         dialog.showFleetMemberPickerDialog("Select Ships to repair", "Confirm", "Cancel", rows,
