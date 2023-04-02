@@ -1,17 +1,20 @@
 
 --------------------------- To-do -----------------------------
 Bugs
+- Watchtowers counting as Stable Locs
 - Artillery stations are stuck in perma-repair on game start and never repair themselves
     Fix by removing, then adding all industries one frame after game start
 - Replace the "stable loc" interaction dialogue to make it not count watchtowers as stable loc
 
 Requests
+- make minefields be partially disabled by interdiction pulse
 - add a colony buff to automated shipyards (maybe a buff to HI? got item sprites for it anyway)
 - Add keyboard shortcuts to all indEvo industry menu points
 - Make it so if we kill the artillery station we can convert its husk into a outpost without having to colonize the planet
 - Watchtowers buildable in stable loc
 
 Upcoming
+- replace stable location dialogue and change to no longer care about watchtowers for SL counting
 - "Mimic Hulls", Derelict ships that change into remnant or pirate ambush fleets when approached
 - Consumable item that makes your fleet look bigger than is is to NPCs
     - maybe add a boat with like 200 dp to the fleet and remove it when ui window is opened so other fleets run from you
