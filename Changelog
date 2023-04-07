@@ -65,13 +65,14 @@ adjust salvage event "Ship Roulette" -
 -----------------------o-----------------------
 3.2.d
 General
+Added - Setting to adjust column amount in all the ship pickers in this mod
 Added - Planet Jump listener, interface to notify when a planet has finished jumping via rift generator (for modders)
 
 Automated Shipyards
 Adjusted - new interaction image (the old one was kinda trash)
 
 Salvage Interactions
-Adjusted - Rows for ship picking on Ship Sacrifice event increased from 5 to 8
+Adjusted - Default columns for ship picking on Ship Sacrifice event increased from 5 to 8
 Fixed - "Exploding Room" special can now pick (certain) Industrial Evolution items again
 
 Minefields
@@ -87,6 +88,9 @@ Fixed - Crash when tech locator tries to point to a system that has no hyperspac
 
 Commerce
 Fixed - No longer resets build times on load/save
+
+Specialized Industries
+Added - Specialized Refining (Switch between metal and transplutonics refining for +2 output or the default one for both without bonus)
 
 Restoration Docks
 Fixed - Broken Tooltips

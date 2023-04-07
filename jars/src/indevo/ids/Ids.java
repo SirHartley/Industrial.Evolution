@@ -61,6 +61,8 @@ public class Ids {
     public static final String ARTILLERY_MORTAR = "IndEvo_Artillery_mortar";
     public static final String ARTILLERY_MISSILE = "IndEvo_Artillery_missile";
     public static final String ARTILLERY_RAILGUN = "IndEvo_Artillery_railgun";
+    public static final String SWITCHABLE_MINING = "IndEvo_SwitchableMining";
+    public static final String SWITCHABLE_REFINING = "IndEvo_SwitchableRefining";
 
     public static final String PIRATEHAVEN_SECONDARY = "IndEvo_pirateHavenSecondary";
     public static final String COMMERCE = "commerce";

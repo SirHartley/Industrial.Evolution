@@ -54,34 +54,6 @@ public abstract class BaseSwitchableIndustry extends BaseIndustry implements Swi
         return current.getImage();
     }
 
-    public boolean hasOptionalButton(){
-        return true;
-    }
-
-    public String getOptionalButtonMenuText(){
-        return "Optional menu text! Do incredibly neat things!";
-    }
-
-    public String getOptionalButtonDialogTitle() {
-        return "So awesome!";
-    }
-
-    public void onOptionalButtonPress() {
-        //Do amazing things when the button is pressed! Everyone loves it!
-    }
-
-    public void addOptionalButtonMenuText(TooltipMakerAPI info, ImprovementDescriptionMode mode) {
-        float opad = 10f;
-        Color highlight = Misc.getHighlightColor();
-
-        if (mode != ImprovementDescriptionMode.INDUSTRY_TOOLTIP) {
-            info.addPara("Optional Buttons %s", 0f, highlight, "rock!");
-            info.addPara("So cool!", 3f);
-        }
-
-        info.addSpacer(opad);
-    }
-
     public boolean canImprove() {
         return true;}
 

@@ -1,15 +1,18 @@
-package indevo.industries.changeling.industry;
+package indevo.industries.changeling.industry.refining;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.util.Pair;
+import indevo.industries.changeling.industry.BaseSwitchableIndustry;
+import indevo.industries.changeling.industry.SubIndustry;
+import indevo.industries.changeling.industry.SubIndustryAPI;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class SwitchableRefining extends BaseSwitchableIndustry{
+public class SwitchableRefining extends BaseSwitchableIndustry {
 
     public static final List<SubIndustryAPI> industryList = new LinkedList<SubIndustryAPI>(){{
 

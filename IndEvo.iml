@@ -25,5 +25,7 @@
     <orderEntry type="library" name="MagicLib" level="application" />
     <orderEntry type="library" name="ExerelinCore" level="application" />
     <orderEntry type="library" name="SHI" level="application" />
+    <orderEntry type="library" name="CombatActivators" level="application" />
+    <orderEntry type="library" name="LunaLib" level="application" />
   </component>
 </module>

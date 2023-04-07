@@ -39,6 +39,7 @@ import indevo.industries.TradeCenter;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
+import indevo.industries.changeling.SwitchableIndustrySetup;
 import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
@@ -83,6 +84,16 @@ public class ModPlugin extends BaseModPlugin {
             throw new RuntimeException("Industrial Evolution requires MagicLib!" + "\nGet it at http://fractalsoftworks.com/forum/index.php?topic=13718");
         }
 
+        boolean hasLunaLib = Global.getSettings().getModManager().isModEnabled("lunalib");
+        if (!hasLunaLib) {
+            throw new RuntimeException("Industrial Evolution requires LunaLib!" + "\nGet it at http://fractalsoftworks.com/forum/index.php?topic=25658");
+        }
+/*
+        boolean hasCA = Global.getSettings().getModManager().isModEnabled("combatactivators");
+        if (!hasCA) {
+            throw new RuntimeException("Industrial Evolution requires CombatActivators!" + "\nGet it at http://fractalsoftworks.com/forum/index.php?topic=24660");
+        }*/
+
         boolean hasGraphicsLib = Global.getSettings().getModManager().isModEnabled("shaderLib");
         if (hasGraphicsLib) {
             ShaderLib.init();
@@ -94,12 +105,10 @@ public class ModPlugin extends BaseModPlugin {
     public void onGameLoad(boolean newGame) {
         //Global.getSector().getPlayerFleet().setFaction("hegemony");
 
-        if (newGame && Global.getSettings().isDevMode()) {
+        if (newGame && Global.getSettings().isDevMode() && true) {
             SectorEntityToken t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity("brimir", null, "IndEvo_MobileColony", null, null);
             t.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
         }
-
-        Global.getSettings().getIndustrySpec("refining").setUpgrade("IndEvo_SwitchableRefining");
 
         //core
         createAcademyMarket();
@@ -115,7 +124,13 @@ public class ModPlugin extends BaseModPlugin {
         overrideVanillaOrbitalStations();
         ArtilleryStationPlacer.placeCoreWorldArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next save breaking one
         ArtilleryStationPlacer.placeDerelictArtilleries(); //same here
+
+        //Superstructures
         GachaStationPlacer.place(); // TODO: 23/10/2022 move to onNewGame
+
+        //items
+        SwitchableIndustrySetup.updateIndustrySpecs();
+        SwitchableIndustrySetup.modifyIndustryItem();
 
         //balance changes
         if (Global.getSettings().getBoolean("IndEvo_CommerceBalanceChanges")) overrideVanillaCommerce();
