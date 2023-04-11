@@ -65,6 +65,8 @@ adjust salvage event "Ship Roulette" -
 -----------------------o-----------------------
 3.2.d
 General
+Added - LunaLib Integration
+Added - LunaLib Dependency (not doing all that work twice)
 Added - Setting to adjust column amount in all the ship pickers in this mod
 Added - Planet Jump listener, interface to notify when a planet has finished jumping via rift generator (for modders)
 

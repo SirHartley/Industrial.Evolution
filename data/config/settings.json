@@ -139,9 +139,6 @@
   "adminTrainingDayCount": 124,
   "adminTrainingCost": 20000,
   "monthlyAIStorageCost": 2000,
-  "adminSalaryTier1":10000,
-  "adminSalaryTier2":20000,
-  "adminSalaryTier3":30000,
 
   #Variable Industries
   "VarInd_deliverToProductionPoint": FALSE, #Auto-deliver to production point (default - To local storage)  Remember - courier port exists.
@@ -186,6 +183,11 @@
         "luxury_goods": 480,
         "logIncrease": 250,
   },
+
+  #vanilla override - do not touch!
+  "adminSalaryTier1":10000,
+  "adminSalaryTier2":20000,
+  "adminSalaryTier3":30000,
 
   #---------------- If you touch anything below here dont come complaining when it crashes -------------------
 
@@ -250,6 +252,7 @@
           "IndEvo_eye_3": "graphics/fx/IndEvo_watchtower_3.png",
       },
       "IndEvo": {
+          "icon":"graphics/icons/IndEvo.png",
           "ore_mining":"graphics/industry/ore_mining.png",
           "rare_mining":"graphics/industry/rare_ore_mining.png",
           "volatile_mining":"graphics/industry/rare_ore_refining.png",
