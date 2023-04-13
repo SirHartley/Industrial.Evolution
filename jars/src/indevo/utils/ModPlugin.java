@@ -36,6 +36,7 @@ import indevo.exploration.stations.DerelictStationPlacer;
 import indevo.ids.Ids;
 import indevo.industries.OrbitalStation;
 import indevo.industries.TradeCenter;
+import indevo.industries.artillery.plugins.ArtilleryCampaignPlugin;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
@@ -346,6 +347,7 @@ public class ModPlugin extends BaseModPlugin {
         //Scripts:
         Global.getSector().registerPlugin(new SplinterFleetCampignPlugin());
         Global.getSector().registerPlugin(new GachaStationCampaignPlugin());
+        Global.getSector().registerPlugin(new ArtilleryCampaignPlugin());
         //Global.getSector().registerPlugin(new MobileColonyCampaignPlugin());
 
         if (!Global.getSector().hasScript(TimeTracker.class)) {
