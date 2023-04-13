@@ -1,10 +1,8 @@
 
 --------------------------- To-do -----------------------------
 Bugs
-- Watchtowers counting as Stable Locs
 - Artillery stations are stuck in perma-repair on game start and never repair themselves
     Fix by removing, then adding all industries one frame after game start
-- Replace the "stable loc" interaction dialogue to make it not count watchtowers as stable loc
 
 Requests
 - make minefields be partially disabled by interdiction pulse
@@ -14,7 +12,6 @@ Requests
 - Watchtowers buildable in stable loc
 
 Upcoming
-- replace stable location dialogue and change to no longer care about watchtowers for SL counting
 - "Mimic Hulls", Derelict ships that change into remnant or pirate ambush fleets when approached
 - Consumable item that makes your fleet look bigger than is is to NPCs
     - maybe add a boat with like 200 dp to the fleet and remove it when ui window is opened so other fleets run from you
@@ -87,6 +84,9 @@ Adjusted - Simulation Engine - Added tooltip info about scaling effect
 Adjusted - Neural Compounds - Clarified tooltip if senate with item is in range or not
 Fixed - Planet "in Range" tooltip no longer incorrectly states 12 LY range restriction for hypertransmitter, it's infinite as intended
 Fixed - Crash when tech locator tries to point to a system that has no hyperspace anchor (????)
+
+Artillery
+Fixed - Watchtowers no longer count as stable locations (Replaced the vanilla PlanetInteractionDialogPluginImpl)
 
 Commerce
 Fixed - No longer resets build times on load/save

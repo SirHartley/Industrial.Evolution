@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
@@ -38,7 +39,7 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
     public static final float RECENT_JUMP_TIMEOUT_SECONDS = 2f;
     public static final String RECENT_JUMP_KEY = "$IndEvo_recentlyJumped";
 
-    public static final String DISRUPTED_AREA_MEM_KEY = "$IndEvo_isDisrupted";
+    public static final String LOCATION_DISABLED_AREA_MEMORY = "$IndEvo_MinesDisabledLocMem";
 
     public static final Logger log = Global.getLogger(MineBeltTerrainPlugin.class);
 
@@ -168,6 +169,11 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
         if (needToCreateMines) {
             createMines();
         }
+
+        for (DisabledArea area : new ArrayList<>(getDisabledAreas())) {
+            area.advance(amount);
+        }
+
         super.advance(amount);
     }
 
@@ -203,6 +209,9 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
             }
 
             if (!isFriend(fleet) && fleet.getBattle() == null && !fleet.getMemoryWithoutUpdate().contains(RECENT_JUMP_KEY)) {
+
+                for (DisabledArea area : getDisabledAreas()) if (area.contains(fleet)) return;
+
                 String key = "$mineImpactTimeout";
                 String sKey = "$skippedImpacts";
                 String recentKey = "$recentImpact";
@@ -405,4 +414,75 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
             params.numMines--;
         }
     }
+
+    public static class DisabledArea{
+        public float radius;
+        public float duration;
+        SectorEntityToken entity;
+
+        public boolean isExpired = false;
+
+        public DisabledArea(float radius, float duration, SectorEntityToken entity) {
+            this.radius = radius;
+            this.duration = duration;
+            this.entity = entity;
+        }
+
+        public void init(){
+            MemoryAPI mem = entity.getContainingLocation().getMemoryWithoutUpdate();
+            if (!mem.contains(LOCATION_DISABLED_AREA_MEMORY)) mem.set(LOCATION_DISABLED_AREA_MEMORY, new ArrayList<DisabledArea>().add(this));
+            else ((List<DisabledArea>) mem.get(LOCATION_DISABLED_AREA_MEMORY)).add(this);
+        }
+
+        public boolean isExpired() {
+            return isExpired;
+        }
+
+        public String getBeltId(){
+            return entity.getOrbitFocus().getId();
+        }
+
+        public void advance(float amt){
+            duration-= amt;
+            if (duration <= 0 && !isExpired) remove();
+        }
+
+        public void remove(){
+            isExpired = true;
+            entity.getContainingLocation().removeEntity(entity);
+
+            MemoryAPI mem = entity.getContainingLocation().getMemoryWithoutUpdate();
+            ((List<DisabledArea>) mem.get(LOCATION_DISABLED_AREA_MEMORY)).remove(this);
+        }
+
+        public boolean contains(SectorEntityToken t){
+            return Misc.getDistance(entity.getLocation(), t.getLocation()) <= radius;
+        }
+    }
+
+    public List<DisabledArea> getDisabledAreas(){
+        MemoryAPI mem = entity.getContainingLocation().getMemoryWithoutUpdate();
+        List<DisabledArea> areaList = new ArrayList<>();
+
+        if (mem.contains(LOCATION_DISABLED_AREA_MEMORY)) {
+            List<DisabledArea> areas = ((List<DisabledArea>) mem.get(LOCATION_DISABLED_AREA_MEMORY));
+            for (DisabledArea area : areas){
+                if (entity.getId().equals(area.getBeltId())) areaList.add(area);
+            }
+        }
+
+        return areaList;
+    }
+
+    public void generateDisabledArea(SectorEntityToken fleet, float size, float dur){
+        //focus angle radius period
+        SectorEntityToken orbitFocus = fleet.getContainingLocation().addCustomEntity(Misc.genUID(), null, "SplinterFleet_OrbitFocus", Factions.NEUTRAL);
+        orbitFocus.setLocation(fleet.getLocation().x, fleet.getLocation().y);
+
+        orbitFocus.setCircularOrbit(entity, Misc.getAngleInDegrees(entity.getLocation(), orbitFocus.getLocation()), Misc.getDistance(entity, orbitFocus), entity.getOrbit().getOrbitalPeriod());
+
+        DisabledArea area = new DisabledArea(size, dur, orbitFocus);
+        area.init();
+    }
+
 }
