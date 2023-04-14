@@ -7,13 +7,10 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.campaign.CircularOrbit;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 import static indevo.exploration.minefields.MineBeltTerrainPlugin.LOCATION_DISABLED_AREA_MEMORY;
@@ -101,10 +98,10 @@ public class MineCustomEntityPlugin extends BaseCustomEntityPlugin {
         Color glowColor = colourChange ? new Color(20, 255, 20, 255) : new Color(255, 30, 0, 255);
 
         MemoryAPI mem = entity.getContainingLocation().getMemoryWithoutUpdate();
-        if (mem.contains(LOCATION_DISABLED_AREA_MEMORY)){
+        if (mem.contains(LOCATION_DISABLED_AREA_MEMORY)) {
             List<MineBeltTerrainPlugin.DisabledArea> areas = (List<MineBeltTerrainPlugin.DisabledArea>) mem.get(LOCATION_DISABLED_AREA_MEMORY);
-            for (MineBeltTerrainPlugin.DisabledArea area : areas){
-                if (area.contains(entity) && area.getBeltId().equals(entity.getOrbitFocus().getId())){
+            for (MineBeltTerrainPlugin.DisabledArea area : areas) {
+                if (area.contains(entity) && area.getBeltId().equals(entity.getOrbitFocus().getId())) {
                     glowColor = new Color(20, 250, 255, 255);
                     break;
                 }

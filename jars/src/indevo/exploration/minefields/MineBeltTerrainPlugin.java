@@ -19,6 +19,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.campaign.BaseLocation;
+import indevo.utils.ModPlugin;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -33,8 +34,8 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
     public static float MAX_MINE_SIZE = 8f;
 
     public static final float CIVILIAN_EFFECT_MULT = Global.getSettings().getFloat("IndEvo_Minefield_CivilianShipImpactMult");
-    public static final float PHASE_EFFECT_MULT =  Global.getSettings().getFloat("IndEvo_Minefield_PhaseShipImpactMult");
-    public static final float MAX_FLEET_SIZE_BEFORE_MALUS =  Global.getSettings().getFloat("IndEvo_Minefield_NoHitUntilSum");
+    public static final float PHASE_EFFECT_MULT = Global.getSettings().getFloat("IndEvo_Minefield_PhaseShipImpactMult");
+    public static final float MAX_FLEET_SIZE_BEFORE_MALUS = Global.getSettings().getFloat("IndEvo_Minefield_NoHitUntilSum");
 
     public static final float RECENT_JUMP_TIMEOUT_SECONDS = 2f;
     public static final String RECENT_JUMP_KEY = "$IndEvo_recentlyJumped";
@@ -282,7 +283,7 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
         return friend;
     }
 
-    public MarketAPI getPrimary(){
+    public MarketAPI getPrimary() {
         MarketAPI m = null;
 
         if (this.entity.getMemoryWithoutUpdate().contains(PLANET_KEY)) {
@@ -376,7 +377,8 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
         );
 
         MarketAPI primary = getPrimary();
-        if (primary != null) tooltip.addPara("This minefield is controlled though hidden facilities on %s.", pad, primary.getFaction().getColor(),  primary.getPrimaryEntity().getName());
+        if (primary != null)
+            tooltip.addPara("This minefield is controlled though hidden facilities on %s.", pad, primary.getFaction().getColor(), primary.getPrimaryEntity().getName());
 
         String stop = Global.getSettings().getControlStringForEnumName("GO_SLOW");
         tooltip.addPara("Reduces the range at which stationary or slow-moving* fleets inside it can be detected by %s.", nextPad,
@@ -404,7 +406,8 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
     }
 
     public boolean hasAIFlag(Object flag, CampaignFleetAPI fleet) {
-        if (isFriend(fleet) || fleet.getMemoryWithoutUpdate().contains("$recentImpact")) return flag == TerrainAIFlags.REDUCES_SPEED_LARGE;
+        if (isFriend(fleet) || fleet.getMemoryWithoutUpdate().contains("$recentImpact"))
+            return flag == TerrainAIFlags.REDUCES_SPEED_LARGE;
         else return flag == TerrainAIFlags.REDUCES_SPEED_LARGE || flag == TerrainAIFlags.DANGEROUS_UNLESS_GO_SLOW;
     }
 
@@ -415,7 +418,7 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
         }
     }
 
-    public static class DisabledArea{
+    public static class DisabledArea {
         public float radius;
         public float duration;
         SectorEntityToken entity;
@@ -428,9 +431,9 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
             this.entity = entity;
         }
 
-        public void init(){
+        public void init() {
             MemoryAPI mem = entity.getContainingLocation().getMemoryWithoutUpdate();
-            if (!mem.contains(LOCATION_DISABLED_AREA_MEMORY)) mem.set(LOCATION_DISABLED_AREA_MEMORY, new ArrayList<DisabledArea>().add(this));
+            if (!mem.contains(LOCATION_DISABLED_AREA_MEMORY)) mem.set(LOCATION_DISABLED_AREA_MEMORY, new ArrayList<>(Collections.singletonList(this)));
             else ((List<DisabledArea>) mem.get(LOCATION_DISABLED_AREA_MEMORY)).add(this);
         }
 
@@ -438,16 +441,16 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
             return isExpired;
         }
 
-        public String getBeltId(){
+        public String getBeltId() {
             return entity.getOrbitFocus().getId();
         }
 
-        public void advance(float amt){
-            duration-= amt;
+        public void advance(float amt) {
+            duration -= amt;
             if (duration <= 0 && !isExpired) remove();
         }
 
-        public void remove(){
+        public void remove() {
             isExpired = true;
             entity.getContainingLocation().removeEntity(entity);
 
@@ -455,18 +458,18 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
             ((List<DisabledArea>) mem.get(LOCATION_DISABLED_AREA_MEMORY)).remove(this);
         }
 
-        public boolean contains(SectorEntityToken t){
+        public boolean contains(SectorEntityToken t) {
             return Misc.getDistance(entity.getLocation(), t.getLocation()) <= radius;
         }
     }
 
-    public List<DisabledArea> getDisabledAreas(){
+    public List<DisabledArea> getDisabledAreas() {
         MemoryAPI mem = entity.getContainingLocation().getMemoryWithoutUpdate();
         List<DisabledArea> areaList = new ArrayList<>();
 
         if (mem.contains(LOCATION_DISABLED_AREA_MEMORY)) {
             List<DisabledArea> areas = ((List<DisabledArea>) mem.get(LOCATION_DISABLED_AREA_MEMORY));
-            for (DisabledArea area : areas){
+            for (DisabledArea area : areas) {
                 if (entity.getId().equals(area.getBeltId())) areaList.add(area);
             }
         }
@@ -474,8 +477,10 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
         return areaList;
     }
 
-    public void generateDisabledArea(SectorEntityToken fleet, float size, float dur){
+    public void generateDisabledArea(SectorEntityToken fleet, float size, float dur) {
         //focus angle radius period
+        ModPlugin.log("generating new mine disabled area");
+
         SectorEntityToken orbitFocus = fleet.getContainingLocation().addCustomEntity(Misc.genUID(), null, "SplinterFleet_OrbitFocus", Factions.NEUTRAL);
         orbitFocus.setLocation(fleet.getLocation().x, fleet.getLocation().y);
 
@@ -484,5 +489,4 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
         DisabledArea area = new DisabledArea(size, dur, orbitFocus);
         area.init();
     }
-
 }

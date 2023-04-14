@@ -30,6 +30,7 @@ import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationPlacer;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
+import indevo.exploration.minefields.listeners.InterdictionPulseAbilityListener;
 import indevo.exploration.minefields.listeners.RecentJumpListener;
 import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.exploration.stations.DerelictStationPlacer;
@@ -341,6 +342,7 @@ public class ModPlugin extends BaseModPlugin {
         SpecialItemDropsListener.register();
         RecentJumpListener.register();
         SpooferItemKeypressListener.register();
+        InterdictionPulseAbilityListener.register();
     }
 
     private void setScriptsIfNeeded() {
