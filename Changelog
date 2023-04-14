@@ -5,7 +5,6 @@ Bugs
     Fix by removing, then adding all industries one frame after game start
 
 Requests
-- make minefields be partially disabled by interdiction pulse
 - add a colony buff to automated shipyards (maybe a buff to HI? got item sprites for it anyway)
 - Add keyboard shortcuts to all indEvo industry menu points
 - Make it so if we kill the artillery station we can convert its husk into a outpost without having to colonize the planet
@@ -75,6 +74,7 @@ Adjusted - Default columns for ship picking on Ship Sacrifice event increased fr
 Fixed - "Exploding Room" special can now pick (certain) Industrial Evolution items again
 
 Minefields
+Added - Mines now get temporarily disabled by an interdiction pulse
 Added - Tooltip showing controlling entity
 Fixed - Base damage halved
 Fixed - Damage now properly scales with fleet size (hit chance is still fleet size and speed)

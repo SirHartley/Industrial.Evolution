@@ -46,9 +46,4 @@ public class InterdictionPulseAbilityListener extends BaseCampaignEventListener 
         float distance = Misc.getDistance(center1, center2);
         return distance <= (radius1 + radius2);
     }
-
-
-    //listen to AP ability use and spawn a "disabled" area
-
-    //get minefields, get Plugin, generate disabled area
 }
