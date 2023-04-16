@@ -86,6 +86,7 @@ Fixed - Planet "in Range" tooltip no longer incorrectly states 12 LY range restr
 Fixed - Crash when tech locator tries to point to a system that has no hyperspace anchor (????)
 
 Artillery
+Fixed - Artillery Stations should no longer be stuck in repairs on game start (should)
 Fixed - Watchtowers no longer count as stable locations (Replaced the vanilla PlanetInteractionDialogPluginImpl)
 
 Commerce

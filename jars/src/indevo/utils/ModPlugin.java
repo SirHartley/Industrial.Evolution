@@ -22,6 +22,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
 import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
+import indevo.WIP.mobilecolony.plugins.MobileColonyCampaignPlugin;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.dialogue.DialogueInterceptListener;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
@@ -112,6 +113,8 @@ public class ModPlugin extends BaseModPlugin {
             t.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
         }
 
+        if (newGame) ArtilleryStationPlacer.placeCoreWorldArtilleries();
+
         //core
         createAcademyMarket();
         setListenersIfNeeded();
@@ -184,7 +187,6 @@ public class ModPlugin extends BaseModPlugin {
 
         RuinsManager.forceCleanCoreRuins();
         NewGameIndustryPlacer.run();
-        ArtilleryStationPlacer.placeCoreWorldArtilleries();
         ArtilleryStationPlacer.placeDerelictArtilleries();
         createAcademyMarket();
 
@@ -324,8 +326,6 @@ public class ModPlugin extends BaseModPlugin {
             l.addListener(new ShipComponentLootManager.PartsCargoInterceptor(), true);
         if (!l.hasListenerOfClass(DoritoGunFoundChecker.class))
             l.addListener(new DoritoGunFoundChecker(), true);
-//        if (!l.hasListenerOfClass(ConverterRepRestetter.class))
-//            l.addListener(new ConverterRepRestetter(), true);
 
         Global.getSector().addTransientListener(new ShipComponentLootManager.PartsLootAdder(false));
         Global.getSector().addTransientListener(new AmbassadorPersonManager.checkAmbassadorPresence());
@@ -333,7 +333,6 @@ public class ModPlugin extends BaseModPlugin {
 
         RuinsManager.DerelictRuinsPlacer.register();
         RuinsManager.ResolveRuinsToUpgradeListener.register();
-        //ColonyFleetDialogueInterceptListener.register();
         ShippingManager.getInstanceOrRegister();
         DetachmentAbilityAdder.register();
         LocatorSystemRatingUpdater.register();
@@ -350,7 +349,7 @@ public class ModPlugin extends BaseModPlugin {
         Global.getSector().registerPlugin(new SplinterFleetCampignPlugin());
         Global.getSector().registerPlugin(new GachaStationCampaignPlugin());
         Global.getSector().registerPlugin(new ArtilleryCampaignPlugin());
-        //Global.getSector().registerPlugin(new MobileColonyCampaignPlugin());
+        Global.getSector().registerPlugin(new MobileColonyCampaignPlugin());
 
         if (!Global.getSector().hasScript(TimeTracker.class)) {
             Global.getSector().addScript(new TimeTracker());

@@ -27,12 +27,17 @@ public class SwitchableMining extends BaseSwitchableIndustry implements MarketIm
 
     public static final List<SubIndustryAPI> industryList = new LinkedList<SubIndustryAPI>(){{
 
-        add(new SubIndustry("base_mining", "Specialized Mining", "graphics/icons/industry/refining.png", "IndEvo_base_mining") {
+        add(new SubIndustry("base_mining", "Specialized Mining", "graphics/icons/industry/mining.png", "IndEvo_base_mining") {
             @Override
             public void apply(Industry industry) {
+
+                applyConditionBasedIndustryOutputProfile(industry, Commodities.ORE, 0);
+                applyConditionBasedIndustryOutputProfile(industry, Commodities.RARE_ORE, 0);
+                applyConditionBasedIndustryOutputProfile(industry, Commodities.ORGANICS, 0);
+                applyConditionBasedIndustryOutputProfile(industry, Commodities.VOLATILES, 0);
+
                 BaseIndustry ind = (BaseIndustry) industry;
                 int size = ind.getMarket().getSize();
-
                 ind.demand(Commodities.HEAVY_MACHINERY, size - 3);
                 ind.demand(Commodities.DRUGS, size);
 
@@ -50,6 +55,11 @@ public class SwitchableMining extends BaseSwitchableIndustry implements MarketIm
             public void apply(Industry industry) {
                 applyConditionBasedIndustryOutputProfile(industry, Commodities.ORE, 2);
 
+                BaseIndustry ind = (BaseIndustry) industry;
+                int size = ind.getMarket().getSize();
+                ind.demand(Commodities.HEAVY_MACHINERY, size - 3);
+                ind.demand(Commodities.DRUGS, size);
+
                 Pair<String, Integer> deficit =  industry.getMaxDeficit(Commodities.HEAVY_MACHINERY);
                 applyDeficitToProduction(industry, 0, deficit, Commodities.ORE);
             }
@@ -59,6 +69,11 @@ public class SwitchableMining extends BaseSwitchableIndustry implements MarketIm
             @Override
             public void apply(Industry industry) {
                 applyConditionBasedIndustryOutputProfile(industry, Commodities.RARE_ORE, 2);
+
+                BaseIndustry ind = (BaseIndustry) industry;
+                int size = ind.getMarket().getSize();
+                ind.demand(Commodities.HEAVY_MACHINERY, size - 3);
+                ind.demand(Commodities.DRUGS, size);
 
                 Pair<String, Integer> deficit =  industry.getMaxDeficit(Commodities.HEAVY_MACHINERY);
                 applyDeficitToProduction(industry, 0, deficit, Commodities.RARE_ORE);
@@ -70,6 +85,11 @@ public class SwitchableMining extends BaseSwitchableIndustry implements MarketIm
             public void apply(Industry industry) {
                 applyConditionBasedIndustryOutputProfile(industry, Commodities.VOLATILES, 2);
 
+                BaseIndustry ind = (BaseIndustry) industry;
+                int size = ind.getMarket().getSize();
+                ind.demand(Commodities.HEAVY_MACHINERY, size - 3);
+                ind.demand(Commodities.DRUGS, size);
+
                 Pair<String, Integer> deficit =  industry.getMaxDeficit(Commodities.HEAVY_MACHINERY);
                 applyDeficitToProduction(industry, 0, deficit, Commodities.VOLATILES);
             }
@@ -79,6 +99,11 @@ public class SwitchableMining extends BaseSwitchableIndustry implements MarketIm
             @Override
             public void apply(Industry industry) {
                 applyConditionBasedIndustryOutputProfile(industry, Commodities.ORGANICS, 2);
+
+                BaseIndustry ind = (BaseIndustry) industry;
+                int size = ind.getMarket().getSize();
+                ind.demand(Commodities.HEAVY_MACHINERY, size - 3);
+                ind.demand(Commodities.DRUGS, size);
 
                 Pair<String, Integer> deficit =  industry.getMaxDeficit(Commodities.HEAVY_MACHINERY);
                 applyDeficitToProduction(industry, 0, deficit, Commodities.ORGANICS);
@@ -111,9 +136,6 @@ public class SwitchableMining extends BaseSwitchableIndustry implements MarketIm
         }
 
         int base = size + baseMod;
-
-        ind.demand(Commodities.HEAVY_MACHINERY, size - 3);
-        ind.demand(Commodities.DRUGS, size);
 
         ind.supply(ind.getId() + "_0", commodityId, base + bonus, BaseIndustry.BASE_VALUE_TEXT);
         ind.supply(ind.getId() + "_1", commodityId, mod + bonus, Misc.ucFirst(condition.getName().toLowerCase()));

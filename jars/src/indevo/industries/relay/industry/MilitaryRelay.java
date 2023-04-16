@@ -209,7 +209,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
             system = market.getStarSystem();
 
             intArray = system.addCustomEntity(id, null, id, market.getFactionId()); //add the thing orbiting the market
-            if (!system.isNebula()) {
+            if (!system.isNebula() && market.getPrimaryEntity() instanceof PlanetAPI) {
                 intArray.setCircularOrbitPointingDown(market.getPrimaryEntity(), market.getPrimaryEntity().getCircularOrbitAngle() - 30.0F, orbitRadius, market.getPrimaryEntity().getCircularOrbitPeriod()); //set as circular orbit
             } else {
                 intArray.setCircularOrbit(market.getPrimaryEntity(), 0f, orbitRadius, 31f);

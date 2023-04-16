@@ -15,6 +15,7 @@ import com.fs.starfarer.api.util.Pair;
 import data.campaign.econ.MS_industries;
 import data.campaign.econ.industries.MS_fabUpgrader;
 import data.campaign.econ.industries.MS_modularFac;
+import indevo.utils.helper.Settings;
 import org.lwjgl.util.vector.Vector2f;
 
 import static indevo.ids.Ids.COND_RESSOURCES;
@@ -28,7 +29,7 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
     @Override
     public void apply(String id) {
         super.apply(id);
-        if(Global.getSettings().getBoolean("ScrapYard")) applyParts();
+        if(Settings.SCRAPYARD) applyParts();
         applySupComIncome();
     }
 
