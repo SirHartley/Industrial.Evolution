@@ -1,6 +1,7 @@
 package indevo.industries.courierport;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -22,7 +23,7 @@ public class ShippingTargetHelper {
         Set<String> whitelist = IndustryHelper.getCSVSetFromMemory(Ids.SHIPPING_LIST);
 
         OUTER: for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()){
-            if(m.getFaction().isHostileTo("player")) continue;
+            if(m.getFaction().isHostileTo("player") || Misc.getStorageCargo(m) == null) continue;
 
             for (SubmarketAPI s : m.getSubmarketsCopy()){
                 if(whitelist.contains(s.getSpecId())) {
@@ -40,7 +41,7 @@ public class ShippingTargetHelper {
         List<SectorEntityToken> marketList = new ArrayList<>();
 
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()){
-            if(m.getFaction().isHostileTo("player")) continue;
+            if(m.getFaction().isHostileTo("player") || Misc.getStorageCargo(m) == null) continue;
 
             if (contract.fromSubmarketId == null && m.hasSubmarket(Submarkets.SUBMARKET_STORAGE)) marketList.add(m.getPrimaryEntity());
             else {

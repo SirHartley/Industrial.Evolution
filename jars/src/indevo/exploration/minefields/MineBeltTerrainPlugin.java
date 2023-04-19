@@ -407,8 +407,8 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
 
     public boolean hasAIFlag(Object flag, CampaignFleetAPI fleet) {
         if (isFriend(fleet) || fleet.getMemoryWithoutUpdate().contains("$recentImpact"))
-            return flag == TerrainAIFlags.REDUCES_SPEED_LARGE;
-        else return flag == TerrainAIFlags.REDUCES_SPEED_LARGE || flag == TerrainAIFlags.DANGEROUS_UNLESS_GO_SLOW;
+            return false;
+        else return flag == TerrainAIFlags.DANGEROUS_UNLESS_GO_SLOW;
     }
 
     @Override

@@ -64,15 +64,17 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
         float delay;
         boolean done;
         CampaignFleetAPI other;
-        SectorEntityToken token;
+        Vector2f target;
+        float avoidRange;
+        @Deprecated SectorEntityToken token;
         float secondsUntilActivation;
 
-        public ArtilleryReactionScript(SectorEntityToken token, CampaignFleetAPI other, float secondsUntilActivation) {
-            this.token = token;
+        public ArtilleryReactionScript(Vector2f target, float avoidRange, CampaignFleetAPI other, float secondsUntilActivation) {
+            this.target = target;
+            this.avoidRange = avoidRange;
             this.other = other;
             this.secondsUntilActivation = secondsUntilActivation;
             delay = 0.3f + 0.3f * (float) Math.random();
-            //delay = 0f;
         }
 
         public void advance(float amount) {
@@ -81,40 +83,14 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
             delay -= amount;
             if (delay > 0) return;
 
-            SectorEntityToken.VisibilityLevel level = token.getVisibilityLevelTo(other);
-            if (level == SectorEntityToken.VisibilityLevel.NONE || level == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT) {
-                done = true;
-                return;
-            }
-
             if (!(other.getAI() instanceof ModularFleetAIAPI)) {
                 done = true;
                 return;
             }
+
             ModularFleetAIAPI ai = (ModularFleetAIAPI) other.getAI();
-
-            float dist = Misc.getDistance(token.getLocation(), other.getLocation());
-            float speed = Math.max(1f, other.getTravelSpeed());
-            float rushTime = secondsUntilActivation;
-            rushTime += 0.5f + 0.5f * (float) Math.random();
-
-            float range = InterdictionMineAbility.getRange();
-            float getAwayTime = 1f + (range - dist) / speed;
-            AbilityPlugin sb = other.getAbility(Abilities.SENSOR_BURST);
-            if (getAwayTime > rushTime && sb != null && sb.isUsable() && (float) Math.random() > 0.67f) {
-                sb.activate();
-                done = true;
-                return;
-            }
-
-            //float avoidRange = Math.min(dist, getRange(other));
-            float avoidRange = EFFECT_SIZE + 100f;
-            ai.getNavModule().avoidLocation(token.getContainingLocation(),
-                    token.getLocation(), avoidRange, avoidRange + 50f, secondsUntilActivation + 0.01f);
-
-            ai.getNavModule().avoidLocation(token.getContainingLocation(),
-                    //fleet.getLocation(), dist, dist + 50f, activationDays + 0.01f);
-                    Misc.getPointAtRadius(token.getLocation(), avoidRange * 0.5f), avoidRange, avoidRange * 1.5f + 50f, secondsUntilActivation + 0.05f);
+            ai.getNavModule().avoidLocation(other.getContainingLocation(),
+                    target, avoidRange, avoidRange+10, secondsUntilActivation + 0.01f);
 
             done = true;
         }
@@ -174,6 +150,8 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
     private boolean finishing = false;
     private boolean sound = true;
 
+    protected static final String ARTILLERY_REACTION_SCRIPT_KEY = "$ArtyReaction_";
+
     public void advance(float amount) {
         timePassedSeconds += amount;
 
@@ -181,10 +159,16 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
         for (CampaignFleetAPI other : entity.getContainingLocation().getFleets()) {
             if (other == entity) continue;
 
-            float dist = Misc.getDistance(entity.getLocation(), other.getLocation());
+            float dist = Misc.getDistance(target, other.getLocation());
             if (dist > EFFECT_SIZE + 500f) continue;
-            if (!other.hasScriptOfClass(ArtilleryReactionScript.class))
-                other.addScript(new ArtilleryReactionScript(entity, other, impactSeconds - timePassedSeconds));
+
+            float timing = impactSeconds - timePassedSeconds;
+            String key = ARTILLERY_REACTION_SCRIPT_KEY + entity.getId();
+
+            if (!other.getMemoryWithoutUpdate().contains(key)){
+                other.addScript(new ArtilleryReactionScript(target, EFFECT_SIZE + 100f, other, timing));
+                other.getMemoryWithoutUpdate().set(key, true, timing);
+            }
         }
 
         //target reticule alpha

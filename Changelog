@@ -76,6 +76,7 @@ Fixed - "Exploding Room" special can now pick (certain) Industrial Evolution ite
 Minefields
 Added - Mines now get temporarily disabled by an interdiction pulse
 Added - Tooltip showing controlling entity
+Adjusted - Made NPC fleets react to them better
 Fixed - Base damage halved
 Fixed - Damage now properly scales with fleet size (hit chance is still fleet size and speed)
 
@@ -86,6 +87,7 @@ Fixed - Planet "in Range" tooltip no longer incorrectly states 12 LY range restr
 Fixed - Crash when tech locator tries to point to a system that has no hyperspace anchor (????)
 
 Artillery
+Added - NPC fleets now respond to artillery fire and try to dodge. They are better at it than me.
 Fixed - Artillery Stations should no longer be stuck in repairs on game start (should)
 Fixed - Watchtowers no longer count as stable locations (Replaced the vanilla PlanetInteractionDialogPluginImpl)
 
@@ -94,6 +96,10 @@ Fixed - No longer resets build times on load/save
 
 Specialized Industries
 Added - Specialized Refining (Switch between metal and transplutonics refining for +2 output or the default one for both without bonus)
+Added - Specialized Mining (see above but for mining)
+
+Courier Port
+Fixed - Crash when planet has no storage
 
 Restoration Docks
 Fixed - Broken Tooltips

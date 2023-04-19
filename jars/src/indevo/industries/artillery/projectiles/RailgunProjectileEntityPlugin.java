@@ -114,6 +114,8 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public static final float FRIENDLY_FIRE_IMMUNITY_PROJ_FLIGHT_TIME_FRACT = 0.3f;
+    protected static final String ARTILLERY_REACTION_SCRIPT_KEY = "$RailReaction_";
+    protected static final float AREA_AVOIDANCE_RADIUS = 300f;
 
     public void advance(float amount) {
         timePassedSeconds += amount;
@@ -123,6 +125,25 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
             finishing = true;
             return;
         };
+
+        timePassedSeconds += amount;
+
+        //make other fleets avoid the location
+        for (CampaignFleetAPI other : entity.getContainingLocation().getFleets()) {
+            if (other == entity) continue;
+
+            float dist = Misc.getDistance(target, other.getLocation());
+            if (dist > 1000f) continue;
+
+            float timing = impactSeconds - timePassedSeconds;
+            String key = ARTILLERY_REACTION_SCRIPT_KEY + entity.getId();
+
+            if (!other.getMemoryWithoutUpdate().contains(key)){
+                other.addScript(new MortarProjectileEntityPlugin.ArtilleryReactionScript(target, AREA_AVOIDANCE_RADIUS, other, timing));
+                other.getMemoryWithoutUpdate().set(key, true, timing);
+            }
+        }
+
 
         //we update flight time and station location while the station is moving, once it gets shot, the values stay static so the projectile does not drift
         boolean projectileDelayPassed = timePassedSeconds > projectileDelayTime;
