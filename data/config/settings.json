@@ -252,6 +252,7 @@
           "IndEvo_eye_3": "graphics/fx/IndEvo_watchtower_3.png",
       },
       "IndEvo": {
+          "pop_underworld":"graphics/industry/population/underworld.png",
           "icon":"graphics/icons/IndEvo.png",
           "ore_mining":"graphics/industry/ore_mining.png",
           "rare_mining":"graphics/industry/rare_ore_mining.png",

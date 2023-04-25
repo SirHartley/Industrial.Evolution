@@ -102,6 +102,8 @@ public class ModPlugin extends BaseModPlugin {
             ShaderLib.init();
             LightData.readLightDataCSV("data/lights/IndEvo_lights.csv");
         }
+
+        Global.getSettings().getIndustrySpec(Industries.POPULATION).setPluginClass("indevo.industries.changeling.industry.population.SwitchablePopulation");
     }
 
     @Override

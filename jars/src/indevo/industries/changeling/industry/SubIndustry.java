@@ -1,13 +1,14 @@
 package indevo.industries.changeling.industry;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.loading.Description;
 
 public abstract class SubIndustry implements SubIndustryAPI {
-    private String id;
-    private String imageName;
-    private String name;
-    private String descriptionID;
+    protected String id;
+    protected String imageName;
+    protected String name;
+    protected String descriptionID;
 
     public SubIndustry(String id, String name, String imageName, String descriptionID) {
         this.id = id;
@@ -21,7 +22,7 @@ public abstract class SubIndustry implements SubIndustryAPI {
     }
 
     @Override
-    public String getImage() {
+    public String getImage(MarketAPI market) {
         return imageName;
     }
 

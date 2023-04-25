@@ -51,7 +51,7 @@ public abstract class BaseSwitchableIndustry extends BaseIndustry implements Swi
 
     @Override
     public String getCurrentImage() {
-        return current.getImage();
+        return current.getImage(market);
     }
 
     public boolean canImprove() {
