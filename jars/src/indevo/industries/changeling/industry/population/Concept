@@ -1,57 +1,50 @@
-Hidden Arcology
-•	Increase defence
-•	Increase stability
-•	Decrease output by 2
+Hidden Arcologies
 •	Negate all conditions that affect the surface (temp, meteors…)
-•	Requires machinery imports
+•	Increase defence
+•	Decrease all output by 2
+•   Decrease Pop Growth
 •	Two types for planets:
-    o	Underwater arcologies
-    o	Underground arcologies
+    o	Underwater Arcologies
+    o	Underground Arcologies
 
-Cottage Cityscape
+Rural Polity
 •	Farming provides luxury goods and supplies
 •	Farming output +
-•	Stab +
 •	Pop growth +
-•	No “industrial” industries
+•	Industrial Industries massively reduce growth, stab and get high upkeep
+•   "rural" industries increase growth stab and get - upkeep
 •	Less likely to be targeted by inspections
 •	Less likely to be targeted by raids
 •	Requires farmland lv. 3 or temperate to be available
 
-Monastic Order
+Monastic Orders
 •	-50% positive income
 •	No luddic cells
-•	Stability can’t fall below 5
+•	Stability can’t fall below 3 or go above 7
 •	Locked at size 4
-•	No „Industrial“ industries
-•	Randomly builds frigates and destroyers (by hand with a special hullmod)
+•	Industrial Industries reduce stab and get +upkeep
+•	Military industries -upkeep
+•   Marines stored here passively gather experience
+•	Randomly builds known frigates and destroyers, rarely cruisers (by hand with a special hullmod)
 •	Collects tithe from traders travelling in the system to storage
 •	Increases stability of other colonies in the system
-
-Resort planet (this one is tentative cause I have no ideas)
-•	Increases growth of other colonies in the system
-•	Locked at size 5
-•	No industrial buildings
-•	No military
-•	One industry slot
-•	Negative income reduced by 80%
 
 Corporate Governance
 •	More income means higher stability
 •	Higher stability does not mean more income
 •	1.2x standard income multiplier
 •	2 months max. disruption time
-•	Extra industry slot
+•	All industry slots immediately available when locked
 •	negative base growth
-•	Low base stability
+•	base stability = 0
 •	Incentives are twice as expensive (or more?)
 •	Can shrink
 
 Underworld Governance
-•	Less stability = more income
-•	Increased illegal commodity outputs
-•	Increased fleet size
-•	Raids other places at high stability (twice a year?) – like a free privateer port
+x •	Less stability = more income
+x •	Increased illegal commodity outputs
+x •	Increased fleet size
+nah •	Raids other places at low stability (twice a year?) – like a free privateer port
 
 Outpost
 •	Income locked at +10k
@@ -64,4 +57,14 @@ Outpost
 •	No luddic cells
 •	No inspections
 
+
+
+
+Resort planet (this one is tentative cause I have no ideas)
+•	Increases growth of other colonies in the system
+•	Locked at size 5
+•	No industrial buildings
+•	No military
+•	One industry slot
+•	Negative income reduced by 80%
 

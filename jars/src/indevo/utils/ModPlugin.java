@@ -35,6 +35,7 @@ import indevo.exploration.minefields.listeners.InterdictionPulseAbilityListener;
 import indevo.exploration.minefields.listeners.RecentJumpListener;
 import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.exploration.stations.DerelictStationPlacer;
+import indevo.exploration.subspace.system.SubspaceSystem;
 import indevo.ids.Ids;
 import indevo.industries.OrbitalStation;
 import indevo.industries.TradeCenter;
@@ -115,7 +116,10 @@ public class ModPlugin extends BaseModPlugin {
             t.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
         }
 
-        if (newGame) ArtilleryStationPlacer.placeCoreWorldArtilleries();
+        if (newGame) {
+            ArtilleryStationPlacer.placeCoreWorldArtilleries();
+            SubspaceSystem.gen();
+        }
 
         //core
         createAcademyMarket();

@@ -2,10 +2,7 @@ package indevo.industries.changeling.industry.population;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FactionDoctrineAPI;
-import com.fs.starfarer.api.campaign.econ.CommodityMarketDataAPI;
-import com.fs.starfarer.api.campaign.econ.CommodityOnMarketAPI;
-import com.fs.starfarer.api.campaign.econ.Industry;
-import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.impl.campaign.econ.CommRelayCondition;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ConstructionQueue;
@@ -15,12 +12,10 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
-import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.industries.changeling.industry.SubIndustry;
-import indevo.industries.changeling.industry.SubIndustryAPI;
 
 import static com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure.*;
 
@@ -30,6 +25,28 @@ public class UnderworldSubIndustry extends SubIndustry {
         super(id, name, imageName, descriptionID);
     }
 
+    public static final float BONUS_ILLEGAL_OUTPUT = 1f;
+    public static final float BONUS_SMALL_PATROLS = 2f;
+    public static final float BASE_STABILITY_AMT = 2f;
+
+    private void increaseIllegalCommodityOutput(MarketAPI market){
+        for (CommodityOnMarketAPI commodity : market.getCommoditiesCopy()){
+            if (commodity.isIllegal()) {
+                commodity.setDemandLegal(true);
+                commodity.setSupplyLegal(true);
+
+                for (Industry ind : market.getIndustries()){
+                    MutableCommodityQuantity supply = ind.getSupply(commodity.getId());
+                    if (supply.getQuantity().getModifiedInt() > 0 ) supply.getQuantity().modifyFlat(getId(), BONUS_ILLEGAL_OUTPUT, getName());
+                }
+            }
+        }
+    }
+
+    private void increaseFleetSize(MarketAPI market){
+        //market.getStats().getDynamic().getStats().get(Stats.PATROL_NUM_LIGHT_MOD).modifyFlat(getId(), BONUS_SMALL_PATROLS, "Bored underworld spacers");
+    }
+
     @Override
     public void apply(Industry industry) {
         MarketAPI market = industry.getMarket();
@@ -37,10 +54,11 @@ public class UnderworldSubIndustry extends SubIndustry {
         SwitchablePopulation population = ((SwitchablePopulation) industry);
 
         population.unapply();
-        
-        modifyStability(industry, market, population.getModId(3));
 
-        population.superApply(); //applies default pop&Infra
+        //population.superApply(); //applies default pop&Infra
+        modifyStability(industry, market, population.getModId(3));
+        increaseIllegalCommodityOutput(industry.getMarket());
+        increaseFleetSize(industry.getMarket());
         
         int size = market.getSize();
 
@@ -50,30 +68,30 @@ public class UnderworldSubIndustry extends SubIndustry {
             ind.demand(Commodities.ORGANICS, size - 1);
         }
 
-        int luxuryThreshold = 3;
+        int luxuryThreshold = 2;
 
-        ind.demand(Commodities.DOMESTIC_GOODS, size - 1);
+        ind.demand(Commodities.DOMESTIC_GOODS, size - 3);
         ind.demand(Commodities.LUXURY_GOODS, size - luxuryThreshold);
-        ind.demand(Commodities.DRUGS, size - 2);
-        ind.demand(Commodities.ORGANS, size - 3);
+        ind.demand(Commodities.DRUGS, size);
+        ind.demand(Commodities.ORGANS, size - 2);
 
         ind.demand(Commodities.SUPPLIES, Math.min(size, 3));
 
         ind.supply(Commodities.CREW, size - 3);
-        ind.supply(Commodities.DRUGS, size - 4);
-        ind.supply(Commodities.ORGANS, size - 5);
+        ind.supply(Commodities.DRUGS, size - 3);
+        ind.supply(Commodities.ORGANS, size - 4);
 
 
         Pair<String, Integer> deficit = ind.getMaxDeficit(Commodities.DOMESTIC_GOODS);
-        if (deficit.two <= 0) {
-            market.getStability().modifyFlat(population.getModId(0), 1, "Domestic goods ind.demand met");
+        /*if (deficit.two <= 0) {
+            market.getStability().modifyFlat(population.getModId(0), 1, "Domestic goods demand met");
         } else {
             market.getStability().unmodifyFlat(population.getModId(0));
-        }
+        }*/
 
         deficit = ind.getMaxDeficit(Commodities.LUXURY_GOODS);
         if (deficit.two <= 0 && size > luxuryThreshold) {
-            market.getStability().modifyFlat(population.getModId(1), 1, "Luxury goods ind.demand met");
+            market.getStability().modifyFlat(population.getModId(1), 1, "Luxury goods demand met");
         } else {
             market.getStability().unmodifyFlat(population.getModId(1));
         }
@@ -154,7 +172,7 @@ public class UnderworldSubIndustry extends SubIndustry {
                     getDeficitText(Commodities.SHIPS));
         } else {
             market.getStats().getDynamic().getMod(Stats.COMBAT_FLEET_SIZE_MULT).modifyMultAlways(population.getModId(2), deficitShipsMult,
-                    getDeficitText(Commodities.SHIPS).replaceAll("shortage", "ind.demand met"));
+                    getDeficitText(Commodities.SHIPS).replaceAll("shortage", "demand met"));
         }
 
         market.getStats().getDynamic().getMod(Stats.COMBAT_FLEET_SIZE_MULT).modifyMultAlways(population.getModId(3), stabilityShipsMult,
@@ -191,10 +209,10 @@ public class UnderworldSubIndustry extends SubIndustry {
             incomeMult = (float) Math.pow(1.2, 5 - stability);
         }
 
-        market.getIncomeMult().modifyMultAlways(modId, incomeMult, "Stability");
+        market.getIncomeMult().modifyMultAlways(modId, incomeMult, "Stability (Underworld)");
         market.getUpkeepMult().modifyMultAlways(modId, getUpkeepHazardMult(market.getHazardValue()), "Hazard rating");
 
-        market.getStability().modifyFlat("_" + modId + "_ms", Global.getSettings().getFloat("stabilityBaseValue"), "Base value");
+        market.getStability().modifyFlat("_" + modId + "_ms", BASE_STABILITY_AMT, "Base value");
 
         float inFactionSupply = 0f;
         float totalDemand = 0f;
