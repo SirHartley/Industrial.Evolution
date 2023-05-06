@@ -4,6 +4,8 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEntityPickerListener;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.StarSystemAPI;
+import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -25,6 +27,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class SplinterFleetSidePanelCreator {
     public static final Logger log = Global.getLogger(SplinterFleetSidePanelCreator.class);
@@ -275,6 +278,21 @@ public class SplinterFleetSidePanelCreator {
                             @Override
                             public float getFuelRangeMult() {
                                 return 0;
+                            }
+
+                            @Override
+                            public List<IntelInfoPlugin.ArrowData> getArrows() {
+                                return null;
+                            }
+
+                            @Override
+                            public List<MarkerData> getMarkers() {
+                                return null;
+                            }
+
+                            @Override
+                            public Set<StarSystemAPI> getStarSystemsToShow() {
+                                return null;
                             }
                         });
                     }

@@ -78,7 +78,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
 
             startAngle = Misc.getAngleInDegrees(origin, target);
             cadence = MathUtils.getRandomNumberInRange(SINE_WAVE_MAX_VARIANCE * 0.5f, SINE_WAVE_MAX_VARIANCE);
-            trailID = data.scripts.plugins.MagicCampaignTrailPlugin.getUniqueID();
+            trailID = MagicCampaignTrailPlugin.getUniqueID();
         }
 
         readResolve();

@@ -95,7 +95,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
             this.impactSeconds = ((ProjectileParams) pluginParams).impactSeconds;
             updateProjectileFlightTime();
 
-            trailID = data.scripts.plugins.MagicCampaignTrailPlugin.getUniqueID();
+            trailID = MagicCampaignTrailPlugin.getUniqueID();
         }
 
         readResolve();

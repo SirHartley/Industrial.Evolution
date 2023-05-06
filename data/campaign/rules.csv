@@ -289,13 +289,13 @@ $menuState == main
 IndEvo_marketIsPlayerOwned
 IndEvo_systemHasSenate
 !IndEvo_marketHasEdict
-!IndEvo_requiresColonyMenuPoint",,,99:IndEvo_chooseEdict:Enact an Edict for $market,
+!IndEvo_requiresColonyMenuPoint",,,99:IndEvo_chooseEdict:Enact an Edict for $marketName,
 IndEvo_HasEdictMenuPoint,PopulateOptions,"$hasMarket
 $menuState == main
 IndEvo_marketIsPlayerOwned
 IndEvo_systemHasSenate
 IndEvo_marketHasEdict
-!IndEvo_requiresColonyMenuPoint",,,99:IndEvo_removeEdict:Remove the Edict for $market,
+!IndEvo_requiresColonyMenuPoint",,,99:IndEvo_removeEdict:Remove the Edict for $marketName,
 ,,,,,,
 IndEvo_NoEdictMenuPoint2,IndEvo_ColonyOptionPoint,"!IndEvo_marketHasEdict
 IndEvo_systemHasSenate",,,1:IndEvo_chooseEdict:Enact an Edict for $market,

@@ -44,10 +44,12 @@ import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
 import indevo.industries.changeling.SwitchableIndustrySetup;
+import indevo.industries.changeling.plugins.ChangelingPopulationOptionProvider;
 import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.ruinfra.utils.DerelictInfrastructurePlacer;
+import indevo.industries.worldwonder.plugins.WorldWonderIndustryOptionProvider;
 import indevo.items.consumables.listeners.ConsumableItemDropListener;
 import indevo.items.consumables.listeners.ConsumableItemMarketAdder;
 import indevo.items.consumables.listeners.LocatorSystemRatingUpdater;
@@ -92,19 +94,12 @@ public class ModPlugin extends BaseModPlugin {
         if (!hasLunaLib) {
             throw new RuntimeException("Industrial Evolution requires LunaLib!" + "\nGet it at http://fractalsoftworks.com/forum/index.php?topic=25658");
         }
-/*
-        boolean hasCA = Global.getSettings().getModManager().isModEnabled("combatactivators");
-        if (!hasCA) {
-            throw new RuntimeException("Industrial Evolution requires CombatActivators!" + "\nGet it at http://fractalsoftworks.com/forum/index.php?topic=24660");
-        }*/
 
         boolean hasGraphicsLib = Global.getSettings().getModManager().isModEnabled("shaderLib");
         if (hasGraphicsLib) {
             ShaderLib.init();
             LightData.readLightDataCSV("data/lights/IndEvo_lights.csv");
         }
-
-        Global.getSettings().getIndustrySpec(Industries.POPULATION).setPluginClass("indevo.industries.changeling.industry.population.SwitchablePopulation");
     }
 
     @Override
@@ -348,6 +343,8 @@ public class ModPlugin extends BaseModPlugin {
         RecentJumpListener.register();
         SpooferItemKeypressListener.register();
         InterdictionPulseAbilityListener.register();
+        WorldWonderIndustryOptionProvider.register();
+        ChangelingPopulationOptionProvider.register();
     }
 
     private void setScriptsIfNeeded() {

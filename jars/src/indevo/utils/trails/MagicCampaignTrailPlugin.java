@@ -17,10 +17,10 @@ import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import indevo.utils.ModPlugin;
-import data.scripts.util.MagicTrailObject;
 import org.lazywizard.lazylib.FastTrig;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
+import org.magiclib.util.MagicTrailObject;
 
 import java.awt.*;
 import java.util.List;

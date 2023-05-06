@@ -110,7 +110,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
             this.splitAngleOnTrajectory = ((MissileParams) pluginParams).splitAngleOnTrajectory;
             this.impactSeconds = ((MissileParams) pluginParams).impactSeconds;
 
-            trailID = data.scripts.plugins.MagicCampaignTrailPlugin.getUniqueID();
+            trailID = MagicCampaignTrailPlugin.getUniqueID();
 
             updateProjectileFlightTime();
         }

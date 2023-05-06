@@ -5,13 +5,13 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.MarketConditionSpecAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
+import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryAPI;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
 import indevo.utils.helper.StringHelper;
-import lunalib.backend.ui.components.util.TooltipHelper;
 
 import java.awt.*;
 import java.util.LinkedList;
@@ -35,7 +35,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
                 }
 
                 @Override
-                public String getImage(MarketAPI market) {
+                public String getImageName(MarketAPI market) {
                     float size = market.getSize();
                     if (size <= SIZE_FOR_SMALL_IMAGE) {
                         return Global.getSettings().getSpriteName("industry", "pop_low");
@@ -46,12 +46,16 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
                     return imageName;
                 }
+
+                @Override
+                public boolean isBase() {
+                    return true;
+                }
             });
 
             add(new UnderworldSubIndustry("underworld", "Underworld Governance", Global.getSettings().getSpriteName("IndEvo", "pop_underworld"), "IndEvo_pop_uw"));
         }
     };
-
 
     @Override
     public List<SubIndustryAPI> getIndustryList() {
@@ -59,6 +63,19 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     }
 
     private SubIndustryAPI current = null;
+
+    public void setCurrent(SubIndustryAPI current) {
+        if (industryList.contains(current)){
+            this.current = current;
+            daysPassed = 0;
+            reapply();
+        }
+    }
+
+    @Override
+    public SubIndustryAPI getCurrent() {
+        return current;
+    }
 
     public void apply() {
         supply.clear();
@@ -78,6 +95,11 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
         demand.clear();
 
         super.apply();
+    }
+
+    @Override
+    public String getId() {
+        return Industries.POPULATION;
     }
 
     @Override
@@ -103,37 +125,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
     @Override
     public String getCurrentImage() {
-        return current.getImage(market);
-    }
-
-    public boolean canImprove() {
-        return canChange() || super.canImprove();}
-
-    public float getImproveBonusXP() {
-        return canChange() ? 0 : super.getImproveBonusXP();
-    }
-
-    public String getImproveMenuText() {
-        return canChange() ? "Change Governing Style" : super.getImproveMenuText();
-    }
-
-    public int getImproveStoryPoints() {
-        return canChange() ? 0 : super.getImproveStoryPoints();
-    }
-
-    @Override
-    public void setImproved(boolean improved) {
-        if (canChange()){
-            current = getNext();
-            daysPassed = 0;
-            reapply();
-        }
-
-        else super.setImproved(improved);
-    }
-
-    public String getImproveDialogTitle() {
-        return canChange() ? "Changing Governing Style for " + getSpec().getName() : super.getImproveDialogTitle();
+        return current.getImageName(market);
     }
 
     @Override
@@ -156,43 +148,6 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
     public boolean isNotChanged(){
         return current != null && current.getId().equals(BASE_STATE_ID);
-    }
-
-    public void addImproveDesc(TooltipMakerAPI info, ImprovementDescriptionMode mode) {
-        if (canChange()){
-            float opad = 10f;
-            Color highlight = Misc.getHighlightColor();
-
-            if (mode != ImprovementDescriptionMode.INDUSTRY_TOOLTIP) {
-                String govName = getNext().getName();
-                String govDesc = getNext().getDescription().getText2();
-
-                info.addPara("Changes the local governing style to %s.", 0f, highlight, govName);
-                info.addPara(govDesc, 3f);
-
-                info.addPara("This change is only possible until %s and becomes permanent after %s.", 10f, highlight,
-                        "size " + MAX_SIZE_FOR_CHANGE,
-                        DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(DAYS_TO_LOCK));
-
-                info.addPara("Does not affect improvement cost of other buildings on this colony.", 10f);
-            }
-
-            info.addSpacer(opad);
-
-        } else super.addImproveDesc(info, mode);
-    }
-
-    public SubIndustryAPI getNext(){
-        List<SubIndustryAPI> industryAPIList = getIndustryList();
-
-        for (int i = 0; i < industryAPIList.size(); i++){
-            if (industryAPIList.get(i).getId().equals(current.getId())){
-                if (i == industryAPIList.size()-1) return industryAPIList.get(0);
-                else return industryAPIList.get(i+1);
-            }
-        }
-
-        return null;
     }
 
     @Override

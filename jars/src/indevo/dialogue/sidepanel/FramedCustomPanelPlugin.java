@@ -104,4 +104,9 @@ public class FramedCustomPanelPlugin implements CustomUIPanelPlugin {
     @Override
     public void processInput(List<InputEventAPI> arg0) {
     }
+
+    @Override
+    public void buttonPressed(Object buttonId) {
+
+    }
 }

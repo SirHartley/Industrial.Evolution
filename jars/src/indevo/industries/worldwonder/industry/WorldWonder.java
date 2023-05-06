@@ -9,10 +9,10 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
 
 import java.awt.*;
 
@@ -34,51 +34,23 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
             if (getAlternateImagePath() != null) return getAlternateImagePath();
         }
 
-         return super.getCurrentImage();
+        return super.getCurrentImage();
     }
 
-    public String getAlternateImagePath(){
-        switch (id){
-            case Ids.CHURCH: return Global.getSettings().getSpriteName("IndEvo", "kadur_megachurch");
-            default: return null;
+    public String getAlternateImagePath() {
+        String path = null;
+
+        try {
+            path = Global.getSettings().getSpriteName("IndEvo", spec.getData());
+        } catch (RuntimeException e) {
+            return null;
         }
+
+        return path;
     }
 
-    public boolean canImprove() {
+    public boolean hasAlternateImage() {
         return getAlternateImagePath() != null;
-    }
-
-    public float getImproveBonusXP() {
-        return 0;
-    }
-
-    public String getImproveMenuText() {
-        return "Change Visual";
-    }
-
-    public int getImproveStoryPoints() {
-        return 0;
-    }
-
-    @Override
-    public void setImproved(boolean improved) {
-        isAlternateVisual = !isAlternateVisual;
-    }
-
-    public String getImproveDialogTitle() {
-        return "Changing visual for " + getSpec().getName();
-    }
-
-    public void addImproveDesc(TooltipMakerAPI info, ImprovementDescriptionMode mode) {
-        float opad = 10f;
-        Color highlight = Misc.getHighlightColor();
-
-        if (mode != ImprovementDescriptionMode.INDUSTRY_TOOLTIP) {
-            info.addPara("Changes the %s to an alternate version.", 0f, highlight, "building image");
-            info.addPara("Does not affect improvement cost of other buildings on this colony.", 3f);
-        }
-
-        info.addSpacer(opad);
     }
 
     @Override
@@ -90,7 +62,7 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
             market.getStarSystem().addTag(TAG_SYSTEM_HAS_WONDER);
 
             for (MarketAPI market : Misc.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
-               if(!market.hasCondition(Ids.COND_WORLD_WONDER)) market.addCondition(Ids.COND_WORLD_WONDER);
+                if (!market.hasCondition(Ids.COND_WORLD_WONDER)) market.addCondition(Ids.COND_WORLD_WONDER);
             }
         }
     }

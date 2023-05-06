@@ -6,8 +6,9 @@ import com.fs.starfarer.api.loading.Description;
 
 public interface SubIndustryAPI {
     String getId();
-    String getImage(MarketAPI market);
+    String getImageName(MarketAPI market);
     String getName();
     Description getDescription();
     void apply(Industry industry);
+    boolean isBase();
 }

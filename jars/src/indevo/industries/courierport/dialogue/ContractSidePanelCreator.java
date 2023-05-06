@@ -1,6 +1,7 @@
 package indevo.industries.courierport.dialogue;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
 import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -22,6 +23,7 @@ import com.fs.starfarer.api.util.Misc;
 import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import static indevo.industries.courierport.ShippingCostCalculator.CONTRACT_BASE_FEE;
 
@@ -257,6 +259,21 @@ public class ContractSidePanelCreator {
                     public float getFuelRangeMult() {
                         return 0;
                     }
+
+                    @Override
+                    public List<IntelInfoPlugin.ArrowData> getArrows() {
+                        return null;
+                    }
+
+                    @Override
+                    public List<MarkerData> getMarkers() {
+                        return null;
+                    }
+
+                    @Override
+                    public Set<StarSystemAPI> getStarSystemsToShow() {
+                        return null;
+                    }
                 });
             }
         };
@@ -426,7 +443,8 @@ public class ContractSidePanelCreator {
                     contract.name = textField.getText();
                 VisualCustomPanel.clearPanel();
 
-                dialogue.showCampaignEntityPicker("Select a planet to ship to", "Selected: ", "Confirm", playerFleet.getFaction(), ShippingTargetHelper.getValidTargetPlanets(contract), new CampaignEntityPickerListener() {
+                dialogue.showCampaignEntityPicker("Select a planet to ship to", "Selected: ", "Confirm",
+                        playerFleet.getFaction(), ShippingTargetHelper.getValidTargetPlanets(contract), new CampaignEntityPickerListener() {
                     @Override
                     public String getMenuItemNameOverrideFor(SectorEntityToken entity) {
                         MarketAPI m = entity.getMarket();
@@ -477,6 +495,21 @@ public class ContractSidePanelCreator {
                     @Override
                     public float getFuelRangeMult() {
                         return 0;
+                    }
+
+                    @Override
+                    public List<IntelInfoPlugin.ArrowData> getArrows() {
+                        return null;
+                    }
+
+                    @Override
+                    public List<MarkerData> getMarkers() {
+                        return null;
+                    }
+
+                    @Override
+                    public Set<StarSystemAPI> getStarSystemsToShow() {
+                        return null;
                     }
                 });
             }

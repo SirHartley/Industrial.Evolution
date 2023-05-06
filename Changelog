@@ -61,10 +61,12 @@ adjust salvage event "Ship Roulette" -
 -----------------------o-----------------------
 3.2.d
 General
-Added - LunaLib Integration
+todo Added - LunaLib Integration
 Added - LunaLib Dependency (not doing all that work twice)
 Added - Setting to adjust column amount in all the ship pickers in this mod
 Added - Planet Jump listener, interface to notify when a planet has finished jumping via rift generator (for modders)
+Adjusted - Rules.csv $market -> $marketName for 0.96
+Adjusted - Code Changes for 0.96
 
 Automated Shipyards
 Adjusted - new interaction image (the old one was kinda trash)
@@ -111,6 +113,7 @@ Engineering Hub
 "Fixed" - Crash when Variant is null (I don't know why it does that and the fix is a bandaid.)
 
 World Wonders
+Adjusted - Moved visual changing to its own button
 Fixed - Dark Palace "Ressource" typo (literally unplayable)
 
 Ancient Laboratory

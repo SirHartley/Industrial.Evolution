@@ -101,6 +101,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\config\BetterColonyConfig\bc_autospindustries.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\config\LunaSettings.csv">
           <value>
             <Attribute>

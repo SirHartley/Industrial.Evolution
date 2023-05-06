@@ -39,6 +39,17 @@ public abstract class BaseSwitchableIndustry extends BaseIndustry implements Swi
     }
 
     @Override
+    public SubIndustryAPI getCurrent() {
+        return current;
+    }
+
+    @Override
+    public void setCurrent(SubIndustryAPI current) {
+        this.current = current;
+        reapply();
+    }
+
+    @Override
     public String getCurrentName() {
         return current.getName();
     }
@@ -51,7 +62,7 @@ public abstract class BaseSwitchableIndustry extends BaseIndustry implements Swi
 
     @Override
     public String getCurrentImage() {
-        return current.getImage(market);
+        return current.getImageName(market);
     }
 
     public boolean canImprove() {

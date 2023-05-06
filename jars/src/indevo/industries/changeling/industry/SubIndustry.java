@@ -22,7 +22,7 @@ public abstract class SubIndustry implements SubIndustryAPI {
     }
 
     @Override
-    public String getImage(MarketAPI market) {
+    public String getImageName(MarketAPI market) {
         return imageName;
     }
 
@@ -34,5 +34,10 @@ public abstract class SubIndustry implements SubIndustryAPI {
     @Override
     public Description getDescription() {
         return Global.getSettings().getDescription(descriptionID, Description.Type.CUSTOM);
+    }
+
+    @Override
+    public boolean isBase() {
+        return false;
     }
 }

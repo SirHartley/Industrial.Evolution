@@ -32,4 +32,9 @@ public class NoFrameCustomPanelPlugin implements CustomUIPanelPlugin {
     public void processInput(List<InputEventAPI> events) {
 
     }
+
+    @Override
+    public void buttonPressed(Object buttonId) {
+
+    }
 }
