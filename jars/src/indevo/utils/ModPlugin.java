@@ -46,6 +46,7 @@ import indevo.industries.assembler.listeners.DepositMessage;
 import indevo.industries.changeling.plugins.ChangelingMiningOptionProvider;
 import indevo.industries.changeling.plugins.ChangelingPopulationOptionProvider;
 import indevo.industries.changeling.plugins.ChangelingRefiningOptionProvider;
+import indevo.industries.changeling.plugins.LetUsSpeakToTheTrees;
 import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;

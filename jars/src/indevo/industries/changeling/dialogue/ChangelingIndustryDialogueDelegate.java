@@ -1,12 +1,11 @@
 package indevo.industries.changeling.dialogue;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
-import com.fs.starfarer.api.campaign.CustomDialogDelegate;
-import com.fs.starfarer.api.campaign.CustomUIPanelPlugin;
+import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
+import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
@@ -14,8 +13,13 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.SubIndustryAPI;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
+import indevo.items.installable.SpecialItemEffectsRepo;
 
 import java.awt.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate {
@@ -29,6 +33,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
     public List<SubIndustryAPI> subIndustries;
     public String industryToAdd;
     public SubIndustryAPI selected = null;
+    public List<ButtonAPI> buttons = new ArrayList<>();
 
     public ChangelingIndustryDialogueDelegate(Industry industry, String baseChangelingIndustryID, List<SubIndustryAPI> subIndustries) {
         this.industry = industry;
@@ -40,17 +45,31 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
         TooltipMakerAPI panelTooltip = panel.createUIElement(WIDTH, HEIGHT, true);
         panelTooltip.addSectionHeading("Select a Variant", Alignment.MID, 0f);
 
-        Color baseColor = Misc.getButtonTextColor();
-        Color bgColour = Misc.getDarkPlayerColor();
-        Color brightColor = Misc.getBrightPlayerColor();
-
         float opad = 10f;
+        float spad = 2f;
 
-        for (SubIndustryAPI sub : subIndustries){
-            if (industry instanceof SwitchableIndustryAPI && sub == ((SwitchableIndustryAPI) industry).getCurrent()) continue;
+        buttons.clear();
+
+        for (SubIndustryAPI sub : subIndustries) {
+            if (industry instanceof SwitchableIndustryAPI && sub == ((SwitchableIndustryAPI) industry).getCurrent())
+                continue;
             if (!(industry instanceof SwitchableIndustryAPI) && sub.isBase()) continue;
 
-            CustomPanelAPI subIndustryButtonPanel = panel.createCustomPanel(ENTRY_WIDTH, ENTRY_HEIGHT, new ButtonReportingCustomPanel(this));
+            int buildTime = Math.round(sub.getBuildTime());
+            float cost = sub.getCost();
+            boolean canAfford = Global.getSector().getPlayerFleet().getCargo().getCredits().get() >= cost;
+
+            Color baseColor = Misc.getButtonTextColor();
+            Color bgColour = Misc.getDarkPlayerColor();
+            Color brightColor = Misc.getBrightPlayerColor();
+
+            if (!canAfford) {
+                baseColor = Color.darkGray;
+                bgColour = Color.lightGray;
+                brightColor = Color.gray;
+            }
+
+            CustomPanelAPI subIndustryButtonPanel = panel.createCustomPanel(ENTRY_WIDTH, ENTRY_HEIGHT + 2f, new ButtonReportingCustomPanel(this));
             TooltipMakerAPI anchor = subIndustryButtonPanel.createUIElement(ENTRY_WIDTH, ENTRY_HEIGHT, false);
 
             ButtonAPI areaCheckbox = anchor.addAreaCheckbox("", sub.getId(), baseColor, bgColour, brightColor, //new Color(255,255,255,0)
@@ -60,7 +79,8 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
                     true);
 
             areaCheckbox.setChecked(selected == sub);
-            subIndustryButtonPanel.addUIElement(anchor).inTL(- opad, 0f); //if we don't -opad it kinda does it by its own, no clue why
+            areaCheckbox.setEnabled(canAfford);
+            subIndustryButtonPanel.addUIElement(anchor).inTL(-opad, 0f); //if we don't -opad it kinda does it by its own, no clue why
 
             String spriteName = sub.getImageName(industry.getMarket());
             SpriteAPI sprite = Global.getSettings().getSprite(spriteName);
@@ -75,12 +95,16 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             TooltipMakerAPI lastPos = anchor;
 
             anchor = subIndustryButtonPanel.createUIElement(ENTRY_WIDTH - adjustedWidth - opad - defaultPadding, CONTENT_HEIGHT, false);
-            anchor.addSectionHeading(" " + sub.getName(), Alignment.LMID, 0f);
+            if (canAfford) anchor.addSectionHeading(" " + sub.getName(), Alignment.LMID, 0f);
+            else anchor.addSectionHeading(" " + sub.getName(), Color.WHITE, brightColor, Alignment.LMID, 0f);
             anchor.addPara(sub.getDescription().getText2(), opad);
+            anchor.addPara("Cost: %s", spad, canAfford ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), Misc.getDGSCredits(cost)).setAlignment(Alignment.RMID);
+            //anchor.addPara("Build time: %s", spad, Misc.getHighlightColor(), buildTime + " " + StringHelper.getDayOrDays(buildTime));
 
             subIndustryButtonPanel.addUIElement(anchor).rightOfMid(lastPos, opad);
 
-            panelTooltip.addCustom(subIndustryButtonPanel, 0f).getPosition().setYAlignOffset(-2f);
+            panelTooltip.addCustom(subIndustryButtonPanel, 0f);
+            buttons.add(areaCheckbox);
         }
 
         panel.addUIElement(panelTooltip).inTL(0.0F, 0.0F);
@@ -99,23 +123,57 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
     }
 
     public void customDialogConfirm() {
-        if (industry instanceof SwitchableIndustryAPI) ((SwitchableIndustryAPI) industry).setCurrent(selected);
-        else {
+        if (selected == null) return;
+
+        if (industry instanceof SwitchableIndustryAPI) {
+            SwitchableIndustryAPI swIndustry = (SwitchableIndustryAPI) industry;
+
+            if (swIndustry.getCurrent() != selected) {
+                swIndustry.setCurrent(selected);
+                Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(selected.getCost());
+            }
+        } else {
             MarketAPI market = industry.getMarket();
             market.removeIndustry(industry.getId(), null, false);
             market.addIndustry(industryToAdd);
-            Industry switchable =  null;
+            Industry switchable = null;
 
-            for (Industry industry : market.getIndustries()){
-                if (industry.getSpec().getId().equals(industryToAdd)){
+            for (Industry industry : market.getIndustries()) {
+                //the switchables return a fake id on .getId() so we gotta check the spec
+                if (industry.getSpec().getId().equals(industryToAdd)) {
                     switchable = industry;
                     break;
                 }
             }
 
-            if (switchable instanceof SwitchableIndustryAPI) ((SwitchableIndustryAPI) switchable).setCurrent(selected);
-            else throw new IllegalArgumentException("non-switchable industry passed to switchable industry dialogue delegate");
+            if (switchable == null) return;
+
+            //refund or transfer items
+            SpecialItemData specialItemData = industry.getSpecialItem();
+
+            if (specialItemData != null && canInstallItem(switchable, specialItemData.getId())){
+                switchable.setSpecialItem(specialItemData);
+            } else if (specialItemData != null) Misc.getStorageCargo(market).addSpecial(specialItemData, 1);
+
+            switchable.setAICoreId(industry.getAICoreId());
+            if (switchable.canImprove()) switchable.setImproved(industry.isImproved());
+
+            if (switchable instanceof SwitchableIndustryAPI) {
+                ((SwitchableIndustryAPI) switchable).setCurrent(selected);
+                Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(selected.getCost());
+            } else
+                throw new IllegalArgumentException("non-switchable industry passed to switchable industry dialogue delegate");
         }
+    }
+
+    public boolean canInstallItem(Industry industry, String itemID) {
+        SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(itemID);
+
+        //check if it's applicable to the industry
+        boolean isApplicableToIndustry = Arrays.asList(spec.getParams().replaceAll("\\s", "").split(",")).contains(industry.getId());
+        //check if it has unmet requirements on the market
+        return isApplicableToIndustry && ItemEffectsRepo.ITEM_EFFECTS.get(itemID).getUnmetRequirements(industry).isEmpty();
+
     }
 
     public void customDialogCancel() {
@@ -125,14 +183,18 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
         return null;
     }
 
-    public void reportButtonPressed(Object id){
-        if (id instanceof String){
-            for (SubIndustryAPI sub : subIndustries){
+    public void reportButtonPressed(Object id) {
+        if (id instanceof String) {
+            for (SubIndustryAPI sub : subIndustries) {
                 if (sub.getId().equals(id)) {
                     selected = sub;
                     break;
                 }
             }
+        }
+
+        for (ButtonAPI button : buttons) {
+            if (button.isChecked() && button.getCustomData() != id) button.setChecked(false);
         }
     }
 

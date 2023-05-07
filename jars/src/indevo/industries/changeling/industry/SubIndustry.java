@@ -59,11 +59,11 @@ public abstract class SubIndustry implements SubIndustryAPI {
 
     @Override
     public float getCost() {
-        return 0;
+        return cost;
     }
 
     @Override
     public float getBuildTime() {
-        return 0;
+        return buildTime;
     }
 }

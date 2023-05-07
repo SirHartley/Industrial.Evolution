@@ -29,7 +29,7 @@ public class WorldWonderIndustryOptionProvider extends BaseIndustryOptionProvide
         boolean playerOwned = ind.getMarket().isPlayerOwned();
         boolean hasAlternate = isWW && ((WorldWonder) ind).hasAlternateImage();
 
-        return super.isUnsuitable(ind, allowUnderConstruction) && playerOwned && hasAlternate;
+        return super.isUnsuitable(ind, allowUnderConstruction) || !playerOwned || !hasAlternate;
     }
 
     public List<IndustryOptionProvider.IndustryOptionData> getIndustryOptions(Industry ind) {
@@ -38,7 +38,7 @@ public class WorldWonderIndustryOptionProvider extends BaseIndustryOptionProvide
         List<IndustryOptionProvider.IndustryOptionData> result = new ArrayList<IndustryOptionProvider.IndustryOptionData>();
 
         IndustryOptionData opt = new IndustryOptionProvider.IndustryOptionData("Change Visuals", OPTION_IMAGE_CHANGE, ind, this);
-        opt.color = Color.ORANGE;
+        opt.color = new Color(150, 100, 255, 255);
         result.add(opt);
 
         return result;

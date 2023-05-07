@@ -62,11 +62,12 @@ adjust salvage event "Ship Roulette" -
 3.2.d
 General
 todo Added - LunaLib Integration
-Added - LunaLib Dependency (not doing all that work twice)
+Added - LunaLib Settings
 Added - Setting to adjust column amount in all the ship pickers in this mod
 Added - Planet Jump listener, interface to notify when a planet has finished jumping via rift generator (for modders)
 Adjusted - Rules.csv $market -> $marketName for 0.96
 Adjusted - Code Changes for 0.96
+Adjusted - All industry images got touch-ups to bring them more in line with vanilla
 
 Automated Shipyards
 Adjusted - new interaction image (the old one was kinda trash)
@@ -93,12 +94,15 @@ Added - NPC fleets now respond to artillery fire and try to dodge. They are bett
 Fixed - Artillery Stations should no longer be stuck in repairs on game start (should)
 Fixed - Watchtowers no longer count as stable locations (Replaced the vanilla PlanetInteractionDialogPluginImpl)
 
+Specialized Industries
+Added - Refining Specializations (increased output on one commodity, malus on the other)
+Added - Mining Specializations (see above but for mining)
+
+Governance Types
+Added - Underworld (Increases income with lower stability, decreases with higher, increases illegal commodity outputs)
+
 Commerce
 Fixed - No longer resets build times on load/save
-
-Specialized Industries
-Added - Specialized Refining (Switch between metal and transplutonics refining for +2 output or the default one for both without bonus)
-Added - Specialized Mining (see above but for mining)
 
 Courier Port
 Fixed - Crash when planet has no storage
@@ -111,6 +115,9 @@ Fixed - Broken Tooltips
 
 Engineering Hub
 "Fixed" - Crash when Variant is null (I don't know why it does that and the fix is a bandaid.)
+
+Privateer Base
+Fixed - No longer displays cross-mod content tooltips when other mod is not installed
 
 World Wonders
 Adjusted - Moved visual changing to its own button

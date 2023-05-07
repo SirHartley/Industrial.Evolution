@@ -23,10 +23,10 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
 
     public static final List<SubIndustryAPI> industryList = new LinkedList<SubIndustryAPI>(){{
 
-        add(new SubIndustry("base_mining", "graphics/icons/industry/mining.png", "Specialized Mining", "IndEvo_base_mining") {
+        add(new SubIndustry("base_mining", "graphics/icons/industry/mining.png", "Mining", "IndEvo_base_mining") {
             @Override
             public void apply(Industry industry) {
-                if (industry instanceof SwitchableMining) ((SwitchableMining) industry).superApply(); //applies default
+                applySupplyAndStandardDemandWithModifiers(industry, 0,0,0,0);
             }
 
             @Override
@@ -35,67 +35,53 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
             }
         });
 
-        add(new SubIndustry("ore_mining", Global.getSettings().getSpriteName("IndEvo", "ore_mining"), "Ore Mining", "IndEvo_ore_mining") {
+        add(new SubIndustry("ore_mining", Global.getSettings().getSpriteName("IndEvo", "ore_mining"), "Ore Mining", "IndEvo_ore_mining", 10000, 31) {
             @Override
             public void apply(Industry industry) {
-                applyConditionBasedIndustryOutputProfile(industry, Commodities.ORE, 2);
-
-                BaseIndustry ind = (BaseIndustry) industry;
-                int size = ind.getMarket().getSize();
-                ind.demand(Commodities.HEAVY_MACHINERY, size - 3);
-                ind.demand(Commodities.DRUGS, size);
-
-                Pair<String, Integer> deficit =  industry.getMaxDeficit(Commodities.HEAVY_MACHINERY);
-                IndustryHelper.applyDeficitToProduction(industry, 0, deficit, Commodities.ORE);
+                applySupplyAndStandardDemandWithModifiers(industry, 2,-3,-3,-3);
             }
         });
 
-        add(new SubIndustry("rare_mining", Global.getSettings().getSpriteName("IndEvo", "rare_mining"), "Transplutonics Mining", "IndEvo_rare_mining") {
+        add(new SubIndustry("rare_mining", Global.getSettings().getSpriteName("IndEvo", "rare_mining"), "Transplutonics Mining", "IndEvo_rare_mining", 25000, 31) {
             @Override
             public void apply(Industry industry) {
-                applyConditionBasedIndustryOutputProfile(industry, Commodities.RARE_ORE, 2);
-
-                BaseIndustry ind = (BaseIndustry) industry;
-                int size = ind.getMarket().getSize();
-                ind.demand(Commodities.HEAVY_MACHINERY, size - 3);
-                ind.demand(Commodities.DRUGS, size);
-
-                Pair<String, Integer> deficit =  industry.getMaxDeficit(Commodities.HEAVY_MACHINERY);
-                IndustryHelper.applyDeficitToProduction(industry, 0, deficit, Commodities.RARE_ORE);
+                applySupplyAndStandardDemandWithModifiers(industry, -3,2,-3,-3);
             }
         });
 
-        add(new SubIndustry("volatile_mining", Global.getSettings().getSpriteName("IndEvo", "volatile_mining"), "Volatile Extraction", "IndEvo_volatile_mining") {
+        add(new SubIndustry("volatile_mining", Global.getSettings().getSpriteName("IndEvo", "volatile_mining"), "Volatile Extraction", "IndEvo_volatile_mining", 50000, 31) {
             @Override
             public void apply(Industry industry) {
-                applyConditionBasedIndustryOutputProfile(industry, Commodities.VOLATILES, 2);
-
-                BaseIndustry ind = (BaseIndustry) industry;
-                int size = ind.getMarket().getSize();
-                ind.demand(Commodities.HEAVY_MACHINERY, size - 3);
-                ind.demand(Commodities.DRUGS, size);
-
-                Pair<String, Integer> deficit =  industry.getMaxDeficit(Commodities.HEAVY_MACHINERY);
-                IndustryHelper.applyDeficitToProduction(industry, 0, deficit, Commodities.VOLATILES);
+                applySupplyAndStandardDemandWithModifiers(industry, -3,-3,-3,2);
             }
         });
 
-        add(new SubIndustry("organics_mining", Global.getSettings().getSpriteName("IndEvo", "organics_mining"), "Organics Extraction", "IndEvo_organics_mining") {
+        add(new SubIndustry("organics_mining", Global.getSettings().getSpriteName("IndEvo", "organics_mining"), "Organics Extraction", "IndEvo_organics_mining", 10000, 31) {
             @Override
             public void apply(Industry industry) {
-                applyConditionBasedIndustryOutputProfile(industry, Commodities.ORGANICS, 2);
-
-                BaseIndustry ind = (BaseIndustry) industry;
-                int size = ind.getMarket().getSize();
-                ind.demand(Commodities.HEAVY_MACHINERY, size - 3);
-                ind.demand(Commodities.DRUGS, size);
-
-                Pair<String, Integer> deficit =  industry.getMaxDeficit(Commodities.HEAVY_MACHINERY);
-                IndustryHelper.applyDeficitToProduction(industry, 0, deficit, Commodities.ORGANICS);
+                applySupplyAndStandardDemandWithModifiers(industry, -3,-3,2,-3);
             }
         });
     }};
 
+    public static void applySupplyAndStandardDemandWithModifiers(Industry industry, int oreMod, int rareOreMod, int organicsMod, int volatileMod){
+        applyConditionBasedIndustryOutputProfile(industry, Commodities.ORE, oreMod);
+        applyConditionBasedIndustryOutputProfile(industry, Commodities.RARE_ORE, rareOreMod);
+        applyConditionBasedIndustryOutputProfile(industry, Commodities.ORGANICS, organicsMod);
+        applyConditionBasedIndustryOutputProfile(industry, Commodities.VOLATILES, volatileMod);
+
+        BaseIndustry ind = (BaseIndustry) industry;
+        int size = ind.getMarket().getSize();
+        ind.demand(Commodities.HEAVY_MACHINERY, size - 3);
+        ind.demand(Commodities.DRUGS, size);
+
+        Pair<String, Integer> deficit =  ind.getMaxDeficit(Commodities.HEAVY_MACHINERY);
+        IndustryHelper.applyDeficitToProduction(ind, 0, deficit,
+                Commodities.ORE,
+                Commodities.RARE_ORE,
+                Commodities.ORGANICS,
+                Commodities.VOLATILES);
+    }
 
     public static void applyConditionBasedIndustryOutputProfile(Industry industry, String commodityId, Integer bonus){
         BaseIndustry ind = (BaseIndustry) industry;
@@ -156,13 +142,6 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
         if (!isFunctional()) {
             supply.clear();
         }
-    }
-
-    public void superApply(){
-        supply.clear();
-        demand.clear();
-
-        super.apply();
     }
 
     @Override

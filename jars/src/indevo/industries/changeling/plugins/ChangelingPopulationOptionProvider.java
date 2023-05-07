@@ -34,11 +34,11 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
 
     @Override
     public boolean isUnsuitable(Industry ind, boolean allowUnderConstruction) {
-        boolean isPop = ind.getId().equals(Industries.POPULATION);
+        boolean isPop = ind.getId().equals(Industries.POPULATION) && ind.getMarket().getSize() <= SwitchablePopulation.MAX_SIZE_FOR_CHANGE;
         boolean isChangeling = ind instanceof SwitchablePopulation;
         boolean canChange = isChangeling && ((SwitchablePopulation) ind).canChange();
 
-        return super.isUnsuitable(ind, allowUnderConstruction) && !(isPop || canChange);
+        return super.isUnsuitable(ind, allowUnderConstruction) || !(isPop || canChange);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
         List<IndustryOptionData> result = new ArrayList<IndustryOptionData>();
 
         IndustryOptionData opt = new IndustryOptionData("Change Governance Type", CUSTOM_PLUGIN, ind, this);
-        opt.color = Color.ORANGE;
+        opt.color = new Color(150, 100, 255, 255);
         result.add(opt);
 
         return result;

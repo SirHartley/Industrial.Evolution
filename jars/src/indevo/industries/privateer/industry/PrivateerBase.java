@@ -688,7 +688,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
                     tooltip.addPara("There is currently %s. The next one can be attempted in about %s.", 10F, Misc.getHighlightColor(), new String[]{"no active raid", raidTimeoutMonths + " months"});
                 }
 
-                tooltip.addPara("Raid strength increased by %s through the power of alcohol. Yo ho ho!", 10f,
+                if (Global.getSettings().getModManager().isModEnabled("alcoholism")) tooltip.addPara("Raid strength increased by %s through the power of alcohol. Yo ho ho!", 10f,
                         Misc.getPositiveHighlightColor(), StringHelper.getAbsPercentString(getAlcoholBonus(), false));
             }
         }

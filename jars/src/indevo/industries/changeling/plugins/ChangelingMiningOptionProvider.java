@@ -35,7 +35,8 @@ public class ChangelingMiningOptionProvider extends BaseIndustryOptionProvider {
         boolean isChangeling = ind instanceof SwitchableMining;
         boolean canChange = isChangeling && ((SwitchableMining) ind).canChange();
 
-        return super.isUnsuitable(ind, allowUnderConstruction) && !(isTarget || canChange);
+        return super.isUnsuitable(ind, allowUnderConstruction)
+                || !(isTarget || canChange);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class ChangelingMiningOptionProvider extends BaseIndustryOptionProvider {
         List<IndustryOptionData> result = new ArrayList<IndustryOptionData>();
 
         IndustryOptionData opt = new IndustryOptionData("Change Specialization", CUSTOM_PLUGIN, ind, this);
-        opt.color = Color.ORANGE;
+        opt.color = new Color(150, 100, 255, 255);
         result.add(opt);
 
         return result;
