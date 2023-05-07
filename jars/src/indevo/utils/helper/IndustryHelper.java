@@ -12,7 +12,9 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
+import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ConstructionQueue;
+import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
@@ -32,6 +34,18 @@ import java.util.*;
 
 public class IndustryHelper {
     public static final Logger log = Global.getLogger(IndustryHelper.class);
+
+    public static void applyDeficitToProduction(Industry ind, int index, Pair<String, Integer> deficit, String... commodities) {
+        String[] var7 = commodities;
+        int var6 = commodities.length;
+
+        for (int var5 = 0; var5 < var6; ++var5) {
+            String commodity = var7[var5];
+            if (!ind.getSupply(commodity).getQuantity().isUnmodified()) {
+                ind.supply(String.valueOf(index), commodity, -(Integer) deficit.two, BaseIndustry.getDeficitText((String) deficit.one));
+            }
+        }
+    }
 
     public static float smootherstep(float edge0, float edge1, float x) {
         //https://en.wikipedia.org/wiki/Smoothstep

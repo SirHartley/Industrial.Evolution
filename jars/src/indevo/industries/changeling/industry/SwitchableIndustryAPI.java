@@ -6,4 +6,5 @@ public interface SwitchableIndustryAPI {
     List<SubIndustryAPI> getIndustryList();
     void setCurrent(SubIndustryAPI id);
     SubIndustryAPI getCurrent();
+    boolean canChange();
 }

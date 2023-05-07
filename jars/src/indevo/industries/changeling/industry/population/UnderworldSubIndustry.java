@@ -22,7 +22,7 @@ import static com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastr
 public class UnderworldSubIndustry extends SubIndustry {
 
     public UnderworldSubIndustry(String id, String name, String imageName, String descriptionID) {
-        super(id, name, imageName, descriptionID);
+        super(id, imageName, name, descriptionID);
     }
 
     public static final float BONUS_ILLEGAL_OUTPUT = 1f;

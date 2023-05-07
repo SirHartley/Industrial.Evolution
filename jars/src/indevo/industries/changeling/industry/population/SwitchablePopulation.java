@@ -13,13 +13,11 @@ import indevo.industries.changeling.industry.SubIndustryAPI;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
 import indevo.utils.helper.StringHelper;
 
-import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 
 public class SwitchablePopulation extends PopulationAndInfrastructure implements SwitchableIndustryAPI {
 
-    public static final String BASE_STATE_ID = "base_population_and_infrastructure";
     public static final int MAX_SIZE_FOR_CHANGE = 3;
     public static final int DAYS_TO_LOCK = 7;
 
@@ -27,8 +25,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     public boolean locked = false;
 
     public static final List<SubIndustryAPI> industryList = new LinkedList<SubIndustryAPI>(){{
-
-            add(new SubIndustry(BASE_STATE_ID, "Population and Infrastructure", "graphics/icons/industry/population.png", "IndEvo_base_mining") {
+            add(new SubIndustry("base_population_and_infrastructure", "graphics/icons/industry/population.png", "Population and Infrastructure", "IndEvo_base_mining") {
                 @Override
                 public void apply(Industry industry) {
                     if (industry instanceof SwitchablePopulation) ((SwitchablePopulation) industry).superApply(); //applies default pop&Infra
@@ -132,7 +129,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     public void advance(float amount) {
         super.advance(amount);
 
-        if (!locked && current != null && !current.getId().equals(BASE_STATE_ID)){
+        if (!locked && current != null && !current.isBase()){
             daysPassed += Global.getSector().getClock().convertToDays(amount);
             if (daysPassed >= DAYS_TO_LOCK) {
                 locked = true;
@@ -147,7 +144,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     }
 
     public boolean isNotChanged(){
-        return current != null && current.getId().equals(BASE_STATE_ID);
+        return current != null && current.isBase();
     }
 
     @Override
@@ -180,7 +177,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
     @Override
     protected String getDescriptionOverride() {
-        if (current != null&& current.getId().equals(BASE_STATE_ID)){
+        if (current != null && current.isBase()){
             int size = market.getSize();
             String cid = null;
             if (size >= 1 && size <= 9) {

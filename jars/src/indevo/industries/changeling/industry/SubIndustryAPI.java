@@ -11,4 +11,6 @@ public interface SubIndustryAPI {
     Description getDescription();
     void apply(Industry industry);
     boolean isBase();
+    float getCost();
+    float getBuildTime();
 }

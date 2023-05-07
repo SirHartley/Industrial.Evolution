@@ -43,8 +43,9 @@ import indevo.industries.artillery.plugins.ArtilleryCampaignPlugin;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
-import indevo.industries.changeling.SwitchableIndustrySetup;
+import indevo.industries.changeling.plugins.ChangelingMiningOptionProvider;
 import indevo.industries.changeling.plugins.ChangelingPopulationOptionProvider;
+import indevo.industries.changeling.plugins.ChangelingRefiningOptionProvider;
 import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
@@ -133,10 +134,6 @@ public class ModPlugin extends BaseModPlugin {
 
         //Superstructures
         GachaStationPlacer.place(); // TODO: 23/10/2022 move to onNewGame
-
-        //items
-        SwitchableIndustrySetup.updateIndustrySpecs();
-        SwitchableIndustrySetup.modifyIndustryItem();
 
         //balance changes
         if (Global.getSettings().getBoolean("IndEvo_CommerceBalanceChanges")) overrideVanillaCommerce();
@@ -345,6 +342,8 @@ public class ModPlugin extends BaseModPlugin {
         InterdictionPulseAbilityListener.register();
         WorldWonderIndustryOptionProvider.register();
         ChangelingPopulationOptionProvider.register();
+        ChangelingMiningOptionProvider.register();
+        ChangelingRefiningOptionProvider.register();
     }
 
     private void setScriptsIfNeeded() {

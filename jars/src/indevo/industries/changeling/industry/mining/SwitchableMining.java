@@ -1,56 +1,41 @@
 package indevo.industries.changeling.industry.mining;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.PlanetAPI;
-import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
-import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.impl.campaign.econ.ResourceDepositsCondition;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
+import com.fs.starfarer.api.impl.campaign.econ.impl.Mining;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.impl.campaign.ids.Items;
-import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
-import indevo.industries.changeling.industry.BaseSwitchableIndustry;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryAPI;
+import indevo.industries.changeling.industry.SwitchableIndustryAPI;
+import indevo.utils.helper.IndustryHelper;
 
-import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SwitchableMining extends BaseSwitchableIndustry implements MarketImmigrationModifier {
+public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
 
     public static final List<SubIndustryAPI> industryList = new LinkedList<SubIndustryAPI>(){{
 
-        add(new SubIndustry("base_mining", "Specialized Mining", "graphics/icons/industry/mining.png", "IndEvo_base_mining") {
+        add(new SubIndustry("base_mining", "graphics/icons/industry/mining.png", "Specialized Mining", "IndEvo_base_mining") {
             @Override
             public void apply(Industry industry) {
+                if (industry instanceof SwitchableMining) ((SwitchableMining) industry).superApply(); //applies default
+            }
 
-                applyConditionBasedIndustryOutputProfile(industry, Commodities.ORE, 0);
-                applyConditionBasedIndustryOutputProfile(industry, Commodities.RARE_ORE, 0);
-                applyConditionBasedIndustryOutputProfile(industry, Commodities.ORGANICS, 0);
-                applyConditionBasedIndustryOutputProfile(industry, Commodities.VOLATILES, 0);
-
-                BaseIndustry ind = (BaseIndustry) industry;
-                int size = ind.getMarket().getSize();
-                ind.demand(Commodities.HEAVY_MACHINERY, size - 3);
-                ind.demand(Commodities.DRUGS, size);
-
-                Pair<String, Integer> deficit =  ind.getMaxDeficit(Commodities.HEAVY_MACHINERY);
-                applyDeficitToProduction(ind, 0, deficit,
-                        Commodities.ORE,
-                        Commodities.RARE_ORE,
-                        Commodities.ORGANICS,
-                        Commodities.VOLATILES);
+            @Override
+            public boolean isBase() {
+                return true;
             }
         });
 
-        add(new SubIndustry("ore_mining", "Ore Mining", Global.getSettings().getSpriteName("IndEvo", "ore_mining"), "IndEvo_ore_mining") {
+        add(new SubIndustry("ore_mining", Global.getSettings().getSpriteName("IndEvo", "ore_mining"), "Ore Mining", "IndEvo_ore_mining") {
             @Override
             public void apply(Industry industry) {
                 applyConditionBasedIndustryOutputProfile(industry, Commodities.ORE, 2);
@@ -61,11 +46,11 @@ public class SwitchableMining extends BaseSwitchableIndustry implements MarketIm
                 ind.demand(Commodities.DRUGS, size);
 
                 Pair<String, Integer> deficit =  industry.getMaxDeficit(Commodities.HEAVY_MACHINERY);
-                applyDeficitToProduction(industry, 0, deficit, Commodities.ORE);
+                IndustryHelper.applyDeficitToProduction(industry, 0, deficit, Commodities.ORE);
             }
         });
 
-        add(new SubIndustry("rare_mining", "Transplutonics Mining", Global.getSettings().getSpriteName("IndEvo", "rare_mining"), "IndEvo_rare_mining") {
+        add(new SubIndustry("rare_mining", Global.getSettings().getSpriteName("IndEvo", "rare_mining"), "Transplutonics Mining", "IndEvo_rare_mining") {
             @Override
             public void apply(Industry industry) {
                 applyConditionBasedIndustryOutputProfile(industry, Commodities.RARE_ORE, 2);
@@ -76,11 +61,11 @@ public class SwitchableMining extends BaseSwitchableIndustry implements MarketIm
                 ind.demand(Commodities.DRUGS, size);
 
                 Pair<String, Integer> deficit =  industry.getMaxDeficit(Commodities.HEAVY_MACHINERY);
-                applyDeficitToProduction(industry, 0, deficit, Commodities.RARE_ORE);
+                IndustryHelper.applyDeficitToProduction(industry, 0, deficit, Commodities.RARE_ORE);
             }
         });
 
-        add(new SubIndustry("volatile_mining", "Volatile Extraction", Global.getSettings().getSpriteName("IndEvo", "volatile_mining"), "IndEvo_volatile_mining") {
+        add(new SubIndustry("volatile_mining", Global.getSettings().getSpriteName("IndEvo", "volatile_mining"), "Volatile Extraction", "IndEvo_volatile_mining") {
             @Override
             public void apply(Industry industry) {
                 applyConditionBasedIndustryOutputProfile(industry, Commodities.VOLATILES, 2);
@@ -91,11 +76,11 @@ public class SwitchableMining extends BaseSwitchableIndustry implements MarketIm
                 ind.demand(Commodities.DRUGS, size);
 
                 Pair<String, Integer> deficit =  industry.getMaxDeficit(Commodities.HEAVY_MACHINERY);
-                applyDeficitToProduction(industry, 0, deficit, Commodities.VOLATILES);
+                IndustryHelper.applyDeficitToProduction(industry, 0, deficit, Commodities.VOLATILES);
             }
         });
 
-        add(new SubIndustry("organics_mining", "Organics Extraction", Global.getSettings().getSpriteName("IndEvo", "organics_mining"), "IndEvo_organics_mining") {
+        add(new SubIndustry("organics_mining", Global.getSettings().getSpriteName("IndEvo", "organics_mining"), "Organics Extraction", "IndEvo_organics_mining") {
             @Override
             public void apply(Industry industry) {
                 applyConditionBasedIndustryOutputProfile(industry, Commodities.ORGANICS, 2);
@@ -106,13 +91,13 @@ public class SwitchableMining extends BaseSwitchableIndustry implements MarketIm
                 ind.demand(Commodities.DRUGS, size);
 
                 Pair<String, Integer> deficit =  industry.getMaxDeficit(Commodities.HEAVY_MACHINERY);
-                applyDeficitToProduction(industry, 0, deficit, Commodities.ORGANICS);
+                IndustryHelper.applyDeficitToProduction(industry, 0, deficit, Commodities.ORGANICS);
             }
         });
     }};
 
-    public static void applyConditionBasedIndustryOutputProfile(Industry industry, String commodityId, Integer bonus){
 
+    public static void applyConditionBasedIndustryOutputProfile(Industry industry, String commodityId, Integer bonus){
         BaseIndustry ind = (BaseIndustry) industry;
         int size = ind.getMarket().getSize();
         int mod = 0;
@@ -146,70 +131,92 @@ public class SwitchableMining extends BaseSwitchableIndustry implements MarketIm
         return industryList;
     }
 
-    protected boolean hasPostDemandSection(boolean hasDemand, IndustryTooltipMode mode) {
-        Pair<String, Integer> deficit = getMaxDeficit(Commodities.DRUGS);
-        if (deficit.two <= 0) return false;
-        //return mode == IndustryTooltipMode.NORMAL && isFunctional();
-        return mode != IndustryTooltipMode.NORMAL || isFunctional();
+    private SubIndustryAPI current = null;
+
+    public void setCurrent(SubIndustryAPI current) {
+        if (industryList.contains(current)){
+            this.current = current;
+            reapply();
+        }
     }
 
     @Override
-    protected void addPostDemandSection(TooltipMakerAPI tooltip, boolean hasDemand, IndustryTooltipMode mode) {
-        //if (mode == IndustryTooltipMode.NORMAL && isFunctional()) {
-        if (mode != IndustryTooltipMode.NORMAL || isFunctional()) {
-            Color h = Misc.getHighlightColor();
-            float opad = 10f;
-            float pad = 3f;
+    public SubIndustryAPI getCurrent() {
+        return current;
+    }
 
-            Pair<String, Integer> deficit = getMaxDeficit(Commodities.DRUGS);
-            if (deficit.two > 0) {
-                tooltip.addPara(getDeficitText(Commodities.DRUGS) + ": %s units. Reduced colony growth.", pad, h, "" + deficit.two);
-            }
+    public void apply() {
+        supply.clear();
+        demand.clear();
+
+        super.apply(true); //since super does not override the baseIndustry overloaded apply we can call it here
+
+        current.apply(this);
+
+        if (!isFunctional()) {
+            supply.clear();
         }
     }
 
-    public void modifyIncoming(MarketAPI market, PopulationComposition incoming) {
-        Pair<String, Integer> deficit = getMaxDeficit(Commodities.DRUGS);
-        if (deficit.two > 0) {
-            incoming.getWeight().modifyFlat(getModId(), -deficit.two, "Mining: drug shortage");
-        }
-    }
+    public void superApply(){
+        supply.clear();
+        demand.clear();
 
-    public float getPatherInterest() {
-        return 1f + super.getPatherInterest();
+        super.apply();
     }
-
-    public void applyVisuals(PlanetAPI planet) {
-        if (planet == null) return;
-        planet.getSpec().setShieldTexture2(Global.getSettings().getSpriteName("industry", "plasma_net_texture"));
-        planet.getSpec().setShieldThickness2(0.15f);
-        //planet.getSpec().setShieldColor2(new Color(255,255,255,175));
-        planet.getSpec().setShieldColor2(new Color(255,255,255,255));
-        planet.applySpecChanges();
-        shownPlasmaNetVisuals = true;
-    }
-
-    public void unapplyVisuals(PlanetAPI planet) {
-        if (planet == null) return;
-        planet.getSpec().setShieldTexture2(null);
-        planet.getSpec().setShieldThickness2(0f);
-        planet.getSpec().setShieldColor2(null);
-        planet.applySpecChanges();
-        shownPlasmaNetVisuals = false;
-    }
-
-    protected boolean shownPlasmaNetVisuals = false;
 
     @Override
-    public void setSpecialItem(SpecialItemData special) {
-        super.setSpecialItem(special);
+    public void unapply() {
+        super.unapply();
+    }
 
-        if (shownPlasmaNetVisuals && (special == null || !special.getId().equals(Items.PLASMA_DYNAMO))) {
-            unapplyVisuals(market.getPlanetEntity());
-        }
+    @Override
+    public String getId() {
+        return Industries.MINING;
+    }
 
-        if (special != null && special.getId().equals(Items.PLASMA_DYNAMO)) {
-            applyVisuals(market.getPlanetEntity());
-        }
+    @Override
+    public String getModId() {
+        return super.getModId();
+    }
+
+    @Override
+    public String getModId(int index) {
+        return super.getModId(index);
+    }
+
+    @Override
+    public String getCurrentName() {
+        return current.getName();
+    }
+
+    @Override
+    public void init(String id, MarketAPI market) {
+        current = getIndustryList().get(0);
+        super.init(id, market);
+    }
+
+    @Override
+    public String getCurrentImage() {
+        return current.getImageName(market);
+    }
+
+    public boolean canChange(){
+        return true;
+    }
+
+    @Override
+    protected String getDescriptionOverride() {
+        return current == null ? super.getDescriptionOverride() : current.getDescription().getText1();
+    }
+
+    @Override
+    public boolean isAvailableToBuild() {
+        return false;
+    }
+
+    @Override
+    public boolean showWhenUnavailable() {
+        return false;
     }
 }
