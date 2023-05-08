@@ -113,6 +113,12 @@ Causes recent unrest on this planet to decay at a rate of one point per month, a
 IndEvo_Megachurch,Cathedral,100,90,,10,,,"flavor, sub_item, structure, unraidable",kadur_megachurch,graphics/industry/flavour/megachurch.png,indevo.industries.worldwonder.industry.WorldWonder,"The Children of Earth, regardless of origin or alignment, have always needed something to believe in, and have always built monuments to validate these beliefs. This enormous cathedral is one of many such attempts, but it is by far the most ambitious of recent times - a massive complex of megabuildings, constructed only to spread the tenets of the predominant religion.
 
 Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110
+IndEvo_IcePalace,Ice Palace,100,90,,10,,,"flavor, sub_item, structure, unraidable",,graphics/industry/flavour/ice_palace.png,indevo.industries.worldwonder.industry.IcePalace,Placeholder,110
+IndEvo_LavaFortress,Lava Fortress,100,90,,10,,,"flavor, sub_item, structure, unraidable",,graphics/industry/flavour/lava_fortress.png,indevo.industries.worldwonder.industry.LavaFortress,Placeholder,110
+IndEvo_LifeTree,Tree of Life,100,90,,10,,,"flavor, sub_item, structure, unraidable",,graphics/industry/flavour/tree_of_life.png,indevo.industries.worldwonder.industry.WorldTree,"The second Domain reclamation chanced upon an inhabited planet, hosting life consisting only of a single tree with a canopy piercing the clouds. According to records, alien bacteria had integrated with a redwood sapling and rapidly grown to titanic proportions while establishing a mycelium-like network connecting all life on the planet. Technically, no humans were encountered.
+
+This is a neutered clone of the tree they found, and what a sight to behold.",110
+IndEvo_CloudPainter,Cloud Painter,100,90,,10,,,"flavor, sub_item, structure, unraidable",,graphics/industry/flavour/cloud_painter.png,indevo.industries.worldwonder.industry.CloudPainter,Placeholder,110
 ,,,,,,,,,,,,,
 #Rebalancing,,,,,,,,,,,,,
 commerce,Commerce,90,90,,3,,,"industry, urban",,graphics/icons/industry/commerce.png,indevo.industries.TradeCenter,"Regulations, grants, and infrastructure to encourage thriving independent trade. Greatly reduces the degree of direct control the administration has over the colony.",1950

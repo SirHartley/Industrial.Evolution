@@ -25,7 +25,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     public boolean locked = false;
 
     public static final List<SubIndustryAPI> industryList = new LinkedList<SubIndustryAPI>(){{
-            add(new SubIndustry("base_population_and_infrastructure", "graphics/icons/industry/population.png", "Population & Infrastructure", "IndEvo_base_mining") {
+            add(new SubIndustry("base_population_and_infrastructure", "graphics/icons/industry/population.png", "Population & Infrastructure", "IndEvo_pop_default") {
                 @Override
                 public void apply(Industry industry) {
                     if (industry instanceof SwitchablePopulation) ((SwitchablePopulation) industry).superApply(); //applies default pop&Infra
