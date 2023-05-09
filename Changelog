@@ -1,16 +1,17 @@
 
 --------------------------- To-do -----------------------------
-Bugs
-- Artillery stations are stuck in perma-repair on game start and never repair themselves
-    Fix by removing, then adding all industries one frame after game start
+Known Bugs
+- Detachments eat crew that is in excess of capacity
+- Detachments refuse to move when in other system (??)
 
 Requests
+- when deciv, make some industries into ruinfra
 - add a colony buff to automated shipyards (maybe a buff to HI? got item sprites for it anyway)
 - Add keyboard shortcuts to all indEvo industry menu points
 - Make it so if we kill the artillery station we can convert its husk into a outpost without having to colonize the planet
 - Watchtowers buildable in stable loc
 
-Upcoming
+Ideas
 - "Mimic Hulls", Derelict ships that change into remnant or pirate ambush fleets when approached
 - Consumable item that makes your fleet look bigger than is is to NPCs
     - maybe add a boat with like 200 dp to the fleet and remove it when ui window is opened so other fleets run from you
@@ -26,39 +27,24 @@ Upcoming
     - add "spacer captain in debt" bar event: sells his last ship for half off to pay his debt
     - add "officer in debt" bar event - hire for 3x salary
     - add "spacers in debt" bar event - 10 spacers, hire for half pay to avoid indentured servitude
-
-
---------------------------- known issues without fix -----------------------------
-
-Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
-DELIVER FLEETS REFUSE TO LEAVE SYSTEM AFTER DELIVERY; MAYBE MOVE INTO HYPERSPACE OR MANUALLY SET MOVE TARGET?
-
-There are some bugs with detachments crashing
-
-hey with the current IndEvo patch all my crew in the detachment are getting eaten up after a day has passed.
- The pattern is 1 full day after creating the detachment.
- So if I create the detachment half way through Feb 19th, the crew disappear when it turns Feb 21st.
-
-ok so uh, one more issue if you arent aware, if you have a detachment stationed in another system, and you are in a different solar system
-i dont think the detachment actually moves
-
---------------------------- upcoming -----------------------------
-merc industry - https://discord.com/channels/815017574642483240/984638767279251468/1009925859630661783
-trade hub
-Colony Ship
-
-Optional:
-add ambassadors as contacts see https://discord.com/channels/815017574642483240/815039421656203274/932024688543158293
-Story point option for academy, "Recruit Local Talent", for when you really want an officer or admin
-Arena
-
-adjust salvage event "Ship Roulette" -
+- Merc industry - https://discord.com/channels/815017574642483240/984638767279251468/1009925859630661783
+- Trade hub
+- Add ambassadors as contacts see https://discord.com/channels/815017574642483240/815039421656203274/932024688543158293
+- Story point option for academy, "Recruit Local Talent", for when you really want an officer or admin
+- Arena
+- Adjust salvage event "Ship Roulette" -
     add the option to connect the output of a colony to the station
     always require Metal, ship components and machinery
     Let player choose between runtime of 1 month, 2, 3 or 4 then deliver the output and the station salvage to the colony
     add an intel entry showing the progress
 
------------------------o-----------------------
+--------------------------- Dev issues -----------------------------
+
+Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
+DELIVER FLEETS REFUSE TO LEAVE SYSTEM AFTER DELIVERY; MAYBE MOVE INTO HYPERSPACE OR MANUALLY SET MOVE TARGET?
+
+--------------------------- Changelog -----------------------------
+
 3.2.d
 General
 todo Added - LunaLib Integration
@@ -129,6 +115,8 @@ Fixed - Dark Palace "Ressource" typo (literally unplayable)
 
 Ancient Laboratory
 Added - Now supports switching the bonus commodity when a beta core is installed (via story point dialogue for 0 SP)
+
+--------------------------- Old -----------------------------
 
 3.2.c
 Privateer Base
