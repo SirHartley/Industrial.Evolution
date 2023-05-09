@@ -480,12 +480,13 @@ public class IndustryHelper {
     //csv stuff
     public static Set<String> getCSVSetFromMemory(String path) {
         String idString = "$" + path;
+
         SessionTransientMemory transientMemory = SessionTransientMemory.getInstance();
 
         if (transientMemory.contains(idString)) {
             return (Set<String>) transientMemory.getSet(idString);
         } else {
-            Set<String> csvSet = new HashSet<>();
+            Set<String> csvSet = new LinkedHashSet<>();
 
             try {
 

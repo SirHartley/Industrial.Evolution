@@ -100,12 +100,6 @@ public class ArtilleryStationPlacer {
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedDerelictArtilleries", true);
     }
 
-    public static void asd(){
-        // runcode int i = 0; for (StarSystemAPI s : Global.getSector().getStarSystems()){ if (s.hasTag("IndEvo_SystemHasArtillery")) i++;} indevo.utils.ModPlugin.log(i + " total " + Global.getSector().getStarSystems().size());
-
-        //default 10%
-    }
-
     public static void placeWatchtowers(StarSystemAPI system, String factionId){
         float minGap = 100f;
         Random random = new Random();

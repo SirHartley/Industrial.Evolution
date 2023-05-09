@@ -13,13 +13,13 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorldWonderIndustryOptionProvider extends BaseIndustryOptionProvider {
+public class WorldWonderAltImageOptionProvider extends BaseIndustryOptionProvider {
     public static final Object OPTION_IMAGE_CHANGE = new Object();
 
     public static void register() {
         ListenerManagerAPI listeners = Global.getSector().getListenerManager();
-        if (!listeners.hasListenerOfClass(WorldWonderIndustryOptionProvider.class)) {
-            listeners.addListener(new WorldWonderIndustryOptionProvider(), true);
+        if (!listeners.hasListenerOfClass(WorldWonderAltImageOptionProvider.class)) {
+            listeners.addListener(new WorldWonderAltImageOptionProvider(), true);
         }
     }
 

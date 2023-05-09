@@ -40,6 +40,7 @@ import indevo.ids.Ids;
 import indevo.industries.OrbitalStation;
 import indevo.industries.TradeCenter;
 import indevo.industries.artillery.plugins.ArtilleryCampaignPlugin;
+import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
@@ -50,7 +51,8 @@ import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.ruinfra.utils.DerelictInfrastructurePlacer;
-import indevo.industries.worldwonder.plugins.WorldWonderIndustryOptionProvider;
+import indevo.industries.worldwonder.plugins.WorldWonderAltImageOptionProvider;
+import indevo.industries.worldwonder.plugins.WorldWonderTexChangeOptionProvider;
 import indevo.items.consumables.listeners.ConsumableItemDropListener;
 import indevo.items.consumables.listeners.ConsumableItemMarketAdder;
 import indevo.items.consumables.listeners.LocatorSystemRatingUpdater;
@@ -112,11 +114,6 @@ public class ModPlugin extends BaseModPlugin {
             t.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
         }
 
-        if (newGame) {
-            ArtilleryStationPlacer.placeCoreWorldArtilleries();
-            SubspaceSystem.gen();
-        }
-
         //core
         createAcademyMarket();
         setListenersIfNeeded();
@@ -140,6 +137,11 @@ public class ModPlugin extends BaseModPlugin {
 
         LocatorSystemRatingUpdater.updateAllSystems();
         resetDerelictRep();
+
+        if (newGame){
+            SubspaceSystem.gen();
+            ArtilleryStationReplacer.register();
+        }
     }
 
     public void overrideVanillaOrbitalStations() {
@@ -305,6 +307,7 @@ public class ModPlugin extends BaseModPlugin {
         IndustryHelper.getCSVSetFromMemory(Ids.SHIPPING_LIST);
         IndustryHelper.getCSVSetFromMemory(Ids.BUREAU_LIST);
         IndustryHelper.getCSVSetFromMemory(Ids.RUIND_LIST);
+        IndustryHelper.getCSVSetFromMemory(Ids.CLOUD_LIST);
     }
 
     private void setListenersIfNeeded() {
@@ -340,7 +343,8 @@ public class ModPlugin extends BaseModPlugin {
         RecentJumpListener.register();
         SpooferItemKeypressListener.register();
         InterdictionPulseAbilityListener.register();
-        WorldWonderIndustryOptionProvider.register();
+        WorldWonderAltImageOptionProvider.register();
+        WorldWonderTexChangeOptionProvider.register();
         ChangelingPopulationOptionProvider.register();
         ChangelingMiningOptionProvider.register();
         ChangelingRefiningOptionProvider.register();

@@ -120,8 +120,6 @@ public class TimeTracker implements EveryFrameScript {
             onNewDay();
             updateMarketTagTimePassed();
         }
-
-        ModPlugin.log(Misc.getDistance(new Vector2f(0, 0), Global.getSector().getPlayerFleet().getLocation()) + " su");
     }
 
     public boolean isDone() {

@@ -255,6 +255,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\graphics\clouds\clouds.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>

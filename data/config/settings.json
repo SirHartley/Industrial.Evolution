@@ -198,6 +198,7 @@
   "IndEvo_custOrderList": "data/config/indEvo/custom_order_blacklist.csv",
   "IndEvo_buerauList": "data/config/indEvo/bureau_industry_whitelist.csv",
   "IndEvo_ruindList": "data/config/indEvo/ruins_industry_whitelist.csv",
+  "IndEvo_cloudList": "graphics/clouds/clouds.csv",
 
   #wheeeeeeeeeeeeeeeeeeeeeeeeee
   "IndEvo_ToggleMagicRandomSelector": false,
