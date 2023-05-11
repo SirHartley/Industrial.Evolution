@@ -77,6 +77,7 @@ Fixed - Crash when tech locator tries to point to a system that has no hyperspac
 
 Artillery
 Added - NPC fleets now respond to artillery fire and try to dodge. They are better at it than me.
+Adjusted - Made all stations, modded or otherwise, compatible with artillery (Praise be Alex, our lord and saviour)
 Fixed - Artillery Stations should no longer be stuck in repairs on game start (should)
 Fixed - Watchtowers no longer count as stable locations (Replaced the vanilla PlanetInteractionDialogPluginImpl)
 

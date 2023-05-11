@@ -1,16 +1,19 @@
 package indevo.industries;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.util.Misc;
 
+@Deprecated
 public class OrbitalStation extends com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation {
 
     @Override
     protected void ensureStationEntityIsSetOrCreated() {
         if (stationEntity == null) {
             for (SectorEntityToken entity : market.getConnectedEntities()) {
-                if (entity.hasTag(Tags.STATION) && !entity.hasTag("no_orbital_station")) {
+                if (entity.hasTag(Tags.STATION) && !entity.hasTag("NO_ORBITAL_STATION")) {
                     stationEntity = entity;
                     usingExistingStation = true;
                     break;
@@ -28,4 +31,5 @@ public class OrbitalStation extends com.fs.starfarer.api.impl.campaign.econ.impl
             stationEntity.setMarket(market);
         }
     }
+
 }

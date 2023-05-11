@@ -37,7 +37,6 @@ import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.exploration.stations.DerelictStationPlacer;
 import indevo.exploration.subspace.system.SubspaceSystem;
 import indevo.ids.Ids;
-import indevo.industries.OrbitalStation;
 import indevo.industries.TradeCenter;
 import indevo.industries.artillery.plugins.ArtilleryCampaignPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
@@ -125,7 +124,7 @@ public class ModPlugin extends BaseModPlugin {
         loadTransientMemory();
 
         //artillery
-        overrideVanillaOrbitalStations();
+        //overrideVanillaOrbitalStations();
         ArtilleryStationPlacer.placeCoreWorldArtilleries(); // TODO: 02/09/2022 this is just for this update, remove on the next save breaking one
         ArtilleryStationPlacer.placeDerelictArtilleries(); //same here
 
@@ -141,43 +140,6 @@ public class ModPlugin extends BaseModPlugin {
         if (newGame){
             SubspaceSystem.gen();
             ArtilleryStationReplacer.register();
-        }
-    }
-
-    public void overrideVanillaOrbitalStations() {
-        for (IndustrySpecAPI spec : Global.getSettings().getAllIndustrySpecs()) {
-            if (spec.hasTag(Tags.STATION) && spec.getPluginClass().equals("com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation")) {
-
-                log("replacing industry spec " + spec.getId());
-                spec.setPluginClass("indevo.industries.OrbitalStation");
-
-                String id = spec.getId();
-
-                for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-                    if (m.hasIndustry(id) && !(m.getIndustry(id) instanceof OrbitalStation)) {
-                        log("replacing orbital station at " + m.getName());
-
-                        Industry ind = m.getIndustry(id);
-                        replaceIndustry(ind);
-                    }
-                }
-            }
-        }
-    }
-
-    //runcode com.fs.starfarer.api.plugins.ModPlugin.report()
-
-    public static void report() {
-        for (IndustrySpecAPI spec : Global.getSettings().getAllIndustrySpecs()) {
-            if (spec.hasTag(Tags.STATION)) {
-                String id = spec.getId();
-
-                for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-                    if (m.hasIndustry(id)) {
-                        log("station is new spec " + (m.getIndustry(id) instanceof OrbitalStation));
-                    }
-                }
-            }
         }
     }
 
@@ -402,6 +364,7 @@ public class ModPlugin extends BaseModPlugin {
     }
 
     public static void replaceIndustry(Industry ind) {
+
         MarketAPI m = ind.getMarket();
         String id = ind.getId();
 

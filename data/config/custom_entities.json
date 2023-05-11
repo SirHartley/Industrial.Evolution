@@ -138,7 +138,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
-		"tags":["station", "no_orbital_station"],
+		"tags":["station", "NO_ORBITAL_STATION"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 		"pluginClass":"indevo.industries.artillery.entities.ArtilleryStationEntityPlugin"
 	},
