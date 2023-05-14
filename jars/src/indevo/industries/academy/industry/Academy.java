@@ -1,8 +1,6 @@
 package indevo.industries.academy.industry;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.FleetDataAPI;
@@ -15,19 +13,22 @@ import com.fs.starfarer.api.campaign.events.CampaignEventPlugin;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.characters.*;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.plugins.OfficerLevelupPlugin;
-import indevo.ids.Ids;
-import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.DynamicStatsAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.ids.Ids;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
+import indevo.utils.timers.NewDayListener;
 
 import java.awt.*;
 import java.util.List;
@@ -59,6 +60,14 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     private int currentAICoreDayReduction = 0;
     private final int betacoreReduction = 31;
     private final float gammaCoreUpkeepRed = 0.90f;
+
+    public static Map<String, Color> COLOURS_BY_PERSONALITY = new LinkedHashMap<String, Color>() {{
+        put(Personalities.TIMID, Color.BLUE);
+        put(Personalities.CAUTIOUS, Color.CYAN);
+        put(Personalities.STEADY, Color.GREEN);
+        put(Personalities.AGGRESSIVE, Color.ORANGE);
+        put(Personalities.RECKLESS, Color.RED);
+    }};
 
     public enum trainingDirection {
         UNSET,
@@ -134,12 +143,12 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     @Override
     public boolean isAvailableToBuild() {
-        return Global.getSettings().getBoolean("Academy");
+        return Settings.ACADEMY;
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("Academy");
+        return Settings.ACADEMY;
     }
 
     //officers in training tooltip
@@ -474,7 +483,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
         int max = playerFleet.getCommander().getStats().getOfficerNumber().getModifiedInt();
         int i = 0;
-        for (OfficerDataAPI data : playerFleet.getFleetData().getOfficersCopy()){
+        for (OfficerDataAPI data : playerFleet.getFleetData().getOfficersCopy()) {
             if (data.getPerson().isPlayer() || Misc.isMercenary(data.getPerson())) continue;
 
             i++;
@@ -512,12 +521,6 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (officerInTraining != null) {
 
             if (officerDaysPassed >= getOfficerTrainingDays() || Global.getSettings().isDevMode()) {
-                HashMap<String, Color> colourByPersonality = new HashMap<>();
-                colourByPersonality.put(Personalities.TIMID, Color.BLUE);
-                colourByPersonality.put(Personalities.CAUTIOUS, Color.CYAN);
-                colourByPersonality.put(Personalities.STEADY, Color.GREEN);
-                colourByPersonality.put(Personalities.AGGRESSIVE, Color.ORANGE);
-                colourByPersonality.put(Personalities.RECKLESS, Color.RED);
 
                 String oldPersonality = officerInTraining.getPersonalityAPI().getDisplayName();
 
@@ -533,7 +536,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
                 MessageIntel intel = new MessageIntel("An officer has finished training at %s.",
                         Misc.getTextColor(), new String[]{(market.getName())}, market.getFaction().getBrightUIColor());
-                intel.addLine("Personality changed from %s to %s.", Misc.getTextColor(), new String[]{oldPersonality, newPersonality}, colourByPersonality.get(oldPersonality.toLowerCase()), colourByPersonality.get(newPersonality.toLowerCase()));
+                intel.addLine("Personality changed from %s to %s.", Misc.getTextColor(), new String[]{oldPersonality, newPersonality}, COLOURS_BY_PERSONALITY.get(oldPersonality.toLowerCase()), COLOURS_BY_PERSONALITY.get(newPersonality.toLowerCase()));
                 intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
                 intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "trainingdone"));
                 Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
@@ -557,12 +560,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             return;
         }
 
-        ArrayList<String> personalities = new ArrayList<>();
-        personalities.add(Personalities.TIMID);
-        personalities.add(Personalities.CAUTIOUS);
-        personalities.add(Personalities.STEADY);
-        personalities.add(Personalities.AGGRESSIVE);
-        personalities.add(Personalities.RECKLESS);
+        List<String> personalities = new LinkedList<>(COLOURS_BY_PERSONALITY.keySet());
 
         PersonAPI person = officerInTraining;
         int currentIndex = personalities.indexOf(person.getPersonalityAPI().getId());
@@ -590,12 +588,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     public String getNextPersonalityForTooltip() {
-        ArrayList<String> personalities = new ArrayList<>();
-        personalities.add(Personalities.TIMID);
-        personalities.add(Personalities.CAUTIOUS);
-        personalities.add(Personalities.STEADY);
-        personalities.add(Personalities.AGGRESSIVE);
-        personalities.add(Personalities.RECKLESS);
+        List<String> personalities = new LinkedList<>(COLOURS_BY_PERSONALITY.keySet());
 
         PersonAPI person = officerInTraining;
         int currentIndex = personalities.indexOf(person.getPersonalityAPI().getId());

@@ -31,6 +31,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\campaign\pets.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\campaign\procgen\condition_gen_data.csv">
           <value>
             <Attribute>
@@ -235,6 +242,13 @@
           </value>
         </entry>
         <entry key="\data\strings\descriptions.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\strings\hamster_death_causes.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

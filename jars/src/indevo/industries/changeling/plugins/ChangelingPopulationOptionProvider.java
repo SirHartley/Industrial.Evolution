@@ -7,14 +7,11 @@ import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
-import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.changeling.dialogue.ChangelingIndustryDialogueDelegate;
-import indevo.industries.changeling.industry.SwitchableIndustryAPI;
 import indevo.industries.changeling.industry.population.SwitchablePopulation;
-import indevo.industries.worldwonder.plugins.WorldWonderIndustryOptionProvider;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;

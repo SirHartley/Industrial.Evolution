@@ -65,6 +65,7 @@ public class Ids {
     public static final String SWITCHABLE_MINING = "IndEvo_SwitchableMining";
     public static final String SWITCHABLE_REFINING = "IndEvo_SwitchableRefining";
     public static final String SWITCHABLE_POPULATION = "IndEvo_SwitchablePopulation";
+    public static final String PET_STORE = "IndEvo_PetStore";
 
     public static final String PIRATEHAVEN_SECONDARY = "IndEvo_pirateHavenSecondary";
     public static final String COMMERCE = "commerce";

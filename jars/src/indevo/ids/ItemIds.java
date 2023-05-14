@@ -14,6 +14,7 @@ public class ItemIds {
 
     public static final String PARTS = "IndEvo_parts";
     public static final String RARE_PARTS = "IndEvo_rare_parts";
+    public static final String PET_FOOD = "IndEvo_pet_food";
 
     //VPC
     public static final String VPC_PARTS = "IndEvo_vpc_IndEvo_parts";

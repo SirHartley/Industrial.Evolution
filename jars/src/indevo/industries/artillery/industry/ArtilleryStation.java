@@ -92,19 +92,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
             }
         }
 
-        return isSuperFunctional && hasOrbital && hasValidStation();
-    }
-
-
-    private boolean hasValidStation() {
-        for (Industry ind : market.getIndustries()) {
-            if (ind == this) continue;
-            if (!ind.isFunctional()) continue;
-
-            if (ind.getSpec().hasTag(Tags.STATION)) return true;
-        }
-
-        return false;
+        return isSuperFunctional && hasOrbital;
     }
 
     @Override
@@ -585,7 +573,6 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
         }
 
         if (!hasOrbital) return "Requires an orbital station";
-        if (!hasValidStation()) return "The current orbital station type is not suitable";
 
         return "Requires a functional spaceport";
     }
@@ -603,7 +590,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
             if (!hasOrbital) if (ind.getSpec().hasTag(Tags.STATION)) hasOrbital = true;
         }
 
-        return market.hasCondition(ArtilleryStationCondition.ID) && canBuild && hasValidStation() && hasOrbital && Global.getSettings().getBoolean("Enable_IndEvo_Artillery");
+        return market.hasCondition(ArtilleryStationCondition.ID) && canBuild && hasOrbital && Global.getSettings().getBoolean("Enable_IndEvo_Artillery");
     }
 
     @Override
@@ -781,10 +768,6 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
             //return;
         } else if (!hasOrbital){
             tooltip.addPara("Missing an orbital station to function!", opad, Misc.getNegativeHighlightColor(), Misc.getTextColor());
-
-        } else if(!hasValidStation()){
-            tooltip.addPara("!!! THE CURRENT ORBITAL STATION TYPE IS NOT VALID !!!", opad, Misc.getNegativeHighlightColor(), Misc.getTextColor());
-            tooltip.addPara("Replace it with a valid orbital station immediately.", opad, Misc.getHighlightColor(), Misc.getTextColor());
 
         } else if (!isFunctional() && mode == IndustryTooltipMode.NORMAL) {
             tooltip.addPara("Currently under construction and not producing anything or providing other benefits.", opad);
