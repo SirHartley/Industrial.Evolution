@@ -11,8 +11,6 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.industries.academy.industry.Academy;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
-import indevo.utils.ModPlugin;
-import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 
@@ -20,7 +18,7 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
     public static final float BASE_DECREASE = -5f;
 
     public void applyEffectsBeforeShipCreation(ShipAPI.HullSize hullSize, MutableShipStatsAPI stats, String id) {
-        Pet pet = getPet(stats.getVariant());
+        Pet pet = PetStatusManager.getInstance().getPet(stats.getVariant());
         if (pet == null) return;
 
         stats.getCRLossPerSecondPercent().modifyPercent(id, BASE_DECREASE * pet.getEffectFract(), pet.name + " the " + pet.getData().species);
@@ -38,7 +36,7 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
         float spad = 3f;
         Color hl = Misc.getHighlightColor();
 
-        Pet pet = getPet(ship.getVariant());
+        Pet pet = PetStatusManager.getInstance().getPet(ship.getVariant());
 
         if (pet == null) return;
 
@@ -67,19 +65,5 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
 
         tooltip.addSectionHeading("Description", Alignment.MID, opad);
         tooltip.addPara(pet.getData().desc, opad);
-    }
-
-    public Pet getPet(ShipVariantAPI variant) {
-        Pet pet = null;
-
-        for (String tag : variant.getTags()) {
-            if (tag.contains(Pet.HULLMOD_DATA_PREFIX)) {
-                String id = tag.substring(Pet.HULLMOD_DATA_PREFIX.length());
-                pet = PetStatusManager.get().get(id);
-                break;
-            }
-        }
-
-        return pet;
     }
 }

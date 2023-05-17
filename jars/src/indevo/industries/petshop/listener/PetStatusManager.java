@@ -7,8 +7,8 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
+import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.util.Misc;
@@ -16,7 +16,6 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
-import indevo.utils.ModPlugin;
 import indevo.utils.helper.IndustryHelper;
 import indevo.utils.helper.StringHelper;
 
@@ -27,6 +26,14 @@ import java.util.List;
 import java.util.Map;
 
 public class PetStatusManager extends BaseCampaignEventListener implements EconomyTickListener, FleetEventListener, EveryFrameScript {
+
+    public static void dev(){
+        Pet pet = new Pet("slaghound", "Hartleys Pile o' Rocks");
+        getInstance().register(pet);
+        pet.assign(Global.getSector().getPlayerFleet().getFlagship());
+
+        //runcode indevo.industries.petshop.listener.PetStatusManager.dev()
+    }
 
     public static final String HAMSTER_DEATH_CAUSES = "data/strings/hamster_death_causes.csv";
     public static final String COMBAT_DEATH_CAUSES = "data/strings/combat_death_causes.csv";
@@ -45,7 +52,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     private Map<String, Float> foodTakenLastMonth = new HashMap<>(); //contains a list of commodity and amount taken last month for feeding purposes
 
-    public static PetStatusManager get() {
+    public static PetStatusManager getInstance() {
         ListenerManagerAPI listenerManagerAPI = Global.getSector().getListenerManager();
 
         if (listenerManagerAPI.hasListenerOfClass(PetStatusManager.class))
@@ -65,14 +72,6 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     public void register(Pet pet){
         pets.add(pet);
-    }
-
-    public static void dev(){
-        Pet pet = new Pet("slaghound", "Hartleys Pile o' Rocks");
-        get().register(pet);
-        pet.assign(Global.getSector().getPlayerFleet().getFlagship());
-
-        //runcode indevo.industries.petshop.listener.PetStatusManager.dev()
     }
 
     public void remove(Pet pet){
@@ -292,4 +291,17 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         Global.getSector().getCampaignUI().addMessage(intel);
     }
 
+    public Pet getPet(ShipVariantAPI variant) {
+        Pet pet = null;
+
+        for (String tag : variant.getTags()) {
+            if (tag.contains(Pet.HULLMOD_DATA_PREFIX)) {
+                String id = tag.substring(Pet.HULLMOD_DATA_PREFIX.length());
+                pet = get(id);
+                break;
+            }
+        }
+
+        return pet;
+    }
 }

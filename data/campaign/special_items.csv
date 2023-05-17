@@ -30,6 +30,9 @@ Forge Template,IndEvo_ForgeTemplate_5,,,,50000,1,1,,graphics/icons/cargo/forge_t
 Degraded Forge Template,IndEvo_DegForgeTemplate,IndEvo_FT,,,50000,1000,1,,graphics/icons/cargo/forge_template_broken.png,ui_chip_pickup,ui_ship_bp_drop,indevo.items.EmptyForgeTemplateItemPlugin,,"This experimental piece of tech looks a lot like a blueprint, but doesn't seem to work like one.",94
 Empty Forge Template,IndEvo_EmptForgeTemplate,IndEvo_FT,,0.5,100000,1000,1,,graphics/icons/cargo/forge_template_empty.png,ui_chip_pickup,ui_ship_bp_drop,indevo.items.EmptyForgeTemplateItemPlugin,,"This experimental piece of tech looks a lot like a blueprint, but doesn't seem to work like one.",93
 ,,,,,,,,,,,,,,,
+#Pets,,,,,,,,,,,,,,,
+Cryochamber,IndEvo_PetCryoChamber,,,,1,1000,1,,graphics/icons/cargo/cryobox.png,ui_cargo_special_biotech_pickup,ui_cargo_special_tech_drop,indevo.industries.petshop.item.PetItemPlugin,,"A low-quality cryochamber holding a newborn specimen of an animal. Chambers like these are ubiquitous in the sector and come in many different types sizes, some having been ripped from cryosleepers, others being repurposed bulk food containers. They are extremely robust, with many dating back a century or more.",98
+,,,,,,,,,,,,,,,
 #Industry Items,,,,,,,,,,,,,,,
 Logistics Core,IndEvo_log_core,"hist3t, pather4, ai_core",Domain Restricted,,50000,1000,1,EXTREME,graphics/icons/cargo/Logisrics_AI_core.png,ai_core_pickup,ui_alpha_core_drop,com.fs.starfarer.api.campaign.impl.items.GenericSpecialItemPlugin,IndEvo_AdInfra,"An ancient, extremely specialized, barely sentient AI. While the development of artificial intelligence trends towards the goal of general allrounders, this is the polar opposite. It can not properly hold a conversation, can not pilot a ship - but no alpha core will ever be able to handle logistics, manufacturing and predictive economics with the same accuracy and efficiency.
 

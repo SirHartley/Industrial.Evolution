@@ -84,7 +84,7 @@ public class Pet {
         age += dayAmt;
         serveDuration += dayAmt;
 
-        PetStatusManager manager = PetStatusManager.get();
+        PetStatusManager manager = PetStatusManager.getInstance();
 
         if (feedInterval.intervalElapsed()){
             boolean hasFed = manager.feed(this);

@@ -219,7 +219,8 @@
   "designTypeColors":{
   "Experimental":[50, 168, 82, 255],
   "Nvidia Corporation":[118, 185, 0, 255],
-  "Consumable":[100,10,200,255]
+  "Consumable":[100,10,200,255],
+  "Cryochamber":[80,150,255,255]
   },
 
   "bonusXP": {
