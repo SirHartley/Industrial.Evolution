@@ -14,8 +14,9 @@ public class PetData {
     public String hullmod;
     public List<String> foodCommodities;
     public float foodPerMonth;
+    public float rarity;
 
-    public PetData(String id, String species, float value, float maxLife, List<String> tags, String desc, String naturalDeath, String icon, String hullmod, List<String> foodCommodities, float foodPerMonth) {
+    public PetData(String id, String species, float value, float maxLife, List<String> tags, String desc, String naturalDeath, String icon, String hullmod, List<String> foodCommodities, float foodPerMonth, float rarity) {
         this.id = id;
         this.species = species;
         this.value = value;
@@ -27,5 +28,6 @@ public class PetData {
         this.hullmod = hullmod;
         this.foodCommodities = foodCommodities;
         this.foodPerMonth = foodPerMonth;
+        this.rarity = rarity;
     }
 }

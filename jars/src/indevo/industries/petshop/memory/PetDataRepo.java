@@ -49,8 +49,9 @@ public class PetDataRepo {
                     String hullmod = row.getString("hullmod");
                     List<String> foodCommodityIDs = new ArrayList<>(Arrays.asList(row.getString("foodCommodities").replaceAll("\\s", "").split(",")));
                     float foodPerMonth = row.getInt("foodPerMonth");
+                    float rarity = (float) row.getDouble("rarity");
 
-                    dataMap.put(id, new PetData(id, name, value, maxLife, tags, desc, natDeath, icon, hullmod, foodCommodityIDs, foodPerMonth));
+                    dataMap.put(id, new PetData(id, name, value, maxLife, tags, desc, natDeath, icon, hullmod, foodCommodityIDs, foodPerMonth, rarity));
                     ModPlugin.log("loading " + id);
                 }
             } catch (IOException | JSONException ex) {

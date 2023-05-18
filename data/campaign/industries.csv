@@ -55,7 +55,7 @@ IndEvo_SwitchableMining,,10,30,,2,,,"mining, industry, industrial",,graphics/ico
 IndEvo_SwitchablePopulation,,,,10,3,,,"population, unraidable, no_saturation_bombardment",,graphics/icons/industry/population.png,indevo.industries.changeling.industry.population.SwitchablePopulation,"The basic infrastructure required to support a given population, from rickety orbital hab-modules to megacities and everything between.",100
 IndEvo_PetStore,Pet Center,"20
 
-",30,,3,,,"structure, unraidable",,graphics/icons/industry/population.png,indevo.industries.petshop.industry.PetShop,BUY A FUCKING PARROT M8,500
+",30,,3,,,"structure, unraidable",,graphics/industry/petshop.png,indevo.industries.petshop.industry.PetShop,BUY A FUCKING PARROT M8,500
 ,,,,,,,,,,,,,
 #Artillery,,,,,,,,,,,,,
 IndEvo_Artillery_base,Orbital Artillery,,,,,,,"artillery, parent_item, important, structure",artillery,graphics/icons/industry/station_category.png,indevo.industries.artillery.industry.ArtilleryStation,"The remains of an ancient strategic artillery station hang listless over $market. Repairing it will provide you with a defensive weapons system of unrivalled effectiveness.
