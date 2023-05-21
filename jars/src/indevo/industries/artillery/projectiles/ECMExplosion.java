@@ -1,8 +1,6 @@
 package indevo.industries.artillery.projectiles;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndustryHelper;
-import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
@@ -17,6 +15,8 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
+import indevo.utils.helper.IndustryHelper;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -115,7 +115,7 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
             spawnExplosion(EXPLOSION_SIZE);
             explosion = false;
 
-            for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, rad)){
+            for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, rad)) {
                 interdictTarget(f);
             }
         }
@@ -134,7 +134,7 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
                         MathUtils.getRandomNumberInRange((dur - timePassedSeconds) * 0.1f, (dur - timePassedSeconds) * 0.4f),
                         color);
             }
-        } else if(additionalParticleInterval.intervalElapsed()){
+        } else if (additionalParticleInterval.intervalElapsed()) {
             Vector2f loc = MathUtils.getPointOnCircumference(entity.getLocation(), MathUtils.getRandomNumberInRange(10f, currentRadius), MathUtils.getRandomNumberInRange(0, 360));
 
             rColour = Math.max((int) Math.round(20 + 140 * Math.random()), 0);
@@ -152,7 +152,7 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
         }
     }
 
-    public void interdictTarget(CampaignFleetAPI other){
+    public void interdictTarget(CampaignFleetAPI other) {
         if (other.isInHyperspaceTransition()) return;
 
         float interdictSeconds = getInterdictSeconds(other);
@@ -164,10 +164,10 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
                 || other.isPlayerFleet()) {
 
             if (interdictSeconds <= 0) {
-                other.addFloatingText("Interdict avoided!" , other.getFaction().getBaseUIColor(), 1f, true);
+                other.addFloatingText("Interdict avoided!", other.getFaction().getBaseUIColor(), 1f, true);
                 return;
             } else {
-                other.addFloatingText("Interdict! (" + (int) Math.round(interdictSeconds) + "s)" , other.getFaction().getBaseUIColor(), 1f, true);
+                other.addFloatingText("Interdict! (" + (int) Math.round(interdictSeconds) + "s)", other.getFaction().getBaseUIColor(), 1f, true);
             }
         }
 

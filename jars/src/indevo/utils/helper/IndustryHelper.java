@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.campaign.econ.MonthlyReport;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -14,15 +15,16 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ConstructionQueue;
-import com.fs.starfarer.api.util.Pair;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
+import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.loading.RoleEntryAPI;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
-import indevo.utils.memory.SessionTransientMemory;
-import indevo.industries.derelicts.scripts.PlanetMovingScript;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.Pair;
+import indevo.ids.Ids;
+import indevo.industries.derelicts.scripts.PlanetMovingScript;
+import indevo.utils.memory.SessionTransientMemory;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,6 +36,45 @@ import java.util.*;
 
 public class IndustryHelper {
     public static final Logger log = Global.getLogger(IndustryHelper.class);
+
+    public static MonthlyReport.FDNode createMonthlyReportNode(Industry ind, MarketAPI market, String nodeName, String... excludeFromClearing) {
+        MonthlyReport report = SharedData.getData().getCurrentReport();
+
+        MonthlyReport.FDNode marketsNode = report.getNode(MonthlyReport.OUTPOSTS);
+        marketsNode.name = StringHelper.getString("colonies");
+        marketsNode.custom = MonthlyReport.OUTPOSTS;
+        marketsNode.tooltipCreator = report.getMonthlyReportTooltip();
+
+        MonthlyReport.FDNode mNode = report.getNode(marketsNode, market.getId());
+        mNode.name = market.getName() + " (" + market.getSize() + ")";
+        mNode.custom = market;
+
+        MonthlyReport.FDNode indNode = report.getNode(mNode, "industries");
+
+        for (Industry curr : market.getIndustries()) {
+            if (Arrays.toString(excludeFromClearing).contains(curr.getId())) { //Have to exclude academy or player will not be billed training
+                MonthlyReport.FDNode iNode = report.getNode(indNode, curr.getId());
+                iNode.income = 0;
+                iNode.upkeep = 0;
+            }
+        }
+
+        MonthlyReport.FDNode dryDockNode = report.getNode(mNode, ind.getId());
+        dryDockNode.name = StringHelper.getString(ind.getId(), "indNodeTitle");
+        dryDockNode.mapEntity = market.getPrimaryEntity();
+        dryDockNode.tooltipCreator = report.getMonthlyReportTooltip();
+        dryDockNode.icon = ind.getCurrentImage();
+        dryDockNode.custom = ind;
+        dryDockNode.custom2 = ind;
+
+        MonthlyReport.FDNode iNode = report.getNode(dryDockNode, ind.getId());
+        iNode.name = ind.getCurrentName();
+        iNode.upkeep = 0;
+        iNode.custom = ind;
+        iNode.mapEntity = market.getPrimaryEntity();
+
+        return iNode;
+    }
 
     public static void applyDeficitToProduction(Industry ind, int index, Pair<String, Integer> deficit, String... commodities) {
         String[] var7 = commodities;
@@ -358,7 +399,7 @@ public class IndustryHelper {
     public static ShipVariantAPI stripShipToCargoAndReturnVariant(FleetMemberAPI member, CargoAPI cargo) {
         if (cargo == null) return null;
 
-        if(member.getCaptain() != null && member.getCaptain().isAICore()) {
+        if (member.getCaptain() != null && member.getCaptain().isAICore()) {
             cargo.addCommodity(member.getCaptain().getAICoreId(), 1);
             member.setCaptain(null);
         }
@@ -454,7 +495,7 @@ public class IndustryHelper {
         List<MarketAPI> remove = new ArrayList<>();
 
         for (MarketAPI m : result) {
-            if (m.isHidden()) remove.add(m);
+            if (m == null || m.isHidden()) remove.add(m);
         }
 
         result.removeAll(remove);

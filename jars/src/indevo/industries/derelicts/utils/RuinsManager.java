@@ -1,9 +1,6 @@
 package indevo.industries.derelicts.utils;
 
 import com.fs.starfarer.api.Global;
-import indevo.ids.Ids;
-import indevo.industries.derelicts.conditions.RuinsCondition;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -13,24 +10,28 @@ import com.fs.starfarer.api.campaign.listeners.SurveyPlanetListener;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.ids.Ids;
+import indevo.industries.derelicts.conditions.RuinsCondition;
+import indevo.utils.ModPlugin;
+import indevo.utils.helper.IndustryHelper;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import static indevo.industries.derelicts.industry.Ruins.INDUSTRY_ID_MEMORY_KEY;
 import static com.fs.starfarer.api.impl.campaign.ids.Tags.*;
+import static indevo.industries.derelicts.industry.Ruins.INDUSTRY_ID_MEMORY_KEY;
 
 public class RuinsManager {
-    private static void log(String Text) {Global.getLogger(RuinsManager.class).info(Text);
+    private static void log(String Text) {
+        Global.getLogger(RuinsManager.class).info(Text);
     }
 
     public static class ResolveRuinsToUpgradeListener implements SurveyPlanetListener {
 
-        public static void register(){
+        public static void register() {
             Global.getSector().getListenerManager().addListener(new ResolveRuinsToUpgradeListener(), true);
         }
 
@@ -45,7 +46,7 @@ public class RuinsManager {
 
     public static class DerelictRuinsPlacer implements PlayerColonizationListener {
 
-        public static void register(){
+        public static void register() {
             Global.getSector().getListenerManager().addListener(new DerelictRuinsPlacer(), true);
         }
 
@@ -53,7 +54,7 @@ public class RuinsManager {
         public void reportPlayerColonizedPlanet(PlanetAPI planetAPI) {
             MarketAPI m = planetAPI.getMarket();
 
-            if(m.hasCondition(Ids.COND_RUINS)){
+            if (m.hasCondition(Ids.COND_RUINS)) {
                 RuinsCondition cond = (RuinsCondition) m.getCondition(Ids.COND_RUINS).getPlugin();
                 cond.addRuinsIfNeeded();
             }
@@ -180,7 +181,7 @@ public class RuinsManager {
                 if (localMem.contains(INDUSTRY_ID_MEMORY_KEY)) {
                     String id = localMem.getString(INDUSTRY_ID_MEMORY_KEY);
 
-                    if(id.equals(Ids.DECONSTRUCTOR) || id.equals(Ids.HULLFORGE)){
+                    if (id.equals(Ids.DECONSTRUCTOR) || id.equals(Ids.HULLFORGE)) {
                         id = id.equals(Ids.DECONSTRUCTOR) ? Ids.HULLFORGE : Ids.DECONSTRUCTOR;
                         market.getMemoryWithoutUpdate().set(INDUSTRY_ID_MEMORY_KEY, id);
                         return;
@@ -193,7 +194,8 @@ public class RuinsManager {
         String chosenIndustry;
 
         WeightedRandomPicker<String> industryIdPicker = new WeightedRandomPicker<>();
-        for (Map.Entry<String, Float> entry : getChanceMap().entrySet()) industryIdPicker.add(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, Float> entry : getChanceMap().entrySet())
+            industryIdPicker.add(entry.getKey(), entry.getValue());
 
         //remove riftGen if the planet has rings
         if (market.hasCondition(Conditions.SOLAR_ARRAY)

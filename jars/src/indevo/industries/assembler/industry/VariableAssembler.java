@@ -1,23 +1,23 @@
 package indevo.industries.assembler.industry;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.ids.ItemIds;
-import indevo.utils.helper.IndustryHelper;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
 import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
-import indevo.items.installable.VPCInstallableItemPlugin;
+import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.items.installable.VPCInstallableItemPlugin;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 

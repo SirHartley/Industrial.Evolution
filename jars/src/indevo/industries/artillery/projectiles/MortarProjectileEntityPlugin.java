@@ -2,19 +2,16 @@ package indevo.industries.artillery.projectiles;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
-import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.ai.ModularFleetAIAPI;
-import indevo.items.consumables.entityAbilities.InterdictionMineAbility;
-import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
-import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -66,7 +63,8 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
         CampaignFleetAPI other;
         Vector2f target;
         float avoidRange;
-        @Deprecated SectorEntityToken token;
+        @Deprecated
+        SectorEntityToken token;
         float secondsUntilActivation;
 
         public ArtilleryReactionScript(Vector2f target, float avoidRange, CampaignFleetAPI other, float secondsUntilActivation) {
@@ -90,7 +88,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
 
             ModularFleetAIAPI ai = (ModularFleetAIAPI) other.getAI();
             ai.getNavModule().avoidLocation(other.getContainingLocation(),
-                    target, avoidRange, avoidRange+10, secondsUntilActivation + 0.01f);
+                    target, avoidRange, avoidRange + 10, secondsUntilActivation + 0.01f);
 
             done = true;
         }
@@ -165,7 +163,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
             float timing = impactSeconds - timePassedSeconds;
             String key = ARTILLERY_REACTION_SCRIPT_KEY + entity.getId();
 
-            if (!other.getMemoryWithoutUpdate().contains(key)){
+            if (!other.getMemoryWithoutUpdate().contains(key)) {
                 other.addScript(new ArtilleryReactionScript(target, EFFECT_SIZE + 100f, other, timing));
                 other.getMemoryWithoutUpdate().set(key, true, timing);
             }
@@ -175,21 +173,21 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
         float maxFadeInTime = impactSeconds * RETICULE_ALPHA_RAMPUP_FRACTION;
         float minFadeoutTime = impactSeconds * RETICULE_ALPHA_FADEOUT_FRACTION;
 
-        if(timePassedSeconds < maxFadeInTime) {
+        if (timePassedSeconds < maxFadeInTime) {
             float mult = smootherstep(0, maxFadeInTime, timePassedSeconds);
             currentAlpha = MAX_RETICULE_ALPHA * mult;
             sizeMult = MAX_FADE_IN_SIZE_MULT - (MAX_FADE_IN_SIZE_MULT - 1) * mult;
         } else if (timePassedSeconds < minFadeoutTime) {
             currentAlpha = MAX_RETICULE_ALPHA;
             sizeMult = 1f;
-        }  else currentAlpha = MAX_RETICULE_ALPHA * (1 - smootherstep(minFadeoutTime, impactSeconds, timePassedSeconds));
+        } else currentAlpha = MAX_RETICULE_ALPHA * (1 - smootherstep(minFadeoutTime, impactSeconds, timePassedSeconds));
 
         //check if the projectile should be in the air
         boolean projectileDelayPassed = timePassedSeconds > projectileDelayTime;
 
         if (projectileDelayPassed && !finishing) {
             //advance projectile location
-            if (sound){
+            if (sound) {
                 Global.getSoundPlayer().playSound("IndEvo_mortar_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.5f, origin.getLocation(), Misc.ZERO);
                 sound = false;
             }
@@ -206,7 +204,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
             phase += amount * GLOW_FREQUENCY;
             while (phase > 1) phase--;
             flicker.advance(amount);
-        } else if(!finishing) entity.setLocation(origin.getLocation().x, origin.getLocation().y);
+        } else if (!finishing) entity.setLocation(origin.getLocation().x, origin.getLocation().y);
     }
 
     public void advanceEntityPosition(float amount) {
@@ -235,7 +233,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
         params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.LOW;
 
         SectorEntityToken explosion = cl.addCustomEntity(Misc.genUID(), "Explosion",
-               "IndEvo_VariableExplosion", Factions.NEUTRAL, params);
+                "IndEvo_VariableExplosion", Factions.NEUTRAL, params);
         explosion.setLocation(target.x, target.y);
     }
 
@@ -243,13 +241,13 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
         renderTargetReticule();
 
         boolean projectileDelayPassed = timePassedSeconds > projectileDelayTime;
-        if(projectileDelayPassed) renderProjectileGlow(viewport);
+        if (projectileDelayPassed) renderProjectileGlow(viewport);
     }
 
     public void renderTargetReticule() {
         float timeRemainingMult = 1 - Math.min(timePassedSeconds / impactSeconds, 1);
-        int gColour = Math.max( (int) Math.round(200 * timeRemainingMult), 0);
-        int rColour = Math.max( (int) Math.round(100 * timeRemainingMult), 0);
+        int gColour = Math.max((int) Math.round(200 * timeRemainingMult), 0);
+        int rColour = Math.max((int) Math.round(100 * timeRemainingMult), 0);
         Color color = new Color(255, gColour, rColour, 255); //Start
 
         targetReticule.setAdditiveBlend();

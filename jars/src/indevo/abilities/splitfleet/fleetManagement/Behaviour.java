@@ -4,12 +4,12 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.utils.ModPlugin;
-import indevo.abilities.splitfleet.FleetUtils;
-import indevo.abilities.splitfleet.fleetAssignmentAIs.*;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.FleetUtils;
+import indevo.abilities.splitfleet.fleetAssignmentAIs.*;
+import indevo.utils.ModPlugin;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -153,7 +153,7 @@ public class Behaviour {
         int num = DetachmentMemory.getNumForFleet(fleet);
 
         fleet.getMemoryWithoutUpdate().set(DETACHMENT_BEHAVIOUR_MEMORY_KEY, behaviour);
-        if(num > 0) LoadoutMemory.getLoadout(num).behaviour = behaviour;
+        if (num > 0) LoadoutMemory.getLoadout(num).behaviour = behaviour;
 
         ModPlugin.log("changing detachment behaviour to " + behaviour.toString() + " for detachment " + num);
     }

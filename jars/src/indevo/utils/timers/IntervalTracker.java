@@ -17,24 +17,24 @@ public class IntervalTracker implements EveryFrameScript {
         //bla bla
     }
 
-    public IntervalTracker(){
+    public IntervalTracker() {
         interval = new IntervalUtil(1f, 1f);
         interval2s = new IntervalUtil(2f, 2f);
     }
 
-    public float getIntervalFraction1s(){
+    public float getIntervalFraction1s() {
         return Math.min(interval.getElapsed() / interval.getIntervalDuration(), 1f);
     }
 
-    public boolean isElapsed1s(){
+    public boolean isElapsed1s() {
         return interval.intervalElapsed();
     }
 
-    public float getIntervalFraction2s(){
+    public float getIntervalFraction2s() {
         return Math.min(interval2s.getElapsed() / interval2s.getIntervalDuration(), 1f);
     }
 
-    public boolean isElapsed2s(){
+    public boolean isElapsed2s() {
         return interval2s.intervalElapsed();
     }
 

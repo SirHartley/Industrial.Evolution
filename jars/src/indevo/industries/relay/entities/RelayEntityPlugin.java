@@ -1,6 +1,5 @@
 package indevo.industries.relay.entities;
 
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCampaignObjectivePlugin;
@@ -11,6 +10,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.helper.IndustryHelper;
 
 public class RelayEntityPlugin extends BaseCampaignObjectivePlugin {
 

@@ -1,13 +1,13 @@
 package indevo.industries.ruinfra.conditions;
 
 import com.fs.starfarer.api.Global;
-import indevo.ids.Ids;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.ids.Ids;
+import indevo.utils.helper.IndustryHelper;
 import org.apache.log4j.Logger;
 
 import java.util.Random;

@@ -1,16 +1,16 @@
 package indevo.exploration.salvage.specials;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
-import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
+import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
+import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 import java.util.List;

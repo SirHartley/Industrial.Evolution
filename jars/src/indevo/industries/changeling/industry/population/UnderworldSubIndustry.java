@@ -29,21 +29,22 @@ public class UnderworldSubIndustry extends SubIndustry {
     public static final float BONUS_SMALL_PATROLS = 2f;
     public static final float BASE_STABILITY_AMT = 2f;
 
-    private void increaseIllegalCommodityOutput(MarketAPI market){
-        for (CommodityOnMarketAPI commodity : market.getCommoditiesCopy()){
+    private void increaseIllegalCommodityOutput(MarketAPI market) {
+        for (CommodityOnMarketAPI commodity : market.getCommoditiesCopy()) {
             if (commodity.isIllegal()) {
                 commodity.setDemandLegal(true);
                 commodity.setSupplyLegal(true);
 
-                for (Industry ind : market.getIndustries()){
+                for (Industry ind : market.getIndustries()) {
                     MutableCommodityQuantity supply = ind.getSupply(commodity.getId());
-                    if (supply.getQuantity().getModifiedInt() > 0 ) supply.getQuantity().modifyFlat(getId(), BONUS_ILLEGAL_OUTPUT, getName());
+                    if (supply.getQuantity().getModifiedInt() > 0)
+                        supply.getQuantity().modifyFlat(getId(), BONUS_ILLEGAL_OUTPUT, getName());
                 }
             }
         }
     }
 
-    private void increaseFleetSize(MarketAPI market){
+    private void increaseFleetSize(MarketAPI market) {
         //market.getStats().getDynamic().getStats().get(Stats.PATROL_NUM_LIGHT_MOD).modifyFlat(getId(), BONUS_SMALL_PATROLS, "Bored underworld spacers");
     }
 
@@ -59,7 +60,7 @@ public class UnderworldSubIndustry extends SubIndustry {
         modifyStability(industry, market, population.getModId(3));
         increaseIllegalCommodityOutput(industry.getMarket());
         increaseFleetSize(industry.getMarket());
-        
+
         int size = market.getSize();
 
         ind.demand(Commodities.FOOD, size);
@@ -127,7 +128,7 @@ public class UnderworldSubIndustry extends SubIndustry {
         if (sizeBonus > 0) {
             market.getAccessibilityMod().modifyFlat(population.getModId(1), sizeBonus, "Colony size");
         }
-        
+
 
         float stability = market.getPrevStability();
         float stabilityQualityMod = FleetFactoryV3.getShipQualityModForStability(stability);
@@ -147,7 +148,7 @@ public class UnderworldSubIndustry extends SubIndustry {
         float baseDef = PopulationAndInfrastructure.getBaseGroundDefenses(market.getSize());
         market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD).modifyFlatAlways(population.getModId(),
                 baseDef, "Base value for a size " + market.getSize() + " colony");
-        
+
         if (HAZARD_INCREASES_DEFENSE) {
             market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD).modifyMultAlways(population.getModId(1),
                     Math.max(market.getHazardValue(), 1f), "Colony hazard rating");
@@ -239,7 +240,7 @@ public class UnderworldSubIndustry extends SubIndustry {
             if (f > 1) f = 1;
             if (f > 0) {
                 float mult = Math.round(100f - (f * max * 100f)) / 100f;
-                String desc = "Demand supplied in-faction (" + (int)Math.round(f * 100f) + "%)";
+                String desc = "Demand supplied in-faction (" + (int) Math.round(f * 100f) + "%)";
                 if (f == 1f) desc = "All demand supplied in-faction";
                 market.getUpkeepMult().modifyMultAlways(modId + "ifi", mult, desc);
             } else {

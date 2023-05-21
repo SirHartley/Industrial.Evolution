@@ -18,12 +18,13 @@ import java.util.List;
 
 public class SwitchableRefining extends Refining implements SwitchableIndustryAPI {
 
-    public static final List<SubIndustryAPI> industryList = new LinkedList<SubIndustryAPI>(){{
+    public static final List<SubIndustryAPI> industryList = new LinkedList<SubIndustryAPI>() {{
 
         add(new SubIndustry("base_refining", "graphics/icons/industry/refining.png", "Refining", "IndEvo_base_refining") {
             @Override
             public void apply(Industry industry) {
-                if (industry instanceof SwitchableRefining) ((SwitchableRefining) industry).superApply(); //applies default
+                if (industry instanceof SwitchableRefining)
+                    ((SwitchableRefining) industry).superApply(); //applies default
             }
 
             @Override
@@ -58,7 +59,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
                 BaseIndustry ind = (BaseIndustry) industry;
                 int size = ind.getMarket().getSize();
                 ind.demand(Commodities.HEAVY_MACHINERY, size - 2); // have to keep it low since it can be circular
-                ind.demand(Commodities.ORE, size-1);
+                ind.demand(Commodities.ORE, size - 1);
                 ind.demand(Commodities.RARE_ORE, size + 2);
 
                 ind.supply(Commodities.METALS, size);
@@ -81,7 +82,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
     private SubIndustryAPI current = null;
 
     public void setCurrent(SubIndustryAPI current) {
-        if (industryList.contains(current)){
+        if (industryList.contains(current)) {
             this.current = current;
             reapply();
         }
@@ -105,7 +106,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
         }
     }
 
-    public void superApply(){
+    public void superApply() {
         supply.clear();
         demand.clear();
 
@@ -148,7 +149,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
         return current.getImageName(market);
     }
 
-    public boolean canChange(){
+    public boolean canChange() {
         return true;
     }
 

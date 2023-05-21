@@ -236,7 +236,7 @@ public class LocatorAbilityPlugin extends BaseConsumableAbilityPlugin {
         Color highlight = Misc.getHighlightColor();
         float opad = 10f;
 
-        if(!forItem) {
+        if (!forItem) {
             tooltip.addTitle(spec.getName());
             int amt = getCargoItemAmt();
             tooltip.addPara("Remaining in inventory: %s", opad, amt > 0 ? highlight : Misc.getNegativeHighlightColor(), amt + "");

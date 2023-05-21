@@ -74,7 +74,7 @@ public class ShippingContract {
         this.elapsedDays = 0;
     }
 
-    public ShippingContract getCopy(){
+    public ShippingContract getCopy() {
         return new ShippingContract(id, name, fromMarketId, toMarketId, fromSubmarketId, toSubmarketId, scope, recurrentDays, targetCargo, variantList, isActive);
     }
 
@@ -90,28 +90,28 @@ public class ShippingContract {
                 ? Global.getSector().getEconomy().getMarket(toMarketId) : null;
     }
 
-    public SubmarketAPI getToSubmarket(){
+    public SubmarketAPI getToSubmarket() {
         return toMarketId != null && getToMarket() != null && toSubmarketId != null ?
                 Global.getSector().getEconomy().getMarket(toMarketId).getSubmarket(toSubmarketId) : null;
     }
 
-    public SubmarketAPI getFromSubmarket(){
+    public SubmarketAPI getFromSubmarket() {
         return fromMarketId != null && getFromMarket() != null && fromSubmarketId != null ?
                 Global.getSector().getEconomy().getMarket(fromMarketId).getSubmarket(fromSubmarketId) : null;
     }
 
-    public void clearTargetCargo(){
+    public void clearTargetCargo() {
         targetCargo.clear();
     }
 
-    public void clearTargetShips(){
+    public void clearTargetShips() {
         targetCargo.initMothballedShips("player");
         targetCargo.getMothballedShips().clear();
 
         variantList.clear();
     }
 
-    public void addToCargo(CargoAPI cargo){
+    public void addToCargo(CargoAPI cargo) {
         targetCargo.addAll(cargo);
     }
 
@@ -125,7 +125,7 @@ public class ShippingContract {
         }
     }
 
-    public boolean isValid(){
+    public boolean isValid() {
         boolean hasFromMarket = getFromMarket() != null && !getFromMarket().isPlanetConditionMarketOnly();
         boolean hasToMarket = getToMarket() != null && !getToMarket().isPlanetConditionMarketOnly();
         boolean hasFromSubMarket = hasFromMarket && fromSubmarketId != null && getFromMarket().hasSubmarket(fromSubmarketId);
@@ -143,7 +143,7 @@ public class ShippingContract {
         return obj instanceof ShippingContract && ((ShippingContract) obj).getId().equals(getId());
     }
 
-    public String getInvalidReason(){
+    public String getInvalidReason() {
         boolean hasFromMarket = getFromMarket() != null && !getFromMarket().isPlanetConditionMarketOnly();
         boolean hasToMarket = getToMarket() != null && !getToMarket().isPlanetConditionMarketOnly();
         boolean hasFromSubMarket = hasFromMarket && fromSubmarketId != null && getFromMarket().hasSubmarket(fromSubmarketId);

@@ -13,21 +13,21 @@ public class NuclearOptionManager {
     protected static final String WEAPON_LIST_MEMORY_KEY = "$tahlan_foundWeapons";
     protected static final String NUCLEAR_WAR_MEMORY_KEY = "$tahlan_isNuclear";
     protected static final List<String> NUCLEAR_WEAPONS = new ArrayList<String>(Arrays.asList("tachyonlance"));
-    protected static final Map<String, List<String>> NUCLEAR_WEAPON_FACTION_RESPONSE_LIST = new HashMap<String, List<String>>(){{
+    protected static final Map<String, List<String>> NUCLEAR_WEAPON_FACTION_RESPONSE_LIST = new HashMap<String, List<String>>() {{
         put("pirates", new ArrayList<>(Collections.singleton("tachyonlance")));
     }};
 
-    public static void init(){
+    public static void init() {
         RefitUIOpenChecker.register();
         NuclearWeaponChecker.register();
         NuclearWeaponCombatListener.register();
     }
 
-    public static void addNuclearWeaponsToFactions(){
-        for (Map.Entry<String, List<String>> factionEntry : NUCLEAR_WEAPON_FACTION_RESPONSE_LIST.entrySet()){
+    public static void addNuclearWeaponsToFactions() {
+        for (Map.Entry<String, List<String>> factionEntry : NUCLEAR_WEAPON_FACTION_RESPONSE_LIST.entrySet()) {
             FactionAPI faction = Global.getSector().getFaction(factionEntry.getKey());
 
-            for (String s : factionEntry.getValue()){
+            for (String s : factionEntry.getValue()) {
                 faction.addKnownWeapon(s, false);
             }
         }

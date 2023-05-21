@@ -8,10 +8,10 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.AdminData;
 import com.fs.starfarer.api.characters.OfficerDataAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
-import indevo.ids.Ids;
-import indevo.industries.academy.industry.Academy;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.industries.academy.industry.Academy;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -55,7 +55,13 @@ Adjusted - Rules.csv $market -> $marketName for 0.96
 Adjusted - Code Changes for 0.96
 Adjusted - All industry images got touch-ups to bring them more in line with vanilla
 
+Pets
+Added - Pets: Add them to your ship, feed em, make em happy, and they'll accompany you! And die!
+Added - Research Project for a rare Pet
+Added - Industry: Animal Center
+
 Automated Shipyards
+Added - Rare chance for a ship to be an automated variant, usable without the skill
 Adjusted - new interaction image (the old one was kinda trash)
 
 Salvage Interactions
@@ -65,7 +71,7 @@ Fixed - "Exploding Room" special can now pick (certain) Industrial Evolution ite
 Minefields
 Added - Mines now get temporarily disabled by an interdiction pulse
 Added - Tooltip showing controlling entity
-Adjusted - Made NPC fleets react to them better
+Adjusted - Made NPC fleets react to them better (no more jiggling around)
 Fixed - Base damage halved
 Fixed - Damage now properly scales with fleet size (hit chance is still fleet size and speed)
 
@@ -98,6 +104,7 @@ Restoration Docks
 Fixed - Broken Tooltips
 
 Requisitions center
+Fixed - No longer gives you the market content for free when removed
 Fixed - Broken Tooltips
 
 Engineering Hub
@@ -115,7 +122,7 @@ Adjusted - Moved visual changing to its own button
 Fixed - Dark Palace "Ressource" typo (literally unplayable)
 
 Ancient Laboratory
-Added - Now supports switching the bonus commodity when a beta core is installed (via story point dialogue for 0 SP)
+Added - Now supports switching the bonus commodity when a beta core is installed
 
 --------------------------- Old -----------------------------
 

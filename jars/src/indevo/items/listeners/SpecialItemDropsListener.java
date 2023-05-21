@@ -10,8 +10,8 @@ import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.SalvageEntityGeneratorOld;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
-import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.ModPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +24,9 @@ import java.util.Random;
 
 public class SpecialItemDropsListener implements ShowLootListener {
 
-    public static void register(){
-        if (!Global.getSector().getListenerManager().hasListenerOfClass(SpecialItemDropsListener.class)) Global.getSector().getListenerManager().addListener(new SpecialItemDropsListener(), true);
+    public static void register() {
+        if (!Global.getSector().getListenerManager().hasListenerOfClass(SpecialItemDropsListener.class))
+            Global.getSector().getListenerManager().addListener(new SpecialItemDropsListener(), true);
     }
 
     @Override
@@ -54,7 +55,7 @@ public class SpecialItemDropsListener implements ShowLootListener {
             if (data.group == null) continue;
             if (data.value == -1) continue;
 
-            ModPlugin.log(String.format("DropData " + data.group +" [%s] value and [%s] valueMult", data.value, data.valueMult));
+            ModPlugin.log(String.format("DropData " + data.group + " [%s] value and [%s] valueMult", data.value, data.valueMult));
 
 
             if (data.group.equals("rare_tech") || data.group.equals("rare_tech_low")) {

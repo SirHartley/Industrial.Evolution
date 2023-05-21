@@ -12,7 +12,7 @@ public class ArtilleryStationReplacer implements EveryFrameScript {
 
     private boolean done = false;
 
-    public static void register(){
+    public static void register() {
         Global.getSector().addTransientScript(new ArtilleryStationReplacer());
     }
 
@@ -30,10 +30,10 @@ public class ArtilleryStationReplacer implements EveryFrameScript {
     public void advance(float amount) {
         if (isDone()) return;
 
-        for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()){
-            if (m.hasCondition(ArtilleryStationCondition.ID)){
-                for (Industry ind : new ArrayList<>(m.getIndustries())){
-                    if (ind.getId().contains("artillery")){
+        for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
+            if (m.hasCondition(ArtilleryStationCondition.ID)) {
+                for (Industry ind : new ArrayList<>(m.getIndustries())) {
+                    if (ind.getId().contains("artillery")) {
                         m.removeIndustry(ind.getId(), null, false);
                         m.addIndustry(ind.getId());
 

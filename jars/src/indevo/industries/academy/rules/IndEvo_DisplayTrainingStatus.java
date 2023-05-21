@@ -1,15 +1,15 @@
 package indevo.industries.academy.rules;
 
-import indevo.ids.Ids;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
-import indevo.industries.academy.industry.Academy;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.industries.academy.industry.Academy;
+import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 import java.util.List;

@@ -3,9 +3,9 @@ package indevo.items.consumables.itemAbilities;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
-import indevo.items.consumables.ItemAbilityHelper;
 import com.fs.starfarer.api.impl.campaign.abilities.BaseDurationAbility;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import indevo.items.consumables.ItemAbilityHelper;
 
 public abstract class BaseConsumableAbilityPlugin extends BaseDurationAbility implements SingleUseItemAbility {
     /*plugin params	desc
@@ -55,7 +55,7 @@ public abstract class BaseConsumableAbilityPlugin extends BaseDurationAbility im
                 getCargoItemAmt() > 0;
     }
 
-    public int getCargoItemAmt(){
+    public int getCargoItemAmt() {
         return (int) Math.floor(Global.getSector().getPlayerFleet().getCargo().getQuantity(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(getItemID(), null)));
     }
 

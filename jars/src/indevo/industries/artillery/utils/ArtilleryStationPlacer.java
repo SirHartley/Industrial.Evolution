@@ -1,10 +1,6 @@
 package indevo.industries.artillery.utils;
 
 import com.fs.starfarer.api.Global;
-import indevo.ids.Ids;
-import indevo.industries.artillery.scripts.ArtilleryStationScript;
-import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
-import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.TechMining;
@@ -15,9 +11,13 @@ import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.terrain.RingSystemTerrainPlugin;
-import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.ids.Ids;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
+import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
+import indevo.industries.artillery.scripts.ArtilleryStationScript;
+import indevo.utils.ModPlugin;
 
 import java.util.List;
 import java.util.Random;
@@ -26,7 +26,7 @@ import static indevo.industries.artillery.scripts.ArtilleryStationScript.TYPE_KE
 
 public class ArtilleryStationPlacer {
 
-    public static void placeCoreWorldArtilleries(){
+    public static void placeCoreWorldArtilleries() {
         if (Global.getSector().getEconomy().getMarket("culann") == null
                 || !Global.getSettings().getBoolean("Enable_IndEvo_Artillery")
                 || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedArtilleries")) return;
@@ -52,13 +52,15 @@ public class ArtilleryStationPlacer {
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedArtilleries", true);
     }
 
-    public static void placeDerelictArtilleries(){
-        if(!Global.getSettings().getBoolean("Enable_IndEvo_Artillery") || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedDerelictArtilleries")) return;
+    public static void placeDerelictArtilleries() {
+        if (!Global.getSettings().getBoolean("Enable_IndEvo_Artillery") || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedDerelictArtilleries"))
+            return;
 
         int currentCount = 0;
         Random r = new Random();
 
-        OUTER: for (StarSystemAPI s : Global.getSector().getStarSystems()) {
+        OUTER:
+        for (StarSystemAPI s : Global.getSector().getStarSystems()) {
             if (s == null
                     || s.getPlanets().isEmpty()
                     || !Misc.getMarketsInLocation(s).isEmpty()
@@ -72,8 +74,9 @@ public class ArtilleryStationPlacer {
             if (s.getTags().contains(Tags.THEME_RUINS)) baseMod += 0.02f;
 
             boolean hasRemnantStation = false;
-            for (CampaignFleetAPI fleet : s.getFleets()){
-                if (fleet.isStationMode() && fleet.getFaction().getId().equals(Factions.REMNANTS)) hasRemnantStation = true;
+            for (CampaignFleetAPI fleet : s.getFleets()) {
+                if (fleet.isStationMode() && fleet.getFaction().getId().equals(Factions.REMNANTS))
+                    hasRemnantStation = true;
             }
 
             for (PlanetAPI p : s.getPlanets()) {
@@ -83,8 +86,9 @@ public class ArtilleryStationPlacer {
                 planetMod += TechMining.getTechMiningRuinSizeModifier(p.getMarket()) * 0.1f;
                 planetMod *= Global.getSettings().getFloat("IndEvo_Artillery_spawnWeight");
 
-                if (r.nextFloat() < planetMod){
-                    if (hasRemnantStation) p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, ArtilleryStationEntityPlugin.TYPE_MISSILE);
+                if (r.nextFloat() < planetMod) {
+                    if (hasRemnantStation)
+                        p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, ArtilleryStationEntityPlugin.TYPE_MISSILE);
 
                     ArtilleryStationScript.addArtilleryToPlanet(p, false);
 
@@ -100,13 +104,13 @@ public class ArtilleryStationPlacer {
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedDerelictArtilleries", true);
     }
 
-    public static void placeWatchtowers(StarSystemAPI system, String factionId){
+    public static void placeWatchtowers(StarSystemAPI system, String factionId) {
         float minGap = 100f;
         Random random = new Random();
         FactionAPI faction = Global.getSector().getFaction(factionId);
 
         //jump points
-        for (SectorEntityToken t : system.getJumpPoints()){
+        for (SectorEntityToken t : system.getJumpPoints()) {
             WatchtowerEntityPlugin.spawn(t, Global.getSector().getFaction(factionId));
         }
 
@@ -119,16 +123,18 @@ public class ArtilleryStationPlacer {
             List<BaseThemeGenerator.OrbitGap> gaps = BaseThemeGenerator.findGaps(planet, 100f, 100f + ow + minGap, minGap);
             BaseThemeGenerator.EntityLocation loc = createLocationAtRandomGap(random, planet, gaps, BaseThemeGenerator.LocationType.GAS_GIANT_ORBIT);
             if (loc != null) {
-                SectorEntityToken t = system.addCustomEntity(Misc.genUID(), "Watchtower", "IndEvo_Watchtower", faction.getId(),null);
+                SectorEntityToken t = system.addCustomEntity(Misc.genUID(), "Watchtower", "IndEvo_Watchtower", faction.getId(), null);
                 t.setOrbit(loc.orbit);
-                if (Misc.getMarketsInLocation(system).isEmpty()) MiscellaneousThemeGenerator.makeDiscoverable(t, 200f, 2000f);
+                if (Misc.getMarketsInLocation(system).isEmpty())
+                    MiscellaneousThemeGenerator.makeDiscoverable(t, 200f, 2000f);
             }
         }
 
         for (CampaignTerrainAPI terrain : system.getTerrainCopy()) {
             if (terrain.hasTag(Tags.ACCRETION_DISK)) continue;
             //if (terrain.getOrbit() == null || (terrain.getOrbit().getFocus() != null && !terrain.getOrbit().getFocus().isStar())) continue; //we only do debris fields around the sun
-            if (terrain.getOrbitFocus() != null && (!terrain.getOrbitFocus().isStar() || !terrain.getOrbitFocus().isSystemCenter())) continue;
+            if (terrain.getOrbitFocus() != null && (!terrain.getOrbitFocus().isStar() || !terrain.getOrbitFocus().isSystemCenter()))
+                continue;
 
             CampaignTerrainPlugin plugin = terrain.getPlugin();
 
@@ -140,9 +146,10 @@ public class ArtilleryStationPlacer {
 
                 BaseThemeGenerator.EntityLocation loc = createLocationAtRandomGap(random, terrain, gaps, BaseThemeGenerator.LocationType.IN_RING);
                 if (loc != null) {
-                    SectorEntityToken t = system.addCustomEntity(Misc.genUID(), faction.getDisplayName() + " Watchtower", "IndEvo_Watchtower", faction.getId(),null);
+                    SectorEntityToken t = system.addCustomEntity(Misc.genUID(), faction.getDisplayName() + " Watchtower", "IndEvo_Watchtower", faction.getId(), null);
                     t.setOrbit(loc.orbit);
-                    if (Misc.getMarketsInLocation(system).isEmpty()) MiscellaneousThemeGenerator.makeDiscoverable(t, 200f, 2000f);
+                    if (Misc.getMarketsInLocation(system).isEmpty())
+                        MiscellaneousThemeGenerator.makeDiscoverable(t, 200f, 2000f);
                     break;
                 }
             }

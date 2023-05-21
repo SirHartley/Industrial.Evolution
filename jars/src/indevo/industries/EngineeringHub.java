@@ -1,8 +1,6 @@
 package indevo.industries;
 
 import com.fs.starfarer.api.Global;
-import indevo.ids.Ids;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.combat.MutableStat;
@@ -11,18 +9,20 @@ import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.DebugFlags;
-import indevo.items.installable.BlueprintInstallableItemPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
-import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
-import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.IconRenderMode;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.items.installable.BlueprintInstallableItemPlugin;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
+import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
 
 import java.awt.*;

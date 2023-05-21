@@ -10,11 +10,11 @@ import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
-import indevo.industries.SharedSubmarketUser;
-import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import indevo.ids.Ids;
+import indevo.industries.SharedSubmarketUser;
+import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
 import org.apache.log4j.Logger;
 
 import java.awt.*;

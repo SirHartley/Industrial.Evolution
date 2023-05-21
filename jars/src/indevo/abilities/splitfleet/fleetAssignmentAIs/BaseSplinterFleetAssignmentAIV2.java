@@ -16,11 +16,11 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseAssignmentAI;
+import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.Pair;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
-import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +41,7 @@ public abstract class BaseSplinterFleetAssignmentAIV2 extends BaseAssignmentAI i
 
     public Map<Integer, JumpInfo> jumpInfoMap = new HashMap<>();
 
-    private static class GoSlowThreeSecondsScript implements EveryFrameScript{
+    private static class GoSlowThreeSecondsScript implements EveryFrameScript {
 
         private static final float MAX_DISTANCE_FOR_STOP = 500f;
         private static final float RUNTIME_SECONDS = 3f;
@@ -52,7 +52,7 @@ public abstract class BaseSplinterFleetAssignmentAIV2 extends BaseAssignmentAI i
 
         private float amt = 0f;
 
-        public GoSlowThreeSecondsScript(CampaignFleetAPI fleet){
+        public GoSlowThreeSecondsScript(CampaignFleetAPI fleet) {
             this.fleet = fleet;
             this.playerFleet = Global.getSector().getPlayerFleet();
         }
@@ -70,12 +70,12 @@ public abstract class BaseSplinterFleetAssignmentAIV2 extends BaseAssignmentAI i
 
         @Override
         public void advance(float amount) {
-            if(isDone()) return;
+            if (isDone()) return;
             else if (amt > RUNTIME_SECONDS || fleet == null || !fleet.isAlive()) done = true;
 
             amt += amount;
 
-            if(!done && Misc.getDistance(playerFleet, fleet) > MAX_DISTANCE_FOR_STOP){
+            if (!done && Misc.getDistance(playerFleet, fleet) > MAX_DISTANCE_FOR_STOP) {
                 fleet.goSlowOneFrame(true);
             }
         }
@@ -94,7 +94,7 @@ public abstract class BaseSplinterFleetAssignmentAIV2 extends BaseAssignmentAI i
         splinterFleetMemory.unset(MemFlags.FLEET_IGNORES_OTHER_FLEETS);
     }
 
-    public void resetOverride(){
+    public void resetOverride() {
         isOverridden = false;
     }
 
@@ -230,29 +230,32 @@ public abstract class BaseSplinterFleetAssignmentAIV2 extends BaseAssignmentAI i
     }
 
     private void checkCargoForDormancyRemoval() {
-        if (Behaviour.getFleetBehaviour(fleet, false) != Behaviour.FleetBehaviour.CARGO_DETACHMENT_CHEAT_MODE && !Behaviour.isDormant(fleet)) return;
+        if (Behaviour.getFleetBehaviour(fleet, false) != Behaviour.FleetBehaviour.CARGO_DETACHMENT_CHEAT_MODE && !Behaviour.isDormant(fleet))
+            return;
 
         boolean hasFuel = fleet.getCargo().getFuel() >= 1f;
         boolean hasSupplies = fleet.getCargo().getSupplies() >= 1f;
         boolean isHyper = fleet.isInHyperspace();
 
         if (hasSupplies && !isHyper) Behaviour.clearBehaviourOverride(fleet);
-        else if(hasSupplies && hasFuel) Behaviour.clearBehaviourOverride(fleet);
+        else if (hasSupplies && hasFuel) Behaviour.clearBehaviourOverride(fleet);
     }
 
     private void checkCargoForDormancyTriggers() {
-        if (Behaviour.isDormant(fleet) || Behaviour.getFleetBehaviour(fleet, false) == Behaviour.FleetBehaviour.CARGO_DETACHMENT_CHEAT_MODE) return;
+        if (Behaviour.isDormant(fleet) || Behaviour.getFleetBehaviour(fleet, false) == Behaviour.FleetBehaviour.CARGO_DETACHMENT_CHEAT_MODE)
+            return;
 
         if (fleet.getCargo().getCommodityQuantity(Commodities.SUPPLIES) < 1f)
             Behaviour.setFleetBehaviourOverride(fleet, Behaviour.FleetBehaviour.DORMANT);
-        if (fleet.isInHyperspace() && fleet.getCargo().getFuel() < 1f){
-            if(this instanceof DeliverAssignmentAI){
+        if (fleet.isInHyperspace() && fleet.getCargo().getFuel() < 1f) {
+            if (this instanceof DeliverAssignmentAI) {
                 boolean hasDelivered = false;
 
                 DeliverAssignmentAI ai = (DeliverAssignmentAI) FleetUtils.getAssignmentAI(fleet);
                 if (ai != null) hasDelivered = ai.cargoTransferScript.finished;
 
-                if(hasDelivered) Behaviour.setFleetBehaviourOverride(fleet, Behaviour.FleetBehaviour.CARGO_DETACHMENT_CHEAT_MODE);
+                if (hasDelivered)
+                    Behaviour.setFleetBehaviourOverride(fleet, Behaviour.FleetBehaviour.CARGO_DETACHMENT_CHEAT_MODE);
                 else Behaviour.setFleetBehaviourOverride(fleet, Behaviour.FleetBehaviour.DORMANT);
 
             } else Behaviour.setFleetBehaviourOverride(fleet, Behaviour.FleetBehaviour.DORMANT);

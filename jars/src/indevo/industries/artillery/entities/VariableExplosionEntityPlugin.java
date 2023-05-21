@@ -112,10 +112,10 @@ public class VariableExplosionEntityPlugin extends ExplosionEntityPlugin {
 
     @Override
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
-        if(sprite == null) sprite = Global.getSettings().getSprite("misc", "nebula_particles");
-        if(blastWaveSprite == null) blastWaveSprite = Global.getSettings().getSprite("graphics/fx/shields256.png");
+        if (sprite == null) sprite = Global.getSettings().getSprite("misc", "nebula_particles");
+        if (blastWaveSprite == null) blastWaveSprite = Global.getSettings().getSprite("graphics/fx/shields256.png");
 
-        if(((VariableExplosionParams) params).withBlastwave){
+        if (((VariableExplosionParams) params).withBlastwave) {
             //blastwave
             float alphaMult = viewport.getAlphaMult();
             alphaMult *= entity.getSensorFaderBrightness();

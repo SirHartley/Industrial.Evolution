@@ -4,11 +4,11 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import indevo.abilities.splitfleet.FleetUtils;
-import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.FleetUtils;
+import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 
 import java.awt.*;
 import java.util.List;
@@ -83,7 +83,7 @@ public class FleetStatus {
 
         status.operatingTimeString = operatingTimeString;
 
-        status.fuelRangeLYString =  Math.round((status.currentFuel * 1f) / status.requiredFuelPerLY) + " LY";
+        status.fuelRangeLYString = Math.round((status.currentFuel * 1f) / status.requiredFuelPerLY) + " LY";
 
 
         return status;
@@ -117,7 +117,8 @@ public class FleetStatus {
         color = status.currentCrewAndMarines > status.totalCrewCap ? Misc.getNegativeHighlightColor() : Misc.getHighlightColor();
         tooltip.addPara("Current Personnel: %s", spad, color, s);
 
-        if(status.suppliesToRecover > 1) tooltip.addPara("Supplies needed to finish repairs: %s", opad, Misc.getHighlightColor(), status.suppliesToRecover + " units");
+        if (status.suppliesToRecover > 1)
+            tooltip.addPara("Supplies needed to finish repairs: %s", opad, Misc.getHighlightColor(), status.suppliesToRecover + " units");
         tooltip.addPara("Estimated operating time: %s", opad, Misc.getHighlightColor(), status.operatingTimeString);
         tooltip.addPara("Estimated range: %s", spad, Misc.getHighlightColor(), status.fuelRangeLYString);
 

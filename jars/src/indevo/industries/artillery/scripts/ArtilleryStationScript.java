@@ -2,9 +2,6 @@ package indevo.industries.artillery.scripts;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
-import indevo.ids.Ids;
-import indevo.industries.artillery.conditions.ArtilleryStationCondition;
-import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -15,7 +12,6 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ConstructionQueue;
-import indevo.industries.artillery.industry.ArtilleryStation;
 import com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent;
 import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflater;
 import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflaterParams;
@@ -26,14 +22,20 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGener
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGeneratorPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
-import indevo.industries.artillery.utils.ArtilleryStationPlacer;
-import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.ids.Ids;
+import indevo.industries.artillery.conditions.ArtilleryStationCondition;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
+import indevo.industries.artillery.industry.ArtilleryStation;
+import indevo.industries.artillery.utils.ArtilleryStationPlacer;
+import indevo.utils.ModPlugin;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static indevo.industries.artillery.entities.WatchtowerEntityPlugin.MEM_SENSOR_LOCK_ACTIVE;
 
@@ -61,7 +63,8 @@ public class ArtilleryStationScript implements EveryFrameScript, FleetEventListe
                 ArtilleryStationPlacer.placeWatchtowers(starSystem, faction);
             }
 
-            if (!planet.getMarket().hasCondition(ArtilleryStationCondition.ID)) planet.getMarket().addCondition(ArtilleryStationCondition.ID);
+            if (!planet.getMarket().hasCondition(ArtilleryStationCondition.ID))
+                planet.getMarket().addCondition(ArtilleryStationCondition.ID);
         }
     }
 
@@ -195,8 +198,9 @@ public class ArtilleryStationScript implements EveryFrameScript, FleetEventListe
         updateWatchtowers(factionID.equals(Ids.DERELICT_FACTION_ID) || factionID.equals(Factions.REMNANTS));
     }
 
-    private void updateWatchtowers(boolean active){
-        for (SectorEntityToken t : primaryEntity.getContainingLocation().getEntitiesWithTag("IndEvo_watchtower")) t.getMemoryWithoutUpdate().set(MEM_SENSOR_LOCK_ACTIVE, active);
+    private void updateWatchtowers(boolean active) {
+        for (SectorEntityToken t : primaryEntity.getContainingLocation().getEntitiesWithTag("IndEvo_watchtower"))
+            t.getMemoryWithoutUpdate().set(MEM_SENSOR_LOCK_ACTIVE, active);
     }
 
     public void updateFaction(String id) {
@@ -238,7 +242,7 @@ public class ArtilleryStationScript implements EveryFrameScript, FleetEventListe
         }
     }
 
-    public List<String> getDebrisFieldList(){
+    public List<String> getDebrisFieldList() {
         MemoryAPI mem = primaryEntity.getMemoryWithoutUpdate();
 
         if (mem.contains("$IndEvo_debrisFieldList")) return (List<String>) mem.get("$IndEvo_debrisFieldList");
@@ -249,11 +253,11 @@ public class ArtilleryStationScript implements EveryFrameScript, FleetEventListe
         }
     }
 
-    public void addToDebrisFieldList(CampaignTerrainAPI t){
+    public void addToDebrisFieldList(CampaignTerrainAPI t) {
         List<String> l = getDebrisFieldList();
         String id = t.getId();
 
-        if(!l.contains(id)) {
+        if (!l.contains(id)) {
             ModPlugin.log("adding debris field to memory: " + id);
 
             DebrisFieldTerrainPlugin.DebrisFieldParams params = ((DebrisFieldTerrainPlugin) t.getPlugin()).getParams();
@@ -264,8 +268,8 @@ public class ArtilleryStationScript implements EveryFrameScript, FleetEventListe
         }
     }
 
-    public void saveDebrisFieldStatus(){
-        for (CampaignTerrainAPI t : getCombatDebrisFields(primaryEntity.getContainingLocation())){
+    public void saveDebrisFieldStatus() {
+        for (CampaignTerrainAPI t : getCombatDebrisFields(primaryEntity.getContainingLocation())) {
             addToDebrisFieldList(t);
         }
     }
@@ -640,15 +644,15 @@ public class ArtilleryStationScript implements EveryFrameScript, FleetEventListe
         //this is a crime against humanity
         LocationAPI loc = primaryEntity.getContainingLocation();
         List<String> l = getDebrisFieldList();
-        if(!getDebrisFieldList().isEmpty() && brokenStationEntity != null) {
-            SectorEntityToken t = loc.getEntityById( l.get(l.size()-1));
+        if (!getDebrisFieldList().isEmpty() && brokenStationEntity != null) {
+            SectorEntityToken t = loc.getEntityById(l.get(l.size() - 1));
 
             if (t == null) return;
             t.setLocation(brokenStationEntity.getLocation().x, brokenStationEntity.getLocation().y);
         }
     }
 
-    private void setDestroyedWithDestroyedActions(){
+    private void setDestroyedWithDestroyedActions() {
         primaryEntity.getMemoryWithoutUpdate().unset("$hasDefenders");
         primaryEntity.getMemoryWithoutUpdate().set("$defenderFleetDefeated", true);
 

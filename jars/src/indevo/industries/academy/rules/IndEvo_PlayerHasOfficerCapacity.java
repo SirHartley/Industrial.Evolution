@@ -2,9 +2,9 @@ package indevo.industries.academy.rules;
 
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.industries.academy.industry.Academy;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.academy.industry.Academy;
 
 import java.util.List;
 import java.util.Map;

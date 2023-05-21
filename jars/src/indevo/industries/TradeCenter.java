@@ -1,19 +1,19 @@
 package indevo.industries;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import indevo.ids.Ids;
-import indevo.utils.helper.IndustryHelper;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
+import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 import java.util.List;

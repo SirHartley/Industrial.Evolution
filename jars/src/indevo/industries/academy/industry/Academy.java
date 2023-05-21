@@ -240,41 +240,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (!onMonthEnd) {
             playerFleet.getCargo().getCredits().subtract(amount);
         } else if (!market.isPlayerOwned()) {
-            MonthlyReport report = SharedData.getData().getCurrentReport();
-
-            MonthlyReport.FDNode marketsNode = report.getNode(MonthlyReport.OUTPOSTS);
-            marketsNode.name = "Colonies";
-            marketsNode.custom = MonthlyReport.OUTPOSTS;
-            marketsNode.tooltipCreator = report.getMonthlyReportTooltip();
-
-            MonthlyReport.FDNode mNode = report.getNode(marketsNode, market.getId());
-            mNode.name = market.getName() + " (" + market.getSize() + ")";
-            mNode.custom = market;
-
-            MonthlyReport.FDNode indNode = report.getNode(mNode, "industries");
-
-            for (Industry curr : market.getIndustries()) {
-                if (!curr.getId().equals(Ids.REPAIRDOCKS)) { //Have to exclude repdock or player will not be billed repairs
-                    MonthlyReport.FDNode iNode = report.getNode(indNode, curr.getId());
-                    iNode.income = 0;
-                    iNode.upkeep = 0;
-                }
-            }
-
-            MonthlyReport.FDNode academyNode = report.getNode(mNode, "Academy");
-            academyNode.name = "Academy Storage";
-            academyNode.mapEntity = market.getPrimaryEntity();
-            academyNode.tooltipCreator = report.getMonthlyReportTooltip();
-            academyNode.icon = getCurrentImage();
-            academyNode.custom = this;
-            academyNode.custom2 = this;
-
-            MonthlyReport.FDNode iNode = report.getNode(academyNode, this.getId());
-            iNode.name = getCurrentName();
-            iNode.upkeep = 0;
-            iNode.custom = this;
-            iNode.mapEntity = market.getPrimaryEntity();
-
+            MonthlyReport.FDNode iNode = IndustryHelper.createMonthlyReportNode(this, market, getCurrentName(), Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE);
             iNode.upkeep += amount;
         } else {
             MonthlyReport report = SharedData.getData().getCurrentReport();

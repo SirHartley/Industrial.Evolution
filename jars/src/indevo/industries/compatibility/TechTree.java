@@ -15,10 +15,10 @@ public class TechTree {
         if (!isInstalled()) return true;
 
         Map<String, Boolean> researchSaved = (HashMap<String, Boolean>) Global.getSector().getPersistentData().get("researchsaved");
-        return researchSaved != null ?  researchSaved.get(industry.getId()) : false;
+        return researchSaved != null ? researchSaved.get(industry.getId()) : false;
     }
 
-    public static String getDefaultUnavailableReason(){
+    public static String getDefaultUnavailableReason() {
         return "Not researched";
     }
 }

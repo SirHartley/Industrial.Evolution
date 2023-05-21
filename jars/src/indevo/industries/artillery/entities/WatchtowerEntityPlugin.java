@@ -1,8 +1,6 @@
 package indevo.industries.artillery.entities;
 
 import com.fs.starfarer.api.Global;
-import indevo.ids.Ids;
-import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -16,6 +14,8 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGener
 import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import org.lazywizard.lazylib.MathUtils;
 
 import static indevo.industries.artillery.scripts.EyeIndicatorScript.WAS_SEEN_BY_HOSTILE_ENTITY;
@@ -39,14 +39,15 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
     protected float phase = 0f;
 
-    public static SectorEntityToken spawn(SectorEntityToken primaryEntity, FactionAPI faction){
+    public static SectorEntityToken spawn(SectorEntityToken primaryEntity, FactionAPI faction) {
 
         if (faction == null) faction = Global.getSector().getFaction(Ids.DERELICT_FACTION_ID);
-        SectorEntityToken t = primaryEntity.getContainingLocation().addCustomEntity(Misc.genUID(), "Watchtower", "IndEvo_Watchtower",faction.getId(),null);
+        SectorEntityToken t = primaryEntity.getContainingLocation().addCustomEntity(Misc.genUID(), "Watchtower", "IndEvo_Watchtower", faction.getId(), null);
 
         float orbitRadius = primaryEntity.getRadius() + 250f;
         t.setCircularOrbitWithSpin(primaryEntity, (float) Math.random() * 360f, orbitRadius, orbitRadius / 10f, 5f, 5f);
-        if (Misc.getMarketsInLocation(primaryEntity.getContainingLocation()).isEmpty()) MiscellaneousThemeGenerator.makeDiscoverable(t, 200f, 2000f);
+        if (Misc.getMarketsInLocation(primaryEntity.getContainingLocation()).isEmpty())
+            MiscellaneousThemeGenerator.makeDiscoverable(t, 200f, 2000f);
 
         return t;
     }
@@ -70,12 +71,12 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     //last for 5 days
     //when out of watchtower range +5d slowly close eye
 
-    public boolean checkSensorLockActive(){
-        if(entity.getContainingLocation() == null) return false;
+    public boolean checkSensorLockActive() {
+        if (entity.getContainingLocation() == null) return false;
 
         MemoryAPI mem = entity.getMemoryWithoutUpdate();
 
-        for (SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION)){
+        for (SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION)) {
             String faction = t.getFaction().getId();
 
             if (Ids.DERELICT_FACTION_ID.equals(faction) || Factions.REMNANTS.equals(faction)) {
@@ -96,23 +97,23 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         setFunctional(!entity.getContainingLocation().getMemoryWithoutUpdate().getBoolean(Ids.MEM_SYSTEM_DISABLE_WATCHTOWERS));
 
         // TODO: 19/10/2022 change this to an interval instead of this janky shit
-        if(phase >= 1 * MathUtils.getRandomNumberInRange(1, 1.1f)) {
+        if (phase >= 1 * MathUtils.getRandomNumberInRange(1, 1.1f)) {
             String factionID = entity.getFaction().getId();
             boolean isAI = factionID.equals(Ids.DERELICT_FACTION_ID) || factionID.equals(Factions.REMNANTS);
             boolean isLocked = checkSensorLockActive();
 
-            if(isAI){
+            if (isAI) {
                 if (isLocked && !isHacked() && isFunctional()) showRangePing();
-            } else if(!isHacked() && isFunctional()) showRangePing();
+            } else if (!isHacked() && isFunctional()) showRangePing();
 
-            if(isFunctional()) for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, RANGE))  {
-                if (isHostileTo(f)){ //&& f.getVisibilityLevelTo(entity) == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT){
+            if (isFunctional()) for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, RANGE)) {
+                if (isHostileTo(f)) { //&& f.getVisibilityLevelTo(entity) == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT){
                     if (f.isPlayerFleet()) continue;
 
                     boolean showMessage = !f.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY);
                     f.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, WATCHTOWER_FLEET_SEEN_DURATION_DAYS);
 
-                    if(showMessage) f.addFloatingText("Detected by Watchtower", Misc.getNegativeHighlightColor(), 1f);
+                    if (showMessage) f.addFloatingText("Detected by Watchtower", Misc.getNegativeHighlightColor(), 1f);
                 }
             }
 
@@ -130,7 +131,8 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
     protected void showRangePing() {
         SectorEntityToken.VisibilityLevel vis = entity.getVisibilityLevelToPlayerFleet();
-        if (vis == SectorEntityToken.VisibilityLevel.NONE || vis == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT) return;
+        if (vis == SectorEntityToken.VisibilityLevel.NONE || vis == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT)
+            return;
 
         FactionAPI f = entity.getFaction();
         if (!f.isHostileTo(Factions.PLAYER) || isHacked()) return;
@@ -162,7 +164,7 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
             return;
         }
 
-        if(isHacked()) {
+        if (isHacked()) {
             text.addPara(BaseIntelPlugin.INDENT + "%s, ignoring your fleet",
                     pad, Misc.getHighlightColor(), "Hacked");
 
@@ -170,11 +172,11 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
                 pad, Misc.getHighlightColor(), Math.round(RANGE) + " su");
     }
 
-    public boolean isFunctional(){
+    public boolean isFunctional() {
         return !entity.getMemoryWithoutUpdate().getBoolean(MemFlags.OBJECTIVE_NON_FUNCTIONAL);
     }
 
-    public void setFunctional(boolean functional){
+    public void setFunctional(boolean functional) {
         entity.getMemoryWithoutUpdate().set(MemFlags.OBJECTIVE_NON_FUNCTIONAL, !functional);
     }
 
@@ -189,10 +191,11 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
     @Override
     public void addHackStatusToTooltip(TooltipMakerAPI text, float pad) {
-        if(isHacked()) text.addPara("%s your fleet",
+        if (isHacked()) text.addPara("%s your fleet",
                 pad, Misc.getHighlightColor(), "Ignores");
-        else if(entity.isInCurrentLocation() && Misc.getDistance(entity, Global.getSector().getPlayerFleet()) < RANGE) text.addPara("%s your fleet",
-                pad, Misc.getHighlightColor(), "Tracking");
+        else if (entity.isInCurrentLocation() && Misc.getDistance(entity, Global.getSector().getPlayerFleet()) < RANGE)
+            text.addPara("%s your fleet",
+                    pad, Misc.getHighlightColor(), "Tracking");
         else text.addPara("Out of range", pad);
 
         super.addHackStatusToTooltip(text, pad);

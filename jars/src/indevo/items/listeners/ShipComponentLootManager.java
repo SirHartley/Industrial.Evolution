@@ -7,12 +7,12 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.DerelictShipEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import indevo.ids.ItemIds;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySpecial;
-import indevo.abilities.splitfleet.FleetUtils;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.abilities.splitfleet.FleetUtils;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
 
 import java.util.Random;
 
@@ -46,7 +46,7 @@ public class ShipComponentLootManager {
                 fleet.getCargo().addCommodity(ItemIds.RARE_PARTS, amt);
             }
 
-            if(Global.getSettings().getBoolean("IndEvo_PartsDropInCampaign") && Global.getSettings().getBoolean("ScrapYard")){
+            if (Global.getSettings().getBoolean("IndEvo_PartsDropInCampaign") && Global.getSettings().getBoolean("ScrapYard")) {
                 int amt = (int) Math.round(fp * 0.5f + (0.4 * random.nextFloat() * fp));
                 fleet.getCargo().addCommodity(ItemIds.PARTS, amt);
             }

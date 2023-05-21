@@ -1,7 +1,6 @@
 package indevo.industries.derelicts.rules;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -9,6 +8,7 @@ import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.helper.IndustryHelper;
 
 import java.util.HashSet;
 import java.util.List;

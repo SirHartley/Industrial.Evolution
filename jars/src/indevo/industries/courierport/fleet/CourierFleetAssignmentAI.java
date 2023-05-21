@@ -7,14 +7,14 @@ import com.fs.starfarer.api.campaign.CampaignEventListener;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
+import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseAssignmentAI;
 import indevo.industries.courierport.intel.ShippingIntel;
 import indevo.industries.courierport.listeners.Shipment;
-import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseAssignmentAI;
 
 public class CourierFleetAssignmentAI extends BaseAssignmentAI implements FleetEventListener {
     public Shipment container;
 
-    public CourierFleetAssignmentAI(CampaignFleetAPI fleet, Shipment container){
+    public CourierFleetAssignmentAI(CampaignFleetAPI fleet, Shipment container) {
         this.fleet = fleet;
         this.container = container;
 
@@ -23,15 +23,15 @@ public class CourierFleetAssignmentAI extends BaseAssignmentAI implements FleetE
         giveInitialAssignments();
     }
 
-    public static CourierFleetAssignmentAI get(CampaignFleetAPI fleet){
-        for (EveryFrameScript s : fleet.getScripts()){
+    public static CourierFleetAssignmentAI get(CampaignFleetAPI fleet) {
+        for (EveryFrameScript s : fleet.getScripts()) {
             if (s instanceof CourierFleetAssignmentAI) return (CourierFleetAssignmentAI) s;
         }
 
         return null;
     }
 
-    public void updateAssignments(){
+    public void updateAssignments() {
         fleet.clearAssignments();
 
         container.intel.setStatus(ShippingIntel.ShippingStatus.TRANSFER);
@@ -47,7 +47,7 @@ public class CourierFleetAssignmentAI extends BaseAssignmentAI implements FleetE
                     }
                 });
 
-        fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, container.contract.getToMarket().getPrimaryEntity(), 2f,"Unloading cargo");
+        fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, container.contract.getToMarket().getPrimaryEntity(), 2f, "Unloading cargo");
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, container.contract.getToMarket().getPrimaryEntity(), 1f, "Disbanding", new Script() {
             @Override
             public void run() {
@@ -88,7 +88,7 @@ public class CourierFleetAssignmentAI extends BaseAssignmentAI implements FleetE
                     }
                 });
 
-        fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, container.contract.getToMarket().getPrimaryEntity(), 2f,"Unloading cargo");
+        fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, container.contract.getToMarket().getPrimaryEntity(), 2f, "Unloading cargo");
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, container.contract.getToMarket().getPrimaryEntity(), 1f, "Disbanding", new Script() {
             @Override
             public void run() {
@@ -100,16 +100,16 @@ public class CourierFleetAssignmentAI extends BaseAssignmentAI implements FleetE
     @Override
     protected void pickNext() {
         fleet.addAssignment(
-            FleetAssignment.GO_TO_LOCATION_AND_DESPAWN,
-            container.contract.getToMarket().getPrimaryEntity(),
-            container.maxDaysBeforeFailsafe,
-            "Emergency direct routing for [" + container.contract.name + "] due to fleet AI error",
-            new Script() {
-                @Override
-                public void run() {
-                    container.finalizeAndRemove();
+                FleetAssignment.GO_TO_LOCATION_AND_DESPAWN,
+                container.contract.getToMarket().getPrimaryEntity(),
+                container.maxDaysBeforeFailsafe,
+                "Emergency direct routing for [" + container.contract.name + "] due to fleet AI error",
+                new Script() {
+                    @Override
+                    public void run() {
+                        container.finalizeAndRemove();
+                    }
                 }
-            }
         );
     }
 
@@ -121,7 +121,7 @@ public class CourierFleetAssignmentAI extends BaseAssignmentAI implements FleetE
 
     @Override
     public void reportFleetDespawnedToListener(CampaignFleetAPI fleet, CampaignEventListener.FleetDespawnReason reason, Object param) {
-        if(fleet != null) fleet.removeEventListener(this);
+        if (fleet != null) fleet.removeEventListener(this);
         //ModPlugin.log("Courier fleet despawned, reason " + reason.toString() + " current assignment: " + fleet.getCurrentAssignment().getActionText());
     }
 

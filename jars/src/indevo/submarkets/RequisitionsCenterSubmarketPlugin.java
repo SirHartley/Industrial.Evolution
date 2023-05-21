@@ -1,11 +1,6 @@
 package indevo.submarkets;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
-import indevo.ids.Ids;
-import indevo.industries.RequisitionCenter;
-import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.Script;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.CommodityOnMarketAPI;
@@ -15,12 +10,17 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
+import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.plugins.impl.CoreAutofitPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.ids.Ids;
+import indevo.industries.RequisitionCenter;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
+import indevo.utils.helper.IndustryHelper;
 
 import java.util.*;
 

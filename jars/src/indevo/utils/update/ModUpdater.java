@@ -13,12 +13,12 @@ import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.EngineeringHub;
 import indevo.industries.academy.industry.Academy;
 import indevo.industries.derelicts.industry.HullDeconstructor;
 import indevo.industries.derelicts.industry.HullForge;
-import com.fs.starfarer.api.util.Misc;
 
 import java.util.ArrayList;
 import java.util.Iterator;

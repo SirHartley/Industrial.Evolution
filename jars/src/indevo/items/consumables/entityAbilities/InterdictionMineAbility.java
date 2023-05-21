@@ -28,8 +28,10 @@ public class InterdictionMineAbility extends BaseDurationAbility {
         CampaignFleetAPI other;
         SectorEntityToken token;
         float activationDays;
+
         /**
          * fleet is using IP, other is reacting.
+         *
          * @param token
          * @param other
          * @param activationDays
@@ -41,6 +43,7 @@ public class InterdictionMineAbility extends BaseDurationAbility {
             delay = 0.3f + 0.3f * (float) Math.random();
             //delay = 0f;
         }
+
         public void advance(float amount) {
             if (done) return;
 
@@ -99,6 +102,7 @@ public class InterdictionMineAbility extends BaseDurationAbility {
         public boolean isDone() {
             return done;
         }
+
         public boolean runWhilePaused() {
             return false;
         }
@@ -141,7 +145,8 @@ public class InterdictionMineAbility extends BaseDurationAbility {
 
     protected void showRangePing(float amount) {
         SectorEntityToken.VisibilityLevel vis = entity.getVisibilityLevelToPlayerFleet();
-        if (vis == SectorEntityToken.VisibilityLevel.NONE || vis == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT) return;
+        if (vis == SectorEntityToken.VisibilityLevel.NONE || vis == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT)
+            return;
 
 
         boolean fire = false;
@@ -196,14 +201,15 @@ public class InterdictionMineAbility extends BaseDurationAbility {
 
         @Override
         public void advance(float amount) {
-            if(!isDone()){
+            if (!isDone()) {
                 amt += amount;
-                fleet.goSlowOneFrame(true);;
+                fleet.goSlowOneFrame(true);
+                ;
             }
         }
     }
 
-    public Color getColor(){
+    public Color getColor() {
         return new Color(255, 30, 0, 255);
     }
 
@@ -247,11 +253,11 @@ public class InterdictionMineAbility extends BaseDurationAbility {
                 if (vis == SectorEntityToken.VisibilityLevel.COMPOSITION_AND_FACTION_DETAILS ||
                         vis == SectorEntityToken.VisibilityLevel.COMPOSITION_DETAILS) {
                     if (interdictSeconds <= 0) {
-                        other.addFloatingText("Interdict avoided!" , getColor(), 1f, true);
+                        other.addFloatingText("Interdict avoided!", getColor(), 1f, true);
                         continue;
                     } else {
                         other.addScript(new GoSlowScript(other));
-                        other.addFloatingText("Interdict! (" + (int) Math.round(interdictSeconds) + "s)" , getColor(), 1f, true);
+                        other.addFloatingText("Interdict! (" + (int) Math.round(interdictSeconds) + "s)", getColor(), 1f, true);
                     }
                 }
 

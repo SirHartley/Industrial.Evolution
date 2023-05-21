@@ -5,10 +5,10 @@ import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableIndustryItemPlugin;
-import indevo.industries.EngineeringHub;
 import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.EngineeringHub;
 
 import java.util.HashMap;
 import java.util.Map;

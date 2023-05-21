@@ -1,0 +1,35 @@
+{
+	id:"petStoreColour",
+	"color":[200,200,210,255],
+	"displayName":"Animal Centre",
+	"displayNameWithArticle":"the Animal Centre",
+	"displayNameLong":"Animal Centre",
+	"displayNameLongWithArticle":"the Animal Centre",
+	"entityNamePrefix":"the",
+	"personNamePrefix":"the",
+	"personNamePrefixAOrAn":"an",
+	"displayNameIsOrAre":"are",
+	"showInIntelTab":false,
+	"logo":"graphics/factions/neutral.png",
+	"crest":"graphics/factions/crest_neutral.png",
+	"shipNamePrefix":"DREAD PARROT ROBERTS AND HIS MERRY CREW",
+	"shipNameSources":{
+		"GENERAL":1,
+	},
+	"description":"No description yet.",
+	"names":{
+		"modern":1,
+	},
+	"portraits":{
+		"standard_male":[
+			"graphics/portraits/cyberparrot.png",
+		],
+		"standard_female":[
+			"graphics/portraits/cyberparrot.png",
+		],
+	},
+	"custom":{
+		"offersCommissions":false,
+		"engagesInHostilities":false,
+	},
+},	

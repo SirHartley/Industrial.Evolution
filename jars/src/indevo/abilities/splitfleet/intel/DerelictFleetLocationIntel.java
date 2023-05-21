@@ -5,10 +5,10 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.misc.FleetLogIntel;
-import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 
 import java.awt.*;
 import java.util.LinkedHashSet;

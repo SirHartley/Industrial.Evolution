@@ -1,24 +1,24 @@
 package indevo.industries.courierport.dialogue;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import indevo.industries.courierport.*;
-import indevo.industries.courierport.listeners.SubmarketCargoPicker;
-import indevo.industries.courierport.listeners.SubmarketShipPicker;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
-import indevo.utils.ModPlugin;
+import com.fs.starfarer.api.ui.*;
+import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.InteractionDialogCustomPanelPlugin;
 import indevo.dialogue.sidepanel.NoFrameCustomPanelPlugin;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
-import com.fs.starfarer.api.ui.*;
-import com.fs.starfarer.api.util.Misc;
+import indevo.industries.courierport.*;
+import indevo.industries.courierport.listeners.SubmarketCargoPicker;
+import indevo.industries.courierport.listeners.SubmarketShipPicker;
+import indevo.utils.ModPlugin;
+import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 import java.util.LinkedList;
@@ -45,16 +45,16 @@ public class ContractSidePanelCreator {
         showCustomPanel(dialogue, contract);
     }
 
-    public static void backupContract(ShippingContract contract){
+    public static void backupContract(ShippingContract contract) {
         MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
-        if(contract != null && !mem.contains(CONTRACT_MEMORY)) mem.set(CONTRACT_MEMORY, contract.getCopy(), 0f);
+        if (contract != null && !mem.contains(CONTRACT_MEMORY)) mem.set(CONTRACT_MEMORY, contract.getCopy(), 0f);
     }
 
-    public static ShippingContract getContractBackup(){
+    public static ShippingContract getContractBackup() {
         return (ShippingContract) Global.getSector().getMemoryWithoutUpdate().get(CONTRACT_MEMORY);
     }
 
-    public static void clearBackup(){
+    public static void clearBackup() {
         Global.getSector().getMemoryWithoutUpdate().unset(CONTRACT_MEMORY);
     }
 
@@ -83,7 +83,7 @@ public class ContractSidePanelCreator {
 
         final ShippingContract contract = initContract;
         String id = contract.getId();
-        if(contract.scope == null) contract.scope = ShippingContract.Scope.EVERYTHING;
+        if (contract.scope == null) contract.scope = ShippingContract.Scope.EVERYTHING;
 
         TooltipMakerAPI lastUsedVariableButtonAnchor;
 
@@ -302,7 +302,7 @@ public class ContractSidePanelCreator {
                 brightColor = s.getFaction().getBrightUIColor();
 
                 SpriteAPI sprite = Global.getSettings().getSprite(s.getSpec().getIcon());
-                if(sprite == null) sprite = Global.getSettings().getSprite(fromMarket.getFaction().getLogo());
+                if (sprite == null) sprite = Global.getSettings().getSprite(fromMarket.getFaction().getLogo());
 
                 aspectRatio = sprite.getHeight() / sprite.getWidth();
 
@@ -342,13 +342,13 @@ public class ContractSidePanelCreator {
                         BUTTON_HEIGHT,
                         0f);
 
-                pos = originSelectionPanel.addUIElement(anchor).rightOfMid(lastUsedVariableButtonAnchor, first ? 0f :-7f);
+                pos = originSelectionPanel.addUIElement(anchor).rightOfMid(lastUsedVariableButtonAnchor, first ? 0f : -7f);
                 pos.setXAlignOffset(-(baseWidth - 4f));
 
                 first = false;
             }
 
-            if(fromMarket.isPlayerOwned() && fromMarket.hasSubmarket(Submarkets.LOCAL_RESOURCES)){
+            if (fromMarket.isPlayerOwned() && fromMarket.hasSubmarket(Submarkets.LOCAL_RESOURCES)) {
                 final SubmarketAPI s = fromMarket.getSubmarket(Submarkets.LOCAL_RESOURCES);
                 final String submarketID = s.getSpecId();
 
@@ -445,73 +445,73 @@ public class ContractSidePanelCreator {
 
                 dialogue.showCampaignEntityPicker("Select a planet to ship to", "Selected: ", "Confirm",
                         playerFleet.getFaction(), ShippingTargetHelper.getValidTargetPlanets(contract), new CampaignEntityPickerListener() {
-                    @Override
-                    public String getMenuItemNameOverrideFor(SectorEntityToken entity) {
-                        MarketAPI m = entity.getMarket();
-                        return m.getName() + " (" + m.getFaction().getDisplayName() + ")";
-                    }
+                            @Override
+                            public String getMenuItemNameOverrideFor(SectorEntityToken entity) {
+                                MarketAPI m = entity.getMarket();
+                                return m.getName() + " (" + m.getFaction().getDisplayName() + ")";
+                            }
 
-                    @Override
-                    public void pickedEntity(SectorEntityToken entity) {
-                        contract.toMarketId = entity.getMarket().getId();
-                        contract.toSubmarketId = Submarkets.SUBMARKET_STORAGE;
-                        showPanel(dialogue, contract);
-                    }
+                            @Override
+                            public void pickedEntity(SectorEntityToken entity) {
+                                contract.toMarketId = entity.getMarket().getId();
+                                contract.toSubmarketId = Submarkets.SUBMARKET_STORAGE;
+                                showPanel(dialogue, contract);
+                            }
 
-                    @Override
-                    public void cancelledEntityPicking() {
-                        showPanel(dialogue, contract);
-                    }
+                            @Override
+                            public void cancelledEntityPicking() {
+                                showPanel(dialogue, contract);
+                            }
 
-                    @Override
-                    public String getSelectedTextOverrideFor(SectorEntityToken entity) {
-                        MarketAPI m = entity.getMarket();
-                        return m.getName() + " (" + m.getFaction().getDisplayName() + ")";
-                    }
+                            @Override
+                            public String getSelectedTextOverrideFor(SectorEntityToken entity) {
+                                MarketAPI m = entity.getMarket();
+                                return m.getName() + " (" + m.getFaction().getDisplayName() + ")";
+                            }
 
-                    @Override
-                    public void createInfoText(TooltipMakerAPI info, SectorEntityToken entity) {
-                        float opad = 10f;
-                        MarketAPI m = entity.getMarket();
-                        info.addPara(m.getName() + " (" + m.getFaction().getDisplayName()
-                                + ", size " + m.getSize() + ")", opad);
+                            @Override
+                            public void createInfoText(TooltipMakerAPI info, SectorEntityToken entity) {
+                                float opad = 10f;
+                                MarketAPI m = entity.getMarket();
+                                info.addPara(m.getName() + " (" + m.getFaction().getDisplayName()
+                                        + ", size " + m.getSize() + ")", opad);
 
-                        info.addPara("Distance cost multiplicator: %s",
-                                opad,
-                                Misc.getHighlightColor(),
-                                Misc.getRoundedValueMaxOneAfterDecimal(ShippingCostCalculator.getLYMult(contract.getFromMarket().getPrimaryEntity(), entity)) + "x");
-                    }
+                                info.addPara("Distance cost multiplicator: %s",
+                                        opad,
+                                        Misc.getHighlightColor(),
+                                        Misc.getRoundedValueMaxOneAfterDecimal(ShippingCostCalculator.getLYMult(contract.getFromMarket().getPrimaryEntity(), entity)) + "x");
+                            }
 
-                    @Override
-                    public boolean canConfirmSelection(SectorEntityToken entity) {
-                        return entity != null && entity.getMarket() != null;
-                    }
+                            @Override
+                            public boolean canConfirmSelection(SectorEntityToken entity) {
+                                return entity != null && entity.getMarket() != null;
+                            }
 
-                    @Override
-                    public float getFuelColorAlphaMult() {
-                        return 0;
-                    }
+                            @Override
+                            public float getFuelColorAlphaMult() {
+                                return 0;
+                            }
 
-                    @Override
-                    public float getFuelRangeMult() {
-                        return 0;
-                    }
+                            @Override
+                            public float getFuelRangeMult() {
+                                return 0;
+                            }
 
-                    @Override
-                    public List<IntelInfoPlugin.ArrowData> getArrows() {
-                        return null;
-                    }
+                            @Override
+                            public List<IntelInfoPlugin.ArrowData> getArrows() {
+                                return null;
+                            }
 
-                    @Override
-                    public List<MarkerData> getMarkers() {
-                        return null;
-                    }
+                            @Override
+                            public List<MarkerData> getMarkers() {
+                                return null;
+                            }
 
-                    @Override
-                    public Set<StarSystemAPI> getStarSystemsToShow() {
-                        return null;
-                    }
-                });
+                            @Override
+                            public Set<StarSystemAPI> getStarSystemsToShow() {
+                                return null;
+                            }
+                        });
             }
         };
 
@@ -535,7 +535,7 @@ public class ContractSidePanelCreator {
                 brightColor = s.getFaction().getBrightUIColor();
 
                 SpriteAPI sprite = Global.getSettings().getSprite(s.getSpec().getIcon());
-                if(sprite == null) sprite = Global.getSettings().getSprite(toMarket.getFaction().getLogo());
+                if (sprite == null) sprite = Global.getSettings().getSprite(toMarket.getFaction().getLogo());
 
                 float aspectRatio = sprite.getHeight() / sprite.getWidth();
                 float baseWidth = SELECT_BUTTON_WIDTH * 0.7f;
@@ -656,7 +656,8 @@ public class ContractSidePanelCreator {
                         if (!textField.getText().isEmpty() && !textField.getText().equals(contract.name))
                             contract.name = textField.getText();
 
-                        if (contract.scope == ShippingContract.Scope.ALL_CARGO) contract.scope = ShippingContract.Scope.EVERYTHING;
+                        if (contract.scope == ShippingContract.Scope.ALL_CARGO)
+                            contract.scope = ShippingContract.Scope.EVERYTHING;
                         else contract.scope = ShippingContract.Scope.ALL_CARGO;
 
                         showPanel(dialogue, contract);
@@ -688,7 +689,8 @@ public class ContractSidePanelCreator {
                         if (!textField.getText().isEmpty() && !textField.getText().equals(contract.name))
                             contract.name = textField.getText();
 
-                        if (contract.scope == ShippingContract.Scope.ALL_SHIPS) contract.scope = ShippingContract.Scope.EVERYTHING;
+                        if (contract.scope == ShippingContract.Scope.ALL_SHIPS)
+                            contract.scope = ShippingContract.Scope.EVERYTHING;
                         else contract.scope = ShippingContract.Scope.ALL_SHIPS;
 
                         showPanel(dialogue, contract);
@@ -720,17 +722,17 @@ public class ContractSidePanelCreator {
                         if (!textField.getText().isEmpty() && !textField.getText().equals(contract.name))
                             contract.name = textField.getText();
 
-                        if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO){
+                        if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO) {
                             contract.scope = ShippingContract.Scope.EVERYTHING;
                             contract.clearTargetCargo();
                             showPanel(dialogue, contract);
 
-                        } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING){
+                        } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING) {
                             contract.scope = ShippingContract.Scope.SPECIFIC_SHIPS;
                             contract.clearTargetCargo();
                             showPanel(dialogue, contract);
 
-                        } else if (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS){
+                        } else if (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS) {
                             contract.scope = ShippingContract.Scope.SPECIFIC_EVERYTHING;
 
                             VisualCustomPanel.clearPanel();
@@ -769,17 +771,17 @@ public class ContractSidePanelCreator {
                         if (!textField.getText().isEmpty() && !textField.getText().equals(contract.name))
                             contract.name = textField.getText();
 
-                        if (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS){
+                        if (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS) {
                             contract.scope = ShippingContract.Scope.EVERYTHING;
                             contract.clearTargetShips();
                             showPanel(dialogue, contract);
 
-                        } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING){
+                        } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING) {
                             contract.scope = ShippingContract.Scope.SPECIFIC_CARGO;
                             contract.clearTargetShips();
                             showPanel(dialogue, contract);
 
-                        } else if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO){
+                        } else if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO) {
                             contract.scope = ShippingContract.Scope.SPECIFIC_EVERYTHING;
 
                             VisualCustomPanel.clearPanel();
@@ -824,7 +826,8 @@ public class ContractSidePanelCreator {
                 clearBackup();
                 if (original != null) ShippingContractMemory.addOrReplaceContract(original);
 
-                if(!ShippingContractMemory.getContractList().isEmpty()) new ContractListSidePanelCreator().showPanel(dialogue);
+                if (!ShippingContractMemory.getContractList().isEmpty())
+                    new ContractListSidePanelCreator().showPanel(dialogue);
                 else VisualCustomPanel.clearPanel();
 
                 CourierPortDialoguePlugin.reload();
@@ -852,7 +855,8 @@ public class ContractSidePanelCreator {
 
                 clearBackup();
                 ShippingContractMemory.addOrReplaceContract(contract);
-                if(!ShippingContractMemory.getContractList().isEmpty()) new ContractListSidePanelCreator().showPanel(dialogue);
+                if (!ShippingContractMemory.getContractList().isEmpty())
+                    new ContractListSidePanelCreator().showPanel(dialogue);
                 else VisualCustomPanel.clearPanel();
 
                 CourierPortDialoguePlugin.reload();
@@ -893,7 +897,7 @@ public class ContractSidePanelCreator {
                 toMarket.getName(),
                 toSubmarket != null ? toSubmarket.getNameOneLine() : "");
 
-        if(fromMarket != null && toMarket != null && fromSubmarket != null && toSubmarket != null){
+        if (fromMarket != null && toMarket != null && fromSubmarket != null && toSubmarket != null) {
             boolean ships = contract.scope != ShippingContract.Scope.ALL_CARGO && contract.scope != ShippingContract.Scope.SPECIFIC_CARGO;
             boolean cargo = contract.scope != ShippingContract.Scope.ALL_SHIPS && contract.scope != ShippingContract.Scope.SPECIFIC_SHIPS;
             String and = ships && cargo ? " and %s" : "";
@@ -915,7 +919,7 @@ public class ContractSidePanelCreator {
             panelTooltip.beginGridFlipped(300, 1, 100f, 3f);
             panelTooltip.addToGrid(0, 0, "Base fee", Misc.getDGSCredits(CONTRACT_BASE_FEE));
 
-            if(shipCost > 10 && (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING))
+            if (shipCost > 10 && (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING))
                 panelTooltip.addToGrid(0,
                         1,
                         "Cargo transport",
@@ -925,7 +929,7 @@ public class ContractSidePanelCreator {
                     "Cargo cost per 1000 items",
                     Misc.getDGSCredits(ShippingCostCalculator.getCostForCargoSpace(1000, lyMultVal)) + alphaCoreStr);
 
-            if(shipCost > 10 && (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING ))
+            if (shipCost > 10 && (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING))
                 panelTooltip.addToGrid(0,
                         2,
                         "Ships transport",
@@ -938,15 +942,15 @@ public class ContractSidePanelCreator {
             String betaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.BETA_CORE) ? " [-" + StringHelper.getAbsPercentString(ShippingCostCalculator.DISTANCE_MULT_REDUCTION, true) + ", Beta Core]" : "";
             panelTooltip.addToGrid(0, 3, "Distance multiplier", "x" + lyMultStr + betaCoreStr);
 
-            if(fromSubmarket != null && fromSubmarket.getSpecId().equals(Submarkets.LOCAL_RESOURCES)){
+            if (fromSubmarket != null && fromSubmarket.getSpecId().equals(Submarkets.LOCAL_RESOURCES)) {
                 float stockpileCost = 0f;
 
-                if(contract.scope == ShippingContract.Scope.SPECIFIC_CARGO){
-                    for (CargoStackAPI stack : contract.targetCargo.getStacksCopy()){
+                if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO) {
+                    for (CargoStackAPI stack : contract.targetCargo.getStacksCopy()) {
                         stockpileCost += stack.getBaseValuePerUnit() * stack.getSize();
                     }
                 } else {
-                    for (CargoStackAPI stack : fromSubmarket.getCargo().getStacksCopy()){
+                    for (CargoStackAPI stack : fromSubmarket.getCargo().getStacksCopy()) {
                         stockpileCost += stack.getBaseValuePerUnit() * stack.getSize();
                     }
                 }
@@ -955,7 +959,8 @@ public class ContractSidePanelCreator {
                 total += stockpileCost;
             }
 
-            if(contract.scope.toString().toLowerCase().contains("specific")) panelTooltip.addToGrid(0, 5, "Total", Misc.getDGSCredits(total));
+            if (contract.scope.toString().toLowerCase().contains("specific"))
+                panelTooltip.addToGrid(0, 5, "Total", Misc.getDGSCredits(total));
 
             panelTooltip.addGrid(pad);
         } else panelTooltip.addPara("Cost forecast available after planet selection.", pad);

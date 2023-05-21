@@ -9,8 +9,8 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
-import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class EscortAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
         checkForJumpActions();
     }
 
-    private void engageFleetsPlayerIsTargeting(){
+    private void engageFleetsPlayerIsTargeting() {
         if (Behaviour.isBehaviourOverridden(fleet)) return;
 
         FleetAssignment currentAssignment = fleet.getCurrentAssignment().getAssignment();
@@ -60,7 +60,7 @@ public class EscortAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
             CampaignFleetAPI player = Global.getSector().getPlayerFleet();
 
             SectorEntityToken token = player.getInteractionTarget();
-            if (token instanceof CampaignFleetAPI && ((CampaignFleetAPI) token).isHostileTo(player)){
+            if (token instanceof CampaignFleetAPI && ((CampaignFleetAPI) token).isHostileTo(player)) {
                 enemyFleet = (CampaignFleetAPI) token;
             }
 

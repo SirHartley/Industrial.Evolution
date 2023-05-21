@@ -11,7 +11,7 @@ public class MobileColonyCampaignPlugin extends BaseCampaignPlugin {
 
     @Override
     public PluginPick<InteractionDialogPlugin> pickInteractionDialogPlugin(SectorEntityToken interactionTarget) {
-        if(interactionTarget.getMemoryWithoutUpdate().contains(MobileColonyFactory.MOBILE_COLONY_IDENTIFIER)) {
+        if (interactionTarget.getMemoryWithoutUpdate().contains(MobileColonyFactory.MOBILE_COLONY_IDENTIFIER)) {
             return new PluginPick<InteractionDialogPlugin>(new MobileColonyInteractionDialoguePlugin(), PickPriority.MOD_SPECIFIC);
         }
 

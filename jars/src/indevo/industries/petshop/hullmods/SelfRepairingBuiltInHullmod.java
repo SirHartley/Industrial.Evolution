@@ -11,7 +11,7 @@ public class SelfRepairingBuiltInHullmod extends BaseHullMod {
 
         //build yourself in if s-mod dialogue broke it again
         String hullmodID = spec.getId();
-        if(ship.getVariant().getNonBuiltInHullmods().contains(hullmodID)) ship.getVariant().removeMod(hullmodID);
-        if(!ship.getVariant().getHullMods().contains(hullmodID)) ship.getVariant().addPermaMod(hullmodID, false);
+        if (ship.getVariant().getNonBuiltInHullmods().contains(hullmodID)) ship.getVariant().removeMod(hullmodID);
+        if (!ship.getVariant().getHullMods().contains(hullmodID)) ship.getVariant().addPermaMod(hullmodID, false);
     }
 }

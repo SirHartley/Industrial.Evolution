@@ -2,7 +2,6 @@ package indevo.industries.petshop.item;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.Script;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.CargoTransferHandlerAPI;
 import com.fs.starfarer.api.campaign.CoreUITabId;
@@ -93,7 +92,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
     public String getName() {
         if (pet != null) {
             //return ship.getHullName() + " Blueprint";
-            return pet.species + " cryochamber";
+            return pet.species + " Cryochamber";
         }
         return super.getName();
     }
@@ -131,7 +130,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         return isFleetCargo();
     }
 
-    public boolean isFleetCargo(){
+    public boolean isFleetCargo() {
         boolean isOpen = CoreUITabId.CARGO.equals(Global.getSector().getCampaignUI().getCurrentCoreTab());
         boolean noInteraction = Global.getSector().getCampaignUI().getCurrentInteractionDialog() == null;
 
@@ -171,7 +170,8 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
             @Override
             public void advance(float amount) {
-                if (!done) Global.getSector().getCampaignUI().showInteractionDialog(new PetPickerInteractionDialoguePlugin(pet), null);
+                if (!done)
+                    Global.getSector().getCampaignUI().showInteractionDialog(new PetPickerInteractionDialoguePlugin(pet), null);
                 done = true;
             }
         });

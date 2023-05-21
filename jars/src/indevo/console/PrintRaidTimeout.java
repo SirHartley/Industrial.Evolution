@@ -1,8 +1,8 @@
 package indevo.console;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
+import indevo.utils.helper.IndustryHelper;
 import org.lazywizard.console.BaseCommand;
 import org.lazywizard.console.CommonStrings;
 import org.lazywizard.console.Console;

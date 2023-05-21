@@ -3,13 +3,13 @@ package indevo.industries.courierport.listeners;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingCostCalculator;
 import indevo.industries.courierport.dialogue.ContractSidePanelCreator;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 
-public class SubmarketCargoPicker  {
+public class SubmarketCargoPicker {
     ShippingContract contract;
     SubmarketAPI from;
     SubmarketAPI to;
@@ -29,11 +29,11 @@ public class SubmarketCargoPicker  {
                 contract.clearTargetCargo();
                 contract.addToCargo(cargo);
 
-                if(cargo.isEmpty()){
-                    if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO){
+                if (cargo.isEmpty()) {
+                    if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO) {
                         contract.scope = ShippingContract.Scope.EVERYTHING;
 
-                    } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING){
+                    } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING) {
                         contract.scope = ShippingContract.Scope.SPECIFIC_SHIPS;
                     }
                 }
@@ -45,10 +45,10 @@ public class SubmarketCargoPicker  {
             public void cancelledCargoSelection() {
                 contract.clearTargetCargo();
 
-                if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO){
+                if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO) {
                     contract.scope = ShippingContract.Scope.EVERYTHING;
 
-                } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING){
+                } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING) {
                     contract.scope = ShippingContract.Scope.SPECIFIC_SHIPS;
                 }
 
@@ -87,7 +87,7 @@ public class SubmarketCargoPicker  {
         });
     }
 
-    private CargoAPI getValidCargoCopy(){
+    private CargoAPI getValidCargoCopy() {
         final CargoAPI copy = Global.getFactory().createCargo(false);
 
         for (CargoStackAPI stack : from.getCargo().createCopy().getStacksCopy()) {

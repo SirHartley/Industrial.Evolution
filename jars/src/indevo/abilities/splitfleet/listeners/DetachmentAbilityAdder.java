@@ -3,8 +3,8 @@ package indevo.abilities.splitfleet.listeners;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.tutorial.CampaignTutorialScript;
+import indevo.ids.Ids;
 import indevo.utils.timers.NewDayListener;
 
 public class DetachmentAbilityAdder implements NewDayListener {

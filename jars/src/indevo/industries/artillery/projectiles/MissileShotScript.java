@@ -70,7 +70,7 @@ public class MissileShotScript implements EveryFrameScript {
         for (int i = 0; i < missileAmt; i++) {
             boolean firstHalf = i <= (missileAmt / 2 - 1);
 
-            Vector2f fuzzedTarget = MathUtils.getPointOnCircumference(anticipatedTargetLoc,  Math.min(Math.max(vel, MIN_FUZZ_DIST) * random.nextFloat() * FUZZ_FACTOR, MAX_FUZZ_DIST), MathUtils.getRandomNumberInRange(0, 360));
+            Vector2f fuzzedTarget = MathUtils.getPointOnCircumference(anticipatedTargetLoc, Math.min(Math.max(vel, MIN_FUZZ_DIST) * random.nextFloat() * FUZZ_FACTOR, MAX_FUZZ_DIST), MathUtils.getRandomNumberInRange(0, 360));
             //RenderTemporaryIndicator.spawn(origin.getContainingLocation(), fuzzedTarget, Color.RED);
 
             //need 3 points for curved trajectory = a circle section in practice

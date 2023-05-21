@@ -2,15 +2,15 @@ package indevo.exploration.salvage.specials;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
-import indevo.ids.ItemIds;
-import indevo.items.ForgeTemplateItemPlugin;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import indevo.industries.derelicts.industry.HullForge;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
+import indevo.ids.ItemIds;
+import indevo.industries.derelicts.industry.HullForge;
+import indevo.items.ForgeTemplateItemPlugin;
 import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 

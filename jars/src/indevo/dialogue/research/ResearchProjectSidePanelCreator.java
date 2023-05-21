@@ -1,16 +1,16 @@
 package indevo.dialogue.research;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
+import com.fs.starfarer.api.ui.*;
+import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.FramedCustomPanelPlugin;
 import indevo.dialogue.sidepanel.InteractionDialogCustomPanelPlugin;
 import indevo.dialogue.sidepanel.NoFrameCustomPanelPlugin;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
-import com.fs.starfarer.api.ui.*;
-import com.fs.starfarer.api.util.Misc;
+import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 
 import java.awt.*;

@@ -1,20 +1,20 @@
 package indevo.items.consumables.itemPlugins;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.CargoTransferHandlerAPI;
 import com.fs.starfarer.api.campaign.CoreUITabId;
 import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
-import indevo.items.consumables.itemAbilities.SingleUseItemAbility;
 import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
-import indevo.utils.timers.IntervalTracker;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.items.consumables.itemAbilities.SingleUseItemAbility;
+import indevo.utils.helper.StringHelper;
+import indevo.utils.timers.IntervalTracker;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -46,7 +46,7 @@ public class BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
         mask = Global.getSettings().getSprite("IndEvo", "frameBG");
     }
 
-    public boolean isInPlayerCargo(){
+    public boolean isInPlayerCargo() {
         return Global.getSector().getCampaignUI().getCurrentCoreTab() == CoreUITabId.CARGO && Global.getSector().getCampaignUI().getCurrentInteractionDialog() == null;
     }
 
@@ -57,12 +57,12 @@ public class BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
         return Global.getSector().getPlayerFleet().getAbility(spec.getParams());
     }
 
-    public void addAbilityToFleet(){
+    public void addAbilityToFleet() {
         String params = spec.getParams();
         AbilitySpecAPI abilitySpecAPI = Global.getSettings().getAbilitySpec(params);
         CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
 
-        if(abilitySpecAPI != null && !playerFleet.hasAbility(params)){
+        if (abilitySpecAPI != null && !playerFleet.hasAbility(params)) {
             playerFleet.addAbility(params);
             Global.getSector().getCharacterData().addAbility(params);
         }
@@ -70,7 +70,7 @@ public class BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
 
     @Override
     public void render(float x, float y, float w, float h, float alphaMult, float glowMult, SpecialItemRendererAPI renderer) {
-        if(!isActive() && !isCooldown()) return;
+        if (!isActive() && !isCooldown()) return;
 
         //when active, do the alcohol thing
         //when on cooldown, do a pulsing red border - border breaks everything, revert to default spinny boi
@@ -84,7 +84,7 @@ public class BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
 
         if (sprite != null && mask != null) {
 
-            sprite.setSize(90f,90f);
+            sprite.setSize(90f, 90f);
 
             //sprite render
             sprite.setColor(baseColor);
@@ -112,13 +112,15 @@ public class BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
         }
     }
 
-    public boolean isAbilityAvailable(){
+    public boolean isAbilityAvailable() {
         return getAbilityPlugin().isUsable();
     }
-    public boolean isCooldown(){
+
+    public boolean isCooldown() {
         return getAbilityPlugin().isOnCooldown();
     }
-    public boolean isActive(){
+
+    public boolean isActive() {
         return getAbilityPlugin().isActiveOrInProgress();
     }
 
@@ -151,19 +153,19 @@ public class BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
         float small = 5f;
         Color h = Misc.getHighlightColor();
         Color r = Misc.getNegativeHighlightColor();
-        Color b =  Misc.getPositiveHighlightColor();
+        Color b = Misc.getPositiveHighlightColor();
 
         tooltip.addSectionHeading("Item Effect", Alignment.MID, opad);
         p.addTooltip(tooltip, true);
 
         addCostLabel(tooltip, opad, transferHandler, stackSource);
 
-        if(hasRightClickAction()) tooltip.addPara("Right-click to use", b, opad);
+        if (hasRightClickAction()) tooltip.addPara("Right-click to use", b, opad);
         else if (isActive()) tooltip.addPara("Currently active", h, opad);
         else if (isCooldown()) {
             int cd = (int) Math.ceil(getAbilityPlugin().getCooldownLeft());
             tooltip.addPara("On cooldown for " + cd + " " + StringHelper.getDayOrDays(cd), r, opad);
-        } else if (!hasRightClickAction()){
+        } else if (!hasRightClickAction()) {
             tooltip.addPara("Can not activate in current situation", h, opad);
         }
     }

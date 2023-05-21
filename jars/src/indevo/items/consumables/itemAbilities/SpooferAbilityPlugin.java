@@ -7,12 +7,12 @@ import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.PlayerMarketTransaction;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.ColonyInteractionListener;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import indevo.items.consumables.itemPlugins.SpooferConsumableItemPlugin;
 import com.fs.starfarer.api.combat.ViewportAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.items.consumables.itemPlugins.SpooferConsumableItemPlugin;
 import org.lazywizard.lazylib.opengl.DrawUtils;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
@@ -45,12 +45,12 @@ public class SpooferAbilityPlugin extends BaseConsumableAbilityPlugin implements
 
     @Override
     protected void applyEffect(float amount, float level) {
-        if (!entity.isTransponderOn()){
+        if (!entity.isTransponderOn()) {
             deactivate();
             return;
         }
 
-        for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, entity.getRadius() + DISABLE_RANGE)){
+        for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, entity.getRadius() + DISABLE_RANGE)) {
             boolean valid = !f.isStationMode() && f.getAI() != null && !f.getFaction().getId().equals(entity.getFaction().getId());
             if (valid) {
                 deactivate();
@@ -90,13 +90,13 @@ public class SpooferAbilityPlugin extends BaseConsumableAbilityPlugin implements
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         super.render(layer, viewport);
 
-        if(Global.getSector().getCampaignUI().isShowingDialog() || true) return;
+        if (Global.getSector().getCampaignUI().isShowingDialog() || true) return;
 
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glViewport(0,0, Display.getWidth(), Display.getHeight());
-        GL11.glOrtho(0.0, Display.getWidth() * 1f,0.0, Display.getHeight() * 1f,-1.0, 1.0);
+        GL11.glViewport(0, 0, Display.getWidth(), Display.getHeight());
+        GL11.glOrtho(0.0, Display.getWidth() * 1f, 0.0, Display.getHeight() * 1f, -1.0, 1.0);
         GL11.glTranslatef(0.01f, 0.01f, 0f);
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
         GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
@@ -118,7 +118,7 @@ public class SpooferAbilityPlugin extends BaseConsumableAbilityPlugin implements
         Color highlight = Misc.getHighlightColor();
         float opad = 10f;
 
-        if(!forItem) {
+        if (!forItem) {
             tooltip.addTitle(spec.getName());
             int amt = getCargoItemAmt();
             tooltip.addPara("Remaining in inventory: %s", opad, amt > 0 ? highlight : Misc.getNegativeHighlightColor(), amt + "");
@@ -134,7 +134,7 @@ public class SpooferAbilityPlugin extends BaseConsumableAbilityPlugin implements
 
         tooltip.addPara("Currently set to: %s", opad, faction.getColor(),
                 Misc.ucFirst(faction.getDisplayName()));
-        tooltip.addPara("[Use arrow keys to change the faction]",Misc.getGrayColor(), 3f);
+        tooltip.addPara("[Use arrow keys to change the faction]", Misc.getGrayColor(), 3f);
     }
 
     @Override

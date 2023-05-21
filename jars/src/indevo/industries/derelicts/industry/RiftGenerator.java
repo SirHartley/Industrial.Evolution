@@ -1,8 +1,6 @@
 package indevo.industries.derelicts.industry;
 
 import com.fs.starfarer.api.Global;
-import indevo.ids.Ids;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
@@ -11,11 +9,13 @@ import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
-import indevo.utils.ModPlugin;
-import indevo.industries.derelicts.scripts.PlanetMovingScript;
-import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.industries.derelicts.scripts.PlanetMovingScript;
+import indevo.utils.ModPlugin;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 

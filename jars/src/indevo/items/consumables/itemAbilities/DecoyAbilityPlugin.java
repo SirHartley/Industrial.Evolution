@@ -2,9 +2,9 @@ package indevo.items.consumables.itemAbilities;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
-import indevo.items.consumables.entityAbilities.DecoyMineAbility;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.items.consumables.entityAbilities.DecoyMineAbility;
 
 import java.awt.*;
 
@@ -37,7 +37,7 @@ public class DecoyAbilityPlugin extends BaseConsumableAbilityPlugin {
         Color highlight = Misc.getHighlightColor();
         float opad = 10f;
 
-        if(!forItem) {
+        if (!forItem) {
             tooltip.addTitle(spec.getName());
             int amt = getCargoItemAmt();
             tooltip.addPara("Remaining in inventory: %s", opad, amt > 0 ? highlight : Misc.getNegativeHighlightColor(), amt + "");

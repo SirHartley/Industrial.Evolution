@@ -4,8 +4,6 @@ package indevo.exploration.salvage.specials;
 //pre-seed the options, calculate hull size according to combined DP (if it exceeds the DP of the next highest ship, you get it)
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -18,9 +16,11 @@ import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
+import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
 import com.fs.starfarer.api.util.ListMap;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.utils.helper.IndustryHelper;
 import indevo.utils.helper.Settings;
 
 import java.util.HashMap;

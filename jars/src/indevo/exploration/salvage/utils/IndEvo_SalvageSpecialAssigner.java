@@ -1,10 +1,6 @@
 package indevo.exploration.salvage.utils;
 
 import com.fs.starfarer.api.Global;
-import indevo.exploration.salvage.specials.*;
-import indevo.ids.Ids;
-import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
@@ -14,14 +10,22 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.impl.campaign.DerelictShipEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.econ.impl.TechMining;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
-import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.ids.Entities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.procgen.DropGroupRow;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.SalvageSpecialAssigner;
-import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.*;
+import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySpecial;
+import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.SleeperPodsSpecial;
 import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.exploration.salvage.specials.*;
+import indevo.ids.Ids;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
+import indevo.utils.helper.IndustryHelper;
 import org.apache.log4j.Logger;
 
 import java.util.*;

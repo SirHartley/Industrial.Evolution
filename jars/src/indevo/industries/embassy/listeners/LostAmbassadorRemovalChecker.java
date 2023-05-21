@@ -5,10 +5,10 @@ import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.embassy.industry.Embassy;
 import indevo.utils.timers.NewDayListener;
-import com.fs.starfarer.api.util.Misc;
 
 public class LostAmbassadorRemovalChecker implements NewDayListener {
 

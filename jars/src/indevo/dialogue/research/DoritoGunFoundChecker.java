@@ -44,7 +44,7 @@ public class DoritoGunFoundChecker implements ShowLootListener, EconomyTickListe
 
     @Override
     public void reportEconomyMonthEnd() {
-        if(isGunFound()) return;
+        if (isGunFound()) return;
 
         for (CargoAPI.CargoItemQuantity<String> qt : Global.getSector().getPlayerFleet().getCargo().getWeapons()) {
             if (Global.getSettings().getWeaponSpec(qt.getItem()).getTags().contains(Tags.OMEGA)) {
@@ -53,10 +53,10 @@ public class DoritoGunFoundChecker implements ShowLootListener, EconomyTickListe
             }
         }
 
-        for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()){
+        for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
             ShipVariantAPI var = m.getVariant();
-            for(String s : var.getFittedWeaponSlots()){
-                if (var.getWeaponSpec(s).getTags().contains(Tags.OMEGA)){
+            for (String s : var.getFittedWeaponSlots()) {
+                if (var.getWeaponSpec(s).getTags().contains(Tags.OMEGA)) {
                     setGunFound();
                     break;
                 }

@@ -1,10 +1,6 @@
 package indevo.industries.embassy.industry;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import indevo.items.specialitemdata.AmbassadorItemData;
-import indevo.utils.helper.IndustryHelper;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.RepLevel;
 import com.fs.starfarer.api.campaign.SpecialItemData;
@@ -12,17 +8,21 @@ import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
-import indevo.items.installable.AmbassadorInstallableItemPlugin;
+import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import indevo.industries.embassy.AmbassadorItemHelper;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import indevo.industries.embassy.rules.IndEvo_ambassadorRemoval;
-import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.embassy.AmbassadorItemHelper;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
+import indevo.industries.embassy.rules.IndEvo_ambassadorRemoval;
+import indevo.items.installable.AmbassadorInstallableItemPlugin;
+import indevo.items.specialitemdata.AmbassadorItemData;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
+import indevo.utils.timers.NewDayListener;
 
 import java.awt.*;
 import java.util.ArrayList;

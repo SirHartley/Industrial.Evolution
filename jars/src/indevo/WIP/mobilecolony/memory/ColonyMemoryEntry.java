@@ -16,7 +16,7 @@ public class ColonyMemoryEntry {
         this.fleet = fleet;
     }
 
-    public void joinFleetAndMarket(){
+    public void joinFleetAndMarket() {
         market.getConnectedEntities().add(fleet);
         fleet.setMarket(market);
         fleet.getMemoryWithoutUpdate().set(MemFlags.STATION_MARKET, market);

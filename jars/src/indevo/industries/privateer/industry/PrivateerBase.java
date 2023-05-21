@@ -1,30 +1,30 @@
 package indevo.industries.privateer.industry;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.econ.*;
-import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import indevo.ids.Ids;
-import indevo.industries.EngineeringHub;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
+import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
+import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.fleets.RouteLocationCalculator;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import indevo.industries.privateer.intel.PrivateerBaseRaidIntel;
 import com.fs.starfarer.api.impl.campaign.intel.raid.*;
 import com.fs.starfarer.api.loading.FighterWingSpecAPI;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
-import indevo.utils.helper.StringHelper;
-import indevo.utils.scripts.IndustryAddOrRemovePlugin;
-import indevo.utils.timers.RaidTimeout;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.ids.Ids;
+import indevo.industries.EngineeringHub;
+import indevo.industries.privateer.intel.PrivateerBaseRaidIntel;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
+import indevo.utils.scripts.IndustryAddOrRemovePlugin;
+import indevo.utils.timers.RaidTimeout;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -106,7 +106,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
     }
 
     public void reportEconomyTick(int iterIndex) {
-        if(debug) {
+        if (debug) {
             startRaid(getRaidTarget(), getBaseRaidFP());
             debugOutputs();
         }
@@ -145,10 +145,11 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         return ((((market.getSize() * 50) * market.getStats().getDynamic().getStat(Stats.COMBAT_FLEET_SIZE_MULT).computeMultMod()) * (0.75f + (float) Math.random() * 0.5f)) * aiCoreFPBonus) * aiCoreFPBonus * alcoholismBonus;
     }
 
-    private float getAlcoholBonus(){
+    private float getAlcoholBonus() {
         float alcoholismBonus = 0f;
-        for (CommodityOnMarketAPI commodity : market.getAllCommodities()){
-            if (commodity.getAvailable() > 0 && commodity.getId().contains("alcoholism")) alcoholismBonus += 0.03f * Math.min(commodity.getAvailable(), commodity.getMaxSupply());
+        for (CommodityOnMarketAPI commodity : market.getAllCommodities()) {
+            if (commodity.getAvailable() > 0 && commodity.getId().contains("alcoholism"))
+                alcoholismBonus += 0.03f * Math.min(commodity.getAvailable(), commodity.getMaxSupply());
         }
 
         return alcoholismBonus;
@@ -258,7 +259,8 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         float chanceOfExtraDrop = 0.3f + (aiCoreId != null && aiCoreId.equals(Commodities.ALPHA_CORE) ? 0.1f : 0f);
 
         CargoAPI cargo = Misc.getStorageCargo(market);
-        if (cargo == null || Global.getSettings().getBoolean("IndEvo_PrivateerDeliverToGatheringPoint")) cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket("storage").getCargo();
+        if (cargo == null || Global.getSettings().getBoolean("IndEvo_PrivateerDeliverToGatheringPoint"))
+            cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket("storage").getCargo();
 
         Random random = new Random();
 
@@ -385,7 +387,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         }
     }
 
-    private int getBaseSupply(String id){
+    private int getBaseSupply(String id) {
         return supplyMemory.containsKey(id) ? supplyMemory.get(id) : 0;
     }
 
@@ -394,7 +396,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
             debugMessage("Setting Base Output for raided Market " + raidedMarket.getName());
 
             for (Map.Entry<String, Integer> raidSupply : getMarketProductionAmounts(raidedMarket).entrySet()) {
-                String id =raidSupply.getKey();
+                String id = raidSupply.getKey();
 
                 //ignore ship hulls
                 if (id.equals(Commodities.SHIPS)) {
@@ -688,8 +690,9 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
                     tooltip.addPara("There is currently %s. The next one can be attempted in about %s.", 10F, Misc.getHighlightColor(), new String[]{"no active raid", raidTimeoutMonths + " months"});
                 }
 
-                if (Global.getSettings().getModManager().isModEnabled("alcoholism")) tooltip.addPara("Raid strength increased by %s through the power of alcohol. Yo ho ho!", 10f,
-                        Misc.getPositiveHighlightColor(), StringHelper.getAbsPercentString(getAlcoholBonus(), false));
+                if (Global.getSettings().getModManager().isModEnabled("alcoholism"))
+                    tooltip.addPara("Raid strength increased by %s through the power of alcohol. Yo ho ho!", 10f,
+                            Misc.getPositiveHighlightColor(), StringHelper.getAbsPercentString(getAlcoholBonus(), false));
             }
         }
     }

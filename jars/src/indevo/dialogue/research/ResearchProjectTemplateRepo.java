@@ -6,18 +6,60 @@ import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Drops;
-import indevo.ids.Ids;
-import indevo.ids.ItemIds;
 import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.utils.ModPlugin;
 
 import java.util.*;
 
 public class ResearchProjectTemplateRepo {
 
+    //fairy
+
     public static Map<String, ResearchProject> RESEARCH_PROJECTS = new HashMap<String, ResearchProject>() {{
+        put(Ids.PROJ_NAVI, new ResearchProject(Ids.PROJ_NAVI,
+                "Project Navi", 200, false) {
+
+            @Override
+            public boolean display() {
+                return true;
+            }
+
+            @Override
+            public CargoAPI getRewards() {
+                CargoAPI c = Global.getFactory().createCargo(true);
+                c.addSpecial(new SpecialItemData(ItemIds.PET_CHAMBER, "fairy"), 1);
+
+                return c;
+            }
+
+            @Override
+            public void addTooltipOutputOnCompletion(TooltipMakerAPI tooltip) {
+                tooltip.addPara(Misc.ucFirst("The " + PetDataRepo.get("fairy").species) + " will now be available for purchase at the " + Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName(), 10f);
+            }
+
+            @Override
+            public List<RequiredItem> getRequiredItems() {
+                List<RequiredItem> list = new ArrayList<>();
+                list.add(new RequiredItem(ItemIds.RARE_PARTS, CargoAPI.CargoItemType.RESOURCES, 1f));
+                list.add(new RequiredItem(ItemIds.PARTS, CargoAPI.CargoItemType.RESOURCES, 0.1f));
+                list.add(new RequiredItem(Items.DRONE_REPLICATOR, CargoAPI.CargoItemType.SPECIAL, 200f));
+
+                return list;
+            }
+
+            @Override
+            public String getShortDesc() {
+                return "Hey! Hey! Hey! Captain! You want a fairy, right? Right? Hey!";
+            }
+        });
+
         put(Ids.PROJ_SNOWBLIND, new ResearchProject(Ids.PROJ_SNOWBLIND,
                 "Project Snowblind", 4, false) {
 
@@ -204,17 +246,17 @@ public class ResearchProjectTemplateRepo {
 
                 float max = 0f;
                 CargoAPI extra = null;
-                for (Random r : randomList){
+                for (Random r : randomList) {
                     CargoAPI cargo = SalvageEntity.generateSalvage(r, 1f, 1f, 1f, 1f, null, dropRandom);
 
                     float val = 0f;
-                    for (CargoStackAPI stack : cargo.getStacksCopy()){
+                    for (CargoStackAPI stack : cargo.getStacksCopy()) {
                         val += stack.getBaseValuePerUnit() * stack.getSize();
                     }
 
                     ModPlugin.log("drop value " + val);
 
-                    if(val > max) {
+                    if (val > max) {
                         extra = cargo;
                         max = val;
                     }
@@ -285,7 +327,7 @@ public class ResearchProjectTemplateRepo {
         if (mem.contains(key)) return (List<Random>) mem.get(key);
         else {
             List<Random> l = new ArrayList<>();
-            for(int i = 0; i < 5; i++){
+            for (int i = 0; i < 5; i++) {
                 Random r = new Random();
                 l.add(r);
             }
@@ -298,15 +340,17 @@ public class ResearchProjectTemplateRepo {
     public static int getNumProjectsPlayerCanContribute() {
         int i = 0;
         CargoAPI playerCargo = Global.getSector().getPlayerFleet().getCargo();
-        OUTER: for (Map.Entry<String, ResearchProject> proj : RESEARCH_PROJECTS.entrySet()) {
+        OUTER:
+        for (Map.Entry<String, ResearchProject> proj : RESEARCH_PROJECTS.entrySet()) {
             if (proj.getValue().display() && !proj.getValue().getProgress().redeemed) {
-                for (RequiredItem item : proj.getValue().getRequiredItems()){
-                    if(playerCargo.getQuantity(item.type, item.id) > 0) {
+                for (RequiredItem item : proj.getValue().getRequiredItems()) {
+                    if (playerCargo.getQuantity(item.type, item.id) > 0) {
                         i++;
                         continue OUTER;
                     }
                 }
-            };
+            }
+            ;
         }
 
         return i;

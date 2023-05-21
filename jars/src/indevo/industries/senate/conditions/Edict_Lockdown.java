@@ -1,17 +1,17 @@
 package indevo.industries.senate.conditions;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
-import indevo.industries.senate.industry.Senate;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.senate.industry.Senate;
+import indevo.utils.helper.IndustryHelper;
 
 import java.util.ArrayList;
 

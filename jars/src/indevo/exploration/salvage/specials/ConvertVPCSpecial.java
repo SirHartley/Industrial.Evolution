@@ -1,26 +1,26 @@
 package indevo.exploration.salvage.specials;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
-import indevo.ids.Ids;
-import indevo.ids.ItemIds;
-import indevo.utils.helper.IndustryHelper;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
+import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 
 import java.util.*;
 
-import static indevo.industries.assembler.industry.VariableAssembler.DUAL_OUTPUT_REDUCTION_MULT;
 import static indevo.ids.ItemIds.NO_ENTRY;
+import static indevo.industries.assembler.industry.VariableAssembler.DUAL_OUTPUT_REDUCTION_MULT;
 
 public class ConvertVPCSpecial extends BaseSalvageSpecial {
     //convert a VPC into ressources

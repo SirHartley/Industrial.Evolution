@@ -9,16 +9,16 @@ package indevo.industries.senate.conditions;
 */
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
-import indevo.industries.senate.industry.Senate;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.senate.industry.Senate;
+import indevo.utils.helper.IndustryHelper;
 
 import java.util.ArrayList;
 import java.util.Iterator;

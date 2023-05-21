@@ -104,7 +104,7 @@ public class Settings {
     public static final int MONTHLY_AI_STORAGE_COST = LunaSettings.getInt("IndEvo", "IndEvo_monthlyAIStorageCost");
     public static final boolean VARIND_DELIVER_TO_PRODUCTION_POINT = LunaSettings.getBoolean("IndEvo", "IndEvo_VarInd_deliverToProductionPoint");
 
-    public static boolean getBoolean(String s){
+    public static boolean getBoolean(String s) {
         return true;
     }
 }

@@ -433,7 +433,8 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
 
         public void init() {
             MemoryAPI mem = entity.getContainingLocation().getMemoryWithoutUpdate();
-            if (!mem.contains(LOCATION_DISABLED_AREA_MEMORY)) mem.set(LOCATION_DISABLED_AREA_MEMORY, new ArrayList<>(Collections.singletonList(this)));
+            if (!mem.contains(LOCATION_DISABLED_AREA_MEMORY))
+                mem.set(LOCATION_DISABLED_AREA_MEMORY, new ArrayList<>(Collections.singletonList(this)));
             else ((List<DisabledArea>) mem.get(LOCATION_DISABLED_AREA_MEMORY)).add(this);
         }
 

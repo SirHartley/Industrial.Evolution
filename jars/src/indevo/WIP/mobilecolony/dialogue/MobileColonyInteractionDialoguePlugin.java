@@ -4,17 +4,8 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
-import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
-import com.fs.starfarer.api.ui.ValueDisplayMode;
-import com.fs.starfarer.api.util.Misc;
-import indevo.exploration.gacha.GachaStationDialoguePlugin;
-import indevo.ids.ItemIds;
 import org.lwjgl.input.Keyboard;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class MobileColonyInteractionDialoguePlugin implements InteractionDialogPlugin {
@@ -60,9 +51,10 @@ public class MobileColonyInteractionDialoguePlugin implements InteractionDialogP
     }
 
     public void displayDefaultOptions(boolean clearText) {
-        if(clearText) text.clear();
+        if (clearText) text.clear();
         addDefaultTooltip();
-        if(clearText) dialog.getVisualPanel().showImageVisual(dialog.getInteractionTarget().getCustomInteractionDialogImageVisual());
+        if (clearText)
+            dialog.getVisualPanel().showImageVisual(dialog.getInteractionTarget().getCustomInteractionDialogImageVisual());
 
         OptionPanelAPI opts = options;
         opts.clearOptions();
@@ -149,7 +141,7 @@ public class MobileColonyInteractionDialoguePlugin implements InteractionDialogP
                 break;
         }
     }
-    
+
     @Override
     public void advance(float amount) {
         OptionPanelAPI panel = dialog.getOptionPanel();
@@ -160,7 +152,7 @@ public class MobileColonyInteractionDialoguePlugin implements InteractionDialogP
         //CampaignFleetAPI f = DetachmentMemory.getDetachment(detachmentNum);
         //dialog.getVisualPanel().showFleetInfo(f.getName(), f, null, null);
     }
-    
+
     @Override
     public void optionMousedOver(String optionText, Object optionData) {
 

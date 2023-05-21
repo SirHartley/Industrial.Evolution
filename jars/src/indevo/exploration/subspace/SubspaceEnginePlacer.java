@@ -22,8 +22,8 @@ public class SubspaceEnginePlacer {
     public static final float AMOUNT_MULT = Global.getSettings().getFloat("IndEvo_SubspaceEngineStationNum"); //default 1.5f
     public static final float RANGE = 12;
 
-    public static void place(){
-        if(Global.getSector().getPersistentData().containsKey(HAS_PLACED_STATIONS)) return;
+    public static void place() {
+        if (Global.getSector().getPersistentData().containsKey(HAS_PLACED_STATIONS)) return;
 
         int amt = (int) Math.ceil(Global.getSector().getEntitiesWithTag(Tags.CORONAL_TAP).size() * AMOUNT_MULT);
 
@@ -33,10 +33,10 @@ public class SubspaceEnginePlacer {
 
         WeightedRandomPicker<StarSystemAPI> systemPicker = new WeightedRandomPicker<>();
 
-        for (StarSystemAPI system : Global.getSector().getStarSystems()){
-            if(!Misc.getMarketsInLocation(system).isEmpty()) continue;
-            if(!system.getEntitiesWithTag(Tags.CORONAL_TAP).isEmpty()) continue;
-            if(!system.getEntitiesWithTag(Ids.GACHA_STATION).isEmpty()) continue;
+        for (StarSystemAPI system : Global.getSector().getStarSystems()) {
+            if (!Misc.getMarketsInLocation(system).isEmpty()) continue;
+            if (!system.getEntitiesWithTag(Tags.CORONAL_TAP).isEmpty()) continue;
+            if (!system.getEntitiesWithTag(Ids.GACHA_STATION).isEmpty()) continue;
 
             PlanetAPI p = system.getStar();
 
@@ -49,20 +49,21 @@ public class SubspaceEnginePlacer {
             }
         }
 
-        for (int i = 0; i < amt; i++){
-            StarSystemAPI system =systemPicker.pickAndRemove();
+        for (int i = 0; i < amt; i++) {
+            StarSystemAPI system = systemPicker.pickAndRemove();
             placeStation(system);
 
             //remove all entries within the range of the station so it doesn't double spawn in range
-            for (StarSystemAPI s : new ArrayList<>(systemPicker.getItems())){
-                if (Misc.getDistance(s.getHyperspaceAnchor(), system.getHyperspaceAnchor()) < RANGE) systemPicker.remove(s);
+            for (StarSystemAPI s : new ArrayList<>(systemPicker.getItems())) {
+                if (Misc.getDistance(s.getHyperspaceAnchor(), system.getHyperspaceAnchor()) < RANGE)
+                    systemPicker.remove(s);
             }
         }
 
         Global.getSector().getPersistentData().put(HAS_PLACED_STATIONS, true);
     }
 
-    public static void placeStation(StarSystemAPI system){
+    public static void placeStation(StarSystemAPI system) {
         SectorEntityToken t = system.addCustomEntity(Misc.genUID(), null, "IndEvo_SubspaceStation", null);
         t.setCircularOrbitPointingDown(system.getStar(), 0f, system.getStar().getRadius() + 200f, 31);
         t.getMemoryWithoutUpdate().set(RANDOM, new Random(t.hashCode()));

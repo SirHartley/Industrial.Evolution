@@ -6,13 +6,14 @@ import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
-import indevo.submarkets.DynamicSubmarket;
-import indevo.submarkets.SharedSubmarketPlugin;
 import com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.submarkets.DynamicSubmarket;
+import indevo.submarkets.SharedSubmarketPlugin;
 
+//what the fuck is this trash script
 public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
 
     protected final MarketAPI market;
@@ -28,13 +29,6 @@ public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
 
     }
 
-    private static void debugMessage(String Text) {
-        boolean DEBUG = false; //set to false once done
-        if (DEBUG) {
-            Global.getLogger(SubMarketAddOrRemovePlugin.class).info(Text);
-        }
-    }
-
     public void advance(float amount) {
         if (market.hasSubmarket(submarketID) && remove) {
             removeSubMarket();
@@ -46,11 +40,7 @@ public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
     }
 
     public void addSubMarket() {
-        debugMessage("adding " + submarketID + " to " + market.getName());
-
-        if (market != null) {
-            market.addSubmarket(submarketID);
-        }
+        market.addSubmarket(submarketID);
         setDone();
     }
 
@@ -58,22 +48,28 @@ public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
         String id;
 
         switch (submarketID) {
+            case Ids.PET_STORE:
+                id = Ids.PET_STORE;
+                if (!market.hasIndustry(Ids.PET_STORE) && market.hasSubmarket(id)) {
+                    removeSubmarket(id, false);
+                    break;
+                }
             case Ids.REPSTORAGE:
                 id = Ids.REPSTORAGE;
                 if (!market.hasIndustry(Ids.REPAIRDOCKS) && market.hasSubmarket(id)) {
-                    removeSubmarket(id);
+                    removeSubmarket(id, true);
                     break;
                 }
             case Ids.REQMARKET:
                 id = Ids.REQMARKET;
                 if (!market.hasIndustry(Ids.REQCENTER) && market.hasSubmarket(id)) {
-                    removeSubmarket(id);
+                    removeSubmarket(id, false);
                     break;
                 }
             case Ids.DECSTORAGE:
                 id = Ids.DECSTORAGE;
                 if (!market.hasIndustry(Ids.DECONSTRUCTOR) && market.hasSubmarket(id)) {
-                    removeSubmarket(id);
+                    removeSubmarket(id, true);
                     setDone();
                     break;
                 }
@@ -81,7 +77,7 @@ public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
             case Ids.ENGSTORAGE:
                 id = Ids.ENGSTORAGE;
                 if (!market.hasIndustry(Ids.ENGHUB) && market.hasSubmarket(id)) {
-                    removeSubmarket(id);
+                    removeSubmarket(id, true);
                     setDone();
                     break;
                 }
@@ -90,7 +86,7 @@ public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
 
                 boolean hasUser = !SharedSubmarketPlugin.getSharedStorageUsers(market).isEmpty();
                 if (!hasUser && market.hasSubmarket(id)) {
-                    removeSubmarket(id);
+                    removeSubmarket(id, true);
                     break;
                 }
             default:
@@ -98,8 +94,8 @@ public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
         }
     }
 
-    private void removeSubmarket(String id) {
-        moveContentsToStorage(id);
+    private void removeSubmarket(String id, boolean transferCargo) {
+        if (transferCargo) moveContentsToStorage(id);
 
         ((DynamicSubmarket) market.getSubmarket(id).getPlugin()).prepareForRemoval();
         market.removeSubmarket(id);
@@ -139,7 +135,6 @@ public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
     }
 
     public void setDone() {
-        debugMessage("setDone");
         done = true;
     }
 

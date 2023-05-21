@@ -5,11 +5,11 @@ import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.PlayerFleetPersonnelTracker;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import indevo.abilities.splitfleet.FleetUtils;
-import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.FleetUtils;
+import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class TwoFleetCargoPicker {
                     toFleetCargo.clear();
                     toFleetCargo.addAll(cargo.createCopy(), false);
 
-                    if(false) { //removeFromFromFleetCargo, this should have been for marine XP retention, but it doesn't work
+                    if (false) { //removeFromFromFleetCargo, this should have been for marine XP retention, but it doesn't work
                         PlayerMarketTransaction trans = new PlayerMarketTransaction(null, null, CampaignUIAPI.CoreUITradeMode.OPEN);
 
                         //if from fleet is player fleet and we transfer stuff from it, it is calculated as "sell action" - otherwise, we buy
@@ -152,7 +152,8 @@ public class TwoFleetCargoPicker {
                     panel.addPara("Minimum crew requirement: %s", spad, status.currentCrew < status.requiredCrew ? negativeHighlightColor : positiveHighlightColour, status.currentCrew + " / " + status.requiredCrew);
                     panel.addPara("Fleet requires %s supplies / month", spad, highlightColor, status.requiredSuppliesPerMonth + "");
 
-                    if(status.suppliesToRecover > 1) panel.addPara("Supplies needed to finish repairs: %s", opad, Misc.getHighlightColor(), status.suppliesToRecover + " units");
+                    if (status.suppliesToRecover > 1)
+                        panel.addPara("Supplies needed to finish repairs: %s", opad, Misc.getHighlightColor(), status.suppliesToRecover + " units");
                     panel.addPara("Estimated operating time: %s", spad, highlightColor, status.operatingTimeString);
                     panel.addPara("Estimated range: %s", spad, highlightColor, status.fuelRangeLYString);
                 }
@@ -170,7 +171,8 @@ public class TwoFleetCargoPicker {
                     //take what you need to repair and enough for one month
                     //if not available, take half the stuff player has available up to your cargo max
                     float amt = (toFleet.requiredSuppliesPerMonth + toFleet.suppliesToRecover) - toFleet.currentSupplies;
-                    if(amt > fromFleet.currentSupplies && toFleet.currentSupplies < 1) amt = Math.max(toFleet.totalCargoCap, fromFleet.currentSupplies / 2f);
+                    if (amt > fromFleet.currentSupplies && toFleet.currentSupplies < 1)
+                        amt = Math.max(toFleet.totalCargoCap, fromFleet.currentSupplies / 2f);
 
                     transferCommodity(fromCargo, toCargo, Commodities.SUPPLIES, amt);
                 }
@@ -178,7 +180,7 @@ public class TwoFleetCargoPicker {
                 if (toFleet.currentFuel < toFleet.totalFuelCap) {
                     //if we'd take more than half the fuel of the main fleet, just take half
                     float amt = toFleet.totalFuelCap - toFleet.currentFuel;
-                    if(amt > fromFleet.currentFuel / 2f && toFleet.currentFuel < 1) amt = fromFleet.currentFuel / 2f;
+                    if (amt > fromFleet.currentFuel / 2f && toFleet.currentFuel < 1) amt = fromFleet.currentFuel / 2f;
 
                     transferCommodity(fromCargo, toCargo, Commodities.FUEL, amt);
                 }
@@ -186,8 +188,9 @@ public class TwoFleetCargoPicker {
                 if (toFleet.currentCrew < toFleet.requiredCrew) {
                     //load whats needed unless this would mean going below the min crew for the main fleet
                     float amt = toFleet.requiredCrew - toFleet.currentCrew;
-                    if(fromFleet.currentCrew - amt < fromFleet.requiredCrew && toFleet.currentCrew < 1) amt = Math.max(0, fromFleet.currentCrew - fromFleet.requiredCrew);
-                    if(fromFleet.currentCrew < fromFleet.requiredCrew) amt = 1;
+                    if (fromFleet.currentCrew - amt < fromFleet.requiredCrew && toFleet.currentCrew < 1)
+                        amt = Math.max(0, fromFleet.currentCrew - fromFleet.requiredCrew);
+                    if (fromFleet.currentCrew < fromFleet.requiredCrew) amt = 1;
 
                     transferCommodity(fromCargo, toCargo, Commodities.CREW, amt);
                 }

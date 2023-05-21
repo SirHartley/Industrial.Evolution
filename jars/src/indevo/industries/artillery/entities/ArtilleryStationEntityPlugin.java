@@ -1,28 +1,33 @@
 package indevo.industries.artillery.entities;
 
 import com.fs.starfarer.api.Global;
-import indevo.ids.Ids;
-import indevo.industries.artillery.projectiles.MortarShotScript;
-import indevo.industries.artillery.projectiles.MissileShotScript;
-import indevo.industries.artillery.projectiles.RailgunShotEntity;
-import indevo.industries.artillery.terrain.ArtilleryTerrain;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
-import indevo.industries.artillery.conditions.ArtilleryStationCondition;
-import indevo.industries.artillery.industry.ArtilleryStation;
-import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.ids.Entities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
-import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.industries.artillery.conditions.ArtilleryStationCondition;
+import indevo.industries.artillery.industry.ArtilleryStation;
+import indevo.industries.artillery.projectiles.MissileShotScript;
+import indevo.industries.artillery.projectiles.MortarShotScript;
+import indevo.industries.artillery.projectiles.RailgunShotEntity;
+import indevo.industries.artillery.terrain.ArtilleryTerrain;
+import indevo.utils.ModPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import static indevo.industries.artillery.scripts.EyeIndicatorScript.WAS_SEEN_BY_HOSTILE_ENTITY;
 
@@ -96,13 +101,14 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
             ModPlugin.log("Artillery Forced Targets iterating");
             boolean fired = fireAtTarget(e, loc);
 
-            if(fired) return;
+            if (fired) return;
 
-        } else for (Map.Entry<String, IntervalUtil> e : targetMap.entrySet()) {
+        }
+        else for (Map.Entry<String, IntervalUtil> e : targetMap.entrySet()) {
             ModPlugin.log("Artillery Regular Targets iterating");
             boolean fired = fireAtTarget(e, loc);
 
-            if(fired) return;
+            if (fired) return;
         }
     }
 
@@ -157,7 +163,8 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
                 interval.setElapsed(interval.getIntervalDuration() - 1f);
 
                 //forced target in safe spot would never time out so we remove it in nebula
-                if (loc.isNebula()) target.getMemoryWithoutUpdate().set(FORCE_INVALID, true, MAX_DELAY_BETWEEN_SHOTS + 0.1f);
+                if (loc.isNebula())
+                    target.getMemoryWithoutUpdate().set(FORCE_INVALID, true, MAX_DELAY_BETWEEN_SHOTS + 0.1f);
                 return false;
             }
 
@@ -226,7 +233,7 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
                 && !t.getMemoryWithoutUpdate().getBoolean(MemFlags.ENTITY_MISSION_IMPORTANT);
     }
 
-    private boolean isForcedValid(SectorEntityToken t){
+    private boolean isForcedValid(SectorEntityToken t) {
         return t != null
                 && Misc.getDistance(t, entity) <= range
                 && Misc.getDistance(t, entity) >= MIN_RANGE
@@ -270,7 +277,7 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
             if (isHostileTo(f) && isValid(f)) {
                 float reloadTimeFactor = f.isPlayerFleet() ? 1f : NPC_RELOAD_FACTOR;
 
-                IntervalUtil interval = new IntervalUtil(MIN_RELOAD_TIME * reloadTimeFactor, MAX_RELOAD_TIME* reloadTimeFactor);
+                IntervalUtil interval = new IntervalUtil(MIN_RELOAD_TIME * reloadTimeFactor, MAX_RELOAD_TIME * reloadTimeFactor);
                 interval.forceIntervalElapsed();
                 targetMap.put(f.getId(), interval);
             }
@@ -418,9 +425,9 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
             }
         }
 
-        if(station == null){
-            for (SectorEntityToken t : market.getStarSystem().getEntitiesWithTag(Tags.STATION)){
-                if (t.getCustomEntityType().equals(Entities.STATION_BUILT_FROM_INDUSTRY) && !t.hasTag(Ids.TAG_ARTILLERY_STATION)){
+        if (station == null) {
+            for (SectorEntityToken t : market.getStarSystem().getEntitiesWithTag(Tags.STATION)) {
+                if (t.getCustomEntityType().equals(Entities.STATION_BUILT_FROM_INDUSTRY) && !t.hasTag(Ids.TAG_ARTILLERY_STATION)) {
                     if (t.getOrbitFocus() != null && t.getOrbitFocus().getId().equals(market.getPrimaryEntity().getId())) {
                         station = t;
                         break;

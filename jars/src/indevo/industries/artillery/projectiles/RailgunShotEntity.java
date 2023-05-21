@@ -6,8 +6,8 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
-import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -43,7 +43,7 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
     public SectorEntityToken origin;
     public SectorEntityToken target;
 
-    public static class RailgunShotParams{
+    public static class RailgunShotParams {
         public int num;
         public SectorEntityToken origin;
         public SectorEntityToken target;
@@ -86,14 +86,15 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
         //target reticule alpha
         float maxFadeInTime = DANGER_SIGN_FADEOUT_TIME * DANGERSIGN_ALPHA_RAMPUP_FRACTION;
 
-        if(timePassedSeconds < maxFadeInTime) {
+        if (timePassedSeconds < maxFadeInTime) {
             float mult = smootherstep(0, maxFadeInTime, timePassedSeconds);
             currentAlpha = MAX_RETICULE_ALPHA * mult;
             sizeMult = MAX_FADE_IN_SIZE_MULT - (MAX_FADE_IN_SIZE_MULT - 1) * mult;
-        } else currentAlpha = MAX_RETICULE_ALPHA * (1 - smootherstep(maxFadeInTime, DANGER_SIGN_FADEOUT_TIME, timePassedSeconds));
+        } else
+            currentAlpha = MAX_RETICULE_ALPHA * (1 - smootherstep(maxFadeInTime, DANGER_SIGN_FADEOUT_TIME, timePassedSeconds));
     }
 
-    public static Vector2f getAnticipatedTargetLoc(SectorEntityToken entity){
+    public static Vector2f getAnticipatedTargetLoc(SectorEntityToken entity) {
         Vector2f vel = entity.getVelocity();
         float dist = vel.length() * (AVERAGE_PROJ_IMPACT_TIME + 1f);
         float currentNavigationAngle = Misc.getAngleInDegrees(vel);
@@ -102,11 +103,11 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
         return Vector2f.add(location, entity.getLocation(), location);
     }
 
-    public void initProjectiles(SectorEntityToken target){
+    public void initProjectiles(SectorEntityToken target) {
         Random random = new Random();
         boolean fuzz = true;
 
-        for (int i = 1; i <= num; i++){
+        for (int i = 1; i <= num; i++) {
             float impactTimeSeconds = (float) (AVERAGE_PROJ_IMPACT_TIME + i + 1 * random());
 
             Vector2f vel = target.getVelocity();
@@ -145,8 +146,8 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
 
     public void renderTargetReticule() {
         float timeRemainingMult = 1 - Math.min(timePassedSeconds / AVERAGE_PROJ_IMPACT_TIME, 1);
-        int gColour = Math.max( (int) Math.round(200 * timeRemainingMult), 0);
-        int rColour = Math.max( (int) Math.round(100 * timeRemainingMult), 0);
+        int gColour = Math.max((int) Math.round(200 * timeRemainingMult), 0);
+        int rColour = Math.max((int) Math.round(100 * timeRemainingMult), 0);
         Color color = new Color(255, gColour, rColour, 255); //Start
 
         dangerSign.setAdditiveBlend();

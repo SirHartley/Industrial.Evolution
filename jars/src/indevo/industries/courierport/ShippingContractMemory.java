@@ -10,10 +10,11 @@ import java.util.List;
 public class ShippingContractMemory {
     private static final String SHIPPING_CONTRACT_LIST_MEMORY = "$IndEvo_ShippingContainerStorage";
 
-    public static List<ShippingContract> getContractList(){
+    public static List<ShippingContract> getContractList() {
         MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
 
-        if (mem.contains(SHIPPING_CONTRACT_LIST_MEMORY)) return (List<ShippingContract>) mem.get(SHIPPING_CONTRACT_LIST_MEMORY);
+        if (mem.contains(SHIPPING_CONTRACT_LIST_MEMORY))
+            return (List<ShippingContract>) mem.get(SHIPPING_CONTRACT_LIST_MEMORY);
         else {
             List<ShippingContract> containerList = new ArrayList<>();
             mem.set(SHIPPING_CONTRACT_LIST_MEMORY, containerList);
@@ -22,14 +23,14 @@ public class ShippingContractMemory {
         }
     }
 
-    public static void addOrReplaceContract(ShippingContract contract){
+    public static void addOrReplaceContract(ShippingContract contract) {
         ModPlugin.log("adding contract " + contract.name);
 
-        if(contract.isValid()) {
+        if (contract.isValid()) {
             List<ShippingContract> contractList = getContractList();
 
             ShippingContract toRemove = null;
-            for (ShippingContract c : contractList){
+            for (ShippingContract c : contractList) {
                 if (c.getId().equals(contract.getId())) {
                     toRemove = c;
                     ModPlugin.log("replacing old one");
@@ -37,7 +38,7 @@ public class ShippingContractMemory {
                 }
             }
 
-            if(toRemove != null) contractList.remove(toRemove);
+            if (toRemove != null) contractList.remove(toRemove);
             contractList.add(contract);
 
             ModPlugin.log("success");
@@ -46,17 +47,17 @@ public class ShippingContractMemory {
         ModPlugin.log(getContractList().size() + " contracts on the list");
     }
 
-    public static ShippingContract getContract(String id){
+    public static ShippingContract getContract(String id) {
         List<ShippingContract> contractList = getContractList();
 
-        for (ShippingContract contract : contractList){
+        for (ShippingContract contract : contractList) {
             if (contract.getId().equals(id)) return contract;
         }
 
         return null;
     }
 
-    public static void removeContract(ShippingContract contract){
+    public static void removeContract(ShippingContract contract) {
         getContractList().remove(contract);
     }
 }

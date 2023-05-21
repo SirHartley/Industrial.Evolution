@@ -8,12 +8,12 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
-import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 
 import java.awt.*;
 import java.util.List;
@@ -29,7 +29,7 @@ public class IndEvo_ambassadorRemoval extends BaseCommandPlugin {
     }
 
     public static void removeAmbassadorWithPenalty(MarketAPI market) {
-        if(market == null) return;
+        if (market == null) return;
 
         PersonAPI person = AmbassadorPersonManager.getAmbassador(market);
 
@@ -37,8 +37,8 @@ public class IndEvo_ambassadorRemoval extends BaseCommandPlugin {
         FactionAPI ambFaction = null;
         float penaltyAmount = 0f;
 
-        if (person != null){
-            originalMarket =  AmbassadorPersonManager.getOriginalMarket(person);
+        if (person != null) {
+            originalMarket = AmbassadorPersonManager.getOriginalMarket(person);
             ambFaction = person.getFaction();
             penaltyAmount = getPenaltyFor(market.getFaction().getRelationship(ambFaction.getId()));
         }

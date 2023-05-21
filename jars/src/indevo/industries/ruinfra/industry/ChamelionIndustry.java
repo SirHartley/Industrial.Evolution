@@ -4,8 +4,8 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
+import indevo.ids.Ids;
 
 import static indevo.industries.ruinfra.conditions.DerelictInfrastructureCondition.RUINED_INFRA_UPGRADE_ID_KEY;
 

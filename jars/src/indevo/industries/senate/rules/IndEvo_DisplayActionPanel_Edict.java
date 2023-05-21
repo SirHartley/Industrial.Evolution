@@ -1,7 +1,6 @@
 package indevo.industries.senate.rules;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.OptionPanelAPI;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
@@ -9,9 +8,10 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionPlugin;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.industries.senate.conditions.EdictAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.senate.conditions.EdictAPI;
+import indevo.utils.helper.StringHelper;
 import org.lwjgl.input.Keyboard;
 
 import java.util.List;

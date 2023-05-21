@@ -4,24 +4,24 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import indevo.industries.courierport.ShippingContract;
-import indevo.industries.courierport.listeners.Shipment;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
+import indevo.industries.courierport.ShippingContract;
+import indevo.industries.courierport.listeners.Shipment;
 
 import java.util.Random;
 
 public class CourierFleetCreator {
 
-    public static void spawnFleet(Shipment container){
+    public static void spawnFleet(Shipment container) {
         SectorEntityToken token = container.contract.getFromMarket().getPrimaryEntity();
         token.getContainingLocation().spawnFleet(token, 20f, 20f, container.fleet);
     }
 
-    public static CampaignFleetAPI createFleet(ShippingContract contract, CargoAPI cargo){
+    public static CampaignFleetAPI createFleet(ShippingContract contract, CargoAPI cargo) {
 
         float fuelAmt = 0f;
         float cargoAmt = 5f;
@@ -54,12 +54,12 @@ public class CourierFleetCreator {
 
         float totalSize = cargo.getSpaceUsed();
         cargo.initMothballedShips("player");
-        for (FleetMemberAPI m : cargo.getMothballedShips().getMembersListCopy()){
+        for (FleetMemberAPI m : cargo.getMothballedShips().getMembersListCopy()) {
             totalSize += m.getDeployCost();
         }
 
         totalSize /= 500f;
-        String type = totalSize <= 3 ? FleetTypes.TRADE_SMALL: FleetTypes.TRADE;
+        String type = totalSize <= 3 ? FleetTypes.TRADE_SMALL : FleetTypes.TRADE;
 
         FleetParamsV3 params = new FleetParamsV3(
                 contract.getFromMarket(),
@@ -86,7 +86,8 @@ public class CourierFleetCreator {
 
         fleet.setFaction("IndEvo_couriers");
         fleet.setNoFactionInName(true);
-        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_IGNORE_PLAYER_COMMS, true);;
+        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_IGNORE_PLAYER_COMMS, true);
+        ;
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_SAW_PLAYER_WITH_TRANSPONDER_ON, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_IGNORED_BY_OTHER_FLEETS, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_IGNORES_OTHER_FLEETS, true);

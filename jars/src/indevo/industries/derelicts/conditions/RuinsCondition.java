@@ -4,9 +4,9 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
 import org.apache.log4j.Logger;
 
 import static indevo.industries.derelicts.industry.Ruins.INDUSTRY_ID_MEMORY_KEY;
@@ -28,7 +28,8 @@ public class RuinsCondition extends BaseHazardCondition {
                 && market.getFaction() != null
                 && !market.getFactionId().equals("neutral")) {
 
-            if(!market.getMemoryWithoutUpdate().contains(INDUSTRY_ID_MEMORY_KEY)) setUpgradeSpec(market.getPlanetEntity());
+            if (!market.getMemoryWithoutUpdate().contains(INDUSTRY_ID_MEMORY_KEY))
+                setUpgradeSpec(market.getPlanetEntity());
             addRuinsIfNeeded();
         }
     }

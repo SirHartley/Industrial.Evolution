@@ -14,8 +14,8 @@ public class PetDataRepo {
 
     private static final String CSV_PATH = "data/campaign/pets.csv";
 
-    public static List<PetData> getAll() {
-        return (List<PetData>) getCSVSetFromMemory().values();
+    public static Collection<PetData> getAll() {
+        return getCSVSetFromMemory().values();
     }
 
     public static PetData get(String id) {

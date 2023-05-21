@@ -9,7 +9,7 @@ public class GachaStationCampaignPlugin extends BaseCampaignPlugin {
 
     @Override
     public PluginPick<InteractionDialogPlugin> pickInteractionDialogPlugin(SectorEntityToken interactionTarget) {
-        if(interactionTarget.hasTag("IndEvo_GachaStation")) {
+        if (interactionTarget.hasTag("IndEvo_GachaStation")) {
             return new PluginPick<InteractionDialogPlugin>(new GachaStationDialoguePlugin(), PickPriority.MOD_SPECIFIC);
         }
 

@@ -8,13 +8,13 @@ package indevo.industries.senate.conditions;
 		Min. Runtime:	6M
 */
 
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.helper.IndustryHelper;
 
 import static java.lang.Math.ceil;
 

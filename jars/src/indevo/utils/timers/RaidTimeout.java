@@ -1,9 +1,9 @@
 package indevo.utils.timers;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
+import indevo.utils.helper.IndustryHelper;
 
 import java.util.HashSet;
 import java.util.Map;

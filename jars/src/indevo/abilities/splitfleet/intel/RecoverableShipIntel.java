@@ -27,11 +27,11 @@ public class RecoverableShipIntel extends FleetLogIntel {
         this.token = token;
     }
 
-    private List<SectorEntityToken> getTokenList(){
-        return (List<SectorEntityToken>)token.getMemoryWithoutUpdate().get(ORBIT_FOCUS_ORBITING_TOKEN_LIST);
+    private List<SectorEntityToken> getTokenList() {
+        return (List<SectorEntityToken>) token.getMemoryWithoutUpdate().get(ORBIT_FOCUS_ORBITING_TOKEN_LIST);
     }
 
-    private ShipVariantAPI getVariant(SectorEntityToken t){
+    private ShipVariantAPI getVariant(SectorEntityToken t) {
         return (ShipVariantAPI) t.getMemoryWithoutUpdate().get(SHIP_VARIANT_KEY);
     }
 
@@ -57,8 +57,9 @@ public class RecoverableShipIntel extends FleetLogIntel {
 
         info.addPara("A detachment has lost ships to a hostile fleet. They can be recovered at this location.", opad);
         info.addSectionHeading("Recoverable hulls:", Alignment.MID, opad);
-        for (SectorEntityToken t : getTokenList()){
-            if(t.isAlive() || !t.isExpired() || Misc.getSalvageSpecial(t) != null) info.addPara(BULLET + getVariant(t).getHullSpec().getNameWithDesignationWithDashClass(), opad);
+        for (SectorEntityToken t : getTokenList()) {
+            if (t.isAlive() || !t.isExpired() || Misc.getSalvageSpecial(t) != null)
+                info.addPara(BULLET + getVariant(t).getHullSpec().getNameWithDesignationWithDashClass(), opad);
         }
 
         addBulletPoints(info, ListInfoMode.IN_DESC);
@@ -69,8 +70,9 @@ public class RecoverableShipIntel extends FleetLogIntel {
         super.advance(amount);
         List<SectorEntityToken> toRemove = new ArrayList<>();
 
-        for (SectorEntityToken t : getTokenList()) if (t.isExpired() || !t.isAlive() || Misc.getSalvageSpecial(t) == null) toRemove.add(t);
-        if(!toRemove.isEmpty()) getTokenList().removeAll(toRemove);
+        for (SectorEntityToken t : getTokenList())
+            if (t.isExpired() || !t.isAlive() || Misc.getSalvageSpecial(t) == null) toRemove.add(t);
+        if (!toRemove.isEmpty()) getTokenList().removeAll(toRemove);
     }
 
     @Override

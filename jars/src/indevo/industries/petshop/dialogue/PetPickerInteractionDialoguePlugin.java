@@ -1,23 +1,19 @@
 package indevo.industries.petshop.dialogue;
 
-import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.impl.campaign.DModManager;
-import com.fs.starfarer.api.impl.campaign.ids.Items;
-import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
-import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class PetPickerInteractionDialoguePlugin implements InteractionDialogPlugin {
 
@@ -28,17 +24,17 @@ public class PetPickerInteractionDialoguePlugin implements InteractionDialogPlug
     private boolean hasShownPicker = false;
     private List<FleetMemberAPI> membersWithoutPets;
 
-    static enum OptionID{
+    static enum OptionID {
         INIT,
     }
 
-    public PetPickerInteractionDialoguePlugin(PetData petData){
+    public PetPickerInteractionDialoguePlugin(PetData petData) {
         this.data = petData;
 
         PetStatusManager manager = PetStatusManager.getInstance();
 
         membersWithoutPets = new LinkedList<>();
-        for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()){
+        for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
             Pet pet = manager.getPet(m.getVariant());
             if (pet == null) membersWithoutPets.add(m);
         }
@@ -61,11 +57,11 @@ public class PetPickerInteractionDialoguePlugin implements InteractionDialogPlug
 
             dialog.showCustomDialog(PetNameAndAssignDialogueDelegate.WIDTH,
                     PetNameAndAssignDialogueDelegate.HEIGHT_200,
-                    new PetNameAndAssignDialogueDelegate(data, membersWithoutPets,dialog));
+                    new PetNameAndAssignDialogueDelegate(data, membersWithoutPets, dialog));
         }
     }
 
-    public void showShipPicker(){
+    public void showShipPicker() {
 
         int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
         int rows = membersWithoutPets.size() > shipsPerRow ? (int) Math.ceil(membersWithoutPets.size() / (float) shipsPerRow) : 1;
@@ -103,7 +99,7 @@ public class PetPickerInteractionDialoguePlugin implements InteractionDialogPlug
 
     }
 
-    public void close(){
+    public void close() {
         dialog.dismiss();
     }
 

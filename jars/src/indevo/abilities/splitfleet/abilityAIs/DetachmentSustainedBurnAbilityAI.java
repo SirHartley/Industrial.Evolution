@@ -10,9 +10,9 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.abilities.ai.BaseAbilityAI;
 import com.fs.starfarer.api.impl.campaign.abilities.ai.SustainedBurnAbilityAI;
 import com.fs.starfarer.api.impl.campaign.ids.Abilities;
-import indevo.abilities.splitfleet.FleetUtils;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.FleetUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 public class DetachmentSustainedBurnAbilityAI extends BaseAbilityAI {

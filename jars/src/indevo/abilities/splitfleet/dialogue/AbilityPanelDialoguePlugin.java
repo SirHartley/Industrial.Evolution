@@ -4,10 +4,10 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
-import indevo.dialogue.sidepanel.VisualCustomPanel;
-import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import indevo.abilities.splitfleet.fleetManagement.Behaviour;
+import indevo.dialogue.sidepanel.VisualCustomPanel;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Map;

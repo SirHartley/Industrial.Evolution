@@ -1,9 +1,10 @@
 package indevo.industries.artillery.projectiles;
 
 import com.fs.starfarer.api.Global;
-import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
-import indevo.utils.trails.MagicCampaignTrailPlugin;
-import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.CampaignEngineLayers;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
@@ -11,6 +12,8 @@ import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
+import indevo.utils.trails.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -131,20 +134,20 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
         advanceDangerSign();
 
-        if (timePassedSeconds > projectileDelaySeconds && !finishing){
+        if (timePassedSeconds > projectileDelaySeconds && !finishing) {
             advanceProjectile();
-            if (sound){
+            if (sound) {
                 Global.getSoundPlayer().playSound("IndEvo_missile_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.5f, origin.getLocation(), Misc.ZERO);
                 sound = false;
             }
 
-            if(timePassedSeconds > projectileDelaySeconds + 0.05f) addTrailToProj();
+            if (timePassedSeconds > projectileDelaySeconds + 0.05f) addTrailToProj();
 
             boolean friendlyFireDelayPassed = timePassedSeconds > projectileDelaySeconds + (impactSeconds - projectileDelaySeconds) * FRIENDLY_FIRE_IMMUNITY_PROJ_FLIGHT_TIME_FRACT;
 
             //explode when fleet in range
-            for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()){
-                if(friendlyFireDelayPassed
+            for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()) {
+                if (friendlyFireDelayPassed
                         && fleet.isHostileTo(origin)
                         && Misc.getDistance(entity, origin) >= ArtilleryStationEntityPlugin.MIN_RANGE
                         && Misc.getDistance(entity, fleet) <= DETECTION_RADIUS) {
@@ -156,7 +159,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
             }
 
             //split when loc reached
-            if (Misc.getDistance(getPointForTrajectoryAngle(splitAngleOnTrajectory), entity.getLocation()) < 60f){
+            if (Misc.getDistance(getPointForTrajectoryAngle(splitAngleOnTrajectory), entity.getLocation()) < 60f) {
                 spawnExplosion(SUBMUNITION_DEPLOY_EXPLOSION_SIZE);
 
                 deploySubMunitions();
@@ -184,7 +187,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         renderDangerSign();
-        if(timePassedSeconds > projectileDelaySeconds) renderProjectile(viewport);
+        if (timePassedSeconds > projectileDelaySeconds) renderProjectile(viewport);
     }
 
     public void advanceProjectile() {
@@ -218,19 +221,20 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     private void updateProjectileFlightTime() {
-        this.originLocation = new Vector2f(origin.getLocation());;
+        this.originLocation = new Vector2f(origin.getLocation());
+        ;
         this.projectileFlightTime = getTotalDistToTarget() / PROJECTILE_VELOCITY;
         this.projectileDelaySeconds = impactSeconds - projectileFlightTime;
     }
 
-    public float getTotalDistToTarget(){
+    public float getTotalDistToTarget() {
         float angle1 = Misc.getAngleInDegrees(trajectoryCenter, originLocation);
         float angle2 = Misc.getAngleInDegrees(trajectoryCenter, target);
 
         return getDistanceBetweenangles(angle1, angle2);
     }
 
-    public Vector2f getPointForTrajectoryAngle(float angle){
+    public Vector2f getPointForTrajectoryAngle(float angle) {
         return MathUtils.getPointOnCircumference(trajectoryCenter, trajectoryRadius, angle);
     }
 
@@ -254,13 +258,13 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
         explosion.setLocation(entity.getLocation().x, entity.getLocation().y);
     }
 
-    public void deploySubMunitions(){
+    public void deploySubMunitions() {
         Vector2f t1 = target;
         Vector2f t2 = MathUtils.getPointOnCircumference(t1, SUBMUNITION_SPREAD_DIST, 90f);
         Vector2f t3 = MathUtils.getPointOnCircumference(t1, SUBMUNITION_SPREAD_DIST, -90f);
         Vector2f[] v = new Vector2f[]{t1, t2, t3};
 
-        for (Vector2f target : v){
+        for (Vector2f target : v) {
             MissileSubmunitionEntity.MissileSubmunitionParams p = new MissileSubmunitionEntity.MissileSubmunitionParams(
                     origin.getContainingLocation(),
                     origin.getFaction(),
@@ -277,7 +281,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
     public static final float TRAIL_TIME = 0.5f;
     public static final Color GLOW_COLOR = new Color(255, 200, 50, 255);
 
-    private void addTrailToProj(){
+    private void addTrailToProj() {
         MagicCampaignTrailPlugin.AddTrailMemberSimple(
                 entity,
                 trailID,
@@ -306,14 +310,15 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
         float maxFadeInTime = DANGER_SIGN_FADEOUT_TIME * DANGERSIGN_ALPHA_RAMPUP_FRACTION;
         float minFadeoutTime = impactSeconds * DANGERSIGN_ALPHA_FADEOUT_FRACTION;
 
-        if(timePassedSeconds < maxFadeInTime) {
+        if (timePassedSeconds < maxFadeInTime) {
             float mult = smootherstep(0, maxFadeInTime, timePassedSeconds);
             currentAlpha = MAX_DANGER_SIGN_ALPHA * mult;
             sizeMult = MAX_FADE_IN_SIZE_MULT - (MAX_FADE_IN_SIZE_MULT - 1) * mult;
         } else if (timePassedSeconds < minFadeoutTime) {
             currentAlpha = MAX_DANGER_SIGN_ALPHA;
             sizeMult = 1f;
-        }  else currentAlpha = MAX_DANGER_SIGN_ALPHA * (1 - smootherstep(minFadeoutTime, impactSeconds, timePassedSeconds));
+        } else
+            currentAlpha = MAX_DANGER_SIGN_ALPHA * (1 - smootherstep(minFadeoutTime, impactSeconds, timePassedSeconds));
 
     }
 

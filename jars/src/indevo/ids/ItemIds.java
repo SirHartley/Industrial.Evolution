@@ -1,12 +1,12 @@
 package indevo.ids;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
 import com.fs.starfarer.api.campaign.econ.EconomyAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.util.Pair;
+import indevo.utils.helper.StringHelper;
 
 public class ItemIds {
 

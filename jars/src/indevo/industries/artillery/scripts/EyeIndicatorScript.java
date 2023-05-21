@@ -2,13 +2,13 @@ package indevo.industries.artillery.scripts;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.util.IntervalUtil;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEyeIndicator;
-import com.fs.starfarer.api.campaign.*;
 import indevo.utils.ModPlugin;
-import com.fs.starfarer.api.util.IntervalUtil;
-import com.fs.starfarer.api.util.Misc;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.util.List;
@@ -32,11 +32,12 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         Global.getSector().getMemoryWithoutUpdate().set(EYE_SCRIPT, this);
     }
 
-    public static void register(){
-        if (!Global.getSector().getMemoryWithoutUpdate().contains(EYE_SCRIPT)) Global.getSector().addScript(new EyeIndicatorScript());
+    public static void register() {
+        if (!Global.getSector().getMemoryWithoutUpdate().contains(EYE_SCRIPT))
+            Global.getSector().addScript(new EyeIndicatorScript());
     }
 
-    public static EyeIndicatorScript getInstance(){
+    public static EyeIndicatorScript getInstance() {
         return (EyeIndicatorScript) Global.getSector().getMemoryWithoutUpdate().get(EYE_SCRIPT);
     }
 
@@ -62,7 +63,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         //check if there's a hostile arty, if not, we reset to 0 and cycle
         boolean hostileArtilleryPresent = false;
-        for (SectorEntityToken t : loc.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION)){
+        for (SectorEntityToken t : loc.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION)) {
             if (t.getFaction().isHostileTo(player.getFaction())) {
                 hostileArtilleryPresent = true;
                 break;
@@ -161,13 +162,13 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         transferStateToEntity(state, isLocked);
     }
 
-    public void reset(){
+    public void reset() {
         elapsed = 0f;
         isLocked = false;
         transferStateToEntity(WatchtowerEyeIndicator.State.NONE, false);
     }
 
-    private void transferStateToEntity(WatchtowerEyeIndicator.State state, boolean isLocked){
+    private void transferStateToEntity(WatchtowerEyeIndicator.State state, boolean isLocked) {
         WatchtowerEyeIndicator plugin = (WatchtowerEyeIndicator) indicator.getCustomPlugin();
         plugin.setState(state);
         plugin.setLocked(isLocked);

@@ -4,13 +4,12 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
-import com.fs.starfarer.api.impl.campaign.econ.BaseMarketConditionPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
-import indevo.exploration.minefields.MineBeltTerrainPlugin;
-import indevo.abilities.splitfleet.fleetManagement.CombatAndDerelictionScript;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.fleetManagement.CombatAndDerelictionScript;
+import indevo.exploration.minefields.MineBeltTerrainPlugin;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -28,14 +27,16 @@ public class MineFieldCondition extends BaseHazardCondition {
     public void apply(String id) {
         float bonus = DEFENSE_BONUS;
 
-        if(!market.isPlanetConditionMarketOnly()) market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD).modifyMult(getModId(), bonus, getName());
+        if (!market.isPlanetConditionMarketOnly())
+            market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD).modifyMult(getModId(), bonus, getName());
     }
 
     @Override
     public void unapply(String id) {
         super.unapply(id);
 
-        if(!market.isPlanetConditionMarketOnly()) market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD).unmodifyMult(getModId());
+        if (!market.isPlanetConditionMarketOnly())
+            market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD).unmodifyMult(getModId());
     }
 
     public void addMineField() {
@@ -58,7 +59,7 @@ public class MineFieldCondition extends BaseHazardCondition {
             field = MineBeltTerrainPlugin.addMineBelt(primaryEntity, 500f, 100f, 30f, 40f, primaryEntity.getName() + " Minefield");
             field.getMemoryWithoutUpdate().set(PLANET_KEY, primaryEntity);
 
-            if (!market.getMemoryWithoutUpdate().contains(NO_ADD_BELT_VISUAL)){
+            if (!market.getMemoryWithoutUpdate().contains(NO_ADD_BELT_VISUAL)) {
                 system.addRingBand(primaryEntity, "misc", "rings_dust0", 256f, 2, Color.white, 256f, 500f, 31f);
             }
 

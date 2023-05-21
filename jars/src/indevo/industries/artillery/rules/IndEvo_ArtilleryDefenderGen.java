@@ -1,7 +1,6 @@
 package indevo.industries.artillery.rules;
 
 import com.fs.starfarer.api.Global;
-import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -13,8 +12,9 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
-import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.artillery.scripts.ArtilleryStationScript;
+import indevo.utils.ModPlugin;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,7 +24,7 @@ import static indevo.industries.artillery.scripts.ArtilleryStationScript.TYPE_KE
 
 public class IndEvo_ArtilleryDefenderGen {
 
-    public static CampaignFleetAPI getFleetForPlanet(SectorEntityToken planet, String factionID){
+    public static CampaignFleetAPI getFleetForPlanet(SectorEntityToken planet, String factionID) {
         CampaignFleetAPI defenders = planet.getMemoryWithoutUpdate().getFleet("$defenderFleet");
         SectorEntityToken station = ArtilleryStationScript.getArtilleryStation(planet);
         CampaignFleetAPI artilleryDefenders = station != null ? station.getMemoryWithoutUpdate().getFleet("$defenderFleet") : null;
@@ -32,7 +32,7 @@ public class IndEvo_ArtilleryDefenderGen {
         if (defenders != null) {
             ModPlugin.log("returning existing planet defenders");
             return defenders;
-        } else if (artilleryDefenders != null){
+        } else if (artilleryDefenders != null) {
             ModPlugin.log("returning existing artillery station defenders");
             return artilleryDefenders;
         } else {
@@ -43,7 +43,7 @@ public class IndEvo_ArtilleryDefenderGen {
         return defenders;
     }
 
-    public static CampaignFleetAPI getNewFleet(SectorEntityToken planet, String factionID){
+    public static CampaignFleetAPI getNewFleet(SectorEntityToken planet, String factionID) {
         MarketAPI m = planet.getMarket();
 
         CampaignFleetAPI defenders = createDefenderFleet(m, factionID);
@@ -76,7 +76,7 @@ public class IndEvo_ArtilleryDefenderGen {
     public static final float MIN_FLEET_SIZE = Global.getSettings().getFloat("IndEvo_Artillery_defense_FP");
     public static final float MAX_HAZARD = 200f;
 
-    public static CampaignFleetAPI createDefenderFleet(MarketAPI market, String factionId){
+    public static CampaignFleetAPI createDefenderFleet(MarketAPI market, String factionId) {
         float defenderBonus = 1 + Math.min(1, (MAX_HAZARD - market.getHazardValue()) / 100f);
 
         long seed = market.getPrimaryEntity().getMemoryWithoutUpdate().getLong(MemFlags.SALVAGE_SEED);

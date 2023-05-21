@@ -6,10 +6,10 @@ import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableIndustryItemPlugin;
-import indevo.ids.ItemIds;
-import indevo.industries.derelicts.industry.BaseForgeTemplateUser;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.ItemIds;
+import indevo.industries.derelicts.industry.BaseForgeTemplateUser;
 
 import java.util.HashMap;
 import java.util.Map;

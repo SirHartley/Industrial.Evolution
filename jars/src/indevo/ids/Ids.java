@@ -32,6 +32,7 @@ public class Ids {
     public static final String DECSTORAGE = "IndEvo_DeconstStorage";
     public static final String ENGSTORAGE = "IndEvo_EngStorage";
     public static final String SHAREDSTORAGE = "IndEvo_SharedStore";
+    public static final String PETMARKET = "IndEvo_PetSubMarket";
 
     //Industries
     public static final String ADMANUF = "IndEvo_AdManuf";
@@ -93,6 +94,7 @@ public class Ids {
     public static final String ARSENAL_ENTITY = "IndEvo_arsenalStation";
     public static final String LAB_ENTITY = "IndEvo_orbitalLaboratory";
     public static final String GACHA_STATION = "IndEvo_GachaStation";
+    public static final String PET_SHOP_ENTITY = "IndEvo_PetShop";
 
     //skills
     public static final String SKILL_FLEET_LOGISTICS = "indevo_FleetLogistics";
@@ -121,6 +123,7 @@ public class Ids {
     public static final String PROJ_PARALLAX = "indevo_proj_parallax";
     public static final String PROJ_KEYHOLE = "indevo_proj_keyhole";
     public static final String PROJ_TRANSISTOR = "indevo_proj_transistor";
+    public static final String PROJ_NAVI = "indevo_proj_navi";
 
     //id
     //IndEvo_cryoartillery

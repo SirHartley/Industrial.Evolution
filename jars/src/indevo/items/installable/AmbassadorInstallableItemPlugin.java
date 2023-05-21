@@ -1,16 +1,16 @@
 package indevo.items.installable;
 
-import indevo.ids.ItemIds;
-import indevo.industries.embassy.industry.Embassy;
-import indevo.items.specialitemdata.AmbassadorItemData;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableIndustryItemPlugin;
-import indevo.industries.embassy.AmbassadorItemHelper;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import indevo.ids.ItemIds;
+import indevo.industries.embassy.AmbassadorItemHelper;
+import indevo.industries.embassy.industry.Embassy;
+import indevo.items.specialitemdata.AmbassadorItemData;
+import indevo.utils.helper.StringHelper;
 
 import java.util.HashMap;
 import java.util.Map;

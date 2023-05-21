@@ -10,13 +10,13 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
-import indevo.utils.ModPlugin;
+import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.fleetAssignmentAIs.SplinterFleetAssignmentAIV2;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.CombatAndDerelictionScript;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
-import com.fs.starfarer.api.util.Misc;
+import indevo.utils.ModPlugin;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -64,7 +64,8 @@ public class FleetUtils {
             //fleet Member transaction
             detachmentFleetData.removeFleetMember(m);
             playerFleetData.addFleetMember(m);
-            if (officerPerson != null && !officerPerson.isDefault() && !officerPerson.isAICore() && !officerPerson.isPlayer()) playerFleetData.addOfficer(officerPerson);
+            if (officerPerson != null && !officerPerson.isDefault() && !officerPerson.isAICore() && !officerPerson.isPlayer())
+                playerFleetData.addOfficer(officerPerson);
         }
 
         playerFleet.getCargo().addAll(detachment.getCargo());
@@ -103,14 +104,15 @@ public class FleetUtils {
         for (FleetMemberAPI m : fleetMemberlist) {
             //since there is no way to transfer officers, remove them for transport detachments!
             if (Behaviour.behaviourEquals(loadout.behaviour, Behaviour.FleetBehaviour.TRANSPORT)) {
-                if(!m.getCaptain().isAICore() && !Misc.isUnremovable(m.getCaptain())) {
+                if (!m.getCaptain().isAICore() && !Misc.isUnremovable(m.getCaptain())) {
                     m.setCaptain(null);
                 }
             }
 
             //officer handling
             PersonAPI officerPerson = m.getCaptain();
-            if (officerPerson != null && !officerPerson.isDefault() && !officerPerson.isPlayer()) playerFleetData.removeOfficer(officerPerson);
+            if (officerPerson != null && !officerPerson.isDefault() && !officerPerson.isPlayer())
+                playerFleetData.removeOfficer(officerPerson);
 
             //fleet Member transaction
             playerFleetData.removeFleetMember(m);
@@ -181,8 +183,8 @@ public class FleetUtils {
                 float toAdd = Math.min(available, stack.getSize());
 
                 from.removeItems(CargoAPI.CargoItemType.SPECIAL, stack.getSpecialDataIfSpecial(), toAdd);
-                to.addItems(CargoAPI.CargoItemType.SPECIAL, stack.getSpecialDataIfSpecial(), toAdd);}
-            else transferCommodity(from, to, stack.getCommodityId(), stack.getSize());
+                to.addItems(CargoAPI.CargoItemType.SPECIAL, stack.getSpecialDataIfSpecial(), toAdd);
+            } else transferCommodity(from, to, stack.getCommodityId(), stack.getSize());
         }
     }
 

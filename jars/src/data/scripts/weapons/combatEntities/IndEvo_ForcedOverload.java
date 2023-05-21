@@ -1,6 +1,5 @@
 package data.scripts.weapons.combatEntities;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -36,7 +35,7 @@ public class IndEvo_ForcedOverload extends BaseEveryFrameCombatPlugin {
 
         elapsed += amount;
 
-        if (elapsed >= dur){
+        if (elapsed >= dur) {
             ship.getFluxTracker().stopOverload();
             engine.removePlugin(this);
         }

@@ -1,10 +1,6 @@
 package indevo.submarkets;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
-import indevo.industries.RestorationDocks;
-import indevo.utils.helper.IndustryHelper;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CoreUIAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
@@ -12,10 +8,14 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.RestorationDocks;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 import java.util.HashMap;

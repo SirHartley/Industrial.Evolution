@@ -8,11 +8,11 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySpecial;
-import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.utils.ModPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +20,7 @@ import java.util.Map;
 public class LocatorSystemRatingUpdater extends BaseCampaignEventListener {
     public static final String MEM_LOCATOR_SYSTEM_RATING = "$IndEvo_locatorSystemRating";
 
-    public static Map<String, Integer> salvageEntityMap = new HashMap<String, Integer>(){{
+    public static Map<String, Integer> salvageEntityMap = new HashMap<String, Integer>() {{
         put(Entities.STATION_MINING, 10);
         put(Entities.STATION_RESEARCH, 20);
         put(Entities.ORBITAL_HABITAT, 10);
@@ -52,7 +52,7 @@ public class LocatorSystemRatingUpdater extends BaseCampaignEventListener {
         super(permaRegister);
     }
 
-    public static void register(){
+    public static void register() {
         Global.getSector().addTransientListener(new LocatorSystemRatingUpdater(false));
     }
 
@@ -63,67 +63,79 @@ public class LocatorSystemRatingUpdater extends BaseCampaignEventListener {
         if (!fleet.isPlayerFleet()) return;
 
         try {
-            if(from != null
+            if (from != null
                     && from.getContainingLocation() != null
-                    && !from.getContainingLocation().isHyperspace()){
+                    && !from.getContainingLocation().isHyperspace()) {
 
                 LocationAPI loc = from.getContainingLocation();
                 updateLoc(loc);
             }
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             //in vanilla, there are no hyperspace to hyperspace jumps, but the hyperdrive mod has them and crashes this, for no apparent reason.
             //since I can't be bothered to fix someone elses mod, this is good enough
             ModPlugin.log("Hyper to Hyper jump - LocatorSystemRatingUpdater null");
         }
     }
 
-    private static void updateLoc(LocationAPI loc){
+    private static void updateLoc(LocationAPI loc) {
         int rating = calculateLocationRating(loc);
         addRatingToLocation(rating, loc);
     }
 
-    private static int calculateLocationRating(LocationAPI loc){
+    private static int calculateLocationRating(LocationAPI loc) {
         int amt = 0;
 
-        for (SectorEntityToken token : loc.getEntitiesWithTag(Tags.SALVAGEABLE)){
+        for (SectorEntityToken token : loc.getEntitiesWithTag(Tags.SALVAGEABLE)) {
             String id = token.getId();
-            if(salvageEntityMap.containsKey(id)) amt += salvageEntityMap.get(id);
+            if (salvageEntityMap.containsKey(id)) amt += salvageEntityMap.get(id);
             else amt += 1;
         }
 
-        for (SectorEntityToken token : loc.getEntitiesWithTag(Tags.DEBRIS_FIELD)){
+        for (SectorEntityToken token : loc.getEntitiesWithTag(Tags.DEBRIS_FIELD)) {
             amt += getSpecialAmt(token);
             amt += 2f;
         }
 
-        for (SectorEntityToken token : loc.getEntitiesWithTag(Tags.WRECK)){
+        for (SectorEntityToken token : loc.getEntitiesWithTag(Tags.WRECK)) {
             amt += getSpecialAmt(token);
         }
 
-        for (MarketAPI market : Misc.getMarketsInLocation(loc)){
-            if(market != null && market.isPlanetConditionMarketOnly() && !market.getMemoryWithoutUpdate().getBoolean("$ruinsExplored")){
-                for (MarketConditionAPI condition : market.getConditions()){
+        for (MarketAPI market : Misc.getMarketsInLocation(loc)) {
+            if (market != null && market.isPlanetConditionMarketOnly() && !market.getMemoryWithoutUpdate().getBoolean("$ruinsExplored")) {
+                for (MarketConditionAPI condition : market.getConditions()) {
                     String id = condition.getId();
 
-                    switch (id){
-                        case Conditions.RUINS_SCATTERED : amt += 3; break;
-                        case Conditions.RUINS_WIDESPREAD : amt += 5; break;
-                        case Conditions.RUINS_EXTENSIVE : amt += 7; break;
-                        case Conditions.RUINS_VAST : amt += 10; break;
-                        case Ids.COND_RUINS: amt += 2; break;
-                        case Ids.COND_INFRA: amt += 2; break;
+                    switch (id) {
+                        case Conditions.RUINS_SCATTERED:
+                            amt += 3;
+                            break;
+                        case Conditions.RUINS_WIDESPREAD:
+                            amt += 5;
+                            break;
+                        case Conditions.RUINS_EXTENSIVE:
+                            amt += 7;
+                            break;
+                        case Conditions.RUINS_VAST:
+                            amt += 10;
+                            break;
+                        case Ids.COND_RUINS:
+                            amt += 2;
+                            break;
+                        case Ids.COND_INFRA:
+                            amt += 2;
+                            break;
                     }
                 }
             }
 
             //Make the core worlds light up like a christmas tree
-            if(market != null && !market.isPlanetConditionMarketOnly()) amt += 10 * market.getSize();
+            if (market != null && !market.isPlanetConditionMarketOnly()) amt += 10 * market.getSize();
         }
 
         return amt;
     }
 
-    private static int getSpecialAmt(SectorEntityToken token){
+    private static int getSpecialAmt(SectorEntityToken token) {
         int amt = 0;
 
         if (Misc.getSalvageSpecial(token) instanceof ShipRecoverySpecial) {
@@ -132,10 +144,18 @@ public class LocatorSystemRatingUpdater extends BaseCampaignEventListener {
                 ShipAPI.HullSize size = data.getVariant().getHullSpec().getHullSize();
                 switch (size) {
                     case DEFAULT:
-                    case FRIGATE: amt += 1; break;
-                    case DESTROYER: amt += 2; break;
-                    case CRUISER: amt += 3; break;
-                    case CAPITAL_SHIP: amt += 4; break;
+                    case FRIGATE:
+                        amt += 1;
+                        break;
+                    case DESTROYER:
+                        amt += 2;
+                        break;
+                    case CRUISER:
+                        amt += 3;
+                        break;
+                    case CAPITAL_SHIP:
+                        amt += 4;
+                        break;
                 }
             }
         }
@@ -143,12 +163,12 @@ public class LocatorSystemRatingUpdater extends BaseCampaignEventListener {
         return amt;
     }
 
-    private static void addRatingToLocation(int rating, LocationAPI loc){
+    private static void addRatingToLocation(int rating, LocationAPI loc) {
         loc.getMemoryWithoutUpdate().set(MEM_LOCATOR_SYSTEM_RATING, rating);
     }
 
-    public static void updateAllSystems(){
-        for (LocationAPI loc : Global.getSector().getAllLocations()){
+    public static void updateAllSystems() {
+        for (LocationAPI loc : Global.getSector().getAllLocations()) {
             if (loc.isHyperspace()) continue;
 
             updateLoc(loc);

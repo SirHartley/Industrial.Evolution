@@ -1,7 +1,6 @@
 package indevo.dialogue.research;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
@@ -11,11 +10,12 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.FireAll;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
-import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
-import indevo.dialogue.sidepanel.VisualCustomPanel;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.dialogue.sidepanel.VisualCustomPanel;
+import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
+import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
@@ -139,10 +139,12 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
 
         if (rewardProjId != null && inputProjId == null) {
             ResearchProject project = ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(rewardProjId);
-            panel.beginTooltip().addSectionHeading(project.getName() + " - Rewards", Alignment.MID, 10f);
+            TooltipMakerAPI rewardsToolTip = panel.beginTooltip();
+            rewardsToolTip.addSectionHeading(project.getName() + " - Rewards", Alignment.MID, 10f);
+            project.addTooltipOutputOnCompletion(rewardsToolTip);
             panel.addTooltip();
 
-            if(rewardsCargo != null) for (CargoStackAPI stack : rewardsCargo.getStacksCopy()) {
+            if (rewardsCargo != null) for (CargoStackAPI stack : rewardsCargo.getStacksCopy()) {
                 AddRemoveCommodity.addStackGainText(stack, panel);
             }
 
@@ -187,7 +189,7 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
                         imageWithText.addPara("%s  -  Progress: %s  -  Available: %s",
                                 5f,
                                 Misc.getHighlightColor(),
-                                new String[]{spec.getIconName(), progress, (int) Math.round(count) + ""});
+                                new String[]{spec.getName(), progress, (int) Math.round(count) + ""});
                         tt.addImageWithText(2f);
                     }
                 }

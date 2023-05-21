@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class PetStatusManager extends BaseCampaignEventListener implements EconomyTickListener, FleetEventListener, EveryFrameScript {
 
-    public static void dev(){
+    public static void dev() {
         Pet pet = new Pet("slaghound", "Hartleys Pile o' Rocks");
         getInstance().register(pet);
         pet.assign(Global.getSector().getPlayerFleet().getFlagship());
@@ -70,11 +70,11 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     private List<Pet> pets = new ArrayList<>();
 
-    public void register(Pet pet){
+    public void register(Pet pet) {
         pets.add(pet);
     }
 
-    public void remove(Pet pet){
+    public void remove(Pet pet) {
         pet.unassign();
         pet.setDead(true);
     }
@@ -94,8 +94,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         for (Pet pet : pets) pet.advance(amount);
     }
 
-    public Pet get(String id){
-        for (Pet pet : pets){
+    public Pet get(String id) {
+        for (Pet pet : pets) {
             if (pet.id.equals(id)) return pet;
         }
 
@@ -117,7 +117,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
         PetData data = pet.getData();
 
-        for (String food : data.foodCommodities){
+        for (String food : data.foodCommodities) {
             if (fleetCargo.getCommodityQuantity(food) >= data.foodPerMonth) {
                 hasFood = true;
                 foodToEat = food;
@@ -129,16 +129,17 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
         fleetCargo.removeCommodity(foodToEat, data.foodPerMonth);
 
-        if (foodTakenLastMonth.containsKey(foodToEat)) foodTakenLastMonth.put(foodToEat, foodTakenLastMonth.get(foodToEat) + data.foodPerMonth);
+        if (foodTakenLastMonth.containsKey(foodToEat))
+            foodTakenLastMonth.put(foodToEat, foodTakenLastMonth.get(foodToEat) + data.foodPerMonth);
         else foodTakenLastMonth.put(foodToEat, data.foodPerMonth);
 
         return true;
     }
 
-    private void doRoutineAliveCheck(){
-        for (Pet pet : new ArrayList<>(pets)){
-            if (!pet.isDead() && pet.isActive()){
-                if (pet.assignedFleetMember != null){
+    private void doRoutineAliveCheck() {
+        for (Pet pet : new ArrayList<>(pets)) {
+            if (!pet.isDead() && pet.isActive()) {
+                if (pet.assignedFleetMember != null) {
                     FleetDataAPI fleetData = pet.assignedFleetMember.getFleetData();
 
                     if (fleetData == null || fleetData.getFleet() == null || !fleetData.getFleet().isAlive()) {
@@ -156,7 +157,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             case COMBAT:
                 picker = new WeightedRandomPicker<>();
                 picker.addAll(IndustryHelper.getCSVSetFromMemory(COMBAT_DEATH_CAUSES));
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " living on the destroyed "+ pet.assignedFleetMember.getShipName() + " " + picker.pick() + ".", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " living on the destroyed " + pet.assignedFleetMember.getShipName() + " " + picker.pick() + ".", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
                 break;
             case NATURAL:
                 String message = "";
@@ -166,13 +167,13 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                     message = picker.pick();
                 } else message = pet.getData().naturalDeath;
 
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " formerly living on the "+ pet.assignedFleetMember.getShipName() + ", %s.", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " formerly living on the " + pet.assignedFleetMember.getShipName() + ", %s.", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case STARVED:
                 Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has %s on the " + pet.assignedFleetMember.getShipName(), Misc.getTextColor(), pet.name, "starved to death.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case SOLD:
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " was sold with the " + pet.assignedFleetMember.getShipName() +" and promptly %s by the new owners.", Misc.getTextColor(), pet.name, "euthanized", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " was sold with the " + pet.assignedFleetMember.getShipName() + " and promptly %s by the new owners.", Misc.getTextColor(), pet.name, "euthanized", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case UNKNOWN:
                 //if sold and not caught or magic'd away
@@ -191,7 +192,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void reportEconomyTick(int iterIndex) {
         doRoutineAliveCheck();
 
-        if (iterIndex == Global.getSettings().getInt("economyIterPerMonth") / 2){
+        if (iterIndex == Global.getSettings().getInt("economyIterPerMonth") / 2) {
             showFoodMessage();
             foodTakenLastMonth.clear();
         }
@@ -223,15 +224,15 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
         if (memberList.isEmpty()) return;
 
-        if (transaction.getSubmarket().getPlugin().isFreeTransfer()){
+        if (transaction.getSubmarket().getPlugin().isFreeTransfer()) {
             showPetForgottenMessage(transaction.getSubmarket());
             return;
         }
 
-        for (Pet pet : new ArrayList<>(pets)){
+        for (Pet pet : new ArrayList<>(pets)) {
             if (!pet.isActive()) continue;
 
-            if (memberList.contains(pet.assignedFleetMember)){
+            if (memberList.contains(pet.assignedFleetMember)) {
                 reportPetDied(pet, PetDeathCause.SOLD);
             }
         }
@@ -241,14 +242,14 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void reportBattleOccurred(CampaignFleetAPI fleet, CampaignFleetAPI primaryWinner, BattleAPI battle) {
         List<FleetMemberAPI> membersLost = Misc.getSnapshotMembersLost(fleet);
 
-        for (Pet pet : new ArrayList<>(pets)){
-            if (membersLost.contains(pet.assignedFleetMember)){
+        for (Pet pet : new ArrayList<>(pets)) {
+            if (membersLost.contains(pet.assignedFleetMember)) {
                 reportPetDied(pet, PetDeathCause.COMBAT);
             }
         }
     }
 
-    private void showFoodMessage(){
+    private void showFoodMessage() {
         Color c = Misc.getHighlightColor();
 
         MessageIntel intel = new MessageIntel(
@@ -272,7 +273,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         Global.getSector().getCampaignUI().addMessage(intel);
     }
 
-    private void showPetForgottenMessage(SubmarketAPI onMarket){
+    private void showPetForgottenMessage(SubmarketAPI onMarket) {
         Color c = Misc.getHighlightColor();
 
         MessageIntel intel = new MessageIntel(

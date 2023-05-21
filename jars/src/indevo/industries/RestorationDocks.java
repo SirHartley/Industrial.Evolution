@@ -1,10 +1,6 @@
 package indevo.industries;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import indevo.ids.Ids;
-import indevo.utils.helper.IndustryHelper;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
@@ -18,17 +14,23 @@ import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.DModManager;
-import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
-import indevo.ids.ItemIds;
-import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
+import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
 
 import java.awt.*;
 import java.util.List;
@@ -105,7 +107,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
             if (aiMode && (market.getFaction().isHostileTo(Global.getSector().getPlayerFaction()) && !market.getFaction().getId().equals(Factions.PIRATES)))
                 return;
 
-            MonthlyReport.FDNode iNode = aiMode ? createMonthlyReportNode() : null;
+            MonthlyReport.FDNode iNode = aiMode ? IndustryHelper.createMonthlyReportNode(this, market, getCurrentName(), Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE) : null;
             Map<FleetMemberAPI, Float> fixedShips = removeDMods(aiMode);
 
             if (fixedShips.size() > 0) {
@@ -242,45 +244,6 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
         memory.set(MAX_DMOD_MEMORY, maxDModMemory);
         repairedShipsTooltipList = fixedShips;
         return fixedShips;
-    }
-
-    private MonthlyReport.FDNode createMonthlyReportNode() {
-        MonthlyReport report = SharedData.getData().getCurrentReport();
-
-        MonthlyReport.FDNode marketsNode = report.getNode(MonthlyReport.OUTPOSTS);
-        marketsNode.name = StringHelper.getString("colonies");
-        marketsNode.custom = MonthlyReport.OUTPOSTS;
-        marketsNode.tooltipCreator = report.getMonthlyReportTooltip();
-
-        MonthlyReport.FDNode mNode = report.getNode(marketsNode, market.getId());
-        mNode.name = market.getName() + " (" + market.getSize() + ")";
-        mNode.custom = market;
-
-        MonthlyReport.FDNode indNode = report.getNode(mNode, "industries");
-
-        for (Industry curr : market.getIndustries()) {
-            if (!curr.getId().equals(Ids.ACADEMY)) { //Have to exclude academy or player will not be billed training
-                MonthlyReport.FDNode iNode = report.getNode(indNode, curr.getId());
-                iNode.income = 0;
-                iNode.upkeep = 0;
-            }
-        }
-
-        MonthlyReport.FDNode dryDockNode = report.getNode(mNode, "dryDock");
-        dryDockNode.name = StringHelper.getString(getId(), "indNodeTitle");
-        dryDockNode.mapEntity = market.getPrimaryEntity();
-        dryDockNode.tooltipCreator = report.getMonthlyReportTooltip();
-        dryDockNode.icon = getCurrentImage();
-        dryDockNode.custom = this;
-        dryDockNode.custom2 = this;
-
-        MonthlyReport.FDNode iNode = report.getNode(dryDockNode, this.getId());
-        iNode.name = getCurrentName();
-        iNode.upkeep = 0;
-        iNode.custom = this;
-        iNode.mapEntity = market.getPrimaryEntity();
-
-        return iNode;
     }
 
     private float getHullSizeRepairFee(ShipAPI.HullSize size) {

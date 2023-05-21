@@ -5,8 +5,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
-import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.terrain.HyperspaceTerrainPlugin;
@@ -117,7 +115,7 @@ public class MineImpact implements EveryFrameScript {
             Color color = new Color(255, 165, 80);
 
             float damageMult = MathUtils.clamp(MineBeltTerrainPlugin.getBaseFleetHitChance(fleet), 0f, 1f);
-            MineExplosionEntityPlugin.MineExplosionParams params = new MineExplosionEntityPlugin.MineExplosionParams(fleet, EXPLOSION_DAMAGE_MULT * damageMult,color, cl, loc, size, 1f);
+            MineExplosionEntityPlugin.MineExplosionParams params = new MineExplosionEntityPlugin.MineExplosionParams(fleet, EXPLOSION_DAMAGE_MULT * damageMult, color, cl, loc, size, 1f);
 
             params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.LOW;
 

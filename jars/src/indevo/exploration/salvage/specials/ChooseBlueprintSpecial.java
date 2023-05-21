@@ -1,8 +1,6 @@
 package indevo.exploration.salvage.specials;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.FleetMemberPickerListener;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.OptionPanelAPI;
@@ -14,8 +12,10 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
+import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.utils.helper.IndustryHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static indevo.utils.helper.IndustryHelper.stripShipNoCargo;
 import static com.fs.starfarer.api.impl.campaign.ids.Items.SHIP_BP;
+import static indevo.utils.helper.IndustryHelper.stripShipNoCargo;
 
 public class ChooseBlueprintSpecial extends BaseSalvageSpecial {
     //choose a blueprint from a selection of 2-4 hulls

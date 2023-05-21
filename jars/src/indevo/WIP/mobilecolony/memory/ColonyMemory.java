@@ -8,7 +8,7 @@ import java.util.Map;
 public class ColonyMemory {
     private static final String MEMORY_KEY = "$IndEvo_MobileSystemMemory";
 
-    private static Map<Integer, ColonyMemoryEntry> getMap(){
+    private static Map<Integer, ColonyMemoryEntry> getMap() {
         Map<String, Object> mem = Global.getSector().getPersistentData();
         Map<Integer, ColonyMemoryEntry> map;
 
@@ -21,17 +21,17 @@ public class ColonyMemory {
         return map;
     }
 
-    public static ColonyMemoryEntry get(int i){
+    public static ColonyMemoryEntry get(int i) {
         return getMap().get(i);
     }
 
-    public static void add(int i, ColonyMemoryEntry c){
+    public static void add(int i, ColonyMemoryEntry c) {
         getMap().put(i, c);
     }
 
-    public static int getNext(){
+    public static int getNext() {
         int largest = 0;
-        for (int i : getMap().keySet()){
+        for (int i : getMap().keySet()) {
             if (i > largest) largest = i;
         }
 

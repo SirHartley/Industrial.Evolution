@@ -11,7 +11,7 @@ import com.fs.starfarer.api.fleet.RepairTrackerAPI;
 import com.fs.starfarer.api.impl.campaign.fleets.AutoDespawnScript;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
-import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.util.Misc;
 
 import java.util.ArrayList;
@@ -22,10 +22,10 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
 
     /**
      * this is for PAGSM
-     *
+     * <p>
      * Makes a fleet respawn with the original configuration until the flagship is killed by the player
      * Once flagship is killed, spawns a respawning fleet with the paramsAfterDefeat as base
-     *
+     * <p>
      * If the flagship is killed by an NPC and the player attacks the remaining fleet afterwards, the fleet will still respawn as if entirely defeated by an NPC
      */
 
@@ -53,7 +53,7 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
     private boolean defeated = false;
     private boolean flagshipKilledByPlayer = false;
 
-    public static void register(CampaignFleetAPI fleet, FleetParamsV3 originalSpawnParams, FleetParamsV3 paramsAfterDefeat, String memKeyOnDefeat){
+    public static void register(CampaignFleetAPI fleet, FleetParamsV3 originalSpawnParams, FleetParamsV3 paramsAfterDefeat, String memKeyOnDefeat) {
         Global.getSector().addScript(new UniqueFleetRespawnTracker(fleet, originalSpawnParams, paramsAfterDefeat, memKeyOnDefeat));
     }
 
@@ -76,8 +76,9 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
     public void advance(float amount) {
         //if the respawn market does not exist we don't do jack shit
         boolean respawnMarketValid = respawnMarket != null && respawnMarket.getFactionId().equals(requiredMarketFaction);
-        if (!respawnMarketValid){
-            if (!isDespawningOrDead() && !fleet.getMemoryWithoutUpdate().contains(MEMORY_KEY_IS_RETURNING_TO_DESPAWN)) returnToPlanetAndDespawn();
+        if (!respawnMarketValid) {
+            if (!isDespawningOrDead() && !fleet.getMemoryWithoutUpdate().contains(MEMORY_KEY_IS_RETURNING_TO_DESPAWN))
+                returnToPlanetAndDespawn();
             daysPassed = 0;
             return;
         }
@@ -96,11 +97,11 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
         }
     }
 
-    private void setMemoryKeyPlayerKilledFleet(){
+    private void setMemoryKeyPlayerKilledFleet() {
         Global.getSector().getMemoryWithoutUpdate().set(memKeyOnDefeat, true);
     }
 
-    private void returnToPlanetAndDespawn(){
+    private void returnToPlanetAndDespawn() {
         fleet.clearAssignments();
         fleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_IGNORES_OTHER_FLEETS, true);
         fleet.getMemoryWithoutUpdate().set(MEMORY_KEY_IS_RETURNING_TO_DESPAWN, true);
@@ -121,15 +122,16 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, where, 1000f, "on final planet approach");
     }
 
-    private void returnToPlanetAndRecuperate(){
+    private void returnToPlanetAndRecuperate() {
         fleet.clearAssignments();
         fleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_IGNORES_OTHER_FLEETS, true);
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, respawnMarket.getPrimaryEntity(), 1000f, "returning to " + respawnMarket.getPrimaryEntity().getName());
         fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, respawnMarket.getPrimaryEntity(), DAYS_UNTIL_FP_RECOVERY, "getting repaired and refuelled");
     }
 
-    private MarketAPI getTargetMarket(){
-        if (respawnMarket != null && !respawnMarket.isPlanetConditionMarketOnly() && respawnMarket.getFactionId().equals(requiredMarketFaction)) return respawnMarket;
+    private MarketAPI getTargetMarket() {
+        if (respawnMarket != null && !respawnMarket.isPlanetConditionMarketOnly() && respawnMarket.getFactionId().equals(requiredMarketFaction))
+            return respawnMarket;
 
         LocationAPI loc = fleet.getContainingLocation();
         List<MarketAPI> marketList = Misc.getMarketsInLocation(loc, requiredMarketFaction);
@@ -142,7 +144,7 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
         float maxRel = Float.MIN_VALUE;
 
         //we go to the market with the best relation to our faction that's not hostile
-        for (MarketAPI m : marketList){
+        for (MarketAPI m : marketList) {
             if (m.getFaction().isHostileTo(requiredMarketFaction)) continue;
 
             float rel = m.getFaction().getRelationship(requiredMarketFaction);
@@ -152,7 +154,7 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
         return target;
     }
 
-    private void overrideFleetBackupWithBlankCopy(){
+    private void overrideFleetBackupWithBlankCopy() {
         String name = fleet.getName();
         boolean noFactionInName = fleet.isNoFactionInName();
 
@@ -162,13 +164,13 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
 
         //purge the vigilance
         //purge it
-        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()){
+        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
             if (m.isFlagship()) continue;
             fleet.getFleetData().removeFleetMember(m);
         }
     }
 
-    private void overrideFleetWithPostDefeatVersion(){
+    private void overrideFleetWithPostDefeatVersion() {
         String name = fleet.getName();
         boolean noFactionInName = fleet.isNoFactionInName();
 
@@ -177,7 +179,7 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
         fleet.setNoFactionInName(noFactionInName);
     }
 
-    private void initPostDefeatFleet(){
+    private void initPostDefeatFleet() {
         respawnMarket.getContainingLocation().addEntity(fleet);
         fleet.setAI(Global.getFactory().createFleetAI(fleet));
 
@@ -188,7 +190,7 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
         fleet.setAI(Global.getFactory().createFleetAI(fleet));
     }
 
-    private void initFleetBackup(){
+    private void initFleetBackup() {
         for (FleetMemberAPI m : originalMemberBackup) {
             if (m.isFlagship() || m.getId().equals(flagship.getId())) continue;
 
@@ -212,7 +214,7 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
         fleet.setAI(Global.getFactory().createFleetAI(fleet));
     }
 
-    public void respawnFleet(){
+    public void respawnFleet() {
         isDamaged = false;
         lostMembers.clear();
 
@@ -227,7 +229,7 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
         fleet.addEventListener(this);
     }
 
-    public void respawnLostMembers(){
+    public void respawnLostMembers() {
         for (FleetMemberAPI member : lostMembers) {
             fleet.getFleetData().addFleetMember(member);
             member.getStatus().repairFully();
@@ -246,7 +248,7 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
         daysPassed = 0;
     }
 
-    public void restoreInitialAssignment(){
+    public void restoreInitialAssignment() {
         fleet.clearAssignments();
         fleet.getMemoryWithoutUpdate().unset(MemFlags.FLEET_IGNORES_OTHER_FLEETS);
         fleet.getMemoryWithoutUpdate().unset(MEMORY_KEY_IS_RETURNING_TO_DESPAWN);
@@ -278,15 +280,15 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
         boolean playerInvolved = battle.isPlayerInvolved();
         boolean flagshipDead = false;
 
-        for (FleetMemberAPI m : membersLost){
+        for (FleetMemberAPI m : membersLost) {
             if (m.getVariant().getHullVariantId().equals(flagship.getVariant().getHullVariantId())) {
                 flagshipDead = true;
                 break;
             }
         }
 
-        if (!flagshipKilledByPlayer){
-            if (playerInvolved && flagshipDead){
+        if (!flagshipKilledByPlayer) {
+            if (playerInvolved && flagshipDead) {
                 flagshipKilledByPlayer = true;
                 setMemoryKeyPlayerKilledFleet();
                 fleet.getMemoryWithoutUpdate().unset(MemFlags.ENTITY_MISSION_IMPORTANT);
@@ -308,7 +310,7 @@ public class UniqueFleetRespawnTracker implements FleetEventListener, EveryFrame
         }
     }
 
-    private boolean isDespawningOrDead(){
+    private boolean isDespawningOrDead() {
         return fleet.getFleetData().getMembersListCopy().isEmpty() || fleet.isEmpty() || fleet.isDespawning() || !fleet.isAlive();
     }
 

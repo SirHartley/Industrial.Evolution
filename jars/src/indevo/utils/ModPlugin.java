@@ -14,10 +14,12 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
-import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.ids.Conditions;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
-import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
@@ -27,6 +29,7 @@ import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.dialogue.DialogueInterceptListener;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.dialogue.research.DoritoGunFoundChecker;
+import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationPlacer;
@@ -47,8 +50,11 @@ import indevo.industries.changeling.plugins.ChangelingMiningOptionProvider;
 import indevo.industries.changeling.plugins.ChangelingPopulationOptionProvider;
 import indevo.industries.changeling.plugins.ChangelingRefiningOptionProvider;
 import indevo.industries.courierport.listeners.ShippingManager;
+import indevo.industries.derelicts.listeners.AncientLabCommoditySwitchOptionProvider;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
+import indevo.industries.petshop.memory.PetData;
+import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.ruinfra.utils.DerelictInfrastructurePlacer;
 import indevo.industries.worldwonder.plugins.WorldWonderAltImageOptionProvider;
 import indevo.industries.worldwonder.plugins.WorldWonderTexChangeOptionProvider;
@@ -137,10 +143,14 @@ public class ModPlugin extends BaseModPlugin {
         LocatorSystemRatingUpdater.updateAllSystems();
         resetDerelictRep();
 
-        if (newGame){
+        if (newGame) {
             SubspaceSystem.gen();
             ArtilleryStationReplacer.register();
         }
+
+        //pets
+        if (ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(Ids.PROJ_NAVI).getProgress().redeemed)
+            PetDataRepo.get("fairy").tags.remove(PetData.TAG_NO_SELL);
     }
 
     @Override
@@ -310,6 +320,7 @@ public class ModPlugin extends BaseModPlugin {
         ChangelingPopulationOptionProvider.register();
         ChangelingMiningOptionProvider.register();
         ChangelingRefiningOptionProvider.register();
+        AncientLabCommoditySwitchOptionProvider.register();
     }
 
     private void setScriptsIfNeeded() {

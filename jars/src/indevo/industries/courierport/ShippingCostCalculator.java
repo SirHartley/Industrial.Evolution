@@ -22,22 +22,22 @@ public class ShippingCostCalculator {
     public static final float TOTAL_FEE_REDUCTION = 0.9f;
     public static final String AI_CORE_ID_STRING = "$IndEvo_CurrentShippingCore";
 
-    public static float getCostForCargoSpace(int space, float lyMult){
+    public static float getCostForCargoSpace(int space, float lyMult) {
         return space * COST_PER_SPACE * lyMult * getAlphaCoreRed();
     }
 
-    public static float getCostForShipSpace(int dp, float lyMult){
+    public static float getCostForShipSpace(int dp, float lyMult) {
         return dp * COST_PER_SHIP_SPACE * lyMult * getAlphaCoreRed();
     }
 
     public static float getLYMult(ShippingContract contract) {
-        if(contract.fromMarketId == null || contract.toMarketId == null) return 0f;
+        if (contract.fromMarketId == null || contract.toMarketId == null) return 0f;
 
         return getLYMult(contract.getFromMarket().getPrimaryEntity(), contract.getToMarket().getPrimaryEntity());
     }
 
     public static float getLYMult(SectorEntityToken from, SectorEntityToken to) {
-        if(from == null || to == null) return 0f;
+        if (from == null || to == null) return 0f;
 
         float ly = Misc.getDistanceLY(from, to);
         float lyMult = (float) Math.round((1f + ((ly * Math.pow(1000f, 1f + (ly / COST_PER_LY_MULT))) / 10000f)) * 10f) / 10f;
@@ -48,29 +48,29 @@ public class ShippingCostCalculator {
         return lyMult;
     }
 
-    public static float getTotalContractCost(ShippingContract contract){
+    public static float getTotalContractCost(ShippingContract contract) {
         return (getContractShipCost(contract) + getContractCargoCost(contract) + CONTRACT_BASE_FEE);
     }
 
-    public static float getTotalContractCost(CargoAPI cargo, ShippingContract contract){
+    public static float getTotalContractCost(CargoAPI cargo, ShippingContract contract) {
         return (getContractShipCost(cargo, contract) + getContractCargoCost(cargo, contract) + CONTRACT_BASE_FEE);
     }
 
-    public static float getContractShipCost(ShippingContract contract){
+    public static float getContractShipCost(ShippingContract contract) {
         float total = 0f;
-        if (contract.getFromSubmarket() != null){
+        if (contract.getFromSubmarket() != null) {
             total += getBaseAbstractShipSpaceCost(contract.getShipList());
         }
 
         return total + getLYMult(contract);
     }
 
-    public static float getContractShipCost(CargoAPI cargo, ShippingContract contract){
+    public static float getContractShipCost(CargoAPI cargo, ShippingContract contract) {
         float total = 0f;
         List<ShipVariantAPI> variantList = new ArrayList<>();
         cargo.initMothballedShips("player");
 
-        for (FleetMemberAPI m : cargo.getMothballedShips().getMembersListCopy()){
+        for (FleetMemberAPI m : cargo.getMothballedShips().getMembersListCopy()) {
             variantList.add(m.getVariant());
         }
 
@@ -79,14 +79,14 @@ public class ShippingCostCalculator {
         return total + getLYMult(contract);
     }
 
-    public static float getContractCargoCost(CargoAPI cargo, ShippingContract contract){
+    public static float getContractCargoCost(CargoAPI cargo, ShippingContract contract) {
         float total = getBaseStackCargoSpaceCost(cargo);
         return total + getLYMult(contract);
     }
 
-    public static float getContractCargoCost(ShippingContract contract){
+    public static float getContractCargoCost(ShippingContract contract) {
         float total = 0f;
-        if (contract.getFromSubmarket() != null){
+        if (contract.getFromSubmarket() != null) {
             total += getBaseStackCargoSpaceCost(contract.getFromSubmarket().getCargo());
         }
 
@@ -117,7 +117,7 @@ public class ShippingCostCalculator {
             }
         }
 
-        return totalValue * COST_PER_SHIP_SPACE  * getAlphaCoreRed();
+        return totalValue * COST_PER_SHIP_SPACE * getAlphaCoreRed();
     }
 
     private static float getBaseStackCargoSpaceCost(CargoAPI cargo) {
@@ -130,7 +130,7 @@ public class ShippingCostCalculator {
         return totalSpace * COST_PER_SPACE * getAlphaCoreRed();
     }
 
-    private static float getAlphaCoreRed(){
+    private static float getAlphaCoreRed() {
         return ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.ALPHA_CORE) ? TOTAL_FEE_REDUCTION : 1f;
     }
 

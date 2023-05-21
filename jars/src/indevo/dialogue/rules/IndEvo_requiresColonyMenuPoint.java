@@ -1,15 +1,15 @@
 package indevo.dialogue.rules;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
-import indevo.ids.Ids;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.utils.helper.IndustryHelper;
 
 import java.util.List;
 import java.util.Map;

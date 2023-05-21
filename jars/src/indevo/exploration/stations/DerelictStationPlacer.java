@@ -3,18 +3,21 @@ package indevo.exploration.stations;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.ids.Entities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.SalvageEntityGeneratorOld;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.SalvageSpecialAssigner;
-import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
-import indevo.exploration.minefields.conditions.MineFieldCondition;
-import indevo.ids.Ids;
-import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.exploration.minefields.conditions.MineFieldCondition;
+import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
+import indevo.ids.Ids;
+import indevo.utils.ModPlugin;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -122,11 +125,11 @@ public class DerelictStationPlacer {
 
         AddedEntity e = addStation(loc, data, type, Factions.NEUTRAL);
 
-        if(Global.getSettings().getBoolean("Enable_IndEvo_minefields") && loc.type.equals(LocationType.PLANET_ORBIT)){
+        if (Global.getSettings().getBoolean("Enable_IndEvo_minefields") && loc.type.equals(LocationType.PLANET_ORBIT)) {
             SectorEntityToken t = e.entity.getOrbitFocus();
-            if (t != null){
+            if (t != null) {
                 //if it's a moon, add to primary entity instead
-                if(t.getOrbitFocus() != null && t.getOrbitFocus() instanceof PlanetAPI && !t.getOrbitFocus().isStar() && !t.getOrbitFocus().isSystemCenter()){
+                if (t.getOrbitFocus() != null && t.getOrbitFocus() instanceof PlanetAPI && !t.getOrbitFocus().isStar() && !t.getOrbitFocus().isSystemCenter()) {
                     t = t.getOrbitFocus();
                 }
 

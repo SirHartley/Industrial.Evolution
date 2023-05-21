@@ -3,7 +3,6 @@ package indevo.industries.petshop.hullmods;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -47,18 +46,12 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
         tooltip.addPara("Name: %s", spad, hl, pet.name);
         tooltip.addPara("Species: %s", spad, hl, pet.getData().species);
         tooltip.addPara("Disposition: %s", spad, Academy.COLOURS_BY_PERSONALITY.get(pet.personality), pet.personality.toLowerCase());
-
-        int years = (int) Math.ceil(pet.age / 364f);
-        float months = (int) Math.ceil(pet.age / 31f);
-
-        if (pet.age < 31) tooltip.addPara("Age: %s", spad, hl, Misc.getStringForDays((int) Math.ceil(pet.age)));
-        else if (pet.age < 365) tooltip.addPara("Age: %s", spad, hl, months + (months <= 1 ? " month" : " months"));
-        else tooltip.addPara("Age: %s", spad, hl, years + (years <= 1 ? " year" : " years"));
+        tooltip.addPara("Age: %s", spad, hl, pet.getAgeString());
 
         tooltip.addPara("Status: %s", spad, pet.isStarving() ? Misc.getNegativeHighlightColor() : hl, pet.isStarving() ? "Starving" : "Well fed and happy");
 
         tooltip.addPara("Dietary options: ", opad);
-        for (String commodity : pet.getData().foodCommodities){
+        for (String commodity : pet.getData().foodCommodities) {
             String name = Global.getSettings().getCommoditySpec(commodity).getName();
             tooltip.addPara(BaseIntelPlugin.BULLET + " " + name, spad);
         }

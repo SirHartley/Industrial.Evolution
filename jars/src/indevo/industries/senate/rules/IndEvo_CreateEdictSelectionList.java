@@ -6,13 +6,13 @@ import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.MarketConditionSpecAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
-import indevo.utils.memory.SessionTransientMemory;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.memory.SessionTransientMemory;
 
 import java.util.*;
 
-import static indevo.utils.helper.IndustryHelper.splitList;
 import static indevo.industries.senate.rules.IndEvo_EdictVariables.*;
+import static indevo.utils.helper.IndustryHelper.splitList;
 
 public class IndEvo_CreateEdictSelectionList extends BaseCommandPlugin {
 

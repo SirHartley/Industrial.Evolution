@@ -2,6 +2,7 @@ package indevo.dialogue.research;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 
 public abstract class ResearchProject implements ResearchProjectAPI {
 
@@ -43,6 +44,10 @@ public abstract class ResearchProject implements ResearchProjectAPI {
             mem.set(key, p);
             return p;
         }
+    }
+
+    public void addTooltipOutputOnCompletion(TooltipMakerAPI tooltip) {
+
     }
 
     //create a list with templates

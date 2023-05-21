@@ -10,11 +10,11 @@ public class RuinsCountMap {
 
     public static final String MAP_KEY = "$IndEvo_ruinsMapKey";
 
-    public static Map<String, Integer> getCountMap(){
+    public static Map<String, Integer> getCountMap() {
         Map<String, Integer> count;
         Map<String, Object> mem = Global.getSector().getPersistentData();
 
-        if (mem.containsKey(MAP_KEY)) count = ( Map<String, Integer>) mem.get(MAP_KEY);
+        if (mem.containsKey(MAP_KEY)) count = (Map<String, Integer>) mem.get(MAP_KEY);
         else {
             count = new HashMap<>();
             mem.put(MAP_KEY, count);
@@ -30,7 +30,7 @@ public class RuinsCountMap {
         else map.put(id, map.get(id) + 1);
     }
 
-    public static int getCount(String id){
+    public static int getCount(String id) {
         Map<String, Integer> map = getCountMap();
         return map.containsKey(id) ? map.get(id) : 0;
     }

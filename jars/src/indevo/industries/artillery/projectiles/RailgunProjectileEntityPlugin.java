@@ -1,9 +1,6 @@
 package indevo.industries.artillery.projectiles;
 
 import com.fs.starfarer.api.Global;
-import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
-import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
-import indevo.utils.trails.MagicCampaignTrailPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
@@ -12,6 +9,9 @@ import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
+import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
+import indevo.utils.trails.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -101,7 +101,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
         readResolve();
     }
 
-    private void updateProjectileFlightTime(){
+    private void updateProjectileFlightTime() {
         float projectileFlightTime = Misc.getDistance(origin.getLocation(), target) / PROJECTILE_VELOCITY;
         this.projectileDelayTime = impactSeconds - projectileFlightTime;
     }
@@ -120,11 +120,12 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
     public void advance(float amount) {
         timePassedSeconds += amount;
 
-        if(originLocation == null || target == null) {
+        if (originLocation == null || target == null) {
             Misc.fadeAndExpire(entity, 0.1f);
             finishing = true;
             return;
-        };
+        }
+        ;
 
         timePassedSeconds += amount;
 
@@ -138,7 +139,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
             float timing = impactSeconds - timePassedSeconds;
             String key = ARTILLERY_REACTION_SCRIPT_KEY + entity.getId();
 
-            if (!other.getMemoryWithoutUpdate().contains(key)){
+            if (!other.getMemoryWithoutUpdate().contains(key)) {
                 other.addScript(new MortarProjectileEntityPlugin.ArtilleryReactionScript(target, AREA_AVOIDANCE_RADIUS, other, timing));
                 other.getMemoryWithoutUpdate().set(key, true, timing);
             }
@@ -148,7 +149,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
         //we update flight time and station location while the station is moving, once it gets shot, the values stay static so the projectile does not drift
         boolean projectileDelayPassed = timePassedSeconds > projectileDelayTime;
 
-        if(!projectileDelayPassed && origin != null && origin.getLocation() != null) {
+        if (!projectileDelayPassed && origin != null && origin.getLocation() != null) {
             updateProjectileFlightTime();
             originLocation = new Vector2f(origin.getLocation().x, origin.getLocation().y);
         }
@@ -156,24 +157,25 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
         //target reticule alpha
         float maxFadeInTime = impactSeconds * ALPHA_FADE_IN_FRACTION;
 
-        if(timePassedSeconds < maxFadeInTime) {
+        if (timePassedSeconds < maxFadeInTime) {
             float mult = smootherstep(0, maxFadeInTime, timePassedSeconds);
             currentAlpha = MAX_LINE_ALPHA * mult;
         } else currentAlpha = MAX_LINE_ALPHA * (1 - smootherstep(maxFadeInTime, impactSeconds, timePassedSeconds));
 
         if (projectileDelayPassed && !finishing) {
 
-            if (sound){
+            if (sound) {
                 Global.getSoundPlayer().playSound("IndEvo_railgun_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.5f, origin.getLocation(), Misc.ZERO);
                 sound = false;
             }
 
-            if(timePassedSeconds > projectileDelayTime + 0.05f) addTrailToProj(); //clips into station without the delay
+            if (timePassedSeconds > projectileDelayTime + 0.05f)
+                addTrailToProj(); //clips into station without the delay
             advanceEntityPosition(amount);
             boolean friendlyFireDelayPassed = timePassedSeconds > projectileDelayTime + (impactSeconds - projectileDelayTime) * FRIENDLY_FIRE_IMMUNITY_PROJ_FLIGHT_TIME_FRACT;
 
-            for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()){
-                if(friendlyFireDelayPassed
+            for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()) {
+                if (friendlyFireDelayPassed
                         && Misc.getDistance(entity, origin) > ArtilleryStationEntityPlugin.MIN_RANGE
                         && Misc.getDistance(entity, fleet) <= EXPLOSION_SIZE * 0.2f) {
 
@@ -198,7 +200,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
     public float trailID;
     public static final float TRAIL_TIME = 0.5f;
 
-    private void addTrailToProj(){
+    private void addTrailToProj() {
         MagicCampaignTrailPlugin.AddTrailMemberSimple(
                 entity,
                 trailID,
@@ -215,12 +217,12 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
                 new Vector2f(0, 0));
     }
 
-    public void renderLine(){
-        if(targetLineSprite == null) targetLineSprite = Global.getSettings().getSprite("fx", "IndEvo_line");
+    public void renderLine() {
+        if (targetLineSprite == null) targetLineSprite = Global.getSettings().getSprite("fx", "IndEvo_line");
 
         float timeRemainingMult = 1 - Math.min(timePassedSeconds / impactSeconds, 1);
-        int gColour = Math.max( (int) Math.round(200 * timeRemainingMult), 0);
-        int rColour = Math.max( (int) Math.round(100 * timeRemainingMult), 0);
+        int gColour = Math.max((int) Math.round(200 * timeRemainingMult), 0);
+        int rColour = Math.max((int) Math.round(100 * timeRemainingMult), 0);
         Color color = new Color(255, gColour, rColour, 255); //Start
 
         targetLineSprite.setAdditiveBlend();
@@ -267,7 +269,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         renderLine();
-        if(timePassedSeconds > projectileDelayTime) renderProjectileGlow(viewport);
+        if (timePassedSeconds > projectileDelayTime) renderProjectileGlow(viewport);
     }
 
     public float getGlowAlpha() {
@@ -286,7 +288,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public void renderProjectileGlow(ViewportAPI viewport) {
-        if(glow == null) glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
+        if (glow == null) glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
 
         float alphaMult = viewport.getAlphaMult();
         alphaMult *= entity.getSensorFaderBrightness();

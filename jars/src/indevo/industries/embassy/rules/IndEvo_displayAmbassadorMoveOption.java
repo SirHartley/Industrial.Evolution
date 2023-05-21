@@ -8,11 +8,11 @@ import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.PersonAPI;
+import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.embassy.industry.Embassy;
-import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import com.fs.starfarer.api.util.Misc;
 
 import java.util.List;
 import java.util.Map;

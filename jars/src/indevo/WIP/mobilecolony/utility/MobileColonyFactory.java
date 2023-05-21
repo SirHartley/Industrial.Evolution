@@ -25,16 +25,17 @@ public class MobileColonyFactory {
 
     /**
      * Does not actually spawn the fleet - that has to be done manually afterwards.
+     *
      * @return
      */
-    public static ColonyMemoryEntry create(){
+    public static ColonyMemoryEntry create() {
         int next = ColonyMemory.getNext();
 
         StarSystemAPI system = createHiddenStarSystem(SYSTEM_BASE_NAME + next);
         MarketAPI market = createMobileMarket(MARKET_BASE_ID + next, system);
         CampaignFleetAPI fleet = createFleet(next);
 
-        ColonyMemoryEntry entry = new ColonyMemoryEntry(market,system,  fleet);
+        ColonyMemoryEntry entry = new ColonyMemoryEntry(market, system, fleet);
         ColonyMemory.add(next, entry);
 
         entry.joinFleetAndMarket();
@@ -43,7 +44,7 @@ public class MobileColonyFactory {
     }
 
 
-    public static CampaignFleetAPI createFleet(int i){
+    public static CampaignFleetAPI createFleet(int i) {
         CampaignFleetAPI fleet = Global.getFactory().createEmptyFleet("player", "Mobile Colony", true);
 
         for (String s : Global.getSettings().getSortedAbilityIds()) {
@@ -69,7 +70,7 @@ public class MobileColonyFactory {
         return fleet;
     }
 
-    public static MarketAPI createMobileMarket(String id, StarSystemAPI system){
+    public static MarketAPI createMobileMarket(String id, StarSystemAPI system) {
         SectorEntityToken entity = system.addCustomEntity(null, "", Entities.MAKESHIFT_STATION, Factions.PLAYER);
         SectorEntityToken center = system.initNonStarCenter();
         entity.setLocation(center.getLocation().x, center.getLocation().y);
@@ -109,7 +110,7 @@ public class MobileColonyFactory {
         return market;
     }
 
-    public static StarSystemAPI createHiddenStarSystem(String name){
+    public static StarSystemAPI createHiddenStarSystem(String name) {
         StarSystemAPI system = Global.getSector().createStarSystem(name);
         system.setBaseName(name);
         system.addTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER);

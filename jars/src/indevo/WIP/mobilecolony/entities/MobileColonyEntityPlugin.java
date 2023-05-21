@@ -5,19 +5,13 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.Pair;
-import indevo.utils.ModPlugin;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static org.lwjgl.opengl.GL11.*;
 
 public class MobileColonyEntityPlugin extends BaseCustomEntityPlugin {
 
@@ -32,12 +26,12 @@ public class MobileColonyEntityPlugin extends BaseCustomEntityPlugin {
     public void init(SectorEntityToken entity, Object pluginParams) {
         super.init(entity, pluginParams);
 
-        trailList.add(new Trail(30,40,12,2.5f,new Color(255, 200, 50, 255)));
-        trailList.add(new Trail(20,57,18,3.5f,new Color(255, 150, 50, 255)));
-        trailList.add(new Trail(5,63,25,5f,new Color(255, 100, 50, 255)));
-        trailList.add(new Trail(-5,63,25,5f,new Color(255, 100, 50, 255)));
-        trailList.add(new Trail(-20,57,18,3.5f,new Color(255, 150, 50, 255)));
-        trailList.add(new Trail(-30,40,12,2.5f,new Color(255, 200, 50, 255)));
+        trailList.add(new Trail(30, 40, 12, 2.5f, new Color(255, 200, 50, 255)));
+        trailList.add(new Trail(20, 57, 18, 3.5f, new Color(255, 150, 50, 255)));
+        trailList.add(new Trail(5, 63, 25, 5f, new Color(255, 100, 50, 255)));
+        trailList.add(new Trail(-5, 63, 25, 5f, new Color(255, 100, 50, 255)));
+        trailList.add(new Trail(-20, 57, 18, 3.5f, new Color(255, 150, 50, 255)));
+        trailList.add(new Trail(-30, 40, 12, 2.5f, new Color(255, 200, 50, 255)));
     }
 
     public void advance(float amount) {
@@ -54,7 +48,8 @@ public class MobileColonyEntityPlugin extends BaseCustomEntityPlugin {
         float distToTarget = Misc.getDistance(entity, currentTarget);
 
         // TODO: 05/03/2023 make this nicer to come to a slow stop
-        if (currentTarget.getInteractionTarget() != null && entity.getId().equals(currentTarget.getInteractionTarget().getId())) return; //we stop if player is approaching us
+        if (currentTarget.getInteractionTarget() != null && entity.getId().equals(currentTarget.getInteractionTarget().getId()))
+            return; //we stop if player is approaching us
 
         float moveDist = distToTarget > MIN_FOLLOW_DISTANCE * 2 ? PROJECTILE_VELOCITY * amount : Math.min(PROJECTILE_VELOCITY, currentTarget.getVelocity().length()) * amount; //if we are far enough away, full steam, otherwise we follow go at the speed of the target if slower
         float turn = MAX_ANGLE_TURN_DIST_PER_SECOND * amount; //adjust turn for speed
@@ -73,7 +68,7 @@ public class MobileColonyEntityPlugin extends BaseCustomEntityPlugin {
         entity.setFacing(nextAngle);
     }
 
-    public class Trail{
+    public class Trail {
         float xOffset;
         float yOffset;
         float size;
@@ -92,17 +87,17 @@ public class MobileColonyEntityPlugin extends BaseCustomEntityPlugin {
             this.id = MagicCampaignTrailPlugin.getUniqueID();
         }
 
-        private Vector2f getTrailPos(){
+        private Vector2f getTrailPos() {
             //math is hard ok? dont @ me
 
             Vector2f currentLoc = entity.getLocation();
             Vector2f yCorrect = MathUtils.getPointOnCircumference(currentLoc, yOffset, entity.getFacing() - 180f);
-            Vector2f xCorrect = MathUtils.getPointOnCircumference(yCorrect, xOffset, entity.getFacing() -90f);
+            Vector2f xCorrect = MathUtils.getPointOnCircumference(yCorrect, xOffset, entity.getFacing() - 90f);
 
             return xCorrect;
         }
 
-        public void render(){
+        public void render() {
 
             ////Creates the custom object we want
             //        MagicTrailObject objectToAdd = new MagicTrailObject(0f, 0f, duration, startSize, endSize, 0f, 0f,

@@ -9,12 +9,12 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import indevo.utils.ModPlugin;
+import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
-import indevo.abilities.splitfleet.locationFollower.PlayerFleetFollower;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
-import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.locationFollower.PlayerFleetFollower;
+import indevo.utils.ModPlugin;
 
 public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
 
@@ -35,7 +35,7 @@ public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
         if (fleet.getAI() == null) return;
         ModPlugin.log("Deliver Detachment AI setting up");
 
-        if(!cargoTransferScript.finished){
+        if (!cargoTransferScript.finished) {
             checkOrCorrectMarket();
             MarketAPI market = Global.getSector().getEconomy().getMarket(targetMarketId);
 
@@ -65,19 +65,20 @@ public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
     public void advance(float amount) {
         super.advance(amount);
 
-        if(fleet != null
+        if (fleet != null
                 && fleet.getAI() != null
                 && fleet.getCurrentAssignment() != null
                 && !fleet.getCurrentAssignment().getAssignment().equals(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN)
-                && !fleet.getCurrentAssignment().getAssignment().equals(FleetAssignment.ORBIT_PASSIVE)) headToPlayerIfTargettedAssignment();
+                && !fleet.getCurrentAssignment().getAssignment().equals(FleetAssignment.ORBIT_PASSIVE))
+            headToPlayerIfTargettedAssignment();
 
         //resetFollowAssignment();
-        if(!cargoTransferScript.finished) checkOrCorrectMarket();
+        if (!cargoTransferScript.finished) checkOrCorrectMarket();
     }
 
-    public void checkOrCorrectMarket(){
+    public void checkOrCorrectMarket() {
         MarketAPI market = Global.getSector().getEconomy().getMarket(targetMarketId);
-        if(market == null) {
+        if (market == null) {
             targetMarketId = getAlternateMarket(fleet);
             cargoTransferScript = new CargoTransferScript(fleet, targetMarketId);
 
@@ -86,7 +87,7 @@ public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
         }
     }
 
-    public void notifyPlayerOfMarketChange(){
+    public void notifyPlayerOfMarketChange() {
         MarketAPI m = Global.getSector().getEconomy().getMarket(targetMarketId);
 
         MessageIntel intel = new MessageIntel("A delivery detachment has %s.", Misc.getTextColor(), new String[]{"changed destination"}, Misc.getHighlightColor());
@@ -100,20 +101,20 @@ public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
     public void reportFleetJumped(final CampaignFleetAPI fleet, SectorEntityToken from, JumpPointAPI.JumpDestination to) {
         super.reportFleetJumped(fleet, from, to);
 
-        if(fleet.isPlayerFleet() && cargoTransferScript.finished){
+        if (fleet.isPlayerFleet() && cargoTransferScript.finished) {
             //fleet.addAssignmentAtStart();
         }
     }
 
-    public static String getAlternateMarket(SectorEntityToken toFleet){
+    public static String getAlternateMarket(SectorEntityToken toFleet) {
         //get the absolute closest market and store yourself
 
         float dist = Float.MAX_VALUE;
         MarketAPI market = Global.getSector().getEconomy().getMarketsCopy().get(0);
 
-        for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()){
+        for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
             float d = Misc.getDistance(toFleet, m.getPrimaryEntity());
-            if(d < dist) {
+            if (d < dist) {
                 dist = d;
                 market = m;
             }

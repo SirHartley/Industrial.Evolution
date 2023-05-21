@@ -8,9 +8,9 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -102,21 +102,21 @@ public class SpikeEntityPlugin extends BaseCustomEntityPlugin {
         super.advance(amount);
         amt += amount;
 
-        if(state == State.PASSIVE && amt > TIME_TO_ARM) {
+        if (state == State.PASSIVE && amt > TIME_TO_ARM) {
             state = State.ARMED;
             entity.addFloatingText("Armed", getColour(), 0.5f);
         }
 
-        if (state == State.ARMED){
-           for (CampaignFleetAPI fleet : Misc.getNearbyFleets(entity, TRIGGER_DETECTION_RANGE)){
-               if(fleet.isHostileTo(Global.getSector().getPlayerFleet())) {
-                   state = State.FIRING;
-                   break;
-               }
-           }
+        if (state == State.ARMED) {
+            for (CampaignFleetAPI fleet : Misc.getNearbyFleets(entity, TRIGGER_DETECTION_RANGE)) {
+                if (fleet.isHostileTo(Global.getSector().getPlayerFleet())) {
+                    state = State.FIRING;
+                    break;
+                }
+            }
         }
 
-        if(state == State.FIRING){
+        if (state == State.FIRING) {
             entity.addAbility(Ids.ABILITY_MINE_INTERDICT);
             entity.getAbility(Ids.ABILITY_MINE_INTERDICT).activate();
         }
@@ -125,23 +125,27 @@ public class SpikeEntityPlugin extends BaseCustomEntityPlugin {
 
         this.facing += this.rotation * amount;
         phase += amount * GLOW_FREQUENCY * freqMult;
-        if(phase >= 1) {
-            if(state == State.ARMED) showRangePing();
+        if (phase >= 1) {
+            if (state == State.ARMED) showRangePing();
             phase--;
         }
     }
 
-    public Color getColour(){
-         switch (state){
-            case ARMED: return new Color(200, 150, 0, 255);
-            case FIRING: return   new Color(255, 30, 0, 255);
-            default: return new Color(20, 20, 255, 255);
+    public Color getColour() {
+        switch (state) {
+            case ARMED:
+                return new Color(200, 150, 0, 255);
+            case FIRING:
+                return new Color(255, 30, 0, 255);
+            default:
+                return new Color(20, 20, 255, 255);
         }
     }
 
     protected void showRangePing() {
         SectorEntityToken.VisibilityLevel vis = entity.getVisibilityLevelToPlayerFleet();
-        if (vis == SectorEntityToken.VisibilityLevel.NONE || vis == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT) return;
+        if (vis == SectorEntityToken.VisibilityLevel.NONE || vis == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT)
+            return;
 
         float range = TRIGGER_DETECTION_RANGE;
         CampaignPingSpec custom = new CampaignPingSpec();

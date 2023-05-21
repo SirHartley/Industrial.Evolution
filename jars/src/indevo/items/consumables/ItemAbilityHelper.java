@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ItemAbilityHelper {
-    public static Map<String, String> ID_MAP = new HashMap<String, String>(){{
+    public static Map<String, String> ID_MAP = new HashMap<String, String>() {{
         put(ItemIds.CONSUMABLE_DRONES, Ids.ABILITY_DRONES);
         put(ItemIds.CONSUMABLE_LOCATOR, Ids.ABILITY_LOCATOR);
         put(ItemIds.CONSUMABLE_NANITES, Ids.ABILITY_NANITES);
@@ -19,9 +19,9 @@ public class ItemAbilityHelper {
         put(ItemIds.CONSUMABLE_SPOOFER, Ids.ABILITY_SPOOFER);
     }};
 
-    public static String toggle(String s){
-        if(ID_MAP.values().contains(s)){
-            for (Map.Entry<String, String> e : ID_MAP.entrySet()){
+    public static String toggle(String s) {
+        if (ID_MAP.values().contains(s)) {
+            for (Map.Entry<String, String> e : ID_MAP.entrySet()) {
                 if (e.getValue().equals(s)) return e.getKey();
             }
         }

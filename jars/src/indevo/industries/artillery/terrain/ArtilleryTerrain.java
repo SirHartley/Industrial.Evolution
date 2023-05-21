@@ -1,12 +1,12 @@
 package indevo.industries.artillery.terrain;
 
 import com.fs.starfarer.api.Global;
-import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -15,11 +15,11 @@ import static indevo.industries.artillery.entities.ArtilleryStationEntityPlugin.
 
 public class ArtilleryTerrain extends BaseRingTerrain {
 
-    public void setRange(float range){
+    public void setRange(float range) {
         params.bandWidthInEngine = range;
     }
 
-    public void remove(){
+    public void remove() {
         Misc.fadeAndExpire(entity, 0f);
     }
 
@@ -35,7 +35,7 @@ public class ArtilleryTerrain extends BaseRingTerrain {
         SectorEntityToken artillery = getRelatedEntity();
         ArtilleryStationEntityPlugin p = (ArtilleryStationEntityPlugin) artillery.getCustomPlugin();
 
-        if(p == null) return "";
+        if (p == null) return "";
 
         boolean isSafe = p.isInSafeSpot(player);
         boolean isHostile = p.isHostileTo(player);
@@ -58,7 +58,7 @@ public class ArtilleryTerrain extends BaseRingTerrain {
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         SectorEntityToken artillery = getRelatedEntity();
         ArtilleryStationEntityPlugin p = (ArtilleryStationEntityPlugin) artillery.getCustomPlugin();
-        if(p == null) return;
+        if (p == null) return;
 
         boolean isDiscoverable = artillery.isDiscoverable();
         String artyNamy = isDiscoverable ? "artillery" : artillery.getName();
@@ -73,7 +73,8 @@ public class ArtilleryTerrain extends BaseRingTerrain {
 
         tooltip.addTitle(name);
 
-        if (p.isInSafeSpot(player)) tooltip.addPara("You are in a safe spot and will not be targeted by artillery.", highlight, pad);
+        if (p.isInSafeSpot(player))
+            tooltip.addPara("You are in a safe spot and will not be targeted by artillery.", highlight, pad);
 
         Color[] hlColours = new Color[]{artillery.getFaction().getColor(), relColour, willOrWontColour};
         tooltip.addPara("The artillery orbiting %s is controlled by a %s faction.\n" +
@@ -110,8 +111,10 @@ public class ArtilleryTerrain extends BaseRingTerrain {
         boolean isSafe = p.isInSafeSpot(player);
         boolean isHostile = p.isHostileTo(player);
 
-        if (isHostile && isSafe) return Misc.interpolateColor(base, hl, Global.getSector().getCampaignUI().getSharedFader().getBrightness()); //makes it flash that colour - don't interpolate for fixed colour
-        if (isHostile) return Misc.interpolateColor(hl, bad, Global.getSector().getCampaignUI().getSharedFader().getBrightness()); //makes it flash that colour - don't interpolate for fixed colour
+        if (isHostile && isSafe)
+            return Misc.interpolateColor(base, hl, Global.getSector().getCampaignUI().getSharedFader().getBrightness()); //makes it flash that colour - don't interpolate for fixed colour
+        if (isHostile)
+            return Misc.interpolateColor(hl, bad, Global.getSector().getCampaignUI().getSharedFader().getBrightness()); //makes it flash that colour - don't interpolate for fixed colour
         return base;
     }
 

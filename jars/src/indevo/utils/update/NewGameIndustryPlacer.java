@@ -5,7 +5,9 @@ import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
@@ -71,7 +73,7 @@ public class NewGameIndustryPlacer {
         placeIndustries(h, Ids.REPAIRDOCKS);
     }
 
-    public static void placeCourierPorts(){
+    public static void placeCourierPorts() {
         if (!Global.getSettings().getBoolean("PrivatePort")) {
             return;
         }
@@ -79,7 +81,7 @@ public class NewGameIndustryPlacer {
         Map<String, String> h = new HashMap<>();
         List<StarSystemAPI> blockedSystems = new ArrayList<>();
 
-        for (FactionAPI f : Global.getSector().getAllFactions()){
+        for (FactionAPI f : Global.getSector().getAllFactions()) {
             List<MarketAPI> marketList = Misc.getFactionMarkets(f.getId());
 
             if (marketList.isEmpty() || f.getId().equals(Factions.NEUTRAL)) continue;
@@ -87,9 +89,10 @@ public class NewGameIndustryPlacer {
             WeightedRandomPicker<MarketAPI> marketPicker = new WeightedRandomPicker<MarketAPI>();
             marketPicker.addAll(marketList);
 
-            while (!marketPicker.isEmpty()){
+            while (!marketPicker.isEmpty()) {
                 MarketAPI m = marketPicker.pickAndRemove();
-                if(blockedSystems.contains(m.getStarSystem()) || m.getTags().contains(Tags.MARKET_NO_INDUSTRIES_ALLOWED)) continue;
+                if (blockedSystems.contains(m.getStarSystem()) || m.getTags().contains(Tags.MARKET_NO_INDUSTRIES_ALLOWED))
+                    continue;
 
                 h.put(m.getId(), null);
                 blockedSystems.add(m.getStarSystem());

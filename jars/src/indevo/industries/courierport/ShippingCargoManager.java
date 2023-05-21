@@ -1,18 +1,18 @@
 package indevo.industries.courierport;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import indevo.utils.helper.IndustryHelper;
 
 import java.util.List;
 
 public class ShippingCargoManager {
 
-    public static CargoAPI getTargetCargoFromOrigin(ShippingContract contract, boolean removeWhenFound){
+    public static CargoAPI getTargetCargoFromOrigin(ShippingContract contract, boolean removeWhenFound) {
         ShippingContract.Scope scope = contract.scope;
 
         boolean ships = scope != ShippingContract.Scope.ALL_CARGO && scope != ShippingContract.Scope.SPECIFIC_CARGO;
@@ -31,10 +31,10 @@ public class ShippingCargoManager {
         fromSubmarketCargo.initMothballedShips("player");
         shippingCargo.initMothballedShips("player");
 
-        if(cargo && canHoldCargo){
-            if(specific){
-                for (CargoStackAPI stack : contract.targetCargo.getStacksCopy()){
-                    if(toSubmaket.isIllegalOnSubmarket(stack, SubmarketPlugin.TransferAction.PLAYER_SELL)) continue;
+        if (cargo && canHoldCargo) {
+            if (specific) {
+                for (CargoStackAPI stack : contract.targetCargo.getStacksCopy()) {
+                    if (toSubmaket.isIllegalOnSubmarket(stack, SubmarketPlugin.TransferAction.PLAYER_SELL)) continue;
 
                     float stackTargetQuantity = stack.getSize();
                     float stackActualQuantity = fromSubmarketCargo.getQuantity(stack.getType(), stack.getData());
@@ -50,8 +50,8 @@ public class ShippingCargoManager {
                     }
                 }
             } else {
-                for (CargoStackAPI stack : fromSubmarketCargo.getStacksCopy()){
-                    if(!toSubmaket.isIllegalOnSubmarket(stack, SubmarketPlugin.TransferAction.PLAYER_SELL)){
+                for (CargoStackAPI stack : fromSubmarketCargo.getStacksCopy()) {
+                    if (!toSubmaket.isIllegalOnSubmarket(stack, SubmarketPlugin.TransferAction.PLAYER_SELL)) {
                         shippingCargo.addFromStack(stack);
                         fromSubmarketCargo.removeStack(stack);
                     }
@@ -64,18 +64,18 @@ public class ShippingCargoManager {
             //also makes stockpile costs go brrt
             PlayerMarketTransaction transaction = new PlayerMarketTransaction(contract.getFromMarket(), fromSubmarket, CampaignUIAPI.CoreUITradeMode.NONE);
             transaction.getBought().addAll(shippingCargo);
-            if(removeWhenFound) fromSubmarket.getPlugin().reportPlayerMarketTransaction(transaction);
+            if (removeWhenFound) fromSubmarket.getPlugin().reportPlayerMarketTransaction(transaction);
         }
 
-        if(ships && canHoldShips){
+        if (ships && canHoldShips) {
             List<FleetMemberAPI> membersListCopy = fromSubmarketCargo.getMothballedShips().getMembersListCopy();
 
-            if(specific){
-                for (ShipVariantAPI v : contract.variantList){
+            if (specific) {
+                for (ShipVariantAPI v : contract.variantList) {
                     FleetMemberAPI match = null;
 
                     //exact match
-                    for (FleetMemberAPI m : membersListCopy){
+                    for (FleetMemberAPI m : membersListCopy) {
                         if (m.getVariant().getHullVariantId().equals(v.getHullVariantId())) {
                             match = m;
                             break;
@@ -83,20 +83,20 @@ public class ShippingCargoManager {
                     }
 
                     //approx. match
-                    if (match == null) for (FleetMemberAPI m : membersListCopy){
-                        if (hullsEqual(m.getVariant(), v)){
+                    if (match == null) for (FleetMemberAPI m : membersListCopy) {
+                        if (hullsEqual(m.getVariant(), v)) {
                             match = m;
                             break;
                         }
                     }
 
-                    if(match != null) {
+                    if (match != null) {
                         shippingCargo.getMothballedShips().addFleetMember(match);
                         fromSubmarketCargo.getMothballedShips().removeFleetMember(match);
                     }
                 }
             } else {
-                for (FleetMemberAPI m : membersListCopy){
+                for (FleetMemberAPI m : membersListCopy) {
                     shippingCargo.getMothballedShips().addFleetMember(m);
                     fromSubmarketCargo.getMothballedShips().removeFleetMember(m);
                 }
@@ -106,7 +106,7 @@ public class ShippingCargoManager {
         return shippingCargo;
     }
 
-    private static boolean hullsEqual(ShipVariantAPI one, ShipVariantAPI two){
+    private static boolean hullsEqual(ShipVariantAPI one, ShipVariantAPI two) {
         String oneBaseHullId = getBaseShipHullSpec(one.getHullSpec()).getHullId();
         String twoBaseHullId = getBaseShipHullSpec(two.getHullSpec()).getHullId();
 

@@ -38,8 +38,8 @@ public class ForceSingleJumpScript implements EveryFrameScript {
 
     @Override
     public void advance(float amount) {
-        if(done) return;
-        if(fleet.isInCurrentLocation()) {
+        if (done) return;
+        if (fleet.isInCurrentLocation()) {
             done = true;
             return;
         }
@@ -51,7 +51,7 @@ public class ForceSingleJumpScript implements EveryFrameScript {
         }
     }
 
-    private void jump(){
+    private void jump() {
         Global.getSector().doHyperspaceTransition(fleet, from, new JumpPointAPI.JumpDestination(to, ""));
         done = true;
     }

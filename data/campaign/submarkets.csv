@@ -7,5 +7,6 @@ Deconstruction",player,Deposit ships to deconstruct for transfer onto a Forge Te
 IndEvo_EngStorage,Engineering Hub,player,"Deposit ships for disassembly here, to gain progress on the research of a blueprint.",indevo.submarkets.ReverseEngineeringSubmarketPlugin,graphics/factions/reverseEngineering.png,1200
 IndEvo_SharedStore,"Industrial
 Supply Store",player,Storage for buildings to take resources from.,indevo.submarkets.SharedSubmarketPlugin,graphics/factions/sharedIndStorage.png,1500
+IndEvo_PetSubMarket,Animal Market,player,"Buy pets, and everything for your pet here! No refunds.",indevo.industries.petshop.submarket.PetSubMarket,graphics/factions/petStorage.png,1050
 ,,,,,,
 IndEvo_tempStorage,tempStorage,player,Temp Storage. Don't fuck with this or risk losing all your shit.,com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin,graphics/factions/storage.png,1000

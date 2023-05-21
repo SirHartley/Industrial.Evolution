@@ -1,7 +1,6 @@
 package indevo.industries.artillery.rules;
 
 import com.fs.starfarer.api.Global;
-import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.BattleCreationContext;
@@ -17,6 +16,7 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageGenFromSeed;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.artillery.scripts.ArtilleryStationScript;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -96,8 +96,8 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
                             CampaignFleetAPI stationEntity = ArtilleryStationScript.getStationFleet(entity);
                             Iterator var8 = stationEntity.getFleetData().getMembersListCopy().iterator();
 
-                            while(var8.hasNext()) {
-                                FleetMemberAPI member = (FleetMemberAPI)var8.next();
+                            while (var8.hasNext()) {
+                                FleetMemberAPI member = (FleetMemberAPI) var8.next();
                                 stationEntity.removeFleetMemberWithDestructionFlash(member);
                             }
 
@@ -132,7 +132,8 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
                                 entity.addScript(new FleetAdvanceScript(defenders));
                             }
                             memory.expire("$defenderFleet", 10); // defenders may have gotten damaged; persist them for a bit
-                            if (entity instanceof PlanetAPI) ArtilleryStationScript.getArtilleryStation(entity).getMemoryWithoutUpdate().set("$defenderFleet", defenders, 10f);
+                            if (entity instanceof PlanetAPI)
+                                ArtilleryStationScript.getArtilleryStation(entity).getMemoryWithoutUpdate().set("$defenderFleet", defenders, 10f);
                         }
                         dialog.dismiss();
                     }
@@ -140,12 +141,14 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
                     dialog.dismiss();
                 }
             }
+
             @Override
             public void battleContextCreated(InteractionDialogAPI dialog, BattleCreationContext bcc) {
                 bcc.aiRetreatAllowed = false;
                 bcc.objectivesAllowed = false;
                 bcc.enemyDeployAll = true;
             }
+
             @Override
             public void postPlayerSalvageGeneration(InteractionDialogAPI dialog, FleetEncounterContext context, CargoAPI salvage) {
                 FleetEncounterContextPlugin.DataForEncounterSide winner = context.getWinnerData();
@@ -218,7 +221,7 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
                 CargoAPI extra = SalvageEntity.generateSalvage(config.salvageRandom, valueMultFleet + valueModShips, 1f, 1f, fuelMult, dropValue, dropRandom);
                 for (CargoStackAPI stack : extra.getStacksCopy()) {
                     if (stack.isFuelStack()) {
-                        stack.setSize((int)(stack.getSize() * fuelMult));
+                        stack.setSize((int) (stack.getSize() * fuelMult));
                     }
                     salvage.addFromStack(stack);
                 }

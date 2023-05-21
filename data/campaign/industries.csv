@@ -53,7 +53,7 @@ This will stage raids on hostile star systems, and bring back spoils of war depe
 IndEvo_SwitchableRefining,,10,30,,3,,,"refining, industry, industrial",,graphics/icons/industry/refining.png,indevo.industries.changeling.industry.refining.SwitchableRefining,"A specialized refining plants offering increased output over the default version by switching between the desired commodity output, sacrificing utility over yield.",500
 IndEvo_SwitchableMining,,10,30,,2,,,"mining, industry, industrial",,graphics/icons/industry/mining.png,indevo.industries.changeling.industry.mining.SwitchableMining,"Dedicated extraction techniques offer increased output over the default version by switching between the desired commodity output, sacrificing utility over yield.",300
 IndEvo_SwitchablePopulation,,,,10,3,,,"population, unraidable, no_saturation_bombardment",,graphics/icons/industry/population.png,indevo.industries.changeling.industry.population.SwitchablePopulation,"The basic infrastructure required to support a given population, from rickety orbital hab-modules to megacities and everything between.",100
-IndEvo_PetStore,Pet Center,"20
+IndEvo_PetStore,Animal Centre,"20
 
 ",30,,3,,,"structure, unraidable",,graphics/industry/petshop.png,indevo.industries.petshop.industry.PetShop,BUY A FUCKING PARROT M8,500
 ,,,,,,,,,,,,,

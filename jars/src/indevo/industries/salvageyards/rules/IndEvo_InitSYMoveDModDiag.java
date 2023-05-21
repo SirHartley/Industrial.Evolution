@@ -1,9 +1,6 @@
 package indevo.industries.salvageyards.rules;
 
 import com.fs.starfarer.api.Global;
-import indevo.industries.RestorationDocks;
-import indevo.utils.helper.Settings;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
@@ -23,6 +20,9 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.industries.RestorationDocks;
+import indevo.utils.helper.Settings;
+import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 

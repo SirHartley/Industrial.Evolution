@@ -1,12 +1,15 @@
 package indevo.industries.petshop.memory;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.industries.academy.industry.Academy;
+import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.utils.ModPlugin;
 
@@ -29,6 +32,7 @@ public class Pet {
 
     private boolean isStarving = false;
     private boolean isDead = false;
+    private Industry storage = null;
 
     private boolean isActive = false;
 
@@ -43,7 +47,20 @@ public class Pet {
         this.personality = personalities.pick();
     }
 
-    public void assign(FleetMemberAPI toMember){
+    public void setInStorage(Industry industry){
+        unassign();
+        storage = industry;
+    }
+
+    public void removeFromStorage(){
+        if (storage != null) {
+            PetShop shop = (PetShop) storage;
+            shop.removeFromStorage(this);
+            storage = null;
+        }
+    }
+
+    public void assign(FleetMemberAPI toMember) {
         ModPlugin.log("assigning " + name + " variety " + typeID + " to " + toMember.getShipName());
 
         this.assignedFleetMember = toMember;
@@ -53,7 +70,7 @@ public class Pet {
         toMember.getVariant().addTag(HULLMOD_DATA_PREFIX + id);
     }
 
-    public void unassign(){
+    public void unassign() {
         if (assignedFleetMember == null) return;
 
         serveDuration = 0f;
@@ -63,7 +80,7 @@ public class Pet {
         variant.removePermaMod(hullmod);
         variant.removeMod(hullmod);
 
-        for (String s : new ArrayList<>(assignedFleetMember.getVariant().getTags())){
+        for (String s : new ArrayList<>(assignedFleetMember.getVariant().getTags())) {
             if (s.startsWith(HULLMOD_DATA_PREFIX)) assignedFleetMember.getVariant().getTags().remove(s);
         }
 
@@ -71,34 +88,38 @@ public class Pet {
         isActive = false;
     }
 
-    public PetData getData(){
+    public PetData getData() {
         return PetDataRepo.get(typeID);
     }
 
-    public void advance(float amt){
-        if (!isActive || isDead) return;
+    public void advance(float amt) {
+        if (isDead) return;
 
-        feedInterval.advance(amt);
+        boolean notInCryo = storage != null && !Commodities.BETA_CORE.equals(storage.getAICoreId());
         float dayAmt = Global.getSector().getClock().convertToDays(amt);
-
-        age += dayAmt;
-        serveDuration += dayAmt;
-
         PetStatusManager manager = PetStatusManager.getInstance();
 
-        if (feedInterval.intervalElapsed()){
+        if (notInCryo || isActive){
+            age += dayAmt;
+
+            if (age > getData().maxLife) {
+                manager.reportPetDied(this, PetStatusManager.PetDeathCause.NATURAL);
+            }
+        }
+
+        if (!isActive) return; //can't be active if in storage so it doesn't double age
+
+        feedInterval.advance(amt);
+        serveDuration += dayAmt;
+
+        if (feedInterval.intervalElapsed()) {
             boolean hasFed = manager.feed(this);
 
             if (!hasFed && isStarving) manager.reportPetDied(this, PetStatusManager.PetDeathCause.STARVED);
             else if (!hasFed) {
                 isStarving = true;
                 manager.reportPetStarving(this);
-            }
-            else if (isStarving) isStarving = false;
-        }
-
-        if (age > getData().maxLife) {
-            manager.reportPetDied(this, PetStatusManager.PetDeathCause.NATURAL);
+            } else if (isStarving) isStarving = false;
         }
     }
 
@@ -116,9 +137,19 @@ public class Pet {
 
     public void setDead(boolean dead) {
         isDead = dead;
+        removeFromStorage();
     }
 
-    public float getEffectFract(){
+    public float getEffectFract() {
         return Math.min(1f, serveDuration / MAX_EFFECT_AFTER_DAYS);
+    }
+
+    public String getAgeString(){
+        int years = (int) Math.ceil(age / 364f);
+        float months = (int) Math.ceil(age / 31f);
+
+        if (age < 31) return Misc.getStringForDays((int) Math.ceil(age));
+        else if (age < 365) return months + (months <= 1 ? " month" : " months");
+        else return years + (years <= 1 ? " year" : " years");
     }
 }

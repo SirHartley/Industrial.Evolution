@@ -1,20 +1,20 @@
 package indevo.industries.courierport.listeners;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MonthlyReport;
-import indevo.industries.courierport.ShippingCargoManager;
-import indevo.industries.courierport.ShippingContract;
-import indevo.industries.courierport.ShippingContractMemory;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.impl.campaign.shared.SharedData;
-import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.industries.courierport.ShippingCargoManager;
+import indevo.industries.courierport.ShippingContract;
+import indevo.industries.courierport.ShippingContractMemory;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.timers.NewDayListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,33 +42,33 @@ public class ShippingManager implements NewDayListener {
         List<ShippingContract> contractListCopy = new ArrayList<>(ShippingContractMemory.getContractList());
 
         boolean allowed = false;
-        for (MarketAPI m : Misc.getPlayerMarkets(true)){
-            if (m.hasIndustry(Ids.PORT) && m.getIndustry(Ids.PORT).isFunctional()){
+        for (MarketAPI m : Misc.getPlayerMarkets(true)) {
+            if (m.hasIndustry(Ids.PORT) && m.getIndustry(Ids.PORT).isFunctional()) {
                 allowed = true;
                 break;
             }
         }
 
-        if(!allowed) return;
+        if (!allowed) return;
 
-        for (ShippingContract c : contractListCopy){
-            if(!c.isValid() && c.isActive) {
+        for (ShippingContract c : contractListCopy) {
+            if (!c.isValid() && c.isActive) {
                 c.isActive = false;
                 notifyFailure(c);
                 continue;
             }
 
-            if(c.isActive) c.elapsedDays++;
+            if (c.isActive) c.elapsedDays++;
 
-            if(c.elapsedDays > c.getRecurrentDays()){
+            if (c.elapsedDays > c.getRecurrentDays()) {
                 c.elapsedDays = 0;
                 performShippingActions(c);
-                if(c.getRecurrentDays() == 0 && c.isActive) ShippingContractMemory.removeContract(c);
+                if (c.getRecurrentDays() == 0 && c.isActive) ShippingContractMemory.removeContract(c);
             }
         }
     }
 
-    private void notifyFailure(ShippingContract contract){
+    private void notifyFailure(ShippingContract contract) {
         MessageIntel intel = new MessageIntel("A contract has been marked as %s.", Misc.getTextColor(), new String[]{"inactive"}, Misc.getNegativeHighlightColor());
         intel.addLine(BaseIntelPlugin.BULLET + "%s", Misc.getTextColor(), new String[]{contract.name}, Misc.getHighlightColor());
         intel.addLine(BaseIntelPlugin.BULLET + "Reason: %s", Misc.getTextColor(), new String[]{contract.getInvalidReason()}, Misc.getHighlightColor());
@@ -77,11 +77,11 @@ public class ShippingManager implements NewDayListener {
         Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, contract.getToMarket());
     }
 
-    private void performShippingActions(ShippingContract contract){
+    private void performShippingActions(ShippingContract contract) {
         CargoAPI check = ShippingCargoManager.getTargetCargoFromOrigin(contract, false);
         check.initMothballedShips("player");
 
-        if(!check.isEmpty() || check.getMothballedShips().getNumMembers() > 0){
+        if (!check.isEmpty() || check.getMothballedShips().getNumMembers() > 0) {
             Shipment shipment = Shipment.create(contract);
             shipment.init();
         }
@@ -90,7 +90,7 @@ public class ShippingManager implements NewDayListener {
     public static void chargePlayer(float amt, Shipment container) {
         MarketAPI m = getClosestPort(container);
 
-        if(m != null){
+        if (m != null) {
             MonthlyReport report = SharedData.getData().getCurrentReport();
             MonthlyReport.FDNode marketsNode = report.getNode(MonthlyReport.OUTPOSTS);
             MonthlyReport.FDNode mNode = report.getNode(marketsNode, m.getId());

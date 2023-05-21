@@ -3,8 +3,8 @@ package indevo.industries.artillery.projectiles;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
-import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -26,7 +26,7 @@ public class MortarShotScript implements EveryFrameScript {
 
     public boolean done = false;
 
-    public MortarShotScript(SectorEntityToken origin, SectorEntityToken target, int amt){
+    public MortarShotScript(SectorEntityToken origin, SectorEntityToken target, int amt) {
         this.origin = origin;
         this.target = target;
         this.amt = amt;
@@ -44,18 +44,18 @@ public class MortarShotScript implements EveryFrameScript {
 
     @Override
     public void advance(float amount) {
-        if(isDone()) return;
+        if (isDone()) return;
 
         List<Vector2f> targetList = getTargetList(target, AVERAGE_PROJ_IMPACT_TIME);
 
-        for (Vector2f t : targetList){
+        for (Vector2f t : targetList) {
             MortarProjectileEntityPlugin.spawn(origin.getContainingLocation(), origin, t, (float) (AVERAGE_PROJ_IMPACT_TIME + 3f * random()));
         }
 
         done = true;
     }
 
-    public static Vector2f getAnticipatedTargetLoc(SectorEntityToken entity){
+    public static Vector2f getAnticipatedTargetLoc(SectorEntityToken entity) {
         Vector2f vel = entity.getVelocity();
         float dist = vel.length() * AVERAGE_PROJ_IMPACT_TIME * 1.1f;
         float currentNavigationAngle = Misc.getAngleInDegrees(vel);
@@ -64,7 +64,7 @@ public class MortarShotScript implements EveryFrameScript {
         return Vector2f.add(location, entity.getLocation(), location);
     }
 
-    public List<Vector2f> getTargetList(SectorEntityToken entity, float impactTimeSeconds){
+    public List<Vector2f> getTargetList(SectorEntityToken entity, float impactTimeSeconds) {
         //Je langsamer desto offener der Winkel?
         //Nein, wechsel zu nicht-winkelbasiertem Kreissystem
 
@@ -81,7 +81,7 @@ public class MortarShotScript implements EveryFrameScript {
 
         ModPlugin.log("target radius " + targetRadius + " impact length " + dist);
 
-        for (int i = 0; i < amt; i++){
+        for (int i = 0; i < amt; i++) {
             //spawn 5 reticules without overlap within the circle
             //spawn each, check if they overlap, then just adjust the coodinates until they do not
 

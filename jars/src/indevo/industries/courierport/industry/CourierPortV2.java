@@ -4,13 +4,13 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import indevo.industries.courierport.ShippingContract;
-import indevo.industries.courierport.ShippingContractMemory;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.courierport.ShippingContract;
+import indevo.industries.courierport.ShippingContractMemory;
 
 import java.awt.*;
 import java.util.List;
@@ -70,7 +70,7 @@ public class CourierPortV2 extends BaseIndustry {
         Map<ShippingContract, Integer> dayList = getShipmentWithDayList();
 
         for (Map.Entry<ShippingContract, Integer> entry : dayList.entrySet()) {
-            if(!entry.getKey().isValid() || (!entry.getKey().isActive && entry.getKey().elapsedDays > 0)) continue;
+            if (!entry.getKey().isValid() || (!entry.getKey().isActive && entry.getKey().elapsedDays > 0)) continue;
             i++;
             String origin = entry.getKey().getFromMarket().getName();
             String destination = entry.getKey().getToMarket().getName();

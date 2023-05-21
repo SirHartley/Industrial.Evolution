@@ -31,40 +31,40 @@ public class SubmarketShipPicker {
 
         dialogue.showFleetMemberPickerDialog("Select ships to transport", "Confirm", "Cancel", rows,
                 cols, 88f, true, true, memberList, new FleetMemberPickerListener() {
-            @Override
-            public void pickedFleetMembers(List<FleetMemberAPI> members) {
-                contract.clearTargetShips();
-                contract.addToShips(members);
+                    @Override
+                    public void pickedFleetMembers(List<FleetMemberAPI> members) {
+                        contract.clearTargetShips();
+                        contract.addToShips(members);
 
-                if(members.isEmpty()){
-                    if (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS){
-                        contract.scope = ShippingContract.Scope.EVERYTHING;
+                        if (members.isEmpty()) {
+                            if (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS) {
+                                contract.scope = ShippingContract.Scope.EVERYTHING;
 
-                    } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING){
-                        contract.scope = ShippingContract.Scope.SPECIFIC_CARGO;
+                            } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING) {
+                                contract.scope = ShippingContract.Scope.SPECIFIC_CARGO;
+                            }
+                        }
+
+                        new ContractSidePanelCreator().showPanel(dialogue, contract);
                     }
-                }
 
-                new ContractSidePanelCreator().showPanel(dialogue, contract);
-            }
+                    @Override
+                    public void cancelledFleetMemberPicking() {
+                        contract.clearTargetShips();
 
-            @Override
-            public void cancelledFleetMemberPicking() {
-                contract.clearTargetShips();
+                        if (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS) {
+                            contract.scope = ShippingContract.Scope.EVERYTHING;
 
-                if (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS){
-                    contract.scope = ShippingContract.Scope.EVERYTHING;
+                        } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING) {
+                            contract.scope = ShippingContract.Scope.SPECIFIC_CARGO;
+                        }
 
-                } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING){
-                    contract.scope = ShippingContract.Scope.SPECIFIC_CARGO;
-                }
-
-                new ContractSidePanelCreator().showPanel(dialogue, contract);
-            }
-        });
+                        new ContractSidePanelCreator().showPanel(dialogue, contract);
+                    }
+                });
     }
 
-    private List<FleetMemberAPI> getValidMembersList(){
+    private List<FleetMemberAPI> getValidMembersList() {
         List<FleetMemberAPI> fleetMemberList = new ArrayList<>();
         from.getCargo().initMothballedShips("player");
 

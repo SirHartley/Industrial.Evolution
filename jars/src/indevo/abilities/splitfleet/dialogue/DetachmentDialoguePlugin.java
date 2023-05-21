@@ -5,11 +5,11 @@ import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.fleetAssignmentAIs.BaseSplinterFleetAssignmentAIV2;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
-import com.fs.starfarer.api.util.Misc;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
@@ -129,7 +129,7 @@ public class DetachmentDialoguePlugin implements InteractionDialogPlugin, Splint
                 Global.getSector().getPlayerFleet().setBattle(null);
 
                 //if(((CampaignFleetAPI) entity).getCargo().getCommodityQuantity(Commodities.SUPPLIES) < 1) Behaviour.setFleetBehaviourOverride((CampaignFleetAPI) entity, Behaviour.FleetBehaviour.DORMANT);
-                if(fleet.getCargo().getSupplies() < 1) fleet.getCargo().addCommodity(Commodities.SUPPLIES, 1);
+                if (fleet.getCargo().getSupplies() < 1) fleet.getCargo().addCommodity(Commodities.SUPPLIES, 1);
 
                 Behaviour.clearBehaviourOverride(fleet);
                 BaseSplinterFleetAssignmentAIV2 ai = (BaseSplinterFleetAssignmentAIV2) FleetUtils.getAssignmentAI(fleet);

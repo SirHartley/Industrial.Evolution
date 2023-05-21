@@ -1,8 +1,6 @@
 package indevo.industries.courierport.intel;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.ModPlugin;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
@@ -12,11 +10,6 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import indevo.industries.courierport.ShippingContract;
-import indevo.industries.courierport.ShippingCostCalculator;
-import indevo.industries.courierport.ShippingTargetHelper;
-import indevo.industries.courierport.ShippingTooltipHelper;
-import indevo.industries.courierport.listeners.Shipment;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
@@ -26,6 +19,13 @@ import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.courierport.ShippingContract;
+import indevo.industries.courierport.ShippingCostCalculator;
+import indevo.industries.courierport.ShippingTargetHelper;
+import indevo.industries.courierport.ShippingTooltipHelper;
+import indevo.industries.courierport.listeners.Shipment;
+import indevo.utils.ModPlugin;
+import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 import java.util.List;
@@ -35,7 +35,7 @@ import static indevo.industries.courierport.ShippingCostCalculator.CONTRACT_BASE
 
 public class ShippingIntel extends BaseIntelPlugin {
 
-    public static enum ShippingStatus{
+    public static enum ShippingStatus {
         NOT_INITIALIZED,
         ASSEMBLING,
         TRANSFER,
@@ -51,7 +51,7 @@ public class ShippingIntel extends BaseIntelPlugin {
         this.shipment = shipment;
     }
 
-    public void setStatus(ShippingStatus status){
+    public void setStatus(ShippingStatus status) {
         this.status = status;
     }
 
@@ -69,15 +69,15 @@ public class ShippingIntel extends BaseIntelPlugin {
 
         bullet(info);
         info.addPara(shipment.contract.name, pad);
-        if(!shipment.done) info.addPara("ETA: %s", pad, h, getETA() + " " + getDaysString(getETA()));
-        info.addPara("Total cost: %s" , pad, h, Misc.getDGSCredits(shipment.cost));
+        if (!shipment.done) info.addPara("ETA: %s", pad, h, getETA() + " " + getDaysString(getETA()));
+        info.addPara("Total cost: %s", pad, h, Misc.getDGSCredits(shipment.cost));
         unindent(info);
     }
 
     //runcode com.fs.starfarer.api.impl.campaign.econ.impl.courierPort.intel.ShippingIntel.removeAll();
 
-    public static void removeAll(){
-        for (IntelInfoPlugin intel : Global.getSector().getIntelManager().getIntel(ShippingIntel.class)){
+    public static void removeAll() {
+        for (IntelInfoPlugin intel : Global.getSector().getIntelManager().getIntel(ShippingIntel.class)) {
             ShippingIntel shippingIntel = (ShippingIntel) intel;
             if (!Global.getSector().getScripts().contains(shippingIntel)) Global.getSector().addScript((shippingIntel));
         }
@@ -97,7 +97,7 @@ public class ShippingIntel extends BaseIntelPlugin {
 
         info.addSectionHeading("Current Status", faction.getBaseUIColor(), faction.getDarkUIColor(), Alignment.MID, opad);
 
-        if (Global.getSettings().isDevMode()){
+        if (Global.getSettings().isDevMode()) {
             info.addPara("DEV: status = " + status.toString(), 10f);
             info.addPara("DEV: remaining time = " + endingTimeRemaining, 3f);
             info.addPara("DEV: is ending: " + isEnding(), 3f);
@@ -126,7 +126,7 @@ public class ShippingIntel extends BaseIntelPlugin {
                 info.addPara("The delivery has finished with unexpected difficulties and the fleet has disbanded.", opad);
                 info.addPara("The cargo was delivered to " + contract.getToMarket().getName() + ", " + contract.getToSubmarket().getNameOneLine(), opad);
         }
-        
+
         addContractTooltip(info);
         addCargoTooltip(info);
     }
@@ -137,7 +137,7 @@ public class ShippingIntel extends BaseIntelPlugin {
         float lyPerDay = Misc.getLYPerDayAtSpeed(shipment.fleet, shipment.fleet.getTravelSpeed());
         float days = dist / lyPerDay;
         float extra = status == ShippingStatus.ASSEMBLING ? 4 : status == ShippingStatus.UNLOADING ? 0 : 2;
-        
+
         return Math.round(days + extra);
     }
 
@@ -178,7 +178,7 @@ public class ShippingIntel extends BaseIntelPlugin {
                 toMarket.getName(),
                 toSubmarket != null ? toSubmarket.getNameOneLine() : "");
 
-        if(fromMarket != null && toMarket != null && fromSubmarket != null && toSubmarket != null){
+        if (fromMarket != null && toMarket != null && fromSubmarket != null && toSubmarket != null) {
             boolean shipsScope = contract.scope != ShippingContract.Scope.ALL_CARGO && contract.scope != ShippingContract.Scope.SPECIFIC_CARGO;
             boolean cargoScope = contract.scope != ShippingContract.Scope.ALL_SHIPS && contract.scope != ShippingContract.Scope.SPECIFIC_SHIPS;
             String and = shipsScope && cargoScope ? " and %s" : "";
@@ -196,7 +196,7 @@ public class ShippingIntel extends BaseIntelPlugin {
         if (fromMarket != null && toMarket != null) {
             String alphaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.ALPHA_CORE) ? " [-" + StringHelper.getAbsPercentString(ShippingCostCalculator.TOTAL_FEE_REDUCTION, true) + ", Alpha Core]" : "";
 
-            if(shipment.isDone())  {
+            if (shipment.isDone()) {
                 tooltip.addPara("Cost: %s", opad, Misc.getHighlightColor(), Misc.getDGSCredits(shipment.cost));
                 return;
             }
@@ -205,15 +205,15 @@ public class ShippingIntel extends BaseIntelPlugin {
             tooltip.beginGridFlipped(300, 1, 100f, 3f);
             tooltip.addToGrid(0, 0, "Base fee", Misc.getDGSCredits(CONTRACT_BASE_FEE));
 
-            if(cargoCost > 1) tooltip.addToGrid(0,
-                        1,
-                        "Cargo transport",
-                        Misc.getDGSCredits(cargoCost) + alphaCoreStr);
+            if (cargoCost > 1) tooltip.addToGrid(0,
+                    1,
+                    "Cargo transport",
+                    Misc.getDGSCredits(cargoCost) + alphaCoreStr);
 
-            if(shipCost > 1) tooltip.addToGrid(0,
-                        2,
-                        "Ships transport",
-                        Misc.getDGSCredits(shipCost) + alphaCoreStr);
+            if (shipCost > 1) tooltip.addToGrid(0,
+                    2,
+                    "Ships transport",
+                    Misc.getDGSCredits(shipCost) + alphaCoreStr);
 
             String betaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.BETA_CORE) ? " [-" + StringHelper.getAbsPercentString(ShippingCostCalculator.DISTANCE_MULT_REDUCTION, true) + ", Beta Core]" : "";
             tooltip.addToGrid(0, 3, "Distance multiplier", "x" + lyMultStr + betaCoreStr);
@@ -237,7 +237,7 @@ public class ShippingIntel extends BaseIntelPlugin {
     }
 
     private void addCargoTooltip(TooltipMakerAPI tooltip) {
-        if(shipment.isDone()) return;
+        if (shipment.isDone()) return;
 
         CargoAPI cargo = shipment.cargo;
         SubmarketAPI targetsubmarket = shipment.contract.getToSubmarket();

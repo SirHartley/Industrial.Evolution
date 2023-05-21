@@ -5,10 +5,10 @@ import com.fs.starfarer.api.campaign.CargoTransferHandlerAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
-import indevo.items.specialitemdata.AmbassadorItemData;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.items.specialitemdata.AmbassadorItemData;
 
 public class AmbassadorItemPlugin extends BaseSpecialItemPlugin {
 

@@ -5,9 +5,9 @@ import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.utils.ModPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,8 +20,8 @@ public class GachaStationPlacer {
     public static final String HAS_PLACED_STATIONS = "$IndEvo_hasPlacedStations";
     public static final float AMOUNT_MULT = Global.getSettings().getFloat("IndEvo_AutomatedShipyardNum"); //default 1.5f
 
-    public static void place(){
-        if(Global.getSector().getPersistentData().containsKey(HAS_PLACED_STATIONS)) return;
+    public static void place() {
+        if (Global.getSector().getPersistentData().containsKey(HAS_PLACED_STATIONS)) return;
 
         int amt = (int) Math.ceil(Global.getSector().getEntitiesWithTag(Tags.CORONAL_TAP).size() * AMOUNT_MULT);
 
@@ -32,9 +32,9 @@ public class GachaStationPlacer {
 
         WeightedRandomPicker<StarSystemAPI> systemPicker = new WeightedRandomPicker<>();
 
-        for (StarSystemAPI system : Global.getSector().getStarSystems()){
-            if(!Misc.getMarketsInLocation(system).isEmpty()) continue;
-            if(!system.getEntitiesWithTag(Tags.CORONAL_TAP).isEmpty()) continue;
+        for (StarSystemAPI system : Global.getSector().getStarSystems()) {
+            if (!Misc.getMarketsInLocation(system).isEmpty()) continue;
+            if (!system.getEntitiesWithTag(Tags.CORONAL_TAP).isEmpty()) continue;
 
             PlanetAPI p = system.getStar();
 
@@ -49,14 +49,14 @@ public class GachaStationPlacer {
             }
         }
 
-        for (int i = 0; i < amt; i++){
+        for (int i = 0; i < amt; i++) {
             placeStation(systemPicker.pickAndRemove());
         }
 
         Global.getSector().getPersistentData().put(HAS_PLACED_STATIONS, true);
     }
 
-    public static void placeStation(StarSystemAPI system){
+    public static void placeStation(StarSystemAPI system) {
         SectorEntityToken t = system.addCustomEntity(Misc.genUID(), null, "IndEvo_GachaStation", null);
         t.setCircularOrbitPointingDown(system.getStar(), 0f, system.getStar().getRadius() + 200f, 31);
         t.getMemoryWithoutUpdate().set(RANDOM, new Random(t.hashCode()));

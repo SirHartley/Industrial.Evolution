@@ -1,19 +1,22 @@
 package indevo.items.installable;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.SpecialItemData;
+import com.fs.starfarer.api.campaign.econ.Industry;
+import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
+import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
+import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
+import com.fs.starfarer.api.impl.campaign.econ.impl.InstallableItemEffect;
+import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
+import com.fs.starfarer.api.impl.campaign.econ.impl.MilitaryBase;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.ItemIds;
 import indevo.industries.CentralizationBureau;
 import indevo.industries.Supercomputer;
 import indevo.industries.relay.industry.MilitaryRelay;
 import indevo.industries.senate.industry.Senate;
 import indevo.utils.helper.StringHelper;
-import com.fs.starfarer.api.campaign.SpecialItemData;
-import com.fs.starfarer.api.campaign.econ.Industry;
-import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
-import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
-import com.fs.starfarer.api.impl.campaign.econ.impl.*;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 
 import java.util.HashMap;
 import java.util.Map;

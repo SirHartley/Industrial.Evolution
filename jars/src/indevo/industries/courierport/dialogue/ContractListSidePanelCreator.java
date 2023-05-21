@@ -1,14 +1,14 @@
 package indevo.industries.courierport.dialogue;
 
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
-import indevo.industries.courierport.ShippingContract;
-import indevo.industries.courierport.ShippingContractMemory;
-import indevo.industries.courierport.ShippingTooltipHelper;
+import com.fs.starfarer.api.ui.*;
+import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.InteractionDialogCustomPanelPlugin;
 import indevo.dialogue.sidepanel.NoFrameCustomPanelPlugin;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
-import com.fs.starfarer.api.ui.*;
-import com.fs.starfarer.api.util.Misc;
+import indevo.industries.courierport.ShippingContract;
+import indevo.industries.courierport.ShippingContractMemory;
+import indevo.industries.courierport.ShippingTooltipHelper;
 
 import java.awt.*;
 
@@ -35,7 +35,7 @@ public class ContractListSidePanelCreator {
         final CustomPanelAPI panel = VisualCustomPanel.getPanel();
         TooltipMakerAPI panelTooltip = VisualCustomPanel.getTooltip();
 
-        for (ShippingContract c : ShippingContractMemory.getContractList()){
+        for (ShippingContract c : ShippingContractMemory.getContractList()) {
 
             final ShippingContract contract = c;
             CustomPanelAPI contractPanel = panel.createCustomPanel(PANEL_WIDTH_1, BUTTON_HEIGHT, new NoFrameCustomPanelPlugin());
@@ -49,10 +49,10 @@ public class ContractListSidePanelCreator {
             s = isValid ? s : "[Invalid]";
 
             Color bg = Misc.getDarkPlayerColor();
-            if(!contract.isActive) bg = new Color(110, 110, 110, 255);
+            if (!contract.isActive) bg = new Color(110, 110, 110, 255);
             if (!isValid) bg = new Color(140, 70, 20, 255);
 
-            panelTooltip.addSectionHeading(s + contract.name, contract.isActive && isValid ? Misc.getTextColor() : Color.WHITE, bg,  Alignment.MID, opad);
+            panelTooltip.addSectionHeading(s + contract.name, contract.isActive && isValid ? Misc.getTextColor() : Color.WHITE, bg, Alignment.MID, opad);
 
             String buttonId = "button_edit_" + contract.id;
 
@@ -139,7 +139,7 @@ public class ContractListSidePanelCreator {
 
             CustomPanelAPI textPanel = panel.createCustomPanel(PANEL_WIDTH_1, 50f, new NoFrameCustomPanelPlugin());
 
-            if(contract.isValid()){
+            if (contract.isValid()) {
                 anchor = textPanel.createUIElement(TEXT_FIELD_WIDTH, BUTTON_HEIGHT, false);
                 anchor.setParaFont(Fonts.DEFAULT_SMALL);
                 anchor.addPara("From: %s, %s",
@@ -177,7 +177,8 @@ public class ContractListSidePanelCreator {
                         firstHL, secondHL, thirdHL);
 
                 s = ShippingTooltipHelper.getDaysMonthString(contract.getRecurrentDays() - contract.elapsedDays);
-                if (contract.isActive || contract.elapsedDays > contract.getRecurrentDays()) anchor.addPara("Next delivery " + (s.contains("today") ? "%s": "in %s"), pad, Misc.getHighlightColor(), s);
+                if (contract.isActive || contract.elapsedDays > contract.getRecurrentDays())
+                    anchor.addPara("Next delivery " + (s.contains("today") ? "%s" : "in %s"), pad, Misc.getHighlightColor(), s);
                 else anchor.addPara("Next delivery: %s.", pad, Misc.getNegativeHighlightColor(), "only on demand");
 
                 anchor.setParaFontDefault();

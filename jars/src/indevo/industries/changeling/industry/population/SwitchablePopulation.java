@@ -24,11 +24,13 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     public float daysPassed = 0;
     public boolean locked = false;
 
-    public static final List<SubIndustryAPI> industryList = new LinkedList<SubIndustryAPI>(){{
+    public static final List<SubIndustryAPI> industryList = new LinkedList<SubIndustryAPI>() {
+        {
             add(new SubIndustry("base_population_and_infrastructure", "graphics/icons/industry/population.png", "Population & Infrastructure", "IndEvo_pop_default") {
                 @Override
                 public void apply(Industry industry) {
-                    if (industry instanceof SwitchablePopulation) ((SwitchablePopulation) industry).superApply(); //applies default pop&Infra
+                    if (industry instanceof SwitchablePopulation)
+                        ((SwitchablePopulation) industry).superApply(); //applies default pop&Infra
                 }
 
                 @Override
@@ -62,7 +64,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     private SubIndustryAPI current = null;
 
     public void setCurrent(SubIndustryAPI current) {
-        if (industryList.contains(current)){
+        if (industryList.contains(current)) {
             this.current = current;
             daysPassed = 0;
             reapply();
@@ -87,7 +89,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
         }
     }
 
-    public void superApply(){
+    public void superApply() {
         supply.clear();
         demand.clear();
 
@@ -129,7 +131,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     public void advance(float amount) {
         super.advance(amount);
 
-        if (!locked && current != null && !current.isBase()){
+        if (!locked && current != null && !current.isBase()) {
             daysPassed += Global.getSector().getClock().convertToDays(amount);
             if (daysPassed >= DAYS_TO_LOCK) {
                 locked = true;
@@ -139,11 +141,11 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
         }
     }
 
-    public boolean canChange(){
+    public boolean canChange() {
         return market.getSize() <= MAX_SIZE_FOR_CHANGE && !locked;
     }
 
-    public boolean isNotChanged(){
+    public boolean isNotChanged() {
         return current != null && current.isBase();
     }
 
@@ -182,7 +184,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
     @Override
     protected String getDescriptionOverride() {
-        if (current != null && current.isBase()){
+        if (current != null && current.isBase()) {
             int size = market.getSize();
             String cid = null;
             if (size >= 1 && size <= 9) {

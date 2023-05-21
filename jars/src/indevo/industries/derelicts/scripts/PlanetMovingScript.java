@@ -18,7 +18,6 @@ import com.fs.starfarer.campaign.CircularOrbit;
 import com.fs.starfarer.campaign.CircularOrbitPointDown;
 import com.fs.starfarer.campaign.CircularOrbitWithSpin;
 import indevo.industries.derelicts.listeners.PlanetJumpListener;
-import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -130,7 +129,7 @@ public class PlanetMovingScript implements EveryFrameScript {
         }
     }
 
-    private void triggerJumpListeners(SectorEntityToken planet, StarSystemAPI oldSystem, StarSystemAPI newSystem){
+    private void triggerJumpListeners(SectorEntityToken planet, StarSystemAPI oldSystem, StarSystemAPI newSystem) {
         List<PlanetJumpListener> list = Global.getSector().getListenerManager().getListeners(PlanetJumpListener.class);
 
         for (Iterator<PlanetJumpListener> i = list.iterator(); i.hasNext(); ) {

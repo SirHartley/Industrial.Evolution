@@ -7,9 +7,9 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
+import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
-import com.fs.starfarer.api.util.Misc;
 
 public class HideAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
 

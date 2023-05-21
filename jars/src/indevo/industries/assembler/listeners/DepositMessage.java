@@ -1,15 +1,15 @@
 package indevo.industries.assembler.listeners;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
-import indevo.industries.assembler.industry.VPCUserIndustryAPI;
-import indevo.ids.ItemIds;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.ItemIds;
+import indevo.industries.assembler.industry.VPCUserIndustryAPI;
+import indevo.utils.helper.StringHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;

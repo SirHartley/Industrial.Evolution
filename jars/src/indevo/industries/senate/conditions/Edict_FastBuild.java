@@ -1,6 +1,5 @@
 package indevo.industries.senate.conditions;
 
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -8,6 +7,7 @@ import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.helper.StringHelper;
 
 import static java.lang.Math.ceil;
 
@@ -36,8 +36,8 @@ public class Edict_FastBuild extends BaseEdict {
     public void onNewDay() {
         super.onNewDay();
 
-        for (Industry ind : market.getIndustries()){
-            if (ind.isBuilding() || ind.isUpgrading()){
+        for (Industry ind : market.getIndustries()) {
+            if (ind.isBuilding() || ind.isUpgrading()) {
                 BaseIndustry industry = (BaseIndustry) ind;
                 industry.setBuildProgress(industry.getBuildProgress() + 1f);
             }

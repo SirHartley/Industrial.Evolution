@@ -4,10 +4,10 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
-import indevo.industries.embassy.listeners.AmbassadorItemTrackerPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.industries.embassy.listeners.AmbassadorItemTrackerPlugin;
 
 import java.util.List;
 import java.util.Map;

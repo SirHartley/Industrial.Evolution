@@ -26,7 +26,7 @@ public class RefitUIOpenChecker implements EveryFrameScript {
     public void advance(float amount) {
         boolean isOpen = CoreUITabId.REFIT.equals(Global.getSector().getCampaignUI().getCurrentCoreTab());
 
-        if(isOpen && !open){
+        if (isOpen && !open) {
             ModPlugin.log("Player Refit Open");
 
             List<RefitTabListener> list = Global.getSector().getListenerManager().getListeners(RefitTabListener.class);
@@ -37,7 +37,7 @@ public class RefitUIOpenChecker implements EveryFrameScript {
             }
 
             open = true;
-        } else if(!isOpen && open){
+        } else if (!isOpen && open) {
             ModPlugin.log("Player Refit Closed");
 
             List<RefitTabListener> list = Global.getSector().getListenerManager().getListeners(RefitTabListener.class);
@@ -52,7 +52,7 @@ public class RefitUIOpenChecker implements EveryFrameScript {
     }
 
     public static void register() {
-        if(!Global.getSector().hasTransientScript(RefitUIOpenChecker.class)){
+        if (!Global.getSector().hasTransientScript(RefitUIOpenChecker.class)) {
             ModPlugin.log("creating RefitUIOpenChecker instance");
             Global.getSector().addTransientScript(new RefitUIOpenChecker());
         }

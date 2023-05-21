@@ -13,10 +13,10 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import indevo.utils.ModPlugin;
+import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
-import com.fs.starfarer.api.util.Misc;
+import indevo.utils.ModPlugin;
 
 import java.util.List;
 
@@ -59,11 +59,12 @@ public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
     @Override
     public void advance(float amount) {
         super.advance(amount);
-        if(fleet != null
+        if (fleet != null
                 && fleet.getAI() != null
                 && fleet.getCurrentAssignment() != null
                 && !fleet.getCurrentAssignment().getAssignment().equals(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN)
-                && !fleet.getCurrentAssignment().getAssignment().equals(FleetAssignment.ORBIT_PASSIVE)) headToPlayerIfTargettedAssignment();
+                && !fleet.getCurrentAssignment().getAssignment().equals(FleetAssignment.ORBIT_PASSIVE))
+            headToPlayerIfTargettedAssignment();
 
         checkOrCorrectMarket();
 
@@ -71,9 +72,9 @@ public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
         //if (fleet.isAlive() && !onCompletionScript.finished) onCompletionScript.run();
     }
 
-    public void checkOrCorrectMarket(){
+    public void checkOrCorrectMarket() {
         MarketAPI market = Global.getSector().getEconomy().getMarket(targetMarketId);
-        if(market == null) {
+        if (market == null) {
             targetMarketId = getAlternateMarket(fleet);
             onCompletionScript = new CargoAndFleetTransferScript(fleet, targetMarketId);
 
@@ -82,7 +83,7 @@ public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
         }
     }
 
-    public void notifyPlayerOfMarketChange(){
+    public void notifyPlayerOfMarketChange() {
         MarketAPI m = Global.getSector().getEconomy().getMarket(targetMarketId);
 
         MessageIntel intel = new MessageIntel("A transport detachment has %s.", Misc.getTextColor(), new String[]{"changed destination"}, Misc.getHighlightColor());
@@ -93,15 +94,15 @@ public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
 
     }
 
-    public static String getAlternateMarket(SectorEntityToken toFleet){
+    public static String getAlternateMarket(SectorEntityToken toFleet) {
         //get the absolute closest market and store yourself
 
         float dist = Float.MAX_VALUE;
         MarketAPI market = Global.getSector().getEconomy().getMarketsCopy().get(0);
 
-        for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()){
+        for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
             float d = Misc.getDistance(toFleet, m.getPrimaryEntity());
-            if(d < dist) {
+            if (d < dist) {
                 dist = d;
                 market = m;
             }
@@ -127,7 +128,7 @@ public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
             ModPlugin.log("running transfer script");
 
             MarketAPI market = Global.getSector().getEconomy().getMarket(marketID);
-            if(market == null) market = Global.getSector().getEconomy().getMarket(getAlternateMarket(fleet));
+            if (market == null) market = Global.getSector().getEconomy().getMarket(getAlternateMarket(fleet));
 
             CargoAPI storage = Misc.getStorageCargo(market);
             storage.addAll(fleet.getCargo());

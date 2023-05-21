@@ -5,8 +5,8 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.abilities.ai.TransponderAbilityAI;
 import com.fs.starfarer.api.impl.campaign.ids.Abilities;
-import indevo.abilities.splitfleet.FleetUtils;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.FleetUtils;
 
 public class DetachmentTransponderAbilityAI extends TransponderAbilityAI {
 

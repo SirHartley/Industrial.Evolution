@@ -1,18 +1,18 @@
 package indevo.industries.senate.conditions;
 
 import com.fs.starfarer.api.Global;
-import indevo.ids.Ids;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.BaseMarketConditionPlugin;
 import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
 import indevo.industries.senate.industry.Senate;
 import indevo.items.installable.SpecialItemEffectsRepo;
-import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import indevo.utils.timers.TimeTracker;
+import indevo.utils.helper.IndustryHelper;
 import indevo.utils.timers.NewDayListener;
-import com.fs.starfarer.api.util.Misc;
+import indevo.utils.timers.TimeTracker;
 
 import java.util.List;
 

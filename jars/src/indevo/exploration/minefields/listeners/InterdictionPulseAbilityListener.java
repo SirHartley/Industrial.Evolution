@@ -1,7 +1,10 @@
 package indevo.exploration.minefields.listeners;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.BaseCampaignEventListener;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
+import com.fs.starfarer.api.campaign.CampaignTerrainPlugin;
 import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.impl.campaign.abilities.InterdictionPulseAbility;
 import com.fs.starfarer.api.impl.campaign.ids.Abilities;
@@ -11,7 +14,7 @@ import org.lwjgl.util.vector.Vector2f;
 
 public class InterdictionPulseAbilityListener extends BaseCampaignEventListener {
 
-    public static void register(){
+    public static void register() {
         Global.getSector().addTransientListener(new InterdictionPulseAbilityListener(false));
     }
 
@@ -35,7 +38,7 @@ public class InterdictionPulseAbilityListener extends BaseCampaignEventListener 
             if (plugin instanceof MineBeltTerrainPlugin) {
                 MineBeltTerrainPlugin mineBeltTerrainPlugin = (MineBeltTerrainPlugin) plugin;
 
-                if (circlesIntersect(t.getLocation(),  mineBeltTerrainPlugin.params.middleRadius + mineBeltTerrainPlugin.params.bandWidthInEngine / 2, fleet.getLocation(), range)) {
+                if (circlesIntersect(t.getLocation(), mineBeltTerrainPlugin.params.middleRadius + mineBeltTerrainPlugin.params.bandWidthInEngine / 2, fleet.getLocation(), range)) {
                     mineBeltTerrainPlugin.generateDisabledArea(fleet, range, MINE_INTERDICTION_DISABLE_DUR);
                 }
             }

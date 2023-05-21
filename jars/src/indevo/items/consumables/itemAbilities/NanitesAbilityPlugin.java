@@ -1,13 +1,13 @@
 package indevo.items.consumables.itemAbilities;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.ModPlugin;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.campaign.fleet.FleetMemberStatus;
+import indevo.utils.ModPlugin;
+import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -50,17 +50,17 @@ public class NanitesAbilityPlugin extends BaseConsumableAbilityPlugin {
         orderedRepairList.addAll(members);
 
         float repairBudget = HULL_RESTORE_AMT;
-        for (FleetMemberAPI m : orderedRepairList){
+        for (FleetMemberAPI m : orderedRepairList) {
             if (!m.isMothballed() && (m.getStatus().getHullFraction() < 1 || m.getRepairTracker().getBaseCR() < MAX_CR_LIMIT)) {
                 float cr = m.getRepairTracker().getBaseCR();
-                if(cr < MAX_CR_LIMIT){
+                if (cr < MAX_CR_LIMIT) {
                     //restore up to 20% when under 50%
                     float crRepairAmt = Math.min(CR_RESTORE_AMT, MAX_CR_LIMIT - cr);
                     m.getRepairTracker().applyCREvent(crRepairAmt, "Restoration Nanites");
                 }
 
-                if(repairBudget > 0){
-                    float baseHull =  m.getStats().getHullBonus().computeEffective(m.getHullSpec().getHitpoints());
+                if (repairBudget > 0) {
+                    float baseHull = m.getStats().getHullBonus().computeEffective(m.getHullSpec().getHitpoints());
                     float actualHull = baseHull * m.getStatus().getHullFraction();
                     float toRepair = Math.min(baseHull - actualHull, repairBudget);
                     float fractionAfterRepair = (actualHull + toRepair) / baseHull;
@@ -70,7 +70,7 @@ public class NanitesAbilityPlugin extends BaseConsumableAbilityPlugin {
                     ModPlugin.log(m.getSpecId() + "hull repair: " + toRepair + " remaining budget " + repairBudget);
 
                     FleetMemberStatus fleetMemberStatus = (FleetMemberStatus) m.getStatus();
-                    for (int i = 0; i < fleetMemberStatus.getNumStatuses(); i++){
+                    for (int i = 0; i < fleetMemberStatus.getNumStatuses(); i++) {
                         FleetMemberStatus.ShipStatus s = fleetMemberStatus.getStatus(i);
 
                         float baseArmor = m.getStats().getArmorBonus().computeEffective(m.getHullSpec().getArmorRating());
@@ -80,7 +80,7 @@ public class NanitesAbilityPlugin extends BaseConsumableAbilityPlugin {
                         toRepair = Math.min(repairBudget, armorToRepair);
                         try {
                             s.repairArmorUsingCapacity(toRepair);
-                        } catch (NullPointerException e)  {
+                        } catch (NullPointerException e) {
                             ModPlugin.log("could not repair armor, status: " + s + " to repair: " + toRepair);
                         }
 
@@ -114,7 +114,7 @@ public class NanitesAbilityPlugin extends BaseConsumableAbilityPlugin {
         Color highlight = Misc.getHighlightColor();
         float opad = 10f;
 
-        if(!forItem) {
+        if (!forItem) {
             tooltip.addTitle(spec.getName());
             int amt = getCargoItemAmt();
             tooltip.addPara("Remaining in inventory: %s", opad, amt > 0 ? highlight : Misc.getNegativeHighlightColor(), amt + "");

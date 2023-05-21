@@ -6,19 +6,19 @@ import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
-import indevo.items.ForgeTemplateItemPlugin;
-import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
-import indevo.exploration.salvage.scripts.ExplosionScript;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import indevo.ids.ItemIds;
 import com.fs.starfarer.api.impl.campaign.ids.Strings;
 import com.fs.starfarer.api.impl.campaign.procgen.DropGroupRow;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
+import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.exploration.salvage.scripts.ExplosionScript;
+import indevo.ids.ItemIds;
+import indevo.items.ForgeTemplateItemPlugin;
 
 //DropGroupRow.getPicker("tech_high").pick().getSpecialItemSpec().getId();
 public class ItemChoiceSpecial extends BaseSalvageSpecial {

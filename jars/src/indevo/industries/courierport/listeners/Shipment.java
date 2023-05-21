@@ -12,19 +12,19 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.PlayerFleetPersonnelTracker;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
+import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
+import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
+import com.fs.starfarer.api.util.Misc;
 import indevo.industries.courierport.ShippingCargoManager;
 import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingCostCalculator;
 import indevo.industries.courierport.fleet.CourierFleetAssignmentAI;
 import indevo.industries.courierport.fleet.CourierFleetCreator;
 import indevo.industries.courierport.intel.ShippingIntel;
-import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
-import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
-import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import indevo.utils.ModPlugin;
 import indevo.utils.timers.NewDayListener;
-import com.fs.starfarer.api.util.Misc;
 
 import static indevo.industries.courierport.listeners.ShippingManager.chargePlayer;
 
@@ -41,7 +41,7 @@ public class Shipment implements NewDayListener, EveryFrameScript {
 
     public float cost = 0f;
 
-    public static Shipment create(ShippingContract contract){
+    public static Shipment create(ShippingContract contract) {
         CargoAPI cargo = ShippingCargoManager.getTargetCargoFromOrigin(contract, true);
         CampaignFleetAPI fleet = CourierFleetCreator.createFleet(contract, cargo);
         return new Shipment(contract.getCopy(), cargo, fleet);
@@ -55,7 +55,7 @@ public class Shipment implements NewDayListener, EveryFrameScript {
         this.cost = ShippingCostCalculator.getTotalContractCost(cargo, contract);
     }
 
-    public void init(){
+    public void init() {
         CourierFleetCreator.spawnFleet(this);
 
         Global.getSector().getIntelManager().addIntel(intel);
@@ -67,7 +67,7 @@ public class Shipment implements NewDayListener, EveryFrameScript {
         chargePlayer(cost, this);
     }
 
-    public int setFailsafeTimer(SectorEntityToken from, SectorEntityToken to){
+    public int setFailsafeTimer(SectorEntityToken from, SectorEntityToken to) {
         //failsafe timer is approx. travel time x1.5
         daysPassed = 0;
 
@@ -81,7 +81,7 @@ public class Shipment implements NewDayListener, EveryFrameScript {
         return maxDaysBeforeFailsafe;
     }
 
-    public void finalizeAndRemove(){
+    public void finalizeAndRemove() {
         ModPlugin.log("Shipment " + contract.name + " is done, cleaning up");
         done = true;
 
@@ -90,9 +90,9 @@ public class Shipment implements NewDayListener, EveryFrameScript {
 
         fleet.despawn(CampaignEventListener.FleetDespawnReason.OTHER, null);
 
-        if(contract.getToSubmarket() != null) {
+        if (contract.getToSubmarket() != null) {
             transfer(contract.getToSubmarket());
-            if(alternate) intel.setStatus(ShippingIntel.ShippingStatus.DONE_ALTERNATE);
+            if (alternate) intel.setStatus(ShippingIntel.ShippingStatus.DONE_ALTERNATE);
             else intel.setStatus(ShippingIntel.ShippingStatus.DONE_SUCCESS);
         } else {
             SubmarketAPI alternate = getAlternateTargetSubmarket();
@@ -108,7 +108,7 @@ public class Shipment implements NewDayListener, EveryFrameScript {
         intel.endAfterDelay();
     }
 
-    public void transfer(SubmarketAPI toSubmarket){
+    public void transfer(SubmarketAPI toSubmarket) {
         CargoAPI toCargo = toSubmarket.getCargo();
         toCargo.initMothballedShips("player");
         cargo.initMothballedShips("player");
@@ -118,7 +118,7 @@ public class Shipment implements NewDayListener, EveryFrameScript {
             toCargo.getMothballedShips().addFleetMember(m);
         }
 
-        if(cargo.getMarines() > 0){
+        if (cargo.getMarines() > 0) {
             PlayerFleetPersonnelTracker tracker = PlayerFleetPersonnelTracker.getInstance();
             PlayerFleetPersonnelTracker.PersonnelAtEntity from = tracker.getDroppedOffAt(Commodities.MARINES, contract.getFromMarket().getPrimaryEntity(), contract.getFromSubmarket(), true);
             PlayerFleetPersonnelTracker.PersonnelAtEntity to = tracker.getDroppedOffAt(Commodities.MARINES, toSubmarket.getMarket().getPrimaryEntity(), toSubmarket, true);
@@ -133,10 +133,10 @@ public class Shipment implements NewDayListener, EveryFrameScript {
         cargo.getMothballedShips().clear();
     }
 
-    public void notifyPlayerOfMarketChange(String oldname, String oldsubmarket, SubmarketAPI newSubmarket){
+    public void notifyPlayerOfMarketChange(String oldname, String oldsubmarket, SubmarketAPI newSubmarket) {
         MessageIntel intel = new MessageIntel("A courier shipment has %s.", Misc.getTextColor(), new String[]{"changed destination"}, Misc.getHighlightColor());
         intel.addLine(BaseIntelPlugin.BULLET + "From %s to %s.", Misc.getTextColor(),
-                new String[]{oldname  + ", " + oldsubmarket,
+                new String[]{oldname + ", " + oldsubmarket,
                         newSubmarket.getMarket().getName() + ", " + newSubmarket.getNameOneLine()},
                 Misc.getNegativeHighlightColor(), newSubmarket.getMarket().getFaction().getColor());
         intel.addLine(BaseIntelPlugin.BULLET + "Contract: %s", Misc.getTextColor(), new String[]{contract.name}, Misc.getHighlightColor());
@@ -146,14 +146,15 @@ public class Shipment implements NewDayListener, EveryFrameScript {
 
     }
 
-    public void updateWithAlternateTarget(){
+    public void updateWithAlternateTarget() {
         SubmarketAPI alternateSub = getAlternateTargetSubmarket();
         MarketAPI alternate = alternateSub.getMarket();
         setFailsafeTimer(fleet, alternate.getPrimaryEntity());
 
         String oldName = contract.getToMarket() != null ? contract.getToMarket().getName() : "A dead planet";
-        String oldSub = "unknown storage";;
-        for(SubmarketSpecAPI s : Global.getSettings().getAllSubmarketSpecs()){
+        String oldSub = "unknown storage";
+        ;
+        for (SubmarketSpecAPI s : Global.getSettings().getAllSubmarketSpecs()) {
             if (s.getId().equals(contract.toSubmarketId)) {
                 oldSub = s.getName();
                 break;
@@ -169,19 +170,20 @@ public class Shipment implements NewDayListener, EveryFrameScript {
         this.alternate = true;
     }
 
-    public SubmarketAPI getAlternateTargetSubmarket(){
+    public SubmarketAPI getAlternateTargetSubmarket() {
         boolean fromMarketExists = contract.getFromMarket() != null && !contract.getFromMarket().isPlanetConditionMarketOnly();
         boolean toMarketExists = contract.getToMarket() != null && !contract.getToMarket().isPlanetConditionMarketOnly();
         boolean fromSubmarketExists = contract.getFromSubmarket() != null;
 
-        if(toMarketExists) return contract.getToMarket().getSubmarket(Submarkets.SUBMARKET_STORAGE);
-        if(fromSubmarketExists) return contract.getFromSubmarket();
-        if(fromMarketExists) return contract.getFromMarket().getSubmarket(Submarkets.SUBMARKET_STORAGE);
+        if (toMarketExists) return contract.getToMarket().getSubmarket(Submarkets.SUBMARKET_STORAGE);
+        if (fromSubmarketExists) return contract.getFromSubmarket();
+        if (fromMarketExists) return contract.getFromMarket().getSubmarket(Submarkets.SUBMARKET_STORAGE);
 
         //no player markets, return any market that is in the economy
-        if(Misc.getPlayerMarkets(true).isEmpty()){
-            for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()){
-                if (m.isInEconomy() && m.hasSubmarket(Submarkets.SUBMARKET_STORAGE)) return m.getSubmarket(Submarkets.SUBMARKET_STORAGE);
+        if (Misc.getPlayerMarkets(true).isEmpty()) {
+            for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
+                if (m.isInEconomy() && m.hasSubmarket(Submarkets.SUBMARKET_STORAGE))
+                    return m.getSubmarket(Submarkets.SUBMARKET_STORAGE);
             }
         }
 
@@ -191,11 +193,11 @@ public class Shipment implements NewDayListener, EveryFrameScript {
 
     @Override
     public void onNewDay() {
-        if(done) return;
+        if (done) return;
 
         daysPassed++;
 
-        if(daysPassed > maxDaysBeforeFailsafe) {
+        if (daysPassed > maxDaysBeforeFailsafe) {
             ModPlugin.log("Failsafe timer for " + contract.name + " expired, finalizing and aborting");
             finalizeAndRemove();
         }
@@ -215,7 +217,7 @@ public class Shipment implements NewDayListener, EveryFrameScript {
     public void advance(float amount) {
         //check if market still exists, else replace it and update the intel and fleet assignments
 
-        if(!contract.isValid() && contract.getToMarket() == null || contract.getToMarket().isPlanetConditionMarketOnly()){
+        if (!contract.isValid() && contract.getToMarket() == null || contract.getToMarket().isPlanetConditionMarketOnly()) {
             updateWithAlternateTarget();
         }
     }

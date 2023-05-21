@@ -12,7 +12,7 @@ import static indevo.exploration.minefields.MineBeltTerrainPlugin.RECENT_JUMP_TI
 
 public class RecentJumpListener extends BaseCampaignEventListener {
 
-    public static void register(){
+    public static void register() {
         Global.getSector().addTransientListener(new RecentJumpListener(false));
     }
 

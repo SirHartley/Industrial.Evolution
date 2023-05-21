@@ -9,9 +9,9 @@ import com.fs.starfarer.api.campaign.listeners.ShowLootListener;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
-import indevo.dialogue.research.DropDataCreator;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.util.Misc;
+import indevo.dialogue.research.DropDataCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +27,7 @@ public class ConsumableItemDropListener implements ShowLootListener {
     public static final float FP_PER_ROLL = 100f;
     public static final float HARD_BATTLE_MULT = 1.2f;
     public static float MIN_FLEET_POINT_ADVANTAGE_FOR_HARD = 1.5f;
+
     @Override
     public void reportAboutToShowLootToPlayer(CargoAPI loot, InteractionDialogAPI dialog) {
 

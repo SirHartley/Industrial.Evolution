@@ -1,7 +1,9 @@
 package data.scripts.weapons.combatEntities;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.combat.*;
+import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
+import com.fs.starfarer.api.combat.CombatEngineAPI;
+import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.util.Misc;
 import org.lazywizard.lazylib.MathUtils;
@@ -61,7 +63,7 @@ public class IndEvo_CombatSlowFieldTerrain extends BaseEveryFrameCombatPlugin {
         );
     }
 
-    public void interdictShipsInRange(float radius){
+    public void interdictShipsInRange(float radius) {
         Iterator<Object> iter = Global.getCombatEngine().getAllObjectGrid().getCheckIterator(loc,
                 rad * 2f, rad * 2f);
 
@@ -79,7 +81,7 @@ public class IndEvo_CombatSlowFieldTerrain extends BaseEveryFrameCombatPlugin {
         }
     }
 
-    public void interdict(ShipAPI other){
+    public void interdict(ShipAPI other) {
         if (other.getFluxTracker().isOverloaded()) return;
         engine.addPlugin(new IndEvo_ForcedOverload(other, BASE_OVERLOAD_DUR));
     }
@@ -106,7 +108,7 @@ public class IndEvo_CombatSlowFieldTerrain extends BaseEveryFrameCombatPlugin {
         if (elapsed > dur) {
             Global.getCombatEngine().removePlugin(this);
 
-            for (ShipAPI s : CombatUtils.getShipsWithinRange(loc, 99999f)){
+            for (ShipAPI s : CombatUtils.getShipsWithinRange(loc, 99999f)) {
                 s.getMutableStats().getMaxSpeed().unmodify("IndEvo_slowfield_speed_mult");
                 s.setInsideNebula(false);
             }
@@ -132,7 +134,7 @@ public class IndEvo_CombatSlowFieldTerrain extends BaseEveryFrameCombatPlugin {
             interdictShipsInRange(currentRadius);
 
         } else {
-            for (int i = 0; i < 3; i++){
+            for (int i = 0; i < 3; i++) {
                 Vector2f loc = MathUtils.getPointOnCircumference(this.loc, MathUtils.getRandomNumberInRange(10f, currentRadius), MathUtils.getRandomNumberInRange(0, 360));
 
                 rColour = Math.max((int) Math.round(20 + 140 * Math.random()), 0);

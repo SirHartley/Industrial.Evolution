@@ -1,7 +1,10 @@
 package indevo.other;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.BaseCampaignEventListener;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.FactionAPI;
+import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
@@ -27,7 +30,7 @@ public class SupercapitalShipRemoveAndReplacer extends BaseCampaignEventListener
 
     public static void init() {
 
-        for (Object o : Global.getSector().getAllListeners()){
+        for (Object o : Global.getSector().getAllListeners()) {
             if (o instanceof SupercapitalShipRemoveAndReplacer) return;
         }
 

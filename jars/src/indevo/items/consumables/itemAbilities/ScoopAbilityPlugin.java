@@ -2,18 +2,18 @@ package indevo.items.consumables.itemAbilities;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
-import indevo.items.consumables.entities.NebulaParticle;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.procgen.StarAge;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.loading.CampaignPingSpec;
-import indevo.utils.ModPlugin;
-import indevo.abilities.splitfleet.OrbitFocus;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.campaign.CampaignClock;
+import indevo.abilities.splitfleet.OrbitFocus;
+import indevo.items.consumables.entities.NebulaParticle;
+import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -58,7 +58,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
     protected void activateImpl() {
         loc = entity.getContainingLocation();
     }
-    
+
     @Override
     protected void applyEffect(float amount, float level) {
         if (entity.getContainingLocation() != loc) {
@@ -84,7 +84,8 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
         boolean active = getProgressFraction() < 0.85f;
 
         //void playLoop(String id, Object playingEntity, float pitch, float volume, Vector2f loc, Vector2f vel, float fadeIn, float fadeOut);
-        if(active) Global.getSoundPlayer().playLoop("IndEvo_succ", entity, 1f, 2f, entity.getLocation(), entity.getVelocity(), 2f, 2f);
+        if (active)
+            Global.getSoundPlayer().playLoop("IndEvo_succ", entity, 1f, 2f, entity.getLocation(), entity.getVelocity(), 2f, 2f);
 
         if (active && interval.intervalElapsed() && canSucc()) {
             int particleNum = Math.round(Misc.getDistance(entity.getLocation(), currentTargetLoc) * PARTICLES_PER_DISTANCE);
@@ -131,7 +132,8 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
 
             Global.getSector().addPing(entity, custom);
 
-            if (targetType == TargetType.NULL) getFleet().addFloatingText("No volatile source in range!", Misc.getNegativeHighlightColor(), 0.5f);
+            if (targetType == TargetType.NULL)
+                getFleet().addFloatingText("No volatile source in range!", Misc.getNegativeHighlightColor(), 0.5f);
         }
     }
 
@@ -185,8 +187,8 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
             float closest = Float.MIN_VALUE;
             SectorEntityToken target = null;
 
-            for (PlanetAPI planet : loc.getPlanets()){
-                if (planet.isStar()){
+            for (PlanetAPI planet : loc.getPlanets()) {
+                if (planet.isStar()) {
                     float dist = Misc.getDistance(planet.getLocation(), entity.getLocation());
                     if (dist < MAX_SUCTION_RANGE && dist > closest) {
                         target = planet;
@@ -194,7 +196,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
                 }
             }
 
-            if(target != null) {
+            if (target != null) {
                 currentTargetLoc = target.getLocation();
                 color = target.getLightColor();
                 sunTarget = target;
@@ -218,14 +220,14 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
     SectorEntityToken token = null;
     SectorEntityToken token2 = null;
 
-    private void createNewParticleV2(){
+    private void createNewParticleV2() {
         CampaignFleetAPI playerFleet = getFleet();
         Vector2f playerLocation = playerFleet.getLocation();
 
         if (currentTargetLoc == null) return;
 
         float radius;
-        if(targetType == TargetType.SUN){
+        if (targetType == TargetType.SUN) {
             radius = sunTarget == null ? playerFleet.getStarSystem().getStar().getRadius() : sunTarget.getRadius();
         } else {
             radius = SUCTION_CONE_DEFAULT_RADIUS;
@@ -234,7 +236,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
         //draw line from a point on the target circumference to the player, then make it into a coordinate by subtracting the vectors
         Vector2f dir = VectorUtils.getDirectionalVector(currentTargetLoc, playerLocation);
         dir = VectorUtils.resize(dir, Misc.getDistance(playerLocation, currentTargetLoc));
-        dir = Vector2f.sub(playerLocation, dir ,null);
+        dir = Vector2f.sub(playerLocation, dir, null);
 
         //get an angle on the target circumfence within +/- 20 deg(rad) of the current one
         double angle = Math.toRadians(VectorUtils.getAngle(playerLocation, dir)) - Math.PI; //have to invert angle here or it'll point the wrong way, dunno why
@@ -262,7 +264,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
         NebulaParticle data = new NebulaParticle(dir, size, baseAlphaMult, color);
         particles.add(data);
 
-        if(Global.getSettings().isDevMode()){
+        if (Global.getSettings().isDevMode()) {
             if (token != null) playerFleet.getContainingLocation().removeEntity(token);
             token = playerFleet.getContainingLocation().addCustomEntity(null, "indicator", "development_SplinterFleet_OrbitFocus", null, radius, 1f, 1f);
             token.setLocation(currentTargetLoc.x, currentTargetLoc.y);
@@ -284,10 +286,10 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         super.render(layer, viewport);
 
-        if(getFleet() == null || getFleet().isInHyperspace() || getFleet().getStarSystem() == null) return;
+        if (getFleet() == null || getFleet().isInHyperspace() || getFleet().getStarSystem() == null) return;
 
         StarAge age = getFleet().getStarSystem().getAge();
-        if(sprite == null || spriteNoColour == null || age != this.age){
+        if (sprite == null || spriteNoColour == null || age != this.age) {
             String nebulaType = StarSystemGenerator.nebulaTypes.get(age);
             if (nebulaType == null) nebulaType = StarSystemGenerator.nebulaTypes.get(StarAge.ANY);
 
@@ -304,7 +306,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
 //        if (alphaMult <= 0) return;
 
         for (NebulaParticle p : particles) {
-            if(p.isExpired()) continue;
+            if (p.isExpired()) continue;
 
             float size = p.size;
             SpriteAPI sprite = p.color != null ? spriteNoColour : this.sprite;
@@ -340,7 +342,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
         Color highlight = Misc.getHighlightColor();
         float opad = 10f;
 
-        if(!forItem) {
+        if (!forItem) {
             tooltip.addTitle(spec.getName());
             int amt = getCargoItemAmt();
             tooltip.addPara("Remaining in inventory: %s", opad, amt > 0 ? highlight : Misc.getNegativeHighlightColor(), amt + "");

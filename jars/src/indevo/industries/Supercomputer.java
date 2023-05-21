@@ -1,31 +1,33 @@
 package indevo.industries;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.econ.Industry;
-import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.ids.Ids;
-import indevo.utils.helper.IndustryHelper;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
+import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.listeners.ColonyOtherFactorsListener;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
-import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Conditions;
+import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import indevo.ids.ItemIds;
-import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
+import indevo.utils.timers.NewDayListener;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -139,7 +141,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
 
         if (hascond(Conditions.VERY_COLD)) {
             bonusSum += 0.20F * aicoreincrease;
-        } else if (hascond(Conditions.COLD )) {
+        } else if (hascond(Conditions.COLD)) {
             bonusSum += 0.15F * aicoreincrease;
         } else {
             bonusSum += 0.05F * aicoreincrease;

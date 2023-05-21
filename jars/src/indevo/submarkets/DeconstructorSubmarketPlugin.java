@@ -1,15 +1,15 @@
 package indevo.submarkets;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
-import indevo.ids.Ids;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.CoreUIAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.utils.helper.IndustryHelper;
 import org.apache.log4j.Logger;
 
 import java.util.HashSet;

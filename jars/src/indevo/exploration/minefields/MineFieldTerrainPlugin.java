@@ -90,7 +90,7 @@ public class MineFieldTerrainPlugin extends MineBeltTerrainPlugin {
         for (int i = 0; i < params.numMines; i++) {
             float size = params.minSize + (params.maxSize - params.minSize) * rand.nextFloat();
             SectorEntityToken mine = addMine(location, size);
-            if(this.entity.getMemoryWithoutUpdate().contains(PLANET_KEY)) {
+            if (this.entity.getMemoryWithoutUpdate().contains(PLANET_KEY)) {
                 mine.getMemoryWithoutUpdate().set(PLANET_KEY, entity.getMemoryWithoutUpdate().get(PLANET_KEY));
             }
 

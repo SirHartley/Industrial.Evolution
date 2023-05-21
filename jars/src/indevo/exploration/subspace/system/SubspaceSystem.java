@@ -5,13 +5,7 @@ import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import com.fs.starfarer.api.impl.campaign.ids.Terrain;
-import com.fs.starfarer.api.impl.campaign.procgen.CategoryGenDataSpec;
-import com.fs.starfarer.api.impl.campaign.procgen.NebulaEditor;
-import com.fs.starfarer.api.impl.campaign.procgen.StarAge;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
-import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
-import com.fs.starfarer.api.util.Misc;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -70,15 +64,15 @@ public class SubspaceSystem {
         field.setCircularOrbit(center, 0, 0, 75);*/
     }
 
-    private static void spawnOmegaBlackholes(StarSystemAPI system){
-        for (LocationAPI loc : Global.getSector().getAllLocations()){
-            if (loc.hasTag(Tags.HAS_CORONAL_TAP)){
+    private static void spawnOmegaBlackholes(StarSystemAPI system) {
+        for (LocationAPI loc : Global.getSector().getAllLocations()) {
+            if (loc.hasTag(Tags.HAS_CORONAL_TAP)) {
 
             }
         }
     }
 
-    public StarSystemAPI get(){
+    public StarSystemAPI get() {
         return Global.getSector().getStarSystem(name);
     }
 }

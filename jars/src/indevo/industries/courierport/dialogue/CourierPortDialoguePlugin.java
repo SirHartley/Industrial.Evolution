@@ -5,15 +5,15 @@ import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
-import indevo.industries.courierport.ShippingContractMemory;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.FireAll;
 import com.fs.starfarer.api.impl.campaign.rulecmd.ShowDefaultVisual;
-import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
-import indevo.dialogue.sidepanel.VisualCustomPanel;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.dialogue.sidepanel.VisualCustomPanel;
+import indevo.industries.courierport.ShippingContractMemory;
+import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
@@ -52,7 +52,7 @@ public class CourierPortDialoguePlugin extends BaseCommandPlugin implements Inte
     public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
         if (!(dialog instanceof IndEvo_InitSYCustomProductionDiag)) {
             this.memoryMap = memoryMap;
-            this. originalPlugin = dialog.getPlugin();
+            this.originalPlugin = dialog.getPlugin();
             dialog.setPlugin(this);
         }
 
@@ -69,12 +69,12 @@ public class CourierPortDialoguePlugin extends BaseCommandPlugin implements Inte
 
         Global.getSector().getMemoryWithoutUpdate().set(DIALOGUE_PLUGIN_TEMP_INSTANCE_KEY, this, 0f);
         VisualCustomPanel.createPanel(dialog, true);
-        if(!ShippingContractMemory.getContractList().isEmpty()) addManageContractSidePanel();
+        if (!ShippingContractMemory.getContractList().isEmpty()) addManageContractSidePanel();
 
         displayDefaultOptions();
     }
 
-    public static void reload(){
+    public static void reload() {
         getCurrentDialoguePlugin().displayDefaultOptions();
     }
 
@@ -134,7 +134,7 @@ public class CourierPortDialoguePlugin extends BaseCommandPlugin implements Inte
     private void addTooltip(TextPanelAPI panel) {
         panel.clear();
 
-        if(!entity.getTags().contains(Tags.COMM_RELAY)){
+        if (!entity.getTags().contains(Tags.COMM_RELAY)) {
             panel.addPara("The atmosphere here is markedly different from a usual spaceport. " +
                     "The offices are better kept, there is more activity in the docks and the overall attitude seems " +
                     "geared towards productivity rather than just passing the time.");
@@ -171,7 +171,7 @@ public class CourierPortDialoguePlugin extends BaseCommandPlugin implements Inte
 
         new ShowDefaultVisual().execute(null, dialog, Misc.tokenize(""), memoryMap);
 
-        if(entity.getTags().contains(Tags.COMM_RELAY)) FireAll.fire(null, dialog, memoryMap, "COB_AddOptions");
+        if (entity.getTags().contains(Tags.COMM_RELAY)) FireAll.fire(null, dialog, memoryMap, "COB_AddOptions");
         else {
             memoryMap.get(MemKeys.LOCAL).set("$option", "IndEvo_SelectreturnToMenu", 0f);
             FireAll.fire(null, dialog, memoryMap, "DialogOptionSelected");

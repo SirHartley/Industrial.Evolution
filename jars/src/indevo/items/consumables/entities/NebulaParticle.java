@@ -66,7 +66,8 @@ public class NebulaParticle {
         float minFadeOutDistance = originalDistance * FADE_OUT_DIST;
         float currentPassedDistance = originalDistance - distance;
 
-        if(currentPassedDistance <= maxFadeInDistance) currentAlpha = Math.min(smootherstep(0f, maxFadeInDistance, currentPassedDistance), baseAlphaMult);
+        if (currentPassedDistance <= maxFadeInDistance)
+            currentAlpha = Math.min(smootherstep(0f, maxFadeInDistance, currentPassedDistance), baseAlphaMult);
         else if (currentPassedDistance < minFadeOutDistance) currentAlpha = baseAlphaMult;
         else currentAlpha = Math.max(0, 1 - smootherstep(minFadeOutDistance, originalDistance, currentPassedDistance));
 

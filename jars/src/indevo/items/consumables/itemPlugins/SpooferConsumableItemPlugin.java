@@ -19,30 +19,29 @@ public class SpooferConsumableItemPlugin extends BaseConsumableItemPlugin {
     @Override
     public void init(CargoStackAPI stack) {
         super.init(stack);
-        if(!Global.getSector().getMemoryWithoutUpdate().contains(MEMKEY_CURRENT_FACTION)) setCurrentFaction(0);
+        if (!Global.getSector().getMemoryWithoutUpdate().contains(MEMKEY_CURRENT_FACTION)) setCurrentFaction(0);
     }
 
-    public static void setCurrentFaction(int i){
+    public static void setCurrentFaction(int i) {
         Global.getSector().getMemoryWithoutUpdate().set(MEMKEY_CURRENT_FACTION, i);
     }
 
-    public static int getCurrentFactionIndex(){
+    public static int getCurrentFactionIndex() {
         return Global.getSector().getMemoryWithoutUpdate().getInt(MEMKEY_CURRENT_FACTION);
     }
 
-    public static String getCurrentFaction(){
+    public static String getCurrentFaction() {
         return getFactionList().get(getCurrentFactionIndex());
     }
 
-    public static List<String> getFactionList(){
+    public static List<String> getFactionList() {
         List<String> factionList;
         MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
 
         if (mem.contains(MEMKEY_CURRENT_FACTION_LIST)) {
             factionList = (List<String>) mem.get(MEMKEY_CURRENT_FACTION_LIST);
             updateValidFactions(factionList);
-        }
-        else {
+        } else {
             factionList = new LinkedList<>();
             updateValidFactions(factionList);
         }
@@ -63,7 +62,7 @@ public class SpooferConsumableItemPlugin extends BaseConsumableItemPlugin {
         glow.renderAtCenter(0f, 0f);
     }
 
-    public static void nextFaction(){
+    public static void nextFaction() {
         int max = getFactionList().size() - 1;
         int next = getCurrentFactionIndex() + 1;
 
@@ -71,7 +70,7 @@ public class SpooferConsumableItemPlugin extends BaseConsumableItemPlugin {
         else setCurrentFaction(next);
     }
 
-    public static void prevFaction(){
+    public static void prevFaction() {
         int max = getFactionList().size() - 1;
         int next = getCurrentFactionIndex() - 1;
 
@@ -79,8 +78,8 @@ public class SpooferConsumableItemPlugin extends BaseConsumableItemPlugin {
         else setCurrentFaction(next);
     }
 
-    public static void updateValidFactions(List<String> factionList){
-        for (FactionAPI f : Global.getSector().getAllFactions()){
+    public static void updateValidFactions(List<String> factionList) {
+        for (FactionAPI f : Global.getSector().getAllFactions()) {
             String id = f.getId();
             boolean isValidFaction = f.isShowInIntelTab()
                     && !f.isPlayerFaction()

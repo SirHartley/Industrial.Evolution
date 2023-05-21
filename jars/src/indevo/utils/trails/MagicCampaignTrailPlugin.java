@@ -29,7 +29,7 @@ import java.util.*;
 import static org.lwjgl.opengl.GL11.*;
 
 /**
-Fixed version of the broken magicLib script
+ * Fixed version of the broken magicLib script
  **/
 public class MagicCampaignTrailPlugin implements EveryFrameScript {
     //Tracker for unique ID getting. Only use for this script, though: it's dangerous to use for other ID purposes, since it is so simple
@@ -51,8 +51,8 @@ public class MagicCampaignTrailPlugin implements EveryFrameScript {
     //A unique CustomCampaignEntity, which allows us to properly call render calls
     private CustomCampaignEntityAPI associatedEntity = null;
 
-    public static void register(){
-        if(!Global.getSector().hasScript(MagicCampaignTrailPlugin.class)) {
+    public static void register() {
+        if (!Global.getSector().hasScript(MagicCampaignTrailPlugin.class)) {
             ModPlugin.log("reg. campaign trail plugin");
             Global.getSector().addScript(new MagicCampaignTrailPlugin());
         }

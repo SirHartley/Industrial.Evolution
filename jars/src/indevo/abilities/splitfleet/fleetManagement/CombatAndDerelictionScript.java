@@ -15,11 +15,11 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.CargoPods;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySpecial;
+import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.intel.RecoverableShipIntel;
 import indevo.abilities.splitfleet.salvageSpecials.OfficerAndShipRecoverySpecial;
-import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.WeightedRandomPicker;
 import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.MathUtils;
 
@@ -60,7 +60,7 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
 
     @Override
     public void advance(float amount) {
-        if(!Global.getSettings().isDevMode()) return;
+        if (!Global.getSettings().isDevMode()) return;
 
         days += Global.getSector().getClock().convertToDays(amount);
 
@@ -142,10 +142,10 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
                 int safetyCounter = 0;
                 while (overloadedByAmount > 0 || safetyCounter > stacks.size()) {
                     //pick stacks according to their weight and move their max amount to drop pool, then update the overload amt
-                    if(picker.isEmpty()) break;
+                    if (picker.isEmpty()) break;
 
                     CargoStackAPI pickedStack = (CargoStackAPI) picker.pickAndRemove();
-                    if(pickedStack == null || pickedStack.isNull()) continue;
+                    if (pickedStack == null || pickedStack.isNull()) continue;
 
                     int maxAmt = stackMaxUnitsForAnteilList.get(pickedStack);
                     float space = pickedStack.getCargoSpacePerUnit() * maxAmt;
@@ -211,7 +211,7 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
         ship.setDiscoverable(true);
 
         ship.getMemoryWithoutUpdate().set(SHIP_VARIANT_KEY, member.getVariant());
-        ((List< SectorEntityToken >) focus.getMemoryWithoutUpdate().get(ORBIT_FOCUS_ORBITING_TOKEN_LIST)).add(ship);
+        ((List<SectorEntityToken>) focus.getMemoryWithoutUpdate().get(ORBIT_FOCUS_ORBITING_TOKEN_LIST)).add(ship);
 
         float orbitRadius = MathUtils.getRandomNumberInRange(5f, 30f);
         float orbitDays = orbitRadius * MathUtils.getRandomNumberInRange(0.7f, 1.3f);

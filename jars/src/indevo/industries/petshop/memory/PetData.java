@@ -3,6 +3,10 @@ package indevo.industries.petshop.memory;
 import java.util.List;
 
 public class PetData {
+    public static final String TAG_NO_SELL = "no_sell";
+    public static final String TAG_NO_DROP = "no_drop";
+    public static final String TAG_SPECIES_PREFIX = "c_";
+
     public String id;
     public String species;
     public float value;
@@ -29,5 +33,21 @@ public class PetData {
         this.foodCommodities = foodCommodities;
         this.foodPerMonth = foodPerMonth;
         this.rarity = rarity;
+    }
+
+    public boolean isNoSell() {
+        return tags.contains(TAG_NO_SELL);
+    }
+
+    public boolean isNoDrop() {
+        return tags.contains(TAG_NO_DROP);
+    }
+
+    public String getAnimalClass() {
+        for (String tag : tags) {
+            if (tag.startsWith(TAG_SPECIES_PREFIX)) return tag.substring(TAG_SPECIES_PREFIX.length());
+        }
+
+        return "alien";
     }
 }

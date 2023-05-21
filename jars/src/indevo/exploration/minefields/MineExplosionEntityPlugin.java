@@ -61,7 +61,7 @@ public class MineExplosionEntityPlugin extends ExplosionEntityPlugin {
 
     @Override
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
-        if(sprite == null) sprite = Global.getSettings().getSprite("misc", "nebula_particles");
+        if (sprite == null) sprite = Global.getSettings().getSprite("misc", "nebula_particles");
         super.render(layer, viewport);
     }
 }

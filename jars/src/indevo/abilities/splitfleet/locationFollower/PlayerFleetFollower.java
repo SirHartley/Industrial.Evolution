@@ -14,14 +14,14 @@ public class PlayerFleetFollower implements EveryFrameScript {
     public static final String TOKEN_MEMORY_KEY = "$IndEvo_followToken";
     public SectorEntityToken token;
 
-    public static void register(){
+    public static void register() {
         PlayerFleetFollower script = new PlayerFleetFollower();
         Global.getSector().addTransientScript(script);
 
         script.token = getToken();
     }
 
-    public static SectorEntityToken getToken(){
+    public static SectorEntityToken getToken() {
         SectorEntityToken token;
         MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
 
@@ -61,12 +61,12 @@ public class PlayerFleetFollower implements EveryFrameScript {
         token.setLocation(loc.x, loc.y);
     }
 
-    private void update(){
+    private void update() {
         this.token.getContainingLocation().removeEntity(this.token);
         Global.getSector().getMemoryWithoutUpdate().unset(TOKEN_MEMORY_KEY);
 
         SectorEntityToken token = getToken();
-        for (LocationFollowListenerAPI f : Global.getSector().getListenerManager().getListeners(LocationFollowListenerAPI.class)){
+        for (LocationFollowListenerAPI f : Global.getSector().getListenerManager().getListeners(LocationFollowListenerAPI.class)) {
             f.reportLocationUpdated(token);
         }
     }

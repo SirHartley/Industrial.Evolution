@@ -1,7 +1,6 @@
 package indevo.items.consumables.entityAbilities;
 
 import com.fs.starfarer.api.Global;
-import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -13,6 +12,7 @@ import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Pings;
 import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -39,7 +39,7 @@ public class DecoyMineAbility extends BaseDurationAbility {
         }
 
         if (level == 1 && primed != null) {
-            for(SectorEntityToken t : ArtilleryStationEntityPlugin.getArtilleriesInLoc(entity.getContainingLocation())){
+            for (SectorEntityToken t : ArtilleryStationEntityPlugin.getArtilleriesInLoc(entity.getContainingLocation())) {
                 ArtilleryStationEntityPlugin p = (ArtilleryStationEntityPlugin) t.getCustomPlugin();
                 p.forceTarget(entity, ARTILLERY_STATION_TIMEOUT);
             }
@@ -61,10 +61,10 @@ public class DecoyMineAbility extends BaseDurationAbility {
                 boolean validTarget = chance && !patrol && !warFleet && !pirate && !Misc.isBusy(other);
 
                 // the triggerIntercept method sets this as well so it should be fine? Have to check if it unsets at some point
-                if(!validTarget){
+                if (!validTarget) {
                     if (vis == SectorEntityToken.VisibilityLevel.COMPOSITION_AND_FACTION_DETAILS ||
                             vis == SectorEntityToken.VisibilityLevel.COMPOSITION_DETAILS) {
-                        other.addFloatingText("Ignoring signal" , Misc.getGrayColor(), 1f, true);
+                        other.addFloatingText("Ignoring signal", Misc.getGrayColor(), 1f, true);
                     }
                 } else {
                     float radius = 700f;
@@ -79,7 +79,7 @@ public class DecoyMineAbility extends BaseDurationAbility {
                             vis == SectorEntityToken.VisibilityLevel.COMPOSITION_DETAILS) {
 
                         other.addScript(new InterdictionMineAbility.GoSlowScript(other));
-                        other.addFloatingText("Investigating signal" , getColor(), 1f, true);
+                        other.addFloatingText("Investigating signal", getColor(), 1f, true);
                         //Global.getSoundPlayer().playSound("world_interdict_hit", 1f, 1f, other.getLocation(), other.getVelocity());
                     }
                 }
@@ -95,7 +95,7 @@ public class DecoyMineAbility extends BaseDurationAbility {
     }
 
 
-    public Color getColor(){
+    public Color getColor() {
         return new Color(20, 160, 200, 255);
     }
 
@@ -125,7 +125,7 @@ public class DecoyMineAbility extends BaseDurationAbility {
         //SectorEntityToken.VisibilityLevel vis = entity.getVisibilityLevelToPlayerFleet();
         //if (vis == SectorEntityToken.VisibilityLevel.NONE || vis == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT) return;
 
-        if(!entity.isInCurrentLocation()) return;
+        if (!entity.isInCurrentLocation()) return;
 
         boolean fire = false;
         if (elapsed == null) {

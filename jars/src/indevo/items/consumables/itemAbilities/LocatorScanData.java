@@ -4,10 +4,10 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
-import indevo.items.consumables.listeners.LocatorSystemRatingUpdater;
 import com.fs.starfarer.api.impl.campaign.abilities.GraviticScanData;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.items.consumables.listeners.LocatorSystemRatingUpdater;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
@@ -16,13 +16,13 @@ import java.util.List;
 
 public class LocatorScanData {
 
-    public LocatorScanData(LocatorAbilityPlugin ability){
+    public LocatorScanData(LocatorAbilityPlugin ability) {
         this.ability = ability;
     }
 
     private LocatorAbilityPlugin ability;
     private int resolution = 360;
-    transient private float [] data;
+    transient private float[] data;
     private List<GraviticScanData.GSPing> pings = new ArrayList<>();
     private IntervalUtil pingInterval = new IntervalUtil(0.01f, 0.01f);
 
@@ -57,7 +57,7 @@ public class LocatorScanData {
 
         for (StarSystemAPI system : Global.getSector().getStarSystems()) {
             SectorEntityToken entity = system.getHyperspaceAnchor();
-            if(entity == null || entity.getLocation() == null) continue;
+            if (entity == null || entity.getLocation() == null) continue;
 
             float dist = Misc.getDistance(loc, entity.getLocation());
 
@@ -110,7 +110,7 @@ public class LocatorScanData {
 
     public int getIndex(float angle) {
         angle = Misc.normalizeAngle(angle);
-        int index = (int)Math.floor(resolution * angle/360f);
+        int index = (int) Math.floor(resolution * angle / 360f);
         return index;
     }
 
@@ -121,7 +121,7 @@ public class LocatorScanData {
 
     public float getRangeGMult(float distance) {
         float mult = 0;
-        if(distance < MAX_RANGE) mult = MAX_RANGE / distance;
+        if (distance < MAX_RANGE) mult = MAX_RANGE / distance;
 
         return mult;
     }

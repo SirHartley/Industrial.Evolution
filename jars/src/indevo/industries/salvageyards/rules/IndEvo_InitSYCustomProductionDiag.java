@@ -1,9 +1,6 @@
 package indevo.industries.salvageyards.rules;
 
 import com.fs.starfarer.api.Global;
-import indevo.ids.ItemIds;
-import indevo.utils.helper.Settings;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
@@ -11,17 +8,20 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import indevo.industries.salvageyards.industry.SalvageYards;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.ids.Sounds;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
-import indevo.industries.salvageyards.intel.YardsCustomProductionIntel;
 import com.fs.starfarer.api.impl.campaign.rulecmd.*;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.ValueDisplayMode;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.industries.salvageyards.industry.SalvageYards;
+import indevo.industries.salvageyards.intel.YardsCustomProductionIntel;
+import indevo.utils.helper.Settings;
+import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 

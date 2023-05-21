@@ -7,5 +7,6 @@ import com.fs.starfarer.api.EveryFrameScript;
  */
 public interface SplinterFleetAssignmentAIV2 extends EveryFrameScript {
     public void setDone();
+
     public void setFlags();
 }

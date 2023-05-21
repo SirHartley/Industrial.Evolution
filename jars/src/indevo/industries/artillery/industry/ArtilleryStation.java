@@ -1,8 +1,6 @@
 package indevo.industries.artillery.industry;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.econ.impl.OrbitalStation;
-import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
@@ -13,7 +11,6 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.DebugFlags;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent;
 import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflater;
 import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflaterParams;
@@ -23,13 +20,15 @@ import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGeneratorPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.MarketCMD;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
-import indevo.utils.ModPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.IconRenderMode;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.artillery.conditions.ArtilleryStationCondition;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
+import indevo.utils.ModPlugin;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lazywizard.lazylib.MathUtils;
@@ -721,7 +720,6 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
         }
 
 
-
         addRightAfterDescriptionSection(tooltip, mode);
 
         if (isDisrupted()) {
@@ -766,7 +764,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
             tooltip.addPara("Requires %s " + days + " to build.", opad, highlight, "" + left);
 
             //return;
-        } else if (!hasOrbital){
+        } else if (!hasOrbital) {
             tooltip.addPara("Missing an orbital station to function!", opad, Misc.getNegativeHighlightColor(), Misc.getTextColor());
 
         } else if (!isFunctional() && mode == IndustryTooltipMode.NORMAL) {
@@ -837,9 +835,18 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
                 int income = getIncome().getModifiedInt();
                 tooltip.addPara("Monthly income: %s", opad, highlight, Misc.getDGSCredits(income));
                 tooltip.addStatModGrid(250, 65, 10, pad, getIncome(), true, new TooltipMakerAPI.StatModValueGetter() {
-                    public String getPercentValue(MutableStat.StatMod mod) {return null;}
-                    public String getMultValue(MutableStat.StatMod mod) {return null;}
-                    public Color getModColor(MutableStat.StatMod mod) {return null;}
+                    public String getPercentValue(MutableStat.StatMod mod) {
+                        return null;
+                    }
+
+                    public String getMultValue(MutableStat.StatMod mod) {
+                        return null;
+                    }
+
+                    public Color getModColor(MutableStat.StatMod mod) {
+                        return null;
+                    }
+
                     public String getFlatValue(MutableStat.StatMod mod) {
                         return Misc.getWithDGS(mod.value) + Strings.C;
                     }
@@ -850,9 +857,18 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
                 int upkeep = getUpkeep().getModifiedInt();
                 tooltip.addPara("Monthly upkeep: %s", opad, highlight, Misc.getDGSCredits(upkeep));
                 tooltip.addStatModGrid(250, 65, 10, pad, getUpkeep(), true, new TooltipMakerAPI.StatModValueGetter() {
-                    public String getPercentValue(MutableStat.StatMod mod) {return null;}
-                    public String getMultValue(MutableStat.StatMod mod) {return null;}
-                    public Color getModColor(MutableStat.StatMod mod) {return null;}
+                    public String getPercentValue(MutableStat.StatMod mod) {
+                        return null;
+                    }
+
+                    public String getMultValue(MutableStat.StatMod mod) {
+                        return null;
+                    }
+
+                    public Color getModColor(MutableStat.StatMod mod) {
+                        return null;
+                    }
+
                     public String getFlatValue(MutableStat.StatMod mod) {
                         return Misc.getWithDGS(mod.value) + Strings.C;
                     }

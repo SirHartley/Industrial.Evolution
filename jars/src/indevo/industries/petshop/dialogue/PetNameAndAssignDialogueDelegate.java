@@ -6,15 +6,9 @@ import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
-import indevo.ids.ItemIds;
-import indevo.industries.changeling.dialogue.ChangelingIndustryDialogueDelegate;
-import indevo.industries.petshop.listener.PetStatusManager;
-import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
 
-import java.awt.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class PetNameAndAssignDialogueDelegate implements CustomDialogDelegate {
@@ -32,9 +26,9 @@ public class PetNameAndAssignDialogueDelegate implements CustomDialogDelegate {
     public TextFieldAPI nameField = null;
 
     public PetNameAndAssignDialogueDelegate(PetData data, List<FleetMemberAPI> validMembers, InteractionDialogAPI dialogue) {
-       this.data = data;
-       this.members = validMembers;
-       this.dialogue = dialogue;
+        this.data = data;
+        this.members = validMembers;
+        this.dialogue = dialogue;
     }
 
     public void createCustomDialog(CustomPanelAPI panel, CustomDialogCallback callback) {
@@ -56,7 +50,8 @@ public class PetNameAndAssignDialogueDelegate implements CustomDialogDelegate {
         subPanel.addUIElement(anchor).inTL(-opad, 0f); //if we don't -opad it kinda does it by its own, no clue why
         heading.addCustom(subPanel, 0f);
 
-        panel.addUIElement(heading).inTL(0f, 0.0F);;
+        panel.addUIElement(heading).inTL(0f, 0.0F);
+        ;
     }
 
     public boolean hasCancelButton() {

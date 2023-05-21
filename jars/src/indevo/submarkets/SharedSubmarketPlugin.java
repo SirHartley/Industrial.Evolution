@@ -6,11 +6,11 @@ import com.fs.starfarer.api.campaign.CoreUIAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
-import indevo.industries.SharedSubmarketUserAPI;
-import indevo.industries.derelicts.industry.HullForge;
 import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
+import indevo.industries.SharedSubmarketUserAPI;
+import indevo.industries.derelicts.industry.HullForge;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;

@@ -1,37 +1,36 @@
 package indevo.industries.assembler.industry;
 
 import com.fs.starfarer.api.Global;
-import indevo.ids.Ids;
-import indevo.ids.ItemIds;
-import indevo.industries.SharedSubmarketUserAPI;
-import indevo.industries.assembler.industry.VariableAssembler;
-import indevo.utils.helper.IndustryHelper;
-import indevo.utils.helper.StringHelper;
 import com.fs.starfarer.api.campaign.CampaignClockAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
-import indevo.items.VPCItemPlugin;
-import indevo.items.installable.VPCInstallableItemPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
-import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.industries.SharedSubmarketUserAPI;
+import indevo.items.VPCItemPlugin;
+import indevo.items.installable.VPCInstallableItemPlugin;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.StringHelper;
+import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
+import indevo.utils.timers.NewDayListener;
 import org.json.JSONException;
 
 import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.utils.helper.IndustryHelper.getDaysOfCurrentMonth;
 import static indevo.ids.ItemIds.NO_ENTRY;
+import static indevo.utils.helper.IndustryHelper.getDaysOfCurrentMonth;
 
 public class CommodityForge extends VariableAssembler implements SharedSubmarketUserAPI, NewDayListener {
 

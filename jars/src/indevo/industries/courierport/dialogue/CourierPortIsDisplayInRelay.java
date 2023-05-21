@@ -2,10 +2,10 @@ package indevo.industries.courierport.dialogue;
 
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.industries.courierport.ShippingTargetHelper;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.courierport.ShippingTargetHelper;
 
 import java.util.List;
 import java.util.Map;

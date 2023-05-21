@@ -3,34 +3,34 @@ package indevo.industries.salvageyards.intel;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import indevo.items.ForgeTemplateItemPlugin;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ShipQuality;
 import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflaterParams;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
-import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
 import com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin;
 import com.fs.starfarer.api.loading.VariantSource;
-import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.CountingMap;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
+import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
+import indevo.items.ForgeTemplateItemPlugin;
+import indevo.utils.timers.NewDayListener;
 
 import java.awt.*;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import static indevo.utils.helper.StringHelper.getDayOrDays;
 import static indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag.DELIVERY_TIME;
+import static indevo.utils.helper.StringHelper.getDayOrDays;
 
 public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDayListener {
 

@@ -42,20 +42,23 @@ public class IndEvo_missileProjectileAI implements MissileAIPlugin, GuidedMissil
         }
 
         if (missile.getFlightTime() > missile.getMaxFlightTime() - 0.1f) splode();
-        if (!AIUtils.getNearbyEnemies(missile, EXPLOSION_TRIGGER_RANGE).isEmpty() || (!enemiesInPath() && enemiesInSideArcPresent())) splode();
+        if (!AIUtils.getNearbyEnemies(missile, EXPLOSION_TRIGGER_RANGE).isEmpty() || (!enemiesInPath() && enemiesInSideArcPresent()))
+            splode();
     }
 
-    public boolean enemiesInPath(){
-        for (ShipAPI s : AIUtils.getEnemiesOnMap(missile)){
-            if(Misc.isInArc(missile.getFacing(), 50f, Misc.getAngleInDegrees(missile.getLocation(), s.getLocation()))) return true;
+    public boolean enemiesInPath() {
+        for (ShipAPI s : AIUtils.getEnemiesOnMap(missile)) {
+            if (Misc.isInArc(missile.getFacing(), 50f, Misc.getAngleInDegrees(missile.getLocation(), s.getLocation())))
+                return true;
         }
 
         return false;
     }
 
-    public boolean enemiesInSideArcPresent(){
-        for (ShipAPI s : AIUtils.getEnemiesOnMap(missile)){
-            if(Misc.isInArc(missile.getFacing() - 180, 180, Misc.getAngleInDegrees(missile.getLocation(), s.getLocation())) && Misc.getDistance(missile.getLocation(), s.getLocation()) < 500f) return true;
+    public boolean enemiesInSideArcPresent() {
+        for (ShipAPI s : AIUtils.getEnemiesOnMap(missile)) {
+            if (Misc.isInArc(missile.getFacing() - 180, 180, Misc.getAngleInDegrees(missile.getLocation(), s.getLocation())) && Misc.getDistance(missile.getLocation(), s.getLocation()) < 500f)
+                return true;
         }
 
         return false;

@@ -1,25 +1,23 @@
 package indevo.industries.derelicts.industry;
 
 import com.fs.starfarer.api.Global;
-import indevo.ids.Ids;
-import indevo.ids.ItemIds;
-import indevo.utils.ModPlugin;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.*;
-import indevo.items.EmptyForgeTemplateItemPlugin;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import indevo.utils.timers.NewDayListener;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.items.EmptyForgeTemplateItemPlugin;
+import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.timers.NewDayListener;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -40,9 +38,9 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
     protected final String pickerSeed = "$IndEvo_ruinsPickerSeed";
     public static final String COMMODITY_KEY = "$IndEvo_LabBonusCommodityID";
 
-    protected String bonusCommodityId1 = "none";
-    protected String bonusCommodityId2 = "none";
-    protected String bonusCommodityId3 = "none";
+    public String bonusCommodityId1 = "none";
+    public String bonusCommodityId2 = "none";
+    public String bonusCommodityId3 = "none";
 
     private float bonusValue = 2f;
 
@@ -253,7 +251,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
                 }
 
                 boolean nonecon = row.getString("tags").contains("nonecon");
-                if(!nonecon) added.add(id);
+                if (!nonecon) added.add(id);
             }
         } catch (Exception ex) {
             Global.getLogger(AncientLaboratory.class).error("Failed to parse", ex);
@@ -417,50 +415,6 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
                         opad);
             }
         }
-    }
-
-
-    public boolean canImprove() {
-        return Commodities.BETA_CORE.equals(aiCoreId);
-    }
-
-    public float getImproveBonusXP() {
-        return 0;
-    }
-
-    public String getImproveMenuText() {
-        return "Change output";
-    }
-
-    public int getImproveStoryPoints() {
-        return 0;
-    }
-
-    @Override
-    public void setImproved(boolean improved) {
-        String id1 = bonusCommodityId1;
-        bonusCommodityId1 = bonusCommodityId2;
-        bonusCommodityId2 = id1;
-    }
-
-    public String getImproveDialogTitle() {
-        return "Changing output for " + getSpec().getName();
-    }
-
-    public void addImproveDesc(TooltipMakerAPI info, ImprovementDescriptionMode mode) {
-        float opad = 10f;
-        Color highlight = Misc.getHighlightColor();
-
-        if (mode != ImprovementDescriptionMode.INDUSTRY_TOOLTIP) {
-            info.addPara("Changes the %s from %s to %s.", 0f, highlight,
-                    "commodity bonus",
-                    Global.getSettings().getCommoditySpec(bonusCommodityId1).getName(),
-                    Global.getSettings().getCommoditySpec(bonusCommodityId2).getName());
-
-            info.addPara("Does not affect improvement cost of other buildings on this colony.", 3f);
-        }
-
-        info.addSpacer(opad);
     }
 
        /* alpha unlocks a third bonus, but reduces the increase to from 2 to 1

@@ -1,12 +1,12 @@
 package indevo.industries.artillery.projectiles;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.trails.MagicCampaignTrailPlugin;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.trails.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -119,7 +119,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
                 boolean devmodePlayerFleet = (Global.getSettings().isDevMode() && fleet.isPlayerFleet() && Misc.getDistance(entity, fleet) <= INITIATE_EXPLOSION_DISTANCE);
                 boolean hostileAndClose = fleet.isHostileTo(entity) && Misc.getDistance(entity, fleet) <= INITIATE_EXPLOSION_DISTANCE;
 
-                if (devmodePlayerFleet || hostileAndClose){
+                if (devmodePlayerFleet || hostileAndClose) {
                     spawnExplosion();
                     Misc.fadeAndExpire(entity, 0.1f);
                     finishing = true;
@@ -138,7 +138,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
     }
 
     @Deprecated
-    public void advanceProjectileTowardsEnemy(float amount){
+    public void advanceProjectileTowardsEnemy(float amount) {
         //FRONT TOWARDS ENEMY
 
         float dist = PROJECTILE_VELOCITY * amount;
@@ -155,7 +155,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
         entity.setFacing(nextAngle);
     }
 
-    public void advanceProjectileTowardsEnemyV2(float amount){
+    public void advanceProjectileTowardsEnemyV2(float amount) {
         //FRONT TOWARDS ENEMY IN THE CORRECT DIRECTION
 
         float dist = PROJECTILE_VELOCITY * amount;
@@ -168,7 +168,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
 
         //direction
         float nextAngle;
-        if(moveAngle > 180){
+        if (moveAngle > 180) {
             float A = moveAngle - 180;
             boolean targetIsInLeftHemisphere = targetAngle < moveAngle && targetAngle > A;
             nextAngle = entity.getFacing() + turn * (targetIsInLeftHemisphere ? 1 : -1);

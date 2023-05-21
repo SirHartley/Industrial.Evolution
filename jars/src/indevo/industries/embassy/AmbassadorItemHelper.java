@@ -1,13 +1,13 @@
 package indevo.industries.embassy;
 
 import com.fs.starfarer.api.Global;
-import indevo.items.specialitemdata.AmbassadorItemData;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
-import indevo.ids.Ids;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
+import indevo.ids.Ids;
+import indevo.items.specialitemdata.AmbassadorItemData;
+import indevo.utils.helper.IndustryHelper;
 
 import java.util.Set;
 

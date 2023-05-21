@@ -7,10 +7,10 @@ import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin.Installa
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
-import indevo.items.installable.VPCInstallableItemPlugin;
-import indevo.items.installable.VPCInstallableItemPlugin.IndEvo_ItemEffect;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.items.installable.VPCInstallableItemPlugin;
+import indevo.items.installable.VPCInstallableItemPlugin.IndEvo_ItemEffect;
 
 import java.awt.*;
 

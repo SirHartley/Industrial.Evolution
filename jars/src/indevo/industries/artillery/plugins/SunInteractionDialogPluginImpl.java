@@ -6,7 +6,6 @@ import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.impl.campaign.DevMenuOptions;
-import com.fs.starfarer.api.impl.campaign.PlanetInteractionDialogPluginImpl;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Sounds;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
@@ -15,7 +14,6 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.DumpMemory;
 import com.fs.starfarer.api.impl.campaign.rulecmd.SetStoryOption;
 import com.fs.starfarer.api.loading.Description;
-import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import org.lwjgl.input.Keyboard;
 
@@ -206,10 +204,10 @@ public class SunInteractionDialogPluginImpl implements InteractionDialogPlugin {
         }
     }
 
-    private int getNumStableLocations(StarSystemAPI system){
+    private int getNumStableLocations(StarSystemAPI system) {
         int count = system.getEntitiesWithTag(Tags.STABLE_LOCATION).size();
 
-        for (SectorEntityToken t : system.getEntitiesWithTag(Tags.OBJECTIVE)){
+        for (SectorEntityToken t : system.getEntitiesWithTag(Tags.OBJECTIVE)) {
             if (t.hasTag(Ids.TAG_WATCHTOWER)) continue;
 
             count++;
@@ -253,6 +251,7 @@ public class SunInteractionDialogPluginImpl implements InteractionDialogPlugin {
 
 
     private OptionId lastOptionMousedOver = null;
+
     public void optionMousedOver(String optionText, Object optionData) {
 
     }

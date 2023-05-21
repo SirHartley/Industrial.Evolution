@@ -13,13 +13,10 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.SubIndustryAPI;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
-import indevo.items.installable.SpecialItemEffectsRepo;
 
 import java.awt.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate {
@@ -151,7 +148,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             //refund or transfer items
             SpecialItemData specialItemData = industry.getSpecialItem();
 
-            if (specialItemData != null && canInstallItem(switchable, specialItemData.getId())){
+            if (specialItemData != null && canInstallItem(switchable, specialItemData.getId())) {
                 switchable.setSpecialItem(specialItemData);
             } else if (specialItemData != null) Misc.getStorageCargo(market).addSpecial(specialItemData, 1);
 

@@ -3,7 +3,7 @@ package indevo.industries.worldwonder.industry;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 
-public class LavaFortress extends WorldWonder{
+public class LavaFortress extends WorldWonder {
 
     @Override
     public boolean isAvailableToBuild() {

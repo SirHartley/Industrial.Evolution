@@ -6,8 +6,8 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
-import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 
 import java.util.List;
 import java.util.Map;

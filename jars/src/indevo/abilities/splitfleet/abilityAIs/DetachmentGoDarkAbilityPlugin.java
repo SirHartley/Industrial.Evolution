@@ -5,8 +5,8 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.abilities.ai.BaseAbilityAI;
 import com.fs.starfarer.api.impl.campaign.ids.Abilities;
-import indevo.abilities.splitfleet.FleetUtils;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.FleetUtils;
 
 public class DetachmentGoDarkAbilityPlugin extends BaseAbilityAI {
 

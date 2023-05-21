@@ -1,15 +1,15 @@
 package indevo.industries.senate.conditions;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.helper.IndustryHelper;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
-import indevo.utils.timers.TimeTracker;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.helper.IndustryHelper;
+import indevo.utils.timers.TimeTracker;
 
 import static java.lang.Math.ceil;
 
