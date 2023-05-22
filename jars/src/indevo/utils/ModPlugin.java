@@ -55,6 +55,7 @@ import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
+import indevo.industries.petshop.plugins.PetCenterOptionProvider;
 import indevo.industries.ruinfra.utils.DerelictInfrastructurePlacer;
 import indevo.industries.worldwonder.plugins.WorldWonderAltImageOptionProvider;
 import indevo.industries.worldwonder.plugins.WorldWonderTexChangeOptionProvider;
@@ -321,6 +322,7 @@ public class ModPlugin extends BaseModPlugin {
         ChangelingMiningOptionProvider.register();
         ChangelingRefiningOptionProvider.register();
         AncientLabCommoditySwitchOptionProvider.register();
+        PetCenterOptionProvider.register();
     }
 
     private void setScriptsIfNeeded() {

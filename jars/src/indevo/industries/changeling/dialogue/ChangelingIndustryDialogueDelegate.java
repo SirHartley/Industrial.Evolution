@@ -26,6 +26,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
     public static final float ENTRY_WIDTH = WIDTH - 5f; //MUST be even
     public static final float CONTENT_HEIGHT = 80f;
 
+
     public Industry industry;
     public List<SubIndustryAPI> subIndustries;
     public String industryToAdd;
