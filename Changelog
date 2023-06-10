@@ -44,6 +44,10 @@ Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage
 DELIVER FLEETS REFUSE TO LEAVE SYSTEM AFTER DELIVERY; MAYBE MOVE INTO HYPERSPACE OR MANUALLY SET MOVE TARGET?
 
 --------------------------- Changelog -----------------------------
+todo:
+add mil buildings to event mods
+fix arty stations
+automated claws and parrot to arty
 
 3.3.1
 General
@@ -56,12 +60,12 @@ Adjusted - Code Changes for 0.96
 Adjusted - All industry images got touch-ups to bring them more in line with vanilla
 
 Pets
-todo: Pets dropping from explo
+todo: Pets dropping from explo / rare pets never show up in store
 todo: Admiral Pirrot and the Starcracker-class Breadnought
-todo: pet storage, move, remove and rename UI
+todo: Parrot-Class Superclaw
 Added - Pets: Add them to your ship, feed em, make em happy, and they'll accompany you! And die!
 Added - Research Project for a rare Pet
-Added - Industry: Animal Center
+Added - Animal Center: Store, manage, rename, euthanize and buy pets here! Comes with a station and dodgy animal sellers.
 
 Automated Shipyards
 Added - Rare chance for a ship to be an automated variant, usable without the skill
@@ -95,6 +99,7 @@ Added - Refining Specializations (increased output on one commodity, malus on th
 Added - Mining Specializations (see above but for mining)
 
 Governance Types
+todo the other types
 Added - Underworld (Increases income with lower stability, decreases with higher, increases illegal commodity outputs)
 
 Commerce
@@ -104,6 +109,7 @@ Courier Port
 Fixed - Crash when planet has no storage
 
 Restoration Docks
+Fixed - Can no longer restore ships that should be unrestorable
 Fixed - Broken Tooltips
 
 Requisitions center

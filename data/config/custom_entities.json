@@ -145,7 +145,7 @@
 
 	"IndEvo_PetShop":{
 		"defaultName":"Animal Centre", # used if name=null in addCustomEntity()
-		"defaultRadius":50, # used if radius<0 in addCustomEntity()
+		"defaultRadius":40, # used if radius<0 in addCustomEntity()
 		"customDescriptionId":"IndEvo_AnimalCenter",
 		"icon":"graphics/icons/IndEvo_station4.png",
 		"nameInText":"animal centre",
@@ -153,8 +153,8 @@
 		"iconWidth":20,
 		"iconHeight":20,
 		"sprite":"graphics/stations/IndEvo_station_05.png",
-		"spriteWidth":55,
-		"spriteHeight":55,
+		"spriteWidth":40,
+		"spriteHeight":40,
 		"renderShadow":false, #true,
 		"useLightColor":true,
 		"showInCampaign":true,

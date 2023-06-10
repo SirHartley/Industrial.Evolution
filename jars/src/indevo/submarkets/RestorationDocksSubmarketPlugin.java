@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -44,13 +45,10 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin impleme
 
     @Override
     public boolean isIllegalOnSubmarket(FleetMemberAPI member, TransferAction action) {
-        if (market.hasIndustry(REPAIRDOCKS)) {
-            RestorationDocks restorationDocks = (RestorationDocks) market.getIndustry(REPAIRDOCKS);
-
-            return action != TransferAction.PLAYER_BUY && RestorationDocks.getListNonBuiltInDMods(member.getVariant()).isEmpty();
-        }
-
-        return true;
+        return action != TransferAction.PLAYER_BUY
+                && (RestorationDocks.getListNonBuiltInDMods(member.getVariant()).isEmpty()
+                || member.getVariant().getTags().contains(Tags.VARIANT_UNRESTORABLE)
+                || member.getHullSpec().getTags().contains(Tags.HULL_UNRESTORABLE));
     }
 
     @Override

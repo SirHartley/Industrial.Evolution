@@ -6,10 +6,12 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
+import com.fs.starfarer.api.impl.campaign.PlanetInteractionDialogPluginImpl;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
 import indevo.industries.petshop.dialogue.PetManagerDialogueDelegate;
+import indevo.industries.petshop.dialogue.PetShopDialogPlugin;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -59,8 +61,11 @@ public class PetCenterOptionProvider extends BaseIndustryOptionProvider {
     @Override
     public void optionSelected(IndustryOptionData opt, DialogCreatorUI ui) {
         if (opt.id == CUSTOM_PLUGIN) {
-            CustomDialogDelegate delegate = new PetManagerDialogueDelegate(opt.ind);
-            ui.showDialog(PetManagerDialogueDelegate.WIDTH, PetManagerDialogueDelegate.HEIGHT, delegate);
+            PetShopDialogPlugin plugin = new PetShopDialogPlugin(opt.ind);
+            ui.showDialog(null, plugin);
+
+            /*CustomDialogDelegate delegate = new PetManagerDialogueDelegate(opt.ind);
+            ui.showDialog(PetManagerDialogueDelegate.WIDTH, PetManagerDialogueDelegate.HEIGHT, delegate);*/
         }
     }
 }

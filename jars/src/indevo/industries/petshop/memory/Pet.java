@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
@@ -30,11 +31,12 @@ public class Pet {
 
     private float serveDuration = 0f;
 
+    private boolean isActive = false;
     private boolean isStarving = false;
     private boolean isDead = false;
     private Industry storage = null;
 
-    private boolean isActive = false;
+    public DeathData deathData = null;
 
     public Pet(String typeID, String name) {
         this.id = Misc.genUID();
@@ -47,9 +49,10 @@ public class Pet {
         this.personality = personalities.pick();
     }
 
-    public void setInStorage(Industry industry){
+    public void store(Industry industry){
         unassign();
         storage = industry;
+        ((PetShop) industry).store(this);
     }
 
     public void removeFromStorage(){
@@ -61,13 +64,28 @@ public class Pet {
     }
 
     public void assign(FleetMemberAPI toMember) {
-        ModPlugin.log("assigning " + name + " variety " + typeID + " to " + toMember.getShipName());
+        ModPlugin.log("assigning " + name + " variety " + typeID + " to " + toMember.getShipName() + " with source " + toMember.getVariant().getSource().name());
+
+        if (toMember.getVariant().getSource() != VariantSource.REFIT){
+            ModPlugin.log("converting variant to REFIT");
+            cycleToCustomVariant(toMember);
+        }
 
         this.assignedFleetMember = toMember;
         isActive = true;
         serveDuration = 0f;
         toMember.getVariant().addPermaMod(getData().hullmod);
         toMember.getVariant().addTag(HULLMOD_DATA_PREFIX + id);
+    }
+
+    private void cycleToCustomVariant(FleetMemberAPI member) {
+        ShipVariantAPI variant = member.getVariant();
+
+        variant = variant.clone();
+        variant.setOriginalVariant(null);
+        variant.setHullVariantId(Misc.genUID());
+        variant.setSource(VariantSource.REFIT);
+        member.setVariant(variant, false, true);
     }
 
     public void unassign() {
@@ -103,6 +121,8 @@ public class Pet {
             age += dayAmt;
 
             if (age > getData().maxLife) {
+
+                ModPlugin.log("age " + age + " max life " + getData().maxLife);
                 manager.reportPetDied(this, PetStatusManager.PetDeathCause.NATURAL);
             }
         }
@@ -135,8 +155,10 @@ public class Pet {
         return isActive;
     }
 
-    public void setDead(boolean dead) {
-        isDead = dead;
+    public void setDead(PetStatusManager.PetDeathCause cause) {
+        isDead = true;
+        generateDeathData(cause);
+        unassign();
         removeFromStorage();
     }
 
@@ -151,5 +173,19 @@ public class Pet {
         if (age < 31) return Misc.getStringForDays((int) Math.ceil(age));
         else if (age < 365) return months + (months <= 1 ? " month" : " months");
         else return years + (years <= 1 ? " year" : " years");
+    }
+
+    public DeathData generateDeathData(PetStatusManager.PetDeathCause cause){
+        //String name, float date, int age, float serveTime, PetStatusManager.PetDeathCause cause, boolean inStorage, String marketName, String shipName
+        deathData = new DeathData(name,
+                Global.getSector().getClock().getDateString(),
+                age,
+                serveDuration,
+                cause,
+                storage != null,
+                (storage != null ? storage.getMarket().getName() : null),
+                (assignedFleetMember != null ? assignedFleetMember.getShipName() : null));
+
+        return deathData;
     }
 }

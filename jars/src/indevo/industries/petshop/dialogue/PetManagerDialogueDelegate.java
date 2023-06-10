@@ -3,196 +3,246 @@ package indevo.industries.petshop.dialogue;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
-import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.graphics.SpriteAPI;
-import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.changeling.industry.SubIndustryAPI;
-import indevo.industries.changeling.industry.SwitchableIndustryAPI;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class PetManagerDialogueDelegate implements CustomDialogDelegate {
     //Select a Pet (provide filter buttons, Fleet - Storage - Cargo)
     //Move - Store - Rename - Euthanize
     //if move: fleet picker with valid ships in storage and fleet
-    //store is instant
-    //rename has confirm button
 
-    //list of pets on the left, config options on the right
+    //list of pets,
+    // config options on the pet button
+    // call another delegate for everything else, who cares
+    // on the left, config options on the right
 
-    public static final float WIDTH = 1200f;
-    public static final float PET_SELECTOR_WIDTH = 300f;
+    public static final float WIDTH = 600f;
     public static final float HEIGHT = Global.getSettings().getScreenHeight() - 300f;
-    protected static final float ARROW_BUTTON_WIDTH = 20, BUTTON_HEIGHT = 30, SELECT_BUTTON_WIDTH = 95f;
+    protected static final float BUTTON_HEIGHT = 30, SELECT_BUTTON_WIDTH = 95f;
 
-    //for pet entries
-    public static final float ENTRY_HEIGHT = 84f; //MUST be even
+    public static final float ENTRY_HEIGHT = 100; //MUST be even
     public static final float ENTRY_WIDTH = WIDTH - 5f; //MUST be even
-    public static final float CONTENT_HEIGHT = 80f;
+    public static final float CONTENT_HEIGHT = 96;
 
     public Industry industry;
-
-    public Pet selectedPet = null;
-    public List<ButtonAPI> petAreaCheckboxes = new ArrayList<>();
-    public PetLocationFilter currentFilter = PetLocationFilter.FLEET;
+    public PetLocationFilter currentFilter;
+    public CustomPanelAPI panel = null;
+    public List<TooltipMakerAPI> tooltips = new ArrayList<>();
+    public PetShopDialogPlugin dialogue;
 
     public enum PetLocationFilter{
         FLEET,
         STORAGE,
-        CARGO
+        CARGO,
+        ALL
     }
 
-    public PetManagerDialogueDelegate(Industry industry) {
+    public PetManagerDialogueDelegate(PetShopDialogPlugin dialogue, Industry industry, PetLocationFilter filter) {
         this.industry = industry;
+        this.currentFilter = filter;
+        this.dialogue = dialogue;
     }
 
-    public void createCustomDialog(CustomPanelAPI panel, CustomDialogCallback callback) {
-        petAreaCheckboxes.clear();
+    public void createCustomDialog(CustomPanelAPI panel, final CustomDialogCallback callback) {
+        this.panel = panel;
 
         float opad = 10f;
-        float spad = 2f;
+        float spad = 5f;
 
         Color baseColor = Misc.getButtonTextColor();
         Color bgColour = Misc.getDarkPlayerColor();
+        Color brightColor = Misc.getBrightPlayerColor();
 
-        //filter button panel
-        CustomPanelAPI filterButtonPanel = panel.createCustomPanel(PET_SELECTOR_WIDTH, BUTTON_HEIGHT + 20f, new ButtonReportingCustomPanel(this));
-        TooltipMakerAPI anchor = filterButtonPanel.createUIElement(PET_SELECTOR_WIDTH, 20f, false);
-        anchor.addSectionHeading("Select a Pet to manage", Alignment.MID, 0f);
-        filterButtonPanel.addUIElement(anchor);
+        //--------- Add storage selection ---------
 
-        TooltipMakerAPI lastUsed = anchor;
+        TooltipMakerAPI selectorTooltip = panel.createUIElement(WIDTH, BUTTON_HEIGHT + 10f + opad, false);
+        selectorTooltip.addSectionHeading("Select storage location", Alignment.MID, 0f);
 
-        //(provide filter buttons, Fleet - Storage - Cargo)
-        //when pressed, re-set the selection panel with the updated list
-        //by default, set "fleet" to true
+        CustomPanelAPI selectorPanel = panel.createCustomPanel(WIDTH, BUTTON_HEIGHT + opad, new ButtonReportingCustomPanel(this));
+        TooltipMakerAPI selectorAnchor = selectorPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
 
-        anchor = filterButtonPanel.createUIElement(PET_SELECTOR_WIDTH, BUTTON_HEIGHT, false);
-
-        ButtonAPI fleetFilterButton = anchor.addButton("Fleet", new ButtonAction(this) {
+        //fist selector button
+        ButtonAPI allFilterButton = selectorAnchor.addAreaCheckbox(Misc.ucFirst(PetLocationFilter.ALL.name().toLowerCase()), new ButtonAction(this) {
             @Override
             public void execute() {
-                PetManagerDialogueDelegate delegate = (PetManagerDialogueDelegate) this.delegate;
-                delegate.currentFilter = PetLocationFilter.FLEET;
-                delegate.redrawSelectorPanel();
+                callback.dismissCustomDialog(1);
+                dialogue.displaySelectionDelegate(PetLocationFilter.ALL);
             }
-        }, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-        fleetFilterButton.setEnabled(true);
+        }, baseColor, bgColour, brightColor,  SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
 
-        filterButtonPanel.addUIElement(anchor).belowLeft(lastUsed,10f); // TODO: 22/05/2023 might have to set this to 0 so the spacing fits if too large
-        lastUsed = anchor;
+        allFilterButton.setChecked(currentFilter == PetLocationFilter.ALL);
 
-        anchor = filterButtonPanel.createUIElement(PET_SELECTOR_WIDTH, BUTTON_HEIGHT, false);
+        selectorPanel.addUIElement(selectorAnchor).inLMid(-opad); //if we don't -opad it kinda does it by its own, no clue why
+        TooltipMakerAPI lastUsedAnchor = selectorAnchor;
 
-        ButtonAPI storageFilterButton = anchor.addButton("Storage", new ButtonAction(this) {
-            @Override
-            public void execute() {
-                PetManagerDialogueDelegate delegate = (PetManagerDialogueDelegate) this.delegate;
-                delegate.currentFilter = PetLocationFilter.STORAGE;
-                delegate.redrawSelectorPanel();
-            }
-        }, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-        fleetFilterButton.setEnabled(true);
+        for (final PetLocationFilter filter : Arrays.asList(PetLocationFilter.FLEET,PetLocationFilter.CARGO,PetLocationFilter.STORAGE)){
+            selectorAnchor = selectorPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
 
-        filterButtonPanel.addUIElement(anchor).leftOfMid(lastUsed,10f);
-        lastUsed = anchor;
+            //fist selector button
+            ButtonAPI filterButton = selectorAnchor.addAreaCheckbox(Misc.ucFirst(filter.name().toLowerCase()), new ButtonAction(this) {
+                @Override
+                public void execute() {
+                    callback.dismissCustomDialog(1);
+                    dialogue.displaySelectionDelegate(filter);
+                }
+            }, baseColor, bgColour, brightColor,  SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
 
-        ButtonAPI cargoFilterButton = anchor.addButton("Cargo", new ButtonAction(this) {
-            @Override
-            public void execute() {
-                PetManagerDialogueDelegate delegate = (PetManagerDialogueDelegate) this.delegate;
-                delegate.currentFilter = PetLocationFilter.CARGO;
-                delegate.redrawSelectorPanel();
-            }
-        }, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-        fleetFilterButton.setEnabled(true);
+            filterButton.setChecked(currentFilter == filter);
 
-        filterButtonPanel.addUIElement(anchor).leftOfMid(lastUsed,10f);
-        lastUsed = anchor;
-
-        panel.addComponent(filterButtonPanel).inTL(0.0F, 0.0F);
-
-        //------- selection panel
-
-        //create a list with buttons listing each pet on the ship
-        //get the list depending on the selected filter
-        //this panel has to be stored and re-drawn depending on the filter so we gotta store it somewhere (as well as the hook for it)
-/*
-        for (SubIndustryAPI sub : subIndustries) {
-            if (industry instanceof SwitchableIndustryAPI && sub == ((SwitchableIndustryAPI) industry).getCurrent())
-                continue;
-            if (!(industry instanceof SwitchableIndustryAPI) && sub.isBase()) continue;
-
-            int buildTime = Math.round(sub.getBuildTime());
-            float cost = sub.getCost();
-            boolean canAfford = Global.getSector().getPlayerFleet().getCargo().getCredits().get() >= cost;
-
-            Color baseColor = Misc.getButtonTextColor();
-            Color bgColour = Misc.getDarkPlayerColor();
-            Color brightColor = Misc.getBrightPlayerColor();
-
-            if (!canAfford) {
-                baseColor = Color.darkGray;
-                bgColour = Color.lightGray;
-                brightColor = Color.gray;
-            }
-
-            CustomPanelAPI subIndustryButtonPanel = panel.createCustomPanel(ENTRY_WIDTH, ENTRY_HEIGHT + 2f, new ButtonReportingCustomPanel(this));
-            anchor = subIndustryButtonPanel.createUIElement(ENTRY_WIDTH, ENTRY_HEIGHT, false);
-
-            ButtonAPI areaCheckbox = anchor.addAreaCheckbox("", sub.getId(), baseColor, bgColour, brightColor, //new Color(255,255,255,0)
-                    ENTRY_WIDTH,
-                    ENTRY_HEIGHT,
-                    0f,
-                    true);
-
-            areaCheckbox.setChecked(selectedPet == sub);
-            areaCheckbox.setEnabled(canAfford);
-            subIndustryButtonPanel.addUIElement(anchor).inTL(-opad, 0f); //if we don't -opad it kinda does it by its own, no clue why
-
-            String spriteName = sub.getImageName(industry.getMarket());
-            SpriteAPI sprite = Global.getSettings().getSprite(spriteName);
-            float aspectRatio = sprite.getWidth() / sprite.getHeight();
-            float adjustedWidth = CONTENT_HEIGHT * aspectRatio;
-            float defaultPadding = (ENTRY_HEIGHT - CONTENT_HEIGHT) / 2;
-
-            anchor = subIndustryButtonPanel.createUIElement(adjustedWidth, ENTRY_HEIGHT, false);
-            anchor.addImage(spriteName, adjustedWidth, CONTENT_HEIGHT, 0f);
-            subIndustryButtonPanel.addUIElement(anchor).inTL(defaultPadding - opad, defaultPadding);
-
-            TooltipMakerAPI lastPos = anchor;
-
-            anchor = subIndustryButtonPanel.createUIElement(ENTRY_WIDTH - adjustedWidth - opad - defaultPadding, CONTENT_HEIGHT, false);
-            if (canAfford) anchor.addSectionHeading(" " + sub.getName(), Alignment.LMID, 0f);
-            else anchor.addSectionHeading(" " + sub.getName(), Color.WHITE, brightColor, Alignment.LMID, 0f);
-            anchor.addPara(sub.getDescription().getText2(), opad);
-            anchor.addPara("Cost: %s", spad, canAfford ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), Misc.getDGSCredits(cost)).setAlignment(Alignment.RMID);
-            //anchor.addPara("Build time: %s", spad, Misc.getHighlightColor(), buildTime + " " + StringHelper.getDayOrDays(buildTime));
-
-            subIndustryButtonPanel.addUIElement(anchor).rightOfMid(lastPos, opad);
-
-            filterButtonPanel.addCustom(subIndustryButtonPanel, 0f);
-            petAreaCheckboxes.add(areaCheckbox);
+            selectorPanel.addUIElement(selectorAnchor).rightOfMid(lastUsedAnchor, opad);
+            lastUsedAnchor = selectorAnchor;
         }
 
-        panel.addUIElement(filterButtonPanel).inTL(0.0F, 0.0F);*/
+        //create tooltip from panel 1 P1 (TT1)
+        //create new panel from P1 (P2)
+        //create UI Elements from P2 and add them to P2
+        //add P2 to TT1 via addCustom
+        //add TT1 to P1 via addUIElement
 
-    }
+        selectorTooltip.addCustom(selectorPanel, 0f);
+        panel.addUIElement(selectorTooltip).inTL(0.0F, 0.0F);
 
-    public void redrawSelectorPanel(){
-        selectedPet = null;
+        tooltips.add(selectorTooltip);
 
+        //--------- Add pet list ---------
+
+        TooltipMakerAPI petListTooltip = panel.createUIElement(WIDTH + spad, HEIGHT, true);
+        petListTooltip.addSectionHeading("Select a Pet to manage", Alignment.MID, 0f);
+
+        boolean first = true;
+        for (final Pet pet : getPets(currentFilter)) {
+            CustomPanelAPI petEntryPanel = panel.createCustomPanel(ENTRY_WIDTH + spad, ENTRY_HEIGHT + 2f, new ButtonReportingCustomPanel(this, baseColor, -1));
+
+            //left: Assigned Fleetmember
+            //right: title with name
+            //Species - Age
+            //Move - Store - Rename - Euthanize
+
+            //fleetmember display if needed
+
+            float defaultPadding = (ENTRY_HEIGHT - CONTENT_HEIGHT) / 2;
+
+            TooltipMakerAPI anchor = petEntryPanel.createUIElement(CONTENT_HEIGHT, CONTENT_HEIGHT - BUTTON_HEIGHT - opad, false);
+            if (pet.isActive()) anchor.addShipList(1,1, CONTENT_HEIGHT, baseColor, Collections.singletonList(pet.assignedFleetMember), 0f);
+            else anchor.addImage(Global.getSettings().getSpriteName("IndEvo", "pets_large"), CONTENT_HEIGHT, CONTENT_HEIGHT, 0f);
+            petEntryPanel.addUIElement(anchor).inTL(defaultPadding, defaultPadding);
+
+            TooltipMakerAPI lastUsed = anchor;
+
+            anchor = petEntryPanel.createUIElement(ENTRY_WIDTH - CONTENT_HEIGHT - spad - defaultPadding, CONTENT_HEIGHT - BUTTON_HEIGHT - opad, false);
+            anchor.addSectionHeading(pet.name, Alignment.MID, 0f);
+            anchor.addPara("Species: %s, Age: %s", opad, Misc.getHighlightColor(), Misc.ucFirst(pet.getData().species), pet.getAgeString());
+            petEntryPanel.addUIElement(anchor).rightOfTop(lastUsed, opad);
+            lastUsed = anchor;
+
+            //buttons
+            anchor = petEntryPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
+            ButtonAPI moveButton = anchor.addButton("Re-Assign", new ButtonAction(this) {
+                @Override
+                public void execute() {
+                    callback.dismissCustomDialog(1);
+                    dialogue.showShipPicker(pet);
+                }
+            }, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+            moveButton.setEnabled(true);
+            petEntryPanel.addUIElement(anchor).belowLeft(lastUsed, 0f);
+            lastUsed = anchor;
+
+            anchor = petEntryPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
+            ButtonAPI storeButton = anchor.addButton("Store", new ButtonAction(this) {
+                @Override
+                public void execute() {
+                    pet.store(industry);
+                    Global.getSector().getCampaignUI().getMessageDisplay().addMessage(pet.name + " stored at " + industry.getMarket().getName());
+                    callback.dismissCustomDialog(1);
+                    dialogue.displaySelectionDelegate();
+                }
+            }, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+            storeButton.setEnabled(pet.isActive());
+            petEntryPanel.addUIElement(anchor).rightOfMid(lastUsed, 10f);
+            lastUsed = anchor;
+
+            anchor = petEntryPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
+            ButtonAPI renameButton = anchor.addButton("Rename", new ButtonAction(this) {
+                @Override
+                public void execute() {
+                    callback.dismissCustomDialog(1);
+                    dialogue.dialog.showCustomDialog(PetRenameDialogueDelegate.WIDTH, PetRenameDialogueDelegate.HEIGHT_200, new PetRenameDialogueDelegate(pet, dialogue));
+                }
+            }, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+            renameButton.setEnabled(true);
+            petEntryPanel.addUIElement(anchor).rightOfMid(lastUsed, 10f);
+            lastUsed = anchor;
+
+            anchor = petEntryPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
+            ButtonAPI killButton = anchor.addButton("Euthanize", new ButtonAction(this) {
+                @Override
+                public void execute() {
+                    callback.dismissCustomDialog(1);
+                    CustomDialogDelegate delegate = new BaseCustomDialogDelegate() {
+                        @Override
+                        public void createCustomDialog(CustomPanelAPI panel, CustomDialogCallback callback) {
+                            TooltipMakerAPI info = panel.createUIElement(400f, 100f, false);
+                            info.addSectionHeading("Confirm your choice", Alignment.MID, 0f);
+                            info.addPara("Are you sure? This action can not be undone.", 10f).setAlignment(Alignment.MID);
+                            panel.addUIElement(info).inTL(0, 0);
+                        }
+
+                        @Override
+                        public boolean hasCancelButton() {
+                            return true;
+                        }
+
+                        @Override
+                        public void customDialogConfirm() {
+                            PetStatusManager.getInstance().reportPetDied(pet, PetStatusManager.PetDeathCause.UNKNOWN);
+                            Global.getSector().getCampaignUI().getMessageDisplay().addMessage(pet.name + " has been euthanized.");
+                            dialogue.showDelegate = true;
+                        }
+
+                        @Override
+                        public void customDialogCancel() {
+                            dialogue.showDelegate = true;
+                        }
+
+                        @Override
+                        public String getConfirmText() {
+                            return "Euthanize";
+                        }
+
+                        @Override
+                        public String getCancelText() {
+                            return "Return";
+                        }
+                    };
+
+                    dialogue.dialog.showCustomDialog(400f, 100f, delegate);
+                }
+            }, Color.white, new Color(160, 30, 20, 255), Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+            killButton.setEnabled(true);
+            petEntryPanel.addUIElement(anchor).rightOfMid(lastUsed, 10f);
+            lastUsed = anchor;
+
+            if (first) petListTooltip.addCustom(petEntryPanel, spad).getPosition().setXAlignOffset(-spad); //why?? WHY?
+            else petListTooltip.addCustom(petEntryPanel, spad);
+            first = false;
+        }
+
+        panel.addUIElement(petListTooltip).belowLeft(selectorTooltip, 0);
+        tooltips.add(petListTooltip);
     }
 
     public List<Pet> getPets(PetLocationFilter filter){
@@ -221,6 +271,26 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
                     }
                 }
                 break;
+            default:
+                for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()){
+                    Pet pet = manager.getPet(m.getVariant());
+                    if (pet != null) petList.add(pet);
+                }
+
+                petList.addAll(((PetShop) industry).getStoredPetsPetsCopy());
+
+                for (SubmarketAPI sub : industry.getMarket().getSubmarketsCopy()){
+                    if (sub.getPlugin().isFreeTransfer()){
+                        sub.getCargo().initMothballedShips(Factions.PLAYER);
+
+                        for (FleetMemberAPI m : sub.getCargo().getMothballedShips().getMembersListCopy()){
+                            Pet pet = manager.getPet(m.getVariant());
+                            if (pet != null) petList.add(pet);
+                        }
+                    }
+                }
+
+                break;
         }
 
         return petList;
@@ -228,13 +298,11 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
 
     public void customDialogConfirm() {
         //on leave - do
+        dialogue.close();
     }
 
     public void reportButtonPressed(Object id) {
         if (id instanceof ButtonAction) ((ButtonAction) id).execute();
-        else for (ButtonAPI button : petAreaCheckboxes) {
-            if (button.isChecked() && button.getCustomData() != id) button.setChecked(false);
-        }
     }
 
     public boolean hasCancelButton() {
@@ -257,18 +325,97 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
         return null;
     }
 
-
     public static class ButtonReportingCustomPanel extends BaseCustomUIPanelPlugin {
         public PetManagerDialogueDelegate delegate;
+        protected PositionAPI pos;
+        public float sideRatio = 0.5f;
+        public Color color;
+        public float heightOverride = 0f;
 
         public ButtonReportingCustomPanel(PetManagerDialogueDelegate delegate) {
             this.delegate = delegate;
+        }
+
+        public ButtonReportingCustomPanel(PetManagerDialogueDelegate delegate, Color edgeColour, float heightOverride) {
+            this.delegate = delegate;
+            this.color = edgeColour;
+            this.heightOverride = heightOverride;
         }
 
         @Override
         public void buttonPressed(Object buttonId) {
             super.buttonPressed(buttonId);
             delegate.reportButtonPressed(buttonId);
+        }
+
+        @Override
+        public void render(float alphaMult) {
+            if (color == null) return;
+
+            float x = pos.getX();
+            float y = pos.getY();
+            float w = pos.getWidth();
+            float h = heightOverride > 0f ? heightOverride : pos.getHeight(); //todo check if this is centered or if it just removes pixels from the bottom
+
+            renderBox(x, y, w, h, alphaMult);
+        }
+
+        @Override
+        public void positionChanged(PositionAPI pos) {
+            this.pos = pos;
+        }
+
+        public void renderBox(float x, float y, float w, float h, float alphaMult) {
+            float lh = h * sideRatio;
+            float lw = w * sideRatio;
+
+            float[] points = new float[]{
+                    // upper left
+                    0, h - lh,
+                    0, h,
+                    0 + lw, h,
+
+                    // upper right
+                    w - lw, h,
+                    w, h,
+                    w, h - lh,
+
+                    // lower right
+                    w, lh,
+                    w, 0,
+                    w - lw, 0,
+
+                    // lower left
+                    lw, 0,
+                    0, 0,
+                    0, lh
+            };
+
+            GL11.glPushMatrix();
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+            GL11.glColor4f(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0.3f * alphaMult);
+
+            for (int i = 0; i < 4; i++) {
+                GL11.glBegin(GL11.GL_LINES);
+                {
+                    int index = i * 6;
+
+                    GL11.glVertex2f(points[index] + x, points[index + 1] + y);
+                    GL11.glVertex2f(points[index + 2] + x, points[index + 3] + y);
+                    GL11.glVertex2f(points[index + 2] + x, points[index + 3] + y);
+                    GL11.glVertex2f(points[index + 4] + x, points[index + 5] + y);
+                }
+                GL11.glEnd();
+            }
+
+            GL11.glPopMatrix();
+        }
+
+        @Override
+        public void renderBelow(float alphaMult) {
         }
     }
 

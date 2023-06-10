@@ -16,6 +16,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.IndustryHelper;
 import indevo.utils.helper.StringHelper;
 
@@ -62,7 +63,9 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             listenerManagerAPI.addListener(manager);
             Global.getSector().addListener(manager);
             Global.getSector().addScript(manager);
-            Global.getSector().getPlayerFleet().addEventListener(manager);
+
+            CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
+            if (fleet != null) fleet.addEventListener(manager);
 
             return manager;
         }
@@ -72,11 +75,6 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     public void register(Pet pet) {
         pets.add(pet);
-    }
-
-    public void remove(Pet pet) {
-        pet.unassign();
-        pet.setDead(true);
     }
 
     @Override
@@ -91,6 +89,9 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     @Override
     public void advance(float amount) {
+        CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
+        if (!fleet.getEventListeners().contains(this)) fleet.addEventListener(this);
+
         for (Pet pet : pets) pet.advance(amount);
     }
 
@@ -153,6 +154,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void reportPetDied(Pet pet, PetDeathCause cause) {
         WeightedRandomPicker<String> picker;
 
+        ModPlugin.log("Pet died, cause: " + cause.name() + " pet: " + pet.name);
+
         switch (cause) {
             case COMBAT:
                 picker = new WeightedRandomPicker<>();
@@ -181,7 +184,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                 break;
         }
 
-        remove(pet);
+        pet.setDead(cause);
     }
 
     public void reportPetStarving(Pet pet) {
@@ -207,7 +210,9 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void reportFleetDespawnedToListener(CampaignFleetAPI fleet, CampaignEventListener.FleetDespawnReason reason, Object param) {
         fleet.removeEventListener(this);
 
-        // TODO: 14/05/2023 kill all pets on the fleet
+        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()){
+            if (getPet(m.getVariant()) != null) reportPetDied(getPet(m.getVariant()), PetDeathCause.UNKNOWN);
+        }
     }
 
     @Override

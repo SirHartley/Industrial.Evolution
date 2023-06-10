@@ -42,19 +42,11 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     public float petStorageCostMult = 1f;
 
     public void store(Pet pet) {
-        pet.unassign();
         storedPets.add(pet);
     }
 
-    public void movePetFromStorage(Pet pet, FleetMemberAPI toMember) {
-        if (!storedPets.contains(pet)) return;
-
-        pet.removeFromStorage();
-        pet.assign(toMember);
-    }
-
     public void removeFromStorage(Pet pet){
-        pet.removeFromStorage();
+        storedPets.remove(pet);
     }
 
     public List<Pet> getStoredPetsPetsCopy() {
@@ -72,17 +64,22 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
             float opad = 5.0F;
 
             tooltip.addSectionHeading("Stored Pets", market.getTextColorForFactionOrPlanet(), market.getDarkColorForFactionOrPlanet(), Alignment.MID, 10f);
-            tooltip.beginTable(market.getFaction(), 20f, "Name", 220f, "Age", 90f, "Cost", 85f); //390 total
+            tooltip.beginTable(market.getFaction(), 20f, "Name", 190f, "Age", 90f, "Species", 115f); //390 total
+
             int i = 0;
+            float cost = 0f;
             for (Pet pet : storedPets){
                 if (i > 10) break;
                 String name = pet.name.length() > 30 ? pet.name.substring(0, 30) + "..." : pet.name;
+                String species = pet.getData().species.length() > 15 ? pet.getData().species.substring(0, 30) + "..." :  pet.getData().species;
+                cost += getStorageCost(pet);
 
-                tooltip.addRow(name, pet.getData().species, pet.getAgeString(), Misc.getDGSCredits(getStorageCost(pet)));
+                tooltip.addRow(name, pet.getAgeString(), species);
                 i++;
             }
 
             tooltip.addTable("You do not have any pets stored here.", storedPets.size() - 10, opad);
+            tooltip.addPara("Total storage costs per Month: %s", 10f, Misc.getHighlightColor(), Misc.getDGSCredits(cost));
         }
     }
 
