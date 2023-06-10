@@ -25,8 +25,6 @@ public class EscBlockerMemoryIterator implements EveryFrameScript {
     public void advance(float amount) {
         MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
 
-        ModPlugin.log("present");
-
         if (mem.contains(BLOCK_ESC)) {
             mem.set(BLOCK_ESC, true, mem.getExpire(BLOCK_ESC) - 0.99f); //manually iterate that fucking key so it goes away after two frames I am so sick of this
             if (mem.getExpire(BLOCK_ESC) <= 0f) mem.unset(BLOCK_ESC);
