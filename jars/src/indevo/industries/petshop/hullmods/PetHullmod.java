@@ -14,13 +14,13 @@ import indevo.industries.petshop.memory.Pet;
 import java.awt.*;
 
 public class PetHullmod extends SelfRepairingBuiltInHullmod {
-    public static final float BASE_DECREASE = -5f;
+    public static final float BASE_DECREASE = 5f;
 
     public void applyEffectsBeforeShipCreation(ShipAPI.HullSize hullSize, MutableShipStatsAPI stats, String id) {
         Pet pet = PetStatusManager.getInstance().getPet(stats.getVariant());
         if (pet == null) return;
 
-        stats.getCRLossPerSecondPercent().modifyPercent(id, BASE_DECREASE * pet.getEffectFract(), pet.name + " the " + pet.getData().species);
+        stats.getCRLossPerSecondPercent().modifyPercent(id, -BASE_DECREASE * pet.getEffectFract(), pet.name + " the " + pet.getData().species);
     }
 
     @Override

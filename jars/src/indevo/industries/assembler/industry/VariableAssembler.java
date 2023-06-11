@@ -328,8 +328,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
     }
 
     public float getPatherInterest() {
-        float base = 1f;
-        if (currentVPC != null) base += 2f;
+        float base = 0;
         return base + super.getPatherInterest();
     }
 

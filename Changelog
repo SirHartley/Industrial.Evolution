@@ -45,9 +45,9 @@ DELIVER FLEETS REFUSE TO LEAVE SYSTEM AFTER DELIVERY; MAYBE MOVE INTO HYPERSPACE
 
 --------------------------- Changelog -----------------------------
 todo:
-add mil buildings to event mods
-fix arty stations
 automated claws and parrot to arty
+governance types
+lunalib
 
 3.3.1
 General
@@ -55,6 +55,7 @@ todo Added - LunaLib Integration
 Added - LunaLib Settings
 Added - Setting to adjust column amount in all the ship pickers in this mod
 Added - Planet Jump listener, interface to notify when a planet has finished jumping via rift generator (for modders)
+Added - Disrupt Danger to all IndEvo Industries and Structures
 Adjusted - Rules.csv $market -> $marketName for 0.96
 Adjusted - Code Changes for 0.96
 Adjusted - All industry images got touch-ups to bring them more in line with vanilla
@@ -66,6 +67,7 @@ todo: Parrot-Class Superclaw
 Added - Pets: Add them to your ship, feed em, make em happy, and they'll accompany you! And die!
 Added - Research Project for a rare Pet
 Added - Animal Center: Store, manage, rename, euthanize and buy pets here! Comes with a station and dodgy animal sellers.
+Added - Animal Centers to Gilead, Jangala, Fikenhild
 
 Automated Shipyards
 Added - Rare chance for a ship to be an automated variant, usable without the skill
@@ -90,20 +92,38 @@ Fixed - Crash when tech locator tries to point to a system that has no hyperspac
 
 Artillery
 Added - NPC fleets now respond to artillery fire and try to dodge. They are better at it than me.
+Adjusted - Doubled build cost and time to bring it in line with the other orbital stations
 Adjusted - Made all stations, modded or otherwise, compatible with artillery (Praise be Alex, our lord and saviour)
-Fixed - Artillery Stations should no longer be stuck in repairs on game start (should)
+Fixed - Artillery Stations should no longer be stuck in repairs on game start
 Fixed - Watchtowers no longer count as stable locations (Replaced the vanilla PlanetInteractionDialogPluginImpl)
+Fixed - Bug that caused the station to persist after being killed via planet interaction (I hope)
 
 Specialized Industries
 Added - Refining Specializations (increased output on one commodity, malus on the other)
 Added - Mining Specializations (see above but for mining)
 
 Governance Types
-todo the other types
 Added - Underworld (Increases income with lower stability, decreases with higher, increases illegal commodity outputs)
+Added - Rural Polity (Placeholder)
+Added - Hidden Arcology (Placeholder)
+Added - Monastic Order (Placeholder)
+Added - Resort Planet (Placeholder)
+Added - Corporate Governance (Placeholder)
+Added - Outpost (Placeholder)
 
 Commerce
 Fixed - No longer resets build times on load/save
+
+Variable Assembler + Manufactory
+Added - VPC Pather interest
+Added - Historian can now point towards VPCs
+Adjusted - Base pather interest to 0 (1 for Manufactory)
+
+Interstellar Relay
+Adjusted - Now a tad more expensive to build
+
+Supercomputer
+Adjusted - Now a tad more expensive to build
 
 Courier Port
 Fixed - Crash when planet has no storage

@@ -70,8 +70,8 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
             float cost = 0f;
             for (Pet pet : storedPets){
                 if (i > 10) break;
-                String name = pet.name.length() > 30 ? pet.name.substring(0, 30) + "..." : pet.name;
-                String species = pet.getData().species.length() > 15 ? pet.getData().species.substring(0, 30) + "..." :  pet.getData().species;
+                String name = pet.name.length() > 20 ? pet.name.substring(0, 20) + "..." : pet.name;
+                String species = pet.getData().species.length() > 15 ? pet.getData().species.substring(0, 15) + "..." :  pet.getData().species;
                 cost += getStorageCost(pet);
 
                 tooltip.addRow(name, pet.getAgeString(), species);
@@ -103,6 +103,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
             if (storedPets.size() > 0) {
                 for (Pet pet : storedPets) {
                     if (!pet.isDead()) iNode.upkeep += pet.getData().foodPerMonth * PET_STORAGE_AMOUNT;
+                    if (!pet.isDead() && !market.isPlayerOwned()) iNode.upkeep += FLAT_MANAGEMENT_FEE;
                 }
             }
         }
@@ -154,6 +155,13 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (petShopStationEntity == null) {
             ensurePetShopCreatedOrAssigned();
         }
+    }
+
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
+
+        if (petShopStationEntity == null) ensurePetShopCreatedOrAssigned();
     }
 
     @Override

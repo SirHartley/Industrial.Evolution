@@ -27,6 +27,7 @@ import static indevo.industries.artillery.scripts.ArtilleryStationScript.TYPE_KE
 public class ArtilleryStationPlacer {
 
     public static void placeCoreWorldArtilleries() {
+
         if (Global.getSector().getEconomy().getMarket("culann") == null
                 || !Global.getSettings().getBoolean("Enable_IndEvo_Artillery")
                 || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedArtilleries")) return;

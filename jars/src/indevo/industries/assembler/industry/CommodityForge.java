@@ -32,6 +32,7 @@ import java.util.*;
 import static indevo.ids.ItemIds.NO_ENTRY;
 import static indevo.utils.helper.IndustryHelper.getDaysOfCurrentMonth;
 
+//this is one of the earliest things I made and is super cursed
 public class CommodityForge extends VariableAssembler implements SharedSubmarketUserAPI, NewDayListener {
 
     private static final int VPC_LOCK_TIME_DAYS = 7;

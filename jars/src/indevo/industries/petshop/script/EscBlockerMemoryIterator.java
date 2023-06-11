@@ -3,17 +3,16 @@ package indevo.industries.petshop.script;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import indevo.industries.petshop.listener.EscapeInterceptListener;
-import indevo.utils.ModPlugin;
-import indevo.utils.memory.SessionTransientMemory;
 
 import static indevo.industries.petshop.listener.EscapeInterceptListener.BLOCK_ESC;
 
 public class EscBlockerMemoryIterator implements EveryFrameScript {
 
+    public boolean done = false;
+
     @Override
     public boolean isDone() {
-        return !Global.getSector().getCampaignUI().isShowingDialog();
+        return false;
     }
 
     @Override

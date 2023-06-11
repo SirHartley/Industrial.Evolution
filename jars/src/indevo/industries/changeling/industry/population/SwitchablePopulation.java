@@ -53,6 +53,12 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
             });
 
             add(new UnderworldSubIndustry("underworld", "Underworld Governance", Global.getSettings().getSpriteName("IndEvo", "pop_underworld"), "IndEvo_pop_uw"));
+            add(new RuralPolitySubIndustry("rural", "Rural Polity", Global.getSettings().getSpriteName("IndEvo", "pop_rural"), "IndEvo_pop_rural"));
+            add(new HiddenArcologiesSubIndustry("hidden", "Hidden Arcology", Global.getSettings().getSpriteName("IndEvo", "pop_hidden"), "IndEvo_pop_hidden"));
+            add(new MonasticOrderSubIndustry("monks", "Monastic Order", Global.getSettings().getSpriteName("IndEvo", "pop_monks"), "IndEvo_pop_monks"));
+            add(new ResortSubIndustry("resort", "Resort Planet", Global.getSettings().getSpriteName("IndEvo", "pop_resort"), "IndEvo_pop_resort"));
+            add(new CorporateGovernanceSubIndustry("corpos", "Corporate Governance", Global.getSettings().getSpriteName("IndEvo", "pop_corpos"), "IndEvo_pop_corpos"));
+            add(new OutpostSubIndustry("outpost", "Outpost", Global.getSettings().getSpriteName("IndEvo", "pop_outpost"), "IndEvo_pop_outpost"));
         }
     };
 

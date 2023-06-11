@@ -60,7 +60,7 @@ public class IndustryHelper {
         }
 
         MonthlyReport.FDNode dryDockNode = report.getNode(mNode, ind.getId());
-        dryDockNode.name = StringHelper.getString(ind.getId(), "indNodeTitle");
+        dryDockNode.name = nodeName;
         dryDockNode.mapEntity = market.getPrimaryEntity();
         dryDockNode.tooltipCreator = report.getMonthlyReportTooltip();
         dryDockNode.icon = ind.getCurrentImage();

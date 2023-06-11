@@ -142,6 +142,17 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
 
             TooltipMakerAPI lastUsed = anchor;
 
+            if (pet.isActive()){
+                anchor = petEntryPanel.createUIElement(BUTTON_HEIGHT+2, BUTTON_HEIGHT+2, false);
+                ButtonAPI border = anchor.addAreaCheckbox("", null, baseColor, baseColor, baseColor,  BUTTON_HEIGHT+2, BUTTON_HEIGHT+2, 0);
+                border.setEnabled(false);
+                petEntryPanel.addUIElement(anchor).rightOfBottom(lastUsed, -BUTTON_HEIGHT);
+
+                anchor = petEntryPanel.createUIElement(BUTTON_HEIGHT, BUTTON_HEIGHT, false);
+                anchor.addImage(pet.getData().icon, BUTTON_HEIGHT, BUTTON_HEIGHT, 0f);
+                petEntryPanel.addUIElement(anchor).rightOfBottom(lastUsed, -BUTTON_HEIGHT+1).setYAlignOffset(1f);
+            }
+
             anchor = petEntryPanel.createUIElement(ENTRY_WIDTH - CONTENT_HEIGHT - spad - defaultPadding, CONTENT_HEIGHT - BUTTON_HEIGHT - opad, false);
             anchor.addSectionHeading(pet.name, Alignment.MID, 0f);
             anchor.addPara("Species: %s, Age: %s", opad, Misc.getHighlightColor(), Misc.ucFirst(pet.getData().species), pet.getAgeString());
@@ -150,7 +161,8 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
 
             //buttons
             anchor = petEntryPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-            ButtonAPI moveButton = anchor.addButton("Re-Assign", new ButtonAction(this) {
+            String name = pet.isActive() ? "Re-Assign" : "Assign";
+            ButtonAPI moveButton = anchor.addButton(name, new ButtonAction(this) {
                 @Override
                 public void execute() {
                     callback.dismissCustomDialog(1);

@@ -20,4 +20,8 @@ public interface SubIndustryAPI {
     float getCost();
 
     float getBuildTime();
+
+    boolean isAvailableToBuild();
+
+    String getUnavailableReason();
 }

@@ -13,8 +13,10 @@ import indevo.industries.academy.industry.Academy;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.utils.ModPlugin;
+import org.lazywizard.lazylib.MathUtils;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Pet {
     public static final float DEFAULT_FEED_INTERVAL = 31f;
@@ -25,6 +27,7 @@ public class Pet {
     public String id;
     public String name;
     public float age = 1f;
+    public float lifetime;
     public FleetMemberAPI assignedFleetMember = null;
     private final IntervalUtil feedInterval = new IntervalUtil(DEFAULT_FEED_INTERVAL, DEFAULT_FEED_INTERVAL);
     public String personality;
@@ -42,6 +45,7 @@ public class Pet {
         this.id = Misc.genUID();
         this.typeID = typeID;
         this.name = name;
+        this.lifetime = MathUtils.getRandomNumberInRange(0.9f, 1.1f) * getData().maxLife;
 
         WeightedRandomPicker<String> personalities = new WeightedRandomPicker<>();
         personalities.addAll(Academy.COLOURS_BY_PERSONALITY.keySet());
@@ -115,15 +119,13 @@ public class Pet {
 
         boolean notInCryo = storage != null && !Commodities.BETA_CORE.equals(storage.getAICoreId());
         float dayAmt = Global.getSector().getClock().convertToDays(amt);
-        PetStatusManager manager = PetStatusManager.getInstance();
 
         if (notInCryo || isActive){
             age += dayAmt;
 
-            if (age > getData().maxLife) {
-
+            if (age > lifetime) {
                 ModPlugin.log("age " + age + " max life " + getData().maxLife);
-                manager.reportPetDied(this, PetStatusManager.PetDeathCause.NATURAL);
+                PetStatusManager.getInstance().reportPetDied(this, PetStatusManager.PetDeathCause.NATURAL);
             }
         }
 
@@ -133,6 +135,7 @@ public class Pet {
         serveDuration += dayAmt;
 
         if (feedInterval.intervalElapsed()) {
+            PetStatusManager manager = PetStatusManager.getInstance();
             boolean hasFed = manager.feed(this);
 
             if (!hasFed && isStarving) manager.reportPetDied(this, PetStatusManager.PetDeathCause.STARVED);
@@ -168,7 +171,7 @@ public class Pet {
 
     public String getAgeString(){
         int years = (int) Math.ceil(age / 364f);
-        float months = (int) Math.ceil(age / 31f);
+        int months = (int) Math.ceil(age / 31f);
 
         if (age < 31) return Misc.getStringForDays((int) Math.ceil(age));
         else if (age < 365) return months + (months <= 1 ? " month" : " months");

@@ -56,14 +56,22 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public static PetStatusManager getInstance() {
         ListenerManagerAPI listenerManagerAPI = Global.getSector().getListenerManager();
 
-        if (listenerManagerAPI.hasListenerOfClass(PetStatusManager.class))
-            return listenerManagerAPI.getListeners(PetStatusManager.class).get(0);
-        else {
-            PetStatusManager manager = new PetStatusManager();
-            listenerManagerAPI.addListener(manager);
-            Global.getSector().addListener(manager);
-            Global.getSector().addScript(manager);
+        boolean hasListener = false;
+        for (CampaignEventListener listener : Global.getSector().getAllListeners()){
+            if (listener instanceof PetStatusManager) {
+                hasListener = true;
+                break;
+            }
+        }
 
+        ModPlugin.log("PetStatusManager: global: " + hasListener + " manager " + listenerManagerAPI.hasListenerOfClass(PetStatusManager.class));
+
+        if (listenerManagerAPI.hasListenerOfClass(PetStatusManager.class)) {
+            return listenerManagerAPI.getListeners(PetStatusManager.class).get(0);
+        } else {
+            PetStatusManager manager = new PetStatusManager();
+            Global.getSector().getListenerManager().addListener(manager);
+            Global.getSector().addScript(manager);
             CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
             if (fleet != null) fleet.addEventListener(manager);
 
@@ -193,17 +201,14 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     @Override
     public void reportEconomyTick(int iterIndex) {
-        doRoutineAliveCheck();
 
-        if (iterIndex == Global.getSettings().getInt("economyIterPerMonth") / 2) {
-            showFoodMessage();
-            foodTakenLastMonth.clear();
-        }
     }
 
     @Override
     public void reportEconomyMonthEnd() {
-
+        doRoutineAliveCheck();
+        showFoodMessage();
+        foodTakenLastMonth.clear();
     }
 
     @Override
@@ -245,6 +250,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     @Override
     public void reportBattleOccurred(CampaignFleetAPI fleet, CampaignFleetAPI primaryWinner, BattleAPI battle) {
+        if (fleet == null || !fleet.isPlayerFleet()) return;
+
         List<FleetMemberAPI> membersLost = Misc.getSnapshotMembersLost(fleet);
 
         for (Pet pet : new ArrayList<>(pets)) {
@@ -255,6 +262,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     }
 
     private void showFoodMessage() {
+        if (foodTakenLastMonth.isEmpty()) return;
+
         Color c = Misc.getHighlightColor();
 
         MessageIntel intel = new MessageIntel(

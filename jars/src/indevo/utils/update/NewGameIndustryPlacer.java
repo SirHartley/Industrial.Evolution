@@ -23,7 +23,21 @@ public class NewGameIndustryPlacer {
         placeReqCenter();
         placeSalvageYards();
         placeManufactories();
+        placePetShops();
         //placeCourierPorts();
+    }
+
+    public static void placePetShops() {
+        if (!Global.getSettings().getBoolean("PetShop")) {
+            return;
+        }
+
+        HashMap<String, String> h = new HashMap<>();
+        h.put("jangala", null);
+        h.put("gilead", null);
+        h.put("fikenhild", null);
+
+        placeIndustries(h, Ids.PET_STORE);
     }
 
     public static void placeManufactories() {

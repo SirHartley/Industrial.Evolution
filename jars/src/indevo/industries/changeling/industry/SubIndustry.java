@@ -66,4 +66,14 @@ public abstract class SubIndustry implements SubIndustryAPI {
     public float getBuildTime() {
         return buildTime;
     }
+
+    @Override
+    public boolean isAvailableToBuild() {
+        return true;
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        return "Can not be built here";
+    }
 }

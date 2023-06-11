@@ -1,137 +1,135 @@
-id,name,cost mult,build time,income,upkeep,downgrade,upgrade,tags,data,image,plugin,desc,order
+id,name,cost mult,build time,income,upkeep,downgrade,upgrade,tags,data,image,plugin,desc,order,disruptDanger
 IndEvo_AdManuf,Variable Manufactory,50,60,,6,IndEvo_AdAssem,,"industry, industrial",,graphics/industry/manufactorium.png,indevo.industries.assembler.industry.VariableManufactory,"A marvel of autonomous variable production - a full size industrial compound with output depending on the installed chip set. This represents Tri-Tachyons industrial heritage in its true form.
 
-Deposits a good amount of the produced commodity into the local storage at the end of each month.",500
+Deposits a good amount of the produced commodity into the local storage at the end of each month.",500,MEDIUM
 IndEvo_AdAssem,Variable Assembler,30,30,,3,,IndEvo_AdManuf,"structure, industrial",,graphics/industry/assembler.png,indevo.industries.assembler.industry.VariableAssembler,"A small autonomous production line with an output depending on the installed chip set. Pioneered by Tri-Tachyon, most of these were destroyed after the second AI war.
 
-Deposits some of the produced commodity into the local storage at the end of each month.",500
+Deposits some of the produced commodity into the local storage at the end of each month.",500,HIGH
 IndEvo_ComForge,Commodity Forge,40,45,,8,,,"structure, industrial",,graphics/industry/comforge.png,indevo.industries.assembler.industry.CommodityForge,"This crude but effective hack of a variable assembler allows for rapid, high volume commodity production. Once installed, a VPC becomes locked to this industry after a few days and is destroyed after three production cycles.
 
-Deposits a large number of commodities into the local storage, amount depending on VPC type and colony size.",500
+Deposits a large number of commodities into the local storage, amount depending on VPC type and colony size.",500,
 IndEvo_ComArray,Military Relays,20,30,,4,,IndEvo_IntArray,"structure, unraidable, tactical_bombardment, patrol",,graphics/industry/milcomm.png,indevo.industries.relay.industry.MilitaryRelay,"These hidden communications antennae enable instant contact and data transfer with every aligned entity in the system.
 
 Increases local fleet size depending on the largest fleet size between all planets with a military relay in this star system.
 
-Acts as Patrol HQ while none is present on the planet.",500
-IndEvo_IntArray,Interstellar Relay,"20
-
-",30,,"8
+Acts as Patrol HQ while none is present on the planet.",500,
+IndEvo_IntArray,Interstellar Relay,30,45,,"8
 ",IndEvo_ComArray,,"structure, unraidable, tactical_bombardment, patrol",,graphics/industry/intArray.png,indevo.industries.relay.industry.MilitaryRelay,"A militarized version of the communications relay, allows fast data transfer between allied star systems while maintaining high security.
 
 Star systems with an Interstellar Relay can share fleet sizes for the military relay effect between them.
 
-Acts as Patrol HQ while none is present on the planet.",500
-IndEvo_AdInfra,Centralization Bureau,45,60,,6,,,"structure, industrial, unraidable",,graphics/industry/adInfra.png,indevo.industries.CentralizationBureau,"Specialized infrastructure to govern system wide commodity fabrication, transport and storage. Increases local production output depending on the amount of identical industries in the star system.",500
+Acts as Patrol HQ while none is present on the planet.",500,
+IndEvo_AdInfra,Centralization Bureau,45,60,,6,,,"structure, industrial, unraidable",,graphics/industry/adInfra.png,indevo.industries.CentralizationBureau,"Specialized infrastructure to govern system wide commodity fabrication, transport and storage. Increases local production output depending on the amount of identical industries in the star system.",500,LOW
 IndEvo_ScrapYard,Salvage Yards,40,45,,7,,,"heavyindustry, industry, industrial",,graphics/industry/scrapyards.png,indevo.industries.salvageyards.industry.SalvageYards,"Massive dumps for spaceship parts gathered throughout the system and brought here. Repurposing the remains of spacecraft can boost production, but will inevitably decrease ship quality. This industry can increase the production budget even if heavy industry is present on the planet, but requires a steady stream of new wrecks.
 
-Gather Salvage Units by destroying ships in the star system or by adding weapons to the Industrial Storage.",500
-IndEvo_SupCom,Supercomputer,40,50,,4,,,industry,,graphics/industry/supcom_norm.png,indevo.industries.Supercomputer,"Built deep into the earth, these massive supercomputing units use shackled AI to facilitate their work, causing their cores to burn out. The Hegemony keeps a close eye on all of these facilities, but there is no known instance of new intelligence being created.
+Gather Salvage Units by destroying ships in the star system or by adding weapons to the Industrial Storage.",500,LOW
+IndEvo_SupCom,Supercomputer,60,50,,4,,,industry,,graphics/industry/supcom_norm.png,indevo.industries.Supercomputer,"Built deep into the earth, these massive supercomputing units use shackled AI to facilitate their work, causing their cores to burn out. The Hegemony keeps a close eye on all of these facilities, but there is no known instance of new intelligence being created.
 
-Increases the income of all colonies in the star system, stacking with diminished returns, consumes cores from a custom AI core storage to function.",500
+Increases the income of all colonies in the star system, stacking with diminished returns, consumes cores from a custom AI core storage to function.",500,EXTREME
 IndEvo_embassy,Embassy,30,30,,4,,,"structure, unraidable",,graphics/industry/emb_base.png,indevo.industries.embassy.industry.Embassy,"Embassies have existed ever since humans first formed countries - the need to represent oneself to another party is present even in the unstable political climate of the Persean Sector.
 
-This structure improves relations with a faction each month, but increases any negative reputation changes by 50%.",500
-IndEvo_senate,Senate,60,60,,8,,,"structure, unraidable",,graphics/industry/council.png,indevo.industries.senate.industry.Senate,"A senate is the political heart of a star system. Representatives of every planet meet here, deciding legislature, policies and treaties. It enables a more direct approach to planetary law, handling all the small issues that come with rapid regulation changes.",500
+This structure improves relations with a faction each month, but increases any negative reputation changes by 50%.",500,
+IndEvo_senate,Senate,60,60,,8,,,"structure, unraidable",,graphics/industry/council.png,indevo.industries.senate.industry.Senate,"A senate is the political heart of a star system. Representatives of every planet meet here, deciding legislature, policies and treaties. It enables a more direct approach to planetary law, handling all the small issues that come with rapid regulation changes.",500,
 IndEvo_dryDock,Restoration Docks,40,40,,5,,,"structure, unraidable",,graphics/industry/repairDocks.png,indevo.industries.RestorationDocks,"Dry docks and facilities to repair damaged starships, bustling with activity - there is always the next wreck to restore for a client too attached to a pile of scrap to see reason.
 
-Slowly removes D-Mods from ships placed into its special storage, at a massive discount compared to fast restoration.",500
+Slowly removes D-Mods from ships placed into its special storage, at a massive discount compared to fast restoration.",500,LOW
 IndEvo_Academy,Academy,60,60,,8,,,"structure, unraidable",,graphics/industry/academy.png,indevo.industries.academy.industry.Academy,"Banners adorn the high walls of this bastion of education, training a new generation of the sectors' best and brightest to take over the burdens of their forefathers - or just to die in some pointless war.
 
-This structure increases the system-wide officer quality, officer quantity for defense fleets assembled on this planet, can store and train both administrators and officers and will massively increase the chance of hireable persons appearing here.",500
+This structure increases the system-wide officer quality, officer quantity for defense fleets assembled on this planet, can store and train both administrators and officers and will massively increase the chance of hireable persons appearing here.",500,LOW
 IndEvo_ReqCenter,Requisitions Centre,40,40,,6,,,"structure, unraidable",,graphics/industry/reqMarket.png,indevo.industries.RequisitionCenter,"Resembling an office rather than a market, the Requisitions Center is an institution frequented by picky ship captains, collectors and people looking for specific weapon imports.
 
-Creates a market selling weapons from factions you have good relations with. An Embassy with an active Ambassador on the same planet will cause the Center to source only from that faction.",500
+Creates a market selling weapons from factions you have good relations with. An Embassy with an active Ambassador on the same planet will cause the Center to source only from that faction.",500,LOW
 IndEvo_EngHub,Engineering Hub,50,60,,7,,,"structure, unraidable",,graphics/industry/engHub.png,indevo.industries.EngineeringHub,"As the sector is decaying in knowledge an institution specialized in the disassembly of functional spacecraft is a rare sight, and can only be afforded by the rich or the desperate.
 
-Place ships into the storage to reverse engineer them. Once you have achieved 100% progress on a hull, install a blueprint to overwrite it.",500
+Place ships into the storage to reverse engineer them. Once you have achieved 100% progress on a hull, install a blueprint to overwrite it.",500,HIGH
 IndEvo_PrivatePort,Courier Port,30,40,,5,,,"structure, spaceport, tactical_bombardment",,graphics/industry/shipping_port.png,indevo.industries.courierport.industry.CourierPortV2,"Privatized docking facilities allow for a much more direct approach to shipping - and have the distinct advantage of circumventing nosy government officials. Anything can be sent anywhere, as long as you have the funds.
 
-Allows you to transfer cargo between colonies via recurrent shipping contracts.",500
+Allows you to transfer cargo between colonies via recurrent shipping contracts.",500,MEDIUM
 IndEvo_pirateHaven,Privateer Base,90,90,,10,,,"industry, tactical_bombardment",,graphics/industry/pirateHaven.png,indevo.industries.privateer.industry.PrivateerBase,"The Privateer Base allows the shady part of your populace to live out their chosen way of life in a semi-legal way, which can net you a tidy profit on what would otherwise be a nuisance. It will also cause a pirate subpopulation to appear on your planet.
 
-This will stage raids on hostile star systems, and bring back spoils of war depending on the industrialisation of the raided planets. Output decays after some time if no new material is ""liberated"".",500
-IndEvo_SwitchableRefining,,10,30,,3,,,"refining, industry, industrial",,graphics/icons/industry/refining.png,indevo.industries.changeling.industry.refining.SwitchableRefining,"A specialized refining plants offering increased output over the default version by switching between the desired commodity output, sacrificing utility over yield.",500
-IndEvo_SwitchableMining,,10,30,,2,,,"mining, industry, industrial",,graphics/icons/industry/mining.png,indevo.industries.changeling.industry.mining.SwitchableMining,"Dedicated extraction techniques offer increased output over the default version by switching between the desired commodity output, sacrificing utility over yield.",300
-IndEvo_SwitchablePopulation,,,,10,3,,,"population, unraidable, no_saturation_bombardment",,graphics/icons/industry/population.png,indevo.industries.changeling.industry.population.SwitchablePopulation,"The basic infrastructure required to support a given population, from rickety orbital hab-modules to megacities and everything between.",100
+This will stage raids on hostile star systems, and bring back spoils of war depending on the industrialisation of the raided planets. Output decays after some time if no new material is ""liberated"".",500,LOW
+IndEvo_SwitchableRefining,,10,30,,3,,,"refining, industry, industrial",,graphics/icons/industry/refining.png,indevo.industries.changeling.industry.refining.SwitchableRefining,"A specialized refining plants offering increased output over the default version by switching between the desired commodity output, sacrificing utility over yield.",500,MEDIUM
+IndEvo_SwitchableMining,,10,30,,2,,,"mining, industry, industrial",,graphics/icons/industry/mining.png,indevo.industries.changeling.industry.mining.SwitchableMining,"Dedicated extraction techniques offer increased output over the default version by switching between the desired commodity output, sacrificing utility over yield.",300,MEDIUM
+IndEvo_SwitchablePopulation,,,,10,3,,,"population, unraidable, no_saturation_bombardment",,graphics/icons/industry/population.png,indevo.industries.changeling.industry.population.SwitchablePopulation,"The basic infrastructure required to support a given population, from rickety orbital hab-modules to megacities and everything between.",100,
 IndEvo_PetStore,Animal Centre,"20
 
-",30,,3,,,"structure, unraidable",,graphics/industry/petshop.png,indevo.industries.petshop.industry.PetShop,"The Persean Animal Conservation Guild oversees the operation of every Animal Centre, irrespective of its location, due to their exclusive patent for legally acquiring and trading animals across multiple planets. Over time, this arrangement has led to intricate organizational structures and increasingly ambiguous regulations. Consequently, even rare animals occasionally become accessible for purchase.",500
-,,,,,,,,,,,,,
-#Artillery,,,,,,,,,,,,,
+",30,,3,,,"structure, unraidable",,graphics/industry/petshop.png,indevo.industries.petshop.industry.PetShop,"The Persean Animal Conservation Guild oversees the operation of every Animal Centre, irrespective of its location, due to their exclusive patent for legally acquiring and trading animals across multiple planets. Over time, this arrangement has led to intricate organizational structures and increasingly ambiguous regulations. Consequently, even rare animals occasionally become accessible for purchase.",500,
+,,,,,,,,,,,,,,
+#Artillery,,,,,,,,,,,,,,
 IndEvo_Artillery_base,Orbital Artillery,,,,,,,"artillery, parent_item, important, structure",artillery,graphics/icons/industry/station_category.png,indevo.industries.artillery.industry.ArtilleryStation,"The remains of an ancient strategic artillery station hang listless over $market. Repairing it will provide you with a defensive weapons system of unrivalled effectiveness.
 
-Refitting the original system is possible thanks to the automated construction drones the platform is equipped with - you can choose from several variations.",2000
-IndEvo_Artillery_mortar,Mortar Artillery,100,60,,10,,,"artillery, sub_item, structure, important, unraidable","{
+Refitting the original system is possible thanks to the automated construction drones the platform is equipped with - you can choose from several variations.",2000,
+IndEvo_Artillery_mortar,Mortar Artillery,150,120,,10,,,"artillery, sub_item, structure, important, unraidable","{
 radius:40,
 variant:IndEvo_artilleryStation_mortar_variant,
 fleetName:Orbital Artillery,
 }",graphics/industry/artilleryStation_active.png,indevo.industries.artillery.industry.ArtilleryStation,"An ancient, domain-built strategic system defence platform. It will bombard targets with a high volume of explosive ordinance at extreme range..
 
-It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500
-IndEvo_Artillery_missile,Missile Artillery,100,60,,10,,,"artillery, sub_item, structure, important, unraidable","{
+It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500,
+IndEvo_Artillery_missile,Missile Artillery,150,120,,10,,,"artillery, sub_item, structure, important, unraidable","{
 radius:40,
 variant:IndEvo_artilleryStation_missile_variant,
 fleetName:Orbital Artillery,
 }",graphics/industry/artilleryStation_active.png,indevo.industries.artillery.industry.ArtilleryStation,"An ancient, domain-built strategic system defence platform. Launches oversized long-range target seeking ECM missiles to interdict and slow hostiles.
 
-It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500
-IndEvo_Artillery_railgun,Railgun Artillery,100,60,,10,,,"artillery, sub_item, structure, important, unraidable","{
+It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500,
+IndEvo_Artillery_railgun,Railgun Artillery,150,120,,10,,,"artillery, sub_item, structure, important, unraidable","{
 radius:40,
 variant:IndEvo_artilleryStation_railgun_variant,
 fleetName:Orbital Artillery,
 }",graphics/industry/artilleryStation_active.png,indevo.industries.artillery.industry.ArtilleryStation,"An ancient, domain-built strategic system defence platform. The cruiser-sized railgun fires multiple extremely fast projectiles at high range.
 
-It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500
-,,,,,,,,,,,,,
-#Secondaries,,,,,,,,,,,,,
-IndEvo_pirateHavenSecondary,Privateer Base Secondary,0,0,,0,,,"industry, unraidable, no_saturation_bombardment",,graphics/industry/pirateHaven.png,indevo.industries.privateer.industry.PrivateerBaseSlotBlocker,This industry blocks the second industry slot required by the Privateer Base.,9999
-IndEvo_ChamelionIndustry,Chamelion Industry,0,0,,0,IndEvo_RuinedInfra,,structure,,graphics/industry/industrialRuins.png,indevo.industries.ruinfra.industry.ChamelionIndustry,,9999
-,,,,,,,,,,,,,
-#Derelicts,,,,,,,,,,,,,
-IndEvo_HullDecon,Hull Deconstructor,70,80,,7,IndEvo_Ruins,,"industrial, unraidable",,graphics/industry/hullDecon.png,indevo.industries.derelicts.industry.HullDeconstructor,,500
-IndEvo_HullForge,Hull Forge,70,80,,7,IndEvo_Ruins,,"industry, industrial, unraidable",,graphics/industry/hullForge.png,indevo.industries.derelicts.industry.HullForge,,500
-IndEvo_ResLab,Ancient Laboratory,60,60,,6,IndEvo_Ruins,,"structure, unraidable",,graphics/industry/resLab.png,indevo.industries.derelicts.industry.AncientLaboratory,,500
-IndEvo_RiftGen,Rift Generator,60,60,,10,IndEvo_Ruins,,"structure, unraidable",,graphics/industry/riftGen.png,indevo.industries.derelicts.industry.RiftGenerator,,500
+It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500,
+,,,,,,,,,,,,,,
+#Secondaries,,,,,,,,,,,,,,
+IndEvo_pirateHavenSecondary,Privateer Base Secondary,0,0,,0,,,"industry, unraidable, no_saturation_bombardment",,graphics/industry/pirateHaven.png,indevo.industries.privateer.industry.PrivateerBaseSlotBlocker,This industry blocks the second industry slot required by the Privateer Base.,9999,
+IndEvo_ChamelionIndustry,Chamelion Industry,0,0,,0,IndEvo_RuinedInfra,,structure,,graphics/industry/industrialRuins.png,indevo.industries.ruinfra.industry.ChamelionIndustry,,9999,
+,,,,,,,,,,,,,,
+#Derelicts,,,,,,,,,,,,,,
+IndEvo_HullDecon,Hull Deconstructor,70,80,,7,IndEvo_Ruins,,"industrial, unraidable",,graphics/industry/hullDecon.png,indevo.industries.derelicts.industry.HullDeconstructor,,500,HIGH
+IndEvo_HullForge,Hull Forge,70,80,,7,IndEvo_Ruins,,"industry, industrial, unraidable",,graphics/industry/hullForge.png,indevo.industries.derelicts.industry.HullForge,,500,HIGH
+IndEvo_ResLab,Ancient Laboratory,60,60,,6,IndEvo_Ruins,,"structure, unraidable",,graphics/industry/resLab.png,indevo.industries.derelicts.industry.AncientLaboratory,,500,MEDIUM
+IndEvo_RiftGen,Rift Generator,60,60,,10,IndEvo_Ruins,,"structure, unraidable",,graphics/industry/riftGen.png,indevo.industries.derelicts.industry.RiftGenerator,,500,EXTREME
 IndEvo_Ruins,Old Industrial Ruins,0,0,,0,,,"structure, unraidable, no_saturation_bombardment",,graphics/industry/derelict.png,indevo.industries.derelicts.industry.Ruins,"Ancient, ruined industrial compounds can be found throughout the countryside of this world. Their origin or builder is unknown, but they look to be pre-collapse.
 
-You might be able to restore them to working order.",500
+You might be able to restore them to working order.",500,
 IndEvo_RuinedInfra,Ruined Infrastructure,0,0,,0,,IndEvo_ChamelionIndustry,"structure, unraidable, no_saturation_bombardment",,graphics/industry/industrialRuins.png,indevo.industries.ruinfra.industry.RuinedInfrastructure,"Old, broken industrial infrastructure is spread throughout the ruins covering this world. Surprisingly, key parts of it seem to be in repairable condition.
 
-You might be able to restore it to working order.",500
-,,,,,,,,,,,,,
-#Flavour,,,,,,,,,,,,,
-IndEvo_BaseFlavourInd,World Symbols,,,,,,,"flavor, parent_item, structure, unraidable",flavor,graphics/industry/flavour/palace_light.png,indevo.industries.worldwonder.industry.WorldWonder,"Humanity has created wonders since the first inception of architecture - be it through scale or meaning. The structures in this group represent such efforts, symbols of will and perseverance in a decaying sector.",110
+You might be able to restore it to working order.",500,
+,,,,,,,,,,,,,,
+#Flavour,,,,,,,,,,,,,,
+IndEvo_BaseFlavourInd,World Symbols,,,,,,,"flavor, parent_item, structure, unraidable",flavor,graphics/industry/flavour/palace_light.png,indevo.industries.worldwonder.industry.WorldWonder,"Humanity has created wonders since the first inception of architecture - be it through scale or meaning. The structures in this group represent such efforts, symbols of will and perseverance in a decaying sector.",110,
 IndEvo_LightPalace,Modern Palace,100,90,,10,,,"flavor, sub_item, structure, unraidable",,graphics/industry/flavour/palace_light.png,indevo.industries.worldwonder.industry.WorldWonder,"An opulent, bright, modern palace, built to include every luxury known to man. This extraordinarily expensive compound, while not intended to benefit the general populace, still inspires awe and hope for a better future in anyone fortunate enough to be born on a planet able to support such a wonder.
 
-Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110
+Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110,
 IndEvo_DarkPalace,Dark Palace,100,90,,10,,,"flavor, sub_item, structure, unraidable",,graphics/industry/flavour/palace_dark.png,indevo.industries.worldwonder.industry.WorldWonder,"An dark, almost oppressive palace, built in a modern interpretation of gothic architecture. This extraordinarily expensive compound, while not constructed to the benefit of anyone other than the high echelons of society, still inspires awe in anyone fortunate enough to be born on a planet able to support such a waste of resources - and enough fear to keep anyone thinking otherwise silent.
 
-Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110
+Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110,
 IndEvo_Memorial,Memorial,100,90,,10,,,"flavor, sub_item, structure, unraidable",,graphics/industry/flavour/memorial.png,indevo.industries.worldwonder.industry.WorldWonder,"A memorial spanning the size of a small country. This is the ultimate tribute, a testament to an occasion or a person, built to last the ages. People from all over the sector travel here to pay respects and remember.
 
-Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110
+Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110,
 IndEvo_LeisureOrbitals,Leisure Orbitals,100,90,,10,,,"flavor, sub_item, structure, unraidable",,graphics/industry/flavour/leisure_orbitals.png,indevo.industries.worldwonder.industry.WorldWonder,"If there was ever a spectacle you had to have seen before your inevitable end, the orbit of $marketName would qualify. Thousands of massive, bright and colourful stations hang in orbit, each trying to outdo its neighbours in opulence. Everything can be bought, experienced or gambled away here - and even a short visit will leave you with unforgettable memories.
 
-Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110
+Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110,
 IndEvo_Megachurch,Cathedral,100,90,,10,,,"flavor, sub_item, structure, unraidable",kadur_megachurch,graphics/industry/flavour/megachurch.png,indevo.industries.worldwonder.industry.WorldWonder,"The Children of Earth, regardless of origin or alignment, have always needed something to believe in, and have always built monuments to validate these beliefs. This enormous cathedral is one of many such attempts, but it is by far the most ambitious of recent times - a massive complex of megabuildings, constructed only to spread the tenets of the predominant religion.
 
-Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110
+Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110,
 IndEvo_IcePalace,Ice Palace,100,90,,10,,,"flavor, sub_item, structure, unraidable",,graphics/industry/flavour/ice_palace.png,indevo.industries.worldwonder.industry.IcePalace,"With an exterior built from ice and snow, this glittering palace looks as if transplanted out of a fairy tale. Maintaining it is a massive undertaking and requires many different, specialized professions. While entry is prohibited to the general public, the mere presence of this architectural marvel inspires pride in the people residing on $marketName - for few can boast about living near a castle made of dreams.
 
-Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110
+Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110,
 IndEvo_LavaFortress,Lava Fortress,100,90,,10,,,"flavor, sub_item, structure, unraidable",,graphics/industry/flavour/lava_fortress.png,indevo.industries.worldwonder.industry.LavaFortress,"Massive, onyx walls and channels filled with molten rock adorn this tremendous neo-gothic fortress. It does not exactly have any defensive benefits, and comes with an interior more suited to state visits than military exercise, but it is incredibly impressive nonetheless. It also has a lavafall. That is enough for most people to justify the running costs.
 
-Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110
+Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1.",110,
 IndEvo_LifeTree,Tree of Life,100,90,,10,,,"flavor, sub_item, structure, unraidable",,graphics/industry/flavour/tree_of_life.png,indevo.industries.worldwonder.industry.WorldTree,"Centuries ago, a second Domain reclamation fleet chanced upon an inhabited planet, hosting life consisting only of a single tree with a canopy piercing the clouds. According to records, alien bacteria had integrated with a redwood sapling and rapidly grown to titanic proportions while establishing a mycelium-like network connecting all life on the planet. Technically, no humans were encountered.
 
 This is a neutered clone of the tree they found - and what a sight to behold.
 
-Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1. Might affect the local wildlife.",110
+Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1. Might affect the local wildlife.",110,
 IndEvo_CloudPainter,Cloud Painter,100,90,,10,,,"flavor, sub_item, structure, unraidable",,graphics/industry/flavour/cloud_painter.png,indevo.industries.worldwonder.industry.CloudPainter,"Technological advances in terraforming and weather control brought forth a host of impractical yet impressive implementations. Amongst them, cloud painting is considered the apex of wasteful opulence. 
 
 A network of towers spanning the entire planet eating more energy than most industries seed nano-compounds into the atmosphere to colour and form vapours into dream-like shapes; This is a childs wish come true.
 
-Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1. Allows cloud texture control.",110
-,,,,,,,,,,,,,
-#Rebalancing,,,,,,,,,,,,,
-commerce,Commerce,90,90,,3,,,"industry, urban",,graphics/icons/industry/commerce.png,indevo.industries.TradeCenter,"Regulations, grants, and infrastructure to encourage thriving independent trade. Greatly reduces the degree of direct control the administration has over the colony.",1950
+Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1. Allows cloud texture control.",110,
+,,,,,,,,,,,,,,
+#Rebalancing,,,,,,,,,,,,,,
+commerce,Commerce,90,90,,3,,,"industry, urban",,graphics/icons/industry/commerce.png,indevo.industries.TradeCenter,"Regulations, grants, and infrastructure to encourage thriving independent trade. Greatly reduces the degree of direct control the administration has over the colony.",1950,MEDIUM

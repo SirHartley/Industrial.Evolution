@@ -142,8 +142,7 @@ public class PetShopDialogPlugin  implements InteractionDialogPlugin {
 
     @Override
     public void advance(float amount) {
-
-        Global.getSector().getMemoryWithoutUpdate().set(BLOCK_ESC, true, 1f);
+        if (Global.getSector().getCampaignUI().isShowingDialog()) Global.getSector().getMemoryWithoutUpdate().set(BLOCK_ESC, true, 1f);
 
         if (showDelegate) {
             displaySelectionDelegate();

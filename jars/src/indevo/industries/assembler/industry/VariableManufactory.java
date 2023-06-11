@@ -45,7 +45,7 @@ public class VariableManufactory extends VariableAssembler {
 
     @Override
     public float getPatherInterest() {
-        return 2 + super.getPatherInterest();
+        return 1 + super.getPatherInterest();
     }
 
     public String getCurrentImage() {

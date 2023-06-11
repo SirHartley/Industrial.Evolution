@@ -1,0 +1,31 @@
+package indevo.industries.changeling.industry.population;
+
+import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.PlanetAPI;
+import com.fs.starfarer.api.campaign.PlanetSpecAPI;
+import com.fs.starfarer.api.campaign.econ.Industry;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import indevo.industries.changeling.industry.SubIndustry;
+
+public class HiddenArcologiesSubIndustry extends SubIndustry {
+
+    public HiddenArcologiesSubIndustry(String id, String name, String imageName, String descriptionID) {
+        super(id, imageName, name, descriptionID);
+    }
+
+    @Override
+    public void apply(Industry industry) {
+        ((SwitchablePopulation) industry).superApply();
+    }
+
+    @Override
+    public String getImageName(MarketAPI market) {
+        PlanetSpecAPI planetSpec = market.getPrimaryEntity() instanceof PlanetAPI ? ((PlanetAPI) market.getPrimaryEntity()).getSpec() : null;
+
+        if (planetSpec != null){
+            if (planetSpec.getName().contains("water")) return Global.getSettings().getSpriteName("IndEvo", "pop_hidden_water");
+        }
+
+        return imageName;
+    }
+}
