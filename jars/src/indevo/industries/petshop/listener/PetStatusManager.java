@@ -56,16 +56,6 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public static PetStatusManager getInstance() {
         ListenerManagerAPI listenerManagerAPI = Global.getSector().getListenerManager();
 
-        boolean hasListener = false;
-        for (CampaignEventListener listener : Global.getSector().getAllListeners()){
-            if (listener instanceof PetStatusManager) {
-                hasListener = true;
-                break;
-            }
-        }
-
-        ModPlugin.log("PetStatusManager: global: " + hasListener + " manager " + listenerManagerAPI.hasListenerOfClass(PetStatusManager.class));
-
         if (listenerManagerAPI.hasListenerOfClass(PetStatusManager.class)) {
             return listenerManagerAPI.getListeners(PetStatusManager.class).get(0);
         } else {

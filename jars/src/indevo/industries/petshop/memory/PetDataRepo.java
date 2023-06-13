@@ -47,7 +47,7 @@ public class PetDataRepo {
                     String natDeath = row.getString("natural_death");
                     String icon = row.getString("icon");
                     String hullmod = row.getString("hullmod");
-                    List<String> foodCommodityIDs = new ArrayList<>(Arrays.asList(row.getString("foodCommodities").replaceAll("\\s", "").split(",")));
+                    List<String> foodCommodityIDs = new LinkedList<>(Arrays.asList(row.getString("foodCommodities").replaceAll("\\s", "").split(",")));
                     float foodPerMonth = row.getInt("foodPerMonth");
                     float rarity = (float) row.getDouble("rarity");
 

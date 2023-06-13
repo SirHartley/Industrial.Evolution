@@ -13,6 +13,7 @@ import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.script.EscBlockerMemoryIterator;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
 
 import java.util.LinkedList;
@@ -142,7 +143,7 @@ public class PetShopDialogPlugin  implements InteractionDialogPlugin {
 
     @Override
     public void advance(float amount) {
-        if (Global.getSector().getCampaignUI().isShowingDialog()) Global.getSector().getMemoryWithoutUpdate().set(BLOCK_ESC, true, 1f);
+        if (Global.getSector().getCampaignUI().isShowingDialog()) Global.getSector().getMemoryWithoutUpdate().set(BLOCK_ESC, this, 1f);
 
         if (showDelegate) {
             displaySelectionDelegate();

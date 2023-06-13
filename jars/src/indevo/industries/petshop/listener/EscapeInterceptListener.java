@@ -2,7 +2,9 @@ package indevo.industries.petshop.listener;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.listeners.CampaignInputListener;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
+import indevo.industries.petshop.dialogue.PetShopDialogPlugin;
 import org.lwjgl.input.Keyboard;
 
 import java.util.List;
@@ -21,13 +23,15 @@ public class EscapeInterceptListener implements CampaignInputListener {
 
     @Override
     public void processCampaignInputPreCore(List<InputEventAPI> events) {
-        if (!Global.getSector().getMemoryWithoutUpdate().getBoolean(BLOCK_ESC)) return;
+        MemoryAPI memory = Global.getSector().getMemoryWithoutUpdate();
+        if (!memory.contains(BLOCK_ESC)) return;
 
         for (InputEventAPI input : events) {
             if (input.isConsumed()) continue;
 
             if (input.getEventValue() == Keyboard.KEY_ESCAPE) {
                 input.consume();
+                if (memory.get(BLOCK_ESC) instanceof PetShopDialogPlugin) ((PetShopDialogPlugin) memory.get(BLOCK_ESC)).close();
             }
         }
     }

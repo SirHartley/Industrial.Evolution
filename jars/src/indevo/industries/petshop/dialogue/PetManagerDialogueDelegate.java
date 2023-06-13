@@ -39,9 +39,9 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
 
     public Industry industry;
     public PetLocationFilter currentFilter;
-    public CustomPanelAPI panel = null;
-    public List<TooltipMakerAPI> tooltips = new ArrayList<>();
-    public PetShopDialogPlugin dialogue;
+    public PetShopDialogPlugin dialog;
+
+    public boolean dismissOnNextCancel = false;
 
     public enum PetLocationFilter{
         FLEET,
@@ -50,14 +50,13 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
         ALL
     }
 
-    public PetManagerDialogueDelegate(PetShopDialogPlugin dialogue, Industry industry, PetLocationFilter filter) {
+    public PetManagerDialogueDelegate(PetShopDialogPlugin dialog, Industry industry, PetLocationFilter filter) {
         this.industry = industry;
         this.currentFilter = filter;
-        this.dialogue = dialogue;
+        this.dialog = dialog;
     }
 
     public void createCustomDialog(CustomPanelAPI panel, final CustomDialogCallback callback) {
-        this.panel = panel;
 
         float opad = 10f;
         float spad = 5f;
@@ -78,8 +77,9 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
         ButtonAPI allFilterButton = selectorAnchor.addAreaCheckbox(Misc.ucFirst(PetLocationFilter.ALL.name().toLowerCase()), new ButtonAction(this) {
             @Override
             public void execute() {
+                dismissOnNextCancel = false;
                 callback.dismissCustomDialog(1);
-                dialogue.displaySelectionDelegate(PetLocationFilter.ALL);
+                dialog.displaySelectionDelegate(PetLocationFilter.ALL);
             }
         }, baseColor, bgColour, brightColor,  SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
 
@@ -95,8 +95,9 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
             ButtonAPI filterButton = selectorAnchor.addAreaCheckbox(Misc.ucFirst(filter.name().toLowerCase()), new ButtonAction(this) {
                 @Override
                 public void execute() {
+                    dismissOnNextCancel = false;
                     callback.dismissCustomDialog(1);
-                    dialogue.displaySelectionDelegate(filter);
+                    dialog.displaySelectionDelegate(filter);
                 }
             }, baseColor, bgColour, brightColor,  SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
 
@@ -114,8 +115,6 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
 
         selectorTooltip.addCustom(selectorPanel, 0f);
         panel.addUIElement(selectorTooltip).inTL(0.0F, 0.0F);
-
-        tooltips.add(selectorTooltip);
 
         //--------- Add pet list ---------
 
@@ -165,8 +164,9 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
             ButtonAPI moveButton = anchor.addButton(name, new ButtonAction(this) {
                 @Override
                 public void execute() {
+                    dismissOnNextCancel = false;
                     callback.dismissCustomDialog(1);
-                    dialogue.showShipPicker(pet);
+                    dialog.showShipPicker(pet);
                 }
             }, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
             moveButton.setEnabled(true);
@@ -179,8 +179,9 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
                 public void execute() {
                     pet.store(industry);
                     Global.getSector().getCampaignUI().getMessageDisplay().addMessage(pet.name + " stored at " + industry.getMarket().getName());
+                    dismissOnNextCancel = false;
                     callback.dismissCustomDialog(1);
-                    dialogue.displaySelectionDelegate();
+                    dialog.displaySelectionDelegate();
                 }
             }, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
             storeButton.setEnabled(pet.isActive());
@@ -191,8 +192,9 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
             ButtonAPI renameButton = anchor.addButton("Rename", new ButtonAction(this) {
                 @Override
                 public void execute() {
+                    dismissOnNextCancel = false;
                     callback.dismissCustomDialog(1);
-                    dialogue.dialog.showCustomDialog(PetRenameDialogueDelegate.WIDTH, PetRenameDialogueDelegate.HEIGHT_200, new PetRenameDialogueDelegate(pet, dialogue));
+                    dialog.dialog.showCustomDialog(PetRenameDialogueDelegate.WIDTH, PetRenameDialogueDelegate.HEIGHT_200, new PetRenameDialogueDelegate(pet, dialog));
                 }
             }, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
             renameButton.setEnabled(true);
@@ -203,6 +205,7 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
             ButtonAPI killButton = anchor.addButton("Euthanize", new ButtonAction(this) {
                 @Override
                 public void execute() {
+                    dismissOnNextCancel = false;
                     callback.dismissCustomDialog(1);
                     CustomDialogDelegate delegate = new BaseCustomDialogDelegate() {
                         @Override
@@ -222,12 +225,12 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
                         public void customDialogConfirm() {
                             PetStatusManager.getInstance().reportPetDied(pet, PetStatusManager.PetDeathCause.UNKNOWN);
                             Global.getSector().getCampaignUI().getMessageDisplay().addMessage(pet.name + " has been euthanized.");
-                            dialogue.showDelegate = true;
+                            dialog.showDelegate = true;
                         }
 
                         @Override
                         public void customDialogCancel() {
-                            dialogue.showDelegate = true;
+                            dialog.showDelegate = true;
                         }
 
                         @Override
@@ -241,7 +244,7 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
                         }
                     };
 
-                    dialogue.dialog.showCustomDialog(400f, 100f, delegate);
+                    dialog.dialog.showCustomDialog(400f, 100f, delegate);
                 }
             }, Color.white, new Color(160, 30, 20, 255), Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
             killButton.setEnabled(true);
@@ -254,7 +257,6 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
         }
 
         panel.addUIElement(petListTooltip).belowLeft(selectorTooltip, 0);
-        tooltips.add(petListTooltip);
     }
 
     public List<Pet> getPets(PetLocationFilter filter){
@@ -310,7 +312,7 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
 
     public void customDialogConfirm() {
         //on leave - do
-        dialogue.close();
+        dialog.close();
     }
 
     public void reportButtonPressed(Object id) {
@@ -331,6 +333,8 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
     }
 
     public void customDialogCancel() {
+        if (dismissOnNextCancel) dialog.close();
+        else dismissOnNextCancel = true;
     }
 
     public CustomUIPanelPlugin getCustomPanelPlugin() {
