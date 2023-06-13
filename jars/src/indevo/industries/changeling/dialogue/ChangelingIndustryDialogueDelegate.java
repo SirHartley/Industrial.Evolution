@@ -146,6 +146,9 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
 
             if (switchable == null) return;
 
+            //I wonder why it does that
+            switchable.setHidden(false);
+
             //refund or transfer items
             SpecialItemData specialItemData = industry.getSpecialItem();
 

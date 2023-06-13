@@ -16,7 +16,11 @@ if demand of 8 is not met, access points do not work
 requires an item on the planet that's producing fuel, "Nellys' Key"
 
 Subspace
-subspace is a smaller hyperspace that drains supplies and fuel?
+subspace is a scaled, relative hyperspace layer that is smaller
 is a mirror of hyperspace, spawn massive black holes where omega is present
 spawn hyperspace exits to the stable location nodes the player built
+moving particles in geometric patterns that get affected by player movement (Bugwelle im Wasser), render only on viewport
+Make particles agitated and slow movement on routes travelled often
+Cooldown should be in the months
+
 

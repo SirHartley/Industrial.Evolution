@@ -235,7 +235,16 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         if (memberList.isEmpty()) return;
 
         if (transaction.getSubmarket().getPlugin().isFreeTransfer()) {
-            showPetForgottenMessage(transaction.getSubmarket());
+            boolean forgotPet = false;
+
+            for (FleetMemberAPI m : memberList){
+                if (getPet(m.getVariant()) != null) {
+                    forgotPet = true;
+                    break;
+                }
+            }
+
+            if (forgotPet) showPetForgottenMessage(transaction.getSubmarket());
             return;
         }
 

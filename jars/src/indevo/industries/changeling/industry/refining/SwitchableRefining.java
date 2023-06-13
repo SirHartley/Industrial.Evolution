@@ -85,7 +85,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
         if (industryList.contains(current)) {
             this.current = current;
             reapply();
-        }
+        } else throw new IllegalArgumentException("Switchable Industry List of " + getClass().getName() + " does not contain " + current.getName());
     }
 
     @Override
@@ -140,7 +140,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
 
     @Override
     public void init(String id, MarketAPI market) {
-        current = getIndustryList().get(0);
+        if (current == null) current = getIndustryList().get(0);
         super.init(id, market);
     }
 

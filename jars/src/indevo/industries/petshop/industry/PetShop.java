@@ -161,7 +161,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     public void advance(float amount) {
         super.advance(amount);
 
-        if (petShopStationEntity == null) ensurePetShopCreatedOrAssigned();
+        if (petShopStationEntity == null && isFunctional() && !isBuilding()) ensurePetShopCreatedOrAssigned();
     }
 
     @Override
