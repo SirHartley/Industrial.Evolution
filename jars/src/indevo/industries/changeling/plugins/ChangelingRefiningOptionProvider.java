@@ -35,7 +35,8 @@ public class ChangelingRefiningOptionProvider extends BaseIndustryOptionProvider
         boolean isChangeling = ind instanceof SwitchableRefining;
         boolean canChange = isChangeling && ((SwitchableRefining) ind).canChange();
 
-        return super.isUnsuitable(ind, allowUnderConstruction) || !(isTarget || canChange);
+        return super.isUnsuitable(ind, allowUnderConstruction)
+                || !(isTarget || canChange);
     }
 
     @Override

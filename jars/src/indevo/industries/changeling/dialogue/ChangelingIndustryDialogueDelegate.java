@@ -49,8 +49,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
         buttons.clear();
 
         for (SubIndustryAPI sub : subIndustries) {
-            if (industry instanceof SwitchableIndustryAPI && sub == ((SwitchableIndustryAPI) industry).getCurrent())
-                continue;
+            if (industry instanceof SwitchableIndustryAPI && sub == ((SwitchableIndustryAPI) industry).getCurrent()) continue;
             if (!(industry instanceof SwitchableIndustryAPI) && sub.isBase()) continue;
 
             int buildTime = Math.round(sub.getBuildTime());
@@ -147,7 +146,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             if (switchable == null) return;
 
             //I wonder why it does that
-            switchable.setHidden(false);
+            //switchable.setHidden(false);
 
             //refund or transfer items
             SpecialItemData specialItemData = industry.getSpecialItem();

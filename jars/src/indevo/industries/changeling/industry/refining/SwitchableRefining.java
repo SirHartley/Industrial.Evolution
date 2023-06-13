@@ -74,6 +74,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
         });
     }};
 
+
     @Override
     public List<SubIndustryAPI> getIndustryList() {
         return industryList;
@@ -120,7 +121,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
 
     @Override
     public String getId() {
-        return Industries.MINING;
+        return Industries.REFINING;
     }
 
     @Override

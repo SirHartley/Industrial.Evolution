@@ -123,7 +123,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
         if (industryList.contains(current)) {
             this.current = current;
             reapply();
-        } throw new IllegalArgumentException("Switchable Industry List of " + getClass().getName() + " does not contain " + current.getName());
+        } else throw new IllegalArgumentException("Switchable Industry List of " + getClass().getName() + " does not contain " + current.getName());
     }
 
     @Override
