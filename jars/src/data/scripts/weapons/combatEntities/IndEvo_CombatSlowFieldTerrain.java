@@ -6,6 +6,7 @@ import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.helper.StringHelper;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.combat.CombatUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -96,7 +97,7 @@ public class IndEvo_CombatSlowFieldTerrain extends BaseEveryFrameCombatPlugin {
             ship.getMutableStats().getMaxSpeed().modifyMult("IndEvo_slowfield_speed_mult", SPEED_RED_MULT, "Slow Field");
 
             if (ship == Global.getCombatEngine().getPlayerShip()) {
-                Global.getCombatEngine().maintainStatusForPlayerShip("IndEvo_slowfield_speed_mult", "graphics/icons/tactical/nebula_slowdown2.png", "Slow Field", "reduced top speed -" + SPEED_RED_MULT + "%", true);
+                Global.getCombatEngine().maintainStatusForPlayerShip("IndEvo_slowfield_speed_mult", "graphics/icons/tactical/nebula_slowdown2.png", "Slow Field", "reduced top speed -" + StringHelper.getAbsPercentString(SPEED_RED_MULT, false), true);
             }
         }
     }

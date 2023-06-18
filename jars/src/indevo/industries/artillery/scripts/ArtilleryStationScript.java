@@ -45,30 +45,7 @@ import static indevo.industries.artillery.entities.WatchtowerEntityPlugin.MEM_SE
 
 public class ArtilleryStationScript implements EveryFrameScript, FleetEventListener {
 
-    public static void addArtilleryToPlanet(SectorEntityToken planet, boolean isDestroyed) {
-        if (!planet.hasScriptOfClass(ArtilleryStationScript.class)) {
-
-            ArtilleryStationScript script = new ArtilleryStationScript(planet.getMarket());
-            script.setDestroyed(isDestroyed);
-            planet.addScript(script);
-            planet.getMemoryWithoutUpdate().set(SCRIPT_KEY, script);
-            planet.getMarket().addTag(Ids.TAG_ARTILLERY_STATION);
-            planet.addTag(Tags.NOT_RANDOM_MISSION_TARGET);
-            planet.getContainingLocation().addTag(Ids.TAG_SYSTEM_HAS_ARTILLERY);
-
-            StarSystemAPI starSystem = planet.getStarSystem();
-
-            if (starSystem.getEntitiesWithTag(Ids.TAG_WATCHTOWER).isEmpty()) {
-                String faction = planet.getMarket() != null && (planet.getMarket().isPlanetConditionMarketOnly() || Factions.NEUTRAL.equals(planet.getMarket().getFactionId())) ? Ids.DERELICT_FACTION_ID : planet.getMarket().getFactionId();
-                ArtilleryStationPlacer.placeWatchtowers(starSystem, faction);
-            }
-
-            if (!planet.getMarket().hasCondition(ArtilleryStationCondition.ID))
-                planet.getMarket().addCondition(ArtilleryStationCondition.ID);
-        }
-    }
-
-    private ArtilleryStationScript(MarketAPI market) {
+    public ArtilleryStationScript(MarketAPI market) {
         this.primaryEntity = market.getPrimaryEntity();
     }
 
@@ -402,7 +379,8 @@ public class ArtilleryStationScript implements EveryFrameScript, FleetEventListe
             MemoryAPI planetMemory = primaryEntity.getMemoryWithoutUpdate();
             planetMemory.unset("$hasDefenders");
 
-            ((ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin()).preRemoveActions();
+            ArtilleryStationEntityPlugin plugin = ((ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin());
+            if (plugin != null) plugin.getOrInitScript().preRemoveActions();
 
             stationEntity.getContainingLocation().removeEntity(stationFleet);
 

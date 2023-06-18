@@ -12,6 +12,7 @@ import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.artillery.entities.ArtilleryScript;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
@@ -149,7 +150,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
             for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()) {
                 if (friendlyFireDelayPassed
                         && fleet.isHostileTo(origin)
-                        && Misc.getDistance(entity, origin) >= ArtilleryStationEntityPlugin.MIN_RANGE
+                        && Misc.getDistance(entity, origin) >= ArtilleryScript.MIN_RANGE
                         && Misc.getDistance(entity, fleet) <= DETECTION_RADIUS) {
 
                     spawnECCMExplosion(EXPLOSION_SIZE);

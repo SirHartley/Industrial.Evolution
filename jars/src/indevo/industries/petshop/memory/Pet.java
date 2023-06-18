@@ -71,7 +71,6 @@ public class Pet {
         ModPlugin.log("assigning " + name + " variety " + typeID + " to " + toMember.getShipName() + " with source " + toMember.getVariant().getSource().name());
 
         if (toMember.getVariant().getSource() != VariantSource.REFIT){
-            ModPlugin.log("converting variant to REFIT");
             cycleToCustomVariant(toMember);
         }
 
@@ -124,7 +123,6 @@ public class Pet {
             age += dayAmt;
 
             if (age > lifetime) {
-                ModPlugin.log("age " + age + " max life " + getData().maxLife);
                 PetStatusManager.getInstance().reportPetDied(this, PetStatusManager.PetDeathCause.NATURAL);
             }
         }

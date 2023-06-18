@@ -52,7 +52,6 @@ public class PetDataRepo {
                     float rarity = (float) row.getDouble("rarity");
 
                     dataMap.put(id, new PetData(id, name, value, maxLife, tags, desc, natDeath, icon, hullmod, foodCommodityIDs, foodPerMonth, rarity));
-                    ModPlugin.log("loading " + id);
                 }
             } catch (IOException | JSONException ex) {
                 Global.getLogger(PetDataRepo.class).error(ex);

@@ -371,7 +371,7 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
             float x = pos.getX();
             float y = pos.getY();
             float w = pos.getWidth();
-            float h = heightOverride > 0f ? heightOverride : pos.getHeight(); //todo check if this is centered or if it just removes pixels from the bottom
+            float h = heightOverride > 0f ? heightOverride : pos.getHeight();
 
             renderBox(x, y, w, h, alphaMult);
         }

@@ -41,6 +41,7 @@ import indevo.exploration.stations.DerelictStationPlacer;
 import indevo.exploration.subspace.system.SubspaceSystem;
 import indevo.ids.Ids;
 import indevo.industries.TradeCenter;
+import indevo.industries.artillery.entities.ArtilleryScript;
 import indevo.industries.artillery.plugins.ArtilleryCampaignPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
@@ -114,8 +115,10 @@ public class ModPlugin extends BaseModPlugin {
         boolean devActions = true; //Todo SET TO FALSE FOR RELEASE
 
         if (newGame && devmode && devActions) {
-            SectorEntityToken t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity("brimir", null, "IndEvo_MobileColony", null, null);
+            SectorEntityToken t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity("brimir", null, "IndEvo_MobileColony", Factions.REMNANTS, null);
             t.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
+
+            t.addScript(new ArtilleryScript(t, ArtilleryScript.TYPE_RAILGUN));
 
             SubspaceSystem.gen();
         }

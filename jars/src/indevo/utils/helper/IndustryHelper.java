@@ -481,12 +481,11 @@ public class IndustryHelper {
     public static List<MarketAPI> getMarketsInLocation(LocationAPI location, String factionId) {
         List<MarketAPI> result = new ArrayList<>();
         for (MarketAPI curr : IndustryHelper.getMarketsInLocation(location)) {
-            if (curr.getFactionId().equals(factionId)) {
+            if (curr.getFaction() != null && curr.getFactionId().equals(factionId)) {
                 result.add(curr);
             }
         }
         return result;
-
     }
 
     //excluding salvageMarket

@@ -27,6 +27,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.artillery.conditions.ArtilleryStationCondition;
+import indevo.industries.artillery.entities.ArtilleryScript;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.utils.ModPlugin;
 import org.json.JSONException;
@@ -106,10 +107,13 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
     protected void applyCRToStation() {
         if (stationFleet != null) {
             float cr = getCR();
+
             for (FleetMemberAPI member : stationFleet.getFleetData().getMembersListCopy()) {
                 member.getRepairTracker().setCR(cr);
             }
+
             FleetInflater inflater = stationFleet.getInflater();
+
             if (inflater != null) {
                 if (stationFleet.isInflated()) {
                     stationFleet.deflate();
@@ -140,7 +144,6 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
         return MathUtils.clamp(0.5f + 0.5f * Math.min(d, q), 0, 1);
     }
 
-
     protected boolean hasPostDemandSection(boolean hasDemand, IndustryTooltipMode mode) {
         //return mode == IndustryTooltipMode.NORMAL && isFunctional();
         return mode != IndustryTooltipMode.NORMAL || isFunctional();
@@ -159,9 +162,12 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
 
             addGroundDefensesImpactSection(tooltip, bonus, Commodities.HEAVY_MACHINERY, Commodities.METALS);
 
-            ArtilleryStationEntityPlugin plugin = getArtilleryPlugin();
+            if (stationEntity == null) return;
+
+            ArtilleryStationEntityPlugin plugin = ((ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin());
+
             if (plugin != null)
-                tooltip.addPara("Current range: %s", 10f, Misc.getHighlightColor(), (int) Math.round(plugin.getRange()) + " SU");
+                tooltip.addPara("Current range: %s", 10f, Misc.getHighlightColor(), (int) Math.round(plugin.getOrInitScript().getRange()) + " SU");
         }
     }
 
@@ -191,13 +197,6 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
                 stationFleet.setCircularOrbit(stationEntity, 0, 0, 100);
             }
         }
-
-        /*if (reminderInterval != null && reminderInterval.intervalElapsed()){
-            if (Misc.hasOrbitalStation(market) && !hasValidStation())
-                Global.getSector().getCampaignUI().showMessageDialog(
-                        "Detected an Artillery station with an invalid station type on " + market.getName() +
-                                ", which will break your game unless you remove. This warning will repeat in 30 seconds.");
-        }*/
     }
 
     @Override
@@ -228,7 +227,8 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
             stationEntity.getMemoryWithoutUpdate().unset(MemFlags.STATION_FLEET);
             stationEntity.getMemoryWithoutUpdate().unset(MemFlags.STATION_BASE_FLEET);
 
-            ((ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin()).preRemoveActions();
+            ArtilleryStationEntityPlugin plugin = ((ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin());
+            if (plugin != null) plugin.getOrInitScript().preRemoveActions();
 
             stationEntity.getContainingLocation().removeEntity(stationFleet);
 
@@ -522,14 +522,18 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
     }
 
     protected void applyImproveModifiers() {
-        ArtilleryStationEntityPlugin p = getArtilleryPlugin();
-        if (p == null) return;
+        if (stationEntity == null) return;
+
+        ArtilleryStationEntityPlugin plugin = ((ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin());
+        ArtilleryScript script = null;
+        if (plugin != null) script = plugin.getOrInitScript();
+        if (script == null) return;
 
         if (isImproved()) {
-            p.resetRange();
-            p.addToRange(IMPROVE_RANGE_BONUS);
+            script.resetRange();
+            script.addToRange(IMPROVE_RANGE_BONUS);
         } else {
-            p.resetRange();
+            script.resetRange();
         }
     }
 

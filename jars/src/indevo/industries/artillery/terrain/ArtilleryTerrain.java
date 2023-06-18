@@ -1,11 +1,13 @@
 package indevo.industries.artillery.terrain;
 
+import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.artillery.entities.ArtilleryScript;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -28,17 +30,23 @@ public class ArtilleryTerrain extends BaseRingTerrain {
         return false;
     }
 
+    public ArtilleryScript getScript(SectorEntityToken entity){
+        for (EveryFrameScript s : entity.getScripts()){
+            if (s instanceof ArtilleryScript) return (ArtilleryScript) s;
+        }
+
+        return null;
+    }
+
     @Override
     public String getTerrainName() {
 
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         SectorEntityToken artillery = getRelatedEntity();
-        ArtilleryStationEntityPlugin p = (ArtilleryStationEntityPlugin) artillery.getCustomPlugin();
+        ArtilleryScript script = getScript(artillery);
 
-        if (p == null) return "";
-
-        boolean isSafe = p.isInSafeSpot(player);
-        boolean isHostile = p.isHostileTo(player);
+        boolean isSafe = script.isInSafeSpot(player);
+        boolean isHostile = script.isHostileTo(player);
 
         if (artillery.isDiscoverable()) return "In Artillery Range";
         if (isHostile && isSafe) return "Artillery safe-spot";
@@ -57,8 +65,7 @@ public class ArtilleryTerrain extends BaseRingTerrain {
 
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         SectorEntityToken artillery = getRelatedEntity();
-        ArtilleryStationEntityPlugin p = (ArtilleryStationEntityPlugin) artillery.getCustomPlugin();
-        if (p == null) return;
+        ArtilleryScript script = getScript(artillery);
 
         boolean isDiscoverable = artillery.isDiscoverable();
         String artyNamy = isDiscoverable ? "artillery" : artillery.getName();
@@ -66,14 +73,14 @@ public class ArtilleryTerrain extends BaseRingTerrain {
         String disposition = artillery.getFaction().getRelationshipLevel(player.getFaction()).getDisplayName().toLowerCase();
         SectorEntityToken focus = artillery.getOrbitFocus();
         String focusName = focus != null && !isDiscoverable ? focus.getName() : "an unknown location";
-        boolean isHostile = p.isHostileTo(player);
+        boolean isHostile = script.isHostileTo(player);
         String willOrWont = isHostile ? "will target you" : "will not target you";
         Color relColour = isHostile ? Misc.getNegativeHighlightColor() : Misc.getRelColor(artillery.getFaction().getRelationship(player.getFaction().getId()));
         Color willOrWontColour = isHostile ? Misc.getNegativeHighlightColor() : Misc.getPositiveHighlightColor();
 
         tooltip.addTitle(name);
 
-        if (p.isInSafeSpot(player))
+        if (script.isInSafeSpot(player))
             tooltip.addPara("You are in a safe spot and will not be targeted by artillery.", highlight, pad);
 
         Color[] hlColours = new Color[]{artillery.getFaction().getColor(), relColour, willOrWontColour};
@@ -82,7 +89,7 @@ public class ArtilleryTerrain extends BaseRingTerrain {
 
         if (isDiscoverable) return;
 
-        switch (p.getType()) {
+        switch (script.getType()) {
             case TYPE_RAILGUN:
                 tooltip.addPara("The defence platform is armed with a %s.\n" +
                         "It will fire multiple extremely fast projectiles at an extreme range.", pad, highlight, "railgun");
@@ -106,10 +113,10 @@ public class ArtilleryTerrain extends BaseRingTerrain {
 
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         SectorEntityToken artillery = getRelatedEntity();
-        ArtilleryStationEntityPlugin p = (ArtilleryStationEntityPlugin) artillery.getCustomPlugin();
+        ArtilleryScript script = getScript(artillery);
 
-        boolean isSafe = p.isInSafeSpot(player);
-        boolean isHostile = p.isHostileTo(player);
+        boolean isSafe = script.isInSafeSpot(player);
+        boolean isHostile = script.isHostileTo(player);
 
         if (isHostile && isSafe)
             return Misc.interpolateColor(base, hl, Global.getSector().getCampaignUI().getSharedFader().getBrightness()); //makes it flash that colour - don't interpolate for fixed colour

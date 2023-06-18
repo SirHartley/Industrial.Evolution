@@ -41,7 +41,7 @@ public class DecoyMineAbility extends BaseDurationAbility {
         if (level == 1 && primed != null) {
             for (SectorEntityToken t : ArtilleryStationEntityPlugin.getArtilleriesInLoc(entity.getContainingLocation())) {
                 ArtilleryStationEntityPlugin p = (ArtilleryStationEntityPlugin) t.getCustomPlugin();
-                p.forceTarget(entity, ARTILLERY_STATION_TIMEOUT);
+                p.getOrInitScript().forceTarget(entity, ARTILLERY_STATION_TIMEOUT);
             }
 
             for (CampaignFleetAPI other : entity.getContainingLocation().getFleets()) {

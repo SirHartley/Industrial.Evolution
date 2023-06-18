@@ -82,6 +82,12 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
         return current;
     }
 
+    public interface ExecutableModuleAPI {
+        void execute();
+    }
+    public abstract class ExecutableModule implements ExecutableModuleAPI {
+    }
+
     public void apply() {
         supply.clear();
         demand.clear();
@@ -161,8 +167,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     }
 
     public float getPatherInterest() {
-        return 2f + super.getPatherInterest();
-    }
+        return current.getPatherInterest(this);}
 
     @Override
     public boolean showWhenUnavailable() {

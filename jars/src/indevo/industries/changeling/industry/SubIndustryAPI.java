@@ -24,4 +24,6 @@ public interface SubIndustryAPI {
     boolean isAvailableToBuild();
 
     String getUnavailableReason();
+
+    float getPatherInterest(Industry industry);
 }

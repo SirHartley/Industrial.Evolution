@@ -3,17 +3,25 @@ package indevo.industries.artillery.utils;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.characters.PersonAPI;
+import com.fs.starfarer.api.combat.BattleCreationContext;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.fleet.FleetMemberType;
+import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
+import com.fs.starfarer.api.impl.campaign.FleetInteractionDialogPluginImpl;
 import com.fs.starfarer.api.impl.campaign.econ.impl.TechMining;
-import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
+import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
+import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGeneratorPlugin;
+import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantSeededFleetManager;
 import com.fs.starfarer.api.impl.campaign.terrain.RingSystemTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
+import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationScript;
@@ -22,6 +30,7 @@ import indevo.utils.ModPlugin;
 import java.util.List;
 import java.util.Random;
 
+import static indevo.industries.artillery.scripts.ArtilleryStationScript.SCRIPT_KEY;
 import static indevo.industries.artillery.scripts.ArtilleryStationScript.TYPE_KEY;
 
 public class ArtilleryStationPlacer {
@@ -33,21 +42,21 @@ public class ArtilleryStationPlacer {
                 || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedArtilleries")) return;
 
         MarketAPI m = Global.getSector().getEconomy().getMarket("eochu_bres");
-        ArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
+        addArtilleryToPlanet(m.getPrimaryEntity(), true);
         m.addIndustry(Ids.ARTILLERY_RAILGUN);
         m.getIndustry(Ids.ARTILLERY_RAILGUN).setAICoreId(Commodities.ALPHA_CORE);
 
         m = Global.getSector().getEconomy().getMarket("chicomoztoc");
-        ArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
+        addArtilleryToPlanet(m.getPrimaryEntity(), true);
         m.addIndustry(Ids.ARTILLERY_MORTAR);
 
         m = Global.getSector().getEconomy().getMarket("kazeron");
-        ArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
+        addArtilleryToPlanet(m.getPrimaryEntity(), true);
         m.addIndustry(Ids.ARTILLERY_MISSILE);
         m.getIndustry(Ids.ARTILLERY_MISSILE).setAICoreId(Commodities.GAMMA_CORE);
 
         m = Global.getSector().getEconomy().getMarket("sindria");
-        ArtilleryStationScript.addArtilleryToPlanet(m.getPrimaryEntity(), true);
+        addArtilleryToPlanet(m.getPrimaryEntity(), true);
         m.addIndustry(Ids.ARTILLERY_MISSILE);
 
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedArtilleries", true);
@@ -91,7 +100,7 @@ public class ArtilleryStationPlacer {
                     if (hasRemnantStation)
                         p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, ArtilleryStationEntityPlugin.TYPE_MISSILE);
 
-                    ArtilleryStationScript.addArtilleryToPlanet(p, false);
+                    addArtilleryToPlanet(p, false);
 
                     ModPlugin.log("Placed artillery at " + p.getName() + " system: " + s.getName());
                     currentCount++;
@@ -104,6 +113,134 @@ public class ArtilleryStationPlacer {
         ModPlugin.log("Placed " + currentCount + " Artillery Stations");
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_placedDerelictArtilleries", true);
     }
+
+    public static void addArtilleryToPlanet(SectorEntityToken planet, boolean isDestroyed) {
+        if (!planet.hasScriptOfClass(ArtilleryStationScript.class)) {
+
+            ArtilleryStationScript script = new ArtilleryStationScript(planet.getMarket());
+            script.setDestroyed(isDestroyed);
+            planet.addScript(script);
+            planet.getMemoryWithoutUpdate().set(SCRIPT_KEY, script);
+            planet.getMarket().addTag(Ids.TAG_ARTILLERY_STATION);
+            planet.addTag(Tags.NOT_RANDOM_MISSION_TARGET);
+            planet.getContainingLocation().addTag(Ids.TAG_SYSTEM_HAS_ARTILLERY);
+
+            StarSystemAPI starSystem = planet.getStarSystem();
+
+            if (starSystem.getEntitiesWithTag(Ids.TAG_WATCHTOWER).isEmpty()) {
+                String faction = planet.getMarket() != null && (planet.getMarket().isPlanetConditionMarketOnly() || Factions.NEUTRAL.equals(planet.getMarket().getFactionId())) ? Ids.DERELICT_FACTION_ID : planet.getMarket().getFactionId();
+                ArtilleryStationPlacer.placeWatchtowers(starSystem, faction);
+            }
+
+            if (!planet.getMarket().hasCondition(ArtilleryStationCondition.ID))
+                planet.getMarket().addCondition(ArtilleryStationCondition.ID);
+        }
+    }
+
+/*    public static void addArtillery(SectorEntityToken planet, ) {
+        String faction = planet.getMarket() != null && (planet.getMarket().isPlanetConditionMarketOnly() || Factions.NEUTRAL.equals(planet.getMarket().getFactionId())) ? Ids.DERELICT_FACTION_ID : planet.getMarket().getFactionId();
+        CampaignFleetAPI fleet = FleetFactoryV3.createEmptyFleet(faction, FleetTypes.BATTLESTATION, null);
+
+        FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, type);
+        fleet.getFleetData().addFleetMember(member);
+
+        //fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_PIRATE, true);
+        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);
+        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_JUMP, true);
+        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_ALLOW_DISENGAGE, true);
+        fleet.addTag(Tags.NEUTRINO_HIGH);
+
+        fleet.setStationMode(true);
+
+        addRemnantStationInteractionConfig(fleet);
+
+        data.system.addEntity(fleet);
+
+        //fleet.setTransponderOn(true);
+        fleet.clearAbilities();
+        fleet.addAbility(Abilities.TRANSPONDER);
+        fleet.getAbility(Abilities.TRANSPONDER).activate();
+        fleet.getDetectedRangeMod().modifyFlat("gen", 1000f);
+
+        fleet.setAI(null);
+
+        setEntityLocation(fleet, loc, null);
+        convertOrbitWithSpin(fleet, 5f);
+
+        boolean damaged = type.toLowerCase().contains("damaged");
+        String coreId = Commodities.ALPHA_CORE;
+        if (damaged) {
+            // alpha for both types; damaged is already weaker
+            //coreId = Commodities.BETA_CORE;
+            fleet.getMemoryWithoutUpdate().set("$damagedStation", true);
+            fleet.setName(fleet.getName() + " (Damaged)");
+        }
+
+        AICoreOfficerPlugin plugin = Misc.getAICoreOfficerPlugin(coreId);
+        PersonAPI commander = plugin.createPerson(coreId, fleet.getFaction().getId(), random);
+
+        fleet.setCommander(commander);
+        fleet.getFlagship().setCaptain(commander);
+
+        if (!damaged) {
+            RemnantOfficerGeneratorPlugin.integrateAndAdaptCoreForAIFleet(fleet.getFlagship());
+            RemnantOfficerGeneratorPlugin.addCommanderSkills(commander, fleet, null, 3, random);
+        }
+
+        member.getRepairTracker().setCR(member.getRepairTracker().getMaxCR());
+
+
+        //RemnantSeededFleetManager.addRemnantAICoreDrops(random, fleet, mult);
+
+        result.add(fleet);
+
+//				MarketAPI market = Global.getFactory().createMarket("station_market_" + fleet.getId(), fleet.getName(), 0);
+//				market.setPrimaryEntity(fleet);
+//				market.setFactionId(fleet.getFaction().getId());
+//				market.addCondition(Conditions.ABANDONED_STATION);
+//				market.addSubmarket(Submarkets.SUBMARKET_STORAGE);
+//				((StoragePlugin)market.getSubmarket(Submarkets.SUBMARKET_STORAGE).getPlugin()).setPlayerPaidToUnlock(true);
+//				fleet.setMarket(market);
+
+        return result;
+    }
+
+
+    public static void addRemnantStationInteractionConfig(CampaignFleetAPI fleet) {
+        fleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_INTERACTION_DIALOG_CONFIG_OVERRIDE_GEN,
+                new RemnantThemeGenerator.RemnantStationInteractionConfigGen());
+    }
+
+    public static class RemnantStationInteractionConfigGen implements FleetInteractionDialogPluginImpl.FIDConfigGen {
+        public FleetInteractionDialogPluginImpl.FIDConfig createConfig() {
+            FleetInteractionDialogPluginImpl.FIDConfig config = new FleetInteractionDialogPluginImpl.FIDConfig();
+
+            config.alwaysAttackVsAttack = true;
+            config.leaveAlwaysAvailable = true;
+            config.showFleetAttitude = false;
+            config.showTransponderStatus = false;
+            config.showEngageText = false;
+
+
+            config.delegate = new FleetInteractionDialogPluginImpl.BaseFIDDelegate() {
+                public void postPlayerSalvageGeneration(InteractionDialogAPI dialog, FleetEncounterContext context, CargoAPI salvage) {
+                    new RemnantSeededFleetManager.RemnantFleetInteractionConfigGen().createConfig().delegate.
+                            postPlayerSalvageGeneration(dialog, context, salvage);
+                }
+
+                public void notifyLeave(InteractionDialogAPI dialog) {
+                }
+
+                public void battleContextCreated(InteractionDialogAPI dialog, BattleCreationContext bcc) {
+                    bcc.aiRetreatAllowed = false;
+                    bcc.objectivesAllowed = false;
+                }
+            };
+            return config;
+        }
+    }*/
+
+    //---------- end new
 
     public static void placeWatchtowers(StarSystemAPI system, String factionId) {
         float minGap = 100f;

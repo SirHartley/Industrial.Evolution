@@ -94,10 +94,8 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
                         if (plugin != null) {
 
                             CampaignFleetAPI stationEntity = ArtilleryStationScript.getStationFleet(entity);
-                            Iterator var8 = stationEntity.getFleetData().getMembersListCopy().iterator();
 
-                            while (var8.hasNext()) {
-                                FleetMemberAPI member = (FleetMemberAPI) var8.next();
+                            for (FleetMemberAPI member : stationEntity.getFleetData().getMembersListCopy()) {
                                 stationEntity.removeFleetMemberWithDestructionFlash(member);
                             }
 
@@ -113,7 +111,7 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
                     } else {
                         boolean persistDefenders = false;
                         if (context.isEngagedInHostilities()) {
-                            persistDefenders |= !Misc.getSnapshotMembersLost(defenders).isEmpty();
+                            persistDefenders = !Misc.getSnapshotMembersLost(defenders).isEmpty();
 
                             for (FleetMemberAPI member : defenders.getFleetData().getMembersListCopy()) {
                                 if (member.getStatus().needsRepairs()) {
