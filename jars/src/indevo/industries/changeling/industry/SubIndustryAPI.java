@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.loading.Description;
 
 public interface SubIndustryAPI {
+
     String getId();
 
     String getImageName(MarketAPI market);

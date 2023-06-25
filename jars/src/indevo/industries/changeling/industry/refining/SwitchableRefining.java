@@ -10,6 +10,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.util.Pair;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryAPI;
+import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
 import indevo.utils.helper.IndustryHelper;
 
@@ -18,65 +19,78 @@ import java.util.List;
 
 public class SwitchableRefining extends Refining implements SwitchableIndustryAPI {
 
-    public static final List<SubIndustryAPI> industryList = new LinkedList<SubIndustryAPI>() {{
-
-        add(new SubIndustry("base_refining", "graphics/icons/industry/refining.png", "Refining", "IndEvo_base_refining") {
+    public static final List<SubIndustryData> industryList = new LinkedList<SubIndustryData>() {{
+        add(new SubIndustryData("base_refining", "graphics/icons/industry/refining.png", "Refining", "IndEvo_base_refining") {
             @Override
-            public void apply(Industry industry) {
-                if (industry instanceof SwitchableRefining)
-                    ((SwitchableRefining) industry).superApply(); //applies default
-            }
+            public SubIndustry newInstance() {
+                return new SubIndustry(this) {
+                    @Override
+                    public void apply(Industry industry) {
+                        if (industry instanceof SwitchableRefining)
+                            ((SwitchableRefining) industry).superApply(); //applies default
+                    }
 
-            @Override
-            public boolean isBase() {
-                return true;
-            }
-        });
-
-        add(new SubIndustry("ore_refining", Global.getSettings().getSpriteName("IndEvo", "ore_refining"), "Ore Refinery", "IndEvo_ore_refining") {
-            @Override
-            public void apply(Industry industry) {
-                BaseIndustry ind = (BaseIndustry) industry;
-                int size = ind.getMarket().getSize();
-                ind.demand(Commodities.HEAVY_MACHINERY, size - 2); // have to keep it low since it can be circular
-                ind.demand(Commodities.ORE, size + 4);
-                ind.demand(Commodities.RARE_ORE, size - 3);
-
-                ind.supply(Commodities.METALS, size);
-                ind.supply(Commodities.RARE_METALS, size - 2);
-
-                Pair<String, Integer> deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.ORE);
-                IndustryHelper.applyDeficitToProduction(ind, 1, deficit, Commodities.METALS);
-
-                deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.RARE_ORE);
-                IndustryHelper.applyDeficitToProduction(ind, 1, deficit, Commodities.RARE_METALS);
+                    @Override
+                    public boolean isBase() {
+                        return true;
+                    }
+                };
             }
         });
 
-        add(new SubIndustry("rare_refining", Global.getSettings().getSpriteName("IndEvo", "rare_ore_refining"), "Transplutonics Refinery", "IndEvo_rare_refining") {
+        add(new SubIndustryData("ore_refining", Global.getSettings().getSpriteName("IndEvo", "ore_refining"), "Ore Refinery", "IndEvo_ore_refining") {
             @Override
-            public void apply(Industry industry) {
-                BaseIndustry ind = (BaseIndustry) industry;
-                int size = ind.getMarket().getSize();
-                ind.demand(Commodities.HEAVY_MACHINERY, size - 2); // have to keep it low since it can be circular
-                ind.demand(Commodities.ORE, size - 1);
-                ind.demand(Commodities.RARE_ORE, size + 2);
+            public SubIndustry newInstance() {
+                return new SubIndustry(this) {
+                    @Override
+                    public void apply(Industry industry) {
+                        BaseIndustry ind = (BaseIndustry) industry;
+                        int size = ind.getMarket().getSize();
+                        ind.demand(Commodities.HEAVY_MACHINERY, size - 2); // have to keep it low since it can be circular
+                        ind.demand(Commodities.ORE, size + 4);
+                        ind.demand(Commodities.RARE_ORE, size - 3);
 
-                ind.supply(Commodities.METALS, size);
-                ind.supply(Commodities.RARE_METALS, size - 2);
+                        ind.supply(Commodities.METALS, size);
+                        ind.supply(Commodities.RARE_METALS, size - 2);
 
-                Pair<String, Integer> deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.ORE);
-                IndustryHelper.applyDeficitToProduction(ind, 1, deficit, Commodities.METALS);
+                        Pair<String, Integer> deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.ORE);
+                        IndustryHelper.applyDeficitToProduction(ind, 1, deficit, Commodities.METALS);
 
-                deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.RARE_ORE);
-                IndustryHelper.applyDeficitToProduction(ind, 1, deficit, Commodities.RARE_METALS);
+                        deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.RARE_ORE);
+                        IndustryHelper.applyDeficitToProduction(ind, 1, deficit, Commodities.RARE_METALS);
+                    }
+                };
+            }
+        });
+
+        add(new SubIndustryData("rare_refining", Global.getSettings().getSpriteName("IndEvo", "rare_ore_refining"), "Transplutonics Refinery", "IndEvo_rare_refining") {
+            @Override
+            public SubIndustry newInstance() {
+                return new SubIndustry(this) {
+                    @Override
+                    public void apply(Industry industry) {
+                        BaseIndustry ind = (BaseIndustry) industry;
+                        int size = ind.getMarket().getSize();
+                        ind.demand(Commodities.HEAVY_MACHINERY, size - 2); // have to keep it low since it can be circular
+                        ind.demand(Commodities.ORE, size - 1);
+                        ind.demand(Commodities.RARE_ORE, size + 2);
+
+                        ind.supply(Commodities.METALS, size);
+                        ind.supply(Commodities.RARE_METALS, size - 2);
+
+                        Pair<String, Integer> deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.ORE);
+                        IndustryHelper.applyDeficitToProduction(ind, 1, deficit, Commodities.METALS);
+
+                        deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.RARE_ORE);
+                        IndustryHelper.applyDeficitToProduction(ind, 1, deficit, Commodities.RARE_METALS);
+                    }
+                };
             }
         });
     }};
 
-
     @Override
-    public List<SubIndustryAPI> getIndustryList() {
+    public List<SubIndustryData> getIndustryList() {
         return industryList;
     }
 
@@ -141,7 +155,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
 
     @Override
     public void init(String id, MarketAPI market) {
-        if (current == null) current = getIndustryList().get(0);
+        if (current == null) current = getIndustryList().get(0).newInstance();
         super.init(id, market);
     }
 

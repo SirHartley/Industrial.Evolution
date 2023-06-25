@@ -11,8 +11,7 @@ import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.changeling.industry.SubIndustryAPI;
-import indevo.industries.changeling.industry.SwitchableIndustryAPI;
+import indevo.industries.changeling.industry.*;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -28,12 +27,12 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
 
 
     public Industry industry;
-    public List<SubIndustryAPI> subIndustries;
+    public List<SubIndustryData> subIndustries;
     public String industryToAdd;
-    public SubIndustryAPI selected = null;
+    public SubIndustryData selected = null;
     public List<ButtonAPI> buttons = new ArrayList<>();
 
-    public ChangelingIndustryDialogueDelegate(Industry industry, String baseChangelingIndustryID, List<SubIndustryAPI> subIndustries) {
+    public ChangelingIndustryDialogueDelegate(Industry industry, String baseChangelingIndustryID, List<SubIndustryData> subIndustries) {
         this.industry = industry;
         this.subIndustries = subIndustries;
         this.industryToAdd = baseChangelingIndustryID;
@@ -48,8 +47,10 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
 
         buttons.clear();
 
-        for (SubIndustryAPI sub : subIndustries) {
-            if (industry instanceof SwitchableIndustryAPI && sub == ((SwitchableIndustryAPI) industry).getCurrent()) continue;
+        for (SubIndustryData data : subIndustries) {
+            SubIndustry sub = data.newInstance();
+
+            if (industry instanceof SwitchableIndustryAPI && sub.getId().equals(((SwitchableIndustryAPI) industry).getCurrent().getId())) continue;
             if (!(industry instanceof SwitchableIndustryAPI) && sub.isBase()) continue;
 
             int buildTime = Math.round(sub.getBuildTime());
@@ -75,7 +76,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
                     0f,
                     true);
 
-            areaCheckbox.setChecked(selected == sub);
+            areaCheckbox.setChecked(selected == data);
             areaCheckbox.setEnabled(canAfford);
             subIndustryButtonPanel.addUIElement(anchor).inTL(-opad, 0f); //if we don't -opad it kinda does it by its own, no clue why
 
@@ -122,14 +123,16 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
     public void customDialogConfirm() {
         if (selected == null) return;
 
+        //its already a switchable and we just update
         if (industry instanceof SwitchableIndustryAPI) {
             SwitchableIndustryAPI swIndustry = (SwitchableIndustryAPI) industry;
 
-            if (swIndustry.getCurrent() != selected) {
-                swIndustry.setCurrent(selected);
-                Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(selected.getCost());
+            if (!swIndustry.getCurrent().getId().equals(selected.id)) {
+                swIndustry.setCurrent(selected.newInstance());
+                Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(selected.cost);
             }
         } else {
+            //it's not and we have to replace
             MarketAPI market = industry.getMarket();
             market.removeIndustry(industry.getId(), null, false);
             market.addIndustry(industryToAdd);
@@ -159,8 +162,8 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             if (switchable.canImprove()) switchable.setImproved(industry.isImproved());
 
             if (switchable instanceof SwitchableIndustryAPI) {
-                ((SwitchableIndustryAPI) switchable).setCurrent(selected);
-                Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(selected.getCost());
+                ((SwitchableIndustryAPI) switchable).setCurrent(selected.newInstance());
+                Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(selected.cost);
             } else
                 throw new IllegalArgumentException("non-switchable industry passed to switchable industry dialogue delegate");
         }
@@ -185,8 +188,8 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
 
     public void reportButtonPressed(Object id) {
         if (id instanceof String) {
-            for (SubIndustryAPI sub : subIndustries) {
-                if (sub.getId().equals(id)) {
+            for (SubIndustryData sub : subIndustries) {
+                if (sub.id.equals(id)) {
                     selected = sub;
                     break;
                 }

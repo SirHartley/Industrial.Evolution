@@ -16,18 +16,19 @@ import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.industries.changeling.industry.SubIndustry;
+import indevo.industries.changeling.industry.SubIndustryData;
 
 import static com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure.*;
 
 public class UnderworldSubIndustry extends SubIndustry {
 
-    public UnderworldSubIndustry(String id, String name, String imageName, String descriptionID) {
-        super(id, imageName, name, descriptionID);
-    }
-
     public static final float BONUS_ILLEGAL_OUTPUT = 1f;
     public static final float BONUS_SMALL_PATROLS = 2f;
     public static final float BASE_STABILITY_AMT = 2f;
+
+    public UnderworldSubIndustry(SubIndustryData data) {
+        super(data);
+    }
 
     private void increaseIllegalCommodityOutput(MarketAPI market) {
         for (CommodityOnMarketAPI commodity : market.getCommoditiesCopy()) {

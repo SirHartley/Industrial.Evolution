@@ -8,9 +8,7 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.changeling.industry.SubIndustry;
-import indevo.industries.changeling.industry.SubIndustryAPI;
-import indevo.industries.changeling.industry.SwitchableIndustryAPI;
+import indevo.industries.changeling.industry.*;
 import indevo.utils.helper.StringHelper;
 
 import java.util.LinkedList;
@@ -24,46 +22,87 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     public float daysPassed = 0;
     public boolean locked = false;
 
-    public static final List<SubIndustryAPI> industryList = new LinkedList<SubIndustryAPI>() {
+    public static final List<SubIndustryData> industryList = new LinkedList<SubIndustryData>() {
         {
-            add(new SubIndustry("base_population_and_infrastructure", "graphics/icons/industry/population.png", "Population & Infrastructure", "IndEvo_pop_default") {
+            add(new SubIndustryData("base_population_and_infrastructure", "graphics/icons/industry/population.png", "Population & Infrastructure", "IndEvo_pop_default") {
                 @Override
-                public void apply(Industry industry) {
-                    if (industry instanceof SwitchablePopulation)
-                        ((SwitchablePopulation) industry).superApply(); //applies default pop&Infra
-                }
+                public SubIndustry newInstance() {
+                    return new SubIndustry(this) {
+                        @Override
+                        public void apply(Industry industry) {
+                            if (industry instanceof SwitchablePopulation)
+                                ((SwitchablePopulation) industry).superApply(); //applies default pop&Infra
+                        }
 
-                @Override
-                public String getImageName(MarketAPI market) {
-                    float size = market.getSize();
-                    if (size <= SIZE_FOR_SMALL_IMAGE) {
-                        return Global.getSettings().getSpriteName("industry", "pop_low");
-                    }
-                    if (size >= SIZE_FOR_LARGE_IMAGE) {
-                        return Global.getSettings().getSpriteName("industry", "pop_high");
-                    }
+                        @Override
+                        public String getImageName(MarketAPI market) {
+                            float size = market.getSize();
+                            if (size <= SIZE_FOR_SMALL_IMAGE) {
+                                return Global.getSettings().getSpriteName("industry", "pop_low");
+                            }
+                            if (size >= SIZE_FOR_LARGE_IMAGE) {
+                                return Global.getSettings().getSpriteName("industry", "pop_high");
+                            }
 
-                    return imageName;
-                }
+                            return imageName;
+                        }
 
-                @Override
-                public boolean isBase() {
-                    return true;
+                        @Override
+                        public boolean isBase() {
+                            return true;
+                        }
+                    };
                 }
             });
 
-            add(new UnderworldSubIndustry("underworld", "Underworld Governance", Global.getSettings().getSpriteName("IndEvo", "pop_underworld"), "IndEvo_pop_uw"));
-            add(new RuralPolitySubIndustry("rural", "Rural Polity", Global.getSettings().getSpriteName("IndEvo", "pop_rural"), "IndEvo_pop_rural"));
-            add(new HiddenArcologiesSubIndustry("hidden", "Hidden Arcology", Global.getSettings().getSpriteName("IndEvo", "pop_hidden"), "IndEvo_pop_hidden"));
-            add(new MonasticOrderSubIndustry("monks", "Monastic Order", Global.getSettings().getSpriteName("IndEvo", "pop_monks"), "IndEvo_pop_monks"));
-            add(new ResortSubIndustry("resort", "Resort Planet", Global.getSettings().getSpriteName("IndEvo", "pop_resort"), "IndEvo_pop_resort"));
-            add(new CorporateGovernanceSubIndustry("corpos", "Corporate Governance", Global.getSettings().getSpriteName("IndEvo", "pop_corpos"), "IndEvo_pop_corpos"));
-            add(new OutpostSubIndustry("outpost", "Outpost", Global.getSettings().getSpriteName("IndEvo", "pop_outpost"), "IndEvo_pop_outpost"));
+            add(new SubIndustryData("underworld", "Underworld Governance", Global.getSettings().getSpriteName("IndEvo", "pop_underworld"), "IndEvo_pop_uw") {
+                @Override
+                public SubIndustry newInstance() {
+                    return new UnderworldSubIndustry(this);
+                }
+            });
+
+            add(new SubIndustryData("rural", "Rural Polity", Global.getSettings().getSpriteName("IndEvo", "pop_rural"), "IndEvo_pop_rural") {
+                @Override
+                public SubIndustry newInstance() {
+                    return new RuralPolitySubIndustry(this);
+                }
+            });
+            add(new SubIndustryData("hidden", "Hidden Arcology", Global.getSettings().getSpriteName("IndEvo", "pop_hidden"), "IndEvo_pop_hidden") {
+                @Override
+                public SubIndustry newInstance() {
+                    return new HiddenArcologiesSubIndustry(this);
+                }
+            });
+            add(new SubIndustryData("monks", "Monastic Order", Global.getSettings().getSpriteName("IndEvo", "pop_monks"), "IndEvo_pop_monks") {
+                @Override
+                public SubIndustry newInstance() {
+                    return new MonasticOrderSubIndustry(this);
+                }
+            });
+            add(new SubIndustryData("resort", "Resort Planet", Global.getSettings().getSpriteName("IndEvo", "pop_resort"), "IndEvo_pop_resort") {
+                @Override
+                public SubIndustry newInstance() {
+                    return new ResortSubIndustry(this);
+                }
+            });
+            add(new SubIndustryData("corpos", "Corporate Governance", Global.getSettings().getSpriteName("IndEvo", "pop_corpos"), "IndEvo_pop_corpos") {
+                @Override
+                public SubIndustry newInstance() {
+                    return new CorporateGovernanceSubIndustry(this);
+                }
+            });
+            add(new SubIndustryData("outpost", "Outpost", Global.getSettings().getSpriteName("IndEvo", "pop_outpost"), "IndEvo_pop_outpost") {
+                @Override
+                public SubIndustry newInstance() {
+                    return new OutpostSubIndustry(this);
+                }
+            });
         }
     };
 
     @Override
-    public List<SubIndustryAPI> getIndustryList() {
+    public List<SubIndustryData> getIndustryList() {
         return industryList;
     }
 
@@ -85,6 +124,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     public interface ExecutableModuleAPI {
         void execute();
     }
+
     public abstract class ExecutableModule implements ExecutableModuleAPI {
     }
 
@@ -130,7 +170,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
     @Override
     public void init(String id, MarketAPI market) {
-        current = getIndustryList().get(0);
+        current = getIndustryList().get(0).newInstance();
         super.init(id, market);
     }
 

@@ -4,6 +4,8 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.loading.Description;
+import com.fs.starfarer.campaign.econ.Market;
+import indevo.industries.changeling.industry.population.SwitchablePopulation;
 
 public abstract class SubIndustry implements SubIndustryAPI {
     public static final float BASE_COST = 50000;
@@ -15,6 +17,15 @@ public abstract class SubIndustry implements SubIndustryAPI {
     protected String descriptionID;
     protected float cost;
     protected float buildTime;
+
+    public SubIndustry(SubIndustryData data){
+        this.id = data.id;
+        this.name = data.name;
+        this.descriptionID = data.descriptionID;
+        this.cost = data.cost;
+        this.buildTime = data.buildTime;
+        this.imageName = data.imageName;
+    }
 
     public SubIndustry(String id, String imageName, String name, String descriptionID) {
         this.id = id;

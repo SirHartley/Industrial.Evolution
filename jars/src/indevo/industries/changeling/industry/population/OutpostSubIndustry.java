@@ -4,6 +4,7 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import indevo.industries.changeling.industry.SubIndustry;
+import indevo.industries.changeling.industry.SubIndustryData;
 
 import java.util.Random;
 
@@ -11,8 +12,8 @@ import static com.fs.starfarer.api.impl.campaign.intel.bases.LuddicPathBaseManag
 
 public class OutpostSubIndustry extends SubIndustry {
 
-    public OutpostSubIndustry(String id, String name, String imageName, String descriptionID) {
-        super(id, imageName, name, descriptionID);
+    public OutpostSubIndustry(SubIndustryData data) {
+        super(data);
     }
 
     @Override
