@@ -50,7 +50,7 @@ public class UnderworldSubIndustry extends SubIndustry {
     }
 
     @Override
-    public void apply(Industry industry) {
+    public void apply() {
         MarketAPI market = industry.getMarket();
         BaseIndustry ind = (BaseIndustry) industry;
         SwitchablePopulation population = ((SwitchablePopulation) industry);

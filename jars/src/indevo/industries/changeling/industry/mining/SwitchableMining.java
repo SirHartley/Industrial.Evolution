@@ -23,12 +23,12 @@ import java.util.List;
 public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
 
     public static final List<SubIndustryData> industryList = new LinkedList<SubIndustryData>() {{
-        add(new SubIndustryData("base_mining", "graphics/icons/industry/mining.png", "Mining", "IndEvo_base_mining") {
+        add(new SubIndustryData("base_mining", "Mining", "graphics/icons/industry/mining.png", "IndEvo_base_mining") {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
                     @Override
-                    public void apply(Industry industry) {
+                    public void apply() {
                         applySupplyAndStandardDemandWithModifiers(industry, 0, 0, 0, 0);
                     }
 
@@ -40,44 +40,44 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
             }
         });
 
-        add(new SubIndustryData("ore_mining", Global.getSettings().getSpriteName("IndEvo", "ore_mining"), "Ore Mining", "IndEvo_ore_mining", 10000, 31) {
+        add(new SubIndustryData("ore_mining", "Ore Mining", Global.getSettings().getSpriteName("IndEvo", "ore_mining"), "IndEvo_ore_mining", 10000, 31) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
-                    public void apply(Industry industry) {
+                    public void apply() {
                         applySupplyAndStandardDemandWithModifiers(industry, 2, -3, -3, -3);
                     }
                 };
             }
         });
 
-        add(new SubIndustryData("rare_mining", Global.getSettings().getSpriteName("IndEvo", "rare_mining"), "Transplutonics Mining", "IndEvo_rare_mining", 25000, 31) {
+        add(new SubIndustryData("rare_mining", "Transplutonics Mining", Global.getSettings().getSpriteName("IndEvo", "rare_mining"), "IndEvo_rare_mining", 25000, 31) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
-                    public void apply(Industry industry) {
+                    public void apply() {
                         applySupplyAndStandardDemandWithModifiers(industry, -3, 2, -3, -3);
                     }
                 };
             }
         });
 
-        add(new SubIndustryData("volatile_mining", Global.getSettings().getSpriteName("IndEvo", "volatile_mining"), "Volatile Extraction", "IndEvo_volatile_mining", 50000, 31) {
+        add(new SubIndustryData("volatile_mining", "Volatile Extraction", Global.getSettings().getSpriteName("IndEvo", "volatile_mining"), "IndEvo_volatile_mining", 50000, 31) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
-                    public void apply(Industry industry) {
+                    public void apply() {
                         applySupplyAndStandardDemandWithModifiers(industry, -3, -3, -3, 2);
                     }
                 };
             }
         });
 
-        add(new SubIndustryData("organics_mining", Global.getSettings().getSpriteName("IndEvo", "organics_mining"), "Organics Extraction", "IndEvo_organics_mining", 10000, 31) {
+        add(new SubIndustryData("organics_mining", "Organics Extraction", Global.getSettings().getSpriteName("IndEvo", "organics_mining"), "IndEvo_organics_mining", 10000, 31) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
-                    public void apply(Industry industry) {
+                    public void apply() {
                         applySupplyAndStandardDemandWithModifiers(industry, -3, -3, 2, -3);
                     }
                 };
@@ -141,9 +141,24 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
     private SubIndustryAPI current = null;
 
     public void setCurrent(SubIndustryAPI current) {
-        if (industryList.contains(current)) {
+        setCurrent(current, false);
+    }
+
+    public void setCurrent(SubIndustryAPI current, boolean reapply) {
+        String id = current.getId();
+        boolean contains = false;
+
+        for (SubIndustryData data : industryList)
+            if (data.id.equals(id)) {
+                contains = true;
+                break;
+            }
+
+
+        if (contains) {
             this.current = current;
-            reapply();
+            current.init(this);
+            if (reapply) reapply();
         } else
             throw new IllegalArgumentException("Switchable Industry List of " + getClass().getName() + " does not contain " + current.getName());
     }
@@ -153,13 +168,15 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
         return current;
     }
 
+    @Override
     public void apply() {
         supply.clear();
         demand.clear();
 
-        super.apply(true); //since super does not override the baseIndustry overloaded apply we can call it here
+        if (!current.isInit()) current.init(this);
+        current.apply();
 
-        current.apply(this);
+        super.apply(true); //since super does not override the baseIndustry overloaded apply we can call it here
 
         if (!isFunctional()) {
             supply.clear();
@@ -193,7 +210,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
 
     @Override
     public void init(String id, MarketAPI market) {
-        if (current == null) current = getIndustryList().get(0).newInstance();
+        if (current == null) setCurrent(getIndustryList().get(0).newInstance(), false);
         super.init(id, market);
     }
 
@@ -219,5 +236,10 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
     @Override
     public boolean showWhenUnavailable() {
         return false;
+    }
+
+    @Override
+    public float getPatherInterest() {
+        return super.getPatherInterest();
     }
 }

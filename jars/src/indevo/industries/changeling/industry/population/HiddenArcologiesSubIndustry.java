@@ -3,7 +3,6 @@ package indevo.industries.changeling.industry.population;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.PlanetSpecAPI;
-import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
@@ -15,7 +14,7 @@ public class HiddenArcologiesSubIndustry extends SubIndustry {
     }
 
     @Override
-    public void apply(Industry industry) {
+    public void apply() {
         ((SwitchablePopulation) industry).superApply();
     }
 

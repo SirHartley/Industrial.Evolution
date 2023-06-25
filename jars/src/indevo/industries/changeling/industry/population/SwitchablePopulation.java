@@ -1,7 +1,6 @@
 package indevo.industries.changeling.industry.population;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.MarketConditionSpecAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
@@ -10,6 +9,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.*;
 import indevo.utils.helper.StringHelper;
+import org.lazywizard.lazylib.MathUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -24,12 +24,12 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
     public static final List<SubIndustryData> industryList = new LinkedList<SubIndustryData>() {
         {
-            add(new SubIndustryData("base_population_and_infrastructure", "graphics/icons/industry/population.png", "Population & Infrastructure", "IndEvo_pop_default") {
+            add(new SubIndustryData("base_population_and_infrastructure", "Population & Infrastructure", "graphics/icons/industry/population.png", "IndEvo_pop_default") {
                 @Override
                 public SubIndustry newInstance() {
                     return new SubIndustry(this) {
                         @Override
-                        public void apply(Industry industry) {
+                        public void apply() {
                             if (industry instanceof SwitchablePopulation)
                                 ((SwitchablePopulation) industry).superApply(); //applies default pop&Infra
                         }
@@ -109,11 +109,26 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     private SubIndustryAPI current = null;
 
     public void setCurrent(SubIndustryAPI current) {
-        if (industryList.contains(current)) {
+        setCurrent(current, false);
+    }
+
+    public void setCurrent(SubIndustryAPI current, boolean reapply) {
+        String id = current.getId();
+        boolean contains = false;
+
+        for (SubIndustryData data : industryList)
+            if (data.id.equals(id)) {
+                contains = true;
+                break;
+            }
+
+
+        if (contains) {
             this.current = current;
-            daysPassed = 0;
-            reapply();
-        }
+            current.init(this);
+            if (reapply) reapply();
+        } else
+            throw new IllegalArgumentException("Switchable Industry List of " + getClass().getName() + " does not contain " + current.getName());
     }
 
     @Override
@@ -125,16 +140,14 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
         void execute();
     }
 
-    public abstract class ExecutableModule implements ExecutableModuleAPI {
-    }
-
     public void apply() {
         supply.clear();
         demand.clear();
 
-        super.apply(true); //since popInfra does not override the baseIndustry overloaded apply we can call it here
+        if (!current.isInit()) current.init(this);
+        current.apply();
 
-        current.apply(this);
+        super.apply(true); //since popInfra does not override the baseIndustry overloaded apply we can call it here
 
         if (!isFunctional()) {
             supply.clear();
@@ -170,7 +183,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
     @Override
     public void init(String id, MarketAPI market) {
-        current = getIndustryList().get(0).newInstance();
+        if (current == null) setCurrent(getIndustryList().get(0).newInstance(), false);
         super.init(id, market);
     }
 
@@ -207,7 +220,9 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     }
 
     public float getPatherInterest() {
-        return current.getPatherInterest(this);}
+        float currentNum = current.getPatherInterest(this);
+        return currentNum > 100000000f ? super.getPatherInterest() : currentNum;
+    }
 
     @Override
     public boolean showWhenUnavailable() {

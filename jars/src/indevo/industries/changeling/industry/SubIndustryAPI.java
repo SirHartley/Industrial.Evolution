@@ -14,7 +14,9 @@ public interface SubIndustryAPI {
 
     Description getDescription();
 
-    void apply(Industry industry);
+    void init(Industry industry);
+
+    void apply();
 
     boolean isBase();
 
@@ -27,4 +29,8 @@ public interface SubIndustryAPI {
     String getUnavailableReason();
 
     float getPatherInterest(Industry industry);
+
+    void advance(float amt);
+
+    boolean isInit();
 }

@@ -18,6 +18,8 @@ public abstract class SubIndustry implements SubIndustryAPI {
     protected float cost;
     protected float buildTime;
 
+    protected Industry industry;
+
     public SubIndustry(SubIndustryData data){
         this.id = data.id;
         this.name = data.name;
@@ -43,6 +45,11 @@ public abstract class SubIndustry implements SubIndustryAPI {
         this.descriptionID = descriptionID;
         this.cost = cost;
         this.buildTime = buildTime;
+    }
+
+    @Override
+    public void init(Industry industry) {
+        this.industry = industry;
     }
 
     public String getName() {
@@ -91,6 +98,15 @@ public abstract class SubIndustry implements SubIndustryAPI {
 
     @Override
     public float getPatherInterest(Industry industry) {
-        return industry.getPatherInterest();
+        return Float.MAX_VALUE;
+    }
+
+    @Override
+    public void advance(float amt) {
+
+    }
+
+    public boolean isInit(){
+        return industry != null;
     }
 }

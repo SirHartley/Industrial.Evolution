@@ -17,7 +17,7 @@ public class OutpostSubIndustry extends SubIndustry {
     }
 
     @Override
-    public void apply(Industry industry) {
+    public void apply() {
         ((SwitchablePopulation) industry).superApply();
     }
 
