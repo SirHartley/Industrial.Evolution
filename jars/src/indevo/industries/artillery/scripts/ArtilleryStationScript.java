@@ -28,7 +28,6 @@ import indevo.ids.Ids;
 import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.industry.ArtilleryStation;
-import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.utils.ModPlugin;
 import org.json.JSONException;
 import org.json.JSONObject;

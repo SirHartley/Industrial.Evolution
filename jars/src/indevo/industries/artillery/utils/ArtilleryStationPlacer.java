@@ -115,7 +115,7 @@ public class ArtilleryStationPlacer {
     }
 
     public static void addArtilleryToPlanet(SectorEntityToken planet, boolean isDestroyed) {
-        if (!planet.hasScriptOfClass(ArtilleryStationScript.class)) {
+        if (!planet.hasScriptOfClass(ArtilleryStationScript.class) && !planet.hasTag(Ids.TAG_ARTILLERY_STATION)) {
 
             ArtilleryStationScript script = new ArtilleryStationScript(planet.getMarket());
             script.setDestroyed(isDestroyed);

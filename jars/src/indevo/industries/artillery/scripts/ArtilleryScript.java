@@ -1,4 +1,4 @@
-package indevo.industries.artillery.entities;
+package indevo.industries.artillery.scripts;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
@@ -54,7 +54,7 @@ public class ArtilleryScript implements EveryFrameScript {
     public float range = RANGE;
     public float terrainRange = RANGE; //we save this here because getting the terrain is expensive
 
-    public boolean disrupted = false; //todo implement carryover
+    public boolean disabled = false;
     public boolean isDone = false;
 
     public SectorEntityToken entity;
@@ -97,7 +97,7 @@ public class ArtilleryScript implements EveryFrameScript {
 
         matchTerrainRangeAndLoc();
 
-        if (disrupted) return;
+        if (disabled) return;
 
         advanceStationFireInterval(amount);
         advanceBlockedLocations(amount);

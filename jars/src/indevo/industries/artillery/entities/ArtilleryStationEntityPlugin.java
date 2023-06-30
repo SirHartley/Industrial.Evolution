@@ -13,6 +13,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.industry.ArtilleryStation;
+import indevo.industries.artillery.scripts.ArtilleryScript;
 
 import java.awt.*;
 import java.util.List;
@@ -130,7 +131,7 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
 
     public void setDisrupted(boolean disrupted) {
         this.disrupted = disrupted;
-        getOrInitScript().disrupted = disrupted;
+        getOrInitScript().disabled = disrupted;
     }
 
     public static List<SectorEntityToken> getArtilleriesInLoc(LocationAPI loc) {

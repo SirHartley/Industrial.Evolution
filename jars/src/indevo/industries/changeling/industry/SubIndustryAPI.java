@@ -18,6 +18,8 @@ public interface SubIndustryAPI {
 
     void apply();
 
+    void unapply();
+
     boolean isBase();
 
     float getCost();

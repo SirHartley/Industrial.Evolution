@@ -217,6 +217,9 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     @Override
     public void unapply() {
         super.unapply();
+
+        if (!current.isInit()) current.init(this);
+        current.unapply();
     }
 
     public float getPatherInterest() {

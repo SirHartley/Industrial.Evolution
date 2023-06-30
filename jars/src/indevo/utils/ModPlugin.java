@@ -41,7 +41,7 @@ import indevo.exploration.stations.DerelictStationPlacer;
 import indevo.exploration.subspace.system.SubspaceSystem;
 import indevo.ids.Ids;
 import indevo.industries.TradeCenter;
-import indevo.industries.artillery.entities.ArtilleryScript;
+import indevo.industries.artillery.scripts.ArtilleryScript;
 import indevo.industries.artillery.plugins.ArtilleryCampaignPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;

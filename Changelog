@@ -61,6 +61,10 @@ Adjusted - Code Changes for 0.96
 Adjusted - All industry images got touch-ups to bring them more in line with vanilla
 
 Pets
+todo check if pets properly starve before starving to death
+     make pets eat from stockpile if in cargo
+     check if putting ships in storage properly fires the warning
+
 todo: Pets dropping from explo / rare pets never show up in store
 todo: Admiral Pirrot and the Starcracker-class Breadnought
 todo: Parrot-Class Superclaw
@@ -76,6 +80,10 @@ Adjusted - new interaction image (the old one was kinda trash)
 Salvage Interactions
 Adjusted - Default columns for ship picking on Ship Sacrifice event increased from 5 to 8
 Fixed - "Exploding Room" special can now pick (certain) Industrial Evolution items again
+
+Weapons
+Adjusted - Nerfed Causality Disturber
+Adjusted - Nerfed Cryo Artillery
 
 Minefields
 Added - Mines now get temporarily disabled by an interdiction pulse

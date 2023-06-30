@@ -106,6 +106,11 @@ public abstract class SubIndustry implements SubIndustryAPI {
 
     }
 
+    @Override
+    public void unapply() {
+
+    }
+
     public boolean isInit(){
         return industry != null;
     }

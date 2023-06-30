@@ -3,12 +3,12 @@ package indevo.industries.artillery.terrain;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.artillery.entities.ArtilleryScript;
-import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
+import indevo.industries.artillery.scripts.ArtilleryScript;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -77,6 +77,7 @@ public class ArtilleryTerrain extends BaseRingTerrain {
         String willOrWont = isHostile ? "will target you" : "will not target you";
         Color relColour = isHostile ? Misc.getNegativeHighlightColor() : Misc.getRelColor(artillery.getFaction().getRelationship(player.getFaction().getId()));
         Color willOrWontColour = isHostile ? Misc.getNegativeHighlightColor() : Misc.getPositiveHighlightColor();
+        boolean isOrbitingPlanet = artillery.getOrbit() != null && artillery.getOrbitFocus() instanceof PlanetAPI;
 
         tooltip.addTitle(name);
 
@@ -84,8 +85,11 @@ public class ArtilleryTerrain extends BaseRingTerrain {
             tooltip.addPara("You are in a safe spot and will not be targeted by artillery.", highlight, pad);
 
         Color[] hlColours = new Color[]{artillery.getFaction().getColor(), relColour, willOrWontColour};
-        tooltip.addPara("The artillery orbiting %s is controlled by a %s faction.\n" +
+
+        if (isOrbitingPlanet) tooltip.addPara("The artillery orbiting %s is controlled by a %s faction.\n" +
                 "It %s if your location is known.", pad, hlColours, focusName, disposition, willOrWont);
+        else tooltip.addPara("The artillery is controlled by a %s faction.\n" +
+                "It %s if your location is known.", pad, hlColours, disposition, willOrWont);
 
         if (isDiscoverable) return;
 
