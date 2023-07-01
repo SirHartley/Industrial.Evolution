@@ -53,9 +53,12 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             if (industry instanceof SwitchableIndustryAPI && sub.getId().equals(((SwitchableIndustryAPI) industry).getCurrent().getId())) continue;
             if (!(industry instanceof SwitchableIndustryAPI) && sub.isBase()) continue;
 
+            sub.init(industry);
+
             int buildTime = Math.round(sub.getBuildTime());
             float cost = sub.getCost();
             boolean canAfford = Global.getSector().getPlayerFleet().getCargo().getCredits().get() >= cost;
+            boolean canBuild = sub.isAvailableToBuild();
 
             Color baseColor = Misc.getButtonTextColor();
             Color bgColour = Misc.getDarkPlayerColor();
@@ -77,7 +80,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
                     true);
 
             areaCheckbox.setChecked(selected == data);
-            areaCheckbox.setEnabled(canAfford);
+            areaCheckbox.setEnabled(canAfford && canBuild);
             subIndustryButtonPanel.addUIElement(anchor).inTL(-opad, 0f); //if we don't -opad it kinda does it by its own, no clue why
 
             String spriteName = sub.getImageName(industry.getMarket());
@@ -93,10 +96,11 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             TooltipMakerAPI lastPos = anchor;
 
             anchor = subIndustryButtonPanel.createUIElement(ENTRY_WIDTH - adjustedWidth - opad - defaultPadding, CONTENT_HEIGHT, false);
-            if (canAfford) anchor.addSectionHeading(" " + sub.getName(), Alignment.LMID, 0f);
+            if (canAfford && canBuild) anchor.addSectionHeading(" " + sub.getName(), Alignment.LMID, 0f);
             else anchor.addSectionHeading(" " + sub.getName(), Color.WHITE, brightColor, Alignment.LMID, 0f);
             anchor.addPara(sub.getDescription().getText2(), opad);
-            anchor.addPara("Cost: %s", spad, canAfford ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), Misc.getDGSCredits(cost)).setAlignment(Alignment.RMID);
+            if (!canBuild) anchor.addPara(sub.getUnavailableReason(), Misc.getNegativeHighlightColor(), spad).setAlignment(Alignment.RMID);
+            else anchor.addPara("Cost: %s", spad, canAfford ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), Misc.getDGSCredits(cost)).setAlignment(Alignment.RMID);
             //anchor.addPara("Build time: %s", spad, Misc.getHighlightColor(), buildTime + " " + StringHelper.getDayOrDays(buildTime));
 
             subIndustryButtonPanel.addUIElement(anchor).rightOfMid(lastPos, opad);

@@ -124,8 +124,11 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
 
         if (contains) {
-            this.current = current;
             current.init(this);
+
+            if (this.current != null) current.unapply();
+            this.current = current;
+
             if (reapply) reapply();
         } else
             throw new IllegalArgumentException("Switchable Industry List of " + getClass().getName() + " does not contain " + current.getName());
@@ -134,10 +137,6 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     @Override
     public SubIndustryAPI getCurrent() {
         return current;
-    }
-
-    public interface ExecutableModuleAPI {
-        void execute();
     }
 
     public void apply() {

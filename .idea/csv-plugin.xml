@@ -269,6 +269,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\weapons\weapon_data_pre_nerf.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\world\factions\factions.csv">
           <value>
             <Attribute>

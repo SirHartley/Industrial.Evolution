@@ -50,6 +50,8 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
         market.getAccessibilityMod().modifyFlat(getId(), -ACCESS_RED, getName());
         market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD).modifyMult(getId(), 1f + DEFENCE_BONUS, getName());
 
+        industry.getMarket().addImmigrationModifier(this);
+
         for (String s : SUPRESSED_CONDITIONS){
             market.suppressCondition(s);
         }
@@ -57,12 +59,16 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
 
     @Override
     public void unapply(){
+        if (industry == null) return;
+
         MarketAPI market = industry.getMarket();
 
         for (Industry ind : market.getIndustries()){
             ind.getSupplyBonusFromOther().unmodify(getId());
             ind.getDemandReductionFromOther().unmodify(getId());
         }
+
+        industry.getMarket().removeImmigrationModifier(this);
 
         market.getAccessibilityMod().unmodify(getId());
         market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD).unmodify(getId());
