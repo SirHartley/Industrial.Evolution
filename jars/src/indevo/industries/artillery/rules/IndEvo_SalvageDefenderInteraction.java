@@ -61,7 +61,7 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
         config.dismissOnLeave = false;
         config.printXPToDialog = true;
 
-        long seed = memory.getLong(MemFlags.SALVAGE_SEED);
+        final long seed = memory.getLong(MemFlags.SALVAGE_SEED);
         config.salvageRandom = Misc.getRandom(seed, 75);
 
         final FleetInteractionDialogPluginImpl plugin = new FleetInteractionDialogPluginImpl(config);
@@ -83,8 +83,8 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
 
                 if (plugin.getContext() instanceof FleetEncounterContext) {
                     FleetEncounterContext context = (FleetEncounterContext) plugin.getContext();
-                    if (context.didPlayerWinEncounterOutright()) {
 
+                    if (context.didPlayerWinEncounterOutright()) {
                         SalvageGenFromSeed.SDMParams p = new SalvageGenFromSeed.SDMParams();
                         p.entity = entity;
                         p.factionId = defenders.getFaction().getId();
@@ -101,6 +101,9 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
 
                             plugin.reportDefeated(p, entity, stationEntity);
                             plugin.reportDefeated(p, entity, defenders);
+
+                            ArtilleryStationScript script = ArtilleryStationScript.getScript(entity);
+                            if (!script.isDestroyed) script.reportFleetDespawnedToListener(defenders, CampaignEventListener.FleetDespawnReason.DESTROYED_BY_BATTLE, null);
                         }
 
                         memory.unset("$hasDefenders");

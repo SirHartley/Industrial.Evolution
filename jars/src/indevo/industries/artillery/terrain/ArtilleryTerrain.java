@@ -8,7 +8,7 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.artillery.scripts.ArtilleryScript;
+import indevo.industries.artillery.scripts.CampaignAttackScript;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -30,9 +30,9 @@ public class ArtilleryTerrain extends BaseRingTerrain {
         return false;
     }
 
-    public ArtilleryScript getScript(SectorEntityToken entity){
+    public CampaignAttackScript getScript(SectorEntityToken entity){
         for (EveryFrameScript s : entity.getScripts()){
-            if (s instanceof ArtilleryScript) return (ArtilleryScript) s;
+            if (s instanceof CampaignAttackScript) return (CampaignAttackScript) s;
         }
 
         return null;
@@ -43,7 +43,7 @@ public class ArtilleryTerrain extends BaseRingTerrain {
 
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         SectorEntityToken artillery = getRelatedEntity();
-        ArtilleryScript script = getScript(artillery);
+        CampaignAttackScript script = getScript(artillery);
 
         boolean isSafe = script.isInSafeSpot(player);
         boolean isHostile = script.isHostileTo(player);
@@ -65,7 +65,7 @@ public class ArtilleryTerrain extends BaseRingTerrain {
 
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         SectorEntityToken artillery = getRelatedEntity();
-        ArtilleryScript script = getScript(artillery);
+        CampaignAttackScript script = getScript(artillery);
 
         boolean isDiscoverable = artillery.isDiscoverable();
         String artyNamy = isDiscoverable ? "artillery" : artillery.getName();
@@ -117,7 +117,7 @@ public class ArtilleryTerrain extends BaseRingTerrain {
 
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         SectorEntityToken artillery = getRelatedEntity();
-        ArtilleryScript script = getScript(artillery);
+        CampaignAttackScript script = getScript(artillery);
 
         boolean isSafe = script.isInSafeSpot(player);
         boolean isHostile = script.isHostileTo(player);

@@ -22,7 +22,7 @@ import java.util.Map;
 
 import static indevo.industries.artillery.scripts.EyeIndicatorScript.WAS_SEEN_BY_HOSTILE_ENTITY;
 
-public class ArtilleryScript implements EveryFrameScript {
+public class CampaignAttackScript implements EveryFrameScript {
 
     public static final float NPC_RELOAD_FACTOR = Global.getSettings().getFloat("IndEvo_Artillery_cooldownNPCMult");
     public static final float MIN_DELAY_BETWEEN_SHOTS = Global.getSettings().getFloat("IndEvo_Artillery_minDelayBetweenShots");
@@ -64,7 +64,7 @@ public class ArtilleryScript implements EveryFrameScript {
         return type;
     }
 
-    public ArtilleryScript(SectorEntityToken entity, String type){
+    public CampaignAttackScript(SectorEntityToken entity, String type){
         this.entity = entity;
         this.type = type;
     }

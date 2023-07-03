@@ -9,7 +9,7 @@ import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.artillery.scripts.ArtilleryScript;
+import indevo.industries.artillery.scripts.CampaignAttackScript;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
@@ -176,7 +176,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
 
             for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()) {
                 if (friendlyFireDelayPassed
-                        && Misc.getDistance(entity, origin) > ArtilleryScript.MIN_RANGE
+                        && Misc.getDistance(entity, origin) > CampaignAttackScript.MIN_RANGE
                         && Misc.getDistance(entity, fleet) <= EXPLOSION_SIZE * 0.2f) {
 
                     spawnExplosion();

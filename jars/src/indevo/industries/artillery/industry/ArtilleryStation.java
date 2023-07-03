@@ -27,7 +27,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.artillery.conditions.ArtilleryStationCondition;
-import indevo.industries.artillery.scripts.ArtilleryScript;
+import indevo.industries.artillery.scripts.CampaignAttackScript;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.utils.ModPlugin;
 import org.json.JSONException;
@@ -525,7 +525,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
         if (stationEntity == null) return;
 
         ArtilleryStationEntityPlugin plugin = ((ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin());
-        ArtilleryScript script = null;
+        CampaignAttackScript script = null;
         if (plugin != null) script = plugin.getOrInitScript();
         if (script == null) return;
 

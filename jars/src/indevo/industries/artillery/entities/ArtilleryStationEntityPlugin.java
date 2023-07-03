@@ -13,7 +13,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.industry.ArtilleryStation;
-import indevo.industries.artillery.scripts.ArtilleryScript;
+import indevo.industries.artillery.scripts.CampaignAttackScript;
 
 import java.awt.*;
 import java.util.List;
@@ -34,7 +34,7 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
         this.type = (String) pluginParams;
         if (type == null) type = TYPE_MORTAR;
 
-        entity.addScript(new ArtilleryScript(entity, type));
+        entity.addScript(new CampaignAttackScript(entity, type));
     }
 
     @Override
@@ -42,12 +42,12 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
         return true;
     }
 
-    public ArtilleryScript getOrInitScript(){
+    public CampaignAttackScript getOrInitScript(){
         for (EveryFrameScript s : entity.getScripts()){
-            if (s instanceof ArtilleryScript) return (ArtilleryScript) s;
+            if (s instanceof CampaignAttackScript) return (CampaignAttackScript) s;
         }
 
-        ArtilleryScript s = new ArtilleryScript(entity, type);
+        CampaignAttackScript s = new CampaignAttackScript(entity, type);
         entity.addScript(s);
         return s;
     }
@@ -57,7 +57,7 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
         Color color = entity.getFaction().getBaseUIColor();
 
         tooltip.addPara(Misc.ucFirst(type) + " Artillery", color, 0);
-        ArtilleryScript s = getOrInitScript();
+        CampaignAttackScript s = getOrInitScript();
         if (s != null) tooltip.addPara("Targets enemy fleets at %s range", 3f, Misc.getHighlightColor(), (int) Math.round(s.range) + " SU");
 
         boolean hostile = getOrInitScript().isHostileTo(Global.getSector().getPlayerFleet());

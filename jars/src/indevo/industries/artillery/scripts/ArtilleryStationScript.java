@@ -73,6 +73,10 @@ public class ArtilleryStationScript implements EveryFrameScript, FleetEventListe
     protected SectorEntityToken primaryEntity;
 
     public static CampaignFleetAPI getStationFleet(SectorEntityToken entity) {
+        return getScript(entity).getStationFleet();
+    }
+
+    public static ArtilleryStationScript getScript(SectorEntityToken entity){
         ArtilleryStationScript script;
 
         if (entity instanceof PlanetAPI) {
@@ -81,7 +85,7 @@ public class ArtilleryStationScript implements EveryFrameScript, FleetEventListe
             script = (ArtilleryStationScript) entity.getOrbitFocus().getMemoryWithoutUpdate().get(SCRIPT_KEY);
         }
 
-        return script.getStationFleet();
+        return script;
     }
 
     public static SectorEntityToken getArtilleryStation(SectorEntityToken planet) {
