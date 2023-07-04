@@ -29,7 +29,7 @@ public class Pet {
     public float age = 1f;
     public float lifetime;
     public FleetMemberAPI assignedFleetMember = null;
-    private final IntervalUtil feedInterval = new IntervalUtil(DEFAULT_FEED_INTERVAL, DEFAULT_FEED_INTERVAL);
+    public IntervalUtil feedInterval = new IntervalUtil(Global.getSector().getClock().getSecondsPerDay() * DEFAULT_FEED_INTERVAL, Global.getSector().getClock().getSecondsPerDay() * DEFAULT_FEED_INTERVAL);
     public String personality;
 
     private float serveDuration = 0f;
@@ -51,6 +51,8 @@ public class Pet {
         personalities.addAll(Academy.COLOURS_BY_PERSONALITY.keySet());
 
         this.personality = personalities.pick();
+
+        if (Global.getSettings().isDevMode()) this.feedInterval = new IntervalUtil(10f, 10f); //10 seconds
     }
 
     public void store(Industry industry){
@@ -131,6 +133,8 @@ public class Pet {
 
         feedInterval.advance(amt);
         serveDuration += dayAmt;
+
+        ModPlugin.log("Feed interval on " + name + " at " + feedInterval.getElapsed() + " max " + feedInterval.getIntervalDuration() + " isElapsed " + feedInterval.intervalElapsed() + " is starving " + isStarving);
 
         if (feedInterval.intervalElapsed()) {
             PetStatusManager manager = PetStatusManager.getInstance();

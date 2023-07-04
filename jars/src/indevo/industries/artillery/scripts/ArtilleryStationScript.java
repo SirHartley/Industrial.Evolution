@@ -609,7 +609,7 @@ public class ArtilleryStationScript implements EveryFrameScript, FleetEventListe
     }
 
     public void reportFleetDespawnedToListener(CampaignFleetAPI fleet, CampaignEventListener.FleetDespawnReason reason, Object param) {
-        if (fleet != stationFleet) return; // shouldn't happen...
+        if (fleet != stationFleet && fleet != null) return; // shouldn't happen...
 
         // bug where somehow a station fleet can become empty as a result of combat
         // then its despawn() gets called every frame

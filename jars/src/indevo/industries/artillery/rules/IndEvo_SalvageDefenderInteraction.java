@@ -103,7 +103,7 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
                             plugin.reportDefeated(p, entity, defenders);
 
                             ArtilleryStationScript script = ArtilleryStationScript.getScript(entity);
-                            if (!script.isDestroyed) script.reportFleetDespawnedToListener(defenders, CampaignEventListener.FleetDespawnReason.DESTROYED_BY_BATTLE, null);
+                            if (!script.isDestroyed) script.reportFleetDespawnedToListener(null, CampaignEventListener.FleetDespawnReason.DESTROYED_BY_BATTLE, null);
                         }
 
                         memory.unset("$hasDefenders");

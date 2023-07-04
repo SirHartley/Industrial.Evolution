@@ -104,7 +104,7 @@ Adjusted - Doubled build cost and time to bring it in line with the other orbita
 Adjusted - Made all stations, modded or otherwise, compatible with artillery (Praise be Alex, our lord and saviour)
 Fixed - Artillery Stations should no longer be stuck in repairs on game start
 Fixed - Watchtowers no longer count as stable locations (Replaced the vanilla PlanetInteractionDialogPluginImpl)
-Fixed - Bug that caused the station to persist after being killed via planet interaction (I hope)
+Fixed - Bug that caused the station to persist after being killed via planet interaction
 
 Specialized Industries
 Added - Refining Specializations (increased output on one commodity, malus on the other)
