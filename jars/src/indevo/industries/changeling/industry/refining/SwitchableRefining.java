@@ -102,10 +102,6 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
 
     private SubIndustryAPI current = null;
 
-    public void setCurrent(SubIndustryAPI current) {
-        setCurrent(current, false);
-    }
-
     public void setCurrent(SubIndustryAPI current, boolean reapply) {
         String id = current.getId();
         boolean contains = false;
@@ -116,10 +112,12 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
                 break;
             }
 
-
         if (contains) {
-            this.current = current;
             current.init(this);
+
+            if (this.current != null) this.current.unapply();
+            this.current = current;
+
             if (reapply) reapply();
         } else
             throw new IllegalArgumentException("Switchable Industry List of " + getClass().getName() + " does not contain " + current.getName());

@@ -97,7 +97,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
 
             anchor = subIndustryButtonPanel.createUIElement(ENTRY_WIDTH - adjustedWidth - opad - defaultPadding, CONTENT_HEIGHT, false);
             if (canAfford && canBuild) anchor.addSectionHeading(" " + sub.getName(), Alignment.LMID, 0f);
-            else anchor.addSectionHeading(" " + sub.getName(), Color.WHITE, brightColor, Alignment.LMID, 0f);
+            else anchor.addSectionHeading(" " + sub.getName(), Color.WHITE, Misc.getGrayColor(), Alignment.LMID, 0f);
             anchor.addPara(sub.getDescription().getText2(), opad);
             if (!canBuild) anchor.addPara(sub.getUnavailableReason(), Misc.getNegativeHighlightColor(), spad).setAlignment(Alignment.RMID);
             else anchor.addPara("Cost: %s", spad, canAfford ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), Misc.getDGSCredits(cost)).setAlignment(Alignment.RMID);
@@ -132,7 +132,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             SwitchableIndustryAPI swIndustry = (SwitchableIndustryAPI) industry;
 
             if (!swIndustry.getCurrent().getId().equals(selected.id)) {
-                swIndustry.setCurrent(selected.newInstance());
+                swIndustry.setCurrent(selected.newInstance(), false);
                 Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(selected.cost);
             }
         } else {
@@ -166,7 +166,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             if (switchable.canImprove()) switchable.setImproved(industry.isImproved());
 
             if (switchable instanceof SwitchableIndustryAPI) {
-                ((SwitchableIndustryAPI) switchable).setCurrent(selected.newInstance());
+                ((SwitchableIndustryAPI) switchable).setCurrent(selected.newInstance(), false);
                 Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(selected.cost);
             } else
                 throw new IllegalArgumentException("non-switchable industry passed to switchable industry dialogue delegate");

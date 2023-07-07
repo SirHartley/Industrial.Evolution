@@ -9,6 +9,7 @@ import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.util.Misc;
@@ -103,9 +104,13 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     public boolean feed(Pet pet) {
         FleetDataAPI fleetData = pet.assignedFleetMember.getFleetData();
-        if (fleetData == null || fleetData.getFleet() == null || !fleetData.getFleet().isAlive()) {
-            //this should be caught but just in case
-            reportPetDied(pet, PetDeathCause.UNKNOWN);
+
+        //mothballed means it's in storage
+        CargoAPI cargo;
+
+        if (fleetData == null || fleetData.getFleet() == null) {
+            //fleet is in cargo somewhere
+            //todo this is broken
             return false;
         }
 
@@ -137,7 +142,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     private void doRoutineAliveCheck() {
         for (Pet pet : new ArrayList<>(pets)) {
-            if (!pet.isDead() && pet.isActive()) {
+            if (!pet.isDead() && pet.isAssigned()) {
                 if (pet.assignedFleetMember != null) {
                     FleetDataAPI fleetData = pet.assignedFleetMember.getFleetData();
 
@@ -205,7 +210,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void reportFleetDespawnedToListener(CampaignFleetAPI fleet, CampaignEventListener.FleetDespawnReason reason, Object param) {
         fleet.removeEventListener(this);
 
-        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()){
+        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
             if (getPet(m.getVariant()) != null) reportPetDied(getPet(m.getVariant()), PetDeathCause.UNKNOWN);
         }
     }
@@ -227,7 +232,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         if (transaction.getSubmarket().getPlugin().isFreeTransfer()) {
             boolean forgotPet = false;
 
-            for (FleetMemberAPI m : memberList){
+            for (FleetMemberAPI m : memberList) {
                 if (getPet(m.getVariant()) != null) {
                     forgotPet = true;
                     break;
@@ -239,7 +244,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         }
 
         for (Pet pet : new ArrayList<>(pets)) {
-            if (!pet.isActive()) continue;
+            if (!pet.isAssigned()) continue;
 
             if (memberList.contains(pet.assignedFleetMember)) {
                 reportPetDied(pet, PetDeathCause.SOLD);

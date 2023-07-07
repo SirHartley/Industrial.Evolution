@@ -106,38 +106,12 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
         return industryList;
     }
 
-    private SubIndustryAPI current = null;
-
-    public void setCurrent(SubIndustryAPI current) {
-        setCurrent(current, false);
-    }
-
-    public void setCurrent(SubIndustryAPI current, boolean reapply) {
-        String id = current.getId();
-        boolean contains = false;
-
-        for (SubIndustryData data : industryList)
-            if (data.id.equals(id)) {
-                contains = true;
-                break;
-            }
-
-
-        if (contains) {
-            current.init(this);
-
-            if (this.current != null) current.unapply();
-            this.current = current;
-
-            if (reapply) reapply();
-        } else
-            throw new IllegalArgumentException("Switchable Industry List of " + getClass().getName() + " does not contain " + current.getName());
-    }
-
     @Override
     public SubIndustryAPI getCurrent() {
         return current;
     }
+
+    private SubIndustryAPI current = null;
 
     public void apply() {
         supply.clear();
@@ -152,6 +126,27 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
             supply.clear();
         }
     }
+    public void setCurrent(SubIndustryAPI current, boolean reapply) {
+        String id = current.getId();
+        boolean contains = false;
+
+        for (SubIndustryData data : industryList)
+            if (data.id.equals(id)) {
+                contains = true;
+                break;
+            }
+
+        if (contains) {
+            current.init(this);
+
+            if (this.current != null) this.current.unapply();
+            this.current = current;
+
+            if (reapply) reapply();
+        } else
+            throw new IllegalArgumentException("Switchable Industry List of " + getClass().getName() + " does not contain " + current.getName());
+    }
+
 
     public void superApply() {
         supply.clear();

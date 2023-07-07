@@ -16,7 +16,6 @@ import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class Pet {
     public static final float DEFAULT_FEED_INTERVAL = 31f;
@@ -34,10 +33,10 @@ public class Pet {
 
     private float serveDuration = 0f;
 
-    private boolean isActive = false;
+    private boolean isAssigned = false;
     private boolean isStarving = false;
     private boolean isDead = false;
-    private Industry storage = null;
+    public Industry storage = null;
 
     public DeathData deathData = null;
 
@@ -77,7 +76,7 @@ public class Pet {
         }
 
         this.assignedFleetMember = toMember;
-        isActive = true;
+        isAssigned = true;
         serveDuration = 0f;
         toMember.getVariant().addPermaMod(getData().hullmod);
         toMember.getVariant().addTag(HULLMOD_DATA_PREFIX + id);
@@ -108,7 +107,7 @@ public class Pet {
         }
 
         assignedFleetMember = null;
-        isActive = false;
+        isAssigned = false;
     }
 
     public PetData getData() {
@@ -121,7 +120,7 @@ public class Pet {
         boolean notInCryo = storage != null && !Commodities.BETA_CORE.equals(storage.getAICoreId());
         float dayAmt = Global.getSector().getClock().convertToDays(amt);
 
-        if (notInCryo || isActive){
+        if (notInCryo || isAssigned){
             age += dayAmt;
 
             if (age > lifetime) {
@@ -129,7 +128,7 @@ public class Pet {
             }
         }
 
-        if (!isActive) return; //can't be active if in storage so it doesn't double age
+        if (!isAssigned) return; //can't be active if in storage so it doesn't double age
 
         feedInterval.advance(amt);
         serveDuration += dayAmt;
@@ -156,8 +155,8 @@ public class Pet {
         return isStarving;
     }
 
-    public boolean isActive() {
-        return isActive;
+    public boolean isAssigned() {
+        return isAssigned;
     }
 
     public void setDead(PetStatusManager.PetDeathCause cause) {

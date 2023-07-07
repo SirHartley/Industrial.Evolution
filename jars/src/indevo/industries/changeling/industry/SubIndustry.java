@@ -19,6 +19,7 @@ public abstract class SubIndustry implements SubIndustryAPI {
     protected float buildTime;
 
     protected Industry industry;
+    protected MarketAPI market;
 
     public SubIndustry(SubIndustryData data){
         this.id = data.id;
@@ -50,6 +51,7 @@ public abstract class SubIndustry implements SubIndustryAPI {
     @Override
     public void init(Industry industry) {
         this.industry = industry;
+        this.market = industry.getMarket();
     }
 
     public String getName() {
@@ -112,6 +114,6 @@ public abstract class SubIndustry implements SubIndustryAPI {
     }
 
     public boolean isInit(){
-        return industry != null;
+        return market != null;
     }
 }

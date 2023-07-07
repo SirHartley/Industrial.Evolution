@@ -135,13 +135,13 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
             float defaultPadding = (ENTRY_HEIGHT - CONTENT_HEIGHT) / 2;
 
             TooltipMakerAPI anchor = petEntryPanel.createUIElement(CONTENT_HEIGHT, CONTENT_HEIGHT - BUTTON_HEIGHT - opad, false);
-            if (pet.isActive()) anchor.addShipList(1,1, CONTENT_HEIGHT, baseColor, Collections.singletonList(pet.assignedFleetMember), 0f);
+            if (pet.isAssigned()) anchor.addShipList(1,1, CONTENT_HEIGHT, baseColor, Collections.singletonList(pet.assignedFleetMember), 0f);
             else anchor.addImage(Global.getSettings().getSpriteName("IndEvo", "pets_large"), CONTENT_HEIGHT, CONTENT_HEIGHT, 0f);
             petEntryPanel.addUIElement(anchor).inTL(defaultPadding, defaultPadding);
 
             TooltipMakerAPI lastUsed = anchor;
 
-            if (pet.isActive()){
+            if (pet.isAssigned()){
                 anchor = petEntryPanel.createUIElement(BUTTON_HEIGHT+2, BUTTON_HEIGHT+2, false);
                 ButtonAPI border = anchor.addAreaCheckbox("", null, baseColor, baseColor, baseColor,  BUTTON_HEIGHT+2, BUTTON_HEIGHT+2, 0);
                 border.setEnabled(false);
@@ -160,7 +160,7 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
 
             //buttons
             anchor = petEntryPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-            String name = pet.isActive() ? "Re-Assign" : "Assign";
+            String name = pet.isAssigned() ? "Re-Assign" : "Assign";
             ButtonAPI moveButton = anchor.addButton(name, new ButtonAction(this) {
                 @Override
                 public void execute() {
@@ -184,7 +184,7 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
                     dialog.displaySelectionDelegate();
                 }
             }, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-            storeButton.setEnabled(pet.isActive());
+            storeButton.setEnabled(pet.isAssigned());
             petEntryPanel.addUIElement(anchor).rightOfMid(lastUsed, 10f);
             lastUsed = anchor;
 

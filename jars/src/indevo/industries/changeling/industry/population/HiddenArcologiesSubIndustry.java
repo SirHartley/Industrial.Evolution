@@ -7,10 +7,12 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
+import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
+import indevo.utils.ModPlugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +35,7 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
     public static final int SUPPLY_REDUCTION = 2;
     public static final float ACCESS_RED = 0.15f;
     public static final float DEFENCE_BONUS = 1f;
-    public static final List<String> SUPRESSED_CONDITIONS = new ArrayList<>(Arrays.asList(COLD, HOT, TOXIC_ATMOSPHERE, DENSE_ATMOSPHERE, THIN_ATMOSPHERE, NO_ATMOSPHERE, EXTREME_WEATHER, IRRADIATED, INIMICAL_BIOSPHERE, METEOR_IMPACTS, POOR_LIGHT, DARK,
+    public static final List<String> SUPRESSED_CONDITIONS = new ArrayList<>(Arrays.asList(COLD, HOT, TOXIC_ATMOSPHERE, DENSE_ATMOSPHERE, THIN_ATMOSPHERE, NO_ATMOSPHERE, EXTREME_WEATHER, IRRADIATED, INIMICAL_BIOSPHERE, METEOR_IMPACTS,
             "US_storm"));
 
     public HiddenArcologiesSubIndustry(SubIndustryData data) {
@@ -45,12 +47,10 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
         ((SwitchablePopulation) industry).superApply();
         applyGlobalOutputReduction(SUPPLY_REDUCTION);
 
-        MarketAPI market = industry.getMarket();
-
         market.getAccessibilityMod().modifyFlat(getId(), -ACCESS_RED, getName());
         market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD).modifyMult(getId(), 1f + DEFENCE_BONUS, getName());
 
-        industry.getMarket().addImmigrationModifier(this);
+        market.addImmigrationModifier(this);
 
         for (String s : SUPRESSED_CONDITIONS){
             market.suppressCondition(s);
@@ -60,15 +60,14 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
     @Override
     public void unapply(){
         if (industry == null) return;
-
-        MarketAPI market = industry.getMarket();
+        ModPlugin.log("unapplying hidden arcologies");
 
         for (Industry ind : market.getIndustries()){
             ind.getSupplyBonusFromOther().unmodify(getId());
             ind.getDemandReductionFromOther().unmodify(getId());
         }
 
-        industry.getMarket().removeImmigrationModifier(this);
+        market.removeImmigrationModifier(this);
 
         market.getAccessibilityMod().unmodify(getId());
         market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD).unmodify(getId());
@@ -79,7 +78,7 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
     }
 
     public void applyGlobalOutputReduction(int amt){
-        for (Industry ind : industry.getMarket().getIndustries()){
+        for (Industry ind : market.getIndustries()){
             ind.getSupplyBonusFromOther().modifyFlat(getId(), -amt);
             ind.getDemandReductionFromOther().modifyFlat(getId(), amt);
         }
@@ -99,5 +98,10 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
     @Override
     public void modifyIncoming(MarketAPI market, PopulationComposition incoming) {
         incoming.getWeight().modifyPercent(getId(), 1 - IMMIGRATION_PENALTY, getName() + " - lower immigration");
+    }
+
+    @Override
+    public boolean isAvailableToBuild() {
+        return super.isAvailableToBuild() && !market.hasCondition(VERY_HOT);
     }
 }

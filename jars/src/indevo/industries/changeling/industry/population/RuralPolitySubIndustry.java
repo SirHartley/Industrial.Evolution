@@ -156,7 +156,6 @@ Rural Polity
 
         ((SwitchablePopulation) industry).superApply();
 
-        MarketAPI market = industry.getMarket();
         market.addImmigrationModifier(this);
 
         int i = 0;
@@ -186,9 +185,7 @@ Rural Polity
     public void unapply() {
         super.unapply();
 
-        industry.getMarket().removeImmigrationModifier(this);
-
-        MarketAPI market = industry.getMarket();
+        market.removeImmigrationModifier(this);
 
         for (Industry ind : market.getIndustries()) {
             if (ind.getSpec().getTags().contains("industrial")) {
@@ -214,7 +211,6 @@ Rural Polity
 
     @Override
     public boolean isAvailableToBuild() {
-        MarketAPI market = industry.getMarket();
         boolean hasFarming = market.hasCondition(Conditions.FARMLAND_RICH) || market.hasCondition(Conditions.FARMLAND_BOUNTIFUL);
         boolean isPlanet = market.getPrimaryEntity() instanceof PlanetAPI;
         boolean isWater = isPlanet && market.getPlanetEntity().getTypeId().contains("water");
@@ -224,7 +220,6 @@ Rural Polity
 
     @Override
     public String getUnavailableReason() {
-        MarketAPI market = industry.getMarket();
         boolean hasFarming = market.hasCondition(Conditions.FARMLAND_RICH) || market.hasCondition(Conditions.FARMLAND_BOUNTIFUL);
         boolean isPlanet = market.getPrimaryEntity() instanceof PlanetAPI;
         boolean isWater = isPlanet && market.getPlanetEntity().getTypeId().contains("water");
@@ -253,7 +248,7 @@ Rural Polity
     public void nextImage() {
         int max = 5;
         String png = ".png";
-        String currentName = getImageName(industry.getMarket());
+        String currentName = getImageName(market);
 
         int endIndex = currentName.length() - png.length();
         int beginIndex = endIndex - 1;
