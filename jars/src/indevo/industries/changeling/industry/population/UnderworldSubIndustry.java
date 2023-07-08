@@ -22,6 +22,8 @@ import static com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastr
 
 public class UnderworldSubIndustry extends SubIndustry {
 
+    //todo Collects tithe from traders travelling in the system to storage, spawn extortion fleets and make em approach trade fleets
+
     public static final float BONUS_ILLEGAL_OUTPUT = 1f;
     public static final float BONUS_SMALL_PATROLS = 2f;
     public static final float BASE_STABILITY_AMT = 2f;
