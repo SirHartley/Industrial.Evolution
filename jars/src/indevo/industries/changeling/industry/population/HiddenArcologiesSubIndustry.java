@@ -31,9 +31,9 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
     //    o	Underwater Arcologies
     //    o	Underground Arcologies
 
-    public static final float IMMIGRATION_PENALTY = 0.3f;
+    public static final float IMMIGRATION_PENALTY = 30f;
     public static final int SUPPLY_REDUCTION = 2;
-    public static final float ACCESS_RED = 0.15f;
+    public static final float ACCESS_RED = 0.3f;
     public static final float DEFENCE_BONUS = 1f;
     public static final List<String> SUPRESSED_CONDITIONS = new ArrayList<>(Arrays.asList(COLD, HOT, TOXIC_ATMOSPHERE, DENSE_ATMOSPHERE, THIN_ATMOSPHERE, NO_ATMOSPHERE, EXTREME_WEATHER, IRRADIATED, INIMICAL_BIOSPHERE, METEOR_IMPACTS,
             "US_storm"));
@@ -60,7 +60,6 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
     @Override
     public void unapply(){
         if (industry == null) return;
-        ModPlugin.log("unapplying hidden arcologies");
 
         for (Industry ind : market.getIndustries()){
             ind.getSupplyBonusFromOther().unmodify(getId());
@@ -97,7 +96,7 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
 
     @Override
     public void modifyIncoming(MarketAPI market, PopulationComposition incoming) {
-        incoming.getWeight().modifyPercent(getId(), 1 - IMMIGRATION_PENALTY, getName() + " - lower immigration");
+        incoming.getWeight().modifyPercent(getId(), -IMMIGRATION_PENALTY, getName() + " - lower immigration");
     }
 
     @Override

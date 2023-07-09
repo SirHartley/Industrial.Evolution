@@ -3,6 +3,7 @@ package indevo.industries.changeling.industry;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.loading.Description;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 
 public interface SubIndustryAPI {
 
@@ -35,4 +36,6 @@ public interface SubIndustryAPI {
     void advance(float amt);
 
     boolean isInit();
+
+    void addRightAfterDescription(TooltipMakerAPI tooltip, Industry.IndustryTooltipMode mode);
 }

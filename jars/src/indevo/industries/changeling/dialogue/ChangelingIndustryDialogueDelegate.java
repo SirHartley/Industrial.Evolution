@@ -22,9 +22,8 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
     public static final float WIDTH = 600f;
     public static final float HEIGHT = Global.getSettings().getScreenHeight() - 300f;
     public static final float ENTRY_HEIGHT = 84f; //MUST be even
+    public static final float CONTENT_HEIGHT = ENTRY_HEIGHT - 4f;
     public static final float ENTRY_WIDTH = WIDTH - 5f; //MUST be even
-    public static final float CONTENT_HEIGHT = 80f;
-
 
     public Industry industry;
     public List<SubIndustryData> subIndustries;
@@ -71,11 +70,32 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             }
 
             CustomPanelAPI subIndustryButtonPanel = panel.createCustomPanel(ENTRY_WIDTH, ENTRY_HEIGHT + 2f, new ButtonReportingCustomPanel(this));
-            TooltipMakerAPI anchor = subIndustryButtonPanel.createUIElement(ENTRY_WIDTH, ENTRY_HEIGHT, false);
+
+            //image creation
+            String spriteName = sub.getImageName(industry.getMarket());
+            SpriteAPI sprite = Global.getSettings().getSprite(spriteName);
+            float aspectRatio = sprite.getWidth() / sprite.getHeight();
+            float adjustedWidth = Math.min(CONTENT_HEIGHT * aspectRatio, sprite.getWidth());
+            float defaultPadding = (ENTRY_HEIGHT - CONTENT_HEIGHT) / 2;
+
+            //Text creation so we know the total height
+            TooltipMakerAPI textPanel = subIndustryButtonPanel.createUIElement(ENTRY_WIDTH - adjustedWidth - opad - defaultPadding, CONTENT_HEIGHT, false);
+            if (canAfford && canBuild) textPanel.addSectionHeading(" " + sub.getName(), Alignment.LMID, 0f);
+            else textPanel.addSectionHeading(" " + sub.getName(), Color.WHITE, Misc.getGrayColor(), Alignment.LMID, 0f);
+            textPanel.addPara(sub.getDescription().getText2(), opad);
+            if (!canBuild) textPanel.addPara(sub.getUnavailableReason(), Misc.getNegativeHighlightColor(), spad).setAlignment(Alignment.RMID);
+            else textPanel.addPara("Cost: %s", spad, canAfford ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), Misc.getDGSCredits(cost)).setAlignment(Alignment.RMID);
+
+            //adjust panel height
+            float baseHeight = textPanel.getHeightSoFar() + 2f + opad;
+            subIndustryButtonPanel.getPosition().setSize(ENTRY_WIDTH, Math.max(ENTRY_HEIGHT, baseHeight));
+
+            //create background button
+            TooltipMakerAPI anchor = subIndustryButtonPanel.createUIElement(ENTRY_WIDTH, baseHeight, false);
 
             ButtonAPI areaCheckbox = anchor.addAreaCheckbox("", sub.getId(), baseColor, bgColour, brightColor, //new Color(255,255,255,0)
                     ENTRY_WIDTH,
-                    ENTRY_HEIGHT,
+                    baseHeight,
                     0f,
                     true);
 
@@ -83,27 +103,15 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             areaCheckbox.setEnabled(canAfford && canBuild);
             subIndustryButtonPanel.addUIElement(anchor).inTL(-opad, 0f); //if we don't -opad it kinda does it by its own, no clue why
 
-            String spriteName = sub.getImageName(industry.getMarket());
-            SpriteAPI sprite = Global.getSettings().getSprite(spriteName);
-            float aspectRatio = sprite.getWidth() / sprite.getHeight();
-            float adjustedWidth = CONTENT_HEIGHT * aspectRatio;
-            float defaultPadding = (ENTRY_HEIGHT - CONTENT_HEIGHT) / 2;
-
+            //image addition
             anchor = subIndustryButtonPanel.createUIElement(adjustedWidth, ENTRY_HEIGHT, false);
-            anchor.addImage(spriteName, adjustedWidth, CONTENT_HEIGHT, 0f);
+            anchor.addImage(spriteName, adjustedWidth, Math.min(CONTENT_HEIGHT, sprite.getHeight()), 0f);
             subIndustryButtonPanel.addUIElement(anchor).inTL(defaultPadding - opad, defaultPadding);
 
             TooltipMakerAPI lastPos = anchor;
 
-            anchor = subIndustryButtonPanel.createUIElement(ENTRY_WIDTH - adjustedWidth - opad - defaultPadding, CONTENT_HEIGHT, false);
-            if (canAfford && canBuild) anchor.addSectionHeading(" " + sub.getName(), Alignment.LMID, 0f);
-            else anchor.addSectionHeading(" " + sub.getName(), Color.WHITE, Misc.getGrayColor(), Alignment.LMID, 0f);
-            anchor.addPara(sub.getDescription().getText2(), opad);
-            if (!canBuild) anchor.addPara(sub.getUnavailableReason(), Misc.getNegativeHighlightColor(), spad).setAlignment(Alignment.RMID);
-            else anchor.addPara("Cost: %s", spad, canAfford ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), Misc.getDGSCredits(cost)).setAlignment(Alignment.RMID);
-            //anchor.addPara("Build time: %s", spad, Misc.getHighlightColor(), buildTime + " " + StringHelper.getDayOrDays(buildTime));
-
-            subIndustryButtonPanel.addUIElement(anchor).rightOfMid(lastPos, opad);
+            //text addition
+            subIndustryButtonPanel.addUIElement(textPanel).rightOfTop(lastPos, opad);
 
             panelTooltip.addCustom(subIndustryButtonPanel, 0f);
             buttons.add(areaCheckbox);

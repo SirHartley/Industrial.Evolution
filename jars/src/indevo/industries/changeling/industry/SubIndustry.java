@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.loading.Description;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.campaign.econ.Market;
 import indevo.industries.changeling.industry.population.SwitchablePopulation;
 
@@ -115,5 +116,10 @@ public abstract class SubIndustry implements SubIndustryAPI {
 
     public boolean isInit(){
         return market != null;
+    }
+
+    @Override
+    public void addRightAfterDescription(TooltipMakerAPI tooltip, Industry.IndustryTooltipMode mode) {
+
     }
 }

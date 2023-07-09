@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.MarketConditionSpecAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.*;
@@ -190,6 +191,8 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     public void advance(float amount) {
         super.advance(amount);
 
+        current.advance(amount);
+
         if (!locked && current != null && !current.isBase()) {
             daysPassed += Global.getSector().getClock().convertToDays(amount);
             if (daysPassed >= DAYS_TO_LOCK) {
@@ -198,6 +201,12 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
                 Global.getSector().getCampaignUI().addMessage("The %s Government on %s has become permanent.", Misc.getTextColor(), current.getName(), market.getName(), Misc.getHighlightColor(), market.getFaction().getColor());
             }
         }
+    }
+
+    @Override
+    protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
+        super.addRightAfterDescriptionSection(tooltip, mode);
+        current.addRightAfterDescription(tooltip, mode);
     }
 
     public boolean canChange() {
@@ -227,22 +236,24 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     }
 
     @Override
-    protected void addPostDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
-        super.addPostDescriptionSection(tooltip, mode);
+    protected void addPostDemandSection(TooltipMakerAPI tooltip, boolean hasDemand, IndustryTooltipMode mode) {
+        super.addPostDemandSection(tooltip, hasDemand, mode);
 
-        if (current != null) tooltip.addPara(current.getDescription().getText2(), 10f);
+        float opad = 10f;
 
-        if (canChange()) {
-            tooltip.addPara("%s", 3f, Misc.getPositiveHighlightColor(), "Click to change government type.");
-            tooltip.addPara("Changing the government style is only possible until %s and becomes permanent after %s.", 10f, Misc.getHighlightColor(),
-                    "colony size " + MAX_SIZE_FOR_CHANGE,
-                    DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(DAYS_TO_LOCK));
-        }
+        tooltip.addSectionHeading("Governance Type", Alignment.MID, opad);
+
+        if (current != null) tooltip.addPara(current.getDescription().getText2(), opad);
+        if (canChange()) tooltip.addPara("Changing the government style is only possible until %s and becomes permanent after %s.", opad, Misc.getHighlightColor(),
+                "colony size " + MAX_SIZE_FOR_CHANGE,
+                DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(DAYS_TO_LOCK));
 
         if (!isNotChanged() && canChange()) {
             int daysRemaining = (int) Math.ceil(DAYS_TO_LOCK - daysPassed);
             tooltip.addPara("Days until permanent: %s", 3f, Misc.getHighlightColor(), daysRemaining + " " + StringHelper.getDayOrDays(daysRemaining));
         }
+
+        if (canChange()) tooltip.addPara("%s", opad, Misc.getPositiveHighlightColor(), "Click to change government type.");
     }
 
     @Override
