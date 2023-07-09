@@ -1,33 +1,29 @@
 done Hidden Arcologies
-•	Negate all conditions that affect the surface (temp, meteors…)
-•	Increase defence
-•	Decrease all output by 2
-•   Decrease Pop Growth
-•	Two types for planets:
+x •	Negate all conditions that affect the surface (temp, meteors…)
+x •	Increase defence
+x •	Decrease all output by 2
+x •   Decrease Pop Growth
+x •	Two types for planets:
     o	Underwater Arcologies
     o	Underground Arcologies
 
 Rural Polity
-•	Farming provides luxury goods and supplies
-•	Farming output +
-•	Pop growth +
-•	Industrial Industries massively reduce growth, stab and get high upkeep
-•   "rural" industries increase growth stab and get - upkeep
+x •	Farming provides supplies
+x •	Pop growth +
+x •	Industrial Industries massively reduce growth, stab and get high upkeep
+x •   "rural" industries increase growth stab and get - upkeep
 •	Less likely to be targeted by inspections
 •	Less likely to be targeted by raids
-•	Requires farmland lv. 3 or temperate to be available
+x •	Requires farmland lv. 3 or temperate to be available
 
 Monastic Orders
 •	-50% positive income
 •	No luddic cells
 •	Stability can’t fall below 3 or go above 7
 •	Locked at size 5
-no •	Industrial Industries reduce stab and get +upkeep
 •	Military industries -upkeep
 •   Marines stored here passively gather experience
 •	Randomly builds known frigates and destroyers, rarely cruisers (by hand with a special hullmod)
-
-no •	Increases stability of other colonies in the system
 
 Corporate Governance
 •	More income means higher stability
@@ -39,13 +35,25 @@ Corporate Governance
 •	base stability = 0
 •	Incentives are twice as expensive (or more?)
 •	Can shrink
+increase military upkeep by x5
 
 done Underworld Governance
 x •	Less stability = more income
 x •	Increased illegal commodity outputs
 x •	Increased fleet size
-todo •	Collects tithe from traders travelling in the system to storage
+x •	Collects tithe from traders travelling in the system to storage
 nah •	Raids other places at low stability (twice a year?) – like a free privateer port
+
+Resort planet (this one is uuuh cause I have no ideas)
+•	Increases growth and stability of other colonies in the system
+•	Locked at size 4
+•	No industrial buildings /slap -10 stab penalty upkeep on them
+•	No military
+•	One industry slot
+•	Negative income reduced by 80%
+-   Base income at 20.000
+
+Not doing it:
 
 Outpost
 •	Income locked at +10k
@@ -57,13 +65,3 @@ Outpost
 •	No invasions
 •	No luddic cells
 •	No inspections
-
-Resort planet (this one is uuuh cause I have no ideas)
-•	Increases growth and stability of other colonies in the system
-•	Locked at size 4
-•	No industrial buildings /slap -10 stab penalty upkeep on them
-•	No military
-•	One industry slot
-•	Negative income reduced by 80%
--   Base income at 20.000
-

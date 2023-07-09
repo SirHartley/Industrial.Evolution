@@ -20,6 +20,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
+import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
@@ -78,6 +79,7 @@ import org.dark.shaders.util.ShaderLib;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static indevo.industries.academy.rules.IndEvo_AcademyVariables.ACADEMY_MARKET_ID;
@@ -133,7 +135,8 @@ public class ModPlugin extends BaseModPlugin {
 
         loadTransientMemory();
 
-        //balance changes
+        //balance and spec changes
+        addIndustrialOrRuralPrefaceToIndustrySpecs();
         if (Global.getSettings().getBoolean("IndEvo_CommerceBalanceChanges")) overrideVanillaCommerce();
 
         LocatorSystemRatingUpdater.updateAllSystems();
@@ -144,6 +147,25 @@ public class ModPlugin extends BaseModPlugin {
         //pets
         if (ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(Ids.PROJ_NAVI).getProgress().redeemed)
             PetDataRepo.get("fairy").tags.remove(PetData.TAG_NO_SELL);
+    }
+
+    public void addIndustrialOrRuralPrefaceToIndustrySpecs(){
+        for (IndustrySpecAPI spec : Global.getSettings().getAllIndustrySpecs()){
+            List<String> tagList = new ArrayList<>();
+            if (spec.getTags().contains("industrial")) tagList.add("industrial");
+            if (spec.getTags().contains("rural")) tagList.add("rural");
+            if (spec.getTags().contains("military")) tagList.add("military");
+
+            StringBuilder type = new StringBuilder();
+
+            for (String tag : tagList){
+                if (type.length() > 0 && tagList.get(tagList.size()-1).equals(tag)) type.append(", ");
+                type.append(Misc.ucFirst(tag));
+            }
+
+            type.insert(0, "Type: ").append("\n\n");
+            spec.setDesc(type + spec.getDesc());
+        }
     }
 
     @Override

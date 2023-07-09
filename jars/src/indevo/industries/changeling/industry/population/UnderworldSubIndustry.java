@@ -6,6 +6,8 @@ import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.FactionDoctrineAPI;
 import com.fs.starfarer.api.campaign.econ.*;
+import com.fs.starfarer.api.combat.MutableStat;
+import com.fs.starfarer.api.combat.MutableStatWithTempMods;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.econ.CommRelayCondition;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
@@ -336,6 +338,10 @@ public class UnderworldSubIndustry extends SubIndustry {
 
         market.getIncomeMult().modifyMultAlways(modId, incomeMult, "Stability (Underworld)");
         market.getUpkeepMult().modifyMultAlways(modId, getUpkeepHazardMult(market.getHazardValue()), "Hazard rating");
+
+        for (MutableStat.StatMod mod : market.getStability().getFlatMods().values()){
+            if (mod.desc.toLowerCase().contains("_ms")) market.getStability().unmodify(mod.source);
+        }
 
         market.getStability().modifyFlat("_" + modId + "_ms", BASE_STABILITY_AMT, "Base value");
 

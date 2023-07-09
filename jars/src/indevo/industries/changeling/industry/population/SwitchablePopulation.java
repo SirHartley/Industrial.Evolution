@@ -93,12 +93,13 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
                     return new CorporateGovernanceSubIndustry(this);
                 }
             });
-            add(new SubIndustryData("outpost", "Outpost", Global.getSettings().getSpriteName("IndEvo", "pop_outpost"), "IndEvo_pop_outpost") {
+
+            /*add(new SubIndustryData("outpost", "Outpost", Global.getSettings().getSpriteName("IndEvo", "pop_outpost"), "IndEvo_pop_outpost") {
                 @Override
                 public SubIndustry newInstance() {
                     return new OutpostSubIndustry(this);
                 }
-            });
+            });*/
         }
     };
 
