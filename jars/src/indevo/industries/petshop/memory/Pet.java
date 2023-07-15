@@ -133,8 +133,6 @@ public class Pet {
         feedInterval.advance(amt);
         serveDuration += dayAmt;
 
-        ModPlugin.log("Feed interval on " + name + " at " + feedInterval.getElapsed() + " max " + feedInterval.getIntervalDuration() + " isElapsed " + feedInterval.intervalElapsed() + " is starving " + isStarving);
-
         if (feedInterval.intervalElapsed()) {
             PetStatusManager manager = PetStatusManager.getInstance();
             boolean hasFed = manager.feed(this);

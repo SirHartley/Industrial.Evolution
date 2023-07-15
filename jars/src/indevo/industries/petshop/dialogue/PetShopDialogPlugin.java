@@ -61,7 +61,7 @@ public class PetShopDialogPlugin  implements InteractionDialogPlugin {
 
     @Override
     public void optionSelected(String optionText, Object optionData) {
-        if (optionData == OptionID.INIT) displaySelectionDelegate(PetManagerDialogueDelegate.PetLocationFilter.ALL);
+        if (optionData == OptionID.INIT) displaySelectionDelegate();
     }
 
     public void displayPetRenamePanel(Pet pet){
@@ -70,13 +70,7 @@ public class PetShopDialogPlugin  implements InteractionDialogPlugin {
 
     public void displaySelectionDelegate(){
         dialog.showCustomDialog(PetManagerDialogueDelegate.WIDTH, PetManagerDialogueDelegate.HEIGHT,
-                new PetManagerDialogueDelegate(this, industry, lastFilter));
-    }
-
-    public void displaySelectionDelegate(PetManagerDialogueDelegate.PetLocationFilter filter){
-        lastFilter = filter;
-        dialog.showCustomDialog(PetManagerDialogueDelegate.WIDTH, PetManagerDialogueDelegate.HEIGHT,
-                new PetManagerDialogueDelegate(this, industry, filter));
+                new PetManagerDialogueDelegate(this, industry));
     }
 
     public void showShipPicker(final Pet pet) {

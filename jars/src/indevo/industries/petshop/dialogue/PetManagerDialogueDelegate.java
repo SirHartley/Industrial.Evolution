@@ -20,14 +20,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class PetManagerDialogueDelegate implements CustomDialogDelegate {
-    //Select a Pet (provide filter buttons, Fleet - Storage - Cargo)
-    //Move - Store - Rename - Euthanize
-    //if move: fleet picker with valid ships in storage and fleet
 
-    //list of pets,
-    // config options on the pet button
-    // call another delegate for everything else, who cares
-    // on the left, config options on the right
+    CustomPanelAPI basePanel;
+    CustomPanelAPI panel;
 
     public static final float WIDTH = 600f;
     public static final float HEIGHT = Global.getSettings().getScreenHeight() - 300f;
@@ -38,10 +33,10 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
     public static final float CONTENT_HEIGHT = 96;
 
     public Industry industry;
-    public PetLocationFilter currentFilter;
+    public PetLocationFilter currentFilter = PetLocationFilter.ALL;
     public PetShopDialogPlugin dialog;
 
-    public boolean dismissOnNextCancel = false;
+    boolean dismissOnNextCancel = false;
 
     public enum PetLocationFilter{
         FLEET,
@@ -50,13 +45,23 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
         ALL
     }
 
-    public PetManagerDialogueDelegate(PetShopDialogPlugin dialog, Industry industry, PetLocationFilter filter) {
+    public PetManagerDialogueDelegate(PetShopDialogPlugin dialog, Industry industry) {
         this.industry = industry;
-        this.currentFilter = filter;
         this.dialog = dialog;
     }
 
     public void createCustomDialog(CustomPanelAPI panel, final CustomDialogCallback callback) {
+        this.basePanel = panel;
+        recreatePanel(callback);
+    }
+
+    public void recreatePanel(final CustomDialogCallback callback){
+        if (panel != null)
+        {
+            basePanel.removeComponent(panel);
+        }
+
+        panel = Global.getSettings().createCustom(basePanel.getPosition().getWidth(), basePanel.getPosition().getHeight(), null);
 
         float opad = 10f;
         float spad = 5f;
@@ -77,9 +82,8 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
         ButtonAPI allFilterButton = selectorAnchor.addAreaCheckbox(Misc.ucFirst(PetLocationFilter.ALL.name().toLowerCase()), new ButtonAction(this) {
             @Override
             public void execute() {
-                dismissOnNextCancel = false;
-                callback.dismissCustomDialog(1);
-                dialog.displaySelectionDelegate(PetLocationFilter.ALL);
+                currentFilter = PetLocationFilter.ALL;
+                recreatePanel(callback);
             }
         }, baseColor, bgColour, brightColor,  SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
 
@@ -95,9 +99,8 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
             ButtonAPI filterButton = selectorAnchor.addAreaCheckbox(Misc.ucFirst(filter.name().toLowerCase()), new ButtonAction(this) {
                 @Override
                 public void execute() {
-                    dismissOnNextCancel = false;
-                    callback.dismissCustomDialog(1);
-                    dialog.displaySelectionDelegate(filter);
+                    currentFilter = filter;
+                    recreatePanel(callback);
                 }
             }, baseColor, bgColour, brightColor,  SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
 
@@ -179,9 +182,7 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
                 public void execute() {
                     pet.store(industry);
                     Global.getSector().getCampaignUI().getMessageDisplay().addMessage(pet.name + " stored at " + industry.getMarket().getName());
-                    dismissOnNextCancel = false;
-                    callback.dismissCustomDialog(1);
-                    dialog.displaySelectionDelegate();
+                    recreatePanel(callback);
                 }
             }, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
             storeButton.setEnabled(pet.isAssigned());
@@ -257,6 +258,7 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
         }
 
         panel.addUIElement(petListTooltip).belowLeft(selectorTooltip, 0);
+        basePanel.addComponent(panel);
     }
 
     public List<Pet> getPets(PetLocationFilter filter){
