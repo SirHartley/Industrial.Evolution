@@ -1,44 +1,72 @@
 package indevo.industries.changeling.hullmods;
 
-import com.fs.starfarer.api.combat.BaseHullMod;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Stats;
+import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.derelicts.industry.HullForge;
+import com.fs.starfarer.api.util.Pair;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.industries.petshop.hullmods.SelfRepairingBuiltInHullmod;
+import indevo.utils.helper.StringHelper;
 
-public class HandBuiltHullmod extends BaseHullMod {
+import java.util.Random;
+
+public class HandBuiltHullmod extends SelfRepairingBuiltInHullmod {
+
+    public static final int EFFECT_COUNT = 4;
+    public static final float MIN_EFFECT = 0.7f;
+    public static final float MAX_EFFECT = 1.3f;
 
     @Override
     public void applyEffectsBeforeShipCreation(ShipAPI.HullSize hullSize, MutableShipStatsAPI stats, String id) {
         super.applyEffectsBeforeShipCreation(hullSize, stats, id);
 
-        int compensate = 0;
+        HandBuiltEffectMemoryRepo repo = HandBuiltEffectMemoryRepo.getInstance();
+        id = stats.getFleetMember().getId();
 
-        if (stats.getVariant().getTags().contains(HullForge.COMPENSATE_1)) compensate = 1;
-        if (stats.getVariant().getTags().contains(HullForge.COMPENSATE_2)) compensate = 2;
-        if (stats.getVariant().getTags().contains(HullForge.COMPENSATE_3)) compensate = 3;
+        if (!repo.contains(id)) createHullmodEffect(id);
+        repo.get(id).apply(stats);
+    }
 
-        if (compensate > 0)
-            stats.getDynamic().getMod(Stats.MAX_PERMANENT_HULLMODS_MOD).modifyFlat(id, compensate, "Printed Ship S-Mod Compensation");
+    public void createHullmodEffect(String id) {
+        Random random = new Random(id.hashCode());
+        WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
+        picker.addAll(SimpleHullmodEffectPluginRepo.HULLMOD_EFFECTS.keySet());
 
-        //stats.getDynamic().getMod(Stats.MAX_LOGISTICS_HULLMODS_MOD).modifyFlat("HullDeconstructor", 1);
+        HandBuiltEffect effect = new HandBuiltEffect(id);
+
+        for (int i = 0; i <= EFFECT_COUNT; i++) {
+            effect.add(picker.pickAndRemove(), random.nextFloat() * (MAX_EFFECT - MIN_EFFECT) + MIN_EFFECT);
+        }
+
+        HandBuiltEffectMemoryRepo.getInstance().add(effect);
     }
 
     @Override
     public void addPostDescriptionSection(TooltipMakerAPI tooltip, ShipAPI.HullSize hullSize, ShipAPI ship, float width, boolean isForModSpec) {
         super.addPostDescriptionSection(tooltip, hullSize, ship, width, isForModSpec);
-        MutableShipStatsAPI stats = ship.getMutableStats();
 
-        int compensate = 0;
+        float opad = 10f;
+        float spad = 3f;
 
-        if (stats.getVariant().getTags().contains(HullForge.COMPENSATE_1)) compensate = 1;
-        if (stats.getVariant().getTags().contains(HullForge.COMPENSATE_2)) compensate = 2;
-        if (stats.getVariant().getTags().contains(HullForge.COMPENSATE_3)) compensate = 3;
+        HandBuiltEffectMemoryRepo repo = HandBuiltEffectMemoryRepo.getInstance();
+        String id = ship.getFleetMemberId();
 
-        if (compensate > 0) {
-            tooltip.addPara("Increases the maximum built in Hullmods by " + compensate, 10f, Misc.getHighlightColor(), compensate + "");
+        tooltip.addSectionHeading("Effects", Alignment.MID, opad);
+        boolean first = true;
+
+        for (Pair<SimpleHullmodEffectPlugin, Float> effects : repo.get(id).getPluginsWithEffectAmounts()) {
+            boolean decrease = effects.two < 1;
+            String increaseOrDecrease = decrease ? "decreased" : "increased";
+
+            tooltip.addPara(
+                    Misc.ucFirst(effects.one.getName()) + " " + increaseOrDecrease + " by %s",
+                    first ? opad : spad,
+                    Misc.getHighlightColor(),
+                    StringHelper.getAbsPercentString(effects.two, true));
+
+            first = false;
         }
     }
 }

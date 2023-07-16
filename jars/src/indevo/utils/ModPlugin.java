@@ -11,6 +11,7 @@ import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.combat.MissileAIPlugin;
 import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
@@ -55,6 +56,7 @@ import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.derelicts.listeners.AncientLabCommoditySwitchOptionProvider;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
+import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.plugins.PetCenterOptionProvider;
@@ -123,6 +125,11 @@ public class ModPlugin extends BaseModPlugin {
             t.addScript(new CampaignAttackScript(t, CampaignAttackScript.TYPE_RAILGUN));
 
             SubspaceSystem.gen();
+
+            for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()){
+                Pet.cycleToCustomVariant(m);
+                m.getVariant().addPermaMod("IndEvo_handBuilt");
+            }
         }
 
         //core
@@ -319,7 +326,7 @@ public class ModPlugin extends BaseModPlugin {
 
         Global.getSector().addTransientListener(new ShipComponentLootManager.PartsLootAdder(false));
         Global.getSector().addTransientListener(new AmbassadorPersonManager.checkAmbassadorPresence());
-        Global.getSector().addTransientListener(new DialogueInterceptListener(false));
+        //Global.getSector().addTransientListener(new DialogueInterceptListener(false));
 
         RuinsManager.DerelictRuinsPlacer.register();
         RuinsManager.ResolveRuinsToUpgradeListener.register();

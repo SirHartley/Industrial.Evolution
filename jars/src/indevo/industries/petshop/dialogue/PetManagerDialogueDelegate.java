@@ -137,6 +137,7 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
 
             float defaultPadding = (ENTRY_HEIGHT - CONTENT_HEIGHT) / 2;
 
+            //large pet icon or ship
             TooltipMakerAPI anchor = petEntryPanel.createUIElement(CONTENT_HEIGHT, CONTENT_HEIGHT - BUTTON_HEIGHT - opad, false);
             if (pet.isAssigned()) anchor.addShipList(1,1, CONTENT_HEIGHT, baseColor, Collections.singletonList(pet.assignedFleetMember), 0f);
             else anchor.addImage(Global.getSettings().getSpriteName("IndEvo", "pets_large"), CONTENT_HEIGHT, CONTENT_HEIGHT, 0f);
@@ -144,17 +145,17 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
 
             TooltipMakerAPI lastUsed = anchor;
 
-            if (pet.isAssigned()){
-                anchor = petEntryPanel.createUIElement(BUTTON_HEIGHT+2, BUTTON_HEIGHT+2, false);
-                ButtonAPI border = anchor.addAreaCheckbox("", null, baseColor, baseColor, baseColor,  BUTTON_HEIGHT+2, BUTTON_HEIGHT+2, 0);
-                border.setEnabled(false);
-                petEntryPanel.addUIElement(anchor).rightOfBottom(lastUsed, -BUTTON_HEIGHT);
+            //small pet icon
+            anchor = petEntryPanel.createUIElement(BUTTON_HEIGHT+2, BUTTON_HEIGHT+2, false);
+            ButtonAPI border = anchor.addAreaCheckbox("", null, baseColor, baseColor, baseColor,  BUTTON_HEIGHT+2, BUTTON_HEIGHT+2, 0);
+            border.setEnabled(false);
+            petEntryPanel.addUIElement(anchor).rightOfBottom(lastUsed, -BUTTON_HEIGHT);
 
-                anchor = petEntryPanel.createUIElement(BUTTON_HEIGHT, BUTTON_HEIGHT, false);
-                anchor.addImage(pet.getData().icon, BUTTON_HEIGHT, BUTTON_HEIGHT, 0f);
-                petEntryPanel.addUIElement(anchor).rightOfBottom(lastUsed, -BUTTON_HEIGHT+1).setYAlignOffset(1f);
-            }
+            anchor = petEntryPanel.createUIElement(BUTTON_HEIGHT, BUTTON_HEIGHT, false);
+            anchor.addImage(pet.getData().icon, BUTTON_HEIGHT, BUTTON_HEIGHT, 0f);
+            petEntryPanel.addUIElement(anchor).rightOfBottom(lastUsed, -BUTTON_HEIGHT+1).setYAlignOffset(1f);
 
+            //title ect
             anchor = petEntryPanel.createUIElement(ENTRY_WIDTH - CONTENT_HEIGHT - spad - defaultPadding, CONTENT_HEIGHT - BUTTON_HEIGHT - opad, false);
             anchor.addSectionHeading(pet.name, Alignment.MID, 0f);
             anchor.addPara("Species: %s, Age: %s", opad, Misc.getHighlightColor(), Misc.ucFirst(pet.getData().species), pet.getAgeString());

@@ -81,9 +81,17 @@ Salvage Interactions
 Adjusted - Default columns for ship picking on Ship Sacrifice event increased from 5 to 8
 Fixed - "Exploding Room" special can now pick (certain) Industrial Evolution items again
 
+Detachments
+Adjusted - De-jankified existing detachment interaction screen popup (no gameplay impact)
+
 Weapons
-Adjusted - Nerfed Causality Disturber
-Adjusted - Nerfed Cryo Artillery
+Adjusted - Matter Degrader range 500 -> 600
+Adjusted - Pulsar Carbine range 900 -> 1000
+Adjusted - Cryo Artillery damage/shot 1200 -> 1000
+Adjusted - Cryo Artillery flux/shot 480 -> 350
+Adjusted - Cryo Artillery chargedown 1.2s -> 1s
+Adjusted - Causality Disturber range 1000 -> 900
+Adjusted - Causality Disturber EMP 1200 -> 600
 
 Minefields
 Added - Mines now get temporarily disabled by an interdiction pulse
@@ -111,13 +119,13 @@ Added - Refining Specializations (increased output on one commodity, malus on th
 Added - Mining Specializations (see above but for mining)
 
 Governance Types
-Added - Underworld (Increases income with lower stability, decreases with higher, increases illegal commodity outputs)
-Added - Rural Polity (Placeholder)
-Added - Hidden Arcology (Placeholder)
-Added - Monastic Order (Placeholder)
-Added - Resort Planet (Placeholder)
-Added - Corporate Governance (Placeholder)
-Added - Outpost (Placeholder)
+Note - Check the FAQ for these, they are not simple enough to be explained here.
+Added - Underworld
+Added - Rural Polity
+Added - Hidden Arcology
+Added - Monastic Order
+Added - Resort Planet
+Added - Corporate Governance
 
 Commerce
 Fixed - No longer resets build times on load/save
@@ -154,12 +162,13 @@ World Wonders
 Added - Ice Palace
 Added - Lava Fortress
 Added - Tree of Life
-Added - Cloud Painter
+Added - Cloud Painter (Does Stuff)
 Adjusted - Moved visual changing to its own button
 Fixed - Dark Palace "Ressource" typo (literally unplayable)
 
 Ancient Laboratory
 Added - Now supports switching the bonus commodity when a beta core is installed
+Adjusted - Can no longer pick non-vanilla resources as bonus
 
 --------------------------- Old -----------------------------
 

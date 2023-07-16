@@ -82,7 +82,7 @@ public class Pet {
         toMember.getVariant().addTag(HULLMOD_DATA_PREFIX + id);
     }
 
-    private void cycleToCustomVariant(FleetMemberAPI member) {
+    public static void cycleToCustomVariant(FleetMemberAPI member) {
         ShipVariantAPI variant = member.getVariant();
 
         variant = variant.clone();
