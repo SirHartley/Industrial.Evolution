@@ -11,6 +11,7 @@ import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.industries.petshop.dialogue.PetPickerInteractionDialoguePlugin;
 import indevo.industries.petshop.memory.PetData;
@@ -91,7 +92,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         }
 
         for (PetData data : PetDataRepo.getAll()){
-            if (data.tags.contains("no_drop")) continue;
+            if (data.isNoDrop()) continue;
 
             if (isBetween(data.rarity, minRarity, maxRarity)) picker.add(data, data.rarity);
         }
@@ -140,7 +141,14 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
         PetData pet = PetDataRepo.get(stack.getSpecialDataIfSpecial().getData());
 
+        float rarity = pet.rarity;
+        Pair<String, Color> rpair = rarity == 0.1f ?  new Pair<>("[Epic]", new Color(180,50,255,255))
+                : isBetween(rarity, 0f, 0.4f) ? new Pair<>("[Rare]", new Color(80,100,255,255))
+                : isBetween(rarity, 0.5f, 0.8f) ? new Pair<>("[Uncommon]", new Color(80,200,80,255)) :
+                new Pair<>("[Common]", Color.white);
+
         tooltip.addPara("Contains a newborn %s", opad, h, pet.species);
+        tooltip.addPara("Rarity: %s", pad, rpair.two, rpair.one);
         tooltip.addPara(pet.desc, opad);
 
         addCostLabel(tooltip, opad, transferHandler, stackSource);

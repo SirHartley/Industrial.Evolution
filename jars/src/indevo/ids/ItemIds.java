@@ -67,7 +67,7 @@ public class ItemIds {
     public static final String AMBASSADOR = "IndEvo_amb";
 
     //pets
-    public static final String PET_CHAMBER = "IndEvo_PetCryoChamber";
+    public static final String PET_CHAMBER = "IndEvo_PetBox";
 
     public static SpecialItemData convertAICoreToSpecial(String aiCoreId) {
         if (aiCoreId == null) return null;

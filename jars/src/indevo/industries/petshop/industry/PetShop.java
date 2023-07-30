@@ -37,7 +37,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     public static final float PET_STORAGE_AMOUNT = 500f;
     public static final float FLAT_MANAGEMENT_FEE = 2000f;
     public static final float GAMMA_CORE_STORAGE_COST_RED_PERCENT = 0.70f;
-    public static final float ALPHA_CORE_RARITY_BONUS = 0.5f;
+    public static final float ALPHA_CORE_RARITY_BONUS = 0.3f;
 
     public float petStorageCostMult = 1f;
 

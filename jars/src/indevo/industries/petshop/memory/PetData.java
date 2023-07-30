@@ -39,7 +39,6 @@ public class PetData {
         return tags.contains(TAG_NO_SELL);
     }
 
-
     public boolean isNoDrop() {
         return tags.contains(TAG_NO_DROP);
     }

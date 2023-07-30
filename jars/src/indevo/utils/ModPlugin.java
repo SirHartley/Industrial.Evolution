@@ -42,6 +42,7 @@ import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.exploration.stations.DerelictStationPlacer;
 import indevo.exploration.subspace.system.SubspaceSystem;
 import indevo.ids.Ids;
+import indevo.ids.ItemIds;
 import indevo.industries.TradeCenter;
 import indevo.industries.artillery.scripts.CampaignAttackScript;
 import indevo.industries.artillery.plugins.ArtilleryCampaignPlugin;
@@ -129,6 +130,10 @@ public class ModPlugin extends BaseModPlugin {
             for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()){
                 Pet.cycleToCustomVariant(m);
                 m.getVariant().addPermaMod("IndEvo_handBuilt");
+            }
+
+            for (PetData d : PetDataRepo.getAll()){
+                Global.getSector().getPlayerFleet().getCargo().addSpecial(new SpecialItemData(ItemIds.PET_CHAMBER, d.id), 1);
             }
         }
 

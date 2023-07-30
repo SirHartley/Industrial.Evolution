@@ -15,6 +15,7 @@ import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.submarkets.DynamicSubmarket;
+import indevo.utils.ModPlugin;
 
 public class PetSubMarket extends BaseSubmarketPlugin implements DynamicSubmarket {
 
@@ -47,7 +48,11 @@ public class PetSubMarket extends BaseSubmarketPlugin implements DynamicSubmarke
                 picker.add(petData, chance);
             }
 
+            if (Global.getSettings().isDevMode()) ModPlugin.log("updating petshop cargo, choices in picker: " + picker.getItems().size());
+
             for (int i= 0; i < market.getSize(); i++){
+                if (picker.isEmpty()) break;
+
                 PetData data = picker.pickAndRemove();
 
                 int amt = (int) Math.floor(data.rarity * BASE_AMOUNT_PER_ANIMAL);
