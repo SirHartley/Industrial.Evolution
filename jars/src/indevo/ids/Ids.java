@@ -95,6 +95,7 @@ public class Ids {
     public static final String LAB_ENTITY = "IndEvo_orbitalLaboratory";
     public static final String GACHA_STATION = "IndEvo_GachaStation";
     public static final String PET_SHOP_ENTITY = "IndEvo_PetShop";
+    public static final String ABANDONED_PETSHOP_ENTITY = "IndEvo_abandonedPetCenter";
 
     //skills
     public static final String SKILL_FLEET_LOGISTICS = "indevo_FleetLogistics";

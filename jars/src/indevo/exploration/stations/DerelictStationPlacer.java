@@ -32,7 +32,8 @@ public class DerelictStationPlacer {
 
     public static float ADDITIONAL_STATION_AMT = 0.3f;
     public static final float LAB_FACTOR = 0.4f;
-    public static final float ARSENAL_FACTOR = 0.9f;
+    public static final float ARSENAL_FACTOR = 0.5f;
+    public static final float PET_FACTOR = 0.35f;
 
     public DerelictStationPlacer() {
     }
@@ -54,15 +55,21 @@ public class DerelictStationPlacer {
         totalStationAmt *= ADDITIONAL_STATION_AMT;
         float labAmt = Math.round(totalStationAmt * LAB_FACTOR);
         float arsAmt = Math.round(totalStationAmt * ARSENAL_FACTOR);
+        float petAmt = Math.round(totalStationAmt * PET_FACTOR);
 
         List<StarSystemAPI> systemList = new ArrayList<>(Global.getSector().getStarSystems());
         Collections.shuffle(systemList);
 
         float labChance = labAmt * 3 / systemList.size();
-        float arsChance = labAmt * 3 / systemList.size();
+        float arsChance = arsAmt * 3 / systemList.size();
+        float petChance = petAmt * 3 / systemList.size();
 
         log.info("DerelictStationPlacer");
-        log.info("totals " + totalStationAmt + " labAMT" + labAmt + " arsAmt " + arsAmt + " labChance " + labChance + " arsChance " + arsChance + " total systems " + systemList.size());
+        log.info("totals " + totalStationAmt
+                + " labAmt" + labAmt + " labChance " + labChance
+                + " petAmt " + petAmt + " petChance " + petChance
+                + " arsAmt " + arsAmt  + " arsChance " + arsChance
+                + " total systems " + systemList.size());
 
         for (StarSystemAPI s : systemList) {
             if (s == null) continue;
@@ -92,6 +99,7 @@ public class DerelictStationPlacer {
                         case Tags.THEME_MISC:
                             if (labAmt > 0 && addLabStations(data, labChance * 0.5f)) labAmt--;
                             if (arsAmt > 0 && addArsenalStation(data, arsChance)) arsAmt--;
+                            if (petAmt > 0 && addDerelictPetCenter(data, petChance * 0.5f)) petAmt--;
                             break;
                         case Tags.THEME_REMNANT:
                             if (labAmt > 0 && addLabStations(data, labChance * 3)) labAmt--;
@@ -99,6 +107,7 @@ public class DerelictStationPlacer {
                             break;
                         case Tags.THEME_RUINS:
                             if (arsAmt > 0 && addArsenalStation(data, arsChance * 2)) arsAmt--;
+                            if (petAmt > 0 && addDerelictPetCenter(data, petChance * 2)) petAmt--;
                             break;
                         case Tags.THEME_DERELICT:
                             if (labAmt > 0 && addLabStations(data, labChance * 0.5f)) labAmt--;
@@ -113,7 +122,7 @@ public class DerelictStationPlacer {
                 if (labAmt > 0 && addLabStations(data, labChance)) labAmt--;
             }
 
-            if (labAmt <= 0 && arsAmt <= 0) break;
+            if (labAmt <= 0 && arsAmt <= 0 && petAmt <= 0) break;
         }
     }
 
@@ -169,6 +178,16 @@ public class DerelictStationPlacer {
         }
 
         return false;
+    }
+
+    public boolean addDerelictPetCenter(BaseThemeGenerator.StarSystemData data, float chanceToAddAny) {
+        if (random.nextFloat() >= chanceToAddAny) return false;
+
+        String type = Ids.ABANDONED_PETSHOP_ENTITY;
+        BaseThemeGenerator.EntityLocation loc = pickCommonLocation(random, data.system, 100f, false, null);
+        addStation(loc, data, type, Factions.NEUTRAL);
+
+        return true;
     }
 
     public BaseThemeGenerator.AddedEntity addStation(BaseThemeGenerator.EntityLocation loc, BaseThemeGenerator.StarSystemData data, String customEntityId, String factionId) {

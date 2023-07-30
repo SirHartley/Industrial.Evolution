@@ -11,11 +11,17 @@ import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.industries.petshop.dialogue.PetPickerInteractionDialoguePlugin;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.lazywizard.lazylib.LazyLib;
+import org.lazywizard.lazylib.MathUtils;
 
 import java.awt.*;
+import java.util.Random;
 
 public class PetItemPlugin extends BaseSpecialItemPlugin {
 
@@ -31,52 +37,70 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
     public void render(float x, float y, float w, float h, float alphaMult,
                        float glowMult, SpecialItemRendererAPI renderer) {
 
-        if (true) return;
+        String petId = stack.getSpecialDataIfSpecial().getData();
 
-        float cx = x + w / 2f;
-        float cy = y + h / 2f;
+        if (petId == null) return;
 
-        float blX = cx - 30f;
-        float blY = cy - 15f;
-        float tlX = cx - 20f;
-        float tlY = cy + 26f;
-        float trX = cx + 23f;
-        float trY = cy + 26f;
-        float brX = cx + 15f;
-        float brY = cy - 18f;
-
-        String hullId = stack.getSpecialDataIfSpecial().getData();
-
-        boolean known = Global.getSector().getPlayerFaction().knowsShip(hullId);
-
-        float mult = 1f;
-        //if (known) mult = 0.5f;
+        String imageName = PetDataRepo.get(petId).icon;
+        SpriteAPI sprite = Global.getSettings().getSprite(imageName);
+        float dim = 30f;
 
         Color bgColor = Global.getSector().getPlayerFaction().getDarkUIColor();
         bgColor = Misc.setAlpha(bgColor, 255);
+        float pad = 10f;
 
-        //float b = Global.getSector().getCampaignUI().getSharedFader().getBrightness() * 0.25f;
-        renderer.renderBGWithCorners(bgColor, blX, blY, tlX, tlY, trX, trY, brX, brY,
-                alphaMult * mult, glowMult * 0.5f * mult, false);
-        renderer.renderShipWithCorners(hullId, null, blX, blY, tlX, tlY, trX, trY, brX, brY,
-                alphaMult * mult, glowMult * 0.5f * mult, !known);
+        y = y + dim + pad;
+        x = x + w - dim - pad;
 
+        float blX = x;
+        float blY = y - dim;
+        float tlX = x;
+        float tlY = y;
+        float trX = x + dim;
+        float trY = y;
+        float brX = x + dim;
+        float brY = y - dim;
 
-        SpriteAPI overlay = Global.getSettings().getSprite("ui", "bpOverlayShip");
-        overlay.setColor(Color.green);
-        overlay.setColor(Global.getSector().getPlayerFaction().getBrightUIColor());
-        overlay.setAlphaMult(alphaMult);
-        overlay.setNormalBlend();
-        renderer.renderScanlinesWithCorners(blX, blY, tlX, tlY, trX, trY, brX, brY, alphaMult, false);
+        renderer.renderBGWithCorners(bgColor, blX - 1, blY - 1, tlX - 1, tlY + 1, trX + 1, trY + 1, brX + 1, brY - 1,1f,0f,false);
+        sprite.renderWithCorners(blX, blY, tlX, tlY, trX, trY, brX, brY);
+    }
 
+    @Override
+    public String resolveDropParamsToSpecificItemData(String params, Random random) throws JSONException {
+        //item_:{tags:[modspec], p:{tier:3, tags:[engines]}	unresolved
 
-        if (known) {
-            renderer.renderBGWithCorners(Color.black, blX, blY, tlX, tlY, trX, trY, brX, brY,
-                    alphaMult * 0.5f, 0f, false);
+        float minRarity = 0;
+        float maxRarity = 99;
+
+        WeightedRandomPicker<PetData> picker = new WeightedRandomPicker<>(random);
+
+        JSONObject json = new JSONObject(params);
+
+        String tier = json.optString("tier");
+        switch (tier){
+            case "rare":
+                maxRarity = 0.4f;
+                break;
+            case "uncommon":
+                minRarity = 0.4f;
+                maxRarity = 0.8f;
+                break;
+            case "common":
+                minRarity = 0.8f;
+                break;
         }
 
+        for (PetData data : PetDataRepo.getAll()){
+            if (data.tags.contains("no_drop")) continue;
 
-        overlay.renderWithCorners(blX, blY, tlX, tlY, trX, trY, brX, brY);
+            if (isBetween(data.rarity, minRarity, maxRarity)) picker.add(data, data.rarity);
+        }
+
+        return picker.pick().id;
+    }
+
+    private boolean isBetween(float check, float lower, float higher) {
+        return (check >= lower && check <= higher);
     }
 
     @Override

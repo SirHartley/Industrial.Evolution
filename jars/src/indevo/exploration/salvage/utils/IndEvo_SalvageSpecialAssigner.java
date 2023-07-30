@@ -179,9 +179,8 @@ public class IndEvo_SalvageSpecialAssigner {
         }
 
         if (Entities.STATION_MINING_REMNANT.equals(type)) {
-            picker.add(new NothingSpecialCreator(), 10f);
+            picker.add(new NothingSpecialCreator(), 30f);
             picker.add(new ItemChoiceSpecialCreator(random, 0.2f, 0.95f), 5f);
-            picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 20f);
             picker.add(new VPCSpecialCreator(random, 0.2f, 0.6f), 5f);
             picker.add(new CreditStashSpecialCreator(random, 20000f, 60000f, PATROL_SMALL, 4, 25), 10f);
             picker.add(new DModRepairSpecialCreator(random, 1, 2), 10f);
@@ -190,9 +189,8 @@ public class IndEvo_SalvageSpecialAssigner {
         }
 
         if (Entities.STATION_RESEARCH_REMNANT.equals(type)) {
-            picker.add(new NothingSpecialCreator(), 10f);
+            picker.add(new NothingSpecialCreator(), 25f);
             picker.add(new ItemChoiceSpecialCreator(random, 0.1f, 0.4f), 5f);
-            picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 15f);
             picker.add(new ChooseBlueprintSpecialCreator(random, ShipAPI.HullSize.CAPITAL_SHIP, 3, 4), 15f);
             picker.add(new VPCSpecialCreator(random, 0.6f, 1f), 10f);
             picker.add(new PrintShipSpecialCreator(random, 1, 3), 7f);
@@ -200,9 +198,8 @@ public class IndEvo_SalvageSpecialAssigner {
         }
 
         if (Entities.ORBITAL_HABITAT_REMNANT.equals(type)) {
-            picker.add(new NothingSpecialCreator(), 10f);
+            picker.add(new NothingSpecialCreator(), 30f);
             picker.add(new ItemChoiceSpecialCreator(random, 0.2f, 1f), 5f);
-            picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 20f);
             picker.add(new ChooseBlueprintSpecialCreator(random, ShipAPI.HullSize.DESTROYER, 2, 3), 10f);
             picker.add(new CreditStashSpecialCreator(random, 15000f, 70000f, PATROL_MEDIUM, 10, 16), 5f);
             picker.add(new ExtraFuelSpecialCreator(random, 100, 1000), 15f);
@@ -215,12 +212,12 @@ public class IndEvo_SalvageSpecialAssigner {
             picker.add(new ChooseBlueprintSpecialCreator(random, ShipAPI.HullSize.CAPITAL_SHIP, 3, 4), 10f);
             picker.add(new PrintShipSpecialCreator(random, 0, 2), 20f);
             picker.add(new ShipRouletteSpecialCreator(random, 0, 1), 10f);
+
         }
 
         if (Ids.ARSENAL_ENTITY.equals(type)) {
-            picker.add(new NothingSpecialCreator(), 10f);
+            picker.add(new NothingSpecialCreator(), 20f);
             picker.add(new ItemChoiceSpecialCreator(random, 0.2f, 0.95f), 5f);
-            picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 20f);
             picker.add(new ChooseBlueprintSpecialCreator(random, ShipAPI.HullSize.CRUISER, 2, 4), 10f);
             picker.add(new VPCSpecialCreator(random, 0.3f, 0.7f), 10f);
             picker.add(new DModRepairSpecialCreator(random, 2, 3), 10f);
@@ -229,6 +226,17 @@ public class IndEvo_SalvageSpecialAssigner {
             picker.add(new SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.ORGANS, 50, 250, null), 4f);
             picker.add(new SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.OFFICER, STANDARD_PODS_OFFICER_LEVEL, Global.getSettings().getInt("exceptionalSleeperPodsOfficerLevel"), officerFactions), 1f);
             picker.add(new ShipRouletteSpecialCreator(random, 2, 5), 15f);
+            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.LARGE, recoverableShipFactions), 2f);
+            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.MEDIUM, recoverableShipFactions), 2f);
+        }
+
+        if (Ids.ABANDONED_PETSHOP_ENTITY.equals(type)){
+            picker.add(new NothingSpecialCreator(), 30f);
+            picker.add(new ItemChoiceSpecialCreator(random, 0.2f, 1f), 2f);
+            picker.add(new CreditStashSpecialCreator(random, 15000f, 70000f, PATROL_MEDIUM, 10, 16), 5f);
+            picker.add(new JuicyRumorsSpecialCreator(random, 5, 10), 10f);
+            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.CIVILIAN, recoverableShipFactions), 8f);
+            picker.add(new SalvageSpecialAssigner.TransmitterTrapSpecialCreator(random, 0.5f, FleetTypes.PATROL_SMALL, trapFactions, 4, 8), 5f);
         }
 
         List<String> weapons = Arrays.asList(Entities.WEAPONS_CACHE, Entities.WEAPONS_CACHE_HIGH, Entities.WEAPONS_CACHE_LOW, Entities.WEAPONS_CACHE_REMNANT);

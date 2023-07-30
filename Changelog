@@ -65,7 +65,6 @@ todo check if pets properly starve before starving to death
      make pets eat from stockpile if in cargo
      check if putting ships in storage properly fires the warning
 
-todo: Pets dropping from explo / rare pets never show up in store
 todo: Admiral Pirrot and the Starcracker-class Breadnought
 todo: Parrot-Class Superclaw
 Added - Pets: Add them to your ship, feed em, make em happy, and they'll accompany you! And die!
@@ -77,9 +76,14 @@ Automated Shipyards
 Added - Rare chance for a ship to be an automated variant, usable without the skill
 Adjusted - new interaction image (the old one was kinda trash)
 
-Salvage Interactions
+Exploration
+Added - Derelict Pet Shops (chance at very rare pets)
+Added - Arsenal station can now have ship recovery event with capital or cruiser grade hulls
+Adjusted - Fixed Arsenal station having lower chance to have event than intended
 Adjusted - Default columns for ship picking on Ship Sacrifice event increased from 5 to 8
+Fixed - Arsenal stations spawning half as often as intended (slight increase since it was fine anyway)
 Fixed - "Exploding Room" special can now pick (certain) Industrial Evolution items again
+Fixed - "D-Mod Restoration" event can no longer fix unrestorable hulls
 
 Detachments
 Adjusted - De-jankified existing detachment interaction screen popup (no gameplay impact)
@@ -140,6 +144,9 @@ Adjusted - Now a tad more expensive to build
 
 Supercomputer
 Adjusted - Now a tad more expensive to build
+
+Salvage Yards
+Fixed - Can no longer transfer d-mods off or onto unrestorable hulls (sorry!)
 
 Courier Port
 Fixed - Crash when planet has no storage

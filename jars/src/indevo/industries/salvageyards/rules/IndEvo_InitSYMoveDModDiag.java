@@ -198,10 +198,14 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
         for (FleetMemberAPI m : fromFleet) {
             if (m.getId().equals(member.getId())) continue;
 
-            if (isSameSizeAndTechtype(member, m) && isValidTransferTarget(member, m)) validTargets.add(m);
+            if (isRestorable(m) && isSameSizeAndTechtype(member, m) && isValidTransferTarget(member, m)) validTargets.add(m);
         }
 
         return validTargets;
+    }
+
+    private boolean isRestorable(FleetMemberAPI member){
+        return !member.getVariant().hasTag(Tags.VARIANT_UNRESTORABLE) && !member.getHullSpec().hasTag(Tags.HULL_UNRESTORABLE);
     }
 
     private boolean isSameSizeAndTechtype(FleetMemberAPI a, FleetMemberAPI b) {
@@ -254,7 +258,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
         Set<FleetMemberAPI> validSelectionList = new HashSet<>();
 
         for (FleetMemberAPI member : combinedFleet) {
-            if (getDModList(member).isEmpty()) continue;
+            if (getDModList(member).isEmpty() || !isRestorable(member)) continue;
 
             Set<FleetMemberAPI> validTargetList = getValidTransferTargetsForMember(member, combinedFleet);
 

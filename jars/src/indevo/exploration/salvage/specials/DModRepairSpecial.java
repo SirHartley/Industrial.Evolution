@@ -7,6 +7,7 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.ids.Items;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
@@ -74,13 +75,16 @@ public class DModRepairSpecial extends BaseSalvageSpecial {
         displayBaseOptions();
     }
 
+    private boolean isRestorable(FleetMemberAPI member){
+        return !member.getVariant().hasTag(Tags.VARIANT_UNRESTORABLE) && !member.getHullSpec().hasTag(Tags.HULL_UNRESTORABLE);
+    }
 
     public void displayBaseOptions() {
         options.clearOptions();
 
         boolean hasDModFleetMember = false;
         for (FleetMemberAPI member : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
-            if (DModManager.getNumNonBuiltInDMods(member.getVariant()) > 0) {
+            if (DModManager.getNumNonBuiltInDMods(member.getVariant()) > 0 && isRestorable(member)) {
                 hasDModFleetMember = true;
                 break;
             }
@@ -109,7 +113,7 @@ public class DModRepairSpecial extends BaseSalvageSpecial {
 
             options.addOption("Not now", NOT_NOW);
         } else {
-            addText("You do not have any ships with permanent damage that would need restoration.");
+            addText("You do not have any ships with permanent damage that can be restored.");
             options.addOption("Leave", NOT_NOW);
         }
     }
@@ -138,7 +142,7 @@ public class DModRepairSpecial extends BaseSalvageSpecial {
         List<FleetMemberAPI> fleetMemberList = new ArrayList<>();
 
         for (FleetMemberAPI member : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
-            if (DModManager.getNumNonBuiltInDMods(member.getVariant()) > 0) fleetMemberList.add(member);
+            if (DModManager.getNumNonBuiltInDMods(member.getVariant()) > 0 && isRestorable(member)) fleetMemberList.add(member);
         }
         int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
         int rows = fleetMemberList.size() > shipsPerRow ? (int) Math.ceil(fleetMemberList.size() / (float) shipsPerRow) : 1;

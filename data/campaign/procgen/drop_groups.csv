@@ -54,3 +54,23 @@ item_IndEvo_transmitter,indEvo_tech_event,1
 item_IndEvo_simulator,indEvo_tech_event,1
 "item_IndEvo_ForgeTemplate_2:{tags:[rare_bp, !no_drop]}",indEvo_tech_event,1
 item_:{tags:[IndEvo_VPC_rare]},indEvo_tech_event,1
+,,
+"item_:{tags:[IndEvo_PetBox], p:{tier:common}}",indEvo_pets_normal,8
+"item_:{tags:[IndEvo_PetBox], p:{tier:uncommon}}",indEvo_pets_normal,4
+"item_:{tags:[IndEvo_PetBox], p:{tier:rare}}",indEvo_pets_normal,1
+nothing,indEvo_pets_normal,25
+,,
+"item_:{tags:[IndEvo_PetBox], p:{tier:uncommon}}",indEvo_pets_rare,2
+"item_:{tags:[IndEvo_PetBox], p:{tier:rare}}",indEvo_pets_rare,1
+nothing,indEvo_pets_rare,2
+,,
+"item_:{tags:[IndEvo_PetBox], p:{tier:common}}",indEvo_pets_low,6
+"item_:{tags:[IndEvo_PetBox], p:{tier:uncommon}}",indEvo_pets_low,2
+"item_:{tags:[IndEvo_PetBox], p:{tier:rare}}",indEvo_pets_low,1
+nothing,indEvo_pets_low,150
+,,
+food,indEvo_petStuff,10
+organs,indEvo_petStuff,3
+domestic_goods,indEvo_petStuff,5
+IndEvo_pet_food,indEvo_petStuff,10
+nothing,indEvo_petStuff,120
