@@ -86,6 +86,7 @@
           {"freq":1, "tip":"[Industrial.Evolution] More Galatia Academy Research Projects will unlock once you find a certain type of exotic weapon."},
           {"freq":1, "tip":"[Industrial.Evolution] Supercomputers stack with diminishing returns. If you have two very cold planets in one system, it might actually be worth it to build two."},
           {"freq":1, "tip":"[Industrial.Evolution] The centralisation bureau increases the output of industries on the planet it is built on, not the duplicates you built on other planets."},
+          {"freq":1, "tip":"[Industrial.Evolution] You can enact edicts by building a senate in the star system and selecting the option in the planet menu."},
 
           #memes - show up with lower frequency compared to actual tips,
           {"freq":0.1, "tip":"[Industrial.Evolution] Orbital Works is Vanilla, not Industrial.Evolution. How anyone can get that one wrong is beyond me."},

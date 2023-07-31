@@ -40,13 +40,36 @@ Monastic Orders
     public static final float INCOME_RED = 0.5f;
     public static final int MAX_MARKET_SIZE = 5;
     public static final float MONASTIC_UPKEEP_RED = 0.7f;
+
     public static final float EXP_GAIN_PER_TICK = 1000f;
+    public static final float MAX_MARINES_AMT = 500f;
+    public static final float MARINES_GAIN_PERCENT = 15f;
 
     @Override
     public void reportEconomyTick(int iterIndex) {
         //todo change this to 15% per month up to 500 marines, then distributed max val
         PlayerFleetPersonnelTracker.PersonnelAtEntity e = PlayerFleetPersonnelTracker.getInstance().getPersonnelAtLocation(Commodities.MARINES, Misc.getStorage(market).getSubmarket());
-        if (e != null) e.data.addXP(EXP_GAIN_PER_TICK);
+        if (e != null) {
+            float current = e.data.xp;
+            float num = e.data.num;
+            float mult = 1 + calculateExperienceBonus(Math.round(num));
+            float addition = current * mult - current;
+
+            e.data.addXP(addition);
+        }
+    }
+
+    public static float calculateExperienceBonus(int numMarines) {
+        // Maximum bonus percentage when there are 500 or fewer marines
+        float maxBonusPercentage = MARINES_GAIN_PERCENT;
+
+        if (numMarines <= MAX_MARINES_AMT) {
+            return maxBonusPercentage;
+        } else {
+            float relativeNumMarines = numMarines / MAX_MARINES_AMT;
+            float bonusPercentage = maxBonusPercentage / relativeNumMarines;
+            return Math.min(bonusPercentage, maxBonusPercentage);
+        }
     }
 
     @Override
@@ -55,9 +78,10 @@ Monastic Orders
     }
 
     public static class MonasticOrderTooltipAdder extends BaseIndustryOptionProvider {
-        public static void register(){
+        public static void register() {
             ListenerManagerAPI manager = Global.getSector().getListenerManager();
-            if (!manager.hasListenerOfClass(MonasticOrderTooltipAdder.class)) manager.addListener(new MonasticOrderTooltipAdder(), true);
+            if (!manager.hasListenerOfClass(MonasticOrderTooltipAdder.class))
+                manager.addListener(new MonasticOrderTooltipAdder(), true);
         }
 
         @Override
@@ -76,7 +100,7 @@ Monastic Orders
 
             tooltip.addSectionHeading("Governance Effects: Monastic Orders", Alignment.MID, opad);
 
-           if (military){
+            if (military) {
                 tooltip.addPara("Military buildings: %s decreased by %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "upkeep", StringHelper.getAbsPercentString(MONASTIC_UPKEEP_RED, true));
             } else {
                 tooltip.addPara("No effect on this building.", opad);
@@ -97,10 +121,11 @@ Monastic Orders
         correctStability();
 
         market.getIncomeMult().modifyMult(((SwitchablePopulation) industry).getModId(), INCOME_RED, getName());
-        if (market.getSize() >= MAX_MARKET_SIZE) market.getPopulation().setWeight(getWeightForMarketSizeStatic(market.getSize()));
+        if (market.getSize() >= MAX_MARKET_SIZE)
+            market.getPopulation().setWeight(getWeightForMarketSizeStatic(market.getSize()));
 
         for (Industry ind : market.getIndustries()) {
-           if (ind.getSpec().getTags().contains("military")) {
+            if (ind.getSpec().getTags().contains("military")) {
                 ind.getUpkeep().modifyMult(getId(), MONASTIC_UPKEEP_RED, getName());
             }
         }

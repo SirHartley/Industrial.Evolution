@@ -49,6 +49,14 @@ automated claws and parrot to arty
 governance types
 lunalib
 
+Brimir	Industrial.Evolution	Capital	[REDACTED]	Contact - SirHartley#5459
+Wholepain	Industrial.Evolution	Capital	Breadnought	Contact - SirHartley#5459
+Starcracker	Industrial.Evolution	Capital	Pretzelator	Contact - SirHartley#5459
+Autoclaw	Industrial.Evolution	Fighter	EMP Bomber	Contact - SirHartley#5459
+Parrot	Industrial.Evolution	Frigate	EMP Frigate	Contact - SirHartley#5459
+Echo	Industrial.Evolution	Frigate	EMP Auto-Frigate	Contact - SirHartley#5459
+Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
+
 3.3.1
 General
 todo Added - LunaLib Integration
@@ -67,7 +75,7 @@ todo check if pets properly starve before starving to death
 
 todo: Admiral Pirrot and the Starcracker-class Breadnought
 todo: Parrot-Class Superclaw
-Added - Pets: Add them to your ship, feed em, make em happy, and they'll accompany you! And die!
+Added - Pets: Add them to your ship, feed em, make em happy, and they'll accompany you! And die! And do nothing!
 Added - Research Project for a rare Pet
 Added - Animal Center: Store, manage, rename, euthanize and buy pets here! Comes with a station and dodgy animal sellers.
 Added - Animal Centers to Gilead, Jangala, Fikenhild
