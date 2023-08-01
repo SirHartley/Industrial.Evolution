@@ -1,23 +1,36 @@
 package indevo.industries.changeling.industry.population;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.SettingsAPI;
+import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
+import com.fs.starfarer.api.combat.ShipAPI;
+import com.fs.starfarer.api.combat.ShipHullSpecAPI;
+import com.fs.starfarer.api.combat.ShipVariantAPI;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.PlayerFleetPersonnelTracker;
-import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.impl.campaign.DModManager;
+import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
+import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.industries.changeling.hullmods.HandBuiltHullmod;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.StringHelper;
+import indevo.utils.timers.NewDayListener;
+import org.codehaus.janino.Mod;
 import org.lazywizard.lazylib.MathUtils;
 
+import java.util.List;
 import java.util.Random;
 
 import static com.fs.starfarer.api.impl.campaign.intel.bases.LuddicPathBaseManager.AI_CORE_ADMIN_INTEREST;
@@ -41,13 +54,23 @@ Monastic Orders
     public static final int MAX_MARKET_SIZE = 5;
     public static final float MONASTIC_UPKEEP_RED = 0.7f;
 
-    public static final float EXP_GAIN_PER_TICK = 1000f;
     public static final float MAX_MARINES_AMT = 500f;
     public static final float MARINES_GAIN_PERCENT = 15f;
 
+    public static final int BASE_DP_PER_MONTH = 2;
+    public static final float BUILD_CHANCE_PER_MONTH = 0.3f;
+
+    public int getDpPerMonth(){
+        return market.getSize() - 3 + BASE_DP_PER_MONTH;
+    }
+
+    public int currentDpBudget = 0;
+    public Random random = new Random();
+
     @Override
     public void reportEconomyTick(int iterIndex) {
-        //todo change this to 15% per month up to 500 marines, then distributed max val
+        if (!market.isPlayerOwned()) return;
+
         PlayerFleetPersonnelTracker.PersonnelAtEntity e = PlayerFleetPersonnelTracker.getInstance().getPersonnelAtLocation(Commodities.MARINES, Misc.getStorage(market).getSubmarket());
         if (e != null) {
             float current = e.data.xp;
@@ -74,7 +97,72 @@ Monastic Orders
 
     @Override
     public void reportEconomyMonthEnd() {
+        if (!market.isPlayerOwned()) return;
 
+        currentDpBudget += getDpPerMonth();
+
+        if (random.nextFloat() < BUILD_CHANCE_PER_MONTH){
+            WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
+
+            SettingsAPI settings = Global.getSettings();
+            for (String id : market.getFaction().getKnownShips()){
+                ShipHullSpecAPI spec = settings.getHullSpec(id);
+                float dp = spec.getSuppliesToRecover();
+
+                if (dp <= currentDpBudget) picker.add(id);
+            }
+
+            if (Global.getSettings().isDevMode()) {
+                ModPlugin.log("budget: " + currentDpBudget);
+                for (String s : picker.getItems()) ModPlugin.log(s);
+            }
+
+            String id = picker.pick();
+            FleetMemberAPI member = createAndPrepareMember(id, 3);
+            currentDpBudget -= member.getDeploymentPointsCost();
+
+            member.getVariant().addPermaMod(HandBuiltHullmod.ID);
+
+            CargoAPI cargo = Misc.getStorageCargo(market);
+            cargo.initMothballedShips(market.getFactionId());
+            cargo.getMothballedShips().addFleetMember(member);
+
+            Global.getSector().getCampaignUI().addMessage("DEPOSITED SHIP IN STORAGE " + market.getName() + " " + id); //todo proper reporting
+        }
+    }
+
+
+    public FleetMemberAPI createAndPrepareMember(String hullID, int maxDmodAmt) {
+        List<String> l = Global.getSettings().getHullIdToVariantListMap().get(hullID);
+        WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
+        picker.addAll(l);
+
+        ShipVariantAPI variant = Global.getSettings().getVariant(picker.pick());
+        if (variant == null) variant = Global.getSettings().createEmptyVariant(Misc.genUID(), Global.getSettings().getHullSpec(hullID));
+
+        FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant);
+
+        variant = variant.clone();
+        variant.setOriginalVariant(null);
+
+        int dModsAlready = DModManager.getNumDMods(variant);
+        int dmods = maxDmodAmt > 0 ? Math.max(0, random.nextInt(maxDmodAmt) - dModsAlready) : 0;
+
+        if (dmods > 0) DModManager.setDHull(variant);
+
+        member.setVariant(variant, false, true);
+
+        if (dmods > 0) DModManager.addDMods(member, false, dmods, random);
+
+        member.setVariant(variant, true, true);
+        member.updateStats();
+
+        float retain = 1f / maxDmodAmt;
+        FleetEncounterContext.prepareShipForRecovery(member, true, true, false, retain, retain, random);
+        member.getVariant().autoGenerateWeaponGroups();
+
+        member.updateStats();
+        return member;
     }
 
     public static class MonasticOrderTooltipAdder extends BaseIndustryOptionProvider {

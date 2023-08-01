@@ -32,8 +32,8 @@ public class DerelictStationPlacer {
 
     public static float ADDITIONAL_STATION_AMT = 0.3f;
     public static final float LAB_FACTOR = 0.4f;
-    public static final float ARSENAL_FACTOR = 0.5f;
-    public static final float PET_FACTOR = 0.35f;
+    public static final float ARSENAL_FACTOR = 0.45f;
+    public static final float PET_FACTOR = 0.5f;
 
     public DerelictStationPlacer() {
     }

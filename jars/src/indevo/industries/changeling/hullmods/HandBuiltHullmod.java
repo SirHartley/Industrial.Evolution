@@ -2,6 +2,7 @@ package indevo.industries.changeling.hullmods;
 
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -18,12 +19,17 @@ public class HandBuiltHullmod extends SelfRepairingBuiltInHullmod {
     public static final float MIN_EFFECT = 0.7f;
     public static final float MAX_EFFECT = 1.3f;
 
+    public static final String ID = "IndEvo_handBuilt";
+
     @Override
     public void applyEffectsBeforeShipCreation(ShipAPI.HullSize hullSize, MutableShipStatsAPI stats, String id) {
         super.applyEffectsBeforeShipCreation(hullSize, stats, id);
 
         HandBuiltEffectMemoryRepo repo = HandBuiltEffectMemoryRepo.getInstance();
-        id = stats.getFleetMember().getId();
+        FleetMemberAPI member = stats.getFleetMember();
+        if (member == null) return;
+
+        id = member.getId();
 
         if (!repo.contains(id)) createHullmodEffect(id);
         repo.get(id).apply(stats);

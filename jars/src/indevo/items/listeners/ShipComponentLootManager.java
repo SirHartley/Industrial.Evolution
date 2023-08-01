@@ -14,6 +14,8 @@ import indevo.abilities.splitfleet.FleetUtils;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class ShipComponentLootManager {
@@ -24,6 +26,14 @@ public class ShipComponentLootManager {
     public static float MIN_FLEET_POINT_ADVANTAGE_FOR_DROP = Global.getSettings().getFloat("IndEvo_relicComponentHardbattleFPAdvantage");
     public static float HARD_BATTLE_FP_TO_PARTS_RATION = 0.3f;
     public static float FP_DESTROYED_FRACTION = Global.getSettings().getFloat("IndEvo_relicComponentFPDestroyedFract");
+
+    public static final Map<String, Float> RARE_PARTS_FACTIONS_AND_WEIGHTS = new HashMap<String, Float>() {{
+        put(Factions.OMEGA, 0.5f);
+        put(Factions.REMNANTS, 0.25f);
+        put(Factions.DERELICT, 0.1f);
+        put(Ids.DERELICT_FACTION_ID, 0.2f);
+        put("rat_abyssals", 0.3f);
+    }};
 
     public static class PartsLootAdder extends BaseCampaignEventListener {
 
@@ -38,11 +48,9 @@ public class ShipComponentLootManager {
             String factionId = fleet.getFaction().getId();
             float fp = fleet.getFleetPoints();
 
-            if (Factions.OMEGA.equals(factionId)
-                    || Factions.REMNANTS.equals(factionId)
-                    || Factions.DERELICT.equals(factionId)
-                    || Ids.DERELICT_FACTION_ID.equals(factionId)) {
-                int amt = (int) Math.round(fp * 0.2f + (0.3 * random.nextFloat() * fp));
+            if (RARE_PARTS_FACTIONS_AND_WEIGHTS.containsKey(factionId)) {
+
+                int amt = (int) Math.round(fp * RARE_PARTS_FACTIONS_AND_WEIGHTS.get(factionId) + (0.3 * random.nextFloat() * fp));
                 fleet.getCargo().addCommodity(ItemIds.RARE_PARTS, amt);
             }
 
