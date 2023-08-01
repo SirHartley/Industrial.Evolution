@@ -87,9 +87,7 @@ Adjusted - new interaction image (the old one was kinda trash)
 Exploration
 Added - Derelict Pet Shops (chance at very rare pets)
 Added - Arsenal station can now have ship recovery event with capital or cruiser grade hulls
-Added - Relic Components now from from Abyssal Enemies (RAT)
 Adjusted - Fixed Arsenal station having lower chance to have event than intended
-Adjusted - Slightly buffed drop rate of relic components on remnant
 Adjusted - Default columns for ship picking on Ship Sacrifice event increased from 5 to 8
 Fixed - Arsenal stations spawning half as often as intended (slight increase since it was fine anyway)
 Fixed - "Exploding Room" special can now pick (certain) Industrial Evolution items again
@@ -115,8 +113,11 @@ Fixed - Base damage halved
 Fixed - Damage now properly scales with fleet size (hit chance is still fleet size and speed)
 
 Items
+Added - Relic Components now from from Abyssal Enemies (RAT)
 Adjusted - Simulation Engine - Added tooltip info about scaling effect
 Adjusted - Neural Compounds - Clarified tooltip if senate with item is in range or not
+Adjusted - Slightly buffed drop rate of relic components on remnant fleets
+Adjusted - Halved the relic drop rate on derelicts
 Fixed - Planet "in Range" tooltip no longer incorrectly states 12 LY range restriction for hypertransmitter, it's infinite as intended
 Fixed - Crash when tech locator tries to point to a system that has no hyperspace anchor (????)
 
