@@ -24,6 +24,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.industries.changeling.hullmods.HandBuiltHullmod;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
+import indevo.industries.changeling.listener.ShipProductionSummaryMessageHandler;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -80,6 +81,41 @@ Monastic Orders
 
             e.data.addXP(addition);
         }
+
+        int lastIterInMonth = (int) Global.getSettings().getFloat("economyIterPerMonth") - 1;
+
+        if (iterIndex != lastIterInMonth){
+            currentDpBudget += getDpPerMonth();
+
+            if (random.nextFloat() < BUILD_CHANCE_PER_MONTH){
+                WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
+
+                SettingsAPI settings = Global.getSettings();
+                for (String id : market.getFaction().getKnownShips()){
+                    ShipHullSpecAPI spec = settings.getHullSpec(id);
+                    float dp = spec.getSuppliesToRecover();
+
+                    if (dp <= currentDpBudget) picker.add(id);
+                }
+
+                if (Global.getSettings().isDevMode()) {
+                    ModPlugin.log("budget: " + currentDpBudget);
+                    for (String s : picker.getItems()) ModPlugin.log(s);
+                }
+
+                String id = picker.pick();
+                FleetMemberAPI member = createAndPrepareMember(id, 3);
+                currentDpBudget -= member.getDeploymentPointsCost();
+
+                member.getVariant().addPermaMod(HandBuiltHullmod.ID);
+
+                CargoAPI cargo = Misc.getStorageCargo(market);
+                cargo.initMothballedShips(market.getFactionId());
+                cargo.getMothballedShips().addFleetMember(member);
+
+                ShipProductionSummaryMessageHandler.getInstanceOrRegister().add(market, member);
+            }
+        }
     }
 
     public static float calculateExperienceBonus(int numMarines) {
@@ -97,40 +133,8 @@ Monastic Orders
 
     @Override
     public void reportEconomyMonthEnd() {
-        if (!market.isPlayerOwned()) return;
 
-        currentDpBudget += getDpPerMonth();
-
-        if (random.nextFloat() < BUILD_CHANCE_PER_MONTH){
-            WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
-
-            SettingsAPI settings = Global.getSettings();
-            for (String id : market.getFaction().getKnownShips()){
-                ShipHullSpecAPI spec = settings.getHullSpec(id);
-                float dp = spec.getSuppliesToRecover();
-
-                if (dp <= currentDpBudget) picker.add(id);
-            }
-
-            if (Global.getSettings().isDevMode()) {
-                ModPlugin.log("budget: " + currentDpBudget);
-                for (String s : picker.getItems()) ModPlugin.log(s);
-            }
-
-            String id = picker.pick();
-            FleetMemberAPI member = createAndPrepareMember(id, 3);
-            currentDpBudget -= member.getDeploymentPointsCost();
-
-            member.getVariant().addPermaMod(HandBuiltHullmod.ID);
-
-            CargoAPI cargo = Misc.getStorageCargo(market);
-            cargo.initMothballedShips(market.getFactionId());
-            cargo.getMothballedShips().addFleetMember(member);
-
-            Global.getSector().getCampaignUI().addMessage("DEPOSITED SHIP IN STORAGE " + market.getName() + " " + id); //todo proper reporting
-        }
     }
-
 
     public FleetMemberAPI createAndPrepareMember(String hullID, int maxDmodAmt) {
         List<String> l = Global.getSettings().getHullIdToVariantListMap().get(hullID);
