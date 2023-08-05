@@ -147,7 +147,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
                 : isBetween(rarity, 0.5f, 0.8f) ? new Pair<>("[Uncommon]", new Color(80,200,80,255)) :
                 new Pair<>("[Common]", Color.white);
 
-        tooltip.addPara("Contains a newborn %s", opad, h, pet.species);
+        tooltip.addPara("Contains a %s", opad, h, pet.species);
         tooltip.addPara("Rarity: %s", pad, rpair.two, rpair.one);
         tooltip.addPara(pet.desc, opad);
 

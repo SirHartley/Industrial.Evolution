@@ -8,6 +8,9 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
+import com.fs.starfarer.api.characters.FullName;
+import com.fs.starfarer.api.characters.ImportantPeopleAPI;
+import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.combat.MissileAIPlugin;
 import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -28,7 +31,6 @@ import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
 import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
 import indevo.WIP.mobilecolony.plugins.MobileColonyCampaignPlugin;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
-import indevo.abilities.splitfleet.dialogue.DialogueInterceptListener;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.dialogue.research.DoritoGunFoundChecker;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
@@ -57,6 +59,7 @@ import indevo.industries.changeling.plugins.CorporateGovernanceCampaignPlugin;
 import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.derelicts.listeners.AncientLabCommoditySwitchOptionProvider;
 import indevo.industries.derelicts.utils.RuinsManager;
+import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
@@ -149,7 +152,7 @@ public class ModPlugin extends BaseModPlugin {
         loadTransientMemory();
 
         //balance and spec changes
-        addIndustrialOrRuralPrefaceToIndustrySpecs();
+        addTypePrefaceToIndustrySpecs();
         if (Global.getSettings().getBoolean("IndEvo_CommerceBalanceChanges")) overrideVanillaCommerce();
 
         LocatorSystemRatingUpdater.updateAllSystems();
@@ -158,11 +161,35 @@ public class ModPlugin extends BaseModPlugin {
         if (newGame) ArtilleryStationReplacer.register();
 
         //pets
-        if (ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(Ids.PROJ_NAVI).getProgress().redeemed)
-            PetDataRepo.get("fairy").tags.remove(PetData.TAG_NO_SELL);
+        if (ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(Ids.PROJ_NAVI).getProgress().redeemed) PetDataRepo.get("fairy").tags.remove(PetData.TAG_NO_SELL);
+        addLordFoogRep();
     }
 
-    public void addIndustrialOrRuralPrefaceToIndustrySpecs(){
+    public void addLordFoogRep(){
+        String id = "foogAristo";
+        String marketId = "athulf";
+        MarketAPI market = Global.getSector().getEconomy().getMarket(marketId);
+
+        if (market == null) return;
+
+        ImportantPeopleAPI ip = Global.getSector().getImportantPeople();
+        if (ip.getPerson(id) != null) return;
+
+        PersonAPI person = market.getFaction().createRandomPerson(FullName.Gender.FEMALE);
+        person.setId(id);
+        person.setRankId("aristocrat");
+        person.setPostId("Knight of Foog");
+        person.setPortraitSprite("graphics/portraits/indevo_persean_aristocrat.png");
+        person.setFaction(Factions.PERSEAN);
+
+        market.getCommDirectory().addPerson(person);
+        market.addPerson(person);
+        ip.addPerson(person);
+        ip.getData(person).getLocation().setMarket(market);
+        ip.checkOutPerson(person, "permanent_staff");
+    }
+
+    public void addTypePrefaceToIndustrySpecs(){
         for (IndustrySpecAPI spec : Global.getSettings().getAllIndustrySpecs()){
             List<String> tagList = new ArrayList<>();
             if (spec.getTags().contains("industrial")) tagList.add("industrial");

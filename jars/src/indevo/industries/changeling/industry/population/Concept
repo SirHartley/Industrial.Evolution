@@ -12,8 +12,6 @@ x •	Farming provides supplies
 x •	Pop growth +
 x •	Industrial Industries massively reduce growth, stab and get high upkeep
 x •   "rural" industries increase growth stab and get - upkeep
-•	Less likely to be targeted by inspections
-•	Less likely to be targeted by raids
 x •	Requires farmland lv. 3 or temperate to be available
 
 Monastic Orders
@@ -22,22 +20,22 @@ x•	No luddic cells
 x•	Stability can’t fall below 3 or go above 7
 x•	Locked at size 5
 x•	Military industries -upkeep
-x•   Marines stored here passively gather experience
+x•  Marines stored here passively gather experience
 x•	Randomly builds known frigates and destroyers, rarely cruisers (by hand with a special hullmod)
 
 Corporate Governance
-•	More income means higher stability
-•	Higher stability does not mean more income
-NOPE •	1.2x standard income multiplier
-•	2 months max. disruption time
-•	All industry slots immediately available when locked
-•	negative base growth
-•	base stability = 0
-•	Incentives are twice as expensive (or more?)
-•	Can shrink
-increase military upkeep by x5
+x•	More income means higher stability
+x•	Higher stability does not mean more income
+x•	1.2x standard income multiplier
+x•	2 months max. disruption time
+x•	All industry slots immediately available when locked
+x•	negative base growth
+x•	base stability = 0
+x•	Incentives are twice as expensive (or more?)
+x•	Can shrink
+x•	increase military upkeep by x3
 
-done Underworld Governance
+Underworld Governance
 x •	Less stability = more income
 x •	Increased illegal commodity outputs
 x •	Increased fleet size

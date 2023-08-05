@@ -2,9 +2,11 @@
 
 "ranks":{
 "factionRep":{"name":"Faction Representative"},
+"aristocrat":{"name":"Aristocrat"}
 },
 
 "posts":{
 "ambassador":{"name":"Ambassador"}, #DO NOT TRANSLATE THIS
+"Knight of Foog":{"name":"Knight of Foog"}
 },
 }

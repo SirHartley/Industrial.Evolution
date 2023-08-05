@@ -1,6 +1,84 @@
 id,trigger,conditions,script,text,options,notes
 #RULESET_NAME IndEvo,,,,,,
 ,,,,,,
+IndEvo_foog_aristrocratGreetingNoLock,PickGreeting,"$id == foogAristo score:1000
+$player.foogLocked == false","ShowPersonVisual
+SetShortcut cutCommLink ""ESCAPE""","A woman overdressed to the point of absurdity glances up at you as soon as the rather fancy heraldic emblem stops spinning and the comm stabilizes. 
+
+""Oh. Another plebeian coming to catch a glimpse of His Majesties' enchanting visage, are you?""","IndEvo_foog_insultTheCunt:""What did you just say?""
+IndEvo_foog_ignoreTheCunt:""I wish to serve His Majesty.""
+cutCommLink:Cut the comm link",
+IndEvo_foog_aristrocratGreetingLocked,PickGreeting,"$id == foogAristo score:1000
+$player.foogLocked == true","SetShortcut cutCommLink ""ESCAPE""","The heraldic emblem turns and turns, but no answer is forthcoming.",cutCommLink:Cut the commlink,
+IndEvo_foog_aristrocratGreetingReturnedNoRep,PickGreeting,"$id == foogAristo score:1000
+$player.foogReturn == true
+$faction.rel != COOPERATIVE","SetShortcut cutCommLink ""ESCAPE""","The heraldic emblem turns and turns, but no answer is forthcoming.
+You might want to work on your reputation.",cutCommLink:Cut the commlink,
+IndEvo_foog_aristrocratGreetingReturned,PickGreeting,"$id == foogAristo score:1000
+$player.foogReturn == true
+$faction.rel == COOPERATIVE","ShowPersonVisual
+DoCanAffordCheck 300000 IndEvo_foogPay false","""You again."" The woman greeting you is as overdressed as ever, and just as condescending.
+""What now? Did you manage to, uh, liquidate your oh-so-many assets?""","IndEvo_foogPay:""Yes, actually."" (Pay the 300,000 credits)
+IndEvo_foogDelay:""Not yet, I need more time.""",
+IndEvo_foog_aristrocratGreetingBought,PickGreeting,"$id == foogAristo score:1001
+$player.foogBought == true","SetShortcut cutCommLink ""ESCAPE""","The heraldic emblem turns and turns, but no answer is forthcoming.",cutCommLink:Cut the commlink,
+IndEvo_foog_insultTheCunt,DialogOptionSelected,$option == IndEvo_foog_insultTheCunt,"ShowPersonVisual
+$player.foogLocked = true
+SetShortcut cutCommLink ""ESCAPE""","""Seems like it's not only your ears that are too poor to hear us speak. Be a good little beggar and go back the way you came.""
+
+She cuts the comm link.",cutCommLink:Return,
+IndEvo_foog_ignoreTheCunt,DialogOptionSelected,$option == IndEvo_foog_ignoreTheCunt,"ShowPersonVisual
+SetShortcut cutCommLink ""ESCAPE""","""Ah, yes, I'm sure many people do. And yet, all of them knew their place, except for you. 
+
+What exactly makes you think you are qualified to become a retainer of the Lord Protector?""","IndEvo_foog_cashMoney:Hold up a bundle of credsticks.
+IndEvo_foog_rep:""I am of great repute with the League, check my dossier.""
+IndEvo_foog_insult2:""Your mom told me last night.""
+cutCommLink:Cut the comm link",
+IndEvo_foog_cashMoney,DialogOptionSelected,$option == IndEvo_foog_cashMoney,"ShowPersonVisual
+$player.foogLocked = true
+SetShortcut cutCommLink ""ESCAPE""","Her left eyebrow raises for a second - before returning to its usual condescending place.
+
+""Hm. Where did you steal that from? Did you seriously think We'd believe this charade after you strolled in here, dressed like a beggar?""
+
+She looks you up and down again, managing to look down the entire time.
+
+""Well, I'm not about to hand the Lord over to some street rat. Scurry off, then!""
+
+She cuts the comm link.",cutCommLink:Return,
+IndEvo_foog_rep,DialogOptionSelected,"$faction.rel == COOPERATIVE
+$option == IndEvo_foog_rep","Highlight ""300,000 credits""
+ShowPersonVisual
+DoCanAffordCheck 300000 IndEvo_foogPay false","""Hm. Looks like you are not all talk, even though you certainly do not know how to dress. The fee to become a retainer is 300,000 credits."", her face contorts into a sneer, "" - which I am sure you have on hand.""","IndEvo_foogPay:Wire the credits.
+IndEvo_foogDelay:""I will have to liquidate some assets.""",
+IndEvo_foog_rep_too_low,DialogOptionSelected,"$faction.rel != COOPERATIVE
+$option == IndEvo_foog_rep","ShowPersonVisual
+$player.foogLocked = true
+SetShortcut cutCommLink ""ESCAPE""","""That does not appear to be the case. So not only have you wasted our time, you have actively lied and insulted us. No need for further talks, I presume.""
+
+She cuts the comm link.",cutCommLink:Return,
+IndEvo_foog_insult2,DialogOptionSelected,$option == IndEvo_foog_insult2,"ShowPersonVisual
+$player.foogLocked = true
+SetShortcut cutCommLink ""ESCAPE""","""...""
+
+She cuts the comm link.",cutCommLink:Return,
+IndEvo_foogPay,DialogOptionSelected,$option == IndEvo_foogPay,"ShowPersonVisual
+AddRemoveCommodity credits -300000 true
+AddRemoveAnyItem SPECIAL IndEvo_PetBox lordandsaviour 1","""... Surprising, to say the least. In any case, you are now an official retainer.""
+Your tripad chimes, notifying you of an incoming document the size of a legal textbook.
+
+""You'll have to sign that, of course.""",IndEvo_foogCont:Continue,
+IndEvo_foogCont,DialogOptionSelected,$option == IndEvo_foogCont,"ShowPersonVisual
+$player.foogBought = true
+$player.foogReturn = false
+SetShortcut cutCommLink ""ESCAPE""","""Your first task is to take the Lord Protector on an extended excursion. We expect you back within about ten cycles. Be aware of the strict dietary requirements of His Majesty, and do not disappoint us. Contact the head office if you have further questions.""
+
+She cuts the comm link without elaborating on what or where the head office is.",cutCommLink:Return,
+IndEvo_foogDelay,DialogOptionSelected,$option == IndEvo_foogDelay,"ShowPersonVisual
+$player.foogReturn = true
+SetShortcut cutCommLink ""ESCAPE""","""Sure you do.""
+
+She cuts the comm link.",cutCommLink:Return,
+,,,,,,
 #artillery,,,,,,
 IndEvo_ArtilleryInitialPlanet,OpenInteractionDialog,"$IndEvo_ArtilleryStation score:1000
 !$defenderFleetDefeated
