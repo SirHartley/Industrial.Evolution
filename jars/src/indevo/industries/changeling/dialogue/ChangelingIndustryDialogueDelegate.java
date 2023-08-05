@@ -12,6 +12,7 @@ import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.*;
+import indevo.utils.ModPlugin;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -148,6 +149,8 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             MarketAPI market = industry.getMarket();
             market.removeIndustry(industry.getId(), null, false);
             market.addIndustry(industryToAdd);
+            ModPlugin.log("adding " + industryToAdd + " to " + market.getName());
+
             Industry switchable = null;
 
             for (Industry industry : market.getIndustries()) {
@@ -158,10 +161,13 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
                 }
             }
 
-            if (switchable == null) return;
+            if (switchable == null) {
+                ModPlugin.log("could not find switchable on planet, returning");
+                return;
+            }
 
             //I wonder why it does that
-            //switchable.setHidden(false);
+            switchable.setHidden(false);
 
             //refund or transfer items
             SpecialItemData specialItemData = industry.getSpecialItem();

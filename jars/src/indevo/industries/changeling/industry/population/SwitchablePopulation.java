@@ -81,12 +81,12 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
                     return new MonasticOrderSubIndustry(this);
                 }
             });
-            add(new SubIndustryData("resort", "Resort Planet", Global.getSettings().getSpriteName("IndEvo", "pop_resort"), "IndEvo_pop_resort") {
+            /*add(new SubIndustryData("resort", "Resort Planet", Global.getSettings().getSpriteName("IndEvo", "pop_resort"), "IndEvo_pop_resort") {
                 @Override
                 public SubIndustry newInstance() {
                     return new ResortSubIndustry(this);
                 }
-            });
+            });*/
             add(new SubIndustryData("corpos", "Corporate Governance", Global.getSettings().getSpriteName("IndEvo", "pop_corpos"), "IndEvo_pop_corpos") {
                 @Override
                 public SubIndustry newInstance() {

@@ -53,6 +53,7 @@ import indevo.industries.assembler.listeners.DepositMessage;
 import indevo.industries.changeling.plugins.ChangelingMiningOptionProvider;
 import indevo.industries.changeling.plugins.ChangelingPopulationOptionProvider;
 import indevo.industries.changeling.plugins.ChangelingRefiningOptionProvider;
+import indevo.industries.changeling.plugins.CorporateGovernanceCampaignPlugin;
 import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.derelicts.listeners.AncientLabCommoditySwitchOptionProvider;
 import indevo.industries.derelicts.utils.RuinsManager;
@@ -167,6 +168,8 @@ public class ModPlugin extends BaseModPlugin {
             if (spec.getTags().contains("industrial")) tagList.add("industrial");
             if (spec.getTags().contains("rural")) tagList.add("rural");
             if (spec.getTags().contains("military")) tagList.add("military");
+
+            if (tagList.isEmpty()) continue;
 
             StringBuilder type = new StringBuilder();
 
@@ -360,6 +363,7 @@ public class ModPlugin extends BaseModPlugin {
         Global.getSector().registerPlugin(new ArtilleryCampaignPlugin());
         Global.getSector().registerPlugin(new MobileColonyCampaignPlugin());
         Global.getSector().registerPlugin(new PetShopCampaignPlugin());
+        Global.getSector().registerPlugin(new CorporateGovernanceCampaignPlugin());
 
         if (!Global.getSector().hasScript(TimeTracker.class)) {
             Global.getSector().addScript(new TimeTracker());
