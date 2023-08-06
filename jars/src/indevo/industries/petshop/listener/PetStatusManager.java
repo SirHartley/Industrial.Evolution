@@ -35,6 +35,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         pet.assign(Global.getSector().getPlayerFleet().getFlagship());
 
         //runcode indevo.industries.petshop.listener.PetStatusManager.dev()
+
     }
 
     public static final String HAMSTER_DEATH_CAUSES = "data/strings/hamster_death_causes.csv";
@@ -167,7 +168,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                 break;
             case NATURAL:
                 String message = "";
-                if (pet.typeID.equals("hamster")) {
+                if (pet.typeID.equals("hampter")) {
                     picker = new WeightedRandomPicker<>();
                     picker.addAll(IndustryHelper.getCSVSetFromMemory(HAMSTER_DEATH_CAUSES));
                     message = picker.pick();
@@ -176,7 +177,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                 Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " formerly living on the " + pet.assignedFleetMember.getShipName() + ", %s.", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case STARVED:
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has %s on the " + pet.assignedFleetMember.getShipName(), Misc.getTextColor(), pet.name, "starved to death.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has %s on the " + pet.assignedFleetMember.getShipName(), Misc.getTextColor(), pet.name, "starved to death", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case SOLD:
                 Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " was sold with the " + pet.assignedFleetMember.getShipName() + " and promptly %s by the new owners.", Misc.getTextColor(), pet.name, "euthanized", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
@@ -291,23 +292,44 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         Global.getSector().getCampaignUI().addMessage(intel);
     }
 
-    private void showPetForgottenMessage(SubmarketAPI onMarket) {
-        Color c = Misc.getHighlightColor();
+    private void showPetForgottenMessage(final SubmarketAPI onMarket) {
+        Global.getSector().addScript(new EveryFrameScript() {
+            boolean done = false;
 
-        MessageIntel intel = new MessageIntel(
-                "You %s some %s on ships you stored at the %s!",
-                Misc.getTextColor(),
-                new String[]{"forgot", "pets", onMarket.getMarket().getName() + " " + onMarket.getNameOneLine()},
-                Misc.getNegativeHighlightColor(), onMarket.getFaction().getColor());
-        intel.addLine("They will starve to death if there is insufficient food present.");
-        intel.addLine("Store or sell them at a %s if you no longer want them.",
-                Misc.getTextColor(),
-                new String[]{Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName()},
-                c);
+            @Override
+            public boolean isDone() {
+                return done;
+            }
 
-        intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "warning"));
-        intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
-        Global.getSector().getCampaignUI().addMessage(intel);
+            @Override
+            public boolean runWhilePaused() {
+                return false;
+            }
+
+            @Override
+            public void advance(float amount) {
+                if (!done){
+                    Color c = Misc.getHighlightColor();
+
+                    MessageIntel intel = new MessageIntel(
+                            "You %s some %s on ships you stored at the %s!",
+                            Misc.getTextColor(),
+                            new String[]{"forgot", "pets", onMarket.getMarket().getName() + " " + onMarket.getNameOneLine()},
+                            Misc.getNegativeHighlightColor(), onMarket.getFaction().getColor());
+                    intel.addLine("They will starve to death unless fed.");
+                    intel.addLine("Store or sell them at a %s if you no longer want them.",
+                            Misc.getTextColor(),
+                            new String[]{Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName()},
+                            c);
+
+                    intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "warning"));
+                    intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
+                    Global.getSector().getCampaignUI().addMessage(intel);
+                }
+
+                done = true;
+            }
+        });
     }
 
     public Pet getPet(ShipVariantAPI variant) {

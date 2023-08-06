@@ -11,7 +11,7 @@ public abstract class SubIndustryData implements SubIndustryDataAPI {
     public String name;
     public String descriptionID;
     public float cost;
-    public float buildTime;
+    public float buildTime = BASE_BUILD_TIME;
 
     public SubIndustryData(String id, String name, String imageName, String descriptionID) {
         this.id = id;
@@ -19,16 +19,14 @@ public abstract class SubIndustryData implements SubIndustryDataAPI {
         this.name = name;
         this.descriptionID = descriptionID;
         this.cost = BASE_COST;
-        this.buildTime = BASE_BUILD_TIME;
     }
 
-    public SubIndustryData(String id, String name, String imageName, String descriptionID, float cost, float buildTime) {
+    public SubIndustryData(String id, String name, String imageName, String descriptionID, float cost) {
         this.id = id;
         this.imageName = imageName;
         this.name = name;
         this.descriptionID = descriptionID;
         this.cost = cost;
-        this.buildTime = buildTime;
     }
 
     @Override

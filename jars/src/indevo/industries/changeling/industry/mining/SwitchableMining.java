@@ -23,7 +23,7 @@ import java.util.List;
 public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
 
     public static final List<SubIndustryData> industryList = new LinkedList<SubIndustryData>() {{
-        add(new SubIndustryData("base_mining", "Mining", "graphics/icons/industry/mining.png", "IndEvo_base_mining") {
+        add(new SubIndustryData("base_mining", "Mining", "graphics/icons/industry/mining.png", "IndEvo_base_mining", 10000) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
@@ -40,7 +40,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
             }
         });
 
-        add(new SubIndustryData("ore_mining", "Ore Mining", Global.getSettings().getSpriteName("IndEvo", "ore_mining"), "IndEvo_ore_mining", 10000, 31) {
+        add(new SubIndustryData("ore_mining", "Ore Mining", Global.getSettings().getSpriteName("IndEvo", "ore_mining"), "IndEvo_ore_mining", 10000) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
@@ -51,7 +51,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
             }
         });
 
-        add(new SubIndustryData("rare_mining", "Transplutonics Mining", Global.getSettings().getSpriteName("IndEvo", "rare_mining"), "IndEvo_rare_mining", 25000, 31) {
+        add(new SubIndustryData("rare_mining", "Transplutonics Mining", Global.getSettings().getSpriteName("IndEvo", "rare_mining"), "IndEvo_rare_mining", 25000) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
@@ -62,7 +62,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
             }
         });
 
-        add(new SubIndustryData("volatile_mining", "Volatile Extraction", Global.getSettings().getSpriteName("IndEvo", "volatile_mining"), "IndEvo_volatile_mining", 50000, 31) {
+        add(new SubIndustryData("volatile_mining", "Volatile Extraction", Global.getSettings().getSpriteName("IndEvo", "volatile_mining"), "IndEvo_volatile_mining", 50000) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
@@ -73,7 +73,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
             }
         });
 
-        add(new SubIndustryData("organics_mining", "Organics Extraction", Global.getSettings().getSpriteName("IndEvo", "organics_mining"), "IndEvo_organics_mining", 10000, 31) {
+        add(new SubIndustryData("organics_mining", "Organics Extraction", Global.getSettings().getSpriteName("IndEvo", "organics_mining"), "IndEvo_organics_mining", 10000) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {

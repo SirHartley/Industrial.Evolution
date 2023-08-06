@@ -104,7 +104,7 @@ Monastic Orders
                 }
 
                 String id = picker.pick();
-                FleetMemberAPI member = createAndPrepareMember(id, 3);
+                FleetMemberAPI member = createAndPrepareMember(id, 4);
                 currentDpBudget -= member.getDeploymentPointsCost();
 
                 member.getVariant().addPermaMod(HandBuiltHullmod.ID);

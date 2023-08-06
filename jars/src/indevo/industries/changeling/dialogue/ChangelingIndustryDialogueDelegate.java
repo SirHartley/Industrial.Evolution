@@ -214,9 +214,17 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             }
         }
 
+        boolean anyChecked = false;
+
         for (ButtonAPI button : buttons) {
-            if (button.isChecked() && button.getCustomData() != id) button.setChecked(false);
+            if (button.isChecked() && button.getCustomData() != id) {
+                button.setChecked(false);
+            }
+
+            if (button.isChecked()) anyChecked = true;
         }
+
+        if (!anyChecked) selected = null;
     }
 
     public static class ButtonReportingCustomPanel extends BaseCustomUIPanelPlugin {

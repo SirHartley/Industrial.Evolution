@@ -1,10 +1,13 @@
 package indevo.industries.changeling.industry.population;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.MarketConditionSpecAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
+import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -25,7 +28,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
     public static final List<SubIndustryData> industryList = new LinkedList<SubIndustryData>() {
         {
-            add(new SubIndustryData("base_population_and_infrastructure", "Population & Infrastructure", "graphics/icons/industry/population.png", "IndEvo_pop_default") {
+            add(new SubIndustryData("base_population_and_infrastructure", "Population & Infrastructure", "graphics/icons/industry/population.png", "IndEvo_pop_default", 10000) {
                 @Override
                 public SubIndustry newInstance() {
                     return new SubIndustry(this) {
@@ -56,26 +59,26 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
                 }
             });
 
-            add(new SubIndustryData("underworld", "Underworld Governance", Global.getSettings().getSpriteName("IndEvo", "pop_underworld"), "IndEvo_pop_uw") {
+            add(new SubIndustryData("underworld", "Underworld Governance", Global.getSettings().getSpriteName("IndEvo", "pop_underworld"), "IndEvo_pop_uw", 45000) {
                 @Override
                 public SubIndustry newInstance() {
                     return new UnderworldSubIndustry(this);
                 }
             });
 
-            add(new SubIndustryData("rural", "Rural Polity", Global.getSettings().getSpriteName("IndEvo", "pop_rural"), "IndEvo_pop_rural") {
+            add(new SubIndustryData("rural", "Rural Polity", Global.getSettings().getSpriteName("IndEvo", "pop_rural"), "IndEvo_pop_rural",20000) {
                 @Override
                 public SubIndustry newInstance() {
                     return new RuralPolitySubIndustry(this);
                 }
             });
-            add(new SubIndustryData("hidden", "Hidden Arcology", Global.getSettings().getSpriteName("IndEvo", "pop_hidden"), "IndEvo_pop_hidden") {
+            add(new SubIndustryData("hidden", "Hidden Arcology", Global.getSettings().getSpriteName("IndEvo", "pop_hidden"), "IndEvo_pop_hidden", 125000) {
                 @Override
                 public SubIndustry newInstance() {
                     return new HiddenArcologiesSubIndustry(this);
                 }
             });
-            add(new SubIndustryData("monks", "Monastic Order", Global.getSettings().getSpriteName("IndEvo", "pop_monks"), "IndEvo_pop_monks") {
+            add(new SubIndustryData("monks", "Monastic Order", Global.getSettings().getSpriteName("IndEvo", "pop_monks"), "IndEvo_pop_monks", 75000) {
                 @Override
                 public SubIndustry newInstance() {
                     return new MonasticOrderSubIndustry(this);
@@ -87,7 +90,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
                     return new ResortSubIndustry(this);
                 }
             });*/
-            add(new SubIndustryData("corpos", "Corporate Governance", Global.getSettings().getSpriteName("IndEvo", "pop_corpos"), "IndEvo_pop_corpos") {
+            add(new SubIndustryData("corpos", "Corporate Governance", Global.getSettings().getSpriteName("IndEvo", "pop_corpos"), "IndEvo_pop_corpos", 50000) {
                 @Override
                 public SubIndustry newInstance() {
                     return new CorporateGovernanceSubIndustry(this);
@@ -192,7 +195,15 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
             if (daysPassed >= DAYS_TO_LOCK) {
                 locked = true;
 
-                Global.getSector().getCampaignUI().addMessage("The %s Government on %s has become permanent.", Misc.getTextColor(), current.getName(), market.getName(), Misc.getHighlightColor(), market.getFaction().getColor());
+                MessageIntel intel = new MessageIntel("%s established on " + market.getName(), Misc.getBasePlayerColor());
+                intel.addLine(BaseIntelPlugin.BULLET + "Now permanent",
+                        Misc.getTextColor(),
+                        new String[] {current.getName()},
+                        Misc.getHighlightColor());
+
+                intel.setIcon(Global.getSector().getPlayerFaction().getCrest());
+                intel.setSound(BaseIntelPlugin.getSoundMajorPosting());
+                Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
             }
         }
     }

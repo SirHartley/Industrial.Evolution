@@ -19,7 +19,7 @@ import java.util.List;
 public class SwitchableRefining extends Refining implements SwitchableIndustryAPI {
 
     public static final List<SubIndustryData> industryList = new LinkedList<SubIndustryData>() {{
-        add(new SubIndustryData("base_refining", "Refining", "graphics/icons/industry/refining.png", "IndEvo_base_refining") {
+        add(new SubIndustryData("base_refining", "Refining", "graphics/icons/industry/refining.png", "IndEvo_base_refining", 10000) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
@@ -44,7 +44,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
             }
         });
 
-        add(new SubIndustryData("ore_refining", "Ore Refinery", Global.getSettings().getSpriteName("IndEvo", "ore_refining"), "IndEvo_ore_refining") {
+        add(new SubIndustryData("ore_refining", "Ore Refinery", Global.getSettings().getSpriteName("IndEvo", "ore_refining"), "IndEvo_ore_refining", 15000) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
@@ -69,7 +69,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
             }
         });
 
-        add(new SubIndustryData("rare_refining", "Transplutonics Refinery", Global.getSettings().getSpriteName("IndEvo", "rare_ore_refining"), "IndEvo_rare_refining") {
+        add(new SubIndustryData("rare_refining", "Transplutonics Refinery", Global.getSettings().getSpriteName("IndEvo", "rare_ore_refining"), "IndEvo_rare_refining", 25000) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {

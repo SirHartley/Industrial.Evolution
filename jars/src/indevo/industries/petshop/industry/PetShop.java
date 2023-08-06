@@ -162,6 +162,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         super.advance(amount);
 
         if (petShopStationEntity == null && isFunctional() && !isBuilding()) ensurePetShopCreatedOrAssigned();
+        if(isFunctional() && market.hasSubmarket(Ids.PETMARKET)) Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.PETMARKET, false));
     }
 
     @Override
@@ -194,8 +195,6 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
         if (isFunctional()) {
             //if (!market.hasSubmarket(Ids.PETMARKET)) market.addSubmarket(Ids.PETMARKET);
-            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.PETMARKET, false));
-
             if (market.isPlayerOwned()){
                 SubmarketPlugin sub = Misc.getLocalResources(market);
                 if (sub instanceof LocalResourcesSubmarketPlugin) {

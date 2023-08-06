@@ -986,7 +986,7 @@ public class SimpleHullmodEffectPluginRepo {
 
             @Override
             public String getName() {
-                return "combat weapon repair time";
+                return "weapon repair time";
             }
         });
         put("combatEngineRepairTimeMult", new SimpleHullmodEffectPlugin() {
@@ -997,7 +997,7 @@ public class SimpleHullmodEffectPluginRepo {
 
             @Override
             public String getName() {
-                return "combat engine repair time";
+                return "engine repair time";
             }
         });
         put("beamWeaponFluxCostMult", new SimpleHullmodEffectPlugin() {
@@ -1110,28 +1110,7 @@ public class SimpleHullmodEffectPluginRepo {
                 return "acceleration";
             }
         });
-        put("weaponRangeThreshold", new SimpleHullmodEffectPlugin() {
-            @Override
-            public void apply(MutableShipStatsAPI stats, float amt) {
-                stats.getWeaponRangeThreshold().modifyMult(HANDMADE_HULLMOD_ID, amt);
-            }
 
-            @Override
-            public String getName() {
-                return "weapon range threshold";
-            }
-        });
-        put("weaponRangeMultPastThreshold", new SimpleHullmodEffectPlugin() {
-            @Override
-            public void apply(MutableShipStatsAPI stats, float amt) {
-                stats.getWeaponRangeMultPastThreshold().modifyMult(HANDMADE_HULLMOD_ID, amt);
-            }
-
-            @Override
-            public String getName() {
-                return "weapon range past threshold";
-            }
-        });
         put("timeMult", new SimpleHullmodEffectPlugin() {
             @Override
             public void apply(MutableShipStatsAPI stats, float amt) {
@@ -1209,17 +1188,7 @@ public class SimpleHullmodEffectPluginRepo {
                 return "repair rate percent per day";
             }
         });
-        put("recoilPerShotMultSmallWeaponsOnly", new SimpleHullmodEffectPlugin() {
-            @Override
-            public void apply(MutableShipStatsAPI stats, float amt) {
-                stats.getRecoilPerShotMultSmallWeaponsOnly().modifyMult(HANDMADE_HULLMOD_ID, amt);
-            }
 
-            @Override
-            public String getName() {
-                return "recoil per shot small weapons only";
-            }
-        });
         put("missileAmmoRegenMult", new SimpleHullmodEffectPlugin() {
             @Override
             public void apply(MutableShipStatsAPI stats, float amt) {
@@ -1264,39 +1233,7 @@ public class SimpleHullmodEffectPluginRepo {
                 return "kinetic armor damage taken";
             }
         });
-        put("energyWeaponFluxBasedBonusDamageMinLevel", new SimpleHullmodEffectPlugin() {
-            @Override
-            public void apply(MutableShipStatsAPI stats, float amt) {
-                stats.getEnergyWeaponFluxBasedBonusDamageMinLevel().modifyMult(HANDMADE_HULLMOD_ID, amt);
-            }
 
-            @Override
-            public String getName() {
-                return "energy weapon flux based damage min level";
-            }
-        });
-        put("energyWeaponFluxBasedBonusDamageMagnitude", new SimpleHullmodEffectPlugin() {
-            @Override
-            public void apply(MutableShipStatsAPI stats, float amt) {
-                stats.getEnergyWeaponFluxBasedBonusDamageMagnitude().modifyMult(HANDMADE_HULLMOD_ID, amt);
-            }
-
-            @Override
-            public String getName() {
-                return "energy weapon flux based damage magnitude";
-            }
-        });
-        put("energyProjectileSpeedMult", new SimpleHullmodEffectPlugin() {
-            @Override
-            public void apply(MutableShipStatsAPI stats, float amt) {
-                stats.getEnergyProjectileSpeedMult().modifyMult(HANDMADE_HULLMOD_ID, amt);
-            }
-
-            @Override
-            public String getName() {
-                return "energy projectile speed";
-            }
-        });
         put("energyAmmoRegenMult", new SimpleHullmodEffectPlugin() {
             @Override
             public void apply(MutableShipStatsAPI stats, float amt) {
