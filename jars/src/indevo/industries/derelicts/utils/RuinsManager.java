@@ -16,6 +16,7 @@ import indevo.ids.Ids;
 import indevo.industries.derelicts.conditions.RuinsCondition;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -99,7 +100,7 @@ public class RuinsManager {
     }
 
     public static void placeIndustrialRuins() {
-        boolean forbidden = !Global.getSettings().getBoolean("Enable_Indevo_Derelicts");
+        boolean forbidden = !Settings.ENABLE_DERELICTS;
 
         float amount = 0;
         float total = 0;

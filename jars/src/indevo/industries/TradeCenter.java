@@ -13,6 +13,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -47,7 +48,8 @@ public class TradeCenter extends BaseIndustry implements MarketImmigrationModifi
     }
 
     private void adjustForBalanceChanges() {
-        balanceChange = Global.getSettings().getBoolean("IndEvo_CommerceBalanceChanges");
+        balanceChange = Settings.COMMERCE_BALANCE_CHANGES;
+
         improveBonus = balanceChange ? ALT_IMPROVE_BONUS : IMPROVE_BONUS;
     }
 

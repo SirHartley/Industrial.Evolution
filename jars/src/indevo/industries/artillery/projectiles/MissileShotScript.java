@@ -5,6 +5,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.utils.helper.Settings;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -21,12 +22,12 @@ public class MissileShotScript implements EveryFrameScript {
     //missile dumbfire flies to loc, deploys tracking submunitions
     //the submunitions are slow but track, if the player enters their radius, they intercept and make a slow field
 
-    public static final int DEFAULT_MISSILE_AMT = Global.getSettings().getInt("IndEvo_Artillery_missile_projectilesPerShot"); //MUST BE DIVISIBLE BY 2
+    public static final int DEFAULT_MISSILE_AMT = Settings.ARTILLERY_MISSILE_PROJECTILES_PER_SHOT; //MUST BE DIVISIBLE BY 2
     public static final float MISSILE_TRAJECTORY_BENDY_FACTOR = 0.4f; //the higher, the more circular the trajectory, MAXIMUM 1f
-    public static final float AVG_IMPACT_SECONDS = Global.getSettings().getFloat("IndEvo_Artillery_missile_projectilesImpactTime");
+    public static final float AVG_IMPACT_SECONDS = Settings.ARTILLERY_MISSILE_PROJECTILES_IMPACT_TIME;
 
-    public static final float FUZZ_FACTOR = Global.getSettings().getFloat("IndEvo_Artillery_missile_fuzz"); //the higher, the more fuzz
-    public static final float MAX_FUZZ_DIST = Global.getSettings().getFloat("IndEvo_Artillery_missile_maxCoveredArea");
+    public static final float FUZZ_FACTOR = Settings.ARTILLERY_MISSILE_FUZZ; //the higher, the more fuzz
+    public static final float MAX_FUZZ_DIST = Settings.ARTILLERY_MISSILE_MAX_COVERED_AREA;
     public static final float MIN_FUZZ_DIST = 400f;
 
     public boolean done = false;

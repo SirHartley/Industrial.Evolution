@@ -20,6 +20,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.campaign.BaseLocation;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -33,9 +34,9 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
     public static float MIN_MINE_SIZE = 2f;
     public static float MAX_MINE_SIZE = 8f;
 
-    public static final float CIVILIAN_EFFECT_MULT = Global.getSettings().getFloat("IndEvo_Minefield_CivilianShipImpactMult");
-    public static final float PHASE_EFFECT_MULT = Global.getSettings().getFloat("IndEvo_Minefield_PhaseShipImpactMult");
-    public static final float MAX_FLEET_SIZE_BEFORE_MALUS = Global.getSettings().getFloat("IndEvo_Minefield_NoHitUntilSum");
+    public static final float CIVILIAN_EFFECT_MULT = Settings.MINEFIELD_CIVILIAN_SHIP_IMPACT_MULT;
+    public static final float PHASE_EFFECT_MULT = Settings.MINEFIELD_PHASE_SHIP_IMPACT_MULT;
+    public static final float MAX_FLEET_SIZE_BEFORE_MALUS = Settings.MINEFIELD_NOHITUNTILSUM;
 
     public static final float RECENT_JUMP_TIMEOUT_SECONDS = 2f;
     public static final String RECENT_JUMP_KEY = "$IndEvo_recentlyJumped";
@@ -112,7 +113,7 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
     protected boolean needToCreateMines = true;
 
     protected void createMines() {
-        if (params == null || !Global.getSettings().getBoolean("Enable_IndEvo_minefields")) return;
+        if (params == null || !Settings.ENABLE_MINEFIELDS) return;
 
         Random rand = new Random(Global.getSector().getClock().getTimestamp() + entity.getId().hashCode());
 
@@ -197,7 +198,7 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
 
     @Override
     public void applyEffect(SectorEntityToken entity, float days) {
-        if (!Global.getSettings().getBoolean("Enable_IndEvo_minefields")) return;
+        if (!Settings.ENABLE_MINEFIELDS) return;
 
         if (entity instanceof CampaignFleetAPI) {
             CampaignFleetAPI fleet = (CampaignFleetAPI) entity;
@@ -297,10 +298,10 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
 
     public static float getBaseFleetHitChance(CampaignFleetAPI fleet) {
         Map<ShipAPI.HullSize, Float> hullSizeChanceMap = new HashMap<>();
-        hullSizeChanceMap.put(ShipAPI.HullSize.FRIGATE, Global.getSettings().getFloat("IndEvo_Minefield_HitChance_frigate"));
-        hullSizeChanceMap.put(ShipAPI.HullSize.DESTROYER, Global.getSettings().getFloat("IndEvo_Minefield_HitChance_destroyer"));
-        hullSizeChanceMap.put(ShipAPI.HullSize.CRUISER, Global.getSettings().getFloat("IndEvo_Minefield_HitChance_cruiser"));
-        hullSizeChanceMap.put(ShipAPI.HullSize.CAPITAL_SHIP, Global.getSettings().getFloat("IndEvo_Minefield_HitChance_capital"));
+        hullSizeChanceMap.put(ShipAPI.HullSize.FRIGATE, Settings.MINEFIELD_HITCHANCE_FRIGATE);
+        hullSizeChanceMap.put(ShipAPI.HullSize.DESTROYER, Settings.MINEFIELD_HITCHANCE_DESTROYER);
+        hullSizeChanceMap.put(ShipAPI.HullSize.CRUISER, Settings.MINEFIELD_HITCHANCE_CRUISER);
+        hullSizeChanceMap.put(ShipAPI.HullSize.CAPITAL_SHIP, Settings.MINEFIELD_HITCHANCE_CAPITAL);
 
         float fleetCompBaseHitChance = 0f;
         for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {

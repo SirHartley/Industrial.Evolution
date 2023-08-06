@@ -26,6 +26,7 @@ import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.Settings;
 
 import java.util.List;
 import java.util.Random;
@@ -38,7 +39,7 @@ public class ArtilleryStationPlacer {
     public static void placeCoreWorldArtilleries() {
 
         if (Global.getSector().getEconomy().getMarket("culann") == null
-                || !Global.getSettings().getBoolean("Enable_IndEvo_Artillery")
+                || !Settings.ENABLE_ARTILLERY
                 || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedArtilleries")) return;
 
         MarketAPI m = Global.getSector().getEconomy().getMarket("eochu_bres");
@@ -63,7 +64,7 @@ public class ArtilleryStationPlacer {
     }
 
     public static void placeDerelictArtilleries() {
-        if (!Global.getSettings().getBoolean("Enable_IndEvo_Artillery") || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedDerelictArtilleries"))
+        if (!Settings.ENABLE_ARTILLERY || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedDerelictArtilleries"))
             return;
 
         int currentCount = 0;
@@ -94,7 +95,7 @@ public class ArtilleryStationPlacer {
 
                 float planetMod = baseMod;
                 planetMod += TechMining.getTechMiningRuinSizeModifier(p.getMarket()) * 0.1f;
-                planetMod *= Global.getSettings().getFloat("IndEvo_Artillery_spawnWeight");
+                planetMod *= Settings.ARTILLERY_SPAWN_WEIGHT;
 
                 if (r.nextFloat() < planetMod) {
                     if (hasRemnantStation)

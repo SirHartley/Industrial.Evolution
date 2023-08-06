@@ -17,6 +17,7 @@ import indevo.ids.ItemIds;
 import indevo.items.EmptyForgeTemplateItemPlugin;
 import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -263,7 +264,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
     }
 
     private boolean repairInstalledFT() {
-        if (Global.getSettings().getBoolean("reslab_autoDeliverToClosestDecon")) {
+        if (Settings.RESLAB_AUTO_DELIVER_TO_CLOSEST_DECON) {
             MarketAPI target = IndustryHelper.getClosestMarketWithIndustry(market, Ids.DECONSTRUCTOR);
 
             if (target != null) {
@@ -276,7 +277,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
             }
         }
 
-        boolean toStorage = !Global.getSettings().getBoolean("IndEvo_derelictDeliverToGathering");
+        boolean toStorage = !Settings.DERELICT_DELIVER_TO_GATHERING;
 
         MarketAPI gather = IndustryHelper.getMarketForStorage(market);
         MarketAPI target = toStorage ? market : gather;

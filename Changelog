@@ -69,23 +69,20 @@ Adjusted - Code Changes for 0.96
 Adjusted - All industry images got touch-ups to bring them more in line with vanilla
 
 Pets
-todo check if pets properly starve before starving to death
-     make pets eat from stockpile if in cargo
-     check if putting ships in storage properly fires the warning
-
 todo: Admiral Pirrot and the Starcracker-class Breadnought
 todo: Parrot-Class Superclaw
 Added - Pets: Add them to your ship, feed em, make em happy, and they'll accompany you! And die! And do nothing!
 Added - Research Project for a rare Pet
 Added - Animal Center: Store, manage, rename, euthanize and buy pets here! Comes with a station and dodgy animal sellers.
 Added - Animal Centers to Gilead, Jangala, Fikenhild
+Added - Small interaction to Arthulf (check the comms)
 
 Automated Shipyards
 Added - Rare chance for a ship to be an automated variant, usable without the skill
 Adjusted - new interaction image (the old one was kinda trash)
 
 Exploration
-Added - Derelict Pet Shops (chance at very rare pets)
+Added - Derelict Pet Shops (chance at very rare pets)<
 Added - Arsenal station can now have ship recovery event with capital or cruiser grade hulls
 Adjusted - Fixed Arsenal station having lower chance to have event than intended
 Adjusted - Default columns for ship picking on Ship Sacrifice event increased from 5 to 8

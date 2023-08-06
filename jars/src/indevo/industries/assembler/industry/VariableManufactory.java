@@ -3,6 +3,7 @@ package indevo.industries.assembler.industry;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import indevo.utils.helper.Settings;
 
 public class VariableManufactory extends VariableAssembler {
 
@@ -36,11 +37,11 @@ public class VariableManufactory extends VariableAssembler {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Global.getSettings().getBoolean("Manufactory");
+        return Settings.ADMANUF;
     }
 
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("Manufactory");
+        return Settings.ADMANUF;
     }
 
     @Override

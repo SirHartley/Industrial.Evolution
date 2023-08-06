@@ -10,6 +10,7 @@ import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.util.HashSet;
@@ -71,7 +72,7 @@ public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements
             boolean isPrinted = member.getVariant().hasHullMod(Ids.PRINTING_INDICATOR);
             boolean hasUnremovableNonAIOfficer = member.getCaptain() != null && (Misc.isUnremovable(member.getCaptain()) && !member.getCaptain().isAICore());
 
-            boolean ignoreWhiteLists = Global.getSettings().getBoolean("IndEvo_DeconIgnoreWhitelists");
+            boolean ignoreWhiteLists = Settings.DECON_IGNORE_WHITELISTS;
 
             if (ignoreWhiteLists) return isPrinted || hasUnremovableNonAIOfficer;
 

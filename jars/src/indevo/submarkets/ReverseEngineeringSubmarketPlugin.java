@@ -14,6 +14,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.EngineeringHub;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -119,7 +120,7 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin imple
             boolean isPrinted = member.getVariant().hasHullMod(Ids.PRINTING_INDICATOR); //not not printed
             //boolean hasNoDefaultRole = !(roleListings.contains(member.getHullId()) || roleListings.contains(member.getHullSpec().getBaseHullId()));
 
-            boolean ignoreWhiteLists = Global.getSettings().getBoolean("IndEvo_EngHubIgnoreWhitelists");
+            boolean ignoreWhiteLists = Settings.ENGHUB_IGNORE_WHITELISTS;
 
             if (ignoreWhiteLists) return canNotGenerateRSPoints || isPrinted;
             else return restricted || notAllowed || canNotGenerateRSPoints || isPrinted;

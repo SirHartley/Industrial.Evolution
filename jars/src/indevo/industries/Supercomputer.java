@@ -26,6 +26,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
 import org.lwjgl.util.vector.Vector2f;
@@ -72,9 +73,9 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
     public int getCoreUseTimes(String AICoreId) {
         HashMap<String, Integer> list = new HashMap<>();
 
-        list.put(Commodities.ALPHA_CORE, Global.getSettings().getInt("alpha_core_runtime"));
-        list.put(Commodities.BETA_CORE, Global.getSettings().getInt("beta_core_runtime"));
-        list.put(Commodities.GAMMA_CORE, Global.getSettings().getInt("gamma_core_runtime"));
+        list.put(Commodities.ALPHA_CORE, Settings.ALPHA_CORE_RUNTIME);
+        list.put(Commodities.BETA_CORE, Settings.BETA_CORE_RUNTIME);
+        list.put(Commodities.GAMMA_CORE, Settings.GAMMA_CORE_RUNTIME);
 
         return list.get(AICoreId);
     }
@@ -346,12 +347,12 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
     }
 
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("SupCom");
+        return Settings.SUPCOM;
     }
 
     @Override
     public boolean isAvailableToBuild() {
-        if (!Global.getSettings().getBoolean("SupCom")) return false;
+        if (!Settings.SUPCOM) return false;
 
         if (hascond(Conditions.HOT) || hascond(Conditions.VERY_HOT)) {
             return false;

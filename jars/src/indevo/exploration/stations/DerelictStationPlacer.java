@@ -18,6 +18,7 @@ import indevo.exploration.minefields.conditions.MineFieldCondition;
 import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.ids.Ids;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -39,8 +40,8 @@ public class DerelictStationPlacer {
     }
 
     public void init() {
-        if (!Global.getSettings().getBoolean("IndEvo_enable_derelict_stations")) return;
-        ADDITIONAL_STATION_AMT = Global.getSettings().getFloat("IndEvo_derelictStationAmount");
+        if (!Settings.ENABLE_DERELICT_STATIONS) return;
+        ADDITIONAL_STATION_AMT = Settings.DERELICT_STATION_AMOUNT;
         random = StarSystemGenerator.random;
 
         float totalStationAmt = 0;
@@ -134,7 +135,7 @@ public class DerelictStationPlacer {
 
         AddedEntity e = addStation(loc, data, type, Factions.NEUTRAL);
 
-        if (Global.getSettings().getBoolean("Enable_IndEvo_minefields") && loc.type.equals(LocationType.PLANET_ORBIT)) {
+        if (Settings.ENABLE_MINEFIELDS && loc.type.equals(LocationType.PLANET_ORBIT)) {
             SectorEntityToken t = e.entity.getOrbitFocus();
             if (t != null) {
                 //if it's a moon, add to primary entity instead

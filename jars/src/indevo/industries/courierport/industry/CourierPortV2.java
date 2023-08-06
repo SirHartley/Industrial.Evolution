@@ -11,6 +11,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingContractMemory;
+import indevo.utils.helper.Settings;
 
 import java.awt.*;
 import java.util.List;
@@ -31,12 +32,12 @@ public class CourierPortV2 extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Global.getSettings().getBoolean("PrivatePort");
+        return Settings.PRIVATEPORT;
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("PrivatePort");
+        return Settings.PRIVATEPORT;
     }
 
     @Override

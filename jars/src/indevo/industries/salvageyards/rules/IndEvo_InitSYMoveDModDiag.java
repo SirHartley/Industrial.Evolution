@@ -60,7 +60,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     protected FleetMemberAPI targetMember = null;
     protected Set<String> selectedMods = new HashSet<>();
 
-    public static final float BASE_COST_MULT = Global.getSettings().getFloat("IndEvo_SYDModMoveBaseCostMult");
+    public static final float BASE_COST_MULT = Settings.SY_DMOD_MOVE_BASE_COST_MULT;
 
     public static final Logger log = Global.getLogger(IndEvo_InitSYMoveDModDiag.class);
 

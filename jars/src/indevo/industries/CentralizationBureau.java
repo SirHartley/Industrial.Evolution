@@ -21,6 +21,7 @@ import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
@@ -264,14 +265,14 @@ public class CentralizationBureau extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Global.getSettings().getBoolean("CentBureau")
+        return Settings.ADINFRA
                 && super.isAvailableToBuild()
                 && isOnlyInfraInSystem();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("CentBureau");
+        return Settings.ADINFRA;
     }
 
     private boolean isOnlyInfraInSystem() {

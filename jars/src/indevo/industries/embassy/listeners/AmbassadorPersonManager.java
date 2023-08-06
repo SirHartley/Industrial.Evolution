@@ -21,6 +21,7 @@ import indevo.ids.Ids;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.industry.Embassy;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
@@ -52,7 +53,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
 
     @Override
     public void reportEconomyMonthEnd() {
-        if (!Global.getSettings().getBoolean("Embassy")) return;
+        if (!Settings.EMBASSY) return;
 
         Map<FactionAPI, Float> mergedMap = new HashMap<>();
 
@@ -95,7 +96,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
 
     @Override
     public void onNewDay() {
-        if (!Global.getSettings().getBoolean("Embassy")) return;
+        if (!Settings.EMBASSY) return;
         logRepChange();
         updateLastDayRep();
         getWarConsequences();

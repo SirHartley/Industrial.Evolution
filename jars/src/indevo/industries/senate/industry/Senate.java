@@ -12,6 +12,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -35,7 +36,7 @@ public class Senate extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Global.getSettings().getBoolean("Senate") && IndustryHelper.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()) && super.isAvailableToBuild();
+        return Settings.SENATE && IndustryHelper.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()) && super.isAvailableToBuild();
     }
 
     @Override
@@ -64,7 +65,7 @@ public class Senate extends BaseIndustry {
 
     @Override
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("Senate");
+        return Settings.SENATE;
     }
 
     @Override

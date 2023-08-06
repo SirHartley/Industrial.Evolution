@@ -21,6 +21,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.items.installable.BlueprintInstallableItemPlugin;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
@@ -123,7 +124,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
             daysPassed++;
         }
 
-        boolean toStorage = !Global.getSettings().getBoolean("IndEvo_AutoshipBPToGatheringPoint");
+        boolean toStorage = !Settings.AUTO_SHIP_BP_TO_GATHERING_POINT;
 
         for (Map.Entry<String, Float> entry : researchProgressList.entrySet()) {
             String id;

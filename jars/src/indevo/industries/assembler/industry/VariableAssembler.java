@@ -17,6 +17,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.installable.VPCInstallableItemPlugin;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -190,11 +191,11 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
     @Override
     public boolean isAvailableToBuild() {
-        return Global.getSettings().getBoolean("Assembler");
+        return Settings.ADASSEM;
     }
 
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("Assembler");
+        return Settings.ADASSEM;
     }
 
     private void applyOutputReduction() {
@@ -244,7 +245,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
             CargoAPI cargo;
 
-            if (Global.getSettings().getBoolean("VarInd_deliverToProductionPoint") && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
+            if (Settings.VARIND_DELIVER_TO_PRODUCTION_POINT && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
                 cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo();
             } else if (Misc.getStorageCargo(market) != null) {
                 cargo = Misc.getStorageCargo(market);

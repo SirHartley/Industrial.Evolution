@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.TechMining;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
+import indevo.utils.helper.Settings;
 
 import java.util.Random;
 
@@ -16,7 +17,7 @@ import static indevo.utils.ModPlugin.log;
 public class DerelictInfrastructurePlacer {
 
     public static void placeRuinedInfrastructure() {
-        if (!Global.getSettings().getBoolean("Enable_Indevo_Derelicts")) return;
+        if (!Settings.ENABLE_DERELICTS) return;
 
         float amount = 0;
         for (StarSystemAPI s : Global.getSector().getStarSystems()) {

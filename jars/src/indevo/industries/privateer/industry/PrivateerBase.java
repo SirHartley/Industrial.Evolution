@@ -22,6 +22,7 @@ import indevo.ids.Ids;
 import indevo.industries.EngineeringHub;
 import indevo.industries.privateer.intel.PrivateerBaseRaidIntel;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.IndustryAddOrRemovePlugin;
 import indevo.utils.timers.RaidTimeout;
@@ -81,7 +82,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     @Override
     public boolean isAvailableToBuild() {
-        return Global.getSettings().getBoolean("PirateHaven")
+        return Settings.PIRATEHAVEN
                 && (Misc.getMaxIndustries(market) - Misc.getNumIndustries(market)) >= 2
                 && super.isAvailableToBuild()
                 && IndustryHelper.getAmountOfIndustryInSystem(getId(), market.getStarSystem(), market.getFaction()) < 2;
@@ -89,7 +90,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     @Override
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("PirateHaven");
+        return Settings.PIRATEHAVEN;
     }
 
     @Override
@@ -259,7 +260,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         float chanceOfExtraDrop = 0.3f + (aiCoreId != null && aiCoreId.equals(Commodities.ALPHA_CORE) ? 0.1f : 0f);
 
         CargoAPI cargo = Misc.getStorageCargo(market);
-        if (cargo == null || Global.getSettings().getBoolean("IndEvo_PrivateerDeliverToGatheringPoint"))
+        if (cargo == null || Settings.PRIVATEER_DELIVER_TO_GATHERING_POINT)
             cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket("storage").getCargo();
 
         Random random = new Random();
@@ -271,7 +272,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         // blueprints
         if (withBP) {
             WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
-            boolean raidUnknownOnly = Global.getSettings().getBoolean("IndEvo_RaidForUnknownOnly");
+            boolean raidUnknownOnly = Settings.RAID_FOR_UNKNOWN_ONLY;
             for (String id : target.getFaction().getKnownShips()) {
                 if (raidUnknownOnly && playerFaction.knowsShip(id)) continue;
                 picker.add(ship + id, 1f);

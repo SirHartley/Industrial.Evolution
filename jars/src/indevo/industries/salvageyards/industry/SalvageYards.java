@@ -27,6 +27,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUser;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
@@ -110,7 +111,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     @Override
     public boolean isFunctional() {
-        return Global.getSettings().getBoolean("ScrapYard") && super.isFunctional();
+        return Settings.SCRAPYARD && super.isFunctional();
     }
 
     public int getHullCapacity() {
@@ -422,12 +423,12 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     @Override
     public boolean isAvailableToBuild() {
-        return Global.getSettings().getBoolean("ScrapYard") && isOnlyInstanceInSystem() && super.isAvailableToBuild();
+        return Settings.SCRAPYARD && isOnlyInstanceInSystem() && super.isAvailableToBuild();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("ScrapYard");
+        return Settings.SCRAPYARD;
     }
 
     private boolean isOnlyInstanceInSystem() {

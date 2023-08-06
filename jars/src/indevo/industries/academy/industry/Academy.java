@@ -111,11 +111,11 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (isFunctional()) {
             if (!market.getId().equals(ACADEMY_MARKET_ID)) {
                 //spawn officers/admins if the market has none:
-                if (!marketHasHireableOfficer(false) && getRandomBoolean(Global.getSettings().getFloat("dailyOfficerSpawnChance"))) {
+                if (!marketHasHireableOfficer(false) && getRandomBoolean(Settings.DAILY_OFFICER_SPAWN_CHANCE)) {
                     createHireablePerson(false);
                 }
 
-                if (!marketHasHireableOfficer(true) && getRandomBoolean(Global.getSettings().getFloat("dailyAdminSpawnChance"))) {
+                if (!marketHasHireableOfficer(true) && getRandomBoolean(Settings.DAILY_ADMIN_SPAWN_CHANCE)) {
                     createHireablePerson(true);
                 }
             }
@@ -314,7 +314,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     public int getAdminTrainingDays() {
-        return Global.getSettings().getInt("adminTrainingDayCount") + 1 - currentAICoreDayReduction;
+        return Settings.ADMIN_TRAINING_DAY_COUNT + 1 - currentAICoreDayReduction;
     }
 
     public PersonAPI getAdminInTraining() {
@@ -334,7 +334,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             market.getMemory().set(ADMIN_IS_TRAINING_KEY, true);
         }
 
-        chargePlayer(Global.getSettings().getInt("adminTrainingCost"), false);
+        chargePlayer(Settings.ADMIN_TRAINING_COST, false);
     }
 
     public void abortAdminTraining(boolean moveToStorage_InsteadOfFleet) {
@@ -480,7 +480,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     public int getOfficerTrainingDays() {
-        return Global.getSettings().getInt("personalityTrainingDayCount") + 1 - currentAICoreDayReduction;
+        return Settings.PERSONALITY_TRAINING_DAY_COUNT + 1 - currentAICoreDayReduction;
     }
 
     private void trainOfficerInTraining() {
@@ -646,7 +646,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             market.getMemory().set(OFFICER_IS_TRAINING_KEY, true);
         }
 
-        chargePlayer(Global.getSettings().getInt("personalityTrainingCost"), false);
+        chargePlayer(Settings.PERSONALITY_TRAINING_COST, false);
     }
 
 

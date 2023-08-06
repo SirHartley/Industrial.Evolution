@@ -68,9 +68,9 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
     protected Map<String, MemoryAPI> memoryMap;
 
     protected static final String HAS_SP_SELECTED = "$IndEvo_HasSelectedSP_SY";
-    protected static final int BASE_D_MODS = Global.getSettings().getInt("IndEvo_SYBaseDMods");
+    protected static final int BASE_D_MODS = Settings.SY_BASE_DMODS;
     protected static final int PART_VALUE_MULT = Global.getSettings().getInt("IndEvo_SYPartValueMult");
-    public static final int DELIVERY_TIME = Global.getSettings().getInt("IndEvo_SYHullDeliveryTime");
+    public static final int DELIVERY_TIME = Settings.SY_HULL_DELIVERY_TIME;
 
     protected static final String RARE_PARTS_SELECTOR_ID = "IndEvo_RareSliderID";
     protected static final String PARTS_SELECTOR_ID = "IndEvo_PartSliderID";
@@ -600,7 +600,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         }
 
         public int getRequiredParts() {
-            return getFP() * Global.getSettings().getInt("IndEvo_RarePartsAmountPerFP");
+            return getFP() * Settings.RARE_PARTS_AMOUNT_PER_FP;
         }
 
         public int getMaxPartsAmt() {

@@ -9,6 +9,7 @@ import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.ItemIds;
 import indevo.industries.assembler.industry.VPCUserIndustryAPI;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class DepositMessage implements EconomyTickListener {
     }
 
     private void makeMessage() {
-        boolean varIndGath = Global.getSettings().getBoolean("VarInd_deliverToProductionPoint");
+        boolean varIndGath = Settings.VARIND_DELIVER_TO_PRODUCTION_POINT;
         String targetLocation = varIndGath ? Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getName() : StringHelper.getString("theLocalStorage");
 
         MessageIntel intel = new MessageIntel(

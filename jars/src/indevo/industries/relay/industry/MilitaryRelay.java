@@ -21,6 +21,7 @@ import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.EntityRemovalScript;
 import indevo.utils.timers.NewDayListener;
@@ -412,13 +413,13 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 
     @Override
     public boolean isAvailableToBuild() {
-        boolean setting = Global.getSettings().getBoolean("MilArray");
+        boolean setting = Settings.COMARRAY;
         boolean hasMBOrHC = isFunctionAllowed();
         return super.isAvailableToBuild() && setting && hasMBOrHC;
     }
 
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("MilArray");
+        return Settings.COMARRAY;
     }
 
     @Override

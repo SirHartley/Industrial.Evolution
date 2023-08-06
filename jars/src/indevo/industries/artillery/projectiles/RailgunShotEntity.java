@@ -8,6 +8,7 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.util.Misc;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.Settings;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -20,8 +21,8 @@ import static java.lang.Math.random;
 public class RailgunShotEntity extends BaseCustomEntityPlugin {
 
     //render the warning sign and add the X shots
-    public static final int DEFAULT_PROJECTILE_AMT = Global.getSettings().getInt("IndEvo_Artillery_railgun_projectilesPerShot");
-    public static final float AVERAGE_PROJ_IMPACT_TIME = Global.getSettings().getFloat("IndEvo_Artillery_railgun_projectilesImpactTime");
+    public static final int DEFAULT_PROJECTILE_AMT = Settings.ARTILLERY_RAILGUN_PROJECTILES_PER_SHOT;
+    public static final float AVERAGE_PROJ_IMPACT_TIME = Settings.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME;
     public static final float DANGER_SIGN_FADEOUT_TIME = 8f;
 
     public static float DANGER_SIGN_SIZE = 150f;
@@ -29,7 +30,7 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
     public static final float MAX_FADE_IN_SIZE_MULT = 1.5f;
     public static final float MAX_RETICULE_ALPHA = 0.7f;
 
-    private static final float BASE_FUZZ_MULT = Global.getSettings().getFloat("IndEvo_Artillery_railgun_shotFuzzMult");
+    private static final float BASE_FUZZ_MULT = Settings.ARTILLERY_RAILGUN_SHOT_FUZZ_MULT;
 
     //dangerSign
     transient private SpriteAPI dangerSign;

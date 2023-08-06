@@ -77,6 +77,7 @@ import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.items.listeners.ShipComponentLootManager;
 import indevo.items.listeners.SpecialItemDropsListener;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.timers.RaidTimeout;
 import indevo.utils.timers.TimeTracker;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
@@ -142,6 +143,7 @@ public class ModPlugin extends BaseModPlugin {
         }
 
         //core
+        if (Global.getSettings().getModManager().isModEnabled("lunalib")) Settings.reloadLunaSettings();
         createAcademyMarket();
         setListenersIfNeeded();
         setScriptsIfNeeded();
@@ -153,7 +155,7 @@ public class ModPlugin extends BaseModPlugin {
 
         //balance and spec changes
         addTypePrefaceToIndustrySpecs();
-        if (Global.getSettings().getBoolean("IndEvo_CommerceBalanceChanges")) overrideVanillaCommerce();
+        if (Settings.COMMERCE_BALANCE_CHANGES) overrideVanillaCommerce();
 
         LocatorSystemRatingUpdater.updateAllSystems();
         resetDerelictRep();
@@ -221,7 +223,7 @@ public class ModPlugin extends BaseModPlugin {
         GachaStationPlacer.place();
         createAcademyMarket();
 
-        if (Global.getSettings().getBoolean("Enable_Indevo_Derelicts")) {
+        if (Settings.ENABLE_DERELICTS) {
             new DerelictStationPlacer().init();
             new IndEvo_SalvageSpecialAssigner().init();
         }
@@ -270,7 +272,7 @@ public class ModPlugin extends BaseModPlugin {
     }
 
     protected void restoreRemovedEntities() {
-        if (!Global.getSettings().getBoolean("Enable_IndEvo_minefields")) return;
+        if (!Settings.ENABLE_MINEFIELDS) return;
 
         for (SectorEntityToken mine : mines.keySet()) {
             ((LocationAPI) mines.get(mine)).addEntity(mine);
@@ -279,7 +281,7 @@ public class ModPlugin extends BaseModPlugin {
     }
 
     public void spawnMineFields() {
-        if (Global.getSector().getEconomy().getMarket("culann") == null || !Global.getSettings().getBoolean("Enable_IndEvo_minefields"))
+        if (Global.getSector().getEconomy().getMarket("culann") == null || !Settings.ENABLE_MINEFIELDS)
             return;
 
         MarketAPI m = Global.getSector().getEconomy().getMarket("culann");

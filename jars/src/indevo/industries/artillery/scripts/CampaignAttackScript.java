@@ -14,6 +14,7 @@ import indevo.industries.artillery.projectiles.MortarShotScript;
 import indevo.industries.artillery.projectiles.RailgunShotEntity;
 import indevo.industries.artillery.terrain.ArtilleryTerrain;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.Settings;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.HashMap;
@@ -24,13 +25,13 @@ import static indevo.industries.artillery.scripts.EyeIndicatorScript.WAS_SEEN_BY
 
 public class CampaignAttackScript implements EveryFrameScript {
 
-    public static final float NPC_RELOAD_FACTOR = Global.getSettings().getFloat("IndEvo_Artillery_cooldownNPCMult");
-    public static final float MIN_DELAY_BETWEEN_SHOTS = Global.getSettings().getFloat("IndEvo_Artillery_minDelayBetweenShots");
-    public static final float MAX_DELAY_BETWEEN_SHOTS = Global.getSettings().getFloat("IndEvo_Artillery_maxDelayBetweenShots");
-    public static final float MIN_RELOAD_TIME = Global.getSettings().getFloat("IndEvo_Artillery_minCooldown");
-    public static final float MAX_RELOAD_TIME = Global.getSettings().getFloat("IndEvo_Artillery_maxCooldown");
-    public static final float RANGE = Global.getSettings().getFloat("IndEvo_Artillery_maxRange");
-    public static final float MIN_RANGE = Global.getSettings().getFloat("IndEvo_Artillery_minRange");
+    public static final float NPC_RELOAD_FACTOR = Settings.ARTILLERY_COOLDOWN_NPC_MULT;
+    public static final float MIN_DELAY_BETWEEN_SHOTS = Settings.ARTILLERY_MIN_DELAY_BETWEEN_SHOTS;
+    public static final float MAX_DELAY_BETWEEN_SHOTS = Settings.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS;
+    public static final float MIN_RELOAD_TIME = Settings.ARTILLERY_MIN_COOLDOWN;
+    public static final float MAX_RELOAD_TIME = Settings.ARTILLERY_MAX_COOLDOWN;
+    public static final float RANGE = Settings.ARTILLERY_MAX_RANGE;
+    public static final float MIN_RANGE = Settings.ARTILLERY_MIN_RANGE;
 
     //exclusions
     public static final float ARTILLERY_BLOCKOUT_RANGE = 400f;

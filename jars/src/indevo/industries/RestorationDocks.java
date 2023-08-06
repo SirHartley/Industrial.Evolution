@@ -29,6 +29,7 @@ import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
 
@@ -87,12 +88,12 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
     @Override
     public boolean isAvailableToBuild() {
-        return Global.getSettings().getBoolean("dryDock");
+        return Settings.DRYDOCK;
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("dryDock");
+        return Settings.DRYDOCK;
     }
 
     public void reportEconomyTick(int iterIndex) {
@@ -250,16 +251,16 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
         float cost;
         switch (size) {
             case FRIGATE:
-                cost = Global.getSettings().getFloat("restoFee_FRIGATE");
+                cost = Settings.RESTO_FEE_FRIGATE;
                 break;
             case DESTROYER:
-                cost = Global.getSettings().getFloat("restoFee_DESTROYER");
+                cost = Settings.RESTO_FEE_DESTROYER;
                 break;
             case CRUISER:
-                cost = Global.getSettings().getFloat("restoFee_CRUISER");
+                cost = Settings.RESTO_FEE_CRUISER;
                 break;
             case CAPITAL_SHIP:
-                cost = Global.getSettings().getFloat("restoFee_CAPITAL");
+                cost = Settings.RESTO_FEE_CAPITAL;
                 break;
             default:
                 cost = 10000f;

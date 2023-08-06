@@ -15,6 +15,7 @@ import indevo.industries.embassy.industry.Embassy;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.submarkets.RequisitionsCenterSubmarketPlugin;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
 
@@ -47,12 +48,12 @@ public class RequisitionCenter extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Global.getSettings().getBoolean("ReqCenter");
+        return Settings.REQCENTER;
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("ReqCenter");
+        return Settings.REQCENTER;
     }
 
     @Override

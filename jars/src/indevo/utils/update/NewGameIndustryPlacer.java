@@ -12,6 +12,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.utils.helper.Settings;
 
 import java.util.*;
 
@@ -41,7 +42,8 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeManufactories() {
-        if (!Global.getSettings().getBoolean("Manufactory")) {
+        if (!Settings.ADMANUF
+) {
             return;
         }
 
@@ -52,7 +54,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeSalvageYards() {
-        if (!Global.getSettings().getBoolean("ScrapYard")) {
+        if (!Settings.SCRAPYARD) {
             return;
         }
 
@@ -65,7 +67,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeDryDocks() {
-        if (!Global.getSettings().getBoolean("dryDock")) {
+        if (!Settings.DRYDOCK) {
             return;
         }
 
@@ -88,7 +90,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeCourierPorts() {
-        if (!Global.getSettings().getBoolean("PrivatePort")) {
+        if (!Settings.PRIVATEPORT) {
             return;
         }
 
@@ -117,7 +119,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeAcademy() {
-        if (!Global.getSettings().getBoolean("Academy")) {
+        if (!Settings.ACADEMY) {
             return;
         }
 
@@ -129,7 +131,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeReqCenter() {
-        if (!Global.getSettings().getBoolean("ReqCenter")) {
+        if (!Settings.REQCENTER) {
             return;
         }
 

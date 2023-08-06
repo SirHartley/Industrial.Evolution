@@ -26,6 +26,7 @@ import indevo.exploration.salvage.specials.*;
 import indevo.ids.Ids;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -47,7 +48,7 @@ public class IndEvo_SalvageSpecialAssigner {
     public void init() {
         Random random = StarSystemGenerator.random;
         log.info("IndEvo Starting salvage special seeding");
-        specialApplicationChance = Global.getSettings().getFloat("IndEvo_SpecialApplicationChance");
+        specialApplicationChance = Settings.SPECIAL_APPLICATION_CHANCE;
 
         for (SectorEntityToken entity : Global.getSector().getEntitiesWithTag(Tags.SALVAGEABLE)) {
             addOrReplaceSpecial(entity, random);

@@ -15,6 +15,7 @@ import indevo.ids.Ids;
 import indevo.industries.derelicts.scripts.PlanetMovingScript;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
@@ -384,12 +385,12 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
     }
 
     private float getRangeLY() {
-        rangeRadiusLY = Global.getSettings().getInt("RG_range");
+        rangeRadiusLY = Settings.RG_RANGE;
         return getAiCoreIdNotNull().equals(Commodities.BETA_CORE) ? rangeRadiusLY + betaCoreRangeIncrease : rangeRadiusLY;
     }
 
     private int getDaysRequired() {
-        daysRequired = Global.getSettings().getInt("RG_cooldownTime");
+        daysRequired = Settings.RG_COOLDOWN_TIME;
         return getAiCoreIdNotNull().equals(Commodities.ALPHA_CORE) ? daysRequired - alphaCoreDayReduction : daysRequired;
     }
 

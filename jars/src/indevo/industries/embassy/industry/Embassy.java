@@ -21,6 +21,7 @@ import indevo.industries.embassy.rules.IndEvo_ambassadorRemoval;
 import indevo.items.installable.AmbassadorInstallableItemPlugin;
 import indevo.items.specialitemdata.AmbassadorItemData;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
 
@@ -101,7 +102,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
     @Override
     public boolean isAvailableToBuild() {
-        return Global.getSettings().getBoolean("Embassy") && market.getFactionId().equals("player");
+        return Settings.EMBASSY && market.getFactionId().equals("player");
     }
 
     @Override
@@ -111,7 +112,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
     }
 
     public boolean showWhenUnavailable() {
-        return Global.getSettings().getBoolean("Embassy");
+        return Settings.EMBASSY;
     }
 
     private void monthlyRepIncrease() {

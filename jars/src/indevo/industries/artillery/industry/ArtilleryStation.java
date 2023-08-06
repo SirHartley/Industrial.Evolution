@@ -30,6 +30,7 @@ import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.scripts.CampaignAttackScript;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.Settings;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lazywizard.lazylib.MathUtils;
@@ -593,7 +594,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
             if (!hasOrbital) if (ind.getSpec().hasTag(Tags.STATION)) hasOrbital = true;
         }
 
-        return market.hasCondition(ArtilleryStationCondition.ID) && canBuild && hasOrbital && Global.getSettings().getBoolean("Enable_IndEvo_Artillery");
+        return market.hasCondition(ArtilleryStationCondition.ID) && canBuild && hasOrbital && Settings.ENABLE_ARTILLERY;
     }
 
     @Override

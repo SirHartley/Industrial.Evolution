@@ -14,6 +14,7 @@
   "Manufactory": TRUE,
   "ComForge": TRUE,
   "MilArray": TRUE,
+  "IndEvo_IntArray":TRUE,
   "CentBureau": TRUE,
   "ScrapYard": TRUE, #disable this to disable starship components. No, you can not have one without the other, go suck a dick. Dont forget the drop group.
   "SupCom": TRUE,
@@ -26,8 +27,10 @@
   "ReqCenter": TRUE,
   "PrivatePort": TRUE,
   "PetShop": TRUE, #Also disables all pet-related stuff.
+  "IndEvo_SwitchableRefining": TRUE,
+  "IndEvo_SwitchableMining": TRUE,
 
-  #Campaign Features
+#Campaign Features
   "Enable_Indevo_Derelicts": TRUE, #Also includes salvage events and station types
   "IndEvo_AutomatedShipyardNum":1.5f, #Amount of Coronal Taps * number = amount of shipyards. Default taps is 2, so default shipyards is 3 (2 * 1.5). Rounds up.
   "IndEvo_SpecialApplicationChance": 0.9f, #master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing.
@@ -77,7 +80,7 @@
   "IndEvo_Artillery_missile_projectilesPerShot":4, #must be divisible by 2
   "IndEvo_Artillery_missile_projectilesImpactTime":8f,
   "IndEvo_Artillery_missile_maxCoveredArea":800f, #maximum area the missiles cover - also depends on fuzz
-  "IndEvo_Artillery_missile_fuzz":1, #how accurate the missiles anticipate your location, less than 1 makes em kinda useless
+  "IndEvo_Artillery_missile_fuzz":1f, #how accurate the missiles anticipate your location, less than 1 makes em kinda useless
   "IndEvo_Artillery_missile_explosionRadius":200f,
   "IndEvo_Artillery_missile_duration":10f,
 

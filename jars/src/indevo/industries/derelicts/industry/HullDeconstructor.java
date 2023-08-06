@@ -30,6 +30,7 @@ import indevo.items.EmptyForgeTemplateItemPlugin;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
 import indevo.utils.timers.NewDayListener;
@@ -235,7 +236,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
     }
 
     private void shipToCargo(SpecialItemData specialItem, int quantity) {
-        if (Global.getSettings().getBoolean("hullDecon_autoDeliverToClosestForge")) {
+        if (Settings.HULLDECON_AUTO_DELIVER_TO_CLOSEST_FORGE) {
             MarketAPI target = IndustryHelper.getClosestMarketWithIndustry(market, Ids.HULLFORGE);
 
             if (target != null) {
@@ -249,7 +250,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
             }
         }
 
-        boolean toStorage = !Global.getSettings().getBoolean("IndEvo_derelictDeliverToGathering");
+        boolean toStorage = !Settings.DERELICT_DELIVER_TO_GATHERING;
 
         MarketAPI gather = market.getFaction().getProduction().getGatheringPoint();
         MarketAPI target = toStorage ? market : gather;
@@ -315,10 +316,10 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
 
     private int getRequiredDaysForHull(ShipVariantAPI ship) {
         Map<ShipAPI.HullSize, Integer> dayMap = new HashMap<>();
-        dayMap.put(ShipAPI.HullSize.FRIGATE, Global.getSettings().getInt("hullDecon_days_FRIGATE"));
-        dayMap.put(ShipAPI.HullSize.DESTROYER, Global.getSettings().getInt("hullDecon_days_DESTROYER"));
-        dayMap.put(ShipAPI.HullSize.CRUISER, Global.getSettings().getInt("hullDecon_days_CRUISER"));
-        dayMap.put(ShipAPI.HullSize.CAPITAL_SHIP, Global.getSettings().getInt("hullDecon_days_CAPITAL_SHIP"));
+        dayMap.put(ShipAPI.HullSize.FRIGATE, Settings.HULLDECON_DAYS_FRIGATE);
+        dayMap.put(ShipAPI.HullSize.DESTROYER, Settings.HULLDECON_DAYS_DESTROYER);
+        dayMap.put(ShipAPI.HullSize.CRUISER, Settings.HULLDECON_DAYS_CRUISER);
+        dayMap.put(ShipAPI.HullSize.CAPITAL_SHIP, Settings.HULLDECON_DAYS_CAPITAL_SHIP);
 
         return dayMap.get(ship.getHullSize());
     }

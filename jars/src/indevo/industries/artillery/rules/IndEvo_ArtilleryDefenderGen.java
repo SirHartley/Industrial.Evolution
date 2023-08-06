@@ -15,6 +15,7 @@ import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.Settings;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -73,7 +74,7 @@ public class IndEvo_ArtilleryDefenderGen {
         return Global.getSettings().getIndustrySpec("IndEvo_Artillery_" + getType(market));
     }
 
-    public static final float MIN_FLEET_SIZE = Global.getSettings().getFloat("IndEvo_Artillery_defense_FP");
+    public static final float MIN_FLEET_SIZE = Settings.ARTILLERY_DEFENSE_FP;
     public static final float MAX_HAZARD = 200f;
 
     public static CampaignFleetAPI createDefenderFleet(MarketAPI market, String factionId) {
