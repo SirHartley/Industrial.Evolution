@@ -193,6 +193,9 @@ public class ModPlugin extends BaseModPlugin {
 
     public void addTypePrefaceToIndustrySpecs(){
         for (IndustrySpecAPI spec : Global.getSettings().getAllIndustrySpecs()){
+            String preface = "Type: ";
+            if (spec.getDesc().startsWith(preface)) continue;
+
             List<String> tagList = new ArrayList<>();
             if (spec.getTags().contains("industrial")) tagList.add("industrial");
             if (spec.getTags().contains("rural")) tagList.add("rural");
@@ -207,7 +210,7 @@ public class ModPlugin extends BaseModPlugin {
                 type.append(Misc.ucFirst(tag));
             }
 
-            type.insert(0, "Type: ").append("\n\n");
+            type.insert(0, preface).append("\n\n");
             spec.setDesc(type + spec.getDesc());
         }
     }

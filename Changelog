@@ -53,6 +53,9 @@ Echo	Industrial.Evolution	Frigate	EMP Auto-Frigate	Contact - SirHartley#5459
 Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 
 3.3.b
+General
+Fixed - No longer infinitely writes "Type" in front of industry descriptions on load
+
 Pets
 todo: Admiral Pirrot and the Starcracker-class Breadnought
 todo: Parrot-Class Superclaw
