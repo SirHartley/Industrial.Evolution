@@ -85,6 +85,7 @@ import indevo.utils.update.NewGameIndustryPlacer;
 import org.dark.shaders.light.LightData;
 import org.dark.shaders.util.ShaderLib;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -122,7 +123,7 @@ public class ModPlugin extends BaseModPlugin {
         //Global.getSector().getPlayerFleet().setFaction("hegemony");
 
         boolean devmode = Global.getSettings().isDevMode();
-        boolean devActions = false; //Todo SET TO FALSE FOR RELEASE
+        boolean devActions = true; //Todo SET TO FALSE FOR RELEASE
 
         if (newGame && devmode && devActions) {
             SectorEntityToken t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity("brimir", null, "IndEvo_MobileColony", Factions.REMNANTS, null);
@@ -164,6 +165,15 @@ public class ModPlugin extends BaseModPlugin {
 
         //pets
         if (ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(Ids.PROJ_NAVI).getProgress().redeemed) PetDataRepo.get("fairy").tags.remove(PetData.TAG_NO_SELL);
+
+        for(PetData data : PetDataRepo.getAll()) {
+            try {
+                Global.getSettings().loadTexture(data.icon);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         addLordFoogRep();
     }
 
