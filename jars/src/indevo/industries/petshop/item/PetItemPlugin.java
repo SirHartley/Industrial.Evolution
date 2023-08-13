@@ -18,8 +18,7 @@ import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.lazywizard.lazylib.LazyLib;
-import org.lazywizard.lazylib.MathUtils;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.Random;
@@ -62,8 +61,9 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         float brX = x + dim;
         float brY = y - dim;
 
-        renderer.renderBGWithCorners(bgColor, blX - 1, blY - 1, tlX - 1, tlY + 1, trX + 1, trY + 1, brX + 1, brY - 1,1f,0f,false);
+        renderer.renderBGWithCorners(bgColor, blX - 1, blY - 1, tlX - 1, tlY + 1, trX + 1, trY + 1, brX + 1, brY - 1, 1f, 0f, false);
         sprite.renderWithCorners(blX, blY, tlX, tlY, trX, trY, brX, brY);
+
     }
 
     @Override
@@ -78,7 +78,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         JSONObject json = new JSONObject(params);
 
         String tier = json.optString("tier");
-        switch (tier){
+        switch (tier) {
             case "rare":
                 maxRarity = 0.4f;
                 break;
@@ -91,7 +91,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
                 break;
         }
 
-        for (PetData data : PetDataRepo.getAll()){
+        for (PetData data : PetDataRepo.getAll()) {
             if (data.isNoDrop()) continue;
 
             if (isBetween(data.rarity, minRarity, maxRarity)) picker.add(data, data.rarity);
@@ -142,9 +142,9 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         PetData pet = PetDataRepo.get(stack.getSpecialDataIfSpecial().getData());
 
         float rarity = pet.rarity;
-        Pair<String, Color> rpair = rarity == 0.1f ?  new Pair<>("[Epic]", new Color(180,50,255,255))
-                : isBetween(rarity, 0f, 0.4f) ? new Pair<>("[Rare]", new Color(80,100,255,255))
-                : isBetween(rarity, 0.5f, 0.8f) ? new Pair<>("[Uncommon]", new Color(80,200,80,255)) :
+        Pair<String, Color> rpair = rarity == 0.1f ? new Pair<>("[Epic]", new Color(180, 50, 255, 255))
+                : isBetween(rarity, 0f, 0.4f) ? new Pair<>("[Rare]", new Color(80, 100, 255, 255))
+                : isBetween(rarity, 0.5f, 0.8f) ? new Pair<>("[Uncommon]", new Color(80, 200, 80, 255)) :
                 new Pair<>("[Common]", Color.white);
 
         tooltip.addPara("Contains a %s", opad, h, pet.species);

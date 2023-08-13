@@ -65,6 +65,11 @@ public class DerelictStationPlacer {
         float arsChance = arsAmt * 3 / systemList.size();
         float petChance = petAmt * 3 / systemList.size();
 
+        if (!Settings.PETS){
+            petAmt = 0;
+            petChance = 0;
+        }
+
         log.info("DerelictStationPlacer");
         log.info("totals " + totalStationAmt
                 + " labAmt" + labAmt + " labChance " + labChance

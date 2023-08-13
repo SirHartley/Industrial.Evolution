@@ -85,6 +85,7 @@ import indevo.utils.update.NewGameIndustryPlacer;
 import org.dark.shaders.light.LightData;
 import org.dark.shaders.util.ShaderLib;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -123,7 +124,7 @@ public class ModPlugin extends BaseModPlugin {
         //Global.getSector().getPlayerFleet().setFaction("hegemony");
 
         boolean devmode = Global.getSettings().isDevMode();
-        boolean devActions = true; //Todo SET TO FALSE FOR RELEASE
+        boolean devActions = false; //Todo SET TO FALSE FOR RELEASE
 
         if (newGame && devmode && devActions) {
             SectorEntityToken t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity("brimir", null, "IndEvo_MobileColony", Factions.REMNANTS, null);

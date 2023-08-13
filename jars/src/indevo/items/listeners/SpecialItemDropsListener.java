@@ -57,7 +57,6 @@ public class SpecialItemDropsListener implements ShowLootListener {
 
             ModPlugin.log(String.format("DropData " + data.group + " [%s] value and [%s] valueMult", data.value, data.valueMult));
 
-
             if (data.group.equals("rare_tech") || data.group.equals("rare_tech_low")) {
 
                 int value = -1;

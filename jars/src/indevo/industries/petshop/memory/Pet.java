@@ -5,7 +5,11 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.loading.VariantSource;
+import com.fs.starfarer.api.ui.Alignment;
+import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
@@ -15,12 +19,14 @@ import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.MathUtils;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class Pet {
     public static final float DEFAULT_FEED_INTERVAL = 31f;
     public static final String HULLMOD_DATA_PREFIX = "PET_DATA_ID_";
     public static final float MAX_EFFECT_AFTER_DAYS = 365f;
+    public static final float PET_ICON_DIM = 64f;
 
     public String typeID;
     public String id;
@@ -66,6 +72,7 @@ public class Pet {
             shop.removeFromStorage(this);
             storage = null;
         }
+
     }
 
     public void assign(FleetMemberAPI toMember) {
@@ -189,5 +196,38 @@ public class Pet {
                 (assignedFleetMember != null ? assignedFleetMember.getShipName() : null));
 
         return deathData;
+    }
+
+    public void addHullmodDescriptionSection(TooltipMakerAPI tooltip) {
+        float opad = 10f;
+        float spad = 3f;
+        Color hl = Misc.getHighlightColor();
+
+        tooltip.addSectionHeading("Pet Data", Alignment.MID, opad);
+
+        float padding = 5f;
+        CustomPanelAPI panel = Global.getSettings().createCustom(tooltip.getWidthSoFar() - PET_ICON_DIM, 300f, null);
+        TooltipMakerAPI textElement = panel.createUIElement(tooltip.getWidthSoFar() - PET_ICON_DIM, 100f, false);
+        textElement.addPara("Name: %s", spad, hl, name);
+        textElement.addPara("Species: %s", spad, hl, getData().species);
+        textElement.addPara("Disposition: %s", spad, Academy.COLOURS_BY_PERSONALITY.get(personality), personality.toLowerCase());
+        textElement.addPara("Age: %s", spad, hl, getAgeString());
+        textElement.addPara("Status: %s", spad, isStarving() ? Misc.getNegativeHighlightColor() : hl, isStarving() ? "Starving" : "Well fed and happy");
+        panel.addUIElement(textElement).inTL(-padding, 0f); //WHY, WHY THE PADDING ALEX??? WHY????
+        panel.getPosition().setSize(tooltip.getWidthSoFar(), textElement.getHeightSoFar()); //scale to correct size
+
+        TooltipMakerAPI imageElement = panel.createUIElement(PET_ICON_DIM,PET_ICON_DIM, false);
+        imageElement.addImage(getData().icon, PET_ICON_DIM, 0f);
+        panel.addUIElement(imageElement).rightOfTop(textElement, padding);
+        tooltip.addCustom(panel, padding);
+
+        tooltip.addPara("Dietary options: ", opad);
+        for (String commodity : getData().foodCommodities) {
+            String name = Global.getSettings().getCommoditySpec(commodity).getName();
+            tooltip.addPara(BaseIntelPlugin.BULLET + " " + name, spad);
+        }
+
+        tooltip.addSectionHeading("Description", Alignment.MID, opad);
+        tooltip.addPara(getData().desc, opad);
     }
 }

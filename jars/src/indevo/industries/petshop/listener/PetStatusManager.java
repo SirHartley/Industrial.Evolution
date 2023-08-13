@@ -19,6 +19,7 @@ import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -89,6 +90,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     @Override
     public void advance(float amount) {
+        if (!Settings.PETS) return;
+
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
         if (!fleet.getEventListeners().contains(this)) fleet.addEventListener(this);
 
@@ -164,7 +167,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             case COMBAT:
                 picker = new WeightedRandomPicker<>();
                 picker.addAll(IndustryHelper.getCSVSetFromMemory(COMBAT_DEATH_CAUSES));
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " living on the destroyed " + pet.assignedFleetMember.getShipName() + " " + picker.pick() + ".", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " living on the destroyed " + pet.assignedFleetMember.getShipName() + " " + picker.pick() + "", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
                 break;
             case NATURAL:
                 String message = "";
@@ -174,7 +177,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                     message = picker.pick();
                 } else message = pet.getData().naturalDeath;
 
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " formerly living on the " + pet.assignedFleetMember.getShipName() + ", %s.", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " formerly living on the " + pet.assignedFleetMember.getShipName() + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case STARVED:
                 Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has %s on the " + pet.assignedFleetMember.getShipName(), Misc.getTextColor(), pet.name, "starved to death", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
@@ -202,6 +205,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     @Override
     public void reportEconomyMonthEnd() {
+        if (!Settings.PETS) return;
+
         doRoutineAliveCheck();
         showFoodMessage();
         foodTakenLastMonth.clear();

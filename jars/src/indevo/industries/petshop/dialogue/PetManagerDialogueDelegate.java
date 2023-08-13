@@ -31,12 +31,13 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
     public static final float ENTRY_HEIGHT = 100; //MUST be even
     public static final float ENTRY_WIDTH = WIDTH - 5f; //MUST be even
     public static final float CONTENT_HEIGHT = 96;
+    public static final float PET_ICON_DIM = 40;
 
     public Industry industry;
     public PetLocationFilter currentFilter = PetLocationFilter.ALL;
     public PetShopDialogPlugin dialog;
 
-    boolean dismissOnNextCancel = false;
+    boolean dismissOnNextCancel = true;
 
     public enum PetLocationFilter{
         FLEET,
@@ -146,14 +147,14 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
             TooltipMakerAPI lastUsed = anchor;
 
             //small pet icon
-            anchor = petEntryPanel.createUIElement(BUTTON_HEIGHT+2, BUTTON_HEIGHT+2, false);
-            ButtonAPI border = anchor.addAreaCheckbox("", null, baseColor, baseColor, baseColor,  BUTTON_HEIGHT+2, BUTTON_HEIGHT+2, 0);
+            anchor = petEntryPanel.createUIElement(PET_ICON_DIM +2, PET_ICON_DIM +2, false);
+            ButtonAPI border = anchor.addAreaCheckbox("", null, baseColor, baseColor, baseColor,  PET_ICON_DIM+2, PET_ICON_DIM+2, 0);
             border.setEnabled(false);
-            petEntryPanel.addUIElement(anchor).rightOfBottom(lastUsed, -BUTTON_HEIGHT);
+            petEntryPanel.addUIElement(anchor).rightOfBottom(lastUsed, -PET_ICON_DIM);
 
-            anchor = petEntryPanel.createUIElement(BUTTON_HEIGHT, BUTTON_HEIGHT, false);
-            anchor.addImage(pet.getData().icon, BUTTON_HEIGHT, BUTTON_HEIGHT, 0f);
-            petEntryPanel.addUIElement(anchor).rightOfBottom(lastUsed, -BUTTON_HEIGHT+1).setYAlignOffset(1f);
+            anchor = petEntryPanel.createUIElement(PET_ICON_DIM, PET_ICON_DIM, false);
+            anchor.addImage(pet.getData().icon, PET_ICON_DIM, PET_ICON_DIM, 0f);
+            petEntryPanel.addUIElement(anchor).rightOfBottom(lastUsed, -PET_ICON_DIM+1).setYAlignOffset(1f);
 
             //title ect
             anchor = petEntryPanel.createUIElement(ENTRY_WIDTH - CONTENT_HEIGHT - spad - defaultPadding, CONTENT_HEIGHT - BUTTON_HEIGHT - opad, false);

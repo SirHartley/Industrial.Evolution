@@ -1,6 +1,8 @@
 {
   #Documentation is for nerds
 
+  #USE LUNALIB INSTEAD OF MODIFYING THE SETTINGS HERE
+
         #Vanilla changes:
         "IndEvo_CommerceBalanceChanges":TRUE, #Commerce balance changes. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).
 
@@ -26,11 +28,13 @@
   "EngHub": TRUE,
   "ReqCenter": TRUE,
   "PrivatePort": TRUE,
-  "PetShop": TRUE, #Also disables all pet-related stuff.
   "IndEvo_SwitchableRefining": TRUE,
   "IndEvo_SwitchableMining": TRUE,
 
-#Campaign Features
+  #USE LUNALIB INSTEAD OF MODIFYING THE SETTINGS HERE
+
+  #Campaign Features
+  "IndEvo_pets":TRUE, #Also disables all pet-related stuff including the industry.
   "Enable_Indevo_Derelicts": TRUE, #Also includes salvage events and station types
   "IndEvo_AutomatedShipyardNum":1.5f, #Amount of Coronal Taps * number = amount of shipyards. Default taps is 2, so default shipyards is 3 (2 * 1.5). Rounds up.
   "IndEvo_SpecialApplicationChance": 0.9f, #master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing.
@@ -65,6 +69,8 @@
   "IndEvo_Artillery_maxRange":12000f, # =6 map cells
   "IndEvo_Artillery_WatchtowerRange":4000f,
   "IndEvo_Artillery_defense_FP":100f, #base fleet size that spawns to defend artillery stations. Has to be 1 at minimum or it crashes.
+
+  #USE LUNALIB INSTEAD OF MODIFYING THE SETTINGS HERE
 
   #mortar artillery
   "IndEvo_Artillery_mortar_projectilesPerShot":8,
@@ -102,6 +108,8 @@
   #RiftGen
   "RG_cooldownTime": 90,
   "RG_range": 9, # in LY
+
+  #USE LUNALIB INSTEAD OF MODIFYING THE SETTINGS HERE
 
   #Laboratory
   "reslab_autoDeliverToClosestDecon": FALSE, #Auto-deliver restored forge templates to the closest HullDecon  Remember - courier port exists.
@@ -143,6 +151,8 @@
   "adminTrainingDayCount": 124,
   "adminTrainingCost": 20000,
   "monthlyAIStorageCost": 2000,
+
+  #USE LUNALIB INSTEAD OF MODIFYING THE SETTINGS HERE
 
   #Variable Industries
   "VarInd_deliverToProductionPoint": FALSE, #Auto-deliver to production point (default - To local storage)  Remember - courier port exists.
@@ -224,7 +234,8 @@
   "Experimental":[50, 168, 82, 255],
   "Nvidia Corporation":[118, 185, 0, 255],
   "Consumable":[100,10,200,255],
-  "Cryochamber":[80,150,255,255]
+  "Cryochamber":[80,150,255,255],
+  "Industrial.Evolution":[245,240,240,255]
   },
 
   "bonusXP": {

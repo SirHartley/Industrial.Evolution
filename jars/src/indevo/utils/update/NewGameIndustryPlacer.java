@@ -29,7 +29,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placePetShops() {
-        if (!Global.getSettings().getBoolean("PetShop")) {
+        if (!Settings.PETS) {
             return;
         }
 

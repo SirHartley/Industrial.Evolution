@@ -104,9 +104,9 @@ public class Settings {
     public static int ADMIN_TRAINING_COST = Global.getSettings().getInt("adminTrainingCost");
     public static int MONTHLY_AI_STORAGE_COST = Global.getSettings().getInt("monthlyAIStorageCost");
     public static boolean VARIND_DELIVER_TO_PRODUCTION_POINT = Global.getSettings().getBoolean("VarInd_deliverToProductionPoint");
+    public static boolean PETS = Global.getSettings().getBoolean("IndEvo_pets");
 
     //todo pet shop
-
 
     public static void reloadLunaSettings(){
         SHIP_PICKER_ROW_COUNT = LunaSettings.getInt("IndEvo", "IndEvo_shipPickerRowCount");
@@ -209,5 +209,6 @@ public class Settings {
         ADMIN_TRAINING_COST = LunaSettings.getInt("IndEvo", "IndEvo_adminTrainingCost");
         MONTHLY_AI_STORAGE_COST = LunaSettings.getInt("IndEvo", "IndEvo_monthlyAIStorageCost");
         VARIND_DELIVER_TO_PRODUCTION_POINT = LunaSettings.getBoolean("IndEvo", "IndEvo_VarInd_deliverToProductionPoint");
+        PETS = LunaSettings.getBoolean("IndEvo", "IndEvo_pets");
     }
 }

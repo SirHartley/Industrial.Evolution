@@ -56,7 +56,13 @@ Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 General
 Fixed - No longer infinitely writes "Type" in front of industry descriptions on load
 
+Exploration
+Fixed - Rare crash when an item choice special resolves to null
+
 Pets
+Added - A setting to disable the entire system
+Fixed - Double "." on death message
+Fixed - Pet station screen getting stuck on pressing esc
 todo: Admiral Pirrot and the Starcracker-class Breadnought
 todo: Parrot-Class Superclaw
 

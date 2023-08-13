@@ -20,6 +20,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.memory.Pet;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
 
@@ -155,6 +156,16 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (petShopStationEntity == null) {
             ensurePetShopCreatedOrAssigned();
         }
+    }
+
+    @Override
+    public boolean isAvailableToBuild() {
+        return super.isAvailableToBuild() && Settings.PETS;
+    }
+
+    @Override
+    public boolean showWhenUnavailable() {
+        return super.showWhenUnavailable() && Settings.PETS;
     }
 
     @Override

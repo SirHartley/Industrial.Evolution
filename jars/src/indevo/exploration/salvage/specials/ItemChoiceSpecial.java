@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.impl.campaign.ids.Strings;
 import com.fs.starfarer.api.impl.campaign.procgen.DropGroupRow;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
@@ -16,6 +17,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import com.thoughtworks.xstream.mapper.Mapper;
 import indevo.exploration.salvage.scripts.ExplosionScript;
 import indevo.ids.ItemIds;
 import indevo.items.ForgeTemplateItemPlugin;
@@ -109,15 +111,24 @@ public class ItemChoiceSpecial extends BaseSalvageSpecial {
 
             //used to crash because the chosen item was "", no idea what happened, but we'll pick as long as we have to god damn it (or 10 times)
             String item = picker.pick();
-            int safeguard = 0;
 
-            while (item == null || item.isEmpty() || safeguard > 10) {
+            for (int i = 0; i < 10; i++){
+                if (item != null) break;
                 item = picker.pick();
-                safeguard++;
             }
 
             data.itemID = item;
         }
+
+        //ultimate failsafe, just give the player a fish
+        SpecialItemSpecAPI spec = null;
+        try {
+           spec = Global.getSettings().getSpecialItemSpec(data.itemID);
+        } catch (Exception e){
+            data.itemID = "IndEvo_debug";
+        }
+
+        if (spec == null) data.itemID = "IndEvo_debug";
 
         //for forge templates
         if (data.itemID.contains(ItemIds.FORGETEMPLATE)) {

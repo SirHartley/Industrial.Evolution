@@ -26,6 +26,7 @@ IndEvo_SwitchableMining,[Industries] Specialized Mining,Boolean,TRUE,,Enables or
 IndEvo_derelictDeliverToGathering,[Derelict Industries] Deliver to Gathering Point,Boolean,FALSE,,All derelict industry output will be delivered to the gathering point instead of local storage. Remember - courier port exists.,,,Industries
 IndEvo_DerInfraBuildRed,[Derelict Industries] Derelict Infra Cost Reduction,Double,0.5,,Derelict infra build cost and time reductuctions,,,Industries
 IndEvo_header3,Exploration & Campaign,Header,Exploration & Campaign,,,,,Exploration & Campaign
+IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Toggles Pets, the pet cryochamber dropping in campaign, abandoned pet stations spawning and the industry being available.",,,Exploration & Campaign
 IndEvo_Enable_Derelicts,[Exploration] Events and Industries,Boolean,TRUE,,Enables salvage events as well as derelict infrastructure and industries,,,Exploration & Campaign
 IndEvo_AutomatedShipyardNum,[Exploration] Automated Shipyards Amount,Double,1.5,,"Amount of Coronal Taps * number = amount of automated shipyards. Default taps is 2, so default shipyards is 3 (2 * 1.5). Rounds up.",0,10,Exploration & Campaign
 IndEvo_SpecialApplicationChance,[Exploration] Special Event Application Chance,Double,0.9,,Master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing.,,,Exploration & Campaign
