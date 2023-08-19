@@ -56,17 +56,37 @@ Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 General
 Fixed - No longer infinitely writes "Type" in front of industry descriptions on load
 
+Items
+Added - Failsafe for weird heavy industry types to demand/produce ship parts - they suck at it, but now they at least do it
+Fixed - Crash when another mod fails to specify a valid variant for a recovery event (looking at you, lukas)
+
 Exploration
 Fixed - Rare crash when an item choice special resolves to null
 
+Industry Specializations
+Adjusted - Nerfed all outputs by 1
+Fixed - Industry option no longer shows up when the feature is disabled in the settings
+
+Governances
+Added - Setting that makes all governances behave like vanilla pop&Infra, turning it into a cosmetic choice.
+Added - Setting to edit max size for gov change
+Adjusted - Capped CorpoGov stability Bonus at +10
+Adjusted - Doubled credits/stability steps for CorpoGov
+Adjusted - DP buildup for Monastic Orders for ship tithes reduced, meaning it takes longer to build caps
+Fixed - Corrected Monastic Orders description: they are able to build capitals because it's based
+
 Pets
-Added - A setting to disable the entire system
+Added - A setting to disable the entire system including station spawns
+Added - All pets now eat supplies as well. This means you don't have to buy food, but it's cheaper.
+Adjusted - All pet lifetimes increased by a lot (only applies to new pets)
 Fixed - Double "." on death message
 Fixed - Pet station screen getting stuck on pressing esc
+Fixed - Crash when a pet dies while not assigned to a ship
 todo: Admiral Pirrot and the Starcracker-class Breadnought
 todo: Parrot-Class Superclaw
 
 Artillery
+Fixed - Bug that caused artillery terrain to crash when no artillery is present
 todo: automated claws and parrot to arty
 todo: Watchtowers buildable in stable loc
 

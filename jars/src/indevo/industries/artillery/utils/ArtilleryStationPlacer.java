@@ -13,10 +13,7 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.TechMining;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
-import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
-import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
-import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGeneratorPlugin;
-import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantSeededFleetManager;
+import com.fs.starfarer.api.impl.campaign.procgen.themes.*;
 import com.fs.starfarer.api.impl.campaign.terrain.RingSystemTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
@@ -25,12 +22,17 @@ import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationScript;
+import indevo.industries.artillery.scripts.CampaignAttackScript;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Random;
 
+import static com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator.convertOrbitWithSpin;
+import static com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator.setEntityLocation;
 import static indevo.industries.artillery.scripts.ArtilleryStationScript.SCRIPT_KEY;
 import static indevo.industries.artillery.scripts.ArtilleryStationScript.TYPE_KEY;
 
@@ -101,6 +103,7 @@ public class ArtilleryStationPlacer {
                     if (hasRemnantStation)
                         p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, ArtilleryStationEntityPlugin.TYPE_MISSILE);
 
+                    //addTestArtilleryToPlanet(p);
                     addArtilleryToPlanet(p, false);
 
                     ModPlugin.log("Placed artillery at " + p.getName() + " system: " + s.getName());
@@ -138,81 +141,7 @@ public class ArtilleryStationPlacer {
         }
     }
 
-/*    public static void addArtillery(SectorEntityToken planet, ) {
-        String faction = planet.getMarket() != null && (planet.getMarket().isPlanetConditionMarketOnly() || Factions.NEUTRAL.equals(planet.getMarket().getFactionId())) ? Ids.DERELICT_FACTION_ID : planet.getMarket().getFactionId();
-        CampaignFleetAPI fleet = FleetFactoryV3.createEmptyFleet(faction, FleetTypes.BATTLESTATION, null);
-
-        FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, type);
-        fleet.getFleetData().addFleetMember(member);
-
-        //fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_PIRATE, true);
-        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);
-        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_JUMP, true);
-        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_ALLOW_DISENGAGE, true);
-        fleet.addTag(Tags.NEUTRINO_HIGH);
-
-        fleet.setStationMode(true);
-
-        addRemnantStationInteractionConfig(fleet);
-
-        data.system.addEntity(fleet);
-
-        //fleet.setTransponderOn(true);
-        fleet.clearAbilities();
-        fleet.addAbility(Abilities.TRANSPONDER);
-        fleet.getAbility(Abilities.TRANSPONDER).activate();
-        fleet.getDetectedRangeMod().modifyFlat("gen", 1000f);
-
-        fleet.setAI(null);
-
-        setEntityLocation(fleet, loc, null);
-        convertOrbitWithSpin(fleet, 5f);
-
-        boolean damaged = type.toLowerCase().contains("damaged");
-        String coreId = Commodities.ALPHA_CORE;
-        if (damaged) {
-            // alpha for both types; damaged is already weaker
-            //coreId = Commodities.BETA_CORE;
-            fleet.getMemoryWithoutUpdate().set("$damagedStation", true);
-            fleet.setName(fleet.getName() + " (Damaged)");
-        }
-
-        AICoreOfficerPlugin plugin = Misc.getAICoreOfficerPlugin(coreId);
-        PersonAPI commander = plugin.createPerson(coreId, fleet.getFaction().getId(), random);
-
-        fleet.setCommander(commander);
-        fleet.getFlagship().setCaptain(commander);
-
-        if (!damaged) {
-            RemnantOfficerGeneratorPlugin.integrateAndAdaptCoreForAIFleet(fleet.getFlagship());
-            RemnantOfficerGeneratorPlugin.addCommanderSkills(commander, fleet, null, 3, random);
-        }
-
-        member.getRepairTracker().setCR(member.getRepairTracker().getMaxCR());
-
-
-        //RemnantSeededFleetManager.addRemnantAICoreDrops(random, fleet, mult);
-
-        result.add(fleet);
-
-//				MarketAPI market = Global.getFactory().createMarket("station_market_" + fleet.getId(), fleet.getName(), 0);
-//				market.setPrimaryEntity(fleet);
-//				market.setFactionId(fleet.getFaction().getId());
-//				market.addCondition(Conditions.ABANDONED_STATION);
-//				market.addSubmarket(Submarkets.SUBMARKET_STORAGE);
-//				((StoragePlugin)market.getSubmarket(Submarkets.SUBMARKET_STORAGE).getPlugin()).setPlayerPaidToUnlock(true);
-//				fleet.setMarket(market);
-
-        return result;
-    }
-
-
-    public static void addRemnantStationInteractionConfig(CampaignFleetAPI fleet) {
-        fleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_INTERACTION_DIALOG_CONFIG_OVERRIDE_GEN,
-                new RemnantThemeGenerator.RemnantStationInteractionConfigGen());
-    }
-
-    public static class RemnantStationInteractionConfigGen implements FleetInteractionDialogPluginImpl.FIDConfigGen {
+    public static class ArtilleryStationInteractionConfigGen implements FleetInteractionDialogPluginImpl.FIDConfigGen {
         public FleetInteractionDialogPluginImpl.FIDConfig createConfig() {
             FleetInteractionDialogPluginImpl.FIDConfig config = new FleetInteractionDialogPluginImpl.FIDConfig();
 
@@ -228,10 +157,8 @@ public class ArtilleryStationPlacer {
                     new RemnantSeededFleetManager.RemnantFleetInteractionConfigGen().createConfig().delegate.
                             postPlayerSalvageGeneration(dialog, context, salvage);
                 }
-
                 public void notifyLeave(InteractionDialogAPI dialog) {
                 }
-
                 public void battleContextCreated(InteractionDialogAPI dialog, BattleCreationContext bcc) {
                     bcc.aiRetreatAllowed = false;
                     bcc.objectivesAllowed = false;
@@ -239,9 +166,7 @@ public class ArtilleryStationPlacer {
             };
             return config;
         }
-    }*/
-
-    //---------- end new
+    }
 
     public static void placeWatchtowers(StarSystemAPI system, String factionId) {
         float minGap = 100f;

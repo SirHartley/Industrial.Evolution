@@ -1,5 +1,17 @@
 id,trigger,conditions,script,text,options,notes
 #RULESET_NAME IndEvo,,,,,,
+IndEvo_artyStationFleetOpenDefault,BeginFleetEncounter,"$isStation
+$IndEvo_Artillery score:1000
+!$printedDesc",$printedDesc = true 0,"ARTILLERY STATION
+
+The grim expanse of the remnant battlestation fills your viewscreen. A bridge officer re-scales the tactical target display so that its entire mass can be seen at once. 
+
+A relic from the First AI War, the station nonetheless appears to be fully armed and operational.
+
+The combat analysis system churns for a few seconds and then beeps angrily instead of producing the usual range of tactical recommendations.",,
+IndEvo_artyStationGreet,PickGreeting,"$isStation
+$IndEvo_Artillery score:1000","Highlight ""TEST""
+SetShortcut cutCommLink ""ESCAPE""","After a short wait, your connection request is accepted. BEEP BOOP TEST",0:cutCommLink:Cut the comm link,
 ,,,,,,
 IndEvo_foog_aristrocratGreetingNoLock,PickGreeting,"$id == foogAristo score:1000
 $player.foogLocked == false","ShowPersonVisual

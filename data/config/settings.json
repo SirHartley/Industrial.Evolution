@@ -34,6 +34,8 @@
   #USE LUNALIB INSTEAD OF MODIFYING THE SETTINGS HERE
 
   #Campaign Features
+  "IndEvo_GovernmentLarpMode": FALSE, #makes all governments behave like the default one, turning it into a cosmetic choice only.
+  "IndEvo_GovernmentMaxSize": 3, #Specifies how large a colony may be to in order to change the government type. Building up a stable colony and then changing is cheating and takes away from how these are supposed to work: higher rewards for higher difficulties.
   "IndEvo_pets":TRUE, #Also disables all pet-related stuff including the industry.
   "Enable_Indevo_Derelicts": TRUE, #Also includes salvage events and station types
   "IndEvo_AutomatedShipyardNum":1.5f, #Amount of Coronal Taps * number = amount of shipyards. Default taps is 2, so default shipyards is 3 (2 * 1.5). Rounds up.

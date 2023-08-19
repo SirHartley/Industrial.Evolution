@@ -72,7 +72,7 @@ public class ShipComponentLootManager {
                     ShipRecoverySpecial.PerShipData shipData = plugin.getData().ship;
                     Random random = new Random(dialog.getInteractionTarget().getClass().hashCode());
 
-                    if (shipData.getVariant().getHullSpec() != null) {
+                    if (shipData != null && shipData.getVariant() != null && shipData.getVariant().getHullSpec() != null) {
                         int fp = shipData.getVariant().getHullSpec().getFleetPoints();
                         int amt = (int) Math.round(fp * 0.3f + (0.2 * random.nextFloat() * fp));
 

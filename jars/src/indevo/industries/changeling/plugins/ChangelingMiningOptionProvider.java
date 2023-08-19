@@ -13,6 +13,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.changeling.dialogue.ChangelingIndustryDialogueDelegate;
 import indevo.industries.changeling.industry.mining.SwitchableMining;
+import indevo.utils.helper.Settings;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -31,12 +32,16 @@ public class ChangelingMiningOptionProvider extends BaseIndustryOptionProvider {
 
     @Override
     public boolean isUnsuitable(Industry ind, boolean allowUnderConstruction) {
+        return super.isUnsuitable(ind, allowUnderConstruction)
+                || !isSuitable(ind);
+    }
+
+    public boolean isSuitable(Industry ind){
         boolean isTarget = ind.getId().equals(Industries.MINING);
         boolean isChangeling = ind instanceof SwitchableMining;
         boolean canChange = isChangeling && ((SwitchableMining) ind).canChange();
 
-        return super.isUnsuitable(ind, allowUnderConstruction)
-                || !(isTarget || canChange);
+        return isTarget && canChange && Settings.SWITCHABLEMINING;
     }
 
     @Override

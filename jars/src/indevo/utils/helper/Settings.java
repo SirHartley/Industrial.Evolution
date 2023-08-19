@@ -4,6 +4,8 @@ import com.fs.starfarer.api.Global;
 import lunalib.lunaSettings.LunaSettings;
 
 public class Settings {
+    public static boolean GOVERNMENT_LARP_MODE = Global.getSettings().getBoolean("IndEvo_GovernmentLarpMode");
+    public static int GOVERNMENT_MAX_SIZE = Global.getSettings().getInt("IndEvo_GovernmentMaxSize");
     public static int SHIP_PICKER_ROW_COUNT = Global.getSettings().getInt("IndEvo_shipPickerRowCount");
     public static boolean COMMERCE_BALANCE_CHANGES = Global.getSettings().getBoolean("IndEvo_CommerceBalanceChanges");
     public static boolean ADMANUF = Global.getSettings().getBoolean("Manufactory");
@@ -106,9 +108,9 @@ public class Settings {
     public static boolean VARIND_DELIVER_TO_PRODUCTION_POINT = Global.getSettings().getBoolean("VarInd_deliverToProductionPoint");
     public static boolean PETS = Global.getSettings().getBoolean("IndEvo_pets");
 
-    //todo pet shop
-
     public static void reloadLunaSettings(){
+        GOVERNMENT_LARP_MODE = LunaSettings.getBoolean("IndEvo", "IndEvo_GovernmentLarpMode");
+        GOVERNMENT_MAX_SIZE = LunaSettings.getInt("IndEvo", "IndEvo_GovernmentMaxSize");
         SHIP_PICKER_ROW_COUNT = LunaSettings.getInt("IndEvo", "IndEvo_shipPickerRowCount");
         COMMERCE_BALANCE_CHANGES = LunaSettings.getBoolean("IndEvo", "IndEvo_CommerceBalanceChanges");
         ADMANUF = LunaSettings.getBoolean("IndEvo", "IndEvo_AdManuf");

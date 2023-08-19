@@ -177,7 +177,9 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                     message = picker.pick();
                 } else message = pet.getData().naturalDeath;
 
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " formerly living on the " + pet.assignedFleetMember.getShipName() + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                if (pet.isAssigned()) Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " formerly living on the " + pet.assignedFleetMember.getShipName() + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                else if (pet.storage != null)  Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " formerly living at the " + pet.storage.getMarket().getName() + " " + Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName().toLowerCase() + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+
                 break;
             case STARVED:
                 Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has %s on the " + pet.assignedFleetMember.getShipName(), Misc.getTextColor(), pet.name, "starved to death", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());

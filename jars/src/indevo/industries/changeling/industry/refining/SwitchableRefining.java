@@ -53,10 +53,10 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
                         BaseIndustry ind = (BaseIndustry) industry;
                         int size = ind.getMarket().getSize();
                         ind.demand(Commodities.HEAVY_MACHINERY, size - 2); // have to keep it low since it can be circular
-                        ind.demand(Commodities.ORE, size + 4);
+                        ind.demand(Commodities.ORE, size + 3);
                         ind.demand(Commodities.RARE_ORE, size - 3);
 
-                        ind.supply(Commodities.METALS, size + 2);
+                        ind.supply(Commodities.METALS, size + 1);
                         ind.supply(Commodities.RARE_METALS, size - 5);
 
                         Pair<String, Integer> deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.ORE);
@@ -79,10 +79,10 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
                         int size = ind.getMarket().getSize();
                         ind.demand(Commodities.HEAVY_MACHINERY, size - 2); // have to keep it low since it can be circular
                         ind.demand(Commodities.ORE, size - 1);
-                        ind.demand(Commodities.RARE_ORE, size + 2);
+                        ind.demand(Commodities.RARE_ORE, size + 1);
 
                         ind.supply(Commodities.METALS, size-2);
-                        ind.supply(Commodities.RARE_METALS, size);
+                        ind.supply(Commodities.RARE_METALS, size - 1);
 
                         Pair<String, Integer> deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.ORE);
                         IndustryHelper.applyDeficitToProduction(ind, 1, deficit, Commodities.METALS);

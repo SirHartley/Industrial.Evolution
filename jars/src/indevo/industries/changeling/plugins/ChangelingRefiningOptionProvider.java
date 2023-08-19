@@ -12,7 +12,9 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.changeling.dialogue.ChangelingIndustryDialogueDelegate;
+import indevo.industries.changeling.industry.mining.SwitchableMining;
 import indevo.industries.changeling.industry.refining.SwitchableRefining;
+import indevo.utils.helper.Settings;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -31,12 +33,16 @@ public class ChangelingRefiningOptionProvider extends BaseIndustryOptionProvider
 
     @Override
     public boolean isUnsuitable(Industry ind, boolean allowUnderConstruction) {
+        return super.isUnsuitable(ind, allowUnderConstruction)
+                || !isSuitable(ind);
+    }
+
+    public boolean isSuitable(Industry ind){
         boolean isTarget = ind.getId().equals(Industries.REFINING);
         boolean isChangeling = ind instanceof SwitchableRefining;
         boolean canChange = isChangeling && ((SwitchableRefining) ind).canChange();
 
-        return super.isUnsuitable(ind, allowUnderConstruction)
-                || !(isTarget || canChange);
+        return isTarget && canChange && Settings.SWITCHABLEREFINING;
     }
 
     @Override

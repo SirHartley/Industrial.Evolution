@@ -12,6 +12,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.changeling.dialogue.ChangelingIndustryDialogueDelegate;
 import indevo.industries.changeling.industry.population.SwitchablePopulation;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -31,7 +32,7 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
 
     @Override
     public boolean isUnsuitable(Industry ind, boolean allowUnderConstruction) {
-        boolean isPop = ind.getId().equals(Industries.POPULATION) && ind.getMarket().getSize() <= SwitchablePopulation.MAX_SIZE_FOR_CHANGE;
+        boolean isPop = ind.getId().equals(Industries.POPULATION) && ind.getMarket().getSize() <= Settings.GOVERNMENT_MAX_SIZE;
         boolean isChangeling = ind instanceof SwitchablePopulation;
         boolean canChange = isChangeling && ((SwitchablePopulation) ind).canChange();
 
@@ -58,7 +59,7 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
             tooltip.addPara("Change the local governing style", 0f);
 
             tooltip.addPara("This is only possible until %s and becomes permanent after %s.", 10f, Misc.getHighlightColor(),
-                    "size " + SwitchablePopulation.MAX_SIZE_FOR_CHANGE,
+                    "size " + Settings.GOVERNMENT_MAX_SIZE,
                     SwitchablePopulation.DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(SwitchablePopulation.DAYS_TO_LOCK));
         }
     }

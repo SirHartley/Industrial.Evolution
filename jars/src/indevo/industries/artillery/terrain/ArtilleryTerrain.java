@@ -45,6 +45,8 @@ public class ArtilleryTerrain extends BaseRingTerrain {
         SectorEntityToken artillery = getRelatedEntity();
         CampaignAttackScript script = getScript(artillery);
 
+        if (script == null) return "";
+
         boolean isSafe = script.isInSafeSpot(player);
         boolean isHostile = script.isHostileTo(player);
 
@@ -66,6 +68,8 @@ public class ArtilleryTerrain extends BaseRingTerrain {
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         SectorEntityToken artillery = getRelatedEntity();
         CampaignAttackScript script = getScript(artillery);
+
+        if (script == null) return;
 
         boolean isDiscoverable = artillery.isDiscoverable();
         String artyNamy = isDiscoverable ? "artillery" : artillery.getName();
@@ -118,6 +122,8 @@ public class ArtilleryTerrain extends BaseRingTerrain {
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         SectorEntityToken artillery = getRelatedEntity();
         CampaignAttackScript script = getScript(artillery);
+
+        if (script == null) return Color.WHITE;
 
         boolean isSafe = script.isInSafeSpot(player);
         boolean isHostile = script.isHostileTo(player);

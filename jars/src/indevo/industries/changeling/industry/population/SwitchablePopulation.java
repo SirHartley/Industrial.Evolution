@@ -8,19 +8,19 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
+import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.*;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
-import org.lazywizard.lazylib.MathUtils;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class SwitchablePopulation extends PopulationAndInfrastructure implements SwitchableIndustryAPI {
 
-    public static final int MAX_SIZE_FOR_CHANGE = 3;
     public static final int DAYS_TO_LOCK = 7;
 
     public float daysPassed = 0;
@@ -116,9 +116,13 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
         demand.clear();
 
         if (!current.isInit()) current.init(this);
-        current.apply();
 
-        super.apply(true); //since popInfra does not override the baseIndustry overloaded apply we can call it here
+        if(Settings.GOVERNMENT_LARP_MODE){
+            superApply();
+        } else {
+            current.apply();
+            super.apply(true); //since popInfra does not override the baseIndustry overloaded apply we can call it here
+        }
 
         if (!isFunctional()) {
             supply.clear();
@@ -211,11 +215,14 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     @Override
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
         super.addRightAfterDescriptionSection(tooltip, mode);
+
+        if (Settings.GOVERNMENT_LARP_MODE) return;
+
         current.addRightAfterDescription(tooltip, mode);
     }
 
     public boolean canChange() {
-        return market.getSize() <= MAX_SIZE_FOR_CHANGE && !locked;
+        return Global.getSettings().isDevMode() || (market.getSize() <= Settings.GOVERNMENT_MAX_SIZE && !locked);
     }
 
     public boolean isNotChanged() {
@@ -231,6 +238,8 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     }
 
     public float getPatherInterest() {
+        if (Settings.GOVERNMENT_LARP_MODE) return super.getPatherInterest();
+
         float currentNum = current.getPatherInterest(this);
         return currentNum > 100000000f ? super.getPatherInterest() : currentNum;
     }
@@ -248,9 +257,15 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
         tooltip.addSectionHeading("Governance Type", Alignment.MID, opad);
 
-        if (current != null) tooltip.addPara(current.getDescription().getText2(), opad);
+        if (Settings.GOVERNMENT_LARP_MODE){
+            SubIndustryData sub = null;
+            for (SubIndustryData s : industryList) {if (s.newInstance().isBase()) sub = s; break;} //meh
+            if (sub != null) tooltip.addPara(Global.getSettings().getDescription(sub.descriptionID, Description.Type.CUSTOM).getText2(), opad);
+
+        } else if (current != null) tooltip.addPara(current.getDescription().getText2(), opad);
+
         if (canChange()) tooltip.addPara("Changing the government style is only possible until %s and becomes permanent after %s.", opad, Misc.getHighlightColor(),
-                "colony size " + MAX_SIZE_FOR_CHANGE,
+                "colony size " + Settings.GOVERNMENT_MAX_SIZE,
                 DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(DAYS_TO_LOCK));
 
         if (!isNotChanged() && canChange()) {

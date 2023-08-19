@@ -7,9 +7,14 @@ import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.impl.campaign.econ.CommRelayCondition;
-import com.fs.starfarer.api.impl.campaign.econ.impl.*;
+import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
+import com.fs.starfarer.api.impl.campaign.econ.impl.ConstructionQueue;
+import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
-import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Conditions;
+import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
@@ -18,15 +23,11 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
-import indevo.utils.ModPlugin;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry.getDeficitText;
 import static com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure.*;
-import static com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure.getMismanagementPenalty;
 
 public class CorporateGovernanceSubIndustry extends SubIndustry implements MarketImmigrationModifier {
 
@@ -46,21 +47,27 @@ x•	increase military upkeep by x3
 
     public static final float MIL_UPKEEP_INCREASE = 3f;
     public static final float MAX_DISRUPTION_DAYS = 62f;
-    public static final float INCOME_PER_STAB = 10000f;
+    public static final float INCOME_PER_STAB = 20000f;
+    public static final float MAX_STAB_BONUS = 10f;
     public static final float BASE_INCOME_MULT = 1.2f;
     public static final float BASE_STAB = 0f;
 
     public static class CorpoPolityTooltipAdder extends BaseIndustryOptionProvider {
-        public static void register(){
+        public static void register() {
             ListenerManagerAPI manager = Global.getSector().getListenerManager();
-            if (!manager.hasListenerOfClass(CorpoPolityTooltipAdder.class)) manager.addListener(new CorpoPolityTooltipAdder(), true);
+            if (!manager.hasListenerOfClass(CorpoPolityTooltipAdder.class))
+                manager.addListener(new CorpoPolityTooltipAdder(), true);
         }
 
         @Override
         public boolean isUnsuitable(Industry ind, boolean allowUnderConstruction) {
+            return !isSuitable(ind);
+        }
+
+        public boolean isSuitable(Industry ind) {
             Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
             boolean isCorpo = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof CorporateGovernanceSubIndustry;
-            return !isCorpo;
+            return !Settings.GOVERNMENT_LARP_MODE && isCorpo;
         }
 
         @Override
@@ -99,7 +106,8 @@ x•	increase military upkeep by x3
                 industry.getUpkeep().modifyMult(getId(), MIL_UPKEEP_INCREASE, getName());
             }
 
-            if (industry.isDisrupted() && industry.getDisruptedDays() > MAX_DISRUPTION_DAYS) industry.setDisrupted(MAX_DISRUPTION_DAYS);
+            if (industry.isDisrupted() && industry.getDisruptedDays() > MAX_DISRUPTION_DAYS)
+                industry.setDisrupted(MAX_DISRUPTION_DAYS);
         }
 
         market.addImmigrationModifier(this);
@@ -191,8 +199,10 @@ x•	increase military upkeep by x3
                     Math.max(market.getHazardValue(), 1f), "Colony hazard rating");
         }
 
-        if (((SwitchablePopulation) industry).locked) market.getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).modifyFlat(population.getModId(), getMaxIndustries(10), null); //this gets max market industries immediately
-        else market.getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).modifyFlat(population.getModId(), getMaxIndustries(market.getSize()), null);
+        if (((SwitchablePopulation) industry).locked)
+            market.getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).modifyFlat(population.getModId(), getMaxIndustries(10), null); //this gets max market industries immediately
+        else
+            market.getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).modifyFlat(population.getModId(), getMaxIndustries(market.getSize()), null);
 
         FactionDoctrineAPI doctrine = market.getFaction().getDoctrine();
         float doctrineShipsMult = FleetFactoryV3.getDoctrineNumShipsMult(doctrine.getNumShips());
@@ -262,10 +272,10 @@ x•	increase military upkeep by x3
         market.getUpkeepMult().modifyMultAlways(modId, getUpkeepHazardMult(market.getHazardValue()), "Hazard rating");
 
         float income = market.getNetIncome();
-        double stab = income > 0 ? Math.floor(income / INCOME_PER_STAB) : 0;
+        double stab = income > 0 ? Math.min(Math.floor(income / INCOME_PER_STAB), MAX_STAB_BONUS) : 0;
         market.getStability().modifyFlat(modId, (float) stab, "Stability (Corporate Governance)");
 
-        for (MutableStat.StatMod mod : market.getStability().getFlatMods().values()){
+        for (MutableStat.StatMod mod : market.getStability().getFlatMods().values()) {
             if (mod.desc.toLowerCase().contains("_ms")) market.getStability().unmodify(mod.source);
         }
 

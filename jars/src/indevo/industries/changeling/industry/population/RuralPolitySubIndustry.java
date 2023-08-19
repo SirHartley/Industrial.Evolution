@@ -20,9 +20,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
-import indevo.industries.worldwonder.industry.WorldWonder;
-import indevo.industries.worldwonder.plugins.WorldWonderAltImageOptionProvider;
-import indevo.utils.ModPlugin;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -33,16 +31,21 @@ import java.util.List;
 public class RuralPolitySubIndustry extends SubIndustry implements MarketImmigrationModifier {
 
     public static class RuralPolityTooltipAdder extends BaseIndustryOptionProvider {
-        public static void register(){
+        public static void register() {
             ListenerManagerAPI manager = Global.getSector().getListenerManager();
-            if (!manager.hasListenerOfClass(RuralPolityTooltipAdder.class)) manager.addListener(new RuralPolityTooltipAdder(), true);
+            if (!manager.hasListenerOfClass(RuralPolityTooltipAdder.class))
+                manager.addListener(new RuralPolityTooltipAdder(), true);
         }
 
         @Override
         public boolean isUnsuitable(Industry ind, boolean allowUnderConstruction) {
+            return !isSuitable(ind);
+        }
+
+        public boolean isSuitable(Industry ind) {
             Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
             boolean isRural = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof RuralPolitySubIndustry;
-            return !isRural;
+            return !Settings.GOVERNMENT_LARP_MODE && isRural;
         }
 
         @Override
@@ -55,10 +58,10 @@ public class RuralPolitySubIndustry extends SubIndustry implements MarketImmigra
 
             tooltip.addSectionHeading("Governance Effects: Rural Polity", Alignment.MID, opad);
 
-            if (industrial){
+            if (industrial) {
                 tooltip.addPara("Industrial industry: %s increased by %s", opad, Misc.getTextColor(), Misc.getNegativeHighlightColor(), "upkeep", StringHelper.getAbsPercentString(INDUSTRIAL_UPKEEP_INCREASE, false));
                 tooltip.addPara("Industrial industry: %s decreased by %s", opad, Misc.getTextColor(), Misc.getNegativeHighlightColor(), "stability", STABILITY_DECREASE_PER_INDUSTRY + "");
-            } else if (rural){
+            } else if (rural) {
                 tooltip.addPara("Rural industry: %s decreased by %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "upkeep", StringHelper.getAbsPercentString(RURAL_UPKEEP_DECREASE, false));
                 tooltip.addPara("Rural industry: %s increased by %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "stability", STABILITY_INCREASE_PER_RURAL + "");
                 tooltip.addPara("Rural industry: %s increased by %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "population growth", IMMIGRATION_INCREASE_PER_RURAL + "");
@@ -71,9 +74,10 @@ public class RuralPolitySubIndustry extends SubIndustry implements MarketImmigra
     public static class RuralPolityImageChanger extends BaseIndustryOptionProvider {
         public static final Object OPTION_IMAGE_CHANGE = new Object();
 
-        public static void register(){
+        public static void register() {
             ListenerManagerAPI manager = Global.getSector().getListenerManager();
-            if (!manager.hasListenerOfClass(RuralPolityImageChanger.class)) manager.addListener(new RuralPolityImageChanger(), true);
+            if (!manager.hasListenerOfClass(RuralPolityImageChanger.class))
+                manager.addListener(new RuralPolityImageChanger(), true);
         }
 
         @Override
@@ -81,7 +85,7 @@ public class RuralPolitySubIndustry extends SubIndustry implements MarketImmigra
             return super.isUnsuitable(ind, allowUnderConstruction) || !isSuitable(ind);
         }
 
-        public boolean isSuitable(Industry ind){
+        public boolean isSuitable(Industry ind) {
             boolean isPop = ind.getId().equals(Industries.POPULATION);
             boolean isRural = ind instanceof SwitchablePopulation && ((SwitchablePopulation) ind).getCurrent() instanceof RuralPolitySubIndustry;
             boolean playerOwned = ind.getMarket().isPlayerOwned();
@@ -163,17 +167,17 @@ Rural Polity
             if (ind.getSpec().getTags().contains("industrial")) {
                 ind.getUpkeep().modifyMult(getId(), INDUSTRIAL_UPKEEP_INCREASE, getName());
                 market.getStability().modifyFlat(getId() + "_" + i, -STABILITY_DECREASE_PER_INDUSTRY, getName() + " - " + ind.getNameForModifier());
-            } else if (ind.getSpec().getTags().contains("rural")){
+            } else if (ind.getSpec().getTags().contains("rural")) {
                 ind.getUpkeep().modifyMult(getId(), RURAL_UPKEEP_DECREASE, getName());
                 market.getStability().modifyFlat(getId() + "_" + i, STABILITY_INCREASE_PER_RURAL, getName() + " - " + ind.getNameForModifier());
             }
 
-            if (ind instanceof Farming){
+            if (ind instanceof Farming) {
                 ind.getSupplyBonusFromOther().modifyFlat(getId(), FARMING_BASE_BONUS, getName());
                 ind.supply(getId(), Commodities.SUPPLIES, (int) Math.ceil(ind.getSupply(Commodities.FOOD).getQuantity().getModifiedValue() * FARMING_SUPPLIES_PER_FOOD), getName());
             }
 
-            if (ind instanceof LightIndustry){
+            if (ind instanceof LightIndustry) {
                 ind.supply(getId(), Commodities.HAND_WEAPONS, (int) Math.ceil(ind.getSupply(Commodities.LUXURY_GOODS).getQuantity().getModifiedValue() * LI_WEAPONS_PER_LUX_GOODS), getName());
             }
 
@@ -190,21 +194,21 @@ Rural Polity
         for (Industry ind : market.getIndustries()) {
             if (ind.getSpec().getTags().contains("industrial")) {
                 ind.getUpkeep().unmodify(getId());
-            } else if (ind.getSpec().getTags().contains("rural")){
+            } else if (ind.getSpec().getTags().contains("rural")) {
                 ind.getUpkeep().unmodify(getId());
             }
 
-            if (ind instanceof Farming){
+            if (ind instanceof Farming) {
                 ind.getSupplyBonusFromOther().unmodify(getId());
                 ind.supply(getId(), Commodities.SUPPLIES, 0, getName());
             }
 
-            if (ind instanceof LightIndustry){
+            if (ind instanceof LightIndustry) {
                 ind.supply(getId(), Commodities.HAND_WEAPONS, 0, getName());
             }
         }
 
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             market.getStability().unmodify(getId() + "_" + i);
         }
     }
@@ -237,8 +241,8 @@ Rural Polity
 
         int i = 0;
         for (Industry ind : market.getIndustries()) {
-            if (ind.getSpec().getTags().contains("rural")){
-                incoming.getWeight().modifyFlat(getId() +" " + i, IMMIGRATION_INCREASE_PER_RURAL, getName() + " - " + ind.getNameForModifier());
+            if (ind.getSpec().getTags().contains("rural")) {
+                incoming.getWeight().modifyFlat(getId() + " " + i, IMMIGRATION_INCREASE_PER_RURAL, getName() + " - " + ind.getNameForModifier());
             }
 
             i++;
@@ -261,7 +265,7 @@ Rural Polity
         imageName = new StringBuilder(currentName).delete(beginIndex, endIndex).insert(beginIndex, next).toString();
         try {
             Global.getSettings().loadTexture(imageName);
-        } catch (IOException e){
+        } catch (IOException e) {
             Global.getLogger(RuralPolitySubIndustry.class).warn("Tried to load a faulty texture path at " + imageName);
         }
     }

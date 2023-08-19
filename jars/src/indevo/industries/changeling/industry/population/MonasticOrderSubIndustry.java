@@ -8,7 +8,6 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
-import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -16,7 +15,9 @@ import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.PlayerFleetPersonnelTracker;
 import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
-import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -27,8 +28,6 @@ import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.listener.ShipProductionSummaryMessageHandler;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.StringHelper;
-import indevo.utils.timers.NewDayListener;
-import org.codehaus.janino.Mod;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.util.List;
@@ -58,10 +57,10 @@ Monastic Orders
     public static final float MAX_MARINES_AMT = 500f;
     public static final float MARINES_GAIN_PERCENT = 15f;
 
-    public static final int BASE_DP_PER_MONTH = 2;
+    public static final int BASE_DP_PER_MONTH = 1;
     public static final float BUILD_CHANCE_PER_MONTH = 0.3f;
 
-    public int getDpPerMonth(){
+    public int getDpPerMonth() {
         return market.getSize() - 3 + BASE_DP_PER_MONTH;
     }
 
@@ -84,14 +83,14 @@ Monastic Orders
 
         int lastIterInMonth = (int) Global.getSettings().getFloat("economyIterPerMonth") - 1;
 
-        if (iterIndex != lastIterInMonth){
+        if (iterIndex != lastIterInMonth) {
             currentDpBudget += getDpPerMonth();
 
-            if (random.nextFloat() < BUILD_CHANCE_PER_MONTH){
+            if (random.nextFloat() < BUILD_CHANCE_PER_MONTH) {
                 WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
 
                 SettingsAPI settings = Global.getSettings();
-                for (String id : market.getFaction().getKnownShips()){
+                for (String id : market.getFaction().getKnownShips()) {
                     ShipHullSpecAPI spec = settings.getHullSpec(id);
                     float dp = spec.getSuppliesToRecover();
 
@@ -142,7 +141,8 @@ Monastic Orders
         picker.addAll(l);
 
         ShipVariantAPI variant = Global.getSettings().getVariant(picker.pick());
-        if (variant == null) variant = Global.getSettings().createEmptyVariant(Misc.genUID(), Global.getSettings().getHullSpec(hullID));
+        if (variant == null)
+            variant = Global.getSettings().createEmptyVariant(Misc.genUID(), Global.getSettings().getHullSpec(hullID));
 
         FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant);
 
@@ -223,6 +223,17 @@ Monastic Orders
         }
 
         //MarineExperience handling
+    }
+
+    @Override
+    public boolean isAvailableToBuild() {
+        return super.isAvailableToBuild() && market.getSize() <= MAX_MARKET_SIZE;
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        if (market.getSize() > MAX_MARKET_SIZE) return "This planet is too populated";
+        return super.getUnavailableReason();
     }
 
     @Override

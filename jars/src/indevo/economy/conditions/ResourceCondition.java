@@ -17,6 +17,7 @@ import data.campaign.econ.industries.MS_modularFac;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.Supercomputer;
+import indevo.industries.salvageyards.industry.SalvageYards;
 import indevo.utils.helper.Settings;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -59,16 +60,13 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
                 int supply = 0;
                 int demand = 0;
 
+                //default out for ships and machinery is size - 2
                 supply = Math.min(size - 3, 3);
                 demand = size;
 
                 applyPartsSupply((BaseIndustry) ind, supply);
                 applyPartsDemands((BaseIndustry) ind, demand);
-            }
-
-            if (!Global.getSettings().getModManager().isModEnabled("shadow_ships")) continue;
-
-            if (ind instanceof MS_modularFac || ind instanceof MS_fabUpgrader) {
+            } else if (Global.getSettings().getModManager().isModEnabled("shadow_ships") && ind instanceof MS_modularFac || ind instanceof MS_fabUpgrader){
                 int supply = 0;
                 int demand = 0;
 
@@ -86,6 +84,12 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
                         demand = size - 2;
                         break;
                 }
+
+                applyPartsSupply((BaseIndustry) ind, supply);
+                applyPartsDemands((BaseIndustry) ind, demand);
+            } else if (ind.getSpec().hasTag("heavyindustry") && ind.getSupply(Commodities.SHIPS).getQuantity().getModifiedInt() > 0 && ind.getSupply(ItemIds.PARTS).getQuantity().getModifiedInt() <= 0){
+                int supply = Math.min(ind.getSupply(Commodities.HEAVY_MACHINERY).getQuantity().getModifiedInt() - 2, 4);
+                int demand = ind.getSupply(Commodities.SHIPS).getQuantity().getModifiedInt() + 2;
 
                 applyPartsSupply((BaseIndustry) ind, supply);
                 applyPartsDemands((BaseIndustry) ind, demand);
