@@ -178,6 +178,11 @@ public class ArtilleryStationPlacer {
             WatchtowerEntityPlugin.spawn(t, Global.getSector().getFaction(factionId));
         }
 
+        //gates
+        for (SectorEntityToken t : system.getEntitiesWithTag(Tags.GATE)){
+            WatchtowerEntityPlugin.spawn(t, Global.getSector().getFaction(factionId));
+        }
+
         //gas giants
         for (PlanetAPI planet : system.getPlanets()) {
             if (planet.isStar()) continue;

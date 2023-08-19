@@ -27,6 +27,7 @@ import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.listener.ShipProductionSummaryMessageHandler;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.lazywizard.lazylib.MathUtils;
 
@@ -66,6 +67,41 @@ Monastic Orders
 
     public int currentDpBudget = 0;
     public Random random = new Random();
+
+    public static class MonasticOrderTooltipAdder extends BaseIndustryOptionProvider {
+        public static void register() {
+            ListenerManagerAPI manager = Global.getSector().getListenerManager();
+            if (!manager.hasListenerOfClass(MonasticOrderTooltipAdder.class))
+                manager.addListener(new MonasticOrderTooltipAdder(), true);
+        }
+
+        @Override
+        public boolean isUnsuitable(Industry ind, boolean allowUnderConstruction) {
+            return !isSuitable(ind);
+        }
+
+        public boolean isSuitable(Industry ind) {
+            Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
+            boolean isTarget = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof MonasticOrderSubIndustry;
+            return !Settings.GOVERNMENT_LARP_MODE && isTarget;
+        }
+
+        @Override
+        public void addToIndustryTooltip(Industry ind, Industry.IndustryTooltipMode mode, TooltipMakerAPI tooltip, float width, boolean expanded) {
+            if (isUnsuitable(ind, true)) return;
+            float opad = 10f;
+
+            boolean military = ind.getSpec().getTags().contains("military");
+
+            tooltip.addSectionHeading("Governance Effects: Monastic Orders", Alignment.MID, opad);
+
+            if (military) {
+                tooltip.addPara("Military buildings: %s decreased by %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "upkeep", StringHelper.getAbsPercentString(MONASTIC_UPKEEP_RED, true));
+            } else {
+                tooltip.addPara("No effect on this building.", opad);
+            }
+        }
+    }
 
     @Override
     public void reportEconomyTick(int iterIndex) {
@@ -167,37 +203,6 @@ Monastic Orders
 
         member.updateStats();
         return member;
-    }
-
-    public static class MonasticOrderTooltipAdder extends BaseIndustryOptionProvider {
-        public static void register() {
-            ListenerManagerAPI manager = Global.getSector().getListenerManager();
-            if (!manager.hasListenerOfClass(MonasticOrderTooltipAdder.class))
-                manager.addListener(new MonasticOrderTooltipAdder(), true);
-        }
-
-        @Override
-        public boolean isUnsuitable(Industry ind, boolean allowUnderConstruction) {
-            Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
-            boolean isTarget = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof MonasticOrderSubIndustry;
-            return !isTarget;
-        }
-
-        @Override
-        public void addToIndustryTooltip(Industry ind, Industry.IndustryTooltipMode mode, TooltipMakerAPI tooltip, float width, boolean expanded) {
-            if (isUnsuitable(ind, true)) return;
-            float opad = 10f;
-
-            boolean military = ind.getSpec().getTags().contains("military");
-
-            tooltip.addSectionHeading("Governance Effects: Monastic Orders", Alignment.MID, opad);
-
-            if (military) {
-                tooltip.addPara("Military buildings: %s decreased by %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "upkeep", StringHelper.getAbsPercentString(MONASTIC_UPKEEP_RED, true));
-            } else {
-                tooltip.addPara("No effect on this building.", opad);
-            }
-        }
     }
 
     public MonasticOrderSubIndustry(SubIndustryData data) {

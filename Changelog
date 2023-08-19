@@ -57,11 +57,11 @@ General
 Fixed - No longer infinitely writes "Type" in front of industry descriptions on load
 
 Items
-Added - Failsafe for weird heavy industry types to demand/produce ship parts - they suck at it, but now they at least do it
+Added - Failsafe for weird heavy industry types to demand/produce ship parts - they suck at it, but now they at least do
 Fixed - Crash when another mod fails to specify a valid variant for a recovery event (looking at you, lukas)
 
 Exploration
-Fixed - Rare crash when an item choice special resolves to null
+Fixed - Rare crash when an item choice special resolves to null, by making it drop a fish instead
 
 Industry Specializations
 Adjusted - Nerfed all outputs by 1
@@ -72,23 +72,23 @@ Added - Setting that makes all governances behave like vanilla pop&Infra, turnin
 Added - Setting to edit max size for gov change
 Adjusted - Capped CorpoGov stability Bonus at +10
 Adjusted - Doubled credits/stability steps for CorpoGov
-Adjusted - DP buildup for Monastic Orders for ship tithes reduced, meaning it takes longer to build caps
-Fixed - Corrected Monastic Orders description: they are able to build capitals because it's based
+Adjusted - DP buildup for Monastic Orders ship tithes reduced, meaning it takes longer to build caps
+Fixed - Corrected Monastic Orders description: they are able to build capitals because they have cultivated their inner ki for 6 billion years
 
 Pets
+Added - lotsa pets now have illustrations
 Added - A setting to disable the entire system including station spawns
-Added - All pets now eat supplies as well. This means you don't have to buy food, but it's cheaper.
+Added - All pets now eat supplies as well. This means you technically don't have to buy pet food, but it's still cheaper.
 Adjusted - All pet lifetimes increased by a lot (only applies to new pets)
 Fixed - Double "." on death message
-Fixed - Pet station screen getting stuck on pressing esc
+Fixed - Pet station screen getting stuck on pressing ESC
 Fixed - Crash when a pet dies while not assigned to a ship
-todo: Admiral Pirrot and the Starcracker-class Breadnought
-todo: Parrot-Class Superclaw
 
 Artillery
+Added - Watchtowers now spawn around gates
+Adjusted - Planets can now be visited, but not surveyed, if an artillery is in orbit (I am extremely sure that this will break)
+Fixed - Finally, FINALLY fixed the immortal artillery bug
 Fixed - Bug that caused artillery terrain to crash when no artillery is present
-todo: automated claws and parrot to arty
-todo: Watchtowers buildable in stable loc
 
 3.3.a
 General

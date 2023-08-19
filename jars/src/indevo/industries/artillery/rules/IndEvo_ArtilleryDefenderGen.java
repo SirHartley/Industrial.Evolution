@@ -26,24 +26,26 @@ import static indevo.industries.artillery.scripts.ArtilleryStationScript.TYPE_KE
 public class IndEvo_ArtilleryDefenderGen {
 
     public static CampaignFleetAPI getFleetForPlanet(SectorEntityToken planet, String factionID) {
-        CampaignFleetAPI defenders = planet.getMemoryWithoutUpdate().getFleet("$defenderFleet");
         SectorEntityToken station = ArtilleryStationScript.getArtilleryStation(planet);
         CampaignFleetAPI artilleryDefenders = station != null ? station.getMemoryWithoutUpdate().getFleet("$defenderFleet") : null;
 
-        if (defenders != null) {
-            ModPlugin.log("returning existing planet defenders");
-            return defenders;
-        } else if (artilleryDefenders != null) {
+        if (artilleryDefenders != null) {
             ModPlugin.log("returning existing artillery station defenders");
             return artilleryDefenders;
         } else {
             ModPlugin.log("creating new defenders");
-            defenders = getNewFleet(planet, factionID);
+            artilleryDefenders = getNewFleet(planet, factionID);
         }
 
-        return defenders;
+        return artilleryDefenders;
     }
 
+    /**
+     *
+     * @param planet used to check market hazard and salvage seed, no flags are applied
+     * @param factionID fleet faction, not market faction
+     * @return defender fleet
+     */
     public static CampaignFleetAPI getNewFleet(SectorEntityToken planet, String factionID) {
         MarketAPI m = planet.getMarket();
 

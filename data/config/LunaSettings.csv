@@ -24,7 +24,7 @@ IndEvo_pirateHaven,[Industries] Privateer Base,Boolean,TRUE,,Enables or disables
 IndEvo_SwitchableRefining,[Industries] Specialized Refining,Boolean,TRUE,,Enables or disables Specialized Refining,,,Industries
 IndEvo_SwitchableMining,[Industries] Specialized Mining,Boolean,TRUE,,Enables or disables Specialized Mining,,,Industries
 IndEvo_GovernmentLarpMode,[Governance] Government Larping,Boolean,FALSE,,Setting this to true makes planetary governments behave like vanilla pop&infra and turns them into a cosmetic choice.,,,Industries
-IndEvo_GovernmentMaxSize,[Governance] Max size for government change,Integer,3,,Specifies how large a colony may be to in order to change the government type. Building up a stable colony and then changing is cheating and takes away from how these are supposed to work: higher rewards for higher difficulties.,,,Industries
+IndEvo_GovernmentMaxSize,[Governance] Max size for government change,Int,3,,Specifies how large a colony may be to in order to change the government type. Building up a stable colony and then changing is cheating and takes away from how these are supposed to work: higher rewards for higher difficulties.,,,Industries
 IndEvo_derelictDeliverToGathering,[Derelict Industries] Deliver to Gathering Point,Boolean,FALSE,,All derelict industry output will be delivered to the gathering point instead of local storage. Remember - courier port exists.,,,Industries
 IndEvo_DerInfraBuildRed,[Derelict Industries] Derelict Infra Cost Reduction,Double,0.5,,Derelict infra build cost and time reductuctions,,,Industries
 IndEvo_header3,Exploration & Campaign,Header,Exploration & Campaign,,,,,Exploration & Campaign

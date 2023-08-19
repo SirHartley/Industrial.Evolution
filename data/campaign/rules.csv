@@ -1,17 +1,5 @@
 id,trigger,conditions,script,text,options,notes
 #RULESET_NAME IndEvo,,,,,,
-IndEvo_artyStationFleetOpenDefault,BeginFleetEncounter,"$isStation
-$IndEvo_Artillery score:1000
-!$printedDesc",$printedDesc = true 0,"ARTILLERY STATION
-
-The grim expanse of the remnant battlestation fills your viewscreen. A bridge officer re-scales the tactical target display so that its entire mass can be seen at once. 
-
-A relic from the First AI War, the station nonetheless appears to be fully armed and operational.
-
-The combat analysis system churns for a few seconds and then beeps angrily instead of producing the usual range of tactical recommendations.",,
-IndEvo_artyStationGreet,PickGreeting,"$isStation
-$IndEvo_Artillery score:1000","Highlight ""TEST""
-SetShortcut cutCommLink ""ESCAPE""","After a short wait, your connection request is accepted. BEEP BOOP TEST",0:cutCommLink:Cut the comm link,
 ,,,,,,
 IndEvo_foog_aristrocratGreetingNoLock,PickGreeting,"$id == foogAristo score:1000
 $player.foogLocked == false","ShowPersonVisual
@@ -92,14 +80,10 @@ SetShortcut cutCommLink ""ESCAPE""","""Sure you do.""
 She cuts the comm link.",cutCommLink:Return,
 ,,,,,,
 #artillery,,,,,,
-IndEvo_ArtilleryInitialPlanet,OpenInteractionDialog,"$IndEvo_ArtilleryStation score:1000
+IndEvo_ArtilleryInitialPlanet_new,PrintNearbySurveyHostilesTextIfSo,"$IndEvo_ArtilleryStation score:1000
 !$defenderFleetDefeated
-$market.isPlanetConditionMarketOnly",,"The giant weapons platform in orbit around $entityName denies any chance of approach - and while the oversized armament lays silent for now, you get the feeling that this might change the moment the station is approached.
-
-Long-range sensors report a large amount of moving robotic signatures in and on the entity. According to your sensor liason, these are usually old-era repair bots.
-
-There is a good chance that the platform can be restored to functionality under your control after, it has been disabled by combat.","1:IndEvo_ArtilleryCombatInteraction:Approach the station
-2:defaultLeave:Leave",
+$market.isPlanetConditionMarketOnly","SetEnabled surveyPerform false
+Highlight ""denies any chance of approach""","The giant weapons platform in orbit around $entityName denies any chance of approach, much less survey - and while the oversized armament lays silent for now, you get the feeling that this might change the moment you get closer.",,
 IndEvo_ArtilleryInitialStation,OpenInteractionDialog,"$IndEvo_ArtilleryStation score:1000
 !$defenderFleetDefeated
 $tag:IndEvo_Artillery
@@ -108,7 +92,7 @@ This might not have been such a grand idea, after all.
 
 You can see hundreds of multi-legged repair bots crawling over the outer station armor, testament to the incredibly robust, ancient repair systems.
 
-There is a good chance that the platform can be restored to functionality under your control, after it has been disabled by combat.","1:IndEvo_ArtilleryCombatInteraction:Approach the station
+There is a good chance that the platform can be restored to functionality under your control after it has been disabled by combat.","1:IndEvo_ArtilleryCombatInteraction:Approach the station
 2:defaultLeave:Leave",
 IndEvo_ArtilleryCombatInteraction,DialogOptionSelected,$option == IndEvo_ArtilleryCombatInteraction,IndEvo_SalvageDefenderInteraction,"As if the massive turret was not enough of a threat, more and more enemy signatures appear on the radar as soon as you maneuver closer.",,
 IndEvo_ArtilleryBeatPlanet,BeatDefendersContinue,$IndEvo_ArtilleryStation score:1000,,"With the autmated defense platform out of the way, your $shipOrFleet may finish its approach to the planet.",0:IndEvo_ArtilleryDefeatPopulateOptions:Continue,

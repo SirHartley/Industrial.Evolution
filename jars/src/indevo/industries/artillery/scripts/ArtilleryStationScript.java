@@ -623,6 +623,8 @@ public class ArtilleryStationScript implements EveryFrameScript, FleetEventListe
 
         //relocates the debris field that was spawned last, which gotta be the one from the station because there is one frame between station death and reportFleetDespawnedToListener, during which it gets spawned
         //this is a crime against humanity
+        saveDebrisFieldStatus();
+
         LocationAPI loc = primaryEntity.getContainingLocation();
         List<String> l = getDebrisFieldList();
         if (!getDebrisFieldList().isEmpty() && brokenStationEntity != null) {

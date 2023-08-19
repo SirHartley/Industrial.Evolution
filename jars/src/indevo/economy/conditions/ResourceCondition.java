@@ -66,7 +66,7 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
 
                 applyPartsSupply((BaseIndustry) ind, supply);
                 applyPartsDemands((BaseIndustry) ind, demand);
-            } else if (Global.getSettings().getModManager().isModEnabled("shadow_ships") && ind instanceof MS_modularFac || ind instanceof MS_fabUpgrader){
+            } else if (Global.getSettings().getModManager().isModEnabled("shadow_ships") && (ind instanceof MS_modularFac || ind instanceof MS_fabUpgrader)){
                 int supply = 0;
                 int demand = 0;
 
