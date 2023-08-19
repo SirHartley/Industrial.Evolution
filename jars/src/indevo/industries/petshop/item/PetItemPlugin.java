@@ -18,7 +18,6 @@ import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.Random;
@@ -141,11 +140,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
         PetData pet = PetDataRepo.get(stack.getSpecialDataIfSpecial().getData());
 
-        float rarity = pet.rarity;
-        Pair<String, Color> rpair = rarity == 0.1f ? new Pair<>("[Epic]", new Color(180, 50, 255, 255))
-                : isBetween(rarity, 0f, 0.4f) ? new Pair<>("[Rare]", new Color(80, 100, 255, 255))
-                : isBetween(rarity, 0.5f, 0.8f) ? new Pair<>("[Uncommon]", new Color(80, 200, 80, 255)) :
-                new Pair<>("[Common]", Color.white);
+        Pair<String, Color> rpair = pet.getRarityDesc();
 
         tooltip.addPara("Contains a %s", opad, h, pet.species);
         tooltip.addPara("Rarity: %s", pad, rpair.two, rpair.one);

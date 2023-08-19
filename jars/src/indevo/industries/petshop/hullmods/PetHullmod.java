@@ -10,6 +10,9 @@ import indevo.industries.petshop.memory.Pet;
 
 import java.awt.*;
 
+/**
+ * Use indevo.other.YourMod_PetName_PetHullmod for a ready-made copy and paste solution for custom pet hullmods that won't crash unlike this one.
+ */
 public class PetHullmod extends SelfRepairingBuiltInHullmod {
     public static final float BASE_DECREASE = 5f;
 
