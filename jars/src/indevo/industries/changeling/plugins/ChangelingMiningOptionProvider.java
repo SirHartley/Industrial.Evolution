@@ -40,8 +40,9 @@ public class ChangelingMiningOptionProvider extends BaseIndustryOptionProvider {
         boolean isTarget = ind.getId().equals(Industries.MINING);
         boolean isChangeling = ind instanceof SwitchableMining;
         boolean canChange = isChangeling && ((SwitchableMining) ind).canChange();
+        boolean isPlayerOwned = ind.getMarket().isPlayerOwned();
 
-        return isTarget && canChange && Settings.SWITCHABLEMINING;
+        return (isTarget || canChange) && Settings.SWITCHABLEMINING && isPlayerOwned;
     }
 
     @Override

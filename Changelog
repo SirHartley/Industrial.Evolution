@@ -52,6 +52,15 @@ Parrot	Industrial.Evolution	Frigate	EMP Frigate	Contact - SirHartley#5459
 Echo	Industrial.Evolution	Frigate	EMP Auto-Frigate	Contact - SirHartley#5459
 Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 
+todo implement new ships
+todo implement pirot
+
+3.3.c
+Specialized industries
+Fixed - Menu item shows up again (whoops)
+Fixed - Can no longer change specialization on planets you don't own
+Fixed - Stopped buildings from vanishing when switched
+
 3.3.b
 General
 Fixed - No longer infinitely writes "Type" in front of industry descriptions on load

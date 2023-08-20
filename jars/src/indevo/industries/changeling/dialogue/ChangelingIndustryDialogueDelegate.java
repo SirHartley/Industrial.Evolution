@@ -166,9 +166,6 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
                 return;
             }
 
-            //I wonder why it does that
-            switchable.setHidden(false);
-
             //refund or transfer items
             SpecialItemData specialItemData = industry.getSpecialItem();
 
@@ -182,8 +179,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             if (switchable instanceof SwitchableIndustryAPI) {
                 ((SwitchableIndustryAPI) switchable).setCurrent(selected.newInstance(), false);
                 Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(selected.cost);
-            } else
-                throw new IllegalArgumentException("non-switchable industry passed to switchable industry dialogue delegate");
+            } else throw new IllegalArgumentException("non-switchable industry passed to switchable industry dialogue delegate");
         }
     }
 

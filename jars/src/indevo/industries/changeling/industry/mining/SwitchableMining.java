@@ -144,6 +144,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
     }
 
     private SubIndustryAPI current = null;
+    private String nameOverride = null;
 
     @Override
     public void apply() {
@@ -152,12 +153,18 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
 
         if (!current.isInit()) current.init(this);
         current.apply();
+        nameOverride = current.getName();
 
         super.apply(true); //since super does not override the baseIndustry overloaded apply we can call it here
 
         if (!isFunctional()) {
             supply.clear();
         }
+    }
+
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
     }
 
     public void setCurrent(SubIndustryAPI current, boolean reapply) {
@@ -203,7 +210,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
 
     @Override
     public String getCurrentName() {
-        return current.getName();
+        return nameOverride == null ? super.getCurrentName() : nameOverride;
     }
 
     @Override

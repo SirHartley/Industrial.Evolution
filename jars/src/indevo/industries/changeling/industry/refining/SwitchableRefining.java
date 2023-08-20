@@ -101,6 +101,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
     }
 
     private SubIndustryAPI current = null;
+    private String nameOverride = null;
 
     public void setCurrent(SubIndustryAPI current, boolean reapply) {
         String id = current.getId();
@@ -135,6 +136,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
 
         if (!current.isInit()) current.init(this);
         current.apply();
+        nameOverride = current.getName();
 
         super.apply(true); //since super does not override the baseIndustry overloaded apply we can call it here
 
@@ -178,7 +180,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
 
     @Override
     public String getCurrentName() {
-        return current.getName();
+        return nameOverride == null ? super.getCurrentName() : nameOverride;
     }
 
     @Override

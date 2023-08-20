@@ -110,12 +110,15 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     }
 
     private SubIndustryAPI current = null;
+    private String nameOverride = null;
 
     public void apply() {
         supply.clear();
         demand.clear();
 
         if (!current.isInit()) current.init(this);
+
+        nameOverride = current.getName();
 
         if(Settings.GOVERNMENT_LARP_MODE){
             superApply();
@@ -174,7 +177,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
     @Override
     public String getCurrentName() {
-        return current.getName();
+        return nameOverride == null ? super.getCurrentName() : nameOverride;
     }
 
     @Override
@@ -199,7 +202,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
             if (daysPassed >= DAYS_TO_LOCK) {
                 locked = true;
 
-                MessageIntel intel = new MessageIntel("%s established on " + market.getName(), Misc.getBasePlayerColor());
+                MessageIntel intel = new MessageIntel("%s established on " + market.getName(), Misc.getBasePlayerColor(), new String[]{current.getName()});
                 intel.addLine(BaseIntelPlugin.BULLET + "Now permanent",
                         Misc.getTextColor(),
                         new String[] {current.getName()},
