@@ -197,7 +197,9 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
             @Override
             public void advance(float amount) {
-                if (!done)
+                // Wisp: add pet null check. Very dirty crash fix, didn't look into why the pet is null at all.
+                // <https://fractalsoftworks.com/forum/index.php?topic=18011.msg416779#msg416779>
+                if (!done && pet != null)
                     Global.getSector().getCampaignUI().showInteractionDialog(new PetPickerInteractionDialoguePlugin(pet), null);
                 done = true;
             }

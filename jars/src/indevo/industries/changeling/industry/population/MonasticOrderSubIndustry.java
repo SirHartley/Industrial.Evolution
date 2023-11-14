@@ -291,7 +291,9 @@ Monastic Orders
         }
 
         for (Industry ind : market.getIndustries()) {
-            if (ind instanceof SwitchablePopulation) continue;
+            // Wisp: Fixes an infinite loop with TASC, which _also_ calls getPatherInterest on industries.
+            // <https://fractalsoftworks.com/forum/index.php?topic=18011.msg416817#msg416817>
+            if (ind instanceof SwitchablePopulation || ind.getId().equals("BOGGLED_CHAMELEON")) continue;
             total += ind.getPatherInterest();
         }
 
