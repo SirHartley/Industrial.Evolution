@@ -33,21 +33,28 @@ public class ShipProductionSummaryMessageHandler implements EconomyTickListener 
 
     @Override
     public void reportEconomyMonthEnd() {
+        // Make a copy of the map so we can clear the original while still displaying the info in the message.
+        // The original is cleared by the time the message is displayed, and we don't want to wait to clear it
+        // until the message is shown because new production could be added in the meantime.
+        final Map<MarketAPI, FleetMemberAPI> productionMapShallowCopy = new HashMap<>(productionMap);
 
         DelayedCampaignNotificationScript message = new DelayedCampaignNotificationScript(2) {
             @Override
             public void showMessage() {
-                MessageIntel intel = new MessageIntel("Your Monastic Orders provided tithes",
+                // Wisp: if there's nothing to report, don't report it
+                if (productionMapShallowCopy.isEmpty()) return;
+
+                MessageIntel intel = new MessageIntel("Your Monastic Orders provided tithes.",
                         Misc.getTextColor());
 
-                for (Map.Entry<MarketAPI, FleetMemberAPI> e : productionMap.entrySet()) {
+                for (Map.Entry<MarketAPI, FleetMemberAPI> e : productionMapShallowCopy.entrySet()) {
                     String hull = e.getValue().getHullSpec().getHullName();
                     String market = e.getKey().getName();
 
                     intel.addLine(BaseIntelPlugin.BULLET + market + ": %s", Misc.getTextColor(), new String[]{hull}, Misc.getHighlightColor());
                 }
 
-                intel.addLine("they were delivered to their respective %s.", Misc.getTextColor(), new String[]{"local storage"}, Misc.getHighlightColor());
+                intel.addLine("They were delivered to their respective %s.", Misc.getTextColor(), new String[]{"local storage"}, Misc.getHighlightColor());
                 intel.setIcon(Global.getSettings().getSpriteName("intel", "repairs_finished"));
                 intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
                 Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.NOTHING, null);

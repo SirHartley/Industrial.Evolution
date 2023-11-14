@@ -9,7 +9,6 @@ import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.util.Misc;
@@ -163,11 +162,13 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
         ModPlugin.log("Pet died, cause: " + cause.name() + " pet: " + pet.name);
 
+        // https://fractalsoftworks.com/forum/index.php?topic=18011.msg415042#msg415042
+        String petLocation = pet.assignedFleetMember == null ? pet.storage.getCurrentName() : pet.assignedFleetMember.getShipName();
         switch (cause) {
             case COMBAT:
                 picker = new WeightedRandomPicker<>();
                 picker.addAll(IndustryHelper.getCSVSetFromMemory(COMBAT_DEATH_CAUSES));
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " living on the destroyed " + pet.assignedFleetMember.getShipName() + " " + picker.pick() + "", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", living on the destroyed " + petLocation + ", " + picker.pick() + "", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
                 break;
             case NATURAL:
                 String message = "";
@@ -177,19 +178,19 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                     message = picker.pick();
                 } else message = pet.getData().naturalDeath;
 
-                if (pet.isAssigned()) Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " formerly living on the " + pet.assignedFleetMember.getShipName() + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
-                else if (pet.storage != null)  Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " formerly living at the " + pet.storage.getMarket().getName() + " " + Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName().toLowerCase() + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                if (pet.isAssigned()) Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly living on the " + petLocation + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                else if (pet.storage != null)  Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly living at the " + pet.storage.getMarket().getName() + " " + Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName().toLowerCase() + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
 
                 break;
             case STARVED:
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has %s on the " + pet.assignedFleetMember.getShipName(), Misc.getTextColor(), pet.name, "starved to death", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has %s on the " + petLocation, Misc.getTextColor(), pet.name, "starved to death", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case SOLD:
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " was sold with the " + pet.assignedFleetMember.getShipName() + " and promptly %s by the new owners.", Misc.getTextColor(), pet.name, "euthanized", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " was sold with the " + petLocation + " and promptly %s by the new owners.", Misc.getTextColor(), pet.name, "euthanized", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case UNKNOWN:
                 //if sold and not caught or magic'd away
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly of the " + pet.assignedFleetMember.getShipName() + ", has %s", Misc.getTextColor(), pet.name, "died.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly of the " + petLocation + ", has %s", Misc.getTextColor(), pet.name, "died.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
         }
 

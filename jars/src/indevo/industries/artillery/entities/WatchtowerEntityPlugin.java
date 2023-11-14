@@ -156,7 +156,9 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
     public void setHacked(boolean hacked) {
         setHacked(hacked, HACK_DURATION_DAYS_WT + (float) Math.random() * HACK_DURATION_DAYS_WT);
-        EyeIndicatorScript.getInstance().reset();
+        // https://fractalsoftworks.com/forum/index.php?topic=18011.msg411734#msg411734
+        if (EyeIndicatorScript.getInstance() != null)
+            EyeIndicatorScript.getInstance().reset();
     }
 
     public void printEffect(TooltipMakerAPI text, float pad) {

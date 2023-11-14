@@ -139,7 +139,12 @@ Monastic Orders
                 }
 
                 String id = picker.pick();
+                if (id == null || id.isEmpty()) {
+                    Global.getLogger(this.getClass()).error("Failed to pick a ship to build for " + market.getName());
+                    return;
+                }
                 FleetMemberAPI member = createAndPrepareMember(id, 4);
+                if (member == null) return;
                 currentDpBudget -= member.getDeploymentPointsCost();
 
                 member.getVariant().addPermaMod(HandBuiltHullmod.ID);
@@ -175,10 +180,16 @@ Monastic Orders
         List<String> l = Global.getSettings().getHullIdToVariantListMap().get(hullID);
         WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
         picker.addAll(l);
+        ShipVariantAPI variant;
 
-        ShipVariantAPI variant = Global.getSettings().getVariant(picker.pick());
-        if (variant == null)
-            variant = Global.getSettings().createEmptyVariant(Misc.genUID(), Global.getSettings().getHullSpec(hullID));
+        try {
+            variant = Global.getSettings().getVariant(picker.pick());
+            if (variant == null)
+                variant = Global.getSettings().createEmptyVariant(Misc.genUID(), Global.getSettings().getHullSpec(hullID));
+        } catch (Exception e) {
+            Global.getLogger(this.getClass()).error("Failed to create variant for " + hullID);
+            return null;
+        }
 
         FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant);
 
