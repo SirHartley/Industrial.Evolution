@@ -56,6 +56,16 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
         }
     }
 
+    private float runtimeMult = 1f;
+
+    public void setRuntimeMult(float mult){
+        runtimeMult = mult;
+    }
+
+    public void resetRuntimeMult(){
+        runtimeMult = 1f;
+    }
+
     public void apply() {
         super.apply(true);
 
@@ -77,7 +87,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
         list.put(Commodities.BETA_CORE, Settings.BETA_CORE_RUNTIME);
         list.put(Commodities.GAMMA_CORE, Settings.GAMMA_CORE_RUNTIME);
 
-        return list.get(AICoreId);
+        return Math.round(list.get(AICoreId) * runtimeMult);
     }
 
     private void getNextCore() {

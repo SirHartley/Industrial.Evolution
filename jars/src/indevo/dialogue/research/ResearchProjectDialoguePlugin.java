@@ -24,16 +24,6 @@ import java.util.Map;
 
 public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements InteractionDialogPlugin {
 
-    //on initial docking, Minerva explains the feature to you "...research projects...)
-
-    //run this thing off .json files, one for each research project
-    //specify
-    //  Title
-    //  required inputs (3 Arrays - ship/weapon/item/blueprint (just an array with ship ids), also specify points per input)
-    //  required total points to finish
-    //  rewards (3 Arrays - ship/weapon/item/blueprints (just an array with ship ids))
-    //  Text blurb
-
     private enum Option {
         RETURN
     }
@@ -53,6 +43,7 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
 
     @Override
     public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
+
         if (!(dialog instanceof IndEvo_InitSYCustomProductionDiag)) {
             this.dialog = dialog;
             this.memoryMap = memoryMap;

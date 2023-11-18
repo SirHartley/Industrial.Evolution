@@ -55,8 +55,13 @@ Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 todo implement new ships
 todo implement pirot
 
+3.3.d
+Items
+Adjusted - Special item drops now about 60 less
+
 3.3.c
 Specialized industries
+Fixed - GET THE NEW GRAND.COLONIES VERSION to fix the vanishing industries bug
 Fixed - Menu item shows up again (whoops)
 Fixed - Can no longer change specialization on planets you don't own
 Fixed - Stopped buildings from vanishing when switched
