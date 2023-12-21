@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="jars-SRA">
+    <CLASSES>
+      <root url="file://C:/Program Files (x86)/Fractal Softworks/Starsector/mods/Shadowyards_Wisp/jars" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://C:/Program Files (x86)/Fractal Softworks/Starsector/mods/Shadowyards_Wisp/jars" recursive="false" />
+  </library>
+</component>
