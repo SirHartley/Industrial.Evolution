@@ -76,6 +76,7 @@ import indevo.items.consumables.listeners.SpooferItemKeypressListener;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.items.listeners.ShipComponentLootManager;
 import indevo.items.listeners.SpecialItemDropsListener;
+import indevo.other.SpawnDerelictFleetMembersOnDeathListener;
 import indevo.utils.helper.IndustryHelper;
 import indevo.utils.helper.Settings;
 import indevo.utils.timers.RaidTimeout;
