@@ -20,6 +20,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
@@ -147,17 +148,12 @@ Rural Polity
     public static final float FARMING_BASE_BONUS = 1f;
     public static final float LI_WEAPONS_PER_LUX_GOODS = 0.7f;
 
-    public int imageInt = 1;
-
     public RuralPolitySubIndustry(SubIndustryData data) {
         super(data);
     }
 
     @Override
     public void apply() {
-        RuralPolityTooltipAdder.register();
-        RuralPolityImageChanger.register();
-
         ((SwitchablePopulation) industry).superApply();
 
         market.addImmigrationModifier(this);

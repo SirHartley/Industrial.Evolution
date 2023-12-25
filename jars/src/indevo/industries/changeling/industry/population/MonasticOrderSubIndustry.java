@@ -3,6 +3,7 @@ package indevo.industries.changeling.industry.population;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
+import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
@@ -18,6 +19,7 @@ import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -243,12 +245,14 @@ Monastic Orders
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && market.getSize() <= MAX_MARKET_SIZE;
+        return super.isAvailableToBuild() && market.getSize() <= MAX_MARKET_SIZE && market.getPrimaryEntity() instanceof PlanetAPI && !market.getPrimaryEntity().hasTag(Tags.GAS_GIANT);
     }
 
     @Override
     public String getUnavailableReason() {
         if (market.getSize() > MAX_MARKET_SIZE) return "This planet is too populated";
+        if (!(market.getPrimaryEntity() instanceof PlanetAPI)) return "Unavailable on stations";
+        if (market.getPrimaryEntity().hasTag(Tags.GAS_GIANT)) return "Unavailable on gas giants";
         return super.getUnavailableReason();
     }
 

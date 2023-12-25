@@ -16,6 +16,7 @@ public class Ids {
     public static final String BUREAU_LIST = Global.getSettings().getString("IndEvo_buerauList");
     public static final String RUIND_LIST = Global.getSettings().getString("IndEvo_ruindList");
     public static final String CLOUD_LIST = Global.getSettings().getString("IndEvo_cloudList");
+    public static final String LAB_LIST = Global.getSettings().getString("IndEvo_labList");
 
     //tags
     public static final String TAG_NEVER_REMOVE_RUINS = "IndEvo_RuinsAlways";

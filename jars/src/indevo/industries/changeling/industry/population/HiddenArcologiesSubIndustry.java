@@ -9,6 +9,7 @@ import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
@@ -35,7 +36,7 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
     public static final int SUPPLY_REDUCTION = 2;
     public static final float ACCESS_RED = 0.3f;
     public static final float DEFENCE_BONUS = 1f;
-    public static final List<String> SUPRESSED_CONDITIONS = new ArrayList<>(Arrays.asList(COLD, HOT, TOXIC_ATMOSPHERE, DENSE_ATMOSPHERE, THIN_ATMOSPHERE, NO_ATMOSPHERE, EXTREME_WEATHER, IRRADIATED, INIMICAL_BIOSPHERE, METEOR_IMPACTS,
+    public static final List<String> SUPRESSED_CONDITIONS = new ArrayList<>(Arrays.asList(VERY_COLD, VERY_HOT, COLD, HOT, TOXIC_ATMOSPHERE, DENSE_ATMOSPHERE, THIN_ATMOSPHERE, NO_ATMOSPHERE, EXTREME_WEATHER, IRRADIATED, INIMICAL_BIOSPHERE, METEOR_IMPACTS,
             "US_storm"));
 
     public HiddenArcologiesSubIndustry(SubIndustryData data) {
@@ -101,6 +102,14 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && !market.hasCondition(VERY_HOT);
+        return super.isAvailableToBuild() && market.getPrimaryEntity() instanceof PlanetAPI && !market.getPrimaryEntity().hasTag(Tags.GAS_GIANT) && ((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("lava");
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        if (!(market.getPrimaryEntity() instanceof PlanetAPI)) return "Unavailable on stations";
+        if (market.getPrimaryEntity().hasTag(Tags.GAS_GIANT)) return "Unavailable on gas giants";
+        if (market.getPrimaryEntity().hasTag(Tags.GAS_GIANT)) return "Can not build a bunker in lava";
+        return super.getUnavailableReason();
     }
 }

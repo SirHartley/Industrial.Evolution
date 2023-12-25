@@ -53,6 +53,7 @@ import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
+import indevo.industries.changeling.industry.population.RuralPolitySubIndustry;
 import indevo.industries.changeling.plugins.ChangelingMiningOptionProvider;
 import indevo.industries.changeling.plugins.ChangelingPopulationOptionProvider;
 import indevo.industries.changeling.plugins.ChangelingRefiningOptionProvider;
@@ -363,6 +364,7 @@ public class ModPlugin extends BaseModPlugin {
         IndustryHelper.getCSVSetFromMemory(Ids.BUREAU_LIST);
         IndustryHelper.getCSVSetFromMemory(Ids.RUIND_LIST);
         IndustryHelper.getCSVSetFromMemory(Ids.CLOUD_LIST);
+        IndustryHelper.getCSVSetFromMemory(Ids.LAB_LIST);
     }
 
     private void setListenersIfNeeded() {
@@ -405,6 +407,8 @@ public class ModPlugin extends BaseModPlugin {
         ChangelingRefiningOptionProvider.register();
         AncientLabCommoditySwitchOptionProvider.register();
         PetCenterOptionProvider.register();
+        RuralPolitySubIndustry.RuralPolityTooltipAdder.register();
+        RuralPolitySubIndustry.RuralPolityImageChanger.register();
     }
 
     private void setScriptsIfNeeded() {

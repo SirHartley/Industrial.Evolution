@@ -303,6 +303,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
         if (spec.isHidden()) i++;
         if (spec.getUITags().contains("Logistics")) i++;
         if (spec.getTags().contains("dmod")) i++;
+        if (spec.getTags().contains("rat_alteration")) i++;
         if (spec.getTags().contains(Tags.HULLMOD_NO_BUILD_IN)) i++;
         if (spec.getTags().isEmpty()) i++;
 

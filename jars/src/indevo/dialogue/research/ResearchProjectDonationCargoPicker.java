@@ -135,7 +135,7 @@ public class ResearchProjectDonationCargoPicker {
                 }
                 panel.setParaFontDefault();
 
-                panel.addPara("Total progress: %s", opad, Misc.getPositiveHighlightColor(), StringHelper.getAbsPercentString(total, false));
+                panel.addPara("Total progress: %s", opad, Misc.getPositiveHighlightColor(), Math.abs(Math.floor(total * 100f)) + "%");
             }
         });
     }

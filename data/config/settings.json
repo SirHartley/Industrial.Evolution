@@ -215,6 +215,7 @@
   "IndEvo_buerauList": "data/config/indEvo/bureau_industry_whitelist.csv",
   "IndEvo_ruindList": "data/config/indEvo/ruins_industry_whitelist.csv",
   "IndEvo_cloudList": "graphics/clouds/clouds.csv",
+  "IndEvo_labList":"data/config/indEvo/lab_commodity_whitelist.csv",
 
   #wheeeeeeeeeeeeeeeeeeeeeeeeee
   "IndEvo_ToggleMagicRandomSelector": false,

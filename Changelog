@@ -62,6 +62,29 @@ Fixed - Lunasettings now properly work (some settings will ONLY APPLY WITH A NEW
 Items
 Adjusted - Special item drops now about 60% less
 
+Research Projects
+Adjusted - Progress display now rounds the displayed progress number down (no more "100% but can't redeem")
+
+Artillery
+Fixed - [Wisp] - Crash on new game https://fractalsoftworks.com/forum/index.php?topic=18011.msg411734#msg411734
+
+Governments
+Fixed - [Wisp] - Monastic Order Crash when picking having no valid ship to pick
+Fixed - [Wisp] - Monastic Order Ship production message crash
+Fixed - Rural government image change button now properly shows up
+Adjusted - Monastic Order no longer buildable on stations
+Adjusted - Monastic Order no longer buildable on gas giants
+Adjusted - Arcologies now suppress extreme Hot and Cold
+Adjusted - Arcologies can no longer be built on lava planets, gas giants and stations (they are bunker cities...)
+
+Pets
+Fixed - [Wisp] - Crash when euthanizing a pet while it's in storage
+Fixed - [Wisp] - Crash when a pet in storage dies
+
+Derelict Industries
+Fixed - Ancient Lab now picks commodities from a whitelist (no more PAGSM commodities...)
+Fixed - Blacklisted RAT alterations from Hull Forge S-Mod Picker
+
 3.3.c
 Specialized industries
 Fixed - GET THE NEW GRAND.COLONIES VERSION to fix the vanishing industries bug

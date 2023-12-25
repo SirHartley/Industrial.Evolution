@@ -23,10 +23,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayListener {
 
@@ -204,7 +202,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
             bonusCommodityId3 = mem.getString(COMMODITY_KEY + "_" + 3);
 
         } else {
-            List<String> commodityList = getVanillaCommodities();
+            Set<String> commodityList = IndustryHelper.getCSVSetFromMemory(Ids.LAB_LIST);
 
             Random random = new Random(getPickerSeed());
             WeightedRandomPicker<String> commodityPicker = new WeightedRandomPicker<>(random);
@@ -231,6 +229,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
         isInit = true;
     }
 
+    //replaced with whitelist
     private static List<String> getVanillaCommodities() {
         final JSONArray csv;
         try {
