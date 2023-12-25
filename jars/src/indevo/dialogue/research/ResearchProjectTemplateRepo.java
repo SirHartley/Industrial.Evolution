@@ -344,7 +344,7 @@ public class ResearchProjectTemplateRepo {
         for (Map.Entry<String, ResearchProject> proj : RESEARCH_PROJECTS.entrySet()) {
             if (proj.getValue().display() && !proj.getValue().getProgress().redeemed) {
                 for (RequiredItem item : proj.getValue().getRequiredItems()) {
-                    if (playerCargo.getQuantity(item.type, item.id) > 0) {
+                    if (ResearchProjectDialoguePlugin.getQuantity(playerCargo, item) > 0) {
                         i++;
                         continue OUTER;
                     }

@@ -69,7 +69,7 @@ public class ResearchProjectSidePanelCreator {
 
             int availableItemCount = 0;
             for (RequiredItem item : project.getRequiredItems()) {
-                float count = cargo.getQuantity(item.type, item.id);
+                float count = ResearchProjectDialoguePlugin.getQuantity(cargo, item);
                 if (count > 0f) availableItemCount += count;
             }
 
@@ -174,7 +174,7 @@ public class ResearchProjectSidePanelCreator {
             float holderWidth = VisualCustomPanel.PANEL_WIDTH - 33f;
             TooltipMakerAPI barHolder = progressPanel.createUIElement(holderWidth, 0, false);
 
-            ButtonAPI checkbox = barHolder.addAreaCheckbox(Math.abs(Math.floor(progressPercent * 100f)) + "%", null, Misc.getDarkPlayerColor(), Misc.getDarkPlayerColor(), Misc.getTextColor(), Math.max(50f, holderWidth * progressPercent), BUTTON_HEIGHT, opad);
+            ButtonAPI checkbox = barHolder.addAreaCheckbox((progressPercent > 0 ? Math.abs(Math.round(progressPercent * 1000f) / 10f) : 0f) + "%", null, Misc.getDarkPlayerColor(), Misc.getDarkPlayerColor(), Misc.getTextColor(), Math.max(50f, holderWidth * progressPercent), BUTTON_HEIGHT, opad);
             checkbox.setEnabled(false);
             checkbox.setChecked(true);
             progressPanel.addUIElement(barHolder).inTL(1f, 1f); //add it to top left of fleet panel (?)

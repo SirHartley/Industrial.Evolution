@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.CoreUITabId;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -24,6 +25,7 @@ import java.util.Random;
 
 public class PetItemPlugin extends BaseSpecialItemPlugin {
 
+    public static final String BOX_ACTIVE = "$petBoxActive";
     protected PetData pet;
 
     @Override
@@ -148,13 +150,16 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
         addCostLabel(tooltip, opad, transferHandler, stackSource);
 
-        if (isFleetCargo()) tooltip.addPara("Right-click to assign", b, opad);
-        else tooltip.addPara("Can only be assigned from fleet cargo", n, opad);
+        boolean isActive = Global.getSector().getMemoryWithoutUpdate().contains(BOX_ACTIVE);
+
+        if (isFleetCargo() && !isActive) tooltip.addPara("Right-click to assign", b, opad);
+        else if (!isFleetCargo()) tooltip.addPara("Can only be assigned from fleet cargo", n, opad);
+        else tooltip.addPara("Finish assigning your current pet to activate this!", n, opad);
     }
 
     @Override
     public boolean hasRightClickAction() {
-        return isFleetCargo();
+        return isFleetCargo() && !Global.getSector().getMemoryWithoutUpdate().contains(BOX_ACTIVE);
     }
 
     public boolean isFleetCargo() {
@@ -171,6 +176,10 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
     @Override
     public void performRightClickAction() {
+        MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
+        if (mem.contains(BOX_ACTIVE)) return;
+
+        mem.set(BOX_ACTIVE, 0f);
 
         try {
             Robot r = new Robot();
@@ -192,11 +201,13 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
             @Override
             public boolean runWhilePaused() {
-                return false;
+                return true;
             }
 
             @Override
             public void advance(float amount) {
+                if (amount < 0.03) return;
+
                 // Wisp: add pet null check. Very dirty crash fix, didn't look into why the pet is null at all.
                 // <https://fractalsoftworks.com/forum/index.php?topic=18011.msg416779#msg416779>
                 if (!done && pet != null)

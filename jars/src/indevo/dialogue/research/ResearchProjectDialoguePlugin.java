@@ -15,6 +15,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
 import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
@@ -150,8 +151,11 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
                 float requiredPoints = project.getRequiredPoints();
 
                 for (RequiredItem item : project.getRequiredItems()) {
-                    String progress = StringHelper.getAbsPercentString(item.points / requiredPoints, false);
-                    float count = cargo.getQuantity(item.type, item.id);
+                    String progress = Math.abs(Math.round(item.points / requiredPoints * 1000f)) / 10f + "%";
+                    //String progress = StringHelper.getAbsPercentString(item.points / requiredPoints, false);
+                    float count = getQuantity(cargo, item);
+
+                    ModPlugin.log("count " + item.type + " " + item.id + " " + count);
 
                     if (item.type.equals(CargoAPI.CargoItemType.WEAPONS)) {
                         WeaponSpecAPI spec = Global.getSettings().getWeaponSpec(item.id);
@@ -188,6 +192,33 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
                 panel.addTooltip();
             }
         }
+    }
+
+    public static float getQuantity(CargoAPI cargo, RequiredItem item){
+        float total = 0f;
+
+        for (CargoStackAPI stack : cargo.getStacksCopy()) if (stack.getType().toString().equals(item.type.toString())) {
+            String id = null;
+
+            switch (stack.getType()){
+                case RESOURCES:
+                    id = stack.getCommodityId();
+                    break;
+                case WEAPONS:
+                    id = stack.getWeaponSpecIfWeapon().getWeaponId();
+                    break;
+                case FIGHTER_CHIP:
+                    id = stack.getFighterWingSpecIfWing().getId();
+                    break;
+                case SPECIAL:
+                    id = stack.getSpecialDataIfSpecial().getId();
+                    break;
+            }
+
+            if (item.id.equals(id)) total += stack.getSize();
+        }
+
+        return total;
     }
 
     private void returnToMenu() {

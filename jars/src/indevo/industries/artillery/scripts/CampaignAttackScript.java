@@ -386,7 +386,7 @@ public class CampaignAttackScript implements EveryFrameScript {
         forcedTargetMap.clear();
         blockedAreas.clear();
 
-        getTerrainPlugin().remove();
+        if (terrain != null) getTerrainPlugin().remove();
         setDone(true);
     }
 

@@ -51,7 +51,6 @@ public class ResearchProjectDonationCargoPicker {
             public void pickedCargo(CargoAPI cargo) {
 
                 if (!cargo.isEmpty()) {
-                    // TODO: 11.03.2022 make sure to remove all excess items, using only the ones first picked until point count is filled
                     ResearchProject.Progress progress = project.getProgress();
 
                     for (CargoStackAPI stack : cargo.getStacksCopy()) {
@@ -64,7 +63,6 @@ public class ResearchProjectDonationCargoPicker {
                                 pointsPerItem = item.points;
                                 break;
                             }
-                            ;
                         }
 
                         float totalPointsFromStack = num * pointsPerItem;
@@ -121,7 +119,7 @@ public class ResearchProjectDonationCargoPicker {
                     float progress = (points / project.getRequiredPoints()) * stack.getSize();
                     total += progress;
 
-                    String percentPerItem = StringHelper.getAbsPercentString(progress, false);
+                    String percentPerItem = Math.abs(Math.floor(total * 100f)) + "%";
 
                     if (i < 10) {
                         panel.addToGrid(0, i, (int) stack.getSize() + "x " + stack.getDisplayName(), percentPerItem);

@@ -55,9 +55,12 @@ Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 todo implement new ships
 todo implement pirot
 
+todo fix pet duplication glitch
+todo fix ruin seeding with uneven weights
+
 3.3.d
 General
-Fixed - Lunasettings now properly work (some settings will ONLY APPLY WITH A NEW GAME, like disabling pets.)
+Fixed - Lunasettings now properly work (some settings will STILL ONLY APPLY WITH A NEW GAME, like disabling pets.)
 
 Weapons & Ships
 Added - Graphicslib effects for everything courtesy of Himemi/Cieve (Thank you so much!)
@@ -66,24 +69,32 @@ Items
 Adjusted - Special item drops now about 60% less
 
 Research Projects
-Adjusted - Progress display now rounds the displayed progress number down (no more "100% but can't redeem")
+Adjusted - Progress displays now use decimal formatting instead of rounding the number
+Fixed - Research dialogue not recognizing if you have fitting special items in inventory
 
 Artillery
 Fixed - [Wisp] - Crash on new game https://fractalsoftworks.com/forum/index.php?topic=18011.msg411734#msg411734
+Fixed - Tentatively fixed another Crash on new game https://fractalsoftworks.com/forum/index.php?topic=18011.msg418708#msg418708
+
+Military Relays
+Fixed - Crash when there is no market with a military but a relay exists (???) https://fractalsoftworks.com/forum/index.php?topic=18011.msg418028#msg418028
 
 Supercomputer
 Fixed - Rare crash when built on a modded station without the "station" tag
 
 Governments
-Fixed - [Wisp] - Monastic Order Crash when picking having no valid ship to pick
-Fixed - [Wisp] - Monastic Order Ship production message crash
-Fixed - Rural government image change button now properly shows up
 Adjusted - Monastic Order no longer buildable on stations
 Adjusted - Monastic Order no longer buildable on gas giants
 Adjusted - Arcologies now suppress extreme Hot and Cold
 Adjusted - Arcologies can no longer be built on lava planets, gas giants and stations (they are bunker cities...)
+Fixed - [Wisp] - Monastic Order Crash when picking having no valid ship to pick
+Fixed - [Wisp] - Monastic Order Ship production message crash
+Fixed - Weird crash with ship production message that cropped up when updating the mod
+Fixed - Rural government image change button now properly shows up
 
 Pets
+Fixed - Can no longer duplicate pets by opening the box multiple times
+Fixed - Now automatically opens the naming dialogue on press, no more manual unpausing
 Fixed - [Wisp] - Crash when euthanizing a pet while it's in storage
 Fixed - [Wisp] - Crash when a pet in storage dies
 

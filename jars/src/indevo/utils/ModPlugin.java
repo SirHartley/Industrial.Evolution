@@ -127,9 +127,8 @@ public class ModPlugin extends BaseModPlugin {
         if (hasGraphicsLib) {
             ShaderLib.init();
             LightData.readLightDataCSV("data/lights/IndEvo_lights.csv");
+            TextureData.readTextureDataCSV((String)"data/lights/IndEvo_textures.csv");
         }
-
-        TextureData.readTextureDataCSV((String)"data/lights/IndEvo_textures.csv");
     }
 
     @Override

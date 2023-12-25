@@ -248,6 +248,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\lights\IndEvo_textures.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\strings\combat_death_causes.csv">
           <value>
             <Attribute>

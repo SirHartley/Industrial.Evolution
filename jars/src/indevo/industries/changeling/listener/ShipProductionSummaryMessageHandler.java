@@ -42,7 +42,7 @@ public class ShipProductionSummaryMessageHandler implements EconomyTickListener 
             @Override
             public void showMessage() {
                 // Wisp: if there's nothing to report, don't report it
-                if (productionMapShallowCopy.isEmpty()) return;
+                if (productionMapShallowCopy == null || productionMapShallowCopy.isEmpty()) return; //had a weird crash here
 
                 MessageIntel intel = new MessageIntel("Your Monastic Orders provided tithes.",
                         Misc.getTextColor());

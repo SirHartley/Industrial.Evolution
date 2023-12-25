@@ -453,7 +453,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
             float opad = 5.0F;
             Color highlight = Misc.getHighlightColor();
 
-            if (market.isPlayerOwned() && currTooltipMode == IndustryTooltipMode.NORMAL) {
+            if (market.isPlayerOwned() && currTooltipMode == IndustryTooltipMode.NORMAL && bestMarketId != null) {
                 if (isFunctional()) {
 
                     float value = reduceValueToNotExceedHighest(Math.round((bestFleetSize * currentMultMod) * 100f) / 100f);
