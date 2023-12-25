@@ -160,12 +160,12 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && Settings.PETS;
+        return super.isAvailableToBuild() && Settings.getBoolean(Settings.PETS);
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return super.showWhenUnavailable() && Settings.PETS;
+        return super.showWhenUnavailable() && Settings.getBoolean(Settings.PETS);
     }
 
     @Override

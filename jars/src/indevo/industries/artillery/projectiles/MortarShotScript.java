@@ -16,10 +16,10 @@ import static java.lang.Math.*;
 
 public class MortarShotScript implements EveryFrameScript {
 
-    public static final float AVERAGE_PROJ_IMPACT_TIME = Settings.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME;
+    public static final float AVERAGE_PROJ_IMPACT_TIME = Settings.getFloat(Settings.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME);
     public static final float MIN_TARGET_RADIUS = 250f;
     public static final float MAX_TARGET_RADIUS = 700f;
-    public static final int DEFAULT_PROJECTILE_AMT = Settings.ARTILLERY_MORTAR_PROJECTILES_PER_SHOT;
+    public static final int DEFAULT_PROJECTILE_AMT = Settings.getInt(Settings.ARTILLERY_MORTAR_PROJECTILES_PER_SHOT);
 
     public SectorEntityToken target;
     public SectorEntityToken origin;

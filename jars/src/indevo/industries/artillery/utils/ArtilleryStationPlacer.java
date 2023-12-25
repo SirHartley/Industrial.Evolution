@@ -41,7 +41,7 @@ public class ArtilleryStationPlacer {
     public static void placeCoreWorldArtilleries() {
 
         if (Global.getSector().getEconomy().getMarket("culann") == null
-                || !Settings.ENABLE_ARTILLERY
+                || !Settings.getBoolean(Settings.ENABLE_ARTILLERY)
                 || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedArtilleries")) return;
 
         MarketAPI m = Global.getSector().getEconomy().getMarket("eochu_bres");
@@ -66,7 +66,7 @@ public class ArtilleryStationPlacer {
     }
 
     public static void placeDerelictArtilleries() {
-        if (!Settings.ENABLE_ARTILLERY || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedDerelictArtilleries"))
+        if (!Settings.getBoolean(Settings.ENABLE_ARTILLERY) || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedDerelictArtilleries"))
             return;
 
         int currentCount = 0;
@@ -97,7 +97,7 @@ public class ArtilleryStationPlacer {
 
                 float planetMod = baseMod;
                 planetMod += TechMining.getTechMiningRuinSizeModifier(p.getMarket()) * 0.1f;
-                planetMod *= Settings.ARTILLERY_SPAWN_WEIGHT;
+                planetMod *= Settings.getFloat(Settings.ARTILLERY_SPAWN_WEIGHT);
 
                 if (r.nextFloat() < planetMod) {
                     if (hasRemnantStation)

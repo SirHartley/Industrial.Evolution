@@ -88,12 +88,12 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.DRYDOCK;
+        return Settings.getBoolean(Settings.DRYDOCK);
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.DRYDOCK;
+        return Settings.getBoolean(Settings.DRYDOCK);
     }
 
     public void reportEconomyTick(int iterIndex) {
@@ -251,16 +251,16 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
         float cost;
         switch (size) {
             case FRIGATE:
-                cost = Settings.RESTO_FEE_FRIGATE;
+                cost = Settings.getFloat(Settings.RESTO_FEE_FRIGATE);
                 break;
             case DESTROYER:
-                cost = Settings.RESTO_FEE_DESTROYER;
+                cost = Settings.getFloat(Settings.RESTO_FEE_DESTROYER);
                 break;
             case CRUISER:
-                cost = Settings.RESTO_FEE_CRUISER;
+                cost = Settings.getFloat(Settings.RESTO_FEE_CRUISER);
                 break;
             case CAPITAL_SHIP:
-                cost = Settings.RESTO_FEE_CAPITAL;
+                cost = Settings.getFloat(Settings.RESTO_FEE_CAPITAL);
                 break;
             default:
                 cost = 10000f;

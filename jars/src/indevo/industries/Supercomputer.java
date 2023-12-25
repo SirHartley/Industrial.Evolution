@@ -83,9 +83,9 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
     public int getCoreUseTimes(String AICoreId) {
         HashMap<String, Integer> list = new HashMap<>();
 
-        list.put(Commodities.ALPHA_CORE, Settings.ALPHA_CORE_RUNTIME);
-        list.put(Commodities.BETA_CORE, Settings.BETA_CORE_RUNTIME);
-        list.put(Commodities.GAMMA_CORE, Settings.GAMMA_CORE_RUNTIME);
+        list.put(Commodities.ALPHA_CORE, Settings.getInt(Settings.ALPHA_CORE_RUNTIME));
+        list.put(Commodities.BETA_CORE, Settings.getInt(Settings.BETA_CORE_RUNTIME));
+        list.put(Commodities.GAMMA_CORE, Settings.getInt(Settings.GAMMA_CORE_RUNTIME));
 
         return Math.round(list.get(AICoreId) * runtimeMult);
     }
@@ -357,12 +357,12 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
     }
 
     public boolean showWhenUnavailable() {
-        return Settings.SUPCOM;
+        return Settings.getBoolean(Settings.SUPCOM);
     }
 
     @Override
     public boolean isAvailableToBuild() {
-        if (!Settings.SUPCOM) return false;
+        if (!Settings.getBoolean(Settings.SUPCOM)) return false;
 
         if (hascond(Conditions.HOT) || hascond(Conditions.VERY_HOT)) {
             return false;

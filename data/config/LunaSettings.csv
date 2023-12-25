@@ -1,6 +1,7 @@
 fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
 IndEvo_header0,Disclaimer,Header,Disclaimer,,,,,General
 IndEvo_text0,,Text,No gurantees for stability if you fuck with anything in here because I did not test it and probably never will.,,,,,General
+IndEvo_text_application_note,,Text,Some settings will not apply unless you start a new game.,,,,,General
 IndEvo_header1,General,Header,General,,,,,General
 IndEvo_shipPickerRowCount,[General] Ship Picker Row Count,Int,8,,The row amount in most of the ship picker dialogues in the mod. This one is for DemonX3#6370 who badgered me to add this for a year straight.,0,100,General
 IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,Commerce balance changes. Read up on why this was needed here: bit.ly/commerce_balance. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).,,,General

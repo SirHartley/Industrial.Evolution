@@ -150,7 +150,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
         } else if (currentShip != null) {
             if (daysRequired <= daysPassed || debug) {
-                boolean toStorage = !Settings.DERELICT_DELIVER_TO_GATHERING;
+                boolean toStorage = !Settings.getBoolean(Settings.DERELICT_DELIVER_TO_GATHERING);
 
                 MarketAPI gather = IndustryHelper.getMarketForStorage(market);
                 MarketAPI target = toStorage ? market : gather;
@@ -195,7 +195,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
             }
 
             //ship item to target
-            if (Settings.HULLFORGE_AUTO_DELIVER_TO_CLOSEST_LAB) {
+            if (Settings.getBoolean(Settings.HULLFORGE_AUTO_DELIVER_TO_CLOSEST_LAB)) {
                 MarketAPI target = IndustryHelper.getClosestMarketWithIndustry(market, targetIndustryId);
 
                 if (target != null) {
@@ -210,7 +210,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
             }
 
             //else deposit in target cargo
-            boolean toStorage = !Settings.DERELICT_DELIVER_TO_GATHERING;
+            boolean toStorage = !Settings.getBoolean(Settings.DERELICT_DELIVER_TO_GATHERING);
 
             MarketAPI gather = market.getFaction().getProduction().getGatheringPoint();
             MarketAPI target = toStorage ? market : gather;
@@ -223,7 +223,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
             }
 
             //deposit template if not on autobuild
-        } else if (!Settings.HULLFORGE_AUTO_QUEUE_SHIPS_UNTIL_EMPTY) {
+        } else if (!Settings.getBoolean(Settings.HULLFORGE_AUTO_QUEUE_SHIPS_UNTIL_EMPTY)) {
             if (market.hasSubmarket(Submarkets.SUBMARKET_STORAGE)) {
                 market.getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo().addSpecial(getSpecialItem(), 1);
                 setSpecialItem(null);
@@ -262,10 +262,10 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
     private int getRequiredDaysForHull(ShipHullSpecAPI ship) {
         Map<ShipAPI.HullSize, Integer> dayMap = new HashMap<>();
-        dayMap.put(ShipAPI.HullSize.FRIGATE, Settings.HULLFORGE_DAYS_FRIGATE);
-        dayMap.put(ShipAPI.HullSize.DESTROYER, Settings.HULLFORGE_DAYS_DESTROYER);
-        dayMap.put(ShipAPI.HullSize.CRUISER, Settings.HULLFORGE_DAYS_CRUISER);
-        dayMap.put(ShipAPI.HullSize.CAPITAL_SHIP, Settings.HULLFORGE_DAYS_CAPITAL_SHIP);
+        dayMap.put(ShipAPI.HullSize.FRIGATE, Settings.getInt(Settings.HULLFORGE_DAYS_FRIGATE));
+        dayMap.put(ShipAPI.HullSize.DESTROYER, Settings.getInt(Settings.HULLFORGE_DAYS_DESTROYER));
+        dayMap.put(ShipAPI.HullSize.CRUISER, Settings.getInt(Settings.HULLFORGE_DAYS_CRUISER));
+        dayMap.put(ShipAPI.HullSize.CAPITAL_SHIP, Settings.getInt(Settings.HULLFORGE_DAYS_CAPITAL_SHIP));
 
         return dayMap.get(ship.getHullSize());
     }

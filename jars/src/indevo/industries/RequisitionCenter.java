@@ -48,12 +48,12 @@ public class RequisitionCenter extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.REQCENTER;
+        return Settings.getBoolean(Settings.REQCENTER);
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.REQCENTER;
+        return Settings.getBoolean(Settings.REQCENTER);
     }
 
     @Override

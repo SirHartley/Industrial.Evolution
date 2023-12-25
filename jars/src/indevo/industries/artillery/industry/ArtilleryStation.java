@@ -594,7 +594,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
             if (!hasOrbital) if (ind.getSpec().hasTag(Tags.STATION)) hasOrbital = true;
         }
 
-        return market.hasCondition(ArtilleryStationCondition.ID) && canBuild && hasOrbital && Settings.ENABLE_ARTILLERY;
+        return market.hasCondition(ArtilleryStationCondition.ID) && canBuild && hasOrbital && Settings.getBoolean(Settings.ENABLE_ARTILLERY);
     }
 
     @Override

@@ -48,7 +48,7 @@ public class IndEvo_SalvageSpecialAssigner {
     public void init() {
         Random random = StarSystemGenerator.random;
         log.info("IndEvo Starting salvage special seeding");
-        specialApplicationChance = Settings.SPECIAL_APPLICATION_CHANCE;
+        specialApplicationChance = Settings.getFloat(Settings.SPECIAL_APPLICATION_CHANCE);
 
         for (SectorEntityToken entity : Global.getSector().getEntitiesWithTag(Tags.SALVAGEABLE)) {
             addOrReplaceSpecial(entity, random);

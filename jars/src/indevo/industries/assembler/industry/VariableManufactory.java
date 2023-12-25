@@ -37,11 +37,11 @@ public class VariableManufactory extends VariableAssembler {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.ADMANUF;
+        return Settings.getBoolean(Settings.ADMANUF);
     }
 
     public boolean showWhenUnavailable() {
-        return Settings.ADMANUF;
+        return Settings.getBoolean(Settings.ADMANUF);
     }
 
     @Override

@@ -191,11 +191,11 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.ADASSEM;
+        return Settings.getBoolean(Settings.ADASSEM);
     }
 
     public boolean showWhenUnavailable() {
-        return Settings.ADASSEM;
+        return Settings.getBoolean(Settings.ADASSEM);
     }
 
     private void applyOutputReduction() {
@@ -245,7 +245,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
             CargoAPI cargo;
 
-            if (Settings.VARIND_DELIVER_TO_PRODUCTION_POINT && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
+            if (Settings.getBoolean(Settings.VARIND_DELIVER_TO_PRODUCTION_POINT) && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
                 cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo();
             } else if (Misc.getStorageCargo(market) != null) {
                 cargo = Misc.getStorageCargo(market);

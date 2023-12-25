@@ -111,7 +111,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     @Override
     public boolean isFunctional() {
-        return Settings.SCRAPYARD && super.isFunctional();
+        return Settings.getBoolean(Settings.SCRAPYARD) && super.isFunctional();
     }
 
     public int getHullCapacity() {
@@ -423,12 +423,12 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.SCRAPYARD && isOnlyInstanceInSystem() && super.isAvailableToBuild();
+        return Settings.getBoolean(Settings.SCRAPYARD) && isOnlyInstanceInSystem() && super.isAvailableToBuild();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.SCRAPYARD;
+        return Settings.getBoolean(Settings.SCRAPYARD);
     }
 
     private boolean isOnlyInstanceInSystem() {

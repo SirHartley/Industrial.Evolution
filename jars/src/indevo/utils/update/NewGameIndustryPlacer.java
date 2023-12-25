@@ -29,7 +29,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placePetShops() {
-        if (!Settings.PETS) {
+        if (!Settings.getBoolean(Settings.PETS)) {
             return;
         }
 
@@ -42,7 +42,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeManufactories() {
-        if (!Settings.ADMANUF
+        if (!Settings.getBoolean(Settings.ADMANUF)
 ) {
             return;
         }
@@ -54,7 +54,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeSalvageYards() {
-        if (!Settings.SCRAPYARD) {
+        if (!Settings.getBoolean(Settings.SCRAPYARD)) {
             return;
         }
 
@@ -67,7 +67,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeDryDocks() {
-        if (!Settings.DRYDOCK) {
+        if (!Settings.getBoolean(Settings.DRYDOCK)) {
             return;
         }
 
@@ -90,7 +90,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeCourierPorts() {
-        if (!Settings.PRIVATEPORT) {
+        if (!Settings.getBoolean(Settings.PRIVATEPORT)) {
             return;
         }
 
@@ -119,7 +119,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeAcademy() {
-        if (!Settings.ACADEMY) {
+        if (!Settings.getBoolean(Settings.ACADEMY)) {
             return;
         }
 
@@ -131,7 +131,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeReqCenter() {
-        if (!Settings.REQCENTER) {
+        if (!Settings.getBoolean(Settings.REQCENTER)) {
             return;
         }
 

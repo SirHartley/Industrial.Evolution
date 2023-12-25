@@ -26,8 +26,8 @@ import java.awt.*;
 import static indevo.items.consumables.entityAbilities.InterdictionMineAbility.getInterdictSeconds;
 
 public class ECMExplosion extends BaseCustomEntityPlugin {
-    public static final float DURATION = Settings.ARTILLERY_MISSILE_DURATION;
-    public static final float BASE_RADIUS = Settings.ARTILLERY_MISSILE_EXPLOSION_RADIUS;
+    public static final float DURATION = Settings.getFloat(Settings.ARTILLERY_MISSILE_DURATION);
+    public static final float BASE_RADIUS = Settings.getFloat(Settings.ARTILLERY_MISSILE_EXPLOSION_RADIUS);
 
     public static final float RAMPUP_DUR_FRACT = 0.1f;
     public static final float PX_PER_PARTICLE = 100f;

@@ -89,7 +89,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     @Override
     public void advance(float amount) {
-        if (!Settings.PETS) return;
+        if (!Settings.getBoolean(Settings.PETS)) return;
 
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
         if (!fleet.getEventListeners().contains(this)) fleet.addEventListener(this);
@@ -208,7 +208,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     @Override
     public void reportEconomyMonthEnd() {
-        if (!Settings.PETS) return;
+        if (!Settings.getBoolean(Settings.PETS)) return;
 
         doRoutineAliveCheck();
         showFoodMessage();

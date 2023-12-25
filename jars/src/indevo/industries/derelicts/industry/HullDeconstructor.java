@@ -236,7 +236,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
     }
 
     private void shipToCargo(SpecialItemData specialItem, int quantity) {
-        if (Settings.HULLDECON_AUTO_DELIVER_TO_CLOSEST_FORGE) {
+        if (Settings.getBoolean(Settings.HULLDECON_AUTO_DELIVER_TO_CLOSEST_FORGE)) {
             MarketAPI target = IndustryHelper.getClosestMarketWithIndustry(market, Ids.HULLFORGE);
 
             if (target != null) {
@@ -250,7 +250,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
             }
         }
 
-        boolean toStorage = !Settings.DERELICT_DELIVER_TO_GATHERING;
+        boolean toStorage = !Settings.getBoolean(Settings.DERELICT_DELIVER_TO_GATHERING);
 
         MarketAPI gather = market.getFaction().getProduction().getGatheringPoint();
         MarketAPI target = toStorage ? market : gather;
@@ -316,10 +316,10 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
 
     private int getRequiredDaysForHull(ShipVariantAPI ship) {
         Map<ShipAPI.HullSize, Integer> dayMap = new HashMap<>();
-        dayMap.put(ShipAPI.HullSize.FRIGATE, Settings.HULLDECON_DAYS_FRIGATE);
-        dayMap.put(ShipAPI.HullSize.DESTROYER, Settings.HULLDECON_DAYS_DESTROYER);
-        dayMap.put(ShipAPI.HullSize.CRUISER, Settings.HULLDECON_DAYS_CRUISER);
-        dayMap.put(ShipAPI.HullSize.CAPITAL_SHIP, Settings.HULLDECON_DAYS_CAPITAL_SHIP);
+        dayMap.put(ShipAPI.HullSize.FRIGATE, Settings.getInt(Settings.HULLDECON_DAYS_FRIGATE));
+        dayMap.put(ShipAPI.HullSize.DESTROYER, Settings.getInt(Settings.HULLDECON_DAYS_DESTROYER));
+        dayMap.put(ShipAPI.HullSize.CRUISER, Settings.getInt(Settings.HULLDECON_DAYS_CRUISER));
+        dayMap.put(ShipAPI.HullSize.CAPITAL_SHIP, Settings.getInt(Settings.HULLDECON_DAYS_CAPITAL_SHIP));
 
         return dayMap.get(ship.getHullSize());
     }

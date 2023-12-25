@@ -12,7 +12,7 @@ import static indevo.industries.ruinfra.conditions.DerelictInfrastructureConditi
 
 public class ChamelionIndustry extends BaseIndustry {
 
-    public static final float BUILD_PARAM_RED = Settings.DERINFRA_BUILD_RED;
+    public static final float BUILD_PARAM_RED = Settings.getFloat(Settings.DERINFRA_BUILD_RED);
     private boolean isDone = false;
 
     // 20.04.2021 check if this properly blocks the actual ind from being built, if not, make check that prohibits upgrading if it is added or stops the current upgrade if it is ongoing.

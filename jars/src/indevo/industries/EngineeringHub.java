@@ -125,7 +125,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
             daysPassed++;
         }
 
-        boolean toStorage = !Settings.AUTO_SHIP_BP_TO_GATHERING_POINT;
+        boolean toStorage = !Settings.getBoolean(Settings.AUTO_SHIP_BP_TO_GATHERING_POINT);
 
         for (Map.Entry<String, Float> entry : researchProgressList.entrySet()) {
             String id;

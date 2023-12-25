@@ -111,11 +111,11 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (isFunctional()) {
             if (!market.getId().equals(ACADEMY_MARKET_ID)) {
                 //spawn officers/admins if the market has none:
-                if (!marketHasHireableOfficer(false) && getRandomBoolean(Settings.DAILY_OFFICER_SPAWN_CHANCE)) {
+                if (!marketHasHireableOfficer(false) && getRandomBoolean(Settings.getFloat(Settings.DAILY_OFFICER_SPAWN_CHANCE))) {
                     createHireablePerson(false);
                 }
 
-                if (!marketHasHireableOfficer(true) && getRandomBoolean(Settings.DAILY_ADMIN_SPAWN_CHANCE)) {
+                if (!marketHasHireableOfficer(true) && getRandomBoolean(Settings.getFloat(Settings.DAILY_ADMIN_SPAWN_CHANCE))) {
                     createHireablePerson(true);
                 }
             }
@@ -143,12 +143,12 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.ACADEMY;
+        return Settings.getBoolean(Settings.ACADEMY);
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.ACADEMY;
+        return Settings.getBoolean(Settings.ACADEMY);
     }
 
     //officers in training tooltip
@@ -222,7 +222,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     private float calculateFeeStorageCost() {
         if (!market.isPlayerOwned()) {
             int personAmount = +getAdminStorage().size() + getOfficerStorage().size();
-            return Global.getSettings().getFloat("monthlyAIStorageCost") * personAmount;
+            return Settings.getFloat(Settings.MONTHLY_AI_STORAGE_COST) * personAmount;
         }
 
         return 0;
@@ -314,7 +314,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     public int getAdminTrainingDays() {
-        return Settings.ADMIN_TRAINING_DAY_COUNT + 1 - currentAICoreDayReduction;
+        return Settings.getInt(Settings.ADMIN_TRAINING_DAY_COUNT) + 1 - currentAICoreDayReduction;
     }
 
     public PersonAPI getAdminInTraining() {
@@ -334,7 +334,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             market.getMemory().set(ADMIN_IS_TRAINING_KEY, true);
         }
 
-        chargePlayer(Settings.ADMIN_TRAINING_COST, false);
+        chargePlayer(Settings.getInt(Settings.ADMIN_TRAINING_COST), false);
     }
 
     public void abortAdminTraining(boolean moveToStorage_InsteadOfFleet) {
@@ -480,7 +480,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     public int getOfficerTrainingDays() {
-        return Settings.PERSONALITY_TRAINING_DAY_COUNT + 1 - currentAICoreDayReduction;
+        return Settings.getInt(Settings.PERSONALITY_TRAINING_DAY_COUNT) + 1 - currentAICoreDayReduction;
     }
 
     private void trainOfficerInTraining() {
@@ -646,7 +646,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             market.getMemory().set(OFFICER_IS_TRAINING_KEY, true);
         }
 
-        chargePlayer(Settings.PERSONALITY_TRAINING_COST, false);
+        chargePlayer(Settings.getInt(Settings.PERSONALITY_TRAINING_COST), false);
     }
 
 

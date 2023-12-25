@@ -265,14 +265,14 @@ public class CentralizationBureau extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.ADINFRA
+        return Settings.getBoolean(Settings.ADINFRA)
                 && super.isAvailableToBuild()
                 && isOnlyInfraInSystem();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.ADINFRA;
+        return Settings.getBoolean(Settings.ADINFRA);
     }
 
     private boolean isOnlyInfraInSystem() {

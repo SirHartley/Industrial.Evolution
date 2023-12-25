@@ -82,7 +82,7 @@ public class PetShopDialogPlugin  implements InteractionDialogPlugin {
             if (p == null) membersWithoutPets.add(m);
         }
 
-        int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
+        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
         int rows = membersWithoutPets.size() > shipsPerRow ? (int) Math.ceil(membersWithoutPets.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(membersWithoutPets.size(), shipsPerRow);
 

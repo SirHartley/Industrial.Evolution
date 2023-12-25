@@ -100,7 +100,7 @@ public class RuinsManager {
     }
 
     public static void placeIndustrialRuins() {
-        boolean forbidden = !Settings.ENABLE_DERELICTS;
+        boolean forbidden = !Settings.getBoolean(Settings.ENABLE_DERELICTS);
 
         float amount = 0;
         float total = 0;

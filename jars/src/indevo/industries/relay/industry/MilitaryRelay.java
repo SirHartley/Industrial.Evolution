@@ -413,13 +413,13 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 
     @Override
     public boolean isAvailableToBuild() {
-        boolean setting = Settings.COMARRAY;
+        boolean setting = Settings.getBoolean(Settings.COMARRAY);
         boolean hasMBOrHC = isFunctionAllowed();
         return super.isAvailableToBuild() && setting && hasMBOrHC;
     }
 
     public boolean showWhenUnavailable() {
-        return Settings.COMARRAY;
+        return Settings.getBoolean(Settings.COMARRAY);
     }
 
     @Override

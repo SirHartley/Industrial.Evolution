@@ -120,7 +120,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
         nameOverride = current.getName();
 
-        if(Settings.GOVERNMENT_LARP_MODE){
+        if(Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE)){
             superApply();
         } else {
             current.apply();
@@ -219,13 +219,13 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
         super.addRightAfterDescriptionSection(tooltip, mode);
 
-        if (Settings.GOVERNMENT_LARP_MODE) return;
+        if (Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE)) return;
 
         current.addRightAfterDescription(tooltip, mode);
     }
 
     public boolean canChange() {
-        return Global.getSettings().isDevMode() || (market.getSize() <= Settings.GOVERNMENT_MAX_SIZE && !locked);
+        return Global.getSettings().isDevMode() || (market.getSize() <= Settings.getInt(Settings.GOVERNMENT_MAX_SIZE) && !locked);
     }
 
     public boolean isNotChanged() {
@@ -241,7 +241,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     }
 
     public float getPatherInterest() {
-        if (Settings.GOVERNMENT_LARP_MODE) return super.getPatherInterest();
+        if (Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE)) return super.getPatherInterest();
 
         float currentNum = current.getPatherInterest(this);
         return currentNum > 100000000f ? super.getPatherInterest() : currentNum;
@@ -260,7 +260,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
         tooltip.addSectionHeading("Governance Type", Alignment.MID, opad);
 
-        if (Settings.GOVERNMENT_LARP_MODE){
+        if (Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE)){
             SubIndustryData sub = null;
             for (SubIndustryData s : industryList) {if (s.newInstance().isBase()) sub = s; break;} //meh
             if (sub != null) tooltip.addPara(Global.getSettings().getDescription(sub.descriptionID, Description.Type.CUSTOM).getText2(), opad);
@@ -268,7 +268,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
         } else if (current != null) tooltip.addPara(current.getDescription().getText2(), opad);
 
         if (canChange()) tooltip.addPara("Changing the government style is only possible until %s and becomes permanent after %s.", opad, Misc.getHighlightColor(),
-                "colony size " + Settings.GOVERNMENT_MAX_SIZE,
+                "colony size " + Settings.getInt(Settings.GOVERNMENT_MAX_SIZE),
                 DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(DAYS_TO_LOCK));
 
         if (!isNotChanged() && canChange()) {

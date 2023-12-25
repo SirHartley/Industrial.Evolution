@@ -48,7 +48,7 @@ public class TradeCenter extends BaseIndustry implements MarketImmigrationModifi
     }
 
     private void adjustForBalanceChanges() {
-        balanceChange = Settings.COMMERCE_BALANCE_CHANGES;
+        balanceChange = Settings.getBoolean(Settings.COMMERCE_BALANCE_CHANGES);
 
         improveBonus = balanceChange ? ALT_IMPROVE_BONUS : IMPROVE_BONUS;
     }

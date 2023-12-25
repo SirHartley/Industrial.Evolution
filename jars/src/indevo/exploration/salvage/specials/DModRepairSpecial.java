@@ -144,7 +144,7 @@ public class DModRepairSpecial extends BaseSalvageSpecial {
         for (FleetMemberAPI member : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
             if (DModManager.getNumNonBuiltInDMods(member.getVariant()) > 0 && isRestorable(member)) fleetMemberList.add(member);
         }
-        int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
+        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
         int rows = fleetMemberList.size() > shipsPerRow ? (int) Math.ceil(fleetMemberList.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(fleetMemberList.size(), shipsPerRow);
 

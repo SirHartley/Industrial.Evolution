@@ -32,7 +32,7 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     you go do that future me
     */
 
-    public static final float RANGE = Settings.ARTILLERY_WATCHTOWER_RANGE;
+    public static final float RANGE = Settings.getFloat(Settings.ARTILLERY_WATCHTOWER_RANGE);
     public static final String MEM_SENSOR_LOCK_ACTIVE = "$IndEvo_isArtilleryActive";
     public static float PINGS_PER_SECOND = 0.05f;
     public static float WATCHTOWER_FLEET_SEEN_DURATION_DAYS = 5f;

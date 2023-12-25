@@ -99,11 +99,11 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.COMFORGE;
+        return Settings.getBoolean(Settings.COMFORGE);
     }
 
     public boolean showWhenUnavailable() {
-        return Settings.COMFORGE;
+        return Settings.getBoolean(Settings.COMFORGE);
     }
 
     private void autoFeed() {
@@ -140,7 +140,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
             vpcIsLocked = true;
             CargoAPI cargo;
 
-            if (Settings.VARIND_DELIVER_TO_PRODUCTION_POINT && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
+            if (Settings.getBoolean(Settings.VARIND_DELIVER_TO_PRODUCTION_POINT) && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
                 cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo();
             } else if (Misc.getStorageCargo(market) != null) {
                 cargo = Misc.getStorageCargo(market);

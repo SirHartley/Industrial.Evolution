@@ -25,13 +25,13 @@ import static indevo.industries.artillery.scripts.EyeIndicatorScript.WAS_SEEN_BY
 
 public class CampaignAttackScript implements EveryFrameScript {
 
-    public static final float NPC_RELOAD_FACTOR = Settings.ARTILLERY_COOLDOWN_NPC_MULT;
-    public static final float MIN_DELAY_BETWEEN_SHOTS = Settings.ARTILLERY_MIN_DELAY_BETWEEN_SHOTS;
-    public static final float MAX_DELAY_BETWEEN_SHOTS = Settings.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS;
-    public static final float MIN_RELOAD_TIME = Settings.ARTILLERY_MIN_COOLDOWN;
-    public static final float MAX_RELOAD_TIME = Settings.ARTILLERY_MAX_COOLDOWN;
-    public static final float RANGE = Settings.ARTILLERY_MAX_RANGE;
-    public static final float MIN_RANGE = Settings.ARTILLERY_MIN_RANGE;
+    public static final float NPC_RELOAD_FACTOR = Settings.getFloat(Settings.ARTILLERY_COOLDOWN_NPC_MULT);
+    public static final float MIN_DELAY_BETWEEN_SHOTS = Settings.getFloat(Settings.ARTILLERY_MIN_DELAY_BETWEEN_SHOTS);
+    public static final float MAX_DELAY_BETWEEN_SHOTS = Settings.getFloat(Settings.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS);
+    public static final float MIN_RELOAD_TIME = Settings.getFloat(Settings.ARTILLERY_MIN_COOLDOWN);
+    public static final float MAX_RELOAD_TIME = Settings.getFloat(Settings.ARTILLERY_MAX_COOLDOWN);
+    public static final float RANGE = Settings.getFloat(Settings.ARTILLERY_MAX_RANGE);
+    public static final float MIN_RANGE = Settings.getFloat(Settings.ARTILLERY_MIN_RANGE);
 
     //exclusions
     public static final float ARTILLERY_BLOCKOUT_RANGE = 400f;

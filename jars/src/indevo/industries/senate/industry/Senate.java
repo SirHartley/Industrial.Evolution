@@ -36,7 +36,7 @@ public class Senate extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.SENATE && IndustryHelper.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()) && super.isAvailableToBuild();
+        return Settings.getBoolean(Settings.SENATE) && IndustryHelper.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()) && super.isAvailableToBuild();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class Senate extends BaseIndustry {
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.SENATE;
+        return Settings.getBoolean(Settings.SENATE);
     }
 
     @Override

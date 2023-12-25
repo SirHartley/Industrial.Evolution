@@ -53,7 +53,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
 
     @Override
     public void reportEconomyMonthEnd() {
-        if (!Settings.EMBASSY) return;
+        if (!Settings.getBoolean(Settings.EMBASSY)) return;
 
         Map<FactionAPI, Float> mergedMap = new HashMap<>();
 
@@ -96,7 +96,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
 
     @Override
     public void onNewDay() {
-        if (!Settings.EMBASSY) return;
+        if (!Settings.getBoolean(Settings.EMBASSY)) return;
         logRepChange();
         updateLastDayRep();
         getWarConsequences();

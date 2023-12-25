@@ -68,9 +68,9 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
     protected Map<String, MemoryAPI> memoryMap;
 
     protected static final String HAS_SP_SELECTED = "$IndEvo_HasSelectedSP_SY";
-    protected static final int BASE_D_MODS = Settings.SY_BASE_DMODS;
-    protected static final int PART_VALUE_MULT = Global.getSettings().getInt("IndEvo_SYPartValueMult");
-    public static final int DELIVERY_TIME = Settings.SY_HULL_DELIVERY_TIME;
+    protected static final int BASE_D_MODS = Settings.getInt(Settings.SY_BASE_DMODS);
+    protected static final int PART_VALUE_MULT = Settings.getInt(Settings.SY_PART_VALUE_MULT);
+    public static final int DELIVERY_TIME = Settings.getInt(Settings.SY_HULL_DELIVERY_TIME);
 
     protected static final String RARE_PARTS_SELECTOR_ID = "IndEvo_RareSliderID";
     protected static final String PARTS_SELECTOR_ID = "IndEvo_PartSliderID";
@@ -258,7 +258,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         tradeInList.clear();
         final List<FleetMemberAPI> validSelectionList = getValidFleetMemberList();
 
-        int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
+        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
         int rows = validSelectionList.size() > shipsPerRow ? (int) Math.ceil(validSelectionList.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(validSelectionList.size(), shipsPerRow);
 
@@ -600,7 +600,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         }
 
         public int getRequiredParts() {
-            return getFP() * Settings.RARE_PARTS_AMOUNT_PER_FP;
+            return getFP() * Settings.getInt(Settings.RARE_PARTS_AMOUNT_PER_FP);
         }
 
         public int getMaxPartsAmt() {

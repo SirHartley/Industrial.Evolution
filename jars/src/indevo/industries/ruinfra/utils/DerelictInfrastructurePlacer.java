@@ -17,7 +17,7 @@ import static indevo.utils.ModPlugin.log;
 public class DerelictInfrastructurePlacer {
 
     public static void placeRuinedInfrastructure() {
-        if (!Settings.ENABLE_DERELICTS) return;
+        if (!Settings.getBoolean(Settings.ENABLE_DERELICTS)) return;
 
         float amount = 0;
         for (StarSystemAPI s : Global.getSector().getStarSystems()) {

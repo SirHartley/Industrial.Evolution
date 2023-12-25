@@ -264,7 +264,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
     }
 
     private boolean repairInstalledFT() {
-        if (Settings.RESLAB_AUTO_DELIVER_TO_CLOSEST_DECON) {
+        if (Settings.getBoolean(Settings.RESLAB_AUTO_DELIVER_TO_CLOSEST_DECON)) {
             MarketAPI target = IndustryHelper.getClosestMarketWithIndustry(market, Ids.DECONSTRUCTOR);
 
             if (target != null) {
@@ -277,7 +277,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
             }
         }
 
-        boolean toStorage = !Settings.DERELICT_DELIVER_TO_GATHERING;
+        boolean toStorage = !Settings.getBoolean(Settings.DERELICT_DELIVER_TO_GATHERING);
 
         MarketAPI gather = IndustryHelper.getMarketForStorage(market);
         MarketAPI target = toStorage ? market : gather;

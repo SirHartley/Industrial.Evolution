@@ -32,7 +32,7 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
     @Override
     public void apply(String id) {
         super.apply(id);
-        if (Settings.SCRAPYARD) applyParts();
+        if (Settings.getBoolean(Settings.SCRAPYARD)) applyParts();
         applySupComIncome();
     }
 

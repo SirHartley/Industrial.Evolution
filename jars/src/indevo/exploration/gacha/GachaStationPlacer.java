@@ -19,7 +19,7 @@ import static indevo.exploration.gacha.GachaStationDialoguePlugin.RANDOM;
 public class GachaStationPlacer {
 
     public static final String HAS_PLACED_STATIONS = "$IndEvo_hasPlacedStations";
-    public static final float AMOUNT_MULT = Settings.AUTOMATEDSHIPYARD_NUM; //default 1.5f
+    public static final float AMOUNT_MULT = Settings.getFloat(Settings.AUTOMATEDSHIPYARD_NUM); //default 1.5f
 
     public static void place() {
         if (Global.getSector().getPersistentData().containsKey(HAS_PLACED_STATIONS)) return;

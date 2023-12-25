@@ -36,7 +36,7 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
     }
 
     public boolean isSuitable(Industry ind){
-        boolean isPop = ind.getId().equals(Industries.POPULATION) && (ind.getMarket().getSize() <= Settings.GOVERNMENT_MAX_SIZE || Global.getSettings().isDevMode());
+        boolean isPop = ind.getId().equals(Industries.POPULATION) && (ind.getMarket().getSize() <= Settings.getInt(Settings.GOVERNMENT_MAX_SIZE) || Global.getSettings().isDevMode());
         boolean isChangeling = ind instanceof SwitchablePopulation;
         boolean canChange = isChangeling && ((SwitchablePopulation) ind).canChange();
         boolean isPlayerOwned = ind.getMarket().isPlayerOwned();
@@ -64,7 +64,7 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
             tooltip.addPara("Change the local governing style", 0f);
 
             tooltip.addPara("This is only possible until %s and becomes permanent after %s.", 10f, Misc.getHighlightColor(),
-                    "size " + Settings.GOVERNMENT_MAX_SIZE,
+                    "size " + Settings.getInt(Settings.GOVERNMENT_MAX_SIZE),
                     SwitchablePopulation.DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(SwitchablePopulation.DAYS_TO_LOCK));
         }
     }

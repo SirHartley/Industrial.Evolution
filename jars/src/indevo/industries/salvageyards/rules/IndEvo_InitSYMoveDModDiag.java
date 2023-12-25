@@ -60,7 +60,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     protected FleetMemberAPI targetMember = null;
     protected Set<String> selectedMods = new HashSet<>();
 
-    public static final float BASE_COST_MULT = Settings.SY_DMOD_MOVE_BASE_COST_MULT;
+    public static final float BASE_COST_MULT = Settings.getFloat(Settings.SY_DMOD_MOVE_BASE_COST_MULT);
 
     public static final Logger log = Global.getLogger(IndEvo_InitSYMoveDModDiag.class);
 
@@ -275,7 +275,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     private void initOriginHullPicker() {
         List<FleetMemberAPI> validSelectionList = new ArrayList<>(getValidFleetMemberSetForInitialSelection());
 
-        int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
+        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
         int rows = validSelectionList.size() > shipsPerRow ? (int) Math.ceil(validSelectionList.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(validSelectionList.size(), shipsPerRow);
         cols = Math.max(cols, 4);
@@ -315,7 +315,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
         List<FleetMemberAPI> validSelectionList = new ArrayList<>(getValidTransferTargetsForMember(originMember, combinedFleet));
 
-        int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
+        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
         int rows = validSelectionList.size() > shipsPerRow ? (int) Math.ceil(validSelectionList.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(validSelectionList.size(), shipsPerRow);
         cols = Math.max(cols, 4);

@@ -138,7 +138,7 @@ public class ShipRouletteSpecial extends BaseSalvageSpecial {
     private void initHullPicker() {
         List<FleetMemberAPI> fleetMemberList = Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy();
 
-        int shipsPerRow = Settings.SHIP_PICKER_ROW_COUNT;
+        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
         int rows = fleetMemberList.size() > shipsPerRow ? (int) Math.ceil(fleetMemberList.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(fleetMemberList.size(), shipsPerRow);
 

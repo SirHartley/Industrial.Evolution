@@ -72,7 +72,7 @@ public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements
             boolean isPrinted = member.getVariant().hasHullMod(Ids.PRINTING_INDICATOR);
             boolean hasUnremovableNonAIOfficer = member.getCaptain() != null && (Misc.isUnremovable(member.getCaptain()) && !member.getCaptain().isAICore());
 
-            boolean ignoreWhiteLists = Settings.DECON_IGNORE_WHITELISTS;
+            boolean ignoreWhiteLists = Settings.getBoolean(Settings.DECON_IGNORE_WHITELISTS);
 
             if (ignoreWhiteLists) return isPrinted || hasUnremovableNonAIOfficer;
 

@@ -385,12 +385,12 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
     }
 
     private float getRangeLY() {
-        rangeRadiusLY = Settings.RG_RANGE;
+        rangeRadiusLY = Settings.getInt(Settings.RG_RANGE);
         return getAiCoreIdNotNull().equals(Commodities.BETA_CORE) ? rangeRadiusLY + betaCoreRangeIncrease : rangeRadiusLY;
     }
 
     private int getDaysRequired() {
-        daysRequired = Settings.RG_COOLDOWN_TIME;
+        daysRequired = Settings.getInt(Settings.RG_COOLDOWN_TIME);
         return getAiCoreIdNotNull().equals(Commodities.ALPHA_CORE) ? daysRequired - alphaCoreDayReduction : daysRequired;
     }
 

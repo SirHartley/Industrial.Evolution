@@ -120,7 +120,7 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin imple
             boolean isPrinted = member.getVariant().hasHullMod(Ids.PRINTING_INDICATOR); //not not printed
             //boolean hasNoDefaultRole = !(roleListings.contains(member.getHullId()) || roleListings.contains(member.getHullSpec().getBaseHullId()));
 
-            boolean ignoreWhiteLists = Settings.ENGHUB_IGNORE_WHITELISTS;
+            boolean ignoreWhiteLists = Settings.getBoolean(Settings.ENGHUB_IGNORE_WHITELISTS);
 
             if (ignoreWhiteLists) return canNotGenerateRSPoints || isPrinted;
             else return restricted || notAllowed || canNotGenerateRSPoints || isPrinted;

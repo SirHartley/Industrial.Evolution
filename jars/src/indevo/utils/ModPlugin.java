@@ -2,6 +2,7 @@ package indevo.utils;
 
 import com.fs.starfarer.api.BaseModPlugin;
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.ModManagerAPI;
 import com.fs.starfarer.api.PluginPick;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
@@ -83,6 +84,7 @@ import indevo.utils.timers.RaidTimeout;
 import indevo.utils.timers.TimeTracker;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
 import indevo.utils.update.NewGameIndustryPlacer;
+import lunalib.lunaSettings.LunaSettings;
 import org.dark.shaders.light.LightData;
 import org.dark.shaders.util.ShaderLib;
 
@@ -106,11 +108,17 @@ public class ModPlugin extends BaseModPlugin {
     public void onApplicationLoad() throws Exception {
         boolean hasLazyLib = Global.getSettings().getModManager().isModEnabled("lw_lazylib");
         if (!hasLazyLib) {
-            throw new RuntimeException("Industrial Evolution requires LazyLib by LazyWizard" + "\nGet it at http://fractalsoftworks.com/forum/index.php?topic=5444");
+            throw new RuntimeException("Industrial Evolution requires LazyLib by LazyWizard" + "\nDownload at http://fractalsoftworks.com/forum/index.php?topic=5444");
         }
+
         boolean hasMagicLib = Global.getSettings().getModManager().isModEnabled("MagicLib");
         if (!hasMagicLib) {
-            throw new RuntimeException("Industrial Evolution requires MagicLib!" + "\nGet it at http://fractalsoftworks.com/forum/index.php?topic=13718");
+            throw new RuntimeException("Industrial Evolution requires MagicLib!" + "\nDownload at http://fractalsoftworks.com/forum/index.php?topic=13718");
+        }
+
+        boolean hasLunaLib = Global.getSettings().getModManager().isModEnabled("lunalib");
+        if (!hasLunaLib) {
+            throw new RuntimeException("Industrial Evolution requires LunaLib!" + "\nDownload at https://fractalsoftworks.com/forum/index.php?topic=25658");
         }
 
         boolean hasGraphicsLib = Global.getSettings().getModManager().isModEnabled("shaderLib");
@@ -146,7 +154,6 @@ public class ModPlugin extends BaseModPlugin {
         }
 
         //core
-        if (Global.getSettings().getModManager().isModEnabled("lunalib")) Settings.reloadLunaSettings();
         createAcademyMarket();
         setListenersIfNeeded();
         setScriptsIfNeeded();
@@ -158,7 +165,7 @@ public class ModPlugin extends BaseModPlugin {
 
         //balance and spec changes
         addTypePrefaceToIndustrySpecs();
-        if (Settings.COMMERCE_BALANCE_CHANGES) overrideVanillaCommerce();
+        if (Settings.getBoolean(Settings.COMMERCE_BALANCE_CHANGES)) overrideVanillaCommerce();
 
         LocatorSystemRatingUpdater.updateAllSystems();
         resetDerelictRep();
@@ -238,7 +245,7 @@ public class ModPlugin extends BaseModPlugin {
         GachaStationPlacer.place();
         createAcademyMarket();
 
-        if (Settings.ENABLE_DERELICTS) {
+        if (Settings.getBoolean(Settings.ENABLE_DERELICTS)) {
             new DerelictStationPlacer().init();
             new IndEvo_SalvageSpecialAssigner().init();
         }
@@ -287,7 +294,7 @@ public class ModPlugin extends BaseModPlugin {
     }
 
     protected void restoreRemovedEntities() {
-        if (!Settings.ENABLE_MINEFIELDS) return;
+        if (!Settings.getBoolean(Settings.ENABLE_MINEFIELDS)) return;
 
         for (SectorEntityToken mine : mines.keySet()) {
             ((LocationAPI) mines.get(mine)).addEntity(mine);
@@ -296,7 +303,7 @@ public class ModPlugin extends BaseModPlugin {
     }
 
     public void spawnMineFields() {
-        if (Global.getSector().getEconomy().getMarket("culann") == null || !Settings.ENABLE_MINEFIELDS)
+        if (Global.getSector().getEconomy().getMarket("culann") == null || !Settings.getBoolean(Settings.ENABLE_MINEFIELDS))
             return;
 
         MarketAPI m = Global.getSector().getEconomy().getMarket("culann");

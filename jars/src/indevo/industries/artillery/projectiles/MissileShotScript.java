@@ -22,12 +22,12 @@ public class MissileShotScript implements EveryFrameScript {
     //missile dumbfire flies to loc, deploys tracking submunitions
     //the submunitions are slow but track, if the player enters their radius, they intercept and make a slow field
 
-    public static final int DEFAULT_MISSILE_AMT = Settings.ARTILLERY_MISSILE_PROJECTILES_PER_SHOT; //MUST BE DIVISIBLE BY 2
+    public static final int DEFAULT_MISSILE_AMT = Settings.getInt(Settings.ARTILLERY_MISSILE_PROJECTILES_PER_SHOT); //MUST BE DIVISIBLE BY 2
     public static final float MISSILE_TRAJECTORY_BENDY_FACTOR = 0.4f; //the higher, the more circular the trajectory, MAXIMUM 1f
-    public static final float AVG_IMPACT_SECONDS = Settings.ARTILLERY_MISSILE_PROJECTILES_IMPACT_TIME;
+    public static final float AVG_IMPACT_SECONDS = Settings.getFloat(Settings.ARTILLERY_MISSILE_PROJECTILES_IMPACT_TIME);
 
-    public static final float FUZZ_FACTOR = Settings.ARTILLERY_MISSILE_FUZZ; //the higher, the more fuzz
-    public static final float MAX_FUZZ_DIST = Settings.ARTILLERY_MISSILE_MAX_COVERED_AREA;
+    public static final float FUZZ_FACTOR = Settings.getFloat(Settings.ARTILLERY_MISSILE_FUZZ); //the higher, the more fuzz
+    public static final float MAX_FUZZ_DIST = Settings.getFloat(Settings.ARTILLERY_MISSILE_MAX_COVERED_AREA);
     public static final float MIN_FUZZ_DIST = 400f;
 
     public boolean done = false;

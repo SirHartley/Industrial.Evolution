@@ -40,8 +40,8 @@ public class DerelictStationPlacer {
     }
 
     public void init() {
-        if (!Settings.ENABLE_DERELICT_STATIONS) return;
-        ADDITIONAL_STATION_AMT = Settings.DERELICT_STATION_AMOUNT;
+        if (!Settings.getBoolean(Settings.ENABLE_DERELICT_STATIONS)) return;
+        ADDITIONAL_STATION_AMT = Settings.getFloat(Settings.DERELICT_STATION_AMOUNT);
         random = StarSystemGenerator.random;
 
         float totalStationAmt = 0;
@@ -65,7 +65,7 @@ public class DerelictStationPlacer {
         float arsChance = arsAmt * 3 / systemList.size();
         float petChance = petAmt * 3 / systemList.size();
 
-        if (!Settings.PETS){
+        if (!Settings.getBoolean(Settings.PETS)){
             petAmt = 0;
             petChance = 0;
         }
@@ -140,7 +140,7 @@ public class DerelictStationPlacer {
 
         AddedEntity e = addStation(loc, data, type, Factions.NEUTRAL);
 
-        if (Settings.ENABLE_MINEFIELDS && loc.type.equals(LocationType.PLANET_ORBIT)) {
+        if (Settings.getBoolean(Settings.ENABLE_MINEFIELDS) && loc.type.equals(LocationType.PLANET_ORBIT)) {
             SectorEntityToken t = e.entity.getOrbitFocus();
             if (t != null) {
                 //if it's a moon, add to primary entity instead

@@ -43,7 +43,7 @@ public class ChangelingRefiningOptionProvider extends BaseIndustryOptionProvider
         boolean canChange = isChangeling && ((SwitchableRefining) ind).canChange();
         boolean isPlayerOwned = ind.getMarket().isPlayerOwned();
 
-        return (isTarget || canChange) && Settings.SWITCHABLEREFINING && isPlayerOwned;
+        return (isTarget || canChange) && Settings.getBoolean(Settings.SWITCHABLEREFINING) && isPlayerOwned;
     }
 
     @Override

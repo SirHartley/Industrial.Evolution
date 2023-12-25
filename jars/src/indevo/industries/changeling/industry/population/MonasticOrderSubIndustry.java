@@ -83,7 +83,7 @@ Monastic Orders
         public boolean isSuitable(Industry ind) {
             Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
             boolean isTarget = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof MonasticOrderSubIndustry;
-            return !Settings.GOVERNMENT_LARP_MODE && isTarget;
+            return !Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE) && isTarget;
         }
 
         @Override

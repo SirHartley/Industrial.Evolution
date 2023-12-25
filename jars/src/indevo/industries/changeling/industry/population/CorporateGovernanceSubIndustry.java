@@ -67,7 +67,7 @@ x•	increase military upkeep by x3
         public boolean isSuitable(Industry ind) {
             Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
             boolean isCorpo = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof CorporateGovernanceSubIndustry;
-            return !Settings.GOVERNMENT_LARP_MODE && isCorpo;
+            return !Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE) && isCorpo;
         }
 
         @Override

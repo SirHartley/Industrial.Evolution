@@ -64,7 +64,7 @@ public class DepositMessage implements EconomyTickListener {
     }
 
     private void makeMessage() {
-        boolean varIndGath = Settings.VARIND_DELIVER_TO_PRODUCTION_POINT;
+        boolean varIndGath = Settings.getBoolean(Settings.VARIND_DELIVER_TO_PRODUCTION_POINT);
         String targetLocation = varIndGath ? Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getName() : StringHelper.getString("theLocalStorage");
 
         MessageIntel intel = new MessageIntel(
