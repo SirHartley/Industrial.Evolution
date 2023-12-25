@@ -59,6 +59,9 @@ todo implement pirot
 General
 Fixed - Lunasettings now properly work (some settings will ONLY APPLY WITH A NEW GAME, like disabling pets.)
 
+Weapons & Ships
+Added - Graphicslib effects for everything courtesy of Himemi/Cieve (Thank you so much!)
+
 Items
 Adjusted - Special item drops now about 60% less
 
@@ -67,6 +70,9 @@ Adjusted - Progress display now rounds the displayed progress number down (no mo
 
 Artillery
 Fixed - [Wisp] - Crash on new game https://fractalsoftworks.com/forum/index.php?topic=18011.msg411734#msg411734
+
+Supercomputer
+Fixed - Rare crash when built on a modded station without the "station" tag
 
 Governments
 Fixed - [Wisp] - Monastic Order Crash when picking having no valid ship to pick

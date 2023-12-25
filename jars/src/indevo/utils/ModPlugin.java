@@ -88,6 +88,7 @@ import indevo.utils.update.NewGameIndustryPlacer;
 import lunalib.lunaSettings.LunaSettings;
 import org.dark.shaders.light.LightData;
 import org.dark.shaders.util.ShaderLib;
+import org.dark.shaders.util.TextureData;
 
 import java.awt.*;
 import java.io.IOException;
@@ -127,6 +128,8 @@ public class ModPlugin extends BaseModPlugin {
             ShaderLib.init();
             LightData.readLightDataCSV("data/lights/IndEvo_lights.csv");
         }
+
+        TextureData.readTextureDataCSV((String)"data/lights/IndEvo_textures.csv");
     }
 
     @Override

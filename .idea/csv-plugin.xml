@@ -150,6 +150,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\config\indEvo\lab_commodity_whitelist.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\config\indEvo\printing_whitelist.csv">
           <value>
             <Attribute>
