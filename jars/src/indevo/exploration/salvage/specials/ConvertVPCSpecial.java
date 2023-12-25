@@ -144,8 +144,8 @@ public class ConvertVPCSpecial extends BaseSalvageSpecial {
         float dualReduction = dual ? DUAL_OUTPUT_REDUCTION_MULT : 1f;
 
         try {
-            amt = Global.getSettings().getJSONObject(Ids.COMFORGE).getInt(commodityId);
-            logIncrease = Global.getSettings().getJSONObject(Ids.COMFORGE).getInt("logIncrease");
+            amt = Global.getSettings().getJSONObject(Ids.COMFORGE + "_amounts").getInt(commodityId);
+            logIncrease = Global.getSettings().getJSONObject(Ids.COMFORGE + "_amounts").getInt("logIncrease");
         } catch (JSONException e) {
             log.error(e.toString());
             amt = 0;

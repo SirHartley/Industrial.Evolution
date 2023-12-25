@@ -1,8 +1,8 @@
 {
 	"id":"IndEvo", # internal id
-	"name":"Industrial.Evolution [Wisp]", # displayed to the player
+	"name":"Industrial.Evolution", # displayed to the player
 	"author":"SirHartley",
-	"version":"3.3.c-wisp002",
+	"version":"3.3.d",
 	"description":"Expands the available campaign content through addition of buildings, interactions, abilities, events, terrain and exploration content.",
 	"gameVersion":"0.96a",
 	"jars":["jars/IndEvo.jar"],

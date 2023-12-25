@@ -192,8 +192,8 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
         //gets the category depending on the industry ID
         try {
-            amt = Global.getSettings().getJSONObject(getId()).getInt(commodityId);
-            logIncrease = Global.getSettings().getJSONObject(getId()).getInt("logIncrease");
+            amt = Global.getSettings().getJSONObject(getId()+ "_amounts").getInt(commodityId);
+            logIncrease = Global.getSettings().getJSONObject(getId()+ "_amounts").getInt("logIncrease");
         } catch (JSONException e) {
             log.error(e.toString());
             amt = 0;

@@ -57,7 +57,7 @@ todo implement pirot
 
 3.3.d
 General
-Fixed - Lunasettings now properly apply (some settings will STILL only work with a new game.)
+Fixed - Lunasettings now properly work (some settings will ONLY APPLY WITH A NEW GAME, like disabling pets.)
 
 Items
 Adjusted - Special item drops now about 60% less

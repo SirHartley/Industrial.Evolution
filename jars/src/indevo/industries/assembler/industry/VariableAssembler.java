@@ -154,8 +154,8 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
         //gets the category depending on the industry ID
         try {
-            amt = Global.getSettings().getJSONObject(getId()).getInt(commodityId);
-            logIncrease = Global.getSettings().getJSONObject(getId()).getInt("logIncrease");
+            amt = Global.getSettings().getJSONObject(getId() + "_amounts").getInt(commodityId);
+            logIncrease = Global.getSettings().getJSONObject(getId() + "_amounts").getInt("logIncrease");
         } catch (JSONException e) {
             log.error("[Industrial.Evolution] can not set VarInd output - " + e.toString());
             amt = 0;
