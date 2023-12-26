@@ -170,28 +170,6 @@ public class RuinsManager {
         MarketAPI market = planet.getMarket();
         if (market == null) return;
 
-        //if the system has a hullForge/decon, this will always resolve to the opposite
-        //if system has another unset cond, resolve into either decon or forge
-        for (PlanetAPI p : market.getStarSystem().getPlanets()) {
-            MarketAPI m = p.getMarket();
-
-            if (m == null || m.getId().equals(market.getId())) continue;
-
-            MemoryAPI localMem = m.getMemoryWithoutUpdate();
-            if (m.hasCondition(Ids.COND_RUINS)) {
-                if (localMem.contains(INDUSTRY_ID_MEMORY_KEY)) {
-                    String id = localMem.getString(INDUSTRY_ID_MEMORY_KEY);
-
-                    if (id.equals(Ids.DECONSTRUCTOR) || id.equals(Ids.HULLFORGE)) {
-                        id = id.equals(Ids.DECONSTRUCTOR) ? Ids.HULLFORGE : Ids.DECONSTRUCTOR;
-                        market.getMemoryWithoutUpdate().set(INDUSTRY_ID_MEMORY_KEY, id);
-                        return;
-                    }
-                }
-            }
-        }
-
-        //otherwise,
         String chosenIndustry;
 
         WeightedRandomPicker<String> industryIdPicker = new WeightedRandomPicker<>();
@@ -218,11 +196,10 @@ public class RuinsManager {
 
     private static Map<String, Float> getChanceMap() {
         Map<String, Float> indMap = new HashMap<>();
-        indMap.put(Ids.LAB, 100f);
-        indMap.put(Ids.DECONSTRUCTOR, 70f);
-        indMap.put(Ids.HULLFORGE, 70f);
-        indMap.put(Ids.RIFTGEN, 30f);
-        //indMap.put(Ids.BEACON, 0.1f);
+        indMap.put(Ids.LAB, 1f);
+        indMap.put(Ids.DECONSTRUCTOR, 0.7f);
+        indMap.put(Ids.HULLFORGE, 0.7f);
+        indMap.put(Ids.RIFTGEN, 0.35f);
 
         return indMap;
     }

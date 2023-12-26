@@ -129,6 +129,7 @@ public class ModPlugin extends BaseModPlugin {
             LightData.readLightDataCSV("data/lights/IndEvo_lights.csv");
             TextureData.readTextureDataCSV((String)"data/lights/IndEvo_textures.csv");
         }
+
     }
 
     @Override

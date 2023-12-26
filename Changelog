@@ -55,9 +55,6 @@ Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 todo implement new ships
 todo implement pirot
 
-todo fix pet duplication glitch
-todo fix ruin seeding with uneven weights
-
 3.3.d
 General
 Fixed - Lunasettings now properly work (some settings will STILL ONLY APPLY WITH A NEW GAME, like disabling pets.)
@@ -99,6 +96,7 @@ Fixed - [Wisp] - Crash when euthanizing a pet while it's in storage
 Fixed - [Wisp] - Crash when a pet in storage dies
 
 Derelict Industries
+Adjusted - Made spawn weights a bit more balanced, all types should now show up every run
 Fixed - Ancient Lab now picks commodities from a whitelist (no more PAGSM commodities...)
 Fixed - Blacklisted RAT alterations from Hull Forge S-Mod Picker
 
