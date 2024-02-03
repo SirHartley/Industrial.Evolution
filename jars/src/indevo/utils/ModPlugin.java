@@ -134,8 +134,6 @@ public class ModPlugin extends BaseModPlugin {
 
     @Override
     public void onGameLoad(boolean newGame) {
-        //Global.getSector().getPlayerFleet().setFaction("hegemony");
-
         boolean devmode = Global.getSettings().isDevMode();
         boolean devActions = false; //Todo SET TO FALSE FOR RELEASE
 

@@ -16,7 +16,7 @@ public class WorldWonderCondition extends BaseMarketConditionPlugin {
     }
 
     public void apply(String id) {
-        if (!market.getStarSystem().hasTag(WorldWonder.TAG_SYSTEM_HAS_WONDER)) return;
+        if (market.getStarSystem() != null && !market.getStarSystem().hasTag(WorldWonder.TAG_SYSTEM_HAS_WONDER)) return;
 
         Industry wonder = null;
 

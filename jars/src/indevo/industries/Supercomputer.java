@@ -623,7 +623,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
         float bonus = 0f;
 
         for (MarketAPI market : Misc.getFactionMarkets("player")) {
-            if (market.getStarSystem().getId().equals(this.market.getStarSystem().getId())) continue;
+            if (market.getStarSystem() != null && market.getStarSystem().getId().equals(this.market.getStarSystem().getId())) continue;
 
             if (market.hasIndustry(Ids.SUPCOM)) {
                 Supercomputer supercomputer = (Supercomputer) market.getIndustry(Ids.SUPCOM);

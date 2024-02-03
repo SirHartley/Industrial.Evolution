@@ -52,8 +52,20 @@ Parrot	Industrial.Evolution	Frigate	EMP Frigate	Contact - SirHartley#5459
 Echo	Industrial.Evolution	Frigate	EMP Auto-Frigate	Contact - SirHartley#5459
 Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 
-todo implement new ships
-todo implement pirot
+3.3.e
+General
+Adjusted - Updated to 0.97a
+
+Pets
+Added - Terraforming Drone
+Added - Domain-Era Roomba
+Fixed - Pet unassignable Bug
+
+Supercomputer
+Fixed - Cross-Mod Crash with Arthrs' Ships
+
+World Wonders
+Fixed - Cross-Mod Crash with Arthrs' Ships
 
 3.3.d
 General

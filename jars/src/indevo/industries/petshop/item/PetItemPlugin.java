@@ -179,7 +179,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
         if (mem.contains(BOX_ACTIVE)) return;
 
-        mem.set(BOX_ACTIVE, 0f);
+        mem.set(BOX_ACTIVE, null, 0f);
 
         try {
             Robot r = new Robot();
