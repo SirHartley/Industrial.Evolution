@@ -102,14 +102,17 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && market.getPrimaryEntity() instanceof PlanetAPI && !market.getPrimaryEntity().hasTag(Tags.GAS_GIANT) && ((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("lava");
+        return super.isAvailableToBuild()
+                && market.getPrimaryEntity() instanceof PlanetAPI
+                && !market.getPrimaryEntity().hasTag(Tags.GAS_GIANT)
+                && !((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("lava");
     }
 
     @Override
     public String getUnavailableReason() {
         if (!(market.getPrimaryEntity() instanceof PlanetAPI)) return "Unavailable on stations";
         if (market.getPrimaryEntity().hasTag(Tags.GAS_GIANT)) return "Unavailable on gas giants";
-        if (market.getPrimaryEntity().hasTag(Tags.GAS_GIANT)) return "Can not build a bunker in lava";
+        if (((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("lava")) return "Can not build a bunker in lava";
         return super.getUnavailableReason();
     }
 }

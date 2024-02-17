@@ -1,6 +1,7 @@
 package indevo.industries.changeling.industry.population;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.MarketConditionSpecAPI;
@@ -187,6 +188,12 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     }
 
     @Override
+    public void setSpecialItem(SpecialItemData special) {
+        super.setSpecialItem(special);
+        if (addedHeatCondition != null && current != null && current instanceof HiddenArcologiesSubIndustry) market.suppressCondition(addedHeatCondition);
+    }
+
+    @Override
     public String getCurrentImage() {
         return current.getImageName(market);
     }
@@ -228,7 +235,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
         return Global.getSettings().isDevMode() || (market.getSize() <= Settings.getInt(Settings.GOVERNMENT_MAX_SIZE) && !locked);
     }
 
-    public boolean isNotChanged() {
+    public boolean isDefault() {
         return current != null && current.isBase();
     }
 
@@ -267,16 +274,18 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
         } else if (current != null) tooltip.addPara(current.getDescription().getText2(), opad);
 
-        if (canChange()) tooltip.addPara("Changing the government style is only possible until %s and becomes permanent after %s.", opad, Misc.getHighlightColor(),
+        if(!canChange()) return;
+
+        tooltip.addPara("Changing the government style is only possible until %s and becomes permanent after %s.", opad, Misc.getHighlightColor(),
                 "colony size " + Settings.getInt(Settings.GOVERNMENT_MAX_SIZE),
                 DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(DAYS_TO_LOCK));
 
-        if (!isNotChanged() && canChange()) {
+        if (!isDefault()) {
             int daysRemaining = (int) Math.ceil(DAYS_TO_LOCK - daysPassed);
             tooltip.addPara("Days until permanent: %s", 3f, Misc.getHighlightColor(), daysRemaining + " " + StringHelper.getDayOrDays(daysRemaining));
         }
 
-        if (canChange()) tooltip.addPara("%s", opad, Misc.getPositiveHighlightColor(), "Click to change government type.");
+        tooltip.addPara("%s", opad, Misc.getPositiveHighlightColor(), "Click to change government type.");
     }
 
     @Override

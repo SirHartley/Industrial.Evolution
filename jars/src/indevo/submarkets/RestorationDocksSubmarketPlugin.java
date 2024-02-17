@@ -78,6 +78,8 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin impleme
 
     @Override
     public String getIllegalTransferText(FleetMemberAPI member, TransferAction action) {
+        if (member.getVariant().getTags().contains(Tags.VARIANT_UNRESTORABLE) || member.getHullSpec().getTags().contains(Tags.HULL_UNRESTORABLE)) return "Can not be restored";
+
         if (DModManager.getNumNonBuiltInDMods(member.getVariant()) == 0 && DModManager.getNumDMods(member.getVariant()) > 0)
             return StringHelper.getString(IDENT, "cannotRepair");
         else return StringHelper.getString(IDENT, "cannotTransfer");

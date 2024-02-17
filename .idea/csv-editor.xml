@@ -80,6 +80,27 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\campaign\unimplemented_special_items.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\characters\UNUSED_person_names.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\characters\skills\skill_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\config\BetterColonyConfig\bc_autospindustries.csv">
           <value>
             <Attribute>
@@ -102,6 +123,13 @@
           </value>
         </entry>
         <entry key="\data\config\indEvo\custom_order_blacklist.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\config\indEvo\embassy_whitelist.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -137,6 +165,13 @@
           </value>
         </entry>
         <entry key="\data\config\indEvo\shipping_submarkets_whitelist.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\config\modFiles\magicTrail_data.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

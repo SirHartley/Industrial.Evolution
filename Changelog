@@ -52,6 +52,16 @@ Parrot	Industrial.Evolution	Frigate	EMP Frigate	Contact - SirHartley#5459
 Echo	Industrial.Evolution	Frigate	EMP Auto-Frigate	Contact - SirHartley#5459
 Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 
+3.3.f
+Governments
+Fixed - Tooltip no longer displays "click to change" when it can't actually change
+Fixed - Monastic Order now properly increases marine XP
+Fixed - Arcology now properly suppresses the heat conditions added by an orbital lämp
+Fixed - Arcology now buildable where it should be (everywhere except lava & gas giants)
+
+Restoration docks
+Added - "Can not transfer" text for ships with the unrestorable tag
+
 3.3.e
 General
 Adjusted - Updated to 0.97a

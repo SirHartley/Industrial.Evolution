@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
+import com.fs.starfarer.api.campaign.SubmarketPlugin;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
@@ -58,7 +59,7 @@ Monastic Orders
     public static final float MONASTIC_UPKEEP_RED = 0.7f;
 
     public static final float MAX_MARINES_AMT = 500f;
-    public static final float MARINES_GAIN_PERCENT = 15f;
+    public static final float MARINES_GAIN_EXP = 3f;
 
     public static final int BASE_DP_PER_MONTH = 1;
     public static final float BUILD_CHANCE_PER_MONTH = 0.3f;
@@ -71,6 +72,7 @@ Monastic Orders
     public Random random = new Random();
 
     public static class MonasticOrderTooltipAdder extends BaseIndustryOptionProvider {
+
         public static void register() {
             ListenerManagerAPI manager = Global.getSector().getListenerManager();
             if (!manager.hasListenerOfClass(MonasticOrderTooltipAdder.class))
@@ -109,14 +111,21 @@ Monastic Orders
     public void reportEconomyTick(int iterIndex) {
         if (!market.isPlayerOwned()) return;
 
-        PlayerFleetPersonnelTracker.PersonnelAtEntity e = PlayerFleetPersonnelTracker.getInstance().getPersonnelAtLocation(Commodities.MARINES, Misc.getStorage(market).getSubmarket());
-        if (e != null) {
-            float current = e.data.xp;
-            float num = e.data.num;
-            float mult = 1 + calculateExperienceBonus(Math.round(num));
-            float addition = current * mult - current;
+        PlayerFleetPersonnelTracker.PersonnelAtEntity e = PlayerFleetPersonnelTracker.getInstance().getDroppedOffAt(Commodities.MARINES, market.getPrimaryEntity(), Misc.getStorage(market).getSubmarket(), true);
 
+        if (e != null) {
+            SubmarketPlugin cargo = Misc.getStorage(market);
+
+            float num = e.data.num;
+            if (num == 0f && cargo.getCargo().getMarines() > 0) {
+                e.data.add(cargo.getCargo().getMarines());
+                num = e.data.num;
+            }
+
+            float addition = calculateExperienceBonus(Math.round(num));;
             e.data.addXP(addition);
+
+            ModPlugin.log("amt " + addition + " current " + e.data.xp + " num marines " + e.data.num);
         }
 
         int lastIterInMonth = (int) Global.getSettings().getFloat("economyIterPerMonth") - 1;
@@ -162,15 +171,20 @@ Monastic Orders
 
     public static float calculateExperienceBonus(int numMarines) {
         // Maximum bonus percentage when there are 500 or fewer marines
-        float maxBonusPercentage = MARINES_GAIN_PERCENT;
 
-        if (numMarines <= MAX_MARINES_AMT) {
-            return maxBonusPercentage;
-        } else {
-            float relativeNumMarines = numMarines / MAX_MARINES_AMT;
-            float bonusPercentage = maxBonusPercentage / relativeNumMarines;
-            return Math.min(bonusPercentage, maxBonusPercentage);
+        if (false){
+            float maxBonusPercentagePerTick = MARINES_GAIN_EXP;
+
+            if (numMarines <= MAX_MARINES_AMT) {
+                return maxBonusPercentagePerTick;
+            } else {
+                float relativeNumMarines = MAX_MARINES_AMT / numMarines;
+                float bonusPercentage = maxBonusPercentagePerTick * relativeNumMarines;
+                return Math.min(bonusPercentage, maxBonusPercentagePerTick);
+            }
         }
+
+        return MARINES_GAIN_EXP;
     }
 
     @Override
