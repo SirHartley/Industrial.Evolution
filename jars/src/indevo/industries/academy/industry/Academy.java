@@ -436,7 +436,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
         int max = playerFleet.getCommander().getStats().getAdminNumber().getModifiedInt();
 
-        if (Global.getSector().getCharacterData().getAdmins().size() < max) {
+        if (Global.getSector().getCharacterData().getAdmins().size() < max || Global.getSettings().isDevMode()) {
             Global.getSector().getCharacterData().addAdmin(person);
             adminStorage.remove(person);
         }

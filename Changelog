@@ -62,6 +62,10 @@ Fixed - Arcology now buildable where it should be (everywhere except lava & gas 
 Restoration docks
 Added - "Can not transfer" text for ships with the unrestorable tag
 
+World Wonders
+Adjusted - Added US_continent for valid World Tree planet types
+Adjusted - Removed US_magnetic planets from valid World Tree planet types
+
 3.3.e
 General
 Adjusted - Updated to 0.97a

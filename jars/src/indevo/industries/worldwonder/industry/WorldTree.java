@@ -10,15 +10,16 @@ public class WorldTree extends WorldWonder {
     public boolean isAvailableToBuild() {
         return super.isAvailableToBuild()
                 && market.getPrimaryEntity() instanceof PlanetAPI
-                && (((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("jungle") || ((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("terran"))
-                && market.hasCondition(Conditions.HABITABLE);
+                && (((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("jungle") || ((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("terran") || ((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("continent"))
+                && market.hasCondition(Conditions.HABITABLE)
+                && !market.hasCondition("US_magnetic");
     }
 
     @Override
     public String getUnavailableReason() {
         if (!(market.getPrimaryEntity() instanceof PlanetAPI)) return "Can not be built on stations";
-        if (!market.hasCondition(Conditions.HABITABLE)) return "Planet must be habitable";
-        if (!((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("jungle") || !((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("terran"))
+        if (!market.hasCondition(Conditions.HABITABLE) || market.hasCondition("US_magnetic")) return "Planet must be habitable";
+        if (!((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("jungle") || !((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("terran") || !((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("continent"))
             return "Planet must have abundant vegetation";
         return super.getUnavailableReason();
     }

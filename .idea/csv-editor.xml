@@ -178,6 +178,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\config\prism\prism_boss_ships.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\config\vayraBounties\unique_bounty_data.csv">
           <value>
             <Attribute>
@@ -200,6 +207,13 @@
           </value>
         </entry>
         <entry key="\data\hulls\ship_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\lights\IndEvo_lights.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
