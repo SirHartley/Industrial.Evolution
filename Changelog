@@ -53,11 +53,16 @@ Echo	Industrial.Evolution	Frigate	EMP Auto-Frigate	Contact - SirHartley#5459
 Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 
 3.3.f
+
+Artillery
+Fixed - Other Mods will no longer spawn an Artillery if the setting is toggled off provided they spawn it via condition
+
 Governments
 Fixed - Tooltip no longer displays "click to change" when it can't actually change
 Fixed - Monastic Order now properly increases marine XP
 Fixed - Arcology now properly suppresses the heat conditions added by an orbital lämp
 Fixed - Arcology now buildable where it should be (everywhere except lava & gas giants)
+Fixed - Another Arcoship crash (Underworld Gov.)
 
 Restoration docks
 Added - "Can not transfer" text for ships with the unrestorable tag
@@ -65,6 +70,7 @@ Added - "Can not transfer" text for ships with the unrestorable tag
 World Wonders
 Adjusted - Added US_continent for valid World Tree planet types
 Adjusted - Removed US_magnetic planets from valid World Tree planet types
+Fixed - Fixed - Another Arcoship crash
 
 3.3.e
 General

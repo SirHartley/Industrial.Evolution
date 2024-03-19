@@ -112,6 +112,7 @@ public class UnderworldSubIndustry extends SubIndustry {
         }
 
         if (extortionInterval.intervalElapsed()){
+            if (market.getStarSystem() == null) return;
             if (Global.getSettings().isDevMode()) ModPlugin.log("DEV REPORT: underworld extorting traders");
 
             Map<String, Float> bounty = new HashMap<>();

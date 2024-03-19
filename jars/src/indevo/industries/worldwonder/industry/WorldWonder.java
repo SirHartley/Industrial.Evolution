@@ -93,7 +93,7 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
     @Override
     public void unapply() {
         super.unapply();
-        market.getStarSystem().removeTag(TAG_SYSTEM_HAS_WONDER);
+        if (market.getStarSystem() != null) market.getStarSystem().removeTag(TAG_SYSTEM_HAS_WONDER);
         Global.getSector().getListenerManager().removeListener(this);
     }
 

@@ -6,6 +6,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
+import indevo.utils.helper.Settings;
 
 public class ArtilleryStationCondition extends BaseHazardCondition {
 
@@ -20,10 +21,17 @@ public class ArtilleryStationCondition extends BaseHazardCondition {
     public void advance(float amount) {
         super.advance(amount);
 
+        if (!Settings.getBoolean(Settings.ENABLE_ARTILLERY)) return;
+
         if (setup) {
             ArtilleryStationPlacer.addArtilleryToPlanet(market.getPrimaryEntity(), true);
             setup = false;
         }
+    }
+
+    @Override
+    public boolean showIcon() {
+        return super.showIcon() && Settings.getBoolean(Settings.ENABLE_ARTILLERY);
     }
 
     public boolean isDestroyed() {

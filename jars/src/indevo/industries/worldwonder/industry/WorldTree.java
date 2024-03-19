@@ -18,8 +18,8 @@ public class WorldTree extends WorldWonder {
     @Override
     public String getUnavailableReason() {
         if (!(market.getPrimaryEntity() instanceof PlanetAPI)) return "Can not be built on stations";
-        if (!market.hasCondition(Conditions.HABITABLE) || market.hasCondition("US_magnetic")) return "Planet must be habitable";
-        if (!((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("jungle") || !((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("terran") || !((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("continent"))
+        if (!market.hasCondition(Conditions.HABITABLE)) return "Planet must be habitable";
+        if (!((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("jungle") || !((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("terran") || !((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("continent") || market.hasCondition("US_magnetic"))
             return "Planet must have abundant vegetation";
         return super.getUnavailableReason();
     }
