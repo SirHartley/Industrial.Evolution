@@ -111,4 +111,5 @@ IndEvo_adminTrainingDayCount,[Academy] Admin Training Duration,Int,124,,,1,365,I
 IndEvo_adminTrainingCost,[Academy] Admin Training Cost,Int,20000,,,1,100000,Industries
 IndEvo_monthlyAIStorageCost,[Academy] Monthly Storage Cost,Int,2000,,"For officers and admins, per person, per month",1,10000,Industries
 IndEvo_VarInd_deliverToProductionPoint,[Variable Industries] Deliver to Gathering Point,Boolean,FALSE,,Auto-deliver to production point (default - To local storage)  Remember - courier port exists.,,,Industries
-,,,,,,,,
+IndEvo_CPShieldRemove,[World Wonders] Cloud Painter Shield Texture Removal,Boolean,FALSE,,Makes the cloud painter remove the planetary shield texture so clouds stay visible,,,Industries
+IndEvo_CPShieldOverride,[World Wonders] Cloud Painter Shield Alternate Texture,Boolean,FALSE,,"Replaces the planetary shield texture with a colourless alternative texture, making clouds stay visible in addition to having a perceptible shield texture. Does not apply if Shield Texture Removal is set to true!",,,Industries

@@ -81,9 +81,10 @@ fleetName:Orbital Artillery,
 
 It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500,
 ,,,,,,,,,,,,,,
-#Secondaries,,,,,,,,,,,,,,
+#Technical,,,,,,,,,,,,,,
 IndEvo_pirateHavenSecondary,Privateer Base Secondary,0,0,,0,,,"industry, unraidable, no_saturation_bombardment",,graphics/industry/pirateHaven.png,indevo.industries.privateer.industry.PrivateerBaseSlotBlocker,This industry blocks the second industry slot required by the Privateer Base.,9999,
 IndEvo_ChamelionIndustry,Chamelion Industry,0,0,,0,IndEvo_RuinedInfra,,structure,,graphics/industry/industrialRuins.png,indevo.industries.ruinfra.industry.ChamelionIndustry,,9999,
+IndEvo_InvisiblePlanetaryShield,Planetary Shield,150,90,,3,,,"grounddefenses, structure",,graphics/icons/industry/planetary_shield.png,indevo.industries.InvisiblePlanetaryShield,An envelope of charged plasma seeded with exotic virtual particles producing effects which disrupt the combat effectiveness of long-range bombardment and even incursion by small vessels. The planetary shield can be continually charged and controlled by a central source and presents a formidable obstacle to any form of ground assault.,2700,EXTREME
 ,,,,,,,,,,,,,,
 #Derelicts,,,,,,,,,,,,,,
 IndEvo_HullDecon,Hull Deconstructor,70,80,,7,IndEvo_Ruins,,"industrial, unraidable",,graphics/industry/hullDecon.png,indevo.industries.derelicts.industry.HullDeconstructor,,500,HIGH
@@ -133,3 +134,4 @@ Causes recent unrest on this planet to decay at a rate of one point per month, a
 ,,,,,,,,,,,,,,
 #Rebalancing,,,,,,,,,,,,,,
 commerce,Commerce,90,90,,3,,,"industry, urban",,graphics/icons/industry/commerce.png,indevo.industries.TradeCenter,"Regulations, grants, and infrastructure to encourage thriving independent trade. Greatly reduces the degree of direct control the administration has over the colony.",1950,MEDIUM
+,,,,,,,,,,,,,,

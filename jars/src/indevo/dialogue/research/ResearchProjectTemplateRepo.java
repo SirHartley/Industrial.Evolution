@@ -15,6 +15,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.Settings;
 
 import java.util.*;
 
@@ -28,7 +29,7 @@ public class ResearchProjectTemplateRepo {
 
             @Override
             public boolean display() {
-                return true;
+                return Settings.getBoolean(Settings.PETS);
             }
 
             @Override

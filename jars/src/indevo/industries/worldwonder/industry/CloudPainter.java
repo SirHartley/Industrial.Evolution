@@ -3,11 +3,17 @@ package indevo.industries.worldwonder.industry;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.impl.campaign.econ.impl.PlanetaryShield;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
+import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import indevo.ids.Ids;
+import indevo.industries.InvisiblePlanetaryShield;
 import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Settings;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.Set;
 
@@ -29,14 +35,21 @@ public class CloudPainter extends WorldWonder {
     public void apply() {
         super.apply();
 
+        if (market.hasIndustry(Industries.PLANETARYSHIELD)
+                && market.getPrimaryEntity() instanceof PlanetAPI
+                && !(market.getIndustry(Industries.PLANETARYSHIELD) instanceof InvisiblePlanetaryShield)
+                && market.getIndustry(Industries.PLANETARYSHIELD).isFunctional()) {
+
+            market.removeIndustry(Industries.PLANETARYSHIELD, null, false);
+            market.addIndustry(Ids.PLANETARY_SHIELD_ALT);
+        }
+
         if (isFunctional()) applyVisuals();
     }
 
     @Override
     public void unapply() {
         super.unapply();
-
-        unapplyVisuals();
     }
 
     @Override
@@ -93,11 +106,4 @@ public class CloudPainter extends WorldWonder {
         ((PlanetAPI) primary).applySpecChanges();
     }
 
-    public void unapplyVisuals() {
-        SectorEntityToken primary = market.getPrimaryEntity();
-        if (!(primary instanceof PlanetAPI)) return;
-
-        ((PlanetAPI) primary).getSpec().setCloudTexture(originalClouds);
-        ((PlanetAPI) primary).applySpecChanges();
-    }
 }

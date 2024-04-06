@@ -51,10 +51,12 @@ public class IndEvo_SalvageSpecialAssigner {
         specialApplicationChance = Settings.getFloat(Settings.SPECIAL_APPLICATION_CHANCE);
 
         for (SectorEntityToken entity : Global.getSector().getEntitiesWithTag(Tags.SALVAGEABLE)) {
+            if (entity.getContainingLocation().hasTag(Tags.THEME_HIDDEN) || entity.getContainingLocation().hasTag(Tags.THEME_SPECIAL) || entity.getContainingLocation().hasTag(Tags.SYSTEM_ABYSSAL)) continue;
             addOrReplaceSpecial(entity, random);
         }
 
         for (SectorEntityToken entity : Global.getSector().getEntitiesWithTag(Tags.PLANET)) {
+            if (entity.getContainingLocation().hasTag(Tags.THEME_HIDDEN) || entity.getContainingLocation().hasTag(Tags.THEME_SPECIAL) || entity.getContainingLocation().hasTag(Tags.SYSTEM_ABYSSAL)) continue;
             if (TechMining.getTechMiningRuinSizeModifier(entity.getMarket()) > 0) addOrReplaceSpecial(entity, random);
         }
 

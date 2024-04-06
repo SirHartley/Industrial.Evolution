@@ -52,10 +52,28 @@ Parrot	Industrial.Evolution	Frigate	EMP Frigate	Contact - SirHartley#5459
 Echo	Industrial.Evolution	Frigate	EMP Auto-Frigate	Contact - SirHartley#5459
 Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 
-3.3.f
+3.4.1
+Salvage Interactions
+Fixed - No longer spawn in hidden systems
+
+Research Projects
+Fixed - Project Navi no longer displays if pets are disabled
 
 Artillery
-Fixed - Other Mods will no longer spawn an Artillery if the setting is toggled off provided they spawn it via condition
+Fixed - No longer spawn on abyss planets
+Fixed - No longer spawn in "special" systems
+Fixed - Other Mods will no longer spawn an Artillery on game start if the setting is toggled off provided they spawn it via condition
+
+Senate
+Fixed - Edict: Mandated Overtime now correctly decreases build times
+
+Restoration docks
+Added - "Can not transfer" text for ships with the unrestorable tag
+
+Specialized industries
+Fixed - Bugged outputs for Specialized Mining
+Fixed - Mantle Bore not working with Specialized Mining
+Fixed - Centralization Bureau now properly applies output bonus when present
 
 Governments
 Fixed - Tooltip no longer displays "click to change" when it can't actually change
@@ -64,13 +82,16 @@ Fixed - Arcology now properly suppresses the heat conditions added by an orbital
 Fixed - Arcology now buildable where it should be (everywhere except lava & gas giants)
 Fixed - Another Arcoship crash (Underworld Gov.)
 
-Restoration docks
-Added - "Can not transfer" text for ships with the unrestorable tag
+Derelict Industries
+Fixed - No longer (almost) exclusively spawn on abyss planets
+Fixed - No longer spawn in hidden systems
 
 World Wonders
+Added - Setting for Cloud Painter to remove the planetary shield texture
+Added - Setting for Cloud Painter to replace the planetary shield texture with a barely visible alternative
 Adjusted - Added US_continent for valid World Tree planet types
 Adjusted - Removed US_magnetic planets from valid World Tree planet types
-Fixed - Fixed - Another Arcoship crash
+Fixed - Another Arcoship crash
 
 3.3.e
 General

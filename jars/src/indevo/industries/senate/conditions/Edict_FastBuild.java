@@ -1,5 +1,6 @@
 package indevo.industries.senate.conditions;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -39,7 +40,10 @@ public class Edict_FastBuild extends BaseEdict {
         for (Industry ind : market.getIndustries()) {
             if (ind.isBuilding() || ind.isUpgrading()) {
                 BaseIndustry industry = (BaseIndustry) ind;
-                industry.setBuildProgress(industry.getBuildProgress() + 1f);
+                float buildDays = ind.isBuilding() ? ind.getSpec().getBuildTime() : Global.getSettings().getIndustrySpec(ind.getSpec().getUpgrade()).getBuildTime();
+                float buildProgressInDays = ind.getBuildOrUpgradeProgress() * buildDays;
+                float buildFractionIncrease = (buildProgressInDays + 1) / buildDays;
+                industry.setBuildProgress(buildFractionIncrease > 1 ? 0.9999f : buildFractionIncrease);
             }
         }
     }

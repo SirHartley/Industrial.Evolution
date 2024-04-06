@@ -227,6 +227,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\strings\combat_death_causes.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\strings\descriptions.csv">
           <value>
             <Attribute>
@@ -256,6 +263,13 @@
           </value>
         </entry>
         <entry key="\data\world\factions\factions.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\graphics\clouds\clouds.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

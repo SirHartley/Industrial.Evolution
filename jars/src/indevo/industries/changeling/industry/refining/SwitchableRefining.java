@@ -131,8 +131,8 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
 
     @Override
     public void apply() {
-        supply.clear();
-        demand.clear();
+        /*supply.clear();
+        demand.clear();*/
 
         if (!current.isInit()) current.init(this);
         current.apply();
@@ -152,14 +152,17 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
     }
 
     public void superApply() {
-        supply.clear();
-        demand.clear();
+        /*supply.clear();
+        demand.clear();*/
 
         super.apply();
     }
 
     @Override
     public void unapply() {
+        supply.clear();
+        demand.clear();
+
         super.unapply();
     }
 

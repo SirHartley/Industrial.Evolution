@@ -108,6 +108,8 @@ public class Settings {
     public static final String MONTHLY_AI_STORAGE_COST = "IndEvo_monthlyAIStorageCost";
     public static final String VARIND_DELIVER_TO_PRODUCTION_POINT = "IndEvo_VarInd_deliverToProductionPoint";
     public static final String PETS = "IndEvo_pets";
+    public static final String CLOUD_PAINTER_SHIELD_OVERRIDE = "IndEvo_CPShieldOverride";
+    public static final String CLOUD_PAINTER_SHIELD_REMOVE = "IndEvo_CPShieldRemove";
 
     public static boolean getBoolean(String s){
         if (Global.getSettings().getModManager().isModEnabled("lunalib")) {

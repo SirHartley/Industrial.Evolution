@@ -4,6 +4,8 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
+import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
+import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.impl.campaign.econ.ResourceDepositsCondition;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.Mining;
@@ -11,12 +13,16 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import com.fs.starfarer.campaign.econ.MarketCondition;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryAPI;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
+import indevo.industries.derelicts.utils.RuinsManager;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.IndustryHelper;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,7 +51,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
                     public void apply() {
-                        applySupplyAndStandardDemandWithModifiers(industry, 1, -3, -3, -3);
+                        applySupplyAndStandardDemandWithModifiers(industry, 2, -2, -2, -2);
                     }
                 };
             }
@@ -56,7 +62,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
                     public void apply() {
-                        applySupplyAndStandardDemandWithModifiers(industry, -3, 1, -3, -3);
+                        applySupplyAndStandardDemandWithModifiers(industry, -3, 2, -3, -3);
                     }
                 };
             }
@@ -67,7 +73,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
                     public void apply() {
-                        applySupplyAndStandardDemandWithModifiers(industry, -3, -3, -3, 1);
+                        applySupplyAndStandardDemandWithModifiers(industry, -3, -3, -3, 2);
                     }
                 };
             }
@@ -78,7 +84,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
                     public void apply() {
-                        applySupplyAndStandardDemandWithModifiers(industry, -3, -3, 1, -3);
+                        applySupplyAndStandardDemandWithModifiers(industry, -3, -3, 2, -3);
                     }
                 };
             }
@@ -105,32 +111,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
     }
 
     public static void applyConditionBasedIndustryOutputProfile(Industry industry, String commodityId, Integer bonus) {
-        BaseIndustry ind = (BaseIndustry) industry;
-        int size = ind.getMarket().getSize();
-        int mod = 0;
-        MarketConditionAPI condition = null;
-
-        for (MarketConditionAPI cond : ind.getMarket().getConditions()) {
-            String id = cond.getSpec().getId();
-            if (id.startsWith(commodityId)) {
-                mod = ResourceDepositsCondition.MODIFIER.get(id);
-                condition = cond;
-                break;
-            }
-        }
-
-        if (condition == null) return;
-
-        int baseMod = ResourceDepositsCondition.BASE_MODIFIER.get(commodityId);
-
-        if (ResourceDepositsCondition.BASE_ZERO.contains(commodityId)) {
-            size = 0;
-        }
-
-        int base = size + baseMod;
-
-        ind.supply(ind.getId() + "_0", commodityId, base + bonus, BaseIndustry.BASE_VALUE_TEXT);
-        ind.supply(ind.getId() + "_1", commodityId, mod + bonus, Misc.ucFirst(condition.getName().toLowerCase()));
+        industry.supply(industry.getId() + "_IndEvo_specialized", commodityId, bonus, "Specialized Extraction");
     }
 
     @Override
@@ -148,9 +129,6 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
 
     @Override
     public void apply() {
-        supply.clear();
-        demand.clear();
-
         if (!current.isInit()) current.init(this);
         current.apply();
         nameOverride = current.getName();

@@ -8,7 +8,7 @@
           {"freq":1, "tip":"[Industrial.Evolution] Military Relays have lower build cost and time if there is a Patrol HQ, Military Base, or High Command on a planet."},
           {"freq":1, "tip":"[Industrial.Evolution] Interstellar Relays work as a communications relay for a star system, without needing a stable location."},
           {"freq":1, "tip":"[Industrial.Evolution] Upgrade your Variable Assembler into a Manufactory to increase both exports and monthly commodity deposits."},
-          {"freq":1, "tip":"[Industrial.Evolution] All Industrial.Evolution buildings with special outputs will deposit them to the local storage. You can change this in the mod settings.json."},
+          {"freq":1, "tip":"[Industrial.Evolution] All Industrial.Evolution buildings with special outputs will deposit them to the local storage. You can change this in the mod settings."},
           {"freq":1, "tip":"[Industrial.Evolution] All Edicts are useful! Using only a single one on all planets is rarely the best course of action."},
           {"freq":1, "tip":"[Industrial.Evolution] Want to grow a new colony fast? Edict: Forced Relocation is your (unethical) new best friend."},
           {"freq":1, "tip":"[Industrial.Evolution] Need a colony to stay under the radar of other factions? Lock the colony at a low size with Edict: Single Child Policy!"},
@@ -87,6 +87,8 @@
           {"freq":1, "tip":"[Industrial.Evolution] Supercomputers stack with diminishing returns. If you have two very cold planets in one system, it might actually be worth it to build two."},
           {"freq":1, "tip":"[Industrial.Evolution] The centralisation bureau increases the output of industries on the planet it is built on, not the duplicates you built on other planets."},
           {"freq":1, "tip":"[Industrial.Evolution] You can enact edicts by building a senate in the star system and selecting the option in the planet menu."},
+          {"freq":1, "tip":"[Industrial.Evolution] All loot added by this mod is on top of the normal loot you would have gotten. At no point does Industrial Evolution edit, dilute, change or in any other way influence vanilla drop behaviour."},
+          {"freq":1, "tip":"[Industrial.Evolution] If your favorite industry does not work with the Centralisation Bureau you can whitelist it under Industrial.Evolution/data/config/indEvo/bureau_industry_whitelist.csv or request the mod author to add it!"},
 
           #memes - show up with lower frequency compared to actual tips,
           {"freq":0.1, "tip":"[Industrial.Evolution] Orbital Works is Vanilla, not Industrial.Evolution. How anyone can get that one wrong is beyond me."},
@@ -104,5 +106,5 @@
           {"freq":0.1, "tip":"[Industrial.Evolution] Spacing an Ambassador is a very good idea and has no consequences at all."},
           {"freq":0.1, "tip":"[Industrial.Evolution] Did you know that you could, in theory, sell an ambassador on the open market? It's a risk-free transaction!"},
           {"freq":0.001, "tip":"[Industrial.Evolution] I was told not to insult people. Please type out an insult of your choice and imagine I threw it at you. Thanks!"}
-    ],
+    ]
 }

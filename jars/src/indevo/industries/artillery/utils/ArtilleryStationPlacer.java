@@ -78,7 +78,9 @@ public class ArtilleryStationPlacer {
                     || s.getPlanets().isEmpty()
                     || !Misc.getMarketsInLocation(s).isEmpty()
                     || s.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)
-                    || s.hasTag(Tags.THEME_HIDDEN)) continue;
+                    || s.hasTag(Tags.THEME_HIDDEN)
+                    || s.hasTag(Tags.THEME_SPECIAL)
+                    || s.hasTag(Tags.SYSTEM_ABYSSAL)) continue;
 
             float baseMod = 0.002f;
             if (s.getTags().contains(Tags.THEME_REMNANT_SUPPRESSED)) baseMod += 0.02f;

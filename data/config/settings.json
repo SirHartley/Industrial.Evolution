@@ -321,7 +321,7 @@
           "frameBG": "graphics/fx/IndEvo_BG_mask.png",
           "broadFrame": "graphics/fx/IndEvo_frame.png",
           "invisibleHull": "graphics/fx/IndEvo_frame.png",
-
+          "shield_texture": "graphics/planets/IndEvo_planetary_shield_invisible.png",
       },
   },
 }
