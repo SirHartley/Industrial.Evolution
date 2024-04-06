@@ -71,9 +71,12 @@ Restoration docks
 Added - "Can not transfer" text for ships with the unrestorable tag
 
 Specialized industries
-Fixed - Bugged outputs for Specialized Mining
-Fixed - Mantle Bore not working with Specialized Mining
+Fixed - Specialized Mining now has correct outputs
+Fixed - Specialized Refining no longer ignores all external supply/demand bonus
+Fixed - Mantle Bore now working with Specialized Mining
+Fixed - Catalytic Core now correctly working with Specialized Refining
 Fixed - Centralization Bureau now properly applies output bonus when present
+Fixed - Specialized industries no longer bug out when present on the same planet
 
 Governments
 Fixed - Tooltip no longer displays "click to change" when it can't actually change

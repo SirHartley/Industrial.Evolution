@@ -27,13 +27,6 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
                     public void apply() {
                         if (industry instanceof SwitchableRefining)
                             ((SwitchableRefining) industry).superApply(); //applies default
-
-                        //demand(Commodities.HEAVY_MACHINERY, size - 2); // have to keep it low since it can be circular
-                        //		demand(Commodities.ORE, size + 2);
-                        //		demand(Commodities.RARE_ORE, size);
-                        //
-                        //		supply(Commodities.METALS, size);
-                        //		supply(Commodities.RARE_METALS, size - 2);
                     }
 
                     @Override
@@ -50,20 +43,17 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
                 return new SubIndustry(this) {
                     @Override
                     public void apply() {
-                        BaseIndustry ind = (BaseIndustry) industry;
-                        int size = ind.getMarket().getSize();
-                        ind.demand(Commodities.HEAVY_MACHINERY, size - 2); // have to keep it low since it can be circular
-                        ind.demand(Commodities.ORE, size + 3);
-                        ind.demand(Commodities.RARE_ORE, size - 3);
+                        if (industry instanceof SwitchableRefining)
+                            ((SwitchableRefining) industry).superApply(); //applies default
 
-                        ind.supply(Commodities.METALS, size + 1);
-                        ind.supply(Commodities.RARE_METALS, size - 5);
+                        int transplutonicsMod = -2;
+                        int metalMod = 2;
 
-                        Pair<String, Integer> deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.ORE);
-                        IndustryHelper.applyDeficitToProduction(ind, 1, deficit, Commodities.METALS);
+                        industry.supply(industry.getId() + "_IndEvo_specialized", Commodities.RARE_METALS, transplutonicsMod, "Specialized Extraction");
+                        industry.supply(industry.getId() + "_IndEvo_specialized", Commodities.METALS, metalMod, "Specialized Extraction");
+                        ((BaseIndustry) industry).demand(industry.getId() + "_IndEvo_specialized", Commodities.RARE_ORE, transplutonicsMod, "Specialized Extraction");
+                        ((BaseIndustry) industry).demand(industry.getId() + "_IndEvo_specialized", Commodities.ORE, metalMod, "Specialized Extraction");
 
-                        deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.RARE_ORE);
-                        IndustryHelper.applyDeficitToProduction(ind, 1, deficit, Commodities.RARE_METALS);
                     }
                 };
             }
@@ -75,20 +65,16 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
                 return new SubIndustry(this) {
                     @Override
                     public void apply() {
-                        BaseIndustry ind = (BaseIndustry) industry;
-                        int size = ind.getMarket().getSize();
-                        ind.demand(Commodities.HEAVY_MACHINERY, size - 2); // have to keep it low since it can be circular
-                        ind.demand(Commodities.ORE, size - 1);
-                        ind.demand(Commodities.RARE_ORE, size + 1);
+                        if (industry instanceof SwitchableRefining)
+                            ((SwitchableRefining) industry).superApply(); //applies default
 
-                        ind.supply(Commodities.METALS, size-2);
-                        ind.supply(Commodities.RARE_METALS, size - 1);
+                        int transplutonicsMod = 2;
+                        int metalMod = -2;
 
-                        Pair<String, Integer> deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.ORE);
-                        IndustryHelper.applyDeficitToProduction(ind, 1, deficit, Commodities.METALS);
-
-                        deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY, Commodities.RARE_ORE);
-                        IndustryHelper.applyDeficitToProduction(ind, 1, deficit, Commodities.RARE_METALS);
+                        industry.supply(industry.getId() + "_IndEvo_specialized", Commodities.RARE_METALS, transplutonicsMod, "Specialized Extraction");
+                        industry.supply(industry.getId() + "_IndEvo_specialized", Commodities.METALS, metalMod, "Specialized Extraction");
+                        ((BaseIndustry) industry).demand(industry.getId() + "_IndEvo_specialized", Commodities.RARE_ORE, transplutonicsMod, "Specialized Extraction");
+                        ((BaseIndustry) industry).demand(industry.getId() + "_IndEvo_specialized", Commodities.ORE, metalMod, "Specialized Extraction");
                     }
                 };
             }
@@ -131,9 +117,6 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
 
     @Override
     public void apply() {
-        /*supply.clear();
-        demand.clear();*/
-
         if (!current.isInit()) current.init(this);
         current.apply();
         nameOverride = current.getName();
@@ -152,18 +135,7 @@ public class SwitchableRefining extends Refining implements SwitchableIndustryAP
     }
 
     public void superApply() {
-        /*supply.clear();
-        demand.clear();*/
-
         super.apply();
-    }
-
-    @Override
-    public void unapply() {
-        supply.clear();
-        demand.clear();
-
-        super.unapply();
     }
 
     @Override
