@@ -68,6 +68,7 @@ import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.plugins.PetCenterOptionProvider;
 import indevo.industries.petshop.plugins.PetShopCampaignPlugin;
+import indevo.industries.ruinfra.listener.RuinfraOnDecivListener;
 import indevo.industries.ruinfra.utils.DerelictInfrastructurePlacer;
 import indevo.industries.worldwonder.plugins.WorldWonderAltImageOptionProvider;
 import indevo.industries.worldwonder.plugins.WorldWonderTexChangeOptionProvider;
@@ -410,6 +411,7 @@ public class ModPlugin extends BaseModPlugin {
         PetCenterOptionProvider.register();
         RuralPolitySubIndustry.RuralPolityTooltipAdder.register();
         RuralPolitySubIndustry.RuralPolityImageChanger.register();
+        RuinfraOnDecivListener.register();
     }
 
     private void setScriptsIfNeeded() {

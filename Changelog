@@ -79,6 +79,9 @@ Fixed - Centralization Bureau now properly applies output bonus when present
 Fixed - Specialized industries no longer bug out when present on the same planet
 
 Governments
+Adjusted - Corporate Government: Income no longer scales with stability - only stability with income
+Adjusted - Corporate Government: Base Income Mult 1.2 -> 1.3
+Fixed - Corporate Government stability can no longer enter a downward spiral when it suddenly makes less money than before
 Fixed - Tooltip no longer displays "click to change" when it can't actually change
 Fixed - Monastic Order now properly increases marine XP
 Fixed - Arcology now properly suppresses the heat conditions added by an orbital lämp
@@ -88,6 +91,9 @@ Fixed - Another Arcoship crash (Underworld Gov.)
 Derelict Industries
 Fixed - No longer (almost) exclusively spawn on abyss planets
 Fixed - No longer spawn in hidden systems
+
+Ruined Infrastructure
+Added - A size 4 or larger colony that decivilizes will now always have ruined infrastructure of one of its former industries (if any)
 
 World Wonders
 Added - Setting for Cloud Painter to remove the planetary shield texture

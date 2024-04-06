@@ -34,7 +34,7 @@ public class DerelictInfrastructurePlacer {
                     continue;
 
                 float chance = TechMining.getTechMiningRuinSizeModifier(p.getMarket()) * 0.5f;
-                chance *= ruinsTheme ? 1.5 : 1;
+                chance *= ruinsTheme ? 1.5f : 1f;
                 chance /= 1 + (currentCount * 0.3f);
 
                 Random r = new Random(Misc.getSalvageSeed(p));

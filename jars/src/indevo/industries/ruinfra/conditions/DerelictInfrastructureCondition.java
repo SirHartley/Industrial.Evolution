@@ -44,11 +44,6 @@ public class DerelictInfrastructureCondition extends BaseHazardCondition {
     }
 
     public static void setUpgradeSpec(MarketAPI market) {
-        MemoryAPI memory = market.getMemoryWithoutUpdate();
-
-        //if this ind has not set it's target already
-        if (memory.contains(RUINED_INFRA_UPGRADE_ID_KEY)) return;
-
         WeightedRandomPicker<String> industryIdPicker = new WeightedRandomPicker<>();
         industryIdPicker.addAll(IndustryHelper.getCSVSetFromMemory(Ids.RUIND_LIST));
 
@@ -64,7 +59,31 @@ public class DerelictInfrastructureCondition extends BaseHazardCondition {
 
         if (pickedId == null) pickedId = Ids.ADASSEM;
 
-        market.getMemoryWithoutUpdate().set(RUINED_INFRA_UPGRADE_ID_KEY, pickedId);
+        setUpgradeSpec(market, pickedId);
+    }
+
+    /**
+     * reset via resetRuinfraState() before setting manually
+     */
+    public static void setUpgradeSpec(MarketAPI market, String id){
+        MemoryAPI memory = market.getMemoryWithoutUpdate();
+
+        //if this ind has not set its target already
+        if (memory.contains(RUINED_INFRA_UPGRADE_ID_KEY)) return;
+
+        market.getMemoryWithoutUpdate().set(RUINED_INFRA_UPGRADE_ID_KEY, id);
+    }
+
+    public static void resetRuinfraState(MarketAPI market){
+        MemoryAPI memory = market.getMemoryWithoutUpdate();
+        memory.unset(RUINED_INFRA_UPGRADE_ID_KEY);
+        setRuinfraPlacedMemoryKey(market, false);
+    }
+
+    public static boolean marketPrimedForCondition(MarketAPI market){
+        MemoryAPI memory = market.getMemoryWithoutUpdate();
+        String ruinsConditionSet = "$IndEvo_infraPlaced_" + market.getId();
+        return memory.contains(RUINED_INFRA_UPGRADE_ID_KEY) && !memory.getBoolean(ruinsConditionSet);
     }
 
     private void addRuinfraIfNeeded() {
@@ -72,7 +91,7 @@ public class DerelictInfrastructureCondition extends BaseHazardCondition {
 
         log.info("Adding ruinfra to " + market.getName());
         market.addIndustry(Ids.RUINFRA);
-        setRuinfraCondition();
+        setRuinfraPlacedMemoryKey(market, true);
         Global.getSector().getEconomy().tripleStep();
     }
 
@@ -83,11 +102,10 @@ public class DerelictInfrastructureCondition extends BaseHazardCondition {
         return memory.getBoolean(ruinsConditionSet);
     }
 
-    private void setRuinfraCondition() {
+    private static void setRuinfraPlacedMemoryKey(MarketAPI market, boolean set) {
         MemoryAPI memory = market.getMemoryWithoutUpdate();
         String ruinsConditionSet = "$IndEvo_infraPlaced_" + market.getId();
-
-        memory.set(ruinsConditionSet, true);
+        memory.set(ruinsConditionSet, set);
     }
 
     private void removeConditionIfRuinsNotPresent() {
