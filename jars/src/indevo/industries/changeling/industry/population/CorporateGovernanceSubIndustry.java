@@ -49,7 +49,7 @@ x•	increase military upkeep by x3
     public static final float MAX_DISRUPTION_DAYS = 62f;
     public static final float INCOME_PER_STAB = 20000f;
     public static final float MAX_STAB_BONUS = 10f;
-    public static final float BASE_INCOME_MULT = 1.3f;
+    public static final float BASE_INCOME_MULT = 1.2f;
     public static final float BASE_STAB = 0f;
 
     public static class CorpoPolityTooltipAdder extends BaseIndustryOptionProvider {
@@ -268,10 +268,13 @@ x•	increase military upkeep by x3
         SwitchablePopulation population = ((SwitchablePopulation) industry);
 
         market.getIncomeMult().modifyMultAlways(population.getModId(2), BASE_INCOME_MULT, "Base (Corporate Governance)");
+        market.getIncomeMult().modifyMultAlways(modId, getIncomeStabilityMult(market.getPrevStability()), "Stability");
         market.getUpkeepMult().modifyMultAlways(modId, getUpkeepHazardMult(market.getHazardValue()), "Hazard rating");
 
         float income = market.getNetIncome();
-        double stab = income > 0 ? Math.min(Math.floor(income / INCOME_PER_STAB), MAX_STAB_BONUS) : 0;
+        float correctedIncome = income / getIncomeStabilityMult(market.getPrevStability());
+        double stab = correctedIncome > 0 ? Math.min(Math.floor(correctedIncome / INCOME_PER_STAB), MAX_STAB_BONUS) : 0;
+
         market.getStability().modifyFlat(modId, (float) stab, "Stability (Corporate Governance)");
 
         for (MutableStat.StatMod mod : market.getStability().getFlatMods().values()) {

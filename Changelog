@@ -78,9 +78,8 @@ Fixed - Centralization Bureau now properly applies output bonus when present
 Fixed - Specialized industries no longer bug out when present on the same planet
 
 Governments
-Adjusted - Corporate Government: Income no longer scales with stability - only stability with income
-Adjusted - Corporate Government: Base Income Mult 1.2 -> 1.3
-Fixed - Corporate Government stability can no longer enter a downward spiral when it suddenly makes less money than before
+Adjusted - Corporate Government: Stability Bonus calculation now ignores the income mult provided by high stability
+Fixed - Corporate Government stability should no longer enter a downward spiral on game load
 Fixed - Tooltip no longer displays "click to change" when it can't actually change
 Fixed - Monastic Order now properly increases marine XP
 Fixed - Arcology now properly suppresses the heat conditions added by an orbital lämp
