@@ -336,7 +336,6 @@ public class UnderworldSubIndustry extends SubIndustry {
         }
 
         market.getIncomeMult().modifyMultAlways(modId, incomeMult, "Stability (Underworld)");
-        market.getUpkeepMult().modifyMultAlways(modId, getUpkeepHazardMult(market.getHazardValue()), "Hazard rating");
 
         for (MutableStat.StatMod mod : market.getStability().getFlatMods().values()){
             if (mod.desc.toLowerCase().contains("_ms")) market.getStability().unmodify(mod.source);

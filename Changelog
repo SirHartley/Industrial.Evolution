@@ -55,7 +55,8 @@ Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 Salvage Interactions
 Fixed - No longer spawn in hidden systems
 
-Research Projects
+Pets
+todo pet assign bug??? WHat
 Fixed - Project Navi no longer displays if pets are disabled
 
 Artillery
@@ -64,6 +65,7 @@ Fixed - No longer spawn in "special" systems
 Fixed - Other Mods will no longer spawn an Artillery on game start if the setting is toggled off provided they spawn it via condition
 
 Senate
+todo - hard deadline quality penalty appears to stack with each applied edict
 Fixed - Edict: Mandated Overtime now correctly decreases build times
 
 Restoration docks
@@ -78,12 +80,19 @@ Fixed - Centralization Bureau now properly applies output bonus when present
 Fixed - Specialized industries no longer bug out when present on the same planet
 
 Governments
-Adjusted - Corporate Government: Stability Bonus calculation now ignores the income mult provided by high stability
-Fixed - Corporate Government stability should no longer enter a downward spiral on game load
-Fixed - Tooltip no longer displays "click to change" when it can't actually change
+Adjusted - Corporate Government: Stability Bonus calculation now scales of gross income, not net (Ignoring stability!)
+Adjusted - Corporate Government: Base Income 1.2 -> 1.3
+Adjusted - Corporate Government: Base Immigration malus -30 -> -20
+Adjusted - Corporate Government immigration malus now scales with income up to -50 (-20 base, -1 per 10k income up to an additional -30 )
+Fixed - Corporate Government stability will no longer enter a downward spiral on game load
+Fixed - Corporate Government now properly unlocks up to max industry slots when permanent instead of adding 4 flat
+Fixed - Corporate Government no longer applies the hazard rating upkeep modifier twice
+Fixed - Underworld no longer applies the hazard rating upkeep modifier twice
 Fixed - Monastic Order now properly increases marine XP
-Fixed - Arcology now properly suppresses the heat conditions added by an orbital lämp
+Fixed - Arcology now properly suppresses the heat conditions added by an orbital lamp
 Fixed - Arcology now buildable where it should be (everywhere except lava & gas giants)
+Fixed - Tooltip no longer displays "click to change" when it can't actually change
+Fixed - Tooltip no longer displays "Permanent in X days" after it has become permanent
 Fixed - Another Arcoship crash (Underworld Gov.)
 
 Derelict Industries
@@ -94,11 +103,11 @@ Ruined Infrastructure
 Added - A size 4 or larger colony that decivilizes will now always have ruined infrastructure of one of its former industries (if any)
 
 World Wonders
-Added - Setting for Cloud Painter to remove the planetary shield texture
-Added - Setting for Cloud Painter to replace the planetary shield texture with a barely visible alternative
+Added - Setting for Cloud Painter to remove the planetary shield texture (only when present on the planet)
+Added - Setting for Cloud Painter to replace the planetary shield texture with a barely visible alternative (only when present on the planet)
 Adjusted - Added US_continent for valid World Tree planet types
 Adjusted - Removed US_magnetic planets from valid World Tree planet types
-Fixed - Another Arcoship crash
+Fixed - Another Arcoship crash (arthr pls)
 
 3.3.e
 General
