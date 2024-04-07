@@ -44,12 +44,12 @@ public class HelldiversSubIndustry extends SubIndustry implements EconomyTickLis
 
     /*
 Managed Democracy
-•	x-50% positive income
-•	xNo luddic cells
-•	xStability can’t fall below 3 or go above 7
-•	xLocked at size 5
-•	xMilitary industries -upkeep
-•   xMarines stored here passively gather experience
+•	-50% positive income
+•	No luddic cells
+•	Stability can’t fall below 3 or go above 7
+•	Locked at size 5
+•	Military industries -upkeep
+•   Marines stored here passively gather experience
 */
 
     public static final int MAX_STAB = 7;

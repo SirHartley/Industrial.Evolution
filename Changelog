@@ -80,6 +80,9 @@ Fixed - Centralization Bureau now properly applies output bonus when present
 Fixed - Specialized industries no longer bug out when present on the same planet
 
 Governments
+Adjusted - Rural Polity: Farming now produces Organics (and drugs with free port) instead of supplies
+Adjusted - Rural Polity: Light Industry now produces Supplies alongside weapons
+Adjusted - Rural Polity: Reduced light industry weapons output
 Adjusted - Corporate Government: Stability Bonus calculation now scales of gross income, not net (Ignoring stability!)
 Adjusted - Corporate Government: Base Income 1.2 -> 1.3
 Adjusted - Corporate Government: Base Immigration malus -30 -> -20

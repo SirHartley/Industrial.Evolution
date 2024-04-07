@@ -20,7 +20,6 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
-import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
@@ -144,9 +143,11 @@ Rural Polity
     public static final int STABILITY_INCREASE_PER_RURAL = 1;
     public static final int IMMIGRATION_INCREASE_PER_RURAL = 2;
 
-    public static final float FARMING_SUPPLIES_PER_FOOD = 0.3f;
+    public static final float FARMING_ORGANICS_PER_FOOD = 0.5f;
+    public static final float FARMING_DRUGS_PER_FOOD = 0.3f;
+    public static final float LI_SUPPLIES_PER_LUX_GOODS = 1f;
     public static final float FARMING_BASE_BONUS = 1f;
-    public static final float LI_WEAPONS_PER_LUX_GOODS = 0.7f;
+    public static final float LI_WEAPONS_PER_LUX_GOODS = 0.5f;
 
     public RuralPolitySubIndustry(SubIndustryData data) {
         super(data);
@@ -170,11 +171,13 @@ Rural Polity
 
             if (ind instanceof Farming) {
                 ind.getSupplyBonusFromOther().modifyFlat(getId(), FARMING_BASE_BONUS, getName());
-                ind.supply(getId(), Commodities.SUPPLIES, (int) Math.ceil(ind.getSupply(Commodities.FOOD).getQuantity().getModifiedValue() * FARMING_SUPPLIES_PER_FOOD), getName());
+                ind.supply(getId(), Commodities.ORGANICS, (int) Math.ceil(ind.getSupply(Commodities.FOOD).getQuantity().getModifiedValue() * FARMING_ORGANICS_PER_FOOD), getName());
+                if (market.isFreePort()) ind.supply(getId(), Commodities.DRUGS, (int) Math.ceil(ind.getSupply(Commodities.FOOD).getQuantity().getModifiedValue() * FARMING_DRUGS_PER_FOOD), getName());
             }
 
             if (ind instanceof LightIndustry) {
                 ind.supply(getId(), Commodities.HAND_WEAPONS, (int) Math.ceil(ind.getSupply(Commodities.LUXURY_GOODS).getQuantity().getModifiedValue() * LI_WEAPONS_PER_LUX_GOODS), getName());
+                ind.supply(getId(), Commodities.SUPPLIES, (int) Math.ceil(ind.getSupply(Commodities.LUXURY_GOODS).getQuantity().getModifiedValue() * LI_SUPPLIES_PER_LUX_GOODS), getName());
             }
 
             i++;

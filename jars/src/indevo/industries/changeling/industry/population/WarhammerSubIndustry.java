@@ -44,16 +44,14 @@ public class WarhammerSubIndustry extends SubIndustry implements EconomyTickList
 
     /*
 Forge World
-less defensible but ship quality bonus, output bonus (1 or 2?) and random ships built
-
-Randomly builds known frigates and destroyers, rarely cruisers (by hand with a special hullmod)*
-less upkeep for industries that produce ship hulls
+Randomly builds known frigates and destroyers, rarely cruisers (with a special hullmod)*
+less upkeep for industries that produce ship hulls & parts depending on planet heat (hotter = better)
 5k flat income for every ship hull produced here
-access bonus
 
 pathers hate the place
 rural industries are more expensive to run
-all resources get downgraded by 1 level permanently, farmland by 2
+all resources get downgraded by 1 level, you cannot farm here
+cold temperatures drastically increase upkeep costs
 
 */
 
