@@ -282,6 +282,8 @@
           "pop_monks":"graphics/industry/population/monastic_orders.png",
           "pop_resort":"graphics/industry/population/resort_planet.png",
           "pop_corpos":"graphics/industry/population/arcology.png",
+          "pop_helldivers":"graphics/industry/population/managed_democracy.png",
+          "pop_warhammer":"graphics/industry/population/forgeworld.png",
           "icon":"graphics/icons/IndEvo.png",
           "ore_mining":"graphics/industry/ore_mining.png",
           "rare_mining":"graphics/industry/rare_ore_mining.png",

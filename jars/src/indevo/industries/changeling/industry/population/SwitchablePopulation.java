@@ -87,6 +87,20 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
                     return new MonasticOrderSubIndustry(this);
                 }
             });
+
+            add(new SubIndustryData("helldivers", "Managed Democracy", Global.getSettings().getSpriteName("IndEvo", "pop_helldivers"), "IndEvo_pop_helldivers", 100000) {
+                @Override
+                public SubIndustry newInstance() {
+                    return new HelldiversSubIndustry(this);
+                }
+            });
+
+            add(new SubIndustryData("warhammer", "Forge World", Global.getSettings().getSpriteName("IndEvo", "pop_warhammer"), "IndEvo_pop_warhammer", 100000) {
+                @Override
+                public SubIndustry newInstance() {
+                    return new WarhammerSubIndustry(this);
+                }
+            });
             /*add(new SubIndustryData("resort", "Resort Planet", Global.getSettings().getSpriteName("IndEvo", "pop_resort"), "IndEvo_pop_resort") {
                 @Override
                 public SubIndustry newInstance() {
