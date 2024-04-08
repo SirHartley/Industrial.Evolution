@@ -46,6 +46,8 @@ public class HelldiversSubIndustry extends SubIndustry implements EconomyTickLis
 Managed Democracy
 •	-50% positive income
 •	No luddic cells
+.   no luddic subpop
+-   autmatically integrates dissidents over a year
 •	Stability can’t fall below 3 or go above 7
 •	Locked at size 5
 •	Military industries -upkeep

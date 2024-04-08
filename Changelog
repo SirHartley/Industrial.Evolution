@@ -59,6 +59,10 @@ Pets
 todo pet assign bug??? WHat
 Fixed - Project Navi no longer displays if pets are disabled
 
+Items
+Adjusted - Removed most VPCs from Historian pool
+Adjusted - Conflict/Exploration Package VPCs moved from Historian T4 to Historian T3
+
 Artillery
 Fixed - No longer spawn on abyss planets
 Fixed - No longer spawn in "special" systems
