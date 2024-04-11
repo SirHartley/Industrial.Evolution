@@ -74,12 +74,12 @@ cold temperatures drastically increase upkeep costs
     public int currentDpBudget = 0;
     public Random random = new Random();
 
-    public static class MonasticOrderTooltipAdder extends BaseIndustryOptionProvider {
+    public static class WarhammerTooltipAdder extends BaseIndustryOptionProvider {
 
         public static void register() {
             ListenerManagerAPI manager = Global.getSector().getListenerManager();
-            if (!manager.hasListenerOfClass(MonasticOrderSubIndustry.MonasticOrderTooltipAdder.class))
-                manager.addListener(new MonasticOrderSubIndustry.MonasticOrderTooltipAdder(), true);
+            if (!manager.hasListenerOfClass(WarhammerTooltipAdder.class))
+                manager.addListener(new WarhammerTooltipAdder(), true);
         }
 
         @Override
@@ -113,23 +113,6 @@ cold temperatures drastically increase upkeep costs
     @Override
     public void reportEconomyTick(int iterIndex) {
         if (!market.isPlayerOwned()) return;
-
-        PlayerFleetPersonnelTracker.PersonnelAtEntity e = PlayerFleetPersonnelTracker.getInstance().getDroppedOffAt(Commodities.MARINES, market.getPrimaryEntity(), Misc.getStorage(market).getSubmarket(), true);
-
-        if (e != null) {
-            SubmarketPlugin cargo = Misc.getStorage(market);
-
-            float num = e.data.num;
-            if (num == 0f && cargo.getCargo().getMarines() > 0) {
-                e.data.add(cargo.getCargo().getMarines());
-                num = e.data.num;
-            }
-
-            float addition = calculateExperienceBonus(Math.round(num));;
-            e.data.addXP(addition);
-
-            ModPlugin.log("amt " + addition + " current " + e.data.xp + " num marines " + e.data.num);
-        }
 
         int lastIterInMonth = (int) Global.getSettings().getFloat("economyIterPerMonth") - 1;
 
@@ -170,24 +153,6 @@ cold temperatures drastically increase upkeep costs
                 ShipProductionSummaryMessageHandler.getInstanceOrRegister().add(market, member);
             }
         }
-    }
-
-    public static float calculateExperienceBonus(int numMarines) {
-        // Maximum bonus percentage when there are 500 or fewer marines
-
-        if (false){
-            float maxBonusPercentagePerTick = MARINES_GAIN_EXP;
-
-            if (numMarines <= MAX_MARINES_AMT) {
-                return maxBonusPercentagePerTick;
-            } else {
-                float relativeNumMarines = MAX_MARINES_AMT / numMarines;
-                float bonusPercentage = maxBonusPercentagePerTick * relativeNumMarines;
-                return Math.min(bonusPercentage, maxBonusPercentagePerTick);
-            }
-        }
-
-        return MARINES_GAIN_EXP;
     }
 
     @Override
@@ -243,7 +208,7 @@ cold temperatures drastically increase upkeep costs
     public void apply() {
         ((SwitchablePopulation) industry).superApply();
 
-        MonasticOrderSubIndustry.MonasticOrderTooltipAdder.register();
+        WarhammerTooltipAdder.register();
         Global.getSector().getListenerManager().addListener(this);
         correctStability();
 

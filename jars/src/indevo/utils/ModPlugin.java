@@ -19,6 +19,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
+import com.fs.starfarer.api.impl.campaign.econ.impl.MilitaryBase;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
@@ -176,17 +177,19 @@ public class ModPlugin extends BaseModPlugin {
         if (newGame) ArtilleryStationReplacer.register();
 
         //pets
-        if (ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(Ids.PROJ_NAVI).getProgress().redeemed) PetDataRepo.get("fairy").tags.remove(PetData.TAG_NO_SELL);
+        if (Settings.getBoolean(Settings.PETS)){
+            if (ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(Ids.PROJ_NAVI).getProgress().redeemed) PetDataRepo.get("fairy").tags.remove(PetData.TAG_NO_SELL);
 
-        for(PetData data : PetDataRepo.getAll()) {
-            try {
-                Global.getSettings().loadTexture(data.icon);
-            } catch (IOException e) {
-                e.printStackTrace();
+            for(PetData data : PetDataRepo.getAll()) {
+                try {
+                    Global.getSettings().loadTexture(data.icon);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
 
-        addLordFoogRep();
+            addLordFoogRep();
+        }
     }
 
     public void addLordFoogRep(){
@@ -221,7 +224,7 @@ public class ModPlugin extends BaseModPlugin {
             List<String> tagList = new ArrayList<>();
             if (spec.getTags().contains("industrial")) tagList.add("industrial");
             if (spec.getTags().contains("rural")) tagList.add("rural");
-            if (spec.getTags().contains("military")) tagList.add("military");
+            if (spec.getTags().contains("military") || spec.getTags().contains("patrol") || spec.getTags().contains("command") || spec.getNewPluginInstance(Global.getFactory().createMarket(Misc.genUID(), "", 1)) instanceof MilitaryBase) tagList.add("military");
 
             if (tagList.isEmpty()) continue;
 

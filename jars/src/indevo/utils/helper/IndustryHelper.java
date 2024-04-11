@@ -15,6 +15,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ConstructionQueue;
+import com.fs.starfarer.api.impl.campaign.econ.impl.MilitaryBase;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.shared.SharedData;
@@ -37,6 +38,11 @@ import java.util.*;
 
 public class IndustryHelper {
     public static final Logger log = Global.getLogger(IndustryHelper.class);
+
+    public static boolean isMilitary(Industry industry){
+        Set<String> tags = industry.getSpec().getTags();
+        return tags.contains("military") || tags.contains("patrol") || tags.contains("command") || industry instanceof MilitaryBase;
+    }
 
     public static MonthlyReport.FDNode createMonthlyReportNode(Industry ind, MarketAPI market, String nodeName, String... excludeFromClearing) {
         MonthlyReport report = SharedData.getData().getCurrentReport();
