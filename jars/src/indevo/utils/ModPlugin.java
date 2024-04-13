@@ -55,6 +55,7 @@ import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
 import indevo.industries.changeling.industry.population.RuralPolitySubIndustry;
+import indevo.industries.changeling.listener.MarineLossAmplifcationHullmodEffectListener;
 import indevo.industries.changeling.plugins.ChangelingMiningOptionProvider;
 import indevo.industries.changeling.plugins.ChangelingPopulationOptionProvider;
 import indevo.industries.changeling.plugins.ChangelingRefiningOptionProvider;
@@ -415,6 +416,7 @@ public class ModPlugin extends BaseModPlugin {
         RuralPolitySubIndustry.RuralPolityTooltipAdder.register();
         RuralPolitySubIndustry.RuralPolityImageChanger.register();
         RuinfraOnDecivListener.register();
+        MarineLossAmplifcationHullmodEffectListener.register();
     }
 
     private void setScriptsIfNeeded() {

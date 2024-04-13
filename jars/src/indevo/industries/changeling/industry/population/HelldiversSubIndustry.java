@@ -3,13 +3,16 @@ package indevo.industries.changeling.industry.population;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
+import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SubmarketPlugin;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
+import com.fs.starfarer.api.campaign.listeners.ColonyPlayerHostileActListener;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
+import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -18,14 +21,17 @@ import com.fs.starfarer.api.impl.PlayerFleetPersonnelTracker;
 import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
 import com.fs.starfarer.api.impl.campaign.econ.impl.MilitaryBase;
+import com.fs.starfarer.api.impl.campaign.graid.GroundRaidObjectivePlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.MarketCMD;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import exerelin.campaign.intel.fleets.RaidListener;
 import indevo.industries.changeling.hullmods.HandBuiltHullmod;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
@@ -44,7 +50,7 @@ import static com.fs.starfarer.api.impl.campaign.intel.bases.LuddicPathBaseManag
 import static com.fs.starfarer.api.impl.campaign.population.CoreImmigrationPluginImpl.getWeightForMarketSizeStatic;
 import static com.sun.jmx.snmp.ThreadContext.contains;
 
-public class HelldiversSubIndustry extends SubIndustry implements EconomyTickListener {
+public class HelldiversSubIndustry extends SubIndustry implements EconomyTickListener, ColonyPlayerHostileActListener {
 
     /*
 Managed Democracy
@@ -56,6 +62,10 @@ Managed Democracy
 •	xLocked at size 5
 •	xMilitary industries -upkeep
 •   xMarines stored here passively gather experience
+
+reduce income penalty by 10% for 365d for every successful raid or invasion
+refit cruisers left in storage here with a "hellpods" hullmod that increases raid effectiveness and doubles casualties if possible
+increase marine stockpile limit and rate
 */
 
     public static final int MAX_STAB = 7;
@@ -65,6 +75,7 @@ Managed Democracy
     public static final float MONASTIC_UPKEEP_RED = 0.7f;
     public static final float MAX_MARINES_AMT = 500f;
     public static final float MARINES_GAIN_EXP = 3f;
+
 
     public static class HelldiversTooltipAdder extends BaseIndustryOptionProvider {
 
@@ -140,6 +151,31 @@ Managed Democracy
 
     @Override
     public void reportEconomyMonthEnd() {
+
+    }
+
+    //repeat raids in 3 months don't do anything
+    //give minor bonus for tac bombs
+    //more for sat bombing
+    //raiding to disrupt should give more than raiding for valuables
+
+    @Override
+    public void reportRaidForValuablesFinishedBeforeCargoShown(InteractionDialogAPI dialog, MarketAPI market, MarketCMD.TempData actionData, CargoAPI cargo) {
+      todo
+    }
+
+    @Override
+    public void reportRaidToDisruptFinished(InteractionDialogAPI dialog, MarketAPI market, MarketCMD.TempData actionData, Industry industry) {
+
+    }
+
+    @Override
+    public void reportTacticalBombardmentFinished(InteractionDialogAPI dialog, MarketAPI market, MarketCMD.TempData actionData) {
+
+    }
+
+    @Override
+    public void reportSaturationBombardmentFinished(InteractionDialogAPI dialog, MarketAPI market, MarketCMD.TempData actionData) {
 
     }
 
