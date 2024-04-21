@@ -7,11 +7,10 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
 import com.fs.starfarer.api.impl.campaign.fleets.RouteManager;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
-import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
-import com.fs.starfarer.api.impl.campaign.ids.Ranks;
+import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.intel.raid.RaidIntel;
+import indevo.industries.changeling.industry.population.HelldiversSubIndustry;
+import indevo.industries.changeling.industry.population.SwitchablePopulation;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.Random;
@@ -74,7 +73,8 @@ public class PrivateerBaseRaidIntel extends RaidIntel {
         fleet.getCommander().setPostId(postId);
         fleet.getCommander().setRankId(rankId);
 
-        fleet.setName(faction.getFleetTypeName(FleetTypes.MERC_PRIVATEER));
+        if (market.getIndustry(Industries.POPULATION) instanceof SwitchablePopulation && ((SwitchablePopulation) market.getIndustry(Industries.POPULATION)).getCurrent() instanceof HelldiversSubIndustry) fleet.setName("Democratic Liberation Force");
+        else fleet.setName(faction.getFleetTypeName(FleetTypes.MERC_PRIVATEER));
 
         return fleet;
     }

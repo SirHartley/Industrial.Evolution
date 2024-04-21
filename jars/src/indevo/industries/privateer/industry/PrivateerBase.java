@@ -20,6 +20,8 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.EngineeringHub;
+import indevo.industries.changeling.industry.population.HelldiversSubIndustry;
+import indevo.industries.changeling.industry.population.SwitchablePopulation;
 import indevo.industries.privateer.intel.PrivateerBaseRaidIntel;
 import indevo.utils.helper.IndustryHelper;
 import indevo.utils.helper.Settings;
@@ -55,9 +57,13 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         supplyBonus.unmodify();
     }
 
+    private boolean isDemocratic = false;
+
     public void apply() {
         super.apply(true);
         debug = Global.getSettings().isDevMode();
+
+        isDemocratic = market.getIndustry(Industries.POPULATION) instanceof SwitchablePopulation && ((SwitchablePopulation) market.getIndustry(Industries.POPULATION)).getCurrent() instanceof HelldiversSubIndustry;
 
         Global.getSector().getListenerManager().addListener(this, true);
 
@@ -71,6 +77,11 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
         Global.getSector().addTransientScript(new IndustryAddOrRemovePlugin(market, Ids.PIRATEHAVEN_SECONDARY, false));
 
+    }
+
+    @Override
+    public String getCurrentName() {
+        return isDemocratic ? "Democratic Liberation Base" : super.getCurrentName();
     }
 
     @Override
@@ -128,7 +139,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
             if (target != null) {
                 startRaid(target, getBaseRaidFP());
             } else if (market.isPlayerOwned()) {
-                MessageIntel intel = new MessageIntel("Your Privateers could not find a target for a raid.", Misc.getTextColor());
+                MessageIntel intel = new MessageIntel("Your " + (isDemocratic ? "Heroic Fighters" : "Privateers") +" could not find a target for a " + (isDemocratic ? "liberation campaign" : "raid") + ".", Misc.getTextColor());
                 intel.addLine("They humbly request you to %s.", Misc.getTextColor(), new String[]{"make some more enemies"}, Misc.getHighlightColor());
                 intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "notification"));
                 intel.setSound(BaseIntelPlugin.getSoundStandardPosting());
@@ -186,12 +197,12 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
                 setRaidIndustryOutput(raid.getSystem(), false);
 
                 if (market.isPlayerOwned()) {
-                    Global.getSector().getCampaignUI().addMessage("A raid on the %s has failed. Your Privateers only managed to acquire %s of commodities.",
+                    Global.getSector().getCampaignUI().addMessage("A " + (isDemocratic ? "liberation campaign" : "raid") +" on the %s has failed. Your " + (isDemocratic ? "Heroic Fighters" : "Privateers") +" only managed to acquire %s of commodities.",
                             Global.getSettings().getColor("standardTextColor"), system.getName(), "a pitiful amount", raid.getFaction().getColor(), Misc.getNegativeHighlightColor());
                 }
 
             } else if (market.isPlayerOwned()) {
-                Global.getSector().getCampaignUI().addMessage("A raid on the %s has failed to even reach the system.",
+                Global.getSector().getCampaignUI().addMessage("A "+ (isDemocratic ? "liberation campaign" : "raid") +" on the %s has failed to even reach the system.",
                         Global.getSettings().getColor("standardTextColor"), system.getName(), "", raid.getFaction().getColor(), Misc.getNegativeHighlightColor());
             }
 
@@ -206,7 +217,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         ArrayList<FactionAPI> factionList = getActiveHostileFactions();
         StarSystemAPI bestSystem = null;
 
-        for (int j = 0; j <= factionList.size(); j++) {
+        for (int j = 1; j <= factionList.size(); j++) {
             int rnd = new Random().nextInt(factionList.size());
             FactionAPI targetFaction = factionList.get(rnd);
 
@@ -240,7 +251,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
                 getLoot(nonShipMarket, false);
             }
 
-            Global.getSector().getCampaignUI().addMessage("Thanks to the presence of one or more industrial polities in %s your privateers liberated %s of useful items.",
+            Global.getSector().getCampaignUI().addMessage("Thanks to the presence of one or more industrial polities in %s your "+ (isDemocratic ? "Heroic Fighters" : "Privateers") +" liberated %s of useful items.",
                     Global.getSettings().getColor("standardTextColor"), system.getName(), "a good amount", Misc.getHighlightColor(), Misc.getPositiveHighlightColor());
 
         } else {
@@ -248,7 +259,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
                 getLoot(nonShipMarket, false);
             }
 
-            Global.getSector().getCampaignUI().addMessage("As no real industrial presence exists on the planets of %s your privateers liberated %s of useful items.",
+            Global.getSector().getCampaignUI().addMessage("As no real industrial presence exists on the planets of %s your "+ (isDemocratic ? "Heroic Fighters" : "Privateers") +" liberated %s of useful items.",
                     Global.getSettings().getColor("standardTextColor"), system.getName(), "a rather disappointing amount", Misc.getHighlightColor(), Misc.getHighlightColor());
         }
     }
@@ -428,7 +439,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         StarSystemAPI bestSystem = null;
 
         //The entire following block is a good example of why returning null on anything is a shit idea
-        if (factionList.size() > 0) {
+        if (!factionList.isEmpty()) {
             for (int j = 0; j <= factionList.size(); j++) {
                 int rnd = new Random().nextInt(factionList.size());
                 FactionAPI targetFaction = factionList.get(rnd);
@@ -684,11 +695,11 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
             if (isFunctional() && currTooltipMode == IndustryTooltipMode.NORMAL) {
                 if (currentIntel != null) {
-                    tooltip.addPara("There is currently %s, targeting the %s system.", 10F, Misc.getHighlightColor(), new String[]{"an active raid", currentIntel.getSystem().getName()});
+                    tooltip.addPara("There is currently %s, targeting the %s system.", 10F, Misc.getHighlightColor(), new String[]{"an active "+ (isDemocratic ? "liberation campaign" : "raid"), currentIntel.getSystem().getName()});
                 } else if (raidTimeoutMonths < 1) {
-                    tooltip.addPara("There is currently %s. The next one will be attempted %s.", 10F, Misc.getHighlightColor(), new String[]{"no active raid", "this month"});
+                    tooltip.addPara("There is currently %s. The next one will be attempted %s.", 10F, Misc.getHighlightColor(), new String[]{"no active "+ (isDemocratic ? "liberation campaign" : "raid"), "this month"});
                 } else {
-                    tooltip.addPara("There is currently %s. The next one can be attempted in about %s.", 10F, Misc.getHighlightColor(), new String[]{"no active raid", raidTimeoutMonths + " months"});
+                    tooltip.addPara("There is currently %s. The next one can be attempted in about %s.", 10F, Misc.getHighlightColor(), new String[]{"no active "+ (isDemocratic ? "liberation campaign" : "raid"), raidTimeoutMonths + " months"});
                 }
 
                 if (Global.getSettings().getModManager().isModEnabled("alcoholism"))

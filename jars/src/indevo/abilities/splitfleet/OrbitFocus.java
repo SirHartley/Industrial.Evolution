@@ -242,7 +242,7 @@ public class OrbitFocus {
         } else orbitFocus.setFixedLocation(fleet.getLocation().x, fleet.getLocation().y);
 
         float dist = Misc.getDistance(orbitFocus, system.getCenter());
-        float orbitDistance = dist < system.getStar().getRadius() ? system.getStar().getRadius() + 700f : dist;
+        float orbitDistance = system.getStar() != null && dist < system.getStar().getRadius() ? system.getStar().getRadius() + 700f : dist;
         float angle = Misc.getAngleInDegrees(system.getCenter().getLocation(), orbitFocus.getLocation());
         float orbitPeriod = 0f;
 
@@ -264,7 +264,7 @@ public class OrbitFocus {
         for (SectorEntityToken entity : system.getAllEntities()) {
             if (entity.getOrbit() != null && entity.getOrbitFocus() != null) {
                 String id = entity.getOrbitFocus().getId();
-                boolean orbitFocusIsStarOrSystemCenter = id.equals(system.getCenter().getId()) || id.equals(system.getStar().getId());
+                boolean orbitFocusIsStarOrSystemCenter = id.equals(system.getCenter().getId()) || (system.getStar() != null && id.equals(system.getStar().getId()));
 
                 if (!orbitFocusIsStarOrSystemCenter) continue;
 

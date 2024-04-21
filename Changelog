@@ -63,10 +63,17 @@ Items
 Adjusted - Removed most VPCs from Historian pool
 Adjusted - Conflict/Exploration Package VPCs moved from Historian T4 to Historian T3
 
+Detachments
+Fixed - No longer crashes when told to hide in non-nebula systems without a star
+
 Artillery
 Fixed - No longer spawn on abyss planets
 Fixed - No longer spawn in "special" systems
 Fixed - Other Mods will no longer spawn an Artillery on game start if the setting is toggled off provided they spawn it via condition
+
+Privateer Base
+Adjusted - Now properly reflects alignment when placed on Managed Democracy world
+Fixed - Devmode crash when target factions are zero (just for you Histi <3)
 
 Senate
 todo - hard deadline quality penalty appears to stack with each applied edict
@@ -84,23 +91,28 @@ Fixed - Centralization Bureau now properly applies output bonus when present
 Fixed - Specialized industries no longer bug out when present on the same planet
 
 Governments
+Added - Managed Democracy: Clamped stability, reduced income, marine training, income bonus for planetary military action, no luddic cells, freedom
+todo: Added - Forge Worlds: Random ships...
 Adjusted - Rural Polity: Farming now produces Organics (and drugs with free port) instead of supplies
 Adjusted - Rural Polity: Light Industry now produces Supplies alongside weapons
 Adjusted - Rural Polity: Reduced light industry weapons output
-Adjusted - Corporate Government: Stability Bonus calculation now scales of gross income, not net (Ignoring stability!)
+Adjusted - Corporate Government: Stability Bonus calculation now scales off gross income, not net (Ignoring stability!)
 Adjusted - Corporate Government: Base Income 1.2 -> 1.3
 Adjusted - Corporate Government: Base Immigration malus -30 -> -20
 Adjusted - Corporate Government immigration malus now scales with income up to -50 (-20 base, -1 per 10k income up to an additional -30 )
 Fixed - Corporate Government stability will no longer enter a downward spiral on game load
 Fixed - Corporate Government now properly unlocks up to max industry slots when permanent instead of adding 4 flat
 Fixed - Corporate Government no longer applies the hazard rating upkeep modifier twice
-Fixed - Underworld no longer applies the hazard rating upkeep modifier twice
+Fixed - Corporate Government now respects the additional hypershunt industry and no longer considers it going over the limit
+Fixed - All Governments now correctly recognize patrol HQ and high command as military
+Fixed - Underworld and Corporate no longer apply the hazard rating upkeep modifier twice
 Fixed - Monastic Order now properly increases marine XP
 Fixed - Arcology now properly suppresses the heat conditions added by an orbital lamp
 Fixed - Arcology now buildable where it should be (everywhere except lava & gas giants)
 Fixed - Tooltip no longer displays "click to change" when it can't actually change
 Fixed - Tooltip no longer displays "Permanent in X days" after it has become permanent
 Fixed - Another Arcoship crash (Underworld Gov.)
+Removed - Monastic Orders (Split into Managed Democracy and Forge worlds)
 
 Derelict Industries
 Fixed - No longer (almost) exclusively spawn on abyss planets
