@@ -17,6 +17,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.industries.petshop.dialogue.PetPickerInteractionDialoguePlugin;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
+import indevo.utils.ModPlugin;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -188,6 +189,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
             r.keyRelease(27);
 
         } catch (AWTException e) {
+            ModPlugin.log("Could not close inventory on pet cryochamber activation");
             e.printStackTrace();
         }
 
@@ -206,13 +208,11 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
             @Override
             public void advance(float amount) {
-                if (amount < 0.03) return;
-
                 // Wisp: add pet null check. Very dirty crash fix, didn't look into why the pet is null at all.
                 // <https://fractalsoftworks.com/forum/index.php?topic=18011.msg416779#msg416779>
-                if (!done && pet != null)
-                    Global.getSector().getCampaignUI().showInteractionDialog(new PetPickerInteractionDialoguePlugin(pet), null);
-                done = true;
+                if (!done && pet != null) {
+                    done = Global.getSector().getCampaignUI().showInteractionDialog(new PetPickerInteractionDialoguePlugin(pet), null);
+                }
             }
         });
     }

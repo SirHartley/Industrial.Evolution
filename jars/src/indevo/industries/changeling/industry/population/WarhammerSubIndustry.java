@@ -47,6 +47,7 @@ Forge World
 Randomly builds known frigates and destroyers, rarely cruisers (with a special hullmod)*
 less upkeep for industries that produce ship hulls & parts depending on planet heat (hotter = better)
 5k flat income for every ship hull produced here
+hot temp decreases upkeep
 
 pathers hate the place
 rural industries are more expensive to run

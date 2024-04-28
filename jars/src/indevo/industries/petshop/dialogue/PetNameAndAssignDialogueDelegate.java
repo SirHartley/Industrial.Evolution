@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PetNameAndAssignDialogueDelegate implements CustomDialogDelegate {
-
     public static final float WIDTH = 600f;
     public static final float HEIGHT_200 = 200f;
 
