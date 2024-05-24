@@ -25,6 +25,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
+import com.fs.starfarer.api.impl.campaign.intel.deciv.DecivTracker;
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -344,6 +345,7 @@ public class ModPlugin extends BaseModPlugin {
             MarketAPI market = Global.getFactory().createMarket(ACADEMY_MARKET_ID, "Galatia Academy", 3);
             market.setHidden(true);
             market.getMemoryWithoutUpdate().set(ContactIntel.NO_CONTACTS_ON_MARKET, true);
+            market.getMemoryWithoutUpdate().set(DecivTracker.NO_DECIV_KEY, true);
 
             market.setFactionId(Factions.INDEPENDENT);
             market.setSurveyLevel(MarketAPI.SurveyLevel.NONE);

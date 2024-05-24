@@ -83,6 +83,9 @@ Fixed - Edict: Mandated Overtime now correctly decreases build times
 Restoration docks
 Added - "Can not transfer" text for ships with the unrestorable tag
 
+Academy
+Fixed - Can no longer decivilize
+
 Specialized industries
 Fixed - Specialized Mining now has correct outputs
 Fixed - Specialized Refining no longer ignores all external supply/demand bonus

@@ -45,13 +45,16 @@ public class WarhammerSubIndustry extends SubIndustry implements EconomyTickList
     /*
 Forge World
 Randomly builds known frigates and destroyers, rarely cruisers (with a special hullmod)*
-less upkeep for industries that produce ship hulls & parts depending on planet heat (hotter = better)
-5k flat income for every ship hull produced here
-hot temp decreases upkeep
+less upkeep for industries that produce ship hulls, heavy weapons & parts depending on planet heat (hotter = better)
+2k flat income for every ship hull produced here
+5k additional production budget per ship hull produced here
 
+high base commodity demands that, if unmet, result in industries getting disabled
+Growth penalty
 pathers hate the place
 rural industries are more expensive to run
-all resources get downgraded by 1 level, you cannot farm here
+cannot farm here
+immediate pollution (suppressed)
 cold temperatures drastically increase upkeep costs
 
 */
