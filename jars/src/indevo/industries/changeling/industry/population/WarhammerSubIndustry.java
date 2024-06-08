@@ -146,7 +146,7 @@ cold temperatures drastically increase upkeep costs
                 }
                 FleetMemberAPI member = createAndPrepareMember(id, 4);
                 if (member == null) return;
-                currentDpBudget -= member.getDeploymentPointsCost();
+                currentDpBudget -= (int) member.getDeploymentPointsCost();
 
                 member.getVariant().addPermaMod(HandBuiltHullmod.ID);
 

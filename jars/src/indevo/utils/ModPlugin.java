@@ -82,6 +82,7 @@ import indevo.items.consumables.listeners.SpooferItemKeypressListener;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.items.listeners.ShipComponentLootManager;
 import indevo.items.listeners.SpecialItemDropsListener;
+import indevo.other.PlayerHyperspaceTripTracker;
 import indevo.other.SpawnDerelictFleetMembersOnDeathListener;
 import indevo.utils.helper.IndustryHelper;
 import indevo.utils.helper.Settings;
@@ -419,6 +420,7 @@ public class ModPlugin extends BaseModPlugin {
         RuralPolitySubIndustry.RuralPolityImageChanger.register();
         RuinfraOnDecivListener.register();
         MarineLossAmplifcationHullmodEffectListener.register();
+        PlayerHyperspaceTripTracker.register();
     }
 
     private void setScriptsIfNeeded() {
