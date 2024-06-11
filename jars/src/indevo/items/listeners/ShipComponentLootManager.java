@@ -3,10 +3,13 @@ package indevo.items.listeners;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.listeners.ShowLootListener;
+import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.DerelictShipEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.HullMods;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySpecial;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
@@ -16,6 +19,7 @@ import indevo.ids.ItemIds;
 import indevo.utils.helper.Settings;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -35,6 +39,8 @@ public class ShipComponentLootManager {
         put(Ids.DERELICT_FACTION_ID, 0.2f);
         put("rat_abyssals", 0.3f);
     }};
+
+    public static final float DEFAULT_AI_SHIP_RARE_PARTS_DROP_DP_FRACTION = 0.2f;
 
     public static class PartsLootAdder extends BaseCampaignEventListener {
 
@@ -80,29 +86,19 @@ public class ShipComponentLootManager {
                     }
                 }
             }
-
+            
             if (dialog.getInteractionTarget() instanceof CampaignFleetAPI) {
                 CampaignFleetAPI fleet = (CampaignFleetAPI) dialog.getInteractionTarget();
-                if (Factions.PIRATES.equals(fleet.getFaction().getId())) return; //no parts if pirates are involved
+                if (Factions.PIRATES.equals(fleet.getFaction().getId()) || Factions.LUDDIC_PATH.equals(fleet.getFaction().getId())) return; //no parts if pirates are involved
 
-                float totalFPbefore = 0;
-                float fpDestroyed = Misc.getSnapshotFPLost(fleet);
+                //relic component drop on difficult battle
+                calculateAndAddPartsOnDifficultBattle(fleet, loot);
 
-                for (FleetMemberAPI member : fleet.getFleetData().getSnapshot()) {
-                    totalFPbefore += member.getFleetPointCost();
-                }
-
-                //check if it was a hard battle
-                int originalPlayerFP = 0;
-                for (FleetMemberAPI member : Global.getSector().getPlayerFleet().getFleetData().getSnapshot()) {
-                    originalPlayerFP += member.getFleetPointCost();
-                }
-
-                log("Before Player: " + originalPlayerFP + " before enemy: " + totalFPbefore + " destroyed: " + fpDestroyed);
-                log("FP Qualification:" + (totalFPbefore > (originalPlayerFP * MIN_FLEET_POINT_ADVANTAGE_FOR_DROP)) + " destroyed qualification: " + (fpDestroyed > originalPlayerFP * 0.5f));
-
-                if (totalFPbefore > (originalPlayerFP * MIN_FLEET_POINT_ADVANTAGE_FOR_DROP) && fpDestroyed > originalPlayerFP * FP_DESTROYED_FRACTION) {
-                    loot.addCommodity(ItemIds.RARE_PARTS, fpDestroyed * HARD_BATTLE_FP_TO_PARTS_RATION);
+                //relic component drop on automated ship defeat if said fleet is not covered by default behavior
+                if (!RARE_PARTS_FACTIONS_AND_WEIGHTS.containsKey(fleet.getFaction().getId())){
+                    float destroyedAiFp = getDestroyedAiFp(fleet);
+                    int amt = (int) Math.round(destroyedAiFp * DEFAULT_AI_SHIP_RARE_PARTS_DROP_DP_FRACTION + (0.15 * new Random().nextFloat() * destroyedAiFp));
+                    loot.addCommodity(ItemIds.RARE_PARTS, amt);
                 }
             }
 
@@ -134,6 +130,39 @@ public class ShipComponentLootManager {
 
             int amt = toAdd.one + new Random(Misc.getSalvageSeed(target)).nextInt(toAdd.two - toAdd.one + 1);
             loot.addCommodity(ItemIds.RARE_PARTS, amt);
+        }
+
+        private static float getDestroyedAiFp(CampaignFleetAPI fleet) {
+            float destroyedAiFp = 0f;
+            List<FleetMemberAPI> currentMembers = fleet.getFleetData().getMembersListCopy();
+
+            for (FleetMemberAPI member : fleet.getFleetData().getSnapshot()) {
+                if (currentMembers.contains(member)) continue;
+                if (Misc.isAutomated(member)) destroyedAiFp += member.getVariant().getHullSpec().getFleetPoints();
+            }
+            return destroyedAiFp;
+        }
+
+        public void calculateAndAddPartsOnDifficultBattle(CampaignFleetAPI fleet, CargoAPI loot){
+            float totalFPbefore = 0;
+            float fpDestroyed = Misc.getSnapshotFPLost(fleet);
+
+            for (FleetMemberAPI member : fleet.getFleetData().getSnapshot()) {
+                totalFPbefore += member.getFleetPointCost();
+            }
+
+            //check if it was a hard battle
+            int originalPlayerFP = 0;
+            for (FleetMemberAPI member : Global.getSector().getPlayerFleet().getFleetData().getSnapshot()) {
+                originalPlayerFP += member.getFleetPointCost();
+            }
+
+            log("Before Player: " + originalPlayerFP + " before enemy: " + totalFPbefore + " destroyed: " + fpDestroyed);
+            log("FP Qualification:" + (totalFPbefore > (originalPlayerFP * MIN_FLEET_POINT_ADVANTAGE_FOR_DROP)) + " destroyed qualification: " + (fpDestroyed > originalPlayerFP * 0.5f));
+
+            if (totalFPbefore > (originalPlayerFP * MIN_FLEET_POINT_ADVANTAGE_FOR_DROP) && fpDestroyed > originalPlayerFP * FP_DESTROYED_FRACTION) {
+                loot.addCommodity(ItemIds.RARE_PARTS, fpDestroyed * HARD_BATTLE_FP_TO_PARTS_RATION);
+            }
         }
     }
 }

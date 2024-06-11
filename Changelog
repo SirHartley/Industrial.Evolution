@@ -1,5 +1,30 @@
 
 --------------------------- To-do -----------------------------
+Playthrough notes
+- Make managed democracy increase patrol size and spawn amount (maybe a militia?)
+
+Substance abuse
+- adjust booze to consume half as much and take 1 cargo/unit
+- fix the LP booze not turning the campaign engine exhaust green like it should
+
+Playthrough wants
+- aimable depulsor missile consumables
+- smoke bomb consumables
+- item that, when spaced in a cargo pod, makes patrols that are chasing you go inspect the crate instead (maybe consumable?)
+- Consumable temporary comms relay item
+- Distillery module for settlements
+- Courier Port Option for settlements
+- Requisition center RAT settlement plugin
+- Consumable item skillshot framework
+ - Tracking & visibility anchor missile
+ - smoke nade
+ - napalm?
+ - repulsor (mine?)
+- smoke bomb circle around you consumable
+- emergency yeet button consumable that yeets you away but reduces burn by -1 until you dock with a market
+ - Rework VPCs to use random tiered output system
+ - Research project that uses survey data as input
+
 Known Bugs
 - Detachments eat crew that is in excess of capacity
 - Detachments refuse to move when in other system (??)
@@ -11,6 +36,8 @@ Requests
 - Watchtowers buildable in stable loc
 
 Ideas
+- optional blacklist TAG for RE and duplication
+    - if there's a whitelist and a tagged ship, just allow all except the tagged ships and ignore the whitelist
 - "Mimic Hulls", Derelict ships that change into remnant or pirate ambush fleets when approached
 - Consumable item that makes your fleet look bigger than is is to NPCs
     - maybe add a boat with like 200 dp to the fleet and remove it when ui window is opened so other fleets run from you
@@ -53,13 +80,18 @@ Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 
 3.4.1
 Salvage Interactions
+Adjusted - Drastically reduced the chance of IndEvo salvage specials appearing on derelict ships (40% -> 5%)
+Adjusted - Halved the chance of IndEvo salvage specials appearing on caches of any kind
 Fixed - No longer spawn in hidden systems
 
 Pets
+Added - Expected lifetime indicator on Cryochamber
 Fixed - Bug where the dialogue for assigning a pet didn't pop up in some rare cases (I hope, since I could not replicate it)
 Fixed - Project Navi no longer displays if pets are disabled
 
 Items
+Added - Relic components will now drop from all automated ships that were destroyed (even modded)
+Adjusted - Relic components no longer drop from battles with the luddic path
 Adjusted - Removed most VPCs from Historian pool
 Adjusted - Conflict/Exploration Package VPCs moved from Historian T4 to Historian T3
 Adjusted - Drastically reduced drop rates for special items, again
@@ -68,6 +100,9 @@ Detachments
 Fixed - No longer crashes when told to hide in non-nebula systems without a star
 
 Artillery
+Added - Watchtowers now reset to the controlling faction after 31 days if the station is under AI control to avoid deadlocked artillery stations
+Adjusted - Increased delay between shots by 2 seconds
+Adjusted - Watchtowers under AI control can now be hacked, but not taken over
 Fixed - No longer spawn on abyss planets
 Fixed - No longer spawn in "special" systems
 Fixed - Other Mods will no longer spawn an Artillery on game start if the setting is toggled off provided they spawn it via condition
@@ -113,6 +148,7 @@ Fixed - Underworld and Corporate no longer apply the hazard rating upkeep modifi
 Fixed - Monastic Order now properly increases marine XP
 Fixed - Arcology now properly suppresses the heat conditions added by an orbital lamp
 Fixed - Arcology now buildable where it should be (everywhere except lava & gas giants)
+Fixed - Arcology now properly uses the water version image on water planets
 Fixed - Tooltip no longer displays "click to change" when it can't actually change
 Fixed - Tooltip no longer displays "Permanent in X days" after it has become permanent
 Fixed - Another Arcoship crash (Underworld Gov.)

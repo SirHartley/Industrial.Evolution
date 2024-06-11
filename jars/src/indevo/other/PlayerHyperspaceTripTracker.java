@@ -31,7 +31,8 @@ public class PlayerHyperspaceTripTracker extends BaseCampaignEventListener imple
         }
 
         //this is a travesty, alex why
-        new PlayerHyperspaceTripTracker(true);
+        PlayerHyperspaceTripTracker tracker = new PlayerHyperspaceTripTracker(true);
+        Global.getSector().getListenerManager().addListener(tracker);
     }
 
     @Override

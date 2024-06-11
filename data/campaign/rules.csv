@@ -17,7 +17,7 @@ You might want to work on your reputation.",cutCommLink:Cut the commlink,
 IndEvo_foog_aristrocratGreetingReturned,PickGreeting,"$id == foogAristo score:1000
 $player.foogReturn == true
 $faction.rel == COOPERATIVE","ShowPersonVisual
-DoCanAffordCheck 300000 IndEvo_foogPay false","""You again."" The woman greeting you is as overdressed as ever, and just as condescending.
+DoCanAffordCheck 300000 IndEvo_foogPay false","""You again."" The woman greeting you is overdressed as ever, and just as condescending.
 ""What now? Did you manage to, uh, liquidate your oh-so-many assets?""","IndEvo_foogPay:""Yes, actually."" (Pay the 300,000 credits)
 IndEvo_foogDelay:""Not yet, I need more time.""",
 IndEvo_foog_aristrocratGreetingBought,PickGreeting,"$id == foogAristo score:1001
@@ -101,7 +101,7 @@ $tag:IndEvo_Artillery",,Your $shipOrFleet disengages as the defence stations los
 IndEvo_ArtilleryDefeatPopulateOptions,DialogOptionSelected,$option == IndEvo_ArtilleryDefeatPopulateOptions,FireAll OpenInteractionDialog,,,
 ,,,,,,
 #watchtower,,,,,,
-IndEvo_derelictWatchtower,OpenInteractionDialog,"$IndEvo_isArtilleryActive score:2000
+#IndEvo_derelictWatchtower,OpenInteractionDialog,"$IndEvo_isArtilleryActive score:2000
 $tag:IndEvo_watchtower",,"Any attempts at connecting to the $entityName get stifled by an obviously AI-backed counter-hack. Your engineers concede defeat after a few minutes to avoid a network breach.
 
 Disabling the entity backing the hacks will probably fix this.",0:defaultLeave:Leave,
@@ -113,6 +113,9 @@ cob_hackPrompt_watchtower,COB_ConfirmPrompt,"$cob_action == hack
 $tag:IndEvo_watchtower score:1000",,"Hacking $aOrAn $shortName will clear your current target data out of the system, and stop it from registering your fleet while the hack is ongoing.
 
 The hack will eventually be picked up and cleared out by maintenance subroutines, but should remain effective for at least two months.",,
+IndEvo_derelictWatchtower_disableControlUnderAI,OpenInteractionDialog,"$IndEvo_isArtilleryActive score:2000
+$tag:IndEvo_watchtower","SetEnabled COB_takeControl false
+SetTooltip COB_takeControl ""Any attempts at taking control of the $entityName get stifled by a heavily AI-backed counter-hack. Your engineers concede defeat after a few minutes to avoid a network breach.""",,,
 ,,,,,,
 #Galatia Job List,,,,,,
 IndEvo_JobMenuPoint,PopulateOptions,$id == station_galatia_academy,,,4:IndEvo_JobMenuInit:Visit the Research Tracts,

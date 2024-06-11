@@ -18,6 +18,7 @@ import indevo.industries.petshop.dialogue.PetPickerInteractionDialoguePlugin;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.StringHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -148,6 +149,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         tooltip.addPara("Contains a %s", opad, h, pet.species);
         tooltip.addPara("Rarity: %s", pad, rpair.two, rpair.one);
         tooltip.addPara(pet.desc, opad);
+        tooltip.addPara(pet.species + "s tend to live for about " + getYearDescription(Math.round(pet.maxLife)), opad);
 
         addCostLabel(tooltip, opad, transferHandler, stackSource);
 
@@ -156,6 +158,17 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         if (isFleetCargo() && !isActive) tooltip.addPara("Right-click to assign", b, opad);
         else if (!isFleetCargo()) tooltip.addPara("Can only be assigned from fleet cargo", n, opad);
         else tooltip.addPara("Finish assigning your current pet to activate this!", n, opad);
+    }
+
+    public static String getYearDescription(int months) {
+        if (months < 12) {
+            return "less than one year";
+        } else if (months == 12) {
+            return "one year";
+        } else {
+            int years = months / 12;
+            return years + (years == 1 ? " year" : " years");
+        }
     }
 
     @Override
@@ -210,6 +223,8 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
             public void advance(float amount) {
                 // Wisp: add pet null check. Very dirty crash fix, didn't look into why the pet is null at all.
                 // <https://fractalsoftworks.com/forum/index.php?topic=18011.msg416779#msg416779>
+                // H: it's been a year and neither did I
+
                 if (!done && pet != null) {
                     done = Global.getSector().getCampaignUI().showInteractionDialog(new PetPickerInteractionDialoguePlugin(pet), null);
                 }

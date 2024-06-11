@@ -49,6 +49,7 @@ import indevo.exploration.subspace.system.SubspaceSystem;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.TradeCenter;
+import indevo.industries.artillery.listener.WatchtowerFactionResetListener;
 import indevo.industries.artillery.scripts.CampaignAttackScript;
 import indevo.industries.artillery.plugins.ArtilleryCampaignPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
@@ -421,6 +422,7 @@ public class ModPlugin extends BaseModPlugin {
         RuinfraOnDecivListener.register();
         MarineLossAmplifcationHullmodEffectListener.register();
         PlayerHyperspaceTripTracker.register();
+        WatchtowerFactionResetListener.register();
     }
 
     private void setScriptsIfNeeded() {

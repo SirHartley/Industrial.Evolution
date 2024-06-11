@@ -68,6 +68,7 @@ public class Settings {
     public static final String ARTILLERY_MISSILE_FUZZ = "IndEvo_Artillery_missile_fuzz";
     public static final String ARTILLERY_MISSILE_EXPLOSION_RADIUS = "IndEvo_Artillery_missile_explosionRadius";
     public static final String ARTILLERY_MISSILE_DURATION = "IndEvo_Artillery_missile_duration";
+    public static final String ARTILLERY_WATCHTOWER_FACTION_RESET_TIME = "IndEvo_Watchtower_faction_reset";
     public static final String ENGHUB_IGNORE_WHITELISTS = "IndEvo_EngHubIgnoreWhitelists";
     public static final String AUTO_SHIP_BP_TO_GATHERING_POINT = "IndEvo_AutoshipBPToGatheringPoint";
     public static final String RARE_PARTS_AMOUNT_PER_FP = "IndEvo_RarePartsAmountPerFP";

@@ -39,7 +39,7 @@ public class IndEvo_SalvageSpecialAssigner {
 
     public static final Logger log = Global.getLogger(IndEvo_SalvageSpecialAssigner.class);
     public static final float EXISTING_SPECIAL_REMOVAL_CHANCE = 0.4f;
-    public static final float CACHE_EXISTING_SPECIAL_ADDITION_CHANCE = 0.8f;
+    public static final float CACHE_EXISTING_SPECIAL_ADDITION_CHANCE = 0.9f;
     public float specialApplicationChance;
 
     public final Map<String, Float> specialMap = new HashMap<>();
@@ -157,8 +157,8 @@ public class IndEvo_SalvageSpecialAssigner {
                 variant = Global.getSettings().getVariant(shipData.variantId);
             }
 
-            picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 40f);
-            picker.add(new DroneSurveyDataSpecialCreator(random, 1, 7), 10f);
+            picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 350);
+            picker.add(new DroneSurveyDataSpecialCreator(random, 1, 7), 5f);
             picker.add(new JuicyRumorsSpecialCreator(random, 5, 10), 10f);
 
             //this is now vanilla
@@ -168,7 +168,7 @@ public class IndEvo_SalvageSpecialAssigner {
             }*/
 
             if (entity.getOrbit() != null) {
-                picker.add(new CreditStashSpecialCreator(random, 10000f, 40000f, PATROL_SMALL, 4, 25), 10f);
+                picker.add(new CreditStashSpecialCreator(random, 10000f, 40000f, PATROL_SMALL, 4, 25), 5f);
             }
         }
 
@@ -236,7 +236,7 @@ public class IndEvo_SalvageSpecialAssigner {
         if (Ids.ABANDONED_PETSHOP_ENTITY.equals(type)){
             picker.add(new NothingSpecialCreator(), 30f);
             picker.add(new ItemChoiceSpecialCreator(random, 0.2f, 1f), 2f);
-            picker.add(new CreditStashSpecialCreator(random, 15000f, 70000f, PATROL_MEDIUM, 10, 16), 5f);
+            picker.add(new CreditStashSpecialCreator(random, 15000f, 70000f, PATROL_MEDIUM, 10, 16), 2f);
             picker.add(new JuicyRumorsSpecialCreator(random, 5, 10), 10f);
             picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.CIVILIAN, recoverableShipFactions), 8f);
             picker.add(new SalvageSpecialAssigner.TransmitterTrapSpecialCreator(random, 0.5f, FleetTypes.PATROL_SMALL, trapFactions, 4, 8), 5f);
@@ -293,7 +293,7 @@ public class IndEvo_SalvageSpecialAssigner {
         List<String> equipment = Collections.singletonList(Entities.EQUIPMENT_CACHE);
         if (equipment.contains(type)) {
             picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 30f);
-            picker.add(new CreditStashSpecialCreator(random, 5000f, 20000f, PATROL_SMALL, 4, 25), 10f);
+            picker.add(new CreditStashSpecialCreator(random, 5000f, 20000f, PATROL_SMALL, 4, 25), 2f);
             picker.add(new JuicyRumorsSpecialCreator(random, 3, 8), 10f);
             picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f);
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.OFFICER, 1, 15, officerFactions), 1f);
@@ -305,7 +305,7 @@ public class IndEvo_SalvageSpecialAssigner {
         List<String> equipmentSmall = Collections.singletonList(Entities.EQUIPMENT_CACHE_SMALL);
         if (equipmentSmall.contains(type)) {
             picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 30f);
-            picker.add(new CreditStashSpecialCreator(random, 5000f, 15000f, PATROL_SMALL, 4, 25), 10f);
+            picker.add(new CreditStashSpecialCreator(random, 5000f, 15000f, PATROL_SMALL, 4, 25), 2f);
             picker.add(new JuicyRumorsSpecialCreator(random, 3, 8), 10f);
             picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f);
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.OFFICER, 1, 15, officerFactions), 1f);

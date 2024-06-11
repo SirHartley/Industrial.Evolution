@@ -86,12 +86,7 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
 
     @Override
     public String getImageName(MarketAPI market) {
-        PlanetSpecAPI planetSpec = market.getPrimaryEntity() instanceof PlanetAPI ? ((PlanetAPI) market.getPrimaryEntity()).getSpec() : null;
-
-        if (planetSpec != null){
-            if (planetSpec.getName().contains("water")) return Global.getSettings().getSpriteName("IndEvo", "pop_hidden_water");
-        }
-
+        if (market.hasCondition(WATER_SURFACE)) return Global.getSettings().getSpriteName("IndEvo", "pop_hidden_water");
         return imageName;
     }
 
