@@ -2,6 +2,7 @@
 --------------------------- To-do -----------------------------
 Playthrough notes
 - Make managed democracy increase patrol size and spawn amount (maybe a militia?)
+todo - hard deadline quality penalty appears to stack with each applied edict?? - test???
 
 Substance abuse
 - adjust booze to consume half as much and take 1 cargo/unit
@@ -112,7 +113,6 @@ Adjusted - Now properly reflects alignment when placed on Managed Democracy worl
 Fixed - Devmode crash when target factions are zero (just for you Histi <3)
 
 Senate
-todo - hard deadline quality penalty appears to stack with each applied edict
 Fixed - Edict: Mandated Overtime now correctly decreases build times
 
 Restoration docks
@@ -130,8 +130,7 @@ Fixed - Centralization Bureau now properly applies output bonus when present
 Fixed - Specialized industries no longer bug out when present on the same planet
 
 Governments
-Added - Managed Democracy: Clamped stability, reduced income, marine training, income bonus for planetary military action, no luddic cells, freedom
-todo: Added - Forge Worlds: Random ships...
+Added - Managed Democracy: Clamped stability, reduced income, marine training, income bonus for planetary military action, no luddic cells, freedom, democracy
 Adjusted - Rural Polity: Farming now produces Organics (and drugs with free port) instead of supplies
 Adjusted - Rural Polity: Light Industry now produces Supplies alongside weapons
 Adjusted - Rural Polity: Reduced light industry weapons output
@@ -155,6 +154,7 @@ Fixed - Another Arcoship crash (Underworld Gov.)
 Removed - Monastic Orders (Split into Managed Democracy and Forge worlds)
 
 Derelict Industries
+Adjusted - Will no longer spawn duplicate industries in the same system
 Fixed - No longer (almost) exclusively spawn on abyss planets
 Fixed - No longer spawn in hidden systems
 

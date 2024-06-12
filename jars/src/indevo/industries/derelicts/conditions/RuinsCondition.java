@@ -7,6 +7,8 @@ import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
+import indevo.industries.derelicts.utils.RuinsManager;
+import indevo.utils.ModPlugin;
 import org.apache.log4j.Logger;
 
 import static indevo.industries.derelicts.industry.Ruins.INDUSTRY_ID_MEMORY_KEY;
@@ -63,6 +65,14 @@ public class RuinsCondition extends BaseHazardCondition {
         String ruinsConditionSet = "$IndEvo_ruinsPlaced_" + market.getId();
 
         memory.set(ruinsConditionSet, true);
+    }
+
+    public static void setCurrentInteractionTargetIndustryType(String industryType){
+        try {
+            Global.getSector().getCampaignUI().getCurrentInteractionDialog().getInteractionTarget().getMarket().getMemoryWithoutUpdate().set(INDUSTRY_ID_MEMORY_KEY, industryType);
+        } catch (NullPointerException e){
+            ModPlugin.log("Nullpointer when trying to override industry type");
+        }
     }
 
     private void removeConditionIfRuinsNotPresent() {

@@ -316,15 +316,13 @@ increase marine stockpile limit and rate (+ 50% * market size)
 
     @Override
     public boolean isAvailableToBuild() {
-        //return super.isAvailableToBuild() && market.getSize() <= MAX_MARKET_SIZE && market.getPrimaryEntity() instanceof PlanetAPI && !market.getPrimaryEntity().hasTag(Tags.GAS_GIANT);
-        return Global.getSettings().isDevMode();
+        return super.isAvailableToBuild() && market.getSize() <= MAX_MARKET_SIZE && market.getPrimaryEntity() instanceof PlanetAPI;
     }
 
     @Override
     public String getUnavailableReason() {
         if (market.getSize() > MAX_MARKET_SIZE) return "This planet is too populated";
         if (!(market.getPrimaryEntity() instanceof PlanetAPI)) return "Unavailable on stations";
-        if (market.getPrimaryEntity().hasTag(Tags.GAS_GIANT)) return "Unavailable on gas giants";
         return super.getUnavailableReason();
     }
 

@@ -76,7 +76,7 @@ public class RuinsManager {
                 MarketAPI pMarket = p.getMarket();
 
                 if (pMarket.hasCondition(Ids.COND_RUINS)) {
-                    if (Misc.getMarketsInLocation(p.getContainingLocation()).size() > 0
+                    if (!Misc.getMarketsInLocation(p.getContainingLocation()).isEmpty()
                             || s.getTags().contains(THEME_CORE)
                             || s.getTags().contains(THEME_CORE_POPULATED)
                             || s.getTags().contains(THEME_CORE_UNPOPULATED)) {
@@ -184,11 +184,20 @@ public class RuinsManager {
             industryIdPicker.remove(Ids.RIFTGEN);
         }
 
+        //check the other planets in the system for any duplicate industry and remove it
+        for (PlanetAPI other : planet.getContainingLocation().getPlanets()){
+            if (planet == other) continue;
+
+            MemoryAPI mem = planet.getMarket().getMemoryWithoutUpdate();
+            if (mem.contains(INDUSTRY_ID_MEMORY_KEY)) industryIdPicker.remove(mem.getString(INDUSTRY_ID_MEMORY_KEY));
+        }
+
         Random random = new Random(Misc.getSalvageSeed(planet));
         chosenIndustry = industryIdPicker.pick(random);
 
-        market.getMemoryWithoutUpdate().set(INDUSTRY_ID_MEMORY_KEY, chosenIndustry);
+        if (chosenIndustry == null) chosenIndustry = Ids.LAB;
 
+        market.getMemoryWithoutUpdate().set(INDUSTRY_ID_MEMORY_KEY, chosenIndustry);
 
         ModPlugin.log("resolving to - " + chosenIndustry);
     }
