@@ -14,10 +14,7 @@ import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.PlayerFleetPersonnelTracker;
-import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.impl.campaign.ids.Industries;
-import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.MarketCMD;
 import com.fs.starfarer.api.impl.campaign.submarkets.LocalResourcesSubmarketPlugin;
 import com.fs.starfarer.api.ui.Alignment;
@@ -52,6 +49,7 @@ Managed Democracy
 reduce income penalty by 10% for 365d for every successful raid or invasion
 refit cruisers left in storage here with a "hellpods" hullmod that increases raid effectiveness and doubles casualties if possible (done)
 increase marine stockpile limit and rate (+ 50% * market size)
+s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
 */
 
     public static final int MAX_STAB = 7;
@@ -282,6 +280,13 @@ increase marine stockpile limit and rate (+ 50% * market size)
         Global.getSector().getListenerManager().addListener(this);
         correctStability();
 
+        String modID = ((SwitchablePopulation) industry).getModId();
+
+        int size = market.getSize();
+        market.getStats().getDynamic().getMod(Stats.PATROL_NUM_LIGHT_MOD).modifyFlat(modID, 1);
+        if (size > 3) market.getStats().getDynamic().getMod(Stats.PATROL_NUM_MEDIUM_MOD).modifyFlat(modID, 1);
+        if (size > 4) market.getStats().getDynamic().getMod(Stats.PATROL_NUM_HEAVY_MOD).modifyFlat(modID, 1);
+
         market.getIncomeMult().modifyPercent(((SwitchablePopulation) industry).getModId(), -INCOME_RED, getName());
 
         for (Map.Entry<String, RaidMod> raidModEntry : raidMods.entrySet()){
@@ -290,16 +295,13 @@ increase marine stockpile limit and rate (+ 50% * market size)
             market.getIncomeMult().modifyPercent(raidModEntry.getKey(), mod.getMod(), mod.getSource() + " ("+ mod.getDaysRemaining() + " " + StringHelper.getDayOrDays(mod.getDaysRemaining()) + ")");
         }
 
-        if (market.getSize() >= MAX_MARKET_SIZE)
-            market.getPopulation().setWeight(getWeightForMarketSizeStatic(market.getSize()));
+        if (market.getSize() >= MAX_MARKET_SIZE) market.getPopulation().setWeight(getWeightForMarketSizeStatic(market.getSize()));
 
         for (Industry ind : market.getIndustries()) {
             if (IndustryHelper.isMilitary(ind)) {
                 ind.getUpkeep().modifyMult(getId(), HELLDIVERS_UPKEEP_RED, getName());
             }
         }
-
-        int size = market.getSize();
 
         if (market.isPlayerOwned()) {
             SubmarketPlugin sub = Misc.getLocalResources(market);
@@ -332,6 +334,10 @@ increase marine stockpile limit and rate (+ 50% * market size)
         String id = ((SwitchablePopulation) industry).getModId();
         market.getStability().unmodify(id);
         market.getIncomeMult().unmodify(id);
+
+        market.getStats().getDynamic().getMod(Stats.PATROL_NUM_LIGHT_MOD).unmodifyFlat(id);
+        market.getStats().getDynamic().getMod(Stats.PATROL_NUM_MEDIUM_MOD).unmodifyFlat(id);
+        market.getStats().getDynamic().getMod(Stats.PATROL_NUM_HEAVY_MOD).unmodifyFlat(id);
 
         Global.getSector().getListenerManager().removeListener(this);
 
