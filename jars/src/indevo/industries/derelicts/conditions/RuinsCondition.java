@@ -73,6 +73,8 @@ public class RuinsCondition extends BaseHazardCondition {
         } catch (NullPointerException e){
             ModPlugin.log("Nullpointer when trying to override industry type");
         }
+
+        //runcode indevo.industries.derelicts.conditions.RuinsCondition.setCurrentInteractionTargetIndustryType("IndEvo_HullForge");
     }
 
     private void removeConditionIfRuinsNotPresent() {

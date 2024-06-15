@@ -80,7 +80,7 @@ x can only be built on very hot worlds
 
         public boolean isSuitable(Industry ind) {
             Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
-            boolean isTarget = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof MonasticOrderSubIndustry;
+            boolean isTarget = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof WarhammerSubIndustry;
             return !Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE) && isTarget;
         }
 
@@ -231,8 +231,10 @@ x can only be built on very hot worlds
     @Override
     public void reportEconomyMonthEnd() {
         if (hasDeficit(industry) & RecentUnrest.get(market).getPenalty() < 5){
+            if (!market.hasSpaceport()) return;
+
             RecentUnrest.get(market).add(1, getName() + ": various shortages");
-            Global.getSector().getCampaignUI().addMessage("The shortage of some required commodities at %s is causing &s.",
+            Global.getSector().getCampaignUI().addMessage("The shortage of some required commodities at %s is causing %s.",
                     Global.getSettings().getColor("standardTextColor"), market.getName(), "unrest", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
         }
     }

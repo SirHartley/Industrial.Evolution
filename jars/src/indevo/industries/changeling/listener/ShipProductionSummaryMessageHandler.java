@@ -44,7 +44,7 @@ public class ShipProductionSummaryMessageHandler implements EconomyTickListener 
                 // Wisp: if there's nothing to report, don't report it
                 if (productionMapShallowCopy == null || productionMapShallowCopy.isEmpty()) return; //had a weird crash here
 
-                MessageIntel intel = new MessageIntel("Your Monastic Orders provided tithes.",
+                MessageIntel intel = new MessageIntel("Your Forge Worlds delivered experimental ships",
                         Misc.getTextColor());
 
                 for (Map.Entry<MarketAPI, FleetMemberAPI> e : productionMapShallowCopy.entrySet()) {

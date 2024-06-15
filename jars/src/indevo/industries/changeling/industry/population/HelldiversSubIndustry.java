@@ -111,7 +111,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
 
         public boolean isSuitable(Industry ind) {
             Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
-            boolean isTarget = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof MonasticOrderSubIndustry;
+            boolean isTarget = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof HelldiversSubIndustry;
             return !Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE) && isTarget;
         }
 
@@ -217,7 +217,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
 
         int size = market.getSize();
 
-        int small = size > 4 ? 1 : 2;
+        int small = size > 4 ? 2 : 1;
         int med = size > 3 ? 1 : 0;
         int large = size > 4 ? 1 : 0;
 
@@ -230,7 +230,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
 
         tooltip.addSectionHeading("Hellpod installation progress", Alignment.MID, opad);
         tooltip.addPara("Cruisers stored here will be refit with a rapid orbital deployment system, increasing marine effectiveness and casualties.", Misc.getGrayColor(), opad);
-        tooltip.beginTable(market.getFaction(), 20f, "Ship", 290f, "Days remaining", 100f);
+        tooltip.beginTable(market.getFaction(), 20f, "Ship", 270f, "Days remaining", 120f);
 
         int i = 0;
         int max = 10;
@@ -295,12 +295,10 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         String modID = ((SwitchablePopulation) industry).getModId();
 
         int size = market.getSize();
-        market.getStats().getDynamic().getMod(Stats.PATROL_NUM_LIGHT_MOD).modifyFlat(modID, 1);
+        market.getStats().getDynamic().getMod(Stats.PATROL_NUM_LIGHT_MOD).modifyFlat(modID, market.getSize() > 4 ? 2 : 1);
         if (size > 3) market.getStats().getDynamic().getMod(Stats.PATROL_NUM_MEDIUM_MOD).modifyFlat(modID, 1);
-        if (size > 4) {
-            market.getStats().getDynamic().getMod(Stats.PATROL_NUM_LIGHT_MOD).modifyFlat(modID, 1);
-            market.getStats().getDynamic().getMod(Stats.PATROL_NUM_HEAVY_MOD).modifyFlat(modID, 1);
-        }
+        if (size > 4) market.getStats().getDynamic().getMod(Stats.PATROL_NUM_LIGHT_MOD).modifyFlat(modID, 1);
+
 
         market.getIncomeMult().modifyPercent(((SwitchablePopulation) industry).getModId(), -INCOME_RED, getName());
 

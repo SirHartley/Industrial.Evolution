@@ -81,12 +81,13 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
                     return new HiddenArcologiesSubIndustry(this);
                 }
             });
-            add(new SubIndustryData("monks", "Monastic Order", Global.getSettings().getSpriteName("IndEvo", "pop_monks"), "IndEvo_pop_monks", 75000) {
+
+            /*add(new SubIndustryData("monks", "Monastic Order", Global.getSettings().getSpriteName("IndEvo", "pop_monks"), "IndEvo_pop_monks", 75000) {
                 @Override
                 public SubIndustry newInstance() {
                     return new MonasticOrderSubIndustry(this);
                 }
-            });
+            });*/
 
             add(new SubIndustryData("helldivers", "Managed Democracy", Global.getSettings().getSpriteName("IndEvo", "pop_helldivers"), "IndEvo_pop_helldivers", 100000) {
                 @Override
