@@ -213,9 +213,21 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
     public void addRightAfterDescription(TooltipMakerAPI tooltip, Industry.IndustryTooltipMode mode) {
         super.addRightAfterDescription(tooltip, mode);
 
+        float opad = 10f;
+
+        int size = market.getSize();
+
+        int small = size > 4 ? 1 : 2;
+        int med = size > 3 ? 1 : 0;
+        int large = size > 4 ? 1 : 0;
+
+        tooltip.addSectionHeading("Extra patriotic patrols", Alignment.MID, opad);
+        tooltip.addPara(market.getFaction().getFleetTypeName(FleetTypes.PATROL_SMALL) + ": " + small + (small > 1 ? " fleets" : " fleet"), opad);
+        if (med > 0) tooltip.addPara(market.getFaction().getFleetTypeName(FleetTypes.PATROL_MEDIUM) + ": " + med + " fleet", opad);
+        if (large > 0) tooltip.addPara(market.getFaction().getFleetTypeName(FleetTypes.PATROL_LARGE) + ": " + large + " fleet", opad);
+
         //add list of ships and timings
 
-        float opad = 10f;
         tooltip.addSectionHeading("Hellpod installation progress", Alignment.MID, opad);
         tooltip.addPara("Cruisers stored here will be refit with a rapid orbital deployment system, increasing marine effectiveness and casualties.", Misc.getGrayColor(), opad);
         tooltip.beginTable(market.getFaction(), 20f, "Ship", 290f, "Days remaining", 100f);
@@ -285,7 +297,10 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         int size = market.getSize();
         market.getStats().getDynamic().getMod(Stats.PATROL_NUM_LIGHT_MOD).modifyFlat(modID, 1);
         if (size > 3) market.getStats().getDynamic().getMod(Stats.PATROL_NUM_MEDIUM_MOD).modifyFlat(modID, 1);
-        if (size > 4) market.getStats().getDynamic().getMod(Stats.PATROL_NUM_HEAVY_MOD).modifyFlat(modID, 1);
+        if (size > 4) {
+            market.getStats().getDynamic().getMod(Stats.PATROL_NUM_LIGHT_MOD).modifyFlat(modID, 1);
+            market.getStats().getDynamic().getMod(Stats.PATROL_NUM_HEAVY_MOD).modifyFlat(modID, 1);
+        }
 
         market.getIncomeMult().modifyPercent(((SwitchablePopulation) industry).getModId(), -INCOME_RED, getName());
 

@@ -1,7 +1,6 @@
 
 --------------------------- To-do -----------------------------
 Playthrough notes
-- Make managed democracy increase patrol size and spawn amount (maybe a militia?)
 todo - hard deadline quality penalty appears to stack with each applied edict?? - test???
 
 Substance abuse
@@ -136,6 +135,8 @@ Fixed - Specialized industries no longer bug out when present on the same planet
 
 Governments
 Added - Managed Democracy: Clamped stability, reduced income, marine training, income bonus for planetary military action, no luddic cells, freedom, democracy
+Added - Forge World: Industrial buildings work as if at 100% hazard as long as there are no shortages, ship hulls provide flat income and more production budget
+Cont. - Forge World: Randomly provides experimental ships for free, rural industries more expensive, pollutes the planet, shortages cause unrest
 Adjusted - Rural Polity: Farming now produces Organics (and drugs with free port) instead of supplies
 Adjusted - Rural Polity: Light Industry now produces Supplies alongside weapons
 Adjusted - Rural Polity: Reduced light industry weapons output
