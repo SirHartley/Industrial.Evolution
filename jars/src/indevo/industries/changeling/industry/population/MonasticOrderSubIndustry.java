@@ -259,7 +259,8 @@ Monastic Orders
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && market.getSize() <= MAX_MARKET_SIZE && market.getPrimaryEntity() instanceof PlanetAPI && !market.getPrimaryEntity().hasTag(Tags.GAS_GIANT);
+        //return super.isAvailableToBuild() && market.getSize() <= MAX_MARKET_SIZE && market.getPrimaryEntity() instanceof PlanetAPI && !market.getPrimaryEntity().hasTag(Tags.GAS_GIANT);
+        return Global.getSettings().isDevMode();
     }
 
     @Override

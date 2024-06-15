@@ -17,13 +17,13 @@ import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.PlayerFleetPersonnelTracker;
 import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
-import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.impl.campaign.ids.Industries;
-import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
+import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
+import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.industries.changeling.hullmods.HandBuiltHullmod;
 import indevo.industries.changeling.industry.SubIndustry;
@@ -44,36 +44,23 @@ public class WarhammerSubIndustry extends SubIndustry implements EconomyTickList
 
     /*
 Forge World
-Randomly builds known frigates and destroyers, rarely cruisers (with a special hullmod)*
-less upkeep for industries that produce ship hulls, heavy weapons & parts depending on planet heat (hotter = better)
-2k flat income for every ship hull produced here
-5k additional production budget per ship hull produced here
+x Randomly builds known frigates and destroyers, rarely cruisers (with a special hullmod)*
+x 2k flat income for every ship hull produced here
+x 5k additional production budget per ship hull produced here
+x industrial industries always operate as if at 100% hazard as long as there is no shortage
 
-high base commodity demands that, if unmet, result in industries getting disabled
-Growth penalty
-pathers hate the place
-rural industries are more expensive to run
-cannot farm here
-immediate pollution (suppressed)
-cold temperatures drastically increase upkeep costs
-
+x accumulates unrest (up to 3) if population demands are not met
+x higher base pop demands
+x rural industries are 2x more expensive to run
+x immediate pollution
+x can only be built on very hot worlds
 */
 
-    public static final int MAX_STAB = 7;
-    public static final int MIN_STAB = 3;
-    public static final float INCOME_RED = 0.5f;
-    public static final int MAX_MARKET_SIZE = 5;
-    public static final float MONASTIC_UPKEEP_RED = 0.7f;
-
-    public static final float MAX_MARINES_AMT = 500f;
-    public static final float MARINES_GAIN_EXP = 3f;
-
+    public static final float FLAT_INCOME_PER_HULL = 2000f;
+    public static final float FLAT_PRODUCTION_BUDGET_PER_HULL = 5000f;
+    public static final float RURAL_BUILDING_UPKEEP_MULT = 2f;
     public static final int BASE_DP_PER_MONTH = 1;
     public static final float BUILD_CHANCE_PER_MONTH = 0.3f;
-
-    public int getDpPerMonth() {
-        return market.getSize() - 3 + BASE_DP_PER_MONTH;
-    }
 
     public int currentDpBudget = 0;
     public Random random = new Random();
@@ -102,16 +89,98 @@ cold temperatures drastically increase upkeep costs
             if (isUnsuitable(ind, true)) return;
             float opad = 10f;
 
-            boolean military = ind.getSpec().getTags().contains("military");
+            boolean military = ind.getSpec().getTags().contains("industrial");
+            boolean rural = ind.getSpec().getTags().contains("rural");
 
-            tooltip.addSectionHeading("Governance Effects: Monastic Orders", Alignment.MID, opad);
+            tooltip.addSectionHeading("Governance Effects: Forge World", Alignment.MID, opad);
 
             if (military) {
-                tooltip.addPara("Military buildings: %s decreased by %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "upkeep", StringHelper.getAbsPercentString(MONASTIC_UPKEEP_RED, true));
+                tooltip.addPara("Industrial buildings: %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "hazard rating nullified");
+            } else if (rural) {
+                tooltip.addPara("Rural buildings: %s increased by %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "upkeep", StringHelper.getAbsPercentString(RURAL_BUILDING_UPKEEP_MULT, false));
             } else {
                 tooltip.addPara("No effect on this building.", opad);
             }
         }
+    }
+
+
+    public WarhammerSubIndustry(SubIndustryData data) {
+        super(data);
+    }
+
+    @Override
+    public void apply() {
+        ((SwitchablePopulation) industry).superApply();
+
+        WarhammerTooltipAdder.register();
+        Global.getSector().getListenerManager().addListener(this);
+
+        if (((SwitchablePopulation) industry).locked && !market.hasCondition(Conditions.POLLUTION)) market.addCondition(Conditions.POLLUTION);
+
+        int size = market.getSize();
+        SwitchablePopulation population = ((SwitchablePopulation) industry);
+
+        population.demand(Commodities.METALS, size);
+        population.demand(Commodities.RARE_METALS, size - 3);
+
+        Pair<String, Integer> deficit = population.getMaxDeficit(Commodities.LUXURY_GOODS);
+        if (deficit.two <= 0) {
+            market.getStability().modifyFlat(getModId(), 1, "Construction material demand met");
+        } else {
+            market.getStability().modifyFlat(getModId(), -1, "Construction material shortage");
+        }
+
+        increaseIncomeAndBudgetForHullOutput();
+
+        for (Industry ind : market.getIndustries()) {
+            if (!hasDeficit(ind) && ind.getSpec().getTags().contains("industrial")) {
+                ind.getUpkeep().modifyMult(getModId(), 1f / PopulationAndInfrastructure.getUpkeepHazardMult(market.getHazardValue()), getName() + " hazard upkeep red.");
+            }
+
+            if (ind.getSpec().getTags().contains("rural")) {
+                ind.getUpkeep().modifyMult(getModId(), RURAL_BUILDING_UPKEEP_MULT, getName());
+            }
+        }
+    }
+
+    @Override
+    public void unapply() {
+        super.unapply();
+        Global.getSector().getListenerManager().removeListener(this);
+
+        industry.getIncome().unmodify(getModId());
+        market.getStability().unmodify(getModId());
+        Global.getSector().getPlayerStats().getDynamic().getMod("custom_production_mod").unmodify(getModId());
+
+        for (Industry ind : market.getIndustries()) {
+                ind.getUpkeep().unmodify(getModId());
+        }
+    }
+
+    private void increaseIncomeAndBudgetForHullOutput(){
+        int output = market.getCommodityData(Commodities.SHIPS).getMaxSupply();
+        industry.getIncome().modifyFlat(getModId(), output * FLAT_INCOME_PER_HULL, getName() + " - ship hull exports (" + output + ")");
+        Global.getSector().getPlayerStats().getDynamic().getMod("custom_production_mod").modifyFlat(getModId(), output * FLAT_PRODUCTION_BUDGET_PER_HULL, getName() + " - ship hull exports (" + output + ")");
+    }
+
+    @Override
+    public boolean isAvailableToBuild() {
+        return super.isAvailableToBuild() && market.hasCondition(Conditions.VERY_HOT) && market.getPrimaryEntity() instanceof PlanetAPI && !market.getPrimaryEntity().hasTag(Tags.GAS_GIANT);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        if (!market.hasCondition(Conditions.VERY_HOT)) return "This planet is not hot enough.";
+        if (!(market.getPrimaryEntity() instanceof PlanetAPI)) return "Unavailable on stations";
+        if (market.getPrimaryEntity().hasTag(Tags.GAS_GIANT)) return "Unavailable on gas giants";
+        return super.getUnavailableReason();
+    }
+
+    @Override
+    public void addRightAfterDescription(TooltipMakerAPI tooltip, Industry.IndustryTooltipMode mode) {
+        super.addRightAfterDescription(tooltip, mode);
+        if (hasDeficit(industry)) tooltip.addPara("Unrest is building due to shortages.", Misc.getNegativeHighlightColor(),10f);
     }
 
     @Override
@@ -161,7 +230,11 @@ cold temperatures drastically increase upkeep costs
 
     @Override
     public void reportEconomyMonthEnd() {
-
+        if (hasDeficit(industry) & RecentUnrest.get(market).getPenalty() < 5){
+            RecentUnrest.get(market).add(1, getName() + ": various shortages");
+            Global.getSector().getCampaignUI().addMessage("The shortage of some required commodities at %s is causing &s.",
+                    Global.getSettings().getColor("standardTextColor"), market.getName(), "unrest", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+        }
     }
 
     public FleetMemberAPI createAndPrepareMember(String hullID, int maxDmodAmt) {
@@ -204,98 +277,20 @@ cold temperatures drastically increase upkeep costs
         return member;
     }
 
-    public WarhammerSubIndustry(SubIndustryData data) {
-        super(data);
-    }
-
-    @Override
-    public void apply() {
-        ((SwitchablePopulation) industry).superApply();
-
-        WarhammerTooltipAdder.register();
-        Global.getSector().getListenerManager().addListener(this);
-        correctStability();
-
-        market.getIncomeMult().modifyMult(((SwitchablePopulation) industry).getModId(), INCOME_RED, getName());
-        if (market.getSize() >= MAX_MARKET_SIZE)
-            market.getPopulation().setWeight(getWeightForMarketSizeStatic(market.getSize()));
-
-        for (Industry ind : market.getIndustries()) {
-            if (ind.getSpec().getTags().contains("military")) {
-                ind.getUpkeep().modifyMult(getId(), MONASTIC_UPKEEP_RED, getName());
-            }
+    public boolean hasDeficit(Industry industry){
+        boolean hasDeficit = false;
+        for (Pair<String, Integer> entry : industry.getAllDeficit()) if (entry.two > 0) {
+            hasDeficit = true;
+            break;
         }
 
-        //MarineExperience handling
+        return hasDeficit;
+    }
+    public String getModId(){
+        return ((SwitchablePopulation) industry).getModId();
     }
 
-    @Override
-    public boolean isAvailableToBuild() {
-        //return super.isAvailableToBuild() && market.getSize() <= MAX_MARKET_SIZE && market.getPrimaryEntity() instanceof PlanetAPI && !market.getPrimaryEntity().hasTag(Tags.GAS_GIANT);
-        return Global.getSettings().isDevMode();
-    }
-
-    @Override
-    public String getUnavailableReason() {
-        if (market.getSize() > MAX_MARKET_SIZE) return "This planet is too populated";
-        if (!(market.getPrimaryEntity() instanceof PlanetAPI)) return "Unavailable on stations";
-        if (market.getPrimaryEntity().hasTag(Tags.GAS_GIANT)) return "Unavailable on gas giants";
-        return super.getUnavailableReason();
-    }
-
-    @Override
-    public void unapply() {
-        super.unapply();
-        String id = ((SwitchablePopulation) industry).getModId();
-        market.getStability().unmodify(id);
-        market.getIncomeMult().unmodify(id);
-
-        Global.getSector().getListenerManager().removeListener(this);
-
-        for (Industry ind : market.getIndustries()) {
-            if (ind.getSpec().getTags().contains("military")) {
-                ind.getUpkeep().unmodify(getId());
-            }
-        }
-    }
-
-    public void correctStability() {
-        int current = market.getStability().getModifiedInt();
-        int absDiff = Math.abs(MathUtils.clamp(current, MIN_STAB, MAX_STAB) - current);
-        int mod = current > MAX_STAB ? absDiff * -1 : current < MIN_STAB ? absDiff : 0;
-        market.getStability().modifyFlat(((SwitchablePopulation) industry).getModId(), mod, "Base value");
-    }
-
-    //negate pather interest
-    @Override
-    public float getPatherInterest(Industry industry) {
-        return -getLuddicPathMarketInterest(industry.getMarket());
-    }
-
-    public static float getLuddicPathMarketInterest(MarketAPI market) {
-        if (market.getFactionId().equals(Factions.LUDDIC_PATH)) return 0f;
-        float total = 0f;
-
-        String aiCoreId = market.getAdmin().getAICoreId();
-        if (aiCoreId != null) {
-            total += AI_CORE_ADMIN_INTEREST;
-        }
-
-        for (Industry ind : market.getIndustries()) {
-            // Wisp: Fixes an infinite loop with TASC, which _also_ calls getPatherInterest on industries.
-            // <https://fractalsoftworks.com/forum/index.php?topic=18011.msg416817#msg416817>
-            if (ind instanceof SwitchablePopulation || ind.getId().equals("BOGGLED_CHAMELEON")) continue;
-            total += ind.getPatherInterest();
-        }
-
-        if (total > 0) {
-            total += new Random(market.getName().hashCode()).nextFloat() * 0.1f;
-        }
-
-        if (market.getFactionId().equals(Factions.LUDDIC_CHURCH)) {
-            total *= 0.1f;
-        }
-
-        return total;
+    public int getDpPerMonth() {
+        return market.getSize() - 3 + BASE_DP_PER_MONTH;
     }
 }

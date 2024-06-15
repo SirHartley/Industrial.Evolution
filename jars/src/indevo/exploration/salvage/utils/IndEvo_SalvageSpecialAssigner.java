@@ -157,7 +157,7 @@ public class IndEvo_SalvageSpecialAssigner {
                 variant = Global.getSettings().getVariant(shipData.variantId);
             }
 
-            picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 350);
+            picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 180);
             picker.add(new DroneSurveyDataSpecialCreator(random, 1, 7), 5f);
             picker.add(new JuicyRumorsSpecialCreator(random, 5, 10), 10f);
 

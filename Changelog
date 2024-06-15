@@ -97,6 +97,11 @@ Adjusted - Removed most VPCs from Historian pool
 Adjusted - Conflict/Exploration Package VPCs moved from Historian T4 to Historian T3
 Adjusted - Drastically reduced drop rates for special items, again
 
+Hullmods
+Added - Hellpods. They do what you'd expect them to do: getting your marines killed.
+Added - Hand Built now has a proper icon and no longer reuses the printing one
+Adjusted - Renamed Hand Built to Forge World Experiment
+
 Detachments
 Fixed - No longer crashes when told to hide in non-nebula systems without a star
 
@@ -119,7 +124,7 @@ Restoration docks
 Added - "Can not transfer" text for ships with the unrestorable tag
 
 Academy
-Fixed - Can no longer decivilize
+Fixed - Can no longer decivilize (mod conflict)
 
 Specialized industries
 Fixed - Specialized Mining now has correct outputs
