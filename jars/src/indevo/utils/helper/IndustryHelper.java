@@ -38,6 +38,14 @@ import java.util.*;
 public class IndustryHelper {
     public static final Logger log = Global.getLogger(IndustryHelper.class);
 
+    public static CargoAPI getStorageCargo(MarketAPI market) {
+        if (market == null) return null;
+        SubmarketAPI submarket = market.getSubmarket(Submarkets.SUBMARKET_STORAGE);
+        if (submarket == null) market.getSubmarket("rat_settlement_storage");
+        if (submarket == null) return null;
+        return submarket.getCargo();
+    }
+    
     public static boolean isMilitary(Industry industry){
         Set<String> tags = industry.getSpec().getTags();
         return tags.contains("military") || tags.contains("patrol") || tags.contains("command") || industry instanceof MilitaryBase;
@@ -445,7 +453,7 @@ public class IndustryHelper {
 
     public static ShipVariantAPI stripShipToCargoAndReturnVariant(FleetMemberAPI member, MarketAPI market) {
         MarketAPI target = IndustryHelper.getMarketForStorage(market);
-        CargoAPI cargo = target != null ? Misc.getStorageCargo(market) : Global.getSector().getPlayerFleet().getCargo();
+        CargoAPI cargo = target != null ? IndustryHelper.getStorageCargo(market) : Global.getSector().getPlayerFleet().getCargo();
 
         return stripShipToCargoAndReturnVariant(member, cargo);
     }

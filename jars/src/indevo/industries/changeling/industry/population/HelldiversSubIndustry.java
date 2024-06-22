@@ -180,8 +180,8 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
 
     @Override
     public void onNewDay() {
-        Misc.getStorageCargo(market).initMothballedShips(market.getFactionId());
-        List<FleetMemberAPI> membersInStorage = Misc.getStorageCargo(market).getMothballedShips().getMembersListCopy();
+        IndustryHelper.getStorageCargo(market).initMothballedShips(market.getFactionId());
+        List<FleetMemberAPI> membersInStorage = IndustryHelper.getStorageCargo(market).getMothballedShips().getMembersListCopy();
         List<String> expired = new ArrayList<>();
 
         //iterate members and add hellpods if needed
@@ -235,8 +235,8 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         int i = 0;
         int max = 10;
 
-        Misc.getStorageCargo(market).initMothballedShips(market.getFactionId());
-        List<FleetMemberAPI> membersInStorage = Misc.getStorageCargo(market).getMothballedShips().getMembersListCopy();
+        IndustryHelper.getStorageCargo(market).initMothballedShips(market.getFactionId());
+        List<FleetMemberAPI> membersInStorage = IndustryHelper.getStorageCargo(market).getMothballedShips().getMembersListCopy();
         Map<FleetMemberAPI, Integer> validMembersWithRefitTime = new LinkedHashMap<>();
 
         for (FleetMemberAPI m : membersInStorage) if(daysToApplicationForFleetMember.containsKey(m.getId())) validMembersWithRefitTime.put(m, daysToApplicationForFleetMember.get(m.getId()));

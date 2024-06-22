@@ -143,11 +143,11 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         Option option = Option.valueOf(optionData.toString());
 
         float rarePartsInCargo = Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(ItemIds.RARE_PARTS);
-        float rarePartsInMarket = Misc.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.RARE_PARTS);
+        float rarePartsInMarket = IndustryHelper.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.RARE_PARTS);
         float rarePartsAvailable = rarePartsInCargo + rarePartsInMarket;
 
         float partsInCargo = Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(ItemIds.PARTS);
-        float partsInMarket = Misc.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.PARTS);
+        float partsInMarket = IndustryHelper.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.PARTS);
         float partsAvailable = partsInCargo + partsInMarket;
         float partTradeInPrice = Math.round(Global.getSettings().getCommoditySpec(ItemIds.PARTS).getBasePrice() * PART_VALUE_MULT);
 
@@ -244,7 +244,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
     private List<FleetMemberAPI> getValidFleetMemberList() {
         List<FleetMemberAPI> combinedFleet = new ArrayList<>(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy());
-        CargoAPI storageCargo = Misc.getStorageCargo(getMarket());
+        CargoAPI storageCargo = IndustryHelper.getStorageCargo(getMarket());
 
         if (storageCargo != null) {
             storageCargo.initMothballedShips("player");
@@ -475,7 +475,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             AddRemoveCommodity.addCommodityLossText(ItemIds.PARTS, partsToRemove, dialog.getTextPanel());
 
         CargoAPI fleetCargo = Global.getSector().getPlayerFleet().getCargo();
-        CargoAPI storageCargo = Misc.getStorageCargo(getMarket());
+        CargoAPI storageCargo = IndustryHelper.getStorageCargo(getMarket());
         fleetCargo.getCredits().subtract(cost);
 
         float rarePartsInCargo = fleetCargo.getCommodityQuantity(ItemIds.RARE_PARTS);

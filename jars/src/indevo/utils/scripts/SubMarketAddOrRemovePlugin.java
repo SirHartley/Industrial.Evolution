@@ -105,7 +105,7 @@ public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
     private void moveContentsToStorage(String fromId) {
         //have to move the cargo contents before removal as they would otherwise be lost
 
-        if (Misc.getStorageCargo(market) != null) {
+        if (IndustryHelper.getStorageCargo(market) != null) {
             SubmarketAPI storage = market.getSubmarket(Submarkets.SUBMARKET_STORAGE);
             SubmarketAPI fromSub = market.getSubmarket(fromId);
 

@@ -160,7 +160,7 @@ Monastic Orders
 
                 member.getVariant().addPermaMod(HandBuiltHullmod.ID);
 
-                CargoAPI cargo = Misc.getStorageCargo(market);
+                CargoAPI cargo = IndustryHelper.getStorageCargo(market);
                 cargo.initMothballedShips(market.getFactionId());
                 cargo.getMothballedShips().addFleetMember(member);
 

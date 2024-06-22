@@ -27,5 +27,6 @@
     <orderEntry type="library" name="lw_Console" level="application" />
     <orderEntry type="library" name="SHI" level="application" />
     <orderEntry type="library" name="ExerelinCore" level="application" />
+    <orderEntry type="library" name="RandomAssortmentofThings" level="application" />
   </component>
 </module>

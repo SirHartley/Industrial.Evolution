@@ -1,5 +1,7 @@
 package indevo.industries.courierport;
 
+import assortment_of_things.frontiers.FrontiersUtils;
+import assortment_of_things.frontiers.SettlementData;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -22,14 +24,18 @@ public class ShippingTargetHelper {
         List<SectorEntityToken> marketList = new ArrayList<>();
         Set<String> whitelist = IndustryHelper.getCSVSetFromMemory(Ids.SHIPPING_LIST);
 
-        OUTER:
+        if (Global.getSettings().getModManager().isModEnabled("assortment_of_things")){
+            SettlementData data = FrontiersUtils.INSTANCE.getFrontiersData().getActiveSettlement();
+            if (data != null) marketList.add(data.getSettlementEntity());
+        }
+
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            if (m.getFaction().isHostileTo("player") || Misc.getStorageCargo(m) == null) continue;
+            if (m.getFaction().isHostileTo("player") || IndustryHelper.getStorageCargo(m) == null) continue;
 
             for (SubmarketAPI s : m.getSubmarketsCopy()) {
                 if (whitelist.contains(s.getSpecId())) {
                     marketList.add(m.getPrimaryEntity());
-                    continue OUTER;
+                    break;
                 }
             }
         }
@@ -37,12 +43,16 @@ public class ShippingTargetHelper {
         return marketList;
     }
 
-
     public static List<SectorEntityToken> getValidTargetPlanets(ShippingContract contract) {
         List<SectorEntityToken> marketList = new ArrayList<>();
 
+        if (Global.getSettings().getModManager().isModEnabled("assortment_of_things")){
+            SettlementData data = FrontiersUtils.INSTANCE.getFrontiersData().getActiveSettlement();
+            if (data != null) marketList.add(data.getSettlementEntity());
+        }
+
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            if (m.getFaction().isHostileTo("player") || Misc.getStorageCargo(m) == null) continue;
+            if (m.getFaction().isHostileTo("player") || IndustryHelper.getStorageCargo(m) == null) continue;
 
             if (contract.fromSubmarketId == null && m.hasSubmarket(Submarkets.SUBMARKET_STORAGE))
                 marketList.add(m.getPrimaryEntity());

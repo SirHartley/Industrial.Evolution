@@ -247,8 +247,8 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
             if (Settings.getBoolean(Settings.VARIND_DELIVER_TO_PRODUCTION_POINT) && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
                 cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo();
-            } else if (Misc.getStorageCargo(market) != null) {
-                cargo = Misc.getStorageCargo(market);
+            } else if (IndustryHelper.getStorageCargo(market) != null) {
+                cargo = IndustryHelper.getStorageCargo(market);
             } else {
                 return;
             }

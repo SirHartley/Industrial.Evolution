@@ -215,7 +215,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
             StoragePlugin plugin = (StoragePlugin) Misc.getStorage(market);
             plugin.setPlayerPaidToUnlock(true);
 
-            Misc.getStorageCargo(market).addAll(convertProdToCargo(data), true);
+            IndustryHelper.getStorageCargo(market).addAll(convertProdToCargo(data), true);
             currentStage = Stage.ENDED;
         }
     }

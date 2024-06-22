@@ -215,7 +215,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
             MarketAPI gather = market.getFaction().getProduction().getGatheringPoint();
             MarketAPI target = toStorage ? market : gather;
 
-            CargoAPI cargo = Misc.getStorageCargo(target);
+            CargoAPI cargo = IndustryHelper.getStorageCargo(target);
             if (cargo != null) {
                 cargo.addSpecial(getSpecialItem(), 1);
                 throwDeliveryMessage(market, target, add);

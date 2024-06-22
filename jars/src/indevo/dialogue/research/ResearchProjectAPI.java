@@ -5,13 +5,13 @@ import com.fs.starfarer.api.campaign.CargoAPI;
 import java.util.List;
 
 public interface ResearchProjectAPI {
-    public boolean display();
+    boolean display();
 
-    public CargoAPI getRewards();
+    CargoAPI getRewards();
 
-    public List<RequiredItem> getRequiredItems();
+    List<RequiredItem> getRequiredItems();
 
-    public String getShortDesc();
+    String getShortDesc();
 
-    public String getLongDesc();
+    String getLongDesc();
 }

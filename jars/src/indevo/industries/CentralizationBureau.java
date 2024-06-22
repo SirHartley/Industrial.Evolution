@@ -56,7 +56,7 @@ public class CentralizationBureau extends BaseIndustry {
         super.apply(true);
 
         if (getSpecialItem() != null && getAICoreId() != null) {
-            Misc.getStorageCargo(market).addCommodity(getAICoreId(), 1);
+            IndustryHelper.getStorageCargo(market).addCommodity(getAICoreId(), 1);
             setAICoreId(null);
         }
 

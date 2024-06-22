@@ -270,7 +270,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         float chanceOfDrop = 0.7f + (aiCoreId != null && aiCoreId.equals(Commodities.ALPHA_CORE) ? 0.2f : 0f);
         float chanceOfExtraDrop = 0.3f + (aiCoreId != null && aiCoreId.equals(Commodities.ALPHA_CORE) ? 0.1f : 0f);
 
-        CargoAPI cargo = Misc.getStorageCargo(market);
+        CargoAPI cargo = IndustryHelper.getStorageCargo(market);
         if (cargo == null || Settings.getBoolean(Settings.PRIVATEER_DELIVER_TO_GATHERING_POINT))
             cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket("storage").getCargo();
 

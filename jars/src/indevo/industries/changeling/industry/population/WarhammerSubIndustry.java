@@ -222,7 +222,7 @@ x can only be built on very hot worlds
 
                 member.getVariant().addPermaMod(HandBuiltHullmod.ID);
 
-                CargoAPI cargo = Misc.getStorageCargo(market);
+                CargoAPI cargo = IndustryHelper.getStorageCargo(market);
                 cargo.initMothballedShips(market.getFactionId());
                 cargo.getMothballedShips().addFleetMember(member);
 

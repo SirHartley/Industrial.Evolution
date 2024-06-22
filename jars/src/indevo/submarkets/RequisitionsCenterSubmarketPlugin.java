@@ -267,8 +267,8 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
         Map<String, Float> weaponList = new HashMap<>();
 
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            if (!m.hasSubmarket(Submarkets.SUBMARKET_STORAGE) || Misc.getStorageCargo(m).isEmpty()) continue;
-            for (CargoAPI.CargoItemQuantity<String> w : Misc.getStorageCargo(m).getWeapons()) {
+            if (!m.hasSubmarket(Submarkets.SUBMARKET_STORAGE) || IndustryHelper.getStorageCargo(m).isEmpty()) continue;
+            for (CargoAPI.CargoItemQuantity<String> w : IndustryHelper.getStorageCargo(m).getWeapons()) {
                 addToStringMap(w.getItem(), w.getCount(), weaponList);
             }
         }

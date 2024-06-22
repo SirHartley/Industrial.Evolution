@@ -18,6 +18,7 @@ import indevo.industries.courierport.*;
 import indevo.industries.courierport.listeners.SubmarketCargoPicker;
 import indevo.industries.courierport.listeners.SubmarketShipPicker;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.IndustryHelper;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -211,7 +212,7 @@ public class ContractSidePanelCreator {
                     @Override
                     public String getMenuItemNameOverrideFor(SectorEntityToken entity) {
                         MarketAPI m = entity.getMarket();
-                        int amt = (int) Misc.getStorageCargo(m).getSpaceUsed();
+                        int amt = (int) IndustryHelper.getStorageCargo(m).getSpaceUsed();
                         return m.getName() + " (" + m.getFaction().getDisplayName() + ")";
                     }
 
@@ -232,7 +233,7 @@ public class ContractSidePanelCreator {
                     @Override
                     public String getSelectedTextOverrideFor(SectorEntityToken entity) {
                         MarketAPI m = entity.getMarket();
-                        int amt = (int) Misc.getStorageCargo(m).getSpaceUsed();
+                        int amt = (int) IndustryHelper.getStorageCargo(m).getSpaceUsed();
                         return m.getName() + " (" + m.getFaction().getDisplayName() + ", items in storage" + amt;
                     }
 
@@ -240,7 +241,7 @@ public class ContractSidePanelCreator {
                     public void createInfoText(TooltipMakerAPI info, SectorEntityToken entity) {
                         float opad = 10f;
                         MarketAPI m = entity.getMarket();
-                        int amt = (int) Misc.getStorageCargo(m).getSpaceUsed();
+                        int amt = (int) IndustryHelper.getStorageCargo(m).getSpaceUsed();
                         info.addPara(m.getName() + " (" + m.getFaction().getDisplayName()
                                 + ", size " + m.getSize() + ", " + amt + " items in storage", opad);
                     }

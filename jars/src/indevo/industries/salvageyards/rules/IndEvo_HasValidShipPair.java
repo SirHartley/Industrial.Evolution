@@ -23,7 +23,7 @@ public class IndEvo_HasValidShipPair extends BaseCommandPlugin {
         Map<String, List<String>> baseHullIdList = new ListMap<>();
 
         if (m != null) {
-            for (FleetMemberAPI member : Misc.getStorageCargo(m).getMothballedShips().getMembersListCopy()) {
+            for (FleetMemberAPI member : IndustryHelper.getStorageCargo(m).getMothballedShips().getMembersListCopy()) {
                 if (addAndCompare(baseHullIdList, member)) return true;
             }
         }

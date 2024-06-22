@@ -224,7 +224,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
                     MarketAPI gather = market.getFaction().getProduction().getGatheringPoint();
                     MarketAPI target = toStorage ? market : gather;
-                    CargoAPI cargo = Misc.getStorageCargo(target);
+                    CargoAPI cargo = IndustryHelper.getStorageCargo(target);
 
                     if (dong || roider) {
                         //special handling for tiandong/Roider refit templates

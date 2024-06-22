@@ -131,7 +131,7 @@ public class UnderworldSubIndustry extends SubIndustry {
                 }
             }
 
-            CargoAPI cargo = Misc.getStorageCargo(market);
+            CargoAPI cargo = IndustryHelper.getStorageCargo(market);
             if (cargo != null){
                 for (Map.Entry<String, Float> e : bounty.entrySet()){
                     cargo.addCommodity(e.getKey(), e.getValue());

@@ -249,7 +249,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
     private Set<FleetMemberAPI> getValidFleetMemberSetForInitialSelection() {
         Set<FleetMemberAPI> combinedFleet = new HashSet<FleetMemberAPI>(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy());
-        CargoAPI storageCargo = Misc.getStorageCargo(getMarket());
+        CargoAPI storageCargo = IndustryHelper.getStorageCargo(getMarket());
         if (storageCargo != null) {
             storageCargo.initMothballedShips("player");
             combinedFleet.addAll(storageCargo.getMothballedShips().getMembersListCopy());
@@ -307,7 +307,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     private void initTargetHullPicker() {
         Set<FleetMemberAPI> combinedFleet = new HashSet<>(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy());
 
-        CargoAPI storageCargo = Misc.getStorageCargo(getMarket());
+        CargoAPI storageCargo = IndustryHelper.getStorageCargo(getMarket());
         if (storageCargo != null) {
             storageCargo.initMothballedShips("player");
             combinedFleet.addAll(storageCargo.getMothballedShips().getMembersListCopy());

@@ -165,7 +165,7 @@ public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
             fleet.getCargo().removeSupplies(addRemoveSupplies);
             fleet.getCargo().removeCrew(crew);
 
-            CargoAPI storage = Misc.getStorageCargo(market);
+            CargoAPI storage = IndustryHelper.getStorageCargo(market);
             storage.addAll(fleet.getCargo());
             fleet.getCargo().clear();
 

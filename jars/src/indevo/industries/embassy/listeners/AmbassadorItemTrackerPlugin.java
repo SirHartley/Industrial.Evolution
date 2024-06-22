@@ -77,7 +77,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
 
             MarketAPI m = pod.getMarket();
             if (m != null && m.hasSubmarket(Submarkets.SUBMARKET_STORAGE)) {
-                targetCargo = Misc.getStorageCargo(m);
+                targetCargo = IndustryHelper.getStorageCargo(m);
                 if (checkCargo(targetCargo, amb, returnHome)) return updateKnownLocation(targetCargo, returnHome);
             }
         }
@@ -85,7 +85,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
         //is it in a market cargo?
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
             if (m != null && m.hasSubmarket(Submarkets.SUBMARKET_STORAGE)) {
-                targetCargo = Misc.getStorageCargo(m);
+                targetCargo = IndustryHelper.getStorageCargo(m);
                 if (checkCargo(targetCargo, amb, returnHome)) return updateKnownLocation(targetCargo, returnHome);
             }
         }

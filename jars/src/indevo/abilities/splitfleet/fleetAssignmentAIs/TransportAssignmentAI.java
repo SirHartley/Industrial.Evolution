@@ -130,7 +130,7 @@ public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
             MarketAPI market = Global.getSector().getEconomy().getMarket(marketID);
             if (market == null) market = Global.getSector().getEconomy().getMarket(getAlternateMarket(fleet));
 
-            CargoAPI storage = Misc.getStorageCargo(market);
+            CargoAPI storage = IndustryHelper.getStorageCargo(market);
             storage.addAll(fleet.getCargo());
             storage.initMothballedShips("player");
             for (FleetMemberAPI member : membersList) {

@@ -255,7 +255,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
         MarketAPI gather = market.getFaction().getProduction().getGatheringPoint();
         MarketAPI target = toStorage ? market : gather;
 
-        CargoAPI cargo = Misc.getStorageCargo(target);
+        CargoAPI cargo = IndustryHelper.getStorageCargo(target);
         if (cargo != null) {
             cargo.addSpecial(specialItem, quantity);
             throwDeliveryMessage(market, target);

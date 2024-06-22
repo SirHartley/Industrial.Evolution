@@ -173,7 +173,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
 
             if (specialItemData != null && canInstallItem(switchable, specialItemData.getId())) {
                 switchable.setSpecialItem(specialItemData);
-            } else if (specialItemData != null) Misc.getStorageCargo(market).addSpecial(specialItemData, 1);
+            } else if (specialItemData != null) IndustryHelper.getStorageCargo(market).addSpecial(specialItemData, 1);
 
             switchable.setAICoreId(industry.getAICoreId());
             if (switchable.canImprove()) switchable.setImproved(industry.isImproved());

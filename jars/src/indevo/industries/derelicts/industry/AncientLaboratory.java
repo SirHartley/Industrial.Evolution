@@ -282,7 +282,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
         MarketAPI target = toStorage ? market : gather;
 
         if (gather != null) {
-            CargoAPI cargo = Misc.getStorageCargo(target);
+            CargoAPI cargo = IndustryHelper.getStorageCargo(target);
             cargo.addSpecial(new SpecialItemData(ItemIds.EMPTYFORGETEMPLATE, null), 1);
             throwDeliveryMessage(market, target);
             return true;
