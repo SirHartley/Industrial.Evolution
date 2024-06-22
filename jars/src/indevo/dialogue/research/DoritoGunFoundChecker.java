@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.listeners.ShowLootListener;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import indevo.ids.Ids;
 
 public class DoritoGunFoundChecker implements ShowLootListener, EconomyTickListener {
 
@@ -19,10 +20,7 @@ public class DoritoGunFoundChecker implements ShowLootListener, EconomyTickListe
 
     private void setGunFound() {
         Global.getSector().getMemoryWithoutUpdate().set(HAS_FOUND_GUN_KEY, true);
-
-        GalatiaNewProjectsIntel intel = new GalatiaNewProjectsIntel();
-        Global.getSector().getIntelManager().addIntel(intel);
-        intel.setImportant(true);
+        GalatiaNewProjectsIntel.notifyNewProjects(Ids.PROJ_SPITFIRE, Ids.PROJ_SNOWBLIND, Ids.PROJ_KEYHOLE, Ids.PROJ_EUREKA, Ids.PROJ_PARALLAX);
     }
 
     @Override

@@ -5,8 +5,11 @@ import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Drops;
 import com.fs.starfarer.api.impl.campaign.ids.Items;
+import com.fs.starfarer.api.impl.campaign.intel.events.ht.HTHighBurnFactor;
+import com.fs.starfarer.api.impl.campaign.intel.events.ht.HyperspaceTopographyEventIntel;
 import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -24,6 +27,62 @@ public class ResearchProjectTemplateRepo {
     //fairy
 
     public static Map<String, ResearchProject> RESEARCH_PROJECTS = new HashMap<String, ResearchProject>() {{
+
+        put(Ids.PROJ_PROSPECTOR, new ResearchProject(Ids.PROJ_NAVI,
+                "Project Prospector", 200, false) {
+
+            public static final int POINTS_ON_COMPLETION = 50;
+
+            @Override
+            public boolean isRepeatable() {
+                return true;
+            }
+
+            @Override
+            public boolean display() {
+                int progress = HyperspaceTopographyEventIntel.get().getProgress();
+                return progress > 100 && progress < 1000;
+            }
+
+            @Override
+            public CargoAPI getRewards() {
+                CargoAPI c = Global.getFactory().createCargo(true);
+                c.addSpecial(new SpecialItemData(Items.TOPOGRAPHIC_DATA, null), 1);
+
+                HyperspaceTopographyEventIntel.addFactorCreateIfNecessary(new HyperspaceTopographyProjectFactor(POINTS_ON_COMPLETION), null);
+
+                return c;
+            }
+
+            @Override
+            public void addTooltipOutputOnCompletion(TooltipMakerAPI tooltip) {
+                tooltip.addPara(HyperspaceTopographyEventIntel.get().getSmallDescriptionTitle() + " progress gained: %s", 10f, Misc.getPositiveHighlightColor(), "" + POINTS_ON_COMPLETION);
+            }
+
+            @Override
+            public List<RequiredItem> getRequiredItems() {
+                //outputs 50k so needs 100k input for 5% progress
+                List<RequiredItem> list = new ArrayList<>();
+                list.add(new RequiredItem(Commodities.SURVEY_DATA_1, CargoAPI.CargoItemType.RESOURCES, 1f));
+                list.add(new RequiredItem(Commodities.SURVEY_DATA_2, CargoAPI.CargoItemType.RESOURCES, 3f));
+                list.add(new RequiredItem(Commodities.SURVEY_DATA_3, CargoAPI.CargoItemType.RESOURCES, 5f));
+                list.add(new RequiredItem(Commodities.SURVEY_DATA_4, CargoAPI.CargoItemType.RESOURCES, 10f));
+                list.add(new RequiredItem(Commodities.SURVEY_DATA_5, CargoAPI.CargoItemType.RESOURCES, 30f));
+
+                return list;
+            }
+
+            @Override
+            public String getLongDesc() {
+                return "An ongoing project researching the influence of topological data on hyperspace wells. Completing it will provide some insight on hyperspace topology.";
+            }
+
+            @Override
+            public String getShortDesc() {
+                return "Further your knowledge of the ethereal by contributing data about the mundane.";
+            }
+        });
+
         put(Ids.PROJ_NAVI, new ResearchProject(Ids.PROJ_NAVI,
                 "Project Navi", 200, false) {
 
@@ -53,6 +112,11 @@ public class ResearchProjectTemplateRepo {
                 list.add(new RequiredItem(Items.DRONE_REPLICATOR, CargoAPI.CargoItemType.SPECIAL, 200f));
 
                 return list;
+            }
+
+            @Override
+            public String getLongDesc() {
+                return "A one-off project attempting to create clockwork-mechanical life by a graduate student. While this may not instill confidence, remember that better things have come from worse circumstances in the past.";
             }
 
             @Override
@@ -88,6 +152,11 @@ public class ResearchProjectTemplateRepo {
             }
 
             @Override
+            public String getLongDesc() {
+                return "A one-off project attempting to unravel the secrets of the artifact-tech cryogenic weapons. Completion may give access to exotic firing solutions.";
+            }
+
+            @Override
             public String getShortDesc() {
                 return "An attempt to reverse engineer the surreal freezing capabilities of the artifact weapons. What could go wrong?";
             }
@@ -117,6 +186,11 @@ public class ResearchProjectTemplateRepo {
                 list.add(new RequiredItem("disintegrator", CargoAPI.CargoItemType.WEAPONS, 2f));
 
                 return list;
+            }
+
+            @Override
+            public String getLongDesc() {
+                return "A one-off project attempting to unravel the secrets of the artifact-tech anti-armor weapons. Completion may give access to exotic firing solutions.";
             }
 
             @Override
@@ -152,6 +226,11 @@ public class ResearchProjectTemplateRepo {
             }
 
             @Override
+            public String getLongDesc() {
+                return "Behold, death.";
+            }
+
+            @Override
             public String getShortDesc() {
                 return "There used to be a saying, that some things should best be left untouched. Used to. Reality shall bend to our will.";
             }
@@ -181,6 +260,11 @@ public class ResearchProjectTemplateRepo {
                 list.add(new RequiredItem("vpdriver", CargoAPI.CargoItemType.WEAPONS, 4f));
 
                 return list;
+            }
+
+            @Override
+            public String getLongDesc() {
+                return "A one-off project attempting to unravel the secrets of the artifact-tech projectile weapons. Completion may give access to exotic firing solutions.";
             }
 
             @Override
@@ -215,6 +299,11 @@ public class ResearchProjectTemplateRepo {
                 list.add(new RequiredItem("riftcascade", CargoAPI.CargoItemType.WEAPONS, 4f));
 
                 return list;
+            }
+
+            @Override
+            public String getLongDesc() {
+                return "A one-off project attempting to unravel the secrets of the artifact-tech rift weapons. Completion may give access to exotic firing solutions.";
             }
 
             @Override
@@ -282,6 +371,11 @@ public class ResearchProjectTemplateRepo {
             }
 
             @Override
+            public String getLongDesc() {
+                return "An ongoing project trading relic components for artifact-level inventory no longer needed by the Academy. Who knows what you'll get?";
+            }
+
+            @Override
             public String getShortDesc() {
                 return "You bring us some old junk, and we trade it for stuff we got lying around. Sound fair?";
             }
@@ -312,6 +406,11 @@ public class ResearchProjectTemplateRepo {
                 list.add(new RequiredItem(ItemIds.RARE_PARTS, CargoAPI.CargoItemType.RESOURCES, 1f));
 
                 return list;
+            }
+
+            @Override
+            public String getLongDesc() {
+                return "A clear display of the mercantile spirit of the academy, this \"research project\" is really just trading new consumable items for relic components. It's a solid deal.";
             }
 
             @Override

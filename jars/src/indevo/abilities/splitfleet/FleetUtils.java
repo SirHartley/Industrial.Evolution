@@ -8,6 +8,7 @@ import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
+import com.fs.starfarer.api.impl.PlayerFleetPersonnelTracker;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -68,7 +69,8 @@ public class FleetUtils {
                 playerFleetData.addOfficer(officerPerson);
         }
 
-        playerFleet.getCargo().addAll(detachment.getCargo());
+        CargoAPI cargo = detachment.getCargo();
+        playerFleet.getCargo().addAll(cargo);
 
         Global.getSector().reportFleetDespawned(detachment, CampaignEventListener.FleetDespawnReason.REACHED_DESTINATION, playerFleet); //also handles removal from detachment memory
         detachment.getContainingLocation().removeEntity(detachment);

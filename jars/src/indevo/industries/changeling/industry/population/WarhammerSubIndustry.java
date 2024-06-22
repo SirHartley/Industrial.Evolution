@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SubmarketPlugin;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
@@ -60,7 +61,7 @@ x can only be built on very hot worlds
     public static final float FLAT_PRODUCTION_BUDGET_PER_HULL = 5000f;
     public static final float RURAL_BUILDING_UPKEEP_MULT = 2f;
     public static final int BASE_DP_PER_MONTH = 1;
-    public static final float BUILD_CHANCE_PER_MONTH = 0.3f;
+    public static final float BUILD_CHANCE_PER_MONTH = 0.15f;
 
     public int currentDpBudget = 0;
     public Random random = new Random();
@@ -155,12 +156,18 @@ x can only be built on very hot worlds
 
         for (Industry ind : market.getIndustries()) {
                 ind.getUpkeep().unmodify(getModId());
+                ind.getIncome().unmodify(getModId());
         }
     }
 
     private void increaseIncomeAndBudgetForHullOutput(){
         int output = market.getCommodityData(Commodities.SHIPS).getMaxSupply();
-        industry.getIncome().modifyFlat(getModId(), output * FLAT_INCOME_PER_HULL, getName() + " - ship hull exports (" + output + ")");
+
+        for (Industry ind : market.getIndustries()){
+            MutableCommodityQuantity supply = industry.getSupply(Commodities.SHIPS);
+            if (supply.getQuantity().getModifiedInt() > 0) ind.getIncome().modifyFlat(getModId(), supply.getQuantity().getModifiedInt() * FLAT_INCOME_PER_HULL, getName() + " - ship hull exports (" + output + ")");
+        }
+
         Global.getSector().getPlayerStats().getDynamic().getMod("custom_production_mod").modifyFlat(getModId(), output * FLAT_PRODUCTION_BUDGET_PER_HULL, getName() + " - ship hull exports (" + output + ")");
     }
 

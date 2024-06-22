@@ -16,10 +16,7 @@ import com.fs.starfarer.api.combat.MissileAIPlugin;
 import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
-import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
-import com.fs.starfarer.api.impl.campaign.econ.impl.MilitaryBase;
+import com.fs.starfarer.api.impl.campaign.econ.impl.*;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
@@ -36,6 +33,7 @@ import indevo.WIP.mobilecolony.plugins.MobileColonyCampaignPlugin;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.dialogue.research.DoritoGunFoundChecker;
+import indevo.dialogue.research.HyperspaceTopoProgressChecker;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
@@ -423,6 +421,7 @@ public class ModPlugin extends BaseModPlugin {
         MarineLossAmplifcationHullmodEffectListener.register();
         PlayerHyperspaceTripTracker.register();
         WatchtowerFactionResetListener.register();
+        HyperspaceTopoProgressChecker.register();
     }
 
     private void setScriptsIfNeeded() {

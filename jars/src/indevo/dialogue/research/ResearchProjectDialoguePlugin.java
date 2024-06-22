@@ -143,7 +143,12 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
         } else if (inputProjId != null && rewardProjId == null) {
             ResearchProject project = ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(inputProjId);
             if (project != null) {
-                panel.beginTooltip().addSectionHeading(project.getName() + " - Required Items", Alignment.MID, 10f);
+
+                TooltipMakerAPI textPanel = panel.beginTooltip();
+                textPanel.addSectionHeading(project.getName(), Alignment.MID, 10f);
+                textPanel.addPara(project.getLongDesc(), 3f);
+
+                textPanel.addSectionHeading("Contribution options:", Alignment.MID, 10f);
                 panel.addTooltip();
 
                 CargoAPI cargo = Global.getSector().getPlayerFleet().getCargo();

@@ -12,4 +12,6 @@ public interface ResearchProjectAPI {
     public List<RequiredItem> getRequiredItems();
 
     public String getShortDesc();
+
+    public String getLongDesc();
 }

@@ -11,11 +11,21 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
 import java.awt.*;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
 
 public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
 
-    public GalatiaNewProjectsIntel() {
+    private List<String> newProjectIds;
+
+    public GalatiaNewProjectsIntel(String... ids) {
+        this.newProjectIds = (Arrays.asList(ids));
+    }
+
+    public static void notifyNewProjects(String... ids){
+        GalatiaNewProjectsIntel intel = new GalatiaNewProjectsIntel(ids);
+        Global.getSector().getIntelManager().addIntel(intel);
+        intel.setImportant(true);
     }
 
     protected void addBulletPoints(TooltipMakerAPI info, ListInfoMode mode) {
@@ -51,6 +61,9 @@ public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
 
         info.addPara("Completing them can yield unique rewards.",
                 opad);
+
+        info.addPara("Now available:", opad);
+        for (String id : newProjectIds) info.addPara(BULLET + " " + ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(id).getName(), Misc.getHighlightColor(), 3f);
 
         addBulletPoints(info, ListInfoMode.IN_DESC);
     }

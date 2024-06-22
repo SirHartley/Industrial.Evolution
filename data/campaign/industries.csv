@@ -13,8 +13,7 @@ IndEvo_ComArray,Military Relays,20,30,,4,,IndEvo_IntArray,"structure, unraidable
 Increases local fleet size depending on the largest fleet size between all planets with a military relay in this star system.
 
 Acts as Patrol HQ while none is present on the planet.",500,
-IndEvo_IntArray,Interstellar Relay,30,45,,"8
-",IndEvo_ComArray,,"structure, unraidable, tactical_bombardment, patrol",,graphics/industry/intArray.png,indevo.industries.relay.industry.MilitaryRelay,"A militarized version of the communications relay, allows fast data transfer between allied star systems while maintaining high security.
+IndEvo_IntArray,Interstellar Relay,30,45,,8,IndEvo_ComArray,,"structure, unraidable, tactical_bombardment, patrol",,graphics/industry/intArray.png,indevo.industries.relay.industry.MilitaryRelay,"A militarized version of the communications relay, allows fast data transfer between allied star systems while maintaining high security.
 
 Star systems with an Interstellar Relay can share fleet sizes for the military relay effect between them.
 
@@ -51,9 +50,7 @@ This will stage raids on hostile star systems, and bring back spoils of war depe
 IndEvo_SwitchableRefining,Specialized Refining,10,30,,3,,,"refining, industry, industrial",,graphics/icons/industry/refining.png,indevo.industries.changeling.industry.refining.SwitchableRefining,"A specialized refining plants offering increased output over the default version by switching between the desired commodity output, sacrificing utility over yield.",500,MEDIUM
 IndEvo_SwitchableMining,Specialized Mining,10,30,,2,,,"mining, industry, industrial",,graphics/icons/industry/mining.png,indevo.industries.changeling.industry.mining.SwitchableMining,"Dedicated extraction techniques offer increased output over the default version by switching between the desired commodity output, sacrificing utility over yield.",300,MEDIUM
 IndEvo_SwitchablePopulation,Specialized Government,,,10,3,,,"population, unraidable, no_saturation_bombardment",,graphics/icons/industry/population.png,indevo.industries.changeling.industry.population.SwitchablePopulation,"The basic infrastructure required to support a given population, from rickety orbital hab-modules to megacities and everything between.",100,
-IndEvo_PetStore,Animal Center,"20
-
-",30,,3,,,"structure, unraidable",,graphics/industry/petshop.png,indevo.industries.petshop.industry.PetShop,"The Persean Animal Conservation Guild oversees the operation of every Animal Center, irrespective of its location, due to their exclusive patent for legally acquiring and trading animals across multiple planets. Over time, this arrangement has led to intricate organizational structures and increasingly ambiguous regulations. Consequently, even rare animals occasionally become accessible for purchase.",500,
+IndEvo_PetStore,Animal Center,20,30,,3,,,"structure, unraidable",,graphics/industry/petshop.png,indevo.industries.petshop.industry.PetShop,"The Persean Animal Conservation Guild oversees the operation of every Animal Center, irrespective of its location, due to their exclusive patent for legally acquiring and trading animals across multiple planets. Over time, this arrangement has led to intricate organizational structures and increasingly ambiguous regulations. Consequently, even rare animals occasionally become accessible for purchase.",500,
 ,,,,,,,,,,,,,,
 #Artillery,,,,,,,,,,,,,,
 IndEvo_Artillery_base,Orbital Artillery,,,,,,,"artillery, parent_item, important, structure",artillery,graphics/icons/industry/station_category.png,indevo.industries.artillery.industry.ArtilleryStation,"The remains of an ancient strategic artillery station hang listless over $market. Repairing it will provide you with a defensive weapons system of unrivalled effectiveness.
@@ -87,8 +84,8 @@ IndEvo_ChamelionIndustry,Chamelion Industry,0,0,,0,IndEvo_RuinedInfra,,structure
 IndEvo_InvisiblePlanetaryShield,Planetary Shield,150,90,,3,,,"grounddefenses, structure",,graphics/icons/industry/planetary_shield.png,indevo.industries.InvisiblePlanetaryShield,An envelope of charged plasma seeded with exotic virtual particles producing effects which disrupt the combat effectiveness of long-range bombardment and even incursion by small vessels. The planetary shield can be continually charged and controlled by a central source and presents a formidable obstacle to any form of ground assault.,2700,EXTREME
 ,,,,,,,,,,,,,,
 #Derelicts,,,,,,,,,,,,,,
-IndEvo_HullDecon,Hull Deconstructor,70,80,,7,IndEvo_Ruins,,"industrial, unraidable",,graphics/industry/hullDecon.png,indevo.industries.derelicts.industry.HullDeconstructor,,500,HIGH
-IndEvo_HullForge,Hull Forge,70,80,,7,IndEvo_Ruins,,"industry, industrial, unraidable",,graphics/industry/hullForge.png,indevo.industries.derelicts.industry.HullForge,,500,HIGH
+IndEvo_HullDecon,Hull Deconstructor,70,80,,7,IndEvo_Ruins,,"structure, industrial, unraidable",,graphics/industry/hullDecon.png,indevo.industries.derelicts.industry.HullDeconstructor,,500,HIGH
+IndEvo_HullForge,Hull Forge,70,80,,7,IndEvo_Ruins,,"structure, industrial, unraidable",,graphics/industry/hullForge.png,indevo.industries.derelicts.industry.HullForge,,500,HIGH
 IndEvo_ResLab,Ancient Laboratory,60,60,,6,IndEvo_Ruins,,"structure, unraidable",,graphics/industry/resLab.png,indevo.industries.derelicts.industry.AncientLaboratory,,500,MEDIUM
 IndEvo_RiftGen,Rift Generator,60,60,,10,IndEvo_Ruins,,"structure, unraidable",,graphics/industry/riftGen.png,indevo.industries.derelicts.industry.RiftGenerator,,500,EXTREME
 IndEvo_Ruins,Old Industrial Ruins,0,0,,0,,,"structure, unraidable, no_saturation_bombardment",,graphics/industry/derelict.png,indevo.industries.derelicts.industry.Ruins,"Ancient, ruined industrial compounds can be found throughout the countryside of this world. Their origin or builder is unknown, but they look to be pre-collapse.
@@ -134,4 +131,3 @@ Causes recent unrest on this planet to decay at a rate of one point per month, a
 ,,,,,,,,,,,,,,
 #Rebalancing,,,,,,,,,,,,,,
 commerce,Commerce,90,90,,3,,,"industry, urban",,graphics/icons/industry/commerce.png,indevo.industries.TradeCenter,"Regulations, grants, and infrastructure to encourage thriving independent trade. Greatly reduces the degree of direct control the administration has over the colony.",1950,MEDIUM
-,,,,,,,,,,,,,,

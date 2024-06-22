@@ -230,7 +230,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     //if a fleet loses FP through battle, add those FP to salvagePoints
     public void reportBattleOccurred(CampaignFleetAPI fleet, CampaignFleetAPI primaryWinner, BattleAPI battle) {
         if (fleet != null && fleet.getFleetData() != null && isFunctional())
-            availableSalvagePoints += Misc.getSnapshotFPLost(fleet);
+            availableSalvagePoints += Math.round(Misc.getSnapshotFPLost(fleet));
     }
 
     private static final int WEAPON_SP_MONTH_LIMIT = 50;

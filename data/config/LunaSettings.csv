@@ -5,6 +5,7 @@ IndEvo_text_application_note,,Text,Some settings will not apply unless you start
 IndEvo_header1,General,Header,General,,,,,General
 IndEvo_shipPickerRowCount,[General] Ship Picker Row Count,Int,8,,The row amount in most of the ship picker dialogues in the mod. This one is for DemonX3#6370 who badgered me to add this for a year straight.,0,100,General
 IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,Commerce balance changes. Read up on why this was needed here: bit.ly/commerce_balance. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).,,,General
+IndEvo_TechminingStructureChange,[General] Make Techmining a structure,Boolean,FALSE,,Changes Techmining into a structure (It is an industry in vanilla). Can be changed at will even during ongoing games.,,,General
 IndEvo_header2,Industries,Header,Industries,,,,,Industries
 IndEvo_AdManuf,[Industries] Variable Manufactory,Boolean,TRUE,,Enables or disables the Variable Manufactory. Note that disabling the Variable industries will not stop VPCs from dropping - you will have to remove the entries from drop_groups.csv to achive that.,,,Industries
 IndEvo_AdAssem,[Industries] Variable Assembler,Boolean,TRUE,,Enables or disables the Variable Assembler,,,Industries

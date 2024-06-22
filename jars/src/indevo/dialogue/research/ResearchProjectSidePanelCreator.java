@@ -95,7 +95,7 @@ public class ResearchProjectSidePanelCreator {
             Color baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
             Color bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
 
-            ButtonAPI newLoadoutButton = variableButtonAnchor.addButton("Show inputs", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+            ButtonAPI newLoadoutButton = variableButtonAnchor.addButton("Show info", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
             newLoadoutButton.setEnabled(prerequisiteForActive);
             InteractionDialogCustomPanelPlugin.ButtonEntry entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(newLoadoutButton, buttonId) {
                 @Override

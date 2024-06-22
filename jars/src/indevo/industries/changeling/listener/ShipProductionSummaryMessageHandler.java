@@ -48,7 +48,7 @@ public class ShipProductionSummaryMessageHandler implements EconomyTickListener 
                         Misc.getTextColor());
 
                 for (Map.Entry<MarketAPI, FleetMemberAPI> e : productionMapShallowCopy.entrySet()) {
-                    String hull = e.getValue().getHullSpec().getHullName();
+                    String hull = e.getValue().getHullSpec().getHullNameWithDashClass();
                     String market = e.getKey().getName();
 
                     intel.addLine(BaseIntelPlugin.BULLET + market + ": %s", Misc.getTextColor(), new String[]{hull}, Misc.getHighlightColor());

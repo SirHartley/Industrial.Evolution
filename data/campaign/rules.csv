@@ -9,11 +9,13 @@ SetShortcut cutCommLink ""ESCAPE""","A woman overdressed to the point of absurdi
 IndEvo_foog_ignoreTheCunt:""I wish to serve His Majesty.""
 cutCommLink:Cut the comm link",
 IndEvo_foog_aristrocratGreetingLocked,PickGreeting,"$id == foogAristo score:1000
-$player.foogLocked == true","SetShortcut cutCommLink ""ESCAPE""","The heraldic emblem turns and turns, but no answer is forthcoming.",cutCommLink:Cut the commlink,
+$player.foogLocked == true","SetShortcut cutCommLink ""ESCAPE""","The heraldic emblem turns and turns, but no answer is forthcoming.
+You may have to wait a while for the order to forget about your existence.",cutCommLink:Cut the commlink,
 IndEvo_foog_aristrocratGreetingReturnedNoRep,PickGreeting,"$id == foogAristo score:1000
 $player.foogReturn == true
-$faction.rel != COOPERATIVE","SetShortcut cutCommLink ""ESCAPE""","The heraldic emblem turns and turns, but no answer is forthcoming.
-You might want to work on your reputation.",cutCommLink:Cut the commlink,
+$faction.rel != COOPERATIVE","SetShortcut cutCommLink ""ESCAPE""
+Highlight ""(Required: Cooperative)""","The heraldic emblem turns and turns, but no answer is forthcoming.
+You might want to work on your reputation. (Required: Cooperative)",cutCommLink:Cut the commlink,
 IndEvo_foog_aristrocratGreetingReturned,PickGreeting,"$id == foogAristo score:1000
 $player.foogReturn == true
 $faction.rel == COOPERATIVE","ShowPersonVisual
@@ -23,7 +25,7 @@ IndEvo_foogDelay:""Not yet, I need more time.""",
 IndEvo_foog_aristrocratGreetingBought,PickGreeting,"$id == foogAristo score:1001
 $player.foogBought == true","SetShortcut cutCommLink ""ESCAPE""","The heraldic emblem turns and turns, but no answer is forthcoming.",cutCommLink:Cut the commlink,
 IndEvo_foog_insultTheCunt,DialogOptionSelected,$option == IndEvo_foog_insultTheCunt,"ShowPersonVisual
-$player.foogLocked = true
+$player.foogLocked = true 31
 SetShortcut cutCommLink ""ESCAPE""","""Seems like it's not only your ears that are too poor to hear us speak. Be a good little beggar and go back the way you came.""
 
 She cuts the comm link.",cutCommLink:Return,
@@ -35,7 +37,7 @@ IndEvo_foog_rep:""I am of great repute with the League, check my dossier.""
 IndEvo_foog_insult2:""Your mom told me last night.""
 cutCommLink:Cut the comm link",
 IndEvo_foog_cashMoney,DialogOptionSelected,$option == IndEvo_foog_cashMoney,"ShowPersonVisual
-$player.foogLocked = true
+$player.foogLocked = true 15
 SetShortcut cutCommLink ""ESCAPE""","Her left eyebrow raises for a second - before returning to its usual condescending place.
 
 ""Hm. Where did you steal that from? Did you seriously think We'd believe this charade after you strolled in here, dressed like a beggar?""
@@ -52,12 +54,12 @@ DoCanAffordCheck 300000 IndEvo_foogPay false","""Hm. Looks like you are not all 
 IndEvo_foogDelay:""I will have to liquidate some assets.""",
 IndEvo_foog_rep_too_low,DialogOptionSelected,"$faction.rel != COOPERATIVE
 $option == IndEvo_foog_rep","ShowPersonVisual
-$player.foogLocked = true
+$player.foogLocked = true 31
 SetShortcut cutCommLink ""ESCAPE""","""That does not appear to be the case. So not only have you wasted our time, you have actively lied and insulted us. No need for further talks, I presume.""
 
 She cuts the comm link.",cutCommLink:Return,
 IndEvo_foog_insult2,DialogOptionSelected,$option == IndEvo_foog_insult2,"ShowPersonVisual
-$player.foogLocked = true
+$player.foogLocked = true 186
 SetShortcut cutCommLink ""ESCAPE""","""...""
 
 She cuts the comm link.",cutCommLink:Return,

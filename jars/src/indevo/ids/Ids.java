@@ -127,6 +127,7 @@ public class Ids {
     public static final String PROJ_KEYHOLE = "indevo_proj_keyhole";
     public static final String PROJ_TRANSISTOR = "indevo_proj_transistor";
     public static final String PROJ_NAVI = "indevo_proj_navi";
+    public static final String PROJ_PROSPECTOR = "indevo_proj_prospector";
 
     //id
     //IndEvo_cryoartillery
