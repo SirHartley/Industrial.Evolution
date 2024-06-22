@@ -2,18 +2,17 @@ package indevo.industries.petshop.dialogue;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.FleetMemberPickerListener;
+import com.fs.starfarer.api.campaign.InteractionDialogAPI;
+import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import indevo.ids.ItemIds;
 import indevo.industries.petshop.listener.EscapeInterceptListener;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
-import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.script.EscBlockerMemoryIterator;
-import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
 
 import java.util.LinkedList;

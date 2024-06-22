@@ -10,7 +10,6 @@ import indevo.dialogue.sidepanel.FramedCustomPanelPlugin;
 import indevo.dialogue.sidepanel.InteractionDialogCustomPanelPlugin;
 import indevo.dialogue.sidepanel.NoFrameCustomPanelPlugin;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
-import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 
 import java.awt.*;

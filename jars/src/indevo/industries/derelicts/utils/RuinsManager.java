@@ -10,7 +10,6 @@ import com.fs.starfarer.api.campaign.listeners.SurveyPlanetListener;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import com.fs.starfarer.api.impl.campaign.terrain.HyperspaceAbyssPluginImpl;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
@@ -19,7 +18,9 @@ import indevo.utils.ModPlugin;
 import indevo.utils.helper.IndustryHelper;
 import indevo.utils.helper.Settings;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 import static com.fs.starfarer.api.impl.campaign.ids.Tags.*;
 import static indevo.industries.derelicts.industry.Ruins.INDUSTRY_ID_MEMORY_KEY;

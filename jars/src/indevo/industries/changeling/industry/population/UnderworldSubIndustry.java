@@ -7,8 +7,6 @@ import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.FactionDoctrineAPI;
 import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.combat.MutableStat;
-import com.fs.starfarer.api.combat.MutableStatWithTempMods;
-import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.econ.CommRelayCondition;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ConstructionQueue;
@@ -21,14 +19,11 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
-import indevo.ids.Ids;
-import indevo.industries.EngineeringHub;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.IndustryHelper;
 
-import java.sql.Time;
 import java.util.*;
 
 import static com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure.*;

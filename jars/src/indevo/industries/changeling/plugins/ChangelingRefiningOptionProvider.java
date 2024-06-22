@@ -12,7 +12,6 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.changeling.dialogue.ChangelingIndustryDialogueDelegate;
-import indevo.industries.changeling.industry.mining.SwitchableMining;
 import indevo.industries.changeling.industry.refining.SwitchableRefining;
 import indevo.utils.helper.Settings;
 

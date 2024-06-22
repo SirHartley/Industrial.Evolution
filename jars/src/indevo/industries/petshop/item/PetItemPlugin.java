@@ -18,7 +18,6 @@ import indevo.industries.petshop.dialogue.PetPickerInteractionDialoguePlugin;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.StringHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 

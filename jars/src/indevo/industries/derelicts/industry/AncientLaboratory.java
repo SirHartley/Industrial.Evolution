@@ -23,8 +23,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayListener {
 

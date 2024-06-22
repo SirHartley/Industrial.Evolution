@@ -16,7 +16,6 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
 import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 

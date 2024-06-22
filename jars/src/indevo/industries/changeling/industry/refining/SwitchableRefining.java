@@ -6,12 +6,10 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.Refining;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
-import com.fs.starfarer.api.util.Pair;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryAPI;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
-import indevo.utils.helper.IndustryHelper;
 
 import java.util.LinkedList;
 import java.util.List;

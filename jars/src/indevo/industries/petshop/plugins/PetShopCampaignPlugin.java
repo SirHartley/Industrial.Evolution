@@ -4,7 +4,6 @@ import com.fs.starfarer.api.PluginPick;
 import com.fs.starfarer.api.campaign.BaseCampaignPlugin;
 import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
-
 import indevo.ids.Ids;
 import indevo.industries.petshop.dialogue.PetShopDialogPlugin;
 

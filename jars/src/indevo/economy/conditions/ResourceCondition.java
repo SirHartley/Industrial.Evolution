@@ -17,7 +17,6 @@ import data.campaign.econ.industries.MS_modularFac;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.Supercomputer;
-import indevo.industries.salvageyards.industry.SalvageYards;
 import indevo.utils.helper.Settings;
 import org.lwjgl.util.vector.Vector2f;
 

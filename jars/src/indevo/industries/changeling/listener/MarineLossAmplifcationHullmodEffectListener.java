@@ -6,10 +6,8 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.campaign.listeners.MarineLossesStatModifier;
 import com.fs.starfarer.api.combat.MutableStat;
-import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.graid.GroundRaidObjectivePlugin;
-import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.hullmods.Hellpods;
 
 import java.util.List;

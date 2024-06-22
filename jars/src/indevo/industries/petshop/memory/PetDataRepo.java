@@ -1,7 +1,6 @@
 package indevo.industries.petshop.memory;
 
 import com.fs.starfarer.api.Global;
-import indevo.utils.ModPlugin;
 import indevo.utils.memory.SessionTransientMemory;
 import org.json.JSONArray;
 import org.json.JSONException;

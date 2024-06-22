@@ -11,8 +11,9 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
 

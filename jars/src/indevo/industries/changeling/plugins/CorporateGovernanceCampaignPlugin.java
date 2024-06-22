@@ -5,7 +5,6 @@ import com.fs.starfarer.api.campaign.BaseCampaignPlugin;
 import com.fs.starfarer.api.campaign.econ.ImmigrationPlugin;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.impl.campaign.population.CoreImmigrationPluginImpl;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
 import indevo.industries.changeling.industry.population.CorporateGovernanceSubIndustry;
 

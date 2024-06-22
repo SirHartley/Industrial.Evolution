@@ -1,7 +1,6 @@
 package indevo.utils.helper;
 
 import com.fs.starfarer.api.Global;
-import lunalib.backend.ui.settings.LunaSettingsConfigLoader;
 import lunalib.lunaSettings.LunaSettings;
 
 public class Settings {

@@ -1,16 +1,15 @@
 package indevo.industries.petshop.dialogue;
 
-import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.*;
-import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.ui.*;
+import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
+import com.fs.starfarer.api.campaign.CustomDialogDelegate;
+import com.fs.starfarer.api.campaign.CustomUIPanelPlugin;
+import com.fs.starfarer.api.ui.Alignment;
+import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.ui.TextFieldAPI;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.petshop.memory.Pet;
-import indevo.industries.petshop.memory.PetData;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PetRenameDialogueDelegate implements CustomDialogDelegate {
 

@@ -8,7 +8,6 @@ import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 
 public class ResearchProjectDonationCargoPicker {

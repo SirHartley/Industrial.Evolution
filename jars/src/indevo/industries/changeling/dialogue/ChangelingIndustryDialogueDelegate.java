@@ -11,7 +11,9 @@ import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.changeling.industry.*;
+import indevo.industries.changeling.industry.SubIndustry;
+import indevo.industries.changeling.industry.SubIndustryData;
+import indevo.industries.changeling.industry.SwitchableIndustryAPI;
 import indevo.utils.ModPlugin;
 
 import java.awt.*;

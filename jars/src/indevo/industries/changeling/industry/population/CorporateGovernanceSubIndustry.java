@@ -1,32 +1,25 @@
 package indevo.industries.changeling.industry.population;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.FactionDoctrineAPI;
-import com.fs.starfarer.api.campaign.econ.*;
+import com.fs.starfarer.api.campaign.econ.Industry;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.combat.MutableStat;
-import com.fs.starfarer.api.impl.campaign.econ.CommRelayCondition;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import com.fs.starfarer.api.impl.campaign.econ.impl.ConstructionQueue;
-import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
-import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
-import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.Pair;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
-import static com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry.getDeficitText;
 import static com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure.*;
 
 public class CorporateGovernanceSubIndustry extends SubIndustry implements MarketImmigrationModifier {

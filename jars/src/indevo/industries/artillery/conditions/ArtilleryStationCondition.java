@@ -4,7 +4,6 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.utils.helper.Settings;
 

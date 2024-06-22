@@ -2,13 +2,14 @@ package indevo.abilities.splitfleet;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.PluginPick;
-import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.BaseCampaignPlugin;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.ai.AbilityAIPlugin;
 import com.fs.starfarer.api.campaign.ai.ModularFleetAIAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.AbilityPlugin;
-import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
-import com.fs.starfarer.api.impl.campaign.FleetInteractionDialogPluginImpl;
 import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import indevo.abilities.splitfleet.abilityAIs.DetachmentEburnAbilityPlugin;
 import indevo.abilities.splitfleet.abilityAIs.DetachmentGoDarkAbilityPlugin;
@@ -18,10 +19,8 @@ import indevo.abilities.splitfleet.dialogue.DetachmentDialoguePlugin;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
-import indevo.exploration.gacha.GachaStationDialoguePlugin;
 
 import static indevo.abilities.splitfleet.FleetUtils.DETACHMENT_IDENTIFIER_KEY;
-import static indevo.abilities.splitfleet.FleetUtils.log;
 
 public class SplinterFleetCampignPlugin extends BaseCampaignPlugin {
 

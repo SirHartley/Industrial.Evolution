@@ -1,16 +1,13 @@
 package indevo.industries.petshop.plugins;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CustomDialogDelegate;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
-import com.fs.starfarer.api.impl.campaign.PlanetInteractionDialogPluginImpl;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
-import indevo.industries.petshop.dialogue.PetManagerDialogueDelegate;
 import indevo.industries.petshop.dialogue.PetShopDialogPlugin;
 
 import java.awt.*;

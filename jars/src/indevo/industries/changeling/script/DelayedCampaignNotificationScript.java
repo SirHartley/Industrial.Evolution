@@ -2,7 +2,6 @@ package indevo.industries.changeling.script;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
-import indevo.industries.changeling.listener.ShipProductionSummaryMessageHandler;
 
 public abstract class DelayedCampaignNotificationScript implements EveryFrameScript, CampaignNotificationMessager {
         float delayInDays;

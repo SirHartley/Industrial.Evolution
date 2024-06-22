@@ -7,7 +7,6 @@ import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
-import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.utils.ModPlugin;
 import org.apache.log4j.Logger;
 

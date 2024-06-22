@@ -9,13 +9,13 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
-import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 
-import java.awt.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class WatchtowerFactionResetListener implements ObjectiveEventListener, NewDayListener {
 
