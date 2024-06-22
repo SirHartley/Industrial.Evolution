@@ -1,5 +1,7 @@
 package indevo.industries.courierport;
 
+import assortment_of_things.frontiers.FrontiersUtils;
+import assortment_of_things.frontiers.SettlementManager;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -78,26 +80,29 @@ public class ShippingContract {
         return new ShippingContract(id, name, fromMarketId, toMarketId, fromSubmarketId, toSubmarketId, scope, recurrentDays, targetCargo, variantList, isActive);
     }
 
+    private MarketAPI getMarket(String id){
+        if (Global.getSettings().getModManager().isModEnabled("assortment_of_things") && "rat_station_commander_market".equals(id)) return FrontiersUtils.INSTANCE.getFrontiersData().getActiveSettlement().getSettlementEntity().getMarket();
+        else return id != null
+                && Global.getSector().getEconomy().getMarket(id) != null
+                ? Global.getSector().getEconomy().getMarket(id) : null;
+    }
+
     public MarketAPI getFromMarket() {
-        return fromMarketId != null
-                && Global.getSector().getEconomy().getMarket(fromMarketId) != null
-                ? Global.getSector().getEconomy().getMarket(fromMarketId) : null;
+        return getMarket(fromMarketId);
     }
 
     public MarketAPI getToMarket() {
-        return toMarketId != null
-                && Global.getSector().getEconomy().getMarket(toMarketId) != null
-                ? Global.getSector().getEconomy().getMarket(toMarketId) : null;
+        return getMarket(toMarketId);
     }
 
     public SubmarketAPI getToSubmarket() {
         return toMarketId != null && getToMarket() != null && toSubmarketId != null ?
-                Global.getSector().getEconomy().getMarket(toMarketId).getSubmarket(toSubmarketId) : null;
+                getToMarket().getSubmarket(toSubmarketId) : null;
     }
 
     public SubmarketAPI getFromSubmarket() {
         return fromMarketId != null && getFromMarket() != null && fromSubmarketId != null ?
-                Global.getSector().getEconomy().getMarket(fromMarketId).getSubmarket(fromSubmarketId) : null;
+                getFromMarket().getSubmarket(fromSubmarketId) : null;
     }
 
     public void clearTargetCargo() {

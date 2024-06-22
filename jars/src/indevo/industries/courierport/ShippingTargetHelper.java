@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import indevo.ids.Ids;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.Misc;
 
 import java.util.ArrayList;

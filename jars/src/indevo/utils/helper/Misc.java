@@ -24,6 +24,7 @@ import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.scripts.PlanetMovingScript;
+import indevo.utils.ModPlugin;
 import indevo.utils.memory.SessionTransientMemory;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -37,12 +38,18 @@ import java.util.*;
 public class Misc {
     public static final Logger log = Global.getLogger(Misc.class);
 
-    public static CargoAPI getStorageCargo(MarketAPI market) {
+    public static SubmarketAPI getStorage(MarketAPI market){
         if (market == null) return null;
         SubmarketAPI submarket = market.getSubmarket(Submarkets.SUBMARKET_STORAGE);
-        if (submarket == null) market.getSubmarket("rat_settlement_storage");
+        if (submarket == null) submarket = market.getSubmarket("rat_settlement_storage");
         if (submarket == null) return null;
-        return submarket.getCargo();
+
+        ModPlugin.log("Submarket " + submarket.getNameOneLine() + " plugin " + submarket.getPlugin().getClass().getName());
+
+        return submarket;
+    }
+    public static CargoAPI getStorageCargo(MarketAPI market) {
+        return market != null && getStorage(market) != null ? getStorage(market).getCargo() : null;
     }
     
     public static boolean isMilitary(Industry industry){

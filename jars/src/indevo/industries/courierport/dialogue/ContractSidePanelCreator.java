@@ -218,7 +218,7 @@ public class ContractSidePanelCreator {
                     @Override
                     public void pickedEntity(SectorEntityToken entity) {
                         contract.fromMarketId = entity.getMarket().getId();
-                        contract.fromSubmarketId = Submarkets.SUBMARKET_STORAGE;
+                        contract.fromSubmarketId = Misc.getStorage(entity.getMarket()).getSpecId();
                         contract.toMarketId = null;
 
                         showPanel(dialogue, contract);
