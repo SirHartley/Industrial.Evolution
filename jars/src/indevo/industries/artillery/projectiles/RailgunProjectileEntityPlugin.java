@@ -18,7 +18,7 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 
-import static indevo.utils.helper.IndustryHelper.smootherstep;
+import static indevo.utils.helper.Misc.smootherstep;
 
 public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
     //show 1 lines where the projectiles will fly

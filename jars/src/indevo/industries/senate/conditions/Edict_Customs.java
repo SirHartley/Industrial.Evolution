@@ -13,8 +13,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 
 import static java.lang.Math.ceil;
 
@@ -30,7 +29,7 @@ public class Edict_Customs extends BaseEdict {
         int foreignCount = 0;
         thisAccessIncrease = 0.05F;
 
-        for (MarketAPI market : IndustryHelper.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
+        for (MarketAPI market : Misc.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
             if (!market.getId().equals(this.market.getId())) {
                 market.getAccessibilityMod().modifyFlat(id, foreignAccessMod, getName());
                 foreignCount++;
@@ -47,7 +46,7 @@ public class Edict_Customs extends BaseEdict {
         super.unapply(id);
         if (market.getPrimaryEntity() == null) return;
 
-        for (MarketAPI market : IndustryHelper.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
+        for (MarketAPI market : Misc.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
             if (!market.getId().equals(this.market.getId())) {
                 market.getAccessibilityMod().unmodifyFlat(id);
             }
@@ -63,30 +62,30 @@ public class Edict_Customs extends BaseEdict {
         super.createTooltipAfterDescription(tooltip, expanded);
 
         if (getRemainingDays() != 0 && getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) ceil(getRemainingDays() / 31.0) + " Months");
+            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), (int) ceil(getRemainingDays() / 31.0) + " Months");
         } else if (getRemainingDays() != 0 && getRemainingDays() <= 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) getRemainingDays() + " days");
+            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), (int) getRemainingDays() + " days");
         } else {
-            tooltip.addPara("This edict can be %s", 10f, Misc.getPositiveHighlightColor(), "removed without penalty.");
+            tooltip.addPara("This edict can be %s", 10f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "removed without penalty.");
         }
 
-        if (IndustryHelper.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId()).size() > 1) {
+        if (Misc.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId()).size() > 1) {
             tooltip.addPara("The accessability of this colony is %s.",
-                    10f, Misc.getPositiveHighlightColor(), "increased by " + (int) (thisAccessIncrease * 100) + "%");
+                    10f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "increased by " + (int) (thisAccessIncrease * 100) + "%");
 
             tooltip.addPara("Accessability for:", 3f);
-            for (MarketAPI market : IndustryHelper.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
+            for (MarketAPI market : Misc.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
                 if (!market.getId().equals(this.market.getId())) {
                     tooltip.addPara(BaseIntelPlugin.BULLET + market.getName() + ": decreased by %s,",
-                            1f, Misc.getNegativeHighlightColor(), "reduced by " + (int) (-foreignAccessMod * 100) + "%");
+                            1f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by " + (int) (-foreignAccessMod * 100) + "%");
                 }
             }
 
         } else {
-            tooltip.addPara("The accessability of this colony unchanged as there are %s in the star system", 10f, Misc.getNegativeHighlightColor(), "no other colonies");
+            tooltip.addPara("The accessability of this colony unchanged as there are %s in the star system", 10f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "no other colonies");
         }
 
-        tooltip.addPara("Requires a %s and at least two colonies in the star system, and %s on this planet.", 10f, Misc.getHighlightColor(), new String[]{"Senate", "Megaport"});
+        tooltip.addPara("Requires a %s and at least two colonies in the star system, and %s on this planet.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"Senate", "Megaport"});
     }
 
     @Override
@@ -96,15 +95,15 @@ public class Edict_Customs extends BaseEdict {
 
     @Override
     public void printEdictEffectText(TextPanelAPI text, MarketAPI market) {
-        String s1 = "" + (IndustryHelper.getMarketsInLocation(market.getStarSystem(), market.getFactionId()).size() - 1) * 5 + "%";
+        String s1 = "" + (Misc.getMarketsInLocation(market.getStarSystem(), market.getFactionId()).size() - 1) * 5 + "%";
 
         text.addParagraph("Accessability for this polity increased by 5% for every other colony in the system.");
-        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "increased by 5%");
-        text.highlightInLastPara(Misc.getHighlightColor(), "for every other colony");
+        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "increased by 5%");
+        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getHighlightColor(), "for every other colony");
         text.addParagraph("Current possible bonus: " + s1);
-        text.highlightInLastPara(Misc.getPositiveHighlightColor(), s1);
+        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), s1);
         text.addParagraph("Accessability for all other colonies reduced by 7%.");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "reduced by 7%");
+        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by 7%");
 
     }
 
@@ -120,7 +119,7 @@ public class Edict_Customs extends BaseEdict {
 
     @Override
     public boolean isPresenceConditionMet(MarketAPI market) {
-        boolean twoMarkets = IndustryHelper.getMarketsInLocation(market.getStarSystem(), market.getFactionId()).size() > 1;
+        boolean twoMarkets = Misc.getMarketsInLocation(market.getStarSystem(), market.getFactionId()).size() > 1;
         return super.isPresenceConditionMet(market)
                 && market.hasIndustry(Industries.MEGAPORT)
                 && conditionUniqueInSystem(market, condition.getId())

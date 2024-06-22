@@ -8,7 +8,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import indevo.ids.Ids;
 import indevo.industries.InvisiblePlanetaryShield;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 
 import java.io.IOException;
 import java.util.Set;
@@ -61,7 +61,7 @@ public class CloudPainter extends WorldWonder {
     }
 
     public void nextTexture() {
-        int max = IndustryHelper.getCSVSetFromMemory(Ids.CLOUD_LIST).size();
+        int max = Misc.getCSVSetFromMemory(Ids.CLOUD_LIST).size();
 
         cloudNum += 1;
         if (cloudNum > max) cloudNum = 0;
@@ -73,7 +73,7 @@ public class CloudPainter extends WorldWonder {
      * Always returns the original clouds if invalid or wrong path
      */
     public String getTexture(int i) {
-        Set<String> clouds = IndustryHelper.getCSVSetFromMemory(Ids.CLOUD_LIST);
+        Set<String> clouds = Misc.getCSVSetFromMemory(Ids.CLOUD_LIST);
 
         int index = 1;
         for (String s : clouds) {

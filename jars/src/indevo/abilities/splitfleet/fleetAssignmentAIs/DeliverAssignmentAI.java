@@ -9,12 +9,12 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 import indevo.abilities.splitfleet.locationFollower.PlayerFleetFollower;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.Misc;
 
 public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
 
@@ -90,8 +90,8 @@ public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
     public void notifyPlayerOfMarketChange() {
         MarketAPI m = Global.getSector().getEconomy().getMarket(targetMarketId);
 
-        MessageIntel intel = new MessageIntel("A delivery detachment has %s.", Misc.getTextColor(), new String[]{"changed destination"}, Misc.getHighlightColor());
-        intel.addLine(BaseIntelPlugin.BULLET + "New destination: %s in %s", Misc.getTextColor(), new String[]{m.getName(), m.getStarSystem().getBaseName()}, m.getFaction().getColor(), m.getFaction().getColor());
+        MessageIntel intel = new MessageIntel("A delivery detachment has %s.", com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{"changed destination"}, com.fs.starfarer.api.util.Misc.getHighlightColor());
+        intel.addLine(BaseIntelPlugin.BULLET + "New destination: %s in %s", com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{m.getName(), m.getStarSystem().getBaseName()}, m.getFaction().getColor(), m.getFaction().getColor());
         intel.setIcon(Global.getSettings().getSpriteName("intel", "tradeFleet_valuable"));
         intel.setSound(BaseIntelPlugin.getSoundMajorPosting());
         Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, m);
@@ -113,7 +113,7 @@ public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
         MarketAPI market = Global.getSector().getEconomy().getMarketsCopy().get(0);
 
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            float d = Misc.getDistance(toFleet, m.getPrimaryEntity());
+            float d = com.fs.starfarer.api.util.Misc.getDistance(toFleet, m.getPrimaryEntity());
             if (d < dist) {
                 dist = d;
                 market = m;
@@ -140,15 +140,15 @@ public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
             MarketAPI market = Global.getSector().getEconomy().getMarket(marketID);
             if (market == null) market = Global.getSector().getEconomy().getMarket(getAlternateMarket(fleet));
 
-            float distance = Misc.getDistanceLY(Global.getSector().getPlayerFleet(), market.getPrimaryEntity());
+            float distance = com.fs.starfarer.api.util.Misc.getDistanceLY(Global.getSector().getPlayerFleet(), market.getPrimaryEntity());
             float requiredFuel = fleet.getLogistics().getFuelCostPerLightYear() * distance * 2f;
 
             float requiredSuppliesPerDay = fleet.getLogistics().getShipMaintenanceSupplyCost();
-            float lyPerDay = Misc.getLYPerDayAtBurn(fleet, fleet.getFleetData().getBurnLevel());
+            float lyPerDay = com.fs.starfarer.api.util.Misc.getLYPerDayAtBurn(fleet, fleet.getFleetData().getBurnLevel());
             float days = (float) Math.ceil(distance / lyPerDay);
             float requiredSuppliesHyperspace = requiredSuppliesPerDay * days;
 
-            distance = Misc.getDistance(fleet, Misc.getDistressJumpPoint(market.getStarSystem()));
+            distance = com.fs.starfarer.api.util.Misc.getDistance(fleet, com.fs.starfarer.api.util.Misc.getDistressJumpPoint(market.getStarSystem()));
             days = distance / lyPerDay;
             float requiredSuppliesToExitSystem = requiredSuppliesPerDay * days;
 
@@ -165,7 +165,7 @@ public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
             fleet.getCargo().removeSupplies(addRemoveSupplies);
             fleet.getCargo().removeCrew(crew);
 
-            CargoAPI storage = IndustryHelper.getStorageCargo(market);
+            CargoAPI storage = Misc.getStorageCargo(market);
             storage.addAll(fleet.getCargo());
             fleet.getCargo().clear();
 
@@ -173,7 +173,7 @@ public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
             fleet.getCargo().addSupplies(addRemoveSupplies);
             fleet.getCargo().addCrew(crew);
 
-            Global.getSector().getCampaignUI().addMessage(fleet.getName() + " delivered cargo to %s in %s and is now returning to main force.", Misc.getTextColor(), market.getName(), market.getContainingLocation().getName(), market.getFaction().getColor(), Misc.getHighlightColor());
+            Global.getSector().getCampaignUI().addMessage(fleet.getName() + " delivered cargo to %s in %s and is now returning to main force.", com.fs.starfarer.api.util.Misc.getTextColor(), market.getName(), market.getContainingLocation().getName(), market.getFaction().getColor(), com.fs.starfarer.api.util.Misc.getHighlightColor());
 
             finished = true;
         }

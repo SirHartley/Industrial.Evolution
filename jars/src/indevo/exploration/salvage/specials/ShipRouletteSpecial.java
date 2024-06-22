@@ -18,16 +18,15 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
 import com.fs.starfarer.api.util.ListMap;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static indevo.utils.helper.IndustryHelper.stripShipToCargoAndReturnVariant;
+import static indevo.utils.helper.Misc.stripShipToCargoAndReturnVariant;
 
 public class ShipRouletteSpecial extends BaseSalvageSpecial {
 
@@ -59,7 +58,7 @@ public class ShipRouletteSpecial extends BaseSalvageSpecial {
                 if (picker.isEmpty()) continue;
 
                 ShipHullSpecAPI spec = picker.pick();
-                ShipVariantAPI var = Global.getSettings().createEmptyVariant(Misc.genUID(), spec);
+                ShipVariantAPI var = Global.getSettings().createEmptyVariant(com.fs.starfarer.api.util.Misc.genUID(), spec);
                 hullMap.put(spec.getHullId(), Global.getFactory().createFleetMember(FleetMemberType.SHIP, var).getDeploymentPointsCost());
                 picker.clear();
             }
@@ -74,7 +73,7 @@ public class ShipRouletteSpecial extends BaseSalvageSpecial {
                     ShipAPI.HullSize.DESTROYER,
                     ShipAPI.HullSize.CRUISER,
                     ShipAPI.HullSize.CAPITAL_SHIP}) {
-                for (ShipHullSpecAPI spec : IndustryHelper.getAllLearnableShipHulls()) {
+                for (ShipHullSpecAPI spec : Misc.getAllLearnableShipHulls()) {
                     if (spec.getHullSize().equals(size)) lm.getList(size.toString()).add(spec);
                 }
             }
@@ -233,7 +232,7 @@ public class ShipRouletteSpecial extends BaseSalvageSpecial {
 
         ShipVariantAPI variant = Global.getSettings().getVariant(picker.pick());
         if (variant == null)
-            variant = Global.getSettings().createEmptyVariant(Misc.genUID(), Global.getSettings().getHullSpec(hullID));
+            variant = Global.getSettings().createEmptyVariant(com.fs.starfarer.api.util.Misc.genUID(), Global.getSettings().getHullSpec(hullID));
 
         FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant);
 

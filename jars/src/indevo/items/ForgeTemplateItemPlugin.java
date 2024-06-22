@@ -18,12 +18,11 @@ import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.specialitemdata.ForgeTemplateData;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +31,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.utils.helper.IndustryHelper.addOrIncrement;
+import static indevo.utils.helper.Misc.addOrIncrement;
 
 public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
 
@@ -69,7 +68,7 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
         //if (known) mult = 0.5f;
 
         Color bgColor = new Color(70, 100, 80);
-        bgColor = Misc.setAlpha(bgColor, 255);
+        bgColor = com.fs.starfarer.api.util.Misc.setAlpha(bgColor, 255);
 
         //float b = Global.getSector().getCampaignUI().getSharedFader().getBrightness() * 0.25f;
         renderer.renderBGWithCorners(bgColor, blX, blY, tlX, tlY, trX, trY, brX, brY,
@@ -136,7 +135,7 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
 
         int c = getCharges();
         String s = c > 1 ? c + " charges" : c + " charge";
-        tooltip.addPara("Current capacity: %s", opad, Misc.getHighlightColor(), new String[]{s});
+        tooltip.addPara("Current capacity: %s", opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{s});
 
         List<String> hulls = new ArrayList<>();
         hulls.add(hullId);
@@ -179,12 +178,12 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
         List<ShipHullSpecAPI> specs = Global.getSettings().getAllShipHullSpecs();
         Set<String> restrictedShipSet = new HashSet<>();
 
-        Map<String, Float> dropMap = IndustryHelper.getMapFromMemory(DROP_MAP_KEY);
+        Map<String, Float> dropMap = Misc.getMapFromMemory(DROP_MAP_KEY);
 
-        restrictedShipSet.addAll(IndustryHelper.getVayraBossShips());
-        restrictedShipSet.addAll(IndustryHelper.getPrismBossShips());
+        restrictedShipSet.addAll(Misc.getVayraBossShips());
+        restrictedShipSet.addAll(Misc.getPrismBossShips());
 
-        Set<String> allowedShipsInternal = IndustryHelper.getCSVSetFromMemory(Ids.PRINT_LIST);
+        Set<String> allowedShipsInternal = Misc.getCSVSetFromMemory(Ids.PRINT_LIST);
         allowedShipsInternal.remove("ziggurat");
 
         Iterator<ShipHullSpecAPI> iter = specs.iterator();
@@ -224,7 +223,7 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
             return null;
         } else {
             addOrIncrement(dropMap, pick.getHullId(), 4f);
-            IndustryHelper.storeMapInMemory(dropMap, DROP_MAP_KEY);
+            Misc.storeMapInMemory(dropMap, DROP_MAP_KEY);
             return pick.getHullId();
         }
     }
@@ -414,7 +413,7 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
 
             variant = variant.clone();
             variant.setOriginalVariant(null);
-            variant.setHullVariantId(Misc.genUID());
+            variant.setHullVariantId(com.fs.starfarer.api.util.Misc.genUID());
 
             //remove sun_sl hms for compat
             List<String> hmToRemove = new ArrayList<>();
@@ -469,7 +468,7 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
     }
 
     public static ForgeTemplateData createForgeTemplateData(int charges, String hullId) {
-        return new ForgeTemplateData(ItemIds.FORGETEMPLATE + "_" + Math.min(charges, 5), hullId, Global.getSettings().createEmptyVariant(Misc.genUID(), Global.getSettings().getHullSpec(hullId)));
+        return new ForgeTemplateData(ItemIds.FORGETEMPLATE + "_" + Math.min(charges, 5), hullId, Global.getSettings().createEmptyVariant(com.fs.starfarer.api.util.Misc.genUID(), Global.getSettings().getHullSpec(hullId)));
     }
 
     public static ForgeTemplateData createForgeTemplateData(int charges, String data, ShipVariantAPI variant) {

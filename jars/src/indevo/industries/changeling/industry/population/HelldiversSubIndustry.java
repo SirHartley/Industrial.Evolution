@@ -19,11 +19,10 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.MarketCMD;
 import com.fs.starfarer.api.impl.campaign.submarkets.LocalResourcesSubmarketPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.hullmods.Hellpods;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -122,8 +121,8 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
 
             tooltip.addSectionHeading("Governance Effects: Managed Democracy", Alignment.MID, opad);
 
-            if (IndustryHelper.isMilitary(ind)) {
-                tooltip.addPara("Military buildings: %s decreased by %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "upkeep", StringHelper.getAbsPercentString(HELLDIVERS_UPKEEP_RED, true));
+            if (Misc.isMilitary(ind)) {
+                tooltip.addPara("Military buildings: %s decreased by %s", opad, com.fs.starfarer.api.util.Misc.getTextColor(), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "upkeep", StringHelper.getAbsPercentString(HELLDIVERS_UPKEEP_RED, true));
             } else {
                 tooltip.addPara("No effect on this building.", opad);
             }
@@ -134,10 +133,10 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
     public void reportEconomyTick(int iterIndex) {
         if (!market.isPlayerOwned()) return;
 
-        PlayerFleetPersonnelTracker.PersonnelAtEntity e = PlayerFleetPersonnelTracker.getInstance().getDroppedOffAt(Commodities.MARINES, market.getPrimaryEntity(), Misc.getStorage(market).getSubmarket(), true);
+        PlayerFleetPersonnelTracker.PersonnelAtEntity e = PlayerFleetPersonnelTracker.getInstance().getDroppedOffAt(Commodities.MARINES, market.getPrimaryEntity(), com.fs.starfarer.api.util.Misc.getStorage(market).getSubmarket(), true);
 
         if (e != null) {
-            SubmarketPlugin cargo = Misc.getStorage(market);
+            SubmarketPlugin cargo = com.fs.starfarer.api.util.Misc.getStorage(market);
 
             float num = e.data.num;
             if (num == 0f && cargo.getCargo().getMarines() > 0) {
@@ -180,8 +179,8 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
 
     @Override
     public void onNewDay() {
-        IndustryHelper.getStorageCargo(market).initMothballedShips(market.getFactionId());
-        List<FleetMemberAPI> membersInStorage = IndustryHelper.getStorageCargo(market).getMothballedShips().getMembersListCopy();
+        Misc.getStorageCargo(market).initMothballedShips(market.getFactionId());
+        List<FleetMemberAPI> membersInStorage = Misc.getStorageCargo(market).getMothballedShips().getMembersListCopy();
         List<String> expired = new ArrayList<>();
 
         //iterate members and add hellpods if needed
@@ -229,14 +228,14 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         //add list of ships and timings
 
         tooltip.addSectionHeading("Hellpod installation progress", Alignment.MID, opad);
-        tooltip.addPara("Cruisers stored here will be refit with a rapid orbital deployment system, increasing marine effectiveness and casualties.", Misc.getGrayColor(), opad);
+        tooltip.addPara("Cruisers stored here will be refit with a rapid orbital deployment system, increasing marine effectiveness and casualties.", com.fs.starfarer.api.util.Misc.getGrayColor(), opad);
         tooltip.beginTable(market.getFaction(), 20f, "Ship", 270f, "Days remaining", 120f);
 
         int i = 0;
         int max = 10;
 
-        IndustryHelper.getStorageCargo(market).initMothballedShips(market.getFactionId());
-        List<FleetMemberAPI> membersInStorage = IndustryHelper.getStorageCargo(market).getMothballedShips().getMembersListCopy();
+        Misc.getStorageCargo(market).initMothballedShips(market.getFactionId());
+        List<FleetMemberAPI> membersInStorage = Misc.getStorageCargo(market).getMothballedShips().getMembersListCopy();
         Map<FleetMemberAPI, Integer> validMembersWithRefitTime = new LinkedHashMap<>();
 
         for (FleetMemberAPI m : membersInStorage) if(daysToApplicationForFleetMember.containsKey(m.getId())) validMembersWithRefitTime.put(m, daysToApplicationForFleetMember.get(m.getId()));
@@ -311,13 +310,13 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         if (market.getSize() >= MAX_MARKET_SIZE) market.getPopulation().setWeight(getWeightForMarketSizeStatic(market.getSize()));
 
         for (Industry ind : market.getIndustries()) {
-            if (IndustryHelper.isMilitary(ind)) {
+            if (Misc.isMilitary(ind)) {
                 ind.getUpkeep().modifyMult(getId(), HELLDIVERS_UPKEEP_RED, getName());
             }
         }
 
         if (market.isPlayerOwned()) {
-            SubmarketPlugin sub = Misc.getLocalResources(market);
+            SubmarketPlugin sub = com.fs.starfarer.api.util.Misc.getLocalResources(market);
 
             if (sub instanceof LocalResourcesSubmarketPlugin) {
                 LocalResourcesSubmarketPlugin lr = (LocalResourcesSubmarketPlugin) sub;
@@ -355,12 +354,12 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         Global.getSector().getListenerManager().removeListener(this);
 
         for (Industry ind : market.getIndustries()) {
-            if (IndustryHelper.isMilitary(ind)) {
+            if (Misc.isMilitary(ind)) {
                 ind.getUpkeep().unmodify(getId());
             }
         }
 
-        SubmarketPlugin sub = Misc.getLocalResources(market);
+        SubmarketPlugin sub = com.fs.starfarer.api.util.Misc.getLocalResources(market);
         if (sub instanceof LocalResourcesSubmarketPlugin) {
             LocalResourcesSubmarketPlugin lr = (LocalResourcesSubmarketPlugin) sub;
             lr.getStockpilingBonus(Commodities.MARINES).unmodify(getId() + "_MARINES");

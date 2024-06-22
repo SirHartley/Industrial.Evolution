@@ -12,14 +12,13 @@ import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUserAPI;
 import indevo.items.VPCItemPlugin;
 import indevo.items.installable.VPCInstallableItemPlugin;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
@@ -31,7 +30,7 @@ import java.util.List;
 import java.util.*;
 
 import static indevo.ids.ItemIds.NO_ENTRY;
-import static indevo.utils.helper.IndustryHelper.getDaysOfCurrentMonth;
+import static indevo.utils.helper.Misc.getDaysOfCurrentMonth;
 
 //this is one of the earliest things I made and is super cursed
 public class CommodityForge extends VariableAssembler implements SharedSubmarketUserAPI, NewDayListener {
@@ -121,8 +120,8 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
                             Global.getSettings().getColor("standardTextColor"),
                             Global.getSettings().getSpecialItemSpec(stack.getSpecialDataIfSpecial().getId()).getName(),
                             market.getName(),
-                            Misc.getHighlightColor(),
-                            Misc.getHighlightColor());
+                            com.fs.starfarer.api.util.Misc.getHighlightColor(),
+                            com.fs.starfarer.api.util.Misc.getHighlightColor());
                     break;
                 }
             }
@@ -142,8 +141,8 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
             if (Settings.getBoolean(Settings.VARIND_DELIVER_TO_PRODUCTION_POINT) && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
                 cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo();
-            } else if (IndustryHelper.getStorageCargo(market) != null) {
-                cargo = IndustryHelper.getStorageCargo(market);
+            } else if (Misc.getStorageCargo(market) != null) {
+                cargo = Misc.getStorageCargo(market);
             } else {
                 return;
             }
@@ -228,7 +227,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
     }
 
     private void fireBurnedOutMessage() {
-        MessageIntel intel = new MessageIntel(StringHelper.getString("IndEvo_ComForge", "burnOutMessage") + market.getName(), Misc.getNegativeHighlightColor());
+        MessageIntel intel = new MessageIntel(StringHelper.getString("IndEvo_ComForge", "burnOutMessage") + market.getName(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
         intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "VPCRemovalIcon"));
         intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
         Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
@@ -240,8 +239,8 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
         if (!isBuilding()) {
             float opad = 5.0F;
-            Color highlight = Misc.getHighlightColor();
-            Color bad = Misc.getNegativeHighlightColor();
+            Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+            Color bad = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
 
             if (currTooltipMode.equals(IndustryTooltipMode.ADD_INDUSTRY) || currentVPC == null) {
                 tooltip.addPara("%s", opad, highlight, StringHelper.getString("IndEvo_VarInd", "vpcNotice"));
@@ -305,7 +304,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
@@ -324,7 +323,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
@@ -355,7 +354,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
     protected void applyAICoreToIncomeAndUpkeep() {
         String name;
 
-        switch (IndustryHelper.getAiCoreIdNotNull(this)) {
+        switch (Misc.getAiCoreIdNotNull(this)) {
             case Commodities.BETA_CORE:
                 if (getSpecialItem() != null) return;
 
@@ -391,7 +390,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
-        tooltip.addPara(StringHelper.getString("IndEvo_ComForge", "indStorageTooltip"), 10f, Misc.getHighlightColor(), StringHelper.getString("IndEvo_items", "VPCs"));
+        tooltip.addPara(StringHelper.getString("IndEvo_ComForge", "indStorageTooltip"), 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), StringHelper.getString("IndEvo_items", "VPCs"));
     }
 
     @Override

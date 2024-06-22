@@ -6,11 +6,10 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.BaseMarketConditionPlugin;
 import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.senate.industry.Senate;
 import indevo.items.installable.SpecialItemEffectsRepo;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.timers.NewDayListener;
 import indevo.utils.timers.TimeTracker;
 
@@ -74,7 +73,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
             RecentUnrest.get(market).add(getRemovalPenaltyUnrestDays(), "Preliminary removal: " + getName());
 
             Global.getSector().getCampaignUI().addMessage("An Edict at %s was removed before the minimum time passed. The rapid change in policy caused %s",
-                    Global.getSettings().getColor("standardTextColor"), market.getName(), "additional unrest.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                    Global.getSettings().getColor("standardTextColor"), market.getName(), "additional unrest.", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
         }
 
         removeWithoutPenalty();
@@ -91,16 +90,16 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
     }
 
     public boolean isPresenceConditionMet(MarketAPI market) {
-        return senateWithItemInRange(market) || IndustryHelper.systemHasIndustry(Ids.SENATE, market.getStarSystem(), market.getFaction());
+        return senateWithItemInRange(market) || Misc.systemHasIndustry(Ids.SENATE, market.getStarSystem(), market.getFaction());
     }
 
     public static boolean senateWithItemInRange(MarketAPI localMarket) {
         boolean senateInRange = false;
 
-        for (MarketAPI market : Misc.getNearbyMarkets(localMarket.getLocationInHyperspace(), 10)) {
+        for (MarketAPI market : com.fs.starfarer.api.util.Misc.getNearbyMarkets(localMarket.getLocationInHyperspace(), 10)) {
             if (!market.isPlayerOwned()) continue;
 
-            if (Misc.getDistanceLY(market.getLocationInHyperspace(), localMarket.getLocationInHyperspace()) <= SpecialItemEffectsRepo.RANGE_LY_TWELVE) {
+            if (com.fs.starfarer.api.util.Misc.getDistanceLY(market.getLocationInHyperspace(), localMarket.getLocationInHyperspace()) <= SpecialItemEffectsRepo.RANGE_LY_TWELVE) {
                 if (market.hasIndustry(Ids.SENATE) && !market.getIndustry(Ids.SENATE).isBuilding() && market.getIndustry(Ids.SENATE).getSpecialItem() != null) {
                     senateInRange = true;
                     break;
@@ -116,7 +115,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
             return false;
         }
 
-        List<MarketAPI> PlayerMarketsInSystem = IndustryHelper.getMarketsInLocation(market.getStarSystem(), market.getFaction().getId());
+        List<MarketAPI> PlayerMarketsInSystem = Misc.getMarketsInLocation(market.getStarSystem(), market.getFaction().getId());
         for (MarketAPI PlayerMarket : PlayerMarketsInSystem) {
 
             if (PlayerMarket.hasIndustry(Ids.SENATE)) {
@@ -138,10 +137,10 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
             String txt = penalty + " points of unrest";
 
             text.addParagraph("Removing this will cause " + txt + " in addition to any negative effects the edict would have caused on completion, if any.");
-            text.highlightInLastPara(Misc.getNegativeHighlightColor(), txt);
+            text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), txt);
         } else {
             text.addParagraph("There is no penalty for removing the current Edict as the minimum runtime has passed.");
-            text.highlightInLastPara(Misc.getPositiveHighlightColor(), "no penalty");
+            text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "no penalty");
         }
 
         text.setFontInsignia();
@@ -153,7 +152,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
         String s1 = "" + minRunTime + " months";
 
         text.addPara("The minimum runtime of this Edict is " + s1);
-        text.highlightInLastPara(Misc.getHighlightColor(), s1);
+        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getHighlightColor(), s1);
     }
 
     @Override
@@ -178,7 +177,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
     }
 
     public boolean conditionUniqueInSystem(MarketAPI market, String condition_ID) {
-        List<MarketAPI> marketsInLocation = IndustryHelper.getMarketsInLocation(market.getStarSystem(), market.getFaction().getId());
+        List<MarketAPI> marketsInLocation = Misc.getMarketsInLocation(market.getStarSystem(), market.getFaction().getId());
 
         for (MarketAPI locMarket : marketsInLocation) {
             if (locMarket.getId().equals(market.getId())) continue;

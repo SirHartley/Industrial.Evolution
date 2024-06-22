@@ -14,13 +14,12 @@ import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import exerelin.campaign.DiplomacyManager;
 import indevo.ids.Ids;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.industry.Embassy;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -67,17 +66,17 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
         }
 
         if (!mergedMap.isEmpty()) {
-            MessageIntel intel = new MessageIntel(StringHelper.getString(Ids.EMBASSY, "embassyRepChange"), Misc.getTextColor());
+            MessageIntel intel = new MessageIntel(StringHelper.getString(Ids.EMBASSY, "embassyRepChange"), com.fs.starfarer.api.util.Misc.getTextColor());
             for (Map.Entry<FactionAPI, Float> e : mergedMap.entrySet()) {
                 FactionAPI faction = e.getKey();
                 String delta = StringHelper.getFloatToIntStrx100(e.getValue());
                 String deltaStr = e.getValue() > 0f ? "+" + delta : delta;
                 Pair<String, Color> repInt = StringHelper.getRepIntTooltipPair(faction);
                 String factionName = faction.getDisplayName();
-                Color deltaColor = e.getValue() >= 0 ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor();
+                Color deltaColor = e.getValue() >= 0 ? com.fs.starfarer.api.util.Misc.getPositiveHighlightColor() : com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
 
                 intel.addLine(BaseIntelPlugin.BULLET + factionName + ": " + deltaStr + "  " + repInt.one,
-                        Misc.getTextColor(),
+                        com.fs.starfarer.api.util.Misc.getTextColor(),
                         new String[]{factionName + ": ", deltaStr, repInt.one},
                         faction.getColor(),
                         deltaColor,
@@ -243,7 +242,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
     }
 
     public static void displayMessage(String mainText, String flavourText, PersonAPI person, MarketAPI market, float repDropAmount) {
-        Color color = Misc.getTextColor();
+        Color color = com.fs.starfarer.api.util.Misc.getTextColor();
         FactionAPI faction = person.getFaction();
 
         Pair<String, Color> repInt = StringHelper.getRepIntTooltipPair(faction);
@@ -261,7 +260,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
         MessageIntel intel = new MessageIntel(message, color, highlights, faction.getColor());
         if (flavourText != null) intel.addLine(flavour, color);
         if (repDropAmount != 0f) {
-            intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getStringAndSubstituteTokens(Ids.EMBASSY, "decreaseMessage", toReplace), color, new String[]{toReplace.get("$factionName"), toReplace.get("$decreasedByPenalty")}, faction.getColor(), Misc.getNegativeHighlightColor());
+            intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getStringAndSubstituteTokens(Ids.EMBASSY, "decreaseMessage", toReplace), color, new String[]{toReplace.get("$factionName"), toReplace.get("$decreasedByPenalty")}, faction.getColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
             intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getString(Ids.EMBASSY, "currentAt"), color, new String[]{repInt.one}, repInt.two);
             Global.getSoundPlayer().playUISound("ui_rep_drop", 1, 1);
         } else intel.setSound(BaseIntelPlugin.getSoundMinorMessage());
@@ -415,7 +414,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
         for (MarketAPI market : getPlayerMarketsWithEmbassy()) {
             Embassy emb = (Embassy) market.getIndustry(Ids.EMBASSY);
             FactionAPI faction = emb.alignedFaction;
-            float aiCoreBonus = IndustryHelper.getAiCoreIdNotNull(emb).equals(Commodities.ALPHA_CORE) ? 0.5f : 1f;
+            float aiCoreBonus = Misc.getAiCoreIdNotNull(emb).equals(Commodities.ALPHA_CORE) ? 0.5f : 1f;
 
             if (repMultMap.containsKey(faction)) {
                 repMultMap.put(faction, repMultMap.get(faction) + 1 * aiCoreBonus);
@@ -440,7 +439,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
             ) marketSet.add(anyMarket);
         }
 
-        return IndustryHelper.getClosestPlayerMarketWithIndustryFromSet(market, Ids.EMBASSY, marketSet);
+        return Misc.getClosestPlayerMarketWithIndustryFromSet(market, Ids.EMBASSY, marketSet);
     }
 
     public static class checkAmbassadorPresence extends BaseCampaignEventListener {

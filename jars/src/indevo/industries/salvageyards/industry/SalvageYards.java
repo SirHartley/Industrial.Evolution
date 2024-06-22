@@ -19,14 +19,13 @@ import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.intel.bases.LuddicPathCellsIntel;
 import com.fs.starfarer.api.impl.campaign.intel.raid.RaidIntel;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import data.campaign.econ.industries.MS_fabUpgrader;
 import data.campaign.econ.industries.MS_modularFac;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUser;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -230,7 +229,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     //if a fleet loses FP through battle, add those FP to salvagePoints
     public void reportBattleOccurred(CampaignFleetAPI fleet, CampaignFleetAPI primaryWinner, BattleAPI battle) {
         if (fleet != null && fleet.getFleetData() != null && isFunctional())
-            availableSalvagePoints += Math.round(Misc.getSnapshotFPLost(fleet));
+            availableSalvagePoints += Math.round(com.fs.starfarer.api.util.Misc.getSnapshotFPLost(fleet));
     }
 
     private static final int WEAPON_SP_MONTH_LIMIT = 50;
@@ -242,7 +241,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     }
 
     private int getWeaponSPDayLimit() {
-        int dayLimit = Math.round(getWeaponSPMonthLimit() * 1f / IndustryHelper.getDaysOfCurrentMonth());
+        int dayLimit = Math.round(getWeaponSPMonthLimit() * 1f / Misc.getDaysOfCurrentMonth());
         int monthLimit = getWeaponSPMonthLimit();
 
         if (monthLimit - currentWeaponBonusSP > 0) {
@@ -314,7 +313,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     private boolean systemHasPirateActivity() {
 
-        List<MarketAPI> MarketsInSystem = IndustryHelper.getMarketsInLocation(market.getStarSystem());
+        List<MarketAPI> MarketsInSystem = Misc.getMarketsInLocation(market.getStarSystem());
         boolean hasActivity = false;
         for (MarketAPI Market : MarketsInSystem) {
             if (hasPirateActivity(Market)) {
@@ -387,11 +386,11 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
                         msg = StringHelper.getStringAndSubstituteTokens(getId(), msg, toReplace);
 
                         Global.getSector().getCampaignUI().addMessage(msg,
-                                Misc.getTextColor(),
+                                com.fs.starfarer.api.util.Misc.getTextColor(),
                                 toReplace.get("$systemName"),
                                 toReplace.get("$amt"),
                                 market.getFaction().getColor(),
-                                Misc.getHighlightColor());
+                                com.fs.starfarer.api.util.Misc.getHighlightColor());
                     }
                 }
 
@@ -413,7 +412,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
             if (this.isFunctional()) {
                 if (market.isPlayerOwned() || currTooltipMode == Industry.IndustryTooltipMode.NORMAL) {
                     tooltip.addPara(StringHelper.getString(getId(), "sUnitsAvailableTooltip"),
-                            opad, Misc.getHighlightColor(), new String[]{"" + availableSalvagePoints, "" + outputSalvagePointValue});
+                            opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"" + availableSalvagePoints, "" + outputSalvagePointValue});
                 }
             }
         }
@@ -432,7 +431,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     }
 
     private boolean isOnlyInstanceInSystem() {
-        return IndustryHelper.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction());
+        return Misc.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction());
     }
 
     @Override
@@ -446,7 +445,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, Industry.AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
         String suffix = mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
         String effect = StringHelper.getString(getId(), "aCoreEffect");
@@ -464,7 +463,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, Industry.AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
 
         String suffix = mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
@@ -483,7 +482,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, Industry.AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
 
         String suffix = mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
@@ -534,7 +533,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
-        tooltip.addPara("Salvage Yards: disassembles %s in this storage to generate Salvage Points.", 10f, Misc.getHighlightColor(), "weapons");
+        tooltip.addPara("Salvage Yards: disassembles %s in this storage to generate Salvage Points.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), "weapons");
     }
 }
 

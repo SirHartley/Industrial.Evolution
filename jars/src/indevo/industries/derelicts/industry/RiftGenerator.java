@@ -10,11 +10,10 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.scripts.PlanetMovingScript;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
@@ -128,21 +127,21 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
 
         if (isFunctional() && mode == IndustryTooltipMode.NORMAL) {
             if (isReadyToMove() && moveIsLegal()) {
-                tooltip.addPara("The Generator is %s.", 10f, Misc.getPositiveHighlightColor(), new String[]{"ready to fire"});
+                tooltip.addPara("The Generator is %s.", 10f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"ready to fire"});
             } else if (moveIsLegal()) {
-                tooltip.addPara("The Generator is %s - it will be ready in %s.", 10f, Misc.getHighlightColor(), new String[]{"recharging", getDaysUntilReady() + " days"});
+                tooltip.addPara("The Generator is %s - it will be ready in %s.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"recharging", getDaysUntilReady() + " days"});
             } else {
-                tooltip.addPara("The Generator is %s due to an %s disrupting the targeting sensors.", 10f, Misc.getNegativeHighlightColor(), new String[]{"unable to fire", "entity in orbit"});
+                tooltip.addPara("The Generator is %s due to an %s disrupting the targeting sensors.", 10f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), new String[]{"unable to fire", "entity in orbit"});
             }
 
-            tooltip.addPara("Current range: %s - can fluctuate depending on setting.", 2f, Misc.getHighlightColor(), new String[]{(int) getRangeLY() + " LY"});
+            tooltip.addPara("Current range: %s - can fluctuate depending on setting.", 2f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{(int) getRangeLY() + " LY"});
         }
     }
 
     public boolean moveIsLegal() {
         boolean legal = true;
 
-        if (IndustryHelper.planetHasRings(market)) legal = false;
+        if (Misc.planetHasRings(market)) legal = false;
 
         for (SectorEntityToken e : market.getStarSystem().getAllEntities()) {
             if (e.getOrbitFocus() != null
@@ -186,7 +185,7 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
     private List<StarSystemAPI> getNearbySystems(Vector2f center, float distLY) {
         List<StarSystemAPI> result = new ArrayList<>();
         for (StarSystemAPI s : getCleanedSystemList()) {
-            float dist = Misc.getDistanceLY(center, s.getLocation());
+            float dist = com.fs.starfarer.api.util.Misc.getDistanceLY(center, s.getLocation());
             if (dist > distLY) continue;
             result.add(s);
         }
@@ -229,7 +228,7 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
         float shortestDistanceToTarget = Float.MAX_VALUE;
 
         for (StarSystemAPI s : fromList) {
-            float distanceToTargetLY = Misc.getDistanceLY(target, s.getLocation());
+            float distanceToTargetLY = com.fs.starfarer.api.util.Misc.getDistanceLY(target, s.getLocation());
 
             if (distanceToTargetLY < shortestDistanceToTarget) {
                 shortestDistanceToTarget = distanceToTargetLY;
@@ -261,12 +260,12 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
         switch (mode) {
             case COLONY:
                 //get the closest faction market
-                for (MarketAPI market : Misc.getFactionMarkets(this.market.getFaction())) {
+                for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets(this.market.getFaction())) {
                     if (market.getPrimaryEntity() != null && market.getPrimaryEntity().getTags().contains("nex_playerOutpost"))
                         continue;
                     if (market.getStarSystem() == this.market.getStarSystem()) continue;
 
-                    float distanceToTargetLY = Misc.getDistanceLY(market.getLocationInHyperspace(), currentLoc);
+                    float distanceToTargetLY = com.fs.starfarer.api.util.Misc.getDistanceLY(market.getLocationInHyperspace(), currentLoc);
 
                     if (debug)
                         log.info("Target Colony - checking " + market.getStarSystem().getName() + " at " + distanceToTargetLY);
@@ -294,7 +293,7 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
                 float longestDistanceToTarget = 0f;
 
                 for (StarSystemAPI system : targetList) {
-                    float distanceToTargetLY = Misc.getDistanceLY(center, system.getLocation());
+                    float distanceToTargetLY = com.fs.starfarer.api.util.Misc.getDistanceLY(center, system.getLocation());
 
                     if (distanceToTargetLY > longestDistanceToTarget) {
                         longestDistanceToTarget = distanceToTargetLY;
@@ -331,7 +330,7 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
         }
 
 
-        float dist = Misc.getDistanceLY(target.getLocation(), currentLoc);
+        float dist = com.fs.starfarer.api.util.Misc.getDistanceLY(target.getLocation(), currentLoc);
         if (debug) log.info("Target: " + target.getName() + " at distance " + dist);
 
         //if the target is in range, return it
@@ -343,11 +342,11 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
 
         for (StarSystemAPI system : systemList) {
             Vector2f loc = system.getLocation();
-            float distanceToBaseLY = Misc.getDistanceLY(loc, currentLoc);
+            float distanceToBaseLY = com.fs.starfarer.api.util.Misc.getDistanceLY(loc, currentLoc);
 
             //proceed if it's in range
             if (distanceToBaseLY < range) {
-                float distanceToTargetLY = Misc.getDistanceLY(loc, target.getLocation());
+                float distanceToTargetLY = com.fs.starfarer.api.util.Misc.getDistanceLY(loc, target.getLocation());
                 String s = system.getName() + " dist Base: " + distanceToBaseLY + " dist Target: " + distanceToTargetLY;
 
                 if (distanceToTargetLY < shortestDistanceToTarget) {
@@ -406,10 +405,10 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Reduces the Generator recharge time by %s.", 0f, Misc.getHighlightColor(), new String[]{alphaCoreDayReduction + " days"});
+            text.addPara(pre + "Reduces the Generator recharge time by %s.", 0f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{alphaCoreDayReduction + " days"});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Reduces the Generator recharge time by %s.", opad, Misc.getHighlightColor(), new String[]{alphaCoreDayReduction + " days"});
+            tooltip.addPara(pre + "Reduces the Generator recharge time by %s.", opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{alphaCoreDayReduction + " days"});
         }
     }
 
@@ -424,10 +423,10 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Increases jump range by %s", 0f, Misc.getHighlightColor(), new String[]{Math.round(betaCoreRangeIncrease) + " light years"});
+            text.addPara(pre + "Increases jump range by %s", 0f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{Math.round(betaCoreRangeIncrease) + " light years"});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Increases jump range by %s", opad, Misc.getHighlightColor(), new String[]{Math.round(betaCoreRangeIncrease) + " light years"});
+            tooltip.addPara(pre + "Increases jump range by %s", opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{Math.round(betaCoreRangeIncrease) + " light years"});
         }
     }
 
@@ -442,10 +441,10 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Allows to %s star systems that already have an Artificial Rift %s.", 0f, Misc.getHighlightColor(), new String[]{"retarget", "once"});
+            text.addPara(pre + "Allows to %s star systems that already have an Artificial Rift %s.", 0f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"retarget", "once"});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Allows to %s star systems that already have an Artificial Rift %s.", opad, Misc.getHighlightColor(), new String[]{"retarget", "once"});
+            tooltip.addPara(pre + "Allows to %s star systems that already have an Artificial Rift %s.", opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"retarget", "once"});
         }
     }
 

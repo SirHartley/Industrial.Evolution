@@ -10,11 +10,11 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.Misc;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -62,9 +62,9 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             boolean canAfford = Global.getSector().getPlayerFleet().getCargo().getCredits().get() >= cost;
             boolean canBuild = sub.isAvailableToBuild();
 
-            Color baseColor = Misc.getButtonTextColor();
-            Color bgColour = Misc.getDarkPlayerColor();
-            Color brightColor = Misc.getBrightPlayerColor();
+            Color baseColor = com.fs.starfarer.api.util.Misc.getButtonTextColor();
+            Color bgColour = com.fs.starfarer.api.util.Misc.getDarkPlayerColor();
+            Color brightColor = com.fs.starfarer.api.util.Misc.getBrightPlayerColor();
 
             if (!canAfford) {
                 baseColor = Color.darkGray;
@@ -84,10 +84,10 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             //Text creation so we know the total height
             TooltipMakerAPI textPanel = subIndustryButtonPanel.createUIElement(ENTRY_WIDTH - adjustedWidth - opad - defaultPadding, CONTENT_HEIGHT, false);
             if (canAfford && canBuild) textPanel.addSectionHeading(" " + sub.getName(), Alignment.LMID, 0f);
-            else textPanel.addSectionHeading(" " + sub.getName(), Color.WHITE, Misc.getGrayColor(), Alignment.LMID, 0f);
+            else textPanel.addSectionHeading(" " + sub.getName(), Color.WHITE, com.fs.starfarer.api.util.Misc.getGrayColor(), Alignment.LMID, 0f);
             textPanel.addPara(sub.getDescription().getText2(), opad);
-            if (!canBuild) textPanel.addPara(sub.getUnavailableReason(), Misc.getNegativeHighlightColor(), spad).setAlignment(Alignment.RMID);
-            else textPanel.addPara("Cost: %s", spad, canAfford ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), Misc.getDGSCredits(cost)).setAlignment(Alignment.RMID);
+            if (!canBuild) textPanel.addPara(sub.getUnavailableReason(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), spad).setAlignment(Alignment.RMID);
+            else textPanel.addPara("Cost: %s", spad, canAfford ? com.fs.starfarer.api.util.Misc.getPositiveHighlightColor() : com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), com.fs.starfarer.api.util.Misc.getDGSCredits(cost)).setAlignment(Alignment.RMID);
 
             //adjust panel height
             float baseHeight = textPanel.getHeightSoFar() + 2f + opad;
@@ -173,7 +173,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
 
             if (specialItemData != null && canInstallItem(switchable, specialItemData.getId())) {
                 switchable.setSpecialItem(specialItemData);
-            } else if (specialItemData != null) IndustryHelper.getStorageCargo(market).addSpecial(specialItemData, 1);
+            } else if (specialItemData != null) Misc.getStorageCargo(market).addSpecial(specialItemData, 1);
 
             switchable.setAICoreId(industry.getAICoreId());
             if (switchable.canImprove()) switchable.setImproved(industry.isImproved());

@@ -18,16 +18,15 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.ValueDisplayMode;
 import com.fs.starfarer.api.util.ListMap;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.ItemIds;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import org.lwjgl.input.Keyboard;
 
 import java.util.*;
 
-import static indevo.utils.helper.IndustryHelper.stripShipToCargoAndReturnVariant;
+import static indevo.utils.helper.Misc.stripShipToCargoAndReturnVariant;
 
 public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
 
@@ -105,7 +104,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             else opts.setTooltip(option, "You can not sacrifice the only ship in your fleet, as tempting as it may be");
 
             float partsAvailable = cargo.getCommodityQuantity(ItemIds.PARTS);
-            opts.addSelector("Sacrifice Starship Components", Option.PARTS_SELECTOR, Misc.getHighlightColor(),
+            opts.addSelector("Sacrifice Starship Components", Option.PARTS_SELECTOR, com.fs.starfarer.api.util.Misc.getHighlightColor(),
                     300f,
                     50f,
                     0f,
@@ -126,7 +125,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
                 opts.setTooltip(option, "Pray to the mechanic deity to grant upon you a rare print from the deepest parts of the ancient mnemonic relays");
             else {
                 opts.setTooltip(option, "You do not have a sacrifice selected or do not have sufficient relic components to offer upon the altar. (Cost: " + RARE_PART_COST_AMT + " Relic Components)");
-                opts.setTooltipHighlightColors(option, Misc.getHighlightColor());
+                opts.setTooltipHighlightColors(option, com.fs.starfarer.api.util.Misc.getHighlightColor());
                 opts.setTooltipHighlights(option, "(Cost: " + RARE_PART_COST_AMT + " Relic Components)");
             }
         } else {
@@ -236,7 +235,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
 
         text.addPara("Your shipboard historian points out some smaller icons depicting robed humans presenting it with strangely specific offerings.");
 
-        Misc.showCost(text, null, null,
+        com.fs.starfarer.api.util.Misc.showCost(text, null, null,
                 new String[]{Commodities.METALS, Commodities.HEAVY_MACHINERY, ItemIds.PARTS},
                 new int[]{METALS_REPAIR_COST, MACHINERY_REPAIR_COST, PARTS_REPAIR_COST});
     }
@@ -246,14 +245,14 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
         text.addPara("Thousands of mechanical faces, revealed by the light, watch from above as you are once again presented with the primary tenet of the immortal engine.");
         text.addPara("\"Give, and thou shalt be given unto.\"\n");
 
-        Misc.showCost(text, null, null,
+        com.fs.starfarer.api.util.Misc.showCost(text, null, null,
                 new String[]{ItemIds.RARE_PARTS},
                 new int[]{RARE_PART_COST_AMT});
 
         if (selectedShips.isEmpty()) return;
         text.addPara("Ships selected for sacrifice:");
         TooltipMakerAPI tt = text.beginTooltip();
-        tt.addShipList(selectedShips.size(), 1, Math.min((int) Math.ceil((dialog.getTextWidth() * 0.8f) / selectedShips.size()), 40f), Misc.getBasePlayerColor(), selectedShips, 10f);
+        tt.addShipList(selectedShips.size(), 1, Math.min((int) Math.ceil((dialog.getTextWidth() * 0.8f) / selectedShips.size()), 40f), com.fs.starfarer.api.util.Misc.getBasePlayerColor(), selectedShips, 10f);
         text.addTooltip();
     }
 
@@ -298,7 +297,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             text.addPara("And as the cacophony reaches its apex, the screeching stops, the faces slacken - and nothing remains.");
             text.addPara("\n\nYour offerings have been deemed insignificant.");
 
-            text.setHighlightColorsInLastPara(Misc.getNegativeHighlightColor());
+            text.setHighlightColorsInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
             text.highlightInLastPara("Your offerings have been deemed insufficient.");
 
             if (partsToSacrifice > 0)
@@ -368,7 +367,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
 
         ShipVariantAPI variant = Global.getSettings().getVariant(picker.pick());
         if (variant == null)
-            variant = Global.getSettings().createEmptyVariant(Misc.genUID(), Global.getSettings().getHullSpec(hullID));
+            variant = Global.getSettings().createEmptyVariant(com.fs.starfarer.api.util.Misc.genUID(), Global.getSettings().getHullSpec(hullID));
 
         FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant);
 
@@ -426,7 +425,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             if (picker.isEmpty()) continue;
 
             ShipHullSpecAPI spec = picker.pick();
-            ShipVariantAPI var = Global.getSettings().createEmptyVariant(Misc.genUID(), spec);
+            ShipVariantAPI var = Global.getSettings().createEmptyVariant(com.fs.starfarer.api.util.Misc.genUID(), spec);
             hullMap.put(spec.getHullId(), Global.getFactory().createFleetMember(FleetMemberType.SHIP, var).getDeploymentPointsCost());
             picker.clear();
         }
@@ -441,7 +440,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
                 ShipAPI.HullSize.DESTROYER,
                 ShipAPI.HullSize.CRUISER,
                 ShipAPI.HullSize.CAPITAL_SHIP}) {
-            for (ShipHullSpecAPI spec : IndustryHelper.getAllLearnableShipHulls()) {
+            for (ShipHullSpecAPI spec : Misc.getAllLearnableShipHulls()) {
                 if (spec.getHullSize().equals(size)) lm.getList(size.toString()).add(spec);
             }
         }

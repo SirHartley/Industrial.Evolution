@@ -9,8 +9,7 @@ import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 
 public class RelayEntityPlugin extends BaseCampaignObjectivePlugin {
 
@@ -29,7 +28,7 @@ public class RelayEntityPlugin extends BaseCampaignObjectivePlugin {
         if (entity.getMemoryWithoutUpdate().getBoolean(MemFlags.OBJECTIVE_NON_FUNCTIONAL)) return;
 
         // everything else is handled by the relay condition - it picks what relay to use and when to remove itself
-        for (MarketAPI market : IndustryHelper.getMarketsInLocation(entity.getContainingLocation())) {
+        for (MarketAPI market : Misc.getMarketsInLocation(entity.getContainingLocation())) {
             CommRelayCondition mc = CommRelayCondition.get(market);
             if (mc == null) {
                 market.addCondition(Conditions.COMM_RELAY);
@@ -54,7 +53,7 @@ public class RelayEntityPlugin extends BaseCampaignObjectivePlugin {
                     CommRelayCondition.MAKESHIFT_COMM_RELAY_BONUS));
         }
         text.addPara(BaseIntelPlugin.INDENT + "%s stability for same-faction colonies in system",
-                pad, Misc.getHighlightColor(), "+" + bonus);
+                pad, com.fs.starfarer.api.util.Misc.getHighlightColor(), "+" + bonus);
     }
 
 }

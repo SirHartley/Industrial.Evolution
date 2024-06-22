@@ -8,11 +8,10 @@ import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -67,7 +66,7 @@ public class ConvertVPCSpecial extends BaseSalvageSpecial {
 
         if (!playercargoHasVPC()) {
             addText("You do not have a VPC to slot into the Forge.\nConsider returning when you have found one.");
-            text.highlightLastInLastPara("You do not have a VPC to slot into the Forge.", Misc.getNegativeHighlightColor());
+            text.highlightLastInLastPara("You do not have a VPC to slot into the Forge.", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
 
             setDone(true);
             setEndWithContinue(true);
@@ -104,7 +103,7 @@ public class ConvertVPCSpecial extends BaseSalvageSpecial {
                     "After producing " + prct + " of the predicted amount, the entire assembly grinds to a sudden halt.\n\n" +
                     "Judging by the ridiculous amounts of smoke and the concerning noises, it is probably done for good.");
 
-            text.highlightLastInLastPara(prct, Misc.getHighlightColor());
+            text.highlightLastInLastPara(prct, com.fs.starfarer.api.util.Misc.getHighlightColor());
 
             CargoAPI cargo = playerFleet.getCargo();
             cargo.removeItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(id, null), 1);
@@ -158,7 +157,7 @@ public class ConvertVPCSpecial extends BaseSalvageSpecial {
 
     private boolean playercargoHasVPC() {
         CargoAPI cargo = playerFleet.getCargo();
-        Set<SpecialItemData> vpcIdSet = IndustryHelper.getVPCItemSet();
+        Set<SpecialItemData> vpcIdSet = Misc.getVPCItemSet();
 
         for (SpecialItemData data : vpcIdSet) {
             if (cargo.getQuantity(CargoAPI.CargoItemType.SPECIAL, data) > 0) return true;
@@ -171,7 +170,7 @@ public class ConvertVPCSpecial extends BaseSalvageSpecial {
         CargoAPI cargo = playerFleet.getCargo();
         List<String> l = new ArrayList<>();
 
-        Set<SpecialItemData> vpcIdSet = IndustryHelper.getVPCItemSet();
+        Set<SpecialItemData> vpcIdSet = Misc.getVPCItemSet();
 
         for (SpecialItemData data : vpcIdSet) {
             if (cargo.getQuantity(CargoAPI.CargoItemType.SPECIAL, data) > 0) l.add(data.getId());

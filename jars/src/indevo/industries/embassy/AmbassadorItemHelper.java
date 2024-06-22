@@ -7,7 +7,7 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import indevo.ids.Ids;
 import indevo.items.specialitemdata.AmbassadorItemData;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 
 import java.util.Set;
 
@@ -22,7 +22,7 @@ public class AmbassadorItemHelper {
     }
 
     public static Set<String> getAllowedFactionID() {
-        Set<String> allowedList = IndustryHelper.getCSVSetFromMemory(Ids.EMBASSY_LIST);
+        Set<String> allowedList = Misc.getCSVSetFromMemory(Ids.EMBASSY_LIST);
         MemoryAPI memory = Global.getSector().getMemoryWithoutUpdate();
 
         for (String key : memory.getKeys()) {

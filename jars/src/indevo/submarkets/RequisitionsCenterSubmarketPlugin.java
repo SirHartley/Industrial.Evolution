@@ -15,12 +15,11 @@ import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.plugins.impl.CoreAutofitPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.RequisitionCenter;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 
 import java.util.*;
 
@@ -56,12 +55,12 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
 
                 int weapons = 5
                         + Math.max(0, market.getSize() - 1 + factAmt)
-                        + (Misc.isMilitary(market) ? 5 : 0)
+                        + (com.fs.starfarer.api.util.Misc.isMilitary(market) ? 5 : 0)
                         + (getLocalAICoreId().equals(Commodities.ALPHA_CORE) ? 5 : 0);
 
                 int fighters = 1
                         + Math.max(0, (market.getSize() - 1 + factAmt) / 2)
-                        + (Misc.isMilitary(market) ? 2 : 0);
+                        + (com.fs.starfarer.api.util.Misc.isMilitary(market) ? 2 : 0);
 
                 addWeapons(weapons, weapons + 5);
                 //addFighters(weapons, weapons + 5);
@@ -72,12 +71,12 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
                 FactionAPI faction = AmbassadorPersonManager.getAmbassador(market).getFaction();
                 int weapons = 7
                         + Math.max(0, market.getSize() - 1)
-                        + (Misc.isMilitary(market) ? 5 : 0)
+                        + (com.fs.starfarer.api.util.Misc.isMilitary(market) ? 5 : 0)
                         + (getLocalAICoreId().equals(Commodities.ALPHA_CORE) ? 5 : 0);
 
                 int fighters = 3
                         + Math.max(0, (market.getSize() - 1) / 2)
-                        + (Misc.isMilitary(market) ? 2 : 0);
+                        + (com.fs.starfarer.api.util.Misc.isMilitary(market) ? 2 : 0);
 
                 addWeapons(weapons, weapons + 2, faction.getId());
                 //addFighters(fighters, fighters + 2, faction.getId());
@@ -96,7 +95,7 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
     public static List<FactionAPI> getActiveFactionList(float minimumStanding, FactionAPI toFaction) {
         List<FactionAPI> list = new ArrayList<>();
         List<FactionAPI> inactiveFactions = AmbassadorPersonManager.getListOfIncativeFactions();
-        Set<String> blacklist = IndustryHelper.getCSVSetFromMemory(Ids.ORDER_LIST);
+        Set<String> blacklist = Misc.getCSVSetFromMemory(Ids.ORDER_LIST);
 
         for (FactionAPI faction : Global.getSector().getAllFactions()) {
             if (inactiveFactions.contains(faction)
@@ -267,8 +266,8 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
         Map<String, Float> weaponList = new HashMap<>();
 
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            if (!m.hasSubmarket(Submarkets.SUBMARKET_STORAGE) || IndustryHelper.getStorageCargo(m).isEmpty()) continue;
-            for (CargoAPI.CargoItemQuantity<String> w : IndustryHelper.getStorageCargo(m).getWeapons()) {
+            if (!m.hasSubmarket(Submarkets.SUBMARKET_STORAGE) || Misc.getStorageCargo(m).isEmpty()) continue;
+            for (CargoAPI.CargoItemQuantity<String> w : Misc.getStorageCargo(m).getWeapons()) {
                 addToStringMap(w.getItem(), w.getCount(), weaponList);
             }
         }
@@ -365,8 +364,8 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
         super.createTooltipAfterDescription(tooltip, expanded);
 
         if (!playerPaidToUnlock) {
-            tooltip.addPara("Requires a one-time access fee of %s. Unlike normal markets, it will have large and rare weapons for sale if your standing is good enough.", 10f, Misc.getHighlightColor(),
-                    "" + Misc.getDGSCredits(getUnlockCost() * 1f));
+            tooltip.addPara("Requires a one-time access fee of %s. Unlike normal markets, it will have large and rare weapons for sale if your standing is good enough.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(),
+                    "" + com.fs.starfarer.api.util.Misc.getDGSCredits(getUnlockCost() * 1f));
             return;
         }
 
@@ -413,9 +412,9 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
         Highlights h = new Highlights();
         h.setText("" + getUnlockCost());
         if (canPlayerAffordUnlock()) {
-            h.setColors(Misc.getHighlightColor());
+            h.setColors(com.fs.starfarer.api.util.Misc.getHighlightColor());
         } else {
-            h.setColors(Misc.getNegativeHighlightColor());
+            h.setColors(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
         }
         return h;
     }

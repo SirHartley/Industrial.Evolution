@@ -20,12 +20,11 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.SalvageSpecialAssigner;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySpecial;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.SleeperPodsSpecial;
 import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.exploration.salvage.specials.*;
 import indevo.ids.Ids;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
@@ -77,11 +76,11 @@ public class IndEvo_SalvageSpecialAssigner {
         boolean canAssignToCache = !isCacheEntity(entity) || random.nextFloat() > CACHE_EXISTING_SPECIAL_ADDITION_CHANCE;
 
         //if it doesn't have one, and it's not a cache/the cache gets overridden:
-        if (Misc.getSalvageSpecial(entity) == null && canAssignToCache && random.nextFloat() < specialApplicationChance)
+        if (com.fs.starfarer.api.util.Misc.getSalvageSpecial(entity) == null && canAssignToCache && random.nextFloat() < specialApplicationChance)
             assignSpecial(entity);
 
             //else if chance says the special gets replaced (40% chance), for cache or no cache
-        else if (!(Misc.getSalvageSpecial(entity) instanceof ShipRecoverySpecial.ShipRecoverySpecialData) && random.nextFloat() < EXISTING_SPECIAL_REMOVAL_CHANCE) {
+        else if (!(com.fs.starfarer.api.util.Misc.getSalvageSpecial(entity) instanceof ShipRecoverySpecial.ShipRecoverySpecialData) && random.nextFloat() < EXISTING_SPECIAL_REMOVAL_CHANCE) {
             //removeSpecial(entity);
             assignSpecial(entity);
         }
@@ -95,9 +94,9 @@ public class IndEvo_SalvageSpecialAssigner {
 
         if (specialData != null) {
             //log.info("Adding " + specialData.getClass().getName() + " to " + entity.getCustomEntityType());
-            IndustryHelper.addOrIncrement(specialMap, specialData.getClass().getName(), 1);
+            Misc.addOrIncrement(specialMap, specialData.getClass().getName(), 1);
 
-            Misc.setSalvageSpecial(entity, specialData);
+            com.fs.starfarer.api.util.Misc.setSalvageSpecial(entity, specialData);
         }
     }
 
@@ -106,18 +105,18 @@ public class IndEvo_SalvageSpecialAssigner {
         WeightedRandomPicker<SalvageSpecialAssigner.SpecialCreator> picker = new WeightedRandomPicker<>(StarSystemGenerator.random);
         Random random = StarSystemGenerator.random;
         String type = entity.getCustomEntityType();
-        Misc.getSalvageSpecial(entity);
+        com.fs.starfarer.api.util.Misc.getSalvageSpecial(entity);
 
         WeightedRandomPicker<String> recoverableShipFactions = getNearbyFactions(random, entity);
 
         if (entity.getContainingLocation().hasTag(Tags.THEME_REMNANT)) {
-            recoverableShipFactions = Misc.createStringPicker(random,
+            recoverableShipFactions = com.fs.starfarer.api.util.Misc.createStringPicker(random,
                     Factions.TRITACHYON, 10f, Factions.HEGEMONY, 7f, Factions.INDEPENDENT, 3f);
         }
 
-        WeightedRandomPicker<String> remnantsFaction = Misc.createStringPicker(random, Factions.REMNANTS, 10f);
+        WeightedRandomPicker<String> remnantsFaction = com.fs.starfarer.api.util.Misc.createStringPicker(random, Factions.REMNANTS, 10f);
 
-        WeightedRandomPicker<String> trapFactions = Misc.createStringPicker(random, Factions.PIRATES, 10f);
+        WeightedRandomPicker<String> trapFactions = com.fs.starfarer.api.util.Misc.createStringPicker(random, Factions.PIRATES, 10f);
         if (entity.getContainingLocation().hasTag(Tags.THEME_REMNANT_SUPPRESSED) ||
                 entity.getContainingLocation().hasTag(Tags.THEME_REMNANT_RESURGENT)) {
             trapFactions = remnantsFaction;

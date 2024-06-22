@@ -22,10 +22,9 @@ import com.fs.starfarer.api.plugins.OfficerLevelupPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.DynamicStatsAPI;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 
@@ -160,7 +159,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
         FactionAPI faction = market.getFaction();
         Color color = faction.getBaseUIColor();
-        Color hl = Misc.getHighlightColor();
+        Color hl = com.fs.starfarer.api.util.Misc.getHighlightColor();
 
         tooltip.addSectionHeading("Storage Data", color, faction.getDarkUIColor(), Alignment.MID, opad);
 
@@ -168,9 +167,9 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         tooltip.addPara("Administrators in storage: %s", spad, hl, new String[]{getAdminStorage().size() + ""});
 
         if (!market.isPlayerOwned()) {
-            tooltip.addPara("Monthly salary cost: %s, storage fees: %s", opad, hl, new String[]{Misc.getDGSCredits(calculateSalaryStorageCost()), Misc.getDGSCredits(calculateFeeStorageCost())});
+            tooltip.addPara("Monthly salary cost: %s, storage fees: %s", opad, hl, new String[]{com.fs.starfarer.api.util.Misc.getDGSCredits(calculateSalaryStorageCost()), com.fs.starfarer.api.util.Misc.getDGSCredits(calculateFeeStorageCost())});
         } else {
-            tooltip.addPara("Monthly salary cost: %s, no storage fee.", opad, hl, new String[]{Misc.getDGSCredits(calculateSalaryStorageCost())});
+            tooltip.addPara("Monthly salary cost: %s, no storage fee.", opad, hl, new String[]{com.fs.starfarer.api.util.Misc.getDGSCredits(calculateSalaryStorageCost())});
         }
 
         if (officerInTraining != null) {
@@ -182,7 +181,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             String desc = officer.getNameString() + ", training to change personality from %s to %s";
             String dayCount = getRemainingOfficerTrainingDays() + " days.";
             TooltipMakerAPI text = tooltip.beginImageWithText(officer.getPortraitSprite(), 48);
-            text.addPara(desc, spad, Misc.getTextColor(), hl, new String[]{oldPersonality, newPersonality});
+            text.addPara(desc, spad, com.fs.starfarer.api.util.Misc.getTextColor(), hl, new String[]{oldPersonality, newPersonality});
             text.addPara("Training will finish in %s", spad, hl, dayCount);
             tooltip.addImageWithText(opad);
         }
@@ -195,7 +194,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             String dayCount = getRemainingAdminTrainingDays() + " days.";
 
             TooltipMakerAPI text = tooltip.beginImageWithText(admin.getPortraitSprite(), 48);
-            text.addPara(desc, spad, Misc.getTextColor(), hl, new String[]{"increase skill level"});
+            text.addPara(desc, spad, com.fs.starfarer.api.util.Misc.getTextColor(), hl, new String[]{"increase skill level"});
             text.addPara("Training will finish in %s", spad, hl, dayCount);
             tooltip.addImageWithText(opad);
         }
@@ -208,11 +207,11 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         float totalCost = 0;
 
         for (PersonAPI person : getOfficerStorage()) {
-            totalCost += Misc.getOfficerSalary(person);
+            totalCost += com.fs.starfarer.api.util.Misc.getOfficerSalary(person);
         }
 
         for (PersonAPI person : getAdminStorage()) {
-            totalCost += Misc.getAdminSalary(person) * 0.1f;
+            totalCost += com.fs.starfarer.api.util.Misc.getAdminSalary(person) * 0.1f;
         }
 
         return totalCost;
@@ -239,7 +238,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (!onMonthEnd) {
             playerFleet.getCargo().getCredits().subtract(amount);
         } else if (!market.isPlayerOwned()) {
-            MonthlyReport.FDNode iNode = IndustryHelper.createMonthlyReportNode(this, market, getCurrentName(), Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE);
+            MonthlyReport.FDNode iNode = Misc.createMonthlyReportNode(this, market, getCurrentName(), Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE);
             iNode.upkeep += amount;
         } else {
             MonthlyReport report = SharedData.getData().getCurrentReport();
@@ -259,7 +258,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     public static final float OFFICER_MAX_LEVEL_FOREIGN_MULT = 1.3f;
 
     private void increaseOfficerQuality() {
-        for (MarketAPI market : IndustryHelper.getMarketsInLocation(this.market.getContainingLocation(), this.market.getFactionId())) {
+        for (MarketAPI market : Misc.getMarketsInLocation(this.market.getContainingLocation(), this.market.getFactionId())) {
             DynamicStatsAPI stats = market.getStats().getDynamic();
             OfficerLevelupPlugin plugin = (OfficerLevelupPlugin) Global.getSettings().getPlugin("officerLevelUp");
 
@@ -278,7 +277,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     private void unmodifyOfficerQualityIncrease() {
-        for (MarketAPI market : IndustryHelper.getMarketsInLocation(this.market.getContainingLocation(), this.market.getFactionId())) {
+        for (MarketAPI market : Misc.getMarketsInLocation(this.market.getContainingLocation(), this.market.getFactionId())) {
             market.getStats().getDynamic().getMod(Stats.OFFICER_MAX_LEVEL_MOD).unmodify(getModId());
             market.getStats().getDynamic().getMod(Stats.OFFICER_PROB_MOD).unmodify(getModId());
         }
@@ -296,8 +295,8 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
                 market.getMemory().set(ADMIN_IS_TRAINING_KEY, false);
 
                 MessageIntel intel = new MessageIntel("An administrator has finished training at %s.",
-                        Misc.getTextColor(), new String[]{(market.getName())}, market.getFaction().getBrightUIColor());
-                intel.addLine("They aquired a %s.", Misc.getTextColor(), new String[]{"new skill"}, Misc.getHighlightColor());
+                        com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{(market.getName())}, market.getFaction().getBrightUIColor());
+                intel.addLine("They aquired a %s.", com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{"new skill"}, com.fs.starfarer.api.util.Misc.getHighlightColor());
                 intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
                 intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "trainingdone"));
                 Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
@@ -373,7 +372,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             }
         }
 
-        for (MarketAPI market : Misc.getFactionMarkets(Global.getSector().getPlayerFaction())) {
+        for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets(Global.getSector().getPlayerFaction())) {
             if (market.getAdmin().getId().equals(person.getId())) {
                 notInstalled = false;
             }
@@ -449,7 +448,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         int max = playerFleet.getCommander().getStats().getOfficerNumber().getModifiedInt();
         int i = 0;
         for (OfficerDataAPI data : playerFleet.getFleetData().getOfficersCopy()) {
-            if (data.getPerson().isPlayer() || Misc.isMercenary(data.getPerson())) continue;
+            if (data.getPerson().isPlayer() || com.fs.starfarer.api.util.Misc.isMercenary(data.getPerson())) continue;
 
             i++;
         }
@@ -500,8 +499,8 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
                 market.getMemory().set(OFFICER_IS_TRAINING_KEY, false);
 
                 MessageIntel intel = new MessageIntel("An officer has finished training at %s.",
-                        Misc.getTextColor(), new String[]{(market.getName())}, market.getFaction().getBrightUIColor());
-                intel.addLine("Personality changed from %s to %s.", Misc.getTextColor(), new String[]{oldPersonality, newPersonality}, COLOURS_BY_PERSONALITY.get(oldPersonality.toLowerCase()), COLOURS_BY_PERSONALITY.get(newPersonality.toLowerCase()));
+                        com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{(market.getName())}, market.getFaction().getBrightUIColor());
+                intel.addLine("Personality changed from %s to %s.", com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{oldPersonality, newPersonality}, COLOURS_BY_PERSONALITY.get(oldPersonality.toLowerCase()), COLOURS_BY_PERSONALITY.get(newPersonality.toLowerCase()));
                 intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
                 intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "trainingdone"));
                 Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
@@ -612,7 +611,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     public boolean isOfficerTrainingAllowed(PersonAPI person) {
-        if (Misc.isUnremovable(person)) return false;
+        if (com.fs.starfarer.api.util.Misc.isUnremovable(person)) return false;
 
         boolean alphaInstalled = getAICoreId() != null && getAICoreId().equals(Commodities.ALPHA_CORE);
         float trainLevel = person.getMemoryWithoutUpdate().getKeys().contains(trainLevelKey) ? person.getMemoryWithoutUpdate().getFloat(trainLevelKey) : 0f;
@@ -753,7 +752,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         String hireKey = "adminHireTier" + tier;
         int hiringBonus = Global.getSettings().getInt(hireKey);
 
-        int salary = (int) Misc.getAdminSalary(person);
+        int salary = (int) com.fs.starfarer.api.util.Misc.getAdminSalary(person);
 
         return new OfficerManagerEvent.AvailableOfficer(person, market.getId(), hiringBonus, salary);
     }
@@ -771,7 +770,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         person.setFaction(Factions.INDEPENDENT);
         person.setPostId(Ranks.POST_OFFICER_FOR_HIRE);
 
-        int salary = (int) Misc.getOfficerSalary(person);
+        int salary = (int) com.fs.starfarer.api.util.Misc.getOfficerSalary(person);
 
         return new OfficerManagerEvent.AvailableOfficer(person, market.getId(), person.getStats().getLevel() * 2000, salary);
     }
@@ -784,7 +783,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
         String pre = "Alpha-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Alpha-level AI core. ";
@@ -802,7 +801,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
         String pre = "Beta-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Beta-level AI core. ";
@@ -820,7 +819,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
         String pre = "Gamma-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Gamma-level AI core. ";

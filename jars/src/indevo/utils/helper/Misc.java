@@ -21,7 +21,6 @@ import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.loading.RoleEntryAPI;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.scripts.PlanetMovingScript;
@@ -35,8 +34,8 @@ import java.io.IOException;
 import java.util.*;
 
 
-public class IndustryHelper {
-    public static final Logger log = Global.getLogger(IndustryHelper.class);
+public class Misc {
+    public static final Logger log = Global.getLogger(Misc.class);
 
     public static CargoAPI getStorageCargo(MarketAPI market) {
         if (market == null) return null;
@@ -293,7 +292,7 @@ public class IndustryHelper {
         copy.getMothballedShips().clear();
 
         for (FleetMemberAPI member : source.getMothballedShips().getMembersListCopy()) {
-            copy.getMothballedShips().addFleetMember(IndustryHelper.createFleetMemberClone(member));
+            copy.getMothballedShips().addFleetMember(Misc.createFleetMemberClone(member));
         }
 
         return copy;
@@ -317,10 +316,10 @@ public class IndustryHelper {
         float shortestDistanceToTarget = Float.MAX_VALUE;
 
         MarketAPI bestTarget = null;
-        for (MarketAPI market : Misc.getFactionMarkets(toMarket.getFaction())) {
+        for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets(toMarket.getFaction())) {
             if (!market.hasIndustry(id)) continue;
 
-            float distanceToTargetLY = Misc.getDistanceLY(toMarket.getLocation(), market.getLocationInHyperspace());
+            float distanceToTargetLY = com.fs.starfarer.api.util.Misc.getDistanceLY(toMarket.getLocation(), market.getLocationInHyperspace());
 
             if (distanceToTargetLY < shortestDistanceToTarget) {
                 shortestDistanceToTarget = distanceToTargetLY;
@@ -338,7 +337,7 @@ public class IndustryHelper {
         for (MarketAPI market : set) {
             if (!market.isPlayerOwned() || !market.hasIndustry(id)) continue;
 
-            float distanceToTargetLY = Misc.getDistanceLY(toMarket.getLocation(), market.getLocationInHyperspace());
+            float distanceToTargetLY = com.fs.starfarer.api.util.Misc.getDistanceLY(toMarket.getLocation(), market.getLocationInHyperspace());
 
             if (distanceToTargetLY < shortestDistanceToTarget) {
                 shortestDistanceToTarget = distanceToTargetLY;
@@ -356,7 +355,7 @@ public class IndustryHelper {
         }
 
         Map<String, Float> prlist = new HashMap<>((Map<String, Float>) memory.get(key));
-        return IndustryHelper.sortByLargestValue(prlist);
+        return Misc.sortByLargestValue(prlist);
     }
 
     public static Map<String, Float> getClampedMap(Map<String, Float> map, Float limit) {
@@ -452,8 +451,8 @@ public class IndustryHelper {
     }
 
     public static ShipVariantAPI stripShipToCargoAndReturnVariant(FleetMemberAPI member, MarketAPI market) {
-        MarketAPI target = IndustryHelper.getMarketForStorage(market);
-        CargoAPI cargo = target != null ? IndustryHelper.getStorageCargo(market) : Global.getSector().getPlayerFleet().getCargo();
+        MarketAPI target = Misc.getMarketForStorage(market);
+        CargoAPI cargo = target != null ? Misc.getStorageCargo(market) : Global.getSector().getPlayerFleet().getCargo();
 
         return stripShipToCargoAndReturnVariant(member, cargo);
     }
@@ -494,7 +493,7 @@ public class IndustryHelper {
     //excluding salvageMarket
     public static List<MarketAPI> getMarketsInLocation(LocationAPI location, String factionId) {
         List<MarketAPI> result = new ArrayList<>();
-        for (MarketAPI curr : IndustryHelper.getMarketsInLocation(location)) {
+        for (MarketAPI curr : Misc.getMarketsInLocation(location)) {
             if (curr.getFaction() != null && curr.getFactionId().equals(factionId)) {
                 result.add(curr);
             }
@@ -624,7 +623,7 @@ public class IndustryHelper {
                             || Global.getSettings().getVariant(variantId).getHullSpec() == null
                     ) continue;
 
-                    hvbShips.add(Misc.getHullIdForVariantId(variantId));
+                    hvbShips.add(com.fs.starfarer.api.util.Misc.getHullIdForVariantId(variantId));
                 }
             } catch (IOException | JSONException ex) {
                 log.error(ex);
@@ -672,7 +671,7 @@ public class IndustryHelper {
         boolean onlyOne = true;
 
         //check the built or building industries for an entry
-        List<MarketAPI> marketsInLocation = IndustryHelper.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> marketsInLocation = Misc.getMarketsInLocation(system, faction.getId());
         for (MarketAPI m : marketsInLocation) {
             if (m.getId().equals(excludeMarket.getId())) continue;
 
@@ -697,7 +696,7 @@ public class IndustryHelper {
     public static boolean systemHasIndustry(String id, StarSystemAPI system, FactionAPI faction) {
         boolean present = false;
 
-        List<MarketAPI> marketsInLocation = IndustryHelper.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> marketsInLocation = Misc.getMarketsInLocation(system, faction.getId());
         for (MarketAPI playerMarket : marketsInLocation) {
 
             if (playerMarket.hasIndustry(id)) {
@@ -711,7 +710,7 @@ public class IndustryHelper {
     public static boolean systemHasIndustryExcludeNotFunctional(String id, StarSystemAPI system, FactionAPI faction) {
         boolean present = false;
 
-        List<MarketAPI> playerMarketsInSystem = IndustryHelper.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> playerMarketsInSystem = Misc.getMarketsInLocation(system, faction.getId());
         for (MarketAPI playerMarket : playerMarketsInSystem) {
 
             if (playerMarket.hasIndustry(id)) {
@@ -727,7 +726,7 @@ public class IndustryHelper {
     public static boolean systemHasIndustry(String id, StarSystemAPI system, FactionAPI faction, boolean withUnfinished) {
         boolean present = false;
 
-        List<MarketAPI> PlayerMarketsInSystem = IndustryHelper.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> PlayerMarketsInSystem = Misc.getMarketsInLocation(system, faction.getId());
         for (MarketAPI PlayerMarket : PlayerMarketsInSystem) {
 
             if (PlayerMarket.hasIndustry(id)) {
@@ -746,7 +745,7 @@ public class IndustryHelper {
     public static int getAmountOfIndustryInSystem(String id, StarSystemAPI system, FactionAPI faction) {
         int amount = 0;
 
-        List<MarketAPI> PlayerMarketsInSystem = IndustryHelper.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> PlayerMarketsInSystem = Misc.getMarketsInLocation(system, faction.getId());
         for (MarketAPI PlayerMarket : PlayerMarketsInSystem) {
             List<Industry> thisMarketIndustries = new ArrayList<>(PlayerMarket.getIndustries());
             for (Industry i : thisMarketIndustries) {
@@ -772,7 +771,7 @@ public class IndustryHelper {
         boolean onlyOne = true;
 
         //check the built or building industries for an entry
-        List<MarketAPI> PlayerMarketsInSystem = IndustryHelper.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> PlayerMarketsInSystem = Misc.getMarketsInLocation(system, faction.getId());
         for (MarketAPI PlayerMarket : PlayerMarketsInSystem) {
             List<Industry> thisMarketIndustries = new ArrayList<>(PlayerMarket.getIndustries());
             for (Industry i : thisMarketIndustries) {
@@ -841,7 +840,7 @@ public class IndustryHelper {
 
         List<RoleEntryAPI> rl = Global.getSettings().getEntriesForRole(factionId, role);
         for (RoleEntryAPI re : rl) {
-            String hid = Misc.getHullIdForVariantId(re.getVariantId());
+            String hid = com.fs.starfarer.api.util.Misc.getHullIdForVariantId(re.getVariantId());
             if (hid != null) {
                 shipIdSet.add(hid);
             }

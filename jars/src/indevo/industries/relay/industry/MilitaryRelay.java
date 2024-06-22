@@ -16,11 +16,10 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.IconRenderMode;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.items.installable.SpecialItemEffectsRepo;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.EntityRemovalScript;
@@ -137,7 +136,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
                 .modifyMult(getModId(), 1f + bonus * mult, getNameForModifier() + extra);
 
         MemoryAPI memory = market.getMemoryWithoutUpdate();
-        Misc.setFlagWithReason(memory, MemFlags.MARKET_PATROL, getModId(), true, -1);
+        com.fs.starfarer.api.util.Misc.setFlagWithReason(memory, MemFlags.MARKET_PATROL, getModId(), true, -1);
 
         if (!isFunctional()) {
             supply.clear();
@@ -147,8 +146,8 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 
     private void patrolHqUnapply() {
         MemoryAPI memory = market.getMemoryWithoutUpdate();
-        Misc.setFlagWithReason(memory, MemFlags.MARKET_PATROL, getModId(), false, -1);
-        Misc.setFlagWithReason(memory, MemFlags.MARKET_MILITARY, getModId(), false, -1);
+        com.fs.starfarer.api.util.Misc.setFlagWithReason(memory, MemFlags.MARKET_PATROL, getModId(), false, -1);
+        com.fs.starfarer.api.util.Misc.setFlagWithReason(memory, MemFlags.MARKET_MILITARY, getModId(), false, -1);
 
         unmodifyStabilityWithBaseMod();
 
@@ -279,7 +278,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
     }
 
     private float calculateNetworkwideHighestFS() {
-        boolean systemHasIA = IndustryHelper.systemHasIndustryExcludeNotFunctional(Ids.INTARRAY, market.getStarSystem(), market.getFaction());
+        boolean systemHasIA = Misc.systemHasIndustryExcludeNotFunctional(Ids.INTARRAY, market.getStarSystem(), market.getFaction());
         FactionAPI faction = market.getFaction();
 
         if (systemHasIA) {
@@ -287,7 +286,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 
             //make player system list
             ArrayList<StarSystemAPI> playerSystemList = new ArrayList<>();
-            for (MarketAPI market : Misc.getFactionMarkets(faction)) {
+            for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets(faction)) {
                 StarSystemAPI system = market.getStarSystem();
                 if (!playerSystemList.contains(system)) {
                     playerSystemList.add(system);
@@ -298,7 +297,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
             Pair<String, Float> networkBest = new Pair<>("", 0f);
 
             for (StarSystemAPI system : playerSystemList) {
-                if (IndustryHelper.systemHasIndustryExcludeNotFunctional(Ids.INTARRAY, system, faction)) {
+                if (Misc.systemHasIndustryExcludeNotFunctional(Ids.INTARRAY, system, faction)) {
                     Pair<String, Float> systemBest = getBestPairInSystem(system, faction);
                     networkBest = systemBest.two > networkBest.two ? systemBest : networkBest;
                 }
@@ -320,7 +319,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
         float systemHighest = 0f;
         String highestMarketId = null;
 
-        List<MarketAPI> PlayerMarketsInSystem = IndustryHelper.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> PlayerMarketsInSystem = Misc.getMarketsInLocation(system, faction.getId());
         for (MarketAPI playerMarket : PlayerMarketsInSystem) {
             if (playerMarket.hasIndustry(Ids.COMARRAY) || playerMarket.hasIndustry(Ids.INTARRAY)) {
 
@@ -400,15 +399,15 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
     }
 
     private boolean systemHasMB() {
-        return IndustryHelper.systemHasIndustry(Industries.MILITARYBASE, market.getStarSystem(), market.getFaction());
+        return Misc.systemHasIndustry(Industries.MILITARYBASE, market.getStarSystem(), market.getFaction());
     }
 
     private boolean systemHasHC() {
-        return IndustryHelper.systemHasIndustry(Industries.HIGHCOMMAND, market.getStarSystem(), market.getFaction());
+        return Misc.systemHasIndustry(Industries.HIGHCOMMAND, market.getStarSystem(), market.getFaction());
     }
 
     private boolean marketHasMilitary() {
-        return IndustryHelper.marketHasMilitary(market, false);
+        return Misc.marketHasMilitary(market, false);
     }
 
     @Override
@@ -451,7 +450,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 
         if (!isBuilding() && isFunctional()) {
             float opad = 5.0F;
-            Color highlight = Misc.getHighlightColor();
+            Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
 
             if (market.isPlayerOwned() && currTooltipMode == IndustryTooltipMode.NORMAL && bestMarketId != null) {
                 if (isFunctional()) {
@@ -480,7 +479,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
             }
 
             if (ia) {
-                tooltip.addPara(StringHelper.getString(STRING_IDENT, "commRelayNotice"), opad, Misc.getPositiveHighlightColor(), Global.getSettings().getCustomEntitySpec(Entities.COMM_RELAY_MAKESHIFT).getNameInText());
+                tooltip.addPara(StringHelper.getString(STRING_IDENT, "commRelayNotice"), opad, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), Global.getSettings().getCustomEntitySpec(Entities.COMM_RELAY_MAKESHIFT).getNameInText());
             }
         }
     }
@@ -501,7 +500,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 //AI core Handling
 
     private String getBestHighCommandAICoreId() {
-        List<MarketAPI> marketsInLocation = IndustryHelper.getMarketsInLocation(market.getStarSystem(), market.getFactionId());
+        List<MarketAPI> marketsInLocation = Misc.getMarketsInLocation(market.getStarSystem(), market.getFactionId());
         Set<String> aiCoreSet = new HashSet<>();
 
         for (MarketAPI playerMarket : marketsInLocation) {
@@ -529,7 +528,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
         Color dark = faction.getDarkUIColor();
         boolean addedSomething = false;
 
-        LabelAPI heading = tooltip.addSectionHeading(Misc.ucFirst(StringHelper.ucFirstIgnore$(StringHelper.getString("IndEvo_items", "items"))), color, dark, Alignment.MID, opad);
+        LabelAPI heading = tooltip.addSectionHeading(com.fs.starfarer.api.util.Misc.ucFirst(StringHelper.ucFirstIgnore$(StringHelper.getString("IndEvo_items", "items"))), color, dark, Alignment.MID, opad);
 
         if (bestAiCoreId != null) {
             addAICoreSection(tooltip, bestAiCoreId, AICoreDescriptionMode.INDUSTRY_TOOLTIP);
@@ -539,7 +538,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
         if (aiCoreId != null) {
             tooltip.addPara("%s",
                     opad,
-                    Misc.getNegativeHighlightColor(),
+                    com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(),
                     StringHelper.getString(STRING_IDENT, "aiCoreNoEffect"));
 
             addedSomething = true;
@@ -554,7 +553,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
@@ -567,13 +566,13 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
             text.addPara(pre + effect, 0.0F, highlight, highlightString);
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara("%s", opad, Misc.getNegativeHighlightColor(), StringHelper.getString(STRING_IDENT, "aiCoreNoEffect"));
+            tooltip.addPara("%s", opad, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), StringHelper.getString(STRING_IDENT, "aiCoreNoEffect"));
         }
     }
 
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
@@ -586,13 +585,13 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
             text.addPara(pre + effect, 0.0F, highlight, highlightString);
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara("%s", opad, Misc.getNegativeHighlightColor(), StringHelper.getString(STRING_IDENT, "aiCoreNoEffect"));
+            tooltip.addPara("%s", opad, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), StringHelper.getString(STRING_IDENT, "aiCoreNoEffect"));
         }
     }
 
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
@@ -605,7 +604,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
             text.addPara(pre + effect, 0.0F, highlight, highlightString);
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara("%s", opad, Misc.getNegativeHighlightColor(), StringHelper.getString(STRING_IDENT, "aiCoreNoEffect"));
+            tooltip.addPara("%s", opad, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), StringHelper.getString(STRING_IDENT, "aiCoreNoEffect"));
         }
     }
 
@@ -650,9 +649,9 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
         Color color = faction.getBaseUIColor();
         Color dark = faction.getDarkUIColor();
 
-        Color gray = Misc.getGrayColor();
-        Color highlight = Misc.getHighlightColor();
-        Color bad = Misc.getNegativeHighlightColor();
+        Color gray = com.fs.starfarer.api.util.Misc.getGrayColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color bad = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
 
 
         MarketAPI copy = market.clone();
@@ -692,8 +691,8 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
                 mode == IndustryTooltipMode.UPGRADE ||
                 mode == IndustryTooltipMode.DOWNGRADE)
         ) {
-            int num = Misc.getNumIndustries(market);
-            int max = Misc.getMaxIndustries(market);
+            int num = com.fs.starfarer.api.util.Misc.getNumIndustries(market);
+            int max = com.fs.starfarer.api.util.Misc.getMaxIndustries(market);
 
             // during the creation of the tooltip, the market has both the current industry
             // and the upgrade/downgrade. So if this upgrade/downgrade counts as an industry, it'd count double if
@@ -721,7 +720,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
             }
 
             Color c = gray;
-            c = Misc.getTextColor();
+            c = com.fs.starfarer.api.util.Misc.getTextColor();
             Color h1 = highlight;
             if (num > max) {// || (num >= max && mode == IndustryTooltipMode.ADD_INDUSTRY)) {
                 //c = bad;
@@ -739,22 +738,22 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
             if (left < 1) left = 1;
 
             tooltip.addPara(StringHelper.getStringAndSubstituteToken(cat, "t4", "$days", StringHelper.getDayOrDays(left)),
-                    opad, Misc.getNegativeHighlightColor(), highlight, "" + left);
+                    opad, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), highlight, "" + left);
         }
 
         if (DebugFlags.COLONY_DEBUG || market.isPlayerOwned()) {
             if (mode == IndustryTooltipMode.NORMAL) {
                 if (getSpec().getUpgrade() != null && !isBuilding()) {
-                    tooltip.addPara(StringHelper.getString(cat, "t5"), Misc.getPositiveHighlightColor(), opad);
+                    tooltip.addPara(StringHelper.getString(cat, "t5"), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), opad);
                 } else {
-                    tooltip.addPara(StringHelper.getString(cat, "t6"), Misc.getPositiveHighlightColor(), opad);
+                    tooltip.addPara(StringHelper.getString(cat, "t6"), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), opad);
                 }
                 //tooltip.addPara("Click to manage", market.getFaction().getBrightUIColor(), opad);
             }
         }
 
         if (mode == IndustryTooltipMode.QUEUED) {
-            tooltip.addPara(StringHelper.getString(cat, "t7"), Misc.getPositiveHighlightColor(), opad);
+            tooltip.addPara(StringHelper.getString(cat, "t7"), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), opad);
             tooltip.addPara(StringHelper.getString(cat, "t8"), opad);
 
             int left = (int) (getSpec().getBuildTime());
@@ -786,10 +785,10 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 
         if (!category) {
             int credits = (int) Global.getSector().getPlayerFleet().getCargo().getCredits().get();
-            String creditsStr = Misc.getDGSCredits(credits);
+            String creditsStr = com.fs.starfarer.api.util.Misc.getDGSCredits(credits);
             if (mode == IndustryTooltipMode.UPGRADE || mode == IndustryTooltipMode.ADD_INDUSTRY) {
                 int cost = (int) getBuildCost();
-                String costStr = Misc.getDGSCredits(cost);
+                String costStr = com.fs.starfarer.api.util.Misc.getDGSCredits(cost);
 
                 int days = (int) getBuildTime();
 
@@ -810,7 +809,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
             } else if (mode == IndustryTooltipMode.DOWNGRADE) {
                 float refundFraction = Global.getSettings().getFloat("industryRefundFraction");
                 int cost = (int) (getBuildCost() * refundFraction);
-                String refundStr = Misc.getDGSCredits(cost);
+                String refundStr = com.fs.starfarer.api.util.Misc.getDGSCredits(cost);
 
                 tooltip.addPara(StringHelper.getString(cat, "t14"), opad, highlight, refundStr);
             }
@@ -820,7 +819,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 
             if (!getIncome().isUnmodified()) {
                 int income = getIncome().getModifiedInt();
-                tooltip.addPara(StringHelper.getString(cat, "t15"), opad, highlight, Misc.getDGSCredits(income));
+                tooltip.addPara(StringHelper.getString(cat, "t15"), opad, highlight, com.fs.starfarer.api.util.Misc.getDGSCredits(income));
                 tooltip.addStatModGrid(250, 65, 10, pad, getIncome(), true, new TooltipMakerAPI.StatModValueGetter() {
                     public String getPercentValue(MutableStat.StatMod mod) {
                         return null;
@@ -835,14 +834,14 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
                     }
 
                     public String getFlatValue(MutableStat.StatMod mod) {
-                        return Misc.getWithDGS(mod.value) + Strings.C;
+                        return com.fs.starfarer.api.util.Misc.getWithDGS(mod.value) + Strings.C;
                     }
                 });
             }
 
             if (!getUpkeep().isUnmodified()) {
                 int upkeep = getUpkeep().getModifiedInt();
-                tooltip.addPara(StringHelper.getString(cat, "t16"), opad, highlight, Misc.getDGSCredits(upkeep));
+                tooltip.addPara(StringHelper.getString(cat, "t16"), opad, highlight, com.fs.starfarer.api.util.Misc.getDGSCredits(upkeep));
                 tooltip.addStatModGrid(250, 65, 10, pad, getUpkeep(), true, new TooltipMakerAPI.StatModValueGetter() {
                     public String getPercentValue(MutableStat.StatMod mod) {
                         return null;
@@ -857,7 +856,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
                     }
 
                     public String getFlatValue(MutableStat.StatMod mod) {
-                        return Misc.getWithDGS(mod.value) + Strings.C;
+                        return com.fs.starfarer.api.util.Misc.getWithDGS(mod.value) + Strings.C;
                     }
                 });
             }
@@ -988,12 +987,12 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
         MarketAPI nearest = null;
         float minDist = Float.MAX_VALUE;
 
-        for (MarketAPI market : Misc.getFactionMarkets("player")) {
+        for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets("player")) {
             if (market.hasIndustry(Industries.MILITARYBASE) || market.hasIndustry(Industries.HIGHCOMMAND)) {
                 Industry ind = market.hasIndustry(Industries.MILITARYBASE) ? market.getIndustry(Industries.MILITARYBASE) : market.getIndustry(Industries.HIGHCOMMAND);
 
                 if (ind.isFunctional() && ind.getSpecialItem() != null) {
-                    float dist = Misc.getDistanceLY(locInHyper, ind.getMarket().getLocationInHyperspace());
+                    float dist = com.fs.starfarer.api.util.Misc.getDistanceLY(locInHyper, ind.getMarket().getLocationInHyperspace());
                     if (dist < minDist) {
                         minDist = dist;
                         nearest = market;
@@ -1016,10 +1015,10 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
             Pair<MarketAPI, Float> p = getNearestMilBaseWithItem(entity.getLocationInHyperspace());
 
             if (p != null) {
-                Color h = Misc.getHighlightColor();
+                Color h = com.fs.starfarer.api.util.Misc.getHighlightColor();
                 float opad = 10f;
 
-                String dStr = "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two);
+                String dStr = "" + com.fs.starfarer.api.util.Misc.getRoundedValueMaxOneAfterDecimal(p.two);
                 String lights = "light-years";
                 if (dStr.equals("1")) lights = "light-year";
 
@@ -1027,7 +1026,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
                                 p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away, " +
                                 "allowing you to build %s in this star system.",
                         opad, h,
-                        "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two),
+                        "" + com.fs.starfarer.api.util.Misc.getRoundedValueMaxOneAfterDecimal(p.two),
                         "relays without any military presence");
             }
         }

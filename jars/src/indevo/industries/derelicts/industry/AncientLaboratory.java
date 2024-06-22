@@ -10,13 +10,12 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.EmptyForgeTemplateItemPlugin;
 import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 import org.json.JSONArray;
@@ -82,7 +81,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
                     setSpecialItem(stack.getSpecialDataIfSpecial());
                     cargo.removeItems(CargoAPI.CargoItemType.SPECIAL, stack.getSpecialDataIfSpecial(), 1);
                     Global.getSector().getCampaignUI().addMessage("An Ancient Laboratory has taken a %s from the industrial storage at %s.",
-                            Global.getSettings().getColor("standardTextColor"), Global.getSettings().getSpecialItemSpec(stack.getSpecialDataIfSpecial().getId()).getName(), market.getName(), Misc.getHighlightColor(), Misc.getHighlightColor());
+                            Global.getSettings().getColor("standardTextColor"), Global.getSettings().getSpecialItemSpec(stack.getSpecialDataIfSpecial().getId()).getName(), market.getName(), com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getHighlightColor());
                     break;
                 }
             }
@@ -119,7 +118,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
         daysMax = getAiCoreIdNotNull().equals(Commodities.GAMMA_CORE) ? 10 : 20;
 
         Global.getSector().getCampaignUI().addMessage("Restoration of a %s has begun at %s.",
-                Misc.getTextColor(), "Degraded Forge Template", market.getName(), Misc.getHighlightColor(), market.getFaction().getBrightUIColor());
+                com.fs.starfarer.api.util.Misc.getTextColor(), "Degraded Forge Template", market.getName(), com.fs.starfarer.api.util.Misc.getHighlightColor(), market.getFaction().getBrightUIColor());
     }
 
     private String getAiCoreIdNotNull() {
@@ -202,7 +201,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
             bonusCommodityId3 = mem.getString(COMMODITY_KEY + "_" + 3);
 
         } else {
-            Set<String> commodityList = IndustryHelper.getCSVSetFromMemory(Ids.LAB_LIST);
+            Set<String> commodityList = Misc.getCSVSetFromMemory(Ids.LAB_LIST);
 
             Random random = new Random(getPickerSeed());
             WeightedRandomPicker<String> commodityPicker = new WeightedRandomPicker<>(random);
@@ -264,10 +263,10 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
 
     private boolean repairInstalledFT() {
         if (Settings.getBoolean(Settings.RESLAB_AUTO_DELIVER_TO_CLOSEST_DECON)) {
-            MarketAPI target = IndustryHelper.getClosestMarketWithIndustry(market, Ids.DECONSTRUCTOR);
+            MarketAPI target = Misc.getClosestMarketWithIndustry(market, Ids.DECONSTRUCTOR);
 
             if (target != null) {
-                CargoAPI c = IndustryHelper.getIndustrialStorageCargo(target);
+                CargoAPI c = Misc.getIndustrialStorageCargo(target);
                 if (c != null) {
                     c.addSpecial(new SpecialItemData(ItemIds.EMPTYFORGETEMPLATE, null), 1);
                     throwDeliveryMessage(market, target);
@@ -278,11 +277,11 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
 
         boolean toStorage = !Settings.getBoolean(Settings.DERELICT_DELIVER_TO_GATHERING);
 
-        MarketAPI gather = IndustryHelper.getMarketForStorage(market);
+        MarketAPI gather = Misc.getMarketForStorage(market);
         MarketAPI target = toStorage ? market : gather;
 
         if (gather != null) {
-            CargoAPI cargo = IndustryHelper.getStorageCargo(target);
+            CargoAPI cargo = Misc.getStorageCargo(target);
             cargo.addSpecial(new SpecialItemData(ItemIds.EMPTYFORGETEMPLATE, null), 1);
             throwDeliveryMessage(market, target);
             return true;
@@ -292,8 +291,8 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
     }
 
     private void throwDeliveryMessage(MarketAPI from, MarketAPI to) {
-        MessageIntel intel = new MessageIntel("A Forge Template has been %s at %s.", Misc.getTextColor(), new String[]{"repaired", from.getName()}, Misc.getHighlightColor(), from.getFaction().getBrightUIColor());
-        intel.addLine("It has been delivered to " + to.getName() + ".", Misc.getTextColor());
+        MessageIntel intel = new MessageIntel("A Forge Template has been %s at %s.", com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{"repaired", from.getName()}, com.fs.starfarer.api.util.Misc.getHighlightColor(), from.getFaction().getBrightUIColor());
+        intel.addLine("It has been delivered to " + to.getName() + ".", com.fs.starfarer.api.util.Misc.getTextColor());
         intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "FTIcon"));
         intel.setSound(BaseIntelPlugin.getSoundStandardPosting());
         Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, to);
@@ -303,7 +302,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
         super.addRightAfterDescriptionSection(tooltip, mode);
         if (mode == IndustryTooltipMode.NORMAL) {
-            tooltip.addPara("Install a %s here to restore it.", 10f, Misc.getHighlightColor(), new String[]{"Degraded Forge Template"});
+            tooltip.addPara("Install a %s here to restore it.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"Degraded Forge Template"});
         }
     }
 
@@ -362,7 +361,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
 
                 text.addPara("Repairing: %s. Time remaining: %s. You will gain an %s from this.",
                         opad,
-                        Misc.getHighlightColor(),
+                        com.fs.starfarer.api.util.Misc.getHighlightColor(),
                         new String[]{spec.getName(),
                                 daysMax - daysPassed + " days",
                                 "empty Forge Template"});
@@ -403,7 +402,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
 
                     text1.addPara("Increases production for %s by %s.",
                             opad,
-                            Misc.getHighlightColor(),
+                            com.fs.starfarer.api.util.Misc.getHighlightColor(),
                             new String[]{specAPI.getName(),
                                     Math.round(bonusValue) + " units",
                             });
@@ -434,10 +433,10 @@ Gamma reduces template refit time*/
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Unlocks a %s, but decreases the bonus to %s.", 0f, Misc.getHighlightColor(), new String[]{"third commodity", "1 unit"});
+            text.addPara(pre + "Unlocks a %s, but decreases the bonus to %s.", 0f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"third commodity", "1 unit"});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Unlocks a %s, but decreases the bonus to %s.", opad, Misc.getHighlightColor(), new String[]{"third commodity", "1 unit"});
+            tooltip.addPara(pre + "Unlocks a %s, but decreases the bonus to %s.", opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"third commodity", "1 unit"});
         }
     }
 
@@ -452,10 +451,10 @@ Gamma reduces template refit time*/
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Limits the bonus commodities to %s, but increases the bonus to %s.", 0f, Misc.getHighlightColor(), new String[]{"one", "3 units"});
+            text.addPara(pre + "Limits the bonus commodities to %s, but increases the bonus to %s.", 0f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"one", "3 units"});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Limits the bonus commodities to %s, but increases the bonus to %s.", opad, Misc.getHighlightColor(), new String[]{"one", "3 units"});
+            tooltip.addPara(pre + "Limits the bonus commodities to %s, but increases the bonus to %s.", opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"one", "3 units"});
         }
     }
 
@@ -470,10 +469,10 @@ Gamma reduces template refit time*/
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Reduces Forge Template repair time by %s.", 0f, Misc.getHighlightColor(), new String[]{"50%"});
+            text.addPara(pre + "Reduces Forge Template repair time by %s.", 0f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"50%"});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Reduces Forge Template repair time by %s.", opad, Misc.getHighlightColor(), new String[]{"50%"});
+            tooltip.addPara(pre + "Reduces Forge Template repair time by %s.", opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"50%"});
         }
     }
 
@@ -493,6 +492,6 @@ Gamma reduces template refit time*/
 
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
-        tooltip.addPara("Hull Forge: pulls %s from this storage to repair.", 10f, Misc.getHighlightColor(), "Degraded Forge Templates");
+        tooltip.addPara("Hull Forge: pulls %s from this storage to repair.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), "Degraded Forge Templates");
     }
 }

@@ -18,9 +18,9 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.ShowDefaultVisual;
 import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.industries.RestorationDocks;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
@@ -65,7 +65,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     public static final Logger log = Global.getLogger(IndEvo_InitSYMoveDModDiag.class);
 
     @Override
-    public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
+    public boolean execute(String ruleId, InteractionDialogAPI dialog, List<com.fs.starfarer.api.util.Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
         if (!(dialog instanceof IndEvo_InitSYCustomProductionDiag)) {
             this.dialog = dialog;
             this.memoryMap = memoryMap;
@@ -184,7 +184,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
         for (String s : hmIds) {
             if (selectedMods.contains(s))
-                opts.addOption(Global.getSettings().getHullModSpec(s).getDisplayName(), Option.MOD_IDENT.toString() + s, Misc.getHighlightColor(), null);
+                opts.addOption(Global.getSettings().getHullModSpec(s).getDisplayName(), Option.MOD_IDENT.toString() + s, com.fs.starfarer.api.util.Misc.getHighlightColor(), null);
             else
                 opts.addOption(Global.getSettings().getHullModSpec(s).getDisplayName(), Option.MOD_IDENT.toString() + s);
         }
@@ -249,7 +249,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
     private Set<FleetMemberAPI> getValidFleetMemberSetForInitialSelection() {
         Set<FleetMemberAPI> combinedFleet = new HashSet<FleetMemberAPI>(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy());
-        CargoAPI storageCargo = IndustryHelper.getStorageCargo(getMarket());
+        CargoAPI storageCargo = Misc.getStorageCargo(getMarket());
         if (storageCargo != null) {
             storageCargo.initMothballedShips("player");
             combinedFleet.addAll(storageCargo.getMothballedShips().getMembersListCopy());
@@ -307,7 +307,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     private void initTargetHullPicker() {
         Set<FleetMemberAPI> combinedFleet = new HashSet<>(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy());
 
-        CargoAPI storageCargo = IndustryHelper.getStorageCargo(getMarket());
+        CargoAPI storageCargo = Misc.getStorageCargo(getMarket());
         if (storageCargo != null) {
             storageCargo.initMothballedShips("player");
             combinedFleet.addAll(storageCargo.getMothballedShips().getMembersListCopy());
@@ -347,7 +347,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
         variant = variant.clone();
         variant.setOriginalVariant(null);
-        variant.setHullVariantId(Misc.genUID());
+        variant.setHullVariantId(com.fs.starfarer.api.util.Misc.genUID());
         member.setVariant(variant, false, true);
     }
 
@@ -356,7 +356,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
         variant = variant.clone();
         variant.setOriginalVariant(null);
-        variant.setHullVariantId(Misc.genUID());
+        variant.setHullVariantId(com.fs.starfarer.api.util.Misc.genUID());
 
         variant.setHullSpecAPI(RestorationDocks.getBaseShipHullSpec(member.getVariant(), false));
         member.setVariant(variant, false, true);
@@ -388,10 +388,10 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
         panel.addPara("Transfer at cost: " + costMultStr + " " + repInt.one);
         Highlights h = new Highlights();
         h.setText(costMultStr, repInt.one);
-        h.setColors(Misc.getHighlightColor(), repInt.two);
+        h.setColors(com.fs.starfarer.api.util.Misc.getHighlightColor(), repInt.two);
         panel.setHighlightsInLastPara(h);
 
-        if (originMember != null) panel.addPara("Cost per D-Mod: " + Misc.getDGSCredits(getSingleCost()) + "\n");
+        if (originMember != null) panel.addPara("Cost per D-Mod: " + com.fs.starfarer.api.util.Misc.getDGSCredits(getSingleCost()) + "\n");
         else panel.addPara("Select a ship for cost predictions.");
 
         if (originMember != null)
@@ -415,9 +415,9 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
             panel.addTooltip();
 
-            String totalstr = Misc.getDGSCredits(total);
+            String totalstr = com.fs.starfarer.api.util.Misc.getDGSCredits(total);
             panel.addPara("\nTotal cost: " + totalstr);
-            panel.highlightInLastPara(Misc.getHighlightColor(), totalstr);
+            panel.highlightInLastPara(com.fs.starfarer.api.util.Misc.getHighlightColor(), totalstr);
         }
 
         panel.addParagraph("-----------------------------------------------------------------------------");
@@ -426,7 +426,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
     private void returnToMenu() {
         dialog.setPlugin(originalPlugin);
-        new ShowDefaultVisual().execute(null, dialog, Misc.tokenize(""), memoryMap);
+        new ShowDefaultVisual().execute(null, dialog, com.fs.starfarer.api.util.Misc.tokenize(""), memoryMap);
         FireAll.fire(null, dialog, memoryMap, "IndEvo_YardsBaseMenu");
     }
 
@@ -437,8 +437,8 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
         panel.setFontSmallInsignia();
 
-        panel.addPara("Removed " + selectedMods.size() + " D-Mods from " + originMember.getShipName() + " - " + originMember.getHullSpec().getHullName(), Misc.getPositiveHighlightColor());
-        panel.addPara("Added " + selectedMods.size() + " D-Mods to " + targetMember.getShipName() + " - " + targetMember.getHullSpec().getHullName(), Misc.getNegativeHighlightColor());
+        panel.addPara("Removed " + selectedMods.size() + " D-Mods from " + originMember.getShipName() + " - " + originMember.getHullSpec().getHullName(), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor());
+        panel.addPara("Added " + selectedMods.size() + " D-Mods to " + targetMember.getShipName() + " - " + targetMember.getHullSpec().getHullName(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
 
         panel.setFontInsignia();
 
@@ -480,7 +480,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
         variant.setSource(VariantSource.REFIT);
 
         if (!variant.isDHull()) {
-            String dHullId = Misc.getDHullId(variant.getHullSpec());
+            String dHullId = com.fs.starfarer.api.util.Misc.getDHullId(variant.getHullSpec());
             ShipHullSpecAPI dHull = Global.getSettings().getHullSpec(dHullId);
             variant.setHullSpecAPI(dHull);
             member.setVariant(variant, false, true);

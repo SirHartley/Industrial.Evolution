@@ -10,7 +10,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import java.util.HashMap;
 import java.util.Map;
 
-import static indevo.utils.helper.IndustryHelper.addOrIncrement;
+import static indevo.utils.helper.Misc.addOrIncrement;
 
 public class DroneSurveyDataSpecial extends BaseSalvageSpecial {
     //level is the times it runs on the loot table, should aim for an average of 5 (0-10)

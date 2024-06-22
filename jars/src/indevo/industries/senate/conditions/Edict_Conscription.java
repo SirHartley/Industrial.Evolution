@@ -7,8 +7,7 @@ import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.timers.TimeTracker;
 
 import static java.lang.Math.ceil;
@@ -79,21 +78,21 @@ public class Edict_Conscription extends BaseEdict implements MarketImmigrationMo
         super.createTooltipAfterDescription(tooltip, expanded);
 
         if (getRemainingDays() != 0 && getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) ceil(getRemainingDays() / 31.0) + " Months");
+            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), (int) ceil(getRemainingDays() / 31.0) + " Months");
         } else if (getRemainingDays() != 0 && getRemainingDays() <= 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) getRemainingDays() + " days");
+            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), (int) getRemainingDays() + " days");
         } else {
-            tooltip.addPara("This edict can be %s", 10f, Misc.getPositiveHighlightColor(), "removed without penalty.");
+            tooltip.addPara("This edict can be %s", 10f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "removed without penalty.");
         }
 
-        tooltip.addPara("All buildings on this colony have %s.", 10f, Misc.getHighlightColor(), (int) ((1 - upkeep_mult) * 100) + "% decreased upkeep");
-        tooltip.addPara("Colony growth is %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + (int) (-pop_penalty));
+        tooltip.addPara("All buildings on this colony have %s.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), (int) ((1 - upkeep_mult) * 100) + "% decreased upkeep");
+        tooltip.addPara("Colony growth is %s.", 3f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by " + (int) (-pop_penalty));
 
         if (penaltyCounter > 0) {
-            tooltip.addPara("Stability %s, goes down by one point every month.", 5f, Misc.getNegativeHighlightColor(), "reduced by " + penaltyCounter);
+            tooltip.addPara("Stability %s, goes down by one point every month.", 5f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by " + penaltyCounter);
         }
 
-        tooltip.addPara("Requires a %s in the star system and %s on this planet.", 10f, Misc.getHighlightColor(), new String[]{"Senate", "Military Presence"});
+        tooltip.addPara("Requires a %s in the star system and %s on this planet.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"Senate", "Military Presence"});
     }
 
     @Override
@@ -107,11 +106,11 @@ public class Edict_Conscription extends BaseEdict implements MarketImmigrationMo
         String s1 = "reduced by " + (market.getSize() * 2);
 
         text.addParagraph("All buildings on this colony have 60% decreased upkeep.");
-        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "60% decreased upkeep");
+        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "60% decreased upkeep");
         text.addPara("Colony growth is " + s1 + ".");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), s1);
+        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), s1);
         text.addPara("Stability reduced by 4, goes down by one point every month.");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "reduced by 4");
+        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by 4");
     }
 
     @Override
@@ -126,7 +125,7 @@ public class Edict_Conscription extends BaseEdict implements MarketImmigrationMo
 
     @Override
     public boolean isPresenceConditionMet(MarketAPI market) {
-        return super.isPresenceConditionMet(market) && IndustryHelper.marketHasMilitaryIncludeRelays(market);
+        return super.isPresenceConditionMet(market) && Misc.marketHasMilitaryIncludeRelays(market);
     }
 
 }

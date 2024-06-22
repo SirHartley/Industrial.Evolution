@@ -14,13 +14,12 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.embassy.rules.IndEvo_ambassadorRemoval;
 import indevo.items.installable.AmbassadorInstallableItemPlugin;
 import indevo.items.specialitemdata.AmbassadorItemData;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -136,7 +135,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
     @Override
     public void onNewDay() {
-        if (market.isPlayerOwned() && betaCoreInstalled && !IndustryHelper.getAiCoreIdNotNull(this).equals(Commodities.BETA_CORE)) {
+        if (market.isPlayerOwned() && betaCoreInstalled && !Misc.getAiCoreIdNotNull(this).equals(Commodities.BETA_CORE)) {
             betaCoreRemovalPenalty();
             betaCoreInstalled = false;
         }
@@ -175,8 +174,8 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
         if (isFunctional() && market.getFactionId().equals("player")) {
             float opad = 5.0F;
-            Color highlight = Misc.getHighlightColor();
-            Color bad = Misc.getNegativeHighlightColor();
+            Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+            Color bad = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
 
             String warn1 = StringHelper.getString(getId(), "requiresAmbassador");
             String warn2 = StringHelper.getString(getId(), "canHireAt");
@@ -191,7 +190,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
             if (currTooltipMode == IndustryTooltipMode.NORMAL && getSpecialItem() != null) {
                 if (AmbassadorPersonManager.getAmbassador(market) == null) {
-                    tooltip.addPara("%s", opad, Misc.getPositiveHighlightColor(), StringHelper.getString(getId(), "currentlyTakingOffice"));
+                    tooltip.addPara("%s", opad, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), StringHelper.getString(getId(), "currentlyTakingOffice"));
                 } else {
                     FactionAPI player = Global.getSector().getPlayerFaction();
                     RepLevel level = player.getRelationshipLevel(alignedFaction.getId());
@@ -199,13 +198,13 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
                     int repInt = (int) Math.ceil((Math.round(player.getRelationship(alignedFaction.getId()) * 100f)));
                     String standing = "" + repInt + "/" + (int) (maxRelation * 100) + " (" + level.getDisplayName().toLowerCase() + ")";
 
-                    tooltip.addPara(StringHelper.getString(getId(), "currentPersonInOffice"), opad, Misc.getHighlightColor(), AmbassadorPersonManager.getAmbassador(market).getNameString());
+                    tooltip.addPara(StringHelper.getString(getId(), "currentPersonInOffice"), opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), AmbassadorPersonManager.getAmbassador(market).getNameString());
                     tooltip.addPara(StringHelper.getString(getId(), "factionJusrisdiction"), opad, alignedFaction.getColor(), alignedFaction.getDisplayName());
                     tooltip.addPara(StringHelper.getString(getId(), "currentStanding"), opad, relColor, standing);
                 }
             }
         } else if (isFunctional() && market.isPlayerOwned()) {
-            tooltip.addPara("Can not inaugurate an Ambassador on governed colonies!", 10f, Misc.getNegativeHighlightColor());
+            tooltip.addPara("Can not inaugurate an Ambassador on governed colonies!", 10f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
         }
     }
 
@@ -240,13 +239,13 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
             toReplace.put("$decreasedByPenalty", StringHelper.getString(getId(), "decreasedByInt") + StringHelper.getFloatToIntStrx100(-BETA_CORE_REP_PENALTY));
 
             MessageIntel intel = new MessageIntel(StringHelper.getStringAndSubstituteTokens(getId(), "betaCorePenalty", toReplace),
-                    Misc.getTextColor(),
+                    com.fs.starfarer.api.util.Misc.getTextColor(),
                     new String[]{toReplace.get("$factionName"), toReplace.get("$decreasedByPenalty")},
                     alignedFaction.getColor(),
-                    Misc.getNegativeHighlightColor());
+                    com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
 
             intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getString(getId(), "currentAt"), null, new String[]{standing}, relColor);
-            intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getStringAndSubstituteToken(getId(), "betaCorePenaltyChange", "$marketName", market.getName()), Misc.getTextColor());
+            intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getStringAndSubstituteToken(getId(), "betaCorePenaltyChange", "$marketName", market.getName()), com.fs.starfarer.api.util.Misc.getTextColor());
 
             intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "reputation"));
             intel.setSound(BaseIntelPlugin.getSoundMinorMessage());
@@ -357,7 +356,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
         String effect = StringHelper.getString(getId(), "aCoreEffect");
@@ -375,7 +374,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
@@ -394,7 +393,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
@@ -421,7 +420,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
     protected void applyAICoreToIncomeAndUpkeep() {
         String name;
-        switch (IndustryHelper.getAiCoreIdNotNull(this)) {
+        switch (Misc.getAiCoreIdNotNull(this)) {
             case Commodities.GAMMA_CORE:
                 name = StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
                 getUpkeep().modifyMult("ind_core", GAMMA_CORE_UPKEEP_RED_MULT, name);

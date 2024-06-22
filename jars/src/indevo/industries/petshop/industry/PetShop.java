@@ -14,12 +14,11 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.submarkets.LocalResourcesSubmarketPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.memory.Pet;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
@@ -61,7 +60,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         super.addPostDescriptionSection(tooltip, mode);
 
         String ageNotif = !Commodities.ALPHA_CORE.equals(aiCoreId) ? "Pets will age while in storage." : "";
-        tooltip.addPara("The " + getCurrentName() + " allows %s of pets. " + ageNotif, 10f, Misc.getHighlightColor(), "purchase, storage and management");
+        tooltip.addPara("The " + getCurrentName() + " allows %s of pets. " + ageNotif, 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), "purchase, storage and management");
 
         if (!isBuilding() && isFunctional() && mode.equals(IndustryTooltipMode.NORMAL)) {
             float opad = 5.0F;
@@ -82,7 +81,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
             }
 
             tooltip.addTable("You do not have any pets stored here.", storedPets.size() - 10, opad);
-            tooltip.addPara("Total storage costs per Month: %s", 10f, Misc.getHighlightColor(), Misc.getDGSCredits(cost));
+            tooltip.addPara("Total storage costs per Month: %s", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getDGSCredits(cost));
         }
     }
 
@@ -101,7 +100,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
         if (isFunctional() && !market.isPlayerOwned()) {
 
-            MonthlyReport.FDNode iNode = IndustryHelper.createMonthlyReportNode(this, market, "Pet Storage", Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE);
+            MonthlyReport.FDNode iNode = Misc.createMonthlyReportNode(this, market, "Pet Storage", Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE);
 
             if (storedPets.size() > 0) {
                 for (Pet pet : storedPets) {
@@ -209,7 +208,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (isFunctional()) {
             //if (!market.hasSubmarket(Ids.PETMARKET)) market.addSubmarket(Ids.PETMARKET);
             if (market.isPlayerOwned()){
-                SubmarketPlugin sub = Misc.getLocalResources(market);
+                SubmarketPlugin sub = com.fs.starfarer.api.util.Misc.getLocalResources(market);
                 if (sub instanceof LocalResourcesSubmarketPlugin) {
                     LocalResourcesSubmarketPlugin lr = (LocalResourcesSubmarketPlugin) sub;
                     float mult = Global.getSettings().getFloat("stockpileMultExcess");
@@ -241,8 +240,8 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     @Override
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
-        Color bad = Misc.getNegativeHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color bad = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
         String pre = "Alpha-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Alpha-level AI core. ";
@@ -251,18 +250,18 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Increases the %s to be on sale by %s.", 0f, Misc.getPositiveHighlightColor(), new String[]{"chance for rare pets", StringHelper.getAbsPercentString(ALPHA_CORE_RARITY_BONUS, true)});
+            text.addPara(pre + "Increases the %s to be on sale by %s.", 0f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"chance for rare pets", StringHelper.getAbsPercentString(ALPHA_CORE_RARITY_BONUS, true)});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Increases the %s to be on sale by %s.", opad, Misc.getPositiveHighlightColor(), new String[]{"chance for rare pets", StringHelper.getAbsPercentString(ALPHA_CORE_RARITY_BONUS, true)});
+            tooltip.addPara(pre + "Increases the %s to be on sale by %s.", opad, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"chance for rare pets", StringHelper.getAbsPercentString(ALPHA_CORE_RARITY_BONUS, true)});
         }
     }
 
     @Override
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
-        Color bad = Misc.getNegativeHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color bad = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
         String pre = "Beta-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Beta-level AI core. ";
@@ -271,18 +270,18 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "%s from the animal market and stops pets from %s", 0f, Misc.getPositiveHighlightColor(), new String[]{"Removes tariffs", "ageing in storage"});
+            text.addPara(pre + "%s from the animal market and stops pets from %s", 0f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"Removes tariffs", "ageing in storage"});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "%s from the animal market and stops pets from %s", opad, Misc.getPositiveHighlightColor(), new String[]{"Removes tariffs", "ageing in storage"});
+            tooltip.addPara(pre + "%s from the animal market and stops pets from %s", opad, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"Removes tariffs", "ageing in storage"});
         }
     }
 
     @Override
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
-        Color bad = Misc.getNegativeHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color bad = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
         String pre = "Gamma-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Gamma-level AI core. ";
@@ -291,10 +290,10 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Reduces %s by %s", 0f, Misc.getPositiveHighlightColor(), new String[]{"storage costs", StringHelper.getAbsPercentString(GAMMA_CORE_STORAGE_COST_RED_PERCENT, false)});
+            text.addPara(pre + "Reduces %s by %s", 0f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"storage costs", StringHelper.getAbsPercentString(GAMMA_CORE_STORAGE_COST_RED_PERCENT, false)});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Reduces %s by %s", opad, Misc.getPositiveHighlightColor(), new String[]{"storage costs", StringHelper.getAbsPercentString(GAMMA_CORE_STORAGE_COST_RED_PERCENT, false)});
+            tooltip.addPara(pre + "Reduces %s by %s", opad, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"storage costs", StringHelper.getAbsPercentString(GAMMA_CORE_STORAGE_COST_RED_PERCENT, false)});
         }
     }
 

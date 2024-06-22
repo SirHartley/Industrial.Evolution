@@ -14,9 +14,8 @@ import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.util.IntervalUtil;
-import com.fs.starfarer.api.util.Misc;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -63,7 +62,7 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
     }
 
     public static void spawn(ECMExplosionParams params) {
-        params.loc.addCustomEntity(Misc.genUID(), null, "IndEvo_ECMExplosion", null, params);
+        params.loc.addCustomEntity(com.fs.starfarer.api.util.Misc.genUID(), null, "IndEvo_ECMExplosion", null, params);
     }
 
     @Override
@@ -93,8 +92,8 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
     public void advance(float amount) {
         super.advance(amount);
         if (!finishing && timePassedSeconds > dur) {
-            Misc.fadeAndExpire(terrain, 0.1f);
-            Misc.fadeAndExpire(entity, 0.1f);
+            com.fs.starfarer.api.util.Misc.fadeAndExpire(terrain, 0.1f);
+            com.fs.starfarer.api.util.Misc.fadeAndExpire(entity, 0.1f);
             finishing = true;
             return;
         }
@@ -116,7 +115,7 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
             spawnExplosion(EXPLOSION_SIZE);
             explosion = false;
 
-            for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, rad)) {
+            for (CampaignFleetAPI f : com.fs.starfarer.api.util.Misc.getNearbyFleets(entity, rad)) {
                 interdictTarget(f);
             }
         }
@@ -210,7 +209,7 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
 
         params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.NONE;
 
-        SectorEntityToken explosion = cl.addCustomEntity(Misc.genUID(), "Explosion",
+        SectorEntityToken explosion = cl.addCustomEntity(com.fs.starfarer.api.util.Misc.genUID(), "Explosion",
                 "IndEvo_VariableExplosion", Factions.NEUTRAL, params);
 
         explosion.setLocation(entity.getLocation().x, entity.getLocation().y);
@@ -220,7 +219,7 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         super.render(layer, viewport);
 
-        float size = 3f * rad * IndustryHelper.smootherstep(0, (dur * RAMPUP_DUR_FRACT), timePassedSeconds);
+        float size = 3f * rad * Misc.smootherstep(0, (dur * RAMPUP_DUR_FRACT), timePassedSeconds);
         float alpha = 1 - Math.min(timePassedSeconds / (dur * RAMPUP_DUR_FRACT), 1);
 
         sprite.setAdditiveBlend();

@@ -8,12 +8,11 @@ import com.fs.starfarer.api.campaign.econ.MonthlyReport;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.impl.campaign.shared.SharedData;
-import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.courierport.ShippingCargoManager;
 import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingContractMemory;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.timers.NewDayListener;
 
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ public class ShippingManager implements NewDayListener {
         List<ShippingContract> contractListCopy = new ArrayList<>(ShippingContractMemory.getContractList());
 
         boolean allowed = false;
-        for (MarketAPI m : Misc.getPlayerMarkets(true)) {
+        for (MarketAPI m : com.fs.starfarer.api.util.Misc.getPlayerMarkets(true)) {
             if (m.hasIndustry(Ids.PORT) && m.getIndustry(Ids.PORT).isFunctional()) {
                 allowed = true;
                 break;
@@ -69,9 +68,9 @@ public class ShippingManager implements NewDayListener {
     }
 
     private void notifyFailure(ShippingContract contract) {
-        MessageIntel intel = new MessageIntel("A contract has been marked as %s.", Misc.getTextColor(), new String[]{"inactive"}, Misc.getNegativeHighlightColor());
-        intel.addLine(BaseIntelPlugin.BULLET + "%s", Misc.getTextColor(), new String[]{contract.name}, Misc.getHighlightColor());
-        intel.addLine(BaseIntelPlugin.BULLET + "Reason: %s", Misc.getTextColor(), new String[]{contract.getInvalidReason()}, Misc.getHighlightColor());
+        MessageIntel intel = new MessageIntel("A contract has been marked as %s.", com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{"inactive"}, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
+        intel.addLine(BaseIntelPlugin.BULLET + "%s", com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{contract.name}, com.fs.starfarer.api.util.Misc.getHighlightColor());
+        intel.addLine(BaseIntelPlugin.BULLET + "Reason: %s", com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{contract.getInvalidReason()}, com.fs.starfarer.api.util.Misc.getHighlightColor());
         intel.setIcon(Global.getSettings().getSpriteName("intel", "tradeFleet_valuable"));
         intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
         Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, contract.getToMarket());
@@ -102,7 +101,7 @@ public class ShippingManager implements NewDayListener {
     }
 
     public static MarketAPI getClosestPort(Shipment container) {
-        MarketAPI market = IndustryHelper.getClosestMarketWithIndustry(container.contract.getFromMarket(), Ids.PORT);
+        MarketAPI market = Misc.getClosestMarketWithIndustry(container.contract.getFromMarket(), Ids.PORT);
 
         if (market == null) {
             for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {

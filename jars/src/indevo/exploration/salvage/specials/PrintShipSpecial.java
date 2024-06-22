@@ -113,7 +113,7 @@ public class PrintShipSpecial extends BaseSalvageSpecial {
                 + data.qualityLevel;
         ForgeTemplateItemPlugin.addPrintDefectDMods(member, quality, random);
         HullForge.addBuiltInHullmods(1, member, random);
-        //IndustryHelper.finalizeAndUpdateFleetMember(member);
+        //Misc.finalizeAndUpdateFleetMember(member);
 
         playerFleet.getFleetData().addFleetMember(member);
     }

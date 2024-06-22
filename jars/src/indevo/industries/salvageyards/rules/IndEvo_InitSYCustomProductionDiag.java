@@ -14,12 +14,12 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.*;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.ValueDisplayMode;
 import com.fs.starfarer.api.util.Highlights;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.salvageyards.industry.SalvageYards;
 import indevo.industries.salvageyards.intel.YardsCustomProductionIntel;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
@@ -86,7 +86,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
     boolean debug = false;
 
     @Override
-    public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
+    public boolean execute(String ruleId, InteractionDialogAPI dialog, List<com.fs.starfarer.api.util.Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
         debug = Global.getSettings().isDevMode();
 
         if (!(dialog instanceof IndEvo_InitSYCustomProductionDiag)) {
@@ -143,11 +143,11 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         Option option = Option.valueOf(optionData.toString());
 
         float rarePartsInCargo = Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(ItemIds.RARE_PARTS);
-        float rarePartsInMarket = IndustryHelper.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.RARE_PARTS);
+        float rarePartsInMarket = Misc.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.RARE_PARTS);
         float rarePartsAvailable = rarePartsInCargo + rarePartsInMarket;
 
         float partsInCargo = Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(ItemIds.PARTS);
-        float partsInMarket = IndustryHelper.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.PARTS);
+        float partsInMarket = Misc.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.PARTS);
         float partsAvailable = partsInCargo + partsInMarket;
         float partTradeInPrice = Math.round(Global.getSettings().getCommoditySpec(ItemIds.PARTS).getBasePrice() * PART_VALUE_MULT);
 
@@ -161,7 +161,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             case MAIN:
                 opts.addOption("Select Hulls to build", Option.SELECT_SHIPS);
 
-                opts.addSelector(rarepartsName + " (Reduces D-Mods)", RARE_PARTS_SELECTOR_ID, Misc.getHighlightColor(),
+                opts.addSelector(rarepartsName + " (Reduces D-Mods)", RARE_PARTS_SELECTOR_ID, com.fs.starfarer.api.util.Misc.getHighlightColor(),
                         300f,
                         50f,
                         0f,
@@ -169,13 +169,13 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
                         ValueDisplayMode.VALUE,
                         rarePartsAvailable >= 1f ? "Use " + rarepartsName + " to reduce the D-Mods on the produced hulls. You have " + (int) Math.round(rarePartsAvailable) + " available." : "You do not have any " + rarepartsName);
 
-                opts.addSelector(partsName + " (Reduces cost)", PARTS_SELECTOR_ID, Misc.getHighlightColor(),
+                opts.addSelector(partsName + " (Reduces cost)", PARTS_SELECTOR_ID, com.fs.starfarer.api.util.Misc.getHighlightColor(),
                         300f,
                         50f,
                         0f,
                         Math.min(getProductionData().getMaxPartsAmt(), partsAvailable),
                         ValueDisplayMode.VALUE,
-                        partsAvailable >= 1f ? "Use " + partsName + " to reduce the total cost by up to 50%. The yards will give you a better rate for them than you might get otherwise. Parts get traded in at " + Misc.getDGSCredits(partTradeInPrice) + ". You have " + (int) Math.round(partsAvailable) + " available." : "You do not have any " + partsName);
+                        partsAvailable >= 1f ? "Use " + partsName + " to reduce the total cost by up to 50%. The yards will give you a better rate for them than you might get otherwise. Parts get traded in at " + com.fs.starfarer.api.util.Misc.getDGSCredits(partTradeInPrice) + ". You have " + (int) Math.round(partsAvailable) + " available." : "You do not have any " + partsName);
 
                 opts.addOption("Scrap ships for additional Budget", Option.SACRIFICE_SHIPS, "You can consign ship hulls to be disassembled and used for your production order. Fitted weapons will also be disassembled and count for the budget.");
 
@@ -200,7 +200,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
                                 info.addPara("Will double the production capacity of the Salvage Yards for a single order. " +
                                                 "Should you select this option, but not confirm the production contract at this moment, the bonus will be retained for the future.",
                                         0f,
-                                        Misc.getHighlightColor(),
+                                        com.fs.starfarer.api.util.Misc.getHighlightColor(),
                                         "bonus will be retained"
                                 );
                             }
@@ -244,7 +244,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
     private List<FleetMemberAPI> getValidFleetMemberList() {
         List<FleetMemberAPI> combinedFleet = new ArrayList<>(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy());
-        CargoAPI storageCargo = IndustryHelper.getStorageCargo(getMarket());
+        CargoAPI storageCargo = Misc.getStorageCargo(getMarket());
 
         if (storageCargo != null) {
             storageCargo.initMothballedShips("player");
@@ -375,19 +375,19 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         panel.setFontSmallInsignia();
 
         panel.addParagraph("-----------------------------------------------------------------------------");
-        panel.addPara("Maximum capacity: " + Misc.getDGSCredits(getCapacity()));
-        panel.highlightInLastPara(Misc.getHighlightColor(), Misc.getDGSCredits(getCapacity()));
+        panel.addPara("Maximum capacity: " + com.fs.starfarer.api.util.Misc.getDGSCredits(getCapacity()));
+        panel.highlightInLastPara(com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getDGSCredits(getCapacity()));
 
         if (!tradeInList.isEmpty()) {
             float add = getAdditionalCapByShips();
 
-            panel.addPara(BaseIntelPlugin.BULLET + "Additional " + Misc.getDGSCredits(add) + " by trading in " + tradeInList.size() + " hulls");
-            panel.highlightInLastPara(Misc.getHighlightColor(), Misc.getDGSCredits(add));
+            panel.addPara(BaseIntelPlugin.BULLET + "Additional " + com.fs.starfarer.api.util.Misc.getDGSCredits(add) + " by trading in " + tradeInList.size() + " hulls");
+            panel.highlightInLastPara(com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getDGSCredits(add));
         }
 
         if (isWantsToSpendSP()) {
             panel.addPara(BaseIntelPlugin.BULLET + "Doubled by Story Point");
-            panel.highlightInLastPara(Misc.getPositiveHighlightColor(), "Story Point");
+            panel.highlightInLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "Story Point");
         }
 
         String costMultStr = StringHelper.getAbsPercentString(costMult, false);
@@ -397,11 +397,11 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
         Highlights h = new Highlights();
         h.setText(costMultStr, repInt.one);
-        h.setColors(Misc.getHighlightColor(), repInt.two);
+        h.setColors(com.fs.starfarer.api.util.Misc.getHighlightColor(), repInt.two);
         panel.setHighlightsInLastPara(h);
 
         panel.addPara("Delivery time: " + DELIVERY_TIME + " " + StringHelper.getDayOrDays(DELIVERY_TIME));
-        panel.highlightInLastPara(Misc.getHighlightColor(), DELIVERY_TIME + " " + StringHelper.getDayOrDays(DELIVERY_TIME));
+        panel.highlightInLastPara(com.fs.starfarer.api.util.Misc.getHighlightColor(), DELIVERY_TIME + " " + StringHelper.getDayOrDays(DELIVERY_TIME));
 
         panel.addPara("Selected ships:");
 
@@ -429,8 +429,8 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         }
 
         panel.addTooltip();
-        panel.addPara("Reduce the amount of D-Mods by spending " + rarepartsName + ".", Misc.getGrayColor());
-        panel.addPara("Reduce the cost by up to 50% by trading in " + partsName + ".", Misc.getGrayColor());
+        panel.addPara("Reduce the amount of D-Mods by spending " + rarepartsName + ".", com.fs.starfarer.api.util.Misc.getGrayColor());
+        panel.addPara("Reduce the cost by up to 50% by trading in " + partsName + ".", com.fs.starfarer.api.util.Misc.getGrayColor());
 
         panel.addParagraph("-----------------------------------------------------------------------------");
         panel.setFontInsignia();
@@ -439,15 +439,15 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             panel.addPara("No ships selected yet, D-Mod or cost forecast not possible.");
         else {
             String appendDModCount = "Average D-Mods per hull: " + productionData.getAverageDModAmount() + "\n" +
-                    "Current total cost: " + Misc.getDGSCredits(productionData.getCost());
+                    "Current total cost: " + com.fs.starfarer.api.util.Misc.getDGSCredits(productionData.getCost());
             panel.addPara(appendDModCount);
-            panel.highlightInLastPara(Misc.getHighlightColor(), Integer.toString(productionData.getAverageDModAmount()), Misc.getDGSCredits(productionData.getCost()));
+            panel.highlightInLastPara(com.fs.starfarer.api.util.Misc.getHighlightColor(), Integer.toString(productionData.getAverageDModAmount()), com.fs.starfarer.api.util.Misc.getDGSCredits(productionData.getCost()));
         }
     }
 
     private void returnToMenu() {
         dialog.setPlugin(originalPlugin);
-        new ShowDefaultVisual().execute(null, dialog, Misc.tokenize(""), memoryMap);
+        new ShowDefaultVisual().execute(null, dialog, com.fs.starfarer.api.util.Misc.tokenize(""), memoryMap);
         FireAll.fire(null, dialog, memoryMap, "IndEvo_YardsBaseMenu");
     }
 
@@ -475,7 +475,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             AddRemoveCommodity.addCommodityLossText(ItemIds.PARTS, partsToRemove, dialog.getTextPanel());
 
         CargoAPI fleetCargo = Global.getSector().getPlayerFleet().getCargo();
-        CargoAPI storageCargo = IndustryHelper.getStorageCargo(getMarket());
+        CargoAPI storageCargo = Misc.getStorageCargo(getMarket());
         fleetCargo.getCredits().subtract(cost);
 
         float rarePartsInCargo = fleetCargo.getCommodityQuantity(ItemIds.RARE_PARTS);
@@ -516,7 +516,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
             panel.setFontSmallInsignia();
             panel.addPara(s);
-            panel.highlightInLastPara(Misc.getNegativeHighlightColor(), s);
+            panel.highlightInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), s);
             panel.setFontInsignia();
         }
 
@@ -525,7 +525,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
             panel.setFontSmallInsignia();
             panel.addPara(s);
-            panel.highlightInLastPara(Misc.getPositiveHighlightColor(), s);
+            panel.highlightInLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), s);
             panel.setFontInsignia();
 
             getMemoryMap().get(MemKeys.MARKET).unset(HAS_SP_SELECTED);
@@ -566,9 +566,9 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
 
             String appendDModCount = "Average D-Mods per hull: " + productionData.getAverageDModAmount() + "\n" +
-                    "Current total cost: " + Misc.getDGSCredits(productionData.getCost());
+                    "Current total cost: " + com.fs.starfarer.api.util.Misc.getDGSCredits(productionData.getCost());
             dialog.getTextPanel().replaceLastParagraph(appendDModCount);
-            dialog.getTextPanel().highlightInLastPara(Misc.getHighlightColor(), Integer.toString(productionData.getAverageDModAmount()), Misc.getDGSCredits(productionData.getCost()));
+            dialog.getTextPanel().highlightInLastPara(com.fs.starfarer.api.util.Misc.getHighlightColor(), Integer.toString(productionData.getAverageDModAmount()), com.fs.starfarer.api.util.Misc.getDGSCredits(productionData.getCost()));
         }
     }
 

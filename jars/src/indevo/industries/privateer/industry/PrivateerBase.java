@@ -16,14 +16,13 @@ import com.fs.starfarer.api.impl.campaign.intel.raid.*;
 import com.fs.starfarer.api.loading.FighterWingSpecAPI;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.EngineeringHub;
 import indevo.industries.changeling.industry.population.HelldiversSubIndustry;
 import indevo.industries.changeling.industry.population.SwitchablePopulation;
 import indevo.industries.privateer.intel.PrivateerBaseRaidIntel;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.IndustryAddOrRemovePlugin;
@@ -94,9 +93,9 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
     @Override
     public boolean isAvailableToBuild() {
         return Settings.getBoolean(Settings.PIRATEHAVEN)
-                && (Misc.getMaxIndustries(market) - Misc.getNumIndustries(market)) >= 2
+                && (com.fs.starfarer.api.util.Misc.getMaxIndustries(market) - com.fs.starfarer.api.util.Misc.getNumIndustries(market)) >= 2
                 && super.isAvailableToBuild()
-                && IndustryHelper.getAmountOfIndustryInSystem(getId(), market.getStarSystem(), market.getFaction()) < 2;
+                && Misc.getAmountOfIndustryInSystem(getId(), market.getStarSystem(), market.getFaction()) < 2;
     }
 
     @Override
@@ -106,11 +105,11 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     @Override
     public String getUnavailableReason() {
-        if ((Misc.getMaxIndustries(market) - Misc.getNumIndustries(market)) < 2) {
+        if ((com.fs.starfarer.api.util.Misc.getMaxIndustries(market) - com.fs.starfarer.api.util.Misc.getNumIndustries(market)) < 2) {
             return "Requires two industry slots.";
         }
 
-        if (IndustryHelper.getAmountOfIndustryInSystem(getId(), market.getStarSystem(), market.getFaction()) > 1) {
+        if (Misc.getAmountOfIndustryInSystem(getId(), market.getStarSystem(), market.getFaction()) > 1) {
             return "Can only have two in a Star System.";
         }
 
@@ -139,8 +138,8 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
             if (target != null) {
                 startRaid(target, getBaseRaidFP());
             } else if (market.isPlayerOwned()) {
-                MessageIntel intel = new MessageIntel("Your " + (isDemocratic ? "Heroic Fighters" : "Privateers") +" could not find a target for a " + (isDemocratic ? "liberation campaign" : "raid") + ".", Misc.getTextColor());
-                intel.addLine("They humbly request you to %s.", Misc.getTextColor(), new String[]{"make some more enemies"}, Misc.getHighlightColor());
+                MessageIntel intel = new MessageIntel("Your " + (isDemocratic ? "Heroic Fighters" : "Privateers") +" could not find a target for a " + (isDemocratic ? "liberation campaign" : "raid") + ".", com.fs.starfarer.api.util.Misc.getTextColor());
+                intel.addLine("They humbly request you to %s.", com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{"make some more enemies"}, com.fs.starfarer.api.util.Misc.getHighlightColor());
                 intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "notification"));
                 intel.setSound(BaseIntelPlugin.getSoundStandardPosting());
                 Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, this.market);
@@ -198,12 +197,12 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
                 if (market.isPlayerOwned()) {
                     Global.getSector().getCampaignUI().addMessage("A " + (isDemocratic ? "liberation campaign" : "raid") +" on the %s has failed. Your " + (isDemocratic ? "Heroic Fighters" : "Privateers") +" only managed to acquire %s of commodities.",
-                            Global.getSettings().getColor("standardTextColor"), system.getName(), "a pitiful amount", raid.getFaction().getColor(), Misc.getNegativeHighlightColor());
+                            Global.getSettings().getColor("standardTextColor"), system.getName(), "a pitiful amount", raid.getFaction().getColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
                 }
 
             } else if (market.isPlayerOwned()) {
                 Global.getSector().getCampaignUI().addMessage("A "+ (isDemocratic ? "liberation campaign" : "raid") +" on the %s has failed to even reach the system.",
-                        Global.getSettings().getColor("standardTextColor"), system.getName(), "", raid.getFaction().getColor(), Misc.getNegativeHighlightColor());
+                        Global.getSettings().getColor("standardTextColor"), system.getName(), "", raid.getFaction().getColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
             }
 
 
@@ -252,7 +251,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
             }
 
             Global.getSector().getCampaignUI().addMessage("Thanks to the presence of one or more industrial polities in %s your "+ (isDemocratic ? "Heroic Fighters" : "Privateers") +" liberated %s of useful items.",
-                    Global.getSettings().getColor("standardTextColor"), system.getName(), "a good amount", Misc.getHighlightColor(), Misc.getPositiveHighlightColor());
+                    Global.getSettings().getColor("standardTextColor"), system.getName(), "a good amount", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor());
 
         } else {
             for (MarketAPI nonShipMarket : raidedMarkets) {
@@ -260,7 +259,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
             }
 
             Global.getSector().getCampaignUI().addMessage("As no real industrial presence exists on the planets of %s your "+ (isDemocratic ? "Heroic Fighters" : "Privateers") +" liberated %s of useful items.",
-                    Global.getSettings().getColor("standardTextColor"), system.getName(), "a rather disappointing amount", Misc.getHighlightColor(), Misc.getHighlightColor());
+                    Global.getSettings().getColor("standardTextColor"), system.getName(), "a rather disappointing amount", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getHighlightColor());
         }
     }
 
@@ -270,7 +269,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         float chanceOfDrop = 0.7f + (aiCoreId != null && aiCoreId.equals(Commodities.ALPHA_CORE) ? 0.2f : 0f);
         float chanceOfExtraDrop = 0.3f + (aiCoreId != null && aiCoreId.equals(Commodities.ALPHA_CORE) ? 0.1f : 0f);
 
-        CargoAPI cargo = IndustryHelper.getStorageCargo(market);
+        CargoAPI cargo = Misc.getStorageCargo(market);
         if (cargo == null || Settings.getBoolean(Settings.PRIVATEER_DELIVER_TO_GATHERING_POINT))
             cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket("storage").getCargo();
 
@@ -498,7 +497,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
                 }
 
                 float defenceRating = 0;
-                for (CampaignFleetAPI fleet : Misc.getFleetsInOrNearSystem(system)) {
+                for (CampaignFleetAPI fleet : com.fs.starfarer.api.util.Misc.getFleetsInOrNearSystem(system)) {
                     if (fleet.getFaction().isHostileTo(this.market.getFaction()))
                         defenceRating -= fleet.getFleetPoints();
                 }
@@ -553,7 +552,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
         //check target system for valid targets
         boolean hasTargets = false;
-        for (MarketAPI curr : IndustryHelper.getMarketsInLocation(target)) {
+        for (MarketAPI curr : Misc.getMarketsInLocation(target)) {
             if (curr.getFaction().isHostileTo(faction)) {
                 hasTargets = true;
                 break;
@@ -572,7 +571,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         List<JumpPointAPI> points = system.getEntities(JumpPointAPI.class);
         float min = Float.MAX_VALUE;
         for (JumpPointAPI curr : points) {
-            float dist = Misc.getDistance(entity.getLocation(), curr.getLocation());
+            float dist = com.fs.starfarer.api.util.Misc.getDistance(entity.getLocation(), curr.getLocation());
             if (dist < min) {
                 min = dist;
                 gather = curr;
@@ -626,7 +625,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
     public ArrayList<StarSystemAPI> getFactionStarSystemList(FactionAPI faction) {
         ArrayList<StarSystemAPI> systemList = new ArrayList<>();
 
-        for (MarketAPI market : Misc.getFactionMarkets(faction)) {
+        for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets(faction)) {
             if (!systemList.contains(market.getStarSystem()) && !market.isHidden() && market.isInEconomy()) {
                 systemList.add(market.getStarSystem());
             }
@@ -637,7 +636,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
     public ArrayList<MarketAPI> getHostileMarketsInSystem(StarSystemAPI system) {
         ArrayList<MarketAPI> marketList = new ArrayList<>();
 
-        for (MarketAPI market : IndustryHelper.getMarketsInLocation(system)) {
+        for (MarketAPI market : Misc.getMarketsInLocation(system)) {
             if (market.getFaction().isHostileTo(this.market.getFaction())) {
                 marketList.add(market);
             }
@@ -686,8 +685,8 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         }
 
         if (currTooltipMode == IndustryTooltipMode.ADD_INDUSTRY && isAvailableToBuild()) {
-            tooltip.addPara("%s", 10F, Misc.getHighlightColor(), new String[]{"Requires 2 industry slots!"});
-            tooltip.addPara("%s", 3f, Misc.getHighlightColor(), new String[]{"Can only have two in the star system."});
+            tooltip.addPara("%s", 10F, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"Requires 2 industry slots!"});
+            tooltip.addPara("%s", 3f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"Can only have two in the star system."});
         }
 
         if (isFunctional()) {
@@ -695,16 +694,16 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
             if (isFunctional() && currTooltipMode == IndustryTooltipMode.NORMAL) {
                 if (currentIntel != null) {
-                    tooltip.addPara("There is currently %s, targeting the %s system.", 10F, Misc.getHighlightColor(), new String[]{"an active "+ (isDemocratic ? "liberation campaign" : "raid"), currentIntel.getSystem().getName()});
+                    tooltip.addPara("There is currently %s, targeting the %s system.", 10F, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"an active "+ (isDemocratic ? "liberation campaign" : "raid"), currentIntel.getSystem().getName()});
                 } else if (raidTimeoutMonths < 1) {
-                    tooltip.addPara("There is currently %s. The next one will be attempted %s.", 10F, Misc.getHighlightColor(), new String[]{"no active "+ (isDemocratic ? "liberation campaign" : "raid"), "this month"});
+                    tooltip.addPara("There is currently %s. The next one will be attempted %s.", 10F, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"no active "+ (isDemocratic ? "liberation campaign" : "raid"), "this month"});
                 } else {
-                    tooltip.addPara("There is currently %s. The next one can be attempted in about %s.", 10F, Misc.getHighlightColor(), new String[]{"no active "+ (isDemocratic ? "liberation campaign" : "raid"), raidTimeoutMonths + " months"});
+                    tooltip.addPara("There is currently %s. The next one can be attempted in about %s.", 10F, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"no active "+ (isDemocratic ? "liberation campaign" : "raid"), raidTimeoutMonths + " months"});
                 }
 
                 if (Global.getSettings().getModManager().isModEnabled("alcoholism"))
                     tooltip.addPara("Raid strength increased by %s through the power of alcohol. Yo ho ho!", 10f,
-                            Misc.getPositiveHighlightColor(), StringHelper.getAbsPercentString(getAlcoholBonus(), false));
+                            com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), StringHelper.getAbsPercentString(getAlcoholBonus(), false));
             }
         }
     }
@@ -713,7 +712,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
         String pre = "Alpha-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Alpha-level AI core. ";
@@ -731,7 +730,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
         String pre = "Beta-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Beta-level AI core. ";
@@ -749,7 +748,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = Misc.getHighlightColor();
+        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
         String pre = "Gamma-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Gamma-level AI core. ";

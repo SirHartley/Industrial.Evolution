@@ -23,13 +23,13 @@ import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.industries.changeling.hullmods.HandBuiltHullmod;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.listener.ShipProductionSummaryMessageHandler;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.Misc;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.lazywizard.lazylib.MathUtils;
@@ -100,7 +100,7 @@ Monastic Orders
             tooltip.addSectionHeading("Governance Effects: Monastic Orders", Alignment.MID, opad);
 
             if (military) {
-                tooltip.addPara("Military buildings: %s decreased by %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "upkeep", StringHelper.getAbsPercentString(MONASTIC_UPKEEP_RED, true));
+                tooltip.addPara("Military buildings: %s decreased by %s", opad, com.fs.starfarer.api.util.Misc.getTextColor(), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "upkeep", StringHelper.getAbsPercentString(MONASTIC_UPKEEP_RED, true));
             } else {
                 tooltip.addPara("No effect on this building.", opad);
             }
@@ -111,10 +111,10 @@ Monastic Orders
     public void reportEconomyTick(int iterIndex) {
         if (!market.isPlayerOwned()) return;
 
-        PlayerFleetPersonnelTracker.PersonnelAtEntity e = PlayerFleetPersonnelTracker.getInstance().getDroppedOffAt(Commodities.MARINES, market.getPrimaryEntity(), Misc.getStorage(market).getSubmarket(), true);
+        PlayerFleetPersonnelTracker.PersonnelAtEntity e = PlayerFleetPersonnelTracker.getInstance().getDroppedOffAt(Commodities.MARINES, market.getPrimaryEntity(), com.fs.starfarer.api.util.Misc.getStorage(market).getSubmarket(), true);
 
         if (e != null) {
-            SubmarketPlugin cargo = Misc.getStorage(market);
+            SubmarketPlugin cargo = com.fs.starfarer.api.util.Misc.getStorage(market);
 
             float num = e.data.num;
             if (num == 0f && cargo.getCargo().getMarines() > 0) {
@@ -160,7 +160,7 @@ Monastic Orders
 
                 member.getVariant().addPermaMod(HandBuiltHullmod.ID);
 
-                CargoAPI cargo = IndustryHelper.getStorageCargo(market);
+                CargoAPI cargo = Misc.getStorageCargo(market);
                 cargo.initMothballedShips(market.getFactionId());
                 cargo.getMothballedShips().addFleetMember(member);
 
@@ -201,7 +201,7 @@ Monastic Orders
         try {
             variant = Global.getSettings().getVariant(picker.pick());
             if (variant == null)
-                variant = Global.getSettings().createEmptyVariant(Misc.genUID(), Global.getSettings().getHullSpec(hullID));
+                variant = Global.getSettings().createEmptyVariant(com.fs.starfarer.api.util.Misc.genUID(), Global.getSettings().getHullSpec(hullID));
         } catch (Exception e) {
             Global.getLogger(this.getClass()).error("Failed to create variant for " + hullID);
             return null;

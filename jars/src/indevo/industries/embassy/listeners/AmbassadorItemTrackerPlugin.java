@@ -10,11 +10,11 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.scripts.AmbassadorMurderConsequences;
 import indevo.items.specialitemdata.AmbassadorItemData;
+import indevo.utils.helper.Misc;
 import indevo.utils.timers.NewDayListener;
 
 import static indevo.industries.embassy.listeners.AmbassadorPersonManager.adjustRelationship;
@@ -77,7 +77,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
 
             MarketAPI m = pod.getMarket();
             if (m != null && m.hasSubmarket(Submarkets.SUBMARKET_STORAGE)) {
-                targetCargo = IndustryHelper.getStorageCargo(m);
+                targetCargo = Misc.getStorageCargo(m);
                 if (checkCargo(targetCargo, amb, returnHome)) return updateKnownLocation(targetCargo, returnHome);
             }
         }
@@ -85,7 +85,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
         //is it in a market cargo?
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
             if (m != null && m.hasSubmarket(Submarkets.SUBMARKET_STORAGE)) {
-                targetCargo = IndustryHelper.getStorageCargo(m);
+                targetCargo = Misc.getStorageCargo(m);
                 if (checkCargo(targetCargo, amb, returnHome)) return updateKnownLocation(targetCargo, returnHome);
             }
         }
@@ -189,7 +189,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
     public MarketAPI getEmptyEmbassyMarket() {
         FactionAPI playerFaction = Global.getSector().getPlayerFaction();
 
-        for (MarketAPI market : Misc.getFactionMarkets(playerFaction)) {
+        for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets(playerFaction)) {
             if (market.hasIndustry(Ids.EMBASSY)
                     && market.getIndustry(Ids.EMBASSY).getSpecialItem() != null
                     && market.getIndustry(Ids.EMBASSY).getSpecialItem().equals(specialItem)

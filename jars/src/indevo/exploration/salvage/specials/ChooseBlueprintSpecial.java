@@ -13,9 +13,8 @@ import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.utils.helper.IndustryHelper;
+import indevo.utils.helper.Misc;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.fs.starfarer.api.impl.campaign.ids.Items.SHIP_BP;
-import static indevo.utils.helper.IndustryHelper.stripShipNoCargo;
+import static indevo.utils.helper.Misc.stripShipNoCargo;
 
 public class ChooseBlueprintSpecial extends BaseSalvageSpecial {
     //choose a blueprint from a selection of 2-4 hulls
@@ -46,7 +45,7 @@ public class ChooseBlueprintSpecial extends BaseSalvageSpecial {
             Set<String> hullSet = new HashSet<>();
             WeightedRandomPicker<ShipHullSpecAPI> picker = new WeightedRandomPicker<>();
 
-            for (ShipHullSpecAPI spec : IndustryHelper.getAllRareShipHulls()) {
+            for (ShipHullSpecAPI spec : Misc.getAllRareShipHulls()) {
                 if (spec.getHullSize().equals(hullsize)) picker.add(spec);
             }
 
@@ -134,7 +133,7 @@ public class ChooseBlueprintSpecial extends BaseSalvageSpecial {
 
                     String s = "Added: 1x " + members.get(0).getHullSpec().getHullNameWithDashClass() + " Blueprint";
                     addSmallText(s);
-                    highlightLastPara(Misc.getPositiveHighlightColor(), s);
+                    highlightLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), s);
 
                     setDone(true);
                     setShowAgain(false);
