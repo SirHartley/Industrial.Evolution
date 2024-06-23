@@ -79,7 +79,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
     private final Random random = new Random();
 
     public static final float GAMMA_CORE_UPKEEP_RED_MULT = 0.7f;
-    public static final float EMPTY_FORGE_TEMPLATE_CHANCE = 0.25f;
+    public static final float EMPTY_FORGE_TEMPLATE_CHANCE = 0.6f;
     public static final float BETA_CORE_COST_RED_MULT = 0.70f;
 
     public static final int EXTRA_BUILTIN_HULLMOD_COUNT = 2;

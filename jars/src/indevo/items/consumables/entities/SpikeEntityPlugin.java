@@ -109,7 +109,7 @@ public class SpikeEntityPlugin extends BaseCustomEntityPlugin {
 
         if (state == State.ARMED) {
             for (CampaignFleetAPI fleet : Misc.getNearbyFleets(entity, TRIGGER_DETECTION_RANGE)) {
-                if (fleet.isHostileTo(Global.getSector().getPlayerFleet())) {
+                if (!fleet.isPlayerFleet()) {
                     state = State.FIRING;
                     break;
                 }

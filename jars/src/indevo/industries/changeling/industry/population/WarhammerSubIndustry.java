@@ -17,10 +17,7 @@ import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
 import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
-import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.impl.campaign.ids.Conditions;
-import com.fs.starfarer.api.impl.campaign.ids.Industries;
-import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Pair;
@@ -113,7 +110,8 @@ x can only be built on very hot worlds
         WarhammerTooltipAdder.register();
         Global.getSector().getListenerManager().addListener(this);
 
-        if (((SwitchablePopulation) industry).locked && !market.hasCondition(Conditions.POLLUTION)) market.addCondition(Conditions.POLLUTION);
+        if (((SwitchablePopulation) industry).locked && !market.hasCondition(Conditions.POLLUTION))
+            market.addCondition(Conditions.POLLUTION);
 
         int size = market.getSize();
         SwitchablePopulation population = ((SwitchablePopulation) industry);
@@ -151,20 +149,21 @@ x can only be built on very hot worlds
         Global.getSector().getPlayerStats().getDynamic().getMod("custom_production_mod").unmodify(getModId());
 
         for (Industry ind : market.getIndustries()) {
-                ind.getUpkeep().unmodify(getModId());
-                ind.getIncome().unmodify(getModId());
+            ind.getUpkeep().unmodify(getModId());
+            ind.getIncome().unmodify(getModId());
         }
     }
 
-    private void increaseIncomeAndBudgetForHullOutput(){
+    private void increaseIncomeAndBudgetForHullOutput() {
         int output = market.getCommodityData(Commodities.SHIPS).getMaxSupply();
 
-        for (Industry ind : market.getIndustries()){
-            MutableCommodityQuantity supply = industry.getSupply(Commodities.SHIPS);
-            if (supply.getQuantity().getModifiedInt() > 0) ind.getIncome().modifyFlat(getModId(), supply.getQuantity().getModifiedInt() * FLAT_INCOME_PER_HULL, getName() + " - ship hull exports (" + output + ")");
+        for (Industry ind : market.getIndustries()) {
+            MutableCommodityQuantity supply = ind.getSupply(Commodities.SHIPS);
+            if (supply.getQuantity().getModifiedInt() > 0)
+                ind.getIncome().modifyFlat(getModId(), supply.getQuantity().getModifiedInt() * FLAT_INCOME_PER_HULL, getName() + " - ship hull exports (" + output + ")");
         }
 
-        Global.getSector().getPlayerStats().getDynamic().getMod("custom_production_mod").modifyFlat(getModId(), output * FLAT_PRODUCTION_BUDGET_PER_HULL, getName() + " - ship hull exports (" + output + ")");
+        Global.getSector().getPlayerStats().getDynamic().getMod("custom_production_mod").modifyFlat(getModId(), output * FLAT_PRODUCTION_BUDGET_PER_HULL, getName() + " - ship hull exports x" + output);
     }
 
     @Override
@@ -183,62 +182,60 @@ x can only be built on very hot worlds
     @Override
     public void addRightAfterDescription(TooltipMakerAPI tooltip, Industry.IndustryTooltipMode mode) {
         super.addRightAfterDescription(tooltip, mode);
-        if (hasDeficit(industry)) tooltip.addPara("Unrest is building due to shortages.", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(),10f);
+        if (hasDeficit(industry))
+            tooltip.addPara("Unrest is building due to shortages.", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), 10f);
     }
 
     @Override
     public void reportEconomyTick(int iterIndex) {
-        if (!market.isPlayerOwned()) return;
-
-        int lastIterInMonth = (int) Global.getSettings().getFloat("economyIterPerMonth") - 1;
-
-        if (iterIndex != lastIterInMonth) {
-            currentDpBudget += getDpPerMonth();
-
-            if (random.nextFloat() < BUILD_CHANCE_PER_MONTH) {
-                WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
-
-                SettingsAPI settings = Global.getSettings();
-                for (String id : market.getFaction().getKnownShips()) {
-                    ShipHullSpecAPI spec = settings.getHullSpec(id);
-                    float dp = spec.getSuppliesToRecover();
-
-                    if (dp <= currentDpBudget) picker.add(id);
-                }
-
-                if (Global.getSettings().isDevMode()) {
-                    ModPlugin.log("budget: " + currentDpBudget);
-                    for (String s : picker.getItems()) ModPlugin.log(s);
-                }
-
-                String id = picker.pick();
-                if (id == null || id.isEmpty()) {
-                    Global.getLogger(this.getClass()).error("Failed to pick a ship to build for " + market.getName());
-                    return;
-                }
-                FleetMemberAPI member = createAndPrepareMember(id, 4);
-                if (member == null) return;
-                currentDpBudget -= (int) member.getDeploymentPointsCost();
-
-                member.getVariant().addPermaMod(HandBuiltHullmod.ID);
-
-                CargoAPI cargo = Misc.getStorageCargo(market);
-                cargo.initMothballedShips(market.getFactionId());
-                cargo.getMothballedShips().addFleetMember(member);
-
-                ShipProductionSummaryMessageHandler.getInstanceOrRegister().add(market, member);
-            }
-        }
     }
 
     @Override
     public void reportEconomyMonthEnd() {
-        if (hasDeficit(industry) & RecentUnrest.get(market).getPenalty() < 5){
+        if (hasDeficit(industry) & RecentUnrest.get(market).getPenalty() < 5) {
             if (!market.hasSpaceport()) return;
 
             RecentUnrest.get(market).add(1, getName() + ": various shortages");
             Global.getSector().getCampaignUI().addMessage("The shortage of some required commodities at %s is causing %s.",
                     Global.getSettings().getColor("standardTextColor"), market.getName(), "unrest", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
+        }
+
+        if (!market.isPlayerOwned()) return;
+
+        currentDpBudget += getDpPerMonth();
+
+        if (random.nextFloat() < BUILD_CHANCE_PER_MONTH) {
+            WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
+
+            SettingsAPI settings = Global.getSettings();
+            for (String id : market.getFaction().getKnownShips()) {
+                ShipHullSpecAPI spec = settings.getHullSpec(id);
+                float dp = spec.getSuppliesToRecover();
+
+                if (dp <= currentDpBudget) picker.add(id);
+            }
+
+            if (Global.getSettings().isDevMode()) {
+                ModPlugin.log("budget: " + currentDpBudget);
+                for (String s : picker.getItems()) ModPlugin.log(s);
+            }
+
+            String id = picker.pick();
+            if (id == null || id.isEmpty()) {
+                Global.getLogger(this.getClass()).error("Failed to pick a ship to build for " + market.getName());
+                return;
+            }
+            FleetMemberAPI member = createAndPrepareMember(id, 4);
+            if (member == null) return;
+            currentDpBudget -= (int) member.getDeploymentPointsCost();
+
+            member.getVariant().addPermaMod(HandBuiltHullmod.ID);
+
+            CargoAPI cargo = Misc.getStorageCargo(market);
+            cargo.initMothballedShips(market.getFactionId());
+            cargo.getMothballedShips().addFleetMember(member);
+
+            ShipProductionSummaryMessageHandler.getInstanceOrRegister().add(market, member);
         }
     }
 
@@ -282,16 +279,18 @@ x can only be built on very hot worlds
         return member;
     }
 
-    public boolean hasDeficit(Industry industry){
+    public boolean hasDeficit(Industry industry) {
         boolean hasDeficit = false;
-        for (Pair<String, Integer> entry : industry.getAllDeficit()) if (entry.two > 0) {
-            hasDeficit = true;
-            break;
-        }
+        for (Pair<String, Integer> entry : industry.getAllDeficit())
+            if (entry.two > 0) {
+                hasDeficit = true;
+                break;
+            }
 
         return hasDeficit;
     }
-    public String getModId(){
+
+    public String getModId() {
         return ((SwitchablePopulation) industry).getModId();
     }
 

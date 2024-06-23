@@ -37,6 +37,7 @@ import indevo.dialogue.research.DoritoGunFoundChecker;
 import indevo.dialogue.research.HyperspaceTopoProgressChecker;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.economy.listeners.ResourceConditionApplicator;
+import indevo.exploration.crucible.CrucibleStationEntityPlugin;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationPlacer;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
@@ -138,10 +139,14 @@ public class ModPlugin extends BaseModPlugin {
         boolean devmode = Global.getSettings().isDevMode();
         boolean devActions = false; //Todo SET TO FALSE FOR RELEASE
 
-        if (newGame && devmode && devActions) {
-            SectorEntityToken t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity("brimir", null, "IndEvo_MobileColony", Factions.REMNANTS, null);
+        if (devmode && devActions) {
+            SectorEntityToken t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity(null, null, "IndEvo_crucible_bottom", null, null);
             t.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
+            t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity(null, null, "IndEvo_crucible_top", null, null);
+            t.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
+            CrucibleStationEntityPlugin.generateMagneticField(t, 1f, 300f);
 
+/*
             t.addScript(new CampaignAttackScript(t, CampaignAttackScript.TYPE_RAILGUN));
 
             SubspaceSystem.gen();
@@ -153,7 +158,7 @@ public class ModPlugin extends BaseModPlugin {
 
             for (PetData d : PetDataRepo.getAll()){
                 Global.getSector().getPlayerFleet().getCargo().addSpecial(new SpecialItemData(ItemIds.PET_CHAMBER, d.id), 1);
-            }
+            }*/
         }
 
         //core

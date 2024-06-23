@@ -92,7 +92,6 @@ Pets
 Added - Expected lifetime indicator on Cryochamber
 Adjusted - locking yourself out of the Lord Foog dialogue on Mazalot is no longer permanent and will reset in time depending on what you did
 Fixed - Bug where the dialogue for assigning a pet didn't pop up for players with apple PCs (get a proper PC please)
-Fixed - Project Navi no longer displays if pets are disabled
 
 Items
 Added - Relic components will now drop from all automated ships that were destroyed (even modded)
@@ -100,6 +99,7 @@ Adjusted - Relic components no longer drop from battles with the luddic path
 Adjusted - Removed most VPCs from Historian pool
 Adjusted - Conflict/Exploration Package VPCs moved from Historian T4 to Historian T3
 Adjusted - Drastically reduced drop rates for special items, again
+Adjusted - Drive bubble spike now fires when a fleet is in range regardless of hostility
 
 Hullmods
 Added - Hellpods. They do what you'd expect them to do: getting your marines killed.
@@ -113,6 +113,9 @@ Research Projects
 Added - Project Prospector: trade survey data for hyperspace topography progress
 Adjusted - Show Inputs button is now Show Info and displays a description of what the project actually does (in most cases)
 Adjusted - "New Projects" intel now shows which projects actually got unlocked
+Fixed - Project Navi no longer displays if pets are disabled
+Fixed - New Project intel no longer classed as major event
+Fixed - New Project intel now despawns after 31 days
 
 Artillery
 Added - Watchtowers now reset to the controlling faction after 31 days if the station is under AI control to avoid deadlocked artillery stations
@@ -136,6 +139,9 @@ Added - "Can not transfer" text for ships with the unrestorable tag
 Academy
 Fixed - Can no longer decivilize (mod conflict)
 
+Courier Port
+Added - Can now ship to and from RAT settlements
+
 Specialized industries
 Fixed - Specialized Mining now has correct outputs
 Fixed - Specialized Refining no longer ignores all external supply/demand bonus
@@ -151,30 +157,32 @@ Cont. - Forge World: Randomly provides experimental ships for free, rural indust
 Adjusted - Rural Polity: Farming now produces Organics (and drugs with free port) instead of supplies
 Adjusted - Rural Polity: Light Industry now produces Supplies alongside weapons
 Adjusted - Rural Polity: Reduced light industry weapons output
-Adjusted - Corporate Government: Stability Bonus calculation now scales off gross income, not net (Ignoring stability!)
-Adjusted - Corporate Government: Base Income 1.2 -> 1.3
-Adjusted - Corporate Government: Base Immigration malus -30 -> -20
-Adjusted - Corporate Government immigration malus now scales with income up to -50 (-20 base, -1 per 10k income up to an additional -30 )
+Adjusted - Corporate: Stability Bonus calculation now scales off gross income, not net (Ignoring stability!)
+Adjusted - Corporate: Base Income 1.2 -> 1.3
+Adjusted - Corporate: Base Immigration malus -30 -> -20
+Adjusted - Corporate: immigration malus now scales with income up to -50 (-20 base, -1 per 10k income up to an additional -30 )
 Adjusted - Forge World: Halved ship building interval while keeping +DP budget/mo the same -> less frigates, more larger hulls
 Adjusted - Forge World: Delivery notification now includes hull size / designation
-Fixed - Corporate Government stability will no longer enter a downward spiral on game load
-Fixed - Corporate Government now properly unlocks up to max industry slots when permanent instead of adding 4 flat
-Fixed - Corporate Government no longer applies the hazard rating upkeep modifier twice
-Fixed - Corporate Government now respects the additional hypershunt industry and no longer considers it going over the limit
-Fixed - All Governments now correctly recognize patrol HQ, MilBase and high command as military
-Fixed - Underworld and Corporate no longer apply the hazard rating upkeep modifier twice
-Fixed - Monastic Order / Managed Democracy now properly increase marine XP
-Fixed - Arcology now properly suppresses the heat conditions added by an orbital lamp
-Fixed - Arcology now buildable where it should be (everywhere except lava & gas giants)
-Fixed - Arcology now properly uses the water version image on water planets
-Fixed - Tooltip no longer displays "click to change" when it can't actually change
-Fixed - Tooltip no longer displays "Permanent in X days" after it has become permanent
+Fixed - General: Governments now correctly recognize patrol HQ, MilBase and high command as military
+Fixed - General: Tooltip no longer displays "click to change" when it can't actually change
+Fixed - General: Tooltip no longer displays "Permanent in X days" after it has become permanent
+Fixed - Corporate: stability will no longer enter a downward spiral on game load
+Fixed - Corporate: now properly unlocks up to max industry slots when permanent instead of adding 4 flat
+Fixed - Corporate: no longer applies the hazard rating upkeep modifier twice
+Fixed - Corporate: now respects the additional hypershunt industry and no longer considers it going over the limit
+Fixed - Underworld / Corporate: no longer apply the hazard rating upkeep modifier twice
+Fixed - Monastic / Forge World: no longer deliver multiple free ships a month
+Fixed - Monastic / Managed Democracy: now properly increase marine XP
+Fixed - Arcology: now properly suppresses the heat conditions added by an orbital lamp
+Fixed - Arcology: now buildable where it should be (everywhere except lava & gas giants)
+Fixed - Arcology: now properly uses the water version image on water planets
 Fixed - Another Arcoship crash (Underworld Gov.)
 Removed - Monastic Orders (Split into Managed Democracy and Forge worlds)
 
 Derelict Industries
 Adjusted - Will no longer spawn duplicate industries in the same system
 Adjusted - Hull Forge is now a structure (was an industry)
+Adjusted - Hull Forge beta core chance to get a working template instead of a broken one: 25% -> 60%
 Fixed - Gave Hull Deconstructor the structure tag
 Fixed - No longer (almost) exclusively spawn on abyss planets
 Fixed - No longer spawn in hidden systems

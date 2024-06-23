@@ -18,6 +18,8 @@ import java.util.Set;
 public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
 
     private List<String> newProjectIds;
+    public float timePassed = 0f;
+    public static float TIME_TO_DESPAWN_DAYS = 31f;
 
     public GalatiaNewProjectsIntel(String... ids) {
         this.newProjectIds = (Arrays.asList(ids));
@@ -64,7 +66,7 @@ public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
                 opad);
 
         info.addPara("Now available:", opad);
-        for (String id : newProjectIds) info.addPara(BULLET + " " + ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(id).getName(), Misc.getHighlightColor(), 3f);
+        if (newProjectIds != null) for (String id : newProjectIds) info.addPara(BULLET + " " + ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(id).getName(), Misc.getHighlightColor(), 3f);
 
         addBulletPoints(info, ListInfoMode.IN_DESC);
     }
@@ -77,7 +79,7 @@ public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
     @Override
     public Set<String> getIntelTags(SectorMapAPI map) {
         Set<String> tags = super.getIntelTags(map);
-        tags.add(Tags.INTEL_MAJOR_EVENT);
+        tags.add(Tags.INTEL_IMPORTANT);
         return tags;
     }
 
@@ -104,14 +106,18 @@ public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
     }
 
     @Override
+    public void advance(float amount) {
+        super.advance(amount);
+        timePassed += amount;
+    }
+
+    @Override
     public boolean shouldRemoveIntel() {
-        return false;
+        return Misc.getDays(timePassed) > TIME_TO_DESPAWN_DAYS;
     }
 
     @Override
     public String getCommMessageSound() {
         return super.getCommMessageSound();
     }
-
-
 }

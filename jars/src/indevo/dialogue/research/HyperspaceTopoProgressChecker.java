@@ -19,7 +19,9 @@ public class HyperspaceTopoProgressChecker implements EconomyTickListener {
     @Override
     public void reportEconomyTick(int iterIndex) {
         MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
-        if (mem.getBoolean(MEM_KEY) || HyperspaceTopographyEventIntel.get().getProgress() < 100) return;
+        HyperspaceTopographyEventIntel intel = HyperspaceTopographyEventIntel.get();
+
+        if (intel == null || mem.getBoolean(MEM_KEY) || intel.getProgress() < 100) return;
 
         mem.set(MEM_KEY, true);
         GalatiaNewProjectsIntel.notifyNewProjects(Ids.PROJ_PROSPECTOR);

@@ -27,7 +27,7 @@ public class ResearchProjectTemplateRepo {
 
     public static Map<String, ResearchProject> RESEARCH_PROJECTS = new HashMap<String, ResearchProject>() {{
 
-        put(Ids.PROJ_PROSPECTOR, new ResearchProject(Ids.PROJ_NAVI,
+        put(Ids.PROJ_PROSPECTOR, new ResearchProject(Ids.PROJ_PROSPECTOR,
                 "Project Prospector", 200, false) {
 
             public static final int POINTS_ON_COMPLETION = 50;
@@ -39,7 +39,10 @@ public class ResearchProjectTemplateRepo {
 
             @Override
             public boolean display() {
-                int progress = HyperspaceTopographyEventIntel.get().getProgress();
+                HyperspaceTopographyEventIntel intel = HyperspaceTopographyEventIntel.get();
+
+                if (intel == null) return false;
+                int progress = intel.getProgress();
                 return progress > 100 && progress < 1000;
             }
 

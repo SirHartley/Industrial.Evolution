@@ -377,9 +377,9 @@ IndEvo_marketHasEdict
 !IndEvo_requiresColonyMenuPoint",,,99:IndEvo_removeEdict:Remove the Edict for $marketName,
 ,,,,,,
 IndEvo_NoEdictMenuPoint2,IndEvo_ColonyOptionPoint,"!IndEvo_marketHasEdict
-IndEvo_systemHasSenate",,,1:IndEvo_chooseEdict:Enact an Edict for $marketname,
+IndEvo_systemHasSenate",,,1:IndEvo_chooseEdict:Enact an Edict for $marketName,
 IndEvo_HasEdictMenuPoint2,IndEvo_ColonyOptionPoint,"IndEvo_marketHasEdict
-IndEvo_systemHasSenate",,,1:IndEvo_removeEdict:Remove the Edict for $marketname,
+IndEvo_systemHasSenate",,,1:IndEvo_removeEdict:Remove the Edict for $marketName,
 IndEvo_removeEdict,DialogOptionSelected,$option == IndEvo_removeEdict,"IndEvo_PrintActiveEdictInfo
 IndEvo_PrintPenaltyText",,"1:IndEvo_EdictRemovalConfirm:Confirm the removal
 2:IndEvo_SelectreturnToMenu:Return",
@@ -388,7 +388,7 @@ $menuState = main 0
 FireAll PopulateOptions",The Edict has been removed.,,
 IndEvo_chooseEdict,DialogOptionSelected,$option ==  IndEvo_chooseEdict,"IndEvo_CreateEdictSelectionList
 IndEvo_DesignateSubListPageToLoad_Edict set 1
-IndEvo_DisplaySubListPage_Edict $IndEvo_EdictSubListPage",Choose an Edict to enact for $marketname:,,
+IndEvo_DisplaySubListPage_Edict $IndEvo_EdictSubListPage",Choose an Edict to enact for $marketName:,,
 IndEvo_ApplyEdict,DialogOptionSelected,$option ==  IndEvo_ApplyEdict,"IndEvo_applyEdict $IndEvo_selectedEdictID
 $menuState = main 0
 FireAll PopulateOptions",The Edict has been enacted!,,
