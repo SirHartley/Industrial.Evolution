@@ -19,7 +19,7 @@ import exerelin.campaign.DiplomacyManager;
 import indevo.ids.Ids;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.industry.Embassy;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -414,7 +414,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
         for (MarketAPI market : getPlayerMarketsWithEmbassy()) {
             Embassy emb = (Embassy) market.getIndustry(Ids.EMBASSY);
             FactionAPI faction = emb.alignedFaction;
-            float aiCoreBonus = Misc.getAiCoreIdNotNull(emb).equals(Commodities.ALPHA_CORE) ? 0.5f : 1f;
+            float aiCoreBonus = MiscIE.getAiCoreIdNotNull(emb).equals(Commodities.ALPHA_CORE) ? 0.5f : 1f;
 
             if (repMultMap.containsKey(faction)) {
                 repMultMap.put(faction, repMultMap.get(faction) + 1 * aiCoreBonus);
@@ -439,7 +439,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
             ) marketSet.add(anyMarket);
         }
 
-        return Misc.getClosestPlayerMarketWithIndustryFromSet(market, Ids.EMBASSY, marketSet);
+        return MiscIE.getClosestPlayerMarketWithIndustryFromSet(market, Ids.EMBASSY, marketSet);
     }
 
     public static class checkAmbassadorPresence extends BaseCampaignEventListener {

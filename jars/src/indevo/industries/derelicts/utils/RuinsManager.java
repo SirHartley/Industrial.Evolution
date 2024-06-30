@@ -14,7 +14,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.conditions.RuinsCondition;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 
 import java.util.HashMap;
@@ -179,7 +179,7 @@ public class RuinsManager {
         if (market.hasCondition(Conditions.SOLAR_ARRAY)
                 || market.hasCondition(Ids.COND_MINERING)
                 || market.hasCondition("niko_MPC_antiAsteroidSatellites_derelict")
-                || Misc.planetHasRings(planet)
+                || MiscIE.planetHasRings(planet)
                 || (planet.isGasGiant())) {
             industryIdPicker.remove(Ids.RIFTGEN);
         }

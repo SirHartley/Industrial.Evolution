@@ -12,7 +12,7 @@ import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryAPI;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -94,7 +94,7 @@ public class SwitchableMining extends Mining implements SwitchableIndustryAPI {
         ind.demand(Commodities.DRUGS, size);
 
         Pair<String, Integer> deficit = ind.getMaxDeficit(Commodities.HEAVY_MACHINERY);
-        Misc.applyDeficitToProduction(ind, 0, deficit,
+        MiscIE.applyDeficitToProduction(ind, 0, deficit,
                 Commodities.ORE,
                 Commodities.RARE_ORE,
                 Commodities.ORGANICS,

@@ -15,7 +15,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.EmptyForgeTemplateItemPlugin;
 import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 import org.json.JSONArray;
@@ -201,7 +201,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
             bonusCommodityId3 = mem.getString(COMMODITY_KEY + "_" + 3);
 
         } else {
-            Set<String> commodityList = Misc.getCSVSetFromMemory(Ids.LAB_LIST);
+            Set<String> commodityList = MiscIE.getCSVSetFromMemory(Ids.LAB_LIST);
 
             Random random = new Random(getPickerSeed());
             WeightedRandomPicker<String> commodityPicker = new WeightedRandomPicker<>(random);
@@ -263,10 +263,10 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
 
     private boolean repairInstalledFT() {
         if (Settings.getBoolean(Settings.RESLAB_AUTO_DELIVER_TO_CLOSEST_DECON)) {
-            MarketAPI target = Misc.getClosestMarketWithIndustry(market, Ids.DECONSTRUCTOR);
+            MarketAPI target = MiscIE.getClosestMarketWithIndustry(market, Ids.DECONSTRUCTOR);
 
             if (target != null) {
-                CargoAPI c = Misc.getIndustrialStorageCargo(target);
+                CargoAPI c = MiscIE.getIndustrialStorageCargo(target);
                 if (c != null) {
                     c.addSpecial(new SpecialItemData(ItemIds.EMPTYFORGETEMPLATE, null), 1);
                     throwDeliveryMessage(market, target);
@@ -277,11 +277,11 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
 
         boolean toStorage = !Settings.getBoolean(Settings.DERELICT_DELIVER_TO_GATHERING);
 
-        MarketAPI gather = Misc.getMarketForStorage(market);
+        MarketAPI gather = MiscIE.getMarketForStorage(market);
         MarketAPI target = toStorage ? market : gather;
 
         if (gather != null) {
-            CargoAPI cargo = Misc.getStorageCargo(target);
+            CargoAPI cargo = MiscIE.getStorageCargo(target);
             cargo.addSpecial(new SpecialItemData(ItemIds.EMPTYFORGETEMPLATE, null), 1);
             throwDeliveryMessage(market, target);
             return true;

@@ -22,7 +22,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.specialitemdata.ForgeTemplateData;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,7 +31,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.utils.helper.Misc.addOrIncrement;
+import static indevo.utils.helper.MiscIE.addOrIncrement;
 
 public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
 
@@ -178,12 +178,12 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
         List<ShipHullSpecAPI> specs = Global.getSettings().getAllShipHullSpecs();
         Set<String> restrictedShipSet = new HashSet<>();
 
-        Map<String, Float> dropMap = Misc.getMapFromMemory(DROP_MAP_KEY);
+        Map<String, Float> dropMap = MiscIE.getMapFromMemory(DROP_MAP_KEY);
 
-        restrictedShipSet.addAll(Misc.getVayraBossShips());
-        restrictedShipSet.addAll(Misc.getPrismBossShips());
+        restrictedShipSet.addAll(MiscIE.getVayraBossShips());
+        restrictedShipSet.addAll(MiscIE.getPrismBossShips());
 
-        Set<String> allowedShipsInternal = Misc.getCSVSetFromMemory(Ids.PRINT_LIST);
+        Set<String> allowedShipsInternal = MiscIE.getCSVSetFromMemory(Ids.PRINT_LIST);
         allowedShipsInternal.remove("ziggurat");
 
         Iterator<ShipHullSpecAPI> iter = specs.iterator();
@@ -223,7 +223,7 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
             return null;
         } else {
             addOrIncrement(dropMap, pick.getHullId(), 4f);
-            Misc.storeMapInMemory(dropMap, DROP_MAP_KEY);
+            MiscIE.storeMapInMemory(dropMap, DROP_MAP_KEY);
             return pick.getHullId();
         }
     }
@@ -426,7 +426,7 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
             ship = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant);
 
         } else {
-            String var = getValidVariantIdForHullId(forgeTemplateData.getData()); //Global.getSettings().createEmptyVariant(Misc.genUID(), Global.getSettings().getHullSpec(forgeTemplateData.getData()));
+            String var = getValidVariantIdForHullId(forgeTemplateData.getData()); //Global.getSettings().createEmptyVariant(MiscIE.genUID(), Global.getSettings().getHullSpec(forgeTemplateData.getData()));
             ship = Global.getFactory().createFleetMember(FleetMemberType.SHIP, var);
         }
 

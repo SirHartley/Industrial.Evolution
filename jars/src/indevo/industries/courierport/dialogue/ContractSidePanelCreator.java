@@ -17,7 +17,7 @@ import indevo.industries.courierport.*;
 import indevo.industries.courierport.listeners.SubmarketCargoPicker;
 import indevo.industries.courierport.listeners.SubmarketShipPicker;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -211,14 +211,14 @@ public class ContractSidePanelCreator {
                     @Override
                     public String getMenuItemNameOverrideFor(SectorEntityToken entity) {
                         MarketAPI m = entity.getMarket();
-                        int amt = (int) Misc.getStorageCargo(m).getSpaceUsed();
+                        int amt = (int) MiscIE.getStorageCargo(m).getSpaceUsed();
                         return m.getName() + " (" + m.getFaction().getDisplayName() + ")";
                     }
 
                     @Override
                     public void pickedEntity(SectorEntityToken entity) {
                         contract.fromMarketId = entity.getMarket().getId();
-                        contract.fromSubmarketId = Misc.getStorage(entity.getMarket()).getSpecId();
+                        contract.fromSubmarketId = MiscIE.getStorage(entity.getMarket()).getSpecId();
                         contract.toMarketId = null;
 
                         showPanel(dialogue, contract);
@@ -232,7 +232,7 @@ public class ContractSidePanelCreator {
                     @Override
                     public String getSelectedTextOverrideFor(SectorEntityToken entity) {
                         MarketAPI m = entity.getMarket();
-                        int amt = (int) Misc.getStorageCargo(m).getSpaceUsed();
+                        int amt = (int) MiscIE.getStorageCargo(m).getSpaceUsed();
                         return m.getName() + " (" + m.getFaction().getDisplayName() + ", items in storage" + amt;
                     }
 
@@ -240,7 +240,7 @@ public class ContractSidePanelCreator {
                     public void createInfoText(TooltipMakerAPI info, SectorEntityToken entity) {
                         float opad = 10f;
                         MarketAPI m = entity.getMarket();
-                        int amt = (int) Misc.getStorageCargo(m).getSpaceUsed();
+                        int amt = (int) MiscIE.getStorageCargo(m).getSpaceUsed();
                         info.addPara(m.getName() + " (" + m.getFaction().getDisplayName()
                                 + ", size " + m.getSize() + ", " + amt + " items in storage", opad);
                     }
@@ -968,7 +968,7 @@ public class ContractSidePanelCreator {
         panelTooltip.setParaFontDefault();
 
         // FLAVOUR TEXT
-        //if(!contract.isValid()) panelTooltip.addPara("Contract invalid: " + ShippingTooltipHelper.getInvalidReason(contract), opad, Misc.getNegativeHighlightColor());
+        //if(!contract.isValid()) panelTooltip.addPara("Contract invalid: " + ShippingTooltipHelper.getInvalidReason(contract), opad, MiscIE.getNegativeHighlightColor());
 
         VisualCustomPanel.addTooltipToPanel();
         CourierPortDialoguePlugin.reload();

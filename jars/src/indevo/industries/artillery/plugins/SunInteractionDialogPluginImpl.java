@@ -224,7 +224,7 @@ public class SunInteractionDialogPluginImpl implements InteractionDialogPlugin {
         StarSystemAPI system = planet.getStarSystem();
         boolean didAlready = planet.getMemoryWithoutUpdate().getBoolean(ADDED_KEY);
         if (system != null && planet == system.getStar() && !didAlready) {
-//			int num = Misc.getNumStableLocations(planet.getStarSystem());
+//			int num = MiscIE.getNumStableLocations(planet.getStarSystem());
             //options.addOption("Induce a resonance cascade in the star's hyperfield, creating a stable location", OptionId.ADD_STABLE_DESCRIBE, null);
             options.addOption("Consider inducing a resonance cascade in the star's hyperfield, creating a stable location", OptionId.ADD_STABLE_DESCRIBE, null);
 //			SetStoryOption.set(dialog, Global.getSettings().getInt("createStableLocation"),

@@ -14,7 +14,7 @@ import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -173,7 +173,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
 
             if (specialItemData != null && canInstallItem(switchable, specialItemData.getId())) {
                 switchable.setSpecialItem(specialItemData);
-            } else if (specialItemData != null) Misc.getStorageCargo(market).addSpecial(specialItemData, 1);
+            } else if (specialItemData != null) MiscIE.getStorageCargo(market).addSpecial(specialItemData, 1);
 
             switchable.setAICoreId(industry.getAICoreId());
             if (switchable.canImprove()) switchable.setImproved(industry.isImproved());

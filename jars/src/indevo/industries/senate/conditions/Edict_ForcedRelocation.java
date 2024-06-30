@@ -8,7 +8,7 @@ import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.TimeTracker;
 
 import static java.lang.Math.ceil;
@@ -33,7 +33,7 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
         super.apply(id);
         if (market.getPrimaryEntity() == null) return;
 
-        for (MarketAPI market : Misc.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
+        for (MarketAPI market : MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
 
             market.addTransientImmigrationModifier(this);
             market.getStability().modifyFlat(id, -stabPenalty, getName());
@@ -44,7 +44,7 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
         super.unapply(id);
         if (market.getPrimaryEntity() == null) return;
 
-        for (MarketAPI market : Misc.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
+        for (MarketAPI market : MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
             market.removeTransientImmigrationModifier(this);
             market.getStability().unmodify(id);
         }
@@ -66,7 +66,7 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
     }
 
     public void modifyIncoming(MarketAPI market, PopulationComposition incoming) {
-        int otherPlanetCount = Misc.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId()).size() - 1;
+        int otherPlanetCount = MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId()).size() - 1;
 
         //if market = this.martket
         if (market.equals(this.market)) {
@@ -84,7 +84,7 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
     @Override
     protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
         super.createTooltipAfterDescription(tooltip, expanded);
-        int otherPlanetCount = Misc.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId()).size() - 1;
+        int otherPlanetCount = MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId()).size() - 1;
         float otherPlanetIncrease = (float) ceil((1.0 * this.market.getSize() / otherPlanetCount) * popMult);
 
         if (getRemainingDays() > 31) {
@@ -99,7 +99,7 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
                 3f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by " + (int) (market.getSize() * popMult));
         tooltip.addPara("Population growth for:",
                 3f);
-        for (MarketAPI market : Misc.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
+        for (MarketAPI market : MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
             if (!market.getId().equals(this.market.getId())) {
                 tooltip.addPara(BaseIntelPlugin.BULLET + market.getName() + ": increased by %s.",
                         1f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), (int) otherPlanetIncrease + "");
@@ -118,7 +118,7 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
 
     @Override
     public void printEdictEffectText(TextPanelAPI text, MarketAPI market) {
-        int otherPlanetCount = Misc.getMarketsInLocation(market.getStarSystem(), market.getFactionId()).size() - 1;
+        int otherPlanetCount = MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId()).size() - 1;
         int otherPlanetIncrease = (int) ceil((1.0 * market.getSize() / otherPlanetCount) * 10);
         String s1 = otherPlanetIncrease + "";
         String s2 = "reduced by " + (market.getSize() * 10);
@@ -126,7 +126,7 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
         text.addParagraph("Population growth for this colony " + s2);
         text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), s2);
         text.addParagraph("Population growth for:");
-        for (MarketAPI market1 : Misc.getMarketsInLocation(market.getStarSystem(), market.getFactionId())) {
+        for (MarketAPI market1 : MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId())) {
             if (!market1.getId().equals(market.getId())) {
                 text.addParagraph(BaseIntelPlugin.BULLET + market1.getName() + ": increased by " + s1);
                 text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getHighlightColor(), market1.getName());
@@ -152,10 +152,10 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
 
     @Override
     public boolean isPresenceConditionMet(MarketAPI market) {
-        boolean twoMarkets = Misc.getMarketsInLocation(market.getStarSystem(), market.getFactionId()).size() > 1;
+        boolean twoMarkets = MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId()).size() > 1;
 
         return super.isPresenceConditionMet(market)
-                && Misc.marketHasMilitaryIncludeRelays(market)
+                && MiscIE.marketHasMilitaryIncludeRelays(market)
                 && conditionUniqueInSystem(market, condition.getId())
                 && twoMarkets
                 && market.getSize() < Global.getSettings().getInt("maxColonySize");

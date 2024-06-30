@@ -19,7 +19,7 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 
-import static indevo.utils.helper.Misc.smootherstep;
+import static indevo.utils.helper.MiscIE.smootherstep;
 
 public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
 

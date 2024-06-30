@@ -44,7 +44,7 @@ public class MagicInvisibator extends BaseHullMod {
             if (module == ship
                     || module.getStationSlot() == null
                     || !module.isAlive()
-                    || !Misc.isActiveModule(module))
+                    || !MiscIE.isActiveModule(module))
 
                 aliveModules--;
         }

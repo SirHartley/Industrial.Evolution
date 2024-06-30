@@ -11,7 +11,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
@@ -137,13 +137,13 @@ public class TradeCenter extends BaseIndustry implements MarketImmigrationModifi
     public boolean isAvailableToBuild() {
         boolean isAvailable = true;
         if (balanceChange)
-            isAvailable = Misc.isOnlyInstanceInSystemExcludeMarket(Ids.COMMERCE, market.getStarSystem(), market, market.getFaction());
+            isAvailable = MiscIE.isOnlyInstanceInSystemExcludeMarket(Ids.COMMERCE, market.getStarSystem(), market, market.getFaction());
 
         return super.isAvailableToBuild() && market.hasSpaceport() && isAvailable;
     }
 
     public String getUnavailableReason() {
-        if (balanceChange && !Misc.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()))
+        if (balanceChange && !MiscIE.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()))
             return "Can only have one in the star system";
 
         return "Requires a functional spaceport";

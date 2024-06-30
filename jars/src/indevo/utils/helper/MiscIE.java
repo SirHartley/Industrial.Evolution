@@ -35,8 +35,8 @@ import java.io.IOException;
 import java.util.*;
 
 
-public class Misc {
-    public static final Logger log = Global.getLogger(Misc.class);
+public class MiscIE {
+    public static final Logger log = Global.getLogger(MiscIE.class);
 
     public static SubmarketAPI getStorage(MarketAPI market){
         if (market == null) return null;
@@ -299,7 +299,7 @@ public class Misc {
         copy.getMothballedShips().clear();
 
         for (FleetMemberAPI member : source.getMothballedShips().getMembersListCopy()) {
-            copy.getMothballedShips().addFleetMember(Misc.createFleetMemberClone(member));
+            copy.getMothballedShips().addFleetMember(MiscIE.createFleetMemberClone(member));
         }
 
         return copy;
@@ -362,7 +362,7 @@ public class Misc {
         }
 
         Map<String, Float> prlist = new HashMap<>((Map<String, Float>) memory.get(key));
-        return Misc.sortByLargestValue(prlist);
+        return MiscIE.sortByLargestValue(prlist);
     }
 
     public static Map<String, Float> getClampedMap(Map<String, Float> map, Float limit) {
@@ -458,8 +458,8 @@ public class Misc {
     }
 
     public static ShipVariantAPI stripShipToCargoAndReturnVariant(FleetMemberAPI member, MarketAPI market) {
-        MarketAPI target = Misc.getMarketForStorage(market);
-        CargoAPI cargo = target != null ? Misc.getStorageCargo(market) : Global.getSector().getPlayerFleet().getCargo();
+        MarketAPI target = MiscIE.getMarketForStorage(market);
+        CargoAPI cargo = target != null ? MiscIE.getStorageCargo(market) : Global.getSector().getPlayerFleet().getCargo();
 
         return stripShipToCargoAndReturnVariant(member, cargo);
     }
@@ -500,7 +500,7 @@ public class Misc {
     //excluding salvageMarket
     public static List<MarketAPI> getMarketsInLocation(LocationAPI location, String factionId) {
         List<MarketAPI> result = new ArrayList<>();
-        for (MarketAPI curr : Misc.getMarketsInLocation(location)) {
+        for (MarketAPI curr : MiscIE.getMarketsInLocation(location)) {
             if (curr.getFaction() != null && curr.getFactionId().equals(factionId)) {
                 result.add(curr);
             }
@@ -678,7 +678,7 @@ public class Misc {
         boolean onlyOne = true;
 
         //check the built or building industries for an entry
-        List<MarketAPI> marketsInLocation = Misc.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> marketsInLocation = MiscIE.getMarketsInLocation(system, faction.getId());
         for (MarketAPI m : marketsInLocation) {
             if (m.getId().equals(excludeMarket.getId())) continue;
 
@@ -703,7 +703,7 @@ public class Misc {
     public static boolean systemHasIndustry(String id, StarSystemAPI system, FactionAPI faction) {
         boolean present = false;
 
-        List<MarketAPI> marketsInLocation = Misc.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> marketsInLocation = MiscIE.getMarketsInLocation(system, faction.getId());
         for (MarketAPI playerMarket : marketsInLocation) {
 
             if (playerMarket.hasIndustry(id)) {
@@ -717,7 +717,7 @@ public class Misc {
     public static boolean systemHasIndustryExcludeNotFunctional(String id, StarSystemAPI system, FactionAPI faction) {
         boolean present = false;
 
-        List<MarketAPI> playerMarketsInSystem = Misc.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> playerMarketsInSystem = MiscIE.getMarketsInLocation(system, faction.getId());
         for (MarketAPI playerMarket : playerMarketsInSystem) {
 
             if (playerMarket.hasIndustry(id)) {
@@ -733,7 +733,7 @@ public class Misc {
     public static boolean systemHasIndustry(String id, StarSystemAPI system, FactionAPI faction, boolean withUnfinished) {
         boolean present = false;
 
-        List<MarketAPI> PlayerMarketsInSystem = Misc.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> PlayerMarketsInSystem = MiscIE.getMarketsInLocation(system, faction.getId());
         for (MarketAPI PlayerMarket : PlayerMarketsInSystem) {
 
             if (PlayerMarket.hasIndustry(id)) {
@@ -752,7 +752,7 @@ public class Misc {
     public static int getAmountOfIndustryInSystem(String id, StarSystemAPI system, FactionAPI faction) {
         int amount = 0;
 
-        List<MarketAPI> PlayerMarketsInSystem = Misc.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> PlayerMarketsInSystem = MiscIE.getMarketsInLocation(system, faction.getId());
         for (MarketAPI PlayerMarket : PlayerMarketsInSystem) {
             List<Industry> thisMarketIndustries = new ArrayList<>(PlayerMarket.getIndustries());
             for (Industry i : thisMarketIndustries) {
@@ -778,7 +778,7 @@ public class Misc {
         boolean onlyOne = true;
 
         //check the built or building industries for an entry
-        List<MarketAPI> PlayerMarketsInSystem = Misc.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> PlayerMarketsInSystem = MiscIE.getMarketsInLocation(system, faction.getId());
         for (MarketAPI PlayerMarket : PlayerMarketsInSystem) {
             List<Industry> thisMarketIndustries = new ArrayList<>(PlayerMarket.getIndustries());
             for (Industry i : thisMarketIndustries) {

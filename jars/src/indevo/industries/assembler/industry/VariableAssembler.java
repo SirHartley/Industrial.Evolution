@@ -15,7 +15,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.installable.VPCInstallableItemPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
@@ -246,8 +246,8 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
             if (Settings.getBoolean(Settings.VARIND_DELIVER_TO_PRODUCTION_POINT) && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
                 cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo();
-            } else if (Misc.getStorageCargo(market) != null) {
-                cargo = Misc.getStorageCargo(market);
+            } else if (MiscIE.getStorageCargo(market) != null) {
+                cargo = MiscIE.getStorageCargo(market);
             } else {
                 return;
             }
@@ -521,7 +521,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
     protected void applyAICoreToIncomeAndUpkeep() {
         String name;
 
-        switch (Misc.getAiCoreIdNotNull(this)) {
+        switch (MiscIE.getAiCoreIdNotNull(this)) {
             case Commodities.ALPHA_CORE:
                 name = StringHelper.getString("IndEvo_AICores", "aCoreStatModAssigned");
                 getUpkeep().modifyMult("ind_core", ALPHA_CORE_UPKEEP_RED_MULT, name);

@@ -9,7 +9,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.ListMap;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class IndEvo_HasValidShipPair extends BaseCommandPlugin {
         Map<String, List<String>> baseHullIdList = new ListMap<>();
 
         if (m != null) {
-            for (FleetMemberAPI member : Misc.getStorageCargo(m).getMothballedShips().getMembersListCopy()) {
+            for (FleetMemberAPI member : MiscIE.getStorageCargo(m).getMothballedShips().getMembersListCopy()) {
                 if (addAndCompare(baseHullIdList, member)) return true;
             }
         }

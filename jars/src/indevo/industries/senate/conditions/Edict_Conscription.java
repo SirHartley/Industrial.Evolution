@@ -7,7 +7,7 @@ import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.TimeTracker;
 
 import static java.lang.Math.ceil;
@@ -125,7 +125,7 @@ public class Edict_Conscription extends BaseEdict implements MarketImmigrationMo
 
     @Override
     public boolean isPresenceConditionMet(MarketAPI market) {
-        return super.isPresenceConditionMet(market) && Misc.marketHasMilitaryIncludeRelays(market);
+        return super.isPresenceConditionMet(market) && MiscIE.marketHasMilitaryIncludeRelays(market);
     }
 
 }

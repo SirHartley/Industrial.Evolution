@@ -23,7 +23,7 @@ public class CorpoImmigrationPlugin extends CoreImmigrationPluginImpl {
     protected void applyIncentives(PopulationComposition inc, boolean uiUpdateOnly, float f) {
         if (!market.isImmigrationIncentivesOn()) return;
 
-        if (market.getSize() >= Misc.MAX_COLONY_SIZE) {
+        if (market.getSize() >= MiscIE.MAX_COLONY_SIZE) {
             market.setImmigrationIncentivesOn(false);
             return;
         }

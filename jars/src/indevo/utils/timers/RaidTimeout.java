@@ -3,7 +3,7 @@ package indevo.utils.timers;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -24,7 +24,7 @@ public class RaidTimeout implements EconomyTickListener {
 
     public static void addRaidedSystem(StarSystemAPI starSystem, Float timeout, boolean AI) {
         String key = AI ? AI_RAID_TIMEOUT_KEY : RAID_TIMEOUT_KEY;
-        Map<String, Float> raidTimeoutMap = Misc.getMapFromMemory(key);
+        Map<String, Float> raidTimeoutMap = MiscIE.getMapFromMemory(key);
 
         String id = starSystem.getId();
 
@@ -38,14 +38,14 @@ public class RaidTimeout implements EconomyTickListener {
             debugMessage("adjusting existing raided system: " + starSystem.getName());
         }
 
-        Misc.storeMapInMemory(raidTimeoutMap, key);
+        MiscIE.storeMapInMemory(raidTimeoutMap, key);
     }
 
     public static boolean containsSystem(StarSystemAPI starSystem, boolean AI) {
         String key = AI ? AI_RAID_TIMEOUT_KEY : RAID_TIMEOUT_KEY;
         String id = starSystem.getId();
 
-        boolean valid = Misc.getMapFromMemory(key).containsKey(id);
+        boolean valid = MiscIE.getMapFromMemory(key).containsKey(id);
         debugMessage("Target is timed out: " + valid);
         return valid;
     }
@@ -55,14 +55,14 @@ public class RaidTimeout implements EconomyTickListener {
         if (iterIndex != lastIterInMonth) return;
 
         debugMessage("RaidTimeout tick");
-        Map<String, Float> raidTimeoutMap = Misc.getMapFromMemory(RAID_TIMEOUT_KEY);
-        Map<String, Float> raidTimeoutMap_AI = Misc.getMapFromMemory(AI_RAID_TIMEOUT_KEY);
+        Map<String, Float> raidTimeoutMap = MiscIE.getMapFromMemory(RAID_TIMEOUT_KEY);
+        Map<String, Float> raidTimeoutMap_AI = MiscIE.getMapFromMemory(AI_RAID_TIMEOUT_KEY);
 
         increment(raidTimeoutMap);
         increment(raidTimeoutMap_AI);
 
-        Misc.storeMapInMemory(raidTimeoutMap, RAID_TIMEOUT_KEY);
-        Misc.storeMapInMemory(raidTimeoutMap_AI, AI_RAID_TIMEOUT_KEY);
+        MiscIE.storeMapInMemory(raidTimeoutMap, RAID_TIMEOUT_KEY);
+        MiscIE.storeMapInMemory(raidTimeoutMap_AI, AI_RAID_TIMEOUT_KEY);
     }
 
     private void increment(Map<String, Float> raidTimeoutMap) {

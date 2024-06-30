@@ -8,7 +8,7 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import indevo.ids.Ids;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class IndEvo_requiresColonyMenuPoint extends BaseCommandPlugin {
         boolean playerOwned = market.isPlayerOwned();
 
         boolean senate = playerOwned
-                && Misc.systemHasIndustry(Ids.SENATE, market.getStarSystem(), market.getFaction());
+                && MiscIE.systemHasIndustry(Ids.SENATE, market.getStarSystem(), market.getFaction());
         boolean academy = market.hasIndustry(Ids.ACADEMY);
         boolean riftGen = playerOwned
                 && market.hasIndustry(Ids.RIFTGEN);

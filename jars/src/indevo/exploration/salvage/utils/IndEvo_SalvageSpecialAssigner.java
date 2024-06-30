@@ -24,7 +24,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.exploration.salvage.specials.*;
 import indevo.ids.Ids;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
@@ -94,7 +94,7 @@ public class IndEvo_SalvageSpecialAssigner {
 
         if (specialData != null) {
             //log.info("Adding " + specialData.getClass().getName() + " to " + entity.getCustomEntityType());
-            Misc.addOrIncrement(specialMap, specialData.getClass().getName(), 1);
+            MiscIE.addOrIncrement(specialMap, specialData.getClass().getName(), 1);
 
             com.fs.starfarer.api.util.Misc.setSalvageSpecial(entity, specialData);
         }

@@ -8,7 +8,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.util.Highlights;
 import indevo.ids.Ids;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
@@ -32,9 +32,9 @@ public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements
         restrictedShips = new HashSet<>();
         allowedShips = new HashSet<>();
 
-        Set<String> allowedShipsInternal = Misc.getCSVSetFromMemory(Ids.PRINT_LIST);
-        Set<String> bossShips = Misc.getPrismBossShips();
-        Set<String> hvbShips = Misc.getVayraBossShips();
+        Set<String> allowedShipsInternal = MiscIE.getCSVSetFromMemory(Ids.PRINT_LIST);
+        Set<String> bossShips = MiscIE.getPrismBossShips();
+        Set<String> hvbShips = MiscIE.getVayraBossShips();
 
         restrictedShips.addAll(bossShips);
         restrictedShips.addAll(hvbShips);

@@ -14,7 +14,7 @@ import indevo.ids.Ids;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.scripts.AmbassadorMurderConsequences;
 import indevo.items.specialitemdata.AmbassadorItemData;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
 
 import static indevo.industries.embassy.listeners.AmbassadorPersonManager.adjustRelationship;
@@ -77,7 +77,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
 
             MarketAPI m = pod.getMarket();
             if (m != null && m.hasSubmarket(Submarkets.SUBMARKET_STORAGE)) {
-                targetCargo = Misc.getStorageCargo(m);
+                targetCargo = MiscIE.getStorageCargo(m);
                 if (checkCargo(targetCargo, amb, returnHome)) return updateKnownLocation(targetCargo, returnHome);
             }
         }
@@ -85,7 +85,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
         //is it in a market cargo?
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
             if (m != null && m.hasSubmarket(Submarkets.SUBMARKET_STORAGE)) {
-                targetCargo = Misc.getStorageCargo(m);
+                targetCargo = MiscIE.getStorageCargo(m);
                 if (checkCargo(targetCargo, amb, returnHome)) return updateKnownLocation(targetCargo, returnHome);
             }
         }

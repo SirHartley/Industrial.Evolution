@@ -24,7 +24,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -34,7 +34,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.utils.helper.Misc.addOrIncrement;
+import static indevo.utils.helper.MiscIE.addOrIncrement;
 
 public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
@@ -151,7 +151,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
             if (daysRequired <= daysPassed || debug) {
                 boolean toStorage = !Settings.getBoolean(Settings.DERELICT_DELIVER_TO_GATHERING);
 
-                MarketAPI gather = Misc.getMarketForStorage(market);
+                MarketAPI gather = MiscIE.getMarketForStorage(market);
                 MarketAPI target = toStorage ? market : gather;
 
                 //this prints the ship:
@@ -195,10 +195,10 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
             //ship item to target
             if (Settings.getBoolean(Settings.HULLFORGE_AUTO_DELIVER_TO_CLOSEST_LAB)) {
-                MarketAPI target = Misc.getClosestMarketWithIndustry(market, targetIndustryId);
+                MarketAPI target = MiscIE.getClosestMarketWithIndustry(market, targetIndustryId);
 
                 if (target != null) {
-                    CargoAPI c = Misc.getIndustrialStorageCargo(target);
+                    CargoAPI c = MiscIE.getIndustrialStorageCargo(target);
                     if (c != null) {
                         c.addSpecial(getSpecialItem(), 1);
                         setSpecialItem(null);
@@ -214,7 +214,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
             MarketAPI gather = market.getFaction().getProduction().getGatheringPoint();
             MarketAPI target = toStorage ? market : gather;
 
-            CargoAPI cargo = Misc.getStorageCargo(target);
+            CargoAPI cargo = MiscIE.getStorageCargo(target);
             if (cargo != null) {
                 cargo.addSpecial(getSpecialItem(), 1);
                 throwDeliveryMessage(market, target, add);
@@ -642,7 +642,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
     protected void applyAICoreToIncomeAndUpkeep() {
         String name;
 
-        switch (Misc.getAiCoreIdNotNull(this)) {
+        switch (MiscIE.getAiCoreIdNotNull(this)) {
             case Commodities.GAMMA_CORE:
                 name = StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
 

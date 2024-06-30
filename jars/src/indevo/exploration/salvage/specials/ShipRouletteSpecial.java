@@ -19,14 +19,14 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteract
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
 import com.fs.starfarer.api.util.ListMap;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static indevo.utils.helper.Misc.stripShipToCargoAndReturnVariant;
+import static indevo.utils.helper.MiscIE.stripShipToCargoAndReturnVariant;
 
 public class ShipRouletteSpecial extends BaseSalvageSpecial {
 
@@ -73,7 +73,7 @@ public class ShipRouletteSpecial extends BaseSalvageSpecial {
                     ShipAPI.HullSize.DESTROYER,
                     ShipAPI.HullSize.CRUISER,
                     ShipAPI.HullSize.CAPITAL_SHIP}) {
-                for (ShipHullSpecAPI spec : Misc.getAllLearnableShipHulls()) {
+                for (ShipHullSpecAPI spec : MiscIE.getAllLearnableShipHulls()) {
                     if (spec.getHullSize().equals(size)) lm.getList(size.toString()).add(spec);
                 }
             }

@@ -9,7 +9,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import indevo.ids.Ids;
 import indevo.industries.senate.industry.Senate;
 import indevo.items.installable.SpecialItemEffectsRepo;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
 import indevo.utils.timers.TimeTracker;
 
@@ -90,7 +90,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
     }
 
     public boolean isPresenceConditionMet(MarketAPI market) {
-        return senateWithItemInRange(market) || Misc.systemHasIndustry(Ids.SENATE, market.getStarSystem(), market.getFaction());
+        return senateWithItemInRange(market) || MiscIE.systemHasIndustry(Ids.SENATE, market.getStarSystem(), market.getFaction());
     }
 
     public static boolean senateWithItemInRange(MarketAPI localMarket) {
@@ -115,7 +115,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
             return false;
         }
 
-        List<MarketAPI> PlayerMarketsInSystem = Misc.getMarketsInLocation(market.getStarSystem(), market.getFaction().getId());
+        List<MarketAPI> PlayerMarketsInSystem = MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFaction().getId());
         for (MarketAPI PlayerMarket : PlayerMarketsInSystem) {
 
             if (PlayerMarket.hasIndustry(Ids.SENATE)) {
@@ -177,7 +177,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
     }
 
     public boolean conditionUniqueInSystem(MarketAPI market, String condition_ID) {
-        List<MarketAPI> marketsInLocation = Misc.getMarketsInLocation(market.getStarSystem(), market.getFaction().getId());
+        List<MarketAPI> marketsInLocation = MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFaction().getId());
 
         for (MarketAPI locMarket : marketsInLocation) {
             if (locMarket.getId().equals(market.getId())) continue;

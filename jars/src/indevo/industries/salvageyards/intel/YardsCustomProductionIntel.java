@@ -21,7 +21,7 @@ import com.fs.starfarer.api.util.CountingMap;
 import indevo.ids.Ids;
 import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
 import indevo.items.ForgeTemplateItemPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
 
 import java.awt.*;
@@ -215,7 +215,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
             StoragePlugin plugin = (StoragePlugin) com.fs.starfarer.api.util.Misc.getStorage(market);
             plugin.setPlayerPaidToUnlock(true);
 
-            Misc.getStorageCargo(market).addAll(convertProdToCargo(data), true);
+            MiscIE.getStorageCargo(market).addAll(convertProdToCargo(data), true);
             currentStage = Stage.ENDED;
         }
     }

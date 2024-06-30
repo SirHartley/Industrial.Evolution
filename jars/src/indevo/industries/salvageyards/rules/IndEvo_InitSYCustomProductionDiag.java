@@ -19,7 +19,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.salvageyards.industry.SalvageYards;
 import indevo.industries.salvageyards.intel.YardsCustomProductionIntel;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
@@ -143,11 +143,11 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         Option option = Option.valueOf(optionData.toString());
 
         float rarePartsInCargo = Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(ItemIds.RARE_PARTS);
-        float rarePartsInMarket = Misc.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.RARE_PARTS);
+        float rarePartsInMarket = MiscIE.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.RARE_PARTS);
         float rarePartsAvailable = rarePartsInCargo + rarePartsInMarket;
 
         float partsInCargo = Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(ItemIds.PARTS);
-        float partsInMarket = Misc.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.PARTS);
+        float partsInMarket = MiscIE.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.PARTS);
         float partsAvailable = partsInCargo + partsInMarket;
         float partTradeInPrice = Math.round(Global.getSettings().getCommoditySpec(ItemIds.PARTS).getBasePrice() * PART_VALUE_MULT);
 
@@ -244,7 +244,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
     private List<FleetMemberAPI> getValidFleetMemberList() {
         List<FleetMemberAPI> combinedFleet = new ArrayList<>(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy());
-        CargoAPI storageCargo = Misc.getStorageCargo(getMarket());
+        CargoAPI storageCargo = MiscIE.getStorageCargo(getMarket());
 
         if (storageCargo != null) {
             storageCargo.initMothballedShips("player");
@@ -475,7 +475,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             AddRemoveCommodity.addCommodityLossText(ItemIds.PARTS, partsToRemove, dialog.getTextPanel());
 
         CargoAPI fleetCargo = Global.getSector().getPlayerFleet().getCargo();
-        CargoAPI storageCargo = Misc.getStorageCargo(getMarket());
+        CargoAPI storageCargo = MiscIE.getStorageCargo(getMarket());
         fleetCargo.getCredits().subtract(cost);
 
         float rarePartsInCargo = fleetCargo.getCommodityQuantity(ItemIds.RARE_PARTS);

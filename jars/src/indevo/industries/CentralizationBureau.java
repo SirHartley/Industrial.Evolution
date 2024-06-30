@@ -19,7 +19,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.items.installable.SpecialItemEffectsRepo;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
@@ -55,7 +55,7 @@ public class CentralizationBureau extends BaseIndustry {
         super.apply(true);
 
         if (getSpecialItem() != null && getAICoreId() != null) {
-            Misc.getStorageCargo(market).addCommodity(getAICoreId(), 1);
+            MiscIE.getStorageCargo(market).addCommodity(getAICoreId(), 1);
             setAICoreId(null);
         }
 
@@ -79,7 +79,7 @@ public class CentralizationBureau extends BaseIndustry {
         Map<String, Integer> industryCountMap = new HashMap<>();
         Set<String> targetIds = convertToLegalIDSet(market.getIndustries());
 
-        Set<MarketAPI> targetMarkets = new HashSet<>(Misc.getMarketsInLocation(market.getStarSystem(), market.getFactionId()));
+        Set<MarketAPI> targetMarkets = new HashSet<>(MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId()));
 
         if (getSpecialItem() != null) {
             for (MarketAPI m : com.fs.starfarer.api.util.Misc.getFactionMarkets(market.getFaction())) {
@@ -166,7 +166,7 @@ public class CentralizationBureau extends BaseIndustry {
     }
 
     private boolean coreIdIsAtWorst(String id) {
-        String coreId = Misc.getAiCoreIdNotNull(this);
+        String coreId = MiscIE.getAiCoreIdNotNull(this);
 
         switch (id) {
             case Commodities.GAMMA_CORE:
@@ -205,7 +205,7 @@ public class CentralizationBureau extends BaseIndustry {
     private int getMaxSupportedInd() {
         if (getSpecialItem() != null) return SpecialItemEffectsRepo.LOG_CORE_MAX_BONUS;
 
-        switch (Misc.getAiCoreIdNotNull(this)) {
+        switch (MiscIE.getAiCoreIdNotNull(this)) {
             case Commodities.GAMMA_CORE:
                 return GAMMA_MAX_IND;
             case Commodities.BETA_CORE:
@@ -240,7 +240,7 @@ public class CentralizationBureau extends BaseIndustry {
 
     private Set<String> convertToLegalIDSet(List<Industry> indList) {
         Set<String> s = new HashSet<>();
-        Set<String> allowedIds = Misc.getCSVSetFromMemory(Ids.BUREAU_LIST);
+        Set<String> allowedIds = MiscIE.getCSVSetFromMemory(Ids.BUREAU_LIST);
 
         for (Industry industry : indList) {
             if (allowedIds.contains(industry.getId())) s.add(industry.getId());
@@ -275,7 +275,7 @@ public class CentralizationBureau extends BaseIndustry {
     }
 
     private boolean isOnlyInfraInSystem() {
-        return Misc.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction());
+        return MiscIE.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction());
     }
 
     @Override

@@ -19,7 +19,7 @@ import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.embassy.rules.IndEvo_ambassadorRemoval;
 import indevo.items.installable.AmbassadorInstallableItemPlugin;
 import indevo.items.specialitemdata.AmbassadorItemData;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -135,7 +135,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
     @Override
     public void onNewDay() {
-        if (market.isPlayerOwned() && betaCoreInstalled && !Misc.getAiCoreIdNotNull(this).equals(Commodities.BETA_CORE)) {
+        if (market.isPlayerOwned() && betaCoreInstalled && !MiscIE.getAiCoreIdNotNull(this).equals(Commodities.BETA_CORE)) {
             betaCoreRemovalPenalty();
             betaCoreInstalled = false;
         }
@@ -420,7 +420,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
     protected void applyAICoreToIncomeAndUpkeep() {
         String name;
-        switch (Misc.getAiCoreIdNotNull(this)) {
+        switch (MiscIE.getAiCoreIdNotNull(this)) {
             case Commodities.GAMMA_CORE:
                 name = StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
                 getUpkeep().modifyMult("ind_core", GAMMA_CORE_UPKEEP_RED_MULT, name);

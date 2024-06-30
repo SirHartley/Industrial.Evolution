@@ -14,7 +14,7 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.fs.starfarer.api.impl.campaign.ids.Items.SHIP_BP;
-import static indevo.utils.helper.Misc.stripShipNoCargo;
+import static indevo.utils.helper.MiscIE.stripShipNoCargo;
 
 public class ChooseBlueprintSpecial extends BaseSalvageSpecial {
     //choose a blueprint from a selection of 2-4 hulls
@@ -45,7 +45,7 @@ public class ChooseBlueprintSpecial extends BaseSalvageSpecial {
             Set<String> hullSet = new HashSet<>();
             WeightedRandomPicker<ShipHullSpecAPI> picker = new WeightedRandomPicker<>();
 
-            for (ShipHullSpecAPI spec : Misc.getAllRareShipHulls()) {
+            for (ShipHullSpecAPI spec : MiscIE.getAllRareShipHulls()) {
                 if (spec.getHullSize().equals(hullsize)) picker.add(spec);
             }
 

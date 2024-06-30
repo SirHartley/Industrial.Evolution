@@ -22,7 +22,7 @@ import indevo.industries.EngineeringHub;
 import indevo.industries.changeling.industry.population.HelldiversSubIndustry;
 import indevo.industries.changeling.industry.population.SwitchablePopulation;
 import indevo.industries.privateer.intel.PrivateerBaseRaidIntel;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.IndustryAddOrRemovePlugin;
@@ -95,7 +95,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         return Settings.getBoolean(Settings.PIRATEHAVEN)
                 && (com.fs.starfarer.api.util.Misc.getMaxIndustries(market) - com.fs.starfarer.api.util.Misc.getNumIndustries(market)) >= 2
                 && super.isAvailableToBuild()
-                && Misc.getAmountOfIndustryInSystem(getId(), market.getStarSystem(), market.getFaction()) < 2;
+                && MiscIE.getAmountOfIndustryInSystem(getId(), market.getStarSystem(), market.getFaction()) < 2;
     }
 
     @Override
@@ -109,7 +109,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
             return "Requires two industry slots.";
         }
 
-        if (Misc.getAmountOfIndustryInSystem(getId(), market.getStarSystem(), market.getFaction()) > 1) {
+        if (MiscIE.getAmountOfIndustryInSystem(getId(), market.getStarSystem(), market.getFaction()) > 1) {
             return "Can only have two in a Star System.";
         }
 
@@ -269,7 +269,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         float chanceOfDrop = 0.7f + (aiCoreId != null && aiCoreId.equals(Commodities.ALPHA_CORE) ? 0.2f : 0f);
         float chanceOfExtraDrop = 0.3f + (aiCoreId != null && aiCoreId.equals(Commodities.ALPHA_CORE) ? 0.1f : 0f);
 
-        CargoAPI cargo = Misc.getStorageCargo(market);
+        CargoAPI cargo = MiscIE.getStorageCargo(market);
         if (cargo == null || Settings.getBoolean(Settings.PRIVATEER_DELIVER_TO_GATHERING_POINT))
             cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket("storage").getCargo();
 
@@ -552,7 +552,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
         //check target system for valid targets
         boolean hasTargets = false;
-        for (MarketAPI curr : Misc.getMarketsInLocation(target)) {
+        for (MarketAPI curr : MiscIE.getMarketsInLocation(target)) {
             if (curr.getFaction().isHostileTo(faction)) {
                 hasTargets = true;
                 break;
@@ -636,7 +636,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
     public ArrayList<MarketAPI> getHostileMarketsInSystem(StarSystemAPI system) {
         ArrayList<MarketAPI> marketList = new ArrayList<>();
 
-        for (MarketAPI market : Misc.getMarketsInLocation(system)) {
+        for (MarketAPI market : MiscIE.getMarketsInLocation(system)) {
             if (market.getFaction().isHostileTo(this.market.getFaction())) {
                 marketList.add(market);
             }

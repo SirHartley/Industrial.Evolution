@@ -111,13 +111,13 @@ public class SpecialItemEffectsRepo {
             protected void addParaCent(TooltipMakerAPI text, String pre, float pad){
                 text.addPara(pre + "All industries within " + RANGE_LY_TEN + "LY wil be counted for Bureau bonuses," +
                                 " and the maximum bonus effect is increased to " + LOG_CORE_MAX_BONUS,
-                        pad, Misc.getHighlightColor(),
+                        pad, MiscIE.getHighlightColor(),
                         new String[]{RANGE_LY_TEN + "LY", LOG_CORE_MAX_BONUS + ""});
             }
 
             protected void addParaOther(TooltipMakerAPI text, String pre, float pad){
                 text.addPara(pre + "Increases all commodity output by " + LOG_CORE_COMMODITY_BONUS + " unit. Bonus increases by 1 each month.",
-                        pad, Misc.getHighlightColor(),
+                        pad, MiscIE.getHighlightColor(),
                         new String[]{LOG_CORE_COMMODITY_BONUS + "unit", "increases by 1 each month"});
             }
         });*/
@@ -271,7 +271,7 @@ public class SpecialItemEffectsRepo {
 
                 text.addPara(pre + "Increases the Research Progress gained by deconstructing a hull by " + s2 +
                                 " and reduces research time by " + s1,
-                        pad, Misc.getHighlightColor(),
+                        pad, MiscIE.getHighlightColor(),
                         new String[]{s2, s1});
             }
         });*/

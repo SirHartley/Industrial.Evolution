@@ -154,7 +154,7 @@ public class CourierPortDialoguePlugin extends BaseCommandPlugin implements Inte
         panel.addPara("Shipping contracts can be specified for any two planets as long as you have a courier port.\n" +
                 "Shipment cost will be calculated depending on the actually transported amounts.", Misc.getGrayColor());
         panel.addPara("");
-        //panel.addPara("You can change or remove contracts at any time.", Misc.getGrayColor());
+        //panel.addPara("You can change or remove contracts at any time.", MiscIE.getGrayColor());
         panel.addPara("Courier fleets will always reach their destination - no one dares attack them, for they would never be able to ship anything, ever again.", Misc.getGrayColor());
 
         panel.addParagraph("-----------------------------------------------------------------------------", Misc.getGrayColor());

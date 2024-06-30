@@ -20,13 +20,13 @@ import com.fs.starfarer.api.ui.ValueDisplayMode;
 import com.fs.starfarer.api.util.ListMap;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.ItemIds;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import org.lwjgl.input.Keyboard;
 
 import java.util.*;
 
-import static indevo.utils.helper.Misc.stripShipToCargoAndReturnVariant;
+import static indevo.utils.helper.MiscIE.stripShipToCargoAndReturnVariant;
 
 public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
 
@@ -440,7 +440,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
                 ShipAPI.HullSize.DESTROYER,
                 ShipAPI.HullSize.CRUISER,
                 ShipAPI.HullSize.CAPITAL_SHIP}) {
-            for (ShipHullSpecAPI spec : Misc.getAllLearnableShipHulls()) {
+            for (ShipHullSpecAPI spec : MiscIE.getAllLearnableShipHulls()) {
                 if (spec.getHullSize().equals(size)) lm.getList(size.toString()).add(spec);
             }
         }

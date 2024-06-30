@@ -19,7 +19,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.RequisitionCenter;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.util.*;
 
@@ -95,7 +95,7 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
     public static List<FactionAPI> getActiveFactionList(float minimumStanding, FactionAPI toFaction) {
         List<FactionAPI> list = new ArrayList<>();
         List<FactionAPI> inactiveFactions = AmbassadorPersonManager.getListOfIncativeFactions();
-        Set<String> blacklist = Misc.getCSVSetFromMemory(Ids.ORDER_LIST);
+        Set<String> blacklist = MiscIE.getCSVSetFromMemory(Ids.ORDER_LIST);
 
         for (FactionAPI faction : Global.getSector().getAllFactions()) {
             if (inactiveFactions.contains(faction)
@@ -266,8 +266,8 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
         Map<String, Float> weaponList = new HashMap<>();
 
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            if (!m.hasSubmarket(Submarkets.SUBMARKET_STORAGE) || Misc.getStorageCargo(m).isEmpty()) continue;
-            for (CargoAPI.CargoItemQuantity<String> w : Misc.getStorageCargo(m).getWeapons()) {
+            if (!m.hasSubmarket(Submarkets.SUBMARKET_STORAGE) || MiscIE.getStorageCargo(m).isEmpty()) continue;
+            for (CargoAPI.CargoItemQuantity<String> w : MiscIE.getStorageCargo(m).getWeapons()) {
                 addToStringMap(w.getItem(), w.getCount(), weaponList);
             }
         }

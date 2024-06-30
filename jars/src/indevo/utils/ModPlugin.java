@@ -14,7 +14,6 @@ import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.combat.MissileAIPlugin;
 import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
@@ -37,6 +36,7 @@ import indevo.dialogue.research.DoritoGunFoundChecker;
 import indevo.dialogue.research.HyperspaceTopoProgressChecker;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.economy.listeners.ResourceConditionApplicator;
+import indevo.exploration.crucible.CrucibleSpawner;
 import indevo.exploration.crucible.CrucibleStationEntityPlugin;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationPlacer;
@@ -45,14 +45,11 @@ import indevo.exploration.minefields.listeners.InterdictionPulseAbilityListener;
 import indevo.exploration.minefields.listeners.RecentJumpListener;
 import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.exploration.stations.DerelictStationPlacer;
-import indevo.exploration.subspace.system.SubspaceSystem;
 import indevo.ids.Ids;
-import indevo.ids.ItemIds;
 import indevo.industries.TradeCenter;
 import indevo.industries.artillery.listener.WatchtowerFactionResetListener;
 import indevo.industries.artillery.plugins.ArtilleryCampaignPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
-import indevo.industries.artillery.scripts.CampaignAttackScript;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
@@ -66,7 +63,6 @@ import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.derelicts.listeners.AncientLabCommoditySwitchOptionProvider;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.plugins.PetCenterOptionProvider;
@@ -83,7 +79,7 @@ import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.items.listeners.ShipComponentLootManager;
 import indevo.items.listeners.SpecialItemDropsListener;
 import indevo.other.PlayerHyperspaceTripTracker;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.timers.RaidTimeout;
 import indevo.utils.timers.TimeTracker;
@@ -137,16 +133,13 @@ public class ModPlugin extends BaseModPlugin {
     @Override
     public void onGameLoad(boolean newGame) {
         boolean devmode = Global.getSettings().isDevMode();
-        boolean devActions = false; //Todo SET TO FALSE FOR RELEASE
+        boolean devActions = true; //Todo SET TO FALSE FOR RELEASE
 
         if (devmode && devActions) {
-            SectorEntityToken t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity(null, null, "IndEvo_crucible_bottom", null, null);
-            t.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
-            t = Global.getSector().getPlayerFleet().getContainingLocation().addCustomEntity(null, null, "IndEvo_crucible_top", null, null);
-            t.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
-            CrucibleStationEntityPlugin.generateMagneticField(t, 1f, 300f);
+            CrucibleSpawner.devSpawn();
+            //y.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
 
-/*
+            /*
             t.addScript(new CampaignAttackScript(t, CampaignAttackScript.TYPE_RAILGUN));
 
             SubspaceSystem.gen();
@@ -362,19 +355,19 @@ public class ModPlugin extends BaseModPlugin {
     }
 
     private void loadTransientMemory() {
-        Misc.getVPCItemSet();
-        Misc.getVayraBossShips();
-        Misc.getPrismBossShips();
+        MiscIE.getVPCItemSet();
+        MiscIE.getVayraBossShips();
+        MiscIE.getPrismBossShips();
 
-        Misc.getCSVSetFromMemory(Ids.EMBASSY_LIST);
-        Misc.getCSVSetFromMemory(Ids.ORDER_LIST);
-        Misc.getCSVSetFromMemory(Ids.PRINT_LIST);
-        Misc.getCSVSetFromMemory(Ids.REVERSE_LIST);
-        Misc.getCSVSetFromMemory(Ids.SHIPPING_LIST);
-        Misc.getCSVSetFromMemory(Ids.BUREAU_LIST);
-        Misc.getCSVSetFromMemory(Ids.RUIND_LIST);
-        Misc.getCSVSetFromMemory(Ids.CLOUD_LIST);
-        Misc.getCSVSetFromMemory(Ids.LAB_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.EMBASSY_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.ORDER_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.PRINT_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.REVERSE_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.SHIPPING_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.BUREAU_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.RUIND_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.CLOUD_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.LAB_LIST);
     }
 
     private void setListenersIfNeeded() {

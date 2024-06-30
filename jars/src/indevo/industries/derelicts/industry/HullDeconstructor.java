@@ -28,7 +28,7 @@ import indevo.ids.ItemIds;
 import indevo.items.EmptyForgeTemplateItemPlugin;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
@@ -39,7 +39,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.utils.helper.Misc.addOrIncrement;
+import static indevo.utils.helper.MiscIE.addOrIncrement;
 
 public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayListener {
 
@@ -236,10 +236,10 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
 
     private void shipToCargo(SpecialItemData specialItem, int quantity) {
         if (Settings.getBoolean(Settings.HULLDECON_AUTO_DELIVER_TO_CLOSEST_FORGE)) {
-            MarketAPI target = Misc.getClosestMarketWithIndustry(market, Ids.HULLFORGE);
+            MarketAPI target = MiscIE.getClosestMarketWithIndustry(market, Ids.HULLFORGE);
 
             if (target != null) {
-                CargoAPI c = Misc.getIndustrialStorageCargo(target);
+                CargoAPI c = MiscIE.getIndustrialStorageCargo(target);
                 if (c != null) {
                     c.addSpecial(specialItem, quantity);
                     throwDeliveryMessage(market, target);
@@ -254,7 +254,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
         MarketAPI gather = market.getFaction().getProduction().getGatheringPoint();
         MarketAPI target = toStorage ? market : gather;
 
-        CargoAPI cargo = Misc.getStorageCargo(target);
+        CargoAPI cargo = MiscIE.getStorageCargo(target);
         if (cargo != null) {
             cargo.addSpecial(specialItem, quantity);
             throwDeliveryMessage(market, target);
@@ -298,7 +298,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
         if (decStorage.getMothballedShips().getMembersListCopy().isEmpty()) return false;
 
         FleetMemberAPI ship = decStorage.getMothballedShips().getMembersListCopy().get(0);
-        ShipVariantAPI shipVar = Misc.stripShipToCargoAndReturnVariant(ship, market);
+        ShipVariantAPI shipVar = MiscIE.stripShipToCargoAndReturnVariant(ship, market);
 
         decStorage.getMothballedShips().removeFleetMember(ship); //remove ship from storage
         currentDeconShipVar = shipVar;
@@ -485,7 +485,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
     protected void applyAICoreToIncomeAndUpkeep() {
         String name;
 
-        switch (Misc.getAiCoreIdNotNull(this)) {
+        switch (MiscIE.getAiCoreIdNotNull(this)) {
             case Commodities.GAMMA_CORE:
                 name = StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
 

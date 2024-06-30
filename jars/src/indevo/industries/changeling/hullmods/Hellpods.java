@@ -33,7 +33,7 @@ public class Hellpods extends SelfRepairingBuiltInHullmod {
                 Math.round(RAID_STRENGTH_BONUS_PERCENT) + "%");
 
         tooltip.addPara(
-                "Increases Marine losses by %s and marine losses by %s",
+                "Increases Marine losses by %s.",
                 spad,
                 Misc.getNegativeHighlightColor(),
                 Math.round(MarineLossAmplifcationHullmodEffectListener.MARINE_LOSSES_MULT_PER_SHIP_PERCENT) + "%");

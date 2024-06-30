@@ -12,7 +12,7 @@ import indevo.ids.Ids;
 import indevo.industries.courierport.ShippingCargoManager;
 import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingContractMemory;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
 
 import java.util.ArrayList;
@@ -101,7 +101,7 @@ public class ShippingManager implements NewDayListener {
     }
 
     public static MarketAPI getClosestPort(Shipment container) {
-        MarketAPI market = Misc.getClosestMarketWithIndustry(container.contract.getFromMarket(), Ids.PORT);
+        MarketAPI market = MiscIE.getClosestMarketWithIndustry(container.contract.getFromMarket(), Ids.PORT);
 
         if (market == null) {
             for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {

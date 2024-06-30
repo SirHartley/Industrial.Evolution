@@ -24,7 +24,7 @@ import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -130,7 +130,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
         super.unapply();
         Global.getSector().getListenerManager().removeListener(this);
 
-        List<MarketAPI> PlayerMarketsInSystem = Misc.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId());
+        List<MarketAPI> PlayerMarketsInSystem = MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId());
         for (MarketAPI PlayerMarket : PlayerMarketsInSystem) {
             PlayerMarket.getIncomeMult().unmodify(Ids.SUPCOM);
         }
@@ -163,7 +163,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
     }
 
     private void modifyAllMarketIncome() {
-        List<MarketAPI> playerMarketsInSystem = Misc.getMarketsInLocation(market.getStarSystem(), market.getFactionId());
+        List<MarketAPI> playerMarketsInSystem = MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId());
         for (MarketAPI playerMarket : playerMarketsInSystem) playerMarket.getIncomeMult().unmodify(getModId());
 
         if (!isFunctional()) return;

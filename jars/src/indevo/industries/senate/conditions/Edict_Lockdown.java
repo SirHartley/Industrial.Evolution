@@ -10,7 +10,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.industries.senate.industry.Senate;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.util.ArrayList;
 
@@ -182,6 +182,6 @@ public class Edict_Lockdown extends BaseEdict {
     @Override
     public boolean isPresenceConditionMet(MarketAPI market) {
         return super.isPresenceConditionMet(market)
-                && Misc.marketHasMilitaryIncludeRelays(market);
+                && MiscIE.marketHasMilitaryIncludeRelays(market);
     }
 }

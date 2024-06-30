@@ -25,7 +25,7 @@ import data.campaign.econ.industries.MS_modularFac;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUser;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -241,7 +241,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     }
 
     private int getWeaponSPDayLimit() {
-        int dayLimit = Math.round(getWeaponSPMonthLimit() * 1f / Misc.getDaysOfCurrentMonth());
+        int dayLimit = Math.round(getWeaponSPMonthLimit() * 1f / MiscIE.getDaysOfCurrentMonth());
         int monthLimit = getWeaponSPMonthLimit();
 
         if (monthLimit - currentWeaponBonusSP > 0) {
@@ -313,7 +313,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     private boolean systemHasPirateActivity() {
 
-        List<MarketAPI> MarketsInSystem = Misc.getMarketsInLocation(market.getStarSystem());
+        List<MarketAPI> MarketsInSystem = MiscIE.getMarketsInLocation(market.getStarSystem());
         boolean hasActivity = false;
         for (MarketAPI Market : MarketsInSystem) {
             if (hasPirateActivity(Market)) {
@@ -431,7 +431,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     }
 
     private boolean isOnlyInstanceInSystem() {
-        return Misc.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction());
+        return MiscIE.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction());
     }
 
     @Override

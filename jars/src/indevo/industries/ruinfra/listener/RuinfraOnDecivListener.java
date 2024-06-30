@@ -9,7 +9,7 @@ import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.ruinfra.conditions.DerelictInfrastructureCondition;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class RuinfraOnDecivListener implements ColonyDecivListener {
         if (market.getSize() < 4 || !(market.getPrimaryEntity() instanceof PlanetAPI)) return;
 
         List<Industry> marketIndustries = market.getIndustries();
-        Set<String> validIndustryIDs = Misc.getCSVSetFromMemory(Ids.RUIND_LIST);
+        Set<String> validIndustryIDs = MiscIE.getCSVSetFromMemory(Ids.RUIND_LIST);
         WeightedRandomPicker<Industry> picker = new WeightedRandomPicker<>();
 
         for (Industry ind : new ArrayList<>(marketIndustries)) if (validIndustryIDs.contains(ind.getId())) picker.add(ind);

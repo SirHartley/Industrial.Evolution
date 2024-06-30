@@ -12,7 +12,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import indevo.ids.Ids;
 import indevo.industries.EngineeringHub;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
@@ -40,9 +40,9 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin imple
         restrictedShips = new HashSet<>();
         allowedShips = new HashSet<>();
 
-        Set<String> allowedShipsInternal = Misc.getCSVSetFromMemory(Ids.REVERSE_LIST);
-        Set<String> bossShips = Misc.getPrismBossShips();
-        Set<String> hvbShips = Misc.getVayraBossShips();
+        Set<String> allowedShipsInternal = MiscIE.getCSVSetFromMemory(Ids.REVERSE_LIST);
+        Set<String> bossShips = MiscIE.getPrismBossShips();
+        Set<String> hvbShips = MiscIE.getVayraBossShips();
 
         restrictedShips.addAll(bossShips);
         restrictedShips.addAll(hvbShips);

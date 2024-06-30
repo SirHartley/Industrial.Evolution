@@ -108,7 +108,7 @@ public class Behaviour {
         tooltip.setParaSmallInsignia();
 
         for (int i = 1; i <= Behaviour.behaviourIndexMap.size(); i++){
-            String s = Misc.ucFirst(Behaviour.getBehaviourForIndex(i).toString());
+            String s = MiscIE.ucFirst(Behaviour.getBehaviourForIndex(i).toString());
             tooltip.addPara("%s - " + Behaviour.behaviourTooltipMap.get(i), spad, Behaviour.getColourForBehaviour(i), s);
         }
 

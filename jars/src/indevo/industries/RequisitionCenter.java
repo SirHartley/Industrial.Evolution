@@ -13,7 +13,7 @@ import indevo.ids.Ids;
 import indevo.industries.embassy.industry.Embassy;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.submarkets.RequisitionsCenterSubmarketPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
@@ -76,7 +76,7 @@ public class RequisitionCenter extends BaseIndustry {
 
             if (market.hasIndustry(Ids.EMBASSY)
                     && AmbassadorPersonManager.hasAmbassador(market)
-                    && Misc.getAiCoreIdNotNull(this).equals(Commodities.GAMMA_CORE)) {
+                    && MiscIE.getAiCoreIdNotNull(this).equals(Commodities.GAMMA_CORE)) {
 
                 FactionAPI alignedFaction = ((Embassy) market.getIndustry(Ids.EMBASSY)).alignedFaction;
 

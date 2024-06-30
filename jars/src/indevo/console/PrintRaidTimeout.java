@@ -2,7 +2,7 @@ package indevo.console;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import org.lazywizard.console.BaseCommand;
 import org.lazywizard.console.CommonStrings;
 import org.lazywizard.console.Console;
@@ -22,8 +22,8 @@ public class PrintRaidTimeout implements BaseCommand {
             return CommandResult.WRONG_CONTEXT;
         }
 
-        Map<String, Float> raidTimeoutMap = Misc.getMapFromMemory(RAID_TIMEOUT_KEY);
-        Map<String, Float> raidTimeoutMap_AI = Misc.getMapFromMemory(AI_RAID_TIMEOUT_KEY);
+        Map<String, Float> raidTimeoutMap = MiscIE.getMapFromMemory(RAID_TIMEOUT_KEY);
+        Map<String, Float> raidTimeoutMap_AI = MiscIE.getMapFromMemory(AI_RAID_TIMEOUT_KEY);
 
         Map<String, StarSystemAPI> systemAPIMap = new HashMap<>();
         for (StarSystemAPI s : Global.getSector().getStarSystems()) {

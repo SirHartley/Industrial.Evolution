@@ -22,7 +22,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.industries.changeling.hullmods.Hellpods;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -121,7 +121,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
 
             tooltip.addSectionHeading("Governance Effects: Managed Democracy", Alignment.MID, opad);
 
-            if (Misc.isMilitary(ind)) {
+            if (MiscIE.isMilitary(ind)) {
                 tooltip.addPara("Military buildings: %s decreased by %s", opad, com.fs.starfarer.api.util.Misc.getTextColor(), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "upkeep", StringHelper.getAbsPercentString(HELLDIVERS_UPKEEP_RED, true));
             } else {
                 tooltip.addPara("No effect on this building.", opad);
@@ -179,8 +179,8 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
 
     @Override
     public void onNewDay() {
-        Misc.getStorageCargo(market).initMothballedShips(market.getFactionId());
-        List<FleetMemberAPI> membersInStorage = Misc.getStorageCargo(market).getMothballedShips().getMembersListCopy();
+        MiscIE.getStorageCargo(market).initMothballedShips(market.getFactionId());
+        List<FleetMemberAPI> membersInStorage = MiscIE.getStorageCargo(market).getMothballedShips().getMembersListCopy();
         List<String> expired = new ArrayList<>();
 
         //iterate members and add hellpods if needed
@@ -234,8 +234,8 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         int i = 0;
         int max = 10;
 
-        Misc.getStorageCargo(market).initMothballedShips(market.getFactionId());
-        List<FleetMemberAPI> membersInStorage = Misc.getStorageCargo(market).getMothballedShips().getMembersListCopy();
+        MiscIE.getStorageCargo(market).initMothballedShips(market.getFactionId());
+        List<FleetMemberAPI> membersInStorage = MiscIE.getStorageCargo(market).getMothballedShips().getMembersListCopy();
         Map<FleetMemberAPI, Integer> validMembersWithRefitTime = new LinkedHashMap<>();
 
         for (FleetMemberAPI m : membersInStorage) if(daysToApplicationForFleetMember.containsKey(m.getId())) validMembersWithRefitTime.put(m, daysToApplicationForFleetMember.get(m.getId()));
@@ -310,7 +310,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         if (market.getSize() >= MAX_MARKET_SIZE) market.getPopulation().setWeight(getWeightForMarketSizeStatic(market.getSize()));
 
         for (Industry ind : market.getIndustries()) {
-            if (Misc.isMilitary(ind)) {
+            if (MiscIE.isMilitary(ind)) {
                 ind.getUpkeep().modifyMult(getId(), HELLDIVERS_UPKEEP_RED, getName());
             }
         }
@@ -354,7 +354,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         Global.getSector().getListenerManager().removeListener(this);
 
         for (Industry ind : market.getIndustries()) {
-            if (Misc.isMilitary(ind)) {
+            if (MiscIE.isMilitary(ind)) {
                 ind.getUpkeep().unmodify(getId());
             }
         }

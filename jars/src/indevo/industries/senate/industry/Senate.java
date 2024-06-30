@@ -10,7 +10,7 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -35,7 +35,7 @@ public class Senate extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.getBoolean(Settings.SENATE) && Misc.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()) && super.isAvailableToBuild();
+        return Settings.getBoolean(Settings.SENATE) && MiscIE.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()) && super.isAvailableToBuild();
     }
 
     @Override
@@ -44,7 +44,7 @@ public class Senate extends BaseIndustry {
             return super.getUnavailableReason();
         }
 
-        if (!Misc.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()) && super.isAvailableToBuild()) {
+        if (!MiscIE.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()) && super.isAvailableToBuild()) {
             return "There can only be one Senate in a star system.";
         } else {
             return super.getUnavailableReason();
@@ -52,7 +52,7 @@ public class Senate extends BaseIndustry {
     }
 
     private boolean systemHasEdict() {
-        for (MarketAPI market : Misc.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
+        for (MarketAPI market : MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
             for (MarketConditionAPI cond : market.getConditions()) {
                 if (cond.getIdForPluginModifications().contains("edict")) {
                     return true;

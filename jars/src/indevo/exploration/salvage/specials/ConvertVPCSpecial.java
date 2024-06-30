@@ -11,7 +11,7 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpe
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -157,7 +157,7 @@ public class ConvertVPCSpecial extends BaseSalvageSpecial {
 
     private boolean playercargoHasVPC() {
         CargoAPI cargo = playerFleet.getCargo();
-        Set<SpecialItemData> vpcIdSet = Misc.getVPCItemSet();
+        Set<SpecialItemData> vpcIdSet = MiscIE.getVPCItemSet();
 
         for (SpecialItemData data : vpcIdSet) {
             if (cargo.getQuantity(CargoAPI.CargoItemType.SPECIAL, data) > 0) return true;
@@ -170,7 +170,7 @@ public class ConvertVPCSpecial extends BaseSalvageSpecial {
         CargoAPI cargo = playerFleet.getCargo();
         List<String> l = new ArrayList<>();
 
-        Set<SpecialItemData> vpcIdSet = Misc.getVPCItemSet();
+        Set<SpecialItemData> vpcIdSet = MiscIE.getVPCItemSet();
 
         for (SpecialItemData data : vpcIdSet) {
             if (cargo.getQuantity(CargoAPI.CargoItemType.SPECIAL, data) > 0) l.add(data.getId());

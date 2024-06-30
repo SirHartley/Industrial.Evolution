@@ -24,7 +24,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.DynamicStatsAPI;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 
@@ -238,7 +238,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (!onMonthEnd) {
             playerFleet.getCargo().getCredits().subtract(amount);
         } else if (!market.isPlayerOwned()) {
-            MonthlyReport.FDNode iNode = Misc.createMonthlyReportNode(this, market, getCurrentName(), Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE);
+            MonthlyReport.FDNode iNode = MiscIE.createMonthlyReportNode(this, market, getCurrentName(), Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE);
             iNode.upkeep += amount;
         } else {
             MonthlyReport report = SharedData.getData().getCurrentReport();
@@ -258,7 +258,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     public static final float OFFICER_MAX_LEVEL_FOREIGN_MULT = 1.3f;
 
     private void increaseOfficerQuality() {
-        for (MarketAPI market : Misc.getMarketsInLocation(this.market.getContainingLocation(), this.market.getFactionId())) {
+        for (MarketAPI market : MiscIE.getMarketsInLocation(this.market.getContainingLocation(), this.market.getFactionId())) {
             DynamicStatsAPI stats = market.getStats().getDynamic();
             OfficerLevelupPlugin plugin = (OfficerLevelupPlugin) Global.getSettings().getPlugin("officerLevelUp");
 
@@ -277,7 +277,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     private void unmodifyOfficerQualityIncrease() {
-        for (MarketAPI market : Misc.getMarketsInLocation(this.market.getContainingLocation(), this.market.getFactionId())) {
+        for (MarketAPI market : MiscIE.getMarketsInLocation(this.market.getContainingLocation(), this.market.getFactionId())) {
             market.getStats().getDynamic().getMod(Stats.OFFICER_MAX_LEVEL_MOD).unmodify(getModId());
             market.getStats().getDynamic().getMod(Stats.OFFICER_PROB_MOD).unmodify(getModId());
         }

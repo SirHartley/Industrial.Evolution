@@ -32,9 +32,9 @@ public class StringHelper {
 
 		Map<String, String> sub = new HashMap<>();
 		sub.put("$theFaction", attackerName);
-		sub.put("$TheFaction", Misc.ucFirst(attackerName));
+		sub.put("$TheFaction", MiscIE.ucFirst(attackerName));
 		sub.put("$theTargetFaction", defenderName);
-		sub.put("$TheTargetFaction", Misc.ucFirst(defenderName));
+		sub.put("$TheTargetFaction", MiscIE.ucFirst(defenderName));
 		sub.put("$market", target.getName());
 		sub.put("$isOrAre", attacker.getDisplayNameIsOrAre());
 		sub.put("$location", locationName);

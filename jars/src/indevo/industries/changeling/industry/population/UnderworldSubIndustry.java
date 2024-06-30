@@ -21,7 +21,7 @@ import com.fs.starfarer.api.util.Pair;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.util.*;
 
@@ -67,7 +67,7 @@ public class UnderworldSubIndustry extends SubIndustry {
 
         Map<String, Float> stolenGoods = new HashMap<>();
 
-        for (TimedCommodityQuantity q : stolenGoodsList) Misc.addOrIncrement(stolenGoods, q.id, q.amt);
+        for (TimedCommodityQuantity q : stolenGoodsList) MiscIE.addOrIncrement(stolenGoods, q.id, q.amt);
         for (Map.Entry<String, Float> e : stolenGoods.entrySet()) sortedStolenGoodsDescending.put(e.getValue(), e.getKey());
 
         return sortedStolenGoodsDescending;
@@ -120,7 +120,7 @@ public class UnderworldSubIndustry extends SubIndustry {
                             if (stack.isCommodityStack()) {
                                 String id = stack.getCommodityId();
                                 float share = (float) Math.ceil(stack.getSize() * EXTORTION_SHARE);
-                                Misc.addOrIncrement(bounty, id, share);
+                                MiscIE.addOrIncrement(bounty, id, share);
                                 stolenGoodsList.add(new TimedCommodityQuantity(id, share));
                             }
                         }
@@ -130,7 +130,7 @@ public class UnderworldSubIndustry extends SubIndustry {
                 }
             }
 
-            CargoAPI cargo = Misc.getStorageCargo(market);
+            CargoAPI cargo = MiscIE.getStorageCargo(market);
             if (cargo != null){
                 for (Map.Entry<String, Float> e : bounty.entrySet()){
                     cargo.addCommodity(e.getKey(), e.getValue());

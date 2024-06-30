@@ -11,7 +11,7 @@ import com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin;
 import indevo.ids.Ids;
 import indevo.submarkets.DynamicSubmarket;
 import indevo.submarkets.SharedSubmarketPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 //what the fuck is this trash script
 public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
@@ -105,7 +105,7 @@ public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
     private void moveContentsToStorage(String fromId) {
         //have to move the cargo contents before removal as they would otherwise be lost
 
-        if (Misc.getStorageCargo(market) != null) {
+        if (MiscIE.getStorageCargo(market) != null) {
             SubmarketAPI storage = market.getSubmarket(Submarkets.SUBMARKET_STORAGE);
             SubmarketAPI fromSub = market.getSubmarket(fromId);
 

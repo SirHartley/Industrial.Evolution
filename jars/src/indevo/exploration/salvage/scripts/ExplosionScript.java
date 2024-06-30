@@ -31,7 +31,7 @@ public class ExplosionScript implements EveryFrameScript {
         delay -= amount;
 
         if (delay <= 0 && explosion == null) {
-            //Misc.fadeAndExpire(entity);
+            //MiscIE.fadeAndExpire(entity);
             LocationAPI cl = entity.getContainingLocation();
             Vector2f loc = entity.getLocation();
             Vector2f vel = entity.getVelocity();

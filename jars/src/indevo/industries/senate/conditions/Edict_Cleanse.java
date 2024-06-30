@@ -17,7 +17,7 @@ import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.industries.senate.industry.Senate;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -159,7 +159,7 @@ public class Edict_Cleanse extends BaseEdict implements MarketImmigrationModifie
 
     @Override
     public boolean isPresenceConditionMet(MarketAPI market) {
-        return super.isPresenceConditionMet(market) && Misc.marketHasMilitaryIncludeRelays(market) && marketHasConditionSubString(market, "ubpopulation");
+        return super.isPresenceConditionMet(market) && MiscIE.marketHasMilitaryIncludeRelays(market) && marketHasConditionSubString(market, "ubpopulation");
     }
 
     private boolean marketHasConditionSubString(MarketAPI market, String substring) {

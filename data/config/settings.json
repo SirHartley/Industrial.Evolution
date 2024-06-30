@@ -324,6 +324,7 @@
           "broadFrame": "graphics/fx/IndEvo_frame.png",
           "invisibleHull": "graphics/fx/IndEvo_frame.png",
           "shield_texture": "graphics/planets/IndEvo_planetary_shield_invisible.png",
+          "vignette_square": "graphics/overlay/indevo_overlay_mixed.png",
       },
   },
 }

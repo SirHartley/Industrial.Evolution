@@ -15,7 +15,7 @@ import org.lwjgl.util.vector.Vector2f;
 import java.awt.*;
 import java.util.Random;
 
-import static indevo.utils.helper.Misc.smootherstep;
+import static indevo.utils.helper.MiscIE.smootherstep;
 import static java.lang.Math.random;
 
 public class RailgunShotEntity extends BaseCustomEntityPlugin {

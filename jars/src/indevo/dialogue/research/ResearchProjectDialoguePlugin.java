@@ -230,7 +230,7 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
         dialog.getTextPanel().clear();
 
         dialog.setPlugin(originalPlugin);
-        //new ShowDefaultVisual().execute(null, dialog, Misc.tokenize(""), memoryMap);
+        //new ShowDefaultVisual().execute(null, dialog, MiscIE.tokenize(""), memoryMap);
         memoryMap.get(MemKeys.LOCAL).set("$option", "gaMeetingEnd", 0f);
         FireAll.fire(null, dialog, memoryMap, "DialogOptionSelected");
     }

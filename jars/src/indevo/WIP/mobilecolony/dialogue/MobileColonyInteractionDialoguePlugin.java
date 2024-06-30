@@ -77,7 +77,7 @@ public class MobileColonyInteractionDialoguePlugin implements InteractionDialogP
             else opts.setTooltip(option, "You can not sacrifice the only ship in your fleet, as tempting as it may be");
 
             float partsAvailable = cargo.getCommodityQuantity(ItemIds.PARTS);
-            opts.addSelector("Sacrifice Starship Components", Option.PARTS_SELECTOR, Misc.getHighlightColor(),
+            opts.addSelector("Sacrifice Starship Components", Option.PARTS_SELECTOR, MiscIE.getHighlightColor(),
                     300f,
                     50f,
                     0f,
@@ -97,7 +97,7 @@ public class MobileColonyInteractionDialoguePlugin implements InteractionDialogP
             if(isEnabled) opts.setTooltip(option, "Pray to the mechanic deity to grant upon you a rare print from the deepest parts of the ancient mnemonic relays");
             else {
                 opts.setTooltip(option, "You do not have a sacrifice selected or do not have sufficient relic components to offer upon the altar. (Cost: " + RARE_PART_COST_AMT + " Relic Components)");
-                opts.setTooltipHighlightColors(option, Misc.getHighlightColor());
+                opts.setTooltipHighlightColors(option, MiscIE.getHighlightColor());
                 opts.setTooltipHighlights(option, "(Cost: " + RARE_PART_COST_AMT + " Relic Components)");
             }
         } else {

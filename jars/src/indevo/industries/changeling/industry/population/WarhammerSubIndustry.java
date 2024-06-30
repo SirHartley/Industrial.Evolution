@@ -27,7 +27,7 @@ import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.listener.ShipProductionSummaryMessageHandler;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
@@ -231,7 +231,7 @@ x can only be built on very hot worlds
 
             member.getVariant().addPermaMod(HandBuiltHullmod.ID);
 
-            CargoAPI cargo = Misc.getStorageCargo(market);
+            CargoAPI cargo = MiscIE.getStorageCargo(market);
             cargo.initMothballedShips(market.getFactionId());
             cargo.getMothballedShips().addFleetMember(member);
 

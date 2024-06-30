@@ -14,7 +14,7 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import indevo.industries.RestorationDocks;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -129,7 +129,7 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin impleme
         restorationDocks.publicAddRightAfterDescriptionSection(tooltip, Industry.IndustryTooltipMode.NORMAL);
 
         if (expanded) {
-            String aiCoreId = Misc.getAiCoreIdNotNull(restorationDocks);
+            String aiCoreId = MiscIE.getAiCoreIdNotNull(restorationDocks);
             HashMap<FleetMemberAPI, Integer> maxDModMemory = (HashMap<FleetMemberAPI, Integer>) Global.getSector().getMemoryWithoutUpdate().get("$IndEvo_maxDModMemory");
 
             List<FleetMemberAPI> fleet = restorationDocks.getEligibleShips(submarket);

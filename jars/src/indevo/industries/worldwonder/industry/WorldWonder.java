@@ -128,7 +128,7 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
         else if (IndustryTooltipMode.ADD_INDUSTRY.equals(mode) && memory.getBoolean(HAS_AWARDED_SP))
             tooltip.addPara("A story point has already been awarded for building a Symbol on this world.", Misc.getHighlightColor(), 10f);
 
-        //if(IndustryTooltipMode.ADD_INDUSTRY.equals(mode) && isAvailableToBuild()) tooltip.addPara("Only one can exist at a time", 10f, Misc.getHighlightColor());
+        //if(IndustryTooltipMode.ADD_INDUSTRY.equals(mode) && isAvailableToBuild()) tooltip.addPara("Only one can exist at a time", 10f, MiscIE.getHighlightColor());
     }
 
     @Override

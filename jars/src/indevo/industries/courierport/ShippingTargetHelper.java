@@ -8,8 +8,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import indevo.ids.Ids;
-import indevo.utils.ModPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -22,7 +21,7 @@ public class ShippingTargetHelper {
 
     public static List<SectorEntityToken> getValidOriginPlanets() {
         List<SectorEntityToken> marketList = new ArrayList<>();
-        Set<String> whitelist = Misc.getCSVSetFromMemory(Ids.SHIPPING_LIST);
+        Set<String> whitelist = MiscIE.getCSVSetFromMemory(Ids.SHIPPING_LIST);
 
         if (Global.getSettings().getModManager().isModEnabled("assortment_of_things")){
             SettlementData data = FrontiersUtils.INSTANCE.getFrontiersData().getActiveSettlement();
@@ -30,7 +29,7 @@ public class ShippingTargetHelper {
         }
 
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            if (m.getFaction().isHostileTo("player") || Misc.getStorageCargo(m) == null) continue;
+            if (m.getFaction().isHostileTo("player") || MiscIE.getStorageCargo(m) == null) continue;
 
             for (SubmarketAPI s : m.getSubmarketsCopy()) {
                 if (whitelist.contains(s.getSpecId())) {
@@ -52,7 +51,7 @@ public class ShippingTargetHelper {
         }
 
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            if (m.getFaction().isHostileTo("player") || Misc.getStorageCargo(m) == null) continue;
+            if (m.getFaction().isHostileTo("player") || MiscIE.getStorageCargo(m) == null) continue;
 
             if (contract.fromSubmarketId == null && m.hasSubmarket(Submarkets.SUBMARKET_STORAGE))
                 marketList.add(m.getPrimaryEntity());
@@ -80,7 +79,7 @@ public class ShippingTargetHelper {
 
     public static Set<SubmarketAPI> getValidOriginSubmarkets(MarketAPI market) {
         Set<SubmarketAPI> finalSet = new LinkedHashSet<>();
-        Set<String> whitelist = Misc.getCSVSetFromMemory(Ids.SHIPPING_LIST);
+        Set<String> whitelist = MiscIE.getCSVSetFromMemory(Ids.SHIPPING_LIST);
 
         if (market != null) {
             for (SubmarketAPI sub : market.getSubmarketsCopy()) {
@@ -100,7 +99,7 @@ public class ShippingTargetHelper {
         for (SubmarketAPI sub : onMarket.getSubmarketsCopy()) {
             if (sub.getSpecId().equals(Submarkets.LOCAL_RESOURCES)) continue;
 
-            Set<String> whitelist = Misc.getCSVSetFromMemory(Ids.SHIPPING_LIST);
+            Set<String> whitelist = MiscIE.getCSVSetFromMemory(Ids.SHIPPING_LIST);
             boolean matchingCargoScreen = sub.getPlugin().showInCargoScreen() && fromSubmarket.getPlugin().showInCargoScreen();
             boolean matchingFleetScreen = sub.getPlugin().showInFleetScreen() && fromSubmarket.getPlugin().showInFleetScreen();
             boolean intersect = matchingCargoScreen || matchingFleetScreen;

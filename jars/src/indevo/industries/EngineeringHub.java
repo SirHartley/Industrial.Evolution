@@ -19,7 +19,7 @@ import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
 import indevo.items.installable.BlueprintInstallableItemPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
 import indevo.utils.timers.NewDayListener;
@@ -29,7 +29,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.utils.helper.Misc.*;
+import static indevo.utils.helper.MiscIE.*;
 
 public class EngineeringHub extends SharedSubmarketUser implements NewDayListener {
 
@@ -223,7 +223,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
                     MarketAPI gather = market.getFaction().getProduction().getGatheringPoint();
                     MarketAPI target = toStorage ? market : gather;
-                    CargoAPI cargo = Misc.getStorageCargo(target);
+                    CargoAPI cargo = MiscIE.getStorageCargo(target);
 
                     if (dong || roider) {
                         //special handling for tiandong/Roider refit templates
@@ -317,7 +317,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         for (FleetMemberAPI ship : engStorage.getMothballedShips().getMembersListCopy()) {
             if (getProgress(getBaseShipHullSpec(ship.getVariant()).getHullId()) >= 1) continue;
 
-            ShipVariantAPI shipVar = Misc.stripShipToCargoAndReturnVariant(ship, market);
+            ShipVariantAPI shipVar = MiscIE.stripShipToCargoAndReturnVariant(ship, market);
 
             engStorage.getMothballedShips().removeFleetMember(ship); //remove ship from storage
             currentDeconShipVar = shipVar;
@@ -651,7 +651,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         MarketAPI copy = market.clone();
         MarketAPI orig = market;
 
-        //int numBeforeAdd = Misc.getNumIndustries(market);
+        //int numBeforeAdd = MiscIE.getNumIndustries(market);
 
         market = copy;
         boolean needToAddIndustry = !market.hasIndustry(getId());
@@ -687,7 +687,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
         tooltip.addPara(desc, opad);
 
-//		Industry inProgress = Misc.getCurrentlyBeingConstructed(market);
+//		Industry inProgress = MiscIE.getCurrentlyBeingConstructed(market);
 //		if ((mode == IndustryTooltipMode.ADD_INDUSTRY && inProgress != null) ||
 //				(mode == IndustryTooltipMode.UPGRADE && inProgress != null)) {
 //			//tooltip.addPara("Another project (" + inProgress.getCurrentName() + ") in progress", bad, opad);

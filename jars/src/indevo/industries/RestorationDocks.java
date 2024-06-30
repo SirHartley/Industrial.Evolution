@@ -26,7 +26,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
@@ -106,7 +106,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
             if (aiMode && (market.getFaction().isHostileTo(Global.getSector().getPlayerFaction()) && !market.getFaction().getId().equals(Factions.PIRATES)))
                 return;
 
-            MonthlyReport.FDNode iNode = aiMode ? Misc.createMonthlyReportNode(this, market, getCurrentName(), Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE) : null;
+            MonthlyReport.FDNode iNode = aiMode ? MiscIE.createMonthlyReportNode(this, market, getCurrentName(), Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE) : null;
             Map<FleetMemberAPI, Float> fixedShips = removeDMods(aiMode);
 
             if (fixedShips.size() > 0) {
@@ -152,7 +152,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
         if (market.hasSubmarket(Ids.REPSTORAGE)) {
             SubmarketAPI storage = market.getSubmarket(Ids.REPSTORAGE);
-            String aicoreId = Misc.getAiCoreIdNotNull(this);
+            String aicoreId = MiscIE.getAiCoreIdNotNull(this);
             int removalBudget = getMaxDModRepairAmt();
             ArrayList<FleetMemberAPI> eligibleShips = getEligibleShips(storage);
 
@@ -289,7 +289,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
     }
 
     public int getMaxDModRepairAmt() {
-        String aicoreId = Misc.getAiCoreIdNotNull(this);
+        String aicoreId = MiscIE.getAiCoreIdNotNull(this);
         return aicoreId.equals(Commodities.ALPHA_CORE) ? market.getSize() + ALPHA_CORE_BONUS_REPAIR : market.getSize();
     }
 
@@ -331,7 +331,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
     public float getBaseRepairPrice() {
         float baseRepairPrice = 0.5f;
-        if (Misc.getAiCoreIdNotNull(this).equals(Commodities.BETA_CORE))
+        if (MiscIE.getAiCoreIdNotNull(this).equals(Commodities.BETA_CORE))
             baseRepairPrice /= BETA_CORE_COST_RED_MULT;
 
         return baseRepairPrice;
@@ -514,7 +514,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
     protected void applyAICoreToIncomeAndUpkeep() {
         String name;
 
-        switch (Misc.getAiCoreIdNotNull(this)) {
+        switch (MiscIE.getAiCoreIdNotNull(this)) {
             case Commodities.ALPHA_CORE:
                 name = StringHelper.getString("IndEvo_AICores", "aCoreStatModAssigned");
                 getUpkeep().modifyMult("ind_core", ALPHA_CORE_UPKEEP_RED_MULT, name);

@@ -12,7 +12,7 @@ import indevo.utils.memory.SessionTransientMemory;
 import java.util.*;
 
 import static indevo.industries.senate.rules.IndEvo_EdictVariables.*;
-import static indevo.utils.helper.Misc.splitList;
+import static indevo.utils.helper.MiscIE.splitList;
 
 public class IndEvo_CreateEdictSelectionList extends BaseCommandPlugin {
 

@@ -15,7 +15,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.util.IntervalUtil;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -219,7 +219,7 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         super.render(layer, viewport);
 
-        float size = 3f * rad * Misc.smootherstep(0, (dur * RAMPUP_DUR_FRACT), timePassedSeconds);
+        float size = 3f * rad * MiscIE.smootherstep(0, (dur * RAMPUP_DUR_FRACT), timePassedSeconds);
         float alpha = 1 - Math.min(timePassedSeconds / (dur * RAMPUP_DUR_FRACT), 1);
 
         sprite.setAdditiveBlend();

@@ -19,7 +19,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.items.installable.SpecialItemEffectsRepo;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.EntityRemovalScript;
@@ -278,7 +278,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
     }
 
     private float calculateNetworkwideHighestFS() {
-        boolean systemHasIA = Misc.systemHasIndustryExcludeNotFunctional(Ids.INTARRAY, market.getStarSystem(), market.getFaction());
+        boolean systemHasIA = MiscIE.systemHasIndustryExcludeNotFunctional(Ids.INTARRAY, market.getStarSystem(), market.getFaction());
         FactionAPI faction = market.getFaction();
 
         if (systemHasIA) {
@@ -297,7 +297,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
             Pair<String, Float> networkBest = new Pair<>("", 0f);
 
             for (StarSystemAPI system : playerSystemList) {
-                if (Misc.systemHasIndustryExcludeNotFunctional(Ids.INTARRAY, system, faction)) {
+                if (MiscIE.systemHasIndustryExcludeNotFunctional(Ids.INTARRAY, system, faction)) {
                     Pair<String, Float> systemBest = getBestPairInSystem(system, faction);
                     networkBest = systemBest.two > networkBest.two ? systemBest : networkBest;
                 }
@@ -319,7 +319,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
         float systemHighest = 0f;
         String highestMarketId = null;
 
-        List<MarketAPI> PlayerMarketsInSystem = Misc.getMarketsInLocation(system, faction.getId());
+        List<MarketAPI> PlayerMarketsInSystem = MiscIE.getMarketsInLocation(system, faction.getId());
         for (MarketAPI playerMarket : PlayerMarketsInSystem) {
             if (playerMarket.hasIndustry(Ids.COMARRAY) || playerMarket.hasIndustry(Ids.INTARRAY)) {
 
@@ -399,15 +399,15 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
     }
 
     private boolean systemHasMB() {
-        return Misc.systemHasIndustry(Industries.MILITARYBASE, market.getStarSystem(), market.getFaction());
+        return MiscIE.systemHasIndustry(Industries.MILITARYBASE, market.getStarSystem(), market.getFaction());
     }
 
     private boolean systemHasHC() {
-        return Misc.systemHasIndustry(Industries.HIGHCOMMAND, market.getStarSystem(), market.getFaction());
+        return MiscIE.systemHasIndustry(Industries.HIGHCOMMAND, market.getStarSystem(), market.getFaction());
     }
 
     private boolean marketHasMilitary() {
-        return Misc.marketHasMilitary(market, false);
+        return MiscIE.marketHasMilitary(market, false);
     }
 
     @Override
@@ -500,7 +500,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 //AI core Handling
 
     private String getBestHighCommandAICoreId() {
-        List<MarketAPI> marketsInLocation = Misc.getMarketsInLocation(market.getStarSystem(), market.getFactionId());
+        List<MarketAPI> marketsInLocation = MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId());
         Set<String> aiCoreSet = new HashSet<>();
 
         for (MarketAPI playerMarket : marketsInLocation) {

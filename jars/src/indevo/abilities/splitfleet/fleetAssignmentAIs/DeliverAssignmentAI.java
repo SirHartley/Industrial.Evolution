@@ -14,7 +14,7 @@ import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 import indevo.abilities.splitfleet.locationFollower.PlayerFleetFollower;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
 
@@ -165,7 +165,7 @@ public class DeliverAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
             fleet.getCargo().removeSupplies(addRemoveSupplies);
             fleet.getCargo().removeCrew(crew);
 
-            CargoAPI storage = Misc.getStorageCargo(market);
+            CargoAPI storage = MiscIE.getStorageCargo(market);
             storage.addAll(fleet.getCargo());
             fleet.getCargo().clear();
 

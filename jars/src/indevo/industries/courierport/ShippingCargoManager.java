@@ -6,7 +6,7 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class ShippingCargoManager {
         boolean canHoldShips = toSubmaket.getPlugin().showInFleetScreen() && toSubmaket.getPlugin().showInFleetScreen();
         boolean canHoldCargo = toSubmaket.getPlugin().showInCargoScreen() && toSubmaket.getPlugin().showInCargoScreen();
 
-        CargoAPI fromSubmarketCargo = removeWhenFound ? fromSubmarket.getCargo() : Misc.getCargoCopy(fromSubmarket.getCargo());
+        CargoAPI fromSubmarketCargo = removeWhenFound ? fromSubmarket.getCargo() : MiscIE.getCargoCopy(fromSubmarket.getCargo());
         CargoAPI shippingCargo = Global.getFactory().createCargo(true);
 
         fromSubmarketCargo.initMothballedShips("player");

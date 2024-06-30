@@ -7,7 +7,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 
 import java.util.HashSet;
 import java.util.List;
@@ -21,7 +21,7 @@ public class IndEvo_MoreThanTwoColonies extends BaseCommandPlugin {
         MarketAPI m = Global.getSector().getEconomy().getMarket(memoryMap.get(MemKeys.MARKET).getString("$id"));
 
         Set<StarSystemAPI> systemList = new HashSet<>();
-        for (MarketAPI ma : Misc.getFactionMarkets(m.getFaction())) {
+        for (MarketAPI ma : MiscIE.getFactionMarkets(m.getFaction())) {
             systemList.add(ma.getStarSystem());
         }
 

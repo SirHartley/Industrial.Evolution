@@ -13,7 +13,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.scripts.PlanetMovingScript;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
@@ -141,7 +141,7 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
     public boolean moveIsLegal() {
         boolean legal = true;
 
-        if (Misc.planetHasRings(market)) legal = false;
+        if (MiscIE.planetHasRings(market)) legal = false;
 
         for (SectorEntityToken e : market.getStarSystem().getAllEntities()) {
             if (e.getOrbitFocus() != null

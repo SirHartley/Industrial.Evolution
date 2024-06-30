@@ -18,7 +18,7 @@ import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.memory.Pet;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
@@ -100,7 +100,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
         if (isFunctional() && !market.isPlayerOwned()) {
 
-            MonthlyReport.FDNode iNode = Misc.createMonthlyReportNode(this, market, "Pet Storage", Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE);
+            MonthlyReport.FDNode iNode = MiscIE.createMonthlyReportNode(this, market, "Pet Storage", Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE);
 
             if (storedPets.size() > 0) {
                 for (Pet pet : storedPets) {

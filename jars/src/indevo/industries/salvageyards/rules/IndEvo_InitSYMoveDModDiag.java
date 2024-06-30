@@ -20,7 +20,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Pair;
 import indevo.industries.RestorationDocks;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
@@ -249,7 +249,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
     private Set<FleetMemberAPI> getValidFleetMemberSetForInitialSelection() {
         Set<FleetMemberAPI> combinedFleet = new HashSet<FleetMemberAPI>(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy());
-        CargoAPI storageCargo = Misc.getStorageCargo(getMarket());
+        CargoAPI storageCargo = MiscIE.getStorageCargo(getMarket());
         if (storageCargo != null) {
             storageCargo.initMothballedShips("player");
             combinedFleet.addAll(storageCargo.getMothballedShips().getMembersListCopy());
@@ -307,7 +307,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     private void initTargetHullPicker() {
         Set<FleetMemberAPI> combinedFleet = new HashSet<>(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy());
 
-        CargoAPI storageCargo = Misc.getStorageCargo(getMarket());
+        CargoAPI storageCargo = MiscIE.getStorageCargo(getMarket());
         if (storageCargo != null) {
             storageCargo.initMothballedShips("player");
             combinedFleet.addAll(storageCargo.getMothballedShips().getMembersListCopy());

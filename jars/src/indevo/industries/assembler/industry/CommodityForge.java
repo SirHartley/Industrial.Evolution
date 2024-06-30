@@ -18,7 +18,7 @@ import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUserAPI;
 import indevo.items.VPCItemPlugin;
 import indevo.items.installable.VPCInstallableItemPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.*;
 
 import static indevo.ids.ItemIds.NO_ENTRY;
-import static indevo.utils.helper.Misc.getDaysOfCurrentMonth;
+import static indevo.utils.helper.MiscIE.getDaysOfCurrentMonth;
 
 //this is one of the earliest things I made and is super cursed
 public class CommodityForge extends VariableAssembler implements SharedSubmarketUserAPI, NewDayListener {
@@ -141,8 +141,8 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
             if (Settings.getBoolean(Settings.VARIND_DELIVER_TO_PRODUCTION_POINT) && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
                 cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo();
-            } else if (Misc.getStorageCargo(market) != null) {
-                cargo = Misc.getStorageCargo(market);
+            } else if (MiscIE.getStorageCargo(market) != null) {
+                cargo = MiscIE.getStorageCargo(market);
             } else {
                 return;
             }
@@ -354,7 +354,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
     protected void applyAICoreToIncomeAndUpkeep() {
         String name;
 
-        switch (Misc.getAiCoreIdNotNull(this)) {
+        switch (MiscIE.getAiCoreIdNotNull(this)) {
             case Commodities.BETA_CORE:
                 if (getSpecialItem() != null) return;
 

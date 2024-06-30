@@ -85,7 +85,7 @@ public class RuinedInfrastructure extends BaseIndustry {
             industry.finishBuildingOrUpgrading();
 /*
             if (market.isPlayerOwned()) {
-                MessageIntel intel = new MessageIntel(industry.getCurrentName() + " at " + market.getName(), Misc.getBasePlayerColor());
+                MessageIntel intel = new MessageIntel(industry.getCurrentName() + " at " + market.getName(), MiscIE.getBasePlayerColor());
                 intel.addLine(BaseIntelPlugin.BULLET + "Construction completed");
                 intel.setIcon(Global.getSector().getPlayerFaction().getCrest());
                 intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
@@ -133,7 +133,7 @@ public class RuinedInfrastructure extends BaseIndustry {
         MarketAPI copy = market.clone();
         MarketAPI orig = market;
 
-        //int numBeforeAdd = Misc.getNumIndustries(market);
+        //int numBeforeAdd = MiscIE.getNumIndustries(market);
 
         market = copy;
         boolean needToAddIndustry = !market.hasIndustry(getId());
@@ -169,7 +169,7 @@ public class RuinedInfrastructure extends BaseIndustry {
 
         tooltip.addPara(desc, opad);
 
-//		Industry inProgress = Misc.getCurrentlyBeingConstructed(market);
+//		Industry inProgress = MiscIE.getCurrentlyBeingConstructed(market);
 //		if ((mode == IndustryTooltipMode.ADD_INDUSTRY && inProgress != null) ||
 //				(mode == IndustryTooltipMode.UPGRADE && inProgress != null)) {
 //			//tooltip.addPara("Another project (" + inProgress.getCurrentName() + ") in progress", bad, opad);

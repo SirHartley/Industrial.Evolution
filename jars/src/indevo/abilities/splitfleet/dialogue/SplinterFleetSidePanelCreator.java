@@ -20,7 +20,7 @@ import indevo.dialogue.sidepanel.InteractionDialogCustomPanelPlugin;
 import indevo.dialogue.sidepanel.NoFrameCustomPanelPlugin;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
 import indevo.industries.courierport.ShippingTargetHelper;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -242,7 +242,7 @@ public class SplinterFleetSidePanelCreator {
                             @Override
                             public String getSelectedTextOverrideFor(SectorEntityToken entity) {
                                 MarketAPI m = entity.getMarket();
-                                int amt = (int) Misc.getStorageCargo(m).getSpaceUsed();
+                                int amt = (int) MiscIE.getStorageCargo(m).getSpaceUsed();
                                 return m.getName() + " (" + m.getFaction().getDisplayName() + ")";
                             }
 
@@ -250,7 +250,7 @@ public class SplinterFleetSidePanelCreator {
                             public void createInfoText(TooltipMakerAPI info, SectorEntityToken entity) {
                                 float opad = 10f;
                                 MarketAPI m = entity.getMarket();
-                                int amt = (int) Misc.getStorageCargo(m).getSpaceUsed();
+                                int amt = (int) MiscIE.getStorageCargo(m).getSpaceUsed();
                                 boolean transport = loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT);
 
                                 if (transport)

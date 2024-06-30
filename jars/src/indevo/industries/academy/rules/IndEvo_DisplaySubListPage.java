@@ -90,7 +90,7 @@ public class IndEvo_DisplaySubListPage extends BaseCommandPlugin {
 
         switch (personType) {
             case OFFICER:
-                String personality = person.getPersonalityAPI().getId(); //Misc.lcFirst(person.getPersonalityAPI().getDisplayName());
+                String personality = person.getPersonalityAPI().getId(); //MiscIE.lcFirst(person.getPersonalityAPI().getDisplayName());
                 MutableCharacterStatsAPI stats = person.getStats();
 
                 personDescriptionString = person.getNameString() + ", Level: " + (int) stats.getLevel() + " officer, " + personality;

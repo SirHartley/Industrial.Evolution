@@ -127,7 +127,7 @@ public class Ruins extends BaseIndustry {
         MarketAPI copy = market.clone();
         MarketAPI orig = market;
 
-        //int numBeforeAdd = Misc.getNumIndustries(market);
+        //int numBeforeAdd = MiscIE.getNumIndustries(market);
 
         market = copy;
         boolean needToAddIndustry = !market.hasIndustry(getId());
@@ -163,7 +163,7 @@ public class Ruins extends BaseIndustry {
 
         tooltip.addPara(desc, opad);
 
-//		Industry inProgress = Misc.getCurrentlyBeingConstructed(market);
+//		Industry inProgress = MiscIE.getCurrentlyBeingConstructed(market);
 //		if ((mode == IndustryTooltipMode.ADD_INDUSTRY && inProgress != null) ||
 //				(mode == IndustryTooltipMode.UPGRADE && inProgress != null)) {
 //			//tooltip.addPara("Another project (" + inProgress.getCurrentName() + ") in progress", bad, opad);

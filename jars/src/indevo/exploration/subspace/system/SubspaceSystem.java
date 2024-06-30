@@ -38,7 +38,7 @@ public class SubspaceSystem {
         //public static SectorEntityToken addNebulaFromPNG(String image, float centerX, float centerY, LocationAPI location,
         //			String category, String key, int tilesWide, int tilesHigh, StarAge age) {
 
-        //Misc.addNebulaFromPNG("", center.getLocation().x, center.getLocation().y, subspace, "nebula_blue", "test", 26000,26000, StarAge.YOUNG);
+        //MiscIE.addNebulaFromPNG("", center.getLocation().x, center.getLocation().y, subspace, "nebula_blue", "test", 26000,26000, StarAge.YOUNG);
 
         spawnOmegaBlackholes(subspace);
 

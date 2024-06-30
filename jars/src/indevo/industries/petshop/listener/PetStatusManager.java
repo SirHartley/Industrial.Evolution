@@ -16,7 +16,7 @@ import indevo.ids.Ids;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Misc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
@@ -166,14 +166,14 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         switch (cause) {
             case COMBAT:
                 picker = new WeightedRandomPicker<>();
-                picker.addAll(Misc.getCSVSetFromMemory(COMBAT_DEATH_CAUSES));
+                picker.addAll(MiscIE.getCSVSetFromMemory(COMBAT_DEATH_CAUSES));
                 Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", living on the destroyed " + petLocation + ", " + picker.pick() + "", com.fs.starfarer.api.util.Misc.getTextColor(), pet.name, null, com.fs.starfarer.api.util.Misc.getHighlightColor(), null);
                 break;
             case NATURAL:
                 String message = "";
                 if (pet.typeID.equals("hampter")) {
                     picker = new WeightedRandomPicker<>();
-                    picker.addAll(Misc.getCSVSetFromMemory(HAMSTER_DEATH_CAUSES));
+                    picker.addAll(MiscIE.getCSVSetFromMemory(HAMSTER_DEATH_CAUSES));
                     message = picker.pick();
                 } else message = pet.getData().naturalDeath;
 
