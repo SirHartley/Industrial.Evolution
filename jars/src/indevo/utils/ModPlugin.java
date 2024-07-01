@@ -37,7 +37,6 @@ import indevo.dialogue.research.HyperspaceTopoProgressChecker;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.crucible.CrucibleSpawner;
-import indevo.exploration.crucible.CrucibleStationEntityPlugin;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationPlacer;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
@@ -136,7 +135,7 @@ public class ModPlugin extends BaseModPlugin {
         boolean devActions = true; //Todo SET TO FALSE FOR RELEASE
 
         if (devmode && devActions) {
-            CrucibleSpawner.devSpawn();
+            CrucibleSpawner.spawn();
             //y.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
 
             /*

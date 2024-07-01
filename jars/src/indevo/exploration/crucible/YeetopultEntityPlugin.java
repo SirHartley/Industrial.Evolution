@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.crucible.ability.YeetScript;
@@ -139,6 +140,8 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         return f;
     }
 
+
+
     public float getGlowAlpha(float phase, FlickerUtilV2 flicker) {
         float glowAlpha = 0f;
         if (phase < 0.5f) glowAlpha = phase * 2f;
@@ -161,5 +164,23 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         double exponent = -Math.pow(x - mu, 2) / (2 * sigmaSquared);
         double coefficient = 1 / (Math.sqrt(2 * Math.PI * sigmaSquared));
         return coefficient * Math.exp(exponent);
+    }
+
+    public boolean hasCustomMapTooltip() {
+        return true;
+    }
+
+    public void createMapTooltip(TooltipMakerAPI tooltip, boolean expanded) {
+        float opad = 10f;
+        SectorEntityToken target = entity.getContainingLocation().getEntityById(targetEntity);
+        if (target == null) tooltip.addPara("Not functional", opad);
+        else tooltip.addPara(entity.getName() + "\nLinked to: %s", opad, color, target.getCustomPlugin() instanceof YeetopultEntityPlugin ? target.getOrbitFocus().getName() : target.getName());
+    }
+
+    public void appendToCampaignTooltip(TooltipMakerAPI tooltip, SectorEntityToken.VisibilityLevel level) {
+        float opad = 10f;
+        SectorEntityToken target = entity.getContainingLocation().getEntityById(targetEntity);
+        if (target == null) tooltip.addPara("Not functional", opad);
+        else tooltip.addPara(entity.getName() + "\nLinked to: %s", opad, color, target.getCustomPlugin() instanceof YeetopultEntityPlugin ? target.getOrbitFocus().getName() : target.getName());
     }
 }

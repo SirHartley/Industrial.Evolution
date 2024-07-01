@@ -1,5 +1,7 @@
 package indevo.exploration.crucible;
 
+import com.fs.starfarer.api.util.WeightedRandomPicker;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,4 +49,10 @@ public class YeetopultColourList {
         add(Color.decode("#4B0082")); // Indigo
         add(Color.decode("#FFFFF0")); // Ivory
     }};
+
+    public static WeightedRandomPicker<Color> getWeightedRandomPicker(){
+        WeightedRandomPicker<Color> picker = new WeightedRandomPicker<>();
+        picker.addAll(colorList);
+        return picker;
+    }
 }
