@@ -216,11 +216,13 @@
   "IndEvo_ruindList": "data/config/indEvo/ruins_industry_whitelist.csv",
   "IndEvo_cloudList": "graphics/clouds/clouds.csv",
   "IndEvo_labList":"data/config/indEvo/lab_commodity_whitelist.csv",
+  "oldstory_csv_path": "data/campaign/stories.csv",
 
   #wheeeeeeeeeeeeeeeeeeeeeeeeee
   "IndEvo_ToggleMagicRandomSelector": false,
 
   "ruleCommandPackages":[
+  "oldstory.dialogue.rules",
   "indevo.industries.academy.rules",
   "indevo.industries.embassy.rules",
   "indevo.industries.senate.rules",

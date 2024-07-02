@@ -8,12 +8,14 @@ import com.fs.starfarer.api.impl.campaign.terrain.NebulaTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.MiscIE;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class CrucibleSpawner {
     //crucible always spawns in nebula with the most planets
@@ -22,6 +24,17 @@ public class CrucibleSpawner {
     public static final float DIST_PER_FITTING_ATTEMPT = 700f;
     public static final float MAGNETIC_FIELD_WIDTH = 300f;
     public static final float CATAPULT_ADDITIONAL_ORBIT_DIST = 100f;
+
+    public static void spawnInCurrentLoc(){
+        StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();
+        if (targetSystem == null) return;
+        Vector2f spawnLoc = getSpawnLoc(targetSystem); //no need to nullcheck because it will hang the game if it doesn't find one
+
+        SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc);
+        spawnCatapults(crucible);
+
+        //runcode indevo.exploration.crucible.CrucibleSpawner.spawnInCurrentLoc();
+    }
 
     public static void spawn() {
         StarSystemAPI targetSystem = getTargetSystem();
@@ -103,7 +116,23 @@ public class CrucibleSpawner {
         SectorEntityToken t = loc.addCustomEntity(null, null, "IndEvo_crucible_bottom", null, null);
         t.setLocation(pos.x, pos.y);
         t = loc.addCustomEntity(null, null, "IndEvo_crucible_top", null, null);
-        t.setLocation(pos.x, pos.y);
+
+        PlanetAPI sun = ((StarSystemAPI) loc).getStar();
+        if (sun != null) {
+            float closest = 0f;
+            float orbitDur = 0f;
+            for (PlanetAPI planet : loc.getPlanets()){
+                float dist = Misc.getDistance(planet.getLocation(), pos);
+                if (dist < closest) {
+                    closest = dist;
+                    orbitDur = planet.getCircularOrbitPeriod();
+                }
+            }
+
+            t.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), orbitDur > 0 ? orbitDur : 100f);
+        }
+        else t.setLocation(pos.x, pos.y);
+
         CrucibleStationEntityPlugin.generateMagneticField(t, 1f, MAGNETIC_FIELD_WIDTH);
 
         CampaignTerrainAPI nebula = null;
@@ -127,7 +156,7 @@ public class CrucibleSpawner {
         List<SectorEntityToken> crucibleBoundCatapults = new ArrayList<>();
 
         for (PlanetAPI planet : planets){
-
+            if (planet.isStar()) continue;
             if (planet.getOrbitFocus() != null
                     && (planet.getOrbitFocus() instanceof PlanetAPI && ((PlanetAPI) planet.getOrbitFocus()).isGasGiant())) continue; //if planet is orbiting gas giant only the giant gets a catapult
 

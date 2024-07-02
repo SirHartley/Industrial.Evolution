@@ -132,7 +132,7 @@ public class ModPlugin extends BaseModPlugin {
     @Override
     public void onGameLoad(boolean newGame) {
         boolean devmode = Global.getSettings().isDevMode();
-        boolean devActions = true; //Todo SET TO FALSE FOR RELEASE
+        boolean devActions = false; //Todo SET TO FALSE FOR RELEASE
 
         if (devmode && devActions) {
             CrucibleSpawner.spawn();

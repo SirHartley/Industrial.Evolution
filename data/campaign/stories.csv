@@ -1,0 +1,26 @@
+id,optional_planet_types,optional_ruins_sizes,picker_weight,comms_intro_text,story_part_1,story_part_2,story_part_3,comms_outro_text
+test-01,"desert, arid","ruins_scattered, ruins_widespread",0.5,"The historian is clearly in his element and even fails to notice your open connection for a few seconds, though mostly due to his head being buried in old, flickering datapads.
+
+Once focused on the HUD, he adopts with a somewhat somber expression.
+
+""Captain. The people here did not die an easy death.""","""It seems that during the Collapse, the local government declared martial law in a desperate bid to maintain control. However, the military splintered, with factions forming warbands that ruled by force, even shooting down any ships that tried to flee the planet.""",,,"You take a second to realize that your salvage operation is effectively rummaging through these peoples graves, then continue on."
+test-02,"lava, lava_minor",,2,"The historian is clearly in his element and even fails to notice your open connection for a few seconds, though mostly due to his head being buried in old, flickering datapads.
+
+Once focused on the HUD, he adopts with a somewhat somber expression.
+
+""Captain. The people here did not die an easy death.""","""It seems that during the Collapse, the local government declared martial law in a desperate bid to maintain control. However, the military splintered, with factions forming warbands that ruled by force, even shooting down any ships that tried to flee the planet.""","""As supply lines were cut off and knowledge of self-sustenance was scarce, the population soon faced mass starvation when the food ran out. Chaos ensued, and many people fell under the harsh rule of warlords, becoming little more than slaves. The city, once vibrant, eventually burned, leaving nothing but these ruins.""",,"You take a second to realize that your salvage operation is effectively rummaging through these peoples graves, then continue on."
+test-03,,,1,"The historian is clearly in his element and even fails to notice your open connection for a few seconds, though mostly due to his head being buried in old, flickering datapads.
+
+Once focused on the HUD, he adopts with a somewhat somber expression.
+
+""Captain. The people here did not die an easy death.""","""It seems that during the Collapse, the local government declared martial law in a desperate bid to maintain control. However, the military splintered, with factions forming warbands that ruled by force, even shooting down any ships that tried to flee the planet.""","""As supply lines were cut off and knowledge of self-sustenance was scarce, the population soon faced mass starvation when the food ran out. Chaos ensued, and many people fell under the harsh rule of warlords, becoming little more than slaves. The city, once vibrant, eventually burned, leaving nothing but these ruins.""","""It doesn't seem like many people made it off this planet, Captain.""","You take a second to realize that your salvage operation is effectively rummaging through these peoples graves, then continue on."
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
