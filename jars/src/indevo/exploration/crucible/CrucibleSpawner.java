@@ -7,6 +7,7 @@ import com.fs.starfarer.api.impl.campaign.procgen.StarAge;
 import com.fs.starfarer.api.impl.campaign.terrain.NebulaTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import com.fs.starfarer.campaign.CircularOrbit;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 import org.lazywizard.lazylib.MathUtils;
@@ -113,27 +114,20 @@ public class CrucibleSpawner {
     }
 
     public static SectorEntityToken spawnCrucible(LocationAPI loc, Vector2f pos) {
-        SectorEntityToken t = loc.addCustomEntity(null, null, "IndEvo_crucible_bottom", null, null);
-        t.setLocation(pos.x, pos.y);
-        t = loc.addCustomEntity(null, null, "IndEvo_crucible_top", null, null);
+        SectorEntityToken bottom = loc.addCustomEntity(null, null, "IndEvo_crucible_bottom", null, null);
+        SectorEntityToken top = loc.addCustomEntity(null, null, "IndEvo_crucible_top", null, null);
 
         PlanetAPI sun = ((StarSystemAPI) loc).getStar();
         if (sun != null) {
-            float closest = 0f;
-            float orbitDur = 0f;
-            for (PlanetAPI planet : loc.getPlanets()){
-                float dist = Misc.getDistance(planet.getLocation(), pos);
-                if (dist < closest) {
-                    closest = dist;
-                    orbitDur = planet.getCircularOrbitPeriod();
-                }
-            }
-
-            t.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), orbitDur > 0 ? orbitDur : 100f);
+            float adjustedOrbitDur = Math.min(364f, 31f / (1000f / Misc.getDistance(pos, sun.getLocation())));
+            bottom.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur);
+            top.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur);
+        }  else {
+            bottom.setLocation(pos.x, pos.y);
+            top.setLocation(pos.x, pos.y);
         }
-        else t.setLocation(pos.x, pos.y);
 
-        CrucibleStationEntityPlugin.generateMagneticField(t, 1f, MAGNETIC_FIELD_WIDTH);
+        CrucibleStationEntityPlugin.generateMagneticField(top, 1f, MAGNETIC_FIELD_WIDTH);
 
         CampaignTerrainAPI nebula = null;
         for (CampaignTerrainAPI terrain : loc.getTerrainCopy()) {
@@ -147,7 +141,7 @@ public class CrucibleSpawner {
             editor.clearArc(pos.x, pos.y, 0, MAGNETIC_FIELD_WIDTH * 2, 0f, 360f);
         }
 
-        return t;
+        return top;
     }
 
     public static void spawnCatapults(SectorEntityToken crucible){

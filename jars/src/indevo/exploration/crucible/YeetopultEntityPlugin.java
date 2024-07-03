@@ -38,7 +38,6 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
     transient private SpriteAPI glow;
     public String targetEntity;
 
-
     public void init(SectorEntityToken entity, Object pluginParams) {
         super.init(entity, pluginParams);
         //this.entity = entity;
@@ -54,6 +53,10 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         //sprite = Global.getSettings().getSprite("campaignEntities", "fusion_lamp");
         glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
         return this;
+    }
+
+    public void setColor(Color color){
+        this.color = color;
     }
 
     public void advance(float amount) {
