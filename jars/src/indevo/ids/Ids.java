@@ -88,6 +88,7 @@ public class Ids {
     public static final String DEFECTS_MED = "IndEvo_print_med";
     public static final String DEFECTS_HIGH = "IndEvo_print_high";
     public static final String PRINTING_INDICATOR = "IndEvo_auto";
+    public static final String DRIVE_PROTOCOLS = "IndEvo_augfield";
 
     //Entities
     public static final String INTARRAY_ENTITY_TAG = "IndEvo_intArray";
@@ -129,6 +130,7 @@ public class Ids {
     public static final String PROJ_TRANSISTOR = "indevo_proj_transistor";
     public static final String PROJ_NAVI = "indevo_proj_navi";
     public static final String PROJ_PROSPECTOR = "indevo_proj_prospector";
+    public static final String PROJ_SONIC = "indevo_proj_sanic";
 
     //id
     //IndEvo_cryoartillery

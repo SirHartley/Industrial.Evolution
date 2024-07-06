@@ -24,7 +24,7 @@ public class CrucibleSpawner {
     public static final float MIN_RADIUS_AROUND_CRUCIBLE = 10000f;
     public static final float DIST_PER_FITTING_ATTEMPT = 700f;
     public static final float MAGNETIC_FIELD_WIDTH = 300f;
-    public static final float CATAPULT_ADDITIONAL_ORBIT_DIST = 42f;
+    public static final float CATAPULT_ADDITIONAL_ORBIT_DIST = 45f;
 
     public static void spawnInCurrentLoc(){
         StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();

@@ -26,16 +26,51 @@ public class ResearchProjectTemplateRepo {
     //fairy
 
     public static Map<String, ResearchProject> RESEARCH_PROJECTS = new HashMap<String, ResearchProject>() {{
-
-        put(Ids.PROJ_PROSPECTOR, new ResearchProject(Ids.PROJ_PROSPECTOR,
-                "Project Prospector", 200, false) {
-
-            public static final int POINTS_ON_COMPLETION = 50;
+        put(Ids.PROJ_SONIC, new ResearchProject(Ids.PROJ_SONIC,
+                "Project Sonic", 20000, false) {
 
             @Override
-            public boolean isRepeatable() {
-                return true;
+            public boolean display() {
+                return Global.getSector().getMemoryWithoutUpdate().getBoolean(SlowShipInFleetChecker.MEM_KEY);
             }
+
+            @Override
+            public CargoAPI getRewards() {
+                CargoAPI c = Global.getFactory().createCargo(true);
+                c.addHullmods(Ids.DRIVE_PROTOCOLS, 1);
+                return c;
+            }
+
+            @Override
+            public void addTooltipOutputOnCompletion(TooltipMakerAPI tooltip) {
+                tooltip.addPara("Gotta go fast, as they say.", 10f);
+            }
+
+            @Override
+            public List<RequiredItem> getRequiredItems() {
+                List<RequiredItem> list = new ArrayList<>();
+                list.add(new RequiredItem(Commodities.FUEL, CargoAPI.CargoItemType.RESOURCES, 1f));
+                list.add(new RequiredItem(Items.SYNCHROTRON, CargoAPI.CargoItemType.SPECIAL, 15000));
+
+                return list;
+            }
+
+            @Override
+            public String getLongDesc() {
+                return "A one-off project investigating alternative drive field parameters.";
+            }
+
+            @Override
+            public String getShortDesc() {
+                return "The fat don't run, they waddle. Applies to some ships as well. Let's fix it.";
+            }
+        });
+
+
+        put(Ids.PROJ_PROSPECTOR, new ResearchProject(Ids.PROJ_PROSPECTOR,
+                "Project Prospector", 100, true) {
+
+            public static final int POINTS_ON_COMPLETION = 50;
 
             @Override
             public boolean display() {
