@@ -88,26 +88,28 @@ public class YeetScript implements EveryFrameScript {
     public void advance(float amount) {
         if (done) return;
 
-
         float currentDistance = Misc.getDistance(fleet.getLocation(), originLocation);
         float totalDistance = Misc.getDistance(originLocation, targetLocation);
         float distFraction = currentDistance / totalDistance;
 
         if (distFraction >= 0.98f) {
             unsetHighSpeedFlagsOnFleet();
-            //setFleetVelocity(1f); smoother if we don't reset vel
             renderer.setDone();
             renderer = null;
-
             done = true;
             return;
         }
 
         updateVignetteAlpha(distFraction);
-        forceDisableAbilities();
         setFleetVelocity(distFraction);
-        advanceFleetPosition(amount, distFraction);
-        setHighSpeedFlagsOnFleetOneFrame();
+
+        //smoother if we allow limited control in the final approach
+        if (distFraction < 0.85f) {
+            forceDisableAbilities();
+            advanceFleetPosition(amount, distFraction);
+            setHighSpeedFlagsOnFleetOneFrame();
+        }
+
         addHighBurnMusicFadeAndJitter();
     }
 
@@ -144,6 +146,27 @@ public class YeetScript implements EveryFrameScript {
         Vector2f velocity = new Vector2f(direction);
         velocity.scale(getVelocityForDistFract(fraction));
         fleet.setVelocity(velocity.x, velocity.y);
+    }
+
+    private void setFleetVelocityNoForce(float fraction) {
+        Vector2f direction = VectorUtils.getDirectionalVector(originLocation, targetLocation);
+        Vector2f velocity = new Vector2f(direction);
+        velocity.scale(getVelocityForDistFract(fraction));
+
+        Vector2f velocityFromMovement = fleet.getVelocityFromMovementModule();
+        float velocityLength = velocity.length();
+        float velocityFromMovementLength = velocityFromMovement.length();
+
+        // Normalize velocityFromMovement manually
+        if (velocityFromMovementLength != 0) {
+            velocityFromMovement.x /= velocityFromMovementLength;
+            velocityFromMovement.y /= velocityFromMovementLength;
+        }
+
+        float newVelocityFromMovementLength = velocityFromMovementLength + velocityLength;
+        velocityFromMovement.scale(newVelocityFromMovementLength);
+
+        fleet.setVelocity(velocityFromMovement.x, velocityFromMovement.y);
     }
 
     private void addHighBurnMusicFadeAndJitter() {
@@ -187,7 +210,10 @@ public class YeetScript implements EveryFrameScript {
         // prepare fleet for high speed forced movement
         fleet.setNoEngaging(0.1f);
         fleet.setInteractionTarget(null);
-        if (fleet.isPlayerFleet()) Global.getSector().getCampaignUI().setFollowingDirectCommand(true);
+        if (fleet.isPlayerFleet()) {
+            Global.getSector().getCampaignUI().setFollowingDirectCommand(true);
+            Global.getSector().getCampaignUI().clearLaidInCourse();
+        }
         fleet.getStats().getSensorRangeMod().modifyMult(SENSOR_MOD_ID, SENSOR_RANGE_MULT, "Extreme burn level");
     }
 

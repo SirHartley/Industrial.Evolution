@@ -28,6 +28,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         }
     }
 
+    public static final float TRIGGER_RADIUS = 30f;
     public static final float ANIM_TIME = 0.1f;
     public Color color;
     public static float GLOW_FREQUENCY = 0.2f; // on/off cycles per second
@@ -83,7 +84,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
 
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
         SectorEntityToken playerTarget = fleet.getInteractionTarget();
-        if (playerTarget != null && playerTarget == entity && Misc.getDistance(fleet, entity) < entity.getRadius() + 15f) {
+        if (playerTarget != null && playerTarget == entity && Misc.getDistance(fleet, entity) < entity.getRadius() + TRIGGER_RADIUS) {
             fleet.addScript(new YeetScript(fleet, getTarget()));
             doAnimation = true;
         }
@@ -122,7 +123,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         glow.setAlphaMult(alphaMult * glowAlpha * 0.5f);
         glow.setAdditiveBlend();
 
-        Vector2f renderLoc = MathUtils.getPointOnCircumference(entity.getLocation(), 12f, entity.getFacing()-180f); //make glow spawn a bit to the back
+        Vector2f renderLoc = entity.getLocation(); //MathUtils.getPointOnCircumference(entity.getLocation(), 12f, entity.getFacing()-180f); //make glow spawn a bit to the back
 
         glow.renderAtCenter(renderLoc.x, renderLoc.y);
 

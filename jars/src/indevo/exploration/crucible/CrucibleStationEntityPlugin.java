@@ -146,7 +146,7 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
         int auroraIndex = (int) (auroraColors.length * StarSystemGenerator.random.nextFloat());
 
         float bandWidth = token.getRadius() + width;
-        float midRadius = 100f;
+        float midRadius = 250f;
         float visStartRadius = token.getRadius();
         float visEndRadius = token.getRadius() + width + 50f;
 
@@ -160,12 +160,13 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
                         flareProbability, // probability to spawn aurora sequence, checked once/day when no aurora in progress
                         auroraColors[auroraIndex]
                 ));
+
         magField.setCircularOrbit(token, 0, 0, 100);
     }
 
 
     public static Color [] baseColors = {
-            new Color(255, 50, 50, 200),
+            new Color(255, 50, 50, 100),
             //new Color(50, 30, 100, 30),
             //new Color(75, 105, 165, 75)
     };

@@ -41,7 +41,7 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
         boolean canChange = isChangeling && ((SwitchablePopulation) ind).canChange();
         boolean isPlayerOwned = ind.getMarket().isPlayerOwned();
 
-        return (isPop || canChange) && isPlayerOwned;
+        return (isPop && canChange) && isPlayerOwned;
     }
 
     @Override

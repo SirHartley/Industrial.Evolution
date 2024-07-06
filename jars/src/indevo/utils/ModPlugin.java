@@ -39,6 +39,7 @@ import indevo.dialogue.research.DoritoGunFoundChecker;
 import indevo.dialogue.research.HyperspaceTopoProgressChecker;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.economy.listeners.ResourceConditionApplicator;
+import indevo.exploration.crucible.CrucibleSpawner;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationPlacer;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
@@ -138,7 +139,10 @@ public class ModPlugin extends BaseModPlugin {
             PersonAPI admin = OfficerManagerEvent.createAdmin(Global.getSector().getPlayerFaction(), 0, new Random());
             admin.getStats().setSkillLevel("indevo_Micromanagement", 1);
             Global.getSector().getCharacterData().addAdmin(admin);
-            //CrucibleSpawner.spawn();
+            CrucibleSpawner.spawn();
+
+
+
             //y.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
 
             /*

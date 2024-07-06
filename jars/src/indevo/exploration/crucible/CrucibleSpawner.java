@@ -24,7 +24,7 @@ public class CrucibleSpawner {
     public static final float MIN_RADIUS_AROUND_CRUCIBLE = 10000f;
     public static final float DIST_PER_FITTING_ATTEMPT = 700f;
     public static final float MAGNETIC_FIELD_WIDTH = 300f;
-    public static final float CATAPULT_ADDITIONAL_ORBIT_DIST = 100f;
+    public static final float CATAPULT_ADDITIONAL_ORBIT_DIST = 42f;
 
     public static void spawnInCurrentLoc(){
         StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();
@@ -118,7 +118,7 @@ public class CrucibleSpawner {
         SectorEntityToken top = loc.addCustomEntity(null, null, "IndEvo_crucible_top", null, null);
 
         PlanetAPI sun = ((StarSystemAPI) loc).getStar();
-        if (sun != null) {
+        if (sun != null && !loc.isNebula()) {
             float adjustedOrbitDur = Math.min(364f, 31f / (1000f / Misc.getDistance(pos, sun.getLocation())));
             bottom.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur);
             top.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur);
@@ -169,10 +169,12 @@ public class CrucibleSpawner {
         //spawn in a circle around the crucible, fuck alignment
         int amt = crucibleBoundCatapults.size();
         float angleSpacing = 360f / amt;
-        float orbitRadius = crucible.getRadius() + MAGNETIC_FIELD_WIDTH + CATAPULT_ADDITIONAL_ORBIT_DIST;
+        float orbitRadius = crucible.getRadius() + CATAPULT_ADDITIONAL_ORBIT_DIST;
         int i = 1;
 
         for (SectorEntityToken catapult : crucibleBoundCatapults) {
+            //"IndEvo_crucible_arm"
+            crucible.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_arm", null, new CrucibleArmEntityPlugin.CrucibleArmEntityPluginParams(catapult, crucible));
             catapult.setCircularOrbit(crucible, angleSpacing * i, orbitRadius, orbitRadius / 10f);
             i++;
         }

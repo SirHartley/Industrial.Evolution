@@ -174,11 +174,12 @@ Adjusted - Forge World: Delivery notification now includes hull size / designati
 Fixed - General: Governments now correctly recognize patrol HQ, MilBase and high command as military
 Fixed - General: Tooltip no longer displays "click to change" when it can't actually change
 Fixed - General: Tooltip no longer displays "Permanent in X days" after it has become permanent
+Fixed - General: Button to change no longer shows up when it can't actually change
 Fixed - Corporate: stability will no longer enter a downward spiral on game load
 Fixed - Corporate: now properly unlocks up to max industry slots when permanent instead of adding 4 flat
 Fixed - Corporate: no longer applies the hazard rating upkeep modifier twice
 Fixed - Corporate: now respects the additional hypershunt industry and no longer considers it going over the limit
-Fixed - Underworld / Corporate: no longer apply the hazard rating upkeep modifier twice
+Fixed - Underworld: no longer applies the hazard rating upkeep modifier twice
 Fixed - Monastic / Forge World: no longer deliver multiple free ships a month
 Fixed - Monastic / Managed Democracy: now properly increase marine XP
 Fixed - Arcology: now properly suppresses the heat conditions added by an orbital lamp
