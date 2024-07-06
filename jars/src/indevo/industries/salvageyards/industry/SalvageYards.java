@@ -69,9 +69,13 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
         applySupDemProfiles();
 
         Global.getSector().getListenerManager().addListener(this, true);
-
         applyListenerToFleetsInSystem();
-        if (market.isPlayerOwned()) addSharedSubmarket();
+    }
+
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
+        addSharedSubmarket();
     }
 
     //now adds onto heavy industry directly

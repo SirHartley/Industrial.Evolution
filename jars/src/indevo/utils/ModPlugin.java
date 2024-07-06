@@ -18,6 +18,7 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
 import com.fs.starfarer.api.impl.campaign.econ.impl.MilitaryBase;
+import com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
@@ -30,13 +31,14 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
 import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
 import indevo.WIP.mobilecolony.plugins.MobileColonyCampaignPlugin;
+import indevo.abilities.skills.scripts.AdminGovernTimeTracker;
+import indevo.abilities.skills.scripts.MicromanagementSkillEffectScript;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.dialogue.research.DoritoGunFoundChecker;
 import indevo.dialogue.research.HyperspaceTopoProgressChecker;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.economy.listeners.ResourceConditionApplicator;
-import indevo.exploration.crucible.CrucibleSpawner;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationPlacer;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
@@ -89,10 +91,7 @@ import org.dark.shaders.util.ShaderLib;
 import org.dark.shaders.util.TextureData;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static indevo.industries.academy.rules.IndEvo_AcademyVariables.ACADEMY_MARKET_ID;
 
@@ -132,10 +131,14 @@ public class ModPlugin extends BaseModPlugin {
     @Override
     public void onGameLoad(boolean newGame) {
         boolean devmode = Global.getSettings().isDevMode();
-        boolean devActions = false; //Todo SET TO FALSE FOR RELEASE
+        boolean devActions = true; //Todo SET TO FALSE FOR RELEASE
 
         if (devmode && devActions) {
-            CrucibleSpawner.spawn();
+
+            PersonAPI admin = OfficerManagerEvent.createAdmin(Global.getSector().getPlayerFaction(), 0, new Random());
+            admin.getStats().setSkillLevel("indevo_Micromanagement", 1);
+            Global.getSector().getCharacterData().addAdmin(admin);
+            //CrucibleSpawner.spawn();
             //y.setLocation(Global.getSector().getPlayerFleet().getLocation().x, Global.getSector().getPlayerFleet().getLocation().y);
 
             /*
@@ -416,6 +419,8 @@ public class ModPlugin extends BaseModPlugin {
         PlayerHyperspaceTripTracker.register();
         WatchtowerFactionResetListener.register();
         HyperspaceTopoProgressChecker.register();
+        MicromanagementSkillEffectScript.register(); //it's not broke, it's kotlin.
+        AdminGovernTimeTracker.getInstanceOrRegister();
     }
 
     private void setScriptsIfNeeded() {

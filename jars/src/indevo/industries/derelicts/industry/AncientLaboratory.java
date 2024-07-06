@@ -58,6 +58,11 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
         Global.getSector().getListenerManager().addListener(this, true);
 
         setAllCommodityBonuses();
+    }
+
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
         addSharedSubmarket();
     }
 

@@ -17,9 +17,11 @@ import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryAPI;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -213,6 +215,14 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
     @Override
     public String getCurrentImage() {
+        String imageName = current.getImageName(market);
+
+        try {
+            Global.getSettings().loadTexture(imageName);
+        } catch (IOException e) {
+            Global.getLogger(SwitchablePopulation.class).error("Could not load image for government: " + imageName);
+        }
+
         return current.getImageName(market);
     }
 

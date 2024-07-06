@@ -83,6 +83,9 @@ Echo	Industrial.Evolution	Frigate	EMP Auto-Frigate	Contact - SirHartley#5459
 Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 
 3.4.1
+General
+Fixed - Industry-specific cargo tabs (submarkets) no longer spawn before the building has finished construction
+
 Salvage Interactions
 Adjusted - Drastically reduced the chance of IndEvo salvage specials appearing on derelict ships (40% -> 5%)
 Adjusted - Halved the chance of IndEvo salvage specials appearing on caches of any kind
@@ -105,6 +108,9 @@ Hullmods
 Added - Hellpods. They do what you'd expect them to do: getting your marines killed.
 Added - Hand Built now has a proper icon and no longer reuses the printing one
 Adjusted - Renamed Hand Built to Forge World Experiment
+
+Skills
+Added - Admin skill "Micromanagement": Allows for remote management of items and AI cores after 3 months in office (NPC Only)
 
 Detachments
 Fixed - No longer crashes when told to hide in non-nebula systems without a star
@@ -154,6 +160,7 @@ Governments
 Added - Managed Democracy: Clamped stability, reduced income, marine training, income bonus for planetary military action, no luddic cells, freedom, democracy
 Added - Forge World: Industrial buildings work as if at 100% hazard as long as there are no shortages, ship hulls provide flat income and more production budget
 Cont. - Forge World: Randomly provides experimental ships for free, rural industries more expensive, pollutes the planet, shortages cause unrest
+Adjusted - Rural Polity: Now gets -1 stability for every special item and AI core installed (it is still OP as fuck)
 Adjusted - Rural Polity: Farming now produces Organics (and drugs with free port) instead of supplies
 Adjusted - Rural Polity: Light Industry now produces Supplies alongside weapons
 Adjusted - Rural Polity: Reduced light industry weapons output
@@ -176,6 +183,7 @@ Fixed - Monastic / Managed Democracy: now properly increase marine XP
 Fixed - Arcology: now properly suppresses the heat conditions added by an orbital lamp
 Fixed - Arcology: now buildable where it should be (everywhere except lava & gas giants)
 Fixed - Arcology: now properly uses the water version image on water planets
+Fixed - Arcology & Rural: alternate images now load properly after the game was closed
 Fixed - Another Arcoship crash (Underworld Gov.)
 Removed - Monastic Orders (Split into Managed Democracy and Forge worlds)
 

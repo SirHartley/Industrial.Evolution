@@ -67,9 +67,13 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
         if (!market.isPlayerOwned()) {
             AImode();
         }
-
-        addSharedSubmarket();
         applyDeficits();
+    }
+
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
+        addSharedSubmarket();
     }
 
     @Override
@@ -395,7 +399,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
     @Override
     public void addSharedSubmarket() {
-        if (currTooltipMode != IndustryTooltipMode.ADD_INDUSTRY && market.isPlayerOwned() && isFunctional()) {
+        if (currTooltipMode != IndustryTooltipMode.ADD_INDUSTRY && market.isPlayerOwned() && isFunctional() && !market.hasSubmarket(Ids.SHAREDSTORAGE)) {
             Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.SHAREDSTORAGE, false));
         }
     }

@@ -54,7 +54,7 @@ x can only be built on very hot worlds
     public static final float FLAT_PRODUCTION_BUDGET_PER_HULL = 5000f;
     public static final float RURAL_BUILDING_UPKEEP_MULT = 2f;
     public static final int BASE_DP_PER_MONTH = 1;
-    public static final float BUILD_CHANCE_PER_MONTH = 0.15f;
+    public static final float BUILD_CHANCE_PER_MONTH = 0.2f;
 
     public int currentDpBudget = 0;
     public Random random = new Random();

@@ -56,11 +56,17 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
         if (isFunctional() && market.isPlayerOwned()) {
             Global.getSector().getListenerManager().addListener(this, true);
-            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.ENGSTORAGE, false));
             refreshRequiredDays();
         }
+    }
 
-        if (isFunctional()) addSharedSubmarket();
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
+        if (isFunctional() && !market.hasSubmarket(Ids.ENGSTORAGE)) {
+            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.ENGSTORAGE, false));
+            addSharedSubmarket();
+        }
     }
 
     @Override

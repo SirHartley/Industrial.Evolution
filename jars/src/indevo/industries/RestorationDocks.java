@@ -60,11 +60,18 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
         Global.getSector().getListenerManager().addListener(this, true);
 
         if (isFunctional()) {
-            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.REPSTORAGE, false));
             applyImports();
 
             if (!Global.getSector().getMemoryWithoutUpdate().contains(MAX_DMOD_MEMORY))
                 Global.getSector().getMemoryWithoutUpdate().set(MAX_DMOD_MEMORY, new HashMap<FleetMemberAPI, Integer>());
+        }
+    }
+
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
+        if (isFunctional() && !market.hasSubmarket(Ids.REPSTORAGE)) {
+            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.REPSTORAGE, false));
         }
     }
 

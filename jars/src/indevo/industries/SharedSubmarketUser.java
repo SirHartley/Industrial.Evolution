@@ -7,7 +7,7 @@ import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
 
 public abstract class SharedSubmarketUser extends BaseIndustry implements SharedSubmarketUserAPI {
     public void addSharedSubmarket() {
-        if (market.isPlayerOwned() && isFunctional()) {
+        if (market.isPlayerOwned() && isFunctional() && !market.hasSubmarket(Ids.SHAREDSTORAGE)) {
             Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.SHAREDSTORAGE, false));
         }
     }

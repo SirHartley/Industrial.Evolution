@@ -76,6 +76,11 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
 
         modifyAllMarketIncome();
         Global.getSector().getListenerManager().addListener(this, true);
+    }
+
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
         addSharedSubmarket();
     }
 

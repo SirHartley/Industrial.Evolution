@@ -32,8 +32,12 @@ public class RequisitionCenter extends BaseIndustry {
     public void apply() {
         super.apply(true);
         Global.getSector().getListenerManager().addListener(this, true);
+    }
 
-        if (isFunctional()) {
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
+        if (isFunctional() && !market.hasSubmarket(Ids.REQMARKET)) {
             Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.REQMARKET, false));
         }
     }

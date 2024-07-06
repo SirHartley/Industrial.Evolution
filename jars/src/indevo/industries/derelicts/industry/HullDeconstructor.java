@@ -65,12 +65,16 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
 
         Global.getSector().getListenerManager().addListener(this, true);
 
-        if (isFunctional()) {
-            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.DECSTORAGE, false));
-            refreshRequiredDays();
-        }
+        if (isFunctional()) refreshRequiredDays();
+    }
 
-        addSharedSubmarket();
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
+        if (isFunctional() && !market.hasSubmarket(Ids.DECSTORAGE)) {
+            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.DECSTORAGE, false));
+            addSharedSubmarket();
+        }
     }
 
     @Override

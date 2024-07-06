@@ -103,6 +103,7 @@ public class Ids {
     public static final String SKILL_FLEET_LOGISTICS = "indevo_FleetLogistics";
     public static final String SKILL_INDUSTRIAL_PLANNING = "indevo_IndustrialPlanning";
     public static final String SKILL_PLANETARY_OPERATIONS = "indevo_PlanetaryOperations";
+    public static final String MICROMANAGEMENT = "indevo_Micromanagement";
 
     //abilities
     public static final String ABILITY_DETACHMENT = "splinter_fleet";

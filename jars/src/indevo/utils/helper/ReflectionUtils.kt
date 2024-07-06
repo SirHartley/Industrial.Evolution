@@ -1,31 +1,84 @@
-package indevo.utils.helper;
+package indevo.utils.helper
 
-import java.lang.reflect.Field;
+import java.lang.invoke.MethodHandles
+import java.lang.invoke.MethodType
 
-public class ReflectionUtils {
+object ReflectionUtils {
 
-    //https://github.com/qcwxezda/Starsector-Officer-Extension/blob/16f38dadffa27220e62137508af2142c04dec380/src/officerextension/ui/OfficerUIElement.java#L366
+    private val fieldClass = Class.forName("java.lang.reflect.Field", false, Class::class.java.classLoader)
+    private val setFieldHandle = MethodHandles.lookup().findVirtual(fieldClass, "set", MethodType.methodType(Void.TYPE, Any::class.java, Any::class.java))
+    private val getFieldHandle = MethodHandles.lookup().findVirtual(fieldClass, "get", MethodType.methodType(Any::class.java, Any::class.java))
+    private val getFieldNameHandle = MethodHandles.lookup().findVirtual(fieldClass, "getName", MethodType.methodType(String::class.java))
+    private val setFieldAccessibleHandle = MethodHandles.lookup().findVirtual(fieldClass,"setAccessible", MethodType.methodType(Void.TYPE, Boolean::class.javaPrimitiveType))
 
-    public static Object getField(Object o, String fieldName) {
-        if (o == null) return null;
-        try {
-            Field field = o.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return field.get(o);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+    private val methodClass = Class.forName("java.lang.reflect.Method", false, Class::class.java.classLoader)
+    private val getMethodNameHandle = MethodHandles.lookup().findVirtual(methodClass, "getName", MethodType.methodType(String::class.java))
+    private val invokeMethodHandle = MethodHandles.lookup().findVirtual(methodClass, "invoke", MethodType.methodType(Any::class.java, Any::class.java, Array<Any>::class.java))
+
+    fun set(fieldName: String, instanceToModify: Any, newValue: Any?)
+    {
+        var field: Any? = null
+        try {  field = instanceToModify.javaClass.getField(fieldName) } catch (e: Throwable) {
+            try {  field = instanceToModify.javaClass.getDeclaredField(fieldName) } catch (e: Throwable) { }
+        }
+
+        setFieldAccessibleHandle.invoke(field, true)
+        setFieldHandle.invoke(field, instanceToModify, newValue)
+    }
+
+    fun get(fieldName: String, instanceToGetFrom: Any): Any? {
+        var field: Any? = null
+        try {  field = instanceToGetFrom.javaClass.getField(fieldName) } catch (e: Throwable) {
+            try {  field = instanceToGetFrom.javaClass.getDeclaredField(fieldName) } catch (e: Throwable) { }
+        }
+
+        setFieldAccessibleHandle.invoke(field, true)
+        return getFieldHandle.invoke(field, instanceToGetFrom)
+    }
+
+    fun hasMethodOfName(name: String, instance: Any, contains: Boolean = false) : Boolean {
+        val instancesOfMethods: Array<out Any> = instance.javaClass.getDeclaredMethods()
+
+        if (!contains) {
+            return instancesOfMethods.any { getMethodNameHandle.invoke(it) == name }
+        }
+        else  {
+            return instancesOfMethods.any { (getMethodNameHandle.invoke(it) as String).contains(name) }
         }
     }
 
-    public static void setField(Object o, String fieldName, Object to) {
-        if (o == null) return;
-        try {
-            Field field = o.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(o, to);
-        } catch (Exception e) {
-            e.printStackTrace();
+    fun hasVariableOfName(name: String, instance: Any) : Boolean {
+
+        val instancesOfFields: Array<out Any> = instance.javaClass.getDeclaredFields()
+        return instancesOfFields.any { getFieldNameHandle.invoke(it) == name }
+    }
+
+    fun instantiate(clazz: Class<*>, vararg arguments: Any?) : Any?
+    {
+        val args = arguments.map { it!!::class.javaPrimitiveType ?: it!!::class.java }
+        val methodType = MethodType.methodType(Void.TYPE, args)
+
+        val constructorHandle = MethodHandles.lookup().findConstructor(clazz, methodType)
+        val instance = constructorHandle.invokeWithArguments(arguments.toList())
+
+        return instance
+    }
+
+    fun invoke(methodName: String, instance: Any, vararg arguments: Any?, declared: Boolean = false) : Any?
+    {
+        var method: Any? = null
+
+        val clazz = instance.javaClass
+        val args = arguments.map { it!!::class.javaPrimitiveType ?: it::class.java }
+        val methodType = MethodType.methodType(Void.TYPE, args)
+
+        if (!declared) {
+            method = clazz.getMethod(methodName, *methodType.parameterArray())
         }
+        else  {
+            method = clazz.getDeclaredMethod(methodName, *methodType.parameterArray())
+        }
+
+        return invokeMethodHandle.invoke(method, instance, arguments)
     }
 }

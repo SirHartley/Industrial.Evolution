@@ -142,6 +142,7 @@ Rural Polity
     public static final float RURAL_UPKEEP_DECREASE = 0.5f;
     public static final int STABILITY_INCREASE_PER_RURAL = 1;
     public static final int IMMIGRATION_INCREASE_PER_RURAL = 2;
+    public static final int INDUSTRY_ITEM_STABILITY_DECREASE = 1;
 
     public static final float FARMING_ORGANICS_PER_FOOD = 0.5f;
     public static final float FARMING_DRUGS_PER_FOOD = 0.3f;
@@ -161,6 +162,9 @@ Rural Polity
 
         int i = 0;
         for (Industry ind : market.getIndustries()) {
+            if (ind.getSpecialItem() != null)market.getStability().modifyFlat(getId() + "_" + ind, -INDUSTRY_ITEM_STABILITY_DECREASE, getName() + " - " + Global.getSettings().getSpecialItemSpec(ind.getSpecialItem().getId()).getName());
+            if (ind.getAICoreId() != null)market.getStability().modifyFlat(getId() + "_" + ind + "_ai", -INDUSTRY_ITEM_STABILITY_DECREASE, getName() + " - " + Global.getSettings().getCommoditySpec(ind.getAICoreId()).getName());
+
             if (ind.getSpec().getTags().contains("industrial")) {
                 ind.getUpkeep().modifyMult(getId(), INDUSTRIAL_UPKEEP_INCREASE, getName());
                 market.getStability().modifyFlat(getId() + "_" + i, -STABILITY_DECREASE_PER_INDUSTRY, getName() + " - " + ind.getNameForModifier());
@@ -191,6 +195,9 @@ Rural Polity
         market.removeImmigrationModifier(this);
 
         for (Industry ind : market.getIndustries()) {
+            market.getStability().unmodify(getId() + "_" + ind);
+            market.getStability().unmodify(getId() + "_" + ind + "_ai");
+
             if (ind.getSpec().getTags().contains("industrial")) {
                 ind.getUpkeep().unmodify(getId());
             } else if (ind.getSpec().getTags().contains("rural")) {
