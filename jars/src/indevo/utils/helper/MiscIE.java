@@ -38,6 +38,13 @@ import java.util.*;
 public class MiscIE {
     public static final Logger log = Global.getLogger(MiscIE.class);
 
+    public static MarketAPI getCurrentInteractionTargetMarket(){
+        SectorEntityToken interactionTarget = null;
+        InteractionDialogAPI dialogue = Global.getSector().getCampaignUI().getCurrentInteractionDialog();
+        if (dialogue != null && dialogue.getInteractionTarget() != null) interactionTarget = dialogue.getInteractionTarget();
+
+        return interactionTarget != null ? interactionTarget.getMarket() : null;
+    }
     public static SubmarketAPI getStorage(MarketAPI market){
         if (market == null) return null;
         SubmarketAPI submarket = market.getSubmarket(Submarkets.SUBMARKET_STORAGE);

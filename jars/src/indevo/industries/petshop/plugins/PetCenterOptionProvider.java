@@ -1,14 +1,19 @@
 package indevo.industries.petshop.plugins;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.InteractionDialogAPI;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.Industry;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.petshop.dialogue.PetShopDialogPlugin;
+import indevo.utils.helper.MiscIE;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -28,9 +33,11 @@ public class PetCenterOptionProvider extends BaseIndustryOptionProvider {
     @Override
     public boolean isUnsuitable(Industry ind, boolean allowUnderConstruction) {
         boolean isTarget = ind.getId().equals(Ids.PET_STORE) && ind.isFunctional();
+        MarketAPI currentMarket = MiscIE.getCurrentInteractionTargetMarket();
+        boolean isLocal = currentMarket != null && ind.getMarket().getId().equals(currentMarket.getId());
 
         return super.isUnsuitable(ind, allowUnderConstruction)
-                || !isTarget;
+                || !isTarget || !isLocal;
     }
 
     @Override

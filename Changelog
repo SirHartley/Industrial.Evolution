@@ -95,6 +95,7 @@ Pets
 Added - Expected lifetime indicator on Cryochamber
 Adjusted - locking yourself out of the Lord Foog dialogue on Mazalot is no longer permanent and will reset in time depending on what you did
 Fixed - Bug where the dialogue for assigning a pet didn't pop up for players with apple PCs (get a proper PC please)
+Fixed - Pet center dialogue can no longer be opened in remote view
 
 Items
 Added - Relic components will now drop from all automated ships that were destroyed (even modded)
