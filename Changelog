@@ -91,6 +91,13 @@ Adjusted - Drastically reduced the chance of IndEvo salvage specials appearing o
 Adjusted - Halved the chance of IndEvo salvage specials appearing on caches of any kind
 Fixed - No longer spawn in hidden systems
 
+Distress Calls
+Added - Ported the Vayras Sector distress call system and fixed the framework (it would have crashed had anyone actually used it.)
+Added - The original 6 Ghost Ship distress calls
+Todo Adjusted - Split the 6 events from one single script into 6
+Adjusted - Widened the pool of possible hulls that could spawn
+Fixed - The incredibly impressive, beautiful mess this entire thing was
+
 Pets
 Added - Expected lifetime indicator on Cryochamber
 Adjusted - locking yourself out of the Lord Foog dialogue on Mazalot is no longer permanent and will reset in time depending on what you did

@@ -1,0 +1,14 @@
+event for a capital that dissolves into ghosts that fly away when you get close
+event for a ship that despawns and becomes a pirate fleet when you get close
+two fleets fighting, you can support either
+
+I think I didn't port the vanishing ship thing properly, it's missing the rules
+
+a capspammer with no logistics (or common sense) needs a high amount of fuel and supplies but will pay you well over market value for them
+an heavily-dmodded Revenant phase freighter, the sole survivor of their science expedition that was ambushed by Remnants, offers to join your fleet
+a tanker fleet offers you loads of fuel for a couple of supplies
+inverse of the above
+a small independent fleet with a few D-modded remnant ships has suffered an accident and needs supplies from the player; the player can choose to fight them for 100% drop rate remnant vessels, or provide the necessary supplies for a small sum of credits & indie rep
+an indie fleet needs supplies and metals to complete some essential repairs after fending off a pirate attack, offers above market value in credits in return, as well as some indie rep
+a lone prom captain has gone insane from being stuck in the outer reaches of the sector for years by themselves after losing their crew in a tragic accident, sets their ship to self destruct
+    and tries to take the player with them (does the gate explosion effect from the main story, causes CR dmg to player fleet if they dont get out of there)

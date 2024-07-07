@@ -206,6 +206,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\config\vayraDistressCalls\distress_call_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\console\commands.csv">
           <value>
             <Attribute>
@@ -284,6 +291,13 @@
           </value>
         </entry>
         <entry key="\graphics\clouds\clouds.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\jars\src\indevo\exploration\distress\hull_mods.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

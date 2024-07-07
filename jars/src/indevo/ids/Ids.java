@@ -82,6 +82,7 @@ public class Ids {
     public static final String COND_LOG_CORE = "IndEvo_LogCoreCond";
     public static final String COND_MINERING = "IndEvo_mineFieldCondition";
     public static final String COND_WORLD_WONDER = "IndEvo_WorldWonderCondition";
+    public static final String PLAGUE_CONDITION = "IndEvo_engineered_plague";
 
     //Hullmods
     public static final String DEFECTS_LOW = "IndEvo_print_low";
@@ -89,6 +90,24 @@ public class Ids {
     public static final String DEFECTS_HIGH = "IndEvo_print_high";
     public static final String PRINTING_INDICATOR = "IndEvo_auto";
     public static final String DRIVE_PROTOCOLS = "IndEvo_augfield";
+    public static final String MYSTERY_HULLMOD = "vayra_ghost_ship_mystery";
+
+    public static final String MYSTERY_NOTHING_HULLMOD = "vayra_ghost_ship_mystery_nothing";
+
+    public static final String MYSTERY_ROGUE_AI_HULLMOD = "indEvo_ghost_ship_mystery_rogue_ai";
+    public static final String MYSTERY_HYPERLOST_HULLMOD = "indEvo_ghost_ship_mystery_hyperlost";
+    public static final String MYSTERY_ALIEN_HULLMOD = "indEvo_ghost_ship_mystery_alien";
+    public static final String MYSTERY_PLAGUE_HULLMOD = "indEvo_ghost_ship_mystery_plague";
+    public static final String MYSTERY_NANITE_HULLMOD = "indEvo_ghost_ship_mystery_nanite";
+    public static final String MYSTERY_CANNIBAL_HULLMOD = "indEvo_ghost_ship_mystery_cannibal";
+    public static final String ROGUE_AI_HULLMOD = "indEvo_ghost_ship_rogue_ai";
+    public static final String HYPERLOST_HULLMOD = "indEvo_ghost_ship_hyperlost";
+    public static final String ALIEN_HULLMOD = "indEvo_ghost_ship_alien";
+    public static final String PLAGUE_HULLMOD = "indEvo_ghost_ship_plague";
+    public static final String NANITE_HULLMOD = "indEvo_ghost_ship_nanite";
+    public static final String CANNIBAL_HULLMOD = "indEvo_ghost_ship_cannibal";
+    public static final String UNIQUE_HYPERLOST_HULLMOD = "indEvo_ghost_ship_unique_hyperlost";
+    public static final String ANTI_AI_HULLMOD = "indEvo_anti_robot";
 
     //Entities
     public static final String INTARRAY_ENTITY_TAG = "IndEvo_intArray";
@@ -131,7 +150,7 @@ public class Ids {
     public static final String PROJ_NAVI = "indevo_proj_navi";
     public static final String PROJ_PROSPECTOR = "indevo_proj_prospector";
     public static final String PROJ_SONIC = "indevo_proj_sanic";
-
+    
     //id
     //IndEvo_cryoartillery
     //IndEvo_degrader

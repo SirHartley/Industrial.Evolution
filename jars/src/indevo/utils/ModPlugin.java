@@ -41,6 +41,8 @@ import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.dialogue.research.SlowShipInFleetChecker;
 import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.crucible.CrucibleSpawner;
+import indevo.exploration.distress.events.DistressCallManager;
+import indevo.exploration.distress.listener.HullmodTimeTracker;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationPlacer;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
@@ -427,6 +429,8 @@ public class ModPlugin extends BaseModPlugin {
         MicromanagementSkillEffectScript.register(); //it's not broke, it's kotlin.
         AdminGovernTimeTracker.getInstanceOrRegister();
         SlowShipInFleetChecker.register();
+        DistressCallManager.getInstanceOrRegister();
+        HullmodTimeTracker.getInstanceOrRegister();
     }
 
     private void setScriptsIfNeeded() {

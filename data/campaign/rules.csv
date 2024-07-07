@@ -621,3 +621,10 @@ SurveyStoryReader HAS_NEXT",,,0:oldstory_readnext:Continue,
 oldstory_addOutroOption,OldStoryReader,"$option == oldstory_readnext
 !SurveyStoryReader HAS_NEXT",,,0:oldstory_outro:Continue,
 ,,,,,,
+# Ghost ship interaction rules - rest are in the script,,,,,,
+indevo_ghostShipContinueSelected,DialogOptionSelected,"$indevo_checkSalvageSpecialAgain score:1000
+$option == salSpecialContinue",FireBest CheckSalvageSpecial,,,
+indevo_ghostShipContinueSelectedDestroyed,DialogOptionSelected,"$indevo_destroyGhostShip score:1000
+$option == salSpecialContinue",SalvageEntity demolish,,,
+indevo_ghostShipFinishedNoContinueDestroyed,SalvageSpecialFinishedNoContinue,$indevo_destroyGhostShip score:1000,SalvageEntity demolish,,,
+,,,,,,
