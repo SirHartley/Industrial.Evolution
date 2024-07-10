@@ -3,6 +3,7 @@ package indevo.abilities.skills.scripts
 import com.fs.starfarer.api.EveryFrameScript
 import com.fs.starfarer.api.Global
 import com.fs.starfarer.api.campaign.econ.MarketAPI
+import com.fs.starfarer.api.ui.CustomPanelAPI
 import com.fs.starfarer.api.ui.UIComponentAPI
 import com.fs.starfarer.api.ui.UIPanelAPI
 import com.fs.starfarer.campaign.CampaignState
@@ -15,6 +16,7 @@ import indevo.ids.Ids
 class MicromanagementSkillEffectScript : EveryFrameScript {
 
     var frames = 0
+    var newIndustryPanel: CustomPanelAPI? = null
 
     companion object {
         var reset = false
@@ -65,33 +67,26 @@ class MicromanagementSkillEffectScript : EveryFrameScript {
         }
 
         if (core != null) {
-            var tab = ReflectionUtils.invoke("getCurrentTab", core)
+            val tab = ReflectionUtils.invoke("getCurrentTab", core)
             if (tab is UIPanelAPI) {
-                var intelCore =
-                    tab.getChildrenCopy()?.find { ReflectionUtils.hasMethodOfName("getOutpostPanelParams", it) }
+                val intelCore = tab.getChildrenCopy()?.find { ReflectionUtils.hasMethodOfName("getOutpostPanelParams", it) }
                 if (intelCore is UIPanelAPI) {
-                    //Gets the subpanel that holds the management panel
-                    var intelSubcore =
-                        intelCore.getChildrenCopy().find { ReflectionUtils.hasMethodOfName("showOverview", it) }
-
-                    //Attempts to get the management panel
+                    val intelSubcore = intelCore.getChildrenCopy().find { ReflectionUtils.hasMethodOfName("showOverview", it) }
                     if (intelSubcore is UIPanelAPI) {
-                        managementPanel = intelSubcore.getChildrenCopy()
-                            .find { ReflectionUtils.hasMethodOfName("recreateWithEconUpdate", it) } as UIPanelAPI?
-                        if (managementPanel == null) return
-                        industryPanel =
-                            managementPanel.getChildrenCopy().find { it is IndustryListPanel } as IndustryListPanel
+                        managementPanel = intelSubcore.getChildrenCopy().find { ReflectionUtils.hasMethodOfName("recreateWithEconUpdate", it) } as UIPanelAPI?
+                        if (managementPanel != null) {
+                            industryPanel = managementPanel.getChildrenCopy().find { it is IndustryListPanel } as? IndustryListPanel
+                        }
                     }
                 }
             }
         }
-        if (industryPanel != null && managementPanel != null) {
+
+        if (industryPanel != null) {
             val market = ReflectionUtils.get("market", industryPanel) as MarketAPI
-            if (market.admin.stats.hasSkill(Ids.MICROMANAGEMENT) && AdminGovernTimeTracker.getInstanceOrRegister().getValueForMarket(market.id) > 93) {
-                Global.getSettings()
-                    .setBoolean("allowRemoteIndustryItemManagement", true)
-            };
-            else Global.getSettings().setBoolean("allowRemoteIndustryItemManagement", false);
+            if (market.admin.stats.hasSkill(Ids.MICROMANAGEMENT) && (AdminGovernTimeTracker.getInstanceOrRegister().getValueForMarket(market.id) > 93 || Global.getSettings().isDevMode)) {
+                Global.getSettings().setBoolean("allowRemoteIndustryItemManagement", true)
+            } else Global.getSettings().setBoolean("allowRemoteIndustryItemManagement", false);
         }
     }
 

@@ -9,6 +9,8 @@ import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.campaign.listeners.IndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
+import com.fs.starfarer.api.combat.MutableStat;
+import com.fs.starfarer.api.combat.MutableStatWithTempMods;
 import com.fs.starfarer.api.impl.campaign.econ.impl.Farming;
 import com.fs.starfarer.api.impl.campaign.econ.impl.LightIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
@@ -18,15 +20,20 @@ import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.campaign.fleet.MutableMarketStats;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
+import indevo.utils.ModPlugin;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 public class RuralPolitySubIndustry extends SubIndustry implements MarketImmigrationModifier {
 
@@ -68,6 +75,8 @@ public class RuralPolitySubIndustry extends SubIndustry implements MarketImmigra
             } else {
                 tooltip.addPara("No effect on this industry.", opad);
             }
+
+            if (ind.getSpecialItem() != null) tooltip.addPara(Global.getSettings().getSpecialItemSpec(ind.getSpecialItem().getId()).getName() + ": %s decreased by %s", opad, Misc.getTextColor(), Misc.getNegativeHighlightColor(), "stability", INDUSTRY_ITEM_STABILITY_DECREASE + "");
         }
     }
 
@@ -162,8 +171,8 @@ Rural Polity
 
         int i = 0;
         for (Industry ind : market.getIndustries()) {
-            if (ind.getSpecialItem() != null)market.getStability().modifyFlat(getId() + "_" + ind, -INDUSTRY_ITEM_STABILITY_DECREASE, getName() + " - " + Global.getSettings().getSpecialItemSpec(ind.getSpecialItem().getId()).getName());
-            if (ind.getAICoreId() != null)market.getStability().modifyFlat(getId() + "_" + ind + "_ai", -INDUSTRY_ITEM_STABILITY_DECREASE, getName() + " - " + Global.getSettings().getCommoditySpec(ind.getAICoreId()).getName());
+            if (ind.getSpecialItem() != null)market.getStability().modifyFlat(getId() + "_" + ind.getId(), -INDUSTRY_ITEM_STABILITY_DECREASE, getName() + " - " + Global.getSettings().getSpecialItemSpec(ind.getSpecialItem().getId()).getName());
+            if (ind.getAICoreId() != null)market.getStability().modifyFlat(getId() + "_" + ind.getId() + "_ai", -INDUSTRY_ITEM_STABILITY_DECREASE, getName() + " - " + Global.getSettings().getCommoditySpec(ind.getAICoreId()).getName());
 
             if (ind.getSpec().getTags().contains("industrial")) {
                 ind.getUpkeep().modifyMult(getId(), INDUSTRIAL_UPKEEP_INCREASE, getName());
@@ -188,15 +197,35 @@ Rural Polity
         }
     }
 
+    public static void fixClosest(){
+        for (PlanetAPI p : Global.getSector().getPlayerFleet().getContainingLocation().getPlanets()){
+            if (Misc.getDistance(p.getLocation(), Global.getSector().getPlayerFleet().getLocation()) < 100f){
+                List<String> sm = new ArrayList<>();
+                for (Map.Entry<String, com.fs.starfarer.api.combat.MutableStat.StatMod> s : p.getMarket().getStability().getFlatMods().entrySet()) {
+                    indevo.utils.ModPlugin.log(s.getKey() + " " + s.getValue().getDesc() + " src: " + s.getValue().getSource());
+                    sm.add(s.getValue().getSource());
+                }
+
+                for (String s : sm){
+                    p.getMarket().getStability().unmodify(s);
+                }
+            }
+        }
+
+        //indevo.industries.changeling.industry.population.RuralPolitySubIndustry.fixClosest();
+    }
+
     @Override
     public void unapply() {
         super.unapply();
 
         market.removeImmigrationModifier(this);
 
+        for (Map.Entry<String, MutableStat.StatMod> s : new HashSet<>(market.getStability().getFlatMods().entrySet()))  if (s.getValue().getSource().startsWith(getId())) market.getStability().unmodify(s.getValue().getSource()); //fuck me
+
         for (Industry ind : market.getIndustries()) {
-            market.getStability().unmodify(getId() + "_" + ind);
-            market.getStability().unmodify(getId() + "_" + ind + "_ai");
+            market.getStability().unmodify(getId() + "_" + ind.getId());
+            market.getStability().unmodify(getId() + "_" + ind.getId() + "_ai");
 
             if (ind.getSpec().getTags().contains("industrial")) {
                 ind.getUpkeep().unmodify(getId());

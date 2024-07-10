@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.impl.campaign.procgen.NebulaEditor;
 import com.fs.starfarer.api.impl.campaign.procgen.StarAge;
+import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.NebulaTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
@@ -21,10 +22,33 @@ import java.util.Random;
 public class CrucibleSpawner {
     //crucible always spawns in nebula with the most planets
 
-    public static final float MIN_RADIUS_AROUND_CRUCIBLE = 10000f;
+    public static final float MIN_RADIUS_AROUND_CRUCIBLE = 7000f;
     public static final float DIST_PER_FITTING_ATTEMPT = 700f;
     public static final float MAGNETIC_FIELD_WIDTH = 300f;
     public static final float CATAPULT_ADDITIONAL_ORBIT_DIST = 45f;
+
+    public static void removeFromCurrentLoc(){
+        StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();
+        List<SectorEntityToken> tokens = new ArrayList<>();
+        tokens.addAll(targetSystem.getEntitiesWithTag("IndEvo_crucible"));
+        tokens.addAll(targetSystem.getEntitiesWithTag("IndEvo_crucible_bottom"));
+        tokens.addAll(targetSystem.getEntitiesWithTag("IndEvo_yeetopult"));
+        tokens.addAll(targetSystem.getEntitiesWithTag("IndEvo_crucible_arm"));
+
+        for (SectorEntityToken t : targetSystem.getCustomEntities()) {
+            if (t.getCustomEntitySpec().getId().equals("IndEvo_crucible_bottom")) tokens.add(t);
+        }
+
+        for (CampaignTerrainAPI terrain : targetSystem.getTerrainCopy()){
+            if(terrain.getPlugin() instanceof MagneticFieldTerrainPlugin) if (Misc.getDistance(terrain.getLocation(), targetSystem.getEntitiesWithTag("IndEvo_crucible").get(0).getLocation()) < 500f) {
+                ModPlugin.log("Adding the stupid fucking mag field");
+                tokens.add(terrain);
+            }
+        }
+
+        for (SectorEntityToken t : tokens) targetSystem.removeEntity(t);
+        //runcode indevo.exploration.crucible.CrucibleSpawner.removeFromCurrentLoc();
+    }
 
     public static void spawnInCurrentLoc(){
         StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();
@@ -114,8 +138,8 @@ public class CrucibleSpawner {
     }
 
     public static SectorEntityToken spawnCrucible(LocationAPI loc, Vector2f pos) {
-        SectorEntityToken bottom = loc.addCustomEntity(null, null, "IndEvo_crucible_bottom", null, null);
-        SectorEntityToken top = loc.addCustomEntity(null, null, "IndEvo_crucible_top", null, null);
+        SectorEntityToken bottom = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_bottom", null, null);
+        SectorEntityToken top = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_top", null, null);
 
         PlanetAPI sun = ((StarSystemAPI) loc).getStar();
         if (sun != null && !loc.isNebula()) {

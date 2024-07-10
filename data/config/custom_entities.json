@@ -160,6 +160,7 @@
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
 		"renderCircleIndicator":false, # make clickable,
+		"tags":["IndEvo_crucible_bottom"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 	},
 
@@ -177,7 +178,8 @@
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
 		"renderCircleIndicator":false, # make clickable,
-		"layers":[BELOW_STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+		"layers":[BELOW_STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"tags":["IndEvo_crucible_arm"],
 		"pluginClass":"indevo.exploration.crucible.CrucibleArmEntityPlugin"
 	},
 

@@ -84,6 +84,8 @@ Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 
 3.4.1
 General
+Added - Framework to add some small lore text about how a planet fell to ruin when you survey (on request by Alfonzo)
+todo Added - A few stories of demise and death
 Fixed - Industry-specific cargo tabs (submarkets) no longer spawn before the building has finished construction
 
 Salvage Interactions
@@ -92,11 +94,9 @@ Adjusted - Halved the chance of IndEvo salvage specials appearing on caches of a
 Fixed - No longer spawn in hidden systems
 
 Distress Calls
-Added - Ported the Vayras Sector distress call system and fixed the framework (it would have crashed had anyone actually used it.)
+todo Added - Adapted and expanded Vayras Sector distress call system (it would have crashed had anyone actually used it.)
 Added - The original 6 Ghost Ship distress calls
-Todo Adjusted - Split the 6 events from one single script into 6
-Adjusted - Widened the pool of possible hulls that could spawn
-Fixed - The incredibly impressive, beautiful mess this entire thing was
+Note - What I "ported" was really just the concept and texts. I rewrote the implementation from the ground up because it was a mess.
 
 Pets
 Added - Expected lifetime indicator on Cryochamber

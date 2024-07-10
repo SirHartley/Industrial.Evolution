@@ -36,12 +36,13 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
     }
 
     public boolean isSuitable(Industry ind){
-        boolean isPop = ind.getId().equals(Industries.POPULATION) && (ind.getMarket().getSize() <= Settings.getInt(Settings.GOVERNMENT_MAX_SIZE) || Global.getSettings().isDevMode());
+        boolean isPop = ind.getId().equals(Industries.POPULATION);
+        boolean isNotTooLarge = ind.getMarket().getSize() <= Settings.getInt(Settings.GOVERNMENT_MAX_SIZE) || Global.getSettings().isDevMode();
         boolean isChangeling = ind instanceof SwitchablePopulation;
-        boolean canChange = isChangeling && ((SwitchablePopulation) ind).canChange();
+        boolean isValidChangeling = isChangeling && ((SwitchablePopulation) ind).canChange();
         boolean isPlayerOwned = ind.getMarket().isPlayerOwned();
 
-        return (isPop && canChange) && isPlayerOwned;
+        return ((isPop || isValidChangeling) && isPlayerOwned && isNotTooLarge);
     }
 
     @Override
