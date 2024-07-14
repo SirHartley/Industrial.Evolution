@@ -13,10 +13,16 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
+import com.fs.starfarer.api.impl.campaign.intel.events.EventFactor;
+import com.fs.starfarer.api.impl.campaign.intel.events.HostileActivityEventIntel;
+import com.fs.starfarer.api.impl.campaign.intel.events.HostileActivityFactor;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.campaign.econ.Market;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.embassy.rules.IndEvo_ambassadorRemoval;
+import indevo.industries.embassy.scripts.HAAmbassadorEventFactor;
 import indevo.items.installable.AmbassadorInstallableItemPlugin;
 import indevo.items.specialitemdata.AmbassadorItemData;
 import indevo.utils.helper.MiscIE;
@@ -68,18 +74,6 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
             AmbassadorPersonManager.removeAmbassadorFromMarket(market);
         }
     }
-
-/*
-    public boolean createAndSetAmbassador(String factionId){
-        PersonAPI amb = AmbassadorPersonManager.createAmbassador(market, false, factionId);
-
-        if(amb != null){
-            setAmbassadorItemData(new AmbassadorItemData(ItemIds.AMBASSADOR, null, amb));
-            amb.getMemoryWithoutUpdate().set("$IndEvo_ForcedAmbassador", true);
-        } else return false;
-
-        return true;
-    }*/
 
     @Override
     public void unapply() {
@@ -201,6 +195,8 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
                     tooltip.addPara(StringHelper.getString(getId(), "currentPersonInOffice"), opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), AmbassadorPersonManager.getAmbassador(market).getNameString());
                     tooltip.addPara(StringHelper.getString(getId(), "factionJusrisdiction"), opad, alignedFaction.getColor(), alignedFaction.getDisplayName());
                     tooltip.addPara(StringHelper.getString(getId(), "currentStanding"), opad, relColor, standing);
+
+                    if (HostileActivityEventIntel.get() != null) tooltip.addPara("Currently negating %s points of progress towards Hostile activity per month.", opad, Misc.getHighlightColor(), HAAmbassadorEventFactor.getReductionAmtForFaction(alignedFaction) + "");
                 }
             }
         } else if (isFunctional() && market.isPlayerOwned()) {

@@ -140,6 +140,9 @@ Fixed - No longer spawn on abyss planets
 Fixed - No longer spawn in "special" systems
 Fixed - Other Mods will no longer spawn an Artillery on game start if the setting is toggled off provided they spawn it via condition
 
+Embassy
+Added - An active ambassador will now reduce the points gained in hostile activity through their faction by up to 40% depending on your relationship
+
 Privateer Base
 Adjusted - Now properly reflects alignment when placed on Managed Democracy world
 Fixed - Devmode crash when target factions are zero (just for you Histi <3)

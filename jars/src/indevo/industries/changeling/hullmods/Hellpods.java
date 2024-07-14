@@ -36,6 +36,6 @@ public class Hellpods extends SelfRepairingBuiltInHullmod {
                 "Increases Marine losses by %s.",
                 spad,
                 Misc.getNegativeHighlightColor(),
-                Math.round(MarineLossAmplifcationHullmodEffectListener.MARINE_LOSSES_MULT_PER_SHIP_PERCENT) + "%");
+                Math.round(MarineLossAmplifcationHullmodEffectListener.MARINE_LOSSES_MULT_PER_SHIP) + "%");
     }
 }

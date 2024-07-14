@@ -143,6 +143,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\config\indEvo\distress_call_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\config\indEvo\embassy_whitelist.csv">
           <value>
             <Attribute>

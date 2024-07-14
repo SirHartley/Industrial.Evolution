@@ -66,6 +66,7 @@ import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.derelicts.listeners.AncientLabCommoditySwitchOptionProvider;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
+import indevo.industries.embassy.scripts.HostileActivityEventSubRegisterScript;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.plugins.PetCenterOptionProvider;
@@ -446,6 +447,7 @@ public class ModPlugin extends BaseModPlugin {
 
         MagicCampaignTrailPlugin.register();
         EyeIndicatorScript.register();
+        HostileActivityEventSubRegisterScript.register();
 
         //PlayerFleetFollower.register();
     }

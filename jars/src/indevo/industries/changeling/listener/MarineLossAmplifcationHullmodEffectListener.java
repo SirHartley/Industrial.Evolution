@@ -9,6 +9,7 @@ import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.graid.GroundRaidObjectivePlugin;
 import indevo.industries.changeling.hullmods.Hellpods;
+import indevo.utils.helper.StringHelper;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class MarineLossAmplifcationHullmodEffectListener implements MarineLosses
     //when ships have the hellpods hullmod, amplify the marine loss
     //for every ship increase effectiveness by 5% and losses by 10%
 
-    public static final float MARINE_LOSSES_MULT_PER_SHIP_PERCENT = 10f;
+    public static final float MARINE_LOSSES_MULT_PER_SHIP = 1.1f;
 
     public static void register() {
         ListenerManagerAPI manager = Global.getSector().getListenerManager();
@@ -33,8 +34,8 @@ public class MarineLossAmplifcationHullmodEffectListener implements MarineLosses
             if(member.getVariant().hasHullMod(Hellpods.HULLMOD_ID)) amt++;
         }
 
-        float mod = MARINE_LOSSES_MULT_PER_SHIP_PERCENT * amt;
+        float mod = 1 + ((MARINE_LOSSES_MULT_PER_SHIP - 1) * amt);
 
-        stat.modifyMult("helldiver_loss_mult", mod, "Hellpods (x" + amt + ")");
+        stat.modifyMult("helldiver_loss_mult", mod, "Hellpods (x" + Math.round(mod * 100f) / 100f + ")");
     }
 }
