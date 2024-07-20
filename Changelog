@@ -1,7 +1,7 @@
 
 --------------------------- To-do -----------------------------
 Playthrough notes
-todo - hard deadline quality penalty appears to stack with each applied edict?? - test???
+- add small ability with panel for limited pet management in the fleet
 - Add a proper edict selection UI, for remote operation as well
 - add some more info/tt/notifications to governments
 fix the marine xp bug with detachments
@@ -101,8 +101,10 @@ Note - What I "ported" was really just the concept and texts. I rewrote the impl
 Pets
 Added - Expected lifetime indicator on Cryochamber
 Adjusted - locking yourself out of the Lord Foog dialogue on Mazalot is no longer permanent and will reset in time depending on what you did
+Adjusted - Pet food order number adjusted to rank right next to heavy machinery, making it less of a hassle to sort your inventory
 Fixed - Bug where the dialogue for assigning a pet didn't pop up for players with apple PCs (get a proper PC please)
 Fixed - Pet center dialogue can no longer be opened in remote view
+Removed - Orbital pet stations around a planet (good idea but too much clutter for the use they provide in practice)
 
 Items
 Added - Relic components will now drop from all automated ships that were destroyed (even modded)
@@ -145,6 +147,7 @@ Added - An active ambassador will now reduce the points gained in hostile activi
 
 Privateer Base
 Adjusted - Now properly reflects alignment when placed on Managed Democracy world
+Adjusted - Raid Timeout for star systems increased from 3 months -> 8 months (6 with a beta core)
 Fixed - Devmode crash when target factions are zero (just for you Histi <3)
 
 Senate

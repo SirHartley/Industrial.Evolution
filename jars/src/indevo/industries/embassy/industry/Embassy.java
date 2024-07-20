@@ -196,7 +196,10 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
                     tooltip.addPara(StringHelper.getString(getId(), "factionJusrisdiction"), opad, alignedFaction.getColor(), alignedFaction.getDisplayName());
                     tooltip.addPara(StringHelper.getString(getId(), "currentStanding"), opad, relColor, standing);
 
-                    if (HostileActivityEventIntel.get() != null) tooltip.addPara("Currently negating %s points of progress towards Hostile activity per month.", opad, Misc.getHighlightColor(), HAAmbassadorEventFactor.getReductionAmtForFaction(alignedFaction) + "");
+                    if (HostileActivityEventIntel.get() != null) {
+                        int pts = Math.round(HAAmbassadorEventFactor.getReductionAmtForFaction(alignedFaction));
+                        tooltip.addPara("Currently negating %s point"+ (pts != 1 ? "s" : "") +" of progress towards Hostile activity per month.", opad, Misc.getHighlightColor(), pts + "");
+                    }
                 }
             }
         } else if (isFunctional() && market.isPlayerOwned()) {

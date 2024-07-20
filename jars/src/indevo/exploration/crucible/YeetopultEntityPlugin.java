@@ -38,6 +38,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
     protected float animProgress = 0f;
     transient private SpriteAPI glow;
     public String targetEntity;
+    public String pairedCatapult = null;
 
     public void init(SectorEntityToken entity, Object pluginParams) {
         super.init(entity, pluginParams);
@@ -144,8 +145,6 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         return f;
     }
 
-
-
     public float getGlowAlpha(float phase, FlickerUtilV2 flicker) {
         float glowAlpha = 0f;
         if (phase < 0.5f) glowAlpha = phase * 2f;
@@ -186,5 +185,14 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         SectorEntityToken target = entity.getContainingLocation().getEntityById(targetEntity);
         if (target == null) tooltip.addPara("Not functional", opad);
         else tooltip.addPara(entity.getName() + "\nLinked to: %s", opad, color, target.getCustomPlugin() instanceof YeetopultEntityPlugin ? target.getOrbitFocus().getName() : target.getName());
+    }
+
+    public void changeColour(Color color){
+        this.color = color;
+        if (pairedCatapult != null) ((YeetopultEntityPlugin) entity.getContainingLocation().getEntityById(pairedCatapult).getCustomPlugin()).setColor(color);
+    }
+
+    public void setPairedCatapult(SectorEntityToken t){
+        pairedCatapult = t.getId();
     }
 }

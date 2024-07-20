@@ -3,6 +3,7 @@ package indevo.industries.embassy.scripts;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.RepLevel;
+import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
@@ -15,6 +16,7 @@ import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
+import org.lazywizard.lazylib.MathUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -107,12 +109,16 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
 
         if (factor != null){
             float pts = 0;
-            for (MarketAPI m : Misc.getPlayerMarkets(false)){
-                if (m.getStarSystem() != null && !m.isInHyperspace()) pts+= factor.getEffectMagnitude(m.getStarSystem());
+
+            for (StarSystemAPI s : Misc.getSystemsWithPlayerColonies(false)){
+                if (!s.isHyperspace()) {
+                    pts+= factor.getEffectMagnitude(s);
+                }
             }
 
-            float relationshipToCapFract = Math.min(Embassy.BASE_MAX_RELATION, alignedFaction.getRelationship(Factions.PLAYER)) / Embassy.BASE_MAX_RELATION;
-            float reductionFactor = Math.max(0, relationshipToCapFract * AMBASSADOR_MAX_IMPACT_REDUCTION);
+            float cappedFactionRel = Math.min(Embassy.BASE_MAX_RELATION, alignedFaction.getRelationship(Factions.PLAYER));
+            float relFraction = MathUtils.clamp(cappedFactionRel / Embassy.BASE_MAX_RELATION, 0, 1);
+            float reductionFactor = relFraction * AMBASSADOR_MAX_IMPACT_REDUCTION;
             redPoints = pts * reductionFactor;
         }
 

@@ -116,6 +116,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
     }
 
+    @Deprecated
     public void ensurePetShopCreatedOrAssigned() {
         if (petShopStationEntity == null) {
             for (SectorEntityToken entity : market.getConnectedEntities()) {
@@ -138,6 +139,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     }
 
 
+    @Deprecated
     protected void removeStationEntityAndFleetIfNeeded() {
         if (petShopStationEntity != null) {
 
@@ -154,9 +156,8 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     protected void buildingFinished() {
         super.buildingFinished();
 
-        if (petShopStationEntity == null) {
-            ensurePetShopCreatedOrAssigned();
-        }
+        //if (petShopStationEntity == null) ensurePetShopCreatedOrAssigned();
+
     }
 
     @Override
@@ -173,7 +174,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     public void advance(float amount) {
         super.advance(amount);
 
-        if (petShopStationEntity == null && isFunctional() && !isBuilding()) ensurePetShopCreatedOrAssigned();
+        //if (petShopStationEntity == null && isFunctional() && !isBuilding()) ensurePetShopCreatedOrAssigned();
         if(isFunctional() && !market.hasSubmarket(Ids.PETMARKET)) Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.PETMARKET, false));
     }
 
@@ -182,14 +183,14 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         super.notifyBeingRemoved(mode, forUpgrade);
 
         if (!forUpgrade) {
-            removeStationEntityAndFleetIfNeeded();
+            //removeStationEntityAndFleetIfNeeded();
         }
     }
 
     @Override
     public void notifyColonyRenamed() {
         super.notifyColonyRenamed();
-        petShopStationEntity.setName(market.getName() + " " + getCurrentName());
+        //petShopStationEntity.setName(market.getName() + " " + getCurrentName());
     }
 
     @Override

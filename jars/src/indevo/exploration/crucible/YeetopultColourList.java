@@ -3,7 +3,7 @@ package indevo.exploration.crucible;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
 public class YeetopultColourList {
@@ -54,5 +54,60 @@ public class YeetopultColourList {
         WeightedRandomPicker<Color> picker = new WeightedRandomPicker<>();
         picker.addAll(colorList);
         return picker;
+    }
+
+    public static List<Color> getSortedColourList() {
+        return sortColorsByRainbow(colorList);
+    }
+
+    public static List<Color> sortColorsByRainbow(List<Color> colorList) {
+        Collections.sort(colorList, new Comparator<Color>() {
+            @Override
+            public int compare(Color c1, Color c2) {
+                float[] hsbValues1 = Color.RGBtoHSB(c1.getRed(), c1.getGreen(), c1.getBlue(), null);
+                float[] hsbValues2 = Color.RGBtoHSB(c2.getRed(), c2.getGreen(), c2.getBlue(), null);
+
+                float hue1 = hsbValues1[0];
+                float hue2 = hsbValues2[0];
+
+                // Compare hue
+                if (hue1 < hue2) {
+                    return -1;
+                } else if (hue1 > hue2) {
+                    return 1;
+                } else {
+                    // If hues are the same, compare by saturation
+                    float saturation1 = hsbValues1[1];
+                    float saturation2 = hsbValues2[1];
+                    if (saturation1 < saturation2) {
+                        return -1;
+                    } else if (saturation1 > saturation2) {
+                        return 1;
+                    } else {
+                        // If saturation is also the same, compare by brightness
+                        float brightness1 = hsbValues1[2];
+                        float brightness2 = hsbValues2[2];
+                        if (brightness1 < brightness2) {
+                            return -1;
+                        } else if (brightness1 > brightness2) {
+                            return 1;
+                        } else {
+                            // If all HSB values are the same, compare by alpha
+                            int alpha1 = c1.getAlpha();
+                            int alpha2 = c2.getAlpha();
+                            if (alpha1 < alpha2) {
+                                return -1;
+                            } else if (alpha1 > alpha2) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        return colorList;
     }
 }

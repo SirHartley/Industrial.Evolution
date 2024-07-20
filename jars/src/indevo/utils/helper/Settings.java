@@ -110,6 +110,8 @@ public class Settings {
     public static final String PETS = "IndEvo_pets";
     public static final String CLOUD_PAINTER_SHIELD_OVERRIDE = "IndEvo_CPShieldOverride";
     public static final String CLOUD_PAINTER_SHIELD_REMOVE = "IndEvo_CPShieldRemove";
+    public static final String CORRUPTION = "IndEvo_Corruption";
+    public static final String CORRUPTION_CUTOFF = "IndEvo_CorruptionCutoff";
 
     public static boolean getBoolean(String s){
         if (Global.getSettings().getModManager().isModEnabled("lunalib")) {

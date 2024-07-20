@@ -88,7 +88,6 @@ public class Edict_LabourRestrictions extends BaseEdict {
         text.highlightInLastPara(Misc.getPositiveHighlightColor(), "increased by 4");
         text.addParagraph("All industries on this colony have their output decreased by 1.");
         text.highlightInLastPara(Misc.getNegativeHighlightColor(), "output decreased by 1");
-
     }
 
     @Override
@@ -98,6 +97,7 @@ public class Edict_LabourRestrictions extends BaseEdict {
 
     @Override
     public String getUnavailableReason(MarketAPI market) {
+        if (market.isFreePort()) return market.getName() + " is a free port and will not abide by restrictions.";
         return market.getName() + " does not meet the requirements for this Edict.";
     }
 

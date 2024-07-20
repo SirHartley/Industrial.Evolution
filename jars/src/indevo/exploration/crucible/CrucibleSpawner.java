@@ -180,9 +180,12 @@ public class CrucibleSpawner {
 
             //add a catapult to the planet and another one on the crucible
             Color color = colourPicker.pickAndRemove();
-            SectorEntityToken crucibleCatapult = getCatapult(crucible, planet, color);
+            SectorEntityToken crucibleCatapult = getCatapult(crucible, planet, color, false);
             crucibleBoundCatapults.add(crucibleCatapult);
-            SectorEntityToken catapult = getCatapult(planet, crucibleCatapult, color);
+            SectorEntityToken catapult = getCatapult(planet, crucibleCatapult, color, true);
+
+            ((YeetopultEntityPlugin) crucibleCatapult.getCustomPlugin()).setPairedCatapult(catapult);
+            ((YeetopultEntityPlugin) catapult.getCustomPlugin()).setPairedCatapult(crucibleCatapult);
 
             float angle = Misc.getAngleInDegrees(planet.getLocation(), crucible.getLocation());
             float orbitRadius = planet.getRadius() + Math.max(100f, planet.getRadius() * 0.2f);
@@ -204,7 +207,7 @@ public class CrucibleSpawner {
         }
     }
 
-    public static SectorEntityToken getCatapult(SectorEntityToken focus, SectorEntityToken target, Color color){
-        return focus.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_yeetopult", null, new YeetopultEntityPlugin.YeetopultParams(color, target.getId()));
+    public static SectorEntityToken getCatapult(SectorEntityToken focus, SectorEntityToken target, Color color, boolean showIcon){
+        return focus.getContainingLocation().addCustomEntity(Misc.genUID(), null, showIcon ? "IndEvo_yeetopult" : "IndEvo_yeetopult_no_icon", null, new YeetopultEntityPlugin.YeetopultParams(color, target.getId()));
     }
 }
