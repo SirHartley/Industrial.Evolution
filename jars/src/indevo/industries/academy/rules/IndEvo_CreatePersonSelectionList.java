@@ -119,17 +119,8 @@ public class IndEvo_CreatePersonSelectionList extends BaseCommandPlugin {
 
             case STORE:
                 for (AdminData admin : Global.getSector().getCharacterData().getAdmins()) {
-                    //check if it's installed anywhere
-                    boolean notInstalled = true;
-                    for (MarketAPI market : Misc.getFactionMarkets(Global.getSector().getPlayerFaction())) {
-                        if (market.getAdmin().getId().equals(admin.getPerson().getId())) {
-                            notInstalled = false;
-                        }
-                    }
-
-                    if (notInstalled) {
-                        finalList.add(admin.getPerson());
-                    }
+                    finalList.add(admin.getPerson());
+                    //if (!isInstalled(admin)) finalList.add(admin.getPerson());
                 }
                 break;
 
@@ -173,6 +164,19 @@ public class IndEvo_CreatePersonSelectionList extends BaseCommandPlugin {
         }
         debugMessage("Getting eligible officers, returning list with " + finalList.size() + " entries");
         return finalList;
+    }
+
+    public static boolean isInstalled(AdminData admin){
+        return isInstalled(admin.getPerson());
+    }
+    public static boolean isInstalled(PersonAPI admin){
+        for (MarketAPI market : Misc.getFactionMarkets(Global.getSector().getPlayerFaction())) {
+            if (market.getAdmin().getId().equals(admin.getId())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 

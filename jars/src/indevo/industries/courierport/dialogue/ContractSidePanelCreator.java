@@ -10,6 +10,7 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.ui.*;
+import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.InteractionDialogCustomPanelPlugin;
 import indevo.dialogue.sidepanel.NoFrameCustomPanelPlugin;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
@@ -19,6 +20,7 @@ import indevo.industries.courierport.listeners.SubmarketShipPicker;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
+import org.apache.log4j.Logger;
 
 import java.awt.*;
 import java.util.LinkedList;
@@ -113,9 +115,9 @@ public class ContractSidePanelCreator {
 
         boolean prerequisiteForActive = true;
 
-        Color baseColor = com.fs.starfarer.api.util.Misc.getButtonTextColor();
-        Color bgColour = com.fs.starfarer.api.util.Misc.getDarkPlayerColor();
-        Color brightColor = com.fs.starfarer.api.util.Misc.getBrightPlayerColor();
+        Color baseColor = Misc.getButtonTextColor();
+        Color bgColour = Misc.getDarkPlayerColor();
+        Color brightColor = Misc.getBrightPlayerColor();
 
         int timing = contract.getRecurrentDays();
         List<Integer> dayList = new LinkedList<>();
@@ -402,7 +404,7 @@ public class ContractSidePanelCreator {
 
         } else {
             desc = originSelectionPanel.createUIElement(SELECT_BUTTON_WIDTH * 2f, BUTTON_HEIGHT, false);
-            label = desc.addPara("Select an origin planet!", com.fs.starfarer.api.util.Misc.getHighlightColor(), 0f);
+            label = desc.addPara("Select an origin planet!", Misc.getHighlightColor(), 0f);
 
             label.getPosition().inTMid(6f);
             label.setAlignment(Alignment.LMID);
@@ -428,9 +430,9 @@ public class ContractSidePanelCreator {
         targetSelectionPanel.addUIElement(desc).inTL(spad, opad);
         lastUsedVariableButtonAnchor = desc;
 
-        baseColor = com.fs.starfarer.api.util.Misc.getButtonTextColor();
-        bgColour = com.fs.starfarer.api.util.Misc.getDarkPlayerColor();
-        brightColor = com.fs.starfarer.api.util.Misc.getBrightPlayerColor();
+        baseColor = Misc.getButtonTextColor();
+        bgColour = Misc.getDarkPlayerColor();
+        brightColor = Misc.getBrightPlayerColor();
 
         anchor = targetSelectionPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
         buttonId = "button_dest_" + id;
@@ -478,8 +480,8 @@ public class ContractSidePanelCreator {
 
                                 info.addPara("Distance cost multiplicator: %s",
                                         opad,
-                                        com.fs.starfarer.api.util.Misc.getHighlightColor(),
-                                        com.fs.starfarer.api.util.Misc.getRoundedValueMaxOneAfterDecimal(ShippingCostCalculator.getLYMult(contract.getFromMarket().getPrimaryEntity(), entity)) + "x");
+                                        Misc.getHighlightColor(),
+                                        Misc.getRoundedValueMaxOneAfterDecimal(ShippingCostCalculator.getLYMult(contract.getFromMarket().getPrimaryEntity(), entity)) + "x");
                             }
 
                             @Override
@@ -578,7 +580,7 @@ public class ContractSidePanelCreator {
             }
         } else {
             desc = targetSelectionPanel.createUIElement(SELECT_BUTTON_WIDTH * 2f, BUTTON_HEIGHT, false);
-            label = desc.addPara(fromMarket == null ? "Select a destination planet!" : "Select an origin submarket!", com.fs.starfarer.api.util.Misc.getHighlightColor(), 0f);
+            label = desc.addPara(fromMarket == null ? "Select a destination planet!" : "Select an origin submarket!", Misc.getHighlightColor(), 0f);
 
             label.getPosition().inTMid(6f);
             label.setAlignment(Alignment.LMID);
@@ -601,7 +603,7 @@ public class ContractSidePanelCreator {
             SubmarketPlugin toSubmarketPlugin = toMarket.getSubmarket(contract.toSubmarketId).getPlugin();
 
             boolean showCargo = fromSubmarketPlugin.showInCargoScreen() && toSubmarketPlugin.showInCargoScreen();
-            boolean showSips = fromSubmarketPlugin.showInFleetScreen() && toSubmarketPlugin.showInFleetScreen();
+            boolean showShips = fromSubmarketPlugin.showInFleetScreen() && toSubmarketPlugin.showInFleetScreen();
 
             //EVERYTHING
             anchor = scopeSelectionPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
@@ -609,9 +611,9 @@ public class ContractSidePanelCreator {
             ShippingContract.Scope scope = ShippingContract.Scope.EVERYTHING;
             buttonId = "button_scope_" + scope.toString() + id;
 
-            baseColor = com.fs.starfarer.api.util.Misc.getButtonTextColor();
-            bgColour = com.fs.starfarer.api.util.Misc.getDarkPlayerColor();
-            brightColor = com.fs.starfarer.api.util.Misc.getBrightPlayerColor();
+            baseColor = Misc.getButtonTextColor();
+            bgColour = Misc.getDarkPlayerColor();
+            brightColor = Misc.getBrightPlayerColor();
 
             areaCheckbox = anchor.addAreaCheckbox(name, new Object(), baseColor, bgColour, brightColor,
                     SELECT_BUTTON_WIDTH,
@@ -669,7 +671,7 @@ public class ContractSidePanelCreator {
                 lastUsedVariableButtonAnchor = anchor;
             }
 
-            if (showSips) {
+            if (showShips) {
                 anchor = scopeSelectionPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
                 name = "All Ships";
                 scope = ShippingContract.Scope.ALL_SHIPS;
@@ -751,7 +753,7 @@ public class ContractSidePanelCreator {
                 lastUsedVariableButtonAnchor = anchor;
             }
 
-            if (showSips) {
+            if (showShips) {
                 anchor = scopeSelectionPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
                 name = "Select Ships";
                 scope = ShippingContract.Scope.SPECIFIC_SHIPS;
@@ -812,7 +814,7 @@ public class ContractSidePanelCreator {
 
         anchor = confirmPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
         buttonId = "button_return_" + id;
-        baseColor = com.fs.starfarer.api.util.Misc.getTextColor();
+        baseColor = Misc.getTextColor();
         bgColour = new Color(80, 20, 10, 255);
 
         button = anchor.addButton("Cancel", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
@@ -842,7 +844,7 @@ public class ContractSidePanelCreator {
 
         anchor = confirmPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
         buttonId = "button_confirm_" + id;
-        bgColour = prerequisiteForActive ? new Color(50, 130, 0, 255) : com.fs.starfarer.api.util.Misc.getGrayColor();
+        bgColour = prerequisiteForActive ? new Color(50, 130, 0, 255) : Misc.getGrayColor();
 
         button = anchor.addButton("Confirm", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
         button.setEnabled(prerequisiteForActive);
@@ -877,7 +879,7 @@ public class ContractSidePanelCreator {
         SubmarketAPI toSubmarket = contract.getToSubmarket();
         String cadenceString = ShippingTooltipHelper.getCadenceString(contract.getRecurrentDays());
         float lyMultVal = ShippingCostCalculator.getLYMult(contract);
-        String lyMultStr = com.fs.starfarer.api.util.Misc.getRoundedValueMaxOneAfterDecimal(lyMultVal);
+        String lyMultStr = Misc.getRoundedValueMaxOneAfterDecimal(lyMultVal);
         float shipCost = ShippingCostCalculator.getContractShipCost(contract);
         float cargoCost = ShippingCostCalculator.getContractCargoCost(contract);
         float total = ShippingCostCalculator.getTotalContractCost(contract);
@@ -904,40 +906,40 @@ public class ContractSidePanelCreator {
             String shipStr = ShippingTooltipHelper.getShipAmtString(contract);
             String cargoStr = ShippingTooltipHelper.getCargoAmtString(contract);
 
-            String firstHL = ships ? com.fs.starfarer.api.util.Misc.ucFirst(shipStr) : com.fs.starfarer.api.util.Misc.ucFirst(cargoStr);
-            String secondHL = ships && cargo ? com.fs.starfarer.api.util.Misc.ucFirst(cargoStr) : "";
+            String firstHL = ships ? Misc.ucFirst(shipStr) : Misc.ucFirst(cargoStr);
+            String secondHL = ships && cargo ? Misc.ucFirst(cargoStr) : "";
 
-            panelTooltip.addPara("%s" + and, spad, com.fs.starfarer.api.util.Misc.getHighlightColor(), firstHL, secondHL);
+            panelTooltip.addPara("%s" + and, spad, Misc.getHighlightColor(), firstHL, secondHL);
         }
 
-        panelTooltip.addPara("Cadence: " + (contract.getRecurrentDays() > 0 ? "every %s" : "%s"), pad, com.fs.starfarer.api.util.Misc.getHighlightColor(), cadenceString);
+        panelTooltip.addPara("Cadence: " + (contract.getRecurrentDays() > 0 ? "every %s" : "%s"), pad, Misc.getHighlightColor(), cadenceString);
 
         if (fromMarket != null && toMarket != null) {
             String alphaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.ALPHA_CORE) ? " [-" + StringHelper.getAbsPercentString(ShippingCostCalculator.TOTAL_FEE_REDUCTION, true) + ", Alpha Core]" : "";
 
             panelTooltip.addPara("Cost forecast:", opad);
             panelTooltip.beginGridFlipped(300, 1, 100f, 3f);
-            panelTooltip.addToGrid(0, 0, "Base fee", com.fs.starfarer.api.util.Misc.getDGSCredits(CONTRACT_BASE_FEE));
+            panelTooltip.addToGrid(0, 0, "Base fee", Misc.getDGSCredits(CONTRACT_BASE_FEE));
 
             if (shipCost > 10 && (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING))
                 panelTooltip.addToGrid(0,
                         1,
                         "Cargo transport",
-                        com.fs.starfarer.api.util.Misc.getDGSCredits(cargoCost) + alphaCoreStr);
+                        Misc.getDGSCredits(cargoCost) + alphaCoreStr);
             else panelTooltip.addToGrid(0,
                     1,
                     "Cargo cost per 1000 items",
-                    com.fs.starfarer.api.util.Misc.getDGSCredits(ShippingCostCalculator.getCostForCargoSpace(1000, lyMultVal)) + alphaCoreStr);
+                    Misc.getDGSCredits(ShippingCostCalculator.getCostForCargoSpace(1000, lyMultVal)) + alphaCoreStr);
 
             if (shipCost > 10 && (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING))
                 panelTooltip.addToGrid(0,
                         2,
                         "Ships transport",
-                        com.fs.starfarer.api.util.Misc.getDGSCredits(shipCost) + alphaCoreStr);
+                        Misc.getDGSCredits(shipCost) + alphaCoreStr);
             else panelTooltip.addToGrid(0,
                     2,
                     "Ship cost per 10 DP",
-                    com.fs.starfarer.api.util.Misc.getDGSCredits(ShippingCostCalculator.getCostForShipSpace(10, lyMultVal)) + alphaCoreStr);
+                    Misc.getDGSCredits(ShippingCostCalculator.getCostForShipSpace(10, lyMultVal)) + alphaCoreStr);
 
             String betaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.BETA_CORE) ? " [-" + StringHelper.getAbsPercentString(ShippingCostCalculator.DISTANCE_MULT_REDUCTION, true) + ", Beta Core]" : "";
             panelTooltip.addToGrid(0, 3, "Distance multiplier", "x" + lyMultStr + betaCoreStr);
@@ -955,12 +957,12 @@ public class ContractSidePanelCreator {
                     }
                 }
 
-                panelTooltip.addToGrid(0, 4, "Stockpile item cost", com.fs.starfarer.api.util.Misc.getDGSCredits(stockpileCost));
+                panelTooltip.addToGrid(0, 4, "Stockpile item cost", Misc.getDGSCredits(stockpileCost));
                 total += stockpileCost;
             }
 
             if (contract.scope.toString().toLowerCase().contains("specific"))
-                panelTooltip.addToGrid(0, 5, "Total", com.fs.starfarer.api.util.Misc.getDGSCredits(total));
+                panelTooltip.addToGrid(0, 5, "Total", Misc.getDGSCredits(total));
 
             panelTooltip.addGrid(pad);
         } else panelTooltip.addPara("Cost forecast available after planet selection.", pad);

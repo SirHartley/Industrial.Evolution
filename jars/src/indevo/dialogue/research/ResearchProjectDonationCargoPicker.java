@@ -9,6 +9,7 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import org.apache.log4j.Logger;
+import org.lwjgl.util.vector.Vector2f;
 
 public class ResearchProjectDonationCargoPicker {
 
@@ -80,7 +81,10 @@ public class ResearchProjectDonationCargoPicker {
                             progress.points += neededWeaponsToFinish * pointsPerItem;
                         }
 
-                        if (progress.points >= project.getRequiredPoints()) break;
+                        if (progress.points >= project.getRequiredPoints()) {
+                            Global.getSoundPlayer().playUISound("ui_objective_constructed", 1f, 1f);
+                            break;
+                        }
                     }
 
                     ResearchProjectDialoguePlugin.getCurrentDialoguePlugin().refreshCustomPanel();

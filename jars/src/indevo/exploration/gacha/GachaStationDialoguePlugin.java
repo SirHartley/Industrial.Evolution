@@ -2,6 +2,7 @@ package indevo.exploration.gacha;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -9,16 +10,23 @@ import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
+import com.fs.starfarer.api.impl.MusicPlayerPluginImpl;
 import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.HullMods;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
+import com.fs.starfarer.api.impl.campaign.rulecmd.FireAll;
+import com.fs.starfarer.api.impl.campaign.rulecmd.FireBest;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.ValueDisplayMode;
 import com.fs.starfarer.api.util.ListMap;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import com.fs.starfarer.campaign.rules.Memory;
+import indevo.exploration.gacha.rules.OpenStorageTabOnGachaStation;
 import indevo.ids.ItemIds;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
@@ -26,7 +34,8 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.*;
 
-import static indevo.utils.helper.MiscIE.stripShipToCargoAndReturnVariant;
+import static com.fs.starfarer.api.util.Misc.*;
+import static indevo.utils.helper.MiscIE.*;
 
 public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
 
@@ -49,7 +58,8 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
         PARTS_SELECTOR,
         SELECT_SHIPS,
         CONFIRM,
-        LEAVE
+        LEAVE,
+        CARGO
     }
 
     protected InteractionDialogAPI dialog;
@@ -64,6 +74,10 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
         this.dialog = dialog;
         this.options = dialog.getOptionPanel();
         this.text = dialog.getTextPanel();
+
+        //todo remove for release
+        if (isRepaired()) dialog.getInteractionTarget().getMarket().getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
+        if (dialog.getInteractionTarget().getMemoryWithoutUpdate().get(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY) == null) dialog.getInteractionTarget().getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
 
         displayDefaultOptions(true);
     }
@@ -94,8 +108,14 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
         if (isRepaired()) {
             addPostRestoreTooltip();
 
+            option = Option.CARGO;
+            opts.addOption("Visit the cargo areas", option);
+
             option = Option.SELECT_SHIPS;
-            isEnabled = playerFleet.getFleetData().getNumMembers() > 1;
+            CargoAPI storage = Misc.getStorage(dialog.getInteractionTarget().getMarket()).getCargo();
+            storage.initMothballedShips(Factions.PLAYER);
+
+            isEnabled = playerFleet.getFleetData().getNumMembers() + storage.getMothballedShips().getNumMembers() > 1;
 
             opts.addOption("Select ships to sacrifice", option);
             opts.setEnabled(option, isEnabled);
@@ -104,7 +124,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             else opts.setTooltip(option, "You can not sacrifice the only ship in your fleet, as tempting as it may be");
 
             float partsAvailable = cargo.getCommodityQuantity(ItemIds.PARTS);
-            opts.addSelector("Sacrifice Starship Components", Option.PARTS_SELECTOR, com.fs.starfarer.api.util.Misc.getHighlightColor(),
+            opts.addSelector("Sacrifice Starship Components", Option.PARTS_SELECTOR, getHighlightColor(),
                     300f,
                     50f,
                     0f,
@@ -125,7 +145,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
                 opts.setTooltip(option, "Pray to the mechanic deity to grant upon you a rare print from the deepest parts of the ancient mnemonic relays");
             else {
                 opts.setTooltip(option, "You do not have a sacrifice selected or do not have sufficient relic components to offer upon the altar. (Cost: " + RARE_PART_COST_AMT + " Relic Components)");
-                opts.setTooltipHighlightColors(option, com.fs.starfarer.api.util.Misc.getHighlightColor());
+                opts.setTooltipHighlightColors(option, getHighlightColor());
                 opts.setTooltipHighlights(option, "(Cost: " + RARE_PART_COST_AMT + " Relic Components)");
             }
         } else {
@@ -136,6 +156,8 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             isEnabled = cargo.getCommodityQuantity(Commodities.METALS) >= METALS_REPAIR_COST
                     && cargo.getCommodityQuantity(Commodities.HEAVY_MACHINERY) >= MACHINERY_REPAIR_COST
                     && cargo.getCommodityQuantity(ItemIds.PARTS) >= PARTS_REPAIR_COST;
+
+            if (Global.getSettings().isDevMode()) isEnabled = true;
 
             opts.addOption("Restore the machine to function", option);
             opts.setEnabled(option, isEnabled);
@@ -166,9 +188,11 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
                 text.addPara("Your crew watches on as the long dead machine revives itself, heaving in effort as it shakes off the weight of centuries with rasped breath.");
 
                 CargoAPI cargo = Global.getSector().getPlayerFleet().getCargo();
-                cargo.removeCommodity(Commodities.METALS, METALS_REPAIR_COST);
-                cargo.removeCommodity(Commodities.HEAVY_MACHINERY, MACHINERY_REPAIR_COST);
-                cargo.removeCommodity(ItemIds.PARTS, PARTS_REPAIR_COST);
+                if (!Global.getSettings().isDevMode()){
+                    cargo.removeCommodity(Commodities.METALS, METALS_REPAIR_COST);
+                    cargo.removeCommodity(Commodities.HEAVY_MACHINERY, MACHINERY_REPAIR_COST);
+                    cargo.removeCommodity(ItemIds.PARTS, PARTS_REPAIR_COST);
+                }
 
                 AddRemoveCommodity.addCommodityLossText(Commodities.METALS, METALS_REPAIR_COST, text);
                 AddRemoveCommodity.addCommodityLossText(Commodities.HEAVY_MACHINERY, MACHINERY_REPAIR_COST, text);
@@ -176,6 +200,8 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
 
                 setRepaired();
 
+                setAbandonedStationMarket(dialog.getInteractionTarget().getId(), dialog.getInteractionTarget());
+                dialog.getInteractionTarget().getMarket().getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
                 options.addOption("Continue", Option.MAIN);
                 break;
             case SELECT_SHIPS:
@@ -186,6 +212,11 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
                 break;
             case LEAVE:
                 dialog.dismiss();
+                break;
+            case CARGO:
+                HashMap<String, MemoryAPI> map = new HashMap<>();
+                map.put(MemKeys.LOCAL, new Memory());
+                FireBest.fire(null, dialog,map, "IndEvo_GachaStationCargoOpen");
                 break;
         }
     }
@@ -235,7 +266,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
 
         text.addPara("Your shipboard historian points out some smaller icons depicting robed humans presenting it with strangely specific offerings.");
 
-        com.fs.starfarer.api.util.Misc.showCost(text, null, null,
+        showCost(text, null, null,
                 new String[]{Commodities.METALS, Commodities.HEAVY_MACHINERY, ItemIds.PARTS},
                 new int[]{METALS_REPAIR_COST, MACHINERY_REPAIR_COST, PARTS_REPAIR_COST});
     }
@@ -245,14 +276,14 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
         text.addPara("Thousands of mechanical faces, revealed by the light, watch from above as you are once again presented with the primary tenet of the immortal engine.");
         text.addPara("\"Give, and thou shalt be given unto.\"\n");
 
-        com.fs.starfarer.api.util.Misc.showCost(text, null, null,
+        showCost(text, null, null,
                 new String[]{ItemIds.RARE_PARTS},
                 new int[]{RARE_PART_COST_AMT});
 
         if (selectedShips.isEmpty()) return;
         text.addPara("Ships selected for sacrifice:");
         TooltipMakerAPI tt = text.beginTooltip();
-        tt.addShipList(selectedShips.size(), 1, Math.min((int) Math.ceil((dialog.getTextWidth() * 0.8f) / selectedShips.size()), 40f), com.fs.starfarer.api.util.Misc.getBasePlayerColor(), selectedShips, 10f);
+        tt.addShipList(selectedShips.size(), 1, Math.min((int) Math.ceil((dialog.getTextWidth() * 0.8f) / selectedShips.size()), 40f), getBasePlayerColor(), selectedShips, 10f);
         text.addTooltip();
     }
 
@@ -265,7 +296,12 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             totalDP += member.getDeploymentPointsCost();
             stripShipToCargoAndReturnVariant(member, cargo);
             member.updateStats();
-            playerFleet.getFleetData().removeFleetMember(member);
+            if (playerFleet.getFleetData().getMembersListCopy().contains(member)) playerFleet.getFleetData().removeFleetMember(member);
+            else {
+                CargoAPI storage = Misc.getStorage(dialog.getInteractionTarget().getMarket()).getCargo();
+                storage.initMothballedShips(Factions.PLAYER);
+                storage.getMothballedShips().removeFleetMember(member);
+            }
         }
 
         totalDP += partsToSacrifice > 0 ? Math.round(partsToSacrifice / PARTS_PER_DP) : 0;
@@ -297,7 +333,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             text.addPara("And as the cacophony reaches its apex, the screeching stops, the faces slacken - and nothing remains.");
             text.addPara("\n\nYour offerings have been deemed insignificant.");
 
-            text.setHighlightColorsInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
+            text.setHighlightColorsInLastPara(getNegativeHighlightColor());
             text.highlightInLastPara("Your offerings have been deemed insufficient.");
 
             if (partsToSacrifice > 0)
@@ -336,6 +372,15 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             fleetMemberList.add(m);
         }
 
+        CargoAPI storage = Misc.getStorage(dialog.getInteractionTarget().getMarket()).getCargo();
+        storage.initMothballedShips(Factions.PLAYER);
+
+        for (FleetMemberAPI m : storage.getMothballedShips().getMembersListCopy()) {
+            if (m.getHullSpec().getTags().contains(Tags.SHIP_CAN_NOT_SCUTTLE) || m.getVariant().getTags().contains(Tags.SHIP_CAN_NOT_SCUTTLE))
+                continue;
+            fleetMemberList.add(m);
+        }
+
         int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
         int rows = fleetMemberList.size() > shipsPerRow ? (int) Math.ceil(fleetMemberList.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(fleetMemberList.size(), shipsPerRow);
@@ -367,7 +412,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
 
         ShipVariantAPI variant = Global.getSettings().getVariant(picker.pick());
         if (variant == null)
-            variant = Global.getSettings().createEmptyVariant(com.fs.starfarer.api.util.Misc.genUID(), Global.getSettings().getHullSpec(hullID));
+            variant = Global.getSettings().createEmptyVariant(genUID(), Global.getSettings().getHullSpec(hullID));
 
         FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant);
 
@@ -425,7 +470,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             if (picker.isEmpty()) continue;
 
             ShipHullSpecAPI spec = picker.pick();
-            ShipVariantAPI var = Global.getSettings().createEmptyVariant(com.fs.starfarer.api.util.Misc.genUID(), spec);
+            ShipVariantAPI var = Global.getSettings().createEmptyVariant(genUID(), spec);
             hullMap.put(spec.getHullId(), Global.getFactory().createFleetMember(FleetMemberType.SHIP, var).getDeploymentPointsCost());
             picker.clear();
         }

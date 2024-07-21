@@ -27,7 +27,7 @@ public class SubmarketShipPicker {
 
         int rows = memberList.size() > 8 ? (int) Math.ceil(memberList.size() / 8f) : 1;
         int cols = Math.min(memberList.size(), 8);
-        cols = Math.max(cols, 4);
+        cols = Math.max(cols, 6);
 
         dialogue.showFleetMemberPickerDialog("Select ships to transport", "Confirm", "Cancel", rows,
                 cols, 88f, true, true, memberList, new FleetMemberPickerListener() {

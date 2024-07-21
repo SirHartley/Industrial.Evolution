@@ -11,6 +11,8 @@ import indevo.dialogue.sidepanel.InteractionDialogCustomPanelPlugin;
 import indevo.dialogue.sidepanel.NoFrameCustomPanelPlugin;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
 import org.apache.log4j.Logger;
+import org.lazywizard.lazylib.MathUtils;
+import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 import java.util.Map;
@@ -156,6 +158,8 @@ public class ResearchProjectSidePanelCreator {
                     ResearchProjectDialoguePlugin plugin = ResearchProjectDialoguePlugin.getCurrentDialoguePlugin();
                     plugin.setProjectIdForRewards(projId, rewards);
                     plugin.refreshCustomPanel();
+
+                    Global.getSoundPlayer().playUISound("ui_rep_raise", 1f, 1f);
                 }
             };
 

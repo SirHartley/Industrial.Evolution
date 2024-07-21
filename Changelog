@@ -1,11 +1,12 @@
 
 --------------------------- To-do -----------------------------
 Playthrough notes
+- give the shrine station its own cargo to ship to
+- hullmod that reduces beam refire delay
 - add small ability with panel for limited pet management in the fleet
 - Add a proper edict selection UI, for remote operation as well
 - add some more info/tt/notifications to governments
 fix the marine xp bug with detachments
-make academy increase HS topo gain?
 
 Substance abuse
 - adjust booze to consume half as much and take 1 cargo/unit
@@ -86,6 +87,8 @@ Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 General
 Added - Framework to add some small lore text about how a planet fell to ruin when you survey (on request by Alfonzo)
 todo Added - A few stories of demise and death
+Added - Colony corruption mode - colonies will start bleeding money the more you make. Disabled by default.
+Note - With this enabled, getting a colony above 200k income is an incredible feat, but getting it to 50-80k is just like vanilla. Calculated along f(x)=x^(-0.6).
 Fixed - Industry-specific cargo tabs (submarkets) no longer spawn before the building has finished construction
 
 Salvage Interactions
@@ -128,6 +131,7 @@ Fixed - No longer crashes when told to hide in non-nebula systems without a star
 Research Projects
 Added - Project Prospector: trade survey data for hyperspace topography progress (unlocks after you gathered some hyperspace data)
 Added - Project Sonic: trade in a metric ton of fuel for a niche, but extremely useful hullmod (unlocks if you use slow ships)
+Added - Some sounds to the project UI
 Adjusted - Show Inputs button is now Show Info and displays a description of what the project actually does (in most cases)
 Adjusted - "New Projects" intel now shows which projects actually got unlocked
 Fixed - Project Navi no longer displays if pets are disabled
@@ -146,6 +150,7 @@ Embassy
 Added - An active ambassador will now reduce the points gained in hostile activity through their faction by up to 40% depending on your relationship
 
 Privateer Base
+Adjusted - Commodity output decay adjusted from 2/mo -> 1/mo
 Adjusted - Now properly reflects alignment when placed on Managed Democracy world
 Adjusted - Raid Timeout for star systems increased from 3 months -> 8 months (6 with a beta core)
 Fixed - Devmode crash when target factions are zero (just for you Histi <3)
@@ -154,13 +159,20 @@ Senate
 Fixed - Edict: Mandated Overtime now correctly decreases build times
 Fixed - Options now display the market name instead of "$market"
 
+Salvage Yards
+Added - Blockades now generate extra salvage points, like raids
+
 Restoration docks
 Added - "Can not transfer" text for ships with the unrestorable tag
 
 Academy
-Fixed - Can no longer decivilize (mod conflict)
+todo check if pulling admin from duty will leave "ungoverned colony" or if game auto assigns yourself
+Adjusted - Can now pull admins from active duty
+Adjusted - Now displays where, and if, an admin is assigned in the selection list
+Fixed - Can no longer decivilize galatia (mod conflict)
 
 Courier Port
+Added - Can now ship to repaired Automated Shipyards
 Added - Can now ship to and from RAT settlements
 
 Specialized industries
@@ -202,6 +214,10 @@ Fixed - Arcology: now properly uses the water version image on water planets
 Fixed - Arcology & Rural: alternate images now load properly after the game was closed
 Fixed - Another Arcoship crash (Underworld Gov.)
 Removed - Monastic Orders (Split into Managed Democracy and Forge worlds)
+
+Automated Shipyards
+Added - now have their own storage after being restored
+Added - now have music (by Haplogynae, thank you so much!)
 
 Derelict Industries
 Adjusted - Will no longer spawn duplicate industries in the same system

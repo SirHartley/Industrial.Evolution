@@ -137,7 +137,6 @@ public class ModPlugin extends BaseModPlugin {
         boolean devActions = true; //Todo SET TO FALSE FOR RELEASE
 
         if (devmode && devActions) {
-
             PersonAPI admin = OfficerManagerEvent.createAdmin(Global.getSector().getPlayerFaction(), 0, new Random());
             admin.getStats().setSkillLevel("indevo_Micromanagement", 1);
             Global.getSector().getCharacterData().addAdmin(admin);

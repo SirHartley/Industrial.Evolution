@@ -38,9 +38,12 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     public static final float TIMOUT_NO_CORE = 8f;
     public static final float TIMOUT_WITH_CORE = 6f;
+
+    public static final float SUCCESS_OUTPUT_FRACT = 0.9f;
+    public static final float FAIL_OUTPUT_FRACT = 0.45f;
     public RaidIntel currentIntel = null;
     private int raidTimeoutMonths = 0;
-    private final int supplyDiminishmentPerMonth = 2;
+    private final int supplyDiminishmentPerMonth = 1;
     private float aiCoreFPBonus = 1f;
     private Map<String, Integer> supplyMemory = new HashMap<>();
     private final List<String> decayStopTimer = new ArrayList<>();
@@ -417,7 +420,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
                     continue;
                 }
 
-                float successMult = successful ? 0.85f : 0.33f;
+                float successMult = successful ? SUCCESS_OUTPUT_FRACT : FAIL_OUTPUT_FRACT;
                 int raidSupplyValue = (int) Math.round(raidSupply.getValue() * successMult);
                 int currentSupply = getBaseSupply(id);
 

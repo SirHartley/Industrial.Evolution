@@ -159,8 +159,8 @@
 	"IndEvo_ScrapYard": {
 		"lowMaterial": "The Salvage Yards at $marketName are running out of usable material!",
 		"lowMaterialAdd": "They are at, or beneath 30% capacity.",
-		"incursionSuccess": "An incursion against the $systemName was successful. Salvage units recovered from the carnage: $amt",
-		"incursionFailed": "An incursion against the $systemName has failed without your interference. Salvage units recovered from the carnage: $amt",
+		"incursionSuccess": "An incursion or blockade against the $systemName was successful. Salvage units recovered from the carnage: $amt",
+		"incursionFailed": "An incursion or blockade against the $systemName has failed without your interference. Salvage units recovered from the carnage: $amt",
 		"sUnitsAvailableTooltip": "There are %s salvage units available, %s are needed per additional output.",
 		"unavailableReason": "There can only be one Salvage Yard in a star system.",
 		"aCoreEffect": "Reduces salvage units required per output by %s, and decreases monthly salvage unit decay to %s",

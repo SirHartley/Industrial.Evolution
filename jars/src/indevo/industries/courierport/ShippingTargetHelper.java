@@ -7,6 +7,8 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
+import com.fs.starfarer.api.util.Misc;
+import indevo.exploration.gacha.GachaStationDialoguePlugin;
 import indevo.ids.Ids;
 import indevo.utils.helper.MiscIE;
 
@@ -45,9 +47,15 @@ public class ShippingTargetHelper {
     public static List<SectorEntityToken> getValidTargetPlanets(ShippingContract contract) {
         List<SectorEntityToken> marketList = new ArrayList<>();
 
+        //settlements
         if (Global.getSettings().getModManager().isModEnabled("assortment_of_things")){
             SettlementData data = FrontiersUtils.INSTANCE.getFrontiersData().getActiveSettlement();
             if (data != null) marketList.add(data.getSettlementEntity());
+        }
+
+        //gacha stations
+        for (SectorEntityToken t : Global.getSector().getEntitiesWithTag("IndEvo_GachaStation")){
+            if(t.getMemoryWithoutUpdate().getBoolean(GachaStationDialoguePlugin.HAS_RESTORED_STATION)) marketList.add(t);
         }
 
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {

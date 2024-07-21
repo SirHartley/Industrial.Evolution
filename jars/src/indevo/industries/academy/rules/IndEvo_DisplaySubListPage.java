@@ -3,6 +3,7 @@ package indevo.industries.academy.rules;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.OptionPanelAPI;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
@@ -101,8 +102,19 @@ public class IndEvo_DisplaySubListPage extends BaseCommandPlugin {
                 break;
             case ADMIN:
                 String tier = "tier " + (int) getAdminTier(person);
+                String marketName = null;
+                boolean isInstalled = IndEvo_CreatePersonSelectionList.isInstalled(person);
+                if (isInstalled) {
+                    for (MarketAPI market : Misc.getFactionMarkets(Global.getSector().getPlayerFaction())) {
+                        if (market.getAdmin().getId().equals(person.getId())) {
+                            marketName = market.getName();
+                            break;
+                        }
+                    }
+                }
 
-                personDescriptionString = person.getNameString() + ", " + tier + " administrator.";
+                String installed = "currently " + (marketName != null ? "governing " + marketName : "not assigned." );
+                personDescriptionString = person.getNameString() + ", " + tier + " administrator, " + installed;
                 opts.addOption(personDescriptionString, optionId);
                 /*opts.setTooltipHighlights(optionId, tier);
                 opts.setTooltipHighlightColors(optionId, hl);*/

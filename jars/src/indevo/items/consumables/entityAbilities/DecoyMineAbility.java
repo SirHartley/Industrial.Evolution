@@ -91,7 +91,6 @@ public class DecoyMineAbility extends BaseDurationAbility {
 
             Global.getSoundPlayer().playSound("ui_intel_distress_call", 1f, 1f, entity.getLocation(), entity.getVelocity());
         }
-
     }
 
 

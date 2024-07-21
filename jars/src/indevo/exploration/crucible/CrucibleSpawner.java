@@ -2,6 +2,7 @@ package indevo.exploration.crucible;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.impl.MusicPlayerPluginImpl;
 import com.fs.starfarer.api.impl.campaign.procgen.NebulaEditor;
 import com.fs.starfarer.api.impl.campaign.procgen.StarAge;
 import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
@@ -164,6 +165,8 @@ public class CrucibleSpawner {
             NebulaEditor editor = new NebulaEditor(nebulaPlugin);
             editor.clearArc(pos.x, pos.y, 0, MAGNETIC_FIELD_WIDTH * 2, 0f, 360f);
         }
+
+        top.getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
 
         return top;
     }

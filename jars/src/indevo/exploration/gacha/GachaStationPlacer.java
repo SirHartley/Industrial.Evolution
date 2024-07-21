@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
+import com.fs.starfarer.api.impl.MusicPlayerPluginImpl;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
@@ -61,7 +62,7 @@ public class GachaStationPlacer {
         SectorEntityToken t = system.addCustomEntity(Misc.genUID(), null, "IndEvo_GachaStation", null);
         t.setCircularOrbitPointingDown(system.getStar(), 0f, system.getStar().getRadius() + 200f, 31);
         t.getMemoryWithoutUpdate().set(RANDOM, new Random(t.hashCode()));
-
+        t.getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
         ModPlugin.log("placed GachaStation (Automated Shipyard) at " + system.getName());
     }
 }

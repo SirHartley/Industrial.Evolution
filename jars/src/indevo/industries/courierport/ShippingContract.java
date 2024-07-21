@@ -4,6 +4,7 @@ import assortment_of_things.frontiers.FrontiersUtils;
 import assortment_of_things.frontiers.SettlementManager;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoAPI;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
@@ -81,10 +82,16 @@ public class ShippingContract {
     }
 
     private MarketAPI getMarket(String id){
+        if (id == null) return null;
+
         if (Global.getSettings().getModManager().isModEnabled("assortment_of_things") && "rat_station_commander_market".equals(id)) return FrontiersUtils.INSTANCE.getFrontiersData().getActiveSettlement().getSettlementEntity().getMarket();
-        else return id != null
-                && Global.getSector().getEconomy().getMarket(id) != null
-                ? Global.getSector().getEconomy().getMarket(id) : null;
+        if (Global.getSector().getEconomy().getMarket(id) != null) return Global.getSector().getEconomy().getMarket(id);
+        if (Global.getSector().getEntityById(id) != null){
+            SectorEntityToken t = Global.getSector().getEntityById(id);
+            if (t.hasTag("IndEvo_GachaStation")) return t.getMarket();
+        }
+
+        return null;
     }
 
     public MarketAPI getFromMarket() {

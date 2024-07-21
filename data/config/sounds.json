@@ -77,7 +77,17 @@
 
   "IndEvo_missile_hit":[
     {"file":"IndEvo/sounds/IndEvo_Missile_Hit.ogg","pitch":1,"volume":0.8},
-  ]
+  ],
+
+  "music":{
+    ####################################
+    # "source" can also be a directory #
+    ####################################
+
+    "IndEvo_Haplogynae_derelict_theme":[
+      {"file":"haplo_brimir.ogg","source":"IndEvo/sounds","volume":1},
+    ],
+  },
 }
 
 

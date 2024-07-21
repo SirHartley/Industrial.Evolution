@@ -100,7 +100,7 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
                 String nameForThreatList = ((HostileActivityFactor) eventFactor).getNameForThreatList(false);
                 String factionName = alignedFaction.getDisplayName();
 
-                if (factionName.contains(descFaction) || factionName.contains(nameForThreatList)){
+                if (factionName.contains(descFaction) || factionName.contains(nameForThreatList) || nameForThreatList.contains(factionName)){
                     factor = (HostileActivityFactor) eventFactor;
                     break;
                 }

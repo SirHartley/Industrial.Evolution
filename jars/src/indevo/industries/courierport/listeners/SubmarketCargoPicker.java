@@ -62,7 +62,7 @@ public class SubmarketCargoPicker {
                 panel.addPara("Select the cargo you would like to ship. Items that are illegal in the target storage are not displayed.", opad);
 
                 panel.setGridFontDefault();
-                panel.beginGridFlipped(150f, 1, 75f, 5f);
+                panel.beginGridFlipped(150f, 1, 200f, 5f);
 
                 int i = 0;
                 float total = 0f;

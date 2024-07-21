@@ -17,6 +17,7 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.HeavyIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.intel.bases.LuddicPathCellsIntel;
+import com.fs.starfarer.api.impl.campaign.intel.group.GenericRaidFGI;
 import com.fs.starfarer.api.impl.campaign.intel.raid.RaidIntel;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Pair;
@@ -336,6 +337,10 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
             if (intel instanceof RaidIntel && (market.getStarSystem() == ((RaidIntel) intel).getSystem()) && ((RaidIntel) intel).isEnded()) {
                 finishedIntel.add(intel.getClass().hashCode());
             }
+
+            if (intel instanceof GenericRaidFGI && (market.getStarSystem() == ((GenericRaidFGI) intel).getRaidAction().getWhere()) && intel.isEnded()){
+                finishedIntel.add(intel.getClass().hashCode());
+            }
         }
         hasFinishedIntelArchive = true;
     }
@@ -360,11 +365,12 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
         List<IntelInfoPlugin> allIntel = new ArrayList<>(Global.getSector().getIntelManager().getIntel(RaidIntel.class));
         for (IntelInfoPlugin intel : allIntel) {
             //check if it's raidIntel and targets this system
+            int salvagePoints = 0;
+            String msg = null;
+
+            //raid intel
             if (intel instanceof RaidIntel && (market.getStarSystem() == ((RaidIntel) intel).getSystem()) && !finishedIntel.contains(intel.getClass().hashCode())) {
                 //if its ended and succeeded, give player 30% raid FP
-                int salvagePoints = 0;
-                String msg = null;
-
                 if (((RaidIntel) intel).isSucceeded()) {
                     salvagePoints = (int) (((RaidIntel) intel).getRaidFPAdjusted() * 0.30F);
                     msg = "incursionSuccess";
@@ -375,29 +381,40 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
                     salvagePoints = (int) (((RaidIntel) intel).getRaidFPAdjusted() * 0.70F);
                     msg = "incursionFailed";
                 }
+            }
 
-                if (msg != null) {
-                    availableSalvagePoints += salvagePoints;
-                    finishedIntel.add(intel.getClass().hashCode());
-
-                    log.info("Adding raid SP to Yards: " + msg + " " + " at " + market.getName() + ", " + market.getFaction().getId() + ", recovered " + salvagePoints + " units for intel " + intel.getClass().hashCode());
-
-                    if (market.isPlayerOwned()) {
-                        Map<String, String> toReplace = new HashMap<>();
-                        toReplace.put("$amt", salvagePoints + "");
-                        toReplace.put("$systemName", market.getStarSystem().getName());
-
-                        msg = StringHelper.getStringAndSubstituteTokens(getId(), msg, toReplace);
-
-                        Global.getSector().getCampaignUI().addMessage(msg,
-                                com.fs.starfarer.api.util.Misc.getTextColor(),
-                                toReplace.get("$systemName"),
-                                toReplace.get("$amt"),
-                                market.getFaction().getColor(),
-                                com.fs.starfarer.api.util.Misc.getHighlightColor());
-                    }
+            //blockade
+            if (intel instanceof GenericRaidFGI && (market.getStarSystem() == ((GenericRaidFGI) intel).getRaidAction().getWhere()) && !finishedIntel.contains(intel.getClass().hashCode())){
+                if (((GenericRaidFGI) intel).isSucceeded()) {
+                    salvagePoints = (int) (((GenericRaidFGI) intel).getTotalFPSpawned() * 0.30F);
+                    msg = "incursionSuccess";
+                    //Else if its ended and failed in the action stage, and the player has not visited for the duration of the action stage
+                } else if (((GenericRaidFGI) intel).isFailed()) {
+                    salvagePoints = (int) (((GenericRaidFGI) intel).getTotalFPSpawned() * 0.70F);
+                    msg = "incursionFailed";
                 }
+            }
 
+            if (msg != null) {
+                availableSalvagePoints += salvagePoints;
+                finishedIntel.add(intel.getClass().hashCode());
+
+                log.info("Adding raid SP to Yards: " + msg + " " + " at " + market.getName() + ", " + market.getFaction().getId() + ", recovered " + salvagePoints + " units for intel " + intel.getClass().hashCode());
+
+                if (market.isPlayerOwned()) {
+                    Map<String, String> toReplace = new HashMap<>();
+                    toReplace.put("$amt", salvagePoints + "");
+                    toReplace.put("$systemName", market.getStarSystem().getName());
+
+                    msg = StringHelper.getStringAndSubstituteTokens(getId(), msg, toReplace);
+
+                    Global.getSector().getCampaignUI().addMessage(msg,
+                            com.fs.starfarer.api.util.Misc.getTextColor(),
+                            toReplace.get("$systemName"),
+                            toReplace.get("$amt"),
+                            market.getFaction().getColor(),
+                            com.fs.starfarer.api.util.Misc.getHighlightColor());
+                }
             }
         }
 

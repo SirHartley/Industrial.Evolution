@@ -57,7 +57,7 @@ public class ResearchProjectTemplateRepo {
 
             @Override
             public String getLongDesc() {
-                return "A one-off project investigating alternative drive field parameters.";
+                return "A one-off project investigating alternative drive field parameters, aiming to balance speed and drive signature.";
             }
 
             @Override
@@ -70,7 +70,7 @@ public class ResearchProjectTemplateRepo {
         put(Ids.PROJ_PROSPECTOR, new ResearchProject(Ids.PROJ_PROSPECTOR,
                 "Project Prospector", 100, true) {
 
-            public static final int POINTS_ON_COMPLETION = 50;
+            public static final int POINTS_ON_COMPLETION = 75;
 
             @Override
             public boolean display() {
@@ -93,7 +93,7 @@ public class ResearchProjectTemplateRepo {
 
             @Override
             public void addTooltipOutputOnCompletion(TooltipMakerAPI tooltip) {
-                tooltip.addPara(HyperspaceTopographyEventIntel.get().getSmallDescriptionTitle() + " progress gained: %s", 10f, Misc.getPositiveHighlightColor(), "" + POINTS_ON_COMPLETION);
+                tooltip.addPara(HyperspaceTopographyEventIntel.get().getSmallDescriptionTitle() + " progress gained: %s points", 10f, Misc.getPositiveHighlightColor(), "" + POINTS_ON_COMPLETION);
             }
 
             @Override
@@ -111,7 +111,7 @@ public class ResearchProjectTemplateRepo {
 
             @Override
             public String getLongDesc() {
-                return "An ongoing project researching the influence of topological data on hyperspace wells. Completing it will provide some insight on hyperspace topology.";
+                return "An ongoing project researching the influence of topological data on hyperspace wells. Completing it will provide insights on hyperspace topology.";
             }
 
             @Override
