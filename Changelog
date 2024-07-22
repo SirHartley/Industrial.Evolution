@@ -1,7 +1,6 @@
 
 --------------------------- To-do -----------------------------
 Playthrough notes
-- give the shrine station its own cargo to ship to
 - hullmod that reduces beam refire delay
 - add small ability with panel for limited pet management in the fleet
 - Add a proper edict selection UI, for remote operation as well
@@ -92,29 +91,29 @@ Note - With this enabled, getting a colony above 200k income is an incredible fe
 Fixed - Industry-specific cargo tabs (submarkets) no longer spawn before the building has finished construction
 
 Salvage Interactions
-Adjusted - Drastically reduced the chance of IndEvo salvage specials appearing on derelict ships (40% -> 5%)
+Adjusted - Drastically reduced the chance of IndEvo salvage specials appearing on derelict ships (40% -> 10%)
 Adjusted - Halved the chance of IndEvo salvage specials appearing on caches of any kind
 Fixed - No longer spawn in hidden systems
 
 Distress Calls
 todo Added - Adapted and expanded Vayras Sector distress call system (it would have crashed had anyone actually used it.)
-Added - The original 6 Ghost Ship distress calls
+todo Added - The original 6 Ghost Ship distress calls
 Note - What I "ported" was really just the concept and texts. I rewrote the implementation from the ground up because it was a mess.
 
 Pets
 Added - Expected lifetime indicator on Cryochamber
 Adjusted - locking yourself out of the Lord Foog dialogue on Mazalot is no longer permanent and will reset in time depending on what you did
 Adjusted - Pet food order number adjusted to rank right next to heavy machinery, making it less of a hassle to sort your inventory
-Fixed - Bug where the dialogue for assigning a pet didn't pop up for players with apple PCs (get a proper PC please)
+Fixed - Bug where the dialogue for assigning a pet didn't pop up for players with apple computers (get a proper PC please)
 Fixed - Pet center dialogue can no longer be opened in remote view
-Removed - Orbital pet stations around a planet (good idea but too much clutter for the use they provide in practice)
+Removed - Orbital pet stations around a planet (too much clutter for the use they provide in practice)
 
 Items
 Added - Relic components will now drop from all automated ships that were destroyed (even modded)
 Adjusted - Relic components no longer drop from battles with the luddic path
 Adjusted - Removed most VPCs from Historian pool
 Adjusted - Conflict/Exploration Package VPCs moved from Historian T4 to Historian T3
-Adjusted - Drastically reduced drop rates for special items, again
+Adjusted - Drastically reduced drop rates for special items, again (now matches vanilla in my low-mod playthough)
 Adjusted - Drive bubble spike now fires when a fleet is in range regardless of hostility
 
 Hullmods
@@ -148,9 +147,10 @@ Fixed - Other Mods will no longer spawn an Artillery on game start if the settin
 
 Embassy
 Added - An active ambassador will now reduce the points gained in hostile activity through their faction by up to 40% depending on your relationship
+todo - Added - Optional toggle to make them increase the impact instead. Just talk to them.
 
 Privateer Base
-Adjusted - Commodity output decay adjusted from 2/mo -> 1/mo
+Adjusted - Output decay adjusted from 2/mo -> 1/mo
 Adjusted - Now properly reflects alignment when placed on Managed Democracy world
 Adjusted - Raid Timeout for star systems increased from 3 months -> 8 months (6 with a beta core)
 Fixed - Devmode crash when target factions are zero (just for you Histi <3)
@@ -172,7 +172,7 @@ Adjusted - Now displays where, and if, an admin is assigned in the selection lis
 Fixed - Can no longer decivilize galatia (mod conflict)
 
 Courier Port
-Added - Can now ship to repaired Automated Shipyards
+Added - Can now ship to Automated Shipyards (once repaired)
 Added - Can now ship to and from RAT settlements
 
 Specialized industries
@@ -192,7 +192,7 @@ Adjusted - Rural Polity: Farming now produces Organics (and drugs with free port
 Adjusted - Rural Polity: Light Industry now produces Supplies alongside weapons
 Adjusted - Rural Polity: Reduced light industry weapons output
 Adjusted - Corporate: Stability Bonus calculation now scales off gross income, not net (Ignoring stability!)
-Adjusted - Corporate: Base Income 1.2 -> 1.3
+Adjusted - Corporate: Base Income x1.2 -> x1.3
 Adjusted - Corporate: Base Immigration malus -30 -> -20
 Adjusted - Corporate: immigration malus now scales with income up to -50 (-20 base, -1 per 10k income up to an additional -30 )
 Adjusted - Forge World: Halved ship building interval while keeping +DP budget/mo the same -> less frigates, more larger hulls
@@ -219,8 +219,12 @@ Automated Shipyards
 Added - now have their own storage after being restored
 Added - now have music (by Haplogynae, thank you so much!)
 
+todo Helios Crucible
+Added - New Superstructure
+Added - Buildable in your system after you recover the relevant parts, allows for fast travel between planets. Incredibly useful.
+
 Derelict Industries
-Adjusted - Will no longer spawn duplicate industries in the same system
+Adjusted - Will no longer spawn duplicate ruins in the same system (if two spawn, they will be different types)
 Adjusted - Hull Forge is now a structure (was an industry)
 Adjusted - Hull Forge beta core chance to get a working template instead of a broken one: 25% -> 60%
 Fixed - Gave Hull Deconstructor the structure tag
