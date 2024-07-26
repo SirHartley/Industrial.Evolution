@@ -24,8 +24,52 @@ import java.util.*;
 public class ResearchProjectTemplateRepo {
 
     //fairy
+    //Ah yes, the autopulse. The autopulse for Hartley. The autopulse made especially for Hartley, Hartley's autopulse... that autopulse.
 
     public static Map<String, ResearchProject> RESEARCH_PROJECTS = new HashMap<String, ResearchProject>() {{
+
+        put(Ids.PROJ_PULSE, new ResearchProject(Ids.PROJ_PULSE, "Project Pulse", 4, false) {
+
+            @Override
+            public boolean display() {
+                return AutopulseUseChecker.isGunFound();
+            }
+
+            @Override
+            public CargoAPI getRewards() {
+                CargoAPI c = Global.getFactory().createCargo(true);
+                c.addWeapons("hartpulse", 2);
+                c.addSpecial(new SpecialItemData(Items.WEAPON_BP, "hartpulse"), 1);
+
+                return c;
+            }
+
+            @Override
+            public List<RequiredItem> getRequiredItems() {
+                List<RequiredItem> list = new ArrayList<>();
+                list.add(new RequiredItem("autopulse", CargoAPI.CargoItemType.WEAPONS, 1f));
+
+                return list;
+            }
+
+            @Override
+            public String getLongDesc() {
+                return "A one-off project by an intern that thinks the autopulse is not cool enough. Most people think he is right. Most people also consider doing something about it a massive waste of funds.";
+            }
+
+            @Override
+            public String getShortDesc() {
+                return "Autopulse is a neat gun. It's also boring and ugly. Let's change that!";
+            }
+
+            @Override
+            public void addTooltipOutputOnCompletion(TooltipMakerAPI tooltip) {
+                super.addTooltipOutputOnCompletion(tooltip);
+
+                tooltip.addPara("Ah yes, the autopulse. The autopulse for Hartley. The autopulse made especially for Hartley, Hartley's autopulse... that autopulse.", 10f);
+            }
+        });
+
         put(Ids.PROJ_SONIC, new ResearchProject(Ids.PROJ_SONIC,
                 "Project Sonic", 20000, false) {
 

@@ -130,6 +130,7 @@ Fixed - No longer crashes when told to hide in non-nebula systems without a star
 Research Projects
 Added - Project Prospector: trade survey data for hyperspace topography progress (unlocks after you gathered some hyperspace data)
 Added - Project Sonic: trade in a metric ton of fuel for a niche, but extremely useful hullmod (unlocks if you use slow ships)
+Added - Project Pulse: Pyrophage made the autopulse laser cool. I needed an excuse to put it into the game, so here it is. (unlocks if you fit an autopulse on a ship)
 Added - Some sounds to the project UI
 Adjusted - Show Inputs button is now Show Info and displays a description of what the project actually does (in most cases)
 Adjusted - "New Projects" intel now shows which projects actually got unlocked

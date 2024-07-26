@@ -241,7 +241,8 @@
   "Nvidia Corporation":[118, 185, 0, 255],
   "Consumable":[100,10,200,255],
   "Cryochamber":[80,150,255,255],
-  "Industrial.Evolution":[245,240,240,255]
+  "Industrial.Evolution":[245,240,240,255],
+  "Galatia Academy":[245,240,240,255]
   },
 
   "bonusXP": {

@@ -1,0 +1,61 @@
+{
+  "id": "hartpulse",
+  "specClass": "projectile",
+  "projectileSpecId": "hartpulse_shot",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "turretSprite": "graphics/weapons/hartpulse_turret.png",
+  "turretGlowSprite": "graphics/weapons/hartpulse_turret_glow.png",
+  "hardpointSprite": "graphics/weapons/hartpulse_hardpoint.png",
+  "hardpointGlowSprite": "graphics/weapons/hartpulse_hardpoint_glow.png",
+  "glowColor": [
+    100,
+    100,
+    255,
+    225
+  ],
+  "turretOffsets": [
+    33.5,
+    0,
+    34.5,
+    5,
+    34.5,
+    -5
+  ],
+  "turretAngleOffsets": [
+    0,
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    40.5,
+    0,
+    41.5,
+    -5,
+    41.5,
+    5
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0,
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "autocharge": true,
+  "muzzleFlashSpec": {
+    "length": 35,
+    "spread": 0,
+    "particleSizeMin": 12,
+    "particleSizeRange": 12,
+    "particleDuration": 0.12,
+    "particleCount": 12,
+    "particleColor": [
+      100,
+      100,
+      255,
+      255
+    ]
+  },
+  "fireSoundTwo": "IndEvo_hartpulse"
+}

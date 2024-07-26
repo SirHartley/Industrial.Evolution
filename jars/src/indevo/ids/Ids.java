@@ -150,7 +150,8 @@ public class Ids {
     public static final String PROJ_NAVI = "indevo_proj_navi";
     public static final String PROJ_PROSPECTOR = "indevo_proj_prospector";
     public static final String PROJ_SONIC = "indevo_proj_sanic";
-    
+    public static final String PROJ_PULSE = "indevo_proj_pulse";
+
     //id
     //IndEvo_cryoartillery
     //IndEvo_degrader

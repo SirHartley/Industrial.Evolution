@@ -9,3 +9,5 @@ IndEvo_cryo_trail_c,IndEvo_Cryo_Shot,IndEvo_trail_spatter,10,0.4,0,1.4,120,180,"
 IndEvo_riftgun_trail,IndEvo_riftgun_shot,IndEvo_trail_stream,10,0,0,0.2,20,5,"[255,255,255]","[255,255,255]",1,256,0,TRUE,10,0,1,TRUE,FALSE,TRUE,0,0,0,0,0,0,false,false
 IndEvo_riftgun_trail2,IndEvo_riftgun_shot,IndEvo_trail_stream,10,0,0,0.3,40,10,"[100,60,255]","[200,20,255]",0.8,256,0,TRUE,10,0,1,TRUE,FALSE,TRUE,0,0,0,0,0,0,false,false
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+hartpulse_shot_A,hartpulse_shot,base_trail_smooth,0.075,0,0.075,0.075,22,2,"[120,255,160]","[255,100,255]",0.6,128,0,true,5,0,1,TRUE,FALSE,TRUE,50,0,0,180,0,0,FALSE,FALSE
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,

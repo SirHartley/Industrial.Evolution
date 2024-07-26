@@ -35,10 +35,7 @@ import indevo.abilities.skills.scripts.AdminGovernTimeTracker;
 import indevo.abilities.skills.scripts.MicromanagementSkillEffectScript;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
-import indevo.dialogue.research.DoritoGunFoundChecker;
-import indevo.dialogue.research.HyperspaceTopoProgressChecker;
-import indevo.dialogue.research.ResearchProjectTemplateRepo;
-import indevo.dialogue.research.SlowShipInFleetChecker;
+import indevo.dialogue.research.*;
 import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.crucible.CrucibleSpawner;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
@@ -427,6 +424,7 @@ public class ModPlugin extends BaseModPlugin {
         MicromanagementSkillEffectScript.register(); //it's not broke, it's kotlin.
         AdminGovernTimeTracker.getInstanceOrRegister();
         SlowShipInFleetChecker.register();
+        AutopulseUseChecker.register();
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();
     }
