@@ -73,7 +73,7 @@ public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
 
     @Override
     public String getIcon() {
-        return Global.getSettings().getSpriteName("intel", "important");
+        return Global.getSettings().getSpriteName("IndEvo", "galatia_proj");
     }
 
     @Override
@@ -108,12 +108,13 @@ public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
     @Override
     public void advance(float amount) {
         super.advance(amount);
-        timePassed += amount;
+        timePassed += Global.getSector().getClock().convertToDays(amount);
+        if (shouldRemoveIntel()) endAfterDelay();
     }
 
     @Override
     public boolean shouldRemoveIntel() {
-        return Misc.getDays(timePassed) > TIME_TO_DESPAWN_DAYS;
+        return timePassed > TIME_TO_DESPAWN_DAYS;
     }
 
     @Override

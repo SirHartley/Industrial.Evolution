@@ -30,6 +30,7 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
     public final ShipAPI attachedTo;
     public final SpriteAPI sprite;
     public final IntervalUtil glitchInterval = new IntervalUtil(0.2f, 0.6f);
+    public IntervalUtil currentRuntimeInterval = new IntervalUtil(1f, 2f);
 
     private final float spriteRadius;
     public int maxGlitches = 20;
@@ -113,6 +114,9 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
 
     @Override
     public void advance(float amount) {
+        //todo write something that, if ship is taking fire, makes the overlay trigger for a bit depending on damage taken
+
+        if (!attachedTo.getTravelDrive().isActive()) return;
 
         //add new glitches
         if (glitchData.size() <= 20) {
@@ -139,6 +143,7 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
 
     @Override
     public void render(CombatEngineLayers layer, ViewportAPI viewport) {
+        if (!attachedTo.getTravelDrive().isActive()) return;
 
         final float halfWidth = sprite.getWidth() / 2f;
         final float halfHeight = sprite.getHeight() / 2f;

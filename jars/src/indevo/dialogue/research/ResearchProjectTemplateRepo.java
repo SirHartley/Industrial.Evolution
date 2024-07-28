@@ -13,20 +13,61 @@ import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.dialogue.research.hullmods.CamouflageFieldEmitter;
+import indevo.dialogue.research.listeners.HasUniqueShipChecker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
 
+import javax.swing.plaf.ColorUIResource;
 import java.util.*;
 
 public class ResearchProjectTemplateRepo {
 
-    //fairy
-    //Ah yes, the autopulse. The autopulse for Hartley. The autopulse made especially for Hartley, Hartley's autopulse... that autopulse.
-
     public static Map<String, ResearchProject> RESEARCH_PROJECTS = new HashMap<String, ResearchProject>() {{
+
+        put(Ids.PROJ_MORGANA, new ResearchProject(Ids.PROJ_MORGANA,
+                "Project Morgana", 250, false) {
+
+            @Override
+            public boolean display() {
+                return HasUniqueShipChecker.isDone();
+            }
+
+            @Override
+            public CargoAPI getRewards() {
+                CargoAPI c = Global.getFactory().createCargo(true);
+                c.addHullmods(CamouflageFieldEmitter.ID, 1);
+                return c;
+            }
+
+            @Override
+            public void addTooltipOutputOnCompletion(TooltipMakerAPI tooltip) {
+                tooltip.addPara("I told you it'd work.", 10f);
+                tooltip.addPara("  - Ruddy the Greatest, Scientist (esq.)", Misc.getGrayColor(), 3f);
+            }
+
+            @Override
+            public List<RequiredItem> getRequiredItems() {
+                List<RequiredItem> list = new ArrayList<>();
+                list.add(new RequiredItem(ItemIds.RARE_PARTS, CargoAPI.CargoItemType.RESOURCES, 1f));
+                list.add(new RequiredItem(ItemIds.TRANSMITTER, CargoAPI.CargoItemType.SPECIAL, 150f));
+
+                return list;
+            }
+
+            @Override
+            public String getLongDesc() {
+                return "A one-off project headed by an incredibly weird scientist trying to make what amounts to a stealth field. Unlikely to succeed.";
+            }
+
+            @Override
+            public String getShortDesc() {
+                return "They see, but they do not realize. Hide in plain sight, because sensors are not eyes.";
+            }
+        });
 
         put(Ids.PROJ_PULSE, new ResearchProject(Ids.PROJ_PULSE, "Project Pulse", 4, false) {
 

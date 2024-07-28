@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.listeners.ShowLootListener;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import indevo.dialogue.research.GalatiaNewProjectsIntel;
 import indevo.ids.Ids;
 
 public class DoritoGunFoundChecker implements ShowLootListener, EconomyTickListener {
@@ -37,11 +38,6 @@ public class DoritoGunFoundChecker implements ShowLootListener, EconomyTickListe
 
     @Override
     public void reportEconomyTick(int iterIndex) {
-
-    }
-
-    @Override
-    public void reportEconomyMonthEnd() {
         if (isGunFound()) return;
 
         for (CargoAPI.CargoItemQuantity<String> qt : Global.getSector().getPlayerFleet().getCargo().getWeapons()) {
@@ -60,5 +56,10 @@ public class DoritoGunFoundChecker implements ShowLootListener, EconomyTickListe
                 }
             }
         }
+    }
+
+    @Override
+    public void reportEconomyMonthEnd() {
+
     }
 }

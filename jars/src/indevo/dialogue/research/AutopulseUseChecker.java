@@ -28,11 +28,6 @@ public class AutopulseUseChecker implements EconomyTickListener {
 
     @Override
     public void reportEconomyTick(int iterIndex) {
-
-    }
-
-    @Override
-    public void reportEconomyMonthEnd() {
         if (isGunFound()) return;
 
 
@@ -45,5 +40,9 @@ public class AutopulseUseChecker implements EconomyTickListener {
                 }
             }
         }
+    }
+
+    @Override
+    public void reportEconomyMonthEnd() {
     }
 }
