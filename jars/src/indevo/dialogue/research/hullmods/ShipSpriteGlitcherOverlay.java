@@ -1,10 +1,9 @@
 package indevo.dialogue.research.hullmods;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.combat.BaseCombatLayeredRenderingPlugin;
-import com.fs.starfarer.api.combat.CombatEngineLayers;
-import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.combat.ViewportAPI;
+import com.fs.starfarer.api.combat.*;
+import com.fs.starfarer.api.combat.listeners.DamageListener;
+import com.fs.starfarer.api.combat.listeners.DamageTakenModifier;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
@@ -25,7 +24,7 @@ import static org.lwjgl.opengl.GL11.glVertex2f;
  * Thank you for supporting my incredibly stupid ideas!
  */
 
-public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin {
+public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin implements DamageTakenModifier {
 
     public final ShipAPI attachedTo;
     public final SpriteAPI sprite;
@@ -42,7 +41,7 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
         final float maxLifetime;
         final float creationTimestamp;
 
-        final IntervalUtil xJitterInterval = new IntervalUtil(0.1f, 0.5f);
+        final IntervalUtil xJitterInterval = new IntervalUtil(0.1f, 0.3f);
         final Color colour;
 
         float yPos;
@@ -112,11 +111,33 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
     //todo need to mess with the colours a little, I don't really like how they come out
         //particularly when they end up in yellow
 
+    public static final float RUNTIME_UNIT = 0.75f;
+    public static final float MAX_RUNTIME = 3.5f;
+    public static final float DAMAGE_PER_RUNTIME_UNIT = 1000f;
+    public static final float SHIELD_REDUCTION_MULT = 0.33f;
+
+    @Override
+    public String modifyDamageTaken(Object param, CombatEntityAPI target, DamageAPI damage, Vector2f point, boolean shieldHit) {
+        if (damage.getDamage() < DAMAGE_PER_RUNTIME_UNIT) return null;
+        float amt = damage.getDamage() / DAMAGE_PER_RUNTIME_UNIT;
+        float seconds = Math.min(amt * RUNTIME_UNIT, MAX_RUNTIME);
+        if (shieldHit) seconds *= SHIELD_REDUCTION_MULT;
+        currentRuntimeInterval = new IntervalUtil(seconds, seconds);
+
+        return null;
+    }
+
+    public boolean shouldRun(){
+        return attachedTo.getTravelDrive().isActive() || currentRuntimeInterval != null;
+    }
+
     @Override
     public void advance(float amount) {
-        //todo write something that, if ship is taking fire, makes the overlay trigger for a bit depending on damage taken
+        //this is dirty af
+        if (!shouldRun()) return;
 
-        if (!attachedTo.getTravelDrive().isActive()) return;
+        currentRuntimeInterval.advance(amount);
+        if (currentRuntimeInterval.intervalElapsed()) currentRuntimeInterval = null;
 
         //add new glitches
         if (glitchData.size() <= 20) {
@@ -143,11 +164,12 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
 
     @Override
     public void render(CombatEngineLayers layer, ViewportAPI viewport) {
-        if (!attachedTo.getTravelDrive().isActive()) return;
+        if (!shouldRun()) return;
 
         final float halfWidth = sprite.getWidth() / 2f;
         final float halfHeight = sprite.getHeight() / 2f;
         final float angle = sprite.getAngle();
+        float alphaMult = 1 - (currentRuntimeInterval.getElapsed() / currentRuntimeInterval.getIntervalDuration());
 
         //debug flags, fuck with them with your debugger
         boolean debug = false; //master control, disable this to disable all flags
@@ -297,10 +319,11 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
                 sortedTexCoords.add(texCoords.get(points.indexOf(nextPoint)));
             }
 
+            //this renders stuff
             if (!(noRender && debug)) {
                 GL11.glEnable(GL11.GL_BLEND);
                 GL11.glEnable(GL11.GL_TEXTURE_2D);
-                Misc.setColor(data.colour);
+                Misc.setColor(data.colour, alphaMult);
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
                 sprite.bindTexture();
                 GL11.glBegin(GL11.GL_TRIANGLE_FAN);

@@ -24,7 +24,9 @@ public class CamouflageFieldEmitter extends BaseHullMod {
 
         Map<String, Object> customData = Global.getCombatEngine().getCustomData();
         if (!customData.containsKey(key)){
-            Global.getCombatEngine().addLayeredRenderingPlugin(new ShipSpriteGlitcherOverlay(ship));
+            ShipSpriteGlitcherOverlay overlay = new ShipSpriteGlitcherOverlay(ship);
+            Global.getCombatEngine().addLayeredRenderingPlugin(overlay);
+            ship.addListener(overlay);
             customData.put(key, true);
         }
     }
