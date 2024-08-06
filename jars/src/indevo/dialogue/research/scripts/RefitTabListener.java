@@ -1,4 +1,4 @@
-package indevo.other.legioNuclearOption;
+package indevo.dialogue.research.scripts;
 
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 

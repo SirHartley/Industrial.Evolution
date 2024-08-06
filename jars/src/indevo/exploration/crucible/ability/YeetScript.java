@@ -79,7 +79,7 @@ public class YeetScript implements EveryFrameScript {
         this.maxVelocity = dist / MathUtils.clamp(timeToTravel, MIN_TRAVEL_TIME, MAX_TRAVEL_TIME);
 
         this.renderer = new VignetteRenderer();
-        LunaCampaignRenderer.addRenderer(renderer);
+        if (fleet.isPlayerFleet()) LunaCampaignRenderer.addRenderer(renderer);
 
         ModPlugin.log("YeetScript initialized. Origin: " + originLocation + ", Target: " + targetLocation);
     }
@@ -94,13 +94,15 @@ public class YeetScript implements EveryFrameScript {
 
         if (distFraction >= 0.98f) {
             unsetHighSpeedFlagsOnFleet();
+
             renderer.setDone();
             renderer = null;
+
             done = true;
             return;
         }
 
-        updateVignetteAlpha(distFraction);
+        if (fleet.isPlayerFleet()) updateVignetteAlpha(distFraction);
         setFleetVelocity(distFraction);
 
         //smoother if we allow limited control in the final approach

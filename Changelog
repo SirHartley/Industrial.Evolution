@@ -1,5 +1,8 @@
 
 --------------------------- To-do -----------------------------
+Before release
+- Clean up and re-sort the indevo/dialogue/research folder, it's terrible
+
 Playthrough notes
 - hullmod that reduces beam refire delay
 - add small ability with panel for limited pet management in the fleet
@@ -196,7 +199,7 @@ Adjusted - Corporate: Stability Bonus calculation now scales off gross income, n
 Adjusted - Corporate: Base Income x1.2 -> x1.3
 Adjusted - Corporate: Base Immigration malus -30 -> -20
 Adjusted - Corporate: immigration malus now scales with income up to -50 (-20 base, -1 per 10k income up to an additional -30 )
-Adjusted - Forge World: Halved ship building interval while keeping +DP budget/mo the same -> less frigates, more larger hulls
+Adjusted - Forge World: Halved ship building interval while keeping +DP budget/mo the same
 Adjusted - Forge World: Delivery notification now includes hull size / designation
 Fixed - General: Governments now correctly recognize patrol HQ, MilBase and high command as military
 Fixed - General: Tooltip no longer displays "click to change" when it can't actually change
