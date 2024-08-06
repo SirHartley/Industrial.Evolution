@@ -60,21 +60,21 @@ IndEvo_Artillery_mortar,Mortar Artillery,150,120,,10,,,"artillery, sub_item, str
 radius:40,
 variant:IndEvo_artilleryStation_mortar_variant,
 fleetName:Orbital Artillery,
-}",graphics/industry/artilleryStation_active.png,indevo.industries.artillery.industry.ArtilleryStation,"An ancient, domain-built strategic system defence platform. It will bombard targets with a high volume of explosive ordinance at extreme range..
+}",graphics/industry/artilleryStation_active.png,indevo.industries.artillery.industry.ArtilleryStation,"An ancient, Domain-built strategic system defence platform. It will bombard targets with a high volume of explosive ordinance at extreme range..
 
 It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500,
 IndEvo_Artillery_missile,Missile Artillery,150,120,,10,,,"artillery, sub_item, structure, important, unraidable","{
 radius:40,
 variant:IndEvo_artilleryStation_missile_variant,
 fleetName:Orbital Artillery,
-}",graphics/industry/artilleryStation_active.png,indevo.industries.artillery.industry.ArtilleryStation,"An ancient, domain-built strategic system defence platform. Launches oversized long-range target seeking ECM missiles to interdict and slow hostiles.
+}",graphics/industry/artilleryStation_active.png,indevo.industries.artillery.industry.ArtilleryStation,"An ancient, Domain-built strategic system defence platform. Launches oversized long-range target seeking ECM missiles to interdict and slow hostiles.
 
 It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500,
 IndEvo_Artillery_railgun,Railgun Artillery,150,120,,10,,,"artillery, sub_item, structure, important, unraidable","{
 radius:40,
 variant:IndEvo_artilleryStation_railgun_variant,
 fleetName:Orbital Artillery,
-}",graphics/industry/artilleryStation_active.png,indevo.industries.artillery.industry.ArtilleryStation,"An ancient, domain-built strategic system defence platform. The cruiser-sized railgun fires multiple extremely fast projectiles at high range.
+}",graphics/industry/artilleryStation_active.png,indevo.industries.artillery.industry.ArtilleryStation,"An ancient, Domain-built strategic system defence platform. The cruiser-sized railgun fires multiple extremely fast projectiles at high range.
 
 It operates semi-autonomously as the control core does not seem to accept contemporary auth keys.",500,
 ,,,,,,,,,,,,,,
@@ -125,7 +125,7 @@ This is a neutered clone of the tree they found - and what a sight to behold.
 Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1. Might affect the local wildlife.",110,
 IndEvo_CloudPainter,Cloud Painter,100,90,,10,,,"flavor, sub_item, structure, unraidable",,graphics/industry/flavour/cloud_painter.png,indevo.industries.worldwonder.industry.CloudPainter,"Technological advances in terraforming and weather control brought forth a host of impractical yet impressive implementations. Amongst them, cloud painting is considered the apex of wasteful opulence. 
 
-A network of towers spanning the entire planet eating more energy than most industries seed nano-compounds into the atmosphere to colour and form vapours into dream-like shapes; This is a childs wish come true.
+A network of towers spanning the entire planet eating more energy than most industries seed nano-compounds into the atmosphere to colour and form vapours into dream-like shapes; This is a child's wish come true.
 
 Causes recent unrest on this planet to decay at a rate of one point per month, and increases the stability of all planets in the system by 1. Allows cloud texture control.",110,
 ,,,,,,,,,,,,,,
