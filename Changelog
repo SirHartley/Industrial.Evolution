@@ -4,7 +4,6 @@ Before release
 - Clean up and re-sort the indevo/dialogue/research folder, it's terrible
 
 Playthrough notes
-- hullmod that reduces beam refire delay
 - add small ability with panel for limited pet management in the fleet
 - Add a proper edict selection UI, for remote operation as well
 - add some more info/tt/notifications to governments
@@ -101,10 +100,11 @@ Fixed - No longer spawn in hidden systems
 Distress Calls
 todo Added - Adapted and expanded Vayras Sector distress call system (it would have crashed had anyone actually used it.)
 todo Added - The original 6 Ghost Ship distress calls
-Note - What I "ported" was really just the concept and texts. I rewrote the implementation from the ground up because it was a mess.
+todo Note - What I "ported" was really just the concept and texts. I rewrote the implementation from the ground up because it was a mess.
 
 Pets
 Added - Expected lifetime indicator on Cryochamber
+Added - Astral Squid image courtesy of Pyrophage
 Adjusted - locking yourself out of the Lord Foog dialogue on Mazalot is no longer permanent and will reset in time depending on what you did
 Adjusted - Pet food order number adjusted to rank right next to heavy machinery, making it less of a hassle to sort your inventory
 Fixed - Bug where the dialogue for assigning a pet didn't pop up for players with apple computers (get a proper PC please)
@@ -113,6 +113,7 @@ Removed - Orbital pet stations around a planet (too much clutter for the use the
 
 Items
 Added - Relic components will now drop from all automated ships that were destroyed (even modded)
+Added - Relic component configuration for RAT Abyss, KOL boss factions
 Adjusted - Relic components no longer drop from battles with the luddic path
 Adjusted - Removed most VPCs from Historian pool
 Adjusted - Conflict/Exploration Package VPCs moved from Historian T4 to Historian T3
@@ -151,7 +152,8 @@ Fixed - Other Mods will no longer spawn an Artillery on game start if the settin
 
 Embassy
 Added - An active ambassador will now reduce the points gained in hostile activity through their faction by up to 40% depending on your relationship
-todo - Added - Optional toggle to make them increase the impact instead. Just talk to them.
+Added - Optional toggle to make them increase the impact instead. Just talk to them.
+Adjusted - Brought dialogue format in line with vanilla
 
 Privateer Base
 Adjusted - Output decay adjusted from 2/mo -> 1/mo
@@ -170,7 +172,6 @@ Restoration docks
 Added - "Can not transfer" text for ships with the unrestorable tag
 
 Academy
-todo check if pulling admin from duty will leave "ungoverned colony" or if game auto assigns yourself
 Adjusted - Can now pull admins from active duty
 Adjusted - Now displays where, and if, an admin is assigned in the selection list
 Fixed - Can no longer decivilize galatia (mod conflict)

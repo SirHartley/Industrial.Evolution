@@ -109,7 +109,7 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
     //max x jitter of new copies
 
     //todo need to mess with the colours a little, I don't really like how they come out
-        //particularly when they end up in yellow
+    //particularly when they end up in yellow
 
     public static final float RUNTIME_UNIT = 0.75f;
     public static final float MAX_RUNTIME = 3.5f;
@@ -127,14 +127,11 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
         return null;
     }
 
-    public boolean shouldRun(){
-        return attachedTo.getTravelDrive().isActive() || currentRuntimeInterval != null;
-    }
-
     @Override
     public void advance(float amount) {
         //this is dirty af
-        if (!shouldRun()) return;
+        if (attachedTo.getTravelDrive().isActive()) currentRuntimeInterval = new IntervalUtil(1, 2); //I dont care that this is trash code
+        if (currentRuntimeInterval == null) return;
 
         currentRuntimeInterval.advance(amount);
         if (currentRuntimeInterval.intervalElapsed()) currentRuntimeInterval = null;
@@ -148,7 +145,7 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
                             Global.getCombatEngine().getTotalElapsedTime(false),
                             MathUtils.getRandomNumberInRange(2, 12),
                             MathUtils.getRandomNumberInRange(-spriteRadius, spriteRadius), //todo will need to somehow weight this so that the glitches are spread out a lttle more
-                             new Color(MathUtils.getRandomNumberInRange(0, 255), MathUtils.getRandomNumberInRange(0, 255), MathUtils.getRandomNumberInRange(0, 255), MathUtils.getRandomNumberInRange(0, 255))
+                            new Color(MathUtils.getRandomNumberInRange(0, 255), MathUtils.getRandomNumberInRange(0, 255), MathUtils.getRandomNumberInRange(0, 255), MathUtils.getRandomNumberInRange(0, 255))
                     )
             );
         }
@@ -164,7 +161,7 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
 
     @Override
     public void render(CombatEngineLayers layer, ViewportAPI viewport) {
-        if (!shouldRun()) return;
+        if (currentRuntimeInterval == null) return;
 
         final float halfWidth = sprite.getWidth() / 2f;
         final float halfHeight = sprite.getHeight() / 2f;
@@ -413,6 +410,7 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
     public float getRenderRadius() {
         return Float.MAX_VALUE;
     }
+
     public static void vector2fTogl(Vector2f vector) {
         glVertex2f(vector.x, vector.y);
     }

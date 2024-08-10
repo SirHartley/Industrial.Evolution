@@ -25,6 +25,7 @@ import java.util.List;
 public class HAAmbassadorEventFactor extends BaseEventFactor {
 
     public static final float AMBASSADOR_MAX_IMPACT_REDUCTION = 0.4f;
+    public static final String HAA_SABOTAGE_MEMORY_KEY = "$IndEvo_HAASabotage";
 
     public HAAmbassadorEventFactor() {
     }
@@ -38,9 +39,15 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
 
                 tooltip.addPara("Your Political influence through ambassadorial work, based on your active Embassies and your reputation with the relevant faction.", 0f);
 
-                tooltip.addPara("A positive reputation allows your ambassador to reduce the impact of the faction by up to %s"+
+                boolean isSabotaging = getIsSabotaging();
+                if (isSabotaging) tooltip.addPara("Your ambassadors are working to accelerate the actions taken by their faction by up to %s"+
                                 ", scaling with your total reputation up to the embassy reputation cap.", 3f, Misc.getHighlightColor(),
                         StringHelper.getAbsPercentString(AMBASSADOR_MAX_IMPACT_REDUCTION, false));
+                else tooltip.addPara("A positive reputation allows your ambassador to reduce the impact of the faction by up to %s"+
+                                ", scaling with your total reputation up to the embassy reputation cap.", 3f, Misc.getHighlightColor(),
+                        StringHelper.getAbsPercentString(AMBASSADOR_MAX_IMPACT_REDUCTION, false));
+
+                tooltip.addPara("You can adjust this by talking to one of your ambassadors.", opad);
 
                 for (FactionAPI faction : getFactionsWithAmbassadors()){
                     FactionAPI player = Global.getSector().getPlayerFaction();
@@ -48,7 +55,9 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
                     int repInt = (int) Math.ceil((Math.round(player.getRelationship(faction.getId()) * 100f)));
 
                     String factionName = faction.getDisplayName();
-                    int reductionInPts = -1 * Math.round(getReductionAmtForFaction(faction));
+                    int reductionInPts = Math.round(getReductionAmtForFaction(faction));
+                    if (!isSabotaging) reductionInPts *= -1;
+
                     String standing = "[" + repInt + "/" + (int) (Embassy.BASE_MAX_RELATION * 100) + "] (" + level.getDisplayName().toLowerCase() + ")";
                     Color relColor = faction.getRelColor(player.getId());
 
@@ -69,12 +78,17 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
     public int getProgress(BaseEventIntel intel) {
         float total = 0f;
         for (FactionAPI f : getFactionsWithAmbassadors()) total += getReductionAmtForFaction(f);
-        return Math.round(total) * -1; //amt to reduce
+
+        int redOrAdd = getIsSabotaging() ? 1 : -1;
+
+        return Math.round(total) * redOrAdd;
     }
 
     @Override
     public String getProgressStr(BaseEventIntel intel) {
-        if (getProgress(intel) >= 0) return "";
+        boolean isSabotaging = getIsSabotaging();
+        if (!isSabotaging && getProgress(intel) >= 0) return "";
+        else if (isSabotaging && getProgress(intel) <= 0) return "";
         return super.getProgressStr(intel);
     }
 
@@ -96,11 +110,11 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
 
         for (EventFactor eventFactor : HostileActivityEventIntel.get().getFactors()){
             if (eventFactor instanceof HostileActivityFactor){
-                String descFaction = eventFactor.getDesc(null);
-                String nameForThreatList = ((HostileActivityFactor) eventFactor).getNameForThreatList(false);
-                String factionName = alignedFaction.getDisplayName();
+                String descFaction = eventFactor.getDesc(null).toLowerCase();
+                String nameForThreatList = ((HostileActivityFactor) eventFactor).getNameForThreatList(false).toLowerCase();
+                String factionName = alignedFaction.getDisplayName().toLowerCase();
 
-                if (factionName.contains(descFaction) || factionName.contains(nameForThreatList) || nameForThreatList.contains(factionName)){
+                if (factionName.contains(descFaction) || factionName.contains(nameForThreatList) || nameForThreatList.contains(factionName) || descFaction.contains(factionName)){
                     factor = (HostileActivityFactor) eventFactor;
                     break;
                 }
@@ -132,5 +146,9 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
         }
 
         return factionList;
+    }
+
+    public boolean getIsSabotaging(){
+        return Global.getSector().getMemoryWithoutUpdate().getBoolean(HAA_SABOTAGE_MEMORY_KEY);
     }
 }

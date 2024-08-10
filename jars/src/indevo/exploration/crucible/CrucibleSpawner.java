@@ -59,7 +59,7 @@ public class CrucibleSpawner {
         SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc);
         spawnCatapults(crucible);
 
-        //runcode indevo.exploration.crucible.CrucibleSpawner.spawnInCurrentLoc();
+        //y
     }
 
     public static void spawn() {

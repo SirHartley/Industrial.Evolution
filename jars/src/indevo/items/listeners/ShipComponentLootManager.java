@@ -35,6 +35,9 @@ public class ShipComponentLootManager {
         put(Factions.DERELICT, 0.1f);
         put(Ids.DERELICT_FACTION_ID, 0.2f);
         put("rat_abyssals", 0.3f);
+        put("zea_dawn", 0.3f);
+        put("zea_dusk", 0.3f);
+        put("zea_elysians", 0.3f);
     }};
 
     public static final float DEFAULT_AI_SHIP_RARE_PARTS_DROP_DP_FRACTION = 0.2f;

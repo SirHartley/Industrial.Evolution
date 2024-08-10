@@ -22,6 +22,7 @@ import com.fs.starfarer.api.plugins.OfficerLevelupPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.DynamicStatsAPI;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.utils.helper.MiscIE;
@@ -422,6 +423,12 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     //admin Storage
 
     public void storeAdmin(PersonAPI person) {
+        for (MarketAPI market : Misc.getFactionMarkets(Global.getSector().getPlayerFaction())) {
+            if (market.getAdmin().getId().equals(person.getId())) {
+                market.setAdmin(Global.getSector().getPlayerPerson());
+            }
+        }
+
         Global.getSector().getCharacterData().removeAdmin(person);
         adminStorage.add(person);
     }

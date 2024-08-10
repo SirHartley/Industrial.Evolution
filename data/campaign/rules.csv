@@ -272,7 +272,7 @@ IndEvo_notAtWar
 !IndEvo_marketIsPlayerOwned","ShowPersonVisual
 ","After a short wait, your connection request is accepted.
 
-Well met, $playerName. How may I be of service?","IndEvo_ambassadorHire:Ask $personName to represent $theFaction at your Embassy
+""Well met, $playerName. How may I be of service?""","IndEvo_ambassadorHire:Ask $personName to represent $theFaction at your Embassy
 IndEvo_convEndPolite:Reconsider and leave",
 IndEvo_ambassadorGreetingWar,PickGreeting,"IndEvo_isAmbassador
 !IndEvo_notAtWar
@@ -281,13 +281,13 @@ IndEvo_ambassadorGreetingWar,PickGreeting,"IndEvo_isAmbassador
 ","ShowPersonVisual
 ","After a short wait, your connection request is accepted.
 
-You? What are you doing here? $theFaction is not exactly on speaking terms with you! I will have to report this contact, and you should leave - quickly.",IndEvo_convEnd:Leave,
+""You? What are you doing here? $theFaction is not exactly on speaking terms with you! I will have to report this contact, and you should leave - quickly.""",IndEvo_convEnd:Leave,
 IndEvo_ambassadorGreetingFail,PickGreeting,"IndEvo_isAmbassador
 IndEvo_ambFactionMismatch
 !IndEvo_marketIsPlayerOwned","ShowPersonVisual
 ","After a short wait, your connection request is accepted.
 
-Ah, $playerName. Please don't mind me, I'm in the process of packing my things and will be gone in a day.
+""Ah, $playerName. Please don't mind me, I'm in the process of packing my things and will be gone in a day.""
 
 $personName seems to be in a hurry to leave this place before someone gets the idea to accelerate $hisOrHer removal.",IndEvo_convEndPolite:Leave,
 IndEvo_ambassadorHireFail,DialogOptionSelected,"$option == IndEvo_ambassadorHire
@@ -295,15 +295,15 @@ IndEvo_ambassadorHireFail,DialogOptionSelected,"$option == IndEvo_ambassadorHire
 ","You already have a $theFaction ambassador on board. Please bring them to their post and then come back, should the need for another representative still remain.",IndEvo_convEndPolite:Leave,
 IndEvo_ambassadorNoFreeEmbassy,DialogOptionSelected,"$option == IndEvo_ambassadorHire
 !IndEvo_playerHasFreeEmbassy","ShowPersonVisual
-",My assistant just let me know that you do not have an office available. I look forward to discussing my potential employment as soon as you have a free post at an Embassy.,IndEvo_convEndPolite:Leave,
+","""My assistant just let me know that you do not have an office available. I look forward to discussing my potential employment as soon as you have a free post at an Embassy.""",IndEvo_convEndPolite:Leave,
 IndEvo_ambassadorHire,DialogOptionSelected,"$option == IndEvo_ambassadorHire
 IndEvo_noActiveAmbInCargo
 IndEvo_playerHasFreeEmbassy","ShowPersonVisual
-AddTextSmall ""You will have to transfer the Ambassador to an Embassy within 2 months, or someone might come looking for $himOrHer and cause trouble. Losing the Ambassador, or worse, getting $himOrHer killed, will cause a massive incident and permanently damage relations."" marketFlavorTextColor","I will gladly take on this responsibility. We can depart immediately, if you so wish.","IndEvo_ambassadorConfirm:Ask the Ambassador to prepare for departure.
+AddTextSmall ""You will have to transfer the Ambassador to an Embassy within 2 months, or someone might come looking for $himOrHer and cause trouble. Losing the Ambassador, or worse, getting $himOrHer killed, will cause a massive incident and permanently damage relations."" marketFlavorTextColor","""I will gladly take on this responsibility. We can depart immediately, if you so wish.""","IndEvo_ambassadorConfirm:Ask the Ambassador to prepare for departure.
 IndEvo_convEndPolite:Reconsider and leave",
 IndEvo_ambassadorConfirm,DialogOptionSelected,$option == IndEvo_ambassadorConfirm,"ShowDefaultVisual
 EndConversation
-IndEvo_addAmbassadorToCargo","Thank you for your trust, I look forward to my future post.",,
+IndEvo_addAmbassadorToCargo","""Thank you for your trust, I look forward to my future post.""",,
 #END IndEvo foreignMarketAmbassadorDialogue,,,,,,
 ,,,,,,
 # IndEvo PlayerMarketAmbassadorDialogue,,,,,,
@@ -312,47 +312,73 @@ IndEvo_marketIsPlayerOwned
 IndEvo_marketHasIndustry IndEvo_embassy
 ","ShowPersonVisual
 IndEvo_displayAmbassadorMoveOption 2
-","After a short wait, your connection request is accepted.
+FireAll IndEvo_AmbassadorMenu","After a short wait, your connection request is accepted.
 
-Well met, $playerName. How may I be of service?","1:IndEvo_ambassadorRemove:Dismiss $personName from $hisOrHer duties.
-3:IndEvo_convEndPolite:Leave",
+""Well met, $playerName. How may I be of service?""",,
 IndEvo_ambassadorGreetingNoEmbassy,PickGreeting,"IndEvo_isAmbassador
 IndEvo_marketIsPlayerOwned
 !IndEvo_marketHasIndustry IndEvo_embassy","ShowPersonVisual
 ","After a short wait, your connection request is accepted.
 
 Hello, $playerName. Don't mind me, please, I'm just packing my things and will be gone within a day.",IndEvo_convEndPolite:Leave,
+IndEvo_ambassadorMenu,IndEvo_AmbassadorMenu,,,,"1:IndEvo_ambassadorRemove:Dismiss $personName from $hisOrHer duties.
+2:IndEvo_ambSabotageRep:Request adjustments to $hisOrHer political strategy
+3:IndEvo_convEndPolite:Leave",
+IndEvo_showAmbassadorMenu,DialogOptionSelected,$option == IndEvo_showAmbassadorMenu,"ShowPersonVisual
+FireAll IndEvo_AmbassadorMenu
+",,,
 IndEvo_ambassadorRemove1,DialogOptionSelected,"$option == IndEvo_ambassadorRemove
 IndEvo_checkForRepResponse INHOSPITABLE","ShowPersonVisual
-AddTextSmall ""This action will not cause a reputation penalty due to the inhospitable relations between your factions."" marketFlavorTextColor","Yes, this might be a good idea. I am saddened to see my efforts go to waste, but it seems like there is no other option.",IndEvo_convEndPolite:Wish $himOrHer well and leave,
+AddTextSmall ""This action will not cause a reputation penalty due to the inhospitable relations between your factions."" marketFlavorTextColor","""Yes, this might be a good idea. I am saddened to see my efforts go to waste, but it seems like there is no other option.""",IndEvo_convEndPolite:Wish $himOrHer well and leave,
 IndEvo_ambassadorRemove2,DialogOptionSelected,"$option == IndEvo_ambassadorRemove
 IndEvo_checkForRepResponse SUSPICIOUS","ShowPersonVisual
-AddTextSmall ""This action will cause a minor reputation penalty due to the suspicious climate between your factions."" marketFlavorTextColor","We have come quite far together, and these trifling rumours could be a thing of the past with just a bit more work. I understand where you are coming from, but are you sure you want to do this?","IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
+AddTextSmall ""This action will cause a minor reputation penalty due to the suspicious climate between your factions."" marketFlavorTextColor","After a short wait, your connection request is accepted.
+
+""Hello, $playerName. Don't mind me, please, I'm just packing my things and will be gone within a day.""","IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
 IndEvo_convEndPolite:Reconsider and leave",
 IndEvo_ambassadorRemove3,DialogOptionSelected,"$option == IndEvo_ambassadorRemove
 IndEvo_checkForRepResponse NEUTRAL","ShowPersonVisual
-AddTextSmall ""This action will cause a reputation penalty. It is seen as uncalled for to dismiss an ambassador without good reason."" marketFlavorTextColor",I am quite surprised you wish me gone. Have my efforts not satisfied your wishes? The Relations between our factions are in a good place and improving every month!,"IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
+AddTextSmall ""This action will cause a reputation penalty. It is seen as uncalled for to dismiss an ambassador without good reason."" marketFlavorTextColor","""I am quite surprised you wish me gone. Have my efforts not satisfied your wishes? The Relations between our factions are in a good place and improving every month!""","IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
 IndEvo_convEndPolite:Reconsider and leave",
 IndEvo_ambassadorRemove4,DialogOptionSelected,"$option == IndEvo_ambassadorRemove
 IndEvo_checkForRepResponse FAVORABLE","ShowPersonVisual
-AddTextSmall ""This action will cause a major reputation penalty. Dismissing the Ambassador of a friendly faction is a diplomatic insult."" marketFlavorTextColor","You wish me gone? Why? Our factions have good relations to each other, there is no reason for me to leave my post! This will not go over well with the public.","IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
+AddTextSmall ""This action will cause a major reputation penalty. Dismissing the Ambassador of a friendly faction is a diplomatic insult."" marketFlavorTextColor","""You wish me gone? Why? Our factions have good relations to each other, there is no reason for me to leave my post! This will not go over well with the public.""","IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
 IndEvo_convEndPolite:Reconsider and leave",
 IndEvo_ambassadorRemove5,DialogOptionSelected,"$option == IndEvo_ambassadorRemove
 IndEvo_checkForRepResponse WELCOMING","ShowPersonVisual
-AddTextSmall ""This action will cause an extreme reputation penalty. At this relation stage, the only reason to dismiss an Ambassador is intentional sabotage of the political position of a faction."" marketFlavorTextColor",Is this some kind of joke? Why don't you come visit and we'll have a drink and talk about this. You must be aware that this would cause a massive public incident!,"IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
+AddTextSmall ""This action will cause an extreme reputation penalty. At this relation stage, the only reason to dismiss an Ambassador is intentional sabotage of the political position of a faction."" marketFlavorTextColor","""Is this some kind of joke? Why don't you come visit and we'll have a drink and talk about this. You must be aware that this would cause a massive public incident!""","IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
 IndEvo_convEndPolite:Reconsider and leave",
 IndEvo_ambassadorRemove6,DialogOptionSelected,"$option == IndEvo_ambassadorRemove
 IndEvo_checkForRepResponse FRIENDLY","ShowPersonVisual
-AddTextSmall ""This action will cause an extreme reputation penalty. At this relation stage, the only reason to dismiss an Ambassador is intentional sabotage of the political position of a faction."" marketFlavorTextColor",Is this some kind of joke? Why don't you come visit and we'll have a drink and talk about this. You must be aware that this would cause a massive public incident!,"IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
+AddTextSmall ""This action will cause an extreme reputation penalty. At this relation stage, the only reason to dismiss an Ambassador is intentional sabotage of the political position of a faction."" marketFlavorTextColor","""Is this some kind of joke? Why don't you come visit and we'll have a drink and talk about this. You must be aware that this would cause a massive public incident!""","IndEvo_ambassadorRemovalConfirm:Wish $himOrHer well and reaffirm your dismissal.
 IndEvo_convEndPolite:Reconsider and leave",
 IndEvo_ambassadorRemovalConfirm,DialogOptionSelected,$option == IndEvo_ambassadorRemovalConfirm,"ShowDefaultVisual
 EndConversation
 IndEvo_ambassadorRemoval",You cut the comm link after some more discussion. The Ambassador will leave for $hisOrHer old post.,,
 IndEvo_ambMoveOption,DialogOptionSelected,$option == IndEvo_ambMoveOption,"ShowDefaultVisual
 EndConversation
-IndEvo_moveAmbassadorToClosestEmbassy","Alright, I will head to my new post as soon as possible.",,
+IndEvo_moveAmbassadorToClosestEmbassy","""Alright, I will head to my new post as soon as possible.""",,
+IndEvo_ambSabotageRep,DialogOptionSelected,$option == IndEvo_ambSabotageRep,"ShowPersonVisual
+AddTextSmall ""This option will make all your active ambassadors use their influence to increase their factions contribution towards a hostile activity event."" marketFlavorTextColor","""Not a problem. The sudden change in policy may cause confusion, but nothing that a glass of brandy can't fix.""","IndEvo_ambSabotageRep_confirm: Confirm
+IndEvo_showAmbassadorMenu: On second thought...
+",
+IndEvo_ambStopSabotageRep,DialogOptionSelected,"$option == IndEvo_ambStopSabotageRep
+$global.IndEvo_HAASabotage","ShowPersonVisual
+AddTextSmall ""This will make all your active ambassadors use their influence to decrease their factions contribution towards a hostile activity event."" marketFlavorTextColor","""Sure. I'll need some funds to alleviate the political whiplash our allies may experience, but I'll take that out of the usual budget.""
+$HeOrShe pauses for a second.
+
+""And I'll need some R&R after this.""","IndEvo_ambStopSabotageRep_confirm: Confirm
+IndEvo_showAmbassadorMenu: On second thought...",
+IndEvo_ambSabotageRep_confirm,DialogOptionSelected,$option == IndEvo_ambSabotageRep_confirm,"ShowPersonVisual
+FireAll IndEvo_AmbassadorMenu
+$global.IndEvo_HAASabotage = true","""Done! Anything else?""",,
+IndEvo_ambStopSabotageRep_confirm,DialogOptionSelected,$option == IndEvo_ambStopSabotageRep_confirm,"ShowPersonVisual
+FireAll IndEvo_AmbassadorMenu
+$global.IndEvo_HAASabotage = false","""Done! Anything else?""",,
 #END IndEvo PlayerMarketAmbassadorDialogue,,,,,,
-,,,,,,
+,,,"ShowPersonVisual
+FireAll IndEvo_AmbassadorMenu
+$global.IndEvo_HAASabotage = true",,,
 # IndEvo ambassador convEnd,,,,,,
 IndEvo_convEndPolite,DialogOptionSelected,$option == IndEvo_convEndPolite,"ShowDefaultVisual
 EndConversation",You cut the comm link after exchanging a few pleasantries.,,
