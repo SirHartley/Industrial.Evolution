@@ -98,7 +98,7 @@ You can see hundreds of multi-legged repair bots crawling over the outer station
 There is a good chance that the platform can be restored to functionality under your control after it has been disabled by combat.","1:IndEvo_ArtilleryCombatInteraction:Approach the station
 2:defaultLeave:Leave",
 IndEvo_ArtilleryCombatInteraction,DialogOptionSelected,$option == IndEvo_ArtilleryCombatInteraction,IndEvo_SalvageDefenderInteraction,"As if the massive turret was not enough of a threat, more and more enemy signatures appear on the radar as soon as you maneuver closer.",,
-IndEvo_ArtilleryBeatPlanet,BeatDefendersContinue,$IndEvo_ArtilleryStation score:1000,,"With the autmated defense platform out of the way, your $shipOrFleet may finish its approach to the planet.",0:IndEvo_ArtilleryDefeatPopulateOptions:Continue,
+IndEvo_ArtilleryBeatPlanet,BeatDefendersContinue,$IndEvo_ArtilleryStation score:1000,,"With the automated defense platform out of the way, your $shipOrFleet may finish its approach to the planet.",0:IndEvo_ArtilleryDefeatPopulateOptions:Continue,
 IndEvo_ArtilleryBeatStation,BeatDefendersContinue,"$IndEvo_ArtilleryStation score:1000
 $tag:IndEvo_Artillery",,Your $shipOrFleet disengages as the defence stations loses any structural integrity it might have had left in a fiery display. The way to the planet is now clear.,0:defaultLeave:Continue,
 IndEvo_ArtilleryDefeatPopulateOptions,DialogOptionSelected,$option == IndEvo_ArtilleryDefeatPopulateOptions,FireAll OpenInteractionDialog,,,
@@ -127,7 +127,7 @@ IndEvo_JobMenuInit,DialogOptionSelected,$option == IndEvo_JobMenuInit,ResearchPr
 #Converters,,,,,,
 IndEvo_DysonSwarmMenu,OpenInteractionDialog,$tag:dyson_swarm score:1000,"ShowDefaultVisual
 SetShortcut beaconLeave ""ESCAPE""",An autonomous warning beacon has been left emitting a distorted wail between official channels. Whatever message it was meant to convey has been corrupted.,beaconLeave:Leave,
-greetingConverter,OpenCommLink,$faction.id == IndEvo_converters score:1000,$entity.ignorePlayerCommRequests = true 1,"""[TARGET ID] unavailable // scan............completed. [TARGET ID] matter composition inefficent.
+greetingConverter,OpenCommLink,$faction.id == IndEvo_converters score:1000,$entity.ignorePlayerCommRequests = true 1,"""[TARGET ID] unavailable // scan............completed. [TARGET ID] matter composition inefficient.
 
 CALCULATING_
 
@@ -173,7 +173,7 @@ OR
 
 [Initiating local awareness shard]
 [Mind matrix handoff successful]
-[Def.Prioritiy_ convert]
+[Def.Priority_ convert]
 [Disconnect]""",cutCommLink:Cut the comm link,
 ,,,,,,
 #Spacer Event,,,,,,
@@ -225,7 +225,7 @@ I will take what is mine.
 OR
 So you have chosen death. There will be no mercy.
 OR
-Give me back my ludd damn money!
+Give me back my Ludd-damn money!
 OR
 I'm going to make sure the last thing you see is a hammer torpedo.
 OR
@@ -252,7 +252,7 @@ $menuState == main
 IndEvo_marketHasIndustry IndEvo_ScrapYard
 !IndEvo_requiresColonyMenuPoint",,,99:IndEvo_IntitiateYardsMenu:Visit the Salvage Yards,
 IndEvo_SalvageYardsColonyOptionMenu,IndEvo_ColonyOptionPoint,IndEvo_marketHasIndustry IndEvo_ScrapYard,,,2:IndEvo_IntitiateYardsMenu:Visit the Salvage Yards,
-IndEvo_IntitiateYardsMenu,DialogOptionSelected,$option == IndEvo_IntitiateYardsMenu,FireAll IndEvo_YardsBaseMenu,"An unpleasant, acrid odor and the sounds of industrial machinery greet you as the shuttle airlock cycles. The scenery is impressive in its own way - halfway disassembled hulls lie still behind heaps of parts and scrap, carcasses of great vessesls that used to travel the stars, now nothing more than trash to be disassembled and reused. Drones hover above, efficiently transporting the spoils to wherever they have to go.
+IndEvo_IntitiateYardsMenu,DialogOptionSelected,$option == IndEvo_IntitiateYardsMenu,FireAll IndEvo_YardsBaseMenu,"An unpleasant, acrid odor and the sounds of industrial machinery greet you as the shuttle airlock cycles. The scenery is impressive in its own way - halfway disassembled hulls lie still behind heaps of parts and scrap, carcasses of great vessels that used to travel the stars, now nothing more than trash to be disassembled and reused. Drones hover above, efficiently transporting the spoils to wherever they have to go.
 
 A foreman gestures at you impatiently as you step down the ramp.",,
 IndEvo_SYCustomProductionPanel,IndEvo_YardsBaseMenu,,"SetTooltip IndEvo_SYCustomProductionPanel_init ""The Salvage Yards can construct ships for you if you provide the blueprints and components that are too rare to ""acquire"".""",,1:IndEvo_SYCustomProductionPanel_init:Ask about ship assembly,
@@ -383,7 +383,7 @@ $global.IndEvo_HAASabotage = true",,,
 IndEvo_convEndPolite,DialogOptionSelected,$option == IndEvo_convEndPolite,"ShowDefaultVisual
 EndConversation",You cut the comm link after exchanging a few pleasantries.,,
 IndEvo_convEnd,DialogOptionSelected,$option == IndEvo_convEnd,"ShowDefaultVisual
-EndConversation",The comm link is apruptly cut.,,
+EndConversation",The comm link is abruptly cut.,,
 #END IndEvo ambassador convEnd,,,,,,
 #END Embassy,,,,,,
 ,,,,,,
@@ -442,7 +442,7 @@ IndEvo_AcademyBaseMenu_GA,PopulateOptions,"$id == station_galatia_academy
 RepIsAtWorst $faction.id INHOSPITABLE",,,3:IndEvo_IntitiateAcademyMenu:Visit the Academy proper,
 IndEvo_AcademyBaseColonyOptionMenu,IndEvo_ColonyOptionPoint,IndEvo_marketHasIndustry IndEvo_Academy,,,2:IndEvo_IntitiateAcademyMenu:Visit the Academy,
 IndEvo_IntitiateAcademyMenu,DialogOptionSelected,$option == IndEvo_IntitiateAcademyMenu,"FireAll IndEvo_AcademyBaseMenu
-IndEvo_DisplayTrainingStatus","People in official looking uniforms hurry past you as you travel the well trodden corridors of the Academy towards the administrative offices. Casual congregations of students discussing current events contrast sharply with the military personell present for training, but the atmosphere seems to be harmonious in light of the shared interests of both groups.",,
+IndEvo_DisplayTrainingStatus","People in official looking uniforms hurry past you as you travel the well trodden corridors of the Academy towards the administrative offices. Casual congregations of students discussing current events contrast sharply with the military personnel present for training, but the atmosphere seems to be harmonious in light of the shared interests of both groups.",,
 IndEvo_AcademyReturnToColonyScreen,IndEvo_AcademyBaseMenu,$id != station_galatia_academy,"SetShortcut IndEvo_SelectreturnToMenu ""ESCAPE""",,9:IndEvo_SelectreturnToMenu:Return,
 IndEvo_AcademyReturnToColonyScreen_GA,IndEvo_AcademyBaseMenu,$id == station_galatia_academy,"SetShortcut gaMeetingEnd ""ESCAPE""",,9:gaMeetingEnd:Return,
 #END Academy Base menu,,,,,,

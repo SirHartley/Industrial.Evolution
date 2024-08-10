@@ -355,7 +355,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
         if (currTooltipMode == null || currTooltipMode != IndustryTooltipMode.NORMAL) {
             return "Your engineers are baffled at the sight of massive arrays looking to be nothing other than modified antimatter blasters, arranged in a ring of titanic proportions. Its purpose is unknown.";
         } else
-            return "Judging by the surviving marks and some working terminals, this installation is an experimental domain compound researching ship digitization. No standard Domain Blueprint seems to fit the equipment."
+            return "Judging by the surviving marks and some working terminals, this installation is an experimental Domain compound researching ship digitization. No standard Domain Blueprint seems to fit the equipment."
                     + "\n\nThere are frequent mentions of something called a Forge Template, and of other structures working on partner programs.";
     }
 

@@ -1,6 +1,6 @@
 fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
 IndEvo_header0,Disclaimer,Header,Disclaimer,,,,,General
-IndEvo_text0,,Text,No gurantees for stability if you fuck with anything in here because I did not test it and probably never will.,,,,,General
+IndEvo_text0,,Text,No guarantees for stability if you fuck with anything in here because I did not test it and probably never will.,,,,,General
 IndEvo_text_application_note,,Text,Some settings will not apply unless you start a new game.,,,,,General
 IndEvo_header1,General,Header,General,,,,,General
 IndEvo_shipPickerRowCount,[General] Ship Picker Row Count,Int,8,,The row amount in most of the ship picker dialogues in the mod. This one is for DemonX3#6370 who badgered me to add this for a year straight.,0,100,General
@@ -8,13 +8,13 @@ IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,Comme
 IndEvo_Corruption,[General] Corrupt Colony Officials,Boolean,FALSE,,"This enables a mode in which your colonies will start bleeding money the more you make. It means getting a colony above 200k income is an incredible feat, but getting it to 50-100k is just like vanilla. Calculated along f(x)=x^(-0.8)",,,General
 IndEvo_CorruptionCutoff,[General] Corruption Income Cutoff,Int,50000,,Income up until this number is not penalized by corruption (if enabled),0,200000,General
 IndEvo_header2,Industries,Header,Industries,,,,,Industries
-IndEvo_AdManuf,[Industries] Variable Manufactory,Boolean,TRUE,,Enables or disables the Variable Manufactory. Note that disabling the Variable industries will not stop VPCs from dropping - you will have to remove the entries from drop_groups.csv to achive that.,,,Industries
+IndEvo_AdManuf,[Industries] Variable Manufactory,Boolean,TRUE,,Enables or disables the Variable Manufactory. Note that disabling the Variable industries will not stop VPCs from dropping - you will have to remove the entries from drop_groups.csv to achieve that.,,,Industries
 IndEvo_AdAssem,[Industries] Variable Assembler,Boolean,TRUE,,Enables or disables the Variable Assembler,,,Industries
 IndEvo_ComForge,[Industries] Commodity Forge,Boolean,TRUE,,Enables or disables the Commodity Forge,,,Industries
 IndEvo_ComArray,[Industries] Military Relays,Boolean,TRUE,,Enables or disables the Military Relay,,,Industries
 IndEvo_IntArray,[Industries] Interstellar Relay,Boolean,TRUE,,Enables or disables the Interstellar Relay,,,Industries
 IndEvo_AdInfra,[Industries] Centralization Bureau,Boolean,TRUE,,Enables or disables the Centralization Bureau,,,Industries
-IndEvo_ScrapYard,[Industries] Salvage Yards,Boolean,TRUE,,"Enables or disables Salvage Yards, disable this to disable starship components. No, you can not have one without the other, go suck a dick. Dont forget the drop group.",,,Industries
+IndEvo_ScrapYard,[Industries] Salvage Yards,Boolean,TRUE,,"Enables or disables Salvage Yards, disable this to disable starship components. No, you can not have one without the other, go suck a dick. Don't forget the drop group.",,,Industries
 IndEvo_SupCom,[Industries] Supercomputer,Boolean,TRUE,,Enables or disables the Supercomputer,,,Industries
 IndEvo_embassy,[Industries] Embassy,Boolean,TRUE,,"Enables or disables the Embassy, also disables Ambassador management scripts.",,,Industries
 IndEvo_senate,[Industries] Senate,Boolean,TRUE,,Enables or disables the Senate,,,Industries
@@ -29,7 +29,7 @@ IndEvo_SwitchableMining,[Industries] Specialized Mining,Boolean,TRUE,,Enables or
 IndEvo_GovernmentLarpMode,[Governance] Government Larping,Boolean,FALSE,,Setting this to true makes planetary governments behave like vanilla pop&infra and turns them into a cosmetic choice.,,,Industries
 IndEvo_GovernmentMaxSize,[Governance] Max size for government change,Int,3,,Specifies how large a colony may be to in order to change the government type. Building up a stable colony and then changing is cheating and takes away from how these are supposed to work: higher rewards for higher difficulties.,,,Industries
 IndEvo_derelictDeliverToGathering,[Derelict Industries] Deliver to Gathering Point,Boolean,FALSE,,All derelict industry output will be delivered to the gathering point instead of local storage. Remember - courier port exists.,,,Industries
-IndEvo_DerInfraBuildRed,[Derelict Industries] Derelict Infra Cost Reduction,Double,0.5,,Derelict infra build cost and time reductuctions,,,Industries
+IndEvo_DerInfraBuildRed,[Derelict Industries] Derelict Infra Cost Reduction,Double,0.5,,Derelict infra build cost and time reductions,,,Industries
 IndEvo_header3,Exploration & Campaign,Header,Exploration & Campaign,,,,,Exploration & Campaign
 IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Toggles Pets, the pet cryochamber dropping in campaign, abandoned pet stations spawning and the industry being available.",,,Exploration & Campaign
 IndEvo_Enable_Derelicts,[Exploration] Events and Industries,Boolean,TRUE,,Enables salvage events as well as derelict infrastructure and industries,,,Exploration & Campaign
@@ -71,7 +71,7 @@ IndEvo_Artillery_railgun_shotFuzzMult,[Railgun Artillery] Shot Fuzziness,Double,
 IndEvo_Artillery_missile_projectilesPerShot,[Missile Artillery] Projectiles per Shot,Int,4,,Must be divisible by 2,1,30,Artillery
 IndEvo_Artillery_missile_projectilesImpactTime,[Missile Artillery] Time to Impact,Double,8,,,1,60,Artillery
 IndEvo_Artillery_missile_maxCoveredArea,[Missile Artillery] Missile Roaming Area,Double,800,,Maximum area the missiles cover - also depends on fuzz,1,10000,Artillery
-IndEvo_Artillery_missile_fuzz,[Missile Artillery] Shot Fuzziness,Double,1,,"How accurate the missiles anticipate your location, less than 1 makes em kinda useles",1,10,Artillery
+IndEvo_Artillery_missile_fuzz,[Missile Artillery] Shot Fuzziness,Double,1,,"How accurately the missiles anticipate your location; less than 1 makes 'em kinda useless",1,10,Artillery
 IndEvo_Artillery_missile_explosionRadius,[Missile Artillery] Explosion Radius,Double,200,,,1,1000,Artillery
 IndEvo_Artillery_missile_duration,[Missile Artillery] Roaming Duration,Double,10,,,1,60,Artillery
 IndEvo_header6,Industry Settings,Header,Industry Settings,,,,,Industries
@@ -80,9 +80,9 @@ IndEvo_AutoshipBPToGatheringPoint,[Engineering Hub] Auto Transfer BP to Gatherin
 IndEvo_RarePartsAmountPerFP,[Salvage Yards] Relic Components per FP,Int,2,,Required Relic Components per FP for zero D-Mods,1,10,Industries
 IndEvo_SYBaseDMods,[Salvage Yards] Base D-Mod Amount,Int,5,,Base D-Mod count on ships built via the Yards,1,10,Industries
 IndEvo_SYPartValueMult,[Salvage Yards] Ship Component Value Mult,Double,1.2,,Mult for how much components contribute towards the budget - default means every component contributes 1.2x its standard cost towards the budget,,,Industries
-IndEvo_SYHullDeliveryTime,[Salvage Yards] Delivery Thyme,Int,60,,Italian Sounds while person on crotch rocket delivers paragon to hungry space captain,1,365,Industries
+IndEvo_SYHullDeliveryTime,[Salvage Yards] Delivery Thyme,Int,60,,Italian Sounds while person on crotch rocket delivers Paragon to hungry space captain,1,365,Industries
 IndEvo_SYDModMoveBaseCostMult,[Salvage Yards] D-Mod Moving Base Cost Mult,Double,0.8,,"How much it costs to move a D-Mod compared to restoring it. By default, it's cheaper to move the D-mod by 0.8x the restoration cost. I think. Can't remember, might also be total cost.",,,Industries
-IndEvo_RaidForUnknownOnly,[Privateer Base] Raid only for Unknown BPs,Boolean,FALSE,,"Allows the Priateer base to raid for blueprints you already know. Setting this to TRUE will make it only generate BPs you do not know, instead of a mix",,,Industries
+IndEvo_RaidForUnknownOnly,[Privateer Base] Raid only for Unknown BPs,Boolean,FALSE,,"Allows the Privateer base to raid for blueprints you already know. Setting this to TRUE will make it only generate BPs you do not know, instead of a mix",,,Industries
 IndEvo_PrivateerDeliverToGatheringPoint,[Privateer Base] Deliver to Gathering Point,Boolean,FALSE,,Auto-deliver the looted items to the gathering point. Remember - courier port exists.,,,Industries
 IndEvo_RG_cooldownTime,[Rift Generator] Cooldown,Int,90,,,1,365,Industries
 IndEvo_RG_range,[Rift Generator] Range,Int,9,,in LY,1,100,Industries

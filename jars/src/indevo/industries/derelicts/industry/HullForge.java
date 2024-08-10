@@ -460,11 +460,11 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
         if (currTooltipMode == null || currTooltipMode != IndustryTooltipMode.NORMAL) {
             return "Your Engineers are confronted by what seems to resemble a massive nanoforge encased in an equally large installation. its purpose is unknown.";
         } else if (market.getName().toLowerCase().equals("eurobeat") || Global.getSettings().getBoolean("IndEvo_ToggleMagicRandomSelector")) {
-            return "The data remaining on the semi functional servers indicate this installation as an experimental domain compound researching automated ship hull creation. No standard Domain Blueprint seems to fit the equipment."
+            return "The data remaining on the semi functional servers indicate this installation as an experimental Domain compound researching automated ship hull creation. No standard Domain Blueprint seems to fit the equipment."
                     + "\n\nThere are frequent mentions of something called a Forge Template, and of other structures working on partner programs.\n\n" +
                     "Upbeat music emanates from the console, but the exact track is unknown. The amount of car crashes on the colony has drastically increased ever since this started.";
         } else
-            return "The data remaining on the semi functional servers indicate this installation as an experimental domain compound researching automated ship hull creation. No standard Domain Blueprint seems to fit the equipment."
+            return "The data remaining on the semi functional servers indicate this installation as an experimental Domain compound researching automated ship hull creation. No standard Domain Blueprint seems to fit the equipment."
                     + "\n\nThere are frequent mentions of something called a Forge Template, and of other structures working on partner programs.";
 
     }
