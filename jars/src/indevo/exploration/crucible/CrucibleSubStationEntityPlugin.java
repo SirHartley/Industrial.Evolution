@@ -33,8 +33,8 @@ public class CrucibleSubStationEntityPlugin extends BaseCustomEntityPlugin {
     protected FlickerUtilV2 flicker1 = new FlickerUtilV2(6);
 
     transient private SpriteAPI glow;
-    transient protected SpriteAPI whirl2;
-    transient protected SpriteAPI starfield;
+    transient protected SpriteAPI whirl;
+    transient protected SpriteAPI mass;
     transient protected WarpingSpriteRendererUtil warp;
 
     public void init(SectorEntityToken entity, Object pluginParams) {
@@ -63,18 +63,16 @@ public class CrucibleSubStationEntityPlugin extends BaseCustomEntityPlugin {
     Object readResolve() {
         glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
 
-        whirl2 = Global.getSettings().getSprite("gates", "glow_whirl2");
-        starfield = Global.getSettings().getSprite("gates", "starfield");
+        whirl = Global.getSettings().getSprite("IndEvo", "whirl_round");
+        mass = Global.getSettings().getSprite("gates", "starfield");
 
         //warp = new WarpingSpriteRendererUtil(10, 10, 10f, 20f, 2f);
 
         return this;
     }
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
-
-        //477 total 145 middle rad =0,31446540880503144654088050314465
-        //for whirls and funny warp
-        float size = entity.getCustomEntitySpec().getSpriteHeight() * 0.314465f;
+        //for whirls and funny warp scaling
+        float size = entity.getCustomEntitySpec().getSpriteHeight() * 0.25f;
 
         //Starfield render with warp
         if (layer == CampaignEngineLayers.TERRAIN_6B) {
@@ -85,7 +83,7 @@ public class CrucibleSubStationEntityPlugin extends BaseCustomEntityPlugin {
 
             if (warp == null) {
                 int cells = 6;
-                float cs = starfield.getWidth() / 10f;
+                float cs = mass.getWidth() / 10f;
                 warp = new WarpingSpriteRendererUtil(cells, cells, cs * 0.2f, cs * 0.2f, 2f);
             }
 
@@ -93,17 +91,15 @@ public class CrucibleSubStationEntityPlugin extends BaseCustomEntityPlugin {
 
             float glowAlpha = 1f;
 
-            starfield.setSize(size, size);
-
-            starfield.setAlphaMult(alphaMult * glowAlpha);
-            starfield.setAdditiveBlend();
-            //starfield.renderAtCenter(loc.x + 1.5f, loc.y);
+            mass.setSize(size, size);
+            mass.setAlphaMult(alphaMult * glowAlpha);
+            mass.setAdditiveBlend();
 
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            warp.renderNoBlendOrRotate(starfield, loc.x + 1.5f - starfield.getWidth() / 2f,
-                    loc.y - starfield.getHeight() / 2f, false);
+            warp.renderNoBlendOrRotate(mass, loc.x + 1.5f - mass.getWidth() / 2f,
+                    loc.y - mass.getHeight() / 2f, false);
 
             return;
         }
@@ -123,19 +119,19 @@ public class CrucibleSubStationEntityPlugin extends BaseCustomEntityPlugin {
         if (layer == CampaignEngineLayers.BELOW_STATIONS) {
             float angle1 = 360f * (rotationAngleFactor.getElapsed() / rotationAngleFactor.getIntervalDuration());
             angle1 = Misc.normalizeAngle(angle1);
-            whirl2.setSize(size, size);
-            whirl2.setAngle(angle1);
-            whirl2.setAlphaMult(alphaMult * glowAlpha * 0.4f);
-            whirl2.setAdditiveBlend();
-            whirl2.renderAtCenter(loc.x, loc.y);
+            whirl.setSize(size*0.9f, size*0.9f);
+            whirl.setAngle(angle1);
+            whirl.setAlphaMult(alphaMult * glowAlpha * 0.4f);
+            whirl.setAdditiveBlend();
+            whirl.renderAtCenter(loc.x, loc.y);
 
             float angle2 = 360f * (rotationAngleFactor2.getElapsed() / rotationAngleFactor2.getIntervalDuration());
             angle2 = Misc.normalizeAngle(angle2);
-            whirl2.setSize(size * 0.7f, size * 0.7f);
-            whirl2.setAngle(angle2);
-            whirl2.setAlphaMult(alphaMult * glowAlpha * 0.2f);
-            whirl2.setAdditiveBlend();
-            whirl2.renderAtCenter(loc.x, loc.y);
+            whirl.setSize(size * 0.7f, size * 0.7f);
+            whirl.setAngle(angle2);
+            whirl.setAlphaMult(alphaMult * glowAlpha * 0.2f);
+            whirl.setAdditiveBlend();
+            whirl.renderAtCenter(loc.x, loc.y);
 
             return;
         }

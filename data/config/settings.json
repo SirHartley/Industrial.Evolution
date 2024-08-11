@@ -276,6 +276,7 @@
           "IndEvo_eye_3": "graphics/fx/IndEvo_watchtower_3.png",
       },
       "IndEvo": {
+          "whirl_round":"graphics/fx/IndEvo_whirl_glow.png",
           "portrait_aristocrat":"graphics/portraits/indevo_persean_aristocrat.png",
           "pets_large":"graphics/icons/misc/pet_icon.png",
           "pets_small":"graphics/hullmods/pet_icon_hullmod.png",

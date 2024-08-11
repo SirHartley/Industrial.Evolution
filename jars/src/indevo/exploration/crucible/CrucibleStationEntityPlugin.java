@@ -12,6 +12,10 @@ import com.fs.starfarer.api.impl.campaign.ids.Terrain;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
 import com.fs.starfarer.api.util.FlickerUtilV2;
+import com.fs.starfarer.api.util.IntervalUtil;
+import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.WarpingSpriteRendererUtil;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -27,11 +31,17 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
 
     protected float phase1 = 0f;
     protected float phase2 = 0f;
+    protected IntervalUtil rotationAngleFactor = new IntervalUtil(2,2);
+    protected IntervalUtil rotationAngleFactor2 = new IntervalUtil(1,1);
+    protected IntervalUtil moteInterval = new IntervalUtil(3,10);
 
     protected FlickerUtilV2 flicker2 = new FlickerUtilV2(1);
     protected FlickerUtilV2 flicker1 = new FlickerUtilV2(6);
 
     transient private SpriteAPI glow;
+    transient protected SpriteAPI whirl;
+    transient protected SpriteAPI mass;
+    transient protected WarpingSpriteRendererUtil warp;
 
     public void init(SectorEntityToken entity, Object pluginParams) {
         super.init(entity, pluginParams);
@@ -40,13 +50,10 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
         readResolve();
     }
 
-    Object readResolve() {
-        //sprite = Global.getSettings().getSprite("campaignEntities", "fusion_lamp");
-        glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
-        return this;
-    }
-
     public void advance(float amount) {
+        rotationAngleFactor.advance(amount);
+        if (warp != null) warp.advance(amount);
+
         phase1 += amount * GLOW_FREQUENCY;
         while (phase1 > 1) phase1--;
 
@@ -59,7 +66,50 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
         entity.setFacing(entity.getFacing() + 0.15f);
     }
 
+    Object readResolve() {
+        glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
+
+        whirl = Global.getSettings().getSprite("IndEvo", "whirl_round");
+        mass = Global.getSettings().getSprite("gates", "starfield");
+
+        //warp = new WarpingSpriteRendererUtil(10, 10, 10f, 20f, 2f);
+
+        return this;
+    }
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
+        //for whirls and funny warp scaling
+        float size = entity.getCustomEntitySpec().getSpriteHeight() * 0.21f;
+
+        //Starfield render with warp
+        if (layer == CampaignEngineLayers.TERRAIN_6B) {
+            float alphaMult = viewport.getAlphaMult();
+            alphaMult *= entity.getSensorFaderBrightness();
+            alphaMult *= entity.getSensorContactFaderBrightness();
+            if (alphaMult <= 0f) return;
+
+            if (warp == null) {
+                int cells = 6;
+                float cs = mass.getWidth() / 10f;
+                warp = new WarpingSpriteRendererUtil(cells, cells, cs * 0.2f, cs * 0.2f, 2f);
+            }
+
+            Vector2f loc = entity.getLocation();
+
+            float glowAlpha = 1f;
+
+            mass.setSize(size, size);
+            mass.setAlphaMult(alphaMult * glowAlpha);
+            mass.setAdditiveBlend();
+
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            warp.renderNoBlendOrRotate(mass, loc.x + 1.5f - mass.getWidth() / 2f,
+                    loc.y - mass.getHeight() / 2f, false);
+
+            return;
+        }
+
         float alphaMult = viewport.getAlphaMult();
         alphaMult *= entity.getSensorFaderBrightness();
         alphaMult *= entity.getSensorContactFaderBrightness();
@@ -69,9 +119,31 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
         if (spec == null) return;
 
         Vector2f loc = entity.getLocation();
+        float glowAlpha = getGlowAlpha(phase2, flicker2);
+
+        //swirly, two layers
+        if (layer == CampaignEngineLayers.BELOW_STATIONS) {
+            float angle1 = 360f * (rotationAngleFactor.getElapsed() / rotationAngleFactor.getIntervalDuration());
+            angle1 = Misc.normalizeAngle(angle1);
+            whirl.setSize(size*0.9f, size*0.9f);
+            whirl.setAngle(angle1);
+            whirl.setAlphaMult(alphaMult * glowAlpha * 0.4f);
+            whirl.setAdditiveBlend();
+            whirl.renderAtCenter(loc.x, loc.y);
+
+            float angle2 = 360f * (rotationAngleFactor2.getElapsed() / rotationAngleFactor2.getIntervalDuration());
+            angle2 = Misc.normalizeAngle(angle2);
+            whirl.setSize(size * 0.7f, size * 0.7f);
+            whirl.setAngle(angle2);
+            whirl.setAlphaMult(alphaMult * glowAlpha * 0.2f);
+            whirl.setAdditiveBlend();
+            whirl.renderAtCenter(loc.x, loc.y);
+
+            return;
+        }
 
         //first
-        float glowAlpha = getGlowAlpha(phase1, flicker1);
+        glowAlpha = getGlowAlpha(phase1, flicker1);
         glow.setColor(GLOW_COLOR_1);
 
         float w = 600;

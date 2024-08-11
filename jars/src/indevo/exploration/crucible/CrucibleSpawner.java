@@ -156,14 +156,18 @@ public class CrucibleSpawner {
     public static SectorEntityToken spawnCrucible(LocationAPI loc, Vector2f pos, boolean subUnit) {
         SectorEntityToken bottom = loc.addCustomEntity(Misc.genUID(), null, (subUnit ? "IndEvo_sub_crucible_bottom" : "IndEvo_crucible_bottom"), null, null);
         SectorEntityToken top = loc.addCustomEntity(Misc.genUID(), null, (subUnit ? "IndEvo_sub_crucible_top" : "IndEvo_crucible_top"), null, null);
+        SectorEntityToken scaffold = null;
+        if (!subUnit) scaffold = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_scaffold", null, null);
 
         PlanetAPI sun = ((StarSystemAPI) loc).getStar();
         if (sun != null && !loc.isNebula()) {
             float adjustedOrbitDur = Math.min(364f, 31f / (1000f / Misc.getDistance(pos, sun.getLocation())));
             bottom.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur);
+            if (scaffold != null) scaffold.setCircularOrbitWithSpin(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur, 90f, 90f);
             top.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur);
         }  else {
             bottom.setLocation(pos.x, pos.y);
+            if (scaffold != null) scaffold.setLocation(pos.x, pos.y);
             top.setLocation(pos.x, pos.y);
         }
 
