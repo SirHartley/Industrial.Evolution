@@ -222,7 +222,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
 
     private void createNewParticleV2() {
         CampaignFleetAPI playerFleet = getFleet();
-        Vector2f playerLocation = playerFleet.getLocation();
+        Vector2f playerLocation = new Vector2f(playerFleet.getLocation());
 
         if (currentTargetLoc == null) return;
 

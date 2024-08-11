@@ -57,7 +57,7 @@ public class PlayerFleetFollower implements EveryFrameScript {
 
         if (containingLoc != token.getContainingLocation()) update();
 
-        Vector2f loc = fleet.getLocation();
+        Vector2f loc = new Vector2f(fleet.getLocation());
         token.setLocation(loc.x, loc.y);
     }
 

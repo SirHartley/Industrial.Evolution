@@ -53,7 +53,7 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
         float penalty = incomeAboveCutoff - (incomeAboveCutoff * reduction); //credit value that the colony is earning over the target, should be deducted from income
         float red = (income - penalty) / income;
 
-        ModPlugin.log("income: " + income + " " + "maxIncomeBeforePenalty: " + maxIncomeBeforePenalty + " "+ "x: " + x + " "+ "incomeAboveCutoff: " + incomeAboveCutoff + " "+ "reduction: " + reduction + " " + "penalty: " + penalty + " " + " red factor " + red);
+        //ModPlugin.log("income: " + income + " " + "maxIncomeBeforePenalty: " + maxIncomeBeforePenalty + " "+ "x: " + x + " "+ "incomeAboveCutoff: " + incomeAboveCutoff + " "+ "reduction: " + reduction + " " + "penalty: " + penalty + " " + " red factor " + red);
 
         //can't apply flat red to income directly, thx alex
         //market.getIndustry(Industries.POPULATION).getIncome().modifyFlat(getModId()+"_corruption", -penalty, "Corruption");

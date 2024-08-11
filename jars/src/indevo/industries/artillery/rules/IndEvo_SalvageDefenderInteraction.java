@@ -113,7 +113,7 @@ public class IndEvo_SalvageDefenderInteraction extends BaseCommandPlugin {
                         }
 
                         if (persistDefenders) {
-                            if (!entity.hasScriptOfClass(FleetAdvanceScript.class)) {
+                            if (!entity.hasScriptOfClass(FleetAdvanceScript.class) && !entity.isPlayerFleet()) { //???????
                                 defenders.setDoNotAdvanceAI(true);
                                 defenders.setContainingLocation(entity.getContainingLocation());
                                 // somewhere far off where it's not going to be in terrain or whatever

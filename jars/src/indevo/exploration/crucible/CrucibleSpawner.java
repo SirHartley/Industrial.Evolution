@@ -27,6 +27,7 @@ public class CrucibleSpawner {
     public static final float DIST_PER_FITTING_ATTEMPT = 700f;
     public static final float MAGNETIC_FIELD_WIDTH = 300f;
     public static final float CATAPULT_ADDITIONAL_ORBIT_DIST = 45f;
+    public static final float CATAPULT_SUBUNIT_ADDITIONAL_ORBIT_DIST = 53f;
 
     public static void removeFromCurrentLoc(){
         StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();
@@ -56,10 +57,23 @@ public class CrucibleSpawner {
         if (targetSystem == null) return;
         Vector2f spawnLoc = getSpawnLoc(targetSystem); //no need to nullcheck because it will hang the game if it doesn't find one
 
-        SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc);
-        spawnCatapults(crucible);
+        boolean subUnit = false;
+        SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
+        spawnCatapults(crucible, subUnit);
 
-        //y
+        //runcode indevo.exploration.crucible.CrucibleSpawner.spawnInCurrentLoc();
+    }
+
+    public static void spawnInCurrentLocSubUnit(){
+        StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();
+        if (targetSystem == null) return;
+        Vector2f spawnLoc = getSpawnLoc(targetSystem); //no need to nullcheck because it will hang the game if it doesn't find one
+
+        boolean subUnit = true;
+        SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
+        spawnCatapults(crucible, subUnit);
+
+        //runcode indevo.exploration.crucible.CrucibleSpawner.spawnInCurrentLocSubUnit();
     }
 
     public static void spawn() {
@@ -67,8 +81,9 @@ public class CrucibleSpawner {
         if (targetSystem == null) return;
         Vector2f spawnLoc = getSpawnLoc(targetSystem); //no need to nullcheck because it will hang the game if it doesn't find one
 
-        SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc);
-        spawnCatapults(crucible);
+        boolean subUnit = false;
+        SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
+        spawnCatapults(crucible, subUnit);
         ModPlugin.log("Spawned Crucible in " + targetSystem.getName() + " --- " + targetSystem.getBaseName());
     }
 
@@ -138,9 +153,9 @@ public class CrucibleSpawner {
         return nebulaSystem;
     }
 
-    public static SectorEntityToken spawnCrucible(LocationAPI loc, Vector2f pos) {
-        SectorEntityToken bottom = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_bottom", null, null);
-        SectorEntityToken top = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_top", null, null);
+    public static SectorEntityToken spawnCrucible(LocationAPI loc, Vector2f pos, boolean subUnit) {
+        SectorEntityToken bottom = loc.addCustomEntity(Misc.genUID(), null, (subUnit ? "IndEvo_sub_crucible_bottom" : "IndEvo_crucible_bottom"), null, null);
+        SectorEntityToken top = loc.addCustomEntity(Misc.genUID(), null, (subUnit ? "IndEvo_sub_crucible_top" : "IndEvo_crucible_top"), null, null);
 
         PlanetAPI sun = ((StarSystemAPI) loc).getStar();
         if (sun != null && !loc.isNebula()) {
@@ -171,7 +186,7 @@ public class CrucibleSpawner {
         return top;
     }
 
-    public static void spawnCatapults(SectorEntityToken crucible){
+    public static void spawnCatapults(SectorEntityToken crucible, boolean subUnit){
         List<PlanetAPI> planets = crucible.getContainingLocation().getPlanets();
         WeightedRandomPicker<Color> colourPicker = YeetopultColourList.getWeightedRandomPicker();
         List<SectorEntityToken> crucibleBoundCatapults = new ArrayList<>();
@@ -199,12 +214,12 @@ public class CrucibleSpawner {
         //spawn in a circle around the crucible, fuck alignment
         int amt = crucibleBoundCatapults.size();
         float angleSpacing = 360f / amt;
-        float orbitRadius = crucible.getRadius() + CATAPULT_ADDITIONAL_ORBIT_DIST;
+        float orbitRadius = crucible.getRadius() + (subUnit ? CATAPULT_SUBUNIT_ADDITIONAL_ORBIT_DIST : CATAPULT_ADDITIONAL_ORBIT_DIST);
         int i = 1;
 
         for (SectorEntityToken catapult : crucibleBoundCatapults) {
             //"IndEvo_crucible_arm"
-            crucible.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_arm", null, new CrucibleArmEntityPlugin.CrucibleArmEntityPluginParams(catapult, crucible));
+            crucible.getContainingLocation().addCustomEntity(Misc.genUID(), null, (subUnit ? "IndEvo_sub_crucible_arm" : "IndEvo_crucible_arm"), null, new CrucibleArmEntityPlugin.CrucibleArmEntityPluginParams(catapult, crucible));
             catapult.setCircularOrbit(crucible, angleSpacing * i, orbitRadius, orbitRadius / 10f);
             i++;
         }

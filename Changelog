@@ -225,8 +225,12 @@ Added - now have their own storage after being restored
 Added - now have music (by Haplogynae, thank you so much!)
 
 todo Helios Crucible
+repair the superstructure in one system
+build a smaller sub-unit in another system
+that one works as trains station
+
 Added - New Superstructure
-Added - Buildable in your system after you recover the relevant parts, allows for fast travel between planets. Incredibly useful.
+Added - Buildable in your system after you recover the relevant parts, allows for fast travel between local planets. Incredibly useful.
 
 Derelict Industries
 Adjusted - Will no longer spawn duplicate ruins in the same system (if two spawn, they will be different types)

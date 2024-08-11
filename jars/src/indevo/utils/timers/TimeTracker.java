@@ -20,7 +20,7 @@ public class TimeTracker implements EveryFrameScript {
 
     //debug-Logger
     private static void debugMessage(String Text) {
-        boolean DEBUG = false; //set to false once done
+        boolean DEBUG = Global.getSettings().isDevMode(); //set to false once done
         if (DEBUG) {
             Global.getLogger(TimeTracker.class).info(Text);
         }

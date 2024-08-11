@@ -92,6 +92,8 @@ public class YeetScript implements EveryFrameScript {
         float totalDistance = Misc.getDistance(originLocation, targetLocation);
         float distFraction = currentDistance / totalDistance;
 
+        //ModPlugin.log("YeetScript running: " + distFraction + ", fleet: " + fleet.getName());
+
         if (distFraction >= 0.98f) {
             unsetHighSpeedFlagsOnFleet();
 
