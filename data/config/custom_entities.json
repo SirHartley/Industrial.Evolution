@@ -230,6 +230,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"tags":["IndEvo_crucible_scaffold"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+		"pluginClass":"indevo.exploration.crucible.CrucibleScaffoldRotationEntityPlugin",
 	},
 
 	"IndEvo_crucible_bottom":{

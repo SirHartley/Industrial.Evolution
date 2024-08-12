@@ -63,14 +63,14 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
         flicker1.advance(amount * 1f);
         flicker2.advance(amount * 1f);
 
-        entity.setFacing(entity.getFacing() + 0.15f);
+        entity.setFacing(entity.getFacing() - 0.13f);
     }
 
     Object readResolve() {
         glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
 
         whirl = Global.getSettings().getSprite("IndEvo", "whirl_round");
-        mass = Global.getSettings().getSprite("gates", "starfield");
+        mass = Global.getSettings().getSprite("IndEvo", "crucible_mass");
 
         //warp = new WarpingSpriteRendererUtil(10, 10, 10f, 20f, 2f);
 
@@ -78,7 +78,7 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
     }
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         //for whirls and funny warp scaling
-        float size = entity.getCustomEntitySpec().getSpriteHeight() * 0.21f;
+        float size = entity.getCustomEntitySpec().getSpriteHeight() * 0.22f;
 
         //Starfield render with warp
         if (layer == CampaignEngineLayers.TERRAIN_6B) {
@@ -90,7 +90,7 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
             if (warp == null) {
                 int cells = 6;
                 float cs = mass.getWidth() / 10f;
-                warp = new WarpingSpriteRendererUtil(cells, cells, cs * 0.2f, cs * 0.2f, 2f);
+                warp = new WarpingSpriteRendererUtil(cells, cells, cs * 0.2f, cs * 0.2f, 3f);
             }
 
             Vector2f loc = entity.getLocation();

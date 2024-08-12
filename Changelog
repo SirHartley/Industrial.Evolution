@@ -179,6 +179,7 @@ Fixed - Can no longer decivilize galatia (mod conflict)
 Courier Port
 Added - Can now ship to Automated Shipyards (once repaired)
 Added - Can now ship to and from RAT settlements
+Fixed - No longer crashes when shipping marines from a market that stops existing during transport (Marines will lose their XP, small price to pay)
 
 Specialized industries
 Fixed - Specialized Mining now has correct outputs

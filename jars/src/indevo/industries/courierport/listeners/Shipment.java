@@ -118,7 +118,8 @@ public class Shipment implements NewDayListener, EveryFrameScript {
             toCargo.getMothballedShips().addFleetMember(m);
         }
 
-        if (cargo.getMarines() > 0) {
+        //https://fractalsoftworks.com/forum/index.php?topic=30438.msg0 crashes when origin null, bandaid fix bc cant be arsed
+        if (cargo.getMarines() > 0 && contract.getFromMarket() != null) {
             PlayerFleetPersonnelTracker tracker = PlayerFleetPersonnelTracker.getInstance();
             PlayerFleetPersonnelTracker.PersonnelAtEntity from = tracker.getDroppedOffAt(Commodities.MARINES, contract.getFromMarket().getPrimaryEntity(), contract.getFromSubmarket(), true);
             PlayerFleetPersonnelTracker.PersonnelAtEntity to = tracker.getDroppedOffAt(Commodities.MARINES, toSubmarket.getMarket().getPrimaryEntity(), toSubmarket, true);

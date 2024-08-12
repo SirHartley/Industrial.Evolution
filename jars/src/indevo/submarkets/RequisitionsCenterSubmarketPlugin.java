@@ -8,13 +8,17 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
+import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflater;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
+import com.fs.starfarer.api.loading.FighterWingSpecAPI;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.plugins.impl.CoreAutofitPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.RequisitionCenter;
@@ -55,15 +59,15 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
 
                 int weapons = 5
                         + Math.max(0, market.getSize() - 1 + factAmt)
-                        + (com.fs.starfarer.api.util.Misc.isMilitary(market) ? 5 : 0)
+                        + (Misc.isMilitary(market) ? 5 : 0)
                         + (getLocalAICoreId().equals(Commodities.ALPHA_CORE) ? 5 : 0);
 
                 int fighters = 1
                         + Math.max(0, (market.getSize() - 1 + factAmt) / 2)
-                        + (com.fs.starfarer.api.util.Misc.isMilitary(market) ? 2 : 0);
+                        + (Misc.isMilitary(market) ? 2 : 0);
 
                 addWeapons(weapons, weapons + 5);
-                //addFighters(weapons, weapons + 5);
+                //addFighters(fighters, fighters + 5);
 
             } else if (AmbassadorPersonManager.hasAmbassador(market)) {
 
@@ -71,12 +75,12 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
                 FactionAPI faction = AmbassadorPersonManager.getAmbassador(market).getFaction();
                 int weapons = 7
                         + Math.max(0, market.getSize() - 1)
-                        + (com.fs.starfarer.api.util.Misc.isMilitary(market) ? 5 : 0)
+                        + (Misc.isMilitary(market) ? 5 : 0)
                         + (getLocalAICoreId().equals(Commodities.ALPHA_CORE) ? 5 : 0);
 
                 int fighters = 3
                         + Math.max(0, (market.getSize() - 1) / 2)
-                        + (com.fs.starfarer.api.util.Misc.isMilitary(market) ? 2 : 0);
+                        + (Misc.isMilitary(market) ? 2 : 0);
 
                 addWeapons(weapons, weapons + 2, faction.getId());
                 //addFighters(fighters, fighters + 2, faction.getId());
@@ -364,8 +368,8 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
         super.createTooltipAfterDescription(tooltip, expanded);
 
         if (!playerPaidToUnlock) {
-            tooltip.addPara("Requires a one-time access fee of %s. Unlike normal markets, it will have large and rare weapons for sale if your standing is good enough.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(),
-                    "" + com.fs.starfarer.api.util.Misc.getDGSCredits(getUnlockCost() * 1f));
+            tooltip.addPara("Requires a one-time access fee of %s. Unlike normal markets, it will have large and rare weapons for sale if your standing is good enough.", 10f, Misc.getHighlightColor(),
+                    "" + Misc.getDGSCredits(getUnlockCost() * 1f));
             return;
         }
 
@@ -412,9 +416,9 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
         Highlights h = new Highlights();
         h.setText("" + getUnlockCost());
         if (canPlayerAffordUnlock()) {
-            h.setColors(com.fs.starfarer.api.util.Misc.getHighlightColor());
+            h.setColors(Misc.getHighlightColor());
         } else {
-            h.setColors(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
+            h.setColors(Misc.getNegativeHighlightColor());
         }
         return h;
     }
