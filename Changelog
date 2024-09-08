@@ -103,8 +103,11 @@ todo Added - The original 6 Ghost Ship distress calls
 todo Note - What I "ported" was really just the concept and texts. I rewrote the implementation from the ground up because it was a mess.
 
 Pets
+Added - Light in a Jar, not a vengeful spirit - for mipacem7 (thank you for your contribution!)
+Added - Odder, the mutant space otter - for Felcaster (thank you for your contribution!)
 Added - Expected lifetime indicator on Cryochamber
 Added - Astral Squid image courtesy of Pyrophage
+Added - All other missing pet images courtesy of me
 Adjusted - locking yourself out of the Lord Foog dialogue on Mazalot is no longer permanent and will reset in time depending on what you did
 Adjusted - Pet food order number adjusted to rank right next to heavy machinery, making it less of a hassle to sort your inventory
 Fixed - Bug where the dialogue for assigning a pet didn't pop up for players with apple computers (get a proper PC please)
@@ -156,7 +159,7 @@ Added - Optional toggle to make them increase the impact instead. Just talk to t
 Adjusted - Brought dialogue format in line with vanilla
 
 Privateer Base
-Adjusted - Output decay adjusted from 2/mo -> 1/mo
+Adjusted - Output decay adjusted from 2/mo -> 1/mo (this is a buff)
 Adjusted - Now properly reflects alignment when placed on Managed Democracy world
 Adjusted - Raid Timeout for star systems increased from 3 months -> 8 months (6 with a beta core)
 Fixed - Devmode crash when target factions are zero (just for you Histi <3)
@@ -177,7 +180,7 @@ Adjusted - Now displays where, and if, an admin is assigned in the selection lis
 Fixed - Can no longer decivilize galatia (mod conflict)
 
 Courier Port
-Added - Can now ship to Automated Shipyards (once repaired)
+Added - Can now ship to (and only TO, not from!) Automated Shipyards once they are restored
 Added - Can now ship to and from RAT settlements
 Fixed - No longer crashes when shipping marines from a market that stops existing during transport (Marines will lose their XP, small price to pay)
 

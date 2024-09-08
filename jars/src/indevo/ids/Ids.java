@@ -25,6 +25,7 @@ public class Ids {
     public static final String TAG_WATCHTOWER = "IndEvo_watchtower";
     public static final String TAG_SYSTEM_HAS_ARTILLERY = "IndEvo_SystemHasArtillery";
     public static final String MEM_SYSTEM_DISABLE_WATCHTOWERS = "$IndEvo_SystemDisableWatchtowers";
+    public static final String TAG_YEETOPULT = "IndEvo_yeetopult";
 
     //Submarkets
     public static final String REPSTORAGE = "IndEvo_RepairStorage";

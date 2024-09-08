@@ -29,9 +29,10 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public static final float TRIGGER_RADIUS = 30f;
-    public static final float ANIM_TIME = 0.1f;
+    public static final float ANIM_TIME = 0.4f;
     public Color color;
     public static float GLOW_FREQUENCY = 0.2f; // on/off cycles per second
+    public static float DEFAULT_EXPLOSION_SIZE = 60f;
     protected float phase1 = 0f;
     protected FlickerUtilV2 flicker1 = new FlickerUtilV2(6);
     protected boolean doAnimation = false;
@@ -39,6 +40,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
     transient private SpriteAPI glow;
     public String targetEntity;
     public String pairedCatapult = null;
+    public float currentExplosionSize = DEFAULT_EXPLOSION_SIZE;
 
     public void init(SectorEntityToken entity, Object pluginParams) {
         super.init(entity, pluginParams);
@@ -80,6 +82,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         if (!entity.isInCurrentLocation() || animProgress >= ANIM_TIME) {
             doAnimation = false;
             animProgress = 0f;
+            currentExplosionSize = DEFAULT_EXPLOSION_SIZE;
             return;
         }
 
@@ -87,9 +90,22 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         SectorEntityToken playerTarget = fleet.getInteractionTarget();
         if (playerTarget != null && playerTarget == entity && Misc.getDistance(fleet, entity) < entity.getRadius() + TRIGGER_RADIUS) {
             fleet.addScript(new YeetScript(fleet, getTarget()));
-            doAnimation = true;
+            fireAnimation(DEFAULT_EXPLOSION_SIZE, true);
+        }
+    }
+
+    public void fireAnimation(float size, boolean sound){
+        if (entity.isVisibleToPlayerFleet() && sound){
+            float volumeDistance = 1000f; //nothing at 1000f
+            float distance = Misc.getDistance(Global.getSector().getPlayerFleet(), entity);
+            float fract = 1 - MathUtils.clamp(distance / volumeDistance, 0,1);
+
+            Global.getSoundPlayer().playSound("IndEvo_mote_yeet", MathUtils.clamp(color.getRed() / 125f, 0.3f, 2f), fract * 0.66f, entity.getLocation(), new Vector2f(0f, 0f));
         }
 
+        animProgress = 0f;
+        currentExplosionSize = size;
+        doAnimation = true;
     }
 
     public Vector2f getTarget(){
@@ -99,6 +115,10 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         if (getTarget() == null || color == null) return;
+
+        //we render above the station if doing anim, otherwise, station
+        if (!doAnimation && layer == CampaignEngineLayers.ABOVE_STATIONS) return;
+        else if (doAnimation && layer == CampaignEngineLayers.STATIONS) return;
 
         float alphaMult = viewport.getAlphaMult();
         alphaMult *= entity.getSensorFaderBrightness();
@@ -114,8 +134,9 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
 
         float factor = 1;
 
-        if (doAnimation) factor = (float) MiscIE.smootherstep(0, ANIM_TIME, animProgress) * 100f;
-
+        if (doAnimation) {
+            factor = getQuadFunctAlpha(animProgress / ANIM_TIME) * currentExplosionSize;
+        }
 
         float w = 50 * factor;
         float h = 50 * factor;
@@ -136,6 +157,11 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
             glow.setAlphaMult(alphaMult * glowAlpha * 0.67f);
             glow.renderAtCenter(renderLoc.x, renderLoc.y);
         }
+    }
+
+    public float getQuadFunctAlpha(float fract){
+        //this is a quadratic function going 0-1-0 between 0 and 1, returing 1 at fract = 0.5
+        return (float) (-4f * Math.pow(fract, 2f) + 4f + fract);
     }
 
     public float getFlickerBasedMult(FlickerUtilV2 flicker) {
