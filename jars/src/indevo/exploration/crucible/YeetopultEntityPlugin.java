@@ -100,7 +100,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
             float distance = Misc.getDistance(Global.getSector().getPlayerFleet(), entity);
             float fract = 1 - MathUtils.clamp(distance / volumeDistance, 0,1);
 
-            Global.getSoundPlayer().playSound("IndEvo_mote_yeet", MathUtils.clamp(color.getRed() / 125f, 0.3f, 2f), fract * 0.66f, entity.getLocation(), new Vector2f(0f, 0f));
+            Global.getSoundPlayer().playSound("IndEvo_mote_yeet", 0.75f + 0.75f * MathUtils.clamp(color.getBlue() / 255f, 0, 1f), fract * 0.5f, entity.getLocation(), new Vector2f(0f, 0f));
         }
 
         animProgress = 0f;

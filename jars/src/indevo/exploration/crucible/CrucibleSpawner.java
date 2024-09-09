@@ -3,6 +3,7 @@ package indevo.exploration.crucible;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.impl.MusicPlayerPluginImpl;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.procgen.NebulaEditor;
 import com.fs.starfarer.api.impl.campaign.procgen.StarAge;
 import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
@@ -10,8 +11,10 @@ import com.fs.starfarer.api.impl.campaign.terrain.NebulaTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import com.fs.starfarer.campaign.CircularOrbit;
+import indevo.ids.Ids;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.Settings;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -28,6 +31,10 @@ public class CrucibleSpawner {
     public static final float MAGNETIC_FIELD_WIDTH = 300f;
     public static final float CATAPULT_ADDITIONAL_ORBIT_DIST = 45f;
     public static final float CATAPULT_SUBUNIT_ADDITIONAL_ORBIT_DIST = 53f;
+
+
+    public static final String HAS_PLACED_STATIONS = "$IndEvo_hasPlacedCrucibles";
+    public static final float AMOUNT_MULT = Settings.getFloat(Settings.CRUCIBLE_NUM); //default 0.5f
 
     public static void removeFromCurrentLoc(){
         StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();
@@ -76,15 +83,25 @@ public class CrucibleSpawner {
         //runcode indevo.exploration.crucible.CrucibleSpawner.spawnInCurrentLocSubUnit();
     }
 
-    public static void spawn() {
-        StarSystemAPI targetSystem = getTargetSystem();
-        if (targetSystem == null) return;
-        Vector2f spawnLoc = getSpawnLoc(targetSystem); //no need to nullcheck because it will hang the game if it doesn't find one
 
-        boolean subUnit = false;
-        SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
-        spawnCatapults(crucible, subUnit);
-        ModPlugin.log("Spawned Crucible in " + targetSystem.getName() + " --- " + targetSystem.getBaseName());
+
+    public static void spawn() {
+        if (Global.getSector().getPersistentData().containsKey(HAS_PLACED_STATIONS)) return;
+
+        int amt = (int) Math.ceil(Global.getSector().getEntitiesWithTag(Tags.CORONAL_TAP).size() * AMOUNT_MULT);
+
+        for (int i = 0; i < amt; i++) {
+            StarSystemAPI targetSystem = getTargetSystem();
+            if (targetSystem == null) continue;
+            Vector2f spawnLoc = getSpawnLoc(targetSystem); //no need to nullcheck because it will hang the game if it doesn't find one
+
+            boolean subUnit = false;
+            SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
+            spawnCatapults(crucible, subUnit);
+            ModPlugin.log("Spawned Crucible in " + targetSystem.getName() + " --- " + targetSystem.getBaseName());
+        }
+
+        Global.getSector().getPersistentData().put(HAS_PLACED_STATIONS, true);
     }
 
     private static Vector2f getSpawnLoc(StarSystemAPI targetSystem){
@@ -128,7 +145,7 @@ public class CrucibleSpawner {
         //StarSystemAPI oldNebulaSystem = null;
 
         for (StarSystemAPI system : Global.getSector().getStarSystems()) {
-            if (!system.isNebula()) continue;
+            if (!system.isNebula() || !system.getEntitiesWithTag(Ids.TAG_YEETOPULT).isEmpty()) continue;
 
             int amt = system.getPlanets().size();
 

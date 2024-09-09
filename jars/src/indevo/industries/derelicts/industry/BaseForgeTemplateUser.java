@@ -73,7 +73,7 @@ public class BaseForgeTemplateUser extends SharedSubmarketUser {
         /* spec.setDowngrade(null);*/
 
         //needed for Forge template item tooltips
-        MemoryAPI memory = Global.getSector().getMemory();
+        MemoryAPI memory = Global.getSector().getMemoryWithoutUpdate();
         if (!memory.contains("$" + getId())) {
             Global.getSector().getMemory().set("$" + getId(), true);
         }

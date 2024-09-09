@@ -87,10 +87,6 @@
     {"file":"IndEvo/sounds/weapons/IndEvo_hartpulse.ogg","pitch":0.99,"volume":1.1},
   ],
 
-  "IndEvo_player_yeet":[
-    {"file":"IndEvo/sounds/player_yeet.ogg","pitch":1,"volume":1},
-  ],
-
   "IndEvo_mote_yeet":[
     {"file":"IndEvo/sounds/mote_yeet.ogg","pitch":1,"volume":1},
   ],

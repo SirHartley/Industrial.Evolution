@@ -12,6 +12,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Terrain;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
 import com.fs.starfarer.api.util.*;
+import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -27,7 +28,7 @@ public class CrucibleSubStationEntityPlugin extends BaseCustomEntityPlugin {
     protected float phase2 = 0f;
     protected IntervalUtil rotationAngleFactor = new IntervalUtil(2,2);
     protected IntervalUtil rotationAngleFactor2 = new IntervalUtil(1,1);
-    protected IntervalUtil moteInterval = new IntervalUtil(3,10);
+    protected IntervalUtil moteInterval = new IntervalUtil(4,15);
 
     protected FlickerUtilV2 flicker2 = new FlickerUtilV2(1);
     protected FlickerUtilV2 flicker1 = new FlickerUtilV2(6);
@@ -45,9 +46,19 @@ public class CrucibleSubStationEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public void advance(float amount) {
+        if (entity.isInCurrentLocation()){
+            float volumeDistance = 1000f;
+            float distance = Misc.getDistance(Global.getSector().getPlayerFleet(), entity);
+            float fract = 1 - MathUtils.clamp(distance / volumeDistance, 0,1);
+
+            Global.getSoundPlayer().playLoop("IndEvo_crucible_drone", entity, 1f, fract, entity.getLocation(), new Vector2f(0f, 0f));
+        }
+
         rotationAngleFactor.advance(amount);
+        moteInterval.advance(amount);
         if (warp != null) warp.advance(amount);
 
+        if (moteInterval.intervalElapsed()) spawnMote();
         phase1 += amount * GLOW_FREQUENCY;
         while (phase1 > 1) phase1--;
 
@@ -70,6 +81,22 @@ public class CrucibleSubStationEntityPlugin extends BaseCustomEntityPlugin {
 
         return this;
     }
+
+    public void spawnMote(){
+        WeightedRandomPicker<SectorEntityToken> picker = new WeightedRandomPicker<>();
+        picker.addAll(entity.getContainingLocation().getEntitiesWithTag("IndEvo_orbits_crucible"));
+
+        SectorEntityToken entity = picker.pick();
+        YeetopultEntityPlugin p = (YeetopultEntityPlugin) entity.getCustomPlugin();
+
+        Color c = p.color;
+        SectorEntityToken target2 = this.entity.getContainingLocation().getEntityById(p.pairedCatapult);
+
+        CrucibleMoteEntityPlugin.CrucibleMotePluginParams params = new CrucibleMoteEntityPlugin.CrucibleMotePluginParams(this.entity.getLocation(), entity, target2, c);
+        SectorEntityToken mote = entity.getContainingLocation().addCustomEntity(Misc.genUID(), "Crucible Mote", "IndEvo_CrucibleMote", null, params);
+        mote.setLocation(this.entity.getLocation().x, this.entity.getLocation().y);
+    }
+
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         //for whirls and funny warp scaling
         float size = entity.getCustomEntitySpec().getSpriteHeight() * 0.24f;
@@ -136,47 +163,49 @@ public class CrucibleSubStationEntityPlugin extends BaseCustomEntityPlugin {
             return;
         }
 
-        //first
-        glowAlpha = getGlowAlpha(phase1, flicker1);
-        glow.setColor(GLOW_COLOR_1);
+        if (layer == CampaignEngineLayers.ABOVE_STATIONS) {
+            //first
+            glowAlpha = getGlowAlpha(phase1, flicker1);
+            glow.setColor(GLOW_COLOR_1);
 
-        float w = 300;
-        float h = 300;
+            float w = 300;
+            float h = 300;
 
-        glow.setSize(w, h);
-        glow.setAlphaMult(alphaMult * glowAlpha * 0.3f);
-        glow.setAdditiveBlend();
-
-        glow.renderAtCenter(loc.x, loc.y);
-
-        for (int i = 0; i < 2; i++) {
-            w *= 0.3f;
-            h *= 0.3f;
-            //glow.setSize(w * 0.1f, h * 0.1f);
             glow.setSize(w, h);
             glow.setAlphaMult(alphaMult * glowAlpha * 0.3f);
+            glow.setAdditiveBlend();
+
             glow.renderAtCenter(loc.x, loc.y);
-        }
 
-        glowAlpha = getGlowAlpha(phase2, flicker2);
-        glow.setColor(GLOW_COLOR_2);
+            for (int i = 0; i < 2; i++) {
+                w *= 0.3f;
+                h *= 0.3f;
+                //glow.setSize(w * 0.1f, h * 0.1f);
+                glow.setSize(w, h);
+                glow.setAlphaMult(alphaMult * glowAlpha * 0.3f);
+                glow.renderAtCenter(loc.x, loc.y);
+            }
 
-        w = 100;
-        h = 100;
+            glowAlpha = getGlowAlpha(phase2, flicker2);
+            glow.setColor(GLOW_COLOR_2);
 
-        glow.setSize(w, h);
-        glow.setAlphaMult(alphaMult * glowAlpha * 0.3f);
-        glow.setAdditiveBlend();
+            w = 100;
+            h = 100;
 
-        glow.renderAtCenter(loc.x, loc.y);
-
-        for (int i = 0; i < 2; i++) {
-            w *= 0.3f;
-            h *= 0.3f;
-            //glow.setSize(w * 0.1f, h * 0.1f);
             glow.setSize(w, h);
             glow.setAlphaMult(alphaMult * glowAlpha * 0.3f);
+            glow.setAdditiveBlend();
+
             glow.renderAtCenter(loc.x, loc.y);
+
+            for (int i = 0; i < 2; i++) {
+                w *= 0.3f;
+                h *= 0.3f;
+                //glow.setSize(w * 0.1f, h * 0.1f);
+                glow.setSize(w, h);
+                glow.setAlphaMult(alphaMult * glowAlpha * 0.3f);
+                glow.renderAtCenter(loc.x, loc.y);
+            }
         }
     }
 

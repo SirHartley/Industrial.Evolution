@@ -84,7 +84,7 @@ Parrot	Industrial.Evolution	Frigate	EMP Frigate	Contact - SirHartley#5459
 Echo	Industrial.Evolution	Frigate	EMP Auto-Frigate	Contact - SirHartley#5459
 Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 
-3.4.1
+3.4.3
 General
 Added - Framework to add some small lore text about how a planet fell to ruin when you survey (on request by Alfonzo)
 todo Added - A few stories of demise and death
@@ -229,17 +229,15 @@ Added - now have their own storage after being restored
 Added - now have music (by Haplogynae, thank you so much!)
 
 todo Helios Crucible
-repair the superstructure in one system
-build a smaller sub-unit in another system
-that one works as trains station
-
-Added - New Superstructure
-Added - Buildable in your system after you recover the relevant parts, allows for fast travel between local planets. Incredibly useful.
+Added - New Superstructure, the Helios Crucible
+todo SPOILERS - Find one in a nebula with a large amount of planets, repair it, fire it up or move it to your own system.
+SPOILERS - Allows for fast travel between local planets. Incredibly good QOL, much better than you may think.
 
 Derelict Industries
 Adjusted - Will no longer spawn duplicate ruins in the same system (if two spawn, they will be different types)
 Adjusted - Hull Forge is now a structure (was an industry)
 Adjusted - Hull Forge beta core chance to get a working template instead of a broken one: 25% -> 60%
+Fixed - Crash when a ResLab is manually added to a planet on new game ProcGen
 Fixed - Gave Hull Deconstructor the structure tag
 Fixed - No longer (almost) exclusively spawn on abyss planets
 Fixed - No longer spawn in hidden systems

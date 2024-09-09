@@ -17,12 +17,12 @@ import java.util.Random;
 
 import static indevo.exploration.gacha.GachaStationDialoguePlugin.RANDOM;
 
-public class GachaStationPlacer {
+public class GachaStationSpawner {
 
     public static final String HAS_PLACED_STATIONS = "$IndEvo_hasPlacedStations";
     public static final float AMOUNT_MULT = Settings.getFloat(Settings.AUTOMATEDSHIPYARD_NUM); //default 1.5f
 
-    public static void place() {
+    public static void spawn() {
         if (Global.getSector().getPersistentData().containsKey(HAS_PLACED_STATIONS)) return;
 
         int amt = (int) Math.ceil(Global.getSector().getEntitiesWithTag(Tags.CORONAL_TAP).size() * AMOUNT_MULT);

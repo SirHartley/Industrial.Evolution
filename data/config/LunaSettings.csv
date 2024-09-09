@@ -34,6 +34,7 @@ IndEvo_header3,Exploration & Campaign,Header,Exploration & Campaign,,,,,Explorat
 IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Toggles Pets, the pet cryochamber dropping in campaign, abandoned pet stations spawning and the industry being available.",,,Exploration & Campaign
 IndEvo_Enable_Derelicts,[Exploration] Events and Industries,Boolean,TRUE,,Enables salvage events as well as derelict infrastructure and industries,,,Exploration & Campaign
 IndEvo_AutomatedShipyardNum,[Exploration] Automated Shipyards Amount,Double,1.5,,"Amount of Coronal Taps * number = amount of automated shipyards. Default taps is 2, so default shipyards is 3 (2 * 1.5). Rounds up.",0,10,Exploration & Campaign
+IndEvo_CrucibleNum,[Exploration] Crucible Amount,Double,0.4,,"Amount of Coronal Taps * number = amount of automated Crucibles. Default taps is 2, so default crucibles are 1 (2 * 0.5). Rounds up.",0,10,Exploration & Campaign
 IndEvo_SpecialApplicationChance,[Exploration] Special Event Application Chance,Double,0.9,,Master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing.,,,Exploration & Campaign
 IndEvo_enable_derelict_stations,[Exploration] Additional Station Types,Boolean,TRUE,,Enables the custom station types like orbital labs and arsenal stations,,,Exploration & Campaign
 IndEvo_derelictStationAmount,[Exploration] Additional Station Type Amounts,Double,0.2,,Amount of additional stations with custom types spawned on top of existing ones (0.2 = 20%% additional),,,Exploration & Campaign
@@ -71,7 +72,7 @@ IndEvo_Artillery_railgun_shotFuzzMult,[Railgun Artillery] Shot Fuzziness,Double,
 IndEvo_Artillery_missile_projectilesPerShot,[Missile Artillery] Projectiles per Shot,Int,4,,Must be divisible by 2,1,30,Artillery
 IndEvo_Artillery_missile_projectilesImpactTime,[Missile Artillery] Time to Impact,Double,8,,,1,60,Artillery
 IndEvo_Artillery_missile_maxCoveredArea,[Missile Artillery] Missile Roaming Area,Double,800,,Maximum area the missiles cover - also depends on fuzz,1,10000,Artillery
-IndEvo_Artillery_missile_fuzz,[Missile Artillery] Shot Fuzziness,Double,1,,"How accurately the missiles anticipate your location; less than 1 makes 'em kinda useless",1,10,Artillery
+IndEvo_Artillery_missile_fuzz,[Missile Artillery] Shot Fuzziness,Double,1,,How accurately the missiles anticipate your location; less than 1 makes 'em kinda useless,1,10,Artillery
 IndEvo_Artillery_missile_explosionRadius,[Missile Artillery] Explosion Radius,Double,200,,,1,1000,Artillery
 IndEvo_Artillery_missile_duration,[Missile Artillery] Roaming Duration,Double,10,,,1,60,Artillery
 IndEvo_header6,Industry Settings,Header,Industry Settings,,,,,Industries

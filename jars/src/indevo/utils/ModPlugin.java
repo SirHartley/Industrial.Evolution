@@ -44,7 +44,7 @@ import indevo.dialogue.research.listeners.HasUniqueShipChecker;
 import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.crucible.CrucibleSpawner;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
-import indevo.exploration.gacha.GachaStationPlacer;
+import indevo.exploration.gacha.GachaStationSpawner;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
 import indevo.exploration.minefields.listeners.InterdictionPulseAbilityListener;
 import indevo.exploration.minefields.listeners.RecentJumpListener;
@@ -143,7 +143,7 @@ public class ModPlugin extends BaseModPlugin {
             PersonAPI admin = OfficerManagerEvent.createAdmin(Global.getSector().getPlayerFaction(), 0, new Random());
             admin.getStats().setSkillLevel("indevo_Micromanagement", 1);
             Global.getSector().getCharacterData().addAdmin(admin);
-            CrucibleSpawner.spawn();
+            //CrucibleSpawner.spawn();
 
 
 
@@ -255,7 +255,8 @@ public class ModPlugin extends BaseModPlugin {
         NewGameIndustryPlacer.run();
         ArtilleryStationPlacer.placeDerelictArtilleries();
         ArtilleryStationPlacer.placeCoreWorldArtilleries();
-        GachaStationPlacer.place();
+        GachaStationSpawner.spawn();
+        CrucibleSpawner.spawn();
         createAcademyMarket();
 
         if (Settings.getBoolean(Settings.ENABLE_DERELICTS)) {

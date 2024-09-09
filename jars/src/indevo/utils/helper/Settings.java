@@ -30,6 +30,7 @@ public class Settings {
     public static final String DERINFRA_BUILD_RED = "IndEvo_DerInfraBuildRed";
     public static final String ENABLE_DERELICTS = "IndEvo_Enable_Derelicts";
     public static final String AUTOMATEDSHIPYARD_NUM = "IndEvo_AutomatedShipyardNum";
+    public static final String CRUCIBLE_NUM = "IndEvo_CrucibleNum";
     public static final String SPECIAL_APPLICATION_CHANCE = "IndEvo_SpecialApplicationChance";
     public static final String ENABLE_DERELICT_STATIONS = "IndEvo_enable_derelict_stations";
     public static final String DERELICT_STATION_AMOUNT = "IndEvo_derelictStationAmount";
