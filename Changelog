@@ -38,7 +38,6 @@ Known Bugs
 Requests
 - add a colony buff to automated shipyards (maybe a buff to HI? got item sprites for it anyway)
 - Add keyboard shortcuts to all indEvo industry menu points
-- Make it so if we kill the artillery station we can convert its husk into a outpost without having to colonize the planet
 - Watchtowers buildable in stable loc
 
 Ideas
@@ -105,6 +104,7 @@ todo Note - What I "ported" was really just the concept and texts. I rewrote the
 Pets
 Added - Light in a Jar, not a vengeful spirit - for mipacem7 (thank you for your contribution!)
 Added - Odder, the mutant space otter - for Felcaster (thank you for your contribution!)
+Added - Ability to manage pets in your fleet, on the go
 Added - Expected lifetime indicator on Cryochamber
 Added - Astral Squid image courtesy of Pyrophage
 Added - All other missing pet images courtesy of me
@@ -152,6 +152,7 @@ Adjusted - Watchtowers under AI control can now be hacked, but not taken over
 Fixed - No longer spawn on abyss planets
 Fixed - No longer spawn in "special" systems
 Fixed - Other Mods will no longer spawn an Artillery on game start if the setting is toggled off provided they spawn it via condition
+Fixed - Bug that caused the vanilla black hole dialogue options to get overridden (thank you for reporting that, Histidine!)
 
 Embassy
 Added - An active ambassador will now reduce the points gained in hostile activity through their faction by up to 40% depending on your relationship
@@ -165,21 +166,25 @@ Adjusted - Raid Timeout for star systems increased from 3 months -> 8 months (6 
 Fixed - Devmode crash when target factions are zero (just for you Histi <3)
 
 Senate
+Added - Industry option point to access the dialogue from the industry screen
 Fixed - Edict: Mandated Overtime now correctly decreases build times
 Fixed - Options now display the market name instead of "$market"
 
 Salvage Yards
+Added - Industry option point to access the dialogue from the industry screen
 Added - Blockades now generate extra salvage points, like raids
 
 Restoration docks
 Added - "Can not transfer" text for ships with the unrestorable tag
 
 Academy
+Added - Industry option point to access the dialogue from the industry screen
 Adjusted - Can now pull admins from active duty
 Adjusted - Now displays where, and if, an admin is assigned in the selection list
 Fixed - Can no longer decivilize galatia (mod conflict)
 
 Courier Port
+Added - Industry option point to access the dialogue from the industry screen
 Added - Can now ship to (and only TO, not from!) Automated Shipyards once they are restored
 Added - Can now ship to and from RAT settlements
 Fixed - No longer crashes when shipping marines from a market that stops existing during transport (Marines will lose their XP, small price to pay)
@@ -236,9 +241,11 @@ todo SPOILERS - Find one in a nebula with a large amount of planets, repair it, 
 SPOILERS - Allows for fast travel between local planets. Incredibly good QOL, much better than you may think.
 
 Derelict Industries
+Added - Industry option point to access the rift generator dialogue from the industry screen
 Adjusted - Will no longer spawn duplicate ruins in the same system (if two spawn, they will be different types)
 Adjusted - Hull Forge is now a structure (was an industry)
 Adjusted - Hull Forge beta core chance to get a working template instead of a broken one: 25% -> 60%
+Adjusted - Rift Generator will no longer spawn on planets with an artillery
 Fixed - Crash when a ResLab is manually added to a planet on new game ProcGen
 Fixed - Gave Hull Deconstructor the structure tag
 Fixed - No longer (almost) exclusively spawn on abyss planets

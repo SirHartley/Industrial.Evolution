@@ -13,6 +13,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
+import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.derelicts.conditions.RuinsCondition;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
@@ -178,6 +179,7 @@ public class RuinsManager {
 
         //remove riftGen if the planet has rings
         if (market.hasCondition(Conditions.SOLAR_ARRAY)
+                || market.hasCondition(ArtilleryStationCondition.ID)
                 || market.hasCondition(Ids.COND_MINERING)
                 || market.hasCondition("niko_MPC_antiAsteroidSatellites_derelict")
                 || MiscIE.planetHasRings(planet)

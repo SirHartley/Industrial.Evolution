@@ -23,6 +23,10 @@ public class StoryEntry {
         this.commsOutroText = commsOutroText;
     }
 
+    public List<String> getOptionalRequiredConditions() {
+        return optionalRequiredConditions;
+    }
+
     public String getId() {
         return id;
     }

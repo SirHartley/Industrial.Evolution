@@ -1,5 +1,7 @@
 name,id,type,tags,activationDays,activationCooldown,durationDays,deactivationDays,deactivationCooldown,unlockedAtStart,defaultForAIFleet,musicSuppression,uiOn,uiOff,uiLoop,worldOn,worldOff,worldLoop,icon,plugin,ai,desc,sortOrder
 Manage Detachment,splinter_fleet,DURATION,,0,,0.1,,,TRUE,FALSE,,,,,,,,graphics/icons/abilities/splinterFleet_icon.png,indevo.abilities.splitfleet.SplinterAbilityPlugin,,Split off or manage a detachment,951
+Manage Pets,pet_management,DURATION,,0,,0.1,,,TRUE,FALSE,,,,,,,,graphics/icons/misc/pet_icon.png,indevo.abilities.pets.PetManagementAbilityPlugin,,Manage the pets assigned to your fleet,952
+,,,,,,,,,,,,,,,,,,,,,,
 Nanite Repair Module,IndEvo_ability_nanites,DURATION,,0,,,,1,FALSE,FALSE,,ui_cargo_special_military_drop,,,,,,graphics/icons/cargo/IndEvo_consumable_nanites.png,indevo.items.consumables.itemAbilities.NanitesAbilityPlugin,,,651
 Tech Locator,IndEvo_ability_locator,DURATION,"stealth-, sensors+",0.1,,10,0.1,1,FALSE,FALSE,,ui_neutrino_detector_on,ui_neutrino_detector_off,,,,,graphics/icons/cargo/IndEvo_consumable_stabilizer.png,indevo.items.consumables.itemAbilities.LocatorAbilityPlugin,,,651
 Drive Bubble Spike,IndEvo_ability_spike,DURATION,,0,,,,0.25,FALSE,FALSE,,,,,ui_cargo_special_industrial_drop,,,graphics/icons/cargo/IndEvo_consumable_scoop.png,indevo.items.consumables.itemAbilities.SpikeAbilityPlugin,,,651

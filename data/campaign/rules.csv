@@ -243,10 +243,18 @@ IndEvo_fireColonyOptions,DialogOptionSelected,$option == IndEvo_fireColonyOption
 IndEvo_selectReturnToSelectColonyOptionPoint,IndEvo_ColonyOptionPoint,,"SetShortcut IndEvo_SelectreturnToMenu ""ESCAPE""",,9:IndEvo_SelectreturnToMenu:Return,
 IndEvo_SelectreturnToMenu,DialogOptionSelected,$option == IndEvo_SelectreturnToMenu,"$menuState = main 0
 FireAll PopulateOptions",,,
+IndEvo_SelectreturnToMenu_close,DialogOptionSelected,"$option == IndEvo_SelectreturnToMenu
+$IndEvo_closeDialogueOnNextReturn","$IndEvo_closeDialogueOnNextReturn = false
+DismissDialog",,,
+,,,,,,
 ,,,,,,
 #END Colony options base menu,,,,,,
 ,,,,,,
 #Salvage Yards,,,,,,
+IndEvo_FireSYBaseMenuFromIndustryOption,IndEvo_FireBaseSYOptionList,$IndEvo_closeDialogueOnNextReturn,FireAll IndEvo_YardsBaseMenu,"An unpleasant, acrid odor and the sounds of industrial machinery greet you as the shuttle airlock cycles. The scenery is impressive in its own way - halfway disassembled hulls lie still behind heaps of parts and scrap, carcasses of great vessels that used to travel the stars, now nothing more than trash to be disassembled and reused. Drones hover above, efficiently transporting the spoils to wherever they have to go.
+
+A foreman gestures at you impatiently as you step down the ramp.",,
+,,,,,,
 IndEvo_SalvageYardsBaseMenu,PopulateOptions,"$hasMarket
 $menuState == main
 IndEvo_marketHasIndustry IndEvo_ScrapYard
@@ -388,6 +396,12 @@ EndConversation",The comm link is abruptly cut.,,
 #END Embassy,,,,,,
 ,,,,,,
 # Senate,,,,,,
+IndEvo_FireBaseSenateOptionList,IndEvo_FireBaseSenateOptionList,$IndEvo_closeDialogueOnNextReturn,FireAll IndEvo_SenateOptions,,,
+IndEvo_NoEdictMenuPoint2_fb,IndEvo_SenateOptions,"!IndEvo_marketHasEdict
+IndEvo_systemHasSenate",,,1:IndEvo_chooseEdict:Enact an Edict for $marketName,
+IndEvo_HasEdictMenuPoint2_fb,IndEvo_SenateOptions,"IndEvo_marketHasEdict
+IndEvo_systemHasSenate",,,1:IndEvo_removeEdict:Remove the Edict for $marketName,
+IndEvo_SenateOptionsLeave,IndEvo_SenateOptions,,,,9:IndEvo_SelectreturnToMenu:Return,
 ,,,,,,
 # IndEvo edicts Menu,,,,,,
 IndEvo_NoEdictMenuPoint,PopulateOptions,"$hasMarket
@@ -411,14 +425,16 @@ IndEvo_removeEdict,DialogOptionSelected,$option == IndEvo_removeEdict,"IndEvo_Pr
 IndEvo_PrintPenaltyText",,"1:IndEvo_EdictRemovalConfirm:Confirm the removal
 2:IndEvo_SelectreturnToMenu:Return",
 IndEvo_EdictRemovalConfirm,DialogOptionSelected,$option == IndEvo_EdictRemovalConfirm,"IndEvo_removeEdict
-$menuState = main 0
-FireAll PopulateOptions",The Edict has been removed.,,
+FireAll IndEvo_SenateOptionLeave",The Edict has been removed.,,
 IndEvo_chooseEdict,DialogOptionSelected,$option ==  IndEvo_chooseEdict,"IndEvo_CreateEdictSelectionList
 IndEvo_DesignateSubListPageToLoad_Edict set 1
 IndEvo_DisplaySubListPage_Edict $IndEvo_EdictSubListPage",Choose an Edict to enact for $marketName:,,
 IndEvo_ApplyEdict,DialogOptionSelected,$option ==  IndEvo_ApplyEdict,"IndEvo_applyEdict $IndEvo_selectedEdictID
-$menuState = main 0
-FireAll PopulateOptions",The Edict has been enacted!,,
+FireAll IndEvo_SenateOptionLeave",The Edict has been enacted!,,
+,,,,,,
+IndEvo_SenateOptionLeaveDefault,IndEvo_SenateOptionLeave,,"$menuState = main 0
+FireAll PopulateOptions",,,
+IndEvo_SenateOptionLeaveIndustry,IndEvo_SenateOptionLeave,$IndEvo_closeDialogueOnNextReturn,FireAll IndEvo_SenateOptions,,,
 ,,,,,,
 IndEvo_EdictSelector_LoadCurrent,DialogOptionSelected,$option ==  IndEvo_EdictSelector_LoadCurrent,IndEvo_DisplaySubListPage_Edict $IndEvo_EdictSubListPage,,,
 IndEvo_EdictSelector_TriggerNext,DialogOptionSelected,$option ==  IndEvo_EdictSelector_TriggerNext,"IndEvo_DesignateSubListPageToLoad_Edict next
@@ -431,6 +447,8 @@ IndEvo_EdictWasSelected,DialogOptionSelected,IndEvo_OptionStartsWith_Edict IndEv
 #END Senate,,,,,,
 ,,,,,,
 # Academy,,,,,,
+IndEvo_FireBaseAcademyOptionList,IndEvo_FireBaseAcademyOptionList,$IndEvo_closeDialogueOnNextReturn,"FireAll IndEvo_AcademyBaseMenu
+IndEvo_DisplayTrainingStatus","People in official looking uniforms hurry past you as you travel the well trodden corridors of the Academy towards the administrative offices. Casual congregations of students discussing current events contrast sharply with the military personnel present for training, but the atmosphere seems to be harmonious in light of the shared interests of both groups.",,
 ,,,,,,
 # Academy Base menu,,,,,,
 IndEvo_AcademyBaseMenu,PopulateOptions,"$hasMarket
@@ -569,6 +587,9 @@ FireAll PopulateOptions","You time the pull for dramatic effect. Whatever the gu
 There is a muted explosion in another room.",,
 ,,,,,,
 # Rift Base Menu,,,,,,
+IndEvo_FireBaseRGOptionList,IndEvo_FireBaseRGOptionList,$IndEvo_closeDialogueOnNextReturn,FireAll IndEvo_RiftGenTargetOptions,"The claustrophobic control center, while restored, still looks ancient. A seemingly permanent layer of dust covers the alien looking control panels, dimming the light emitted by hundreds of gauges and indicators. It is unclear if they are actually working.
+
+The lead engineer stops beating a display with a wrench as you enter.",,
 IndEvo_RiftControlMenuPoint,PopulateOptions,"$hasMarket
 $menuState == main
 IndEvo_marketIsPlayerOwned
@@ -612,6 +633,7 @@ The lead engineer stops beating a display with a wrench as you enter.",,
 #END Rift Generator,,,,,,
 ,,,,,,
 # Shipping Port,,,,,,
+IndEvo_OpenShippingPortFromIndustryOption,IndEvo_FireBaseSPOptionList,$IndEvo_closeDialogueOnNextReturn,CourierPortDialoguePlugin,,,
 IndEvo_ShippingMenuPoint,PopulateOptions,"$hasMarket
 $menuState == main
 IndEvo_marketIsPlayerOwned

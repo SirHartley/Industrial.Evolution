@@ -47,10 +47,16 @@ public class Historian {
                 break;
             }
 
+            boolean localConditionsMet = entry.getOptionalRequiredConditions().isEmpty();
+            if (!localConditionsMet) for (String condID : entry.getOptionalRequiredConditions()) if(planet.getMarket().hasCondition(condID)){
+                localConditionsMet = true;
+                break;
+            }
+
             boolean planetConditionMet = entry.getOptionalPlanetTypes().isEmpty() || entry.getOptionalPlanetTypes().contains(planet.getTypeId());
 
             OldStoryLogger.logDevInfo("Checking Story " + entry.getId() + " ruinsConditionMet: " + ruinsConditionMet + " planetConditionMet: " + planetConditionMet);
-            if (ruinsConditionMet && planetConditionMet) picker.add(entry, entry.getPickerWeight());
+            if (ruinsConditionMet && planetConditionMet && localConditionsMet) picker.add(entry, entry.getPickerWeight());
         }
 
         return picker.pick();

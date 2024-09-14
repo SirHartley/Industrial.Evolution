@@ -109,6 +109,7 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
             }, baseColor, bgColour, brightColor,  SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
 
             filterButton.setChecked(currentFilter == filter);
+            if (industry == null && filter != PetLocationFilter.FLEET) filterButton.setEnabled(false);
 
             selectorPanel.addUIElement(selectorAnchor).rightOfMid(lastUsedAnchor, opad);
             lastUsedAnchor = selectorAnchor;
@@ -190,7 +191,7 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
                     recreatePanel(callback);
                 }
             }, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-            storeButton.setEnabled(pet.isAssigned());
+            storeButton.setEnabled(pet.isAssigned() && industry != null);
             petEntryPanel.addUIElement(anchor).rightOfMid(lastUsed, 10f);
             lastUsed = anchor;
 
@@ -297,6 +298,8 @@ public class PetManagerDialogueDelegate implements CustomDialogDelegate {
                     Pet pet = manager.getPet(m.getVariant());
                     if (pet != null) petList.add(pet);
                 }
+
+                if (industry == null) break;
 
                 petList.addAll(((PetShop) industry).getStoredPetsPetsCopy());
 
