@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import indevo.utils.ModPlugin;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
 
 import java.util.EnumSet;

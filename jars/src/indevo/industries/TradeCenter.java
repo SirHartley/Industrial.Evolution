@@ -10,6 +10,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
@@ -100,14 +101,14 @@ public class TradeCenter extends BaseIndustry implements MarketImmigrationModifi
     }
 
     protected void addStabilityPostDemandSection(TooltipMakerAPI tooltip, boolean hasDemand, IndustryTooltipMode mode) {
-        Color h = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color h = Misc.getHighlightColor();
         float opad = 10f;
 
         float a = BASE_BONUS;
         String aStr = "+" + (int) Math.round(a * 1f) + "%";
         tooltip.addPara("Colony income: %s", opad, h, aStr);
 
-        h = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
+        h = Misc.getNegativeHighlightColor();
         tooltip.addPara("Stability penalty: %s", opad, h, "" + -(int) STABILITY_PELANTY);
     }
 
@@ -118,7 +119,7 @@ public class TradeCenter extends BaseIndustry implements MarketImmigrationModifi
         }
 
         if (balanceChange && currTooltipMode == IndustryTooltipMode.ADD_INDUSTRY && isAvailableToBuild()) {
-            tooltip.addPara("%s", 10F, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"Can only have one in the star system"});
+            tooltip.addPara("%s", 10F, Misc.getHighlightColor(), new String[]{"Can only have one in the star system"});
         }
     }
 
@@ -185,7 +186,7 @@ public class TradeCenter extends BaseIndustry implements MarketImmigrationModifi
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10f;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
 
         String pre = "Alpha-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -240,7 +241,7 @@ public class TradeCenter extends BaseIndustry implements MarketImmigrationModifi
 
     public void addImproveDesc(TooltipMakerAPI info, ImprovementDescriptionMode mode) {
         float opad = 10f;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
 
         float a = improveBonus;
         String aStr = "" + (int) Math.round(a * 1f) + "%";

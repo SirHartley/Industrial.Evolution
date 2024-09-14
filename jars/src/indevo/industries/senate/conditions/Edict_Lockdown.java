@@ -9,6 +9,7 @@ import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.industries.senate.industry.Senate;
 import indevo.utils.helper.MiscIE;
 
@@ -103,7 +104,7 @@ public class Edict_Lockdown extends BaseEdict {
         if (minimumRuntimePassed()) {
             applyFinishPenalty();
             Global.getSector().getCampaignUI().addMessage("The %s on " + market.getName() + " %s.",
-                    Global.getSettings().getColor("standardTextColor"), getName(), "has ended", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor());
+                    Global.getSettings().getColor("standardTextColor"), getName(), "has ended", Misc.getHighlightColor(), Misc.getPositiveHighlightColor());
 
             removeWithoutPenalty();
         }
@@ -115,7 +116,7 @@ public class Edict_Lockdown extends BaseEdict {
             RecentUnrest.get(market).add(getRemovalPenaltyUnrestDays() + 3, "Preliminary removal: " + getName());
 
             Global.getSector().getCampaignUI().addMessage("A Lockdown on %s was ended before the minimum time passed. The rapid change in policy caused %s",
-                    Global.getSettings().getColor("standardTextColor"), market.getName(), "additional unrest.", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
+                    Global.getSettings().getColor("standardTextColor"), market.getName(), "additional unrest.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
         }
 
         removeWithoutPenalty();
@@ -131,23 +132,23 @@ public class Edict_Lockdown extends BaseEdict {
         super.createTooltipAfterDescription(tooltip, expanded);
 
         if (getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place until the lockdown is lifted, which will take another %s.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), (int) Math.ceil(getRemainingDays() / 31.0) + " Months");
+            tooltip.addPara("This edict must stay in place until the lockdown is lifted, which will take another %s.", 10f, Misc.getHighlightColor(), (int) Math.ceil(getRemainingDays() / 31.0) + " Months");
         } else {
-            tooltip.addPara("This edict must stay in place until the lockdown is lifted, which will take another %s.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), getRemainingDays() + " Days");
+            tooltip.addPara("This edict must stay in place until the lockdown is lifted, which will take another %s.", 10f, Misc.getHighlightColor(), getRemainingDays() + " Days");
         }
 
         tooltip.addPara("Stability is %s.",
-                10f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "increased by " + stabBonus);
+                10f, Misc.getPositiveHighlightColor(), "increased by " + stabBonus);
 
         tooltip.addPara("Fleet size %s.",
-                3f, com.fs.starfarer.api.util.Misc.getHighlightColor(), "increased by 100% (flat)");
+                3f, Misc.getHighlightColor(), "increased by 100% (flat)");
         tooltip.addPara("Ground defence rating %s.",
-                3f, com.fs.starfarer.api.util.Misc.getHighlightColor(), "increased by 300%");
+                3f, Misc.getHighlightColor(), "increased by 300%");
         tooltip.addPara("Industry exports %s.",
-                3f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by 70%");
+                3f, Misc.getNegativeHighlightColor(), "reduced by 70%");
 
         tooltip.addPara("Requires a %s in the star system and %s on this planet.",
-                10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"Senate", "Military Presence"});
+                10f, Misc.getHighlightColor(), new String[]{"Senate", "Military Presence"});
     }
 
     @Override
@@ -159,13 +160,13 @@ public class Edict_Lockdown extends BaseEdict {
     @Override
     public void printEdictEffectText(TextPanelAPI text, MarketAPI market) {
         text.addParagraph("Stability increased by 5.");
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "increased by 5");
+        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "increased by 5");
         text.addParagraph("Fleet size increased by 100% (flat).");
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "increased by 100% (flat)");
+        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "increased by 100% (flat)");
         text.addParagraph("Ground defence rating increased by 200%.");
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "increased by 300%");
+        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "increased by 300%");
         text.addParagraph("Industry exports reduced by 70%.");
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by 70%");
+        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "reduced by 70%");
     }
 
     @Override

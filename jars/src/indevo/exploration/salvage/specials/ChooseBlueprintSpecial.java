@@ -13,6 +13,7 @@ import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.utils.helper.MiscIE;
 
@@ -133,7 +134,7 @@ public class ChooseBlueprintSpecial extends BaseSalvageSpecial {
 
                     String s = "Added: 1x " + members.get(0).getHullSpec().getHullNameWithDashClass() + " Blueprint";
                     addSmallText(s);
-                    highlightLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), s);
+                    highlightLastPara(Misc.getPositiveHighlightColor(), s);
 
                     setDone(true);
                     setShowAgain(false);

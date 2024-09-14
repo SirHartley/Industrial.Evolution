@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import org.lazywizard.console.BaseCommand;
 import org.lazywizard.console.CommonStrings;
@@ -66,9 +67,9 @@ public class SpawnStation implements BaseCommand {
         StarSystemAPI sys = (StarSystemAPI) fleet.getContainingLocation();
         SectorEntityToken entity = fleet.getContainingLocation().addCustomEntity(null, null, type, "neutral");
 
-        float orbitRadius = com.fs.starfarer.api.util.Misc.getDistance(fleet, sys.getCenter());
+        float orbitRadius = Misc.getDistance(fleet, sys.getCenter());
         float orbitDays = orbitRadius / (20f + new Random().nextFloat() * 5f);
-        float angle = com.fs.starfarer.api.util.Misc.getAngleInDegrees(sys.getCenter().getLocation(), fleet.getLocation());
+        float angle = Misc.getAngleInDegrees(sys.getCenter().getLocation(), fleet.getLocation());
         entity.setCircularOrbit(sys.getCenter(), angle, orbitRadius, orbitDays);
 
         Console.showMessage("Spawned a station of hullSize " + type);

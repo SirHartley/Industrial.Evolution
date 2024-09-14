@@ -9,6 +9,7 @@ import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.MiscIE;
 
 public class RelayEntityPlugin extends BaseCampaignObjectivePlugin {
@@ -53,7 +54,7 @@ public class RelayEntityPlugin extends BaseCampaignObjectivePlugin {
                     CommRelayCondition.MAKESHIFT_COMM_RELAY_BONUS));
         }
         text.addPara(BaseIntelPlugin.INDENT + "%s stability for same-faction colonies in system",
-                pad, com.fs.starfarer.api.util.Misc.getHighlightColor(), "+" + bonus);
+                pad, Misc.getHighlightColor(), "+" + bonus);
     }
 
 }

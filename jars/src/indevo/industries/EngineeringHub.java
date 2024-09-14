@@ -17,6 +17,7 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.IconRenderMode;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.items.installable.BlueprintInstallableItemPlugin;
 import indevo.utils.helper.MiscIE;
@@ -101,7 +102,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
             if (successful) {
                 String name = currentDeconShipVar.getHullSpec().getNameWithDesignationWithDashClass();
                 Global.getSector().getCampaignUI().addMessage("Reverse engineering has begun for a %s at %s.",
-                        Global.getSettings().getColor("standardTextColor"), name, market.getName(), com.fs.starfarer.api.util.Misc.getHighlightColor(), market.getFaction().getBrightUIColor());
+                        Global.getSettings().getColor("standardTextColor"), name, market.getName(), Misc.getHighlightColor(), market.getFaction().getBrightUIColor());
 
             }
 
@@ -111,12 +112,12 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
             addProgressToList(currentDeconShipVar);
 
             MessageIntel intel = new MessageIntel("Reverse engineering of the %s has finished.",
-                    com.fs.starfarer.api.util.Misc.getTextColor(),
+                    Misc.getTextColor(),
                     new String[]{currentDeconShipVar.getHullSpec().getNameWithDesignationWithDashClass()},
-                    com.fs.starfarer.api.util.Misc.getHighlightColor());
+                    Misc.getHighlightColor());
 
             intel.addLine(BaseIntelPlugin.BULLET + "The current progress is: %s",
-                    com.fs.starfarer.api.util.Misc.getHighlightColor(),
+                    Misc.getHighlightColor(),
                     new String[]{Math.round(getProgress(id) * 100) + "%"});
 
             intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "revBP"));
@@ -246,7 +247,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
                         //throw a small message
                         ShipHullSpecAPI ship = Global.getSettings().getHullSpec(id);
                         Global.getSector().getCampaignUI().addMessage("A retrofit template for a %s has been reverse engineered and delivered to %s",
-                                Global.getSettings().getColor("standardTextColor"), ship.getNameWithDesignationWithDashClass(), target.getName(), com.fs.starfarer.api.util.Misc.getHighlightColor(), target.getFaction().getBrightUIColor());
+                                Global.getSettings().getColor("standardTextColor"), ship.getNameWithDesignationWithDashClass(), target.getName(), Misc.getHighlightColor(), target.getFaction().getBrightUIColor());
                     } else {
 
                         //add the blueprint to storage
@@ -256,7 +257,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
                         //throw a small message
                         ShipHullSpecAPI ship = Global.getSettings().getHullSpec(id);
                         Global.getSector().getCampaignUI().addMessage("A blueprint for a %s has been reverse engineered and delivered to %s",
-                                Global.getSettings().getColor("standardTextColor"), ship.getNameWithDesignationWithDashClass(), target.getName(), com.fs.starfarer.api.util.Misc.getHighlightColor(), target.getFaction().getBrightUIColor());
+                                Global.getSettings().getColor("standardTextColor"), ship.getNameWithDesignationWithDashClass(), target.getName(), Misc.getHighlightColor(), target.getFaction().getBrightUIColor());
                     }
                     break;
                 }
@@ -563,7 +564,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         super.addRightAfterDescriptionSection(tooltip, mode);
 
         if (mode.equals(Industry.IndustryTooltipMode.NORMAL)) {
-            tooltip.addPara("Expand this tooltip for a %s.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), "progress overview");
+            tooltip.addPara("Expand this tooltip for a %s.", 10f, Misc.getHighlightColor(), "progress overview");
         }
     }
 
@@ -588,7 +589,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
                 text.addPara("Reverse engineering: %s. Time remaining: %s. This will add %s to the total progress.",
                         opad,
-                        com.fs.starfarer.api.util.Misc.getHighlightColor(),
+                        Misc.getHighlightColor(),
                         new String[]{currentDeconShipVar.getHullSpec().getNameWithDesignationWithDashClass(),
                                 daysRequired - daysPassed + " days",
                                 Math.round(getResearchValue(currentDeconShipVar) * 100) + "%"});
@@ -615,7 +616,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         tooltip.addSectionHeading("Research Progress", color, dark, Alignment.MID, 10f);
 
         tooltip.addPara("At 100%% progress, install a %s you want to override with the new ship data.",
-                opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"blueprint of the same hull size"});
+                opad, Misc.getHighlightColor(), new String[]{"blueprint of the same hull size"});
 
         tooltip.beginTable(marketFaction, 20f, "Ship Hull", 250f, "Total Progress", 140f);
 
@@ -649,9 +650,9 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         Color grid = faction.getGridUIColor();
         Color bright = faction.getBrightUIColor();
 
-        Color gray = com.fs.starfarer.api.util.Misc.getGrayColor();
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
-        Color bad = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
+        Color gray = Misc.getGrayColor();
+        Color highlight = Misc.getHighlightColor();
+        Color bad = Misc.getNegativeHighlightColor();
 
 
         MarketAPI copy = market.clone();
@@ -707,8 +708,8 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
                 mode == Industry.IndustryTooltipMode.DOWNGRADE)
         ) {
 
-            int num = com.fs.starfarer.api.util.Misc.getNumIndustries(market);
-            int max = com.fs.starfarer.api.util.Misc.getMaxIndustries(market);
+            int num = Misc.getNumIndustries(market);
+            int max = Misc.getMaxIndustries(market);
 
 
             // during the creation of the tooltip, the market has both the current industry
@@ -737,7 +738,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
             }
 
             Color c = gray;
-            c = com.fs.starfarer.api.util.Misc.getTextColor();
+            c = Misc.getTextColor();
             Color h1 = highlight;
             if (num > max) {// || (num >= max && mode == IndustryTooltipMode.ADD_INDUSTRY)) {
                 //c = bad;
@@ -763,22 +764,22 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
                 if (left == 1) days = "day";
 
                 tooltip.addPara("Operations disrupted! %s " + days + " until return to normal function.",
-                        opad, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), highlight, "" + left);
+                        opad, Misc.getNegativeHighlightColor(), highlight, "" + left);
             }
 
             if (DebugFlags.COLONY_DEBUG || market.isPlayerOwned()) {
                 if (mode == Industry.IndustryTooltipMode.NORMAL) {
                     if (getSpec().getUpgrade() != null && !isBuilding()) {
-                        tooltip.addPara("Click to manage or upgrade", com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), opad);
+                        tooltip.addPara("Click to manage or upgrade", Misc.getPositiveHighlightColor(), opad);
                     } else {
-                        tooltip.addPara("Click to manage", com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), opad);
+                        tooltip.addPara("Click to manage", Misc.getPositiveHighlightColor(), opad);
                     }
                     //tooltip.addPara("Click to manage", market.getFaction().getBrightUIColor(), opad);
                 }
             }
 
             if (mode == Industry.IndustryTooltipMode.QUEUED) {
-                tooltip.addPara("Click to remove or adjust position in queue", com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), opad);
+                tooltip.addPara("Click to remove or adjust position in queue", Misc.getPositiveHighlightColor(), opad);
                 tooltip.addPara("Currently queued for construction. Does not have any impact on the colony.", opad);
 
                 int left = (int) (getSpec().getBuildTime());
@@ -813,10 +814,10 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
             if (!category) {
                 int credits = (int) Global.getSector().getPlayerFleet().getCargo().getCredits().get();
-                String creditsStr = com.fs.starfarer.api.util.Misc.getDGSCredits(credits);
+                String creditsStr = Misc.getDGSCredits(credits);
                 if (mode == Industry.IndustryTooltipMode.UPGRADE || mode == Industry.IndustryTooltipMode.ADD_INDUSTRY) {
                     int cost = (int) getBuildCost();
-                    String costStr = com.fs.starfarer.api.util.Misc.getDGSCredits(cost);
+                    String costStr = Misc.getDGSCredits(cost);
 
                     int days = (int) getBuildTime();
                     String daysStr = "days";
@@ -839,7 +840,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
                 } else if (mode == Industry.IndustryTooltipMode.DOWNGRADE) {
                     float refundFraction = Global.getSettings().getFloat("industryRefundFraction");
                     int cost = (int) (getBuildCost() * refundFraction);
-                    String refundStr = com.fs.starfarer.api.util.Misc.getDGSCredits(cost);
+                    String refundStr = Misc.getDGSCredits(cost);
 
                     tooltip.addPara("%s refunded for downgrade.", opad, highlight, refundStr);
                 }
@@ -848,7 +849,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
                 if (!getIncome().isUnmodified()) {
                     int income = getIncome().getModifiedInt();
-                    tooltip.addPara("Monthly income: %s", opad, highlight, com.fs.starfarer.api.util.Misc.getDGSCredits(income));
+                    tooltip.addPara("Monthly income: %s", opad, highlight, Misc.getDGSCredits(income));
                     tooltip.addStatModGrid(250, 65, 10, pad, getIncome(), true, new TooltipMakerAPI.StatModValueGetter() {
                         public String getPercentValue(MutableStat.StatMod mod) {
                             return null;
@@ -863,14 +864,14 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
                         }
 
                         public String getFlatValue(MutableStat.StatMod mod) {
-                            return com.fs.starfarer.api.util.Misc.getWithDGS(mod.value) + Strings.C;
+                            return Misc.getWithDGS(mod.value) + Strings.C;
                         }
                     });
                 }
 
                 if (!getUpkeep().isUnmodified()) {
                     int upkeep = getUpkeep().getModifiedInt();
-                    tooltip.addPara("Monthly upkeep: %s", opad, highlight, com.fs.starfarer.api.util.Misc.getDGSCredits(upkeep));
+                    tooltip.addPara("Monthly upkeep: %s", opad, highlight, Misc.getDGSCredits(upkeep));
                     tooltip.addStatModGrid(250, 65, 10, pad, getUpkeep(), true, new TooltipMakerAPI.StatModValueGetter() {
                         public String getPercentValue(MutableStat.StatMod mod) {
                             return null;
@@ -885,7 +886,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
                         }
 
                         public String getFlatValue(MutableStat.StatMod mod) {
-                            return com.fs.starfarer.api.util.Misc.getWithDGS(mod.value) + Strings.C;
+                            return Misc.getWithDGS(mod.value) + Strings.C;
                         }
                     });
                 }
@@ -1013,7 +1014,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, Industry.AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String pre = "Alpha-level AI core currently assigned. ";
         if (mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Alpha-level AI core. ";
@@ -1031,7 +1032,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, Industry.AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String pre = "Beta-level AI core currently assigned. ";
         if (mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Beta-level AI core. ";
@@ -1049,7 +1050,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, Industry.AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String pre = "Gamma-level AI core currently assigned. ";
         if (mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Gamma-level AI core. ";
@@ -1090,7 +1091,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
-        tooltip.addPara("Engineering Hub: uses %s in this storage to overwrite.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), "blueprints");
+        tooltip.addPara("Engineering Hub: uses %s in this storage to overwrite.", 10f, Misc.getHighlightColor(), "blueprints");
     }
 }
 

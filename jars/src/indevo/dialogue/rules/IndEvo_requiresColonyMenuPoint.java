@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.utils.helper.MiscIE;
 
@@ -16,7 +17,7 @@ import java.util.Map;
 public class IndEvo_requiresColonyMenuPoint extends BaseCommandPlugin {
 
     @Override
-    public boolean execute(String ruleId, InteractionDialogAPI dialog, List<com.fs.starfarer.api.util.Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
+    public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
         MarketAPI market = Global.getSector().getEconomy().getMarket(memoryMap.get(MemKeys.MARKET).getString("$id"));
 
         if (market == null || market.isPlanetConditionMarketOnly() || Factions.NEUTRAL.equals(market.getFaction().getId()))

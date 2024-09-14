@@ -222,7 +222,7 @@
   "IndEvo_ToggleMagicRandomSelector": false,
 
   "ruleCommandPackages":[
-  "oldstory.dialogue.rules",
+  "indevo.exploration.surveystories.dialogue.rules",
   "indevo.industries.academy.rules",
   "indevo.industries.embassy.rules",
   "indevo.industries.senate.rules",
@@ -290,6 +290,7 @@
           "pop_corpos":"graphics/industry/population/arcology.png",
           "pop_helldivers":"graphics/industry/population/managed_democracy.png",
           "pop_warhammer":"graphics/industry/population/forgeworld.png",
+          "pop_outpost":"graphics/industry/population/outpost.png",
           "icon":"graphics/icons/IndEvo.png",
           "ore_mining":"graphics/industry/ore_mining.png",
           "rare_mining":"graphics/industry/rare_ore_mining.png",

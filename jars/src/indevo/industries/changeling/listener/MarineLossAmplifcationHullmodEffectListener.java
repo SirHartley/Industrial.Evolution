@@ -9,7 +9,6 @@ import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.graid.GroundRaidObjectivePlugin;
 import indevo.industries.changeling.hullmods.Hellpods;
-import indevo.utils.helper.StringHelper;
 
 import java.util.List;
 

@@ -10,6 +10,7 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.scripts.AmbassadorMurderConsequences;
@@ -189,7 +190,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
     public MarketAPI getEmptyEmbassyMarket() {
         FactionAPI playerFaction = Global.getSector().getPlayerFaction();
 
-        for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets(playerFaction)) {
+        for (MarketAPI market : Misc.getFactionMarkets(playerFaction)) {
             if (market.hasIndustry(Ids.EMBASSY)
                     && market.getIndustry(Ids.EMBASSY).getSpecialItem() != null
                     && market.getIndustry(Ids.EMBASSY).getSpecialItem().equals(specialItem)

@@ -1,24 +1,24 @@
-id,optional_planet_types,optional_required_conditions,optional_ruins_sizes,picker_weight,comms_intro_text,story_part_1,story_part_2,story_part_3,comms_outro_text
-IE-desert-warlords-1,"desert, arid, desertic",,ruins_widespread,0.5,"The historian is clearly in his element, even failing to notice your open connection for a few seconds with his head buried in old, flickering, and rather sandy datapads.
+id,optional_planet_types,optional_ruins_sizes,picker_weight,comms_intro_text,story_part_1,story_part_2,story_part_3,comms_outro_text
+IE-desert-warlords-1,"desert, arid, desertic",ruins_widespread,0.5,"The historian is clearly in his element, even failing to notice your open connection for a few seconds with his head buried in old, flickering, and rather sandy datapads.
 Once focused on the HUD, he adopts with a somewhat somber expression.","""Captain."" You recognize his pitch. It's the one he gets before diving into a monologue. ""During the Collapse, the local government declared martial law in a desperate bid to maintain control. However, the military splintered, with factions forming warbands that ruled by force, even shooting down any ships that tried to flee the planet.""","""With supply lines cut and little, no local food production and no external parties willing to take the risk of being shot at while landing, mass starvation set in quickly and many people fell under the harsh rule of warlords to become little more than slaves. The cities were ravaged through their internal conflicts, and few made it off the planet.""",,"His voice fades into the background as you stop listening, take a second to dwell on the fact that your salvage operation is effectively rummaging through these peoples graves, then close the connection to continue on. It's unlikely the historian took notice of your departure."
-IE-desert-madmax,desert,hot,ruins_scattered,0.1,"Your connection opens to a desolate, flimmering and seemingly endless view of a desert, your historians hat being the only dot of colour amongst the seas of bleached yellow sand.
+IE-desert-madmax,desert,ruins_scattered,0.1,"Your connection opens to a desolate, flimmering and seemingly endless view of a desert, your historians hat being the only dot of colour amongst the seas of bleached yellow sand.
 He appears to be rummaging through a half-buried, clearly burnt torso of a hovercar, wreckage strewn about.","""Captain! What a coindidence to, uh, see you here!"" he coughs awkwardly, side-eying the holodrone. ""It seems like this planet suffered quite the peculiar fate.""","""So, best I can see, there was an attempt to terraform this place, which all but failed when the ice-trains stopped coming. With only three major settlements and water being scarce, I suspect people developed a nomadic lifestyle after their local resources ran out, travelling in search of localized water accretions."" He takes a draft of his hip-flask, the liquid within unlikely to be of the type the nomads were aiming for.","""Doesn't look like they had much in the way of success, though. There is evidence of combat between the roving bands of what I would call vehicular vagabonds, first using weapons, then, as ammo ran out, much more barbaric cutting implements. The heat won their wars for them, in the end."" he takes a beath, the first in a while. ""They had sick rides, though.""",Chances are you could salvage one of these cars. Not that you have much use for it.
-IE-broken-domes-1,barren,no_atmosphere,ruins_widespread,0.3,"You connection opens to a beautiful view of space. Strange, considering your historian is clearly standing in a hab-dome, facing the communicator.","""Captain."" The respirator of his suit audibly clicks as it draws from the onboard tank. ""We are standing in the largest settlement of this planet. In the largest park of said settlement, to be precise."" He gestures towards a nearby, blackened spike. As if staged, it disintegrates at his motion.","""Someone crashed a ship through the dome. We do not know why, but a similar fate befell all other hab-units. Vacuum and radiation did the rest."" Click, goes the respirator. ""Not a nice way to go.""","The camera pans, accompanied by the historians mutterings of doomsday sects and hubris, to reveal dust-covered, golden ornamentation on the ruined buildings. This was a very, very rich polity. Click, goes the suit, the only sound echoing through this tomb.","Hab-Domes, especially affluent ones, usually have underground structures which are secured against sudden implosion. There's probably some salvage here, and supposedly no one to contest you taking it."
-IE-empty-1,,,ruins_vast,0.05,"Eschewing even a greeting, the historians first words come through the connection the moment it establishes.
+IE-broken-domes-1,barren,ruins_widespread,0.3,"You connection opens to a beautiful view of space. Strange, considering your historian is clearly standing in a hab-dome, facing the communicator.","""Captain."" The respirator of his suit audibly clicks as it draws from the onboard tank. ""We are standing in the largest settlement of this planet. In the largest park of said settlement, to be precise."" He gestures towards a nearby, blackened spike. As if staged, it disintegrates at his motion.","""Someone crashed a ship through the dome. We do not know why, but a similar fate befell all other hab-units. Vacuum and radiation did the rest."" Click, goes the respirator. ""Not a nice way to go.""","The camera pans, accompanied by the historians mutterings of doomsday sects and hubris, to reveal dust-covered, golden ornamentation on the ruined buildings. This was a very, very rich polity. Click, goes the suit, the only sound echoing through this tomb.","Hab-Domes, especially affluent ones, usually have underground structures which are secured against sudden implosion. There's probably some salvage here, and supposedly no one to contest you taking it."
+IE-empty-1,,ruins_vast,0.05,"Eschewing even a greeting, the historians first words come through the connection the moment it establishes.
 ""Please get me off this planet.""
 
 He appears to be stressed out of his mind. ","""There is nothing here! No remains, no markings of combat, nothing. as if everyone just up and disappeared! Hell, there's ships in port still, working ships!""","""Captain please, I've heard stories of places like this, and they never end well. Get me off this cursed rock.""",,"You receive a report of the survey shuttle prepping for return before even issuing an order. Surveyors, historians and tech-miners alike hold to their superstitions like gospel, and convincing the teams to head out for a full survey may be more difficult than usual."
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
+IE-genocide-1,,ruins_extensive,0.1,ai genocide joke,,,,
+,,,,plague,,,,
+,,,,religious cult,,,,
+,,,,ai with the dopamine drips,,,,
+,,,,mass food poisoning from lab-made food of the only working autofactory,,,,
+,,,,"failed attempt to build a ship, everyone died",,,,
+,,,,burned to death when heatshields failed,,,,
+,,,,"ice planet, acropolis cooked itself, people moved out and froze to death",,,,
+,,,,someone bombed it from orbit,,,,
+,,,,"hegemony stripped planet on way to sector, everyone starved",,,,
+,,,,"mass drug abuse, hallicunations",,,,
+,,,,nuked each other,,,,
+,,,,auto-lock to the apartments went off and everyone got shut in,,,,
+,,,,husks standing there looking at the sun,,,,

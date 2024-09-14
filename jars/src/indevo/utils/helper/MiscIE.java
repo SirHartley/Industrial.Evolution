@@ -21,6 +21,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.loading.RoleEntryAPI;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.scripts.PlanetMovingScript;
@@ -330,10 +331,10 @@ public class MiscIE {
         float shortestDistanceToTarget = Float.MAX_VALUE;
 
         MarketAPI bestTarget = null;
-        for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets(toMarket.getFaction())) {
+        for (MarketAPI market : Misc.getFactionMarkets(toMarket.getFaction())) {
             if (!market.hasIndustry(id)) continue;
 
-            float distanceToTargetLY = com.fs.starfarer.api.util.Misc.getDistanceLY(toMarket.getLocation(), market.getLocationInHyperspace());
+            float distanceToTargetLY = Misc.getDistanceLY(toMarket.getLocation(), market.getLocationInHyperspace());
 
             if (distanceToTargetLY < shortestDistanceToTarget) {
                 shortestDistanceToTarget = distanceToTargetLY;
@@ -351,7 +352,7 @@ public class MiscIE {
         for (MarketAPI market : set) {
             if (!market.isPlayerOwned() || !market.hasIndustry(id)) continue;
 
-            float distanceToTargetLY = com.fs.starfarer.api.util.Misc.getDistanceLY(toMarket.getLocation(), market.getLocationInHyperspace());
+            float distanceToTargetLY = Misc.getDistanceLY(toMarket.getLocation(), market.getLocationInHyperspace());
 
             if (distanceToTargetLY < shortestDistanceToTarget) {
                 shortestDistanceToTarget = distanceToTargetLY;
@@ -637,7 +638,7 @@ public class MiscIE {
                             || Global.getSettings().getVariant(variantId).getHullSpec() == null
                     ) continue;
 
-                    hvbShips.add(com.fs.starfarer.api.util.Misc.getHullIdForVariantId(variantId));
+                    hvbShips.add(Misc.getHullIdForVariantId(variantId));
                 }
             } catch (IOException | JSONException ex) {
                 log.error(ex);
@@ -854,7 +855,7 @@ public class MiscIE {
 
         List<RoleEntryAPI> rl = Global.getSettings().getEntriesForRole(factionId, role);
         for (RoleEntryAPI re : rl) {
-            String hid = com.fs.starfarer.api.util.Misc.getHullIdForVariantId(re.getVariantId());
+            String hid = Misc.getHullIdForVariantId(re.getVariantId());
             if (hid != null) {
                 shipIdSet.add(hid);
             }

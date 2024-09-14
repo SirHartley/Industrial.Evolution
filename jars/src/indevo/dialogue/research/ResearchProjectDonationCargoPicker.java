@@ -9,7 +9,6 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import org.apache.log4j.Logger;
-import org.lwjgl.util.vector.Vector2f;
 
 public class ResearchProjectDonationCargoPicker {
 

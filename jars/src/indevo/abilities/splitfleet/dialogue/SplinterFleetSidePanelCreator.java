@@ -10,6 +10,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.ui.*;
+import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.fleetAssignmentAIs.DeliverAssignmentAI;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
@@ -74,7 +75,7 @@ public class SplinterFleetSidePanelCreator {
 
             MarketAPI transportTargetMarket = loadout.transportTargetMarket != null ? Global.getSector().getEconomy().getMarket(loadout.transportTargetMarket) : null;
 
-            float distance = transportTargetMarket != null ? com.fs.starfarer.api.util.Misc.getDistanceLY(playerFleet, transportTargetMarket.getPrimaryEntity()) : 0f;
+            float distance = transportTargetMarket != null ? Misc.getDistanceLY(playerFleet, transportTargetMarket.getPrimaryEntity()) : 0f;
             float currentFuel = status.currentFuel;
             float requiredFuel = loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) ? status.requiredFuelPerLY * distance : status.requiredFuelPerLY * distance * 2.2f;
 
@@ -107,8 +108,8 @@ public class SplinterFleetSidePanelCreator {
 
             prerequisiteForActive = !detachmentIsActive;
 
-            Color baseColor = prerequisiteForActive ? com.fs.starfarer.api.util.Misc.getButtonTextColor() : com.fs.starfarer.api.util.Misc.getTextColor();
-            Color bgColour = prerequisiteForActive ? com.fs.starfarer.api.util.Misc.getDarkPlayerColor() : com.fs.starfarer.api.util.Misc.getGrayColor();
+            Color baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
+            Color bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
 
             ButtonAPI newLoadoutButton = variableButtonAnchor.addButton("Members", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
             newLoadoutButton.setEnabled(prerequisiteForActive);
@@ -127,8 +128,8 @@ public class SplinterFleetSidePanelCreator {
 
             prerequisiteForActive = !detachmentIsActive && loadoutReadyForSettings;
 
-            baseColor = prerequisiteForActive ? com.fs.starfarer.api.util.Misc.getButtonTextColor() : com.fs.starfarer.api.util.Misc.getTextColor();
-            bgColour = prerequisiteForActive ? com.fs.starfarer.api.util.Misc.getDarkPlayerColor() : com.fs.starfarer.api.util.Misc.getGrayColor();
+            baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
+            bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
 
             buttonId = "button_cargo_" + i;
             variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
@@ -149,8 +150,8 @@ public class SplinterFleetSidePanelCreator {
 
             prerequisiteForActive = loadoutReadyForSettings && !detachmentIsDormant;
 
-            baseColor = prerequisiteForActive ? com.fs.starfarer.api.util.Misc.getButtonTextColor() : com.fs.starfarer.api.util.Misc.getTextColor();
-            bgColour = prerequisiteForActive ? com.fs.starfarer.api.util.Misc.getDarkPlayerColor() : com.fs.starfarer.api.util.Misc.getGrayColor();
+            baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
+            bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
 
             // "<"
             buttonId = "button_behaviour_<_" + i;
@@ -175,7 +176,7 @@ public class SplinterFleetSidePanelCreator {
 
             //behaviour text
             TooltipMakerAPI desc = loadoutPanel.createUIElement(TEXT_FIELD_WIDTH, BUTTON_HEIGHT, false);
-            LabelAPI label = desc.addPara(com.fs.starfarer.api.util.Misc.ucFirst(loadout.behaviour.toString().toLowerCase()), loadoutReadyForSettings ? Behaviour.getColourForBehaviour(loadout.behaviour) : com.fs.starfarer.api.util.Misc.getGrayColor(), 0f);
+            LabelAPI label = desc.addPara(Misc.ucFirst(loadout.behaviour.toString().toLowerCase()), loadoutReadyForSettings ? Behaviour.getColourForBehaviour(loadout.behaviour) : Misc.getGrayColor(), 0f);
 
             label.getPosition().inTMid(6f);
             label.setAlignment(Alignment.MID);
@@ -210,8 +211,8 @@ public class SplinterFleetSidePanelCreator {
             if ((loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) || loadout.behaviour.equals(Behaviour.FleetBehaviour.DELIVER)) && !detachmentIsActive) {
                 prerequisiteForActive = true;
 
-                baseColor = prerequisiteForActive ? com.fs.starfarer.api.util.Misc.getButtonTextColor() : com.fs.starfarer.api.util.Misc.getTextColor();
-                bgColour = prerequisiteForActive ? com.fs.starfarer.api.util.Misc.getDarkPlayerColor() : com.fs.starfarer.api.util.Misc.getGrayColor();
+                baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
+                bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
 
                 buttonId = "button_set_target_" + i;
                 variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
@@ -259,7 +260,7 @@ public class SplinterFleetSidePanelCreator {
                                 else info.addPara("Travel to " + m.getName() + " (" + m.getFaction().getDisplayName()
                                         + ", size " + m.getSize() + ") and store all cargo in the local storage, then return to the main force.", opad);
 
-                                float distance = com.fs.starfarer.api.util.Misc.getDistanceLY(playerFleet, entity);
+                                float distance = Misc.getDistanceLY(playerFleet, entity);
                                 float requiredFuel = transport ? status.requiredFuelPerLY * distance : status.requiredFuelPerLY * distance * 2;
 
                                 if (transport)
@@ -308,8 +309,8 @@ public class SplinterFleetSidePanelCreator {
                 boolean playerTargetIsDetachment = detachmentIsActive && playerFleet.getInteractionTarget() != null && detachment.getId().equals(playerFleet.getInteractionTarget().getId());
                 prerequisiteForActive = detachmentIsActive && !playerTargetIsDetachment;
 
-                baseColor = prerequisiteForActive ? com.fs.starfarer.api.util.Misc.getButtonTextColor() : com.fs.starfarer.api.util.Misc.getTextColor();
-                bgColour = prerequisiteForActive ? com.fs.starfarer.api.util.Misc.getDarkPlayerColor() : com.fs.starfarer.api.util.Misc.getGrayColor();
+                baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
+                bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
 
                 buttonId = "button_plot_course_" + i;
                 variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
@@ -330,13 +331,13 @@ public class SplinterFleetSidePanelCreator {
 
             //spawn/recall
 
-            baseColor = com.fs.starfarer.api.util.Misc.getTextColor();
+            baseColor = Misc.getTextColor();
             boolean detachmentSmallerThanFleet = loadout.shipVariantList.size() < playerFleet.getFleetData().getNumMembers();
 
             prerequisiteForActive = loadoutReadyForSettings && !detachmentIsDormant;
 
             if (isDetachmentReturning) {
-                bgColour = prerequisiteForActive ? new Color(200, 160, 10, 255) : com.fs.starfarer.api.util.Misc.getGrayColor();
+                bgColour = prerequisiteForActive ? new Color(200, 160, 10, 255) : Misc.getGrayColor();
                 buttonId = "button_cancel_recall_" + i;
                 variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
                 newLoadoutButton = variableButtonAnchor.addButton("Cancel", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
@@ -351,7 +352,7 @@ public class SplinterFleetSidePanelCreator {
                 };
 
             } else if (detachmentIsActive) {
-                bgColour = prerequisiteForActive ? new Color(160, 30, 20, 255) : com.fs.starfarer.api.util.Misc.getGrayColor();
+                bgColour = prerequisiteForActive ? new Color(160, 30, 20, 255) : Misc.getGrayColor();
                 buttonId = "button_recall_" + i;
                 variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
                 newLoadoutButton = variableButtonAnchor.addButton("Recall", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
@@ -361,7 +362,7 @@ public class SplinterFleetSidePanelCreator {
                     public void onToggle() {
                         CampaignFleetAPI fleet = DetachmentMemory.getDetachment(num);
 
-                        if (fleet.getBattle() != null && com.fs.starfarer.api.util.Misc.getDistance(fleet, Global.getSector().getPlayerFleet()) < FleetUtils.MIN_MERGE_DISTANCE_IN_MENU) {
+                        if (fleet.getBattle() != null && Misc.getDistance(fleet, Global.getSector().getPlayerFleet()) < FleetUtils.MIN_MERGE_DISTANCE_IN_MENU) {
                             Behaviour.setReturning(fleet, true);
                             FleetUtils.mergeDetachment(num);
                         } else {
@@ -381,7 +382,7 @@ public class SplinterFleetSidePanelCreator {
                         && !detachmentIsDormant
                         && status.currentSupplies >= (status.suppliesToRecover + status.requiredSuppliesPerMonth);
 
-                bgColour = prerequisiteForActive ? new Color(50, 130, 0, 255) : com.fs.starfarer.api.util.Misc.getGrayColor();
+                bgColour = prerequisiteForActive ? new Color(50, 130, 0, 255) : Misc.getGrayColor();
 
                 buttonId = "button_spawn_" + i;
                 variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
@@ -404,14 +405,14 @@ public class SplinterFleetSidePanelCreator {
 
             //fleet display below it
 
-            CustomPanelAPI fleetPanel = panel.createCustomPanel(VisualCustomPanel.PANEL_WIDTH - 20f, SHIP_ICON_WIDTH + 6f, new FramedCustomPanelPlugin(0.25f, com.fs.starfarer.api.util.Misc.getBasePlayerColor(), false));
+            CustomPanelAPI fleetPanel = panel.createCustomPanel(VisualCustomPanel.PANEL_WIDTH - 20f, SHIP_ICON_WIDTH + 6f, new FramedCustomPanelPlugin(0.25f, Misc.getBasePlayerColor(), false));
 
             float shipAreaWidth = PANEL_WIDTH_2;
             TooltipMakerAPI shipHolder = fleetPanel.createUIElement(shipAreaWidth, 0, false);
 
             int max = Math.min((int) (shipAreaWidth / SHIP_ICON_WIDTH), ships.size());
             ships = ships.subList(0, max);
-            shipHolder.addShipList(max, 1, SHIP_ICON_WIDTH, com.fs.starfarer.api.util.Misc.getBasePlayerColor(), ships, 0);
+            shipHolder.addShipList(max, 1, SHIP_ICON_WIDTH, Misc.getBasePlayerColor(), ships, 0);
 
             fleetPanel.addUIElement(shipHolder).inTL(1f, 1f); //add it to top left of fleet panel (?)
             panelTooltip.addCustom(fleetPanel, 3); //add fleet panel
@@ -419,29 +420,29 @@ public class SplinterFleetSidePanelCreator {
             //cargo info panel and notification text if required
 
             if (detachmentIsDormant)
-                panelTooltip.addPara("!!! The detachment is Dormant and urgently needs your assistance !!!", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), opad);
+                panelTooltip.addPara("!!! The detachment is Dormant and urgently needs your assistance !!!", Misc.getNegativeHighlightColor(), opad);
             if (isDetachmentReturning)
-                panelTooltip.addPara("The detachment is currently returning to the Main Fleet", com.fs.starfarer.api.util.Misc.getHighlightColor(), opad);
+                panelTooltip.addPara("The detachment is currently returning to the Main Fleet", Misc.getHighlightColor(), opad);
 
             if (!detachmentIsActive && !detachmentSmallerThanFleet)
-                panelTooltip.addPara("At least one ship must stay with the main fleet!", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), opad);
+                panelTooltip.addPara("At least one ship must stay with the main fleet!", Misc.getNegativeHighlightColor(), opad);
             else if (!detachmentIsActive && status.currentSupplies < (status.suppliesToRecover + status.requiredSuppliesPerMonth)) {
-                panelTooltip.addPara("Not enough supplies to repair and operate all ships for one month", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), opad);
+                panelTooltip.addPara("Not enough supplies to repair and operate all ships for one month", Misc.getNegativeHighlightColor(), opad);
             } else if (loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) || loadout.behaviour.equals(Behaviour.FleetBehaviour.DELIVER)) {
                 if (transportTargetMarket == null && !detachmentIsActive)
-                    panelTooltip.addPara("Specify a target planet for the transport detachment.", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), opad);
+                    panelTooltip.addPara("Specify a target planet for the transport detachment.", Misc.getNegativeHighlightColor(), opad);
                 else if (!detachmentIsActive && currentFuel < requiredFuel) {
                     if (loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT))
-                        panelTooltip.addPara("Insufficient Fuel to reach the target planet, load at least " + (int) Math.ceil(requiredFuel * 1.10) + " units!", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), opad);
+                        panelTooltip.addPara("Insufficient Fuel to reach the target planet, load at least " + (int) Math.ceil(requiredFuel * 1.10) + " units!", Misc.getNegativeHighlightColor(), opad);
                     else
-                        panelTooltip.addPara("Insufficient Fuel to reach target the planet and return, load at least " + (int) Math.ceil(requiredFuel * 1.10) + " units!", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), opad);
+                        panelTooltip.addPara("Insufficient Fuel to reach target the planet and return, load at least " + (int) Math.ceil(requiredFuel * 1.10) + " units!", Misc.getNegativeHighlightColor(), opad);
 
-                    panelTooltip.addPara("Note that the detachment can still run out of supplies - provide enough for the journey.", com.fs.starfarer.api.util.Misc.getTextColor(), opad);
+                    panelTooltip.addPara("Note that the detachment can still run out of supplies - provide enough for the journey.", Misc.getTextColor(), opad);
                 } else if (transportTargetMarket != null) {
                     if (loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT)) {
                         String isOrWill = detachmentIsActive ? "is heading" : "will head";
                         SectorEntityToken dist = detachmentIsActive ? detachment : playerFleet;
-                        panelTooltip.addPara("The Detachment " + isOrWill + " to " + transportTargetMarket.getName() + " in the " + transportTargetMarket.getStarSystem().getName() + " (" + (int) Math.floor(com.fs.starfarer.api.util.Misc.getDistanceLY(dist, transportTargetMarket.getPrimaryEntity())) + " LY)", com.fs.starfarer.api.util.Misc.getHighlightColor(), opad);
+                        panelTooltip.addPara("The Detachment " + isOrWill + " to " + transportTargetMarket.getName() + " in the " + transportTargetMarket.getStarSystem().getName() + " (" + (int) Math.floor(Misc.getDistanceLY(dist, transportTargetMarket.getPrimaryEntity())) + " LY)", Misc.getHighlightColor(), opad);
 
                     } else {
                         String isOrWill = detachmentIsActive ? "is heading" : "will head";
@@ -454,26 +455,26 @@ public class SplinterFleetSidePanelCreator {
                         }
 
                         if (!hasDelivered)
-                            panelTooltip.addPara("The Detachment " + isOrWill + " to " + transportTargetMarket.getName() + " in the " + transportTargetMarket.getStarSystem().getName() + " (" + (int) Math.floor(com.fs.starfarer.api.util.Misc.getDistanceLY(dist, transportTargetMarket.getPrimaryEntity())) + " LY)", com.fs.starfarer.api.util.Misc.getHighlightColor(), opad);
+                            panelTooltip.addPara("The Detachment " + isOrWill + " to " + transportTargetMarket.getName() + " in the " + transportTargetMarket.getStarSystem().getName() + " (" + (int) Math.floor(Misc.getDistanceLY(dist, transportTargetMarket.getPrimaryEntity())) + " LY)", Misc.getHighlightColor(), opad);
                         else
-                            panelTooltip.addPara("The Detachment has delivered its cargo and is %s.", opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), "heading back to the main force");
+                            panelTooltip.addPara("The Detachment has delivered its cargo and is %s.", opad, Misc.getHighlightColor(), "heading back to the main force");
                     }
                 }
             }
 
             if (!allFleetMembersPresent && !detachmentIsActive && loadoutReadyForSettings)
-                panelTooltip.addPara("Some ships are unavailable, detachment will be spawned without them.", com.fs.starfarer.api.util.Misc.getHighlightColor(), spad);
+                panelTooltip.addPara("Some ships are unavailable, detachment will be spawned without them.", Misc.getHighlightColor(), spad);
             else if (!detachmentIsActive && !loadout.shipVariantList.isEmpty() && fleetMembersMatching <= 0)
-                panelTooltip.addPara("None of the ships specified in the loadout are present in the main fleet.", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), spad);
+                panelTooltip.addPara("None of the ships specified in the loadout are present in the main fleet.", Misc.getNegativeHighlightColor(), spad);
 
             if (detachmentIsActive || !loadout.targetCargo.isEmpty()) {
                 if (status.suppliesToRecover > 1)
-                    panelTooltip.addPara("Supplies needed to finish repairs: %s", opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), status.suppliesToRecover + " units");
-                panelTooltip.addPara("Estimated operating time: %s", opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), status.operatingTimeString);
-                panelTooltip.addPara("Estimated range: %s", spad, com.fs.starfarer.api.util.Misc.getHighlightColor(), status.fuelRangeLYString);
+                    panelTooltip.addPara("Supplies needed to finish repairs: %s", opad, Misc.getHighlightColor(), status.suppliesToRecover + " units");
+                panelTooltip.addPara("Estimated operating time: %s", opad, Misc.getHighlightColor(), status.operatingTimeString);
+                panelTooltip.addPara("Estimated range: %s", spad, Misc.getHighlightColor(), status.fuelRangeLYString);
             } else if (!loadoutReadyForSettings)
-                panelTooltip.addPara("%s for the detachment.", opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), "Specify fleet members");
-            else panelTooltip.addPara("%s for the detachment.", opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), "Specify cargo");
+                panelTooltip.addPara("%s for the detachment.", opad, Misc.getHighlightColor(), "Specify fleet members");
+            else panelTooltip.addPara("%s for the detachment.", opad, Misc.getHighlightColor(), "Specify cargo");
         }
 
         VisualCustomPanel.addTooltipToPanel();

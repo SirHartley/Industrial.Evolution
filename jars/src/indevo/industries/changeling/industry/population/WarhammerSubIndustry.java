@@ -17,9 +17,13 @@ import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
 import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
-import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Conditions;
+import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.industries.changeling.hullmods.HandBuiltHullmod;
@@ -89,9 +93,9 @@ x can only be built on very hot worlds
             tooltip.addSectionHeading("Governance Effects: Forge World", Alignment.MID, opad);
 
             if (military) {
-                tooltip.addPara("Industrial buildings: %s", opad, com.fs.starfarer.api.util.Misc.getTextColor(), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "hazard rating nullified");
+                tooltip.addPara("Industrial buildings: %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "hazard rating nullified");
             } else if (rural) {
-                tooltip.addPara("Rural buildings: %s increased by %s", opad, com.fs.starfarer.api.util.Misc.getTextColor(), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "upkeep", StringHelper.getAbsPercentString(RURAL_BUILDING_UPKEEP_MULT, false));
+                tooltip.addPara("Rural buildings: %s increased by %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "upkeep", StringHelper.getAbsPercentString(RURAL_BUILDING_UPKEEP_MULT, false));
             } else {
                 tooltip.addPara("No effect on this building.", opad);
             }
@@ -183,7 +187,7 @@ x can only be built on very hot worlds
     public void addRightAfterDescription(TooltipMakerAPI tooltip, Industry.IndustryTooltipMode mode) {
         super.addRightAfterDescription(tooltip, mode);
         if (hasDeficit(industry))
-            tooltip.addPara("Unrest is building due to shortages.", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), 10f);
+            tooltip.addPara("Unrest is building due to shortages.", Misc.getNegativeHighlightColor(), 10f);
     }
 
     @Override
@@ -197,7 +201,7 @@ x can only be built on very hot worlds
 
             RecentUnrest.get(market).add(1, getName() + ": various shortages");
             Global.getSector().getCampaignUI().addMessage("The shortage of some required commodities at %s is causing %s.",
-                    Global.getSettings().getColor("standardTextColor"), market.getName(), "unrest", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
+                    Global.getSettings().getColor("standardTextColor"), market.getName(), "unrest", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
         }
 
         if (!market.isPlayerOwned()) return;
@@ -248,7 +252,7 @@ x can only be built on very hot worlds
         try {
             variant = Global.getSettings().getVariant(picker.pick());
             if (variant == null)
-                variant = Global.getSettings().createEmptyVariant(com.fs.starfarer.api.util.Misc.genUID(), Global.getSettings().getHullSpec(hullID));
+                variant = Global.getSettings().createEmptyVariant(Misc.genUID(), Global.getSettings().getHullSpec(hullID));
         } catch (Exception e) {
             Global.getLogger(this.getClass()).error("Failed to create variant for " + hullID);
             return null;

@@ -2,14 +2,11 @@ package indevo.dialogue.research.listeners;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCampaignEventListener;
-import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import indevo.dialogue.research.hullmods.CamouflageFieldEmitter;
-import indevo.dialogue.research.scripts.RefitTabListener;
 
 import java.util.List;
 

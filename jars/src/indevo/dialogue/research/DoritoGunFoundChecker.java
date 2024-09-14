@@ -8,7 +8,6 @@ import com.fs.starfarer.api.campaign.listeners.ShowLootListener;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import indevo.dialogue.research.GalatiaNewProjectsIntel;
 import indevo.ids.Ids;
 
 public class DoritoGunFoundChecker implements ShowLootListener, EconomyTickListener {

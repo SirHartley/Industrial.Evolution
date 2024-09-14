@@ -1,7 +1,7 @@
-package oldstory;
+package indevo.exploration.surveystories;
 
 import com.fs.starfarer.api.Global;
-import oldstory.plugins.Historian;
+import indevo.exploration.surveystories.plugins.Historian;
 
 public class OldStoryLogger {
 

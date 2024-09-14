@@ -1,4 +1,4 @@
-package oldstory.memory;
+package indevo.exploration.surveystories.memory;
 
 import java.util.List;
 
@@ -6,14 +6,16 @@ public class StoryEntry {
     String id;
     List<String> optionalPlanetTypes;
     List<String> optionalRuinsSizes;
+    List<String> optionalRequiredConditions;
     float pickerWeight;
     String commsIntroText;
     String commsOutroText;
     List<String> entries;
 
-    public StoryEntry(String id, List<String> optionalPlanetTypes, List<String> optionalRuinsSizes, float pickerWeight, String commsIntroText, List<String> entries, String commsOutroText) {
+    public StoryEntry(String id, List<String> optionalPlanetTypes, List<String> optionalRequiredConditions, List<String> optionalRuinsSizes, float pickerWeight, String commsIntroText, List<String> entries, String commsOutroText) {
         this.id = id;
         this.optionalPlanetTypes = optionalPlanetTypes;
+        this.optionalRequiredConditions = optionalRequiredConditions;
         this.optionalRuinsSizes = optionalRuinsSizes;
         this.pickerWeight = pickerWeight;
         this.commsIntroText = commsIntroText;

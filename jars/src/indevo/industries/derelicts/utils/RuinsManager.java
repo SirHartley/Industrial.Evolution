@@ -10,6 +10,7 @@ import com.fs.starfarer.api.campaign.listeners.SurveyPlanetListener;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.conditions.RuinsCondition;
@@ -76,7 +77,7 @@ public class RuinsManager {
                 MarketAPI pMarket = p.getMarket();
 
                 if (pMarket.hasCondition(Ids.COND_RUINS)) {
-                    if (!com.fs.starfarer.api.util.Misc.getMarketsInLocation(p.getContainingLocation()).isEmpty()
+                    if (!Misc.getMarketsInLocation(p.getContainingLocation()).isEmpty()
                             || s.getTags().contains(THEME_CORE)
                             || s.getTags().contains(THEME_CORE_POPULATED)
                             || s.getTags().contains(THEME_CORE_UNPOPULATED)) {
@@ -126,7 +127,7 @@ public class RuinsManager {
                 }
 
                 if (m.hasCondition(Ids.COND_RUINS)) {
-                    if (forbidden || !remnant || !com.fs.starfarer.api.util.Misc.getMarketsInLocation(p.getContainingLocation()).isEmpty() || s.hasTag(THEME_SPECIAL) || s.hasTag(THEME_HIDDEN) || s.hasTag(SYSTEM_ABYSSAL)) {
+                    if (forbidden || !remnant || !Misc.getMarketsInLocation(p.getContainingLocation()).isEmpty() || s.hasTag(THEME_SPECIAL) || s.hasTag(THEME_HIDDEN) || s.hasTag(SYSTEM_ABYSSAL)) {
                         m.removeCondition(Ids.COND_RUINS);
                     } else {
                         switch (currentCount) {
@@ -192,7 +193,7 @@ public class RuinsManager {
             if (mem.contains(INDUSTRY_ID_MEMORY_KEY)) industryIdPicker.remove(mem.getString(INDUSTRY_ID_MEMORY_KEY));
         }
 
-        Random random = new Random(com.fs.starfarer.api.util.Misc.getSalvageSeed(planet));
+        Random random = new Random(Misc.getSalvageSeed(planet));
         chosenIndustry = industryIdPicker.pick(random);
 
         if (chosenIndustry == null) chosenIndustry = Ids.LAB;

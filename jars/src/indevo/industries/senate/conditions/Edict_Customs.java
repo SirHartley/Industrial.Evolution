@@ -13,6 +13,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.MiscIE;
 
 import static java.lang.Math.ceil;
@@ -62,30 +63,30 @@ public class Edict_Customs extends BaseEdict {
         super.createTooltipAfterDescription(tooltip, expanded);
 
         if (getRemainingDays() != 0 && getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), (int) ceil(getRemainingDays() / 31.0) + " Months");
+            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) ceil(getRemainingDays() / 31.0) + " Months");
         } else if (getRemainingDays() != 0 && getRemainingDays() <= 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), (int) getRemainingDays() + " days");
+            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) getRemainingDays() + " days");
         } else {
-            tooltip.addPara("This edict can be %s", 10f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "removed without penalty.");
+            tooltip.addPara("This edict can be %s", 10f, Misc.getPositiveHighlightColor(), "removed without penalty.");
         }
 
         if (MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId()).size() > 1) {
             tooltip.addPara("The accessability of this colony is %s.",
-                    10f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "increased by " + (int) (thisAccessIncrease * 100) + "%");
+                    10f, Misc.getPositiveHighlightColor(), "increased by " + (int) (thisAccessIncrease * 100) + "%");
 
             tooltip.addPara("Accessability for:", 3f);
             for (MarketAPI market : MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
                 if (!market.getId().equals(this.market.getId())) {
                     tooltip.addPara(BaseIntelPlugin.BULLET + market.getName() + ": decreased by %s,",
-                            1f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by " + (int) (-foreignAccessMod * 100) + "%");
+                            1f, Misc.getNegativeHighlightColor(), "reduced by " + (int) (-foreignAccessMod * 100) + "%");
                 }
             }
 
         } else {
-            tooltip.addPara("The accessability of this colony unchanged as there are %s in the star system", 10f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "no other colonies");
+            tooltip.addPara("The accessability of this colony unchanged as there are %s in the star system", 10f, Misc.getNegativeHighlightColor(), "no other colonies");
         }
 
-        tooltip.addPara("Requires a %s and at least two colonies in the star system, and %s on this planet.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"Senate", "Megaport"});
+        tooltip.addPara("Requires a %s and at least two colonies in the star system, and %s on this planet.", 10f, Misc.getHighlightColor(), new String[]{"Senate", "Megaport"});
     }
 
     @Override
@@ -98,12 +99,12 @@ public class Edict_Customs extends BaseEdict {
         String s1 = "" + (MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId()).size() - 1) * 5 + "%";
 
         text.addParagraph("Accessability for this polity increased by 5% for every other colony in the system.");
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "increased by 5%");
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getHighlightColor(), "for every other colony");
+        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "increased by 5%");
+        text.highlightInLastPara(Misc.getHighlightColor(), "for every other colony");
         text.addParagraph("Current possible bonus: " + s1);
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), s1);
+        text.highlightInLastPara(Misc.getPositiveHighlightColor(), s1);
         text.addParagraph("Accessability for all other colonies reduced by 7%.");
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by 7%");
+        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "reduced by 7%");
 
     }
 

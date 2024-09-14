@@ -7,7 +7,6 @@ import com.fs.starfarer.api.impl.campaign.intel.events.EventFactor;
 import com.fs.starfarer.api.impl.campaign.intel.events.HostileActivityEventIntel;
 import com.fs.starfarer.api.util.IntervalUtil;
 import indevo.utils.ModPlugin;
-import indevo.utils.trails.MagicCampaignTrailPlugin;
 
 import java.util.ArrayList;
 import java.util.List;

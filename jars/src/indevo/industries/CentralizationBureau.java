@@ -16,6 +16,7 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.IconRenderMode;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.items.installable.SpecialItemEffectsRepo;
@@ -82,8 +83,8 @@ public class CentralizationBureau extends BaseIndustry {
         Set<MarketAPI> targetMarkets = new HashSet<>(MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId()));
 
         if (getSpecialItem() != null) {
-            for (MarketAPI m : com.fs.starfarer.api.util.Misc.getFactionMarkets(market.getFaction())) {
-                float dist = com.fs.starfarer.api.util.Misc.getDistanceLY(m.getLocationInHyperspace(), market.getLocationInHyperspace());
+            for (MarketAPI m : Misc.getFactionMarkets(market.getFaction())) {
+                float dist = Misc.getDistanceLY(m.getLocationInHyperspace(), market.getLocationInHyperspace());
                 if (dist <= SpecialItemEffectsRepo.RANGE_LY_TWELVE) {
                     targetMarkets.add(m);
                 }
@@ -304,8 +305,8 @@ public class CentralizationBureau extends BaseIndustry {
 
         if (!isBuilding()) {
             float opad = 10f;
-            Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
-            Color bad = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
+            Color highlight = Misc.getHighlightColor();
+            Color bad = Misc.getNegativeHighlightColor();
 
             if (industryExistOnMultipleMap.isEmpty()) {
                 String s = StringHelper.getString(getId(), "noDuplicates");
@@ -319,7 +320,7 @@ public class CentralizationBureau extends BaseIndustry {
                     tooltip.addPara(
                             StringHelper.getStringAndSubstituteToken(getId(), "aiCoreSufficient", "$sufficient", sufficient),
                             opad,
-                            com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(),
+                            Misc.getPositiveHighlightColor(),
                             sufficient);
 
                 } else if (!industryExistOnMultipleMap.isEmpty()) {
@@ -327,7 +328,7 @@ public class CentralizationBureau extends BaseIndustry {
                     tooltip.addPara(
                             StringHelper.getStringAndSubstituteToken(getId(), "aiCoreInsufficient", "$insufficient", insufficient),
                             opad,
-                            com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(),
+                            Misc.getNegativeHighlightColor(),
                             getMaxSupportedInd() + "");
                 }
             }
@@ -338,7 +339,7 @@ public class CentralizationBureau extends BaseIndustry {
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
         String effect = StringHelper.getString(getId(), "aCoreEffect");
@@ -356,7 +357,7 @@ public class CentralizationBureau extends BaseIndustry {
 
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
@@ -375,7 +376,7 @@ public class CentralizationBureau extends BaseIndustry {
 
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
@@ -414,9 +415,9 @@ public class CentralizationBureau extends BaseIndustry {
         Color color = faction.getBaseUIColor();
         Color dark = faction.getDarkUIColor();
 
-        Color gray = com.fs.starfarer.api.util.Misc.getGrayColor();
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
-        Color bad = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
+        Color gray = Misc.getGrayColor();
+        Color highlight = Misc.getHighlightColor();
+        Color bad = Misc.getNegativeHighlightColor();
 
 
         MarketAPI copy = market.clone();
@@ -456,8 +457,8 @@ public class CentralizationBureau extends BaseIndustry {
                 mode == IndustryTooltipMode.UPGRADE ||
                 mode == IndustryTooltipMode.DOWNGRADE)
         ) {
-            int num = com.fs.starfarer.api.util.Misc.getNumIndustries(market);
-            int max = com.fs.starfarer.api.util.Misc.getMaxIndustries(market);
+            int num = Misc.getNumIndustries(market);
+            int max = Misc.getMaxIndustries(market);
 
             // during the creation of the tooltip, the market has both the current industry
             // and the upgrade/downgrade. So if this upgrade/downgrade counts as an industry, it'd count double if
@@ -485,7 +486,7 @@ public class CentralizationBureau extends BaseIndustry {
             }
 
             Color c = gray;
-            c = com.fs.starfarer.api.util.Misc.getTextColor();
+            c = Misc.getTextColor();
             Color h1 = highlight;
             if (num > max) {// || (num >= max && mode == IndustryTooltipMode.ADD_INDUSTRY)) {
                 //c = bad;
@@ -503,22 +504,22 @@ public class CentralizationBureau extends BaseIndustry {
             if (left < 1) left = 1;
 
             tooltip.addPara(StringHelper.getStringAndSubstituteToken(cat, "t4", "$days", StringHelper.getDayOrDays(left)),
-                    opad, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), highlight, "" + left);
+                    opad, Misc.getNegativeHighlightColor(), highlight, "" + left);
         }
 
         if (DebugFlags.COLONY_DEBUG || market.isPlayerOwned()) {
             if (mode == IndustryTooltipMode.NORMAL) {
                 if (getSpec().getUpgrade() != null && !isBuilding()) {
-                    tooltip.addPara(StringHelper.getString(cat, "t5"), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), opad);
+                    tooltip.addPara(StringHelper.getString(cat, "t5"), Misc.getPositiveHighlightColor(), opad);
                 } else {
-                    tooltip.addPara(StringHelper.getString(cat, "t6"), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), opad);
+                    tooltip.addPara(StringHelper.getString(cat, "t6"), Misc.getPositiveHighlightColor(), opad);
                 }
                 //tooltip.addPara("Click to manage", market.getFaction().getBrightUIColor(), opad);
             }
         }
 
         if (mode == IndustryTooltipMode.QUEUED) {
-            tooltip.addPara(StringHelper.getString(cat, "t7"), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), opad);
+            tooltip.addPara(StringHelper.getString(cat, "t7"), Misc.getPositiveHighlightColor(), opad);
             tooltip.addPara(StringHelper.getString(cat, "t8"), opad);
 
             int left = (int) (getSpec().getBuildTime());
@@ -550,10 +551,10 @@ public class CentralizationBureau extends BaseIndustry {
 
         if (!category) {
             int credits = (int) Global.getSector().getPlayerFleet().getCargo().getCredits().get();
-            String creditsStr = com.fs.starfarer.api.util.Misc.getDGSCredits(credits);
+            String creditsStr = Misc.getDGSCredits(credits);
             if (mode == IndustryTooltipMode.UPGRADE || mode == IndustryTooltipMode.ADD_INDUSTRY) {
                 int cost = (int) getBuildCost();
-                String costStr = com.fs.starfarer.api.util.Misc.getDGSCredits(cost);
+                String costStr = Misc.getDGSCredits(cost);
 
                 int days = (int) getBuildTime();
 
@@ -574,7 +575,7 @@ public class CentralizationBureau extends BaseIndustry {
             } else if (mode == IndustryTooltipMode.DOWNGRADE) {
                 float refundFraction = Global.getSettings().getFloat("industryRefundFraction");
                 int cost = (int) (getBuildCost() * refundFraction);
-                String refundStr = com.fs.starfarer.api.util.Misc.getDGSCredits(cost);
+                String refundStr = Misc.getDGSCredits(cost);
 
                 tooltip.addPara(StringHelper.getString(cat, "t14"), opad, highlight, refundStr);
             }
@@ -584,7 +585,7 @@ public class CentralizationBureau extends BaseIndustry {
 
             if (!getIncome().isUnmodified()) {
                 int income = getIncome().getModifiedInt();
-                tooltip.addPara(StringHelper.getString(cat, "t15"), opad, highlight, com.fs.starfarer.api.util.Misc.getDGSCredits(income));
+                tooltip.addPara(StringHelper.getString(cat, "t15"), opad, highlight, Misc.getDGSCredits(income));
                 tooltip.addStatModGrid(250, 65, 10, pad, getIncome(), true, new TooltipMakerAPI.StatModValueGetter() {
                     public String getPercentValue(MutableStat.StatMod mod) {
                         return null;
@@ -599,14 +600,14 @@ public class CentralizationBureau extends BaseIndustry {
                     }
 
                     public String getFlatValue(MutableStat.StatMod mod) {
-                        return com.fs.starfarer.api.util.Misc.getWithDGS(mod.value) + Strings.C;
+                        return Misc.getWithDGS(mod.value) + Strings.C;
                     }
                 });
             }
 
             if (!getUpkeep().isUnmodified()) {
                 int upkeep = getUpkeep().getModifiedInt();
-                tooltip.addPara(StringHelper.getString(cat, "t16"), opad, highlight, com.fs.starfarer.api.util.Misc.getDGSCredits(upkeep));
+                tooltip.addPara(StringHelper.getString(cat, "t16"), opad, highlight, Misc.getDGSCredits(upkeep));
                 tooltip.addStatModGrid(250, 65, 10, pad, getUpkeep(), true, new TooltipMakerAPI.StatModValueGetter() {
                     public String getPercentValue(MutableStat.StatMod mod) {
                         return null;
@@ -621,7 +622,7 @@ public class CentralizationBureau extends BaseIndustry {
                     }
 
                     public String getFlatValue(MutableStat.StatMod mod) {
-                        return com.fs.starfarer.api.util.Misc.getWithDGS(mod.value) + Strings.C;
+                        return Misc.getWithDGS(mod.value) + Strings.C;
                     }
                 });
             }
@@ -686,12 +687,12 @@ public class CentralizationBureau extends BaseIndustry {
         MarketAPI nearest = null;
         float minDist = Float.MAX_VALUE;
 
-        for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets("player")) {
+        for (MarketAPI market : Misc.getFactionMarkets("player")) {
             if (market.hasIndustry(Ids.ADINFRA)) {
                 Industry ind = market.getIndustry(Ids.ADINFRA);
 
                 if (ind.isFunctional() && ind.getSpecialItem() != null) {
-                    float dist = com.fs.starfarer.api.util.Misc.getDistanceLY(locInHyper, ind.getMarket().getLocationInHyperspace());
+                    float dist = Misc.getDistanceLY(locInHyper, ind.getMarket().getLocationInHyperspace());
                     if (dist < minDist) {
                         minDist = dist;
                         nearest = market;
@@ -708,12 +709,12 @@ public class CentralizationBureau extends BaseIndustry {
     public static Set<MarketAPI> getListOfActiveBureausInRange(Vector2f locInHyper) {
         Set<MarketAPI> marketAPISet = new HashSet<>();
 
-        for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets("player")) {
+        for (MarketAPI market : Misc.getFactionMarkets("player")) {
             if (market.hasIndustry(Ids.ADINFRA)) {
                 Industry ind = market.getIndustry(Ids.ADINFRA);
 
                 if (ind.isFunctional() && ind.getSpecialItem() != null) {
-                    float dist = com.fs.starfarer.api.util.Misc.getDistanceLY(locInHyper, ind.getMarket().getLocationInHyperspace());
+                    float dist = Misc.getDistanceLY(locInHyper, ind.getMarket().getLocationInHyperspace());
                     if (dist < RANGE_LY_TWELVE) {
                         marketAPISet.add(market);
                     }
@@ -734,10 +735,10 @@ public class CentralizationBureau extends BaseIndustry {
             Pair<MarketAPI, Float> p = getNearestBureauWithItem(entity.getLocationInHyperspace());
 
             if (p != null) {
-                Color h = com.fs.starfarer.api.util.Misc.getHighlightColor();
+                Color h = Misc.getHighlightColor();
                 float opad = 10f;
 
-                String dStr = "" + com.fs.starfarer.api.util.Misc.getRoundedValueMaxOneAfterDecimal(p.two);
+                String dStr = "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two);
                 String lights = "light-years";
                 if (dStr.equals("1")) lights = "light-year";
 
@@ -746,7 +747,7 @@ public class CentralizationBureau extends BaseIndustry {
                                     p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away. The maximum " +
                                     "range in which resource management is possible is %s light-years.",
                             opad, h,
-                            "" + com.fs.starfarer.api.util.Misc.getRoundedValueMaxOneAfterDecimal(p.two),
+                            "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two),
                             "" + (int) RANGE_LY_TWELVE);
                 } else {
                     Set<MarketAPI> s = getListOfActiveBureausInRange(entity.getLocationInHyperspace());

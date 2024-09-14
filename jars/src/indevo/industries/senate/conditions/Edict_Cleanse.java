@@ -16,6 +16,7 @@ import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.industries.senate.industry.Senate;
 import indevo.utils.helper.MiscIE;
 
@@ -79,7 +80,7 @@ public class Edict_Cleanse extends BaseEdict implements MarketImmigrationModifie
 
             applyFinishPenalty();
             Global.getSector().getCampaignUI().addMessage("An Edict at %s was removed. It has %s.",
-                    Global.getSettings().getColor("standardTextColor"), market.getName(), "achieved its purpose", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor());
+                    Global.getSettings().getColor("standardTextColor"), market.getName(), "achieved its purpose", Misc.getHighlightColor(), Misc.getPositiveHighlightColor());
 
             removeWithoutPenalty();
         }
@@ -100,21 +101,21 @@ public class Edict_Cleanse extends BaseEdict implements MarketImmigrationModifie
     protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
         super.createTooltipAfterDescription(tooltip, expanded);
 
-        tooltip.addPara("RemainingDays: %s.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), getRemainingDays() + " days");
+        tooltip.addPara("RemainingDays: %s.", 10f, Misc.getHighlightColor(), getRemainingDays() + " days");
 
         if (getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place until the cleansing is complete, which will take another %s.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), (int) Math.ceil(getRemainingDays() / 31.0) + " Months");
+            tooltip.addPara("This edict must stay in place until the cleansing is complete, which will take another %s.", 10f, Misc.getHighlightColor(), (int) Math.ceil(getRemainingDays() / 31.0) + " Months");
         } else {
-            tooltip.addPara("This edict must stay in place until the cleansing is complete, which will take another %s.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), getRemainingDays() + " Days");
+            tooltip.addPara("This edict must stay in place until the cleansing is complete, which will take another %s.", 10f, Misc.getHighlightColor(), getRemainingDays() + " Days");
         }
 
-        tooltip.addPara("%s.", 3f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), "All Subpopulations will be removed on completion.");
+        tooltip.addPara("%s.", 3f, Misc.getPositiveHighlightColor(), "All Subpopulations will be removed on completion.");
 
-        tooltip.addPara("Colony income is %s to fund the cleanse.", 10f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by " + (int) ((1 - income_penalty) * 100) + "%");
-        tooltip.addPara("Colony growth is %s.", 3f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by " + market.getSize() + " points");
-        tooltip.addPara("Stability %s for the duration of this.", 3f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by " + stabPenalty);
+        tooltip.addPara("Colony income is %s to fund the cleanse.", 10f, Misc.getNegativeHighlightColor(), "reduced by " + (int) ((1 - income_penalty) * 100) + "%");
+        tooltip.addPara("Colony growth is %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + market.getSize() + " points");
+        tooltip.addPara("Stability %s for the duration of this.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + stabPenalty);
 
-        tooltip.addPara("Requires a %s in the star system and %s on this planet.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"Senate", "Military Presence"});
+        tooltip.addPara("Requires a %s in the star system and %s on this planet.", 10f, Misc.getHighlightColor(), new String[]{"Senate", "Military Presence"});
     }
 
     @Override
@@ -123,7 +124,7 @@ public class Edict_Cleanse extends BaseEdict implements MarketImmigrationModifie
         String s1 = "" + minRunTime + " months";
 
         text.addPara("The minimum runtime of this Edict is " + s1 + ", after which it will end automatically.");
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getHighlightColor(), s1);
+        text.highlightInLastPara(Misc.getHighlightColor(), s1);
     }
 
     @Override
@@ -138,13 +139,13 @@ public class Edict_Cleanse extends BaseEdict implements MarketImmigrationModifie
         String s2 = "reduced by " + (market.getSize() - 1);
 
         text.addParagraph("All Subpopulations will be removed on completion.");
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getHighlightColor(), "All Subpopulations will be removed on completion.");
+        text.highlightInLastPara(Misc.getHighlightColor(), "All Subpopulations will be removed on completion.");
         text.addParagraph("Colony income is reduced by 30% to fund the cleanse.");
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by 30%");
+        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "reduced by 30%");
         text.addParagraph("Colony growth is " + s1);
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), s1);
+        text.highlightInLastPara(Misc.getNegativeHighlightColor(), s1);
         text.addParagraph("Stability " + s2 + " for the duration of this.");
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), s2);
+        text.highlightInLastPara(Misc.getNegativeHighlightColor(), s2);
     }
 
     @Override

@@ -1,12 +1,12 @@
-package oldstory.plugins;
+package indevo.exploration.surveystories.plugins;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import oldstory.OldStoryLogger;
-import oldstory.memory.FileLoader;
-import oldstory.memory.StoryEntry;
+import indevo.exploration.surveystories.OldStoryLogger;
+import indevo.exploration.surveystories.memory.FileLoader;
+import indevo.exploration.surveystories.memory.StoryEntry;
 
 import java.util.ArrayList;
 import java.util.List;

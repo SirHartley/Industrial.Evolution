@@ -10,6 +10,7 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
@@ -276,8 +277,8 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
         if (!isBuilding()) {
             float opad = 5.0F;
-            Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
-            Color bad = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
+            Color highlight = Misc.getHighlightColor();
+            Color bad = Misc.getNegativeHighlightColor();
 
             if (currTooltipMode.equals(IndustryTooltipMode.ADD_INDUSTRY) || currentVPC == null) {
                 tooltip.addPara("%s", opad, highlight, StringHelper.getString("IndEvo_VarInd", "vpcNotice"));
@@ -316,7 +317,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
     @Override
     protected void addPostDemandSection(TooltipMakerAPI tooltip, boolean hasDemand, IndustryTooltipMode mode) {
         if (mode == IndustryTooltipMode.NORMAL && isFunctional()) {
-            Color h = com.fs.starfarer.api.util.Misc.getHighlightColor();
+            Color h = Misc.getHighlightColor();
             float pad = 3f;
 
             boolean deficit = getAllDeficit().size() > 0;
@@ -452,7 +453,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
         String effect = StringHelper.getString("IndEvo_AdAssem", "aCoreEffect");
@@ -470,7 +471,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
@@ -489,7 +490,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);

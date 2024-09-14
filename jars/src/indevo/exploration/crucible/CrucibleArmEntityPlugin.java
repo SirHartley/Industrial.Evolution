@@ -4,8 +4,6 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.util.Misc;
 
-import java.awt.*;
-
 public class CrucibleArmEntityPlugin extends BaseCustomEntityPlugin {
     public static float MAGIC_FUCK = 60f;
 

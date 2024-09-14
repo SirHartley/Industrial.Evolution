@@ -23,6 +23,7 @@ import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
@@ -121,7 +122,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
                 float feeAmount = 0f;
 
                 MessageIntel intel = new MessageIntel(StringHelper.getString(getId(), "repairedAt"),
-                        com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{(market.getName())}, Global.getSector().getPlayerFaction().getBrightUIColor());
+                        Misc.getTextColor(), new String[]{(market.getName())}, Global.getSector().getPlayerFaction().getBrightUIColor());
 
                 for (Map.Entry<FleetMemberAPI, Float> entry : fixedShips.entrySet()) {
                     if (aiMode)
@@ -131,13 +132,13 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
                     float amount = entry.getValue();
                     totalAmount += amount;
 
-                    intel.addLine(BaseIntelPlugin.BULLET + name + ": %s", com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{(com.fs.starfarer.api.util.Misc.getDGSCredits(amount))}, com.fs.starfarer.api.util.Misc.getHighlightColor());
+                    intel.addLine(BaseIntelPlugin.BULLET + name + ": %s", Misc.getTextColor(), new String[]{(Misc.getDGSCredits(amount))}, Misc.getHighlightColor());
                 }
 
                 if (aiMode) iNode.upkeep += feeAmount;
                 String header = aiMode ? StringHelper.getString(getId(), "totalCostWIthFee") : StringHelper.getString(getId(), "totalCost");
 
-                intel.addLine(header, com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{com.fs.starfarer.api.util.Misc.getDGSCredits(totalAmount), com.fs.starfarer.api.util.Misc.getDGSCredits(feeAmount)}, com.fs.starfarer.api.util.Misc.getHighlightColor());
+                intel.addLine(header, Misc.getTextColor(), new String[]{Misc.getDGSCredits(totalAmount), Misc.getDGSCredits(feeAmount)}, Misc.getHighlightColor());
                 intel.setIcon(Global.getSettings().getSpriteName("intel", "repairs_finished"));
                 intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
                 Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.INCOME_TAB, Tags.INCOME_REPORT);
@@ -378,7 +379,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
                 if (getAICoreId() == null) tooltip.addPara(StringHelper.getString(getId(), "capTooltip"), opad);
                 tooltip.addPara(StringHelper.getStringAndSubstituteTokens(getId(), "currentCap", toReplace),
                         2f,
-                        com.fs.starfarer.api.util.Misc.getHighlightColor(),
+                        Misc.getHighlightColor(),
                         new String[]{toReplace.get("$dModAmt"), StringHelper.getAbsPercentString(baseRepairPrice, true)});
             }
 
@@ -386,7 +387,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
                     && currTooltipMode == IndustryTooltipMode.NORMAL
                     && (!faction.isHostileTo(Global.getSector().getPlayerFaction()) || faction.getId().equals(Factions.PIRATES))) {
 
-                tooltip.addPara(StringHelper.getStringAndSubstituteTokens(getId(), "addFee", toReplace), opad, com.fs.starfarer.api.util.Misc.getTextColor(),
+                tooltip.addPara(StringHelper.getStringAndSubstituteTokens(getId(), "addFee", toReplace), opad, Misc.getTextColor(),
                         faction.getColor(),
                         faction.getDisplayNameWithArticle());
 
@@ -398,13 +399,13 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
                 tooltip.addPara(StringHelper.getString(getId(), "repFee"), opad, repInt.two, new String[]{toReplace.get("$discountAmt"), toReplace.get("$repInt")});
                 for (Map.Entry<String, Float> e : sizeList.entrySet()) {
-                    tooltip.addPara(StringHelper.getString(getId(), "hsCost"), 2f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{e.getKey(), com.fs.starfarer.api.util.Misc.getDGSCredits(e.getValue())});
+                    tooltip.addPara(StringHelper.getString(getId(), "hsCost"), 2f, Misc.getHighlightColor(), new String[]{e.getKey(), Misc.getDGSCredits(e.getValue())});
                 }
             } else if (!market.isPlayerOwned()
                     && currTooltipMode == IndustryTooltipMode.NORMAL
                     && (faction.isHostileTo(Global.getSector().getPlayerFaction()) || !faction.getId().equals(Factions.PIRATES))) {
 
-                tooltip.addPara(StringHelper.getStringAndSubstituteTokens(getId(), "hostile", toReplace), 2f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(),
+                tooltip.addPara(StringHelper.getStringAndSubstituteTokens(getId(), "hostile", toReplace), 2f, Misc.getNegativeHighlightColor(),
                         faction.getColor(),
                         faction.getDisplayName());
             }
@@ -433,9 +434,9 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
             Map<String, String> toReplace = new HashMap<>();
             toReplace.put("$hullName", ship.getKey().getHullSpec().getHullName());
             toReplace.put("$dModAmt", repairedShipsAmountList.get(ship.getKey()) + " " + StringHelper.getString("dmods"));
-            toReplace.put("$amt", com.fs.starfarer.api.util.Misc.getDGSCredits(ship.getValue()));
+            toReplace.put("$amt", Misc.getDGSCredits(ship.getValue()));
 
-            tooltip.addPara(BaseIntelPlugin.BULLET + StringHelper.getStringAndSubstituteTokens(getId(), "repairBullet", toReplace), 2f, com.fs.starfarer.api.util.Misc.getHighlightColor(),
+            tooltip.addPara(BaseIntelPlugin.BULLET + StringHelper.getStringAndSubstituteTokens(getId(), "repairBullet", toReplace), 2f, Misc.getHighlightColor(),
                     new String[]{
                             toReplace.get("$hullName"),
                             toReplace.get("$dModAmt"),
@@ -443,20 +444,20 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
         }
 
         if (!market.isPlayerOwned()) {
-            tooltip.addPara(StringHelper.getString(getId(), "commissionFee"), opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{com.fs.starfarer.api.util.Misc.getDGSCredits(feeAmount)});
-            tooltip.addPara(StringHelper.getString(getId(), "totalRepairCost"), 2F, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{com.fs.starfarer.api.util.Misc.getDGSCredits(repairCost + feeAmount)});
+            tooltip.addPara(StringHelper.getString(getId(), "commissionFee"), opad, Misc.getHighlightColor(), new String[]{Misc.getDGSCredits(feeAmount)});
+            tooltip.addPara(StringHelper.getString(getId(), "totalRepairCost"), 2F, Misc.getHighlightColor(), new String[]{Misc.getDGSCredits(repairCost + feeAmount)});
             tooltip.addPara(StringHelper.getString(getId(), "expensesBilled"), 2F);
             return true;
         }
 
-        tooltip.addPara(StringHelper.getString(getId(), "totalRepairCost"), opad, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{com.fs.starfarer.api.util.Misc.getDGSCredits(repairCost)});
+        tooltip.addPara(StringHelper.getString(getId(), "totalRepairCost"), opad, Misc.getHighlightColor(), new String[]{Misc.getDGSCredits(repairCost)});
         tooltip.addPara(StringHelper.getString(getId(), "expensesDetracted"), 2F);
         return true;
     }
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
         String coreHighlights = StringHelper.getString(getId(), "aCoreHighlights");
@@ -475,7 +476,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
@@ -495,7 +496,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);

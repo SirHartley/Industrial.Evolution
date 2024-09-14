@@ -17,6 +17,7 @@ import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
@@ -114,8 +115,8 @@ public class UnderworldSubIndustry extends SubIndustry {
             for (CampaignFleetAPI fleet : market.getStarSystem().getFleets()){
                 String factionID = fleet.getFaction().getId();
 
-                if (!fleet.getMemoryWithoutUpdate().getBoolean(HAS_BEEN_EXTORTED_KEY) && !Factions.PLAYER.equals(factionID) && !factionID.equals(com.fs.starfarer.api.util.Misc.getCommissionFactionId())){
-                    if (com.fs.starfarer.api.util.Misc.isTrader(fleet) || com.fs.starfarer.api.util.Misc.isSmuggler(fleet) || com.fs.starfarer.api.util.Misc.isScavenger(fleet)){
+                if (!fleet.getMemoryWithoutUpdate().getBoolean(HAS_BEEN_EXTORTED_KEY) && !Factions.PLAYER.equals(factionID) && !factionID.equals(Misc.getCommissionFactionId())){
+                    if (Misc.isTrader(fleet) || Misc.isSmuggler(fleet) || Misc.isScavenger(fleet)){
                         for (CargoStackAPI stack : fleet.getCargo().getStacksCopy()){
                             if (stack.isCommodityStack()) {
                                 String id = stack.getCommodityId();
@@ -235,7 +236,7 @@ public class UnderworldSubIndustry extends SubIndustry {
             }
             break;
         }
-        if (spaceportFirstInQueue && com.fs.starfarer.api.util.Misc.getCurrentlyBeingConstructed(market) != null) {
+        if (spaceportFirstInQueue && Misc.getCurrentlyBeingConstructed(market) != null) {
             spaceportFirstInQueue = false;
         }
         if (!market.hasSpaceport() && !spaceportFirstInQueue) {
@@ -257,7 +258,7 @@ public class UnderworldSubIndustry extends SubIndustry {
                 "Stability");
 
         market.getStats().getDynamic().getMod(Stats.FLEET_QUALITY_MOD).modifyFlatAlways(population.getModId(1), doctrineQualityMod,
-                com.fs.starfarer.api.util.Misc.ucFirst(market.getFaction().getEntityNamePrefix()) + " fleet doctrine");
+                Misc.ucFirst(market.getFaction().getEntityNamePrefix()) + " fleet doctrine");
 
 
         float stabilityDefenseMult = 0.25f + stability / 10f * 0.75f;
@@ -285,7 +286,7 @@ public class UnderworldSubIndustry extends SubIndustry {
                 "Colony size");
 
         market.getStats().getDynamic().getMod(Stats.COMBAT_FLEET_SIZE_MULT).modifyMultAlways(population.getModId(1), doctrineShipsMult,
-                com.fs.starfarer.api.util.Misc.ucFirst(market.getFaction().getEntityNamePrefix()) + " fleet doctrine");
+                Misc.ucFirst(market.getFaction().getEntityNamePrefix()) + " fleet doctrine");
 
         if (deficitShipsMult != 1f) {
             market.getStats().getDynamic().getMod(Stats.COMBAT_FLEET_SIZE_MULT).modifyMult(population.getModId(2), deficitShipsMult,

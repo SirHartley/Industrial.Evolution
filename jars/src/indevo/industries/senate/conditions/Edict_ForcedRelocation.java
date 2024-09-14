@@ -8,6 +8,7 @@ import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.TimeTracker;
 
@@ -57,7 +58,7 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
         if (minimumRuntimePassed() || market.getSize() >= Global.getSettings().getInt("maxColonySize")) {
             applyFinishPenalty();
             Global.getSector().getCampaignUI().addMessage("An Edict at %s was removed. It has %s.",
-                    Global.getSettings().getColor("standardTextColor"), market.getName(), "achieved its purpose", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor());
+                    Global.getSettings().getColor("standardTextColor"), market.getName(), "achieved its purpose", Misc.getHighlightColor(), Misc.getPositiveHighlightColor());
 
             removeWithoutPenalty();
         }
@@ -88,25 +89,25 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
         float otherPlanetIncrease = (float) ceil((1.0 * this.market.getSize() / otherPlanetCount) * popMult);
 
         if (getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place until the population transfer is complete, which will take another %s.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), (int) Math.ceil(getRemainingDays() / 31.0) + " Months");
+            tooltip.addPara("This edict must stay in place until the population transfer is complete, which will take another %s.", 10f, Misc.getHighlightColor(), (int) Math.ceil(getRemainingDays() / 31.0) + " Months");
         } else {
-            tooltip.addPara("This edict must stay in place until the population transfer is complete, which will take another %s.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), getRemainingDays() + " Days");
+            tooltip.addPara("This edict must stay in place until the population transfer is complete, which will take another %s.", 10f, Misc.getHighlightColor(), getRemainingDays() + " Days");
         }
 
         tooltip.addPara("Stability %s for all colonies in the system.",
-                10f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by " + stabPenalty);
+                10f, Misc.getNegativeHighlightColor(), "reduced by " + stabPenalty);
         tooltip.addPara("Population growth of this colony %s.",
-                3f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by " + (int) (market.getSize() * popMult));
+                3f, Misc.getNegativeHighlightColor(), "reduced by " + (int) (market.getSize() * popMult));
         tooltip.addPara("Population growth for:",
                 3f);
         for (MarketAPI market : MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
             if (!market.getId().equals(this.market.getId())) {
                 tooltip.addPara(BaseIntelPlugin.BULLET + market.getName() + ": increased by %s.",
-                        1f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), (int) otherPlanetIncrease + "");
+                        1f, Misc.getPositiveHighlightColor(), (int) otherPlanetIncrease + "");
             }
         }
 
-        tooltip.addPara("Requires a %s and at least two colonies in the star system, %s on this planet, and the colony must not have the maximum size.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"Senate", "Military Presence"});
+        tooltip.addPara("Requires a %s and at least two colonies in the star system, %s on this planet, and the colony must not have the maximum size.", 10f, Misc.getHighlightColor(), new String[]{"Senate", "Military Presence"});
     }
 
     @Override
@@ -124,18 +125,18 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
         String s2 = "reduced by " + (market.getSize() * 10);
 
         text.addParagraph("Population growth for this colony " + s2);
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), s2);
+        text.highlightInLastPara(Misc.getNegativeHighlightColor(), s2);
         text.addParagraph("Population growth for:");
         for (MarketAPI market1 : MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId())) {
             if (!market1.getId().equals(market.getId())) {
                 text.addParagraph(BaseIntelPlugin.BULLET + market1.getName() + ": increased by " + s1);
-                text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getHighlightColor(), market1.getName());
-                text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), s1);
+                text.highlightInLastPara(Misc.getHighlightColor(), market1.getName());
+                text.highlightInLastPara(Misc.getPositiveHighlightColor(), s1);
             }
         }
 
         text.addParagraph("Stability reduced by 3 for all colonies in the star system.");
-        text.highlightInLastPara(com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), "reduced by 3");
+        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "reduced by 3");
     }
 
     @Override

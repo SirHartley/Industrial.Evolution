@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
 import com.fs.starfarer.api.campaign.listeners.ColonyOtherFactorsListener;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.utils.helper.MiscIE;
@@ -78,9 +79,9 @@ public class Senate extends BaseIndustry {
 
             if (!systemHasEdict()) {
                 if (currTooltipMode == IndustryTooltipMode.ADD_INDUSTRY) {
-                    tooltip.addPara("%s", 10F, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"A senate allows you to issue Edicts on all colonies in the system."});
+                    tooltip.addPara("%s", 10F, Misc.getHighlightColor(), new String[]{"A senate allows you to issue Edicts on all colonies in the system."});
                 } else {
-                    tooltip.addPara("%s", 10F, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"You can issue an edict from the main colony menu."});
+                    tooltip.addPara("%s", 10F, Misc.getPositiveHighlightColor(), new String[]{"You can issue an edict from the main colony menu."});
                 }
             }
         }
@@ -90,7 +91,7 @@ public class Senate extends BaseIndustry {
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String pre = "Alpha-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Alpha-level AI core. ";
@@ -108,7 +109,7 @@ public class Senate extends BaseIndustry {
 
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String pre = "Beta-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Beta-level AI core. ";
@@ -126,7 +127,7 @@ public class Senate extends BaseIndustry {
 
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String pre = "Gamma-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Gamma-level AI core. ";
@@ -163,12 +164,12 @@ public class Senate extends BaseIndustry {
         MarketAPI nearest = null;
         float minDist = Float.MAX_VALUE;
 
-        for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets("player")) {
+        for (MarketAPI market : Misc.getFactionMarkets("player")) {
             if (market.hasIndustry(Ids.SENATE)) {
                 Senate senate = (Senate) market.getIndustry(Ids.SENATE);
 
                 if (senate.isFunctional() && senate.getSpecialItem() != null) {
-                    float dist = com.fs.starfarer.api.util.Misc.getDistanceLY(locInHyper, senate.market.getLocationInHyperspace());
+                    float dist = Misc.getDistanceLY(locInHyper, senate.market.getLocationInHyperspace());
                     if (dist < minDist) {
                         minDist = dist;
                         nearest = market;
@@ -192,10 +193,10 @@ public class Senate extends BaseIndustry {
             Pair<MarketAPI, Float> p = getNearestSenateWithItem(entity.getLocationInHyperspace());
 
             if (p != null) {
-                Color h = com.fs.starfarer.api.util.Misc.getHighlightColor();
+                Color h = Misc.getHighlightColor();
                 float opad = 10f;
 
-                String dStr = "" + com.fs.starfarer.api.util.Misc.getRoundedValueMaxOneAfterDecimal(p.two);
+                String dStr = "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two);
                 String lights = "light-years";
                 if (dStr.equals("1")) lights = "light-year";
 
@@ -204,7 +205,7 @@ public class Senate extends BaseIndustry {
                                     p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away. The maximum " +
                                     "range in which covert compound deployment is possible is %s light-years. It is %s to issue edicts through compound application here.",
                             opad, h,
-                            "" + com.fs.starfarer.api.util.Misc.getRoundedValueMaxOneAfterDecimal(p.two),
+                            "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two),
                             "" + (int) RANGE_LY_TWELVE,
                             "not possible");
                 } else {
@@ -212,7 +213,7 @@ public class Senate extends BaseIndustry {
                                     p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away, allowing " +
                                     "you to %s on this colony.",
                             opad, h,
-                            "" + com.fs.starfarer.api.util.Misc.getRoundedValueMaxOneAfterDecimal(p.two),
+                            "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two),
                             "issue edicts");
                 }
             }

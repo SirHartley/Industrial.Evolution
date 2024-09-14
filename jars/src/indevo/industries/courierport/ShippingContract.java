@@ -1,7 +1,6 @@
 package indevo.industries.courierport;
 
 import assortment_of_things.frontiers.FrontiersUtils;
-import assortment_of_things.frontiers.SettlementManager;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;

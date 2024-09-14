@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.util.Highlights;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
@@ -49,7 +50,7 @@ public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements
             boolean baseAllowed = allowedShips.contains(member.getHullSpec().getBaseHullId());
             boolean restricted = restrictedShips.contains(member.getHullId());
             boolean printed = member.getVariant().hasHullMod(Ids.PRINTING_INDICATOR);
-            boolean hasUnremovableNonAIOfficer = member.getCaptain() != null && (com.fs.starfarer.api.util.Misc.isUnremovable(member.getCaptain()) && !member.getCaptain().isAICore());
+            boolean hasUnremovableNonAIOfficer = member.getCaptain() != null && (Misc.isUnremovable(member.getCaptain()) && !member.getCaptain().isAICore());
 
             if (restricted || !(allowed || baseAllowed)) return "Can not be Deconstructed.";
             if (printed) return "Unusable - Printing Defects";
@@ -69,7 +70,7 @@ public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements
             boolean notAllowed = !(allowedShips.contains(member.getHullId()) || allowedShips.contains(member.getHullSpec().getBaseHullId())); //if not allowed, return true
             boolean restricted = restrictedShips.contains(member.getHullId()); //if restricted, return true
             boolean isPrinted = member.getVariant().hasHullMod(Ids.PRINTING_INDICATOR);
-            boolean hasUnremovableNonAIOfficer = member.getCaptain() != null && (com.fs.starfarer.api.util.Misc.isUnremovable(member.getCaptain()) && !member.getCaptain().isAICore());
+            boolean hasUnremovableNonAIOfficer = member.getCaptain() != null && (Misc.isUnremovable(member.getCaptain()) && !member.getCaptain().isAICore());
 
             boolean ignoreWhiteLists = Settings.getBoolean(Settings.DECON_IGNORE_WHITELISTS);
 

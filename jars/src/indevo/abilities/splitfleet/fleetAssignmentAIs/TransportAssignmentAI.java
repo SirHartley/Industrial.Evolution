@@ -13,6 +13,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
+import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 import indevo.utils.ModPlugin;
@@ -86,8 +87,8 @@ public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
     public void notifyPlayerOfMarketChange() {
         MarketAPI m = Global.getSector().getEconomy().getMarket(targetMarketId);
 
-        MessageIntel intel = new MessageIntel("A transport detachment has %s.", com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{"changed destination"}, com.fs.starfarer.api.util.Misc.getHighlightColor());
-        intel.addLine(BaseIntelPlugin.BULLET + "New destination: %s in %s", com.fs.starfarer.api.util.Misc.getTextColor(), new String[]{m.getName(), m.getStarSystem().getBaseName()}, m.getFaction().getColor(), m.getFaction().getColor());
+        MessageIntel intel = new MessageIntel("A transport detachment has %s.", Misc.getTextColor(), new String[]{"changed destination"}, Misc.getHighlightColor());
+        intel.addLine(BaseIntelPlugin.BULLET + "New destination: %s in %s", Misc.getTextColor(), new String[]{m.getName(), m.getStarSystem().getBaseName()}, m.getFaction().getColor(), m.getFaction().getColor());
         intel.setIcon(Global.getSettings().getSpriteName("intel", "tradeFleet_valuable"));
         intel.setSound(BaseIntelPlugin.getSoundMajorPosting());
         Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, m);
@@ -101,7 +102,7 @@ public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
         MarketAPI market = Global.getSector().getEconomy().getMarketsCopy().get(0);
 
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            float d = com.fs.starfarer.api.util.Misc.getDistance(toFleet, m.getPrimaryEntity());
+            float d = Misc.getDistance(toFleet, m.getPrimaryEntity());
             if (d < dist) {
                 dist = d;
                 market = m;

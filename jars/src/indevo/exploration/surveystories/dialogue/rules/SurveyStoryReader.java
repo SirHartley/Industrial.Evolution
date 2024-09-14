@@ -1,4 +1,4 @@
-package oldstory.dialogue.rules;
+package indevo.exploration.surveystories.dialogue.rules;
 
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
@@ -7,9 +7,9 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
-import oldstory.OldStoryLogger;
-import oldstory.memory.StoryEntry;
-import oldstory.plugins.Historian;
+import indevo.exploration.surveystories.OldStoryLogger;
+import indevo.exploration.surveystories.memory.StoryEntry;
+import indevo.exploration.surveystories.plugins.Historian;
 
 import java.util.List;
 import java.util.Map;

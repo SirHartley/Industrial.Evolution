@@ -7,7 +7,6 @@ import com.fs.starfarer.api.impl.campaign.econ.BaseMarketConditionPlugin;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.HeavyIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.util.Misc;
@@ -18,7 +17,6 @@ import data.campaign.econ.industries.MS_modularFac;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.Supercomputer;
-import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
 import org.lwjgl.util.vector.Vector2f;
 

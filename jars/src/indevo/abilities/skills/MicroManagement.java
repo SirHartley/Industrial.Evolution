@@ -2,7 +2,6 @@ package indevo.abilities.skills;
 
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.MarketSkillEffect;
-import com.fs.starfarer.api.impl.campaign.ids.Stats;
 
 public class MicroManagement {
 

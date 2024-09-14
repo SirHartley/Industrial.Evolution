@@ -8,6 +8,7 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.industries.embassy.industry.Embassy;
@@ -76,7 +77,7 @@ public class RequisitionCenter extends BaseIndustry {
             tooltip.addSectionHeading("Weapon Imports", color, dark, Alignment.MID, 10f);
 
             int repInt = (int) Math.ceil((Math.round(MIN_REP_REQUIREMENT * 100f)));
-            tooltip.addPara("The minimum reputation for weapon imports is %s", opad, com.fs.starfarer.api.util.Misc.getTextColor(), com.fs.starfarer.api.util.Misc.getHighlightColor(), "+" + repInt);
+            tooltip.addPara("The minimum reputation for weapon imports is %s", opad, Misc.getTextColor(), Misc.getHighlightColor(), "+" + repInt);
 
             if (market.hasIndustry(Ids.EMBASSY)
                     && AmbassadorPersonManager.hasAmbassador(market)
@@ -92,12 +93,12 @@ public class RequisitionCenter extends BaseIndustry {
                     if (repInt < Math.round(MIN_REP_REQUIREMENT * 100)) {
 
                         weaponString = getAmountString(rel, true);
-                        tooltip.addPara("The Centre is currently sourcing %s as your standing with " + alignedFaction.getDisplayNameWithArticle() + " is not high enough. %s", opad, com.fs.starfarer.api.util.Misc.getTextColor(), standing.two, new String[]{weaponString, standing.one});
-                        tooltip.addPara("Consider installing a %s.", 2f, com.fs.starfarer.api.util.Misc.getTextColor(), com.fs.starfarer.api.util.Misc.getHighlightColor(), Global.getSettings().getCommoditySpec(Commodities.GAMMA_CORE).getName());
+                        tooltip.addPara("The Centre is currently sourcing %s as your standing with " + alignedFaction.getDisplayNameWithArticle() + " is not high enough. %s", opad, Misc.getTextColor(), standing.two, new String[]{weaponString, standing.one});
+                        tooltip.addPara("Consider installing a %s.", 2f, Misc.getTextColor(), Misc.getHighlightColor(), Global.getSettings().getCommoditySpec(Commodities.GAMMA_CORE).getName());
                     } else {
 
                         weaponString = getAmountString(rel, true);
-                        tooltip.addPara("The Centre is currently sourcing %s of weapons from " + alignedFaction.getDisplayNameWithArticle() + ". %s", opad, com.fs.starfarer.api.util.Misc.getTextColor(), standing.two, new String[]{weaponString, standing.one});
+                        tooltip.addPara("The Centre is currently sourcing %s of weapons from " + alignedFaction.getDisplayNameWithArticle() + ". %s", opad, Misc.getTextColor(), standing.two, new String[]{weaponString, standing.one});
                     }
                 }
             } else { //if it doesn't have an embassy
@@ -147,8 +148,8 @@ actual effect handling is in RequisitionsCenterSubmarketPlugin*/
     @Override
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
-        Color bad = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
+        Color highlight = Misc.getHighlightColor();
+        Color bad = Misc.getNegativeHighlightColor();
         String pre = "Alpha-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Alpha-level AI core. ";
@@ -157,18 +158,18 @@ actual effect handling is in RequisitionsCenterSubmarketPlugin*/
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Tries to avoid weapons you have %s or more of in storage, increases the %s for sale.", 0f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"10", "total amount of weapons"});
+            text.addPara(pre + "Tries to avoid weapons you have %s or more of in storage, increases the %s for sale.", 0f, Misc.getPositiveHighlightColor(), new String[]{"10", "total amount of weapons"});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Tries to avoid weapons you have %s or more of in storage, increases the %s for sale.", opad, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"10", "total amount of weapons"});
+            tooltip.addPara(pre + "Tries to avoid weapons you have %s or more of in storage, increases the %s for sale.", opad, Misc.getPositiveHighlightColor(), new String[]{"10", "total amount of weapons"});
         }
     }
 
     @Override
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
-        Color bad = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
+        Color highlight = Misc.getHighlightColor();
+        Color bad = Misc.getNegativeHighlightColor();
         String pre = "Beta-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Beta-level AI core. ";
@@ -177,18 +178,18 @@ actual effect handling is in RequisitionsCenterSubmarketPlugin*/
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Increases the amount of %s for sale.", 0f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"large and rare weapons"});
+            text.addPara(pre + "Increases the amount of %s for sale.", 0f, Misc.getPositiveHighlightColor(), new String[]{"large and rare weapons"});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Increases the amount of %s for sale.", opad, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"large and rare weapons"});
+            tooltip.addPara(pre + "Increases the amount of %s for sale.", opad, Misc.getPositiveHighlightColor(), new String[]{"large and rare weapons"});
         }
     }
 
     @Override
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
-        Color bad = com.fs.starfarer.api.util.Misc.getNegativeHighlightColor();
+        Color highlight = Misc.getHighlightColor();
+        Color bad = Misc.getNegativeHighlightColor();
         String pre = "Gamma-level AI core currently assigned. ";
         if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Gamma-level AI core. ";
@@ -197,10 +198,10 @@ actual effect handling is in RequisitionsCenterSubmarketPlugin*/
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Sets the Requisitions Centre to %s installed in the Embassy, sourcing from any eligible faction.", 0f, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"ignore any ambassador"});
+            text.addPara(pre + "Sets the Requisitions Centre to %s installed in the Embassy, sourcing from any eligible faction.", 0f, Misc.getPositiveHighlightColor(), new String[]{"ignore any ambassador"});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Sets the Requisitions Centre to %s installed in the Embassy, sourcing from any eligible faction.", opad, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"ignore any ambassador"});
+            tooltip.addPara(pre + "Sets the Requisitions Centre to %s installed in the Embassy, sourcing from any eligible faction.", opad, Misc.getPositiveHighlightColor(), new String[]{"ignore any ambassador"});
         }
     }
 

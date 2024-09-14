@@ -19,6 +19,7 @@ import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
@@ -125,7 +126,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
                     setSpecialItem(stack.getSpecialDataIfSpecial());
                     cargo.removeItems(CargoAPI.CargoItemType.SPECIAL, stack.getSpecialDataIfSpecial(), 1);
                     Global.getSector().getCampaignUI().addMessage("A Hull Forge has taken a %s from the industrial storage at %s.",
-                            Global.getSettings().getColor("standardTextColor"), Global.getSettings().getSpecialItemSpec(stack.getSpecialDataIfSpecial().getId()).getName(), market.getName(), com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getHighlightColor());
+                            Global.getSettings().getColor("standardTextColor"), Global.getSettings().getSpecialItemSpec(stack.getSpecialDataIfSpecial().getId()).getName(), market.getName(), Misc.getHighlightColor(), Misc.getHighlightColor());
                     break;
                 }
             }
@@ -149,7 +150,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
             if (successful) {
                 String name = currentShip.getNameWithDesignationWithDashClass();
                 Global.getSector().getCampaignUI().addMessage("A Hull Forge has begun automated construction for a %s at %s.",
-                        com.fs.starfarer.api.util.Misc.getTextColor(), name, market.getName(), com.fs.starfarer.api.util.Misc.getHighlightColor(), market.getFaction().getBrightUIColor());
+                        Misc.getTextColor(), name, market.getName(), Misc.getHighlightColor(), market.getFaction().getBrightUIColor());
             }
 
         } else if (currentShip != null) {
@@ -172,7 +173,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
                 } else {
                     Global.getSector().getCampaignUI().addMessage("Could not deliver a ship at %s, as there was %s found.",
-                            com.fs.starfarer.api.util.Misc.getTextColor(), market.getName(), "no eligible storage", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), market.getFaction().getBrightUIColor());
+                            Misc.getTextColor(), market.getName(), "no eligible storage", Misc.getNegativeHighlightColor(), market.getFaction().getBrightUIColor());
                 }
 
                 depositOrShipTemplate();
@@ -237,7 +238,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
     private void throwDeliveryMessage(MarketAPI from, MarketAPI to, String add) {
         Global.getSector().getCampaignUI().addMessage("A Forge Template has degraded at %s - it has been deposited into storage at %s." + add,
-                com.fs.starfarer.api.util.Misc.getTextColor(), from.getName(), to.getName(), com.fs.starfarer.api.util.Misc.getHighlightColor(), market.getFaction().getBrightUIColor());
+                Misc.getTextColor(), from.getName(), to.getName(), Misc.getHighlightColor(), market.getFaction().getBrightUIColor());
 
     }
 
@@ -369,12 +370,12 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
         //check player colony inventory and abandoned stations
         for (String factionID : new String[]{Factions.PLAYER, Factions.NEUTRAL}) {
-            for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets(Global.getSector().getFaction(factionID))) {
-                if (com.fs.starfarer.api.util.Misc.getStorage(market) == null) continue;
+            for (MarketAPI market : Misc.getFactionMarkets(Global.getSector().getFaction(factionID))) {
+                if (Misc.getStorage(market) == null) continue;
 
-                com.fs.starfarer.api.util.Misc.getStorage(market).getCargo().initMothballedShips(Factions.PLAYER);
+                Misc.getStorage(market).getCargo().initMothballedShips(Factions.PLAYER);
 
-                for (FleetMemberAPI fleetMember : com.fs.starfarer.api.util.Misc.getStorage(market).getCargo().getMothballedShips().getMembersListCopy()) {
+                for (FleetMemberAPI fleetMember : Misc.getStorage(market).getCargo().getMothballedShips().getMembersListCopy()) {
                     if (fleetMember.getHullId().equals(member.getHullId())) {
                         for (String hullModId : fleetMember.getVariant().getHullMods()) {
                             if (isValidModularHullMod(hullModId)) addOrIncrement(weightMap, hullModId, 0.5f);
@@ -473,7 +474,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
         super.addRightAfterDescriptionSection(tooltip, mode);
         if (mode == IndustryTooltipMode.NORMAL) {
-            tooltip.addPara("Install a %s into this structure to construct ships.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"Forge Template"});
+            tooltip.addPara("Install a %s into this structure to construct ships.", 10f, Misc.getHighlightColor(), new String[]{"Forge Template"});
         }
     }
 
@@ -516,10 +517,10 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
                 text.addPara("Constructing: %s. Time remaining: %s. This will cost %s in materials.",
                         opad,
-                        com.fs.starfarer.api.util.Misc.getHighlightColor(),
+                        Misc.getHighlightColor(),
                         new String[]{currentShip.getNameWithDesignationWithDashClass(),
                                 Math.max(daysRequired - daysPassed, 0) + " days",
-                                com.fs.starfarer.api.util.Misc.getDGSCredits(getConstructionCost(currentShip))});
+                                Misc.getDGSCredits(getConstructionCost(currentShip))});
 
                 tooltip.addImageWithText(opad);
             } else {
@@ -536,25 +537,25 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
         s = c < 1 ? "no charges" : s;
 
         MessageIntel intel = new MessageIntel("A Hull Forge at %s has finished assembling a %s .",
-                com.fs.starfarer.api.util.Misc.getTextColor(),
+                Misc.getTextColor(),
                 new String[]{market.getName(), currentShip.getNameWithDesignationWithDashClass()},
                 market.getFaction().getBrightUIColor(),
-                com.fs.starfarer.api.util.Misc.getHighlightColor());
+                Misc.getHighlightColor());
 
         intel.addLine(BaseIntelPlugin.BULLET + "It has been delivered to %s",
-                com.fs.starfarer.api.util.Misc.getTextColor(),
+                Misc.getTextColor(),
                 new String[]{target.getName()},
                 target.getFaction().getBrightUIColor());
 
         intel.addLine(BaseIntelPlugin.BULLET + "Material costs: %s",
-                com.fs.starfarer.api.util.Misc.getTextColor(),
-                new String[]{com.fs.starfarer.api.util.Misc.getDGSCredits(cost)},
-                com.fs.starfarer.api.util.Misc.getHighlightColor());
+                Misc.getTextColor(),
+                new String[]{Misc.getDGSCredits(cost)},
+                Misc.getHighlightColor());
 
         intel.addLine(BaseIntelPlugin.BULLET + "%s remaining on the Forge Template.",
-                com.fs.starfarer.api.util.Misc.getTextColor(),
+                Misc.getTextColor(),
                 new String[]{s},
-                com.fs.starfarer.api.util.Misc.getHighlightColor());
+                Misc.getHighlightColor());
 
         intel.setIcon(currentShip.getSpriteName());
         Global.getSector().getCampaignUI().addMessage(intel);
@@ -568,7 +569,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
         String coreHighlights = StringHelper.getString(getId(), "aCoreHighlights");
@@ -586,7 +587,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
@@ -605,7 +606,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
@@ -670,6 +671,6 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
-        tooltip.addPara("Hull Forge: pulls %s from this storage to use.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), "Forge Templates");
+        tooltip.addPara("Hull Forge: pulls %s from this storage to use.", 10f, Misc.getHighlightColor(), "Forge Templates");
     }
 }

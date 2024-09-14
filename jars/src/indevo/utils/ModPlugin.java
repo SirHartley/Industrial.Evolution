@@ -28,6 +28,7 @@ import com.fs.starfarer.api.impl.campaign.intel.deciv.DecivTracker;
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
 import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
 import indevo.WIP.mobilecolony.plugins.MobileColonyCampaignPlugin;
@@ -36,11 +37,9 @@ import indevo.abilities.skills.scripts.MicromanagementSkillEffectScript;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.dialogue.research.*;
-import indevo.dialogue.research.AutopulseUseChecker;
-import indevo.dialogue.research.DoritoGunFoundChecker;
-import indevo.dialogue.research.HyperspaceTopoProgressChecker;
 import indevo.dialogue.research.listeners.CamouflageRefitListener;
 import indevo.dialogue.research.listeners.HasUniqueShipChecker;
+import indevo.dialogue.research.scripts.RefitUIOpenChecker;
 import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.crucible.CrucibleSpawner;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
@@ -85,7 +84,6 @@ import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.items.listeners.ShipComponentLootManager;
 import indevo.items.listeners.SpecialItemDropsListener;
 import indevo.other.PlayerHyperspaceTripTracker;
-import indevo.dialogue.research.scripts.RefitUIOpenChecker;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.timers.RaidTimeout;
@@ -231,7 +229,7 @@ public class ModPlugin extends BaseModPlugin {
             List<String> tagList = new ArrayList<>();
             if (spec.getTags().contains("industrial")) tagList.add("industrial");
             if (spec.getTags().contains("rural")) tagList.add("rural");
-            if (spec.getTags().contains("military") || spec.getTags().contains("patrol") || spec.getTags().contains("command") || spec.getNewPluginInstance(Global.getFactory().createMarket(com.fs.starfarer.api.util.Misc.genUID(), "", 1)) instanceof MilitaryBase) tagList.add("military");
+            if (spec.getTags().contains("military") || spec.getTags().contains("patrol") || spec.getTags().contains("command") || spec.getNewPluginInstance(Global.getFactory().createMarket(Misc.genUID(), "", 1)) instanceof MilitaryBase) tagList.add("military");
 
             if (tagList.isEmpty()) continue;
 
@@ -239,7 +237,7 @@ public class ModPlugin extends BaseModPlugin {
 
             for (String tag : tagList){
                 if (type.length() > 0 && tagList.get(tagList.size()-1).equals(tag)) type.append(", ");
-                type.append(com.fs.starfarer.api.util.Misc.ucFirst(tag));
+                type.append(Misc.ucFirst(tag));
             }
 
             type.insert(0, preface).append("\n\n");
@@ -282,11 +280,11 @@ public class ModPlugin extends BaseModPlugin {
         for (LocationAPI loc : Global.getSector().getAllLocations()) {
             for (SectorEntityToken mine : new ArrayList<>(loc.getEntitiesWithTag("IndEvo_Mine"))) {
                 //count++;
-                AsteroidSource source = com.fs.starfarer.api.util.Misc.getAsteroidSource(mine);
+                AsteroidSource source = Misc.getAsteroidSource(mine);
                 if (source == null || !mine.getMemoryWithoutUpdate().isEmpty()) {
                     if (source != null) {
                         source.reportAsteroidPersisted(mine);
-                        com.fs.starfarer.api.util.Misc.clearAsteroidSource(mine);
+                        Misc.clearAsteroidSource(mine);
                     }
 
                 } else {
@@ -463,7 +461,7 @@ public class ModPlugin extends BaseModPlugin {
         ItemEffectsRepo.ITEM_EFFECTS.put(Items.DEALMAKER_HOLOSUITE, new BaseInstallableItemEffect(Items.DEALMAKER_HOLOSUITE) {
             public void apply(Industry industry) {
                 industry.getMarket().getIncomeMult().modifyPercent(spec.getId(), DEALMAKER_INCOME_PERCENT_BONUS,
-                        com.fs.starfarer.api.util.Misc.ucFirst(spec.getName().toLowerCase()));
+                        Misc.ucFirst(spec.getName().toLowerCase()));
             }
 
             public void unapply(Industry industry) {
@@ -473,7 +471,7 @@ public class ModPlugin extends BaseModPlugin {
             protected void addItemDescriptionImpl(Industry industry, TooltipMakerAPI text, SpecialItemData data,
                                                   InstallableIndustryItemPlugin.InstallableItemDescriptionMode mode, String pre, float pad) {
                 text.addPara(pre + "Colony income increased by %s.",
-                        pad, com.fs.starfarer.api.util.Misc.getHighlightColor(),
+                        pad, Misc.getHighlightColor(),
                         "" + (int) DEALMAKER_INCOME_PERCENT_BONUS + "%");
             }
         });

@@ -11,6 +11,7 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.petshop.memory.Pet;
@@ -167,7 +168,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             case COMBAT:
                 picker = new WeightedRandomPicker<>();
                 picker.addAll(MiscIE.getCSVSetFromMemory(COMBAT_DEATH_CAUSES));
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", living on the destroyed " + petLocation + ", " + picker.pick() + "", com.fs.starfarer.api.util.Misc.getTextColor(), pet.name, null, com.fs.starfarer.api.util.Misc.getHighlightColor(), null);
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", living on the destroyed " + petLocation + ", " + picker.pick() + "", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
                 break;
             case NATURAL:
                 String message = "";
@@ -177,19 +178,19 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                     message = picker.pick();
                 } else message = pet.getData().naturalDeath;
 
-                if (pet.isAssigned()) Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly living on the " + petLocation + ", %s", com.fs.starfarer.api.util.Misc.getTextColor(), pet.name, message, com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
-                else if (pet.storage != null)  Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly living at the " + pet.storage.getMarket().getName() + " " + Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName().toLowerCase() + ", %s", com.fs.starfarer.api.util.Misc.getTextColor(), pet.name, message, com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
+                if (pet.isAssigned()) Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly living on the " + petLocation + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                else if (pet.storage != null)  Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly living at the " + pet.storage.getMarket().getName() + " " + Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName().toLowerCase() + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
 
                 break;
             case STARVED:
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has %s on the " + petLocation, com.fs.starfarer.api.util.Misc.getTextColor(), pet.name, "starved to death", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has %s on the " + petLocation, Misc.getTextColor(), pet.name, "starved to death", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case SOLD:
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " was sold with the " + petLocation + " and promptly %s by the new owners.", com.fs.starfarer.api.util.Misc.getTextColor(), pet.name, "euthanized", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " was sold with the " + petLocation + " and promptly %s by the new owners.", Misc.getTextColor(), pet.name, "euthanized", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case UNKNOWN:
                 //if sold and not caught or magic'd away
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly of the " + petLocation + ", has %s", com.fs.starfarer.api.util.Misc.getTextColor(), pet.name, "died.", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly of the " + petLocation + ", has %s", Misc.getTextColor(), pet.name, "died.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
         }
 
@@ -197,7 +198,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     }
 
     public void reportPetStarving(Pet pet) {
-        Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has started %s", com.fs.starfarer.api.util.Misc.getTextColor(), pet.name, "starving. Feed it or it will die.", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
+        Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has started %s", Misc.getTextColor(), pet.name, "starving. Feed it or it will die.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
     }
 
     @Override
@@ -264,7 +265,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void reportBattleOccurred(CampaignFleetAPI fleet, CampaignFleetAPI primaryWinner, BattleAPI battle) {
         if (fleet == null || !fleet.isPlayerFleet()) return;
 
-        List<FleetMemberAPI> membersLost = com.fs.starfarer.api.util.Misc.getSnapshotMembersLost(fleet);
+        List<FleetMemberAPI> membersLost = Misc.getSnapshotMembersLost(fleet);
 
         for (Pet pet : new ArrayList<>(pets)) {
             if (membersLost.contains(pet.assignedFleetMember)) {
@@ -276,11 +277,11 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     private void showFoodMessage() {
         if (foodTakenLastMonth.isEmpty()) return;
 
-        Color c = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color c = Misc.getHighlightColor();
 
         MessageIntel intel = new MessageIntel(
                 "Report: Food consumed by %s in the last month:",
-                com.fs.starfarer.api.util.Misc.getTextColor(),
+                Misc.getTextColor(),
                 new String[]{"your pets"},
                 c);
 
@@ -289,9 +290,9 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             int amount = (int) Math.ceil(entry.getValue());
 
             intel.addLine(BaseIntelPlugin.BULLET + name + ": %s",
-                    com.fs.starfarer.api.util.Misc.getTextColor(),
+                    Misc.getTextColor(),
                     new String[]{(amount + StringHelper.getString("unitsWithFrontSpace"))},
-                    com.fs.starfarer.api.util.Misc.getHighlightColor());
+                    Misc.getHighlightColor());
         }
 
         intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "pets_small"));
@@ -316,16 +317,16 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             @Override
             public void advance(float amount) {
                 if (!done){
-                    Color c = com.fs.starfarer.api.util.Misc.getHighlightColor();
+                    Color c = Misc.getHighlightColor();
 
                     MessageIntel intel = new MessageIntel(
                             "You %s some %s on ships you stored at the %s!",
-                            com.fs.starfarer.api.util.Misc.getTextColor(),
+                            Misc.getTextColor(),
                             new String[]{"forgot", "pets", onMarket.getMarket().getName() + " " + onMarket.getNameOneLine()},
-                            com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), onMarket.getFaction().getColor());
+                            Misc.getNegativeHighlightColor(), onMarket.getFaction().getColor());
                     intel.addLine("They will starve to death unless fed.");
                     intel.addLine("Store or sell them at a %s if you no longer want them.",
-                            com.fs.starfarer.api.util.Misc.getTextColor(),
+                            Misc.getTextColor(),
                             new String[]{Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName()},
                             c);
 

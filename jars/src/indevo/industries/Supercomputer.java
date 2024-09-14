@@ -20,6 +20,7 @@ import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
@@ -120,7 +121,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
             storage.getCargo().removeCommodity(coreid, 1);
 
             Global.getSector().getCampaignUI().addMessage("A Supercomputer has taken a %s from the AI Core storage at %s.",
-                    Global.getSettings().getColor("standardTextColor"), Global.getSettings().getCommoditySpec(coreid).getName(), market.getName(), com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getHighlightColor());
+                    Global.getSettings().getColor("standardTextColor"), Global.getSettings().getCommoditySpec(coreid).getName(), market.getName(), Misc.getHighlightColor(), Misc.getHighlightColor());
             return true;
         }
         return false;
@@ -214,9 +215,9 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
             String coreType = aiCoreType();
             market.getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo().addCommodity(coreType, 1);
 
-            MessageIntel intel = new MessageIntel("A server bank at the %s on %s has become %s.", com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"Supercomputer", market.getName(), "self aware"});
+            MessageIntel intel = new MessageIntel("A server bank at the %s on %s has become %s.", Misc.getPositiveHighlightColor(), new String[]{"Supercomputer", market.getName(), "self aware"});
             intel.addLine(BaseIntelPlugin.BULLET + "It has been dumped into a core and deposited in storage.");
-            intel.addLine(BaseIntelPlugin.BULLET + "Probably caused by using equipment from the %s.", com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"Ancient Laboratory"});
+            intel.addLine(BaseIntelPlugin.BULLET + "Probably caused by using equipment from the %s.", Misc.getHighlightColor(), new String[]{"Ancient Laboratory"});
             intel.setIcon(Global.getSettings().getSpriteName("IndEvo", coreType));
             intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
             Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
@@ -232,7 +233,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
 
         if (lastApplied == null && isFunctional()) {
             Global.getSector().getCampaignUI().addMessage("A Supercomputer at %s is %s. It is currently inactive.",
-                    Global.getSettings().getColor("standardTextColor"), this.market.getName(), "missing an AI core", com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
+                    Global.getSettings().getColor("standardTextColor"), this.market.getName(), "missing an AI core", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
         }
 
         coreDump();
@@ -299,21 +300,21 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
                 int amount = (int) ((Math.round(random.nextFloat() * 1.20 * 10F) * (this.market.getSize() - 2)) * 1000);
 
                 Global.getSector().getPlayerFleet().getCargo().getCredits().add(amount);
-                Global.getSector().getCampaignUI().addMessage("The supercomputer at " + this.market.getName() + " has generated " + com.fs.starfarer.api.util.Misc.getDGSCredits(amount) + " credits.",
-                        Global.getSettings().getColor("standardTextColor"), this.market.getName(), com.fs.starfarer.api.util.Misc.getDGSCredits(amount), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), com.fs.starfarer.api.util.Misc.getHighlightColor());
+                Global.getSector().getCampaignUI().addMessage("The supercomputer at " + this.market.getName() + " has generated " + Misc.getDGSCredits(amount) + " credits.",
+                        Global.getSettings().getColor("standardTextColor"), this.market.getName(), Misc.getDGSCredits(amount), Misc.getPositiveHighlightColor(), Misc.getHighlightColor());
 
             } else if (hascond(Conditions.VERY_COLD)) {
                 int amount = (int) ((Math.round(random.nextFloat() * 1.40 * 10F) * (this.market.getSize() - 2)) * 1000);
 
                 Global.getSector().getPlayerFleet().getCargo().getCredits().add(amount);
-                Global.getSector().getCampaignUI().addMessage("The supercomputer at " + this.market.getName() + " has generated " + com.fs.starfarer.api.util.Misc.getDGSCredits(amount) + " credits.",
-                        Global.getSettings().getColor("standardTextColor"), this.market.getName(), com.fs.starfarer.api.util.Misc.getDGSCredits(amount), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), com.fs.starfarer.api.util.Misc.getHighlightColor());
+                Global.getSector().getCampaignUI().addMessage("The supercomputer at " + this.market.getName() + " has generated " + Misc.getDGSCredits(amount) + " credits.",
+                        Global.getSettings().getColor("standardTextColor"), this.market.getName(), Misc.getDGSCredits(amount), Misc.getPositiveHighlightColor(), Misc.getHighlightColor());
             } else {
                 int amount = (int) ((Math.round(random.nextFloat() * 10F) * (this.market.getSize() - 2)) * 750);
 
                 Global.getSector().getPlayerFleet().getCargo().getCredits().add(amount);
-                Global.getSector().getCampaignUI().addMessage("The supercomputer at " + this.market.getName() + " has generated " + com.fs.starfarer.api.util.Misc.getDGSCredits(amount) + " credits.",
-                        Global.getSettings().getColor("standardTextColor"), this.market.getName(), com.fs.starfarer.api.util.Misc.getDGSCredits(amount), com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), com.fs.starfarer.api.util.Misc.getHighlightColor());
+                Global.getSector().getCampaignUI().addMessage("The supercomputer at " + this.market.getName() + " has generated " + Misc.getDGSCredits(amount) + " credits.",
+                        Global.getSettings().getColor("standardTextColor"), this.market.getName(), Misc.getDGSCredits(amount), Misc.getPositiveHighlightColor(), Misc.getHighlightColor());
 
             }
         }
@@ -327,9 +328,9 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
             daysPassed++;
 
             if (getAICoreId() == null && getCoreUseTimes(lastApplied) - daysPassed == 30 && market.isPlayerOwned()) {
-                MessageIntel intel = new MessageIntel("The supercomputer at " + market.getName() + " is running out of AI cores.", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
-                intel.addLine("You have 30 days left before it ceases to function.", com.fs.starfarer.api.util.Misc.getTextColor());
-                intel.addLine("Deposit some cores in the AI core storage for automatic replacement.", com.fs.starfarer.api.util.Misc.getTextColor());
+                MessageIntel intel = new MessageIntel("The supercomputer at " + market.getName() + " is running out of AI cores.", Misc.getNegativeHighlightColor());
+                intel.addLine("You have 30 days left before it ceases to function.", Misc.getTextColor());
+                intel.addLine("Deposit some cores in the AI core storage for automatic replacement.", Misc.getTextColor());
                 intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "productionwarning"));
                 intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
                 Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, this.market);
@@ -348,8 +349,8 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
             }
 
             if (lastApplied == null && getAICoreId() == null && market.isPlayerOwned()) {
-                MessageIntel intel = new MessageIntel("The supercomputer at " + this.market.getName() + " has ceased to function.", com.fs.starfarer.api.util.Misc.getNegativeHighlightColor());
-                intel.addLine("There are no AI cores left in the AI core storage.", com.fs.starfarer.api.util.Misc.getTextColor());
+                MessageIntel intel = new MessageIntel("The supercomputer at " + this.market.getName() + " has ceased to function.", Misc.getNegativeHighlightColor());
+                intel.addLine("There are no AI cores left in the AI core storage.", Misc.getTextColor());
                 intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "productionwarning"));
                 intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
                 Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, this.market);
@@ -413,20 +414,20 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
             if (market.isPlayerOwned() || currTooltipMode == Industry.IndustryTooltipMode.NORMAL) {
                 if (currTooltipMode == Industry.IndustryTooltipMode.ADD_INDUSTRY) {
                     if (hascond(Conditions.COLD)) {
-                        tooltip.addPara("%s", opad, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"This planet has good conditions for a Supercomputer"});
+                        tooltip.addPara("%s", opad, Misc.getPositiveHighlightColor(), new String[]{"This planet has good conditions for a Supercomputer"});
                     } else if (hascond(Conditions.VERY_COLD)) {
-                        tooltip.addPara("%s", opad, com.fs.starfarer.api.util.Misc.getPositiveHighlightColor(), new String[]{"This planet has ideal conditions for a Supercomputer"});
+                        tooltip.addPara("%s", opad, Misc.getPositiveHighlightColor(), new String[]{"This planet has ideal conditions for a Supercomputer"});
                     } else if (this.isAvailableToBuild()) {
-                        tooltip.addPara("%s", opad, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), new String[]{"This planet does not offer good conditions for a Supercomputer"});
+                        tooltip.addPara("%s", opad, Misc.getNegativeHighlightColor(), new String[]{"This planet does not offer good conditions for a Supercomputer"});
                     }
                 }
 
                 if (this.lastApplied == null && currTooltipMode == Industry.IndustryTooltipMode.ADD_INDUSTRY) {
-                    tooltip.addPara("%s", 10, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"This industry consumes AI cores to function."});
+                    tooltip.addPara("%s", 10, Misc.getHighlightColor(), new String[]{"This industry consumes AI cores to function."});
                 } else if (this.lastApplied == null) {
-                    tooltip.addPara("%s", 10, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), new String[]{"This industry requires an AI core to function."});
+                    tooltip.addPara("%s", 10, Misc.getNegativeHighlightColor(), new String[]{"This industry requires an AI core to function."});
                 } else {
-                    tooltip.addPara("The current bonus for this colony is: %s", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), StringHelper.getAbsPercentString(market.getIncomeMult().getMultStatMod(getModId()).getValue() - 1, false));
+                    tooltip.addPara("The current bonus for this colony is: %s", 10f, Misc.getHighlightColor(), StringHelper.getAbsPercentString(market.getIncomeMult().getMultStatMod(getModId()).getValue() - 1, false));
                 }
             }
         }
@@ -437,7 +438,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
     @Override
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, Industry.AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String pre = "Alpha-level AI core assigned for next use. ";
         if (mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Alpha-level AI core. ";
@@ -456,7 +457,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
     @Override
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, Industry.AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String pre = "Beta-level AI core assigned for next use. ";
         if (mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Beta-level AI core. ";
@@ -475,7 +476,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
     @Override
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, Industry.AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String pre = "Gamma-level AI core assigned for next use. ";
         if (mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = "Gamma-level AI core. ";
@@ -579,7 +580,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
 
     protected void addSecondAlphaCoreDescription(TooltipMakerAPI tooltip) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String pre = "Alpha-level AI core currently active. ";
 
         CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.lastApplied);
@@ -590,7 +591,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
 
     protected void addSecondBetaCoreDescription(TooltipMakerAPI tooltip) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String pre = "Beta-level AI core currently active. ";
 
         CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.lastApplied);
@@ -601,7 +602,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
 
     protected void addSecondGammaCoreDescription(TooltipMakerAPI tooltip) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String pre = "Gamma-level AI core currently active. ";
 
         CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.lastApplied);
@@ -618,7 +619,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
 
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
-        tooltip.addPara("Supercomputer: pulls %s from this storage to use.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), "AI cores");
+        tooltip.addPara("Supercomputer: pulls %s from this storage to use.", 10f, Misc.getHighlightColor(), "AI cores");
     }
 
     public Float getApplicableSimulatorBonus() {
@@ -626,13 +627,13 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
         float minDist = Float.MAX_VALUE;
         float bonus = 0f;
 
-        for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets("player")) {
+        for (MarketAPI market : Misc.getFactionMarkets("player")) {
             if (market.getStarSystem() != null && market.getStarSystem().getId().equals(this.market.getStarSystem().getId())) continue;
 
             if (market.hasIndustry(Ids.SUPCOM)) {
                 Supercomputer supercomputer = (Supercomputer) market.getIndustry(Ids.SUPCOM);
                 if (supercomputer.isFunctional() && supercomputer.getLastApplied() != null && supercomputer.getSpecialItem() != null) {
-                    float dist = com.fs.starfarer.api.util.Misc.getDistanceLY(this.market.getLocationInHyperspace(), supercomputer.market.getLocationInHyperspace());
+                    float dist = Misc.getDistanceLY(this.market.getLocationInHyperspace(), supercomputer.market.getLocationInHyperspace());
                     if (dist < minDist) {
                         minDist = dist;
                         nearest = market;
@@ -659,11 +660,11 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
         MarketAPI nearest = null;
         float minDist = Float.MAX_VALUE;
 
-        for (MarketAPI market : com.fs.starfarer.api.util.Misc.getFactionMarkets("player")) {
+        for (MarketAPI market : Misc.getFactionMarkets("player")) {
             if (market.hasIndustry(Ids.SUPCOM)) {
                 Supercomputer supercomputer = (Supercomputer) market.getIndustry(Ids.SUPCOM);
                 if (supercomputer.isFunctional() && supercomputer.getLastApplied() != null && supercomputer.getSpecialItem() != null) {
-                    float dist = com.fs.starfarer.api.util.Misc.getDistanceLY(locInHyper, supercomputer.market.getLocationInHyperspace());
+                    float dist = Misc.getDistanceLY(locInHyper, supercomputer.market.getLocationInHyperspace());
                     if (dist < minDist) {
                         minDist = dist;
                         nearest = market;
@@ -702,10 +703,10 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
 
             Pair<MarketAPI, Float> p = getNearestSupCom(entity.getLocationInHyperspace());
             if (p != null) {
-                Color h = com.fs.starfarer.api.util.Misc.getHighlightColor();
+                Color h = Misc.getHighlightColor();
                 float opad = 10f;
 
-                String dStr = "" + com.fs.starfarer.api.util.Misc.getRoundedValueMaxOneAfterDecimal(p.two);
+                String dStr = "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two);
                 String lights = "light-years";
                 if (dStr.equals("1")) lights = "light-year";
 
@@ -714,14 +715,14 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
                                     p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away. The maximum " +
                                     "range before the signal delay is too large for accurate calculations is %s light-years.",
                             opad, h,
-                            "" + com.fs.starfarer.api.util.Misc.getRoundedValueMaxOneAfterDecimal(p.two),
+                            "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two),
                             "" + (int) RANGE_LY_TWELVE);
                 } else {
                     text.addPara("The nearest Simulation Engine is located in the " +
                                     p.one.getContainingLocation().getNameWithLowercaseType() + ", %s " + lights + " away, allowing " +
                                     "a colony here to accrue an additional %s income.",
                             opad, h,
-                            "" + com.fs.starfarer.api.util.Misc.getRoundedValueMaxOneAfterDecimal(p.two),
+                            "" + Misc.getRoundedValueMaxOneAfterDecimal(p.two),
                             "" + (int) Math.round(distMult * 100f) + "%");
                 }
             }

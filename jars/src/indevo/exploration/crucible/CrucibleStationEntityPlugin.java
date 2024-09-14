@@ -12,15 +12,11 @@ import com.fs.starfarer.api.impl.campaign.ids.Terrain;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
 import com.fs.starfarer.api.util.*;
-import indevo.ids.Ids;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
-
-import static com.fs.starfarer.api.impl.campaign.procgen.MagFieldGenPlugin.auroraColors;
-import static com.fs.starfarer.api.impl.campaign.procgen.MagFieldGenPlugin.baseColors;
 
 public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
 

@@ -9,9 +9,9 @@ import com.fs.starfarer.api.ui.UIPanelAPI
 import com.fs.starfarer.campaign.CampaignState
 import com.fs.starfarer.campaign.ui.marketinfo.IndustryListPanel
 import com.fs.state.AppDriver
-import org.lazywizard.lazylib.MathUtils
-import indevo.utils.helper.ReflectionUtils
 import indevo.ids.Ids
+import indevo.utils.helper.ReflectionUtils
+import org.lazywizard.lazylib.MathUtils
 
 class MicromanagementSkillEffectScript : EveryFrameScript {
 

@@ -1,12 +1,12 @@
-package oldstory.memory;
+package indevo.exploration.surveystories.memory;
 
 import com.fs.starfarer.api.Global;
-import oldstory.OldStoryLogger;
-import oldstory.plugins.Historian;
+import indevo.exploration.surveystories.OldStoryLogger;
+import indevo.exploration.surveystories.plugins.Historian;
+import indevo.utils.memory.SessionTransientMemory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import sound.H;
 
 import java.io.IOException;
 import java.util.*;
@@ -41,6 +41,7 @@ public class FileLoader {
 
                     List<String> planetTypes = row.getString("optional_planet_types").isEmpty() ? new ArrayList<String>() : new ArrayList<>(Arrays.asList(row.getString("optional_planet_types").replaceAll("\\s", "").split(";")));
                     List<String> ruinsSizes = row.getString("optional_ruins_sizes").isEmpty() ? new ArrayList<String>() : new ArrayList<>(Arrays.asList(row.getString("optional_ruins_sizes").replaceAll("\\s", "").split(";")));
+                    List<String> requiredConditions = row.getString("optional_required_conditions").isEmpty() ? new ArrayList<String>() : new ArrayList<>(Arrays.asList(row.getString("optional_required_conditions").replaceAll("\\s", "").split(";")));
                     List<String> storyParts = new LinkedList<>();
 
                     for (int j = 1; j < 4; j++) {
@@ -53,6 +54,7 @@ public class FileLoader {
                     StoryEntry entry = new StoryEntry(
                             id,
                             planetTypes,
+                            requiredConditions,
                             ruinsSizes,
                             weight,
                             commsIntro,

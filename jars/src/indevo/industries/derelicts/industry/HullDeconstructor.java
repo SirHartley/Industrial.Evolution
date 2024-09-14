@@ -22,6 +22,7 @@ import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
@@ -103,7 +104,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
                     setSpecialItem(stack.getSpecialDataIfSpecial());
                     cargo.removeItems(CargoAPI.CargoItemType.SPECIAL, stack.getSpecialDataIfSpecial(), 1);
                     Global.getSector().getCampaignUI().addMessage("A Hull Deconstructor has taken a %s from the industrial storage at %s.",
-                            Global.getSettings().getColor("standardTextColor"), Global.getSettings().getSpecialItemSpec(stack.getSpecialDataIfSpecial().getId()).getName(), market.getName(), com.fs.starfarer.api.util.Misc.getHighlightColor(), com.fs.starfarer.api.util.Misc.getHighlightColor());
+                            Global.getSettings().getColor("standardTextColor"), Global.getSettings().getSpecialItemSpec(stack.getSpecialDataIfSpecial().getId()).getName(), market.getName(), Misc.getHighlightColor(), Misc.getHighlightColor());
                     break;
                 }
             }
@@ -129,7 +130,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
             if (successful) {
                 String name = currentDeconShipVar.getHullSpec().getNameWithDesignationWithDashClass();
                 Global.getSector().getCampaignUI().addMessage("Deconstruction has begun for a %s at %s.",
-                        com.fs.starfarer.api.util.Misc.getTextColor(), name, market.getName(), com.fs.starfarer.api.util.Misc.getHighlightColor(), market.getFaction().getBrightUIColor());
+                        Misc.getTextColor(), name, market.getName(), Misc.getHighlightColor(), market.getFaction().getBrightUIColor());
             }
 
         } else if (daysRequired <= daysPassed || (currentDeconShipVar != null && debug)) {
@@ -268,18 +269,18 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
 
     private void throwDeliveryMessage(MarketAPI from, MarketAPI to) {
         MessageIntel intel = new MessageIntel("Deconstruction of the %s has finished at %s.",
-                com.fs.starfarer.api.util.Misc.getTextColor(),
+                Misc.getTextColor(),
                 new String[]{currentDeconShipVar.getHullSpec().getNameWithDesignationWithDashClass(), from.getName()},
-                com.fs.starfarer.api.util.Misc.getHighlightColor(),
+                Misc.getHighlightColor(),
                 from.getFaction().getColor());
 
         intel.addLine(BaseIntelPlugin.BULLET + "A Forge Template with %s has been created.",
-                com.fs.starfarer.api.util.Misc.getTextColor(),
+                Misc.getTextColor(),
                 new String[]{getCharges(currentDeconShipVar) + " charges"},
-                com.fs.starfarer.api.util.Misc.getHighlightColor());
+                Misc.getHighlightColor());
 
         intel.addLine(BaseIntelPlugin.BULLET + "It has been delivered to %s.",
-                com.fs.starfarer.api.util.Misc.getTextColor(),
+                Misc.getTextColor(),
                 new String[]{to.getName()},
                 to.getFaction().getBrightUIColor());
 
@@ -364,7 +365,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
         super.addRightAfterDescriptionSection(tooltip, mode);
 
         if (mode == IndustryTooltipMode.NORMAL) {
-            tooltip.addPara("Put a ship into the %s to deconstruct it, and add construction data to an %s.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), new String[]{"Deconstruction Storage", "Empty Forge Template"});
+            tooltip.addPara("Put a ship into the %s to deconstruct it, and add construction data to an %s.", 10f, Misc.getHighlightColor(), new String[]{"Deconstruction Storage", "Empty Forge Template"});
         }
     }
 
@@ -389,7 +390,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
 
                 text.addPara("Deconstructing: %s. Time remaining: %s. You will gain a Forge Template with %s from this.",
                         opad,
-                        com.fs.starfarer.api.util.Misc.getHighlightColor(),
+                        Misc.getHighlightColor(),
                         new String[]{currentDeconShipVar.getHullSpec().getNameWithDesignationWithDashClass(),
                                 Math.max(daysRequired - daysPassed, 0) + " days",
                                 getCharges(currentDeconShipVar) + " charges"});
@@ -410,7 +411,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
         String coreHighlights = StringHelper.getString(getId(), "aCoreHighlights");
@@ -428,7 +429,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
 
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
@@ -447,7 +448,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
 
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
-        Color highlight = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color highlight = Misc.getHighlightColor();
 
         String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
         String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
@@ -512,6 +513,6 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
 
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
-        tooltip.addPara("Hull Deconstructor: pulls %s from this storage to use.", 10f, com.fs.starfarer.api.util.Misc.getHighlightColor(), "Empty Forge Templates");
+        tooltip.addPara("Hull Deconstructor: pulls %s from this storage to use.", 10f, Misc.getHighlightColor(), "Empty Forge Templates");
     }
 }

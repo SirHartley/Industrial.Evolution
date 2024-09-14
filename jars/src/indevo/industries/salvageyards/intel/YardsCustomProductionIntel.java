@@ -18,6 +18,7 @@ import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.CountingMap;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
 import indevo.items.ForgeTemplateItemPlugin;
@@ -137,13 +138,13 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
 
     public void addDescriptionForCurrentStage(TooltipMakerAPI info, float width, float height) {
         float opad = 10f;
-        Color h = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color h = Misc.getHighlightColor();
         if (currentStage == YardsCustomProductionIntel.Stage.WAITING) {
             int d = (int) Math.round(DELIVERY_TIME - elapsed);
 
             LabelAPI label = info.addPara("The order will be delivered to storage " + market.getOnOrAt() + " " + market.getName() +
                             " in %s " + getDayOrDays(d) + ".", opad,
-                    com.fs.starfarer.api.util.Misc.getHighlightColor(), "" + d);
+                    Misc.getHighlightColor(), "" + d);
             label.setHighlight(market.getName(), "" + d);
             label.setHighlightColors(market.getFaction().getBaseUIColor(), h);
 
@@ -155,7 +156,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
             int d = (int) Math.round(elapsed);
 
             LabelAPI label = info.addPara("The order was delivered to storage " + market.getOnOrAt() + " " + market.getName() + " %s " + getDayOrDays(d) + " ago.", opad,
-                    com.fs.starfarer.api.util.Misc.getHighlightColor(), "" + d);
+                    Misc.getHighlightColor(), "" + d);
             label.setHighlight(market.getName(), "" + d);
             label.setHighlightColors(market.getFaction().getBaseUIColor(), h);
 
@@ -175,7 +176,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
     }
 
     public boolean addNextStepText(TooltipMakerAPI info, Color tc, float pad) {
-        Color h = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color h = Misc.getHighlightColor();
         if (currentStage == YardsCustomProductionIntel.Stage.WAITING) {
             addDays(info, "until delivery", DELIVERY_TIME - elapsed, tc, pad);
             return true;
@@ -212,7 +213,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
         }
 
         if (currentStage == Stage.DELIVERED) {
-            StoragePlugin plugin = (StoragePlugin) com.fs.starfarer.api.util.Misc.getStorage(market);
+            StoragePlugin plugin = (StoragePlugin) Misc.getStorage(market);
             plugin.setPlayerPaidToUnlock(true);
 
             MiscIE.getStorageCargo(market).addAll(convertProdToCargo(data), true);
@@ -256,7 +257,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
         p.seed = genRandom.nextLong();
         p.timestamp = null;
 
-        FleetInflater inflater = com.fs.starfarer.api.util.Misc.getInflater(ships, p);
+        FleetInflater inflater = Misc.getInflater(ships, p);
         ships.setInflater(inflater);
 
         for (Map.Entry<String, Integer> e : prod.productionList.entrySet()) {

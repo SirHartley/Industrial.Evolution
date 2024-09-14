@@ -20,7 +20,6 @@ import indevo.industries.courierport.listeners.SubmarketShipPicker;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
-import org.apache.log4j.Logger;
 
 import java.awt.*;
 import java.util.LinkedList;

@@ -17,7 +17,6 @@ import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryAPI;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
-import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
@@ -72,7 +71,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
                 }
             });
 
-            add(new SubIndustryData("rural", "Rural Polity", Global.getSettings().getSpriteName("IndEvo", "pop_rural"), "IndEvo_pop_rural",20000) {
+            add(new SubIndustryData("rural", "Rural Polity", Global.getSettings().getSpriteName("IndEvo", "pop_rural"), "IndEvo_pop_rural",80000) {
                 @Override
                 public SubIndustry newInstance() {
                     return new RuralPolitySubIndustry(this);
@@ -82,6 +81,13 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
                 @Override
                 public SubIndustry newInstance() {
                     return new HiddenArcologiesSubIndustry(this);
+                }
+            });
+
+            add(new SubIndustryData("outpost", "Outpost", Global.getSettings().getSpriteName("IndEvo", "pop_outpost"), "IndEvo_pop_outpost", 30000) {
+                @Override
+                public SubIndustry newInstance() {
+                    return new OutpostSubIndustry(this);
                 }
             });
 
@@ -99,7 +105,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
                 }
             });
 
-            add(new SubIndustryData("warhammer", "Forge World", Global.getSettings().getSpriteName("IndEvo", "pop_warhammer"), "IndEvo_pop_warhammer", 100000) {
+            add(new SubIndustryData("warhammer", "Forge World", Global.getSettings().getSpriteName("IndEvo", "pop_warhammer"), "IndEvo_pop_warhammer", 150000) {
                 @Override
                 public SubIndustry newInstance() {
                     return new WarhammerSubIndustry(this);

@@ -4,7 +4,6 @@ import com.fs.starfarer.api.impl.campaign.intel.events.BaseEventIntel;
 import com.fs.starfarer.api.impl.campaign.intel.events.BaseFactorTooltip;
 import com.fs.starfarer.api.impl.campaign.intel.events.BaseOneTimeFactor;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.ids.Ids;
 
 public class HyperspaceTopographyProjectFactor extends BaseOneTimeFactor {

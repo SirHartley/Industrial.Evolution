@@ -1,16 +1,17 @@
 package indevo.industries.changeling.industry.population;
 
-import com.fs.starfarer.api.campaign.econ.Industry;
-import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 
-import java.util.Random;
-
-import static com.fs.starfarer.api.impl.campaign.intel.bases.LuddicPathBaseManager.AI_CORE_ADMIN_INTEREST;
+import static com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure.getMaxIndustries;
+import static com.fs.starfarer.api.impl.campaign.population.CoreImmigrationPluginImpl.getWeightForMarketSizeStatic;
 
 public class OutpostSubIndustry extends SubIndustry {
+
+    public static final float MAX_MARKET_SIZE = 3f;
+    public static final float UPKEEP_RED_MULT = 0.7f;
+
 
     public OutpostSubIndustry(SubIndustryData data) {
         super(data);
@@ -19,36 +20,21 @@ public class OutpostSubIndustry extends SubIndustry {
     @Override
     public void apply() {
         ((SwitchablePopulation) industry).superApply();
+        if (market.getSize() >= MAX_MARKET_SIZE) market.getPopulation().setWeight(getWeightForMarketSizeStatic(market.getSize()));
+        market.getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).modifyFlat(getId(), -getMaxIndustries(market.getSize()), getName());
+        market.getUpkeepMult().modifyMult(getId(), UPKEEP_RED_MULT, getName());
     }
 
-    //negate
     @Override
-    public float getPatherInterest(Industry industry) {
-        return -getLuddicPathMarketInterest(industry.getMarket());
+    public void unapply() {
+        super.unapply();
+        market.getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).unmodify(getId());
+        market.getUpkeepMult().unmodify(getId());
     }
 
-    public static float getLuddicPathMarketInterest(MarketAPI market) {
-        if (market.getFactionId().equals(Factions.LUDDIC_PATH)) return 0f;
-        float total = 0f;
-
-        String aiCoreId = market.getAdmin().getAICoreId();
-        if (aiCoreId != null) {
-            total += AI_CORE_ADMIN_INTEREST;
-        }
-
-        for (Industry ind : market.getIndustries()) {
-            if (ind instanceof SwitchablePopulation) continue;
-            total += ind.getPatherInterest();
-        }
-
-        if (total > 0) {
-            total += new Random(market.getName().hashCode()).nextFloat() * 0.1f;
-        }
-
-        if (market.getFactionId().equals(Factions.LUDDIC_CHURCH)) {
-            total *= 0.1f;
-        }
-
-        return total;
+    @Override
+    public String getUnavailableReason() {
+        if (market.getSize() > MAX_MARKET_SIZE) return "This planet is too populated";
+        return super.getUnavailableReason();
     }
 }

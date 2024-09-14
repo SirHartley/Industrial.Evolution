@@ -13,6 +13,7 @@ import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
+import com.fs.starfarer.api.util.Misc;
 import indevo.industries.RestorationDocks;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
@@ -123,7 +124,7 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin impleme
     @Override
     protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
         float opad = 10f;
-        Color hlColor = com.fs.starfarer.api.util.Misc.getHighlightColor();
+        Color hlColor = Misc.getHighlightColor();
 
         RestorationDocks restorationDocks = (RestorationDocks) market.getIndustry(REPAIRDOCKS);
         restorationDocks.publicAddRightAfterDescriptionSection(tooltip, Industry.IndustryTooltipMode.NORMAL);
@@ -135,7 +136,7 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin impleme
             List<FleetMemberAPI> fleet = restorationDocks.getEligibleShips(submarket);
 
             if (fleet.isEmpty()) {
-                tooltip.addPara("%s", opad, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), StringHelper.getString(IDENT, "costPredictionShips"));
+                tooltip.addPara("%s", opad, Misc.getNegativeHighlightColor(), StringHelper.getString(IDENT, "costPredictionShips"));
                 return;
             }
 
@@ -162,7 +163,7 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin impleme
                     total += costPerDMod;
                 }
 
-                tooltip.addRow(shipName, Integer.toString(currentDModAmount), com.fs.starfarer.api.util.Misc.getDGSCredits(costPerDMod), com.fs.starfarer.api.util.Misc.getDGSCredits(totalMaximumCost));
+                tooltip.addRow(shipName, Integer.toString(currentDModAmount), Misc.getDGSCredits(costPerDMod), Misc.getDGSCredits(totalMaximumCost));
             }
 
             tooltip.addTable(StringHelper.getString(IDENT, "noShips"), 0, opad);
@@ -185,7 +186,7 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin impleme
                     }
 
                     if (min == null) {
-                        tooltip.addPara("%s", 10f, com.fs.starfarer.api.util.Misc.getNegativeHighlightColor(), StringHelper.getString(IDENT, "shitBroke"));
+                        tooltip.addPara("%s", 10f, Misc.getNegativeHighlightColor(), StringHelper.getString(IDENT, "shitBroke"));
                         return;
                     }
 

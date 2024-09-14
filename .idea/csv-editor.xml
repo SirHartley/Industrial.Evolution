@@ -87,6 +87,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\campaign\stories_TODO.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\campaign\submarkets.csv">
           <value>
             <Attribute>
