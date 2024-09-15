@@ -81,10 +81,7 @@ import indevo.industries.salvageyards.plugins.SalvageYardsOptionProvider;
 import indevo.industries.senate.plugins.SenateOptionProvider;
 import indevo.industries.worldwonder.plugins.WorldWonderAltImageOptionProvider;
 import indevo.industries.worldwonder.plugins.WorldWonderTexChangeOptionProvider;
-import indevo.items.consumables.listeners.ConsumableItemDropListener;
-import indevo.items.consumables.listeners.ConsumableItemMarketAdder;
-import indevo.items.consumables.listeners.LocatorSystemRatingUpdater;
-import indevo.items.consumables.listeners.SpooferItemKeypressListener;
+import indevo.items.consumables.listeners.*;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.items.listeners.ShipComponentLootManager;
 import indevo.items.listeners.SpecialItemDropsListener;
@@ -443,6 +440,7 @@ public class ModPlugin extends BaseModPlugin {
         SenateOptionProvider.register();
         AcademyOptionProvider.register();
         RiftGenOptionProvider.register();
+        TargetingReticuleInputListener.register();
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();
     }

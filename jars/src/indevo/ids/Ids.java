@@ -137,8 +137,13 @@ public class Ids {
     public static final String ABILITY_DRONES = "IndEvo_ability_drones";
     public static final String ABILITY_DECOY = "IndEvo_ability_decoy";
     public static final String ABILITY_SPOOFER = "IndEvo_ability_spoofer";
+    public static final String ABILITY_RELAY = "IndEvo_ability_relay";
     public static final String ABILITY_MINE_INTERDICT = "IndEvo_ability_mine_interdict";
     public static final String ABILITY_MINE_DECOY = "IndEvo_ability_mine_decoy";
+    public static final String ABILITY_MISSILE_EXPLOSIVE = "IndEvo_ability_missile_explosive";
+    public static final String ABILITY_MISSILE_CONCUSSIVE = "IndEvo_ability_missile_concussive";
+    public static final String ABILITY_MISSILE_SMOKE = "IndEvo_ability_missile_smoke";
+    public static final String ABILITY_MISSILE_INTERCEPT = "IndEvo_ability_missile_intercept";
 
     //research Projects
     public static final String PROJ_SPYGLASS = "indevo_proj_revival";

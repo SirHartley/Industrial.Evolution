@@ -40,6 +40,7 @@ item_IndEvo_consumable_locator,indEvo_consumables,7
 item_IndEvo_consumable_spike,indEvo_consumables,10
 item_IndEvo_consumable_scoop,indEvo_consumables,3
 item_IndEvo_consumable_decoy,indEvo_consumables,4
+item_IndEvo_consumable_relay,indEvo_consumables,5
 nothing,indEvo_consumables,250
 ,,
 item_IndEvo_consumable_nanites,indEvo_consumables_always,7
@@ -47,6 +48,7 @@ item_IndEvo_consumable_locator,indEvo_consumables_always,6
 item_IndEvo_consumable_spike,indEvo_consumables_always,12
 item_IndEvo_consumable_scoop,indEvo_consumables_always,3
 item_IndEvo_consumable_decoy,indEvo_consumables_always,4
+item_IndEvo_consumable_relay,indEvo_consumables_always,5
 ,,
 item_IndEvo_log_core,indEvo_tech_event,1
 item_IndEvo_neurals,indEvo_tech_event,1

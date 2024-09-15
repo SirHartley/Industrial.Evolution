@@ -27,6 +27,50 @@
 		"pluginClass":"indevo.WIP.mobilecolony.entities.MobileColonyEntityPlugin",
 	},
 
+	"IndEvo_consumable_missile_explosive":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.items.consumables.entities.ExplosiveMissileEntityPlugin"
+	},
+
+	"IndEvo_consumable_missile_concussive":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.items.consumables.entities.ConcussiveMissileEntityPlugin"
+	},
+
+	"IndEvo_consumable_missile_smoke":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.items.consumables.entities.SmokeMissileEntityPlugin"
+	},
+
+	"IndEvo_consumable_missile_intercept":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false, # make clickable,
+		"interactable":false,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.items.consumables.entities.InterceptMissileEntityPlugin"
+	},
+
 	"SplinterFleet_OrbitFocus":{
 	#"development_SplinterFleet_OrbitFocus":{
 		"defaultRadius":75, # used if radius<0 in addCustomEntity()

@@ -66,6 +66,13 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public void advance(float amount) {
+        if (!entity.isInCurrentLocation() || animProgress >= ANIM_TIME) {
+            doAnimation = false;
+            animProgress = 0f;
+            currentExplosionSize = DEFAULT_EXPLOSION_SIZE;
+            return;
+        }
+
         phase1 += amount * GLOW_FREQUENCY;
         while (phase1 > 1) phase1--;
         flicker1.advance(amount);
@@ -79,13 +86,6 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         if (doAnimation) {
             animProgress+= amount;
             ModPlugin.log("anim firing " + (animProgress / ANIM_TIME) + " scale = " + ((animProgress / ANIM_TIME) * 500));
-        }
-
-        if (!entity.isInCurrentLocation() || animProgress >= ANIM_TIME) {
-            doAnimation = false;
-            animProgress = 0f;
-            currentExplosionSize = DEFAULT_EXPLOSION_SIZE;
-            return;
         }
 
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
