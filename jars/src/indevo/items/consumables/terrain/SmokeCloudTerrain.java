@@ -1,4 +1,4 @@
-package indevo.industries.artillery.terrain;
+package indevo.items.consumables.terrain;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
@@ -6,13 +6,18 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.TerrainAIFlags;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.loading.Description;
+import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 
-public class SlowFieldTerrain extends BaseRingTerrain {
+public class SmokeCloudTerrain extends BaseRingTerrain {
+
+    //has to be spawned and despawned by another entity, use the explosion entity see ecmeExplosion, manage visuals there
+    
+    public static final float VISIBLITY_MULT = 0.66f;
 
     public boolean hasTooltip() {
         return true;
@@ -20,7 +25,7 @@ public class SlowFieldTerrain extends BaseRingTerrain {
 
     @Override
     public String getTerrainName() {
-        return "Slow Field";
+        return "Chaff Cloud";
     }
 
     @Override
@@ -28,13 +33,42 @@ public class SlowFieldTerrain extends BaseRingTerrain {
         return false;
     }
 
+    @Override
+    public void applyEffect(SectorEntityToken entity, float days) {
+        if (entity instanceof CampaignFleetAPI) {
+            CampaignFleetAPI fleet = (CampaignFleetAPI) entity;
+            fleet.getStats().addTemporaryModMult(0.1f, getModId() + "_1",
+                    "Inside chaff cloud", VISIBLITY_MULT,
+                    fleet.getStats().getDetectedRangeMod());
+
+            float penalty = Misc.getBurnMultForTerrain(fleet);
+            //float penalty = getBurnPenalty(fleet);
+            fleet.getStats().addTemporaryModMult(0.1f, getModId() + "_2",
+                    "Inside chaff cloud", penalty,
+                    fleet.getStats().getFleetwideMaxBurnMod());
+        }
+    }
+
     public void createTooltip(TooltipMakerAPI tooltip, boolean expanded) {
         float pad = 10f;
+        float small = 5f;
+        Color gray = Misc.getGrayColor();
         Color highlight = Misc.getHighlightColor();
+        Color fuel = Global.getSettings().getColor("progressBarFuelColor");
+        Color bad = Misc.getNegativeHighlightColor();
+        Color text = Misc.getTextColor();
 
-        tooltip.addTitle("Slow Field");
-
+        tooltip.addTitle("Chaff Cloud");
         tooltip.addPara(Global.getSettings().getDescription(getTerrainId(), Description.Type.TERRAIN).getText1(), pad);
+        float nextPad = pad;
+        if (expanded) {
+            tooltip.addSectionHeading("Travel", Alignment.MID, pad);
+            nextPad = small;
+        }
+        tooltip.addPara("Reduces the range at which fleets inside can be detected by %s.", nextPad,
+                highlight,
+                "" + (int) ((1f - VISIBLITY_MULT) * 100) + "%"
+        );
 
         tooltip.addPara("Reduces the travel speed of fleets inside by up to %s. Larger fleets are slowed down more.",
                 pad,
@@ -43,20 +77,12 @@ public class SlowFieldTerrain extends BaseRingTerrain {
         );
 
         float penalty = Misc.getBurnMultForTerrain(Global.getSector().getPlayerFleet());
+        String penaltyStr = Misc.getRoundedValue(1f - penalty);
         tooltip.addPara("Your fleet's speed is reduced by %s.", pad,
                 highlight,
                 "" + (int) Math.round((1f - penalty) * 100) + "%"
+                //Strings.X + penaltyStr
         );
-    }
-
-    public void applyEffect(SectorEntityToken entity, float days) {
-        if (entity instanceof CampaignFleetAPI) {
-            CampaignFleetAPI fleet = (CampaignFleetAPI) entity;
-            float penalty = Misc.getBurnMultForTerrain(fleet);
-            fleet.getStats().addTemporaryModMult(0.1f, "IndEvo_slowField",
-                    "Inside slow field", penalty,
-                    fleet.getStats().getFleetwideMaxBurnMod());
-        }
     }
 
     public float getTooltipWidth() {
@@ -68,9 +94,11 @@ public class SlowFieldTerrain extends BaseRingTerrain {
     }
 
     public boolean hasAIFlag(Object flag) {
-        return flag == TerrainAIFlags.REDUCES_SPEED_LARGE;
+        return flag == TerrainAIFlags.REDUCES_DETECTABILITY ||
+                flag == TerrainAIFlags.REDUCES_SPEED_LARGE||
+                flag == TerrainAIFlags.TILE_BASED
+                ;
     }
-
     @Override
     public float getMaxEffectRadius(Vector2f locFrom) {
         return getRingParams().bandWidthInEngine;

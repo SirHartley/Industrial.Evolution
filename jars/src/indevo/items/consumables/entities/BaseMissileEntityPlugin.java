@@ -39,7 +39,7 @@ public abstract class BaseMissileEntityPlugin extends BaseCustomEntityPlugin {
     public abstract Color getTrailColour();
 
     //trail
-    public static final float TRAIL_TIME = 0.4f;
+    public static final float TRAIL_TIME = 0.5f;
 
     //base
     transient private SpriteAPI missileSprite;
@@ -106,6 +106,7 @@ public abstract class BaseMissileEntityPlugin extends BaseCustomEntityPlugin {
 
         Vector2f nextPos = MathUtils.getPointOnCircumference(entity.getLocation(), dist, angle);
         entity.setLocation(nextPos.x, nextPos.y);
+        entity.setFacing(angle);
     }
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
@@ -132,15 +133,30 @@ public abstract class BaseMissileEntityPlugin extends BaseCustomEntityPlugin {
     private void addTrailToProj() {
         MagicCampaignTrailPlugin.AddTrailMemberSimple(
                 entity,
+                trailID + 1,
+                Global.getSettings().getSprite("fx", "IndEvo_stream_core"),
+                entity.getLocation(),
+                0f,
+                entity.getFacing(),
+                18f,
+                1f,
+                getTrailColour(),
+                1f,
+                TRAIL_TIME/2,
+                true,
+                new Vector2f(0, 0));
+
+        MagicCampaignTrailPlugin.AddTrailMemberSimple(
+                entity,
                 trailID,
                 Global.getSettings().getSprite("fx", "IndEvo_stream_core"),
                 entity.getLocation(),
                 0f,
                 entity.getFacing(),
-                12f,
+                24,
                 1f,
-                getTrailColour(),
-                0.9f,
+                getTrailColour().darker(),
+                1f,
                 TRAIL_TIME,
                 true,
                 new Vector2f(0, 0));

@@ -35,7 +35,7 @@ public class SmokeMissileEntityPlugin extends BaseMissileEntityPlugin {
                         color,
                         cl,
                         entity.getLocation(),
-                        100f,
+                        300f,
                         0.65f);
 
         params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.LOW;

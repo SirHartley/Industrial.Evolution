@@ -9,7 +9,7 @@ import org.lwjgl.util.vector.Vector2f;
 import java.awt.*;
 import java.util.Random;
 
-public class NebulaParticle {
+public class PlayerTrackingNebulaParticle {
 
     public static final float MIN_DISTANCE_BEFORE_DESPAWN = 20f;
     public static final float FADE_OUT_DIST = 0.65f;
@@ -33,7 +33,7 @@ public class NebulaParticle {
     public int i;
     public int j;
 
-    public NebulaParticle(Vector2f startPos, float size, float maxAlpha, Color color) {
+    public PlayerTrackingNebulaParticle(Vector2f startPos, float size, float maxAlpha, Color color) {
         this.currentPos = startPos;
         this.originalPos = startPos;
         this.velocityMult = 1f - 0.3f * new Random().nextFloat();

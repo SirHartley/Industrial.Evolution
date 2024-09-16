@@ -12,7 +12,7 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.campaign.CampaignClock;
 import indevo.abilities.splitfleet.OrbitFocus;
-import indevo.items.consumables.entities.NebulaParticle;
+import indevo.items.consumables.entities.PlayerTrackingNebulaParticle;
 import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -38,7 +38,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
     private IntervalUtil depositInterval = new IntervalUtil(1f, 1f);
 
     public LocationAPI loc;
-    protected List<NebulaParticle> particles = new ArrayList<>();
+    protected List<PlayerTrackingNebulaParticle> particles = new ArrayList<>();
     transient protected SpriteAPI sprite;
     transient protected SpriteAPI spriteNoColour;
     private float elapsed = 0;
@@ -73,7 +73,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
         depositFuelInCargo();
         showRangePing(amount);
 
-        for (NebulaParticle p : new ArrayList<>(particles)) {
+        for (PlayerTrackingNebulaParticle p : new ArrayList<>(particles)) {
             p.advance(amount);
 
             if (p.isExpired()) {
@@ -261,7 +261,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
             color = this.color == null ? entity.getStarSystem().getStar().getLightColor() : this.color;
         }
 
-        NebulaParticle data = new NebulaParticle(dir, size, baseAlphaMult, color);
+        PlayerTrackingNebulaParticle data = new PlayerTrackingNebulaParticle(dir, size, baseAlphaMult, color);
         particles.add(data);
 
         if (Global.getSettings().isDevMode()) {
@@ -305,7 +305,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
 //        alphaMult *= entity.getSensorContactFaderBrightness();
 //        if (alphaMult <= 0) return;
 
-        for (NebulaParticle p : particles) {
+        for (PlayerTrackingNebulaParticle p : particles) {
             if (p.isExpired()) continue;
 
             float size = p.size;
