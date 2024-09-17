@@ -64,9 +64,9 @@ public class MissileTargetingReticuleRendererWithAOE implements MissileCampaignR
         reticule.setColor(fleet.getIndicatorColor());
         reticule.renderAtCenter(fleet.getLocation().x, fleet.getLocation().y);
 
-        AOE.setAlphaMult(DEFAULT_ALPHA);
-        AOE.setWidth(500f);
-        AOE.setHeight(500f);
+        AOE.setAlphaMult(DEFAULT_ALPHA*0.6f);
+        AOE.setWidth(400f);
+        AOE.setHeight(400f);
         AOE.setAngle(angleToMouse - 90f);
         AOE.setColor(fleet.getIndicatorColor());
         AOE.renderAtCenter(mousePos.x, mousePos.y);

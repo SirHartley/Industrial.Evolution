@@ -155,7 +155,7 @@ public abstract class BaseMissileEntityPlugin extends BaseCustomEntityPlugin {
                 entity.getFacing(),
                 24,
                 1f,
-                getTrailColour().darker(),
+                getTrailColour().darker().darker(),
                 1f,
                 TRAIL_TIME,
                 true,

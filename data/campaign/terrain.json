@@ -20,6 +20,11 @@
 	"IndEvo_slowfield":{
 		"plugin":"indevo.industries.artillery.terrain.SlowFieldTerrain",
 		"musicSuppression":0.50,
+	},
+
+	"IndEvo_SmokeCloud":{
+	"plugin":"indevo.items.consumables.terrain.SmokeCloudTerrain",
+	"musicSuppression":0.60,
 	}
 }
 

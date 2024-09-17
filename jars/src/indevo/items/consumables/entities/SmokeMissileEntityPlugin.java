@@ -11,6 +11,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 
 import java.awt.*;
+import java.util.Random;
 
 public class SmokeMissileEntityPlugin extends BaseMissileEntityPlugin {
 
@@ -25,26 +26,8 @@ public class SmokeMissileEntityPlugin extends BaseMissileEntityPlugin {
     @Override
     public void onExplosion() {
         LocationAPI cl = entity.getContainingLocation();
-
-        Color color = new Color(255, 120, 100);
-        VariableExplosionEntityPlugin.VariableExplosionParams params =
-                new VariableExplosionEntityPlugin.VariableExplosionParams(
-                        "IndEvo_mortar_hit",
-                        true,
-                        1f,
-                        color,
-                        cl,
-                        entity.getLocation(),
-                        300f,
-                        0.65f);
-
-        params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.LOW;
-
-        SectorEntityToken explosion = cl.addCustomEntity(Misc.genUID(), "Explosion",
-                "IndEvo_VariableExplosion", Factions.NEUTRAL, params);
-
-        explosion.setLocation(entity.getLocation().x, entity.getLocation().y);
-
+        SmokeCloudEntityPlugin.SmokeCloudParams params = new SmokeCloudEntityPlugin.SmokeCloudParams(cl, entity.getLocation(), SmokeCloudEntityPlugin.DURATION, (float) (SmokeCloudEntityPlugin.BASE_RADIUS * 0.9 + 0.1 * (new Random().nextFloat())));
+        cl.addCustomEntity(Misc.genUID(), null, "IndEvo_SmokeCloud", null, params);
     }
 
     @Override
