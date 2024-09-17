@@ -26,8 +26,9 @@ public class SmokeMissileEntityPlugin extends BaseMissileEntityPlugin {
     @Override
     public void onExplosion() {
         LocationAPI cl = entity.getContainingLocation();
-        SmokeCloudEntityPlugin.SmokeCloudParams params = new SmokeCloudEntityPlugin.SmokeCloudParams(cl, entity.getLocation(), SmokeCloudEntityPlugin.DURATION, (float) (SmokeCloudEntityPlugin.BASE_RADIUS * 0.9 + 0.1 * (new Random().nextFloat())));
-        cl.addCustomEntity(Misc.genUID(), null, "IndEvo_SmokeCloud", null, params);
+        SmokeCloudEntityPlugin.SmokeCloudParams params = new SmokeCloudEntityPlugin.SmokeCloudParams(cl, entity.getLocation(), SmokeCloudEntityPlugin.DURATION_IN_DAYS * Global.getSector().getClock().getSecondsPerDay(), (float) (SmokeCloudEntityPlugin.BASE_RADIUS * 0.9 + 0.1 * (new Random().nextFloat())));
+        SectorEntityToken t = cl.addCustomEntity(Misc.genUID(), null, "IndEvo_SmokeCloud", null, params);
+        t.setLocation(entity.getLocation().x, entity.getLocation().y);
     }
 
     @Override

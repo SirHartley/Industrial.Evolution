@@ -18,7 +18,6 @@ public class SmokeCloudTerrain extends BaseRingTerrain {
     //has to be spawned and despawned by another entity, use the explosion entity see ecmeExplosion, manage visuals there
     
     public static final float VISIBLITY_MULT = 0.66f;
-    public float effectFract = 1f;
 
     public boolean hasTooltip() {
         return true;
@@ -39,19 +38,15 @@ public class SmokeCloudTerrain extends BaseRingTerrain {
         if (entity instanceof CampaignFleetAPI) {
             CampaignFleetAPI fleet = (CampaignFleetAPI) entity;
             fleet.getStats().addTemporaryModMult(0.1f, getModId() + "_1",
-                    "Inside chaff cloud", VISIBLITY_MULT * effectFract,
+                    "Inside chaff cloud", VISIBLITY_MULT ,
                     fleet.getStats().getDetectedRangeMod());
 
-            float penalty = Misc.getBurnMultForTerrain(fleet) * effectFract;
+            float penalty = Misc.getBurnMultForTerrain(fleet);
             //float penalty = getBurnPenalty(fleet);
             fleet.getStats().addTemporaryModMult(0.1f, getModId() + "_2",
                     "Inside chaff cloud", penalty,
                     fleet.getStats().getFleetwideMaxBurnMod());
         }
-    }
-
-    public void setEffectFract(float fract){
-        effectFract = fract;
     }
 
     public void createTooltip(TooltipMakerAPI tooltip, boolean expanded) {
@@ -72,13 +67,13 @@ public class SmokeCloudTerrain extends BaseRingTerrain {
         }
         tooltip.addPara("Reduces the range at which fleets inside can be detected by %s.", nextPad,
                 highlight,
-                "" + (int) ((1f - VISIBLITY_MULT * effectFract) * 100) + "%"
+                "" + (int) ((1f - VISIBLITY_MULT) * 100) + "%"
         );
 
         tooltip.addPara("Reduces the travel speed of fleets inside by up to %s. Larger fleets are slowed down more.",
                 pad,
                 highlight,
-                "" + (int) ((Math.round(Misc.BURN_PENALTY_MULT * effectFract * 100f)/100f) * 100f) + "%"
+                "" + (int) (Math.round(Misc.BURN_PENALTY_MULT) * 100f) + "%"
         );
 
         float penalty = Misc.getBurnMultForTerrain(Global.getSector().getPlayerFleet());

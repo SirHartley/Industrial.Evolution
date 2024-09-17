@@ -79,7 +79,7 @@
 		"renderCircleIndicator":false,
 		"interactable":false,
 		"tags":["expires"],
-		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+		"layers":[TERRAIN_9], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 		"pluginClass":"indevo.items.consumables.entities.SmokeCloudEntityPlugin",
 	},
 
