@@ -3,23 +3,31 @@ package indevo.abilities.splitfleet;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.terrain.*;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.ModPlugin;
 import org.apache.log4j.Logger;
+import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 
 public class OrbitFocus {
 
     public static final Logger log = Global.getLogger(OrbitFocus.class);
 
-    public static final float MAXIMUM_DISTANCE_TO_NON_CENTERED_ENTITY = 400f;
+    public static final float MAXIMUM_DISTANCE_TO_NON_CENTERED_ENTITY = 2000f;
+    public static final float FALLOFF_DIST_UNITS_PER_TEN_PERCENT = 400f;
     public static final String ORBIT_FOCUS_TAG = "SplinterFleet_OF";
 
     public static SectorEntityToken getOrbitFocusAtTokenPosition(SectorEntityToken token) {
         LocationAPI location = token.getContainingLocation();
+
         if (location == null) {
             Global.getLogger(OrbitFocus.class).error("No valid system for orbit focus", new Throwable());
             return null;
@@ -30,36 +38,92 @@ public class OrbitFocus {
         orbitFocus.addTag(ORBIT_FOCUS_TAG);
 
         if (location.isNebula() || location.isHyperspace()) return orbitFocus;
-        StarSystemAPI system = token.getStarSystem();
+        orbitFocus.setOrbit(getClosestValidOrbit(token));
 
-        for (SectorEntityToken systemEntity : system.getAllEntities()) {
-            if (!systemEntity.isStar() && systemEntity instanceof PlanetAPI || systemEntity instanceof JumpPointAPI) {
-                //check if there is a planet or JP closer than max dist
-                //if there is, orbit it
-                float dist = Misc.getDistance(token, systemEntity);
-                boolean isInOrbitRange = dist < (systemEntity.getRadius() + MAXIMUM_DISTANCE_TO_NON_CENTERED_ENTITY);
+        return orbitFocus;
+    }
 
-                if (isInOrbitRange) {
-                    float orbitDistance = dist < systemEntity.getRadius() ? systemEntity.getRadius() + 100f : dist;
+    public static OrbitAPI getClosestValidOrbit(SectorEntityToken toToken){
+        return getClosestValidOrbit(toToken, false, false);
+    }
 
-                    OrbitAPI orbit = Global.getFactory().createCircularOrbit(systemEntity, 0f, orbitDistance, systemEntity.getOrbit().getOrbitalPeriod());
-                    orbitFocus.setOrbit(orbit);
-                    return orbitFocus;
+    public static OrbitAPI getClosestValidOrbit(SectorEntityToken toToken, boolean forceExactLocation, boolean forceAdoptClosestOrbit){
+        LocationAPI location = toToken.getContainingLocation();
+
+        if (location == null) return null;
+        if (location.isNebula() || location.isHyperspace()) return null;
+
+        OrbitAPI orbit;
+        StarSystemAPI system = toToken.getStarSystem();
+
+        Map<Float, SectorEntityToken> distanceMap = new TreeMap<>();
+
+        for (SectorEntityToken entity : system.getAllEntities()) {
+            if (!entity.isStar() && entity instanceof PlanetAPI || entity instanceof JumpPointAPI || entity.hasTag(Tags.STATION) || entity.hasTag(Tags.GATE) || entity.hasTag(Tags.OBJECTIVE)) {
+                distanceMap.put(Misc.getDistance(entity, toToken), entity);
+            }
+        }
+
+        for (SectorEntityToken targetEntity : distanceMap.values()) {
+            float dist = Misc.getDistance(toToken, targetEntity);
+            boolean isInOrbitRange = dist < (targetEntity.getRadius() + MAXIMUM_DISTANCE_TO_NON_CENTERED_ENTITY);
+
+            if (isInOrbitRange || forceAdoptClosestOrbit) {
+                //check if the entity has an orbit and if yes, steal the info and stay in place with a similar orbit
+                OrbitAPI targetOrbit = targetEntity.getOrbit();
+                if (targetOrbit != null){
+                    SectorEntityToken focus = targetOrbit.getFocus();
+                    if(focus != null){
+                        float period = targetOrbit.getOrbitalPeriod();
+                        float radius = Misc.getDistance(focus, toToken);
+                        float angle = Misc.getAngleInDegrees(focus.getLocation(), toToken.getLocation());
+
+                        //if not forced exact location we correct for size so it's not inside the planet
+                        if (!forceExactLocation) radius = dist < targetEntity.getRadius() ? targetEntity.getRadius() + 100f : dist;
+
+                        //adjust the orbit period for distance a bit, makes it feel more natural
+                        //reduce by 10% per X units up to -90%
+                        float distanceToEntity = Misc.getDistance(targetEntity, toToken);
+                        float mult = 1f + MathUtils.clamp((distanceToEntity / FALLOFF_DIST_UNITS_PER_TEN_PERCENT) * 0.1f, 0f, 0.9f);
+
+                        return Global.getFactory().createCircularOrbit(focus, angle, radius, period * mult);
+                    }
+
+                    float period = targetOrbit.getOrbitalPeriod();
+                    float radius = Misc.getDistance(targetEntity, toToken);
+                    float angle = Misc.getAngleInDegrees(targetEntity.getLocation(), toToken.getLocation());
+
+                    if (!forceExactLocation) radius = dist < targetEntity.getRadius() ? targetEntity.getRadius() + 100f : dist;
+
+                    return Global.getFactory().createCircularOrbit(targetEntity, angle, radius, period);
                 }
+
+                //if it does not have an orbit or a focus, we orbit the target itself with a basic orbital period
+                float radius = Misc.getDistance(targetEntity, toToken);
+                float period= 20f * (1 + (radius / 300f) * 0.1f); //I made this up
+                float angle = Misc.getAngleInDegrees(targetEntity.getLocation(), toToken.getLocation());
+
+                if (!forceExactLocation) radius = dist < targetEntity.getRadius() ? targetEntity.getRadius() + 100f : dist;
+
+                return Global.getFactory().createCircularOrbit(targetEntity, angle, radius, period);
             }
         }
 
         //if there is not, get the orbit duration of the closest entity orbiting center or sun and use that instead to orbit the center
-        SectorEntityToken closestEntity = getClosestEntityWithCenteredOrbit(token);
+        SectorEntityToken closestEntity = getClosestEntityWithCenteredOrbit(toToken);
 
-        float dist = Misc.getDistance(token, system.getCenter());
-        float orbitDistance = dist < system.getStar().getRadius() ? system.getStar().getRadius() + 700f : dist; //if player wants to stay in the sun, adjust
-        float angle = Misc.getAngleInDegrees(system.getCenter().getLocation(), token.getLocation());
-        float orbitPeriod = closestEntity != null ? closestEntity.getCircularOrbitPeriod() : 31f;
+        float dist = Misc.getDistance(toToken, system.getCenter());
 
-        orbitFocus.setCircularOrbit(system.getCenter(), angle, orbitDistance, orbitPeriod);
+        float orbitDistance = dist;
+        if (!forceExactLocation) orbitDistance = dist < system.getStar().getRadius() ? system.getStar().getRadius() + 700f : dist; //if player wants to stay in the sun, adjust
 
-        return orbitFocus;
+        float angle = Misc.getAngleInDegrees(system.getCenter().getLocation(), toToken.getLocation());
+
+        float orbitDays = 31f * (1 + (dist / 1000f) * 0.1f); //I made this up too
+        float orbitPeriod = closestEntity == null || closestEntity.getCircularOrbitPeriod() < orbitDays ? orbitDays : closestEntity.getCircularOrbitPeriod();
+
+        orbit = Global.getFactory().createCircularOrbit(system.getCenter(), angle, orbitDistance, orbitPeriod);
+        return orbit;
     }
 
     public static SectorEntityToken getHideOrbitFocus(CampaignFleetAPI fleet) {

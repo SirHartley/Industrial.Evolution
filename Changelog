@@ -124,6 +124,7 @@ Skills
 Added - NPC Administrator skill "Micromanagement": Allows for remote management of items and AI cores after 3 months in office (NOT a player skill)
 
 Detachments
+Adjusted - Markedly improved orbiting behaviour as a side effect of the smoke missiles
 Fixed - No longer crashes when told to hide in non-nebula systems without a star
 
 Research Projects

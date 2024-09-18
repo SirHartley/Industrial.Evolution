@@ -3,6 +3,7 @@ package indevo.items.consumables.entities;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.OrbitAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
@@ -12,6 +13,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 import indevo.items.consumables.particles.NebulaParticle;
 import indevo.utils.helper.MiscIE;
@@ -34,7 +36,7 @@ public class SmokeCloudEntityPlugin extends BaseCustomEntityPlugin {
     public static final float RAMPUP_DUR_FRACT = 0.02f;
     //public static final float PX_PER_PARTICLE = 400f;
     public static final float PARTICLES_PER_INTERVAL = 12;
-    public static final float EXPLOSION_SIZE = 100f;
+    public static final float EXPLOSION_SIZE = 200f;
     public static final float BASE_NEBULA_PARTICLE_SIZE = 200f;
 
     public transient SpriteAPI sprite;
@@ -100,6 +102,11 @@ public class SmokeCloudEntityPlugin extends BaseCustomEntityPlugin {
     public void advance(float amount) {
         super.advance(amount);
 
+        if (entity.getOrbit() == null) {
+            OrbitAPI orbit = OrbitFocus.getClosestValidOrbit(entity, true, true);
+            if (orbit != null) entity.setOrbit(orbit);
+        }
+
         if (!finishing && elapsed > duration) {
             Misc.fadeAndExpire(terrain, 0.1f);
             Misc.fadeAndExpire(entity, 0.1f);
@@ -129,7 +136,7 @@ public class SmokeCloudEntityPlugin extends BaseCustomEntityPlugin {
         if (elapsed < duration * RAMPUP_DUR_FRACT && particleInterval.intervalElapsed()) {
             for (int i = 0; i < PARTICLES_PER_INTERVAL; i++) {
                 Random random = new Random();
-                Vector2f loc = MathUtils.getPointOnCircumference(entity.getLocation(), currentRadius, MathUtils.getRandomNumberInRange(0, 360));
+                NebulaParticle.LocationData location = new NebulaParticle.LocationData(currentRadius, MathUtils.getRandomNumberInRange(0, 360));
                 float alpha = 0.7f + 0.2f * (random.nextFloat());
 
                 nebulaParticles.add(new NebulaParticle(BASE_NEBULA_PARTICLE_SIZE * alpha,
@@ -138,7 +145,7 @@ public class SmokeCloudEntityPlugin extends BaseCustomEntityPlugin {
                         (float) (duration - elapsed * 0.7f + (random.nextFloat() * 0.2 * (duration - elapsed))),
                         color,
                         targetColor.darker(),
-                        loc));
+                        location));
             }
         }
     }
@@ -162,6 +169,8 @@ public class SmokeCloudEntityPlugin extends BaseCustomEntityPlugin {
         for (NebulaParticle p : nebulaParticles) {
             if (p.isExpired()) continue;
 
+            Vector2f loc = p.pos.getLocation(entity.getLocation());
+
             nebulaSprite.setTexWidth(0.25f);
             nebulaSprite.setTexHeight(0.25f);
             nebulaSprite.setAdditiveBlend();
@@ -175,7 +184,7 @@ public class SmokeCloudEntityPlugin extends BaseCustomEntityPlugin {
             nebulaSprite.setSize(p.size, p.size);
             nebulaSprite.setAlphaMult(p.getCurrentAlpha());
             nebulaSprite.setColor(p.color);
-            nebulaSprite.renderAtCenter(p.pos.x, p.pos.y);
+            nebulaSprite.renderAtCenter(loc.x, loc.y);
         }
     }
 
