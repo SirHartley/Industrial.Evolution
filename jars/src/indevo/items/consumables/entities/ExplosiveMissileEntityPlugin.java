@@ -14,11 +14,13 @@ import java.awt.*;
 
 public class ExplosiveMissileEntityPlugin extends BaseMissileEntityPlugin {
 
-    public static final float DISTANCE_TO_EXPLODE = 25f;
+    public static final float DISTANCE_TO_EXPLODE = 10f;
+    public static final float EXPLOSION_SIZE = 250f;
 
     @Override
     public boolean shouldExplode() {
-        for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()) if (Misc.getDistance(fleet, entity) < DISTANCE_TO_EXPLODE && fleet != source) return true;
+        for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets())
+            if (Misc.getDistance(fleet, entity) < DISTANCE_TO_EXPLODE + fleet.getRadius() && fleet != source) return true;
         return false;
     }
 
@@ -26,7 +28,7 @@ public class ExplosiveMissileEntityPlugin extends BaseMissileEntityPlugin {
     public void onExplosion() {
         LocationAPI cl = entity.getContainingLocation();
 
-        Color color = new Color(255, 120, 100);
+        Color color = new Color(200, 110,20);
         VariableExplosionEntityPlugin.VariableExplosionParams params =
                 new VariableExplosionEntityPlugin.VariableExplosionParams(
                         "IndEvo_mortar_hit",
@@ -35,7 +37,7 @@ public class ExplosiveMissileEntityPlugin extends BaseMissileEntityPlugin {
                         color,
                         cl,
                         entity.getLocation(),
-                        100f,
+                        EXPLOSION_SIZE,
                         0.65f);
 
         params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.LOW;

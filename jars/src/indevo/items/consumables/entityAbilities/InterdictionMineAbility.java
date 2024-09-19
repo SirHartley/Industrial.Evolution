@@ -183,15 +183,17 @@ public class InterdictionMineAbility extends BaseDurationAbility {
     public static class GoSlowScript implements EveryFrameScript {
 
         float amt = 0f;
+        final float sec;
         CampaignFleetAPI fleet;
 
-        public GoSlowScript(CampaignFleetAPI fleet) {
+        public GoSlowScript(CampaignFleetAPI fleet, float seconds) {
             this.fleet = fleet;
+            this.sec = seconds;
         }
 
         @Override
         public boolean isDone() {
-            return amt > 1f;
+            return amt > sec;
         }
 
         @Override
@@ -204,7 +206,6 @@ public class InterdictionMineAbility extends BaseDurationAbility {
             if (!isDone()) {
                 amt += amount;
                 fleet.goSlowOneFrame(true);
-                ;
             }
         }
     }
@@ -221,88 +222,89 @@ public class InterdictionMineAbility extends BaseDurationAbility {
         }
 
         float range = getRange();
-
-        boolean playedHit = !(entity.isInCurrentLocation() && entity.isVisibleToPlayerFleet());
         if (level == 1 && primed != null) {
+            interdictFleetsInRange(range);
+        }
+    }
 
-            if (entity.isInCurrentLocation()) {
-                Global.getSector().getMemoryWithoutUpdate().set(MemFlags.GLOBAL_INTERDICTION_PULSE_JUST_USED_IN_CURRENT_LOCATION, true, 0.1f);
-            }
+    public void interdictFleetsInRange(float range){
+        boolean playedHit = !(entity.isInCurrentLocation() && entity.isVisibleToPlayerFleet());
 
-            CampaignPingSpec custom = new CampaignPingSpec();
-            custom.setColor(getColor());
-            custom.setWidth(15);
-            custom.setRange(range * 1.3f);
-            custom.setDuration(0.5f);
-            custom.setAlphaMult(1f);
-            custom.setInFraction(0.1f);
-            custom.setNum(1);
-            Global.getSector().addPing(entity, custom);
-
-            for (CampaignFleetAPI other : entity.getContainingLocation().getFleets()) {
-                if (other == entity) continue;
-                if (other.isInHyperspaceTransition()) continue;
-
-                float dist = Misc.getDistance(entity.getLocation(), other.getLocation());
-                if (dist > range) continue;
-
-                float interdictSeconds = getInterdictSeconds(other);
-                if (interdictSeconds > 0 && interdictSeconds < 1f) interdictSeconds = 1f;
-
-                SectorEntityToken.VisibilityLevel vis = other.getVisibilityLevelToPlayerFleet();
-                if (vis == SectorEntityToken.VisibilityLevel.COMPOSITION_AND_FACTION_DETAILS ||
-                        vis == SectorEntityToken.VisibilityLevel.COMPOSITION_DETAILS) {
-                    if (interdictSeconds <= 0) {
-                        other.addFloatingText("Interdict avoided!", getColor(), 1f, true);
-                        continue;
-                    } else {
-                        other.addScript(new GoSlowScript(other));
-                        other.addFloatingText("Interdict! (" + (int) Math.round(interdictSeconds) + "s)", getColor(), 1f, true);
-                    }
-                }
-
-                float interdictDays = interdictSeconds / Global.getSector().getClock().getSecondsPerDay();
-
-                for (AbilityPlugin ability : other.getAbilities().values()) {
-                    if (!ability.getSpec().hasTag(Abilities.TAG_BURN + "+") &&
-                            !ability.getId().equals(Abilities.INTERDICTION_PULSE)) continue;
-
-                    float origCooldown = ability.getCooldownLeft();
-                    float extra = 0;
-                    if (ability.isActiveOrInProgress()) {
-                        extra += ability.getSpec().getDeactivationCooldown() * ability.getProgressFraction();
-                        ability.deactivate();
-
-                    }
-
-                    if (!ability.getSpec().hasTag(Abilities.TAG_BURN + "+")) continue;
-
-                    float cooldown = interdictDays;
-                    //cooldown = Math.max(cooldown, origCooldown);
-                    cooldown += origCooldown;
-                    cooldown += extra;
-                    float max = Math.max(ability.getSpec().getDeactivationCooldown(), 2f);
-                    if (cooldown > max) cooldown = max;
-                    ability.setCooldownLeft(cooldown);
-                }
-
-                if (!playedHit) {
-                    Global.getSoundPlayer().playSound("world_interdict_hit", 1f, 1f, other.getLocation(), other.getVelocity());
-                    //playedHit = true;
-                }
-            }
-
-            primed = null;
-            elapsed = null;
-            numFired = null;
+        if (entity.isInCurrentLocation()) {
+            Global.getSector().getMemoryWithoutUpdate().set(MemFlags.GLOBAL_INTERDICTION_PULSE_JUST_USED_IN_CURRENT_LOCATION, true, 0.1f);
         }
 
+        CampaignPingSpec custom = new CampaignPingSpec();
+        custom.setColor(getColor());
+        custom.setWidth(15);
+        custom.setRange(range * 1.3f);
+        custom.setDuration(0.5f);
+        custom.setAlphaMult(1f);
+        custom.setInFraction(0.1f);
+        custom.setNum(1);
+        Global.getSector().addPing(entity, custom);
+
+        for (CampaignFleetAPI other : entity.getContainingLocation().getFleets()) {
+            if (other == entity) continue;
+            if (other.isInHyperspaceTransition()) continue;
+
+            float dist = Misc.getDistance(entity.getLocation(), other.getLocation());
+            if (dist > range) continue;
+
+            float interdictSeconds = getInterdictSeconds(other);
+            if (interdictSeconds > 0 && interdictSeconds < 1f) interdictSeconds = 1f;
+
+            SectorEntityToken.VisibilityLevel vis = other.getVisibilityLevelToPlayerFleet();
+            if (vis == SectorEntityToken.VisibilityLevel.COMPOSITION_AND_FACTION_DETAILS ||
+                    vis == SectorEntityToken.VisibilityLevel.COMPOSITION_DETAILS) {
+                if (interdictSeconds <= 0) {
+                    other.addFloatingText("Interdict avoided!", getColor(), 1f, true);
+                    continue;
+                } else {
+                    other.addScript(new GoSlowScript(other, 0.01f));
+                    other.addFloatingText("Interdict! (" + (int) Math.round(interdictSeconds) + "s)", getColor(), 1f, true);
+                }
+            }
+
+            float interdictDays = interdictSeconds / Global.getSector().getClock().getSecondsPerDay();
+
+            for (AbilityPlugin ability : other.getAbilities().values()) {
+                if (!ability.getSpec().hasTag(Abilities.TAG_BURN + "+") &&
+                        !ability.getId().equals(Abilities.INTERDICTION_PULSE)) continue;
+
+                float origCooldown = ability.getCooldownLeft();
+                float extra = 0;
+                if (ability.isActiveOrInProgress()) {
+                    extra += ability.getSpec().getDeactivationCooldown() * ability.getProgressFraction();
+                    ability.deactivate();
+
+                }
+
+                if (!ability.getSpec().hasTag(Abilities.TAG_BURN + "+")) continue;
+
+                float cooldown = interdictDays;
+                //cooldown = Math.max(cooldown, origCooldown);
+                cooldown += origCooldown;
+                cooldown += extra;
+                float max = Math.max(ability.getSpec().getDeactivationCooldown(), 2f);
+                if (cooldown > max) cooldown = max;
+                ability.setCooldownLeft(cooldown);
+            }
+
+            if (!playedHit) {
+                Global.getSoundPlayer().playSound("world_interdict_hit", 1f, 1f, other.getLocation(), other.getVelocity());
+                //playedHit = true;
+            }
+        }
+
+        primed = null;
+        elapsed = null;
+        numFired = null;
     }
 
     public static float getInterdictSeconds(CampaignFleetAPI other) {
-        float offense = DEFAULT_STRENGTH;
         float defense = other.getSensorRangeMod().computeEffective(other.getSensorStrength());
-        float diff = offense - defense;
+        float diff = DEFAULT_STRENGTH - defense;
 
         float extra = diff / STRENGTH_PER_SECOND;
 

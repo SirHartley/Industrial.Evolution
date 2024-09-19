@@ -15,11 +15,11 @@ import java.util.Random;
 
 public class SmokeMissileEntityPlugin extends BaseMissileEntityPlugin {
 
-    public static final float DISTANCE_TO_EXPLODE = 25f;
+    public static final float DISTANCE_TO_EXPLODE = 50f;
 
     @Override
     public boolean shouldExplode() {
-        for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()) if (Misc.getDistance(fleet, entity) < DISTANCE_TO_EXPLODE && fleet != source) return true;
+        for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()) if (Misc.getDistance(fleet, entity) < DISTANCE_TO_EXPLODE + fleet.getRadius() && fleet != source) return true;
         return false;
     }
 

@@ -9,7 +9,7 @@ import org.lwjgl.util.vector.Vector2f;
 
 public class SmokeMissileAbilityPlugin extends BaseMissileConsumableAbilityPlugin{
 
-    public static final float MISSILE_SPEED = 2000f;
+    public static final float MISSILE_SPEED = 750f;
     public static final float MISSILE_DUR = 4f;
     public static final String MISSILE_ID = "IndEvo_consumable_missile_smoke";
 

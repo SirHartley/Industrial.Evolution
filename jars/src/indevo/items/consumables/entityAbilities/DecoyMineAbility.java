@@ -78,7 +78,7 @@ public class DecoyMineAbility extends BaseDurationAbility {
                     if (vis == SectorEntityToken.VisibilityLevel.COMPOSITION_AND_FACTION_DETAILS ||
                             vis == SectorEntityToken.VisibilityLevel.COMPOSITION_DETAILS) {
 
-                        other.addScript(new InterdictionMineAbility.GoSlowScript(other));
+                        other.addScript(new InterdictionMineAbility.GoSlowScript(other, 0.01f));
                         other.addFloatingText("Investigating signal", getColor(), 1f, true);
                         //Global.getSoundPlayer().playSound("world_interdict_hit", 1f, 1f, other.getLocation(), other.getVelocity());
                     }
