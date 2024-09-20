@@ -1,8 +1,10 @@
 package indevo.items.consumables.entities;
 
+import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.ParticleControllerAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.graphics.SpriteAPI;
@@ -14,6 +16,9 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 import indevo.items.consumables.entityAbilities.InterdictionMineAbility;
+import indevo.utils.ModPlugin;
+import org.lazywizard.lazylib.MathUtils;
+import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 
@@ -22,6 +27,8 @@ public class InterceptMissileEntityPlugin extends BaseMissileEntityPlugin {
     public static final float DISTANCE_TO_EXPLODE = 10f;
     public static final float INTERDICT_RANGE = 300f;
     public static final float INTERDICT_SECONDS = 6f;
+    public static final float TRACE_SECONDS = 20f;
+    public static final float TRACE_PROFILE_INCREASE = 1000f;
     public static final float STUN_SECONDS = 2f;
 
     @Override
@@ -43,7 +50,7 @@ public class InterceptMissileEntityPlugin extends BaseMissileEntityPlugin {
         custom.setNum(1);
         Global.getSector().addPing(entity, custom);
 
-        for (CampaignFleetAPI other : entity.getContainingLocation().getFleets()) {
+        for (final CampaignFleetAPI other : entity.getContainingLocation().getFleets()) {
             if (other == entity) continue;
             if (other.isInHyperspaceTransition()) continue;
 
@@ -57,6 +64,59 @@ public class InterceptMissileEntityPlugin extends BaseMissileEntityPlugin {
                 other.addScript(new InterdictionMineAbility.GoSlowScript(other, STUN_SECONDS));
                 other.addFloatingText("Slowed & Interdict! (" + (int) Math.round(INTERDICT_SECONDS) + "s)", getTrailColour(), 2f, true);
             }
+
+            other.addScript(new EveryFrameScript() {
+                final float dur = TRACE_SECONDS;
+                float amt = 0;
+                final CampaignFleetAPI fleet = other;
+                boolean init = false;
+                ParticleControllerAPI[] indicator;
+                float currentAngle;
+
+                @Override
+                public boolean isDone() {
+                    return amt > dur;
+                }
+
+                @Override
+                public boolean runWhilePaused() {
+                    return false;
+                }
+
+                @Override
+                public void advance(float amount) {
+                    if (isDone()) return;
+
+                    amt += amount;
+                    String id = "IndEvo_TrackingMissile";
+
+                    if (!init){
+                        currentAngle = Misc.random.nextFloat() * 360f;
+                        indicator = Misc.addGlowyParticle(
+                                fleet.getContainingLocation(),
+                                MathUtils.getPointOnCircumference(fleet.getLocation(), fleet.getRadius() + 30f, currentAngle),
+                                new Vector2f(0,0),
+                                40f,
+                                0.5f,
+                                TRACE_SECONDS + 1f,
+                                getTrailColour());
+
+                        init = true;
+                    }
+
+                    currentAngle += amt;
+                    if (currentAngle > 360f) angle = 0f;
+                    if (currentAngle < 0) angle = 360f;
+
+                    Vector2f nextLoc = MathUtils.getPointOnCircumference(fleet.getLocation(), fleet.getRadius() + 30f, currentAngle);
+                    indicator[0].setX(nextLoc.x);
+                    indicator[0].setY(nextLoc.y);
+
+                    if (!isDone()){
+                        fleet.getStats().getSensorProfileMod().modifyFlat(id, TRACE_PROFILE_INCREASE, "Tracer Missile");
+                    } else fleet.getStats().getSensorProfileMod().unmodify(id);
+                }
+            });
 
             float interdictDays = INTERDICT_SECONDS / Global.getSector().getClock().getSecondsPerDay();
 
