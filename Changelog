@@ -103,10 +103,11 @@ Removed - Orbital pet stations around a planet (too much clutter for the use the
 
 Items
 Added - Consumable item: Portable Relay, only works in hyperspace and establishes a link to a comm relay
-todo Added - Consumable item: Explosive Missile. Skillshot, campaign level. Does what it says.
+todo: descriptions, market drops, npc usage, research projects
+todo Added - Consumable item: Explosive Missile. Skillshot, campaign level. Does what it says, badly.
 todo Added - Consumable item: Concussive Missile. Targeted AOE, campaign level. Knocks fleets away from the explosion, does no damage.
 todo Added - Consumable item: Smoke Missile. Targeted AOE, campaign level. Spawns vision-reducing smoke to hide in or to leave enemies in the dark.
-todo Added - Consumable item: Intercept Missile. Skillshot, campaign level. Intercepts enemy fleets and makes them visible to you.
+todo Added - Consumable item: Intercept Missile. Skillshot, campaign level. Intercepts & stuns fleets, and makes them visible.
 Added - Relic components will now drop from all automated ships that were destroyed (even modded)
 Added - Relic component configuration for RAT Abyss, KOL boss factions
 Adjusted - Relic components no longer drop from battles with the luddic path

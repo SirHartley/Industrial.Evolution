@@ -39,7 +39,10 @@ public class TargetingReticuleInputListener implements CampaignInputListener {
     @Override
     public void processCampaignInputPreCore(List<InputEventAPI> events) {
         CampaignUIAPI ui = Global.getSector().getCampaignUI();
-        if (ui.getCurrentInteractionDialog() != null) return;
+        if (ui.getCurrentInteractionDialog() != null) {
+            reset();
+            return;
+        }
 
         for (InputEventAPI input : events) {
             if (input.isConsumed()) continue;
@@ -82,6 +85,13 @@ public class TargetingReticuleInputListener implements CampaignInputListener {
                 }
             }
         }
+    }
+
+    public void reset(){
+        missileActive = false;
+        lastSlotVal = -1;
+        if(renderer != null) renderer.setDone();
+        renderer = null;
     }
 
     @Override

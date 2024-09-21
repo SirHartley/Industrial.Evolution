@@ -15,6 +15,7 @@ public class ConcussiveMissileAbilityPlugin extends BaseMissileConsumableAbility
 
     @Override
     protected void activateImpl() {
+
         Vector2f mousePos = new Vector2f(
                 Global.getSector().getViewport().convertScreenXToWorldX(Global.getSettings().getMouseX()),
                 Global.getSector().getViewport().convertScreenYToWorldY(Global.getSettings().getMouseY()));
@@ -26,7 +27,6 @@ public class ConcussiveMissileAbilityPlugin extends BaseMissileConsumableAbility
         SectorEntityToken t = getFleet().getContainingLocation().addCustomEntity(Misc.genUID(), null,MISSILE_ID,null, params);
         t.setLocation(getFleet().getLocation().x, getFleet().getLocation().y);
     }
-
 
     @Override
     public void addTooltip(TooltipMakerAPI tooltip) {

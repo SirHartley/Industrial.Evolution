@@ -196,8 +196,11 @@ public class ModPlugin extends BaseModPlugin {
                 }
             }
 
-            addLordFoogRep();
+            if (newGame) addLordFoogRep();
         }
+
+        //player fuckery
+        TargetingReticuleInputListener.getInstance().reset();
     }
 
     public void addLordFoogRep(){
@@ -277,6 +280,7 @@ public class ModPlugin extends BaseModPlugin {
     @Override
     public void beforeGameSave() {
         super.beforeGameSave();
+        TargetingReticuleInputListener.getInstance().reset();
 
         mines.clear();
 

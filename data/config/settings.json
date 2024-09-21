@@ -251,6 +251,7 @@
 
   "graphics": {
       "fx":{
+          "IndEvo_concussionExplosionFX":"graphics/fx/concussion_explosion.png",
           "IndEvo_transpoofer_glow":"graphics/fx/IndEvo_consumable_transpoofer_glow.png",
           "IndEvo_trail_stream":"graphics/fx/trails_stream.png",
           "IndEvo_trail_foggy":"graphics/fx/trails_foggy.png",

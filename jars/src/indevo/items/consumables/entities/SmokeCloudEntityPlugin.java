@@ -26,13 +26,9 @@ import java.util.List;
 import java.util.Random;
 
 public class SmokeCloudEntityPlugin extends BaseCustomEntityPlugin {
-    //todo make this rotate around the sun or closest object, will have to update the position of the particles manually.
-
-    public static final float FULL_EFFECT_FRACT = 0.7f; //what %age of the dur the cloud provides full cover, then falls off linear
 
     public static final float DURATION_IN_DAYS = 4f;
     public static final float BASE_RADIUS = 400f;
-
     public static final float RAMPUP_DUR_FRACT = 0.02f;
     //public static final float PX_PER_PARTICLE = 400f;
     public static final float PARTICLES_PER_INTERVAL = 12;

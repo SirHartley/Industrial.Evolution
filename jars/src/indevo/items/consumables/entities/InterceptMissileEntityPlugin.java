@@ -66,12 +66,13 @@ public class InterceptMissileEntityPlugin extends BaseMissileEntityPlugin {
             }
 
             other.addScript(new EveryFrameScript() {
-                final float dur = TRACE_SECONDS;
-                float amt = 0;
-                final CampaignFleetAPI fleet = other;
-                boolean init = false;
-                ParticleControllerAPI[] indicator;
-                float currentAngle;
+                public static final float ROTATIONS_PER_SEC = 2f;
+                public final float dur = TRACE_SECONDS;
+                public final CampaignFleetAPI fleet = other;
+                public float amt = 0;
+                public boolean init = false;
+                public ParticleControllerAPI[] indicator;
+                public float currentAngle;
 
                 @Override
                 public boolean isDone() {
@@ -104,13 +105,16 @@ public class InterceptMissileEntityPlugin extends BaseMissileEntityPlugin {
                         init = true;
                     }
 
-                    currentAngle += amt;
-                    if (currentAngle > 360f) angle = 0f;
-                    if (currentAngle < 0) angle = 360f;
+                    //had some instances where indicator would time out before anim, not sure why, so we just nullcheck - good enough
+                    if (indicator != null){
+                        currentAngle += (360f / ROTATIONS_PER_SEC) * amount;
+                        if (currentAngle > 360f) angle = 0f;
+                        if (currentAngle < 0) angle = 360f;
 
-                    Vector2f nextLoc = MathUtils.getPointOnCircumference(fleet.getLocation(), fleet.getRadius() + 30f, currentAngle);
-                    indicator[0].setX(nextLoc.x);
-                    indicator[0].setY(nextLoc.y);
+                        Vector2f nextLoc = MathUtils.getPointOnCircumference(fleet.getLocation(), fleet.getRadius() + 30f, currentAngle);
+                        indicator[0].setX(nextLoc.x);
+                        indicator[0].setY(nextLoc.y);
+                    }
 
                     if (!isDone()){
                         fleet.getStats().getSensorProfileMod().modifyFlat(id, TRACE_PROFILE_INCREASE, "Tracer Missile");

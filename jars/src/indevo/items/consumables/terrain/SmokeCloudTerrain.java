@@ -17,7 +17,8 @@ public class SmokeCloudTerrain extends BaseRingTerrain {
 
     //has to be spawned and despawned by another entity, use the explosion entity see ecmeExplosion, manage visuals there
     
-    public static final float VISIBLITY_MULT = 0.66f;
+    public static final float VISIBLITY_MULT = 0.5f;
+    public static final float BURN_PENALTY_MULT = 0.3f;
 
     public boolean hasTooltip() {
         return true;
@@ -41,12 +42,20 @@ public class SmokeCloudTerrain extends BaseRingTerrain {
                     "Inside chaff cloud", VISIBLITY_MULT ,
                     fleet.getStats().getDetectedRangeMod());
 
-            float penalty = Misc.getBurnMultForTerrain(fleet);
+            float penalty = getBurnMultForTerrain(fleet);
             //float penalty = getBurnPenalty(fleet);
             fleet.getStats().addTemporaryModMult(0.1f, getModId() + "_2",
                     "Inside chaff cloud", penalty,
                     fleet.getStats().getFleetwideMaxBurnMod());
         }
+    }
+
+    public static float getBurnMultForTerrain(CampaignFleetAPI fleet) {
+        float mult = Misc.getFleetRadiusTerrainEffectMult(fleet);
+        mult = (1f - BURN_PENALTY_MULT * mult);
+        mult = Math.round(mult * 100f) / 100f;
+        if (mult < 0.1f) mult = 0.1f;
+        return mult;
     }
 
     public void createTooltip(TooltipMakerAPI tooltip, boolean expanded) {
@@ -73,7 +82,7 @@ public class SmokeCloudTerrain extends BaseRingTerrain {
         tooltip.addPara("Reduces the travel speed of fleets inside by up to %s. Larger fleets are slowed down more.",
                 pad,
                 highlight,
-                "" + (int) (Math.round(Misc.BURN_PENALTY_MULT) * 100f) + "%"
+                "" + (int) (Math.round(BURN_PENALTY_MULT) * 100f) + "%"
         );
 
         float penalty = Misc.getBurnMultForTerrain(Global.getSector().getPlayerFleet());

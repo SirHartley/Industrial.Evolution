@@ -51,6 +51,7 @@ public abstract class BaseMissileEntityPlugin extends BaseCustomEntityPlugin {
     public float velocity;
 
     public float trailID;
+    public boolean init = false;
     public boolean finishing = false;
     public boolean optionalTargetReached = false;
     public SectorEntityToken source;
@@ -84,6 +85,11 @@ public abstract class BaseMissileEntityPlugin extends BaseCustomEntityPlugin {
 
     public void advance(float amount) {
         timePassedSeconds += amount;
+
+        if (!init){
+            playOnFireSound();
+            init = true;
+        }
 
         if (!finishing) {
             advanceProjectile(amount);
@@ -126,6 +132,10 @@ public abstract class BaseMissileEntityPlugin extends BaseCustomEntityPlugin {
         missileSprite.setSize(12, 26);
         missileSprite.setAlphaMult(alphaMult);
         missileSprite.renderAtCenter(entity.getLocation().x, entity.getLocation().y);
+    }
+
+    public void playOnFireSound(){
+        Global.getSoundPlayer().playSound("hammer_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 1f, entity.getLocation(), new Vector2f(0f,0f));
     }
 
     //trail

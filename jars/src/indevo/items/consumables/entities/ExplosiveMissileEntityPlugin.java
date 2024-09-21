@@ -16,6 +16,7 @@ public class ExplosiveMissileEntityPlugin extends BaseMissileEntityPlugin {
 
     public static final float DISTANCE_TO_EXPLODE = 10f;
     public static final float EXPLOSION_SIZE = 250f;
+    public static final String EXPLOSION_SOUND_ID = "IndEvo_mortar_hit";
 
     @Override
     public boolean shouldExplode() {
@@ -31,7 +32,7 @@ public class ExplosiveMissileEntityPlugin extends BaseMissileEntityPlugin {
         Color color = new Color(200, 110,20);
         VariableExplosionEntityPlugin.VariableExplosionParams params =
                 new VariableExplosionEntityPlugin.VariableExplosionParams(
-                        "IndEvo_mortar_hit",
+                        EXPLOSION_SOUND_ID,
                         true,
                         1f,
                         color,

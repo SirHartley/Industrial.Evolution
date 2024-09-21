@@ -40,6 +40,7 @@ public abstract class BaseMissileConsumableAbilityPlugin extends BaseConsumableA
 
     public void forceActivation(){
         activateImpl();
+        removeTriggerItem();
     }
 
     public abstract void addTooltip(TooltipMakerAPI tooltip);
