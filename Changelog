@@ -103,11 +103,12 @@ Removed - Orbital pet stations around a planet (too much clutter for the use the
 
 Items
 Added - Consumable item: Portable Relay, only works in hyperspace and establishes a link to a comm relay
-todo: descriptions, market drops, npc usage, research projects
-todo Added - Consumable item: Explosive Missile. Skillshot, campaign level. Does what it says, badly.
-todo Added - Consumable item: Concussive Missile. Targeted AOE, campaign level. Knocks fleets away from the explosion, does no damage.
-todo Added - Consumable item: Smoke Missile. Targeted AOE, campaign level. Spawns vision-reducing smoke to hide in or to leave enemies in the dark.
-todo Added - Consumable item: Intercept Missile. Skillshot, campaign level. Intercepts & stuns fleets, and makes them visible.
+todo: npc usage and reactions
+Added - Consumable item: Explosive Missile. Skillshot, campaign level. Does what it says, badly.
+Added - Consumable item: Concussive Missile. Targeted AOE, campaign level. Knocks fleets away, does no damage.
+Added - Consumable item: Smoke Missile. Targeted AOE, campaign level. Spawns vision-reducing smoke to hide in or to leave enemies in the dark.
+Added - Consumable item: Intercept Missile. Skillshot, campaign level. Intercepts & stuns fleets, and makes them visible.
+Added - Missiles to most consumable item drop pools
 Added - Relic components will now drop from all automated ships that were destroyed (even modded)
 Added - Relic component configuration for RAT Abyss, KOL boss factions
 Adjusted - Relic components no longer drop from battles with the luddic path
@@ -115,6 +116,8 @@ Adjusted - Removed most VPCs from Historian pool
 Adjusted - Conflict/Exploration Package VPCs moved from Historian T4 to Historian T3
 Adjusted - Drastically reduced drop rates for special items, again (now matches vanilla in my low-mod playthough)
 Adjusted - Drive bubble spike now fires when a fleet is in range regardless of hostility
+Adjusted - Drive bubble  Spike drop rate halved everywhere
+Adjusted - Restoration Nanite drop rate increased
 
 Hullmods
 Added - Hellpods. They do what you'd expect them to do: getting your marines killed.
@@ -132,6 +135,7 @@ Research Projects
 Added - Project Prospector: trade survey data for hyperspace topography progress (unlocks after you gathered some hyperspace data)
 Added - Project Sonic: trade in a metric ton of fuel for a niche, but extremely useful hullmod (unlocks if you use slow ships)
 Added - Project Pulse: Pyrophage made the autopulse laser cool. I needed an excuse to put it into the game, so here it is. (unlocks if you fit an autopulse on a ship)
+Added - Project Mjölnir: trade relic components for missiles, always unlocked
 Added - Some sounds to the project UI
 Adjusted - Show Inputs button is now Show Info and displays a description of what the project actually does (in most cases)
 Adjusted - "New Projects" intel now shows which projects actually got unlocked

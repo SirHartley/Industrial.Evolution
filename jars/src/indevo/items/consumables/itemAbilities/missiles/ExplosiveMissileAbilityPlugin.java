@@ -5,7 +5,13 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.items.consumables.entities.BaseMissileEntityPlugin;
+import indevo.items.consumables.entities.ExplosiveMissileEntityPlugin;
+import indevo.items.consumables.entities.SmokeCloudEntityPlugin;
+import indevo.items.consumables.terrain.SmokeCloudTerrain;
+import indevo.utils.helper.StringHelper;
 import org.lwjgl.util.vector.Vector2f;
+
+import java.awt.*;
 
 public class ExplosiveMissileAbilityPlugin extends BaseMissileConsumableAbilityPlugin{
 
@@ -30,6 +36,15 @@ public class ExplosiveMissileAbilityPlugin extends BaseMissileConsumableAbilityP
 
     @Override
     public void addTooltip(TooltipMakerAPI tooltip) {
-        tooltip.addPara("goes boom", 10f);
+        float opad = 10f;
+        float spad = 3f;
+        Color hl = Misc.getHighlightColor();
+
+        tooltip.addPara("Explodes and damages fleets within %s on hit.", opad, hl,
+                Math.round(ExplosiveMissileEntityPlugin.EXPLOSION_SIZE) + "su");
+
+        tooltip.addPara("Travel speed: %s", opad, new Color(100,100,255,255), "Slow");
+        tooltip.addPara("Deployment type: %s", spad, Color.CYAN, "On-Hit");
+        tooltip.addPara("Rearming duration: %s", spad, hl, Math.round(getCooldownDays()) + StringHelper.getDayOrDays(Math.round(getCooldownDays())));
     }
 }

@@ -502,6 +502,42 @@ public class ResearchProjectTemplateRepo {
             }
         });
 
+        put(Ids.PROJ_MJOLNIR, new ResearchProject(Ids.PROJ_MJOLNIR, "Project Mjölnir", 80, true) {
+
+            @Override
+            public boolean display() {
+                return true;
+            }
+
+            @Override
+            public CargoAPI getRewards() {
+                List<Random> randomList = getRandomForProj(Ids.PROJ_TRANSISTOR); //Anti-save-scum
+
+                List<SalvageEntityGenDataSpec.DropData> dropRandom = new ArrayList<>();
+                dropRandom.add(DropDataCreator.createDropData("indEvo_missiles_always", 5));
+                Random random = randomList.get(0);
+
+                return SalvageEntity.generateSalvage(random, 1f, 1f, 1f, 1f, null, dropRandom);
+            }
+
+            @Override
+            public List<RequiredItem> getRequiredItems() {
+                List<RequiredItem> list = new ArrayList<>();
+                list.add(new RequiredItem(ItemIds.RARE_PARTS, CargoAPI.CargoItemType.RESOURCES, 1f));
+
+                return list;
+            }
+
+            @Override
+            public String getLongDesc() {
+                return "The weapons department has missile stockpiles exceeded only by Hegemony arsenal stations, and they will gladly trade them for relics. You will not be getting a receipt, naturally.";
+            }
+
+            @Override
+            public String getShortDesc() {
+                return "Look, we do not call it \"illegal weapons trading\". It's a cross-donation, okay?";
+            }
+        });
 
         put(Ids.PROJ_TRANSISTOR, new ResearchProject(Ids.PROJ_TRANSISTOR, "Project Transistor", 80, true) {
 

@@ -5,7 +5,13 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.items.consumables.entities.BaseMissileEntityPlugin;
+import indevo.items.consumables.entities.ConcussiveMissileEntityPlugin;
+import indevo.items.consumables.entities.SmokeCloudEntityPlugin;
+import indevo.items.consumables.terrain.SmokeCloudTerrain;
+import indevo.utils.helper.StringHelper;
 import org.lwjgl.util.vector.Vector2f;
+
+import java.awt.*;
 
 public class ConcussiveMissileAbilityPlugin extends BaseMissileConsumableAbilityPlugin{
 
@@ -30,6 +36,16 @@ public class ConcussiveMissileAbilityPlugin extends BaseMissileConsumableAbility
 
     @Override
     public void addTooltip(TooltipMakerAPI tooltip) {
-        tooltip.addPara("goes fwooosh boom", 10f);
+        float opad = 10f;
+        float spad = 3f;
+        Color hl = Misc.getHighlightColor();
+
+        tooltip.addPara("Violently launches fleets within %s away from the explosion, causing %s. More effective on small or fast-moving fleets.", opad, hl,
+                Math.round(ConcussiveMissileEntityPlugin.SHOVE_RANGE) + "su",
+                "no damage");
+
+        tooltip.addPara("Travel speed: %s", opad, Color.ORANGE, "Medium");
+        tooltip.addPara("Deployment type: %s", spad, Color.ORANGE, "AOE");
+        tooltip.addPara("Rearming duration: %s", spad, hl, Math.round(getCooldownDays()) + StringHelper.getDayOrDays(Math.round(getCooldownDays())));
     }
 }

@@ -5,7 +5,13 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.items.consumables.entities.BaseMissileEntityPlugin;
+import indevo.items.consumables.entities.ConcussiveMissileEntityPlugin;
+import indevo.items.consumables.entities.InterceptMissileEntityPlugin;
+import indevo.items.consumables.terrain.SmokeCloudTerrain;
+import indevo.utils.helper.StringHelper;
 import org.lwjgl.util.vector.Vector2f;
+
+import java.awt.*;
 
 public class InterceptMissileAbilityPlugin extends BaseMissileConsumableAbilityPlugin{
 
@@ -29,6 +35,19 @@ public class InterceptMissileAbilityPlugin extends BaseMissileConsumableAbilityP
 
     @Override
     public void addTooltip(TooltipMakerAPI tooltip) {
-        tooltip.addPara("goes pew", 10f);
+        float opad = 10f;
+        float spad = 3f;
+        Color hl = Misc.getHighlightColor();
+
+        tooltip.addPara("Explodes within a %s radius upon hitting a fleet, stunning everything caught for %s, interdicting for %s, and increasing sensor profile by %s for %s.", opad, hl,
+                Math.round(InterceptMissileEntityPlugin.INTERDICT_RANGE) + "su",
+                Math.round(InterceptMissileEntityPlugin.STUN_SECONDS) + "seconds",
+                Math.round(InterceptMissileEntityPlugin.INTERDICT_SECONDS) + "seconds",
+                Math.round(InterceptMissileEntityPlugin.TRACE_PROFILE_INCREASE) + "",
+                Math.round(InterceptMissileEntityPlugin.TRACE_SECONDS) + "seconds");
+
+        tooltip.addPara("Travel speed: %s", opad, Color.RED, "Fast");
+        tooltip.addPara("Deployment type: %s", spad, Color.CYAN, "On-Hit");
+        tooltip.addPara("Rearming duration: %s", spad, hl, Math.round(getCooldownDays()) + StringHelper.getDayOrDays(Math.round(getCooldownDays())));
     }
 }

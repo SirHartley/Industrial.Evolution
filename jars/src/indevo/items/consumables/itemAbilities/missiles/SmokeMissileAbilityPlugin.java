@@ -5,7 +5,12 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.items.consumables.entities.BaseMissileEntityPlugin;
+import indevo.items.consumables.entities.SmokeCloudEntityPlugin;
+import indevo.items.consumables.terrain.SmokeCloudTerrain;
+import indevo.utils.helper.StringHelper;
 import org.lwjgl.util.vector.Vector2f;
+
+import java.awt.*;
 
 public class SmokeMissileAbilityPlugin extends BaseMissileConsumableAbilityPlugin{
 
@@ -30,6 +35,17 @@ public class SmokeMissileAbilityPlugin extends BaseMissileConsumableAbilityPlugi
 
     @Override
     public void addTooltip(TooltipMakerAPI tooltip) {
-        tooltip.addPara("goes fwooosh", 10f);
+        float opad = 10f;
+        float spad = 3f;
+        Color hl = Misc.getHighlightColor();
+
+        tooltip.addPara("Blankets a %s area with an impenetrable chaff cloud that reduces sensor profile by up to %s and slows fleets by up to %s depending on size.", opad, hl,
+                Math.round(SmokeCloudEntityPlugin.BASE_RADIUS) + "su",
+                StringHelper.getAbsPercentString(SmokeCloudTerrain.VISIBLITY_MULT, false),
+                StringHelper.getAbsPercentString(SmokeCloudTerrain.BURN_PENALTY_MULT, false));
+
+        tooltip.addPara("Travel speed: %s", opad, Color.ORANGE, "Medium");
+        tooltip.addPara("Deployment type: %s", spad, Color.ORANGE, "AOE");
+        tooltip.addPara("Rearming duration: %s", spad, hl, Math.round(getCooldownDays()) + StringHelper.getDayOrDays(Math.round(getCooldownDays())));
     }
 }

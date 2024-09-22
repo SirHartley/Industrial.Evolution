@@ -24,7 +24,7 @@ public class ConsumableItemDropListener implements ShowLootListener {
             manager.addListener(new ConsumableItemDropListener(), true);
     }
 
-    public static final float FP_PER_ROLL = 100f;
+    public static final float FP_PER_ROLL = 70f;
     public static final float HARD_BATTLE_MULT = 1.2f;
     public static float MIN_FLEET_POINT_ADVANTAGE_FOR_HARD = 1.5f;
 

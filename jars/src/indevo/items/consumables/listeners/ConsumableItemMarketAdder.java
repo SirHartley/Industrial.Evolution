@@ -45,22 +45,56 @@ public class ConsumableItemMarketAdder extends BaseCampaignEventListener {
         }
 
         String id = submarket.getSpecId();
-        boolean isMil = id.equals(Submarkets.GENERIC_MILITARY);
         String faction = market.getFactionId();
-        boolean isBoringSubmarket = submarket.isIllegalOnSubmarket(Global.getFactory().createCargoStack(CargoAPI.CargoItemType.RESOURCES, Commodities.LUXURY_GOODS, null), SubmarketPlugin.TransferAction.PLAYER_SELL);
-        boolean isOpenMilOrBlack = id.equals(Submarkets.SUBMARKET_OPEN) || id.equals(Submarkets.SUBMARKET_BLACK) || id.equals(Submarkets.GENERIC_MILITARY);
 
-        if (isOpenMilOrBlack && !isBoringSubmarket) {
+        boolean isMil = id.equals(Submarkets.GENERIC_MILITARY);
+        boolean isBoringSubmarket = submarket.isIllegalOnSubmarket(Global.getFactory().createCargoStack(CargoAPI.CargoItemType.RESOURCES, Commodities.LUXURY_GOODS, null), SubmarketPlugin.TransferAction.PLAYER_SELL);
+        boolean isOpenOrBlack = id.equals(Submarkets.SUBMARKET_OPEN) || id.equals(Submarkets.SUBMARKET_BLACK);
+
+        if (isOpenOrBlack && !isBoringSubmarket) {
             WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
+
+            //always
             picker.add(ItemIds.CONSUMABLE_NANITES, 10);
-            if (faction.equals(Factions.INDEPENDENT)) picker.add(ItemIds.CONSUMABLE_LOCATOR, 5);
-            if (isMil) picker.add(ItemIds.CONSUMABLE_SPIKE, 20);
             picker.add(ItemIds.CONSUMABLE_SCOOP, 10);
+
+            //Faction locked
+            if (faction.equals(Factions.INDEPENDENT)) {
+                picker.add(ItemIds.CONSUMABLE_LOCATOR, 5);
+                picker.add(ItemIds.CONSUMABLE_RELAY, 5);
+            }
+
             if (faction.equals(Factions.PIRATES)) {
                 picker.add(ItemIds.CONSUMABLE_DECOY, 5);
                 picker.add(ItemIds.CONSUMABLE_SPOOFER, 5);
             }
-            picker.add("nothing", 300);
+
+            //nothing
+            picker.add("nothing", 250f);
+
+            for (int i = 0; i < 6; i++) {
+                String itemId = picker.pick();
+                if (!itemId.equals("nothing")) cargo.addSpecial(new SpecialItemData(itemId, null), 1f);
+            }
+
+            ((BaseSubmarketPlugin) submarket.getPlugin()).setSinceSWUpdate(0.001f);
+        }
+
+        if (isMil){
+            if (Factions.PIRATES.equals(faction) || Factions.LUDDIC_PATH.equals(faction) || Factions.LUDDIC_CHURCH.equals(faction)) return;
+
+            //military only
+            WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
+
+            //always
+            picker.add(ItemIds.CONSUMABLE_SPIKE, 30);
+            picker.add(ItemIds.CONSUMABLE_MISSILE_EXPLOSIVE, 5);
+            picker.add(ItemIds.CONSUMABLE_MISSILE_CONCUSSIVE, 10);
+            picker.add(ItemIds.CONSUMABLE_MISSILE_INTERCEPT, 15);
+            picker.add(ItemIds.CONSUMABLE_MISSILE_SMOKE, 20);
+
+            //nothing
+            picker.add("nothing", 200);
 
             for (int i = 0; i < 6; i++) {
                 String itemId = picker.pick();
