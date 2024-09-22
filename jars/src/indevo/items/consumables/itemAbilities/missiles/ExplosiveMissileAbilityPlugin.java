@@ -45,6 +45,6 @@ public class ExplosiveMissileAbilityPlugin extends BaseMissileConsumableAbilityP
 
         tooltip.addPara("Travel speed: %s", opad, new Color(100,100,255,255), "Slow");
         tooltip.addPara("Deployment type: %s", spad, Color.CYAN, "On-Hit");
-        tooltip.addPara("Rearming duration: %s", spad, hl, Math.round(getCooldownDays()) + StringHelper.getDayOrDays(Math.round(getCooldownDays())));
+        tooltip.addPara("Rearming duration: %s", spad, hl, Math.ceil(getCooldownDays()) +" "+ StringHelper.getDayOrDays(Math.round(getCooldownDays())));
     }
 }

@@ -42,6 +42,8 @@ public class ConcussiveMissileEntityPlugin extends BaseMissileEntityPlugin {
         for (CampaignFleetAPI fleet : Misc.getNearbyFleets(entity, SHOVE_RANGE)){
             float shoveDir = Misc.getAngleInDegrees(entity.getLocation(), fleet.getLocation());
             float intensity = MathUtils.clamp((1 - Misc.getDistance(entity, fleet) / SHOVE_RANGE), 0,1) * SHOVE_STRENGTH;
+            if (fleet.isPlayerFleet()) intensity /= 2f; //player gets to cheat
+
             fleet.addScript(new ShoveFleetScript(fleet, shoveDir, intensity));
         }
 

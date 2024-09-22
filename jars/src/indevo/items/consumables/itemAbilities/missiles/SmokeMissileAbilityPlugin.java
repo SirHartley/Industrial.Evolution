@@ -44,8 +44,8 @@ public class SmokeMissileAbilityPlugin extends BaseMissileConsumableAbilityPlugi
                 StringHelper.getAbsPercentString(SmokeCloudTerrain.VISIBLITY_MULT, false),
                 StringHelper.getAbsPercentString(SmokeCloudTerrain.BURN_PENALTY_MULT, false));
 
-        tooltip.addPara("Travel speed: %s", opad, Color.ORANGE, "Medium");
+        tooltip.addPara("Travel speed: %s", opad, Color.GREEN, "Medium");
         tooltip.addPara("Deployment type: %s", spad, Color.ORANGE, "AOE");
-        tooltip.addPara("Rearming duration: %s", spad, hl, Math.round(getCooldownDays()) + StringHelper.getDayOrDays(Math.round(getCooldownDays())));
+        tooltip.addPara("Rearming duration: %s", spad, hl, Math.ceil(getCooldownDays()) +" "+ StringHelper.getDayOrDays(Math.round(getCooldownDays())));
     }
 }
