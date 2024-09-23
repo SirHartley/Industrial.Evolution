@@ -54,6 +54,11 @@ Requests
 
 --------------------------- Known issues -----------------------------
 
+  >>> I care <<<
+- Crucible shows up in map even if not discovered
+- Ambassador hostile event contrib doesn't work for TT
+
+  >>> I do not care <<<
 - Marine xp get wiped with detachments - lmao no fuck it that one's cancer to fix
 - Detachments eat crew that is in excess of capacity
 - Detachments refuse to move when in other system (??)
