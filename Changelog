@@ -6,7 +6,6 @@ Before release
 Playthrough notes
 - Add a proper edict selection UI, for remote operation as well
 - add some more info/tt/notifications to governments
-fix the marine xp bug with detachments
 
 Substance abuse
 - adjust booze to consume half as much and take 1 cargo/unit
@@ -18,16 +17,13 @@ Playthrough wants
 - Requisition center RAT settlement plugin
 - Rework VPCs to use random tiered output system
 
-Known Bugs
-- Detachments eat crew that is in excess of capacity
-- Detachments refuse to move when in other system (??)
-
 Requests
 - add a colony buff to automated shipyards (maybe a buff to HI? got item sprites for it anyway)
 - Add keyboard shortcuts to all indEvo industry menu points
 - Watchtowers buildable in stable loc
 
-Ideas
+--------------------------- Ideas -----------------------------
+
 - optional blacklist TAG for RE and duplication
     - if there's a whitelist and a tagged ship, just allow all except the tagged ships and ignore the whitelist
 - "Mimic Hulls", Derelict ships that change into remnant or pirate ambush fleets when approached
@@ -56,12 +52,16 @@ Ideas
     Let player choose between runtime of 1 month, 2, 3 or 4 then deliver the output and the station salvage to the colony
     add an intel entry showing the progress
 
---------------------------- Dev issues -----------------------------
+--------------------------- Known issues -----------------------------
 
-Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
-DELIVER FLEETS REFUSE TO LEAVE SYSTEM AFTER DELIVERY; MAYBE MOVE INTO HYPERSPACE OR MANUALLY SET MOVE TARGET?
+- Marine xp get wiped with detachments - lmao no fuck it that one's cancer to fix
+- Detachments eat crew that is in excess of capacity
+- Detachments refuse to move when in other system (??)
+- DEV Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
+- DEV Deliver fleets still refuse to leave system, no clue why
 
---------------------------- Changelog -----------------------------
+--------------------------- Notes -----------------------------
+
 Brimir	Industrial.Evolution	Capital	[REDACTED]	Contact - SirHartley#5459
 Wholepain	Industrial.Evolution	Capital	Breadnought	Contact - SirHartley#5459
 Starcracker	Industrial.Evolution	Capital	Pretzelator	Contact - SirHartley#5459
@@ -70,7 +70,9 @@ Parrot	Industrial.Evolution	Frigate	EMP Frigate	Contact - SirHartley#5459
 Echo	Industrial.Evolution	Frigate	EMP Auto-Frigate	Contact - SirHartley#5459
 Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 
-3.4.3
+--------------------------- Changelog -----------------------------
+
+3.4.4
 General
 Added - Framework to add some small lore text about how a planet fell to ruin when you survey (on request by Alfonzo)
 Added - A few stories of demise and death (Alfonzo will probably add more)
@@ -81,6 +83,7 @@ Fixed - Industry-specific cargo tabs (submarkets) no longer spawn before the bui
 Salvage Interactions
 Adjusted - Drastically reduced the chance of IndEvo salvage specials appearing on derelict ships (40% -> 10%)
 Adjusted - Halved the chance of IndEvo salvage specials appearing on caches of any kind
+Fixed - Restoration Docks Event: Crash when trying to repair ships without D-Mods
 Fixed - No longer spawn in hidden systems
 
 Distress Calls
@@ -258,6 +261,8 @@ Added - Setting for Cloud Painter to replace the planetary shield texture with a
 Adjusted - Added US_continent for valid World Tree planet types
 Adjusted - Removed US_magnetic planets from valid World Tree planet types
 Fixed - Another Arcoship crash (arthr pls)
+
+--------------------------- OLD VERSIONS -----------------------------
 
 3.3.e
 General

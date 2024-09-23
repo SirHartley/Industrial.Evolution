@@ -176,7 +176,14 @@ public class DModRepairSpecial extends BaseSalvageSpecial {
 
                             for (int i = 0; i < amt; i++) {
                                 FleetMemberAPI member = picker.pick();
-                                removeOneDMod(member);
+                                boolean success = removeOneDMod(member);
+
+                                //should never happen but had a crash so we error-proof
+                                if (!success){
+                                    i--;
+                                    continue;
+                                }
+
                                 addOrIncrement(removedMap, member, 1);
 
                                 if (DModManager.getNumNonBuiltInDMods(member.getVariant()) < 1) picker.remove(member);
@@ -231,10 +238,12 @@ public class DModRepairSpecial extends BaseSalvageSpecial {
         }
     }
 
-    public static void removeOneDMod(FleetMemberAPI member) {
+    public static boolean removeOneDMod(FleetMemberAPI member) {
         ShipVariantAPI var = member.getVariant();
 
         List<HullModSpecAPI> d = getListNonBuiltInDMods(var);
+        if(d.isEmpty()) return false;
+
         int rnd = new Random().nextInt(d.size());
 
         var.removePermaMod(d.get(rnd).getId());
@@ -242,6 +251,8 @@ public class DModRepairSpecial extends BaseSalvageSpecial {
 
         member.setVariant(var, false, true);
         member.updateStats();
+
+        return true;
     }
 
     public VisualPanelAPI getVisual() {
