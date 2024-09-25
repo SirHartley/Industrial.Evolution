@@ -98,7 +98,7 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
     public int getPrice(MarketAPI market, SubmarketAPI submarket) {
         if (ship != null) {
             float base = super.getPrice(market, submarket);
-            return (int) ((base + ((ship.getBaseValue() * 0.15f) * getItemPriceMult())) * (1 + (getCharges() * 0.2f)));
+            return (int) (base + ((((ship.getBaseValue() * 0.1f) * getItemPriceMult())) * (1 + (getCharges() * 0.2f)))) ;
         }
         return super.getPrice(market, submarket);
     }

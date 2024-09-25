@@ -502,7 +502,7 @@ public class ResearchProjectTemplateRepo {
             }
         });
 
-        put(Ids.PROJ_MJOLNIR, new ResearchProject(Ids.PROJ_MJOLNIR, "Project Mjölnir", 80, true) {
+        put(Ids.PROJ_MJOLNIR, new ResearchProject(Ids.PROJ_MJOLNIR, "Project Mjölnir", 120, true) {
 
             @Override
             public boolean display() {

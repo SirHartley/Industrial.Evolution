@@ -81,7 +81,7 @@ import indevo.industries.salvageyards.plugins.SalvageYardsOptionProvider;
 import indevo.industries.senate.plugins.SenateOptionProvider;
 import indevo.industries.worldwonder.plugins.WorldWonderAltImageOptionProvider;
 import indevo.industries.worldwonder.plugins.WorldWonderTexChangeOptionProvider;
-import indevo.items.consumables.entities.SmokeCloudEntityPlugin;
+import indevo.items.consumables.fleet.FleetConsumableInventoryManager;
 import indevo.items.consumables.listeners.*;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.items.listeners.ShipComponentLootManager;
@@ -446,6 +446,7 @@ public class ModPlugin extends BaseModPlugin {
         AcademyOptionProvider.register();
         RiftGenOptionProvider.register();
         TargetingReticuleInputListener.register();
+        FleetConsumableInventoryManager.register();
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();
     }

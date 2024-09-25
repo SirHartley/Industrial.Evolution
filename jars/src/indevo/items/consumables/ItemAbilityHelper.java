@@ -25,7 +25,7 @@ public class ItemAbilityHelper {
     }};
 
     public static String toggle(String s) {
-        if (ID_MAP.values().contains(s)) {
+        if (ID_MAP.containsValue(s)) {
             for (Map.Entry<String, String> e : ID_MAP.entrySet()) {
                 if (e.getValue().equals(s)) return e.getKey();
             }
