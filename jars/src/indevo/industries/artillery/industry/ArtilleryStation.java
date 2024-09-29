@@ -46,6 +46,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
 
     protected CampaignFleetAPI stationFleet = null;
     protected SectorEntityToken stationEntity = null;
+    protected String faction;
 
     @Override
     public void apply() {
@@ -68,13 +69,20 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
         ArtilleryStationEntityPlugin plugin = getArtilleryPlugin();
 
         if (!isFunctional()) {
-            if (plugin != null) getArtilleryPlugin().setDisrupted(true);
-
             supply.clear();
             unapply();
         } else {
             applyCRToStation();
-            if (plugin != null) getArtilleryPlugin().setDisrupted(false);
+        }
+    }
+
+    public void checkAndUpdateFaction(){
+        String faction = market.getFactionId();
+        if (this.faction == null) this.faction = faction;
+        if (!faction.equals(this.faction) && stationEntity != null) {
+            stationEntity.setFaction(faction);
+            stationFleet.setFaction(faction);
+            this.faction = faction;
         }
     }
 
@@ -119,6 +127,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
                 if (stationFleet.isInflated()) {
                     stationFleet.deflate();
                 }
+
                 inflater.setQuality(Misc.getShipQuality(market));
                 if (inflater instanceof DefaultFleetInflater) {
                     DefaultFleetInflater dfi = (DefaultFleetInflater) inflater;
@@ -183,14 +192,16 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
     @Override
     public void advance(float amount) {
         super.advance(amount);
-
         if (Global.getSector().getEconomy().isSimMode()) return;
-
         if (reminderInterval != null) reminderInterval.advance(amount); //null check for beta saves
+
+        checkAndUpdateFaction();
 
         if (stationEntity == null) {
             spawnStation();
         }
+
+        getArtilleryPlugin().setDisrupted(!isFunctional());
 
         if (stationFleet != null) {
             stationFleet.setAI(null);

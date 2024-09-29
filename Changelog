@@ -7,10 +7,6 @@ Playthrough notes
 - Add a proper edict selection UI, for remote operation as well
 - add some more info/tt/notifications to governments
 
-Substance abuse
-- adjust booze to consume half as much and take 1 cargo/unit
-- fix the LP booze not turning the campaign engine exhaust green like it should
-
 Playthrough wants
 - Distillery module for settlements
 - Courier Port Option for settlements
@@ -24,8 +20,6 @@ Requests
 
 --------------------------- Ideas -----------------------------
 
-- optional blacklist TAG for RE and duplication
-    - if there's a whitelist and a tagged ship, just allow all except the tagged ships and ignore the whitelist
 - "Mimic Hulls", Derelict ships that change into remnant or pirate ambush fleets when approached
 - Consumable item that makes your fleet look bigger than is is to NPCs
     - maybe add a boat with like 200 dp to the fleet and remove it when ui window is opened so other fleets run from you
@@ -160,6 +154,8 @@ Fixed - No longer spawn on abyss planets
 Fixed - No longer spawn in "special" systems
 Fixed - Other Mods will no longer spawn an Artillery on game start if the setting is toggled off provided they spawn it via condition
 Fixed - Bug that caused the vanilla black hole dialogue options to get overridden (thank you for reporting that, Histidine!)
+Fixed - Now properly updates its faction to the faction of the controlling market when taken over
+Fixed - Should no longer fire missiles while disabled
 
 Embassy
 Added - An active ambassador will now reduce the points gained in hostile activity through their faction by up to 40% depending on your relationship
@@ -170,6 +166,8 @@ Privateer Base
 Adjusted - Output decay adjusted from 2/mo -> 1/mo (this is a buff)
 Adjusted - Now properly reflects alignment when placed on Managed Democracy world
 Adjusted - Raid Timeout for star systems increased from 3 months -> 8 months (6 with a beta core)
+Adjusted - Lawless Subpopulation now counts any faction that has an evil disposition for the stability bonus (Nexerelin)
+Adjusted - Lawless Subpopulation now requires a neutral rep level (was: Non-Hostile)
 Fixed - Devmode crash when target factions are zero (just for you Histi <3)
 
 Senate
@@ -241,6 +239,8 @@ Removed - Monastic Orders (Split into Managed Democracy and Forge worlds)
 Automated Shipyards
 Added - now have their own storage after being restored
 Added - now have music (by Haplogynae, thank you so much!)
+Adjusted - now pulls ship parts and relic components from the onboard storage first
+Fixed - Bug that would lock you into a failed menu state when opening ship selection, picking no ships, and pressing confirm (reported by RoadTrain)
 
 todo Helios Crucible
 Added - New Superstructure, the Helios Crucible

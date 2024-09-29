@@ -148,6 +148,14 @@ public class ArtilleryStationScript implements EveryFrameScript, FleetEventListe
         String faction = null;
         String currentFaction = stationEntity.getFaction().getId();
 
+        //shouldn't happen
+        if(marketHasArtilleryIndustry()) {
+            faction = primaryEntity.getMarket().getFactionId();
+            updateFaction(faction);
+            updateWatchtowers(true);
+            return;
+        }
+
         for (MarketAPI m : Misc.getMarketsInLocation(primaryEntity.getContainingLocation())) {
             if (m.isPlayerOwned() || m.getFaction().isPlayerFaction() || m.hasTag("epta_tradebase_market")) continue;
 

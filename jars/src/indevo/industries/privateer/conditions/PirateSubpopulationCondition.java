@@ -1,5 +1,8 @@
 package indevo.industries.privateer.conditions;
 
+import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.FactionAPI;
+import com.fs.starfarer.api.campaign.RepLevel;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
@@ -7,23 +10,23 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import exerelin.utilities.NexConfig;
+import exerelin.utilities.NexFactionConfig;
 import indevo.ids.Ids;
 
 
 public class PirateSubpopulationCondition extends BaseHazardCondition implements MarketImmigrationModifier {
 
-    public static float STABILITY_PENALTY = 0;
+    public float stabMod = 0;
 
     public void apply(String id) {
         super.apply(id);
 
-        if (market.hasIndustry(Ids.PIRATEHAVEN)) {
-            STABILITY_PENALTY = market.getFaction().isHostileTo(Factions.PIRATES) ? 0 : 2;
-        } else {
-            STABILITY_PENALTY = market.getFaction().isHostileTo(Factions.PIRATES) ? -2 : 0;
-        }
+        stabMod = -2;
+        if (market.hasIndustry(Ids.PIRATEHAVEN)) stabMod += 2;
+        if (isNonHostileToEvilFaction()) stabMod += 2;
 
-        market.getStability().modifyFlat(id, STABILITY_PENALTY, "Lawless subpopulation");
+        market.getStability().modifyFlat(id, stabMod, "Lawless subpopulation");
         market.addTransientImmigrationModifier(this);
     }
 
@@ -53,8 +56,8 @@ public class PirateSubpopulationCondition extends BaseHazardCondition implements
 
     protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
         super.createTooltipAfterDescription(tooltip, expanded);
-        if (!market.getFaction().isHostileTo(Factions.PIRATES) || !market.hasIndustry(Ids.PIRATEHAVEN)) {
-            String s = STABILITY_PENALTY > 0 ? "+" + STABILITY_PENALTY : "" + STABILITY_PENALTY;
+        if (!isNonHostileToEvilFaction() || !market.hasIndustry(Ids.PIRATEHAVEN)) {
+            String s = stabMod > 0 ? "+" + stabMod : "" + stabMod;
             String t = getImmigrationBonus() > 0 ? "+" + getImmigrationBonus() : "" + getImmigrationBonus();
 
             tooltip.addPara("%s stability.",
@@ -68,6 +71,21 @@ public class PirateSubpopulationCondition extends BaseHazardCondition implements
                     10f, Misc.getNegativeHighlightColor(),
                     "No effect");
         }
+    }
+
+    public boolean isNonHostileToEvilFaction(){
+        FactionAPI marketFaction = market.getFaction();
+
+        if (Global.getSettings().getModManager().isModEnabled("nexerelin")){
+            for (FactionAPI f : Global.getSector().getAllFactions()){
+                if (NexConfig.getFactionConfig(f.getId()).morality == NexFactionConfig.Morality.EVIL){
+                    if (f.isAtWorst(marketFaction, RepLevel.NEUTRAL)) return true;
+                }
+            }
+        }
+
+        return Global.getSector().getFaction(Factions.PIRATES).isAtWorst(marketFaction, RepLevel.NEUTRAL)
+                || Global.getSector().getFaction(Factions.LUDDIC_PATH).isAtWorst(marketFaction, RepLevel.NEUTRAL);
     }
 }
 

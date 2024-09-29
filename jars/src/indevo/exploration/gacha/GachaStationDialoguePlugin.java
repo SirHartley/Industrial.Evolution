@@ -72,10 +72,6 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
         this.options = dialog.getOptionPanel();
         this.text = dialog.getTextPanel();
 
-        //todo remove for release
-        if (isRepaired()) dialog.getInteractionTarget().getMarket().getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
-        if (dialog.getInteractionTarget().getMemoryWithoutUpdate().get(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY) == null) dialog.getInteractionTarget().getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
-
         displayDefaultOptions(true);
     }
 
@@ -101,6 +97,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
 
         CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
         CargoAPI cargo = playerFleet.getCargo();
+        CargoAPI storage = Misc.getStorage(dialog.getInteractionTarget().getMarket()).getCargo();
 
         if (isRepaired()) {
             addPostRestoreTooltip();
@@ -109,7 +106,6 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             opts.addOption("Visit the cargo areas", option);
 
             option = Option.SELECT_SHIPS;
-            CargoAPI storage = Misc.getStorage(dialog.getInteractionTarget().getMarket()).getCargo();
             storage.initMothballedShips(Factions.PLAYER);
 
             isEnabled = playerFleet.getFleetData().getNumMembers() + storage.getMothballedShips().getNumMembers() > 1;
@@ -118,9 +114,9 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             opts.setEnabled(option, isEnabled);
             if (isEnabled)
                 opts.setTooltip(option, "Select ships to offer to the machine, for it may bestow a blessing of silicone and steel made anew");
-            else opts.setTooltip(option, "You can not sacrifice the only ship in your fleet, as tempting as it may be");
+            else opts.setTooltip(option, "You can not sacrifice the only ship in your fleet, tempting as it may be");
 
-            float partsAvailable = cargo.getCommodityQuantity(ItemIds.PARTS);
+            float partsAvailable = cargo.getCommodityQuantity(ItemIds.PARTS) + storage.getCommodityQuantity(ItemIds.PARTS);
             opts.addSelector("Sacrifice Starship Components", Option.PARTS_SELECTOR, Misc.getHighlightColor(),
                     300f,
                     50f,
@@ -134,7 +130,8 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             opts.setSelectorValue(Option.PARTS_SELECTOR, partsToSacrifice);
 
             option = Option.CONFIRM;
-            isEnabled = (!selectedShips.isEmpty() || partsToSacrifice > 0) && playerFleet.getCargo().getCommodityQuantity(ItemIds.RARE_PARTS) >= RARE_PART_COST_AMT;
+            float rarePartsAvailable = cargo.getCommodityQuantity(ItemIds.RARE_PARTS) + storage.getCommodityQuantity(ItemIds.RARE_PARTS);
+            isEnabled = (!selectedShips.isEmpty() || partsToSacrifice > 0) && rarePartsAvailable >= RARE_PART_COST_AMT;
 
             opts.addOption("Start the machine", option);
             opts.setEnabled(option, isEnabled);
@@ -287,6 +284,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
     public void cycleMember() {
         CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
         CargoAPI cargo = playerFleet.getCargo();
+        CargoAPI storage = Misc.getStorage(dialog.getInteractionTarget().getMarket()).getCargo();
 
         float totalDP = 0;
         for (FleetMemberAPI member : selectedShips) {
@@ -295,7 +293,6 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             member.updateStats();
             if (playerFleet.getFleetData().getMembersListCopy().contains(member)) playerFleet.getFleetData().removeFleetMember(member);
             else {
-                CargoAPI storage = Misc.getStorage(dialog.getInteractionTarget().getMarket()).getCargo();
                 storage.initMothballedShips(Factions.PLAYER);
                 storage.getMothballedShips().removeFleetMember(member);
             }
@@ -315,8 +312,25 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             }
         }
 
-        cargo.removeCommodity(ItemIds.PARTS, partsToSacrifice);
-        cargo.removeCommodity(ItemIds.RARE_PARTS, RARE_PART_COST_AMT);
+        String itemID = ItemIds.PARTS;
+        float partsInStorage = storage.getCommodityQuantity(itemID);
+        float partsToRemove = partsToSacrifice;
+
+        if (partsInStorage > partsToRemove) storage.removeCommodity(itemID, partsToRemove);
+        else {
+            storage.removeCommodity(itemID, partsInStorage);
+            cargo.removeCommodity(itemID, partsToRemove - partsInStorage);
+        }
+
+        itemID = ItemIds.RARE_PARTS;
+        partsInStorage = storage.getCommodityQuantity(itemID);
+        partsToRemove = RARE_PART_COST_AMT;
+
+        if (partsInStorage > partsToRemove) storage.removeCommodity(itemID, partsToRemove);
+        else {
+            storage.removeCommodity(itemID, partsInStorage);
+            cargo.removeCommodity(itemID, partsToRemove - partsInStorage);
+        }
 
         partsToSacrifice = 0;
         selectedShips.clear();
@@ -389,9 +403,9 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
                         if (members != null && !members.isEmpty()) {
                             selectedShips.clear();
                             selectedShips.addAll(members);
-
-                            displayDefaultOptions(true);
                         }
+
+                        displayDefaultOptions(true);
                     }
 
                     @Override
