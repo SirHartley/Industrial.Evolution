@@ -26,7 +26,7 @@ public class ExplosiveMissileAbilityAI extends BaseAbilityAI {
     //- not hitting allies, not hitting self, no other missiles of same type currently being deployed or in flight with chance of hitting target, target not recently hit with missile
 
     public void advance(float days) {
-        interval.advance(days;
+        interval.advance(days);
         if (!interval.intervalElapsed()) return;
 
         if (fleet.getAI() instanceof ModularFleetAIAPI) {
@@ -85,7 +85,6 @@ public class ExplosiveMissileAbilityAI extends BaseAbilityAI {
             }
 
             if (time > activationTime + 2f && time < activationTime + 7f && usingHasBenefit) {
-                if (shouldSkipUsing()) return;
                 ability.activate();
             }
             return;
@@ -142,7 +141,6 @@ public class ExplosiveMissileAbilityAI extends BaseAbilityAI {
             }
 
             if (usingHasBenefit && time > activationTime + 0.5f) {
-                if (shouldSkipUsing()) return;
                 ability.activate();
             }
 

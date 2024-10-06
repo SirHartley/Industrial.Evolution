@@ -1,10 +1,7 @@
-package indevo.exploration.crucible;
+package indevo.exploration.crucible.entities;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CampaignEngineLayers;
-import com.fs.starfarer.api.campaign.CampaignFleetAPI;
-import com.fs.starfarer.api.campaign.CustomEntitySpecAPI;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
@@ -23,18 +20,21 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
     public static class YeetopultParams{
         Color color;
         String target;
+        SectorEntityToken focus;
 
-        public YeetopultParams(Color color, String target) {
+        public YeetopultParams(SectorEntityToken focus, Color color, String target) {
             this.color = color;
             this.target = target;
+            this.focus = focus;
         }
     }
 
     public static final float TRIGGER_RADIUS = 30f;
     public static final float ANIM_TIME = 0.4f;
-    public Color color;
     public static float GLOW_FREQUENCY = 0.2f; // on/off cycles per second
     public static float DEFAULT_EXPLOSION_SIZE = 60f;
+
+    public Color color;
     protected float phase1 = 0f;
     protected FlickerUtilV2 flicker1 = new FlickerUtilV2(6);
     protected boolean doAnimation = false;
@@ -44,12 +44,15 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
     public String pairedCatapult = null;
     public float currentExplosionSize = DEFAULT_EXPLOSION_SIZE;
 
+    SectorEntityToken focus;
+
     public void init(SectorEntityToken entity, Object pluginParams) {
         super.init(entity, pluginParams);
         //this.entity = entity;
 
         targetEntity = ((YeetopultParams) pluginParams).target;
         color = ((YeetopultParams) pluginParams).color;
+        focus = ((YeetopultParams) pluginParams).focus;
 
         entity.setDetectionRangeDetailsOverrideMult(0.75f);
         readResolve();
@@ -78,8 +81,13 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         flicker1.advance(amount);
 
         Vector2f targetLoc = getTarget();
-        float facing = targetLoc != null ? Misc.getAngleInDegrees(entity.getLocation(), targetLoc) : Misc.getAngleInDegrees(entity.getLocation(), entity.getOrbit().getFocus().getLocation()) + 180f;
-        entity.setFacing(facing);
+        boolean enabled = entity.hasTag(BaseCrucibleEntityPlugin.TAG_ENABLED);
+
+        if (enabled){
+            float facing = targetLoc != null ? Misc.getAngleInDegrees(entity.getLocation(), targetLoc) : Misc.getAngleInDegrees(entity.getLocation(), entity.getOrbit().getFocus().getLocation()) + 180f;
+            entity.setFacing(facing);
+
+        }
 
         if (targetLoc == null || color == null) return;
 
@@ -90,7 +98,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
 
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
         SectorEntityToken playerTarget = fleet.getInteractionTarget();
-        if (playerTarget != null && playerTarget == entity && Misc.getDistance(fleet, entity) < entity.getRadius() + TRIGGER_RADIUS) {
+        if (playerTarget != null && playerTarget == entity && Misc.getDistance(fleet, entity) < entity.getRadius() + TRIGGER_RADIUS && enabled) {
             fleet.addScript(new YeetScript(fleet, getTarget()));
             fireAnimation(DEFAULT_EXPLOSION_SIZE, true);
         }
@@ -116,7 +124,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
-        if (getTarget() == null || color == null) return;
+        if (getTarget() == null || color == null || !entity.hasTag(BaseCrucibleEntityPlugin.TAG_ENABLED)) return;
 
         //we render above the station if doing anim, otherwise, station
         if (!doAnimation && layer == CampaignEngineLayers.ABOVE_STATIONS) return;

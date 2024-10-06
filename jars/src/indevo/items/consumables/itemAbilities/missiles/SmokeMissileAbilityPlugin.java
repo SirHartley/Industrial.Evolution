@@ -28,7 +28,7 @@ public class SmokeMissileAbilityPlugin extends BaseMissileConsumableAbilityPlugi
 
         //IndEvo_consumable_missile_explosive
         BaseMissileEntityPlugin.ConsumableMissileParams params = new BaseMissileEntityPlugin.ConsumableMissileParams(getFleet(), angleToMouse, MISSILE_DUR, MISSILE_SPEED, mousePos);
-        SectorEntityToken t = getFleet().getContainingLocation().addCustomEntity(Misc.genUID(), null,MISSILE_ID,null, params);
+        SectorEntityToken t = getFleet().getContainingLocation().addCustomEntity(Misc.genUID(), null,MISSILE_ID,getFleet() != null ? getFleet().getFaction().getId() : null, params);
         t.setLocation(getFleet().getLocation().x, getFleet().getLocation().y);
     }
 

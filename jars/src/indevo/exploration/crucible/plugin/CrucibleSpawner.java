@@ -1,4 +1,4 @@
-package indevo.exploration.crucible;
+package indevo.exploration.crucible.plugin;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
@@ -9,6 +9,11 @@ import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.NebulaTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.exploration.crucible.YeetopultColourList;
+import indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin;
+import indevo.exploration.crucible.entities.CrucibleArmEntityPlugin;
+import indevo.exploration.crucible.entities.CrucibleStationEntityPlugin;
+import indevo.exploration.crucible.entities.YeetopultEntityPlugin;
 import indevo.ids.Ids;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
@@ -52,7 +57,7 @@ public class CrucibleSpawner {
         }
 
         for (SectorEntityToken t : tokens) targetSystem.removeEntity(t);
-        //runcode indevo.exploration.crucible.CrucibleSpawner.removeFromCurrentLoc();
+        //runcode indevo.exploration.crucible.plugin.CrucibleSpawner.removeFromCurrentLoc();
     }
 
     public static void spawnInCurrentLoc(){
@@ -64,7 +69,7 @@ public class CrucibleSpawner {
         SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
         spawnCatapults(crucible, subUnit);
 
-        //runcode indevo.exploration.crucible.CrucibleSpawner.spawnInCurrentLoc();
+        //runcode indevo.exploration.crucible.plugin.CrucibleSpawner.spawnInCurrentLoc();
     }
 
     public static void spawnInCurrentLocSubUnit(){
@@ -76,7 +81,7 @@ public class CrucibleSpawner {
         SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
         spawnCatapults(crucible, subUnit);
 
-        //runcode indevo.exploration.crucible.CrucibleSpawner.spawnInCurrentLocSubUnit();
+        //runcode indevo.exploration.crucible.plugin.CrucibleSpawner.spawnInCurrentLocSubUnit();
     }
 
 
@@ -170,7 +175,10 @@ public class CrucibleSpawner {
         SectorEntityToken bottom = loc.addCustomEntity(Misc.genUID(), null, (subUnit ? "IndEvo_sub_crucible_bottom" : "IndEvo_crucible_bottom"), null, null);
         SectorEntityToken top = loc.addCustomEntity(Misc.genUID(), null, (subUnit ? "IndEvo_sub_crucible_top" : "IndEvo_crucible_top"), null, null);
         SectorEntityToken scaffold = null;
-        if (!subUnit) scaffold = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_scaffold", null, null);
+        if (!subUnit) {
+            scaffold = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_scaffold", null, null);
+            scaffold.setFacing(MathUtils.getRandomNumberInRange(0, 360));
+        }
 
         PlanetAPI sun = ((StarSystemAPI) loc).getStar();
         if (sun != null && !loc.isNebula()) {
@@ -178,13 +186,13 @@ public class CrucibleSpawner {
             bottom.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur);
             if (scaffold != null) scaffold.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur);
             top.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur);
+            top.setFacing(MathUtils.getRandomNumberInRange(0, 360));
         }  else {
             bottom.setLocation(pos.x, pos.y);
             if (scaffold != null) scaffold.setLocation(pos.x, pos.y);
             top.setLocation(pos.x, pos.y);
+            top.setFacing(MathUtils.getRandomNumberInRange(0, 360));
         }
-
-        CrucibleStationEntityPlugin.generateMagneticField(top, 1f, MAGNETIC_FIELD_WIDTH);
 
         CampaignTerrainAPI nebula = null;
         for (CampaignTerrainAPI terrain : loc.getTerrainCopy()) {
@@ -195,7 +203,7 @@ public class CrucibleSpawner {
         if (nebula != null) {
             NebulaTerrainPlugin nebulaPlugin = (NebulaTerrainPlugin) nebula.getPlugin();
             NebulaEditor editor = new NebulaEditor(nebulaPlugin);
-            editor.clearArc(pos.x, pos.y, 0, MAGNETIC_FIELD_WIDTH * 2, 0f, 360f);
+            editor.clearArc(pos.x, pos.y, 1, MAGNETIC_FIELD_WIDTH * 2, 0f, 360f);
         }
 
         top.getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
@@ -234,15 +242,20 @@ public class CrucibleSpawner {
         float orbitRadius = crucible.getRadius() + (subUnit ? CATAPULT_SUBUNIT_ADDITIONAL_ORBIT_DIST : CATAPULT_ADDITIONAL_ORBIT_DIST);
         int i = 1;
 
+        //crucible arms
         for (SectorEntityToken catapult : crucibleBoundCatapults) {
             //"IndEvo_crucible_arm"
             crucible.getContainingLocation().addCustomEntity(Misc.genUID(), null, (subUnit ? "IndEvo_sub_crucible_arm" : "IndEvo_crucible_arm"), null, new CrucibleArmEntityPlugin.CrucibleArmEntityPluginParams(catapult, crucible));
+     /*       Vector2f loc = MathUtils.getPointOnCircumference(crucible.getLocation(), orbitRadius, angleSpacing * i);
+            catapult.setLocation(loc.x, loc.y);
+            catapult.setFacing(MathUtils.getRandomNumberInRange(0, 360));
+*/
             catapult.setCircularOrbit(crucible, angleSpacing * i, orbitRadius, orbitRadius / 10f);
             i++;
         }
     }
 
     public static SectorEntityToken getCatapult(SectorEntityToken focus, SectorEntityToken target, Color color, boolean showIcon){
-        return focus.getContainingLocation().addCustomEntity(Misc.genUID(), null, showIcon ? "IndEvo_yeetopult" : "IndEvo_yeetopult_no_icon", null, new YeetopultEntityPlugin.YeetopultParams(color, target.getId()));
+        return focus.getContainingLocation().addCustomEntity(Misc.genUID(), null, showIcon ? "IndEvo_yeetopult" : "IndEvo_yeetopult_no_icon", null, new YeetopultEntityPlugin.YeetopultParams(focus, color, target.getId()));
     }
 }

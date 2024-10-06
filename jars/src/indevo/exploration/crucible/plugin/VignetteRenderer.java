@@ -1,4 +1,4 @@
-package indevo.exploration.crucible;
+package indevo.exploration.crucible.plugin;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;

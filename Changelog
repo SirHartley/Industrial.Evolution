@@ -50,7 +50,6 @@ Requests
 
   >>> I care <<<
 - Crucible shows up in map even if not discovered
-- Ambassador hostile event contrib doesn't work for TT
 
   >>> I do not care <<<
 - Marine xp get wiped with detachments - lmao no fuck it that one's cancer to fix
@@ -193,6 +192,7 @@ Added - Industry option point to access the dialogue from the industry screen
 Added - Can now ship to (and only TO, not from!) Automated Shipyards once they are restored
 Added - Can now ship to and from RAT settlements
 Fixed - No longer crashes when shipping marines from a market that stops existing during transport (Marines will lose their XP, small price to pay)
+Fixed - Can no longer circumvent storage restrictions via Ship All. Illegal items and ships now get dumped into storage instead of the target cargo.
 
 Specialized industries
 Fixed - Specialized Mining now has correct outputs

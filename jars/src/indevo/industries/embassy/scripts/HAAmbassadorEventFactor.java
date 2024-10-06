@@ -13,6 +13,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.embassy.industry.Embassy;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.lazywizard.lazylib.MathUtils;
@@ -104,31 +105,23 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
     public static float getReductionAmtForFaction(FactionAPI alignedFaction){
         if (alignedFaction == null) return 0f;
 
-        HostileActivityFactor factor = null;
+        BaseHostileActivityFactor factor = null;
         float redPoints = 0f;
 
         for (EventFactor eventFactor : HostileActivityEventIntel.get().getFactors()){
-            if (eventFactor instanceof HostileActivityFactor){
-                String descFaction = eventFactor.getDesc(null).toLowerCase();
-                String nameForThreatList = ((HostileActivityFactor) eventFactor).getNameForThreatList(false).toLowerCase();
+            if (eventFactor instanceof BaseHostileActivityFactor){
+                String nameForThreatList = ((BaseHostileActivityFactor) eventFactor).getNameForThreatList(false).toLowerCase();
                 String factionName = alignedFaction.getDisplayName().toLowerCase();
 
-                if (factionName.contains(descFaction) || factionName.contains(nameForThreatList) || nameForThreatList.contains(factionName) || descFaction.contains(factionName)){
-                    factor = (HostileActivityFactor) eventFactor;
+                if (factionName.equals(nameForThreatList)){
+                    factor = (BaseHostileActivityFactor) eventFactor;
                     break;
                 }
             }
         }
 
         if (factor != null){
-            float pts = 0;
-
-            for (StarSystemAPI s : Misc.getSystemsWithPlayerColonies(false)){
-                if (!s.isHyperspace()) {
-                    pts+= factor.getEffectMagnitude(s);
-                }
-            }
-
+            float pts = factor.getProgress(null);
             float cappedFactionRel = Math.min(Embassy.BASE_MAX_RELATION, alignedFaction.getRelationship(Factions.PLAYER));
             float relFraction = MathUtils.clamp(cappedFactionRel / Embassy.BASE_MAX_RELATION, 0, 1);
             float reductionFactor = relFraction * AMBASSADOR_MAX_IMPACT_REDUCTION;

@@ -28,7 +28,6 @@
     <orderEntry type="library" name="SHI" level="application" />
     <orderEntry type="library" name="ExerelinCore" level="application" />
     <orderEntry type="library" name="RandomAssortmentofThings" level="application" />
-    <orderEntry type="library" name="LazyLib-Kotlin1" level="project" />
-    <orderEntry type="library" name="kotlin-reflect-sources" level="project" />
+    <orderEntry type="library" name="LazyLib-Kotlin" level="application" />
   </component>
 </module>

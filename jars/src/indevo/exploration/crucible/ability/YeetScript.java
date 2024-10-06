@@ -9,7 +9,7 @@ import com.fs.starfarer.api.fleet.FleetMemberViewAPI;
 import com.fs.starfarer.api.impl.campaign.abilities.BaseAbilityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.util.Misc;
-import indevo.exploration.crucible.VignetteRenderer;
+import indevo.exploration.crucible.plugin.VignetteRenderer;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;

@@ -2,10 +2,7 @@ package indevo.industries.courierport.listeners;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CampaignEventListener;
-import com.fs.starfarer.api.campaign.CampaignFleetAPI;
-import com.fs.starfarer.api.campaign.CargoAPI;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
@@ -110,12 +107,23 @@ public class Shipment implements NewDayListener, EveryFrameScript {
 
     public void transfer(SubmarketAPI toSubmarket) {
         CargoAPI toCargo = toSubmarket.getCargo();
+        CargoAPI storage = Misc.getStorageCargo(toSubmarket.getMarket());
+
+        boolean storageNotNull = storage != null;
+
         toCargo.initMothballedShips("player");
         cargo.initMothballedShips("player");
+        if (storageNotNull) storage.initMothballedShips("player");
 
-        toCargo.addAll(cargo);
+        //legality check, otherwise, it goes to storage
+        for(CargoStackAPI stack : cargo.getStacksCopy()){
+            if(storageNotNull && toSubmarket.isIllegalOnSubmarket(stack, SubmarketPlugin.TransferAction.PLAYER_SELL)) storage.addFromStack(stack);
+            else toCargo.addFromStack(stack);
+        }
+
         for (FleetMemberAPI m : cargo.getMothballedShips().getMembersListCopy()) {
-            toCargo.getMothballedShips().addFleetMember(m);
+            if (storageNotNull && toSubmarket.getPlugin().isIllegalOnSubmarket(m, SubmarketPlugin.TransferAction.PLAYER_SELL)) storage.getMothballedShips().addFleetMember(m);
+            else toCargo.getMothballedShips().addFleetMember(m);
         }
 
         //https://fractalsoftworks.com/forum/index.php?topic=30438.msg0 crashes when origin null, bandaid fix bc cant be arsed

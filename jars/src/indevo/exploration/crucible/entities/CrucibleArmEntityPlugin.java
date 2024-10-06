@@ -1,11 +1,10 @@
-package indevo.exploration.crucible;
+package indevo.exploration.crucible.entities;
 
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.util.Misc;
 
 public class CrucibleArmEntityPlugin extends BaseCustomEntityPlugin {
-    public static float MAGIC_FUCK = 60f;
 
     public static class CrucibleArmEntityPluginParams{
         SectorEntityToken catapult;

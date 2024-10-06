@@ -201,7 +201,7 @@
 		"scaleIconWithZoom":true,
 		"tags":["IndEvo_crucible"],
 		"layers":[ABOVE_STATIONS, BELOW_STATIONS, TERRAIN_6B], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.exploration.crucible.CrucibleSubStationEntityPlugin"
+		"pluginClass":"indevo.exploration.crucible.entities.CrucibleSubStationEntityPlugin"
 	},
 
 	"IndEvo_sub_crucible_bottom":{
@@ -238,7 +238,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"layers":[BELOW_STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"tags":["IndEvo_crucible_arm"],
-		"pluginClass":"indevo.exploration.crucible.CrucibleArmEntityPlugin"
+		"pluginClass":"indevo.exploration.crucible.entities.CrucibleArmEntityPlugin"
 	},
 
 	#crucible large
@@ -267,7 +267,7 @@
 		"scaleIconWithZoom":true,
 		"tags":["IndEvo_crucible"],
 		"layers":[ABOVE_STATIONS, BELOW_STATIONS, TERRAIN_6B], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.exploration.crucible.CrucibleStationEntityPlugin"
+		"pluginClass":"indevo.exploration.crucible.entities.CrucibleStationEntityPlugin"
 	},
 
 	"IndEvo_crucible_scaffold":{
@@ -286,7 +286,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"tags":["IndEvo_crucible_scaffold"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"indevo.exploration.crucible.CrucibleScaffoldRotationEntityPlugin",
+		"pluginClass":"indevo.exploration.crucible.entities.CrucibleScaffoldRotationEntityPlugin",
 	},
 
 	"IndEvo_crucible_bottom":{
@@ -323,7 +323,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"layers":[TERRAIN_6B], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"tags":["IndEvo_crucible_arm"],
-		"pluginClass":"indevo.exploration.crucible.CrucibleArmEntityPlugin"
+		"pluginClass":"indevo.exploration.crucible.entities.CrucibleArmEntityPlugin"
 	},
 
 	"IndEvo_yeetopult":{
@@ -349,7 +349,7 @@
 		"scaleIconWithZoom":true,
 		"tags":["IndEvo_yeetopult"],
 		"layers":[STATIONS, ABOVE_STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.exploration.crucible.YeetopultEntityPlugin"
+		"pluginClass":"indevo.exploration.crucible.entities.YeetopultEntityPlugin"
 	},
 
 	"IndEvo_CrucibleMote":{
@@ -361,7 +361,7 @@
 		"interactable":false,
 		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"tags":["IndEvo_CrucibleMote"],
-		"pluginClass":"indevo.exploration.crucible.CrucibleMoteEntityPlugin"
+		"pluginClass":"indevo.exploration.crucible.entities.CrucibleMoteEntityPlugin"
 	},
 
 	"IndEvo_yeetopult_no_icon":{
@@ -384,7 +384,7 @@
 		"scaleIconWithZoom":false,
 		"tags":["IndEvo_yeetopult", "IndEvo_orbits_crucible"],
 		"layers":[STATIONS, ABOVE_STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.exploration.crucible.YeetopultEntityPlugin"
+		"pluginClass":"indevo.exploration.crucible.entities.YeetopultEntityPlugin"
 	},
 
 	"IndEvo_ArtilleryStation":{

@@ -1,4 +1,4 @@
-package indevo.exploration.crucible;
+package indevo.exploration.crucible.entities;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
@@ -18,7 +18,33 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 
-public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
+import static indevo.exploration.crucible.plugin.CrucibleSpawner.MAGNETIC_FIELD_WIDTH;
+
+public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
+
+    public static class CrucibleData{
+        public float rotationAnglePerTick;
+        public float spriteHeightFactor;
+        public float warpMass;
+        public float warpRadius;
+        public float glowRadius;
+        public float glowAlpha;
+        public float innerGlowAlpha;
+        public IntervalUtil moteInterval;
+
+        public CrucibleData(float rotationAnglePerTick, float spriteHeightFactor, float warpMass, float warpRadius, float glowRadius, float glowAlpha, float innerGlowAlpha, IntervalUtil moteInterval) {
+            this.rotationAnglePerTick = rotationAnglePerTick;
+            this.spriteHeightFactor = spriteHeightFactor;
+            this.warpMass = warpMass;
+            this.warpRadius = warpRadius;
+            this.glowRadius = glowRadius;
+            this.glowAlpha = glowAlpha;
+            this.innerGlowAlpha = innerGlowAlpha;
+            this.moteInterval = moteInterval;
+        }
+    }
+
+    public static final String TAG_ENABLED = "crucible_enabled";
 
     public static Color GLOW_COLOR_1 = new Color(255,30,20,255);
     public static Color GLOW_COLOR_2 = new Color(255,180,20,255);
@@ -28,12 +54,12 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
     protected float phase2 = 0f;
     protected IntervalUtil rotationAngleFactor = new IntervalUtil(2,2);
     protected IntervalUtil rotationAngleFactor2 = new IntervalUtil(1,1);
-    protected IntervalUtil moteInterval = new IntervalUtil(2,10);
-
     protected FlickerUtilV2 flicker2 = new FlickerUtilV2(1);
     protected FlickerUtilV2 flicker1 = new FlickerUtilV2(6);
 
-    transient private SpriteAPI glow;
+    public CrucibleData data;
+
+    transient protected SpriteAPI glow;
     transient protected SpriteAPI whirl;
     transient protected SpriteAPI mass;
     transient protected WarpingSpriteRendererUtil warp;
@@ -46,6 +72,8 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public void advance(float amount) {
+        if (!entity.hasTag(BaseCrucibleEntityPlugin.TAG_ENABLED)) return;
+
         if (entity.isInCurrentLocation()){
             float volumeDistance = 1000f;
             float distance = Misc.getDistance(Global.getSector().getPlayerFleet(), entity);
@@ -54,11 +82,14 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
             Global.getSoundPlayer().playLoop("IndEvo_crucible_drone", entity, 1f, fract, entity.getLocation(), new Vector2f(0f, 0f));
         }
 
+        if (!entity.hasTag(HAS_MAG_FIELD)) generateMagneticField(entity, 1f, MAGNETIC_FIELD_WIDTH);
+
         rotationAngleFactor.advance(amount);
-        moteInterval.advance(amount);
+        data.moteInterval.advance(amount);
+
         if (warp != null) warp.advance(amount);
 
-        if (moteInterval.intervalElapsed()) spawnMote();
+        if (data.moteInterval.intervalElapsed()) spawnMote();
         phase1 += amount * GLOW_FREQUENCY;
         while (phase1 > 1) phase1--;
 
@@ -68,16 +99,13 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
         flicker1.advance(amount * 1f);
         flicker2.advance(amount * 1f);
 
-        entity.setFacing(entity.getFacing() - 0.13f);
+        entity.setFacing(entity.getFacing() + data.rotationAnglePerTick);
     }
 
     Object readResolve() {
         glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
-
         whirl = Global.getSettings().getSprite("IndEvo", "whirl_round");
         mass = Global.getSettings().getSprite("IndEvo", "crucible_mass");
-
-        //warp = new WarpingSpriteRendererUtil(10, 10, 10f, 20f, 2f);
 
         return this;
     }
@@ -98,10 +126,12 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
-        //for whirls and funny warp scaling
-        float size = entity.getCustomEntitySpec().getSpriteHeight() * 0.22f;
+        if (!entity.hasTag(BaseCrucibleEntityPlugin.TAG_ENABLED)) return;
 
-        //Starfield render with warp
+        //for whirls and funny warp scaling
+        float size = entity.getCustomEntitySpec().getSpriteHeight() * data.spriteHeightFactor; //specific
+
+        //render with warp
         if (layer == CampaignEngineLayers.TERRAIN_6B) {
             float alphaMult = viewport.getAlphaMult();
             alphaMult *= entity.getSensorFaderBrightness();
@@ -110,8 +140,8 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
 
             if (warp == null) {
                 int cells = 6;
-                float cs = mass.getWidth() / 10f;
-                warp = new WarpingSpriteRendererUtil(cells, cells, cs * 0.2f, cs * 0.2f, 3f);
+                float cs = mass.getWidth() / data.warpMass; //spec
+                warp = new WarpingSpriteRendererUtil(cells, cells, cs * 0.2f, cs * 0.2f, data.warpRadius); //spec
             }
 
             Vector2f loc = entity.getLocation();
@@ -146,7 +176,7 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
         if (layer == CampaignEngineLayers.BELOW_STATIONS) {
             float angle1 = 360f * (rotationAngleFactor.getElapsed() / rotationAngleFactor.getIntervalDuration());
             angle1 = Misc.normalizeAngle(angle1);
-            whirl.setSize(size * 0.9f, size * 0.9f);
+            whirl.setSize(size*0.9f, size*0.9f);
             whirl.setAngle(angle1);
             whirl.setAlphaMult(alphaMult * glowAlpha * 0.4f);
             whirl.setAdditiveBlend();
@@ -168,11 +198,11 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
             glowAlpha = getGlowAlpha(phase1, flicker1);
             glow.setColor(GLOW_COLOR_1);
 
-            float w = 600;
-            float h = 600;
+            float w = data.glowRadius; //spec
+            float h = data.glowRadius; //spec
 
             glow.setSize(w, h);
-            glow.setAlphaMult(alphaMult * glowAlpha * 0.5f);
+            glow.setAlphaMult(alphaMult * glowAlpha * data.glowAlpha); //spec
             glow.setAdditiveBlend();
 
             glow.renderAtCenter(loc.x, loc.y);
@@ -182,7 +212,7 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
                 h *= 0.3f;
                 //glow.setSize(w * 0.1f, h * 0.1f);
                 glow.setSize(w, h);
-                glow.setAlphaMult(alphaMult * glowAlpha * 0.67f);
+                glow.setAlphaMult(alphaMult * glowAlpha * data.innerGlowAlpha); //spec
                 glow.renderAtCenter(loc.x, loc.y);
             }
 
@@ -193,7 +223,7 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
             h = 100;
 
             glow.setSize(w, h);
-            glow.setAlphaMult(alphaMult * glowAlpha * 0.5f);
+            glow.setAlphaMult(alphaMult * glowAlpha * data.glowAlpha);
             glow.setAdditiveBlend();
 
             glow.renderAtCenter(loc.x, loc.y);
@@ -203,7 +233,7 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
                 h *= 0.3f;
                 //glow.setSize(w * 0.1f, h * 0.1f);
                 glow.setSize(w, h);
-                glow.setAlphaMult(alphaMult * glowAlpha * 0.67f);
+                glow.setAlphaMult(alphaMult * glowAlpha * data.innerGlowAlpha);
                 glow.renderAtCenter(loc.x, loc.y);
             }
         }
@@ -231,11 +261,13 @@ public class CrucibleStationEntityPlugin extends BaseCustomEntityPlugin {
         return entity.getRadius() + 1200f;
     }
 
+    public static final String HAS_MAG_FIELD = "CrucibleHasMagField";
 
     public static void generateMagneticField(SectorEntityToken token, float flareProbability, float width) {
         //if (!(context.star instanceof PlanetAPI)) return null;
 
         StarSystemAPI system = token.getStarSystem();
+        token.addTag(HAS_MAG_FIELD);
 
         int baseIndex = (int) (baseColors.length * StarSystemGenerator.random.nextFloat());
         int auroraIndex = (int) (auroraColors.length * StarSystemGenerator.random.nextFloat());

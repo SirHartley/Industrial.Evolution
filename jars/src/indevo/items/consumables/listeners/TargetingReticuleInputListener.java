@@ -10,9 +10,7 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.input.InputEventType;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
 import indevo.items.consumables.itemAbilities.missiles.BaseMissileConsumableAbilityPlugin;
-import indevo.utils.ModPlugin;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
-import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
 
 import java.util.List;
 
@@ -22,13 +20,16 @@ public class TargetingReticuleInputListener implements CampaignInputListener {
     public boolean missileActive = false;
     public MissileCampaignRenderer renderer;
 
-    public static void register() {
+    public static TargetingReticuleInputListener getInstanceOrRegister() {
         ListenerManagerAPI manager = Global.getSector().getListenerManager();
-        if (!manager.hasListenerOfClass(TargetingReticuleInputListener.class)) manager.addListener(new TargetingReticuleInputListener(), false);
-    }
+        TargetingReticuleInputListener listener;
 
-    public static TargetingReticuleInputListener getInstance(){
-        return Global.getSector().getListenerManager().getListeners(TargetingReticuleInputListener.class).get(0);
+        if (!manager.hasListenerOfClass(TargetingReticuleInputListener.class)) {
+            listener = new TargetingReticuleInputListener();
+            manager.addListener(listener, false);
+        } else listener = manager.getListeners(TargetingReticuleInputListener.class).get(0);
+
+        return listener;
     }
 
     @Override

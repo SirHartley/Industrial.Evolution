@@ -41,7 +41,7 @@ import indevo.dialogue.research.listeners.CamouflageRefitListener;
 import indevo.dialogue.research.listeners.HasUniqueShipChecker;
 import indevo.dialogue.research.scripts.RefitUIOpenChecker;
 import indevo.economy.listeners.ResourceConditionApplicator;
-import indevo.exploration.crucible.CrucibleSpawner;
+import indevo.exploration.crucible.plugin.CrucibleSpawner;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
@@ -200,7 +200,7 @@ public class ModPlugin extends BaseModPlugin {
         }
 
         //player fuckery
-        TargetingReticuleInputListener.getInstance().reset();
+        TargetingReticuleInputListener.getInstanceOrRegister().reset();
     }
 
     public void addLordFoogRep(){
@@ -280,7 +280,7 @@ public class ModPlugin extends BaseModPlugin {
     @Override
     public void beforeGameSave() {
         super.beforeGameSave();
-        TargetingReticuleInputListener.getInstance().reset();
+        TargetingReticuleInputListener.getInstanceOrRegister().reset();
 
         mines.clear();
 
@@ -433,7 +433,7 @@ public class ModPlugin extends BaseModPlugin {
         PlayerHyperspaceTripTracker.register();
         WatchtowerFactionResetListener.register();
         HyperspaceTopoProgressChecker.register();
-        MicromanagementSkillEffectScript.register(); //it's not broke, it's kotlin.
+        MicromanagementSkillEffectScript.register();
         AdminGovernTimeTracker.getInstanceOrRegister();
         SlowShipInFleetChecker.register();
         AutopulseUseChecker.register();
@@ -445,7 +445,7 @@ public class ModPlugin extends BaseModPlugin {
         SenateOptionProvider.register();
         AcademyOptionProvider.register();
         RiftGenOptionProvider.register();
-        TargetingReticuleInputListener.register();
+        TargetingReticuleInputListener.getInstanceOrRegister();
         FleetConsumableInventoryManager.register();
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();

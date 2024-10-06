@@ -6,7 +6,6 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.items.consumables.itemAbilities.BaseConsumableAbilityPlugin;
 import indevo.items.consumables.listeners.TargetingReticuleInputListener;
-import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 
@@ -14,7 +13,7 @@ public abstract class BaseMissileConsumableAbilityPlugin extends BaseConsumableA
 
     @Override
     public boolean isUsable() {
-        boolean otherMissileActive = TargetingReticuleInputListener.getInstance().missileActive;
+        boolean otherMissileActive = TargetingReticuleInputListener.getInstanceOrRegister().missileActive;
         boolean dialogueActive = Global.getSector().getCampaignUI().getCurrentInteractionDialog() != null || Global.getSector().getCampaignUI().getCurrentCoreTab() != null;
 
         return super.isUsable() && !otherMissileActive && !dialogueActive;
@@ -37,7 +36,7 @@ public abstract class BaseMissileConsumableAbilityPlugin extends BaseConsumableA
 
         addTooltip(tooltip);
 
-        boolean otherMissileActive = TargetingReticuleInputListener.getInstance().missileActive;
+        boolean otherMissileActive = TargetingReticuleInputListener.getInstanceOrRegister().missileActive;
         boolean dialogueActive = Global.getSector().getCampaignUI().getCurrentInteractionDialog() != null || Global.getSector().getCampaignUI().getCurrentCoreTab() != null;
 
         if (otherMissileActive) tooltip.addPara("Already deploying a missile!", opad, Misc.getNegativeHighlightColor());
