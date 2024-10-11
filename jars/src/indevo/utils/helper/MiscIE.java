@@ -432,8 +432,19 @@ public class MiscIE {
             member.setCaptain(null);
         }
 
-        ShipVariantAPI shipVar = member.getVariant();
+        ShipVariantAPI variant = stripAndReturnVariant(member.getVariant(), cargo);
 
+        for (String s : new ArrayList<>(variant.getModuleSlots())) {
+            ShipVariantAPI moduleVariant = variant.getModuleVariant(s);
+            ShipVariantAPI strippedVariant = stripAndReturnVariant(moduleVariant, cargo);
+            variant.setModuleVariant(s, strippedVariant);
+        }
+
+        member.setVariant(variant, true, true);
+        return variant;
+    }
+
+    public static ShipVariantAPI stripAndReturnVariant(ShipVariantAPI shipVar, CargoAPI cargo) {
         for (String slot : shipVar.getFittedWeaponSlots()) {
 
             if (shipVar.getSlot(slot).isBuiltIn()
@@ -461,7 +472,6 @@ public class MiscIE {
             if (!shipVar.getHullSpec().isBuiltInWing(i)) shipVar.setWingId(i, "");
         }
 
-        member.setVariant(shipVar, true, true);
         return shipVar;
     }
 

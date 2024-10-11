@@ -49,6 +49,16 @@ public class ExplosiveMissileAbilityAI extends BaseAbilityAI {
         CampaignFleetAPI pursueTarget = mem.getFleet(FleetAIFlags.PURSUIT_TARGET);
         CampaignFleetAPI fleeingFrom = mem.getFleet(FleetAIFlags.NEAREST_FLEEING_FROM);
 
+        //we shoot this missile if:
+
+        //TARGET
+        //- enemy fleet is already slowed or affected by movement debuff
+        //- OR It's slow
+        //- AND we can hit it probably
+        //- AND we're not hitting allies, not hitting self
+
+        if(true) return; //todo remove for release
+
         float activationTime =  ability.getSpec().getActivationDays() * Global.getSector().getClock().getSecondsPerDay();
         if (fleeingFrom != null) {
 

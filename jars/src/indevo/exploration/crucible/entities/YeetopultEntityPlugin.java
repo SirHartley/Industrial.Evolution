@@ -43,6 +43,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
     public String targetEntity;
     public String pairedCatapult = null;
     public float currentExplosionSize = DEFAULT_EXPLOSION_SIZE;
+    public boolean orbitSet = false;
 
     SectorEntityToken focus;
 
@@ -86,7 +87,6 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         if (enabled){
             float facing = targetLoc != null ? Misc.getAngleInDegrees(entity.getLocation(), targetLoc) : Misc.getAngleInDegrees(entity.getLocation(), entity.getOrbit().getFocus().getLocation()) + 180f;
             entity.setFacing(facing);
-
         }
 
         if (targetLoc == null || color == null) return;
@@ -101,6 +101,15 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         if (playerTarget != null && playerTarget == entity && Misc.getDistance(fleet, entity) < entity.getRadius() + TRIGGER_RADIUS && enabled) {
             fleet.addScript(new YeetScript(fleet, getTarget()));
             fireAnimation(DEFAULT_EXPLOSION_SIZE, true);
+        }
+
+        //manual orbit if it's a crucible bound one
+        if (entity.hasTag("IndEvo_orbits_crucible")) {
+            if (enabled && !orbitSet){
+                //set new orbit with a tenth of the orbit time
+                entity.setCircularOrbit(entity.getOrbitFocus(), entity.getCircularOrbitAngle(), entity.getCircularOrbitRadius(), entity.getCircularOrbitPeriod() / 10f);
+                orbitSet = true;
+            }
         }
     }
 

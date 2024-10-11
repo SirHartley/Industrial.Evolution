@@ -110,6 +110,17 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
         return this;
     }
 
+    public void enable(){
+        for (SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag("IndEvo_crucible_part")){
+            t.addTag(TAG_ENABLED);
+        }
+
+        /*runcode for (com.fs.starfarer.api.campaign.SectorEntityToken t : com.fs.starfarer.api.Global.getSector().getPlayerFleet().getContainingLocation().getEntitiesWithTag("IndEvo_crucible")){
+            indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin plugin = (indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin) t.getCustomPlugin();
+            plugin.enable();
+        }*/
+    }
+
     public void spawnMote(){
         WeightedRandomPicker<SectorEntityToken> picker = new WeightedRandomPicker<>();
         picker.addAll(entity.getContainingLocation().getEntitiesWithTag("IndEvo_orbits_crucible"));
@@ -273,7 +284,7 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
         int auroraIndex = (int) (auroraColors.length * StarSystemGenerator.random.nextFloat());
 
         float bandWidth = token.getRadius() + width;
-        float midRadius = 250f;
+        float midRadius = 350f;
         float visStartRadius = token.getRadius();
         float visEndRadius = token.getRadius() + width + 50f;
 

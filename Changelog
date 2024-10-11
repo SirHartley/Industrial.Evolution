@@ -49,6 +49,7 @@ Requests
 --------------------------- Known issues -----------------------------
 
   >>> I care <<<
+- Galatia projects intel never vanishes (STILL)
 - Crucible shows up in map even if not discovered
 
   >>> I do not care <<<
@@ -181,6 +182,9 @@ Added - Blockades now generate extra salvage points, like raids
 Restoration docks
 Added - "Can not transfer" text for ships with the unrestorable tag
 
+Engineering Hub
+Fixed - Modular ships now have their modules stripped of weapons and fighters when deconstructed
+
 Academy
 Added - Industry option point to access the dialogue from the industry screen
 Adjusted - Can now pull admins from active duty
@@ -257,6 +261,7 @@ Fixed - Crash when a ResLab is manually added to a planet on new game ProcGen
 Fixed - Gave Hull Deconstructor the structure tag
 Fixed - No longer (almost) exclusively spawn on abyss planets
 Fixed - No longer spawn in hidden systems
+Fixed - Modular ships now have their modules stripped of weapons and fighters when deconstructed
 
 Ruined Infrastructure
 Added - A size 4 or larger colony that decivilizes will now always have ruined infrastructure of one of its former industries (if any)

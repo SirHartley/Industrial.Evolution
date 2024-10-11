@@ -199,7 +199,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
-		"tags":["IndEvo_crucible"],
+		"tags":["IndEvo_crucible", "IndEvo_crucible_part"],
 		"layers":[ABOVE_STATIONS, BELOW_STATIONS, TERRAIN_6B], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"indevo.exploration.crucible.entities.CrucibleSubStationEntityPlugin"
 	},
@@ -218,7 +218,7 @@
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
 		"renderCircleIndicator":false, # make clickable,
-		"tags":["IndEvo_crucible_bottom"],
+		"tags":["IndEvo_crucible_bottom", "IndEvo_crucible_part"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 	},
 
@@ -237,7 +237,7 @@
 		"scaleIconWithZoom":true,
 		"renderCircleIndicator":false, # make clickable,
 		"layers":[BELOW_STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"tags":["IndEvo_crucible_arm"],
+		"tags":["IndEvo_crucible_arm", "IndEvo_crucible_part"],
 		"pluginClass":"indevo.exploration.crucible.entities.CrucibleArmEntityPlugin"
 	},
 
@@ -265,7 +265,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
-		"tags":["IndEvo_crucible"],
+		"tags":["IndEvo_crucible", "IndEvo_crucible_part"],
 		"layers":[ABOVE_STATIONS, BELOW_STATIONS, TERRAIN_6B], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"indevo.exploration.crucible.entities.CrucibleStationEntityPlugin"
 	},
@@ -284,7 +284,7 @@
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
 		"renderCircleIndicator":false, # make clickable,
-		"tags":["IndEvo_crucible_scaffold"],
+		"tags":["IndEvo_crucible_scaffold", "IndEvo_crucible_part"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 		"pluginClass":"indevo.exploration.crucible.entities.CrucibleScaffoldRotationEntityPlugin",
 	},
@@ -303,7 +303,7 @@
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
 		"renderCircleIndicator":false, # make clickable,
-		"tags":["IndEvo_crucible_bottom"],
+		"tags":["IndEvo_crucible_bottom", "IndEvo_crucible_part"],
 		"layers":[BELOW_STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 	},
 
@@ -322,7 +322,7 @@
 		"scaleIconWithZoom":true,
 		"renderCircleIndicator":false, # make clickable,
 		"layers":[TERRAIN_6B], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"tags":["IndEvo_crucible_arm"],
+		"tags":["IndEvo_crucible_arm", "IndEvo_crucible_part"],
 		"pluginClass":"indevo.exploration.crucible.entities.CrucibleArmEntityPlugin"
 	},
 
@@ -347,7 +347,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
-		"tags":["IndEvo_yeetopult"],
+		"tags":["IndEvo_yeetopult", "IndEvo_crucible_part"],
 		"layers":[STATIONS, ABOVE_STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"indevo.exploration.crucible.entities.YeetopultEntityPlugin"
 	},
@@ -382,7 +382,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":false,
-		"tags":["IndEvo_yeetopult", "IndEvo_orbits_crucible"],
+		"tags":["IndEvo_yeetopult", "IndEvo_orbits_crucible", "IndEvo_crucible_part"],
 		"layers":[STATIONS, ABOVE_STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"indevo.exploration.crucible.entities.YeetopultEntityPlugin"
 	},

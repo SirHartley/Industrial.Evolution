@@ -45,10 +45,6 @@ public class CrucibleSpawner {
         tokens.addAll(targetSystem.getEntitiesWithTag("IndEvo_yeetopult"));
         tokens.addAll(targetSystem.getEntitiesWithTag("IndEvo_crucible_arm"));
 
-        for (SectorEntityToken t : targetSystem.getCustomEntities()) {
-            if (t.getCustomEntitySpec().getId().equals("IndEvo_crucible_bottom")) tokens.add(t);
-        }
-
         for (CampaignTerrainAPI terrain : targetSystem.getTerrainCopy()){
             if(terrain.getPlugin() instanceof MagneticFieldTerrainPlugin) if (Misc.getDistance(terrain.getLocation(), targetSystem.getEntitiesWithTag("IndEvo_crucible").get(0).getLocation()) < 500f) {
                 ModPlugin.log("Adding the stupid fucking mag field");
@@ -246,11 +242,7 @@ public class CrucibleSpawner {
         for (SectorEntityToken catapult : crucibleBoundCatapults) {
             //"IndEvo_crucible_arm"
             crucible.getContainingLocation().addCustomEntity(Misc.genUID(), null, (subUnit ? "IndEvo_sub_crucible_arm" : "IndEvo_crucible_arm"), null, new CrucibleArmEntityPlugin.CrucibleArmEntityPluginParams(catapult, crucible));
-     /*       Vector2f loc = MathUtils.getPointOnCircumference(crucible.getLocation(), orbitRadius, angleSpacing * i);
-            catapult.setLocation(loc.x, loc.y);
-            catapult.setFacing(MathUtils.getRandomNumberInRange(0, 360));
-*/
-            catapult.setCircularOrbit(crucible, angleSpacing * i, orbitRadius, orbitRadius / 10f);
+            catapult.setCircularOrbit(crucible, angleSpacing * i, orbitRadius, orbitRadius);
             i++;
         }
     }
