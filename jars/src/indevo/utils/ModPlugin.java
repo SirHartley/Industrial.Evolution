@@ -430,7 +430,6 @@ public class ModPlugin extends BaseModPlugin {
         RuralPolitySubIndustry.RuralPolityImageChanger.register();
         RuinfraOnDecivListener.register();
         MarineLossAmplifcationHullmodEffectListener.register();
-        PlayerHyperspaceTripTracker.register();
         WatchtowerFactionResetListener.register();
         HyperspaceTopoProgressChecker.register();
         MicromanagementSkillEffectScript.register();

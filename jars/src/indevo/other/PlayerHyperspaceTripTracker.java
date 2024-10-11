@@ -55,7 +55,7 @@ public class PlayerHyperspaceTripTracker extends BaseCampaignEventListener imple
             currentTrip.updateFurthestOut(percentTotalFromCore);
         }
 
-        lastPos.set(currentLoc);
+        lastPos = new Vector2f(currentLoc);
     }
 
     public void commitTripAndRestart() {
