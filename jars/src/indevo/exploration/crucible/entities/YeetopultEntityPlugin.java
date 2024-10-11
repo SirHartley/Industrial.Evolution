@@ -157,11 +157,11 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
             factor = getQuadFunctAlpha(animProgress / ANIM_TIME) * currentExplosionSize;
         }
 
-        float w = 50 * factor;
-        float h = 50 * factor;
+        float w = 40 * factor;
+        float h = 40 * factor;
 
         glow.setSize(w, h);
-        glow.setAlphaMult(alphaMult * glowAlpha * 0.5f);
+        glow.setAlphaMult(alphaMult * glowAlpha * 0.4f);
         glow.setAdditiveBlend();
 
         Vector2f renderLoc = entity.getLocation(); //MathUtils.getPointOnCircumference(entity.getLocation(), 12f, entity.getFacing()-180f); //make glow spawn a bit to the back
@@ -173,7 +173,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
             h *= 0.3f;
             //glow.setSize(w * 0.1f, h * 0.1f);
             glow.setSize(w, h);
-            glow.setAlphaMult(alphaMult * glowAlpha * 0.67f);
+            glow.setAlphaMult(alphaMult * glowAlpha * 0.5f);
             glow.renderAtCenter(renderLoc.x, renderLoc.y);
         }
     }
