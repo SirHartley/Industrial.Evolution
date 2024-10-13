@@ -279,10 +279,12 @@ public class CrucibleSpawner {
         gSmall1.setCircularOrbit(crucible, 20f, outerRim + 3f, defaultOrbitDays);
 
         //cluster 2
+        SectorEntityToken gLarge1 = getGear(crucible, 45f, defaultGearColour.darker(), 0.35f);
         SectorEntityToken gMed3 = getGear(crucible, 30f, defaultGearColour, -0.5f);
         SectorEntityToken gSmall2 = getGear(crucible, 20f, defaultGearColour.brighter(), 0.8f);
 
-        gMed3.setCircularOrbit(crucible, 120f - 20f , outerRim, defaultOrbitDays);
+        gLarge1.setCircularOrbit(crucible, 120f - 20f , outerRim, defaultOrbitDays);
+        gMed3.setCircularOrbit(crucible, 120f + 20f , outerRim, defaultOrbitDays);
         gSmall2.setCircularOrbit(crucible, 120f, outerRim + 3f, defaultOrbitDays);
 
         //cluster 3
