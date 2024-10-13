@@ -41,6 +41,8 @@ import indevo.dialogue.research.listeners.CamouflageRefitListener;
 import indevo.dialogue.research.listeners.HasUniqueShipChecker;
 import indevo.dialogue.research.scripts.RefitUIOpenChecker;
 import indevo.economy.listeners.ResourceConditionApplicator;
+import indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin;
+import indevo.exploration.crucible.entities.CrucibleGearEntityPlugin;
 import indevo.exploration.crucible.plugin.CrucibleSpawner;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
@@ -97,8 +99,10 @@ import org.dark.shaders.light.LightData;
 import org.dark.shaders.util.ShaderLib;
 import org.dark.shaders.util.TextureData;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 import static indevo.industries.academy.rules.IndEvo_AcademyVariables.ACADEMY_MARKET_ID;
 
@@ -141,9 +145,12 @@ public class ModPlugin extends BaseModPlugin {
         boolean devActions = true; //Todo SET TO FALSE FOR RELEASE
 
         if (devmode && devActions && newGame) {
-            PersonAPI admin = OfficerManagerEvent.createAdmin(Global.getSector().getPlayerFaction(), 0, new Random());
-            admin.getStats().setSkillLevel("indevo_Micromanagement", 1);
-            Global.getSector().getCharacterData().addAdmin(admin);
+
+
+
+//            PersonAPI admin = OfficerManagerEvent.createAdmin(Global.getSector().getPlayerFaction(), 0, new Random());
+//            admin.getStats().setSkillLevel("indevo_Micromanagement", 1);
+//            Global.getSector().getCharacterData().addAdmin(admin);
             //CrucibleSpawner.spawn();
 
 

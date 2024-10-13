@@ -326,6 +326,41 @@
 		"pluginClass":"indevo.exploration.crucible.entities.CrucibleArmEntityPlugin"
 	},
 
+	"IndEvo_crucible_gear":{
+		"defaultName":"Helios Crucible Gear", # used if name=null in addCustomEntity()
+		"defaultRadius":0, # used if radius<0 in addCustomEntity()
+		"renderShadow":false, #true,
+		"useLightColor":true,
+		"showInCampaign":true,
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[TERRAIN_6, TERRAIN_5], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"tags":["IndEvo_crucible_part"],
+		"pluginClass":"indevo.exploration.crucible.entities.CrucibleGearEntityPlugin"
+	},
+
+	"IndEvo_crucible_spike":{
+		"defaultName":"Helios Crucible Gear", # used if name=null in addCustomEntity()
+		"defaultRadius":0, # used if radius<0 in addCustomEntity()
+		"sprite":"graphics/stations/gear_wheel_no_colour.png",
+		"spriteWidth":85, #176x1130 -> 730 x 730
+		"spriteHeight":384,
+		"renderShadow":false, #true,
+		"useLightColor":true,
+		"showInCampaign":true,
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[TERRAIN_6A], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"tags":["IndEvo_crucible_part"],
+		"pluginClass":"indevo.exploration.crucible.entities.CrucibleSpikeEntityPlugin"
+	},
+
 	"IndEvo_yeetopult":{
 		"defaultName":"Helios Catapult", # used if name=null in addCustomEntity()
 		"defaultRadius":40, # used if radius<0 in addCustomEntity(),

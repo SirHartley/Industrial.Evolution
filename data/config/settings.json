@@ -339,6 +339,7 @@
           "shield_texture": "graphics/planets/IndEvo_planetary_shield_invisible.png",
           "vignette_square": "graphics/overlay/indevo_overlay_mixed.png",
           "galatia_proj": "graphics/icons/intel/galatia_new_proj.png",
+          "gearwheel": "graphics/stations/gear_wheel_no_colour.png",
       },
   },
 }

@@ -4,7 +4,7 @@ IndEvo_text0,,Text,No guarantees for stability if you fuck with anything in here
 IndEvo_text_application_note,,Text,Some settings will not apply unless you start a new game.,,,,,General
 IndEvo_header1,General,Header,General,,,,,General
 IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,Commerce balance changes. Read up on why this was needed here: bit.ly/commerce_balance. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).,,,General
-IndEvo_Corruption,[General] Corrupt Colony Officials,Boolean,FALSE,,"This enables a mode in which your colonies will start bleeding money the more you make. It means getting a colony above 200k income is an incredible feat, but getting it to 50-100k is just like vanilla. Calculated along f(x)=x^(-0.8)",,,General
+IndEvo_Corruption,[General] Corrupt Colony Officials,Boolean,FALSE,,"This enables a mode in which your colonies will start bleeding money the more you make. It means getting a colony above 200k income is an incredible feat, but getting it to 50-100k is just like vanilla. Calculated along f(x)=x^(-0.6)",,,General
 IndEvo_CorruptionCutoff,[General] Corruption Income Cutoff,Int,40000,,Income up until this number is not penalized by corruption (if enabled),0,200000,General
 IndEvo_shipPickerRowCount,[General] Ship Picker Row Count,Int,8,,The row amount in most of the ship picker dialogues in the mod.,0,100,General
 IndEvo_header2,Industries,Header,Industries,,,,,Industries

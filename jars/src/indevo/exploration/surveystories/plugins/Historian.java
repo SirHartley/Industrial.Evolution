@@ -13,9 +13,8 @@ import java.util.List;
 import java.util.Random;
 
 public class Historian {
-    public static final String MOD_ID = "oldstory";
-    private final static String HISTORIAN_MEM_ID = "$oldStory_Historian";
-    private final static String FIXED_STORY_MEM_ID = "$oldStory_fixedStoryId";
+    private final static String HISTORIAN_MEM_ID = "$indEvo_Historian";
+    private final static String FIXED_STORY_MEM_ID = "$indEvo_fixedStoryId";
 
     private List<String> toldStories = new ArrayList<>();
     private Random random = new Random();
@@ -56,7 +55,7 @@ public class Historian {
             boolean planetConditionMet = entry.getOptionalPlanetTypes().isEmpty() || entry.getOptionalPlanetTypes().contains(planet.getTypeId());
 
             OldStoryLogger.logDevInfo("Checking Story " + entry.getId() + " ruinsConditionMet: " + ruinsConditionMet + " planetConditionMet: " + planetConditionMet);
-            if (ruinsConditionMet && planetConditionMet && localConditionsMet) picker.add(entry, entry.getPickerWeight());
+            if ((ruinsConditionMet && planetConditionMet && localConditionsMet) || Global.getSettings().isDevMode()) picker.add(entry, entry.getPickerWeight());
         }
 
         return picker.pick();

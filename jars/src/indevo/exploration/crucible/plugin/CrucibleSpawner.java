@@ -10,10 +10,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.NebulaTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.exploration.crucible.YeetopultColourList;
-import indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin;
-import indevo.exploration.crucible.entities.CrucibleArmEntityPlugin;
-import indevo.exploration.crucible.entities.CrucibleStationEntityPlugin;
-import indevo.exploration.crucible.entities.YeetopultEntityPlugin;
+import indevo.exploration.crucible.entities.*;
 import indevo.ids.Ids;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
@@ -65,6 +62,8 @@ public class CrucibleSpawner {
         SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
         spawnCatapults(crucible, subUnit);
 
+        ((BaseCrucibleEntityPlugin) crucible.getCustomPlugin()).enable();
+
         //runcode indevo.exploration.crucible.plugin.CrucibleSpawner.spawnInCurrentLoc();
     }
 
@@ -77,28 +76,35 @@ public class CrucibleSpawner {
         SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
         spawnCatapults(crucible, subUnit);
 
+        ((BaseCrucibleEntityPlugin) crucible.getCustomPlugin()).enable();
+
         //runcode indevo.exploration.crucible.plugin.CrucibleSpawner.spawnInCurrentLocSubUnit();
     }
-
-
 
     public static void spawn() {
         if (Global.getSector().getPersistentData().containsKey(HAS_PLACED_STATIONS)) return;
 
         int amt = (int) Math.ceil(Global.getSector().getEntitiesWithTag(Tags.CORONAL_TAP).size() * AMOUNT_MULT);
 
-        for (int i = 0; i < amt; i++) {
-            StarSystemAPI targetSystem = getTargetSystem();
-            if (targetSystem == null) continue;
-            Vector2f spawnLoc = getSpawnLoc(targetSystem); //no need to nullcheck because it will hang the game if it doesn't find one
+        if (amt == 0) return;
+        spawnCrucible(false); //one per default in a nebula
 
-            boolean subUnit = false;
-            SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
-            spawnCatapults(crucible, subUnit);
-            ModPlugin.log("Spawned Crucible in " + targetSystem.getName() + " --- " + targetSystem.getBaseName());
+        for (int i = 0; i < amt; i++) {
+            spawnCrucible(true);
         }
 
         Global.getSector().getPersistentData().put(HAS_PLACED_STATIONS, true);
+    }
+
+    private static void spawnCrucible(boolean nonNebulaOnly){
+        StarSystemAPI targetSystem = getTargetSystem(nonNebulaOnly);
+        if (targetSystem == null) return;
+        Vector2f spawnLoc = getSpawnLoc(targetSystem); //no need to nullcheck because it will hang the game if it doesn't find one
+
+        boolean subUnit = false;
+        SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
+        spawnCatapults(crucible, subUnit);
+        ModPlugin.log("Spawned Crucible in " + targetSystem.getName() + " --- " + targetSystem.getBaseName());
     }
 
     private static Vector2f getSpawnLoc(StarSystemAPI targetSystem){
@@ -135,21 +141,21 @@ public class CrucibleSpawner {
         return spawnLoc;
     }
 
-    private static StarSystemAPI getTargetSystem() {
+    private static StarSystemAPI getTargetSystem(boolean nonNebulOnly) {
         int planetAmt = 0;
         int oldPlanetAmt = 0;
-        StarSystemAPI nebulaSystem = null;
+        StarSystemAPI starSystem = null;
         //StarSystemAPI oldNebulaSystem = null;
 
         for (StarSystemAPI system : Global.getSector().getStarSystems()) {
-            if (!system.isNebula() || !system.getEntitiesWithTag(Ids.TAG_YEETOPULT).isEmpty()) continue;
+            if ((nonNebulOnly && system.isNebula()) || !system.getEntitiesWithTag(Ids.TAG_YEETOPULT).isEmpty()) continue;
 
             int amt = system.getPlanets().size();
 
             //any age
             if (amt > planetAmt) {
                 planetAmt = amt;
-                nebulaSystem = system;
+                starSystem = system;
             }
 
             //old
@@ -164,13 +170,14 @@ public class CrucibleSpawner {
         //we prefer old nebula
         //no we don't
         //StarSystemAPI targetSystem = oldNebulaSystem != null && oldPlanetAmt >= 2 ? oldNebulaSystem : nebulaSystem;
-        return nebulaSystem;
+        return starSystem;
     }
 
     public static SectorEntityToken spawnCrucible(LocationAPI loc, Vector2f pos, boolean subUnit) {
         SectorEntityToken bottom = loc.addCustomEntity(Misc.genUID(), null, (subUnit ? "IndEvo_sub_crucible_bottom" : "IndEvo_crucible_bottom"), null, null);
         SectorEntityToken top = loc.addCustomEntity(Misc.genUID(), null, (subUnit ? "IndEvo_sub_crucible_top" : "IndEvo_crucible_top"), null, null);
         SectorEntityToken scaffold = null;
+
         if (!subUnit) {
             scaffold = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_scaffold", null, null);
             scaffold.setFacing(MathUtils.getRandomNumberInRange(0, 360));
@@ -189,6 +196,9 @@ public class CrucibleSpawner {
             top.setLocation(pos.x, pos.y);
             top.setFacing(MathUtils.getRandomNumberInRange(0, 360));
         }
+
+        if (subUnit) spawnGearsSubUnit(top);
+        else spawnGears(top);
 
         CampaignTerrainAPI nebula = null;
         for (CampaignTerrainAPI terrain : loc.getTerrainCopy()) {
@@ -229,6 +239,7 @@ public class CrucibleSpawner {
             float angle = Misc.getAngleInDegrees(planet.getLocation(), crucible.getLocation());
             float orbitRadius = planet.getRadius() + Math.max(100f, planet.getRadius() * 0.2f);
             catapult.setCircularOrbit(planet, angle, orbitRadius, orbitRadius / 10f);
+            catapult.setFacing(MathUtils.getRandomNumberInRange(0, 360));
         }
 
         //add crucible catapults
@@ -243,11 +254,124 @@ public class CrucibleSpawner {
             //"IndEvo_crucible_arm"
             crucible.getContainingLocation().addCustomEntity(Misc.genUID(), null, (subUnit ? "IndEvo_sub_crucible_arm" : "IndEvo_crucible_arm"), null, new CrucibleArmEntityPlugin.CrucibleArmEntityPluginParams(catapult, crucible));
             catapult.setCircularOrbit(crucible, angleSpacing * i, orbitRadius, orbitRadius);
+            catapult.setFacing(MathUtils.getRandomNumberInRange(0, 360));
             i++;
         }
     }
 
     public static SectorEntityToken getCatapult(SectorEntityToken focus, SectorEntityToken target, Color color, boolean showIcon){
         return focus.getContainingLocation().addCustomEntity(Misc.genUID(), null, showIcon ? "IndEvo_yeetopult" : "IndEvo_yeetopult_no_icon", null, new YeetopultEntityPlugin.YeetopultParams(focus, color, target.getId()));
+    }
+
+
+    public static void spawnGearsSubUnit(SectorEntityToken crucible){
+        float outerRim = (crucible.getCustomEntitySpec().getSpriteHeight() * 0.6f) / 2f;
+        Color defaultGearColour = new Color(20,15,15,255);
+        float defaultOrbitDays = 90f;
+
+        //cluster 1
+        SectorEntityToken gMed1 = getGear(crucible, 30f, defaultGearColour, 0.6f);
+        SectorEntityToken gMed2 = getGear(crucible, 30f, defaultGearColour, -0.6f);
+        SectorEntityToken gSmall1 = getGear(crucible, 18f, defaultGearColour.brighter(), 0.85f);
+
+        gMed1.setCircularOrbit(crucible, 0f, outerRim, defaultOrbitDays);
+        gMed2.setCircularOrbit(crucible, -35f, outerRim, defaultOrbitDays);
+        gSmall1.setCircularOrbit(crucible, 20f, outerRim + 3f, defaultOrbitDays);
+
+        //cluster 2
+        SectorEntityToken gMed3 = getGear(crucible, 30f, defaultGearColour, -0.5f);
+        SectorEntityToken gSmall2 = getGear(crucible, 20f, defaultGearColour.brighter(), 0.8f);
+
+        gMed3.setCircularOrbit(crucible, 120f - 20f , outerRim, defaultOrbitDays);
+        gSmall2.setCircularOrbit(crucible, 120f, outerRim + 3f, defaultOrbitDays);
+
+        //cluster 3
+        SectorEntityToken gLarge2 = getGear(crucible, 50f, defaultGearColour.darker(), 0.4f);
+        SectorEntityToken gSmall3 = getGear(crucible, 25f, defaultGearColour.brighter(), -1f);
+
+        gLarge2.setCircularOrbit(crucible, 120f + 100f, outerRim, defaultOrbitDays);
+        gSmall3.setCircularOrbit(crucible, 120f + 100f + 20f, outerRim + 3f, defaultOrbitDays);
+    }
+
+    public static void spawnGears(SectorEntityToken crucible){
+        float outerRim = (crucible.getCustomEntitySpec().getSpriteHeight() * 0.55f) / 2f;
+        Color defaultGearColour = new Color(15,10,10,255);
+        float defaultOrbitDays = 120f;
+
+        //cluster 1
+        SectorEntityToken gLarge1 = getGear(crucible, 80f, defaultGearColour.darker(), 0.2f);
+        SectorEntityToken gMed1 = getGear(crucible, 65f, defaultGearColour, -0.4f);
+        SectorEntityToken gMed2 = getGear(crucible, 65f, defaultGearColour, -0.4f);
+        SectorEntityToken gSmall1 = getGear(crucible, 40f, defaultGearColour.brighter(), 0.8f);
+
+        gLarge1.setCircularOrbit(crucible, 0f, outerRim, defaultOrbitDays);
+        gMed1.setCircularOrbit(crucible, 45f, outerRim, defaultOrbitDays);
+        gMed2.setCircularOrbit(crucible, -45f, outerRim, defaultOrbitDays);
+        gSmall1.setCircularOrbit(crucible, 15f, outerRim, defaultOrbitDays);
+
+        //cluster 2
+        SectorEntityToken gMed3 = getGear(crucible, 70f, defaultGearColour, 0.3f);
+        SectorEntityToken gMed4 = getGear(crucible, 70f, defaultGearColour, -0.3f);
+        SectorEntityToken gSmall2 = getGear(crucible, 45f, defaultGearColour.brighter(), 0.6f);
+
+        gMed3.setCircularOrbit(crucible, 120f - 15f , outerRim, defaultOrbitDays);
+        gMed4.setCircularOrbit(crucible, 120f + 20f, outerRim, defaultOrbitDays);
+        gSmall2.setCircularOrbit(crucible, 120f, outerRim, defaultOrbitDays);
+
+        //cluster 3
+        SectorEntityToken gLarge2 = getGear(crucible, 80f, defaultGearColour.darker(), 0.2f);
+        SectorEntityToken gSmall3 = getGear(crucible, 45f, defaultGearColour.brighter(), -1f);
+        SectorEntityToken gSmall4 = getGear(crucible, 45f, defaultGearColour.brighter(), -1f);
+
+        gLarge2.setCircularOrbit(crucible, 120f + 100f, outerRim, defaultOrbitDays);
+        gSmall3.setCircularOrbit(crucible, 120f + 100f + 17f, outerRim, defaultOrbitDays);
+        gSmall4.setCircularOrbit(crucible, 120f + 100f - 17f, outerRim, defaultOrbitDays);
+
+        //reverse top cluster
+        outerRim -= 5f;
+        defaultGearColour = defaultGearColour.brighter();
+        defaultOrbitDays = -60f;
+        float offsetAngle = 90f;
+
+        //errant cluster 1
+        SectorEntityToken gLarge3 = getGear(crucible, 70f, defaultGearColour.darker(), -0.4f);
+        SectorEntityToken gMed5 = getGear(crucible, 60f, defaultGearColour, 0.8f);
+        SectorEntityToken gSmall5 = getGear(crucible, 35f, defaultGearColour.brighter(), 2f);
+
+        gLarge3.setCircularOrbit(crucible, offsetAngle + 0f, outerRim, defaultOrbitDays);
+        gMed5.setCircularOrbit(crucible, offsetAngle + 45f, outerRim, defaultOrbitDays);
+        gSmall5.setCircularOrbit(crucible, offsetAngle + 20f, outerRim + 5f, defaultOrbitDays);
+
+        //errant cluster 2
+        offsetAngle += 120f;
+
+        SectorEntityToken gMed6 = getGear(crucible, 55f, defaultGearColour, -0.7f);
+        SectorEntityToken gMed7 = getGear(crucible, 55f, defaultGearColour, -0.7f);
+        SectorEntityToken gSmall6 = getGear(crucible, 35f, defaultGearColour.brighter(), 1.5f);
+
+        gMed6.setCircularOrbit(crucible, offsetAngle + 0f, outerRim, defaultOrbitDays);
+        gMed7.setCircularOrbit(crucible, offsetAngle - 30f, outerRim, defaultOrbitDays);
+        gSmall6.setCircularOrbit(crucible, offsetAngle + 5f, outerRim, defaultOrbitDays);
+
+        //errant cluster 3
+        offsetAngle += 100f;
+
+        SectorEntityToken gMed8 = getGear(crucible, 65f, defaultGearColour, -1f);
+        SectorEntityToken gSmall7 = getGear(crucible, 40f, defaultGearColour.brighter(), 3f);
+        SectorEntityToken gSmall8 = getGear(crucible, 40f, defaultGearColour.brighter(), -3f);
+
+        gMed8.setCircularOrbit(crucible, offsetAngle + 0f, outerRim, defaultOrbitDays);
+        gSmall7.setCircularOrbit(crucible, offsetAngle - 15f, outerRim + 10f, defaultOrbitDays);
+        gSmall8.setCircularOrbit(crucible, offsetAngle - 40f, outerRim + 10f, defaultOrbitDays);
+
+    }
+
+    public static SectorEntityToken getGear(SectorEntityToken focus, float size, Color colour, float speed){
+        return focus.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_gear", null, size, size, size,
+                new CrucibleGearEntityPlugin.CrucibleGearParams(
+                        colour,
+                        speed,
+                        size
+                ));
     }
 }

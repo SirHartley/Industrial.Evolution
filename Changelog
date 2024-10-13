@@ -7,6 +7,11 @@ Playthrough notes
 - Add a proper edict selection UI, for remote operation as well
 - add some more info/tt/notifications to governments
 
+Distress Calls
+todo Added - Adapted and expanded Vayras Sector distress call system (it would have crashed had anyone actually used it.)
+todo Added - The original 6 Ghost Ship distress calls
+todo Note - What I "ported" was really just the concept and texts. I rewrote the implementation from the ground up because it was a mess.
+
 Playthrough wants
 - Distillery module for settlements
 - Courier Port Option for settlements
@@ -84,11 +89,6 @@ Adjusted - Drastically reduced the chance of IndEvo salvage specials appearing o
 Adjusted - Halved the chance of IndEvo salvage specials appearing on caches of any kind
 Fixed - Restoration Docks Event: Crash when trying to repair ships without D-Mods
 Fixed - No longer spawn in hidden systems
-
-Distress Calls
-todo Added - Adapted and expanded Vayras Sector distress call system (it would have crashed had anyone actually used it.)
-todo Added - The original 6 Ghost Ship distress calls
-todo Note - What I "ported" was really just the concept and texts. I rewrote the implementation from the ground up because it was a mess.
 
 Pets
 Added - Light in a Jar, not a vengeful spirit - for mipacem7 (thank you for your support!)

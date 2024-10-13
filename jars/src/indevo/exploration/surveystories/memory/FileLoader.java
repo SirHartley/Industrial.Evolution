@@ -3,6 +3,7 @@ package indevo.exploration.surveystories.memory;
 import com.fs.starfarer.api.Global;
 import indevo.exploration.surveystories.OldStoryLogger;
 import indevo.exploration.surveystories.plugins.Historian;
+import indevo.utils.ModPlugin;
 import indevo.utils.memory.SessionTransientMemory;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,7 +31,7 @@ public class FileLoader {
             Set<StoryEntry> stories = new LinkedHashSet<>();
 
             try {
-                JSONArray config = Global.getSettings().getMergedSpreadsheetDataForMod("id", path, Historian.MOD_ID);
+                JSONArray config = Global.getSettings().getMergedSpreadsheetDataForMod("id", path, "IndEvo");
                 for (int i = 0; i < config.length(); i++) {
 
                     //optional_planet_type; optional_ruins_size; picker_weight; comms_intro_text; story_part_1; story_part_2; story_part_3
