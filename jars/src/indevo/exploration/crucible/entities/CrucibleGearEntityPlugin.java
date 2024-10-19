@@ -6,8 +6,12 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
+import indevo.exploration.crucible.scripts.VariableOrbitScript;
+import indevo.utils.helper.ReflectionUtils;
 
 import java.awt.*;
+
+import static indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin.MEM_ACTIVITY_LEVEL;
 
 public class CrucibleGearEntityPlugin extends BaseCustomEntityPlugin {
 
@@ -15,7 +19,7 @@ public class CrucibleGearEntityPlugin extends BaseCustomEntityPlugin {
     public float rotationSpeed;
     public float size;
     public transient SpriteAPI sprite;
-    public boolean orbitSet = false;
+    public float originalOrbitTime;
 
     public static class CrucibleGearParams{
         public Color color;
@@ -36,6 +40,7 @@ public class CrucibleGearEntityPlugin extends BaseCustomEntityPlugin {
         this.color = ((CrucibleGearParams) pluginParams).color;
         this.rotationSpeed = ((CrucibleGearParams) pluginParams).rotationSpeed;
         this.size = ((CrucibleGearParams) pluginParams).size;
+        this.originalOrbitTime = entity.getCircularOrbitPeriod();
     }
 
     @Override
@@ -43,14 +48,10 @@ public class CrucibleGearEntityPlugin extends BaseCustomEntityPlugin {
         super.advance(amount);
 
         if (entity.hasTag(BaseCrucibleEntityPlugin.TAG_ENABLED)){
+            entity.setFacing(entity.getFacing() + (rotationSpeed * getActivityLevel()));
 
-            entity.setFacing(entity.getFacing() + rotationSpeed);
-
-            if (!orbitSet){
-                //set new orbit with a tenth of the orbit time
-                entity.setCircularOrbit(entity.getOrbitFocus(), entity.getCircularOrbitAngle(), entity.getCircularOrbitRadius(), entity.getCircularOrbitPeriod() / 20f);
-                orbitSet = true;
-            }
+            VariableOrbitScript orbit = VariableOrbitScript.get(entity);
+            if (orbit != null) orbit.setFactor(getActivityLevel());
         }
     }
 
@@ -70,5 +71,9 @@ public class CrucibleGearEntityPlugin extends BaseCustomEntityPlugin {
         sprite.setAngle(entity.getFacing());
         sprite.setSize(size, size);
         sprite.renderAtCenter(entity.getLocation().x, locY);
+    }
+
+    public float getActivityLevel() {
+        return entity.getMemoryWithoutUpdate().getFloat(MEM_ACTIVITY_LEVEL);
     }
 }

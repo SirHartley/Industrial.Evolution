@@ -1,17 +1,13 @@
 package indevo.exploration.crucible.entities;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CampaignEngineLayers;
-import com.fs.starfarer.api.campaign.CustomEntitySpecAPI;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
-import com.fs.starfarer.api.campaign.StarSystemAPI;
+import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
-import com.fs.starfarer.api.impl.campaign.ids.Terrain;
-import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
-import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
 import com.fs.starfarer.api.util.*;
+import indevo.exploration.crucible.scripts.CrucibleStartupAnimationScript;
+import indevo.exploration.crucible.terrain.CrucibleFieldTerrainPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
@@ -45,6 +41,8 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public static final String TAG_ENABLED = "crucible_enabled";
+    public static final String MEM_ACTIVITY_LEVEL = "$crucible_activity_Level";
+    public static final String MEM_CATAPULT_NUM = "$crucible_catapult_num";
 
     public static Color GLOW_COLOR_1 = new Color(255,30,20,255);
     public static Color GLOW_COLOR_2 = new Color(255,180,20,255);
@@ -56,6 +54,7 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
     protected IntervalUtil rotationAngleFactor2 = new IntervalUtil(1,1);
     protected FlickerUtilV2 flicker2 = new FlickerUtilV2(1);
     protected FlickerUtilV2 flicker1 = new FlickerUtilV2(6);
+    protected CampaignTerrainAPI magField = null;
 
     public CrucibleData data;
 
@@ -82,14 +81,12 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
             Global.getSoundPlayer().playLoop("IndEvo_crucible_drone", entity, 1f, fract, entity.getLocation(), new Vector2f(0f, 0f));
         }
 
-        if (!entity.hasTag(HAS_MAG_FIELD)) generateMagneticField(entity, 1f, MAGNETIC_FIELD_WIDTH);
-
         rotationAngleFactor.advance(amount);
         data.moteInterval.advance(amount);
 
         if (warp != null) warp.advance(amount);
 
-        if (data.moteInterval.intervalElapsed()) spawnMote();
+        if (data.moteInterval.intervalElapsed() && getActivityLevel() > 0.9f) spawnMote();
         phase1 += amount * GLOW_FREQUENCY;
         while (phase1 > 1) phase1--;
 
@@ -99,7 +96,7 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
         flicker1.advance(amount * 1f);
         flicker2.advance(amount * 1f);
 
-        entity.setFacing(entity.getFacing() + data.rotationAnglePerTick);
+        entity.setFacing(entity.getFacing() + data.rotationAnglePerTick * getActivityLevel());
     }
 
     Object readResolve() {
@@ -111,9 +108,11 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public void enable(){
-        for (SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag("IndEvo_crucible_part")){
+        entity.addScript(new CrucibleStartupAnimationScript(entity));
+
+        /*for (SectorEntityToken t : entity.getContainingLocation().getEntitiesWithTag("IndEvo_crucible_part")){
             t.addTag(TAG_ENABLED);
-        }
+        }*/
 
         /*runcode for (com.fs.starfarer.api.campaign.SectorEntityToken t : com.fs.starfarer.api.Global.getSector().getPlayerFleet().getContainingLocation().getEntitiesWithTag("IndEvo_crucible")){
             indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin plugin = (indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin) t.getCustomPlugin();
@@ -141,10 +140,10 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
 
         //for whirls and funny warp scaling
         float size = entity.getCustomEntitySpec().getSpriteHeight() * data.spriteHeightFactor; //specific
+        float alphaMult = viewport.getAlphaMult() * getActivityLevel();
 
         //render with warp
         if (layer == CampaignEngineLayers.TERRAIN_6B) {
-            float alphaMult = viewport.getAlphaMult();
             alphaMult *= entity.getSensorFaderBrightness();
             alphaMult *= entity.getSensorContactFaderBrightness();
             if (alphaMult <= 0f) return;
@@ -172,7 +171,6 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
             return;
         }
 
-        float alphaMult = viewport.getAlphaMult();
         alphaMult *= entity.getSensorFaderBrightness();
         alphaMult *= entity.getSensorContactFaderBrightness();
         if (alphaMult <= 0) return;
@@ -250,6 +248,14 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
         }
     }
 
+    public CampaignTerrainAPI getMagField() {
+        return magField;
+    }
+
+    public void setMagField(CampaignTerrainAPI magField) {
+        this.magField = magField;
+    }
+
     public float getFlickerBasedMult(FlickerUtilV2 flicker) {
         float shortage = 0.5f;
         //float f = (1f - shortage) + (shortage * flicker.getBrightness());
@@ -272,85 +278,7 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
         return entity.getRadius() + 1200f;
     }
 
-    public static final String HAS_MAG_FIELD = "CrucibleHasMagField";
-
-    public static void generateMagneticField(SectorEntityToken token, float flareProbability, float width) {
-        //if (!(context.star instanceof PlanetAPI)) return null;
-
-        StarSystemAPI system = token.getStarSystem();
-        token.addTag(HAS_MAG_FIELD);
-
-        int baseIndex = (int) (baseColors.length * StarSystemGenerator.random.nextFloat());
-        int auroraIndex = (int) (auroraColors.length * StarSystemGenerator.random.nextFloat());
-
-        float bandWidth = token.getRadius() + width;
-        float midRadius = 350f;
-        float visStartRadius = token.getRadius();
-        float visEndRadius = token.getRadius() + width + 50f;
-
-        SectorEntityToken magField = system.addTerrain(Terrain.MAGNETIC_FIELD,
-                new MagneticFieldTerrainPlugin.MagneticFieldParams(bandWidth, // terrain effect band width
-                        midRadius, // terrain effect middle radius
-                        token, // entity that it's around
-                        visStartRadius, // visual band start
-                        visEndRadius, // visual band end
-                        baseColors[baseIndex], // base color
-                        flareProbability, // probability to spawn aurora sequence, checked once/day when no aurora in progress
-                        auroraColors[auroraIndex]
-                ));
-
-        magField.setCircularOrbit(token, 0, 0, 100);
+    public float getActivityLevel() {
+        return entity.getMemoryWithoutUpdate().getFloat(MEM_ACTIVITY_LEVEL);
     }
-
-
-    public static Color [] baseColors = {
-            new Color(255, 50, 50, 100),
-            //new Color(50, 30, 100, 30),
-            //new Color(75, 105, 165, 75)
-    };
-
-    public static Color[][] auroraColors = {
-            {new Color(235, 100, 140),
-                    new Color(210, 110, 180),
-                    new Color(190, 140, 150),
-                    new Color(210, 190, 140),
-                    new Color(170, 200, 90),
-                    new Color(160, 230, 65),
-                    new Color(220, 70, 20)},
-            {new Color(110, 20, 50, 130),
-                    new Color(120, 30, 150, 150),
-                    new Color(130, 50, 200, 190),
-                    new Color(150, 70, 250, 240),
-                    new Color(130, 80, 200, 255),
-                    new Color(160, 0, 75),
-                    new Color(255, 0, 127)},
-            {new Color(140, 180, 90),
-                    new Color(190, 145, 130),
-                    new Color(225, 110, 165),
-                    new Color(240, 55, 95),
-                    new Color(250, 0, 45),
-                    new Color(240, 0, 20),
-                    new Color(150, 0, 10)},
-            {new Color(40, 180, 90),
-                    new Color(90, 145, 130),
-                    new Color(145, 110, 165),
-                    new Color(160, 55, 95),
-                    new Color(130, 0, 45),
-                    new Color(130, 0, 20),
-                    new Color(150, 0, 10)},
-            {new Color(110, 20, 50, 130),
-                    new Color(120, 30, 150, 150),
-                    new Color(130, 50, 200, 190),
-                    new Color(150, 70, 250, 240),
-                    new Color(130, 80, 200, 255),
-                    new Color(160, 0, 75),
-                    new Color(255, 0, 127)},
-            {new Color(140, 60, 55),
-                    new Color(155, 85, 65),
-                    new Color(165, 105, 175),
-                    new Color(180, 130, 90),
-                    new Color(190, 150, 105),
-                    new Color(205, 175, 120),
-                    new Color(220, 200, 135)},
-    };
 }

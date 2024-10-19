@@ -9,11 +9,16 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.crucible.ability.YeetScript;
+import indevo.exploration.crucible.scripts.VariableOrbitScript;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.ReflectionUtils;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
+
+import static indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin.MEM_ACTIVITY_LEVEL;
+import static indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin.TAG_ENABLED;
 
 public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
 
@@ -43,7 +48,6 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
     public String targetEntity;
     public String pairedCatapult = null;
     public float currentExplosionSize = DEFAULT_EXPLOSION_SIZE;
-    public boolean orbitSet = false;
 
     SectorEntityToken focus;
 
@@ -51,9 +55,9 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         super.init(entity, pluginParams);
         //this.entity = entity;
 
-        targetEntity = ((YeetopultParams) pluginParams).target;
-        color = ((YeetopultParams) pluginParams).color;
-        focus = ((YeetopultParams) pluginParams).focus;
+        this.targetEntity = ((YeetopultParams) pluginParams).target;
+        this.color = ((YeetopultParams) pluginParams).color;
+        this.focus = ((YeetopultParams) pluginParams).focus;
 
         entity.setDetectionRangeDetailsOverrideMult(0.75f);
         readResolve();
@@ -105,10 +109,9 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
 
         //manual orbit if it's a crucible bound one
         if (entity.hasTag("IndEvo_orbits_crucible")) {
-            if (enabled && !orbitSet){
-                //set new orbit with a tenth of the orbit time
-                entity.setCircularOrbit(entity.getOrbitFocus(), entity.getCircularOrbitAngle(), entity.getCircularOrbitRadius(), entity.getCircularOrbitPeriod() / 10f);
-                orbitSet = true;
+            if (enabled){
+                VariableOrbitScript orbit = VariableOrbitScript.get(entity);
+                if (orbit != null) orbit.setFactor(getActivityLevel());
             }
         }
     }
@@ -133,7 +136,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
-        if (getTarget() == null || color == null || !entity.hasTag(BaseCrucibleEntityPlugin.TAG_ENABLED)) return;
+        if (getTarget() == null || color == null || !entity.hasTag(TAG_ENABLED)) return;
 
         //we render above the station if doing anim, otherwise, station
         if (!doAnimation && layer == CampaignEngineLayers.ABOVE_STATIONS) return;
@@ -239,5 +242,13 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
 
     public void setPairedCatapult(SectorEntityToken t){
         pairedCatapult = t.getId();
+    }
+
+    public SectorEntityToken getPairedCatapult() {
+        return entity.getContainingLocation().getEntityById(pairedCatapult);
+    }
+
+    public float getActivityLevel() {
+        return entity.getMemoryWithoutUpdate().getFloat(MEM_ACTIVITY_LEVEL);
     }
 }

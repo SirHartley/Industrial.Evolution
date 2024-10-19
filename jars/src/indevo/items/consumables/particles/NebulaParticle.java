@@ -33,6 +33,10 @@ public class NebulaParticle {
         public Vector2f getLocation(Vector2f center){
             return MathUtils.getPointOnCircumference(center, radius, angle);
         }
+
+        public void incrementRadius(float byAmount){
+            radius += byAmount;
+        }
     }
 
     public NebulaParticle(float size, float angle, float alpha, float duration, Color originalColor, Color targetColor, LocationData pos) {

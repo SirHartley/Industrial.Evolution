@@ -338,7 +338,7 @@
 		"scaleIconWithZoom":true,
 		"renderCircleIndicator":false, # make clickable,
 		"layers":[TERRAIN_6, TERRAIN_5], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"tags":["IndEvo_crucible_part"],
+		"tags":["IndEvo_crucible_part", "IndEvo_crucible_gear"],
 		"pluginClass":"indevo.exploration.crucible.entities.CrucibleGearEntityPlugin"
 	},
 

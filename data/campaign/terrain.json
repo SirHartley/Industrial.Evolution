@@ -25,6 +25,15 @@
 	"IndEvo_SmokeCloud":{
 	"plugin":"indevo.items.consumables.terrain.SmokeCloudTerrain",
 	"musicSuppression":0.60,
+	},
+
+	"crucible_field":{
+	"plugin":"indevo.exploration.crucible.terrain.CrucibleFieldTerrainPlugin",
+	"musicSuppression":0.5,
+	# inside field
+	"loopOne":"terrain_magfield",
+	# inside active aurora/magnetic storm
+	"loopTwo":"terrain_magstorm",
 	}
 }
 
