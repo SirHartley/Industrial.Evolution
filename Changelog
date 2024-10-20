@@ -253,6 +253,7 @@ SPOILERS - Allows for fast travel between local planets. Incredibly good QOL, mu
 
 Derelict Industries
 Added - Industry option point to access the rift generator dialogue from the industry screen
+Adjusted - Rift Generator warp animation updated, it is no longer crusty as fuck.
 Adjusted - Will no longer spawn duplicate ruins in the same system (if two spawn, they will be different types)
 Adjusted - Hull Forge is now a structure (was an industry)
 Adjusted - Hull Forge beta core chance to get a working template instead of a broken one: 25% -> 60%

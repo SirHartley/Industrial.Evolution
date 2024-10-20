@@ -139,7 +139,8 @@ public class PlanetMovingScript implements EveryFrameScript {
     }
 
     private void renderWarpEffect(SectorEntityToken target) {
-        target.getStarSystem().addCustomEntity("IndEvo_WarpEffect", null, "IndEvo_WormHoleEffect", null, target);
+        Global.getSector().addScript(new WarpEffectAnimationScript(target));
+        //target.getStarSystem().addCustomEntity("IndEvo_WarpEffect", null, "IndEvo_WormHoleEffect", null, target);
     }
 
     private JumpPointAPI createJumpPoint(StarSystemAPI system, OrbitAPI orbit) {
@@ -408,7 +409,6 @@ public class PlanetMovingScript implements EveryFrameScript {
                 market.getConnectedEntities().remove(entity);
             }
         }
-
 
         //clear the old jump points
         cycleJumpPoints(oldPlanet, newFocus);

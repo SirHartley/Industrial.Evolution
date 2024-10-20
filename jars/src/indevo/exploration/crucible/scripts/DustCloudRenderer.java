@@ -18,26 +18,39 @@ import java.util.Random;
 
 public class DustCloudRenderer implements LunaCampaignRenderingPlugin {
     public static final float DURATION = 6f;
-    public static final float SPAWN_DUR = 0.4f;
+    /*public static final float SPAWN_DUR = 0.4f;
     public static final float SPEED = 150f;
     public static final float PARTICLES_PER_FRAME = 10f;
     public static final float BASE_NEBULA_PARTICLE_SIZE = 100f;
-    public static final float PARTICLE_LIFETIME = 2f;
+    public static final float PARTICLE_LIFETIME = 2f;*/
+
+    public SectorEntityToken centerEntity;
+    public float spawnDur;
+    public float speed;
+    public float particlesPerFrame;
+    public float particleSize;
+    public float particleLifetime;
+    public float baseAlpha;
 
     public Color originalColor = new Color(45, 30, 25, 255);
     public Color targetColor = new Color(25, 20, 20, 255);
 
     public float elapsed = 0f;
-    public SectorEntityToken crucible;
+
     public List<NebulaParticle> nebulaParticles = new ArrayList<>();
     public float angle;
-    public float radius;
-
+    public float animationRadius;
     public transient SpriteAPI nebulaSprite;
 
-    public DustCloudRenderer(SectorEntityToken crucible) {
-        this.crucible = crucible;
-        radius = 0.55f * crucible.getRadius();
+    public DustCloudRenderer(SectorEntityToken center, float animationRadius, float spawnDur, float speed, float particlesPerFrame, float particleSize, float particleLifetime, float baseAlpha) {
+        this.centerEntity = center;
+        this.animationRadius = animationRadius;
+        this.spawnDur = spawnDur;
+        this.speed = speed;
+        this.particlesPerFrame = particlesPerFrame;
+        this.particleSize = particleSize;
+        this.particleLifetime = particleLifetime;
+        this.baseAlpha = baseAlpha;
     }
 
     @Override
@@ -48,16 +61,16 @@ public class DustCloudRenderer implements LunaCampaignRenderingPlugin {
     @Override
     public void advance(float amount) {
         elapsed += amount;
-        if (elapsed < SPAWN_DUR) {
-            for (int i = 0; i < PARTICLES_PER_FRAME; i++) {
+        if (elapsed < spawnDur) {
+            for (int i = 0; i < particlesPerFrame; i++) {
                 Random random = new Random();
-                NebulaParticle.LocationData location = new NebulaParticle.LocationData(radius, MathUtils.getRandomNumberInRange(0, 360));
+                NebulaParticle.LocationData location = new NebulaParticle.LocationData(animationRadius, MathUtils.getRandomNumberInRange(0, 360));
                 float alpha = 0.1f + 0.7f * (random.nextFloat());
 
-                nebulaParticles.add(new NebulaParticle(BASE_NEBULA_PARTICLE_SIZE * alpha,
+                nebulaParticles.add(new NebulaParticle(particleSize * alpha,
                         (float) MathUtils.getRandomNumberInRange(0, 360),
                         alpha,
-                        (float) (PARTICLE_LIFETIME + Math.random()),
+                        (float) (particleLifetime+ Math.random()),
                         originalColor,
                         targetColor.darker(),
                         location));
@@ -66,7 +79,7 @@ public class DustCloudRenderer implements LunaCampaignRenderingPlugin {
 
         for (NebulaParticle particle : nebulaParticles) {
             particle.advance(amount);
-            particle.pos.incrementRadius(SPEED * amount * particle.baseAlpha);
+            particle.pos.incrementRadius(speed * amount * particle.baseAlpha);
         }
     }
 
@@ -82,7 +95,7 @@ public class DustCloudRenderer implements LunaCampaignRenderingPlugin {
         for (NebulaParticle p : nebulaParticles) {
             if (p.isExpired()) continue;
 
-            Vector2f loc = p.pos.getLocation(crucible.getLocation());
+            Vector2f loc = p.pos.getLocation(centerEntity.getLocation());
 
             nebulaSprite.setTexWidth(0.25f);
             nebulaSprite.setTexHeight(0.25f);
@@ -93,7 +106,7 @@ public class DustCloudRenderer implements LunaCampaignRenderingPlugin {
 
             nebulaSprite.setAngle(p.angle);
             nebulaSprite.setSize(p.size, p.size);
-            nebulaSprite.setAlphaMult(p.getCurrentAlpha());
+            nebulaSprite.setAlphaMult(p.getCurrentAlpha() * baseAlpha);
             nebulaSprite.setColor(p.color);
             nebulaSprite.renderAtCenter(loc.x, loc.y);
         }

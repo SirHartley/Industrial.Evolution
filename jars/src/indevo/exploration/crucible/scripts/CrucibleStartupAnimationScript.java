@@ -12,7 +12,6 @@ import indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin;
 import indevo.exploration.crucible.entities.YeetopultEntityPlugin;
 import indevo.exploration.crucible.terrain.CrucibleFieldTerrainPlugin;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
-import indevo.utils.ModPlugin;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -42,7 +41,7 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
     public IntervalUtil catapultActivationTimer = new IntervalUtil(CATAPULT_ACTIVATION_INTERVAL_SECONDS, CATAPULT_ACTIVATION_INTERVAL_SECONDS);
 
     public int currentCatapultIndex = 1;
-    public List<CrucibleAnimationStage> stages = new ArrayList<>();
+    public List<AnimationStage> stages = new ArrayList<>();
 
     public boolean done = false;
 
@@ -64,9 +63,9 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
         float totalDelay = 0f;
         float fistStageRuntime = (catapults.size()) + 1 * CATAPULT_ACTIVATION_INTERVAL_SECONDS + 0.03f;
 
-        stages.add(new CrucibleAnimationStage(fistStageRuntime, 0f) {
+        stages.add(new AnimationStage(fistStageRuntime, 0f) {
             @Override
-            void run(float amt) {
+            public void run(float amt) {
                 catapultActivationTimer.advance(amt);
                 if (catapultActivationTimer.intervalElapsed()) {
                     if (catapults.containsKey(currentCatapultIndex)) {
@@ -88,7 +87,7 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
             }
 
             @Override
-            void runOnce() {
+            public void runOnce() {
 
             }
         });
@@ -96,27 +95,64 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
         totalDelay += fistStageRuntime;
         totalDelay += CATAPULTS_ENABLED_ROTATION_START_DELAY;
 
-        stages.add(new CrucibleAnimationStage(0.1f, totalDelay) {
+        stages.add(new AnimationStage(0.1f, totalDelay) {
             @Override
-            void run(float amt) {
+            public void run(float amt) {
 
             }
 
             @Override
-            void runOnce() {
+            public void runOnce() {
+                //make smoke and asteroids spawn to signal the entire assembly starting to move
+
                 float volumeDistance = 1000f; //nothing at 1000f
                 float distance = Misc.getDistance(Global.getSector().getPlayerFleet(), crucible);
                 float fract = 1 - MathUtils.clamp(distance / volumeDistance, 0,1);
                 Global.getSoundPlayer().playSound("IndEvo_crucible_start", 1f, fract * 0.5f, crucible.getLocation(), new Vector2f(0f, 0f));
 
-                LunaCampaignRenderer.addRenderer(new DustCloudRenderer(crucible));
-                //make smoke and asteroids spawn to signal the entire assembly starting to move
+                LunaCampaignRenderer.addRenderer(new DustCloudRenderer(
+                        crucible,
+                        0.55f * crucible.getRadius(),
+                        0.4f,
+                        150f,
+                        10f,
+                        100f,
+                        2f,
+                        1f));
+
             }
         });
 
-        stages.add(new CrucibleAnimationStage(GEAR_SCAFFOLD_CATAPULT_RAMP_UP_TIME, totalDelay) {
+        totalDelay += 1f;
+
+        stages.add(new AnimationStage(0.1f, totalDelay) {
             @Override
-            void run(float amt) {
+            public void run(float amt) {
+
+            }
+
+            @Override
+            public void runOnce() {
+                float volumeDistance = 1000f; //nothing at 1000f
+                float distance = Misc.getDistance(Global.getSector().getPlayerFleet(), crucible);
+                float fract = 1 - MathUtils.clamp(distance / volumeDistance, 0,1);
+                Global.getSoundPlayer().playSound("IndEvo_crucible_start", 0.7f, fract * 0.4f, crucible.getLocation(), new Vector2f(0f, 0f));
+
+                LunaCampaignRenderer.addRenderer(new DustCloudRenderer(
+                        crucible,
+                        0.55f * crucible.getRadius(),
+                        0.2f,
+                        75f,
+                        5f,
+                        60f,
+                        1f,
+                        1f));
+            }
+        });
+
+        stages.add(new AnimationStage(GEAR_SCAFFOLD_CATAPULT_RAMP_UP_TIME, totalDelay) {
+            @Override
+            public void run(float amt) {
                 //enable & ramp up gears + scaffold + catapults
                 float factor = Math.min(timePassed / runtime, 1f);
 
@@ -126,7 +162,7 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
             }
 
             @Override
-            void runOnce() {
+            public void runOnce() {
                 for (SectorEntityToken catapult : catapults.values()) setEnabled(catapult);
                 for (SectorEntityToken gear : gears) setEnabled(gear);
                 setEnabled(scaffold);
@@ -135,13 +171,13 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
 
         totalDelay += MAIN_CRUCIBLE_ACTIVATION_DELAY;
 
-        stages.add(new CrucibleAnimationStage(0.1f, totalDelay) {
+        stages.add(new AnimationStage(0.1f, totalDelay) {
             @Override
-            void run(float amt) {
+            public void run(float amt) {
             }
 
             @Override
-            void runOnce() {
+            public void runOnce() {
                 //main crucible activation sequence
                 setEnabled(crucible);
                 magField = CrucibleFieldTerrainPlugin.generate(crucible, 1f, MAGNETIC_FIELD_WIDTH);
@@ -161,13 +197,14 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
 
                 params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.NONE;
                 SectorEntityToken explosion = crucible.getContainingLocation().addCustomEntity(Misc.genUID(), "Explosion", "IndEvo_VariableExplosion", Factions.NEUTRAL, params);
-                explosion.setLocation(crucible.getLocation().x, crucible.getLocation().y);
+                explosion.setCircularOrbit(crucible, 0f, 0f, 0f);
+                //explosion.setLocation(crucible.getLocation().x, crucible.getLocation().y);
             }
         });
 
-        stages.add(new CrucibleAnimationStage(MAIN_CRUCIBLE_ACTIVATION_RAMP_UP_TIME, totalDelay) {
+        stages.add(new AnimationStage(MAIN_CRUCIBLE_ACTIVATION_RAMP_UP_TIME, totalDelay) {
             @Override
-            void run(float amt) {
+            public void run(float amt) {
                 //main crucible ramp up
 
                 float factor = Math.min(timePassed / runtime, 1f);
@@ -176,7 +213,7 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
             }
 
             @Override
-            void runOnce() {
+            public void runOnce() {
 
             }
         });
@@ -197,8 +234,8 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
     public void advance(float amount) {
         if (done) return;
 
-        for (CrucibleAnimationStage stage : stages) stage.advance(amount);
-        for (CrucibleAnimationStage stage : stages) if (!stage.isDone()) return;
+        for (AnimationStage stage : stages) stage.advance(amount);
+        for (AnimationStage stage : stages) if (!stage.isDone()) return;
         done = true; //only reached if all stages in anim are done
     }
 

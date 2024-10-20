@@ -1,13 +1,13 @@
 package indevo.exploration.crucible.scripts;
 
-public abstract class CrucibleAnimationStage {
+public abstract class AnimationStage {
     public final float runtime;
     public float timePassed = 0f;
     public float timePassedTotal = 0f;
     public final float delayBySeconds;
     private boolean runOnce = false;
 
-    public CrucibleAnimationStage(float runtime, float delayBySeconds) {
+    public AnimationStage(float runtime, float delayBySeconds) {
         this.runtime = runtime;
         this.delayBySeconds = delayBySeconds;
     }
@@ -30,6 +30,6 @@ public abstract class CrucibleAnimationStage {
         }
     }
 
-    abstract void run(float amt);
-    abstract void runOnce();
+    public abstract void run(float amt);
+    public abstract void runOnce();
 }
