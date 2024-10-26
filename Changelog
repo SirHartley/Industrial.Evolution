@@ -262,6 +262,7 @@ Adjusted - Will no longer spawn duplicate ruins in the same system (if two spawn
 Adjusted - Hull Forge is now a structure (was an industry)
 Adjusted - Hull Forge beta core chance to get a working template instead of a broken one: 25% -> 60%
 Adjusted - Rift Generator will no longer spawn on planets with an artillery
+Fixed - Can no longer crash the game by shutting down a rift generator while moving
 Fixed - Crash when a ResLab is manually added to a planet on new game ProcGen
 Fixed - Gave Hull Deconstructor the structure tag
 Fixed - No longer (almost) exclusively spawn on abyss planets

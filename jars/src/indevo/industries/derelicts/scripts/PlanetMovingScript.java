@@ -17,6 +17,8 @@ import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.campaign.CircularOrbit;
 import com.fs.starfarer.campaign.CircularOrbitPointDown;
 import com.fs.starfarer.campaign.CircularOrbitWithSpin;
+import indevo.ids.Ids;
+import indevo.industries.derelicts.industry.RiftGenerator;
 import indevo.industries.derelicts.listeners.PlanetJumpListener;
 import org.apache.log4j.Logger;
 
@@ -123,6 +125,8 @@ public class PlanetMovingScript implements EveryFrameScript {
                 reApplyStation();
 
                 triggerJumpListeners(newPlanet, oldSystem, targetSystem);
+
+                ((RiftGenerator) market.getIndustry(Ids.RIFTGEN)).setMoving(false);
 
                 setDone();
                 break;

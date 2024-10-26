@@ -243,10 +243,9 @@ IndEvo_fireColonyOptions,DialogOptionSelected,$option == IndEvo_fireColonyOption
 IndEvo_selectReturnToSelectColonyOptionPoint,IndEvo_ColonyOptionPoint,,"SetShortcut IndEvo_SelectreturnToMenu ""ESCAPE""",,9:IndEvo_SelectreturnToMenu:Return,
 IndEvo_SelectreturnToMenu,DialogOptionSelected,$option == IndEvo_SelectreturnToMenu,"$menuState = main 0
 FireAll PopulateOptions",,,
-IndEvo_SelectreturnToMenu_close,DialogOptionSelected,"$option == IndEvo_SelectreturnToMenu
-$IndEvo_closeDialogueOnNextReturn","$IndEvo_closeDialogueOnNextReturn = false
+IndEvo_SelectreturnToMenu_close,DialogOptionSelected,"$IndEvo_closeDialogueOnNextReturn
+$option == IndEvo_SelectreturnToMenu","$IndEvo_closeDialogueOnNextReturn = false
 DismissDialog",,,
-,,,,,,
 ,,,,,,
 #END Colony options base menu,,,,,,
 ,,,,,,
@@ -572,19 +571,18 @@ Just pull the lever, you know you want it.","1:IndEvo_RiftTarget_RANDOM_init:Pul
 2:IndEvo_IntitiateRiftGenMenu:Chicken out",
 ,,,,,,
 IndEvo_RiftTarget_COLONY_init,DialogOptionSelected,$option == IndEvo_RiftTarget_COLONY_init,"IndEvo_RiftInit COLONY
-$menuState = main 0
-FireAll PopulateOptions","Ancient relays click into place. The crackling of raw energy drowns out any other sound as the machinery spools up, preparing for a jump.",,
+FireBest AddRiftgenLeaveOption","Ancient relays click into place. The crackling of raw energy drowns out any other sound as the machinery spools up, preparing for a jump.",,
 IndEvo_RiftTarget_CORE_init,DialogOptionSelected,$option == IndEvo_RiftTarget_CORE_init,"IndEvo_RiftInit CORE
-$menuState = main 0
-FireAll PopulateOptions","Ancient relays click into place. The crackling of raw energy drowns out any other sound as the machinery spools up, preparing for a jump.",,
+FireBest AddRiftgenLeaveOption","Ancient relays click into place. The crackling of raw energy drowns out any other sound as the machinery spools up, preparing for a jump.",,
 IndEvo_RiftTarget_FRINGE_init,DialogOptionSelected,$option == IndEvo_RiftTarget_FRINGE_init,"IndEvo_RiftInit FRINGE
-$menuState = main 0
-FireAll PopulateOptions","Ancient relays click into place. The crackling of raw energy drowns out any other sound as the machinery spools up, preparing for a jump.",,
+FireBest AddRiftgenLeaveOption","Ancient relays click into place. The crackling of raw energy drowns out any other sound as the machinery spools up, preparing for a jump.",,
 IndEvo_RiftTarget_RANDOM_init,DialogOptionSelected,$option == IndEvo_RiftTarget_RANDOM_init,"IndEvo_RiftInit RANDOM
-$menuState = main 0
-FireAll PopulateOptions","You time the pull for dramatic effect. Whatever the guy was doing with the control console, it is probably less important than having style.
+FireBest AddRiftgenLeaveOption","You time the pull for dramatic effect. Whatever the guy was doing with the control console, it is probably less important than having style.
 
 There is a muted explosion in another room.",,
+,,,,,,
+IndEvo_RiftTarget_EngageLeave,AddRiftgenLeaveOption,,"SetShortcut IndEvo_RiftTargetCloseDialogue ""ESCAPE""",,1:IndEvo_RiftTargetCloseDialogue:Leave,
+IndEvo_RiftTargetCloseDialogue,DialogOptionSelected,$option == IndEvo_RiftTargetCloseDialogue,DismissDialog,,,
 ,,,,,,
 # Rift Base Menu,,,,,,
 IndEvo_FireBaseRGOptionList,IndEvo_FireBaseRGOptionList,$IndEvo_closeDialogueOnNextReturn,FireAll IndEvo_RiftGenTargetOptions,"The claustrophobic control center, while restored, still looks ancient. A seemingly permanent layer of dust covers the alien looking control panels, dimming the light emitted by hundreds of gauges and indicators. It is unclear if they are actually working.

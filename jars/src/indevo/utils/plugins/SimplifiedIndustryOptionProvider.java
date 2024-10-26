@@ -28,7 +28,7 @@ public abstract class SimplifiedIndustryOptionProvider implements IndustryOption
     }
 
     @Override
-    public java.util.List<IndustryOptionData> getIndustryOptions(Industry ind) {
+    public List<IndustryOptionData> getIndustryOptions(Industry ind) {
         if (!isSuitable(ind, false)) return null;
 
         List<IndustryOptionData> result = new ArrayList<IndustryOptionData>();

@@ -9,6 +9,7 @@ import com.fs.starfarer.api.impl.campaign.RuleBasedInteractionDialogPluginImpl;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
+import indevo.industries.derelicts.industry.RiftGenerator;
 import indevo.utils.plugins.SimplifiedIndustryOptionProvider;
 
 public class RiftGenOptionProvider extends SimplifiedIndustryOptionProvider {
@@ -18,6 +19,11 @@ public class RiftGenOptionProvider extends SimplifiedIndustryOptionProvider {
         if (!listeners.hasListenerOfClass(RiftGenOptionProvider.class)) {
             listeners.addListener(new RiftGenOptionProvider(), true);
         }
+    }
+
+    @Override
+    public boolean isSuitable(Industry ind, boolean allowUnderConstruction) {
+        return super.isSuitable(ind, allowUnderConstruction) && ((RiftGenerator) ind).isReadyToMove();
     }
 
     @Override

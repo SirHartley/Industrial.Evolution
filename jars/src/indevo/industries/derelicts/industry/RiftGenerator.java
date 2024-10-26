@@ -39,6 +39,8 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
 
     private float rangeRadiusLY = 9f;
 
+    public boolean isMoving = false;
+
     public enum TargetMode {
         CORE,
         COLONY,
@@ -139,6 +141,11 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
         }
     }
 
+    @Override
+    public boolean canShutDown() {
+        return super.canShutDown() && !isMoving;
+    }
+
     public boolean moveIsLegal() {
         boolean legal = true;
 
@@ -181,6 +188,8 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
         } else {
             log.warn("Cannot move planet: target returned base system");
         }
+
+        isMoving = true;
     }
 
     private List<StarSystemAPI> getNearbySystems(Vector2f center, float distLY) {
@@ -379,6 +388,10 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
         return "none";
     }
 
+    public void setMoving(boolean moving) {
+        isMoving = moving;
+    }
+
     @Override
     protected void applyAICoreModifiers() {
         super.applyAICoreModifiers();
@@ -392,6 +405,12 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
     private int getDaysRequired() {
         daysRequired = Settings.getInt(Settings.RG_COOLDOWN_TIME);
         return getAiCoreIdNotNull().equals(Commodities.ALPHA_CORE) ? daysRequired - alphaCoreDayReduction : daysRequired;
+    }
+
+    @Override
+    protected void addPostDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
+        super.addPostDescriptionSection(tooltip, mode);
+        if (isMoving) tooltip.addPara("Preparing to move the planet, can not be shut down or accessed.", 10f, Misc.getNegativeHighlightColor());
     }
 
     //AI-Core tooltips
