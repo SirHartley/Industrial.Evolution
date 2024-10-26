@@ -1,10 +1,7 @@
 package indevo.industries.changeling.industry.population;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CargoAPI;
-import com.fs.starfarer.api.campaign.InteractionDialogAPI;
-import com.fs.starfarer.api.campaign.PlanetAPI;
-import com.fs.starfarer.api.campaign.SubmarketPlugin;
+import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
@@ -256,6 +253,11 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
     //more for sat bombing
     //raiding to disrupt should give more than raiding for valuables
 
+    public void reportPrivateerBaseRaidFinished(StarSystemAPI system, boolean success) {
+        String id = system.getId() + "_getPrivateerSamples";
+        raidMods.put(id, new RaidMod(31*2, "Raid (Privateers): " + system.getName(), success ? 0.1f : 0.05f));
+    }
+
     @Override
     public void reportRaidForValuablesFinishedBeforeCargoShown(InteractionDialogAPI dialog, MarketAPI market, MarketCMD.TempData actionData, CargoAPI cargo) {
         String id = market.getId() + "_getSamples";
@@ -278,6 +280,11 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
     public void reportSaturationBombardmentFinished(InteractionDialogAPI dialog, MarketAPI market, MarketCMD.TempData actionData) {
         String id = market.getId() + "_>v^^<vv";
         raidMods.put(id, new RaidMod(31*12, "Saturation Bombardment: " + market.getName(), 0.25f));
+    }
+
+    public void reportNexerelinInvasionSuccess(MarketAPI market) {
+        String id = market.getId() + "_nexInvasion";
+        raidMods.put(id, new RaidMod(31*12, "Successful Invasion: " + market.getName(), 0.2f));
     }
 
     public HelldiversSubIndustry(SubIndustryData data) {

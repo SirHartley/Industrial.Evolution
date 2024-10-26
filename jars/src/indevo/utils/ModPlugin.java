@@ -61,6 +61,7 @@ import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
 import indevo.industries.changeling.industry.population.RuralPolitySubIndustry;
+import indevo.industries.changeling.listener.ManagedDemocracyNexerelinListenerPlugin;
 import indevo.industries.changeling.listener.MarineLossAmplifcationHullmodEffectListener;
 import indevo.industries.changeling.plugins.ChangelingMiningOptionProvider;
 import indevo.industries.changeling.plugins.ChangelingPopulationOptionProvider;
@@ -145,8 +146,6 @@ public class ModPlugin extends BaseModPlugin {
         boolean devActions = true; //Todo SET TO FALSE FOR RELEASE
 
         if (devmode && devActions && newGame) {
-
-
 
 //            PersonAPI admin = OfficerManagerEvent.createAdmin(Global.getSector().getPlayerFaction(), 0, new Random());
 //            admin.getStats().setSkillLevel("indevo_Micromanagement", 1);
@@ -395,26 +394,14 @@ public class ModPlugin extends BaseModPlugin {
 
     private void setListenersIfNeeded() {
         SpecialItemEffectsRepo.initEffectListeners();
-
-        ListenerManagerAPI l = Global.getSector().getListenerManager();
-
-        if (!l.hasListenerOfClass(ResourceConditionApplicator.class))
-            l.addListener(new ResourceConditionApplicator(), true);
-        if (!l.hasListenerOfClass(RuinsManager.ResolveRuinsToUpgradeListener.class))
-            l.addListener(new RuinsManager.ResolveRuinsToUpgradeListener(), true);
-        if (!l.hasListenerOfClass(DepositMessage.class)) l.addListener(new DepositMessage(), true);
-        if (!l.hasListenerOfClass(AmbassadorPersonManager.class))
-            l.addListener(new AmbassadorPersonManager(), true);
-        if (!l.hasListenerOfClass(RaidTimeout.class)) l.addListener(new RaidTimeout(), true);
-        if (!l.hasListenerOfClass(ShipComponentLootManager.PartsCargoInterceptor.class))
-            l.addListener(new ShipComponentLootManager.PartsCargoInterceptor(), true);
-        if (!l.hasListenerOfClass(DoritoGunFoundChecker.class))
-            l.addListener(new DoritoGunFoundChecker(), true);
-
-        Global.getSector().addTransientListener(new ShipComponentLootManager.PartsLootAdder(false));
-        Global.getSector().addTransientListener(new AmbassadorPersonManager.checkAmbassadorPresence());
-        //Global.getSector().addTransientListener(new DialogueInterceptListener(false));
-
+        ResourceConditionApplicator.register();
+        DepositMessage.register();
+        AmbassadorPersonManager.register();
+        RaidTimeout.register();
+        ShipComponentLootManager.PartsCargoInterceptor.register();
+        DoritoGunFoundChecker.register();
+        ShipComponentLootManager.PartsLootAdder.register();
+        AmbassadorPersonManager.checkAmbassadorPresence.register();
         RuinsManager.DerelictRuinsPlacer.register();
         RuinsManager.ResolveRuinsToUpgradeListener.register();
         ShippingManager.getInstanceOrRegister();
@@ -453,6 +440,7 @@ public class ModPlugin extends BaseModPlugin {
         RiftGenOptionProvider.register();
         TargetingReticuleInputListener.getInstanceOrRegister();
         FleetConsumableInventoryManager.register();
+        if (Global.getSettings().getModManager().isModEnabled("nexerelin")) ManagedDemocracyNexerelinListenerPlugin.register();
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();
     }

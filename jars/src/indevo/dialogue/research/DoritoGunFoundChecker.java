@@ -14,6 +14,9 @@ public class DoritoGunFoundChecker implements ShowLootListener, EconomyTickListe
 
     private static final String HAS_FOUND_GUN_KEY = "$IndEvo_HasFoundDoritoGun";
 
+    public static void register(){
+        Global.getSector().getListenerManager().addListener(new DoritoGunFoundChecker(), true);
+    }
     public static boolean isGunFound() {
         return Global.getSector().getMemoryWithoutUpdate().getBoolean(HAS_FOUND_GUN_KEY);
     }

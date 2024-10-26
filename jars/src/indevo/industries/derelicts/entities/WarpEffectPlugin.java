@@ -11,6 +11,11 @@ import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import indevo.industries.derelicts.scripts.PlanetMovingScript;
 import org.lwjgl.util.vector.Vector2f;
 
+/**
+ * replaced by WarpEffectAnimationScript
+ */
+
+@Deprecated
 public class WarpEffectPlugin extends BaseCustomEntityPlugin {
 
     transient private SpriteAPI sprite; // needs to be transient - can't save sprites

@@ -15,6 +15,10 @@ public class ResourceConditionApplicator implements PlayerColonizationListener, 
         }
     }
 
+    public static void register(){
+        Global.getSector().getListenerManager().addListener(new ResourceConditionApplicator(), true);
+    }
+
     @Override
     public void reportPlayerColonizedPlanet(PlanetAPI planetAPI) {
         MarketAPI m = planetAPI.getMarket();

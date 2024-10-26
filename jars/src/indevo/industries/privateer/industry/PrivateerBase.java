@@ -192,10 +192,19 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
             RaidTimeout.addRaidedSystem(system, timeout, !market.isPlayerOwned());
             if (market.isPlayerOwned()) spoilsOfWar(system);
+            if (isDemocratic) {
+                HelldiversSubIndustry subIndustry = (HelldiversSubIndustry) ((SwitchablePopulation) market.getIndustry(Industries.POPULATION)).getCurrent();
+                subIndustry.reportPrivateerBaseRaidFinished(system, true);
+            }
 
         } else {
             raidTimeoutMonths += 1;
             RaidTimeout.addRaidedSystem(raid.getSystem(), 1f, !market.isPlayerOwned());
+
+            if (isDemocratic) {
+                HelldiversSubIndustry subIndustry = (HelldiversSubIndustry) ((SwitchablePopulation) market.getIndustry(Industries.POPULATION)).getCurrent();
+                subIndustry.reportPrivateerBaseRaidFinished(system, false);
+            }
 
             //don't give output if failstage is smaller action stage
             if (raid.getFailStage() >= raid.getStageIndex(raid.getActionStage())) {

@@ -20,6 +20,7 @@ import exerelin.campaign.DiplomacyManager;
 import indevo.ids.Ids;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.industry.Embassy;
+import indevo.items.listeners.ShipComponentLootManager;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
@@ -45,6 +46,10 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
 
     public static AmbassadorPersonManager getInstance() {
         return Global.getSector().getListenerManager().getListeners(AmbassadorPersonManager.class).get(0);
+    }
+
+    public static void register(){
+        Global.getSector().getListenerManager().addListener(new AmbassadorPersonManager(), true);
     }
 
     @Override
@@ -446,6 +451,10 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
     public static class checkAmbassadorPresence extends BaseCampaignEventListener {
         public checkAmbassadorPresence() {
             super(false);
+        }
+
+        public static void register(){
+            Global.getSector().addTransientListener(new checkAmbassadorPresence());
         }
 
         @Override

@@ -147,9 +147,10 @@ Fixed - New Project intel no longer classed as major event
 Fixed - New Project intel now despawns after 31 days
 
 Artillery
-Added - Watchtowers now reset to the controlling faction after 31 days if the station is under AI control to avoid deadlocked artillery stations
+Added - Watchtowers now reset to the controlling faction after 31 days if the station is under AI control to avoid deadlocked artillery station
 Adjusted - Increased delay between shots by 2 seconds
 Adjusted - Watchtowers under AI control can now be hacked, but not taken over
+Fixed - Artillery Eye no longer displays when UI is disabled
 Fixed - No longer spawn on abyss planets
 Fixed - No longer spawn in "special" systems
 Fixed - Other Mods will no longer spawn an Artillery on game start if the setting is toggled off provided they spawn it via condition
@@ -184,6 +185,9 @@ Added - "Can not transfer" text for ships with the unrestorable tag
 
 Engineering Hub
 Fixed - Modular ships now have their modules stripped of weapons and fighters when deconstructed
+
+Requisitions Centre
+Added - Now sells consumable items like a military market
 
 Academy
 Added - Industry option point to access the dialogue from the industry screen

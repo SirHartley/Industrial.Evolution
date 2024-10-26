@@ -9,6 +9,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.utils.ModPlugin;
 
@@ -50,8 +51,9 @@ public class ConsumableItemMarketAdder extends BaseCampaignEventListener {
         boolean isMil = id.equals(Submarkets.GENERIC_MILITARY);
         boolean isBoringSubmarket = submarket.isIllegalOnSubmarket(Global.getFactory().createCargoStack(CargoAPI.CargoItemType.RESOURCES, Commodities.LUXURY_GOODS, null), SubmarketPlugin.TransferAction.PLAYER_SELL);
         boolean isOpenOrBlack = id.equals(Submarkets.SUBMARKET_OPEN) || id.equals(Submarkets.SUBMARKET_BLACK);
+        boolean isRequisitions = id.equals(Ids.REQMARKET);
 
-        if (isOpenOrBlack && !isBoringSubmarket) {
+        if ((isOpenOrBlack && !isBoringSubmarket) || isRequisitions) {
             WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
 
             //always
@@ -80,7 +82,7 @@ public class ConsumableItemMarketAdder extends BaseCampaignEventListener {
             ((BaseSubmarketPlugin) submarket.getPlugin()).setSinceSWUpdate(0.001f);
         }
 
-        if (isMil){
+        if (isMil || isRequisitions){
             if (Factions.PIRATES.equals(faction) || Factions.LUDDIC_PATH.equals(faction) || Factions.LUDDIC_CHURCH.equals(faction)) return;
 
             //military only
@@ -94,7 +96,7 @@ public class ConsumableItemMarketAdder extends BaseCampaignEventListener {
             picker.add(ItemIds.CONSUMABLE_MISSILE_SMOKE, 20);
 
             //nothing
-            picker.add("nothing", 200);
+            picker.add("nothing", isRequisitions ? 100: 200);
 
             for (int i = 0; i < 6; i++) {
                 String itemId = picker.pick();

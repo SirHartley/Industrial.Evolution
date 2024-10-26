@@ -48,6 +48,10 @@ public class ShipComponentLootManager {
             super(permaRegister);
         }
 
+        public static void register(){
+            Global.getSector().addTransientListener(new PartsLootAdder(false));
+        }
+
         public void reportFleetSpawned(CampaignFleetAPI fleet) {
             if (FleetUtils.isDetachmentFleet(fleet)) return;
 
@@ -69,6 +73,9 @@ public class ShipComponentLootManager {
     }
 
     public static class PartsCargoInterceptor implements ShowLootListener {
+        public static void register(){
+            Global.getSector().getListenerManager().addListener(new PartsCargoInterceptor(), true);
+        }
 
         @Override
         public void reportAboutToShowLootToPlayer(CargoAPI loot, InteractionDialogAPI dialog) {

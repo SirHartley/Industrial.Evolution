@@ -10,8 +10,11 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
-import static indevo.industries.derelicts.entities.WarpEffectPlugin.movePlanet;
+/**
+ * replaced by WarpEffectAnimationScript
+ */
 
+@Deprecated
 public class HoleEffectPlugin extends BaseCustomEntityPlugin {
 
     @Deprecated
@@ -69,7 +72,7 @@ public class HoleEffectPlugin extends BaseCustomEntityPlugin {
         if (Global.getSector().getPlayerFleet().getContainingLocation() != entity.getContainingLocation()) {
             if (Global.getSettings().isDevMode())
                 Global.getSector().getCampaignUI().addMessage("animation abort - moving planet, player left system");
-            movePlanet(target);
+            WarpEffectPlugin.movePlanet(target);
             phase = 6;
         }
 

@@ -18,6 +18,10 @@ import java.util.Map;
 
 public class DepositMessage implements EconomyTickListener {
 
+    public static void register(){
+        Global.getSector().getListenerManager().addListener(new DepositMessage(), true);
+    }
+
     public void reportEconomyTick(int iterIndex) {
     }
 

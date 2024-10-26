@@ -22,6 +22,10 @@ public class RaidTimeout implements EconomyTickListener {
         }
     }
 
+    public static void register(){
+        Global.getSector().getListenerManager().addListener(new RaidTimeout(), true);
+    }
+
     public static void addRaidedSystem(StarSystemAPI starSystem, Float timeout, boolean AI) {
         String key = AI ? AI_RAID_TIMEOUT_KEY : RAID_TIMEOUT_KEY;
         Map<String, Float> raidTimeoutMap = MiscIE.getMapFromMemory(key);

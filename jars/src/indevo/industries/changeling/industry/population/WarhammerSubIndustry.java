@@ -141,6 +141,8 @@ x can only be built on very hot worlds
                 ind.getUpkeep().modifyMult(getModId(), RURAL_BUILDING_UPKEEP_MULT, getName());
             }
         }
+
+        if(!isAvailableToBuild()) market.getStability().modifyFlat(getModId() + "_1", -10, getName() + " prerequisites not met");
     }
 
     @Override
@@ -150,6 +152,7 @@ x can only be built on very hot worlds
 
         industry.getIncome().unmodify(getModId());
         market.getStability().unmodify(getModId());
+        market.getStability().unmodify(getModId() + "_1");
         Global.getSector().getPlayerStats().getDynamic().getMod("custom_production_mod").unmodify(getModId());
 
         for (Industry ind : market.getIndustries()) {

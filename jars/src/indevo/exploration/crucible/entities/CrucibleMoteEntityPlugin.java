@@ -16,7 +16,7 @@ import java.awt.*;
 
 public class CrucibleMoteEntityPlugin extends BaseCustomEntityPlugin {
 
-    public static final float GLOW_SIZE = 30f;
+    public static final float GLOW_SIZE = 15f;
     public static final float PHASE_1_VEL = 90f;
     public static final float SINE_WAVE_MAX_VARIANCE = 70f;
 

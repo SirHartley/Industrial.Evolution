@@ -21,8 +21,7 @@ import java.util.Vector;
 
 public class WarpEffectAnimationScript implements EveryFrameScript {
 
-              /*"fx_flash":"graphics/fx/IndEvo_flash_new.png",
-                      "fx_succy_storm_desat":"graphics/fx/IndEvo_blackhole_desat.png",*/
+    //todo still missing sounds
 
     public static final float WHIRL_ROTATION_SPEED_ANGLE_PER_SEC = -40f;
     public static final float WHIRL_TWO_ROTATION_SPEED_ANGLE_PER_SEC = -80f;
@@ -219,7 +218,7 @@ public class WarpEffectAnimationScript implements EveryFrameScript {
 
                     @Override
                     public EnumSet<CampaignEngineLayers> getActiveLayers() {
-                        return EnumSet.of(CampaignEngineLayers.TERRAIN_5);
+                        return EnumSet.of(CampaignEngineLayers.TERRAIN_7A);
                     }
 
                     @Override

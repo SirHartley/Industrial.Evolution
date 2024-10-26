@@ -53,7 +53,7 @@ public class WatchtowerEyeIndicator implements CustomCampaignEntityPlugin {
     }
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
-        if (state == State.NONE) return;
+        if (state == State.NONE || Global.getSector().getCampaignUI().isHideUI()) return;
 
         Color color;
 

@@ -25,7 +25,6 @@ public class CamouflageRefitListener extends BaseCampaignEventListener {
         Global.getSector().addTransientListener(new CamouflageRefitListener(false));
     }
 
-
     public void updateMembers(List<FleetMemberAPI> members){
         for (FleetMemberAPI m : members){
             ShipVariantAPI variant = m.getVariant();
