@@ -54,7 +54,6 @@ Requests
 
   >>> I care <<<
 - remote doesn't tell you if the target loc is illegal
-- Crucible shows up in map even if not discovered
 
   >>> I do not care <<<
 - Marine xp get wiped with detachments - lmao no fuck it that one's cancer to fix
@@ -121,6 +120,7 @@ Adjusted - Drastically reduced drop rates for special items, again (now matches 
 Adjusted - Drive bubble spike now fires when a fleet is in range regardless of hostility
 Adjusted - Drive bubble  Spike drop rate halved everywhere
 Adjusted - Restoration Nanite drop rate increased
+Fixed - Simulation Engine is now RTX instead of GTX. I bow to the peer pressure.
 
 Hullmods
 Added - Hellpods. They do what you'd expect them to do: getting your marines killed.

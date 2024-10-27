@@ -184,6 +184,10 @@ public class CrucibleSpawner {
             scaffold.setFacing(MathUtils.getRandomNumberInRange(0, 360));
         }
 
+        top.setDiscoverable(true);
+        top.setDiscoveryXP(1000f);
+        top.setSensorProfile(3000f);
+
         PlanetAPI sun = ((StarSystemAPI) loc).getStar();
         if (sun != null && !loc.isNebula()) {
             float adjustedOrbitDur = Math.min(364f, 31f / (1000f / Misc.getDistance(pos, sun.getLocation())));
@@ -233,6 +237,10 @@ public class CrucibleSpawner {
             SectorEntityToken crucibleCatapult = getCatapult(crucible, planet, color, false);
             crucibleBoundCatapults.add(crucibleCatapult);
             SectorEntityToken catapult = getCatapult(planet, crucibleCatapult, color, true);
+
+            catapult.setDiscoverable(true);
+            catapult.setDiscoveryXP(100f);
+            catapult.setSensorProfile(1500f);
 
             ((YeetopultEntityPlugin) crucibleCatapult.getCustomPlugin()).setPairedCatapult(catapult);
             ((YeetopultEntityPlugin) catapult.getCustomPlugin()).setPairedCatapult(crucibleCatapult);
@@ -298,7 +306,7 @@ public class CrucibleSpawner {
     }
 
     public static void spawnGears(SectorEntityToken crucible){
-        float outerRim = (crucible.getCustomEntitySpec().getSpriteHeight() * 0.55f) / 2f;
+        float outerRim = (crucible.getCustomEntitySpec().getSpriteHeight() * 0.54f) / 2f;
         Color defaultGearColour = new Color(15,10,10,255);
         float defaultOrbitDays = 8f;
 
@@ -308,7 +316,7 @@ public class CrucibleSpawner {
         SectorEntityToken gMed2 = getGear(crucible, 65f, defaultGearColour, -0.4f);
         SectorEntityToken gSmall1 = getGear(crucible, 40f, defaultGearColour.brighter(), 0.8f);
 
-        gLarge1.addScript(new VariableOrbitScript(gLarge1, crucible, 0f, outerRim, defaultOrbitDays, 0.02f));
+        gLarge1.addScript(new VariableOrbitScript(gLarge1, crucible, 0f, outerRim - 20f, defaultOrbitDays, 0.02f));
         gMed1.addScript(new VariableOrbitScript(gMed1,crucible, 45f, outerRim, defaultOrbitDays, 0.02f));
         gMed2.addScript(new VariableOrbitScript(gMed2,crucible, -45f, outerRim, defaultOrbitDays, 0.02f));
         gSmall1.addScript(new VariableOrbitScript(gSmall1,crucible, 15f, outerRim, defaultOrbitDays, 0.02f));
@@ -327,7 +335,7 @@ public class CrucibleSpawner {
         SectorEntityToken gSmall3 = getGear(crucible, 45f, defaultGearColour.brighter(), -1f);
         SectorEntityToken gSmall4 = getGear(crucible, 45f, defaultGearColour.brighter(), -1f);
 
-        gLarge2.addScript(new VariableOrbitScript(gLarge2,crucible, 120f + 100f, outerRim, defaultOrbitDays, 0.02f));
+        gLarge2.addScript(new VariableOrbitScript(gLarge2,crucible, 120f + 100f, outerRim - 20f, defaultOrbitDays, 0.02f));
         gSmall3.addScript(new VariableOrbitScript(gSmall3,crucible, 120f + 100f + 17f, outerRim, defaultOrbitDays, 0.02f));
         gSmall4.addScript(new VariableOrbitScript(gSmall4,crucible, 120f + 100f - 17f, outerRim, defaultOrbitDays, 0.02f));
 
@@ -342,7 +350,7 @@ public class CrucibleSpawner {
         SectorEntityToken gMed5 = getGear(crucible, 60f, defaultGearColour, 0.8f);
         SectorEntityToken gSmall5 = getGear(crucible, 35f, defaultGearColour.brighter(), 2f);
 
-        gLarge3.addScript(new VariableOrbitScript(gLarge3,crucible, offsetAngle + 0f, outerRim, defaultOrbitDays, 0.02f));
+        gLarge3.addScript(new VariableOrbitScript(gLarge3,crucible, offsetAngle + 0f, outerRim - 20f, defaultOrbitDays, 0.02f));
         gMed5.addScript(new VariableOrbitScript(gMed5,crucible, offsetAngle + 45f, outerRim, defaultOrbitDays, 0.02f));
         gSmall5.addScript(new VariableOrbitScript(gSmall5,crucible, offsetAngle + 20f, outerRim + 5f, defaultOrbitDays, 0.02f));
 
