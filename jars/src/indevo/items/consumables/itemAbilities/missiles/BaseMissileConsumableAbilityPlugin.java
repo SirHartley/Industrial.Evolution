@@ -36,9 +36,9 @@ public abstract class BaseMissileConsumableAbilityPlugin extends BaseConsumableA
             int amt = getCargoItemAmt();
             tooltip.addPara("Remaining in inventory: %s", opad, amt > 0 ? highlight : Misc.getNegativeHighlightColor(), amt + "");
             tooltip.addPara(Global.getSettings().getSpecialItemSpec(getItemID()).getDesc(), gray, opad);
-        }
 
-        //tooltip.addSectionHeading("Item Effect", Alignment.MID, opad);
+            tooltip.addSectionHeading("Item Effect", Alignment.MID, opad);
+        }
 
         addTooltip(tooltip);
 

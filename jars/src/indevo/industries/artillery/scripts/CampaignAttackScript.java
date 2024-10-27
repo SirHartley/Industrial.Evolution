@@ -236,6 +236,7 @@ public class CampaignAttackScript implements EveryFrameScript {
 
     private boolean isForcedValid(SectorEntityToken t) {
         return t != null
+                && !t.isExpired()
                 && Misc.getDistance(t, entity) <= range
                 && Misc.getDistance(t, entity) >= MIN_RANGE
                 && !t.getMemoryWithoutUpdate().contains(FORCE_INVALID);

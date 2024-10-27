@@ -22,6 +22,7 @@ public class ItemAbilityHelper {
         put(ItemIds.CONSUMABLE_MISSILE_CONCUSSIVE, Ids.ABILITY_MISSILE_CONCUSSIVE);
         put(ItemIds.CONSUMABLE_MISSILE_SMOKE, Ids.ABILITY_MISSILE_SMOKE);
         put(ItemIds.CONSUMABLE_MISSILE_INTERCEPT, Ids.ABILITY_MISSILE_INTERCEPT);
+        put(ItemIds.CONSUMABLE_MISSILE_REMOTE, Ids.ABILITY_MISSILE_REMOTE);
     }};
 
     public static String toggle(String s) {

@@ -21,6 +21,8 @@ import org.json.JSONObject;
 
 import java.util.Random;
 
+import static indevo.industries.artillery.scripts.ArtilleryStationScript.SCRIPT_KEY;
+
 public class FleetBasedArtilleryStationPlacer {
 
     //types possible: "mortar", "railgun", "missile"
@@ -49,6 +51,7 @@ public class FleetBasedArtilleryStationPlacer {
         fleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_IGNORED_BY_OTHER_FLEETS, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_IGNORES_OTHER_FLEETS, true);
         fleet.getMemoryWithoutUpdate().set("$" + Ids.TAG_ARTILLERY_STATION, true);
+        fleet.addTag(Ids.TAG_ENTITY_HAS_ARTILLERY_STATION);
 
         fleet.addTag(Tags.NEUTRINO_HIGH);
 
@@ -97,7 +100,10 @@ public class FleetBasedArtilleryStationPlacer {
 
         member.getRepairTracker().setCR(member.getRepairTracker().getMaxCR());
 
-        fleet.addScript(new CampaignAttackScript(fleet, type));
+        CampaignAttackScript s = new CampaignAttackScript(fleet, type);
+
+        fleet.addScript(s);
+        fleet.getMemoryWithoutUpdate().set(SCRIPT_KEY, s);
     }
 
     public static void addTestArtilleryToPlanet(SectorEntityToken planet) {

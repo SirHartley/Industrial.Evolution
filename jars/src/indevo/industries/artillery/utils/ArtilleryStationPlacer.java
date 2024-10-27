@@ -116,7 +116,9 @@ public class ArtilleryStationPlacer {
     }
 
     public static void addArtilleryToPlanet(SectorEntityToken planet, boolean isDestroyed) {
-        if (!planet.hasScriptOfClass(ArtilleryStationScript.class) && !planet.hasTag(Ids.TAG_ARTILLERY_STATION)) {
+        if (!planet.hasScriptOfClass(ArtilleryStationScript.class) && !planet.hasTag(Ids.TAG_ENTITY_HAS_ARTILLERY_STATION)) {
+
+            planet.addTag(Ids.TAG_ENTITY_HAS_ARTILLERY_STATION);
 
             ArtilleryStationScript script = new ArtilleryStationScript(planet.getMarket());
             script.setDestroyed(isDestroyed);
@@ -147,7 +149,6 @@ public class ArtilleryStationPlacer {
             config.showFleetAttitude = false;
             config.showTransponderStatus = false;
             config.showEngageText = false;
-
 
             config.delegate = new FleetInteractionDialogPluginImpl.BaseFIDDelegate() {
                 public void postPlayerSalvageGeneration(InteractionDialogAPI dialog, FleetEncounterContext context, CargoAPI salvage) {

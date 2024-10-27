@@ -35,7 +35,7 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
         this.type = (String) pluginParams;
         if (type == null) type = TYPE_MORTAR;
 
-        entity.addScript(new CampaignAttackScript(entity, type));
+        if (!entity.hasScriptOfClass(CampaignAttackScript.class)) entity.addScript(new CampaignAttackScript(entity, type));
     }
 
     @Override
@@ -96,8 +96,6 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
         artillery.addTag(Ids.TAG_ARTILLERY_STATION);
         if (showFleetVisual) artillery.addTag(Tags.USE_STATION_VISUAL);
         artillery.getMemoryWithoutUpdate().set(ArtilleryStationCondition.ARTILLERY_KEY, true);
-
-
 
         return artillery;
     }

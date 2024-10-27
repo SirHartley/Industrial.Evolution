@@ -242,8 +242,9 @@
   "Consumable":[100,10,200,255],
   "Cryochamber":[80,150,255,255],
   "Industrial.Evolution":[245,240,240,255],
-  "Galatia Academy":[245,240,240,255]
-  },
+  "Galatia Academy":[245,240,240,255],
+  "Domain System Defence":[100,100,100,255]
+},
 
   "bonusXP": {
   "IndEvo_SYDoubleCapBonusXP": 0.5,

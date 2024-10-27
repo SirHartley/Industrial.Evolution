@@ -21,6 +21,7 @@ public class Ids {
     //tags
     public static final String TAG_NEVER_REMOVE_RUINS = "IndEvo_RuinsAlways";
     public static final String TAG_ARTILLERY_STATION = "IndEvo_Artillery";
+    public static final String TAG_ENTITY_HAS_ARTILLERY_STATION = "IndEvo_Entity_has_artillery";
     public static final String TAG_ARTILLERY_STATION_FLEET = "IndEvo_ArtilleryFleet";
     public static final String TAG_WATCHTOWER = "IndEvo_watchtower";
     public static final String TAG_SYSTEM_HAS_ARTILLERY = "IndEvo_SystemHasArtillery";
@@ -144,6 +145,8 @@ public class Ids {
     public static final String ABILITY_MISSILE_CONCUSSIVE = "IndEvo_ability_missile_concussive";
     public static final String ABILITY_MISSILE_SMOKE = "IndEvo_ability_missile_smoke";
     public static final String ABILITY_MISSILE_INTERCEPT = "IndEvo_ability_missile_intercept";
+    public static final String ABILITY_MISSILE_REMOTE = "IndEvo_ability_artillery_target";
+
 
     //research Projects
     public static final String PROJ_SPYGLASS = "indevo_proj_revival";
