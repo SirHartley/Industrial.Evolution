@@ -10,24 +10,27 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.input.InputEventType;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
 import indevo.items.consumables.itemAbilities.missiles.BaseMissileConsumableAbilityPlugin;
+import indevo.utils.ModPlugin;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 
 import java.util.List;
 
-public class TargetingReticuleInputListener implements CampaignInputListener {
+public class OnKeyPressAbilityInputListener implements MissileTargetUIKeypressListener, CampaignInputListener {
+
+    //should really be using pressButton through the API instead of whatever this is
 
     public int lastSlotVal = -1;
-    public boolean missileActive = false;
+    public boolean active = false;
     public MissileCampaignRenderer renderer;
 
-    public static TargetingReticuleInputListener getInstanceOrRegister() {
+    public static OnKeyPressAbilityInputListener getInstanceOrRegister() {
         ListenerManagerAPI manager = Global.getSector().getListenerManager();
-        TargetingReticuleInputListener listener;
+        OnKeyPressAbilityInputListener listener;
 
-        if (!manager.hasListenerOfClass(TargetingReticuleInputListener.class)) {
-            listener = new TargetingReticuleInputListener();
+        if (!manager.hasListenerOfClass(OnKeyPressAbilityInputListener.class)) {
+            listener = new OnKeyPressAbilityInputListener();
             manager.addListener(listener, false);
-        } else listener = manager.getListeners(TargetingReticuleInputListener.class).get(0);
+        } else listener = manager.getListeners(OnKeyPressAbilityInputListener.class).get(0);
 
         return listener;
     }
@@ -49,47 +52,52 @@ public class TargetingReticuleInputListener implements CampaignInputListener {
             if (input.isConsumed()) continue;
 
             if (input.getEventType().equals(InputEventType.KEY_DOWN)) {
-                if (missileActive) return; //no cheating
+                if (isActive()) return; //can't press the same key twice through macros
 
                 int eventVal = input.getEventValue();
 
-                if (eventVal > 1 && eventVal < 10) { //1 to 9
+                if (eventVal > 1 && eventVal < 11) { //1 to 9
                     int slotVal = eventVal - 2;
 
                     PersistentUIDataAPI.AbilitySlotAPI slot = Global.getSector().getUIData().getAbilitySlotsAPI().getCurrSlotsCopy().get(slotVal);
                     String ability = Global.getSector().getPlayerFleet().isInHyperspace() ? slot.getInHyperAbilityId() : slot.getAbilityId();
 
                     if (ability == null || ability.isEmpty()) return;
+
                     AbilitySpecAPI spec = Global.getSettings().getAbilitySpec(ability);
                     boolean isMissile = spec.hasTag("indevo_missile");
                     boolean isAOE = spec.hasTag("aoe");
 
                     if (isMissile && Global.getSector().getPlayerFleet().getAbility(ability).isUsable()) {
-                        missileActive = true;
+                        active = true;
                         lastSlotVal = eventVal;
+                        MissileActivationManager.getInstanceOrRegister().setCurrentListener(this);
 
-                        renderer = isAOE ? new MissileTargetingReticuleRendererWithAOE() : new MissileTargetingReticuleRenderer();
+                        renderer = isAOE ? new MissileAOETargetingReticuleRenderer() : new MissileSkillshotTargetingReticuleRenderer();
                         LunaCampaignRenderer.addRenderer(renderer);
+                        input.consume();
                     }
                 }
             } else if (input.getEventType().equals(InputEventType.KEY_UP)) {
-                if (input.getEventValue() == lastSlotVal) {
+                if (isActive() && input.getEventValue() == lastSlotVal) {
 
                     AbilityPlugin p = Global.getSector().getPlayerFleet().getAbility( Global.getSector().getUIData().getAbilitySlotsAPI().getCurrSlotsCopy().get(lastSlotVal -2).getAbilityId());
                     ((BaseMissileConsumableAbilityPlugin) p).forceActivation();
                     p.setCooldownLeft(p.getSpec().getDeactivationCooldown());
 
-                    missileActive = false;
+                    active = false;
                     lastSlotVal = -1;
                     renderer.setDone();
                     renderer = null;
+
+                    input.consume();
                 }
             }
         }
     }
 
     public void reset(){
-        missileActive = false;
+        active = false;
         lastSlotVal = -1;
         if(renderer != null) renderer.setDone();
         renderer = null;
@@ -102,5 +110,10 @@ public class TargetingReticuleInputListener implements CampaignInputListener {
     @Override
     public void processCampaignInputPostCore(List<InputEventAPI> events) {
 
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
     }
 }

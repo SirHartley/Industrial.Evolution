@@ -7,7 +7,6 @@ import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.ImportantPeopleAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
@@ -18,7 +17,6 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
 import com.fs.starfarer.api.impl.campaign.econ.impl.MilitaryBase;
-import com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
@@ -41,8 +39,6 @@ import indevo.dialogue.research.listeners.CamouflageRefitListener;
 import indevo.dialogue.research.listeners.HasUniqueShipChecker;
 import indevo.dialogue.research.scripts.RefitUIOpenChecker;
 import indevo.economy.listeners.ResourceConditionApplicator;
-import indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin;
-import indevo.exploration.crucible.entities.CrucibleGearEntityPlugin;
 import indevo.exploration.crucible.plugin.CrucibleSpawner;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
@@ -89,7 +85,6 @@ import indevo.items.consumables.listeners.*;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.items.listeners.ShipComponentLootManager;
 import indevo.items.listeners.SpecialItemDropsListener;
-import indevo.other.PlayerHyperspaceTripTracker;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.timers.RaidTimeout;
@@ -100,7 +95,6 @@ import org.dark.shaders.light.LightData;
 import org.dark.shaders.util.ShaderLib;
 import org.dark.shaders.util.TextureData;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -206,7 +200,7 @@ public class ModPlugin extends BaseModPlugin {
         }
 
         //player fuckery
-        TargetingReticuleInputListener.getInstanceOrRegister().reset();
+        if(MissileActivationManager.getInstanceOrRegister().hasActiveListener()) MissileActivationManager.getInstanceOrRegister().getCurrentListener().reset();
     }
 
     public void addLordFoogRep(){
@@ -286,7 +280,7 @@ public class ModPlugin extends BaseModPlugin {
     @Override
     public void beforeGameSave() {
         super.beforeGameSave();
-        TargetingReticuleInputListener.getInstanceOrRegister().reset();
+        OnKeyPressAbilityInputListener.getInstanceOrRegister().reset();
 
         mines.clear();
 
@@ -438,7 +432,7 @@ public class ModPlugin extends BaseModPlugin {
         SenateOptionProvider.register();
         AcademyOptionProvider.register();
         RiftGenOptionProvider.register();
-        TargetingReticuleInputListener.getInstanceOrRegister();
+        OnKeyPressAbilityInputListener.getInstanceOrRegister();
         FleetConsumableInventoryManager.register();
         if (Global.getSettings().getModManager().isModEnabled("nexerelin")) ManagedDemocracyNexerelinListenerPlugin.register();
         //DistressCallManager.getInstanceOrRegister();
