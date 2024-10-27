@@ -225,14 +225,14 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         float opad = 10f;
         SectorEntityToken target = entity.getContainingLocation().getEntityById(targetEntity);
         if (target == null) tooltip.addPara("Not functional", opad);
-        else tooltip.addPara(entity.getName() + "\nLinked to: %s", opad, color, target.getCustomPlugin() instanceof YeetopultEntityPlugin ? target.getOrbitFocus().getName() : target.getName());
+        else tooltip.addPara(entity.getName() + "\nLinked to: %s", opad, color, target.getCustomPlugin() instanceof YeetopultEntityPlugin && target.getOrbitFocus() != null ? target.getOrbitFocus().getName() : target.getName());
     }
 
     public void appendToCampaignTooltip(TooltipMakerAPI tooltip, SectorEntityToken.VisibilityLevel level) {
         float opad = 10f;
         SectorEntityToken target = entity.getContainingLocation().getEntityById(targetEntity);
         if (target == null) tooltip.addPara("Not functional", opad);
-        else tooltip.addPara(entity.getName() + "\nLinked to: %s", opad, color, target.getCustomPlugin() instanceof YeetopultEntityPlugin ? target.getOrbitFocus().getName() : target.getName());
+        else tooltip.addPara(entity.getName() + "\nLinked to: %s", opad, color,target.getCustomPlugin() instanceof YeetopultEntityPlugin && target.getOrbitFocus() != null ? target.getOrbitFocus().getName() : target.getName());
     }
 
     public void changeColour(Color color){
