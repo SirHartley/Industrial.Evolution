@@ -1,4 +1,4 @@
-package indevo.dialogue.research;
+package indevo.dialogue.research.dialogue;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
@@ -13,6 +13,7 @@ import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
 import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
 import indevo.utils.ModPlugin;

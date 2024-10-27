@@ -1,4 +1,4 @@
-package indevo.dialogue.research;
+package indevo.dialogue.research.dialogue;
 
 import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
 

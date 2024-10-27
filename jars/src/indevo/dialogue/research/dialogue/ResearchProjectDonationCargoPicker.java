@@ -1,4 +1,4 @@
-package indevo.dialogue.research;
+package indevo.dialogue.research.dialogue;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoAPI;
@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import org.apache.log4j.Logger;
 
 public class ResearchProjectDonationCargoPicker {

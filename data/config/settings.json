@@ -1,10 +1,18 @@
 {
   #Documentation is for nerds
 
-  #USE LUNALIB INSTEAD OF MODIFYING THE SETTINGS HERE
+  #-------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------
 
-        #Vanilla changes:
-        "IndEvo_CommerceBalanceChanges":TRUE, #Commerce balance changes. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).
+  #USE THE LUNALIB INGAME UI
+  #INSTEAD OF MODIFYING THE SETTINGS HERE
+
+  #-------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------
+
+
+  #Vanilla changes:
+  "IndEvo_CommerceBalanceChanges":TRUE, #Commerce balance changes. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).
 
   #No gurantees for stability if you fuck with anything past here because I did not test it and probably never will.
 
@@ -231,7 +239,7 @@
   "indevo.industries.artillery.rules",
   "indevo.industries.courierport.dialogue",
   "indevo.abilities.splitfleet.dialogue",
-  "indevo.dialogue.research",
+  "indevo.dialogue.research.dialogue",
   "indevo.dialogue.rules",
   "indevo.exploration.gacha.rules"
   ],

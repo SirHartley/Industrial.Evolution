@@ -1,19 +1,18 @@
-package indevo.dialogue.research;
+package indevo.dialogue.research.intel;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.dialogue.research.ResearchProjectTemplateRepo;
 
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
 
@@ -76,13 +75,6 @@ public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
         return Global.getSettings().getSpriteName("IndEvo", "galatia_proj");
     }
 
-    @Override
-    public Set<String> getIntelTags(SectorMapAPI map) {
-        Set<String> tags = super.getIntelTags(map);
-        tags.add(Tags.INTEL_IMPORTANT);
-        return tags;
-    }
-
     public String getSortString() {
         return "Research";
     }
@@ -109,7 +101,9 @@ public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
     public void advance(float amount) {
         super.advance(amount);
         timePassed += Global.getSector().getClock().convertToDays(amount);
-        if (shouldRemoveIntel()) endAfterDelay();
+        if (shouldRemoveIntel()) {
+            Global.getSector().getIntelManager().removeIntel(this);
+        }
     }
 
     @Override

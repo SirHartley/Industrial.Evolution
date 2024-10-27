@@ -11,14 +11,14 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.util.Misc;
-import indevo.dialogue.research.DropDataCreator;
+import indevo.dialogue.research.dialogue.DropDataCreator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class ConsumableItemDropListener implements ShowLootListener {
-    public static void register() {
+        public static void register() {
         ListenerManagerAPI manager = Global.getSector().getListenerManager();
         if (!manager.hasListenerOfClass(ConsumableItemDropListener.class))
             manager.addListener(new ConsumableItemDropListener(), true);
@@ -36,7 +36,7 @@ public class ConsumableItemDropListener implements ShowLootListener {
             Random random = new Random(Misc.getSalvageSeed(fleet));
 
             if (Factions.PIRATES.equals(fleet.getFaction().getId()) || Factions.LUDDIC_PATH.equals(fleet.getFaction().getId()))
-                return; //no parts if pirates are involved
+                return; //no stuff if pirates are involved
 
             float totalFPbefore = 0;
             float fpDestroyed = Misc.getSnapshotFPLost(fleet);

@@ -1,10 +1,11 @@
-package indevo.dialogue.research;
+package indevo.dialogue.research.listeners;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import indevo.dialogue.research.intel.GalatiaNewProjectsIntel;
 import indevo.ids.Ids;
 
 public class AutopulseUseChecker implements EconomyTickListener {

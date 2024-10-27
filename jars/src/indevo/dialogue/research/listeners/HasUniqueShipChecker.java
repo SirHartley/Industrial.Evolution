@@ -6,7 +6,7 @@ import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import indevo.dialogue.research.GalatiaNewProjectsIntel;
+import indevo.dialogue.research.intel.GalatiaNewProjectsIntel;
 import indevo.ids.Ids;
 
 public class HasUniqueShipChecker implements EconomyTickListener {

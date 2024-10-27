@@ -1,9 +1,9 @@
 
 --------------------------- To-do -----------------------------
 Before release
-- Clean up and re-sort the indevo/dialogue/research folder, it's terrible
 
 Playthrough notes
+- small event that guarantees three remotes
 - Add a proper edict selection UI, for remote operation as well
 - add some more info/tt/notifications to governments
 
@@ -28,7 +28,6 @@ Requests
 - "Mimic Hulls", Derelict ships that change into remnant or pirate ambush fleets when approached
 - Consumable item that makes your fleet look bigger than is is to NPCs
     - maybe add a boat with like 200 dp to the fleet and remove it when ui window is opened so other fleets run from you
-- Consumable item that allows forced targetting of artillery on mouse pos
 - Add something that lets you remove S-Mods
 - Change derelict industries to superstructures
 - Artillery industry images
@@ -54,7 +53,7 @@ Requests
 --------------------------- Known issues -----------------------------
 
   >>> I care <<<
-- Galatia projects intel never vanishes (STILL)
+- remote doesn't tell you if the target loc is illegal
 - Crucible shows up in map even if not discovered
 
   >>> I do not care <<<
@@ -106,7 +105,8 @@ Removed - Orbital pet stations around a planet (too much clutter for the use the
 Items
 Added - Consumable item: Portable Relay, only works in hyperspace and establishes a link to a comm relay
 todo: npc usage and reactions
-Added - Consumable item: Explosive Missile. Skillshot, campaign level. Does what it says, badly.
+Added - Rare Consumable Item: Ancient Remote. Targeted AOE, campaign level. It's very funny, trust me.
+Added - Consumable item: Explosive Missile. Skillshot, campaign level. Does what it says, though unreliable.
 Added - Consumable item: Concussive Missile. Targeted AOE, campaign level. Knocks fleets away, does no damage.
 Added - Consumable item: Smoke Missile. Targeted AOE, campaign level. Spawns vision-reducing smoke to hide in or to leave enemies in the dark.
 Added - Consumable item: Intercept Missile. Skillshot, campaign level. Intercepts & stuns fleets, and makes them visible.

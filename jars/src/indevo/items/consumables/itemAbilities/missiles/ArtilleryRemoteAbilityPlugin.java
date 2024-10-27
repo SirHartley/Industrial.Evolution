@@ -94,7 +94,7 @@ public class ArtilleryRemoteAbilityPlugin extends BaseMissileConsumableAbilityPl
             if (!hasArty)
                 tooltip.addPara("No functioning artillery platform in range.", opad, Misc.getNegativeHighlightColor());
         } else {
-            tooltip.addPara("The remote sometimes beeps in the presence of old domain drones.", opad);
+            tooltip.addPara("The remote sometimes beeps in the presence of old domain military tech.", opad);
             if (!hasArty)
                 tooltip.addPara("It seems to be missing something to connect to.", opad, Misc.getNegativeHighlightColor());
         }
