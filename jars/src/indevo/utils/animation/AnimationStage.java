@@ -1,4 +1,4 @@
-package indevo.exploration.crucible.scripts;
+package indevo.utils.animation;
 
 public abstract class AnimationStage {
     public final float runtime;

@@ -1,4 +1,4 @@
-package indevo.items.consumables.particles;
+package indevo.utils.animation.particles;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;

@@ -8,18 +8,16 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.util.FlickerUtilV2;
-import indevo.exploration.crucible.scripts.AnimationStage;
+import indevo.utils.animation.AnimationStage;
+import indevo.utils.animation.BaseStagedAnimationScript;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Vector;
 
-public class WarpEffectAnimationScript implements EveryFrameScript {
+public class WarpEffectAnimationScript extends BaseStagedAnimationScript {
 
     //todo still missing sounds
 
@@ -36,9 +34,6 @@ public class WarpEffectAnimationScript implements EveryFrameScript {
     public static final float SHRINK_ANIM_DUR = 0.5f;
     public static final float FLARE_ANIM_DUR = 1f;
 
-    public List<AnimationStage> stages = new ArrayList<>();
-    public boolean done = false;
-
     public SectorEntityToken target;
     public float originalTargetRadius;
     public float whirlMaxSize;
@@ -49,8 +44,6 @@ public class WarpEffectAnimationScript implements EveryFrameScript {
         this.target = target;
         this.originalTargetRadius = ((PlanetAPI) target).getRadius();
         this.whirlMaxSize = originalTargetRadius * TARGET_SIZE_MULTIPLIER;
-
-        loadStages();
     }
 
     public void loadStages() {
@@ -308,25 +301,6 @@ public class WarpEffectAnimationScript implements EveryFrameScript {
             }
         });
         
-    }
-
-    @Override
-    public boolean isDone() {
-        return done;
-    }
-
-    @Override
-    public boolean runWhilePaused() {
-        return false;
-    }
-
-    @Override
-    public void advance(float amount) {
-        if (done) return;
-
-        for (AnimationStage stage : stages) stage.advance(amount);
-        for (AnimationStage stage : stages) if (!stage.isDone()) return;
-        done = true;
     }
     
     public static void movePlanet(SectorEntityToken target) {

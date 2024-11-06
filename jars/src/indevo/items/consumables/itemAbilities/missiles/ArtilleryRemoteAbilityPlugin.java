@@ -1,23 +1,18 @@
 package indevo.items.consumables.itemAbilities.missiles;
 
-import com.fs.graphics.M;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
-import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.artillery.scripts.CampaignAttackScript;
 import indevo.industries.artillery.terrain.ArtilleryTerrain;
-import indevo.items.consumables.entities.ExplosiveMissileEntityPlugin;
-import indevo.items.consumables.particles.SmoothFadingParticleRenderer;
-import indevo.utils.helper.StringHelper;
+import indevo.utils.animation.particles.SmoothFadingParticleRenderer;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
-import java.util.EnumSet;
 
 public class ArtilleryRemoteAbilityPlugin extends BaseMissileConsumableAbilityPlugin {
 

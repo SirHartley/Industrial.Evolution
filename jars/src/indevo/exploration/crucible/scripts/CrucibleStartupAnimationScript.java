@@ -1,6 +1,5 @@
 package indevo.exploration.crucible.scripts;
 
-import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -12,6 +11,9 @@ import indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin;
 import indevo.exploration.crucible.entities.YeetopultEntityPlugin;
 import indevo.exploration.crucible.terrain.CrucibleFieldTerrainPlugin;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
+import indevo.utils.animation.AnimationStage;
+import indevo.utils.animation.BaseStagedAnimationScript;
+import indevo.utils.animation.particles.RadialDustCloudEjectionRenderer;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -25,7 +27,7 @@ import java.util.Map;
 import static indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin.MEM_ACTIVITY_LEVEL;
 import static indevo.exploration.crucible.plugin.CrucibleSpawner.MAGNETIC_FIELD_WIDTH;
 
-public class CrucibleStartupAnimationScript implements EveryFrameScript {
+public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
     public static final float CATAPULT_ACTIVATION_INTERVAL_SECONDS = 1f;
     public static final float CATAPULTS_ENABLED_ROTATION_START_DELAY = 1f;
     public static final float MAIN_CRUCIBLE_ACTIVATION_DELAY = 6f; //must be smaller than gear ramp up since it runs parallel
@@ -41,9 +43,6 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
     public IntervalUtil catapultActivationTimer = new IntervalUtil(CATAPULT_ACTIVATION_INTERVAL_SECONDS, CATAPULT_ACTIVATION_INTERVAL_SECONDS);
 
     public int currentCatapultIndex = 1;
-    public List<AnimationStage> stages = new ArrayList<>();
-
-    public boolean done = false;
 
     public CrucibleStartupAnimationScript(final SectorEntityToken crucible) {
         this.crucible = crucible;
@@ -52,18 +51,21 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
         this.catapults = new HashMap<>();
 
         for (SectorEntityToken catapult : crucible.getContainingLocation().getEntitiesWithTag("IndEvo_yeetopult")) {
-            if (catapult.hasTag("IndEvo_orbits_crucible")){
+            if (catapult.hasTag("IndEvo_orbits_crucible")) {
                 catapults.put(catapult.getMemoryWithoutUpdate().getInt(BaseCrucibleEntityPlugin.MEM_CATAPULT_NUM), catapult);
             }
         }
+    }
 
+    @Override
+    public void loadStages() {
         //set activity level of catapults and their counterparts with the interval (play anim at 1f and move to next one), then enable them at once to make them rotate while spawning dust clouds
         //once done, enable & ramp up gears + scaffold, then enable crucible + mag field with a slight delay & ramp them
 
         float totalDelay = 0f;
         float fistStageRuntime = (catapults.size()) + 1 * CATAPULT_ACTIVATION_INTERVAL_SECONDS + 0.03f;
 
-        stages.add(new AnimationStage(fistStageRuntime, 0f) {
+        addStage(new AnimationStage(fistStageRuntime, 0f) {
             @Override
             public void run(float amt) {
                 catapultActivationTimer.advance(amt);
@@ -95,7 +97,7 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
         totalDelay += fistStageRuntime;
         totalDelay += CATAPULTS_ENABLED_ROTATION_START_DELAY;
 
-        stages.add(new AnimationStage(0.1f, totalDelay) {
+        addStage(new AnimationStage(0.1f, totalDelay) {
             @Override
             public void run(float amt) {
 
@@ -107,10 +109,10 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
 
                 float volumeDistance = 1000f; //nothing at 1000f
                 float distance = Misc.getDistance(Global.getSector().getPlayerFleet(), crucible);
-                float fract = 1 - MathUtils.clamp(distance / volumeDistance, 0,1);
+                float fract = 1 - MathUtils.clamp(distance / volumeDistance, 0, 1);
                 Global.getSoundPlayer().playSound("IndEvo_crucible_start", 1f, fract * 0.5f, crucible.getLocation(), new Vector2f(0f, 0f));
 
-                LunaCampaignRenderer.addRenderer(new DustCloudRenderer(
+                LunaCampaignRenderer.addRenderer(new RadialDustCloudEjectionRenderer(
                         crucible,
                         0.55f * crucible.getRadius(),
                         0.4f,
@@ -125,7 +127,7 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
 
         totalDelay += 1f;
 
-        stages.add(new AnimationStage(0.1f, totalDelay) {
+        addStage(new AnimationStage(0.1f, totalDelay) {
             @Override
             public void run(float amt) {
 
@@ -135,10 +137,10 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
             public void runOnce() {
                 float volumeDistance = 1000f; //nothing at 1000f
                 float distance = Misc.getDistance(Global.getSector().getPlayerFleet(), crucible);
-                float fract = 1 - MathUtils.clamp(distance / volumeDistance, 0,1);
+                float fract = 1 - MathUtils.clamp(distance / volumeDistance, 0, 1);
                 Global.getSoundPlayer().playSound("IndEvo_crucible_start", 0.7f, fract * 0.4f, crucible.getLocation(), new Vector2f(0f, 0f));
 
-                LunaCampaignRenderer.addRenderer(new DustCloudRenderer(
+                LunaCampaignRenderer.addRenderer(new RadialDustCloudEjectionRenderer(
                         crucible,
                         0.55f * crucible.getRadius(),
                         0.2f,
@@ -150,13 +152,13 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
             }
         });
 
-        stages.add(new AnimationStage(GEAR_SCAFFOLD_CATAPULT_RAMP_UP_TIME, totalDelay) {
+        addStage(new AnimationStage(GEAR_SCAFFOLD_CATAPULT_RAMP_UP_TIME, totalDelay) {
             @Override
             public void run(float amt) {
                 //enable & ramp up gears + scaffold + catapults
                 float factor = Math.min(timePassed / runtime, 1f);
 
-                for (SectorEntityToken catapult : catapults.values())setActivityLevelFor(catapult, factor);
+                for (SectorEntityToken catapult : catapults.values()) setActivityLevelFor(catapult, factor);
                 for (SectorEntityToken gear : gears) setActivityLevelFor(gear, factor);
                 setActivityLevelFor(scaffold, factor);
             }
@@ -171,7 +173,7 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
 
         totalDelay += MAIN_CRUCIBLE_ACTIVATION_DELAY;
 
-        stages.add(new AnimationStage(0.1f, totalDelay) {
+        addStage(new AnimationStage(0.1f, totalDelay) {
             @Override
             public void run(float amt) {
             }
@@ -202,7 +204,7 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
             }
         });
 
-        stages.add(new AnimationStage(MAIN_CRUCIBLE_ACTIVATION_RAMP_UP_TIME, totalDelay) {
+        addStage(new AnimationStage(MAIN_CRUCIBLE_ACTIVATION_RAMP_UP_TIME, totalDelay) {
             @Override
             public void run(float amt) {
                 //main crucible ramp up
@@ -220,30 +222,11 @@ public class CrucibleStartupAnimationScript implements EveryFrameScript {
 
     }
 
-    @Override
-    public boolean isDone() {
-        return done;
-    }
-
-    @Override
-    public boolean runWhilePaused() {
-        return false;
-    }
-
-    @Override
-    public void advance(float amount) {
-        if (done) return;
-
-        for (AnimationStage stage : stages) stage.advance(amount);
-        for (AnimationStage stage : stages) if (!stage.isDone()) return;
-        done = true; //only reached if all stages in anim are done
-    }
-
-    public void setEnabled(SectorEntityToken t){
+    public void setEnabled(SectorEntityToken t) {
         t.addTag(BaseCrucibleEntityPlugin.TAG_ENABLED);
     }
 
-    public void setActivityLevelFor(SectorEntityToken t, float level){
+    public void setActivityLevelFor(SectorEntityToken t, float level) {
         t.getMemoryWithoutUpdate().set(MEM_ACTIVITY_LEVEL, level);
     }
 }

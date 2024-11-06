@@ -1,11 +1,10 @@
-package indevo.exploration.crucible.scripts;
+package indevo.utils.animation.particles;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import indevo.items.consumables.particles.NebulaParticle;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -16,7 +15,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 
-public class DustCloudRenderer implements LunaCampaignRenderingPlugin {
+public class RadialDustCloudEjectionRenderer implements LunaCampaignRenderingPlugin {
     public static final float DURATION = 6f;
     /*public static final float SPAWN_DUR = 0.4f;
     public static final float SPEED = 150f;
@@ -42,7 +41,7 @@ public class DustCloudRenderer implements LunaCampaignRenderingPlugin {
     public float animationRadius;
     public transient SpriteAPI nebulaSprite;
 
-    public DustCloudRenderer(SectorEntityToken center, float animationRadius, float spawnDur, float speed, float particlesPerFrame, float particleSize, float particleLifetime, float baseAlpha) {
+    public RadialDustCloudEjectionRenderer(SectorEntityToken center, float animationRadius, float spawnDur, float speed, float particlesPerFrame, float particleSize, float particleLifetime, float baseAlpha) {
         this.centerEntity = center;
         this.animationRadius = animationRadius;
         this.spawnDur = spawnDur;

@@ -15,7 +15,7 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
-import indevo.items.consumables.particles.NebulaParticle;
+import indevo.utils.animation.particles.NebulaParticle;
 import indevo.utils.helper.MiscIE;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
