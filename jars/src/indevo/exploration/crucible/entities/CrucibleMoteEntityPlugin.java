@@ -99,13 +99,12 @@ public class CrucibleMoteEntityPlugin extends BaseCustomEntityPlugin {
 
         if (dist > distToTarget) {
             dist = distToTarget;
-            triggerCatapultBoom(target, 1.5f, phase == 1);
+            triggerCatapultBoom(target, 6f, phase == 1);
             phase++;
         }
 
         float angle = Misc.getAngleInDegrees(entity.getLocation(), target.getLocation());
         if (phase == 1) angle = (float) (angle + Math.sin(timePassedSeconds *1.5f) * cadence);
-
 
         Vector2f nextPos = MathUtils.getPointOnCircumference(entity.getLocation(), dist, angle);
         entity.setLocation(nextPos.x, nextPos.y);

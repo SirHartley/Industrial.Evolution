@@ -77,8 +77,13 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
                         SectorEntityToken pairedCatapult = plugin.getPairedCatapult();
                         YeetopultEntityPlugin pairedPlugin = (YeetopultEntityPlugin) pairedCatapult.getCustomPlugin();
 
-                        plugin.fireAnimation(10f, true);
+                        plugin.fireAnimation(10f, false);
                         pairedPlugin.fireAnimation(10f, false);
+
+                        float volumeDistance = 1000f; //nothing at 1000f
+                        float distance = Misc.getDistance(Global.getSector().getPlayerFleet(), catapult);
+                        float fract = 1 - MathUtils.clamp(distance / volumeDistance, 0, 1);
+                        Global.getSoundPlayer().playSound("IndEvo_crucible_off", 0.75f + 0.75f * MathUtils.clamp(plugin.color.getBlue() / 255f, 0, 1f), fract, catapult.getLocation(), new Vector2f(0f, 0f));
 
                         setEnabled(catapult);
                         setEnabled(pairedCatapult);
@@ -90,7 +95,7 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
 
             @Override
             public void runOnce() {
-
+                crucible.addTag(BaseCrucibleEntityPlugin.TAG_ANIMATION_PLAYING);
             }
         });
 
@@ -216,7 +221,20 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
 
             @Override
             public void runOnce() {
+            }
+        });
 
+        totalDelay += MAIN_CRUCIBLE_ACTIVATION_RAMP_UP_TIME;
+
+        addStage(new AnimationStage(0.1f, totalDelay) {
+            @Override
+            public void run(float amt) {
+
+            }
+
+            @Override
+            public void runOnce() {
+                crucible.removeTag(BaseCrucibleEntityPlugin.TAG_ANIMATION_PLAYING);
             }
         });
 

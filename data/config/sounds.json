@@ -95,8 +95,20 @@
     {"file":"IndEvo/sounds/crucible_startup.ogg","pitch":1,"volume":1},
   ],
 
+  "IndEvo_crucible_alarm":[
+    {"file":"IndEvo/sounds/crucible_alarm.ogg","pitch":1,"volume":1},
+  ],
+
   "IndEvo_crucible_drone":[
     {"file":"IndEvo/sounds/crucible_drone.ogg","pitch":1,"volume":1},
+  ],
+
+  "IndEvo_crucible_off":[
+    {"file":"IndEvo/sounds/crucible_off.ogg","pitch":1,"volume":1},
+  ],
+
+  "IndEvo_crucible_transit":[
+    {"file":"IndEvo/sounds/crucible_transit_flare.ogg","pitch":1,"volume":1},
   ],
 
   "music":{

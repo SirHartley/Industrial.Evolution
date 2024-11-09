@@ -37,7 +37,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
     public static final float TRIGGER_RADIUS = 30f;
     public static final float ANIM_TIME = 0.4f;
     public static float GLOW_FREQUENCY = 0.2f; // on/off cycles per second
-    public static float DEFAULT_EXPLOSION_SIZE = 60f;
+    public static float DEFAULT_EXPLOSION_SIZE = 80f;
 
     public Color color;
     protected float phase1 = 0f;
@@ -122,7 +122,7 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
             float distance = Misc.getDistance(Global.getSector().getPlayerFleet(), entity);
             float fract = 1 - MathUtils.clamp(distance / volumeDistance, 0,1);
 
-            Global.getSoundPlayer().playSound("IndEvo_mote_yeet", 0.75f + 0.75f * MathUtils.clamp(color.getBlue() / 255f, 0, 1f), fract * 0.5f, entity.getLocation(), new Vector2f(0f, 0f));
+            Global.getSoundPlayer().playSound("IndEvo_mote_yeet", 0.75f + 0.75f * MathUtils.clamp(color.getBlue() / 255f, 0, 1f), fract * 0.9f, entity.getLocation(), new Vector2f(0f, 0f));
         }
 
         animProgress = 0f;
@@ -136,7 +136,8 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
-        if (getTarget() == null || color == null || !entity.hasTag(TAG_ENABLED)) return;
+        if (getTarget() == null || color == null
+                || (!entity.hasTag(TAG_ENABLED) && !doAnimation)) return;
 
         //we render above the station if doing anim, otherwise, station
         if (!doAnimation && layer == CampaignEngineLayers.ABOVE_STATIONS) return;
@@ -183,7 +184,8 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
 
     public float getQuadFunctAlpha(float fract){
         //this is a quadratic function going 0-1-0 between 0 and 1, returing 1 at fract = 0.5
-        return (float) (-4f * Math.pow(fract, 2f) + 4f + fract);
+        //return (float) (-4f * Math.pow(fract, 2f) + 4f * fract);
+        return (float) (0.5f * Math.sin(1.5f + Math.PI * fract) + 0.5);
     }
 
     public float getFlickerBasedMult(FlickerUtilV2 flicker) {

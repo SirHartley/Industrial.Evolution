@@ -34,17 +34,12 @@ public class CrucibleSpawner {
     public static final float CATAPULT_ADDITIONAL_ORBIT_DIST = 45f;
     public static final float CATAPULT_SUBUNIT_ADDITIONAL_ORBIT_DIST = 53f;
 
-
     public static final String HAS_PLACED_STATIONS = "$IndEvo_hasPlacedCrucibles";
     public static final float AMOUNT_MULT = Settings.getFloat(Settings.CRUCIBLE_NUM); //default 0.5f
 
-    public static void removeFromCurrentLoc(){
+    public static void removeFromtLoc(StarSystemAPI system){
         StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();
-        List<SectorEntityToken> tokens = new ArrayList<>();
-        tokens.addAll(targetSystem.getEntitiesWithTag("IndEvo_crucible"));
-        tokens.addAll(targetSystem.getEntitiesWithTag("IndEvo_crucible_bottom"));
-        tokens.addAll(targetSystem.getEntitiesWithTag("IndEvo_yeetopult"));
-        tokens.addAll(targetSystem.getEntitiesWithTag("IndEvo_crucible_arm"));
+        List<SectorEntityToken> tokens = new ArrayList<>(targetSystem.getEntitiesWithTag("IndEvo_crucible_part"));
 
         for (CampaignTerrainAPI terrain : targetSystem.getTerrainCopy()){
             if(terrain.getPlugin() instanceof MagneticFieldTerrainPlugin) if (Misc.getDistance(terrain.getLocation(), targetSystem.getEntitiesWithTag("IndEvo_crucible").get(0).getLocation()) < 500f) {

@@ -6,6 +6,7 @@ import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.util.*;
+import indevo.exploration.crucible.scripts.CrucibleMoveAnimationScript;
 import indevo.exploration.crucible.scripts.CrucibleStartupAnimationScript;
 import indevo.exploration.crucible.terrain.CrucibleFieldTerrainPlugin;
 import org.lazywizard.lazylib.MathUtils;
@@ -43,6 +44,8 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
     public static final String TAG_ENABLED = "crucible_enabled";
     public static final String MEM_ACTIVITY_LEVEL = "$crucible_activity_Level";
     public static final String MEM_CATAPULT_NUM = "$crucible_catapult_num";
+
+    public static final String TAG_ANIMATION_PLAYING = "IndEvo_animPlaying";
 
     public static Color GLOW_COLOR_1 = new Color(255,30,20,255);
     public static Color GLOW_COLOR_2 = new Color(255,180,20,255);
@@ -86,7 +89,7 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
 
         if (warp != null) warp.advance(amount);
 
-        if (data.moteInterval.intervalElapsed() && getActivityLevel() > 0.9f) spawnMote();
+        if (data.moteInterval.intervalElapsed() && getActivityLevel() > 0.9f && !entity.hasTag(TAG_ANIMATION_PLAYING)) spawnMote();
         phase1 += amount * GLOW_FREQUENCY;
         while (phase1 > 1) phase1--;
 
@@ -114,10 +117,23 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
             t.addTag(TAG_ENABLED);
         }*/
 
-        /*runcode for (com.fs.starfarer.api.campaign.SectorEntityToken t : com.fs.starfarer.api.Global.getSector().getPlayerFleet().getContainingLocation().getEntitiesWithTag("IndEvo_crucible")){
+        /*
+        runcode for (com.fs.starfarer.api.campaign.SectorEntityToken t : com.fs.starfarer.api.Global.getSector().getPlayerFleet().getContainingLocation().getEntitiesWithTag("IndEvo_crucible")){
             indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin plugin = (indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin) t.getCustomPlugin();
             plugin.enable();
-        }*/
+        }
+        */
+    }
+
+    public void disable(){
+        entity.getStarSystem().addScript(new CrucibleMoveAnimationScript(entity));
+        /*
+        runcode for (com.fs.starfarer.api.campaign.SectorEntityToken t : com.fs.starfarer.api.Global.getSector().getPlayerFleet().getContainingLocation().getEntitiesWithTag("IndEvo_crucible")){
+            indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin plugin = (indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin) t.getCustomPlugin();
+            plugin.disable();
+        }
+        */
+
     }
 
     public void spawnMote(){
