@@ -14,7 +14,8 @@ import indevo.dialogue.sidepanel.VisualCustomPanel;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 public class ResearchProjectSidePanelCreator {
     public static final Logger log = Global.getLogger(ResearchProjectSidePanelCreator.class);
@@ -53,13 +54,19 @@ public class ResearchProjectSidePanelCreator {
 
         TooltipMakerAPI lastUsedVariableButtonAnchor;
 
+        //sort map to display projects according to their completion status
+        Map<Float, ResearchProject> sortedProjects = new TreeMap<>();
         for (Map.Entry<String, ResearchProject> projectEntry : ResearchProjectTemplateRepo.RESEARCH_PROJECTS.entrySet()) {
+            sortedProjects.put(projectEntry.getValue().getProgress().points, projectEntry.getValue());
+        }
+
+        for (Map.Entry<Float, ResearchProject> projectEntry : sortedProjects.entrySet()) {
 
             final ResearchProject project = projectEntry.getValue();
             final String projId = project.getId();
             final ResearchProject.Progress progress = project.getProgress();
             CargoAPI cargo = playerFleet.getCargo();
-            float progressPercent = Math.min(1f, (progress.points * 1f) / (project.getRequiredPoints() * 1f));
+            float progressPercent = Math.min(1f, (progress.points) / (project.getRequiredPoints() * 1f));
             log.info("points " + progress.points + " req " + project.getRequiredPoints() + " % " + progressPercent);
 
             if (progress.redeemed || !project.display()) continue;

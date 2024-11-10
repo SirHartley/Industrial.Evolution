@@ -4,7 +4,10 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.impl.MusicPlayerPluginImpl;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.ids.Terrain;
 import com.fs.starfarer.api.impl.campaign.procgen.NebulaEditor;
+import com.fs.starfarer.api.impl.campaign.procgen.StarAge;
+import com.fs.starfarer.api.impl.campaign.terrain.BaseTiledTerrain;
 import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.NebulaTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
@@ -28,8 +31,8 @@ import static com.fs.starfarer.api.impl.campaign.ids.Tags.*;
 public class CrucibleSpawner {
     //crucible always spawns in nebula with the most planets
 
-    public static final float MIN_RADIUS_AROUND_CRUCIBLE = 7000f;
-    public static final float DIST_PER_FITTING_ATTEMPT = 700f;
+    public static final float MIN_RADIUS_AROUND_CRUCIBLE = 1500f;
+    public static final float DIST_PER_FITTING_ATTEMPT = 500f;
     public static final float MAGNETIC_FIELD_WIDTH = 300f;
     public static final float CATAPULT_ADDITIONAL_ORBIT_DIST = 45f;
     public static final float CATAPULT_SUBUNIT_ADDITIONAL_ORBIT_DIST = 53f;
@@ -52,34 +55,6 @@ public class CrucibleSpawner {
         //runcode indevo.exploration.crucible.plugin.CrucibleSpawner.removeFromCurrentLoc();
     }
 
-    public static void spawnInCurrentLoc(){
-        StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();
-        if (targetSystem == null) return;
-        Vector2f spawnLoc = getSpawnLoc(targetSystem); //no need to nullcheck because it will hang the game if it doesn't find one
-
-        boolean subUnit = false;
-        SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
-        spawnCatapults(crucible, subUnit);
-
-        ((BaseCrucibleEntityPlugin) crucible.getCustomPlugin()).enable();
-
-        //runcode indevo.exploration.crucible.plugin.CrucibleSpawner.spawnInCurrentLoc();
-    }
-
-    public static void spawnInCurrentLocSubUnit(){
-        StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();
-        if (targetSystem == null) return;
-        Vector2f spawnLoc = getSpawnLoc(targetSystem); //no need to nullcheck because it will hang the game if it doesn't find one
-
-        boolean subUnit = true;
-        SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
-        spawnCatapults(crucible, subUnit);
-
-        ((BaseCrucibleEntityPlugin) crucible.getCustomPlugin()).enable();
-
-        //runcode indevo.exploration.crucible.plugin.CrucibleSpawner.spawnInCurrentLocSubUnit();
-    }
-
     public static void spawn() {
         if (Global.getSector().getPersistentData().containsKey(HAS_PLACED_STATIONS)) return;
 
@@ -98,7 +73,7 @@ public class CrucibleSpawner {
     private static void spawnCrucible(boolean nonNebulaOnly){
         StarSystemAPI targetSystem = getTargetSystem(nonNebulaOnly);
         if (targetSystem == null) return;
-        Vector2f spawnLoc = getSpawnLoc(targetSystem); //no need to nullcheck because it will hang the game if it doesn't find one
+        Vector2f spawnLoc = getSpawnLoc2(targetSystem); //no need to nullcheck because it will hang the game if it doesn't find one
 
         boolean subUnit = false;
         SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
@@ -140,11 +115,49 @@ public class CrucibleSpawner {
         return spawnLoc;
     }
 
+    private static Vector2f getSpawnLoc2(StarSystemAPI targetSystem) {
+        // Get all planets in the system
+        List<PlanetAPI> planets = targetSystem.getPlanets();
+        Vector2f spawnLoc = null;
+
+        float radius = 2000f;
+        if (!targetSystem.isNebula()) radius+= targetSystem.getStar().getRadius();
+
+        // Incrementally increase the radius and check for a valid location
+        while (spawnLoc == null) {
+            boolean tooClose = false;
+
+            // Check all points along the radius for proximity to planets
+            for (float angle = 0; angle < 360f; angle += 1f) { // Check every 1 degree along the radius
+                Vector2f check = MathUtils.getPointOnCircumference(new Vector2f(0, 0), radius, angle);
+
+                for (PlanetAPI planet : planets) {
+                    if (Misc.getDistance(planet.getLocation(), check) < MIN_RADIUS_AROUND_CRUCIBLE) {
+                        tooClose = true;
+                        break;
+                    }
+                }
+
+                if (tooClose) {
+                    break; // Exit the loop if any planet is too close
+                }
+            }
+
+            // If no planets are too close, choose a random point on the radius
+            if (!tooClose) {
+                float randomAngle = MathUtils.getRandomNumberInRange(0f, 360f);
+                spawnLoc = MathUtils.getPointOnCircumference(new Vector2f(0, 0), radius, randomAngle);
+            }
+
+            radius += DIST_PER_FITTING_ATTEMPT; // Increase the radius for the next iteration
+        }
+
+        return spawnLoc;
+    }
+
     private static StarSystemAPI getTargetSystem(boolean nonNebulOnly) {
         int planetAmt = 0;
-        int oldPlanetAmt = 0;
         StarSystemAPI starSystem = null;
-        //StarSystemAPI oldNebulaSystem = null;
 
         for (StarSystemAPI system : Global.getSector().getStarSystems()) {
             if ((nonNebulOnly && system.isNebula()) || !system.getEntitiesWithTag(Ids.TAG_YEETOPULT).isEmpty()) continue;
@@ -158,19 +171,8 @@ public class CrucibleSpawner {
                 planetAmt = amt;
                 starSystem = system;
             }
-
-            //old
-           /* if (system.getConstellation().getAge() == StarAge.OLD) {
-                if (amt > oldPlanetAmt) {
-                    oldPlanetAmt = amt;
-                    oldNebulaSystem = system;
-                }
-            }*/
         }
 
-        //we prefer old nebula
-        //no we don't
-        //StarSystemAPI targetSystem = oldNebulaSystem != null && oldPlanetAmt >= 2 ? oldNebulaSystem : nebulaSystem;
         return starSystem;
     }
 
@@ -186,7 +188,7 @@ public class CrucibleSpawner {
 
         top.setDiscoverable(true);
         top.setDiscoveryXP(1000f);
-        top.setSensorProfile(3000f);
+        top.setSensorProfile(2000f);
 
         PlanetAPI sun = ((StarSystemAPI) loc).getStar();
         if (sun != null && !loc.isNebula()) {
@@ -211,11 +213,11 @@ public class CrucibleSpawner {
             break;
         }
 
-        if (nebula != null) {
+        /*if (nebula != null) {
             NebulaTerrainPlugin nebulaPlugin = (NebulaTerrainPlugin) nebula.getPlugin();
             NebulaEditor editor = new NebulaEditor(nebulaPlugin);
             editor.clearArc(pos.x, pos.y, 1, MAGNETIC_FIELD_WIDTH * 2, 0f, 360f);
-        }
+        }*/
 
         top.getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
 

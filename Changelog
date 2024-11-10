@@ -142,6 +142,7 @@ Added - Project Mjölnir: trade relic components for missiles, always unlocked
 Added - Some sounds to the project UI
 Adjusted - Show Inputs button is now Show Info and displays a description of what the project actually does (in most cases)
 Adjusted - "New Projects" intel now shows which projects actually got unlocked
+Adjusted - Now sorts entries in the list by progress
 Fixed - Project Navi no longer displays if pets are disabled
 Fixed - New Project intel no longer classed as major event
 Fixed - New Project intel now despawns after 31 days
