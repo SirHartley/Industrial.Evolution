@@ -1,6 +1,12 @@
 
 --------------------------- To-do -----------------------------
 Before release
+Feedback Notes
+- Make artillery follow some kinda stealth system
+- Arty remote should indicate "Not valid" when hovering over invalid loc
+- Museum
+- Allow courier to ship to superstructures for restoration
+- add dialogue option to shoot warning beacon
 
 Playthrough notes
 - small event that guarantees three remotes
@@ -76,11 +82,13 @@ Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
 
 3.4.4
 General
+Added - Dialogue option to dismantle hyperspace warning beacons
 Added - Framework to add some small lore text about how a planet fell to ruin when you survey (on request by Alfonzo)
 Added - A few stories of demise and death (Alfonzo will probably add more)
 Added - Colony corruption mode - colonies will start bleeding money the more you make. Disabled by default.
 Note - With this enabled, getting a colony above 200k income is an incredible feat, but getting it to 50-80k is just like vanilla. Calculated along f(x)=x^(-0.6).
 Fixed - Industry-specific cargo tabs (submarkets) no longer spawn before the building has finished construction
+Fixed - Added dependencies to mod info (only took me three years!)
 
 Salvage Interactions
 Adjusted - Drastically reduced the chance of IndEvo salvage specials appearing on derelict ships (40% -> 10%)
@@ -103,6 +111,7 @@ Removed - Orbital pet stations around a planet (too much clutter for the use the
 
 Items
 Added - Consumable item: Portable Relay, only works in hyperspace and establishes a link to a comm relay
+Added - Consumable item: Warning Beacon. Deploy in hyperspace, the broadcast message is configurable - comes with an intel entry.
 todo: npc usage and reactions
 Added - Rare Consumable Item: Ancient Remote. Targeted AOE, campaign level. It's very funny, trust me.
 Added - Consumable item: Explosive Missile. Skillshot, campaign level. Does what it says, though unreliable.

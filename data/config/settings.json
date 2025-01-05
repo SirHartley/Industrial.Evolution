@@ -241,7 +241,8 @@
   "indevo.abilities.splitfleet.dialogue",
   "indevo.dialogue.research.dialogue",
   "indevo.dialogue.rules",
-  "indevo.exploration.gacha.rules"
+  "indevo.exploration.gacha.rules",
+  "indevo.dialogue.beacons.dialogue"
   ],
 
   "designTypeColors":{
@@ -262,6 +263,7 @@
       "fx":{
           "IndEvo_concussionExplosionFX":"graphics/fx/concussion_explosion.png",
           "IndEvo_transpoofer_glow":"graphics/fx/IndEvo_consumable_transpoofer_glow.png",
+          "IndEvo_beacon_glow": "graphics/fx/IndEvo_consumable_warning_beacon_light.png",
           "IndEvo_trail_stream":"graphics/fx/trails_stream.png",
           "IndEvo_trail_foggy":"graphics/fx/trails_foggy.png",
           "IndEvo_trail_spatter":"graphics/fx/trails_spatter.png",
@@ -352,6 +354,7 @@
           "gearwheel": "graphics/stations/gear_wheel_no_colour.png",
           "fx_flash":"graphics/fx/IndEvo_flash_new.png",
           "fx_succy_storm_desat":"graphics/fx/IndEvo_blackhole_desat.png",
+          "beacon_custom": "graphics/icons/intel/beacon_custom.png"
       },
   },
 }

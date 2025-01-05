@@ -220,6 +220,7 @@ public class CrucibleSpawner {
         }*/
 
         top.getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
+        top.getMemoryWithoutUpdate().set("$IndEvo_crucible", true);
 
         return top;
     }

@@ -7,4 +7,22 @@
 	"gameVersion":"0.97a",
 	"jars":["jars/IndEvo.jar"],
 	"modPlugin":"indevo.utils.ModPlugin",
+	"dependencies": [
+		{
+			"id": "lw_lazylib",
+			"name": "LazyLib",
+		},
+		{
+			"id": "MagicLib",
+			"name": "MagicLib",
+		},
+		{
+			"id": "lunalib",
+			"name": "LunaLib",
+		},
+		{
+			"id": "shaderLib",
+			"name": "GraphicsLib",
+		},
+	],
 }

@@ -66,6 +66,8 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
     transient protected SpriteAPI mass;
     transient protected WarpingSpriteRendererUtil warp;
 
+    private boolean startup = true;
+
     public void init(SectorEntityToken entity, Object pluginParams) {
         super.init(entity, pluginParams);
         //this.entity = entity;
@@ -74,6 +76,11 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public void advance(float amount) {
+        if(startup && entity.isInCurrentLocation() && Misc.getDistance(Global.getSector().getPlayerFleet(), entity) < 700f) {
+            startup = false;
+            enable();
+        }
+
         if (!entity.hasTag(BaseCrucibleEntityPlugin.TAG_ENABLED)) return;
 
         if (entity.isInCurrentLocation()){

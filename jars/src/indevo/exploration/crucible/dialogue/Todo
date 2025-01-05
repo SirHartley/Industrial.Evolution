@@ -1,0 +1,25 @@
+- Establish Colony
+- Repair <part>
+- Move
+- Change catapult colour
+
+if Colony
+default colony things
+- Crucible options (maybe button on right?)
+
+Make crucible governance? ??
+- basic ship building capacity
+- basic quality capacity
+- always -1 stability bc the sun
+
+Repair
+- Repair crucible
+    Needs crucible seed
+    Needs relic components
+    Needs 1000 fuel
+- Move option
+    Needs wormhole anchor
+    Destroys wormhole anchor on move
+- Gate option
+    Integrate Hypershunt tap
+    Needs Hypershunt in range

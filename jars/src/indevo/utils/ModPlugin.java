@@ -34,6 +34,7 @@ import indevo.abilities.skills.scripts.AdminGovernTimeTracker;
 import indevo.abilities.skills.scripts.MicromanagementSkillEffectScript;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
+import indevo.dialogue.beacons.dialogue.BeaconDialogueListener;
 import indevo.dialogue.research.*;
 import indevo.dialogue.research.listeners.*;
 import indevo.dialogue.research.scripts.RefitUIOpenChecker;
@@ -434,6 +435,7 @@ public class ModPlugin extends BaseModPlugin {
         OnKeyPressAbilityInputListener.getInstanceOrRegister();
         FleetConsumableInventoryManager.register();
         if (Global.getSettings().getModManager().isModEnabled("nexerelin")) ManagedDemocracyNexerelinListenerPlugin.register();
+        BeaconDialogueListener.register();
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();
     }

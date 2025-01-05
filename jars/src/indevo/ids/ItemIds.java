@@ -49,6 +49,7 @@ public class ItemIds {
     public static final String CONSUMABLE_MISSILE_SMOKE = "IndEvo_consumable_missile_smoke";
     public static final String CONSUMABLE_MISSILE_INTERCEPT = "IndEvo_consumable_missile_intercept";
     public static final String CONSUMABLE_MISSILE_REMOTE = "IndEvo_consumable_artillery_remote";
+    public static final String CONSUMABLE_BEACON = "IndEvo_consumable_warning_beacon";
 
     //industry
     public static final String LOG_CORE = "IndEvo_log_core";

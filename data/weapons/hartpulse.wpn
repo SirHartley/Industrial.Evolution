@@ -9,7 +9,7 @@
   "hardpointSprite": "graphics/weapons/hartpulse_hardpoint.png",
   "hardpointGlowSprite": "graphics/weapons/hartpulse_hardpoint_glow.png",
   "glowColor": [
-    100,
+    125,
     100,
     255,
     225
@@ -44,14 +44,14 @@
   "animationType": "GLOW_AND_FLASH",
   "autocharge": true,
   "muzzleFlashSpec": {
-    "length": 35,
+    "length": 40,
     "spread": 0,
-    "particleSizeMin": 12,
+    "particleSizeMin": 6,
     "particleSizeRange": 12,
     "particleDuration": 0.12,
-    "particleCount": 12,
+    "particleCount": 18,
     "particleColor": [
-      100,
+      125,
       100,
       255,
       255

@@ -51,7 +51,7 @@ IndEvo_Minefield_NoHitUntilSum,[Minefields] No Hit Until Sum,Double,0.5,,The min
 IndEvo_Minefield_CivilianShipImpactMult,[Minefields] Civ Ship Hit Chance Mult,Double,0.5,,Civ ships count half ect for above,,,Minefields
 IndEvo_Minefield_PhaseShipImpactMult,[Minefields] Phase Ship Hit Chance Mult,Double,0.3,,,,,Minefields
 IndEvo_header5,Artillery,Header,Artillery,,,,,Artillery
-IndEvo_Enable_Artillery,[Artillery] Spawn Artillery Stations,Boolean,TRUE,,Only works on new game. Disabling this means you have weak bones. There used to be another insult here but the weak boned snowflakes were offended by it because it was too true.,,,Artillery
+IndEvo_Enable_Artillery,[Artillery] Spawn Artillery Stations,Boolean,TRUE,,Only works on new game. Disabling this means you have weak bones.,,,Artillery
 IndEvo_Artillery_spawnWeight,[Artillery] Spawn Chance,Double,1,,How likely a system is to have an artillery station. Reduce this number to make them rarer. 1 = between 5-10%% of all systems will have one.,0,100,Artillery
 IndEvo_Watchtower_faction_reset,[Artillery] Time to watchtower faction reset,Int,31,,"Time in days for watchtowers to reset to the faction controlling the artillery. This is needed to avoid ""dead"" artilleries after being highjacked by a pirate station and subsequently having their watchtowers taken by an invasion.",,,Artillery
 IndEvo_Artillery_minDelayBetweenShots,[Artillery] Min Delay Between Shots,Double,2,,"Delay between shots - if the artillery has two valid targets, it'll take that long to fire at both of them",0,100,Artillery
