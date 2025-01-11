@@ -3,13 +3,10 @@
 Before release
 Feedback Notes
 - Make artillery follow some kinda stealth system
-- Arty remote should indicate "Not valid" when hovering over invalid loc
 - Museum
 - Allow courier to ship to superstructures for restoration
-- add dialogue option to shoot warning beacon
 
 Playthrough notes
-- small event that guarantees three remotes
 - Add a proper edict selection UI, for remote operation as well
 - add some more info/tt/notifications to governments
 
@@ -113,7 +110,7 @@ Items
 Added - Consumable item: Portable Relay, only works in hyperspace and establishes a link to a comm relay
 Added - Consumable item: Warning Beacon. Deploy in hyperspace, the broadcast message is configurable - comes with an intel entry.
 todo: npc usage and reactions
-Added - Rare Consumable Item: Ancient Remote. Targeted AOE, campaign level. It's very funny, trust me.
+Added - Rare Consumable Item: Ancient Remote. Targeted AOE, campaign level. It is very funny.
 Added - Consumable item: Explosive Missile. Skillshot, campaign level. Does what it says, though unreliable.
 Added - Consumable item: Concussive Missile. Targeted AOE, campaign level. Knocks fleets away, does no damage.
 Added - Consumable item: Smoke Missile. Targeted AOE, campaign level. Spawns vision-reducing smoke to hide in or to leave enemies in the dark.
@@ -160,6 +157,7 @@ Artillery
 Added - Watchtowers now reset to the controlling faction after 31 days if the station is under AI control to avoid deadlocked artillery station
 Adjusted - Increased delay between shots by 2 seconds
 Adjusted - Watchtowers under AI control can now be hacked, but not taken over
+Adjusted - Spawn algorithm adjusted to prefer systems with lots of loot
 Fixed - Artillery Eye no longer displays when UI is disabled
 Fixed - No longer spawn on abyss planets
 Fixed - No longer spawn in "special" systems

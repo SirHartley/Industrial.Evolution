@@ -91,6 +91,10 @@
     {"file":"IndEvo/sounds/mote_yeet.ogg","pitch":1,"volume":1},
   ],
 
+  "IndEvo_denied_buzzer":[
+    {"file":"IndEvo/sounds/denied.ogg","pitch":1,"volume":1},
+  ],
+
   "IndEvo_crucible_start":[
     {"file":"IndEvo/sounds/crucible_startup.ogg","pitch":1,"volume":1},
   ],

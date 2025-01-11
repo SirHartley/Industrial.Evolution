@@ -33,8 +33,13 @@ public class OnClickAbilityInputListener implements MissileTargetUIKeypressListe
 
         AbilitySpecAPI spec = plugin.getSpec();
         boolean isAOE = spec.hasTag("aoe");
+        boolean isArty = spec.hasTag("artillery");
 
-        renderer = isAOE ? new MissileAOETargetingReticuleRenderer() : new MissileSkillshotTargetingReticuleRenderer();
+        //see OnKeyPressAbilityInputListener for comment
+        renderer = new MissileSkillshotTargetingReticuleRenderer();
+        if (isArty) renderer = new ArtilleryAOEReticuleRenderer();
+        else if (isAOE) new MissileAOETargetingReticuleRenderer();
+
         LunaCampaignRenderer.addRenderer(renderer);
     }
 
@@ -70,6 +75,12 @@ public class OnClickAbilityInputListener implements MissileTargetUIKeypressListe
             }
 
             if (input.getEventType().equals(InputEventType.MOUSE_UP) && input.getEventValue() == InputEventMouseButton.LEFT) {
+                if (!renderer.isValidPosition()){
+                    Global.getSoundPlayer().playUISound("IndEvo_denied_buzzer", 1f, 1f);
+                    input.consume();
+                    return;
+                }
+
                 ((BaseMissileConsumableAbilityPlugin) plugin).forceActivation();
                 plugin.setCooldownLeft(plugin.getSpec().getDeactivationCooldown());
 

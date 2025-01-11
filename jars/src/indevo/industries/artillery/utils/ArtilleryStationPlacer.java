@@ -22,8 +22,10 @@ import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationScript;
+import indevo.items.consumables.listeners.LocatorSystemRatingUpdater;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
+import org.lazywizard.lazylib.MathUtils;
 
 import java.util.List;
 import java.util.Random;
@@ -77,10 +79,9 @@ public class ArtilleryStationPlacer {
                     || s.hasTag(Tags.THEME_SPECIAL)
                     || s.hasTag(Tags.SYSTEM_ABYSSAL)) continue;
 
-            float baseMod = 0.002f;
-            if (s.getTags().contains(Tags.THEME_REMNANT_SUPPRESSED)) baseMod += 0.02f;
-            if (s.getTags().contains(Tags.THEME_REMNANT_RESURGENT)) baseMod += 0.1f;
-            if (s.getTags().contains(Tags.THEME_DERELICT_CRYOSLEEPER)) baseMod += 0.05f;
+            float baseMod = 0f;
+            if (s.getTags().contains(Tags.THEME_REMNANT_RESURGENT)) baseMod += 0.2f;
+            if (s.getTags().contains(Tags.THEME_DERELICT_CRYOSLEEPER)) baseMod += 0.2f;
             if (s.getTags().contains(Tags.THEME_RUINS)) baseMod += 0.02f;
 
             boolean hasRemnantStation = false;
@@ -88,6 +89,9 @@ public class ArtilleryStationPlacer {
                 if (fleet.isStationMode() && fleet.getFaction().getId().equals(Factions.REMNANTS))
                     hasRemnantStation = true;
             }
+
+            float rating = LocatorSystemRatingUpdater.getRating(s);
+            baseMod += rating * 0.002f;
 
             for (PlanetAPI p : s.getPlanets()) {
                 if (p.isStar() || p.getMarket() == null || p.hasTag(Tags.NOT_RANDOM_MISSION_TARGET)) continue;
@@ -97,8 +101,7 @@ public class ArtilleryStationPlacer {
                 planetMod *= Settings.getFloat(Settings.ARTILLERY_SPAWN_WEIGHT);
 
                 if (r.nextFloat() < planetMod) {
-                    if (hasRemnantStation)
-                        p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, ArtilleryStationEntityPlugin.TYPE_MISSILE);
+                    if (hasRemnantStation) p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, ArtilleryStationEntityPlugin.TYPE_MISSILE);
 
                     //addTestArtilleryToPlanet(p);
                     addArtilleryToPlanet(p, false);

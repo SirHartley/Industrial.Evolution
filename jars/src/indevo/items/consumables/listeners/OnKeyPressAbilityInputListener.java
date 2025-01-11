@@ -17,6 +17,7 @@ import java.util.List;
 
 public class OnKeyPressAbilityInputListener implements MissileTargetUIKeypressListener, CampaignInputListener {
 
+    //for missiles only
     //should really be using pressButton through the API instead of whatever this is
 
     public int lastSlotVal = -1;
@@ -67,19 +68,30 @@ public class OnKeyPressAbilityInputListener implements MissileTargetUIKeypressLi
                     AbilitySpecAPI spec = Global.getSettings().getAbilitySpec(ability);
                     boolean isMissile = spec.hasTag("indevo_missile");
                     boolean isAOE = spec.hasTag("aoe");
+                    boolean isArty = spec.hasTag("artillery");
 
                     if (isMissile && Global.getSector().getPlayerFleet().getAbility(ability).isUsable()) {
                         active = true;
                         lastSlotVal = eventVal;
                         MissileActivationManager.getInstanceOrRegister().setCurrentListener(this);
 
-                        renderer = isAOE ? new MissileAOETargetingReticuleRenderer() : new MissileSkillshotTargetingReticuleRenderer();
+                        //this is trash code, it should really be set externally by passing the required reticule from the ability
+                        renderer = new MissileSkillshotTargetingReticuleRenderer();;
+                        if (isArty) renderer = new ArtilleryAOEReticuleRenderer();
+                        else if (isAOE) new MissileAOETargetingReticuleRenderer();
+
                         LunaCampaignRenderer.addRenderer(renderer);
                         input.consume();
                     }
                 }
             } else if (input.getEventType().equals(InputEventType.KEY_UP)) {
                 if (isActive() && input.getEventValue() == lastSlotVal) {
+
+                    if (!renderer.isValidPosition()){
+                        Global.getSoundPlayer().playUISound("IndEvo_denied_buzzer", 1f, 1f);
+                        reset();
+                        return;
+                    }
 
                     AbilityPlugin p = Global.getSector().getPlayerFleet().getAbility( Global.getSector().getUIData().getAbilitySlotsAPI().getCurrSlotsCopy().get(lastSlotVal -2).getAbilityId());
                     ((BaseMissileConsumableAbilityPlugin) p).forceActivation();

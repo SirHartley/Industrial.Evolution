@@ -11,6 +11,7 @@ import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.industries.petshop.dialogue.PetPickerInteractionDialoguePlugin;
 import indevo.items.consumables.dialogue.BeaconDelegateLaunchpadDialoguePlugin;
 import indevo.items.consumables.entityAbilities.DecoyMineAbility;
@@ -48,19 +49,20 @@ public class BeaconAbilityPlugin extends BaseConsumableAbilityPlugin {
     }
 
     public void spawnBeacon(String message){
-        SectorEntityToken closestJumpPoint = null;
-
+        SectorEntityToken closestEntity = null;
         float maxDist = Float.MAX_VALUE;
 
-        for (SectorEntityToken t : Global.getSector().getHyperspace().getJumpPoints()){
-            float dist = Misc.getDistance(t, entity);
-            if (dist < maxDist){
-                closestJumpPoint = t;
-                maxDist = dist;
+        if(entity.isInHyperspace()){
+            for (SectorEntityToken t : Global.getSector().getHyperspace().getJumpPoints()){
+                float dist = Misc.getDistance(t, entity);
+                if (dist < maxDist){
+                    closestEntity = t;
+                    maxDist = dist;
+                }
             }
         }
 
-        if (closestJumpPoint == null || maxDist > 400f){
+        if (closestEntity == null || maxDist > 400f){
             CustomCampaignEntityAPI beacon = entity.getContainingLocation().addCustomEntity(null, null, "IndEvo_warning_beacon", Factions.NEUTRAL, message);
             beacon.addTag(Tags.WARNING_BEACON);
             beacon.setDiscoverable(false);
@@ -68,13 +70,20 @@ public class BeaconAbilityPlugin extends BaseConsumableAbilityPlugin {
             Global.getSector().getIntelManager().addIntel(new DeployableWarningBeaconIntel(beacon, message));
 
             Misc.setWarningBeaconColors(beacon, getFleet().getFaction().getColor(), getFleet().getFaction().getColor());
-            beacon.setLocation(entity.getLocation().x, entity.getLocation().y);
+
+            if (entity.isInHyperspace()){
+                beacon.setLocation(entity.getLocation().x, entity.getLocation().y);
+            } else {
+                OrbitAPI orbit = OrbitFocus.getClosestValidOrbit(entity, true, true);
+                beacon.setOrbit(orbit);
+            }
+
         } else {
             CustomCampaignEntityAPI beacon = entity.getContainingLocation().addCustomEntity(null, null, "IndEvo_warning_beacon", Factions.NEUTRAL, message);
 
             float radius = maxDist;
             float orbitDays = radius / (10f + StarSystemGenerator.random.nextFloat() * 5f);
-            beacon.setCircularOrbitPointingDown(closestJumpPoint, StarSystemGenerator.random.nextFloat() * 360f, radius, orbitDays);
+            beacon.setCircularOrbitPointingDown(closestEntity, StarSystemGenerator.random.nextFloat() * 360f, radius, orbitDays);
             beacon.setCircularOrbitAngle(Misc.getAngleInDegrees(beacon.getLocation(), entity.getLocation()));
             beacon.setDiscoverable(false);
 

@@ -44,6 +44,7 @@ public abstract class BaseReticuleRenderer implements MissileCampaignRenderer {
 
         float fleetSize = fleet.getRadius();
         float reticuleSize = fleetSize + 250f;
+        Color color = isValidPosition() ? fleet.getIndicatorColor() : Color.RED.darker();
 
         Vector2f mousePos = new Vector2f(
                 Global.getSector().getViewport().convertScreenXToWorldX(Global.getSettings().getMouseX()),
@@ -55,11 +56,16 @@ public abstract class BaseReticuleRenderer implements MissileCampaignRenderer {
         fleetDirectionalReticule.setWidth(reticuleSize);
         fleetDirectionalReticule.setHeight(reticuleSize);
         fleetDirectionalReticule.setAngle(angleToCursor - 90f);
-        fleetDirectionalReticule.setColor(fleet.getIndicatorColor());
+        fleetDirectionalReticule.setColor(color);
         fleetDirectionalReticule.renderAtCenter(fleet.getLocation().x, fleet.getLocation().y);
 
-        renderCursorBoundObject(layer, viewport, angleToCursor, mousePos, fleet.getIndicatorColor());
+        renderCursorBoundObject(layer, viewport, angleToCursor, mousePos, color);
     }
 
     public abstract void renderCursorBoundObject(CampaignEngineLayers layer, ViewportAPI viewport, float angleToCursor, Vector2f cursorPos, Color colour);
+
+    @Override
+    public boolean isValidPosition() {
+        return true;
+    }
 }

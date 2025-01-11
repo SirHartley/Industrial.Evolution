@@ -255,6 +255,7 @@ public class ModPlugin extends BaseModPlugin {
     public void onNewGameAfterEconomyLoad() {
         super.onNewGameAfterEconomyLoad();
 
+        LocatorSystemRatingUpdater.updateAllSystems();
         RuinsManager.forceCleanCoreRuins();
         NewGameIndustryPlacer.run();
         ArtilleryStationPlacer.placeDerelictArtilleries();

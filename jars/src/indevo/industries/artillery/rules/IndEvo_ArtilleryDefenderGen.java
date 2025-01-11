@@ -105,6 +105,7 @@ public class IndEvo_ArtilleryDefenderGen {
         defenders.getInflater().setRemoveAfterInflating(false);
         defenders.setName("Automated Artillery Defenses");
         defenders.clearAbilities();
+        defenders.addTag(ArtilleryStationScript.ARTILLERY_KEY);
 
         return defenders;
     }

@@ -84,7 +84,7 @@ public class ArtilleryRemoteAbilityPlugin extends BaseMissileConsumableAbilityPl
         boolean hasArty = entity.getContainingLocation().hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY);
 
         if (knowsEffect) {
-            tooltip.addPara("Forces a nearby artillery to %s. The deployment time is slightly unreliable due to age and loading cycles, and it will lock itself after one use.", opad, hl, "fire at the selected location");
+            tooltip.addPara("Forces a nearby artillery to %s. The deployment time is slightly unreliable due to age and loading cycles. The access codes stored within are valid for one use.", opad, hl, "fire at the selected location");
 
             if (!hasArty)
                 tooltip.addPara("No functioning artillery platform in range.", opad, Misc.getNegativeHighlightColor());

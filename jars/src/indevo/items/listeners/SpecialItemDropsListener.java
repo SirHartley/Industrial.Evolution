@@ -19,7 +19,6 @@ import java.util.Random;
 
 /**
  * Most of this is stolen from Extra Systems Reloaded, courtesy of @presidentmattdamon
- * The 4chin retards can stop complaining about fucking loot pool dilution now
  */
 
 public class SpecialItemDropsListener implements ShowLootListener {

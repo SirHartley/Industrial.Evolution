@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
+import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.campaign.listeners.ShowLootListener;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -12,6 +13,9 @@ import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.research.dialogue.DropDataCreator;
+import indevo.ids.ItemIds;
+import indevo.industries.artillery.scripts.ArtilleryStationScript;
+import indevo.utils.ModPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,9 @@ public class ConsumableItemDropListener implements ShowLootListener {
 
     @Override
     public void reportAboutToShowLootToPlayer(CargoAPI loot, InteractionDialogAPI dialog) {
+        if (dialog.getInteractionTarget().hasTag(ArtilleryStationScript.ARTILLERY_KEY)){
+            loot.addSpecial(new SpecialItemData(ItemIds.CONSUMABLE_MISSILE_REMOTE, null), 1);
+        }
 
         if (dialog.getInteractionTarget() instanceof CampaignFleetAPI) {
             CampaignFleetAPI fleet = (CampaignFleetAPI) dialog.getInteractionTarget();

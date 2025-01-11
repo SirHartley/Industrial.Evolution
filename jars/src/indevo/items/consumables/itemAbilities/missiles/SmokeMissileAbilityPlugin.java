@@ -6,6 +6,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.items.consumables.entities.BaseMissileEntityPlugin;
 import indevo.items.consumables.entities.SmokeCloudEntityPlugin;
+import indevo.items.consumables.fleet.MissileAIReactionManager;
 import indevo.items.consumables.terrain.SmokeCloudTerrain;
 import indevo.utils.helper.StringHelper;
 import org.lwjgl.util.vector.Vector2f;
@@ -30,6 +31,8 @@ public class SmokeMissileAbilityPlugin extends BaseMissileConsumableAbilityPlugi
         BaseMissileEntityPlugin.ConsumableMissileParams params = new BaseMissileEntityPlugin.ConsumableMissileParams(getFleet(), angleToMouse, MISSILE_DUR, MISSILE_SPEED, mousePos);
         SectorEntityToken t = getFleet().getContainingLocation().addCustomEntity(Misc.genUID(), null,MISSILE_ID,getFleet() != null ? getFleet().getFaction().getId() : null, params);
         t.setLocation(getFleet().getLocation().x, getFleet().getLocation().y);
+
+        MissileAIReactionManager.reportFleetUsedMissile(getFleet(), MISSILE_ID);
     }
 
 
