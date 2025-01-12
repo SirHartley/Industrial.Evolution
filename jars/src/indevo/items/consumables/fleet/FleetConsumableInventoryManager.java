@@ -3,6 +3,7 @@ package indevo.items.consumables.fleet;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.listeners.FleetSpawnListener;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.ItemIds;
 import indevo.items.consumables.ItemAbilityHelper;
 
@@ -40,6 +41,7 @@ public class FleetConsumableInventoryManager implements FleetSpawnListener {
         }
 
         fleet.getMemoryWithoutUpdate().set(MISSILE_INVENTORY_KEY, missileInventory);
+        if (Misc.caresAboutPlayerTransponder(fleet)) fleet.getMemoryWithoutUpdate().set(MissileMemFlags.USES_MISSILES, true);
     }
 
     public static Map<String, Integer> getInventoryForFleet(CampaignFleetAPI fleet){

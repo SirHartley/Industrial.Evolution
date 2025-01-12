@@ -1,21 +1,50 @@
 id,trigger,conditions,script,text,options,notes
 #RULESET_NAME IndEvo,,,,,,
 ,,,,,,
+#missiles,,,,,,
+#Caught after use without transponder,,,,,,
+IndEvo_missile_caughtAfterUseBegin,BeginFleetEncounter,"$missile_chasingPlayerMissileUse score:1000
+$missile_didAlready","$missile_didAlready = true 0
+MakeOtherFleetAggressive missileUse false
+unset $ignorePlayerCommRequests
+$missile_confirmedOffenseCount++ 14
+$missileUseCaughtConv = true 0
+AddText ""You're being hailed by the $faction $otherShipOrFleet."" $faction.baseColor
+OpenComms",,,
+IndEvo_missile_openComm_knowsPlayer,OpenCommLink,$entity.missileUseCaughtConv score:100,"AddText ""\""Deplyoying long-range strategic munitions in civilized $faction volumes is against the law. You're hereby ordered to submit the entirety of your arsenal for confiscation!\""""
+SetStoryOption avoid_scan 1 avoidCargoScan ui_char_spent_story_point ""Talked your way out of a confiscation order""",,"0:tOff_comply:Comply and prepare for an inspection
+1:avoid_scan:Talk your way out of it
+2:tOff_refuse:Refuse and cut the comm link",
+IndEvo_missile_openComm_doesNotKnowPlayer,OpenCommLink,"!$entity.patrolAllowTOff
+$entity.missileUseCaughtConv score:100
+!$entity.knowsWhoPlayerIs","AddText ""\""Unknown $shipOrFleet, identify yourself! Deplyoying long-range strategic munitions in civilized $faction volumes is against the law. You're hereby ordered to turn your transponder on and submit the entirety of your arsenal for confiscation!\""""
+AdjustRep $faction.id TRANSPONDER_OFF
+AdjustRepActivePerson TRANSPONDER_OFF
+SetStoryOption avoid_scan 1 avoidCargoScan ui_char_spent_story_point ""Talked your way out of a confiscation order""",,"0:tOff_comply:Turn the transponder on and comply
+1:avoid_scan:Talk your way out of it
+2:tOff_refuse:Refuse and cut the comm link",
+,,,,,,
+IndEvo_missile_openComm_refuseConfiscation,DialogOptionSelected,$option == missile_refuse,"$entity.ignorePlayerCommRequests = true 0
+unset $entity.transponderOffConv
+AdjustRep $faction.id TRANSPONDER_OFF_REFUSE
+AdjustRepActivePerson TRANSPONDER_OFF_REFUSE
+MakeHostileWhileTOff tOff true 7
+ShowDefaultVisual
+EndConversation
+$sourceMarket.smugglingScanTimeout = true 30",,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
 IndEvo_crucible_flavour_disabled,OpenInteractionDialog,$IndEvo_crucible,,Crucible no worky flavour,,
 IndEvo_crucible_flavour_enabled,OpenInteractionDialog,"$tag:crucible_enabled
 $IndEvo_crucible",,Crucible worky flavour,,
 IndEvo_crucible_flavour_enabled_colonized,OpenInteractionDialog,"$tag:crucible_enabled
 $IndEvo_crucible
 $hasMarket",,Crucible worky with market flavour,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
 ,,,,,,
 IndEvo_beacon_OpenDialogCustom,OpenInteractionDialog,"$tag:warning_beacon
 $tag:IndEvo_beacon","ShowDefaultVisual
