@@ -76,7 +76,8 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public void advance(float amount) {
-        if(startup && entity.isInCurrentLocation() && Misc.getDistance(Global.getSector().getPlayerFleet(), entity) < 700f) {
+        //dev enable on approach
+        if(false && startup && entity.isInCurrentLocation() && Misc.getDistance(Global.getSector().getPlayerFleet(), entity) < 700f) {
             startup = false;
             enable();
         }

@@ -30,6 +30,27 @@ import java.util.List;
  * - Other Fleets now also use missiles (in this system).
  * - If a fleet ignores transponders, it ignores missile usage too (except may demand bribe).
  */
+
+/*begin
+- caught using no transpo
+	- instant -3
+        - demand transpo on to identify
+	- if refuse, combat
+	- if accept, fine and some more rep penalty (and now they know who you are)
+	- if second time, cargo scan and confiscate everything they find
+	- if third time, hostile and combat
+- caught w/ transpo
+	- instant -15
+        - fine if first time
+	- confiscate if second time
+	- hostile and combat if third time
+
+        special condition: "They used them first!"
+        - Still forbidden in civ volume!
+        - check if other fleet nearby has use tag
+	- if yes, let off easy
+	- if no, "dectecting no missile drive residue", call liar, rep penalty, confiscate for lying*/
+
 public class MissileAIReactionManager {
 
     public static float FACTION_REP_LOSS_TIMEOUT_TIME = 14f;

@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
+import com.fs.starfarer.api.impl.MusicPlayerPluginImpl;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
 import com.fs.starfarer.api.impl.campaign.intel.deciv.DecivTracker;
@@ -22,7 +23,6 @@ public class IndEvo_ColonizeCrucible extends BaseCommandPlugin {
 
         String name = "The Crucible";
         MarketAPI market = Global.getFactory().createMarket(Misc.genUID(), name, 3);
-        market.setSize(3);
         market.setName(name);
         market.setHidden(false);
         market.setFactionId(Factions.PLAYER);
@@ -30,6 +30,7 @@ public class IndEvo_ColonizeCrucible extends BaseCommandPlugin {
         market.setSurveyLevel(MarketAPI.SurveyLevel.FULL);
 
         market.addCondition(Conditions.POPULATION_3);
+        market.addCondition(Conditions.RUINS_VAST);
         market.addIndustry(Industries.POPULATION);
 
         market.setDaysInExistence(0);
@@ -43,6 +44,12 @@ public class IndEvo_ColonizeCrucible extends BaseCommandPlugin {
 
         market.setPrimaryEntity(crucible);
         crucible.setMarket(market);
+        crucible.setFaction(Factions.PLAYER);
+
+
+
+        market.getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
+        crucible.getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
 
         Global.getSector().getEconomy().addMarket(market, true);
         Global.getSector().getEconomy().tripleStep();

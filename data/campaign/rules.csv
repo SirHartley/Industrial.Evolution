@@ -1,7 +1,7 @@
 id,trigger,conditions,script,text,options,notes
 #RULESET_NAME IndEvo,,,,,,
 ,,,,,,
-#missiles,,,,,,
+#missiles,,,,,,"2 Stages: Transponder and Confiscation. Run in order, and skippable in order for 1 sp each"
 #Caught after use without transponder,,,,,,
 IndEvo_missile_caughtAfterUseBegin,BeginFleetEncounter,"$missile_chasingPlayerMissileUse score:1000
 $missile_didAlready","$missile_didAlready = true 0
@@ -11,9 +11,8 @@ $missile_confirmedOffenseCount++ 14
 $missileUseCaughtConv = true 0
 AddText ""You're being hailed by the $faction $otherShipOrFleet."" $faction.baseColor
 OpenComms",,,
-IndEvo_missile_openComm_knowsPlayer,OpenCommLink,$entity.missileUseCaughtConv score:100,"AddText ""\""Deplyoying long-range strategic munitions in civilized $faction volumes is against the law. You're hereby ordered to submit the entirety of your arsenal for confiscation!\""""
-SetStoryOption avoid_scan 1 avoidCargoScan ui_char_spent_story_point ""Talked your way out of a confiscation order""",,"0:tOff_comply:Comply and prepare for an inspection
-1:avoid_scan:Talk your way out of it
+IndEvo_missile_openComm_knowsPlayer,OpenCommLink,$entity.missileUseCaughtConv score:100,"AddText ""\""Deplyoying long-range strategic munitions in civilized $faction volumes is against the law. You're hereby ordered to submit the entirety of your arsenal for confiscation!\""""",,"0:tOff_comply:Comply and prepare for an inspection
+1:IndEvo_missile_attemptSPTalk:Try to talk your way out of it
 2:tOff_refuse:Refuse and cut the comm link",
 IndEvo_missile_openComm_doesNotKnowPlayer,OpenCommLink,"!$entity.patrolAllowTOff
 $entity.missileUseCaughtConv score:100
@@ -21,7 +20,7 @@ $entity.missileUseCaughtConv score:100
 AdjustRep $faction.id TRANSPONDER_OFF
 AdjustRepActivePerson TRANSPONDER_OFF
 SetStoryOption avoid_scan 1 avoidCargoScan ui_char_spent_story_point ""Talked your way out of a confiscation order""",,"0:tOff_comply:Turn the transponder on and comply
-1:avoid_scan:Talk your way out of it
+1:IndEvo_missile_attemptSPTalk:Try to talk your way out of it
 2:tOff_refuse:Refuse and cut the comm link",
 ,,,,,,
 IndEvo_missile_openComm_refuseConfiscation,DialogOptionSelected,$option == missile_refuse,"$entity.ignorePlayerCommRequests = true 0
@@ -33,19 +32,125 @@ ShowDefaultVisual
 EndConversation
 $sourceMarket.smugglingScanTimeout = true 30",,,
 ,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-IndEvo_crucible_flavour_disabled,OpenInteractionDialog,$IndEvo_crucible,,Crucible no worky flavour,,
-IndEvo_crucible_flavour_enabled,OpenInteractionDialog,"$tag:crucible_enabled
-$IndEvo_crucible",,Crucible worky flavour,,
-IndEvo_crucible_flavour_enabled_colonized,OpenInteractionDialog,"$tag:crucible_enabled
+#Crucible with colony,,,,,,
+IndEvo_crucible_market_open,OpenInteractionDialog,"$hasMarket
+$IndEvo_crucible score:100","ShowDefaultVisual
+PrintDescription 3
+FireBest MarketPostOpen","Recently restored lights flicker on as if already ancient, illuminating clouds of dust as your shuttle traverses the industrial flightways. Crossing the threshold of the dark, claustrophobic corridors, a residential hangar opens up, the gargoyle-like guidance mechanisms watching with almost contemptous gaze as you make your way towards the busy landing pads. 
+
+While the personnel manning flight control sounds chipper, the architecture turns their friendly speech into something almost foreboding.",,
+#IndEvo_crucible_market_flavourTextEnabled,PopulateOptions,"$menuState == main
+$hasMarket
 $IndEvo_crucible
-$hasMarket",,Crucible worky with market flavour,,
+!$crucible_introTextShown",$crucible_introTextShown = true 0,"Recently restored lights flicker on as if already ancient, illuminating clouds of dust as your ship traverses the industrial flightways. Crossing the threshold of the dark, claustrophobic corridors, a residential hangar opens up, the gargoyle-like guidance mechanism watching in contempt as you make your way towards the busy landing pads. 
+
+While the personnel manning flight control sounds chipper, the architecture turns their friendly speech into something almost foreboding.",,
+IndEvo_crucible_market_activate,PopulateOptions,"$menuState == main
+$hasMarket
+$IndEvo_crucible
+!$tag:crucible_enabled",,,0:IndEvo_crucible_startActivate:Visit the heart of the crucible,
+IndEvo_crucible_market_addPilferOption,PopulateOptions,"$menuState == main
+$hasMarket
+$IndEvo_crucible
+!$crucible_looted",,The initial survey revealed a treasure trove of resources to be found - as well as an extremely hostile and equally active security system. Looting this place will not be easy.,IndEvo_crucible_startLooting:Start an expedition for loot,scavenge for stuff (once)
+IndEvo_crucible_market_addTravelOptionPoint,PopulateOptions,"$menuState == main
+$hasMarket
+$IndEvo_crucible
+$tag:crucible_enabled",,,IndEvo_crucible_addTravelOptions:Visit the Control Room,travel options 
+IndEvo_crucible_market_addTravelOptionPointDisabled,PopulateOptions,"$menuState == main
+$hasMarket
+$IndEvo_crucible
+!$tag:crucible_enabled","SetEnabled IndEvo_crucible_addTravelOptions false
+SetTooltip IndEvo_crucible_addTravelOptions ""The doors to the control room appear to be locked shut. Attempts to circumvent or breach them may damage the delicate machinery inside  - you will have to find a way to power them.""",,IndEvo_crucible_addTravelOptions:Visit the Control Room,
 ,,,,,,
+#Crucible without colony,,,,,,
+IndEvo_crucible_open,OpenInteractionDialog,$IndEvo_crucible score:100,FireAll CrucibleOptions,,,
+IndEvo_crucible_flavourTextEnabled,CrucibleOptions,"$tag:crucible_enabled
+!$crucible_introTextShown",$crucible_introTextShown = true 0,Gone is the serene ambience of approach as your fleet is battered by the emissions of a machine kneading hyperspace like dough. You watch asteroids caught in ages past get ground to dust by gears of unfathomable size as the trusty axilliary intelligence unit reluctantly guides you towards the docking clamps.,,
+IndEvo_crucible_flavourTextDisabled,CrucibleOptions,"!$tag:crucible_enabled
+!$crucible_introTextShown",$crucible_introTextShown = true 0,"Your ship glides towards the imposing docking areas in silence, accompanied only by the rough, choppy and almost dusty droning of an auxiliary intelligence unit dictating long-outdated docking instructions. Clamps made for a ship thrice your size slowly break from their ancient rest to welcome what seems like a speck of debris before them.",,
+,,,,,,
+IndEvo_crucible_addActivateOption,CrucibleOptions,"!$tag:crucible_enabled
+$crucible_explored",,,0:IndEvo_crucible_startActivate:Visit the heart of the crucible,
+IndEvo_crucible_addExploreOption,CrucibleOptions,!$crucible_explored,,The cavernous spaces of this place will require more than a traditional scouting party to survey.,1:IndEvo_crucible_explore:Explore the Crucible,"Explore -> show loot, market, enable"
+IndEvo_crucible_addColonizeOption,CrucibleOptions,$crucible_explored,,,3:IndEvo_crucible_colonize:Establish a colony,make it into a colony
+IndEvo_crucible_addPilferOption,CrucibleOptions,"!$crucible_looted
+$crucible_explored",,Even the initial survey reveals a treasure trove of resources to be found - as well as an extremely hostile and equally active security system. Looting this place will not be easy.,8:IndEvo_crucible_startLooting:Start an expedition for loot,scavenge for stuff (once)
+IndEvo_crucible_addPilferedOption,CrucibleOptions,"$crucible_looted
+$crucible_explored","SetEnabled IndEvo_crucible_startLooting false
+SetTooltip IndEvo_crucible_startLooting ""The easily accessible parts of the crucible have been swept clean by your prior expedition - what remains in the deep recesses of the machine requires dedicated infrastructure to retreive.""",,8:IndEvo_crucible_startLooting:Start an expedition for loot,already done the looting
+IndEvo_crucible_addTravelOptionPoint,CrucibleOptions,"$crucible_explored
+$tag:crucible_enabled",,,2:IndEvo_crucible_addTravelOptions:Visit the Control Room,travel options 
+IndEvo_crucible_addTravelOptionPointDisabled,CrucibleOptions,"$crucible_explored
+!$tag:crucible_enabled","SetEnabled IndEvo_crucible_addTravelOptions false
+SetTooltip IndEvo_crucible_addTravelOptions ""The doors to the control room appear to be locked shut. Attempts to circumvent or breach them may damage the delicate machinery inside  - you will have to find a way to power them.""",,2:IndEvo_crucible_addTravelOptions:Visit the Control Room,
+IndEvo_crucible_addCloseDialogueOption,CrucibleOptions,,"SetShortcut IndEvo_crucible_selectCloseOption ""ESCAPE""",,9:IndEvo_crucible_selectCloseOption:Return,
+,,,,,,
+#Travel options,,,,,,
+IndEvo_crucible_addTravelOptions,DialogOptionSelected,$option == IndEvo_crucible_addTravelOptions,FireAll CrucibleTravelOptions,,,
+IndEvo_crucible_addTravelIntroText,CrucibleTravelOptions,!$crucible_travelIntroTextShown,$crucible_travelIntroTextShown = true 0,"You step into the control area. Red light filters through the glass dome above you, occasionally dimmed by a passing city-sized gear spoke. The nervous energy of the machine is much more noticeable here, accentuated by agglomerations of flickering screens, blinking lights and the almost physical hum of archaic holo-emitters.",,
+IndEvo_crucible_unlockWormhole,CrucibleTravelOptions,"!$crucibleWormholeUnlocked
+IndEvo_HasGenericSpecialItemInCargo wormhole_anchor",,Orange-flashing monitors remind you of a vacant alcubierre cradle in the lower sections. The specifications hint towards  expansion-era wormhole technology but are otherwise unhelpful.,1:IndEvo_crucible_unlockWormhole_select:Install a Wormhole Anchor into the cradle,integrate wormhole
+IndEvo_crucible_unlockWormholeDisabled,CrucibleTravelOptions,"!$crucibleWormholeUnlocked
+!IndEvo_HasGenericSpecialItemInCargo coronal_portal","SetEnabled IndEvo_crucible_unlockWormhole_select false
+SetTooltip IndEvo_crucible_addTravelOptions ""You lack the prerequisite items to slot into the cradle. The markings reference Domain Instanteneous Space Transversal tech - whatever that is supposed to be.""",Orange-flashing monitors remind you of a vacant alcubierre cradle in the lower sections. The specifications hint towards expansion-era wormhole technology but are otherwise unhelpful.,1:IndEvo_crucible_unlockWormhole_select:Attempt to fix the alcubierre cradle,
+IndEvo_crucible_useWormhole,CrucibleTravelOptions,$crucibleWormholeUnlocked,,Systems report your wormhole anchor to be operational and ready for use.,1:IndEvo_crucible_useWormhole_select:Open a wormhole,Fire wormhole if integrated
+IndEvo_crucible_unlockGate,CrucibleTravelOptions,"!$crucibleGateUnlocked
+IndEvo_HasGenericSpecialItemInCargo coronal_tap",,"There is a very prominent hologram of what may be some kind of hypertech power bridge. A sheet of synth-paper stuck to the nearby console marks it as ""broke?"".",2:IndEvo_crucible_unlockGate_select:Use a Hypershunt Tap to fix the hyperspace power-bridge,integrate gate
+IndEvo_crucible_unlockGateDisabled,CrucibleTravelOptions,"!$crucibleGateUnlocked
+!IndEvo_HasGenericSpecialItemInCargo coronal_tap","SetEnabled IndEvo_crucible_unlockGate_select false
+SetTooltip IndEvo_crucible_addTravelOptions ""The relay is completely broken and you lack the components required to fix it. The tech level of this piece seems extremely out of place compared to the otherwise ancient equipment around it - almost alien, in fact. However, it is clearly hyperspace technology.""","There is a very prominent hologram of what may be some kind of hypertech power bridge. A sheet of synth-paper stuck to the nearby console marks it as ""broke?"".",2:IndEvo_crucible_unlockGate_select:Attempt to fix the hyperspace power-bridge,
+IndEvo_crucible_useGate,CrucibleTravelOptions,$crucibleGateUnlocked,,"The hypertech status holo presents an eye-searing orange warning sign. A sheet of paper stuck to the emitter reads ""works?"". The Gate-bridge appears to be functional.",2:IndEvo_crucible_useGate_select:Interface with a Gate,Fire gate if integrated
+IndEvo_crucible_moveCrucible,CrucibleTravelOptions,$crucibleWormholeUnlocked,,,3:IndEvo_crucible_moveCrucible_select:Move the Crucible,"unlocked with WH anchor, destroy on use"
+IndEvo_crucible_changeCatapultColour,CrucibleTravelOptions,,,,4:IndEvo_crucible_changeCatapultColour_select:Adjust the colour of the catapults,Change catapult colours
+IndEvo_crucible_travelOptionReturn,CrucibleTravelOptions,,"SetShortcut IndEvo_crucible_returnToMainMenu ""ESCAPE""",,9:IndEvo_crucible_returnToMainMenu:Return,
+,,,,,,
+#Return options,,,,,,
+IndEvo_crucible_returnToMainMenu,DialogOptionSelected,$option == IndEvo_crucible_returnToMainMenu,FireBest CrucibleReturnToMain,,,
+IndEvo_crucible_travelOptionReturnSelected,CrucibleReturnToMain,!$hasMarket,FireAll CrucibleOptions,,,
+IndEvo_crucible_travelOptionReturnWithMarketSelected,CrucibleReturnToMain,$hasMarket,"$menuState = main 0
+FireAll PopulateOptions",,,
+IndEvo_crucible_selectCloseOption,DialogOptionSelected,$option == IndEvo_crucible_selectCloseOption,DismissDialog,,,
+,,,,,,
+#Unlock options,,,,,,
+IndEvo_crucible_unlockWormhole_select,DialogOptionSelected,$option == IndEvo_crucible_unlockWormhole_select,"Highlight ""permanent""","The wormhole anchor fits as if made for it - which it probably was. Installation is permanent, as there is no apparent way to shut off the power draw without breaking the entire assembly.","1:IndEvo_crucible_unlockWormhole_confirm:Confirm the installation of the anchor
+2:IndEvo_crucible_addTravelOptions:Return",
+IndEvo_crucible_unlockGate_select,DialogOptionSelected,$option == IndEvo_crucible_unlockGate_select,"Highlight ""destroy""",Fixing the power relay will require disassembly of the Hypershunt Tap. This will destroy the tap for good.,"1:IndEvo_crucible_unlockGate_confirm:Confirm sacrificing the tap to restore the bridge
+2:IndEvo_crucible_addTravelOptions:Return",
+,,,,,,
+IndEvo_crucible_unlockWormhole_confirm,DialogOptionSelected,$option == IndEvo_crucible_unlockWormhole_confirm,"$crucibleWormholeUnlocked = true
+AddRemoveAnyItem SPECIAL wormhole_anchor -1
+FireAll CrucibleTravelOptions","The wormhole anchor clicks into place with all the grace of a coffin falling shut. The surrounding relays spark , valves hiss and indicators awaken from their centuries-old sleep. You can feel the telltale prickling of a power surge coming up. It is time to leave.
+
+Your head custodian greets you in the control room and directs you to a section previously bathed in darkness, now lit in purple hues - a functioning wormhole control array.
+
+This could, in theory, move the entire crucible somewhere else.",,
+IndEvo_crucible_unlockGate_confirm,DialogOptionSelected,$option == IndEvo_crucible_unlockGate_confirm,"$crucibleGateUnlocked = true
+AddRemoveAnyItem SPECIAL coronal_tap -1
+","A slightly frazzled chief engineer directs the transfer of the tap from cargo to the lower engineering holds. He keeps talking to himself, which really just reinforces his competence. The tap will be disassembled and used to patch what is assumed to be broken in the crucible hyperspace machinery - as far as it is understood, at least.",1:IndEvo_crucible_unlockGate_confirm2:Continue,
+IndEvo_crucible_unlockGate_confirm2,DialogOptionSelected,$option == IndEvo_crucible_unlockGate_confirm2,FireAll CrucibleTravelOptions,"On returning to the control room you immediately notice the now active machinery surrounding the formerly broken hypertech consoles. Your custodian forgoes a greeting.
+
+""This thing is a gate.""
+
+A gear passes above, casting shadow across the blinking console lights.",,
+,,,,,,
+#Explore the crucible,,,,,,
+IndEvo_crucible_explore,DialogOptionSelected,$option == IndEvo_crucible_explore,"$crucible_explored = true
+SetShortcut IndEvo_crucible_returnToMainMenu ""ESCAPE""",You explore stuff. Cool!,9:IndEvo_crucible_returnToMainMenu:Return,
+,,,,,,
+#pilfer the crucible,,,,,,
+IndEvo_crucible_startLooting,DialogOptionSelected,$option == IndEvo_crucible_startLooting,"$crucible_looted = true
+SetShortcut IndEvo_crucible_returnToMainMenu ""ESCAPE""",You loot stuff. Cool!,9:IndEvo_crucible_returnToMainMenu:Return,maybe have this take some time and marines!
+,,,,,,
+#Activating the crucible,,,,,,
+IndEvo_crucible_startActivate,DialogOptionSelected,$option == IndEvo_crucible_startActivate,"IndEvo_StartCrucible
+SetShortcut IndEvo_crucible_returnToMainMenu ""ESCAPE""",,9:IndEvo_crucible_selectCloseOption:Return,
+,,,,,,
+#Colonize the crucible,,,,,,
+IndEvo_crucible_colonize,DialogOptionSelected,$option == IndEvo_crucible_colonize,"IndEvo_ColonizeCrucible
+SetShortcut IndEvo_crucible_returnToMainMenu ""ESCAPE""",,9:IndEvo_crucible_selectCloseOption:Return,
+,,,,,,
+#Beacons,,,,,,
 IndEvo_beacon_OpenDialogCustom,OpenInteractionDialog,"$tag:warning_beacon
 $tag:IndEvo_beacon","ShowDefaultVisual
 SetShortcut beaconLeave ""ESCAPE""","This autonomous warning beacon emits a looping message. 

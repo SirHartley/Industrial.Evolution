@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin;
@@ -96,6 +97,7 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
             @Override
             public void runOnce() {
                 crucible.addTag(BaseCrucibleEntityPlugin.TAG_ANIMATION_PLAYING);
+                crucible.addTag(Tags.NON_CLICKABLE);
             }
         });
 
@@ -187,6 +189,8 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
             public void runOnce() {
                 //main crucible activation sequence
                 setEnabled(crucible);
+                crucible.removeTag(Tags.NON_CLICKABLE);
+
                 magField = CrucibleFieldTerrainPlugin.generate(crucible, 1f, MAGNETIC_FIELD_WIDTH);
                 ((BaseCrucibleEntityPlugin) crucible.getCustomPlugin()).setMagField(magField);
 

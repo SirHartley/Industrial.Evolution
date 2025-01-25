@@ -83,7 +83,7 @@ public class RuinsManager {
                             || s.getTags().contains(THEME_CORE_POPULATED)
                             || s.getTags().contains(THEME_CORE_UNPOPULATED)) {
 
-                        if (!pMarket.getFactionId().equals("player")) {
+                        if (!"player".equals(pMarket.getFactionId())) {
                             pMarket.removeCondition(Ids.COND_RUINS);
 
                             if (pMarket.isPlanetConditionMarketOnly()) continue;

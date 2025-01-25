@@ -382,7 +382,7 @@ public class CrucibleSpawner {
     }
 
     public static SectorEntityToken getGear(SectorEntityToken focus, float size, Color colour, float speed){
-        return focus.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_gear", null, size, size, size,
+        return focus.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_gear", null, 0f, 0f, 0f,
                 new CrucibleGearEntityPlugin.CrucibleGearParams(
                         colour,
                         speed,

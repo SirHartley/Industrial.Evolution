@@ -458,6 +458,8 @@ public class ModPlugin extends BaseModPlugin {
         EyeIndicatorScript.register();
         HostileActivityEventSubRegisterScript.register();
 
+
+
         //PlayerFleetFollower.register();
     }
 

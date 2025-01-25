@@ -1,6 +1,17 @@
 
 --------------------------- To-do -----------------------------
 Before release
+- fix supercomputer crash when adding modded ai core
+ - either reject em or make time dependent on value
+- add omega core profile for supcom
+- I am reading embassy section, there was a bug where an supply station from approlight without postID, and since embassy compare postID when determining generation, the game would crash when entering approlight colony comm menu"
+- embassy rep limit
+- embassy rep impact rolling number -> fixed num
+- relay increase spiral
+
+- Allow using relic components to get BPs of ships in engHub instead of Blueprints (value of ship / 1000 = number of relics needed)
+
+
 Feedback Notes
 - Make artillery follow some kinda stealth system
 - Museum
@@ -270,6 +281,7 @@ Adjusted - Will no longer spawn duplicate ruins in the same system (if two spawn
 Adjusted - Hull Forge is now a structure (was an industry)
 Adjusted - Hull Forge beta core chance to get a working template instead of a broken one: 25% -> 60%
 Adjusted - Rift Generator will no longer spawn on planets with an artillery
+Fixed - Rare crash when applying ruins to a planet with a null faction
 Fixed - Can no longer crash the game by shutting down a rift generator while moving
 Fixed - Crash when a ResLab is manually added to a planet on new game ProcGen
 Fixed - Gave Hull Deconstructor the structure tag

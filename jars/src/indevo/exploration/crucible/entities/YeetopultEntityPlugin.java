@@ -101,10 +101,11 @@ public class YeetopultEntityPlugin extends BaseCustomEntityPlugin {
         }
 
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
+
         SectorEntityToken playerTarget = fleet.getInteractionTarget();
         if (playerTarget != null && playerTarget == entity && Misc.getDistance(fleet, entity) < entity.getRadius() + TRIGGER_RADIUS && enabled) {
             fleet.addScript(new YeetScript(fleet, getTarget()));
-            fireAnimation(DEFAULT_EXPLOSION_SIZE, true);
+            fireAnimation(DEFAULT_EXPLOSION_SIZE, false);
         }
 
         //manual orbit if it's a crucible bound one
