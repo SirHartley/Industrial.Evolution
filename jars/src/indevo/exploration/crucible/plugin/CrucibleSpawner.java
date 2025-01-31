@@ -55,6 +55,19 @@ public class CrucibleSpawner {
         //runcode indevo.exploration.crucible.plugin.CrucibleSpawner.removeFromCurrentLoc();
     }
 
+    public static void spawnInCurrent(){
+        StarSystemAPI targetSystem = Global.getSector().getPlayerFleet().getStarSystem();
+        if (targetSystem == null) return;
+        Vector2f spawnLoc = getSpawnLoc2(targetSystem); //no need to nullcheck because it will hang the game if it doesn't find one
+
+        boolean subUnit = false;
+        SectorEntityToken crucible = spawnCrucible(targetSystem, spawnLoc, subUnit);
+        spawnCatapults(crucible, subUnit);
+        ModPlugin.log("Spawned Crucible in " + targetSystem.getName() + " --- " + targetSystem.getBaseName());
+
+        //runcode indevo.exploration.crucible.plugin.CrucibleSpawner.spawnInCurrent();
+    }
+
     public static void spawn() {
         if (Global.getSector().getPersistentData().containsKey(HAS_PLACED_STATIONS)) return;
 

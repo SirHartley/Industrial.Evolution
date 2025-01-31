@@ -1,6 +1,7 @@
 package indevo.exploration.crucible.scripts;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
@@ -14,6 +15,7 @@ import indevo.exploration.crucible.terrain.CrucibleFieldTerrainPlugin;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 import indevo.utils.animation.AnimationStage;
 import indevo.utils.animation.BaseStagedAnimationScript;
+import indevo.utils.animation.particles.DeceleratingDustCloudEjectionRenderer;
 import indevo.utils.animation.particles.RadialDustCloudEjectionRenderer;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import org.lazywizard.lazylib.MathUtils;
@@ -190,6 +192,50 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
                 //main crucible activation sequence
                 setEnabled(crucible);
                 crucible.removeTag(Tags.NON_CLICKABLE);
+
+                boolean isNebula = crucible.getStarSystem().isNebula();
+
+                //innermost
+                LunaCampaignRenderer.addRenderer(new DeceleratingDustCloudEjectionRenderer(
+                        crucible,
+                        0.2f * crucible.getRadius(),
+                        isNebula ? 60f : 40f,
+                        1f,
+                        300f,
+                        isNebula ? 25f : 150f,
+                        0.08f,
+                        isNebula ? 20f : 8f,
+                        new Color(80, 30, 40),
+                        true,
+                        CampaignEngineLayers.TERRAIN_5
+                ));
+
+                //mid long dur
+                LunaCampaignRenderer.addRenderer(new DeceleratingDustCloudEjectionRenderer(
+                        crucible,
+                        isNebula ? 30f : crucible.getRadius(),
+                        40f,
+                        1f,
+                        300f,
+                        isNebula ? 15f : 60f,
+                        isNebula ? 0.05f : 0.15f,
+                        isNebula ? 10f : 8f,
+                        new Color(130, 100, 100, 100),
+                        false,
+                        CampaignEngineLayers.TERRAIN_7
+                ));
+
+                //outer
+                LunaCampaignRenderer.addRenderer(new DeceleratingDustCloudEjectionRenderer(
+                        crucible,
+                        crucible.getRadius(),
+                        isNebula? 30f : 40f,
+                        1f,
+                        300f,
+                        isNebula ? 20f : 30f,
+                        0.10f,
+                        isNebula ? 15f : 12f
+                ));
 
                 magField = CrucibleFieldTerrainPlugin.generate(crucible, 1f, MAGNETIC_FIELD_WIDTH);
                 ((BaseCrucibleEntityPlugin) crucible.getCustomPlugin()).setMagField(magField);

@@ -24,14 +24,25 @@ public class NebulaParticle {
     public static class LocationData {
         float radius;
         float angle;
+        Vector2f loc;
 
         public LocationData(float radius, float angle) {
             this.radius = radius;
             this.angle = angle;
         }
 
+        public LocationData(float radius, float angle, Vector2f center) {
+            this.radius = radius;
+            this.angle = angle;
+            this.loc = center;
+        }
+
         public Vector2f getLocation(Vector2f center){
             return MathUtils.getPointOnCircumference(center, radius, angle);
+        }
+
+        public Vector2f getLocation(){
+            return MathUtils.getPointOnCircumference(loc, radius, angle);
         }
 
         public void incrementRadius(float byAmount){
