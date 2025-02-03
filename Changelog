@@ -129,6 +129,7 @@ Added - Consumable item: Intercept Missile. Skillshot, campaign level. Intercept
 Added - Missiles to most consumable item drop pools
 Added - Relic components will now drop from all automated ships that were destroyed (even modded)
 Added - Relic component configuration for RAT Abyss, KOL boss factions
+Adjusted - Updated icon for tech locator (the old tech locator icon is now the portable relay)
 Adjusted - Relic components no longer drop from battles with the luddic path
 Adjusted - Drastically reduced prices of forge templates
 Adjusted - Removed most VPCs from Historian pool
@@ -137,7 +138,7 @@ Adjusted - Drastically reduced drop rates for special items, again (now matches 
 Adjusted - Drive bubble spike now fires when a fleet is in range regardless of hostility
 Adjusted - Drive bubble  Spike drop rate halved everywhere
 Adjusted - Restoration Nanite drop rate increased
-Fixed - Simulation Engine is now RTX instead of GTX. I bow to the peer pressure.
+Fixed - Simulation Engine is now RTX instead of GTX.
 
 Hullmods
 Added - Hellpods. They do what you'd expect them to do: getting your marines killed.

@@ -66,13 +66,20 @@ SetTooltip IndEvo_crucible_addTravelOptions ""The doors to the control room appe
 #Crucible without colony,,,,,,
 IndEvo_crucible_open,OpenInteractionDialog,$IndEvo_crucible score:100,FireAll CrucibleOptions,,,
 IndEvo_crucible_flavourTextEnabled,CrucibleOptions,"$tag:crucible_enabled
-!$crucible_introTextShown",$crucible_introTextShown = true 0,Gone is the serene ambience of approach as your fleet is battered by the emissions of a machine kneading hyperspace like dough. You watch asteroids caught in ages past get ground to dust by gears of unfathomable size as the trusty axilliary intelligence unit reluctantly guides you towards the docking clamps.,,
+!$crucible_introTextShown",$crucible_introTextShown = true 0,Gone is the serene ambience of approach as your fleet is battered by the emissions of a machine kneading realspace like dough. You watch asteroids caught in ages past get ground to dust by gears of unfathomable size as the trusty axilliary intelligence unit reluctantly guides you towards the docking clamps.,,
 IndEvo_crucible_flavourTextDisabled,CrucibleOptions,"!$tag:crucible_enabled
 !$crucible_introTextShown",$crucible_introTextShown = true 0,"Your ship glides towards the imposing docking areas in silence, accompanied only by the rough, choppy and almost dusty droning of an auxiliary intelligence unit dictating long-outdated docking instructions. Clamps made for a ship thrice your size slowly break from their ancient rest to welcome what seems like a speck of debris before them.",,
 ,,,,,,
 IndEvo_crucible_addActivateOption,CrucibleOptions,"!$tag:crucible_enabled
 $crucible_explored",,,0:IndEvo_crucible_startActivate:Visit the heart of the crucible,
-IndEvo_crucible_addExploreOption,CrucibleOptions,!$crucible_explored,,The cavernous spaces of this place will require more than a traditional scouting party to survey.,1:IndEvo_crucible_explore:Explore the Crucible,"Explore -> show loot, market, enable"
+IndEvo_crucible_addExploreOptionFirstVisit,CrucibleOptions,"!$crucible_explored
+!$first_visit",,"The docking procedure is as smooth as can be expected from a machine clearly predating - and abandoned since - the advent of hypertech. 
+
+Worse still, the hangar doors are locked shut and unpowered - you'll have to find a way to open them.",1:IndEvo_crucible_explore:Explore the Crucible,"Explore -> show loot, market, enable"
+IndEvo_crucible_addExploreOption,CrucibleOptions,"!$crucible_explored
+$first_visit",,"The grinding articulations of the ancient nav-aux almost seem welcoming this time around, and the docking process, as could be expected, is about as smooth as the voice sounds.
+
+The hangar doors remain locked shut. You'll have to continue your search to open them.",1:IndEvo_crucible_explore_return:Continue the exploration,"Explore -> show loot, market, enable"
 IndEvo_crucible_addColonizeOption,CrucibleOptions,$crucible_explored,,,3:IndEvo_crucible_colonize:Establish a colony,make it into a colony
 IndEvo_crucible_addPilferOption,CrucibleOptions,"!$crucible_looted
 $crucible_explored",,Even the initial survey reveals a treasure trove of resources to be found - as well as an extremely hostile and equally active security system. Looting this place will not be easy.,8:IndEvo_crucible_startLooting:Start an expedition for loot,scavenge for stuff (once)
@@ -93,13 +100,13 @@ IndEvo_crucible_unlockWormhole,CrucibleTravelOptions,"!$crucibleWormholeUnlocked
 IndEvo_HasGenericSpecialItemInCargo wormhole_anchor",,Orange-flashing monitors remind you of a vacant alcubierre cradle in the lower sections. The specifications hint towards  expansion-era wormhole technology but are otherwise unhelpful.,1:IndEvo_crucible_unlockWormhole_select:Install a Wormhole Anchor into the cradle,integrate wormhole
 IndEvo_crucible_unlockWormholeDisabled,CrucibleTravelOptions,"!$crucibleWormholeUnlocked
 !IndEvo_HasGenericSpecialItemInCargo coronal_portal","SetEnabled IndEvo_crucible_unlockWormhole_select false
-SetTooltip IndEvo_crucible_addTravelOptions ""You lack the prerequisite items to slot into the cradle. The markings reference Domain Instanteneous Space Transversal tech - whatever that is supposed to be.""",Orange-flashing monitors remind you of a vacant alcubierre cradle in the lower sections. The specifications hint towards expansion-era wormhole technology but are otherwise unhelpful.,1:IndEvo_crucible_unlockWormhole_select:Attempt to fix the alcubierre cradle,
+SetTooltip IndEvo_crucible_unlockWormhole_select false ""You lack the prerequisite items to slot into the cradle. The markings reference Domain Instanteneous Space Transversal tech - whatever that is supposed to be.""",Orange-flashing monitors remind you of a vacant alcubierre cradle in the lower sections. The specifications hint towards expansion-era wormhole technology but are otherwise unhelpful.,1:IndEvo_crucible_unlockWormhole_select:Attempt to fix the alcubierre cradle,
 IndEvo_crucible_useWormhole,CrucibleTravelOptions,$crucibleWormholeUnlocked,,Systems report your wormhole anchor to be operational and ready for use.,1:IndEvo_crucible_useWormhole_select:Open a wormhole,Fire wormhole if integrated
 IndEvo_crucible_unlockGate,CrucibleTravelOptions,"!$crucibleGateUnlocked
 IndEvo_HasGenericSpecialItemInCargo coronal_tap",,"There is a very prominent hologram of what may be some kind of hypertech power bridge. A sheet of synth-paper stuck to the nearby console marks it as ""broke?"".",2:IndEvo_crucible_unlockGate_select:Use a Hypershunt Tap to fix the hyperspace power-bridge,integrate gate
 IndEvo_crucible_unlockGateDisabled,CrucibleTravelOptions,"!$crucibleGateUnlocked
 !IndEvo_HasGenericSpecialItemInCargo coronal_tap","SetEnabled IndEvo_crucible_unlockGate_select false
-SetTooltip IndEvo_crucible_addTravelOptions ""The relay is completely broken and you lack the components required to fix it. The tech level of this piece seems extremely out of place compared to the otherwise ancient equipment around it - almost alien, in fact. However, it is clearly hyperspace technology.""","There is a very prominent hologram of what may be some kind of hypertech power bridge. A sheet of synth-paper stuck to the nearby console marks it as ""broke?"".",2:IndEvo_crucible_unlockGate_select:Attempt to fix the hyperspace power-bridge,
+SetTooltip IndEvo_crucible_unlockGate_select ""The relay is completely broken and you lack the components required to fix it. The tech level of this piece seems extremely out of place compared to the otherwise ancient equipment around it - almost alien, in fact. However, it is clearly hyperspace technology.""","There is a very prominent hologram of what may be some kind of hypertech power bridge. A sheet of synth-paper stuck to the nearby console marks it as ""broke?"".",2:IndEvo_crucible_unlockGate_select:Attempt to fix the hyperspace power-bridge,
 IndEvo_crucible_useGate,CrucibleTravelOptions,$crucibleGateUnlocked,,"The hypertech status holo presents an eye-searing orange warning sign. A sheet of paper stuck to the emitter reads ""works?"". The Gate-bridge appears to be functional.",2:IndEvo_crucible_useGate_select:Interface with a Gate,Fire gate if integrated
 IndEvo_crucible_moveCrucible,CrucibleTravelOptions,$crucibleWormholeUnlocked,,,3:IndEvo_crucible_moveCrucible_select:Move the Crucible,"unlocked with WH anchor, destroy on use"
 IndEvo_crucible_changeCatapultColour,CrucibleTravelOptions,,,,4:IndEvo_crucible_changeCatapultColour_select:Adjust the colour of the catapults,Change catapult colours
@@ -135,8 +142,23 @@ IndEvo_crucible_unlockGate_confirm2,DialogOptionSelected,$option == IndEvo_cruci
 A gear passes above, casting shadow across the blinking console lights.",,
 ,,,,,,
 #Explore the crucible,,,,,,
-IndEvo_crucible_explore,DialogOptionSelected,$option == IndEvo_crucible_explore,"$crucible_explored = true
-SetShortcut IndEvo_crucible_returnToMainMenu ""ESCAPE""",You explore stuff. Cool!,9:IndEvo_crucible_returnToMainMenu:Return,
+IndEvo_crucible_explore,DialogOptionSelected,$option == IndEvo_crucible_explore,"$first_visit = false
+FireAll CrucibleExploration","The incessant, raspy and wholly irrelevant chant of the nav-aux follows your microshuttle as it traverses an exhaust node the size of a terrestrial railway tunnel in search of an access point. Your salvor crew deploys drone after drone with seemingly no luck.
+
+After drifting for what seems like hours, one of them gets lucky. A quick yell, a lot of shuffling and some meticulous maneuvres later - and you land on an outcropping featuring a maintenance tunnel.
+
+Your crew immediately moves to create a salvaging camp along the docking ramp.",,
+IndEvo_crucible_explore_return,DialogOptionSelected,$option == IndEvo_crucible_explore_return,FireAll CrucibleExploration,"With the base camp established and the route clear, you flight to ""Maintenance Central"", as it has come to be known amongst your crew, is relatively quick and uneventful.",,
+IndEvo_crucible_explore_hab,CrucibleExploration,,,,,"swarming with bots and death, the murals tell the story of the place"
+IndEvo_crucible_explore_eng,CrucibleExploration,,,,,option to turn on power
+IndEvo_crucible_explore_cont,CrucibleExploration,,,,,inactive: no options / if active: Open access to port for proper entry
+IndEvo_crucible_explore_store,CrucibleExploration,,,,,"marine requirement, if done, dont display the pilfer option anymore
+guarded fiercly"
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
 ,,,,,,
 #pilfer the crucible,,,,,,
 IndEvo_crucible_startLooting,DialogOptionSelected,$option == IndEvo_crucible_startLooting,"$crucible_looted = true
