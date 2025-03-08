@@ -205,10 +205,10 @@ public class CrucibleSpawner {
 
         PlanetAPI sun = ((StarSystemAPI) loc).getStar();
         if (sun != null && !loc.isNebula()) {
-            float adjustedOrbitDur = Math.min(364f, 31f / (1000f / Misc.getDistance(pos, sun.getLocation())));
-            bottom.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur);
-            if (scaffold != null) scaffold.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur);
-            top.setCircularOrbit(sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur);
+            float adjustedOrbitDur = -Math.min(364f, 31f / (1000f / Misc.getDistance(pos, sun.getLocation())));
+            bottom.addScript(new VariableOrbitScript(bottom, sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur, false));
+            if (scaffold != null) scaffold.addScript(new VariableOrbitScript(scaffold, sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur, false));
+            top.addScript(new VariableOrbitScript(top, sun, Misc.getAngleInDegrees(pos, sun.getLocation()), Misc.getDistance(pos, sun.getLocation()), adjustedOrbitDur, false));
             top.setFacing(MathUtils.getRandomNumberInRange(0, 360));
         }  else {
             bottom.setLocation(pos.x, pos.y);

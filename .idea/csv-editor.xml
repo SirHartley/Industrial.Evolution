@@ -66,6 +66,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\campaign\rules - crucible cargo exploration.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\campaign\rules.csv">
           <value>
             <Attribute>

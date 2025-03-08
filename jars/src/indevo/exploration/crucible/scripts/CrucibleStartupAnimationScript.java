@@ -216,10 +216,10 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
                         isNebula ? 30f : crucible.getRadius(),
                         40f,
                         1f,
-                        300f,
-                        isNebula ? 15f : 60f,
-                        isNebula ? 0.05f : 0.15f,
-                        isNebula ? 10f : 8f,
+                        200f,
+                        isNebula ? 20f : 60f,
+                        isNebula ? 0.03f : 0.15f,
+                        isNebula ? 6f : 10f,
                         new Color(130, 100, 100, 100),
                         false,
                         CampaignEngineLayers.TERRAIN_7
@@ -233,7 +233,7 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
                         1f,
                         300f,
                         isNebula ? 20f : 30f,
-                        0.10f,
+                        0.05f,
                         isNebula ? 15f : 12f
                 ));
 

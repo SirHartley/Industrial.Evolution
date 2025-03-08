@@ -15,6 +15,7 @@ public class VariableOrbitScript implements EveryFrameScript {
     protected float angle;
     protected float orbitDuration;
     protected SectorEntityToken orbitFocus;
+    protected boolean moveWhenNotInLoc = true;
 
     protected boolean firstIteration = true;
 
@@ -38,6 +39,16 @@ public class VariableOrbitScript implements EveryFrameScript {
         this.factor = factor;
     }
 
+    public VariableOrbitScript(SectorEntityToken entity, SectorEntityToken orbitFocus,float angle, float orbitRadius, float orbitDuration, boolean moveWhenNotInLoc) {
+        this.entity = entity;
+        this.orbitDistance = orbitRadius;
+        this.angle = angle;
+        this.orbitDuration = orbitDuration;
+        this.orbitFocus = orbitFocus;
+        this.factor = 1f;
+        this.moveWhenNotInLoc = moveWhenNotInLoc;
+    }
+
     @Override
     public boolean isDone() {
         return false;
@@ -51,6 +62,7 @@ public class VariableOrbitScript implements EveryFrameScript {
     @Override
     public void advance(float amount) {
         if (orbitFocus == null || orbitFocus.getLocation() == null) return;
+        if (!moveWhenNotInLoc && !entity.isInCurrentLocation()) return;
 
         if (firstIteration) {
             Vector2f loc = MathUtils.getPointOnCircumference(orbitFocus.getLocation(), orbitDistance, angle);

@@ -1,10 +1,11 @@
 package indevo.utils.animation.particles;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CampaignEngineLayers;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
+import com.fs.starfarer.api.util.IntervalUtil;
+import indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -16,12 +17,6 @@ import java.util.List;
 import java.util.Random;
 
 public class DeceleratingDustCloudEjectionRenderer implements LunaCampaignRenderingPlugin {
-    public static final float DURATION = 6f;
-    /*public static final float SPAWN_DUR = 0.4f;
-    public static final float SPEED = 150f;
-    public static final float PARTICLES_PER_FRAME = 10f;
-    public static final float BASE_NEBULA_PARTICLE_SIZE = 100f;
-    public static final float PARTICLE_LIFETIME = 2f;*/
 
     public SectorEntityToken centerEntity;
     public float speed;
@@ -41,6 +36,8 @@ public class DeceleratingDustCloudEjectionRenderer implements LunaCampaignRender
     public float angle;
     public float animationRadius;
     public transient SpriteAPI nebulaSprite;
+
+    public IntervalUtil interval = new IntervalUtil(1f / 60f, 1f / 60f);
 
     public DeceleratingDustCloudEjectionRenderer(SectorEntityToken center, float animationRadius, float speed, float particlesPerFrame, float particleSize, float particleLifetime, float baseAlpha, float maxMoveTime, Color originalColor, boolean additive, CampaignEngineLayers layer) {
         this.originalColor = originalColor;
@@ -69,18 +66,24 @@ public class DeceleratingDustCloudEjectionRenderer implements LunaCampaignRender
 
     @Override
     public void advance(float amount) {
-        for (int i = 0; i < particlesPerFrame; i++) {
-            Random random = new Random();
-            NebulaParticle.LocationData location = new NebulaParticle.LocationData(animationRadius, MathUtils.getRandomNumberInRange(0, 360), new Vector2f(centerEntity.getLocation()));
-            float alpha = 0.1f + 0.7f * (random.nextFloat());
+        if(!centerEntity.isAlive() || !centerEntity.hasTag(BaseCrucibleEntityPlugin.TAG_ENABLED) || !centerEntity.isInCurrentLocation()) return;
 
-            nebulaParticles.add(new NebulaParticle(particleSize * alpha,
-                    (float) MathUtils.getRandomNumberInRange(0, 360),
-                    alpha,
-                    (float) (particleLifetime * Math.random()),
-                    originalColor,
-                    targetColor.darker(),
-                    location));
+        interval.advance(amount);
+
+        if (interval.intervalElapsed()){
+            for (int i = 0; i < particlesPerFrame; i++) {
+                Random random = new Random();
+                NebulaParticle.LocationData location = new NebulaParticle.LocationData(animationRadius, MathUtils.getRandomNumberInRange(0, 360), new Vector2f(centerEntity.getLocation()));
+                float alpha = 0.1f + 0.7f * (random.nextFloat());
+
+                nebulaParticles.add(new NebulaParticle(particleSize * alpha,
+                        (float) MathUtils.getRandomNumberInRange(0, 360),
+                        alpha,
+                        (float) (particleLifetime * Math.random()),
+                        originalColor,
+                        targetColor.darker(),
+                        location));
+            }
         }
 
         for (NebulaParticle particle : nebulaParticles) {
@@ -115,6 +118,7 @@ public class DeceleratingDustCloudEjectionRenderer implements LunaCampaignRender
             if (p.isExpired()) continue;
 
             Vector2f loc = p.pos.getLocation();
+            if (!viewport.isNearViewport(loc, 500f)) continue;
 
             nebulaSprite.setTexWidth(0.25f);
             nebulaSprite.setTexHeight(0.25f);

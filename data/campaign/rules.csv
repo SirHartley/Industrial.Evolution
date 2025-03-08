@@ -75,7 +75,7 @@ $crucible_explored",,,0:IndEvo_crucible_startActivate:Visit the heart of the cru
 IndEvo_crucible_addExploreOptionFirstVisit,CrucibleOptions,"!$crucible_explored
 !$first_visit",,"The docking procedure is as smooth as can be expected from a machine clearly predating - and abandoned since - the advent of hypertech. 
 
-Worse still, the hangar doors are locked shut and unpowered - you'll have to find a way to open them.",1:IndEvo_crucible_explore:Explore the Crucible,"Explore -> show loot, market, enable"
+Worse still, the hangar doors are locked shut and unpowered - you'll have to find a way to open them from the inside.",1:IndEvo_crucible_explore:Explore the Crucible,"Explore -> show loot, market, enable"
 IndEvo_crucible_addExploreOption,CrucibleOptions,"!$crucible_explored
 $first_visit",,"The grinding articulations of the ancient nav-aux almost seem welcoming this time around, and the docking process, as could be expected, is about as smooth as the voice sounds.
 
@@ -143,16 +143,24 @@ A gear passes above, casting shadow across the blinking console lights.",,
 ,,,,,,
 #Explore the crucible,,,,,,
 IndEvo_crucible_explore,DialogOptionSelected,$option == IndEvo_crucible_explore,"$first_visit = false
-FireAll CrucibleExploration","The incessant, raspy and wholly irrelevant chant of the nav-aux follows your microshuttle as it traverses an exhaust node the size of a terrestrial railway tunnel in search of an access point. Your salvor crew deploys drone after drone with seemingly no luck.
+FireAll CrucibleExploration
+$currentLoc = junction 0","After hours of deploying survey drones to check for access points, a lucky operator stumbles across a shuttle access port that isn’t locked down with shutters thicker than starship armor.
 
-After drifting for what seems like hours, one of them gets lucky. A quick yell, a lot of shuffling and some meticulous maneuvres later - and you land on an outcropping featuring a maintenance tunnel.
+Traversing it is mind-numbingly boring, with rusted, ancient pipes being all there is to look at. A junction opens after what seems like ages – and it features a landing ramp and a maintenance access. Your crew immediately moves to set up a base camp.
 
-Your crew immediately moves to create a salvaging camp along the docking ramp.",,
-IndEvo_crucible_explore_return,DialogOptionSelected,$option == IndEvo_crucible_explore_return,FireAll CrucibleExploration,"With the base camp established and the route clear, you flight to ""Maintenance Central"", as it has come to be known amongst your crew, is relatively quick and uneventful.",,
-IndEvo_crucible_explore_hab,CrucibleExploration,,,,,"swarming with bots and death, the murals tell the story of the place"
-IndEvo_crucible_explore_eng,CrucibleExploration,,,,,option to turn on power
-IndEvo_crucible_explore_cont,CrucibleExploration,,,,,inactive: no options / if active: Open access to port for proper entry
-IndEvo_crucible_explore_store,CrucibleExploration,,,,,"marine requirement, if done, dont display the pilfer option anymore
+This may become a longer operation. Where to next?
+",,
+IndEvo_crucible_explore_onreturn,DialogOptionSelected,$option == IndEvo_crucible_explore_onreturn,"FireAll CrucibleExploration
+$currentLoc = junction 0","With the base camp established and the route clear, you trip to ""Maintenance Central"", as it has come to be known amongst your crew, is relatively quick and uneventful.
+
+You are greeted by salvors hurrying between jobs to the sounds of hammer blows and distant gunfire as you step off the ramp. 
+
+A servor bot helpfully presents the scheduled exploration party departures.
+",,
+IndEvo_crucible_explore_hab,CrucibleExploration,,$c_currentLoc = hab 0,,1:IndEvo_c_hab_0:A section of the habitation halls,"swarming with bots and death, the murals tell the story of the place"
+IndEvo_crucible_explore_eng,CrucibleExploration,,$c_currentLoc = eng 0,,2:IndEvo_c_eng_0:The closest engineering tracts,option to turn on power
+IndEvo_crucible_explore_cont,CrucibleExploration,,$c_currentLoc = cont 0,,3:IndEvo_c_cont_0:A local control cluster,inactive: no options / if active: Open access to port for proper entry
+IndEvo_crucible_explore_cargo,CrucibleExploration,,$c_currentLoc = cargo 0,,4:IndEvo_c_cargo_0:A cargo and storage area,"marine requirement, if done, dont display the pilfer option anymore
 guarded fiercly"
 ,,,,,,
 ,,,,,,
