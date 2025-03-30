@@ -64,7 +64,7 @@ public class IndEvo_HasValidShipPair extends BaseCommandPlugin {
         return false;
     }
 
-    private List<String> getDModList(FleetMemberAPI member) {
+    public static List<String> getDModList(FleetMemberAPI member) {
         List<String> dmodList = new ArrayList<>();
         for (String s : member.getVariant().getHullMods()) {
             if (Global.getSettings().getHullModSpec(s).getTags().contains(Tags.HULLMOD_DMOD)) dmodList.add(s);

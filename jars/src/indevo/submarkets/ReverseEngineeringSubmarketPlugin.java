@@ -3,9 +3,12 @@ package indevo.submarkets;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CoreUIAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
+import com.fs.starfarer.api.campaign.FactionSpecAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
+import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -18,8 +21,7 @@ import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin implements DynamicSubmarket {
     public static Logger log = Global.getLogger(ReverseEngineeringSubmarketPlugin.class);
@@ -48,6 +50,22 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin imple
         restrictedShips.addAll(bossShips);
         restrictedShips.addAll(hvbShips);
         allowedShips.addAll(allowedShipsInternal);
+
+        for (ShipHullSpecAPI spec : Global.getSettings().getAllShipHullSpecs()) {
+            for (String tag : spec.getTags()) {
+                if (tag.contains("_bp")) allowedShips.add(spec.getHullId());
+            }
+        }
+
+        for (FactionSpecAPI faction : Global.getSettings().getAllFactionSpecs()) {
+            for (String id : faction.getKnownShips()) {
+                ShipHullSpecAPI spec = Global.getSettings().getHullSpec(id);
+                if (Collections.disjoint(spec.getHints(), Arrays.asList("HIDE_IN_CODEX", "STATION"))
+                        && Collections.disjoint(spec.getTags(), Arrays.asList("restricted", "no_sell", "no_dealer", "threat", "dweller"))) allowedShips.add(id);
+
+                if (!Collections.disjoint(spec.getTags(), Arrays.asList("threat", "dweller"))) restrictedShips.add(id);
+            }
+        }
     }
 
     public boolean showInFleetScreen() {

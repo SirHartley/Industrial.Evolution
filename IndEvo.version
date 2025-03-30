@@ -4,8 +4,14 @@
     "modThreadId":18011,
     "modVersion":
     {
-        "major":3,
-        "minor":3,
-        "patch":"e"
+        "major":4,
+        "minor":0,
+        "patch":"b"
     },
+
+    #Link towards a direct download, fetched from the online version file
+                "directDownloadURL":"https://github.com/SirHartley/Industrial.Evolution/releases/download/4.0.b/Industrial.Evolution4.0.b.zip",
+
+                #Link towards a directly accessible text file, which can be used to display a changelog ingame, is fetched from the online version file.
+                "changelogURL":"https://raw.githubusercontent.com/SirHartley/Industrial.Evolution/refs/heads/master/Changelog",
 }

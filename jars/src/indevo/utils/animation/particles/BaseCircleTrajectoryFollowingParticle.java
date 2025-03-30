@@ -2,9 +2,6 @@ package indevo.utils.animation.particles;
 
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.Pair;
-import indevo.utils.ModPlugin;
-import indevo.utils.animation.data.CirclePathData;
 import indevo.utils.helper.TrigHelper;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
 import org.lazywizard.lazylib.MathUtils;

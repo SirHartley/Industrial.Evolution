@@ -30,5 +30,6 @@
     <orderEntry type="library" name="RandomAssortmentofThings" level="application" />
     <orderEntry type="library" name="commons-compiler-jdk" level="application" />
     <orderEntry type="library" name="lib" level="application" />
+    <orderEntry type="library" name="Kotlin-Runtime" level="application" />
   </component>
 </module>

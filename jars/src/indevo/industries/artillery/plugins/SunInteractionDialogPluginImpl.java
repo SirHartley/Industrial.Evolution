@@ -11,8 +11,6 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.SetStoryOption;
 import indevo.ids.Ids;
 
-import javax.swing.text.html.Option;
-
 /**
  * watchtowers count as campaign objectives if counted via the misc. method so we have to replace the interaction plugin to make it not do that
  *

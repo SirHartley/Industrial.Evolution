@@ -15,7 +15,6 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.research.dialogue.DropDataCreator;
 import indevo.ids.ItemIds;
 import indevo.industries.artillery.scripts.ArtilleryStationScript;
-import indevo.utils.ModPlugin;
 
 import java.util.ArrayList;
 import java.util.List;

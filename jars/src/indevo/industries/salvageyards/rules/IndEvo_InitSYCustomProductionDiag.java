@@ -349,7 +349,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
         float total = 0f;
         for (FleetMemberAPI m : tradeInList) {
-            total += m.getBaseSellValue();
+            total += m.getBaseValue() * 0.3f * (Math.max(0f, 1f - (IndEvo_HasValidShipPair.getDModList(m).size() / 10f)));
         }
 
         return total;

@@ -164,10 +164,6 @@ IndEvo_crucible_explore_cargo,CrucibleExploration,,$c_currentLoc = cargo 0,,4:In
 guarded fiercly"
 ,,,,,,
 ,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
 #pilfer the crucible,,,,,,
 IndEvo_crucible_startLooting,DialogOptionSelected,$option == IndEvo_crucible_startLooting,"$crucible_looted = true
 SetShortcut IndEvo_crucible_returnToMainMenu ""ESCAPE""",You loot stuff. Cool!,9:IndEvo_crucible_returnToMainMenu:Return,maybe have this take some time and marines!

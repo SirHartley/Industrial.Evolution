@@ -20,7 +20,6 @@ import exerelin.campaign.DiplomacyManager;
 import indevo.ids.Ids;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.industry.Embassy;
-import indevo.items.listeners.ShipComponentLootManager;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;

@@ -20,6 +20,8 @@ public class BeaconDialogueListener extends BaseCampaignEventListener {
     public void reportShownInteractionDialog(InteractionDialogAPI dialog) {
         super.reportShownInteractionDialog(dialog);
 
+        if (dialog == null) return;
+
         SectorEntityToken target = dialog.getInteractionTarget();
 
         if (target != null && target.hasTag(Tags.WARNING_BEACON) && target.isInHyperspace()) {

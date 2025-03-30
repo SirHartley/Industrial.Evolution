@@ -17,6 +17,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\campaign\crucible\rules - crucible cargo exploration.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\campaign\industries.csv">
           <value>
             <Attribute>
@@ -60,13 +67,6 @@
           </value>
         </entry>
         <entry key="\data\campaign\procgen\salvage_entity_gen_data.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\data\campaign\rules - crucible cargo exploration.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -137,6 +137,13 @@
           </value>
         </entry>
         <entry key="\data\config\LunaSettings.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\config\exerelinFactionConfig\mod_factions.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -220,7 +227,21 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\config\prism\prism_ships_blacklist.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\config\vayraBounties\unique_bounty_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\config\version\version_files.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

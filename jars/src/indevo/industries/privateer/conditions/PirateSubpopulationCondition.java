@@ -57,7 +57,7 @@ public class PirateSubpopulationCondition extends BaseHazardCondition implements
     protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
         super.createTooltipAfterDescription(tooltip, expanded);
         if (!isNonHostileToEvilFaction() || !market.hasIndustry(Ids.PIRATEHAVEN)) {
-            String s = stabMod > 0 ? "+" + stabMod : "" + stabMod;
+            String s = stabMod > 0 ? "+" + (int) Math.round(stabMod) : "" + (int) Math.round(stabMod);
             String t = getImmigrationBonus() > 0 ? "+" + getImmigrationBonus() : "" + getImmigrationBonus();
 
             tooltip.addPara("%s stability.",

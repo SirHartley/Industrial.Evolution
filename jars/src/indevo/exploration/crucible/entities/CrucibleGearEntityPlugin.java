@@ -7,7 +7,6 @@ import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import indevo.exploration.crucible.scripts.VariableOrbitScript;
-import indevo.utils.helper.ReflectionUtils;
 
 import java.awt.*;
 

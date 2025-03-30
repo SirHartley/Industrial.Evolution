@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.impl.campaign.abilities.BaseDurationAbility;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import indevo.abilities.splitfleet.dialogue.AbilityPanelDialoguePlugin;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.industries.petshop.dialogue.PetShopDialogPlugin;
 

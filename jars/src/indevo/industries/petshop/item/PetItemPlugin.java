@@ -148,7 +148,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         tooltip.addPara("Contains a %s", opad, h, pet.species);
         tooltip.addPara("Rarity: %s", pad, rpair.two, rpair.one);
         tooltip.addPara(pet.desc, opad);
-        tooltip.addPara(pet.species + "s tend to live for about " + getYearDescription(Math.round(pet.maxLife)), opad);
+        tooltip.addPara(pet.species + "s tend to live for about " + getYearDescription(Math.round(pet.maxLife / 31f)), opad);
 
         addCostLabel(tooltip, opad, transferHandler, stackSource);
 

@@ -1,3 +1,111 @@
+
+--------------------------- To-do -----------------------------
+Misc
+Add icons to custom explo stations
+
+Governments
+Popup on first establishment
+
+Pet stations
+Add main menu dialogue
+Fix the -1c pet food cost in monthly report
+
+Missiles
+NPC usage and reactions
+NPC AI behaviour
+
+Helios Crucible
+Added - New Superstructure, the Helios Crucible
+todo SPOILERS - Find one in a nebula with a large amount of planets, repair it, fire it up or move it to your own system.
+SPOILERS - Allows for fast travel between local planets. Incredibly good QOL, much better than you may think.
+
+Artillery
+Eye-Bots with vision cones & missile interactions
+
+Before release
+- fix supercomputer crash when adding modded ai core
+ - either reject em or make time dependent on value
+- add omega core profile for supcom
+- I am reading embassy section, there was a bug where an supply station from approlight without postID, and since embassy compare postID when determining generation, the game would crash when entering approlight colony comm menu"
+- embassy rep limit
+- embassy rep impact rolling number -> fixed num
+- relay increase spiral
+
+- Allow using relic components to get BPs of ships in engHub instead of Blueprints (value of ship / 1000 = number of relics needed)
+
+--------------------------- Feedback Notes -----------------------------
+Requests
+- add a colony buff to automated shipyards (maybe a buff to HI? got item sprites for it anyway)
+- Add keyboard shortcuts to all indEvo industry menu points
+- Watchtowers buildable in stable loc
+
+--------------------------- Playthrough wants -----------------------------
+- Make artillery follow some kinda stealth system
+- Museum
+- Allow courier to ship to superstructures for restoration
+- Add a proper edict selection UI, for remote operation as well
+- add some more info/tt/notifications to governments
+- Rework VPCs to use random tiered output system
+
+- Distillery module for settlements
+- Courier Port Option for settlements
+- Requisition center RAT settlement plugin
+
+- Distress Calls
+todo Added - Adapted and expanded Vayras Sector distress call system (it would have crashed had anyone actually used it.)
+todo Added - The original 6 Ghost Ship distress calls
+todo Note - What I "ported" was really just the concept and texts. I rewrote the implementation from the ground up because it was a mess.
+
+--------------------------- Known issues -----------------------------
+
+  >>> I care <<<
+- nothing
+
+  >>> I do not care <<<
+- Marine xp get wiped with detachments - lmao no fuck it that one's cancer to fix
+- Detachments eat crew that is in excess of capacity
+- Detachments refuse to move when in other system (??)
+- DEV Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
+- DEV Deliver fleets still refuse to leave system, no clue why
+
+--------------------------- Ideas -----------------------------
+
+- "Mimic Hulls", Derelict ships that change into remnant or pirate ambush fleets when approached
+- Consumable item that makes your fleet look bigger than is is to NPCs
+    - maybe add a boat with like 200 dp to the fleet and remove it when ui window is opened so other fleets run from you
+- Add something that lets you remove S-Mods
+- Change derelict industries to superstructures
+- Artillery industry images
+- add roaming derelict fleets to uninhabited arty systems
+- Casino
+    - Blackjack
+    - Roulette
+    - Slot machines
+    - add "spacer captain in debt" bar event: sells his last ship for half off to pay his debt
+    - add "officer in debt" bar event - hire for 3x salary
+    - add "spacers in debt" bar event - 10 spacers, hire for half pay to avoid indentured servitude
+- Merc industry - https://discord.com/channels/815017574642483240/984638767279251468/1009925859630661783
+- Trade hub
+- Add ambassadors as contacts see https://discord.com/channels/815017574642483240/815039421656203274/932024688543158293
+- Story point option for academy, "Recruit Local Talent", for when you really want an officer or admin
+- Arena
+- Adjust salvage event "Ship Roulette" -
+    add the option to connect the output of a colony to the station
+    always require Metal, ship components and machinery
+    Let player choose between runtime of 1 month, 2, 3 or 4 then deliver the output and the station salvage to the colony
+    add an intel entry showing the progress
+
+--------------------------- Notes -----------------------------
+
+Brimir	Industrial.Evolution	Capital	[REDACTED]	Contact - SirHartley#5459
+Wholepain	Industrial.Evolution	Capital	Breadnought	Contact - SirHartley#5459
+Starcracker	Industrial.Evolution	Capital	Pretzelator	Contact - SirHartley#5459
+Autoclaw	Industrial.Evolution	Fighter	EMP Bomber	Contact - SirHartley#5459
+Parrot	Industrial.Evolution	Frigate	EMP Frigate	Contact - SirHartley#5459
+Echo	Industrial.Evolution	Frigate	EMP Auto-Frigate	Contact - SirHartley#5459
+Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
+
+--------------------------- Ancient History -----------------------------
 Todo:
     TransMat network + item (teleport small fleets to other transmats (also items)
 
@@ -57,12 +165,7 @@ todo weiterübersetzen ab publicAddAfterDescriptionSection()
 
 For version after that:
 General:
-todo: Adjusted - Externalized all strings. The mod can now be easily translated.
-todo: General code overhaul. Now with better, more readable, and decidedly faster bugs.
-todo: Implement MagicLib csv whitelist loading (maybe version after that?)
-
 todo: Quest/Size growth blocker system
-
 todo: Sun Laser to murder planets and auto-murder pirate stations
 todo: Beacon
 todo: Terraforming Ring / Drone Control center

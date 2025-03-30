@@ -2,8 +2,6 @@ package indevo.exploration.surveystories.memory;
 
 import com.fs.starfarer.api.Global;
 import indevo.exploration.surveystories.OldStoryLogger;
-import indevo.exploration.surveystories.plugins.Historian;
-import indevo.utils.ModPlugin;
 import indevo.utils.memory.SessionTransientMemory;
 import org.json.JSONArray;
 import org.json.JSONException;

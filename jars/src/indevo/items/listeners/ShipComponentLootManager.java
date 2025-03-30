@@ -38,6 +38,7 @@ public class ShipComponentLootManager {
         put("zea_dawn", 0.3f);
         put("zea_dusk", 0.3f);
         put("zea_elysians", 0.3f);
+        put("threat", 0.1f);
     }};
 
     public static final float DEFAULT_AI_SHIP_RARE_PARTS_DROP_DP_FRACTION = 0.2f;

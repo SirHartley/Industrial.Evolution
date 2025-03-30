@@ -6,9 +6,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.items.consumables.entities.BaseMissileEntityPlugin;
 import indevo.items.consumables.entities.ExplosiveMissileEntityPlugin;
-import indevo.items.consumables.entities.SmokeCloudEntityPlugin;
 import indevo.items.consumables.fleet.MissileAIReactionManager;
-import indevo.items.consumables.terrain.SmokeCloudTerrain;
 import indevo.utils.helper.StringHelper;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -48,6 +46,6 @@ public class ExplosiveMissileAbilityPlugin extends BaseMissileConsumableAbilityP
 
         tooltip.addPara("Travel speed: %s", opad, new Color(100,100,255,255), "Slow");
         tooltip.addPara("Deployment type: %s", spad, Color.CYAN, "On-Hit");
-        tooltip.addPara("Rearming duration: %s", spad, hl, Math.ceil(getCooldownDays()) +" "+ StringHelper.getDayOrDays(Math.round(getCooldownDays())));
+        tooltip.addPara("Rearming duration: %s", spad, hl, (int) Math.ceil(getCooldownDays()) +" "+ StringHelper.getDayOrDays((int) Math.ceil(getCooldownDays())));
     }
 }

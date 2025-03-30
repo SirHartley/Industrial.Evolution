@@ -1,7 +1,7 @@
 package indevo.exploration.crucible.entities;
 
 import com.fs.starfarer.api.campaign.SectorEntityToken;
-import com.fs.starfarer.api.util.*;
+import com.fs.starfarer.api.util.IntervalUtil;
 
 public class CrucibleStationEntityPlugin extends BaseCrucibleEntityPlugin {
 

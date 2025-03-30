@@ -68,6 +68,7 @@ hartpulse,WEAPON,"""The incessant whining about the visual aspects of the autopu
 IndEvo_mine_belt,TERRAIN,"A semi-autonomous, self replicating minefield, distributed in a resource-rich asteroid belt. Spent mines get replaced automatically, allowing the field to persist hundreds of years without loss of efficiency.",,,
 IndEvo_mine_field,TERRAIN,"A semi-autonomous, self replicating minefield. Spent mines get replaced automatically, allowing the field to persist hundreds of years without loss of efficiency.",,,
 IndEvo_slowfield,TERRAIN,A field composed of charged shrapnel and strange matter particles that disrupt drive field stability and cause slowdown. Fields like this are short-lived and were commonly used by Domain strategic system defence missiles as payload.,,,
+IndEvo_SmokeCloud,TERRAIN,"A dense cloud made of sensor-impairing chaff. Clouds like this tend to disperse quickly as the residual force of their creation pushes them apart, but are still useful for hiding or as a makeshift obstacle.",,,
 ,,,,,
 #Ships,,,,,
 IndEvo_artilleryStation_base,SHIP,"A massive, multi-layer tactical installation usually constructed as primary anchor for the system wide defence efforts, artillery stations are the bogeyman of any explorer in the Sector. Expansionist era structures were often equipped with decision backup units to continue operating in case of sudden human absence, which caused a surprising amount of these stations to not only survive the collapse but actively continue ambushing and neutralizing intruders into their territory with ruthless efficiency.

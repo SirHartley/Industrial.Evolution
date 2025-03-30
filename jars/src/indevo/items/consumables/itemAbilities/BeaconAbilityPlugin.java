@@ -3,20 +3,14 @@ package indevo.items.consumables.itemAbilities;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
-import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
-import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.OrbitFocus;
-import indevo.industries.petshop.dialogue.PetPickerInteractionDialoguePlugin;
 import indevo.items.consumables.dialogue.BeaconDelegateLaunchpadDialoguePlugin;
-import indevo.items.consumables.entityAbilities.DecoyMineAbility;
 import indevo.items.consumables.intel.DeployableWarningBeaconIntel;
-import indevo.utils.ModPlugin;
 
 import java.awt.*;
 

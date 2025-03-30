@@ -315,7 +315,11 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
             market.getIncomeMult().modifyPercent(raidModEntry.getKey(), mod.getMod(), mod.getSource() + " ("+ mod.getDaysRemaining() + " " + StringHelper.getDayOrDays(mod.getDaysRemaining()) + ")");
         }
 
-        if (market.getSize() >= MAX_MARKET_SIZE) market.getPopulation().setWeight(getWeightForMarketSizeStatic(market.getSize()));
+        if (Misc.getMaxMarketSize(market) > MAX_MARKET_SIZE){
+            int maxSize = Misc.getMaxMarketSize(market);
+            int mod = MAX_MARKET_SIZE - maxSize;
+            market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).modifyFlat(getId(), mod, getName());
+        }
 
         for (Industry ind : market.getIndustries()) {
             if (MiscIE.isMilitary(ind)) {
@@ -358,6 +362,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         market.getStats().getDynamic().getMod(Stats.PATROL_NUM_LIGHT_MOD).unmodifyFlat(id);
         market.getStats().getDynamic().getMod(Stats.PATROL_NUM_MEDIUM_MOD).unmodifyFlat(id);
         market.getStats().getDynamic().getMod(Stats.PATROL_NUM_HEAVY_MOD).unmodifyFlat(id);
+        market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).unmodify(id);
 
         Global.getSector().getListenerManager().removeListener(this);
 

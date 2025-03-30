@@ -10,6 +10,9 @@ public class BeaconConsumableItemPlugin extends BaseConsumableItemPlugin{
 
     @Override
     public void render(float x, float y, float w, float h, float alphaMult, float glowMult, SpecialItemRendererAPI renderer) {
+
+        if (true) return; //sprite misaligned cba to fix
+
         super.render(x, y, w, h, alphaMult, glowMult, renderer);
 
         SpriteAPI glow = (Global.getSettings().getSprite("fx", "IndEvo_beacon_glow"));

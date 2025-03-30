@@ -1,21 +1,21 @@
 package indevo.exploration.crucible.entities;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.CampaignEngineLayers;
+import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
+import com.fs.starfarer.api.campaign.CustomEntitySpecAPI;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.util.*;
 import indevo.exploration.crucible.scripts.CrucibleMoveAnimationScript;
 import indevo.exploration.crucible.scripts.CrucibleStartupAnimationScript;
-import indevo.exploration.crucible.terrain.CrucibleFieldTerrainPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
-
-import static indevo.exploration.crucible.plugin.CrucibleSpawner.MAGNETIC_FIELD_WIDTH;
 
 public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
 

@@ -11,6 +11,7 @@ import indevo.dialogue.sidepanel.FramedCustomPanelPlugin;
 import indevo.dialogue.sidepanel.InteractionDialogCustomPanelPlugin;
 import indevo.dialogue.sidepanel.NoFrameCustomPanelPlugin;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
+import indevo.utils.ModPlugin;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -37,7 +38,6 @@ public class ResearchProjectSidePanelCreator {
     //short blurb what the project is about with weap. size ("Researching a reality warping large weapons platform based on some exotic samples...")
     //on completion, add button "Redeem Rewards" - giving you 3/2/1 weapons of the category and the blueprint.
 
-
     public void showPanel(InteractionDialogAPI dialogue) {
         VisualCustomPanel.createPanel(dialogue, true);
         showCustomPanel();
@@ -48,6 +48,8 @@ public class ResearchProjectSidePanelCreator {
         float opad = 10f;
         float spad = 3f;
 
+        ModPlugin.log("showing research panel");
+
         final CustomPanelAPI panel = VisualCustomPanel.getPanel();
         TooltipMakerAPI panelTooltip = VisualCustomPanel.getTooltip();
         CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
@@ -55,14 +57,11 @@ public class ResearchProjectSidePanelCreator {
         TooltipMakerAPI lastUsedVariableButtonAnchor;
 
         //sort map to display projects according to their completion status
-        Map<Float, ResearchProject> sortedProjects = new TreeMap<>();
-        for (Map.Entry<String, ResearchProject> projectEntry : ResearchProjectTemplateRepo.RESEARCH_PROJECTS.entrySet()) {
-            sortedProjects.put(projectEntry.getValue().getProgress().points, projectEntry.getValue());
-        }
 
-        for (Map.Entry<Float, ResearchProject> projectEntry : sortedProjects.entrySet()) {
+        List<ResearchProject> sortedProjects = new ArrayList<>(ResearchProjectTemplateRepo.RESEARCH_PROJECTS.values());
+        sortedProjects.sort(Comparator.comparingDouble(p -> p.getProgress().points));
 
-            final ResearchProject project = projectEntry.getValue();
+        for (ResearchProject project : sortedProjects) {
             final String projId = project.getId();
             final ResearchProject.Progress progress = project.getProgress();
             CargoAPI cargo = playerFleet.getCargo();

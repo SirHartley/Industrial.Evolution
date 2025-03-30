@@ -1,6 +1,7 @@
 package indevo.industries.changeling.industry.population;
 
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
+import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 
@@ -9,7 +10,7 @@ import static com.fs.starfarer.api.impl.campaign.population.CoreImmigrationPlugi
 
 public class OutpostSubIndustry extends SubIndustry {
 
-    public static final float MAX_MARKET_SIZE = 3f;
+    public static final int MAX_MARKET_SIZE = 3;
     public static final float UPKEEP_RED_MULT = 0.7f;
 
 
@@ -20,7 +21,12 @@ public class OutpostSubIndustry extends SubIndustry {
     @Override
     public void apply() {
         ((SwitchablePopulation) industry).superApply();
-        if (market.getSize() >= MAX_MARKET_SIZE) market.getPopulation().setWeight(getWeightForMarketSizeStatic(market.getSize()));
+        if (Misc.getMaxMarketSize(market) > MAX_MARKET_SIZE){
+            int maxSize = Misc.getMaxMarketSize(market);
+            int mod = MAX_MARKET_SIZE - maxSize;
+            market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).modifyFlat(getId(), mod, getName());
+        }
+
         market.getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).modifyFlat(getId(), -getMaxIndustries(market.getSize()), getName());
         market.getUpkeepMult().modifyMult(getId(), UPKEEP_RED_MULT, getName());
     }
@@ -28,6 +34,7 @@ public class OutpostSubIndustry extends SubIndustry {
     @Override
     public void unapply() {
         super.unapply();
+        market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).unmodify(id);
         market.getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).unmodify(getId());
         market.getUpkeepMult().unmodify(getId());
     }

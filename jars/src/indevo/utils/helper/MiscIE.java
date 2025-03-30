@@ -31,7 +31,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.lwjgl.util.vector.Vector2f;
 
 import java.io.IOException;
 import java.util.*;

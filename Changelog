@@ -1,94 +1,9 @@
-
---------------------------- To-do -----------------------------
-Before release
-- fix supercomputer crash when adding modded ai core
- - either reject em or make time dependent on value
-- add omega core profile for supcom
-- I am reading embassy section, there was a bug where an supply station from approlight without postID, and since embassy compare postID when determining generation, the game would crash when entering approlight colony comm menu"
-- embassy rep limit
-- embassy rep impact rolling number -> fixed num
-- relay increase spiral
-
-- Allow using relic components to get BPs of ships in engHub instead of Blueprints (value of ship / 1000 = number of relics needed)
-
-
-Feedback Notes
-- Make artillery follow some kinda stealth system
-- Museum
-- Allow courier to ship to superstructures for restoration
-
-Playthrough notes
-- Add a proper edict selection UI, for remote operation as well
-- add some more info/tt/notifications to governments
-
-Distress Calls
-todo Added - Adapted and expanded Vayras Sector distress call system (it would have crashed had anyone actually used it.)
-todo Added - The original 6 Ghost Ship distress calls
-todo Note - What I "ported" was really just the concept and texts. I rewrote the implementation from the ground up because it was a mess.
-
-Playthrough wants
-- Distillery module for settlements
-- Courier Port Option for settlements
-- Requisition center RAT settlement plugin
-- Rework VPCs to use random tiered output system
-
-Requests
-- add a colony buff to automated shipyards (maybe a buff to HI? got item sprites for it anyway)
-- Add keyboard shortcuts to all indEvo industry menu points
-- Watchtowers buildable in stable loc
-
---------------------------- Ideas -----------------------------
-
-- "Mimic Hulls", Derelict ships that change into remnant or pirate ambush fleets when approached
-- Consumable item that makes your fleet look bigger than is is to NPCs
-    - maybe add a boat with like 200 dp to the fleet and remove it when ui window is opened so other fleets run from you
-- Add something that lets you remove S-Mods
-- Change derelict industries to superstructures
-- Artillery industry images
-- add roaming derelict fleets to uninhabited arty systems
-- Casino
-    - Blackjack
-    - Roulette
-    - Slot machines
-    - add "spacer captain in debt" bar event: sells his last ship for half off to pay his debt
-    - add "officer in debt" bar event - hire for 3x salary
-    - add "spacers in debt" bar event - 10 spacers, hire for half pay to avoid indentured servitude
-- Merc industry - https://discord.com/channels/815017574642483240/984638767279251468/1009925859630661783
-- Trade hub
-- Add ambassadors as contacts see https://discord.com/channels/815017574642483240/815039421656203274/932024688543158293
-- Story point option for academy, "Recruit Local Talent", for when you really want an officer or admin
-- Arena
-- Adjust salvage event "Ship Roulette" -
-    add the option to connect the output of a colony to the station
-    always require Metal, ship components and machinery
-    Let player choose between runtime of 1 month, 2, 3 or 4 then deliver the output and the station salvage to the colony
-    add an intel entry showing the progress
-
---------------------------- Known issues -----------------------------
-
-  >>> I care <<<
-- remote doesn't tell you if the target loc is illegal
-
-  >>> I do not care <<<
-- Marine xp get wiped with detachments - lmao no fuck it that one's cancer to fix
-- Detachments eat crew that is in excess of capacity
-- Detachments refuse to move when in other system (??)
-- DEV Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
-- DEV Deliver fleets still refuse to leave system, no clue why
-
---------------------------- Notes -----------------------------
-
-Brimir	Industrial.Evolution	Capital	[REDACTED]	Contact - SirHartley#5459
-Wholepain	Industrial.Evolution	Capital	Breadnought	Contact - SirHartley#5459
-Starcracker	Industrial.Evolution	Capital	Pretzelator	Contact - SirHartley#5459
-Autoclaw	Industrial.Evolution	Fighter	EMP Bomber	Contact - SirHartley#5459
-Parrot	Industrial.Evolution	Frigate	EMP Frigate	Contact - SirHartley#5459
-Echo	Industrial.Evolution	Frigate	EMP Auto-Frigate	Contact - SirHartley#5459
-Reverb	Industrial.Evolution	Destroyer	EMP Destroyer	Contact - SirHartley#5459
-
 --------------------------- Changelog -----------------------------
+4.0.b
+Items
+Fixed - Hotfix for a crash occurring when clicking an abyssal item
 
-3.4.4
+4.0.a
 General
 Added - Dialogue option to dismantle hyperspace warning beacons
 Added - Framework to add some small lore text about how a planet fell to ruin when you survey (on request by Alfonzo)
@@ -96,7 +11,7 @@ Added - A few stories of demise and death (Alfonzo will probably add more)
 Added - Colony corruption mode - colonies will start bleeding money the more you make. Disabled by default.
 Note - With this enabled, getting a colony above 200k income is an incredible feat, but getting it to 50-80k is just like vanilla. Calculated along f(x)=x^(-0.6).
 Fixed - Industry-specific cargo tabs (submarkets) no longer spawn before the building has finished construction
-Fixed - Added dependencies to mod info (only took me three years!)
+Fixed - Added dependencies to mod info (only took me three years)
 
 Salvage Interactions
 Adjusted - Drastically reduced the chance of IndEvo salvage specials appearing on derelict ships (40% -> 10%)
@@ -115,12 +30,11 @@ Adjusted - locking yourself out of the Lord Foog dialogue on Mazalot is no longe
 Adjusted - Pet food order number adjusted to rank right next to heavy machinery, making it less of a hassle to sort your inventory
 Fixed - Bug where the dialogue for assigning a pet didn't pop up for players with apple computers (get a proper PC please)
 Fixed - Pet center dialogue can no longer be opened in remote view
-Removed - Orbital pet stations around a planet (too much clutter for the use they provide in practice)
+Removed - Orbital pet stations around a planet (too much clutter for the use they provide in practice, use the industry menu instead)
 
 Items
 Added - Consumable item: Portable Relay, only works in hyperspace and establishes a link to a comm relay
 Added - Consumable item: Warning Beacon. Deploy in hyperspace, the broadcast message is configurable - comes with an intel entry.
-todo: npc usage and reactions
 Added - Rare Consumable Item: Ancient Remote. Targeted AOE, campaign level. It is very funny.
 Added - Consumable item: Explosive Missile. Skillshot, campaign level. Does what it says, though unreliable.
 Added - Consumable item: Concussive Missile. Targeted AOE, campaign level. Knocks fleets away, does no damage.
@@ -199,11 +113,13 @@ Fixed - Options now display the market name instead of "$market"
 Salvage Yards
 Added - Industry option point to access the dialogue from the industry screen
 Added - Blockades now generate extra salvage points, like raids
+Adjusted - Trading in ships for custom production capacity now calculates value off the base value (30%, lowered by D-Mods)
 
 Restoration docks
 Added - "Can not transfer" text for ships with the unrestorable tag
 
 Engineering Hub
+Adjusted - Whitelist supplemented with smart ship auto-whitelisting for factions that don't have a whitelist.
 Fixed - Modular ships now have their modules stripped of weapons and fighters when deconstructed
 
 Requisitions Centre
@@ -243,6 +159,7 @@ Adjusted - Corporate: Stability Bonus calculation now scales off gross income, n
 Adjusted - Corporate: Base Income x1.2 -> x1.3
 Adjusted - Corporate: Base Immigration malus -30 -> -20
 Adjusted - Corporate: immigration malus now scales with income up to -50 (-20 base, -1 per 10k income up to an additional -30 )
+Adjusted - Corporate: Can now use growth incentives even at maximum size
 Adjusted - Forge World: Halved ship building interval while keeping +DP budget/mo the same
 Adjusted - Forge World: Delivery notification now includes hull size / designation
 Adjusted - Adjusted some of the credit costs
@@ -269,11 +186,6 @@ Added - now have their own storage after being restored
 Added - now have music (by Haplogynae, thank you so much!)
 Adjusted - now pulls ship parts and relic components from the onboard storage first
 Fixed - Bug that would lock you into a failed menu state when opening ship selection, picking no ships, and pressing confirm (reported by RoadTrain)
-
-todo Helios Crucible
-Added - New Superstructure, the Helios Crucible
-todo SPOILERS - Find one in a nebula with a large amount of planets, repair it, fire it up or move it to your own system.
-SPOILERS - Allows for fast travel between local planets. Incredibly good QOL, much better than you may think.
 
 Derelict Industries
 Added - Industry option point to access the rift generator dialogue from the industry screen

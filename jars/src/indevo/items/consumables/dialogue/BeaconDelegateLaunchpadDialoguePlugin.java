@@ -1,8 +1,8 @@
 package indevo.items.consumables.dialogue;
 
-import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.InteractionDialogAPI;
+import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import indevo.industries.petshop.dialogue.PetNameAndAssignDialogueDelegate;
 import indevo.items.consumables.itemAbilities.BeaconAbilityPlugin;

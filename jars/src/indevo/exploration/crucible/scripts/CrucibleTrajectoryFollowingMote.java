@@ -5,8 +5,6 @@ import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.util.FlickerUtilV2;
-import indevo.utils.ModPlugin;
-import indevo.utils.animation.data.CirclePathData;
 import indevo.utils.animation.particles.BaseCircleTrajectoryFollowingParticle;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import org.lwjgl.util.vector.Vector2f;

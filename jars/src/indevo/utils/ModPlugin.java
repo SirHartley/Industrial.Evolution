@@ -35,7 +35,7 @@ import indevo.abilities.skills.scripts.MicromanagementSkillEffectScript;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.dialogue.beacons.dialogue.BeaconDialogueListener;
-import indevo.dialogue.research.*;
+import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.dialogue.research.listeners.*;
 import indevo.dialogue.research.scripts.RefitUIOpenChecker;
 import indevo.economy.listeners.ResourceConditionApplicator;
@@ -96,8 +96,10 @@ import org.dark.shaders.util.ShaderLib;
 import org.dark.shaders.util.TextureData;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static indevo.industries.academy.rules.IndEvo_AcademyVariables.ACADEMY_MARKET_ID;
 
@@ -261,7 +263,7 @@ public class ModPlugin extends BaseModPlugin {
         ArtilleryStationPlacer.placeDerelictArtilleries();
         ArtilleryStationPlacer.placeCoreWorldArtilleries();
         GachaStationSpawner.spawn();
-        CrucibleSpawner.spawn();
+        //CrucibleSpawner.spawn();
         createAcademyMarket();
 
         if (Settings.getBoolean(Settings.ENABLE_DERELICTS)) {

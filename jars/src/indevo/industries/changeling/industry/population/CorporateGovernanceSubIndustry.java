@@ -10,6 +10,7 @@ import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.Alignment;
@@ -109,6 +110,9 @@ x•	increase military upkeep by x3
         }
 
         modifyStability2(industry, market, population.getModId(3)); //overmax industry stability
+        market.getMemoryWithoutUpdate().set(MemFlags.MARKET_CAN_ALWAYS_INCENTIVIZE_GROWTH, true);
+
+
     }
 
     @Override
@@ -130,6 +134,7 @@ x•	increase military upkeep by x3
         }
 
         industry.getMarket().getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).unmodifyFlat(getId());
+        market.getMemoryWithoutUpdate().unset(MemFlags.MARKET_CAN_ALWAYS_INCENTIVIZE_GROWTH);
     }
 
     public void applyIndustryEffects(){

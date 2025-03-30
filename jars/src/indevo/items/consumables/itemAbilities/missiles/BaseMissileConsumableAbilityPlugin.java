@@ -1,7 +1,6 @@
 package indevo.items.consumables.itemAbilities.missiles;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -10,7 +9,6 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.items.consumables.itemAbilities.BaseConsumableAbilityPlugin;
 import indevo.items.consumables.listeners.MissileActivationManager;
 import indevo.items.consumables.listeners.OnClickAbilityInputListener;
-import indevo.items.consumables.listeners.OnKeyPressAbilityInputListener;
 import indevo.utils.ModPlugin;
 import org.lwjgl.util.vector.Vector2f;
 

@@ -49,7 +49,7 @@ object ReflectionUtils {
 
     fun hasVariableOfName(name: String, instance: Any) : Boolean {
 
-        val instancesOfFields: Array<out Any> = instance.javaClass.getDeclaredFields()
+        val instancesOfFields: Array<out Any> = instance.javaClass.getDeclaredFields() as Array<out Any>
         return instancesOfFields.any { getFieldNameHandle.invoke(it) == name }
     }
 
@@ -73,10 +73,10 @@ object ReflectionUtils {
         val methodType = MethodType.methodType(Void.TYPE, args)
 
         if (!declared) {
-            method = clazz.getMethod(methodName, *methodType.parameterArray())
+            method = clazz.getMethod(methodName, *methodType.parameterArray()) as Any?
         }
         else  {
-            method = clazz.getDeclaredMethod(methodName, *methodType.parameterArray())
+            method = clazz.getDeclaredMethod(methodName, *methodType.parameterArray()) as Any?
         }
 
         return invokeMethodHandle.invoke(method, instance, arguments)

@@ -10,7 +10,6 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.input.InputEventType;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
 import indevo.items.consumables.itemAbilities.missiles.BaseMissileConsumableAbilityPlugin;
-import indevo.utils.ModPlugin;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 
 import java.util.List;
