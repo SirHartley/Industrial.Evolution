@@ -2,6 +2,7 @@ package indevo.exploration.gacha;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
@@ -32,6 +33,7 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.*;
 
+import static indevo.utils.helper.MiscIE.getCurrentInteractionTargetMarket;
 import static indevo.utils.helper.MiscIE.stripShipToCargoAndReturnVariant;
 
 public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
@@ -97,7 +99,14 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
 
         CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
         CargoAPI cargo = playerFleet.getCargo();
-        CargoAPI storage = Misc.getStorage(dialog.getInteractionTarget().getMarket()).getCargo();
+
+        SubmarketPlugin storageSubmarket = Misc.getStorage(dialog.getInteractionTarget().getMarket());
+        if (storageSubmarket == null){
+            Misc.setAbandonedStationMarket(dialog.getInteractionTarget().getId(), dialog.getInteractionTarget());
+            storageSubmarket = Misc.getStorage(dialog.getInteractionTarget().getMarket());
+        }
+
+        CargoAPI storage = storageSubmarket.getCargo();
 
         if (isRepaired()) {
             addPostRestoreTooltip();

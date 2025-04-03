@@ -59,10 +59,13 @@ public class GachaStationSpawner {
     }
 
     public static void placeStation(StarSystemAPI system) {
+        String id = Misc.genUID();
         SectorEntityToken t = system.addCustomEntity(Misc.genUID(), null, "IndEvo_GachaStation", null);
         t.setCircularOrbitPointingDown(system.getStar(), 0f, system.getStar().getRadius() + 200f, 31);
         t.getMemoryWithoutUpdate().set(RANDOM, new Random(t.hashCode()));
         t.getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
+
+        Misc.setAbandonedStationMarket(id, t);
         ModPlugin.log("placed GachaStation (Automated Shipyard) at " + system.getName());
     }
 }

@@ -6,8 +6,11 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
+import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.ModPlugin;
+import indevo.utils.helper.ReflectionUtils;
 import indevo.utils.helper.StringHelper;
 
 import static java.lang.Math.ceil;
@@ -40,6 +43,8 @@ public class Edict_FastBuild extends BaseEdict {
         for (Industry ind : market.getIndustries()) {
             if (ind.isBuilding() || ind.isUpgrading()) {
                 BaseIndustry industry = (BaseIndustry) ind;
+                if (ind.getSpec().getUpgrade() == null) continue; //population returns IsUpgrading true for some reason but doesn't actually have an upgrade spec - no clue why
+
                 float buildDays = ind.isBuilding() ? ind.getSpec().getBuildTime() : Global.getSettings().getIndustrySpec(ind.getSpec().getUpgrade()).getBuildTime();
                 float buildProgressInDays = ind.getBuildOrUpgradeProgress() * buildDays;
                 float buildFractionIncrease = (buildProgressInDays + 1) / buildDays;

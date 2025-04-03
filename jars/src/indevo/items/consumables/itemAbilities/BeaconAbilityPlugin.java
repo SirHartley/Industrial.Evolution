@@ -62,7 +62,6 @@ public class BeaconAbilityPlugin extends BaseConsumableAbilityPlugin {
             beacon.setDiscoverable(false);
 
             Global.getSector().getIntelManager().addIntel(new DeployableWarningBeaconIntel(beacon, message));
-
             Misc.setWarningBeaconColors(beacon, getFleet().getFaction().getColor(), getFleet().getFaction().getColor());
 
             if (entity.isInHyperspace()){
@@ -82,7 +81,6 @@ public class BeaconAbilityPlugin extends BaseConsumableAbilityPlugin {
             beacon.setDiscoverable(false);
 
             Misc.setWarningBeaconColors(beacon, getFleet().getFaction().getColor(), getFleet().getFaction().getColor());
-
             Global.getSector().getIntelManager().addIntel(new DeployableWarningBeaconIntel(beacon, message));
         }
     }

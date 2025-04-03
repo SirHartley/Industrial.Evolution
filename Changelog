@@ -1,4 +1,9 @@
 --------------------------- Changelog -----------------------------
+4.0.c
+Fixed - Mandated Overtime no longer immediately crashes the game
+Fixed - Interacting with the ancient shipyard no longer crashes your game
+Fixed - Custom Warning beacons crashing when reloading the game and entering hyperspace
+
 4.0.b
 Items
 Fixed - Hotfix for a crash occurring when clicking an abyssal item
