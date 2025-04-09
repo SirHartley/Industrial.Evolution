@@ -30,8 +30,14 @@ public class CloudPainter extends WorldWonder {
     @Override
     public void apply() {
         super.apply();
+        if (isFunctional()) applyVisuals();
+    }
 
-        if (market.hasIndustry(Industries.PLANETARYSHIELD)
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
+
+        if (isFunctional() && market.hasIndustry(Industries.PLANETARYSHIELD)
                 && market.getPrimaryEntity() instanceof PlanetAPI
                 && !(market.getIndustry(Industries.PLANETARYSHIELD) instanceof InvisiblePlanetaryShield)
                 && market.getIndustry(Industries.PLANETARYSHIELD).isFunctional()) {
@@ -39,8 +45,6 @@ public class CloudPainter extends WorldWonder {
             market.removeIndustry(Industries.PLANETARYSHIELD, null, false);
             market.addIndustry(Ids.PLANETARY_SHIELD_ALT);
         }
-
-        if (isFunctional()) applyVisuals();
     }
 
     @Override

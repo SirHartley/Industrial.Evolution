@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -42,13 +43,25 @@ public class Edict_FastBuild extends BaseEdict {
 
         for (Industry ind : market.getIndustries()) {
             if (ind.isBuilding() || ind.isUpgrading()) {
-                BaseIndustry industry = (BaseIndustry) ind;
-                if (ind.getSpec().getUpgrade() == null) continue; //population returns IsUpgrading true for some reason but doesn't actually have an upgrade spec - no clue why
+                if (ind.getSpec().getUpgrade() == null) continue;
 
-                float buildDays = ind.isBuilding() ? ind.getSpec().getBuildTime() : Global.getSettings().getIndustrySpec(ind.getSpec().getUpgrade()).getBuildTime();
-                float buildProgressInDays = ind.getBuildOrUpgradeProgress() * buildDays;
-                float buildFractionIncrease = (buildProgressInDays + 1) / buildDays;
-                industry.setBuildProgress(buildFractionIncrease > 1 ? 0.9999f : buildFractionIncrease);
+                BaseIndustry industry = (BaseIndustry) ind;
+
+                //todo
+                //reflect into ind
+                //get build time
+                //save build time via mem
+                //set it to half the time
+                //on unapply, revert
+
+                float buildDays = ind.isBuilding()
+                        ? ind.getSpec().getBuildTime()
+                        : Global.getSettings().getIndustrySpec(ind.getSpec().getUpgrade()).getBuildTime();
+
+                float extraProgress = 1f / buildDays;
+                float newProgress = ind.getBuildOrUpgradeProgress() + extraProgress;
+
+                industry.setBuildProgress(newProgress >= 1f ? 0.9999f : newProgress);
             }
         }
     }

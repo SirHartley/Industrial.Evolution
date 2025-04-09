@@ -82,6 +82,23 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
         return Math.round(total) * redOrAdd;
     }
 
+    /*
+    runcode import com.fs.starfarer.api.impl.campaign.intel.events.*;
+    HostileActivityEventIntel intel = HostileActivityEventIntel.get();
+    if (intel == null) {
+        Console.showMessage("wtf, no intel?");
+        return;
+    }
+    for (EventFactor factor : intel.getFactors()) {
+        if (!(factor instanceof BaseHostileActivityFactor)) continue;
+        BaseHostileActivityFactor haf = (BaseHostileActivityFactor)factor;
+        Console.showMessage("Found factor " + factor.getDesc(intel) + ", class " + factor.getClass().getName());
+        for (HostileActivityCause2 cause : haf.getCauses()) {
+            Console.showMessage(" - Cause " + cause.getDesc() + ", class " + cause.getClass().getName());
+        }
+    }
+    */
+
     @Override
     public String getProgressStr(BaseEventIntel intel) {
         boolean isSabotaging = getIsSabotaging();
@@ -102,6 +119,8 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
 
     public static float getReductionAmtForFaction(FactionAPI alignedFaction){
         if (alignedFaction == null) return 0f;
+
+        if (true) return 0f;
 
         BaseHostileActivityFactor factor = null;
         float redPoints = 0f;

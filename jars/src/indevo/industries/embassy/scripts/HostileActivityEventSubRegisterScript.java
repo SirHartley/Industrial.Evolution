@@ -11,7 +11,7 @@ import indevo.utils.ModPlugin;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HostileActivityEventSubRegisterScript implements EveryFrameScript {
+public class HostileActivityEventSubRegisterScript implements ColonyCrisesSetupListener {
 
     public static void register() {
         if (!Global.getSector().hasScript(HostileActivityEventSubRegisterScript.class)) {
@@ -38,21 +38,7 @@ public class HostileActivityEventSubRegisterScript implements EveryFrameScript {
             if (HostileActivityEventIntel.get() != null) {
                 HostileActivityEventIntel intel = HostileActivityEventIntel.get();
                 if (intel.getFactorOfClass(HAAmbassadorEventFactor.class) == null) {
-
-                    //out with the old
-                    List<EventFactor> currentFactors = new ArrayList<>(intel.getFactors());
-
-                    for (EventFactor f : currentFactors) {
-                        if (f instanceof BaseHostileActivityFactor) intel.removeFactor(f);
-                    }
-
-                    //in with the new (we do this so the order of the events isn't fucked up by adding a new factor)
-                    intel.addFactor(new HAAmbassadorEventFactor());
-
-                    for (EventFactor f : currentFactors) {
-                        if (f instanceof BaseHostileActivityFactor) intel.addFactor(f);
-                    }
-
+                    intel.getFactors().add(0, new HAAmbassadorEventFactor());
                     ModPlugin.log("Adding Hostile Activity Ambassador Intel");
                 }
             }

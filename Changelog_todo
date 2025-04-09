@@ -1,16 +1,7 @@
 
 --------------------------- To-do -----------------------------
 
-HOTFIX
-Hullmods in codex
-add whitelist setting
-watchtowers throw up blank interaction screen
-auto shipyards crash
-
----
-
 Add icons to custom explo stations
-Add toggle to revert EngHub to old, strict whitelist system
 Sounds on riftgen animation
 
 Governments
@@ -45,6 +36,8 @@ Before release
 
 --------------------------- Feedback Notes -----------------------------
 Requests
+- add whitelist setting to return to strict whitelisting
+- let user change warning beacon hazard level
 - add a colony buff to automated shipyards (maybe a buff to HI? got item sprites for it anyway)
 - Add keyboard shortcuts to all indEvo industry menu points
 - Watchtowers buildable in stable loc

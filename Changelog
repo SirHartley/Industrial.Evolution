@@ -1,4 +1,10 @@
 --------------------------- Changelog -----------------------------
+4.0.d
+Fixed - Planetary Shield no longer shows up as duplicate in the build menu
+Fixed - Bandaid-Fix for the Camouflage Field Emitter combat glitch overlay crash (won't crash anymore, but source of error not known)
+Fixed - Having planetary shield and building cloud painter no longer causes a crash
+
+
 4.0.c
 Fixed - Mandated Overtime no longer immediately crashes the game
 Fixed - Interacting with the ancient shipyard no longer crashes your game

@@ -275,6 +275,8 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
 
             if (UBintesectsBottom) {
                 Vector2f intersectionPoint = calculateIntersectionPoint(upperBound, BBbl, BBbr);
+                if (intersectionPoint == null) return;
+
                 float texX = (MathUtils.getDistance(BBbl, intersectionPoint) / sprite.getWidth()) * sprite.getTextureWidth();
 
                 points.add(intersectionPoint);
