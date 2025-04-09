@@ -11,7 +11,7 @@ import indevo.utils.ModPlugin;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HostileActivityEventSubRegisterScript implements ColonyCrisesSetupListener {
+public class HostileActivityEventSubRegisterScript implements EveryFrameScript {
 
     public static void register() {
         if (!Global.getSector().hasScript(HostileActivityEventSubRegisterScript.class)) {
