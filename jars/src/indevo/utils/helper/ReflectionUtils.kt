@@ -103,4 +103,24 @@ object ReflectionUtils {
 
         return invokeMethodHandle.invoke(method, instance, arguments)
     }
+
+    fun invokeProtectedNoArgs(methodName: String, instance: Any, clazz: Class<*>? = null): Any? {
+        var method: Any? = null
+        var claz = clazz ?: instance.javaClass
+
+        try {
+            val methods = claz.declaredMethods
+            for (m in methods) {
+                if (getMethodNameHandle.invoke(m) == methodName) {
+                    method = m
+                    break
+                }
+            }
+        } catch (e: Throwable) { }
+
+        if (method == null) return null
+
+        setFieldAccessibleHandle.invoke(method, true)
+        return invokeMethodHandle.invoke(method, instance, emptyArray<Any>())
+    }
 }

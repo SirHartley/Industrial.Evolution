@@ -1,13 +1,18 @@
 --------------------------- Changelog -----------------------------
 4.0.d
 Added - IndEvo_setMarketGrowth console command to set a market to a certain growth level
+Added - Toggle for the Nex Omega ship blacklisting (for boristheblade)
+Added - Setting to return to the strict whitelist model of the pre-4.0 engineering hub
+Added - Shield alternate visual toggle to planetary shield via button (moved from settings)
 Adjusted - Engineering Hub Blueprint selection now specifies hull size for easier overview
 Adjusted - Reverted Engineering Hub auto-whitelist to a slightly less permissive system (can't RE the stations the shipyards gave you anymore...)
 Adjusted - Corpo Gov immigration reduction adjusted to -1 / 20.000c (down from -1 / 10.000c)
+Fixed - Commerce Raiding now works again (MAY REQUIRE NEW SAVE)
+Fixed - Luddic Majority will now show up again (MAY REQUIRE NEW SAVE)
+Fixed - Missiles no longer activate while holding ctrl to switch hotbar
+Fixed - Missile targeting reticule now appears when clicking item while paused
 Fixed - Mandated Overtime Edict now works properly (Many, many thanks to Starficz and Lukas!)
 Fixed - Automated shipyards no longer give out stations
-Fixed - Commerce Raiding now works again (REQUIRES A NEW SAVE)
-Fixed - Luddic Majority will now show up again (REQUIRES A NEW SAVE)
 Fixed - Making a detachment no longer reverts ships to a random autofit
 Fixed - Planetary Shield no longer shows up as duplicate in the build menu
 Fixed - Bandaid-Fix for the Camouflage Field Emitter combat glitch overlay crash (won't crash anymore, but source of error not known)
@@ -16,6 +21,7 @@ Fixed - Corpo Gov now properly lets you use growth incentives at max size
 Fixed - Micromanagement Skill no longer toggles remote management off when it's on by default
 Fixed - Can no longer duplicate the nexerelin omega merc ship
 Fixed - Codex entries for all Industrial Evolution content now work as expected
+Fixed - Watchtowers no longer show empty dialogue
 
 4.0.c
 Fixed - Mandated Overtime no longer immediately crashes the game

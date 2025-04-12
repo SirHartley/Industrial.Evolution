@@ -302,7 +302,7 @@ cob_hackPrompt_watchtower,COB_ConfirmPrompt,"$cob_action == hack
 $tag:IndEvo_watchtower score:1000",,"Hacking $aOrAn $shortName will clear your current target data out of the system, and stop it from registering your fleet while the hack is ongoing.
 
 The hack will eventually be picked up and cleared out by maintenance subroutines, but should remain effective for at least two months.",,
-IndEvo_derelictWatchtower_disableControlUnderAI,OpenInteractionDialog,"$IndEvo_isArtilleryActive score:2000
+IndEvo_derelictWatchtower_disableControlUnderAI,COB_DisableIndividualOptions,"$IndEvo_isArtilleryActive score:2000
 $tag:IndEvo_watchtower","SetEnabled COB_takeControl false
 SetTooltip COB_takeControl ""Any attempts at taking control of the $entityName get stifled by a heavily AI-backed counter-hack. Your engineers concede defeat after a few minutes to avoid a network breach.""",,,
 ,,,,,,

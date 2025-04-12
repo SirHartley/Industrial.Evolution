@@ -18,7 +18,6 @@ public class OnClickAbilityInputListener implements MissileTargetUIKeypressListe
 
     public boolean active = false;
     public MissileCampaignRenderer renderer;
-
     public AbilityPlugin plugin;
 
     public OnClickAbilityInputListener(AbilityPlugin plugin) {

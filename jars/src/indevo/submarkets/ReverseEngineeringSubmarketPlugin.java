@@ -51,17 +51,19 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin imple
         restrictedShips.addAll(hvbShips);
         allowedShips.addAll(allowedShipsInternal);
 
-        for (ShipHullSpecAPI spec : Global.getSettings().getAllShipHullSpecs()) {
-            for (String tag : spec.getTags()) {
-                if (tag.contains("_bp")) allowedShips.add(spec.getHullId());
-            }
-        }
-
         //blacklist dweller and threat
         for (FactionSpecAPI faction : Global.getSettings().getAllFactionSpecs()) {
             for (String id : faction.getKnownShips()) {
                 ShipHullSpecAPI spec = Global.getSettings().getHullSpec(id);
                 if (!Collections.disjoint(spec.getTags(), Arrays.asList("threat", "dweller"))) restrictedShips.add(id);
+            }
+        }
+
+        if (Settings.getBoolean(Settings.ENGHUB_STRICT_WL)) return;
+
+        for (ShipHullSpecAPI spec : Global.getSettings().getAllShipHullSpecs()) {
+            for (String tag : spec.getTags()) {
+                if (tag.contains("_bp")) allowedShips.add(spec.getHullId());
             }
         }
 

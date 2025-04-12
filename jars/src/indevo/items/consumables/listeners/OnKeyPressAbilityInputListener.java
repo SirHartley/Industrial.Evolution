@@ -11,6 +11,7 @@ import com.fs.starfarer.api.input.InputEventType;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
 import indevo.items.consumables.itemAbilities.missiles.BaseMissileConsumableAbilityPlugin;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
+import org.lwjgl.input.Keyboard;
 
 import java.util.List;
 
@@ -43,7 +44,9 @@ public class OnKeyPressAbilityInputListener implements MissileTargetUIKeypressLi
     @Override
     public void processCampaignInputPreCore(List<InputEventAPI> events) {
         CampaignUIAPI ui = Global.getSector().getCampaignUI();
-        if (ui.getCurrentInteractionDialog() != null) {
+
+        boolean ctrlPressed = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL); //if doesn't work disable until ctrl event up/down released
+        if (ui.getCurrentInteractionDialog() != null || ctrlPressed) {
             reset();
             return;
         }

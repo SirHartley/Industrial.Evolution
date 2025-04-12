@@ -16,6 +16,8 @@ import org.apache.log4j.Logger;
 import java.util.HashSet;
 import java.util.Set;
 
+import static indevo.utils.helper.Settings.DECON_ALLOW_NEX_OMEGA;
+
 public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements DynamicSubmarket {
 
     public static Logger log = Global.getLogger(DeconstructorSubmarketPlugin.class);
@@ -68,7 +70,7 @@ public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements
         if (market.hasIndustry(Ids.DECONSTRUCTOR)) {
             if (Global.getSettings().isDevMode()) return false;
 
-            if (member.getBuffManager().getBuff("nex_mercBuff") != null) return true; //nex mercs can't be deconstructed to avoid players duping the omega ship
+            if (member.getBuffManager().getBuff("nex_mercBuff") != null && !Settings.getBoolean(DECON_ALLOW_NEX_OMEGA)) return true; //nex mercs can't be deconstructed to avoid players duping the omega ship
 
             //if illegal, return true
             boolean notAllowed = !(allowedShips.contains(member.getHullId()) || allowedShips.contains(member.getHullSpec().getBaseHullId())); //if not allowed, return true

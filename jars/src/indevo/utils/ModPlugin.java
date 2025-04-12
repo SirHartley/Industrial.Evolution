@@ -47,6 +47,7 @@ import indevo.exploration.minefields.listeners.RecentJumpListener;
 import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.exploration.stations.DerelictStationPlacer;
 import indevo.ids.Ids;
+import indevo.industries.InvisiblePlanetaryShield;
 import indevo.industries.TradeCenter;
 import indevo.industries.academy.plugins.AcademyOptionProvider;
 import indevo.industries.artillery.listener.WatchtowerFactionResetListener;
@@ -441,6 +442,7 @@ public class ModPlugin extends BaseModPlugin {
         if (Global.getSettings().getModManager().isModEnabled("nexerelin")) ManagedDemocracyNexerelinListenerPlugin.register();
         BeaconDialogueListener.register();
         HostileActivityEventSubRegisterListener.register();
+        InvisiblePlanetaryShield.AlternateTextureOptionProvider.register();
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();
     }

@@ -9,6 +9,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.items.consumables.itemAbilities.BaseConsumableAbilityPlugin;
 import indevo.items.consumables.listeners.MissileActivationManager;
 import indevo.items.consumables.listeners.OnClickAbilityInputListener;
+import indevo.items.consumables.scripts.DelayedActionScriptRunWhilePaused;
 import indevo.utils.ModPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -66,7 +67,7 @@ public abstract class BaseMissileConsumableAbilityPlugin extends BaseConsumableA
                 ModPlugin.log("Reporting valid missile click: " + getId());
                 //only activate through UI on player fleet!
                 //we have to delay the activation of this by one frame because the UI takes priority over input listeners with priority 0 and we want the key press to run first
-                Global.getSector().getScripts().add(new DelayedActionScript(0f) {
+                Global.getSector().getScripts().add(new DelayedActionScriptRunWhilePaused(0f) {
                     @Override
                     public void doAction() {
                         //register listener and go through default programmatic way

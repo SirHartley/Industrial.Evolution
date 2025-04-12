@@ -76,7 +76,8 @@ IndEvo_Artillery_missile_fuzz,[Missile Artillery] Shot Fuzziness,Double,1,,How a
 IndEvo_Artillery_missile_explosionRadius,[Missile Artillery] Explosion Radius,Double,200,,,1,1000,Artillery
 IndEvo_Artillery_missile_duration,[Missile Artillery] Roaming Duration,Double,10,,,1,60,Artillery
 IndEvo_header6,Industry Settings,Header,Industry Settings,,,,,Industries
-IndEvo_EngHubIgnoreWhitelists,[Engineering Hub] Ignore Whitelist,Boolean,FALSE,,"Yes, this is the one you are looking for",,,Industries
+IndEvo_EngHubStrictWhitelist,[Engineering Hub] Use strict whitelist,Boolean,FALSE,,"Disable the auto-whitelist and return to the strict manual entry based whitelist system. This means that only ships that are listed in the reverse_engineering.csv whitelist are eligible to be researched.",,,Industries
+IndEvo_EngHubIgnoreWhitelists,[Engineering Hub] Ignore Whitelist,Boolean,FALSE,,"Yes, this is the one you are looking for (NOTE: post version 4.0 has an auto-whitelist that is much broader and you may not need this setting anymore)",,,Industries
 IndEvo_AutoshipBPToGatheringPoint,[Engineering Hub] Auto Transfer BP to Gathering Point,Boolean,FALSE,,Remember - Courier Port Exists,,,Industries
 IndEvo_RarePartsAmountPerFP,[Salvage Yards] Relic Components per FP,Int,2,,Required Relic Components per FP for zero D-Mods,1,10,Industries
 IndEvo_SYBaseDMods,[Salvage Yards] Base D-Mod Amount,Int,5,,Base D-Mod count on ships built via the Yards,1,10,Industries
@@ -89,6 +90,7 @@ IndEvo_RG_cooldownTime,[Rift Generator] Cooldown,Int,90,,,1,365,Industries
 IndEvo_RG_range,[Rift Generator] Range,Int,9,,in LY,1,100,Industries
 IndEvo_reslab_autoDeliverToClosestDecon,[Derelict Laboratory] Deliver to Gathering Point,Boolean,FALSE,,Auto-deliver restored forge templates to the closest HullDecon  Remember - courier port exists.,,,Industries
 IndEvo_DeconIgnoreWhitelists,[Hull Deconstructor] Ignore Whitelists,Boolean,TRUE,,"Leave this one alone, you want the engineering hub",,,Industries
+IndEvo_DeconAllowNexOmega,[Hull Deconstructor] Allow Deconstructing the Nex Omega Merc,Boolean,FALSE,,"Added on request :)",,,Industries
 IndEvo_hullDecon_autoDeliverToClosestForge,[Hull Deconstructor] Deliver to closest Forge,Boolean,FALSE,,Auto-deliver finished forge templates to the closest HullForge  Remember - courier port exists.,,,Industries
 IndEvo_hullDecon_days_FRIGATE,[Hull Deconstructor] Deconstruction Time in Days [Frigate],Int,10,,,1,100,Industries
 IndEvo_hullDecon_days_DESTROYER,[Hull Deconstructor] Deconstruction Time in Days [Destroyer],Int,20,,,1,100,Industries
