@@ -40,10 +40,12 @@ public class HostileActivityEventSubRegisterScript implements EveryFrameScript {
 
         if (!mem.getBoolean("$IndEvo_HAE_ScriptCleanupDone")){
             HostileActivityEventIntel intel = HostileActivityEventIntel.get();
-            intel.removeActivityOfClass(TriTachyonHostileActivityFactor.class);
-            intel.removeActivityOfClass(LuddicChurchHostileActivityFactor.class);
-            intel.addActivity(new TriTachyonHostileActivityFactor(intel), new TriTachyonStandardActivityCause(intel));
-            intel.addActivity(new LuddicChurchHostileActivityFactor(intel), new LuddicChurchStandardActivityCause(intel));
+            if (intel != null){
+                intel.removeActivityOfClass(TriTachyonHostileActivityFactor.class);
+                intel.removeActivityOfClass(LuddicChurchHostileActivityFactor.class);
+                intel.addActivity(new TriTachyonHostileActivityFactor(intel), new TriTachyonStandardActivityCause(intel));
+                intel.addActivity(new LuddicChurchHostileActivityFactor(intel), new LuddicChurchStandardActivityCause(intel));
+            }
 
             mem.set("$IndEvo_HAE_ScriptCleanupDone", true);
         }
