@@ -108,6 +108,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
     private boolean canSucc() {
         CampaignFleetAPI fleet = getFleet();
         if (fleet == null) return false;
+        if (fleet.getContainingLocation() == null) return false; //codex
 
         boolean validFleetLoc = !fleet.isInHyperspace();
         boolean validTarget = updateTargetLoc();

@@ -3,6 +3,10 @@ package indevo.utils.helper
 import java.lang.invoke.MethodHandles
 import java.lang.invoke.MethodType
 
+/**
+ * Stolen from Lukas04 - thank you!
+ */
+
 object ReflectionUtils {
 
     private val fieldClass = Class.forName("java.lang.reflect.Field", false, Class::class.java.classLoader)

@@ -39,7 +39,6 @@ import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.dialogue.research.listeners.*;
 import indevo.dialogue.research.scripts.RefitUIOpenChecker;
 import indevo.economy.listeners.ResourceConditionApplicator;
-import indevo.exploration.crucible.plugin.CrucibleSpawner;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
@@ -69,7 +68,7 @@ import indevo.industries.derelicts.listeners.AncientLabCommoditySwitchOptionProv
 import indevo.industries.derelicts.plugins.RiftGenOptionProvider;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.industries.embassy.scripts.HostileActivityEventSubRegisterScript;
+import indevo.industries.embassy.scripts.HostileActivityEventSubRegisterListener;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.plugins.PetCenterOptionProvider;
@@ -200,6 +199,8 @@ public class ModPlugin extends BaseModPlugin {
 
             if (newGame) addLordFoogRep();
         }
+
+        Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_BaseRemoteAllowed", Global.getSettings().getBoolean("allowRemoteIndustryItemManagement"));
 
         //player fuckery
         if(MissileActivationManager.getInstanceOrRegister().hasActiveListener()) MissileActivationManager.getInstanceOrRegister().getCurrentListener().reset();
@@ -439,6 +440,7 @@ public class ModPlugin extends BaseModPlugin {
         FleetConsumableInventoryManager.register();
         if (Global.getSettings().getModManager().isModEnabled("nexerelin")) ManagedDemocracyNexerelinListenerPlugin.register();
         BeaconDialogueListener.register();
+        HostileActivityEventSubRegisterListener.register();
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();
     }
@@ -458,10 +460,6 @@ public class ModPlugin extends BaseModPlugin {
 
         MagicCampaignTrailPlugin.register();
         EyeIndicatorScript.register();
-        HostileActivityEventSubRegisterScript.register();
-
-
-
         //PlayerFleetFollower.register();
     }
 

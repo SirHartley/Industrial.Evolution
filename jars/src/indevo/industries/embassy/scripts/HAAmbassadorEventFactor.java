@@ -120,8 +120,6 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
     public static float getReductionAmtForFaction(FactionAPI alignedFaction){
         if (alignedFaction == null) return 0f;
 
-        if (true) return 0f;
-
         BaseHostileActivityFactor factor = null;
         float redPoints = 0f;
 

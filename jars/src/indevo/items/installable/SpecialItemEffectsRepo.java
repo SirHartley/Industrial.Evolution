@@ -19,7 +19,9 @@ import indevo.industries.senate.industry.Senate;
 import indevo.utils.helper.StringHelper;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo.COLD_OR_EXTREME_COLD;
 
@@ -77,6 +79,7 @@ public class SpecialItemEffectsRepo {
                         pad, Misc.getHighlightColor(),
                         new String[]{RANGE_LY_TWELVE + "LY", LOG_CORE_MAX_BONUS + ""});
             }
+
         });
 
         /* experimental log core effect

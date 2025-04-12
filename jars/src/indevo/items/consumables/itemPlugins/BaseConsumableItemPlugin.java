@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.CoreUITabId;
 import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
 import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.graphics.SpriteAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -52,19 +53,20 @@ public class BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
 
     protected AbilityPlugin getAbilityPlugin() {
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
-        if (!fleet.hasAbility(spec.getParams())) addAbilityToFleet();
 
-        return Global.getSector().getPlayerFleet().getAbility(spec.getParams());
+        if (fleet == null) fleet = Global.getFactory().createEmptyFleet(Factions.PLAYER, "Codex Fleet", false);
+
+        if (!fleet.hasAbility(spec.getParams())) addAbilityToFleet(fleet);
+        return fleet.getAbility(spec.getParams());
     }
 
-    public void addAbilityToFleet() {
+    public void addAbilityToFleet(CampaignFleetAPI fleet) {
         String params = spec.getParams();
         AbilitySpecAPI abilitySpecAPI = Global.getSettings().getAbilitySpec(params);
-        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
 
-        if (abilitySpecAPI != null && !playerFleet.hasAbility(params)) {
-            playerFleet.addAbility(params);
-            Global.getSector().getCharacterData().addAbility(params);
+        if (abilitySpecAPI != null && !fleet.hasAbility(params)) {
+            fleet.addAbility(params);
+            if (fleet.isPlayerFleet()) Global.getSector().getCharacterData().addAbility(params);
         }
     }
 

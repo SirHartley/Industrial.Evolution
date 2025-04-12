@@ -10,6 +10,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
+import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.fleetAssignmentAIs.SplinterFleetAssignmentAIV2;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
@@ -77,6 +78,7 @@ public class FleetUtils {
         DetachmentMemory.removeDetachment(num);
     }
 
+
     public static void createAndSpawnFleet(LoadoutMemory.Loadout loadout, int num) {
         log.info("fleet member ids in player");
         for (FleetMemberAPI f : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
@@ -103,6 +105,15 @@ public class FleetUtils {
 
         //add all the members and move officers
         for (FleetMemberAPI m : fleetMemberlist) {
+            /*Bug: If a fresh-from-custom-production variant is added to a special task group, the variant in the fleet will revert to stock on game load
+
+            To prevent this, the variant source needs to be marked as REFIT *and* its originalVariant needs to be set to null;
+            the latter prevents reverting to stock variant on fleet deflation
+            */
+
+            m.getVariant().setSource(VariantSource.REFIT);
+            m.getVariant().setOriginalVariant(null);
+
             //since there is no way to transfer officers, remove them for transport detachments!
             if (Behaviour.behaviourEquals(loadout.behaviour, Behaviour.FleetBehaviour.TRANSPORT)) {
                 if (!m.getCaptain().isAICore() && !Misc.isUnremovable(m.getCaptain())) {

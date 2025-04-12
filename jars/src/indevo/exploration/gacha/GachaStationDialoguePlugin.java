@@ -505,10 +505,11 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
                 ShipAPI.HullSize.CRUISER,
                 ShipAPI.HullSize.CAPITAL_SHIP}) {
 
-            for (ShipHullSpecAPI spec :  Global.getSettings().getAllShipHullSpecs()) {
-                if (Collections.disjoint(spec.getHints(), Arrays.asList("HIDE_IN_CODEX", "STATION"))
+            //too permissive and somehow gave people stations??
+            /*for (ShipHullSpecAPI spec :  Global.getSettings().getAllShipHullSpecs()) {
+                if (Collections.disjoint(spec.getHints(), Arrays.asList("HIDE_IN_CODEX", "STATION", "MODULE"))
                         && Collections.disjoint(spec.getTags(), Arrays.asList("restricted", "no_sell", "no_dealer", "dweller", "threat"))) if (spec.getHullSize().equals(size)) lm.getList(size.toString()).add(spec);
-            }
+            }*/
 
             for (ShipHullSpecAPI spec : MiscIE.getAllLearnableShipHulls()) {
                 if (spec.getHullSize().equals(size)) lm.getList(size.toString()).add(spec);

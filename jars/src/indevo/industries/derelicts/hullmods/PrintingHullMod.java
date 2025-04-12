@@ -29,6 +29,11 @@ public class PrintingHullMod extends BaseHullMod {
     @Override
     public void addPostDescriptionSection(TooltipMakerAPI tooltip, ShipAPI.HullSize hullSize, ShipAPI ship, float width, boolean isForModSpec) {
         super.addPostDescriptionSection(tooltip, hullSize, ship, width, isForModSpec);
+
+        if (ship == null) {
+            tooltip.addPara("Increases the maximum built in Hullmods by a %s depending on the ship's construction profile.", 10f, Misc.getHighlightColor(), "variable amount");
+            return;
+        }
         MutableShipStatsAPI stats = ship.getMutableStats();
 
         int compensate = 0;

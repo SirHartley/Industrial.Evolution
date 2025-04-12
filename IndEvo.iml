@@ -28,8 +28,7 @@
     <orderEntry type="library" name="SHI" level="application" />
     <orderEntry type="library" name="ExerelinCore" level="application" />
     <orderEntry type="library" name="RandomAssortmentofThings" level="application" />
-    <orderEntry type="library" name="commons-compiler-jdk" level="application" />
-    <orderEntry type="library" name="lib" level="application" />
     <orderEntry type="library" name="Kotlin-Runtime" level="application" />
+    <orderEntry type="library" name="starfarer_obf" level="application" />
   </component>
 </module>

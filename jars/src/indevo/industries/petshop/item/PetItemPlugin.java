@@ -142,6 +142,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         b = Misc.getPositiveHighlightColor();
 
         PetData pet = PetDataRepo.get(stack.getSpecialDataIfSpecial().getData());
+        if (pet == null) PetDataRepo.get("hampter");
 
         Pair<String, Color> rpair = pet.getRarityDesc();
 
@@ -156,7 +157,8 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
         if (isFleetCargo() && !isActive) tooltip.addPara("Right-click to assign", b, opad);
         else if (!isFleetCargo()) tooltip.addPara("Can only be assigned from fleet cargo", n, opad);
-        else tooltip.addPara("Finish assigning your current pet to activate this!", n, opad);
+        else if (isActive) tooltip.addPara("Finish assigning your current pet to activate this!", n, opad);
+        else tooltip.addPara("Can not be used in this situation", n, opad);
     }
 
     public static String getYearDescription(int months) {

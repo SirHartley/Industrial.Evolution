@@ -58,8 +58,10 @@ public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemP
                     pad = 10f;
                 }
 
-                text.addPara(pre + "The contents of this item will be %s by the re-writing process.",
-                        pad, Misc.getHighlightColor(), new String[]{"replaced"});
+                String size = Misc.ucFirst(Global.getSettings().getHullSpec(data.getData()).getHullSize().name().toLowerCase());
+
+                text.addPara(pre + "Specification: %s. " + "The contents of this item will be %s by the re-writing process.",
+                        pad, Misc.getHighlightColor(), new String[]{size, "replaced"});
             }
         });
 

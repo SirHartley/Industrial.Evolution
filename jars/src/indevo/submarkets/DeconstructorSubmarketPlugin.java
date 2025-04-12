@@ -55,6 +55,8 @@ public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements
             if (restricted || !(allowed || baseAllowed)) return "Can not be Deconstructed.";
             if (printed) return "Unusable - Printing Defects";
             if (hasUnremovableNonAIOfficer) return "Unremoveable Officer";
+
+            return "Can not be Deconstructed.";
         }
 
         return "something broke.";
@@ -65,6 +67,8 @@ public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements
     public boolean isIllegalOnSubmarket(FleetMemberAPI member, TransferAction action) {
         if (market.hasIndustry(Ids.DECONSTRUCTOR)) {
             if (Global.getSettings().isDevMode()) return false;
+
+            if (member.getBuffManager().getBuff("nex_mercBuff") != null) return true; //nex mercs can't be deconstructed to avoid players duping the omega ship
 
             //if illegal, return true
             boolean notAllowed = !(allowedShips.contains(member.getHullId()) || allowedShips.contains(member.getHullSpec().getBaseHullId())); //if not allowed, return true

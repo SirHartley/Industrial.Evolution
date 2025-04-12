@@ -57,6 +57,16 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin imple
             }
         }
 
+        //blacklist dweller and threat
+        for (FactionSpecAPI faction : Global.getSettings().getAllFactionSpecs()) {
+            for (String id : faction.getKnownShips()) {
+                ShipHullSpecAPI spec = Global.getSettings().getHullSpec(id);
+                if (!Collections.disjoint(spec.getTags(), Arrays.asList("threat", "dweller"))) restrictedShips.add(id);
+            }
+        }
+
+        /*
+        //too permissive!
         for (FactionSpecAPI faction : Global.getSettings().getAllFactionSpecs()) {
             for (String id : faction.getKnownShips()) {
                 ShipHullSpecAPI spec = Global.getSettings().getHullSpec(id);
@@ -65,7 +75,7 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin imple
 
                 if (!Collections.disjoint(spec.getTags(), Arrays.asList("threat", "dweller"))) restrictedShips.add(id);
             }
-        }
+        }*/
     }
 
     public boolean showInFleetScreen() {

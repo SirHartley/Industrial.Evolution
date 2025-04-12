@@ -59,9 +59,6 @@ public class RelayAbilityPlugin extends BaseConsumableAbilityPlugin {
             tooltip.addPara(Global.getSettings().getSpecialItemSpec(getItemID()).getDesc(), gray, opad);
         }
 
-        String id = isActiveOrInProgress() ? entity.getFaction().getId() : SpooferConsumableItemPlugin.getCurrentFaction();
-        FactionAPI faction = Global.getSector().getFaction(id);
-
         tooltip.addPara("Establishes a direct link to the closest comm relay.", opad, Misc.getHighlightColor(),
 
                 Math.round(getDurationDays()) + " days");

@@ -81,7 +81,7 @@ public class ArtilleryRemoteAbilityPlugin extends BaseMissileConsumableAbilityPl
         Color hl = Misc.getHighlightColor();
 
         boolean knowsEffect = Global.getSector().getMemoryWithoutUpdate().getBoolean(HAS_BEEN_USED_KEY);
-        boolean hasArty = entity.getContainingLocation().hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY);
+        boolean hasArty = entity != null && entity.getContainingLocation() != null && entity.getContainingLocation().hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY);
 
         if (knowsEffect) {
             tooltip.addPara("Forces a nearby artillery to %s. The deployment time is slightly unreliable due to age and loading cycles. The access codes stored within are valid for one use.", opad, hl, "fire at the selected location");

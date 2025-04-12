@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.Misc;
 
 import java.awt.*;
@@ -31,7 +32,10 @@ public class SpooferConsumableItemPlugin extends BaseConsumableItemPlugin {
     }
 
     public static String getCurrentFaction() {
-        return getFactionList().get(getCurrentFactionIndex());
+        List<String> factionList = getFactionList();
+        if (factionList.isEmpty()) return Factions.INDEPENDENT; //codex
+
+        return factionList.get(getCurrentFactionIndex());
     }
 
     public static List<String> getFactionList() {

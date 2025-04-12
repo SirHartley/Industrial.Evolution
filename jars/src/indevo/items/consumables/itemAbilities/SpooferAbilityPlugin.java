@@ -124,7 +124,9 @@ public class SpooferAbilityPlugin extends BaseConsumableAbilityPlugin implements
             tooltip.addPara("Remaining in inventory: %s", opad, amt > 0 ? highlight : Misc.getNegativeHighlightColor(), amt + "");
             tooltip.addPara(Global.getSettings().getSpecialItemSpec(getItemID()).getDesc(), gray, opad);
         }
+
         String id = isActiveOrInProgress() ? entity.getFaction().getId() : SpooferConsumableItemPlugin.getCurrentFaction();
+
         FactionAPI faction = Global.getSector().getFaction(id);
 
         tooltip.addPara("Emits a fake transponder signal. " +

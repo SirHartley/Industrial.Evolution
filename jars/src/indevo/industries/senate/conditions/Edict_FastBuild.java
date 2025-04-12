@@ -25,6 +25,20 @@ public class Edict_FastBuild extends BaseEdict {
         super.apply(id);
         if (market.getPrimaryEntity() == null) return;
 
+        for (Industry ind : market.getIndustries()) {
+            if (ind.isBuilding() || ind.isUpgrading()) {
+                if (ind.getSpec().getUpgrade() == null) continue;
+
+                BaseIndustry industry = (BaseIndustry) ind;
+
+                float buildDays = ind.isBuilding()
+                        ? ind.getSpec().getBuildTime()
+                        : Global.getSettings().getIndustrySpec(ind.getSpec().getUpgrade()).getBuildTime();
+
+                ReflectionUtils.INSTANCE.set("buildTime", industry, buildDays / 2f);
+            }
+        }
+
         for (Industry industry : market.getIndustries()) {
             if (industry.isIndustry()) {
                 for (MutableCommodityQuantity supply : industry.getAllSupply()) {
@@ -33,35 +47,6 @@ public class Edict_FastBuild extends BaseEdict {
                 for (MutableCommodityQuantity demand : industry.getAllDemand()) {
                     industry.getDemand(demand.getCommodityId()).getQuantity().modifyFlat(getModId(), OUTPUT_DECREASE_MULT, getName());
                 }
-            }
-        }
-    }
-
-    @Override
-    public void onNewDay() {
-        super.onNewDay();
-
-        for (Industry ind : market.getIndustries()) {
-            if (ind.isBuilding() || ind.isUpgrading()) {
-                if (ind.getSpec().getUpgrade() == null) continue;
-
-                BaseIndustry industry = (BaseIndustry) ind;
-
-                //todo
-                //reflect into ind
-                //get build time
-                //save build time via mem
-                //set it to half the time
-                //on unapply, revert
-
-                float buildDays = ind.isBuilding()
-                        ? ind.getSpec().getBuildTime()
-                        : Global.getSettings().getIndustrySpec(ind.getSpec().getUpgrade()).getBuildTime();
-
-                float extraProgress = 1f / buildDays;
-                float newProgress = ind.getBuildOrUpgradeProgress() + extraProgress;
-
-                industry.setBuildProgress(newProgress >= 1f ? 0.9999f : newProgress);
             }
         }
     }
@@ -79,6 +64,18 @@ public class Edict_FastBuild extends BaseEdict {
                 for (MutableCommodityQuantity demand : industry.getAllDemand()) {
                     industry.getDemand(demand.getCommodityId()).getQuantity().unmodify(getModId());
                 }
+            }
+        }
+
+        for (Industry ind : market.getIndustries()) {
+            if (ind.isBuilding() || ind.isUpgrading()) {
+                if (ind.getSpec().getUpgrade() == null || !(ind instanceof BaseIndustry industry)) continue;
+
+                float buildDays = ind.isBuilding()
+                        ? ind.getSpec().getBuildTime()
+                        : Global.getSettings().getIndustrySpec(ind.getSpec().getUpgrade()).getBuildTime();
+
+                ReflectionUtils.INSTANCE.set("buildTime", industry, buildDays);
             }
         }
     }

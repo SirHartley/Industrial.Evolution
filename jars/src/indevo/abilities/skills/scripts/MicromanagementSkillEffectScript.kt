@@ -42,6 +42,8 @@ class MicromanagementSkillEffectScript : EveryFrameScript {
     }
 
     override fun advance(amount: Float) {
+        if (Global.getSector().memoryWithoutUpdate.getBoolean("\$IndEvo_BaseRemoteAllowed")) return
+
         frames++
         frames = MathUtils.clamp(frames, 0, 10)
 
@@ -83,6 +85,8 @@ class MicromanagementSkillEffectScript : EveryFrameScript {
         }
 
         if (industryPanel != null) {
+
+
             val market = ReflectionUtils.get("market", industryPanel) as MarketAPI
             if (market.admin.stats.hasSkill(Ids.MICROMANAGEMENT) && (AdminGovernTimeTracker.getInstanceOrRegister().getValueForMarket(market.id) > 93 || Global.getSettings().isDevMode)) {
                 Global.getSettings().setBoolean("allowRemoteIndustryItemManagement", true)

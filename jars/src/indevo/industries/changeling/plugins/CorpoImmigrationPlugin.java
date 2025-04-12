@@ -12,6 +12,8 @@ import com.fs.starfarer.api.util.Misc;
 
 import java.util.ArrayList;
 
+import static indevo.industries.changeling.industry.population.CorporateGovernanceSubIndustry.MAX_GROWTH_TAG;
+
 public class CorpoImmigrationPlugin extends CoreImmigrationPluginImpl {
     public static final float IMMIGRATION_COST_MULT = 2f;
 
@@ -82,7 +84,7 @@ public class CorpoImmigrationPlugin extends CoreImmigrationPluginImpl {
             }
 
             if (newWeight > max) {
-                increaseMarketSize();
+                if (!market.hasTag(MAX_GROWTH_TAG)) increaseMarketSize();
                 newWeight = max;
             }
 

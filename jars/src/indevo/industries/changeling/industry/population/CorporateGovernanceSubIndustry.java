@@ -36,6 +36,7 @@ not possible x •	Incentives are twice as expensive (or more?)
 x•	increase military upkeep by x3
 */
 
+    public static final String MAX_GROWTH_TAG = "IndEvo_CorpoGov_MaxSize";
     public static final float MIL_UPKEEP_INCREASE = 3f;
     public static final float MAX_DISRUPTION_DAYS = 62f;
     public static final float INCOME_PER_STAB = 20000f;
@@ -44,7 +45,7 @@ x•	increase military upkeep by x3
     public static final float BASE_STAB = 0f;
 
     public static final float BASE_IMMIGRATION_PENALTY = 20f;
-    public static final float INCOME_PER_IMMIGRATION_TIER = 10000;
+    public static final float INCOME_PER_IMMIGRATION_TIER = 20000;
     public static final float IMMIGRATION_PENALTY_PER_TIER = 1f;
     public static final float MAX_ADDITIONAL_IMMIGRATION_PENALTY = 30f;
 
@@ -109,7 +110,13 @@ x•	increase military upkeep by x3
         modifyStability2(industry, market, population.getModId(3)); //overmax industry stability
         market.getMemoryWithoutUpdate().set(MemFlags.MARKET_CAN_ALWAYS_INCENTIVIZE_GROWTH, true);
 
+        int maxSize = Misc.getMaxMarketSize(market);
+        int size = market.getSize();
 
+        if (size == maxSize){
+            market.addTag(MAX_GROWTH_TAG);
+            market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).modifyFlat(getId(), maxSize + 1, getName());
+        }
     }
 
     @Override
@@ -130,8 +137,10 @@ x•	increase military upkeep by x3
             }
         }
 
+        market.removeTag(MAX_GROWTH_TAG);
         industry.getMarket().getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).unmodifyFlat(getId());
         market.getMemoryWithoutUpdate().unset(MemFlags.MARKET_CAN_ALWAYS_INCENTIVIZE_GROWTH);
+        market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).unmodify(getId());
     }
 
     public void applyIndustryEffects(){

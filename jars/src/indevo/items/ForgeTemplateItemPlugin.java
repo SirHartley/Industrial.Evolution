@@ -127,6 +127,7 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
         float opad = 10f;
 
         String hullId = stack.getSpecialDataIfSpecial().getData();
+        if (hullId == null) hullId = "nebula"; //codex
 
         if (Global.getSector().getMemory().getBoolean("$" + Ids.HULLFORGE)) {
             tooltip.addPara("This Forge Template contains ship data. Installing this in a Hull Forge will allow it to construct the ship.", opad);
