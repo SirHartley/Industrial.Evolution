@@ -4,6 +4,7 @@ Added - IndEvo_setMarketGrowth console command to set a market to a certain grow
 Adjusted - Engineering Hub Blueprint selection now specifies hull size for easier overview
 Adjusted - Reverted Engineering Hub auto-whitelist to a slightly less permissive system (can't RE the stations the shipyards gave you anymore...)
 Adjusted - Corpo Gov immigration reduction adjusted to -1 / 20.000c (down from -1 / 10.000c)
+Fixed - Mandated Overtime Edict now works properly (Many, many thanks to Starficz and Lukas!)
 Fixed - Automated shipyards no longer give out stations
 Fixed - Commerce Raiding now works again (REQUIRES A NEW SAVE)
 Fixed - Luddic Majority will now show up again (REQUIRES A NEW SAVE)

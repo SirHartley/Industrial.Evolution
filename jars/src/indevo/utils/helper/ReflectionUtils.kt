@@ -19,6 +19,24 @@ object ReflectionUtils {
     private val getMethodNameHandle = MethodHandles.lookup().findVirtual(methodClass, "getName", MethodType.methodType(String::class.java))
     private val invokeMethodHandle = MethodHandles.lookup().findVirtual(methodClass, "invoke", MethodType.methodType(Any::class.java, Any::class.java, Array<Any>::class.java))
 
+    fun setWithSuper(fieldName: String, instanceToModify: Any, newValue: Any?, clazz: Class<*>? = null)
+    {
+        var field: Any? = null
+        var claz = clazz
+        if (claz == null) claz = instanceToModify.javaClass
+
+        try {  field = claz.getField(fieldName) } catch (e: Throwable) {
+            try {  field = claz.getDeclaredField(fieldName) } catch (e: Throwable) { }
+        }
+        if (field == null) {
+            setWithSuper(fieldName, instanceToModify, claz.superclass)
+            return
+        }
+
+        setFieldAccessibleHandle.invoke(field, true)
+        setFieldHandle.invoke(field, instanceToModify, newValue)
+    }
+
     fun set(fieldName: String, instanceToModify: Any, newValue: Any?)
     {
         var field: Any? = null
