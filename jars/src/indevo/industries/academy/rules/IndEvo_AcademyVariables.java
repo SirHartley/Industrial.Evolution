@@ -11,7 +11,6 @@ public class IndEvo_AcademyVariables {
 
     public static final String ACADEMY_MARKET_ID = "IndEvo_academyMarket";
 
-
     public enum ActionTypes {
         TRAIN,
         STORE,

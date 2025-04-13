@@ -6,11 +6,11 @@
     {
         "major":4,
         "minor":0,
-        "patch":"e"
+        "patch":"f"
     },
 
     #Link towards a direct download, fetched from the online version file
-    "directDownloadURL":"https://github.com/SirHartley/Industrial.Evolution/releases/download/4.0.e/Industrial.Evolution4.0.e.zip",
+    "directDownloadURL":"https://github.com/SirHartley/Industrial.Evolution/releases/download/4.0.f/Industrial.Evolution4.0.f.zip",
 
     #Link towards a directly accessible text file, which can be used to display a changelog ingame, is fetched from the online version file.
     "changelogURL":"https://raw.githubusercontent.com/SirHartley/Industrial.Evolution/refs/heads/master/Changelog",

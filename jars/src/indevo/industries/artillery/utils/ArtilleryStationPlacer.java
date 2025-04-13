@@ -10,6 +10,7 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.TechMining;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.procgen.Constellation;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
@@ -77,6 +78,11 @@ public class ArtilleryStationPlacer {
                     || s.hasTag(Tags.THEME_HIDDEN)
                     || s.hasTag(Tags.THEME_SPECIAL)
                     || s.hasTag(Tags.SYSTEM_ABYSSAL)) continue;
+
+            Constellation c = s.getConstellation();
+            int constellationStationCount = 0;
+            if (c != null) for (StarSystemAPI sys : c.getSystems()) if (sys.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY)) constellationStationCount++;
+            if (constellationStationCount >= 2) continue;
 
             float baseMod = 0f;
             if (s.getTags().contains(Tags.THEME_REMNANT_RESURGENT)) baseMod += 0.2f;

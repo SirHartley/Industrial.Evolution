@@ -1,16 +1,21 @@
 
 --------------------------- To-do -----------------------------
 
+- Bugs
 Add icons to custom explo stations
 Sounds on riftgen animation
+? Double check commerce building reset bug
+? alpha core in senate has no effect
+? Detachments like to hide in system center (sun)
+Pet stations: Fix the -1c pet food cost in monthly report
 
-Governments
-Popup on first establishment
+- Improvement
+Rework academy UI
+Reork Edict UI
+Governments: Popup on first establishment
+Pet stations: Add main menu dialogue
 
-Pet stations
-Add main menu dialogue
-Fix the -1c pet food cost in monthly report
-
+- Roadmap
 Missiles
 NPC usage and reactions
 NPC AI behaviour

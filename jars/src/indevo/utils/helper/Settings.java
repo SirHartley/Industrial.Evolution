@@ -55,7 +55,7 @@ public class Settings {
     public static final String ARTILLERY_MIN_RANGE = "IndEvo_Artillery_minRange";
     public static final String ARTILLERY_MAX_RANGE = "IndEvo_Artillery_maxRange";
     public static final String ARTILLERY_WATCHTOWER_RANGE = "IndEvo_Artillery_WatchtowerRange";
-    public static final String ARTILLERY_DEFENSE_FP = "IndEvo_Artillery_defense_FP";
+    public static final String ARTILLERY_DEFENSE_FP = "IndEvo_Artillery_defense_FP2";
     public static final String ARTILLERY_MORTAR_PROJECTILES_PER_SHOT = "IndEvo_Artillery_mortar_projectilesPerShot";
     public static final String ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME = "IndEvo_Artillery_mortar_projectilesImpactTime";
     public static final String ARTILLERY_MORTAR_EXPLOSION_SIZE = "IndEvo_Artillery_mortar_explosionSize";

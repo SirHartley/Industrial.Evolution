@@ -1,4 +1,15 @@
 --------------------------- Changelog -----------------------------
+4.0.f
+Added - Most relevant conditions to planet search (minefields, arty...)
+Adjusted - Artillery Station Defence Fleet FP reduced by 20%
+Adjusted - Limited artillery stations to 2 per constellation to fix the clustering that happens currently (new game)
+Adjusted - Removed planet search tags from IndEvo special items
+Fixed - Crash caused by the Mandated Overtime Edict (again)
+Fixed - Turning pets off now also stops pet submarkets from exporting commodities
+
+4.0.e
+Fixed - Made 4.0.d save compatible
+
 4.0.d
 Added - IndEvo_setMarketGrowth console command to set a market to a certain growth level
 Added - Toggle for the Nex Omega ship blacklisting (for boristheblade)
