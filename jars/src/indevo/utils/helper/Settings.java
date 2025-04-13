@@ -115,6 +115,7 @@ public class Settings {
     public static final String CORRUPTION_CUTOFF = "IndEvo_CorruptionCutoff";
     public static final String DECON_ALLOW_NEX_OMEGA = "IndEvo_DeconAllowNexOmega";
     public static final String ENGHUB_STRICT_WL = "IndEvo_EngHubStrictWhitelist";
+    public static final String ARTILLERY_STARS_PER_STATION = "IndEvo_Artillery_starsPerStationInConstellation";
 
     public static boolean getBoolean(String s){
         if (Global.getSettings().getModManager().isModEnabled("lunalib")) {

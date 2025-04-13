@@ -26,12 +26,14 @@ import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import indevo.items.consumables.listeners.LocatorSystemRatingUpdater;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.Settings;
+import lunalib.lunaSettings.LunaSettings;
 
 import java.util.List;
 import java.util.Random;
 
 import static indevo.industries.artillery.scripts.ArtilleryStationScript.SCRIPT_KEY;
 import static indevo.industries.artillery.scripts.ArtilleryStationScript.TYPE_KEY;
+import static indevo.utils.helper.Settings.ARTILLERY_STARS_PER_STATION;
 
 public class ArtilleryStationPlacer {
 
@@ -80,9 +82,17 @@ public class ArtilleryStationPlacer {
                     || s.hasTag(Tags.SYSTEM_ABYSSAL)) continue;
 
             Constellation c = s.getConstellation();
-            int constellationStationCount = 0;
-            if (c != null) for (StarSystemAPI sys : c.getSystems()) if (sys.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY)) constellationStationCount++;
-            if (constellationStationCount >= 2) continue;
+
+            if (c != null){
+                int starsPerStation = Settings.getInt(ARTILLERY_STARS_PER_STATION);
+                int constellationStationCount = 0;
+
+                float sysAmt = c.getSystems().size();
+                int stnAmt = (int) Math.ceil(sysAmt / starsPerStation);
+
+                for (StarSystemAPI sys : c.getSystems()) if (sys.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY)) constellationStationCount++;
+                if (constellationStationCount >= stnAmt) continue;
+            }
 
             float baseMod = 0f;
             if (s.getTags().contains(Tags.THEME_REMNANT_RESURGENT)) baseMod += 0.2f;
