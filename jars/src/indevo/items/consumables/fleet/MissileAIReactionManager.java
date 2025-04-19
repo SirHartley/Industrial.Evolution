@@ -65,6 +65,8 @@ public class MissileAIReactionManager {
     public static void reportFleetUsedMissile(CampaignFleetAPI offenderFleet, String missileType) {
         if (offenderFleet == null) return;
 
+        if (true) return; //todo REMOVE THIS FOR USE; TURNED OFF FOR MOD RELEASE 4.0
+
         MemoryAPI mem = offenderFleet.getMemoryWithoutUpdate();
         mem.set(MissileMemFlags.RECENTLY_USED_MISSILE, true, TIME_REMOVE_SELF_FLAG);
 

@@ -147,7 +147,7 @@ public class Ids {
     public static final String ABILITY_MISSILE_INTERCEPT = "IndEvo_ability_missile_intercept";
     public static final String ABILITY_MISSILE_REMOTE = "IndEvo_ability_artillery_target";
     public static final String ABILITY_BEACON = "IndEvo_ability_beacon";
-
+    public static final String ABILITY_CATAPULT = "IndEvo_ability_catapult";
 
     //research Projects
     public static final String PROJ_SPYGLASS = "indevo_proj_revival";

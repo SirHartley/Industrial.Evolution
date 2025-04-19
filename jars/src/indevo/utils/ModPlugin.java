@@ -24,6 +24,8 @@ import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
 import com.fs.starfarer.api.impl.campaign.intel.deciv.DecivTracker;
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
+import com.fs.starfarer.api.impl.codex.CodexDataV2;
+import com.fs.starfarer.api.impl.codex.CodexEntryV2;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -74,6 +76,7 @@ import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.plugins.PetCenterOptionProvider;
 import indevo.industries.petshop.plugins.PetShopCampaignPlugin;
+import indevo.industries.relay.industry.MilitaryRelay;
 import indevo.industries.ruinfra.listener.RuinfraOnDecivListener;
 import indevo.industries.ruinfra.utils.DerelictInfrastructurePlacer;
 import indevo.industries.salvageyards.plugins.SalvageYardsOptionProvider;
@@ -133,7 +136,21 @@ public class ModPlugin extends BaseModPlugin {
             LightData.readLightDataCSV("data/lights/IndEvo_lights.csv");
             TextureData.readTextureDataCSV((String)"data/lights/IndEvo_textures.csv");
         }
+    }
 
+    @Override
+    public void onAboutToStartGeneratingCodex() {
+        super.onAboutToStartGeneratingCodex();
+        SpecialItemEffectsRepo.addItemEffectsToVanillaRepo();
+
+        var path = "graphics/icons/cargo/IndEvo_consumable_nanites.png";
+        try {
+            Global.getSettings().loadTexture(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        //todo add the codex stuff and make own cat for consumables
     }
 
     @Override
@@ -188,6 +205,11 @@ public class ModPlugin extends BaseModPlugin {
 
         //pets
         if (Settings.getBoolean(Settings.PETS)){
+            if (!Global.getSector().getPlayerFleet().hasAbility("pet_management")){
+                Global.getSector().getPlayerFleet().addAbility("pet_management");
+                Global.getSector().getCharacterData().addAbility("pet_management");
+            }
+
             if (ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(Ids.PROJ_NAVI).getProgress().redeemed) PetDataRepo.get("fairy").tags.remove(PetData.TAG_NO_SELL);
 
             for(PetData data : PetDataRepo.getAll()) {
@@ -199,6 +221,9 @@ public class ModPlugin extends BaseModPlugin {
             }
 
             if (newGame) addLordFoogRep();
+        } else {
+            Global.getSector().getPlayerFleet().removeAbility("pet_management");
+            Global.getSector().getCharacterData().removeAbility("pet_management");
         }
 
         Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_BaseRemoteAllowed", Global.getSettings().getBoolean("allowRemoteIndustryItemManagement"));
@@ -443,6 +468,7 @@ public class ModPlugin extends BaseModPlugin {
         BeaconDialogueListener.register();
         HostileActivityEventSubRegisterListener.register();
         InvisiblePlanetaryShield.AlternateTextureOptionProvider.register();
+        MilitaryRelay.RelayItemRemovalButtonListener.register();
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();
     }

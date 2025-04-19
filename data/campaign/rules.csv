@@ -288,6 +288,12 @@ IndEvo_ArtilleryBeatPlanet,BeatDefendersContinue,$IndEvo_ArtilleryStation score:
 IndEvo_ArtilleryBeatStation,BeatDefendersContinue,"$IndEvo_ArtilleryStation score:1000
 $tag:IndEvo_Artillery",,Your $shipOrFleet disengages as the defence stations loses any structural integrity it might have had left in a fiery display. The way to the planet is now clear.,0:defaultLeave:Continue,
 IndEvo_ArtilleryDefeatPopulateOptions,DialogOptionSelected,$option == IndEvo_ArtilleryDefeatPopulateOptions,FireAll OpenInteractionDialog,,,
+IndEvo_ArtilleryInitialPlanet_CircumventionProtection,PopulateOptions,"$market.isPlanetConditionMarketOnly
+!$market.isSurveyed
+$IndEvo_ArtilleryStation score:1000
+!$defenderFleetDefeated","SetEnabled surveyPerform false
+Highlight ""denies any chance of approach""
+SetTooltip surveyPerform ""A survey operation requires heavy machinery and satellites to be deployed. This is not possible with an active defence platform in orbit - disable it first.""","The giant weapons platform in orbit around $entityName denies any chance of approach, much less survey - and while the oversized armament lays silent for now, you get the feeling that this might change the moment you get closer.",,
 ,,,,,,
 #watchtower,,,,,,
 #IndEvo_derelictWatchtower,OpenInteractionDialog,"$IndEvo_isArtilleryActive score:2000

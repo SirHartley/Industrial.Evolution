@@ -7,6 +7,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.listener.MarineLossAmplifcationHullmodEffectListener;
 import indevo.industries.petshop.hullmods.SelfRepairingBuiltInHullmod;
+import indevo.utils.helper.StringHelper;
 
 public class Hellpods extends SelfRepairingBuiltInHullmod {
 
@@ -36,6 +37,6 @@ public class Hellpods extends SelfRepairingBuiltInHullmod {
                 "Increases Marine losses by %s.",
                 spad,
                 Misc.getNegativeHighlightColor(),
-                Math.round(MarineLossAmplifcationHullmodEffectListener.MARINE_LOSSES_MULT_PER_SHIP) + "%");
+                StringHelper.getAbsPercentString(MarineLossAmplifcationHullmodEffectListener.MARINE_LOSSES_MULT_PER_SHIP, true) + "%");
     }
 }

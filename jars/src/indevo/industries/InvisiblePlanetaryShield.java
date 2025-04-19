@@ -8,22 +8,17 @@ import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PlanetaryShield;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
-import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import indevo.industries.courierport.plugin.CourierPortOptionProvider;
-import indevo.utils.helper.Settings;
-import indevo.utils.plugins.SimplifiedIndustryOptionProvider;
+import indevo.utils.plugins.SimpleIndustryOptionProvider;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.Collections;
 
 public class InvisiblePlanetaryShield extends PlanetaryShield {
     public static String TAG_FULL = "IndEvo_PS_FULL";
     public static String TAG_LOW = "IndEvo_PS_LOW";
     public static String TAG_NONE = "IndEvo_PS_NONE";
 
-    public static class AlternateTextureOptionProvider extends SimplifiedIndustryOptionProvider{
+    public static class AlternateTextureOptionProvider extends SimpleIndustryOptionProvider {
 
         public static void register() {
             ListenerManagerAPI listeners = Global.getSector().getListenerManager();

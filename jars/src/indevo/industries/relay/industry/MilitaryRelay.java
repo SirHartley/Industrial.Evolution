@@ -5,6 +5,9 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.campaign.listeners.ColonyOtherFactorsListener;
+import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
+import com.fs.starfarer.api.campaign.listeners.IndustryOptionProvider;
+import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.combat.StatBonus;
@@ -19,10 +22,12 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
+import indevo.industries.InvisiblePlanetaryShield;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
+import indevo.utils.plugins.SimpleIndustryOptionProvider;
 import indevo.utils.scripts.EntityRemovalScript;
 import indevo.utils.timers.NewDayListener;
 import org.lwjgl.util.vector.Vector2f;
@@ -33,6 +38,42 @@ import java.util.*;
 
 
 public class MilitaryRelay extends MilitaryBase implements NewDayListener {
+
+    public static class RelayItemRemovalButtonListener extends SimpleIndustryOptionProvider {
+
+        public static void register() {
+            ListenerManagerAPI listeners = Global.getSector().getListenerManager();
+            if (!listeners.hasListenerOfClass(RelayItemRemovalButtonListener.class)) {
+                listeners.addListener(new RelayItemRemovalButtonListener(), true);
+            }
+        }
+
+        @Override
+        public boolean isSuitable(Industry ind, boolean allowUnderConstruction) {
+            return super.isSuitable(ind, allowUnderConstruction) && ind.getSpecialItem() != null && ind.getMarket().isPlayerOwned();
+        }
+
+        @Override
+        public void onClick(IndustryOptionProvider.IndustryOptionData opt, DialogCreatorUI ui) {
+            Misc.getStorageCargo(opt.ind.getMarket()).addSpecial(opt.ind.getSpecialItem(), 1);
+            opt.ind.setSpecialItem(null);
+        }
+
+        @Override
+        public void createTooltip(TooltipMakerAPI tooltip) {
+            tooltip.addPara("Removes the %s installed in this industry.", 0f, Misc.getHighlightColor(), "Relay Hypertransmitter");
+        }
+
+        @Override
+        public String getOptionLabel(Industry ind) {
+            return "Remove Hypertransmitter";
+        }
+
+        @Override
+        public String getTargetIndustryId() {
+            return Ids.COMARRAY;
+        }
+    }
 
     private float bestFleetSize = 0f;
     private String bestMarketId = null;
@@ -50,6 +91,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
     private static final float PATROL_HQ_UPKEEP_MULT = 2f;
 
     public static final String STRING_IDENT = "IndEvo_ComArray";
+
 
     //Industry effects
     public void apply() {

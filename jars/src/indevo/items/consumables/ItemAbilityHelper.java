@@ -1,5 +1,9 @@
 package indevo.items.consumables;
 
+import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 
@@ -24,6 +28,7 @@ public class ItemAbilityHelper {
         put(ItemIds.CONSUMABLE_MISSILE_INTERCEPT, Ids.ABILITY_MISSILE_INTERCEPT);
         put(ItemIds.CONSUMABLE_MISSILE_REMOTE, Ids.ABILITY_MISSILE_REMOTE);
         put(ItemIds.CONSUMABLE_BEACON, Ids.ABILITY_BEACON);
+        put(ItemIds.CONSUMABLE_CATAPULT, Ids.ABILITY_CATAPULT);
     }};
 
     public static String toggle(String s) {

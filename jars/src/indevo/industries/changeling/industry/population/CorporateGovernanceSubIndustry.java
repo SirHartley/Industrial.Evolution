@@ -115,7 +115,7 @@ x•	increase military upkeep by x3
 
         if (size == maxSize){
             market.addTag(MAX_GROWTH_TAG);
-            market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).modifyFlat(getId(), maxSize + 1, getName());
+            //market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).modifyFlat(getId(), maxSize + 1, getName());
         }
     }
 
@@ -140,7 +140,7 @@ x•	increase military upkeep by x3
         market.removeTag(MAX_GROWTH_TAG);
         industry.getMarket().getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).unmodifyFlat(getId());
         market.getMemoryWithoutUpdate().unset(MemFlags.MARKET_CAN_ALWAYS_INCENTIVIZE_GROWTH);
-        market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).unmodify(getId());
+        //market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).unmodify(getId());
     }
 
     public void applyIndustryEffects(){

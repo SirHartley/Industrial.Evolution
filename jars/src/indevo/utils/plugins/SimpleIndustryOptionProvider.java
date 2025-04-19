@@ -11,7 +11,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SimplifiedIndustryOptionProvider implements IndustryOptionProvider {
+public abstract class SimpleIndustryOptionProvider implements IndustryOptionProvider {
     public static Color BASE_COLOUR = new Color(150, 100, 255, 255);
     public static Object CUSTOM_PLUGIN = new Object();
 
@@ -23,7 +23,6 @@ public abstract class SimplifiedIndustryOptionProvider implements IndustryOption
         boolean isTarget = ind.getId().equals(getTargetIndustryId()) && ind.isFunctional();
         MarketAPI currentMarket = MiscIE.getCurrentInteractionTargetMarket();
         boolean isLocal = currentMarket != null && ind.getMarket().getId().equals(currentMarket.getId());
-
         return isTarget && isLocal;
     }
 

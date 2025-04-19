@@ -9,9 +9,9 @@ import com.fs.starfarer.api.impl.campaign.RuleBasedInteractionDialogPluginImpl;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
-import indevo.utils.plugins.SimplifiedIndustryOptionProvider;
+import indevo.utils.plugins.SimpleIndustryOptionProvider;
 
-public class CourierPortOptionProvider extends SimplifiedIndustryOptionProvider {
+public class CourierPortOptionProvider extends SimpleIndustryOptionProvider {
 
     public static void register() {
         ListenerManagerAPI listeners = Global.getSector().getListenerManager();

@@ -142,7 +142,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         b = Misc.getPositiveHighlightColor();
 
         PetData pet = PetDataRepo.get(stack.getSpecialDataIfSpecial().getData());
-        if (pet == null) PetDataRepo.get("hampter");
+        if (pet == null) pet = PetDataRepo.get("hampter");
 
         Pair<String, Color> rpair = pet.getRarityDesc();
 

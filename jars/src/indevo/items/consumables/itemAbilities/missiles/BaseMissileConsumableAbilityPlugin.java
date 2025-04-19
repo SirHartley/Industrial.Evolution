@@ -45,7 +45,7 @@ public abstract class BaseMissileConsumableAbilityPlugin extends BaseConsumableA
         boolean otherMissileActive = MissileActivationManager.getInstanceOrRegister().hasActiveListener();
         boolean dialogueActive = Global.getSector().getCampaignUI().getCurrentInteractionDialog() != null || Global.getSector().getCampaignUI().getCurrentCoreTab() != null;
 
-        if (otherMissileActive) tooltip.addPara("Already deploying a missile!", opad, Misc.getNegativeHighlightColor());
+        if (otherMissileActive) tooltip.addPara("Conflicting item in use!", opad, Misc.getNegativeHighlightColor());
         if (dialogueActive) tooltip.addPara("Can only be activated from the ability bar.",  opad, Misc.getNegativeHighlightColor());
     }
 

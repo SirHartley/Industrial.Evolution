@@ -35,7 +35,6 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
         if (market.getPrimaryEntity() == null) return;
 
         for (MarketAPI market : MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
-
             market.addTransientImmigrationModifier(this);
             market.getStability().modifyFlat(id, -stabPenalty, getName());
         }
@@ -142,7 +141,7 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
     @Override
     public String getUnavailableReason(MarketAPI market) {
         return "Requires military presence on this planet, at least two colonies in the system, " +
-                "can only be active on one colony at a time (Star system), and the colony must not have the maximum size.";
+                "can only be active on one colony at a time (Star system), and the colony must not have the minimum or the maximum size.";
     }
 
     @Override
@@ -159,6 +158,7 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
                 && MiscIE.marketHasMilitaryIncludeRelays(market)
                 && conditionUniqueInSystem(market, condition.getId())
                 && twoMarkets
-                && market.getSize() < Global.getSettings().getInt("maxColonySize");
+                && market.getSize() < Global.getSettings().getInt("maxColonySize")
+                && market.getSize() > 3;
     }
 }

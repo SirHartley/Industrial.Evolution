@@ -43,6 +43,8 @@ public class FleetUtils {
 
         CampaignFleetAPI detachment = DetachmentMemory.getDetachment(num);
         mergeFleetWithPlayerFleet(detachment);
+
+        //runcode for(int i = 0; i < 5; i++){indevo.abilities.splitfleet.FleetUtils.mergeDetachment(i);}
     }
 
     public static void mergeFleetWithPlayerFleet(CampaignFleetAPI detachment) {

@@ -21,15 +21,11 @@ public class CorpoImmigrationPlugin extends CoreImmigrationPluginImpl {
         super(market);
     }
 
-/*    @Override
     protected void applyIncentives(PopulationComposition inc, boolean uiUpdateOnly, float f) {
+//		if (market.getName().equals("Jangala")) {
+//			System.out.println("ewfwfew");
+//		}
         if (!market.isImmigrationIncentivesOn()) return;
-
-        if (market.getSize() >= MiscIE.MAX_COLONY_SIZE) {
-            market.setImmigrationIncentivesOn(false);
-            return;
-        }
-
 
         float points = -getImmigrationHazardPenalty(market) + INCENTIVE_POINTS_EXTRA;
         //float cost = INCENTIVE_CREDITS_PER_POINT * points * f;
@@ -38,10 +34,11 @@ public class CorpoImmigrationPlugin extends CoreImmigrationPluginImpl {
         if (points > 0) {
             inc.getWeight().modifyFlat("inc_incentives", points, "Hazard pay");
             if (!uiUpdateOnly) {
-                market.setIncentiveCredits((market.getIncentiveCredits() + cost) * IMMIGRATION_COST_MULT);
+                market.setIncentiveCredits(market.getIncentiveCredits() + cost);
             }
         }
-    }*/
+
+    }
 
     @Override
     public void advance(float days, boolean uiUpdateOnly) {
