@@ -290,7 +290,7 @@
 		"scaleIconWithZoom":true,
 		"renderCircleIndicator": true,
 		"renderCircleIndicatorSelectionFlash":true,
-		"tags":["has_interaction_dialog", "IndEvo_crucible", "IndEvo_crucible_part", "neutrino_high"],
+		"tags":["has_interaction_dialog", "IndEvo_crucible", "IndEvo_crucible_part", "neutrino_high", "salvor_orbital"],
 		"layers":[ABOVE_STATIONS, BELOW_STATIONS, TERRAIN_6B], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"indevo.exploration.crucible.entities.CrucibleStationEntityPlugin"
 	},
@@ -471,7 +471,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
-		"tags":["station", "NO_ORBITAL_STATION"],
+		"tags":["station", "NO_ORBITAL_STATION", "salvor_orbital"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 		"pluginClass":"indevo.industries.artillery.entities.ArtilleryStationEntityPlugin"
 	},
@@ -799,7 +799,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
-		"tags":["has_interaction_dialog", "salvageable", "neutrino"],
+		"tags":["has_interaction_dialog", "salvageable", "neutrino", "salvor_orbital"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 	},
 
@@ -823,7 +823,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
-		"tags":["has_interaction_dialog", "salvageable", "neutrino"],
+		"tags":["has_interaction_dialog", "salvageable", "neutrino", "salvor_orbital"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 	},
 
@@ -847,7 +847,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
-		"tags":["has_interaction_dialog", "salvageable", "neutrino"],
+		"tags":["has_interaction_dialog", "salvageable", "neutrino", "salvor_orbital"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 	},
 

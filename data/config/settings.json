@@ -355,7 +355,8 @@
           "gearwheel": "graphics/stations/gear_wheel_no_colour.png",
           "fx_flash":"graphics/fx/IndEvo_flash_new.png",
           "fx_succy_storm_desat":"graphics/fx/IndEvo_blackhole_desat.png",
-          "beacon_custom": "graphics/icons/intel/beacon_custom.png"
+          "beacon_custom": "graphics/icons/intel/beacon_custom.png",
+          "log_gachastation":"graphics/icons/intel/log_cryosleeper.png"
       },
   },
 }

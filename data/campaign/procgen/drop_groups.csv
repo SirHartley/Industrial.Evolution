@@ -45,6 +45,7 @@ item_IndEvo_consumable_missile_explosive,indEvo_consumables,2
 item_IndEvo_consumable_missile_concussive,indEvo_consumables,4
 item_IndEvo_consumable_missile_smoke,indEvo_consumables,3
 item_IndEvo_consumable_missile_intercept,indEvo_consumables,4
+item_IndEvo_consumable_catapult,indEvo_consumables,3
 nothing,indEvo_consumables,240
 ,,
 item_IndEvo_consumable_nanites,indEvo_consumables_always,10
@@ -53,6 +54,7 @@ item_IndEvo_consumable_spike,indEvo_consumables_always,6
 item_IndEvo_consumable_scoop,indEvo_consumables_always,3
 item_IndEvo_consumable_decoy,indEvo_consumables_always,4
 item_IndEvo_consumable_relay,indEvo_consumables_always,5
+item_IndEvo_consumable_catapult,indEvo_consumables_always,3
 ,,
 item_IndEvo_consumable_missile_explosive,indEvo_missiles,10
 item_IndEvo_consumable_missile_concussive,indEvo_missiles,20

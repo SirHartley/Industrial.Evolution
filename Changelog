@@ -1,7 +1,6 @@
 --------------------------- Changelog -----------------------------
 4.0.g
 Added - Consumable item: Slipsurge Catapult - generate a slipsurge without a gravity well
-Added - Added the planet_search tag back to the simulation engine item
 Added - Starting to switch out all AI images in the mod:
 Added - New image: Ore refining
 Added - New image: Transplutonics refining
@@ -12,17 +11,22 @@ Added - New image: Ore Mining
 Added - New image: Managed democracy
 Added - New image: Outpost (old one was also human-made)
 Added - Missiles to the Arsenal Station drop pool
-Adjusted - Removed technica RuinfraCond entry from planet search
+Added - Added the planet_search tag back to the simulation engine item
+Added - Automated Shipyards now show up in intel fleet log like hypershunts or cryosleepers
+Adjusted - Removed technical RuinfraCond entry from planet search
 Adjusted - Edict: Forced Relocation no longer works on colonies of size 3
 Adjusted - Added industrial tag to supercomputer
+Adjusted - Forge World experiment ships now follow local production quality conventions
 Fixed - Turned off the unfinished NPC Missile Reaction manager that would make fleets behave strangely upon shooting a consumable missile
 Fixed - Pet Management Ability no longer available when pets are turned off
 Fixed - Hellpods hullmod description values corrected (5% increase in marine effectiveness, 10% increase in casualties)
-        todo Fixed - Can no longer circumvent artillery station combat by using the Nexerelin comm signal event
+Fixed - Can no longer circumvent artillery station combat through mod-added planet interactions (sorry!)
 Fixed - Edict: Mandated Overtime - finally works as it should. Wow.
 Fixed - Added a button to remove the relay hypertransmitter when downgrading an interstellar relay to a military relay with the item installed
 Fixed - Pet Cryochamber no longer crashes in the codex
 Fixed - Industry Items now tagged as industry items for the codex
+Fixed - Ancient Laboratory crash due to getMemory() call on game procGen
+Fixed - Game now correctly classifies the mod-specific salvageable stations as stations in the salvage tally
 
 4.0.f
 Added - Most relevant conditions to planet search (minefields, arty...)

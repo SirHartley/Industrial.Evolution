@@ -1,7 +1,13 @@
 
 --------------------------- To-do -----------------------------
+Next Save Breaking Version:
+https://discord.com/channels/815017574642483240/1101606968101179573/1363400676255731723
+- Hull Forge and Hull Decon use ShipVariantAPI in class field, which can cause issues when taking a save from one game ver to the next
 
-- Bugs
+- Known Bugs
+
+
+- Improvement
 Add icons to custom explo stations
 Sounds on riftgen animation
 ? Double check commerce building reset bug

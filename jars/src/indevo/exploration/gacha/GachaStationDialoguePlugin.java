@@ -26,6 +26,7 @@ import com.fs.starfarer.api.util.ListMap;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import com.fs.starfarer.campaign.rules.Memory;
+import indevo.exploration.gacha.intel.GachaStationIntel;
 import indevo.ids.ItemIds;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
@@ -173,6 +174,8 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
         option = Option.LEAVE;
         opts.addOption("Leave", option);
         opts.setShortcut(option, Keyboard.KEY_ESCAPE, false, false, false, true);
+
+        if (GachaStationIntel.getGachaStationIntel(dialog.getInteractionTarget()) == null) new GachaStationIntel(dialog.getInteractionTarget(), dialog.getTextPanel());
     }
 
 

@@ -17,10 +17,12 @@ import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
 import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
+import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflater;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -232,7 +234,7 @@ x can only be built on very hot worlds
                 Global.getLogger(this.getClass()).error("Failed to pick a ship to build for " + market.getName());
                 return;
             }
-            FleetMemberAPI member = createAndPrepareMember(id, 4);
+            FleetMemberAPI member = createAndPrepareMember(id);
             if (member == null) return;
             currentDpBudget -= (int) member.getDeploymentPointsCost();
 
@@ -246,7 +248,7 @@ x can only be built on very hot worlds
         }
     }
 
-    public FleetMemberAPI createAndPrepareMember(String hullID, int maxDmodAmt) {
+    public FleetMemberAPI createAndPrepareMember(String hullID) {
         List<String> l = Global.getSettings().getHullIdToVariantListMap().get(hullID);
         WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
         picker.addAll(l);
@@ -264,22 +266,22 @@ x can only be built on very hot worlds
         FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant);
 
         variant = variant.clone();
+        variant.setSource(VariantSource.REFIT);
         variant.setOriginalVariant(null);
 
-        int dModsAlready = DModManager.getNumDMods(variant);
-        int dmods = maxDmodAmt > 0 ? Math.max(0, random.nextInt(maxDmodAmt) - dModsAlready) : 0;
+        float quality = market.getShipQualityFactor();
+        float averageDmods = DefaultFleetInflater.getAverageDmodsForQuality(quality);
+        int addDmods = DefaultFleetInflater.getNumDModsToAdd(member.getVariant(), averageDmods, random);
 
-        if (dmods > 0) DModManager.setDHull(variant);
-
-        member.setVariant(variant, false, true);
-
-        if (dmods > 0) DModManager.addDMods(member, false, dmods, random);
+        if (addDmods > 0) {
+            DModManager.setDHull(member.getVariant());
+            DModManager.addDMods(member, true, addDmods, random);
+        }
 
         member.setVariant(variant, true, true);
         member.updateStats();
 
-        float retain = 1f / maxDmodAmt;
-        FleetEncounterContext.prepareShipForRecovery(member, true, true, false, retain, retain, random);
+        FleetEncounterContext.prepareShipForRecovery(member, true, true, false, 0.2f, 0f, random);
         member.getVariant().autoGenerateWeaponGroups();
 
         member.updateStats();
