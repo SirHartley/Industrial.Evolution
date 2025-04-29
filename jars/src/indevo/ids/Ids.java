@@ -17,6 +17,10 @@ public class Ids {
     public static final String RUIND_LIST = Global.getSettings().getString("IndEvo_ruindList");
     public static final String CLOUD_LIST = Global.getSettings().getString("IndEvo_cloudList");
     public static final String LAB_LIST = Global.getSettings().getString("IndEvo_labList");
+    public static final String TREE_LIST = Global.getSettings().getString("IndEvo_treeList");
+    public static final String RURAL_LIST = Global.getSettings().getString("IndEvo_ruralList");
+    public static final String ARCOLOGIES_LIST = Global.getSettings().getString("IndEvo_arcologiesList");
+    public static final String ARCOLOGIES_COND_LIST = Global.getSettings().getString("IndEvo_arcologiesCondList");
 
     //tags
     public static final String TAG_NEVER_REMOVE_RUINS = "IndEvo_RuinsAlways";

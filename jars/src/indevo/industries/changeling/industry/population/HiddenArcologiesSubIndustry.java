@@ -5,15 +5,19 @@ import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
+import com.fs.starfarer.api.impl.campaign.econ.impl.Farming;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
+import indevo.ids.Ids;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
+import indevo.utils.helper.MiscIE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static com.fs.starfarer.api.impl.campaign.ids.Conditions.*;
 
@@ -32,8 +36,6 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
     public static final int SUPPLY_REDUCTION = 2;
     public static final float ACCESS_RED = 0.3f;
     public static final float DEFENCE_BONUS = 1f;
-    public static final List<String> SUPRESSED_CONDITIONS = new ArrayList<>(Arrays.asList(VERY_COLD, VERY_HOT, COLD, HOT, TOXIC_ATMOSPHERE, DENSE_ATMOSPHERE, THIN_ATMOSPHERE, NO_ATMOSPHERE, EXTREME_WEATHER, IRRADIATED, INIMICAL_BIOSPHERE, METEOR_IMPACTS,
-            "US_storm"));
 
     public HiddenArcologiesSubIndustry(SubIndustryData data) {
         super(data);
@@ -49,7 +51,8 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
 
         market.addImmigrationModifier(this);
 
-        for (String s : SUPRESSED_CONDITIONS){
+        Set<String> supressedConditionIDs = MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_COND_LIST);
+        for (String s : supressedConditionIDs){
             market.suppressCondition(s);
         }
     }
@@ -68,7 +71,8 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
         market.getAccessibilityMod().unmodify(getId());
         market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD).unmodify(getId());
 
-        for (String s : SUPRESSED_CONDITIONS){
+        Set<String> supressedConditionIDs = MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_COND_LIST);
+        for (String s : supressedConditionIDs){
             market.unsuppressCondition(s);
         }
     }
@@ -82,7 +86,7 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
 
     @Override
     public String getImageName(MarketAPI market) {
-        if (market.hasCondition(WATER_SURFACE)) return Global.getSettings().getSpriteName("IndEvo", "pop_hidden_water");
+        if (Farming.AQUA_PLANETS.contains(((PlanetAPI) market.getPrimaryEntity()).getTypeId())) return Global.getSettings().getSpriteName("IndEvo", "pop_hidden_water");
         return imageName;
     }
 
@@ -93,17 +97,19 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
 
     @Override
     public boolean isAvailableToBuild() {
+        Set<String> lavaPlanetIDs = MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_LIST);
         return super.isAvailableToBuild()
                 && market.getPrimaryEntity() instanceof PlanetAPI
                 && !market.getPrimaryEntity().hasTag(Tags.GAS_GIANT)
-                && !((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("lava");
+                && !lavaPlanetIDs.contains(((PlanetAPI) market.getPrimaryEntity()).getTypeId());
     }
 
     @Override
     public String getUnavailableReason() {
+        Set<String> lavaPlanetIDs = MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_LIST);
         if (!(market.getPrimaryEntity() instanceof PlanetAPI)) return "Unavailable on stations";
         if (market.getPrimaryEntity().hasTag(Tags.GAS_GIANT)) return "Unavailable on gas giants";
-        if (((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("lava")) return "Can not build a bunker in lava";
+        if (lavaPlanetIDs.contains(((PlanetAPI) market.getPrimaryEntity()).getTypeId())) return "Can not build a bunker in lava";
         return super.getUnavailableReason();
     }
 }

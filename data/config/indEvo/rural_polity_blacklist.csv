@@ -1,0 +1,6 @@
+id
+# NOTES
+# Blacklist planets that are not allowed to switch to Rural Polity
+"# Will give out ""Unavailable on water planets"""
+
+water

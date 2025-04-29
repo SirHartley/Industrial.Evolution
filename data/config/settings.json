@@ -224,6 +224,10 @@
   "IndEvo_ruindList": "data/config/indEvo/ruins_industry_whitelist.csv",
   "IndEvo_cloudList": "graphics/clouds/clouds.csv",
   "IndEvo_labList":"data/config/indEvo/lab_commodity_whitelist.csv",
+  "IndEvo_treeList": "data/config/indEvo/world_tree_whitelist.csv",
+  "IndEvo_ruralList": "data/config/indEvo/rural_polity_blacklist.csv",
+  "IndEvo_arcologiesList": "data/config/indEvo/hidden_arcologies_blacklist.csv",
+  "IndEvo_arcologiesCondList": "data/config/indEvo/hidden_arcologies_supressed_whitelist.csv",
   "oldstory_csv_path": "data/campaign/stories.csv",
 
   #wheeeeeeeeeeeeeeeeeeeeeeeeee
