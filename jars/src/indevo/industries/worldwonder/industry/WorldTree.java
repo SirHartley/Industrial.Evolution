@@ -3,23 +3,28 @@ package indevo.industries.worldwonder.industry;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
+import indevo.ids.Ids;
+import indevo.utils.helper.MiscIE;
+
+import java.util.Set;
 
 public class WorldTree extends WorldWonder {
 
     @Override
     public boolean isAvailableToBuild() {
+        Set<String> validPlanetIDs = MiscIE.getCSVSetFromMemory(Ids.TREE_LIST);
         return super.isAvailableToBuild()
                 && market.getPrimaryEntity() instanceof PlanetAPI
-                && (((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("jungle") || ((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("terran") || ((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("continent"))
-                && market.hasCondition(Conditions.HABITABLE)
-                && !market.hasCondition("US_magnetic");
+                && validPlanetIDs.contains(((PlanetAPI) market.getPrimaryEntity()).getTypeId())
+                && market.hasCondition(Conditions.HABITABLE);
     }
 
     @Override
     public String getUnavailableReason() {
+        Set<String> validPlanetIDs = MiscIE.getCSVSetFromMemory(Ids.TREE_LIST);
         if (!(market.getPrimaryEntity() instanceof PlanetAPI)) return "Can not be built on stations";
         if (!market.hasCondition(Conditions.HABITABLE)) return "Planet must be habitable";
-        if (!((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("jungle") || !((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("terran") || !((PlanetAPI) market.getPrimaryEntity()).getTypeId().contains("continent") || market.hasCondition("US_magnetic"))
+        if (!validPlanetIDs.contains(((PlanetAPI) market.getPrimaryEntity()).getTypeId()))
             return "Planet must have abundant vegetation";
         return super.getUnavailableReason();
     }

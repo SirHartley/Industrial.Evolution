@@ -1,0 +1,16 @@
+id
+# NOTES
+# Whitelist conditions supressed by Hidden Arcologies
+
+very_cold
+very_hot
+cold
+hot
+toxic_atmosphere
+dense_atmosphere
+thin_atmosphere
+no_atmosphere
+extreme_weather
+irradiated
+inimical_biosphere
+meteor_impacts

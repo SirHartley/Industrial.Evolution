@@ -22,15 +22,14 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class RuralPolitySubIndustry extends SubIndustry implements MarketImmigrationModifier {
 
@@ -247,18 +246,22 @@ Rural Polity
 
     @Override
     public boolean isAvailableToBuild() {
+        Set<String> waterPlanetIDs = MiscIE.getCSVSetFromMemory(Ids.RURAL_LIST);
+
         boolean hasFarming = market.hasCondition(Conditions.FARMLAND_RICH) || market.hasCondition(Conditions.FARMLAND_BOUNTIFUL);
         boolean isPlanet = market.getPrimaryEntity() instanceof PlanetAPI;
-        boolean isWater = isPlanet && market.getPlanetEntity().getTypeId().contains("water");
+        boolean isWater = isPlanet && waterPlanetIDs.contains(market.getPlanetEntity().getTypeId());
 
         return super.isAvailableToBuild() && hasFarming && isPlanet && !isWater;
     }
 
     @Override
     public String getUnavailableReason() {
+        Set<String> waterPlanetIDs = MiscIE.getCSVSetFromMemory(Ids.RURAL_LIST);
+
         boolean hasFarming = market.hasCondition(Conditions.FARMLAND_RICH) || market.hasCondition(Conditions.FARMLAND_BOUNTIFUL);
         boolean isPlanet = market.getPrimaryEntity() instanceof PlanetAPI;
-        boolean isWater = isPlanet && market.getPlanetEntity().getTypeId().contains("water");
+        boolean isWater = isPlanet && waterPlanetIDs.contains(market.getPlanetEntity().getTypeId());
 
         if (!isPlanet) return "Unavailable on space stations";
         if (!hasFarming) return "Requires Rich Farmland or better";
