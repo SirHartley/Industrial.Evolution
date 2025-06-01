@@ -218,6 +218,8 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
             //LB checks
             if (LBintesectsTop) {
                 Vector2f intersectionPoint = calculateIntersectionPoint(lowerBound, BBtl, BBtr);
+                if (intersectionPoint == null) continue;
+
                 float texX = (MathUtils.getDistance(BBtl, intersectionPoint) / sprite.getWidth()) * sprite.getTextureWidth();
 
                 points.add(intersectionPoint);
@@ -226,6 +228,8 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
 
             if (LBintesectsLeft) {
                 Vector2f intersectionPoint = calculateIntersectionPoint(lowerBound, BBtl, BBbl);
+                if (intersectionPoint == null) continue;
+
                 float texY = (MathUtils.getDistance(BBbl, intersectionPoint) / sprite.getHeight()) * sprite.getTextureHeight();
 
                 points.add(intersectionPoint);
@@ -234,6 +238,8 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
 
             if (LBintesectsRight) {
                 Vector2f intersectionPoint = calculateIntersectionPoint(lowerBound, BBtr, BBbr);
+                if (intersectionPoint == null) continue;
+
                 float texY = (MathUtils.getDistance(BBbr, intersectionPoint) / sprite.getHeight()) * sprite.getTextureHeight();
 
                 points.add(intersectionPoint);
@@ -242,6 +248,8 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
 
             if (LBintesectsBottom) {
                 Vector2f intersectionPoint = calculateIntersectionPoint(lowerBound, BBbl, BBbr);
+                if (intersectionPoint == null) continue;
+
                 float texX = (MathUtils.getDistance(BBbl, intersectionPoint) / sprite.getWidth()) * sprite.getTextureWidth();
 
                 points.add(intersectionPoint);
@@ -251,6 +259,8 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
             //UB checks
             if (UBintesectsTop) {
                 Vector2f intersectionPoint = calculateIntersectionPoint(upperBound, BBtl, BBtr);
+                if (intersectionPoint == null) continue;
+
                 float texX = (MathUtils.getDistance(BBtl, intersectionPoint) / sprite.getWidth()) * sprite.getTextureWidth();
 
                 points.add(intersectionPoint);
@@ -259,6 +269,8 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
 
             if (UBintesectsLeft) {
                 Vector2f intersectionPoint = calculateIntersectionPoint(upperBound, BBtl, BBbl);
+                if (intersectionPoint == null) continue;
+
                 float texY = (MathUtils.getDistance(BBbl, intersectionPoint) / sprite.getHeight()) * sprite.getTextureHeight();
 
                 points.add(intersectionPoint);
@@ -267,6 +279,8 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
 
             if (UBintesectsRight) {
                 Vector2f intersectionPoint = calculateIntersectionPoint(upperBound, BBtr, BBbr);
+                if (intersectionPoint == null) continue;
+
                 float texY = (MathUtils.getDistance(BBbr, intersectionPoint) / sprite.getHeight()) * sprite.getTextureHeight();
 
                 points.add(intersectionPoint);
@@ -275,7 +289,7 @@ public class ShipSpriteGlitcherOverlay extends BaseCombatLayeredRenderingPlugin 
 
             if (UBintesectsBottom) {
                 Vector2f intersectionPoint = calculateIntersectionPoint(upperBound, BBbl, BBbr);
-                if (intersectionPoint == null) return;
+                if (intersectionPoint == null) continue;
 
                 float texX = (MathUtils.getDistance(BBbl, intersectionPoint) / sprite.getWidth()) * sprite.getTextureWidth();
 

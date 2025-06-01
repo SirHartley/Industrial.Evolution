@@ -8,8 +8,25 @@ IE-empty-1,,,ruins_vast,0.05,"Eschewing even a greeting, the historians first wo
 ""Please get me off this planet.""
 
 He appears to be stressed out of his mind. ","""There is nothing here! No remains, no markings of combat, nothing. as if everyone just up and disappeared! Hell, there's ships in port still, working ships!""","""Captain please, I've heard stories of places like this, and they never end well. Get me off this cursed rock.""",,"You receive a report of the survey shuttle prepping for return before even issuing an order. Surveyors, historians and tech-miners alike hold to their superstitions like gospel, and convincing the teams to head out for a full survey may be more difficult than usual."
-,,,,,,,,,
-,,,,,,,,,
+IE-plague-1,,pollution,ruins_widespread,0.3,"The display settles on a frozen frame that could’ve been lifted from an old datanet reel - faded biohazard placards sagging beside metal frames, all draped in wind-tattered synth-weave. Off to one side stands your shipboard historian, conspicuous in a bright yellow haz-suit.","""Captain. Glad you're on the feed."" His tone is dry, verging on reproach. ""Have you reviewed the scans? They flooded the place with antibiotics. Saturated everything. Life support, atmosphere scrubbers - all of it. Looks like they really wanted to get rid of something in the air. Looks like they succeeded, too.""","The camera swings to frame a collapsed shelter. In front of it, mummified bodies form a grim procession, frozen in place like participants in some long-ended ritual.
+
+""Must’ve been quite the pathogen. Either deliberate or a terrible accident, I’d wager.""
+He holds up a ruined Tri-Pad, loose bits dangling off.  ""The local media couldn't seem to agree, either.""","""The virus wasn’t what finished them, judging by the remains."" He casts a glance toward the darkened city, its entrance veiled by drifting plastic. ""A Pyrrhic victory, if ever there was one.""","Current readings show the environment is stable, but heavily polluted by the synthetic antiviral agents. Nothing to worry about, then."
+IE-genocide-1,,,ruins_extensive,0.1,"Establishing the connection proves unusually difficult. ECM interference floods the ruins, the air thick with static. Countless improvised installations litter the landscape.
+
+The feed finally stabilizes on your historian.
+He is wearing a tinfoil hat.","“Captain.” His hand hovers at the brim of his silvery cover, eyes flickering through the calculus of dignity. He leaves the hat on. “It’s genocide.”
+
+He gestures towards a mound of rubble. The feed follows, zooming in on a combat drone, inert but intact.","“These are everywhere. From what I can gather, and frankly, there’s not a lot of records left – it’s the work of an artificial administrator.” he pauses. “AI, if you will.”
+
+Survey data scrolls across your display. Plaques on toppled monuments tell a tale of isolation against outside threats, only alluded to, never named. Graffiti supplements a story of resistance, of total control, and finally, of open resistance and war.
+The debris spoils the result.","“The colonists must have turned to it in the early stages of the collapse, judging by the forge decay on the plates. Strangely enough, it seems to have worked well for a while.” He points at a nearby monument. “It fixed their crops, fixed their manufacturing base.” A sigh.
+
+“And then it killed them all.”
+","The AI appears to be long gone. Whatever purpose it served has concluded, leaving only detritus behind.
+
+A light on one of the drones blinks.
+Probably nothing."
 ,,,,,,,,,
 ,,,,,,,,,
 ,,,,,,,,,

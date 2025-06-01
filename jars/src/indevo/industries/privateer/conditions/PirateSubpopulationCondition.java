@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
+import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import exerelin.utilities.NexConfig;
@@ -46,31 +47,39 @@ public class PirateSubpopulationCondition extends BaseHazardCondition implements
         float immigrationIncrease;
 
         if (market.hasIndustry(Ids.PIRATEHAVEN)) {
-            immigrationIncrease = market.getFaction().isHostileTo(Factions.PIRATES) ? 0 : market.getSize();
+            immigrationIncrease = !isNonHostileToEvilFaction() ? 0 : market.getSize();
 
         } else {
-            immigrationIncrease = market.getFaction().isHostileTo(Factions.PIRATES) ? -Math.round(market.getSize()) : -Math.round(market.getSize() / 2f);
+            immigrationIncrease = !isNonHostileToEvilFaction() ? -Math.round(market.getSize()) : -Math.round(market.getSize() / 2f);
         }
         return immigrationIncrease;
     }
 
     protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
         super.createTooltipAfterDescription(tooltip, expanded);
-        if (!isNonHostileToEvilFaction() || !market.hasIndustry(Ids.PIRATEHAVEN)) {
-            String s = stabMod > 0 ? "+" + (int) Math.round(stabMod) : "" + (int) Math.round(stabMod);
-            String t = getImmigrationBonus() > 0 ? "+" + getImmigrationBonus() : "" + getImmigrationBonus();
 
-            tooltip.addPara("%s stability.",
-                    10f, Misc.getHighlightColor(),
-                    s);
-            tooltip.addPara("%s population growth (based on market size).",
-                    10f, Misc.getHighlightColor(),
-                    t);
-        } else {
-            tooltip.addPara("%s, you do not have any friends amongst the sector underworld.",
-                    10f, Misc.getNegativeHighlightColor(),
-                    "No effect");
-        }
+        tooltip.addSectionHeading("Effects", Alignment.MID, 10f);
+
+        if (!isNonHostileToEvilFaction()) tooltip.addPara("You are %s well regarded amongst the shady factions of the Persean Sector.",
+                10f, Misc.getNegativeHighlightColor(),
+                "not");
+        else tooltip.addPara("You are %s amongst the shady factions of the Persean Sector.",
+                10f, Misc.getPositiveHighlightColor(),
+                "respected");
+
+        if (!market.hasIndustry(Ids.PIRATEHAVEN)) tooltip.addPara("There is %s on this planet, causing unrest.",
+                3f, Misc.getPositiveHighlightColor(),
+                "no " + getName());
+
+        String s = stabMod > 0 ? "+" + (int) Math.round(stabMod) : "" + (int) Math.round(stabMod);
+        String t = getImmigrationBonus() > 0 ? "+" + (int) Math.round(getImmigrationBonus()): "" + (int) Math.round(getImmigrationBonus());
+
+        if (stabMod != 0) tooltip.addPara("%s stability.",
+                10f, Misc.getHighlightColor(),
+                s);
+        if (getImmigrationBonus() != 0) tooltip.addPara("%s population growth (based on market size).",
+                10f, Misc.getHighlightColor(),
+                t);
     }
 
     public boolean isNonHostileToEvilFaction(){

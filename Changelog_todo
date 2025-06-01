@@ -1,13 +1,26 @@
+Known issues
+
+# High Priority (Soft locks, serious impact on enjoyment or causes crashes)
+
+
+# Low Priority (Visuals, stats or other minor issues that do not affect gameplay decisions)
+Artillery station needs text to clarify colonization block when non-hostile
+
+# Future me problem
+Academy can pick forbidden, event only admin skills and should really run off a whitelist
+Military relay bonus calc is still unreliable af and should be changed to mults
+Artillery can pull IBB fleets into combat
+Detachments are still bugged as fuck
+World Wonder stability application is wonky and should be handled through a condition instead
 
 --------------------------- To-do -----------------------------
 Next Save Breaking Version:
 https://discord.com/channels/815017574642483240/1101606968101179573/1363400676255731723
 - Hull Forge and Hull Decon use ShipVariantAPI in class field, which can cause issues when taking a save from one game ver to the next
 
-- Known Bugs
-
-
-- Improvement
+- Improvement (simple)
+Add a warning popup before you bulldoze the priceless ruins
+remove the nanoforge malus for ship components
 Add icons to custom explo stations
 Sounds on riftgen animation
 ? Double check commerce building reset bug
@@ -15,19 +28,27 @@ Sounds on riftgen animation
 ? Detachments like to hide in system center (sun)
 Pet stations: Fix the -1c pet food cost in monthly report
 
-- Improvement
+- Improvement (complex)
+Cent Bureau should really run off a condition for better bonus application
+Buff the remote - stay active for 14d, target the fleets in the reticule on click
 Rework academy UI
-Reork Edict UI
+Rework Edict UI
 Governments: Popup on first establishment
 Pet stations: Add main menu dialogue
 
+- Addition to current features
+Move s-mods between ships w/ salvage yards (relic requirement!)
+Allow using relics to create BP for reverse engineering instead of wiping a spare
+
 - Roadmap
+Museum
 Missiles
 NPC usage and reactions
 NPC AI behaviour
 
 Helios Crucible
 Added - New Superstructure, the Helios Crucible
+Add thing to jump between systems
 todo SPOILERS - Find one in a nebula with a large amount of planets, repair it, fire it up or move it to your own system.
 SPOILERS - Allows for fast travel between local planets. Incredibly good QOL, much better than you may think.
 

@@ -61,10 +61,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     private float outputDecayMult = 0.5F;
 
     public void apply() {
-        super.apply(true);
-
         //Global.getLogger(SalvageYards.class).info("UPDATING SALVAGE YARDS: market " + market.getName() + " hasSystem" + (market.getStarSystem() != null ? market.getStarSystem().getName() : false));
-
         if (!isFunctional()) return;
 
         if (baseOutput == 0) baseOutput = getNewMonthlyOutput();
@@ -72,6 +69,8 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
         Global.getSector().getListenerManager().addListener(this, true);
         applyListenerToFleetsInSystem();
+
+        super.apply(true);
     }
 
     @Override
@@ -129,7 +128,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
             if (mod != null) amt = mod.getValue();
         } else amt = getSupply(Commodities.SHIPS).getQuantity().getModifiedInt();
 
-        if (amt < 1f) amt = applySupDemProfiles();
+        //if (amt < 1f) amt = applySupDemProfiles();
 
         return Math.round(Math.max(amt, 0));
     }
@@ -155,7 +154,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     }
 
-    private float applySupDemProfiles() {
+    private void applySupDemProfiles() {
         supply.clear();
         demand.clear();
 
@@ -165,7 +164,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
         unmodifyPlayerCustomProduction();
 
         //after clearing everything, we can apply new ones if functional
-        if (!isFunctional()) return 0f;
+        if (!isFunctional()) return;
 
         //for AI
         int base;
@@ -192,8 +191,6 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
         if (market.isPlayerOwned())
             deficit.two = Math.min(deficit.two, 3); //if the market is player owned, reduce the deficit to the max output that comes from imported ship hulls (1), since that's what can actually reduce it.
         applyDeficitToProduction(1, deficit, Commodities.SHIPS, Commodities.METALS, ItemIds.PARTS);
-
-        return base - 2;
     }
 
     private int getHullOutputBonus() {

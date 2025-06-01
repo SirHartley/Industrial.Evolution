@@ -191,7 +191,7 @@ public class CourierPortV2 extends BaseIndustry {
             text.addPara(pre + "Decreases the %s by %s", 0f, Misc.getPositiveHighlightColor(), new String[]{"total shipping costs", (int) Math.round((1 - TOTAL_FEE_REDUCTION) * 100) + "%"});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + pre + "Decreases the %s by %s", opad, Misc.getPositiveHighlightColor(), new String[]{"total shipping costs", (int) Math.round((1 - TOTAL_FEE_REDUCTION) * 100) + "%"});
+            tooltip.addPara(pre + "Decreases the %s by %s", opad, Misc.getPositiveHighlightColor(), new String[]{"total shipping costs", (int) Math.round((1 - TOTAL_FEE_REDUCTION) * 100) + "%"});
         }
     }
 

@@ -72,6 +72,11 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
         }
     }
 
+    //trash code
+    public void superApply(){
+        super.apply(true);
+    }
+
     @Override
     public void unapply() {
         super.unapply();

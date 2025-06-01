@@ -8,17 +8,24 @@ IE-empty-1,,ruins_vast,0.05,"Eschewing even a greeting, the historians first wor
 ""Please get me off this planet.""
 
 He appears to be stressed out of his mind. ","""There is nothing here! No remains, no markings of combat, nothing. as if everyone just up and disappeared! Hell, there's ships in port still, working ships!""","""Captain please, I've heard stories of places like this, and they never end well. Get me off this cursed rock.""",,"You receive a report of the survey shuttle prepping for return before even issuing an order. Surveyors, historians and tech-miners alike hold to their superstitions like gospel, and convincing the teams to head out for a full survey may be more difficult than usual."
+IE-plague-1,,ruins_widespread,0.5,"The display settles on a frozen frame that could’ve been lifted from an old datanet reel - faded biohazard placards sagging beside metal frames, all draped in wind-tattered synth-weave. Off to one side stands your shipboard historian, conspicuous in a bright yellow haz-suit.","""Captain. Glad you're on the feed."" His tone is dry, verging on reproach. ""Have you reviewed the scans? They flooded the place with antibiotics. Saturated everything. Life support, atmosphere scrubbers - all of it. Looks like they really wanted to get rid of something in the air. Looks like they succeeded, too.""","The camera swings to frame a collapsed shelter. In front of it, mummified bodies form a grim procession, frozen in place like participants in some long-ended ritual.
+
+""Must’ve been quite the pathogen. Either deliberate or a terrible accident, I’d wager.""
+He holds up a ruined Tri-Pad, loose bits dangling off.  ""The local media couldn't seem to agree, either.""","""The virus wasn’t what finished them, judging by the remains."" He casts a glance toward the darkened city, its entrance veiled by drifting plastic. ""A Pyrrhic victory, if ever there was one.""",Current readings show the environment is stable. The antibiotic agents have long since decayed. There appears to be nothing to worry about.
 IE-genocide-1,,ruins_extensive,0.1,ai genocide joke,,,,
-,,,,plague,,,,
 ,,,,religious cult,,,,
 ,,,,ai with the dopamine drips,,,,
 ,,,,mass food poisoning from lab-made food of the only working autofactory,,,,
 ,,,,"failed attempt to build a ship, everyone died",,,,
 ,,,,burned to death when heatshields failed,,,,
-,,,,"ice planet, acropolis cooked itself, people moved out and froze to death",,,,
+,,,,"ice planet, heating malfunctions, acropolis cooks itself",,,,
 ,,,,someone bombed it from orbit,,,,
+,,,,"Ice planet, central heating failed, they all froze",,,,
 ,,,,"hegemony stripped planet on way to sector, everyone starved",,,,
 ,,,,"mass drug abuse, hallicunations",,,,
 ,,,,nuked each other,,,,
 ,,,,auto-lock to the apartments went off and everyone got shut in,,,,
 ,,,,husks standing there looking at the sun,,,,
+,,,,"water planet, cupola failed, everyone drowned.",,,,
+,,,,"deciv pop - they are still fighting, warlords",,,,
+,,,,"cargo cult, dead",,,,

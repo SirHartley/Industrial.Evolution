@@ -13,6 +13,9 @@ import com.fs.starfarer.api.impl.campaign.intel.misc.MapMarkerIntel;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.exploration.gacha.GachaStationDialoguePlugin;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
 
 import java.awt.*;
 import java.util.Set;
@@ -67,13 +70,10 @@ public class GachaStationIntel extends MapMarkerIntel {
                 opad);
         else {
             // these must match the quantities specified in the rule "cTap_infoText"
-            int crew = 1000;
-            int metals = 20000;
-            int transplutonics = 5000;
             info.showCost("Resources required to activate", false, (int) ((width - opad) / 3f),
                     Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), opad,
-                    new String[]{Commodities.CREW, Commodities.METALS, Commodities.RARE_METALS},
-                    new int[]{crew, metals, transplutonics}, new boolean[]{false, false, false});
+                    new String[]{Commodities.METALS, Commodities.HEAVY_MACHINERY, ItemIds.PARTS},
+                    new int[]{GachaStationDialoguePlugin.METALS_REPAIR_COST, GachaStationDialoguePlugin.MACHINERY_REPAIR_COST, GachaStationDialoguePlugin.PARTS_REPAIR_COST}, new boolean[]{false, false, false});
         }
 
     }

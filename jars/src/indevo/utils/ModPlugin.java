@@ -115,21 +115,6 @@ public class ModPlugin extends BaseModPlugin {
 
     @Override
     public void onApplicationLoad() throws Exception {
-        boolean hasLazyLib = Global.getSettings().getModManager().isModEnabled("lw_lazylib");
-        if (!hasLazyLib) {
-            throw new RuntimeException("Industrial Evolution requires LazyLib by LazyWizard" + "\nDownload at http://fractalsoftworks.com/forum/index.php?topic=5444");
-        }
-
-        boolean hasMagicLib = Global.getSettings().getModManager().isModEnabled("MagicLib");
-        if (!hasMagicLib) {
-            throw new RuntimeException("Industrial Evolution requires MagicLib!" + "\nDownload at http://fractalsoftworks.com/forum/index.php?topic=13718");
-        }
-
-        boolean hasLunaLib = Global.getSettings().getModManager().isModEnabled("lunalib");
-        if (!hasLunaLib) {
-            throw new RuntimeException("Industrial Evolution requires LunaLib!" + "\nDownload at https://fractalsoftworks.com/forum/index.php?topic=25658");
-        }
-
         boolean hasGraphicsLib = Global.getSettings().getModManager().isModEnabled("shaderLib");
         if (hasGraphicsLib) {
             ShaderLib.init();
@@ -195,6 +180,7 @@ public class ModPlugin extends BaseModPlugin {
         loadTransientMemory();
 
         //balance and spec changes
+
         addTypePrefaceToIndustrySpecs();
         if (Settings.getBoolean(Settings.COMMERCE_BALANCE_CHANGES)) overrideVanillaCommerce();
 
@@ -264,7 +250,12 @@ public class ModPlugin extends BaseModPlugin {
             List<String> tagList = new ArrayList<>();
             if (spec.getTags().contains("industrial")) tagList.add("industrial");
             if (spec.getTags().contains("rural")) tagList.add("rural");
-            if (spec.getTags().contains("military") || spec.getTags().contains("patrol") || spec.getTags().contains("command") || spec.getNewPluginInstance(Global.getFactory().createMarket(Misc.genUID(), "", 1)) instanceof MilitaryBase) tagList.add("military");
+            if (spec.getTags().contains("military")
+                    || spec.getTags().contains("patrol")
+                    || spec.getTags().contains("command")
+                    || spec.getTags().contains(Industries.TAG_GROUNDDEFENSES)
+                    || spec.getTags().contains(Industries.TAG_STATION)
+                    || spec.getNewPluginInstance(Global.getFactory().createMarket(Misc.genUID(), "", 1)) instanceof MilitaryBase) tagList.add("military");
 
             if (tagList.isEmpty()) continue;
 

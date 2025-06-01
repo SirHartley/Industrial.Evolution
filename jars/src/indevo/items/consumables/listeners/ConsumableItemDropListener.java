@@ -17,6 +17,7 @@ import indevo.ids.ItemIds;
 import indevo.industries.artillery.scripts.ArtilleryStationScript;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -26,6 +27,14 @@ public class ConsumableItemDropListener implements ShowLootListener {
         if (!manager.hasListenerOfClass(ConsumableItemDropListener.class))
             manager.addListener(new ConsumableItemDropListener(), true);
     }
+
+    public static final List<String> FACTION_BLACKLIST = new ArrayList<>(Arrays.asList(
+            Factions.PIRATES,
+            Factions.LUDDIC_PATH,
+            Factions.OMEGA,
+            Factions.DWELLER,
+            Factions.THREAT
+    ));
 
     public static final float FP_PER_ROLL = 70f;
     public static final float HARD_BATTLE_MULT = 1.2f;
@@ -41,8 +50,7 @@ public class ConsumableItemDropListener implements ShowLootListener {
             CampaignFleetAPI fleet = (CampaignFleetAPI) dialog.getInteractionTarget();
             Random random = new Random(Misc.getSalvageSeed(fleet));
 
-            if (Factions.PIRATES.equals(fleet.getFaction().getId()) || Factions.LUDDIC_PATH.equals(fleet.getFaction().getId()))
-                return; //no stuff if pirates are involved
+            if (FACTION_BLACKLIST.contains(fleet.getFaction().getId())) return; //no stuff if pirates or aliens are involved
 
             float totalFPbefore = 0;
             float fpDestroyed = Misc.getSnapshotFPLost(fleet);

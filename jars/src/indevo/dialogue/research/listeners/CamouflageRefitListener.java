@@ -29,7 +29,7 @@ public class CamouflageRefitListener extends BaseCampaignEventListener {
         for (FleetMemberAPI m : members){
             ShipVariantAPI variant = m.getVariant();
 
-            if (variant.hasHullMod(CamouflageFieldEmitter.ID)){
+            if (variant.hasHullMod(CamouflageFieldEmitter.ID) && variant.hasTag(Tags.SHIP_UNIQUE_SIGNATURE)){
                 variant.removeTag(Tags.SHIP_UNIQUE_SIGNATURE);
                 variant.addTag(CamouflageFieldEmitter.TAG_UNIQUE);
             } else if (variant.hasTag(CamouflageFieldEmitter.TAG_UNIQUE)){

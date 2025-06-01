@@ -1,4 +1,29 @@
 --------------------------- Changelog -----------------------------
+4.0.h
+Added - Military Tag to privateer base, all artillery stations, relays, ground defenses, planetary shield & orbital stations
+Added - Officiated the Anchorage lock-in bug: they are now intended to allow being changed at any time
+Adjusted - Anchorage description to reflect the change
+Adjusted - Cheesing forge world heat requirements with an orbital lamp still works, but removing the lamp now has consequences
+Adjusted - Blacklisted Omega, Threat and Dweller from dropping consumable items
+Adjusted - Overhauled the description of the Lawless Subpopulation Condition to be more useful
+Adjusted - Managed Democracy now applies Hellpods to destroyers instead of cruisers
+Adjusted - Managed Democracy description clarified: military action increases income
+Fixed - Camouflage Emitter no longer applies "notable" to non-notable ships upon removal
+Fixed - Camouflage Emitter no longer crashes (rarely) upon destruction of the ship it is attached to
+Fixed - Managed Democracy tooltip corrected
+Fixed - Rural Polity tooltip corrected
+Fixed - Forge World no longer applies pollution to non-habitable planets
+Fixed - Checking the edicts in codex no longer causes them to spam the unrest message
+Fixed - An absolutely ancient bug that caused the Variable Manufactory to register it's listeners twice
+Fixed - Salvage Yards now respects external supply and demand adjustments (though it may sometimes not reflect in the tooltip)
+Fixed - Automated Shipyards intel now shows the correct commodities required for activation
+Fixed - Courier Port alpha core no longer has duplicate tooltip text in menu
+Fixed - Ancient Laboratory shared storage tooltip now correctly states effects
+Fixed - No longer adds "stories of demise" to special planets, the abyss, or special star systems
+Fixed - Managed Democracy now properly applies the income bonus upon planetary military actions
+Fixed - Managed Democracy military action income bonus tooltip shortened to no longer exceed box
+Fixed - Can no longer circumvent artillery station by finding survey data
+
 4.0.g
 Added - Consumable item: Slipsurge Catapult - generate a slipsurge without a gravity well
 Added - Starting to switch out all AI images in the mod:

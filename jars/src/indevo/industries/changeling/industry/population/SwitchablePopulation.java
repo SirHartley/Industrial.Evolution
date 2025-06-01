@@ -238,7 +238,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
         current.advance(amount);
 
-        if (!locked && current != null && !current.isBase()) {
+        if (!locked && current != null && !current.isBase() && !(current instanceof OutpostSubIndustry)) {
             daysPassed += Global.getSector().getClock().convertToDays(amount);
             if (daysPassed >= DAYS_TO_LOCK) {
                 locked = true;
@@ -310,11 +310,12 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
         if(!canChange()) return;
 
-        if(canChange()) tooltip.addPara("Changing the government style is only possible until %s and becomes permanent after %s.", opad, Misc.getHighlightColor(),
+        if (current instanceof OutpostSubIndustry) tooltip.addPara("An Anchorage can always be changed to a different government style.", opad);
+        else if(canChange()) tooltip.addPara("Changing the government style is only possible until %s and becomes permanent after %s.", opad, Misc.getHighlightColor(),
                 "colony size " + Settings.getInt(Settings.GOVERNMENT_MAX_SIZE),
                 DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(DAYS_TO_LOCK));
 
-        if (!isDefault() && !locked) {
+        if (!isDefault() && !locked && !(current instanceof OutpostSubIndustry)) {
             int daysRemaining = (int) Math.ceil(DAYS_TO_LOCK - daysPassed);
             tooltip.addPara("Days until permanent: %s", opad, Misc.getHighlightColor(), daysRemaining + " " + StringHelper.getDayOrDays(daysRemaining));
         }

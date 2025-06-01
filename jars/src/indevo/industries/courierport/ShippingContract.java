@@ -85,6 +85,7 @@ public class ShippingContract {
 
         if (Global.getSettings().getModManager().isModEnabled("assortment_of_things") && "rat_station_commander_market".equals(id)) return FrontiersUtils.INSTANCE.getFrontiersData().getActiveSettlement().getSettlementEntity().getMarket();
         if (Global.getSector().getEconomy().getMarket(id) != null) return Global.getSector().getEconomy().getMarket(id);
+
         if (Global.getSector().getEntityById(id) != null){
             SectorEntityToken t = Global.getSector().getEntityById(id);
             if (t.hasTag("IndEvo_GachaStation")) return t.getMarket();

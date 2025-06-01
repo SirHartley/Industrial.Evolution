@@ -33,7 +33,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
     public void apply(String id) {
         super.apply(id);
         //this is needed so it doesn't crash when the condition gets applied to a dummy market for the rules handling, cause there is no star system.
-        if (market.getPrimaryEntity() == null) return;
+        if (market.getPrimaryEntity() == null || Global.getSettings().isShowingCodex()) return;
 
         if (!Global.getSector().getListenerManager().hasListener(this)) {
             Global.getSector().getListenerManager().addListener(this, true);
@@ -46,7 +46,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
 
     public void unapply(String id) {
         super.unapply(id);
-        if (market.getPrimaryEntity() == null) return;
+        if (market.getPrimaryEntity() == null || Global.getSettings().isShowingCodex()) return;
 
         Global.getSector().getListenerManager().removeListener(this);
 

@@ -94,6 +94,11 @@ x can only be built on very hot worlds
 
             tooltip.addSectionHeading("Governance Effects: Forge World", Alignment.MID, opad);
 
+            if (!ind.getMarket().hasCondition(Conditions.VERY_HOT)) {
+                tooltip.addPara("No effect  - the planet is too cold.", opad);
+                return;
+            }
+
             if (military) {
                 tooltip.addPara("Industrial buildings: %s", opad, Misc.getTextColor(), Misc.getPositiveHighlightColor(), "hazard rating nullified");
             } else if (rural) {
@@ -116,7 +121,7 @@ x can only be built on very hot worlds
         WarhammerTooltipAdder.register();
         Global.getSector().getListenerManager().addListener(this);
 
-        if (((SwitchablePopulation) industry).locked && !market.hasCondition(Conditions.POLLUTION))
+        if (((SwitchablePopulation) industry).locked && !market.hasCondition(Conditions.POLLUTION) && market.hasCondition(Conditions.HABITABLE))
             market.addCondition(Conditions.POLLUTION);
 
         int size = market.getSize();
@@ -134,6 +139,11 @@ x can only be built on very hot worlds
 
         increaseIncomeAndBudgetForHullOutput();
 
+        if(!isAvailableToBuild()) {
+            market.getStability().modifyFlat(getModId() + "_1", -10, getUnavailableReason());
+            return;
+        }
+
         for (Industry ind : market.getIndustries()) {
             if (!hasDeficit(ind) && ind.getSpec().getTags().contains("industrial")) {
                 ind.getUpkeep().modifyMult(getModId(), 1f / PopulationAndInfrastructure.getUpkeepHazardMult(market.getHazardValue()), getName() + " hazard upkeep red.");
@@ -143,8 +153,6 @@ x can only be built on very hot worlds
                 ind.getUpkeep().modifyMult(getModId(), RURAL_BUILDING_UPKEEP_MULT, getName());
             }
         }
-
-        if(!isAvailableToBuild()) market.getStability().modifyFlat(getModId() + "_1", -10, getName() + " prerequisites not met");
     }
 
     @Override

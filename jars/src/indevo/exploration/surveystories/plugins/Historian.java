@@ -2,7 +2,10 @@ package indevo.exploration.surveystories.plugins;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.PlanetAPI;
+import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.exploration.surveystories.OldStoryLogger;
 import indevo.exploration.surveystories.memory.FileLoader;
@@ -34,6 +37,13 @@ public class Historian {
     public StoryEntry getStoryForPlanet(PlanetAPI planet){
         MemoryAPI mem = planet.getMemoryWithoutUpdate();
         if (mem.contains(FIXED_STORY_MEM_ID)) return getSpecificStory(mem.getString(FIXED_STORY_MEM_ID));
+
+        StarSystemAPI s = planet.getStarSystem();
+
+        if (s.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)
+                || s.hasTag(Tags.THEME_HIDDEN)
+                || s.hasTag(Tags.THEME_SPECIAL)
+                || s.hasTag(Tags.SYSTEM_ABYSSAL)) return null;
 
         WeightedRandomPicker<StoryEntry> picker = new WeightedRandomPicker<StoryEntry>(random);
 

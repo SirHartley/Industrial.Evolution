@@ -498,6 +498,6 @@ Gamma reduces template refit time*/
 
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
-        tooltip.addPara("Hull Forge: pulls %s from this storage to repair.", 10f, Misc.getHighlightColor(), "Degraded Forge Templates");
+        tooltip.addPara(getCurrentName() + ": pulls %s from this storage to repair.", 10f, Misc.getHighlightColor(), "Degraded Forge Templates");
     }
 }

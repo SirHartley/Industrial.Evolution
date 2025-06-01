@@ -20,6 +20,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.hullmods.Hellpods;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
@@ -171,7 +172,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
     }
 
     public void addMemberToHellpodApplicationListIfNeeded(FleetMemberAPI member){
-        if (daysToApplicationForFleetMember.containsKey(member.getId()) || member.getVariant().hasHullMod(Hellpods.HULLMOD_ID) || member.getVariant().getHullSize() != ShipAPI.HullSize.CRUISER) return;
+        if (daysToApplicationForFleetMember.containsKey(member.getId()) || member.getVariant().hasHullMod(Hellpods.HULLMOD_ID) || member.getVariant().getHullSize() != ShipAPI.HullSize.DESTROYER) return;
         daysToApplicationForFleetMember.put(member.getId(), DAYS_TO_HELLPOD_REFIT);
     }
 
@@ -226,7 +227,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         //add list of ships and timings
 
         tooltip.addSectionHeading("Hellpod installation progress", Alignment.MID, opad);
-        tooltip.addPara("Cruisers stored here will be refit with a rapid orbital deployment system, increasing marine effectiveness and casualties.", Misc.getGrayColor(), opad);
+        tooltip.addPara("Destroyers stored here will be refit with a rapid orbital deployment system, increasing marine effectiveness and casualties.", Misc.getGrayColor(), opad);
         tooltip.beginTable(market.getFaction(), 20f, "Ship", 270f, "Days remaining", 120f);
 
         int i = 0;
@@ -245,7 +246,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         }
 
         //add the table to the tooltip
-        tooltip.addTable("Add cruisers to storage to have them refit.", validMembersWithRefitTime.size() - 10, opad);
+        tooltip.addTable("Add Destroyers to storage to have them refit.", validMembersWithRefitTime.size() - 10, opad);
     }
 
     //repeat raids in 3 months don't do anything
@@ -255,36 +256,36 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
 
     public void reportPrivateerBaseRaidFinished(StarSystemAPI system, boolean success) {
         String id = system.getId() + "_getPrivateerSamples";
-        raidMods.put(id, new RaidMod(31*2, "Raid (Privateers): " + system.getName(), success ? 0.1f : 0.05f));
+        raidMods.put(id, new RaidMod(31*2, "Raid (Privateers)", success ? 10f : 5f));
     }
 
     @Override
     public void reportRaidForValuablesFinishedBeforeCargoShown(InteractionDialogAPI dialog, MarketAPI market, MarketCMD.TempData actionData, CargoAPI cargo) {
         String id = market.getId() + "_getSamples";
-        raidMods.put(id, new RaidMod(31*3, "Raid (Valuables): " + market.getName(), 0.1f));
+        raidMods.put(id, new RaidMod(31*3, "Raid (Valuables)", 10f));
     }
 
     @Override
     public void reportRaidToDisruptFinished(InteractionDialogAPI dialog, MarketAPI market, MarketCMD.TempData actionData, Industry industry) {
         String id = market.getId() + "_clearOutposts";
-        raidMods.put(id, new RaidMod(31*3, "Raid (Disrupt): " + market.getName(), 0.15f));
+        raidMods.put(id, new RaidMod(31*3, "Raid (Disrupt)", 15f));
     }
 
     @Override
     public void reportTacticalBombardmentFinished(InteractionDialogAPI dialog, MarketAPI market, MarketCMD.TempData actionData) {
         String id = market.getId() + "_^>vvv";
-        raidMods.put(id, new RaidMod(31*6, "Tactical Bombardment: " + market.getName(), 0.1f));
+        raidMods.put(id, new RaidMod(31*6, "Tactical Bombardment", 10f));
     }
 
     @Override
     public void reportSaturationBombardmentFinished(InteractionDialogAPI dialog, MarketAPI market, MarketCMD.TempData actionData) {
         String id = market.getId() + "_>v^^<vv";
-        raidMods.put(id, new RaidMod(31*12, "Saturation Bombardment: " + market.getName(), 0.25f));
+        raidMods.put(id, new RaidMod(31*12, "Saturation Bombardment", 25f));
     }
 
     public void reportNexerelinInvasionSuccess(MarketAPI market) {
         String id = market.getId() + "_nexInvasion";
-        raidMods.put(id, new RaidMod(31*12, "Successful Invasion: " + market.getName(), 0.2f));
+        raidMods.put(id, new RaidMod(31*12, "Successful Invasion", 20f));
     }
 
     public HelldiversSubIndustry(SubIndustryData data) {
@@ -342,7 +343,10 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && market.getSize() <= MAX_MARKET_SIZE && market.getPrimaryEntity() instanceof PlanetAPI;
+        return Global.getSettings().isDevMode() ||
+                (super.isAvailableToBuild()
+                        && market.getSize() <= MAX_MARKET_SIZE
+                        && market.getPrimaryEntity() instanceof PlanetAPI);
     }
 
     @Override

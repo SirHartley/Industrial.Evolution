@@ -289,21 +289,22 @@ IndEvo_ArtilleryBeatStation,BeatDefendersContinue,"$IndEvo_ArtilleryStation scor
 $tag:IndEvo_Artillery",,Your $shipOrFleet disengages as the defence stations loses any structural integrity it might have had left in a fiery display. The way to the planet is now clear.,0:defaultLeave:Continue,
 IndEvo_ArtilleryDefeatPopulateOptions,DialogOptionSelected,$option == IndEvo_ArtilleryDefeatPopulateOptions,FireAll OpenInteractionDialog,,,
 IndEvo_ArtilleryInitialPlanet_CircumventionProtection,PopulateOptions,"$market.isPlanetConditionMarketOnly
-!$market.isSurveyed
 !$defenderFleetDefeated
 $IndEvo_ArtilleryStation score:1000","SetEnabled surveyPerform false
 Highlight ""denies any chance of approach""
 SetTooltip surveyPerform ""A survey operation requires heavy machinery and satellites to be deployed. This is not possible with an active defence platform in orbit. Disable it first.""","The giant weapons platform in orbit around $entityName denies any chance of approach, much less survey - and while the oversized armament lays silent for now, you get the feeling that this might change the moment you get closer.",,
 IndEvo_ArtilleryInitialPlanet_NexEventDisabler,PopulateOptions,"$market.isPlanetConditionMarketOnly
-!$market.isSurveyed
 !$defenderFleetDefeated
 $IndEvo_ArtilleryStation score:1000","SetEnabled nex_decivEvent_interact false
 SetTooltip nex_decivEvent_interact ""Establishing an active connection while a planetary defence platform is in immediate range has a very high chance of causing a target lock-on and is thus heavily discouraged.""",,,
 IndEvo_ArtilleryInitialPlanet_NexOutpostDisabler,PopulateOptions,"$market.isPlanetConditionMarketOnly
-!$market.isSurveyed
 !$defenderFleetDefeated
 $IndEvo_ArtilleryStation score:1000","SetEnabled nex_outpostPreview false
 SetTooltip nex_outpostPreview ""There is no way to build an outpost next to an active artillery defence platform.""",,,
+IndEvo_ArtilleryInitialPlanet_RuinDisabler,PopulateOptions,"$market.isPlanetConditionMarketOnly
+!$defenderFleetDefeated
+$IndEvo_ArtilleryStation score:1000","SetEnabled salExplore false
+SetTooltip salExplore ""Your salvors refuse to descend to the surface under potential fire from an active defence platform.""",,,
 ,,,,,,
 #watchtower,,,,,,
 #IndEvo_derelictWatchtower,OpenInteractionDialog,"$IndEvo_isArtilleryActive score:2000
