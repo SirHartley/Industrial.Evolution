@@ -1,5 +1,6 @@
 --------------------------- Changelog -----------------------------
 4.0.h
+Added - Two new planet stories
 Added - Military Tag to privateer base, all artillery stations, relays, ground defenses, planetary shield & orbital stations
 Added - Officiated the Anchorage lock-in bug: they are now intended to allow being changed at any time
 Adjusted - Anchorage description to reflect the change
@@ -8,6 +9,7 @@ Adjusted - Blacklisted Omega, Threat and Dweller from dropping consumable items
 Adjusted - Overhauled the description of the Lawless Subpopulation Condition to be more useful
 Adjusted - Managed Democracy now applies Hellpods to destroyers instead of cruisers
 Adjusted - Managed Democracy description clarified: military action increases income
+Adjusted - A bunch of mod cross compatibility with Unknown Skies, PR'd by JamesTripleQ. Thank you!
 Fixed - Camouflage Emitter no longer applies "notable" to non-notable ships upon removal
 Fixed - Camouflage Emitter no longer crashes (rarely) upon destruction of the ship it is attached to
 Fixed - Managed Democracy tooltip corrected

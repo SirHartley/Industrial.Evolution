@@ -15,6 +15,7 @@ import static com.fs.starfarer.api.impl.campaign.ids.Tags.THEME_RUINS;
 import static indevo.utils.ModPlugin.log;
 
 public class DerelictInfrastructurePlacer {
+    public static final String NO_INFRA_TAG = "IndEvo_NoDerelictInfra";
 
     public static void placeRuinedInfrastructure() {
         if (!Settings.getBoolean(Settings.ENABLE_DERELICTS)) return;
@@ -30,7 +31,7 @@ public class DerelictInfrastructurePlacer {
 
             //iterate through the planets
             for (PlanetAPI p : s.getPlanets()) {
-                if (p.isStar() || p.getMarket() == null || TechMining.getTechMiningRuinSizeModifier(p.getMarket()) <= 0f)
+                if (p.isStar() || p.getMarket() == null || TechMining.getTechMiningRuinSizeModifier(p.getMarket()) <= 0f || p.hasTag(NO_INFRA_TAG))
                     continue;
 
                 float chance = TechMining.getTechMiningRuinSizeModifier(p.getMarket()) * 0.5f;
