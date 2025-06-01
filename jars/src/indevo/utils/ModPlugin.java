@@ -405,6 +405,10 @@ public class ModPlugin extends BaseModPlugin {
         MiscIE.getCSVSetFromMemory(Ids.RUIND_LIST);
         MiscIE.getCSVSetFromMemory(Ids.CLOUD_LIST);
         MiscIE.getCSVSetFromMemory(Ids.LAB_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.TREE_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.RURAL_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_COND_LIST);
     }
 
     private void setListenersIfNeeded() {
