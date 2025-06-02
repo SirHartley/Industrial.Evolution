@@ -20,7 +20,7 @@ War is always the same - and this is what you need to win it.",97
 VPC Exploration Package,IndEvo_vpc_supply_fuel,"IndEvo_VPC_rare, pather4, hist3t, codex_unlockable",,,100000,1000,1,,graphics/icons/cargo/VPC_exp.png,ui_chip_pickup,ui_corrupted_nano_drop,indevo.items.VPCItemPlugin,,"A surviving example of Tri-Tachyons' premium industrial software for commodity production.
 Explore without fear of coming home to empty stores!",97
 ,,,,,,,,,,,,,,,
-Base Ambassador Item,IndEvo_amb,"IndEvo_amb, no_drop, hide_in_codex",,,1000,1,1,,graphics/icons/cargo/space_suit.png,ui_cargo_crew,ui_cargo_crew_drop,indevo.items.AmbassadorItemPlugin,,,800
+Base Ambassador Item,IndEvo_amb,"IndEvo_amb, no_drop, hide_in_codex, rural",,,1000,1,1,,graphics/icons/cargo/space_suit.png,ui_cargo_crew,ui_cargo_crew_drop,indevo.items.AmbassadorItemPlugin,,,800
 ,,,,,,,,,,,,,,,
 Forge Template,IndEvo_ForgeTemplate_1,codex_unlockable,,,20000,1,1,,graphics/icons/cargo/forge_template_shiphulll.png,ui_chip_pickup,ui_ship_bp_drop,indevo.items.ForgeTemplateItemPlugin,,"This experimental piece of tech looks a lot like a blueprint, but doesn't seem to work like one.",95
 Forge Template,IndEvo_ForgeTemplate_2,hide_in_codex,,,20000,1,1,,graphics/icons/cargo/forge_template_shiphulll.png,ui_chip_pickup,ui_ship_bp_drop,indevo.items.ForgeTemplateItemPlugin,,"This experimental piece of tech looks a lot like a blueprint, but doesn't seem to work like one.",95

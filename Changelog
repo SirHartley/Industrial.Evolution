@@ -1,4 +1,8 @@
 --------------------------- Changelog -----------------------------
+4.0.i
+Added - "rural" item tag to mark them as no-impact for rural gov
+Fixed - Crash when trying to change government type
+
 4.0.h
 Added - Two new planet stories
 Added - Military Tag to privateer base, all artillery stations, relays, ground defenses, planetary shield & orbital stations
