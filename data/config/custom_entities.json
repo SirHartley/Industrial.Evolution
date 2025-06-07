@@ -24,7 +24,18 @@
 		"interactable":true,
 		"tags":["IndEvo_mobileColony"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"indevo.WIP.mobilecolony.entities.MobileColonyEntityPlugin",
+		"pluginClass":"indevo.WIP.mobilecolony.entities.MobileColonyEntityPlugin"
+	},
+
+	"IndEvo_meteor":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"sprite":"graphics/asteroids/asteroid4.png",
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.MeteorEntity"
 	},
 
 	"IndEvo_warning_beacon":{
@@ -46,7 +57,7 @@
 		"interactionImage":"graphics/illustrations/comm_relay.jpg",
 		"tags":["has_interaction_dialog", "warning_beacon", "neutrino_high", "IndEvo_beacon"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"indevo.items.consumables.entities.BeaconEntityPlugin",
+		"pluginClass":"indevo.items.consumables.entities.BeaconEntityPlugin"
 	},
 
 	"IndEvo_consumable_missile_explosive":{
@@ -102,7 +113,7 @@
 		"interactable":false,
 		"tags":["expires"],
 		"layers":[TERRAIN_9], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"indevo.items.consumables.entities.SmokeCloudEntityPlugin",
+		"pluginClass":"indevo.items.consumables.entities.SmokeCloudEntityPlugin"
 	},
 
 	"SplinterFleet_OrbitFocus":{
@@ -143,7 +154,7 @@
 		"interactable":false,
 		"tags":["expires"],
 		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"indevo.industries.artillery.projectiles.ECMExplosion",
+		"pluginClass":"indevo.industries.artillery.projectiles.ECMExplosion"
 	},
 
 	"IndEvo_VariableExplosion":{
@@ -155,7 +166,7 @@
 		"interactable":false,
 		"tags":["expires"],
 		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"indevo.industries.artillery.entities.VariableExplosionEntityPlugin",
+		"pluginClass":"indevo.industries.artillery.entities.VariableExplosionEntityPlugin"
 	},
 
 	"IndEvo_mine_explosion":{
@@ -167,7 +178,7 @@
 		"interactable":false,
 		"tags":["expires"],
 		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"indevo.exploration.minefields.MineExplosionEntityPlugin",
+		"pluginClass":"indevo.exploration.minefields.MineExplosionEntityPlugin"
 	},
 
 	"IndEvo_campaign_trail_custom_entity":{
@@ -184,7 +195,7 @@
 		"scaleIconWithZoom":true,
 		"interactable":false,
 		"layers":[ABOVE, FLEETS, ASTEROIDS, JUMP_POINTS, PLANETS, RINGS, STATIONS, TERRAIN_7A], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"indevo.utils.trails.MagicCustomCampaignTrailEntityScript",
+		"pluginClass":"indevo.utils.trails.MagicCustomCampaignTrailEntityScript"
 	},
 
 	"IndEvo_decoy_mine":{
@@ -312,7 +323,7 @@
 		"interactable":false,
 		"tags":["IndEvo_crucible_scaffold", "IndEvo_crucible_part", "neutrino_high"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"pluginClass":"indevo.exploration.crucible.entities.CrucibleScaffoldRotationEntityPlugin",
+		"pluginClass":"indevo.exploration.crucible.entities.CrucibleScaffoldRotationEntityPlugin"
 	},
 
 	"IndEvo_crucible_bottom":{
@@ -718,7 +729,7 @@
 		"renderCircleIndicator":true,
 		"renderCircleIndicatorSelectionFlash":true,
 		"layers":[TERRAIN_7A], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-		"tags":["has_interaction_dialog", "dyson_swarm"],
+		"tags":["has_interaction_dialog", "dyson_swarm"]
 	},
 
 	"IndEvo_int_array":{
@@ -747,7 +758,7 @@
 		"renderCircleIndicatorSelectionFlash":false,
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"tags":["comm_relay", "makeshift", "IndEvo_intArray"],
-		"pluginClass":"indevo.industries.relay.entities.RelayEntityPlugin",
+		"pluginClass":"indevo.industries.relay.entities.RelayEntityPlugin"
 	},
 
 	"IndEvo_pristine_int_array":{
@@ -776,7 +787,7 @@
 		"renderCircleIndicatorSelectionFlash":false,
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"tags":["comm_relay", "IndEvo_intArray"],
-		"pluginClass":"com.fs.starfarer.api.impl.campaign.CommRelayEntityPlugin",
+		"pluginClass":"com.fs.starfarer.api.impl.campaign.CommRelayEntityPlugin"
 	},
 
 	"IndEvo_arsenalStation":{
@@ -858,7 +869,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"interactable":false,
 		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.industries.derelicts.entities.WarpEffectPlugin",
+		"pluginClass":"indevo.industries.derelicts.entities.WarpEffectPlugin"
 	},
 
 	"IndEvo_WormHoleEffect":{
@@ -868,7 +879,7 @@
 		"renderCircleIndicator":false, # make clickable,
 		"interactable":false,
 		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.industries.derelicts.entities.HoleEffectPlugin",
+		"pluginClass":"indevo.industries.derelicts.entities.HoleEffectPlugin"
 	}
 }
 

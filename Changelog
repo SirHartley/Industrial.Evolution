@@ -1,4 +1,7 @@
 --------------------------- Changelog -----------------------------
+4.0.j
+Fixed - No longer clears Ruin Conditions off core worlds with "IndEvo_RuinsAlways" tag
+
 4.0.i
 Added - "rural" item tag to mark them as no-impact for rural gov
 Fixed - Crash when trying to change government type

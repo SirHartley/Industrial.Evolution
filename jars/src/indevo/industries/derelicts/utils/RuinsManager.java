@@ -74,6 +74,7 @@ public class RuinsManager {
 
             for (PlanetAPI p : s.getPlanets()) {
                 if (p.isStar() || p.getMarket() == null) continue;
+                if (p.getTags().contains(Ids.TAG_NEVER_REMOVE_RUINS)) continue;
 
                 MarketAPI pMarket = p.getMarket();
 
@@ -122,7 +123,7 @@ public class RuinsManager {
 
                 MarketAPI m = p.getMarket();
 
-                if (p.getTags().contains(Ids.TAG_NEVER_REMOVE_RUINS)) {
+                if (p.getTags().contains(Ids.TAG_NEVER_REMOVE_RUINS) || (p.getMarket() != null && p.getMarket().hasTag(Ids.TAG_NEVER_REMOVE_RUINS))) {
                     if (!m.hasCondition(Ids.COND_RUINS)) m.addCondition(Ids.COND_RUINS);
                     seedRuinsIfNeeded(p);
                 }

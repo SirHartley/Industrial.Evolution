@@ -20,14 +20,15 @@ public class NebulaParticle {
     public Color color;
     public float angleRotation;
     public static final float SPAWN_IN_SEC = 0.5f;
+    public float speed;
 
     public static class LocationData {
         float radius;
         float angle;
         Vector2f loc;
 
-        public LocationData(float radius, float angle) {
-            this.radius = radius;
+        public LocationData(float startRadius, float angle) {
+            this.radius = startRadius;
             this.angle = angle;
         }
 
@@ -60,6 +61,24 @@ public class NebulaParticle {
         this.pos = pos;
         this.i = Misc.random.nextInt(4);
         this.j = Misc.random.nextInt(4);
+
+        angleRotation = MAX_ROTATION_PER_SEC * Misc.random.nextFloat();
+        if(Misc.random.nextBoolean()) angleRotation *= -1;
+
+        advance(0);
+    }
+
+    public NebulaParticle(float size, float angle, float alpha, float duration, Color originalColor, Color targetColor, LocationData pos, float speed) {
+        this.size = size;
+        this.angle = angle;
+        this.baseAlpha = alpha;
+        this.originalColor = originalColor;
+        this.targetColor = targetColor;
+        this.duration = duration;
+        this.pos = pos;
+        this.i = Misc.random.nextInt(4);
+        this.j = Misc.random.nextInt(4);
+        this.speed = speed;
 
         angleRotation = MAX_ROTATION_PER_SEC * Misc.random.nextFloat();
         if(Misc.random.nextBoolean()) angleRotation *= -1;

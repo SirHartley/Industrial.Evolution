@@ -43,6 +43,7 @@ import indevo.dialogue.research.scripts.RefitUIOpenChecker;
 import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
+import indevo.exploration.meteor.MeteorSwarmScript;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
 import indevo.exploration.minefields.listeners.InterdictionPulseAbilityListener;
 import indevo.exploration.minefields.listeners.RecentJumpListener;
@@ -143,7 +144,11 @@ public class ModPlugin extends BaseModPlugin {
         boolean devmode = Global.getSettings().isDevMode();
         boolean devActions = true; //Todo SET TO FALSE FOR RELEASE
 
-        if (devmode && devActions && newGame) {
+        if (devmode && devActions) {
+
+            if (!Global.getSector().getPlayerFleet().isInHyperspace()) {
+                Global.getSector().getPlayerFleet().getContainingLocation().addScript(new MeteorSwarmScript());
+            }
 
 //            PersonAPI admin = OfficerManagerEvent.createAdmin(Global.getSector().getPlayerFaction(), 0, new Random());
 //            admin.getStats().setSkillLevel("indevo_Micromanagement", 1);

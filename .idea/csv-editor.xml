@@ -178,6 +178,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\config\indEvo\hidden_arcologies_blacklist.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\config\indEvo\hidden_arcologies_supressed_whitelist.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\config\indEvo\lab_commodity_whitelist.csv">
           <value>
             <Attribute>
