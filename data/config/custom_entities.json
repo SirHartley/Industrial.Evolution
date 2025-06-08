@@ -27,7 +27,40 @@
 		"pluginClass":"indevo.WIP.mobilecolony.entities.MobileColonyEntityPlugin"
 	},
 
-	"IndEvo_meteor":{
+	"IndEvo_meteor_1":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"sprite":"graphics/asteroids/asteroid1.png",
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.MeteorEntity"
+	},
+
+	"IndEvo_meteor_2":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"sprite":"graphics/asteroids/asteroid2.png",
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.MeteorEntity"
+	},
+
+	"IndEvo_meteor_3":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"sprite":"graphics/asteroids/asteroid3.png",
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.MeteorEntity"
+	},
+
+	"IndEvo_meteor_4":{
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()
 		"showInCampaign":true, # show in campaign layer
 		"showIconOnMap":false,
@@ -36,6 +69,29 @@
 		"renderCircleIndicator":false, # make clickable,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"indevo.exploration.meteor.MeteorEntity"
+	},
+
+
+	"IndEvo_meteor_treasure_1":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"sprite":"graphics/asteroids/treasuroid_small.png",
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.TreasuroidEntity"
+	},
+
+	"IndEvo_meteor_treasure_2":{
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"sprite":"graphics/asteroids/treasuroid_large.png",
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.TreasuroidEntity"
 	},
 
 	"IndEvo_warning_beacon":{

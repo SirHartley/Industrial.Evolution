@@ -38,16 +38,31 @@ public class MeteorImpact implements EveryFrameScript {
         // Compute relative velocity (vector from meteor to target)
         Vector2f relativeVel = Vector2f.sub(meteorVel, velocity, null);
         float relativeSpeed = relativeVel.length();
-
-        // Determine impact direction based on relative velocity, fall back to facing if too slow
         float angle;
-        if (relativeSpeed >= 10f) {
-            angle = Misc.getAngleInDegrees(relativeVel);
-        } else if (velocity.length() >= 10f) {
-            angle = Misc.getAngleInDegrees(velocity);
+
+        if (isFleet){
+            if (relativeSpeed >= 10f) {
+                angle = Misc.getAngleInDegrees(relativeVel);
+            } else if (velocity.length() >= 10f) {
+                angle = Misc.getAngleInDegrees(velocity);
+            } else {
+                angle = target.getFacing();
+            }
         } else {
-            angle = target.getFacing();
+            Vector2f relPos = Vector2f.sub(meteor.getLocation(), target.getLocation(), null);
+            float posDistance = relPos.length();
+
+            if (posDistance >= 10f) {
+                angle = Misc.getAngleInDegrees(relPos);
+            } else if (relativeSpeed >= 10f) {
+                angle = Misc.getAngleInDegrees(relativeVel);
+            } else if (velocity.length() >= 10f) {
+                angle = Misc.getAngleInDegrees(velocity);
+            } else {
+                angle = target.getFacing();
+            }
         }
+        // Determine impact direction based on relative velocity, fall back to facing if too slow
 
         float mult = isFleet ? Misc.getFleetRadiusTerrainEffectMult((CampaignFleetAPI) target) : 0f;
         float arc = BASE_ARC - ARC_REDUCTION_FACTOR * mult;

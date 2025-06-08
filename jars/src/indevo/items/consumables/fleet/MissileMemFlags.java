@@ -16,4 +16,7 @@ public class MissileMemFlags {
     public static final String OFFENSE_COUNT = "$missile_offenseCount";
     public static final String CONFIRMED_OFFENSE_COUNT = "$missile_confirmedOffenseCount";
 
+    //any entity
+    public static final String MEM_CAUGHT_BY_MISSILE = "$missile_bonked";
+
 }

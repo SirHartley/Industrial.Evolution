@@ -12,6 +12,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.terrain.ShoveFleetScript;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
+import indevo.items.consumables.fleet.MissileMemFlags;
 import indevo.utils.helper.MiscIE;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
@@ -45,6 +46,10 @@ public class ConcussiveMissileEntityPlugin extends BaseMissileEntityPlugin {
             if (fleet.isPlayerFleet()) intensity /= 2f; //player gets to cheat
 
             fleet.addScript(new ShoveFleetScript(fleet, shoveDir, intensity));
+        }
+
+        for (SectorEntityToken t : cl.getAllEntities()){
+            if (Misc.getDistance(entity.getLocation(), t.getLocation()) < SHOVE_RANGE) t.getMemoryWithoutUpdate().set(MissileMemFlags.MEM_CAUGHT_BY_MISSILE, new Vector2f(entity.getLocation()), 1f);
         }
 
         LunaCampaignRenderer.addRenderer(new LunaCampaignRenderingPlugin() {

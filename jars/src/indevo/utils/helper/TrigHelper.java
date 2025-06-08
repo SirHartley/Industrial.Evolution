@@ -2,6 +2,7 @@ package indevo.utils.helper;
 
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -97,5 +98,19 @@ public class TrigHelper {
         Vector2f thirdPoint = MathUtils.getPointOnCircumference(halfwayPoint, hb, angleThirdPoint);
 
         return new Pair<>(thirdPoint, radius);
+    }
+
+    //for roughly 1 @ 1, s= 0.4f, m = 1
+    //more even distribution at s=0.7, m = 2
+    public static float getNormalDistributionCurve(float x, float s, float m) {
+        if (s <= 0) {
+            s = 0;
+            ModPlugin.log("s = 0 normal dist error");
+        }
+
+        double coefficient = 1.0 / (Math.sqrt(2 * Math.PI) * s);
+        double exponent = -Math.pow(x - m, 2) / (2 * s * s);
+
+        return (float) (coefficient * Math.exp(exponent));
     }
 }

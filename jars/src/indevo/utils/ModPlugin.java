@@ -24,8 +24,6 @@ import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
 import com.fs.starfarer.api.impl.campaign.intel.deciv.DecivTracker;
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
-import com.fs.starfarer.api.impl.codex.CodexDataV2;
-import com.fs.starfarer.api.impl.codex.CodexEntryV2;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -41,9 +39,10 @@ import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.dialogue.research.listeners.*;
 import indevo.dialogue.research.scripts.RefitUIOpenChecker;
 import indevo.economy.listeners.ResourceConditionApplicator;
+import indevo.exploration.crucible.ability.YeetScript;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
-import indevo.exploration.meteor.MeteorSwarmScript;
+import indevo.exploration.meteor.MeteorSwarmSpawner;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
 import indevo.exploration.minefields.listeners.InterdictionPulseAbilityListener;
 import indevo.exploration.minefields.listeners.RecentJumpListener;
@@ -98,6 +97,8 @@ import indevo.utils.update.NewGameIndustryPlacer;
 import org.dark.shaders.light.LightData;
 import org.dark.shaders.util.ShaderLib;
 import org.dark.shaders.util.TextureData;
+import org.lazywizard.lazylib.MathUtils;
+import org.lwjgl.util.vector.Vector2f;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -146,8 +147,16 @@ public class ModPlugin extends BaseModPlugin {
 
         if (devmode && devActions) {
 
-            if (!Global.getSector().getPlayerFleet().isInHyperspace()) {
-                Global.getSector().getPlayerFleet().getContainingLocation().addScript(new MeteorSwarmScript());
+            StarSystemAPI sys = Global.getSector().getPlayerFleet().getStarSystem();
+            CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
+
+            if (sys != null && !sys.isHyperspace()) {
+
+                Vector2f startPoint = MathUtils.getPointOnCircumference(sys.getCenter().getLocation(), 30000, Misc.getAngleInDegrees(sys.getCenter().getLocation(), fleet.getLocation()) - 90f);
+                Vector2f endPoint = MathUtils.getPointOnCircumference(sys.getCenter().getLocation(), 30000, Misc.getAngleInDegrees(sys.getCenter().getLocation(), fleet.getLocation()) + 90f);
+                sys.addScript(new MeteorSwarmSpawner(sys, 2, startPoint, fleet.getLocation(), endPoint, 4000f, System.currentTimeMillis()));
+
+                fleet.addScript(new YeetScript(fleet, startPoint));
             }
 
 //            PersonAPI admin = OfficerManagerEvent.createAdmin(Global.getSector().getPlayerFaction(), 0, new Random());
