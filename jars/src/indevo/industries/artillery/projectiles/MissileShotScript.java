@@ -4,6 +4,7 @@ import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.utils.helper.Circle;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.TrigHelper;
 import org.lazywizard.lazylib.MathUtils;
@@ -85,25 +86,25 @@ public class MissileShotScript implements EveryFrameScript {
             float distThirdPoint = firstHalf ? radiusIncrement * (i + 1) : radiusIncrement * (i - (missileAmt / 2f - 1));
             Vector2f thirdPoint = MathUtils.getPointOnCircumference(halfwayPoint, distThirdPoint, angleThirdPoint);
 
-            Pair<Vector2f, Float> trajectoryCircleData = TrigHelper.findThreePointCircle(originLocation, fuzzedTarget, thirdPoint);
+            Circle trajectoryCircleData = TrigHelper.findThreePointCircle(originLocation, fuzzedTarget, thirdPoint);
 
             //now we need a target loc for the missile to split, which will be on a circle intersecting with the trajectory
             float splitDistance = Misc.getDistance(originLocation, fuzzedTarget) * 0.3f;
-            Vector2f splitLocation = TrigHelper.findClosestCircleIntersectToPoint(fuzzedTarget, splitDistance, trajectoryCircleData.one, trajectoryCircleData.two, originLocation);
+            Vector2f splitLocation = TrigHelper.findClosestCircleIntersectToPoint(fuzzedTarget, splitDistance, trajectoryCircleData.center, trajectoryCircleData.radius, originLocation);
 
             if (splitLocation == null) {
                 i--;
                 continue;
             }
 
-            float splitAngleOnTrajectory = Misc.getAngleInDegrees(trajectoryCircleData.one, splitLocation);
+            float splitAngleOnTrajectory = Misc.getAngleInDegrees(trajectoryCircleData.center, splitLocation);
 
             MissileCarrierEntityPlugin.MissileParams params = new MissileCarrierEntityPlugin.MissileParams(
                     origin,
                     fuzzedTarget,
                     MathUtils.getRandomNumberInRange(AVG_IMPACT_SECONDS * 0.8f, AVG_IMPACT_SECONDS * 1.2f),
-                    trajectoryCircleData.one,
-                    trajectoryCircleData.two,
+                    trajectoryCircleData.center,
+                    trajectoryCircleData.radius,
                     splitAngleOnTrajectory);
 
             MissileCarrierEntityPlugin.spawn(params);

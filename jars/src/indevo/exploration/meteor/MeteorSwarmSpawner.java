@@ -35,7 +35,6 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
     public static final float[] NORMAL_DIST_MAGIC_NUMBERS = {0.4f, 0}; //sets the distribution https://www.desmos.com/calculator/11rldprhvd
     public static final float[] WEIGHT_OVER_TIME_MAGIC_NUMBERS = {0.4f, 0};
     public static final int BASE_WIDTH_PER_ASTEROID_PER_SECOND = 700; //a good width is around 4k
-    public static final int BASE_SECONDS = 50;
 
     public static final float MIN_TREASURE_SPAWN_FRACT = 0.2f;
     public static final float MAX_TREASURE_SPAWN_FRACT = 0.8f;
@@ -47,19 +46,20 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
     public CircularArc arc;
     private final Random random;
     private final float runtime;
+    private final float density;
 
     private float timePassed = 0;
     private int treasureSpawned = 0;
     private IntervalUtil treasureInterval;
 
-    public MeteorSwarmSpawner(StarSystemAPI system, float intensity, Vector2f startLoc, Vector2f centerLoc, Vector2f endLoc, float width, long seed) {
+    public MeteorSwarmSpawner(StarSystemAPI system, float intensity, int treasureAmt, float density, float runtime, Vector2f startLoc, Vector2f centerLoc, Vector2f endLoc, float width, long seed) {
         this.system = system;
         this.intensity = intensity;
         this.width = width;
-        this.runtime = BASE_SECONDS * intensity;
+        this.runtime = runtime;
+        this.density = density;
 
-        Pair<Vector2f, Float> circleData = TrigHelper.findThreePointCircle(startLoc, centerLoc, endLoc);
-        Circle circle = new Circle(circleData.one, circleData.two);
+        Circle circle = TrigHelper.findThreePointCircle(startLoc, centerLoc, endLoc);
         this.arc = new CircularArc(circle, circle.getAngleForPoint(startLoc), circle.getAngleForPoint(endLoc));
 
         this.random = new Random(seed);
@@ -67,8 +67,18 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
         //treasure spawns after 20 and before 80% has run
         //it spawns x times
         //split middle time in three, fudge a bit, good enough
-        int treasureAmt = Math.max(1, Math.round(intensity));
-        treasureInterval = new IntervalUtil((runtime * 0.2f) / treasureAmt, (runtime * 0.5f) / treasureAmt);
+        this.treasureInterval = new IntervalUtil((runtime * 0.2f) / treasureAmt, (runtime * 0.5f) / treasureAmt);
+    }
+
+    public MeteorSwarmSpawner(StarSystemAPI system, float intensity, int treasureAmt, float density, float runtime, CircularArc arc, float width, long seed) {
+        this.system = system;
+        this.intensity = intensity;
+        this.width = width;
+        this.runtime = runtime;
+        this.density = density;
+        this.arc = arc;
+        this.random = new Random(seed);
+        this.treasureInterval = new IntervalUtil((runtime * 0.2f) / treasureAmt, (runtime * 0.5f) / treasureAmt);
     }
 
     @Override
@@ -87,7 +97,7 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
 
         timePassed += amount;
 
-        float baseChance = (width / BASE_WIDTH_PER_ASTEROID_PER_SECOND) * intensity * amount;
+        float baseChance = (width / BASE_WIDTH_PER_ASTEROID_PER_SECOND) * density * amount;
         float distFromLine = random.nextFloat() * (width / 2f) * (random.nextBoolean() ? -1 : 1);
 
         float normalDistributionFactor = Math.abs(TrigHelper.getNormalDistributionCurve(Math.abs(distFromLine) / (width / 2), NORMAL_DIST_MAGIC_NUMBERS[0], NORMAL_DIST_MAGIC_NUMBERS[1]));
@@ -129,7 +139,4 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
         }
     }
 
-    public static float simpleInversePow(double x) {
-        return (float) Math.min(1, 1.0 / (10.0 * Math.pow(x, 1)));
-    }
 }

@@ -39,7 +39,7 @@ public class TrigHelper {
         return Misc.getDistance(pos1, targetPoint) < Misc.getDistance(pos2, targetPoint) ? pos1 : pos2;
     }
 
-    public static Pair<Vector2f, Float> findThreePointCircle(Vector2f p1, Vector2f p2, Vector2f p3) {
+    public static Circle findThreePointCircle(Vector2f p1, Vector2f p2, Vector2f p3) {
         //https://stackoverflow.com/questions/62488827/solving-equation-to-find-center-point-of-circle-from-3-points/71045382#71045382
         double x1 = p1.x;
         double y1 = p1.y;
@@ -86,7 +86,7 @@ public class TrigHelper {
         center.x = (float) h;
         center.y = (float) k;
 
-        return new Pair<>(center, r);
+        return new Circle(center, r);
     }
 
     public static Pair<Vector2f, Float> findTwoPointCircle(Vector2f p1, Vector2f p2, float radius) {

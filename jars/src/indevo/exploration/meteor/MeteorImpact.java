@@ -49,20 +49,8 @@ public class MeteorImpact implements EveryFrameScript {
                 angle = target.getFacing();
             }
         } else {
-            Vector2f relPos = Vector2f.sub(meteor.getLocation(), target.getLocation(), null);
-            float posDistance = relPos.length();
-
-            if (posDistance >= 10f) {
-                angle = Misc.getAngleInDegrees(relPos);
-            } else if (relativeSpeed >= 10f) {
-                angle = Misc.getAngleInDegrees(relativeVel);
-            } else if (velocity.length() >= 10f) {
-                angle = Misc.getAngleInDegrees(velocity);
-            } else {
-                angle = target.getFacing();
-            }
+            angle = Misc.getAngleInDegrees(target.getLocation(), meteor.getLocation());
         }
-        // Determine impact direction based on relative velocity, fall back to facing if too slow
 
         float mult = isFleet ? Misc.getFleetRadiusTerrainEffectMult((CampaignFleetAPI) target) : 0f;
         float arc = BASE_ARC - ARC_REDUCTION_FACTOR * mult;

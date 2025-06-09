@@ -42,6 +42,7 @@ import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.crucible.ability.YeetScript;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
+import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.MeteorSwarmSpawner;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
 import indevo.exploration.minefields.listeners.InterdictionPulseAbilityListener;
@@ -154,9 +155,9 @@ public class ModPlugin extends BaseModPlugin {
 
                 Vector2f startPoint = MathUtils.getPointOnCircumference(sys.getCenter().getLocation(), 30000, Misc.getAngleInDegrees(sys.getCenter().getLocation(), fleet.getLocation()) - 90f);
                 Vector2f endPoint = MathUtils.getPointOnCircumference(sys.getCenter().getLocation(), 30000, Misc.getAngleInDegrees(sys.getCenter().getLocation(), fleet.getLocation()) + 90f);
-                sys.addScript(new MeteorSwarmSpawner(sys, 2, startPoint, fleet.getLocation(), endPoint, 4000f, System.currentTimeMillis()));
+                //sys.addScript(new MeteorSwarmSpawner(sys, 2, 2, startPoint, fleet.getLocation(), endPoint, 4000f, System.currentTimeMillis()));
 
-                fleet.addScript(new YeetScript(fleet, startPoint));
+                //fleet.addScript(new YeetScript(fleet, new Vector2f(30000,-30000)));
             }
 
 //            PersonAPI admin = OfficerManagerEvent.createAdmin(Global.getSector().getPlayerFaction(), 0, new Random());
@@ -478,6 +479,7 @@ public class ModPlugin extends BaseModPlugin {
         HostileActivityEventSubRegisterListener.register();
         InvisiblePlanetaryShield.AlternateTextureOptionProvider.register();
         MilitaryRelay.RelayItemRemovalButtonListener.register();
+        MeteorSwarmManager.register();
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();
     }
