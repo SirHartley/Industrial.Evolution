@@ -5,6 +5,9 @@ import com.fs.starfarer.api.util.Pair;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CircularArc extends Circle{
 
     public float startAngle;
@@ -50,6 +53,43 @@ public class CircularArc extends Circle{
         }
 
         return Math.min(traveled / totalArc, 1f);
+    }
+
+    public float convertToDegreesPerSecond(float unitsPerSecond) {
+        float arcCircumference = getArcCircumference();
+        float arcLengthDegrees = getArcLength();
+
+        if (arcCircumference == 0) return 0f;
+        return unitsPerSecond * (arcLengthDegrees / arcCircumference);
+    }
+
+    public float getArcCircumference() {
+        float angleSpan = getArcLength();
+        return (float) (2 * Math.PI * radius * (angleSpan / 360f));
+    }
+
+    public List<Vector2f> getEvenlySpacedLocationsOnArc(float distanceBetweenLocations) {
+        List<Vector2f> points = new ArrayList<>();
+
+        float arcLength = getArcCircumference();
+        int numPoints = Math.max(1, (int)(arcLength / distanceBetweenLocations));
+
+        float angleSpan = getArcLength(); // in degrees
+        float angleStep = angleSpan / numPoints;
+        int direction = getAngleTravelDir();
+
+        for (int i = 0; i <= numPoints; i++) {
+            float angle;
+            if (direction == 1) {
+                angle = Misc.normalizeAngle(startAngle + i * angleStep);
+            } else {
+                angle = Misc.normalizeAngle(startAngle - i * angleStep);
+            }
+
+            points.add(getPointForAngle(angle));
+        }
+
+        return points;
     }
 
     public Pair<Vector2f, Vector2f> getPerpendicularLineAtAngle(float angle, float lineLength) {

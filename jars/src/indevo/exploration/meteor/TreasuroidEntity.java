@@ -20,7 +20,7 @@ import static com.fs.starfarer.api.util.Misc.*;
 public class TreasuroidEntity extends MeteorEntity {
 
     public static void spawn(LocationAPI loc, MeteorData data){
-        loc.addCustomEntity(Misc.genUID(), "Treasuroid", "IndEvo_meteor_treasure_1", null, data.size * 1.2f, data.size, data.size, data);
+        loc.addCustomEntity(Misc.genUID(), null, "IndEvo_meteor_treasure_1", "engHubStorageColour", data.size * 1.2f, data.size, data.size, data);
     }
 
     public boolean hasDroppedTreasure = false;
@@ -51,7 +51,8 @@ public class TreasuroidEntity extends MeteorEntity {
                     Entities.WEAPONS_CACHE_SMALL_HIGH, 10f);
 
             SectorEntityToken loot = addSalvageEntity(random, entity.getStarSystem(), caches.pick(), null);
-            loot.setDiscoverable(false);
+            loot.setDiscoverable(true);
+            loot.setDiscoveryXP(100f);
             loot.setLocation(entity.getLocation().x, entity.getLocation().y);
 
             hasDroppedTreasure = true;

@@ -38,6 +38,7 @@ public class MeteorSwarmManager implements EconomyTickListener {
     //parameter todo these should be in the settings file
     public static final float BASE_CHANCE_PER_ECONOMY_TICK = 0.02f; //18% per month 92% per year
 
+    public static final float MIN_INTENSITY = 1;
     public static final float MAX_INTENSITY = 4;
     public static final float BASE_SHOWER_WIDTH = 3000f;
     public static final float INTENSITY_WIDTH_MODIFIER = 1000f;
@@ -110,7 +111,7 @@ public class MeteorSwarmManager implements EconomyTickListener {
             MeteroidShowerType type = picker.pick();
 
             //parameters
-            float intensity = MAX_INTENSITY * random.nextFloat();
+            float intensity = random.nextFloat() * (MAX_INTENSITY - MIN_INTENSITY) + MIN_INTENSITY;
             float width = BASE_SHOWER_WIDTH + INTENSITY_WIDTH_MODIFIER * intensity;
             int lootAmt = Math.max(1, Math.round(intensity * METEOR_TYPE_DATA.get(type).treasureModifier));
             float density = Math.min(MAX_DENSITY, intensity);

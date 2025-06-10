@@ -49,7 +49,7 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
     }
 
     public static void spawn(LocationAPI loc, MeteorData data){
-        loc.addCustomEntity(Misc.genUID(), "Meteor", MeteorFactory.getMeteorForSize(data.size), null, data.size * 1.2f, data.size, data.size, data);
+        loc.addCustomEntity(Misc.genUID(), null, MeteorFactory.getMeteorForSize(data.size), Factions.NEUTRAL, data.size * 1.2f, data.size, data.size, data);
     }
 
     @Override

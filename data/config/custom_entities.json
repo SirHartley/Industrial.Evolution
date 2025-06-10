@@ -27,10 +27,27 @@
 		"pluginClass":"indevo.WIP.mobilecolony.entities.MobileColonyEntityPlugin"
 	},
 
+	"IndEvo_warning_sign":{
+		"defaultName":"Meteor Swarm Trajectory", # used if name=null in addCustomEntity()
+		"defaultRadius":20, # used if radius<0 in addCustomEntity()
+		"showInCampaign":false, # show in campaign layer
+		"showIconOnMap":true,
+		"icon":"graphics/fx/IndEvo_warning.png",
+		"iconWidth":20,
+		"iconHeight":20,
+		"scaleIconWithZoom":true,
+		"renderCircleIndicator":false, # make clickable,
+	},
+
 	"IndEvo_meteor_1":{
+		"defaultName":"Small meteor",
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()
 		"showInCampaign":true, # show in campaign layer
-		"showIconOnMap":false,
+		"showIconOnMap":true,
+		"icon":"graphics/icons/IndEvo_asteroid.png",
+		"iconWidth":0.1,
+		"iconHeight":0.1,
+		"scaleIconWithZoom":true,
 		"showNameOnMap":false,
 		"sprite":"graphics/asteroids/asteroid1.png",
 		"renderCircleIndicator":false, # make clickable,
@@ -39,9 +56,14 @@
 	},
 
 	"IndEvo_meteor_2":{
+		"defaultName":"Minor meteor",
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()
 		"showInCampaign":true, # show in campaign layer
-		"showIconOnMap":false,
+		"showIconOnMap":true,
+		"icon":"graphics/icons/IndEvo_asteroid.png",
+		"iconWidth":0.2,
+		"iconHeight":0.2,
+		"scaleIconWithZoom":true,
 		"showNameOnMap":false,
 		"sprite":"graphics/asteroids/asteroid2.png",
 		"renderCircleIndicator":false, # make clickable,
@@ -50,9 +72,14 @@
 	},
 
 	"IndEvo_meteor_3":{
+		"defaultName":"Medium meteor",
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()
-		"showInCampaign":true, # show in campaign layer
-		"showIconOnMap":false,
+		"showInCampaign":true, # show in campaign layer,
+		"icon":"graphics/icons/IndEvo_asteroid.png",
+		"iconWidth":0.3,
+		"iconHeight":0.3,
+		"scaleIconWithZoom":true,
+		"showIconOnMap":true,
 		"showNameOnMap":false,
 		"sprite":"graphics/asteroids/asteroid3.png",
 		"renderCircleIndicator":false, # make clickable,
@@ -61,9 +88,14 @@
 	},
 
 	"IndEvo_meteor_4":{
+		"defaultName":"Large meteor",
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()
-		"showInCampaign":true, # show in campaign layer
-		"showIconOnMap":false,
+		"showInCampaign":true, # show in campaign layer,
+		"icon":"graphics/icons/IndEvo_asteroid.png",
+		"iconWidth":0.4,
+		"iconHeight":0.4,
+		"scaleIconWithZoom":true,
+		"showIconOnMap":true,
 		"showNameOnMap":false,
 		"sprite":"graphics/asteroids/asteroid4.png",
 		"renderCircleIndicator":false, # make clickable,
@@ -71,11 +103,15 @@
 		"pluginClass":"indevo.exploration.meteor.MeteorEntity"
 	},
 
-
 	"IndEvo_meteor_treasure_1":{
+		"defaultName":"Small Treasuroid",
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()
-		"showInCampaign":true, # show in campaign layer
-		"showIconOnMap":false,
+		"showInCampaign":true, # show in campaign layer,
+		"icon":"graphics/icons/IndEvo_asteroid.png",
+		"iconWidth":0.4,
+		"iconHeight":0.4,
+		"scaleIconWithZoom":true,
+		"showIconOnMap":true,
 		"showNameOnMap":false,
 		"sprite":"graphics/asteroids/treasuroid_small.png",
 		"renderCircleIndicator":false, # make clickable,
@@ -84,9 +120,14 @@
 	},
 
 	"IndEvo_meteor_treasure_2":{
+		"defaultName":"Large Treasuroid",
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()
-		"showInCampaign":true, # show in campaign layer
-		"showIconOnMap":false,
+		"showInCampaign":true, # show in campaign layer,
+		"icon":"graphics/icons/IndEvo_asteroid.png",
+		"iconWidth":0.5,
+		"iconHeight":0.5,
+		"scaleIconWithZoom":true,
+		"showIconOnMap":true,
 		"showNameOnMap":false,
 		"sprite":"graphics/asteroids/treasuroid_large.png",
 		"renderCircleIndicator":false, # make clickable,
@@ -101,7 +142,6 @@
 		"discoverable":true,
 		"discoveryXP":500,
 		"icon":"graphics/icons/warning_beacon.png",
-		"iconColor":[255,100,0,255],
 		"iconWidth":24,
 		"iconHeight":24,
 		"spriteWidth":64,

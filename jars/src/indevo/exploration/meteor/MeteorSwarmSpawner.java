@@ -14,6 +14,7 @@ import indevo.utils.helper.CircularArc;
 import indevo.utils.helper.TrigHelper;
 import org.lwjgl.util.vector.Vector2f;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -51,6 +52,8 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
     private float timePassed = 0;
     private int treasureSpawned = 0;
     private IntervalUtil treasureInterval;
+
+    private MeteorSwarmWarningRenderer warningRenderer = null;
 
     public MeteorSwarmSpawner(StarSystemAPI system, float intensity, int treasureAmt, float density, float runtime, Vector2f startLoc, Vector2f centerLoc, Vector2f endLoc, float width, long seed) {
         this.system = system;
@@ -95,7 +98,14 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
     public void advance(float amount) {
         if (isDone()) return;
 
+        if (warningRenderer == null) {
+            warningRenderer = new MeteorSwarmWarningRenderer(system, arc);
+            system.addScript(warningRenderer);
+        }
+
         timePassed += amount;
+
+        if (timePassed > runtime) warningRenderer.setStartEndArc();
 
         float baseChance = (width / BASE_WIDTH_PER_ASTEROID_PER_SECOND) * density * amount;
         float distFromLine = random.nextFloat() * (width / 2f) * (random.nextBoolean() ? -1 : 1);
@@ -123,7 +133,7 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
                 treasureInterval.advance(amount);
 
                 if (treasureInterval.intervalElapsed()){
-                    TreasuroidEntity.MeteorData data = new MeteorEntity.MeteorData(Math.max(MeteorEntity.MAX_SIZE * 0.4f, size* 1.5f), arc.getModifiedRadiusArc(arc.radius + distFromLine), speed);
+                    TreasuroidEntity.MeteorData data = new MeteorEntity.MeteorData(Math.max(MeteorEntity.MAX_SIZE * 0.4f, size* 1.5f), arc.getModifiedRadiusArc(arc.radius + distFromLine * 0.5f), speed);
                     TreasuroidEntity.spawn(system, data);
                     treasureSpawned++;
 
@@ -136,6 +146,9 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
         if (roll < chance) {
             MeteorEntity.MeteorData data = new MeteorEntity.MeteorData(size, arc.getModifiedRadiusArc(arc.radius + distFromLine), speed);
             MeteorEntity.spawn(system, data);
+
+            if (!warningRenderer.hasFirstSet()) warningRenderer.setFirstTraversalVel(speed);
+            else warningRenderer.setLastTraversalVel(speed);
         }
     }
 
