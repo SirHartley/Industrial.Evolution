@@ -49,7 +49,7 @@ public class MeteorSwarmManager implements EconomyTickListener {
     public static final float GENERAL_TIMEOUT_AFTER_SPAWN_DAYS = 31 * 1;
 
     //position
-    private static final float GRID_LIMIT = 30000f;
+    private static final float GRID_LIMIT = 26000;
     public static final float MAX_DISTANCE_FROM_SUN = 10000F;
     public static final float MIN_DISTANCE_FROM_SUN = 3000f;
     public static final float MAX_ANGLE = 80f;
@@ -134,7 +134,7 @@ public class MeteorSwarmManager implements EconomyTickListener {
             CircularArc arc = new CircularArc(circle, circle.getAngleForPoint(startLoc), circle.getAngleForPoint(endloc));
 
             ModPlugin.log("Spawning asteroid swarm: \nintensity " + intensity + " \nlootAmt " + lootAmt + " \ndensity " + density + " \nruntime " + runtime + " \nwidth " + width + " \nstartAngle " + startAngle + " \nendAngle " + endAngle);
-            if (devmode) Global.getSector().getPlayerFleet().addScript(new YeetScript(Global.getSector().getPlayerFleet(), arcCenterLoc));
+            //if (devmode) Global.getSector().getPlayerFleet().addScript(new YeetScript(Global.getSector().getPlayerFleet(), arcCenterLoc));
 
             switch (type){
                 default -> loc.addScript(new MeteorSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));

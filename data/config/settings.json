@@ -293,6 +293,7 @@
           "IndEvo_eye_3": "graphics/fx/IndEvo_watchtower_3.png",
           "IndEvo_missile_targetting_reticule":"graphics/fx/IndEvo_direction_reticule.png",
           "IndEvo_missile_targetting_arrow":"graphics/fx/IndEvo_targeting_arrow.png",
+          "IndEvo_warning_sign":"graphics/fx/IndEvo_warning.png",
       },
       "IndEvo": {
           "IndEvo_consumable_missile_explosive":"graphics/mines/IndEvo_consumable_missile_explosive.png",

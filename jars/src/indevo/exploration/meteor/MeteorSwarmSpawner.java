@@ -12,6 +12,8 @@ import indevo.utils.ModPlugin;
 import indevo.utils.helper.Circle;
 import indevo.utils.helper.CircularArc;
 import indevo.utils.helper.TrigHelper;
+import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
+import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -54,6 +56,7 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
     private IntervalUtil treasureInterval;
 
     private MeteorSwarmWarningRenderer warningRenderer = null;
+    private float speedLastSpawned = 0f;
 
     public MeteorSwarmSpawner(StarSystemAPI system, float intensity, int treasureAmt, float density, float runtime, Vector2f startLoc, Vector2f centerLoc, Vector2f endLoc, float width, long seed) {
         this.system = system;
@@ -101,11 +104,11 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
         if (warningRenderer == null) {
             warningRenderer = new MeteorSwarmWarningRenderer(system, arc);
             system.addScript(warningRenderer);
+            LunaCampaignRenderer.addRenderer(new WarningSignNotificationRenderer(arc, system));
+            Global.getSoundPlayer().playUISound("cr_allied_critical", 1, 1);
         }
 
         timePassed += amount;
-
-        if (timePassed > runtime) warningRenderer.setStartEndArc();
 
         float baseChance = (width / BASE_WIDTH_PER_ASTEROID_PER_SECOND) * density * amount;
         float distFromLine = random.nextFloat() * (width / 2f) * (random.nextBoolean() ? -1 : 1);
@@ -146,10 +149,6 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
         if (roll < chance) {
             MeteorEntity.MeteorData data = new MeteorEntity.MeteorData(size, arc.getModifiedRadiusArc(arc.radius + distFromLine), speed);
             MeteorEntity.spawn(system, data);
-
-            if (!warningRenderer.hasFirstSet()) warningRenderer.setFirstTraversalVel(speed);
-            else warningRenderer.setLastTraversalVel(speed);
         }
     }
-
 }

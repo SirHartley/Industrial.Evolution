@@ -1,42 +1,49 @@
 package indevo.exploration.meteor;
 
 import com.fs.starfarer.api.EveryFrameScript;
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.CircularArc;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
+import javax.swing.plaf.PanelUI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+/**
+ * kept in memory, last one added will supersede old one - can only have one swarm per system pending refactor
+ */
 
 public class MeteorSwarmWarningRenderer implements EveryFrameScript {
 
     public static final String WARNING_SIGN_ENTITY_ID = "IndEvo_warning_sign";
+    public static final String MEM_INSTANCE = "$IndEvo_warningRenderer";
     public static final float DISTANCE_BETWEEN_SIGNS = 2000f;
 
     public boolean done = false;
     public boolean spawnedSigns = false;
-    public boolean startEndArc = false;
 
     public LocationAPI location;
     public CircularArc arc;
-    public float firstTraversalVel = 0f;
-    public float lastTraversalVel = 0f;
 
-    public float firstAngle;
-    public float lastAngle;
+    public IntervalUtil interval = new IntervalUtil(1f, 1f);
+    public int emptyRounds = 0;
 
     public List<SectorEntityToken> warningSigns = new ArrayList<>();
+    public List<Float> angles = new ArrayList<>();
 
     public MeteorSwarmWarningRenderer(LocationAPI location, CircularArc arc) {
         this.location = location;
         this.arc = arc;
 
-        firstAngle = arc.startAngle + 0.1f;
-        lastAngle = arc.startAngle;
+        location.getMemoryWithoutUpdate().set(MEM_INSTANCE, this);
     }
 
     @Override
@@ -49,31 +56,37 @@ public class MeteorSwarmWarningRenderer implements EveryFrameScript {
         return false;
     }
 
+    public static void reportAngle(LocationAPI loc, float angle) {
+        MeteorSwarmWarningRenderer renderer = (MeteorSwarmWarningRenderer) loc.getMemoryWithoutUpdate().get(MEM_INSTANCE);
+        if (renderer != null) renderer.addAngle(angle);
+    }
+
     @Override
     public void advance(float amount) {
         if (done) return;
         if (!spawnedSigns) spawnWarningSigns();
 
-        if (!hasFirstSet()) return;
+        interval.advance(amount);
 
-        firstAngle += arc.convertToDegreesPerSecond(firstTraversalVel) * amount;
-        if (startEndArc) lastAngle += arc.convertToDegreesPerSecond(lastTraversalVel) * amount;
+        if (interval.intervalElapsed()){
+            if (!angles.isEmpty()){
+                float largest = (float) Math.floor(Collections.max(angles));
+                float smallest = (float) Math.ceil(Collections.min(angles));
 
-        for (SectorEntityToken sign : warningSigns) {
-            float angle = arc.getAngleForPoint(sign.getLocation());
-            float minAngle = Math.min(firstAngle, lastAngle);
-            float maxAngle = Math.max(firstAngle, lastAngle);
+                for (SectorEntityToken sign : warningSigns) {
+                    float angle = arc.getAngleForPoint(sign.getLocation());
+                    if (Misc.isBetween(smallest, largest, angle)) sign.setFaction(Factions.PIRATES);
+                    else sign.setFaction(Factions.NEUTRAL);
+                }
 
-            if (Misc.isBetween(angle, minAngle, maxAngle)) {
-                sign.setFaction(Factions.PIRATES);
-            } else {
-                sign.setFaction(Factions.NEUTRAL);
+                angles.clear();
+            } else emptyRounds++;
+
+            if (emptyRounds > 10) {
+                for (SectorEntityToken sign : warningSigns) Misc.fadeAndExpire(sign, 0f);
+                done = true;
+                location.getMemoryWithoutUpdate().unset(MEM_INSTANCE);
             }
-        }
-
-        if (lastAngle > arc.endAngle) {
-            for (SectorEntityToken sign : warningSigns) Misc.fadeAndExpire(sign, 0f);
-            done = true;
         }
     }
 
@@ -87,19 +100,7 @@ public class MeteorSwarmWarningRenderer implements EveryFrameScript {
         spawnedSigns = true;
     }
 
-    public void setFirstTraversalVel(float firstTraversalVel) {
-        this.firstTraversalVel = firstTraversalVel;
-    }
-
-    public void setLastTraversalVel(float lastTraversalVel) {
-        this.lastTraversalVel = lastTraversalVel;
-    }
-
-    public boolean hasFirstSet(){
-        return firstTraversalVel > 0f;
-    }
-
-    public void setStartEndArc(){
-        startEndArc = true;
+    public void addAngle(float angle){
+        angles.add(angle);
     }
 }

@@ -11,6 +11,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.items.consumables.fleet.MissileMemFlags;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.CircularArc;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import org.lwjgl.util.vector.Vector2f;
@@ -22,6 +23,8 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
     public static final float MAX_ROTATION_PER_SEC = 4f;
     public static final float MAX_SIZE = 300f;
     public static final float BASE_SPEED = 700f;
+
+    public static final float SENSOR_PROFILE = 4000f;
 
     public float size, angle, angleRotation;
     public boolean colliding = false;
@@ -61,6 +64,7 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
         this.arc = data.arc;
         this.velocity = data.velocity;
         this.size = data.size;
+        //entity.setSensorProfile(SENSOR_PROFILE);
 
         currentAngle = arc.startAngle;
 
@@ -87,18 +91,23 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
                 //addspecial IndEvo_consumable_missile_concussive
             }
 
-            LocationAPI loc = entity.getContainingLocation();
-            List<SectorEntityToken> collisionRelevantEntities = new ArrayList<>();
-            collisionRelevantEntities.addAll(loc.getEntitiesWithTag(Tags.SALVAGEABLE));
-            collisionRelevantEntities.addAll(loc.getEntitiesWithTag(Tags.STATION));
-            collisionRelevantEntities.addAll(loc.getFleets());
-            collisionRelevantEntities.removeAll(loc.getEntitiesWithTag(Tags.DEBRIS_FIELD));
+            //disable collision checks if out of sensor range
+            if (Global.getSector().getViewport().isNearViewport(entity.getLocation(), 1000f)){
+                LocationAPI loc = entity.getContainingLocation();
+                List<SectorEntityToken> collisionRelevantEntities = new ArrayList<>();
+                collisionRelevantEntities.addAll(loc.getEntitiesWithTag(Tags.SALVAGEABLE));
+                collisionRelevantEntities.addAll(loc.getEntitiesWithTag(Tags.STATION));
+                collisionRelevantEntities.addAll(loc.getFleets());
+                collisionRelevantEntities.removeAll(loc.getEntitiesWithTag(Tags.DEBRIS_FIELD));
 
-            for (SectorEntityToken t : collisionRelevantEntities) {
-                if (Misc.getDistance(t.getLocation(), entity.getLocation()) < size) {
-                    setCollidingAndFade(t);
+                for (SectorEntityToken t : collisionRelevantEntities) {
+                    if (Misc.getDistance(t.getLocation(), entity.getLocation()) < size) {
+                        setCollidingAndFade(t);
+                    }
                 }
             }
+
+            MeteorSwarmWarningRenderer.reportAngle(entity.getContainingLocation(), currentAngle);
         }
 
         float arcLengthTraveled = velocity * amount;
