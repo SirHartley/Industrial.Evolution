@@ -42,8 +42,8 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
         }
     }
 
-    public static void spawn(LocationAPI loc, MeteorData data){
-        loc.addCustomEntity(Misc.genUID(), null, MeteorFactory.getMeteorForSize(data.size), Factions.NEUTRAL, data.size * 1.2f, data.size, data.size, data);
+    public static SectorEntityToken spawn(LocationAPI loc, MeteorData data){
+        return loc.addCustomEntity(Misc.genUID(), null, MeteorFactory.getMeteorForSize(data.size), Factions.NEUTRAL, data.size * 1.2f, data.size, data.size, data);
     }
 
     @Override
@@ -53,6 +53,7 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
 
         MeteorData data = (MeteorData) pluginParams;
         this.size = data.size;
+        this.movement = data.movement;
         //entity.setSensorProfile(SENSOR_PROFILE);
 
         angleRotation = (float) (0.5f + (MAX_ROTATION_PER_SEC * Math.random()) - (MAX_ROTATION_PER_SEC * (size / MAX_SIZE)));

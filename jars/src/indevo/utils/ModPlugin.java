@@ -115,12 +115,12 @@ public class ModPlugin extends BaseModPlugin {
     public static int DEALMAKER_INCOME_PERCENT_BONUS = 25;
 
     @Override
-    public void onApplicationLoad() throws Exception {
+    public void onApplicationLoad() {
         boolean hasGraphicsLib = Global.getSettings().getModManager().isModEnabled("shaderLib");
         if (hasGraphicsLib) {
             ShaderLib.init();
             LightData.readLightDataCSV("data/lights/IndEvo_lights.csv");
-            TextureData.readTextureDataCSV((String)"data/lights/IndEvo_textures.csv");
+            TextureData.readTextureDataCSV("data/lights/IndEvo_textures.csv");
         }
     }
 
@@ -275,7 +275,7 @@ public class ModPlugin extends BaseModPlugin {
             StringBuilder type = new StringBuilder();
 
             for (String tag : tagList){
-                if (type.length() > 0 && tagList.get(tagList.size()-1).equals(tag)) type.append(", ");
+                if (!type.isEmpty() && tagList.get(tagList.size()-1).equals(tag)) type.append(", ");
                 type.append(Misc.ucFirst(tag));
             }
 
@@ -309,7 +309,7 @@ public class ModPlugin extends BaseModPlugin {
         //ConverterRepRestetter.resetConverterRep();
     }
 
-    protected Map<SectorEntityToken, LocationAPI> mines = new HashMap<SectorEntityToken, LocationAPI>();
+    protected Map<SectorEntityToken, LocationAPI> mines = new HashMap<>();
 
     @Override
     public void beforeGameSave() {
@@ -350,7 +350,7 @@ public class ModPlugin extends BaseModPlugin {
         if (!Settings.getBoolean(Settings.ENABLE_MINEFIELDS)) return;
 
         for (SectorEntityToken mine : mines.keySet()) {
-            ((LocationAPI) mines.get(mine)).addEntity(mine);
+            mines.get(mine).addEntity(mine);
         }
         mines.clear();
     }
@@ -374,9 +374,9 @@ public class ModPlugin extends BaseModPlugin {
     @Override
     public PluginPick<MissileAIPlugin> pickMissileAI(MissileAPI missile, ShipAPI launchingShip) {
         if (missile.getProjectileSpecId().equals("IndEvo_mortar_projectile"))
-            return new PluginPick<MissileAIPlugin>(new IndEvo_mortarProjectileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
+            return new PluginPick<>(new IndEvo_mortarProjectileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
         if (missile.getProjectileSpecId().equals("IndEvo_missile_projectile"))
-            return new PluginPick<MissileAIPlugin>(new IndEvo_missileProjectileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
+            return new PluginPick<>(new IndEvo_missileProjectileAI(missile, launchingShip), CampaignPlugin.PickPriority.MOD_SPECIFIC);
 
         return super.pickMissileAI(missile, launchingShip);
     }
@@ -515,7 +515,7 @@ public class ModPlugin extends BaseModPlugin {
                                                   InstallableIndustryItemPlugin.InstallableItemDescriptionMode mode, String pre, float pad) {
                 text.addPara(pre + "Colony income increased by %s.",
                         pad, Misc.getHighlightColor(),
-                        "" + (int) DEALMAKER_INCOME_PERCENT_BONUS + "%");
+                        DEALMAKER_INCOME_PERCENT_BONUS + "%");
             }
         });
 

@@ -7,15 +7,16 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.exploration.meteor.spawners.PlanetoidSwarmSpawner;
 import indevo.exploration.meteor.spawners.StandardSwarmSpawner;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.Circle;
 import indevo.utils.helper.CircularArc;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.TrigHelper;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -65,22 +66,30 @@ public class MeteorSwarmManager implements EconomyTickListener {
     }
 
     public enum MeteroidShowerType {
-        ASTEROID,
-        MAGMAROID,
-        ICEROID,
-        IRRADIOID,
-        METHEROID,
-        PLANETOID
-    }
+        ASTEROID(0, 1f),
+        MAGMAROID(0, 1f),
+        ICEROID(0, 1f),
+        IRRADIOID(0, 1f),
+        METHEROID(0, 1f),
+        PLANETOID(1, 1f);
 
-    public static Map<MeteroidShowerType, MeteorShowerData> METEOR_TYPE_DATA = new HashMap<>() {{
-        put(MeteroidShowerType.ASTEROID, new MeteorShowerData(120f, 1f));
-        put(MeteroidShowerType.MAGMAROID, new MeteorShowerData(10f, 1f));
-        put(MeteroidShowerType.ICEROID, new MeteorShowerData(10f, 1f));
-        put(MeteroidShowerType.PLANETOID, new MeteorShowerData(5f, 1f));
-        put(MeteroidShowerType.IRRADIOID, new MeteorShowerData(10f, 1f));
-        put(MeteroidShowerType.METHEROID, new MeteorShowerData(5f, 1f));
-    }};
+        /*
+        ASTEROID(120f, 1f),
+        MAGMAROID(10f, 1f),
+        ICEROID(10f, 1f),
+        IRRADIOID(5f, 1f),
+        METHEROID(10f, 1f),
+        PLANETOID(5f, 1f);
+        */
+
+        public float chance;
+        public float treasureModifier;
+
+        private MeteroidShowerType(float chance, float treasureModifier) {
+            this.chance = chance;
+            this.treasureModifier = treasureModifier;
+        }
+    }
 
     public static void register(){
         Global.getSector().getListenerManager().addListener(new MeteorSwarmManager(), true);
@@ -108,23 +117,23 @@ public class MeteorSwarmManager implements EconomyTickListener {
         if (spawn || devmode) {
 
             WeightedRandomPicker<MeteroidShowerType> picker = new WeightedRandomPicker<>(random);
-            for (Map.Entry<MeteroidShowerType, MeteorShowerData> e : METEOR_TYPE_DATA.entrySet()) picker.add(e.getKey(), e.getValue().chance);
+            for (MeteroidShowerType type : MeteroidShowerType.values()) picker.add(type, type.chance);
             MeteroidShowerType type = picker.pick();
 
             //parameters
-            float intensity = random.nextFloat() * (MAX_INTENSITY - MIN_INTENSITY) + MIN_INTENSITY;
+            float intensity = MiscIE.getRandomInRange(MIN_INTENSITY, MAX_INTENSITY, random);
             float width = BASE_SHOWER_WIDTH + INTENSITY_WIDTH_MODIFIER * intensity;
-            int lootAmt = Math.max(1, Math.round(intensity * METEOR_TYPE_DATA.get(type).treasureModifier));
+            int lootAmt = Math.max(1, Math.round(intensity * type.treasureModifier));
             float density = Math.min(MAX_DENSITY, intensity);
             float runtime = BASE_RUNTIME * Math.min(MAX_RUNTIME_MULT, intensity);
 
             //location
-            float radius = random.nextFloat() * (MAX_DISTANCE_FROM_SUN - MIN_DISTANCE_FROM_SUN) + MIN_DISTANCE_FROM_SUN + width / 2;
+            float radius = MiscIE.getRandomInRange(MIN_DISTANCE_FROM_SUN, MAX_DISTANCE_FROM_SUN, random) + width / 2;
             float centerAngle = 360f * random.nextFloat();
             Vector2f arcCenterLoc = MathUtils.getPointOnCircumference(null, radius, centerAngle);
 
             float angleToCenter = Misc.getAngleInDegrees(arcCenterLoc, new Vector2f(0,0));
-            float adjustment = random.nextFloat() * (MAX_ANGLE - MIN_ANGLE) + MIN_ANGLE;
+            float adjustment = MiscIE.getRandomInRange(MIN_ANGLE, MAX_ANGLE, random);
             float startAngle = MathUtils.clampAngle(angleToCenter + adjustment);
             float endAngle = MathUtils.clampAngle(angleToCenter - adjustment);
 
@@ -138,8 +147,12 @@ public class MeteorSwarmManager implements EconomyTickListener {
             //if (devmode) Global.getSector().getPlayerFleet().addScript(new YeetScript(Global.getSector().getPlayerFleet(), arcCenterLoc));
 
             switch (type){
-                default -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
-                //todo cases for everything else
+                case ASTEROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
+                case MAGMAROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
+                case ICEROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
+                case IRRADIOID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
+                case METHEROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
+                case PLANETOID -> loc.addScript(new PlanetoidSwarmSpawner((StarSystemAPI) loc, arc, runtime, random.nextLong(), density, lootAmt));
             }
 
             globalMem.set(MEM_TIMEOUT, true, GENERAL_TIMEOUT_AFTER_SPAWN_DAYS);

@@ -17,8 +17,8 @@ import static com.fs.starfarer.api.util.Misc.*;
 
 public class TreasuroidEntity extends MeteorEntity {
 
-    public static void spawn(LocationAPI loc, MeteorData data){
-        loc.addCustomEntity(Misc.genUID(), null, "IndEvo_meteor_treasure_1", "engHubStorageColour", data.size * 1.2f, data.size, data.size, data);
+    public static SectorEntityToken spawn(LocationAPI loc, MeteorData data){
+        return loc.addCustomEntity(Misc.genUID(), null, "IndEvo_meteor_treasure_1", "engHubStorageColour", data.size * 1.2f, data.size, data.size, data);
     }
 
     public boolean hasDroppedTreasure = false;

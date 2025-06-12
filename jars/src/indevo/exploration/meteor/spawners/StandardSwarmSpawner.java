@@ -31,9 +31,7 @@ public class StandardSwarmSpawner extends BaseArcingSwarmSpawner {
 
     public StarSystemAPI system;
     public float intensity; //0 to x, also sets the loot
-
     public float width;
-
     private final float density;
 
     private int treasureSpawned = 0;

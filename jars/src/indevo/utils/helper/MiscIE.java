@@ -39,6 +39,10 @@ import java.util.*;
 public class MiscIE {
     public static final Logger log = Global.getLogger(MiscIE.class);
 
+    public static float getRandomInRange(float min, float max, Random random){
+        return random.nextFloat() * (max - min) + min;
+    }
+
     public static MarketAPI getCurrentInteractionTargetMarket(){
         SectorEntityToken interactionTarget = null;
         InteractionDialogAPI dialogue = Global.getSector().getCampaignUI().getCurrentInteractionDialog();

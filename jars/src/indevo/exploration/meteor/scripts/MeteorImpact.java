@@ -167,7 +167,7 @@ public class MeteorImpact implements EveryFrameScript {
         float rotation = Math.signum(asteroid.getRotation()) * (50f + 50f * (float) Math.random());
         asteroid.setRotation(rotation);
 
-        Misc.fadeInOutAndExpire(asteroid, 0.2f, 1f + 1f * (float) Math.random(), 1f);
+        Misc.fadeInOutAndExpire(asteroid, 0.2f, 1f + (float) Math.random(), 1f);
     }
 
     private void spawnImpactGlow(float mult) {
