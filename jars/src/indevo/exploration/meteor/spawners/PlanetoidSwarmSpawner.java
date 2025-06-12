@@ -4,6 +4,10 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.procgen.AccretionDiskGenPlugin;
+import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
+import com.fs.starfarer.api.impl.campaign.procgen.TerrainGenDataSpec;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.meteor.entities.MeteorEntity;
 import indevo.exploration.meteor.movement.ArcingMovementModule;
@@ -12,6 +16,9 @@ import indevo.exploration.meteor.scripts.MovementModuleRunner;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.CircularArc;
 import indevo.utils.helper.MiscIE;
+
+import java.awt.*;
+import java.util.Collection;
 
 import static com.fs.starfarer.api.impl.campaign.enc.AbyssalRogueStellarObjectEPEC.PLANETOID_TYPES;
 
@@ -22,8 +29,8 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
     public static final float PLANETAR_BASE_SPEED = 400f;
 
     public static final float INNER_RADIUS = 600f;
-    public static final float BASE_METEOR_FIELD_WIDTH = 5000f;
-    public static final float MAGIC_METEOR_NUMBER = 0.0002f;
+    public static final float BASE_METEOR_FIELD_WIDTH = 6000f;
+    public static final float MAGIC_METEOR_NUMBER = 0.00015f;
 
     public float density;
     public float lootAmt;
@@ -62,6 +69,8 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
         float speed = PLANETAR_BASE_SPEED * 0.4f + 0.6f * PLANETAR_BASE_SPEED * random.nextFloat();
         ArcingMovementModule movement = new ArcingMovementModule(arc, speed);
         planet.addScript(new MovementModuleRunner(movement, planet));
+        system.addRingBand(planet, "misc", "rings_dust0", 256f, 2, Color.white, 256f, size + 100f, 31f);
+        system.addRingBand(planet, "misc", "rings_dust0", 256f, 3, Color.white, 256f, size + 300, 10f);
 
         float width = BASE_METEOR_FIELD_WIDTH * 0.5f + BASE_METEOR_FIELD_WIDTH * 0.5f * density;
 
@@ -72,13 +81,13 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
             //ModPlugin.log("Angle: " + i + " Spawning " + asteroidsPerDegree);
 
             for (int j = 0; j <= asteroidsPerDegree; j++){
-                float distance = MiscIE.getRandomInRange(INNER_RADIUS, width + INNER_RADIUS, random);
-                float factor = (distance - INNER_RADIUS) / width;
+                float distance = MiscIE.getRandomInRange(INNER_RADIUS + size, width + INNER_RADIUS, random);
+                float factor = (distance - INNER_RADIUS - size) / width;
                 float speedFactor = 1 - factor;
                 float sizeFactor = leftSkewedDensity(factor);
 
                 //wow this is trash code
-                float roidSize = (MeteorEntity.MAX_SIZE * sizeFactor * 0.5f) + 0.5f * random.nextFloat();
+                float roidSize = (MeteorEntity.MAX_SIZE * sizeFactor * 0.3f) + 0.7f * random.nextFloat();
                 float roidSpeed = (MeteorEntity.BASE_SPEED * 0.5f * speedFactor) + 0.5f * MeteorEntity.BASE_SPEED * random.nextFloat();
 
                 float unitsPerDay = roidSpeed * Global.getSector().getClock().getSecondsPerDay();
@@ -103,7 +112,7 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
 
     public static float leftSkewedDensity(float x) {
         float a = 2f; //magic numbers again I am on a roll
-        float b = 6f;
+        float b = 8f;
 
         float y = (float) (Math.pow(x, a - 1) * Math.pow(1 - x, b - 1));
         float maxY = (float) (Math.pow((a - 1) / (a + b - 2), a - 1) * Math.pow(1 - (a - 1) / (a + b - 2), b - 1));
