@@ -1,4 +1,4 @@
-package indevo.exploration.meteor;
+package indevo.exploration.meteor.scripts;
 
 import java.awt.Color;
 import java.util.Random;

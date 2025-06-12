@@ -1,25 +1,12 @@
-package indevo.exploration.meteor;
+package indevo.exploration.meteor.spawners;
 
-import com.fs.starfarer.api.EveryFrameScript;
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CampaignFleetAPI;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
-import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.Pair;
-import indevo.utils.ModPlugin;
-import indevo.utils.helper.Circle;
+import indevo.exploration.meteor.movement.ArcingMovementModule;
+import indevo.exploration.meteor.entities.MeteorEntity;
+import indevo.exploration.meteor.entities.TreasuroidEntity;
 import indevo.utils.helper.CircularArc;
 import indevo.utils.helper.TrigHelper;
-import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
-import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
-import org.lwjgl.util.vector.Vector2f;
-
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 //add to system
 //spawn warning icons via MeteorSwarWrnRenderer
@@ -34,7 +21,7 @@ import java.util.Random;
 
 //scale with vertical width and time
 
-public class MeteorSwarmSpawner implements EveryFrameScript {
+public class StandardSwarmSpawner extends BaseArcingSwarmSpawner {
     public static final float[] NORMAL_DIST_MAGIC_NUMBERS = {0.4f, 0}; //sets the distribution https://www.desmos.com/calculator/11rldprhvd
     public static final float[] WEIGHT_OVER_TIME_MAGIC_NUMBERS = {0.4f, 0};
     public static final int BASE_WIDTH_PER_ASTEROID_PER_SECOND = 700; //a good width is around 4k
@@ -46,70 +33,22 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
     public float intensity; //0 to x, also sets the loot
 
     public float width;
-    public CircularArc arc;
-    private final Random random;
-    private final float runtime;
+
     private final float density;
 
-    private float timePassed = 0;
     private int treasureSpawned = 0;
     private IntervalUtil treasureInterval;
 
-    private MeteorSwarmWarningRenderer warningRenderer = null;
-    private float speedLastSpawned = 0f;
-
-    public MeteorSwarmSpawner(StarSystemAPI system, float intensity, int treasureAmt, float density, float runtime, Vector2f startLoc, Vector2f centerLoc, Vector2f endLoc, float width, long seed) {
-        this.system = system;
+    public StandardSwarmSpawner(StarSystemAPI system, float intensity, int treasureAmt, float density, float runtime, CircularArc arc, float width, long seed) {
+        super(system, arc, runtime, seed);
         this.intensity = intensity;
         this.width = width;
-        this.runtime = runtime;
         this.density = density;
-
-        Circle circle = TrigHelper.findThreePointCircle(startLoc, centerLoc, endLoc);
-        this.arc = new CircularArc(circle, circle.getAngleForPoint(startLoc), circle.getAngleForPoint(endLoc));
-
-        this.random = new Random(seed);
-
-        //treasure spawns after 20 and before 80% has run
-        //it spawns x times
-        //split middle time in three, fudge a bit, good enough
-        this.treasureInterval = new IntervalUtil((runtime * 0.2f) / treasureAmt, (runtime * 0.5f) / treasureAmt);
-    }
-
-    public MeteorSwarmSpawner(StarSystemAPI system, float intensity, int treasureAmt, float density, float runtime, CircularArc arc, float width, long seed) {
-        this.system = system;
-        this.intensity = intensity;
-        this.width = width;
-        this.runtime = runtime;
-        this.density = density;
-        this.arc = arc;
-        this.random = new Random(seed);
         this.treasureInterval = new IntervalUtil((runtime * 0.2f) / treasureAmt, (runtime * 0.5f) / treasureAmt);
     }
 
     @Override
-    public boolean isDone() {
-        return timePassed > runtime;
-    }
-
-    @Override
-    public boolean runWhilePaused() {
-        return false;
-    }
-
-    @Override
-    public void advance(float amount) {
-        if (isDone()) return;
-
-        if (warningRenderer == null) {
-            warningRenderer = new MeteorSwarmWarningRenderer(system, arc);
-            system.addScript(warningRenderer);
-            LunaCampaignRenderer.addRenderer(new WarningSignNotificationRenderer(arc, system));
-            Global.getSoundPlayer().playUISound("cr_allied_critical", 1, 1);
-        }
-
-        timePassed += amount;
-
+    void advanceSpawner(float amount) {
         float baseChance = (width / BASE_WIDTH_PER_ASTEROID_PER_SECOND) * density * amount;
         float distFromLine = random.nextFloat() * (width / 2f) * (random.nextBoolean() ? -1 : 1);
 
@@ -136,7 +75,7 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
                 treasureInterval.advance(amount);
 
                 if (treasureInterval.intervalElapsed()){
-                    TreasuroidEntity.MeteorData data = new MeteorEntity.MeteorData(Math.max(MeteorEntity.MAX_SIZE * 0.4f, size* 1.5f), arc.getModifiedRadiusArc(arc.radius + distFromLine * 0.5f), speed);
+                    MeteorEntity.MeteorData data = new MeteorEntity.MeteorData(Math.max(MeteorEntity.MAX_SIZE * 0.4f, size* 1.5f), new ArcingMovementModule(arc.getModifiedRadiusArc(arc.radius + distFromLine * 0.5f), speed));
                     TreasuroidEntity.spawn(system, data);
                     treasureSpawned++;
 
@@ -147,7 +86,7 @@ public class MeteorSwarmSpawner implements EveryFrameScript {
 
         //Default
         if (roll < chance) {
-            MeteorEntity.MeteorData data = new MeteorEntity.MeteorData(size, arc.getModifiedRadiusArc(arc.radius + distFromLine), speed);
+            MeteorEntity.MeteorData data = new MeteorEntity.MeteorData(size, new ArcingMovementModule( arc.getModifiedRadiusArc(arc.radius + distFromLine), speed));
             MeteorEntity.spawn(system, data);
         }
     }

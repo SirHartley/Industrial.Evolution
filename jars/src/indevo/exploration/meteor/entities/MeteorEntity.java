@@ -1,18 +1,17 @@
-package indevo.exploration.meteor;
+package indevo.exploration.meteor.entities;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
-import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
-import indevo.abilities.splitfleet.OrbitFocus;
+import indevo.exploration.meteor.renderers.MeteorDebrisRenderer;
+import indevo.exploration.meteor.helper.MeteorFactory;
+import indevo.exploration.meteor.scripts.MeteorImpact;
+import indevo.exploration.meteor.movement.MeteorMovementModuleAPI;
 import indevo.items.consumables.fleet.MissileMemFlags;
-import indevo.utils.ModPlugin;
-import indevo.utils.helper.CircularArc;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -24,30 +23,22 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
     public static final float MAX_SIZE = 300f;
     public static final float BASE_SPEED = 700f;
 
-    public static final float SENSOR_PROFILE = 4000f;
-
     public float size, angle, angleRotation;
     public boolean colliding = false;
+    public MeteorMovementModuleAPI movement;
 
     public void init(){
         angleRotation = 0.1f + MAX_ROTATION_PER_SEC - (MAX_ROTATION_PER_SEC * (entity.getRadius() / MAX_SIZE));
         if (Misc.random.nextBoolean()) angleRotation *= -1;
     }
 
-    private CircularArc arc;
-    private float velocity;
-
-    private float currentAngle;
-
     public static class MeteorData{
-        public CircularArc arc;
-        public float velocity;
+        public MeteorMovementModuleAPI movement;
         public float size;
 
-        public MeteorData(float size, CircularArc arc, float velocity) {
+        public MeteorData(float size, MeteorMovementModuleAPI movement) {
             this.size = size;
-            this.arc = arc;
-            this.velocity = velocity;
+            this.movement = movement;
         }
     }
 
@@ -61,21 +52,20 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
         if (pluginParams == null) return;
 
         MeteorData data = (MeteorData) pluginParams;
-        this.arc = data.arc;
-        this.velocity = data.velocity;
         this.size = data.size;
         //entity.setSensorProfile(SENSOR_PROFILE);
-
-        currentAngle = arc.startAngle;
 
         angleRotation = (float) (0.5f + (MAX_ROTATION_PER_SEC * Math.random()) - (MAX_ROTATION_PER_SEC * (size / MAX_SIZE)));
         if (Misc.random.nextBoolean()) angleRotation *= -1;
 
-        updatePositionAndVelocity();
+        movement.init(entity);
     }
 
     @Override
     public void advance(float amount) {
+        entity.setFacing(entity.getFacing() + angleRotation * amount);
+        movement.advance(amount);
+
         if (!colliding && !entity.hasTag(Tags.FADING_OUT_AND_EXPIRING)) {
             if (entity.getMemoryWithoutUpdate().contains(MissileMemFlags.MEM_CAUGHT_BY_MISSILE)){
                 Vector2f missileLoc = entity.getMemoryWithoutUpdate().getVector2f(MissileMemFlags.MEM_CAUGHT_BY_MISSILE);
@@ -106,43 +96,16 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
                     }
                 }
             }
-
-            MeteorSwarmWarningRenderer.reportAngle(entity.getContainingLocation(), currentAngle);
         }
 
-        float arcLengthTraveled = velocity * amount;
-        float angleDelta = (arcLengthTraveled / arc.radius) * (float) (180f / Math.PI);  // Convert radians to degrees
-        int dir = arc.getAngleTravelDir();
-        currentAngle += angleDelta * dir;
-        currentAngle = Misc.normalizeAngle(currentAngle);
-
-        // Clamp to endAngle if we reached the end of the arc
-        if (arc.getTraversalProgress(currentAngle) >= 1f && !entity.hasTag(Tags.FADING_OUT_AND_EXPIRING)) {
-            Misc.fadeAndExpire(entity, 1f);
-        }
-
-        entity.setFacing(entity.getFacing() + angleRotation * amount);
-        updatePositionAndVelocity();
+        if (movement.isMovementFinished()) Misc.fadeAndExpire(entity, 1f);
     }
 
-    private void updatePositionAndVelocity() {
-        Vector2f pos = arc.getPointForAngle(currentAngle);
-        entity.getLocation().set(pos.x, pos.y);
-
-        float tangentAngle = Misc.normalizeAngle(currentAngle + 90f * arc.getAngleTravelDir());
-        Vector2f tangent = Misc.getUnitVectorAtDegreeAngle(tangentAngle);
-        tangent.scale(velocity);
-        entity.getVelocity().set(tangent);
-    }
 
     public void setCollidingAndFade(SectorEntityToken t){
         colliding = true;
         t.addScript(new MeteorImpact(t, entity, true));
         LunaCampaignRenderer.addRenderer(new MeteorDebrisRenderer(t, entity));
         Misc.fadeAndExpire(entity, 0.1f);
-    }
-
-    public static float getBaseSpeedForSize(float size){
-        return (1 - size / MAX_SIZE) * BASE_SPEED;
     }
 }

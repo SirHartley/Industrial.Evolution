@@ -1,4 +1,4 @@
-package indevo.exploration.meteor;
+package indevo.exploration.meteor.helper;
 
 import java.util.HashMap;
 import java.util.Map;

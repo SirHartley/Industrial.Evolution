@@ -52,7 +52,7 @@
 		"sprite":"graphics/asteroids/asteroid1.png",
 		"renderCircleIndicator":false, # make clickable,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.exploration.meteor.MeteorEntity"
+		"pluginClass":"indevo.exploration.meteor.entities.MeteorEntity"
 	},
 
 	"IndEvo_meteor_2":{
@@ -68,7 +68,7 @@
 		"sprite":"graphics/asteroids/asteroid2.png",
 		"renderCircleIndicator":false, # make clickable,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.exploration.meteor.MeteorEntity"
+		"pluginClass":"indevo.exploration.meteor.entities.MeteorEntity"
 	},
 
 	"IndEvo_meteor_3":{
@@ -84,7 +84,7 @@
 		"sprite":"graphics/asteroids/asteroid3.png",
 		"renderCircleIndicator":false, # make clickable,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.exploration.meteor.MeteorEntity"
+		"pluginClass":"indevo.exploration.meteor.entities.MeteorEntity"
 	},
 
 	"IndEvo_meteor_4":{
@@ -100,7 +100,7 @@
 		"sprite":"graphics/asteroids/asteroid4.png",
 		"renderCircleIndicator":false, # make clickable,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.exploration.meteor.MeteorEntity"
+		"pluginClass":"indevo.exploration.meteor.entities.MeteorEntity"
 	},
 
 	"IndEvo_meteor_treasure_1":{
@@ -116,7 +116,7 @@
 		"sprite":"graphics/asteroids/treasuroid_small.png",
 		"renderCircleIndicator":false, # make clickable,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.exploration.meteor.TreasuroidEntity"
+		"pluginClass":"indevo.exploration.meteor.entities.TreasuroidEntity"
 	},
 
 	"IndEvo_meteor_treasure_2":{
@@ -132,7 +132,7 @@
 		"sprite":"graphics/asteroids/treasuroid_large.png",
 		"renderCircleIndicator":false, # make clickable,
 		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.exploration.meteor.TreasuroidEntity"
+		"pluginClass":"indevo.exploration.meteor.entities.TreasuroidEntity"
 	},
 
 	"IndEvo_warning_beacon":{

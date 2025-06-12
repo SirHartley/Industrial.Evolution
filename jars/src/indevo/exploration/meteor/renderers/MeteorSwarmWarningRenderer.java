@@ -1,18 +1,14 @@
-package indevo.exploration.meteor;
+package indevo.exploration.meteor.renderers;
 
 import com.fs.starfarer.api.EveryFrameScript;
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
-import indevo.utils.ModPlugin;
 import indevo.utils.helper.CircularArc;
-import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
-import javax.swing.plaf.PanelUI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

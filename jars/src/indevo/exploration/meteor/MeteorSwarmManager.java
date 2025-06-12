@@ -6,9 +6,8 @@ import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.exploration.crucible.ability.YeetScript;
+import indevo.exploration.meteor.spawners.StandardSwarmSpawner;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.Circle;
 import indevo.utils.helper.CircularArc;
@@ -70,15 +69,17 @@ public class MeteorSwarmManager implements EconomyTickListener {
         MAGMAROID,
         ICEROID,
         IRRADIOID,
-        METHEROID
+        METHEROID,
+        PLANETOID
     }
 
     public static Map<MeteroidShowerType, MeteorShowerData> METEOR_TYPE_DATA = new HashMap<>() {{
-        put(MeteroidShowerType.ASTEROID, new MeteorShowerData(150f, 1f));
+        put(MeteroidShowerType.ASTEROID, new MeteorShowerData(120f, 1f));
         put(MeteroidShowerType.MAGMAROID, new MeteorShowerData(10f, 1f));
         put(MeteroidShowerType.ICEROID, new MeteorShowerData(10f, 1f));
+        put(MeteroidShowerType.PLANETOID, new MeteorShowerData(5f, 1f));
         put(MeteroidShowerType.IRRADIOID, new MeteorShowerData(10f, 1f));
-        put(MeteroidShowerType.METHEROID, new MeteorShowerData(1f, 1f));
+        put(MeteroidShowerType.METHEROID, new MeteorShowerData(5f, 1f));
     }};
 
     public static void register(){
@@ -137,7 +138,7 @@ public class MeteorSwarmManager implements EconomyTickListener {
             //if (devmode) Global.getSector().getPlayerFleet().addScript(new YeetScript(Global.getSector().getPlayerFleet(), arcCenterLoc));
 
             switch (type){
-                default -> loc.addScript(new MeteorSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
+                default -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
                 //todo cases for everything else
             }
 

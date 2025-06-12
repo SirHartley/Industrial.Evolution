@@ -1,4 +1,4 @@
-package indevo.exploration.meteor;
+package indevo.exploration.meteor.renderers;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
