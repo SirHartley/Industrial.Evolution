@@ -4,10 +4,11 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import indevo.exploration.meteor.MeteorSwarmManager;
+import indevo.exploration.meteor.entities.MeteorEntity;
+import indevo.exploration.meteor.entities.SpicyRockEntity;
+import indevo.exploration.meteor.entities.TreasuroidEntity;
 import indevo.exploration.meteor.helper.MeteorFactory;
 import indevo.exploration.meteor.movement.ArcingMovementModule;
-import indevo.exploration.meteor.entities.MeteorEntity;
-import indevo.exploration.meteor.entities.TreasuroidEntity;
 import indevo.utils.helper.CircularArc;
 import indevo.utils.helper.TrigHelper;
 
@@ -24,7 +25,7 @@ import indevo.utils.helper.TrigHelper;
 
 //scale with vertical width and time
 
-public class StandardSwarmSpawner extends BaseArcingSwarmSpawner {
+public class SpicySwarmSpawner extends BaseArcingSwarmSpawner {
     public static final float[] NORMAL_DIST_MAGIC_NUMBERS = {0.4f, 0}; //sets the distribution https://www.desmos.com/calculator/11rldprhvd
     public static final float[] WEIGHT_OVER_TIME_MAGIC_NUMBERS = {0.4f, 0};
     public static final int BASE_WIDTH_PER_ASTEROID_PER_SECOND = 700; //a good width is around 4k
@@ -39,7 +40,7 @@ public class StandardSwarmSpawner extends BaseArcingSwarmSpawner {
     private int treasureSpawned = 0;
     private IntervalUtil treasureInterval;
 
-    public StandardSwarmSpawner(StarSystemAPI system, float intensity, int treasureAmt, float density, float runtime, CircularArc arc, float width, long seed) {
+    public SpicySwarmSpawner(StarSystemAPI system, float intensity, int treasureAmt, float density, float runtime, CircularArc arc, float width, long seed) {
         super(system, arc, runtime, seed);
         this.intensity = intensity;
         this.width = width;
@@ -64,7 +65,7 @@ public class StandardSwarmSpawner extends BaseArcingSwarmSpawner {
         //ModPlugin.log("timePassed " + timePassed + "runtime " + runtime + " runtimeDist" + runTimeDist + " normalDistributionFactor " + normalDistributionFactor + " normalDistFactorOverTime " + normalDistFactorOverTime);
         //ModPlugin.log("Meteor Spawner Spawn Chance: " + chance + " rolled " + roll + " spawn " + (roll < chance));
 
-        float size = Math.max(5f, (MeteorEntity.MAX_SIZE * normalDistributionFactor * normalDistFactorOverTime * 0.5f) + 0.5f * random.nextFloat());
+        float size =  Math.max(5f,(MeteorEntity.MAX_SIZE * normalDistributionFactor * normalDistFactorOverTime * 0.5f) + 0.5f * random.nextFloat());
         float speed = (MeteorEntity.BASE_SPEED * 0.4f) + 0.6f * MeteorEntity.BASE_SPEED * random.nextFloat();
 
         //treasuroid
@@ -87,7 +88,7 @@ public class StandardSwarmSpawner extends BaseArcingSwarmSpawner {
         //Default
         if (roll < chance) {
             MeteorEntity.MeteorData data = new MeteorEntity.MeteorData(size, new ArcingMovementModule( arc.getModifiedRadiusArc(arc.radius + distFromLine), speed));
-            MeteorFactory.spawn(system, data, MeteorSwarmManager.MeteroidShowerType.ASTEROID);
+            MeteorFactory.spawn(system, data, MeteorSwarmManager.MeteroidShowerType.IRRADIOID);
         }
     }
 }

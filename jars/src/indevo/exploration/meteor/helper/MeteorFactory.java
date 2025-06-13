@@ -1,5 +1,12 @@
 package indevo.exploration.meteor.helper;
 
+import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.util.Misc;
+import indevo.exploration.meteor.MeteorSwarmManager;
+import indevo.exploration.meteor.entities.MeteorEntity;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,11 +19,29 @@ public class MeteorFactory {
         put(100f, "IndEvo_meteor_4");
     }};
 
-    public static String getMeteorForSize(float size) {
+    private static final Map<Float, String> IRRADIOID_SIZE_PATH_MAP = new HashMap<>(){{
+        put(0f, "IndEvo_spicy_rock_1");
+        put(30f, "IndEvo_spicy_rock_1");
+        put(60f, "IndEvo_spicy_rock_1");
+        put(100f, "IndEvo_spicy_rock_1");
+    }};
+
+
+    public static SectorEntityToken spawn(LocationAPI loc, MeteorEntity.MeteorData data, MeteorSwarmManager.MeteroidShowerType type){
+        return loc.addCustomEntity(Misc.genUID(), null, MeteorFactory.getMeteorForSize(data.size, type), Factions.NEUTRAL, data.size * 1.2f, data.size, data.size, data);
+    }
+
+    public static String getMeteorForSize(float size, MeteorSwarmManager.MeteroidShowerType type) {
         String selectedMeteor = null;
         float closestSize = -1f;
 
-        for (Map.Entry<Float, String> e : ASTEROID_SIZE_PATH_MAP.entrySet()) {
+        Map<Float, String> map = switch (type) {
+            case ASTEROID -> ASTEROID_SIZE_PATH_MAP;
+            case IRRADIOID -> IRRADIOID_SIZE_PATH_MAP;
+            default -> ASTEROID_SIZE_PATH_MAP;
+        };
+
+        for (Map.Entry<Float, String> e : map.entrySet()) {
             float entrySize = e.getKey();
             if (size >= entrySize && entrySize > closestSize) {
                 closestSize = entrySize;

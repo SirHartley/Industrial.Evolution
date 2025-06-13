@@ -39,6 +39,22 @@
 		"renderCircleIndicator":false, # make clickable,
 	},
 
+	"IndEvo_spicy_rock_1":{
+		"defaultName":"Small Irradiod",
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":true,
+		"icon":"graphics/icons/IndEvo_asteroid.png",
+		"iconWidth":0.1,
+		"iconHeight":0.1,
+		"scaleIconWithZoom":true,
+		"showNameOnMap":false,
+		"sprite":"graphics/asteroids/spicyrock_1.png",
+		"renderCircleIndicator":false, # make clickable,
+		"layers":[ASTEROIDS, TERRAIN_5], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.entities.SpicyRockEntity"
+	},
+
 	"IndEvo_meteor_1":{
 		"defaultName":"Small meteor",
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()

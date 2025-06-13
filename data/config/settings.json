@@ -356,6 +356,7 @@
           "invisibleHull": "graphics/fx/IndEvo_frame.png",
           "shield_texture": "graphics/planets/IndEvo_planetary_shield_invisible.png",
           "vignette_square": "graphics/overlay/indevo_overlay_mixed.png",
+          "vignette_shallow": "graphics/overlay/indevo_overlay_square_shallow.png",
           "galatia_proj": "graphics/icons/intel/galatia_new_proj.png",
           "gearwheel": "graphics/stations/gear_wheel_no_colour.png",
           "fx_flash":"graphics/fx/IndEvo_flash_new.png",

@@ -7,6 +7,7 @@ import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
+import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.renderers.MeteorDebrisRenderer;
 import indevo.exploration.meteor.helper.MeteorFactory;
 import indevo.exploration.meteor.scripts.MeteorImpact;
@@ -40,10 +41,6 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
             this.size = size;
             this.movement = movement;
         }
-    }
-
-    public static SectorEntityToken spawn(LocationAPI loc, MeteorData data){
-        return loc.addCustomEntity(Misc.genUID(), null, MeteorFactory.getMeteorForSize(data.size), Factions.NEUTRAL, data.size * 1.2f, data.size, data.size, data);
     }
 
     @Override
