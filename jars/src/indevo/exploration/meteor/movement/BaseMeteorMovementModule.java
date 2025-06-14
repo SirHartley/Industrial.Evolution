@@ -1,6 +1,7 @@
 package indevo.exploration.meteor.movement;
 
 import com.fs.starfarer.api.campaign.SectorEntityToken;
+import org.lwjgl.util.vector.Vector2f;
 
 /**
  * has to be initialized with init() before advance can be called

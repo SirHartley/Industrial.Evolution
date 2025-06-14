@@ -3,7 +3,7 @@ package indevo.exploration.meteor.spawners;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
-import indevo.exploration.meteor.renderers.MeteorSwarmWarningRenderer;
+import indevo.exploration.meteor.renderers.MeteorSwarmWarningPathRenderer;
 import indevo.exploration.meteor.renderers.WarningSignNotificationRenderer;
 import indevo.utils.helper.CircularArc;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
@@ -11,12 +11,13 @@ import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import java.util.Random;
 
 public abstract class BaseArcingSwarmSpawner implements EveryFrameScript {
-    private MeteorSwarmWarningRenderer warningRenderer = null;
+    private MeteorSwarmWarningPathRenderer warningRenderer = null;
 
     public final StarSystemAPI system;
     public final CircularArc arc;
     public final float runtime;
     public final Random random;
+    private boolean wasInitialized = false;
 
     public float timePassed = 0;
 
@@ -31,17 +32,21 @@ public abstract class BaseArcingSwarmSpawner implements EveryFrameScript {
     public void advance(float amount) {
         if (isDone()) return;
 
-        timePassed += amount;
-
-        if (warningRenderer == null) {
-            warningRenderer = new MeteorSwarmWarningRenderer(system, arc);
-            system.addScript(warningRenderer);
-            LunaCampaignRenderer.addRenderer(new WarningSignNotificationRenderer(arc, system));
-            Global.getSoundPlayer().playUISound("cr_allied_critical", 1, 1);
+        if (!wasInitialized) {
+            init();
+            wasInitialized = true;
         }
 
+        timePassed += amount;
         advanceSpawner(amount);
     }
+
+    public void init(){
+        warningRenderer = new MeteorSwarmWarningPathRenderer(system, arc);
+        system.addScript(warningRenderer);
+        LunaCampaignRenderer.addRenderer(new WarningSignNotificationRenderer(arc, system));
+        Global.getSoundPlayer().playUISound("cr_allied_critical", 1, 1);
+    };
 
     abstract void advanceSpawner(float amount);
 

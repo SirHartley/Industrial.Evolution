@@ -1,13 +1,12 @@
 package indevo.exploration.meteor.spawners;
 
-import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import indevo.exploration.meteor.MeteorSwarmManager;
-import indevo.exploration.meteor.helper.MeteorFactory;
-import indevo.exploration.meteor.movement.ArcingMovementModule;
 import indevo.exploration.meteor.entities.MeteorEntity;
 import indevo.exploration.meteor.entities.TreasuroidEntity;
+import indevo.exploration.meteor.helper.MeteorFactory;
+import indevo.exploration.meteor.movement.ArcingMovementModule;
 import indevo.utils.helper.CircularArc;
 import indevo.utils.helper.TrigHelper;
 
@@ -64,7 +63,7 @@ public class StandardSwarmSpawner extends BaseArcingSwarmSpawner {
         //ModPlugin.log("timePassed " + timePassed + "runtime " + runtime + " runtimeDist" + runTimeDist + " normalDistributionFactor " + normalDistributionFactor + " normalDistFactorOverTime " + normalDistFactorOverTime);
         //ModPlugin.log("Meteor Spawner Spawn Chance: " + chance + " rolled " + roll + " spawn " + (roll < chance));
 
-        float size = Math.max(5f, (MeteorEntity.MAX_SIZE * normalDistributionFactor * normalDistFactorOverTime * 0.5f) + 0.5f * random.nextFloat());
+        float size = Math.max(MeteorEntity.MIN_SIZE, (MeteorEntity.MAX_SIZE * normalDistributionFactor * normalDistFactorOverTime * 0.5f) + 0.5f * random.nextFloat());
         float speed = (MeteorEntity.BASE_SPEED * 0.4f) + 0.6f * MeteorEntity.BASE_SPEED * random.nextFloat();
 
         //treasuroid

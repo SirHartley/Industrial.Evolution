@@ -2,22 +2,14 @@ package indevo.exploration.meteor.entities;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
-import com.fs.starfarer.api.campaign.CustomEntitySpecAPI;
-import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.WarpingSpriteRendererUtil;
-import indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin;
-import indevo.exploration.meteor.helper.MeteorFactory;
-import indevo.exploration.meteor.renderers.SpicyTrailRenderer;
-import indevo.exploration.meteor.renderers.SpicyVignetteRenderer;
-import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
-import org.lwjgl.opengl.GL11;
+import indevo.exploration.meteor.renderers.RadiationEffectHandler;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -48,14 +40,11 @@ public class SpicyRockEntity extends MeteorEntity {
         flicker1.advance(amount);
         trailInterval.advance(amount);
 
-        if (false && trailInterval.intervalElapsed()){
-            LunaCampaignRenderer.addRenderer(new SpicyTrailRenderer(MAX_RUNTIME, size, 0.5f, entity.getContainingLocation(), entity.getLocation()));
-        }
+        //trails are too much
+        //if (trailInterval.intervalElapsed()) LunaCampaignRenderer.addRenderer(new RadiationTrailRenderer(MAX_RUNTIME, size, 0.5f, entity.getContainingLocation(), new Vector2f(entity.getLocation())));
 
         glowRadius = entity.getRadius() * 10;
-
-        if (Misc.getDistance(Global.getSector().getPlayerFleet().getLocation(), entity.getLocation()) < glowRadius)
-            SpicyVignetteRenderer.get().increaseActivity(amount);
+        for (CampaignFleetAPI fleet : Misc.getNearbyFleets(entity, glowRadius)) RadiationEffectHandler.get().increaseActivity(amount, fleet);
 
         //flicker the glow
         //spawn trailing glow patches for the trail lunarendered?
@@ -67,7 +56,7 @@ public class SpicyRockEntity extends MeteorEntity {
 
         if (layer != CampaignEngineLayers.TERRAIN_5) return;
 
-        float alphaMult = viewport.getAlphaMult() * (BASE_ALPHA * 0.7f + 0.3f * flicker1.getBrightness()) * BASE_ALPHA;
+        float alphaMult = viewport.getAlphaMult() * entity.getSensorFaderBrightness() * (BASE_ALPHA * 0.7f + 0.3f * flicker1.getBrightness()) * BASE_ALPHA;
         if (alphaMult <= 0) return;
 
         Vector2f loc = entity.getLocation();

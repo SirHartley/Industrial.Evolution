@@ -4,10 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import com.fs.starfarer.api.impl.campaign.procgen.AccretionDiskGenPlugin;
-import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
-import com.fs.starfarer.api.impl.campaign.procgen.TerrainGenDataSpec;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.entities.MeteorEntity;
@@ -15,12 +11,10 @@ import indevo.exploration.meteor.helper.MeteorFactory;
 import indevo.exploration.meteor.movement.ArcingMovementModule;
 import indevo.exploration.meteor.movement.ExternalOrbitMovement;
 import indevo.exploration.meteor.scripts.MovementModuleRunner;
-import indevo.utils.ModPlugin;
 import indevo.utils.helper.CircularArc;
 import indevo.utils.helper.MiscIE;
 
 import java.awt.*;
-import java.util.Collection;
 
 import static com.fs.starfarer.api.impl.campaign.enc.AbyssalRogueStellarObjectEPEC.PLANETOID_TYPES;
 
@@ -89,7 +83,7 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
                 float sizeFactor = leftSkewedDensity(factor);
 
                 //wow this is trash code
-                float roidSize =  Math.max(5f, (MeteorEntity.MAX_SIZE * sizeFactor * 0.3f) + 0.7f * random.nextFloat());
+                float roidSize =  Math.max(MeteorEntity.MIN_SIZE, (MeteorEntity.MAX_SIZE * sizeFactor * 0.3f) + 0.7f * random.nextFloat());
                 float roidSpeed = (MeteorEntity.BASE_SPEED * 0.5f * speedFactor) + 0.5f * MeteorEntity.BASE_SPEED * random.nextFloat();
 
                 float unitsPerDay = roidSpeed * Global.getSector().getClock().getSecondsPerDay();

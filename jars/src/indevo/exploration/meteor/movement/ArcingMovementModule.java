@@ -2,15 +2,15 @@ package indevo.exploration.meteor.movement;
 
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
-import indevo.exploration.meteor.renderers.MeteorSwarmWarningRenderer;
+import indevo.exploration.meteor.renderers.MeteorSwarmWarningPathRenderer;
 import indevo.utils.helper.CircularArc;
 import org.lwjgl.util.vector.Vector2f;
 
 public class ArcingMovementModule extends BaseMeteorMovementModule {
 
-    private final CircularArc arc;
+    protected final CircularArc arc;
     private final float velocity;
-    private float currentAngle;
+    protected float currentAngle;
 
     public ArcingMovementModule(CircularArc arc, float velocity) {
         this.arc = arc;
@@ -43,6 +43,21 @@ public class ArcingMovementModule extends BaseMeteorMovementModule {
     }
 
     public void reportPosition(){
-        MeteorSwarmWarningRenderer.reportAngle(entity.getContainingLocation(), currentAngle);
+        MeteorSwarmWarningPathRenderer.reportAngle(entity.getContainingLocation(), currentAngle);
+    }
+
+    @Override
+    public Vector2f getCurrentLoc() {
+        return arc.getPointForAngle(currentAngle);
+    }
+
+    @Override
+    public CircularArc getArc() {
+        return arc;
+    }
+
+    @Override
+    public float getVelocity() {
+        return velocity;
     }
 }

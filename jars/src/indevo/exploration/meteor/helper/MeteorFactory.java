@@ -21,11 +21,10 @@ public class MeteorFactory {
 
     private static final Map<Float, String> IRRADIOID_SIZE_PATH_MAP = new HashMap<>(){{
         put(0f, "IndEvo_spicy_rock_1");
-        put(30f, "IndEvo_spicy_rock_1");
-        put(60f, "IndEvo_spicy_rock_1");
-        put(100f, "IndEvo_spicy_rock_1");
+        put(30f, "IndEvo_spicy_rock_2");
+        put(60f, "IndEvo_spicy_rock_3");
+        put(100f, "IndEvo_spicy_rock_4");
     }};
-
 
     public static SectorEntityToken spawn(LocationAPI loc, MeteorEntity.MeteorData data, MeteorSwarmManager.MeteroidShowerType type){
         return loc.addCustomEntity(Misc.genUID(), null, MeteorFactory.getMeteorForSize(data.size, type), Factions.NEUTRAL, data.size * 1.2f, data.size, data.size, data);

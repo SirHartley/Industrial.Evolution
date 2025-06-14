@@ -1,19 +1,18 @@
 package indevo.exploration.meteor.scripts;
 
-import java.awt.Color;
-import java.util.Random;
-
-import com.fs.starfarer.api.campaign.SectorEntityToken;
-import com.fs.starfarer.api.impl.campaign.terrain.HyperspaceTerrainPlugin;
-import org.lwjgl.util.vector.Vector2f;
-
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.AsteroidAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.impl.campaign.terrain.HyperspaceTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import org.lwjgl.util.vector.Vector2f;
+
+import java.awt.*;
+import java.util.Random;
 
 public class MeteorImpact implements EveryFrameScript {
 
@@ -32,8 +31,8 @@ public class MeteorImpact implements EveryFrameScript {
         this.fleet = target;
         boolean isFleet = target instanceof CampaignFleetAPI;
 
-        Vector2f velocity = target.getVelocity(); // Fleet velocity
-        Vector2f meteorVel = meteor.getVelocity(); // Meteor velocity
+        Vector2f velocity = target.getVelocity();
+        Vector2f meteorVel = meteor.getVelocity();
 
         // Compute relative velocity (vector from meteor to target)
         Vector2f relativeVel = Vector2f.sub(meteorVel, velocity, null);
@@ -49,11 +48,12 @@ public class MeteorImpact implements EveryFrameScript {
                 angle = target.getFacing();
             }
         } else {
-            angle = Misc.getAngleInDegrees(target.getLocation(), meteor.getLocation());
+            angle = Misc.getAngleInDegrees(meteor.getLocation(), target.getLocation());
         }
 
         float mult = isFleet ? Misc.getFleetRadiusTerrainEffectMult((CampaignFleetAPI) target) : 0f;
         float arc = BASE_ARC - ARC_REDUCTION_FACTOR * mult;
+        if (relativeSpeed < 1f) relativeSpeed = 100f; //jank
 
         // If target is barely moving or immune to terrain, skip most calculations
         if (!isFleet || mult <= 0f) {

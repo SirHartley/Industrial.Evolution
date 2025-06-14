@@ -2,6 +2,11 @@
 	#
 	# terrain with gameplay effects
 	#
+
+	"IndEvo_radioactive_field":{
+		"plugin":"indevo.exploration.meteor.terrain.RadioactiveTerrain",
+	},
+
 	"IndEvo_mine_belt":{
 		"plugin":"indevo.exploration.minefields.MineBeltTerrainPlugin",
 		"loopOne":"terrain_asteroid_field",

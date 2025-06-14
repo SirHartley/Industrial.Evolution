@@ -12,8 +12,8 @@ import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class MeteorDebrisRenderer implements LunaCampaignRenderingPlugin {
 

@@ -11,7 +11,7 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.util.EnumSet;
 
-public class SpicyTrailRenderer implements LunaCampaignRenderingPlugin {
+public class RadiationTrailRenderer implements LunaCampaignRenderingPlugin {
 
     public final float runtime;
     public final float startSize;
@@ -25,7 +25,7 @@ public class SpicyTrailRenderer implements LunaCampaignRenderingPlugin {
     public float elapsed = 0f;
     transient protected SpriteAPI glow;
 
-    public SpicyTrailRenderer(float runtime, float size, float alpha, LocationAPI location, Vector2f pos) {
+    public RadiationTrailRenderer(float runtime, float size, float alpha, LocationAPI location, Vector2f pos) {
         this.runtime = runtime;
         this.startSize = size;
         this.startAlpha = alpha;

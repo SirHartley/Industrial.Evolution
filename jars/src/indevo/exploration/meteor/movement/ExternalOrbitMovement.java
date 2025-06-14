@@ -1,8 +1,9 @@
 package indevo.exploration.meteor.movement;
 
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import indevo.exploration.meteor.renderers.MeteorSwarmWarningRenderer;
+import indevo.exploration.meteor.renderers.MeteorSwarmWarningPathRenderer;
 import indevo.utils.helper.CircularArc;
+import org.lwjgl.util.vector.Vector2f;
 
 public class ExternalOrbitMovement extends BaseMeteorMovementModule{
     private final CircularArc arc;
@@ -25,7 +26,22 @@ public class ExternalOrbitMovement extends BaseMeteorMovementModule{
     }
 
     public void reportPosition(){
-        MeteorSwarmWarningRenderer.reportAngle(entity.getContainingLocation(), currentAngle);
+        MeteorSwarmWarningPathRenderer.reportAngle(entity.getContainingLocation(), currentAngle);
     }
 
+    @Override
+    public Vector2f getCurrentLoc() {
+        if (entity != null) return entity.getLocation();
+        else return arc.getPointForAngle(currentAngle);
+    }
+
+    @Override
+    public CircularArc getArc() {
+        return arc;
+    }
+
+    @Override
+    public float getVelocity() {
+        return 0f;
+    }
 }

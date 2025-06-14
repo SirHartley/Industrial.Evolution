@@ -17,7 +17,7 @@ import java.util.List;
  * kept in memory, last one added will supersede old one - can only have one swarm per system pending refactor
  */
 
-public class MeteorSwarmWarningRenderer implements EveryFrameScript {
+public class MeteorSwarmWarningPathRenderer implements EveryFrameScript {
 
     public static final String WARNING_SIGN_ENTITY_ID = "IndEvo_warning_sign";
     public static final String MEM_INSTANCE = "$IndEvo_warningRenderer";
@@ -35,7 +35,7 @@ public class MeteorSwarmWarningRenderer implements EveryFrameScript {
     public List<SectorEntityToken> warningSigns = new ArrayList<>();
     public List<Float> angles = new ArrayList<>();
 
-    public MeteorSwarmWarningRenderer(LocationAPI location, CircularArc arc) {
+    public MeteorSwarmWarningPathRenderer(LocationAPI location, CircularArc arc) {
         this.location = location;
         this.arc = arc;
 
@@ -53,7 +53,7 @@ public class MeteorSwarmWarningRenderer implements EveryFrameScript {
     }
 
     public static void reportAngle(LocationAPI loc, float angle) {
-        MeteorSwarmWarningRenderer renderer = (MeteorSwarmWarningRenderer) loc.getMemoryWithoutUpdate().get(MEM_INSTANCE);
+        MeteorSwarmWarningPathRenderer renderer = (MeteorSwarmWarningPathRenderer) loc.getMemoryWithoutUpdate().get(MEM_INSTANCE);
         if (renderer != null) renderer.addAngle(angle);
     }
 

@@ -4,14 +4,11 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
-import indevo.exploration.meteor.MeteorSwarmManager;
-import indevo.exploration.meteor.renderers.MeteorDebrisRenderer;
-import indevo.exploration.meteor.helper.MeteorFactory;
-import indevo.exploration.meteor.scripts.MeteorImpact;
 import indevo.exploration.meteor.movement.MeteorMovementModuleAPI;
+import indevo.exploration.meteor.renderers.MeteorDebrisRenderer;
+import indevo.exploration.meteor.scripts.MeteorImpact;
 import indevo.items.consumables.fleet.MissileMemFlags;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import org.lwjgl.util.vector.Vector2f;
@@ -20,9 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MeteorEntity extends BaseCustomEntityPlugin {
-    public static final float MAX_ROTATION_PER_SEC = 4f;
-    public static final float MAX_SIZE = 300f;
-    public static final float BASE_SPEED = 700f;
+    public static final float MAX_ROTATION_PER_SEC = 7f;
+    public static final float MAX_SIZE = 200f;
+    public static final float MIN_SIZE = 15f;
+    public static final float BASE_SPEED = 600f;
 
     public float size, angle, angleRotation;
     public boolean colliding = false;
@@ -41,6 +39,10 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
             this.size = size;
             this.movement = movement;
         }
+    }
+
+    public void setMovement(MeteorMovementModuleAPI movement) {
+        this.movement = movement;
     }
 
     @Override
@@ -65,11 +67,12 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
         movement.advance(amount);
 
         if (!colliding && !entity.hasTag(Tags.FADING_OUT_AND_EXPIRING)) {
+
             if (entity.getMemoryWithoutUpdate().contains(MissileMemFlags.MEM_CAUGHT_BY_MISSILE)){
                 Vector2f missileLoc = entity.getMemoryWithoutUpdate().getVector2f(MissileMemFlags.MEM_CAUGHT_BY_MISSILE);
                 Vector2f asteroidLoc = entity.getLocation();
 
-                SectorEntityToken t = entity.getContainingLocation().addCustomEntity(Misc.genUID(), null, "SplinterFleet_OrbitFocus", null);
+                SectorEntityToken t = entity.getContainingLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_token", null);
                 t.setLocation(missileLoc.x, missileLoc.y);
                 t.setFacing(Misc.getAngleInDegrees(missileLoc, asteroidLoc));
 
@@ -83,13 +86,12 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
             if (Global.getSector().getViewport().isNearViewport(entity.getLocation(), 1000f)){
                 LocationAPI loc = entity.getContainingLocation();
                 List<SectorEntityToken> collisionRelevantEntities = new ArrayList<>();
-                collisionRelevantEntities.addAll(loc.getEntitiesWithTag(Tags.SALVAGEABLE));
                 collisionRelevantEntities.addAll(loc.getEntitiesWithTag(Tags.STATION));
                 collisionRelevantEntities.addAll(loc.getFleets());
-                collisionRelevantEntities.removeAll(loc.getEntitiesWithTag(Tags.DEBRIS_FIELD));
+                collisionRelevantEntities.removeAll(loc.getEntitiesWithTag(Tags.SALVAGEABLE));
 
                 for (SectorEntityToken t : collisionRelevantEntities) {
-                    if (Misc.getDistance(t.getLocation(), entity.getLocation()) < size) {
+                    if (isInCollisionRange(t)) {
                         setCollidingAndFade(t);
                     }
                 }
@@ -99,6 +101,9 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
         if (movement.isMovementFinished()) Misc.fadeAndExpire(entity, 1f);
     }
 
+    public boolean isInCollisionRange(SectorEntityToken t){
+        return Misc.getDistance(t.getLocation(), entity.getLocation()) < size;
+    }
 
     public void setCollidingAndFade(SectorEntityToken t){
         colliding = true;

@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global
 import com.fs.starfarer.api.campaign.CampaignEngineLayers
 import com.fs.starfarer.api.combat.ViewportAPI
 import indevo.exploration.meteor.entities.SpicyRockEntity
-import indevo.utils.ModPlugin
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer
 import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin
 import org.dark.shaders.util.ShaderLib
@@ -14,14 +13,14 @@ import org.lwjgl.opengl.GL13
 import org.lwjgl.opengl.GL20
 import java.util.*
 
-class SpicyVFXHandler : LunaCampaignRenderingPlugin {
+class RadiationVFXHandler : LunaCampaignRenderingPlugin {
     companion object {
 
         @JvmStatic
-        private fun getInstance() : SpicyVFXHandler {
-            var renderer = LunaCampaignRenderer.getRendererOfClass(SpicyVFXHandler::class.java) as SpicyVFXHandler?
+        private fun getInstance() : RadiationVFXHandler {
+            var renderer = LunaCampaignRenderer.getRendererOfClass(RadiationVFXHandler::class.java) as RadiationVFXHandler?
             if (renderer == null) {
-                renderer = SpicyVFXHandler()
+                renderer = RadiationVFXHandler()
                 LunaCampaignRenderer.addRenderer(renderer)
             }
             return renderer

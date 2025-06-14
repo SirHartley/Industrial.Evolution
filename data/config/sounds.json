@@ -15,6 +15,37 @@
 		{"file":"IndEvo/sounds/converter_hostile_interaction.ogg","pitch":1,"volume":1},
 	],
 
+    "IndEvo_radiation0":[
+      {"file":"IndEvo/sounds/radioactive2.ogg","pitch":1,"volume":1},
+    ],
+    "IndEvo_radiation1":[
+      {"file":"IndEvo/sounds/radioactive2.ogg","pitch":1,"volume":1},
+    ],
+    "IndEvo_radiation2":[
+      {"file":"IndEvo/sounds/radioactive2.ogg","pitch":1,"volume":1},
+    ],
+    "IndEvo_radiation3":[
+      {"file":"IndEvo/sounds/radioactive2.ogg","pitch":1,"volume":1},
+    ],
+    "IndEvo_radiation4":[
+      {"file":"IndEvo/sounds/radioactive2.ogg","pitch":1,"volume":1},
+    ],
+    "IndEvo_radiation5":[
+      {"file":"IndEvo/sounds/radioactive2.ogg","pitch":1,"volume":1},
+    ],
+    "IndEvo_radiation6":[
+      {"file":"IndEvo/sounds/radioactive2.ogg","pitch":1,"volume":1},
+    ],
+    "IndEvo_radiation7":[
+      {"file":"IndEvo/sounds/radioactive2.ogg","pitch":1,"volume":1},
+    ],
+    "IndEvo_radiation8":[
+      {"file":"IndEvo/sounds/radioactive2.ogg","pitch":1,"volume":1},
+    ],
+    "IndEvo_radiation9":[
+      {"file":"IndEvo/sounds/radioactive2.ogg","pitch":1,"volume":1},
+    ],
+
     "IndEvo_succ":[
       {"file":"IndEvo/sounds/IndEvo_succ.ogg","pitch":1,"volume":1},
     ],
