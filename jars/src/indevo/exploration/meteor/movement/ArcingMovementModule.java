@@ -8,8 +8,8 @@ import org.lwjgl.util.vector.Vector2f;
 
 public class ArcingMovementModule extends BaseMeteorMovementModule {
 
-    protected final CircularArc arc;
-    private final float velocity;
+    protected CircularArc arc;
+    protected final float velocity;
     protected float currentAngle;
 
     public ArcingMovementModule(CircularArc arc, float velocity) {
@@ -20,7 +20,13 @@ public class ArcingMovementModule extends BaseMeteorMovementModule {
 
     @Override
     public boolean isMovementFinished() {
-        return arc.getTraversalProgress(currentAngle) >= 1f && !entity.hasTag(Tags.FADING_OUT_AND_EXPIRING);
+        return arc.getTraversalProgress(entity.getLocation()) >= 1f && !entity.hasTag(Tags.FADING_OUT_AND_EXPIRING);
+    }
+
+    public ArcingMovementModule(CircularArc arc, float velocity, float startAngle) {
+        this.arc = arc;
+        this.velocity = velocity;
+        currentAngle = startAngle;
     }
 
     @Override

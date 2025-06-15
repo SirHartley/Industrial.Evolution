@@ -8,6 +8,10 @@ import org.lwjgl.util.vector.Vector2f;
 
 public class TrigHelper {
 
+    public static float randomWithinArc(float arc) {
+        return (float) Math.random() * arc - arc / 2f;
+    }
+
     public static Vector2f findClosestCircleIntersectToPoint(Vector2f center0, double r0,
                                                              Vector2f center1, double r1,
                                                              Vector2f targetPoint) {

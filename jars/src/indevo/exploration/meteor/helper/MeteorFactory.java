@@ -10,6 +10,10 @@ import indevo.exploration.meteor.entities.MeteorEntity;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * this is abysmal dogshit
+ */
+
 public class MeteorFactory {
 
     private static final Map<Float, String> ASTEROID_SIZE_PATH_MAP = new HashMap<>(){{

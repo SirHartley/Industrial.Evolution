@@ -9,6 +9,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.terrain.HyperspaceTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.utils.helper.TrigHelper;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -23,7 +24,7 @@ public class MeteorImpact implements EveryFrameScript {
 
     private static final float RADIUS_PER_ASTERIOD = 20f;
 
-    private SectorEntityToken fleet;
+    protected SectorEntityToken fleet;
     private Vector2f dV;
     private float elapsed = 0f;
 
@@ -71,7 +72,7 @@ public class MeteorImpact implements EveryFrameScript {
             float[] asteroidSizes = splitRadiusRandom(numAsteroids, meteor.getRadius());
 
             for (int i = 0; i < numAsteroids; i++) {
-                float spawnAngle = angle + randomWithinArc(arc);
+                float spawnAngle = angle + TrigHelper.randomWithinArc(arc);
 
                 float size = asteroidSizes[i];
                 float sizeFraction = size / meteor.getRadius();
@@ -103,9 +104,6 @@ public class MeteorImpact implements EveryFrameScript {
         return radii;
     }
 
-    private float randomWithinArc(float arc) {
-        return (float) Math.random() * arc - arc / 2f;
-    }
 
     private void applyDamage() {
         CampaignFleetAPI fleet = (CampaignFleetAPI) this.fleet;
@@ -149,7 +147,7 @@ public class MeteorImpact implements EveryFrameScript {
         Global.getSoundPlayer().playSound(soundId, 1f, volumeMult, fleet.getLocation(), Misc.ZERO);
     }
 
-    private void spawnAsteroid(float angle, float mult, float relativeSpeed, float size) {
+    public void spawnAsteroid(float angle, float mult, float relativeSpeed, float size) {
         AsteroidAPI asteroid = fleet.getContainingLocation().addAsteroid(size);
         asteroid.setFacing((float) Math.random() * 360f);
 

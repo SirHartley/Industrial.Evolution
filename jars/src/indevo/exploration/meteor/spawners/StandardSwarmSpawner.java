@@ -37,12 +37,14 @@ public class StandardSwarmSpawner extends BaseArcingSwarmSpawner {
 
     private int treasureSpawned = 0;
     private IntervalUtil treasureInterval;
+    private int treasureAmt;
 
     public StandardSwarmSpawner(StarSystemAPI system, float intensity, int treasureAmt, float density, float runtime, CircularArc arc, float width, long seed) {
         super(system, arc, runtime, seed);
         this.intensity = intensity;
         this.width = width;
         this.density = density;
+        this.treasureAmt = treasureAmt;
         this.treasureInterval = new IntervalUtil((runtime * 0.2f) / treasureAmt, (runtime * 0.5f) / treasureAmt);
     }
 
@@ -68,7 +70,7 @@ public class StandardSwarmSpawner extends BaseArcingSwarmSpawner {
 
         //treasuroid
         if (timePassed / runtime >= MIN_TREASURE_SPAWN_FRACT && timePassed / runtime <= MAX_TREASURE_SPAWN_FRACT){
-            int treasureAmt = Math.max(1, Math.round(intensity));
+            int treasureAmt = Math.max(1, this.treasureAmt);
 
             if (treasureSpawned < treasureAmt){
                 treasureInterval.advance(amount);

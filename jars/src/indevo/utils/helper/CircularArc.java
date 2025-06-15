@@ -41,6 +41,22 @@ public class CircularArc extends Circle{
         }
     }
 
+
+    public float getTraversalProgress(Vector2f loc) {
+        float angle = getAngleForPoint(loc);
+        angle = Misc.normalizeAngle(angle);
+        float totalArc = getArcLength();
+
+        float traveled;
+        if (getAngleTravelDir() == 1) {
+            traveled = Misc.normalizeAngle(angle - startAngle);
+        } else {
+            traveled = Misc.normalizeAngle(startAngle - angle);
+        }
+
+        return Math.min(traveled / totalArc, 1f);
+    }
+
     public float getTraversalProgress(float angle) {
         angle = Misc.normalizeAngle(angle);
         float totalArc = getArcLength();

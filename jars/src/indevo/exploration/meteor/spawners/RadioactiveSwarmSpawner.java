@@ -47,6 +47,7 @@ public class RadioactiveSwarmSpawner extends BaseArcingSwarmSpawner {
 
     private int treasureSpawned = 0;
     private IntervalUtil treasureInterval;
+    private int treasureAmt;
 
     public List<Circle> blockedSpawnCircles = new ArrayList<>();
 
@@ -55,6 +56,7 @@ public class RadioactiveSwarmSpawner extends BaseArcingSwarmSpawner {
         this.intensity = intensity;
         this.width = width;
         this.density = density;
+        this.treasureAmt = treasureAmt;
         this.treasureInterval = new IntervalUtil((runtime * 0.2f) / treasureAmt, (runtime * 0.5f) / treasureAmt);
     }
 
@@ -89,7 +91,7 @@ public class RadioactiveSwarmSpawner extends BaseArcingSwarmSpawner {
 
         //treasuroid
         if (timePassed / runtime >= MIN_TREASURE_SPAWN_FRACT && timePassed / runtime <= MAX_TREASURE_SPAWN_FRACT){
-            int treasureAmt = Math.max(1, Math.round(intensity));
+            int treasureAmt = Math.max(1, this.treasureAmt);
 
             if (treasureSpawned < treasureAmt){
                 treasureInterval.advance(amount);
@@ -102,7 +104,7 @@ public class RadioactiveSwarmSpawner extends BaseArcingSwarmSpawner {
                     //get any roids that swarmed before, lobotomize the arc and make em orbit the treasureoid
                     Circle effectCircle = new Circle(meteor.getLocation(), TreasuradoidEntity.ENTOURAGE_ORBIT_RADIUS);
 
-                    //causes large empty swathes in front
+                    //causes large empty swathes in front, is shit
                     /*for (SectorEntityToken t : system.getEntitiesWithTag(MeteorSwarmManager.METEOR_TAG)) if (MathUtils.isPointWithinCircle(t.getLocation(), effectCircle.center, effectCircle.radius)){
                         if (t == meteor) continue;
 

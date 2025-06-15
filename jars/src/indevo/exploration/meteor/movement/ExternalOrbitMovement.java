@@ -16,7 +16,7 @@ public class ExternalOrbitMovement extends BaseMeteorMovementModule{
 
     @Override
     public boolean isMovementFinished() {
-        return arc.getTraversalProgress(currentAngle) >= 1f && !entity.hasTag(Tags.FADING_OUT_AND_EXPIRING);
+        return arc.getTraversalProgress(entity.getLocation()) >= 1f && !entity.hasTag(Tags.FADING_OUT_AND_EXPIRING);
     }
 
     @Override

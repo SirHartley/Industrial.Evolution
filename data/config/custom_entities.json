@@ -314,20 +314,20 @@
 	},
 
 	"IndEvo_meteor_treasure_2":{
-		"defaultName":"Large Treasuroid",
+		"defaultName":"Frozen Wreck",
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()
 		"showInCampaign":true, # show in campaign layer,
 		"icon":"graphics/icons/IndEvo_asteroid.png",
-		"iconWidth":0.5,
-		"iconHeight":0.5,
+		"iconWidth":0.2,
+		"iconHeight":0.2,
 		"scaleIconWithZoom":true,
 		"showIconOnMap":true,
 		"showNameOnMap":false,
-		"sprite":"graphics/asteroids/treasuroid_large.png",
+		"sprite":"graphics/asteroids/IndEvo_ice_5.png",
 		"renderCircleIndicator":false, # make clickable,
 		"tags":["IndEvo_MeteorSwarm"],
-		"layers":[ASTEROIDS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.exploration.meteor.entities.TreasuroidEntity"
+		"layers":[TERRAIN_8], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.entities.IceTreasureoidEntity"
 	},
 
 	"IndEvo_warning_beacon":{
