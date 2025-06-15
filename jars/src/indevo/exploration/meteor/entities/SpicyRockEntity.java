@@ -19,8 +19,9 @@ public class SpicyRockEntity extends MeteorEntity {
     public static Color GLOW_COLOR_1 = new Color(60,255,20,255);
     public static Color GLOW_COLOR_2 = new Color(155,180,50,255);
     public static final float BASE_ALPHA = 0.3f;
-    public static final float MAX_RUNTIME = 5f;
     public static final float GLOW_SIZE_MULT = 20f;
+
+    public static final float RADIATION_INCREASE_PER_SEC = 0.1f;
 
     protected FlickerUtilV2 flicker1 = new FlickerUtilV2(10f);
     protected IntervalUtil trailInterval = new IntervalUtil(0.5f, 3f);
@@ -44,7 +45,7 @@ public class SpicyRockEntity extends MeteorEntity {
         //if (trailInterval.intervalElapsed()) LunaCampaignRenderer.addRenderer(new RadiationTrailRenderer(MAX_RUNTIME, size, 0.5f, entity.getContainingLocation(), new Vector2f(entity.getLocation())));
 
         glowRadius = entity.getRadius() * 10;
-        for (CampaignFleetAPI fleet : Misc.getNearbyFleets(entity, glowRadius)) RadiationEffectHandler.get().increaseActivity(amount, fleet);
+        for (CampaignFleetAPI fleet : Misc.getNearbyFleets(entity, glowRadius)) RadiationEffectHandler.get().increaseActivity(RADIATION_INCREASE_PER_SEC * amount, fleet);
 
         //flicker the glow
         //spawn trailing glow patches for the trail lunarendered?

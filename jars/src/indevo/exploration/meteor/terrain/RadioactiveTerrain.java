@@ -31,7 +31,7 @@ public class RadioactiveTerrain extends StarCoronaTerrainPlugin {
 
     @Override
     public boolean containsEntity(SectorEntityToken other) {
-        return other.isPlayerFleet() && getEffectForFleet(other) > 0;
+        return getEffectForFleet(other) > 0;
     }
 
     @Override
@@ -42,6 +42,11 @@ public class RadioactiveTerrain extends StarCoronaTerrainPlugin {
     @Override
     public Color getNameColor() {
         return Misc.interpolateColor(SpicyRockEntity.GLOW_COLOR_1, SpicyRockEntity.GLOW_COLOR_2, Global.getSector().getCampaignUI().getSharedFader().getBrightness());
+    }
+
+    @Override
+    public String getNameForTooltip() {
+        return "Extreme Radioactivity";
     }
 
     @Override

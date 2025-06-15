@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.OrbitAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.*;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.helper.MeteorFactory;
@@ -58,6 +59,9 @@ public class TreasuradoidEntity extends SpicyRockEntity{
 
             addHitGlow(entity.getContainingLocation(), loc, new Vector2f(0,0), 20f, dur, SpicyRockEntity.GLOW_COLOR_1);
         }
+
+        //remove loot station at end of arc
+        if (entity.hasTag(Tags.FADING_OUT_AND_EXPIRING) && !colliding) Misc.fadeAndExpire(entity.getContainingLocation().getEntityById(entity.getId() + "_loot"), 0f);
     }
 
     @Override

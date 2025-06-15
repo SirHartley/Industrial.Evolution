@@ -39,6 +39,110 @@
 		"renderCircleIndicator":false, # make clickable,
 	},
 
+
+	"IndEvo_icy_rock_1":{
+		"defaultName":"Small Iceroid",
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":true,
+		"icon":"graphics/icons/IndEvo_asteroid.png",
+		"iconWidth":0.2,
+		"iconHeight":0.2,
+		"scaleIconWithZoom":true,
+		"showNameOnMap":false,
+		"sprite":"graphics/asteroids/IndEvo_ice_1.png",
+		"renderCircleIndicator":false, # make clickable,
+		"tags":["IndEvo_MeteorSwarm"],
+		"layers":[ASTEROIDS, TERRAIN_5], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.entities.IcyRockEntity"
+	},
+
+	"IndEvo_icy_rock_2":{
+		"defaultName":"Minor Iceroid",
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":true,
+		"icon":"graphics/icons/IndEvo_asteroid.png",
+		"iconWidth":0.25,
+		"iconHeight":0.25,
+		"scaleIconWithZoom":true,
+		"showNameOnMap":false,
+		"sprite":"graphics/asteroids/IndEvo_ice_2.png",
+		"renderCircleIndicator":false, # make clickable,
+		"tags":["IndEvo_MeteorSwarm"],
+		"layers":[ASTEROIDS, TERRAIN_5], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.entities.IcyRockEntity"
+	},
+
+	"IndEvo_icy_rock_3":{
+		"defaultName":"Medium Iceroid",
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":true,
+		"icon":"graphics/icons/IndEvo_asteroid.png",
+		"iconWidth":0.3,
+		"iconHeight":0.3,
+		"scaleIconWithZoom":true,
+		"showNameOnMap":false,
+		"sprite":"graphics/asteroids/IndEvo_ice_3.png",
+		"renderCircleIndicator":false, # make clickable,
+		"tags":["IndEvo_MeteorSwarm"],
+		"layers":[ASTEROIDS, TERRAIN_5], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.entities.IcyRockEntity"
+	},
+
+	"IndEvo_icy_rock_4":{
+		"defaultName":"Large Iceroid",
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":true,
+		"icon":"graphics/icons/IndEvo_asteroid.png",
+		"iconWidth":0.4,
+		"iconHeight":0.4,
+		"scaleIconWithZoom":true,
+		"showNameOnMap":false,
+		"sprite":"graphics/asteroids/IndEvo_ice_4.png",
+		"renderCircleIndicator":false, # make clickable,
+		"tags":["IndEvo_MeteorSwarm"],
+		"layers":[ASTEROIDS, TERRAIN_5], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.entities.IcyRockEntity"
+	},
+
+	"IndEvo_icy_rock_5":{
+		"defaultName":"Huge Iceroid",
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":true,
+		"icon":"graphics/icons/IndEvo_asteroid.png",
+		"iconWidth":0.4,
+		"iconHeight":0.4,
+		"scaleIconWithZoom":true,
+		"showNameOnMap":false,
+		"sprite":"graphics/asteroids/IndEvo_ice_5.png",
+		"renderCircleIndicator":false, # make clickable,
+		"tags":["IndEvo_MeteorSwarm"],
+		"layers":[ASTEROIDS, TERRAIN_5], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.entities.IcyRockEntity"
+	},
+
+
+	"IndEvo_icy_rock_6":{
+		"defaultName":"Massive Iceroid",
+		"defaultRadius":10, # used if radius<0 in addCustomEntity()
+		"showInCampaign":true, # show in campaign layer
+		"showIconOnMap":true,
+		"icon":"graphics/icons/IndEvo_asteroid.png",
+		"iconWidth":0.4,
+		"iconHeight":0.4,
+		"scaleIconWithZoom":true,
+		"showNameOnMap":false,
+		"sprite":"graphics/asteroids/IndEvo_ice_6.png",
+		"renderCircleIndicator":false, # make clickable,
+		"tags":["IndEvo_MeteorSwarm"],
+		"layers":[ASTEROIDS, TERRAIN_5], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"pluginClass":"indevo.exploration.meteor.entities.IcyRockEntity"
+	},
+
 	"IndEvo_spicy_rock_1":{
 		"defaultName":"Small Irradoid",
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()
@@ -113,8 +217,8 @@
 		"showInCampaign":true, # show in campaign layer
 		"showIconOnMap":true,
 		"icon":"graphics/icons/IndEvo_asteroid.png",
-		"iconWidth":0.5,
-		"iconHeight":0.5,
+		"iconWidth":0.4,
+		"iconHeight":0.4,
 		"scaleIconWithZoom":true,
 		"showNameOnMap":false,
 		"sprite":"graphics/asteroids/IndEvo_irradoid_5b.png",
@@ -125,7 +229,7 @@
 	},
 
 	"IndEvo_meteor_1":{
-		"defaultName":"Small meteor",
+		"defaultName":"Small Meteor",
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()
 		"showInCampaign":true, # show in campaign layer
 		"showIconOnMap":true,
@@ -142,7 +246,7 @@
 	},
 
 	"IndEvo_meteor_2":{
-		"defaultName":"Minor meteor",
+		"defaultName":"Minor Meteor",
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()
 		"showInCampaign":true, # show in campaign layer
 		"showIconOnMap":true,
@@ -159,7 +263,7 @@
 	},
 
 	"IndEvo_meteor_3":{
-		"defaultName":"Medium meteor",
+		"defaultName":"Medium Meteor",
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()
 		"showInCampaign":true, # show in campaign layer,
 		"icon":"graphics/icons/IndEvo_asteroid.png",
@@ -176,7 +280,7 @@
 	},
 
 	"IndEvo_meteor_4":{
-		"defaultName":"Large meteor",
+		"defaultName":"Large Meteor",
 		"defaultRadius":10, # used if radius<0 in addCustomEntity()
 		"showInCampaign":true, # show in campaign layer,
 		"icon":"graphics/icons/IndEvo_asteroid.png",

@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.exploration.meteor.spawners.IceSwarmSpawner;
 import indevo.exploration.meteor.spawners.PlanetoidSwarmSpawner;
 import indevo.exploration.meteor.spawners.RadioactiveSwarmSpawner;
 import indevo.exploration.meteor.spawners.StandardSwarmSpawner;
@@ -71,10 +72,9 @@ public class MeteorSwarmManager implements EconomyTickListener {
 
     public enum MeteroidShowerType {
         ASTEROID(0, 1f),
-        MAGMAROID(0, 1f),
-        ICEROID(0, 1f),
-        IRRADIOID(1, 0.3f),
-        METHEROID(0, 1f),
+        ICEROID(1, 1f),
+        IRRADIOID(0, 0.3f),
+        //METHEROID(0, 1f),
         PLANETOID(0, 1f);
 
         /*
@@ -152,10 +152,9 @@ public class MeteorSwarmManager implements EconomyTickListener {
 
             switch (type){
                 case ASTEROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
-                case MAGMAROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
-                case ICEROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
+                case ICEROID -> loc.addScript(new IceSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
                 case IRRADIOID -> loc.addScript(new RadioactiveSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
-                case METHEROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
+                //case METHEROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
                 case PLANETOID -> loc.addScript(new PlanetoidSwarmSpawner((StarSystemAPI) loc, arc, runtime, random.nextLong(), density, lootAmt));
             }
 

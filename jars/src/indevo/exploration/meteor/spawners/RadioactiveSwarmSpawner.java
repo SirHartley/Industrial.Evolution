@@ -61,7 +61,10 @@ public class RadioactiveSwarmSpawner extends BaseArcingSwarmSpawner {
     @Override
     public void init() {
         super.init();
-        system.addTerrain("IndEvo_radioactive_field", new StarCoronaTerrainPlugin.CoronaParams(50000, 0, system.getCenter(), 0f, 0f, 1f));
+        StarCoronaTerrainPlugin.CoronaParams params = new StarCoronaTerrainPlugin.CoronaParams(50000, 0, system.getCenter(), 0f, 0f, 1f);
+        params.name = "Extreme Radioactivity";
+
+        system.addTerrain("IndEvo_radioactive_field", params);
     }
 
     @Override

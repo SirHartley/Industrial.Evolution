@@ -16,14 +16,23 @@ public class MeteorFactory {
         put(0f, "IndEvo_meteor_1");
         put(30f, "IndEvo_meteor_2");
         put(60f, "IndEvo_meteor_3");
-        put(100f, "IndEvo_meteor_4");
+        put(80f, "IndEvo_meteor_4");
     }};
 
     private static final Map<Float, String> IRRADIOID_SIZE_PATH_MAP = new HashMap<>(){{
         put(0f, "IndEvo_spicy_rock_1");
         put(30f, "IndEvo_spicy_rock_2");
         put(60f, "IndEvo_spicy_rock_3");
-        put(100f, "IndEvo_spicy_rock_4");
+        put(80f, "IndEvo_spicy_rock_4");
+    }};
+
+    private static final Map<Float, String> ICY_SIZE_PATH_MAP = new HashMap<>(){{
+        put(0f, "IndEvo_icy_rock_1");
+        put(35f, "IndEvo_icy_rock_2");
+        put(60f, "IndEvo_icy_rock_3");
+        put(90f, "IndEvo_icy_rock_4");
+        put(120f, "IndEvo_icy_rock_5");
+        put(150f, "IndEvo_icy_rock_6");
     }};
 
     public static SectorEntityToken spawn(LocationAPI loc, MeteorEntity.MeteorData data, MeteorSwarmManager.MeteroidShowerType type){
@@ -37,6 +46,7 @@ public class MeteorFactory {
         Map<Float, String> map = switch (type) {
             case ASTEROID -> ASTEROID_SIZE_PATH_MAP;
             case IRRADIOID -> IRRADIOID_SIZE_PATH_MAP;
+            case ICEROID -> ICY_SIZE_PATH_MAP;
             default -> ASTEROID_SIZE_PATH_MAP;
         };
 
