@@ -72,7 +72,7 @@ public class IceSwarmSpawner extends BaseArcingSwarmSpawner{
                 treasureInterval.advance(amount);
 
                 if (treasureInterval.intervalElapsed()){
-                    MeteorEntity.MeteorData data = new MeteorEntity.MeteorData(MathUtils.getRandomNumberInRange(MeteorEntity.MAX_SIZE, MeteorEntity.MAX_SIZE * 0.8f), new ArcingMovementModule(arc.getModifiedRadiusArc(arc.radius + distFromLine), speed));
+                    MeteorEntity.MeteorData data = new MeteorEntity.MeteorData(MathUtils.getRandomNumberInRange(MeteorEntity.MAX_SIZE, MeteorEntity.MAX_SIZE * 1.6f), new ArcingMovementModule(arc.getModifiedRadiusArc(arc.radius + distFromLine), speed));
                     ModPlugin.log("spawning ice treasuroid size " + data.size);
 
                     IceTreasureoidEntity.spawn(system, data, random);

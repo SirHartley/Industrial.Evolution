@@ -11,6 +11,7 @@ import indevo.exploration.meteor.helper.MeteorFactory;
 import indevo.exploration.meteor.movement.ArcingMovementModule;
 import indevo.exploration.meteor.movement.ExternalOrbitMovement;
 import indevo.exploration.meteor.scripts.MovementModuleRunner;
+import indevo.exploration.meteor.terrain.RadioactiveTerrain;
 import indevo.utils.helper.CircularArc;
 import indevo.utils.helper.MiscIE;
 
@@ -22,11 +23,14 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
 
     public static final float PLANETOID_MIN_SIZE = 100f;
     public static final float PLANETOID_MAX_SIZE = 200f;
-    public static final float PLANETAR_BASE_SPEED = 400f;
+    public static final float PLANETAR_BASE_SPEED = 300f;
 
     public static final float INNER_RADIUS = 600f;
     public static final float BASE_METEOR_FIELD_WIDTH = 6000f;
-    public static final float MAGIC_METEOR_NUMBER = 0.00015f;
+    public static final float ASTEROIDS_PER_ANGLE = 1.5f;
+
+    public static final float MAX_IRRADOID_CHANCE = 0.5f;
+    public static final float MIN_DENSITY_FOR_RADOID_SPAWN = 1.5f;
 
     public float density;
     public float lootAmt;
@@ -39,6 +43,12 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
 
         this.density = density;
         this.lootAmt = lootAmt;
+    }
+
+    @Override
+    public void init() {
+        super.init();
+        RadioactiveTerrain.addToSystem(system);
     }
 
     @Override
@@ -72,11 +82,16 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
 
         //we rotate the spawning stick around the planet and spawn one with size and chance depending on skewed density curve, speed depending on distance to center
         for (int i = 0; i <= 360; i++){
-            int asteroidsPerDegree = Math.round(width * density * MAGIC_METEOR_NUMBER);
 
-            //ModPlugin.log("Angle: " + i + " Spawning " + asteroidsPerDegree);
+            //this is handling for when I manually change the density
+            float baseAmt = ASTEROIDS_PER_ANGLE * density ;
+            int amt = (int) Math.floor(baseAmt);
+            float extraChance = baseAmt - (float) Math.floor(baseAmt);
+            if (random.nextFloat() < extraChance) amt++;
 
-            for (int j = 0; j <= asteroidsPerDegree; j++){
+            if (amt == 0) continue;
+
+            for (int j = 0; j <= amt; j++){
                 float distance = MiscIE.getRandomInRange(INNER_RADIUS + size, width + INNER_RADIUS, random);
                 float factor = (distance - INNER_RADIUS - size) / width;
                 float speedFactor = 1 - factor;
@@ -90,8 +105,16 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
                 float circumference = (float) (2 * Math.PI * distance);
                 float days = circumference / unitsPerDay;
 
+                MeteorSwarmManager.MeteroidShowerType meteorType = MeteorSwarmManager.MeteroidShowerType.ASTEROID;
+                //if above certain density replace some of the default roids with rads
+                if (density > MIN_DENSITY_FOR_RADOID_SPAWN){
+                    float chance = ((density - MIN_DENSITY_FOR_RADOID_SPAWN) / (MeteorSwarmManager.MAX_DENSITY - MIN_DENSITY_FOR_RADOID_SPAWN)) * MAX_IRRADOID_CHANCE; //do not question the ancient one
+
+                    if (random.nextFloat() < chance) meteorType = MeteorSwarmManager.MeteroidShowerType.IRRADIOID;
+                }
+
                 MeteorEntity.MeteorData data = new MeteorEntity.MeteorData(roidSize, new ExternalOrbitMovement(arc));
-                SectorEntityToken meteor = MeteorFactory.spawn(system, data, MeteorSwarmManager.MeteroidShowerType.PLANETOID);
+                SectorEntityToken meteor = MeteorFactory.spawn(system, data, meteorType);
                 meteor.setCircularOrbit(planet, i, distance, days);
             }
         }
@@ -108,7 +131,7 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
 
     public static float leftSkewedDensity(float x) {
         float a = 2f; //magic numbers again I am on a roll
-        float b = 8f;
+        float b = 6f;
 
         float y = (float) (Math.pow(x, a - 1) * Math.pow(1 - x, b - 1));
         float maxY = (float) (Math.pow((a - 1) / (a + b - 2), a - 1) * Math.pow(1 - (a - 1) / (a + b - 2), b - 1));

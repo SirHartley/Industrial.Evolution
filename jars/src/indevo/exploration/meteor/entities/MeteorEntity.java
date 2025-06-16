@@ -18,7 +18,7 @@ import java.util.List;
 
 public class MeteorEntity extends BaseCustomEntityPlugin {
     public static final float MAX_ROTATION_PER_SEC = 7f;
-    public static final float MAX_SIZE = 200f;
+    public static final float MAX_SIZE = 250f;
     public static final float MIN_SIZE = 15f;
     public static final float BASE_SPEED = 600f;
 

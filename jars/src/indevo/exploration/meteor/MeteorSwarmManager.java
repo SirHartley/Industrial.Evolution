@@ -72,10 +72,10 @@ public class MeteorSwarmManager implements EconomyTickListener {
 
     public enum MeteroidShowerType {
         ASTEROID(0, 1f),
-        ICEROID(1, 10f),
+        ICEROID(0, 10f),
         IRRADIOID(0, 0.3f),
         //METHEROID(0, 1f),
-        PLANETOID(0, 1f);
+        PLANETOID(1, 1f);
 
         /*
         ASTEROID(120f, 1f),

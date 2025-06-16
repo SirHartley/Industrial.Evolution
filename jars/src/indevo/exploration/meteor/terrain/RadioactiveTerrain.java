@@ -54,6 +54,13 @@ public class RadioactiveTerrain extends StarCoronaTerrainPlugin {
         return "Extreme Radioactivity - " + StringHelper.getAbsPercentString(getEffectForFleet(Global.getSector().getPlayerFleet()), false);
     }
 
+    public static void addToSystem(StarSystemAPI system){
+        StarCoronaTerrainPlugin.CoronaParams params = new StarCoronaTerrainPlugin.CoronaParams(50000, 0, system.getCenter(), 0f, 0f, 1f);
+        params.name = "Extreme Radioactivity";
+
+        system.addTerrain("IndEvo_radioactive_field", params);
+    }
+
     public void createTooltip(TooltipMakerAPI tooltip, boolean expanded) {
         float pad = 10f;
         float small = 5f;
