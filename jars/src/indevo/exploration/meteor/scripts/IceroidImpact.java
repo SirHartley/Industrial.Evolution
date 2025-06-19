@@ -1,6 +1,5 @@
 package indevo.exploration.meteor.scripts;
 
-import com.fs.starfarer.api.campaign.AsteroidAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.meteor.MeteorSwarmManager;

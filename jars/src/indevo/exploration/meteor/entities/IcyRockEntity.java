@@ -1,27 +1,16 @@
 package indevo.exploration.meteor.entities;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
-import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.helper.MeteorFactory;
 import indevo.exploration.meteor.movement.ArcOnOrbitLossMovement;
-import indevo.exploration.meteor.movement.ExternalOrbitMovement;
 import indevo.exploration.meteor.movement.MeteorMovementModuleAPI;
 import indevo.exploration.meteor.renderers.MeteorDebrisRenderer;
 import indevo.exploration.meteor.scripts.IceroidImpact;
-import indevo.exploration.meteor.scripts.MeteorImpact;
-import indevo.items.consumables.fleet.MissileMemFlags;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.TrigHelper;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import org.lazywizard.lazylib.MathUtils;
-import org.lwjgl.util.vector.Vector2f;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static indevo.exploration.meteor.scripts.MeteorImpact.splitRadiusRandom;
 
@@ -29,7 +18,7 @@ public class IcyRockEntity extends MeteorEntity {
 
     public static final String TAG_NO_SPLINTERS = "IndEvo_IceRockNoSplinters";
     public static final float MIN_RADIUS_FOR_EXTRAS = 50f;
-    public static final float RADIUS_PER_ASTERIOD = 40f;
+    public static final float RADIUS_PER_ASTERIOD = 50f;
     public static final float ENTOURAGE_MAX_ORBIT = 200f;
     public static final float ENTOURAGE_MAX_ORBIT_DUR = 10f;
     public static final float ENTOURAGE_MINX_ORBIT_DUR = 3f;
@@ -40,6 +29,7 @@ public class IcyRockEntity extends MeteorEntity {
     public void advance(float amount) {
         super.advance(amount);
         if (!entity.hasTag(TAG_NO_SPLINTERS) && !spawnedSplinters && entity.getRadius() >= MIN_RADIUS_FOR_EXTRAS) spawnSplinters();
+        if (entity.getOrbit() != null && entity.getOrbit().getFocus() != null && !entity.getOrbit().getFocus().isAlive()) entity.setOrbit(null);
     }
 
     public void spawnSplinters(){
@@ -72,6 +62,6 @@ public class IcyRockEntity extends MeteorEntity {
         LunaCampaignRenderer.addRenderer(new MeteorDebrisRenderer(t, entity));
         Misc.fadeAndExpire(entity, 0.1f);
 
-        for (SectorEntityToken entity : entity.getContainingLocation().getEntitiesWithTag("IndEvo_IceEntourage_" + entity.getId())) entity.setOrbit(null);
+        //for (SectorEntityToken entity : this.entity.getContainingLocation().getEntitiesWithTag("IndEvo_IceEntourage_" + this.entity.getId())) entity.setOrbit(null);
     }
 }

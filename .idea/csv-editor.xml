@@ -234,6 +234,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\config\indEvo\world_tree_whitelist.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\config\modFiles\magicTrail_data.csv">
           <value>
             <Attribute>

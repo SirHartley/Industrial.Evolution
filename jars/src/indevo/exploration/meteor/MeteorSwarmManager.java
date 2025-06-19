@@ -44,8 +44,8 @@ public class MeteorSwarmManager implements EconomyTickListener {
     public static final float BASE_CHANCE_PER_ECONOMY_TICK = 0.02f; //18% per month 92% per year
 
     public static final float MIN_INTENSITY = 1;
-    public static final float MAX_INTENSITY = 4;
-    public static final float BASE_SHOWER_WIDTH = 3000f;
+    public static final float MAX_INTENSITY = 3f;
+    public static final float BASE_SHOWER_WIDTH = 5000f;
     public static final float INTENSITY_WIDTH_MODIFIER = 1000f;
     public static final float MAX_DENSITY = 2.5f;
     public static final float MAX_RUNTIME_MULT = 2.5f;
@@ -72,19 +72,10 @@ public class MeteorSwarmManager implements EconomyTickListener {
 
     public enum MeteroidShowerType {
         ASTEROID(0, 1f),
-        ICEROID(0, 10f),
+        ICEROID(0, 5f),
         IRRADIOID(0, 0.3f),
         //METHEROID(0, 1f),
         PLANETOID(1, 1f);
-
-        /*
-        ASTEROID(120f, 1f),
-        MAGMAROID(10f, 1f),
-        ICEROID(10f, 1f),
-        IRRADIOID(5f, 1f),
-        METHEROID(10f, 1f),
-        PLANETOID(5f, 1f);
-        */
 
         public float chance;
         public float treasureModifier;

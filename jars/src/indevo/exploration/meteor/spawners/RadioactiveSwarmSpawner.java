@@ -3,8 +3,6 @@ package indevo.exploration.meteor.spawners;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
-import com.fs.starfarer.api.impl.campaign.terrain.StarCoronaTerrainPlugin;
 import com.fs.starfarer.api.util.IntervalUtil;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.entities.MeteorEntity;

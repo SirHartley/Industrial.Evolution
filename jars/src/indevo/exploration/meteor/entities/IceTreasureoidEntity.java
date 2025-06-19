@@ -1,10 +1,8 @@
 package indevo.exploration.meteor.entities;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
-import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.impl.campaign.DerelictShipEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
@@ -14,22 +12,18 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySp
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import com.fs.starfarer.combat.entities.Ship;
 import indevo.exploration.meteor.movement.MeteorMovementModuleAPI;
 import indevo.exploration.meteor.spawners.IceSwarmSpawner;
-import indevo.ids.Ids;
-import indevo.items.ForgeTemplateItemPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.TrigHelper;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.Random;
 
 import static com.fs.starfarer.api.util.Misc.addHitGlow;
-import static indevo.utils.helper.MiscIE.addOrIncrement;
 
 public class IceTreasureoidEntity extends IcyRockEntity {
 
@@ -47,7 +41,7 @@ public class IceTreasureoidEntity extends IcyRockEntity {
     public Random random;
 
     public static SectorEntityToken spawn(LocationAPI loc, MeteorData data, Random random){
-        return loc.addCustomEntity(Misc.genUID(), null, "IndEvo_meteor_treasure_2", Factions.TRITACHYON, data.size, data.size, data.size,
+        return loc.addCustomEntity(Misc.genUID(), null, "IndEvo_meteor_treasure_2", "engHubStorageColour", data.size, data.size, data.size,
                 new IceMeteorData(data.size, data.movement, random));
     }
 
@@ -92,13 +86,13 @@ public class IceTreasureoidEntity extends IcyRockEntity {
         }
 
         DerelictShipEntityPlugin.DerelictShipData params = DerelictShipEntityPlugin.createHull(specAPIWeightedRandomPicker.pick().getHullId(), random, 0.15f);
-
-                /*new DerelictShipEntityPlugin.DerelictShipData(new ShipRecoverySpecial.PerShipData(
-                variantToDrop,
-                conditionWeightedRandomPicker.pick(),
-                0.1f),
-                false);*/
-
         relatedWreck = BaseThemeGenerator.addSalvageEntity(entity.getContainingLocation(), Entities.WRECK, Factions.NEUTRAL, params);
+
+        //this is required or it'll always be a SP recovery for some reason
+        ShipRecoverySpecial.ShipRecoverySpecialData data = new ShipRecoverySpecial.ShipRecoverySpecialData("caught in the ice, now freed");
+        data.addShip(params.ship);
+        data.storyPointRecovery = false;
+
+        Misc.setSalvageSpecial(relatedWreck, data);
     }
 }

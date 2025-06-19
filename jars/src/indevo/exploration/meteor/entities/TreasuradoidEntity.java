@@ -7,16 +7,16 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import com.fs.starfarer.api.util.*;
+import com.fs.starfarer.api.util.IntervalUtil;
+import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.Pair;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.helper.MeteorFactory;
 import indevo.exploration.meteor.movement.ArcingMovementModule;
 import indevo.exploration.meteor.movement.ExternalOrbitMovement;
 import indevo.exploration.meteor.movement.MeteorMovementModuleAPI;
-import indevo.exploration.meteor.movement.RelativeArcingMovement;
 import indevo.exploration.meteor.scripts.MovementModuleRunner;
 import indevo.ids.Ids;
-import indevo.utils.ModPlugin;
 import indevo.utils.helper.Circle;
 import indevo.utils.helper.CircularArc;
 import indevo.utils.helper.MiscIE;
@@ -26,8 +26,8 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.util.List;
 
-import static com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator.addSalvageEntity;
-import static com.fs.starfarer.api.util.Misc.*;
+import static com.fs.starfarer.api.util.Misc.addHitGlow;
+import static com.fs.starfarer.api.util.Misc.random;
 import static indevo.exploration.meteor.spawners.PlanetoidSwarmSpawner.leftSkewedDensity;
 
 public class TreasuradoidEntity extends SpicyRockEntity{
@@ -42,7 +42,7 @@ public class TreasuradoidEntity extends SpicyRockEntity{
     public IntervalUtil sparkleInterval = new IntervalUtil(0.02f, 0.08f);
 
     public static SectorEntityToken spawn(LocationAPI loc, MeteorData data){
-        return loc.addCustomEntity(Misc.genUID(), null, "IndEvo_spicy_rock_5", Factions.LUDDIC_PATH, data.size, data.size , data.size, data);
+        return loc.addCustomEntity(Misc.genUID(), null, "IndEvo_spicy_rock_5", "engHubStorageColour", data.size, data.size , data.size, data);
     }
 
     @Override

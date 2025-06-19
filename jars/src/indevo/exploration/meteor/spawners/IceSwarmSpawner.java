@@ -1,17 +1,11 @@
 package indevo.exploration.meteor.spawners;
 
-import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
-import com.fs.starfarer.api.impl.campaign.DerelictShipEntityPlugin;
-import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
-import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySpecial;
 import com.fs.starfarer.api.util.IntervalUtil;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.entities.IceTreasureoidEntity;
 import indevo.exploration.meteor.entities.MeteorEntity;
-import indevo.exploration.meteor.entities.TreasuroidEntity;
 import indevo.exploration.meteor.helper.MeteorFactory;
 import indevo.exploration.meteor.movement.ArcingMovementModule;
 import indevo.utils.ModPlugin;
@@ -23,7 +17,7 @@ public class IceSwarmSpawner extends BaseArcingSwarmSpawner{
 
     public static final float[] NORMAL_DIST_MAGIC_NUMBERS = {0.4f, 0};
     public static final float[] WEIGHT_OVER_TIME_MAGIC_NUMBERS = {0.4f, 0};
-    public static final int BASE_WIDTH_PER_ASTEROID_PER_SECOND = 1400;
+    public static final int BASE_WIDTH_PER_ASTEROID_PER_SECOND = 1600;
 
     public static final float MIN_TREASURE_SPAWN_FRACT = 0.2f;
     public static final float MAX_TREASURE_SPAWN_FRACT = 0.8f;
@@ -72,7 +66,7 @@ public class IceSwarmSpawner extends BaseArcingSwarmSpawner{
                 treasureInterval.advance(amount);
 
                 if (treasureInterval.intervalElapsed()){
-                    MeteorEntity.MeteorData data = new MeteorEntity.MeteorData(MathUtils.getRandomNumberInRange(MeteorEntity.MAX_SIZE, MeteorEntity.MAX_SIZE * 1.6f), new ArcingMovementModule(arc.getModifiedRadiusArc(arc.radius + distFromLine), speed));
+                    MeteorEntity.MeteorData data = new MeteorEntity.MeteorData(MathUtils.getRandomNumberInRange(MeteorEntity.MAX_SIZE*0.7f, MeteorEntity.MAX_SIZE), new ArcingMovementModule(arc.getModifiedRadiusArc(arc.radius + distFromLine), speed));
                     ModPlugin.log("spawning ice treasuroid size " + data.size);
 
                     IceTreasureoidEntity.spawn(system, data, random);

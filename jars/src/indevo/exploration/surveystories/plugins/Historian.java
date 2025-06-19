@@ -43,7 +43,8 @@ public class Historian {
         if (s.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)
                 || s.hasTag(Tags.THEME_HIDDEN)
                 || s.hasTag(Tags.THEME_SPECIAL)
-                || s.hasTag(Tags.SYSTEM_ABYSSAL)) return null;
+                || s.hasTag(Tags.SYSTEM_ABYSSAL)
+                || planet.hasTag(Tags.NOT_RANDOM_MISSION_TARGET)) return null;
 
         WeightedRandomPicker<StoryEntry> picker = new WeightedRandomPicker<StoryEntry>(random);
 

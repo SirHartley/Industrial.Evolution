@@ -36,11 +36,11 @@ public class MeteorFactory {
         put(60f, "IndEvo_icy_rock_3");
         put(90f, "IndEvo_icy_rock_4");
         put(120f, "IndEvo_icy_rock_5");
-        put(150f, "IndEvo_icy_rock_6");
+        put(160f, "IndEvo_icy_rock_6");
     }};
 
     public static SectorEntityToken spawn(LocationAPI loc, MeteorEntity.MeteorData data, MeteorSwarmManager.MeteroidShowerType type){
-        return loc.addCustomEntity(Misc.genUID(), null, MeteorFactory.getMeteorForSize(data.size, type), Factions.NEUTRAL, data.size * 1.2f, data.size, data.size, data);
+        return loc.addCustomEntity(Misc.genUID(), null, MeteorFactory.getMeteorForSize(data.size, type), Factions.NEUTRAL, data.size, data.size, data.size, data);
     }
 
     public static String getMeteorForSize(float size, MeteorSwarmManager.MeteroidShowerType type) {
@@ -48,7 +48,6 @@ public class MeteorFactory {
         float closestSize = -1f;
 
         Map<Float, String> map = switch (type) {
-            case ASTEROID -> ASTEROID_SIZE_PATH_MAP;
             case IRRADIOID -> IRRADIOID_SIZE_PATH_MAP;
             case ICEROID -> ICY_SIZE_PATH_MAP;
             default -> ASTEROID_SIZE_PATH_MAP;

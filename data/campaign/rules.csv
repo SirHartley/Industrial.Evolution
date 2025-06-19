@@ -267,6 +267,20 @@ $player.foogReturn = true
 SetShortcut cutCommLink ""ESCAPE""","""Sure you do.""
 
 She cuts the comm link.",cutCommLink:Return,
+,,"$market.isPlanetConditionMarketOnly
+$market.isSurveyed
+!$market.hasUnexploredRuins",,,,
+#planetoid,,,,,,
+IndEvo_isPlanetoidDefaultDesc,PopulateOptions,$tag:indevo_planetoid,,"$name tears through space at a pace bordering on absurd, slicing through gas clouds and debris like a flung shard of metal.
+No sane observer would expect any human to have ever set foot on such a perilous object - yet its surface is strewn with ruins, their architecture spanning epochs.
+
+It defies all reason.",,
+IndEvo_isPlanetoidNoColony,PopulateOptions,"$tag:indevo_planetoid
+$market.isPlanetConditionMarketOnly
+$market.isSurveyed
+!$market.hasUnexploredRuins",SetEnabled surveyPerform false,"This is a travelling planet, lit up by the nearby star for the first time in what may be millenia. No sane person could ever be convinced to live on this moving tomb.
+
+Establishing a colony here is not an option.",,
 ,,,,,,
 #artillery,,,,,,
 #IndEvo_ArtilleryInitialPlanet_new,PrintNearbySurveyHostilesTextIfSo,"$IndEvo_ArtilleryStation score:1000

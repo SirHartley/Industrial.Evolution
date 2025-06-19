@@ -1,18 +1,20 @@
 package indevo.exploration.meteor.terrain;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.CampaignEngineLayers;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.fleet.FleetMemberViewAPI;
-import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import com.fs.starfarer.api.impl.campaign.terrain.*;
-import com.fs.starfarer.api.loading.Description;
+import com.fs.starfarer.api.impl.campaign.terrain.CRLossPerSecondBuff;
+import com.fs.starfarer.api.impl.campaign.terrain.FlareManager;
+import com.fs.starfarer.api.impl.campaign.terrain.PeakPerformanceBuff;
+import com.fs.starfarer.api.impl.campaign.terrain.StarCoronaTerrainPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.DelayedActionScript;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.meteor.entities.SpicyRockEntity;
 import indevo.exploration.meteor.renderers.MeteorSwarmWarningPathRenderer;
@@ -21,11 +23,6 @@ import indevo.utils.helper.StringHelper;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-
-import static com.fs.starfarer.api.impl.campaign.terrain.StarCoronaTerrainPlugin.CR_LOSS_MULT_GLOBAL;
 
 public class RadioactiveTerrain extends StarCoronaTerrainPlugin {
 

@@ -2,7 +2,6 @@ package indevo.exploration.meteor.movement;
 
 import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.CircularArc;
-import org.lwjgl.util.vector.Vector2f;
 
 public class ArcOnOrbitLossMovement extends ArcingMovementModule{
 
