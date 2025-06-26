@@ -42,6 +42,7 @@ import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
 import indevo.exploration.meteor.MeteorSwarmManager;
+import indevo.exploration.meteor.scripts.TutorialEncounterScript;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
 import indevo.exploration.minefields.listeners.InterdictionPulseAbilityListener;
 import indevo.exploration.minefields.listeners.RecentJumpListener;
@@ -150,6 +151,8 @@ public class ModPlugin extends BaseModPlugin {
             CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
 
             if (sys != null && !sys.isHyperspace()) {
+
+                Global.getSector().addScript(new TutorialEncounterScript());
 
                 Vector2f startPoint = MathUtils.getPointOnCircumference(sys.getCenter().getLocation(), 30000, Misc.getAngleInDegrees(sys.getCenter().getLocation(), fleet.getLocation()) - 90f);
                 Vector2f endPoint = MathUtils.getPointOnCircumference(sys.getCenter().getLocation(), 30000, Misc.getAngleInDegrees(sys.getCenter().getLocation(), fleet.getLocation()) + 90f);

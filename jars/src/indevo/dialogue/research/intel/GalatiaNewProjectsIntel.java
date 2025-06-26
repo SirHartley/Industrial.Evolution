@@ -68,6 +68,8 @@ public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
         if (newProjectIds != null) for (String id : newProjectIds) info.addPara(BULLET + " " + ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(id).getName(), Misc.getHighlightColor(), 3f);
 
         addBulletPoints(info, ListInfoMode.IN_DESC);
+
+        addDeleteButton(info, width);
     }
 
     @Override

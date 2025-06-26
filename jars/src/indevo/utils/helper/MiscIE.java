@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lwjgl.util.vector.Vector2f;
 
 import java.io.IOException;
 import java.util.*;
@@ -38,6 +39,16 @@ import java.util.*;
 
 public class MiscIE {
     public static final Logger log = Global.getLogger(MiscIE.class);
+
+    public static List<SectorEntityToken> getEntitiesInRange(SectorEntityToken fromEntity, float range){
+        List<SectorEntityToken> tokens = new ArrayList<>();
+
+        for (SectorEntityToken t : fromEntity.getContainingLocation().getAllEntities()){
+            if (Misc.getDistance(t.getLocation(), fromEntity.getLocation()) < range) tokens.add(t);
+        }
+
+        return tokens;
+    }
 
     public static float getRandomInRange(float min, float max, Random random){
         return random.nextFloat() * (max - min) + min;

@@ -10,6 +10,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 import indevo.items.consumables.fleet.MissileMemFlags;
+import indevo.utils.helper.MiscIE;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -50,9 +51,8 @@ public class ExplosiveMissileEntityPlugin extends BaseMissileEntityPlugin {
 
         explosion.setLocation(entity.getLocation().x, entity.getLocation().y);
 
-        for (SectorEntityToken t : cl.getAllEntities()){
-            if (Misc.getDistance(entity.getLocation(), t.getLocation()) < EXPLOSION_SIZE) t.getMemoryWithoutUpdate().set(MissileMemFlags.MEM_CAUGHT_BY_MISSILE, new Vector2f(entity.getLocation()), 1f);
-        }
+        for (SectorEntityToken t : MiscIE.getEntitiesInRange(entity, EXPLOSION_SIZE))
+            t.getMemoryWithoutUpdate().set(MissileMemFlags.MEM_CAUGHT_BY_MISSILE, new Vector2f(entity.getLocation()), 1f);
     }
 
     @Override

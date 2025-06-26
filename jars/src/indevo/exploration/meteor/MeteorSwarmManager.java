@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.util.DelayedActionScript;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.exploration.meteor.spawners.IceSwarmSpawner;
@@ -71,11 +72,11 @@ public class MeteorSwarmManager implements EconomyTickListener {
     }
 
     public enum MeteroidShowerType {
-        ASTEROID(0, 1f),
+        ASTEROID(1, 1f),
         ICEROID(0, 5f),
         IRRADIOID(0, 0.3f),
         //METHEROID(0, 1f),
-        PLANETOID(1, 1f);
+        PLANETOID(0, 1f);
 
         public float chance;
         public float treasureModifier;
@@ -90,68 +91,86 @@ public class MeteorSwarmManager implements EconomyTickListener {
         Global.getSector().getListenerManager().addListener(new MeteorSwarmManager(), true);
     }
 
+    public static MeteorSwarmManager getInstance(){
+       return Global.getSector().getListenerManager().getListeners(MeteorSwarmManager.class).get(0);
+    }
+
     @Override
     public void reportEconomyTick(int iterIndex) {
         LocationAPI loc = Global.getSector().getCurrentLocation();
-        MemoryAPI locMem = loc.getMemoryWithoutUpdate();
-        MemoryAPI globalMem = Global.getSector().getMemoryWithoutUpdate();
 
-        if (globalMem.getBoolean(MEM_TIMEOUT)
-                || locMem.getBoolean(MEM_TIMEOUT)
-                || loc.isHyperspace()
-                || !Misc.getMarketsInLocation(loc).isEmpty()
-                || loc.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)
-                || loc.hasTag(Tags.THEME_HIDDEN)
-                || loc.hasTag(Tags.THEME_SPECIAL)
-                || loc.hasTag(Tags.SYSTEM_ABYSSAL)) return;
+        if (!isValidMeteorLoc(loc)) return;
 
         Random random = getRandom();
         boolean spawn = random.nextFloat() < BASE_CHANCE_PER_ECONOMY_TICK;
         boolean devmode = Global.getSettings().isDevMode();
 
-        if (spawn || devmode) {
+        if (spawn || devmode) spawnShower(loc);
+    }
 
-            WeightedRandomPicker<MeteroidShowerType> picker = new WeightedRandomPicker<>(random);
-            for (MeteroidShowerType type : MeteroidShowerType.values()) picker.add(type, type.chance);
-            MeteroidShowerType type = picker.pick();
+    public static boolean isValidMeteorLoc(LocationAPI loc){
+        MemoryAPI locMem = loc.getMemoryWithoutUpdate();
+        MemoryAPI globalMem = Global.getSector().getMemoryWithoutUpdate();
 
-            //parameters
-            float intensity = MiscIE.getRandomInRange(MIN_INTENSITY, MAX_INTENSITY, random);
-            float width = BASE_SHOWER_WIDTH + INTENSITY_WIDTH_MODIFIER * intensity;
-            int lootAmt = Math.max(1, Math.round(intensity * type.treasureModifier));
-            float density = Math.min(MAX_DENSITY, intensity);
-            float runtime = BASE_RUNTIME * Math.min(MAX_RUNTIME_MULT, intensity);
+        return !globalMem.getBoolean(MEM_TIMEOUT)
+                && !locMem.getBoolean(MEM_TIMEOUT)
+                && !loc.isHyperspace()
+                && Misc.getMarketsInLocation(loc).isEmpty()
+                && !loc.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)
+                && !loc.hasTag(Tags.THEME_HIDDEN)
+                && !loc.hasTag(Tags.THEME_SPECIAL)
+                && !loc.hasTag(Tags.SYSTEM_ABYSSAL);
+    }
 
-            //location
-            float radius = MiscIE.getRandomInRange(MIN_DISTANCE_FROM_SUN, MAX_DISTANCE_FROM_SUN, random) + width / 2;
-            float centerAngle = 360f * random.nextFloat();
-            Vector2f arcCenterLoc = MathUtils.getPointOnCircumference(null, radius, centerAngle);
+    public void spawnShower(LocationAPI loc){
+      spawnShower(loc, -1f, null);
+    }
 
-            float angleToCenter = Misc.getAngleInDegrees(arcCenterLoc, new Vector2f(0,0));
-            float adjustment = MiscIE.getRandomInRange(MIN_ANGLE, MAX_ANGLE, random);
-            float startAngle = MathUtils.clampAngle(angleToCenter + adjustment);
-            float endAngle = MathUtils.clampAngle(angleToCenter - adjustment);
+    public void spawnShower(LocationAPI loc, float intensityOverride, MeteroidShowerType forceType){
+        MemoryAPI locMem = loc.getMemoryWithoutUpdate();
+        MemoryAPI globalMem = Global.getSector().getMemoryWithoutUpdate();
+        Random random = getRandom();
 
-            Vector2f startLoc = intersectWithGridBoundary(arcCenterLoc, startAngle);
-            Vector2f endloc = intersectWithGridBoundary(arcCenterLoc, endAngle);
+        WeightedRandomPicker<MeteroidShowerType> picker = new WeightedRandomPicker<>(random);
+        for (MeteroidShowerType type : MeteroidShowerType.values()) picker.add(type, type.chance);
+        MeteroidShowerType type = forceType != null ? forceType : picker.pick();
 
-            Circle circle = TrigHelper.findThreePointCircle(startLoc,arcCenterLoc, endloc);
-            CircularArc arc = new CircularArc(circle, circle.getAngleForPoint(startLoc), circle.getAngleForPoint(endloc));
+        //parameters
+        float intensity = intensityOverride > 0 ? intensityOverride : MiscIE.getRandomInRange(MIN_INTENSITY, MAX_INTENSITY, random);
+        float width = BASE_SHOWER_WIDTH + INTENSITY_WIDTH_MODIFIER * intensity;
+        int lootAmt = Math.max(1, Math.round(intensity * type.treasureModifier));
+        float density = Math.min(MAX_DENSITY, intensity);
+        float runtime = BASE_RUNTIME * Math.min(MAX_RUNTIME_MULT, intensity);
 
-            ModPlugin.log("Spawning asteroid swarm: \nintensity " + intensity + " \nlootAmt " + lootAmt + " \ndensity " + density + " \nruntime " + runtime + " \nwidth " + width + " \nstartAngle " + startAngle + " \nendAngle " + endAngle);
-            //if (devmode) Global.getSector().getPlayerFleet().addScript(new YeetScript(Global.getSector().getPlayerFleet(), arcCenterLoc));
+        //location
+        float radius = MiscIE.getRandomInRange(MIN_DISTANCE_FROM_SUN, MAX_DISTANCE_FROM_SUN, random) + width / 2;
+        float centerAngle = 360f * random.nextFloat();
+        Vector2f arcCenterLoc = MathUtils.getPointOnCircumference(null, radius, centerAngle);
 
-            switch (type){
-                case ASTEROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
-                case ICEROID -> loc.addScript(new IceSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
-                case IRRADIOID -> loc.addScript(new RadioactiveSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
-                //case METHEROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
-                case PLANETOID -> loc.addScript(new PlanetoidSwarmSpawner((StarSystemAPI) loc, arc, runtime, random.nextLong(), density, lootAmt));
-            }
+        float angleToCenter = Misc.getAngleInDegrees(arcCenterLoc, new Vector2f(0,0));
+        float adjustment = MiscIE.getRandomInRange(MIN_ANGLE, MAX_ANGLE, random);
+        float startAngle = MathUtils.clampAngle(angleToCenter + adjustment);
+        float endAngle = MathUtils.clampAngle(angleToCenter - adjustment);
 
-            globalMem.set(MEM_TIMEOUT, true, GENERAL_TIMEOUT_AFTER_SPAWN_DAYS);
-            locMem.set(MEM_TIMEOUT, true, LOCATION_TIMEOUT_AFTER_SPAWN_DAYS);
+        Vector2f startLoc = intersectWithGridBoundary(arcCenterLoc, startAngle);
+        Vector2f endloc = intersectWithGridBoundary(arcCenterLoc, endAngle);
+
+        Circle circle = TrigHelper.findThreePointCircle(startLoc,arcCenterLoc, endloc);
+        CircularArc arc = new CircularArc(circle, circle.getAngleForPoint(startLoc), circle.getAngleForPoint(endloc));
+
+        ModPlugin.log("Spawning asteroid swarm: \nintensity " + intensity + " \nlootAmt " + lootAmt + " \ndensity " + density + " \nruntime " + runtime + " \nwidth " + width + " \nstartAngle " + startAngle + " \nendAngle " + endAngle);
+        //if (devmode) Global.getSector().getPlayerFleet().addScript(new YeetScript(Global.getSector().getPlayerFleet(), arcCenterLoc));
+
+        switch (type){
+            case ASTEROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
+            case ICEROID -> loc.addScript(new IceSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
+            case IRRADIOID -> loc.addScript(new RadioactiveSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
+            //case METHEROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
+            case PLANETOID -> loc.addScript(new PlanetoidSwarmSpawner((StarSystemAPI) loc, arc, runtime, random.nextLong(), density, lootAmt));
         }
+
+        globalMem.set(MEM_TIMEOUT, true, GENERAL_TIMEOUT_AFTER_SPAWN_DAYS);
+        locMem.set(MEM_TIMEOUT, true, LOCATION_TIMEOUT_AFTER_SPAWN_DAYS);
     }
 
     @Override

@@ -80,7 +80,7 @@ public class OnKeyPressAbilityInputListener implements MissileTargetUIKeypressLi
                         //this is trash code, it should really be set externally by passing the required reticule from the ability
                         renderer = new MissileSkillshotTargetingReticuleRenderer();;
                         if (isArty) renderer = new ArtilleryAOEReticuleRenderer();
-                        else if (isAOE) new MissileAOETargetingReticuleRenderer();
+                        else if (isAOE) renderer = new MissileAOETargetingReticuleRenderer();
 
                         LunaCampaignRenderer.addRenderer(renderer);
                         input.consume();

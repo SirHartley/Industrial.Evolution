@@ -46,6 +46,7 @@ public class InterceptMissileAbilityPlugin extends BaseMissileConsumableAbilityP
                 Math.round(InterceptMissileEntityPlugin.INTERDICT_SECONDS) + " seconds",
                 Math.round(InterceptMissileEntityPlugin.TRACE_PROFILE_INCREASE) + "",
                 Math.round(InterceptMissileEntityPlugin.TRACE_SECONDS) + " seconds");
+        tooltip.addPara("The smart trigger ignores debris and meteors.", spad);
 
         tooltip.addPara("Travel speed: %s", opad, Color.RED, "Fast");
         tooltip.addPara("Deployment type: %s", spad, Color.CYAN, "On-Hit");

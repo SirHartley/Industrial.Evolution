@@ -1,5 +1,6 @@
 --------------------------- Changelog -----------------------------
 4.0.j
+Fixed - AOE missiles now display the on-target AOE reticule like they should
 Fixed - No longer clears Ruin Conditions off core worlds with "IndEvo_RuinsAlways" tag
 
 4.0.i

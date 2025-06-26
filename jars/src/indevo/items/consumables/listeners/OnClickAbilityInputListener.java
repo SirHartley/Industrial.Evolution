@@ -37,7 +37,7 @@ public class OnClickAbilityInputListener implements MissileTargetUIKeypressListe
         //see OnKeyPressAbilityInputListener for comment
         renderer = new MissileSkillshotTargetingReticuleRenderer();
         if (isArty) renderer = new ArtilleryAOEReticuleRenderer();
-        else if (isAOE) new MissileAOETargetingReticuleRenderer();
+        else if (isAOE) renderer = new MissileAOETargetingReticuleRenderer();
 
         LunaCampaignRenderer.addRenderer(renderer);
     }

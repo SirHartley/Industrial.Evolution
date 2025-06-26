@@ -362,7 +362,8 @@
           "fx_flash":"graphics/fx/IndEvo_flash_new.png",
           "fx_succy_storm_desat":"graphics/fx/IndEvo_blackhole_desat.png",
           "beacon_custom": "graphics/icons/intel/beacon_custom.png",
-          "log_gachastation":"graphics/icons/intel/log_cryosleeper.png"
+          "log_gachastation":"graphics/icons/intel/log_cryosleeper.png",
+          "meteor_storm":"graphics/icons/intel/indEvo_roids.png"
       },
   },
 }

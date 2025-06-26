@@ -35,7 +35,6 @@ public class SmokeMissileAbilityPlugin extends BaseMissileConsumableAbilityPlugi
         MissileAIReactionManager.reportFleetUsedMissile(getFleet(), MISSILE_ID);
     }
 
-
     @Override
     public void addTooltip(TooltipMakerAPI tooltip) {
         float opad = 10f;
