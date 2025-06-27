@@ -103,9 +103,8 @@ public class MeteorSwarmManager implements EconomyTickListener {
 
         Random random = getRandom();
         boolean spawn = random.nextFloat() < BASE_CHANCE_PER_ECONOMY_TICK;
-        boolean devmode = Global.getSettings().isDevMode();
 
-        if (spawn || devmode) spawnShower(loc);
+        if (spawn) spawnShower(loc);
     }
 
     public static boolean isValidMeteorLoc(LocationAPI loc){

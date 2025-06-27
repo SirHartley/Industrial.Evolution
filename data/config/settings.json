@@ -247,7 +247,8 @@
   "indevo.dialogue.rules",
   "indevo.exploration.gacha.rules",
   "indevo.dialogue.beacons.dialogue",
-  "indevo.exploration.crucible.dialogue"
+  "indevo.exploration.crucible.dialogue",
+  "indevo.exploration.meteor.rules"
   ],
 
   "designTypeColors":{

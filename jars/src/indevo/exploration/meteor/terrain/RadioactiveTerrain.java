@@ -43,17 +43,17 @@ public class RadioactiveTerrain extends StarCoronaTerrainPlugin {
 
     @Override
     public String getNameForTooltip() {
-        return "Extreme Radioactivity";
+        return "Extreme Radiation";
     }
 
     @Override
     public String getTerrainName() {
-        return "Extreme Radioactivity - " + StringHelper.getAbsPercentString(getEffectForFleet(Global.getSector().getPlayerFleet()), false);
+        return "Extreme Radiation - " + StringHelper.getAbsPercentString(getEffectForFleet(Global.getSector().getPlayerFleet()), false);
     }
 
     public static void addToSystem(StarSystemAPI system){
         StarCoronaTerrainPlugin.CoronaParams params = new StarCoronaTerrainPlugin.CoronaParams(50000, 0, system.getCenter(), 0f, 0f, 1f);
-        params.name = "Extreme Radioactivity";
+        params.name = "Extreme Radiation";
 
         system.addTerrain("IndEvo_radioactive_field", params);
     }
