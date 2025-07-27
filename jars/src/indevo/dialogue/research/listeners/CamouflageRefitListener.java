@@ -32,8 +32,9 @@ public class CamouflageRefitListener extends BaseCampaignEventListener {
             if (variant.hasHullMod(CamouflageFieldEmitter.ID) && variant.hasTag(Tags.SHIP_UNIQUE_SIGNATURE)){
                 variant.removeTag(Tags.SHIP_UNIQUE_SIGNATURE);
                 variant.addTag(CamouflageFieldEmitter.TAG_UNIQUE);
-            } else if (variant.hasTag(CamouflageFieldEmitter.TAG_UNIQUE)){
+            } else if (!variant.hasHullMod(CamouflageFieldEmitter.ID) && variant.hasTag(CamouflageFieldEmitter.TAG_UNIQUE)){
                 variant.addTag(Tags.SHIP_UNIQUE_SIGNATURE);
+                variant.removeTag(CamouflageFieldEmitter.TAG_UNIQUE);
             }
         }
     }

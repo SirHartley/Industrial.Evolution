@@ -65,12 +65,11 @@ public class TutorialEncounterScript implements EveryFrameScript {
         fleet.setNoFactionInName(true);
 
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_NON_HOSTILE, true);
-        fleet.getMemoryWithoutUpdate().set(MemFlags.NON_HOSTILE_OVERRIDES_MAKE_HOSTILE, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.DO_NOT_TRY_TO_AVOID_NEARBY_FLEETS, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_FLEET_DO_NOT_GET_SIDETRACKED, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NEVER_AVOID_PLAYER_SLOWLY, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_ALWAYS_PURSUE, true);
-        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_PREVENT_DISENGAGE, true);
+        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);
 
         fleet.setName("Independent Roider");
         fleet.getMemoryWithoutUpdate().set("$IndEvo_roider_tutorial", true);

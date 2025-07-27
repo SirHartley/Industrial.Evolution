@@ -97,19 +97,18 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
     public static boolean senateWithItemInRange(MarketAPI localMarket) {
         boolean senateInRange = false;
 
-        for (MarketAPI market : Misc.getNearbyMarkets(localMarket.getLocationInHyperspace(), 10)) {
+        for (MarketAPI market : Misc.getNearbyMarkets(localMarket.getLocationInHyperspace(), SpecialItemEffectsRepo.RANGE_LY_TWELVE)) {
             if (!market.isPlayerOwned()) continue;
 
-            if (Misc.getDistanceLY(market.getLocationInHyperspace(), localMarket.getLocationInHyperspace()) <= SpecialItemEffectsRepo.RANGE_LY_TWELVE) {
-                if (market.hasIndustry(Ids.SENATE) && !market.getIndustry(Ids.SENATE).isBuilding() && market.getIndustry(Ids.SENATE).getSpecialItem() != null) {
-                    senateInRange = true;
-                    break;
-                }
+            if (market.hasIndustry(Ids.SENATE) && !market.getIndustry(Ids.SENATE).isBuilding() && market.getIndustry(Ids.SENATE).getSpecialItem() != null) {
+                senateInRange = true;
+                break;
             }
         }
 
         return senateInRange;
     }
+
 
     public boolean senateHasBetaCore() {
         if (!isPresenceConditionMet(market)) {

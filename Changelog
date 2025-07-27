@@ -2,6 +2,8 @@
 4.0.j
 Fixed - AOE missiles now display the on-target AOE reticule like they should
 Fixed - No longer clears Ruin Conditions off core worlds with "IndEvo_RuinsAlways" tag
+Fixed - Camouflage Emitter no longer marks non-unique ships as unique on removal (thanks, J2Greene)
+Fixed - Senate now properly uses the 12LY range as intended (thanks again, J2Greene!)
 
 4.0.i
 Added - "rural" item tag to mark them as no-impact for rural gov

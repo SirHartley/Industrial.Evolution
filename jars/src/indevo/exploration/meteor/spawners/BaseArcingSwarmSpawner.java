@@ -11,7 +11,6 @@ import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import java.util.Random;
 
 public abstract class BaseArcingSwarmSpawner implements EveryFrameScript {
-    private MeteorSwarmWarningPathRenderer warningRenderer = null;
 
     public final StarSystemAPI system;
     public final CircularArc arc;
@@ -42,7 +41,7 @@ public abstract class BaseArcingSwarmSpawner implements EveryFrameScript {
     }
 
     public void init(){
-        warningRenderer = new MeteorSwarmWarningPathRenderer(system, arc);
+        MeteorSwarmWarningPathRenderer warningRenderer = new MeteorSwarmWarningPathRenderer(system, arc);
         system.addScript(warningRenderer);
         LunaCampaignRenderer.addRenderer(new WarningSignNotificationRenderer(arc, system));
         Global.getSoundPlayer().playUISound("cr_allied_critical", 1, 1);
