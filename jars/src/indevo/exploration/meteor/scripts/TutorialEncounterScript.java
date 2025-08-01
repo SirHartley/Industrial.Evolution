@@ -72,6 +72,7 @@ public class TutorialEncounterScript implements EveryFrameScript {
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);
 
         fleet.setName("Independent Roider");
+        fleet.getMemoryWithoutUpdate().set("$IndEvo_supplyTradeAmt", Math.min(100, (int) Math.ceil(player.getCargo().getSupplies() * 0.1f))); //10% of player supplies
         fleet.getMemoryWithoutUpdate().set("$IndEvo_roider_tutorial", true);
 
         fleet.getAI().setActionTextOverride("Seeking immediate assistance");

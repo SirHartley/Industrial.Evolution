@@ -1,6 +1,70 @@
 id,trigger,conditions,script,text,options,notes
 #RULESET_NAME IndEvo,,,,,,
 ,,,,,,
+#Roider Tutorial,,,,,,
+,,,,,,
+IndEvo_roiderTutorial_begin,BeginFleetEncounter,"$IndEvo_roider_tutorial score:10000
+!$IndEvo_roider_tutorial_complete","AddText ""You're being hailed."" highlight
+$hailing = true 0",,,
+IndEvo_roiderTutorial_intro,OpenCommLink,"$entity.IndEvo_roider_tutorial score:1000
+!$entity.IndEvo_roider_tutorial_complete","SetTextHighlights ""five Gravburst missiles""
+","The battered fleet drifts into hailing range, hull scorched and pockmarked. The voice that crackles over comms is dry and strained, weeks past comfort.
+
+""Name’s $personName. Independent roider. Look, I won’t waste your time - some pirate bastards jumped us out past the ring. Took everything edible. Didn’t bother checking the launch tubes, though.""
+
+""We’ve got five Gravburst missiles still hot. Worth a fat stack of credits, but we can’t eat them. We’re gonna starve.""","0:IndEvo_roiderTutorial_listenOffer:""Missiles for supplies, then?""
+1:IndEvo_roiderTutorial_listenOfferDick:""How is this my problem?""
+2:IndEvo_roiderTutorial_ignoreOffer1:Move to close the comm link",
+IndEvo_roiderTutorial_listenOffer,DialogOptionSelected,$option == IndEvo_roiderTutorial_listenOffer,"SetTextHighlights ""$entity.IndEvo_supplyTradeAmt units""
+AddTextSmall ""You have $player.supplies supplies available"" highlight","$personName coughs. A faint hissing sound suggests some part of the life support isn’t enjoying its last hours.
+
+""I’ll trade the lot for $IndEvo_supplyTradeAmt units of your supplies. Those missiles are worth multiple times that, but so's our lives.""
+
+""You should know that there's an asteroid swarm inbound. Big one. Should hit in a couple of days - one of the core-fragment types. Treasure glued to everything. Shoot the fat glittering ones with those missiles, you'll fly home carrying a kings' ransom.""","0:IndEvo_roiderTutorial_acceptOffer:""Sounds fair - let's do it.""
+1:IndEvo_roiderTutorial_rejectOfferFinal:Cut the comm link",
+IndEvo_roiderTutorial_listenOfferDick,DialogOptionSelected,$option == IndEvo_roiderTutorial_listenOfferDick,,"""There's a massive meteor storm approaching this system. You can make back what you give to us a thousandfold using those missiles, my offer is worth your while, I promise.""","0:IndEvo_roiderTutorial_listenOfferAfterRejectingOnce:""What is it, then?""",
+,,,,,,
+IndEvo_roiderTutorial_ignoreOffer1,DialogOptionSelected,$option == IndEvo_roiderTutorial_ignoreOffer1,,"You move to close the link.
+
+""Hold up. Please, just listen,"" $personName blurts, a little too fast.
+
+""There's a massive meteor storm incoming, you can make back what you give to us a thousandfold using those missiles, just hear me out!""","0:IndEvo_roiderTutorial_listenOfferAfterRejectingOnce:""Talk.""",
+IndEvo_roiderTutorial_listenOfferAfterRejectingOnce,DialogOptionSelected,$option == IndEvo_roiderTutorial_listenOfferAfterRejectingOnce,"SetTextHighlights ""$entity.IndEvo_supplyTradeAmt units""
+AddTextSmall ""You have $player.supplies supplies available"" highlight","$personName coughs. A faint hissing sound suggests some part of the life support isn’t enjoying its last hours.
+
+""I’ll trade the lot for $IndEvo_supplyTradeAmt units of your supplies. Those missiles are worth multiple times that, but so's our lives.""
+
+""That asteroid swarm? Big one. Should hit in a couple of days - one of the core-fragment types. Treasure glued to everything. Shoot the fat glittering ones with those missiles, you'll fly home carrying a kings' ransom.""","0:IndEvo_roiderTutorial_acceptOffer:""Sounds fair.""
+1:IndEvo_roiderTutorial_rejectOfferFinal:""I don't think so.""",
+,,,,,,
+IndEvo_roiderTutorial_acceptOffer,DialogOptionSelected,$option == IndEvo_roiderTutorial_acceptOffer,"AddRemoveAnyItem SPECIAL IndEvo_consumable_missile_concussive 5
+RemoveCommodity supplies $entity.IndEvo_supplyTradeAmt
+$entity.IndEvo_roider_tutorial_complete = true
+IndEvo_RegisterTutorialMeteorIntel
+","$personName is visibly relieved. ""Thank you. We'll make it back with this.""
+
+""About that swarm. You don’t want to be in its path. Stay agile, keep your screens sharp. The juicy ones glow on the radar, easy to spot.""
+
+You arrange the transfer. The roiders send over targeting data and authorization codes. The missiles are transferred via munitions barge.",0:cutCommLinkNoText:Cut the comm link,
+IndEvo_roiderTutorial_rejectOfferFinal,DialogOptionSelected,$option == IndEvo_roiderTutorial_rejectOfferFinal,"$entity.IndEvo_roider_tutorial_complete = true
+$entity.IndEvo_roider_tutorial_rejected = true","$personName looks at you with contempt.
+""So you're leaving us to die. Shoulda expected it.""
+
+""I hope you starve to death in the cold of space.""
+$heOrShe cuts the comm link.",0:cutCommLinkNoText:Continue,
+,,,,,,
+IndEvo_roiderTutorial_repeat_accept,OpenCommLink,$entity.IndEvo_roider_tutorial_complete score:1000,"SetShortcut cutCommLink ""ESCAPE""","The familiar face of $personName appears on your screens.
+
+""We're on our way back home. Good luck with that asteroid swarm. Remember to shoot the shiny ones with the missiles, or just run into them - either works.""
+
+",0:cutCommLinkNoText:Cut the comm link,
+IndEvo_roiderTutorial_repeat_reject,OpenCommLink,"$entity.IndEvo_roider_tutorial_complete score:1000
+$entity.IndEvo_roider_tutorial_rejected","SetShortcut cutCommLinkNoText ""ESCAPE""
+$entity.ignorePlayerCommRequests = true","The familiar face of $personName appears on your screens.
+
+""Come to gloat? Go die in a ditch.""
+The comm link cuts off.",0:cutCommLinkNoText:Continue,
+,,,,,,
 #missiles,,,,,,"2 Stages: Transponder and Confiscation. Run in order, and skippable in order for 1 sp each"
 #Caught after use without transponder,,,,,,
 IndEvo_missile_caughtAfterUseBegin,BeginFleetEncounter,"$missile_chasingPlayerMissileUse score:1000

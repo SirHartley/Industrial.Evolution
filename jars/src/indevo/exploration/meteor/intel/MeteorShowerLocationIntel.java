@@ -32,18 +32,22 @@ public class MeteorShowerLocationIntel extends FleetLogIntel {
         this.intensity = intensity;
         this.type = type;
         this.days = days;
+
+        Global.getSector().addScript(this);
     }
 
     @Override
     public void advance(float amount) {
         super.advance(amount);
 
-        days -= amount;
+        days -= Global.getSector().getClock().convertToDays(amount);
 
         if (days <= 0 && !spawnedSwarm) {
             MeteorSwarmManager.getInstance().spawnShower(loc, intensity, type);
             dateString = Global.getSector().getClock().getDateString();
             spawnedSwarm = true;
+
+            endAfterDelay(20);
         }
 
         if (days <= 0) days = 0;
