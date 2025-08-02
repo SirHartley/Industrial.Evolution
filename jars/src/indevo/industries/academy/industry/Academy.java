@@ -390,6 +390,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
         List<String> allSkillIds = Global.getSettings().getSortedSkillIds();
         for (String skillId : allSkillIds) {
+
             SkillSpecAPI skill = Global.getSettings().getSkillSpec(skillId);
             if (skill.isAdminSkill()
                     && !personHasSkill(person, skill)

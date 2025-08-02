@@ -143,7 +143,12 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
 
     @Override
     public boolean canShutDown() {
-        return super.canShutDown() && !isMoving;
+        return !isMoving;
+    }
+
+    @Override
+    public boolean showShutDown() {
+        return false;
     }
 
     public boolean moveIsLegal() {

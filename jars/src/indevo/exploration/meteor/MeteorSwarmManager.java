@@ -9,6 +9,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.DelayedActionScript;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.exploration.meteor.scripts.TutorialEncounterScript;
 import indevo.exploration.meteor.spawners.IceSwarmSpawner;
 import indevo.exploration.meteor.spawners.PlanetoidSwarmSpawner;
 import indevo.exploration.meteor.spawners.RadioactiveSwarmSpawner;
@@ -38,6 +39,7 @@ public class MeteorSwarmManager implements EconomyTickListener {
 
     public static final String METEOR_TAG = "IndEvo_MeteorSwarm";
 
+    public static final String MEM_METEOR_TUTORIAL = "$IndEvo_MeteorTutorialComplete";
     public static final String MEM_RANDOM = "$IndEvo_MeteorRandom";
     public static final String MEM_TIMEOUT = "$IndEvo_MeteorTimeout";
 
@@ -72,11 +74,11 @@ public class MeteorSwarmManager implements EconomyTickListener {
     }
 
     public enum MeteroidShowerType {
-        ASTEROID(1, 1f),
-        ICEROID(0, 5f),
-        IRRADIOID(0, 0.3f),
+        ASTEROID(12, 1f),
+        ICEROID(3, 5f),
+        IRRADIOID(3, 0.3f),
         //METHEROID(0, 1f),
-        PLANETOID(0, 1f);
+        PLANETOID(3, 1f);
 
         public float chance;
         public float treasureModifier;
@@ -102,7 +104,14 @@ public class MeteorSwarmManager implements EconomyTickListener {
         if (!isValidMeteorLoc(loc)) return;
 
         Random random = getRandom();
-        boolean spawn = random.nextFloat() < BASE_CHANCE_PER_ECONOMY_TICK;
+        boolean spawn = random.nextFloat() < (Global.getSettings().isDevMode() ? 0.1f : BASE_CHANCE_PER_ECONOMY_TICK);
+
+        //spawn tutorial if none has been spawned yet
+        MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
+        if (!mem.getBoolean(MEM_METEOR_TUTORIAL)) {
+            Global.getSector().addScript(new TutorialEncounterScript());
+            mem.set(MEM_METEOR_TUTORIAL, true);
+        }
 
         if (spawn) spawnShower(loc);
     }

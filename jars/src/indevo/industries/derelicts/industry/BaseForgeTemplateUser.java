@@ -64,6 +64,11 @@ public class BaseForgeTemplateUser extends SharedSubmarketUser {
         return false;
     }
 
+    @Override
+    public boolean showShutDown() {
+        return false;
+    }
+
     public void apply() {
         super.apply(true);
         applyForgeTemplateEffects();

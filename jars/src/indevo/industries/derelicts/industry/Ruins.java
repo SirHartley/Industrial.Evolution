@@ -41,6 +41,11 @@ public class Ruins extends BaseIndustry {
     }
 
     @Override
+    public boolean showShutDown() {
+        return false;
+    }
+
+    @Override
     public boolean isAvailableToBuild() {
         return false;
     }

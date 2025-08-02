@@ -1,30 +1,33 @@
-Known issues
+--------------------------- Open Tasks -----------------------------
 
-# High Priority (Soft locks, serious impact on enjoyment or causes crashes)
+validate if all roid types work and don't lag too much
 
+--------------------------- Known issues -----------------------------
 
-# Low Priority (Visuals, stats or other minor issues that do not affect gameplay decisions)
-Artillery station needs text to clarify colonization block when non-hostile
+  >>> High Priority <<< (Soft locks, serious impact on enjoyment or causes crashes)
 
-# Future me problem
-Academy can pick forbidden, event only admin skills and should really run off a whitelist
-Military relay bonus calc is still unreliable af and should be changed to mults
-Artillery can pull IBB fleets into combat
-Detachments are still bugged as fuck
-World Wonder stability application is wonky and should be handled through a condition instead
+  >>> Low Priority <<< (Visuals, stats or other minor issues that do not affect gameplay decisions)
+- Artillery station needs text to clarify colonization block when non-hostile
+- Academy can pick forbidden, event only admin skills and should really run off a whitelist
+- Military relay bonus calc is still unreliable af and should be changed to mults
+- Artillery can pull IBB fleets into combat
+- Detachments are still bugged as fuck
+- World Wonder stability application is wonky and should be handled through a condition instead
+
+  >>> Future me problem <<<
+- Marine xp get wiped with detachments - lmao no fuck it that one's cancer to fix
+- Detachments eat crew that is in excess of capacity
+- Detachments refuse to move when in other system (??)
+- DEV Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
+- DEV Deliver fleets still refuse to leave system, no clue why
 
 --------------------------- To-do -----------------------------
-Next Save Breaking Version:
-https://discord.com/channels/815017574642483240/1101606968101179573/1363400676255731723
-- Hull Forge and Hull Decon use ShipVariantAPI in class field, which can cause issues when taking a save from one game ver to the next
 
 - Improvement (simple)
-Add a warning popup before you bulldoze the priceless ruins
-remove the nanoforge malus for ship components
+Meteor shower bar event
 Add icons to custom explo stations
 Sounds on riftgen animation
 ? Double check commerce building reset bug
-? alpha core in senate has no effect
 ? Detachments like to hide in system center (sun)
 Pet stations: Fix the -1c pet food cost in monthly report
 
@@ -42,9 +45,10 @@ Allow using relics to create BP for reverse engineering instead of wiping a spar
 
 - Roadmap
 Museum
+Weapons Teleporter (Ruin?)
 Missiles
-NPC usage and reactions
-NPC AI behaviour
+- NPC usage and reactions
+- NPC AI behaviour
 
 Helios Crucible
 Added - New Superstructure, the Helios Crucible
@@ -68,7 +72,6 @@ Before release
 
 --------------------------- Feedback Notes -----------------------------
 Requests
-- add whitelist setting to return to strict whitelisting
 - let user change warning beacon hazard level
 - add a colony buff to automated shipyards (maybe a buff to HI? got item sprites for it anyway)
 - Add keyboard shortcuts to all indEvo industry menu points
@@ -90,18 +93,6 @@ Requests
 todo Added - Adapted and expanded Vayras Sector distress call system (it would have crashed had anyone actually used it.)
 todo Added - The original 6 Ghost Ship distress calls
 todo Note - What I "ported" was really just the concept and texts. I rewrote the implementation from the ground up because it was a mess.
-
---------------------------- Known issues -----------------------------
-
-  >>> I care <<<
-- nothing
-
-  >>> I do not care <<<
-- Marine xp get wiped with detachments - lmao no fuck it that one's cancer to fix
-- Detachments eat crew that is in excess of capacity
-- Detachments refuse to move when in other system (??)
-- DEV Added - Behaviour: Deliver (Transports cargo to planet, delivers it into storage, then returns to your fleet)
-- DEV Deliver fleets still refuse to leave system, no clue why
 
 --------------------------- Ideas -----------------------------
 

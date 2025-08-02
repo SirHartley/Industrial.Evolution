@@ -68,6 +68,7 @@ import indevo.industries.changeling.plugins.CorporateGovernanceCampaignPlugin;
 import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.courierport.plugin.CourierPortOptionProvider;
 import indevo.industries.derelicts.listeners.AncientLabCommoditySwitchOptionProvider;
+import indevo.industries.derelicts.plugins.RemoveIndustryOptionWarningProvider;
 import indevo.industries.derelicts.plugins.RiftGenOptionProvider;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
@@ -481,6 +482,7 @@ public class ModPlugin extends BaseModPlugin {
         InvisiblePlanetaryShield.AlternateTextureOptionProvider.register();
         MilitaryRelay.RelayItemRemovalButtonListener.register();
         MeteorSwarmManager.register();
+        RemoveIndustryOptionWarningProvider.register();
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();
     }

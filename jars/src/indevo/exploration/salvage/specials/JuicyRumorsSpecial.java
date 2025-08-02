@@ -97,7 +97,7 @@ public class JuicyRumorsSpecial extends BaseSalvageSpecial {
 
             float repIncrease = data.repGainAmt * HOSTILE_INCREASE_FACT;
             float repReduce = Math.max(data.repGainAmt * HOSTILE_DECREASE_FACT, 0.01f);
-            AmbassadorPersonManager.adjustRelationship(Global.getSector().getPlayerFaction(), faction_1, repReduce);
+            AmbassadorPersonManager.adjustRelationship(Global.getSector().getPlayerFaction(), faction_1, -repReduce);
             AmbassadorPersonManager.adjustRelationship(Global.getSector().getPlayerFaction(), faction_2, repIncrease);
 
             text.setFontSmallInsignia();

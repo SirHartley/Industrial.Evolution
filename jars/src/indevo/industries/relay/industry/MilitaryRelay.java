@@ -22,12 +22,11 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
-import indevo.industries.InvisiblePlanetaryShield;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
-import indevo.utils.plugins.SimpleIndustryOptionProvider;
+import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 import indevo.utils.scripts.EntityRemovalScript;
 import indevo.utils.timers.NewDayListener;
 import org.lwjgl.util.vector.Vector2f;
@@ -39,7 +38,7 @@ import java.util.*;
 
 public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 
-    public static class RelayItemRemovalButtonListener extends SimpleIndustryOptionProvider {
+    public static class RelayItemRemovalButtonListener extends SingleIndustrySimpifiedOptionProvider {
 
         public static void register() {
             ListenerManagerAPI listeners = Global.getSector().getListenerManager();

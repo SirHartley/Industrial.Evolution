@@ -9,9 +9,9 @@ import com.fs.starfarer.api.impl.campaign.RuleBasedInteractionDialogPluginImpl;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
-import indevo.utils.plugins.SimpleIndustryOptionProvider;
+import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
-public class SenateOptionProvider extends SimpleIndustryOptionProvider {
+public class SenateOptionProvider extends SingleIndustrySimpifiedOptionProvider {
 
     public static void register() {
         ListenerManagerAPI listeners = Global.getSector().getListenerManager();

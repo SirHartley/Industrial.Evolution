@@ -10,9 +10,9 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.industry.RiftGenerator;
-import indevo.utils.plugins.SimpleIndustryOptionProvider;
+import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
-public class RiftGenOptionProvider extends SimpleIndustryOptionProvider {
+public class RiftGenOptionProvider extends SingleIndustrySimpifiedOptionProvider {
 
     public static void register() {
         ListenerManagerAPI listeners = Global.getSector().getListenerManager();

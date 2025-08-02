@@ -9,7 +9,7 @@ import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PlanetaryShield;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import indevo.utils.plugins.SimpleIndustryOptionProvider;
+import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
 import java.awt.*;
 
@@ -18,7 +18,7 @@ public class InvisiblePlanetaryShield extends PlanetaryShield {
     public static String TAG_LOW = "IndEvo_PS_LOW";
     public static String TAG_NONE = "IndEvo_PS_NONE";
 
-    public static class AlternateTextureOptionProvider extends SimpleIndustryOptionProvider {
+    public static class AlternateTextureOptionProvider extends SingleIndustrySimpifiedOptionProvider {
 
         public static void register() {
             ListenerManagerAPI listeners = Global.getSector().getListenerManager();
