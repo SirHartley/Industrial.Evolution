@@ -1,4 +1,4 @@
-package indevo.submarkets;
+package indevo.submarkets.impl;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
@@ -11,6 +11,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import indevo.industries.SharedSubmarketUserAPI;
 import indevo.industries.derelicts.industry.HullForge;
+import indevo.submarkets.DynamicSubmarket;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;

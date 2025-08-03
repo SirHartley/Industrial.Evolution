@@ -1,4 +1,4 @@
-package indevo.utils.scripts;
+package indevo.submarkets.script;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
@@ -10,10 +10,12 @@ import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin;
 import indevo.ids.Ids;
 import indevo.submarkets.DynamicSubmarket;
-import indevo.submarkets.SharedSubmarketPlugin;
+import indevo.submarkets.impl.SharedSubmarketPlugin;
 import indevo.utils.helper.MiscIE;
 
 //what the fuck is this trash script
+//update 2025: what the fuck
+
 public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
 
     protected final MarketAPI market;

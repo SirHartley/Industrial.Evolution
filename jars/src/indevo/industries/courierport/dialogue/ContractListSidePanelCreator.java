@@ -161,8 +161,9 @@ public class ContractListSidePanelCreator {
                 anchor = textPanel.createUIElement(TEXT_FIELD_WIDTH + 60f, 50f, false);
                 anchor.setParaFont(Fonts.DEFAULT_SMALL);
 
-                boolean ships = contract.scope != ShippingContract.Scope.ALL_CARGO && contract.scope != ShippingContract.Scope.SPECIFIC_CARGO;
+                boolean ships = contract.scope != ShippingContract.Scope.ALL_CARGO && contract.scope != ShippingContract.Scope.SPECIFIC_CARGO && contract.scope != ShippingContract.Scope.ALL_WEAPONS;
                 boolean cargo = contract.scope != ShippingContract.Scope.ALL_SHIPS && contract.scope != ShippingContract.Scope.SPECIFIC_SHIPS;
+
                 String and = ships && cargo ? " and %s" : "";
                 String shipStr = ShippingTooltipHelper.getShipAmtString(contract);
                 String cargoStr = ShippingTooltipHelper.getCargoAmtString(contract);

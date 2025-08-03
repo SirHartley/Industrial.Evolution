@@ -8,6 +8,6 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 public interface SimplifiedIndustryOptionProvider {
     boolean isSuitable(Industry ind, boolean allowUnderConstruction);
     void onClick(IndustryOptionProvider.IndustryOptionData opt, DialogCreatorUI ui);
-    void createTooltip(TooltipMakerAPI tooltip);
+    void createTooltip(TooltipMakerAPI tooltip, IndustryOptionProvider.IndustryOptionData opt);
     String getOptionLabel(Industry ind);
 }

@@ -45,7 +45,7 @@ public class InvisiblePlanetaryShield extends PlanetaryShield {
         }
 
         @Override
-        public void createTooltip(TooltipMakerAPI tooltip) {
+        public void createTooltip(TooltipMakerAPI tooltip, IndustryOptionData opt) {
             tooltip.addPara("Toggles between the visual modes of the planetary shield, from full visibility to invisible mode.", 0f);
         }
 

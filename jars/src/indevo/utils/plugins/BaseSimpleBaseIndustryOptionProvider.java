@@ -20,7 +20,8 @@ public abstract class BaseSimpleBaseIndustryOptionProvider implements IndustryOp
         List<IndustryOptionData> result = new ArrayList<IndustryOptionData>();
 
         IndustryOptionData opt = new IndustryOptionData(getOptionLabel(ind), CUSTOM_PLUGIN, ind, this);
-        opt.color = BASE_COLOUR;
+        opt.color = getOptionColour(opt);
+        opt.enabled = optionEnabled(opt);
         result.add(opt);
 
         return result;
@@ -29,7 +30,7 @@ public abstract class BaseSimpleBaseIndustryOptionProvider implements IndustryOp
     @Override
     public void createTooltip(IndustryOptionData opt, TooltipMakerAPI tooltip, float width) {
         if (opt.id == CUSTOM_PLUGIN) {
-            createTooltip(tooltip);
+            createTooltip(tooltip, opt);
         }
     }
 
@@ -43,5 +44,13 @@ public abstract class BaseSimpleBaseIndustryOptionProvider implements IndustryOp
         if (opt.id == CUSTOM_PLUGIN) {
             onClick(opt, ui);
         }
+    }
+
+    public boolean optionEnabled(IndustryOptionData opt){
+        return true;
+    }
+
+    public Color getOptionColour(IndustryOptionData opt){
+        return BASE_COLOUR;
     }
 }

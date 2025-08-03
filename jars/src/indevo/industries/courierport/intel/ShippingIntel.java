@@ -118,7 +118,7 @@ public class ShippingIntel extends BaseIntelPlugin {
                 info.addPara("The courier fleet is currently unloading cargo at %s.", opad, otherFaction.getBaseUIColor(), contract.getToMarket().getName());
                 break;
             case DONE_SUCCESS:
-                info.addPara("The delivery has finished and the fleet has disbanded.", opad);
+                info.addPara("The delivery has finished successfully.", opad);
                 info.addPara("The cargo was delivered to " + contract.getToMarket().getName() + ", " + contract.getToSubmarket().getNameOneLine(), opad);
                 break;
             case DONE_ALTERNATE:
@@ -179,7 +179,7 @@ public class ShippingIntel extends BaseIntelPlugin {
                 toSubmarket != null ? toSubmarket.getNameOneLine() : "");
 
         if (fromMarket != null && toMarket != null && fromSubmarket != null && toSubmarket != null) {
-            boolean shipsScope = contract.scope != ShippingContract.Scope.ALL_CARGO && contract.scope != ShippingContract.Scope.SPECIFIC_CARGO;
+            boolean shipsScope = contract.scope != ShippingContract.Scope.ALL_CARGO && contract.scope != ShippingContract.Scope.SPECIFIC_CARGO && contract.scope != ShippingContract.Scope.ALL_WEAPONS;
             boolean cargoScope = contract.scope != ShippingContract.Scope.ALL_SHIPS && contract.scope != ShippingContract.Scope.SPECIFIC_SHIPS;
             String and = shipsScope && cargoScope ? " and %s" : "";
             String shipStr = ShippingTooltipHelper.getShipAmtString(contract);

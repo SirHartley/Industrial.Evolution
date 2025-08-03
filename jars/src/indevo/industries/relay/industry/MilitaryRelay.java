@@ -59,7 +59,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
         }
 
         @Override
-        public void createTooltip(TooltipMakerAPI tooltip) {
+        public void createTooltip(TooltipMakerAPI tooltip, IndustryOptionData opt) {
             tooltip.addPara("Removes the %s installed in this industry.", 0f, Misc.getHighlightColor(), "Relay Hypertransmitter");
         }
 

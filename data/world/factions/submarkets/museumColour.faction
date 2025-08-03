@@ -1,7 +1,7 @@
 {
-	id:"engHubStorageColour",
-	"color":[235, 195, 52, 255],
-	"displayName":"null",
+	id:"museumColour",
+	"color":[199, 10, 63,255],
+    "displayName":"null",
     "displayNameWithArticle":"null",
     "displayNameLong":"null",
     "displayNameLongWithArticle":"null",

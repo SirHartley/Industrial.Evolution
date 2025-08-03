@@ -31,17 +31,17 @@ public class CourierPortOptionProvider extends SingleIndustrySimpifiedOptionProv
     }
 
     @Override
-    public void createTooltip(TooltipMakerAPI tooltip) {
-        tooltip.addSectionHeading("Visit the " + "Courier Port", Alignment.MID, 0f);
-        tooltip.addPara("Manage your shipping contracts, or create new ones.", 10f);
-    }
-
-    @Override
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
         SectorEntityToken target = opt.ind.getMarket().getPrimaryEntity();
         target.getMemoryWithoutUpdate().set("$IndEvo_closeDialogueOnNextReturn", true, 0);
 
         RuleBasedInteractionDialogPluginImpl plugin = new RuleBasedInteractionDialogPluginImpl("IndEvo_FireBaseSPOptionList");
         ui.showDialog(target, plugin);
+    }
+
+    @Override
+    public void createTooltip(TooltipMakerAPI tooltip, IndustryOptionData opt) {
+        tooltip.addSectionHeading("Visit the " + "Courier Port", Alignment.MID, 0f);
+        tooltip.addPara("Manage your shipping contracts, or create new ones.", 10f);
     }
 }

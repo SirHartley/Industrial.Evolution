@@ -1,4 +1,4 @@
-package indevo.submarkets;
+package indevo.submarkets.impl;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CoreUIAPI;
@@ -15,6 +15,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.RestorationDocks;
+import indevo.submarkets.DynamicSubmarket;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 

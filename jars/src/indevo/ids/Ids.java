@@ -40,6 +40,7 @@ public class Ids {
     public static final String ENGSTORAGE = "IndEvo_EngStorage";
     public static final String SHAREDSTORAGE = "IndEvo_SharedStore";
     public static final String PETMARKET = "IndEvo_PetSubMarket";
+    public static final String MUSEUM_SUBMARKET = "IndEvo_MuseumStorage";
 
     //Industries
     public static final String ADMANUF = "IndEvo_AdManuf";
@@ -75,6 +76,7 @@ public class Ids {
     public static final String SWITCHABLE_POPULATION = "IndEvo_SwitchablePopulation";
     public static final String PET_STORE = "IndEvo_PetStore";
     public static final String PLANETARY_SHIELD_ALT = "IndEvo_InvisiblePlanetaryShield";
+    public static final String MUSEUM = "IndEvo_Museum";
 
     public static final String PIRATEHAVEN_SECONDARY = "IndEvo_pirateHavenSecondary";
     public static final String COMMERCE = "commerce";

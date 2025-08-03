@@ -1,12 +1,19 @@
 id,name,faction,desc,script,icon,order
-IndEvo_RepairStorage,Repair Docks,player,Deposit ships with D-Mods here to have them slowly repaired.,indevo.submarkets.RestorationDocksSubmarketPlugin,graphics/factions/repDockStorage.png,2000
+IndEvo_RepairStorage,Repair Docks,player,Deposit ships with D-Mods here to have them slowly repaired.,indevo.submarkets.impl.RestorationDocksSubmarketPlugin,graphics/factions/repDockStorage.png,2000
 IndEvo_ReqCenterMarket,"Requisitions
-Centre",player,Sells weapons of factions you have good relations with. Can be set to sell only weapons of a specific faction by having an Embassy on the same planet.,indevo.submarkets.RequisitionsCenterSubmarketPlugin,graphics/factions/reqCenterStorage.png,1100
+Centre",player,Sells weapons of factions you have good relations with. Can be set to sell only weapons of a specific faction by having an Embassy on the same planet.,indevo.submarkets.impl.RequisitionsCenterSubmarketPlugin,graphics/factions/reqCenterStorage.png,1100
 IndEvo_DeconstStorage,"Hull
-Deconstruction",player,Deposit ships to deconstruct for transfer onto a Forge Template here.,indevo.submarkets.DeconstructorSubmarketPlugin,graphics/factions/deconstructorStorage.png,1300
-IndEvo_EngStorage,Engineering Hub,player,"Deposit ships for disassembly here, to gain progress on the research of a blueprint.",indevo.submarkets.ReverseEngineeringSubmarketPlugin,graphics/factions/reverseEngineering.png,1200
+Deconstruction",player,Deposit ships to deconstruct for transfer onto a Forge Template here.,indevo.submarkets.impl.DeconstructorSubmarketPlugin,graphics/factions/deconstructorStorage.png,1300
+IndEvo_EngStorage,Engineering Hub,player,"Deposit ships for disassembly here, to gain progress on the research of a blueprint.",indevo.submarkets.impl.ReverseEngineeringSubmarketPlugin,graphics/factions/reverseEngineering.png,1200
 IndEvo_SharedStore,"Industrial
-Supply Store",player,Storage for buildings to take resources from.,indevo.submarkets.SharedSubmarketPlugin,graphics/factions/sharedIndStorage.png,1500
+Supply Store",player,Storage for buildings to take resources from.,indevo.submarkets.impl.SharedSubmarketPlugin,graphics/factions/sharedIndStorage.png,1500
 IndEvo_PetSubMarket,Animal Market,player,"Buy pets, and everything for your pet here! No refunds.",indevo.industries.petshop.submarket.PetSubMarket,graphics/factions/petStorage.png,1050
+,,,,,,
+IndEvo_MuseumStorage,Museum,player,The main museum storage. Ships stored here will count towards the local museum effects and periodically go on parades.,indevo.industries.museum.submarket.MuseumSubmarketPlugin,graphics/factions/museumStorageIcon.png,1600
+IndEvo_MuseumStorage_1,Archive 1,player,An archive added managed by the museum society.,indevo.industries.museum.submarket.MuseumArchiveSubmarketPlugin,graphics/factions/storage_1.png,1601
+IndEvo_MuseumStorage_2,Archive 2,player,An archive added managed by the museum society.,indevo.industries.museum.submarket.MuseumArchiveSubmarketPlugin,graphics/factions/storage_2.png,1602
+IndEvo_MuseumStorage_3,Archive 3,player,An archive added managed by the museum society.,indevo.industries.museum.submarket.MuseumArchiveSubmarketPlugin,graphics/factions/storage_3.png,1603
+IndEvo_MuseumStorage_4,Archive 4,player,An archive added managed by the museum society.,indevo.industries.museum.submarket.MuseumArchiveSubmarketPlugin,graphics/factions/storage_4.png,1604
+IndEvo_MuseumStorage_5,Archive 5,player,An archive added managed by the museum society.,indevo.industries.museum.submarket.MuseumArchiveSubmarketPlugin,graphics/factions/storage_5.png,1605
 ,,,,,,
 IndEvo_tempStorage,tempStorage,player,Temp Storage. Don't fuck with this or risk losing all your shit.,com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin,graphics/factions/storage.png,1000

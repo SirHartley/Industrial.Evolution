@@ -53,6 +53,14 @@ public class Shipment implements NewDayListener, EveryFrameScript {
     }
 
     public void init() {
+        //same market = immediate completion
+        if (contract.fromMarketId.equals(contract.toMarketId)){
+            chargePlayer(cost, this);
+            finalizeAndRemove();
+            Global.getSector().getIntelManager().addIntel(intel);
+            return;
+        }
+
         CourierFleetCreator.spawnFleet(this);
 
         Global.getSector().getIntelManager().addIntel(intel);

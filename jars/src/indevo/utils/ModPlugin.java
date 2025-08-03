@@ -73,6 +73,8 @@ import indevo.industries.derelicts.plugins.RiftGenOptionProvider;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.embassy.scripts.HostileActivityEventSubRegisterListener;
+import indevo.industries.museum.plugins.MuseumAddSubmarketOptionProvider;
+import indevo.industries.museum.plugins.MuseumRemoveSubmarketOptionProvider;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.plugins.PetCenterOptionProvider;
@@ -483,6 +485,9 @@ public class ModPlugin extends BaseModPlugin {
         MilitaryRelay.RelayItemRemovalButtonListener.register();
         MeteorSwarmManager.register();
         RemoveIndustryOptionWarningProvider.register();
+        MuseumAddSubmarketOptionProvider.register();
+        MuseumRemoveSubmarketOptionProvider.register();
+
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();
     }

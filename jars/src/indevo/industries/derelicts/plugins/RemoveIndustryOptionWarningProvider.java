@@ -14,6 +14,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.plugins.TagBasedSimplifiedIndustryOptionProvider;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,24 +74,16 @@ public class RemoveIndustryOptionWarningProvider extends TagBasedSimplifiedIndus
     }
 
     @Override
-    public void createTooltip(IndustryOptionData opt, TooltipMakerAPI tooltip, float width) {
-        if (opt.id == CUSTOM_PLUGIN) {
-            float refund = Global.getSettings().getFloat("industryRefundFraction");
+    public void createTooltip(TooltipMakerAPI tooltip, IndustryOptionData opt) {
+        float refund = Global.getSettings().getFloat("industryRefundFraction");
 
-            tooltip.addPara("Can not be rebuilt once dismantled.", Misc.getNegativeHighlightColor(), 0f);
+        tooltip.addPara("Can not be rebuilt once dismantled.", Misc.getNegativeHighlightColor(), 0f);
 
-            tooltip.addPara("Shut down all operations for a %s refund.", 10f, Misc.getHighlightColor(),
-                    Misc.getDGSCredits(opt.ind.getSpec().getCost() * refund));
+        tooltip.addPara("Shut down all operations for a %s refund.", 10f, Misc.getHighlightColor(),
+                Misc.getDGSCredits(opt.ind.getSpec().getCost() * refund));
 
-            tooltip.addPara("Equivalent to downgrading and then shutting down for upgraded industries and structures. Refunds %s of the construction costs.", 10f, Misc.getHighlightColor(),
-                    StringHelper.getAbsPercentString(refund, false));
-        }
-    }
-
-    //should really fix this since I override it here but eh...
-    @Override
-    public void createTooltip(TooltipMakerAPI tooltip) {
-
+        tooltip.addPara("Equivalent to downgrading and then shutting down for upgraded industries and structures. Refunds %s of the construction costs.", 10f, Misc.getHighlightColor(),
+                StringHelper.getAbsPercentString(refund, false));
     }
 
     @Override
@@ -104,16 +97,12 @@ public class RemoveIndustryOptionWarningProvider extends TagBasedSimplifiedIndus
     }
 
     @Override
-    public java.util.List<IndustryOptionData> getIndustryOptions(Industry ind) {
-        if (!isSuitable(ind, false)) return null;
+    public boolean optionEnabled(IndustryOptionData opt) {
+        return opt.ind.canShutDown();
+    }
 
-        List<IndustryOptionData> result = new ArrayList<IndustryOptionData>();
-
-        IndustryOptionData opt = new IndustryOptionData(getOptionLabel(ind), CUSTOM_PLUGIN, ind, this);
-        opt.color = ind.getMarket().getFaction().getBaseUIColor();
-        if (!ind.canShutDown()) opt.enabled = false;
-        result.add(opt);
-
-        return result;
+    @Override
+    public Color getOptionColour(IndustryOptionData opt) {
+        return opt.ind.getMarket().getFaction().getBaseUIColor();
     }
 }

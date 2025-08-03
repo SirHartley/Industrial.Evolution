@@ -17,10 +17,12 @@ import java.util.List;
 import static indevo.industries.courierport.ShippingTooltipHelper.addStr;
 
 public class ShippingContract {
+
     public enum Scope {
         EVERYTHING,
         ALL_CARGO,
         ALL_SHIPS,
+        ALL_WEAPONS,
         SPECIFIC_CARGO,
         SPECIFIC_SHIPS,
         SPECIFIC_EVERYTHING

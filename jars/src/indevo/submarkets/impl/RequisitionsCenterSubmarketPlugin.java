@@ -1,4 +1,4 @@
-package indevo.submarkets;
+package indevo.submarkets.impl;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.Script;
@@ -20,6 +20,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.RequisitionCenter;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
+import indevo.submarkets.DynamicSubmarket;
 import indevo.utils.helper.MiscIE;
 
 import java.util.*;

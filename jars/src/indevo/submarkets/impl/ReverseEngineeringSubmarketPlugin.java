@@ -1,4 +1,4 @@
-package indevo.submarkets;
+package indevo.submarkets.impl;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CoreUIAPI;
@@ -8,7 +8,6 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -16,6 +15,7 @@ import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.EngineeringHub;
+import indevo.submarkets.DynamicSubmarket;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;

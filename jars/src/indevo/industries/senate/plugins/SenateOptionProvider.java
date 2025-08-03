@@ -31,12 +31,6 @@ public class SenateOptionProvider extends SingleIndustrySimpifiedOptionProvider 
     }
 
     @Override
-    public void createTooltip(TooltipMakerAPI tooltip) {
-        tooltip.addSectionHeading("Visit the " + "Senate", Alignment.MID, 0f);
-        tooltip.addPara("Enact an Edict or manage your current one.", 10f);
-    }
-
-    @Override
     public boolean isSuitable(Industry ind, boolean allowUnderConstruction) {
         return super.isSuitable(ind, allowUnderConstruction) && ind.getMarket().isPlayerOwned();
     }
@@ -48,5 +42,11 @@ public class SenateOptionProvider extends SingleIndustrySimpifiedOptionProvider 
 
         RuleBasedInteractionDialogPluginImpl plugin = new RuleBasedInteractionDialogPluginImpl("IndEvo_FireBaseSenateOptionList");
         ui.showDialog(target, plugin);
+    }
+
+    @Override
+    public void createTooltip(TooltipMakerAPI tooltip, IndustryOptionData opt) {
+        tooltip.addSectionHeading("Visit the " + "Senate", Alignment.MID, 0f);
+        tooltip.addPara("Enact an Edict or manage your current one.", 10f);
     }
 }

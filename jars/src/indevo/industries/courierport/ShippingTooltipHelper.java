@@ -29,7 +29,7 @@ public class ShippingTooltipHelper {
     public static String getShipAmtString(ShippingContract contract) {
         if (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING)
             return contract.variantList.size() + " ships";
-        else if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO || contract.scope == ShippingContract.Scope.ALL_CARGO)
+        else if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO || contract.scope == ShippingContract.Scope.ALL_CARGO || contract.scope == ShippingContract.Scope.ALL_WEAPONS)
             return "no ships";
         return "all ships";
 
@@ -54,6 +54,9 @@ public class ShippingTooltipHelper {
             return amt + " items";
         } else if (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS || contract.scope == ShippingContract.Scope.ALL_SHIPS)
             return "no items";
+
+        if (contract.scope == ShippingContract.Scope.ALL_WEAPONS) return "all weapons";
+
         return "all items";
 
 

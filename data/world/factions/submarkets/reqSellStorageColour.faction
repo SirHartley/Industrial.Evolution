@@ -12,7 +12,7 @@
 	"showInIntelTab":false,
 	"logo":"graphics/factions/neutral.png",
 	"crest":"graphics/factions/crest_neutral.png",
-	"shipNamePrefix":"HIS GREAT AND ALL POWERFUL MAJESTY SIR HARTLEY THE FIRST",
+	"shipNamePrefix":"HIS GREAT AND ALL POWERFUL MAJESTY SIR HRATLEY THE FIRST",
 	"shipNameSources":{
 		"GENERAL":1,
 	},

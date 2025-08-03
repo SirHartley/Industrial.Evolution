@@ -3,7 +3,7 @@ package indevo.industries;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import indevo.ids.Ids;
-import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
+import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 
 public abstract class SharedSubmarketUser extends BaseIndustry implements SharedSubmarketUserAPI {
         public void addSharedSubmarket() {

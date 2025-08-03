@@ -15,8 +15,9 @@ public class ShippingCargoManager {
     public static CargoAPI getTargetCargoFromOrigin(ShippingContract contract, boolean removeWhenFound) {
         ShippingContract.Scope scope = contract.scope;
 
-        boolean ships = scope != ShippingContract.Scope.ALL_CARGO && scope != ShippingContract.Scope.SPECIFIC_CARGO;
+        boolean ships = scope != ShippingContract.Scope.ALL_CARGO && scope != ShippingContract.Scope.SPECIFIC_CARGO && scope != ShippingContract.Scope.ALL_WEAPONS;
         boolean cargo = scope != ShippingContract.Scope.ALL_SHIPS && scope != ShippingContract.Scope.SPECIFIC_SHIPS;
+        boolean weapons = scope == ShippingContract.Scope.ALL_WEAPONS;
         boolean specific = scope.toString().toLowerCase().contains("specific");
 
         SubmarketAPI fromSubmarket = contract.getFromSubmarket();
@@ -47,6 +48,15 @@ public class ShippingCargoManager {
                         //there is enough, remove target quantity
                         shippingCargo.addItems(stack.getType(), stack.getData(), stackTargetQuantity);
                         fromSubmarketCargo.removeItems(stack.getType(), stack.getData(), stackTargetQuantity);
+                    }
+                }
+            } else if (weapons){
+                for (CargoStackAPI stack : contract.targetCargo.getStacksCopy()) {
+                    if (stack.isWeaponStack() || stack.isFighterWingStack()){
+                        if (!toSubmaket.isIllegalOnSubmarket(stack, SubmarketPlugin.TransferAction.PLAYER_SELL)) {
+                            shippingCargo.addFromStack(stack);
+                            fromSubmarketCargo.removeStack(stack);
+                        }
                     }
                 }
             } else {

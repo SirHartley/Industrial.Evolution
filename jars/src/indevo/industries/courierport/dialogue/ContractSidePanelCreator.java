@@ -35,6 +35,7 @@ public class ContractSidePanelCreator {
     protected static final float SHIP_ICON_WIDTH = 48;
     protected static final float ARROW_BUTTON_WIDTH = 20, BUTTON_HEIGHT = 30;
     protected static final float SELECT_BUTTON_WIDTH = 95f;
+    protected static final float SCOPE_BUTTON_WIDTH = 88f;
     protected static final float TEXT_FIELD_WIDTH = 80f;
 
     public static final String CONTRACT_MEMORY = "$IndEvo_ShippingContractMemory";
@@ -605,7 +606,7 @@ public class ContractSidePanelCreator {
             boolean showShips = fromSubmarketPlugin.showInFleetScreen() && toSubmarketPlugin.showInFleetScreen();
 
             //EVERYTHING
-            anchor = scopeSelectionPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
+            anchor = scopeSelectionPanel.createUIElement(SCOPE_BUTTON_WIDTH, BUTTON_HEIGHT, false);
             String name = "Everything";
             ShippingContract.Scope scope = ShippingContract.Scope.EVERYTHING;
             buttonId = "button_scope_" + scope.toString() + id;
@@ -615,7 +616,7 @@ public class ContractSidePanelCreator {
             brightColor = Misc.getBrightPlayerColor();
 
             areaCheckbox = anchor.addAreaCheckbox(name, new Object(), baseColor, bgColour, brightColor,
-                    SELECT_BUTTON_WIDTH,
+                    SCOPE_BUTTON_WIDTH,
                     BUTTON_HEIGHT,
                     0f,
                     false);
@@ -638,13 +639,13 @@ public class ContractSidePanelCreator {
             lastUsedVariableButtonAnchor = anchor;
 
             if (showCargo) {
-                anchor = scopeSelectionPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
+                anchor = scopeSelectionPanel.createUIElement(SCOPE_BUTTON_WIDTH, BUTTON_HEIGHT, false);
                 name = "All Cargo";
                 scope = ShippingContract.Scope.ALL_CARGO;
                 buttonId = "button_scope_" + scope.toString() + id;
 
                 areaCheckbox = anchor.addAreaCheckbox(name, new Object(), baseColor, bgColour, brightColor,
-                        SELECT_BUTTON_WIDTH,
+                        SCOPE_BUTTON_WIDTH,
                         BUTTON_HEIGHT,
                         0f,
                         false);
@@ -668,16 +669,49 @@ public class ContractSidePanelCreator {
                 VisualCustomPanel.getPlugin().addButton(entry);
                 scopeSelectionPanel.addUIElement(anchor).rightOfMid(lastUsedVariableButtonAnchor, opad);        //second in row
                 lastUsedVariableButtonAnchor = anchor;
+
+                //------- All weapons
+
+                anchor = scopeSelectionPanel.createUIElement(SCOPE_BUTTON_WIDTH, BUTTON_HEIGHT, false);
+                name = "All Weapons";
+                scope = ShippingContract.Scope.ALL_WEAPONS;
+                buttonId = "button_scope_" + scope.toString() + id;
+
+                areaCheckbox = anchor.addAreaCheckbox(name, new Object(), baseColor, bgColour, brightColor,
+                        SCOPE_BUTTON_WIDTH,
+                        BUTTON_HEIGHT,
+                        0f,
+                        false);
+
+                areaCheckbox.setChecked(contract.scope == scope);
+
+                entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(areaCheckbox, buttonId) {
+                    @Override
+                    public void onToggle() {
+                        if (!textField.getText().isEmpty() && !textField.getText().equals(contract.name))
+                            contract.name = textField.getText();
+
+                        if (contract.scope == ShippingContract.Scope.ALL_WEAPONS)
+                            contract.scope = ShippingContract.Scope.EVERYTHING;
+                        else contract.scope = ShippingContract.Scope.ALL_WEAPONS;
+
+                        showPanel(dialogue, contract);
+                    }
+                };
+
+                VisualCustomPanel.getPlugin().addButton(entry);
+                scopeSelectionPanel.addUIElement(anchor).rightOfMid(lastUsedVariableButtonAnchor, opad);        //second in row
+                lastUsedVariableButtonAnchor = anchor;
             }
 
             if (showShips) {
-                anchor = scopeSelectionPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
+                anchor = scopeSelectionPanel.createUIElement(SCOPE_BUTTON_WIDTH, BUTTON_HEIGHT, false);
                 name = "All Ships";
                 scope = ShippingContract.Scope.ALL_SHIPS;
                 buttonId = "button_scope_" + scope.toString() + id;
 
                 areaCheckbox = anchor.addAreaCheckbox(name, new Object(), baseColor, bgColour, brightColor,
-                        SELECT_BUTTON_WIDTH,
+                        SCOPE_BUTTON_WIDTH,
                         BUTTON_HEIGHT,
                         0f,
                         false);
@@ -704,13 +738,13 @@ public class ContractSidePanelCreator {
             }
 
             if (showCargo) {
-                anchor = scopeSelectionPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
+                anchor = scopeSelectionPanel.createUIElement(SCOPE_BUTTON_WIDTH, BUTTON_HEIGHT, false);
                 name = "Select Cargo";
                 scope = ShippingContract.Scope.SPECIFIC_CARGO;
                 buttonId = "button_scope_" + scope.toString() + id;
 
                 areaCheckbox = anchor.addAreaCheckbox(name, new Object(), baseColor, bgColour, brightColor,
-                        SELECT_BUTTON_WIDTH,
+                        SCOPE_BUTTON_WIDTH,
                         BUTTON_HEIGHT,
                         0f,
                         false);
@@ -753,13 +787,13 @@ public class ContractSidePanelCreator {
             }
 
             if (showShips) {
-                anchor = scopeSelectionPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
+                anchor = scopeSelectionPanel.createUIElement(SCOPE_BUTTON_WIDTH, BUTTON_HEIGHT, false);
                 name = "Select Ships";
                 scope = ShippingContract.Scope.SPECIFIC_SHIPS;
                 buttonId = "button_scope_" + scope.toString() + id;
 
                 areaCheckbox = anchor.addAreaCheckbox(name, new Object(), baseColor, bgColour, brightColor,
-                        SELECT_BUTTON_WIDTH,
+                        SCOPE_BUTTON_WIDTH,
                         BUTTON_HEIGHT,
                         0f,
                         false);
@@ -899,7 +933,7 @@ public class ContractSidePanelCreator {
                 toSubmarket != null ? toSubmarket.getNameOneLine() : "");
 
         if (fromMarket != null && toMarket != null && fromSubmarket != null && toSubmarket != null) {
-            boolean ships = contract.scope != ShippingContract.Scope.ALL_CARGO && contract.scope != ShippingContract.Scope.SPECIFIC_CARGO;
+            boolean ships = contract.scope != ShippingContract.Scope.ALL_CARGO && contract.scope != ShippingContract.Scope.SPECIFIC_CARGO && contract.scope != ShippingContract.Scope.ALL_WEAPONS;
             boolean cargo = contract.scope != ShippingContract.Scope.ALL_SHIPS && contract.scope != ShippingContract.Scope.SPECIFIC_SHIPS;
             String and = ships && cargo ? " and %s" : "";
             String shipStr = ShippingTooltipHelper.getShipAmtString(contract);

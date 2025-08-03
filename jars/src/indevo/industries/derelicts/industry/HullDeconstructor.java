@@ -32,7 +32,7 @@ import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
-import indevo.utils.scripts.SubMarketAddOrRemovePlugin;
+import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
 

@@ -37,17 +37,17 @@ public class RiftGenOptionProvider extends SingleIndustrySimpifiedOptionProvider
     }
 
     @Override
-    public void createTooltip(TooltipMakerAPI tooltip) {
-        tooltip.addSectionHeading("Visit the " + "Rift Generator", Alignment.MID, 0f);
-        tooltip.addPara("Control the Rift Generator", 10f);
-    }
-
-    @Override
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
         SectorEntityToken target = opt.ind.getMarket().getPrimaryEntity();
         target.getMemoryWithoutUpdate().set("$IndEvo_closeDialogueOnNextReturn", true, 0);
 
         RuleBasedInteractionDialogPluginImpl plugin = new RuleBasedInteractionDialogPluginImpl("IndEvo_FireBaseRGOptionList");
         ui.showDialog(target, plugin);
+    }
+
+    @Override
+    public void createTooltip(TooltipMakerAPI tooltip, IndustryOptionData opt) {
+        tooltip.addSectionHeading("Visit the " + "Rift Generator", Alignment.MID, 0f);
+        tooltip.addPara("Control the Rift Generator", 10f);
     }
 }

@@ -2,6 +2,8 @@
 
 validate if all roid types work and don't lag too much
 
+selecting "all weapons" makes shipping contracts silently fail (??)
+
 --------------------------- Known issues -----------------------------
 
   >>> High Priority <<< (Soft locks, serious impact on enjoyment or causes crashes)
