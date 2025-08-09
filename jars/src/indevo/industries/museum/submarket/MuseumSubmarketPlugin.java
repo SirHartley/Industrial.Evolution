@@ -1,8 +1,12 @@
 package indevo.industries.museum.submarket;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import indevo.ids.Ids;
+import indevo.industries.museum.industry.Museum;
 import indevo.submarkets.BaseRemovableStorageSubmarketPlugin;
 
 public class MuseumSubmarketPlugin extends BaseRemovableStorageSubmarketPlugin {
@@ -20,5 +24,22 @@ public class MuseumSubmarketPlugin extends BaseRemovableStorageSubmarketPlugin {
     @Override
     public boolean isIllegalOnSubmarket(CargoStackAPI stack, TransferAction action) {
         return true;
+    }
+
+    @Override
+    public boolean isIllegalOnSubmarket(FleetMemberAPI member, TransferAction action) {
+        if (action != TransferAction.PLAYER_BUY) return false;
+
+        Museum museum = (Museum) market.getIndustry(Ids.MUSEUM);
+        for (CampaignFleetAPI fleet : museum.getParadeFleets()){
+            for (FleetMemberAPI m : fleet.getMembersWithFightersCopy()) if (member.getVariant() == m.getVariant()) return true;
+        }
+
+        return super.isIllegalOnSubmarket(member, action);
+    }
+
+    @Override
+    public String getIllegalTransferText(FleetMemberAPI member, TransferAction action) {
+        return "Out on parade";
     }
 }

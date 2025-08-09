@@ -1,11 +1,13 @@
 package indevo.industries.museum.industry;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SubmarketPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
+import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -26,7 +28,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class Museum extends BaseIndustry {
+public class Museum extends BaseIndustry implements EconomyTickListener {
 
     public static final int MAX_ADDITIONAL_SUBMARKETS = 5;
     public static final float MAX_ADDITIONAL_CREDITS = 1950;
@@ -55,6 +57,9 @@ public class Museum extends BaseIndustry {
 
         if (!market.isPlayerOwned()) return;
 
+        //for parade handling - not needed in npc mode
+        Global.getSector().getListenerManager().addListener(this);
+
         //update ship hull values
         List<ShipHullSpecAPI> specList = MiscIE.getAllLearnableShipHulls(); //only learnable cause getting all fucks up the value statistics something fierce
 
@@ -77,14 +82,21 @@ public class Museum extends BaseIndustry {
             hullSizeValueMap.put(size, valuePair);
         }
 
+        //income
         income.modifyFlat(getModId(), getTotalShipValue(), "Exhibition Income");
     }
 
     @Override
     public void unapply() {
         super.unapply();
-
+        Global.getSector().getListenerManager().removeListener(this);
         income.unmodify(getModId());
+    }
+
+    @Override
+    public void reportEconomyTick(int iterIndex) {
+
+
     }
 
     @Override
@@ -101,6 +113,10 @@ public class Museum extends BaseIndustry {
         }
     }
 
+    public List<CampaignFleetAPI> getParadeFleets() {
+        return paradeFleets;
+    }
+
     public void addParadeFleetTooltip(CargoAPI cargo, TooltipMakerAPI tooltip){
         FactionAPI marketFaction = market.getFaction();
         Color color = marketFaction.getBaseUIColor();
@@ -110,6 +126,8 @@ public class Museum extends BaseIndustry {
         float spad = 5f;
 
         tooltip.addSectionHeading("Parade Fleets", color, dark, Alignment.MID, spad);
+
+        //todo tooltip
 
         tooltip.addPara("There are currently %s.", opad, Misc.getHighlightColor(), "no active parade fleets.");
     }
@@ -263,5 +281,10 @@ public class Museum extends BaseIndustry {
     public MuseumSubmarketData getData(SubmarketPlugin forPlugin){
         for (MuseumSubmarketData data : submarkets) if (data.submarketID.equals(forPlugin.getSubmarket().getSpecId())) return data;
         return null;
+    }
+
+    @Override
+    public void reportEconomyMonthEnd() {
+
     }
 }

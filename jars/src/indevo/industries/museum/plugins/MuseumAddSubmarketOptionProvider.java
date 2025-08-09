@@ -171,95 +171,96 @@ public class MuseumAddSubmarketOptionProvider extends SingleIndustrySimpifiedOpt
         return "Add storage...";
     }
 
-    //vibe coding... pretty sure this is fucked up but who cares
+    //thx chatgpt (vibe coding this took almost as long as I would have taken just making it myself...)
     public static String formatName(String raw) {
-        // Define the maximum total length allowed (before truncation)
-        int maxLength = 24;
-        // Define the maximum characters allowed per line
-        int maxLineLength = 12;
+        int maxLineLength = 16;
 
-        // This method formats a string into at most 2 lines,
-        // each up to maxLineLength characters.
-        // If the original text is too long, it is truncated with "..."
-        // Words are split smartly to avoid breaking mid-word when possible.
-
-        // Handle null input
         if (raw == null) return "";
+        String text = raw.trim().replaceAll("\\s+", " ");
+        if (text.isEmpty()) return "";
 
-        // Trim spaces at the ends and replace multiple spaces with a single space
-        String s = raw.trim().replaceAll("\\s+", " ");
+        StringBuilder line1 = new StringBuilder();
+        StringBuilder line2 = new StringBuilder();
+        boolean secondLineTruncated = false; // cut or removed on line 2
 
-        // Return empty string if, after cleaning, there is no content
-        if (s.isEmpty()) return "";
-
-        // CASE 1: Input is a single word (no spaces)
-        if (!s.contains(" ")) {
-            boolean overMax = s.length() > maxLength; // Check if exceeds max total length
-            // Cut the word to maxLength if needed
-            String cut = overMax ? s.substring(0, maxLength) : s;
-
-            // If fits in one line
-            if (cut.length() <= maxLineLength)
-                return overMax ? cut + "..." : cut;
-
-            // If needs splitting into two lines
-            String first = cut.substring(0, maxLineLength) + "-"; // Add hyphen to indicate split
-            String second = cut.substring(maxLineLength);
-            // Add ellipsis if original exceeded maxLength
-            return first + "\n" + second + (overMax ? "..." : "");
-        }
-
-        // CASE 2: Input has multiple words
-        String[] w = s.split(" "); // Split into words
-        StringBuilder l1 = new StringBuilder(), l2 = new StringBuilder();
-        int i = 0; // Word index
-
-        // Loop for 2 lines
-        for (int ln = 1; ln <= 2; ln++) {
-            StringBuilder line = ln == 1 ? l1 : l2;
-
-            // Fill the current line
-            while (i < w.length) {
-                int cap = maxLineLength - line.length(); // Remaining capacity in this line
-
-                // If no space left, force truncation
-                if (cap <= 0) return l1 + "\n" + l2 + "...";
-
-                String tok = w[i]; // Current word
-                int need = tok.length() + (line.length() == 0 ? 0 : 1); // Space needed (word + optional space)
-
-                if (need <= cap) {
-                    // Word fits in current line
-                    if (line.length() > 0) line.append(" ");
-                    line.append(tok);
-                    i++;
-                } else {
-                    // Word doesn't fit
-                    if (line.length() == 0) {
-                        // If first word in line is too big, split it
-                        if (ln == 1) {
-                            line.append(tok, 0, cap).append("-");
-                            w[i] = tok.substring(cap); // Remaining part stays as next word
-                            break;
-                        } else {
-                            // Second line, cut without hyphen (then ellipsis)
-                            line.append(tok, 0, cap);
-                            return l1 + "\n" + l2 + "...";
-                        }
+        String[] words = text.split(" ");
+        for (String word : words) {
+            if (line2.length() > 0) {
+                // Already on second line
+                if (line2.length() + 1 + word.length() <= maxLineLength) {
+                    line2.append(' ').append(word);
+                } else if (word.length() > maxLineLength) {
+                    // Hyphenate on line 2 and mark truncation
+                    int spaceLeft = maxLineLength - line2.length() - 1; // room after a space
+                    if (spaceLeft >= 1) {
+                        line2.append(' ').append(word, 0, spaceLeft - 1).append('-');
+                        secondLineTruncated = true;
                     } else {
-                        // If we already have content, stop filling line
-                        if (ln == 2) return l1 + "\n" + l2 + "...";
-                        break;
+                        // No room at all - show ellipsis later
+                        secondLineTruncated = true;
+                    }
+                    break; // two lines only
+                } else {
+                    // Word does not fit on line 2 - removed
+                    secondLineTruncated = true;
+                    break;
+                }
+            } else {
+                // Filling first line
+                if (line1.length() == 0) {
+                    if (word.length() <= maxLineLength) {
+                        line1.append(word);
+                    } else {
+                        // Break long first word: part on line 1, remainder starts line 2
+                        line1.append(word, 0, maxLineLength - 1).append('-');
+                        String remainder = word.substring(maxLineLength - 1);
+                        if (remainder.length() <= maxLineLength) {
+                            line2.append(remainder);
+                        } else {
+                            line2.append(remainder, 0, maxLineLength - 1).append('-');
+                            secondLineTruncated = true;
+                            break;
+                        }
+                    }
+                } else {
+                    int needed = 1 + word.length(); // space + word
+                    if (line1.length() + needed <= maxLineLength) {
+                        line1.append(' ').append(word);
+                    } else {
+                        // Move to second line
+                        if (word.length() <= maxLineLength) {
+                            line2.append(word);
+                        } else {
+                            line2.append(word, 0, maxLineLength - 1).append('-');
+                            secondLineTruncated = true;
+                            break;
+                        }
                     }
                 }
             }
         }
 
-        // If we have a second line, decide whether to add ellipsis
-        if (l2.length() > 0)
-            return i < w.length ? l1 + "\n" + l2 + "..." : l1 + "\n" + l2;
+        // If second line experienced a cut or a word was removed, end with "..."
+        if (secondLineTruncated) {
+            // Trim trailing spaces and any trailing hyphen before adding ellipsis
+            int len = line2.length();
+            while (len > 0 && line2.charAt(len - 1) == ' ') { line2.setLength(--len); }
+            if (len > 0 && line2.charAt(len - 1) == '-') { line2.setLength(--len); }
 
-        // Otherwise return first line only
-        return l1.toString();
+            // Ensure room for "..." within maxLineLength
+            int roomForEllipsis = maxLineLength - 3;
+            if (line2.length() > roomForEllipsis) {
+                line2.setLength(roomForEllipsis);
+                // remove a trailing space if truncation landed on one
+                while (line2.length() > 0 && line2.charAt(line2.length() - 1) == ' ') {
+                    line2.setLength(line2.length() - 1);
+                }
+            }
+            line2.append("...");
+        }
+
+        return line2.length() == 0
+                ? line1.toString()
+                : line1.toString() + "\n" + line2.toString();
     }
 }
