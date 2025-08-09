@@ -1,6 +1,6 @@
 package indevo.industries.museum.industry;
 
-import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SubmarketPlugin;
@@ -10,17 +10,17 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import com.fs.starfarer.api.impl.campaign.ids.Strings;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
-import indevo.industries.EngineeringHub;
 import indevo.industries.museum.submarket.MuseumSubmarketData;
 import indevo.submarkets.RemovablePlayerSubmarketPluginAPI;
-import indevo.utils.helper.Settings;
-import sound.F;
+import indevo.utils.ModPlugin;
+import indevo.utils.helper.MiscIE;
+import org.lazywizard.lazylib.MathUtils;
 
 import java.awt.*;
 import java.util.*;
@@ -29,38 +29,43 @@ import java.util.List;
 public class Museum extends BaseIndustry {
 
     public static final int MAX_ADDITIONAL_SUBMARKETS = 5;
-    public static final float MAX_ADDITIONAL_CREDITS = 2000f;
+    public static final float MAX_ADDITIONAL_CREDITS = 1950;
     public static final float MIN_ADDITIONAL_CREDITS = 50f;
     //Museum
     // X - store rare ships
-    // - adds small flat income dep. on ship value (calculate diff from average value of a ship in its class)
-    // - once value limit reached, add +1 stab and some immigration
+    // X - adds small flat income dep. on ship value (calculate diff from average value of a ship in its class)
     // - organize parade fleets that temp. increase the stability and immigration of the planet they orbit
     // X - add up to 5 customizable storage spaces to your colony
     //
-    // - Gamma: Increase income per value share
-    // - Beta: Increase stability and immigration of local planet
+    // - Gamma: Increase income to 3000 max
+    // - Beta: Increase stability and immigration of local planet by x per 10k?
     // - Alpha: second parade fleet (if sufficient ships)
 
     private List<MuseumSubmarketData> submarkets = new ArrayList<>();
     private SubmarketAPI mainMuseumSubmarket;
 
-    private Map<ShipAPI.HullSize, Pair<Float, Float>> hullSizeValueMap = new HashMap<>(); //a = maxShipValue, b = average for hull size
+    boolean expanded = false; //tooltip
+
+    private Map<ShipAPI.HullSize, Pair<Float, Float>> hullSizeValueMap = new HashMap<>(); //a = maxShipValue, b = average for hull size,
+    private List<CampaignFleetAPI> paradeFleets = new ArrayList<>();
 
     @Override
     public void apply() {
         super.apply(true);
 
+        if (!market.isPlayerOwned()) return;
+
         //update ship hull values
-        List<ShipHullSpecAPI> specList = Global.getSettings().getAllShipHullSpecs();
+        List<ShipHullSpecAPI> specList = MiscIE.getAllLearnableShipHulls(); //only learnable cause getting all fucks up the value statistics something fierce
 
         for (ShipAPI.HullSize size : new ArrayList<>(Arrays.asList(ShipAPI.HullSize.FRIGATE, ShipAPI.HullSize.DESTROYER, ShipAPI.HullSize.CRUISER, ShipAPI.HullSize.CAPITAL_SHIP))){
             float total = 0f;
             int specNum = 0;
-            Pair<Float, Float> valuePair = new Pair<>(); //a = maxShipValue, b = average for hull size
+            Pair<Float, Float> valuePair = new Pair<>(0f,0f); //a = maxShipValue, b = average for hull size
 
             for (ShipHullSpecAPI spec : specList){
-                if (spec.getHullSize() != size) continue;
+                if (spec.getHullSize() != size || spec.getBaseValue() > 2000000) continue; //any ship worth more than 2 mil gets cut to avoid modded brainrot bloating the statistics
+
                 specNum++;
 
                 float value = spec.getBaseValue();
@@ -71,6 +76,15 @@ public class Museum extends BaseIndustry {
             valuePair.two = total / specNum;
             hullSizeValueMap.put(size, valuePair);
         }
+
+        income.modifyFlat(getModId(), getTotalShipValue(), "Exhibition Income");
+    }
+
+    @Override
+    public void unapply() {
+        super.unapply();
+
+        income.unmodify(getModId());
     }
 
     @Override
@@ -87,7 +101,18 @@ public class Museum extends BaseIndustry {
         }
     }
 
-    //todo ORDER THE LIST FIRST!
+    public void addParadeFleetTooltip(CargoAPI cargo, TooltipMakerAPI tooltip){
+        FactionAPI marketFaction = market.getFaction();
+        Color color = marketFaction.getBaseUIColor();
+        Color dark = marketFaction.getDarkUIColor();
+
+        float opad = 10.0F;
+        float spad = 5f;
+
+        tooltip.addSectionHeading("Parade Fleets", color, dark, Alignment.MID, spad);
+
+        tooltip.addPara("There are currently %s.", opad, Misc.getHighlightColor(), "no active parade fleets.");
+    }
 
     public void addShipStorageValueTooltip(CargoAPI cargo, TooltipMakerAPI tooltip, boolean expanded) {
         FactionAPI marketFaction = market.getFaction();
@@ -95,17 +120,22 @@ public class Museum extends BaseIndustry {
         Color dark = marketFaction.getDarkUIColor();
 
         float opad = 5.0F;
-        int maxItems = expanded ? 100 : 10;
+        int maxItems = expanded ? 50 : 7;
 
         tooltip.addSectionHeading("Exhibition entries", color, dark, Alignment.MID, opad);
 
-        tooltip.addPara("This chart shows the %s of each ship in storage. Only one of each unique ship counts.", 10f, Misc.getHighlightColor(), "contribution");
+        tooltip.addPara("This chart shows the %s of each ship in storage. Duplicates are not exhibited.", 10f, Misc.getHighlightColor(), "contribution");
 
         //faction for colours, height of each row, [column 1 header, column 1 width, column 2 header, column 2 width, column 3...)
-        tooltip.beginTable(marketFaction, 20f, "Ship Hull", 190f, "Public Interest", 100f, "income / month", 100f);
+        tooltip.beginTable(marketFaction, 20f, "Ship Type", 180f, "Interest", 110f, "Income", 100f);
 
-        Map<ShipHullSpecAPI, Float> specValueMap = new LinkedHashMap<>(); //purge duplicates
-        for (FleetMemberAPI member : cargo.getMothballedShips().getMembersListCopy()) {
+        //sort highest to lowest
+        Map<ShipHullSpecAPI, Float> specValueMap = new LinkedHashMap<>();
+        cargo.initMothballedShips(Factions.PLAYER);
+        List<FleetMemberAPI> members = cargo.getMothballedShips().getMembersListCopy();
+        members.sort(Comparator.comparingDouble(this::getValueForShip).reversed());
+
+        for (FleetMemberAPI member : members) {
             specValueMap.put(member.getHullSpec(), getValueForShip(member));
         }
 
@@ -117,14 +147,12 @@ public class Museum extends BaseIndustry {
             float value = e.getValue();
             String designation = e.getKey().getHullName();
 
-            String interest = value < 0.05 ? "none"
-                    : value < 0.2 ? "low"
-                    : value < 0.4 ? "mediocre"
-                    : value < 0.6 ? "high"
-                    : value < 0.8 ? "very high"
+            String interest = value < 0.3 ? "low"
+                    : value < 0.6 ? "average"
+                    : value < 0.8 ? "high"
                     : "extreme";
 
-            String credits = Misc.getDGSCredits(Math.max(MAX_ADDITIONAL_CREDITS * value, MIN_ADDITIONAL_CREDITS));
+            String credits = Misc.getDGSCredits(getCreditsForValue(value));
 
             //add the row
             tooltip.addRow(designation, interest, credits);
@@ -132,10 +160,19 @@ public class Museum extends BaseIndustry {
             if(i > maxItems) break;
         }
 
-        int itemsInList = cargo.getMothballedShips().getMembersListCopy().size() - 10;
+        int itemsInList = specValueMap.size() - maxItems - 1;
 
         //add the table to the tooltip
         tooltip.addTable("No ships in storage.", Math.max(itemsInList, 0), opad);
+    }
+
+    @Override
+    protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
+        super.addRightAfterDescriptionSection(tooltip, mode);
+        if (market.isPlayerOwned()) {
+            addParadeFleetTooltip(mainMuseumSubmarket.getCargo(), tooltip);
+            addShipStorageValueTooltip(mainMuseumSubmarket.getCargo(), tooltip, expanded);
+        }
     }
 
     /**
@@ -149,8 +186,40 @@ public class Museum extends BaseIndustry {
         float value = member.getBaseValue();
         float valueAboveAverage = value - valuePair.two;
         float maxAboveAverage = valuePair.one - valuePair.two;
+        float val = MathUtils.clamp(valueAboveAverage / maxAboveAverage, 0, 1);
 
-        return valueAboveAverage > 0 ? valueAboveAverage / maxAboveAverage : 0f;
+        ModPlugin.log("Getting Museum Ship Value: " + member.getHullSpec().getHullId() + "\ncost: " + member.getHullSpec().getBaseValue() + "\nmax / avg " + valuePair.one + " / " + valuePair.two + "\nvalue: " + val);
+
+        return val;
+    }
+
+    @Override
+    public void createTooltip(IndustryTooltipMode mode, TooltipMakerAPI tooltip, boolean expanded) {
+        this.expanded = expanded;
+        super.createTooltip(mode, tooltip, expanded);
+    }
+
+    @Override
+    public boolean isTooltipExpandable() {
+        return mainMuseumSubmarket != null && mainMuseumSubmarket.getCargo().getMothballedShips().getMembersListCopy().size() > 10;
+    }
+
+    public float getCreditsForValue(float value){
+        return MIN_ADDITIONAL_CREDITS + MAX_ADDITIONAL_CREDITS * value;
+    }
+
+    public float getTotalShipValue(){
+        float val = 0f;
+
+        CargoAPI cargo = mainMuseumSubmarket.getCargo();
+        cargo.initMothballedShips(Factions.PLAYER);
+
+        //dirty duplicate removal
+        Map<ShipHullSpecAPI, Float> specValueMap = new LinkedHashMap<>();
+        for (FleetMemberAPI member : cargo.getMothballedShips().getMembersListCopy()) specValueMap.put(member.getHullSpec(), getValueForShip(member));
+        for (Float value : specValueMap.values()) val += value;
+
+        return val;
     }
 
     //submarket stuff

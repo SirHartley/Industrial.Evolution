@@ -51,7 +51,7 @@ public class ShippingCargoManager {
                     }
                 }
             } else if (weapons){
-                for (CargoStackAPI stack : contract.targetCargo.getStacksCopy()) {
+                for (CargoStackAPI stack : fromSubmarketCargo.getStacksCopy()) {
                     if (stack.isWeaponStack() || stack.isFighterWingStack()){
                         if (!toSubmaket.isIllegalOnSubmarket(stack, SubmarketPlugin.TransferAction.PLAYER_SELL)) {
                             shippingCargo.addFromStack(stack);

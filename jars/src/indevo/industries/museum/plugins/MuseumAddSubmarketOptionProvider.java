@@ -138,7 +138,7 @@ public class MuseumAddSubmarketOptionProvider extends SingleIndustrySimpifiedOpt
 
             @Override
             public void customDialogConfirm() {
-                data.submarketName = nameField.getText();
+                data.submarketName = formatName(nameField.getText());
 
                 museum.addSubmarket(data);
             }
@@ -169,5 +169,97 @@ public class MuseumAddSubmarketOptionProvider extends SingleIndustrySimpifiedOpt
     @Override
     public String getOptionLabel(Industry ind) {
         return "Add storage...";
+    }
+
+    //vibe coding... pretty sure this is fucked up but who cares
+    public static String formatName(String raw) {
+        // Define the maximum total length allowed (before truncation)
+        int maxLength = 24;
+        // Define the maximum characters allowed per line
+        int maxLineLength = 12;
+
+        // This method formats a string into at most 2 lines,
+        // each up to maxLineLength characters.
+        // If the original text is too long, it is truncated with "..."
+        // Words are split smartly to avoid breaking mid-word when possible.
+
+        // Handle null input
+        if (raw == null) return "";
+
+        // Trim spaces at the ends and replace multiple spaces with a single space
+        String s = raw.trim().replaceAll("\\s+", " ");
+
+        // Return empty string if, after cleaning, there is no content
+        if (s.isEmpty()) return "";
+
+        // CASE 1: Input is a single word (no spaces)
+        if (!s.contains(" ")) {
+            boolean overMax = s.length() > maxLength; // Check if exceeds max total length
+            // Cut the word to maxLength if needed
+            String cut = overMax ? s.substring(0, maxLength) : s;
+
+            // If fits in one line
+            if (cut.length() <= maxLineLength)
+                return overMax ? cut + "..." : cut;
+
+            // If needs splitting into two lines
+            String first = cut.substring(0, maxLineLength) + "-"; // Add hyphen to indicate split
+            String second = cut.substring(maxLineLength);
+            // Add ellipsis if original exceeded maxLength
+            return first + "\n" + second + (overMax ? "..." : "");
+        }
+
+        // CASE 2: Input has multiple words
+        String[] w = s.split(" "); // Split into words
+        StringBuilder l1 = new StringBuilder(), l2 = new StringBuilder();
+        int i = 0; // Word index
+
+        // Loop for 2 lines
+        for (int ln = 1; ln <= 2; ln++) {
+            StringBuilder line = ln == 1 ? l1 : l2;
+
+            // Fill the current line
+            while (i < w.length) {
+                int cap = maxLineLength - line.length(); // Remaining capacity in this line
+
+                // If no space left, force truncation
+                if (cap <= 0) return l1 + "\n" + l2 + "...";
+
+                String tok = w[i]; // Current word
+                int need = tok.length() + (line.length() == 0 ? 0 : 1); // Space needed (word + optional space)
+
+                if (need <= cap) {
+                    // Word fits in current line
+                    if (line.length() > 0) line.append(" ");
+                    line.append(tok);
+                    i++;
+                } else {
+                    // Word doesn't fit
+                    if (line.length() == 0) {
+                        // If first word in line is too big, split it
+                        if (ln == 1) {
+                            line.append(tok, 0, cap).append("-");
+                            w[i] = tok.substring(cap); // Remaining part stays as next word
+                            break;
+                        } else {
+                            // Second line, cut without hyphen (then ellipsis)
+                            line.append(tok, 0, cap);
+                            return l1 + "\n" + l2 + "...";
+                        }
+                    } else {
+                        // If we already have content, stop filling line
+                        if (ln == 2) return l1 + "\n" + l2 + "...";
+                        break;
+                    }
+                }
+            }
+        }
+
+        // If we have a second line, decide whether to add ellipsis
+        if (l2.length() > 0)
+            return i < w.length ? l1 + "\n" + l2 + "..." : l1 + "\n" + l2;
+
+        // Otherwise return first line only
+        return l1.toString();
     }
 }
