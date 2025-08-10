@@ -21,7 +21,7 @@ import java.util.List;
 
 public class TradeCenter extends BaseIndustry implements MarketImmigrationModifier {
 
-    public static float BASE_BONUS = 50f;
+    public static float BASE_BONUS = 25f;
     public static float ALPHA_CORE_BONUS = 25f;
     public static float IMPROVE_BONUS = 25f;
     public static float ALT_IMPROVE_BONUS = 10f;

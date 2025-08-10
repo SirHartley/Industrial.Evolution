@@ -1,4 +1,4 @@
-package indevo.industries.museum.submarket;
+package indevo.industries.museum.data;
 
 public class MuseumSubmarketData {
     public String submarketID;

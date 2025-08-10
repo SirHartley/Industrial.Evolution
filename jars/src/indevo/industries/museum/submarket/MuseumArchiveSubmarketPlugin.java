@@ -4,6 +4,7 @@ import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import indevo.ids.Ids;
+import indevo.industries.museum.data.MuseumSubmarketData;
 import indevo.industries.museum.industry.Museum;
 import indevo.submarkets.BaseRemovableStorageSubmarketPlugin;
 

@@ -9,9 +9,12 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseAssignmentAI;
 import indevo.ids.Ids;
 import indevo.industries.courierport.fleet.CourierFleetAssignmentAI;
+import indevo.industries.museum.industry.Museum;
 
 public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEventListener {
 
@@ -90,6 +93,7 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
 
     public void removeParadeConditionFromMarket(MarketAPI market){
         market.removeCondition(Ids.COND_PARADE);
+        market.removeTag(Museum.ON_PARADE_TAG);
     }
 
     @Override

@@ -1,10 +1,7 @@
 package indevo.industries.museum.industry;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CampaignFleetAPI;
-import com.fs.starfarer.api.campaign.CargoAPI;
-import com.fs.starfarer.api.campaign.FactionAPI;
-import com.fs.starfarer.api.campaign.SubmarketPlugin;
+import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
@@ -12,13 +9,15 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
-import indevo.industries.museum.submarket.MuseumSubmarketData;
+import indevo.industries.museum.data.ParadeFleetData;
+import indevo.industries.museum.data.MuseumSubmarketData;
 import indevo.submarkets.RemovablePlayerSubmarketPluginAPI;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
@@ -30,57 +29,49 @@ import java.util.List;
 
 public class Museum extends BaseIndustry implements EconomyTickListener {
 
-    public static final int MAX_ADDITIONAL_SUBMARKETS = 5;
-    public static final float MAX_ADDITIONAL_CREDITS = 1950;
-    public static final float MIN_ADDITIONAL_CREDITS = 50f;
     //Museum
     // X - store rare ships
     // X - adds small flat income dep. on ship value (calculate diff from average value of a ship in its class)
-    // - organize parade fleets that temp. increase the stability and immigration of the planet they orbit
+    // X - organize parade fleets that temp. increase the stability and immigration of the planet they orbit
     // X - add up to 5 customizable storage spaces to your colony
     //
     // - Gamma: Increase income to 3000 max
     // - Beta: Increase stability and immigration of local planet by x per 10k?
     // - Alpha: second parade fleet (if sufficient ships)
 
-    private List<MuseumSubmarketData> submarkets = new ArrayList<>();
-    private SubmarketAPI mainMuseumSubmarket;
+    public static final int MAX_ADDITIONAL_SUBMARKETS = 5;
+    public static final float MAX_ADDITIONAL_CREDITS = 1950;
+    public static final float MIN_ADDITIONAL_CREDITS = 50f;
 
-    boolean expanded = false; //tooltip
+    public static final int DEFAULT_MAX_PARADES = 1;
+    public static final int EXTRA_PARADES = 1;
+    public static final int DEFAULT_DAYS = 31;
+    public static final int DEFAULT_MEMBERS_MAX = 10;
+    public static final int TOP_SHIP_POOL_AMT_FOR_PARADE_SELECTION = 20;
+    
+    public static final String ON_PARADE_TAG = "indEvo_on_parade";
+    public static final String PARADE_FLEET_NAMES = "data/strings/parade_fleet_names.csv";
 
+    private List<MuseumSubmarketData> archiveSubMarkets = new ArrayList<>();
+    private SubmarketAPI submarket;
     private Map<ShipAPI.HullSize, Pair<Float, Float>> hullSizeValueMap = new HashMap<>(); //a = maxShipValue, b = average for hull size,
-    private List<CampaignFleetAPI> paradeFleets = new ArrayList<>();
+    private List<ParadeFleetData> paradeFleetData = new ArrayList<>();
+    private Random random = new Random();
+
+    private boolean expanded = false; //tooltip
+
+    private int maxParades = DEFAULT_MAX_PARADES;
+    private boolean randomParades = true;
 
     @Override
     public void apply() {
         super.apply(true);
 
         if (!market.isPlayerOwned()) return;
+        updateShipValueStatistics();
 
         //for parade handling - not needed in npc mode
         Global.getSector().getListenerManager().addListener(this);
-
-        //update ship hull values
-        List<ShipHullSpecAPI> specList = MiscIE.getAllLearnableShipHulls(); //only learnable cause getting all fucks up the value statistics something fierce
-
-        for (ShipAPI.HullSize size : new ArrayList<>(Arrays.asList(ShipAPI.HullSize.FRIGATE, ShipAPI.HullSize.DESTROYER, ShipAPI.HullSize.CRUISER, ShipAPI.HullSize.CAPITAL_SHIP))){
-            float total = 0f;
-            int specNum = 0;
-            Pair<Float, Float> valuePair = new Pair<>(0f,0f); //a = maxShipValue, b = average for hull size
-
-            for (ShipHullSpecAPI spec : specList){
-                if (spec.getHullSize() != size || spec.getBaseValue() > 2000000) continue; //any ship worth more than 2 mil gets cut to avoid modded brainrot bloating the statistics
-
-                specNum++;
-
-                float value = spec.getBaseValue();
-                if (value > valuePair.one) valuePair.one = value;
-                total += value;
-            }
-
-            valuePair.two = total / specNum;
-            hullSizeValueMap.put(size, valuePair);
-        }
 
         //income
         income.modifyFlat(getModId(), getTotalShipValue(), "Exhibition Income");
@@ -95,8 +86,30 @@ public class Museum extends BaseIndustry implements EconomyTickListener {
 
     @Override
     public void reportEconomyTick(int iterIndex) {
+        if (!isFunctional() || submarket == null || iterIndex != 5) return;
 
+        //activateAndSpawn parade if empty spot
 
+        //clear the expired ones
+        int activeParades = 0;
+
+        for (ParadeFleetData data : new ArrayList<>(paradeFleetData)) {
+            if (!data.isActive() && data.isExpired()) paradeFleetData.remove(data);
+            else if (data.isActive()) activeParades++;
+        }
+
+        if (activeParades < maxParades){
+            //check if we have a repeating one - there is no expired data on the list at this point
+            for (ParadeFleetData data : paradeFleetData) if (!data.isActive() && data.isRepeating()) spawnSpecificParade(data);
+
+            if (!randomParades) return;
+
+            //still not filled? Spawn random parades until list is full
+            for (int i = 0; i < maxParades; i++){
+                ModPlugin.log("Spawning random parade");
+                spawnRandomParade();
+            }
+        }
     }
 
     @Override
@@ -105,31 +118,118 @@ public class Museum extends BaseIndustry implements EconomyTickListener {
 
         //Color color = new Color(199, 10, 63,255);
 
-        if (isFunctional() && mainMuseumSubmarket == null && market.isPlayerOwned()) {
+        if (isFunctional() && submarket == null && market.isPlayerOwned()) {
             market.addSubmarket(Ids.MUSEUM_SUBMARKET);
-            mainMuseumSubmarket = market.getSubmarket(Ids.MUSEUM_SUBMARKET);
-        } else if (!market.isPlayerOwned() && mainMuseumSubmarket != null) {
+            submarket = market.getSubmarket(Ids.MUSEUM_SUBMARKET);
+        } else if (!market.isPlayerOwned() && submarket != null) {
             notifyBeingRemoved(null, false);
         }
     }
 
     public List<CampaignFleetAPI> getParadeFleets() {
-        return paradeFleets;
+        List<CampaignFleetAPI> fleets = new ArrayList<>();
+
+        for (ParadeFleetData data : paradeFleetData) if (data.isActive()) fleets.add(data.getActiveFleet());
+        return fleets;
+    }
+
+    public void spawnRandomParade(){
+        WeightedRandomPicker<String> namePicker = new WeightedRandomPicker<>(random);
+        namePicker.addAll(MiscIE.getCSVSetFromMemory(PARADE_FLEET_NAMES));
+
+        String name = namePicker.pick();
+
+        //pick X of the top 20 members that are not currently out on parade
+        CargoAPI cargo = submarket.getCargo();
+        cargo.initMothballedShips(Factions.PLAYER);
+        List<FleetMemberAPI> members = cargo.getMothballedShips().getMembersListCopy();
+        members.sort(Comparator.comparingDouble(this::getValueForShip).reversed());
+
+        WeightedRandomPicker<String> fleetMemberPicker = new WeightedRandomPicker<>(random);
+        int count = 0;
+
+        for (FleetMemberAPI member : members){
+            if (member.getVariant().hasTag(ON_PARADE_TAG)) continue;
+            if (count >= TOP_SHIP_POOL_AMT_FOR_PARADE_SELECTION) break; //we only get the top X so we don't go on parade with a bunch of trash
+
+            fleetMemberPicker.add(member.getId());
+            count++;
+        }
+
+        if (fleetMemberPicker.isEmpty()) {
+            ModPlugin.log("Aborting parade creation, no fleet members");
+            return; //no members, no parade
+        }
+
+        List<String> paradeMembers = new ArrayList<>();
+        for (int i = 0; i <= DEFAULT_MEMBERS_MAX; i++) {
+            if (fleetMemberPicker.isEmpty()) break;
+            paradeMembers.add(fleetMemberPicker.pickAndRemove());
+        }
+
+        //market target
+        WeightedRandomPicker<String> marketPicker = new WeightedRandomPicker<>(random);
+        for (MarketAPI m : MiscIE.getMarketsInLocation(market.getContainingLocation(), market.getFactionId())) {
+            if (m.hasTag(ON_PARADE_TAG)) continue; //added on spawn, removed with the condition on departure or death - fleetAI
+
+            marketPicker.add(m.getId());
+        }
+
+        if (marketPicker.isEmpty()) {
+            ModPlugin.log("Aborting parade creation, no target market");
+            return; //no market, no parade...
+        }
+
+        String targetMarketId = marketPicker.pick();
+
+        ParadeFleetData data = new ParadeFleetData(this, name, targetMarketId,paradeMembers,DEFAULT_DAYS, false);
+        paradeFleetData.add(data);
+        data.activateAndSpawn();
+    }
+
+    public void spawnSpecificParade(ParadeFleetData data){
+        CargoAPI cargo = submarket.getCargo();
+        cargo.initMothballedShips(Factions.PLAYER);
+        List<FleetMemberAPI> members = cargo.getMothballedShips().getMembersListCopy();
+
+        int num = 0;
+        for (String memberId : data.fleetMemberIdList) for (FleetMemberAPI m : members) if (m.getId().equals(memberId) && !m.getVariant().hasTag(ON_PARADE_TAG)) num++;
+
+        if (num <= 0) {
+            ModPlugin.log("Aborting custom parade creation, no fleet members");
+            return; //no members, no parade
+        }
+
+        MarketAPI targetMarket = Global.getSector().getEconomy().getMarket(data.targetMarketId);
+        if (targetMarket == null) {
+            ModPlugin.log("Aborting custom parade creation, no target market");
+            return;
+        }
+
+        data.activateAndSpawn();
     }
 
     public void addParadeFleetTooltip(CargoAPI cargo, TooltipMakerAPI tooltip){
         FactionAPI marketFaction = market.getFaction();
         Color color = marketFaction.getBaseUIColor();
+        Color hl = Misc.getHighlightColor();
         Color dark = marketFaction.getDarkUIColor();
 
         float opad = 10.0F;
         float spad = 5f;
 
-        tooltip.addSectionHeading("Parade Fleets", color, dark, Alignment.MID, spad);
+        tooltip.addSectionHeading("Parade Fleets", color, dark, Alignment.MID, opad);
 
-        //todo tooltip
+        if (!getParadeFleets().isEmpty()) {
+            for (CampaignFleetAPI fleet : getParadeFleets()){
+                String activity = fleet.getCurrentAssignment().getActionText();
+                String name = fleet.getName();
 
-        tooltip.addPara("There are currently %s.", opad, Misc.getHighlightColor(), "no active parade fleets.");
+                Color[] hlColours = new Color[]{color, hl};
+                tooltip.addPara("%s is currently %s.", opad, hlColours, name, Misc.lcFirst(activity));
+            }
+
+        } else tooltip.addPara("There are currently %s.", opad, Misc.getHighlightColor(), "no active parade fleets.");
     }
 
     public void addShipStorageValueTooltip(CargoAPI cargo, TooltipMakerAPI tooltip, boolean expanded) {
@@ -137,7 +237,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener {
         Color color = marketFaction.getBaseUIColor();
         Color dark = marketFaction.getDarkUIColor();
 
-        float opad = 5.0F;
+        float opad = 10.0F;
         int maxItems = expanded ? 50 : 7;
 
         tooltip.addSectionHeading("Exhibition entries", color, dark, Alignment.MID, opad);
@@ -187,14 +287,13 @@ public class Museum extends BaseIndustry implements EconomyTickListener {
     @Override
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
         super.addRightAfterDescriptionSection(tooltip, mode);
-        if (market.isPlayerOwned()) {
-            addParadeFleetTooltip(mainMuseumSubmarket.getCargo(), tooltip);
-            addShipStorageValueTooltip(mainMuseumSubmarket.getCargo(), tooltip, expanded);
+        if (market.isPlayerOwned() && submarket != null) {
+            addParadeFleetTooltip(submarket.getCargo(), tooltip);
+            addShipStorageValueTooltip(submarket.getCargo(), tooltip, expanded);
         }
     }
 
     /**
-     *
      * @param member
      * @return value from 0 to 1 relative to the ships value above the average
      */
@@ -219,7 +318,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener {
 
     @Override
     public boolean isTooltipExpandable() {
-        return mainMuseumSubmarket != null && mainMuseumSubmarket.getCargo().getMothballedShips().getMembersListCopy().size() > 10;
+        return submarket != null && submarket.getCargo().getMothballedShips().getMembersListCopy().size() > 10;
     }
 
     public float getCreditsForValue(float value){
@@ -227,23 +326,52 @@ public class Museum extends BaseIndustry implements EconomyTickListener {
     }
 
     public float getTotalShipValue(){
+        if (submarket == null) return 0;
+
         float val = 0f;
 
-        CargoAPI cargo = mainMuseumSubmarket.getCargo();
+        CargoAPI cargo = submarket.getCargo();
         cargo.initMothballedShips(Factions.PLAYER);
 
         //dirty duplicate removal
         Map<ShipHullSpecAPI, Float> specValueMap = new LinkedHashMap<>();
-        for (FleetMemberAPI member : cargo.getMothballedShips().getMembersListCopy()) specValueMap.put(member.getHullSpec(), getValueForShip(member));
+        for (FleetMemberAPI member : cargo.getMothballedShips().getMembersListCopy()) specValueMap.put(member.getHullSpec(), getCreditsForValue(getValueForShip(member)));
         for (Float value : specValueMap.values()) val += value;
 
         return val;
     }
 
+    private void updateShipValueStatistics() {
+        List<ShipHullSpecAPI> specList = MiscIE.getAllLearnableShipHulls(); //only learnable cause getting all fucks up the value statistics something fierce
+
+        for (ShipAPI.HullSize size : new ArrayList<>(Arrays.asList(ShipAPI.HullSize.FRIGATE, ShipAPI.HullSize.DESTROYER, ShipAPI.HullSize.CRUISER, ShipAPI.HullSize.CAPITAL_SHIP))){
+            float total = 0f;
+            int specNum = 0;
+            Pair<Float, Float> valuePair = new Pair<>(0f,0f); //a = maxShipValue, b = average for hull size
+
+            for (ShipHullSpecAPI spec : specList){
+                if (spec.getHullSize() != size || spec.getBaseValue() > 2000000) continue; //any ship worth more than 2 mil gets cut to avoid modded brainrot bloating the statistics
+
+                specNum++;
+
+                float value = spec.getBaseValue();
+                if (value > valuePair.one) valuePair.one = value;
+                total += value;
+            }
+
+            valuePair.two = total / specNum;
+            hullSizeValueMap.put(size, valuePair);
+        }
+    }
+
     //submarket stuff
 
+    public SubmarketAPI getSubmarket() {
+        return submarket;
+    }
+
     public SubmarketAPI addSubmarket(MuseumSubmarketData data){
-        submarkets.add(data); //must be before addition, submarket plugin checks for data on init
+        archiveSubMarkets.add(data); //must be before addition, submarket plugin checks for data on init
         market.addSubmarket(data.submarketID);
 
         return market.getSubmarket(data.submarketID);
@@ -252,34 +380,40 @@ public class Museum extends BaseIndustry implements EconomyTickListener {
     public void removeSubmarket(MuseumSubmarketData data){
         ((RemovablePlayerSubmarketPluginAPI) market.getSubmarket(data.submarketID).getPlugin()).notifyBeingRemoved();
         market.removeSubmarket(data.submarketID);
-        submarkets.remove(data);
+        archiveSubMarkets.remove(data);
     }
 
     public void removeSubmarkets(){
-        if (mainMuseumSubmarket != null) {
-            ((RemovablePlayerSubmarketPluginAPI) mainMuseumSubmarket.getPlugin()).notifyBeingRemoved();
+        if (submarket != null) {
+            ((RemovablePlayerSubmarketPluginAPI) submarket.getPlugin()).notifyBeingRemoved();
             market.removeSubmarket(Ids.MUSEUM_SUBMARKET);
         }
 
-        for (MuseumSubmarketData data : new ArrayList<>(submarkets)){
+        for (MuseumSubmarketData data : new ArrayList<>(archiveSubMarkets)){
             ((RemovablePlayerSubmarketPluginAPI) market.getSubmarket(data.submarketID).getPlugin()).notifyBeingRemoved();
             market.removeSubmarket(data.submarketID);
-            submarkets.remove(data);
+            archiveSubMarkets.remove(data);
         }
     }
 
     @Override
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
         super.notifyBeingRemoved(mode, forUpgrade);
+
+        for (CampaignFleetAPI fleet : new ArrayList<>(getParadeFleets())) {
+            fleet.despawn(CampaignEventListener.FleetDespawnReason.OTHER, null);
+        }
+
+        paradeFleetData.clear();
         removeSubmarkets();
     }
 
-    public List<MuseumSubmarketData> getSubmarkets() {
-        return submarkets;
+    public List<MuseumSubmarketData> getArchiveSubMarkets() {
+        return archiveSubMarkets;
     }
 
     public MuseumSubmarketData getData(SubmarketPlugin forPlugin){
-        for (MuseumSubmarketData data : submarkets) if (data.submarketID.equals(forPlugin.getSubmarket().getSpecId())) return data;
+        for (MuseumSubmarketData data : archiveSubMarkets) if (data.submarketID.equals(forPlugin.getSubmarket().getSpecId())) return data;
         return null;
     }
 

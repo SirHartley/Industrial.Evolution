@@ -1,7 +1,6 @@
 package indevo.industries.museum.plugins;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
 import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
 import com.fs.starfarer.api.campaign.CustomDialogDelegate;
 import com.fs.starfarer.api.campaign.econ.Industry;
@@ -13,12 +12,10 @@ import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
 import indevo.ids.Ids;
 import indevo.industries.museum.industry.Museum;
-import indevo.industries.museum.submarket.MuseumSubmarketData;
-import indevo.industries.petshop.dialogue.PetManagerDialogueDelegate;
+import indevo.industries.museum.data.MuseumSubmarketData;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
 import java.awt.*;
-import java.util.Arrays;
 
 public class MuseumAddSubmarketOptionProvider extends SingleIndustrySimpifiedOptionProvider {
     public static final float WIDTH = 600f;
@@ -36,13 +33,13 @@ public class MuseumAddSubmarketOptionProvider extends SingleIndustrySimpifiedOpt
 
     @Override
     public boolean optionEnabled(IndustryOptionData opt) {
-        return ((Museum) opt.ind).getSubmarkets().size() < 5;
+        return ((Museum) opt.ind).getArchiveSubMarkets().size() < 5;
     }
 
     @Override
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
         Museum museum = ((Museum) opt.ind);
-        int num = museum.getSubmarkets().size() + 1;
+        int num = museum.getArchiveSubMarkets().size() + 1;
 
         CustomDialogDelegate delegate = new ButtonReportingDialogueDelegate() {
 
@@ -163,7 +160,7 @@ public class MuseumAddSubmarketOptionProvider extends SingleIndustrySimpifiedOpt
         float opad = 10f;
 
         tooltip.addPara("Add up to %s additional configurable storage areas to your colony.", 0f, hl, Museum.MAX_ADDITIONAL_SUBMARKETS + "");
-        tooltip.addPara("Currently used: %s", opad, hl, ((Museum) opt.ind).getSubmarkets().size() + "/" + Museum.MAX_ADDITIONAL_SUBMARKETS);
+        tooltip.addPara("Currently used: %s", opad, hl, ((Museum) opt.ind).getArchiveSubMarkets().size() + "/" + Museum.MAX_ADDITIONAL_SUBMARKETS);
     }
 
     @Override

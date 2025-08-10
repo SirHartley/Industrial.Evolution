@@ -30,12 +30,7 @@ public class MuseumSubmarketPlugin extends BaseRemovableStorageSubmarketPlugin {
     public boolean isIllegalOnSubmarket(FleetMemberAPI member, TransferAction action) {
         if (action != TransferAction.PLAYER_BUY) return false;
 
-        Museum museum = (Museum) market.getIndustry(Ids.MUSEUM);
-        for (CampaignFleetAPI fleet : museum.getParadeFleets()){
-            for (FleetMemberAPI m : fleet.getMembersWithFightersCopy()) if (member.getVariant() == m.getVariant()) return true;
-        }
-
-        return super.isIllegalOnSubmarket(member, action);
+        return member.getVariant().hasTag(Museum.ON_PARADE_TAG) || super.isIllegalOnSubmarket(member, action);
     }
 
     @Override

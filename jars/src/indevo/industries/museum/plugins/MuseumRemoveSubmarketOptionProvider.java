@@ -4,15 +4,13 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
 import com.fs.starfarer.api.campaign.CustomDialogDelegate;
 import com.fs.starfarer.api.campaign.econ.Industry;
-import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.museum.industry.Museum;
-import indevo.industries.museum.submarket.MuseumSubmarketData;
-import indevo.utils.helper.StringHelper;
+import indevo.industries.museum.data.MuseumSubmarketData;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
 public class MuseumRemoveSubmarketOptionProvider extends SingleIndustrySimpifiedOptionProvider {
@@ -29,8 +27,8 @@ public class MuseumRemoveSubmarketOptionProvider extends SingleIndustrySimpified
     @Override
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
         Museum museum = ((Museum) opt.ind);
-        int num = museum.getSubmarkets().size();
-        MuseumSubmarketData data = museum.getSubmarkets().get(num - 1);
+        int num = museum.getArchiveSubMarkets().size();
+        MuseumSubmarketData data = museum.getArchiveSubMarkets().get(num - 1);
 
         CustomDialogDelegate delegate = new BaseCustomDialogDelegate() {
             @Override
@@ -53,8 +51,8 @@ public class MuseumRemoveSubmarketOptionProvider extends SingleIndustrySimpified
             @Override
             public void customDialogConfirm() {
                 Museum museum = ((Museum) opt.ind);
-                int num = museum.getSubmarkets().size();
-                MuseumSubmarketData data = museum.getSubmarkets().get(num - 1);
+                int num = museum.getArchiveSubMarkets().size();
+                MuseumSubmarketData data = museum.getArchiveSubMarkets().get(num - 1);
                 museum.removeSubmarket(data);
             }
 
@@ -85,6 +83,6 @@ public class MuseumRemoveSubmarketOptionProvider extends SingleIndustrySimpified
 
     @Override
     public boolean optionEnabled(IndustryOptionData opt) {
-        return !((Museum) opt.ind).getSubmarkets().isEmpty();
+        return !((Museum) opt.ind).getArchiveSubMarkets().isEmpty();
     }
 }
