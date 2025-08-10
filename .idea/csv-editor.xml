@@ -332,6 +332,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\strings\parade_fleet_names.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\weapons\weapon_data.csv">
           <value>
             <Attribute>
