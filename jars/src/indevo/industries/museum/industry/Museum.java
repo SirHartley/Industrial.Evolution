@@ -39,9 +39,9 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     // X - organize parade fleets that temp. increase the stability and immigration of the planet they orbit
     // X - add up to 5 customizable storage spaces to your colony
     //
-    // - Gamma: Increase income by 30%
-    // - Beta: Increase stability and immigration of local planet by x per 10k?
-    // - Alpha: second parade fleet (if sufficient ships)
+    // X - Gamma: Increase income by 30%
+    // X - Beta: Increase stability and immigration of local planet by x per 10k?
+    // X - Alpha: second parade fleet (if sufficient ships)
 
     public static final int MAX_ADDITIONAL_SUBMARKETS = 5;
     public static final float MAX_ADDITIONAL_CREDITS = 1950;
@@ -60,6 +60,8 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
     public static final String ON_PARADE_TAG = "indEvo_on_parade";
     public static final String PARADE_FLEET_NAMES = "data/strings/parade_fleet_names.csv";
+    public static final int PARADE_FLEET_IMMIGRATION_BONUS = 5;
+    public static final int PARADE_FLEET_STABILITY_BONUS = 1;
 
     private List<MuseumSubmarketData> archiveSubMarkets = new ArrayList<>();
     private SubmarketAPI submarket;
@@ -83,6 +85,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
         //for parade handling - not needed in npc mode
         Global.getSector().getListenerManager().addListener(this);
+        market.addTransientImmigrationModifier(this);
 
         //income
         income.modifyFlat(getModId(), getTotalShipValue(), "Exhibition Income");
@@ -92,6 +95,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     public void unapply() {
         super.unapply();
         Global.getSector().getListenerManager().removeListener(this);
+        market.removeTransientImmigrationModifier(this);
         income.unmodify(getModId());
     }
 
@@ -127,7 +131,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     public void advance(float amount) {
         super.advance(amount);
 
-        //Color color = new Color(199, 10, 63,255);
+        //Color color = new Color(199, 10, 63,255); //museum submarket colour
 
         if (isFunctional() && submarket == null && market.isPlayerOwned()) {
             market.addSubmarket(Ids.MUSEUM_SUBMARKET);
@@ -220,7 +224,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
         data.activateAndSpawn();
     }
 
-    public void addParadeFleetTooltip(CargoAPI cargo, TooltipMakerAPI tooltip){
+    public void addParadeFleetTooltip(TooltipMakerAPI tooltip){
         FactionAPI marketFaction = market.getFaction();
         Color color = marketFaction.getBaseUIColor();
         Color hl = Misc.getHighlightColor();
@@ -299,7 +303,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
         super.addRightAfterDescriptionSection(tooltip, mode);
         if (market.isPlayerOwned() && submarket != null) {
-            addParadeFleetTooltip(submarket.getCargo(), tooltip);
+            addParadeFleetTooltip(tooltip);
             addShipStorageValueTooltip(submarket.getCargo(), tooltip, expanded);
         }
     }
