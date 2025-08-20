@@ -2,7 +2,9 @@ package indevo.industries.museum.industry;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -10,6 +12,7 @@ import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -21,13 +24,14 @@ import indevo.industries.museum.data.MuseumSubmarketData;
 import indevo.submarkets.RemovablePlayerSubmarketPluginAPI;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.StringHelper;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class Museum extends BaseIndustry implements EconomyTickListener {
+public class Museum extends BaseIndustry implements EconomyTickListener, MarketImmigrationModifier {
 
     //Museum
     // X - store rare ships
@@ -35,20 +39,25 @@ public class Museum extends BaseIndustry implements EconomyTickListener {
     // X - organize parade fleets that temp. increase the stability and immigration of the planet they orbit
     // X - add up to 5 customizable storage spaces to your colony
     //
-    // - Gamma: Increase income to 3000 max
+    // - Gamma: Increase income by 30%
     // - Beta: Increase stability and immigration of local planet by x per 10k?
     // - Alpha: second parade fleet (if sufficient ships)
 
     public static final int MAX_ADDITIONAL_SUBMARKETS = 5;
     public static final float MAX_ADDITIONAL_CREDITS = 1950;
     public static final float MIN_ADDITIONAL_CREDITS = 50f;
+    public static final float GAMMA_CORE_INCOME_MULT = 1.3f;
+    public static final float DEFAULT_INCOME_MULT = 1f;
 
     public static final int DEFAULT_MAX_PARADES = 1;
-    public static final int EXTRA_PARADES = 1;
+    public static final int ALPHA_CORE_EXTRA_PARADES = 1;
     public static final int DEFAULT_DAYS = 31;
     public static final int DEFAULT_MEMBERS_MAX = 10;
     public static final int TOP_SHIP_POOL_AMT_FOR_PARADE_SELECTION = 20;
-    
+
+    public static final int BETA_CORE_INCOME_PER_STABILITY = 20000;
+    public static final int BETA_CORE_INCOME_PER_POINT_IMMIGRATION = 3000;
+
     public static final String ON_PARADE_TAG = "indEvo_on_parade";
     public static final String PARADE_FLEET_NAMES = "data/strings/parade_fleet_names.csv";
 
@@ -62,6 +71,8 @@ public class Museum extends BaseIndustry implements EconomyTickListener {
 
     private int maxParades = DEFAULT_MAX_PARADES;
     private boolean randomParades = true;
+
+    private float incomeMult = DEFAULT_INCOME_MULT;
 
     @Override
     public void apply() {
@@ -420,5 +431,128 @@ public class Museum extends BaseIndustry implements EconomyTickListener {
     @Override
     public void reportEconomyMonthEnd() {
 
+    }
+
+    // - Gamma: Increase income to 3000 max
+    // - Beta: Increase stability and immigration of local planet by x per 10k?
+    // - Alpha: second parade fleet (if sufficient ships)
+
+    protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
+        float opad = 10f;
+        Color highlight = Misc.getHighlightColor();
+
+        String pre = "Alpha-level AI core currently assigned. ";
+        if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
+            pre = "Alpha-level AI core. ";
+        }
+
+        if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP || mode == AICoreDescriptionMode.MANAGE_CORE_TOOLTIP) {
+            CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
+            TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48);
+
+            text.addPara(pre + "Increases the maximum active %s by %s while sufficient ships are available.", 0f, highlight,
+                    "parade fleets",
+                    "" + ALPHA_CORE_EXTRA_PARADES);
+
+            tooltip.addImageWithText(opad);
+            return;
+        }
+
+        tooltip.addPara(pre + "Increases the maximum active %s by %s while sufficient ships are available.", opad, highlight,
+                "parade fleets",
+                "" + ALPHA_CORE_EXTRA_PARADES);
+    }
+
+    //Beta: Increase stability and immigration of local planet by x per y
+
+    protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
+        float opad = 10f;
+        Color highlight = Misc.getHighlightColor();
+
+        String pre = "Beta-level AI core currently assigned. ";
+        if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
+            pre = "Beta-level AI core. ";
+        }
+        if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP || mode == AICoreDescriptionMode.MANAGE_CORE_TOOLTIP) {
+            CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
+
+            TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48);
+
+            text.addPara(pre + "Increases stability by %s per %s in museum income. Increases growth by %s per %s in museum income.", 0f, highlight,
+                    "" + 1, Misc.getDGSCredits(BETA_CORE_INCOME_PER_STABILITY), "" + 1, Misc.getDGSCredits(BETA_CORE_INCOME_PER_STABILITY));
+
+            tooltip.addImageWithText(opad);
+            return;
+        }
+
+        tooltip.addPara(pre + "Increases stability by %s per %s in museum income. Increases growth by %s per %s in museum income.", opad, highlight,
+                "" + 1, Misc.getDGSCredits(BETA_CORE_INCOME_PER_STABILITY), "" + 1, Misc.getDGSCredits(BETA_CORE_INCOME_PER_STABILITY));
+
+    }
+    protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
+        float opad = 10f;
+        Color highlight = Misc.getHighlightColor();
+
+        String pre = "Gamma-level AI core currently assigned. ";
+        if (mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
+            pre = "Gamma-level AI core. ";
+        }
+        if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP || mode == AICoreDescriptionMode.MANAGE_CORE_TOOLTIP) {
+            CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
+            TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48);
+
+            text.addPara(pre + "Increases museum income by %s", 0f, highlight,
+                    StringHelper.getAbsPercentString(GAMMA_CORE_INCOME_MULT, true));
+
+            tooltip.addImageWithText(opad);
+            return;
+        }
+
+        tooltip.addPara(pre + "Increases museum income by %s.", opad, highlight,
+                StringHelper.getAbsPercentString(GAMMA_CORE_INCOME_MULT, true));
+
+    }
+
+    @Override
+    protected void applyAICoreModifiers() {
+        unapplyAICoreModifiers();
+        super.applyAICoreModifiers();
+    }
+
+    @Override
+    protected void applyAlphaCoreModifiers() {
+        super.applyAlphaCoreModifiers();
+        maxParades = DEFAULT_MAX_PARADES + ALPHA_CORE_EXTRA_PARADES;
+    }
+
+    @Override
+    protected void applyBetaCoreModifiers() {
+        super.applyBetaCoreModifiers();
+        market.getStability().modifyFlat(getModId(), (float) Math.floor(getTotalShipValue() / BETA_CORE_INCOME_PER_STABILITY), getNameForModifier());
+        //immigration handled in modifyIncoming
+    }
+
+    @Override
+    protected void applyGammaCoreModifiers() {
+        super.applyGammaCoreModifiers();
+        incomeMult = GAMMA_CORE_INCOME_MULT;
+    }
+
+    @Override
+    protected void applyNoAICoreModifiers() {
+        super.applyNoAICoreModifiers();
+        unapplyAICoreModifiers();
+    }
+
+    public void unapplyAICoreModifiers(){
+        incomeMult = DEFAULT_INCOME_MULT;
+        maxParades = DEFAULT_MAX_PARADES;
+        market.getStability().unmodify(getModId());
+    }
+
+    @Override
+    public void modifyIncoming(MarketAPI market, PopulationComposition incoming) {
+        if (Commodities.BETA_CORE.equals(getAICoreId())) incoming.getWeight().modifyFlat(getModId(), (float) Math.floor(getTotalShipValue() / BETA_CORE_INCOME_PER_POINT_IMMIGRATION), getNameForModifier());
+        else incoming.getWeight().unmodify(getModId());
     }
 }
