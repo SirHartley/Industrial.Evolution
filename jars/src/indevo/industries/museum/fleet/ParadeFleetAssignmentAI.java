@@ -2,19 +2,15 @@ package indevo.industries.museum.fleet;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.Script;
 import com.fs.starfarer.api.campaign.BattleAPI;
 import com.fs.starfarer.api.campaign.CampaignEventListener;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
-import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseAssignmentAI;
 import indevo.ids.Ids;
-import indevo.industries.courierport.fleet.CourierFleetAssignmentAI;
-import indevo.industries.museum.industry.Museum;
+import indevo.industries.museum.data.MuseumConstants;
 
 public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEventListener {
 
@@ -93,7 +89,7 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
 
     public void removeParadeConditionFromMarket(MarketAPI market){
         market.removeCondition(Ids.COND_PARADE);
-        market.removeTag(Museum.ON_PARADE_TAG);
+        market.removeTag(MuseumConstants.ON_PARADE_TAG);
     }
 
     @Override

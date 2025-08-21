@@ -74,6 +74,7 @@ import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.embassy.scripts.HostileActivityEventSubRegisterListener;
 import indevo.industries.museum.plugins.MuseumAddSubmarketOptionProvider;
+import indevo.industries.museum.plugins.MuseumManageParadeOptionProvider;
 import indevo.industries.museum.plugins.MuseumRemoveSubmarketOptionProvider;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
@@ -487,6 +488,7 @@ public class ModPlugin extends BaseModPlugin {
         RemoveIndustryOptionWarningProvider.register();
         MuseumAddSubmarketOptionProvider.register();
         MuseumRemoveSubmarketOptionProvider.register();
+        MuseumManageParadeOptionProvider.register();
 
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();

@@ -13,6 +13,7 @@ import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
 import indevo.ids.Ids;
 import indevo.industries.museum.industry.Museum;
 import indevo.industries.museum.data.MuseumSubmarketData;
+import indevo.industries.museum.data.MuseumConstants;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
 import java.awt.*;
@@ -159,8 +160,8 @@ public class MuseumAddSubmarketOptionProvider extends SingleIndustrySimpifiedOpt
         Color hl = Misc.getHighlightColor();
         float opad = 10f;
 
-        tooltip.addPara("Add up to %s additional configurable storage areas to your colony.", 0f, hl, Museum.MAX_ADDITIONAL_SUBMARKETS + "");
-        tooltip.addPara("Currently used: %s", opad, hl, ((Museum) opt.ind).getArchiveSubMarkets().size() + "/" + Museum.MAX_ADDITIONAL_SUBMARKETS);
+        tooltip.addPara("Add up to %s additional configurable storage areas to your colony.", 0f, hl, MuseumConstants.MAX_ADDITIONAL_SUBMARKETS + "");
+        tooltip.addPara("Currently used: %s", opad, hl, ((Museum) opt.ind).getArchiveSubMarkets().size() + "/" + MuseumConstants.MAX_ADDITIONAL_SUBMARKETS);
     }
 
     @Override

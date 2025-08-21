@@ -23,6 +23,7 @@ import indevo.utils.ModPlugin;
 import java.util.List;
 import java.util.Random;
 
+@Deprecated //I don't actually need this anymore if I run off profiles?
 public class ParadeFleetData implements FleetEventListener {
 
     // Name, Target planet, Ships, duration
@@ -30,20 +31,17 @@ public class ParadeFleetData implements FleetEventListener {
     public String targetMarketId;
     public List<String> fleetMemberIdList;
     public int durationInDays;
-    private boolean repeating;
 
-    public Museum spawningMuseum;
-    public CampaignFleetAPI activeFleet = null;
+    private Museum spawningMuseum;
+    private CampaignFleetAPI activeFleet = null;
     private boolean remove = false;
 
-    public ParadeFleetData(Industry museum, String name, String targetMarketId, List<String> fleetMemberIdList, int durationInDays, boolean repeating) {
+    public ParadeFleetData(Industry museum, String name, String targetMarketId, List<String> fleetMemberIdList, int durationInDays) {
         this.spawningMuseum = (Museum) museum;
         this.name = name;
         this.targetMarketId = targetMarketId;
         this.fleetMemberIdList = fleetMemberIdList;
         this.durationInDays = durationInDays;
-
-        this.repeating = repeating;
     }
 
     public boolean isActive(){
@@ -58,7 +56,7 @@ public class ParadeFleetData implements FleetEventListener {
         return remove;
     }
 
-    public void activateAndSpawn(){
+    public boolean activateAndSpawn(){
         CampaignFleetAPI paradeFleet = getNewParadeFleet();
         SectorEntityToken spawnLoc = spawningMuseum.getMarket().getPrimaryEntity();
 
@@ -66,12 +64,12 @@ public class ParadeFleetData implements FleetEventListener {
         if (spawnLoc == null){
             ModPlugin.log("Despawning Parade Fleet, primary entity null");
             paradeFleet.despawn(CampaignEventListener.FleetDespawnReason.OTHER, null);
-            return;
+            return false;
         }
 
         spawnLoc.getStarSystem().spawnFleet(spawnLoc, 0f, 0f, paradeFleet);
         MarketAPI targetMarket = Global.getSector().getEconomy().getMarket(targetMarketId);
-        targetMarket.addTag(Museum.ON_PARADE_TAG);
+        targetMarket.addTag(MuseumConstants.ON_PARADE_TAG);
 
         Global.getSector().getCampaignUI().addMessage("The %s has departed to travel towards %s.", Misc.getTextColor(),
                 paradeFleet.getName(),
@@ -79,6 +77,11 @@ public class ParadeFleetData implements FleetEventListener {
                 Misc.getHighlightColor(), targetMarket.getFaction().getColor());
 
         activeFleet = paradeFleet;
+        return true;
+    }
+
+    public void despawn(){
+        if (activeFleet != null) activeFleet.despawn(CampaignEventListener.FleetDespawnReason.OTHER, null); //reset is handled through listener
     }
 
     private CampaignFleetAPI getNewParadeFleet(){
@@ -99,8 +102,8 @@ public class ParadeFleetData implements FleetEventListener {
         fleet.setNoFactionInName(true);
 
         for (String memberId : fleetMemberIdList) {
-            for (FleetMemberAPI m : shipsInStorage) if (m.getId().equals(memberId) && !m.getVariant().hasTag(Museum.ON_PARADE_TAG)) {
-                m.getVariant().addTag(Museum.ON_PARADE_TAG);
+            for (FleetMemberAPI m : shipsInStorage) if (m.getId().equals(memberId) && !m.getVariant().hasTag(MuseumConstants.ON_PARADE_TAG)) {
+                m.getVariant().addTag(MuseumConstants.ON_PARADE_TAG);
 
                 ShipVariantAPI variant = m.getVariant().clone(); //clone so it doesn't affect the original ship in storage
                 variant.setOriginalVariant(null);
@@ -123,18 +126,6 @@ public class ParadeFleetData implements FleetEventListener {
         fleet.setName("Parade Fleet \"" + name + "\"");
 
         return fleet;
-    }
-
-    public boolean isRepeating() {
-        return repeating;
-    }
-
-    public void setExpired(boolean expired) {
-        this.remove = expired;
-    }
-
-    public void setRepeating(boolean repeating){
-        this.repeating = repeating;
     }
 
     private FleetParamsV3 getBaseParams(MarketAPI market) {
@@ -165,7 +156,7 @@ public class ParadeFleetData implements FleetEventListener {
         if (fleet != null){
             MarketAPI originMarket = spawningMuseum.getMarket();
             MarketAPI targetMarket = Global.getSector().getEconomy().getMarket(targetMarketId);
-            if (targetMarket != null) targetMarket.removeTag(Museum.ON_PARADE_TAG);
+            if (targetMarket != null) targetMarket.removeTag(MuseumConstants.ON_PARADE_TAG);
 
             if (reason == CampaignEventListener.FleetDespawnReason.REACHED_DESTINATION && originMarket != null) Global.getSector().getCampaignUI().addMessage("%s has returned to %s.", Misc.getTextColor(),
                     fleet.getName(),
@@ -183,13 +174,12 @@ public class ParadeFleetData implements FleetEventListener {
                 cargo.initMothballedShips(Factions.PLAYER);
                 List<FleetMemberAPI> shipsInStorage = cargo.getMothballedShips().getMembersListCopy();
 
-                for (FleetMemberAPI m : shipsInStorage) if (fleetMemberIdList.contains(m.getId())) m.getVariant().removeTag(Museum.ON_PARADE_TAG);
+                for (FleetMemberAPI m : shipsInStorage) if (fleetMemberIdList.contains(m.getId())) m.getVariant().removeTag(MuseumConstants.ON_PARADE_TAG);
             }
 
             fleet.removeEventListener(this);
-            this.activeFleet = null;
-
-            if (!isRepeating()) setExpired(true);
+            activeFleet = null;
+            remove = true;
         }
     }
 
