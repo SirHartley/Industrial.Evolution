@@ -17,9 +17,9 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.museum.data.MuseumConstants;
-import indevo.industries.museum.data.ParadeFleetData;
 import indevo.industries.museum.data.MuseumSubmarketData;
 import indevo.industries.museum.data.ParadeFleetProfile;
 import indevo.submarkets.RemovablePlayerSubmarketPluginAPI;
@@ -87,18 +87,28 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     public void reportEconomyTick(int iterIndex) {
         if (!isFunctional() || submarket == null || iterIndex != 5) return;
 
-        //todo change this block to the profile way
-        //todo should effectively just be profile.update() and have everything else happen there
-        //todo still not sure how to add more profiles and remove the ones that're in excess - maybe just disable? >> no, pick a random one from the enabled profiles
+        //count actives
+        int activeParades = 0;
+        for (ParadeFleetProfile profile : new ArrayList<>(paradeFleetProfiles)) if (profile.hasActiveFleet()) activeParades++;
 
-        for (ParadeFleetProfile profile : paradeFleetProfiles) profile.update();
+        //activateAndSpawn parade if empty spot
+        if (activeParades < maxParades){
+
+            //pick a random open profile and spawn
+            WeightedRandomPicker<ParadeFleetProfile> profilePicker = new WeightedRandomPicker<>(random);
+            for (ParadeFleetProfile p : paradeFleetProfiles) if (p.isEnabled() && !p.hasActiveFleet()) profilePicker.add(p);
+
+            while (activeParades < maxParades && !profilePicker.isEmpty()){
+                ParadeFleetProfile pickedProfile = profilePicker.pickAndRemove();
+                boolean successfullySpawnedFleet = pickedProfile.spawnFleet();
+                if (successfullySpawnedFleet) activeParades++;
+            }
+        }
     }
 
     @Override
     public void advance(float amount) {
         super.advance(amount);
-
-        //Color color = new Color(199, 10, 63,255); //museum submarket colour
 
         if (isFunctional() && submarket == null && market.isPlayerOwned()) {
             market.addSubmarket(Ids.MUSEUM_SUBMARKET);
@@ -110,9 +120,8 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
     public List<CampaignFleetAPI> getParadeFleets() {
         List<CampaignFleetAPI> fleets = new ArrayList<>();
-        for (ParadeFleetProfile profile : paradeFleetProfiles) if(profile.isActive()) fleets.add(profile.getCurrentFleet());
+        for (ParadeFleetProfile profile : paradeFleetProfiles) if(profile.hasActiveFleet()) fleets.add(profile.getCurrentFleet());
 
-        for (ParadeFleetData data : paradeFleetData) if (data.isActive()) fleets.add(data.getActiveFleet());
         return fleets;
     }
 
@@ -307,7 +316,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
         super.notifyBeingRemoved(mode, forUpgrade);
 
-        for (ParadeFleetProfile profile : paradeFleetProfiles) profile.despawn();
+        for (ParadeFleetProfile profile : paradeFleetProfiles) profile.despawnFleet();
         paradeFleetProfiles.clear();
 
         //clear parade tag or it'll transfer when it's added to a new museum

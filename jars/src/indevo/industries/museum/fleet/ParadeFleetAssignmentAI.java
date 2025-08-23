@@ -83,6 +83,10 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, sourceMarket.getPrimaryEntity(), 31f, "Returning to " + sourceMarket.getName());
     }
 
+    public String getTargetMarketId() {
+        return targetMarketId;
+    }
+
     public void addParadeConditionToMarket(MarketAPI market){
         market.addCondition(Ids.COND_PARADE);
     }
