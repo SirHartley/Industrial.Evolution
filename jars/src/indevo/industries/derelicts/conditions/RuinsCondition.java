@@ -23,7 +23,8 @@ public class RuinsCondition extends BaseHazardCondition {
     public void apply(String id) {
         super.apply(id);
 
-        if (!market.getMemoryWithoutUpdate().getBoolean("$isPlanetConditionMarketOnly")
+        if (market.getMemoryWithoutUpdate() != null //some weird mod conflict causing markets without memory to appear?
+                && !market.getMemoryWithoutUpdate().getBoolean("$isPlanetConditionMarketOnly")
                 && !market.isPlanetConditionMarketOnly()
                 && !isRuinsConditionSet()
                 && market.getFaction() != null

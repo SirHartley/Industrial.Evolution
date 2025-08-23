@@ -52,6 +52,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     private List<ParadeFleetProfile> paradeFleetProfiles = new ArrayList<>();
     private int maxParades = MuseumConstants.DEFAULT_MAX_PARADES;
     private Random random = new Random();
+    private boolean flyParades = true;
 
     //income
     private Map<ShipAPI.HullSize, Pair<Float, Float>> hullSizeValueMap = new HashMap<>(); //a = maxShipValue, b = average for hull size,
@@ -87,12 +88,15 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     public void reportEconomyTick(int iterIndex) {
         if (!isFunctional() || submarket == null || iterIndex != 5) return;
 
+        //fill list if empty spot
+        if (paradeFleetProfiles.size() < maxParades) while (paradeFleetProfiles.size() < maxParades) paradeFleetProfiles.add(new ParadeFleetProfile(this));
+
         //count actives
         int activeParades = 0;
         for (ParadeFleetProfile profile : new ArrayList<>(paradeFleetProfiles)) if (profile.hasActiveFleet()) activeParades++;
 
         //activateAndSpawn parade if empty spot
-        if (activeParades < maxParades){
+        if (flyParades && activeParades < maxParades){
 
             //pick a random open profile and spawn
             WeightedRandomPicker<ParadeFleetProfile> profilePicker = new WeightedRandomPicker<>(random);
@@ -116,6 +120,22 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
         } else if (!market.isPlayerOwned() && submarket != null) {
             notifyBeingRemoved(null, false);
         }
+    }
+
+    public void setFlyParades(boolean flyParades) {
+        this.flyParades = flyParades;
+    }
+
+    public boolean flyParades() {
+        return flyParades;
+    }
+
+    public List<ParadeFleetProfile> getParadeFleetProfiles() {
+        return paradeFleetProfiles;
+    }
+
+    public int getMaxParades() {
+        return maxParades;
     }
 
     public List<CampaignFleetAPI> getParadeFleets() {

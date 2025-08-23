@@ -217,6 +217,10 @@ public class ParadeFleetProfile implements FleetEventListener {
 
     }
 
+    public String getNamePreset() {
+        return namePreset;
+    }
+
     public void setNamePreset(String namePreset) {
         this.namePreset = namePreset;
     }
@@ -231,6 +235,14 @@ public class ParadeFleetProfile implements FleetEventListener {
 
     public void resetMembers(){
         memberIdPreset = null;
+    }
+
+    public List<String> getMemberIdPreset() {
+        return memberIdPreset;
+    }
+
+    public int getDurationPreset() {
+        return durationPreset;
     }
 
     public CampaignFleetAPI getCurrentFleet(){
