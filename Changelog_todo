@@ -1,6 +1,8 @@
 --------------------------- Open Tasks -----------------------------
 
-parade UI & custom parade spawning
+BASE_CHANCE_PER_ECONOMY_TICK should be 0.2 for public release (is: 0.4)
+I think the condition is broken, check if it gets removed properly
+
 Add settings to museum
 Add settings to meteors
 add toggle for consumables
