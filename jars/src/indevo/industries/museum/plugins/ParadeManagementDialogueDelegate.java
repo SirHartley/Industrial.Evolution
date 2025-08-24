@@ -99,7 +99,7 @@ class ParadeManagementDialogueDelegate extends ButtonReportingDialogueDelegate {
 
         selectorAnchor = selectorPanel.createUIElement(MuseumManageParadeOptionProvider.BUTTON_150, MuseumManageParadeOptionProvider.BUTTON_30, false);
 
-        boolean enabled = museum.getParadeFleetProfiles().size() < (MuseumConstants.DEFAULT_MAX_PARADES + MuseumConstants.ALPHA_CORE_EXTRA_PARADES) * 3f;
+        boolean enabled = museum.getParadeFleetProfiles().size() < 100;
         Color buttonBgColour = enabled ? MuseumConstants.SUBMARKET_COLOUR : grayColour;
         Color buttonTextColour = Color.WHITE;
 
@@ -381,6 +381,14 @@ class ParadeManagementDialogueDelegate extends ButtonReportingDialogueDelegate {
             entryPanel.addUIElement(buttonAnchor).rightOfBottom(lastUsedAnchor, opad);
             lastUsedAnchor = buttonAnchor;
 
+            int enabledProfiles = 0;
+            for (ParadeFleetProfile p : museum.getParadeFleetProfiles()) if (p.isEnabled()) enabledProfiles++;
+
+            enabled = !profile.isEnabled() || enabledProfiles > museum.getMaxParades(); //we forbid disabling profiles if the player has equal or less than the required amount of fleet slots
+            Color buttonLightColour = enabled ? brightColor : Color.lightGray;
+            buttonBgColour = enabled ? bgColour : grayColour;
+            buttonTextColour = enabled ? baseColor : Color.WHITE;
+
             buttonAnchor = entryPanel.createUIElement(MuseumManageParadeOptionProvider.BUTTON_120, MuseumManageParadeOptionProvider.BUTTON_30, false);
             button = buttonAnchor.addAreaCheckbox((profile.isEnabled() ? "Disable" : "Enable") + " profile", new ButtonAction(this) {
                 @Override
@@ -388,8 +396,9 @@ class ParadeManagementDialogueDelegate extends ButtonReportingDialogueDelegate {
                     profile.setEnabled(!profile.isEnabled());
                     recreatePanel(callback);
                 }
-            }, baseColor, bgColour, brightColor, MuseumManageParadeOptionProvider.BUTTON_120, MuseumManageParadeOptionProvider.BUTTON_30, 0);
+            }, buttonTextColour, buttonBgColour, buttonLightColour, MuseumManageParadeOptionProvider.BUTTON_120, MuseumManageParadeOptionProvider.BUTTON_30, 0);
 
+            button.setEnabled(enabled);
             button.setChecked(profile.isEnabled());
 
             entryPanel.addUIElement(buttonAnchor).rightOfMid(lastUsedAnchor, opad);

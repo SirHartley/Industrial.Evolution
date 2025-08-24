@@ -95,6 +95,11 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
         //fill list if empty spot
         if (paradeFleetProfiles.size() < maxParades) while (paradeFleetProfiles.size() < maxParades) paradeFleetProfiles.add(new ParadeFleetProfile(this));
 
+        //fill list if all the profiles are disabled
+        int enabledParadeProfiles = 0;
+        for (ParadeFleetProfile p : paradeFleetProfiles) if (p.isEnabled()) enabledParadeProfiles++;
+        if (enabledParadeProfiles < maxParades) paradeFleetProfiles.add(new ParadeFleetProfile(this));
+
         //count actives
         int activeParades = 0;
         for (ParadeFleetProfile profile : new ArrayList<>(paradeFleetProfiles)) if (profile.hasActiveFleet()) activeParades++;
