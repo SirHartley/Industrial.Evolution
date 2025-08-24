@@ -1,16 +1,12 @@
 package indevo.items.consumables.entities;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
-import com.fs.starfarer.api.campaign.CustomEntitySpecAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
-import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.WarningBeaconEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 

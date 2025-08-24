@@ -23,6 +23,7 @@ public class MuseumConstants {
     public static final String PARADE_FLEET_NAMES = "data/strings/parade_fleet_names.csv";
     public static final int PARADE_FLEET_IMMIGRATION_BONUS = 5;
     public static final int PARADE_FLEET_STABILITY_BONUS = 1;
+    public static final String FLEET_RETURNING_TAG = "indEvo_parade_returning";
 
     //AI Cores
     public static final int ALPHA_CORE_EXTRA_PARADES = 1;

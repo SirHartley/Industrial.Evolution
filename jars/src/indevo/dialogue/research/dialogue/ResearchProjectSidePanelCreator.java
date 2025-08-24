@@ -15,7 +15,8 @@ import indevo.utils.ModPlugin;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class ResearchProjectSidePanelCreator {

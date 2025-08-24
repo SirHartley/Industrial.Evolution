@@ -2,11 +2,9 @@ package indevo.items.consumables.itemAbilities;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
-import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.items.consumables.itemPlugins.SpooferConsumableItemPlugin;
 
 import java.awt.*;
 

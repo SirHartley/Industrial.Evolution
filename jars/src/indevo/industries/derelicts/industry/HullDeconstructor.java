@@ -29,10 +29,10 @@ import indevo.ids.ItemIds;
 import indevo.items.EmptyForgeTemplateItemPlugin;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
+import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
-import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
 

@@ -20,7 +20,6 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.hullmods.Hellpods;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
-import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
@@ -30,7 +29,6 @@ import org.lazywizard.lazylib.MathUtils;
 import java.util.*;
 
 import static com.fs.starfarer.api.impl.campaign.intel.bases.LuddicPathBaseManager.AI_CORE_ADMIN_INTEREST;
-import static com.fs.starfarer.api.impl.campaign.population.CoreImmigrationPluginImpl.getWeightForMarketSizeStatic;
 
 public class HelldiversSubIndustry extends SubIndustry implements EconomyTickListener, ColonyPlayerHostileActListener, NewDayListener {
 

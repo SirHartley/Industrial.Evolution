@@ -1,22 +1,16 @@
 package indevo.exploration.meteor.intel;
 
-import com.fs.graphics.M;
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
-import com.fs.starfarer.api.impl.campaign.CargoPodsEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.misc.FleetLogIntel;
-import com.fs.starfarer.api.ui.Alignment;
-import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.meteor.MeteorSwarmManager;
 
 import java.awt.*;
-import java.util.Set;
 
 public class MeteorShowerLocationIntel extends FleetLogIntel {
     protected LocationAPI loc;

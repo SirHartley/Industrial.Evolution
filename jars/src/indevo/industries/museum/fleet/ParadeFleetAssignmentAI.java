@@ -12,6 +12,8 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseAssignmentAI;
 import indevo.ids.Ids;
 import indevo.industries.museum.data.MuseumConstants;
 
+import static indevo.industries.museum.data.MuseumConstants.FLEET_RETURNING_TAG;
+
 public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEventListener {
 
     public String sourceMarketId;
@@ -81,6 +83,7 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
         fleet.clearAssignments();
         MarketAPI sourceMarket = Global.getSector().getEconomy().getMarket(sourceMarketId);
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, sourceMarket.getPrimaryEntity(), 31f, "Returning to " + sourceMarket.getName());
+        fleet.addTag(FLEET_RETURNING_TAG);
     }
 
     public String getTargetMarketId() {

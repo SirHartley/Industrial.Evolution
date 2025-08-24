@@ -9,6 +9,7 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import indevo.dialogue.sidepanel.EscapeBlockingDialoguePluginAPI;
 import indevo.industries.petshop.listener.EscapeInterceptListener;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
@@ -21,7 +22,7 @@ import java.util.Map;
 
 import static indevo.industries.petshop.listener.EscapeInterceptListener.BLOCK_ESC;
 
-public class PetShopDialogPlugin  implements InteractionDialogPlugin {
+public class PetShopDialogPlugin implements InteractionDialogPlugin, EscapeBlockingDialoguePluginAPI {
 
     public InteractionDialogAPI dialog;
 

@@ -6,8 +6,6 @@ import com.fs.starfarer.api.campaign.CustomDialogDelegate;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
-import com.fs.starfarer.api.impl.campaign.econ.MildClimate;
-import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -15,8 +13,6 @@ import indevo.utils.helper.StringHelper;
 import indevo.utils.plugins.TagBasedSimplifiedIndustryOptionProvider;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Refunds only the current upgrade, whereas vanilla refunds the entire upgrade tree - not required for my use case

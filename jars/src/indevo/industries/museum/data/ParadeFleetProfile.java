@@ -63,7 +63,7 @@ public class ParadeFleetProfile implements FleetEventListener {
         }
 
         spawnLoc.getStarSystem().spawnFleet(spawnLoc, 0f, 0f, paradeFleet);
-        MarketAPI targetMarket = Global.getSector().getEconomy().getMarket(ParadeFleetAssignmentAI.get(fleet).getTargetMarketId());
+        MarketAPI targetMarket = Global.getSector().getEconomy().getMarket(ParadeFleetAssignmentAI.get(paradeFleet).getTargetMarketId());
         targetMarket.addTag(MuseumConstants.ON_PARADE_TAG);
 
         Global.getSector().getCampaignUI().addMessage("The %s has departed to travel towards %s.", Misc.getTextColor(),
@@ -250,7 +250,7 @@ public class ParadeFleetProfile implements FleetEventListener {
     }
 
     public void setDuration(int duration) {
-        this.durationPreset = durationPreset;
+        this.durationPreset = duration;
     }
 
     public boolean isEnabled() {

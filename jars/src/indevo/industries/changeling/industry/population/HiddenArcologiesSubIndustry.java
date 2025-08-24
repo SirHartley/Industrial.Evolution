@@ -14,12 +14,7 @@ import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.utils.helper.MiscIE;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
-
-import static com.fs.starfarer.api.impl.campaign.ids.Conditions.*;
 
 public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketImmigrationModifier {
     //Hidden Arcologies

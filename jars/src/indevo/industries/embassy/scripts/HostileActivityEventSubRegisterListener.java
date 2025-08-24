@@ -3,7 +3,6 @@ package indevo.industries.embassy.scripts;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.listeners.ColonyCrisesSetupListener;
 import com.fs.starfarer.api.impl.campaign.intel.events.HostileActivityEventIntel;
-import com.fs.starfarer.api.util.IntervalUtil;
 import indevo.utils.ModPlugin;
 
 public class HostileActivityEventSubRegisterListener implements ColonyCrisesSetupListener {

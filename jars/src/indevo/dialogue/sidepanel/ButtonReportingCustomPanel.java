@@ -2,7 +2,6 @@ package indevo.dialogue.sidepanel;
 
 import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
 import com.fs.starfarer.api.ui.PositionAPI;
-import indevo.industries.petshop.dialogue.PetManagerDialogueDelegate;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;

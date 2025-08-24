@@ -20,9 +20,9 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.items.installable.BlueprintInstallableItemPlugin;
+import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
-import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
 

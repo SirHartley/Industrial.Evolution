@@ -17,19 +17,16 @@ import indevo.exploration.meteor.helper.MeteorFactory;
 import indevo.exploration.meteor.movement.ArcingMovementModule;
 import indevo.exploration.meteor.movement.ExternalOrbitMovement;
 import indevo.exploration.meteor.scripts.DespawningMovementModuleRunner;
-import indevo.exploration.meteor.scripts.MovementModuleRunner;
 import indevo.exploration.meteor.terrain.RadioactiveTerrain;
 import indevo.ids.Ids;
 import indevo.utils.helper.CircularArc;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
-import indevo.utils.helper.TrigHelper;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.awt.*;
 
 import static com.fs.starfarer.api.impl.campaign.enc.AbyssalRogueStellarObjectEPEC.PLANETOID_TYPES;
-import static com.fs.starfarer.api.util.Misc.random;
 
 public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
 

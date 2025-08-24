@@ -14,10 +14,10 @@ import indevo.ids.Ids;
 import indevo.industries.embassy.industry.Embassy;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.submarkets.impl.RequisitionsCenterSubmarketPlugin;
+import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
-import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 
 import java.awt.*;
 import java.util.List;

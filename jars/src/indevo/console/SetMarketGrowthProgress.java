@@ -1,11 +1,7 @@
 package indevo.console;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.impl.campaign.population.CoreImmigrationPluginImpl;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
-import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.StringHelper;
 import org.lazywizard.console.BaseCommand;
 import org.lazywizard.console.CommonStrings;

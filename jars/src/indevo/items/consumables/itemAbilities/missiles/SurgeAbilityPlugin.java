@@ -3,7 +3,6 @@ package indevo.items.consumables.itemAbilities.missiles;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.DelayedActionScript;
 import com.fs.starfarer.api.util.Misc;
 import indevo.items.consumables.entityAbilities.NoWellSlipstreamAbility;
 import org.lwjgl.util.vector.Vector2f;

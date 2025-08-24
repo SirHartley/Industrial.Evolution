@@ -9,8 +9,8 @@ import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
-import indevo.industries.museum.industry.Museum;
 import indevo.industries.museum.data.MuseumSubmarketData;
+import indevo.industries.museum.industry.Museum;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
 public class MuseumRemoveSubmarketOptionProvider extends SingleIndustrySimpifiedOptionProvider {

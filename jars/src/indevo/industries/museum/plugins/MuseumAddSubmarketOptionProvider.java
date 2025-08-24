@@ -11,9 +11,9 @@ import indevo.dialogue.sidepanel.ButtonAction;
 import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
 import indevo.ids.Ids;
-import indevo.industries.museum.industry.Museum;
-import indevo.industries.museum.data.MuseumSubmarketData;
 import indevo.industries.museum.data.MuseumConstants;
+import indevo.industries.museum.data.MuseumSubmarketData;
+import indevo.industries.museum.industry.Museum;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
 import java.awt.*;

@@ -2,7 +2,6 @@ package indevo.industries.assembler.industry;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.Industry;
-import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import indevo.utils.helper.Settings;
 

@@ -15,8 +15,6 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.util.Random;
 
-import static indevo.items.consumables.itemAbilities.missiles.SurgeAbilityPlugin.TEMP_ABILITY_ID;
-
 public class NoWellSlipstreamAbility extends GenerateSlipsurgeAbility {
 
     public float angle = 0f;

@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.DelayedActionScript;
 import com.fs.starfarer.api.util.Misc;
 import indevo.items.consumables.itemAbilities.BaseConsumableAbilityPlugin;
 import indevo.items.consumables.listeners.MissileActivationManager;

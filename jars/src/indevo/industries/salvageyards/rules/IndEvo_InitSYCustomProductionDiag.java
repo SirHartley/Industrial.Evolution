@@ -24,7 +24,6 @@ import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
-import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;

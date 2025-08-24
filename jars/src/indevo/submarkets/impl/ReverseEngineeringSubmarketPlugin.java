@@ -21,7 +21,10 @@ import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin implements DynamicSubmarket {
     public static Logger log = Global.getLogger(ReverseEngineeringSubmarketPlugin.class);

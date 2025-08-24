@@ -1,9 +1,5 @@
 package indevo.items.consumables;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CampaignFleetAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 

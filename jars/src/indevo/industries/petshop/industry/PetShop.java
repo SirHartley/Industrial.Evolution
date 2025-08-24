@@ -19,10 +19,10 @@ import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.memory.Pet;
+import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
-import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 
 import java.awt.*;
 import java.util.ArrayList;
