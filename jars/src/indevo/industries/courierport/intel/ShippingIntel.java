@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.*;
 
 import static indevo.industries.courierport.ShippingCostCalculator.CONTRACT_BASE_FEE;
+import static indevo.industries.courierport.ShippingCostCalculator.getTotalContractCost;
 
 public class ShippingIntel extends BaseIntelPlugin {
 
@@ -160,9 +161,9 @@ public class ShippingIntel extends BaseIntelPlugin {
         float lyMultVal = ShippingCostCalculator.getLYMult(contract);
         String lyMultStr = Misc.getRoundedValueMaxOneAfterDecimal(lyMultVal);
 
-        float shipCost = ShippingCostCalculator.getContractShipCost(cargo, contract);
-        float cargoCost = ShippingCostCalculator.getContractCargoCost(cargo, contract);
-        float total = shipCost + cargoCost + CONTRACT_BASE_FEE;
+        float shipCost = ShippingCostCalculator.getSpecificShipCostForCargo(cargo, contract, true);
+        float cargoCost = ShippingCostCalculator.getSpecificCargoCostForCargo(cargo, contract, true);
+        float total = getTotalContractCost(cargo, contract);
 
         tooltip.setParaFont(Fonts.DEFAULT_SMALL);
 
@@ -205,18 +206,26 @@ public class ShippingIntel extends BaseIntelPlugin {
             tooltip.beginGridFlipped(300, 1, 100f, 3f);
             tooltip.addToGrid(0, 0, "Base fee", Misc.getDGSCredits(CONTRACT_BASE_FEE));
 
-            if (cargoCost > 1) tooltip.addToGrid(0,
-                    1,
-                    "Cargo transport",
-                    Misc.getDGSCredits(cargoCost) + alphaCoreStr);
+            int pos = 0;
+            if (cargoCost > 1) {
+                pos++;
+                tooltip.addToGrid(0,
+                        pos,
+                        "Cargo transport",
+                        Misc.getDGSCredits(cargoCost) + alphaCoreStr);
+            }
 
-            if (shipCost > 1) tooltip.addToGrid(0,
-                    2,
-                    "Ships transport",
-                    Misc.getDGSCredits(shipCost) + alphaCoreStr);
+            if (shipCost > 1) {
+                pos++;
+                tooltip.addToGrid(0,
+                        pos,
+                        "Ships transport",
+                        Misc.getDGSCredits(shipCost) + alphaCoreStr);
+            }
 
             String betaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.BETA_CORE) ? " [-" + StringHelper.getAbsPercentString(ShippingCostCalculator.DISTANCE_MULT_REDUCTION, true) + ", Beta Core]" : "";
-            tooltip.addToGrid(0, 3, "Distance multiplier", "x" + lyMultStr + betaCoreStr);
+            pos++;
+            tooltip.addToGrid(0, pos, "Distance multiplier", "x" + lyMultStr + betaCoreStr);
 
             if (fromSubmarket != null && fromSubmarket.getSpecId().equals(Submarkets.LOCAL_RESOURCES)) {
                 float stockpileCost = 0f;
@@ -225,11 +234,13 @@ public class ShippingIntel extends BaseIntelPlugin {
                     stockpileCost += stack.getBaseValuePerUnit() * stack.getSize();
                 }
 
-                tooltip.addToGrid(0, 4, "Stockpile item cost", Misc.getDGSCredits(stockpileCost));
+                pos++;
+                tooltip.addToGrid(0, pos, "Stockpile item cost", Misc.getDGSCredits(stockpileCost));
                 total += stockpileCost;
             }
 
-            tooltip.addToGrid(0, 5, "Total", Misc.getDGSCredits(total));
+            pos++;
+            tooltip.addToGrid(0, pos, "Total", Misc.getDGSCredits(total));
 
             tooltip.addGrid(pad);
             tooltip.setParaFontDefault();

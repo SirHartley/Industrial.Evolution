@@ -7,15 +7,17 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.helper.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ShippingCostCalculator {
-    public static final float COST_PER_SPACE = 5f;
-    public static final float COST_PER_SHIP_SPACE = 170f;
-    public static final float COST_PER_LY_MULT = 250f;
-    public static final float CONTRACT_BASE_FEE = 1000f;
+    public static final float COST_PER_SPACE = Settings.getInt(Settings.COURIER_COST_PER_CARGO_SPACE);;
+    public static final float COST_PER_SHIP_SPACE = Settings.getInt(Settings.COURIER_COST_PER_SHIP_DP);;
+    public static final float CONTRACT_BASE_FEE = Settings.getInt(Settings.COURIER_BASE_FEE);;
+    public static final float COST_PER_LY_SETTING_MULT = Settings.getFloat(Settings.COURIER_COST_PER_LY_MULT);
+    public static final float COST_PER_LY_MULT = 250f; //unaffected by setting cause hard to explain to player
 
     //AI cores
     public static final float DISTANCE_MULT_REDUCTION = 0.8f;
@@ -44,28 +46,16 @@ public class ShippingCostCalculator {
 
         float red = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.BETA_CORE) ? DISTANCE_MULT_REDUCTION : 1f;
         lyMult *= red;
+        lyMult *= COST_PER_LY_SETTING_MULT;
 
         return lyMult;
     }
 
-    public static float getTotalContractCost(ShippingContract contract) {
-        return (getContractShipCost(contract) + getContractCargoCost(contract) + CONTRACT_BASE_FEE);
-    }
-
     public static float getTotalContractCost(CargoAPI cargo, ShippingContract contract) {
-        return (getContractShipCost(cargo, contract) + getContractCargoCost(cargo, contract) + CONTRACT_BASE_FEE);
+        return (getSpecificShipCostForCargo(cargo, contract, false) + getSpecificCargoCostForCargo(cargo, contract, false) + CONTRACT_BASE_FEE);
     }
 
-    public static float getContractShipCost(ShippingContract contract) {
-        float total = 0f;
-        if (contract.getFromSubmarket() != null) {
-            total += getBaseAbstractShipSpaceCost(contract.getShipList());
-        }
-
-        return total + getLYMult(contract);
-    }
-
-    public static float getContractShipCost(CargoAPI cargo, ShippingContract contract) {
+    public static float getSpecificShipCostForCargo(CargoAPI cargo, ShippingContract contract, boolean ignoreLYMult) {
         float total = 0f;
         List<ShipVariantAPI> variantList = new ArrayList<>();
         cargo.initMothballedShips("player");
@@ -76,22 +66,17 @@ public class ShippingCostCalculator {
 
         total += getBaseAbstractShipSpaceCost(variantList);
 
-        return total + getLYMult(contract);
+        float mult = ignoreLYMult ? 1f : getLYMult(contract);
+        return total * mult;
     }
 
-    public static float getContractCargoCost(CargoAPI cargo, ShippingContract contract) {
+    public static float getSpecificCargoCostForCargo(CargoAPI cargo, ShippingContract contract, boolean ignoreLYMult) {
         float total = getBaseStackCargoSpaceCost(cargo);
-        return total + getLYMult(contract);
+
+        float mult = ignoreLYMult ? 1f : getLYMult(contract);
+        return total * mult;
     }
 
-    public static float getContractCargoCost(ShippingContract contract) {
-        float total = 0f;
-        if (contract.getFromSubmarket() != null) {
-            total += getBaseStackCargoSpaceCost(contract.getFromSubmarket().getCargo());
-        }
-
-        return total + getLYMult(contract);
-    }
 
     public static float getCostForStack(CargoStackAPI stack) {
         return (getStackSpace(stack) * COST_PER_SPACE);

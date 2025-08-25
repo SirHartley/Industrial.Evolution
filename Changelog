@@ -1,4 +1,12 @@
 --------------------------- Changelog -----------------------------
+4.1.2
+Meteor Swarms
+Adjusted - Tutorial will now spawn as roider union fleet if mod is enabled
+
+Museum
+Adjusted - can no longer delete profile while fleet is active
+Fixed - no longer crashes when random parade naturally despawns
+
 4.1.a
 
 Consumable Items
@@ -14,7 +22,11 @@ Fixed - "Hostile Intel" salvage event: Sending the intel to the enemy no longer 
 
 Courier Port
 Added - "Ship all weapons" setting
+Added - All cost settings are now editable in the mod settings
 Adjusted - Shipping cargo from one local storage to another on one planet is now instant and no longer spawns a fleet
+Fixed - Pick specific cargo display no longer has a bunch of bugged out text all over (how was this never reported?!)
+Fixed - Contracts now correctly display their cost forecast in the creation menu
+Fixed - Distance is now properly calculated into shipping costs
 
 Museum
 Added - Store your rare ships, get bonus depending on their value

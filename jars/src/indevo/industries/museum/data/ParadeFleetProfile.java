@@ -43,6 +43,7 @@ public class ParadeFleetProfile implements FleetEventListener {
     private boolean isEnabled = true; //this is for enabling or disabling the profile, not the fleet.
 
     private CampaignFleetAPI fleet = null;
+    private List<String> fleetMembersOnParade = new ArrayList<>();
 
     public ParadeFleetProfile(Industry museum) {
         this.spawningMuseum = (Museum) museum;
@@ -134,6 +135,7 @@ public class ParadeFleetProfile implements FleetEventListener {
         //add member to fleet and apply tag
         for (FleetMemberAPI m : paradeMembers) {
             m.getVariant().addTag(MuseumConstants.ON_PARADE_TAG);
+            fleetMembersOnParade.add(m.getId());
 
             ShipVariantAPI variant = m.getVariant().clone(); //clone so it doesn't affect the original ship in storage
             variant.setOriginalVariant(null);
@@ -169,7 +171,10 @@ public class ParadeFleetProfile implements FleetEventListener {
             marketPicker.add(m.getId());
         }
 
-        if (marketPicker.isEmpty()) return null; //no market, no parade...
+        if (marketPicker.isEmpty()) {
+            fleetMembersOnParade.clear();
+            return null; //no market, no parade...
+        }
 
         String targetMarketId = marketPicker.pick();
 
@@ -204,7 +209,7 @@ public class ParadeFleetProfile implements FleetEventListener {
                 List<FleetMemberAPI> shipsInStorage = cargo.getMothballedShips().getMembersListCopy();
 
                 //go through the preset - members in fleet are copies
-                for (FleetMemberAPI m : shipsInStorage) if (memberIdPreset.contains(m.getId())) m.getVariant().removeTag(MuseumConstants.ON_PARADE_TAG);
+                for (FleetMemberAPI m : shipsInStorage) if (fleetMembersOnParade.contains(m.getId())) m.getVariant().removeTag(MuseumConstants.ON_PARADE_TAG);
             }
 
             if (targetMarket != null) ParadeFleetAssignmentAI.get(fleet).removeParadeConditionFromMarket(targetMarket);

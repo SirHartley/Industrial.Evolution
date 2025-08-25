@@ -116,6 +116,10 @@ public class Settings {
     public static final String DECON_ALLOW_NEX_OMEGA = "IndEvo_DeconAllowNexOmega";
     public static final String ENGHUB_STRICT_WL = "IndEvo_EngHubStrictWhitelist";
     public static final String ARTILLERY_STARS_PER_STATION = "IndEvo_Artillery_starsPerStationInConstellation";
+    public static final String COURIER_COST_PER_LY_MULT = "IndEvo_courier_costPerLyMult";
+    public static final String COURIER_COST_PER_CARGO_SPACE = "IndEvo_courier_costPerSpace";
+    public static final String COURIER_COST_PER_SHIP_DP = "IndEvo_courier_costPerShip";
+    public static final String COURIER_BASE_FEE = "IndEvo_courier_baseFee";
 
     public static boolean getBoolean(String s){
         if (Global.getSettings().getModManager().isModEnabled("lunalib")) {

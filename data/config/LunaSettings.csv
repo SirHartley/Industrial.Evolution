@@ -85,6 +85,10 @@ IndEvo_SYBaseDMods,[Salvage Yards] Base D-Mod Amount,Int,5,,Base D-Mod count on 
 IndEvo_SYPartValueMult,[Salvage Yards] Ship Component Value Mult,Double,1.2,,Mult for how much components contribute towards the budget - default means every component contributes 1.2x its standard cost towards the budget,,,Industries
 IndEvo_SYHullDeliveryTime,[Salvage Yards] Delivery Thyme,Int,60,,Italian Sounds while person on crotch rocket delivers Paragon to hungry space captain,1,365,Industries
 IndEvo_SYDModMoveBaseCostMult,[Salvage Yards] D-Mod Moving Base Cost Mult,Double,0.8,,"How much it costs to move a D-Mod compared to restoring it. By default, it's cheaper to move the D-mod by 0.8x the restoration cost. I think. Can't remember, might also be total cost.",,,Industries
+IndEvo_courier_costPerSpace,[Courier Port] Base Cost per cargo unit,Int,5,,Transport cost per cargo space used. Some items take more space than others: a nanoforge takes 10 cargo space. Affected by distance.,1,20,Industries
+IndEvo_courier_costPerShip,[Courier Port] Base Cost per ship unit,Int,170,,"Transport cost per ship DP. Larger ship, larger cost. Affected by distance.",10,500,Industries
+IndEvo_courier_baseFee,[Courier Port] Static courier fee,Int,1000,,"The base fee of a shipment, not affected by distance.",,,Industries
+IndEvo_courier_costPerLyMult,[Courier Port] Cost per distance multiplier,Double,1,,"This setting changes how impactful distance is to the cost calculation. The higher the value, the more distance will factor in.",0.1f,2f,Industries
 IndEvo_RaidForUnknownOnly,[Privateer Base] Raid only for Unknown BPs,Boolean,FALSE,,"Allows the Privateer base to raid for blueprints you already know. Setting this to TRUE will make it only generate BPs you do not know, instead of a mix",,,Industries
 IndEvo_PrivateerDeliverToGatheringPoint,[Privateer Base] Deliver to Gathering Point,Boolean,FALSE,,Auto-deliver the looted items to the gathering point. Remember - courier port exists.,,,Industries
 IndEvo_RG_cooldownTime,[Rift Generator] Cooldown,Int,90,,,1,365,Industries

@@ -37,13 +37,17 @@ public class TutorialEncounterScript implements EveryFrameScript {
 
         if (!validLoc) return;
 
+        String roiderId = "roider";
+        boolean roiderEnabled = Global.getSettings().getModManager().isModEnabled(roiderId);
+        String targetFaction = roiderEnabled ? roiderId : Factions.INDEPENDENT;
+
         //spawn fleet
-        MarketAPI sourceMarket = Misc.getFactionMarkets(Factions.INDEPENDENT).isEmpty() ? Misc.getFactionMarkets(Factions.INDEPENDENT).get(0) : null; //null will make it travel and despawn in sector center
+        MarketAPI sourceMarket = Misc.getFactionMarkets(targetFaction).isEmpty() ? Misc.getFactionMarkets(targetFaction).get(0) : null; //null will make it travel and despawn in sector center
 
         FleetParamsV3 params = new FleetParamsV3(
                 sourceMarket,
                 player.getLocationInHyperspace(),
-                Factions.INDEPENDENT,
+                targetFaction,
                 null,
                 FleetTypes.SCAVENGER_SMALL,
                 5f, // combatPts
@@ -71,7 +75,7 @@ public class TutorialEncounterScript implements EveryFrameScript {
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_ALWAYS_PURSUE, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);
 
-        fleet.setName("Independent Roider");
+        fleet.setName("Panicked Roiders");
         fleet.getMemoryWithoutUpdate().set("$IndEvo_supplyTradeAmt", Math.min(100, (int) Math.ceil(player.getCargo().getSupplies() * 0.1f))); //10% of player supplies
         fleet.getMemoryWithoutUpdate().set("$IndEvo_roider_tutorial", true);
 

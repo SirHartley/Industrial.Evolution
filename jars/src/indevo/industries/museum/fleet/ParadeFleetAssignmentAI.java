@@ -49,10 +49,7 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
         fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE,
                 sourceMarket.getPrimaryEntity(),
                 7f,
-                "Preparing for parade",
-                false,
-                () -> addParadeConditionToMarket(sourceMarket),
-                () -> removeParadeConditionFromMarket(sourceMarket));
+                "Preparing for parade");
 
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION,
                 targetMarket.getPrimaryEntity(),
@@ -82,6 +79,9 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
     public void forceReturnToSource(){
         fleet.clearAssignments();
         MarketAPI sourceMarket = Global.getSector().getEconomy().getMarket(sourceMarketId);
+        MarketAPI targetMarket = Global.getSector().getEconomy().getMarket(targetMarketId);
+        if (targetMarket != null) removeParadeConditionFromMarket(targetMarket);
+
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, sourceMarket.getPrimaryEntity(), 31f, "Returning to " + sourceMarket.getName());
         fleet.addTag(FLEET_RETURNING_TAG);
     }

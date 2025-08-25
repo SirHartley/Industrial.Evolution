@@ -404,7 +404,7 @@ class ParadeManagementDialogueDelegate extends ButtonReportingDialogueDelegate {
             entryPanel.addUIElement(buttonAnchor).rightOfMid(lastUsedAnchor, opad);
             lastUsedAnchor = buttonAnchor;
 
-            enabled = museum.getParadeFleetProfiles().size() > museum.getMaxParades();
+            enabled = museum.getParadeFleetProfiles().size() > museum.getMaxParades() && profile.getCurrentFleet() == null;
             buttonBgColour = enabled ? new Color(80, 20, 10, 255) : grayColour;
             buttonTextColour = Color.WHITE;
 

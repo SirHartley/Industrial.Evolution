@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import static indevo.industries.courierport.ShippingCostCalculator.CONTRACT_BASE_FEE;
+import static indevo.industries.courierport.ShippingCostCalculator.getTotalContractCost;
 
 public class ContractSidePanelCreator {
 
@@ -910,12 +911,15 @@ public class ContractSidePanelCreator {
 
         SubmarketAPI fromSubmarket = contract.getFromSubmarket();
         SubmarketAPI toSubmarket = contract.getToSubmarket();
+        CargoAPI contractCargo = contract.targetCargo != null ? contract.targetCargo : Global.getFactory().createCargo(true); //dummy cargo while it's ded
+
         String cadenceString = ShippingTooltipHelper.getCadenceString(contract.getRecurrentDays());
         float lyMultVal = ShippingCostCalculator.getLYMult(contract);
         String lyMultStr = Misc.getRoundedValueMaxOneAfterDecimal(lyMultVal);
-        float shipCost = ShippingCostCalculator.getContractShipCost(contract);
-        float cargoCost = ShippingCostCalculator.getContractCargoCost(contract);
-        float total = ShippingCostCalculator.getTotalContractCost(contract);
+        float shipCost = ShippingCostCalculator.getSpecificShipCostForCargo(contractCargo, contract, true);
+        float cargoCost = ShippingCostCalculator.getSpecificCargoCostForCargo(contractCargo, contract, true);
+        float total = getTotalContractCost(contractCargo, contract);
+
         float pad = 5f;
 
         panelTooltip.setParaFont(Fonts.DEFAULT_SMALL);
@@ -952,52 +956,58 @@ public class ContractSidePanelCreator {
 
             panelTooltip.addPara("Cost forecast:", opad);
             panelTooltip.beginGridFlipped(300, 1, 100f, 3f);
-            panelTooltip.addToGrid(0, 0, "Base fee", Misc.getDGSCredits(CONTRACT_BASE_FEE));
 
-            if (shipCost > 10 && (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING))
+            int gridPos = 0;
+
+            panelTooltip.addToGrid(0, gridPos, "Base fee", Misc.getDGSCredits(CONTRACT_BASE_FEE));
+
+            if (cargoCost > 0 && (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING)){
+                gridPos++;
                 panelTooltip.addToGrid(0,
-                        1,
+                        gridPos,
                         "Cargo transport",
                         Misc.getDGSCredits(cargoCost) + alphaCoreStr);
-            else panelTooltip.addToGrid(0,
-                    1,
-                    "Cargo cost per 1000 items",
-                    Misc.getDGSCredits(ShippingCostCalculator.getCostForCargoSpace(1000, lyMultVal)) + alphaCoreStr);
-
-            if (shipCost > 10 && (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING))
+            } else if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING) {
+                gridPos++;
                 panelTooltip.addToGrid(0,
-                        2,
+                        gridPos,
+                        "Cargo cost per 1000 items",
+                        Misc.getDGSCredits(ShippingCostCalculator.getCostForCargoSpace(1000, lyMultVal)) + alphaCoreStr);
+            }
+
+            if (shipCost > 0 && (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING)){
+                gridPos++;
+                panelTooltip.addToGrid(0,
+                        gridPos,
                         "Ships transport",
                         Misc.getDGSCredits(shipCost) + alphaCoreStr);
-            else panelTooltip.addToGrid(0,
-                    2,
-                    "Ship cost per 10 DP",
-                    Misc.getDGSCredits(ShippingCostCalculator.getCostForShipSpace(10, lyMultVal)) + alphaCoreStr);
+            } else if (contract.scope == ShippingContract.Scope.SPECIFIC_SHIPS || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING) {
+                gridPos++;
+                panelTooltip.addToGrid(0,
+                        gridPos,
+                        "Ship cost per 10 DP",
+                        Misc.getDGSCredits(ShippingCostCalculator.getCostForShipSpace(10, lyMultVal)) + alphaCoreStr);
+            }
 
             String betaCoreStr = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.BETA_CORE) ? " [-" + StringHelper.getAbsPercentString(ShippingCostCalculator.DISTANCE_MULT_REDUCTION, true) + ", Beta Core]" : "";
-            panelTooltip.addToGrid(0, 3, "Distance multiplier", "x" + lyMultStr + betaCoreStr);
+            gridPos++;
+            panelTooltip.addToGrid(0, gridPos, "Distance multiplier", "x" + lyMultStr + betaCoreStr);
 
             if (fromSubmarket != null && fromSubmarket.getSpecId().equals(Submarkets.LOCAL_RESOURCES)) {
-                float stockpileCost = 0f;
+                float stockpileCost = getStockpileCost(contract, fromSubmarket);
 
-                if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO) {
-                    for (CargoStackAPI stack : contract.targetCargo.getStacksCopy()) {
-                        stockpileCost += stack.getBaseValuePerUnit() * stack.getSize();
-                    }
-                } else {
-                    for (CargoStackAPI stack : fromSubmarket.getCargo().getStacksCopy()) {
-                        stockpileCost += stack.getBaseValuePerUnit() * stack.getSize();
-                    }
-                }
-
-                panelTooltip.addToGrid(0, 4, "Stockpile item cost", Misc.getDGSCredits(stockpileCost));
+                gridPos++;
+                panelTooltip.addToGrid(0, gridPos, "Stockpile item cost", Misc.getDGSCredits(stockpileCost));
                 total += stockpileCost;
             }
 
-            if (contract.scope.toString().toLowerCase().contains("specific"))
-                panelTooltip.addToGrid(0, 5, "Total", Misc.getDGSCredits(total));
+            if (contract.scope.toString().toLowerCase().contains("specific")){
+                gridPos++;
+                panelTooltip.addToGrid(0, gridPos, "Total", Misc.getDGSCredits(total));
+            }
 
             panelTooltip.addGrid(pad);
+
         } else panelTooltip.addPara("Cost forecast available after planet selection.", pad);
 
         panelTooltip.setParaFontDefault();
@@ -1007,5 +1017,20 @@ public class ContractSidePanelCreator {
 
         VisualCustomPanel.addTooltipToPanel();
         CourierPortDialoguePlugin.reload();
+    }
+
+    private static float getStockpileCost(ShippingContract contract, SubmarketAPI fromSubmarket) {
+        float stockpileCost = 0f;
+
+        if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO) {
+            for (CargoStackAPI stack : contract.targetCargo.getStacksCopy()) {
+                stockpileCost += stack.getBaseValuePerUnit() * stack.getSize();
+            }
+        } else {
+            for (CargoStackAPI stack : fromSubmarket.getCargo().getStacksCopy()) {
+                stockpileCost += stack.getBaseValuePerUnit() * stack.getSize();
+            }
+        }
+        return stockpileCost;
     }
 }
