@@ -1,4 +1,4 @@
-package indevo.industries;
+package indevo.industries.engineeringhub.industry;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
@@ -19,6 +19,8 @@ import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.industries.SharedSubmarketUser;
 import indevo.items.installable.BlueprintInstallableItemPlugin;
 import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.helper.MiscIE;
@@ -517,7 +519,6 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         FactionAPI faction = market.getFaction();
         Color color = faction.getBaseUIColor();
         Color dark = faction.getDarkUIColor();
-
 
         SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(blueprintItem.getId());
 
@@ -1084,6 +1085,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
     @Override
     public boolean isLegalOnSharedSubmarket(CargoStackAPI stack) {
+        if (stack.isCommodityStack() && ItemIds.RARE_PARTS.equals(stack.getCommodityId())) return true;
         if (!stack.isSpecialStack()) return false;
 
         return new ArrayList<>(Arrays.asList(Items.SHIP_BP, "roider_retrofit_bp", "tiandong_retrofit_bp")).contains(stack.getSpecialItemSpecIfSpecial().getId());
@@ -1091,7 +1093,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
-        tooltip.addPara("Engineering Hub: uses %s in this storage to overwrite.", 10f, Misc.getHighlightColor(), "blueprints");
+        tooltip.addPara("Engineering Hub: uses %s or %s in this storage to overwrite and consume.", 10f, Misc.getHighlightColor(), "blueprints", Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName());
     }
 }
 

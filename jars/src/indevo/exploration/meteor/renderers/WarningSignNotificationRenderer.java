@@ -20,8 +20,8 @@ public class WarningSignNotificationRenderer implements LunaCampaignRenderingPlu
 
     public static final float WARNING_SIGN_FADE_IN = 0.5f;
     public static final float WARNING_SIGN_FADE_OUT = 15f;
-    public static final float WARNING_SIGN_SIZE = 80f;
-    public static final float ARROW_SIZE = 80f;
+    public static final float WARNING_SIGN_SIZE = 50f;
+    public static final float ARROW_SIZE = 70f;
     public static final float DISTANCE_FROM_FLEET = 300f;
 
     public transient SpriteAPI warningSign;
@@ -53,6 +53,7 @@ public class WarningSignNotificationRenderer implements LunaCampaignRenderingPlu
     public void advance(float amount) {
         timePassed += amount;
 
+
         //loc
         recalculateLocation();
 
@@ -71,8 +72,11 @@ public class WarningSignNotificationRenderer implements LunaCampaignRenderingPlu
         float distance = fleet.getRadius() + DISTANCE_FROM_FLEET;
         Vector2f fleetLoc = fleet.getLocation();
 
+
+        float zoom = Global.getSector().getCampaignUI().getZoomFactor();
+
         warningSignLoc = MathUtils.getPointOnCircumference(fleetLoc, distance, Misc.getAngleInDegrees(arc.center, fleetLoc));
-        arrowLoc = MathUtils.getPointOnCircumference(fleetLoc, distance + 200f, Misc.getAngleInDegrees(arc.center, fleetLoc));
+        arrowLoc = MathUtils.getPointOnCircumference(fleetLoc, distance + 100 + (50 * zoom), Misc.getAngleInDegrees(arc.center, fleetLoc));
     }
 
     @Override
@@ -89,15 +93,19 @@ public class WarningSignNotificationRenderer implements LunaCampaignRenderingPlu
             arrow = Global.getSettings().getSprite("fx", "IndEvo_missile_targetting_arrow");
         }
 
+        float zoom = Math.min(Global.getSector().getCampaignUI().getZoomFactor(), 3);
+        float warningSignSize = WARNING_SIGN_SIZE * zoom;
+        float arrowSize = ARROW_SIZE * zoom;
+
         warningSign.setAlphaMult(0.8f * alpha);
-        warningSign.setWidth(WARNING_SIGN_SIZE);
-        warningSign.setHeight(WARNING_SIGN_SIZE);
+        warningSign.setWidth(warningSignSize);
+        warningSign.setHeight(warningSignSize);
         warningSign.setColor(Color.RED);
         warningSign.renderAtCenter(warningSignLoc.x, warningSignLoc.y);
 
         arrow.setAlphaMult(0.8f * alpha);
-        arrow.setWidth(ARROW_SIZE);
-        arrow.setHeight(ARROW_SIZE);
+        arrow.setWidth(arrowSize);
+        arrow.setHeight(arrowSize);
         arrow.setColor(new Color(0xBD0606));
         arrow.setAngle(Misc.getAngleInDegrees(warningSignLoc, arc.center) + 90f);
         arrow.renderAtCenter(arrowLoc.x, arrowLoc.y);

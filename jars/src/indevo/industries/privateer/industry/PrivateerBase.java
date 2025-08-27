@@ -19,7 +19,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
-import indevo.industries.EngineeringHub;
+import indevo.industries.engineeringhub.industry.EngineeringHub;
 import indevo.industries.changeling.industry.population.HelldiversSubIndustry;
 import indevo.industries.changeling.industry.population.SwitchablePopulation;
 import indevo.industries.privateer.intel.PrivateerBaseRaidIntel;

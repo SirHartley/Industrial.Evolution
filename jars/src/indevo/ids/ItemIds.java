@@ -65,6 +65,7 @@ public class ItemIds {
     public static final String ALPHA = "IndEvo_alpha_core";
     public static final String BETA = "IndEvo_beta_core";
     public static final String GAMMA = "IndEvo_gamma_core";
+    public static final String RELIC_SPECIAL_ITEM = "IndEvo_relicSpecialItem";
 
     //Forge Template
     public static final String FORGETEMPLATE = "IndEvo_ForgeTemplate";

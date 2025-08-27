@@ -43,7 +43,7 @@ public class MeteorSwarmManager implements EconomyTickListener {
     public static final String MEM_TIMEOUT = "$IndEvo_MeteorTimeout";
 
     //parameter todo these should be in the settings file
-    public static final float BASE_CHANCE_PER_ECONOMY_TICK = 0.04f; //18% per month 92% per year todo SHOULD BE CHANGED TO 0.2 FOR RELEASE
+    public static final float BASE_CHANCE_PER_ECONOMY_TICK = 0.02f; //18% per month 92% per year todo SHOULD BE CHANGED TO 0.2 FOR RELEASE
 
     public static final float MIN_INTENSITY = 1;
     public static final float MAX_INTENSITY = 3f;

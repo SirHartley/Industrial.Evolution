@@ -4,11 +4,14 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.Industry;
+import com.fs.starfarer.api.campaign.econ.SubmarketSpecAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableIndustryItemPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.EngineeringHub;
+import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.industries.engineeringhub.industry.EngineeringHub;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +38,38 @@ public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemP
     }
 
     public static final Map<String, BlueprintEffect> BLUEPRINT_EFFECTS = new HashMap<String, BlueprintEffect>() {{
+
+        //IndEvo_relicSpecialItem
+        put(ItemIds.RELIC_SPECIAL_ITEM, new BlueprintEffect() {
+            public void apply(Industry industry, SpecialItemData specItem) {
+            }
+
+            public void unapply(Industry industry) {
+            }
+
+            public void addItemDescription(TooltipMakerAPI text, SpecialItemData data, InstallableItemDescriptionMode mode) {
+                String name = Global.getSettings().getSpecialItemSpec(ItemIds.RELIC_SPECIAL_ITEM).getName();
+                String pre = "";
+                float pad = 0f;
+                if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_LIST ||
+                        mode == InstallableItemDescriptionMode.INDUSTRY_TOOLTIP) {
+                    pre = name + ". ";
+                } else if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_INSTALLED ||
+                        mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP) {
+                    pre = "Using " + name + ". ";
+                }
+                if (mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP ||
+                        mode == InstallableItemDescriptionMode.CARGO_TOOLTIP) {
+                    pad = 10f;
+                }
+
+                String subName = "";
+                for (SubmarketSpecAPI spec :  Global.getSettings().getAllSubmarketSpecs()) if (Ids.SHAREDSTORAGE.equals(spec.getId())) subName = spec.getName();
+                text.addPara(pre + "Required amount depends on ship deployment points, taken from the %s. If a blueprint of matching size is available, it will be used instead.",
+                        pad, Misc.getHighlightColor(), new String[]{subName, "replaced"});
+            }
+        });
+
         put(Items.SHIP_BP, new BlueprintEffect() {
             public void apply(Industry industry, SpecialItemData specItem) {
             }

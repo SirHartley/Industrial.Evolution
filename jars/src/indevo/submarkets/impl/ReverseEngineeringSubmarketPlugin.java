@@ -14,7 +14,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
-import indevo.industries.EngineeringHub;
+import indevo.industries.engineeringhub.industry.EngineeringHub;
 import indevo.submarkets.DynamicSubmarket;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;

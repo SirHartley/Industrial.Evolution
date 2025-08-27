@@ -15,7 +15,7 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
-import indevo.industries.EngineeringHub;
+import indevo.industries.engineeringhub.industry.EngineeringHub;
 import indevo.industries.academy.industry.Academy;
 import indevo.industries.derelicts.industry.HullDeconstructor;
 import indevo.industries.derelicts.industry.HullForge;
