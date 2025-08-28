@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.listeners.CoreUITabListener;
 import indevo.ids.ItemIds;
 
+@Deprecated
 public class EngineeringHubRelicItemAdder implements CoreUITabListener {
 
     public static void register(){

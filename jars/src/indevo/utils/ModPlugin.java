@@ -490,7 +490,6 @@ public class ModPlugin extends BaseModPlugin {
         MuseumAddSubmarketOptionProvider.register();
         MuseumRemoveSubmarketOptionProvider.register();
         MuseumManageParadeOptionProvider.register();
-        EngineeringHubRelicItemAdder.register();
 
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();

@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemPlugin {
 
-    //SpecialItemData of a ForgeTemplateItemPlugin contains the HullID of the relevant ship as data (SpecialItemData specItem.getData)
+     //SpecialItemData of a ForgeTemplateItemPlugin contains the HullID of the relevant ship as data (SpecialItemData specItem.getData)
     //SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(specItem.getId());
 
     /**
@@ -65,7 +65,7 @@ public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemP
 
                 String subName = "";
                 for (SubmarketSpecAPI spec :  Global.getSettings().getAllSubmarketSpecs()) if (Ids.SHAREDSTORAGE.equals(spec.getId())) subName = spec.getName();
-                text.addPara(pre + "Required amount depends on ship deployment points, taken from the %s. If a blueprint of matching size is available, it will be used instead.",
+                text.addPara(pre + "Taken from the %s. Consumed quantity depends on ship deployment points. Not used if a blueprint of matching size is available.",
                         pad, Misc.getHighlightColor(), new String[]{subName, "replaced"});
             }
         });
@@ -166,6 +166,13 @@ public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemP
 
     @Override
     public String getMenuItemTitle() {
+
+        //this is the dirtiest hack ever
+        //used to insert relic components into the dialogue
+        //they are removed from cargo in the industry apply method which doesn't run while the menu that needs this title is visible but does trigger immediately after the menu is closed
+        industry.removeDummyRelicComponentFromCargo();
+        industry.addDummyRelicComponentToCargo();
+
         if (getCurrentlyInstalledItemData() == null) {
             return "Install Blueprint...";
         }
@@ -240,6 +247,7 @@ public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemP
 
     @Override
     public void createMenuItemTooltip(TooltipMakerAPI tooltip, boolean expanded) {
+
         float pad = 3f;
         float opad = 10f;
 

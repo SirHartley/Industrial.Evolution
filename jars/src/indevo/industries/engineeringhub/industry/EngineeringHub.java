@@ -61,6 +61,8 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
             Global.getSector().getListenerManager().addListener(this, true);
             refreshRequiredDays();
         }
+
+        removeDummyRelicComponentFromCargo();
     }
 
     @Override
@@ -268,6 +270,23 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         }
 
         storeMapInMemory(getClampedMap(researchProgressList, 1f), RESEARCH_LIST_KEY);
+    }
+
+    public void addDummyRelicComponentToCargo(){
+        if (getSpecialItem() != null && ItemIds.RELIC_SPECIAL_ITEM.equals(getSpecialItem().getId())) return;
+
+        CargoAPI storage = Misc.getStorageCargo(market);
+        if (storage != null && storage.getQuantity(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null)) < 1){
+            storage.addSpecial(new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null), 1);
+        }
+    }
+
+    public void removeDummyRelicComponentFromCargo(){
+        CargoAPI storage = Misc.getStorageCargo(market);
+        if (storage != null) storage.removeItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null), 99);
+
+        //items are dumped into fleet cargo once uninstalled
+        Global.getSector().getPlayerFleet().getCargo().removeItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null), 99);
     }
 
     public ShipAPI.HullSize gethullSize(SpecialItemData data) {
@@ -532,6 +551,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
     @Override
     public java.util.List<InstallableIndustryItemPlugin> getInstallableItems() {
+
         ArrayList<InstallableIndustryItemPlugin> list = new ArrayList<>();
         list.add(new BlueprintInstallableItemPlugin(this));
         return list;
