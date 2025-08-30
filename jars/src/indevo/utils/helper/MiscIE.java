@@ -37,7 +37,12 @@ import java.util.*;
 
 
 public class MiscIE {
+
     public static final Logger log = Global.getLogger(MiscIE.class);
+
+    public static CargoAPI getPlayerCargo(){
+        return Global.getSector().getPlayerFleet().getCargo();
+    }
 
     public static List<SectorEntityToken> getEntitiesInRange(SectorEntityToken fromEntity, float range){
         List<SectorEntityToken> tokens = new ArrayList<>();

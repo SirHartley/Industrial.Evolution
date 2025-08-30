@@ -1,4 +1,6 @@
 --------------------------- Open Tasks -----------------------------
+Courier Port -> Wormhole Port when the wormhole anchor is installed as item, merge cargo inventory
+
 
 BASE_CHANCE_PER_ECONOMY_TICK should be 0.2 for public release (is: 0.4)
 I think the condition is broken, check if it gets removed properly

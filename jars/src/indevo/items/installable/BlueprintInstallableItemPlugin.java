@@ -65,7 +65,7 @@ public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemP
 
                 String subName = "";
                 for (SubmarketSpecAPI spec :  Global.getSettings().getAllSubmarketSpecs()) if (Ids.SHAREDSTORAGE.equals(spec.getId())) subName = spec.getName();
-                text.addPara(pre + "Taken from the %s. Consumed quantity depends on ship deployment points. Not used if a blueprint of matching size is available.",
+                text.addPara(pre + "Taken from the %s. Consumed quantity depends on ship deployment points. Prioritized over blueprints.",
                         pad, Misc.getHighlightColor(), new String[]{subName, "replaced"});
             }
         });

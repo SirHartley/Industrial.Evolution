@@ -27,7 +27,7 @@ public class SalvageYardsOptionProvider extends SingleIndustrySimpifiedOptionPro
 
     @Override
     public String getOptionLabel(Industry ind) {
-        return "Visit the " + ind.getCurrentName();
+        return "Visit the " + ind.getCurrentName()+ "...";
     }
 
     @Override

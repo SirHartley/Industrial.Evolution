@@ -33,7 +33,7 @@ public class RiftGenOptionProvider extends SingleIndustrySimpifiedOptionProvider
 
     @Override
     public String getOptionLabel(Industry ind) {
-        return "Visit the " + ind.getCurrentName();
+        return "Visit the " + ind.getCurrentName()+ "...";
     }
 
     @Override

@@ -119,7 +119,7 @@ public class ResearchProjectTemplateRepo {
         });
 
         put(Ids.PROJ_SONIC, new ResearchProject(Ids.PROJ_SONIC,
-                "Project Sonic", 20000, false) {
+                "Project Sonic", 5000, false) {
 
             @Override
             public boolean display() {
@@ -142,7 +142,6 @@ public class ResearchProjectTemplateRepo {
             public List<RequiredItem> getRequiredItems() {
                 List<RequiredItem> list = new ArrayList<>();
                 list.add(new RequiredItem(Commodities.FUEL, CargoAPI.CargoItemType.RESOURCES, 1f));
-                list.add(new RequiredItem(Items.SYNCHROTRON, CargoAPI.CargoItemType.SPECIAL, 15000));
 
                 return list;
             }

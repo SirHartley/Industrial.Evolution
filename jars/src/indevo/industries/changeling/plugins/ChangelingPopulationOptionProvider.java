@@ -51,7 +51,7 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
 
         List<IndustryOptionData> result = new ArrayList<IndustryOptionData>();
 
-        IndustryOptionData opt = new IndustryOptionData("Change Governance Type", CUSTOM_PLUGIN, ind, this);
+        IndustryOptionData opt = new IndustryOptionData("Change government...", CUSTOM_PLUGIN, ind, this);
         opt.color = new Color(150, 100, 255, 255);
         result.add(opt);
 
@@ -62,7 +62,7 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
     @Override
     public void createTooltip(IndustryOptionData opt, TooltipMakerAPI tooltip, float width) {
         if (opt.id == CUSTOM_PLUGIN) {
-            tooltip.addPara("Change the local governing style", 0f);
+            tooltip.addPara("Change the local style of government", 0f);
 
             tooltip.addPara("This is only possible until %s and becomes permanent after %s.", 10f, Misc.getHighlightColor(),
                     "size " + Settings.getInt(Settings.GOVERNMENT_MAX_SIZE),

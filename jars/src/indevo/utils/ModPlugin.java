@@ -23,6 +23,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
 import com.fs.starfarer.api.impl.campaign.intel.deciv.DecivTracker;
+import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -38,6 +39,7 @@ import indevo.dialogue.beacons.dialogue.BeaconDialogueListener;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.dialogue.research.listeners.*;
 import indevo.dialogue.research.scripts.RefitUIOpenChecker;
+import indevo.economy.listeners.RelicBuildTimeReductionButtonAdder;
 import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
@@ -148,12 +150,19 @@ public class ModPlugin extends BaseModPlugin {
     @Override
     public void onGameLoad(boolean newGame) {
         boolean devmode = Global.getSettings().isDevMode();
-        boolean devActions = false; //Todo SET TO FALSE FOR RELEASE
+        boolean devActions = true; //Todo SET TO FALSE FOR RELEASE
 
         if (devmode && devActions) {
 
             StarSystemAPI sys = Global.getSector().getPlayerFleet().getStarSystem();
             CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
+
+            CargoAPI newCargo = Global.getFactory().createCargo(true);
+            for (MarketAPI m : Misc.getPlayerMarkets(true)) {
+                newCargo.addAll(Misc.getStorageCargo(m));
+                Misc.getStorageCargo(m).clear();
+                ((BaseSubmarketPlugin) Misc.getStorage(m)).setCargo(newCargo);
+            }
 
             if (sys != null && !sys.isHyperspace()) {
 
@@ -490,6 +499,7 @@ public class ModPlugin extends BaseModPlugin {
         MuseumAddSubmarketOptionProvider.register();
         MuseumRemoveSubmarketOptionProvider.register();
         MuseumManageParadeOptionProvider.register();
+        RelicBuildTimeReductionButtonAdder.register();
 
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();

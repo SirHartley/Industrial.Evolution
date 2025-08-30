@@ -101,6 +101,8 @@ public class MineCustomEntityPlugin extends BaseCustomEntityPlugin {
         if (mem.contains(LOCATION_DISABLED_AREA_MEMORY)) {
             List<MineBeltTerrainPlugin.DisabledArea> areas = (List<MineBeltTerrainPlugin.DisabledArea>) mem.get(LOCATION_DISABLED_AREA_MEMORY);
             for (MineBeltTerrainPlugin.DisabledArea area : areas) {
+                if (entity.getOrbitFocus() == null) continue;
+
                 if (area.contains(entity) && area.getBeltId().equals(entity.getOrbitFocus().getId())) {
                     glowColor = new Color(20, 250, 255, 255);
                     break;

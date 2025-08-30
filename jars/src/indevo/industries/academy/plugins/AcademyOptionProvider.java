@@ -27,7 +27,7 @@ public class AcademyOptionProvider extends SingleIndustrySimpifiedOptionProvider
 
     @Override
     public String getOptionLabel(Industry ind) {
-        return "Visit the " + ind.getCurrentName();
+        return "Visit the " + ind.getCurrentName() +"...";
     }
 
     @Override
