@@ -162,6 +162,8 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
             SubmarketAPI storage = market.getSubmarket(Ids.REPSTORAGE);
             String aicoreId = MiscIE.getAiCoreIdNotNull(this);
             int removalBudget = getMaxDModRepairAmt();
+            float playerCredits = MiscIE.getPlayerCargo().getCredits().get();
+
             ArrayList<FleetMemberAPI> eligibleShips = getEligibleShips(storage);
 
             //get report node
@@ -174,7 +176,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
             MonthlyReport.FDNode iNode = report.getNode(indNode, getId());
 
             //run the removal
-            while (removalBudget >= 0 && !eligibleShips.isEmpty()) {
+            while (removalBudget >= 0 && !eligibleShips.isEmpty() && playerCredits > 0) {
                 FleetMemberAPI ship;
                 //if there's a beta core, pick ship with least Dmods
                 if (aicoreId.equals(Commodities.BETA_CORE)) {
@@ -239,6 +241,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
                 else repairedShipsAmountList.put(ship, 1);
 
                 removalBudget--;
+                playerCredits -= cost;
             }
         }
 

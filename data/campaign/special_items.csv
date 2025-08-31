@@ -64,6 +64,12 @@ Slipstream Catapult,IndEvo_consumable_catapult,"IndEvo_consumable, codex_unlocka
 Alpha Core,IndEvo_alpha_core,"no_drop, hide_in_codex",,,0,0,1,,graphics/icons/cargo/ai_core_alpha.png,ai_core_pickup,ui_alpha_core_drop,com.fs.starfarer.api.campaign.impl.items.GenericSpecialItemPlugin,,dummy item for tooltip,1
 Beta Core,IndEvo_beta_core,"no_drop, hide_in_codex",,,0,0,1,,graphics/icons/cargo/ai_core_beta.png,ai_core_pickup,ui_beta_core_drop,com.fs.starfarer.api.campaign.impl.items.GenericSpecialItemPlugin,,dummy item for tooltip,1
 Gamma Core,IndEvo_gamma_core,"no_drop, hide_in_codex",,,0,0,1,,graphics/icons/cargo/ai_core_gamma.png,ai_core_pickup,ui_gamma_core_drop,com.fs.starfarer.api.campaign.impl.items.GenericSpecialItemPlugin,,dummy item for tooltip,1
-Relic Components,IndEvo_relicSpecialItem,"no_drop, hide_in_codex",,,0,0,1,,graphics/icons/cargo/rare_parts.png,ai_core_pickup,ui_gamma_core_drop,com.fs.starfarer.api.campaign.impl.items.GenericSpecialItemPlugin,,dummy item for tooltip,1
+Relic Components,IndEvo_relicSpecialItem,"no_drop, hide_in_codex",,,0,0,1,,graphics/icons/cargo/rare_parts.png,ai_core_pickup,ui_gamma_core_drop,com.fs.starfarer.api.campaign.impl.items.GenericSpecialItemPlugin,IndEvo_Warehouse,dummy item for tooltip. Note to self: Installable in warehouse because the game doesn't mark an industry as having an item if you override a vanilla entry.,1
 ,,,,,,,,,,,,,,,
 Debug Fish,IndEvo_debug,"no_drop, hide_in_codex",Industrial.Evolution,,500000,1,1,,graphics/icons/cargo/debug.png,ui_cargo_food,ui_cargo_food_drop,com.fs.starfarer.api.campaign.impl.items.GenericSpecialItemPlugin,,"This is an Industrial.Evolution debug mod item that you should never, ever see. If you do, please report the occurrence to SirHartley on the FractalSoftworks Forum or the Unofficial Starsector Discord. Sorry for the inconvenience, at least the fish is worth a pretty penny.",0.1
+,,,,,,,,,,,,,,,
+#Vanilla override,,,,,,,,,,,,,,,
+Wormhole Anchor,wormhole_anchor,codex_unlockable,Domain Restricted,,150000,1000,1,,graphics/icons/cargo/wormhole_anchor.png,ui_cargo_special_industrial_pickup,ui_cargo_special_industrial_drop,indevo.industries.warehouses.item.WormholeAnchorItemPlugin,IndEvo_Warehouse,"Unfamiliar to the contemporary Persean Sector, this technology saw use by the Domain Explorarium during an era of greatness long past. Can be used to create a wormhole terminus at a stable location.
+
+Initial activation requires antimatter in the form of starship fuel. Requires at least one other active and synchronized terminus to use.",1
+,,,,,,,,,,,,,,,

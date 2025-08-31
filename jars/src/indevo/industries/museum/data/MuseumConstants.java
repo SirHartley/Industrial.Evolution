@@ -5,7 +5,6 @@ import java.awt.*;
 public class MuseumConstants {
 
     //submarket
-    public static final int MAX_ADDITIONAL_SUBMARKETS = 5;
     public static final Color SUBMARKET_COLOUR = new Color(199, 10, 63,255);
 
     //income

@@ -1,4 +1,4 @@
-package indevo.industries.museum.plugins;
+package indevo.industries.warehouses.plugin;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
@@ -11,40 +11,40 @@ import indevo.dialogue.sidepanel.ButtonAction;
 import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
 import indevo.ids.Ids;
-import indevo.industries.museum.data.MuseumConstants;
-import indevo.industries.museum.data.MuseumSubmarketData;
-import indevo.industries.museum.industry.Museum;
+import indevo.industries.warehouses.industry.Warehouses;
+import indevo.industries.warehouses.data.WarehouseConstants;
+import indevo.industries.warehouses.data.WarehouseSubmarketData;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
 import java.awt.*;
 
-public class MuseumAddSubmarketOptionProvider extends SingleIndustrySimpifiedOptionProvider {
+public class WarehouseAddSubmarketOptionProvider extends SingleIndustrySimpifiedOptionProvider {
     public static final float WIDTH = 600f;
     public static final float HEIGHT_200 = 150f;
     protected static final float BUTTON_HEIGHT = 30, SELECT_BUTTON_WIDTH = 150f;
 
     public static void register(){
-        Global.getSector().getListenerManager().addListener(new MuseumAddSubmarketOptionProvider(), true);
+        Global.getSector().getListenerManager().addListener(new WarehouseAddSubmarketOptionProvider(), true);
     }
 
     @Override
     public String getTargetIndustryId() {
-        return Ids.MUSEUM;
+        return Ids.WAREHOUSES;
     }
 
     @Override
     public boolean optionEnabled(IndustryOptionData opt) {
-        return ((Museum) opt.ind).getArchiveSubMarkets().size() < 5;
+        return ((Warehouses) opt.ind).getWarehouseSubMarkets().size() < 5;
     }
 
     @Override
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
-        Museum museum = ((Museum) opt.ind);
-        int num = museum.getArchiveSubMarkets().size() + 1;
+        Warehouses warehouses = ((Warehouses) opt.ind);
+        int num = warehouses.getWarehouseSubMarkets().size() + 1;
 
         CustomDialogDelegate delegate = new ButtonReportingDialogueDelegate() {
 
-            public MuseumSubmarketData data = new MuseumSubmarketData(Ids.MUSEUM_SUBMARKET + "_" + num, "Archive " + num, true, true);
+            public WarehouseSubmarketData data = new WarehouseSubmarketData(Ids.WAREHOUSE_SUBMARKET + "_" + num, "Warehouse " + num, true, true);
             public TextFieldAPI nameField = null;
 
             CustomPanelAPI basePanel;
@@ -138,7 +138,7 @@ public class MuseumAddSubmarketOptionProvider extends SingleIndustrySimpifiedOpt
             public void customDialogConfirm() {
                 data.submarketName = formatName(nameField.getText());
 
-                museum.addSubmarket(data);
+                warehouses.addSubmarket(data);
             }
 
             @Override
@@ -160,8 +160,8 @@ public class MuseumAddSubmarketOptionProvider extends SingleIndustrySimpifiedOpt
         Color hl = Misc.getHighlightColor();
         float opad = 10f;
 
-        tooltip.addPara("Add up to %s additional configurable storage areas to your colony.", 0f, hl, MuseumConstants.MAX_ADDITIONAL_SUBMARKETS + "");
-        tooltip.addPara("Currently used: %s", opad, hl, ((Museum) opt.ind).getArchiveSubMarkets().size() + "/" + MuseumConstants.MAX_ADDITIONAL_SUBMARKETS);
+        tooltip.addPara("Add up to %s additional configurable storage areas to your colony.", 0f, hl, WarehouseConstants.MAX_ADDITIONAL_SUBMARKETS + "");
+        tooltip.addPara("Currently used: %s", opad, hl, ((Warehouses) opt.ind).getWarehouseSubMarkets().size() + "/" + WarehouseConstants.MAX_ADDITIONAL_SUBMARKETS);
     }
 
     @Override

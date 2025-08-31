@@ -75,10 +75,10 @@ import indevo.industries.derelicts.plugins.RiftGenOptionProvider;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.embassy.scripts.HostileActivityEventSubRegisterListener;
-import indevo.industries.engineeringhub.listener.EngineeringHubRelicItemAdder;
-import indevo.industries.museum.plugins.MuseumAddSubmarketOptionProvider;
+import indevo.industries.warehouses.industry.Warehouses;
+import indevo.industries.warehouses.plugin.WarehouseAddSubmarketOptionProvider;
 import indevo.industries.museum.plugins.MuseumManageParadeOptionProvider;
-import indevo.industries.museum.plugins.MuseumRemoveSubmarketOptionProvider;
+import indevo.industries.warehouses.plugin.WarehouseRemoveSubmarketOptionProvider;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.plugins.PetCenterOptionProvider;
@@ -130,12 +130,14 @@ public class ModPlugin extends BaseModPlugin {
             LightData.readLightDataCSV("data/lights/IndEvo_lights.csv");
             TextureData.readTextureDataCSV("data/lights/IndEvo_textures.csv");
         }
+
+        //Warehouses.adjustWormholeAnchorSpec();
+        SpecialItemEffectsRepo.addItemEffectsToVanillaRepo();
     }
 
     @Override
     public void onAboutToStartGeneratingCodex() {
         super.onAboutToStartGeneratingCodex();
-        SpecialItemEffectsRepo.addItemEffectsToVanillaRepo();
 
         var path = "graphics/icons/cargo/IndEvo_consumable_nanites.png";
         try {
@@ -149,10 +151,59 @@ public class ModPlugin extends BaseModPlugin {
 
     @Override
     public void onGameLoad(boolean newGame) {
-        boolean devmode = Global.getSettings().isDevMode();
-        boolean devActions = true; //Todo SET TO FALSE FOR RELEASE
 
-        if (devmode && devActions) {
+        //dev
+        devActions(Global.getSettings().isDevMode() && true);
+
+        //core
+        createAcademyMarket();
+        setListenersIfNeeded();
+        setScriptsIfNeeded();
+
+        ResourceConditionApplicator.applyResourceConditionToAllMarkets();
+        loadTransientMemory();
+
+        //balance and spec changes
+
+        addTypePrefaceToIndustrySpecs();
+        if (Settings.getBoolean(Settings.COMMERCE_BALANCE_CHANGES)) overrideVanillaCommerce();
+
+        LocatorSystemRatingUpdater.updateAllSystems();
+        resetDerelictRep();
+
+        if (newGame) ArtilleryStationReplacer.register();
+
+        //pets
+        if (Settings.getBoolean(Settings.PETS)){
+            if (!Global.getSector().getPlayerFleet().hasAbility("pet_management")){
+                Global.getSector().getPlayerFleet().addAbility("pet_management");
+                Global.getSector().getCharacterData().addAbility("pet_management");
+            }
+
+            if (ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(Ids.PROJ_NAVI).getProgress().redeemed) PetDataRepo.get("fairy").tags.remove(PetData.TAG_NO_SELL);
+
+            for(PetData data : PetDataRepo.getAll()) {
+                try {
+                    Global.getSettings().loadTexture(data.icon);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (newGame) addLordFoogRep();
+        } else {
+            Global.getSector().getPlayerFleet().removeAbility("pet_management");
+            Global.getSector().getCharacterData().removeAbility("pet_management");
+        }
+
+        Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_BaseRemoteAllowed", Global.getSettings().getBoolean("allowRemoteIndustryItemManagement"));
+
+        //player fuckery
+        if(MissileActivationManager.getInstanceOrRegister().hasActiveListener()) MissileActivationManager.getInstanceOrRegister().getCurrentListener().reset();
+    }
+
+    public void devActions(boolean active){
+        if (active) {
 
             StarSystemAPI sys = Global.getSector().getPlayerFleet().getStarSystem();
             CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
@@ -199,53 +250,6 @@ public class ModPlugin extends BaseModPlugin {
             }*/
         }
 
-        //core
-        createAcademyMarket();
-        setListenersIfNeeded();
-        setScriptsIfNeeded();
-
-        ResourceConditionApplicator.applyResourceConditionToAllMarkets();
-        SpecialItemEffectsRepo.addItemEffectsToVanillaRepo();
-
-        loadTransientMemory();
-
-        //balance and spec changes
-
-        addTypePrefaceToIndustrySpecs();
-        if (Settings.getBoolean(Settings.COMMERCE_BALANCE_CHANGES)) overrideVanillaCommerce();
-
-        LocatorSystemRatingUpdater.updateAllSystems();
-        resetDerelictRep();
-
-        if (newGame) ArtilleryStationReplacer.register();
-
-        //pets
-        if (Settings.getBoolean(Settings.PETS)){
-            if (!Global.getSector().getPlayerFleet().hasAbility("pet_management")){
-                Global.getSector().getPlayerFleet().addAbility("pet_management");
-                Global.getSector().getCharacterData().addAbility("pet_management");
-            }
-
-            if (ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(Ids.PROJ_NAVI).getProgress().redeemed) PetDataRepo.get("fairy").tags.remove(PetData.TAG_NO_SELL);
-
-            for(PetData data : PetDataRepo.getAll()) {
-                try {
-                    Global.getSettings().loadTexture(data.icon);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (newGame) addLordFoogRep();
-        } else {
-            Global.getSector().getPlayerFleet().removeAbility("pet_management");
-            Global.getSector().getCharacterData().removeAbility("pet_management");
-        }
-
-        Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_BaseRemoteAllowed", Global.getSettings().getBoolean("allowRemoteIndustryItemManagement"));
-
-        //player fuckery
-        if(MissileActivationManager.getInstanceOrRegister().hasActiveListener()) MissileActivationManager.getInstanceOrRegister().getCurrentListener().reset();
     }
 
     public void addLordFoogRep(){
@@ -496,8 +500,8 @@ public class ModPlugin extends BaseModPlugin {
         MilitaryRelay.RelayItemRemovalButtonListener.register();
         MeteorSwarmManager.register();
         RemoveIndustryOptionWarningProvider.register();
-        MuseumAddSubmarketOptionProvider.register();
-        MuseumRemoveSubmarketOptionProvider.register();
+        WarehouseAddSubmarketOptionProvider.register();
+        WarehouseRemoveSubmarketOptionProvider.register();
         MuseumManageParadeOptionProvider.register();
         RelicBuildTimeReductionButtonAdder.register();
 

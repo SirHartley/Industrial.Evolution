@@ -1,22 +1,22 @@
-package indevo.industries.museum.submarket;
+package indevo.industries.warehouses.submarket;
 
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import indevo.ids.Ids;
-import indevo.industries.museum.data.MuseumSubmarketData;
-import indevo.industries.museum.industry.Museum;
+import indevo.industries.warehouses.industry.Warehouses;
+import indevo.industries.warehouses.data.WarehouseSubmarketData;
 import indevo.submarkets.BaseRemovableStorageSubmarketPlugin;
 
-public class MuseumArchiveSubmarketPlugin extends BaseRemovableStorageSubmarketPlugin {
-    //functionality depends on MuseumSubmarketData
+public class WarehouseSubmarketPlugin extends BaseRemovableStorageSubmarketPlugin {
+    //functionality depends on WarehouseSubmarketData
 
-    public MuseumSubmarketData data;
+    public WarehouseSubmarketData data;
 
     @Override
     public void init(SubmarketAPI submarket) {
         super.init(submarket);
-        data = ((Museum) market.getIndustry(Ids.MUSEUM)).getData(this);
+        data = ((Warehouses) market.getIndustry(Ids.WAREHOUSES)).getData(this);
     }
 
     @Override

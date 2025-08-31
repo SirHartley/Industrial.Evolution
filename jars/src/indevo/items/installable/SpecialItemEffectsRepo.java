@@ -2,6 +2,7 @@ package indevo.items.installable;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SpecialItemData;
+import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
@@ -9,8 +10,10 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.impl.campaign.econ.impl.InstallableItemEffect;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
 import com.fs.starfarer.api.impl.campaign.econ.impl.MilitaryBase;
+import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.CentralizationBureau;
 import indevo.industries.Supercomputer;
@@ -54,9 +57,23 @@ public class SpecialItemEffectsRepo {
     public static float NEURAL_COMPOUNDS_UNREST_RED = 0.5f;
     public static String TRANSMITTER_UNLOCK_KEY = "$IndEvo_RelayUnlocked";
     public static int LOG_CORE_MAX_BONUS = 4;
-    public static int LOG_CORE_COMMODITY_BONUS = 1;
 
     public static Map<String, InstallableItemEffect> ITEM_EFFECTS = new HashMap<String, InstallableItemEffect>() {{
+
+        put(Items.WORMHOLE_ANCHOR, new BaseInstallableItemEffect(Items.WORMHOLE_ANCHOR) {
+            public void apply(Industry industry) {
+            }
+
+            public void unapply(Industry industry) {
+            }
+
+            protected void addItemDescriptionImpl(Industry industry, TooltipMakerAPI text, SpecialItemData data,
+                                                  InstallableIndustryItemPlugin.InstallableItemDescriptionMode mode, String pre, float pad) {
+                text.addPara(pre + "Allows the creation of %s between two or more warehouses with a wormhole anchor.",
+                        pad, Misc.getHighlightColor(), "linked storages");
+            }
+
+        });
 
         put(ItemIds.LOG_CORE, new BaseInstallableItemEffect(ItemIds.LOG_CORE) {
             //Removes the Requirement for AI cores, counts all in 10 ly radius
@@ -69,9 +86,6 @@ public class SpecialItemEffectsRepo {
 
             protected void addItemDescriptionImpl(Industry industry, TooltipMakerAPI text, SpecialItemData data,
                                                   InstallableIndustryItemPlugin.InstallableItemDescriptionMode mode, String pre, float pad) {
-
-                String s = StringHelper.getAbsPercentString(NEURAL_COMPOUNDS_UNREST_RED, false) + "%";
-
                 text.addPara(pre + "All industries within " + RANGE_LY_TWELVE + "LY wil be counted for Bureau bonuses," +
                                 " and the maximum bonus effect is increased to " + LOG_CORE_MAX_BONUS,
                         pad, Misc.getHighlightColor(),

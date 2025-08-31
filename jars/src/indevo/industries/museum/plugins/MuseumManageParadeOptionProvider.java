@@ -38,11 +38,6 @@ public class MuseumManageParadeOptionProvider extends SingleIndustrySimpifiedOpt
     }
 
     @Override
-    public boolean optionEnabled(IndustryOptionData opt) {
-        return ((Museum) opt.ind).getArchiveSubMarkets().size() < 5;
-    }
-
-    @Override
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
         Museum museum = ((Museum) opt.ind);
 
@@ -67,5 +62,4 @@ public class MuseumManageParadeOptionProvider extends SingleIndustrySimpifiedOpt
     public String getOptionLabel(Industry ind) {
         return "Manage Parades...";
     }
-
 }

@@ -85,6 +85,12 @@ public class IceTreasureoidEntity extends IcyRockEntity {
             if (spec.getBaseValue() > IceSwarmSpawner.MIN_TREASURE_SHIP_VALUE) specAPIWeightedRandomPicker.add(spec);
         }
 
+        String id = null;
+        while (id == null && !specAPIWeightedRandomPicker.isEmpty()){
+            ShipHullSpecAPI spec = specAPIWeightedRandomPicker.pickAndRemove();
+            if(spec != null && spec.getHullId() != null) id = spec.getHullId();
+        }
+
         DerelictShipEntityPlugin.DerelictShipData params = DerelictShipEntityPlugin.createHull(specAPIWeightedRandomPicker.pick().getHullId(), random, 0.15f);
         relatedWreck = BaseThemeGenerator.addSalvageEntity(entity.getContainingLocation(), Entities.WRECK, Factions.NEUTRAL, params);
 

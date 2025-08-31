@@ -72,7 +72,7 @@ public class RuralPolitySubIndustry extends SubIndustry implements MarketImmigra
                 tooltip.addPara("No effect on this industry.", opad);
             }
 
-            if (ind.getSpecialItem() != null && !ind.getId().equals(Ids.EMBASSY)) tooltip.addPara(Global.getSettings().getSpecialItemSpec(ind.getSpecialItem().getId()).getName() + ": %s decreased by %s", opad, Misc.getTextColor(), Misc.getNegativeHighlightColor(), "stability", INDUSTRY_ITEM_STABILITY_DECREASE + "");
+            if (ind.getSpecialItem() != null && !Global.getSettings().getSpecialItemSpec(ind.getSpecialItem().getId()).hasTag("rural")) tooltip.addPara(Global.getSettings().getSpecialItemSpec(ind.getSpecialItem().getId()).getName() + ": %s decreased by %s", opad, Misc.getTextColor(), Misc.getNegativeHighlightColor(), "stability", INDUSTRY_ITEM_STABILITY_DECREASE + "");
         }
     }
 
@@ -167,8 +167,8 @@ Rural Polity
 
         int i = 0;
         for (Industry ind : market.getIndustries()) {
-            if (ind.getSpecialItem() != null && Global.getSettings().getSpecialItemSpec(ind.getSpecialItem().getId()).hasTag("rural")) market.getStability().modifyFlat(getId() + "_" + ind.getId(), -INDUSTRY_ITEM_STABILITY_DECREASE, getName() + " - " + Global.getSettings().getSpecialItemSpec(ind.getSpecialItem().getId()).getName());
-            if (ind.getAICoreId() != null)market.getStability().modifyFlat(getId() + "_" + ind.getId() + "_ai", -INDUSTRY_ITEM_STABILITY_DECREASE, getName() + " - " + Global.getSettings().getCommoditySpec(ind.getAICoreId()).getName());
+            if (ind.getSpecialItem() != null && !Global.getSettings().getSpecialItemSpec(ind.getSpecialItem().getId()).hasTag("rural")) market.getStability().modifyFlat(getId() + "_" + ind.getId(), -INDUSTRY_ITEM_STABILITY_DECREASE, getName() + " - " + Global.getSettings().getSpecialItemSpec(ind.getSpecialItem().getId()).getName());
+            if (ind.getAICoreId() != null) market.getStability().modifyFlat(getId() + "_" + ind.getId() + "_ai", -INDUSTRY_ITEM_STABILITY_DECREASE, getName() + " - " + Global.getSettings().getCommoditySpec(ind.getAICoreId()).getName());
 
             if (ind.getSpec().getTags().contains("industrial")) {
                 ind.getUpkeep().modifyMult(getId(), INDUSTRIAL_UPKEEP_INCREASE, getName());

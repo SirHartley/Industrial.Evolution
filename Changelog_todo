@@ -1,9 +1,9 @@
 --------------------------- Open Tasks -----------------------------
-Courier Port -> Wormhole Port when the wormhole anchor is installed as item, merge cargo inventory
-
+All cargo linking functionality
+check resto dock billing for bugs
+check if BP creation works with relics
 
 BASE_CHANCE_PER_ECONOMY_TICK should be 0.2 for public release (is: 0.4)
-I think the condition is broken, check if it gets removed properly
 
 Add settings to museum
 Add settings to meteors

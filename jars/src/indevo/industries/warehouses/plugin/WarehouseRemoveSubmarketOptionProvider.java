@@ -1,4 +1,4 @@
-package indevo.industries.museum.plugins;
+package indevo.industries.warehouses.plugin;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
@@ -9,26 +9,26 @@ import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
-import indevo.industries.museum.data.MuseumSubmarketData;
-import indevo.industries.museum.industry.Museum;
+import indevo.industries.warehouses.industry.Warehouses;
+import indevo.industries.warehouses.data.WarehouseSubmarketData;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
-public class MuseumRemoveSubmarketOptionProvider extends SingleIndustrySimpifiedOptionProvider {
+public class WarehouseRemoveSubmarketOptionProvider extends SingleIndustrySimpifiedOptionProvider {
 
     public static void register(){
-        Global.getSector().getListenerManager().addListener(new MuseumRemoveSubmarketOptionProvider(), true);
+        Global.getSector().getListenerManager().addListener(new WarehouseRemoveSubmarketOptionProvider(), true);
     }
 
     @Override
     public String getTargetIndustryId() {
-        return Ids.MUSEUM;
+        return Ids.WAREHOUSES;
     }
 
     @Override
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
-        Museum museum = ((Museum) opt.ind);
-        int num = museum.getArchiveSubMarkets().size();
-        MuseumSubmarketData data = museum.getArchiveSubMarkets().get(num - 1);
+        Warehouses warehouses = ((Warehouses) opt.ind);
+        int num = warehouses.getWarehouseSubMarkets().size();
+        WarehouseSubmarketData data = warehouses.getWarehouseSubMarkets().get(num - 1);
 
         CustomDialogDelegate delegate = new BaseCustomDialogDelegate() {
             @Override
@@ -50,10 +50,10 @@ public class MuseumRemoveSubmarketOptionProvider extends SingleIndustrySimpified
 
             @Override
             public void customDialogConfirm() {
-                Museum museum = ((Museum) opt.ind);
-                int num = museum.getArchiveSubMarkets().size();
-                MuseumSubmarketData data = museum.getArchiveSubMarkets().get(num - 1);
-                museum.removeSubmarket(data);
+                Warehouses warehouses = ((Warehouses) opt.ind);
+                int num = warehouses.getWarehouseSubMarkets().size();
+                WarehouseSubmarketData data = warehouses.getWarehouseSubMarkets().get(num - 1);
+                warehouses.removeSubmarket(data);
             }
 
             @Override
@@ -73,7 +73,7 @@ public class MuseumRemoveSubmarketOptionProvider extends SingleIndustrySimpified
 
     @Override
     public void createTooltip(TooltipMakerAPI tooltip, IndustryOptionData opt) {
-        tooltip.addPara("Remove a museum storage from your colony.", 0f);
+        tooltip.addPara("Remove a warehouse storage from your colony.", 0f);
     }
 
     @Override
@@ -83,6 +83,6 @@ public class MuseumRemoveSubmarketOptionProvider extends SingleIndustrySimpified
 
     @Override
     public boolean optionEnabled(IndustryOptionData opt) {
-        return !((Museum) opt.ind).getArchiveSubMarkets().isEmpty();
+        return !((Warehouses) opt.ind).getWarehouseSubMarkets().isEmpty();
     }
 }

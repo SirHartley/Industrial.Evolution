@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
-import com.fs.starfarer.api.campaign.SubmarketPlugin;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
@@ -24,9 +23,7 @@ import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.museum.data.MuseumConstants;
-import indevo.industries.museum.data.MuseumSubmarketData;
 import indevo.industries.museum.data.ParadeFleetProfile;
-import indevo.submarkets.RemovablePlayerSubmarketPluginAPI;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
@@ -49,7 +46,6 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     // X - Alpha: second parade fleet (if sufficient ships)
 
     //storage
-    private List<MuseumSubmarketData> archiveSubMarkets = new ArrayList<>();
     private SubmarketAPI submarket;
 
     //parades
@@ -174,7 +170,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
                 tooltip.addPara("%s is currently %s.", opad, hlColours, name, Misc.lcFirst(activity));
             }
 
-        } else tooltip.addPara("There are currently %s.", opad, Misc.getHighlightColor(), "no active parade fleets.");
+        } else tooltip.addPara("There are currently %s", opad, Misc.getHighlightColor(), "no active parade fleets.");
     }
 
     public void addShipStorageValueTooltip(CargoAPI cargo, TooltipMakerAPI tooltip, boolean expanded) {
@@ -315,32 +311,6 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
         return submarket;
     }
 
-    public SubmarketAPI addSubmarket(MuseumSubmarketData data){
-        archiveSubMarkets.add(data); //must be before addition, submarket plugin checks for data on init
-        market.addSubmarket(data.submarketID);
-
-        return market.getSubmarket(data.submarketID);
-    }
-
-    public void removeSubmarket(MuseumSubmarketData data){
-        ((RemovablePlayerSubmarketPluginAPI) market.getSubmarket(data.submarketID).getPlugin()).notifyBeingRemoved();
-        market.removeSubmarket(data.submarketID);
-        archiveSubMarkets.remove(data);
-    }
-
-    public void removeSubmarkets(){
-        if (submarket != null) {
-            ((RemovablePlayerSubmarketPluginAPI) submarket.getPlugin()).notifyBeingRemoved();
-            market.removeSubmarket(Ids.MUSEUM_SUBMARKET);
-        }
-
-        for (MuseumSubmarketData data : new ArrayList<>(archiveSubMarkets)){
-            ((RemovablePlayerSubmarketPluginAPI) market.getSubmarket(data.submarketID).getPlugin()).notifyBeingRemoved();
-            market.removeSubmarket(data.submarketID);
-            archiveSubMarkets.remove(data);
-        }
-    }
-
     @Override
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
         super.notifyBeingRemoved(mode, forUpgrade);
@@ -354,17 +324,6 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
         cargo.initMothballedShips(Factions.PLAYER);
         List<FleetMemberAPI> shipsInStorage = cargo.getMothballedShips().getMembersListCopy();
         for (FleetMemberAPI m : shipsInStorage) m.getVariant().removeTag(MuseumConstants.ON_PARADE_TAG);
-
-        removeSubmarkets();
-    }
-
-    public List<MuseumSubmarketData> getArchiveSubMarkets() {
-        return archiveSubMarkets;
-    }
-
-    public MuseumSubmarketData getData(SubmarketPlugin forPlugin){
-        for (MuseumSubmarketData data : archiveSubMarkets) if (data.submarketID.equals(forPlugin.getSubmarket().getSpecId())) return data;
-        return null;
     }
 
     @Override

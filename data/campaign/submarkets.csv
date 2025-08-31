@@ -10,10 +10,10 @@ Supply Store",player,Storage for buildings to take resources from.,indevo.submar
 IndEvo_PetSubMarket,Animal Market,player,"Buy pets, and everything for your pet here! No refunds.",indevo.industries.petshop.submarket.PetSubMarket,graphics/factions/petStorage.png,1050
 ,,,,,,
 IndEvo_MuseumStorage,Museum,player,The main museum storage. Ships stored here will count towards the local museum effects and periodically go on parades.,indevo.industries.museum.submarket.MuseumSubmarketPlugin,graphics/factions/museumStorageIcon.png,1600
-IndEvo_MuseumStorage_1,Archive 1,player,An archive added managed by the museum society.,indevo.industries.museum.submarket.MuseumArchiveSubmarketPlugin,graphics/factions/storage_1.png,1601
-IndEvo_MuseumStorage_2,Archive 2,player,An archive added managed by the museum society.,indevo.industries.museum.submarket.MuseumArchiveSubmarketPlugin,graphics/factions/storage_2.png,1602
-IndEvo_MuseumStorage_3,Archive 3,player,An archive added managed by the museum society.,indevo.industries.museum.submarket.MuseumArchiveSubmarketPlugin,graphics/factions/storage_3.png,1603
-IndEvo_MuseumStorage_4,Archive 4,player,An archive added managed by the museum society.,indevo.industries.museum.submarket.MuseumArchiveSubmarketPlugin,graphics/factions/storage_4.png,1604
-IndEvo_MuseumStorage_5,Archive 5,player,An archive added managed by the museum society.,indevo.industries.museum.submarket.MuseumArchiveSubmarketPlugin,graphics/factions/storage_5.png,1605
+IndEvo_WarehouseStorage_1,Warehouse 1,player,A storage added and managed by the warehouse complex.,indevo.industries.warehouses.submarket.WarehouseSubmarketPlugin,graphics/factions/storage_1.png,1601
+IndEvo_WarehouseStorage_2,Warehouse 2,player,A storage added and managed by the warehouse complex.,indevo.industries.warehouses.submarket.WarehouseSubmarketPlugin,graphics/factions/storage_2.png,1602
+IndEvo_WarehouseStorage_3,Warehouse 3,player,A storage added and managed by the warehouse complex.,indevo.industries.warehouses.submarket.WarehouseSubmarketPlugin,graphics/factions/storage_3.png,1603
+IndEvo_WarehouseStorage_4,Warehouse 4,player,A storage added and managed by the warehouse complex.,indevo.industries.warehouses.submarket.WarehouseSubmarketPlugin,graphics/factions/storage_4.png,1604
+IndEvo_WarehouseStorage_5,Warehouse 5,player,A storage added and managed by the warehouse complex.,indevo.industries.warehouses.submarket.WarehouseSubmarketPlugin,graphics/factions/storage_5.png,1605
 ,,,,,,
 IndEvo_tempStorage,tempStorage,player,Temp Storage. Don't fuck with this or risk losing all your shit.,com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin,graphics/factions/storage.png,1000
