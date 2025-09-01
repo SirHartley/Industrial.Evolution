@@ -1,15 +1,4 @@
 --------------------------- Changelog -----------------------------
-4.1.2
-Meteor Swarms
-Adjusted - Tutorial will now spawn as roider union fleet if mod is enabled
-Fixed - Hardened the ship picker for ice meteors against null ship hulls that would crash
-Fixed - Bug that would cause treasure radoids crash upon spawn
-Fixed - Crash upon looting the radoid station and then destroying the big rock
-
-Museum
-Adjusted - can no longer delete profile while fleet is active
-Fixed - no longer crashes when random parade naturally despawns
-
 4.1.a
 
 General

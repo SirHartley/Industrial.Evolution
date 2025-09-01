@@ -153,7 +153,7 @@ public class ModPlugin extends BaseModPlugin {
     public void onGameLoad(boolean newGame) {
 
         //dev
-        devActions(Global.getSettings().isDevMode() && true);
+        devActions(Global.getSettings().isDevMode() && false);
 
         //core
         createAcademyMarket();
