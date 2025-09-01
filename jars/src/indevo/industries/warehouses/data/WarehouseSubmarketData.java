@@ -5,11 +5,13 @@ public class WarehouseSubmarketData {
     public String submarketName;
     public boolean showInFleetScreen;
     public boolean showInCargoScreen;
+    public boolean linked;
 
-    public WarehouseSubmarketData(String submarketID, String submarketName, boolean showInFleetScreen, boolean showInCargoScreen) {
+    public WarehouseSubmarketData(String submarketID, String submarketName, boolean showInFleetScreen, boolean showInCargoScreen, boolean linked) {
         this.submarketID = submarketID;
         this.submarketName = submarketName;
         this.showInFleetScreen = showInFleetScreen;
         this.showInCargoScreen = showInCargoScreen;
+        this.linked = linked;
     }
 }

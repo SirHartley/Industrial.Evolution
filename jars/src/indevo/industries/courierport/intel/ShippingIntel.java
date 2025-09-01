@@ -11,6 +11,7 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
@@ -91,7 +92,7 @@ public class ShippingIntel extends BaseIntelPlugin {
         Color hl = Misc.getHighlightColor();
 
         ShippingContract contract = shipment.contract;
-        FactionAPI faction = contract.getFromMarket().getFaction();
+        FactionAPI faction = contract.getFromMarket() != null ? contract.getFromMarket().getFaction() : Global.getSector().getFaction(Factions.NEUTRAL);
         FactionAPI otherFaction = contract.getToMarket().getFaction();
 
         info.addImages(width, 128, opad, opad, faction.getCrest(), otherFaction.getCrest());
@@ -108,7 +109,7 @@ public class ShippingIntel extends BaseIntelPlugin {
 
         switch (status) {
             case ASSEMBLING:
-                info.addPara("The courier fleet is currently loading cargo at %s.", opad, faction.getBaseUIColor(), contract.getFromMarket().getName());
+                info.addPara("The courier fleet is currently loading cargo at %s.", opad, faction.getBaseUIColor(), contract.getFromMarket() != null ? contract.getFromMarket().getName() : "a decivilized planet");
                 break;
             case TRANSFER:
                 info.addPara("The courier fleet is currently travelling to %s.", opad, otherFaction.getBaseUIColor(), contract.getToMarket().getName());
@@ -134,7 +135,12 @@ public class ShippingIntel extends BaseIntelPlugin {
 
     protected int getETA() {
         ShippingContract contract = shipment.contract;
-        float dist = Misc.getDistanceLY(contract.getFromMarket().getPrimaryEntity(), contract.getToMarket().getPrimaryEntity());
+        SectorEntityToken fromToken = contract.getFromMarket() != null ? contract.getFromMarket().getPrimaryEntity() : shipment.fleet;
+        SectorEntityToken toToken = contract.getToMarket().getPrimaryEntity();
+
+        if (toToken == null) return 0;
+
+        float dist = Misc.getDistanceLY(fromToken, toToken);
         float lyPerDay = Misc.getLYPerDayAtSpeed(shipment.fleet, shipment.fleet.getTravelSpeed());
         float days = dist / lyPerDay;
         float extra = status == ShippingStatus.ASSEMBLING ? 4 : status == ShippingStatus.UNLOADING ? 0 : 2;
@@ -344,6 +350,8 @@ public class ShippingIntel extends BaseIntelPlugin {
 
     @Override
     public List<ArrowData> getArrowData(SectorMapAPI map) {
+        if(shipment.contract.getFromMarket() == null || shipment.contract.getToMarket() == null) return null;
+
         List<ArrowData> result = new ArrayList<ArrowData>();
         ArrowData arrow = new ArrowData(shipment.contract.getFromMarket().getPrimaryEntity(), shipment.contract.getToMarket().getPrimaryEntity());
         arrow.color = Global.getSector().getPlayerFaction().getColor();

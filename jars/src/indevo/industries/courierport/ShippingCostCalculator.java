@@ -33,7 +33,7 @@ public class ShippingCostCalculator {
     }
 
     public static float getLYMult(ShippingContract contract) {
-        if (contract.fromMarketId == null || contract.toMarketId == null) return 0f;
+        if (contract.getFromMarket() == null || contract.getToMarket() == null) return 0f;
 
         return getLYMult(contract.getFromMarket().getPrimaryEntity(), contract.getToMarket().getPrimaryEntity());
     }

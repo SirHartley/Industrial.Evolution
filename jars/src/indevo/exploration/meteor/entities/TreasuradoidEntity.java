@@ -61,7 +61,10 @@ public class TreasuradoidEntity extends SpicyRockEntity{
         }
 
         //remove loot station at end of arc
-        if (entity.hasTag(Tags.FADING_OUT_AND_EXPIRING) && !colliding) Misc.fadeAndExpire(entity.getContainingLocation().getEntityById(entity.getId() + "_loot"), 0f);
+        if (entity.hasTag(Tags.FADING_OUT_AND_EXPIRING) && !colliding && movement.getArc().getTraversalProgress(entity.getLocation()) >= 0.95f) {
+            SectorEntityToken lootStation = entity.getContainingLocation().getEntityById(entity.getId() + "_loot");
+            if (lootStation != null) Misc.fadeAndExpire(lootStation, 0f);
+        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package indevo.industries.warehouses.industry;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
 import com.fs.starfarer.api.campaign.SubmarketPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -20,9 +21,57 @@ import java.util.List;
 public class Warehouses extends BaseIndustry {
 
     private List<WarehouseSubmarketData> archiveSubMarkets = new ArrayList<>();
+    private boolean itemInstallationPeriodPassed = false;
+    private float itemTimer = -1;
 
     @Override
     public void apply() {
+    }
+
+    //finish these when not dog tired
+
+/*
+    @Override
+    public boolean isUpgrading() {
+        return super.isUpgrading() && itemTimer < 0;
+    }
+
+    @Override
+    public String getBuildOrUpgradeDaysText() {
+        return super.getBuildOrUpgradeDaysText();
+    }
+
+    @Override
+    public String getBuildOrUpgradeProgressText() {
+        return isBuilding() ? super.getBuildOrUpgradeProgressText();
+    }*/
+
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
+
+        //check if building but not item building to prohibit double dipping
+
+        if (getSpecialItem() == null && itemInstallationPeriodPassed){
+            itemTimer = -1;
+            itemInstallationPeriodPassed = false;
+        }
+
+        if (getSpecialItem() != null && !itemInstallationPeriodPassed) {
+            itemTimer -= Global.getSector().getClock().convertToDays(amount);
+            if (itemTimer < 0) itemInstallationPeriodPassed = true;
+        }
+
+    }
+
+    @Override
+    public void setSpecialItem(SpecialItemData special) {
+        if (getSpecialItem() == null && special != null){
+            itemTimer = WarehouseConstants.DAYS_UNTIL_ITEM_ACTIVE;
+            itemInstallationPeriodPassed = false;
+        }
+
+        super.setSpecialItem(special);
     }
 
     @Override

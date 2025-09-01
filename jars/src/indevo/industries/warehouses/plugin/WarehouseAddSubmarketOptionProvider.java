@@ -44,7 +44,7 @@ public class WarehouseAddSubmarketOptionProvider extends SingleIndustrySimpified
 
         CustomDialogDelegate delegate = new ButtonReportingDialogueDelegate() {
 
-            public WarehouseSubmarketData data = new WarehouseSubmarketData(Ids.WAREHOUSE_SUBMARKET + "_" + num, "Warehouse " + num, true, true);
+            public WarehouseSubmarketData data = new WarehouseSubmarketData(Ids.WAREHOUSE_SUBMARKET + "_" + num, "Warehouse " + num, true, true, false);
             public TextFieldAPI nameField = null;
 
             CustomPanelAPI basePanel;

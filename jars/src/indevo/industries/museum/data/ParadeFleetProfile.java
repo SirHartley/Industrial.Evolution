@@ -201,7 +201,7 @@ public class ParadeFleetProfile implements FleetEventListener {
                     null,
                     Misc.getHighlightColor(), null);
 
-            if (targetMarket != null && spawningMuseum != null){
+            if (targetMarket != null){
                 SubmarketAPI sub = spawningMuseum.getSubmarket();
                 CargoAPI cargo = sub.getCargo();
 

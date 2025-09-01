@@ -3,6 +3,7 @@
 Meteor Swarms
 Adjusted - Tutorial will now spawn as roider union fleet if mod is enabled
 Fixed - Hardened the ship picker for ice meteors against null ship hulls that would crash
+Fixed - Bug that would cause treasure radoids crash upon spawn
 
 Museum
 Adjusted - can no longer delete profile while fleet is active
@@ -39,6 +40,8 @@ Adjusted - Shipping cargo from one local storage to another on one planet is now
 Fixed - Pick specific cargo display no longer has a bunch of bugged out text all over (how was this never reported?!)
 Fixed - Contracts now correctly display their cost forecast in the creation menu
 Fixed - Distance is now properly calculated into shipping costs
+Fixed - No longer crashes if shipping from a nex outpost and removing said outpost after shipment departure
+Fixed - Shipping intel no longer crashes on click when either location decivilizes or is removed
 
 Engineering Hub
 Added - Can now use relic components instead of blueprints to reverse engineer ships. Cost depends on ship deployment points: 10 relics per DP.
