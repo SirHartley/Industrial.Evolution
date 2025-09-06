@@ -12,16 +12,12 @@ import indevo.ids.Ids;
 import indevo.industries.warehouses.industry.Warehouses;
 import indevo.industries.warehouses.data.WarehouseSubmarketData;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
+import indevo.utils.plugins.TagBasedSimplifiedIndustryOptionProvider;
 
-public class WarehouseRemoveSubmarketOptionProvider extends SingleIndustrySimpifiedOptionProvider {
+public class WarehouseRemoveSubmarketOptionProvider extends TagBasedSimplifiedIndustryOptionProvider {
 
     public static void register(){
         Global.getSector().getListenerManager().addListener(new WarehouseRemoveSubmarketOptionProvider(), true);
-    }
-
-    @Override
-    public String getTargetIndustryId() {
-        return Ids.WAREHOUSES;
     }
 
     @Override
@@ -84,5 +80,10 @@ public class WarehouseRemoveSubmarketOptionProvider extends SingleIndustrySimpif
     @Override
     public boolean optionEnabled(IndustryOptionData opt) {
         return !((Warehouses) opt.ind).getWarehouseSubMarkets().isEmpty();
+    }
+
+    @Override
+    public String getTargetTag() {
+        return "IndEvo_warehouse";
     }
 }

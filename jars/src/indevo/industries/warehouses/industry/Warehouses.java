@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Items;
+import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
@@ -21,64 +22,76 @@ import java.util.List;
 public class Warehouses extends BaseIndustry {
 
     private List<WarehouseSubmarketData> archiveSubMarkets = new ArrayList<>();
-    private boolean itemInstallationPeriodPassed = false;
-    private float itemTimer = -1;
 
     @Override
     public void apply() {
+
+        //player installs item
+        if (!getId().equals(Ids.WARPHOUSE) && getSpecialItem() != null && !isUpgrading()) startUpgrading(Ids.WARPHOUSE);
+
+        //player removes item mid-upgrade
+        if (!getId().equals(Ids.WARPHOUSE) && getSpecialItem() == null && isUpgrading()) cancelUpgrade();
+
+        //player removes item from upgraded industry
+        if (getId().equals(Ids.WARPHOUSE) && getSpecialItem() == null) startUpgrading(Ids.WAREHOUSES, 1);
+
+        //player re-installs item into warp complex after removing it
+        if (getId().equals(Ids.WARPHOUSE) && getSpecialItem() != null && isUpgrading()) cancelUpgrade();
     }
 
-    //finish these when not dog tired
-
-/*
-    @Override
-    public boolean isUpgrading() {
-        return super.isUpgrading() && itemTimer < 0;
-    }
-
-    @Override
-    public String getBuildOrUpgradeDaysText() {
-        return super.getBuildOrUpgradeDaysText();
-    }
-
-    @Override
     public String getBuildOrUpgradeProgressText() {
-        return isBuilding() ? super.getBuildOrUpgradeProgressText();
-    }*/
+        if (isDisrupted()) {
+            int left = (int) getDisruptedDays();
+            if (left < 1) left = 1;
+            String days = "days";
+            if (left == 1) days = "day";
 
-    @Override
-    public void advance(float amount) {
-        super.advance(amount);
-
-        //check if building but not item building to prohibit double dipping
-
-        if (getSpecialItem() == null && itemInstallationPeriodPassed){
-            itemTimer = -1;
-            itemInstallationPeriodPassed = false;
+            return "Disrupted: " + left + " " + days + " left";
         }
 
-        if (getSpecialItem() != null && !itemInstallationPeriodPassed) {
-            itemTimer -= Global.getSector().getClock().convertToDays(amount);
-            if (itemTimer < 0) itemInstallationPeriodPassed = true;
-        }
+        int left = (int) (buildTime - buildProgress);
+        if (left < 1) left = 1;
+        String days = "days";
+        if (left == 1) days = "day";
 
+        if (isUpgrading()) {
+            String pre = "Integrating: ";
+            if (Ids.WAREHOUSES.equals(upgradeId)) pre = "Downgrading: ";
+            return pre + left + " " + days + " left";
+        } else {
+            return "Building: " + left + " " + days + " left";
+        }
+    }
+
+    public void startUpgrading(String target){
+        IndustrySpecAPI upgrade = Global.getSettings().getIndustrySpec(target);
+        startUpgrading(target, upgrade.getBuildTime());
+    }
+
+    public void startUpgrading(String target, float days){
+        building = true;
+        buildProgress = 0;
+        upgradeId = target;
+        buildTime = days;
     }
 
     @Override
-    public void setSpecialItem(SpecialItemData special) {
-        if (getSpecialItem() == null && special != null){
-            itemTimer = WarehouseConstants.DAYS_UNTIL_ITEM_ACTIVE;
-            itemInstallationPeriodPassed = false;
-        }
-
-        super.setSpecialItem(special);
+    public void downgrade() {
+        super.downgrade();
     }
 
     @Override
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
         super.addRightAfterDescriptionSection(tooltip, mode);
+        float opad = 10f;
+        float spad = 5f;
 
-        tooltip.addPara("Active warehouses: %s of %s", 10f, Misc.getHighlightColor(), getWarehouseSubMarkets().size() + "", WarehouseConstants.MAX_ADDITIONAL_SUBMARKETS + "");
+        tooltip.addPara("Active warehouses: %s of %s", opad, Misc.getHighlightColor(), getWarehouseSubMarkets().size() + "", WarehouseConstants.MAX_ADDITIONAL_SUBMARKETS + "");
+
+        if (isUpgrading() && getSpecialItem() != null) tooltip.addPara("Currently integrating a wormhole anchor.", Misc.getHighlightColor(), opad);
+        if (isUpgrading() && getSpecialItem() == null) {
+            tooltip.addPara("Downgrading: Wormhole Anchor uninstalled.", Misc.getNegativeHighlightColor(), opad);
+        }
     }
 
     public SubmarketAPI addSubmarket(WarehouseSubmarketData data){
@@ -115,18 +128,7 @@ public class Warehouses extends BaseIndustry {
     @Override
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
         super.notifyBeingRemoved(mode, forUpgrade);
-
         removeSubmarkets();
-    }
-
-    @Override
-    public String getCurrentName() {
-        return getSpecialItem() != null ? "Wormhole Complex" : super.getCurrentName();
-    }
-
-    @Override
-    public String getCurrentImage() {
-        return getSpecialItem() != null ? "graphics/industry/warphouse.png" : super.getCurrentImage();
     }
 
     @Override

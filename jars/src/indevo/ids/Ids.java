@@ -79,6 +79,7 @@ public class Ids {
     public static final String PLANETARY_SHIELD_ALT = "IndEvo_InvisiblePlanetaryShield";
     public static final String MUSEUM = "IndEvo_Museum";
     public static final String WAREHOUSES = "IndEvo_Warehouse";
+    public static final String WARPHOUSE = "IndEvo_Warphouse";
 
     public static final String PIRATEHAVEN_SECONDARY = "IndEvo_pirateHavenSecondary";
     public static final String COMMERCE = "commerce";

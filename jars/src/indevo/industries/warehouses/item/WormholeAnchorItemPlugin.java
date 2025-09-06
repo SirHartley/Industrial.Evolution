@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.impl.items.WormholeAnchorPlugin;
 import com.fs.starfarer.api.impl.campaign.econ.impl.InstallableItemEffect;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
+import com.fs.starfarer.api.impl.campaign.shared.WormholeManager;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -18,6 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WormholeAnchorItemPlugin extends WormholeAnchorPlugin {
+
+    @Override
+    public String getName() {
+        if (stack == null || stack.getSpecialDataIfSpecial() == null || stack.getSpecialDataIfSpecial().getData() == null) super.getName();
+
+        WormholeManager.WormholeItemData itemData = new WormholeManager.WormholeItemData(stack.getSpecialDataIfSpecial().getData());
+        return super.getName() + " '" + itemData.name + "'";
+    }
 
     protected void addInstalledInSection(TooltipMakerAPI tooltip, float pad) {
         String list = "";

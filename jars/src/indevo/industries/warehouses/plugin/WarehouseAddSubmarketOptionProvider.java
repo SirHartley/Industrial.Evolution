@@ -15,21 +15,17 @@ import indevo.industries.warehouses.industry.Warehouses;
 import indevo.industries.warehouses.data.WarehouseConstants;
 import indevo.industries.warehouses.data.WarehouseSubmarketData;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
+import indevo.utils.plugins.TagBasedSimplifiedIndustryOptionProvider;
 
 import java.awt.*;
 
-public class WarehouseAddSubmarketOptionProvider extends SingleIndustrySimpifiedOptionProvider {
+public class WarehouseAddSubmarketOptionProvider extends TagBasedSimplifiedIndustryOptionProvider {
     public static final float WIDTH = 600f;
     public static final float HEIGHT_200 = 150f;
     protected static final float BUTTON_HEIGHT = 30, SELECT_BUTTON_WIDTH = 150f;
 
     public static void register(){
         Global.getSector().getListenerManager().addListener(new WarehouseAddSubmarketOptionProvider(), true);
-    }
-
-    @Override
-    public String getTargetIndustryId() {
-        return Ids.WAREHOUSES;
     }
 
     @Override
@@ -260,5 +256,10 @@ public class WarehouseAddSubmarketOptionProvider extends SingleIndustrySimpified
         return line2.length() == 0
                 ? line1.toString()
                 : line1.toString() + "\n" + line2.toString();
+    }
+
+    @Override
+    public String getTargetTag() {
+        return "IndEvo_warehouse";
     }
 }
