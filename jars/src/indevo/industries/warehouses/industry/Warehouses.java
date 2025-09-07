@@ -1,19 +1,20 @@
 package indevo.industries.warehouses.industry;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
 import com.fs.starfarer.api.campaign.SubmarketPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Items;
+import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.warehouses.data.WarehouseConstants;
 import indevo.industries.warehouses.data.WarehouseSubmarketData;
+import indevo.industries.warehouses.plugin.LinkedStorageManager;
 import indevo.submarkets.RemovablePlayerSubmarketPluginAPI;
 
 import java.util.ArrayList;
@@ -21,10 +22,13 @@ import java.util.List;
 
 public class Warehouses extends BaseIndustry {
 
-    private List<WarehouseSubmarketData> archiveSubMarkets = new ArrayList<>();
+    private List<WarehouseSubmarketData> warehouseSubMarkets = new ArrayList<>();
+    private boolean shouldLinkLocalStorage = true;
 
     @Override
     public void apply() {
+
+        if (isBuilding() && !isUpgrading()) return; //as long as it's building we don't do jack shit
 
         //player installs item
         if (!getId().equals(Ids.WARPHOUSE) && getSpecialItem() != null && !isUpgrading()) startUpgrading(Ids.WARPHOUSE);
@@ -37,6 +41,41 @@ public class Warehouses extends BaseIndustry {
 
         //player re-installs item into warp complex after removing it
         if (getId().equals(Ids.WARPHOUSE) && getSpecialItem() != null && isUpgrading()) cancelUpgrade();
+
+        updateLinkedStorages();
+    }
+
+    public void updateLinkedStorages(){
+        if (!getId().equals(Ids.WARPHOUSE)) {
+            unlinkAllSubmarkets();
+            return;
+        }
+
+        LinkedStorageManager manager = LinkedStorageManager.getInstance();
+
+        //warehouse storages
+        //todo
+
+        //main storage
+        SubmarketAPI storage = market.getSubmarket(Submarkets.SUBMARKET_STORAGE);
+        if (storage == null) return;
+
+        if (getId().equals(Ids.WARPHOUSE) && shouldLinkLocalStorage) {
+            if (!manager.isSharedCargo(storage)) manager.convertToSharedCargo(storage);
+        } else if (manager.isSharedCargo(storage)) manager.convertToLocalCargo(storage); //else unlink
+    }
+
+    public void unlinkAllSubmarkets(){
+        LinkedStorageManager manager = LinkedStorageManager.getInstance();
+
+        //warehouse storages
+        //todo
+
+        //main storage
+        SubmarketAPI storage = market.getSubmarket(Submarkets.SUBMARKET_STORAGE);
+        if (storage == null) return;
+
+        manager.convertToLocalCargo(storage);
     }
 
     public String getBuildOrUpgradeProgressText() {
@@ -76,11 +115,6 @@ public class Warehouses extends BaseIndustry {
     }
 
     @Override
-    public void downgrade() {
-        super.downgrade();
-    }
-
-    @Override
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
         super.addRightAfterDescriptionSection(tooltip, mode);
         float opad = 10f;
@@ -90,12 +124,12 @@ public class Warehouses extends BaseIndustry {
 
         if (isUpgrading() && getSpecialItem() != null) tooltip.addPara("Currently integrating a wormhole anchor.", Misc.getHighlightColor(), opad);
         if (isUpgrading() && getSpecialItem() == null) {
-            tooltip.addPara("Downgrading: Wormhole Anchor uninstalled.", Misc.getNegativeHighlightColor(), opad);
+            tooltip.addPara("Downgrading: Missing a Wormhole Anchor.", Misc.getNegativeHighlightColor(), opad);
         }
     }
 
     public SubmarketAPI addSubmarket(WarehouseSubmarketData data){
-        archiveSubMarkets.add(data); //must be before addition, submarket plugin checks for data on init
+        warehouseSubMarkets.add(data); //must be before addition, submarket plugin checks for data on init
         market.addSubmarket(data.submarketID);
 
         return market.getSubmarket(data.submarketID);
@@ -104,29 +138,30 @@ public class Warehouses extends BaseIndustry {
     public void removeSubmarket(WarehouseSubmarketData data){
         ((RemovablePlayerSubmarketPluginAPI) market.getSubmarket(data.submarketID).getPlugin()).notifyBeingRemoved();
         market.removeSubmarket(data.submarketID);
-        archiveSubMarkets.remove(data);
+        warehouseSubMarkets.remove(data);
     }
 
     public void removeSubmarkets(){
-        for (WarehouseSubmarketData data : new ArrayList<>(archiveSubMarkets)){
+        for (WarehouseSubmarketData data : new ArrayList<>(warehouseSubMarkets)){
             ((RemovablePlayerSubmarketPluginAPI) market.getSubmarket(data.submarketID).getPlugin()).notifyBeingRemoved();
             market.removeSubmarket(data.submarketID);
-            archiveSubMarkets.remove(data);
+            warehouseSubMarkets.remove(data);
         }
     }
 
     public List<WarehouseSubmarketData> getWarehouseSubMarkets() {
-        return archiveSubMarkets;
+        return warehouseSubMarkets;
     }
 
     public WarehouseSubmarketData getData(SubmarketPlugin forPlugin){
-        for (WarehouseSubmarketData data : archiveSubMarkets) if (data.submarketID.equals(forPlugin.getSubmarket().getSpecId())) return data;
+        for (WarehouseSubmarketData data : warehouseSubMarkets) if (data.submarketID.equals(forPlugin.getSubmarket().getSpecId())) return data;
         return null;
     }
 
 
     @Override
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
+        unlinkAllSubmarkets(); //first unlink or it dumps the cores/items into the linked cargo
         super.notifyBeingRemoved(mode, forUpgrade);
         removeSubmarkets();
     }

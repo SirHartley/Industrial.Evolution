@@ -6,23 +6,25 @@ import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.CustomDialogDelegate;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
 import indevo.ids.ItemIds;
-import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.StarReflectionUtils;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.plugins.BaseSimpleBaseIndustryOptionProvider;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+
+import static indevo.industries.ruinfra.conditions.DerelictInfrastructureCondition.RUINED_INFRA_UPGRADE_ID_KEY;
 
 public class RelicBuildTimeReductionButtonAdder extends BaseSimpleBaseIndustryOptionProvider {
 
-    public static final float RELICS_PER_DAY = 1f;
+    public static final float RELICS_PER_DAY = 1f; //this means: two per day reduction because it scales off the total days left but reduction is half the total days
     public static final float COOLDOWN_DAYS = 60f;
     public static final String MEM_COOLDOWN = "$IndEvo_reduceBuildTimeCooldown";
 
@@ -32,7 +34,12 @@ public class RelicBuildTimeReductionButtonAdder extends BaseSimpleBaseIndustryOp
 
     @Override
     public boolean isSuitable(Industry ind, boolean allowUnderConstruction) {
-        return ind.isBuilding();
+        boolean isUpgrading = ind.isUpgrading();
+        boolean hasUpgrade = ind.getSpec().getUpgrade() != null; //some modded industries can upgrade without an upgrade -> crash when getting the spec
+
+        boolean isBuilding = ind.isBuilding() && !ind.isUpgrading();
+
+        return isBuilding || (isUpgrading && hasUpgrade);
     }
 
     @Override
@@ -43,9 +50,10 @@ public class RelicBuildTimeReductionButtonAdder extends BaseSimpleBaseIndustryOp
     @Override
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
         Industry ind = opt.ind;
-        float buildTime = ind.getBuildTime() * 10f; //no clue why, but buildTime is 1/10 of a day...
-        float buildProgress = ind.getBuildOrUpgradeProgress() * 10f;
-        float buildDaysLeft = buildTime - buildProgress;
+
+        float buildTime = (float) StarReflectionUtils.get(ind, "buildTime", float.class, true);
+        float buildProgress = ind.getBuildOrUpgradeProgress(); //this is from 0 to 1
+        float buildDaysLeft = (float) Math.round(buildTime * (1 - buildProgress));
 
         CargoAPI marketCargo = Misc.getStorageCargo(ind.getMarket());
         CargoAPI playerCargo = MiscIE.getPlayerCargo();
@@ -72,7 +80,7 @@ public class RelicBuildTimeReductionButtonAdder extends BaseSimpleBaseIndustryOp
                 info.setParaInsigniaLarge();
 
                 info.addPara("Halves the remaining construction time.", opad);
-                info.addPara("Can only be done %s every %s.", spad, Misc.getHighlightColor(), "once", Math.round(COOLDOWN_DAYS) + " days");
+                info.addPara("Can only be done %s every %s on this colony.", spad, Misc.getHighlightColor(), "once", Math.round(COOLDOWN_DAYS) + " days");
 
                 info.addPara("Days left: %s", opad, hl, Math.round(buildDaysLeft) + " " + StringHelper.getDayOrDays(Math.round(buildDaysLeft)));
                 info.addPara("New construction time: %s", spad, pl, Math.round(buildDaysLeft / 2) + " " + StringHelper.getDayOrDays(Math.round(buildDaysLeft) / 2));
@@ -103,7 +111,9 @@ public class RelicBuildTimeReductionButtonAdder extends BaseSimpleBaseIndustryOp
                         playerCargo.removeCommodity(ItemIds.RARE_PARTS, remaining);
                     }
 
-                    ((BaseIndustry) ind).setBuildProgress(Math.round((buildProgress / 10) + ((buildDaysLeft / 10) / 2)));
+                    float newProgress = (buildTime - buildDaysLeft) + buildDaysLeft / 2;
+
+                    ((BaseIndustry) ind).setBuildProgress(newProgress);
                     ind.getMarket().getMemoryWithoutUpdate().set(MEM_COOLDOWN,true, COOLDOWN_DAYS);
                 }
             }

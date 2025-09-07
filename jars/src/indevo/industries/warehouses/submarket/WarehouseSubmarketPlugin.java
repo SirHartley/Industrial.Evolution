@@ -1,6 +1,8 @@
 package indevo.industries.warehouses.submarket;
 
 import com.fs.starfarer.api.campaign.CargoStackAPI;
+import com.fs.starfarer.api.campaign.FleetOrStubAPI;
+import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import indevo.ids.Ids;
@@ -16,7 +18,10 @@ public class WarehouseSubmarketPlugin extends BaseRemovableStorageSubmarketPlugi
     @Override
     public void init(SubmarketAPI submarket) {
         super.init(submarket);
-        data = ((Warehouses) market.getIndustry(Ids.WAREHOUSES)).getData(this);
+
+        for (Industry ind : market.getIndustries()) if (ind instanceof Warehouses) {
+            data = ((Warehouses) ind).getData(this);
+        }
     }
 
     @Override

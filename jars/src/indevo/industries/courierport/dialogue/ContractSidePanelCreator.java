@@ -186,7 +186,16 @@ public class ContractSidePanelCreator {
 
         // ORIGIN SELECTION PANEL
 
-        CustomPanelAPI originSelectionPanel = panel.createCustomPanel(PANEL_WIDTH_1, 50f, new NoFrameCustomPanelPlugin());
+        float panelHeight = 50;
+
+        if (contract.getFromMarket() != null){
+            int amt = ShippingTargetHelper.getValidOriginSubmarkets(contract.getFromMarket()).size();
+            if (contract.getFromMarket().isPlayerOwned()) amt++;
+            int lines = (int) Math.ceil(amt / 6f);
+            panelHeight = 50 * lines;
+        }
+
+        CustomPanelAPI originSelectionPanel = panel.createCustomPanel(PANEL_WIDTH_1, panelHeight, new NoFrameCustomPanelPlugin());
 
         desc = originSelectionPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
         label = desc.addPara("Ship from:", 0f);
@@ -292,11 +301,18 @@ public class ContractSidePanelCreator {
 
         if (prerequisiteForActive) {
             boolean first = true;
+            TooltipMakerAPI firstAnchorInRow = null;
 
             float aspectRatio = 1f;
             float baseWidth = SELECT_BUTTON_WIDTH * 0.7f;
 
+            int i = 0;
+            int iconsPerLine = 6;
+
             for (SubmarketAPI s : ShippingTargetHelper.getValidOriginSubmarkets(fromMarket)) {
+                i++;
+                boolean firstInNextLine = (i - 1) % iconsPerLine == 0;
+
                 final String submarketID = s.getSpecId();
                 buttonId = "button_fromSubmarket_" + submarketID + id;
 
@@ -318,6 +334,23 @@ public class ContractSidePanelCreator {
 
                 areaCheckbox.setChecked(submarketID.equals(contract.fromSubmarketId));
 
+                anchor.addTooltipTo(new TooltipMakerAPI.TooltipCreator() {
+                    @Override
+                    public boolean isTooltipExpandable(Object tooltipParam) {
+                        return false;
+                    }
+
+                    @Override
+                    public float getTooltipWidth(Object tooltipParam) {
+                        return 100f;
+                    }
+
+                    @Override
+                    public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
+                        tooltip.addPara(s.getNameOneLine(), 0f);
+                    }
+                }, areaCheckbox, TooltipMakerAPI.TooltipLocation.ABOVE);
+
                 entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(areaCheckbox, buttonId) {
                     @Override
                     public void onToggle() {
@@ -336,7 +369,11 @@ public class ContractSidePanelCreator {
 
                 VisualCustomPanel.getPlugin().addButton(entry);
 
-                originSelectionPanel.addUIElement(anchor).rightOfMid(lastUsedVariableButtonAnchor, first ? 10f : -7f);
+                if (!first && firstInNextLine){
+                    originSelectionPanel.addUIElement(anchor).belowLeft(firstAnchorInRow, 5f);
+                } else originSelectionPanel.addUIElement(anchor).rightOfMid(lastUsedVariableButtonAnchor, first ? 10f : -7f);
+
+                if (firstInNextLine) firstAnchorInRow = anchor;
                 lastUsedVariableButtonAnchor = anchor;
 
                 anchor = originSelectionPanel.createUIElement(baseWidth, BUTTON_HEIGHT, false);
@@ -352,6 +389,9 @@ public class ContractSidePanelCreator {
             }
 
             if (fromMarket.isPlayerOwned() && fromMarket.hasSubmarket(Submarkets.LOCAL_RESOURCES)) {
+                i++;
+                boolean firstInNextLine = (i - 1) % iconsPerLine == 0;
+
                 final SubmarketAPI s = fromMarket.getSubmarket(Submarkets.LOCAL_RESOURCES);
                 final String submarketID = s.getSpecId();
 
@@ -372,6 +412,23 @@ public class ContractSidePanelCreator {
 
                 areaCheckbox.setChecked(submarketID.equals(contract.fromSubmarketId));
 
+                anchor.addTooltipTo(new TooltipMakerAPI.TooltipCreator() {
+                    @Override
+                    public boolean isTooltipExpandable(Object tooltipParam) {
+                        return false;
+                    }
+
+                    @Override
+                    public float getTooltipWidth(Object tooltipParam) {
+                        return 100f;
+                    }
+
+                    @Override
+                    public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
+                        tooltip.addPara(s.getNameOneLine(), 0f);
+                    }
+                }, areaCheckbox, TooltipMakerAPI.TooltipLocation.ABOVE);
+
                 entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(areaCheckbox, buttonId) {
                     @Override
                     public void onToggle() {
@@ -390,7 +447,10 @@ public class ContractSidePanelCreator {
 
                 VisualCustomPanel.getPlugin().addButton(entry);
 
-                originSelectionPanel.addUIElement(anchor).rightOfMid(lastUsedVariableButtonAnchor, -7f);
+                if (!first && firstInNextLine){
+                    originSelectionPanel.addUIElement(anchor).belowLeft(firstAnchorInRow, 5f);
+                } else originSelectionPanel.addUIElement(anchor).rightOfMid(lastUsedVariableButtonAnchor, -7f);
+
                 lastUsedVariableButtonAnchor = anchor;
 
                 anchor = originSelectionPanel.createUIElement(baseWidth, BUTTON_HEIGHT, false);
@@ -419,7 +479,15 @@ public class ContractSidePanelCreator {
 
         //PLANET SELECT
 
-        CustomPanelAPI targetSelectionPanel = panel.createCustomPanel(PANEL_WIDTH_1, 50f, new NoFrameCustomPanelPlugin());
+        panelHeight = 50;
+
+        if (contract.getToMarket() != null && contract.getFromSubmarket() != null){
+            int amt = ShippingTargetHelper.getValidTargetSubmarkets(contract.getToMarket(), contract.getFromSubmarket()).size();
+            int lines = (int) Math.ceil(amt / 6f);
+            panelHeight = 50 * lines;
+        }
+
+        CustomPanelAPI targetSelectionPanel = panel.createCustomPanel(PANEL_WIDTH_1, panelHeight, new NoFrameCustomPanelPlugin());
 
         desc = targetSelectionPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
         label = desc.addPara("Ship to:", 0f);
@@ -528,7 +596,14 @@ public class ContractSidePanelCreator {
 
         if (prerequisiteForActive) {
             boolean first = true;
+            TooltipMakerAPI firstAnchorInRow = null;
+
+            int i = 0;
+            int iconsPerLine = 6;
+
             for (final SubmarketAPI s : ShippingTargetHelper.getValidTargetSubmarkets(toMarket, contract.getFromSubmarket())) {
+                i++;
+                boolean firstInNextLine = (i - 1) % iconsPerLine == 0;
 
                 final String submarketID = s.getSpecId();
                 buttonId = "button_toSubmarket_" + submarketID + id;
@@ -550,6 +625,23 @@ public class ContractSidePanelCreator {
                         0f,
                         false);
 
+                anchor.addTooltipTo(new TooltipMakerAPI.TooltipCreator() {
+                    @Override
+                    public boolean isTooltipExpandable(Object tooltipParam) {
+                        return false;
+                    }
+
+                    @Override
+                    public float getTooltipWidth(Object tooltipParam) {
+                        return 100f;
+                    }
+
+                    @Override
+                    public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
+                        tooltip.addPara(s.getNameOneLine(), 0f);
+                    }
+                }, areaCheckbox, TooltipMakerAPI.TooltipLocation.ABOVE);
+
                 areaCheckbox.setChecked(submarketID.equals(contract.toSubmarketId));
 
                 entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(areaCheckbox, buttonId) {
@@ -565,7 +657,11 @@ public class ContractSidePanelCreator {
 
                 VisualCustomPanel.getPlugin().addButton(entry);
 
-                targetSelectionPanel.addUIElement(anchor).rightOfMid(lastUsedVariableButtonAnchor, first ? 10f : -7f);
+                if (!first && firstInNextLine){
+                    targetSelectionPanel.addUIElement(anchor).belowLeft(firstAnchorInRow, 5f);
+                } else targetSelectionPanel.addUIElement(anchor).rightOfMid(lastUsedVariableButtonAnchor, first ? 10f : -7f);
+
+                if (firstInNextLine) firstAnchorInRow = anchor;
                 lastUsedVariableButtonAnchor = anchor;
 
                 anchor = targetSelectionPanel.createUIElement(baseWidth, BUTTON_HEIGHT, false);
@@ -592,7 +688,6 @@ public class ContractSidePanelCreator {
         }
 
         panelTooltip.addCustom(targetSelectionPanel, 0f); //add panel
-
 
         prerequisiteForActive = contract.fromMarketId != null && contract.toMarketId != null && contract.fromSubmarketId != null && contract.toSubmarketId != null;
 

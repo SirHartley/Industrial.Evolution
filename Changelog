@@ -1,6 +1,6 @@
 --------------------------- Changelog -----------------------------
-4.1.3
-Fixed - Null ID crash affecting ice meteor swarms
+4.1.4
+Fixed - Spending relics to reduce upgrade time is no longer bugged to hell and back
 
 4.1.a
 
@@ -29,6 +29,7 @@ Adjusted - Project Sonic - Reduced fuel cost from 20.000 to 5000, removed option
 Courier Port
 Added - "Ship all weapons" setting
 Added - All cost settings are now editable in the mod settings
+Added - Support for 6+ storages on one planet (the list no longer vanishes off to the side) and pop-up tooltips for UX improvements
 Adjusted - Shipping cargo from one local storage to another on one planet is now instant and no longer spawns a fleet
 Fixed - Pick specific cargo display no longer has a bunch of bugged out text all over (how was this never reported?!)
 Fixed - Contracts now correctly display their cost forecast in the creation menu

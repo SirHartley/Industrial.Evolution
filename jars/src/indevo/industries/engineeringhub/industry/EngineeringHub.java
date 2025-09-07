@@ -259,7 +259,8 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         if (storage != null) storage.removeItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null), 99);
 
         //items are dumped into fleet cargo once uninstalled
-        Global.getSector().getPlayerFleet().getCargo().removeItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null), 99);
+        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
+        if (playerFleet != null) playerFleet.getCargo().removeItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null), 99);
     }
 
     public ShipAPI.HullSize gethullSize(SpecialItemData data) {

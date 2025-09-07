@@ -7,7 +7,6 @@ import com.fs.starfarer.api.ui.CustomPanelAPI
 import com.fs.starfarer.api.ui.UIComponentAPI
 import com.fs.starfarer.api.ui.UIPanelAPI
 import com.fs.starfarer.campaign.CampaignState
-import com.fs.starfarer.campaign.econ.Market
 import com.fs.starfarer.campaign.ui.marketinfo.IndustryListPanel
 import com.fs.state.AppDriver
 import indevo.ids.Ids
