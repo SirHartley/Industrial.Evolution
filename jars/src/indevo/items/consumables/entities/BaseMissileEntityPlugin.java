@@ -41,6 +41,9 @@ public abstract class BaseMissileEntityPlugin extends BaseCustomEntityPlugin {
     public abstract SpriteAPI getMissileSprite();
     public abstract Color getTrailColour();
 
+    //Meteor
+    public static final float METEOR_DESTRUCTION_RANGE_AROUND_TRAVEL_PATH = 50f;
+
     //trail
     public static final float TRAIL_TIME = 0.5f;
 
@@ -110,7 +113,7 @@ public abstract class BaseMissileEntityPlugin extends BaseCustomEntityPlugin {
 
     //should be an interface from architecture standpoint but I kinda don't care, have fun future me
     public void setSurroundingMeteorsDestroyed(){
-        for (SectorEntityToken t : MiscIE.getEntitiesInRange(entity, entity.getRadius()))
+        for (SectorEntityToken t : MiscIE.getEntitiesInRange(entity, entity.getRadius() + METEOR_DESTRUCTION_RANGE_AROUND_TRAVEL_PATH))
             t.getMemoryWithoutUpdate().set(MissileMemFlags.MEM_CAUGHT_BY_MISSILE, new Vector2f(entity.getLocation()), 1f);
     }
 

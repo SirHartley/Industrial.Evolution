@@ -14,11 +14,9 @@
   "builtInMods": [
       "supercomputer",
       "reduced_explosion",
-      "missile_reload",
-      "chassis_storage"
+      "missile_reload"
   ],
   "builtInWings": [
-    "claw_wing",
     "claw_wing",
     "claw_wing",
     "claw_wing",

@@ -157,7 +157,7 @@ public class IndEvo_SalvageSpecialAssigner {
                 variant = Global.getSettings().getVariant(shipData.variantId);
             }
 
-            picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 180);
+            picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 120);
             picker.add(new DroneSurveyDataSpecialCreator(random, 1, 7), 5f);
             picker.add(new JuicyRumorsSpecialCreator(random, 5, 10), 10f);
 
@@ -267,7 +267,6 @@ public class IndEvo_SalvageSpecialAssigner {
             picker.add(new SalvageSpecialAssigner.TransmitterTrapSpecialCreator(random, 0.5f, FleetTypes.PATROL_SMALL, trapFactions, 4, 8), 10f);
         }
 
-
         List<String> supplies = Collections.singletonList(Entities.SUPPLY_CACHE);
         if (supplies.contains(type)) {
             picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 30f);
@@ -288,7 +287,6 @@ public class IndEvo_SalvageSpecialAssigner {
             picker.add(new SalvageSpecialAssigner.CargoManifestSpecialCreator(random, valuableCargo, 10, 30), 10f);
             picker.add(new SalvageSpecialAssigner.TransmitterTrapSpecialCreator(random, 0.5f, FleetTypes.PATROL_SMALL, trapFactions, 4, 8), 10f);
         }
-
 
         List<String> equipment = Collections.singletonList(Entities.EQUIPMENT_CACHE);
         if (equipment.contains(type)) {

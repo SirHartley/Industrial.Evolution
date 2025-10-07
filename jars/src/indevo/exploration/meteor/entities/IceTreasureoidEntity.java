@@ -91,7 +91,7 @@ public class IceTreasureoidEntity extends IcyRockEntity {
             if(spec != null && spec.getHullId() != null) id = spec.getHullId();
         }
 
-        if(id == null) id = "nebula";
+        if(id == null || id.isBlank()) id = "nebula";
 
         DerelictShipEntityPlugin.DerelictShipData params = DerelictShipEntityPlugin.createHull(id, random, 0.15f);
         relatedWreck = BaseThemeGenerator.addSalvageEntity(entity.getContainingLocation(), Entities.WRECK, Factions.NEUTRAL, params);
@@ -102,5 +102,14 @@ public class IceTreasureoidEntity extends IcyRockEntity {
         data.storyPointRecovery = false;
 
         Misc.setSalvageSpecial(relatedWreck, data);
+    }
+
+    @Override
+    public void setCollidingAndFade(SectorEntityToken t) {
+        super.setCollidingAndFade(t);
+
+        relatedWreck.setDiscoverable(true);
+        relatedWreck.setDiscoveryXP(100f);
+        relatedWreck.setSensorProfile(10000f);
     }
 }

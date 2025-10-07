@@ -37,7 +37,8 @@ IndEvo_Academy,Academy,60,60,,8,,,"structure, unraidable",,graphics/industry/aca
 This structure increases the system-wide officer quality, officer quantity for defense fleets assembled on this planet, can store and train both administrators and officers and will massively increase the chance of hireable persons appearing here.",500,LOW
 IndEvo_ReqCenter,Requisitions Centre,40,40,,6,,,"structure, unraidable",,graphics/industry/reqMarket.png,indevo.industries.RequisitionCenter,"Resembling an office rather than a market, the Requisitions Center is an institution frequented by picky ship captains, collectors and people looking for specific weapon imports.
 
-Creates a market selling weapons from factions you have good relations with. An Embassy with an active Ambassador on the same planet will cause the Center to source only from that faction.",500,LOW
+Creates a market selling weapons from factions you have good relations with. An Embassy with an active Ambassador on the same planet will cause the Center to source only from that faction.
+Sells a steady selection of consumable items.",500,LOW
 IndEvo_EngHub,Engineering Hub,50,60,,7,,,"structure, unraidable",,graphics/industry/engHub.png,indevo.industries.engineeringhub.industry.EngineeringHub,"As the sector is decaying in knowledge an institution specialized in the disassembly of functional spacecraft is a rare sight, and can only be afforded by the rich or the desperate.
 
 Place ships into the storage to reverse engineer them. Once you have achieved 100% progress on a hull, install a blueprint to overwrite, or use relic components to create a new one.",500,HIGH

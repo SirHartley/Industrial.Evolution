@@ -78,7 +78,13 @@ public class TreasuradoidEntity extends SpicyRockEntity{
 
         //station orbit
         SectorEntityToken lootStation = entity.getContainingLocation().getEntityById(entity.getId() + "_loot");
-        if (lootStation != null) lootStation.setOrbit(null);
+        if (lootStation != null) {
+            lootStation.setOrbit(null);
+
+            lootStation.setDiscoverable(true);
+            lootStation.setDiscoveryXP(100f);
+            lootStation.setSensorProfile(10000f);
+        }
 
         //make the roids disperse
         String tag = "IndEvo_TreasureoidEntrouage_" + entity.getId();

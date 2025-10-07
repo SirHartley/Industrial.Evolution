@@ -6,24 +6,38 @@ Fixed - Spending relics to reduce upgrade time is no longer bugged to hell and b
 
 General
 Added - You can now halve the remaining upgrade time of a building by spending relic components.
-Note - Doesn't work for the initial construction of a building due to a vanilla bug. Will probably be fixed with the next game version.
+Note - Doesn't work for the initial construction of a building due to a vanilla bug. Will be fixed with the next game version.
 Adjusted - Brought the IndEvo industry button text format in line with vanilla (if it throws up a popup, it ends on "...", else, not.)
 Fixed - Planet Story "Plague" - no longer mentions the use of antibiotics against a virus
 
 Items
+Adjusted - Increased skillshot missile indicator size
+Adjusted - Increased the amount of consumable items available on the open market
+Adjusted - Increased the amount of missiles available on military markets
 Adjusted - "Threat" relic component drop rate reduced by another 50%
 Fixed - AOE missiles now display the on-target AOE reticule like they should
 
 Hullmods
 Fixed - Camouflage Emitter no longer marks non-unique ships as unique on removal (thanks, J2Greene)
 
+Detachments
+Fixed - Bug that would cause ships with player-made ship loadouts to get cleared when transferred into a detachment
+
+Artillery
+Adjusted - Reduced base defence fleet FP by another 10 (80 -> 70)
+Adjusted - Removed one claw wing (Nerf from 10 -> 8 wings)
+Adjusted - Removed the Fighter Chassis Storage hullmod from the hangar module. Claws can now be depleted and are no longer infinite.
+
 Exploration
 Added - Meteor showers (1 common, 3 rare variations)
 Added - Meteor shower tutorial encounter
+Adjusted - Slightly increased the amount of events applied to derelict ships (I over-nerfed that one)
 Fixed - "Hostile Intel" salvage event: Sending the intel to the enemy no longer increases your rep with both factions
 Fixed - Minefields no longer crash if you interdict to disable them while one explodes (0.1s window, congrats to ScriptSprite)
 
 Research Projects
+Added - Tooltip telling you how many items of a given type you need to complete the project
+Added - Amended survey data tooltip with information about the item use (sell or trade in)
 Adjusted - Project Sonic - Reduced fuel cost from 20.000 to 5000, removed option to throw in a synchrotron
 
 Courier Port

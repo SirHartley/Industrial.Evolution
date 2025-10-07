@@ -1,7 +1,7 @@
 fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
 IndEvo_header0,Disclaimer,Header,Disclaimer,,,,,General
-IndEvo_text0,,Text,No guarantees for stability if you fuck with anything in here because I did not test it and probably never will.,,,,,General
-IndEvo_text_application_note,,Text,Some settings will not apply unless you start a new game.,,,,,General
+IndEvo_text0,,Text,"Changing these settings can impact the stability of your game, as only the default configuration is tested to work.",,,,,General
+IndEvo_text_application_note,,Text,Some settings will not apply unless you start a new game. Restarting your game client after changing settings is advised.,,,,,General
 IndEvo_header1,General,Header,General,,,,,General
 IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,Commerce balance changes. Read up on why this was needed here: bit.ly/commerce_balance. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).,,,General
 IndEvo_Corruption,[General] Corrupt Colony Officials,Boolean,FALSE,,"This enables a mode in which your colonies will start bleeding money the more you make. It means getting a colony above 200k income is an incredible feat, but getting it to 50-100k is just like vanilla. Calculated along f(x)=x^(-0.6)",,,General
@@ -63,7 +63,7 @@ IndEvo_Artillery_cooldownNPCMult,[Artillery] NPC Cooldown Mult,Double,2,,Multipl
 IndEvo_Artillery_minRange,[Artillery] Min Range,Double,500,,,1,1000,Artillery
 IndEvo_Artillery_maxRange,[Artillery] Max Range,Double,12000,,=6 map cells,2,100000,Artillery
 IndEvo_Artillery_WatchtowerRange,[Artillery] Watchtower Range,Double,4000,,,1,10000,Artillery
-IndEvo_Artillery_defense_FP2,[Artillery] Defence Fleet FP,Double,80,,Base fleet size that spawns to defend artillery stations. Has to be 1 at minimum or it crashes.,1,1000,Artillery
+IndEvo_Artillery_defense_FP2,[Artillery] Defence Fleet FP,Double,70,,Base fleet size that spawns to defend artillery stations. Has to be 1 at minimum or it crashes.,1,1000,Artillery
 IndEvo_Artillery_mortar_projectilesPerShot,[Mortar Artillery] Projectiles per Shot,Int,8,,,1,30,Artillery
 IndEvo_Artillery_mortar_projectilesImpactTime,[Mortar Artillery] Time to Impact,Double,5,,,1,60,Artillery
 IndEvo_Artillery_mortar_explosionSize,[Mortar Artillery] Explosion Radius,Double,300,,,1,1000,Artillery

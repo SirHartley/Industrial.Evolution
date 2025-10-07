@@ -16,6 +16,7 @@
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/exploration/salvage/specials/WIP" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/items/consumables/itemAbilities/WIP" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/exploration/distress" />
+      <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/industries/warehouses/plugin/wi" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

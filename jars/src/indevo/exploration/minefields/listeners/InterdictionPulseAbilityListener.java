@@ -28,21 +28,22 @@ public class InterdictionPulseAbilityListener extends BaseCampaignEventListener 
     public void reportPlayerDeactivatedAbility(AbilityPlugin ability, Object param) {
         super.reportPlayerDeactivatedAbility(ability, param);
 
-        if (!ability.getSpec().getId().equals(Abilities.INTERDICTION_PULSE)) return;
+        if (ability.getSpec().getId().equals(Abilities.INTERDICTION_PULSE) || ability instanceof InterdictionPulseAbility){
+            CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
+            float range = InterdictionPulseAbility.getRange(fleet);
 
-        CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
-        float range = InterdictionPulseAbility.getRange(fleet);
+            for (CampaignTerrainAPI t : fleet.getContainingLocation().getTerrainCopy()) {
+                CampaignTerrainPlugin plugin = t.getPlugin();
+                if (plugin instanceof MineBeltTerrainPlugin) {
+                    MineBeltTerrainPlugin mineBeltTerrainPlugin = (MineBeltTerrainPlugin) plugin;
 
-        for (CampaignTerrainAPI t : fleet.getContainingLocation().getTerrainCopy()) {
-            CampaignTerrainPlugin plugin = t.getPlugin();
-            if (plugin instanceof MineBeltTerrainPlugin) {
-                MineBeltTerrainPlugin mineBeltTerrainPlugin = (MineBeltTerrainPlugin) plugin;
-
-                if (circlesIntersect(t.getLocation(), mineBeltTerrainPlugin.params.middleRadius + mineBeltTerrainPlugin.params.bandWidthInEngine / 2, fleet.getLocation(), range)) {
-                    mineBeltTerrainPlugin.generateDisabledArea(fleet, range, MINE_INTERDICTION_DISABLE_DUR);
+                    if (circlesIntersect(t.getLocation(), mineBeltTerrainPlugin.params.middleRadius + mineBeltTerrainPlugin.params.bandWidthInEngine / 2, fleet.getLocation(), range)) {
+                        mineBeltTerrainPlugin.generateDisabledArea(fleet, range, MINE_INTERDICTION_DISABLE_DUR);
+                    }
                 }
             }
         }
+
     }
 
     public static boolean circlesIntersect(Vector2f center1, float radius1, Vector2f center2, float radius2) {

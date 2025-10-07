@@ -59,11 +59,13 @@ public class ConsumableItemMarketAdder extends BaseCampaignEventListener {
             //always
             picker.add(ItemIds.CONSUMABLE_NANITES, 10);
             picker.add(ItemIds.CONSUMABLE_SCOOP, 10);
+            picker.add(ItemIds.CONSUMABLE_BEACON, 10);
 
             //Faction locked
             if (faction.equals(Factions.INDEPENDENT)) {
                 picker.add(ItemIds.CONSUMABLE_LOCATOR, 5);
                 picker.add(ItemIds.CONSUMABLE_RELAY, 5);
+                picker.add(ItemIds.CONSUMABLE_CATAPULT, 5);
             }
 
             if (faction.equals(Factions.PIRATES)) {
@@ -74,7 +76,7 @@ public class ConsumableItemMarketAdder extends BaseCampaignEventListener {
             //nothing
             picker.add("nothing", 250f);
 
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 8; i++) {
                 String itemId = picker.pick();
                 if (!itemId.equals("nothing")) cargo.addSpecial(new SpecialItemData(itemId, null), 1f);
             }
@@ -89,16 +91,17 @@ public class ConsumableItemMarketAdder extends BaseCampaignEventListener {
             WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
 
             //always
-            picker.add(ItemIds.CONSUMABLE_SPIKE, 30);
+            picker.add(ItemIds.CONSUMABLE_SPIKE, 10);
             picker.add(ItemIds.CONSUMABLE_MISSILE_EXPLOSIVE, 5);
-            picker.add(ItemIds.CONSUMABLE_MISSILE_CONCUSSIVE, 10);
+            picker.add(ItemIds.CONSUMABLE_MISSILE_CONCUSSIVE, 15);
             picker.add(ItemIds.CONSUMABLE_MISSILE_INTERCEPT, 15);
-            picker.add(ItemIds.CONSUMABLE_MISSILE_SMOKE, 20);
+            picker.add(ItemIds.CONSUMABLE_MISSILE_SMOKE, 15);
+
 
             //nothing
-            picker.add("nothing", isRequisitions ? 100: 200);
+            picker.add("nothing", isRequisitions ? 50: 100);
 
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 8; i++) {
                 String itemId = picker.pick();
                 if (!itemId.equals("nothing")) cargo.addSpecial(new SpecialItemData(itemId, null), 1f);
             }

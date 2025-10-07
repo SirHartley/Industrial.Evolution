@@ -17,8 +17,8 @@ public class MissileSkillshotTargetingReticuleRenderer extends BaseReticuleRende
         if (cursorBoundSprite == null) cursorBoundSprite = Global.getSettings().getSprite("fx", "IndEvo_missile_targetting_arrow");
 
         cursorBoundSprite.setAlphaMult(DEFAULT_ALPHA*0.6f);
-        cursorBoundSprite.setWidth(100);
-        cursorBoundSprite.setHeight(100);
+        cursorBoundSprite.setWidth(170);
+        cursorBoundSprite.setHeight(170);
         cursorBoundSprite.setAngle(angleToCursor - 90f);
         cursorBoundSprite.setColor(colour);
         cursorBoundSprite.renderAtCenter(cursorPos.x, cursorPos.y);

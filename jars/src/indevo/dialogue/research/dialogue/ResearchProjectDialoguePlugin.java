@@ -157,6 +157,8 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
 
                 for (RequiredItem item : project.getRequiredItems()) {
                     String progress = Math.abs(Math.round(item.points / requiredPoints * 1000f)) / 10f + "%";
+                    String requiredToComplete = (int) Math.round((requiredPoints - project.getProgress().points) / item.points) + "";
+
                     //String progress = StringHelper.getAbsPercentString(item.points / requiredPoints, false);
                     float count = getQuantity(cargo, item);
 
@@ -165,10 +167,10 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
                     if (item.type.equals(CargoAPI.CargoItemType.WEAPONS)) {
                         WeaponSpecAPI spec = Global.getSettings().getWeaponSpec(item.id);
                         TooltipMakerAPI imageWithText = tt.beginImageWithText(spec.getTurretSpriteName(), 30f);
-                        imageWithText.addPara("%s  -  Progress: %s  -  Available: %s",
+                        imageWithText.addPara("%s  -  Progress: %s  -  Available: %s - To complete project: %s",
                                 5f,
                                 Misc.getHighlightColor(),
-                                new String[]{spec.getWeaponName(), progress, (int) Math.round(count) + ""});
+                                new String[]{spec.getWeaponName(), progress, (int) Math.round(count) + "", requiredToComplete});
 
                         tt.addImageWithText(2f);
 
@@ -176,20 +178,20 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
                         CommoditySpecAPI spec = Global.getSettings().getCommoditySpec(item.id);
 
                         TooltipMakerAPI imageWithText = tt.beginImageWithText(spec.getIconName(), 30f);
-                        imageWithText.addPara("%s  -  Progress: %s  -  Available: %s",
+                        imageWithText.addPara("%s  -  Progress: %s  -  Available: %s - To complete project: %s",
                                 5f,
                                 Misc.getHighlightColor(),
-                                new String[]{spec.getName(), progress, (int) Math.round(count) + ""});
+                                new String[]{spec.getName(), progress, (int) Math.round(count) + "", requiredToComplete});
                         tt.addImageWithText(2f);
 
                     } else if (item.type.equals(CargoAPI.CargoItemType.SPECIAL)) {
                         SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(item.id);
 
                         TooltipMakerAPI imageWithText = tt.beginImageWithText(spec.getIconName(), 30f);
-                        imageWithText.addPara("%s  -  Progress: %s  -  Available: %s",
+                        imageWithText.addPara("%s  -  Progress: %s  -  Available: %s - To complete project: %s",
                                 5f,
                                 Misc.getHighlightColor(),
-                                new String[]{spec.getName(), progress, (int) Math.round(count) + ""});
+                                new String[]{spec.getName(), progress, (int) Math.round(count) + "", requiredToComplete});
                         tt.addImageWithText(2f);
                     }
                 }

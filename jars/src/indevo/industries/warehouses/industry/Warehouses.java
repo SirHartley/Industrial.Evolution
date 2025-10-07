@@ -45,6 +45,14 @@ public class Warehouses extends BaseIndustry {
         updateLinkedStorages();
     }
 
+    public boolean localStorageLinked(){
+        return shouldLinkLocalStorage;
+    }
+
+    public boolean canLinkLocalStorage(){
+        return getId().equals(Ids.WARPHOUSE);
+    }
+
     public void updateLinkedStorages(){
         if (!getId().equals(Ids.WARPHOUSE)) {
             unlinkAllSubmarkets();

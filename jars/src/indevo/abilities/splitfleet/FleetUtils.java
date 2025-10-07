@@ -9,6 +9,7 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
 import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.util.Misc;
@@ -64,6 +65,8 @@ public class FleetUtils {
             PersonAPI officerPerson = m.getCaptain();
             if (officerPerson != null && !officerPerson.isDefault()) detachmentFleetData.removeOfficer(officerPerson);
 
+            m.getVariant().removeTag(Tags.TAG_NO_AUTOFIT);
+
             //fleet Member transaction
             detachmentFleetData.removeFleetMember(m);
             playerFleetData.addFleetMember(m);
@@ -79,7 +82,6 @@ public class FleetUtils {
 
         DetachmentMemory.removeDetachment(num);
     }
-
 
     public static void createAndSpawnFleet(LoadoutMemory.Loadout loadout, int num) {
         log.info("fleet member ids in player");
@@ -115,6 +117,7 @@ public class FleetUtils {
 
             m.getVariant().setSource(VariantSource.REFIT);
             m.getVariant().setOriginalVariant(null);
+            m.getVariant().addTag(Tags.TAG_NO_AUTOFIT); //required or the game will purge player fits, removed on re-merge
 
             //since there is no way to transfer officers, remove them for transport detachments!
             if (Behaviour.behaviourEquals(loadout.behaviour, Behaviour.FleetBehaviour.TRANSPORT)) {

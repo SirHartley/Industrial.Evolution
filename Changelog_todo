@@ -1,10 +1,11 @@
 --------------------------- Open Tasks -----------------------------
+warehouse storage linking
+implement 5 more shared storage variants that can be linked, no switching default ones (too many issues)
+UI
 
 All cargo linking functionality
 check resto dock billing for bugs
 check if BP creation works with relics
-
-BASE_CHANCE_PER_ECONOMY_TICK should be 0.2 for public release (is: 0.4)
 
 Add settings to museum
 Add settings to meteors
@@ -18,6 +19,7 @@ playtest and check the missile feel
   >>> High Priority <<< (Soft locks, serious impact on enjoyment or causes crashes)
 
   >>> Low Priority <<< (Visuals, stats or other minor issues that do not affect gameplay decisions)
+- 100% progress items in reverse engineering list should be at the top
 - Artillery station needs text to clarify colonization block when non-hostile
 - Academy can pick forbidden, event only admin skills and should really run off a whitelist
 - Military relay bonus calc is still unreliable af and should be changed to mults
@@ -33,6 +35,14 @@ playtest and check the missile feel
 - DEV Deliver fleets still refuse to leave system, no clue why
 
 --------------------------- To-do -----------------------------
+
+- Improvement (unsorted)
+- let player move S-Mods between ships of similar make like D-Mods in salvage yards, cost a bunch of relic components
+- Allow gate hauler to move arty after deploying gate
+- Drop some pets from fleet battles (rarely)
+- "Choose a government popup" on colony establishment
+- scrape/listen to campaign message display and make a log intel entry
+
 
 - Improvement (simple)
 Meteor shower bar event
@@ -55,15 +65,26 @@ Move s-mods between ships w/ salvage yards (relic requirement!)
 Allow using relics to create BP for reverse engineering instead of wiping a spare
 
 - Roadmap
-Museum
 Weapons Teleporter (Ruin?)
 Missiles
 - NPC usage and reactions
 - NPC AI behaviour
 
+add gate & wormhole integration options
+check npc pathing
+item integration
+gear render layers
+riftgen anim sounds
+colony establishment
+rokkit npc reactions
+
+
 Helios Crucible
 Added - New Superstructure, the Helios Crucible
 Add thing to jump between systems
+add gate & wormhole integration options
+add npc pathing
+
 todo SPOILERS - Find one in a nebula with a large amount of planets, repair it, fire it up or move it to your own system.
 SPOILERS - Allows for fast travel between local planets. Incredibly good QOL, much better than you may think.
 

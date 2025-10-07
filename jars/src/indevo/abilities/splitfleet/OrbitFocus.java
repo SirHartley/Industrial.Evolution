@@ -107,20 +107,52 @@ public class OrbitFocus {
             }
         }
 
-        //if there is not, get the orbit duration of the closest entity orbiting center or sun and use that instead to orbit the center
+        //vibe coding because brain melty
+        //hope this works bc i am too stupid to fix atm
+
+        // Find a reference body with a centered (star-centric) orbit
         SectorEntityToken closestEntity = getClosestEntityWithCenteredOrbit(toToken);
 
-        float dist = Misc.getDistance(toToken, system.getCenter());
+        // Distances
+        final SectorEntityToken center = system.getCenter();
+        final float distanceToCenter = Misc.getDistance(toToken, center);
 
-        float orbitDistance = dist;
-        if (!forceExactLocation) orbitDistance = dist < system.getStar().getRadius() ? system.getStar().getRadius() + 700f : dist; //if player wants to stay in the sun, adjust
+        // Respect "stay in the sun" constraint if requested
+        float orbitDistance = distanceToCenter;
+        if (!forceExactLocation) {
+            float minSafe = system.getStar() != null ? system.getStar().getRadius() + 700f : 0f;
+            if (distanceToCenter < minSafe) orbitDistance = minSafe;
+        }
 
-        float angle = Misc.getAngleInDegrees(system.getCenter().getLocation(), toToken.getLocation());
+        // Reference period and radius from the closest entity
+        float refPeriodDays = 60f;                       // fallback period if none available
+        float refRadius = 1f;                            // guard against divide-by-zero
 
-        float orbitDays = 31f * (1 + (dist / 1000f) * 0.1f); //I made this up too
-        float orbitPeriod = closestEntity == null || closestEntity.getCircularOrbitPeriod() < orbitDays ? orbitDays : closestEntity.getCircularOrbitPeriod();
+        if (closestEntity != null) {
+            float candidate = closestEntity.getCircularOrbitPeriod();
+            if (candidate > 0f) refPeriodDays = candidate;
 
-        orbit = Global.getFactory().createCircularOrbit(system.getCenter(), angle, orbitDistance, orbitPeriod);
+            float r = Misc.getDistance(closestEntity, center);
+            if (r > 1f) refRadius = r;
+        } else if (system.getStar() != null) {
+            // As a last resort, use star radius as a scale anchor
+            float rStar = system.getStar().getRadius();
+            if (rStar > 1f) refRadius = rStar;
+        }
+
+        // Scale the period by the radius ratio (simple and stable).
+        // If you prefer Kepler-like behavior, use exponent = 1.5f instead of 1.0f.
+        final float exponent = 1.0f; // change to 1.5f for Kepler T ∝ a^(3/2)
+        float scale = (float) Math.pow(orbitDistance / refRadius, exponent);
+        float orbitPeriod = refPeriodDays * scale;
+
+        // Clamp to sane bounds to avoid pathological values
+        orbitPeriod = Math.max(5f, Math.min(orbitPeriod, 36500f)); // 5 days to 100 years
+
+        // Create the orbit
+        float angle = Misc.getAngleInDegrees(center.getLocation(), toToken.getLocation());
+        orbit = Global.getFactory().createCircularOrbit(center, angle, orbitDistance, orbitPeriod);
+
         return orbit;
     }
 

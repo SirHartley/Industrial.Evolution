@@ -52,9 +52,10 @@ public class TreasuroidEntity extends MeteorEntity {
                 Entities.WEAPONS_CACHE_SMALL_HIGH, 10f);
 
         SectorEntityToken loot = addSalvageEntity(random, entity.getStarSystem(), caches.pick(), null);
+        loot.setLocation(entity.getLocation().x, entity.getLocation().y);
         loot.setDiscoverable(true);
         loot.setDiscoveryXP(100f);
-        loot.setLocation(entity.getLocation().x, entity.getLocation().y);
+        loot.setSensorProfile(10000f);
     }
 }
 

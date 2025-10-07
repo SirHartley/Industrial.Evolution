@@ -504,6 +504,7 @@ public class ModPlugin extends BaseModPlugin {
         WarehouseRemoveSubmarketOptionProvider.register();
         MuseumManageParadeOptionProvider.register();
         RelicBuildTimeReductionButtonAdder.register();
+        SurveyDataTooltipAmender.register();
 
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();

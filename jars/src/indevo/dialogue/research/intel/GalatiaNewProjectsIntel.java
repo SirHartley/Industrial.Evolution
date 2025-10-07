@@ -103,9 +103,17 @@ public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
     public void advance(float amount) {
         super.advance(amount);
         timePassed += Global.getSector().getClock().convertToDays(amount);
+
         if (shouldRemoveIntel()) {
             Global.getSector().getIntelManager().removeIntel(this);
         }
+    }
+
+    @Override
+    protected void notifyEnded() {
+        super.notifyEnded();
+
+        Global.getSector().getIntelManager().removeIntel(this);
     }
 
     @Override

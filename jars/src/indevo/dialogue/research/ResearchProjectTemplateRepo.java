@@ -67,7 +67,7 @@ public class ResearchProjectTemplateRepo {
 
             @Override
             public String getLongDesc() {
-                return "A one-off project headed by an incredibly weird scientist trying to make what amounts to a stealth field. Unlikely to succeed.";
+                return "A one-off project headed by an eccentric scientist trying to make what amounts to a stealth field. Unlikely to succeed.";
             }
 
             @Override
@@ -196,6 +196,8 @@ public class ResearchProjectTemplateRepo {
                 list.add(new RequiredItem(Commodities.SURVEY_DATA_3, CargoAPI.CargoItemType.RESOURCES, 5f));
                 list.add(new RequiredItem(Commodities.SURVEY_DATA_4, CargoAPI.CargoItemType.RESOURCES, 10f));
                 list.add(new RequiredItem(Commodities.SURVEY_DATA_5, CargoAPI.CargoItemType.RESOURCES, 30f));
+
+                if (Global.getSettings().getModManager().isModEnabled("sun_perilous_expanse")) list.add(new RequiredItem("sun_data", CargoAPI.CargoItemType.RESOURCES, 1f));
 
                 return list;
             }

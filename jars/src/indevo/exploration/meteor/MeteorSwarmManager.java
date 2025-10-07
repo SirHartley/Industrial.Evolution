@@ -2,6 +2,8 @@ package indevo.exploration.meteor;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.PlanetAPI;
+import com.fs.starfarer.api.campaign.PlanetSpecAPI;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
@@ -118,6 +120,12 @@ public class MeteorSwarmManager implements EconomyTickListener {
     public static boolean isValidMeteorLoc(LocationAPI loc){
         MemoryAPI locMem = loc.getMemoryWithoutUpdate();
         MemoryAPI globalMem = Global.getSector().getMemoryWithoutUpdate();
+
+        //no pulsar systems
+        for (PlanetAPI p : loc.getPlanets()) {
+            PlanetSpecAPI spec = ((PlanetAPI) p).getSpec();
+            if (spec.isPulsar()) return false;
+        }
 
         return !globalMem.getBoolean(MEM_TIMEOUT)
                 && !locMem.getBoolean(MEM_TIMEOUT)
