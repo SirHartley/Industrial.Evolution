@@ -39,7 +39,7 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
 
     public List<SectorEntityToken> gears;
     public Map<Integer, SectorEntityToken> catapults;
-    public SectorEntityToken scaffold;
+    //public SectorEntityToken scaffold;
     public SectorEntityToken crucible;
     public CampaignTerrainAPI magField;
 
@@ -49,7 +49,7 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
 
     public CrucibleStartupAnimationScript(final SectorEntityToken crucible) {
         this.crucible = crucible;
-        this.scaffold = crucible.getContainingLocation().getEntitiesWithTag("IndEvo_crucible_scaffold").get(0);
+        //this.scaffold = crucible.getContainingLocation().getEntitiesWithTag("IndEvo_crucible_scaffold").get(0);
         this.gears = new ArrayList<>(crucible.getContainingLocation().getEntitiesWithTag("IndEvo_crucible_gear"));
         this.catapults = new HashMap<>();
 
@@ -169,14 +169,14 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
 
                 for (SectorEntityToken catapult : catapults.values()) setActivityLevelFor(catapult, factor);
                 for (SectorEntityToken gear : gears) setActivityLevelFor(gear, factor);
-                setActivityLevelFor(scaffold, factor);
+                //setActivityLevelFor(scaffold, factor);
             }
 
             @Override
             public void runOnce() {
                 for (SectorEntityToken catapult : catapults.values()) setEnabled(catapult);
                 for (SectorEntityToken gear : gears) setEnabled(gear);
-                setEnabled(scaffold);
+                //setEnabled(scaffold);
             }
         });
 
@@ -198,13 +198,13 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
                 //innermost
                 LunaCampaignRenderer.addRenderer(new DeceleratingDustCloudEjectionRenderer(
                         crucible,
-                        0.2f * crucible.getRadius(),
+                        0.5f * crucible.getRadius(),
                         isNebula ? 60f : 40f,
                         1f,
                         300f,
                         isNebula ? 25f : 150f,
-                        0.08f,
-                        isNebula ? 20f : 8f,
+                        isNebula ? 0.10f : 0.08f,
+                        isNebula ? 20f : 6f,
                         new Color(80, 30, 40),
                         true,
                         CampaignEngineLayers.TERRAIN_5
@@ -213,13 +213,13 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
                 //mid long dur
                 LunaCampaignRenderer.addRenderer(new DeceleratingDustCloudEjectionRenderer(
                         crucible,
-                        isNebula ? 30f : crucible.getRadius(),
+                        0.8f * crucible.getRadius(),
                         40f,
                         1f,
                         200f,
                         isNebula ? 20f : 60f,
-                        isNebula ? 0.03f : 0.15f,
-                        isNebula ? 6f : 10f,
+                        isNebula ? 0.08f : 0.07f,
+                        isNebula ? 6f : 8f,
                         new Color(130, 100, 100, 100),
                         false,
                         CampaignEngineLayers.TERRAIN_7
@@ -233,8 +233,8 @@ public class CrucibleStartupAnimationScript extends BaseStagedAnimationScript {
                         1f,
                         300f,
                         isNebula ? 20f : 30f,
-                        0.05f,
-                        isNebula ? 15f : 12f
+                        isNebula ? 0.08f : 0.04f,
+                        isNebula ? 15f : 8f
                 ));
 
                 magField = CrucibleFieldTerrainPlugin.generate(crucible, 1f, MAGNETIC_FIELD_WIDTH);

@@ -483,7 +483,7 @@
 	},
 
 	"IndEvo_campaign_trail_custom_entity":{
-		"defaultName":"YOU SHOULDN'T SEE THIS", # used if name=null in addCustomEntity()
+		"defaultName":"Engine trail", # used if name=null in addCustomEntity()
 		"defaultRadius":85, # used if radius<0 in addCustomEntity()
 		"iconWidth":1,
 		"iconHeight":1,
@@ -602,8 +602,8 @@
 		"scaleIconWithZoom":true,
 		"renderCircleIndicator": true,
 		"renderCircleIndicatorSelectionFlash":true,
-		"tags":["has_interaction_dialog", "IndEvo_crucible", "IndEvo_crucible_part", "neutrino_high", "salvor_orbital"],
-		"layers":[ABOVE_STATIONS, BELOW_STATIONS, TERRAIN_6B], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
+		"tags":["has_interaction_dialog", "IndEvo_crucible", "IndEvo_crucible_part", "neutrino_high", "salvor_orbital", "station"],
+		"layers":[ABOVE_STATIONS, TERRAIN_7, TERRAIN_7A], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
 		"pluginClass":"indevo.exploration.crucible.entities.CrucibleStationEntityPlugin"
 	},
 

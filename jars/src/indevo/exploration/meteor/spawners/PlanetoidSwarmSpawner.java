@@ -61,7 +61,7 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
     }
 
     @Override
-    void advanceSpawner(float amount) {
+    public void advanceSpawner(float amount) {
 
         if (spawned) return;
 

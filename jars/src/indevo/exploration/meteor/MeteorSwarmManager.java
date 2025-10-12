@@ -8,13 +8,12 @@ import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.util.DelayedActionScript;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.exploration.meteor.intel.MeteorShowerLocationIntel;
 import indevo.exploration.meteor.scripts.TutorialEncounterScript;
-import indevo.exploration.meteor.spawners.IceSwarmSpawner;
-import indevo.exploration.meteor.spawners.PlanetoidSwarmSpawner;
-import indevo.exploration.meteor.spawners.RadioactiveSwarmSpawner;
-import indevo.exploration.meteor.spawners.StandardSwarmSpawner;
+import indevo.exploration.meteor.spawners.*;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.Circle;
 import indevo.utils.helper.CircularArc;
@@ -176,16 +175,27 @@ public class MeteorSwarmManager implements EconomyTickListener {
         ModPlugin.log("Spawning asteroid swarm: \nintensity " + intensity + " \nlootAmt " + lootAmt + " \ndensity " + density + " \nruntime " + runtime + " \nwidth " + width + " \nstartAngle " + startAngle + " \nendAngle " + endAngle);
         //if (devmode) Global.getSector().getPlayerFleet().addScript(new YeetScript(Global.getSector().getPlayerFleet(), arcCenterLoc));
 
-        switch (type){
-            case ASTEROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
-            case ICEROID -> loc.addScript(new IceSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
-            case IRRADIOID -> loc.addScript(new RadioactiveSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
-            //case METHEROID -> loc.addScript(new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong()));
-            case PLANETOID -> loc.addScript(new PlanetoidSwarmSpawner((StarSystemAPI) loc, arc, runtime, random.nextLong(), density, lootAmt));
-        }
+        BaseArcingSwarmSpawner spawner = switch (type) {
+            case ASTEROID -> new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong());
+            case ICEROID -> new IceSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong());
+            case IRRADIOID -> new RadioactiveSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong());
+            //case METHEROID -> new StandardSwarmSpawner((StarSystemAPI) loc, intensity, lootAmt, density, runtime, arc, width, random.nextLong());
+            case PLANETOID -> new PlanetoidSwarmSpawner((StarSystemAPI) loc, arc, runtime, random.nextLong(), density, lootAmt);
+        };
+
+        int daysLeft = Math.max(2, random.nextInt(6));
+
+        loc.addScript(new DelayedActionScript(daysLeft) {
+            @Override
+            public void doAction() {
+                loc.addScript(spawner);
+            }
+        });
 
         globalMem.set(MEM_TIMEOUT, true, GENERAL_TIMEOUT_AFTER_SPAWN_DAYS);
         locMem.set(MEM_TIMEOUT, true, LOCATION_TIMEOUT_AFTER_SPAWN_DAYS);
+
+        Global.getSector().getIntelManager().addIntel(new MeteorShowerLocationIntel(loc, intensity, type, daysLeft));
     }
 
     @Override

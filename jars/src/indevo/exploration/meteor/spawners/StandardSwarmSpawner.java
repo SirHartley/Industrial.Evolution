@@ -49,7 +49,7 @@ public class StandardSwarmSpawner extends BaseArcingSwarmSpawner {
     }
 
     @Override
-    void advanceSpawner(float amount) {
+    public void advanceSpawner(float amount) {
         float baseChance = (width / BASE_WIDTH_PER_ASTEROID_PER_SECOND) * density * amount;
         float distFromLine = random.nextFloat() * (width / 2f) * (random.nextBoolean() ? -1 : 1);
 

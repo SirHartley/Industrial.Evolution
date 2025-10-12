@@ -12,6 +12,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin;
+import com.fs.starfarer.api.util.DelayedActionScript;
 import com.fs.starfarer.api.util.Misc;
 
 import java.util.List;
@@ -32,6 +33,8 @@ public class IndEvo_ColonizeCrucible extends BaseCommandPlugin {
 
         market.addCondition(Conditions.POPULATION_3);
         market.addCondition(Conditions.RUINS_VAST);
+        market.addCondition(Conditions.DECIVILIZED_SUBPOP);
+
         market.addIndustry(Industries.POPULATION);
 
         market.setDaysInExistence(0);
@@ -47,8 +50,6 @@ public class IndEvo_ColonizeCrucible extends BaseCommandPlugin {
         crucible.setMarket(market);
         crucible.setFaction(Factions.PLAYER);
 
-
-
         market.getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
         crucible.getMemoryWithoutUpdate().set(MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY, "IndEvo_Haplogynae_derelict_theme");
 
@@ -57,6 +58,15 @@ public class IndEvo_ColonizeCrucible extends BaseCommandPlugin {
         market.advance(0f);
 
         market.getConstructionQueue().addToEnd(Industries.SPACEPORT, 0);
+
+        Global.getSector().addScript(new DelayedActionScript(0f) {
+            @Override
+            public void doAction() {
+                Global.getSector().setPaused(true);
+                Global.getSector().getCampaignUI().showPlayerFactionConfigDialog();
+                Global.getSector().getMemoryWithoutUpdate().set("$shownFactionConfigDialog", true);
+            }
+        });
 
         return true;
     }

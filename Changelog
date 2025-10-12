@@ -79,6 +79,7 @@ Fixed - Rural Polity now properly respects the "rural" item Tag
 
 World wonders
 Added - Alternate image for modern palace
+Added - Terran-eccentric to world tree whitelist (Thanks, nnubnubnub)
 
 4.0.i
 Added - "rural" item tag to mark them as no-impact for rural gov

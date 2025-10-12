@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.misc.FleetLogIntel;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -11,6 +12,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.meteor.MeteorSwarmManager;
 
 import java.awt.*;
+import java.util.Set;
 
 public class MeteorShowerLocationIntel extends FleetLogIntel {
     protected LocationAPI loc;
@@ -18,8 +20,6 @@ public class MeteorShowerLocationIntel extends FleetLogIntel {
     protected MeteorSwarmManager.MeteroidShowerType type;
     protected float days;
     private String dateString;
-
-    public boolean spawnedSwarm = false;
 
     public MeteorShowerLocationIntel(LocationAPI loc, float intensity, MeteorSwarmManager.MeteroidShowerType type, int days) {
         this.loc = loc;
@@ -36,11 +36,8 @@ public class MeteorShowerLocationIntel extends FleetLogIntel {
 
         days -= Global.getSector().getClock().convertToDays(amount);
 
-        if (days <= 0 && !spawnedSwarm) {
-            MeteorSwarmManager.getInstance().spawnShower(loc, intensity, type);
+        if (days <= 0){
             dateString = Global.getSector().getClock().getDateString();
-            spawnedSwarm = true;
-
             endAfterDelay(20);
         }
 
@@ -112,5 +109,14 @@ public class MeteorShowerLocationIntel extends FleetLogIntel {
     @Override
     public SectorEntityToken getMapLocation(SectorMapAPI map) {
         return ((StarSystemAPI) loc).getCenter();
+    }
+
+    @Override
+    public Set<String> getIntelTags(SectorMapAPI map) {
+        Set<String> tags = super.getIntelTags(map);
+        tags.add(Tags.INTEL_LOCAL);
+        tags.add(Tags.INTEL_EXPLORATION);
+
+        return tags;
     }
 }

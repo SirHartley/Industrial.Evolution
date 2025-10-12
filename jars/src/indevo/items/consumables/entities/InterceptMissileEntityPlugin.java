@@ -100,7 +100,7 @@ public class InterceptMissileEntityPlugin extends BaseMissileEntityPlugin {
                     }
 
                     //had some instances where indicator would time out before anim, not sure why, so we just nullcheck - good enough
-                    if (indicator != null){
+                    if (indicator != null && indicator.length > 0){
                         currentAngle += (360f / ROTATIONS_PER_SEC) * amount;
                         if (currentAngle > 360f) angle = 0f;
                         if (currentAngle < 0) angle = 360f;

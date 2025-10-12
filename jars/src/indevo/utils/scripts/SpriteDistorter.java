@@ -1,4 +1,4 @@
-package indevo.exploration.subspace.entities;
+package indevo.utils.scripts;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
@@ -10,7 +10,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
-public class SubspaceBackgroundDistorter extends BaseCustomEntityPlugin {
+public class SpriteDistorter extends BaseCustomEntityPlugin {
 
     @Override
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {

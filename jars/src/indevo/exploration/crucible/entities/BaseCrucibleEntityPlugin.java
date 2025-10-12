@@ -167,7 +167,7 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
         float alphaMult = viewport.getAlphaMult() * getActivityLevel();
 
         //render with warp
-        if (layer == CampaignEngineLayers.TERRAIN_6B) {
+        if (layer == CampaignEngineLayers.ABOVE_STATIONS) {
             alphaMult *= entity.getSensorFaderBrightness();
             alphaMult *= entity.getSensorContactFaderBrightness();
             if (alphaMult <= 0f) return;
@@ -206,7 +206,7 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
         float glowAlpha = getGlowAlpha(phase2, flicker2);
 
         //swirly, two layers
-        if (layer == CampaignEngineLayers.BELOW_STATIONS) {
+        if (layer == CampaignEngineLayers.TERRAIN_7) {
             float angle1 = 360f * (rotationAngleFactor.getElapsed() / rotationAngleFactor.getIntervalDuration());
             angle1 = Misc.normalizeAngle(angle1);
             whirl.setSize(size*0.9f, size*0.9f);
@@ -226,7 +226,7 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
             return;
         }
 
-        if (layer == CampaignEngineLayers.ABOVE_STATIONS) {
+        if (layer == CampaignEngineLayers.TERRAIN_7A) {
             //first
             glowAlpha = getGlowAlpha(phase1, flicker1);
             glow.setColor(GLOW_COLOR_1);
@@ -240,14 +240,14 @@ public class BaseCrucibleEntityPlugin extends BaseCustomEntityPlugin {
 
             glow.renderAtCenter(loc.x, loc.y);
 
-            for (int i = 0; i < 2; i++) {
+            /*for (int i = 0; i < 2; i++) {
                 w *= 0.3f;
                 h *= 0.3f;
                 //glow.setSize(w * 0.1f, h * 0.1f);
                 glow.setSize(w, h);
                 glow.setAlphaMult(alphaMult * glowAlpha * data.innerGlowAlpha); //spec
                 glow.renderAtCenter(loc.x, loc.y);
-            }
+            }*/
 
             glowAlpha = getGlowAlpha(phase2, flicker2);
             glow.setColor(GLOW_COLOR_2);

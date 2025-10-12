@@ -192,10 +192,10 @@ public class CrucibleSpawner {
         SectorEntityToken top = loc.addCustomEntity(Misc.genUID(), null, (subUnit ? "IndEvo_sub_crucible_top" : "IndEvo_crucible_top"), null, null);
         SectorEntityToken scaffold = null;
 
-        if (!subUnit) {
+        /*if (!subUnit) {
             scaffold = loc.addCustomEntity(Misc.genUID(), null, "IndEvo_crucible_scaffold", null, null);
             scaffold.setFacing(MathUtils.getRandomNumberInRange(0, 360));
-        }
+        }*/
 
         top.setDiscoverable(true);
         top.setDiscoveryXP(1000f);
