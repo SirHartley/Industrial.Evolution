@@ -22,6 +22,10 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
+import indevo.industries.relay.condition.RelayConditionPlugin;
+import indevo.industries.relay.listener.RelayNetworkBrain;
+import indevo.industries.relay.plugins.NetworkEntry;
+import indevo.items.consumables.scripts.DelayedActionScriptRunWhilePaused;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
@@ -36,7 +40,7 @@ import java.util.List;
 import java.util.*;
 
 
-public class MilitaryRelay extends MilitaryBase implements NewDayListener {
+public class MilitaryRelay extends MilitaryBase {
 
     public static class RelayItemRemovalButtonListener extends SingleIndustrySimpifiedOptionProvider {
 
@@ -74,8 +78,6 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
         }
     }
 
-    private float bestFleetSize = 0f;
-    private String bestMarketId = null;
     private String bestAiCoreId = null;
 
     private float currentMultMod = 0.15f;
@@ -94,8 +96,6 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 
     //Industry effects
     public void apply() {
-        Global.getSector().getListenerManager().addListener(this, true);
-        onNewDay();
         bestAiCoreId = getBestHighCommandAICoreId();
 
         if (getId().equals(Ids.INTARRAY)) {
@@ -115,8 +115,6 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
     public void unapply() {
         super.unapply();
 
-        Global.getSector().getListenerManager().removeListener(this);
-
         getUpkeep().unmodify("ind_patHQ");
         market.getStats().getDynamic().getMod(Stats.COMBAT_FLEET_SIZE_MULT).unmodify(getModId());
         removeCommRelayStation();
@@ -124,6 +122,24 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
         if (!marketHasMilitary()) {
             patrolHqUnapply();
         }
+    }
+
+    @Override
+    public void finishBuildingOrUpgrading() {
+        super.finishBuildingOrUpgrading();
+        RelayNetworkBrain.forceUpdate();
+    }
+
+    @Override
+    public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
+        super.notifyBeingRemoved(mode, forUpgrade);
+
+        if (!forUpgrade) Global.getSector().addScript(new DelayedActionScriptRunWhilePaused(0.01f) {
+            @Override
+            public void doAction() {
+                RelayNetworkBrain.forceUpdate();
+            }
+        });
     }
 
     @Override
@@ -203,15 +219,6 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
     @Override
     public boolean isFunctional() {
         return (isFunctionAllowed()) && super.isFunctional();
-    }
-
-    @Override
-    public void onNewDay() {
-        market.getStats().getDynamic().getMod(Stats.COMBAT_FLEET_SIZE_MULT).unmodify(getModId());
-
-        if (isFunctional()) {
-            applySystemWideHighestMult();
-        }
     }
 
     @Override
@@ -376,62 +383,6 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
         return new Pair<>(highestMarketId, systemHighest);
     }
 
-    private float getFleetSizeExcludingArrayBonus(MarketAPI market) {
-        StatBonus fleetSizeMod = market.getStats().getDynamic().getMod(Stats.COMBAT_FLEET_SIZE_MULT);
-
-        float flatMod = getFlatModValue(fleetSizeMod);
-        float percentMod = getPercentModModValue(fleetSizeMod);
-        float mult = getMultModValue(fleetSizeMod);
-        float cleanedValue;
-
-        cleanedValue = flatMod * percentMod;
-        cleanedValue *= mult;
-
-        return cleanedValue;
-    }
-
-    private float getFlatModValue(StatBonus fleetSizeMod) {
-        float flatMod = 0f;
-
-        if (!fleetSizeMod.getFlatBonuses().isEmpty()) {
-            for (MutableStat.StatMod mod : fleetSizeMod.getFlatBonuses().values()) {
-                if (!mod.getSource().equals(getModId())) {
-                    flatMod += mod.value;
-                }
-            }
-        }
-
-        return flatMod;
-    }
-
-    private float getPercentModModValue(StatBonus fleetSizeMod) {
-        float percentMod = 1f;
-
-        if (!fleetSizeMod.getPercentBonuses().isEmpty()) {
-            for (MutableStat.StatMod mod : fleetSizeMod.getPercentBonuses().values()) {
-                if (!mod.getSource().equals(getModId())) {
-                    percentMod += mod.value;
-                }
-            }
-        }
-
-        return percentMod;
-    }
-
-    private float getMultModValue(StatBonus fleetSizeMod) {
-        float mult = 1f;
-
-        if (!fleetSizeMod.getMultBonuses().isEmpty()) {
-            for (MutableStat.StatMod mod : fleetSizeMod.getMultBonuses().values()) {
-                if (!mod.getSource().equals(getModId())) {
-                    mult *= mod.value;
-                }
-            }
-        }
-
-        return mult;
-    }
-
     private boolean isFunctionAllowed() {
         return systemHasHC() || systemHasMB() || transmitterPresent();
     }
@@ -488,11 +439,20 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
 
     @Override
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
-        boolean ia = getId().equals(Ids.INTARRAY);
+        boolean isIntArray = getId().equals(Ids.INTARRAY);
 
         if (!isBuilding() && isFunctional()) {
             float opad = 5.0F;
             Color highlight = Misc.getHighlightColor();
+
+            NetworkEntry entry = RelayConditionPlugin.getRelayConditionPlugin(market).getEntry();
+            if (entry == null) {
+                tooltip.addPara("current relay entry null", 10f);
+                return;
+            }
+
+            String bestMarketId = entry.sourceMarketId;
+            float bestFleetSize = entry.baseFleetSize * entry.targetMult;
 
             if (market.isPlayerOwned() && currTooltipMode == IndustryTooltipMode.NORMAL && bestMarketId != null) {
                 if (isFunctional()) {
@@ -505,7 +465,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
                     toReplace.put("$market", bestMarket.getName());
                     toReplace.put("$system", bestMarket.getStarSystem().getName());
 
-                    String currentBonusTooltip = StringHelper.getStringAndSubstituteTokens(STRING_IDENT, ia ? "currentBonusInt" : "currentBonus", toReplace);
+                    String currentBonusTooltip = StringHelper.getStringAndSubstituteTokens(STRING_IDENT, isIntArray ? "currentBonusInt" : "currentBonus", toReplace);
                     String hcName = Global.getSettings().getIndustrySpec(Industries.HIGHCOMMAND).getName();
 
                     if (market.getId().equals(bestMarketId))
@@ -520,7 +480,7 @@ public class MilitaryRelay extends MilitaryBase implements NewDayListener {
                 }
             }
 
-            if (ia) {
+            if (isIntArray) {
                 tooltip.addPara(StringHelper.getString(STRING_IDENT, "commRelayNotice"), opad, Misc.getPositiveHighlightColor(), Global.getSettings().getCustomEntitySpec(Entities.COMM_RELAY_MAKESHIFT).getNameInText());
             }
         }

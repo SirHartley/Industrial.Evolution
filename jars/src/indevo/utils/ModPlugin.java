@@ -75,6 +75,7 @@ import indevo.industries.derelicts.plugins.RiftGenOptionProvider;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.embassy.scripts.HostileActivityEventSubRegisterListener;
+import indevo.industries.relay.listener.RelayNetworkBrain;
 import indevo.industries.warehouses.industry.Warehouses;
 import indevo.industries.warehouses.plugin.WarehouseAddSubmarketOptionProvider;
 import indevo.industries.museum.plugins.MuseumManageParadeOptionProvider;
@@ -505,6 +506,7 @@ public class ModPlugin extends BaseModPlugin {
         MuseumManageParadeOptionProvider.register();
         RelicBuildTimeReductionButtonAdder.register();
         SurveyDataTooltipAmender.register();
+        RelayNetworkBrain.getInstanceOrRegister();
 
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();
