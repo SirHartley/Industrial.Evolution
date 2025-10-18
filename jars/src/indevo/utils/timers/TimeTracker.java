@@ -5,9 +5,8 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignClockAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TimeTracker implements EveryFrameScript {
 
@@ -128,12 +127,19 @@ public class TimeTracker implements EveryFrameScript {
     }
 
     private void onNewDay() {
-        List<NewDayListener> list = Global.getSector().getListenerManager().getListeners(NewDayListener.class);
+        Set<NewDayListener> listenerSet = new HashSet<>();
+        listenerSet.addAll(Global.getSector().getListenerManager().getListeners(NewDayListener.class));
 
-        for (Iterator<NewDayListener> i = list.iterator(); i.hasNext(); ) {
-            NewDayListener x = i.next();
-            debugMessage("running OnNewDay for " + x.getClass().getName());
-            x.onNewDay();
+        listenerSet.addAll(
+                Global.getSector().getAllListeners().stream()
+                        .filter(NewDayListener.class::isInstance)
+                        .map(NewDayListener.class::cast)
+                        .collect(Collectors.toSet())
+        );
+
+        for (NewDayListener listener : listenerSet) {
+            debugMessage("Running onNewDay for " + listener.getClass().getName());
+            listener.onNewDay();
         }
     }
 
