@@ -29,7 +29,6 @@ public class IndEvo_ColonizeCrucible extends BaseCommandPlugin {
         market.setHidden(false);
         market.setFactionId(Factions.PLAYER);
         market.setPlayerOwned(true);
-        market.setSurveyLevel(MarketAPI.SurveyLevel.FULL);
 
         market.addCondition(Conditions.POPULATION_3);
         market.addCondition(Conditions.RUINS_VAST);
@@ -37,6 +36,7 @@ public class IndEvo_ColonizeCrucible extends BaseCommandPlugin {
 
         market.addIndustry(Industries.POPULATION);
 
+        Misc.setFullySurveyed(market, null, false);
         market.setDaysInExistence(0);
         market.setPlanetConditionMarketOnly(false);
 

@@ -37,7 +37,7 @@ public class NetworkEntry {
 
     public void assignTargets(NetworkEntry largestEntry){
         this.targetMult = largestEntry.baseFleetSize / baseFleetSize;
-        this.sourceMarketId = largestEntry.sourceMarketId;
+        this.sourceMarketId = largestEntry.marketId;
     }
 
     //without relay bonuses

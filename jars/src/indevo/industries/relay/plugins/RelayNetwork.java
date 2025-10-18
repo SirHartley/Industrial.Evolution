@@ -3,7 +3,9 @@ package indevo.industries.relay.plugins;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.EconomyAPI;
+import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Industries;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -14,13 +16,6 @@ public class RelayNetwork {
 
     public void addEntry(NetworkEntry entry){
         entries.add(entry);
-    }
-
-    public NetworkEntry getEntryFor(MarketAPI market){
-        return entries.stream()
-                .filter(entry -> market.getId().equals(entry.marketId))
-                .findFirst()
-                .orElse(null);
     }
 
     public boolean containsSystem(StarSystemAPI system){

@@ -40,6 +40,15 @@ Added - Tooltip telling you how many items of a given type you need to complete 
 Added - Amended survey data tooltip with information about the item use (sell or trade in)
 Adjusted - Project Sonic - Reduced fuel cost from 20.000 to 5000, removed option to throw in a synchrotron
 
+Military and Interstellar relay
+Added - Improve effect (+ transfer rate)
+Adjusted - Complete technical rework
+Adjusted - All tooltips clarified and improved
+Adjusted - AI core effects no longer depend on high command (added local, if simple AI core effects)
+Adjusted - Now has a base transfer rate that is always the same and no longer changes with military base or high command presence
+Fixed - Fleet size exponential increase bug
+Fixed - Can no longer exceed highest in-network fleet size
+
 Courier Port
 Added - "Ship all weapons" setting
 Added - All cost settings are now editable in the mod settings
