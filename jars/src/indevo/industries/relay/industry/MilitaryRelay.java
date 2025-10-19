@@ -77,7 +77,7 @@ public class MilitaryRelay extends MilitaryBase {
 
     private static final float PATROL_HQ_UPKEEP_MULT = 2f;
     public static final float BASE_FLEET_SIZE_TRANSFER_FRACT = 0.3f;
-    public static final float IMPROVE_ADDITIONAL_FLEET_SIZE_TRANSFER_FRACT = 0.15f;
+    public static final float IMPROVE_ADDITIONAL_FLEET_SIZE_TRANSFER_FRACT = 0.10f;
     public static final Map<String, Float> AI_CORE_FACTION_MAP = new HashMap<>() {{
         put(Commodities.ALPHA_CORE, 0.3f);
         put(Commodities.BETA_CORE, 0.2f);
@@ -333,6 +333,12 @@ public class MilitaryRelay extends MilitaryBase {
         return !isIntArray && !marketHasMilitary() ? Global.getSettings().getIndustrySpec(Industries.PATROLHQ).getCost() * 1.2f : super.getBuildCost();
     }
 
+    public float getFleetSizeTransferFraction() {
+        float increase = aiCoreId != null ? AI_CORE_FACTION_MAP.get(aiCoreId) : 0f;
+        if (isImproved()) increase += IMPROVE_ADDITIONAL_FLEET_SIZE_TRANSFER_FRACT;
+        return BASE_FLEET_SIZE_TRANSFER_FRACT + increase;
+    }
+
     //Tooltip Handling
 
     @Override
@@ -420,9 +426,9 @@ public class MilitaryRelay extends MilitaryBase {
         Color highlight = Misc.getHighlightColor();
 
         if (mode == ImprovementDescriptionMode.INDUSTRY_TOOLTIP) {
-            info.addPara("Fleet size transfer rate increased by +%s.", 0f, highlight, StringHelper.getAbsPercentString(IMPROVE_ADDITIONAL_FLEET_SIZE_TRANSFER_FRACT, false));
+            info.addPara("Fleet size transfer rate increased by %s.", 0f, highlight, "+" + StringHelper.getAbsPercentString(IMPROVE_ADDITIONAL_FLEET_SIZE_TRANSFER_FRACT, false));
         } else {
-            info.addPara("Increases the maximum fleet size transfer rate by +%s.", 0f, highlight, StringHelper.getAbsPercentString(IMPROVE_ADDITIONAL_FLEET_SIZE_TRANSFER_FRACT, false));
+            info.addPara("Increases the maximum fleet size transfer rate by %s.", 0f, highlight, "+" + StringHelper.getAbsPercentString(IMPROVE_ADDITIONAL_FLEET_SIZE_TRANSFER_FRACT, false));
         }
 
         info.addSpacer(opad);
@@ -431,11 +437,6 @@ public class MilitaryRelay extends MilitaryBase {
     }
 
     //AI core Handling
-
-    public float getFleetSizeTransferFraction() {
-        float increase = aiCoreId != null ? AI_CORE_FACTION_MAP.get(aiCoreId) : 0f;
-        return increase + BASE_FLEET_SIZE_TRANSFER_FRACT;
-    }
 
     @Override
     public void setAICoreId(String aiCoreId) {

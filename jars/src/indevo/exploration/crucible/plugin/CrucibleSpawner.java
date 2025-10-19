@@ -36,7 +36,7 @@ public class CrucibleSpawner {
     public static final float CATAPULT_SUBUNIT_ADDITIONAL_ORBIT_DIST = 53f;
 
     public static final String HAS_PLACED_STATIONS = "$IndEvo_hasPlacedCrucibles";
-    public static final float AMOUNT_MULT = Settings.getFloat(Settings.CRUCIBLE_NUM); //default 0.5f
+    public static final int AMOUNT = Settings.getInt(Settings.CRUCIBLE_NUM); //default 0.5f
 
     public static void removeFromtLoc(StarSystemAPI system){
         StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();
@@ -69,7 +69,7 @@ public class CrucibleSpawner {
     public static void spawn() {
         if (Global.getSector().getPersistentData().containsKey(HAS_PLACED_STATIONS)) return;
 
-        int amt = (int) Math.ceil(Global.getSector().getEntitiesWithTag(Tags.CORONAL_TAP).size() * AMOUNT_MULT);
+        int amt = AMOUNT;
 
         if (amt == 0) return;
         spawnCrucible(false); //one per default in a nebula

@@ -1,8 +1,7 @@
 --------------------------- Changelog -----------------------------
-4.1.4
-Fixed - Spending relics to reduce upgrade time is no longer bugged to hell and back
 
 4.1.a
+REQUIRES A NEW SAVE GAME - NOT SAFE TO UPDATE FOR ONGOING SAVES
 
 General
 Added - You can now halve the remaining upgrade time of a building by spending relic components.
@@ -11,6 +10,7 @@ Adjusted - Brought the IndEvo industry button text format in line with vanilla (
 Fixed - Planet Story "Plague" - no longer mentions the use of antibiotics against a virus
 
 Items
+Added - Settings to disable consumables
 Adjusted - Increased skillshot missile indicator size
 Adjusted - Increased the amount of consumable items available on the open market
 Adjusted - Increased the amount of missiles available on military markets
@@ -76,7 +76,7 @@ Added - The museum organizes parades of the ships it has within your star system
 
 Warehouse Complex
 Added - Create up to 5 customizable storage areas for your personal use
-Added - Can be upgraded to a Wormhole Complex by installing a wormhole anchor: Allows linking storages with other wormhole complex facilities
+NOTE - This is not available for now as it's too weak to justify an industry slot. You can still add it via console commands.
 
 Ruins
 Added - Huge Red Warning Text telling you that ruins (forge template chain) can not be re-built when shutting them down
@@ -1902,3 +1902,6 @@ Is now unraidable
 
 Salvage Yards
 Added
+
+1.0.a
+Initial mod release

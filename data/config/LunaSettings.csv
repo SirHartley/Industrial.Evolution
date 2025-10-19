@@ -1,48 +1,43 @@
 fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
 IndEvo_header0,Disclaimer,Header,Disclaimer,,,,,General
-IndEvo_text0,,Text,"Changing these settings can impact the stability of your game, as only the default configuration is tested to work.",,,,,General
-IndEvo_text_application_note,,Text,Some settings will not apply unless you start a new game. Restarting your game client after changing settings is advised.,,,,,General
+IndEvo_text0,,Text,Changing these settings can impact the stability of your game. Only the default configuration is tested to work.,,,,,General
+IndEvo_text_application_note,,Text,"Some settings will not apply unless you start a new game. Restarting your game client after changing settings is advised, some settings will not apply otherwise.",,,,,General
 IndEvo_header1,General,Header,General,,,,,General
 IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,Commerce balance changes. Read up on why this was needed here: bit.ly/commerce_balance. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).,,,General
 IndEvo_Corruption,[General] Corrupt Colony Officials,Boolean,FALSE,,"This enables a mode in which your colonies will start bleeding money the more you make. It means getting a colony above 200k income is an incredible feat, but getting it to 50-100k is just like vanilla. Calculated along f(x)=x^(-0.6)",,,General
 IndEvo_CorruptionCutoff,[General] Corruption Income Cutoff,Int,40000,,Income up until this number is not penalized by corruption (if enabled),0,200000,General
 IndEvo_shipPickerRowCount,[General] Ship Picker Row Count,Int,8,,The row amount in most of the ship picker dialogues in the mod.,0,100,General
-IndEvo_header2,Industries,Header,Industries,,,,,Industries
-IndEvo_AdManuf,[Industries] Variable Manufactory,Boolean,TRUE,,Enables or disables the Variable Manufactory. Note that disabling the Variable industries will not stop VPCs from dropping - you will have to remove the entries from drop_groups.csv to achieve that.,,,Industries
-IndEvo_AdAssem,[Industries] Variable Assembler,Boolean,TRUE,,Enables or disables the Variable Assembler,,,Industries
-IndEvo_ComForge,[Industries] Commodity Forge,Boolean,TRUE,,Enables or disables the Commodity Forge,,,Industries
-IndEvo_ComArray,[Industries] Military Relays,Boolean,TRUE,,Enables or disables the Military Relay,,,Industries
-IndEvo_IntArray,[Industries] Interstellar Relay,Boolean,TRUE,,Enables or disables the Interstellar Relay,,,Industries
-IndEvo_AdInfra,[Industries] Centralization Bureau,Boolean,TRUE,,Enables or disables the Centralization Bureau,,,Industries
-IndEvo_ScrapYard,[Industries] Salvage Yards,Boolean,TRUE,,"Enables or disables Salvage Yards, disable this to disable starship components. No, you can not have one without the other, go suck a dick. Don't forget the drop group.",,,Industries
-IndEvo_SupCom,[Industries] Supercomputer,Boolean,TRUE,,Enables or disables the Supercomputer,,,Industries
-IndEvo_embassy,[Industries] Embassy,Boolean,TRUE,,"Enables or disables the Embassy, also disables Ambassador management scripts.",,,Industries
-IndEvo_senate,[Industries] Senate,Boolean,TRUE,,Enables or disables the Senate,,,Industries
-IndEvo_dryDock,[Industries] Restoration Docks,Boolean,TRUE,,Enables or disables the Restoration Docks,,,Industries
-IndEvo_Academy,[Industries] Academy,Boolean,TRUE,,Enables or disables the Academy,,,Industries
-IndEvo_ReqCenter,[Industries] Requisitions Centre,Boolean,TRUE,,Enables or disables the Requisitions Centre,,,Industries
-IndEvo_EngHub,[Industries] Engineering Hub,Boolean,TRUE,,Enables or disables the Engineering Hub,,,Industries
-IndEvo_PrivatePort,[Industries] Courier Port,Boolean,TRUE,,Enables or disables the Courier Port,,,Industries
-IndEvo_pirateHaven,[Industries] Privateer Base,Boolean,TRUE,,Enables or disables the Privateer Base,,,Industries
-IndEvo_SwitchableRefining,[Industries] Specialized Refining,Boolean,TRUE,,Enables or disables Specialized Refining,,,Industries
-IndEvo_SwitchableMining,[Industries] Specialized Mining,Boolean,TRUE,,Enables or disables Specialized Mining,,,Industries
-IndEvo_GovernmentLarpMode,[Governance] Government Larping,Boolean,FALSE,,Setting this to true makes planetary governments behave like vanilla pop&infra and turns them into a cosmetic choice.,,,Industries
-IndEvo_GovernmentMaxSize,[Governance] Max size for government change,Int,3,,Specifies how large a colony may be to in order to change the government type. Building up a stable colony and then changing is cheating and takes away from how these are supposed to work: higher rewards for higher difficulties.,,,Industries
-IndEvo_derelictDeliverToGathering,[Derelict Industries] Deliver to Gathering Point,Boolean,FALSE,,All derelict industry output will be delivered to the gathering point instead of local storage. Remember - courier port exists.,,,Industries
-IndEvo_DerInfraBuildRed,[Derelict Industries] Derelict Infra Cost Reduction,Double,0.5,,Derelict infra build cost and time reductions,,,Industries
 IndEvo_header3,Exploration & Campaign,Header,Exploration & Campaign,,,,,Exploration & Campaign
-IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Toggles Pets, the pet cryochamber dropping in campaign, abandoned pet stations spawning and the industry being available.",,,Exploration & Campaign
-IndEvo_Enable_Derelicts,[Exploration] Events and Industries,Boolean,TRUE,,Enables salvage events as well as derelict infrastructure and industries,,,Exploration & Campaign
+IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Toggles Pets, the pet cryochamber dropping in campaign, abandoned pet stations spawning and the industry being available. To completely remove pet food from your game, go to Industrial.Evolution\data\campaign\commodities.csv and delete the line for pet food. This requires a new save file and will cause a crash unless pets are disabled from the start.",,,Exploration & Campaign
+IndEvo_Enable_Derelicts,[Exploration] Exploration Events and Industries,Boolean,TRUE,,Enables salvage events as well as derelict infrastructure and industries,,,Exploration & Campaign
 IndEvo_AutomatedShipyardNum,[Exploration] Automated Shipyards Amount,Double,1.5,,"Amount of Coronal Taps * number = amount of automated shipyards. Default taps is 2, so default shipyards is 3 (2 * 1.5). Rounds up.",0,10,Exploration & Campaign
-IndEvo_CrucibleNum,[Exploration] Crucible Amount,Double,0.4,,"Amount of Coronal Taps * number = amount of automated Crucibles. Default taps is 2, so default crucibles are 1 (2 * 0.5). Rounds up.",0,10,Exploration & Campaign
+IndEvo_CrucibleNum,[Exploration] Crucible Amount,Int,1,,Amount of crucibles in the sector. Static number. Defaults to 1.,0,10,Exploration & Campaign
 IndEvo_SpecialApplicationChance,[Exploration] Special Event Application Chance,Double,0.9,,Master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing.,,,Exploration & Campaign
 IndEvo_enable_derelict_stations,[Exploration] Additional Station Types,Boolean,TRUE,,Enables the custom station types like orbital labs and arsenal stations,,,Exploration & Campaign
 IndEvo_derelictStationAmount,[Exploration] Additional Station Type Amounts,Double,0.2,,Amount of additional stations with custom types spawned on top of existing ones (0.2 = 20%% additional),,,Exploration & Campaign
+IndEvo_parts_disclaimer,,Text,"All loot added by this mod is on top of the normal loot you would have gotten. At no point does Industrial Evolution edit, dilute, change or in any other way influence vanilla drop behaviour.",,,,,Exploration & Campaign
 IndEvo_PartsDropInCampaign,[Commodities] Ship Parts Campaign Drops,Boolean,TRUE,,Makes starship components drop from combat - Relic components will still drop even if you disable this.,,,Exploration & Campaign
 IndEvo_relicComponentHardbattleFPAdvantage,[Commodities] Relic Component Hard Battle FP Advantage,Double,1.5,,How much more FP an enemy fleet has to have for it to drop relic components on defeat,,,Exploration & Campaign
 IndEvo_relicComponentFPDestroyedFract,"[Commodities] Relic Component ""Destroy to drop"" Fraction",Double,0.5,,How much of said fleet you have to destroy for it to drop relic components,,,Exploration & Campaign
+IndEvo_meteor_enabled,[Meteor Swarms] Spawn Meteor Swarms,Boolean,TRUE,,General on-off toggle.,,,Meteor Swarms
+IndEvo_meteor_baseChancePerEconomyTick,[Meteor Swarms] Spawn Chance,Double,0.02,,"Chance for a meteor shower to spawn. One month has 10 ticks, 2 percent per tick = 18 %% chance per month = 92 %% per year. Increasing this by 0.1 raises monthly odds by about 30 %%, so use caution.",0.001,0.1,Meteor Swarms
+IndEvo_meteor_minIntensity,[Meteor Swarms] Minimum Intensity,Double,1,,Minimum intensity per swarm instance.,1,5,Meteor Swarms
+IndEvo_meteor_maxIntensity,[Meteor Swarms] Maximum Intensity,Double,3,,Maximum intensity per swarm instance. Increasing this past 4 can cause lag.,1,10,Meteor Swarms
+IndEvo_meteor_baseShowerWidth,[Meteor Swarms] Base Shower Width,Double,5000,,Base width of a swarm.,2500,10000,Meteor Swarms
+IndEvo_meteor_intensityWidthModifier,[Meteor Swarms] Intensity Width Modifier,Double,1000,,Additional width added per 1.0 intensity.,100,5000,Meteor Swarms
+IndEvo_meteor_maxDensity,[Meteor Swarms] Maximum Density,Double,2.5,,Upper cap for meteor count density scaling. Increasing this can cause lag.,1,5,Meteor Swarms
+IndEvo_meteor_maxRuntimeMult,[Meteor Swarms] Maximum Runtime Multiplier,Double,2.5,,Maximum multiplier applied to runtime from intensity and conditions. Increasing this can cause lag.,1,5,Meteor Swarms
+IndEvo_meteor_baseRuntime,[Meteor Swarms] Base Runtime,Double,50,,Baseline duration of a meteor shower in seconds. Too long = too many meteors on screen = lag.,10,150,Meteor Swarms
+IndEvo_meteor_locationTimeoutAfterSpawnDays,[Meteor Swarms] Location Timeout After Spawn,Double,186,,Cooldown in days for the same location after a swarm spawns. 31 days x 6.,1,500,Meteor Swarms
+IndEvo_meteor_generalTimeoutAfterSpawnDays,[Meteor Swarms] General Timeout After Spawn,Double,31,,Global cooldown in days after any swarm spawns.,1,100,Meteor Swarms
+IndEvo_meteor_gridLimit,[Meteor Swarms] Grid Limit,Double,26000,,Positional grid clamp for spawn calculations. Provided as setting if you somehow use a mod that has larger than usual star systems.,1,100000,Meteor Swarms
+IndEvo_meteor_maxDistanceFromSun,[Meteor Swarms] Max Distance From Star,Double,10000,,Maximum allowed spawn distance from the system primary in game units.,100,26000,Meteor Swarms
+IndEvo_meteor_minDistanceFromSun,[Meteor Swarms] Min Distance From Star,Double,3000,,Minimum allowed spawn distance from the system primary in game units.,100,26000,Meteor Swarms
+IndEvo_meteor_maxAngle,[Meteor Swarms] Maximum Angle,Double,80,,Upper angle bound for spawn cone relative to reference axis in degrees.,1,360,Meteor Swarms
+IndEvo_meteor_minAngle,[Meteor Swarms] Minimum Angle,Double,50,,Lower angle bound for spawn cone relative to reference axis in degrees.,1,360,Meteor Swarms
 IndEvo_header4,Minefields,Header,Minefields,,,,,Minefields
-IndEvo_Enable_minefields,[Minefields] Minefields,Boolean,TRUE,,Might need new game idk,,,Minefields
+IndEvo_minefields_disclaimer,,Text,Tip: You can disable minefields temporarily with an interdiction pulse.,,,,,Minefields
+IndEvo_Enable_minefields,[Minefields] Minefields,Boolean,TRUE,,Needs a new game!,,,Minefields
 IndEvo_Minefield_HitChance_frigate,[Minefields] Hit Chance [Frigate],Double,0.02,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,,,Minefields
 IndEvo_Minefield_HitChance_destroyer,[Minefields] Hit Chance [Destroyer],Double,0.04,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,,,Minefields
 IndEvo_Minefield_HitChance_cruiser,[Minefields] Hit Chance [Cruiser],Double,0.06,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,,,Minefields
@@ -76,6 +71,34 @@ IndEvo_Artillery_missile_maxCoveredArea,[Missile Artillery] Missile Roaming Area
 IndEvo_Artillery_missile_fuzz,[Missile Artillery] Shot Fuzziness,Double,1,,How accurately the missiles anticipate your location; less than 1 makes 'em kinda useless,1,10,Artillery
 IndEvo_Artillery_missile_explosionRadius,[Missile Artillery] Explosion Radius,Double,200,,,1,1000,Artillery
 IndEvo_Artillery_missile_duration,[Missile Artillery] Roaming Duration,Double,10,,,1,60,Artillery
+IndEvo_consumables_disclaimer,,Text,"To completely remove consumable items, go to Industrial.Evolution\data\campaign\procgen\drop_groups.csv and set the relevant group weights to 0. Deleting them will cause a crash.",,,,,Consumable Items
+IndEvo_consumables_disclaimer2,,Text,"All loot added by this mod is on top of the normal loot you would have gotten. At no point does Industrial Evolution edit, dilute, change or in any other way influence vanilla drop behaviour.",,,,,Consumable Items
+IndEvo_consumables_addToMarkets,[Consumable Items] Add to markets,Boolean,TRUE,,Toggles if consumable items show up on markets.,,,Consumable Items
+IndEvo_consumables_addToFleets,[Consumable Items] Drop from combat,Boolean,TRUE,,Toggles if consumable items can drop from fleet encounters.,,,Consumable Items
+IndEvo_consumables_researchProject,[Consumable Items] Research project,Boolean,TRUE,,Toggles if the research project at galatia is available.,,,Consumable Items
+IndEvo_header2,Industries,Header,Industries,,,,,Industries
+IndEvo_AdManuf,[Industries] Variable Manufactory,Boolean,TRUE,,Enables or disables the Variable Manufactory. Note that disabling the Variable industries will not stop VPCs from dropping - you will have to remove the entries from drop_groups.csv to achieve that.,,,Industries
+IndEvo_AdAssem,[Industries] Variable Assembler,Boolean,TRUE,,Enables or disables the Variable Assembler,,,Industries
+IndEvo_ComForge,[Industries] Commodity Forge,Boolean,TRUE,,Enables or disables the Commodity Forge,,,Industries
+IndEvo_ComArray,[Industries] Military Relays,Boolean,TRUE,,Enables or disables the Military Relay,,,Industries
+IndEvo_IntArray,[Industries] Interstellar Relay,Boolean,TRUE,,Enables or disables the Interstellar Relay,,,Industries
+IndEvo_AdInfra,[Industries] Centralization Bureau,Boolean,TRUE,,Enables or disables the Centralization Bureau,,,Industries
+IndEvo_ScrapYard,[Industries] Salvage Yards,Boolean,TRUE,,"Enables or disables Salvage Yards, disable this to disable starship components. You can not have one without the other. Edit the drop groups to remove components completely.",,,Industries
+IndEvo_SupCom,[Industries] Supercomputer,Boolean,TRUE,,Enables or disables the Supercomputer,,,Industries
+IndEvo_embassy,[Industries] Embassy,Boolean,TRUE,,"Enables or disables the Embassy, also disables Ambassador management scripts.",,,Industries
+IndEvo_senate,[Industries] Senate,Boolean,TRUE,,Enables or disables the Senate,,,Industries
+IndEvo_dryDock,[Industries] Restoration Docks,Boolean,TRUE,,Enables or disables the Restoration Docks,,,Industries
+IndEvo_Academy,[Industries] Academy,Boolean,TRUE,,Enables or disables the Academy,,,Industries
+IndEvo_ReqCenter,[Industries] Requisitions Centre,Boolean,TRUE,,Enables or disables the Requisitions Centre,,,Industries
+IndEvo_EngHub,[Industries] Engineering Hub,Boolean,TRUE,,Enables or disables the Engineering Hub,,,Industries
+IndEvo_PrivatePort,[Industries] Courier Port,Boolean,TRUE,,Enables or disables the Courier Port,,,Industries
+IndEvo_pirateHaven,[Industries] Privateer Base,Boolean,TRUE,,Enables or disables the Privateer Base,,,Industries
+IndEvo_SwitchableRefining,[Industries] Specialized Refining,Boolean,TRUE,,Enables or disables Specialized Refining,,,Industries
+IndEvo_SwitchableMining,[Industries] Specialized Mining,Boolean,TRUE,,Enables or disables Specialized Mining,,,Industries
+IndEvo_GovernmentLarpMode,[Governance] Government Larping,Boolean,FALSE,,Setting this to true makes planetary governments behave like vanilla pop&infra and turns them into a cosmetic choice.,,,Industries
+IndEvo_GovernmentMaxSize,[Governance] Max size for government change,Int,3,,Specifies how large a colony may be to in order to change the government type. Building up a stable colony and then changing is cheating and takes away from how these are supposed to work: higher rewards for higher difficulties.,,,Industries
+IndEvo_derelictDeliverToGathering,[Derelict Industries] Deliver to Gathering Point,Boolean,FALSE,,All derelict industry output will be delivered to the gathering point instead of local storage. Remember - courier port exists.,,,Industries
+IndEvo_DerInfraBuildRed,[Derelict Industries] Derelict Infra Cost Reduction,Double,0.5,,Derelict infra build cost and time reductions,,,Industries
 IndEvo_header6,Industry Settings,Header,Industry Settings,,,,,Industries
 IndEvo_EngHubStrictWhitelist,[Engineering Hub] Use strict whitelist,Boolean,FALSE,,Disable the auto-whitelist and return to the strict manual entry based whitelist system. This means that only ships that are listed in the reverse_engineering.csv whitelist are eligible to be researched.,,,Industries
 IndEvo_EngHubIgnoreWhitelists,[Engineering Hub] Ignore Whitelist,Boolean,FALSE,,"Yes, this is the one you are looking for (NOTE: post version 4.0 has an auto-whitelist that is much broader and you may not need this setting anymore)",,,Industries

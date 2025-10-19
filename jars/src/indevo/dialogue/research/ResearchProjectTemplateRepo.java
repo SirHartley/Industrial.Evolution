@@ -515,7 +515,7 @@ public class ResearchProjectTemplateRepo {
 
             @Override
             public boolean display() {
-                return true;
+                return Settings.getBoolean(Settings.CONSUMABLE_RESEARCH);
             }
 
             @Override

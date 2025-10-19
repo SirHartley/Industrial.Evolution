@@ -121,6 +121,29 @@ public class Settings {
     public static final String COURIER_COST_PER_SHIP_DP = "IndEvo_courier_costPerShip";
     public static final String COURIER_BASE_FEE = "IndEvo_courier_baseFee";
 
+    //consumables
+    public static final String CONSUMABLE_ADD_TO_MARKETS = "IndEvo_consumables_addToMarkets";
+    public static final String CONSUMABLE_DROP_FROM_FLEETS = "IndEvo_consumables_addToFleets";
+    public static final String CONSUMABLE_RESEARCH = "IndEvo_consumables_researchProject";
+
+    //meteor
+    public static final String ENABLED = "IndEvo_meteor_enabled";
+    public static final String BASE_CHANCE_PER_ECONOMY_TICK = "IndEvo_meteor_baseChancePerEconomyTick";
+    public static final String MIN_INTENSITY = "IndEvo_meteor_minIntensity";
+    public static final String MAX_INTENSITY = "IndEvo_meteor_maxIntensity";
+    public static final String BASE_SHOWER_WIDTH = "IndEvo_meteor_baseShowerWidth";
+    public static final String INTENSITY_WIDTH_MODIFIER = "IndEvo_meteor_intensityWidthModifier";
+    public static final String MAX_DENSITY = "IndEvo_meteor_maxDensity";
+    public static final String MAX_RUNTIME_MULT = "IndEvo_meteor_maxRuntimeMult";
+    public static final String BASE_RUNTIME = "IndEvo_meteor_baseRuntime";
+    public static final String LOCATION_TIMEOUT_AFTER_SPAWN_DAYS = "IndEvo_meteor_locationTimeoutAfterSpawnDays";
+    public static final String GENERAL_TIMEOUT_AFTER_SPAWN_DAYS = "IndEvo_meteor_generalTimeoutAfterSpawnDays";
+    public static final String GRID_LIMIT = "IndEvo_meteor_gridLimit";
+    public static final String MAX_DISTANCE_FROM_SUN = "IndEvo_meteor_maxDistanceFromSun";
+    public static final String MIN_DISTANCE_FROM_SUN = "IndEvo_meteor_minDistanceFromSun";
+    public static final String MAX_ANGLE = "IndEvo_meteor_maxAngle";
+    public static final String MIN_ANGLE = "IndEvo_meteor_minAngle";
+
     public static boolean getBoolean(String s){
         if (Global.getSettings().getModManager().isModEnabled("lunalib")) {
             return LunaSettings.getBoolean("IndEvo", s);

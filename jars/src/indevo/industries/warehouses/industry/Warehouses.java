@@ -73,6 +73,13 @@ public class Warehouses extends BaseIndustry {
         } else if (manager.isSharedCargo(storage)) manager.convertToLocalCargo(storage); //else unlink
     }
 
+    @Override
+    public boolean isAvailableToBuild() {
+        if (!Global.getSector().getPlayerFaction().knowsIndustry(getId())) return false; //todo remove this when the industry is ready for release
+
+        return super.isAvailableToBuild();
+    }
+
     public void unlinkAllSubmarkets(){
         LinkedStorageManager manager = LinkedStorageManager.getInstance();
 

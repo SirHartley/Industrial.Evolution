@@ -15,10 +15,7 @@ import indevo.exploration.meteor.intel.MeteorShowerLocationIntel;
 import indevo.exploration.meteor.scripts.TutorialEncounterScript;
 import indevo.exploration.meteor.spawners.*;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Circle;
-import indevo.utils.helper.CircularArc;
-import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.TrigHelper;
+import indevo.utils.helper.*;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -43,25 +40,26 @@ public class MeteorSwarmManager implements EconomyTickListener {
     public static final String MEM_RANDOM = "$IndEvo_MeteorRandom";
     public static final String MEM_TIMEOUT = "$IndEvo_MeteorTimeout";
 
-    //parameter todo these should be in the settings file
-    public static final float BASE_CHANCE_PER_ECONOMY_TICK = 0.02f; //18% per month 92% per year todo SHOULD BE CHANGED TO 0.2 FOR RELEASE
-
-    public static final float MIN_INTENSITY = 1;
-    public static final float MAX_INTENSITY = 3f;
-    public static final float BASE_SHOWER_WIDTH = 5000f;
-    public static final float INTENSITY_WIDTH_MODIFIER = 1000f;
-    public static final float MAX_DENSITY = 2.5f;
-    public static final float MAX_RUNTIME_MULT = 2.5f;
-    public static final float BASE_RUNTIME = 50f;
-    public static final float LOCATION_TIMEOUT_AFTER_SPAWN_DAYS = 31 * 6;
-    public static final float GENERAL_TIMEOUT_AFTER_SPAWN_DAYS = 31 * 1;
+    //parameter
+    public static final boolean ENABLED = Settings.getBoolean(Settings.ENABLED);
+    public static final float BASE_CHANCE_PER_ECONOMY_TICK = Settings.getFloat(Settings.BASE_CHANCE_PER_ECONOMY_TICK);
+    public static final float MIN_INTENSITY = Settings.getFloat(Settings.MIN_INTENSITY);
+    public static final float MAX_INTENSITY = Settings.getFloat(Settings.MAX_INTENSITY);
+    public static final float BASE_SHOWER_WIDTH = Settings.getFloat(Settings.BASE_SHOWER_WIDTH);
+    public static final float INTENSITY_WIDTH_MODIFIER = Settings.getFloat(Settings.INTENSITY_WIDTH_MODIFIER);
+    public static final float MAX_DENSITY = Settings.getFloat(Settings.MAX_DENSITY);
+    public static final float MAX_RUNTIME_MULT = Settings.getFloat(Settings.MAX_RUNTIME_MULT);
+    public static final float BASE_RUNTIME = Settings.getFloat(Settings.BASE_RUNTIME);
+    public static final float LOCATION_TIMEOUT_AFTER_SPAWN_DAYS = Settings.getFloat(Settings.LOCATION_TIMEOUT_AFTER_SPAWN_DAYS);
+    public static final float GENERAL_TIMEOUT_AFTER_SPAWN_DAYS = Settings.getFloat(Settings.GENERAL_TIMEOUT_AFTER_SPAWN_DAYS);
 
     //position
-    private static final float GRID_LIMIT = 26000;
-    public static final float MAX_DISTANCE_FROM_SUN = 10000F;
-    public static final float MIN_DISTANCE_FROM_SUN = 3000f;
-    public static final float MAX_ANGLE = 80f;
-    public static final float MIN_ANGLE = 50f;
+    private static final float GRID_LIMIT = Settings.getFloat(Settings.GRID_LIMIT);
+    public static final float MAX_DISTANCE_FROM_SUN = Settings.getFloat(Settings.MAX_DISTANCE_FROM_SUN);
+    public static final float MIN_DISTANCE_FROM_SUN = Settings.getFloat(Settings.MIN_DISTANCE_FROM_SUN);
+    public static final float MAX_ANGLE = Settings.getFloat(Settings.MAX_ANGLE);
+    public static final float MIN_ANGLE = Settings.getFloat(Settings.MIN_ANGLE);
+
 
     public static class MeteorShowerData {
         public float chance;
@@ -83,7 +81,7 @@ public class MeteorSwarmManager implements EconomyTickListener {
         public float chance;
         public float treasureModifier;
 
-        private MeteroidShowerType(float chance, float treasureModifier) {
+        MeteroidShowerType(float chance, float treasureModifier) {
             this.chance = chance;
             this.treasureModifier = treasureModifier;
         }
@@ -99,6 +97,8 @@ public class MeteorSwarmManager implements EconomyTickListener {
 
     @Override
     public void reportEconomyTick(int iterIndex) {
+        if (!ENABLED) return;
+
         LocationAPI loc = Global.getSector().getCurrentLocation();
 
         if (!isValidMeteorLoc(loc)) return;

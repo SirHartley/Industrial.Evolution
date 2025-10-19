@@ -12,6 +12,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.Settings;
 
 public class ConsumableItemMarketAdder extends BaseCampaignEventListener {
 
@@ -26,6 +27,8 @@ public class ConsumableItemMarketAdder extends BaseCampaignEventListener {
     @Override
     public void reportPlayerOpenedMarketAndCargoUpdated(MarketAPI market) {
         super.reportPlayerOpenedMarketAndCargoUpdated(market);
+
+        if (!Settings.getBoolean(Settings.CONSUMABLE_ADD_TO_MARKETS)) return;
 
         for (SubmarketAPI sub : market.getSubmarketsCopy()) {
             if (sub.getPlugin() instanceof BaseSubmarketPlugin && !Submarkets.SUBMARKET_STORAGE.equals(sub.getSpecId()) && ((BaseSubmarketPlugin) sub.getPlugin()).getSinceSWUpdate() == 0) {
