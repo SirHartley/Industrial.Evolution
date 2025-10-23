@@ -127,22 +127,38 @@ public class Settings {
     public static final String CONSUMABLE_RESEARCH = "IndEvo_consumables_researchProject";
 
     //meteor
-    public static final String ENABLED = "IndEvo_meteor_enabled";
-    public static final String BASE_CHANCE_PER_ECONOMY_TICK = "IndEvo_meteor_baseChancePerEconomyTick";
-    public static final String MIN_INTENSITY = "IndEvo_meteor_minIntensity";
-    public static final String MAX_INTENSITY = "IndEvo_meteor_maxIntensity";
-    public static final String BASE_SHOWER_WIDTH = "IndEvo_meteor_baseShowerWidth";
-    public static final String INTENSITY_WIDTH_MODIFIER = "IndEvo_meteor_intensityWidthModifier";
-    public static final String MAX_DENSITY = "IndEvo_meteor_maxDensity";
-    public static final String MAX_RUNTIME_MULT = "IndEvo_meteor_maxRuntimeMult";
-    public static final String BASE_RUNTIME = "IndEvo_meteor_baseRuntime";
-    public static final String LOCATION_TIMEOUT_AFTER_SPAWN_DAYS = "IndEvo_meteor_locationTimeoutAfterSpawnDays";
-    public static final String GENERAL_TIMEOUT_AFTER_SPAWN_DAYS = "IndEvo_meteor_generalTimeoutAfterSpawnDays";
-    public static final String GRID_LIMIT = "IndEvo_meteor_gridLimit";
-    public static final String MAX_DISTANCE_FROM_SUN = "IndEvo_meteor_maxDistanceFromSun";
-    public static final String MIN_DISTANCE_FROM_SUN = "IndEvo_meteor_minDistanceFromSun";
-    public static final String MAX_ANGLE = "IndEvo_meteor_maxAngle";
-    public static final String MIN_ANGLE = "IndEvo_meteor_minAngle";
+    public static final String METEOR_ENABLED = "IndEvo_meteor_enabled";
+    public static final String METEOR_BASE_CHANCE_PER_ECONOMY_TICK = "IndEvo_meteor_baseChancePerEconomyTick";
+    public static final String METEOR_MIN_INTENSITY = "IndEvo_meteor_minIntensity";
+    public static final String METEOR_MAX_INTENSITY = "IndEvo_meteor_maxIntensity";
+    public static final String METEOR_BASE_SHOWER_WIDTH = "IndEvo_meteor_baseShowerWidth";
+    public static final String METEOR_INTENSITY_WIDTH_MODIFIER = "IndEvo_meteor_intensityWidthModifier";
+    public static final String METEOR_MAX_DENSITY = "IndEvo_meteor_maxDensity";
+    public static final String METEOR_MAX_RUNTIME_MULT = "IndEvo_meteor_maxRuntimeMult";
+    public static final String METEOR_BASE_RUNTIME = "IndEvo_meteor_baseRuntime";
+    public static final String METEOR_LOCATION_TIMEOUT_AFTER_SPAWN_DAYS = "IndEvo_meteor_locationTimeoutAfterSpawnDays";
+    public static final String METEOR_GENERAL_TIMEOUT_AFTER_SPAWN_DAYS = "IndEvo_meteor_generalTimeoutAfterSpawnDays";
+    public static final String METEOR_GRID_LIMIT = "IndEvo_meteor_gridLimit";
+    public static final String METEOR_MAX_DISTANCE_FROM_SUN = "IndEvo_meteor_maxDistanceFromSun";
+    public static final String METEOR_MIN_DISTANCE_FROM_SUN = "IndEvo_meteor_minDistanceFromSun";
+    public static final String METEOR_MAX_ANGLE = "IndEvo_meteor_maxAngle";
+    public static final String METEOR_MIN_ANGLE = "IndEvo_meteor_minAngle";
+
+    //museum
+    public static final String MUSEUM_ENABLED = "IndEvo_museum_enabled";
+    public static final String MUSEUM_MAX_ADDITIONAL_CREDITS = "IndEvo_museum_maxAdditionalCredits";
+    public static final String MUSEUM_MIN_ADDITIONAL_CREDITS = "IndEvo_museum_minAdditionalCredits";
+    public static final String MUSEUM_DEFAULT_MAX_PARADES = "IndEvo_museum_defaultMaxParades";
+    public static final String MUSEUM_DEFAULT_PARADE_MEMBERS_MAX = "IndEvo_museum_defaultParadeMembersMax";
+    public static final String MUSEUM_MIN_SHIPS_FOR_PARADE = "IndEvo_museum_minShipsForParade";
+    public static final String MUSEUM_TOP_SHIP_POOL_AMT_FOR_PARADE_SELECTION = "IndEvo_museum_topShipPoolAmtForParadeSelection";
+    public static final String MUSEUM_PARADE_FLEET_IMMIGRATION_BONUS = "IndEvo_museum_paradeFleetImmigrationBonus";
+    public static final String MUSEUM_PARADE_FLEET_STABILITY_BONUS = "IndEvo_museum_paradeFleetStabilityBonus";
+    public static final String MUSEUM_IMPROVE_EXTRA_PARADES = "IndEvo_museum_improveExtraParades";
+    public static final String MUSEUM_ALPHA_CORE_EXTRA_PARADES = "IndEvo_museum_alphaCoreExtraParades";
+    public static final String MUSEUM_BETA_CORE_INCOME_PER_STABILITY = "IndEvo_museum_betaCoreIncomePerStability";
+    public static final String MUSEUM_BETA_CORE_INCOME_PER_POINT_IMMIGRATION = "IndEvo_museum_betaCoreIncomePerPointImmigration";
+    public static final String MUSEUM_GAMMA_CORE_INCOME_MULT = "IndEvo_museum_gammaCoreIncomeMult";
 
     public static boolean getBoolean(String s){
         if (Global.getSettings().getModManager().isModEnabled("lunalib")) {

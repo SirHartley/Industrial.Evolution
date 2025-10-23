@@ -1,7 +1,27 @@
 --------------------------- Changelog -----------------------------
 
+4.1.b
+SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
+
+General
+Adjusted - Improved industry settings readability
+
+Meteors
+Fixed - Ice meteor null ship recovery crash
+Fixed - Meteor intel text no longer displays "0 days" instead of severity
+Fixed - Meteor intel now expires after 30 days
+
+Museum
+Added - Can now be improved to increase parade slots by 1
+Added - Settings (forgot to include in release)
+Fixed - Orbital Parade Tooltip
+Fixed - Beta core tooltip
+
+Warehouses
+Fixed - Now properly hidden from the build menu
+NOTE - Not available for now as it's too weak to justify a building slot. You can still add it via console commands.
+
 4.1.a
-REQUIRES A NEW SAVE GAME - NOT SAFE TO UPDATE FOR ONGOING SAVES
 
 General
 Added - You can now halve the remaining upgrade time of a building by spending relic components.

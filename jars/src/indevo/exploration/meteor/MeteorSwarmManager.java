@@ -41,24 +41,24 @@ public class MeteorSwarmManager implements EconomyTickListener {
     public static final String MEM_TIMEOUT = "$IndEvo_MeteorTimeout";
 
     //parameter
-    public static final boolean ENABLED = Settings.getBoolean(Settings.ENABLED);
-    public static final float BASE_CHANCE_PER_ECONOMY_TICK = Settings.getFloat(Settings.BASE_CHANCE_PER_ECONOMY_TICK);
-    public static final float MIN_INTENSITY = Settings.getFloat(Settings.MIN_INTENSITY);
-    public static final float MAX_INTENSITY = Settings.getFloat(Settings.MAX_INTENSITY);
-    public static final float BASE_SHOWER_WIDTH = Settings.getFloat(Settings.BASE_SHOWER_WIDTH);
-    public static final float INTENSITY_WIDTH_MODIFIER = Settings.getFloat(Settings.INTENSITY_WIDTH_MODIFIER);
-    public static final float MAX_DENSITY = Settings.getFloat(Settings.MAX_DENSITY);
-    public static final float MAX_RUNTIME_MULT = Settings.getFloat(Settings.MAX_RUNTIME_MULT);
-    public static final float BASE_RUNTIME = Settings.getFloat(Settings.BASE_RUNTIME);
-    public static final float LOCATION_TIMEOUT_AFTER_SPAWN_DAYS = Settings.getFloat(Settings.LOCATION_TIMEOUT_AFTER_SPAWN_DAYS);
-    public static final float GENERAL_TIMEOUT_AFTER_SPAWN_DAYS = Settings.getFloat(Settings.GENERAL_TIMEOUT_AFTER_SPAWN_DAYS);
+    public static final boolean ENABLED = Settings.getBoolean(Settings.METEOR_ENABLED);
+    public static final float BASE_CHANCE_PER_ECONOMY_TICK = Settings.getFloat(Settings.METEOR_BASE_CHANCE_PER_ECONOMY_TICK);
+    public static final float MIN_INTENSITY = Settings.getFloat(Settings.METEOR_MIN_INTENSITY);
+    public static final float MAX_INTENSITY = Settings.getFloat(Settings.METEOR_MAX_INTENSITY);
+    public static final float BASE_SHOWER_WIDTH = Settings.getFloat(Settings.METEOR_BASE_SHOWER_WIDTH);
+    public static final float INTENSITY_WIDTH_MODIFIER = Settings.getFloat(Settings.METEOR_INTENSITY_WIDTH_MODIFIER);
+    public static final float MAX_DENSITY = Settings.getFloat(Settings.METEOR_MAX_DENSITY);
+    public static final float MAX_RUNTIME_MULT = Settings.getFloat(Settings.METEOR_MAX_RUNTIME_MULT);
+    public static final float BASE_RUNTIME = Settings.getFloat(Settings.METEOR_BASE_RUNTIME);
+    public static final float LOCATION_TIMEOUT_AFTER_SPAWN_DAYS = Settings.getFloat(Settings.METEOR_LOCATION_TIMEOUT_AFTER_SPAWN_DAYS);
+    public static final float GENERAL_TIMEOUT_AFTER_SPAWN_DAYS = Settings.getFloat(Settings.METEOR_GENERAL_TIMEOUT_AFTER_SPAWN_DAYS);
 
     //position
-    private static final float GRID_LIMIT = Settings.getFloat(Settings.GRID_LIMIT);
-    public static final float MAX_DISTANCE_FROM_SUN = Settings.getFloat(Settings.MAX_DISTANCE_FROM_SUN);
-    public static final float MIN_DISTANCE_FROM_SUN = Settings.getFloat(Settings.MIN_DISTANCE_FROM_SUN);
-    public static final float MAX_ANGLE = Settings.getFloat(Settings.MAX_ANGLE);
-    public static final float MIN_ANGLE = Settings.getFloat(Settings.MIN_ANGLE);
+    private static final float GRID_LIMIT = Settings.getFloat(Settings.METEOR_GRID_LIMIT);
+    public static final float MAX_DISTANCE_FROM_SUN = Settings.getFloat(Settings.METEOR_MAX_DISTANCE_FROM_SUN);
+    public static final float MIN_DISTANCE_FROM_SUN = Settings.getFloat(Settings.METEOR_MIN_DISTANCE_FROM_SUN);
+    public static final float MAX_ANGLE = Settings.getFloat(Settings.METEOR_MAX_ANGLE);
+    public static final float MIN_ANGLE = Settings.getFloat(Settings.METEOR_MIN_ANGLE);
 
 
     public static class MeteorShowerData {

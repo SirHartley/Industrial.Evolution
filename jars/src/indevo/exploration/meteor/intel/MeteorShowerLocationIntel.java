@@ -27,6 +27,7 @@ public class MeteorShowerLocationIntel extends FleetLogIntel {
         this.type = type;
         this.days = days;
 
+        setDuration(30);
         Global.getSector().addScript(this);
     }
 
@@ -81,7 +82,7 @@ public class MeteorShowerLocationIntel extends FleetLogIntel {
 
         else info.addPara("A meteor storm of %s entered " + loc.getName()+ " on %s",
                 opad, Misc.getHighlightColor() ,
-                getDays(days) + " " + getDaysString(Math.round(days)),
+                getSizeHintFromIntensity(intensity) + " size",
                 dateString);
 
         info.addPara("Meteor storms are known to catch salvage and transport it over long distances.", spad);

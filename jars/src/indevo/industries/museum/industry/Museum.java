@@ -26,6 +26,7 @@ import indevo.industries.museum.data.MuseumConstants;
 import indevo.industries.museum.data.ParadeFleetProfile;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.lazywizard.lazylib.MathUtils;
 
@@ -89,25 +90,25 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
         if (!isFunctional() || submarket == null || iterIndex != 5) return;
 
         //fill list if empty spot
-        if (paradeFleetProfiles.size() < maxParades) while (paradeFleetProfiles.size() < maxParades) paradeFleetProfiles.add(new ParadeFleetProfile(this));
+        if (paradeFleetProfiles.size() < getMaxParades()) while (paradeFleetProfiles.size() < getMaxParades()) paradeFleetProfiles.add(new ParadeFleetProfile(this));
 
         //fill list if all the profiles are disabled
         int enabledParadeProfiles = 0;
         for (ParadeFleetProfile p : paradeFleetProfiles) if (p.isEnabled()) enabledParadeProfiles++;
-        if (enabledParadeProfiles < maxParades) paradeFleetProfiles.add(new ParadeFleetProfile(this));
+        if (enabledParadeProfiles < getMaxParades()) paradeFleetProfiles.add(new ParadeFleetProfile(this));
 
         //count actives
         int activeParades = 0;
         for (ParadeFleetProfile profile : new ArrayList<>(paradeFleetProfiles)) if (profile.hasActiveFleet()) activeParades++;
 
         //activateAndSpawn parade if empty spot
-        if (flyParades && activeParades < maxParades){
+        if (flyParades && activeParades < getMaxParades()){
 
             //pick a random open profile and spawn
             WeightedRandomPicker<ParadeFleetProfile> profilePicker = new WeightedRandomPicker<>(random);
             for (ParadeFleetProfile p : paradeFleetProfiles) if (p.isEnabled() && !p.hasActiveFleet()) profilePicker.add(p);
 
-            while (activeParades < maxParades && !profilePicker.isEmpty()){
+            while (activeParades < getMaxParades() && !profilePicker.isEmpty()){
                 ParadeFleetProfile pickedProfile = profilePicker.pickAndRemove();
                 boolean successfullySpawnedFleet = pickedProfile.spawnFleet();
                 if (successfullySpawnedFleet) activeParades++;
@@ -127,6 +128,16 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
         }
     }
 
+    @Override
+    public boolean isAvailableToBuild() {
+        return super.isAvailableToBuild() && MuseumConstants.MUSEUM_ENABLED;
+    }
+
+    @Override
+    public boolean showWhenUnavailable() {
+        return MuseumConstants.MUSEUM_ENABLED;
+    }
+
     public void setFlyParades(boolean flyParades) {
         this.flyParades = flyParades;
     }
@@ -140,7 +151,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     }
 
     public int getMaxParades() {
-        return maxParades;
+        return maxParades + (isImproved() ? MuseumConstants.IMPROVE_EXTRA_PARADES : 0);
     }
 
     public List<CampaignFleetAPI> getParadeFleets() {
@@ -331,6 +342,31 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
     }
 
+    @Override
+    public boolean canImprove() {
+        return true;
+    }
+
+    @Override
+    public void addImproveDesc(TooltipMakerAPI info, ImprovementDescriptionMode mode) {
+        float opad = 10f;
+        Color highlight = Misc.getHighlightColor();
+
+        if (mode == ImprovementDescriptionMode.INDUSTRY_TOOLTIP) {
+            info.addPara("Maximum active %s increased by %s while sufficient ships are available.", 0f, highlight,
+                    "parade fleets",
+                    "" + MuseumConstants.IMPROVE_EXTRA_PARADES);
+        } else {
+            info.addPara("Increases the maximum active %s by %s while sufficient ships are available.", 0f, highlight,
+                    "parade fleets",
+                    "" + MuseumConstants.IMPROVE_EXTRA_PARADES);
+        }
+
+        info.addSpacer(opad);
+
+        super.addImproveDesc(info, mode);
+    }
+
     // - Gamma: Increase income to 3000 max
     // - Beta: Increase stability and immigration of local planet by x per 10k?
     // - Alpha: second parade fleet (if sufficient ships)
@@ -377,14 +413,14 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48);
 
             text.addPara(pre + "Increases stability by %s per %s in museum income. Increases growth by %s per %s in museum income.", 0f, highlight,
-                    "" + 1, Misc.getDGSCredits(MuseumConstants.BETA_CORE_INCOME_PER_STABILITY), "" + 1, Misc.getDGSCredits(MuseumConstants.BETA_CORE_INCOME_PER_STABILITY));
+                    "" + 1, Misc.getDGSCredits(MuseumConstants.BETA_CORE_INCOME_PER_STABILITY), "" + 1, Misc.getDGSCredits(MuseumConstants.BETA_CORE_INCOME_PER_POINT_IMMIGRATION));
 
             tooltip.addImageWithText(opad);
             return;
         }
 
         tooltip.addPara(pre + "Increases stability by %s per %s in museum income. Increases growth by %s per %s in museum income.", opad, highlight,
-                "" + 1, Misc.getDGSCredits(MuseumConstants.BETA_CORE_INCOME_PER_STABILITY), "" + 1, Misc.getDGSCredits(MuseumConstants.BETA_CORE_INCOME_PER_STABILITY));
+                "" + 1, Misc.getDGSCredits(MuseumConstants.BETA_CORE_INCOME_PER_STABILITY), "" + 1, Misc.getDGSCredits(MuseumConstants.BETA_CORE_INCOME_PER_POINT_IMMIGRATION));
 
     }
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {

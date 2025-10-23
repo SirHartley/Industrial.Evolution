@@ -94,6 +94,9 @@ public class IceTreasureoidEntity extends IcyRockEntity {
         if(id == null || id.isBlank()) id = "nebula";
 
         DerelictShipEntityPlugin.DerelictShipData params = DerelictShipEntityPlugin.createHull(id, random, 0.15f);
+
+        if (params == null) params = DerelictShipEntityPlugin.createHull("nebula", random, 0.15f); //yeah so turns out createHull just returns null if there's no goal variant...
+
         relatedWreck = BaseThemeGenerator.addSalvageEntity(entity.getContainingLocation(), Entities.WRECK, Factions.NEUTRAL, params);
 
         //this is required or it'll always be a SP recovery for some reason

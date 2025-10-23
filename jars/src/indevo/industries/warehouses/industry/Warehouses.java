@@ -80,6 +80,11 @@ public class Warehouses extends BaseIndustry {
         return super.isAvailableToBuild();
     }
 
+    @Override
+    public boolean showWhenUnavailable() {
+        return false;
+    }
+
     public void unlinkAllSubmarkets(){
         LinkedStorageManager manager = LinkedStorageManager.getInstance();
 
