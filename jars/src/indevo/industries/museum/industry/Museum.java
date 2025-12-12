@@ -254,15 +254,14 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
         float value = member.getBaseValue();
         Set<String> tags = member.getHullSpec().getTags();
-        if (tags.contains("no_sell") || tags.contains("no_dealer")) {
+        if (tags.contains("no_sell") && tags.contains("no_dealer")) {
             value *= MuseumConstants.UNIQUE_SHIP_VALUE_MULT;
         }
         float valueAboveAverage = value - valuePair.two;
         float maxAboveAverage = valuePair.one - valuePair.two;
         float val = MathUtils.clamp(valueAboveAverage / maxAboveAverage, 0, 1);
 
-
-        ModPlugin.log("Getting Museum Ship Value: " + member.getHullSpec().getHullId() + "\ncost: " + member.getHullSpec().getBaseValue() + "\nmax / avg " + valuePair.one + " / " + valuePair.two + "\nvalue: " + val);
+        ModPlugin.log("Getting Museum Ship Value: " + member.getHullSpec().getHullId() + "\ncost: " + value + "\nmax / avg " + valuePair.one + " / " + valuePair.two + "\nvalue: " + val);
 
         return val;
     }
