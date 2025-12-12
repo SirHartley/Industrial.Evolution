@@ -7,10 +7,13 @@ import com.fs.starfarer.api.campaign.CampaignEventListener;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseAssignmentAI;
 import indevo.ids.Ids;
 import indevo.industries.museum.data.MuseumConstants;
+
+import java.util.ArrayList;
 
 import static indevo.industries.museum.data.MuseumConstants.FLEET_RETURNING_TAG;
 
@@ -95,6 +98,10 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
     }
 
     public void removeParadeConditionFromMarket(MarketAPI market){
+        for(MarketConditionAPI cond : new ArrayList<>(market.getConditions())){
+            if (cond.getId().equals(Ids.COND_PARADE)) market.removeSpecificCondition(cond.getIdForPluginModifications());
+        }
+
         market.removeCondition(Ids.COND_PARADE);
         market.removeTag(MuseumConstants.ON_PARADE_TAG);
     }
