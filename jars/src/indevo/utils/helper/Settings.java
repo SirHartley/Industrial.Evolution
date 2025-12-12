@@ -159,6 +159,7 @@ public class Settings {
     public static final String MUSEUM_BETA_CORE_INCOME_PER_STABILITY = "IndEvo_museum_betaCoreIncomePerStability";
     public static final String MUSEUM_BETA_CORE_INCOME_PER_POINT_IMMIGRATION = "IndEvo_museum_betaCoreIncomePerPointImmigration";
     public static final String MUSEUM_GAMMA_CORE_INCOME_MULT = "IndEvo_museum_gammaCoreIncomeMult";
+    public static final String MUSEUM_UNIQUE_SHIP_VALUE_MULT = "IndEvo_museum_uniqueShipValueMult";
 
     public static boolean getBoolean(String s){
         if (Global.getSettings().getModManager().isModEnabled("lunalib")) {

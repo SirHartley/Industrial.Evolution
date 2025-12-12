@@ -34,4 +34,6 @@ public class MuseumConstants {
     public static final int BETA_CORE_INCOME_PER_STABILITY = Settings.getInt(Settings.MUSEUM_BETA_CORE_INCOME_PER_STABILITY);
     public static final int BETA_CORE_INCOME_PER_POINT_IMMIGRATION = Settings.getInt(Settings.MUSEUM_BETA_CORE_INCOME_PER_POINT_IMMIGRATION);
     public static final float GAMMA_CORE_INCOME_MULT = Settings.getFloat(Settings.MUSEUM_GAMMA_CORE_INCOME_MULT);
+
+    public static final float UNIQUE_SHIP_VALUE_MULT = Settings.getFloat(Settings.MUSEUM_UNIQUE_SHIP_VALUE_MULT);
 }
