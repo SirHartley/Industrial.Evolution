@@ -51,7 +51,7 @@ public class NetworkEntry {
         float mult = getMultModValue(fleetSizeMod);
         float cleanedValue;
 
-        cleanedValue = flatMod * percentMod;
+        cleanedValue = flatMod * (percentMod / 100f);
         cleanedValue *= mult;
 
         return cleanedValue;

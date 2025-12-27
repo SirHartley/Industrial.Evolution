@@ -13,10 +13,12 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StarReflectionUtils;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.plugins.BaseSimpleBaseIndustryOptionProvider;
+import org.codehaus.janino.Mod;
 
 import java.awt.*;
 
@@ -34,10 +36,14 @@ public class RelicBuildTimeReductionButtonAdder extends BaseSimpleBaseIndustryOp
 
     @Override
     public boolean isSuitable(Industry ind, boolean allowUnderConstruction) {
+
+        ModPlugin.log("checking " + ind.getId());
         boolean isUpgrading = ind.isUpgrading();
         boolean hasUpgrade = ind.getSpec().getUpgrade() != null; //some modded industries can upgrade without an upgrade -> crash when getting the spec
 
         boolean isBuilding = ind.isBuilding() && !ind.isUpgrading();
+
+        ModPlugin.log(isBuilding + " " + isUpgrading + " " + hasUpgrade);
 
         return isBuilding || (isUpgrading && hasUpgrade);
     }

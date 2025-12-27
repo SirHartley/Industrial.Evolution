@@ -187,4 +187,4 @@ IndEvo_museum_alphaCoreExtraParades,[Museum] Alpha Core Extra Parades,Int,1,,Ext
 IndEvo_museum_betaCoreIncomePerStability,[Museum] Beta Core Income per Stability,Int,20000,,Amount of required income per +1 stability when a Beta Core is installed.,1,100000,Industries
 IndEvo_museum_betaCoreIncomePerPointImmigration,[Museum] Beta Core Income per Point Immigration,Int,3000,,Amount of required income per +1 immigration when at when a Beta Core is installed.,1,100000,Industries
 IndEvo_museum_gammaCoreIncomeMult,[Museum] Gamma Core Income Multiplier,Double,1.3,,Multiplier applied to total income when a Gamma Core is installed.,0.1,3,Industries
-IndEvo_museum_uniqueShipValueMult,[Museum] Unique Ship Value Multiplier,Double,2,,Multiplier applied to the value of unique ships.,1.0,5,Industries
+IndEvo_museum_uniqueShipValueMult,[Museum] Unique Ship Value Multiplier,Double,2,,Multiplier applied to the value of rare / non-learnable ships.,1.0,5,Industries

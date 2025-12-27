@@ -15,6 +15,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -250,13 +251,15 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
      * @return value from 0 to 1 relative to the ships value above the average
      */
     public float getValueForShip(FleetMemberAPI member){
+        if(member.getVariant().hasTag(Tags.SHIP_UNIQUE_SIGNATURE)) return 1; //unique ships are always max value
+
         Pair<Float, Float> valuePair = hullSizeValueMap.get(member.getHullSpec().getHullSize()); //one = maxShipValue, two = average for hull size
 
         float value = member.getBaseValue();
+
         Set<String> tags = member.getHullSpec().getTags();
-        if (tags.contains("no_sell") && tags.contains("no_dealer")) {
-            value *= MuseumConstants.UNIQUE_SHIP_VALUE_MULT;
-        }
+        if (tags.contains("no_sell") && tags.contains("no_dealer")) value *= MuseumConstants.UNIQUE_SHIP_VALUE_MULT; //ships that are not available on the market have higher value
+
         float valueAboveAverage = value - valuePair.two;
         float maxAboveAverage = valuePair.one - valuePair.two;
         float val = MathUtils.clamp(valueAboveAverage / maxAboveAverage, 0, 1);

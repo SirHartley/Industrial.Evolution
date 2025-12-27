@@ -1,4 +1,11 @@
 --------------------------- Changelog -----------------------------
+4.1.c
+Museum
+Adjusted - Unique ships (Ziggy, MK1) are always max value
+Adjusted - Non-purchasable ships have higher value (PR'd by abel1502, thank you!)
+
+Relays
+Fixed - The infamous relay size bug
 
 4.1.b
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
