@@ -352,7 +352,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
 
         tooltip.addPara("Extracts volatiles from stars or nebulae within %s and converts them to fuel. " +
                         "More efficient on %s sources.", opad, highlight,
-                (int) Math.round(MAX_SUCTION_RANGE) + " SU", "young and large");
+                (int) Math.round(MAX_SUCTION_RANGE) + " units", "young and large");
 
         tooltip.addPara("Stays active for %s. Stops providing fuel when out of range of a source.", opad, highlight,
                 "3 days");

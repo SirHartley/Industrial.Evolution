@@ -1,11 +1,27 @@
 --------------------------- Changelog -----------------------------
 4.1.c
+General
+Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
+Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
+
+Minefields
+Added - Setting to adjust interdict disable time
+
+Meteor Showers
+Added - Setting to make meteor shower spawn immediately instead of having a delay with an intel entry
+Adjusted - Doubled the average number of treasureoids in a default meteor swarm
+
+Pets
+Removed - Pet food
+
 Museum
+Fixed - Parade fleet stability bonus no longer stacks
 Adjusted - Unique ships (Ziggy, MK1) are always max value
 Adjusted - Non-purchasable ships have higher value (PR'd by abel1502, thank you!)
 
 Relays
-Fixed - The infamous relay size bug
+Fixed - The infamous relay size bug (it was my fault after all!)
+Fixed - No longer crashes when installing a modded AI-Core
 
 4.1.b
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0

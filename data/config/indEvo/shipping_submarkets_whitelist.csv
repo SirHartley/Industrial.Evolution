@@ -1,6 +1,6 @@
 id
 # NOTES
-# Whitelist for submarkets targetted by shipping centre to avoid breaking shit.
+# Whitelist for submarkets targetted by shipping centre to avoid breaking other mods.
 
 IndEvo_RepairStorage
 IndEvo_DeconstStorage

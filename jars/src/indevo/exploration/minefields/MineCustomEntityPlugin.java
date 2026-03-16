@@ -99,8 +99,8 @@ public class MineCustomEntityPlugin extends BaseCustomEntityPlugin {
 
         MemoryAPI mem = entity.getContainingLocation().getMemoryWithoutUpdate();
         if (mem.contains(LOCATION_DISABLED_AREA_MEMORY)) {
-            List<MineBeltTerrainPlugin.DisabledArea> areas = (List<MineBeltTerrainPlugin.DisabledArea>) mem.get(LOCATION_DISABLED_AREA_MEMORY);
-            for (MineBeltTerrainPlugin.DisabledArea area : areas) {
+            List<DisabledArea> areas = (List<DisabledArea>) mem.get(LOCATION_DISABLED_AREA_MEMORY);
+            for (DisabledArea area : areas) {
                 if (entity.getOrbitFocus() == null) continue;
 
                 if (area.contains(entity) && area.getBeltId().equals(entity.getOrbitFocus().getId())) {

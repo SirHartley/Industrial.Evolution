@@ -199,11 +199,11 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         super.apply(true);
 
         boolean petsEnabled = Settings.getBoolean(Settings.PETS);
-        supply(ItemIds.PET_FOOD, market.getSize() - 2);
+        //supply(ItemIds.PET_FOOD, market.getSize() - 2);
         demand(Commodities.FOOD, market.getSize() - 2);
 
-        Pair<String, Integer> deficit = getMaxDeficit(Commodities.FOOD);
-        applyDeficitToProduction(1, deficit, ItemIds.PET_FOOD);
+        /*Pair<String, Integer> deficit = getMaxDeficit(Commodities.FOOD);
+        applyDeficitToProduction(1, deficit, ItemIds.PET_FOOD);*/
 
         ListenerManagerAPI manager = Global.getSector().getListenerManager();
         if (!manager.hasListener(this)) manager.addListener(this);

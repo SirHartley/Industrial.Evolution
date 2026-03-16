@@ -334,7 +334,7 @@ public class MilitaryRelay extends MilitaryBase {
     }
 
     public float getFleetSizeTransferFraction() {
-        float increase = aiCoreId != null ? AI_CORE_FACTION_MAP.get(aiCoreId) : 0f;
+        float increase = aiCoreId != null && AI_CORE_FACTION_MAP.containsKey(aiCoreId) ? AI_CORE_FACTION_MAP.get(aiCoreId) : 0f;
         if (isImproved()) increase += IMPROVE_ADDITIONAL_FLEET_SIZE_TRANSFER_FRACT;
         return BASE_FLEET_SIZE_TRANSFER_FRACT + increase;
     }

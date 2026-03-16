@@ -42,7 +42,7 @@ public class ExplosiveMissileAbilityPlugin extends BaseMissileConsumableAbilityP
         Color hl = Misc.getHighlightColor();
 
         tooltip.addPara("Explodes and damages fleets within %s on hit.", opad, hl,
-                Math.round(ExplosiveMissileEntityPlugin.EXPLOSION_SIZE) + "su");
+                Math.round(ExplosiveMissileEntityPlugin.EXPLOSION_SIZE) + "units");
         tooltip.addPara("The smart trigger ignores debris and meteors.", spad);
 
         tooltip.addPara("Travel speed: %s", opad, new Color(100,100,255,255), "Slow");

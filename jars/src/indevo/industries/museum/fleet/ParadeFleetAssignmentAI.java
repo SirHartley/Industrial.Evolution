@@ -12,6 +12,7 @@ import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseAssignmentAI;
 import indevo.ids.Ids;
 import indevo.industries.museum.data.MuseumConstants;
+import indevo.utils.ModPlugin;
 
 import java.util.ArrayList;
 
@@ -98,6 +99,7 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
     }
 
     public void removeParadeConditionFromMarket(MarketAPI market){
+
         for(MarketConditionAPI cond : new ArrayList<>(market.getConditions())){
             if (cond.getId().equals(Ids.COND_PARADE)) market.removeSpecificCondition(cond.getIdForPluginModifications());
         }

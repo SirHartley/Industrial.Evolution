@@ -419,52 +419,6 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
         }
     }
 
-    public static class DisabledArea {
-        public float radius;
-        public float duration;
-        SectorEntityToken entity;
-
-        public boolean isExpired = false;
-
-        public DisabledArea(float radius, float duration, SectorEntityToken entity) {
-            this.radius = radius;
-            this.duration = duration;
-            this.entity = entity;
-        }
-
-        public void init() {
-            MemoryAPI mem = entity.getContainingLocation().getMemoryWithoutUpdate();
-            if (!mem.contains(LOCATION_DISABLED_AREA_MEMORY))
-                mem.set(LOCATION_DISABLED_AREA_MEMORY, new ArrayList<>(Collections.singletonList(this)));
-            else ((List<DisabledArea>) mem.get(LOCATION_DISABLED_AREA_MEMORY)).add(this);
-        }
-
-        public boolean isExpired() {
-            return isExpired;
-        }
-
-        public String getBeltId() {
-            return entity.getOrbitFocus().getId();
-        }
-
-        public void advance(float amt) {
-            duration -= amt;
-            if (duration <= 0 && !isExpired) remove();
-        }
-
-        public void remove() {
-            isExpired = true;
-            entity.getContainingLocation().removeEntity(entity);
-
-            MemoryAPI mem = entity.getContainingLocation().getMemoryWithoutUpdate();
-            ((List<DisabledArea>) mem.get(LOCATION_DISABLED_AREA_MEMORY)).remove(this);
-        }
-
-        public boolean contains(SectorEntityToken t) {
-            return Misc.getDistance(entity.getLocation(), t.getLocation()) <= radius;
-        }
-    }
-
     public List<DisabledArea> getDisabledAreas() {
         MemoryAPI mem = entity.getContainingLocation().getMemoryWithoutUpdate();
         List<DisabledArea> areaList = new ArrayList<>();

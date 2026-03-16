@@ -45,6 +45,7 @@ public class Settings {
     public static final String MINEFIELD_NOHITUNTILSUM = "IndEvo_Minefield_NoHitUntilSum";
     public static final String MINEFIELD_CIVILIAN_SHIP_IMPACT_MULT = "IndEvo_Minefield_CivilianShipImpactMult";
     public static final String MINEFIELD_PHASE_SHIP_IMPACT_MULT = "IndEvo_Minefield_PhaseShipImpactMult";
+    public static final String MINEFIELD_DISABLE_DURATION = "IndEvo_Minefield_disable_duration";
     public static final String ENABLE_ARTILLERY = "IndEvo_Enable_Artillery";
     public static final String ARTILLERY_SPAWN_WEIGHT = "IndEvo_Artillery_spawnWeight";
     public static final String ARTILLERY_MIN_DELAY_BETWEEN_SHOTS = "IndEvo_Artillery_minDelayBetweenShots";
@@ -143,6 +144,7 @@ public class Settings {
     public static final String METEOR_MIN_DISTANCE_FROM_SUN = "IndEvo_meteor_minDistanceFromSun";
     public static final String METEOR_MAX_ANGLE = "IndEvo_meteor_maxAngle";
     public static final String METEOR_MIN_ANGLE = "IndEvo_meteor_minAngle";
+    public static final String METEOR_IMMEDIATE_MODE = "IndEvo_meteor_immediateMode";
 
     //museum
     public static final String MUSEUM_ENABLED = "IndEvo_museum_enabled";

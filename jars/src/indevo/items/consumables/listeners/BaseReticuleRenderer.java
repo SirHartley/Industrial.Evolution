@@ -68,4 +68,5 @@ public abstract class BaseReticuleRenderer implements MissileCampaignRenderer {
     public boolean isValidPosition() {
         return true;
     }
+
 }

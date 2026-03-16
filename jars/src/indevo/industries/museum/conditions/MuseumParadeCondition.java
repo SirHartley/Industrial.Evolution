@@ -6,6 +6,7 @@ import com.fs.starfarer.api.impl.campaign.econ.BaseMarketConditionPlugin;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.Ids;
 import indevo.industries.museum.data.MuseumConstants;
 
 public class MuseumParadeCondition extends BaseMarketConditionPlugin implements MarketImmigrationModifier {
@@ -20,6 +21,7 @@ public class MuseumParadeCondition extends BaseMarketConditionPlugin implements 
     @Override
     public void unapply(String id) {
         super.unapply(id);
+        market.getStability().unmodify(getModId());
         market.removeTransientImmigrationModifier(this);
     }
 

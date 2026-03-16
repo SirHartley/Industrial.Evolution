@@ -87,10 +87,6 @@ public class PetSubMarket extends BaseSubmarketPlugin implements DynamicSubmarke
         this.submarket.setFaction(Global.getSector().getFaction("petStoreColour"));
     }
 
-    public boolean shouldHaveCommodity(CommodityOnMarketAPI com) {
-        return com.getId().equals(ItemIds.PET_FOOD);
-    }
-
     public boolean showInFleetScreen() {
         return false;
     }

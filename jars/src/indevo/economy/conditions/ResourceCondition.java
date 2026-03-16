@@ -109,7 +109,11 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
 
                 applyPartsSupply((BaseIndustry) ind, supply);
                 applyPartsDemands((BaseIndustry) ind, demand);
-            } else if (ind.getSpec().hasTag("heavyindustry") && ind.getSupply(Commodities.SHIPS).getQuantity().getModifiedInt() > 0 && ind.getSupply(ItemIds.PARTS).getQuantity().getModifiedInt() <= 0){
+            } else if (ind.getSpec() != null &&
+                    ind.getSpec().hasTag("heavyindustry")
+                    && ind.getSupply(Commodities.SHIPS).getQuantity().getModifiedInt() > 0
+                    && ind.getSupply(ItemIds.PARTS).getQuantity().getModifiedInt() <= 0){
+
                 int supply = Math.min(ind.getSupply(Commodities.HEAVY_MACHINERY).getQuantity().getModifiedInt() - 2, 4);
                 int demand = ind.getSupply(Commodities.SHIPS).getQuantity().getModifiedInt() + 2;
 

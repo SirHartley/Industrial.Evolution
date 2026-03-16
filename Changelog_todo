@@ -1,4 +1,13 @@
 --------------------------- Open Tasks -----------------------------
+
+Rogue planet colonizeable somehow
+Rogue planet doesn't despawn properly, safeguard
+bump default meteor storm min treasure to 2
+museum storage gets placed before building complete
+museum storage doesn't remove properly
+Check Found ruined infrastructure (heavy industry) on a planet. Advertised price for upgrading the ruins to heavy industry was 250K. However, when using the upgrade option, zero credits were actually deducted. Got heavy industry for free ..
+
+
 warehouse storage linking
 implement 5 more shared storage variants that can be linked, no switching default ones (too many issues)
 UI

@@ -42,7 +42,7 @@ public class ConcussiveMissileAbilityPlugin extends BaseMissileConsumableAbility
         Color hl = Misc.getHighlightColor();
 
         tooltip.addPara("Violently launches fleets within %s away from the explosion, causing %s. More effective on small or fast-moving fleets.", opad, hl,
-                Math.round(ConcussiveMissileEntityPlugin.SHOVE_RANGE) + "su",
+                Math.round(ConcussiveMissileEntityPlugin.SHOVE_RANGE) + "units",
                 "no damage");
 
         tooltip.addPara("Travel speed: %s", opad, Color.GREEN, "Medium");

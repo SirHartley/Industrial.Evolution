@@ -42,7 +42,7 @@ public class SmokeMissileAbilityPlugin extends BaseMissileConsumableAbilityPlugi
         Color hl = Misc.getHighlightColor();
 
         tooltip.addPara("Blankets a %s area with an impenetrable chaff cloud that reduces sensor profile by up to %s and slows fleets by up to %s depending on size.", opad, hl,
-                Math.round(SmokeCloudEntityPlugin.BASE_RADIUS) + "su",
+                Math.round(SmokeCloudEntityPlugin.BASE_RADIUS) + "units",
                 StringHelper.getAbsPercentString(SmokeCloudTerrain.VISIBLITY_MULT, false),
                 StringHelper.getAbsPercentString(SmokeCloudTerrain.BURN_PENALTY_MULT, false));
 

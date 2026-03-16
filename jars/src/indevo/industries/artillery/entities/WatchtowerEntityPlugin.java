@@ -172,7 +172,7 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
                     pad, Misc.getHighlightColor(), "Hacked");
 
         } else text.addPara(BaseIntelPlugin.INDENT + "Transmits target telemetry within %s range",
-                pad, Misc.getHighlightColor(), Math.round(RANGE) + " su");
+                pad, Misc.getHighlightColor(), Math.round(RANGE) + " units");
     }
 
     public boolean isFunctional() {

@@ -177,7 +177,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
             ArtilleryStationEntityPlugin plugin = ((ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin());
 
             if (plugin != null)
-                tooltip.addPara("Current range: %s", 10f, Misc.getHighlightColor(), (int) Math.round(plugin.getOrInitScript().getRange()) + " SU");
+                tooltip.addPara("Current range: %s", 10f, Misc.getHighlightColor(), (int) Math.round(plugin.getOrInitScript().getRange()) + " units");
         }
     }
 

@@ -47,6 +47,6 @@ public class DecoyAbilityPlugin extends BaseConsumableAbilityPlugin {
         tooltip.addPara("Drops a powerful signal emitter at the current location. " +
                         "It will broadcast a signal across all bands in a %s to attract the attention of unoccupied patrol fleets. Patrols usually investigate between %s. " +
                         "Does not work if the target fleet currently has other priorities.", opad, highlight,
-                Math.round(DecoyMineAbility.BASE_RANGE) + " SU range", Math.round(DecoyMineAbility.BASE_SEARCH_DAYS) + " to " + Math.round(DecoyMineAbility.BASE_SEARCH_DAYS * 2) + " days");
+                Math.round(DecoyMineAbility.BASE_RANGE) + " units range", Math.round(DecoyMineAbility.BASE_SEARCH_DAYS) + " to " + Math.round(DecoyMineAbility.BASE_SEARCH_DAYS * 2) + " days");
     }
 }

@@ -1,7 +1,7 @@
 id
 # NOTES
 # Whitelist for centralization bureau industries.
-"# If you fuck with this and it crashes, do not complain to me."
+# Some modded buildings may not be immediately compatible with this due to custom supply and demand behaviour
 
 farming
 aquaculture

@@ -41,7 +41,7 @@ public class InterceptMissileAbilityPlugin extends BaseMissileConsumableAbilityP
         Color hl = Misc.getHighlightColor();
 
         tooltip.addPara("Explodes within a %s radius upon hitting a fleet, stunning everything caught for %s, interdicting for %s, and increasing sensor profile by %s for %s.", opad, hl,
-                Math.round(InterceptMissileEntityPlugin.INTERDICT_RANGE) + "su",
+                Math.round(InterceptMissileEntityPlugin.INTERDICT_RANGE) + "units",
                 Math.round(InterceptMissileEntityPlugin.STUN_SECONDS) + " seconds",
                 Math.round(InterceptMissileEntityPlugin.INTERDICT_SECONDS) + " seconds",
                 Math.round(InterceptMissileEntityPlugin.TRACE_PROFILE_INCREASE) + "",

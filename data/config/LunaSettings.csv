@@ -23,6 +23,7 @@ IndEvo_relicComponentHardbattleFPAdvantage,[Commodities] Relic Component Hard Ba
 IndEvo_relicComponentFPDestroyedFract,"[Commodities] Relic Component ""Destroy to drop"" Fraction",Double,0.5,,How much of said fleet you have to destroy for it to drop relic components,,,Exploration & Campaign
 IndEvo_meteor_enabled,[Meteor Swarms] Spawn Meteor Swarms,Boolean,TRUE,,General on-off toggle.,,,Meteor Swarms
 IndEvo_meteor_baseChancePerEconomyTick,[Meteor Swarms] Spawn Chance,Double,0.02,,"Chance for a meteor shower to spawn. One month has 10 ticks, 2 percent per tick = 18 %% chance per month = 92 %% per year. Increasing this by 0.1 raises monthly odds by about 30 %%, so use caution.",0.001,0.1,Meteor Swarms
+IndEvo_meteor_immediateMode,[Meteor Swarms] Immediate Mode,Boolean,FALSE,,Setting this to true will make meteor shower spawn immediately instead of having a delay with an intel entry.,,,Meteor Swarms
 IndEvo_meteor_minIntensity,[Meteor Swarms] Minimum Intensity,Double,1,,Minimum intensity per swarm instance.,1,5,Meteor Swarms
 IndEvo_meteor_maxIntensity,[Meteor Swarms] Maximum Intensity,Double,3,,Maximum intensity per swarm instance. Increasing this past 4 can cause lag.,1,10,Meteor Swarms
 IndEvo_meteor_baseShowerWidth,[Meteor Swarms] Base Shower Width,Double,5000,,Base width of a swarm.,2500,10000,Meteor Swarms
@@ -40,6 +41,7 @@ IndEvo_meteor_minAngle,[Meteor Swarms] Minimum Angle,Double,50,,Lower angle boun
 IndEvo_header4,Minefields,Header,Minefields,,,,,Minefields
 IndEvo_minefields_disclaimer,,Text,Tip: You can disable minefields temporarily with an interdiction pulse.,,,,,Minefields
 IndEvo_Enable_minefields,[Minefields] Minefields,Boolean,TRUE,,Needs a new game!,,,Minefields
+IndEvo_Minefield_disable_duration,[Minefields] Disable duration,Double,5,,Time in seconds that a minefield is disabled upon being hit with an interdiction pulse. This is intentionally set to be just enough time to cross once with a large fleet - minefields are intended to be an obstacle! Default: 5,1,30,Minefields
 IndEvo_Minefield_HitChance_frigate,[Minefields] Hit Chance [Frigate],Double,0.02,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,,,Minefields
 IndEvo_Minefield_HitChance_destroyer,[Minefields] Hit Chance [Destroyer],Double,0.04,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,,,Minefields
 IndEvo_Minefield_HitChance_cruiser,[Minefields] Hit Chance [Cruiser],Double,0.06,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,,,Minefields

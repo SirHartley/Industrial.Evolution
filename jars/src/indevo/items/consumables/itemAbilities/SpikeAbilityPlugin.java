@@ -47,6 +47,6 @@ public class SpikeAbilityPlugin extends BaseConsumableAbilityPlugin {
 
         tooltip.addPara("Drops a drive bubble spike at the current location. " +
                         "The spike arms after %s and activates when another fleet enters within %s of it, firing an interdiction pulse with a %s range. The pulse does not discern between friend or foe, so make sure you are not in range.", opad, highlight,
-                Math.round(SpikeEntityPlugin.TIME_TO_ARM) + " seconds", Math.round(SpikeEntityPlugin.TRIGGER_DETECTION_RANGE) + " SU", Math.round(InterdictionMineAbility.BASE_RANGE) + " SU");
+                Math.round(SpikeEntityPlugin.TIME_TO_ARM) + " seconds", Math.round(SpikeEntityPlugin.TRIGGER_DETECTION_RANGE) + " units", Math.round(InterdictionMineAbility.BASE_RANGE) + " units");
     }
 }

@@ -72,7 +72,7 @@ public class MeteorSwarmManager implements EconomyTickListener {
     }
 
     public enum MeteroidShowerType {
-        ASTEROID(12, 1f),
+        ASTEROID(12, 2f),
         ICEROID(3, 5f),
         IRRADIOID(3, 0.3f),
         //METHEROID(0, 1f),
@@ -183,7 +183,8 @@ public class MeteorSwarmManager implements EconomyTickListener {
             case PLANETOID -> new PlanetoidSwarmSpawner((StarSystemAPI) loc, arc, runtime, random.nextLong(), density, lootAmt);
         };
 
-        int daysLeft = Math.max(2, random.nextInt(6));
+        boolean immediateMode = Settings.getBoolean(Settings.METEOR_IMMEDIATE_MODE);
+        int daysLeft = immediateMode ? 0 : Math.max(2, random.nextInt(6));
 
         loc.addScript(new DelayedActionScript(daysLeft) {
             @Override
