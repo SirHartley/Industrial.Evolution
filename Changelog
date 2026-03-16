@@ -1,5 +1,5 @@
 --------------------------- Changelog -----------------------------
-4.1.c
+4.1.c- UNRELEASED
 General
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
@@ -23,7 +23,7 @@ Relays
 Fixed - The infamous relay size bug (it was my fault after all!)
 Fixed - No longer crashes when installing a modded AI-Core
 
-4.1.b
+4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 
 General
