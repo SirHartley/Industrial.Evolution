@@ -60,7 +60,7 @@ public class ResearchProjectSidePanelCreator {
         //sort map to display projects according to their completion status
 
         List<ResearchProject> sortedProjects = new ArrayList<>(ResearchProjectTemplateRepo.RESEARCH_PROJECTS.values());
-        sortedProjects.sort(Comparator.comparingDouble(p -> p.getProgress().points));
+        sortedProjects.sort(Comparator.comparingDouble((ResearchProject p) -> p.getProgress().points).reversed());
 
         for (ResearchProject project : sortedProjects) {
             final String projId = project.getId();

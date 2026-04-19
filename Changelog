@@ -4,6 +4,9 @@ General
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
 
+Research Projects
+Fixed - Now sorts highest to lowest like intended
+
 Minefields
 Added - Setting to adjust interdict disable time
 
