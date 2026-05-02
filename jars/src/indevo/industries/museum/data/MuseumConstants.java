@@ -6,7 +6,7 @@ import java.awt.*;
 
 public class MuseumConstants {
 
-    public static final Boolean MUSEUM_ENABLED = Settings.getBoolean(Settings.METEOR_ENABLED);
+    public static final Boolean MUSEUM_ENABLED = Settings.getBoolean(Settings.MUSEUM_ENABLED);
 
     //submarket
     public static final Color SUBMARKET_COLOUR = new Color(199, 10, 63,255);
