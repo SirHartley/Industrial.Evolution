@@ -72,11 +72,17 @@ public class MeteorSwarmManager implements EconomyTickListener {
     }
 
     public enum MeteroidShowerType {
-        ASTEROID(12, 2f),
+        ASTEROID(0, 1f),
+        ICEROID(0, 5f),
+        IRRADIOID(0, 0.3f),
+        //METHEROID(0, 1f),
+        PLANETOID(3, 1f);
+
+        /*ASTEROID(12, 1f),
         ICEROID(3, 5f),
         IRRADIOID(3, 0.3f),
         //METHEROID(0, 1f),
-        PLANETOID(3, 1f);
+        PLANETOID(3, 1f);*/
 
         public float chance;
         public float treasureModifier;
@@ -137,10 +143,10 @@ public class MeteorSwarmManager implements EconomyTickListener {
     }
 
     public void spawnShower(LocationAPI loc){
-      spawnShower(loc, -1f, null);
+      spawnShower(loc, -1f, null, true);
     }
 
-    public void spawnShower(LocationAPI loc, float intensityOverride, MeteroidShowerType forceType){
+    public void spawnShower(LocationAPI loc, float intensityOverride, MeteroidShowerType forceType, boolean withIntel){
         MemoryAPI locMem = loc.getMemoryWithoutUpdate();
         MemoryAPI globalMem = Global.getSector().getMemoryWithoutUpdate();
         Random random = getRandom();
@@ -196,7 +202,7 @@ public class MeteorSwarmManager implements EconomyTickListener {
         globalMem.set(MEM_TIMEOUT, true, GENERAL_TIMEOUT_AFTER_SPAWN_DAYS);
         locMem.set(MEM_TIMEOUT, true, LOCATION_TIMEOUT_AFTER_SPAWN_DAYS);
 
-        Global.getSector().getIntelManager().addIntel(new MeteorShowerLocationIntel(loc, intensity, type, daysLeft));
+        if (withIntel) Global.getSector().getIntelManager().addIntel(new MeteorShowerLocationIntel(loc, intensity, type, daysLeft));
     }
 
     @Override

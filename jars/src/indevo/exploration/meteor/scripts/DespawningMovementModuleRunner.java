@@ -16,8 +16,7 @@ public class DespawningMovementModuleRunner extends MovementModuleRunner{
 
     @Override
     public void advance(float amount) {
-        super.advance(amount);
-
         if (module.isMovementFinished()) Misc.fadeAndExpire(entity, 0.1f);
+        super.advance(amount);
     }
 }

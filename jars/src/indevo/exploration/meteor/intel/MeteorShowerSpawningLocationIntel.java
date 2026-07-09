@@ -27,7 +27,7 @@ public class MeteorShowerSpawningLocationIntel extends MeteorShowerLocationIntel
         super.advance(amount);
 
         if (days <= 0 && !spawnedSwarm) {
-            MeteorSwarmManager.getInstance().spawnShower(loc, intensity, type);
+            MeteorSwarmManager.getInstance().spawnShower(loc, intensity, type, false);
             spawnedSwarm = true;
         }
     }
