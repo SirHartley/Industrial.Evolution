@@ -1,0 +1,5 @@
+{
+  "skillshot_denied": [
+    {"file": "skillshot/sounds/skillshot_denied.ogg", "pitch": 1, "volume": 1},
+  ],
+}

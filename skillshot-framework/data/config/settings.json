@@ -1,0 +1,9 @@
+{
+  "graphics": {
+    "fx": {
+      "skillshot_direction_reticule": "graphics/fx/skillshot_direction_reticule.png",
+      "skillshot_arrow": "graphics/fx/skillshot_arrow.png",
+      "skillshot_target": "graphics/fx/skillshot_target.png",
+    },
+  },
+}

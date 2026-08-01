@@ -1,0 +1,2 @@
+name,id,type,tags,activationDays,activationCooldown,durationDays,deactivationDays,deactivationCooldown,unlockedAtStart,defaultForAIFleet,musicSuppression,uiOn,uiOff,uiLoop,worldOn,worldOff,worldLoop,icon,plugin,ai,desc,sortOrder
+Example Skillshot,skillshot_example,DURATION,"skillshot, hide_in_codex",0,,0,,3,FALSE,FALSE,,,,,,,,graphics/icons/abilities/emergency_burn.png,skillshot.example.ExampleSkillshotAbility,,Hold the ability key to aim and release to fire.,900
