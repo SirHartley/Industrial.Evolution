@@ -66,7 +66,8 @@ public class ResearchProjectSidePanelCreator {
             final String projId = project.getId();
             final ResearchProject.Progress progress = project.getProgress();
             CargoAPI cargo = playerFleet.getCargo();
-            float progressPercent = Math.min(1f, (progress.points) / (project.getRequiredPoints() * 1f));
+            float rawProgressPercent = (progress.points) / (project.getRequiredPoints() * 1f);
+            float progressPercent = Math.min(1f, rawProgressPercent);
             log.info("points " + progress.points + " req " + project.getRequiredPoints() + " % " + progressPercent);
 
             if (progress.redeemed || !project.display()) continue;
@@ -157,7 +158,7 @@ public class ResearchProjectSidePanelCreator {
                     cargo.addAll(rewards.createCopy());
 
                     if (project.isRepeatable()) {
-                        project.getProgress().points = 0;
+                        project.getProgress().points = Math.max(0f, project.getProgress().points - project.getRequiredPoints());
                         project.getProgress().redeemed = false;
                     } else project.getProgress().redeemed = true;
 
@@ -183,7 +184,7 @@ public class ResearchProjectSidePanelCreator {
             float holderWidth = VisualCustomPanel.PANEL_WIDTH - 33f;
             TooltipMakerAPI barHolder = progressPanel.createUIElement(holderWidth, 0, false);
 
-            ButtonAPI checkbox = barHolder.addAreaCheckbox((progressPercent > 0 ? Math.abs(Math.round(progressPercent * 1000f) / 10f) : 0f) + "%", null, Misc.getDarkPlayerColor(), Misc.getDarkPlayerColor(), Misc.getTextColor(), Math.max(50f, holderWidth * progressPercent), BUTTON_HEIGHT, opad);
+            ButtonAPI checkbox = barHolder.addAreaCheckbox((rawProgressPercent > 0 ? Math.abs(Math.round(rawProgressPercent * 1000f) / 10f) : 0f) + "%", null, Misc.getDarkPlayerColor(), Misc.getDarkPlayerColor(), Misc.getTextColor(), Math.max(50f, holderWidth * progressPercent), BUTTON_HEIGHT, opad);
             checkbox.setEnabled(false);
             checkbox.setChecked(true);
             progressPanel.addUIElement(barHolder).inTL(1f, 1f); //add it to top left of fleet panel (?)
