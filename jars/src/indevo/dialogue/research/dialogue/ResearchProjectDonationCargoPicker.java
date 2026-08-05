@@ -66,6 +66,12 @@ public class ResearchProjectDonationCargoPicker {
                         }
 
                         float totalPointsFromStack = num * pointsPerItem;
+                        if (project.isRepeatable()) {
+                            Global.getSector().getPlayerFleet().getCargo().removeItems(stack.getType(), stack.getData(), stack.getSize());
+                            progress.points += totalPointsFromStack;
+                            continue;
+                        }
+
                         float requiredPointsToFinish = project.getRequiredPoints() - progress.points;
                         //2/4 = 0.75 round up = 1
                         float neededWeaponsToFinish = (float) Math.ceil(requiredPointsToFinish / pointsPerItem);
@@ -82,9 +88,12 @@ public class ResearchProjectDonationCargoPicker {
                         }
 
                         if (progress.points >= project.getRequiredPoints()) {
-                            Global.getSoundPlayer().playUISound("ui_objective_constructed", 1f, 1f);
                             break;
                         }
+                    }
+
+                    if (progress.points >= project.getRequiredPoints()) {
+                        Global.getSoundPlayer().playUISound("ui_objective_constructed", 1f, 1f);
                     }
 
                     ResearchProjectDialoguePlugin.getCurrentDialoguePlugin().refreshCustomPanel();
