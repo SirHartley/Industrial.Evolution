@@ -66,8 +66,10 @@ public class FleetStatus {
 
         //fleet.getLogistics().getTotalSuppliesPerDay();
 
-        //tally, skip for selected members
+        // Mothballed ships do not contribute logistics capacity or crew requirements.
         for (FleetMemberAPI m : fleetMemberAPIList) {
+            if (m.isMothballed()) continue;
+
             status.totalCrewCap += m.getMaxCrew();
             status.requiredCrew += m.getMinCrew();
             status.totalCargoCap += m.getCargoCapacity();
