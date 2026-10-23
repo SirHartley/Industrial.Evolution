@@ -12,14 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-/**
- * Every hand-built effect is fully determined by its fleet member id (HandBuiltHullmod.createHullmodEffect
- * seeds its Random with the id's hash), but every member that ever had its stats applied stayed in the save, dead or
- * not. On load (readResolve), entries that are exactly what the current code would create again are dropped; a member
- * still in play gets its entry back the next time its stats are applied, and get() creates a missing entry the same
- * way instead of returning null. Entries that differ from the current code's (made by an older IndEvo with other
- * effects) are kept.
- */
 public class HandBuiltEffectMemoryRepo {
     public static final String MEM_REF = "$IndEvo_HandBuiltMemoryRepo";
     private Map<String, HandBuiltEffect> effectMap = new HashMap<>();
@@ -53,7 +45,6 @@ public class HandBuiltEffectMemoryRepo {
         return effect;
     }
 
-    /** What HandBuiltHullmod.createHullmodEffect makes for this member id (without adding it). */
     static HandBuiltEffect create(String id) {
         Random random = new Random(id.hashCode());
         WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
@@ -82,7 +73,6 @@ public class HandBuiltEffectMemoryRepo {
         return true;
     }
 
-    /** Called by XStream after the repo is read from a save. */
     private Object readResolve() {
         if (effectMap == null) {
             effectMap = new HashMap<>();
