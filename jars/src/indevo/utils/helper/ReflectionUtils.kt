@@ -2,6 +2,7 @@ package indevo.utils.helper
 
 import java.lang.invoke.MethodHandles
 import java.lang.invoke.MethodType
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Stolen from Lukas04 and multiple methods provided by starficz - thank you!
@@ -121,14 +122,20 @@ object ReflectionUtils {
         return getFieldHandle.invoke(field, instanceToGetFrom)
     }
 
-    fun hasMethodOfName(name: String, instance: Any, contains: Boolean = false) : Boolean {
-        val instancesOfMethods: Array<out Any> = instance.javaClass.getDeclaredMethods()
+    private val methodNameCache = ConcurrentHashMap<Class<*>, ConcurrentHashMap<String, Boolean>>()
+    private val methodNamePartCache = ConcurrentHashMap<Class<*>, ConcurrentHashMap<String, Boolean>>()
 
-        if (!contains) {
-            return instancesOfMethods.any { getMethodNameHandle.invoke(it) == name }
-        }
-        else  {
-            return instancesOfMethods.any { (getMethodNameHandle.invoke(it) as String).contains(name) }
+    fun hasMethodOfName(name: String, instance: Any, contains: Boolean = false) : Boolean {
+        val cache = if (contains) methodNamePartCache else methodNameCache
+        return cache.getOrPut(instance.javaClass) { ConcurrentHashMap() }.getOrPut(name) {
+            val instancesOfMethods: Array<out Any> = instance.javaClass.getDeclaredMethods()
+
+            if (!contains) {
+                instancesOfMethods.any { getMethodNameHandle.invoke(it) == name }
+            }
+            else  {
+                instancesOfMethods.any { (getMethodNameHandle.invoke(it) as String).contains(name) }
+            }
         }
     }
 
