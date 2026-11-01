@@ -76,7 +76,6 @@ Repaired menu (`displayDefaultOptions`, `:110-152`): cargo areas (`FireBest IndE
 | Item | State |
 |---|---|
 | `GachaStationSpawner.spawn()` | `pickAndRemove()` returns null when fewer candidate systems than stations; `placeStation(null)` would NPE (`:54-56`, inferred) |
-| `cycleMember()` failure text | Highlights "insufficient" but the paragraph says "insignificant" (`:356-358`); highlight never matches |
 | `advance()` confirm check | Counts relic components in fleet cargo only (`:240`); `displayDefaultOptions()` counts fleet plus storage (`:141`) |
 | Repair re-creates the market | Second `setAbandonedStationMarket` replaces the market and its storage (`:207`); anything in storage before repair is lost (inferred) |
 | `GachaStationSpawner.placeStation()` | Local `id` used as market id, entity gets a second `genUID` (`:62-63`); harmless |

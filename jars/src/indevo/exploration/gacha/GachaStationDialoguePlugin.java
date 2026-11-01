@@ -355,7 +355,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             text.addPara("And as the cacophony reaches its apex, the screeching stops, the faces slacken - and nothing remains.");
             text.addPara("\n\nYour offerings have been deemed insignificant.");
             text.setHighlightColorsInLastPara(Misc.getNegativeHighlightColor());
-            text.highlightInLastPara("Your offerings have been deemed insufficient.");
+            text.highlightInLastPara("Your offerings have been deemed insignificant.");
 
             if (partsSacrificed > 0)
                 AddRemoveCommodity.addCommodityLossText(ItemIds.PARTS, Math.round(partsSacrificed), text);

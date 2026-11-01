@@ -121,6 +121,7 @@ Fixed - Cloud Painter shield texture settings now pick the starting shield visua
 
 Automated Shipyards
 Fixed - Automated Shipyard shows the ship components lost when the machine runs
+Fixed - Automated Shipyard failure line is highlighted red again
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
