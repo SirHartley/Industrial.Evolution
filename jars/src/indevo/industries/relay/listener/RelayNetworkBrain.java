@@ -43,7 +43,7 @@ public class RelayNetworkBrain extends BaseCampaignEventListener implements NewD
 
         for (FactionAPI faction : Global.getSector().getAllFactions()) {
             List<MarketAPI> marketsWithRelays = Misc.getFactionMarkets(faction).stream()
-                    .filter(m -> m.getIndustries().stream()
+                    .filter(m -> m.getStarSystem() != null && m.getIndustries().stream()
                             .anyMatch(ind -> ind instanceof MilitaryRelay && ind.isFunctional()))
                     .toList();
 

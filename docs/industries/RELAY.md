@@ -58,7 +58,7 @@ Update chain: `TimeTracker -> RelayNetworkBrain.onNewDay -> updateNetworks -> Re
 
 `RelayNetworkBrain.updateNetworks()` (`:41`), per faction:
 
-1. Markets with a functional `MilitaryRelay`, grouped by star system.
+1. Markets in a star system with a functional `MilitaryRelay`, grouped by system; markets outside a system are skipped.
 2. Every system that has an `IndEvo_IntArray` joins one shared network; other systems get their own.
 3. Each network: largest `baseFleetSize` wins; every entry gets `targetMult = largest / own` and the source market id.
 
@@ -88,7 +88,6 @@ Update chain: `TimeTracker -> RelayNetworkBrain.onNewDay -> updateNetworks -> Re
 |---|---|
 | Changelog_todo | `Changelog_todo:30` "Military relay bonus calculation is still unreliable" and `:106` "relay increase spiral". The percent mod error is fixed; no other cause found: the relay excludes its own mods by source id and no vanilla fleet size mod depends on fleet size |
 | `removeCommRelayStation` script check (`MilitaryRelay.java:274`) | compares `getClass().getName()` to `"EntityRemovalScript"`; never true, dead check |
-| Relay market outside a star system | `Collectors.groupingBy(MarketAPI::getStarSystem)` throws on a null key (inferred, `RelayNetworkBrain.java:51`) |
 
 ## Maintenance
 
