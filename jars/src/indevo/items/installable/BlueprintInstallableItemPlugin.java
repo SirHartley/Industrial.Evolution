@@ -161,18 +161,14 @@ public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemP
 
     public BlueprintInstallableItemPlugin(EngineeringHub industry) {
         this.industry = industry;
+    }
 
+    public EngineeringHub getIndustry() {
+        return industry;
     }
 
     @Override
     public String getMenuItemTitle() {
-
-        //this is the dirtiest hack ever
-        //used to insert relic components into the dialogue
-        //they are removed from cargo in the industry apply method which doesn't run while the menu that needs this title is visible but does trigger immediately after the menu is closed
-        industry.removeDummyRelicComponentFromCargo();
-        industry.addDummyRelicComponentToCargo();
-
         if (getCurrentlyInstalledItemData() == null) {
             return "Install Blueprint...";
         }
