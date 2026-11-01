@@ -14,7 +14,7 @@ At new game, uncolonized planets with tech mining ruins may get the `IndEvo_Ruin
 |---|---|
 | `indevo/industries/ruinfra/conditions/DerelictInfrastructureCondition.java` | Hidden condition. Picks and stores the target (`setUpgradeSpec`), adds the industry once (`addRuinfraIfNeeded`), removes itself when the industry is gone; static helpers `resetRuinfraState`, `marketPrimedForCondition` |
 | `indevo/industries/ruinfra/industry/RuinedInfrastructure.java` | `IndEvo_RuinedInfra` industry: unbuildable, no AI cores, custom `startUpgrading` and `finishBuildingOrUpgrading`, AI faction auto upgrade, own tooltip ("restore" wording) |
-| `indevo/industries/ruinfra/industry/ChamelionIndustry.java` | `IndEvo_ChamelionIndustry`: upgrade proxy whose `init` swaps its id to the stored target, so the upgrade dialog shows the target's name, image and stats; cost and time times `BUILD_PARAM_RED` |
+| `indevo/industries/ruinfra/industry/ChamelionIndustry.java` | `IndEvo_ChamelionIndustry`: upgrade proxy whose `init` swaps its id to the stored target, so the upgrade dialog shows the target's name, image and stats; cost and time times `BUILD_PARAM_RED`; `isAvailableToBuild` and `getUnavailableReason` come from a fresh target instance |
 | `indevo/industries/ruinfra/listener/RuinfraOnDecivListener.java` | `ColonyDecivListener`: primes a decivilizing market with a target from its own whitelisted industries |
 | `indevo/industries/ruinfra/utils/DerelictInfrastructurePlacer.java` | New game placement of the condition |
 
@@ -57,7 +57,7 @@ Chain: `placeRuinedInfrastructure -> condition on planet -> colonized -> Derelic
 - `RuinedInfrastructure.startUpgrading` sets `upgradeId` to the CSV upgrade (`IndEvo_ChamelionIndustry`) and `buildTime = target build time * BUILD_PARAM_RED` (`RuinedInfrastructure.java:60`).
 - `finishBuildingOrUpgrading` removes `IndEvo_ChamelionIndustry` and itself, adds the stored target and calls its `finishBuildingOrUpgrading` (`:72`).
 - `notifyBeingRemoved` removes the condition.
-- AI markets (`triggerUpgradeForAI`, from `apply`): size above 4, target buildable, faction owns more than 2 markets.
+- AI markets (`triggerUpgradeForAI`, `RuinedInfrastructure.java:100`, from `apply` on every economy step): not already restoring, a stored target, size above 4, faction owns more than 2 markets, the `IndEvo_ChamelionIndustry` instance (the target) is buildable and, for an industry target, a slot is free.
 
 ### Decivilization
 
@@ -67,6 +67,7 @@ Chain: `placeRuinedInfrastructure -> condition on planet -> colonized -> Derelic
 
 - `ChamelionIndustry.getSpec()` returns the spec for its current `id`; after `finishBuildingOrUpgrading` the id goes back to `IndEvo_ChamelionIndustry`.
 - `RuinedInfrastructure.apply()` does not call `BaseIndustry.apply`, so it has no upkeep, supply or item effects.
+- The target is never re-rolled. A restore blocked by the target's own build rules (one per system, free slots, its setting) stays blocked until they pass, and the upgrade tooltip shows the target's `getUnavailableReason` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:1106-1113`). At full industry slots vanilla adds "Maximum number of industries reached" (`:1046-1051`).
 - The condition and industry share the string `IndEvo_RuinedInfra`; `RuinfraOnDecivListener` adds the condition with `Ids.RUINFRA`, which is the same value.
 - `BUILD_PARAM_RED` is a static read at class load; a changed LunaLib value needs a restart (inferred from static init).
 
@@ -75,9 +76,7 @@ Chain: `placeRuinedInfrastructure -> condition on planet -> colonized -> Derelic
 | Item | State |
 |---|---|
 | Restore cost | open issue `Changelog_todo:8`: "Advertised price for upgrading the ruins to heavy industry was 250K ... zero credits were actually deducted" |
-| `ChamelionIndustry.readResolve` (`ChamelionIndustry.java:34`) | condition inverted: sets `spec` from the memory key only when the key is missing, so it reads `getIndustrySpec(null)` |
 | `setUpgradeSpec` repick (`DerelictInfrastructureCondition.java:55`) | first pick is seeded, repicks use the picker's own random; not deterministic per planet |
-| `ChamelionIndustry.isDone` | written, never read |
 | `RuinedInfrastructure.finishBuildingOrUpgrading` player message | commented out |
 
 ## Maintenance

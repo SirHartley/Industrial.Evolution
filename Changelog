@@ -85,6 +85,13 @@ Fixed - Rift Generator crash when only one core system is left as a target
 Fixed - Two ruins planets in one system no longer roll the same derelict industry
 Fixed - Ring terrain around a planet moved by the Rift Generator no longer stays behind in the old system
 Fixed - Possible crash in Hull Forge or Ancient Lab on a lost market when the player has no colonies left
+Fixed - With two or more colonies with Old Industrial Ruins, a ruin no longer offers another colony's derelict industry as a greyed out upgrade
+Fixed - Old Industrial Ruins on a planet that got its ruins after the start of the game (console or other mods) now always get a derelict industry to upgrade into
+Fixed - NPC colonies with Old Industrial Ruins (Nexerelin) now finish upgrading them instead of restarting the upgrade every few days
+
+Ruined Infrastructure
+Fixed - NPC colonies (Nexerelin) now restore their Ruined Infrastructure
+Fixed - A blocked restoration now shows why, for example only one per star system, instead of "Can not be built"
 
 Embassy
 Fixed - Ambassadors can now be asked to stop sabotaging hostile activity
@@ -113,6 +120,7 @@ Fixed - Ship contract and D-mod transfer costs are now capped at 150% as intende
 
 Senate
 Fixed - Construction no longer stays at half time after the fast build edict ends
+Fixed - Fast build edict no longer finishes a Ruined Infrastructure restoration within a few days; it halves the restoration time like any other construction
 Fixed - Fast build edict now halves industry demand along with output instead of adding 1 demand per commodity, and its effect text no longer shows a doubled percent sign
 Fixed - Forced relocation edict now moves as much population growth as its tooltip says
 Fixed - Lockdown edict tooltip and dialog agree on the ground defense bonus (+200%, three times the base)
@@ -141,6 +149,8 @@ Adjusted - Uses the vanilla Commerce again and changes it in place, which improv
 
 World Wonders
 Fixed - Cloud Painter shield texture settings now pick the starting shield visuals
+Fixed - A Planetary Shield on a Cloud Painter world no longer loses its triple ground defense, meteor impact protection, installed AI core or improvement, and pays its normal upkeep again
+Adjusted - Change Shield Visuals only shows while the colony has a working Cloud Painter, and the shield looks normal again once the Cloud Painter is gone
 
 Automated Shipyards
 Fixed - Automated Shipyard shows the ship components lost when the machine runs

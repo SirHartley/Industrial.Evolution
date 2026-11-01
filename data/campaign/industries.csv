@@ -88,7 +88,6 @@ It operates semi-autonomously as the control core does not seem to accept contem
 ,,,,,,,,,,,,,,
 #Technical,,,,,,,,,,,,,,
 IndEvo_ChamelionIndustry,Chamelion Industry,0,0,,0,IndEvo_RuinedInfra,,"structure, do_not_show_in_build_dialog, hide_in_codex",,graphics/industry/industrialRuins.png,indevo.industries.ruinfra.industry.ChamelionIndustry,,9999,
-IndEvo_InvisiblePlanetaryShield,Planetary Shield,150,90,,3,,,"grounddefenses, structure, do_not_show_in_build_dialog, hide_in_codex",,graphics/icons/industry/planetary_shield.png,indevo.industries.InvisiblePlanetaryShield,An envelope of charged plasma seeded with exotic virtual particles producing effects which disrupt the combat effectiveness of long-range bombardment and even incursion by small vessels. The planetary shield can be continually charged and controlled by a central source and presents a formidable obstacle to any form of ground assault.,2700,EXTREME
 ,,,,,,,,,,,,,,
 #Derelicts,,,,,,,,,,,,,,
 IndEvo_HullDecon,Hull Deconstructor,70,80,,7,IndEvo_Ruins,,"structure, industrial, unraidable, do_not_show_in_build_dialog, codex_unlockable, IndEvo_showDeconstructWarning",,graphics/industry/hullDecon.png,indevo.industries.derelicts.industry.HullDeconstructor,,500,HIGH

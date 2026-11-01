@@ -13,7 +13,6 @@ import static indevo.industries.ruinfra.conditions.DerelictInfrastructureConditi
 public class ChamelionIndustry extends BaseIndustry {
 
     public static final float BUILD_PARAM_RED = Settings.getFloat(Settings.DERINFRA_BUILD_RED);
-    private boolean isDone = false;
 
     // 20.04.2021 check if this properly blocks the actual ind from being built, if not, make check that prohibits upgrading if it is added or stops the current upgrade if it is ongoing.
     // 03/12/2022 it does
@@ -27,18 +26,6 @@ public class ChamelionIndustry extends BaseIndustry {
     }
 
     @Override
-    protected Object readResolve() {
-        Object o = super.readResolve();
-
-        MemoryAPI memory = market.getMemoryWithoutUpdate();
-        if (!memory.contains(RUINED_INFRA_UPGRADE_ID_KEY)) {
-            spec = Global.getSettings().getIndustrySpec(memory.getString(RUINED_INFRA_UPGRADE_ID_KEY));
-        }
-
-        return o;
-    }
-
-    @Override
     public void apply() {
         super.apply(false);
     }
@@ -47,6 +34,12 @@ public class ChamelionIndustry extends BaseIndustry {
     public boolean isAvailableToBuild() {
         if (id.equals(Ids.CHAMELION)) return false;
         return spec.getNewPluginInstance(market).isAvailableToBuild();
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        if (id.equals(Ids.CHAMELION)) return super.getUnavailableReason();
+        return spec.getNewPluginInstance(market).getUnavailableReason();
     }
 
     @Override
@@ -75,16 +68,8 @@ public class ChamelionIndustry extends BaseIndustry {
     }
 
     @Override
-    public boolean isHidden() {
-        //if (isDone) return true;
-
-        return super.isHidden();
-    }
-
-    @Override
     public void finishBuildingOrUpgrading() {
         super.finishBuildingOrUpgrading();
         id = Ids.CHAMELION;
-        isDone = true;
     }
 }

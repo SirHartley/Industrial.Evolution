@@ -1,12 +1,12 @@
 # World Wonders
 
-The World Symbol structures (`IndEvo_BaseFlavourInd` and its nine sub items): flavour industries that give immigration, stability and one story point, plus the Cloud Painter and Tree of Life planet effects. Read it before adding a wonder or changing the stability condition. It does not cover the planetary shield visuals the Cloud Painter installs; see [Small industries](SMALL_INDUSTRIES.md).
+The World Symbol structures (`IndEvo_BaseFlavourInd` and its nine sub items): flavour industries that give immigration, stability and one story point, plus the Cloud Painter and Tree of Life planet effects. Read it before adding a wonder, changing the stability condition or the Cloud Painter shield visuals.
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
 
 ## Overview
 
-All wonders share `WorldWonder`: +10 immigration (independent faction), monthly reduction of recent unrest by 1, a one time story point per market, no AI cores. While functional a wonder tags its star system and adds the hidden `IndEvo_WorldWonderCondition` to every same faction market in that system, which gives +1 stability. Four subclasses add build requirements or planet effects: Ice Palace (cold), Lava Fortress (very hot), Tree of Life (vegetation planet, suppresses inimical biosphere) and Cloud Painter (atmosphere, cycles cloud textures). Two wonders have an alternate industry image.
+All wonders share `WorldWonder`: +10 immigration (independent faction), monthly reduction of recent unrest by 1, a one time story point per market, no AI cores. While functional a wonder tags its star system and adds the hidden `IndEvo_WorldWonderCondition` to every same faction market in that system, which gives +1 stability. Four subclasses add build requirements or planet effects: Ice Palace (cold), Lava Fortress (very hot), Tree of Life (vegetation planet, suppresses inimical biosphere) and Cloud Painter (atmosphere, cycles cloud textures, picks the planetary shield visuals). Two wonders have an alternate industry image.
 
 ## Files
 
@@ -16,18 +16,20 @@ All wonders share `WorldWonder`: +10 immigration (independent faction), monthly 
 | `indevo/industries/worldwonder/industry/IcePalace.java` | Build check: planet with `cold` or `very_cold` |
 | `indevo/industries/worldwonder/industry/LavaFortress.java` | Build check: planet with `very_hot` |
 | `indevo/industries/worldwonder/industry/WorldTree.java` | Build check: `habitable` planet whose type is in the tree list; suppresses `inimical_biosphere`; name "Eggdrasil" when the market name contains "egg" |
-| `indevo/industries/worldwonder/industry/CloudPainter.java` | Build check: planet without `no_atmosphere`. Cloud texture cycle (`nextTexture`, `applyVisuals`); swaps a functional vanilla planetary shield for `IndEvo_InvisiblePlanetaryShield` in `advance` |
+| `indevo/industries/worldwonder/industry/CloudPainter.java` | Build check: planet without `no_atmosphere`. Cloud texture cycle (`nextTexture`, `applyVisuals`) |
+| `indevo/industries/worldwonder/patches/CloudPainterShieldPatch.java` | PatchLib redirect of `applyVisuals` in vanilla `PlanetaryShield.apply`: shield visuals from the market tags while a Cloud Painter works; tag constants, `hasFunctionalCloudPainter`, `getDefaultTag` |
 | `indevo/industries/worldwonder/conditions/WorldWonderCondition.java` | Hidden condition: +1 stability while any functional wonder of the market faction is in the location |
 | `indevo/industries/worldwonder/plugins/WorldWonderAltImageOptionProvider.java` | Industry option "Change Visuals": toggles `WorldWonder.isAlternateVisual`; only on player wonders with an alternate image |
 | `indevo/industries/worldwonder/plugins/WorldWonderTexChangeOptionProvider.java` | Industry option "Change cloud texture": calls `CloudPainter.nextTexture()` |
+| `indevo/industries/worldwonder/plugins/ShieldVisualsOptionProvider.java` | Industry option "Change Shield Visuals" on a functional `planetaryshield` of a market with a functional Cloud Painter: cycles the market tags |
 
 ## Data and ids
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Industry | `IndEvo_BaseFlavourInd` (World Symbols), tags `flavor, parent_item`, data `flavor` | `data/campaign/industries.csv:106` |
-| Industry | `IndEvo_LightPalace`, `IndEvo_DarkPalace`, `IndEvo_Memorial`, `IndEvo_LeisureOrbitals`, `IndEvo_Megachurch` (`WorldWonder`) | `data/campaign/industries.csv:107-119`, tags `flavor, sub_item, structure, unraidable`, cost mult 100, build 90, upkeep 10 |
-| Industry | `IndEvo_IcePalace`, `IndEvo_LavaFortress`, `IndEvo_LifeTree` (`WorldTree`), `IndEvo_CloudPainter` | `data/campaign/industries.csv:122-133`, same values |
+| Industry | `IndEvo_BaseFlavourInd` (World Symbols), tags `flavor, parent_item`, data `flavor` | `data/campaign/industries.csv:105` |
+| Industry | `IndEvo_LightPalace`, `IndEvo_DarkPalace`, `IndEvo_Memorial`, `IndEvo_LeisureOrbitals`, `IndEvo_Megachurch` (`WorldWonder`) | `data/campaign/industries.csv:106-118`, tags `flavor, sub_item, structure, unraidable`, cost mult 100, build 90, upkeep 10 |
+| Industry | `IndEvo_IcePalace`, `IndEvo_LavaFortress`, `IndEvo_LifeTree` (`WorldTree`), `IndEvo_CloudPainter` | `data/campaign/industries.csv:121-132`, same values |
 | Condition | `IndEvo_WorldWonderCondition` (`Ids.COND_WORLD_WONDER`) | `data/campaign/market_conditions.csv:31`, `hidden, technical` |
 | System tag | `IndEvo_hasWonder` (`WorldWonder.TAG_SYSTEM_HAS_WONDER`) | star system tags |
 | Memory key | `$IndEvo_hasAwardedSP` (`HAS_AWARDED_SP`) | market memory |
@@ -35,14 +37,17 @@ All wonders share `WorldWonder`: +10 immigration (independent faction), monthly 
 | Sprites | category `IndEvo`, keys `palace_light_2`, `kadur_megachurch` (CSV `data` column) | `data/config/settings.json:327-328` |
 | List | `IndEvo_cloudList` -> `graphics/clouds/clouds.csv` (`Ids.CLOUD_LIST`) | `data/config/settings.json:225` |
 | List | `IndEvo_treeList` -> `data/config/indEvo/world_tree_whitelist.csv` (`Ids.TREE_LIST`): `jungle`, `terran`, `terran-eccentric` | `data/config/settings.json:227` |
-| Settings | `IndEvo_CPShieldRemove`, `IndEvo_CPShieldOverride` | `data/config/LunaSettings.csv:175-176`; constants in `indevo/utils/helper/Settings.java:113-114`, read by `InvisiblePlanetaryShield.getDefaultTag` ([Small industries](SMALL_INDUSTRIES.md)) |
+| Settings | `IndEvo_CPShieldRemove`, `IndEvo_CPShieldOverride` | `data/config/LunaSettings.csv:175-176`; constants in `indevo/utils/helper/Settings.java:113-114`, read by `CloudPainterShieldPatch.getDefaultTag` |
+| Market tags | `IndEvo_PS_FULL`, `IndEvo_PS_LOW`, `IndEvo_PS_NONE` | `CloudPainterShieldPatch` |
+| Sprite | `IndEvo` / `shield_texture` (alternate shield texture) | `data/config/settings.json:360` |
 
 The `parent_item` / `sub_item` tags group the wonders under one build list entry (inferred from the tags). Five wonders are in `ruins_industry_whitelist.csv:22-26`, so [Ruined Infrastructure](RUINED_INFRASTRUCTURE.md) can restore into them.
 
 ## Registration and lifecycle
 
 - CSV plugin column per row.
-- `ModPlugin.setListenersIfNeeded()`: `WorldWonderAltImageOptionProvider.register()`, `WorldWonderTexChangeOptionProvider.register()` (`ModPlugin.java:459-460`), both transient and deduped by `hasListenerOfClass`.
+- `ModPlugin.setListenersIfNeeded()`: `WorldWonderAltImageOptionProvider.register()`, `WorldWonderTexChangeOptionProvider.register()` (`ModPlugin.java:459-460`), `ShieldVisualsOptionProvider.register()` (`:488`), all transient and deduped by `hasListenerOfClass`.
+- `CloudPainterShieldPatch` is a `@Patch` class; PatchLib installs it when `PlanetaryShield` loads ([Patches](../ARCHITECTURE.md#patches)).
 - `BaseIndustry.apply` adds the industry as transient immigration modifier because it implements `MarketImmigrationModifier` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:209`).
 - `apply()` adds the industry as transient `EconomyTickListener` (`WorldWonder.java:61`); `ListenerManager.addListener` dedupes the same instance (skill `obf/campaign/ListenerManager.java:29`). `unapply()` removes it.
 - Lists are loaded by `MiscIE.getCSVSetFromMemory`; see [Utils](../core/UTILS.md).
@@ -62,7 +67,17 @@ Chain: `WorldWonder.apply -> system tag IndEvo_hasWonder -> addCondition(IndEvo_
 
 - `init` stores the planet's original cloud texture. `cloudNum` 0 is the original; 1..n index the cloud list in set order. `getTexture` falls back to the original if `loadTexture` fails.
 - `applyVisuals` sets `PlanetSpecAPI.setCloudTexture` and calls `applySpecChanges` (skill `api/campaign/PlanetAPI.java:27-35`).
-- `advance`: a functional vanilla `planetaryshield` that is not an `InvisiblePlanetaryShield` is removed and `IndEvo_InvisiblePlanetaryShield` added (`CloudPainter.java:40`).
+
+### Cloud Painter shield visuals
+
+`PlanetaryShield.apply` calls `applyVisuals(planet)` only while the shield is functional (skill `api/impl/campaign/econ/impl/PlanetaryShield.java:33-35`). `CloudPainterShieldPatch` redirects that call:
+
+- No functional `CloudPainter` on the market: calls down, vanilla visuals.
+- Otherwise a market with none of the three tags gets `getDefaultTag()`: NONE if `IndEvo_CPShieldRemove`, else LOW if `IndEvo_CPShieldOverride`, else FULL. Markets that already carry a tag keep it.
+- FULL calls down, LOW applies the `IndEvo` / `shield_texture` sprite, NONE calls `PlanetaryShield.unapplyVisuals`.
+- Option "Change Shield Visuals" cycles FULL -> LOW -> NONE. The change shows on the shield's next apply.
+
+The rest of vanilla `apply` (ground defense x3, upkeep, meteor impact suppression) and the AI core stay untouched; the industry is the vanilla one.
 
 ### Tree of Life
 
@@ -73,7 +88,7 @@ Chain: `WorldWonder.apply -> system tag IndEvo_hasWonder -> addCondition(IndEvo_
 
 - The condition is added but never removed by IE. It checks the system tag and a functional wonder of its own faction on each apply, so it goes inert when the wonder is gone.
 - `unapply` removes `IndEvo_hasWonder` even if another wonder in the system is still functional; the next `apply` of that wonder adds it back (inferred: brief stability flicker).
-- Cloud texture and invisible shield stay after the Cloud Painter is removed: `unapply` does not restore `originalClouds` (inferred from `CloudPainter.java:51`).
+- The cloud texture stays after the Cloud Painter is removed: `unapply` does not restore `originalClouds` (inferred from `CloudPainter.java:35`). Shield visuals go back to vanilla on the shield's next apply, the market tags stay.
 - `WorldWonderCondition` keys its mod `"WorldWonder"`, so several wonders give +1 total, not +1 each.
 
 ## Known issues and dormant code
@@ -86,4 +101,4 @@ Chain: `WorldWonder.apply -> system tag IndEvo_hasWonder -> addCondition(IndEvo_
 
 ## Maintenance
 
-Update this doc when a wonder row, its build check, the condition or the alternate image keys change. Shield visuals belong in [Small industries](SMALL_INDUSTRIES.md), list loading in [Utils](../core/UTILS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
+Update this doc when a wonder row, its build check, the condition or the alternate image keys change. List loading belongs in [Utils](../core/UTILS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
