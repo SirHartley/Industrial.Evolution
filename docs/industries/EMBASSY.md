@@ -62,7 +62,7 @@ Outside the package: `indevo/items/specialitemdata/AmbassadorItemData.java`, `in
 ### Hire and transport
 
 1. Greeting `IndEvo_ambassadorGreeting` (`IndEvo_isAmbassador`, `IndEvo_notAtWar`, not player market).
-2. Hire needs `IndEvo_noActiveAmbInCargo` (no tracker for this faction) and `IndEvo_playerHasFreeEmbassy`.
+2. Hire needs `IndEvo_noActiveAmbInCargo` (no tracker for this faction) and `IndEvo_playerHasFreeEmbassy` (free embassies, those without an installed ambassador, must outnumber ambassadors in transit, counted by `AmbassadorItemTrackerPlugin` listeners).
 3. `IndEvo_addAmbassadorToCargo`: new `AmbassadorItemData(IndEvo_amb, null, person)` in fleet cargo, new `AmbassadorItemTrackerPlugin`, person removed from the market (still in `ImportantPeople`).
 4. Install through the industry item menu (`Embassy.getInstallableItems()`, `wantsToUseSpecialItem()`). The tracker sees the item on an Embassy with no ambassador person (`getEmptyEmbassyMarket()`), adds the person there and finishes.
 
@@ -104,7 +104,6 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:47`): `findAmba
 |---|---|
 | `HostileActivityEventSubRegisterScript` | `@Deprecated`, not registered anywhere: dead |
 | Blank rules row after `#END IndEvo PlayerMarketAmbassadorDialogue` | Row with empty id and script `$global.IndEvo_HAASabotage = true` (`rules.csv:681-683`) |
-| `IndEvo_playerHasFreeEmbassy` | `hasListener(AmbassadorItemTrackerPlugin.class)` passes a `Class` to the instance check (`:30`), always false: ambassadors in transit are never counted |
 | `getAmbassador()` | `person.getPostId().equals(...)` NPEs on comm entries without a post id (`:296`). Changelog_todo: "supply station from approlight without postID ... the game would crash when entering approlight colony comm menu" |
 | `createBountyHunter()` | `fleet = null` on empty fleet, then `fleet.getAI()` NPE (`AmbassadorMurderConsequences.java:129-131`) |
 | `getPenaltyFor()` / `IndEvo_checkForRepResponse` | Gaps between bands (0.10 to 0.11, 0.25 to 0.26, 0.50 to 0.51) give no penalty or no matching rule |

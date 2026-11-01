@@ -27,9 +27,7 @@ public class IndEvo_playerHasFreeEmbassy extends BaseCommandPlugin {
             }
         }
 
-        if (Global.getSector().getListenerManager().hasListener(AmbassadorItemTrackerPlugin.class)) {
-            currentAmbassadorsInCargo = Global.getSector().getListenerManager().getListeners(AmbassadorItemTrackerPlugin.class).size();
-        }
+        currentAmbassadorsInCargo = Global.getSector().getListenerManager().getListeners(AmbassadorItemTrackerPlugin.class).size();
 
         return freeEmbassies > currentAmbassadorsInCargo;
     }

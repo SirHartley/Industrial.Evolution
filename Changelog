@@ -63,6 +63,7 @@ Embassy
 Fixed - Ambassadors can now be asked to stop sabotaging hostile activity
 Fixed - Luddic Church ambassadors now reduce hostile activity like the others
 Fixed - Hostile activity tooltip no longer shows relations above the 40 cap, such as 55/40
+Fixed - Can no longer hire more ambassadors than there are free embassies
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
