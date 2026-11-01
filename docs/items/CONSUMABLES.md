@@ -120,7 +120,7 @@ Other effects:
 - Scoop: not in hyperspace; star within 3000 or a nebula tile (`OrbitFocus.getClosestNebulaTilePosition`, [Split fleet](../abilities/SPLIT_FLEET.md)). 3 days, fuel every 1 s of `1000/(dur*10)` times a star type or age mult; sound `IndEvo_succ`.
 - Relay: hyperspace only; `Tags.COMM_RELAY` on the player fleet for 7 days or until leaving hyperspace.
 - Spoofer: sets the fleet faction to the picked one and turns the transponder on. Ends if the transponder goes off or a non-station fleet of another faction comes within radius + 100. Reverts the faction while a market is open (persistent listener while active).
-- Beacon: hyperspace only. A one-shot script opens `BeaconDelegateLaunchpadDialoguePlugin` -> `BeaconMessageSetterDialogueDelegate` (cancel gives an empty message). `spawnBeacon` places `IndEvo_warning_beacon`, orbiting the nearest jump point within 400, and adds `DeployableWarningBeaconIntel`.
+- Beacon: hyperspace only. From the cargo tab, `showInteractionDialogFromCargo` opens `BeaconDelegateLaunchpadDialoguePlugin` over the cargo screen; otherwise a one-shot script retries `showInteractionDialog` until it opens. The dialog shows `BeaconMessageSetterDialogueDelegate` (cancel gives an empty message). `spawnBeacon` places `IndEvo_warning_beacon`, orbiting the nearest jump point within 400, and adds `DeployableWarningBeaconIntel`.
 
 Sources:
 

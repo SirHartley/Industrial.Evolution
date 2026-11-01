@@ -1,7 +1,5 @@
 package indevo.industries.petshop.dialogue;
 
-import com.fs.starfarer.api.EveryFrameScript;
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.ui.*;
@@ -71,27 +69,6 @@ public class PetNameAndAssignDialogueDelegate implements CustomDialogDelegate {
 
     public void customDialogCancel() {
         dialogue.dismiss();
-
-        Global.getSector().setPaused(false);
-        Global.getSector().addScript(new EveryFrameScript() {
-            boolean done = false;
-
-            @Override
-            public boolean isDone() {
-                return done;
-            }
-
-            @Override
-            public boolean runWhilePaused() {
-                return false;
-            }
-
-            @Override
-            public void advance(float amount) {
-                if (!done) Global.getSector().getCampaignUI().showCoreUITab(CoreUITabId.CARGO);
-                done = true;
-            }
-        });
     }
 
     public CustomUIPanelPlugin getCustomPanelPlugin() {

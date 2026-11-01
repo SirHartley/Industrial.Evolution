@@ -68,7 +68,7 @@ Code paths relative to `jars/src/indevo/`.
 
 ### Getting a pet
 
-`PetSubMarket` restock -> `IndEvo_PetBox` in cargo -> right-click in fleet cargo tab (`PetItemPlugin.performRightClickAction()`) -> sets `$petBoxActive`, presses Escape through `java.awt.Robot` -> script opens `PetPickerInteractionDialoguePlugin` -> name -> ship picker -> `new Pet` -> `PetStatusManager.register` -> `Pet.assign(member)` -> item removed.
+`PetSubMarket` restock -> `IndEvo_PetBox` in cargo -> right-click in fleet cargo tab (`PetItemPlugin.performRightClickAction(RightClickActionHelper)`) -> sets `$petBoxActive` -> `showInteractionDialogFromCargo` opens `PetPickerInteractionDialoguePlugin` over the cargo screen -> name -> ship picker -> `new Pet` -> `PetStatusManager.register` -> `Pet.assign(member)` -> box removed through `helper.removeFromClickedStackFirst(1)`. Every dismiss (assigned, cancelled) returns to the cargo screen and unsets `$petBoxActive`.
 
 - Restock: weighted picker over pets without `no_sell`, weight = rarity (x1.3 with an alpha core when rarity < 0.5). Picks = market size; amount per pick = floor(rarity x 3), at least 1.
 - Tariff 0.2, 0 with a beta core. Selling to the submarket is illegal.
@@ -102,6 +102,7 @@ Code paths relative to `jars/src/indevo/`.
 ## Contracts
 
 - `Pet.personality` uses `Academy.COLOURS_BY_PERSONALITY` (`Pet.java:56`, `:213`); see [Academy](ACADEMY.md).
+- Dialogs from `showInteractionDialogFromCargo` do not become `getCurrentInteractionDialog()` (`obf/campaign/CampaignState.java:2298-2318`, `:2372`), so `isFleetCargo()` stays true while the picker is open; `$petBoxActive` blocks a second box. It is set with expire 0 as a fallback and unset by the dismiss delegate.
 - `EscapeInterceptListener` and `EscBlockerMemoryIterator` are also used by `industries/museum/plugins/ManageParadeDialoguePlugin.java` ([Museum](MUSEUM.md)).
 - `SelfRepairingBuiltInHullmod` is the base for changeling `HandBuiltHullmod`, Hellpods and distress hullmods ([Changeling](CHANGELING.md), [Distress](../exploration/DISTRESS.md)). `PetHullmod` is the plugin class for the ghost ship rows in `hull_mods.csv:20-59`; those ships have no pet, so `getPet()` returns null there.
 - Any code that removes ships from the player fleet without a market transaction or battle does not report a pet death; the pet stays registered with a stale member (inferred).
@@ -113,11 +114,9 @@ Code paths relative to `jars/src/indevo/`.
 | Item | State |
 |---|---|
 | Storage fee report | Changelog_todo: "Fix the -1c pet food cost in monthly report"; not explained by the storage fee code |
-| `PetPickerInteractionDialoguePlugin` | `hasShownPicker` is never set to true; `advance()` calls `showShipPicker()` every frame once named (`:121`) |
+| `PetPickerInteractionDialoguePlugin` | `hasShownPicker` is never set to true; `advance()` calls `showShipPicker()` every frame once named (`:122`) |
 | `PetStatusManager.feed()` | Returns false when the member is in no live fleet, marked "todo this is broken" (`:116`) |
 | `reportPetDied()` | NPE when both `assignedFleetMember` and `storage` are null (`PetStatusManager.java:167`) |
-| `$petBoxActive` | Set with expire 0 (`PetItemPlugin.java:197`), never unset by IE. Engine drops it on the first unpaused memory advance (`obf/campaign/rules/Memory.java:127-136`, `:184`), so it only blocks while paused |
-| `java.awt.Robot` | Closes the cargo screen by a real key press; fails on headless or restricted systems (logged) |
 | `YourMod_PetName_PetHullmod` | Checks `isModEnabled("indEvo")` (`:31`, `:48`); the mod id is `IndEvo` and `ModManager.isModEnabled` compares exactly (`obf/launcher/ModManager.java:196`), so a copy of the template never applies effects or tooltip |
 | `PetStatusListenerAPI` | Dead |
 | `PetShop.ensurePetShopCreatedOrAssigned()`, `removeStationEntityAndFleetIfNeeded()`, entity `IndEvo_PetShop`, `PetShopCampaignPlugin` | Legacy station version, deprecated, not called |
