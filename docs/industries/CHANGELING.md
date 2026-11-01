@@ -138,7 +138,7 @@ Apply chain: `SwitchableX.init -> setCurrent(list[0])` on first init, then `Swit
 | Forge World without spaceport | Suspected: `return` in the unrest branch also skips ship building (`:213`) |
 | Underworld mismanagement unmodify | Key mismatch `modId + "_mm"` vs `"_" + modId + "_mm"` (`:378-385`) |
 | `_ms` stability cleanup | Checks `mod.desc`, which is "Base value", so it never matches (`UnderworldSubIndustry.java:335`, `CorporateGovernanceSubIndustry.java:206`) |
-| `HandBuiltHullmod` | Loop `i <= EFFECT_COUNT` rolls 5 effects, not 4 (`:45`); repo entries are never pruned |
+| `HandBuiltHullmod` | Repo entries are never pruned, one per hand built ship; ships built before 4.1.c keep their 5 stored effects |
 | Changelog_todo | "Choose a government popup on colony establishment", "add some more info/tt/notifications to governments" |
 
 ## Maintenance

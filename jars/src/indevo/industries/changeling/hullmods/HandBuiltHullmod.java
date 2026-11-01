@@ -42,7 +42,7 @@ public class HandBuiltHullmod extends SelfRepairingBuiltInHullmod {
 
         HandBuiltEffect effect = new HandBuiltEffect(id);
 
-        for (int i = 0; i <= EFFECT_COUNT; i++) {
+        for (int i = 0; i < EFFECT_COUNT; i++) {
             effect.add(picker.pickAndRemove(), random.nextFloat() * (MAX_EFFECT - MIN_EFFECT) + MIN_EFFECT);
         }
 
