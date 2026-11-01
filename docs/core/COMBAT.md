@@ -53,7 +53,7 @@ All rows in `data/weapons/weapon_data.csv`. Player weapons are tagged `no_dealer
 ## Registration and lifecycle
 
 - `.wpn` / `.proj` plugin keys -> engine instantiates the effect classes.
-- `ModPlugin.pickMissileAI` (`indevo/utils/ModPlugin.java:396`): projectile spec `IndEvo_mortar_projectile` -> `IndEvo_mortarProjectileAI`, `IndEvo_missile_projectile` -> `IndEvo_missileProjectileAI`, priority `MOD_SPECIFIC`.
+- `ModPlugin.pickMissileAI` (`indevo/utils/ModPlugin.java:398`): projectile spec `IndEvo_mortar_projectile` -> `IndEvo_mortarProjectileAI`, `IndEvo_missile_projectile` -> `IndEvo_missileProjectileAI`, priority `MOD_SPECIFIC`.
 - `IndEvo_missileProjectileAI.splode()` -> `engine.addPlugin(new IndEvo_CombatSlowFieldTerrain(...))` -> per ship hit during ramp up `engine.addPlugin(new IndEvo_ForcedOverload(...))`.
 - `IndEvo_degradeEffect.onHit` -> `engine.addLayeredRenderingPlugin(new IndEvo_degradeEffect(proj, target, offset))`.
 

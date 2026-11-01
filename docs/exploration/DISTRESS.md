@@ -12,7 +12,7 @@ Real status: not built and not running.
 
 - `IndEvo.iml` excludes the whole folder (`excludeFolder .../exploration/distress`), and the IntelliJ artifact `.idea/artifacts/IndEvo_jar.xml` packs module output only, so none of these classes are in `jars/IndEvo.jar`.
 - The code does not compile as is: it uses `GhostShipIntel`, `DistressCallIntel`, `ALIEN_ATTACK_TIMER`, `TIMER_HULLMOD_1..6`, `_DEBUG`, `PLAGUE_CONDITION` and intel type constants (`PLAGUE_PLANET`, `GATE_LOST`, `PLAGUE_THRESHOLD`, `NANITE_TRANSMISSION`, `CANNIBAL_ATTACK`), none of which exist; `PlaguePlanetIntel.java:15` calls a `GhostShipIntelBase` constructor that does not exist.
-- The only references from outside are commented out: `//DistressCallManager.getInstanceOrRegister();` and `//HullmodTimeTracker.getInstanceOrRegister();` (`indevo/utils/ModPlugin.java:510-511`).
+- The only references from outside are commented out: `//DistressCallManager.getInstanceOrRegister();` and `//HullmodTimeTracker.getInstanceOrRegister();` (`indevo/utils/ModPlugin.java:512-513`).
 - `data/config/indEvo/distress_call_data.csv` is read only by `DistressCallManager.loadEvents()` (`events/DistressCallManager.java:32`, `:75`), so it is never read. Its one row points at Vayra's `data.scripts.campaign.events.VayraGhostShipDistressCall`, not at `GhostShipDistressCall`.
 - Live leftovers in loaded data: ghost ship hullmod rows, ghost ship rules, the `Ids` constants. See Data and ids.
 
@@ -74,7 +74,7 @@ The ghost ship rules in `rules.csv` load, but only match on memory keys set by `
 
 | Item | State |
 |---|---|
-| Whole package | Excluded by `IndEvo.iml`; does not compile; unregistered (`ModPlugin.java:512-513` commented) |
+| Whole package | Excluded by `IndEvo.iml`; does not compile; unregistered (`ModPlugin.java:514-515` commented) |
 | `distress_call_data.csv` | Never read; script class is Vayra's, not in IE |
 | `HullmodTimeTracker.getInstanceOrRegister()` | Checks `hasListenerOfClass(AdminGovernTimeTracker.class)` instead of its own class (`:19`); would register a new tracker every call |
 | `GhostShip.advanceInCombat()` | Hyperlost and nanite branches are nested inside the rogue AI `if` (`:158-225`), so they only run on rogue AI ships |

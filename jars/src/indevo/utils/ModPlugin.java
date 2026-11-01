@@ -33,6 +33,7 @@ import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
 import indevo.WIP.mobilecolony.plugins.MobileColonyCampaignPlugin;
 import indevo.abilities.skills.scripts.AdminGovernTimeTracker;
 import indevo.abilities.skills.scripts.MicromanagementSkillEffectScript;
+import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.dialogue.beacons.dialogue.BeaconDialogueListener;
@@ -164,6 +165,7 @@ public class ModPlugin extends BaseModPlugin {
         ResourceConditionApplicator.applyResourceConditionToAllMarkets();
         loadTransientMemory();
         PlanetoidDespawnScript.despawnStrandedPlanetoids();
+        OrbitFocus.removeUnusedOrbitFoci();
 
         //balance and spec changes
 

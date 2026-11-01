@@ -27,6 +27,10 @@ public class RecoverableShipIntel extends FleetLogIntel {
         this.token = token;
     }
 
+    public SectorEntityToken getToken() {
+        return token;
+    }
+
     private List<SectorEntityToken> getTokenList() {
         return (List<SectorEntityToken>) token.getMemoryWithoutUpdate().get(ORBIT_FOCUS_ORBITING_TOKEN_LIST);
     }

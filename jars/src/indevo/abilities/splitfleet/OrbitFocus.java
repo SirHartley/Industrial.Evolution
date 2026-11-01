@@ -1,19 +1,22 @@
 package indevo.abilities.splitfleet;
 
+import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.ai.FleetAssignmentDataAPI;
+import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.terrain.*;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.fleetAssignmentAIs.BaseSplinterFleetAssignmentAIV2;
+import indevo.abilities.splitfleet.intel.RecoverableShipIntel;
 import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
 
-import java.util.Map;
-import java.util.Random;
-import java.util.TreeMap;
+import java.util.*;
 
 public class OrbitFocus {
 
@@ -22,6 +25,40 @@ public class OrbitFocus {
     public static final float MAXIMUM_DISTANCE_TO_NON_CENTERED_ENTITY = 2000f;
     public static final float FALLOFF_DIST_UNITS_PER_TEN_PERCENT = 400f;
     public static final String ORBIT_FOCUS_TAG = "SplinterFleet_OF";
+
+    // foci are never removed when their ai or wrecks go away, so unreferenced ones are dropped on load
+    public static void removeUnusedOrbitFoci() {
+        List<SectorEntityToken> foci = Global.getSector().getEntitiesWithTag(ORBIT_FOCUS_TAG);
+        if (foci.isEmpty()) return;
+
+        Set<SectorEntityToken> used = new HashSet<>();
+
+        for (LocationAPI loc : Global.getSector().getAllLocations()) {
+            for (SectorEntityToken t : loc.getAllEntities()) {
+                if (t.getOrbitFocus() != null) used.add(t.getOrbitFocus());
+            }
+
+            for (CampaignFleetAPI fleet : loc.getFleets()) {
+                if (fleet.getOrbitFocus() != null) used.add(fleet.getOrbitFocus());
+                if (fleet.getInteractionTarget() != null) used.add(fleet.getInteractionTarget());
+                if (fleet.getAI() != null) {
+                    for (FleetAssignmentDataAPI a : fleet.getAI().getAssignmentsCopy()) used.add(a.getTarget());
+                }
+
+                for (EveryFrameScript s : fleet.getScripts()) {
+                    if (s instanceof BaseSplinterFleetAssignmentAIV2 ai) ai.addUsedEntities(used);
+                }
+            }
+        }
+
+        for (IntelInfoPlugin intel : Global.getSector().getIntelManager().getIntel(RecoverableShipIntel.class)) {
+            used.add(((RecoverableShipIntel) intel).getToken());
+        }
+
+        for (SectorEntityToken focus : foci) {
+            if (!used.contains(focus) && focus.getContainingLocation() != null) focus.getContainingLocation().removeEntity(focus);
+        }
+    }
 
     public static SectorEntityToken getOrbitFocusAtTokenPosition(SectorEntityToken token) {
         LocationAPI location = token.getContainingLocation();

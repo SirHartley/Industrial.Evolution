@@ -9,6 +9,8 @@ import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.OrbitFocus;
 
+import java.util.Set;
+
 public class StayAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
 
     SectorEntityToken orbitFocus;
@@ -19,6 +21,12 @@ public class StayAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
         this.orbitFocus = OrbitFocus.getOrbitFocusAtTokenPosition(fleet);
 
         giveInitialAssignments();
+    }
+
+    @Override
+    public void addUsedEntities(Set<SectorEntityToken> used) {
+        super.addUsedEntities(used);
+        used.add(orbitFocus);
     }
 
     @Override

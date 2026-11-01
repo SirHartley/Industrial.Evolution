@@ -24,6 +24,7 @@ import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class BaseSplinterFleetAssignmentAIV2 extends BaseAssignmentAI implements SplinterFleetAssignmentAIV2, CampaignEventListener, GateTransitListener {
 
@@ -310,7 +311,10 @@ public abstract class BaseSplinterFleetAssignmentAIV2 extends BaseAssignmentAI i
                         fleet.getMemoryWithoutUpdate().set(MemFlags.ENTITY_MISSION_IMPORTANT, true);
 
                         SectorEntityToken focus = OrbitFocus.getOrbitFocusAtTokenPosition(fleet);
-                        if (focus != null && focus.getOrbit() != null) fleet.setOrbit(focus.getOrbit().makeCopy());
+                        if (focus != null) {
+                            if (focus.getOrbit() != null) fleet.setOrbit(focus.getOrbit().makeCopy());
+                            focus.getContainingLocation().removeEntity(focus);
+                        }
                         fleet.setVelocity(0, 0);
 
                         break;
@@ -435,6 +439,7 @@ public abstract class BaseSplinterFleetAssignmentAIV2 extends BaseAssignmentAI i
                     StarSystemAPI sys = Global.getSector().getPlayerFleet().getStarSystem();
 
                     SectorEntityToken hSJumpFocus = Global.getSector().getHyperspace().addCustomEntity(Misc.genUID(), null, "SplinterFleet_OrbitFocus", Factions.NEUTRAL);
+                    hSJumpFocus.addTag(OrbitFocus.ORBIT_FOCUS_TAG);
                     hSJumpFocus.setLocation(sys.getLocation().x + 50f, sys.getLocation().y);
 
                     SectorEntityToken inSystemTarget = null;
@@ -454,11 +459,19 @@ public abstract class BaseSplinterFleetAssignmentAIV2 extends BaseAssignmentAI i
 
                     //there is neither a jp in HS nor an entity to jump to in the system, just add both of them
                     SectorEntityToken inSystemTempJumpFocus = sys.addCustomEntity(Misc.genUID(), null, "SplinterFleet_OrbitFocus", Factions.NEUTRAL);
+                    inSystemTempJumpFocus.addTag(OrbitFocus.ORBIT_FOCUS_TAG);
                     inSystemTempJumpFocus.setLocation(sys.getCenter().getLocation().x + 3000f, sys.getCenter().getLocation().y);
 
                     addToJumpList(hSJumpFocus, inSystemTempJumpFocus);
                 }
             }
+        }
+    }
+
+    public void addUsedEntities(Set<SectorEntityToken> used) {
+        for (JumpInfo info : jumpInfoMap.values()) {
+            used.add(info.from);
+            if (info.to != null) used.add(info.to.getDestination());
         }
     }
 

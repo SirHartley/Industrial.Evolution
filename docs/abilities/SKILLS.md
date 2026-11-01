@@ -29,14 +29,14 @@ IE adds four admin only skills, tagged `npc_only`, so they never show in the pla
 | Skill | `indevo_Micromanagement` (Micromanagement, `industry`), `Ids.MICROMANAGEMENT` | same, `indevo_Micromanagement.skill`, `indevo/ids/Ids.java:138` |
 | Skill tags | `npc_only, indevo`; `admin` column `TRUE` | `skill_data.csv` |
 | Vanilla setting | `allowRemoteIndustryItemManagement` | game `data/config/settings.json:300` (default `false`) |
-| Memory, sector | `$IndEvo_BaseRemoteAllowed` (the setting's value at load) | set in `ModPlugin.java:201`, read in `MicromanagementSkillEffectScript.kt:92` |
+| Memory, sector | `$IndEvo_BaseRemoteAllowed` (the setting's value at load) | set in `ModPlugin.java:203`, read in `MicromanagementSkillEffectScript.kt:92` |
 | Unused ids | `Ids.SKILL_FLEET_LOGISTICS`, `SKILL_INDUSTRIAL_PLANNING`, `SKILL_PLANETARY_OPERATIONS` (`indevo_FleetLogistics` etc.) | `Ids.java:135`; do not match the real skill ids, nothing reads them |
 
 ## Registration and lifecycle
 
 - Skills load from `data/characters/skills/*.skill`; each has one `GOVERNED_OUTPOST` effect whose `script` names the inner class (`indevo.abilities.skills.FleetLogistics$Market1` etc.).
 - Admins get them through vanilla `OfficerManagerEvent.createAdmin`, which picks from every `isAdminSkill()` skill that is not deprecated, `player_only` or `ai_core_only` (`api/impl/campaign/events/OfficerManagerEvent.java:322`). `npc_only` only hides them from the player tree (`api/util/SkillData.java:56`).
-- `ModPlugin.setListenersIfNeeded` -> `MicromanagementSkillEffectScript.register()` (`ModPlugin.java:484`, deduped by `hasScript`) and `AdminGovernTimeTracker.getInstanceOrRegister()` (`ModPlugin.java:485`, deduped by `hasListenerOfClass`). Both persist in the save.
+- `ModPlugin.setListenersIfNeeded` -> `MicromanagementSkillEffectScript.register()` (`ModPlugin.java:486`, deduped by `hasScript`) and `AdminGovernTimeTracker.getInstanceOrRegister()` (`ModPlugin.java:487`, deduped by `hasListenerOfClass`). Both persist in the save.
 
 Order: `onGameLoad -> $IndEvo_BaseRemoteAllowed = setting -> register script and tracker -> new day: tracker counts -> paused UI frame: script sets setting`.
 

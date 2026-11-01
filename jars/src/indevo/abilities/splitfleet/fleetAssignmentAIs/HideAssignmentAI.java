@@ -11,6 +11,8 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 
+import java.util.Set;
+
 public class HideAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
 
     SectorEntityToken orbitFocus;
@@ -21,6 +23,12 @@ public class HideAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
         this.orbitFocus = OrbitFocus.getHideOrbitFocus(fleet);
 
         giveInitialAssignments();
+    }
+
+    @Override
+    public void addUsedEntities(Set<SectorEntityToken> used) {
+        super.addUsedEntities(used);
+        used.add(orbitFocus);
     }
 
     @Override
