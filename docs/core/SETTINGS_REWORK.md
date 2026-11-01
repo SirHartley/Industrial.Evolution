@@ -91,7 +91,7 @@ Tab layout after the split (nine tabs, as Catch.Release):
 - Runtime callers read the cache through `Setting`. An `EnumMap` lookup is cheap enough for per frame reads.
 - `applyCampaignSettings()` runs from `onGameLoad` and from the listener. From the listener it runs only when `Global.getCurrentState() == GameState.CAMPAIGN`: the LunaLib menu also opens on the title screen, where `Global.getSector()` is the previous game's sector (knowledge skill `docs/concepts/lifecycle.md`). Catch.Release gates on `Global.getSector() == null`, which never trips there; the same gap exists in that mod. First content: the pet ability add or remove, moved out of `ModPlugin.onGameLoad`.
 - LunaLib catches listener exceptions and logs them at debug level (`LunaSettings.reportSettingsChanged`), so `settingsChanged` catches and logs with `log.error` and the stack itself.
-- LunaLib does not call listeners for a Save in the new game settings panel (`LunaSettingsUIModsPanel`, `if (!this.newGame)`), so the `onGameLoad` reload is required, as in Catch.Release.
+- LunaLib does not call listeners for a Save in the new game settings panel (`LunaSettingsUIModsPanel`, `if (!this.newGame)`), so the `onGameLoad` reload is required, as in Catch.Release. LunaLib still stores that Save in `LunaSettingsLoader.getSettings()`, and IE places world content in `onNewGameAfterEconomyLoad`, before `onGameLoad(true)`, so that hook reloads first as well.
 - No `LunaSettingsBridge`: presets are not planned (decision 2), and sanitize and the pair rule give the same result when LunaLib writes a retained pending value again.
 
 ### Apply timing
@@ -100,7 +100,7 @@ Tab layout after the split (nine tabs, as Catch.Release):
 - Help text states the new game part in the short style the CSV already uses ("Needs a new game!", "Only works on new game."), normalised to one line: "Needs a new game."
 - `NEW_GAME` settings only act during world generation; their help text ends with that line: `IndEvo_enable_derelict_stations`, `IndEvo_derelictStationAmount`, `IndEvo_SpecialApplicationChance`, `IndEvo_AutomatedShipyardNum`, `IndEvo_Artillery_spawnWeight`, `IndEvo_Artillery_starsPerStationInConstellation`.
 - Mixed toggles act both in world generation and live: `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_Enable_Derelicts`, `IndEvo_pets`, and the industry toggles `NewGameIndustryPlacer` reads. They stay `LIVE`; help text names the part that needs a new game ("Placement needs a new game.").
-- Values copied into saved objects keep their old value until the object is rebuilt: `CampaignAttackScript` builds its fire interval from the delay settings in its constructor (`CampaignAttackScript.java:50`); each courier shipment fixes its cost at dispatch (`Shipment.java:52`). Museum parades not checked yet. House rule: new terms use the values at creation, accepted terms stay fixed. Stage 2 decides each case and records it in the feature doc.
+- Values copied into saved objects keep their old value until the object is rebuilt: `CampaignAttackScript` builds its fire interval from the delay settings in its constructor (`CampaignAttackScript.java:50`); each courier shipment fixes its cost at dispatch (`Shipment.java:52`). Museum: nothing saved holds a setting. `Museum.maxParades` is a saved field but `unapplyAICoreModifiers` resets it on every `apply` (`BaseIndustry.apply` calls `applyAICoreModifiers`), and parade size settings are read when a parade spawns (`ParadeFleetProfile.java:93`, `:121`, `:127`); a parade already flying keeps its ships. House rule: new terms use the values at creation, accepted terms stay fixed. Stage 2 decides each case and records it in the feature doc.
 
 ## Dependencies
 
@@ -198,7 +198,7 @@ Each stage is one pull request and depends on the stages before it. Within a sta
   - Logic: sanitize (missing, wrong type, NaN, infinity, clamp, Int rounding), the pair rule, Starsector's checked `JSONException`.
   - Blocks: every block is a `BOOLEAN` in Quick Settings and has no block itself.
   - Source: no `LunaSettings.get` outside `indevo/config`.
-- [ ] 3.2 Help text for the 27 empty rows and a pass over the informal ones, in the CSV's existing short style.
+- [ ] 3.2 Help text for the 27 empty rows and a pass over the informal ones, in the CSV's existing short style. Keep the limits the old `settings.json` comments stated: missile projectiles per shot must be even, railgun projectiles need a higher fuzz mult, Supercomputer runtimes should be multiples of 31 (tooltips), Salvage Yards off also stops ship component drops, Embassy off also stops ambassador scripts.
 - [ ] 3.3 Quick Settings and the nine tab layout, rows moved with their ids.
 
 Steps that change what the player sees end with a live test by Philipp: change a setting in a running campaign, Save, and check it applies; start a new game with changed new game settings.
@@ -208,4 +208,4 @@ Steps that change what the player sees end with a live test by Philipp: change a
 - Mod order: IE's `onApplicationLoad` runs before LunaLib's (hooks run in mod `name` order, `lifecycle.md`), so `reload()` must force LunaLib's load; LunaLib then skips its own (`getHasLoaded`).
 - LunaLib's `onDevModeF8Reload` reloads settings without calling listeners, and runs after IE's hook. In dev mode, Save again or reload the game after F8.
 - LunaLib writes defaults for missing keys (`saveDefaultsToFile`). A renamed `fieldID` resets that setting for every player.
-- Minefields off: `beforeGameSave` still removes untouched mines, `restoreRemovedEntities` skips them and `createMines` makes none, so turning minefields back on depends on the belts regenerating (`MineBeltTerrainPlugin.createMines`, `ModPlugin.java:375`). Inferred, not tested; recheck in 2.1.
+- Minefields off: hits stop at once (`MineBeltTerrainPlugin.applyEffect`). On the next save `beforeGameSave` removes untouched mines and `restoreRemovedEntities` does not put them back, so they leave the running game too; mines with memory stay. Back on: vanilla calls `regenerateAsteroids()` on every `AsteroidSource` at each game load (`CoreLifecyclePluginImpl.onGameLoad`, `regenAsteroids`), which recreates `params.numMines` mines. Removed mines return at the next load, not at once. Calling `createMines` from the listener instead would double the mines that were never removed.
