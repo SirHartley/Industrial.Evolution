@@ -8,7 +8,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 On each economy tick while the player is in a valid system, `MeteorSwarmManager` rolls a shower. A shower is an arc across the system (start and end on the grid boundary, through a point 3000..10000 from the centre); after a 2..5 day delay a spawner script moves meteors along it for a runtime in seconds. Meteors that touch fleets or stations push them, damage ships and break into fragments. Treasure meteors drop salvage on impact. The first valid tick also spawns a roider fleet that sells concussive missiles and schedules a tutorial shower.
 
-Current state of the type roll: only `PLANETOID` has non-zero weight (`MeteorSwarmManager.java:74-79`), so every random shower is a planetoid swarm. Asteroid, ice and radioactive swarms run only when forced (tutorial forces `ASTEROID`).
+Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3, `IRRADIOID` 3, `PLANETOID` 3. The tutorial forces `ASTEROID`.
 
 ## Files
 
@@ -58,9 +58,9 @@ Current state of the type roll: only `PLANETOID` has non-zero weight (`MeteorSwa
 | Settings | `IndEvo_meteor_enabled` (true), `_baseChancePerEconomyTick` (0.02), `_immediateMode` (false), `_minIntensity` (1), `_maxIntensity` (3), `_baseShowerWidth` (5000), `_intensityWidthModifier` (1000), `_maxDensity` (2.5), `_maxRuntimeMult` (2.5), `_baseRuntime` (50 s), `_locationTimeoutAfterSpawnDays` (186), `_generalTimeoutAfterSpawnDays` (31), `_gridLimit` (26000), `_maxDistanceFromSun` (10000), `_minDistanceFromSun` (3000), `_maxAngle` (80), `_minAngle` (50) | `data/config/LunaSettings.csv:24-40`, ids in `indevo/utils/helper/Settings.java:131-147`, read in `MeteorSwarmManager.java:44-61`, `:192` |
 | Custom entities | `IndEvo_meteor_1..4` (`MeteorEntity`), `IndEvo_icy_rock_1..6` (`IcyRockEntity`), `IndEvo_spicy_rock_1..4` (`SpicyRockEntity`), `IndEvo_spicy_rock_5` (`TreasuradoidEntity`), `IndEvo_meteor_treasure_1` (`TreasuroidEntity`), `IndEvo_meteor_treasure_2` (`IceTreasureoidEntity`), `IndEvo_warning_sign`, `IndEvo_token` | `data/config/custom_entities.json:30-316`, `:410` |
 | Terrain | `IndEvo_radioactive_field` -> `RadioactiveTerrain` | `data/campaign/terrain.json:6` |
-| Memory key | `$IndEvo_MeteorTimeout` (global and location, expiring) | `MeteorSwarmManager.java:41`, set `:202-203` |
+| Memory key | `$IndEvo_MeteorTimeout` (global and location, expiring) | `MeteorSwarmManager.java:41`, set `:195-196` |
 | Memory key | `$IndEvo_MeteorTutorialComplete` (global) | `MeteorSwarmManager.java:39` |
-| Persistent data | `$IndEvo_MeteorRandom` (shared `Random`) | `MeteorSwarmManager.java:40`, `:213` |
+| Persistent data | `$IndEvo_MeteorRandom` (shared `Random`) | `MeteorSwarmManager.java:40`, `:206` |
 | Memory key | `$IndEvo_RadEffectLevel` (per fleet, 0..1) | `RadiationEffectHandler.java:33` |
 | Memory key | `$IndEvo_warningRenderer` (location, the path renderer instance) | `MeteorSwarmWarningPathRenderer.java:23` |
 | Memory key | `$IndEvo_roider_tutorial`, `$IndEvo_supplyTradeAmt` (tutorial fleet) | `TutorialEncounterScript.java:79-80` |
@@ -72,7 +72,7 @@ Current state of the type roll: only `PLANETOID` has non-zero weight (`MeteorSwa
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:501`) adds a transient listener each load (`MeteorSwarmManager.java:97`).
+- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:501`) adds a transient listener each load (`MeteorSwarmManager.java:90`).
 - Spawners, warning path renderer and delayed spawn are location scripts; meteors are custom entities with saved plugins.
 - `ModPlugin.onGameLoad() -> PlanetoidDespawnScript.despawnStrandedPlanetoids()` (`indevo/utils/ModPlugin.java:166`): fades rings and stations whose planetoid is gone, despawns planetoids without a runner, swaps a 4.1.b `DespawningMovementModuleRunner` for a `PayloadOnFinishedModuleRunner` and restores a null payload.
 - `RadiationEffectHandler.get()` adds itself as a transient Luna renderer on first use per session (`:40-49`).
@@ -83,9 +83,9 @@ Current state of the type roll: only `PLANETOID` has non-zero weight (`MeteorSwa
 
 ### Roll and parameters
 
-- `reportEconomyTick` (`MeteorSwarmManager.java:105`): skip if `IndEvo_meteor_enabled` false or location invalid. Chance per tick `IndEvo_meteor_baseChancePerEconomyTick` (0.1 in dev mode). First valid tick adds `TutorialEncounterScript` and sets `$IndEvo_MeteorTutorialComplete`.
-- `isValidMeteorLoc` (`:125`): no pulsar planet, no global or location timeout, not hyperspace, no markets, not `SYSTEM_CUT_OFF_FROM_HYPER`, `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`.
-- `spawnShower` (`:149`): `width = baseWidth + modifier * intensity`, `lootAmt = max(1, round(intensity * treasureModifier))`, `density = min(maxDensity, intensity)`, `runtime = baseRuntime * min(maxRuntimeMult, intensity)` in seconds. Arc centre at random distance and angle; start and end at `angleToCenter +- (50..80)` intersected with the `gridLimit` square (`intersectWithGridBoundary`), circle through the three points (`TrigHelper.findThreePointCircle`). Delay `max(2, nextInt(6))` days, 0 in immediate mode.
+- `reportEconomyTick` (`MeteorSwarmManager.java:98`): skip if `IndEvo_meteor_enabled` false or location invalid. Chance per tick `IndEvo_meteor_baseChancePerEconomyTick` (0.1 in dev mode). First valid tick adds `TutorialEncounterScript` and sets `$IndEvo_MeteorTutorialComplete`.
+- `isValidMeteorLoc` (`:118`): no pulsar planet, no global or location timeout, not hyperspace, no markets, not `SYSTEM_CUT_OFF_FROM_HYPER`, `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`.
+- `spawnShower` (`:142`): `width = baseWidth + modifier * intensity`, `lootAmt = max(1, round(intensity * treasureModifier))`, `density = min(maxDensity, intensity)`, `runtime = baseRuntime * min(maxRuntimeMult, intensity)` in seconds. Arc centre at random distance and angle; start and end at `angleToCenter +- (50..80)` intersected with the `gridLimit` square (`intersectWithGridBoundary`), circle through the three points (`TrigHelper.findThreePointCircle`). Delay `max(2, nextInt(6))` days, 0 in immediate mode.
 
 ### Collision
 
@@ -114,7 +114,6 @@ Current state of the type roll: only `PLANETOID` has non-zero weight (`MeteorSwa
 
 | Item | State |
 |---|---|
-| Type weights | `ASTEROID`, `ICEROID`, `IRRADIOID` have chance 0; old weights commented (`MeteorSwarmManager.java:75-85`) |
 | `MeteorShowerLocationIntel.advance()` | Calls `endAfterDelay(20)` every frame once the countdown ends (`:40-43`); `BaseIntelPlugin.endAfterDelay` resets `endingTimeRemaining` each call (starsector-knowledge `api/impl/campaign/intel/BaseIntelPlugin.java:107`), so the intel never ends and `dateString` is always today |
 | `TutorialEncounterScript` source market | Ternary is inverted: `isEmpty() ? get(0) : null` (`:45`); throws if the faction has no markets, else always null |
 | `PlanetoidSwarmSpawner.addStation()` | Every station uses id `<planet id>_loot` (`:203`); with `lootAmt > 2.1` two entities share one id |
