@@ -126,7 +126,7 @@ public class AmbassadorMurderConsequences implements EveryFrameScript, FleetEven
         params.random = random;
 
         CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
-        if (fleet.isEmpty()) fleet = null;
+        if (fleet == null || fleet.isEmpty()) return null;
 
         EncounterOption option = fleet.getAI().pickEncounterOption(null, Global.getSector().getPlayerFleet());
         if (option == EncounterOption.DISENGAGE) {

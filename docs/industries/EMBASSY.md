@@ -104,7 +104,6 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:47`): `findAmba
 |---|---|
 | `HostileActivityEventSubRegisterScript` | `@Deprecated`, not registered anywhere: dead |
 | Blank rules row after `#END IndEvo PlayerMarketAmbassadorDialogue` | Row with empty id and script `$global.IndEvo_HAASabotage = true` (`rules.csv:681-683`) |
-| `createBountyHunter()` | `fleet = null` on empty fleet, then `fleet.getAI()` NPE (`AmbassadorMurderConsequences.java:129-131`) |
 | `getPenaltyFor()` / `IndEvo_checkForRepResponse` | Gaps between bands (0.10 to 0.11, 0.25 to 0.26, 0.50 to 0.51) give no penalty or no matching rule |
 | `moveAmbassadorToClosestEmbassy` | Fee is booked even if the move script later fails its checks |
 | Changelog_todo | "embassy rep limit"; "embassy rep impact rolling number -> fixed num"; "Add ambassadors as contacts" |
