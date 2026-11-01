@@ -25,15 +25,15 @@ On a new game `DerelictStationPlacer` counts the vanilla salvageable stations (m
 | Salvage gen rows | same three ids: rating, detection range 2200, `DISCOVERABLE`, XP, `drop_value`, `drop_random` | `data/campaign/procgen/salvage_entity_gen_data.csv:2`, `:9`, `:18` |
 | Drop groups | lab: `indEvo_tech`, `indEvo_consumables`, `indEvo_missiles`; arsenal: `indEvo_weapons`, `indEvo_consumables`, `indEvo_missiles_always`, `indEvo_missiles`; pet center: `indEvo_petStuff`, `indEvo_pets_normal`, `indEvo_pets_rare`, `indEvo_consumables` | `data/campaign/procgen/drop_groups.csv` |
 | Descriptions | `IndEvo_arsenalStation`, `IndEvo_orbitalLaboratory`, `IndEvo_abandonedPetCenter` (CUSTOM) | `data/strings/descriptions.csv:4-5`, `:26` |
-| Setting | `IndEvo_Enable_Derelicts` | `LunaSettings.csv:14`; checked in `ModPlugin.onNewGameAfterEconomyLoad` before calling the placer |
-| Setting | `IndEvo_enable_derelict_stations` | `LunaSettings.csv:18`; `DerelictStationPlacer.init:43` |
-| Setting | `IndEvo_derelictStationAmount` (0.2) | `LunaSettings.csv:19`; overwrites static `ADDITIONAL_STATION_AMT` (`:44`) |
-| Setting | `IndEvo_pets` | `LunaSettings.csv:13`; zeroes the pet center budget (`:68-71`) |
+| Setting | `IndEvo_Enable_Derelicts` | `LunaSettings.csv:11`; checked in `ModPlugin.onNewGameAfterEconomyLoad` before calling the placer |
+| Setting | `IndEvo_enable_derelict_stations` | `LunaSettings.csv:15`; `DerelictStationPlacer.init:43` |
+| Setting | `IndEvo_derelictStationAmount` (0.2) | `LunaSettings.csv:16`; overwrites static `ADDITIONAL_STATION_AMT` (`:44`) |
+| Setting | `IndEvo_pets` | `LunaSettings.csv:10`; zeroes the pet center budget (`:68-71`) |
 | Memory | `MemFlags.SALVAGE_SEED` per entity | `addSalvageEntity:275-276` |
 
 ## Registration and lifecycle
 
-`ModPlugin.onNewGameAfterEconomyLoad()` (`indevo/utils/ModPlugin.java:323-326`): if `IndEvo_Enable_Derelicts`, `new DerelictStationPlacer().init()` then `new IndEvo_SalvageSpecialAssigner().init()`. The order matters: the special assigner runs over all salvageables after the stations exist, so new stations get IE specials (see [Salvage](SALVAGE.md)). Runs once per new game; nothing is stored on the placer.
+`ModPlugin.onNewGameAfterEconomyLoad()` (`indevo/utils/ModPlugin.java:311-312`): if `IndEvo_Enable_Derelicts`, `new DerelictStationPlacer().init()` then `new IndEvo_SalvageSpecialAssigner().init()`. The order matters: the special assigner runs over all salvageables after the stations exist, so new stations get IE specials (see [Salvage](SALVAGE.md)). Runs once per new game; nothing is stored on the placer.
 
 Order: `onNewGameAfterEconomyLoad -> DerelictStationPlacer.init -> IndEvo_SalvageSpecialAssigner.init -> spawnMineFields`.
 

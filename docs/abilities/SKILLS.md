@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-IE adds four admin only skills, tagged `npc_only`, so they never show in the player skill tree but are rolled onto hired administrators. Three are plain `MarketSkillEffect`s on the governed colony (accessibility and fleet size, upkeep and income, ground defense and stability). Micromanagement has no stat effect: a script flips the vanilla `allowRemoteIndustryItemManagement` setting while the player looks at a colony whose admin has the skill and has governed it for more than 93 days.
+IE adds four admin only skills, tagged `npc_only`, so they never show in the player skill tree but are rolled onto hired administrators. Three are plain `MarketSkillEffect`s on the governed colony (accessibility and fleet size, upkeep and income, ground defense and stability). Micromanagement has no stat effect: a PatchLib redirect makes the industry option menu treat the vanilla `allowRemoteIndustryItemManagement` setting as true for a colony whose admin has the skill and has governed it for more than 93 days.
 
 ## Files
 
@@ -17,7 +17,7 @@ IE adds four admin only skills, tagged `npc_only`, so they never show in the pla
 | `indevo/abilities/skills/PlanetaryOperations.java` | `Level1B`: `GROUND_DEFENSES_MOD` x1.5, +1 stability. |
 | `indevo/abilities/skills/MicroManagement.java` | `Level1`: description only, `apply` is empty. |
 | `indevo/abilities/skills/scripts/AdminGovernTimeTracker.java` | Persistent `NewDayListener`; days in office per player market, reset when the admin id changes (`:48`). |
-| `indevo/abilities/skills/scripts/MicromanagementSkillEffectScript.kt` | Persistent sector `EveryFrameScript`, runs while paused. Finds the market of the open industry panel by reflection and sets `allowRemoteIndustryItemManagement` (`:91`). |
+| `indevo/abilities/skills/patches/MicromanagementRemoteItemPatch.java` | PatchLib redirect of the setting read in the industry option menu constructor. |
 
 ## Data and ids
 
@@ -26,36 +26,33 @@ IE adds four admin only skills, tagged `npc_only`, so they never show in the pla
 | Skill | `indevo_fleet_logistics` (Fleet Logistics, aptitude `leadership`) | `data/characters/skills/skill_data.csv`, `indevo_fleet_logistics.skill` |
 | Skill | `indevo_industrial_planning` (Distributive Economics, `industry`) | same, `indevo_industrial_planning.skill` |
 | Skill | `indevo_planetary_operations` (Planetary Operations, `leadership`) | same, `indevo_planetary_operations.skill` |
-| Skill | `indevo_Micromanagement` (Micromanagement, `industry`), `Ids.MICROMANAGEMENT` | same, `indevo_Micromanagement.skill`, `indevo/ids/Ids.java:138` |
+| Skill | `indevo_Micromanagement` (Micromanagement, `industry`), `Ids.MICROMANAGEMENT` | same, `indevo_Micromanagement.skill`, `indevo/ids/Ids.java:137` |
 | Skill tags | `npc_only, indevo`; `admin` column `TRUE` | `skill_data.csv` |
 | Vanilla setting | `allowRemoteIndustryItemManagement` | game `data/config/settings.json:300` (default `false`) |
-| Memory, sector | `$IndEvo_BaseRemoteAllowed` (the setting's value at load) | set in `ModPlugin.java:203`, read in `MicromanagementSkillEffectScript.kt:92` |
-| Unused ids | `Ids.SKILL_FLEET_LOGISTICS`, `SKILL_INDUSTRIAL_PLANNING`, `SKILL_PLANETARY_OPERATIONS` (`indevo_FleetLogistics` etc.) | `Ids.java:135`; do not match the real skill ids, nothing reads them |
+| Unused ids | `Ids.SKILL_FLEET_LOGISTICS`, `SKILL_INDUSTRIAL_PLANNING`, `SKILL_PLANETARY_OPERATIONS` (`indevo_FleetLogistics` etc.) | `Ids.java:134`; do not match the real skill ids, nothing reads them |
 
 ## Registration and lifecycle
 
 - Skills load from `data/characters/skills/*.skill`; each has one `GOVERNED_OUTPOST` effect whose `script` names the inner class (`indevo.abilities.skills.FleetLogistics$Market1` etc.).
 - Admins get them through vanilla `OfficerManagerEvent.createAdmin`, which picks from every `isAdminSkill()` skill that is not deprecated, `player_only` or `ai_core_only` (`api/impl/campaign/events/OfficerManagerEvent.java:322`). `npc_only` only hides them from the player tree (`api/util/SkillData.java:56`).
-- `ModPlugin.setListenersIfNeeded` -> `MicromanagementSkillEffectScript.register()` (`ModPlugin.java:486`, deduped by `hasScript`) and `AdminGovernTimeTracker.getInstanceOrRegister()` (`ModPlugin.java:487`, deduped by `hasListenerOfClass`). Both persist in the save.
-
-Order: `onGameLoad -> $IndEvo_BaseRemoteAllowed = setting -> register script and tracker -> new day: tracker counts -> paused UI frame: script sets setting`.
+- `ModPlugin.setListenersIfNeeded` -> `AdminGovernTimeTracker.getInstanceOrRegister()` (`ModPlugin.java:472`, deduped by `hasListenerOfClass`), persistent.
+- `MicromanagementRemoteItemPatch` is a `@Patch` class; PatchLib installs it when the option menu class loads ([Patches](../ARCHITECTURE.md#patches)).
 
 ## Flow
 
-`MicromanagementSkillEffectScript.advance`:
+The vanilla industry option menu (obfuscated `b` in `com.fs.starfarer.campaign.ui.marketinfo`, implements `DialogCreatorUI`, skill `obf/campaign/ui/marketinfo/_c37.java:66`) reads `allowRemoteIndustryItemManagement` once in its constructor (`:112`) through a static `(String) -> boolean` call on `StarfarerSettings`, and uses that value for every item and AI core button in the menu.
 
-1. Return if `$IndEvo_BaseRemoteAllowed` (the user already allows remote management globally).
-2. Only while the sector is paused and after 2 frames.
-3. `getMarket()` walks the campaign UI by reflection: `CampaignState.getEncounterDialog().getCoreUI()` or `getCore()`, current tab, child with `getOutpostPanelParams`, child with `showOverview`, child with `recreateWithEconUpdate`, then the `IndustryListPanel` child and its `market` field (`:32`).
-4. If the admin has `indevo_Micromanagement` and `AdminGovernTimeTracker.getValueForMarket > 93` (or dev mode), set the setting `true`, else `false`.
+`MicromanagementRemoteItemPatch.redirectSettingRead` runs on that call:
 
-The vanilla industry options dialog reads the setting when it is built (`obf/campaign/ui/marketinfo/_c37.java:112`, obfuscated class `b`), so the flag has to be right before the player opens an industry's menu.
+1. Calls the original. A `true` value (the user allows remote management globally) passes through.
+2. For the key `allowRemoteIndustryItemManagement` only, finds the `Industry` among the constructor args and checks its market: player owned, admin has `indevo_Micromanagement`, and `AdminGovernTimeTracker.getValueForMarket > 93` or dev mode. No `Industry` among the args logs an error once (with stack trace) and keeps the original value.
+3. Returns `true` if that holds, else the original value.
 
 ## Contracts
 
-- `Global.getSettings().setBoolean` changes the setting for the whole session. The script resets it to `false` on every other market it sees, which is why it bails out when the base value was `true`.
-- The script imports game internals `com.fs.starfarer.campaign.CampaignState` and `com.fs.starfarer.campaign.ui.marketinfo.IndustryListPanel` (both exist with these names in 0.98a-RC8, `obf/campaign/CampaignState.java`, `obf/campaign/ui/marketinfo/IndustryListPanel.java`) and finds the rest by method name. Recheck after a game update. Reflection helper is `indevo.utils.helper.ReflectionUtils` (see [Utils](../core/UTILS.md)).
-- The tracker only counts while the game runs new days and only for player markets; days start at the first new day after the skill script sees the market, not at hire time.
+- The patch never writes the setting; other code that reads it sees the user's value.
+- The target is inferred: host matched by `subtype = DialogCreatorUI.class` plus package, call matched by shape (static, `String` in, `boolean` out, owner `StarfarerSettings` by name). No obfuscated names in code. Recheck after a game update: `starsector.log` must show the redirect installed for the option menu class.
+- The tracker only counts while the game runs new days and only for player markets; days start at the first new day the tracker sees the market with that admin, not at hire time.
 - Effect scripts are one shared instance per skill; they hold no state.
 
 ## Known issues and dormant code
@@ -63,10 +60,9 @@ The vanilla industry options dialog reads the setting when it is built (`obf/cam
 | Item | State |
 |---|---|
 | `Ids.SKILL_*` constants | wrong ids, unused |
-| `MicromanagementSkillEffectScript.newIndustryPanel`, `reset` | unused fields |
 | `HullmodTimeTracker` (`indevo/exploration/distress/listener/HullmodTimeTracker.java:19`) | copy of the tracker pattern, checks `AdminGovernTimeTracker.class` but fetches its own class; folder excluded by `IndEvo.iml`, registration commented out in `ModPlugin` |
 | Academy skill picks | Changelog_todo: "Academy can pick forbidden, event only admin skills and should really run off a whitelist" (see [Academy](../industries/ACADEMY.md)) |
 
 ## Maintenance
 
-Update this doc when a skill is added, a value changes, or the Micromanagement reflection path breaks after a game update. Admin training belongs in [Academy](../industries/ACADEMY.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
+Update this doc when a skill is added, a value changes, or the Micromanagement patch stops installing after a game update. Admin training belongs in [Academy](../industries/ACADEMY.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).

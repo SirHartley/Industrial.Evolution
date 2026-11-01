@@ -99,17 +99,17 @@ public class RuinedInfrastructure extends BaseIndustry {
 
     private void triggerUpgradeForAI() {
         if (isFunctional()
+                && !isBuilding()
                 && market.getFaction() != Global.getSector().getPlayerFaction()
                 && !market.isPlayerOwned()
-                && upgradeId != null) {
+                && market.getMemoryWithoutUpdate().contains(RUINED_INFRA_UPGRADE_ID_KEY)
+                && market.getSize() > 4
+                && Misc.getFactionMarkets(market.getFaction()).size() > 2) {
 
-            boolean sizeReq = market.getSize() > 4;
-            boolean canBuild = Global.getSettings().getIndustrySpec(upgradeId).getNewPluginInstance(market).isAvailableToBuild();
-            boolean marketAmount = Misc.getFactionMarkets(market.getFaction()).size() > 2;
+            Industry target = market.instantiateIndustry(Ids.CHAMELION);
+            boolean slotFree = !target.isIndustry() || Misc.getNumIndustries(market) < Misc.getMaxIndustries(market);
 
-            if (sizeReq && canBuild && marketAmount) {
-                startUpgrading();
-            }
+            if (slotFree && target.isAvailableToBuild()) startUpgrading();
         }
     }
 

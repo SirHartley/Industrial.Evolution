@@ -63,8 +63,6 @@ public class PlanetoidDespawnScript implements Script {
                     planet.removeScript(oldRunner);
                     planet.addScript(new PayloadOnFinishedModuleRunner(oldRunner.module, planet, new PlanetoidDespawnScript(planet)));
                 } else if (runner == null) despawn(planet);
-                // the unreleased lambda payload comes back from the save as null
-                else if (runner.script == null) runner.script = new PlanetoidDespawnScript(planet);
             }
         }
     }

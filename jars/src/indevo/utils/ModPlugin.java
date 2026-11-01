@@ -4,8 +4,6 @@ import com.fs.starfarer.api.BaseModPlugin;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.PluginPick;
 import com.fs.starfarer.api.campaign.*;
-import com.fs.starfarer.api.campaign.econ.Industry;
-import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.ImportantPeopleAPI;
@@ -13,26 +11,20 @@ import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.combat.MissileAIPlugin;
 import com.fs.starfarer.api.combat.MissileAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
-import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
-import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
 import com.fs.starfarer.api.impl.campaign.econ.impl.MilitaryBase;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
-import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
 import com.fs.starfarer.api.impl.campaign.intel.deciv.DecivTracker;
 import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.AsteroidSource;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
 import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
 import indevo.WIP.mobilecolony.plugins.MobileColonyCampaignPlugin;
 import indevo.abilities.skills.scripts.AdminGovernTimeTracker;
-import indevo.abilities.skills.scripts.MicromanagementSkillEffectScript;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
@@ -53,11 +45,8 @@ import indevo.exploration.minefields.listeners.RecentJumpListener;
 import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.exploration.stations.DerelictStationPlacer;
 import indevo.ids.Ids;
-import indevo.industries.InvisiblePlanetaryShield;
-import indevo.industries.TradeCenter;
 import indevo.industries.academy.plugins.AcademyOptionProvider;
 import indevo.industries.artillery.listener.WatchtowerFactionResetListener;
-import indevo.industries.artillery.plugins.ArtilleryCampaignPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
@@ -90,6 +79,7 @@ import indevo.industries.ruinfra.listener.RuinfraOnDecivListener;
 import indevo.industries.ruinfra.utils.DerelictInfrastructurePlacer;
 import indevo.industries.salvageyards.plugins.SalvageYardsOptionProvider;
 import indevo.industries.senate.plugins.SenateOptionProvider;
+import indevo.industries.worldwonder.plugins.ShieldVisualsOptionProvider;
 import indevo.industries.worldwonder.plugins.WorldWonderAltImageOptionProvider;
 import indevo.industries.worldwonder.plugins.WorldWonderTexChangeOptionProvider;
 import indevo.items.consumables.fleet.FleetConsumableInventoryManager;
@@ -122,7 +112,6 @@ public class ModPlugin extends BaseModPlugin {
         if (Global.getSettings().isDevMode()) Global.getLogger(ModPlugin.class).info(Text);
     }
 
-    public static int DEALMAKER_INCOME_PERCENT_BONUS = 25;
 
     @Override
     public void onApplicationLoad() {
@@ -170,7 +159,6 @@ public class ModPlugin extends BaseModPlugin {
         //balance and spec changes
 
         addTypePrefaceToIndustrySpecs();
-        if (Settings.getBoolean(Settings.COMMERCE_BALANCE_CHANGES)) overrideVanillaCommerce();
 
         LocatorSystemRatingUpdater.updateAllSystems();
         resetDerelictRep();
@@ -199,8 +187,6 @@ public class ModPlugin extends BaseModPlugin {
             Global.getSector().getPlayerFleet().removeAbility("pet_management");
             Global.getSector().getCharacterData().removeAbility("pet_management");
         }
-
-        Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_BaseRemoteAllowed", Global.getSettings().getBoolean("allowRemoteIndustryItemManagement"));
 
         //player fuckery
         if(MissileActivationManager.getInstanceOrRegister().hasActiveListener()) MissileActivationManager.getInstanceOrRegister().getCurrentListener().reset();
@@ -483,7 +469,6 @@ public class ModPlugin extends BaseModPlugin {
         MarineLossAmplifcationHullmodEffectListener.register();
         WatchtowerFactionResetListener.register();
         HyperspaceTopoProgressChecker.register();
-        MicromanagementSkillEffectScript.register();
         AdminGovernTimeTracker.getInstanceOrRegister();
         SlowShipInFleetChecker.register();
         AutopulseUseChecker.register();
@@ -500,7 +485,7 @@ public class ModPlugin extends BaseModPlugin {
         if (Global.getSettings().getModManager().isModEnabled("nexerelin")) ManagedDemocracyNexerelinListenerPlugin.register();
         BeaconDialogueListener.register();
         HostileActivityEventSubRegisterListener.register();
-        InvisiblePlanetaryShield.AlternateTextureOptionProvider.register();
+        ShieldVisualsOptionProvider.register();
         MilitaryRelay.RelayItemRemovalButtonListener.register();
         MeteorSwarmManager.register();
         RemoveIndustryOptionWarningProvider.register();
@@ -519,7 +504,6 @@ public class ModPlugin extends BaseModPlugin {
         //Scripts:
         Global.getSector().registerPlugin(new SplinterFleetCampignPlugin());
         Global.getSector().registerPlugin(new GachaStationCampaignPlugin());
-        Global.getSector().registerPlugin(new ArtilleryCampaignPlugin());
         Global.getSector().registerPlugin(new MobileColonyCampaignPlugin());
         Global.getSector().registerPlugin(new PetShopCampaignPlugin());
         Global.getSector().registerPlugin(new CorporateGovernanceCampaignPlugin());
@@ -531,66 +515,6 @@ public class ModPlugin extends BaseModPlugin {
         MagicCampaignTrailPlugin.register();
         EyeIndicatorScript.register();
         //PlayerFleetFollower.register();
-    }
-
-    public void overrideVanillaCommerce() {
-        ItemEffectsRepo.ITEM_EFFECTS.put(Items.DEALMAKER_HOLOSUITE, new BaseInstallableItemEffect(Items.DEALMAKER_HOLOSUITE) {
-            public void apply(Industry industry) {
-                industry.getMarket().getIncomeMult().modifyPercent(spec.getId(), DEALMAKER_INCOME_PERCENT_BONUS,
-                        Misc.ucFirst(spec.getName().toLowerCase()));
-            }
-
-            public void unapply(Industry industry) {
-                industry.getMarket().getIncomeMult().unmodifyPercent(spec.getId());
-            }
-
-            protected void addItemDescriptionImpl(Industry industry, TooltipMakerAPI text, SpecialItemData data,
-                                                  InstallableIndustryItemPlugin.InstallableItemDescriptionMode mode, String pre, float pad) {
-                text.addPara(pre + "Colony income increased by %s.",
-                        pad, Misc.getHighlightColor(),
-                        DEALMAKER_INCOME_PERCENT_BONUS + "%");
-            }
-        });
-
-        replaceIndustries(TradeCenter.class, Ids.COMMERCE);
-    }
-
-    public static void replaceIndustries(Class<?> targetClass, String... industryIds) {
-        for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            for (String id : industryIds) {
-                if (m.hasIndustry(id)) {
-
-                    Industry ind = m.getIndustry(id);
-                    if (!ind.getClass().isInstance(targetClass)) replaceIndustry(ind);
-                }
-            }
-        }
-    }
-
-    public static void replaceIndustry(Industry ind) {
-
-        MarketAPI m = ind.getMarket();
-        String id = ind.getId();
-
-        SpecialItemData special = ind.getSpecialItem();
-        String aiCore = ind.getAICoreId();
-        boolean improved = ind.isImproved();
-        boolean isBuilding = ind.isBuilding();
-        float buildProgress = ind.getBuildOrUpgradeProgress();
-
-        m.removeIndustry(id, null, false);
-        m.addIndustry(id);
-
-        ind = m.getIndustry(id);
-
-        if (isBuilding) {
-            ind.startBuilding();
-            ((BaseIndustry) ind).setBuildProgress(buildProgress);
-        }
-
-        ind.setSpecialItem(special);
-        ind.setAICoreId(aiCore);
-        ind.setImproved(improved);
     }
 
     public void resetDerelictRep() {

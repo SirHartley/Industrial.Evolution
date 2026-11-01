@@ -68,7 +68,7 @@ Times in days. The ability tags drive targeting: `indevo_missile` enables hotkey
 | Entities used, owned elsewhere | `IndEvo_VariableExplosion` (`:461`, [Artillery](../industries/ARTILLERY.md)), `IndEvo_campaign_trail_custom_entity` (`:485`, [Utils](../core/UTILS.md)) | `custom_entities.json` |
 | Terrain | `IndEvo_SmokeCloud` (`SmokeCloudTerrain`) | `data/config/terrain.json:30`; description `descriptions.csv:71` |
 | Sprites | transpoofer glow, beacon glow; missile sprites | `data/config/settings.json:271-272`, `:300-303` |
-| Settings | `IndEvo_consumables_addToMarkets`, `IndEvo_consumables_addToFleets`, `IndEvo_consumables_researchProject` | `data/config/LunaSettings.csv:80-82` ([Settings](../core/SETTINGS.md)) |
+| Settings | `IndEvo_consumables_addToMarkets`, `IndEvo_consumables_addToFleets`, `IndEvo_consumables_researchProject` | `data/config/LunaSettings.csv:77-79` ([Settings](../core/SETTINGS.md)) |
 | Drop groups | `indEvo_consumables` (`:38-49`), `indEvo_consumables_always` (`:51-57`), `indEvo_missiles` (`:59-64`), `indEvo_missiles_always` (`:66-70`); tag rows `indEvo_tech_addition` (`:12`), `indEvo_mining_addition` (`:18`) | `data/campaign/procgen/drop_groups.csv` |
 | Memory (fleet) | `$IndEvo_MissileInventory`, `MissileMemFlags` keys (`$missile_allowedToUse`, `$missile_bonked`, `$missile_recentlyUsed` and more) | `FleetConsumableInventoryManager`, `MissileMemFlags` |
 | Memory (player) | `$IndEvo_consumable_currentFaction`, `$IndEvo_consumable_currentFactionList` (spoofer); `$IndEvo_ArtilleryRemote_hasBeenUsed` | `SpooferAbilityPlugin`, `ArtilleryRemoteAbilityPlugin` |
@@ -78,14 +78,14 @@ Times in days. The ability tags drive targeting: `indevo_missile` enables hotkey
 
 | Hook | What |
 |---|---|
-| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin:139-150`) | Loads the nanites texture for the codex |
+| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin:141-152`) | Loads the nanites texture for the codex |
 | `onGameLoad:171`, `onNewGameAfterEconomyLoad:312` | `LocatorSystemRatingUpdater.updateAllSystems()` |
 | `onGameLoad:202` | Resets `MissileActivationManager` |
-| `ModPlugin:462` | `LocatorSystemRatingUpdater`, transient |
-| `ModPlugin:463` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
-| `ModPlugin:464` | `ConsumableItemMarketAdder`, transient |
-| `ModPlugin:494`, `beforeGameSave:338` | `OnKeyPressAbilityInputListener.getInstanceOrRegister()`; reset before save |
-| `ModPlugin:495` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
+| `ModPlugin:466` | `LocatorSystemRatingUpdater`, transient |
+| `ModPlugin:467` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
+| `ModPlugin:468` | `ConsumableItemMarketAdder`, transient |
+| `ModPlugin:498`, `beforeGameSave:342` | `OnKeyPressAbilityInputListener.getInstanceOrRegister()`; reset before save |
+| `ModPlugin:499` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
 | each load | `SpooferItemKeypressListener` registered |
 
 `ListenerManager.addListener(Object)` is the persistent variant (`obf/campaign/ListenerManager.java:25-33` in the starsector-knowledge skill), so any listener added without `true` is saved with the game.
@@ -98,7 +98,7 @@ Non-missile use: right-click works in the cargo tab with no dialog open, only if
 
 Missile click path: `pressButton()` (vanilla `BaseDurationAbility.java:187`) -> `DelayedActionScriptRunWhilePaused(0)` -> `new OnClickAbilityInputListener(p).activate()`, which registers with `MissileActivationManager`, adds itself as a persistent listener and adds a LunaLib reticule (skillshot, AOE or artillery by tag). Mouse up calls `forceActivation()` (`activateImpl` + `removeTriggerItem`) and sets the cooldown. Any key other than space or lshift aborts. Missile `isUsable` also needs no active missile listener and no open dialog or core tab.
 
-Missile hotkey path: `OnKeyPressAbilityInputListener` catches keys 1 to 9 on slots holding `indevo_missile` abilities, shows the reticule while held and fires on release. Ctrl or an open dialog resets it. `MissileActivationManager` is a persistent sector script (runs while paused) that tracks the current listener.
+Missile hotkey path: `OnKeyPressAbilityInputListener` catches keys 1 to 9 on slots holding `indevo_missile` abilities, shows the reticule while held and fires on release. Release resolves the ability id saved on key down; if that is not a `BaseMissileConsumableAbilityPlugin` on the player fleet it throws (`IllegalStateException`), since only an IE bug gets there. Ctrl or an open dialog resets it. `MissileActivationManager` is a persistent sector script (runs while paused) that tracks the current listener.
 
 Missile entities (`BaseMissileEntityPlugin`): fly straight for 4 s, explode on `shouldExplode`, timeout, or reaching the target point (AOE types aim at the cursor). Entities within radius + 50 along the path get `$missile_bonked`; `MeteorEntity.java:71-72` reads it ([Meteor](../exploration/METEOR.md)). Trails use `MagicCampaignTrailPlugin`.
 
@@ -120,7 +120,7 @@ Other effects:
 - Scoop: not in hyperspace; star within 3000 or a nebula tile (`OrbitFocus.getClosestNebulaTilePosition`, [Split fleet](../abilities/SPLIT_FLEET.md)). 3 days, fuel every 1 s of `1000/(dur*10)` times a star type or age mult; sound `IndEvo_succ`.
 - Relay: hyperspace only; `Tags.COMM_RELAY` on the player fleet for 7 days or until leaving hyperspace.
 - Spoofer: sets the fleet faction to the picked one and turns the transponder on. Ends if the transponder goes off or a non-station fleet of another faction comes within radius + 100. Reverts the faction while a market is open (persistent listener while active).
-- Beacon: hyperspace only. A one-shot script opens `BeaconDelegateLaunchpadDialoguePlugin` -> `BeaconMessageSetterDialogueDelegate` (cancel gives an empty message). `spawnBeacon` places `IndEvo_warning_beacon`, orbiting the nearest jump point within 400, and adds `DeployableWarningBeaconIntel`.
+- Beacon: hyperspace only. From the cargo tab, `showInteractionDialogFromCargo` opens `BeaconDelegateLaunchpadDialoguePlugin` over the cargo screen; otherwise a one-shot script retries `showInteractionDialog` until it opens. The dialog shows `BeaconMessageSetterDialogueDelegate` (cancel gives an empty message). `spawnBeacon` places `IndEvo_warning_beacon`, orbiting the nearest jump point within 400, and adds `DeployableWarningBeaconIntel`.
 
 Sources:
 

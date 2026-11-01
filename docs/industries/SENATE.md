@@ -54,7 +54,7 @@ Rows: `data/campaign/market_conditions.csv:2-14`. Military presence is `MiscIE.m
 | Conditions | `IndEvo_edict_*` (12) | `data/campaign/market_conditions.csv` |
 | Item | `IndEvo_neurals` (Neuroconditioning Compounds) | `data/campaign/special_items.csv:41`, effect in `SpecialItemEffectsRepo` |
 | Constants | `RANGE_LY_TWELVE` 12, `NEURAL_COMPOUNDS_UNREST_RED` 0.5 | `indevo/items/installable/SpecialItemEffectsRepo.java:57-58` |
-| Setting | `IndEvo_senate` (toggle) | `data/config/LunaSettings.csv:93`, `Senate.isAvailableToBuild()` |
+| Setting | `IndEvo_senate` (toggle) | `data/config/LunaSettings.csv:90`, `Senate.isAvailableToBuild()` |
 | Market tags | `<conditionModId><days>` runtime counter; `edict_stab_penalty<n>` | `TimeTracker`, `Edict_Conscription` |
 | Market memory | `$IndEvo_WeightMemory` (saved population weight) | `Edict_LockColonySize.java:13` |
 | Dialogue memory | `$IndEvo_EdictList`, `$IndEvo_EdictSubListPage`, `$IndEvo_selectedEdictID` (local, expire 0); option prefix `IndEvo_SelectEdict_` | `IndEvo_EdictVariables` |
@@ -63,7 +63,7 @@ Rows: `data/campaign/market_conditions.csv:2-14`. Military presence is `MiscIE.m
 ## Registration and lifecycle
 
 - Industry and condition plugins from CSV plugin columns; rule commands from `ruleCommandPackages` `indevo.industries.senate.rules` (`data/config/settings.json:240`).
-- `SenateOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:495`). `Senate.SenateFactor` is registered by `SpecialItemEffectsRepo.initEffectListeners()` (`SpecialItemEffectsRepo.java:43`), called at `ModPlugin.java:453`.
+- `SenateOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:480`). `Senate.SenateFactor` is registered by `SpecialItemEffectsRepo.initEffectListeners()` (`SpecialItemEffectsRepo.java:43`), called at `ModPlugin.java:439`.
 - `BaseEdict.apply()` adds the condition as a transient listener (deduped) and a `TimeTracker` market tag tracker; skips both on markets without a primary entity and in the codex (`BaseEdict.java:36`). `TimeTracker` increments the tag daily and calls `onNewDay()`.
 
 Chain: `IndEvo_ApplyEdict -> IndEvo_applyEdict -> market.addCondition -> BaseEdict.apply -> TimeTracker tag -> onNewDay (presence check, auto end) -> removeWithPenalty/removeWithoutPenalty -> market.removeSpecificCondition`.
@@ -98,7 +98,7 @@ Chain: `IndEvo_ApplyEdict -> IndEvo_applyEdict -> market.addCondition -> BaseEdi
 - `Market.addCondition()` calls `plugin.apply()` immediately and `removeCondition()` calls `unapply()` (`obf/campaign/econ/Market.java:1088`, `:1160`). The preview in `IndEvo_DisplayActionPanel_Edict` therefore runs a full apply/unapply on the live market and leaves the time tag (and for Forced Labour the `edict_stab_penalty4` tag) behind.
 - `IndEvo_marketHasEdict` is the "one Edict per market" rule; nothing in Java enforces it.
 - Production quality changes from Deadlines and Clearances go on every player market, not only the local one.
-- `Edict_FastBuild` writes `BaseIndustry.buildTime` (`api/impl/campaign/econ/impl/BaseIndustry.java:103`) through `ReflectionUtils.setWithSuper` ([Utils](../core/UTILS.md)). `unapply()` restores the spec build time, or the upgrade spec build time while upgrading, on every building industry.
+- `Edict_FastBuild` reads and writes `BaseIndustry.buildTime` (`api/impl/campaign/econ/impl/BaseIndustry.java:103`) through `StarReflectionUtils.get` and `ReflectionUtils.setWithSuper` ([Utils](../core/UTILS.md)). `apply()` stores each building industry's current time in `originalBuildTimes` (by industry id, saved with the condition) and sets half of it, so custom times such as a [Ruined Infrastructure](RUINED_INFRASTRUCTURE.md) restore are halved, not replaced by a spec time. `unapply()` writes the stored time back only while the industry still holds the halved value (a build started in between keeps its own time) and clears the map. `reapplyConditions` runs unapply before apply, so the halving never stacks.
 
 ## Known issues and dormant code
 

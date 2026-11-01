@@ -1,6 +1,6 @@
 # Small industries
 
-Industries that are a single class in `indevo/industries/` (Centralization Bureau, Supercomputer, Restoration Docks, Requisitions Centre, Commerce override, invisible planetary shield), the shared storage base class, and two dead classes. Read the index first to find the doc for any IE industry id. It does not cover the submarkets these industries add; see [Submarkets](../core/SUBMARKETS.md).
+Industries that are a single class in `indevo/industries/` (Centralization Bureau, Supercomputer, Restoration Docks, Requisitions Centre), the Commerce balance patches, the shared storage base class, and one dead class. Read the index first to find the doc for any IE industry id. It does not cover the submarkets these industries add; see [Submarkets](../core/SUBMARKETS.md).
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
 
@@ -22,19 +22,17 @@ Every IE row of `data/campaign/industries.csv` (plugin column, paths relative to
 | `IndEvo_ReqCenter` | 38 | `RequisitionCenter` | this doc |
 | `IndEvo_EngHub` | 42 | `engineeringhub/industry/EngineeringHub` | [Engineering Hub](ENGINEERING_HUB.md) |
 | `IndEvo_PrivatePort` | 45 | `courierport/industry/CourierPortV2` | [Courier Port](COURIER_PORT.md) |
-| `IndEvo_pirateHaven`, `IndEvo_pirateHavenSecondary` | 48, 90 | `privateer/industry/PrivateerBase`, `PrivateerBaseSlotBlocker` | [Privateer](PRIVATEER.md) |
+| `IndEvo_pirateHaven` | 48 | `privateer/industry/PrivateerBase` | [Privateer](PRIVATEER.md) |
 | `IndEvo_SwitchableRefining`, `IndEvo_SwitchableMining`, `IndEvo_SwitchablePopulation` | 51-53 | `changeling/industry/...` | [Changeling](CHANGELING.md) |
 | `IndEvo_PetStore` | 54 | `petshop/industry/PetShop` | [Pets](PETS.md) |
 | `IndEvo_Museum` | 55 | `museum/industry/Museum` | [Museum](MUSEUM.md) |
 | `IndEvo_Warehouse`, `#IndEvo_Warphouse` (commented) | 58, 61 | `warehouses/industry/Warehouses` | [Warehouses](WAREHOUSES.md) |
 | `IndEvo_Artillery_base`, `_mortar`, `_missile`, `_railgun` | 64, 67, 74, 81 | `artillery/industry/ArtilleryStation` | [Artillery](ARTILLERY.md) |
-| `IndEvo_ChamelionIndustry`, `IndEvo_RuinedInfra` | 91, 102 | `ruinfra/industry/ChamelionIndustry`, `RuinedInfrastructure` | [Ruined Infrastructure](RUINED_INFRASTRUCTURE.md) |
-| `IndEvo_InvisiblePlanetaryShield` | 92 | `InvisiblePlanetaryShield` | this doc |
-| `IndEvo_HullDecon`, `IndEvo_HullForge`, `IndEvo_ResLab`, `IndEvo_RiftGen`, `IndEvo_Ruins` | 95-99 | `derelicts/industry/HullDeconstructor`, `HullForge`, `AncientLaboratory`, `RiftGenerator`, `Ruins` | [Derelicts](DERELICTS.md) |
-| `IndEvo_BaseFlavourInd` and nine wonders | 107-134 | `worldwonder/industry/WorldWonder` and subclasses | [World Wonders](WORLD_WONDER.md) |
-| `commerce` (replaces the vanilla row) | 141 | `TradeCenter` | this doc |
+| `IndEvo_ChamelionIndustry`, `IndEvo_RuinedInfra` | 90, 100 | `ruinfra/industry/ChamelionIndustry`, `RuinedInfrastructure` | [Ruined Infrastructure](RUINED_INFRASTRUCTURE.md) |
+| `IndEvo_HullDecon`, `IndEvo_HullForge`, `IndEvo_ResLab`, `IndEvo_RiftGen`, `IndEvo_Ruins` | 93-97 | `derelicts/industry/HullDeconstructor`, `HullForge`, `AncientLaboratory`, `RiftGenerator`, `Ruins` | [Derelicts](DERELICTS.md) |
+| `IndEvo_BaseFlavourInd` and nine wonders | 105-132 | `worldwonder/industry/WorldWonder` and subclasses | [World Wonders](WORLD_WONDER.md) |
 
-A mod CSV row with a vanilla id replaces the whole vanilla row (skill `docs/concepts/csv-json-merging.md:24-26`).
+IE has no row with a vanilla id. A mod row with a vanilla id would replace the whole vanilla row, and the first sorted mod wins (skill `docs/concepts/csv-json-merging.md:24-26`); vanilla `commerce` is changed by PatchLib hooks instead (see [Commerce balance patches](#commerce-balance-patches-commerce)).
 
 ## Overview
 
@@ -48,10 +46,9 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | `indevo/industries/Supercomputer.java` | `IndEvo_SupCom`: consumes AI cores over time for a system wide income mult; nested `SuperComputerFactor` |
 | `indevo/industries/RestorationDocks.java` | `IndEvo_dryDock`: monthly D-mod removal from ships in its storage; static `getBaseShipHullSpec`, `getListNonBuiltInDMods` used by other features |
 | `indevo/industries/RequisitionCenter.java` | `IndEvo_ReqCenter`: adds the weapon import submarket; tooltip only, stock logic is in `RequisitionsCenterSubmarketPlugin` |
-| `indevo/industries/TradeCenter.java` | Plugin of the vanilla `commerce` id: independent open market on player colonies, balance setting variant |
-| `indevo/industries/InvisiblePlanetaryShield.java` | `IndEvo_InvisiblePlanetaryShield`: vanilla `PlanetaryShield` with selectable shield visuals; nested `AlternateTextureOptionProvider` |
+| `indevo/industries/patches/CommerceBalancePatch.java` | PatchLib hooks on vanilla `TradeCenter` for `IndEvo_CommerceBalanceChanges` |
+| `indevo/industries/patches/DealmakerHolosuitePatch.java` | PatchLib redirect of the Dealmaker Holosuite income bonus for the same setting |
 | `indevo/industries/SharedSubmarketUser.java`, `SharedSubmarketUserAPI.java` | Base class and interface for industries that add and filter the `IndEvo_SharedStore` submarket |
-| `indevo/industries/OrbitalStation.java` | Dead, see Known issues |
 | `indevo/industries/compatibility/TechTree.java` | Dead, see Known issues |
 
 ## Data and ids
@@ -62,23 +59,20 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | Industry | `IndEvo_SupCom` (`Ids.SUPCOM`) | `industries.csv:25`, upkeep 4 |
 | Industry | `IndEvo_dryDock` (`Ids.REPAIRDOCKS`) | `industries.csv:32`, upkeep 5 |
 | Industry | `IndEvo_ReqCenter` (`Ids.REQCENTER`) | `industries.csv:38`, upkeep 6 |
-| Industry | `IndEvo_InvisiblePlanetaryShield` (`Ids.PLANETARY_SHIELD_ALT`) | `industries.csv:92`, `do_not_show_in_build_dialog, hide_in_codex` |
-| Industry | `commerce` (`Ids.COMMERCE`) | `industries.csv:141` |
+| Industry | `commerce` (`Ids.COMMERCE`) | vanilla row, plugin vanilla `TradeCenter` |
 | Submarkets | `IndEvo_RepairStorage` (`Ids.REPSTORAGE`), `IndEvo_ReqCenterMarket` (`Ids.REQMARKET`), `IndEvo_SharedStore` (`Ids.SHAREDSTORAGE`) | `data/campaign/submarkets.csv:2`, `:3`, `:8` |
 | List | `IndEvo_buerauList` (sic) -> `data/config/indEvo/bureau_industry_whitelist.csv` | `data/config/settings.json:223`, `Ids.BUREAU_LIST` |
-| Settings | `IndEvo_alpha_core_runtime` 558, `IndEvo_beta_core_runtime` 279, `IndEvo_gamma_core_runtime` 93 (days) | `LunaSettings.csv:152-154` |
-| Settings | `IndEvo_restoFee_FRIGATE` 1000, `_DESTROYER` 3000, `_CRUISER` 7000, `_CAPITAL` 10000 | `LunaSettings.csv:157-160` |
-| Setting | `IndEvo_CommerceBalanceChanges` (default true) | `LunaSettings.csv:9` |
+| Settings | `IndEvo_alpha_core_runtime` 558, `IndEvo_beta_core_runtime` 279, `IndEvo_gamma_core_runtime` 93 (days) | `LunaSettings.csv:149-151` |
+| Settings | `IndEvo_restoFee_FRIGATE` 1000, `_DESTROYER` 3000, `_CRUISER` 7000, `_CAPITAL` 10000 | `LunaSettings.csv:154-157` |
+| Setting | `IndEvo_CommerceBalanceChanges` (default true) | `LunaSettings.csv:6` |
 | Memory key | `$IndEvo_maxDModMemory` (map `FleetMemberAPI -> Integer`) | sector memory, `RestorationDocks` |
-| Market tags | `IndEvo_PS_FULL`, `IndEvo_PS_LOW`, `IndEvo_PS_NONE` | `InvisiblePlanetaryShield` |
-| Sprite | `IndEvo` / `shield_texture` | `data/config/settings.json:360` |
 | Strings | categories `IndEvo_AdInfra`, `IndEvo_dryDock`, `IndEvo_ReqCenter` | `data/strings/strings.json:126`, `:215`, `:256` |
 
 ## Registration and lifecycle
 
 - All via CSV plugin column.
-- `ModPlugin.setListenersIfNeeded()`: `InvisiblePlanetaryShield.AlternateTextureOptionProvider.register()` (`ModPlugin.java:503`). `BureauFactor` and `SuperComputerFactor` are registered by `SpecialItemEffectsRepo.initEffectListeners()` ([Installables](../items/INSTALLABLES.md)).
-- `ModPlugin.onGameLoad` calls `overrideVanillaCommerce()` when `IndEvo_CommerceBalanceChanges` is on (`ModPlugin.java:173`).
+- `BureauFactor` and `SuperComputerFactor` are registered by `SpecialItemEffectsRepo.initEffectListeners()` ([Installables](../items/INSTALLABLES.md)).
+- `CommerceBalancePatch` and `DealmakerHolosuitePatch` are `@Patch` classes; PatchLib finds and installs them at startup ([Patches](../ARCHITECTURE.md#patches)). Both read `IndEvo_CommerceBalanceChanges` on every call, so the setting takes effect without a restart.
 - `NewGameIndustryPlacer` places Restoration Docks (`NewGameIndustryPlacer.java:69`) and the Requisitions Centre at `baetis` (`:133`) on new game; see [Utils](../core/UTILS.md).
 - Supercomputer, Restoration Docks and Requisitions Centre add themselves as transient listeners in `apply()` and remove themselves in `unapply()`; `ListenerManager.addListener` dedupes the same instance (skill `obf/campaign/ListenerManager.java:29`).
 
@@ -117,17 +111,20 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 - `advance` adds `IndEvo_ReqCenterMarket`; `unapply` queues its removal. Stock, rep thresholds (0.35, 0.5, 0.7) and AI core effects live in `RequisitionsCenterSubmarketPlugin` ([Submarkets](../core/SUBMARKETS.md)), which calls `publicAddAfterDescriptionSection` for its tooltip.
 - With an [Embassy](EMBASSY.md) ambassador the centre sources from the aligned faction only; gamma core ignores the ambassador.
 
-### Commerce override (`commerce`)
+### Commerce balance patches (`commerce`)
 
-- `apply()`: on functional player markets adds an `open_market` of faction `independent` (or re-adds the transient `saved` one), stability -3, income +25%. Improve +25% (+10% with the balance setting). Tri-Tachyon immigration +10.
-- Alpha core: income +25%, or tariff x0.75 on player markets with the balance setting.
-- Balance setting: one per system per faction; `overrideVanillaCommerce()` (`ModPlugin.java:536`) replaces the Dealmaker Holosuite effect in `ItemEffectsRepo` with +25% income and calls `replaceIndustries(TradeCenter.class, "commerce")`.
+Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. With it on (`CommerceBalancePatch.java`, `DealmakerHolosuitePatch.java`):
 
-### Invisible planetary shield
-
-- `CloudPainter` swaps the vanilla shield for this industry ([World Wonders](WORLD_WONDER.md)). `getId()` returns `planetaryshield`, so `Market.hasIndustry` and `getIndustry`, which match on `Industry.getId()` (skill `obf/campaign/econ/Market.java:200-218`), treat it as the vanilla shield.
-- Option "Change Shield Visuals" cycles market tags FULL -> LOW -> NONE; `apply` uses vanilla texture, the IE translucent texture, or no shield visuals.
-- A market with none of the three tags gets one from `getDefaultTag()`: NONE if `IndEvo_CPShieldRemove`, else LOW if `IndEvo_CPShieldOverride`, else FULL. Markets that already carry a tag keep it.
+| Hook | Vanilla target | Change |
+|---|---|---|
+| `@After` | `TradeCenter.isAvailableToBuild` | false when the faction already has a `commerce` in the system (`MiscIE.isOnlyInstanceInSystemExcludeMarket`) |
+| `@After` | `TradeCenter.getUnavailableReason` | "Can only have one in the star system" for the same case |
+| `@After` | `TradeCenter.addRightAfterDescriptionSection` | adds that line in the build dialog |
+| `@Before` | `TradeCenter.applyAlphaCoreModifiers` | player markets: tariff x0.75 under `getModId(1)` instead of income +25%, skips vanilla |
+| `@After` | `TradeCenter.applyNoAICoreModifiers` | removes that tariff mod; runs with the setting off too |
+| `@Before` | `TradeCenter.addAlphaCoreDescription` | player markets: tariff text instead of income, skips vanilla |
+| `@RedirectFieldRead` | `TradeCenter.IMPROVE_BONUS` reads in `TradeCenter` | 10 instead of 25 |
+| `@RedirectFieldRead` | `ItemEffectsRepo.DEALMAKER_INCOME_PERCENT_BONUS` reads in `BaseInstallableItemEffect` subclasses | 25 instead of 50 |
 
 ### SharedSubmarketUser
 
@@ -137,6 +134,8 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 
 - `BaseIndustry.getModId()` is `"ind_" + id` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:164`, `:266`). Code that unmodifies by the bare id misses the mod.
 - `BaseIndustry.applyAICoreModifiers` calls only the branch for the installed core (skill `BaseIndustry.java:246`); fields set by one branch are not reset by another.
+- Commerce hooks target vanilla `TradeCenter` and the item effect classes only, never `BaseIndustry` ([Patches](../ARCHITECTURE.md#patches)).
+- The commerce alpha tariff uses `getModId(1)` (`ind_commerce_1`), the slot vanilla uses for the alpha income bonus; set and unset must use the same id.
 - Bureau mods use `modifyFlatAlways` on other industries' stats; `unapply` must run with the same map or the mod stays (inferred).
 
 ## Known issues and dormant code
@@ -145,12 +144,8 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 |---|---|
 | `RestorationDocks.aiCoreBonusMult` | only reset by beta and none branches; alpha or gamma after beta keeps 0.85 |
 | `RequisitionCenter.apply` | `addListener(this)` with no listener interface; no effect |
-| `TradeCenter.applyNoAICoreModifiers` (`TradeCenter.java:179`) | unmodifies tariff under `getModId()`, set under `getModId(1)`; the alpha tariff mod stays after core removal |
-| `TradeCenter` alpha tooltip | with balance setting the format args are misordered (tariff string in the demand slot) |
-| `ModPlugin.replaceIndustries` (`ModPlugin.java:564`) | `ind.getClass().isInstance(targetClass)` is always false; every `commerce` is removed and re-added on every load with the setting on; `Changelog_todo:56` "Double check commerce building reset bug" |
 | `CentralizationBureau` `ADMANUF` branch (`:98`) | dead: `IndEvo_AdManuf` is not whitelisted; would NPE on `getSpecialItem().getId()` without an item |
 | Bureau | `Changelog_todo:61`: "Cent Bureau should really run off a condition" |
-| `OrbitalStation` | `@Deprecated`, no CSV row or reference; skips stations tagged `NO_ORBITAL_STATION` |
 | `TechTree` | no reference; Cryo_but_better compat; `researchSaved.get` unboxing NPEs for unknown ids |
 
 ## Maintenance

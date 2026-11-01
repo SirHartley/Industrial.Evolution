@@ -1,6 +1,5 @@
 package indevo.industries.senate.conditions;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -9,7 +8,11 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.ReflectionUtils;
+import indevo.utils.helper.StarReflectionUtils;
 import indevo.utils.helper.StringHelper;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.lang.Math.ceil;
 
@@ -17,25 +20,22 @@ public class Edict_FastBuild extends BaseEdict {
     private static final float FAST_BUILD_MULT = 0.5f;
     private static final float OUTPUT_DECREASE_MULT = 0.5f;
 
+    private Map<String, Float> originalBuildTimes = new HashMap<>();
+
     @Override
     public void apply(String id) {
         super.apply(id);
         if (market.getPrimaryEntity() == null) return;
 
         for (Industry ind : market.getIndustries()) {
-            if (ind.isBuilding() || ind.isUpgrading()) {
-                BaseIndustry industry = (BaseIndustry) ind;
+            if (!ind.isBuilding() || !(ind instanceof BaseIndustry industry)) continue;
 
-                float buildDays;
+            float current = getBuildTime(industry);
+            Float original = getOriginalBuildTimes().get(ind.getId());
+            if (original == null || current != original * FAST_BUILD_MULT) original = current;
 
-                if (ind.isUpgrading() && ind.getSpec().getUpgrade() != null){
-                    buildDays = Global.getSettings().getIndustrySpec(ind.getSpec().getUpgrade()).getBuildTime();
-                } else {
-                    buildDays = ind.getSpec().getBuildTime();
-                }
-
-                ReflectionUtils.INSTANCE.setWithSuper("buildTime", industry, buildDays / 2f, 5, null);
-            }
+            getOriginalBuildTimes().put(ind.getId(), original);
+            setBuildTime(industry, original * FAST_BUILD_MULT);
         }
 
         for (Industry industry : market.getIndustries()) {
@@ -67,16 +67,27 @@ public class Edict_FastBuild extends BaseEdict {
         }
 
         for (Industry ind : market.getIndustries()) {
-            if (ind.isBuilding() || ind.isUpgrading()) {
-                if (!(ind instanceof BaseIndustry industry)) continue;
+            Float original = getOriginalBuildTimes().get(ind.getId());
+            if (original == null || !ind.isBuilding() || !(ind instanceof BaseIndustry industry)) continue;
 
-                float buildDays = ind.isUpgrading() && ind.getSpec().getUpgrade() != null
-                        ? Global.getSettings().getIndustrySpec(ind.getSpec().getUpgrade()).getBuildTime()
-                        : ind.getSpec().getBuildTime();
-
-                ReflectionUtils.INSTANCE.setWithSuper("buildTime", industry, buildDays, 5, null);
-            }
+            // a build started since apply set its own time, keep that
+            if (getBuildTime(industry) == original * FAST_BUILD_MULT) setBuildTime(industry, original);
         }
+
+        getOriginalBuildTimes().clear();
+    }
+
+    private Map<String, Float> getOriginalBuildTimes() {
+        if (originalBuildTimes == null) originalBuildTimes = new HashMap<>();
+        return originalBuildTimes;
+    }
+
+    private static float getBuildTime(BaseIndustry industry) {
+        return (float) StarReflectionUtils.get(industry, "buildTime", float.class, true);
+    }
+
+    private static void setBuildTime(BaseIndustry industry, float days) {
+        ReflectionUtils.setWithSuper("buildTime", industry, days, 5, null);
     }
 
     @Override

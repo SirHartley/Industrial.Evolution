@@ -4,6 +4,10 @@ General
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
 Fixed - Possible crash on market updates with mod industries that do not extend BaseIndustry
+Removed - Colony corruption mode, it is now a separate mod
+Adjusted - Now requires PatchLib
+Note - Install PatchLib alongside Industrial.Evolution
+Note - Saves from 4.1.b do not load, start a new game
 
 Research Projects
 Fixed - Now sorts highest to lowest progress like intended
@@ -32,6 +36,8 @@ Fixed - Animal Center alpha and beta core shop bonuses now apply; they used the 
 Fixed - Nine rare pets that could never appear in the Animal Center shop now show up
 Fixed - Pet management ability no longer shows as active while a detachment is out
 Fixed - Pets on ships left in storage no longer die at month end; they starve unless fed, as the warning says
+Fixed - Pet boxes open the naming dialog on top of the cargo screen; they no longer close it with a simulated Escape key press, which failed on some systems
+Fixed - Pet boxes holding an unknown pet say so in their tooltip instead of crashing the cargo screen; using one crashes with a clear error
 
 Museum
 Fixed - Parade fleet stability bonus no longer stacks
@@ -54,6 +60,9 @@ Academy
 Fixed - Training an officer to be more aggressive no longer charges the fee twice
 Fixed - Officers can no longer be moved from the Academy into a fleet that is already at its officer limit
 Fixed - Swapping AI cores no longer keeps the old core's training time reduction or upkeep cut
+
+Admin Skills
+Adjusted - Micromanagement unlocks remote item and AI core management directly in the colony's industry menu and no longer changes the game setting in the background
 
 Commodity Forge
 Fixed - Beta core upkeep reduction now ends when a VPC is installed, as the tooltip says
@@ -78,6 +87,13 @@ Fixed - Rift Generator crash when only one core system is left as a target
 Fixed - Two ruins planets in one system no longer roll the same derelict industry
 Fixed - Ring terrain around a planet moved by the Rift Generator no longer stays behind in the old system
 Fixed - Possible crash in Hull Forge or Ancient Lab on a lost market when the player has no colonies left
+Fixed - With two or more colonies with Old Industrial Ruins, a ruin no longer offers another colony's derelict industry as a greyed out upgrade
+Fixed - Old Industrial Ruins on a planet that got its ruins after the start of the game (console or other mods) now always get a derelict industry to upgrade into
+Fixed - NPC colonies with Old Industrial Ruins (Nexerelin) now finish upgrading them instead of restarting the upgrade every few days
+
+Ruined Infrastructure
+Fixed - NPC colonies (Nexerelin) now restore their Ruined Infrastructure
+Fixed - A blocked restoration now shows why, for example only one per star system, instead of "Can not be built"
 
 Embassy
 Fixed - Ambassadors can now be asked to stop sabotaging hostile activity
@@ -91,9 +107,11 @@ Fixed - Dismissing an ambassador at some relation values showed an error or cost
 Engineering Hub
 Fixed - The Engineering Hub setting now controls whether it can be built
 Fixed - Weapons and fighters stripped by the Engineering Hub and Hull Deconstructor go to the production gathering point
+Fixed - The relic components option no longer leaves a placeholder item in storage or your cargo when uninstalled or when the Engineering Hub is removed
 
 Privateer Base
 Fixed - Privateer Base no longer fails to find a raid target when one exists
+Adjusted - Counts as two industries itself instead of adding a hidden second industry, so a queued base reserves both slots and other mods see the right industry count
 Fixed - Privateer raid strength now follows the colony's fleet size multipliers (doctrine, shortages, stability, military bases, relays)
 
 Salvage Yards
@@ -105,6 +123,7 @@ Fixed - Ship contract and D-mod transfer costs are now capped at 150% as intende
 
 Senate
 Fixed - Construction no longer stays at half time after the fast build edict ends
+Fixed - Fast build edict no longer finishes a Ruined Infrastructure restoration within a few days; it halves the restoration time like any other construction
 Fixed - Fast build edict now halves industry demand along with output instead of adding 1 demand per commodity, and its effect text no longer shows a doubled percent sign
 Fixed - Forced relocation edict now moves as much population growth as its tooltip says
 Fixed - Lockdown edict tooltip and dialog agree on the ground defense bonus (+200%, three times the base)
@@ -124,8 +143,17 @@ Fixed - Restoration Docks tooltip shows the beta core repair discount instead of
 Requisitions Centre
 Fixed - Requisition Center tooltip shows ambassador sourcing when it applies (no gamma core) and warns on low standing
 
+Commerce
+Fixed - Commerce is no longer rebuilt on every load, which cleared disruptions and restocked its open market
+Fixed - The alpha core tariff reduction no longer stays after the core or Commerce is removed
+Fixed - Alpha core tooltip shows the right values with the balance setting instead of "reduces demand by 25% unit"
+Fixed - Tooltip mentions the Commerce bounty again
+Adjusted - Uses the vanilla Commerce again and changes it in place, which improves compatibility with other mods that change Commerce
+
 World Wonders
 Fixed - Cloud Painter shield texture settings now pick the starting shield visuals
+Fixed - A Planetary Shield on a Cloud Painter world no longer loses its triple ground defense, meteor impact protection, installed AI core or improvement, and pays its normal upkeep again
+Adjusted - Change Shield Visuals only shows while the colony has a working Cloud Painter, and the shield looks normal again once the Cloud Painter is gone
 
 Automated Shipyards
 Fixed - Automated Shipyard shows the ship components lost when the machine runs
@@ -157,6 +185,8 @@ Fixed - Slipstream Catapult shows its Abyss warning only in the Abyss
 Fixed - Tech Locator rates caches, stations and ship wrecks by their actual value
 Fixed - Interceptor missile stuns every fleet caught in the blast, not only fleets you can see in detail
 Fixed - Interceptor missile no longer interdicts and traces the fleet that fired it
+Fixed - The warning beacon message dialog opens on top of the cargo screen when used from there, instead of waiting until the screen is closed
+Changed - Missile hotkey crashes with a clear error instead of failing silently if the hotkeyed ability is not a missile
 
 Items
 Fixed - Removing one of two Relay Hypertransmitters no longer turns relays off
@@ -164,6 +194,9 @@ Fixed - Ship parts from wrecks vary per wreck instead of using the same roll all
 
 Artillery
 Fixed - Artillery slow field and forced overload no longer run out while combat is paused
+Fixed - Watchtowers no longer count as stable locations anywhere, including the planet search and the planet list
+Fixed - Creating a stable location at a star now counts wormholes again, like vanilla
+Adjusted - Uses the vanilla star dialog again, which improves compatibility with other mods
 
 Console Commands
 Fixed - SpawnRuins no longer rolls the first planet twice or adds the ruins condition twice
