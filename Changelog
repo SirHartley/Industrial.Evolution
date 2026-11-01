@@ -9,6 +9,7 @@ Fixed - Now sorts highest to lowest progress like intended
 
 Minefields
 Added - Setting to adjust interdict disable time
+Fixed - Mines in a minefield spread out around the belt instead of clustering
 
 Meteor Showers
 Added - Setting to make meteor shower spawn immediately instead of having a delay with an intel entry

@@ -150,7 +150,7 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
                 }
             }
 
-            usedAngles.add(new Pair<>(angle += 10f, angle -= 10f));
+            usedAngles.add(new Pair<>(angle - 5f, angle + 5f));
 
             float orbitDays = params.minOrbitDays + rand.nextFloat() * (params.maxOrbitDays - params.minOrbitDays);
             mine.setCircularOrbit(this.entity, angle, currRadius, orbitDays);

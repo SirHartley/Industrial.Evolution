@@ -58,7 +58,7 @@ Order: `onNewGameAfterEconomyLoad -> spawnMineFields -> addCondition -> MineFiel
 
 ### Belt creation
 
-`MineFieldCondition.addMineField()` (`:42-69`): if a `BaseRingTerrain` in the system orbits this market's entity, the belt takes that terrain's radius; otherwise radius 500 and a `rings_dust0` ring band unless `$IndEvo_NoAsteroids`. Width 100, orbit 30 to 40 days, name "<planet> Minefield". `MineBeltTerrainPlugin.addMineBelt()` sets `numMines = round(orbitRadius / 3)` (`:72-80`). `createMines()` (`:115-160`) seeds `Random` with clock timestamp plus entity id hash, adds mines of size 2 to 8 on circular orbits inside the band and calls `Misc.setAsteroidSource(mine, this)`.
+`MineFieldCondition.addMineField()` (`:42-69`): if a `BaseRingTerrain` in the system orbits this market's entity, the belt takes that terrain's radius; otherwise radius 500 and a `rings_dust0` ring band unless `$IndEvo_NoAsteroids`. Width 100, orbit 30 to 40 days, name "<planet> Minefield". `MineBeltTerrainPlugin.addMineBelt()` sets `numMines = round(orbitRadius / 3)` (`:72-80`). `createMines()` (`:115-160`) seeds `Random` with clock timestamp plus entity id hash, adds mines of size 2 to 8 on circular orbits inside the band and calls `Misc.setAsteroidSource(mine, this)`. Each mine rerolls its angle up to 30 times to stay out of the 10 degree windows of earlier mines, so only the first 36 or so are spread out.
 
 ### Hit roll
 
@@ -97,7 +97,6 @@ Order: `onNewGameAfterEconomyLoad -> spawnMineFields -> addCondition -> MineFiel
 |---|---|
 | `MineFieldTerrainPlugin`, `addMineField(...)` | Dormant: no caller. Its own `params` field shadows the parent's, so the parent `params` stays null; `InterdictionPulseAbilityListener:39` would NPE on such a terrain (inferred) |
 | `MineAPI` | Dead, no implementation |
-| `MineBeltTerrainPlugin.createMines` angle spacing | No effect: `new Pair<>(angle += 10f, angle -= 10f)` stores `(angle+10, angle)`, `isBetween` never matches (`:153`) |
 | Condition-spawned belt persistence | See Contracts; inferred, not tested in game |
 | `MineFieldCondition.log` | Logger created for `CombatAndDerelictionScript.class` (`:24`), cosmetic |
 | Changelog_todo | No open minefield entries |
