@@ -3,9 +3,11 @@ package indevo.console;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import indevo.ids.Ids;
+import indevo.industries.derelicts.utils.RuinsManager;
 import org.lazywizard.console.BaseCommand;
 import org.lazywizard.console.CommonStrings;
 import org.lazywizard.console.Console;
@@ -85,7 +87,7 @@ public class SpawnRuins implements BaseCommand {
                         case 1:
                             r = new Random();
                             if (r.nextFloat() < mod) {
-                                p.getMarket().addCondition(Ids.COND_RUINS);
+                                addRuins(p);
                                 Console.showMessage(Ids.COND_RUINS.toLowerCase() + " found on " + p.getName() + " (" + p.getTypeId() + ") in " + s.getName());
                                 amount++;
                             }
@@ -93,7 +95,7 @@ public class SpawnRuins implements BaseCommand {
                         case 2:
                             r = new Random();
                             if (r.nextFloat() < (mod / 3f)) {
-                                p.getMarket().addCondition(Ids.COND_RUINS);
+                                addRuins(p);
                                 Console.showMessage(Ids.COND_RUINS.toLowerCase() + " found on " + p.getName() + " (" + p.getTypeId() + ") in " + s.getName() + " - Second Planet");
                                 amount++;
                             }
@@ -108,5 +110,10 @@ public class SpawnRuins implements BaseCommand {
         Console.showMessage("Spawned " + amount + " industrial ruins");
         Console.showMessage("Total eligible planets found in sector: " + total);
         return CommandResult.SUCCESS;
+    }
+
+    private static void addRuins(PlanetAPI p) {
+        p.getMarket().addCondition(Ids.COND_RUINS);
+        if (p.getMarket().getSurveyLevel() == MarketAPI.SurveyLevel.FULL) RuinsManager.setUpgradeSpec(p);
     }
 }
