@@ -59,7 +59,7 @@ Quick Settings is the first tab. It holds the disclaimers, one switch per conten
 |---|---|---|---|
 | Colony industries | New `IndEvo_block_industries` | Parent of the 19 industry toggles | Build menu at once; built industries stay; NPC placement on new games |
 | Derelict tech | `IndEvo_Enable_Derelicts` | Ruins and derelict industries, ruined infrastructure, derelict stations and their salvage specials (`IndEvo_enable_derelict_stations` becomes a child) | New games |
-| Artillery | `IndEvo_Enable_Artillery` | Artillery stations and watchtowers | Firing at once; placement on new games |
+| Artillery | `IndEvo_Enable_Artillery` | Artillery stations and watchtowers | Building and station setup at once (`ArtilleryStation.java:608`, `ArtilleryStationCondition.java:23`); placement on new games. Stations already placed keep firing: `CampaignAttackScript` does not read it |
 | Minefields | `IndEvo_Enable_minefields` | Minefields around the core worlds and derelict stations | Hits at once; placement on new games |
 | Meteor swarms | `IndEvo_meteor_enabled` | Swarm spawns | At once |
 | Pets | `IndEvo_pets` | Pet shop, pet ability, abandoned pet shops | At once; world placement on new games |
@@ -100,7 +100,7 @@ Tab layout after the split (nine tabs, as Catch.Release):
 - Help text states the new game part in the short style the CSV already uses ("Needs a new game!", "Only works on new game."), normalised to one line: "Needs a new game."
 - `NEW_GAME` settings only act during world generation; their help text ends with that line: `IndEvo_enable_derelict_stations`, `IndEvo_derelictStationAmount`, `IndEvo_SpecialApplicationChance`, `IndEvo_AutomatedShipyardNum`, `IndEvo_Artillery_spawnWeight`, `IndEvo_Artillery_starsPerStationInConstellation`.
 - Mixed toggles act both in world generation and live: `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_Enable_Derelicts`, `IndEvo_pets`, and the industry toggles `NewGameIndustryPlacer` reads. They stay `LIVE`; help text names the part that needs a new game ("Placement needs a new game.").
-- Values copied into saved objects keep their old value until the object is rebuilt: `CampaignAttackScript` builds its fire interval from the delay settings in its constructor (`CampaignAttackScript.java:50`); courier contracts and museum parades are priced or sized at creation. House rule: new terms use the values at creation, accepted terms stay fixed. Stage 2 decides each case and records it in the feature doc.
+- Values copied into saved objects keep their old value until the object is rebuilt: `CampaignAttackScript` builds its fire interval from the delay settings in its constructor (`CampaignAttackScript.java:50`); each courier shipment fixes its cost at dispatch (`Shipment.java:52`). Museum parades not checked yet. House rule: new terms use the values at creation, accepted terms stay fixed. Stage 2 decides each case and records it in the feature doc.
 
 ## Dependencies
 
