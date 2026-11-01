@@ -94,11 +94,11 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | `afterGameSave()`, `onGameSaveFailed()` | Puts the removed mines back | `:365`, `:370` |
 | `pickMissileAI()` | `IndEvo_mortarProjectileAI`, `IndEvo_missileProjectileAI` at `MOD_SPECIFIC` ([COMBAT](core/COMBAT.md)) | `:400` |
 
-New game, once (`:314` to `:330`):
+New game, once (`:316` to `:332`):
 
 `LocatorSystemRatingUpdater.updateAllSystems -> RuinsManager.forceCleanCoreRuins -> NewGameIndustryPlacer.run -> ArtilleryStationPlacer.placeDerelictArtilleries -> placeCoreWorldArtilleries -> GachaStationSpawner.spawn -> createAcademyMarket -> [IndEvo_Enable_Derelicts] DerelictStationPlacer.init -> IndEvo_SalvageSpecialAssigner.init -> spawnMineFields -> DerelictInfrastructurePlacer.placeRuinedInfrastructure -> RuinsManager.placeIndustrialRuins`
 
-Every load (`:157` to `:204`):
+Every load (`:158` to `:206`):
 
 `createAcademyMarket -> setListenersIfNeeded -> setScriptsIfNeeded -> ResourceConditionApplicator.applyResourceConditionToAllMarkets -> loadTransientMemory -> PlanetoidDespawnScript.despawnStrandedPlanetoids -> OrbitFocus.removeUnusedOrbitFoci -> addTypePrefaceToIndustrySpecs -> [IndEvo_CommerceBalanceChanges] overrideVanillaCommerce -> LocatorSystemRatingUpdater.updateAllSystems -> resetDerelictRep -> [newGame] ArtilleryStationReplacer.register -> pet_management ability add or remove [IndEvo_pets] -> $IndEvo_BaseRemoteAllowed -> MissileActivationManager reset`
 
@@ -109,12 +109,12 @@ Every load (`:157` to `:204`):
 | `X.register()` | `getListenerManager().addListener(new X(), true)`: transient, added on every load, not saved | `DepositMessage.register()` |
 | `X.getInstanceOrRegister()` | Returns the saved instance from `getListeners(X.class)` or adds a persistent one | `ShippingManager`, `AdminGovernTimeTracker`; `RelayNetworkBrain` is the transient variant, see below |
 | `registerPlugin(new XCampaignPlugin())` | Campaign plugin; all six IE plugins are transient (`BaseCampaignPlugin.isTransient()` returns true) | `setScriptsIfNeeded()` `:518` to `:523` |
-| `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:525` |
+| `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:527` |
 | Industry adds itself in `apply()` | `addListener(this)` from the industry; the listener manager skips an instance already present (obf `ObjectRepository.java:87`, per the knowledge skill) | Assembler, engineering hub |
 | CSV plugin column | Industries, conditions, abilities, items, entities, terrain, hullmods, weapons | `data/campaign/*.csv`, `custom_entities.json`, `terrain.json` |
 | `ruleCommandPackages` | Rule commands found by package | `settings.json:236` ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
 
-`setListenersIfNeeded()` (`:450` to `:513`) by feature: item effects and loot (`SpecialItemEffectsRepo.initEffectListeners`, `ShipComponentLootManager`, `SpecialItemDropsListener`, `ConsumableItemDropListener`, `ConsumableItemMarketAdder`), economy (`ResourceConditionApplicator`, `RelicBuildTimeReductionButtonAdder`), assembler (`DepositMessage`), embassy (`AmbassadorPersonManager`, `HostileActivityEventSubRegisterListener`), privateer and raids (`RaidTimeout`), derelicts (`RuinsManager.*`, `AncientLabCommoditySwitchOptionProvider`, `RiftGenOptionProvider`, `RemoveIndustryOptionWarningProvider`), courier (`ShippingManager`, `CourierPortOptionProvider`), split fleet (`DetachmentAbilityAdder`), consumables (`LocatorSystemRatingUpdater`, `SpooferItemKeypressListener`, `OnKeyPressAbilityInputListener`, `FleetConsumableInventoryManager`, `MissileActivationManager`), minefields (`RecentJumpListener`, `InterdictionPulseAbilityListener`), world wonder, changeling, pets, ruinfra, artillery (`WatchtowerFactionResetListener`), research unlock checkers, skills, salvage yards, senate, academy, beacons, shield, relay (`MilitaryRelay.RelayItemRemovalButtonListener`, `RelayNetworkBrain`), meteor (`MeteorSwarmManager`), warehouses, museum. Nexerelin only: `ManagedDemocracyNexerelinListenerPlugin`. Commented out: `DistressCallManager`, `HullmodTimeTracker`.
+`setListenersIfNeeded()` (`:452` to `:516`) by feature: item effects and loot (`SpecialItemEffectsRepo.initEffectListeners`, `ShipComponentLootManager`, `SpecialItemDropsListener`, `ConsumableItemDropListener`, `ConsumableItemMarketAdder`), economy (`ResourceConditionApplicator`, `RelicBuildTimeReductionButtonAdder`), assembler (`DepositMessage`), embassy (`AmbassadorPersonManager`, `HostileActivityEventSubRegisterListener`), privateer and raids (`RaidTimeout`), derelicts (`RuinsManager.*`, `AncientLabCommoditySwitchOptionProvider`, `RiftGenOptionProvider`, `RemoveIndustryOptionWarningProvider`), courier (`ShippingManager`, `CourierPortOptionProvider`), split fleet (`DetachmentAbilityAdder`), consumables (`LocatorSystemRatingUpdater`, `SpooferItemKeypressListener`, `OnKeyPressAbilityInputListener`, `FleetConsumableInventoryManager`, `MissileActivationManager`), minefields (`RecentJumpListener`, `InterdictionPulseAbilityListener`), world wonder, changeling, pets, ruinfra, artillery (`WatchtowerFactionResetListener`), research unlock checkers, skills, salvage yards, senate, academy, beacons, shield, relay (`MilitaryRelay.RelayItemRemovalButtonListener`, `RelayNetworkBrain`), meteor (`MeteorSwarmManager`), warehouses, museum. Nexerelin only: `ManagedDemocracyNexerelinListenerPlugin`. Commented out: `DistressCallManager`, `HullmodTimeTracker`.
 
 When adding a listener, add its `register()` call here in the feature's group and list it in the feature doc's Registration section.
 
