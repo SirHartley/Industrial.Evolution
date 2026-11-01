@@ -27,6 +27,7 @@ After reading this file, use the task to choose the next document. Read the rele
 | Change, fix or review one feature (an industry, exploration content, ability, item, dialogue system) | The feature doc under `docs/<area>/`, found through the [ARCHITECTURE.md](docs/ARCHITECTURE.md#feature-documents) table. Read its Contracts and Known issues before editing. |
 | Add a new industry, condition, ability, item or other feature | [ARCHITECTURE.md](docs/ARCHITECTURE.md) (registration and package layout), the closest existing feature doc as a model, and the house-style `packages.md`. Write the new feature doc in the same commit. |
 | Add, rename or read a player setting, whitelist or `settings.json` key | [SETTINGS.md](docs/core/SETTINGS.md) |
+| Change the settings mechanism (reader, cache, LunaLib listener, settings checks) | [SETTINGS.md](docs/core/SETTINGS.md), then [SETTINGS_REWORK.md](docs/core/SETTINGS_REWORK.md). The rework is a proposed plan, not current behavior. |
 | Add or reuse a helper, timer, memory accessor, animation or trail | [UTILS.md](docs/core/UTILS.md) before writing a new helper. |
 | Work on `rules.csv`, dialogue or a rule command | [RULE_COMMANDS.md](docs/dialogue/RULE_COMMANDS.md), the feature doc, and the `starsector-rules-writing` skill. |
 | Touch another mod's integration (Nexerelin, Console Commands, Vayra, Prism, Shadowyards, BetterColonies) | [COMPATIBILITY.md](docs/core/COMPATIBILITY.md) |
@@ -85,6 +86,7 @@ Update documents automatically as part of each relevant change. Before committin
 | `docs/ARCHITECTURE.md` | Overview: areas, feature doc index, registration and lifecycle in `ModPlugin`, save data, data layout, cross-feature contracts, dormant code summary | Update the affected route, registration line or contract; remove obsolete owners. Use exact paths and symbols. No feature internals (those go in the feature doc), lore, release history or duplicate policy. |
 | `docs/<area>/<FEATURE>.md` | One feature each: files, ids, registration, flow, contracts, known issues | Update with every change to that feature's code, data or settings. Keep the template sections. Add a row to the ARCHITECTURE.md feature table for a new doc. |
 | `docs/core/SETTINGS.md` | Settings reader, LunaLib tabs, `settings.json` key groups, whitelists | Update when the mechanism, a tab, a key group or a whitelist changes. Setting values belong in the feature doc. |
+| `docs/core/SETTINGS_REWORK.md` | Proposed settings rework: decisions, open questions, staged plan | Record decisions; tick subtasks as they merge and move implemented detail to SETTINGS.md and ARCHITECTURE.md. Does not govern setting values or help text. |
 | `docs/core/UTILS.md` | Shared helpers in `indevo/utils` | Update when a helper is added, removed or changes its contract. |
 | `docs/core/COMPATIBILITY.md` | Integrations with other mods | Update when an integration, a hard or optional dependency, or a config file for another mod changes. |
 | `docs/RELEASE.md` | Version numbers, build, package contents and publishing | Keep it in step with the actual release steps. |
