@@ -15,7 +15,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | `indevo/industries/derelicts/conditions/RuinsCondition.java` | Condition on the planet. Adds `IndEvo_Ruins` on colonization, removes itself when the ruins industry is gone. |
 | `indevo/industries/derelicts/conditions/CryoRevivalDisabler.java` | Hidden condition added by Rift Generator. Daily: disrupts `cryorevival` if no cryosleeper in range. |
 | `indevo/industries/derelicts/conditions/BeaconCondition.java` | Dead. No csv row, nothing references it. |
-| `indevo/industries/derelicts/industry/Ruins.java` | Base industry. Sets its upgrade target per market, AI auto upgrade, cleans the condition on removal. |
+| `indevo/industries/derelicts/industry/Ruins.java` | Base industry. `getSpec()` returns a per instance spec view whose upgrade is the market's target, AI auto upgrade, cleans the condition on removal. |
 | `indevo/industries/derelicts/industry/BaseForgeTemplateUser.java` | Abstract base for Lab, Decon, Forge (and RiftGen availability). Build check, forge template slot, downgrade to ruins. Extends `SharedSubmarketUser`. |
 | `indevo/industries/derelicts/industry/AncientLaboratory.java` | Template repair and commodity bonus. |
 | `indevo/industries/derelicts/industry/HullDeconstructor.java` | Ship to forge template. Owns the `IndEvo_DeconstStorage` submarket. |
@@ -82,7 +82,7 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 
 `setUpgradeSpec` (`RuinsManager.java:171-207`): weights Lab 1, Decon 0.7, Forge 0.7, RiftGen 0.35, seeded by the planet salvage seed. RiftGen is excluded with solar array, artillery condition, minefield, Niko satellites, rings, gas giant.
 
-`Ruins.apply` (`Ruins.java:38`, no `super.apply`) -> `setUpgradeSpec` (`:72-81`) points the spec's upgrade at the stored id -> `triggerUpgradeForAI` (`:83-98`): NPC market size > 4, free slot, more than 2 markets. `BaseForgeTemplateUser.isAvailableToBuild` (`:40`) only lets the matching industry build, and not while ruins are upgrading. `unapply` (`:88-91`) resets the downgrade to `IndEvo_Ruins`.
+`Ruins.getSpec()` (`Ruins.java:40-49`) returns an `IndustrySpecView` ([Utils](../core/UTILS.md)) whose upgrade is `$IndEvo_ruinsIndustryId`, so the option menu, `startUpgrading` and the tooltips read this market's target. `Ruins.apply` (`:35`, no `super.apply`) -> `triggerUpgradeForAI` (`:84-99`): NPC market size > 4, free slot, more than 2 markets. `BaseForgeTemplateUser.isAvailableToBuild` (`:40`) only lets the matching industry build, and not while ruins are upgrading. `unapply` (`:88-91`) resets the downgrade to `IndEvo_Ruins`.
 
 ### Forge template loop
 
@@ -101,7 +101,7 @@ Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Co
 
 ## Contracts
 
-- `Ruins.setUpgradeSpec`, `BaseForgeTemplateUser.unapply` and `RiftGenerator` write upgrade and downgrade onto `spec`, which is the shared `Global.getSettings().getIndustrySpec(id)` (`starsector-knowledge api/impl/.../BaseIndustry.java:160,702`). Every market rewrites it before use; inferred: tooltips on another market may show the last written value.
+- `BaseIndustry.spec` is the shared `Global.getSettings().getIndustrySpec(id)` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:160,702`); never write per market values onto it. `Ruins` overrides `getSpec()` with a view instead; every vanilla reader of the upgrade goes through `getSpec()` (option menu `_c37.java:224,259`, `BaseIndustry.java:575,1075`). `BaseForgeTemplateUser.unapply` and `RiftGenerator` still toggle the shared downgrade.
 - `$IndEvo_ruinsIndustryId` is the single source for which structure a ruin becomes. Set once, persists in market memory. Also read by `Supercomputer.java:213`, `ModUpdater.java:96-141`, `LocatorSystemRatingUpdater.java:121`.
 - Forge templates move between industries only as cargo through `IndEvo_SharedStore` / `IndEvo_DeconstStorage` and storage. Item plugins (`ForgeTemplateItemPlugin.java:132,248,306`, `EmptyForgeTemplateItemPlugin.java:54-61`) own charges, quality and `IndEvo_auto`.
 - Rift move replaces the planet entity, keeping the id. Anything that caches `PlanetAPI` refs to a moved planet holds a dead entity (inferred). `PlanetJumpListener` is the hook for that and has no users.
