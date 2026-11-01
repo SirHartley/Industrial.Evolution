@@ -33,6 +33,7 @@ Fixed - No longer crashes when installing a modded AI-Core
 
 Academy
 Fixed - Training an officer to be more aggressive no longer charges the fee twice
+Fixed - Officers can no longer be moved from the Academy into a fleet that is already at its officer limit
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0

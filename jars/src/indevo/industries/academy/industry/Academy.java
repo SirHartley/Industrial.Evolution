@@ -461,7 +461,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             i++;
         }
 
-        return i <= max;
+        return i < max;
     }
 
     public static boolean personHasSkill(PersonAPI person, SkillSpecAPI skill) {
