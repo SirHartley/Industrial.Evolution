@@ -57,7 +57,7 @@ Chain: `placeRuinedInfrastructure -> condition on planet -> colonized -> Derelic
 - `RuinedInfrastructure.startUpgrading` sets `upgradeId` to the CSV upgrade (`IndEvo_ChamelionIndustry`) and `buildTime = target build time * BUILD_PARAM_RED` (`RuinedInfrastructure.java:60`).
 - `finishBuildingOrUpgrading` removes `IndEvo_ChamelionIndustry` and itself, adds the stored target and calls its `finishBuildingOrUpgrading` (`:72`).
 - `notifyBeingRemoved` removes the condition.
-- AI markets (`triggerUpgradeForAI`, from `apply`): size above 4, target buildable, faction owns more than 2 markets.
+- AI markets (`triggerUpgradeForAI`, `RuinedInfrastructure.java:100`, from `apply` on every economy step): not already restoring, a stored target, size above 4, faction owns more than 2 markets, the `IndEvo_ChamelionIndustry` instance (the target) is buildable and, for an industry target, a slot is free.
 
 ### Decivilization
 
