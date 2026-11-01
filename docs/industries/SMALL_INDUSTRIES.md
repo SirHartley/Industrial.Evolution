@@ -78,7 +78,7 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 ## Registration and lifecycle
 
 - All via CSV plugin column.
-- `ModPlugin.setListenersIfNeeded()`: `InvisiblePlanetaryShield.AlternateTextureOptionProvider.register()` (`ModPlugin.java:492`). `BureauFactor` and `SuperComputerFactor` are registered by `SpecialItemEffectsRepo.initEffectListeners()` ([Installables](../items/INSTALLABLES.md)).
+- `ModPlugin.setListenersIfNeeded()`: `InvisiblePlanetaryShield.AlternateTextureOptionProvider.register()` (`ModPlugin.java:488`). `BureauFactor` and `SuperComputerFactor` are registered by `SpecialItemEffectsRepo.initEffectListeners()` ([Installables](../items/INSTALLABLES.md)).
 - `CommerceBalancePatch` and `DealmakerHolosuitePatch` are `@Patch` classes; PatchLib finds and installs them at startup ([Patches](../ARCHITECTURE.md#patches)). Both read `IndEvo_CommerceBalanceChanges` on every call, so the setting takes effect without a restart.
 - `NewGameIndustryPlacer` places Restoration Docks (`NewGameIndustryPlacer.java:69`) and the Requisitions Centre at `baetis` (`:133`) on new game; see [Utils](../core/UTILS.md).
 - Supercomputer, Restoration Docks and Requisitions Centre add themselves as transient listeners in `apply()` and remove themselves in `unapply()`; `ListenerManager.addListener` dedupes the same instance (skill `obf/campaign/ListenerManager.java:29`).

@@ -118,7 +118,7 @@ Write documentation in short programmer speak with normal capitalization and pun
 - Packages follow `indevo/<area>/<feature>/<role>/`. Areas: `industries`, `exploration`, `abilities`, `items`, `dialogue`, `economy`, `submarkets`, `utils`, `ids`, `console`, `other`, `WIP`. Role packages are named for the engine type (`industry`, `conditions`, `listeners`, `plugins`, `scripts`, `rules`, `intel`, `entities`, `hullmods`, `terrain`, `fleet`, `memory`). See the house-style `packages.md`.
 - Ids, tags, memory keys and setting keys carry the `IndEvo_` prefix (`$IndEvo_` for memory). Shared ids live in `indevo/ids/Ids.java` and `ItemIds.java`; feature-local keys stay in the feature.
 - Class member order: nested enums; static fields; instance fields; other nested types; constructors; lifecycle and public entry points in execution order; helpers near their callers. Group fields by responsibility. No section header comments.
-- New code is Java 17. Four Kotlin files exist (see [ARCHITECTURE.md](docs/ARCHITECTURE.md#build)); do not add Kotlin without asking.
+- New code is Java 17. Three Kotlin files exist (see [ARCHITECTURE.md](docs/ARCHITECTURE.md#build)); do not add Kotlin without asking.
 
 ## Agent behavior
 
@@ -202,7 +202,7 @@ Required compile dependencies (from `IndEvo.iml` and the imports):
 
 Dependency source: `lib/` in the repository, read-only. It holds the game jars (`starfarer.api.jar`, `starfarer_obf.jar`, `fs.common_obf.jar`, `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`) and the mod jars `Graphics.jar` (GraphicsLib 1.9.0), `LazyLib.jar` and `Kotlin-Runtime.jar` (LazyLib 3.0.0), `LunaLib.jar` (2.0.1), `MagicLib.jar` (1.5.1), `PatchLibAPI.jar` (PatchLib 1.0.3), `lw_Console.jar`, `ExerelinCore.jar` (Nexerelin 0.12.2d), `SHI.jar` (Shadowyards 0.9.5-rc4) and `RandomAssortmentofThings.jar` (RAT 3.3.1). Only the jars the gate needs are kept, never full mod folders. Replace a jar only when the user supplies a new version, and note the version here. The game loads only the jars `mod_info.json` lists, so `lib/` never reaches the game; it must stay out of the release zip ([RELEASE.md](docs/RELEASE.md)).
 
-Still missing: a Kotlin 2.1 compiler. Without it `javac` fails only in the four Java files that use the Kotlin classes (`Edict_FastBuild`, `RelicBuildTimeReductionButtonAdder`, `RadiationEffectHandler`, `ModPlugin`). Until it is available, an agent reports the gate as not run and stops before merging runtime changes; IntelliJ on the user's machine (`IndEvo.iml`, artifact `IndEvo:jar`) stays the reference build. See [ARCHITECTURE.md](docs/ARCHITECTURE.md#build).
+Still missing: a Kotlin 2.1 compiler. Without it `javac` fails only in the three Java files that use the Kotlin classes (`Edict_FastBuild`, `RelicBuildTimeReductionButtonAdder`, `RadiationEffectHandler`). Until it is available, an agent reports the gate as not run and stops before merging runtime changes; IntelliJ on the user's machine (`IndEvo.iml`, artifact `IndEvo:jar`) stays the reference build. See [ARCHITECTURE.md](docs/ARCHITECTURE.md#build).
 
 Reference command (from the repository root):
 

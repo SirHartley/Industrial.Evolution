@@ -25,7 +25,6 @@ import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
 import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
 import indevo.WIP.mobilecolony.plugins.MobileColonyCampaignPlugin;
 import indevo.abilities.skills.scripts.AdminGovernTimeTracker;
-import indevo.abilities.skills.scripts.MicromanagementSkillEffectScript;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
@@ -188,8 +187,6 @@ public class ModPlugin extends BaseModPlugin {
             Global.getSector().getPlayerFleet().removeAbility("pet_management");
             Global.getSector().getCharacterData().removeAbility("pet_management");
         }
-
-        Global.getSector().getMemoryWithoutUpdate().set("$IndEvo_BaseRemoteAllowed", Global.getSettings().getBoolean("allowRemoteIndustryItemManagement"));
 
         //player fuckery
         if(MissileActivationManager.getInstanceOrRegister().hasActiveListener()) MissileActivationManager.getInstanceOrRegister().getCurrentListener().reset();
@@ -472,7 +469,6 @@ public class ModPlugin extends BaseModPlugin {
         MarineLossAmplifcationHullmodEffectListener.register();
         WatchtowerFactionResetListener.register();
         HyperspaceTopoProgressChecker.register();
-        MicromanagementSkillEffectScript.register();
         AdminGovernTimeTracker.getInstanceOrRegister();
         SlowShipInFleetChecker.register();
         AutopulseUseChecker.register();

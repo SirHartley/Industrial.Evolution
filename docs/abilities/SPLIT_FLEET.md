@@ -42,7 +42,7 @@ The player ability `splinter_fleet` opens a control panel with three loadout slo
 | `intel/DerelictFleetLocationIntel.java` | "Dormant Detachment" intel. Never constructed. Dead. |
 | `salvageSpecials/OfficerAndShipRecoverySpecial.java` | Salvage special on detachment wrecks: thaw the officer, then recover the ship with condition based hits and d-mods. |
 | `listeners/DetachmentAbilityAdder.java` | `NewDayListener` that grants the ability once the tutorial is over, then removes itself (`:26`). |
-| `locationFollower/PlayerFleetFollower.java`, `LocationFollowListenerAPI.java` | Token that tracks the player fleet across locations. `register()` is commented out (`ModPlugin.java:521`); only `getToken()` is used by the dormant DELIVER AI. Dormant. |
+| `locationFollower/PlayerFleetFollower.java`, `LocationFollowListenerAPI.java` | Token that tracks the player fleet across locations. `register()` is commented out (`ModPlugin.java:517`); only `getToken()` is used by the dormant DELIVER AI. Dormant. |
 
 ## Data and ids
 
@@ -62,8 +62,8 @@ The player ability `splinter_fleet` opens a control panel with three loadout slo
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded` -> `DetachmentAbilityAdder.register()` (`ModPlugin.java:454`); persistent `NewDayListener`, deduped by `hasListenerOfClass`.
-- `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new SplinterFleetCampignPlugin())` on every load (`ModPlugin.java:509`); transient, so it is not saved.
+- `ModPlugin.setListenersIfNeeded` -> `DetachmentAbilityAdder.register()` (`ModPlugin.java:451`); persistent `NewDayListener`, deduped by `hasListenerOfClass`.
+- `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new SplinterFleetCampignPlugin())` on every load (`ModPlugin.java:505`); transient, so it is not saved.
 - `abilities.csv` plugin column -> `SplinterAbilityPlugin`.
 - Per detachment, attached at spawn and saved with the fleet: one `SplinterFleetAssignmentAIV2` script and one `CombatAndDerelictionScript` (`FleetUtils.java:167`, `:168`). The AI adds itself as a sector `CampaignEventListener` on first `advance` (`regsterIfNeeded`, `BaseSplinterFleetAssignmentAIV2.java:500`) and removes itself when done (`:128`).
 

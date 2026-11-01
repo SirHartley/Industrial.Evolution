@@ -71,7 +71,7 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 ## Registration and lifecycle
 
 - Entry: rules `IndEvo_JobMenuPoint` adds option 4 "Visit the Research Tracts" on `PopulateOptions` at `$id == station_galatia_academy`; `IndEvo_JobMenuInit` runs the command `ResearchProjectDialoguePlugin` (package `indevo.dialogue.research.dialogue` is in `ruleCommandPackages`, `data/config/settings.json:246`).
-- `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:448` to `:511`):
+- `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:445` to `:511`):
 
 | Class | How | Persists |
 |---|---|---|
@@ -83,7 +83,7 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 | `CamouflageRefitListener` | `addTransientListener` | transient |
 | `SurveyDataTooltipAmender` | `addListener(x, true)` | transient |
 
-- `ModPlugin.onGameLoad` reads Navi's progress to unlock fairy sales (`ModPlugin.java:176`, see [Pets](../industries/PETS.md)).
+- `ModPlugin.onGameLoad` reads Navi's progress to unlock fairy sales (`ModPlugin.java:175`, see [Pets](../industries/PETS.md)).
 
 Order: `PopulateOptions -> IndEvo_JobMenuPoint -> option -> IndEvo_JobMenuInit -> ResearchProjectDialoguePlugin.execute -> dialog.setPlugin(this) -> ResearchProjectSidePanelCreator`.
 

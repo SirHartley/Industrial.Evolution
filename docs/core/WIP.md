@@ -51,8 +51,8 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Registration and lifecycle
 
-- converters: nothing registered. `ModPlugin.onNewGameAfterEconomyLoad` has `//ConverterRepRestetter.resetConverterRep();` commented out (`indevo/utils/ModPlugin.java:321`). No `market_conditions.csv` row for the log core condition and no `industries.csv` row for the paperclip factory (grep of `data/campaign`).
-- mobilecolony: `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new MobileColonyCampaignPlugin())` every load (`indevo/utils/ModPlugin.java:510`). `BaseCampaignPlugin.isTransient()` returns true (vanilla `BaseCampaignPlugin`), so it does not pile up in saves. `MobileColonyFactory.create()` has no caller.
+- converters: nothing registered. `ModPlugin.onNewGameAfterEconomyLoad` has `//ConverterRepRestetter.resetConverterRep();` commented out (`indevo/utils/ModPlugin.java:318`). No `market_conditions.csv` row for the log core condition and no `industries.csv` row for the paperclip factory (grep of `data/campaign`).
+- mobilecolony: `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new MobileColonyCampaignPlugin())` every load (`indevo/utils/ModPlugin.java:506`). `BaseCampaignPlugin.isTransient()` returns true (vanilla `BaseCampaignPlugin`), so it does not pile up in saves. `MobileColonyFactory.create()` has no caller.
 
 ## Flow
 
