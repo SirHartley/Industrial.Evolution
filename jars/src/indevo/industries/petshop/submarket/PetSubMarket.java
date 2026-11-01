@@ -15,6 +15,7 @@ import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.submarkets.DynamicSubmarket;
+import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.ModPlugin;
 
 public class PetSubMarket extends BaseSubmarketPlugin implements DynamicSubmarket {
@@ -28,6 +29,12 @@ public class PetSubMarket extends BaseSubmarketPlugin implements DynamicSubmarke
     public static final float BASE_AMOUNT_PER_ANIMAL = 3f;
 
     public void updateCargoPrePlayerInteraction() {
+        // 4.1.b left the pet market behind when the animal center was removed
+        if (!market.hasIndustry(Ids.PET_STORE) && !isSetForRemoval) {
+            prepareForRemoval();
+            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.PETMARKET, true));
+        }
+
         float seconds = Global.getSector().getClock().convertToSeconds(sinceLastCargoUpdate);
         addAndRemoveStockpiledResources(seconds, false, true, true); //This clears commodities for us, uses shouldHaveCommodity/getStockpileLimit
         sinceLastCargoUpdate = 0f;

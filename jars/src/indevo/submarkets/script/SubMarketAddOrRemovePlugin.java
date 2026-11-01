@@ -12,6 +12,7 @@ import indevo.ids.Ids;
 import indevo.submarkets.DynamicSubmarket;
 import indevo.submarkets.impl.SharedSubmarketPlugin;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.Settings;
 
 //what the fuck is this trash script
 //update 2025: what the fuck
@@ -50,9 +51,9 @@ public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
         String id;
 
         switch (submarketID) {
-            case Ids.PET_STORE:
-                id = Ids.PET_STORE;
-                if (!market.hasIndustry(Ids.PET_STORE) && market.hasSubmarket(id)) {
+            case Ids.PETMARKET:
+                id = Ids.PETMARKET;
+                if ((!market.hasIndustry(Ids.PET_STORE) || !Settings.getBoolean(Settings.PETS)) && market.hasSubmarket(id)) {
                     removeSubmarket(id, false);
                     break;
                 }

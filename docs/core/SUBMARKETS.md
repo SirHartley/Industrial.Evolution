@@ -51,6 +51,7 @@ Feature submarkets with their plugin outside this package:
 
 | Removed id | Owner check | Cargo |
 |---|---|---|
+| `IndEvo_PetSubMarket` | no `IndEvo_PetStore`, or `IndEvo_pets` off | dropped |
 | `IndEvo_RepairStorage` | no `IndEvo_dryDock` | moved to storage |
 | `IndEvo_ReqCenterMarket` | no `IndEvo_ReqCenter` | dropped |
 | `IndEvo_DeconstStorage` | no `IndEvo_HullDecon` | moved |
@@ -74,8 +75,8 @@ Max weapon tier by standing (`getMaxTier`): <0.5 -> 0, <0.7 -> 1, <0.9 -> 2, els
 
 ## Contracts
 
-- `SubMarketAddOrRemovePlugin.removeSubmarket` casts the plugin to `DynamicSubmarket` (`script/SubMarketAddOrRemovePlugin.java:102`); a submarket removed through it must implement that interface.
-- The removal switch falls through on purpose or by accident: a call for one id also removes any later id whose industry is gone (`script/SubMarketAddOrRemovePlugin.java:52` to `96`). Inferred; no comment states intent.
+- `SubMarketAddOrRemovePlugin.removeSubmarket` casts the plugin to `DynamicSubmarket` (`script/SubMarketAddOrRemovePlugin.java:103`); a submarket removed through it must implement that interface.
+- The removal switch falls through on purpose or by accident: a call for one id also removes any later id whose industry is gone (`script/SubMarketAddOrRemovePlugin.java:53` to `97`). Inferred; no comment states intent.
 - Storage target is `MiscIE.getStorageCargo(market)`, which falls back to RAT `rat_settlement_storage` ([Utils](UTILS.md#miscie)). `moveContentsToStorage` itself requires vanilla `storage` (`:111`).
 - Plugins with `isFreeTransfer()` true and `isParticipatesInEconomy()` false behave as storage: no tariff, no market effect.
 
@@ -83,7 +84,6 @@ Max weapon tier by standing (`getMaxTier`): <0.5 -> 0, <0.7 -> 1, <0.9 -> 2, els
 
 | Item | State |
 |---|---|
-| `SubMarketAddOrRemovePlugin` pet case (`script/SubMarketAddOrRemovePlugin.java:53`) | Switches on `Ids.PET_STORE` (`IndEvo_PetStore`, the industry id) but `PetShop` passes `Ids.PETMARKET` (`IndEvo_PetSubMarket`), so the pet submarket is never removed by this script (suspected bug) |
 | `ReverseEngineeringSubmarketPlugin.roleListings` | `@Deprecated`, unused |
 | `ReverseEngineeringSubmarketPlugin.java:60` | `getHullSpec(id)` for every faction known ship; throws on a missing hull id (engine fact: spec getters throw on missing ids, knowledge base `docs/concepts/spec-loading.md`) |
 | `RestorationDocksSubmarketPlugin.createTooltipAfterDescription` (`:130`) | Casts `market.getIndustry(REPAIRDOCKS)` without a null check |
