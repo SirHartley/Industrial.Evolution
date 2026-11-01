@@ -118,7 +118,7 @@ Write documentation in short programmer speak with normal capitalization and pun
 - Packages follow `indevo/<area>/<feature>/<role>/`. Areas: `industries`, `exploration`, `abilities`, `items`, `dialogue`, `economy`, `submarkets`, `utils`, `ids`, `console`, `other`, `WIP`, `tools` (release builder, never shipped). Role packages are named for the engine type (`industry`, `conditions`, `listeners`, `plugins`, `scripts`, `rules`, `intel`, `entities`, `hullmods`, `terrain`, `fleet`, `memory`). See the house-style `packages.md`.
 - Ids, tags, memory keys and setting keys carry the `IndEvo_` prefix (`$IndEvo_` for memory). Shared ids live in `indevo/ids/Ids.java` and `ItemIds.java`; feature-local keys stay in the feature.
 - Class member order: nested enums; static fields; instance fields; other nested types; constructors; lifecycle and public entry points in execution order; helpers near their callers. Group fields by responsibility. No section header comments.
-- New code is Java 17. Three Kotlin files exist (see [ARCHITECTURE.md](docs/ARCHITECTURE.md#build)); do not add Kotlin without asking.
+- All code is Java 17. Do not add Kotlin: the user's IDE does not compile it.
 
 ## Agent behavior
 
@@ -189,7 +189,7 @@ Versions use major.minor.letter (current `4.1.b`). See [RELEASE.md](docs/RELEASE
 After the final runtime-affecting commit and before merge:
 
 1. Fetch and build the exact remote task-branch revision.
-2. From the repository root, with JDK 17, run `java jars/src/indevo/tools/ReleaseBuild.java compile <kotlinc>` ([toolchain](#toolchain)). It compiles every Java and Kotlin file under `jars/src/` that the IntelliJ module compiles (it reads the `excludeFolder` entries in `IndEvo.iml`) against `lib/`, in a fresh `out/release-build-*` directory, and checks the resulting jar. It never touches `jars/release/IndEvo.jar`.
+2. From the repository root, with JDK 17, run `java jars/src/indevo/tools/ReleaseBuild.java compile` ([toolchain](#toolchain)). It compiles every Java file under `jars/src/` that the IntelliJ module compiles (it reads the `excludeFolder` entries in `IndEvo.iml`) against `lib/`, in a fresh `out/release-build-*` directory, and checks the resulting jar. It never touches `jars/release/IndEvo.jar`.
 3. Require a successful exit with no compile errors.
 4. Record the command, branch commit, toolchain versions and result in the pull request. The final reply links the PR and states the result and any untested behavior.
 5. Stop before merge if the build, the toolchain or a required dependency is unavailable.
@@ -199,17 +199,16 @@ A change to the builder also runs its checks: `javac --release 17 -encoding UTF-
 ### Toolchain
 
 - JDK 17; the builder refuses other versions. Cloud sessions ship JDK 21 only and `api.adoptium.net` is blocked there: take Temurin 17.0.13+11 from GitHub, `https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.13%2B11/OpenJDK17U-jdk_x64_linux_hotspot_17.0.13_11.tar.gz`, SHA-256 `8682892fc02965930b9022c066fa164dd6f458ef4a5dc262016aa28333b30f49`.
-- Kotlin compiler 2.1.0, matching `.idea/kotlinc.xml`: `https://github.com/JetBrains/kotlin/releases/download/v2.1.0/kotlin-compiler-2.1.0.zip`, SHA-256 `b6698d5728ad8f9edcdd01617d638073191d8a03139cc538a391b4e3759ad297` (the release's `.sha256` file). `<kotlinc>` is the unpacked `kotlinc` folder or the folder that contains it. The builder checks the version.
-- Unpack both outside the repository and verify the hashes before use.
+- Unpack it outside the repository and verify the hash before use.
 
 ### Compile dependencies
 
 From `IndEvo.iml` and the imports:
 
 - From the game's `starsector-core`: `starfarer.api.jar`, `starfarer_obf.jar` and `fs.common_obf.jar` (IE imports some obfuscated classes), `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`.
-- Mods: GraphicsLib, LazyLib (and its Kotlin runtime), LunaLib, MagicLib, PatchLib (API jar only), Console Commands (`lw_Console`), Nexerelin (`ExerelinCore`), Shadowyards (`SHI`), Random Assortment of Things (`assortment_of_things`, used by the courier port).
+- Mods: GraphicsLib, LazyLib, LunaLib, MagicLib, PatchLib (API jar only), Console Commands (`lw_Console`), Nexerelin (`ExerelinCore`), Shadowyards (`SHI`), Random Assortment of Things (`assortment_of_things`, used by the courier port).
 
-Dependency source: `lib/` in the repository, read-only. It holds the game jars (`starfarer.api.jar`, `starfarer_obf.jar`, `fs.common_obf.jar`, `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`) and the mod jars `Graphics.jar` (GraphicsLib 1.9.0), `LazyLib.jar` and `Kotlin-Runtime.jar` (LazyLib 3.0.0, Kotlin runtime 2.1.20), `LunaLib.jar` (2.0.1), `MagicLib.jar` (1.5.1), `PatchLibAPI.jar` (PatchLib 1.0.3), `lw_Console.jar`, `ExerelinCore.jar` (Nexerelin 0.12.2d), `SHI.jar` (Shadowyards 0.9.5-rc4) and `RandomAssortmentofThings.jar` (RAT 3.3.1). Only the jars the gate needs are kept, never full mod folders. Replace a jar only when the user supplies a new version, and note the version here. The builder puts every `lib/*.jar` on the classpath and hashes them into the release jar's `Source-SHA256`, so a replaced jar makes the release jar stale. Kotlin compiles with `-no-stdlib` against LazyLib's `Kotlin-Runtime.jar`, the runtime the game loads. The game loads only the jars `mod_info.json` lists, so `lib/` never reaches the game and never ships ([RELEASE.md](docs/RELEASE.md#what-ships)).
+Dependency source: `lib/` in the repository, read-only. It holds the game jars (`starfarer.api.jar`, `starfarer_obf.jar`, `fs.common_obf.jar`, `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`) and the mod jars `Graphics.jar` (GraphicsLib 1.9.0), `LazyLib.jar` (LazyLib 3.0.0), `LunaLib.jar` (2.0.1), `MagicLib.jar` (1.5.1), `PatchLibAPI.jar` (PatchLib 1.0.3), `lw_Console.jar`, `ExerelinCore.jar` (Nexerelin 0.12.2d), `SHI.jar` (Shadowyards 0.9.5-rc4) and `RandomAssortmentofThings.jar` (RAT 3.3.1). Only the jars the gate needs are kept, never full mod folders. Replace a jar only when the user supplies a new version, and note the version here. The builder puts every `lib/*.jar` on the classpath and hashes them into the release jar's `Source-SHA256`, so a replaced jar makes the release jar stale. The game loads only the jars `mod_info.json` lists, so `lib/` never reaches the game and never ships ([RELEASE.md](docs/RELEASE.md#what-ships)).
 
 IntelliJ on the user's machine (`IndEvo.iml`, artifact `IndEvo:jar`) builds `jars/IndEvo.jar` for local testing. See [ARCHITECTURE.md](docs/ARCHITECTURE.md#build).
 

@@ -24,12 +24,10 @@
     <orderEntry type="library" name="LunaLib" level="application" />
     <orderEntry type="library" name="MagicLib" level="application" />
     <orderEntry type="library" name="LazyLib" level="application" />
-    <orderEntry type="library" name="LazyLib-Kotlin" level="application" />
     <orderEntry type="library" name="lw_Console" level="application" />
     <orderEntry type="library" name="SHI" level="application" />
     <orderEntry type="library" name="ExerelinCore" level="application" />
     <orderEntry type="library" name="RandomAssortmentofThings" level="application" />
-    <orderEntry type="library" name="Kotlin-Runtime" level="application" />
     <orderEntry type="library" name="starfarer_obf" level="application" />
     <orderEntry type="library" name="PatchLibAPI" level="application" />
   </component>

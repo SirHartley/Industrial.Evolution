@@ -79,7 +79,6 @@ public final class ReleaseBuildChecks {
         require(!ReleaseBuild.releaseFile("data/.idea/x.json"), "hidden dirs skipped");
         require(ReleaseBuild.runtimeEntry("indevo/utils/ModPlugin.class"), "runtime classes kept");
         require(ReleaseBuild.runtimeEntry("data/scripts/weapons/ai/X.class"), "combat classes kept");
-        require(ReleaseBuild.runtimeEntry("META-INF/IndEvo.kotlin_module"), "kotlin module kept");
         require(!ReleaseBuild.runtimeEntry("indevo/tools/ReleaseBuild.class"), "tools left out of jar");
         require(!ReleaseBuild.runtimeEntry("kotlin/Unit.class"), "kotlin runtime left out of jar");
         require(!ReleaseBuild.runtimeEntry("indevo/exploration/crucible/dialogue/Todo"), "notes left out of jar");
@@ -92,7 +91,7 @@ public final class ReleaseBuildChecks {
         require(excluded.equals(List.of("jars/src/indevo/WIP/converters/", "jars/src/indevo/exploration/distress/")),
                 "module excludes read");
         require(ReleaseBuild.compiled("jars/src/indevo/utils/ModPlugin.java", excluded), "java compiled");
-        require(ReleaseBuild.compiled("jars/src/indevo/utils/helper/ReflectionUtils.kt", excluded), "kotlin compiled");
+        require(!ReleaseBuild.compiled("jars/src/indevo/utils/helper/ReflectionUtils.kt", excluded), "kotlin not compiled");
         require(!ReleaseBuild.compiled("jars/src/indevo/exploration/distress/Distress.java", excluded),
                 "excluded folder skipped");
         require(ReleaseBuild.compiled("jars/src/indevo/exploration/distressed/X.java", excluded),
