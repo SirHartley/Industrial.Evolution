@@ -61,7 +61,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     protected void addPostDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
         super.addPostDescriptionSection(tooltip, mode);
 
-        String ageNotif = !Commodities.ALPHA_CORE.equals(aiCoreId) ? "Pets will age while in storage." : "";
+        String ageNotif = !Commodities.BETA_CORE.equals(aiCoreId) ? "Pets will age while in storage." : "";
         tooltip.addPara("The " + getCurrentName() + " allows %s of pets. " + ageNotif, 10f, Misc.getHighlightColor(), "purchase, storage and management");
 
         if (!isBuilding() && isFunctional() && mode.equals(IndustryTooltipMode.NORMAL)) {
