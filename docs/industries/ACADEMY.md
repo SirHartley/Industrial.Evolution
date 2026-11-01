@@ -115,7 +115,6 @@ Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSe
 | `IndEvo_OfficerCurrentlyTraining` | Dead: no rule uses it, reads `$IndEvo_isTraining` which nothing sets |
 | `isOfficerTrainingAllowed(person, direction)` | `||` with the direction check (`Academy.java:637`) lets an officer already trained twice pass whenever the direction is allowed |
 | `increaseOfficerQuality()` | `!=` on string ids (`:266`) and `return` instead of `continue` (`:269`) stop the loop at the first already modified market |
-| Beta to gamma core swap | Gamma branch does not reset `currentAICoreDayReduction` (`:849`), beta reduction stays |
 | Abort to fleet (admin) | No admin capacity check (`abortAdminTraining(false)`, `:344`) |
 | Changelog_todo | "Academy can pick forbidden, event only admin skills and should really run off a whitelist"; "Rework academy UI"; "Story point option for academy, Recruit Local Talent" |
 

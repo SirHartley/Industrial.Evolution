@@ -845,10 +845,12 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     protected void applyAICoreToIncomeAndUpkeep() {
         if (aiCoreId != null && !aiCoreId.equals(Commodities.ALPHA_CORE) && !aiCoreId.equals(Commodities.GAMMA_CORE)) {
+            this.getUpkeep().unmodifyMult("ind_core");
             currentAICoreDayReduction = betacoreReduction;
         } else if ("gamma_core".equals(aiCoreId)) {
             String name = "Gamma Core assigned";
             this.getUpkeep().modifyMult("ind_core", gammaCoreUpkeepRed, name);
+            currentAICoreDayReduction = 0;
         } else {
             this.getUpkeep().unmodifyMult("ind_core");
             market.getStability().unmodify("ind_core");
