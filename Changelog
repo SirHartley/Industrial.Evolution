@@ -43,6 +43,7 @@ Governments
 Fixed - Governments can no longer be changed after they became permanent
 Fixed - Managed Democracy at size 5 now gets the two small patrols and one large patrol its tooltip shows
 Fixed - Switching away from Managed Democracy now removes its max colony size cap; existing colonies are fixed on load
+Fixed - Forge World construction material stability now follows metals and transplutonics shortages instead of luxury goods
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0

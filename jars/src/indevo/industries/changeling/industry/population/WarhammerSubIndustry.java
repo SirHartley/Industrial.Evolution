@@ -130,7 +130,7 @@ x can only be built on very hot worlds
         population.demand(Commodities.METALS, size);
         population.demand(Commodities.RARE_METALS, size - 3);
 
-        Pair<String, Integer> deficit = population.getMaxDeficit(Commodities.LUXURY_GOODS);
+        Pair<String, Integer> deficit = population.getMaxDeficit(Commodities.METALS, Commodities.RARE_METALS);
         if (deficit.two <= 0) {
             market.getStability().modifyFlat(getModId(), 1, "Construction material demand met");
         } else {
