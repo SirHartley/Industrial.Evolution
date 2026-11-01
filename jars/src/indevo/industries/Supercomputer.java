@@ -139,7 +139,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
 
         List<MarketAPI> PlayerMarketsInSystem = MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId());
         for (MarketAPI PlayerMarket : PlayerMarketsInSystem) {
-            PlayerMarket.getIncomeMult().unmodify(Ids.SUPCOM);
+            PlayerMarket.getIncomeMult().unmodify(getModId());
         }
 
         removeSharedSubmarket();

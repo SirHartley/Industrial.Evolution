@@ -97,7 +97,7 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 - Extends `SharedSubmarketUser`; only AI core commodities are legal in the shared storage (`Supercomputer.java:616`).
 - `onNewDay` (`:325`): `getNextCore` moves the installed core into `lastApplied`; after `getCoreUseTimes(core)` days (runtime setting times `runtimeMult`; a modded core runs as long as a gamma core) it takes the next core from the shared storage (same type first, then gamma, beta, alpha). Warning 30 days before, message when empty. AI markets get a fresh gamma core.
 - `getCurrentIncrease()`: very cold 0.20, cold 0.15, else 0.05; x1.2 with alpha; +0.1 (`SIMULATOR_BASE_INCREASE`) with the Simulation Engine.
-- `modifyAllMarketIncome()` (`:172`): sums all supercomputers in the system plus the distance scaled bonus of the nearest Simulation Engine supercomputer in another system within 12 LY; one source gives `1 + sum`, several give `1 + sum * 0.88^n`; applied as `getIncomeMult().modifyMult` on every same faction market in the system.
+- `modifyAllMarketIncome()` (`:172`), keyed by `getModId()`, which `unapply()` also clears on every market in the system: sums all supercomputers in the system plus the distance scaled bonus of the nearest Simulation Engine supercomputer in another system within 12 LY; one source gives `1 + sum`, several give `1 + sum * 0.88^n`; applied as `getIncomeMult().modifyMult` on every same faction market in the system.
 - Last economy tick of the month: beta core gives random credits straight to the player; with `IndEvo_ResLab` on the market a cold (5%) or very cold (10%) planet may dump a random AI core into storage (x1.5 with beta).
 - AI cores: gamma upkeep x0.9, beta upkeep x0.8 plus credits, alpha x1.2 income.
 - Build: not on hot or very hot planets, stations, gas giants. Pather interest +6.
@@ -142,7 +142,6 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 
 | Item | State |
 |---|---|
-| `Supercomputer.unapply` (`:142`) | unmodifies income under `IndEvo_SupCom`, applied under `getModId()`; income mult stays on system markets after removal until another supercomputer reapplies |
 | `Supercomputer.getUnavailableReason` | assumes a planet entity; NPE on stations (inferred) |
 | `RestorationDocks.removeDMods` loop (`RestorationDocks.java:179`) | `removalBudget >= 0` repairs one D-mod more than the budget |
 | `RestorationDocks.getBaseRepairPrice` (`:346`) | divides by 0.85 for beta, so the tooltip shows a higher price |
