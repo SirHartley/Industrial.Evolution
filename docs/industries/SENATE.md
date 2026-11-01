@@ -41,7 +41,7 @@ A Senate allows one Edict per player colony in its star system (one Senate per s
 | `IndEvo_edict_deadlines` | `Edict_Deadlines` | ship hull supply | ship supply +30% per industry, production quality -0.2 on all player markets | 186 days |
 | `IndEvo_edict_clearances` | `Edict_Clearances` | ship hull supply | ship supply -30% (if > 1), production quality +0.2 on all player markets | 186 days |
 | `IndEvo_edict_lockColonySize` | `Edict_LockColonySize` | none | population weight pinned to the current size weight | 186 days |
-| `IndEvo_edict_open_market` | `Edict_OpenMarket` | none | adds an open market submarket (if no Commerce), stability -2 | 186 days |
+| `IndEvo_edict_open_market` | `Edict_OpenMarket` | none | adds an open market submarket (if no Commerce), stability -2; on removal takes the open market away only if there is no Commerce | 186 days |
 | `IndEvo_edict_fastBuild` | `Edict_FastBuild` | none | building and upgrade time halved via reflection on `BaseIndustry.buildTime`, supply and demand x0.5 | 186 days |
 
 Rows: `data/campaign/market_conditions.csv:2-14`. Military presence is `MiscIE.marketHasMilitaryIncludeRelays()`.
@@ -105,7 +105,6 @@ Chain: `IndEvo_ApplyEdict -> IndEvo_applyEdict -> market.addCondition -> BaseEdi
 | Item | State |
 |---|---|
 | `Edict_GrowthReinvestment` | `@Deprecated`, no `market_conditions.csv` row: dead |
-| `Edict_OpenMarket.unapply()` | Removes any open market submarket on player markets, also one it did not add (`:55-60`); the saved instance is `transient` |
 | `Edict_LockColonySize.unapply()` | No primary entity guard: sets weight 0 on the dummy market (`:28`) |
 | Stale class comments | `Edict_LabourRestrictions` and `Edict_OpenMarket` carry the "Substance Legalization" design note |
 | Changelog_todo | "Rework Edict UI"; "Add a proper edict selection UI, for remote operation as well" |

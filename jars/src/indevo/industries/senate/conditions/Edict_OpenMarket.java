@@ -52,7 +52,8 @@ public class Edict_OpenMarket extends BaseEdict {
         super.unapply(id);
         if (market.getPrimaryEntity() == null) return;
 
-        if (market.isPlayerOwned()) {
+        // commerce owns the open market then, and edict removal does not reapply industries
+        if (market.isPlayerOwned() && !market.hasIndustry("commerce")) {
             SubmarketAPI open = market.getSubmarket(Submarkets.SUBMARKET_OPEN);
             saved = open;
 
