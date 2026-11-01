@@ -70,7 +70,7 @@ Code paths relative to `jars/src/indevo/`.
 
 `PetSubMarket` restock -> `IndEvo_PetBox` in cargo -> right-click in fleet cargo tab (`PetItemPlugin.performRightClickAction()`) -> sets `$petBoxActive`, presses Escape through `java.awt.Robot` -> script opens `PetPickerInteractionDialoguePlugin` -> name -> ship picker -> `new Pet` -> `PetStatusManager.register` -> `Pet.assign(member)` -> item removed.
 
-- Restock: weighted picker over pets without `no_sell`, weight = rarity (x1.3 with an alpha core when rarity < 0.5). Picks = market size; amount per pick = floor(rarity x 3).
+- Restock: weighted picker over pets without `no_sell`, weight = rarity (x1.3 with an alpha core when rarity < 0.5). Picks = market size; amount per pick = floor(rarity x 3), at least 1.
 - Tariff 0.2, 0 with a beta core. Selling to the submarket is illegal.
 - Drops (`resolveDropParams`): tier rare rarity <= 0.4, uncommon 0.4 to 0.8, common >= 0.8; `no_drop` pets skipped. Price = pet `value`.
 
@@ -113,7 +113,6 @@ Code paths relative to `jars/src/indevo/`.
 | Item | State |
 |---|---|
 | Storage fee report | Changelog_todo: "Fix the -1c pet food cost in monthly report"; not explained by the storage fee code |
-| Restock amount | floor(rarity x 3) is 0 for rarity < 0.34; those pets never stock |
 | `PetPickerInteractionDialoguePlugin` | `hasShownPicker` is never set to true; `advance()` calls `showShipPicker()` every frame once named (`:121`) |
 | `PetStatusManager.feed()` | Returns false when the member is in no live fleet, marked "todo this is broken" (`:116`) |
 | `reportPetDied()` | NPE when both `assignedFleetMember` and `storage` are null (`PetStatusManager.java:166`) |

@@ -62,7 +62,7 @@ public class PetSubMarket extends BaseSubmarketPlugin implements DynamicSubmarke
 
                 PetData data = picker.pickAndRemove();
 
-                int amt = (int) Math.floor(data.rarity * BASE_AMOUNT_PER_ANIMAL);
+                int amt = Math.max(1, (int) Math.floor(data.rarity * BASE_AMOUNT_PER_ANIMAL));
                 cargo.addSpecial(new SpecialItemData(ItemIds.PET_CHAMBER, data.id),  amt);
             }
         }
