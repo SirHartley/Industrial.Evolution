@@ -342,6 +342,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             cargo.removeCommodity(itemID, partsToRemove - partsInStorage);
         }
 
+        float partsSacrificed = partsToSacrifice;
         partsToSacrifice = 0;
         selectedShips.clear();
 
@@ -356,8 +357,8 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             text.setHighlightColorsInLastPara(Misc.getNegativeHighlightColor());
             text.highlightInLastPara("Your offerings have been deemed insufficient.");
 
-            if (partsToSacrifice > 0)
-                AddRemoveCommodity.addCommodityLossText(ItemIds.PARTS, Math.round(partsToSacrifice), text);
+            if (partsSacrificed > 0)
+                AddRemoveCommodity.addCommodityLossText(ItemIds.PARTS, Math.round(partsSacrificed), text);
             AddRemoveCommodity.addCommodityLossText(ItemIds.RARE_PARTS, RARE_PART_COST_AMT, text);
         }
 
@@ -372,8 +373,8 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
 
             dialog.getVisualPanel().showFleetMemberInfo(ship, true);
             playerFleet.getFleetData().addFleetMember(ship);
-            if (partsToSacrifice > 0)
-                AddRemoveCommodity.addCommodityLossText(ItemIds.PARTS, Math.round(partsToSacrifice), text);
+            if (partsSacrificed > 0)
+                AddRemoveCommodity.addCommodityLossText(ItemIds.PARTS, Math.round(partsSacrificed), text);
             AddRemoveCommodity.addCommodityLossText(ItemIds.RARE_PARTS, RARE_PART_COST_AMT, text);
             AddRemoveCommodity.addFleetMemberGainText(ship, text);
         }

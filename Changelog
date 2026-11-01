@@ -119,6 +119,9 @@ Fixed - Requisition Center tooltip shows ambassador sourcing when it applies (no
 World Wonders
 Fixed - Cloud Painter shield texture settings now pick the starting shield visuals
 
+Automated Shipyards
+Fixed - Automated Shipyard shows the ship components lost when the machine runs
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 
