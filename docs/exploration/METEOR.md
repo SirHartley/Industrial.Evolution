@@ -44,7 +44,7 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 | `intel/MeteorShowerSpawningLocationIntel.java` | Same, but calls `spawnShower` itself when the countdown ends |
 | `terrain/RadioactiveTerrain.java` | `StarCoronaTerrainPlugin` subclass, radius 50000 at system centre; strength per fleet = radiation level in fleet memory; CR loss, peak time and CR decay buffs; removes itself when the warning renderer is gone |
 | `renderers/RadiationEffectHandler.java` | Transient Luna renderer: player radiation decay, sound loops on the player fleet, music suppression, vignette, drives `RadiationVFXHandler` |
-| `renderers/RadiationVFXHandler.kt` | GraphicsLib screen shader (`data/shaders/indevo_baseVertex.shader`, `indevo_Fragment.shader`) by radiation level |
+| `renderers/RadiationVFXHandler.java` | GraphicsLib screen shader (`data/shaders/indevo_baseVertex.shader`, `indevo_Fragment.shader`) by radiation level. Non transient Luna renderer, so it is saved: keep its field names and types |
 | `renderers/MeteorSwarmWarningPathRenderer.java` | System script: warning sign entities every 2000 along the arc, red where meteors currently are; ends after 10 s without reports. Instance kept in location memory |
 | `renderers/WarningSignNotificationRenderer.java` | 15 s warning sign and arrow next to the player fleet pointing at the arc |
 | `renderers/MeteorDebrisRenderer.java` | Dust clouds at impact; transient Luna renderer, expires once all particles fade |

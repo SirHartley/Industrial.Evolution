@@ -34,7 +34,7 @@ public class Edict_FastBuild extends BaseEdict {
                     buildDays = ind.getSpec().getBuildTime();
                 }
 
-                ReflectionUtils.INSTANCE.setWithSuper("buildTime", industry, buildDays / 2f, 5, null);
+                ReflectionUtils.setWithSuper("buildTime", industry, buildDays / 2f, 5, null);
             }
         }
 
@@ -74,7 +74,7 @@ public class Edict_FastBuild extends BaseEdict {
                         ? Global.getSettings().getIndustrySpec(ind.getSpec().getUpgrade()).getBuildTime()
                         : ind.getSpec().getBuildTime();
 
-                ReflectionUtils.INSTANCE.setWithSuper("buildTime", industry, buildDays, 5, null);
+                ReflectionUtils.setWithSuper("buildTime", industry, buildDays, 5, null);
             }
         }
     }
