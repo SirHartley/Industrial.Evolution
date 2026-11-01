@@ -1,5 +1,6 @@
 package indevo.dialogue.rules;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
@@ -21,6 +22,11 @@ public class IndEvo_AddSpacerFineMenuPoint extends BaseCommandPlugin {
         float amt = memoryMap.get(MemKeys.ENTITY).getFloat(STOLEN_CREDIT_AMT_KEY);
         float penalty = amt * PENALTY_AMT_FRACTION;
         dialog.getOptionPanel().addOption("Refund the " + Misc.getDGSCredits(amt) + " you took, with an additional " + Misc.getDGSCredits(penalty) + " in interest", OPTION_PAY);
+
+        if (Global.getSector().getPlayerFleet().getCargo().getCredits().get() < amt + penalty) {
+            dialog.getOptionPanel().setEnabled(OPTION_PAY, false);
+            dialog.getOptionPanel().setTooltip(OPTION_PAY, "You do not have enough credits.");
+        }
 
         return true;
     }

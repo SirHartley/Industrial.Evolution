@@ -16,7 +16,7 @@ The engine resolves the first word of a rules condition or script line to a `Com
 | `IndEvo_marketHasIndustry.java` | Condition `IndEvo_marketHasIndustry <industryId>`: `$market.id` has the industry and it is functional. |
 | `IndEvo_marketIsPlayerOwned.java` | Condition: `$market.id` is player owned; falls back to `$faction.id == player`. |
 | `IndEvo_notAtWar.java` | Condition: player relation to the faction of the market's ambassador > -0.5 (`AmbassadorPersonManager.getAmbassador`, see [Embassy](../industries/EMBASSY.md)). |
-| `IndEvo_AddSpacerFineMenuPoint.java` | Adds option `IndEvo_PaySpacerFine` with the stolen amount plus 20% (`PENALTY_AMT_FRACTION`). |
+| `IndEvo_AddSpacerFineMenuPoint.java` | Adds option `IndEvo_PaySpacerFine` with the stolen amount plus 20% (`PENALTY_AMT_FRACTION`), disabled when the player cannot pay. |
 | `IndEvo_DeductSpacerCreditsAndSetNeutral.java` | Takes amount + 20% from player credits, renames the fleet "No longer ...", clears hostile flags, sets non-hostile and non-aggressive, drops its intercept. |
 
 ## Data and ids
@@ -146,7 +146,7 @@ When a player market has two or more of Senate, Academy, Rift Generator, Courier
 
 | Item | State |
 |---|---|
-| `IndEvo_DeductSpacerCreditsAndSetNeutral` | casts the target to `CampaignFleetAPI` before the `instanceof` check (`:24`); subtracts credits without an affordability check, credits can go negative |
+| `IndEvo_DeductSpacerCreditsAndSetNeutral` | casts the target to `CampaignFleetAPI` before the `instanceof` check (`:24`); unreachable, the rule only fires in the spacer fleet dialog |
 | `IndEvo_notAtWar` | NPE if the market has no ambassador (`AmbassadorPersonManager.getAmbassador` returns null, unchecked at `:20`); both rows list `IndEvo_isAmbassador` first |
 | `IndEvo_IsInHyperspace`, `IndEvo_OfficerCurrentlyTraining`, `IndEvo_playerHasFreeEmbassyNoCargo` | unused by rules |
 | `HasItemAmountAnywhere`, `RemoveItemAmountAnywhere`, `HyperlostGateInteraction`, `IndEvo_InitPersonalityTransferMenu` | not in a listed package |

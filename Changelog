@@ -130,6 +130,7 @@ Fixed - Automated Shipyard can start with relic components kept in station stora
 Salvage Specials
 Fixed - Ship factory salvage special no longer offers the flagship or story ships for sacrifice
 Fixed - Credit stash ambush no longer flags the player fleet for low reputation impact
+Fixed - Paying back the credit stash fleet needs enough credits; credits can no longer go negative
 
 Derelict Stations
 Fixed - IE derelict stations no longer spawn in systems that already have a vanilla station
