@@ -25,6 +25,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.museum.data.MuseumConstants;
 import indevo.industries.museum.data.ParadeFleetProfile;
+import indevo.submarkets.RemovablePlayerSubmarketPluginAPI;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
@@ -336,12 +337,23 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
         for (ParadeFleetProfile profile : paradeFleetProfiles) profile.despawnFleet();
         paradeFleetProfiles.clear();
 
-        //clear parade tag or it'll transfer when it's added to a new museum
-        SubmarketAPI sub = getSubmarket();
-        CargoAPI cargo = sub.getCargo();
-        cargo.initMothballedShips(Factions.PLAYER);
-        List<FleetMemberAPI> shipsInStorage = cargo.getMothballedShips().getMembersListCopy();
-        for (FleetMemberAPI m : shipsInStorage) m.getVariant().removeTag(MuseumConstants.ON_PARADE_TAG);
+        // submarket field is only set once functional, look the submarket up
+        SubmarketAPI sub = market.getSubmarket(Ids.MUSEUM_SUBMARKET);
+
+        if (sub != null) {
+            //clear parade tag or it'll transfer when it's added to a new museum
+            CargoAPI cargo = sub.getCargo();
+            cargo.initMothballedShips(Factions.PLAYER);
+            List<FleetMemberAPI> shipsInStorage = cargo.getMothballedShips().getMembersListCopy();
+            for (FleetMemberAPI m : shipsInStorage) m.getVariant().removeTag(MuseumConstants.ON_PARADE_TAG);
+
+            if (!forUpgrade) {
+                if (sub.getPlugin() instanceof RemovablePlayerSubmarketPluginAPI removable) removable.notifyBeingRemoved();
+                market.removeSubmarket(Ids.MUSEUM_SUBMARKET);
+            }
+        }
+
+        submarket = null;
     }
 
     @Override

@@ -35,15 +35,15 @@ On player markets the Museum adds a hidden ship storage submarket (`IndEvo_Museu
 | Market tag | `indEvo_on_parade` on the parade target market | `ParadeFleetProfile.spawnFleet()` |
 | Fleet tag | `indEvo_parade_returning` after recall | `ParadeFleetAssignmentAI.forceReturnToSource()` |
 | Settings | `IndEvo_museum_maxAdditionalCredits` 1950, `_minAdditionalCredits` 50, `_defaultMaxParades` 1, `_defaultParadeMembersMax` 15, `_minShipsForParade` 3, `_topShipPoolAmtForParadeSelection` 20, `_paradeFleetImmigrationBonus` 5, `_paradeFleetStabilityBonus` 1, `_improveExtraParades` 1, `_alphaCoreExtraParades` 1, `_betaCoreIncomePerStability` 20000, `_betaCoreIncomePerPointImmigration` 3000, `_gammaCoreIncomeMult` 1.3, `_uniqueShipValueMult` 2 | `data/config/LunaSettings.csv:178-192`. No `settings.json` fallback |
-| Setting | `IndEvo_museum_enabled` | `LunaSettings.csv:102`; read at use time in `Museum.isAvailableToBuild()` and `showWhenUnavailable()` (`Museum.java:134`, `:139`) |
+| Setting | `IndEvo_museum_enabled` | `LunaSettings.csv:102`; read at use time in `Museum.isAvailableToBuild()` and `showWhenUnavailable()` (`Museum.java:135`, `:140`) |
 | Setting | `IndEvo_shipPickerRowCount` | ship picker layout |
 
 ## Registration and lifecycle
 
 - Industry, submarket and condition plugins from CSV plugin columns.
 - `MuseumManageParadeOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:507`), transient.
-- `Museum.apply()` (player markets only) refreshes the hull value table, adds itself as a persistent listener (`addListener(this)`, `Museum.java:74`) and as a transient immigration modifier, and sets income. `unapply()` removes all three.
-- `Museum.advance()` adds the submarket once functional and player owned (`:124`).
+- `Museum.apply()` (player markets only) refreshes the hull value table, adds itself as a persistent listener (`addListener(this)`, `Museum.java:75`) and as a transient immigration modifier, and sets income. `unapply()` removes all three.
+- `Museum.advance()` adds the submarket once functional and player owned (`:125`). `notifyBeingRemoved()` clears the parade tags, moves the stored ships to the market storage and removes the submarket; `advance()` also calls it when the market changes owner.
 - Parade fleets carry the `ParadeFleetAssignmentAI` script and two fleet event listeners (the profile and the AI).
 
 Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> fill profiles -> pick enabled idle profiles -> ParadeFleetProfile.spawnFleet -> getNewParadeFleetFromPresetData -> FleetFactoryV3 + cloned members -> ParadeFleetAssignmentAI -> addParadeConditionToMarket -> ... -> GO_TO_LOCATION_AND_DESPAWN -> reportFleetDespawnedToListener -> clear tags and condition`.
@@ -52,7 +52,7 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> fill profiles -> pic
 
 ### Income
 
-- `updateShipValueStatistics()` (`:303`): per hull size, max and average `getBaseValue()` over `MiscIE.getAllLearnableShipHulls()`, ignoring hulls above 2,000,000.
+- `updateShipValueStatistics()` (`:304`): per hull size, max and average `getBaseValue()` over `MiscIE.getAllLearnableShipHulls()`, ignoring hulls above 2,000,000.
 - `getValueForShip()` (`:253`): 1 for `Tags.SHIP_UNIQUE_SIGNATURE` variants; else `(value - avg)/(max - avg)` clamped to 0..1, value x `uniqueShipValueMult` for hulls tagged both `no_sell` and `no_dealer`.
 - `getCreditsForValue()` = `(min + max x value) x incomeMult`. `getTotalShipValue()` sums one entry per hull spec (duplicates ignored). Applied as `income.modifyFlat(modId, total, "Exhibition Income")`.
 
@@ -85,10 +85,9 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> fill profiles -> pic
 
 | Item | State |
 |---|---|
-| `notifyBeingRemoved()` | Does not remove the submarket; NPEs when `submarket` is null (`Museum.java:341`). `advance()` calls it every frame once the market is no longer player owned (`:127`). Changelog_todo: "museum storage doesn't remove properly", "museum storage gets placed before building complete" |
-| Profile growth | `reportEconomyTick()` adds one new profile per month while enabled profiles < max (`:99`), so disabled profiles pile up |
-| `getValueForShip()` | Logs on every call (`:267`), including every tooltip row |
-| Comment blocks in `Museum.java:40-48`, `:377-379` | Design notes, partly outdated (gamma "3000 max") |
+| Profile growth | `reportEconomyTick()` adds one new profile per month while enabled profiles < max (`:100`), so disabled profiles pile up |
+| `getValueForShip()` | Logs on every call (`:268`), including every tooltip row |
+| Comment blocks in `Museum.java:41-49`, `:389-391` | Design notes, partly outdated (gamma "3000 max") |
 | Changelog_todo | "Add settings to museum" |
 
 ## Maintenance
