@@ -28,6 +28,7 @@ import indevo.abilities.skills.scripts.AdminGovernTimeTracker;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
+import indevo.config.PlayerSettings;
 import indevo.dialogue.beacons.dialogue.BeaconDialogueListener;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.dialogue.research.listeners.*;
@@ -115,6 +116,8 @@ public class ModPlugin extends BaseModPlugin {
 
     @Override
     public void onApplicationLoad() {
+        PlayerSettings.install();
+
         boolean hasGraphicsLib = Global.getSettings().getModManager().isModEnabled("shaderLib");
         if (hasGraphicsLib) {
             ShaderLib.init();
@@ -142,6 +145,7 @@ public class ModPlugin extends BaseModPlugin {
 
     @Override
     public void onGameLoad(boolean newGame) {
+        PlayerSettings.install();
 
         //dev
         devActions(Global.getSettings().isDevMode() && false);
@@ -293,6 +297,12 @@ public class ModPlugin extends BaseModPlugin {
             type.insert(0, preface).append("\n\n");
             spec.setDesc(type + spec.getDesc());
         }
+    }
+
+    @Override
+    public void onNewGame() {
+        // lunalib calls no listener for a save in the new game settings panel
+        PlayerSettings.reload();
     }
 
     @Override

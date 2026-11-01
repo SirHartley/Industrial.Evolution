@@ -7,8 +7,8 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`.
 | Reference | Scope |
 |---|---|
 | [CLAUDE.md](../CLAUDE.md) | Workflow, build gate and document upkeep |
-| [SETTINGS.md](core/SETTINGS.md) | Settings reader, LunaLib tabs, `settings.json`, whitelists |
-| [SETTINGS_REWORK.md](core/SETTINGS_REWORK.md) | Approved move to a typed, cached settings model with Quick Settings; not implemented |
+| [SETTINGS.md](core/SETTINGS.md) | Settings cache (`config`), LunaLib tabs, `settings.json`, whitelists |
+| [SETTINGS_REWORK.md](core/SETTINGS_REWORK.md) | Approved move to a typed, cached settings model with Quick Settings; in progress |
 | [UTILS.md](core/UTILS.md) | Shared helpers in `indevo/utils` |
 | [COMPATIBILITY.md](core/COMPATIBILITY.md) | Hard and optional mod dependencies and every integration |
 | [RULE_COMMANDS.md](dialogue/RULE_COMMANDS.md) | `rules.csv` layout and every rule command class |
@@ -87,19 +87,20 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 
 | Hook | What IE does | Line |
 |---|---|---|
-| `onApplicationLoad()` | GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:117` |
-| `onAboutToStartGeneratingCodex()` | Preloads the nanites icon texture | `:130` |
-| `onNewGameAfterEconomyLoad()` | One-time world generation (chain below) | `:299` |
-| `onGameLoad(newGame)` | Every-load registration and fixes (chain below) | `:144` |
-| `beforeGameSave()` | Resets `OnKeyPressAbilityInputListener`; removes untouched mine entities from their locations | `:326` |
-| `afterGameSave()`, `onGameSaveFailed()` | Puts the removed mines back | `:351`, `:356` |
-| `pickMissileAI()` | `IndEvo_mortarProjectileAI`, `IndEvo_missileProjectileAI` at `MOD_SPECIFIC` ([COMBAT](core/COMBAT.md)) | `:386` |
+| `onApplicationLoad()` | `PlayerSettings.install()` first ([SETTINGS](core/SETTINGS.md#reading-a-setting)); GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:118` |
+| `onAboutToStartGeneratingCodex()` | Preloads the nanites icon texture | `:133` |
+| `onNewGame()` | `PlayerSettings.reload()`: picks up the new game settings panel | `:303` |
+| `onNewGameAfterEconomyLoad()` | One-time world generation (chain below) | `:309` |
+| `onGameLoad(newGame)` | `PlayerSettings.install()` first, then every-load registration and fixes (chain below) | `:147` |
+| `beforeGameSave()` | Resets `OnKeyPressAbilityInputListener`; removes untouched mine entities from their locations | `:336` |
+| `afterGameSave()`, `onGameSaveFailed()` | Puts the removed mines back | `:361`, `:366` |
+| `pickMissileAI()` | `IndEvo_mortarProjectileAI`, `IndEvo_missileProjectileAI` at `MOD_SPECIFIC` ([COMBAT](core/COMBAT.md)) | `:396` |
 
-New game, once (`:302` to `:318`):
+New game, once (`:312` to `:328`):
 
 `LocatorSystemRatingUpdater.updateAllSystems -> RuinsManager.forceCleanCoreRuins -> NewGameIndustryPlacer.run -> ArtilleryStationPlacer.placeDerelictArtilleries -> placeCoreWorldArtilleries -> GachaStationSpawner.spawn -> createAcademyMarket -> [IndEvo_Enable_Derelicts] DerelictStationPlacer.init -> IndEvo_SalvageSpecialAssigner.init -> spawnMineFields -> DerelictInfrastructurePlacer.placeRuinedInfrastructure -> RuinsManager.placeIndustrialRuins`
 
-Every load (`:150` to `:192`):
+Every load (`:151` to `:196`):
 
 `createAcademyMarket -> setListenersIfNeeded -> setScriptsIfNeeded -> ResourceConditionApplicator.applyResourceConditionToAllMarkets -> loadTransientMemory -> PlanetoidDespawnScript.despawnStrandedPlanetoids -> OrbitFocus.removeUnusedOrbitFoci -> addTypePrefaceToIndustrySpecs -> LocatorSystemRatingUpdater.updateAllSystems -> resetDerelictRep -> [newGame] ArtilleryStationReplacer.register -> pet_management ability add or remove [IndEvo_pets] -> MissileActivationManager reset`
 
@@ -233,7 +234,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 
 ### Shared cross-file constraints
 
-- `Settings` is the only reader for LunaLib fields; `MiscIE.getCSVSetFromMemory` the only reader for whitelists ([SETTINGS](core/SETTINGS.md)).
+- `PlayerSettings` is the only reader for LunaLib fields; `MiscIE.getCSVSetFromMemory` the only reader for whitelists ([SETTINGS](core/SETTINGS.md)).
 - Imports from Nexerelin, RAT and Shadowyards must sit behind `isModEnabled` checks so the classes load lazily ([COMPATIBILITY](core/COMPATIBILITY.md)).
 - Check [UTILS](core/UTILS.md) before adding a helper; `MiscIE` already holds most market, cargo and memory helpers.
 

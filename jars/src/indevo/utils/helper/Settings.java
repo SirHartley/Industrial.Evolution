@@ -1,6 +1,6 @@
 package indevo.utils.helper;
 
-import lunalib.lunaSettings.LunaSettings;
+import indevo.config.Setting;
 
 public class Settings {
     public static final String GOVERNMENT_LARP_MODE = "IndEvo_GovernmentLarpMode";
@@ -161,14 +161,14 @@ public class Settings {
     public static final String MUSEUM_UNIQUE_SHIP_VALUE_MULT = "IndEvo_museum_uniqueShipValueMult";
 
     public static boolean getBoolean(String s){
-        return LunaSettings.getBoolean("IndEvo", s);
+        return Setting.byId(s).enabled();
     }
 
     public static float getFloat(String s){
-        return LunaSettings.getFloat("IndEvo", s);
+        return Setting.byId(s).value();
     }
 
     public static int getInt(String s){
-        return LunaSettings.getInt("IndEvo", s);
+        return Setting.byId(s).intValue();
     }
 }
