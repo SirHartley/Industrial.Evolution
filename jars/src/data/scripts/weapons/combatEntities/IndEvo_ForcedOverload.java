@@ -32,6 +32,7 @@ public class IndEvo_ForcedOverload extends BaseEveryFrameCombatPlugin {
     @Override
     public void advance(float amount, List<InputEventAPI> events) {
         super.advance(amount, events);
+        if (engine.isPaused()) return;
 
         elapsed += amount;
 

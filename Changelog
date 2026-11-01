@@ -157,6 +157,9 @@ Items
 Fixed - Removing one of two Relay Hypertransmitters no longer turns relays off
 Fixed - Ship parts from wrecks vary per wreck instead of using the same roll all session
 
+Artillery
+Fixed - Artillery slow field and forced overload no longer run out while combat is paused
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 

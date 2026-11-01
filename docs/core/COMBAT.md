@@ -59,7 +59,7 @@ All rows in `data/weapons/weapon_data.csv`. Player weapons are tagged `no_dealer
 
 ## Contracts
 
-- `EveryFrameCombatPlugin.advance` runs while paused with real frame time (knowledge base `docs/concepts/combat-frame.md`, `CombatEngine.java:1231`). `IndEvo_CombatSlowFieldTerrain` and `IndEvo_ForcedOverload` add `amount` without a pause check, so the field and overload time run down while paused.
+- `EveryFrameCombatPlugin.advance` runs while paused with real frame time (knowledge base `docs/concepts/combat-frame.md`, `CombatEngine.java:1231`). `IndEvo_CombatSlowFieldTerrain` and `IndEvo_ForcedOverload` skip their timers while `engine.isPaused()`; a new combat plugin with a timer must do the same.
 - `IndEvo_missileProjectileOnFireEffect` uses non API classes `com.fs.starfarer.combat.CombatEngine`, `com.fs.graphics.particle.DynamicParticleGroup`, `SmoothParticle` (`IndEvo_missileProjectileOnFireEffect.java:3`, `:4`, `:10`). Recheck after a game update.
 - The campaign side of artillery (shots from stations on the campaign map) does not use these classes; it has its own projectile entities and a campaign `IndEvo_slowfield` terrain (`data/campaign/terrain.json:25`). See [Artillery](../industries/ARTILLERY.md).
 - MagicLib (`MagicRender`, `MagicFakeBeamPlugin`, trails) and LazyLib are required at runtime by these scripts. See [Compatibility](COMPATIBILITY.md).
@@ -68,7 +68,6 @@ All rows in `data/weapons/weapon_data.csv`. Player weapons are tagged `no_dealer
 
 | Item | State |
 |---|---|
-| Slow field and forced overload timers | Advance while paused (see Contracts) |
 | `IndEvo_CombatSlowFieldTerrain` end (`:112`) | Unmodifies speed on every ship within 99999, also ships inside another active field |
 | `IndEvo_causalityGunEffect.java:105` | `Math.random() == 0.5f` never true, dead branch |
 | `IndEvo_mortarProjectileAI`, `IndEvo_missileProjectileAI` | `target` is stored but never used for guidance |

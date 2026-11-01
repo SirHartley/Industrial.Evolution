@@ -117,7 +117,7 @@ public class IndEvo_CombatSlowFieldTerrain extends BaseEveryFrameCombatPlugin {
             return;
         }
 
-        elapsed += amount;
+        if (!Global.getCombatEngine().isPaused()) elapsed += amount;
 
         float timePassedMult = Math.min(elapsed / RAMPUP_DUR, 1);
         float currentRadius = rad * timePassedMult;
