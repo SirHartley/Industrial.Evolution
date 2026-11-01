@@ -27,6 +27,6 @@ public class WatchtowerStableLocationPatch {
         if (watchtowers == 0) return;
 
         int count = (Integer) context.getReturnValue();
-        context.setReturnValue(Math.max(0, count - watchtowers));
+        context.setReturnValue(count - watchtowers);
     }
 }
