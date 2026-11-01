@@ -142,6 +142,7 @@ Fixed - Wrecks of a detachment that lost ships hold the right amount of excess c
 
 Consumables
 Fixed - Crash when firing a missile from a hyperspace-only ability slot by hotkey
+Fixed - Smoke cloud size varies as intended and the smoke missile explosion is loudest near the player
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0

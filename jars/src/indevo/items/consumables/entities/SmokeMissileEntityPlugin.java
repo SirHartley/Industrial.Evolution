@@ -28,12 +28,12 @@ public class SmokeMissileEntityPlugin extends BaseMissileEntityPlugin {
     public void onExplosion() {
         LocationAPI cl = entity.getContainingLocation();
         SmokeCloudEntityPlugin.SmokeCloudParams params = new SmokeCloudEntityPlugin.SmokeCloudParams(cl, entity.getLocation(),
-                SmokeCloudEntityPlugin.DURATION_IN_DAYS * Global.getSector().getClock().getSecondsPerDay(), (float) (SmokeCloudEntityPlugin.BASE_RADIUS * 0.9 + 0.1 * (new Random().nextFloat())));
+                SmokeCloudEntityPlugin.DURATION_IN_DAYS * Global.getSector().getClock().getSecondsPerDay(), SmokeCloudEntityPlugin.BASE_RADIUS * (0.9f + 0.1f * new Random().nextFloat()));
         SectorEntityToken t = cl.addCustomEntity(Misc.genUID(), null, "IndEvo_SmokeCloud", null, params);
         t.setLocation(entity.getLocation().x, entity.getLocation().y);
 
         Global.getSoundPlayer().playSound(EXPLOSION_SOUND_ID, 0.9f,
-                MathUtils.clamp(Misc.getDistance(Global.getSector().getPlayerFleet(), entity) / MAX_SOUND_DISTANCE, 0,1), entity.getLocation(), new Vector2f(0, 0));
+                1f - MathUtils.clamp(Misc.getDistance(Global.getSector().getPlayerFleet(), entity) / MAX_SOUND_DISTANCE, 0f, 1f), entity.getLocation(), new Vector2f(0, 0));
     }
 
     @Override
