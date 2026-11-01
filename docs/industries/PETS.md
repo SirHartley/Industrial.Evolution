@@ -52,7 +52,7 @@ Code paths relative to `jars/src/indevo/`.
 | Faction (colour only) | `petStoreColour` | `data/world/factions/submarkets/` |
 | Entities | `IndEvo_PetShop` (`Ids.PET_SHOP_ENTITY`, legacy), `IndEvo_abandonedPetCenter` | `data/config/custom_entities.json:791`, `:1142` |
 | Variant tag | `PET_DATA_ID_<pet id>` on the pet's ship | `Pet.assign()` |
-| Memory | `$IndEvo_BlockESC`, `$petBoxActive` (`PetItemPlugin.BOX_ACTIVE`) | sector memory |
+| Memory | `$IndEvo_BlockESC` | sector memory |
 | Person | `foogAristo` at `athulf`, sells the `lordandsaviour` pet box for 300000 at cooperative (rules `IndEvo_foog_*`) | `ModPlugin.addLordFoogRep()` (`utils/ModPlugin.java:245`) |
 
 ## Registration and lifecycle
@@ -68,7 +68,7 @@ Code paths relative to `jars/src/indevo/`.
 
 ### Getting a pet
 
-`PetSubMarket` restock -> `IndEvo_PetBox` in cargo -> right-click in fleet cargo tab (`PetItemPlugin.performRightClickAction(RightClickActionHelper)`) -> sets `$petBoxActive` -> `showInteractionDialogFromCargo` opens `PetPickerInteractionDialoguePlugin` over the cargo screen -> name -> ship picker -> `new Pet` -> `PetStatusManager.register` -> `Pet.assign(member)` -> box removed through `helper.removeFromClickedStackFirst(1)`. Every dismiss (assigned, cancelled) returns to the cargo screen and unsets `$petBoxActive`.
+`PetSubMarket` restock -> `IndEvo_PetBox` in cargo -> right-click in fleet cargo tab (`PetItemPlugin.performRightClickAction(RightClickActionHelper)`) -> `showInteractionDialogFromCargo` opens `PetPickerInteractionDialoguePlugin` over the cargo screen -> name -> ship picker -> `new Pet` -> `PetStatusManager.register` -> `Pet.assign(member)` -> box removed through `helper.removeFromClickedStackFirst(1)`. Every dismiss (assigned, cancelled) returns to the cargo screen.
 
 - Restock: weighted picker over pets without `no_sell`, weight = rarity (x1.3 with an alpha core when rarity < 0.5). Picks = market size; amount per pick = floor(rarity x 3), at least 1.
 - Tariff 0.2, 0 with a beta core. Selling to the submarket is illegal.
@@ -103,7 +103,7 @@ Code paths relative to `jars/src/indevo/`.
 
 - `Pet.personality` uses `Academy.COLOURS_BY_PERSONALITY` (`Pet.java:56`, `:213`); see [Academy](ACADEMY.md).
 - A box whose data has no `pets.csv` row (unknown id, or null data in a real cargo) is invalid (`PetItemPlugin.isInvalid()`): no icon, the tooltip says so, a right-click throws `IllegalStateException`. Codex stacks have null data and no cargo (`obf/codex2/CodexDetailPanel.java:935`) and show the `hampter` fallback.
-- Dialogs from `showInteractionDialogFromCargo` do not become `getCurrentInteractionDialog()` (`obf/campaign/CampaignState.java:2298-2318`, `:2372`), so `isFleetCargo()` stays true while the picker is open; `$petBoxActive` blocks a second box. It is set with expire 0 as a fallback and unset by the dismiss delegate.
+- Dialogs from `showInteractionDialogFromCargo` do not become `getCurrentInteractionDialog()` (`obf/campaign/CampaignState.java:2298-2318`, `:2372`), so `isFleetCargo()` stays true while the picker is open. A second box still cannot be clicked: the dialog opens inside the right-click and its full screen backing panel absorbs all input (`com.fs.starfarer.ui.oo0O`, `absorbOutsideEvents` defaults to true, `obf/ui/_c199.java:18`, `:44-63`; input order inferred from vanilla dialogs being modal).
 - `EscapeInterceptListener` and `EscBlockerMemoryIterator` are also used by `industries/museum/plugins/ManageParadeDialoguePlugin.java` ([Museum](MUSEUM.md)).
 - `SelfRepairingBuiltInHullmod` is the base for changeling `HandBuiltHullmod`, Hellpods and distress hullmods ([Changeling](CHANGELING.md), [Distress](../exploration/DISTRESS.md)). `PetHullmod` is the plugin class for the ghost ship rows in `hull_mods.csv:20-59`; those ships have no pet, so `getPet()` returns null there.
 - Any code that removes ships from the player fleet without a market transaction or battle does not report a pet death; the pet stays registered with a stale member (inferred).

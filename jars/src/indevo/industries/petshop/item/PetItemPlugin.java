@@ -7,7 +7,6 @@ import com.fs.starfarer.api.campaign.CoreUITabId;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
-import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -24,7 +23,6 @@ import java.util.Random;
 
 public class PetItemPlugin extends BaseSpecialItemPlugin {
 
-    public static final String BOX_ACTIVE = "$petBoxActive";
     protected PetData pet;
 
     @Override
@@ -152,12 +150,8 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
         addCostLabel(tooltip, opad, transferHandler, stackSource);
 
-        boolean isActive = Global.getSector().getMemoryWithoutUpdate().contains(BOX_ACTIVE);
-
-        if (isFleetCargo() && !isActive) tooltip.addPara("Right-click to assign", b, opad);
-        else if (!isFleetCargo()) tooltip.addPara("Can only be assigned from fleet cargo", n, opad);
-        else if (isActive) tooltip.addPara("Finish assigning your current pet to activate this!", n, opad);
-        else tooltip.addPara("Can not be used in this situation", n, opad);
+        if (isFleetCargo()) tooltip.addPara("Right-click to assign", b, opad);
+        else tooltip.addPara("Can only be assigned from fleet cargo", n, opad);
     }
 
     public static String getYearDescription(int months) {
@@ -173,7 +167,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
     @Override
     public boolean hasRightClickAction() {
-        return isFleetCargo() && !Global.getSector().getMemoryWithoutUpdate().contains(BOX_ACTIVE);
+        return isFleetCargo();
     }
 
     public boolean isInvalid() {
@@ -195,11 +189,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
     @Override
     public void performRightClickAction(RightClickActionHelper helper) {
-        MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
-        if (mem.contains(BOX_ACTIVE)) return;
         if (pet == null) throw new IllegalStateException("IndEvo pet box without valid pet data, id " + stack.getSpecialDataIfSpecial().getData());
-
-        mem.set(BOX_ACTIVE, null, 0f);
-        Global.getSector().getCampaignUI().showInteractionDialogFromCargo(new PetPickerInteractionDialoguePlugin(pet, helper), null, () -> mem.unset(BOX_ACTIVE));
+        Global.getSector().getCampaignUI().showInteractionDialogFromCargo(new PetPickerInteractionDialoguePlugin(pet, helper), null, null);
     }
 }
