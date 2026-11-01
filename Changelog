@@ -36,6 +36,7 @@ Fixed - Nine rare pets that could never appear in the Animal Center shop now sho
 Fixed - Pet management ability no longer shows as active while a detachment is out
 Fixed - Pets on ships left in storage no longer die at month end; they starve unless fed, as the warning says
 Fixed - Pet boxes open the naming dialog on top of the cargo screen; they no longer close it with a simulated Escape key press, which failed on some systems
+Fixed - Pet boxes holding an unknown pet say so in their tooltip instead of crashing the cargo screen; using one crashes with a clear error
 
 Museum
 Fixed - Parade fleet stability bonus no longer stacks
