@@ -83,6 +83,9 @@ Fixed - Dismissing an ambassador at some relation values showed an error or cost
 Engineering Hub
 Fixed - The Engineering Hub setting now controls whether it can be built
 
+Privateer Base
+Fixed - Privateer Base no longer fails to find a raid target when one exists
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 

@@ -44,7 +44,7 @@ Run order: `reportEconomyTick` (every tick: add condition) `-> last tick of mont
 
 ### Target choice
 
-`getActiveHostileFactions()` collects factions with a visible in economy market hostile to the base faction. `getRaidTarget()` picks factions at random and calls `getBestTargetSystem(faction)`, which scores every system of that faction not in `RaidTimeout`:
+`getActiveHostileFactions()` collects factions with a visible in economy market hostile to the base faction. `getRaidTarget()` tries every hostile faction once in random order and calls `getBestTargetSystem(faction)`, which scores every system of that faction not in `RaidTimeout`:
 
 - `+ getBaseRaidFP() * 1.5 - FP of hostile fleets in or near the system`
 - station `-20` (else `+10`), patrol HQ `-size` (else `+5`), military base `-3 * size`, high command `-4 * size`
@@ -54,7 +54,7 @@ Highest score wins. No target on a player base sends a "make some more enemies" 
 
 ### Raid
 
-`startRaid` (`:561`) builds `PrivateerBaseRaidIntel` with `AssembleStage` (nearest jump point in the home system, spawn FP = `getBaseRaidFP()`), `TravelStage`, vanilla `PirateRaidActionStage`, `ReturnStage`. Abort FP is 50% of spawn FP on every stage. The target system gets a 3 month `RaidTimeout` at start.
+`startRaid` (`:553`) builds `PrivateerBaseRaidIntel` with `AssembleStage` (nearest jump point in the home system, spawn FP = `getBaseRaidFP()`), `TravelStage`, vanilla `PirateRaidActionStage`, `ReturnStage`. Abort FP is 50% of spawn FP on every stage. The target system gets a 3 month `RaidTimeout` at start.
 
 `getBaseRaidFP() = size * 50 * COMBAT_FLEET_SIZE_MULT mult * random(0.75..1.25) * aiCoreFPBonus^2 * (1 + alcohol bonus)` (`:159`). The core bonus is applied twice on purpose (code comment, `:160`). Alcohol bonus: 3% per available unit of any commodity whose id contains `alcoholism` (Alcoholism mod).
 
@@ -108,7 +108,6 @@ If the population industry is `SwitchablePopulation` running `HelldiversSubIndus
 
 | Item | State |
 |---|---|
-| `getRaidTarget` loop `j <= factionList.size()` while removing entries (`PrivateerBase.java:457`) | stops after about half the factions; some hostile factions are never tried |
 | Dev mode branch `startRaid(getRaidTarget(), ...)` (`:127`) | NPE in `MiscIE.getMarketsInLocation(null)` when no target exists; dev mode only |
 | `PirateSubpopulationCondition` imports `exerelin.*` | only resolved when `nexerelin` is enabled; compile time dependency on Nexerelin |
 

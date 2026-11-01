@@ -453,22 +453,14 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         StarSystemAPI bestSystem = null;
 
         //The entire following block is a good example of why returning null on anything is a shit idea
-        if (!factionList.isEmpty()) {
-            for (int j = 0; j <= factionList.size(); j++) {
-                int rnd = new Random().nextInt(factionList.size());
-                FactionAPI targetFaction = factionList.get(rnd);
+        while (!factionList.isEmpty()) {
+            FactionAPI targetFaction = factionList.remove(new Random().nextInt(factionList.size()));
+            if (targetFaction == null) continue;
 
-                if (targetFaction == null) {
-                    continue;
-                }
-
-                StarSystemAPI target = getBestTargetSystem(targetFaction);
-                if (target != null) {
-                    bestSystem = target;
-                    break;
-                }
-
-                factionList.remove(targetFaction);
+            StarSystemAPI target = getBestTargetSystem(targetFaction);
+            if (target != null) {
+                bestSystem = target;
+                break;
             }
         }
 
