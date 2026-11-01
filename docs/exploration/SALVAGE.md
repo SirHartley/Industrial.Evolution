@@ -107,7 +107,6 @@ All specials call `setDone/setShowAgain/setEndWithContinue` per vanilla `BaseSal
 | `initNothing()` without return | `DModRepairSpecial:65`, `ItemChoiceSpecial:54`, `JuicyRumorsSpecial:53`, `ShipRouletteSpecial:101` call `initNothing()` and keep building the dialog |
 | `ShipRouletteSpecial` | `qualityLevel` 0 is possible (creators with min 0) and gives `retain = 1/0` = Infinity (`:276`), same as level 1 |
 | `ChooseBlueprintSpecialData` | `pickAndRemove()` NPE if fewer rare hulls of that size than `amt` (`:53-55`) |
-| `CreditStashSpecial` | `Misc.makeLowRepImpact(playerFleet, "csSpecial")` targets the player fleet (`:155`), inferred unintended |
 | `DerelictStationPlacer.addDebugStation` | Dev-only caller of `PrintShipSpecialCreator` |
 | Changelog_todo | Idea: "Adjust salvage event 'Ship Roulette'" with colony output and timed delivery (`Changelog_todo:155-159`) |
 

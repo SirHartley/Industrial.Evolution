@@ -152,7 +152,7 @@ public class CreditStashSpecial extends BaseSalvageSpecial {
         fleet.getMemoryWithoutUpdate().set(FleetAIFlags.PLACE_TO_LOOK_FOR_TARGET, new Vector2f(playerFleet.getLocation()), interceptDays);
 
         if (makeLowRepImpact) {
-            Misc.makeLowRepImpact(playerFleet, "csSpecial");
+            Misc.makeLowRepImpact(fleet, "csSpecial");
         }
 
         if (fleet.getAI() instanceof ModularFleetAIAPI) {
