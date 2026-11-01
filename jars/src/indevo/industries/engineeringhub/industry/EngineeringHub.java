@@ -73,8 +73,6 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
             Global.getSector().getListenerManager().addListener(this, true);
             refreshRequiredDays();
         }
-
-        removeDummyRelicComponentFromCargo();
     }
 
     @Override
@@ -215,7 +213,11 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     }
 
     public boolean shouldUseRelics(){
-        return getSpecialItem() != null && ItemIds.RELIC_SPECIAL_ITEM.equals(getSpecialItem().getId());
+        return isRelicItem(getSpecialItem());
+    }
+
+    public static boolean isRelicItem(Object data) {
+        return data instanceof SpecialItemData special && ItemIds.RELIC_SPECIAL_ITEM.equals(special.getId());
     }
 
     public float getRelicCostForHullId(String id){
@@ -253,24 +255,6 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
                     Misc.getHighlightColor(), target.getFaction().getBrightUIColor()
             );
         }
-    }
-
-    public void addDummyRelicComponentToCargo(){
-        if (getSpecialItem() != null && ItemIds.RELIC_SPECIAL_ITEM.equals(getSpecialItem().getId())) return;
-
-        CargoAPI storage = Misc.getStorageCargo(market);
-        if (storage != null && storage.getQuantity(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null)) < 1){
-            storage.addSpecial(new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null), 1);
-        }
-    }
-
-    public void removeDummyRelicComponentFromCargo(){
-        CargoAPI storage = Misc.getStorageCargo(market);
-        if (storage != null) storage.removeItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null), 99);
-
-        //items are dumped into fleet cargo once uninstalled
-        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
-        if (playerFleet != null) playerFleet.getCargo().removeItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null), 99);
     }
 
     public ShipAPI.HullSize gethullSize(SpecialItemData data) {
@@ -505,7 +489,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     @Override
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
         super.notifyBeingRemoved(mode, forUpgrade);
-        if (blueprintItem != null && !forUpgrade) {
+        if (blueprintItem != null && !forUpgrade && !isRelicItem(blueprintItem)) {
             CargoAPI cargo = getCargoForInteractionMode(mode);
             if (cargo != null) {
                 cargo.addSpecial(blueprintItem, 1);
