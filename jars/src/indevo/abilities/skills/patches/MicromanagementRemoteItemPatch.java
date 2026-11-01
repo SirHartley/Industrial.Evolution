@@ -22,6 +22,8 @@ public class MicromanagementRemoteItemPatch {
     public static final String SETTING = "allowRemoteIndustryItemManagement";
     public static final int MIN_DAYS_IN_OFFICE = 93;
 
+    private static boolean loggedMissingIndustry = false;
+
     @RedirectMethodCall(
             target = @MethodMatch(methodType = MethodType.CONSTRUCTOR),
             call = @MethodMatch(parameterTypes = String.class, returnType = boolean.class, staticType = StaticType.STATIC),
@@ -36,6 +38,11 @@ public class MicromanagementRemoteItemPatch {
     private static boolean isMicromanaged(Object[] hostArgs) {
         for (Object arg : hostArgs) {
             if (arg instanceof Industry industry) return isMicromanaged(industry.getMarket());
+        }
+
+        if (!loggedMissingIndustry) {
+            loggedMissingIndustry = true;
+            Global.getLogger(MicromanagementRemoteItemPatch.class).error("Industry option menu constructor has no Industry argument, Micromanagement remote item management is off", new IllegalStateException());
         }
 
         return false;

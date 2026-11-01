@@ -45,7 +45,7 @@ The vanilla industry option menu (obfuscated `b` in `com.fs.starfarer.campaign.u
 `MicromanagementRemoteItemPatch.redirectSettingRead` runs on that call:
 
 1. Calls the original. A `true` value (the user allows remote management globally) passes through.
-2. For the key `allowRemoteIndustryItemManagement` only, finds the `Industry` among the constructor args and checks its market: player owned, admin has `indevo_Micromanagement`, and `AdminGovernTimeTracker.getValueForMarket > 93` or dev mode.
+2. For the key `allowRemoteIndustryItemManagement` only, finds the `Industry` among the constructor args and checks its market: player owned, admin has `indevo_Micromanagement`, and `AdminGovernTimeTracker.getValueForMarket > 93` or dev mode. No `Industry` among the args logs an error once (with stack trace) and keeps the original value.
 3. Returns `true` if that holds, else the original value.
 
 ## Contracts
