@@ -98,14 +98,13 @@ Chain: `IndEvo_ApplyEdict -> IndEvo_applyEdict -> market.addCondition -> BaseEdi
 - `Market.addCondition()` calls `plugin.apply()` immediately and `removeCondition()` calls `unapply()` (`obf/campaign/econ/Market.java:1088`, `:1160`). The preview in `IndEvo_DisplayActionPanel_Edict` therefore runs a full apply/unapply on the live market and leaves the time tag (and for Forced Labour the `edict_stab_penalty4` tag) behind.
 - `IndEvo_marketHasEdict` is the "one Edict per market" rule; nothing in Java enforces it.
 - Production quality changes from Deadlines and Clearances go on every player market, not only the local one.
-- `Edict_FastBuild` writes `BaseIndustry.buildTime` (`api/impl/campaign/econ/impl/BaseIndustry.java:103`) through `ReflectionUtils.setWithSuper` ([Utils](../core/UTILS.md)).
+- `Edict_FastBuild` writes `BaseIndustry.buildTime` (`api/impl/campaign/econ/impl/BaseIndustry.java:103`) through `ReflectionUtils.setWithSuper` ([Utils](../core/UTILS.md)). `unapply()` restores the spec build time, or the upgrade spec build time while upgrading, on every building industry.
 
 ## Known issues and dormant code
 
 | Item | State |
 |---|---|
 | `Edict_GrowthReinvestment` | `@Deprecated`, no `market_conditions.csv` row: dead |
-| `Edict_FastBuild.unapply()` | Skips industries whose spec has no upgrade (`:71`), so their halved `buildTime` is not restored when the Edict ends |
 | `Edict_FastBuild` demand | `modifyFlat(0.5)` on demand instead of a mult (`:47`); effect text prints `50%%` literally (`addParagraph` is not a format call) |
 | `Edict_ForcedRelocation.onNewDay()` | After the auto end runs `removeWithoutPenalty()`, it still evaluates the presence check and can call `removeWithPenalty()` again (`:65`). `this.market.getSize() / otherPlanetCount` is int division (`:75`) |
 | `Edict_Lockdown` effect text | "increased by 200%" with highlight "300%" (`:166-167`) |

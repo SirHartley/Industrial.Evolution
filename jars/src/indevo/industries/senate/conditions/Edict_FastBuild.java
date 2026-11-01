@@ -68,11 +68,11 @@ public class Edict_FastBuild extends BaseEdict {
 
         for (Industry ind : market.getIndustries()) {
             if (ind.isBuilding() || ind.isUpgrading()) {
-                if (ind.getSpec().getUpgrade() == null || !(ind instanceof BaseIndustry industry)) continue;
+                if (!(ind instanceof BaseIndustry industry)) continue;
 
-                float buildDays = ind.isBuilding()
-                        ? ind.getSpec().getBuildTime()
-                        : Global.getSettings().getIndustrySpec(ind.getSpec().getUpgrade()).getBuildTime();
+                float buildDays = ind.isUpgrading() && ind.getSpec().getUpgrade() != null
+                        ? Global.getSettings().getIndustrySpec(ind.getSpec().getUpgrade()).getBuildTime()
+                        : ind.getSpec().getBuildTime();
 
                 ReflectionUtils.INSTANCE.setWithSuper("buildTime", industry, buildDays, 5, null);
             }
