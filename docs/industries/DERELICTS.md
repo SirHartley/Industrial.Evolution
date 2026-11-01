@@ -48,7 +48,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Jump point | id `IndEvo_planet_replacer`, desc `IndEvo_JumpRift` | `PlanetMovingScript.java:50` |
 | Variant tag | `IndEvo_comp1/2/3` | `HullForge.java:431-433` |
 | Variant tag | `IndEvo_hasInbuiltLogMod` | `HullDeconstructor.java:56` |
-| Memory key | `$IndEvo_ruinsIndustryId` (market), `$IndEvo_ruinsPlaced_<marketId>` | `Ruins.java:29`, `RuinsManager` |
+| Memory key | `$IndEvo_ruinsIndustryId` (market), `$IndEvo_ruinsPlaced_<marketId>` | `Ruins.java:31`, `RuinsManager` |
 | Memory key | `$IndEvo_LabBonusCommodityID` and `_1/_2/_3`, `$IndEvo_ruinsPickerSeed` (sector) | `AncientLaboratory.java:38` |
 | Memory key | `"$" + industryId` sector flag (template tooltips) | `BaseForgeTemplateUser.java:81-84` |
 | Memory key | `$IndEvo_original_planet_orbit`, `$IndEvo_closeDialogueOnNextReturn` | `PlanetMovingScript`, rift rules |
@@ -82,7 +82,7 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 
 `setUpgradeSpec` (`RuinsManager.java:171-207`): weights Lab 1, Decon 0.7, Forge 0.7, RiftGen 0.35, seeded by the planet salvage seed. RiftGen is excluded with solar array, artillery condition, minefield, Niko satellites, rings, gas giant.
 
-`Ruins.getSpec()` (`Ruins.java:40-49`) returns an `IndustrySpecView` ([Utils](../core/UTILS.md)) whose upgrade is `$IndEvo_ruinsIndustryId`, so the option menu, `startUpgrading` and the tooltips read this market's target. `Ruins.apply` (`:35`, no `super.apply`) -> `triggerUpgradeForAI` (`:84-99`): NPC market size > 4, free slot, more than 2 markets. `BaseForgeTemplateUser.isAvailableToBuild` (`:40`) only lets the matching industry build, and not while ruins are upgrading. The CSV downgrade to `IndEvo_Ruins` only keeps the four structures out of the build list (skill `obf/campaign/ui/marketinfo/IndustryPickerDialog.java:182`); `BaseForgeTemplateUser.getSpec()` (`:52`) and `RiftGenerator.getSpec()` (`:55`) return a view without it, so the menu never offers "Downgrade to Old Industrial Ruins".
+`Ruins.getSpec()` (`Ruins.java:42-46`) returns an `IndustrySpecView` ([Utils](../core/UTILS.md)) whose upgrade is `$IndEvo_ruinsIndustryId`, so the option menu, `startUpgrading` and the tooltips read this market's target. `Ruins.apply` (`:36`, no `super.apply`) -> `RuinsManager.setUpgradeSpec` if the market has no target yet (ruins added by `DerelictRuinsPlacer` on a planet whose condition came after new game and was surveyed without the survey listener, for example through `SurveyDataSpecial`) -> `triggerUpgradeForAI` (`:81-96`): NPC market size > 4, free slot, more than 2 markets. `BaseForgeTemplateUser.isAvailableToBuild` (`:40`) only lets the matching industry build, and not while ruins are upgrading. The CSV downgrade to `IndEvo_Ruins` only keeps the four structures out of the build list (skill `obf/campaign/ui/marketinfo/IndustryPickerDialog.java:182`); `BaseForgeTemplateUser.getSpec()` (`:52`) and `RiftGenerator.getSpec()` (`:55`) return a view without it, so the menu never offers "Downgrade to Old Industrial Ruins".
 
 ### Forge template loop
 
