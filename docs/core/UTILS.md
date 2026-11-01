@@ -112,7 +112,6 @@ One shot `EveryFrameScript`s that defer a market change to the next frame (all `
 
 | Class | Behaviour | Users |
 |---|---|---|
-| `scripts/IndustryAddOrRemovePlugin.java` | Adds or removes `industryId`; removal only if the market has no `Ids.PIRATEHAVEN` | `privateer/industry/PrivateerBase` |
 | `scripts/EntityRemovalScript.java` | Removes a custom entity if the market lacks the prerequisite industry or `forceRemoval` | `relay/industry/MilitaryRelay` |
 | `scripts/SpriteDistorter.java` | `BaseCustomEntityPlugin` with a grid distortion stub behind `if (true) return;` | none (dead) |
 

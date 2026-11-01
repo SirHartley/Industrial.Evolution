@@ -25,9 +25,9 @@ All wonders share `WorldWonder`: +10 immigration (independent faction), monthly 
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Industry | `IndEvo_BaseFlavourInd` (World Symbols), tags `flavor, parent_item`, data `flavor` | `data/campaign/industries.csv:107` |
-| Industry | `IndEvo_LightPalace`, `IndEvo_DarkPalace`, `IndEvo_Memorial`, `IndEvo_LeisureOrbitals`, `IndEvo_Megachurch` (`WorldWonder`) | `data/campaign/industries.csv:108-120`, tags `flavor, sub_item, structure, unraidable`, cost mult 100, build 90, upkeep 10 |
-| Industry | `IndEvo_IcePalace`, `IndEvo_LavaFortress`, `IndEvo_LifeTree` (`WorldTree`), `IndEvo_CloudPainter` | `data/campaign/industries.csv:123-134`, same values |
+| Industry | `IndEvo_BaseFlavourInd` (World Symbols), tags `flavor, parent_item`, data `flavor` | `data/campaign/industries.csv:106` |
+| Industry | `IndEvo_LightPalace`, `IndEvo_DarkPalace`, `IndEvo_Memorial`, `IndEvo_LeisureOrbitals`, `IndEvo_Megachurch` (`WorldWonder`) | `data/campaign/industries.csv:107-119`, tags `flavor, sub_item, structure, unraidable`, cost mult 100, build 90, upkeep 10 |
+| Industry | `IndEvo_IcePalace`, `IndEvo_LavaFortress`, `IndEvo_LifeTree` (`WorldTree`), `IndEvo_CloudPainter` | `data/campaign/industries.csv:122-133`, same values |
 | Condition | `IndEvo_WorldWonderCondition` (`Ids.COND_WORLD_WONDER`) | `data/campaign/market_conditions.csv:31`, `hidden, technical` |
 | System tag | `IndEvo_hasWonder` (`WorldWonder.TAG_SYSTEM_HAS_WONDER`) | star system tags |
 | Memory key | `$IndEvo_hasAwardedSP` (`HAS_AWARDED_SP`) | market memory |

@@ -1,19 +1,19 @@
 # Privateer Base
 
-The Privateer Base industry (`IndEvo_pirateHaven`): monthly raids on hostile systems, decaying raid output, loot delivery and the Lawless Subpopulation condition. Read it before changing raid targeting, raid output or the slot blocker. It does not cover the Helldivers government variant beyond its hooks; see [Changeling](CHANGELING.md). Raid cooldowns live in `RaidTimeout`; see [Utils](../core/UTILS.md).
+The Privateer Base industry (`IndEvo_pirateHaven`): monthly raids on hostile systems, decaying raid output, loot delivery and the Lawless Subpopulation condition. Read it before changing raid targeting, raid output or the slot patch. It does not cover the Helldivers government variant beyond its hooks; see [Changeling](CHANGELING.md). Raid cooldowns live in `RaidTimeout`; see [Utils](../core/UTILS.md).
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
 
 ## Overview
 
-The base takes two industry slots (itself plus the hidden `IndEvo_pirateHavenSecondary` blocker). Once a month it picks a hostile faction, rates that faction's systems and launches a vanilla `RaidIntel` raid from its market. On success the base supplies the commodities the raided markets produced (90%, 45% on a failed action stage), decaying by 1 unit per month, and a player owned base drops weapons, fighters and blueprints into storage. While functional it adds the `IndEvo_pirate_subpop` condition to its market.
+The base takes two industry slots: a PatchLib patch counts it twice in `Misc.getNumIndustries`. Once a month it picks a hostile faction, rates that faction's systems and launches a vanilla `RaidIntel` raid from its market. On success the base supplies the commodities the raided markets produced (90%, 45% on a failed action stage), decaying by 1 unit per month, and a player owned base drops weapons, fighters and blueprints into storage. While functional it adds the `IndEvo_pirate_subpop` condition to its market.
 
 ## Files
 
 | File | Owner / role |
 |---|---|
 | `indevo/industries/privateer/industry/PrivateerBase.java` | Industry plugin. Raid scheduling (`reportEconomyTick`), target choice (`getRaidTarget`, `getBestTargetSystem`), raid assembly (`startRaid`), result handling (`notifyRaidEnded`, `RaidIntel.RaidDelegate`), output memory and decay (`supplyMemory`, `supplyDiminishment`), loot (`spoilsOfWar`, `getLoot`), AI core effects |
-| `indevo/industries/privateer/industry/PrivateerBaseSlotBlocker.java` | `IndEvo_pirateHavenSecondary`: empty hidden industry that only occupies the second industry slot |
+| `indevo/industries/privateer/patches/PrivateerIndustrySlotPatch.java` | `@After` on `Misc.getNumIndustries(MarketAPI)`: +1 per `IndEvo_pirateHaven` on the market or in its construction queue |
 | `indevo/industries/privateer/intel/PrivateerBaseRaidIntel.java` | `RaidIntel` subclass; `createFleet` builds the raider fleet with `FleetFactoryV3`, sets war fleet and raider flags, names it |
 | `indevo/industries/privateer/conditions/PirateSubpopulationCondition.java` | `IndEvo_pirate_subpop` condition: stability and immigration effect, Nexerelin morality check |
 
@@ -22,21 +22,20 @@ The base takes two industry slots (itself plus the hidden `IndEvo_pirateHavenSec
 | Kind | Id / key | Where |
 |---|---|---|
 | Industry | `IndEvo_pirateHaven` (`Ids.PIRATEHAVEN`) | `data/campaign/industries.csv`, tags `industry, tactical_bombardment, military` |
-| Industry | `IndEvo_pirateHavenSecondary` (`Ids.PIRATEHAVEN_SECONDARY`) | `data/campaign/industries.csv`, `do_not_show_in_build_dialog, hide_in_codex` |
 | Condition | `IndEvo_pirate_subpop` (`Ids.COND_PIRATES`) | `data/campaign/market_conditions.csv`, `decivRemove` TRUE |
 | Setting | `IndEvo_pirateHaven` | `data/config/LunaSettings.csv`, enables the industry |
-| Setting | `IndEvo_RaidForUnknownOnly` | blueprint loot skips blueprints the player knows; `PrivateerBase.java:300` |
-| Setting | `IndEvo_PrivateerDeliverToGatheringPoint` | loot goes to the production gathering point storage; `PrivateerBase.java:288` |
+| Setting | `IndEvo_RaidForUnknownOnly` | blueprint loot skips blueprints the player knows; `PrivateerBase.java:295` |
+| Setting | `IndEvo_PrivateerDeliverToGatheringPoint` | loot goes to the production gathering point storage; `PrivateerBase.java:283` |
 | Memory key | `$IndEvo_RaidTimeout`, `$IndEvo_RaidTimeout_AI` | sector memory, owned by `RaidTimeout` |
 
 Settings are listed in [Settings](../core/SETTINGS.md).
 
 ## Registration and lifecycle
 
-- CSV plugin column only; nothing in `ModPlugin`.
-- `apply()` adds itself as transient `EconomyTickListener` and queues a transient `IndustryAddOrRemovePlugin` that adds the slot blocker (`PrivateerBase.java:73`, `:83`). `unapply()` removes the listener and queues blocker removal (`:95-96`). `IndustryAddOrRemovePlugin.removeIndustry` only removes the blocker if the market no longer has `IndEvo_pirateHaven`.
+- CSV plugin column; nothing in `ModPlugin`. `PrivateerIndustrySlotPatch` is a `@Patch` class, installed by PatchLib ([Patches](../ARCHITECTURE.md#patches)).
+- `apply()` adds itself as transient `EconomyTickListener` (`PrivateerBase.java:72`); `unapply()` removes it.
 - `ListenerManager.addListener` dedupes the same instance (`obf/campaign/ListenerManager.java:29`, `ObjectRepository.add` checks `contains`), so the repeated call in `apply()` is safe.
-- Persistent state is in fields: `currentIntel`, `raidTimeoutMonths`, `supplyMemory`, `decayStopTimer`, `aiCoreFPBonus`. `apply()` rebuilds `supply` from `supplyMemory` (`:75-81`).
+- Persistent state is in fields: `currentIntel`, `raidTimeoutMonths`, `supplyMemory`, `decayStopTimer`, `aiCoreFPBonus`. `apply()` rebuilds `supply` from `supplyMemory` (`:74-80`).
 
 Run order: `reportEconomyTick` (every tick: add condition) `-> last tick of month -> supplyDiminishment -> raidTimeoutMonths-- -> getRaidTarget -> startRaid -> RaidIntel stages -> notifyRaidEnded -> setRaidIndustryOutput / spoilsOfWar / RaidTimeout.addRaidedSystem`.
 
@@ -54,13 +53,13 @@ Highest score wins. No target on a player base sends a "make some more enemies" 
 
 ### Raid
 
-`startRaid` (`:553`) builds `PrivateerBaseRaidIntel` with `AssembleStage` (nearest jump point in the home system, spawn FP = `getBaseRaidFP()`), `TravelStage`, vanilla `PirateRaidActionStage`, `ReturnStage`. Abort FP is 50% of spawn FP on every stage. The target system gets a 3 month `RaidTimeout` at start.
+`startRaid` (`:548`) builds `PrivateerBaseRaidIntel` with `AssembleStage` (nearest jump point in the home system, spawn FP = `getBaseRaidFP()`), `TravelStage`, vanilla `PirateRaidActionStage`, `ReturnStage`. Abort FP is 50% of spawn FP on every stage. The target system gets a 3 month `RaidTimeout` at start.
 
-`getBaseRaidFP() = size * 50 * getMod(COMBAT_FLEET_SIZE_MULT).getMult() (doctrine, shortage, stability, military and relay multipliers) * random(0.75..1.25) * aiCoreFPBonus^2 * (1 + alcohol bonus)` (`:159`). The core bonus is applied twice on purpose (code comment, `:160`). Alcohol bonus: 3% per available unit of any commodity whose id contains `alcoholism` (Alcoholism mod).
+`getBaseRaidFP() = size * 50 * getMod(COMBAT_FLEET_SIZE_MULT).getMult() (doctrine, shortage, stability, military and relay multipliers) * random(0.75..1.25) * aiCoreFPBonus^2 * (1 + alcohol bonus)` (`:154`). The core bonus is applied twice on purpose (code comment, `:155`). Alcohol bonus: 3% per available unit of any commodity whose id contains `alcoholism` (Alcoholism mod).
 
 ### Result
 
-`notifyRaidEnded` (`:175`):
+`notifyRaidEnded` (`:170`):
 
 | Status | Effect |
 |---|---|
@@ -86,7 +85,7 @@ Cargo goes to local storage, or to the gathering point when the setting is on or
 
 ### Helldivers variant
 
-If the population industry is `SwitchablePopulation` running `HelldiversSubIndustry`, names change ("Democratic Liberation Base", "Democratic Liberation Force") and raid results call `HelldiversSubIndustry.reportPrivateerBaseRaidFinished` (`PrivateerBase.java:195-207`). See [Changeling](CHANGELING.md).
+If the population industry is `SwitchablePopulation` running `HelldiversSubIndustry`, names change ("Democratic Liberation Base", "Democratic Liberation Force") and raid results call `HelldiversSubIndustry.reportPrivateerBaseRaidFinished` (`PrivateerBase.java:190-202`). See [Changeling](CHANGELING.md).
 
 ### AI cores
 
@@ -98,19 +97,20 @@ If the population industry is `SwitchablePopulation` running `HelldiversSubIndus
 
 ## Contracts
 
-- Build check: setting on, at least two free industry slots, and fewer than two `IndEvo_pirateHaven` of the faction in the system (`isAvailableToBuild`, `:100`).
-- `updateSupplyAndDemandModifiers` clears `supplyBonus`, so the output ignores market supply bonuses (`:60`).
+- Two slots: vanilla `Misc.getNumIndustries` (skill `api/util/Misc.java:5248`) counts the base once, built, under construction or queued; the patch adds one more. Every vanilla limit check uses it: build menu, queue start (`BaseIndustry.java:614`), over-limit stability penalty (`PopulationAndInfrastructure.java:454`), the colony industry counter. Code that counts `isIndustry()` itself sees one: the colony industry name list and the NPC admin skill pick (`CoreLifecyclePluginImpl.java:1723`).
+- Build check: setting on, at least two free industry slots, and fewer than two `IndEvo_pirateHaven` of the faction in the system (`isAvailableToBuild`, `:95`).
+- `updateSupplyAndDemandModifiers` clears `supplyBonus`, so the output ignores market supply bonuses (`:59`).
 - `RaidIntel` comes from `api/impl/campaign/intel/raid/RaidIntel.java`; the base is its `RaidDelegate`. `currentIntel` is saved; only one raid per base runs at a time.
 - The condition is added but never removed by IE; it stays after the base is gone (only `decivRemove` clears it). Inferred: intended as a lasting penalty.
-- Dev mode (`Global.getSettings().isDevMode()`) starts a raid and runs `debugOutputs()` on every economy tick (`:126`).
+- Dev mode (`Global.getSettings().isDevMode()`) starts a raid and runs `debugOutputs()` on every economy tick (`:121`).
 
 ## Known issues and dormant code
 
 | Item | State |
 |---|---|
-| Dev mode branch `startRaid(getRaidTarget(), ...)` (`:127`) | NPE in `MiscIE.getMarketsInLocation(null)` when no target exists; dev mode only |
+| Dev mode branch `startRaid(getRaidTarget(), ...)` (`:122`) | NPE in `MiscIE.getMarketsInLocation(null)` when no target exists; dev mode only |
 | `PirateSubpopulationCondition` imports `exerelin.*` | only resolved when `nexerelin` is enabled; compile time dependency on Nexerelin |
 
 ## Maintenance
 
-Update this doc when raid scoring, output fractions, timeouts, loot rules or the slot blocker change. Raid timeout storage belongs in [Utils](../core/UTILS.md), Helldivers in [Changeling](CHANGELING.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
+Update this doc when raid scoring, output fractions, timeouts, loot rules or the slot patch change. Raid timeout storage belongs in [Utils](../core/UTILS.md), Helldivers in [Changeling](CHANGELING.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).

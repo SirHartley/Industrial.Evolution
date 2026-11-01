@@ -126,6 +126,7 @@ PatchLib patches change vanilla code where the API has no hook. Each lives in a 
 | Patch | Target | Kind | Feature doc |
 |---|---|---|---|
 | `industries/artillery/patches/WatchtowerStableLocationPatch` | `Misc.getNumStableLocations` (API) | `@After` | [ARTILLERY](industries/ARTILLERY.md#stable-locations) |
+| `industries/privateer/patches/PrivateerIndustrySlotPatch` | `Misc.getNumIndustries` (API) | `@After` | [PRIVATEER](industries/PRIVATEER.md#contracts) |
 | `industries/patches/CommerceBalancePatch` | vanilla `TradeCenter` (API): six methods, `IMPROVE_BONUS` reads | `@Before`, `@After`, `@RedirectFieldRead` | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md#commerce-balance-patches-commerce) |
 | `abilities/skills/patches/MicromanagementRemoteItemPatch` | `StarfarerSettings` `(String) -> boolean` call in the industry option menu constructor (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred) | `@RedirectMethodCall` | [SKILLS](abilities/SKILLS.md#flow) |
 | `industries/patches/DealmakerHolosuitePatch` | `ItemEffectsRepo.DEALMAKER_INCOME_PERCENT_BONUS` reads in `BaseInstallableItemEffect` subclasses (API) | `@RedirectFieldRead` | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md#commerce-balance-patches-commerce) |
@@ -208,7 +209,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 
 | From | Uses | Where |
 |---|---|---|
-| Privateer | Current changeling government; `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:71,196,205,324` |
+| Privateer | Current changeling government; `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:70,191,200,319` |
 | Courier port | Gacha stations as targets; RAT settlements | `ShippingTargetHelper.java:56-57`, `ShippingContract.java:88,93` |
 | Split fleet | Courier `ShippingTargetHelper` for targets | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | Pets | `Academy.COLOURS_BY_PERSONALITY` | `Pet.java:56` |

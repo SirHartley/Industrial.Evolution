@@ -48,7 +48,7 @@ The player ability `splinter_fleet` opens a control panel with three loadout slo
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Ability | `splinter_fleet` (`Ids.ABILITY_DETACHMENT`) | `data/campaign/abilities.csv:2`, `indevo/ids/Ids.java:141` |
+| Ability | `splinter_fleet` (`Ids.ABILITY_DETACHMENT`) | `data/campaign/abilities.csv:2`, `indevo/ids/Ids.java:140` |
 | Custom entity | `SplinterFleet_OrbitFocus` (hidden), `development_SplinterFleet_OrbitFocus` (visible debug twin) | `data/config/custom_entities.json:420`, `:431` |
 | Entity tag | `SplinterFleet_OF` | `OrbitFocus.ORBIT_FOCUS_TAG` |
 | Fleet tag | `SplinterFleet_DetachmentIsJumping` | `BaseSplinterFleetAssignmentAIV2.CURRENTLY_JUMPING_FLAG` |

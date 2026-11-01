@@ -22,16 +22,16 @@ Every IE row of `data/campaign/industries.csv` (plugin column, paths relative to
 | `IndEvo_ReqCenter` | 38 | `RequisitionCenter` | this doc |
 | `IndEvo_EngHub` | 42 | `engineeringhub/industry/EngineeringHub` | [Engineering Hub](ENGINEERING_HUB.md) |
 | `IndEvo_PrivatePort` | 45 | `courierport/industry/CourierPortV2` | [Courier Port](COURIER_PORT.md) |
-| `IndEvo_pirateHaven`, `IndEvo_pirateHavenSecondary` | 48, 90 | `privateer/industry/PrivateerBase`, `PrivateerBaseSlotBlocker` | [Privateer](PRIVATEER.md) |
+| `IndEvo_pirateHaven` | 48 | `privateer/industry/PrivateerBase` | [Privateer](PRIVATEER.md) |
 | `IndEvo_SwitchableRefining`, `IndEvo_SwitchableMining`, `IndEvo_SwitchablePopulation` | 51-53 | `changeling/industry/...` | [Changeling](CHANGELING.md) |
 | `IndEvo_PetStore` | 54 | `petshop/industry/PetShop` | [Pets](PETS.md) |
 | `IndEvo_Museum` | 55 | `museum/industry/Museum` | [Museum](MUSEUM.md) |
 | `IndEvo_Warehouse`, `#IndEvo_Warphouse` (commented) | 58, 61 | `warehouses/industry/Warehouses` | [Warehouses](WAREHOUSES.md) |
 | `IndEvo_Artillery_base`, `_mortar`, `_missile`, `_railgun` | 64, 67, 74, 81 | `artillery/industry/ArtilleryStation` | [Artillery](ARTILLERY.md) |
-| `IndEvo_ChamelionIndustry`, `IndEvo_RuinedInfra` | 91, 102 | `ruinfra/industry/ChamelionIndustry`, `RuinedInfrastructure` | [Ruined Infrastructure](RUINED_INFRASTRUCTURE.md) |
-| `IndEvo_InvisiblePlanetaryShield` | 92 | `InvisiblePlanetaryShield` | this doc |
-| `IndEvo_HullDecon`, `IndEvo_HullForge`, `IndEvo_ResLab`, `IndEvo_RiftGen`, `IndEvo_Ruins` | 95-99 | `derelicts/industry/HullDeconstructor`, `HullForge`, `AncientLaboratory`, `RiftGenerator`, `Ruins` | [Derelicts](DERELICTS.md) |
-| `IndEvo_BaseFlavourInd` and nine wonders | 107-134 | `worldwonder/industry/WorldWonder` and subclasses | [World Wonders](WORLD_WONDER.md) |
+| `IndEvo_ChamelionIndustry`, `IndEvo_RuinedInfra` | 90, 101 | `ruinfra/industry/ChamelionIndustry`, `RuinedInfrastructure` | [Ruined Infrastructure](RUINED_INFRASTRUCTURE.md) |
+| `IndEvo_InvisiblePlanetaryShield` | 91 | `InvisiblePlanetaryShield` | this doc |
+| `IndEvo_HullDecon`, `IndEvo_HullForge`, `IndEvo_ResLab`, `IndEvo_RiftGen`, `IndEvo_Ruins` | 94-98 | `derelicts/industry/HullDeconstructor`, `HullForge`, `AncientLaboratory`, `RiftGenerator`, `Ruins` | [Derelicts](DERELICTS.md) |
+| `IndEvo_BaseFlavourInd` and nine wonders | 106-133 | `worldwonder/industry/WorldWonder` and subclasses | [World Wonders](WORLD_WONDER.md) |
 
 IE has no row with a vanilla id. A mod row with a vanilla id would replace the whole vanilla row, and the first sorted mod wins (skill `docs/concepts/csv-json-merging.md:24-26`); vanilla `commerce` is changed by PatchLib hooks instead (see [Commerce balance patches](#commerce-balance-patches-commerce)).
 
@@ -61,7 +61,7 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | Industry | `IndEvo_SupCom` (`Ids.SUPCOM`) | `industries.csv:25`, upkeep 4 |
 | Industry | `IndEvo_dryDock` (`Ids.REPAIRDOCKS`) | `industries.csv:32`, upkeep 5 |
 | Industry | `IndEvo_ReqCenter` (`Ids.REQCENTER`) | `industries.csv:38`, upkeep 6 |
-| Industry | `IndEvo_InvisiblePlanetaryShield` (`Ids.PLANETARY_SHIELD_ALT`) | `industries.csv:92`, `do_not_show_in_build_dialog, hide_in_codex` |
+| Industry | `IndEvo_InvisiblePlanetaryShield` (`Ids.PLANETARY_SHIELD_ALT`) | `industries.csv:91`, `do_not_show_in_build_dialog, hide_in_codex` |
 | Industry | `commerce` (`Ids.COMMERCE`) | vanilla row, plugin vanilla `TradeCenter` |
 | Submarkets | `IndEvo_RepairStorage` (`Ids.REPSTORAGE`), `IndEvo_ReqCenterMarket` (`Ids.REQMARKET`), `IndEvo_SharedStore` (`Ids.SHAREDSTORAGE`) | `data/campaign/submarkets.csv:2`, `:3`, `:8` |
 | List | `IndEvo_buerauList` (sic) -> `data/config/indEvo/bureau_industry_whitelist.csv` | `data/config/settings.json:223`, `Ids.BUREAU_LIST` |
