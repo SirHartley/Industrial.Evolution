@@ -36,6 +36,9 @@ Fixed - Training an officer to be more aggressive no longer charges the fee twic
 Fixed - Officers can no longer be moved from the Academy into a fleet that is already at its officer limit
 Fixed - Swapping AI cores no longer keeps the old core's training time reduction or upkeep cut
 
+Commodity Forge
+Fixed - Beta core upkeep reduction now ends when a VPC is installed, as the tooltip says
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 

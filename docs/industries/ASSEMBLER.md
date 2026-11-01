@@ -65,7 +65,7 @@ Delivery goes to the gathering point storage if `IndEvo_VarInd_deliverToProducti
 
 - `onNewDay`: counts days while a VPC is installed and unlocked; above 7 days `vpcIsLocked` (`CommodityForge.java:177-185`). Locked means `getInstallableItems()` returns nothing, so the player can not remove it (`:211-221`).
 - Month end: deposit, lock, `depositCounter++`; at `maxDeposits` the VPC is deleted, a burn out message is posted and `autoFeed` loads the first VPC found in `IndEvo_SharedStore` (`:139-175`, `:113-134`).
-- Adds the shared storage submarket through `SubMarketAddOrRemovePlugin` while functional; legal items there are the ten VPC ids (`:378-411`).
+- Adds the shared storage submarket through `SubMarketAddOrRemovePlugin` while functional; legal items there are the ten VPC ids (`:381-414`).
 
 ### AI cores and NPC markets
 
@@ -89,7 +89,6 @@ NPC markets without a VPC get one random VPC by tag weight once (`AImode`, `Vari
 | Item | State |
 |---|---|
 | Gamma core `aiCoreMult` | Suspected: no `applyGammaCoreModifiers` override, so switching alpha or beta to gamma keeps the old deposit mult (`VariableAssembler.java:515-525`; dispatch in `api/impl/campaign/econ/impl/BaseIndustry.java:246-257` in the knowledge base) |
-| Forge beta core with VPC | Suspected: `applyAICoreToIncomeAndUpkeep` returns early when a VPC is installed, so an `ind_core` x0.1 set while empty stays (`CommodityForge.java:363-368`) |
 | Forge lock at month end | The first deposit locks the VPC even if 7 days have not passed (`CommodityForge.java:144`) |
 | `VPCUserIndustryAPI` | Only implemented by `VariableAssembler` and its subclasses |
 | Changelog_todo | "Rework VPCs to use random tiered output system" |

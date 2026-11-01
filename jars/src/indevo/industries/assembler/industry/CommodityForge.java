@@ -361,7 +361,10 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
         switch (MiscIE.getAiCoreIdNotNull(this)) {
             case Commodities.BETA_CORE:
-                if (getSpecialItem() != null) return;
+                if (getSpecialItem() != null) {
+                    getUpkeep().unmodifyMult("ind_core");
+                    return;
+                }
 
                 name = StringHelper.getString("IndEvo_AICores", "bCoreStatModAssigned");
                 getUpkeep().modifyMult("ind_core", BETA_CORE_UPKEEP_RED_MULT, name);
