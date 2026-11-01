@@ -57,6 +57,7 @@ Fixed - Rift Generator planets now move in sync with the warp animation instead 
 Fixed - Ancient Laboratory alpha core now boosts the third commodity as its tooltip says
 Fixed - Rift Generator crash when only one core system is left as a target
 Fixed - Two ruins planets in one system no longer roll the same derelict industry
+Fixed - Ring terrain around a planet moved by the Rift Generator no longer stays behind in the old system
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0

@@ -211,10 +211,9 @@ public class PlanetMovingScript implements EveryFrameScript {
             }
         }
 
-        for (SectorEntityToken e : system.getTerrainCopy()) {
-            if (e instanceof BaseRingTerrain && ((BaseRingTerrain) e).getRelatedEntity().equals(orbitFocus))
+        for (CampaignTerrainAPI e : system.getTerrainCopy()) {
+            if (e.getPlugin() instanceof BaseRingTerrain ring && ring.getRelatedEntity() == orbitFocus)
                 entityTokenList.add(e);
-
         }
 
         for (SectorEntityToken e : entityTokenList) {

@@ -97,7 +97,7 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 
 Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Cooldown `IndEvo_RG_cooldownTime` days counted in `onNewDay` (`:102`), alpha -30. Gamma allows a second artificial rift per system (`getArtificialRiftAmount`, `:211`). `advance` adds `IndEvo_CryoRevivalDisabler`.
 
-`PlanetMovingScript.advance` (`:78`): wait 5 s -> phase 0 starts `WarpEffectAnimationScript` -> phase 2 (forced after 10 s, `:89-92`) -> `createJumpPoint` (`:150`) with magnetic field at the old orbit -> `clearSpecialEntitiesWithOrbitTarget` (`:199`) -> `transferOrbitFocus` (`:177`, obf `CircularOrbit*` classes) -> `movePlanet` (`:368`): new planet in target with same id and copied spec, market removed and re-added, hyperspace jump point destinations cycled (`:436`), old planet expired (`:477`) -> `reApplyStation` (`:518`) -> `triggerJumpListeners` (`:136`) -> `setMoving(false)`.
+`PlanetMovingScript.advance` (`:78`): wait 5 s -> phase 0 starts `WarpEffectAnimationScript` -> phase 2 (forced after 10 s, `:89-92`) -> `createJumpPoint` (`:150`) with magnetic field at the old orbit -> `clearSpecialEntitiesWithOrbitTarget` (`:199`) -> `transferOrbitFocus` (`:177`, obf `CircularOrbit*` classes) -> `movePlanet` (`:367`): new planet in target with same id and copied spec, market removed and re-added, hyperspace jump point destinations cycled (`:435`), old planet expired (`:476`) -> `reApplyStation` (`:517`) -> `triggerJumpListeners` (`:136`) -> `setMoving(false)`.
 
 ## Contracts
 
@@ -118,8 +118,7 @@ Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Co
 | `PlanetJumpListener` | No implementers. |
 | `AncientLaboratory.java:284-296` | Null gathering point returns false, retried daily. |
 | `HullForge.java:292` | NPE if the target market has no storage submarket. |
-| `PlanetMovingScript.java:214-218` | `CampaignTerrainAPI instanceof BaseRingTerrain` is never true (inferred: terrain wrapper vs plugin). |
-| `PlanetMovingScript.java:558` | `removeEntity(null)` when there is no magnetic field. Effect unverified. |
+| `PlanetMovingScript.java:557` | `removeEntity(null)` when there is no magnetic field. Effect unverified. |
 | Changelog_todo | "riftgen anim sounds" (`Changelog_todo:55,82`), "Change derelict industries to superstructures" (`:140`). |
 
 ## Maintenance
