@@ -152,7 +152,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
             for (Industry ind : market.getIndustries()) {
                 MutableCommodityQuantity m1 = ind.getSupply(bonusCommodityId1);
                 MutableCommodityQuantity m2 = ind.getSupply(bonusCommodityId2);
-                MutableCommodityQuantity m3 = ind.getSupply(bonusCommodityId2);
+                MutableCommodityQuantity m3 = ind.getSupply(bonusCommodityId3);
 
                 if (ind.getId().equals(Ids.ADASSEM)) continue;
 

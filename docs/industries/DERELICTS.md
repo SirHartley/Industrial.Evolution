@@ -116,7 +116,6 @@ Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Co
 | `BeaconCondition` | Dead. Static `STABILITY_PENALTY` shared across instances. |
 | `RuinsCountMap`, `WarpEffectPlugin`, `HoleEffectPlugin` | Deprecated, unused. |
 | `PlanetJumpListener` | No implementers. |
-| `AncientLaboratory.java:155` | Third alpha bonus uses `bonusCommodityId2`; commodity 3 never gets a bonus. |
 | `AncientLaboratory.java:284-296` | Null gathering point returns false, retried daily. |
 | `RiftGenerator.java:332,341` | `nextInt(size - 1)` never picks the last system and throws when size is 1. |
 | `RuinsManager.java:195` | Uses `planet.getMarket()` instead of `other.getMarket()`; no cross planet dedupe. |
