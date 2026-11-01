@@ -142,7 +142,6 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 
 | Item | State |
 |---|---|
-| `Supercomputer.getUnavailableReason` | assumes a planet entity; NPE on stations (inferred) |
 | `RestorationDocks.removeDMods` loop (`RestorationDocks.java:179`) | `removalBudget >= 0` repairs one D-mod more than the budget |
 | `RestorationDocks.getBaseRepairPrice` (`:346`) | divides by 0.85 for beta, so the tooltip shows a higher price |
 | `RestorationDocks.aiCoreBonusMult` | only reset by beta and none branches; alpha or gamma after beta keeps 0.85 |
