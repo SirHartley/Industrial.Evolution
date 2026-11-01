@@ -88,7 +88,7 @@ All specials call `setDone/setShowAgain/setEndWithContinue` per vanilla `BaseSal
 - `ItemChoiceSpecial`: on take, if `random < explodeChance`: crew loss `min(ceil(crew * 0.3 * r * explodeChance), 500)`, `ExplosionScript` on the location, and `setShouldAbortSalvageAndRemoveEntity(true)` on exit. Forge templates get a random hull via `ForgeTemplateItemPlugin.pickShip`. Invalid item ids fall back to `IndEvo_debug`.
 - `JuicyRumorsSpecial`: rep through `AmbassadorPersonManager.adjustRelationship` ([Embassy](../industries/EMBASSY.md)); inactive factions from `AmbassadorPersonManager.getListOfIncativeFactions()` are excluded and re-rolled on open.
 - `PrintShipSpecial`: quality = template quality + special `qualityLevel`; `ForgeTemplateItemPlugin.addPrintDefectDMods`, `HullForge.addBuiltInHullmods(1, ...)`, then the template stack is replaced by `incrementForgeTemplateData(data, -1)` ([Derelicts](../industries/DERELICTS.md)).
-- `ShipRouletteSpecial`: one learnable hull per size rolled at creation with its DP; sacrificed ships are stripped to cargo and removed; the result gets `random(qualityLevel)` d-mods and `prepareShipForRecovery` with weapon retain `1 / qualityLevel`.
+- `ShipRouletteSpecial`: one learnable hull per size rolled at creation with its DP; the picker leaves out the flagship and `SHIP_CAN_NOT_SCUTTLE` ships; sacrificed ships are stripped to cargo and removed; the result gets `random(qualityLevel)` d-mods and `prepareShipForRecovery` with weapon retain `1 / qualityLevel`.
 
 ## Contracts
 
@@ -104,8 +104,8 @@ All specials call `setDone/setShowAgain/setEndWithContinue` per vanilla `BaseSal
 | `ItemChoiceSpecialCreator` repick loop | `while (item == null || item.isEmpty() || safeguard > 10)` (`IndEvo_SalvageSpecialAssigner.java:350`): the safeguard never ends the loop; an empty picker hangs world gen |
 | `DModRepairSpecial` repair loop | On `removeOneDMod` failure it does `i--; continue` without removing the member from the picker (`:178-185`); a member counted by `DModManager` but with no entry in `getListNonBuiltInDMods` loops forever (inferred) |
 | `pickSpecialFor` derelict branch | Casts `getCustomPlugin()` to `DerelictShipEntityPlugin` when type is `wreck` (`:152-153`); `variant` is computed and unused |
-| `initNothing()` without return | `DModRepairSpecial:65`, `ItemChoiceSpecial:54`, `JuicyRumorsSpecial:53`, `ShipRouletteSpecial:99` call `initNothing()` and keep building the dialog |
-| `ShipRouletteSpecial` | `qualityLevel` 0 is possible (creators with min 0) and gives `retain = 1/0` (`:258`); the picker lists the whole fleet including the flagship (`:139`) |
+| `initNothing()` without return | `DModRepairSpecial:65`, `ItemChoiceSpecial:54`, `JuicyRumorsSpecial:53`, `ShipRouletteSpecial:101` call `initNothing()` and keep building the dialog |
+| `ShipRouletteSpecial` | `qualityLevel` 0 is possible (creators with min 0) and gives `retain = 1/0` = Infinity (`:276`), same as level 1 |
 | `ChooseBlueprintSpecialData` | `pickAndRemove()` NPE if fewer rare hulls of that size than `amt` (`:53-55`) |
 | `CreditStashSpecial` | `Misc.makeLowRepImpact(playerFleet, "csSpecial")` targets the player fleet (`:155`), inferred unintended |
 | `DerelictStationPlacer.addDebugStation` | Dev-only caller of `PrintShipSpecialCreator` |

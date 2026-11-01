@@ -13,6 +13,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
@@ -23,6 +24,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +121,10 @@ public class ShipRouletteSpecial extends BaseSalvageSpecial {
     public void displayBaseOptions() {
         options.clearOptions();
         options.addOption("Sacrifice ships to the factory", SELECT);
+        if (getEligibleMembers().isEmpty()) {
+            options.setEnabled(SELECT, false);
+            options.setTooltip(SELECT, "You have no ships you can sacrifice.");
+        }
         options.addOption("Not now", NOT_NOW);
     }
 
@@ -135,8 +141,20 @@ public class ShipRouletteSpecial extends BaseSalvageSpecial {
         }
     }
 
+    private static List<FleetMemberAPI> getEligibleMembers() {
+        List<FleetMemberAPI> list = new ArrayList<>();
+
+        for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
+            if (m.isFlagship() || m.getHullSpec().getTags().contains(Tags.SHIP_CAN_NOT_SCUTTLE) || m.getVariant().getTags().contains(Tags.SHIP_CAN_NOT_SCUTTLE))
+                continue;
+            list.add(m);
+        }
+
+        return list;
+    }
+
     private void initHullPicker() {
-        List<FleetMemberAPI> fleetMemberList = Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy();
+        List<FleetMemberAPI> fleetMemberList = getEligibleMembers();
 
         int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
         int rows = fleetMemberList.size() > shipsPerRow ? (int) Math.ceil(fleetMemberList.size() / (float) shipsPerRow) : 1;
