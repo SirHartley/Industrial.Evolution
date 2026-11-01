@@ -111,6 +111,7 @@ Fixed - Possible crash in the build menu on a modded colony without a planet
 
 Restoration Docks
 Fixed - Restoration Docks repair the shown number of D-mods per month, not one more
+Fixed - Restoration Docks tooltip shows the beta core repair discount instead of a higher price
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0

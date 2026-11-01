@@ -343,7 +343,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
     public float getBaseRepairPrice() {
         float baseRepairPrice = 0.5f;
         if (MiscIE.getAiCoreIdNotNull(this).equals(Commodities.BETA_CORE))
-            baseRepairPrice /= BETA_CORE_COST_RED_MULT;
+            baseRepairPrice *= BETA_CORE_COST_RED_MULT;
 
         return baseRepairPrice;
     }
