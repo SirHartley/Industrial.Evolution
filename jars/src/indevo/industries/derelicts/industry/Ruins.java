@@ -21,6 +21,7 @@ import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
+import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.utils.helper.IndustrySpecView;
 
 import java.awt.*;
@@ -33,6 +34,7 @@ public class Ruins extends BaseIndustry {
 
     @Override
     public void apply() {
+        if (getUpgradeTarget() == null && market.getPlanetEntity() != null) RuinsManager.setUpgradeSpec(market.getPlanetEntity());
         triggerUpgradeForAI();
     }
 
