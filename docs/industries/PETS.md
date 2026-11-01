@@ -61,7 +61,7 @@ Code paths relative to `jars/src/indevo/`.
 - `ModPlugin.onGameLoad()` (`utils/ModPlugin.java:177-197`): with `IndEvo_pets` on, adds `pet_management` to the player fleet and character, clears `no_sell` on `fairy` once research `Ids.PROJ_NAVI` is redeemed ([Research](../dialogue/RESEARCH.md)), loads pet textures, on new game adds Lord Foog. With the setting off, removes the ability.
 - `PetCenterOptionProvider.register()` from `setListenersIfNeeded()` (`ModPlugin.java:477`). `PetShopCampaignPlugin` via `registerPlugin` on every load (`ModPlugin.java:522`).
 - `PetStatusManager.getInstance()` (`PetStatusManager.java:58`) creates the manager on first use: persistent listener, sector script, player fleet event listener. Found again later by `hasListenerOfClass`.
-- `PetShop.apply()` adds itself as a persistent listener if missing (`PetShop.java:209`). `advance()` queues `SubMarketAddOrRemovePlugin(market, PETMARKET, false)` every frame while functional, pets enabled and the submarket missing (`:179`). `unapply()` queues the removal (`:234`), which runs once the Animal Center is gone or pets are disabled. `PetSubMarket.updateCargoPrePlayerInteraction()` also queues it when the market has no Animal Center, for pet markets 4.1.b left behind (`PetSubMarket.java:32-35`).
+- `PetShop.apply()` adds itself as a persistent listener if missing (`PetShop.java:217`). Storage fee: `getStorageCost()` per live pet (food x 500 x `petStorageCostMult`, plus 2000 on NPC markets). Player markets pay it as Animal Center upkeep (`IndEvo_petStorage`, `:201-207`); NPC markets bill it in `reportEconomyTick()` through the monthly report. `advance()` queues `SubMarketAddOrRemovePlugin(market, PETMARKET, false)` every frame while functional, pets enabled and the submarket missing (`:180`). `unapply()` queues the removal (`:242`), which runs once the Animal Center is gone or pets are disabled. `PetSubMarket.updateCargoPrePlayerInteraction()` also queues it when the market has no Animal Center, for pet markets 4.1.b left behind (`PetSubMarket.java:32-35`).
 - Animal Centers are placed at game start at `jangala`, `gilead`, `fikenhild` ([Utils](../core/UTILS.md)).
 
 ## Flow
@@ -97,7 +97,7 @@ Code paths relative to `jars/src/indevo/`.
 |---|---|---|
 | Alpha | rare pet weight x1.3 in restock | `PetSubMarket.java:46` |
 | Beta | pets stop aging in storage; tariff 0 | `Pet.java:127`, `PetSubMarket.java:75` |
-| Gamma | `petStorageCostMult` 0.7 | `PetShop.java:314` |
+| Gamma | `petStorageCostMult` 0.7 | `PetShop.java:322` |
 
 ## Contracts
 
@@ -112,8 +112,8 @@ Code paths relative to `jars/src/indevo/`.
 
 | Item | State |
 |---|---|
-| Storage fee | Charged only on non player markets, ignores `petStorageCostMult` (`PetShop.java:109`); tooltip uses `getStorageCost()` with the mult (`:90`). Changelog_todo: "Fix the -1c pet food cost in monthly report" |
-| Tooltip vs code | Tooltip says alpha stops aging (`PetShop.java:63`); code uses beta (`Pet.java:127`) |
+| Storage fee report | Changelog_todo: "Fix the -1c pet food cost in monthly report"; not explained by the storage fee code |
+| Tooltip vs code | Tooltip says alpha stops aging (`PetShop.java:64`); code uses beta (`Pet.java:127`) |
 | `PetSubMarket.getLocalAICoreId()` | Reads the core of `Ids.REQCENTER`, not the Animal Center (`PetSubMarket.java:85-86`): core bonuses on the pet shop never apply |
 | Restock amount | floor(rarity x 3) is 0 for rarity < 0.34; those pets never stock |
 | `PetPickerInteractionDialoguePlugin` | `hasShownPicker` is never set to true; `advance()` calls `showShipPicker()` every frame once named (`:121`) |

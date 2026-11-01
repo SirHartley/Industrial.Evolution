@@ -45,7 +45,7 @@ Feature submarkets with their plugin outside this package:
 ## Registration and lifecycle
 
 - CSV `script` column -> engine creates the plugin on `market.addSubmarket(id)`.
-- Add: industry `apply()` -> `Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, id, false))` -> next frame `market.addSubmarket(id)`. Callers: `RestorationDocks.java:75`, `RequisitionCenter.java:42`, `HullDeconstructor.java:76`, `EngineeringHub.java:84`, `SharedSubmarketUser.java:11`, `CommodityForge.java:407`, `PetShop.java:179`.
+- Add: industry `apply()` -> `Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, id, false))` -> next frame `market.addSubmarket(id)`. Callers: `RestorationDocks.java:75`, `RequisitionCenter.java:42`, `HullDeconstructor.java:76`, `EngineeringHub.java:84`, `SharedSubmarketUser.java:11`, `CommodityForge.java:407`, `PetShop.java:180`.
 - Remove: industry `unapply()` / removal -> same script with `true` -> `removeSubMarket()` switch on the id -> if the owning industry is gone: optional `moveContentsToStorage`, `((DynamicSubmarket) plugin).prepareForRemoval()`, `market.removeSubmarket(id)`.
 - Museum and Warehouses add directly (`Museum.java:126`) and remove through `RemovablePlayerSubmarketPluginAPI.notifyBeingRemoved()` then `removeSubmarket` (`Warehouses.java:159`, `:166`).
 

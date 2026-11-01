@@ -22,6 +22,7 @@ Fixed - Meteor impact dust clouds no longer pile up in the save and slow the gam
 Pets
 Removed - Pet food
 Fixed - The animal market now closes when the Animal Center is removed or pets are disabled; leftover markets close when opened
+Fixed - Pet storage at your own Animal Center now costs the upkeep its tooltip shows, and the gamma core reduces it
 
 Museum
 Fixed - Parade fleet stability bonus no longer stacks

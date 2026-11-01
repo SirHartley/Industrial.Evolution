@@ -41,6 +41,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     public static final float FLAT_MANAGEMENT_FEE = 2000f;
     public static final float GAMMA_CORE_STORAGE_COST_RED_PERCENT = 0.70f;
     public static final float ALPHA_CORE_RARITY_BONUS = 0.3f;
+    public static final String STORAGE_UPKEEP_ID = "IndEvo_petStorage";
 
     public float petStorageCostMult = 1f;
 
@@ -197,6 +198,13 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     @Override
     public void apply() {
         super.apply(true);
+
+        // npc markets bill storage through the monthly report in reportEconomyTick
+        float storageCost = 0f;
+        if (isFunctional() && market.isPlayerOwned()) for (Pet pet : storedPets) if (!pet.isDead()) storageCost += getStorageCost(pet);
+
+        if (storageCost > 0) getUpkeep().modifyFlat(STORAGE_UPKEEP_ID, storageCost, "Pet storage");
+        else getUpkeep().unmodifyFlat(STORAGE_UPKEEP_ID);
 
         boolean petsEnabled = Settings.getBoolean(Settings.PETS);
         //supply(ItemIds.PET_FOOD, market.getSize() - 2);
