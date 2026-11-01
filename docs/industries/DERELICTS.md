@@ -39,7 +39,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Industry | `IndEvo_Ruins`, `IndEvo_ResLab`, `IndEvo_HullDecon`, `IndEvo_HullForge`, `IndEvo_RiftGen` | `data/campaign/industries.csv:94-98`. All downgrade to `IndEvo_Ruins`, tags `do_not_show_in_build_dialog`, `IndEvo_showDeconstructWarning`. |
+| Industry | `IndEvo_Ruins`, `IndEvo_ResLab`, `IndEvo_HullDecon`, `IndEvo_HullForge`, `IndEvo_RiftGen` | `data/campaign/industries.csv:93-97`. All downgrade to `IndEvo_Ruins`, tags `do_not_show_in_build_dialog`, `IndEvo_showDeconstructWarning`. |
 | Condition | `IndEvo_RuinsCondition` | `data/campaign/market_conditions.csv:20`, `data/campaign/procgen/condition_gen_data.csv:2` (group `industry`, freq 5) |
 | Condition | `IndEvo_CryoRevivalDisabler` (hidden) | `data/campaign/market_conditions.csv:27` |
 | Hullmod | `IndEvo_print_low`, `IndEvo_print_med`, `IndEvo_print_high` (dmod) | `data/hullmods/hull_mods.csv:2,5,8` |

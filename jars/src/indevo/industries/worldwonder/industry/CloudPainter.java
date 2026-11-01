@@ -5,9 +5,7 @@ import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
-import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import indevo.ids.Ids;
-import indevo.industries.InvisiblePlanetaryShield;
 import indevo.utils.helper.MiscIE;
 
 import java.io.IOException;
@@ -31,20 +29,6 @@ public class CloudPainter extends WorldWonder {
     public void apply() {
         super.apply();
         if (isFunctional()) applyVisuals();
-    }
-
-    @Override
-    public void advance(float amount) {
-        super.advance(amount);
-
-        if (isFunctional() && market.hasIndustry(Industries.PLANETARYSHIELD)
-                && market.getPrimaryEntity() instanceof PlanetAPI
-                && !(market.getIndustry(Industries.PLANETARYSHIELD) instanceof InvisiblePlanetaryShield)
-                && market.getIndustry(Industries.PLANETARYSHIELD).isFunctional()) {
-
-            market.removeIndustry(Industries.PLANETARYSHIELD, null, false);
-            market.addIndustry(Ids.PLANETARY_SHIELD_ALT);
-        }
     }
 
     @Override
