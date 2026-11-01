@@ -59,7 +59,7 @@ Quick Settings is the first tab. It holds the disclaimers, one switch per conten
 |---|---|---|---|
 | Colony industries | New `IndEvo_block_industries` | Parent of the 19 industry toggles | Build menu at once; built industries stay; NPC placement on new games |
 | Derelict tech | `IndEvo_Enable_Derelicts` | Ruins and derelict industries, ruined infrastructure, derelict stations and their salvage specials (`IndEvo_enable_derelict_stations` becomes a child) | New games |
-| Artillery | `IndEvo_Enable_Artillery` | Artillery stations and watchtowers | Building and station setup at once (`ArtilleryStation.java:608`, `ArtilleryStationCondition.java:23`); placement on new games. Stations already placed keep firing: `CampaignAttackScript` does not read it |
+| Artillery | `IndEvo_Enable_Artillery` | Artillery stations and watchtowers | Building, station setup and firing at once; placement on new games. Today placed stations keep firing (`CampaignAttackScript` does not read it); subtask 2.5 adds the gate |
 | Minefields | `IndEvo_Enable_minefields` | Minefields around the core worlds and derelict stations | Hits at once; placement on new games |
 | Meteor swarms | `IndEvo_meteor_enabled` | Swarm spawns | At once |
 | Pets | `IndEvo_pets` | Pet shop, pet ability, abandoned pet shops | At once; world placement on new games |
@@ -136,6 +136,7 @@ Philipp, 2026-11-01: every recommendation taken, plus a Quick Settings tab.
 9. **Relic components are not a block**: they are integral to research projects and salvage yards. `IndEvo_PartsDropInCampaign` (ship component drops; relic components drop either way) stays a normal setting.
 10. **No corruption settings**: corruption leaves IE for its own mod, in a separate change.
 11. **No back-fill**: switching a block on in a running game places no world content; help text says which part needs a new game.
+12. **Artillery off stops firing** (Philipp, 2026-11-01): placed stations stay, but do not fire while the block is off.
 
 ## Open questions
 
@@ -187,6 +188,8 @@ Each stage is one pull request and depends on the stages before it. Within a sta
 - [ ] 2.2 Saved objects: decide each case (fire intervals, contracts, parades), apply it and record it in the feature doc.
 - [ ] 2.3 `applyCampaignSettings()`: pet ability add or remove on Save.
 - [ ] 2.4 `apply` metadata for the `NEW_GAME` list, apply notes in help text, remove `IndEvo_text_application_note`.
+- [ ] 2.5 `CampaignAttackScript.advance` returns at once while `IndEvo_Enable_Artillery` is off (decision 12); the script stays attached, so firing resumes when it is switched back on.
+  - Done when: with Artillery off in a running campaign, no placed station fires; back on, they fire again.
 
 **Stage 3: checks and text.**
 - [ ] 3.1 `indevo/tools/SettingsChecks`, run with the build gate, outside the release jar:
