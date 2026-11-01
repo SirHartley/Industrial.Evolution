@@ -77,7 +77,7 @@ Update chain: `TimeTracker -> RelayNetworkBrain.onNewDay -> updateNetworks -> Re
 
 ## Contracts
 
-- `NetworkEntry.calculateBaseFleetSize` rebuilds the stat without mods whose `source` is `IndEvo_RelayCondition`, so a relay bonus never feeds back into the next update.
+- `NetworkEntry.calculateBaseFleetSize` returns flat sum times mult product, without mods whose `source` is `IndEvo_RelayCondition`, so a relay bonus never feeds back into the next update. This matches how fleets read the stat, `computeEffective(0f)` = `flat * mult` (`api/combat/StatBonus.java:259-262`, `api/impl/campaign/fleets/FleetFactoryV3.java:238`); percent mods have no effect (`NetworkEntry.java:44-51`).
 - `MilitaryRelay.unapply` unmodifies `COMBAT_FLEET_SIZE_MULT` under the industry mod id, not the condition id; the condition removes its own mod.
 - A market that loses its relay keeps a stale `NetworkEntry` in its condition; `RelayConditionPlugin.apply` ignores it because no functional relay is found.
 - Colony factor tooltip: `RelayFactor` names the nearest player military base or high command with a special item.
@@ -86,7 +86,7 @@ Update chain: `TimeTracker -> RelayNetworkBrain.onNewDay -> updateNetworks -> Re
 
 | Item | State |
 |---|---|
-| `NetworkEntry.calculateBaseFleetSize` (`NetworkEntry.java:54`) | computes `flat * (1 + sum percent) / 100 * mult`; vanilla `StatBonus.computeEffective` is `(base + base * percent / 100 + flat) * mult` (`api/combat/StatBonus.java:259`). Open issue in `Changelog_todo:30`: "Military relay bonus calc is still unreliable", and `:106` "relay increase spiral" |
+| Changelog_todo | `Changelog_todo:30` "Military relay bonus calculation is still unreliable" and `:106` "relay increase spiral". The percent mod error is fixed; no other cause found: the relay excludes its own mods by source id and no vanilla fleet size mod depends on fleet size |
 | `RelayNetworkBrain.getInstanceOrRegister` (`:22`) | checks `ListenerManager.hasListenerOfClass` but registers with `addTransientListener`, so the check never matches; every `forceUpdate()` adds another transient brain and each runs `updateNetworks` per day and per market open |
 | `removeCommRelayStation` script check (`MilitaryRelay.java:274`) | compares `getClass().getName()` to `"EntityRemovalScript"`; never true, dead check |
 | Relay market outside a star system | `Collectors.groupingBy(MarketAPI::getStarSystem)` throws on a null key (inferred, `RelayNetworkBrain.java:54`) |

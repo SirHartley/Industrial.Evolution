@@ -46,15 +46,8 @@ public class NetworkEntry {
 
         StatBonus fleetSizeMod = market.getStats().getDynamic().getMod(Stats.COMBAT_FLEET_SIZE_MULT);
 
-        float flatMod = getFlatModValue(fleetSizeMod);
-        float percentMod = getPercentModModValue(fleetSizeMod);
-        float mult = getMultModValue(fleetSizeMod);
-        float cleanedValue;
-
-        cleanedValue = flatMod * (percentMod / 100f);
-        cleanedValue *= mult;
-
-        return cleanedValue;
+        // fleet size is read as computeEffective(0f), so percent mods have no effect
+        return getFlatModValue(fleetSizeMod) * getMultModValue(fleetSizeMod);
     }
 
     private float getFlatModValue(StatBonus fleetSizeMod) {
@@ -65,17 +58,6 @@ public class NetworkEntry {
                 if (!mod.getSource().equals(RelayConditionPlugin.ID)) flatMod += mod.value;
 
         return flatMod;
-    }
-
-    private float getPercentModModValue(StatBonus fleetSizeMod) {
-        float percentMod = 1f;
-
-        if (!fleetSizeMod.getPercentBonuses().isEmpty())
-            for (MutableStat.StatMod mod : fleetSizeMod.getPercentBonuses().values())
-                if (!mod.getSource().equals(RelayConditionPlugin.ID))
-                    percentMod += mod.value;
-
-        return percentMod;
     }
 
     private float getMultModValue(StatBonus fleetSizeMod) {
