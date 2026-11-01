@@ -56,7 +56,7 @@ Highest score wins. No target on a player base sends a "make some more enemies" 
 
 `startRaid` (`:553`) builds `PrivateerBaseRaidIntel` with `AssembleStage` (nearest jump point in the home system, spawn FP = `getBaseRaidFP()`), `TravelStage`, vanilla `PirateRaidActionStage`, `ReturnStage`. Abort FP is 50% of spawn FP on every stage. The target system gets a 3 month `RaidTimeout` at start.
 
-`getBaseRaidFP() = size * 50 * COMBAT_FLEET_SIZE_MULT mult * random(0.75..1.25) * aiCoreFPBonus^2 * (1 + alcohol bonus)` (`:159`). The core bonus is applied twice on purpose (code comment, `:160`). Alcohol bonus: 3% per available unit of any commodity whose id contains `alcoholism` (Alcoholism mod).
+`getBaseRaidFP() = size * 50 * getMod(COMBAT_FLEET_SIZE_MULT).getMult() (doctrine, shortage, stability, military and relay multipliers) * random(0.75..1.25) * aiCoreFPBonus^2 * (1 + alcohol bonus)` (`:159`). The core bonus is applied twice on purpose (code comment, `:160`). Alcohol bonus: 3% per available unit of any commodity whose id contains `alcoholism` (Alcoholism mod).
 
 ### Result
 

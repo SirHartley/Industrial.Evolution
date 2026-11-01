@@ -85,6 +85,7 @@ Fixed - The Engineering Hub setting now controls whether it can be built
 
 Privateer Base
 Fixed - Privateer Base no longer fails to find a raid target when one exists
+Fixed - Privateer raid strength now follows the colony's fleet size multipliers (doctrine, shortages, stability, military bases, relays)
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0

@@ -159,7 +159,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
     public float getBaseRaidFP() {
         //the ai core bonus calculates twice because I fucked up when making this, and it would be a nerf to remove it now (and I don't want to nerf it)
         float alcoholismBonus = 1f + getAlcoholBonus();
-        return ((((market.getSize() * 50) * market.getStats().getDynamic().getStat(Stats.COMBAT_FLEET_SIZE_MULT).computeMultMod()) * (0.75f + (float) Math.random() * 0.5f)) * aiCoreFPBonus) * aiCoreFPBonus * alcoholismBonus;
+        return ((((market.getSize() * 50) * market.getStats().getDynamic().getMod(Stats.COMBAT_FLEET_SIZE_MULT).getMult()) * (0.75f + (float) Math.random() * 0.5f)) * aiCoreFPBonus) * aiCoreFPBonus * alcoholismBonus;
     }
 
     private float getAlcoholBonus() {
