@@ -113,10 +113,7 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
         if (fleet != null) {
             fleet.removeEventListener(this);
 
-            MarketAPI sourceMarket = Global.getSector().getEconomy().getMarket(sourceMarketId);
             MarketAPI targetMarket = Global.getSector().getEconomy().getMarket(targetMarketId);
-
-            if (sourceMarket != null) removeParadeConditionFromMarket(sourceMarket);
             if (targetMarket != null) removeParadeConditionFromMarket(targetMarket);
         }
     }

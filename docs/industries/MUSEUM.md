@@ -62,8 +62,8 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> fill profiles -> pic
 - Spawn needs: functional, submarket present, at least `minShipsForParade` stored ships for a random profile, a same-faction market in the location without the parade tag.
 - Random profile: top `topShipPoolAmt` stored ships by value not already on parade, pick up to `defaultParadeMembersMax + 1` (loop is `<=`, `ParadeFleetProfile.java:127`). Preset profile: listed member ids not on parade.
 - Members are tagged `indEvo_on_parade` in storage; the fleet gets clones (`variant.clone()`, original variant cleared, `TAG_NO_AUTOFIT`). Base fleet: `FleetFactoryV3` `TRADE_SMALL` with 10 freighter and 10 tanker points, quality 1. Fleet flags: ignore player comms, ignored by and ignores other fleets, no auto despawn.
-- Assignments (`ParadeFleetAssignmentAI.giveInitialAssignments()`, `:48`): orbit source 7 days, go to target 31, orbit target 31 with start/end scripts adding and removing `IndEvo_Parade`, return and despawn 31.
-- Despawn: profile removes the market tag, clears member tags, removes the condition, clears `fleet` (`ParadeFleetProfile.reportFleetDespawnedToListener()`, `:188`).
+- Assignments (`ParadeFleetAssignmentAI.giveInitialAssignments()`, `:48`): orbit source 7 days, go to target 31, orbit target for the profile duration (31 to 124 days) with start/end scripts adding and removing `IndEvo_Parade`, return and despawn 31.
+- Despawn: profile removes the market tag, clears member tags, removes the condition, clears `fleet` (`ParadeFleetProfile.reportFleetDespawnedToListener()`, `:188`). The AI's own despawn listener removes the condition from the target market only (`ParadeFleetAssignmentAI.java:112-119`).
 
 ### AI cores and improvement
 
