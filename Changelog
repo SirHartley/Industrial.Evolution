@@ -29,6 +29,7 @@ Adjusted - Non-purchasable ships have higher value (PR'd by abel1502, thank you!
 Fixed - The Museum setting now controls the Museum instead of following the meteor shower setting
 Fixed - Parades now stay for the chosen duration instead of always one month
 Fixed - Crash when cancelling Museum construction; removing a Museum now moves its ships to storage and removes the exhibition storage
+Fixed - Parades now give their bonus after a save and load during the trip
 
 Relays
 Fixed - The infamous relay size bug (it was my fault after all!)

@@ -65,8 +65,8 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
                 paradeOrbitTimeDays,
                 "Parading",
                 false,
-                () -> addParadeConditionToMarket(targetMarket),
-                () -> removeParadeConditionFromMarket(targetMarket));
+                new ParadeConditionScript(targetMarketId, true),
+                new ParadeConditionScript(targetMarketId, false));
 
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN,
                 sourceMarket.getPrimaryEntity(),
@@ -94,11 +94,11 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
         return targetMarketId;
     }
 
-    public void addParadeConditionToMarket(MarketAPI market){
+    public static void addParadeConditionToMarket(MarketAPI market){
         market.addCondition(Ids.COND_PARADE);
     }
 
-    public void removeParadeConditionFromMarket(MarketAPI market){
+    public static void removeParadeConditionFromMarket(MarketAPI market){
 
         for(MarketConditionAPI cond : new ArrayList<>(market.getConditions())){
             if (cond.getId().equals(Ids.COND_PARADE)) market.removeSpecificCondition(cond.getIdForPluginModifications());

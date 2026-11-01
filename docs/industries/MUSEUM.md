@@ -16,6 +16,7 @@ On player markets the Museum adds a hidden ship storage submarket (`IndEvo_Museu
 | `data/MuseumConstants.java` | Static finals read from settings at class load |
 | `data/ParadeFleetProfile.java` | One parade slot: presets, current fleet, member ids on parade. Builds and spawns the fleet; `FleetEventListener` resets state on despawn |
 | `fleet/ParadeFleetAssignmentAI.java` | `BaseAssignmentAI` script on the parade fleet: prepare, travel, parade (adds and removes the condition), return and despawn. `forceReturnToSource()` for recall |
+| `fleet/ParadeConditionScript.java` | Saved `Script` for the parade assignment start and end: adds or removes `IndEvo_Parade` on the target market by id |
 | `conditions/MuseumParadeCondition.java` | `IndEvo_Parade` market condition: stability and growth bonus |
 | `submarket/MuseumSubmarketPlugin.java` | Storage submarket: ships only, hidden from the cargo screen, ships on parade cannot be taken out |
 | `plugins/MuseumManageParadeOptionProvider.java` | Industry button "Manage Parades..."; fills profiles up to `getMaxParades()` and opens `ManageParadeDialoguePlugin` |
@@ -77,7 +78,7 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> fill profiles -> pic
 
 - `MuseumConstants` values are `static final` and read once at class load, so LunaLib changes need a restart ([Settings](../core/SETTINGS.md)).
 - Parade members in the fleet are copies. The real ships never leave storage; the variant tag blocks `PLAYER_BUY` from the submarket (`MuseumSubmarketPlugin.java:28`). Any code that moves museum ships must clear `indEvo_on_parade`.
-- `addAssignment(..., onStart, onCompletion)` takes `Script` callbacks (`api/campaign/CampaignFleetAPI.java:261`); here they are lambdas stored on the fleet. Could not verify that the save serializer handles these lambdas.
+- `addAssignment(..., onStart, onCompletion)` takes `Script` callbacks (`api/campaign/CampaignFleetAPI.java:261`) that are saved with the assignment. Use `ParadeConditionScript`, not lambdas: lambdas come back from the save as null. Parades saved by 4.1.b in flight keep null callbacks; the despawn listeners still remove the condition when the fleet gets home.
 - `BaseAssignmentAI.advance()` calls `pickNext()` when the fleet has no assignment (`api/impl/campaign/procgen/themes/BaseAssignmentAI.java`); `pickNext()` sends the fleet home.
 - Profile state, presets and the active fleet reference persist as fields on the industry.
 

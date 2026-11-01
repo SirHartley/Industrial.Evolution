@@ -212,7 +212,7 @@ public class ParadeFleetProfile implements FleetEventListener {
                 for (FleetMemberAPI m : shipsInStorage) if (fleetMembersOnParade.contains(m.getId())) m.getVariant().removeTag(MuseumConstants.ON_PARADE_TAG);
             }
 
-            if (targetMarket != null) ParadeFleetAssignmentAI.get(fleet).removeParadeConditionFromMarket(targetMarket);
+            if (targetMarket != null) ParadeFleetAssignmentAI.removeParadeConditionFromMarket(targetMarket);
 
             fleet.removeEventListener(this);
             this.fleet = null;
