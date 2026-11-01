@@ -202,7 +202,7 @@ Required compile dependencies (from `IndEvo.iml` and the imports):
 
 Dependency source: `lib/` in the repository, read-only. It holds the game jars (`starfarer.api.jar`, `starfarer_obf.jar`, `fs.common_obf.jar`, `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`) and the mod jars `Graphics.jar` (GraphicsLib 1.9.0), `LazyLib.jar` and `Kotlin-Runtime.jar` (LazyLib 3.0.0), `LunaLib.jar` (2.0.1), `MagicLib.jar` (1.5.1), `PatchLibAPI.jar` (PatchLib 1.0.3), `lw_Console.jar`, `ExerelinCore.jar` (Nexerelin 0.12.2d), `SHI.jar` (Shadowyards 0.9.5-rc4) and `RandomAssortmentofThings.jar` (RAT 3.3.1). Only the jars the gate needs are kept, never full mod folders. Replace a jar only when the user supplies a new version, and note the version here. The game loads only the jars `mod_info.json` lists, so `lib/` never reaches the game; it must stay out of the release zip ([RELEASE.md](docs/RELEASE.md)).
 
-Still missing: a Kotlin 2.1 compiler. Without it `javac` fails only in the three Java files that use the Kotlin classes (`Edict_FastBuild`, `RelicBuildTimeReductionButtonAdder`, `RadiationEffectHandler`). Until it is available, an agent reports the gate as not run and stops before merging runtime changes; IntelliJ on the user's machine (`IndEvo.iml`, artifact `IndEvo:jar`) stays the reference build. See [ARCHITECTURE.md](docs/ARCHITECTURE.md#build).
+Kotlin compiler: not in `lib/` and not installed in agent containers. Download these jars from Maven Central (`https://repo1.maven.org/maven2/`) into a temporary directory outside the repository: `org.jetbrains.kotlin:kotlin-compiler-embeddable:2.1.0`, `kotlin-stdlib:2.1.0`, `kotlin-script-runtime:2.1.0`, `kotlin-daemon-embeddable:2.1.0`, `kotlin-reflect:1.6.10`, `org.jetbrains.intellij.deps:trove4j:1.0.20200330`, `org.jetbrains:annotations:13.0`, `org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4`. Run it as `kotlinc` with `java -cp '<dir>/*' org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect` and add `kotlin-stdlib-2.1.0.jar` to its `-cp`. If the download fails, report the gate as not run and stop before merging runtime changes. Without Kotlin, `javac` fails only in the three Java files that use the Kotlin classes (`Edict_FastBuild`, `RelicBuildTimeReductionButtonAdder`, `RadiationEffectHandler`). IntelliJ on the user's machine (`IndEvo.iml`, artifact `IndEvo:jar`) stays the reference build. See [ARCHITECTURE.md](docs/ARCHITECTURE.md#build).
 
 Reference command (from the repository root):
 
@@ -210,7 +210,7 @@ Reference command (from the repository root):
 OUT=$(mktemp -d)
 CP=$(ls lib/*.jar | tr '\n' ':')
 find jars/src -name '*.java' -o -name '*.kt' | grep -v -e WIP/converters/ -e exploration/WIP/ -e specials/WIP/ -e itemAbilities/WIP/ -e rules/WIP/ -e industry/WIP/ -e exploration/distress/ -e warehouses/plugin/wi/ > "$OUT/srcs.txt"
-kotlinc -jvm-target 17 -cp "$CP" -d "$OUT" $(cat "$OUT/srcs.txt")
+kotlinc -jvm-target 17 -cp "$CP:<dir>/kotlin-stdlib-2.1.0.jar" -d "$OUT" $(cat "$OUT/srcs.txt")
 javac --release 17 -encoding UTF-8 -cp "$CP:$OUT" -d "$OUT" $(grep '\.java$' "$OUT/srcs.txt")
 ```
 
