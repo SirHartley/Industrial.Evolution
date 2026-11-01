@@ -86,7 +86,7 @@ public class LocatorSystemRatingUpdater extends BaseCampaignEventListener {
         int amt = 0;
 
         for (SectorEntityToken token : loc.getEntitiesWithTag(Tags.SALVAGEABLE)) {
-            String id = token.getId();
+            String id = token.getCustomEntityType();
             if (salvageEntityMap.containsKey(id)) amt += salvageEntityMap.get(id);
             else amt += 1;
         }
@@ -138,9 +138,9 @@ public class LocatorSystemRatingUpdater extends BaseCampaignEventListener {
     private static int getSpecialAmt(SectorEntityToken token) {
         int amt = 0;
 
-        if (Misc.getSalvageSpecial(token) instanceof ShipRecoverySpecial) {
-            ShipRecoverySpecial.ShipRecoverySpecialData special = (ShipRecoverySpecial.ShipRecoverySpecialData) Misc.getSalvageSpecial(token);
+        if (Misc.getSalvageSpecial(token) instanceof ShipRecoverySpecial.ShipRecoverySpecialData special) {
             for (ShipRecoverySpecial.PerShipData data : special.ships) {
+                if (data.getVariant() == null) continue;
                 ShipAPI.HullSize size = data.getVariant().getHullSpec().getHullSize();
                 switch (size) {
                     case DEFAULT:
