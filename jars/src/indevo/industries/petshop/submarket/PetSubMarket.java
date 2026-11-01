@@ -82,8 +82,8 @@ public class PetSubMarket extends BaseSubmarketPlugin implements DynamicSubmarke
     private String getLocalAICoreId() {
         String id = "none";
 
-        if (market.hasIndustry(Ids.REQCENTER) && market.getIndustry(Ids.REQCENTER).getAICoreId() != null) {
-            id = market.getIndustry(Ids.REQCENTER).getAICoreId();
+        if (market.hasIndustry(Ids.PET_STORE) && market.getIndustry(Ids.PET_STORE).getAICoreId() != null) {
+            id = market.getIndustry(Ids.PET_STORE).getAICoreId();
         }
 
         return id;

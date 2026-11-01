@@ -24,6 +24,7 @@ Removed - Pet food
 Fixed - The animal market now closes when the Animal Center is removed or pets are disabled; leftover markets close when opened
 Fixed - Pet storage at your own Animal Center now costs the upkeep its tooltip shows, and the gamma core reduces it
 Fixed - Animal Center description now says the beta core stops pets aging, not the alpha core
+Fixed - Animal Center alpha and beta core shop bonuses now apply; they used the Requisitions Centre core before
 
 Museum
 Fixed - Parade fleet stability bonus no longer stacks

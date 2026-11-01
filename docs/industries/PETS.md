@@ -113,7 +113,6 @@ Code paths relative to `jars/src/indevo/`.
 | Item | State |
 |---|---|
 | Storage fee report | Changelog_todo: "Fix the -1c pet food cost in monthly report"; not explained by the storage fee code |
-| `PetSubMarket.getLocalAICoreId()` | Reads the core of `Ids.REQCENTER`, not the Animal Center (`PetSubMarket.java:85-86`): core bonuses on the pet shop never apply |
 | Restock amount | floor(rarity x 3) is 0 for rarity < 0.34; those pets never stock |
 | `PetPickerInteractionDialoguePlugin` | `hasShownPicker` is never set to true; `advance()` calls `showShipPicker()` every frame once named (`:121`) |
 | `PetStatusManager.feed()` | Returns false when the member is in no live fleet, marked "todo this is broken" (`:116`) |
