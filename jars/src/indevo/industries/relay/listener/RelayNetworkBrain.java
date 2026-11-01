@@ -2,11 +2,11 @@ package indevo.industries.relay.listener;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCampaignEventListener;
+import com.fs.starfarer.api.campaign.CampaignEventListener;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorAPI;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.relay.industry.MilitaryRelay;
@@ -20,16 +20,13 @@ import java.util.stream.Collectors;
 public class RelayNetworkBrain extends BaseCampaignEventListener implements NewDayListener {
 
     public static RelayNetworkBrain getInstanceOrRegister(){
-        RelayNetworkBrain brain;
-        ListenerManagerAPI manager = Global.getSector().getListenerManager();
-
-        if (manager.hasListenerOfClass(RelayNetworkBrain.class)) brain = manager.getListeners(RelayNetworkBrain.class).get(0);
-        else {
-            brain = new RelayNetworkBrain();
-            //Global.getSector().getListenerManager().addListener(brain, true);
-            Global.getSector().addTransientListener(brain);
+        // added as a transient campaign event listener, which the listener manager does not list
+        for (CampaignEventListener l : Global.getSector().getAllListeners()) {
+            if (l instanceof RelayNetworkBrain brain) return brain;
         }
 
+        RelayNetworkBrain brain = new RelayNetworkBrain();
+        Global.getSector().addTransientListener(brain);
         return brain;
     }
 

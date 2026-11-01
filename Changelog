@@ -43,6 +43,7 @@ Relays
 Fixed - The infamous relay size bug (it was my fault after all!)
 Fixed - No longer crashes when installing a modded AI-Core
 Fixed - Relay bonus is now calculated correctly when a colony has percent based fleet size modifiers
+Fixed - Relay network updates no longer pile up and slow the game down over a long session
 
 Academy
 Fixed - Training an officer to be more aggressive no longer charges the fee twice

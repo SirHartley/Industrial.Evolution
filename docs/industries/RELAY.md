@@ -34,7 +34,7 @@ Both ids use `MilitaryRelay`, a subclass of vanilla `MilitaryBase`. On a market 
 ## Registration and lifecycle
 
 - CSV plugin column for both industries.
-- `ModPlugin.setListenersIfNeeded()`: `MilitaryRelay.RelayItemRemovalButtonListener.register()` (`ModPlugin.java:502`), `RelayNetworkBrain.getInstanceOrRegister()` (`:510`). `RelayFactor` is registered in `SpecialItemEffectsRepo.initEffectListeners()`.
+- `ModPlugin.setListenersIfNeeded()`: `MilitaryRelay.RelayItemRemovalButtonListener.register()` (`ModPlugin.java:502`), `RelayNetworkBrain.getInstanceOrRegister()` (`:510`), a transient campaign event listener found through `SectorAPI.getAllListeners()`, since the listener manager does not list it (`RelayNetworkBrain.java:22-30`). `RelayFactor` is registered in `SpecialItemEffectsRepo.initEffectListeners()`.
 - `RelayNetworkBrain` is a transient `CampaignEventListener` (`Global.getSector().addTransientListener`) and a `NewDayListener`. `TimeTracker.onNewDay` finds it through `SectorAPI.getAllListeners()` (`TimeTracker.java:133`), which includes transient listeners (`obf/campaign/CampaignEngine.java:2073`).
 - Extra network updates: `finishBuildingOrUpgrading`, `setAICoreId`, and `notifyBeingRemoved` (delayed by `DelayedActionScriptRunWhilePaused(0.01f)` so the industry is gone first).
 - Saved state: the `NetworkEntry` inside each `RelayConditionPlugin`, `addedOrRemovedItem` on the industry. Networks are rebuilt from scratch on every update.
@@ -56,7 +56,7 @@ Update chain: `TimeTracker -> RelayNetworkBrain.onNewDay -> updateNetworks -> Re
 
 ### Networks
 
-`RelayNetworkBrain.updateNetworks()` (`:44`), per faction:
+`RelayNetworkBrain.updateNetworks()` (`:41`), per faction:
 
 1. Markets with a functional `MilitaryRelay`, grouped by star system.
 2. Every system that has an `IndEvo_IntArray` joins one shared network; other systems get their own.
@@ -87,9 +87,8 @@ Update chain: `TimeTracker -> RelayNetworkBrain.onNewDay -> updateNetworks -> Re
 | Item | State |
 |---|---|
 | Changelog_todo | `Changelog_todo:30` "Military relay bonus calculation is still unreliable" and `:106` "relay increase spiral". The percent mod error is fixed; no other cause found: the relay excludes its own mods by source id and no vanilla fleet size mod depends on fleet size |
-| `RelayNetworkBrain.getInstanceOrRegister` (`:22`) | checks `ListenerManager.hasListenerOfClass` but registers with `addTransientListener`, so the check never matches; every `forceUpdate()` adds another transient brain and each runs `updateNetworks` per day and per market open |
 | `removeCommRelayStation` script check (`MilitaryRelay.java:274`) | compares `getClass().getName()` to `"EntityRemovalScript"`; never true, dead check |
-| Relay market outside a star system | `Collectors.groupingBy(MarketAPI::getStarSystem)` throws on a null key (inferred, `RelayNetworkBrain.java:54`) |
+| Relay market outside a star system | `Collectors.groupingBy(MarketAPI::getStarSystem)` throws on a null key (inferred, `RelayNetworkBrain.java:51`) |
 
 ## Maintenance
 
