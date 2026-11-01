@@ -158,6 +158,7 @@ Fixed - Slipstream Catapult shows its Abyss warning only in the Abyss
 Fixed - Tech Locator rates caches, stations and ship wrecks by their actual value
 Fixed - Interceptor missile stuns every fleet caught in the blast, not only fleets you can see in detail
 Fixed - Interceptor missile no longer interdicts and traces the fleet that fired it
+Fixed - The warning beacon message dialog opens on top of the cargo screen when used from there, instead of waiting until the screen is closed
 
 Items
 Fixed - Removing one of two Relay Hypertransmitters no longer turns relays off
