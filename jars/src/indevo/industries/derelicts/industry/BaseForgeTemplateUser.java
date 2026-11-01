@@ -7,7 +7,6 @@ import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
-import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
@@ -15,6 +14,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
 import indevo.industries.SharedSubmarketUser;
 import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
+import indevo.utils.helper.IndustrySpecView;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -30,6 +30,7 @@ public class BaseForgeTemplateUser extends SharedSubmarketUser {
 
     protected SpecialItemData forgeTemplate = null;
     protected ShipHullSpecAPI forgeShip = null;
+    private transient IndustrySpecView specView = null;
 
     @Override
     public boolean showWhenUnavailable() {
@@ -46,17 +47,12 @@ public class BaseForgeTemplateUser extends SharedSubmarketUser {
         return check && super.isAvailableToBuild();
     }
 
-    @Override
-    public void init(String id, MarketAPI market) {
-        super.init(id, market);
-        if (market.hasIndustry(getId())) spec.setDowngrade(null);
-    }
-
+    // the csv downgrade only keeps these out of the build list, an instance never offers it
     @Override
     public IndustrySpecAPI getSpec() {
-        if (spec == null) spec = Global.getSettings().getIndustrySpec(id);
-        if (market.hasIndustry(getId())) spec.setDowngrade(null);
-        return spec;
+        IndustrySpecAPI base = super.getSpec();
+        specView = IndustrySpecView.of(specView, base, base.getUpgrade(), null);
+        return specView;
     }
 
     @Override
@@ -73,10 +69,6 @@ public class BaseForgeTemplateUser extends SharedSubmarketUser {
         super.apply(true);
         applyForgeTemplateEffects();
 
-        if (market.hasIndustry(getId())) spec.setDowngrade(null);
-
-        /* spec.setDowngrade(null);*/
-
         //needed for Forge template item tooltips
         MemoryAPI memory = Global.getSector().getMemoryWithoutUpdate();
         if (!memory.contains("$" + getId())) {
@@ -87,8 +79,6 @@ public class BaseForgeTemplateUser extends SharedSubmarketUser {
     @Override
     public void unapply() {
         super.unapply();
-
-        spec.setDowngrade(Ids.RUINS);
 
         if (forgeTemplate != null) {
             ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect effect = ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.get(forgeTemplate.getId());

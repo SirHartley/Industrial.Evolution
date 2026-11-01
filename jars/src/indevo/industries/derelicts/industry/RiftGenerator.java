@@ -14,6 +14,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.scripts.PlanetMovingScript;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.IndustrySpecView;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
@@ -40,6 +41,7 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
     private float rangeRadiusLY = 9f;
 
     public boolean isMoving = false;
+    private transient IndustrySpecView specView = null;
 
     public enum TargetMode {
         CORE,
@@ -48,17 +50,12 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
         RANDOM
     }
 
-    @Override
-    public void init(String id, MarketAPI market) {
-        super.init(id, market);
-        if (market.hasIndustry(getId())) spec.setDowngrade(null);
-    }
-
+    // the csv downgrade only keeps it out of the build list, an instance never offers it
     @Override
     public IndustrySpecAPI getSpec() {
-        if (spec == null) spec = Global.getSettings().getIndustrySpec(id);
-        if (market.hasIndustry(getId())) spec.setDowngrade(null);
-        return spec;
+        IndustrySpecAPI base = super.getSpec();
+        specView = IndustrySpecView.of(specView, base, base.getUpgrade(), null);
+        return specView;
     }
 
     @Override
@@ -67,18 +64,12 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
 
         debug = Global.getSettings().isDevMode();
 
-        //needed so it doesn't display a downgrade option
-        if (market.hasIndustry(getId())) spec.setDowngrade(null);
-
         Global.getSector().getListenerManager().addListener(this, true);
     }
 
     @Override
     public void unapply() {
         super.unapply();
-
-        //needed so it doesn't display as buildable
-        spec.setDowngrade(Ids.RUINS);
 
         Global.getSector().getListenerManager().removeListener(this);
     }

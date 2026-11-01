@@ -39,12 +39,7 @@ public class Ruins extends BaseIndustry {
     @Override
     public IndustrySpecAPI getSpec() {
         IndustrySpecAPI base = super.getSpec();
-        String target = getUpgradeTarget();
-
-        if (specView == null || !specView.isViewOf(base, target, base.getDowngrade())) {
-            specView = new IndustrySpecView(base, target, base.getDowngrade());
-        }
-
+        specView = IndustrySpecView.of(specView, base, getUpgradeTarget(), base.getDowngrade());
         return specView;
     }
 
