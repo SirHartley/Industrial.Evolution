@@ -126,7 +126,10 @@ public class AmbassadorMurderConsequences implements EveryFrameScript, FleetEven
         params.random = random;
 
         CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
-        if (fleet == null || fleet.isEmpty()) return null;
+        if (fleet == null || fleet.isEmpty()) {
+            Global.getLogger(AmbassadorMurderConsequences.class).warn("IndEvo: faction " + faction.getId() + " could not build a " + FleetTypes.MERC_BOUNTY_HUNTER + " fleet at " + pts + " combat points, no bounty hunter spawned");
+            return null;
+        }
 
         EncounterOption option = fleet.getAI().pickEncounterOption(null, Global.getSector().getPlayerFleet());
         if (option == EncounterOption.DISENGAGE) {

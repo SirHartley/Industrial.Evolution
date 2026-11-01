@@ -98,10 +98,11 @@ public class OnKeyPressAbilityInputListener implements MissileTargetUIKeypressLi
                     }
 
                     AbilityPlugin p = Global.getSector().getPlayerFleet().getAbility(lastAbilityId);
-                    if (p instanceof BaseMissileConsumableAbilityPlugin missile) {
-                        missile.forceActivation();
-                        p.setCooldownLeft(p.getSpec().getDeactivationCooldown());
-                    }
+                    if (!(p instanceof BaseMissileConsumableAbilityPlugin missile))
+                        throw new IllegalStateException("IndEvo missile hotkey: ability " + lastAbilityId + " is not a missile ability on the player fleet");
+
+                    missile.forceActivation();
+                    p.setCooldownLeft(p.getSpec().getDeactivationCooldown());
 
                     reset();
 

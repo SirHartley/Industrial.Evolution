@@ -74,7 +74,7 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 
 - `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:490`) adds a transient listener each load (`MeteorSwarmManager.java:90`).
 - Spawners, warning path renderer and delayed spawn are location scripts; meteors are custom entities with saved plugins.
-- `ModPlugin.onGameLoad() -> PlanetoidDespawnScript.despawnStrandedPlanetoids()` (`indevo/utils/ModPlugin.java:156`): fades rings and stations whose planetoid is gone, despawns planetoids without a runner, swaps a 4.1.b `DespawningMovementModuleRunner` for a `PayloadOnFinishedModuleRunner` and restores a null payload.
+- `ModPlugin.onGameLoad() -> PlanetoidDespawnScript.despawnStrandedPlanetoids()` (`indevo/utils/ModPlugin.java:156`): fades rings and stations whose planetoid is gone, despawns planetoids without a runner, swaps a 4.1.b `DespawningMovementModuleRunner` for a `PayloadOnFinishedModuleRunner`.
 - `RadiationEffectHandler.get()` adds itself as a transient Luna renderer on first use per session (`:36-45`).
 
 `reportEconomyTick -> isValidMeteorLoc -> roll -> spawnShower -> DelayedActionScript(daysLeft) -> <Type>SwarmSpawner.advance -> init() (warning path, sign, terrain) -> advanceSpawner -> MeteorFactory / Treasure*.spawn -> MeteorEntity.advance -> setCollidingAndFade -> MeteorImpact + MeteorDebrisRenderer`
@@ -104,7 +104,7 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 - All settings are `static final` fields read at class init (`MeteorSwarmManager.java:44-61`); changes apply after a restart. `IndEvo_meteor_immediateMode` is read per shower. Setting mechanics: [Settings](../core/SETTINGS.md).
 - One swarm per location: the warning path renderer is a single instance in location memory, the last one wins (`MeteorSwarmWarningPathRenderer.java:16-18`). `RadioactiveTerrain` lives only while that key exists, and relies on being spawned after it (`RadioactiveTerrain.java:90`).
 - `IntelManager.advance` does not advance intel (starsector-knowledge `obf/campaign/comms/v2/IntelManager.java:44`), so `MeteorShowerLocationIntel` adds itself as a sector script (`:31`).
-- `BaseCampaignEntity.runScripts` drops a script as soon as `isDone()` is true (starsector-knowledge `obf/campaign/BaseCampaignEntity.java:636-647`), so `PayloadOnFinishedModuleRunner` runs its payload in the advance that ends the movement and reports done from its own flag (`PayloadOnFinishedModuleRunner.java:20-36`). Payloads are named `Script` classes: lambdas come back from the save as null.
+- `BaseCampaignEntity.runScripts` drops a script as soon as `isDone()` is true (starsector-knowledge `obf/campaign/BaseCampaignEntity.java:636-647`), so `PayloadOnFinishedModuleRunner` runs its payload in the advance that ends the movement and reports done from its own flag (`PayloadOnFinishedModuleRunner.java:20-37`). Payloads are named `Script` classes: lambdas come back from the save as null. A null payload at the arc end throws `IllegalStateException`, since only an IE bug can produce one.
 - Planetoid swarm planets carry `PlanetoidSwarmSpawner.PLANETOID_TAG` (`indevo_planetoid`); the load cleanup finds them by it.
 - Spawners use a seeded `Random` per shower; the manager uses one saved `Random` in persistent data.
 - Java 17 features (switch expressions, `instanceof` patterns) are used; the project language level is `JDK_17` (`.idea/misc.xml:6`).

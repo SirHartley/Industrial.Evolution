@@ -31,7 +31,8 @@ public class PayloadOnFinishedModuleRunner extends MovementModuleRunner {
 
         if (module.isMovementFinished()) {
             done = true;
-            if (script != null) script.run();
+            if (script == null) throw new IllegalStateException("IndEvo: PayloadOnFinishedModuleRunner on " + entity.getId() + " has no payload script");
+            script.run();
         }
     }
 }

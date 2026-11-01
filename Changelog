@@ -186,6 +186,7 @@ Fixed - Tech Locator rates caches, stations and ship wrecks by their actual valu
 Fixed - Interceptor missile stuns every fleet caught in the blast, not only fleets you can see in detail
 Fixed - Interceptor missile no longer interdicts and traces the fleet that fired it
 Fixed - The warning beacon message dialog opens on top of the cargo screen when used from there, instead of waiting until the screen is closed
+Changed - Missile hotkey crashes with a clear error instead of failing silently if the hotkeyed ability is not a missile
 
 Items
 Fixed - Removing one of two Relay Hypertransmitters no longer turns relays off

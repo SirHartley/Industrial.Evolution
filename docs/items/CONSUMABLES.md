@@ -78,14 +78,14 @@ Times in days. The ability tags drive targeting: `indevo_missile` enables hotkey
 
 | Hook | What |
 |---|---|
-| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin:139-150`) | Loads the nanites texture for the codex |
+| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin:141-152`) | Loads the nanites texture for the codex |
 | `onGameLoad:171`, `onNewGameAfterEconomyLoad:312` | `LocatorSystemRatingUpdater.updateAllSystems()` |
 | `onGameLoad:202` | Resets `MissileActivationManager` |
-| `ModPlugin:462` | `LocatorSystemRatingUpdater`, transient |
-| `ModPlugin:463` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
-| `ModPlugin:464` | `ConsumableItemMarketAdder`, transient |
-| `ModPlugin:494`, `beforeGameSave:338` | `OnKeyPressAbilityInputListener.getInstanceOrRegister()`; reset before save |
-| `ModPlugin:495` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
+| `ModPlugin:466` | `LocatorSystemRatingUpdater`, transient |
+| `ModPlugin:467` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
+| `ModPlugin:468` | `ConsumableItemMarketAdder`, transient |
+| `ModPlugin:498`, `beforeGameSave:342` | `OnKeyPressAbilityInputListener.getInstanceOrRegister()`; reset before save |
+| `ModPlugin:499` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
 | each load | `SpooferItemKeypressListener` registered |
 
 `ListenerManager.addListener(Object)` is the persistent variant (`obf/campaign/ListenerManager.java:25-33` in the starsector-knowledge skill), so any listener added without `true` is saved with the game.
@@ -98,7 +98,7 @@ Non-missile use: right-click works in the cargo tab with no dialog open, only if
 
 Missile click path: `pressButton()` (vanilla `BaseDurationAbility.java:187`) -> `DelayedActionScriptRunWhilePaused(0)` -> `new OnClickAbilityInputListener(p).activate()`, which registers with `MissileActivationManager`, adds itself as a persistent listener and adds a LunaLib reticule (skillshot, AOE or artillery by tag). Mouse up calls `forceActivation()` (`activateImpl` + `removeTriggerItem`) and sets the cooldown. Any key other than space or lshift aborts. Missile `isUsable` also needs no active missile listener and no open dialog or core tab.
 
-Missile hotkey path: `OnKeyPressAbilityInputListener` catches keys 1 to 9 on slots holding `indevo_missile` abilities, shows the reticule while held and fires on release. Ctrl or an open dialog resets it. `MissileActivationManager` is a persistent sector script (runs while paused) that tracks the current listener.
+Missile hotkey path: `OnKeyPressAbilityInputListener` catches keys 1 to 9 on slots holding `indevo_missile` abilities, shows the reticule while held and fires on release. Release resolves the ability id saved on key down; if that is not a `BaseMissileConsumableAbilityPlugin` on the player fleet it throws (`IllegalStateException`), since only an IE bug gets there. Ctrl or an open dialog resets it. `MissileActivationManager` is a persistent sector script (runs while paused) that tracks the current listener.
 
 Missile entities (`BaseMissileEntityPlugin`): fly straight for 4 s, explode on `shouldExplode`, timeout, or reaching the target point (AOE types aim at the cursor). Entities within radius + 50 along the path get `$missile_bonked`; `MeteorEntity.java:71-72` reads it ([Meteor](../exploration/METEOR.md)). Trails use `MagicCampaignTrailPlugin`.
 
