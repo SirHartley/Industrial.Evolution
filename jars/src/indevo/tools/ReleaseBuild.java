@@ -43,9 +43,7 @@ public final class ReleaseBuild {
     static final String TOOLS = SOURCE + "indevo/tools/";
     static final String TOOL = TOOLS + "ReleaseBuild.java";
     static final String PLUGIN = "indevo/utils/ModPlugin.class";
-    static final String KOTLIN_MODULE = "META-INF/" + MOD + ".kotlin_module";
     static final List<String> PACKAGES = List.of("indevo/", "data/scripts/");
-    static final String KOTLIN = "2.1.0";
     static final String VERSION = "[1-9][0-9]*\\.(?:0|[1-9][0-9]*)\\.[a-z]";
     static final Pattern HEADING = Pattern.compile(
             "^(" + VERSION + ")(?:[ \\t]*-[ \\t]*(UNRELEASED|CURRENT PUBLIC VERSION))?[ \\t]*$");
@@ -73,21 +71,20 @@ public final class ReleaseBuild {
 
     public static void main(String[] args) throws Exception {
         Path root = Path.of("").toAbsolutePath();
-        if (args.length == 2 && (args[0].equals("build") || args[0].equals("compile"))) {
-            build(root, Path.of(args[1]), args[0].equals("build"));
+        if (args.length == 1 && (args[0].equals("build") || args[0].equals("compile"))) {
+            build(root, args[0].equals("build"));
         } else if ((args.length == 1 || args.length == 2) && args[0].equals("package")) {
             pack(root, args.length == 2 ? args[1] : null);
         } else {
             throw new IllegalArgumentException("From the mod root, with JDK 17:\n"
-                    + "  java " + TOOL + " compile <kotlinc>\n"
-                    + "  java " + TOOL + " build <kotlinc>\n"
+                    + "  java " + TOOL + " compile\n"
+                    + "  java " + TOOL + " build\n"
                     + "  java " + TOOL + " package [version]");
         }
     }
 
-    static void build(Path root, Path kotlin, boolean replace) throws Exception {
+    static void build(Path root, boolean replace) throws Exception {
         require(Runtime.version().feature() == 17, "Build with JDK 17.");
-        kotlin = kotlinHome(kotlin);
         Files.createDirectories(root.resolve("out"));
         Path work = Files.createTempDirectory(root.resolve("out"), "release-build-");
         Path classes = Files.createDirectory(work.resolve("classes"));
@@ -102,29 +99,13 @@ public final class ReleaseBuild {
         String classpath = String.join(File.pathSeparator,
                 dependencies.stream().map(path -> path.toAbsolutePath().toString()).toList());
         List<Path> sources = sources(root);
-        List<Path> java = sources.stream().filter(path -> path.toString().endsWith(".java")).toList();
-
-        List<String> kotlinArgs = new ArrayList<>(List.of("-jvm-target", "17", "-api-version", "2.1",
-                "-language-version", "2.1", "-no-stdlib", "-no-reflect", "-module-name", MOD,
-                "-classpath", classpath, "-d", classes.toString()));
-        for (Path path : sources) kotlinArgs.add(path.toString());
-        Path argFile = work.resolve("kotlinc.args");
-        Files.write(argFile, kotlinArgs.stream().map(ReleaseBuild::quote).toList());
-        Path javaExe = Path.of(System.getProperty("java.home"), "bin", "java");
-        // kotlinc reads java sources for resolution only, javac compiles them against its output
-        Process kotlinc = new ProcessBuilder(javaExe.toString(), "-Xmx1g", "-Xss4m",
-                "-Dkotlin.home=" + kotlin, "--add-opens", "java.base/java.util=ALL-UNNAMED",
-                "-jar", kotlin.resolve("lib/kotlin-compiler.jar").toString(), "@" + argFile)
-                .inheritIO().start();
-        require(kotlinc.waitFor() == 0, "Kotlin compilation failed; the release jar was not replaced.");
-
         var compiler = ToolProvider.getSystemJavaCompiler();
         require(compiler != null, "A full JDK 17 is required.");
         try (var manager = compiler.getStandardFileManager(null, null, StandardCharsets.UTF_8)) {
             boolean passed = compiler.getTask(null, manager, null,
                     List.of("--release", "17", "-encoding", "UTF-8",
-                            "-classpath", classpath + File.pathSeparator + classes, "-d", classes.toString()),
-                    null, manager.getJavaFileObjectsFromPaths(java)).call();
+                            "-classpath", classpath, "-d", classes.toString()),
+                    null, manager.getJavaFileObjectsFromPaths(sources)).call();
             require(passed, "Compilation failed; the release jar was not replaced.");
         }
         Map<String, byte[]> entries = new TreeMap<>();
@@ -144,8 +125,7 @@ public final class ReleaseBuild {
         Path candidate = work.resolve(MOD + ".jar");
         writeZip(candidate, entries);
         checkJar(candidate, hash, true);
-        System.out.println("Compiled " + sources.size() + " sources (" + (sources.size() - java.size())
-                + " Kotlin) into " + (entries.size() - 1) + " jar entries.");
+        System.out.println("Compiled " + sources.size() + " sources into " + (entries.size() - 1) + " jar entries.");
         if (!replace) {
             System.out.println("Checked jar: " + candidate + " (release jar left as is)");
             return;
@@ -153,23 +133,6 @@ public final class ReleaseBuild {
         Files.createDirectories(root.resolve(JAR).getParent());
         Files.move(candidate, root.resolve(JAR), StandardCopyOption.REPLACE_EXISTING);
         System.out.println("Release jar: " + root.resolve(JAR));
-    }
-
-    static Path kotlinHome(Path path) throws IOException {
-        if (Files.isDirectory(path.resolve("kotlinc"))) path = path.resolve("kotlinc");
-        Path jar = path.resolve("lib/kotlin-compiler.jar");
-        require(Files.isRegularFile(jar), "Missing " + jar + "; pass the unpacked kotlin-compiler-" + KOTLIN
-                + ".zip folder.");
-        try (JarFile file = new JarFile(jar.toFile())) {
-            String version = file.getManifest().getMainAttributes().getValue("Implementation-Version");
-            require(version != null && version.startsWith(KOTLIN + "-"),
-                    "Build with Kotlin " + KOTLIN + ", found " + version + ".");
-        }
-        return path.toAbsolutePath();
-    }
-
-    static String quote(String arg) {
-        return "\"" + arg.replace(File.separatorChar, '/').replace("\"", "\\\"") + "\"";
     }
 
     static void pack(Path root, String version) throws Exception {
@@ -281,7 +244,6 @@ public final class ReleaseBuild {
     }
 
     static boolean runtimeEntry(String name) {
-        if (name.equals(KOTLIN_MODULE)) return true;
         if (!name.endsWith(".class") || name.contains("..") || name.contains("\\")) return false;
         if (name.startsWith("indevo/tools/")) return false;
         return PACKAGES.stream().anyMatch(name::startsWith);
@@ -295,8 +257,7 @@ public final class ReleaseBuild {
     }
 
     static boolean compiled(String name, List<String> excluded) {
-        return name.startsWith(SOURCE) && (name.endsWith(".java") || name.endsWith(".kt"))
-                && excluded.stream().noneMatch(name::startsWith);
+        return name.startsWith(SOURCE) && name.endsWith(".java") && excluded.stream().noneMatch(name::startsWith);
     }
 
     static List<Path> sources(Path root) throws IOException {
@@ -315,7 +276,7 @@ public final class ReleaseBuild {
             require(fresh || !requireFresh, "Release jar is stale. Run ReleaseBuild build, then commit " + JAR + ".");
             require(jar.getEntry(PLUGIN) != null, "Release jar has no " + PLUGIN + ".");
             for (ZipEntry entry : jar.stream().toList()) {
-                if (entry.getName().equals("META-INF/MANIFEST.MF") || entry.getName().equals(KOTLIN_MODULE)) continue;
+                if (entry.getName().equals("META-INF/MANIFEST.MF")) continue;
                 require(runtimeEntry(entry.getName()), "Development/dependency file in jar: " + entry.getName());
                 try (var input = new DataInputStream(jar.getInputStream(entry))) {
                     require(input.readInt() == 0xcafebabe, "Invalid class: " + entry.getName());

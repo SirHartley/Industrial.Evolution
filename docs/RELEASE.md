@@ -26,7 +26,7 @@ Reset the lower parts when a higher one changes. After a release, ask the user w
 | Version Checker registration | `data/config/version/version_files.csv` | Points Version Checker at `IndEvo.version` |
 | Release builder | `jars/src/indevo/tools/ReleaseBuild.java` | Single-file Java program run with `java <file>`: `compile`, `build`, `package` |
 | Builder checks | `jars/src/indevo/tools/ReleaseBuildChecks.java` | Headless checks of changelog parsing, stamping, file filters, source excludes and asset references |
-| Release jar | `jars/release/IndEvo.jar` | Committed; runtime classes and the Kotlin module file only, manifest carries `Source-SHA256` |
+| Release jar | `jars/release/IndEvo.jar` | Committed; runtime classes only, manifest carries `Source-SHA256` |
 | IDE jar | `jars/IndEvo.jar` | IntelliJ artifact `IndEvo:jar` for local testing, gitignored, never packaged |
 | Compile jars | `lib/` | Game and library jars the build compiles against ([CLAUDE.md](../CLAUDE.md#compile-dependencies)); never shipped |
 | Module | `IndEvo.iml` | Its `excludeFolder` entries decide which sources the builder compiles |
@@ -37,18 +37,18 @@ The package `indevo.tools` is never shipped: the builder drops it from the relea
 ## Builder: compile and build
 
 ```text
-java jars/src/indevo/tools/ReleaseBuild.java compile <kotlinc>
-java jars/src/indevo/tools/ReleaseBuild.java build <kotlinc>
+java jars/src/indevo/tools/ReleaseBuild.java compile
+java jars/src/indevo/tools/ReleaseBuild.java build
 ```
 
-Run from the repository root with JDK 17. `<kotlinc>` is the unpacked Kotlin 2.1.0 compiler: the `kotlinc` folder or the folder that contains it ([toolchain](../CLAUDE.md#toolchain)).
+Run from the repository root with JDK 17 ([toolchain](../CLAUDE.md#toolchain)).
 
-1. Refuse anything but JDK 17 and Kotlin 2.1.0 (read from `kotlin-compiler.jar`'s manifest).
+1. Refuse anything but JDK 17.
 2. Create a fresh `out/release-build-*` directory, so removed classes cannot survive from an earlier build.
 3. Put every `lib/*.jar` on the classpath. Check that `lib/json.jar` is the game's (checked `JSONException`), not a Maven JSON jar.
-4. Collect every `.java` and `.kt` file under `jars/src/` minus the `IndEvo.iml` `excludeFolder` entries, so IntelliJ and the builder compile the same files.
-5. Run the Kotlin compiler in a child JVM (`-jvm-target 17 -api-version 2.1 -language-version 2.1 -no-stdlib -no-reflect -module-name IndEvo`, Java sources passed for resolution), then `javac --release 17 -encoding UTF-8` on the Java sources against its output. `-no-stdlib` compiles against LazyLib's Kotlin runtime in `lib/`, the one the game loads.
-6. Keep only runtime entries: classes under `indevo/` and `data/scripts/` except `indevo/tools/`, plus `META-INF/IndEvo.kotlin_module`.
+4. Collect every `.java` file under `jars/src/` minus the `IndEvo.iml` `excludeFolder` entries, so IntelliJ and the builder compile the same files.
+5. Run `javac --release 17 -encoding UTF-8` on them.
+6. Keep only runtime entries: classes under `indevo/` and `data/scripts/` except `indevo/tools/`.
 7. Write a manifest with `Source-SHA256`: a hash of the compiled sources (tools excluded except the builder itself) and every `lib/*.jar`.
 8. Verify the candidate jar: only runtime entries, every class Java 17 (major 61), `indevo/utils/ModPlugin.class` present.
 9. `build` moves the candidate to `jars/release/IndEvo.jar`; a failed compile leaves the old jar untouched. `compile` leaves it in `out/` and is the compile gate.
@@ -117,4 +117,4 @@ On the user's request only.
 
 ## Maintenance
 
-Update this guide when the version scheme, the version file, the builder, the package contents or the release steps change. Keep the builder constants (`MOD`, `FOLDER`, `RELEASES`, `PLUGIN`, `PACKAGES`, `KOTLIN`, `ROOT_FILES`, `REQUIRED`, `EXTRAS`, `ASSETS`), `release.yml` and `IndEvo.version` in step with it. Follow [CLAUDE.md](../CLAUDE.md#documentation-upkeep).
+Update this guide when the version scheme, the version file, the builder, the package contents or the release steps change. Keep the builder constants (`MOD`, `FOLDER`, `RELEASES`, `PLUGIN`, `PACKAGES`, `ROOT_FILES`, `REQUIRED`, `EXTRAS`, `ASSETS`), `release.yml` and `IndEvo.version` in step with it. Follow [CLAUDE.md](../CLAUDE.md#documentation-upkeep).
