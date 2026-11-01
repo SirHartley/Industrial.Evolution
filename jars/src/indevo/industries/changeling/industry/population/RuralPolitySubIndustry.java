@@ -182,6 +182,7 @@ Rural Polity
                 ind.getSupplyBonusFromOther().modifyFlat(getId(), FARMING_BASE_BONUS, getName());
                 ind.supply(getId(), Commodities.ORGANICS, (int) Math.ceil(ind.getSupply(Commodities.FOOD).getQuantity().getModifiedValue() * FARMING_ORGANICS_PER_FOOD), getName());
                 if (market.isFreePort()) ind.supply(getId(), Commodities.DRUGS, (int) Math.ceil(ind.getSupply(Commodities.FOOD).getQuantity().getModifiedValue() * FARMING_DRUGS_PER_FOOD), getName());
+                else ind.supply(getId(), Commodities.DRUGS, 0, getName());
             }
 
             if (ind instanceof LightIndustry) {
@@ -231,11 +232,13 @@ Rural Polity
 
             if (ind instanceof Farming) {
                 ind.getSupplyBonusFromOther().unmodify(getId());
-                ind.supply(getId(), Commodities.SUPPLIES, 0, getName());
+                ind.supply(getId(), Commodities.ORGANICS, 0, getName());
+                ind.supply(getId(), Commodities.DRUGS, 0, getName());
             }
 
             if (ind instanceof LightIndustry) {
                 ind.supply(getId(), Commodities.HAND_WEAPONS, 0, getName());
+                ind.supply(getId(), Commodities.SUPPLIES, 0, getName());
             }
         }
 
