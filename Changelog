@@ -145,6 +145,7 @@ Fixed - Crash when firing a missile from a hyperspace-only ability slot by hotke
 Fixed - Smoke cloud size varies as intended and the smoke missile explosion is loudest near the player
 Fixed - Chaff cloud tooltip shows the real slowdown values
 Fixed - Fuel scoop crash in starless nebula systems; it now draws from the closest star
+Fixed - Slipstream Catapult shows its Abyss warning only in the Abyss
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0

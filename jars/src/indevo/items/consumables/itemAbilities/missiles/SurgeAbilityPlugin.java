@@ -54,7 +54,7 @@ public class SurgeAbilityPlugin extends BaseMissileConsumableAbilityPlugin{
                 opad, Misc.getNegativeHighlightColor(),
                 "Only usable in Hyperspace!");
 
-        if (!Misc.isInAbyss(getFleet())) tooltip.addPara("%s",
+        if (Misc.isInAbyss(getFleet())) tooltip.addPara("%s",
                 opad, Misc.getNegativeHighlightColor(),
                 "Does not function in the Abyss!");
     }
