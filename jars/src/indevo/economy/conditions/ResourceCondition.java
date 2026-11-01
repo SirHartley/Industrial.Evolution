@@ -134,7 +134,7 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
         market.getStats().getDynamic().getMod(Stats.PRODUCTION_QUALITY_MOD).unmodify(getModId());
 
         for (Industry ind : market.getIndustries()) {
-            unapplyAdditionalSupDem((BaseIndustry) ind);
+            if (ind instanceof BaseIndustry base) unapplyAdditionalSupDem(base);
         }
     }
 

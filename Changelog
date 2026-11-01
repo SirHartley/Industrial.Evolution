@@ -3,6 +3,7 @@
 General
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
+Fixed - Possible crash on market updates with mod industries that do not extend BaseIndustry
 
 Research Projects
 Fixed - Now sorts highest to lowest progress like intended

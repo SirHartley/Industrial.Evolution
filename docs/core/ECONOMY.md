@@ -62,7 +62,7 @@ If no market of the same faction in the location has `IndEvo_SupCom`: income mul
 ## Contracts
 
 - The condition applies to every economy market including NPC ones, so parts, corruption and Supercomputer bonus affect AI factions too (`ResourceConditionApplicator.java:13`).
-- `unapply` resets `IndEvo_parts` supply and demand to 0 on every industry of the market (`ResourceCondition.java:136`); any other source of parts on these industries must reapply after this condition. Inferred from the code: condition unapply order relative to industries is engine controlled.
+- `unapply` resets `IndEvo_parts` supply and demand to 0 on every `BaseIndustry` of the market (`ResourceCondition.java:136`); any other source of parts on these industries must reapply after this condition. Inferred from the code: condition unapply order relative to industries is engine controlled.
 - Reflection on `buildTime` (`RelicBuildTimeReductionButtonAdder.java:60`) depends on the `BaseIndustry` field name; `Edict_FastBuild` writes the same field through `ReflectionUtils`. See [Utils](UTILS.md#helper), [Senate](../industries/SENATE.md).
 - Shadowyards classes are imported at compile time (`ResourceCondition.java:14` to `16`); guarded by `isModEnabled("shadow_ships")`. See [Compatibility](COMPATIBILITY.md).
 
@@ -71,7 +71,6 @@ If no market of the same faction in the location has `IndEvo_SupCom`: income mul
 | Item | State |
 |---|---|
 | `applyParts` (`ResourceCondition.java:86`) | Supply `size - 3` is negative or zero below size 4; zero returns early, negative is passed to `ind.supply` (suspected) |
-| `unapply` (`ResourceCondition.java:137`) | Casts every industry to `BaseIndustry`; a modded industry that is not one throws `ClassCastException` (suspected) |
 | `RelicBuildTimeReductionButtonAdder.isSuitable` | No player owned or local market check; logs every call in dev mode (`:40`, `:46`) |
 | `RelicBuildTimeReductionButtonAdder` imports | Unused `org.codehaus.janino.Mod` and `RUINED_INFRA_UPGRADE_ID_KEY` |
 | Changelog_todo | "check if BP creation works with relics" (open task, related to relic use) |
