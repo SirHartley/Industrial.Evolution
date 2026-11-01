@@ -86,6 +86,7 @@ Fixed - Ring terrain around a planet moved by the Rift Generator no longer stays
 Fixed - Possible crash in Hull Forge or Ancient Lab on a lost market when the player has no colonies left
 Fixed - With two or more colonies with Old Industrial Ruins, a ruin no longer offers another colony's derelict industry as a greyed out upgrade
 Fixed - Old Industrial Ruins on a planet that got its ruins after the start of the game (console or other mods) now always get a derelict industry to upgrade into
+Fixed - NPC colonies with Old Industrial Ruins (Nexerelin) now finish upgrading them instead of restarting the upgrade every few days
 
 Embassy
 Fixed - Ambassadors can now be asked to stop sabotaging hostile activity
