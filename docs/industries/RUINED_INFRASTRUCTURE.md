@@ -76,9 +76,7 @@ Chain: `placeRuinedInfrastructure -> condition on planet -> colonized -> Derelic
 | Item | State |
 |---|---|
 | Restore cost | open issue `Changelog_todo:8`: "Advertised price for upgrading the ruins to heavy industry was 250K ... zero credits were actually deducted" |
-| `ChamelionIndustry.readResolve` (`ChamelionIndustry.java:34`) | condition inverted: sets `spec` from the memory key only when the key is missing, so it reads `getIndustrySpec(null)` |
 | `setUpgradeSpec` repick (`DerelictInfrastructureCondition.java:55`) | first pick is seeded, repicks use the picker's own random; not deterministic per planet |
-| `ChamelionIndustry.isDone` | written, never read |
 | `RuinedInfrastructure.finishBuildingOrUpgrading` player message | commented out |
 
 ## Maintenance
