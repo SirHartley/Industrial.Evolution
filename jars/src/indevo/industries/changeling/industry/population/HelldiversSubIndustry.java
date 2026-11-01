@@ -202,7 +202,15 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         for (String s : expired) daysToApplicationForFleetMember.remove(s);
 
         //raid mods
-        for (RaidMod mod : raidMods.values()) mod.setDaysRemaining(mod.getDaysRemaining() - 1);
+        for (Iterator<Map.Entry<String, RaidMod>> it = raidMods.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, RaidMod> e = it.next();
+            e.getValue().setDaysRemaining(e.getValue().getDaysRemaining() - 1);
+
+            if (e.getValue().isExpired()) {
+                market.getIncomeMult().unmodify(e.getKey());
+                it.remove();
+            }
+        }
     }
 
     @Override

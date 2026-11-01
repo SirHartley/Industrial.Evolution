@@ -101,14 +101,14 @@ Apply chain: `SwitchableX.init -> setCurrent(list[0])` on first init, then `Swit
 | Rural Polity | 80000 | planet, rich or bountiful farmland, type not in `IndEvo_ruralList` (`RuralPolitySubIndustry.java:248-271`) |
 | Hidden Arcology | 125000 | planet, not gas giant, type not in `IndEvo_arcologiesList` (`HiddenArcologiesSubIndustry.java:95-111`) |
 | Anchorage | 30000 | always (size reason text only, inferred missing check) |
-| Managed Democracy | 100000 | dev mode or (size <= 5 and planet) (`HelldiversSubIndustry.java:342-348`) |
+| Managed Democracy | 100000 | dev mode or (size <= 5 and planet) (`HelldiversSubIndustry.java:350-356`) |
 | Forge World | 150000 | `very_hot`, planet, not gas giant (`WarhammerSubIndustry.java:187-189`) |
 | Corporate | 50000 | always |
 
 - Underworld: income mult `5/stability` above 5, `1.2^(5-stability)` below (`UnderworldSubIndustry.java:321-333`); every day (`IntervalUtil(10,10)` seconds) takes 5% of each commodity stack from trader, smuggler and scavenger fleets in the system into storage, once per fleet (`:97-141`).
 - Rural: `industrial` tag x2 upkeep and -3 stability, `rural` tag x0.5 upkeep and +1 stability and +2 growth, -1 stability per non-`rural` special item and per AI core; Farming gets +1 output, organics and (free port) drugs; Light Industry gets hand weapons and supplies (`RuralPolitySubIndustry.java:163-194`). `RuralPolityImageChanger` cycles `rural_polities_1..5.png` (`:287-306`).
 - Hidden Arcology: suppresses every condition in `IndEvo_arcologiesCondList` and re-applies the suppression in `SwitchablePopulation.setSpecialItem` for the item heat condition (`SwitchablePopulation.java:220-224`).
-- Managed Democracy: extra patrols by size: 1 light, plus 1 medium above size 3, plus 1 light and 1 heavy above size 4 (`HelldiversSubIndustry.java:304-306`); `correctStability()` adds a flat mod to clamp stability to 3..7 (`HelldiversSubIndustry.java:388-393`); `RaidMod` entries add income percent for raids, bombardments, Privateer raids (`PrivateerBase.java:196,205`) and Nexerelin captures; `reportEconomyTick` adds 3 XP per tick to marines stored here; `onNewDay` (via `TimeTracker`) gives destroyers in storage `IndEvo_hellpods` after 62 days.
+- Managed Democracy: extra patrols by size: 1 light, plus 1 medium above size 3, plus 1 light and 1 heavy above size 4 (`HelldiversSubIndustry.java:312-314`); `correctStability()` adds a flat mod to clamp stability to 3..7 (`HelldiversSubIndustry.java:396-401`); `RaidMod` entries add income percent for raids, bombardments, Privateer raids (`PrivateerBase.java:196,205`) and Nexerelin captures; `reportEconomyTick` adds 3 XP per tick to marines stored here; `onNewDay` (via `TimeTracker`) gives destroyers in storage `IndEvo_hellpods` after 62 days.
 - Forge World: +2000 income per ship hull supplied, +5000 to `Stats.CUSTOM_PRODUCTION_MOD` per hull (`WarhammerSubIndustry.java:174-184`); month end: unrest +1 on any deficit (cap 5), monthly DP budget `size - 2`, 30% chance to build a known hull with `getSuppliesToRecover() <= budget` into storage with `IndEvo_handBuilt` (`:211-257`). Adds `pollution` once locked on habitable worlds.
 - Corporate: base stability 0, +1 stability per 20000 net income (max 10), base income x1.3, military upkeep x3, disruption capped at 62 days, full industry slots once locked, growth -20 and -1 per 20000 income (`CorporateGovernanceSubIndustry.java:95-217`). `CorpoImmigrationPlugin` shrinks the market when weight drops below the size minimum (size > 3) and skips growth when tagged `IndEvo_CorpoGov_MaxSize` (`CorpoImmigrationPlugin.java:44-136`).
 - Anchorage: sets max size to 3, removes all industry slots, upkeep x0.7 (`OutpostSubIndustry.java:21-32`).
@@ -135,7 +135,6 @@ Apply chain: `SwitchableX.init -> setCurrent(list[0])` on first init, then `Swit
 | `Concept` file | Design notes only |
 | `UnderworldSubIndustry.increaseFleetSize` | Empty, body commented out (`:143-145`) |
 | `RuralPolitySubIndustry.fixClosest` | Debug helper, only referenced from a comment |
-| Managed Democracy raid mods | Expired `RaidMod` entries are skipped, never removed |
 | Forge World shortage check | Suspected: "construction material" stability uses `LUXURY_GOODS` deficit, not metals (`WarhammerSubIndustry.java:133`) |
 | Forge World without spaceport | Suspected: `return` in the unrest branch also skips ship building (`:213`) |
 | Rural unapply | Suspected: apply adds organics, drugs (Farming) and supplies (Light Industry); unapply resets only Farming supplies and LI hand weapons (`RuralPolitySubIndustry.java:232-239`) |
