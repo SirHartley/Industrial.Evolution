@@ -46,10 +46,10 @@ A planet with the condition `IndEvo_mineFieldCondition` spawns a ring terrain `I
 
 ## Registration and lifecycle
 
-- Spawn on new game: `ModPlugin.onNewGameAfterEconomyLoad()` -> `spawnMineFields()` (`indevo/utils/ModPlugin.java:314`, `:379-393`) adds the condition to `culann`, `chicomoztoc` and `kantas_den` (the latter two with `$IndEvo_NoAsteroids`). Arsenal stations in planet orbit add it too (`indevo/exploration/stations/DerelictStationPlacer.java:143-157`).
+- Spawn on new game: `ModPlugin.onNewGameAfterEconomyLoad()` -> `spawnMineFields()` (`indevo/utils/ModPlugin.java:316`, `:369-383`) adds the condition to `culann`, `chicomoztoc` and `kantas_den` (the latter two with `$IndEvo_NoAsteroids`). Arsenal stations in planet orbit add it too (`indevo/exploration/stations/DerelictStationPlacer.java:143-157`).
 - Condition plugin from the CSV plugin column. `MineFieldCondition.advance()` calls `addMineField()` on the first tick where the market lacks `$IndEvo_MineFieldRefKey` (`MineFieldCondition.java:72-78`).
 - Terrain plugins from `terrain.json`; entity plugins from `custom_entities.json`.
-- Listeners: `RecentJumpListener.register()` and `InterdictionPulseAbilityListener.register()` in `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:456`, `:472`). Both are transient and re-added on each load.
+- Listeners: `RecentJumpListener.register()` and `InterdictionPulseAbilityListener.register()` in `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:456`, `:458`). Both are transient and re-added on each load.
 - Save: `ModPlugin.beforeGameSave()` removes every `IndEvo_Mine` entity that has an asteroid source and empty memory, keeps the rest and calls `reportAsteroidPersisted` on them (`ModPlugin.java:326-348`); `afterGameSave`/`onGameSaveFailed` re-add them (`:360-377`). On load, vanilla `CoreLifecyclePluginImpl.onGameLoad` calls `regenerateAsteroids()` on every terrain plugin that is an `AsteroidSource` (starsector-knowledge `api/impl/campaign/CoreLifecyclePluginImpl.java:513-516`, `:1246-1254`), which re-creates the mines through `createMines()`.
 
 Order: `onNewGameAfterEconomyLoad -> spawnMineFields -> addCondition -> MineFieldCondition.advance -> addMineField -> MineBeltTerrainPlugin.addMineBelt -> advance -> createMines`.

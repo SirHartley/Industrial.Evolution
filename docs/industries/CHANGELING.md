@@ -63,7 +63,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:459-467`) registers, transient and deduped by class: the three option providers, `RuralPolityTooltipAdder`, `RuralPolityImageChanger`, `MarineLossAmplifcationHullmodEffectListener`. `ManagedDemocracyNexerelinListenerPlugin` only if `nexerelin` is enabled (`ModPlugin.java:485`).
+- `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:461-469`) registers, transient and deduped by class: the three option providers, `RuralPolityTooltipAdder`, `RuralPolityImageChanger`, `MarineLossAmplifcationHullmodEffectListener`. `ManagedDemocracyNexerelinListenerPlugin` only if `nexerelin` is enabled (`ModPlugin.java:485`).
 - `ModPlugin.setScriptsIfNeeded()` registers `CorporateGovernanceCampaignPlugin` every load (`ModPlugin.java:509`). `BaseCampaignPlugin` is transient with a null id (`api/campaign/BaseCampaignPlugin.java:31-37` in the knowledge base).
 - The other tooltip adders (`HelldiversTooltipAdder`, `WarhammerTooltipAdder`, `CorpoPolityTooltipAdder`) register themselves from their variant's `apply()`.
 - `HelldiversSubIndustry` and `WarhammerSubIndustry` add themselves as persistent listeners in `apply()` and remove themselves in `unapply()`. `ShipProductionSummaryMessageHandler.getInstanceOrRegister()` adds a persistent listener on first use.

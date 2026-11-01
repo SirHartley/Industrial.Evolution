@@ -12,7 +12,7 @@ Real status: not built and not running.
 
 - `IndEvo.iml` excludes the whole folder (`excludeFolder .../exploration/distress`), and the IntelliJ artifact `.idea/artifacts/IndEvo_jar.xml` packs module output only, so none of these classes are in `jars/IndEvo.jar`.
 - The code does not compile as is: it uses `GhostShipIntel`, `DistressCallIntel`, `ALIEN_ATTACK_TIMER`, `TIMER_HULLMOD_1..6`, `_DEBUG`, `PLAGUE_CONDITION` and intel type constants (`PLAGUE_PLANET`, `GATE_LOST`, `PLAGUE_THRESHOLD`, `NANITE_TRANSMISSION`, `CANNIBAL_ATTACK`), none of which exist; `PlaguePlanetIntel.java:15` calls a `GhostShipIntelBase` constructor that does not exist.
-- The only references from outside are commented out: `//DistressCallManager.getInstanceOrRegister();` and `//HullmodTimeTracker.getInstanceOrRegister();` (`indevo/utils/ModPlugin.java:497-498`).
+- The only references from outside are commented out: `//DistressCallManager.getInstanceOrRegister();` and `//HullmodTimeTracker.getInstanceOrRegister();` (`indevo/utils/ModPlugin.java:499-500`).
 - `data/config/indEvo/distress_call_data.csv` is read only by `DistressCallManager.loadEvents()` (`events/DistressCallManager.java:32`, `:75`), so it is never read. Its one row points at Vayra's `data.scripts.campaign.events.VayraGhostShipDistressCall`, not at `GhostShipDistressCall`.
 - Live leftovers in loaded data: ghost ship hullmod rows, ghost ship rules, the `Ids` constants. See Data and ids.
 

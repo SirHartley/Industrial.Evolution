@@ -31,7 +31,7 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 | Kind | Id / key | Where |
 |---|---|---|
 | Industry | `IndEvo_Academy` (`Ids.ACADEMY`) | `data/campaign/industries.csv:35`, tags `structure, unraidable` |
-| Market | `IndEvo_academyMarket` on entity `station_galatia_academy` | `ModPlugin.createAcademyMarket()` (`indevo/utils/ModPlugin.java:393`) |
+| Market | `IndEvo_academyMarket` on entity `station_galatia_academy` | `ModPlugin.createAcademyMarket()` (`indevo/utils/ModPlugin.java:395`) |
 | Setting | `IndEvo_Academy` (toggle) | `data/config/LunaSettings.csv:95`, read in `Academy.isAvailableToBuild()` (`Academy.java:145`) |
 | Setting | `IndEvo_dailyOfficerSpawnChance` 0.15, `IndEvo_dailyAdminSpawnChance` 0.10 | `LunaSettings.csv:163-164`, `Academy.onNewDay()` |
 | Setting | `IndEvo_personalityTrainingDayCount` 93, `IndEvo_personalityTrainingCost` 30000 | `LunaSettings.csv:165-166` |
@@ -48,7 +48,7 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 ## Registration and lifecycle
 
 - Industry plugin from the `industries.csv` plugin column. Rule commands from `ruleCommandPackages` entry `indevo.industries.academy.rules` (`data/config/settings.json:238`).
-- `ModPlugin.onGameLoad()` and `onNewGameAfterEconomyLoad()` call `createAcademyMarket()` (`ModPlugin.java:150`, `:323`): hidden size 3 independent market with Population and Academy, `NO_CONTACTS_ON_MARKET` and `NO_DECIV_KEY` set, only if the market is missing and `station_galatia_academy` exists.
+- `ModPlugin.onGameLoad()` and `onNewGameAfterEconomyLoad()` call `createAcademyMarket()` (`ModPlugin.java:150`, `:309`): hidden size 3 independent market with Population and Academy, `NO_CONTACTS_ON_MARKET` and `NO_DECIV_KEY` set, only if the market is missing and `station_galatia_academy` exists.
 - `AcademyOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:481`), transient, deduped by class.
 - `Academy.apply()` adds itself as a transient listener (`Academy.java:88`); `unapply()` removes it. Daily ticks come from IE `TimeTracker`, which collects `NewDayListener` listeners ([Utils](../core/UTILS.md)).
 - `NewGameIndustryPlacer.placeAcademy` seeds NPC Academies; `ModUpdater` restores Academy state on spec swap. Both in [Utils](../core/UTILS.md).

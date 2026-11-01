@@ -71,7 +71,7 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 ## Registration and lifecycle
 
 - Entry: rules `IndEvo_JobMenuPoint` adds option 4 "Visit the Research Tracts" on `PopulateOptions` at `$id == station_galatia_academy`; `IndEvo_JobMenuInit` runs the command `ResearchProjectDialoguePlugin` (package `indevo.dialogue.research.dialogue` is in `ruleCommandPackages`, `data/config/settings.json:246`).
-- `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:445` to `:511`):
+- `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:445` to `:496`):
 
 | Class | How | Persists |
 |---|---|---|

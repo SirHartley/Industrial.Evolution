@@ -42,7 +42,7 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 
 ## Registration and lifecycle
 
-- `ModPlugin.onNewGameAfterEconomyLoad()` calls `new IndEvo_SalvageSpecialAssigner().init()` after `DerelictStationPlacer.init()` (`indevo/utils/ModPlugin.java:309-312`). New game only; existing saves keep whatever specials they rolled.
+- `ModPlugin.onNewGameAfterEconomyLoad()` calls `new IndEvo_SalvageSpecialAssigner().init()` after `DerelictStationPlacer.init()` (`indevo/utils/ModPlugin.java:311-313`). New game only; existing saves keep whatever specials they rolled.
 - Special data objects are saved on the entity (vanilla salvage special memory). They are `final`-field POJOs; renaming or moving a data class breaks old saves (inferred from XStream class names).
 - Plugins are created per dialog by `SalvageSpecialData.createSpecialPlugin()`; they hold no state across dialogs except what they write back into the data object (`JuicyRumorsSpecial`, `ItemChoiceSpecial` repair their data on open).
 

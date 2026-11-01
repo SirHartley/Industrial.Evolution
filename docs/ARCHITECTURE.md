@@ -86,7 +86,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 
 | Hook | What IE does | Line |
 |---|---|---|
-| `onApplicationLoad()` | GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:106` |
+| `onApplicationLoad()` | GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:117` |
 | `onAboutToStartGeneratingCodex()` | Preloads the nanites icon texture | `:130` |
 | `onNewGameAfterEconomyLoad()` | One-time world generation (chain below) | `:299` |
 | `onGameLoad(newGame)` | Every-load registration and fixes (chain below) | `:144` |
@@ -98,7 +98,7 @@ New game, once (`:302` to `:318`):
 
 `LocatorSystemRatingUpdater.updateAllSystems -> RuinsManager.forceCleanCoreRuins -> NewGameIndustryPlacer.run -> ArtilleryStationPlacer.placeDerelictArtilleries -> placeCoreWorldArtilleries -> GachaStationSpawner.spawn -> createAcademyMarket -> [IndEvo_Enable_Derelicts] DerelictStationPlacer.init -> IndEvo_SalvageSpecialAssigner.init -> spawnMineFields -> DerelictInfrastructurePlacer.placeRuinedInfrastructure -> RuinsManager.placeIndustrialRuins`
 
-Every load (`:147` to `:192`):
+Every load (`:150` to `:192`):
 
 `createAcademyMarket -> setListenersIfNeeded -> setScriptsIfNeeded -> ResourceConditionApplicator.applyResourceConditionToAllMarkets -> loadTransientMemory -> PlanetoidDespawnScript.despawnStrandedPlanetoids -> OrbitFocus.removeUnusedOrbitFoci -> addTypePrefaceToIndustrySpecs -> LocatorSystemRatingUpdater.updateAllSystems -> resetDerelictRep -> [newGame] ArtilleryStationReplacer.register -> pet_management ability add or remove [IndEvo_pets] -> MissileActivationManager reset`
 
@@ -236,9 +236,9 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 
 | Component | State | Doc |
 |---|---|---|
-| Crucible | Spawner commented out (`ModPlugin.java:222`, `:321`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
+| Crucible | Spawner commented out (`ModPlugin.java:222`, `:308`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
 | Distress calls, ghost ships | Excluded, does not compile; hullmod rows and rules still load | [DISTRESS](exploration/DISTRESS.md) |
-| Mobile colony | Compiled and its campaign plugin registered (`:521`), never created | [WIP](core/WIP.md) |
+| Mobile colony | Compiled and its campaign plugin registered (`:507`), never created | [WIP](core/WIP.md) |
 | Converters | Excluded, does not compile | [WIP](core/WIP.md) |
 | Wormhole complex (`IndEvo_Warphouse`) | CSV row and item commented out | [WAREHOUSES](industries/WAREHOUSES.md) |
 | `ArtilleryStationReplacer` | Never matches: checks `contains("artillery")` against `IndEvo_Artillery_*` ids | [ARTILLERY](industries/ARTILLERY.md) |
