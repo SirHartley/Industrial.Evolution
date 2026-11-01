@@ -107,7 +107,7 @@ Missile entities (`BaseMissileEntityPlugin`): fly straight for 4 s, explode on `
 | Explosive | 1000 | Hits a fleet within 10 + fleet radius; spawns `IndEvo_VariableExplosion` size 250, damage LOW, sound `IndEvo_mortar_hit` |
 | Concussive | 2000, AOE | Explodes within 25 of target; vanilla `ShoveFleetScript` on fleets within 500, strength 2 times falloff, halved for the player; no damage |
 | Smoke | 750, AOE | Spawns `IndEvo_SmokeCloud` entity (360 to 400 radius, 4 days), which adds the terrain: detected range x0.5, burn x`1 - 0.3*fleetRadiusMult` (min 0.1) |
-| Intercept | 2000 | Within 300: `GoSlowScript` 2 s, sensor profile +1000 for 20 s with glow, interdict 6 s (turns off burn abilities and interdiction pulse, sets burn cooldown) |
+| Intercept | 2000 | Every fleet within 300 except the firing fleet: `GoSlowScript` 2 s, sensor profile +1000 for 20 s with glow, interdict 6 s (turns off burn abilities and interdiction pulse, sets burn cooldown) |
 | Remote | none | Needs system tag `IndEvo_SystemHasArtillery` and the fleet inside `ArtilleryTerrain` with a live `CampaignAttackScript`; calls `forceTarget` on a token at the cursor. `ArtilleryAOEReticuleRenderer` rejects points within `INHABITED_AREA_SAFE_RADIUS` (700) plus entity radius of a market |
 | Catapult | none | Hyperspace, not abyss. Adds the temp ability, `activateAtAngle`, removes it; `NoWellSlipstreamAbility` builds a slipstream (burn about 900) and calls vanilla `deductCost` (CR and fuel) |
 

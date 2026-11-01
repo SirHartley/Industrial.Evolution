@@ -45,7 +45,7 @@ public class InterceptMissileEntityPlugin extends BaseMissileEntityPlugin {
         Global.getSector().addPing(entity, custom);
 
         for (final CampaignFleetAPI other : entity.getContainingLocation().getFleets()) {
-            if (other == entity) continue;
+            if (other == entity || other == source) continue;
             if (other.isInHyperspaceTransition()) continue;
 
             float dist = Misc.getDistance(entity.getLocation(), other.getLocation());
