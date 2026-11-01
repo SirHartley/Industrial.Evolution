@@ -98,7 +98,7 @@ public class ShippingCostCalculator {
 
         if (!list.isEmpty()) {
             for (ShipVariantAPI v : list) {
-                totalValue += v.getHullSpec().getFleetPoints();
+                totalValue += v.getHullSpec().getSuppliesToRecover();
             }
         }
 

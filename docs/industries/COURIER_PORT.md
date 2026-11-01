@@ -69,7 +69,7 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 
 `getTotalContractCost = shipCost + cargoCost + baseFee` (`ShippingCostCalculator.java:54-56`).
 - Cargo: cargo space per stack (personnel and fuel count 0.75 per unit) x `costPerSpace`.
-- Ships: hull fleet points x `costPerShip`.
+- Ships: hull deployment points (`getSuppliesToRecover()`) x `costPerShip` (`ShippingCostCalculator.java:101`).
 - Both x distance mult `round((1 + ly * 1000^(1 + ly/250) / 10000) * 10) / 10`, x0.8 with beta core, x `costPerLyMult` (`:41-52`). Alpha core x0.9 on both parts.
 - `chargePlayer` adds the cost to the upkeep of the `IndEvo_PrivatePort` node of the closest port market in the monthly report; without a port it subtracts credits directly (`ShippingManager.java:90-102`).
 
@@ -100,7 +100,6 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 | `CourierFleetCreator.createFleet` returns null | Suspected npe in `Shipment.init` (`spawnFleet`, `setFailsafeTimer`) when the factory returns an empty fleet (`CourierFleetCreator.java:85`) |
 | Same market shipment | Calls `fleet.despawn` on a fleet that was never spawned (`Shipment.java:96`); intel added after finalize |
 | Inactive one time contracts | Never removed by the scheduler, only by the player |
-| `costPerShip` setting | Help text says DP, code uses hull fleet points (`ShippingCostCalculator.java:101`) |
 | `ShippingIntel.removeAll` | Console helper; comment names an old package path |
 | Changelog_todo | "Allow courier to ship to superstructures for restoration", "Courier Port Option for settlements" |
 

@@ -49,6 +49,7 @@ Fixed - Forge World experiment ships roll 4 effects instead of 5; existing ships
 
 Courier Port
 Fixed - Invalid shipping contracts now show why they are invalid
+Fixed - Ship transport cost now uses deployment points like the setting and the contract screen say, instead of fleet points
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
