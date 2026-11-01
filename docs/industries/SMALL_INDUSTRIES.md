@@ -77,8 +77,8 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 ## Registration and lifecycle
 
 - All via CSV plugin column.
-- `ModPlugin.setListenersIfNeeded()`: `InvisiblePlanetaryShield.AlternateTextureOptionProvider.register()` (`ModPlugin.java:503`). `BureauFactor` and `SuperComputerFactor` are registered by `SpecialItemEffectsRepo.initEffectListeners()` ([Installables](../items/INSTALLABLES.md)).
-- `ModPlugin.onGameLoad` calls `overrideVanillaCommerce()` when `IndEvo_CommerceBalanceChanges` is on (`ModPlugin.java:173`).
+- `ModPlugin.setListenersIfNeeded()`: `InvisiblePlanetaryShield.AlternateTextureOptionProvider.register()` (`ModPlugin.java:502`). `BureauFactor` and `SuperComputerFactor` are registered by `SpecialItemEffectsRepo.initEffectListeners()` ([Installables](../items/INSTALLABLES.md)).
+- `ModPlugin.onGameLoad` calls `overrideVanillaCommerce()` when `IndEvo_CommerceBalanceChanges` is on (`ModPlugin.java:172`).
 - `NewGameIndustryPlacer` places Restoration Docks (`NewGameIndustryPlacer.java:69`) and the Requisitions Centre at `baetis` (`:133`) on new game; see [Utils](../core/UTILS.md).
 - Supercomputer, Restoration Docks and Requisitions Centre add themselves as transient listeners in `apply()` and remove themselves in `unapply()`; `ListenerManager.addListener` dedupes the same instance (skill `obf/campaign/ListenerManager.java:29`).
 
@@ -121,7 +121,7 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 
 - `apply()`: on functional player markets adds an `open_market` of faction `independent` (or re-adds the transient `saved` one), stability -3, income +25%. Improve +25% (+10% with the balance setting). Tri-Tachyon immigration +10.
 - Alpha core: income +25%, or tariff x0.75 on player markets with the balance setting.
-- Balance setting: one per system per faction; `overrideVanillaCommerce()` (`ModPlugin.java:536`) replaces the Dealmaker Holosuite effect in `ItemEffectsRepo` with +25% income and calls `replaceIndustries(TradeCenter.class, "commerce")`.
+- Balance setting: one per system per faction; `overrideVanillaCommerce()` (`ModPlugin.java:534`) replaces the Dealmaker Holosuite effect in `ItemEffectsRepo` with +25% income and calls `replaceIndustries(TradeCenter.class, "commerce")`.
 
 ### Invisible planetary shield
 
@@ -147,7 +147,7 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | `RequisitionCenter.apply` | `addListener(this)` with no listener interface; no effect |
 | `TradeCenter.applyNoAICoreModifiers` (`TradeCenter.java:179`) | unmodifies tariff under `getModId()`, set under `getModId(1)`; the alpha tariff mod stays after core removal |
 | `TradeCenter` alpha tooltip | with balance setting the format args are misordered (tariff string in the demand slot) |
-| `ModPlugin.replaceIndustries` (`ModPlugin.java:564`) | `ind.getClass().isInstance(targetClass)` is always false; every `commerce` is removed and re-added on every load with the setting on; `Changelog_todo:56` "Double check commerce building reset bug" |
+| `ModPlugin.replaceIndustries` (`ModPlugin.java:562`) | `ind.getClass().isInstance(targetClass)` is always false; every `commerce` is removed and re-added on every load with the setting on; `Changelog_todo:56` "Double check commerce building reset bug" |
 | `CentralizationBureau` `ADMANUF` branch (`:98`) | dead: `IndEvo_AdManuf` is not whitelisted; would NPE on `getSpecialItem().getId()` without an item |
 | Bureau | `Changelog_todo:61`: "Cent Bureau should really run off a condition" |
 | `OrbitalStation` | `@Deprecated`, no CSV row or reference; skips stations tagged `NO_ORBITAL_STATION` |

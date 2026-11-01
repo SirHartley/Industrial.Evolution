@@ -31,5 +31,6 @@
     <orderEntry type="library" name="RandomAssortmentofThings" level="application" />
     <orderEntry type="library" name="Kotlin-Runtime" level="application" />
     <orderEntry type="library" name="starfarer_obf" level="application" />
+    <orderEntry type="library" name="PatchLibAPI" level="application" />
   </component>
 </module>

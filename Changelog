@@ -4,6 +4,8 @@ General
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
 Fixed - Possible crash on market updates with mod industries that do not extend BaseIndustry
+Adjusted - Now requires PatchLib
+Note - Install PatchLib alongside Industrial.Evolution
 
 Research Projects
 Fixed - Now sorts highest to lowest progress like intended
@@ -164,6 +166,9 @@ Fixed - Ship parts from wrecks vary per wreck instead of using the same roll all
 
 Artillery
 Fixed - Artillery slow field and forced overload no longer run out while combat is paused
+Fixed - Watchtowers no longer count as stable locations anywhere, including the planet search and the planet list
+Fixed - Creating a stable location at a star now counts wormholes again, like vanilla
+Adjusted - Uses the vanilla star dialog again, which improves compatibility with other mods
 
 Console Commands
 Fixed - SpawnRuins no longer rolls the first planet twice or adds the ruins condition twice

@@ -57,7 +57,6 @@ import indevo.industries.InvisiblePlanetaryShield;
 import indevo.industries.TradeCenter;
 import indevo.industries.academy.plugins.AcademyOptionProvider;
 import indevo.industries.artillery.listener.WatchtowerFactionResetListener;
-import indevo.industries.artillery.plugins.ArtilleryCampaignPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
@@ -519,7 +518,6 @@ public class ModPlugin extends BaseModPlugin {
         //Scripts:
         Global.getSector().registerPlugin(new SplinterFleetCampignPlugin());
         Global.getSector().registerPlugin(new GachaStationCampaignPlugin());
-        Global.getSector().registerPlugin(new ArtilleryCampaignPlugin());
         Global.getSector().registerPlugin(new MobileColonyCampaignPlugin());
         Global.getSector().registerPlugin(new PetShopCampaignPlugin());
         Global.getSector().registerPlugin(new CorporateGovernanceCampaignPlugin());
