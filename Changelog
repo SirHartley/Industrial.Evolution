@@ -77,6 +77,7 @@ Fixed - Ancient Laboratory alpha core now boosts the third commodity as its tool
 Fixed - Rift Generator crash when only one core system is left as a target
 Fixed - Two ruins planets in one system no longer roll the same derelict industry
 Fixed - Ring terrain around a planet moved by the Rift Generator no longer stays behind in the old system
+Fixed - Possible crash in Hull Forge or Ancient Lab on a lost market when the player has no colonies left
 
 Embassy
 Fixed - Ambassadors can now be asked to stop sabotaging hostile activity

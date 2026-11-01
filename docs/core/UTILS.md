@@ -154,7 +154,6 @@ Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmuniti
 | `CirclePathData`, `SpriteDistorter`, `ModUpdater` | Unreferenced |
 | `MagicCampaignTrailPlugin.NicToyCustomCampaignTrailObject` | Unused inner class |
 | `MiscIE.stripShipToCargoAndReturnVariant(member, market)` (`helper/MiscIE.java:499`) | Uses `getStorageCargo(market)` instead of the resolved `target` (gathering point), so items go to the local market (suspected bug) |
-| `MiscIE.getMarketForStorage` (`helper/MiscIE.java:564`) | NPE if the faction has no gathering point (unverified whether `getGatheringPoint()` can return null) |
 | `MiscIE.getStorage` (`helper/MiscIE.java:74`) | Logs every call in dev mode |
 | `ModUpdater` | Class name filter `contains("IndEvo")` misses classes without `IndEvo` in the name (package is lowercase `indevo`); restores Academy and hub state onto the removed instance `ind` (`update/ModUpdater.java:302` to `315`) |
 

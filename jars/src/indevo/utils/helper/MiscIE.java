@@ -562,7 +562,7 @@ public class MiscIE {
     //get the production point, or the local market if there is none
     public static MarketAPI getMarketForStorage(MarketAPI market) {
         MarketAPI prod = market.getFaction().getProduction().getGatheringPoint();
-        MarketAPI targetMarket = prod.hasSubmarket(Submarkets.SUBMARKET_STORAGE) ? prod : market;
+        MarketAPI targetMarket = prod != null && prod.hasSubmarket(Submarkets.SUBMARKET_STORAGE) ? prod : market;
 
         return targetMarket.hasSubmarket(Submarkets.SUBMARKET_STORAGE) ? targetMarket : null;
     }
