@@ -45,7 +45,7 @@ Two reflection helpers exist. Prefer `StarReflectionUtils` for new code (static 
 |---|---|
 | Player and dialog | `getPlayerCargo()` 43, `getCurrentInteractionTargetMarket()` 61 (market of the open dialog target or null) |
 | Storage | `getStorage(market)` 68 (vanilla storage, falls back to RAT `rat_settlement_storage`), `getStorageCargo(market)` 78, `getIndustrialStorageCargo(market)` 161 (`Ids.SHAREDSTORAGE`), `getMarketForStorage(market)` 563 (gathering point if it has storage, else local), `addOrRemoveSubmarket(market, id, shouldHave)` 152 |
-| Ship stripping | `stripShipNoCargo(member)` 277, `stripShipToCargoAndReturnVariant(member, cargo)` 446 (also modules, AI core captain), `stripAndReturnVariant(variant, cargo)` 466, `stripShipToCargoAndReturnVariant(member, market)` 497 |
+| Ship stripping | `stripShipNoCargo(member)` 277, `stripShipToCargoAndReturnVariant(member, cargo)` 446 (also modules, AI core captain), `stripAndReturnVariant(variant, cargo)` 466, `stripShipToCargoAndReturnVariant(member, market)` 497 (into `getMarketForStorage(market)` storage, else fleet cargo) |
 | Fleet members | `finalizeAndUpdateFleetMember(member)` 168 (clone variant, clear original), `createFleetMemberClone(member)` 335, `convertFleetMemberListToIdList(list)` 339, `getCargoCopy(cargo)` 320 (copies mothballed ships too) |
 | Hull lists (session cached) | `getAllLearnableShipHulls()` 178 (tag ending `_bp`, not fighter, not `IndEvo_no_ship_roulette`), `getAllRareShipHulls()` 195 (`rare_bp`), `isLearnable(spec)` 212, `getShipRoleListMap()` 839 (hull ids per role group from all factions) |
 | Whitelists and mod lists (session cached) | `getCSVSetFromMemory(path)` 578 (merged CSV `id` column, master mod `IndEvo`), `getVPCItemSet()` 262, `getPrismBossShips()` 619, `getVayraBossShips()` 648, `canLoadShips(factionOrModId)` 614 |
@@ -153,7 +153,6 @@ Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmuniti
 |---|---|
 | `CirclePathData`, `SpriteDistorter`, `ModUpdater` | Unreferenced |
 | `MagicCampaignTrailPlugin.NicToyCustomCampaignTrailObject` | Unused inner class |
-| `MiscIE.stripShipToCargoAndReturnVariant(member, market)` (`helper/MiscIE.java:499`) | Uses `getStorageCargo(market)` instead of the resolved `target` (gathering point), so items go to the local market (suspected bug) |
 | `MiscIE.getStorage` (`helper/MiscIE.java:74`) | Logs every call in dev mode |
 | `ModUpdater` | Class name filter `contains("IndEvo")` misses classes without `IndEvo` in the name (package is lowercase `indevo`); restores Academy and hub state onto the removed instance `ind` (`update/ModUpdater.java:302` to `315`) |
 

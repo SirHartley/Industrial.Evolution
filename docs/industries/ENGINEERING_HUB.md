@@ -46,7 +46,7 @@ Daily chain: `TimeTracker -> EngineeringHub.onNewDay -> (idle) initDeconstructio
 ### Intake and deconstruction
 
 - Intake: `ReverseEngineeringSubmarketPlugin.isIllegalOnSubmarket` allows a hull if it is on `IndEvo_reverseList` or (unless strict) has any tag containing `_bp`, is not a Prism or Vayra boss hull or tagged `threat` / `dweller`, has research value above 0 and is not printed. `IndEvo_EngHubIgnoreWhitelists` drops the list checks; dev mode allows anything (`ReverseEngineeringSubmarketPlugin.java:45-160`).
-- `initDeconstruction()` takes the first ship in `IndEvo_EngStorage` whose base hull is below 100%, strips weapons and fighters into storage with `MiscIE.stripShipToCargoAndReturnVariant`, removes the ship and stores its variant in `currentDeconShipVar` (`EngineeringHub.java:323-343`).
+- `initDeconstruction()` takes the first ship in `IndEvo_EngStorage` whose base hull is below 100%, strips weapons and fighters into the gathering point storage (local storage if the gathering point has none) with `MiscIE.stripShipToCargoAndReturnVariant`, removes the ship and stores its variant in `currentDeconShipVar` (`EngineeringHub.java:323-343`).
 - Days: `round(sizeValue * 57) - 5` = 15 (frigate to cruiser) or 21 (capital), x0.7 beta, x0.85 alpha, truncated to int (`:416-440`).
 - Value: 0.35 (frigate to cruiser) or 0.45 (capital), minus `0.05n * (1 + 0.05n * n)` for `n` non built in D-mods (alpha ignores one), rounded to 0.01, floored at 0 (`:388-414`).
 - Base hull: D-hull parent or `getBaseHull()` for restore to base hulls, so skins and D variants share progress (`:362-383`).

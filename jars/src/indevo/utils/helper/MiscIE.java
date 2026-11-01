@@ -496,7 +496,7 @@ public class MiscIE {
 
     public static ShipVariantAPI stripShipToCargoAndReturnVariant(FleetMemberAPI member, MarketAPI market) {
         MarketAPI target = MiscIE.getMarketForStorage(market);
-        CargoAPI cargo = target != null ? MiscIE.getStorageCargo(market) : Global.getSector().getPlayerFleet().getCargo();
+        CargoAPI cargo = target != null ? MiscIE.getStorageCargo(target) : Global.getSector().getPlayerFleet().getCargo();
 
         return stripShipToCargoAndReturnVariant(member, cargo);
     }
