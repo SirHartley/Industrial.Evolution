@@ -1,6 +1,6 @@
 # Player settings rework
 
-**Status: approved plan, not implemented.** Philipp took every recommendation on 2026-11-01 ([Decisions](#decisions)) and asked for a Quick Settings tab with content blocks; its split waits on the [open questions](#open-questions). This document records how IE moves from the `Settings` string reader to the `Setting` enum and `PlayerSettings` cache that Catch.Release uses, plus the open questions and the work each step needs. Read it before changing the settings mechanism.
+**Status: approved plan, not implemented.** Philipp took every recommendation on 2026-11-01 ([Decisions](#decisions)) and approved the Quick Settings split. No open questions. This document records how IE moves from the `Settings` string reader to the `Setting` enum and `PlayerSettings` cache that Catch.Release uses, plus the open questions and the work each step needs. Read it before changing the settings mechanism.
 
 It does not govern setting values, balance or help text wording. [SETTINGS.md](SETTINGS.md) stays the authority on the current mechanism until Stage 0 lands; feature docs own what each setting does; help text goes through the house-style `player-text.md`. Move implemented technical detail to SETTINGS.md and [ARCHITECTURE.md](../ARCHITECTURE.md) and tick the plan here.
 
@@ -53,7 +53,7 @@ Mechanism detail: [SETTINGS.md](SETTINGS.md). Findings that drive this plan:
 
 ### Quick Settings and content blocks
 
-Quick Settings is the first tab. It holds the disclaimers, one switch per content block and the few values most players change. A row lives in one tab only: rows move there with their `fieldID`, so existing player values carry over. The General tab merges into it. Proposed split, waiting on [question 1](#open-questions):
+Quick Settings is the first tab. It holds the disclaimers, one switch per content block and the few values most players change. A row lives in one tab only: rows move there with their `fieldID`, so existing player values carry over. The General tab merges into it. Split approved by Philipp, 2026-11-01:
 
 | Block | Switch | Covers | Applies |
 |---|---|---|---|
@@ -64,9 +64,8 @@ Quick Settings is the first tab. It holds the disclaimers, one switch per conten
 | Meteor swarms | `IndEvo_meteor_enabled` | Swarm spawns | At once |
 | Pets | `IndEvo_pets` | Pet shop, pet ability, abandoned pet shops | At once; world placement on new games |
 | Consumable items | New `IndEvo_block_consumables` | Parent of market stock, combat drops and the research project | At once; items already owned stay usable |
-| Relic components | `IndEvo_PartsDropInCampaign` | Relic component drops | At once |
 
-Values in Quick Settings: `IndEvo_CommerceBalanceChanges`, `IndEvo_Corruption` and `IndEvo_CorruptionCutoff`, `IndEvo_meteor_baseChancePerEconomyTick`, `IndEvo_Artillery_spawnWeight`, `IndEvo_derelictStationAmount`, `IndEvo_AutomatedShipyardNum`, `IndEvo_shipPickerRowCount`.
+Values in Quick Settings: `IndEvo_CommerceBalanceChanges`, `IndEvo_meteor_baseChancePerEconomyTick`, `IndEvo_Artillery_spawnWeight`, `IndEvo_derelictStationAmount`, `IndEvo_AutomatedShipyardNum`, `IndEvo_shipPickerRowCount`.
 
 Content IE has no switch for stays as it is: split fleet and detachments, skills, research projects other than pets and consumables, survey stories, beacons, governments, installable items. Adding a switch for one of these is new feature work, not part of this rework.
 
@@ -75,7 +74,7 @@ Tab layout after the split (nine tabs, as Catch.Release):
 | Tab | Rows |
 |---|---|
 | Quick Settings | Disclaimers, block switches, values above |
-| Exploration & Items | Station and special settings, relic component tuning, consumable sub toggles, crucible count (hidden while dormant) |
+| Exploration & Items | Station and special settings, ship and relic component drops, consumable sub toggles |
 | Meteor Swarms | Remaining `IndEvo_meteor_*` |
 | Minefields | Remaining `IndEvo_Minefield_*` |
 | Artillery | Remaining `IndEvo_Artillery_*`, watchtower reset |
@@ -98,8 +97,9 @@ Tab layout after the split (nine tabs, as Catch.Release):
 ### Apply timing
 
 - After Stage 2 no setting needs a restart, and the global Text row goes.
-- `NEW_GAME` settings only act during world generation; their help text ends with "Applies to new games.": `IndEvo_enable_derelict_stations`, `IndEvo_derelictStationAmount`, `IndEvo_SpecialApplicationChance`, `IndEvo_AutomatedShipyardNum`, `IndEvo_Artillery_spawnWeight`, `IndEvo_Artillery_starsPerStationInConstellation`.
-- Mixed toggles act both in world generation and live: `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_Enable_Derelicts`, `IndEvo_pets`, and the industry toggles `NewGameIndustryPlacer` reads. They stay `LIVE`; help text names the new game part.
+- Help text states the new game part in the short style the CSV already uses ("Needs a new game!", "Only works on new game."), normalised to one line: "Needs a new game."
+- `NEW_GAME` settings only act during world generation; their help text ends with that line: `IndEvo_enable_derelict_stations`, `IndEvo_derelictStationAmount`, `IndEvo_SpecialApplicationChance`, `IndEvo_AutomatedShipyardNum`, `IndEvo_Artillery_spawnWeight`, `IndEvo_Artillery_starsPerStationInConstellation`.
+- Mixed toggles act both in world generation and live: `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_Enable_Derelicts`, `IndEvo_pets`, and the industry toggles `NewGameIndustryPlacer` reads. They stay `LIVE`; help text names the part that needs a new game ("Placement needs a new game.").
 - Values copied into saved objects keep their old value until the object is rebuilt: `CampaignAttackScript` builds its fire interval from the delay settings in its constructor (`CampaignAttackScript.java:50`); courier contracts and museum parades are priced or sized at creation. House rule: new terms use the values at creation, accepted terms stay fixed. Stage 2 decides each case and records it in the feature doc.
 
 ## Dependencies
@@ -132,12 +132,14 @@ Philipp, 2026-11-01: every recommendation taken, plus a Quick Settings tab.
 5. **`IndEvo_IntArray`** gates the Interstellar Relay: `MilitaryRelay` reads the toggle of its own id.
 6. **`IndEvo_CrucibleNum`** row removed while crucibles are dormant; `CrucibleSpawner` uses a plain constant until they return.
 7. **`settings.json`**: all 102 fallback keys removed.
-8. **Quick Settings** with content block switches ([section](#quick-settings-and-content-blocks)).
+8. **Quick Settings** with content block switches; split approved as in [the section](#quick-settings-and-content-blocks).
+9. **Relic components are not a block**: they are integral to research projects and salvage yards. `IndEvo_PartsDropInCampaign` (ship component drops; relic components drop either way) stays a normal setting.
+10. **No corruption settings**: corruption leaves IE for its own mod, in a separate change.
+11. **No back-fill**: switching a block on in a running game places no world content; help text says which part needs a new game.
 
 ## Open questions
 
-1. **Quick Settings split.** Confirm the blocks, the values and the tab layout in [Quick Settings and content blocks](#quick-settings-and-content-blocks).
-2. **Switching a block on in a running game.** Derelict tech, artillery and minefield placement only runs on new games, so turning one of them on later adds nothing to that game. Option: on game load, run the placer of an enabled block that has not run yet, which needs each placer guarded and idempotent (a spike per placer). Recommended for now: help text says the placement part applies to new games.
+None.
 
 ## Implementation plan
 
@@ -189,16 +191,17 @@ Each stage is one pull request and depends on the stages before it. Within a sta
 **Stage 3: checks and text.**
 - [ ] 3.1 `indevo/tools/SettingsChecks`, run with the build gate, outside the release jar:
   - CSV against enum: unique ids, a row for every constant and a constant for every non Header, non Text row, type, default, explicit bounds for every number, default inside its bounds, radio choices.
-  - Text: help text present; `fieldName`, `fieldDescription` and Text rows survive `String.format` (as Catch.Release); `NEW_GAME` help text says "new games".
+  - Text: help text present; `fieldName`, `fieldDescription` and Text rows survive `String.format` (as Catch.Release); `NEW_GAME` help text contains "needs a new game".
   - Logic: sanitize (missing, wrong type, NaN, infinity, clamp, Int rounding), the pair rule, Starsector's checked `JSONException`.
   - Blocks: every block is a `BOOLEAN` in Quick Settings and has no block itself.
   - Source: no `LunaSettings.get` outside `indevo/config`.
-- [ ] 3.2 Help text for the 27 empty rows and a text pass over the informal ones.
+- [ ] 3.2 Help text for the 27 empty rows and a pass over the informal ones, in the CSV's existing short style.
 - [ ] 3.3 Quick Settings and the nine tab layout, rows moved with their ids.
 
 Steps that change what the player sees end with a live test by Philipp: change a setting in a running campaign, Save, and check it applies; start a new game with changed new game settings.
 
 **Behaviour to keep in mind.**
+- Counts in this document are from `c51d05e`, before the corruption removal; that change drops `IndEvo_Corruption` and `IndEvo_CorruptionCutoff`.
 - Mod order: IE's `onApplicationLoad` runs before LunaLib's (hooks run in mod `name` order, `lifecycle.md`), so `reload()` must force LunaLib's load; LunaLib then skips its own (`getHasLoaded`).
 - LunaLib's `onDevModeF8Reload` reloads settings without calling listeners, and runs after IE's hook. In dev mode, Save again or reload the game after F8.
 - LunaLib writes defaults for missing keys (`saveDefaultsToFile`). A renamed `fieldID` resets that setting for every player.
