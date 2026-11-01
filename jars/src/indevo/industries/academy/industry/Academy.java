@@ -650,7 +650,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             officerInTraining = person;
             currentDirection = direction;
             market.getMemory().set(OFFICER_IS_TRAINING_KEY, true);
-        }
+        } else return;
 
         chargePlayer(Settings.getInt(Settings.PERSONALITY_TRAINING_COST), false);
     }

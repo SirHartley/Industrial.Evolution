@@ -71,7 +71,7 @@ Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSe
 ### Officer training
 
 - Eligible: in fleet or officer storage, not `Misc.isUnremovable`, `$IndEvo_wasTrainedLevel` 0, or below 2 with an alpha core (`Academy.isOfficerTrainingAllowed(person)`, `:621`).
-- `setOfficerForTraining()` (`:640`) removes the officer from fleet and ship command or from storage, sets direction, charges `IndEvo_personalityTrainingCost` immediately (`chargePlayer(..., false)` subtracts credits).
+- `setOfficerForTraining()` (`:640`) removes the officer from fleet and ship command or from storage, sets direction and charges `IndEvo_personalityTrainingCost` immediately; nothing is charged if training was not allowed (`chargePlayer(..., false)` subtracts credits).
 - `trainOfficerInTraining()` (`:492`) runs daily if functional and the market faction is not hostile to the player. After `getOfficerTrainingDays()` = setting + 1 - AI core reduction, `changeOfficerPersonality()` moves one step, increments `$IndEvo_wasTrainedLevel`, puts the officer into storage, sends a `MessageIntel`. Dev mode finishes on the next day.
 - Direction limits: no `WEAKER` from timid, no `BETTER` from reckless (`isOfficerTrainingDirectionAllowed()`, `:476`), enforced only on the option buttons.
 
@@ -113,7 +113,6 @@ Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSe
 |---|---|
 | `rules/WIP/IndEvo_InitPersonalityTransferMenu.java` | Excluded by `IndEvo.iml:13`. Wrong package `indevo.industries.acardemy.rules.WIP`, uses removed classes (`IndEvo_Academy`, `IndEvo_ids`, Salvage Yards production code). Officer engram transfer concept only |
 | `IndEvo_OfficerCurrentlyTraining` | Dead: no rule uses it, reads `$IndEvo_isTraining` which nothing sets |
-| `IndEvo_MovePerson` `"better"` case | Missing `break` (`IndEvo_MovePerson.java:60-63`): falls through to `"worse"`, second `setOfficerForTraining()` changes nothing but charges the fee again |
 | `isOfficerTrainingAllowed(person, direction)` | `||` with the direction check (`Academy.java:637`) lets an officer already trained twice pass whenever the direction is allowed |
 | `playerHasOfficerCapacity()` | `i <= max` (`Academy.java:464`) reports capacity when the fleet is already full |
 | `increaseOfficerQuality()` | `!=` on string ids (`:266`) and `return` instead of `continue` (`:269`) stop the loop at the first already modified market |

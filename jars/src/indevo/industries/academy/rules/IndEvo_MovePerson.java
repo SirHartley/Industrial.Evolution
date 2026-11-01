@@ -59,6 +59,7 @@ public class IndEvo_MovePerson extends BaseCommandPlugin {
                         switch (direction) {
                             case "better":
                                 academy.setOfficerForTraining(person, Academy.trainingDirection.BETTER);
+                                break;
                             case "worse":
                                 academy.setOfficerForTraining(person, Academy.trainingDirection.WEAKER);
                         }

@@ -31,6 +31,9 @@ Relays
 Fixed - The infamous relay size bug (it was my fault after all!)
 Fixed - No longer crashes when installing a modded AI-Core
 
+Academy
+Fixed - Training an officer to be more aggressive no longer charges the fee twice
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 
