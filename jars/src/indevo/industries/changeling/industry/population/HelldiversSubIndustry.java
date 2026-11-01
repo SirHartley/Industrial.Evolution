@@ -303,7 +303,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         int size = market.getSize();
         market.getStats().getDynamic().getMod(Stats.PATROL_NUM_LIGHT_MOD).modifyFlat(modID, market.getSize() > 4 ? 2 : 1);
         if (size > 3) market.getStats().getDynamic().getMod(Stats.PATROL_NUM_MEDIUM_MOD).modifyFlat(modID, 1);
-        if (size > 4) market.getStats().getDynamic().getMod(Stats.PATROL_NUM_LIGHT_MOD).modifyFlat(modID, 1);
+        if (size > 4) market.getStats().getDynamic().getMod(Stats.PATROL_NUM_HEAVY_MOD).modifyFlat(modID, 1);
 
 
         market.getIncomeMult().modifyPercent(((SwitchablePopulation) industry).getModId(), -INCOME_RED, getName());
