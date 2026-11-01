@@ -24,7 +24,7 @@ Player settings live in `data/config/LunaSettings.csv` and are read through `ind
 
 | Tab | Fields | Content |
 |---|---|---|
-| General | 9 | Disclaimer, commerce balance changes, government (changeling) settings, ship picker rows |
+| General | 6 | Disclaimer, commerce balance changes, government (changeling) settings, ship picker rows |
 | Exploration & Campaign | 12 | Derelicts, derelict stations, relic components, crucibles |
 | Meteor Swarms | 17 | `IndEvo_meteor_*` |
 | Minefields | 11 | `IndEvo_Minefield_*` |
@@ -40,7 +40,7 @@ Field counts include `Header` and `Text` rows. Every `Settings` constant has a L
 if (!Settings.getBoolean(Settings.EMBASSY)) return;
 ```
 
-- `Settings.getX(id)` calls `LunaSettings.getX("IndEvo", id)` when `lunalib` is enabled, else `Global.getSettings().getX(id)` (`Settings.java:166` to `182`).
+- `Settings.getX(id)` calls `LunaSettings.getX("IndEvo", id)` when `lunalib` is enabled, else `Global.getSettings().getX(id)` (`Settings.java:164` to `180`).
 - `Settings` itself does not cache: each call goes to LunaLib, so a value read at use time applies on the next read.
 - 16 classes copy settings into `static final` fields at class load (64 fields; `grep -rn 'static final .*= *Settings\.get' jars/src`), for example `MuseumConstants`, `CampaignAttackScript`, `MeteorSwarmManager`, `ShippingCostCalculator`. Those settings apply only after a game restart. Prefer reading at use time in new code; do not read in a per frame loop where a daily check works.
 - Industry toggles are read in each industry's `isAvailableToBuild()` and `showWhenUnavailable()` (example: `indevo/industries/embassy/industry/Embassy.java:95`, `:105`). A disabled industry stays on markets that already have it.

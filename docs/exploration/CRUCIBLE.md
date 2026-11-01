@@ -51,7 +51,7 @@ State: dormant. Nothing calls `CrucibleSpawner.spawn()` (`indevo/utils/ModPlugin
 | Memory key | `$IndEvo_crucible` (on top entity, rules match on it) | `CrucibleSpawner.java:234` |
 | Persistent data | `$IndEvo_hasPlacedCrucibles` | `CrucibleSpawner.java:38` |
 | Terrain | `crucible_field` -> `CrucibleFieldTerrainPlugin` | `data/campaign/terrain.json:35` |
-| Setting | `IndEvo_CrucibleNum` (Int, default 1, extra non-nebula crucibles) | `data/config/LunaSettings.csv:16`, read in `CrucibleSpawner.java:39` |
+| Setting | `IndEvo_CrucibleNum` (Int, default 1, extra non-nebula crucibles) | `data/config/LunaSettings.csv:13`, read in `CrucibleSpawner.java:39` |
 | Sounds | `IndEvo_mote_yeet`, `IndEvo_crucible_start`, `_alarm`, `_drone`, `_off`, `_transit` | `data/config/sounds.json:121-146` |
 | Sprites | `IndEvo/crucible_mass`, `IndEvo/whirl_round`, `IndEvo/gearwheel`, `IndEvo/vignette_square` | `data/config/settings.json:305` and graphics block |
 | Descriptions | `IndEvo_crucible`, `IndEvo_yeetopult` (no row for `IndEvo_sub_crucible`) | `data/strings/descriptions.csv:27-29` |
