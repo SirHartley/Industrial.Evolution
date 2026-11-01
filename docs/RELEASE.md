@@ -1,8 +1,8 @@
 # Release
 
-Version numbers, the build, what a release contains and how it is published. Read it before bumping a version, building a release jar or publishing. Changelog entries are in [CHANGELOG.md](CHANGELOG.md); the compile gate for ordinary changes is in [CLAUDE.md](../CLAUDE.md#building).
+Version numbers, the release builder, what a release contains, the release workflow and how a release runs. Read it before bumping a version, rebuilding the release jar or publishing. Changelog entries are in [CHANGELOG.md](CHANGELOG.md); the toolchain and the compile gate for ordinary changes are in [CLAUDE.md](../CLAUDE.md#building).
 
-Nothing in this guide runs unless the user asks for a release.
+Nothing in this guide runs unless the user asks: no version bumps, no rebuilt release jar, no tags, no published releases. Ordinary work goes into the changelog's `- UNRELEASED` section and leaves the committed release jar stale on purpose.
 
 ## Versions
 
@@ -20,30 +20,101 @@ Reset the lower parts when a higher one changes. After a release, ask the user w
 
 | Piece | Path | Role |
 |---|---|---|
-| Changelog | `Changelog` | Release notes; the newest section becomes the release body |
-| Mod metadata | `mod_info.json` | `version` (`4.1.b`), `gameVersion`, dependencies |
-| Version file | `IndEvo.version` | Version Checker file: `modVersion` (`major`, `minor`, `patch` letter), `directDownloadURL`, `changelogURL`, forum thread `18011` |
+| Changelog | `Changelog` | Source of the version and the release notes ([CHANGELOG.md](CHANGELOG.md)) |
+| Mod metadata | `mod_info.json` | `version` is stamped into the zip's copy at packaging; the repository copy is not bumped |
+| Version file | `IndEvo.version` | Version Checker file, forum thread `18011`; stamped at packaging, committed back to `master` by the workflow after the release exists |
 | Version Checker registration | `data/config/version/version_files.csv` | Points Version Checker at `IndEvo.version` |
-| Jar | `jars/IndEvo.jar` | Built by the IntelliJ artifact `IndEvo:jar` (`.idea/artifacts`), gitignored, not committed |
-| GitHub release | tag `<version>`, name `Industrial.Evolution <version>` | Asset `Industrial.Evolution<version>.zip`, the URL `IndEvo.version` links |
+| Release builder | `jars/src/indevo/tools/ReleaseBuild.java` | Single-file Java program run with `java <file>`: `compile`, `build`, `package` |
+| Builder checks | `jars/src/indevo/tools/ReleaseBuildChecks.java` | Headless checks of changelog parsing, stamping, file filters, source excludes and asset references |
+| Release jar | `jars/release/IndEvo.jar` | Committed; runtime classes and the Kotlin module file only, manifest carries `Source-SHA256` |
+| IDE jar | `jars/IndEvo.jar` | IntelliJ artifact `IndEvo:jar` for local testing, gitignored, never packaged |
+| Compile jars | `lib/` | Game and library jars the build compiles against ([CLAUDE.md](../CLAUDE.md#compile-dependencies)); never shipped |
+| Module | `IndEvo.iml` | Its `excludeFolder` entries decide which sources the builder compiles |
+| Release workflow | `.github/workflows/release.yml` | Manual only: preview without a version, publish with one |
 
-## Build
+The package `indevo.tools` is never shipped: the builder drops it from the release jar.
 
-The jar is built in IntelliJ: module `IndEvo` (`IndEvo.iml`), JDK 17 (`corretto-17`), Kotlin 2.1, output to `jars/`, artifact `IndEvo:jar` writes `jars/IndEvo.jar` on make. Libraries are IntelliJ application libraries on the user's machine. The run configuration `Run Starsector` (`.idea/runConfigurations`) starts the game with a debugger on port 5005 from a local install path.
+## Builder: compile and build
 
-There is no scripted release builder. The compile dependencies are in `lib/`; the Kotlin compiler is still missing ([CLAUDE.md](../CLAUDE.md#building)), so an agent cannot build the jar yet. `lib/` is build input only and must stay out of the release zip. `.idea/`, `IndEvo.iml`, `CLAUDE.md`, `AGENTS.md`, `.claude/` and `docs/` are not needed by the game either. The house-style release setup (a `ReleaseBuild` tool, committed `jars/release/IndEvo.jar`, a manual `release.yml`) is not set up for IE.
+```text
+java jars/src/indevo/tools/ReleaseBuild.java compile <kotlinc>
+java jars/src/indevo/tools/ReleaseBuild.java build <kotlinc>
+```
+
+Run from the repository root with JDK 17. `<kotlinc>` is the unpacked Kotlin 2.1.0 compiler: the `kotlinc` folder or the folder that contains it ([toolchain](../CLAUDE.md#toolchain)).
+
+1. Refuse anything but JDK 17 and Kotlin 2.1.0 (read from `kotlin-compiler.jar`'s manifest).
+2. Create a fresh `out/release-build-*` directory, so removed classes cannot survive from an earlier build.
+3. Put every `lib/*.jar` on the classpath. Check that `lib/json.jar` is the game's (checked `JSONException`), not a Maven JSON jar.
+4. Collect every `.java` and `.kt` file under `jars/src/` minus the `IndEvo.iml` `excludeFolder` entries, so IntelliJ and the builder compile the same files.
+5. Run the Kotlin compiler in a child JVM (`-jvm-target 17 -api-version 2.1 -language-version 2.1 -no-stdlib -no-reflect -module-name IndEvo`, Java sources passed for resolution), then `javac --release 17 -encoding UTF-8` on the Java sources against its output. `-no-stdlib` compiles against LazyLib's Kotlin runtime in `lib/`, the one the game loads.
+6. Keep only runtime entries: classes under `indevo/` and `data/scripts/` except `indevo/tools/`, plus `META-INF/IndEvo.kotlin_module`.
+7. Write a manifest with `Source-SHA256`: a hash of the compiled sources (tools excluded except the builder itself) and every `lib/*.jar`.
+8. Verify the candidate jar: only runtime entries, every class Java 17 (major 61), `indevo/utils/ModPlugin.class` present.
+9. `build` moves the candidate to `jars/release/IndEvo.jar`; a failed compile leaves the old jar untouched. `compile` leaves it in `out/` and is the compile gate.
+
+Rebuild and commit the release jar only when the user asks, normally right before a release.
+
+## Builder: package
+
+```text
+java jars/src/indevo/tools/ReleaseBuild.java package            # preview
+java jars/src/indevo/tools/ReleaseBuild.java package 4.1.c      # release
+```
+
+- **Changelog parsing:** the newest heading matching `<version>`, `<version> - UNRELEASED` or `<version> - CURRENT PUBLIC VERSION`; old irregular headings (`2.2.a/b`) are ignored. No duplicate versions; at least one `Added/Adjusted/Fixed/Removed -` line; plain text only.
+- **Preview** (no version): packages the newest section even if `UNRELEASED` and accepts a stale release jar with a warning.
+- **Release** (with version): the version must match `4.1.c` exactly (no `v`), equal the newest section, and that section must not be `UNRELEASED`. The release jar must be fresh.
+- **Stamping:** `mod_info.json` `version`; `IndEvo.version` `major`, `minor`, `patch` and `directDownloadURL`. The working files are not edited.
+- **Asset references:** every literal `graphics/`, `sounds/`, `data/` or `IndEvo/sounds/` path (`png jpg jpeg ogg wav shader csv json`) inside packaged data must be in the zip if it names IE (`indevo` in any case) or is a tracked file. Vanilla paths are not in the repository and are skipped.
+- **Required files:** `Changelog`, `mod_info.json`, `IndEvo.version`, `data/config/settings.json`, `data/config/LunaSettings.csv`, `data/config/version/version_files.csv`.
+- **Deterministic zip:** sorted entries, fixed timestamp, one top-level `Industrial.Evolution/` folder ready for `mods/`.
+- **Outputs** in `out/release/`: `Industrial.Evolution-<version>.zip`, `release-notes.md` (the changelog section inside a `text` block, so GitHub keeps line breaks and category headings), the stamped `IndEvo.version`, and `version.txt` for the workflow.
+
+## What ships
+
+Packaging is an allowlist over Git-tracked files only (`git ls-files`). Untracked files never ship; stage or commit new assets before a local preview, commit them before a workflow run.
+
+| Path | Shipped |
+|---|---|
+| Root files | `mod_info.json`, `IndEvo.version`, `Changelog`, `_IndEvo.png`, `LICENSE*`, `NOTICE`, `CREDITS*` |
+| `data/` | `csv json shader ship wpn proj system variant skin skill faction` |
+| `graphics/` | `png jpg jpeg csv` (`graphics/clouds/clouds.csv` is a sprite list read through `settings.json`) |
+| `IndEvo/sounds/` | `ogg wav` |
+| Exact paths (`EXTRAS`) | `jars/source.url`, the pets swap note `graphics/pets/alt/*.txt` |
+| `jars/release/IndEvo.jar` | Mapped to `Industrial.Evolution/jars/IndEvo.jar`, the path `mod_info.json` names |
+
+Never shipped: source (`jars/src`), `lib/`, documentation (`docs/`, `Changelog_todo`), agent files (`CLAUDE.md`, `AGENTS.md`, `.claude/`), workflow and Git files, IDE files (`.idea/`, `IndEvo.iml`), the IDE jar, design notes (`.docx`), thumbnail caches (`photothumb.db`), and any path containing a dot directory or an `unused`, `unedited`, `tools` or `docs` folder.
+
+Add a new runtime format to the allowlist deliberately, in the same commit as the first asset that needs it.
+
+## Release workflow
+
+`.github/workflows/release.yml`, started only by hand: Actions tab, Release, Run workflow, or `gh workflow run release.yml --ref master -f version=<version>`. Start it, preview included, only when the user asks. No push, pull request, tag or schedule trigger and no other workflow.
+
+- **Defaults:** `permissions: contents: read`; one concurrency group per ref, no cancelling; actions pinned by commit SHA with the version in a trailing comment; `persist-credentials: false` on the packaging checkout.
+- **package job:** Temurin 17; compile the builder and its checks and run the checks; run `package` with the version when one was given (on a tag run, the tag name, which a `version` input must match); upload the zip, `release-notes.md` and `IndEvo.version` as an artifact (14 days). Without a version the run stops here: a preview, nothing published.
+- **publish job** (only with a version): download the checked artifact from the same run; fail if the release already exists. From a branch it creates the version tag on the packaged commit (`gh release create --target <sha>`), so nobody pushes a tag by hand, and stops if that tag already exists. On an existing version tag it publishes that tag (`--verify-tag`). Title `Industrial.Evolution <version>`, body `release-notes.md`. Then it checks out `master`, copies the stamped `IndEvo.version` over and commits `update version file to <version>` only if it changed.
+
+The workflow never compiles: it packages the committed release jar. It never needs `lib/` beyond hashing it for the freshness check.
+
+## Version file
+
+`IndEvo.version` on `master` is the online version file (`masterVersionFile`) for Version Checker, LunaLib's update check and mod managers. It always names the newest published release: `modVersion`, `directDownloadURL` (that release's zip), `changelogURL` (raw `master` `Changelog`), `modThreadId` `18011`. Never bump it by hand for unreleased work. The workflow commits it back only after the release exists, so `master` never advertises a version without a download. If branch protection blocks the bot's commit, commit the stamped file from `out/release/` by hand.
 
 ## Running a release
 
-On the user's request only:
+On the user's request only.
 
-1. Pick the version with the user.
+1. Confirm the version. Ask if the next version has not been chosen.
 2. In `Changelog`, change `<version> - UNRELEASED` to `<version> - CURRENT PUBLIC VERSION`, remove that label from the previous version, and add the save compatibility line the user gives.
-3. Set the version in `mod_info.json` and in `IndEvo.version` (`modVersion` and the version in `directDownloadURL`).
-4. The user builds `jars/IndEvo.jar` in IntelliJ, packages the mod folder as `Industrial.Evolution<version>.zip` and publishes the GitHub release with tag `<version>`.
-
-`IndEvo.version` on `master` is the online master version file (`masterVersionFile`), so merging the version bump announces the update to every Version Checker user. Merge it only together with the published release.
+3. Rebuild the release jar with `build` and commit `jars/release/IndEvo.jar` with the changelog.
+4. Run `package <version>` locally as the preview check.
+5. Open a PR and merge it. No CI runs on pull requests; the local checks are the gate.
+6. Start the Release workflow on `master` with `version` set to exactly the version.
+7. Verify the GitHub release (zip and notes) and that `master`'s `IndEvo.version` names it.
+8. Start the next `- UNRELEASED` section with the next change.
 
 ## Maintenance
 
-Update this guide when the version scheme, the version files, the build or the release steps change. Follow [CLAUDE.md](../CLAUDE.md#documentation-upkeep).
+Update this guide when the version scheme, the version file, the builder, the package contents or the release steps change. Keep the builder constants (`MOD`, `FOLDER`, `RELEASES`, `PLUGIN`, `PACKAGES`, `KOTLIN`, `ROOT_FILES`, `REQUIRED`, `EXTRAS`, `ASSETS`), `release.yml` and `IndEvo.version` in step with it. Follow [CLAUDE.md](../CLAUDE.md#documentation-upkeep).
