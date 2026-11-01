@@ -8,6 +8,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`.
 |---|---|
 | [CLAUDE.md](../CLAUDE.md) | Workflow, build gate and document upkeep |
 | [SETTINGS.md](core/SETTINGS.md) | Settings reader, LunaLib tabs, `settings.json`, whitelists |
+| [SETTINGS_REWORK.md](core/SETTINGS_REWORK.md) | Approved move to a typed, cached settings model with Quick Settings; not implemented |
 | [UTILS.md](core/UTILS.md) | Shared helpers in `indevo/utils` |
 | [COMPATIBILITY.md](core/COMPATIBILITY.md) | Hard and optional mod dependencies and every integration |
 | [RULE_COMMANDS.md](dialogue/RULE_COMMANDS.md) | `rules.csv` layout and every rule command class |
