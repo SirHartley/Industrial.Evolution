@@ -37,12 +37,9 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
     public void render(float x, float y, float w, float h, float alphaMult,
                        float glowMult, SpecialItemRendererAPI renderer) {
 
-        String petId = stack.getSpecialDataIfSpecial().getData();
+        if (pet == null) return;
 
-        if (petId == null) return;
-
-        String imageName = PetDataRepo.get(petId).icon;
-        SpriteAPI sprite = Global.getSettings().getSprite(imageName);
+        SpriteAPI sprite = Global.getSettings().getSprite(pet.icon);
         float dim = 30f;
 
         Color bgColor = Global.getSector().getPlayerFaction().getDarkUIColor();
@@ -139,8 +136,12 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         Color b = Misc.getButtonTextColor();
         b = Misc.getPositiveHighlightColor();
 
-        PetData pet = PetDataRepo.get(stack.getSpecialDataIfSpecial().getData());
-        if (pet == null) pet = PetDataRepo.get("hampter");
+        if (isInvalid()) {
+            tooltip.addPara("Invalid item: there is no pet with the id %s. Please report this.", opad, n, String.valueOf(stack.getSpecialDataIfSpecial().getData()));
+            return;
+        }
+
+        PetData pet = this.pet != null ? this.pet : PetDataRepo.get("hampter");
 
         Pair<String, Color> rpair = pet.getRarityDesc();
 
@@ -175,6 +176,11 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         return isFleetCargo() && !Global.getSector().getMemoryWithoutUpdate().contains(BOX_ACTIVE);
     }
 
+    public boolean isInvalid() {
+        // codex stacks have no cargo and null data
+        return pet == null && stack.getCargo() != null;
+    }
+
     public boolean isFleetCargo() {
         boolean isOpen = CoreUITabId.CARGO.equals(Global.getSector().getCampaignUI().getCurrentCoreTab());
         boolean noInteraction = Global.getSector().getCampaignUI().getCurrentInteractionDialog() == null;
@@ -190,8 +196,8 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
     @Override
     public void performRightClickAction(RightClickActionHelper helper) {
         MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
-        // pet can be null here, cause unknown (forum msg416779)
-        if (mem.contains(BOX_ACTIVE) || pet == null) return;
+        if (mem.contains(BOX_ACTIVE)) return;
+        if (pet == null) throw new IllegalStateException("IndEvo pet box without valid pet data, id " + stack.getSpecialDataIfSpecial().getData());
 
         mem.set(BOX_ACTIVE, null, 0f);
         Global.getSector().getCampaignUI().showInteractionDialogFromCargo(new PetPickerInteractionDialoguePlugin(pet, helper), null, () -> mem.unset(BOX_ACTIVE));
