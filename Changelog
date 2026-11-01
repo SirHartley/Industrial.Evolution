@@ -56,6 +56,7 @@ Derelict Industries
 Fixed - Rift Generator planets now move in sync with the warp animation instead of a moment after it ends
 Fixed - Ancient Laboratory alpha core now boosts the third commodity as its tooltip says
 Fixed - Rift Generator crash when only one core system is left as a target
+Fixed - Two ruins planets in one system no longer roll the same derelict industry
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0

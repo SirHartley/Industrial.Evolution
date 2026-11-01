@@ -117,7 +117,6 @@ Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Co
 | `RuinsCountMap`, `WarpEffectPlugin`, `HoleEffectPlugin` | Deprecated, unused. |
 | `PlanetJumpListener` | No implementers. |
 | `AncientLaboratory.java:284-296` | Null gathering point returns false, retried daily. |
-| `RuinsManager.java:195` | Uses `planet.getMarket()` instead of `other.getMarket()`; no cross planet dedupe. |
 | `HullForge.java:292` | NPE if the target market has no storage submarket. |
 | `PlanetMovingScript.java:214-218` | `CampaignTerrainAPI instanceof BaseRingTerrain` is never true (inferred: terrain wrapper vs plugin). |
 | `PlanetMovingScript.java:558` | `removeEntity(null)` when there is no magnetic field. Effect unverified. |

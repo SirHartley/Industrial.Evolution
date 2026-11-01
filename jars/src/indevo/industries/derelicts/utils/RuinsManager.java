@@ -190,9 +190,9 @@ public class RuinsManager {
 
         //check the other planets in the system for any duplicate industry and remove it
         for (PlanetAPI other : planet.getContainingLocation().getPlanets()){
-            if (planet == other) continue;
+            if (planet == other || other.getMarket() == null) continue;
 
-            MemoryAPI mem = planet.getMarket().getMemoryWithoutUpdate();
+            MemoryAPI mem = other.getMarket().getMemoryWithoutUpdate();
             if (mem.contains(INDUSTRY_ID_MEMORY_KEY)) industryIdPicker.remove(mem.getString(INDUSTRY_ID_MEMORY_KEY));
         }
 
