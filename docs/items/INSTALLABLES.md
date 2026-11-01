@@ -67,7 +67,7 @@ There are two install paths. Items in vanilla style (Logistics Core, Neurocondit
 |---|---|---|
 | `IndEvo_log_core` | none; `CentralizationBureau` reads `getSpecialItem()` | range 12 LY, max bonus 4 |
 | `IndEvo_simulator` | none; `Supercomputer` reads it | cold or extreme cold; +0.1 income, range 12 LY |
-| `IndEvo_transmitter` | outside a `MilitaryRelay`: set `$IndEvo_RelayUnlocked`; `unapply` unsets it (`SpecialItemEffectsRepo.java:164`) | in a relay: pristine relay entity |
+| `IndEvo_transmitter` | outside a `MilitaryRelay`: set `$IndEvo_RelayUnlocked`; `unapply` unsets it unless another functional non relay industry holds a transmitter (`SpecialItemEffectsRepo.java:165`) | in a relay: pristine relay entity |
 | `IndEvo_neurals` | none; Senate edicts read `NEURAL_COMPOUNDS_UNREST_RED` 0.5 | see [Senate](../industries/SENATE.md) |
 | `wormhole_anchor` | none | "linked storages" text; vanilla has no effect for this id, IE adds one |
 
@@ -108,10 +108,9 @@ On loot: collects the target's drop data (entity, then salvage spec). For each `
 |---|---|
 | `IndEvo_ForgeTemplate_5` row | uses `EmptyForgeTemplateItemPlugin`, so a 5 charge template shows no hull name or price (suspected CSV error) |
 | `incrementForgeTemplateData` (`ForgeTemplateItemPlugin.java:383`) | non `ForgeTemplateData` branch passes `-1` instead of `num` |
-| Transmitter `unapply` (`SpecialItemEffectsRepo.java:171`) | unsets the sector wide key even if another base still holds a transmitter, until that base reapplies |
 | `PartsCargoInterceptor` wreck roll (`ShipComponentLootManager.java:87`) | `Random` seeded by `getClass().hashCode()`, same seed for every wreck |
 | `ForgeTemplateItemPlugin.applyPrintDefects` | `@Deprecated` |
-| Commented effects | `INTERFACES`, `NANITES`, `SALVAGE_DRONES`, `ANALYSER`, experimental log core (`SpecialItemEffectsRepo.java:97-138`, `:218-292`) |
+| Commented effects | `INTERFACES`, `NANITES`, `SALVAGE_DRONES`, `ANALYSER`, experimental log core (`SpecialItemEffectsRepo.java:98-139`, `:230-304`) |
 | `wormhole_anchor` | effect active, item row commented; see [Warehouses](../industries/WAREHOUSES.md) |
 
 ## Maintenance

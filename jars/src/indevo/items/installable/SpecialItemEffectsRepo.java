@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
@@ -168,8 +169,19 @@ public class SpecialItemEffectsRepo {
             }
 
             public void unapply(Industry industry) {
-                if (!(industry instanceof MilitaryRelay))
+                if (!(industry instanceof MilitaryRelay) && !otherBaseHasTransmitter(industry))
                     Global.getSector().getMemoryWithoutUpdate().unset(TRANSMITTER_UNLOCK_KEY);
+            }
+
+            private boolean otherBaseHasTransmitter(Industry industry) {
+                for (MarketAPI market : Global.getSector().getEconomy().getMarketsCopy()) {
+                    for (Industry ind : market.getIndustries()) {
+                        if (ind == industry || ind instanceof MilitaryRelay || !ind.isFunctional()) continue;
+                        if (ind.getSpecialItem() != null && ItemIds.TRANSMITTER.equals(ind.getSpecialItem().getId())) return true;
+                    }
+                }
+
+                return false;
             }
 
             protected void addItemDescriptionImpl(Industry industry, TooltipMakerAPI text, SpecialItemData data,

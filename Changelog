@@ -150,6 +150,9 @@ Fixed - Tech Locator rates caches, stations and ship wrecks by their actual valu
 Fixed - Interceptor missile stuns every fleet caught in the blast, not only fleets you can see in detail
 Fixed - Interceptor missile no longer interdicts and traces the fleet that fired it
 
+Items
+Fixed - Removing one of two Relay Hypertransmitters no longer turns relays off
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 
