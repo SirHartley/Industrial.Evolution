@@ -17,7 +17,7 @@ NPC markets of whitelisted factions at size 5+ get an ambassador person (post `a
 | `listeners/AmbassadorPersonManager.java` | Ambassador person lifecycle on markets (create, add, remove, delete, return home), daily rep loss tracking, monthly penalty application and report, war and recall checks, `adjustRelationship()` (Nexerelin aware). Nested `checkAmbassadorPresence` (transient campaign listener) and `moveAmbassadorToMarket` (transient one-shot script) |
 | `listeners/AmbassadorItemTrackerPlugin.java` | One per ambassador in transit. Daily: locates the item, detects selling or jettison, applies delay penalties at day 62/93/124, returns ambassador home on war, recall or timeout |
 | `listeners/LostAmbassadorRemovalChecker.java` | After a lost ambassador: removes them from any Embassy where they reappear |
-| `scripts/AmbassadorMurderConsequences.java` | One-shot `EveryFrameScript`: spawns a `MERC_BOUNTY_HUNTER` fleet of the faction when the player lingers 7+ days in a core system |
+| `scripts/AmbassadorMurderConsequences.java` | One-shot `EveryFrameScript`: spawns a `MERC_BOUNTY_HUNTER` fleet of the faction when the player lingers 7+ days in a core system; if the faction cannot build that fleet it logs a warning and spawns nothing |
 | `scripts/HAAmbassadorEventFactor.java` | Hostile Activity factor "Political Influence" |
 | `scripts/HostileActivityEventSubRegisterListener.java` | `ColonyCrisesSetupListener`: adds the factor at index 0 |
 | `scripts/HostileActivityEventSubRegisterScript.java` | Deprecated, unreferenced |
@@ -40,7 +40,7 @@ Outside the package: `indevo/items/specialitemdata/AmbassadorItemData.java`, `in
 | Sector memory | `$IndEvo_HAASabotage` (sabotage mode) | `HAAmbassadorEventFactor.java:26`, set by rules |
 | Sector memory | `$IndEvo_HAE_ScriptCleanupDone` | dead script only |
 | Person | rank `factionRep`, post `ambassador`, tag `amb_<originMarketId>` | `AmbassadorPersonManager.createAmbassador()` (`:340`) |
-| Fleet memory | `$IndEvo_bountyHunter`, `$IndEvo_himOrHer`, `$IndEvo_name`, `$IndEvo_theFaction` | `AmbassadorMurderConsequences.java:146` |
+| Fleet memory | `$IndEvo_bountyHunter`, `$IndEvo_himOrHer`, `$IndEvo_name`, `$IndEvo_theFaction` | `AmbassadorMurderConsequences.java:149` |
 | Rules | `IndEvo_ambassadorGreeting*`, `IndEvo_ambassadorHire*`, `IndEvo_ambassadorNoFreeEmbassy`, `IndEvo_ambassadorConfirm`, `IndEvo_ambassadorMenu`, `IndEvo_ambassadorMenuSabotage` and `IndEvo_ambassadorMenuStopSabotage` (sabotage toggle by `$global.IndEvo_HAASabotage`), `IndEvo_ambassadorRemove1..6`, `IndEvo_ambassadorRemovalConfirm`, `IndEvo_ambMoveOption`, `IndEvo_amb(Stop)SabotageRep(_confirm)`, `IndEvo_convEnd(Polite)`, `IndEvo_bountyHunterHail`, `IndEvo_bountyHunterText` | `data/campaign/rules.csv` block `# Embassy`, `# Ambassador Murdered` |
 | Strings | `IndEvo_embassy`, `IndEvo_AmbassadorItem` sections | `data/strings/strings.json:171`, `:69` |
 | Sprites | `IndEvo/amb_pers`, `amb_heg`, `amb_tt`, `amb_church`, `amb_sind`, `amb_mod`, `IndEvo/reputation` | `data/config/settings.json:330-335`, picked in `Embassy.getCurrentImage()` |
