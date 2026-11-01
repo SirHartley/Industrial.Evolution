@@ -79,7 +79,7 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:47`): `findAmba
 
 ### Hostile Activity
 
-`HostileActivityEventIntel` setup ends with `ListenerUtil.finishedAddingCrisisFactors()` (`api/impl/campaign/intel/events/HostileActivityEventIntel.java:173`), which calls `HostileActivityEventSubRegisterListener`. `HAAmbassadorEventFactor.getReductionAmtForFaction()` (`:120`) finds the faction's `BaseHostileActivityFactor` by matching `getNameForThreatList(false)` to the faction display name (Luddic Church matches `LuddicChurchHostileActivityFactor`, listed as "Knights of Ludd"), then returns `progress x min(rel, 0.4)/0.4 x 0.4`. `getProgress()` sums this for all installed ambassadors, negative normally, positive with `$IndEvo_HAASabotage`.
+`HostileActivityEventIntel` setup ends with `ListenerUtil.finishedAddingCrisisFactors()` (`api/impl/campaign/intel/events/HostileActivityEventIntel.java:173`), which calls `HostileActivityEventSubRegisterListener`. `HAAmbassadorEventFactor.getReductionAmtForFaction()` (`:120`) finds the faction's `BaseHostileActivityFactor` by matching `getNameForThreatList(false)` to the faction display name (Luddic Church matches `LuddicChurchHostileActivityFactor`, listed as "Knights of Ludd"), then returns `progress x min(rel, 0.4)/0.4 x 0.4`. The tooltip shows the counted relation as `[min(rel, 40)/40]` (`HAAmbassadorEventFactor.java:59`). `getProgress()` sums this for all installed ambassadors, negative normally, positive with `$IndEvo_HAASabotage`.
 
 ### AI cores
 
@@ -104,7 +104,6 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:47`): `findAmba
 |---|---|
 | `HostileActivityEventSubRegisterScript` | `@Deprecated`, not registered anywhere: dead |
 | Blank rules row after `#END IndEvo PlayerMarketAmbassadorDialogue` | Row with empty id and script `$global.IndEvo_HAASabotage = true` (`rules.csv:681-683`) |
-| HA tooltip cap | Shows `BASE_MAX_RELATION` 40 even with beta core cap 55 (`HAAmbassadorEventFactor.java:59`) |
 | `IndEvo_playerHasFreeEmbassy` | `hasListener(AmbassadorItemTrackerPlugin.class)` passes a `Class` to the instance check (`:30`), always false: ambassadors in transit are never counted |
 | `getAmbassador()` | `person.getPostId().equals(...)` NPEs on comm entries without a post id (`:296`). Changelog_todo: "supply station from approlight without postID ... the game would crash when entering approlight colony comm menu" |
 | `createBountyHunter()` | `fleet = null` on empty fleet, then `fleet.getAI()` NPE (`AmbassadorMurderConsequences.java:129-131`) |

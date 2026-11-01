@@ -56,7 +56,7 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
                     int reductionInPts = Math.round(getReductionAmtForFaction(faction));
                     if (!isSabotaging) reductionInPts *= -1;
 
-                    String standing = "[" + repInt + "/" + (int) (Embassy.BASE_MAX_RELATION * 100) + "] (" + level.getDisplayName().toLowerCase() + ")";
+                    String standing = "[" + Math.min(repInt, (int) (Embassy.BASE_MAX_RELATION * 100)) + "/" + (int) (Embassy.BASE_MAX_RELATION * 100) + "] (" + level.getDisplayName().toLowerCase() + ")";
                     Color relColor = faction.getRelColor(player.getId());
 
                     Color[] highlightColors = {faction.getColor(), Misc.getTextColor(), relColor};
