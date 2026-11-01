@@ -42,7 +42,7 @@ public class TutorialEncounterScript implements EveryFrameScript {
         String targetFaction = roiderEnabled ? roiderId : Factions.INDEPENDENT;
 
         //spawn fleet
-        MarketAPI sourceMarket = Misc.getFactionMarkets(targetFaction).isEmpty() ? Misc.getFactionMarkets(targetFaction).get(0) : null; //null will make it travel and despawn in sector center
+        MarketAPI sourceMarket = Misc.getFactionMarkets(targetFaction).isEmpty() ? null : Misc.getFactionMarkets(targetFaction).get(0); //null will make it travel and despawn in sector center
 
         FleetParamsV3 params = new FleetParamsV3(
                 sourceMarket,
