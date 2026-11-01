@@ -14,7 +14,7 @@ Seven commands in `indevo/console/`, listed in `data/console/commands.csv`. Cons
 |---|---|
 | `data/console/commands.csv` | Command id, class, tags, syntax, help text |
 | `indevo/console/AssignSalvageSpecials.java` | `indevo_assignSalvageSpecials`: runs `IndEvo_SalvageSpecialAssigner.init()` again and prints removed and added special totals. Campaign only. See [Salvage](../exploration/SALVAGE.md) |
-| `indevo/console/SpawnStation.java` | `indevo_spawnStation <type>`: adds a custom entity at the player position, circular orbit around the system center. Types: `mining` (`Entities.STATION_MINING`), `habitat`/`orbital` (`Entities.ORBITAL_HABITAT`), `research` (`Entities.STATION_RESEARCH`), `arsenal` (`Ids.ARSENAL_ENTITY`), `lab` (`Ids.LAB_ENTITY`), each with aliases. See [Stations](../exploration/STATIONS.md) |
+| `indevo/console/SpawnStation.java` | `indevo_spawnStation <type>`: star systems only; adds a custom entity at the player position, circular orbit around the system center. Types: `mining` (`Entities.STATION_MINING`), `habitat`/`orbital` (`Entities.ORBITAL_HABITAT`), `research` (`Entities.STATION_RESEARCH`), `arsenal` (`Ids.ARSENAL_ENTITY`), `lab` (`Ids.LAB_ENTITY`), each with aliases. See [Stations](../exploration/STATIONS.md) |
 | `indevo/console/ClearDisruption.java` | `indevo_clearDisruption`: `setDisrupted(0)` on every disrupted industry of the current market. Market only |
 | `indevo/console/SpawnRuins.java` | `indevo_spawnRuins`: if no planet has `Ids.COND_RUINS`, rolls industrial ruins on ruined planets in remnant themed systems (chance 0.2, 0.5 suppressed, 0.8 resurgent; second planet chance / 3); on fully surveyed planets also sets the upgrade spec through `RuinsManager.setUpgradeSpec`. See [Derelicts](../industries/DERELICTS.md) |
 | `indevo/console/PrintRaidTimeout.java` | `indevo_printRaidTimeout`: prints the player and AI raid timeout maps of `RaidTimeout`. See [Utils](UTILS.md#timers), [Privateer](../industries/PRIVATEER.md) |
@@ -50,7 +50,6 @@ To add a command:
 
 | Item | State |
 |---|---|
-| `SpawnStation` (`indevo/console/SpawnStation.java:67`) | Casts the location to `StarSystemAPI`; in hyperspace this is a `ClassCastException` (suspected) |
 | `SpawnStation` | Error text lists only mining, habitat, research |
 | `PrintRaidTimeout` (`indevo/console/PrintRaidTimeout.java:36`) | NPE if a timed out system id no longer exists |
 

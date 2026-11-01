@@ -64,7 +64,11 @@ public class SpawnStation implements BaseCommand {
         }
 
         SectorEntityToken fleet = Global.getSector().getPlayerFleet();
-        StarSystemAPI sys = (StarSystemAPI) fleet.getContainingLocation();
+        if (!(fleet.getContainingLocation() instanceof StarSystemAPI sys)) {
+            Console.showMessage("Stations can only be spawned in a star system.");
+            return CommandResult.WRONG_CONTEXT;
+        }
+
         SectorEntityToken entity = fleet.getContainingLocation().addCustomEntity(null, null, type, "neutral");
 
         float orbitRadius = Misc.getDistance(fleet, sys.getCenter());
