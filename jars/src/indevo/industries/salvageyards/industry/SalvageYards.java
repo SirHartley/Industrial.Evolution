@@ -51,7 +51,9 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     private static final float PROD_QUALITY_MOD = -0.2f;
 
     private int availableSalvagePoints = 0;
+    // unused, kept so 4.1.b saves load; counted raids by class hash, which changes per run
     private final List<Integer> finishedIntel = new ArrayList<>();
+    private List<IntelInfoPlugin> countedIntel = new ArrayList<>();
     private Random random = new Random();
     private int baseOutput = 0;
 
@@ -333,11 +335,11 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
         List<IntelInfoPlugin> thisSystemIntelList = new ArrayList<>(Global.getSector().getIntelManager().getIntel());
         for (IntelInfoPlugin intel : thisSystemIntelList) {
             if (intel instanceof RaidIntel && (market.getStarSystem() == ((RaidIntel) intel).getSystem()) && ((RaidIntel) intel).isEnded()) {
-                finishedIntel.add(intel.getClass().hashCode());
+                countedIntel.add(intel);
             }
 
             if (intel instanceof GenericRaidFGI && (market.getStarSystem() == ((GenericRaidFGI) intel).getRaidAction().getWhere()) && intel.isEnded()){
-                finishedIntel.add(intel.getClass().hashCode());
+                countedIntel.add(intel);
             }
         }
         hasFinishedIntelArchive = true;
@@ -352,10 +354,25 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     }
 
     @Override
+    protected Object readResolve() {
+        Object o = super.readResolve();
+
+        // 4.1.b save: archive again so raids that already paid out stay counted
+        if (countedIntel == null) {
+            countedIntel = new ArrayList<>();
+            hasFinishedIntelArchive = false;
+        }
+
+        return o;
+    }
+
+    @Override
     public void onNewDay() {
         if (!hasFinishedIntelArchive) {
             IntelArchive();
         }
+
+        countedIntel.removeIf(intel -> !Global.getSector().getIntelManager().hasIntel(intel));
 
         autoFeed();
 
@@ -367,7 +384,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
             String msg = null;
 
             //raid intel
-            if (intel instanceof RaidIntel && (market.getStarSystem() == ((RaidIntel) intel).getSystem()) && !finishedIntel.contains(intel.getClass().hashCode())) {
+            if (intel instanceof RaidIntel && (market.getStarSystem() == ((RaidIntel) intel).getSystem()) && !countedIntel.contains(intel)) {
                 //if its ended and succeeded, give player 30% raid FP
                 if (((RaidIntel) intel).isSucceeded()) {
                     salvagePoints = (int) (((RaidIntel) intel).getRaidFPAdjusted() * 0.30F);
@@ -382,7 +399,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
             }
 
             //blockade
-            if (intel instanceof GenericRaidFGI && (market.getStarSystem() == ((GenericRaidFGI) intel).getRaidAction().getWhere()) && !finishedIntel.contains(intel.getClass().hashCode())){
+            if (intel instanceof GenericRaidFGI && (market.getStarSystem() == ((GenericRaidFGI) intel).getRaidAction().getWhere()) && !countedIntel.contains(intel)){
                 if (((GenericRaidFGI) intel).isSucceeded()) {
                     salvagePoints = (int) (((GenericRaidFGI) intel).getTotalFPSpawned() * 0.30F);
                     msg = "incursionSuccess";
@@ -395,7 +412,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
             if (msg != null) {
                 availableSalvagePoints += salvagePoints;
-                finishedIntel.add(intel.getClass().hashCode());
+                countedIntel.add(intel);
 
                 log.info("Adding raid SP to Yards: " + msg + " " + " at " + market.getName() + ", " + market.getFaction().getId() + ", recovered " + salvagePoints + " units for intel " + intel.getClass().hashCode());
 

@@ -36,11 +36,11 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 ## Registration and lifecycle
 
 - CSV plugin column. `ModPlugin.setListenersIfNeeded()` registers `SalvageYardsOptionProvider` (`ModPlugin.java:491`).
-- `apply()` (functional only) registers itself as transient listener (`EconomyTickListener`, `NewDayListener`) and adds itself as `FleetEventListener` to every fleet currently in the system, skipping fleets that carry a `LuddicPathCellsIntel` listener to avoid a vanilla `ConcurrentModificationException` (`SalvageYards.java:202`).
+- `apply()` (functional only) registers itself as transient listener (`EconomyTickListener`, `NewDayListener`) and adds itself as `FleetEventListener` to every fleet currently in the system, skipping fleets that carry a `LuddicPathCellsIntel` listener to avoid a vanilla `ConcurrentModificationException` (`SalvageYards.java:204`).
 - `advance` keeps the shared submarket present; `unapply` removes listener, submarket and production quality mod.
 - Dialog commands are found through `ruleCommandPackages` (see [Rule commands](../dialogue/RULE_COMMANDS.md)).
 - `YardsCustomProductionIntel.init()` registers the intel as a persistent listener; it deregisters 60 days after delivery or failure.
-- Saved fields: `availableSalvagePoints`, `finishedIntel`, `baseOutput`, `currentWeaponBonusSP`, `outputSalvagePointValue`, `outputDecayMult`.
+- Saved fields: `availableSalvagePoints`, `countedIntel` (raid intel already paid out, pruned daily once the intel manager drops it), `finishedIntel` (unused, kept for 4.1.b saves; `readResolve` reruns `IntelArchive()` when `countedIntel` is missing), `baseOutput`, `currentWeaponBonusSP`, `outputSalvagePointValue`, `outputDecayMult`.
 
 ## Flow
 
@@ -92,12 +92,11 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 
 | Item | State |
 |---|---|
-| `finishedIntel` stores `intel.getClass().hashCode()` (`SalvageYards.java:336`, `:370`, `:398`) | all raids of one class share a key; after the first counted raid every later raid of that class is ignored |
 | AI core fields not reset (`applyAlphaCoreModifiers` etc., `:521`) | `BaseIndustry.applyAICoreModifiers` calls only one branch (`api/impl/campaign/econ/impl/BaseIndustry.java:246`); switching alpha to beta keeps alpha decay, beta to gamma keeps 90 SP per unit |
-| `getWeaponSPDayLimit` (`:251`) | when the day limit would overshoot it returns `current + day - month` instead of the remaining amount |
+| `getWeaponSPDayLimit` (`:253`) | when the day limit would overshoot it returns `current + day - month` instead of the remaining amount |
 | Contract parts removal (`IndEvo_InitSYCustomProductionDiag.java:497`, `:500`) | removes `IndEvo_rare_parts` instead of `IndEvo_parts` when parts come partly from storage |
 | `costMult` clamp (`IndEvo_InitSYCustomProductionDiag.java:123`, `IndEvo_InitSYMoveDModDiag.java:91`) | the second line overwrites the first, so the upper bound is ignored |
-| Story point bonus (`getCapacity`, `:358`) | multiplies only the hull capacity term (operator precedence) |
+| Story point bonus (`IndEvo_InitSYCustomProductionDiag.getCapacity`, `:358`) | multiplies only the hull capacity term (operator precedence) |
 | D-mod transfer confirm | no credit check before `subtract`; cost formula `(1.2^n + 1) / n` differs from `RestorationDocks` `1.2^(n+1) / n` |
 | `modifyPlayerCustomProduction` | dead code |
 | Open idea | `Changelog_todo:45`, `:69`: move S-mods with the yards |
