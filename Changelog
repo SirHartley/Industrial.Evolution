@@ -101,6 +101,7 @@ Senate
 Fixed - Construction no longer stays at half time after the fast build edict ends
 Fixed - Fast build edict now halves industry demand along with output instead of adding 1 demand per commodity, and its effect text no longer shows a doubled percent sign
 Fixed - Forced relocation edict now moves as much population growth as its tooltip says
+Fixed - Lockdown edict tooltip and dialog agree on the ground defense bonus (+200%, three times the base)
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0

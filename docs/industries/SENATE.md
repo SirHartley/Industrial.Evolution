@@ -105,7 +105,6 @@ Chain: `IndEvo_ApplyEdict -> IndEvo_applyEdict -> market.addCondition -> BaseEdi
 | Item | State |
 |---|---|
 | `Edict_GrowthReinvestment` | `@Deprecated`, no `market_conditions.csv` row: dead |
-| `Edict_Lockdown` effect text | "increased by 200%" with highlight "300%" (`:166-167`) |
 | `Edict_OpenMarket.unapply()` | Removes any open market submarket on player markets, also one it did not add (`:55-60`); the saved instance is `transient` |
 | `Edict_LockColonySize.unapply()` | No primary entity guard: sets weight 0 on the dummy market (`:28`) |
 | Stale class comments | `Edict_LabourRestrictions` and `Edict_OpenMarket` carry the "Substance Legalization" design note |

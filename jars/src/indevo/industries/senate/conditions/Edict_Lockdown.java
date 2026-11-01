@@ -143,7 +143,7 @@ public class Edict_Lockdown extends BaseEdict {
         tooltip.addPara("Fleet size %s.",
                 3f, Misc.getHighlightColor(), "increased by 100% (flat)");
         tooltip.addPara("Ground defence rating %s.",
-                3f, Misc.getHighlightColor(), "increased by 300%");
+                3f, Misc.getHighlightColor(), "increased by 200%");
         tooltip.addPara("Industry exports %s.",
                 3f, Misc.getNegativeHighlightColor(), "reduced by 70%");
 
@@ -164,7 +164,7 @@ public class Edict_Lockdown extends BaseEdict {
         text.addParagraph("Fleet size increased by 100% (flat).");
         text.highlightInLastPara(Misc.getPositiveHighlightColor(), "increased by 100% (flat)");
         text.addParagraph("Ground defence rating increased by 200%.");
-        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "increased by 300%");
+        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "increased by 200%");
         text.addParagraph("Industry exports reduced by 70%.");
         text.highlightInLastPara(Misc.getNegativeHighlightColor(), "reduced by 70%");
     }
