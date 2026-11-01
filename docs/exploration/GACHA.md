@@ -29,7 +29,7 @@ Derelict stations (`IndEvo_GachaStation`, display name "Automated Shipyard") orb
 | Memory key | `$IndEvo_randomSeed` (`RANDOM`, entity, a `java.util.Random` seeded with the entity hash) | `GachaStationDialoguePlugin.java:51`, set in `GachaStationSpawner.java:65` |
 | Persistent data | `$IndEvo_hasPlacedStations` | `GachaStationSpawner.java:22` |
 | Setting | `IndEvo_AutomatedShipyardNum` (Double, default 1.5, multiplier on coronal tap count) | `data/config/LunaSettings.csv:15`, `data/config/settings.json:49`, read in `GachaStationSpawner.java:23` |
-| Setting | `IndEvo_shipPickerRowCount` | `LunaSettings.csv:10`, read in `GachaStationDialoguePlugin.java:405` |
+| Setting | `IndEvo_shipPickerRowCount` | `LunaSettings.csv:10`, read in `GachaStationDialoguePlugin.java:408` |
 | Rules | `IndEvo_GachaStationCargoOpen` -> `OpenStorageTabOnGachaStation` | `data/campaign/rules.csv:266` |
 | Rule command package | `indevo.exploration.gacha.rules` | `data/config/settings.json:248` |
 | Sprite | `IndEvo/log_gachastation` (intel icon, points at `log_cryosleeper.png`) | `data/config/settings.json:368` |
@@ -58,7 +58,7 @@ Not repaired: pre-restore text and cost; option enabled with enough metals, mach
 
 Repaired menu (`displayDefaultOptions`, `:110-152`): cargo areas (`FireBest IndEvo_GachaStationCargoOpen`), ship picker (fleet plus storage mothballed ships, excluding `SHIP_CAN_NOT_SCUTTLE`, needs more than one ship total), component selector (fleet plus storage), start (needs a sacrifice and 100 relic components in fleet plus storage).
 
-`cycleMember()` (`:294`):
+`cycleMember()` (`:297`):
 1. Sum DP of sacrificed ships, strip their fittings and AI core captains to fleet cargo (`MiscIE.stripShipToCargoAndReturnVariant`), remove them from fleet or storage. Add `round(parts / 100)`.
 2. `createHullIdSelection()`: one random hull per size (frigate to capital) from `MiscIE.getAllLearnableShipHulls()`, picked with the station's saved `Random`, valued at empty variant DP.
 3. Best = highest DP strictly below the total. Components and relic components are taken from storage first, then cargo.
@@ -76,7 +76,6 @@ Repaired menu (`displayDefaultOptions`, `:110-152`): cargo areas (`FireBest IndE
 | Item | State |
 |---|---|
 | `GachaStationSpawner.spawn()` | `pickAndRemove()` returns null when fewer candidate systems than stations; `placeStation(null)` would NPE (`:54-56`, inferred) |
-| `advance()` confirm check | Counts relic components in fleet cargo only (`:240`); `displayDefaultOptions()` counts fleet plus storage (`:141`) |
 | Repair re-creates the market | Second `setAbandonedStationMarket` replaces the market and its storage (`:207`); anything in storage before repair is lost (inferred) |
 | `GachaStationSpawner.placeStation()` | Local `id` used as market id, entity gets a second `genUID` (`:62-63`); harmless |
 

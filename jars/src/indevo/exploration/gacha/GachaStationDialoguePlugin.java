@@ -237,7 +237,10 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
         if (!panel.hasOption(Option.CONFIRM)) return;
 
         partsToSacrifice = panel.getSelectorValue(Option.PARTS_SELECTOR);
-        boolean isEnabled = (!selectedShips.isEmpty() || partsToSacrifice > 0) && Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(ItemIds.RARE_PARTS) >= RARE_PART_COST_AMT;
+        SubmarketPlugin storage = Misc.getStorage(dialog.getInteractionTarget().getMarket());
+        float rarePartsAvailable = Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(ItemIds.RARE_PARTS)
+                + (storage != null ? storage.getCargo().getCommodityQuantity(ItemIds.RARE_PARTS) : 0f);
+        boolean isEnabled = (!selectedShips.isEmpty() || partsToSacrifice > 0) && rarePartsAvailable >= RARE_PART_COST_AMT;
         panel.setEnabled(Option.CONFIRM, isEnabled);
     }
 
