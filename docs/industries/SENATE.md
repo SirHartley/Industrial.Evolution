@@ -42,7 +42,7 @@ A Senate allows one Edict per player colony in its star system (one Senate per s
 | `IndEvo_edict_clearances` | `Edict_Clearances` | ship hull supply | ship supply -30% (if > 1), production quality +0.2 on all player markets | 186 days |
 | `IndEvo_edict_lockColonySize` | `Edict_LockColonySize` | none | population weight pinned to the current size weight | 186 days |
 | `IndEvo_edict_open_market` | `Edict_OpenMarket` | none | adds an open market submarket (if no Commerce), stability -2 | 186 days |
-| `IndEvo_edict_fastBuild` | `Edict_FastBuild` | none | building and upgrade time halved via reflection on `BaseIndustry.buildTime`, supply x0.5, demand +0.5 flat | 186 days |
+| `IndEvo_edict_fastBuild` | `Edict_FastBuild` | none | building and upgrade time halved via reflection on `BaseIndustry.buildTime`, supply and demand x0.5 | 186 days |
 
 Rows: `data/campaign/market_conditions.csv:2-14`. Military presence is `MiscIE.marketHasMilitaryIncludeRelays()`.
 
@@ -105,7 +105,6 @@ Chain: `IndEvo_ApplyEdict -> IndEvo_applyEdict -> market.addCondition -> BaseEdi
 | Item | State |
 |---|---|
 | `Edict_GrowthReinvestment` | `@Deprecated`, no `market_conditions.csv` row: dead |
-| `Edict_FastBuild` demand | `modifyFlat(0.5)` on demand instead of a mult (`:47`); effect text prints `50%%` literally (`addParagraph` is not a format call) |
 | `Edict_ForcedRelocation.onNewDay()` | After the auto end runs `removeWithoutPenalty()`, it still evaluates the presence check and can call `removeWithPenalty()` again (`:65`). `this.market.getSize() / otherPlanetCount` is int division (`:75`) |
 | `Edict_Lockdown` effect text | "increased by 200%" with highlight "300%" (`:166-167`) |
 | `Edict_OpenMarket.unapply()` | Removes any open market submarket on player markets, also one it did not add (`:55-60`); the saved instance is `transient` |

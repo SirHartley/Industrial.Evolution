@@ -44,7 +44,7 @@ public class Edict_FastBuild extends BaseEdict {
                     industry.getSupply(supply.getCommodityId()).getQuantity().modifyMult(getModId(), OUTPUT_DECREASE_MULT, getName());
                 }
                 for (MutableCommodityQuantity demand : industry.getAllDemand()) {
-                    industry.getDemand(demand.getCommodityId()).getQuantity().modifyFlat(getModId(), OUTPUT_DECREASE_MULT, getName());
+                    industry.getDemand(demand.getCommodityId()).getQuantity().modifyMult(getModId(), OUTPUT_DECREASE_MULT, getName());
                 }
             }
         }
@@ -95,7 +95,7 @@ public class Edict_FastBuild extends BaseEdict {
                 3f, Misc.getPositiveHighlightColor(), new String[]{"Decreases construction time", StringHelper.getAbsPercentString(FAST_BUILD_MULT, false)});
 
         tooltip.addPara("%s of all industries on this planet by %s",
-                3f, Misc.getNegativeHighlightColor(), new String[]{"Decreases the output", StringHelper.getAbsPercentString(OUTPUT_DECREASE_MULT, false)});
+                3f, Misc.getNegativeHighlightColor(), new String[]{"Decreases the output and demand", StringHelper.getAbsPercentString(OUTPUT_DECREASE_MULT, false)});
 
         tooltip.addPara("Requires a %s in the star system.", 10f, Misc.getHighlightColor(), new String[]{"Senate"});
     }
@@ -108,10 +108,10 @@ public class Edict_FastBuild extends BaseEdict {
 
     @Override
     public void printEdictEffectText(TextPanelAPI text, MarketAPI market) {
-        text.addParagraph("Construction times reduced by 50%%.");
-        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "reduced by 50%%");
-        text.addParagraph("All industries on this colony have their output decreased by 50%%.");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "output decreased by 50%%");
+        text.addParagraph("Construction times reduced by 50%.");
+        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "reduced by 50%");
+        text.addParagraph("All industries on this colony have their output and demand decreased by 50%.");
+        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "output and demand decreased by 50%");
 
     }
 
