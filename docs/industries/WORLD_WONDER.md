@@ -42,7 +42,7 @@ The `parent_item` / `sub_item` tags group the wonders under one build list entry
 ## Registration and lifecycle
 
 - CSV plugin column per row.
-- `ModPlugin.setListenersIfNeeded()`: `WorldWonderAltImageOptionProvider.register()`, `WorldWonderTexChangeOptionProvider.register()` (`ModPlugin.java:469-470`), both transient and deduped by `hasListenerOfClass`.
+- `ModPlugin.setListenersIfNeeded()`: `WorldWonderAltImageOptionProvider.register()`, `WorldWonderTexChangeOptionProvider.register()` (`ModPlugin.java:471-472`), both transient and deduped by `hasListenerOfClass`.
 - `BaseIndustry.apply` adds the industry as transient immigration modifier because it implements `MarketImmigrationModifier` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:209`).
 - `apply()` adds the industry as transient `EconomyTickListener` (`WorldWonder.java:61`); `ListenerManager.addListener` dedupes the same instance (skill `obf/campaign/ListenerManager.java:29`). `unapply()` removes it.
 - Lists are loaded by `MiscIE.getCSVSetFromMemory`; see [Utils](../core/UTILS.md).

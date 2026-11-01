@@ -69,11 +69,11 @@ Combat side, linked only: `data/scripts/weapons/IndEvo_targetingBeamEffect.java`
 
 | Hook | What |
 |---|---|
-| `ModPlugin.onNewGameAfterEconomyLoad` (`ModPlugin.java:315-316`) | `ArtilleryStationPlacer.placeDerelictArtilleries()`, then `placeCoreWorldArtilleries()`. Both guarded by sector memory, both skip if `IndEvo_Enable_Artillery` is off |
-| `ModPlugin.onGameLoad` (`ModPlugin.java:174`) | `ArtilleryStationReplacer.register()` if `newGame` (transient) |
-| `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:480`) | `WatchtowerFactionResetListener.register()` (persistent listener, class-deduped) |
-| `ModPlugin.setScriptsIfNeeded` (`ModPlugin.java:518, 528`) | `registerPlugin(new ArtilleryCampaignPlugin())` every load; `EyeIndicatorScript.register()` (persistent sector script, guarded by `$IndEvo_EyeScript`) |
-| `ModPlugin.pickMissileAI` (`ModPlugin.java:396`) | Combat AI for mortar and missile projectiles |
+| `ModPlugin.onNewGameAfterEconomyLoad` (`ModPlugin.java:317-318`) | `ArtilleryStationPlacer.placeDerelictArtilleries()`, then `placeCoreWorldArtilleries()`. Both guarded by sector memory, both skip if `IndEvo_Enable_Artillery` is off |
+| `ModPlugin.onGameLoad` (`ModPlugin.java:176`) | `ArtilleryStationReplacer.register()` if `newGame` (transient) |
+| `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:482`) | `WatchtowerFactionResetListener.register()` (persistent listener, class-deduped) |
+| `ModPlugin.setScriptsIfNeeded` (`ModPlugin.java:520, 528`) | `registerPlugin(new ArtilleryCampaignPlugin())` every load; `EyeIndicatorScript.register()` (persistent sector script, guarded by `$IndEvo_EyeScript`) |
+| `ModPlugin.pickMissileAI` (`ModPlugin.java:398`) | Combat AI for mortar and missile projectiles |
 | CSV | industry plugin column, condition plugin, entity `pluginClass`, terrain `plugin`, hullmod class |
 
 Derelict placement chain: `placeDerelictArtilleries -> addArtilleryToPlanet(planet, false) -> new ArtilleryStationScript(market)` added to the planet and stored under `$IndEvo_ArtilleryStationScript` `-> placeWatchtowers` (once per system) `-> addCondition(IndEvo_ArtilleryStationCondition)` (`ArtilleryStationPlacer.java:135-158`).

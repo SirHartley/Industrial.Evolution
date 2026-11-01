@@ -1,10 +1,7 @@
 package indevo.exploration.meteor.spawners;
 
-import com.fs.starfarer.D.M;
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.Script;
 import com.fs.starfarer.api.campaign.PlanetAPI;
-import com.fs.starfarer.api.campaign.RingBandAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -12,7 +9,6 @@ import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import com.fs.starfarer.api.util.DelayedActionScript;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.exploration.meteor.MeteorSwarmManager;
@@ -22,21 +18,21 @@ import indevo.exploration.meteor.movement.ArcingMovementModule;
 import indevo.exploration.meteor.movement.ExternalOrbitMovement;
 import indevo.exploration.meteor.scripts.DespawningMovementModuleRunner;
 import indevo.exploration.meteor.scripts.PayloadOnFinishedModuleRunner;
+import indevo.exploration.meteor.scripts.PlanetoidDespawnScript;
 import indevo.exploration.meteor.terrain.RadioactiveTerrain;
 import indevo.ids.Ids;
-import indevo.utils.ModPlugin;
 import indevo.utils.helper.CircularArc;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.fs.starfarer.api.impl.campaign.enc.AbyssalRogueStellarObjectEPEC.PLANETOID_TYPES;
 
 public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
+
+    public static final String PLANETOID_TAG = "indevo_planetoid";
 
     public static final float PLANETOID_MIN_SIZE = 100f;
     public static final float PLANETOID_MAX_SIZE = 200f;
@@ -95,7 +91,7 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
         planet.addTag(Tags.NOT_RANDOM_MISSION_TARGET);
         planet.addTag(Tags.TEMPORARY_LOCATION);
         planet.addTag(Tags.EXPIRES);
-        planet.addTag("indevo_planetoid");
+        planet.addTag(PLANETOID_TAG);
 
         MarketAPI market = planet.getMarket();
         market.addCondition(Conditions.RUINS_VAST);
@@ -104,35 +100,20 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
         market.addCondition(Conditions.NO_ATMOSPHERE);
 
         //rings
-        RingBandAPI ring1 = system.addRingBand(planet, "misc", "rings_dust0", 256f, 2, Color.white, 256f, size + 200f, 31f);
-        RingBandAPI ring2 = system.addRingBand(planet, "misc", "rings_dust0", 256f, 3, Color.white, 256f, size + 400f, 10f);
-        RingBandAPI ring3 = system.addRingBand(planet, "misc", "rings_dust0", 256f, 4, Color.white, 256f, size + 800f, 10f);
-        RingBandAPI ring4 = system.addRingBand(planet, "misc", "rings_dust0", 256f, 1, Color.white, 256f, size + 1200f, 10f);
-        RingBandAPI ring5 = system.addRingBand(planet, "misc", "rings_dust0", 256f, 1, Color.white, 256f, size + 1400f, 10f);
+        system.addRingBand(planet, "misc", "rings_dust0", 256f, 2, Color.white, 256f, size + 200f, 31f);
+        system.addRingBand(planet, "misc", "rings_dust0", 256f, 3, Color.white, 256f, size + 400f, 10f);
+        system.addRingBand(planet, "misc", "rings_dust0", 256f, 4, Color.white, 256f, size + 800f, 10f);
+        system.addRingBand(planet, "misc", "rings_dust0", 256f, 1, Color.white, 256f, size + 1200f, 10f);
+        system.addRingBand(planet, "misc", "rings_dust0", 256f, 1, Color.white, 256f, size + 1400f, 10f);
 
         //loot station
-        List<SectorEntityToken> lootStations = new ArrayList<>();
-        if (lootAmt > 1.6) lootStations.add(addStation(planet, width));
-        if(lootAmt > 2.1) lootStations.add(addStation(planet, width));
+        if (lootAmt > 1.6) addStation(planet, width);
+        if (lootAmt > 2.1) addStation(planet, width);
 
         //planet movement & despawn
-
-        Script despawnScript = () -> {
-            ModPlugin.log("Despawning Meteor Swarm Planet");
-            for (SectorEntityToken t : lootStations) Misc.fadeAndExpire(t, 0.1f);
-
-            Misc.fadeAndExpire(ring1, 0.1f);
-            Misc.fadeAndExpire(ring2, 0.1f);
-            Misc.fadeAndExpire(ring3, 0.1f);
-            Misc.fadeAndExpire(ring4, 0.1f);
-            Misc.fadeAndExpire(ring5, 0.1f);
-
-            Misc.fadeAndExpire(planet, 0.1f);
-        };
-
         float speed = PLANETAR_BASE_SPEED * 0.4f + 0.6f * PLANETAR_BASE_SPEED * random.nextFloat();
         ArcingMovementModule movement = new ArcingMovementModule(arc, speed);
-        planet.addScript(new PayloadOnFinishedModuleRunner(movement, planet, despawnScript));
+        planet.addScript(new PayloadOnFinishedModuleRunner(movement, planet, new PlanetoidDespawnScript(planet)));
 
         //roid field
         //we rotate the spawning stick around the planet and spawn one with size and chance depending on skewed density curve, speed depending on distance to center

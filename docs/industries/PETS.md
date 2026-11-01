@@ -59,7 +59,7 @@ Code paths relative to `jars/src/indevo/`.
 
 - Industry, submarket, item and ability plugins from CSV plugin columns.
 - `ModPlugin.onGameLoad()` (`utils/ModPlugin.java:177-197`): with `IndEvo_pets` on, adds `pet_management` to the player fleet and character, clears `no_sell` on `fairy` once research `Ids.PROJ_NAVI` is redeemed ([Research](../dialogue/RESEARCH.md)), loads pet textures, on new game adds Lord Foog. With the setting off, removes the ability.
-- `PetCenterOptionProvider.register()` from `setListenersIfNeeded()` (`ModPlugin.java:475`). `PetShopCampaignPlugin` via `registerPlugin` on every load (`ModPlugin.java:520`).
+- `PetCenterOptionProvider.register()` from `setListenersIfNeeded()` (`ModPlugin.java:477`). `PetShopCampaignPlugin` via `registerPlugin` on every load (`ModPlugin.java:522`).
 - `PetStatusManager.getInstance()` (`PetStatusManager.java:58`) creates the manager on first use: persistent listener, sector script, player fleet event listener. Found again later by `hasListenerOfClass`.
 - `PetShop.apply()` adds itself as a persistent listener if missing (`PetShop.java:209`). `advance()` queues `SubMarketAddOrRemovePlugin(market, PETMARKET, false)` every frame while functional, pets enabled and the submarket missing (`:179`). `unapply()` queues the removal (`:234`).
 - Animal Centers are placed at game start at `jangala`, `gilead`, `fikenhild` ([Utils](../core/UTILS.md)).

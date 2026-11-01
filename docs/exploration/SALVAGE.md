@@ -30,7 +30,7 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Setting | `IndEvo_Enable_Derelicts` (runs the assigner) | `LunaSettings.csv:14`; `ModPlugin.java:321` |
+| Setting | `IndEvo_Enable_Derelicts` (runs the assigner) | `LunaSettings.csv:14`; `ModPlugin.java:323` |
 | Setting | `IndEvo_SpecialApplicationChance` (0.9) | `LunaSettings.csv:17`, `settings.json:50`; `init:51` |
 | Setting | `IndEvo_shipPickerRowCount` (8) | `LunaSettings.csv:10`; ship pickers in DModRepair, PrintShip, ShipRoulette |
 | Drop groups | `rare_tech` (vanilla), `indEvo_tech_event` | `data/campaign/procgen/drop_groups.csv:72-77`; item pool for `ItemChoiceSpecial` |

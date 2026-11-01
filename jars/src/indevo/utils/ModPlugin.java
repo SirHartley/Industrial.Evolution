@@ -44,6 +44,7 @@ import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
 import indevo.exploration.meteor.MeteorSwarmManager;
+import indevo.exploration.meteor.scripts.PlanetoidDespawnScript;
 import indevo.exploration.meteor.scripts.TutorialEncounterScript;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
 import indevo.exploration.minefields.listeners.InterdictionPulseAbilityListener;
@@ -162,6 +163,7 @@ public class ModPlugin extends BaseModPlugin {
 
         ResourceConditionApplicator.applyResourceConditionToAllMarkets();
         loadTransientMemory();
+        PlanetoidDespawnScript.despawnStrandedPlanetoids();
 
         //balance and spec changes
 

@@ -41,7 +41,7 @@ On player markets the Museum adds a hidden ship storage submarket (`IndEvo_Museu
 ## Registration and lifecycle
 
 - Industry, submarket and condition plugins from CSV plugin columns.
-- `MuseumManageParadeOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:505`), transient.
+- `MuseumManageParadeOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:507`), transient.
 - `Museum.apply()` (player markets only) refreshes the hull value table, adds itself as a persistent listener (`addListener(this)`, `Museum.java:74`) and as a transient immigration modifier, and sets income. `unapply()` removes all three.
 - `Museum.advance()` adds the submarket once functional and player owned (`:124`).
 - Parade fleets carry the `ParadeFleetAssignmentAI` script and two fleet event listeners (the profile and the AI).

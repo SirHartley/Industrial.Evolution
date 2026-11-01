@@ -32,8 +32,9 @@ Current state of the type roll: only `PLANETOID` has non-zero weight (`MeteorSwa
 | `movement/ArcOnOrbitLossMovement.java` | Splinters: idle while orbiting, then arcs on a re-centred arc |
 | `movement/EmptyMovement.java` | No movement (impact fragments) |
 | `movement/RelativeArcingMovement.java` | Dead: no users |
-| `scripts/MovementModuleRunner.java`, `PayloadOnFinishedModuleRunner.java` | Run a movement module on non-meteor entities (entourage focus, planetoid); payload runs a `Script` at arc end |
-| `scripts/DespawningMovementModuleRunner.java` | Dead: only user commented out (`PlanetoidSwarmSpawner.java:210`) |
+| `scripts/MovementModuleRunner.java`, `PayloadOnFinishedModuleRunner.java` | Run a movement module on non-meteor entities (entourage focus, planetoid); payload runs a `Script` in the same `advance()` the arc ends, then `isDone()` |
+| `scripts/PlanetoidDespawnScript.java` | Planetoid payload: fades the planet, its ring bands and everything orbiting it. `despawnStrandedPlanetoids()` runs on every load |
+| `scripts/DespawningMovementModuleRunner.java` | Unused by new code; kept because 4.1.b saves hold it on planetoids, which `despawnStrandedPlanetoids()` converts on load |
 | `scripts/MeteorImpact.java`, `IceroidImpact.java` | 0.2 s push on the hit entity, one ship damaged (weight by hull size, scaled by burn above go-slow), sound, glow, asteroid fragments; ice variant spawns ice fragments |
 | `scripts/RadiationReductionScript.java` | NPC radiation decay |
 | `scripts/TutorialEncounterScript.java` | Spawns "Panicked Roiders" (roider or independent `SCAVENGER_SMALL`), makes them intercept the player |
@@ -73,6 +74,7 @@ Current state of the type roll: only `PLANETOID` has non-zero weight (`MeteorSwa
 
 - `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:501`) adds a transient listener each load (`MeteorSwarmManager.java:97`).
 - Spawners, warning path renderer and delayed spawn are location scripts; meteors are custom entities with saved plugins.
+- `ModPlugin.onGameLoad() -> PlanetoidDespawnScript.despawnStrandedPlanetoids()` (`indevo/utils/ModPlugin.java:166`): fades rings and stations whose planetoid is gone, despawns planetoids without a runner, swaps a 4.1.b `DespawningMovementModuleRunner` for a `PayloadOnFinishedModuleRunner` and restores a null payload.
 - `RadiationEffectHandler.get()` adds itself as a transient Luna renderer on first use per session (`:40-49`).
 
 `reportEconomyTick -> isValidMeteorLoc -> roll -> spawnShower -> DelayedActionScript(daysLeft) -> <Type>SwarmSpawner.advance -> init() (warning path, sign, terrain) -> advanceSpawner -> MeteorFactory / Treasure*.spawn -> MeteorEntity.advance -> setCollidingAndFade -> MeteorImpact + MeteorDebrisRenderer`
@@ -102,6 +104,8 @@ Current state of the type roll: only `PLANETOID` has non-zero weight (`MeteorSwa
 - All settings are `static final` fields read at class init (`MeteorSwarmManager.java:44-61`); changes apply after a restart. `IndEvo_meteor_immediateMode` is read per shower. Setting mechanics: [Settings](../core/SETTINGS.md).
 - One swarm per location: the warning path renderer is a single instance in location memory, the last one wins (`MeteorSwarmWarningPathRenderer.java:16-18`). `RadioactiveTerrain` lives only while that key exists, and relies on being spawned after it (`RadioactiveTerrain.java:90`).
 - `IntelManager.advance` does not advance intel (starsector-knowledge `obf/campaign/comms/v2/IntelManager.java:44`), so `MeteorShowerLocationIntel` adds itself as a sector script (`:31`).
+- `BaseCampaignEntity.runScripts` drops a script as soon as `isDone()` is true (starsector-knowledge `obf/campaign/BaseCampaignEntity.java:636-647`), so `PayloadOnFinishedModuleRunner` runs its payload in the advance that ends the movement and reports done from its own flag (`PayloadOnFinishedModuleRunner.java:20-36`). Payloads are named `Script` classes: lambdas come back from the save as null.
+- Planetoid swarm planets carry `PlanetoidSwarmSpawner.PLANETOID_TAG` (`indevo_planetoid`); the load cleanup finds them by it.
 - Spawners use a seeded `Random` per shower; the manager uses one saved `Random` in persistent data.
 - Java 17 features (switch expressions, `instanceof` patterns) are used; the project language level is `JDK_17` (`.idea/misc.xml:6`).
 - Couplings: `MissileMemFlags` ([Consumables](../items/CONSUMABLES.md)); `CircularArc`, `TrigHelper`, `MiscIE`, `NebulaParticle` ([Utils](../core/UTILS.md)); `Ids.LAB_ENTITY`, `Ids.ARSENAL_ENTITY`, `Ids.ABANDONED_PETSHOP_ENTITY` loot stations ([Stations](STATIONS.md)); vanilla `AbyssalRogueStellarObjectEPEC.PLANETOID_TYPES` for planetoid types.
@@ -117,7 +121,7 @@ Current state of the type roll: only `PLANETOID` has non-zero weight (`MeteorSwa
 | `MeteorDebrisRenderer.isExpired()` | Always false (`:94`); renderers pile up and render in every location (inferred leak) |
 | `RadiationEffectHandler` sound tokens | `IndEvo_token` entities created in the current location and kept in a list (`:93`); after a location change the list points at tokens elsewhere (inferred) |
 | `MeteorSwarmManager.METEOR_TAG` | Never added to any entity; only used in a commented block (`RadioactiveSwarmSpawner.java:103`) |
-| `RelativeArcingMovement`, `DespawningMovementModuleRunner`, `RadiationTrailRenderer` | Dead code |
+| `RelativeArcingMovement`, `RadiationTrailRenderer` | Dead code |
 | Tutorial rules text | Promises a "core-fragment" swarm (`rules.csv:23`, `:37`) but the tutorial forces `ASTEROID` |
 | Changelog_todo | "bump default meteor storm min treasure to 2" (`Changelog_todo:5`), "Meteor shower bar event" (`Changelog_todo:53`) |
 

@@ -74,7 +74,7 @@ The ghost ship rules in `rules.csv` load, but only match on memory keys set by `
 
 | Item | State |
 |---|---|
-| Whole package | Excluded by `IndEvo.iml`; does not compile; unregistered (`ModPlugin.java:510-511` commented) |
+| Whole package | Excluded by `IndEvo.iml`; does not compile; unregistered (`ModPlugin.java:512-513` commented) |
 | `distress_call_data.csv` | Never read; script class is Vayra's, not in IE |
 | `HullmodTimeTracker.getInstanceOrRegister()` | Checks `hasListenerOfClass(AdminGovernTimeTracker.class)` instead of its own class (`:19`); would register a new tracker every call |
 | `GhostShip.advanceInCombat()` | Hyperlost and nanite branches are nested inside the rogue AI `if` (`:158-225`), so they only run on rogue AI ships |

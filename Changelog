@@ -1,5 +1,5 @@
 --------------------------- Changelog -----------------------------
-4.1.c- UNRELEASED
+4.1.c - UNRELEASED
 General
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
@@ -13,6 +13,7 @@ Added - Setting to adjust interdict disable time
 Meteor Showers
 Added - Setting to make meteor shower spawn immediately instead of having a delay with an intel entry
 Fixed - Tutorial intel displaying twice
+Fixed - Rogue planets from planetoid swarms now despawn with their rings and loot stations at the end of their path; leftovers in existing saves are removed on load
 
 Pets
 Removed - Pet food
