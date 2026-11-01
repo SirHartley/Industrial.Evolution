@@ -48,7 +48,7 @@ Order: `surveyPerform option -> oldstory_onSurveyIntercept -> SurveyStoryReader 
 3. For each story not in `toldStories`: ruins filter (any listed condition id present, or empty), required-condition filter (any listed condition present, or empty), planet type filter (`planet.getTypeId()` in list, or empty). In dev mode every story passes.
 4. Weighted pick by `picker_weight`.
 
-List columns are split on `;` after removing whitespace (`FileLoader:41-43`).
+List columns are split on `;` or `,` after removing whitespace (`FileLoader:41-43`).
 
 ## Contracts
 
@@ -61,7 +61,6 @@ List columns are split on `;` after removing whitespace (`FileLoader:41-43`).
 
 | Item | State |
 |---|---|
-| `optional_planet_types` | `stories.csv` lists types with commas (`"desert, arid, desertic"`) but the loader splits on `;`; the joined token never equals a planet type id, so (inferred) `IE-desert-warlords-1` never matches outside dev mode |
 | Blank CSV rows | 12 empty rows load as stories with id `""` and weight 0 (inferred: never picked) |
 | `stories_TODO.csv` | Draft, unused; its columns would throw `JSONException` if pointed to by `oldstory_csv_path` |
 | `READ_OUTRO` | `//todo add a record item to inventory` (`SurveyStoryReader:39`) |

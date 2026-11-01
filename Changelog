@@ -132,6 +132,9 @@ Fixed - Credit stash ambush no longer flags the player fleet for low reputation 
 Derelict Stations
 Fixed - IE derelict stations no longer spawn in systems that already have a vanilla station
 
+Survey Stories
+Fixed - Desert warlords survey story can now appear on desert and arid worlds
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 

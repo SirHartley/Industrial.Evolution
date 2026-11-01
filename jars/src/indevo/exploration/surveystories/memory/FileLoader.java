@@ -38,9 +38,9 @@ public class FileLoader {
                     float weight = row.getString("picker_weight").isEmpty() ? 0f : (float) row.getDouble("picker_weight");
                     String commsIntro = row.getString("comms_intro_text");
 
-                    List<String> planetTypes = row.getString("optional_planet_types").isEmpty() ? new ArrayList<String>() : new ArrayList<>(Arrays.asList(row.getString("optional_planet_types").replaceAll("\\s", "").split(";")));
-                    List<String> ruinsSizes = row.getString("optional_ruins_sizes").isEmpty() ? new ArrayList<String>() : new ArrayList<>(Arrays.asList(row.getString("optional_ruins_sizes").replaceAll("\\s", "").split(";")));
-                    List<String> requiredConditions = row.getString("optional_required_conditions").isEmpty() ? new ArrayList<String>() : new ArrayList<>(Arrays.asList(row.getString("optional_required_conditions").replaceAll("\\s", "").split(";")));
+                    List<String> planetTypes = row.getString("optional_planet_types").isEmpty() ? new ArrayList<String>() : new ArrayList<>(Arrays.asList(row.getString("optional_planet_types").replaceAll("\\s", "").split("[,;]")));
+                    List<String> ruinsSizes = row.getString("optional_ruins_sizes").isEmpty() ? new ArrayList<String>() : new ArrayList<>(Arrays.asList(row.getString("optional_ruins_sizes").replaceAll("\\s", "").split("[,;]")));
+                    List<String> requiredConditions = row.getString("optional_required_conditions").isEmpty() ? new ArrayList<String>() : new ArrayList<>(Arrays.asList(row.getString("optional_required_conditions").replaceAll("\\s", "").split("[,;]")));
                     List<String> storyParts = new LinkedList<>();
 
                     for (int j = 1; j < 4; j++) {
