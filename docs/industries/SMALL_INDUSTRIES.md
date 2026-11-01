@@ -1,6 +1,6 @@
 # Small industries
 
-Industries that are a single class in `indevo/industries/` (Centralization Bureau, Supercomputer, Restoration Docks, Requisitions Centre, invisible planetary shield), the Commerce balance patches, the shared storage base class, and one dead class. Read the index first to find the doc for any IE industry id. It does not cover the submarkets these industries add; see [Submarkets](../core/SUBMARKETS.md).
+Industries that are a single class in `indevo/industries/` (Centralization Bureau, Supercomputer, Restoration Docks, Requisitions Centre), the Commerce balance patches, the shared storage base class, and one dead class. Read the index first to find the doc for any IE industry id. It does not cover the submarkets these industries add; see [Submarkets](../core/SUBMARKETS.md).
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
 
@@ -28,10 +28,9 @@ Every IE row of `data/campaign/industries.csv` (plugin column, paths relative to
 | `IndEvo_Museum` | 55 | `museum/industry/Museum` | [Museum](MUSEUM.md) |
 | `IndEvo_Warehouse`, `#IndEvo_Warphouse` (commented) | 58, 61 | `warehouses/industry/Warehouses` | [Warehouses](WAREHOUSES.md) |
 | `IndEvo_Artillery_base`, `_mortar`, `_missile`, `_railgun` | 64, 67, 74, 81 | `artillery/industry/ArtilleryStation` | [Artillery](ARTILLERY.md) |
-| `IndEvo_ChamelionIndustry`, `IndEvo_RuinedInfra` | 90, 101 | `ruinfra/industry/ChamelionIndustry`, `RuinedInfrastructure` | [Ruined Infrastructure](RUINED_INFRASTRUCTURE.md) |
-| `IndEvo_InvisiblePlanetaryShield` | 91 | `InvisiblePlanetaryShield` | this doc |
-| `IndEvo_HullDecon`, `IndEvo_HullForge`, `IndEvo_ResLab`, `IndEvo_RiftGen`, `IndEvo_Ruins` | 94-98 | `derelicts/industry/HullDeconstructor`, `HullForge`, `AncientLaboratory`, `RiftGenerator`, `Ruins` | [Derelicts](DERELICTS.md) |
-| `IndEvo_BaseFlavourInd` and nine wonders | 106-133 | `worldwonder/industry/WorldWonder` and subclasses | [World Wonders](WORLD_WONDER.md) |
+| `IndEvo_ChamelionIndustry`, `IndEvo_RuinedInfra` | 90, 100 | `ruinfra/industry/ChamelionIndustry`, `RuinedInfrastructure` | [Ruined Infrastructure](RUINED_INFRASTRUCTURE.md) |
+| `IndEvo_HullDecon`, `IndEvo_HullForge`, `IndEvo_ResLab`, `IndEvo_RiftGen`, `IndEvo_Ruins` | 93-97 | `derelicts/industry/HullDeconstructor`, `HullForge`, `AncientLaboratory`, `RiftGenerator`, `Ruins` | [Derelicts](DERELICTS.md) |
+| `IndEvo_BaseFlavourInd` and nine wonders | 105-132 | `worldwonder/industry/WorldWonder` and subclasses | [World Wonders](WORLD_WONDER.md) |
 
 IE has no row with a vanilla id. A mod row with a vanilla id would replace the whole vanilla row, and the first sorted mod wins (skill `docs/concepts/csv-json-merging.md:24-26`); vanilla `commerce` is changed by PatchLib hooks instead (see [Commerce balance patches](#commerce-balance-patches-commerce)).
 
@@ -49,7 +48,6 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | `indevo/industries/RequisitionCenter.java` | `IndEvo_ReqCenter`: adds the weapon import submarket; tooltip only, stock logic is in `RequisitionsCenterSubmarketPlugin` |
 | `indevo/industries/patches/CommerceBalancePatch.java` | PatchLib hooks on vanilla `TradeCenter` for `IndEvo_CommerceBalanceChanges` |
 | `indevo/industries/patches/DealmakerHolosuitePatch.java` | PatchLib redirect of the Dealmaker Holosuite income bonus for the same setting |
-| `indevo/industries/InvisiblePlanetaryShield.java` | `IndEvo_InvisiblePlanetaryShield`: vanilla `PlanetaryShield` with selectable shield visuals; nested `AlternateTextureOptionProvider` |
 | `indevo/industries/SharedSubmarketUser.java`, `SharedSubmarketUserAPI.java` | Base class and interface for industries that add and filter the `IndEvo_SharedStore` submarket |
 | `indevo/industries/compatibility/TechTree.java` | Dead, see Known issues |
 
@@ -61,7 +59,6 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | Industry | `IndEvo_SupCom` (`Ids.SUPCOM`) | `industries.csv:25`, upkeep 4 |
 | Industry | `IndEvo_dryDock` (`Ids.REPAIRDOCKS`) | `industries.csv:32`, upkeep 5 |
 | Industry | `IndEvo_ReqCenter` (`Ids.REQCENTER`) | `industries.csv:38`, upkeep 6 |
-| Industry | `IndEvo_InvisiblePlanetaryShield` (`Ids.PLANETARY_SHIELD_ALT`) | `industries.csv:91`, `do_not_show_in_build_dialog, hide_in_codex` |
 | Industry | `commerce` (`Ids.COMMERCE`) | vanilla row, plugin vanilla `TradeCenter` |
 | Submarkets | `IndEvo_RepairStorage` (`Ids.REPSTORAGE`), `IndEvo_ReqCenterMarket` (`Ids.REQMARKET`), `IndEvo_SharedStore` (`Ids.SHAREDSTORAGE`) | `data/campaign/submarkets.csv:2`, `:3`, `:8` |
 | List | `IndEvo_buerauList` (sic) -> `data/config/indEvo/bureau_industry_whitelist.csv` | `data/config/settings.json:223`, `Ids.BUREAU_LIST` |
@@ -69,14 +66,12 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | Settings | `IndEvo_restoFee_FRIGATE` 1000, `_DESTROYER` 3000, `_CRUISER` 7000, `_CAPITAL` 10000 | `LunaSettings.csv:157-160` |
 | Setting | `IndEvo_CommerceBalanceChanges` (default true) | `LunaSettings.csv:9` |
 | Memory key | `$IndEvo_maxDModMemory` (map `FleetMemberAPI -> Integer`) | sector memory, `RestorationDocks` |
-| Market tags | `IndEvo_PS_FULL`, `IndEvo_PS_LOW`, `IndEvo_PS_NONE` | `InvisiblePlanetaryShield` |
-| Sprite | `IndEvo` / `shield_texture` | `data/config/settings.json:360` |
 | Strings | categories `IndEvo_AdInfra`, `IndEvo_dryDock`, `IndEvo_ReqCenter` | `data/strings/strings.json:126`, `:215`, `:256` |
 
 ## Registration and lifecycle
 
 - All via CSV plugin column.
-- `ModPlugin.setListenersIfNeeded()`: `InvisiblePlanetaryShield.AlternateTextureOptionProvider.register()` (`ModPlugin.java:488`). `BureauFactor` and `SuperComputerFactor` are registered by `SpecialItemEffectsRepo.initEffectListeners()` ([Installables](../items/INSTALLABLES.md)).
+- `BureauFactor` and `SuperComputerFactor` are registered by `SpecialItemEffectsRepo.initEffectListeners()` ([Installables](../items/INSTALLABLES.md)).
 - `CommerceBalancePatch` and `DealmakerHolosuitePatch` are `@Patch` classes; PatchLib finds and installs them at startup ([Patches](../ARCHITECTURE.md#patches)). Both read `IndEvo_CommerceBalanceChanges` on every call, so the setting takes effect without a restart.
 - `NewGameIndustryPlacer` places Restoration Docks (`NewGameIndustryPlacer.java:69`) and the Requisitions Centre at `baetis` (`:133`) on new game; see [Utils](../core/UTILS.md).
 - Supercomputer, Restoration Docks and Requisitions Centre add themselves as transient listeners in `apply()` and remove themselves in `unapply()`; `ListenerManager.addListener` dedupes the same instance (skill `obf/campaign/ListenerManager.java:29`).
@@ -130,12 +125,6 @@ Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. W
 | `@Before` | `TradeCenter.addAlphaCoreDescription` | player markets: tariff text instead of income, skips vanilla |
 | `@RedirectFieldRead` | `TradeCenter.IMPROVE_BONUS` reads in `TradeCenter` | 10 instead of 25 |
 | `@RedirectFieldRead` | `ItemEffectsRepo.DEALMAKER_INCOME_PERCENT_BONUS` reads in `BaseInstallableItemEffect` subclasses | 25 instead of 50 |
-
-### Invisible planetary shield
-
-- `CloudPainter` swaps the vanilla shield for this industry ([World Wonders](WORLD_WONDER.md)). `getId()` returns `planetaryshield`, so `Market.hasIndustry` and `getIndustry`, which match on `Industry.getId()` (skill `obf/campaign/econ/Market.java:200-218`), treat it as the vanilla shield.
-- Option "Change Shield Visuals" cycles market tags FULL -> LOW -> NONE; `apply` uses vanilla texture, the IE translucent texture, or no shield visuals.
-- A market with none of the three tags gets one from `getDefaultTag()`: NONE if `IndEvo_CPShieldRemove`, else LOW if `IndEvo_CPShieldOverride`, else FULL. Markets that already carry a tag keep it.
 
 ### SharedSubmarketUser
 

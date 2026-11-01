@@ -76,7 +76,6 @@ public class Ids {
     public static final String SWITCHABLE_REFINING = "IndEvo_SwitchableRefining";
     public static final String SWITCHABLE_POPULATION = "IndEvo_SwitchablePopulation";
     public static final String PET_STORE = "IndEvo_PetStore";
-    public static final String PLANETARY_SHIELD_ALT = "IndEvo_InvisiblePlanetaryShield";
     public static final String MUSEUM = "IndEvo_Museum";
     public static final String WAREHOUSES = "IndEvo_Warehouse";
     public static final String WARPHOUSE = "IndEvo_Warphouse";

@@ -140,6 +140,8 @@ Adjusted - Uses the vanilla Commerce again and changes it in place, which improv
 
 World Wonders
 Fixed - Cloud Painter shield texture settings now pick the starting shield visuals
+Fixed - A Planetary Shield on a Cloud Painter world no longer loses its triple ground defense, meteor impact protection, installed AI core or improvement, and pays its normal upkeep again
+Adjusted - Change Shield Visuals only shows while the colony has a working Cloud Painter, and the shield looks normal again once the Cloud Painter is gone
 
 Automated Shipyards
 Fixed - Automated Shipyard shows the ship components lost when the machine runs
