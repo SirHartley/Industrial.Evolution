@@ -1,6 +1,5 @@
 package indevo.industries.petshop.item;
 
-import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.CargoTransferHandlerAPI;
@@ -17,7 +16,6 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.industries.petshop.dialogue.PetPickerInteractionDialoguePlugin;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
-import indevo.utils.ModPlugin;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -190,46 +188,12 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
     }
 
     @Override
-    public void performRightClickAction() {
+    public void performRightClickAction(RightClickActionHelper helper) {
         MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
-        if (mem.contains(BOX_ACTIVE)) return;
+        // pet can be null here, cause unknown (forum msg416779)
+        if (mem.contains(BOX_ACTIVE) || pet == null) return;
 
         mem.set(BOX_ACTIVE, null, 0f);
-
-        try {
-            Robot r = new Robot();
-
-            r.keyPress(27);
-            r.keyRelease(27);
-
-        } catch (AWTException e) {
-            ModPlugin.log("Could not close inventory on pet cryochamber activation");
-            e.printStackTrace();
-        }
-
-        Global.getSector().addScript(new EveryFrameScript() {
-            boolean done = false;
-
-            @Override
-            public boolean isDone() {
-                return done;
-            }
-
-            @Override
-            public boolean runWhilePaused() {
-                return true;
-            }
-
-            @Override
-            public void advance(float amount) {
-                // Wisp: add pet null check. Very dirty crash fix, didn't look into why the pet is null at all.
-                // <https://fractalsoftworks.com/forum/index.php?topic=18011.msg416779#msg416779>
-                // H: it's been a year and neither did I
-
-                if (!done && pet != null) {
-                    done = Global.getSector().getCampaignUI().showInteractionDialog(new PetPickerInteractionDialoguePlugin(pet), null);
-                }
-            }
-        });
+        Global.getSector().getCampaignUI().showInteractionDialogFromCargo(new PetPickerInteractionDialoguePlugin(pet, helper), null, () -> mem.unset(BOX_ACTIVE));
     }
 }
