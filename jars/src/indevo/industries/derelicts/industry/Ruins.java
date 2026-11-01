@@ -7,7 +7,6 @@ import com.fs.starfarer.api.campaign.econ.CommodityOnMarketAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
-import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.impl.campaign.DebugFlags;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
@@ -15,12 +14,14 @@ import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Strings;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
+import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.IconRenderMode;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
+import indevo.utils.helper.IndustrySpecView;
 
 import java.awt.*;
 
@@ -28,16 +29,27 @@ public class Ruins extends BaseIndustry {
 
     public static final String INDUSTRY_ID_MEMORY_KEY = "$IndEvo_ruinsIndustryId";
 
-    private static void log(String Text) {
-        Global.getLogger(Ruins.class).info(Text);
-    }
-
-    private String upgradeSpec = null;
+    private transient IndustrySpecView specView = null;
 
     @Override
     public void apply() {
-        setUpgradeSpec();
         triggerUpgradeForAI();
+    }
+
+    @Override
+    public IndustrySpecAPI getSpec() {
+        IndustrySpecAPI base = super.getSpec();
+        String target = getUpgradeTarget();
+
+        if (specView == null || !specView.isViewOf(base, target, base.getDowngrade())) {
+            specView = new IndustrySpecView(base, target, base.getDowngrade());
+        }
+
+        return specView;
+    }
+
+    private String getUpgradeTarget() {
+        return market == null ? null : market.getMemoryWithoutUpdate().getString(INDUSTRY_ID_MEMORY_KEY);
     }
 
     @Override
@@ -69,23 +81,12 @@ public class Ruins extends BaseIndustry {
         }
     }
 
-    private void setUpgradeSpec() {
-        MemoryAPI memory = market.getMemoryWithoutUpdate();
-        if (!memory.contains(INDUSTRY_ID_MEMORY_KEY)) return;
-
-        if (upgradeSpec == null) upgradeSpec = memory.getString(INDUSTRY_ID_MEMORY_KEY);
-
-        //target was already set, parse from memory
-        getSpec().setUpgrade(upgradeSpec);
-        if (Global.getSettings().isDevMode()) log("picking upgrade for ruins: " + spec.getUpgrade());
-    }
-
     private void triggerUpgradeForAI() {
 
         if (isFunctional()
                 && market.getFaction() != Global.getSector().getPlayerFaction()
                 && !market.isPlayerOwned()
-                && upgradeSpec != null) {
+                && getUpgradeTarget() != null) {
 
             boolean sizeReq = market.getSize() > 4;
             boolean indSlots = Misc.getNumIndustries(market) < Misc.getMaxIndustries(market);
