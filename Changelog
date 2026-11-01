@@ -15,6 +15,7 @@ Added - Setting to make meteor shower spawn immediately instead of having a dela
 Fixed - Tutorial intel displaying twice
 Fixed - Rogue planets from planetoid swarms now despawn with their rings and loot stations at the end of their path; leftovers in existing saves are removed on load
 Fixed - Asteroid, ice and radioactive swarms spawn again; random showers were only planetoid swarms
+Fixed - Meteor storm intel now shows the correct arrival date and ends 20 days after the storm arrives
 
 Pets
 Removed - Pet food

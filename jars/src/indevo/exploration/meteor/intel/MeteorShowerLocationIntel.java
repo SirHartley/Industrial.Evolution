@@ -37,12 +37,15 @@ public class MeteorShowerLocationIntel extends FleetLogIntel {
 
         days -= Global.getSector().getClock().convertToDays(amount);
 
-        if (days <= 0){
-            dateString = Global.getSector().getClock().getDateString();
-            endAfterDelay(20);
-        }
+        if (days <= 0) {
+            days = 0;
 
-        if (days <= 0) days = 0;
+            // endAfterDelay resets the timer, call it once
+            if (!isEnding()) {
+                dateString = Global.getSector().getClock().getDateString();
+                endAfterDelay(20);
+            }
+        }
     }
 
     @Override

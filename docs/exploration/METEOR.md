@@ -40,7 +40,7 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 | `scripts/TutorialEncounterScript.java` | Spawns "Panicked Roiders" (roider or independent `SCAVENGER_SMALL`), makes them intercept the player |
 | `fleet/InterceptPlayerFleetAssignmentAI.java` | Script plus campaign listener: re-issues `INTERCEPT` until the player opens a dialog with the fleet, then returns it to source |
 | `rules/IndEvo_RegisterTutorialMeteorIntel.java` | Rule command: adds `MeteorShowerSpawningLocationIntel` (intensity 4, `ASTEROID`, 3 days) |
-| `intel/MeteorShowerLocationIntel.java` | `FleetLogIntel`: countdown, size hint, "unusual composition" for non-asteroid types |
+| `intel/MeteorShowerLocationIntel.java` | `FleetLogIntel`: countdown, size hint, "unusual composition" for non-asteroid types; ends 20 days after the shower arrives |
 | `intel/MeteorShowerSpawningLocationIntel.java` | Same, but calls `spawnShower` itself when the countdown ends |
 | `terrain/RadioactiveTerrain.java` | `StarCoronaTerrainPlugin` subclass, radius 50000 at system centre; strength per fleet = radiation level in fleet memory; CR loss, peak time and CR decay buffs; removes itself when the warning renderer is gone |
 | `renderers/RadiationEffectHandler.java` | Transient Luna renderer: player radiation decay, sound loops, music suppression, vignette, drives `RadiationVFXHandler` |
@@ -114,7 +114,6 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 
 | Item | State |
 |---|---|
-| `MeteorShowerLocationIntel.advance()` | Calls `endAfterDelay(20)` every frame once the countdown ends (`:40-43`); `BaseIntelPlugin.endAfterDelay` resets `endingTimeRemaining` each call (starsector-knowledge `api/impl/campaign/intel/BaseIntelPlugin.java:107`), so the intel never ends and `dateString` is always today |
 | `TutorialEncounterScript` source market | Ternary is inverted: `isEmpty() ? get(0) : null` (`:45`); throws if the faction has no markets, else always null |
 | `PlanetoidSwarmSpawner.addStation()` | Every station uses id `<planet id>_loot` (`:203`); with `lootAmt > 2.1` two entities share one id |
 | `MeteorDebrisRenderer.isExpired()` | Always false (`:94`); renderers pile up and render in every location (inferred leak) |
