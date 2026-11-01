@@ -377,7 +377,9 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
         autoFeed();
 
         //get all intel
+        // GenericRaidFGI is not a RaidIntel, the class lookup only returns subclasses
         List<IntelInfoPlugin> allIntel = new ArrayList<>(Global.getSector().getIntelManager().getIntel(RaidIntel.class));
+        allIntel.addAll(Global.getSector().getIntelManager().getIntel(GenericRaidFGI.class));
         for (IntelInfoPlugin intel : allIntel) {
             //check if it's raidIntel and targets this system
             int salvagePoints = 0;

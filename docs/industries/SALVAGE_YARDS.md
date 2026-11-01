@@ -51,7 +51,7 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | Battle involving a listened fleet | `Misc.getSnapshotFPLost(fleet)` | `reportBattleOccurred` |
 | `RaidIntel` on the system, succeeded | 30% of `getRaidFPAdjusted()` | `onNewDay` |
 | `RaidIntel` failed in action stage, player absent for the action stage | 70% | `onNewDay` |
-| `GenericRaidFGI` on the system | 30% success, 70% failure of `getTotalFPSpawned()` | `onNewDay` |
+| `GenericRaidFGI` on the system | 30% success, 70% failure of `getTotalFPSpawned()` | `onNewDay`, which reads `getIntel(RaidIntel.class)` plus `getIntel(GenericRaidFGI.class)`: the class lookup only returns subclasses |
 | Pirate activity condition in the system | 3 per day | `onNewDay` |
 | Weapons in `IndEvo_SharedStore` | `cargo space * 2` per unit, capped at `size * 50` per month | `autoFeed` |
 
