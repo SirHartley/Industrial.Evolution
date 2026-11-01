@@ -35,7 +35,7 @@ Both ids use `MilitaryRelay`, a subclass of vanilla `MilitaryBase`. On a market 
 
 - CSV plugin column for both industries.
 - `ModPlugin.setListenersIfNeeded()`: `MilitaryRelay.RelayItemRemovalButtonListener.register()` (`ModPlugin.java:504`), `RelayNetworkBrain.getInstanceOrRegister()` (`:510`), a transient campaign event listener found through `SectorAPI.getAllListeners()`, since the listener manager does not list it (`RelayNetworkBrain.java:22-30`). `RelayFactor` is registered in `SpecialItemEffectsRepo.initEffectListeners()`.
-- `RelayNetworkBrain` is a transient `CampaignEventListener` (`Global.getSector().addTransientListener`) and a `NewDayListener`. `TimeTracker.onNewDay` finds it through `SectorAPI.getAllListeners()` (`TimeTracker.java:131`), which includes transient listeners (`obf/campaign/CampaignEngine.java:2073`).
+- `RelayNetworkBrain` is a transient `CampaignEventListener` (`Global.getSector().addTransientListener`) and a `NewDayListener`. `TimeTracker.onNewDay` finds it through `SectorAPI.getAllListeners()` (`TimeTracker.java:132`), which includes transient listeners (`obf/campaign/CampaignEngine.java:2073`).
 - Extra network updates: `finishBuildingOrUpgrading`, `setAICoreId`, and `notifyBeingRemoved` (delayed by `DelayedActionScriptRunWhilePaused(0.01f)` so the industry is gone first).
 - Saved state: the `NetworkEntry` inside each `RelayConditionPlugin`, `addedOrRemovedItem` on the industry. Networks are rebuilt from scratch on every update.
 

@@ -34,6 +34,10 @@ public class TimeTracker implements EveryFrameScript {
             market.addTag(ident + 0);
         }
 
+        for (ArrayList<Object> other : tagTrackers) {
+            if (other.get(0) == market && ident.equals(other.get(1))) return;
+        }
+
         tagTrackers.add(l);
     }
 
@@ -41,10 +45,7 @@ public class TimeTracker implements EveryFrameScript {
         for (Iterator<ArrayList<Object>> i = tagTrackers.iterator(); i.hasNext(); ) {
             ArrayList<Object> l = i.next();
 
-            if (l.get(0) == market && l.get(1) == ident) {
-                tagTrackers.remove(l);
-                break;
-            }
+            if (l.get(0) == market && ident.equals(l.get(1))) i.remove();
         }
     }
 
@@ -155,13 +156,22 @@ public class TimeTracker implements EveryFrameScript {
     }
 
     private void updateMarketTagTimePassed() {
-        for (ArrayList<Object> l : tagTrackers) {
+        Set<String> seen = new HashSet<>();
+
+        for (Iterator<ArrayList<Object>> it = tagTrackers.iterator(); it.hasNext(); ) {
+            ArrayList<Object> l = it.next();
             if (l.size() > 2) {
                 continue;
             }
 
             MarketAPI market = (MarketAPI) l.get(0);
             String ident = (String) l.get(1);
+
+            // 4.1.b added a duplicate entry on every load
+            if (!seen.add(market.getId() + "|" + ident)) {
+                it.remove();
+                continue;
+            }
 
             for (Iterator<String> i = market.getTags().iterator(); i.hasNext(); ) {
                 String tag = i.next();

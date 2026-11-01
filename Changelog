@@ -108,6 +108,7 @@ Fixed - Forced relocation edict now moves as much population growth as its toolt
 Fixed - Lockdown edict tooltip and dialog agree on the ground defense bonus (+200%, three times the base)
 Fixed - Ending the open market edict no longer removes the open market of a colony with Commerce
 Fixed - Conscription stability penalty no longer drops to 0 early or carries over into a later Conscription
+Fixed - Running edicts no longer count days faster after every save and load
 
 Supercomputer
 Fixed - Crash when a Supercomputer uses a modded AI core; modded cores last as long as a gamma core
