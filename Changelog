@@ -39,6 +39,9 @@ Fixed - Swapping AI cores no longer keeps the old core's training time reduction
 Commodity Forge
 Fixed - Beta core upkeep reduction now ends when a VPC is installed, as the tooltip says
 
+Governments
+Fixed - Governments can no longer be changed after they became permanent
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 

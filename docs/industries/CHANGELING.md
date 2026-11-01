@@ -91,7 +91,7 @@ Apply chain: `SwitchableX.init -> setCurrent(list[0])` on first init, then `Swit
 ### Governments
 
 - `SwitchablePopulation.apply()` clears supply and demand, then runs `superApply()` (vanilla) in LARP mode or `current.apply()` otherwise (`:142-159`). Most variants call `superApply()` first and add their changes; Underworld rebuilds the vanilla pop apply by hand (`UnderworldSubIndustry.java:172-318`).
-- Lock: `advance()` counts days for a non-base, non-Anchorage variant; at `DAYS_TO_LOCK = 7` it sets `locked` and posts a message (`:235-257`). `canChange()` is dev mode or (size <= `IndEvo_GovernmentMaxSize` and not locked) (`:268-270`).
+- Lock: `advance()` counts days for a non-base, non-Anchorage variant; at `DAYS_TO_LOCK = 7` it sets `locked` and posts a message (`:235-257`). `canChange()` is dev mode or (size <= `IndEvo_GovernmentMaxSize` and not locked) (`:268-270`). `ChangelingPopulationOptionProvider.isSuitable` offers the switch on a vanilla population or a `SwitchablePopulation` that `canChange()`.
 - `getPatherInterest()` uses the variant value unless it is above 1e8 (the `SubIndustry` default) (`:284-289`). Rural returns -10; Managed Democracy and Monastic return minus the market's total interest from other industries.
 - Availability per variant (`isAvailableToBuild` / `getUnavailableReason`):
 
@@ -135,7 +135,6 @@ Apply chain: `SwitchableX.init -> setCurrent(list[0])` on first init, then `Swit
 | `Concept` file | Design notes only |
 | `UnderworldSubIndustry.increaseFleetSize` | Empty, body commented out (`:143-145`) |
 | `RuralPolitySubIndustry.fixClosest` | Debug helper, only referenced from a comment |
-| Locked government still switchable | Suspected: `ChangelingPopulationOptionProvider.isSuitable` accepts `isPop` (true for the switchable too, since `getId()` is `population`), so the lock is skipped while size <= max (`:38-46`) |
 | Managed Democracy patrols | Suspected: size > 4 sets `PATROL_NUM_LIGHT_MOD` again with the same mod id, overwriting 2 with 1; no heavy patrol is added though the tooltip shows one (`HelldiversSubIndustry.java:304-306`) |
 | Managed Democracy max size | Suspected: applied with `getId()`, unapplied with the pop mod id (`:320`, `:367`) |
 | Managed Democracy raid mods | Expired `RaidMod` entries are skipped, never removed |
