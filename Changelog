@@ -113,6 +113,9 @@ Restoration Docks
 Fixed - Restoration Docks repair the shown number of D-mods per month, not one more
 Fixed - Restoration Docks tooltip shows the beta core repair discount instead of a higher price
 
+Requisitions Centre
+Fixed - Requisition Center tooltip shows ambassador sourcing when it applies (no gamma core) and warns on low standing
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 

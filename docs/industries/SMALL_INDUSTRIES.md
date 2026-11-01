@@ -143,7 +143,6 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | Item | State |
 |---|---|
 | `RestorationDocks.aiCoreBonusMult` | only reset by beta and none branches; alpha or gamma after beta keeps 0.85 |
-| `RequisitionCenter` tooltip (`RequisitionCenter.java:82`) | ambassador text shows only with a gamma core, the core that ignores the ambassador; inner `repInt < 35` branch never runs |
 | `RequisitionCenter.apply` | `addListener(this)` with no listener interface; no effect |
 | `TradeCenter.applyNoAICoreModifiers` (`TradeCenter.java:179`) | unmodifies tariff under `getModId()`, set under `getModId(1)`; the alpha tariff mod stays after core removal |
 | `TradeCenter` alpha tooltip | with balance setting the format args are misordered (tariff string in the demand slot) |

@@ -81,7 +81,7 @@ public class RequisitionCenter extends BaseIndustry {
 
             if (market.hasIndustry(Ids.EMBASSY)
                     && AmbassadorPersonManager.hasAmbassador(market)
-                    && MiscIE.getAiCoreIdNotNull(this).equals(Commodities.GAMMA_CORE)) {
+                    && !MiscIE.getAiCoreIdNotNull(this).equals(Commodities.GAMMA_CORE)) {
 
                 FactionAPI alignedFaction = ((Embassy) market.getIndustry(Ids.EMBASSY)).alignedFaction;
 
@@ -90,7 +90,7 @@ public class RequisitionCenter extends BaseIndustry {
                     Pair<String, Color> standing = StringHelper.getRepIntTooltipPair(alignedFaction);
                     String weaponString;
 
-                    if (repInt < Math.round(MIN_REP_REQUIREMENT * 100)) {
+                    if (rel < MIN_REP_REQUIREMENT) {
 
                         weaponString = getAmountString(rel, true);
                         tooltip.addPara("The Centre is currently sourcing %s as your standing with " + alignedFaction.getDisplayNameWithArticle() + " is not high enough. %s", opad, Misc.getTextColor(), standing.two, new String[]{weaponString, standing.one});
