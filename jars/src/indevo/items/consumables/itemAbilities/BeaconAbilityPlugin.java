@@ -19,6 +19,10 @@ public class BeaconAbilityPlugin extends BaseConsumableAbilityPlugin {
     @Override
     protected void activateImpl() {
         final InteractionDialogPlugin dialogue = new BeaconDelegateLaunchpadDialoguePlugin(this);
+        CampaignUIAPI ui = Global.getSector().getCampaignUI();
+
+        // showInteractionDialog fails while the core ui is open
+        if (ui.getCurrentCoreTab() == CoreUITabId.CARGO && ui.showInteractionDialogFromCargo(dialogue, null, null)) return;
 
         Global.getSector().addScript(new EveryFrameScript() {
             boolean done = false;
