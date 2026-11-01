@@ -60,6 +60,7 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
                     Global.getSettings().getColor("standardTextColor"), market.getName(), "achieved its purpose", Misc.getHighlightColor(), Misc.getPositiveHighlightColor());
 
             removeWithoutPenalty();
+            return;
         }
 
         if (!isPresenceConditionMet(market)) removeWithPenalty();
@@ -72,7 +73,7 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
         if (market.equals(this.market)) {
             incoming.getWeight().modifyFlat(getModId(), -this.market.getSize() * popMult, getName());
         } else {
-            incoming.getWeight().modifyFlat(getModId(), (float) (this.market.getSize() / otherPlanetCount) * popMult, getName() + " from " + this.market.getName());
+            incoming.getWeight().modifyFlat(getModId(), (float) Math.ceil((1.0 * this.market.getSize() / otherPlanetCount) * popMult), getName() + " from " + this.market.getName());
         }
     }
 

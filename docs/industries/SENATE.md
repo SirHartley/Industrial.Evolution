@@ -31,7 +31,7 @@ A Senate allows one Edict per player colony in its star system (one Senate per s
 
 | Condition id | Class | Requires (besides Senate presence) | Effect | Runtime / end |
 |---|---|---|---|---|
-| `IndEvo_edict_forced_reloc` | `Edict_ForcedRelocation` | military, unique in system, 2+ colonies, size 4 to max-1 | stability -3 in system, growth -10 x size here, + size/others x 10 elsewhere | auto-ends at min runtime or max size, +3 unrest |
+| `IndEvo_edict_forced_reloc` | `Edict_ForcedRelocation` | military, unique in system, 2+ colonies, size 4 to max-1 | stability -3 in system, growth -10 x size here, + ceil(size / others x 10) elsewhere | auto-ends at min runtime or max size, +3 unrest |
 | `IndEvo_edict_ind_incent` | `Edict_Incentives` | none | industries supply and demand +1, upkeep x2 | 186 days |
 | `IndEvo_edict_labour_rest` | `Edict_LabourRestrictions` | not free port | stability +4, industries supply and demand -1 | 186 days |
 | `IndEvo_edict_cleanse` | `Edict_Cleanse` | military, a condition named "...ubpopulation" | income x0.7, stability -(size-1), growth -size | size x 31 days, then removes subpopulation conditions, unrest ceil(size/3) |
@@ -105,7 +105,6 @@ Chain: `IndEvo_ApplyEdict -> IndEvo_applyEdict -> market.addCondition -> BaseEdi
 | Item | State |
 |---|---|
 | `Edict_GrowthReinvestment` | `@Deprecated`, no `market_conditions.csv` row: dead |
-| `Edict_ForcedRelocation.onNewDay()` | After the auto end runs `removeWithoutPenalty()`, it still evaluates the presence check and can call `removeWithPenalty()` again (`:65`). `this.market.getSize() / otherPlanetCount` is int division (`:75`) |
 | `Edict_Lockdown` effect text | "increased by 200%" with highlight "300%" (`:166-167`) |
 | `Edict_OpenMarket.unapply()` | Removes any open market submarket on player markets, also one it did not add (`:55-60`); the saved instance is `transient` |
 | `Edict_LockColonySize.unapply()` | No primary entity guard: sets weight 0 on the dummy market (`:28`) |
