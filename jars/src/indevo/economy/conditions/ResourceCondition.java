@@ -28,34 +28,12 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
     public static final float MAX_QUALITY_PENALTY_WITH_CORRUPTED = -0.4f;
     public static final float MAX_QUALITY_PENALTY_WITH_PRISTINE = -0.3f;
 
-    public static final float CORRUPTION_INCOME_RED_POW = -0.6f;
-
     @Override
     public void apply(String id) {
         super.apply(id);
         if (Settings.getBoolean(Settings.SCRAPYARD)) applyParts();
-        if (Settings.getBoolean(Settings.CORRUPTION)) applyCorruption();
 
         applySupComIncome();
-    }
-
-    public void applyCorruption(){
-        float income = market.getNetIncome();
-        float maxIncomeBeforePenalty = Settings.getInt(Settings.CORRUPTION_CUTOFF);
-        float x = income / maxIncomeBeforePenalty;
-
-        if (x < 1f) return;
-
-        float incomeAboveCutoff = income - maxIncomeBeforePenalty;
-        float reduction = (float) Math.pow(x, CORRUPTION_INCOME_RED_POW); //% of the income above the limit that should not exist
-        float penalty = incomeAboveCutoff - (incomeAboveCutoff * reduction); //credit value that the colony is earning over the target, should be deducted from income
-        float red = (income - penalty) / income;
-
-        //ModPlugin.log("income: " + income + " " + "maxIncomeBeforePenalty: " + maxIncomeBeforePenalty + " "+ "x: " + x + " "+ "incomeAboveCutoff: " + incomeAboveCutoff + " "+ "reduction: " + reduction + " " + "penalty: " + penalty + " " + " red factor " + red);
-
-        //can't apply flat red to income directly, thx alex
-        //market.getIndustry(Industries.POPULATION).getIncome().modifyFlat(getModId()+"_corruption", -penalty, "Corruption");
-        market.getIncomeMult().modifyMult(getModId()+"_corruption", red, "Corruption");
     }
 
     public void applySupComIncome() {
@@ -128,8 +106,6 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
         super.unapply(id);
 
         market.getIncomeMult().unmodify(getModId());
-        market.getIncomeMult().unmodify(getModId()+"_corruption");
-        //market.getIndustry(Industries.POPULATION).getIncome().unmodify(getModId()+"_corruption");
 
         market.getStats().getDynamic().getMod(Stats.PRODUCTION_QUALITY_MOD).unmodify(getModId());
 

@@ -218,7 +218,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 | Changeling, distress | `SelfRepairingBuiltInHullmod`, `PetHullmod` from the pet shop | [PETS](industries/PETS.md) |
 | Museum | Pet shop escape interceptor | [MUSEUM](industries/MUSEUM.md) |
 | Requisitions center, salvage specials, `IndEvo_notAtWar` | Embassy ambassador | [EMBASSY](industries/EMBASSY.md) |
-| Supercomputer | Income applied through `ResourceCondition` | `economy/conditions/ResourceCondition.java:61,69` |
+| Supercomputer | Income applied through `ResourceCondition` | `economy/conditions/ResourceCondition.java:39,47` |
 | Relay | `$IndEvo_RelayUnlocked` set by the hypertransmitter item effect | `SpecialItemEffectsRepo.java:165` |
 | Rift generator | Skips planets with artillery | `RuinsManager.java:171-207` |
 | Consumables (remote, decoy) | Artillery `forceTarget`, `ArtilleryTerrain` | [CONSUMABLES](items/CONSUMABLES.md) |
