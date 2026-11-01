@@ -82,10 +82,10 @@ public class SmokeCloudTerrain extends BaseRingTerrain {
         tooltip.addPara("Reduces the travel speed of fleets inside by up to %s. Larger fleets are slowed down more.",
                 pad,
                 highlight,
-                "" + (int) (Math.round(BURN_PENALTY_MULT) * 100f) + "%"
+                "" + Math.round(BURN_PENALTY_MULT * 100f) + "%"
         );
 
-        float penalty = Misc.getBurnMultForTerrain(Global.getSector().getPlayerFleet());
+        float penalty = getBurnMultForTerrain(Global.getSector().getPlayerFleet());
         tooltip.addPara("Your fleet's speed is reduced by %s.", pad,
                 highlight,
                 "" + (int) Math.round((1f - penalty) * 100) + "%"
