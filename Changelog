@@ -135,6 +135,9 @@ Fixed - IE derelict stations no longer spawn in systems that already have a vani
 Survey Stories
 Fixed - Desert warlords survey story can now appear on desert and arid worlds
 
+Detachments
+Fixed - Detachment auto load takes half the main fleet supplies up to the detachment cargo space, not all of them
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 

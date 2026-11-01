@@ -172,7 +172,7 @@ public class TwoFleetCargoPicker {
                     //if not available, take half the stuff player has available up to your cargo max
                     float amt = (toFleet.requiredSuppliesPerMonth + toFleet.suppliesToRecover) - toFleet.currentSupplies;
                     if (amt > fromFleet.currentSupplies && toFleet.currentSupplies < 1)
-                        amt = Math.max(toFleet.totalCargoCap, fromFleet.currentSupplies / 2f);
+                        amt = Math.min(toFleet.totalCargoCap, fromFleet.currentSupplies / 2f);
 
                     transferCommodity(fromCargo, toCargo, Commodities.SUPPLIES, amt);
                 }
