@@ -28,7 +28,6 @@ SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 ```
 
 - Versions newest first. The newest heading is `<version> - UNRELEASED` while work collects for the next release; the released one is `<version> - CURRENT PUBLIC VERSION`; older ones carry the version alone.
-- The current heading reads `4.1.c- UNRELEASED` (missing space). Fix it to `4.1.c - UNRELEASED` the next time an entry is added.
 - The released version carries a save compatibility line below its heading (`SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0`). The user sets it at release.
 - Open tasks and known issues live in `Changelog_todo`, not in `Changelog`.
 
