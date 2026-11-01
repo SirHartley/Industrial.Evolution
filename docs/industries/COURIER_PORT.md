@@ -48,7 +48,7 @@ The Courier Port is a structure with no supply or demand. While the player owns 
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded()`: `ShippingManager.getInstanceOrRegister()` (persistent listener, one instance) and `CourierPortOptionProvider.register()` (transient) (`indevo/utils/ModPlugin.java:461,491`).
+- `ModPlugin.setListenersIfNeeded()`: `ShippingManager.getInstanceOrRegister()` (persistent listener, one instance) and `CourierPortOptionProvider.register()` (transient) (`indevo/utils/ModPlugin.java:451,481`).
 - `NewGameIndustryPlacer.placeCourierPorts()` puts one port per faction per star system at new game when the setting is on (`indevo/utils/update/NewGameIndustryPlacer.java:92-118`).
 - `NewDayListener` calls come from `TimeTracker`, which collects listeners from the listener manager and sector listeners; see [Utils](../core/UTILS.md).
 - Entry points into the dialog: market menu and colony option point rules, the industry option (fires trigger `IndEvo_FireBaseSPOptionList` with `$IndEvo_closeDialogueOnNextReturn`), and comm relays when `CourierPortIsDisplayInRelay` is true. All end in `CourierPortDialoguePlugin.execute`, which swaps itself in as the dialog plugin and restores the original on Return.

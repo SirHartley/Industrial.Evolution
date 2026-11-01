@@ -35,7 +35,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [RUINED_INFRASTRUCTURE](industries/RUINED_INFRASTRUCTURE.md) | Ruined infrastructure conditions and restoration | `industries/ruinfra` |
 | | [SALVAGE_YARDS](industries/SALVAGE_YARDS.md) | Salvage yards, custom production, D-mod transfer | `industries/salvageyards` |
 | | [SENATE](industries/SENATE.md) | Senate and edicts | `industries/senate` |
-| | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md) | Industry index; bureau, supercomputer, restoration docks, requisitions center, commerce override, shield, shared storage | `industries/*.java` |
+| | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md) | Industry index; bureau, supercomputer, restoration docks, requisitions center, commerce balance patches, shield, shared storage | `industries/*.java` |
 | | [WAREHOUSES](industries/WAREHOUSES.md) | Configurable extra storages | `industries/warehouses` |
 | | [WORLD_WONDER](industries/WORLD_WONDER.md) | World wonders | `industries/worldwonder` |
 | Exploration | [CRUCIBLE](exploration/CRUCIBLE.md) | Crucible and catapults (dormant) | `exploration/crucible` |
@@ -86,21 +86,21 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 
 | Hook | What IE does | Line |
 |---|---|---|
-| `onApplicationLoad()` | GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:125` |
-| `onAboutToStartGeneratingCodex()` | Preloads the nanites icon texture | `:140` |
-| `onNewGameAfterEconomyLoad()` | One-time world generation (chain below) | `:312` |
-| `onGameLoad(newGame)` | Every-load registration and fixes (chain below) | `:154` |
-| `beforeGameSave()` | Resets `OnKeyPressAbilityInputListener`; removes untouched mine entities from their locations | `:339` |
-| `afterGameSave()`, `onGameSaveFailed()` | Puts the removed mines back | `:364`, `:369` |
-| `pickMissileAI()` | `IndEvo_mortarProjectileAI`, `IndEvo_missileProjectileAI` at `MOD_SPECIFIC` ([COMBAT](core/COMBAT.md)) | `:399` |
+| `onApplicationLoad()` | GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:108` |
+| `onAboutToStartGeneratingCodex()` | Preloads the nanites icon texture | `:131` |
+| `onNewGameAfterEconomyLoad()` | One-time world generation (chain below) | `:302` |
+| `onGameLoad(newGame)` | Every-load registration and fixes (chain below) | `:145` |
+| `beforeGameSave()` | Resets `OnKeyPressAbilityInputListener`; removes untouched mine entities from their locations | `:329` |
+| `afterGameSave()`, `onGameSaveFailed()` | Puts the removed mines back | `:354`, `:359` |
+| `pickMissileAI()` | `IndEvo_mortarProjectileAI`, `IndEvo_missileProjectileAI` at `MOD_SPECIFIC` ([COMBAT](core/COMBAT.md)) | `:389` |
 
-New game, once (`:315` to `:331`):
+New game, once (`:305` to `:321`):
 
 `LocatorSystemRatingUpdater.updateAllSystems -> RuinsManager.forceCleanCoreRuins -> NewGameIndustryPlacer.run -> ArtilleryStationPlacer.placeDerelictArtilleries -> placeCoreWorldArtilleries -> GachaStationSpawner.spawn -> createAcademyMarket -> [IndEvo_Enable_Derelicts] DerelictStationPlacer.init -> IndEvo_SalvageSpecialAssigner.init -> spawnMineFields -> DerelictInfrastructurePlacer.placeRuinedInfrastructure -> RuinsManager.placeIndustrialRuins`
 
-Every load (`:157` to `:205`):
+Every load (`:148` to `:195`):
 
-`createAcademyMarket -> setListenersIfNeeded -> setScriptsIfNeeded -> ResourceConditionApplicator.applyResourceConditionToAllMarkets -> loadTransientMemory -> PlanetoidDespawnScript.despawnStrandedPlanetoids -> OrbitFocus.removeUnusedOrbitFoci -> addTypePrefaceToIndustrySpecs -> [IndEvo_CommerceBalanceChanges] overrideVanillaCommerce -> LocatorSystemRatingUpdater.updateAllSystems -> resetDerelictRep -> [newGame] ArtilleryStationReplacer.register -> pet_management ability add or remove [IndEvo_pets] -> $IndEvo_BaseRemoteAllowed -> MissileActivationManager reset`
+`createAcademyMarket -> setListenersIfNeeded -> setScriptsIfNeeded -> ResourceConditionApplicator.applyResourceConditionToAllMarkets -> loadTransientMemory -> PlanetoidDespawnScript.despawnStrandedPlanetoids -> OrbitFocus.removeUnusedOrbitFoci -> addTypePrefaceToIndustrySpecs -> LocatorSystemRatingUpdater.updateAllSystems -> resetDerelictRep -> [newGame] ArtilleryStationReplacer.register -> pet_management ability add or remove [IndEvo_pets] -> $IndEvo_BaseRemoteAllowed -> MissileActivationManager reset`
 
 ### Registration patterns
 
@@ -108,14 +108,14 @@ Every load (`:157` to `:205`):
 |---|---|---|
 | `X.register()` | `getListenerManager().addListener(new X(), true)`: transient, added on every load, not saved | `DepositMessage.register()` |
 | `X.getInstanceOrRegister()` | Returns the saved instance from `getListeners(X.class)` or adds a persistent one | `ShippingManager`, `AdminGovernTimeTracker`; `RelayNetworkBrain` is the transient variant, see below |
-| `registerPlugin(new XCampaignPlugin())` | Campaign plugin; all five IE plugins are transient (`BaseCampaignPlugin.isTransient()` returns true) | `setScriptsIfNeeded()` `:519` to `:523` |
+| `registerPlugin(new XCampaignPlugin())` | Campaign plugin; all five IE plugins are transient (`BaseCampaignPlugin.isTransient()` returns true) | `setScriptsIfNeeded()` `:509` to `:513` |
 | `@Patch` class | PatchLib finds it in `jars/IndEvo.jar` at startup, no registration. A hook installs when its target class loads | [Patches](#patches) |
-| `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:525` |
+| `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:515` |
 | Industry adds itself in `apply()` | `addListener(this)` from the industry; the listener manager skips an instance already present (obf `ObjectRepository.java:87`, per the knowledge skill) | Assembler, engineering hub |
 | CSV plugin column | Industries, conditions, abilities, items, entities, terrain, hullmods, weapons | `data/campaign/*.csv`, `custom_entities.json`, `terrain.json` |
 | `ruleCommandPackages` | Rule commands found by package | `settings.json:236` ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
 
-`setListenersIfNeeded()` (`:451` to `:515`) by feature: item effects and loot (`SpecialItemEffectsRepo.initEffectListeners`, `ShipComponentLootManager`, `SpecialItemDropsListener`, `ConsumableItemDropListener`, `ConsumableItemMarketAdder`), economy (`ResourceConditionApplicator`, `RelicBuildTimeReductionButtonAdder`), assembler (`DepositMessage`), embassy (`AmbassadorPersonManager`, `HostileActivityEventSubRegisterListener`), privateer and raids (`RaidTimeout`), derelicts (`RuinsManager.*`, `AncientLabCommoditySwitchOptionProvider`, `RiftGenOptionProvider`, `RemoveIndustryOptionWarningProvider`), courier (`ShippingManager`, `CourierPortOptionProvider`), split fleet (`DetachmentAbilityAdder`), consumables (`LocatorSystemRatingUpdater`, `SpooferItemKeypressListener`, `OnKeyPressAbilityInputListener`, `FleetConsumableInventoryManager`, `MissileActivationManager`), minefields (`RecentJumpListener`, `InterdictionPulseAbilityListener`), world wonder, changeling, pets, ruinfra, artillery (`WatchtowerFactionResetListener`), research unlock checkers, skills, salvage yards, senate, academy, beacons, shield, relay (`MilitaryRelay.RelayItemRemovalButtonListener`, `RelayNetworkBrain`), meteor (`MeteorSwarmManager`), warehouses, museum. Nexerelin only: `ManagedDemocracyNexerelinListenerPlugin`. Commented out: `DistressCallManager`, `HullmodTimeTracker`.
+`setListenersIfNeeded()` (`:441` to `:505`) by feature: item effects and loot (`SpecialItemEffectsRepo.initEffectListeners`, `ShipComponentLootManager`, `SpecialItemDropsListener`, `ConsumableItemDropListener`, `ConsumableItemMarketAdder`), economy (`ResourceConditionApplicator`, `RelicBuildTimeReductionButtonAdder`), assembler (`DepositMessage`), embassy (`AmbassadorPersonManager`, `HostileActivityEventSubRegisterListener`), privateer and raids (`RaidTimeout`), derelicts (`RuinsManager.*`, `AncientLabCommoditySwitchOptionProvider`, `RiftGenOptionProvider`, `RemoveIndustryOptionWarningProvider`), courier (`ShippingManager`, `CourierPortOptionProvider`), split fleet (`DetachmentAbilityAdder`), consumables (`LocatorSystemRatingUpdater`, `SpooferItemKeypressListener`, `OnKeyPressAbilityInputListener`, `FleetConsumableInventoryManager`, `MissileActivationManager`), minefields (`RecentJumpListener`, `InterdictionPulseAbilityListener`), world wonder, changeling, pets, ruinfra, artillery (`WatchtowerFactionResetListener`), research unlock checkers, skills, salvage yards, senate, academy, beacons, shield, relay (`MilitaryRelay.RelayItemRemovalButtonListener`, `RelayNetworkBrain`), meteor (`MeteorSwarmManager`), warehouses, museum. Nexerelin only: `ManagedDemocracyNexerelinListenerPlugin`. Commented out: `DistressCallManager`, `HullmodTimeTracker`.
 
 When adding a listener, add its `register()` call here in the feature's group and list it in the feature doc's Registration section.
 
@@ -126,6 +126,8 @@ PatchLib patches change vanilla code where the API has no hook. Each lives in a 
 | Patch | Target | Kind | Feature doc |
 |---|---|---|---|
 | `industries/artillery/patches/WatchtowerStableLocationPatch` | `Misc.getNumStableLocations` (API) | `@After` | [ARTILLERY](industries/ARTILLERY.md#stable-locations) |
+| `industries/patches/CommerceBalancePatch` | vanilla `TradeCenter` (API): six methods, `IMPROVE_BONUS` reads | `@Before`, `@After`, `@RedirectFieldRead` | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md#commerce-balance-patches-commerce) |
+| `industries/patches/DealmakerHolosuitePatch` | `ItemEffectsRepo.DEALMAKER_INCOME_PERCENT_BONUS` reads in `BaseInstallableItemEffect` subclasses (API) | `@RedirectFieldRead` | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md#commerce-balance-patches-commerce) |
 
 After a game update, check inferred targets first (any target outside `com.fs.starfarer.api`). In game, `starsector.log` shows `[PatchLib] Discovered patch ...` at startup and `Installed a ... patch site ...` when the target loads; Console Commands `TogglePatch <class>` switches one off for a test.
 
@@ -135,7 +137,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 
 - Saved: fields of persistent listeners (`getInstanceOrRegister`), saved scripts (`TimeTracker`, feature scripts added with `addScript`), intel, industries and conditions on markets, custom entities and their plugins, memory values, tags.
 - Not saved: transient listeners (`register()`), campaign plugins, `SessionTransientMemory` (whitelist sets, VPC item set).
-- Renaming or moving a saved class, or changing the type of a saved field, breaks old saves. Changeling government variants are anonymous classes in static lists; reordering those lists breaks saves (inferred, see [CHANGELING](industries/CHANGELING.md)).
+- Renaming or moving a saved class, or changing the type of a saved field, breaks old saves. A class that left the code but may still be in saves stays as a shim with its old name and fields: `indevo.industries.TradeCenter` ([SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md#known-issues-and-dormant-code)). Changeling government variants are anonymous classes in static lists; reordering those lists breaks saves (inferred, see [CHANGELING](industries/CHANGELING.md)).
 - `TimeTracker` stores time passed in market tags (`<ident><days>`), so those tags are save data.
 - `ModPlugin.beforeGameSave()` strips untouched `IndEvo_Mine` entities to keep saves small and restores them in `afterGameSave()`. `restoreRemovedEntities()` returns early when `IndEvo_Enable_minefields` is off, which leaves any stripped mines out ([MINEFIELDS](exploration/MINEFIELDS.md)).
 
@@ -143,7 +145,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 
 | Path | Content | Owner |
 |---|---|---|
-| `data/campaign/industries.csv` | IE industries, the `commerce` override | [Industry index](industries/SMALL_INDUSTRIES.md) |
+| `data/campaign/industries.csv` | IE industries | [Industry index](industries/SMALL_INDUSTRIES.md) |
 | `data/campaign/market_conditions.csv` | Edicts, privateer subpopulation, ruins, parade, minefield, artillery, cryorevival disabler, resource, relay, ruined infra, world wonder | Feature docs |
 | `data/campaign/special_items.csv`, `commodities.csv` | Installable and consumable items, parts | [INSTALLABLES](items/INSTALLABLES.md), [CONSUMABLES](items/CONSUMABLES.md), [ECONOMY](core/ECONOMY.md) |
 | `data/campaign/abilities.csv` | Detachments, consumable abilities, pet management | [SPLIT_FLEET](abilities/SPLIT_FLEET.md), [CONSUMABLES](items/CONSUMABLES.md), [PETS](industries/PETS.md) |
@@ -188,7 +190,6 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 
 ### Industries and markets
 
-- `TradeCenter` replaces the vanilla `commerce` row. With `IndEvo_CommerceBalanceChanges`, `overrideVanillaCommerce()` also replaces the Dealmaker Holosuite effect and recreates every `commerce` industry on every load: `replaceIndustries` checks `ind.getClass().isInstance(targetClass)`, which is always false (`utils/ModPlugin.java:558`).
 - Switchable population, mining and refining, and `InvisiblePlanetaryShield`, return the vanilla id from `getId()`. `Market.getIndustry` and `hasIndustry` match on `getId()`, so vanilla and other mods get the IE class for `population`, `mining`, `refining` and `planetaryshield`.
 - Ruins and the rift generator write upgrade targets onto the shared vanilla `IndustrySpec`; the value is rewritten per market before use ([DERELICTS](industries/DERELICTS.md)).
 - `BaseIndustry.buildTime` (private) is written by reflection from `RelicBuildTimeReductionButtonAdder` and `Edict_FastBuild`.
@@ -219,7 +220,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 | Meteor | `MissileMemFlags.MEM_CAUGHT_BY_MISSILE` from consumables; spawns lab, arsenal and pet center stations | `MeteorEntity.java:71` |
 | Stations | Arsenal stations add the minefield condition | `DerelictStationPlacer.java:143-157` |
 | Crucible | Artillery `VariableExplosionEntityPlugin`; `TAG_ENABLED` read by a utils renderer | [CRUCIBLE](exploration/CRUCIBLE.md) |
-| Research (Navi) | Unlocks fairy pet sales | `ModPlugin.java:186` |
+| Research (Navi) | Unlocks fairy pet sales | `ModPlugin.java:176` |
 | Beacons, scoop, smoke cloud, mine belt | Split fleet `OrbitFocus` entity | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | `other/legioNuclearOption` | Research `RefitUIOpenChecker` | [MISC](core/MISC.md) |
 | `$IndEvo_ruinsIndustryId` | Read by supercomputer, `LocatorSystemRatingUpdater`, `ModUpdater` | [DERELICTS](industries/DERELICTS.md) |
@@ -234,7 +235,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 
 | Component | State | Doc |
 |---|---|---|
-| Crucible | Spawner commented out (`ModPlugin.java:235`, `:321`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
+| Crucible | Spawner commented out (`ModPlugin.java:225`, `:321`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
 | Distress calls, ghost ships | Excluded, does not compile; hullmod rows and rules still load | [DISTRESS](exploration/DISTRESS.md) |
 | Mobile colony | Compiled and its campaign plugin registered (`:521`), never created | [WIP](core/WIP.md) |
 | Converters | Excluded, does not compile | [WIP](core/WIP.md) |
@@ -243,7 +244,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 | Detachment V3 AI, DELIVER mode, `PlayerFleetFollower` | Stub or unregistered | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | `indevo/other` | Unregistered except the nuclear option checker | [MISC](core/MISC.md) |
 | `OrbitalStation`, `compatibility/TechTree`, `ModUpdater` | No references | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md), [UTILS](core/UTILS.md) |
-| `devActions()` | Disabled (`&& false`, `ModPlugin.java:157`) | This file |
+| `devActions()` | Disabled (`&& false`, `ModPlugin.java:148`) | This file |
 
 Each feature doc lists its own dormant classes and suspected bugs under Known issues.
 

@@ -72,9 +72,9 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:502`) adds a transient listener each load (`MeteorSwarmManager.java:90`).
+- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:492`) adds a transient listener each load (`MeteorSwarmManager.java:90`).
 - Spawners, warning path renderer and delayed spawn are location scripts; meteors are custom entities with saved plugins.
-- `ModPlugin.onGameLoad() -> PlanetoidDespawnScript.despawnStrandedPlanetoids()` (`indevo/utils/ModPlugin.java:166`): fades rings and stations whose planetoid is gone, despawns planetoids without a runner, swaps a 4.1.b `DespawningMovementModuleRunner` for a `PayloadOnFinishedModuleRunner` and restores a null payload.
+- `ModPlugin.onGameLoad() -> PlanetoidDespawnScript.despawnStrandedPlanetoids()` (`indevo/utils/ModPlugin.java:157`): fades rings and stations whose planetoid is gone, despawns planetoids without a runner, swaps a 4.1.b `DespawningMovementModuleRunner` for a `PayloadOnFinishedModuleRunner` and restores a null payload.
 - `RadiationEffectHandler.get()` adds itself as a transient Luna renderer on first use per session (`:36-45`).
 
 `reportEconomyTick -> isValidMeteorLoc -> roll -> spawnShower -> DelayedActionScript(daysLeft) -> <Type>SwarmSpawner.advance -> init() (warning path, sign, terrain) -> advanceSpawner -> MeteorFactory / Treasure*.spawn -> MeteorEntity.advance -> setCollidingAndFade -> MeteorImpact + MeteorDebrisRenderer`

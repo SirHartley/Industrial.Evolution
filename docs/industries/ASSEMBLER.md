@@ -34,7 +34,7 @@ All three hold one VPC in their own field instead of the vanilla special item sl
 ## Registration and lifecycle
 
 - Industry plugins from `industries.csv`. Each `apply()` adds the industry itself as a transient listener (`EconomyTickListener`, Forge also `NewDayListener`) and `unapply()` removes it (`VariableAssembler.java:54,84`, `CommodityForge.java:57,84`).
-- `DepositMessage.register()` in `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:452`), transient, re-added each load.
+- `DepositMessage.register()` in `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:442`), transient, re-added each load.
 - `NewGameIndustryPlacer.placeManufactories()` puts a Manufactory with `IndEvo_vpc_IndEvo_parts` on `eochu_bres` at new game (`indevo/utils/update/NewGameIndustryPlacer.java:44-54`).
 - `initWithParams` accepts a VPC id, so econ files can preinstall one (`VariableAssembler.java:430-439`).
 
