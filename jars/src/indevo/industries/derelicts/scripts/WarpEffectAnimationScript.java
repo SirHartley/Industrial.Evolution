@@ -15,6 +15,7 @@ import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.EnumSet;
 
 public class WarpEffectAnimationScript extends BaseStagedAnimationScript {
@@ -304,7 +305,7 @@ public class WarpEffectAnimationScript extends BaseStagedAnimationScript {
     }
     
     public static void movePlanet(SectorEntityToken target) {
-        for (EveryFrameScript script : Global.getSector().getTransientScripts()) {
+        for (EveryFrameScript script : new ArrayList<>(Global.getSector().getScripts())) {
             if (script instanceof PlanetMovingScript) {
                 PlanetMovingScript pm = (PlanetMovingScript) script;
 

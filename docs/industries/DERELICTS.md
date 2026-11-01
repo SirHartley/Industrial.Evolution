@@ -106,7 +106,7 @@ Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Co
 - Forge templates move between industries only as cargo through `IndEvo_SharedStore` / `IndEvo_DeconstStorage` and storage. Item plugins (`ForgeTemplateItemPlugin.java:132,248,306`, `EmptyForgeTemplateItemPlugin.java:54-61`) own charges, quality and `IndEvo_auto`.
 - Rift move replaces the planet entity, keeping the id. Anything that caches `PlanetAPI` refs to a moved planet holds a dead entity (inferred). `PlanetJumpListener` is the hook for that and has no users.
 - Transient listeners in `onGameLoad` have no class dedupe; `ListenerManager.addListener` dedupes only the same instance (`obf/campaign/ListenerManager.java:29`). Fine since transient lists are empty at load.
-- `getTransientScripts()` and `getScripts()` are separate lists (`obf/campaign/CampaignEngine.java:1061-1130`). See bug list.
+- `getTransientScripts()` and `getScripts()` are separate lists (`obf/campaign/CampaignEngine.java:1061-1130`). `PlanetMovingScript` is a persistent sector script, so `WarpEffectAnimationScript.movePlanet` and `WarpEffectPlugin.movePlanet` search `getScripts()`.
 
 ## Known issues and dormant code
 
@@ -116,7 +116,6 @@ Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Co
 | `BeaconCondition` | Dead. Static `STABILITY_PENALTY` shared across instances. |
 | `RuinsCountMap`, `WarpEffectPlugin`, `HoleEffectPlugin` | Deprecated, unused. |
 | `PlanetJumpListener` | No implementers. |
-| `WarpEffectAnimationScript.java:306-316`, `WarpEffectPlugin.java:134` | Look up `PlanetMovingScript` in transient scripts, but it is added as a persistent script. Phase never advances; move always uses the 10 s fallback (`PlanetMovingScript.java:89-92`). |
 | `AncientLaboratory.java:155` | Third alpha bonus uses `bonusCommodityId2`; commodity 3 never gets a bonus. |
 | `AncientLaboratory.java:284-296` | Null gathering point returns false, retried daily. |
 | `RiftGenerator.java:332,341` | `nextInt(size - 1)` never picks the last system and throws when size is 1. |

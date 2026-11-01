@@ -11,6 +11,8 @@ import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import indevo.industries.derelicts.scripts.PlanetMovingScript;
 import org.lwjgl.util.vector.Vector2f;
 
+import java.util.ArrayList;
+
 /**
  * replaced by WarpEffectAnimationScript
  */
@@ -132,7 +134,7 @@ public class WarpEffectPlugin extends BaseCustomEntityPlugin {
     }
 
     public static void movePlanet(SectorEntityToken target) {
-        for (EveryFrameScript script : Global.getSector().getTransientScripts()) {
+        for (EveryFrameScript script : new ArrayList<>(Global.getSector().getScripts())) {
             if (script instanceof PlanetMovingScript) {
                 PlanetMovingScript pm = (PlanetMovingScript) script;
 
