@@ -83,7 +83,7 @@ Code paths relative to `jars/src/indevo/`.
 
 - `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:127`) and feeds it every 31 days. Feeding takes `foodPerMonth` of a listed food commodity from the fleet cargo; no food -> starving -> `STARVED` death.
 - Age past `lifetime` -> `NATURAL` death, message from `natural_death` or the hamster CSV.
-- `PetStatusManager`: month end food report; `reportPlayerMarketTransaction` -> pet ship sold -> `SOLD` (warns when sold into a free transfer submarket); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
+- `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:146-158`); `reportPlayerMarketTransaction` -> pet ship sold -> `SOLD` (warns when sold into a free transfer submarket); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
 - `reportPetDied()` removes the hullmod and tag, posts a message, keeps `DeathData`.
 
 ### Storage
@@ -115,7 +115,7 @@ Code paths relative to `jars/src/indevo/`.
 | Storage fee report | Changelog_todo: "Fix the -1c pet food cost in monthly report"; not explained by the storage fee code |
 | `PetPickerInteractionDialoguePlugin` | `hasShownPicker` is never set to true; `advance()` calls `showShipPicker()` every frame once named (`:121`) |
 | `PetStatusManager.feed()` | Returns false when the member is in no live fleet, marked "todo this is broken" (`:116`) |
-| `reportPetDied()` | NPE when both `assignedFleetMember` and `storage` are null (`PetStatusManager.java:166`) |
+| `reportPetDied()` | NPE when both `assignedFleetMember` and `storage` are null (`PetStatusManager.java:167`) |
 | `$petBoxActive` | Set with expire 0 (`PetItemPlugin.java:197`), never unset by IE. Engine drops it on the first unpaused memory advance (`obf/campaign/rules/Memory.java:127-136`, `:184`), so it only blocks while paused |
 | `java.awt.Robot` | Closes the cargo screen by a real key press; fails on headless or restricted systems (logged) |
 | `YourMod_PetName_PetHullmod` | Checks `isModEnabled("indEvo")` (`:31`, `:48`); the mod id is `IndEvo` and `ModManager.isModEnabled` compares exactly (`obf/launcher/ModManager.java:196`), so a copy of the template never applies effects or tooltip |

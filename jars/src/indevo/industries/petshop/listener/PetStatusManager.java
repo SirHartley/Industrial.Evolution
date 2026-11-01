@@ -149,7 +149,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                 if (pet.assignedFleetMember != null) {
                     FleetDataAPI fleetData = pet.assignedFleetMember.getFleetData();
 
-                    if (fleetData == null || fleetData.getFleet() == null || !fleetData.getFleet().isAlive()) {
+                    // ships in storage have fleet data without a fleet, their pets starve instead
+                    if (fleetData == null || (fleetData.getFleet() != null && !fleetData.getFleet().isAlive())) {
                         reportPetDied(pet, PetDeathCause.UNKNOWN);
                     }
                 }
