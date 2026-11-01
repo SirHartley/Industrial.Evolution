@@ -128,7 +128,10 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
                 String nameForThreatList = ((BaseHostileActivityFactor) eventFactor).getNameForThreatList(false).toLowerCase();
                 String factionName = alignedFaction.getDisplayName().toLowerCase();
 
-                if (factionName.equals(nameForThreatList)){
+                // the luddic church factor lists itself as knights of ludd
+                boolean isChurch = eventFactor instanceof LuddicChurchHostileActivityFactor && Factions.LUDDIC_CHURCH.equals(alignedFaction.getId());
+
+                if (isChurch || factionName.equals(nameForThreatList)){
                     factor = (BaseHostileActivityFactor) eventFactor;
                     break;
                 }
