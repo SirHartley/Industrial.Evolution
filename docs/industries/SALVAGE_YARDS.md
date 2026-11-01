@@ -76,7 +76,7 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 
 ### Ship assembly contract
 
-`IndEvo_InitSYCustomProductionDiag` replaces the dialog plugin, then: pick hulls with `showCustomProductionPicker` (known ships only, `costMult` from relation), scrap hulls for extra budget (30% of base value, less per D-mod), story point option doubles capacity. Capacity = `3 + trade in value + getHullCapacity() * productionCapacityPerSWUnit * (2 with story point)`. Rare parts reduce D-mods (`SY_BASE_DMODS` minus the filled share of `FP * RARE_PARTS_AMOUNT_PER_FP`); parts reduce cost by up to 50%. Confirm removes credits, parts and traded hulls and posts `YardsCustomProductionIntel`, which delivers to local storage after `IndEvo_SYHullDeliveryTime` days with the forecast D-mods (`DModManager.addDMods`) and unlocks storage. It fails if the market decivilizes or loses the yards.
+`IndEvo_InitSYCustomProductionDiag` replaces the dialog plugin, then: pick hulls with `showCustomProductionPicker` (known ships only, `costMult` = 1.8 - relation, clamped to 0.9..1.5; the D-mod transfer uses 1.5 - relation clamped to 0.8..1.5), scrap hulls for extra budget (30% of base value, less per D-mod), story point option doubles capacity. Capacity = `3 + trade in value + getHullCapacity() * productionCapacityPerSWUnit * (2 with story point)`. Rare parts reduce D-mods (`SY_BASE_DMODS` minus the filled share of `FP * RARE_PARTS_AMOUNT_PER_FP`); parts reduce cost by up to 50%. Confirm removes credits, parts and traded hulls and posts `YardsCustomProductionIntel`, which delivers to local storage after `IndEvo_SYHullDeliveryTime` days with the forecast D-mods (`DModManager.addDMods`) and unlocks storage. It fails if the market decivilizes or loses the yards.
 
 ### D-mod transfer
 
@@ -93,8 +93,7 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | Item | State |
 |---|---|
 | AI core fields not reset (`applyAlphaCoreModifiers` etc., `:521`) | `BaseIndustry.applyAICoreModifiers` calls only one branch (`api/impl/campaign/econ/impl/BaseIndustry.java:246`); switching alpha to beta keeps alpha decay, beta to gamma keeps 90 SP per unit |
-| `costMult` clamp (`IndEvo_InitSYCustomProductionDiag.java:123`, `IndEvo_InitSYMoveDModDiag.java:91`) | the second line overwrites the first, so the upper bound is ignored |
-| Story point bonus (`IndEvo_InitSYCustomProductionDiag.getCapacity`, `:358`) | multiplies only the hull capacity term (operator precedence) |
+| Story point bonus (`IndEvo_InitSYCustomProductionDiag.getCapacity`, `:357`) | multiplies only the hull capacity term (operator precedence) |
 | D-mod transfer confirm | no credit check before `subtract`; cost formula `(1.2^n + 1) / n` differs from `RestorationDocks` `1.2^(n+1) / n` |
 | `modifyPlayerCustomProduction` | dead code |
 | Open idea | `Changelog_todo:45`, `:69`: move S-mods with the yards |

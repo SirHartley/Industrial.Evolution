@@ -120,8 +120,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         }
 
         float costMod = 1.8f - getMarket().getFaction().getRelationship(Global.getSector().getPlayerFaction().getId());
-        costMult = Math.min(1.5f, costMod);
-        costMult = Math.max(0.9f, costMod);
+        costMult = Math.max(0.9f, Math.min(1.5f, costMod));
 
         optionSelected(null, Option.MAIN);
     }

@@ -88,8 +88,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
         log.info("initializing SY dialog plugin");
 
         float costMod = 1.5f - getMarket().getFaction().getRelationship(Global.getSector().getPlayerFaction().getId());
-        costMult = Math.min(1.5f, costMod);
-        costMult = Math.max(0.8f, costMod);
+        costMult = Math.max(0.8f, Math.min(1.5f, costMod));
 
         optionSelected(null, Option.MAIN);
     }
