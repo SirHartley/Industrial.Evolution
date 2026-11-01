@@ -26,6 +26,7 @@ Fixed - Pet storage at your own Animal Center now costs the upkeep its tooltip s
 Fixed - Animal Center description now says the beta core stops pets aging, not the alpha core
 Fixed - Animal Center alpha and beta core shop bonuses now apply; they used the Requisitions Centre core before
 Fixed - Nine rare pets that could never appear in the Animal Center shop now show up
+Fixed - Pet management ability no longer shows as active while a detachment is out
 
 Museum
 Fixed - Parade fleet stability bonus no longer stacks

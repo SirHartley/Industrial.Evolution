@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.impl.campaign.abilities.BaseDurationAbility;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.industries.petshop.dialogue.PetShopDialogPlugin;
 
 public class PetManagementAbilityPlugin extends BaseDurationAbility {
@@ -24,7 +23,7 @@ public class PetManagementAbilityPlugin extends BaseDurationAbility {
 
     @Override
     public boolean showActiveIndicator() {
-        return DetachmentMemory.isAnyDetachmentActive();
+        return false;
     }
 
     @Override

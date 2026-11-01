@@ -116,7 +116,6 @@ Code paths relative to `jars/src/indevo/`.
 | `PetPickerInteractionDialoguePlugin` | `hasShownPicker` is never set to true; `advance()` calls `showShipPicker()` every frame once named (`:121`) |
 | `PetStatusManager.feed()` | Returns false when the member is in no live fleet, marked "todo this is broken" (`:116`) |
 | `reportPetDied()` | NPE when both `assignedFleetMember` and `storage` are null (`PetStatusManager.java:166`) |
-| `PetManagementAbilityPlugin.showActiveIndicator()` | Returns `DetachmentMemory.isAnyDetachmentActive()` (`:27`), copied from split fleet |
 | `$petBoxActive` | Set with expire 0 (`PetItemPlugin.java:197`), never unset by IE. Engine drops it on the first unpaused memory advance (`obf/campaign/rules/Memory.java:127-136`, `:184`), so it only blocks while paused |
 | `java.awt.Robot` | Closes the cargo screen by a real key press; fails on headless or restricted systems (logged) |
 | `YourMod_PetName_PetHullmod` | Checks `isModEnabled("indEvo")` (`:31`, `:48`); the mod id is `IndEvo` and `ModManager.isModEnabled` compares exactly (`obf/launcher/ModManager.java:196`), so a copy of the template never applies effects or tooltip |
