@@ -138,7 +138,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 
 - Saved: fields of persistent listeners (`getInstanceOrRegister`), saved scripts (`TimeTracker`, feature scripts added with `addScript`), intel, industries and conditions on markets, custom entities and their plugins, memory values, tags.
 - Not saved: transient listeners (`register()`), campaign plugins, `SessionTransientMemory` (whitelist sets, VPC item set).
-- Renaming or moving a saved class, or changing the type of a saved field, breaks old saves. A class that left the code but may still be in saves stays as a shim with its old name and fields: `indevo.abilities.skills.scripts.MicromanagementSkillEffectScript` ([SKILLS](abilities/SKILLS.md#known-issues-and-dormant-code)), `indevo.industries.TradeCenter` and `indevo.industries.OrbitalStation` ([SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md#known-issues-and-dormant-code)). Changeling government variants are anonymous classes in static lists; reordering those lists breaks saves (inferred, see [CHANGELING](industries/CHANGELING.md)).
+- Renaming or moving a saved class, or changing the type of a saved field, breaks old saves. Changeling government variants are anonymous classes in static lists; reordering those lists breaks saves (inferred, see [CHANGELING](industries/CHANGELING.md)).
 - `TimeTracker` stores time passed in market tags (`<ident><days>`), so those tags are save data.
 - `ModPlugin.beforeGameSave()` strips untouched `IndEvo_Mine` entities to keep saves small and restores them in `afterGameSave()`. `restoreRemovedEntities()` returns early when `IndEvo_Enable_minefields` is off, which leaves any stripped mines out ([MINEFIELDS](exploration/MINEFIELDS.md)).
 

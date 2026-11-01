@@ -18,7 +18,6 @@ IE adds four admin only skills, tagged `npc_only`, so they never show in the pla
 | `indevo/abilities/skills/MicroManagement.java` | `Level1`: description only, `apply` is empty. |
 | `indevo/abilities/skills/scripts/AdminGovernTimeTracker.java` | Persistent `NewDayListener`; days in office per player market, reset when the admin id changes (`:48`). |
 | `indevo/abilities/skills/patches/MicromanagementRemoteItemPatch.java` | PatchLib redirect of the setting read in the industry option menu constructor. |
-| `indevo/abilities/skills/scripts/MicromanagementSkillEffectScript.java` | Save shim, see Known issues. |
 
 ## Data and ids
 
@@ -61,8 +60,6 @@ The vanilla industry option menu (obfuscated `b` in `com.fs.starfarer.campaign.u
 | Item | State |
 |---|---|
 | `Ids.SKILL_*` constants | wrong ids, unused |
-| `MicromanagementSkillEffectScript` | save shim: the old Kotlin script is in saves from 4.1.b; the Java class keeps its name and fields `frames`, `newIndustryPanel`, and `isDone()` returns true so the sector drops it. Keep it |
-| `$IndEvo_BaseRemoteAllowed` | sector memory key left in older saves, nothing reads it |
 | `HullmodTimeTracker` (`indevo/exploration/distress/listener/HullmodTimeTracker.java:19`) | copy of the tracker pattern, checks `AdminGovernTimeTracker.class` but fetches its own class; folder excluded by `IndEvo.iml`, registration commented out in `ModPlugin` |
 | Academy skill picks | Changelog_todo: "Academy can pick forbidden, event only admin skills and should really run off a whitelist" (see [Academy](../industries/ACADEMY.md)) |
 

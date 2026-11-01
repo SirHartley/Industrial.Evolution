@@ -123,7 +123,6 @@ public class CommerceBalancePatch {
         return MiscIE.isOnlyInstanceInSystemExcludeMarket(Ids.COMMERCE, system, market, market.getFaction());
     }
 
-    // same id as the old IE copy, so tariff mods left in saves by it get removed
     private static String getModId(Context context, int index) {
         return context.getMethod(GET_MOD_ID).call(index);
     }

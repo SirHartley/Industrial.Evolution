@@ -1,6 +1,6 @@
 # Small industries
 
-Industries that are a single class in `indevo/industries/` (Centralization Bureau, Supercomputer, Restoration Docks, Requisitions Centre, invisible planetary shield), the Commerce balance patches, the shared storage base class, two save shims and one dead class. Read the index first to find the doc for any IE industry id. It does not cover the submarkets these industries add; see [Submarkets](../core/SUBMARKETS.md).
+Industries that are a single class in `indevo/industries/` (Centralization Bureau, Supercomputer, Restoration Docks, Requisitions Centre, invisible planetary shield), the Commerce balance patches, the shared storage base class, and one dead class. Read the index first to find the doc for any IE industry id. It does not cover the submarkets these industries add; see [Submarkets](../core/SUBMARKETS.md).
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
 
@@ -49,10 +49,8 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | `indevo/industries/RequisitionCenter.java` | `IndEvo_ReqCenter`: adds the weapon import submarket; tooltip only, stock logic is in `RequisitionsCenterSubmarketPlugin` |
 | `indevo/industries/patches/CommerceBalancePatch.java` | PatchLib hooks on vanilla `TradeCenter` for `IndEvo_CommerceBalanceChanges` |
 | `indevo/industries/patches/DealmakerHolosuitePatch.java` | PatchLib redirect of the Dealmaker Holosuite income bonus for the same setting |
-| `indevo/industries/TradeCenter.java` | Save shim, see Known issues |
 | `indevo/industries/InvisiblePlanetaryShield.java` | `IndEvo_InvisiblePlanetaryShield`: vanilla `PlanetaryShield` with selectable shield visuals; nested `AlternateTextureOptionProvider` |
 | `indevo/industries/SharedSubmarketUser.java`, `SharedSubmarketUserAPI.java` | Base class and interface for industries that add and filter the `IndEvo_SharedStore` submarket |
-| `indevo/industries/OrbitalStation.java` | Save shim, see Known issues |
 | `indevo/industries/compatibility/TechTree.java` | Dead, see Known issues |
 
 ## Data and ids
@@ -148,7 +146,7 @@ Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. W
 - `BaseIndustry.getModId()` is `"ind_" + id` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:164`, `:266`). Code that unmodifies by the bare id misses the mod.
 - `BaseIndustry.applyAICoreModifiers` calls only the branch for the installed core (skill `BaseIndustry.java:246`); fields set by one branch are not reset by another.
 - Commerce hooks target vanilla `TradeCenter` and the item effect classes only, never `BaseIndustry` ([Patches](../ARCHITECTURE.md#patches)).
-- The commerce alpha tariff uses `getModId(1)` (`ind_commerce_1`), the id the old IE copy used, so `applyNoAICoreModifiers` also clears tariff mods that copy left in saves.
+- The commerce alpha tariff uses `getModId(1)` (`ind_commerce_1`), the slot vanilla uses for the alpha income bonus; set and unset must use the same id.
 - Bureau mods use `modifyFlatAlways` on other industries' stats; `unapply` must run with the same map or the mod stays (inferred).
 
 ## Known issues and dormant code
@@ -157,10 +155,8 @@ Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. W
 |---|---|
 | `RestorationDocks.aiCoreBonusMult` | only reset by beta and none branches; alpha or gamma after beta keeps 0.85 |
 | `RequisitionCenter.apply` | `addListener(this)` with no listener interface; no effect |
-| `indevo.industries.TradeCenter` | save shim: empty subclass of vanilla `TradeCenter` that keeps the old copy's fields `balanceChange` and `improveBonus`; saves from 4.1.b hold instances of it. Keep it |
 | `CentralizationBureau` `ADMANUF` branch (`:98`) | dead: `IndEvo_AdManuf` is not whitelisted; would NPE on `getSpecialItem().getId()` without an item |
 | Bureau | `Changelog_todo:61`: "Cent Bureau should really run off a condition" |
-| `indevo.industries.OrbitalStation` | save shim: empty `@Deprecated` subclass of vanilla `OrbitalStation`, no CSV row; kept in case saves from versions that used it hold instances. Vanilla already skips stations tagged `NO_ORBITAL_STATION` (skill `api/impl/campaign/econ/impl/OrbitalStation.java:413`) |
 | `TechTree` | no reference; Cryo_but_better compat; `researchSaved.get` unboxing NPEs for unknown ids |
 
 ## Maintenance
