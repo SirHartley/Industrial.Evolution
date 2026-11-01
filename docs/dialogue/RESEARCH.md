@@ -39,7 +39,7 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor` | `indevo/ids/Ids.java:163` to `:175` |
+| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor` | `indevo/ids/Ids.java:162` to `:175` |
 | Hullmods | `IndEvo_augfield`, `IndEvo_CamouflageFieldEmitter` | `data/hullmods/hull_mods.csv:16`, `:17` |
 | Tag | `IndEvo_ship_unique_signature` (parked vanilla tag) | `CamouflageFieldEmitter.TAG_UNIQUE` |
 | Memory, sector | `$IndEvo_ResearchProgress_<id>` (`Progress`), `$IndEvo_ProjRand_<id>` (5 `Random`s) | `ResearchProject.java:39`, `ResearchProjectTemplateRepo.java:590` |

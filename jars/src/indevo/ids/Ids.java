@@ -81,7 +81,6 @@ public class Ids {
     public static final String WAREHOUSES = "IndEvo_Warehouse";
     public static final String WARPHOUSE = "IndEvo_Warphouse";
 
-    public static final String PIRATEHAVEN_SECONDARY = "IndEvo_pirateHavenSecondary";
     public static final String COMMERCE = "commerce";
 
     //conditions

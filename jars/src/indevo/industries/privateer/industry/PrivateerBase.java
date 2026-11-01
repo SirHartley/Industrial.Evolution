@@ -26,7 +26,6 @@ import indevo.industries.privateer.intel.PrivateerBaseRaidIntel;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
-import indevo.utils.scripts.IndustryAddOrRemovePlugin;
 import indevo.utils.timers.RaidTimeout;
 import org.apache.log4j.Logger;
 
@@ -79,9 +78,6 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
                 supply(e.getKey(), e.getValue());
             }
         }
-
-        Global.getSector().addTransientScript(new IndustryAddOrRemovePlugin(market, Ids.PIRATEHAVEN_SECONDARY, false));
-
     }
 
     @Override
@@ -93,7 +89,6 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
     public void unapply() {
         super.unapply();
         Global.getSector().getListenerManager().removeListener(this);
-        Global.getSector().addTransientScript(new IndustryAddOrRemovePlugin(market, Ids.PIRATEHAVEN_SECONDARY, true));
     }
 
     @Override

@@ -26,10 +26,10 @@ IE adds four admin only skills, tagged `npc_only`, so they never show in the pla
 | Skill | `indevo_fleet_logistics` (Fleet Logistics, aptitude `leadership`) | `data/characters/skills/skill_data.csv`, `indevo_fleet_logistics.skill` |
 | Skill | `indevo_industrial_planning` (Distributive Economics, `industry`) | same, `indevo_industrial_planning.skill` |
 | Skill | `indevo_planetary_operations` (Planetary Operations, `leadership`) | same, `indevo_planetary_operations.skill` |
-| Skill | `indevo_Micromanagement` (Micromanagement, `industry`), `Ids.MICROMANAGEMENT` | same, `indevo_Micromanagement.skill`, `indevo/ids/Ids.java:138` |
+| Skill | `indevo_Micromanagement` (Micromanagement, `industry`), `Ids.MICROMANAGEMENT` | same, `indevo_Micromanagement.skill`, `indevo/ids/Ids.java:137` |
 | Skill tags | `npc_only, indevo`; `admin` column `TRUE` | `skill_data.csv` |
 | Vanilla setting | `allowRemoteIndustryItemManagement` | game `data/config/settings.json:300` (default `false`) |
-| Unused ids | `Ids.SKILL_FLEET_LOGISTICS`, `SKILL_INDUSTRIAL_PLANNING`, `SKILL_PLANETARY_OPERATIONS` (`indevo_FleetLogistics` etc.) | `Ids.java:135`; do not match the real skill ids, nothing reads them |
+| Unused ids | `Ids.SKILL_FLEET_LOGISTICS`, `SKILL_INDUSTRIAL_PLANNING`, `SKILL_PLANETARY_OPERATIONS` (`indevo_FleetLogistics` etc.) | `Ids.java:134`; do not match the real skill ids, nothing reads them |
 
 ## Registration and lifecycle
 

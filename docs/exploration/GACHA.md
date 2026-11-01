@@ -23,7 +23,7 @@ Derelict stations (`IndEvo_GachaStation`, display name "Automated Shipyard") orb
 | Kind | Id / key | Where |
 |---|---|---|
 | Custom entity | `IndEvo_GachaStation` (tag `IndEvo_GachaStation`, no plugin class) | `data/config/custom_entities.json:860` |
-| Constant | `Ids.GACHA_STATION` = `IndEvo_GachaStation` | `indevo/ids/Ids.java:130` |
+| Constant | `Ids.GACHA_STATION` = `IndEvo_GachaStation` | `indevo/ids/Ids.java:129` |
 | Description | `IndEvo_GachaStation` | `data/strings/descriptions.csv:23` |
 | Memory key | `$IndEvo_stationRepaired` (`HAS_RESTORED_STATION`, entity) | `GachaStationDialoguePlugin.java:40` |
 | Memory key | `$IndEvo_randomSeed` (`RANDOM`, entity, a `java.util.Random` seeded with the entity hash) | `GachaStationDialoguePlugin.java:51`, set in `GachaStationSpawner.java:65` |

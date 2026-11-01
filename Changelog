@@ -100,6 +100,7 @@ Fixed - Weapons and fighters stripped by the Engineering Hub and Hull Deconstruc
 
 Privateer Base
 Fixed - Privateer Base no longer fails to find a raid target when one exists
+Adjusted - Counts as two industries itself instead of adding a hidden second industry, so a queued base reserves both slots and other mods see the right industry count
 Fixed - Privateer raid strength now follows the colony's fleet size multipliers (doctrine, shortages, stability, military bases, relays)
 
 Salvage Yards
