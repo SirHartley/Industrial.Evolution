@@ -167,20 +167,20 @@ public class ShippingContract {
         int i = 0;
 
         if (!hasFromMarket) {
-            addStr(reason, "origin planet not available", false);
+            reason = addStr(reason, "origin planet not available", false);
             i++;
         }
         if (!hasToMarket) {
-            addStr(reason, "destination planet not available", i > 0);
+            reason = addStr(reason, "destination planet not available", i > 0);
             i++;
         }
 
         if (hasFromMarket && !hasFromSubMarket) {
-            addStr(reason, "origin storage not available", i > 0);
+            reason = addStr(reason, "origin storage not available", i > 0);
             i++;
         }
         if (hasToMarket && !hasToSubMarket) {
-            addStr(reason, "destination storage not available", i > 0);
+            reason = addStr(reason, "destination storage not available", i > 0);
         }
 
         return reason;

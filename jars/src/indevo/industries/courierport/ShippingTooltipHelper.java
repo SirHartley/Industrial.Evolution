@@ -5,9 +5,8 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 
 public class ShippingTooltipHelper {
 
-    public static void addStr(String orig, String add, boolean and) {
-        if (and) orig += ", ";
-        orig += add;
+    public static String addStr(String orig, String add, boolean and) {
+        return and ? orig + ", " + add : orig + add;
     }
 
     public static String getDaysMonthString(int days) {

@@ -97,7 +97,6 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 
 | Item | State |
 |---|---|
-| `ShippingContract.getInvalidReason` | Bug: `ShippingTooltipHelper.addStr` appends to a local copy of the `String`, so the reason is always empty (`ShippingTooltipHelper.java:8-11`) |
 | `CourierFleetCreator.createFleet` returns null | Suspected npe in `Shipment.init` (`spawnFleet`, `setFailsafeTimer`) when the factory returns an empty fleet (`CourierFleetCreator.java:85`) |
 | Same market shipment | Calls `fleet.despawn` on a fleet that was never spawned (`Shipment.java:96`); intel added after finalize |
 | Inactive one time contracts | Never removed by the scheduler, only by the player |
