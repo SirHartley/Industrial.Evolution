@@ -92,7 +92,8 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
         list.put(Commodities.BETA_CORE, Settings.getInt(Settings.BETA_CORE_RUNTIME));
         list.put(Commodities.GAMMA_CORE, Settings.getInt(Settings.GAMMA_CORE_RUNTIME));
 
-        return Math.round(list.get(AICoreId) * runtimeMult);
+        // modded cores run as long as a gamma core
+        return Math.round(list.getOrDefault(AICoreId, list.get(Commodities.GAMMA_CORE)) * runtimeMult);
     }
 
     private void getNextCore() {

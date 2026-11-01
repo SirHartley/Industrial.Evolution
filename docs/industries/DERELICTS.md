@@ -102,7 +102,7 @@ Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Co
 ## Contracts
 
 - `Ruins.setUpgradeSpec`, `BaseForgeTemplateUser.unapply` and `RiftGenerator` write upgrade and downgrade onto `spec`, which is the shared `Global.getSettings().getIndustrySpec(id)` (`starsector-knowledge api/impl/.../BaseIndustry.java:160,702`). Every market rewrites it before use; inferred: tooltips on another market may show the last written value.
-- `$IndEvo_ruinsIndustryId` is the single source for which structure a ruin becomes. Set once, persists in market memory. Also read by `Supercomputer.java:212`, `ModUpdater.java:96-141`, `LocatorSystemRatingUpdater.java:121`.
+- `$IndEvo_ruinsIndustryId` is the single source for which structure a ruin becomes. Set once, persists in market memory. Also read by `Supercomputer.java:213`, `ModUpdater.java:96-141`, `LocatorSystemRatingUpdater.java:121`.
 - Forge templates move between industries only as cargo through `IndEvo_SharedStore` / `IndEvo_DeconstStorage` and storage. Item plugins (`ForgeTemplateItemPlugin.java:132,248,306`, `EmptyForgeTemplateItemPlugin.java:54-61`) own charges, quality and `IndEvo_auto`.
 - Rift move replaces the planet entity, keeping the id. Anything that caches `PlanetAPI` refs to a moved planet holds a dead entity (inferred). `PlanetJumpListener` is the hook for that and has no users.
 - Transient listeners in `onGameLoad` have no class dedupe; `ListenerManager.addListener` dedupes only the same instance (`obf/campaign/ListenerManager.java:29`). Fine since transient lists are empty at load.
