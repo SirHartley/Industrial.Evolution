@@ -164,6 +164,7 @@ Console Commands
 Fixed - SpawnRuins no longer rolls the first planet twice or adds the ruins condition twice
 Fixed - SpawnRuins sets the forge type on already surveyed planets so the tooltip shows it
 Fixed - SpawnStation shows a clear message in hyperspace instead of an error
+Fixed - SpawnStation help text lists all station types
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0

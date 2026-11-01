@@ -59,7 +59,7 @@ public class SpawnStation implements BaseCommand {
                 type = Ids.LAB_ENTITY;
                 break;
             default:
-                Console.showMessage("Invalid Station hullSize. [mining] [habitat] [research]");
+                Console.showMessage("Invalid station type. [mining] [habitat] [research] [arsenal] [lab]");
                 return CommandResult.BAD_SYNTAX;
         }
 

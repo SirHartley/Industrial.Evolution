@@ -50,7 +50,6 @@ To add a command:
 
 | Item | State |
 |---|---|
-| `SpawnStation` | Error text lists only mining, habitat, research |
 | `PrintRaidTimeout` (`indevo/console/PrintRaidTimeout.java:36`) | NPE if a timed out system id no longer exists |
 
 ## Maintenance
