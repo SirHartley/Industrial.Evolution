@@ -1,6 +1,5 @@
 package indevo.utils.helper;
 
-import com.fs.starfarer.api.Global;
 import lunalib.lunaSettings.LunaSettings;
 
 public class Settings {
@@ -162,20 +161,14 @@ public class Settings {
     public static final String MUSEUM_UNIQUE_SHIP_VALUE_MULT = "IndEvo_museum_uniqueShipValueMult";
 
     public static boolean getBoolean(String s){
-        if (Global.getSettings().getModManager().isModEnabled("lunalib")) {
-            return LunaSettings.getBoolean("IndEvo", s);
-        } else return Global.getSettings().getBoolean(s);
+        return LunaSettings.getBoolean("IndEvo", s);
     }
 
     public static float getFloat(String s){
-        if (Global.getSettings().getModManager().isModEnabled("lunalib")) {
-            return LunaSettings.getFloat("IndEvo", s);
-        } else return Global.getSettings().getFloat(s);
+        return LunaSettings.getFloat("IndEvo", s);
     }
 
     public static int getInt(String s){
-        if (Global.getSettings().getModManager().isModEnabled("lunalib")) {
-            return LunaSettings.getInt("IndEvo", s);
-        } else return Global.getSettings().getInt(s);
+        return LunaSettings.getInt("IndEvo", s);
     }
 }

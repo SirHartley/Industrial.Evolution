@@ -15,7 +15,7 @@ Player settings live in `data/config/LunaSettings.csv` and are read through `ind
 | `indevo/utils/helper/Settings.java` | One `public static final String` per LunaLib field id (152 ids) and the typed readers `getBoolean`, `getFloat`, `getInt` |
 | `data/config/LunaSettings.csv` | LunaLib fields: id, label, type, default, help text (`fieldDescription`), bounds, tab |
 | `data/config/LunaSettingsConfig.json` | LunaLib mod entry: settings menu icon `graphics/icons/IndEvo.png` |
-| `data/config/settings.json` | Fallback values for the older settings, non-player config, sprite keys, `ruleCommandPackages`, `designTypeColors` |
+| `data/config/settings.json` | Non-player config, sprite keys, `ruleCommandPackages`, `designTypeColors` |
 | `data/config/indEvo/*.csv` | Whitelists and blacklists, one `id` column each |
 | `indevo/utils/helper/MiscIE.java:578` | `getCSVSetFromMemory(path)`: loads and caches a whitelist |
 | `indevo/ids/Ids.java` | Whitelist path constants (`EMBASSY_LIST` and so on) read from `settings.json` at class init |
@@ -40,7 +40,7 @@ Field counts include `Header` and `Text` rows. Every `Settings` constant has a L
 if (!Settings.getBoolean(Settings.EMBASSY)) return;
 ```
 
-- `Settings.getX(id)` calls `LunaSettings.getX("IndEvo", id)` when `lunalib` is enabled, else `Global.getSettings().getX(id)` (`Settings.java:164` to `180`).
+- `Settings.getX(id)` calls `LunaSettings.getX("IndEvo", id)` (`Settings.java:163` to `173`). LunaLib is a hard dependency in `mod_info.json`; there is no `settings.json` fallback.
 - `Settings` itself does not cache: each call goes to LunaLib, so a value read at use time applies on the next read.
 - 16 classes copy settings into `static final` fields at class load (64 fields; `grep -rn 'static final .*= *Settings\.get' jars/src`), for example `MuseumConstants`, `CampaignAttackScript`, `MeteorSwarmManager`, `ShippingCostCalculator`. Those settings apply only after a game restart. Prefer reading at use time in new code; do not read in a per frame loop where a daily check works.
 - Industry toggles are read in each industry's `isAvailableToBuild()` and `showWhenUnavailable()` (example: `indevo/industries/embassy/industry/Embassy.java:95`, `:105`). A disabled industry stays on markets that already have it.
@@ -56,7 +56,6 @@ if (!Settings.getBoolean(Settings.EMBASSY)) return;
 
 | Key group | Use | Reader |
 |---|---|---|
-| `IndEvo_*` booleans and numbers matching LunaLib ids | Fallback for `Settings` when LunaLib is missing | `Settings` |
 | `IndEvo_AdAssem_amounts`, `IndEvo_AdManuf_amounts`, `IndEvo_ComForge_amounts` | Output per commodity for the variable manufactories | [Assembler](../industries/ASSEMBLER.md) |
 | `adminSalaryTier1` to `3` | Vanilla override, marked "do not touch" | Vanilla |
 | `IndEvo_*List` | Paths of the whitelist CSVs | `Ids` |
@@ -92,8 +91,7 @@ The feature column is the main consumer; the feature doc is the owner of how the
 
 ## Contracts
 
-- LunaLib is a hard dependency in `mod_info.json`, so the `settings.json` fallback in `Settings` does not run in a normal install. It is also incomplete: 50 `Settings` ids (all `IndEvo_meteor_*`, `IndEvo_museum_*`, `IndEvo_courier_*`, `IndEvo_consumables_*` and others) have no `settings.json` value and would throw if the fallback ran. Inferred from a key diff of `Settings.java` against `settings.json`.
-- `settings.json` value `IndEvo_Artillery_defense_FP` differs from the LunaLib id `IndEvo_Artillery_defense_FP2` that `Settings.ARTILLERY_DEFENSE_FP` uses.
+- LunaLib field ids have no `settings.json` value. Do not add one: `Settings` never reads it.
 - `Ids` reads the whitelist paths from `settings.json` in static initializers, so `Ids` must not be loaded before settings are available (any time after application load is fine).
 
 ## Maintenance

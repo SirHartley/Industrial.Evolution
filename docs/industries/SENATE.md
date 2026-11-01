@@ -62,7 +62,7 @@ Rows: `data/campaign/market_conditions.csv:2-14`. Military presence is `MiscIE.m
 
 ## Registration and lifecycle
 
-- Industry and condition plugins from CSV plugin columns; rule commands from `ruleCommandPackages` `indevo.industries.senate.rules` (`data/config/settings.json:240`).
+- Industry and condition plugins from CSV plugin columns; rule commands from `ruleCommandPackages` `indevo.industries.senate.rules` (`data/config/settings.json:74`).
 - `SenateOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:480`). `Senate.SenateFactor` is registered by `SpecialItemEffectsRepo.initEffectListeners()` (`SpecialItemEffectsRepo.java:43`), called at `ModPlugin.java:439`.
 - `BaseEdict.apply()` adds the condition as a transient listener (deduped) and a `TimeTracker` market tag tracker; skips both on markets without a primary entity and in the codex (`BaseEdict.java:36`). `TimeTracker` increments the tag daily and calls `onNewDay()`.
 

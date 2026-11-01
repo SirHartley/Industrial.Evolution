@@ -66,9 +66,9 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 | Memory key | `$IndEvo_roider_tutorial`, `$IndEvo_supplyTradeAmt` (tutorial fleet) | `TutorialEncounterScript.java:79-80` |
 | Tags | `indevo_planetoid`, `IndEvo_IceRockNoSplinters`, `IndEvo_IceEntourage_<id>`, `IndEvo_TreasureoidEntrouage_<id>`; loot station id `<entity id>_loot` | spawners and entities |
 | Rules | `IndEvo_roiderTutorial_*` (offer 5 `IndEvo_consumable_missile_concussive` for 10% of supplies, max 100) | `data/campaign/rules.csv:6-62` |
-| Rule command package | `indevo.exploration.meteor.rules` | `data/config/settings.json:251` |
+| Rule command package | `indevo.exploration.meteor.rules` | `data/config/settings.json:85` |
 | Sounds | `IndEvo_radiation0..9` | `data/config/sounds.json:18` |
-| Sprite | `IndEvo/meteor_storm` (intel icon) | `data/config/settings.json:369` |
+| Sprite | `IndEvo/meteor_storm` (intel icon) | `data/config/settings.json:203` |
 
 ## Registration and lifecycle
 

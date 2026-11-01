@@ -28,11 +28,11 @@ Derelict stations (`IndEvo_GachaStation`, display name "Automated Shipyard") orb
 | Memory key | `$IndEvo_stationRepaired` (`HAS_RESTORED_STATION`, entity) | `GachaStationDialoguePlugin.java:40` |
 | Memory key | `$IndEvo_randomSeed` (`RANDOM`, entity, a `java.util.Random` seeded with the entity hash) | `GachaStationDialoguePlugin.java:51`, set in `GachaStationSpawner.java:65` |
 | Persistent data | `$IndEvo_hasPlacedStations` | `GachaStationSpawner.java:22` |
-| Setting | `IndEvo_AutomatedShipyardNum` (Double, default 1.5, multiplier on coronal tap count) | `data/config/LunaSettings.csv:12`, `data/config/settings.json:49`, read in `GachaStationSpawner.java:23` |
+| Setting | `IndEvo_AutomatedShipyardNum` (Double, default 1.5, multiplier on coronal tap count) | `data/config/LunaSettings.csv:12`, read in `GachaStationSpawner.java:23` |
 | Setting | `IndEvo_shipPickerRowCount` | `LunaSettings.csv:7`, read in `GachaStationDialoguePlugin.java:408` |
 | Rules | `IndEvo_GachaStationCargoOpen` -> `OpenStorageTabOnGachaStation` | `data/campaign/rules.csv:266` |
-| Rule command package | `indevo.exploration.gacha.rules` | `data/config/settings.json:248` |
-| Sprite | `IndEvo/log_gachastation` (intel icon, `graphics/icons/intel/IndEvo_gachastation.png`) | `data/config/settings.json:368` |
+| Rule command package | `indevo.exploration.gacha.rules` | `data/config/settings.json:82` |
+| Sprite | `IndEvo/log_gachastation` (intel icon, `graphics/icons/intel/IndEvo_gachastation.png`) | `data/config/settings.json:202` |
 | Music | `IndEvo_Haplogynae_derelict_theme` on entity and repaired market | `GachaStationSpawner.java:66`, `GachaStationDialoguePlugin.java:208` |
 
 Tuning constants (`GachaStationDialoguePlugin.java:41-49`): repair `METALS_REPAIR_COST` 10000, `MACHINERY_REPAIR_COST` 1000, `PARTS_REPAIR_COST` 4000; `RARE_PART_COST_AMT` 100 per roll; `PARTS_PER_DP` 100; `AUTOMATED_CHANCE` 0.1.

@@ -1,6 +1,6 @@
 # Player settings rework
 
-**Status: approved plan, not implemented.** Philipp took every recommendation on 2026-11-01 ([Decisions](#decisions)) and approved the Quick Settings split. No open questions. This document records how IE moves from the `Settings` string reader to the `Setting` enum and `PlayerSettings` cache that Catch.Release uses, plus the open questions and the work each step needs. Read it before changing the settings mechanism.
+**Status: approved plan, in progress on PR #22.** Philipp took every recommendation on 2026-11-01 ([Decisions](#decisions)) and approved the Quick Settings split. No open questions. This document records how IE moves from the `Settings` string reader to the `Setting` enum and `PlayerSettings` cache that Catch.Release uses, plus the open questions and the work each step needs. Read it before changing the settings mechanism.
 
 It does not govern setting values, balance or help text wording. [SETTINGS.md](SETTINGS.md) stays the authority on the current mechanism until Stage 0 lands; feature docs own what each setting does; help text goes through the house-style `player-text.md`. Move implemented technical detail to SETTINGS.md and [ARCHITECTURE.md](../ARCHITECTURE.md) and tick the plan here.
 
@@ -144,7 +144,7 @@ None.
 
 ## Implementation plan
 
-Four stages, done in order. Stage 0 changes no visible behaviour. Help text goes through the house-style `player-text.md`. Stacks on PR #18; Stage 0 touches `ModPlugin`, which PRs #20 and #21 also change, so it starts after they merge.
+Four stages, done in order. Stage 0 changes no visible behaviour. Help text goes through the house-style `player-text.md`. All stages land on PR #22, based on the test branch `claude/project-thread-2vk6rz`.
 
 ### Architecture
 
@@ -165,10 +165,10 @@ Four stages, done in order. Stage 0 changes no visible behaviour. Help text goes
 
 ### Stages
 
-Each stage is one pull request and depends on the stages before it. Within a stage, do the subtasks in order, one commit each. Tick a subtask when it is merged. Every stage finishes with the build gate ([CLAUDE.md](../../CLAUDE.md#building)), the checks it names, its Changelog entries and its SETTINGS.md and ARCHITECTURE.md routes.
+Each stage depends on the stages before it. Within a stage, do the subtasks in order, one commit each. Tick a subtask in its own commit. Every stage finishes with the build gate ([CLAUDE.md](../../CLAUDE.md#building)), the checks it names, its Changelog entries and its SETTINGS.md and ARCHITECTURE.md routes.
 
 **Stage 0: one owner.** No visible change.
-- [ ] 0.1 Drop the fallback: `Settings` reads LunaLib only; remove the 102 keys from `settings.json` (decision 7). Done when: no LunaLib id is left in `settings.json`.
+- [x] 0.1 Drop the fallback: `Settings` reads LunaLib only; remove the 102 keys and the stale `IndEvo_Artillery_defense_FP` from `settings.json` (decision 7). Done when: no LunaLib id is left in `settings.json`.
 - [ ] 0.2 Add `indevo/config/Setting` (152 constants from the CSV as it is, all `LIVE`) and `PlayerSettings` (install, reload, listener, cache, error logging, title screen gate). `ModPlugin` calls `install()` first in both hooks; `config` joins the CLAUDE.md area list. `Settings.getBoolean`, `getFloat` and `getInt` read the cache by id.
   - Done when: values match the old reads; a Save in the campaign settings menu updates the cache (dev log line).
 

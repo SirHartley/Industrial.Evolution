@@ -34,7 +34,7 @@ Outside the package: `indevo/items/specialitemdata/AmbassadorItemData.java`, `in
 |---|---|---|
 | Industry | `IndEvo_embassy` (`Ids.EMBASSY`) | `data/campaign/industries.csv:28` |
 | Special item | `IndEvo_amb` (`ItemIds.AMBASSADOR`), tags `no_drop, hide_in_codex` | `data/campaign/special_items.csv:23` |
-| Whitelist | `data/config/indEvo/embassy_whitelist.csv` (35 faction ids), path key `IndEvo_embassyList` (`Ids.EMBASSY_LIST`) | `data/config/settings.json:218` |
+| Whitelist | `data/config/indEvo/embassy_whitelist.csv` (35 faction ids), path key `IndEvo_embassyList` (`Ids.EMBASSY_LIST`) | `data/config/settings.json:52` |
 | Setting | `IndEvo_embassy` (toggle, also disables ambassador scripts) | `data/config/LunaSettings.csv:89` |
 | Sector memory | `$deconomics_ambAllowed_<factionId>`: true adds a faction, false bans and recalls | `AmbassadorItemHelper.java:18` |
 | Sector memory | `$IndEvo_HAASabotage` (sabotage mode) | `HAAmbassadorEventFactor.java:26`, set by rules |
@@ -43,7 +43,7 @@ Outside the package: `indevo/items/specialitemdata/AmbassadorItemData.java`, `in
 | Fleet memory | `$IndEvo_bountyHunter`, `$IndEvo_himOrHer`, `$IndEvo_name`, `$IndEvo_theFaction` | `AmbassadorMurderConsequences.java:149` |
 | Rules | `IndEvo_ambassadorGreeting*`, `IndEvo_ambassadorHire*`, `IndEvo_ambassadorNoFreeEmbassy`, `IndEvo_ambassadorConfirm`, `IndEvo_ambassadorMenu`, `IndEvo_ambassadorMenuSabotage` and `IndEvo_ambassadorMenuStopSabotage` (sabotage toggle by `$global.IndEvo_HAASabotage`), `IndEvo_ambassadorRemove1..6`, `IndEvo_ambassadorRemovalConfirm`, `IndEvo_ambMoveOption`, `IndEvo_amb(Stop)SabotageRep(_confirm)`, `IndEvo_convEnd(Polite)`, `IndEvo_bountyHunterHail`, `IndEvo_bountyHunterText` | `data/campaign/rules.csv` block `# Embassy`, `# Ambassador Murdered` |
 | Strings | `IndEvo_embassy`, `IndEvo_AmbassadorItem` sections | `data/strings/strings.json:171`, `:69` |
-| Sprites | `IndEvo/amb_pers`, `amb_heg`, `amb_tt`, `amb_church`, `amb_sind`, `amb_mod`, `IndEvo/reputation` | `data/config/settings.json:330-335`, picked in `Embassy.getCurrentImage()` |
+| Sprites | `IndEvo/amb_pers`, `amb_heg`, `amb_tt`, `amb_church`, `amb_sind`, `amb_mod`, `IndEvo/reputation` | `data/config/settings.json:164-169`, picked in `Embassy.getCurrentImage()` |
 
 ## Registration and lifecycle
 
@@ -51,7 +51,7 @@ Outside the package: `indevo/items/specialitemdata/AmbassadorItemData.java`, `in
 - `ModPlugin.loadTransientMemory()` warms the whitelist cache (`ModPlugin.java:423`).
 - `Embassy.apply()` adds itself as a transient listener only when functional and player owned (`Embassy.java:61`).
 - `AmbassadorItemTrackerPlugin` and `LostAmbassadorRemovalChecker` are persistent listeners (`addListener(obj)`), removed by `setDone()`. `AmbassadorMurderConsequences` is a persistent sector script; `moveAmbassadorToMarket` is a transient script.
-- Rule commands from `ruleCommandPackages` `indevo.industries.embassy.rules` (`settings.json:239`).
+- Rule commands from `ruleCommandPackages` `indevo.industries.embassy.rules` (`settings.json:73`).
 
 ## Flow
 

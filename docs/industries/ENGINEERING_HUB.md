@@ -27,7 +27,7 @@ Neighbours used: `indevo/industries/SharedSubmarketUser.java` (base class), `ind
 | Setting | `IndEvo_AutoshipBPToGatheringPoint` (deliver to gathering point) | `data/config/LunaSettings.csv:109`, read at `EngineeringHub.java:146` |
 | Setting | `IndEvo_EngHubStrictWhitelist`, `IndEvo_EngHubIgnoreWhitelists` (intake) | `data/config/LunaSettings.csv:107-108`, read in `ReverseEngineeringSubmarketPlugin` |
 | Setting | `IndEvo_EngHub` (build toggle) | `data/config/LunaSettings.csv:94`; read in `isAvailableToBuild()` and `showWhenUnavailable()` (`EngineeringHub.java:57-64`). A hub already built stays |
-| Config CSV | `IndEvo_reverseList`: manual hull whitelist | `data/config/settings.json:219`, `data/config/indEvo/reverse_engineering_whitelist.csv` |
+| Config CSV | `IndEvo_reverseList`: manual hull whitelist | `data/config/settings.json:53`, `data/config/indEvo/reverse_engineering_whitelist.csv` |
 | Item | `ItemIds.RELIC_SPECIAL_ITEM` (relic mode slot item, never in cargo), `ItemIds.RARE_PARTS` (relic components) | `indevo/ids/ItemIds.java` |
 | Item | `ship_bp`, `tiandong_retrofit_bp`, `roider_retrofit_bp` (output and consumed input) | `EngineeringHub.java:237-259`, `:1080-1085` |
 | Sprite | category `IndEvo`: `revBP` (finish message icon) | `data/config/settings.json` |

@@ -23,7 +23,7 @@ The engine resolves the first word of a rules condition or script line to a `Com
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Setting | `ruleCommandPackages` (15 IE packages) | `data/config/settings.json:236` to `:252` |
+| Setting | `ruleCommandPackages` (15 IE packages) | `data/config/settings.json:70` to `:86` |
 | Memory, fleet | `$IndEvo_stolen_credit_amt`, `$IndEvo_poor_spacer` | `indevo/exploration/salvage/specials/CreditStashSpecial.java:103`, `:118` (see [Salvage](../exploration/SALVAGE.md)) |
 | Option ids | `IndEvo_PaySpacerFine`, `IndEvo_NoPaySpacerFine` | `IndEvo_AddSpacerFineMenuPoint.OPTION_PAY`, rules |
 | Rules | `IndEvo_ImpoverishedSpacerGreeting` (`:474`), `IndEvo_PaySpacerFine` (`:493`), `IndEvo_NoPaySpacerFine` (`:511`) | `data/campaign/rules.csv` |
@@ -99,7 +99,7 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | `IndEvo_InitPersonalityTransferMenu` | `indevo.industries.academy.rules.WIP` | 0 | not in packages, folder excluded by `IndEvo.iml` | [Academy](../industries/ACADEMY.md) |
 | `HasItemAmountAnywhere`, `RemoveItemAmountAnywhere` | `indevo.other` | 0 | not in packages, unresolvable from rules | [Misc](../core/MISC.md) |
 
-`indevo.abilities.splitfleet.dialogue` is listed in `ruleCommandPackages` (`settings.json:245`) but holds no command class. Rules also call vanilla commands (`FireAll`, `FireBest`, `AddRemoveAnyItem`, `MakeHostileWhileTOff`, `DoCanAffordCheck`, `ShowResCost`, `SetOptionColor`, `SalvageEntity`, ...), all in `api/impl/campaign/rulecmd/`.
+`indevo.abilities.splitfleet.dialogue` is listed in `ruleCommandPackages` (`settings.json:79`) but holds no command class. Rules also call vanilla commands (`FireAll`, `FireBest`, `AddRemoveAnyItem`, `MakeHostileWhileTOff`, `DoCanAffordCheck`, `ShowResCost`, `SetOptionColor`, `SalvageEntity`, ...), all in `api/impl/campaign/rulecmd/`.
 
 ## rules.csv layout
 

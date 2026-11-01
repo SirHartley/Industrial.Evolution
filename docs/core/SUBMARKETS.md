@@ -37,7 +37,7 @@ Feature submarkets with their plugin outside this package:
 |---|---|---|
 | Submarket | `IndEvo_RepairStorage` (`Ids.REPSTORAGE`), `IndEvo_ReqCenterMarket` (`Ids.REQMARKET`), `IndEvo_DeconstStorage` (`Ids.DECSTORAGE`), `IndEvo_EngStorage` (`Ids.ENGSTORAGE`), `IndEvo_SharedStore` (`Ids.SHAREDSTORAGE`), `IndEvo_PetSubMarket` (`Ids.PETMARKET`), `IndEvo_MuseumStorage`, `IndEvo_WarehouseStorage_1..5`, `IndEvo_tempStorage` (`Ids.TEMPSTORE`) | `data/campaign/submarkets.csv` (faction `player` for all) |
 | Faction (colour only) | `indStorageColour`, `deconStorageColour`, `engHubStorageColour`, `dryDockButtonColor`, `reqSellStorageColour` | `submarket.setFaction` in each plugin's `init` |
-| Whitelist | `IndEvo_printList`, `IndEvo_reverseList`, `IndEvo_custOrderList` (faction blacklist for Requisitions) | `data/config/settings.json:219` to `:222`; see [Settings](SETTINGS.md) |
+| Whitelist | `IndEvo_printList`, `IndEvo_reverseList`, `IndEvo_custOrderList` (faction blacklist for Requisitions) | `data/config/settings.json:53` to `:56`; see [Settings](SETTINGS.md) |
 | Setting | `IndEvo_DeconIgnoreWhitelists`, `IndEvo_DeconAllowNexOmega`, `IndEvo_EngHubIgnoreWhitelists`, `IndEvo_EngHubStrictWhitelist` | `data/config/LunaSettings.csv:134`, `:135`, `:108`, `:107` |
 | Memory key | `$IndEvo_maxDModMemory` (read in dock tooltip) | `RestorationDocksSubmarketPlugin.java:135` |
 | Hullmod | `IndEvo_auto` (`Ids.PRINTING_INDICATOR`): printed ships are refused | Decon and RE plugins |

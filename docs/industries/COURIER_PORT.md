@@ -39,7 +39,7 @@ The Courier Port is a structure with no supply or demand. While the player owns 
 | Faction | `IndEvo_couriers` (courier fleets) | `data/world/factions/IndEvo_couriers.faction` |
 | Setting | `IndEvo_PrivatePort` (build toggle and new game placement) | `data/config/LunaSettings.csv:95` |
 | Setting | `IndEvo_courier_costPerSpace` (5), `IndEvo_courier_costPerShip` (170), `IndEvo_courier_baseFee` (1000), `IndEvo_courier_costPerLyMult` (1.0) | `data/config/LunaSettings.csv:119-122`, read in `ShippingCostCalculator.java:16-19` |
-| Config CSV | `IndEvo_shipingList`: submarket whitelist | `data/config/settings.json:221`, `data/config/indEvo/shipping_submarkets_whitelist.csv` |
+| Config CSV | `IndEvo_shipingList`: submarket whitelist | `data/config/settings.json:55`, `data/config/indEvo/shipping_submarkets_whitelist.csv` |
 | Memory key | `$IndEvo_ShippingContainerStorage` (sector, contract list) | `ShippingContractMemory.java:11` |
 | Memory key | `$IndEvo_CurrentShippingCore` (sector, last applied core id or `none`) | `ShippingCostCalculator.java:25` |
 | Memory key | `$IndEvo_ShippingContractMemory` (sector, editor backup, 0 day expiry) | `ContractSidePanelCreator.java:42` |

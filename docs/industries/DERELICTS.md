@@ -56,8 +56,8 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Setting | `IndEvo_derelictDeliverToGathering`, `IndEvo_RG_cooldownTime` (90), `IndEvo_RG_range` (9), `IndEvo_reslab_autoDeliverToClosestDecon` | `data/config/LunaSettings.csv:130-133` |
 | Setting | `IndEvo_hullDecon_autoDeliverToClosestForge`, `IndEvo_hullDecon_days_*` (10/20/30/40) | `data/config/LunaSettings.csv:136-140` |
 | Setting | `IndEvo_hullForge_autoQueueShipsUntilEmpty`, `IndEvo_hullForge_autoDeliverToClosestLab`, `IndEvo_hullForge_days_*` (5/10/15/20) | `data/config/LunaSettings.csv:141-146` |
-| Setting | `IndEvo_ToggleMagicRandomSelector` (settings.json only) | `data/config/settings.json:234`, read at `HullForge.java:287,463` |
-| Config | `IndEvo_labList` -> `data/config/indEvo/lab_commodity_whitelist.csv` | `data/config/settings.json:226` |
+| Setting | `IndEvo_ToggleMagicRandomSelector` (settings.json only) | `data/config/settings.json:68`, read at `HullForge.java:287,463` |
+| Config | `IndEvo_labList` -> `data/config/indEvo/lab_commodity_whitelist.csv` | `data/config/settings.json:60` |
 | Rules | `IndEvo_RiftGenTargetOptions`, `IndEvo_RiftTarget_*`, `IndEvo_FireBaseRGOptionList`, `IndEvo_RiftControlMenuPoint*` | `data/campaign/rules.csv:845-923` |
 | Strings | `IndEvo_HullDecon`, `IndEvo_HullForge` AI core text | `data/strings/strings.json:270,279` |
 
@@ -68,7 +68,7 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 - `ModPlugin.onNewGameAfterEconomyLoad`: `RuinsManager.forceCleanCoreRuins()` (`indevo/utils/ModPlugin.java:303`) -> `RuinsManager.placeIndustrialRuins()` (`:332`).
 - `ModPlugin.onGameLoad`, transient listeners re-added each load: `DerelictRuinsPlacer` (PlayerColonizationListener, `:462`), `ResolveRuinsToUpgradeListener` (SurveyPlanetListener, `:463`), `AncientLabCommoditySwitchOptionProvider.register()` (`:478`), `RiftGenOptionProvider.register()` (`:497`), `RemoveIndustryOptionWarningProvider.register()` (`:506`).
 - Each industry adds itself as a transient listener in `apply()` and removes itself in `unapply()`. `onNewDay` comes from IE's `NewDayListener`, driven by `indevo/utils/timers/TimeTracker.java:130`. See [Utils](../core/UTILS.md).
-- Rule commands: package `indevo.industries.derelicts.rules` listed in `data/config/settings.json:240`. `IndEvo_requiresColonyMenuPoint.java:32` also checks `IndEvo_RiftGen`; see [Rule commands](../dialogue/RULE_COMMANDS.md).
+- Rule commands: package `indevo.industries.derelicts.rules` listed in `data/config/settings.json:74`. `IndEvo_requiresColonyMenuPoint.java:32` also checks `IndEvo_RiftGen`; see [Rule commands](../dialogue/RULE_COMMANDS.md).
 - `PlanetMovingScript` is persistent (`Global.getSector().addScript`, `RiftGenerator.java:384-386`). The animation script is transient.
 - Console command `SpawnRuins`: see [Console](../core/CONSOLE.md).
 

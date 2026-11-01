@@ -5,6 +5,7 @@ Adjusted - Brought all mentions of solar units in line with vanilla by renaming 
 Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
 Fixed - Possible crash on market updates with mod industries that do not extend BaseIndustry
 Removed - Colony corruption mode, it is now a separate mod
+Removed - Unused copies of the LunaLib settings in settings.json; change settings in the LunaLib menu
 Adjusted - Now requires PatchLib
 Note - Install PatchLib alongside Industrial.Evolution
 Note - Saves from 4.1.b do not load, start a new game
