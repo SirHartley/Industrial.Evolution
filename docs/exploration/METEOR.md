@@ -43,7 +43,7 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 | `intel/MeteorShowerLocationIntel.java` | `FleetLogIntel`: countdown, size hint, "unusual composition" for non-asteroid types; ends 20 days after the shower arrives |
 | `intel/MeteorShowerSpawningLocationIntel.java` | Same, but calls `spawnShower` itself when the countdown ends |
 | `terrain/RadioactiveTerrain.java` | `StarCoronaTerrainPlugin` subclass, radius 50000 at system centre; strength per fleet = radiation level in fleet memory; CR loss, peak time and CR decay buffs; removes itself when the warning renderer is gone |
-| `renderers/RadiationEffectHandler.java` | Transient Luna renderer: player radiation decay, sound loops, music suppression, vignette, drives `RadiationVFXHandler` |
+| `renderers/RadiationEffectHandler.java` | Transient Luna renderer: player radiation decay, sound loops on the player fleet, music suppression, vignette, drives `RadiationVFXHandler` |
 | `renderers/RadiationVFXHandler.kt` | GraphicsLib screen shader (`data/shaders/indevo_baseVertex.shader`, `indevo_Fragment.shader`) by radiation level |
 | `renderers/MeteorSwarmWarningPathRenderer.java` | System script: warning sign entities every 2000 along the arc, red where meteors currently are; ends after 10 s without reports. Instance kept in location memory |
 | `renderers/WarningSignNotificationRenderer.java` | 15 s warning sign and arrow next to the player fleet pointing at the arc |
@@ -61,7 +61,7 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 | Memory key | `$IndEvo_MeteorTimeout` (global and location, expiring) | `MeteorSwarmManager.java:41`, set `:195-196` |
 | Memory key | `$IndEvo_MeteorTutorialComplete` (global) | `MeteorSwarmManager.java:39` |
 | Persistent data | `$IndEvo_MeteorRandom` (shared `Random`) | `MeteorSwarmManager.java:40`, `:206` |
-| Memory key | `$IndEvo_RadEffectLevel` (per fleet, 0..1) | `RadiationEffectHandler.java:33` |
+| Memory key | `$IndEvo_RadEffectLevel` (per fleet, 0..1) | `RadiationEffectHandler.java:29` |
 | Memory key | `$IndEvo_warningRenderer` (location, the path renderer instance) | `MeteorSwarmWarningPathRenderer.java:23` |
 | Memory key | `$IndEvo_roider_tutorial`, `$IndEvo_supplyTradeAmt` (tutorial fleet) | `TutorialEncounterScript.java:79-80` |
 | Tags | `indevo_planetoid`, `IndEvo_IceRockNoSplinters`, `IndEvo_IceEntourage_<id>`, `IndEvo_TreasureoidEntrouage_<id>`; loot station id `<entity id>_loot` | spawners and entities |
@@ -75,7 +75,7 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 - `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:501`) adds a transient listener each load (`MeteorSwarmManager.java:90`).
 - Spawners, warning path renderer and delayed spawn are location scripts; meteors are custom entities with saved plugins.
 - `ModPlugin.onGameLoad() -> PlanetoidDespawnScript.despawnStrandedPlanetoids()` (`indevo/utils/ModPlugin.java:166`): fades rings and stations whose planetoid is gone, despawns planetoids without a runner, swaps a 4.1.b `DespawningMovementModuleRunner` for a `PayloadOnFinishedModuleRunner` and restores a null payload.
-- `RadiationEffectHandler.get()` adds itself as a transient Luna renderer on first use per session (`:40-49`).
+- `RadiationEffectHandler.get()` adds itself as a transient Luna renderer on first use per session (`:36-45`).
 
 `reportEconomyTick -> isValidMeteorLoc -> roll -> spawnShower -> DelayedActionScript(daysLeft) -> <Type>SwarmSpawner.advance -> init() (warning path, sign, terrain) -> advanceSpawner -> MeteorFactory / Treasure*.spawn -> MeteorEntity.advance -> setCollidingAndFade -> MeteorImpact + MeteorDebrisRenderer`
 
@@ -114,7 +114,6 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 
 | Item | State |
 |---|---|
-| `RadiationEffectHandler` sound tokens | `IndEvo_token` entities created in the current location and kept in a list (`:93`); after a location change the list points at tokens elsewhere (inferred) |
 | `MeteorSwarmManager.METEOR_TAG` | Never added to any entity; only used in a commented block (`RadioactiveSwarmSpawner.java:103`) |
 | `RelativeArcingMovement`, `RadiationTrailRenderer` | Dead code |
 | Tutorial rules text | Promises a "core-fragment" swarm (`rules.csv:23`, `:37`) but the tutorial forces `ASTEROID` |

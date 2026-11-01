@@ -7,16 +7,12 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.meteor.scripts.RadiationReductionScript;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  * Handles radiation decay for player fleet as well as vignette, sound and VFX
@@ -77,8 +73,6 @@ public class RadiationEffectHandler implements LunaCampaignRenderingPlugin {
         return false;
     }
 
-    private List<SectorEntityToken> hackyTokenList = new ArrayList<>();
-
     @Override
     public void advance(float amount) {
         lastIncreaseTimer += amount;
@@ -90,8 +84,7 @@ public class RadiationEffectHandler implements LunaCampaignRenderingPlugin {
 
         int trackAmt = Math.round(activityLevel / 0.1f);
         for (int i = 0; i < trackAmt; i++){
-            if (i >= hackyTokenList.size()) hackyTokenList.add(i, Global.getSector().getCurrentLocation().addCustomEntity(Misc.genUID(), null, "IndEvo_token", Factions.NEUTRAL));
-            Global.getSoundPlayer().playLoop("IndEvo_radiation" + i, hackyTokenList.get(i), 1, 1, loc, new Vector2f(0,0));
+            Global.getSoundPlayer().playLoop("IndEvo_radiation" + i, player, 1, 1, loc, new Vector2f(0,0));
         }
 
         if (activityLevel > 0) {
