@@ -494,10 +494,10 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         if (partsInCargo >= partsToRemove) {
             fleetCargo.removeCommodity(ItemIds.PARTS, partsToRemove);
         } else {
-            fleetCargo.removeCommodity(ItemIds.RARE_PARTS, partsInCargo);
+            fleetCargo.removeCommodity(ItemIds.PARTS, partsInCargo);
             partsToRemove -= partsInCargo;
 
-            storageCargo.removeCommodity(ItemIds.RARE_PARTS, partsToRemove);
+            storageCargo.removeCommodity(ItemIds.PARTS, partsToRemove);
         }
 
         TextPanelAPI panel = dialog.getTextPanel();
