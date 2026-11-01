@@ -30,5 +30,7 @@
     <orderEntry type="library" name="RandomAssortmentofThings" level="application" />
     <orderEntry type="library" name="starfarer_obf" level="application" />
     <orderEntry type="library" name="PatchLibAPI" level="application" />
+    <orderEntry type="library" name="commons-compiler" level="application" />
+    <orderEntry type="library" name="src" level="application" />
   </component>
 </module>
