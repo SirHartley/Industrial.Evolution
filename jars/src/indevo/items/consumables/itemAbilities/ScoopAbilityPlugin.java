@@ -145,8 +145,8 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
         float starMult = 0.7F;
 
         StarSystemAPI system = getFleet().getStarSystem();
-        StarAge age = system.getAge();
-        String type = system.getStar().getTypeId();
+        StarAge age = system != null ? system.getAge() : null;
+        String type = targetType == TargetType.SUN && sunTarget instanceof PlanetAPI star ? star.getTypeId() : null;
 
         Map<String, Float> starTypes = new HashMap<>();
         starTypes.put("star_yellow", 0.8f);
@@ -185,14 +185,15 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
         LocationAPI loc = entity.getContainingLocation();
         if (loc instanceof StarSystemAPI) {
 
-            float closest = Float.MIN_VALUE;
+            float closest = Float.MAX_VALUE;
             SectorEntityToken target = null;
 
             for (PlanetAPI planet : loc.getPlanets()) {
                 if (planet.isStar()) {
                     float dist = Misc.getDistance(planet.getLocation(), entity.getLocation());
-                    if (dist < MAX_SUCTION_RANGE && dist > closest) {
+                    if (dist < MAX_SUCTION_RANGE && dist < closest) {
                         target = planet;
+                        closest = dist;
                     }
                 }
             }
