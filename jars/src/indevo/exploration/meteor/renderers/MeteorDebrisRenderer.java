@@ -92,7 +92,8 @@ public class MeteorDebrisRenderer implements LunaCampaignRenderingPlugin {
 
     @Override
     public boolean isExpired() {
-        return false;
+        for (NebulaParticle p : nebulaParticles) if (!p.isExpired()) return false;
+        return true;
     }
 
     @Override

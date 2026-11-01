@@ -108,7 +108,7 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
     public void setCollidingAndFade(SectorEntityToken t){
         colliding = true;
         t.addScript(new MeteorImpact(t, entity, true));
-        LunaCampaignRenderer.addRenderer(new MeteorDebrisRenderer(t, entity));
+        LunaCampaignRenderer.addTransientRenderer(new MeteorDebrisRenderer(t, entity));
         Misc.fadeAndExpire(entity, 0.1f);
     }
 }

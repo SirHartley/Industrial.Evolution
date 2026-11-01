@@ -17,6 +17,7 @@ Fixed - Rogue planets from planetoid swarms now despawn with their rings and loo
 Fixed - Asteroid, ice and radioactive swarms spawn again; random showers were only planetoid swarms
 Fixed - Meteor storm intel now shows the correct arrival date and ends 20 days after the storm arrives
 Fixed - Crash when spawning the roider tutorial fleet while its faction has no markets
+Fixed - Meteor impact dust clouds no longer pile up in the save and slow the game down over time
 
 Pets
 Removed - Pet food

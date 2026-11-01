@@ -47,7 +47,7 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 | `renderers/RadiationVFXHandler.kt` | GraphicsLib screen shader (`data/shaders/indevo_baseVertex.shader`, `indevo_Fragment.shader`) by radiation level |
 | `renderers/MeteorSwarmWarningPathRenderer.java` | System script: warning sign entities every 2000 along the arc, red where meteors currently are; ends after 10 s without reports. Instance kept in location memory |
 | `renderers/WarningSignNotificationRenderer.java` | 15 s warning sign and arrow next to the player fleet pointing at the arc |
-| `renderers/MeteorDebrisRenderer.java` | Dust clouds at impact |
+| `renderers/MeteorDebrisRenderer.java` | Dust clouds at impact; transient Luna renderer, expires once all particles fade |
 | `renderers/RadiationTrailRenderer.java` | Dead: only user commented out (`SpicyRockEntity.java:45`) |
 | `helper/MeteorFactory.java` | Size -> custom entity id lookup per type |
 
@@ -114,7 +114,6 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 
 | Item | State |
 |---|---|
-| `MeteorDebrisRenderer.isExpired()` | Always false (`:94`); renderers pile up and render in every location (inferred leak) |
 | `RadiationEffectHandler` sound tokens | `IndEvo_token` entities created in the current location and kept in a list (`:93`); after a location change the list points at tokens elsewhere (inferred) |
 | `MeteorSwarmManager.METEOR_TAG` | Never added to any entity; only used in a commented block (`RadioactiveSwarmSpawner.java:103`) |
 | `RelativeArcingMovement`, `RadiationTrailRenderer` | Dead code |

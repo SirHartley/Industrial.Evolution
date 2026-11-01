@@ -59,7 +59,7 @@ public class IcyRockEntity extends MeteorEntity {
         colliding = true;
 
         t.addScript(new IceroidImpact(t, entity, true));
-        LunaCampaignRenderer.addRenderer(new MeteorDebrisRenderer(t, entity));
+        LunaCampaignRenderer.addTransientRenderer(new MeteorDebrisRenderer(t, entity));
         Misc.fadeAndExpire(entity, 0.1f);
 
         //for (SectorEntityToken entity : this.entity.getContainingLocation().getEntitiesWithTag("IndEvo_IceEntourage_" + this.entity.getId())) entity.setOrbit(null);
