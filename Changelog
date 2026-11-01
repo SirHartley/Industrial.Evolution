@@ -138,6 +138,7 @@ Fixed - Desert warlords survey story can now appear on desert and arid worlds
 Detachments
 Fixed - Detachment auto load takes half the main fleet supplies up to the detachment cargo space, not all of them
 Fixed - Invisible detachment orbit markers no longer pile up in the save; unused ones are removed on load
+Fixed - Wrecks of a detachment that lost ships hold the right amount of excess cargo, and none of it vanishes
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0

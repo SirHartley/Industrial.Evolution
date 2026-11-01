@@ -119,7 +119,7 @@ Follow, escort and intercept queue the player's jumps in `jumpInfoMap` from `rep
 
 ### Combat losses and recovery
 
-`CombatAndDerelictionScript.reportBattleOccurred` (`:97`) creates an orbit focus at the fleet, moves overload cargo into the wrecks of lost members, spawns `Entities.WRECK` salvage entities with `OfficerAndShipRecoverySpecialData` (condition AVERAGE) and posts `RecoverableShipIntel`. The special thaws the officer first (`initOfficer`, `OfficerAndShipRecoverySpecial.java:82`), then offers recovery of a cloned variant with fresh hull id; skipping scuttles for weapons, wings and supplies.
+`CombatAndDerelictionScript.reportBattleOccurred` (`:97`) creates an orbit focus at the fleet, moves the overload (each stack gives its share) into the wrecks of lost members, filling them in order with the last wreck taking the rest, spawns `Entities.WRECK` salvage entities with `OfficerAndShipRecoverySpecialData` (condition AVERAGE) and posts `RecoverableShipIntel`. The special thaws the officer first (`initOfficer`, `OfficerAndShipRecoverySpecial.java:82`), then offers recovery of a cloned variant with fresh hull id; skipping scuttles for weapons, wings and supplies.
 
 ## Contracts
 

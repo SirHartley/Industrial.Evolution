@@ -133,7 +133,7 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
                 for (CargoStackAPI stack : stacks) {
                     float anteil = stack.getCargoSpace() / fleetCargo.getSpaceUsed();
                     float spacePerUnit = stack.getCargoSpacePerUnit();
-                    int unitsForAnteil = (int) Math.ceil((stack.getCargoSpace() * anteil) / spacePerUnit);
+                    int unitsForAnteil = (int) Math.min(stack.getSize(), Math.ceil((overloadedByAmount * anteil) / spacePerUnit));
 
                     stackMaxUnitsForAnteilList.put(stack, unitsForAnteil);
                     picker.add(stack, anteil);
@@ -151,8 +151,7 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
                     float space = pickedStack.getCargoSpacePerUnit() * maxAmt;
                     float unitSpace = pickedStack.getCargoSpacePerUnit();
 
-                    //if stack is samller than overload, drop everything, else, drop the diff
-                    int amtToRemove = space <= overloadedByAmount ? maxAmt : (int) Math.ceil((space - overloadedByAmount) / unitSpace);
+                    int amtToRemove = space <= overloadedByAmount ? maxAmt : (int) Math.ceil(overloadedByAmount / unitSpace);
 
                     excessCargo.addItems(pickedStack.getType(), pickedStack.getData(), amtToRemove);
                     fleetCargo.removeItems(pickedStack.getType(), pickedStack.getData(), amtToRemove);
@@ -170,7 +169,8 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
                 List<FleetMemberAPI> lostMembers = Misc.getSnapshotMembersLost(fleet);
                 if (lostMembers.size() == 1) {
                     addDerelict(focus, lostMembers.get(0), OfficerAndShipRecoverySpecial.ShipCondition.AVERAGE, excessCargo);
-                } else for (FleetMemberAPI member : lostMembers) {
+                } else for (int i = 0; i < lostMembers.size(); i++) {
+                    FleetMemberAPI member = lostMembers.get(i);
                     CargoAPI extraCargo = Global.getFactory().createCargo(true);
                     float remainingCargoCapacity = member.getCargoCapacity();
 
@@ -184,12 +184,21 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
                                 float space = stack.getCargoSpace();
                                 float unitSpace = stack.getCargoSpacePerUnit();
 
-                                int amtToRemove = space <= remainingCargoCapacity ? (int) Math.ceil(stack.getSize()) : (int) Math.ceil((space - remainingCargoCapacity) / unitSpace);
+                                int amtToRemove = space <= remainingCargoCapacity ? (int) Math.ceil(stack.getSize()) : (int) Math.ceil(remainingCargoCapacity / unitSpace);
                                 extraCargo.addItems(stack.getType(), stack.getData(), amtToRemove);
                                 excessCargo.removeItems(stack.getType(), stack.getData(), amtToRemove);
                                 remainingCargoCapacity -= amtToRemove * unitSpace;
+                                if (remainingCargoCapacity < 1) break;
                             }
+
+                            excessCargo.removeEmptyStacks();
+                            safetyCounter++;
                         }
+                    }
+
+                    if (i == lostMembers.size() - 1) {
+                        extraCargo.addAll(excessCargo);
+                        excessCargo.clear();
                     }
 
                     addDerelict(focus, member, OfficerAndShipRecoverySpecial.ShipCondition.AVERAGE, extraCargo);
