@@ -160,7 +160,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 
 ## Build
 
-- IntelliJ module `IndEvo.iml`: source root `jars/src`, JDK 17, Kotlin 2.1 (`.idea/kotlinc.xml`), output `jars/` (`.idea/misc.xml`), artifact `IndEvo:jar` writes `jars/IndEvo.jar` (gitignored). Libraries are IntelliJ application libraries. Full dependency list and gate: [CLAUDE.md](../CLAUDE.md#building).
+- IntelliJ module `IndEvo.iml`: source root `jars/src`, JDK 17, Kotlin 2.1 (`.idea/kotlinc.xml`), output `jars/` (`.idea/misc.xml`), artifact `IndEvo:jar` writes `jars/IndEvo.jar` (gitignored). Libraries are IntelliJ application libraries; the same jars for agent builds are in `lib/`. Full dependency list and gate: [CLAUDE.md](../CLAUDE.md#building).
 - Kotlin files: `exploration/meteor/renderers/RadiationVFXHandler.kt`, `abilities/skills/scripts/MicromanagementSkillEffectScript.kt`, `utils/helper/ReflectionUtils.kt`, `utils/helper/StarReflectionUtils.kt`.
 - `IndEvo.iml` `excludeFolder` entries that exist: `WIP/converters`, `exploration/WIP`, `exploration/distress`, `exploration/salvage/specials/WIP`, `items/consumables/itemAbilities/WIP`, `industries/academy/rules/WIP`, `industries/derelicts/industry/WIP`, `industries/warehouses/plugin/wi`. The others point at old paths. Excluded code does not compile and must not be referenced.
 - IE imports obfuscated game classes in a few places (`com.fs.starfarer.campaign`, `com.fs.starfarer.combat.CombatEngine`, `com.fs.graphics`, `com.fs.state.AppDriver`, and `com.fs.starfarer.D.M` in `exploration/meteor/spawners/PlanetoidSwarmSpawner.java:3`). Those break on game updates; check them first after one.

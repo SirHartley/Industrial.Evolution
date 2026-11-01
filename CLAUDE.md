@@ -199,16 +199,15 @@ Required compile dependencies (from `IndEvo.iml` and the imports):
 - From the game's `starsector-core`: `starfarer.api.jar`, `starfarer_obf.jar` and `fs.common_obf.jar` (IE imports some obfuscated classes), `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`.
 - Mods: GraphicsLib, LazyLib and LazyLib-Kotlin (Kotlin runtime), LunaLib, MagicLib, Console Commands (`lw_Console`), Nexerelin (`ExerelinCore`), Shadowyards (`SHI`), Random Assortment of Things (`assortment_of_things`, used by the courier port).
 
-Dependency source: `/mnt/project-files/Libs.zip` (project files, not in the repository). It holds the game jars under `Starsector/` and the mods `GraphicsLib`, `LazyLib`, `LunaLib`, `MagicLib`, `Console Commands` (plus `PatchLib` and `SpeedUp`, which IE does not use). Extract it to a temporary directory, never into the repository.
+Dependency source: `lib/` in the repository, read-only. It holds the game jars (`starfarer.api.jar`, `starfarer_obf.jar`, `fs.common_obf.jar`, `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`) and the mod jars `Graphics.jar` (GraphicsLib 1.9.0), `LazyLib.jar`, `LazyLib-Kotlin.jar`, `Kotlin-Runtime.jar` (LazyLib 3.0.0), `LunaLib.jar` (2.0.1), `MagicLib.jar` (1.5.1) and `lw_Console.jar`. Replace a jar only when the user supplies a new version, and note the version here. The game loads only the jars `mod_info.json` lists, so `lib/` never reaches the game; it must stay out of the release zip ([RELEASE.md](docs/RELEASE.md)).
 
-Still missing from it: Nexerelin (`ExerelinCore.jar`), Shadowyards and Random Assortment of Things jars, and a Kotlin 2.1 compiler. Without them `javac` fails only in the files that import those mods or the Kotlin classes (`ManagedDemocracyNexerelinListenerPlugin`, `PirateSubpopulationCondition`, `AmbassadorPersonManager`, `ResourceCondition`, `SalvageYards`, `ShippingContract`, `ShippingTargetHelper`, `Edict_FastBuild`, `RelicBuildTimeReductionButtonAdder`, `ModPlugin`). Until they are added, an agent reports the gate as not run and stops before merging runtime changes; IntelliJ on the user's machine (`IndEvo.iml`, artifact `IndEvo:jar`) stays the reference build. See [ARCHITECTURE.md](docs/ARCHITECTURE.md#build).
+Still missing from `lib/`: Nexerelin (`ExerelinCore.jar`), Shadowyards and Random Assortment of Things jars, and a Kotlin 2.1 compiler. Without them `javac` fails only in the files that import those mods or the Kotlin classes (`ManagedDemocracyNexerelinListenerPlugin`, `PirateSubpopulationCondition`, `AmbassadorPersonManager`, `ResourceCondition`, `SalvageYards`, `ShippingContract`, `ShippingTargetHelper`, `Edict_FastBuild`, `RelicBuildTimeReductionButtonAdder`, `RadiationEffectHandler`, `ModPlugin`). Until they are added, an agent reports the gate as not run and stops before merging runtime changes; IntelliJ on the user's machine (`IndEvo.iml`, artifact `IndEvo:jar`) stays the reference build. See [ARCHITECTURE.md](docs/ARCHITECTURE.md#build).
 
 Reference command (from the repository root):
 
 ```sh
-L=$(mktemp -d); OUT=$(mktemp -d)
-unzip -q /mnt/project-files/Libs.zip -d "$L"
-CP=$(find "$L" -name '*.jar' ! -name '*-sources.jar' | tr '\n' ':')
+OUT=$(mktemp -d)
+CP=$(ls lib/*.jar | tr '\n' ':')
 find jars/src -name '*.java' -o -name '*.kt' | grep -v -e WIP/converters/ -e exploration/WIP/ -e specials/WIP/ -e itemAbilities/WIP/ -e rules/WIP/ -e industry/WIP/ -e exploration/distress/ -e warehouses/plugin/wi/ > "$OUT/srcs.txt"
 kotlinc -jvm-target 17 -cp "$CP" -d "$OUT" $(cat "$OUT/srcs.txt")
 javac --release 17 -encoding UTF-8 -cp "$CP:$OUT" -d "$OUT" $(grep '\.java$' "$OUT/srcs.txt")
