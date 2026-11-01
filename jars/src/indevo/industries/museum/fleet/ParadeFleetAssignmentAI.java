@@ -62,7 +62,7 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
 
         fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE,
                 targetMarket.getPrimaryEntity(),
-                31f,
+                paradeOrbitTimeDays,
                 "Parading",
                 false,
                 () -> addParadeConditionToMarket(targetMarket),

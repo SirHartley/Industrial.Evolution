@@ -20,7 +20,7 @@ On player markets the Museum adds a hidden ship storage submarket (`IndEvo_Museu
 | `submarket/MuseumSubmarketPlugin.java` | Storage submarket: ships only, hidden from the cargo screen, ships on parade cannot be taken out |
 | `plugins/MuseumManageParadeOptionProvider.java` | Industry button "Manage Parades..."; fills profiles up to `getMaxParades()` and opens `ManageParadeDialoguePlugin` |
 | `plugins/ManageParadeDialoguePlugin.java` | `InteractionDialogPlugin` host for the panel and the fleet member picker; Escape handling via `EscapeInterceptListener` |
-| `plugins/ParadeManagementDialogueDelegate.java` | The custom panel: global on/off, add profile, per profile name, ships, duration (1 to 4 months), recall, enable, delete |
+| `plugins/ParadeManagementDialogueDelegate.java` | The custom panel: global on/off, add profile, per profile name, ships, duration (1 to 4 months, the orbit time at the target, `ParadeFleetAssignmentAI.java:63-69`), recall, enable, delete |
 
 ## Data and ids
 
@@ -85,7 +85,6 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> fill profiles -> pic
 
 | Item | State |
 |---|---|
-| Parade duration | `paradeOrbitTimeDays` from the profile is stored but unused; orbit is always 31 days (`ParadeFleetAssignmentAI.java:63-66`) |
 | `notifyBeingRemoved()` | Does not remove the submarket; NPEs when `submarket` is null (`Museum.java:341`). `advance()` calls it every frame once the market is no longer player owned (`:127`). Changelog_todo: "museum storage doesn't remove properly", "museum storage gets placed before building complete" |
 | Profile growth | `reportEconomyTick()` adds one new profile per month while enabled profiles < max (`:99`), so disabled profiles pile up |
 | `getValueForShip()` | Logs on every call (`:267`), including every tooltip row |
