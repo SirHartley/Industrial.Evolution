@@ -111,7 +111,6 @@ Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notify
 | `BurstCapacitors` | unregistered, unfinished tooltip; dead |
 | Mjolnir rolls | uses `getRandomForProj(Ids.PROJ_TRANSISTOR)` (`ResearchProjectTemplateRepo.java:523`), shares randoms with Transistor (suspected copy paste) |
 | Spyglass | `extra` stays null if all five rolls are worth 0; the 1% branch or the caller then hits null (`ResearchProjectTemplateRepo.java:487`, `:492`) |
-| `IndEvo_augfield` tags | `"special no_drop"` lacks a comma, read as one tag (`hull_mods.csv:16`) |
 | `GalatiaNewProjectsIntel` | `getMapLocation` uses entity id `station_galatia_academy`, null if absent |
 | `RefitUIOpenChecker` | polls `getCurrentCoreTab()` every frame; no engine callback for refit open was checked for |
 
