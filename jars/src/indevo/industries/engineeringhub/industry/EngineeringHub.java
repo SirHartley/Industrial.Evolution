@@ -54,6 +54,16 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     private final float alphaCoreTimeMult = 0.85f;
     private final int alphaCoreDModRed = 1;
 
+    public boolean isAvailableToBuild() {
+        return Settings.getBoolean(Settings.ENGHUB) && super.isAvailableToBuild();
+    }
+
+    @Override
+    public boolean showWhenUnavailable() {
+        return Settings.getBoolean(Settings.ENGHUB);
+    }
+
+    @Override
     public void apply() {
         super.apply(true);
         debug = Global.getSettings().isDevMode();

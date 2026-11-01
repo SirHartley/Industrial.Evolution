@@ -68,6 +68,9 @@ Fixed - Crash when opening a colony whose comm directory holds a person without 
 Fixed - Possible crash when an ambassador murder bounty hunter fleet spawns without ships
 Fixed - Dismissing an ambassador at some relation values showed an error or cost no reputation
 
+Engineering Hub
+Fixed - The Engineering Hub setting now controls whether it can be built
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 
