@@ -24,31 +24,16 @@ public class IndEvo_checkForRepResponse extends BaseCommandPlugin {
 
         String optionId = params.get(0).getString(memoryMap);
 
-        return GetIsCorrect(market.getFaction().getRelationship(ambFaction.getId()), optionId);
+        return getRepBand(market.getFaction().getRelationship(ambFaction.getId())).equals(optionId);
     }
 
-    private boolean isBetween(float check, float lower, float higher) {
-        return (check >= lower && check <= higher);
-    }
-
-    private boolean GetIsCorrect(float rel, String repLevel) {
-        if (isBetween(rel, -1.00F, -0.26F) && repLevel.equals("INHOSPITABLE")) {
-            return true;
-        }
-        if (isBetween(rel, -0.25F, -0.09F) && repLevel.equals("SUSPICIOUS")) {
-            return true;
-        }
-        if (isBetween(rel, -0.10F, 0.10F) && repLevel.equals("NEUTRAL")) {
-            return true;
-        }
-        if (isBetween(rel, 0.11F, 0.25F) && repLevel.equals("FAVORABLE")) {
-            return true;
-        }
-        if (isBetween(rel, 0.26F, 0.50F) && repLevel.equals("WELCOMING")) {
-            return true;
-        }
-        return (isBetween(rel, 0.51F, 1F) && repLevel.equals("FRIENDLY"));
-
-
+    // contiguous bands, relations are raw floats and can sit between hundredths
+    public static String getRepBand(float rel) {
+        if (rel < -0.25f) return "INHOSPITABLE";
+        if (rel < -0.10f) return "SUSPICIOUS";
+        if (rel <= 0.10f) return "NEUTRAL";
+        if (rel <= 0.25f) return "FAVORABLE";
+        if (rel <= 0.50f) return "WELCOMING";
+        return "FRIENDLY";
     }
 }

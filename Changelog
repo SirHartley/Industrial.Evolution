@@ -66,6 +66,7 @@ Fixed - Hostile activity tooltip no longer shows relations above the 40 cap, suc
 Fixed - Can no longer hire more ambassadors than there are free embassies
 Fixed - Crash when opening a colony whose comm directory holds a person without a post (seen with Approlight)
 Fixed - Possible crash when an ambassador murder bounty hunter fleet spawns without ships
+Fixed - Dismissing an ambassador at some relation values showed an error or cost no reputation
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0

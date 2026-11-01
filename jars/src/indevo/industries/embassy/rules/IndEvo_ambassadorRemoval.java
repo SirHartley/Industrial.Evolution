@@ -71,27 +71,14 @@ public class IndEvo_ambassadorRemoval extends BaseCommandPlugin {
         }
     }
 
-    private static boolean isBetween(float check, float lower, float higher) {
-        return (check >= lower && check <= higher);
-    }
-
     private static float getPenaltyFor(float rel) {
-        if (isBetween(rel, -0.25F, -0.09F)) {
-            return -0.1F;
-        }
-        if (isBetween(rel, -0.10F, 0.10F)) {
-            return -0.15F;
-        }
-        if (isBetween(rel, 0.11F, 0.25F)) {
-            return -0.25F;
-        }
-        if (isBetween(rel, 0.26F, 0.50F)) {
-            return -0.40F;
-        }
-        if (isBetween(rel, 0.51F, 1F)) {
-            return -0.60F;
-        }
-
-        return 0;
+        return switch (IndEvo_checkForRepResponse.getRepBand(rel)) {
+            case "SUSPICIOUS" -> -0.1F;
+            case "NEUTRAL" -> -0.15F;
+            case "FAVORABLE" -> -0.25F;
+            case "WELCOMING" -> -0.40F;
+            case "FRIENDLY" -> -0.60F;
+            default -> 0;
+        };
     }
 }

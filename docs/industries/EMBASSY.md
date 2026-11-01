@@ -73,7 +73,7 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:47`): `findAmba
 - `Embassy.reportEconomyTick()` last iteration: `monthlyRepIncrease()` adds min(0.1, cap - current) up to `maxRelation` (0.40, beta core 0.55) and reports it to `AmbassadorPersonManager`. `monthsPassed` counts to 3; relocation unlocks at 3.
 - `AmbassadorPersonManager.onNewDay()`: `logRepChange()` records `ceil(delta x mult x 0.5)` of any daily rep drop as an extra penalty per embassy faction (alpha core embassy counts 0.5 instead of 1); `getWarConsequences()` removes ambassadors of dead factions, sends home ambassadors of hostile factions, removes banned ones.
 - `reportEconomyMonthEnd()`: applies the summed penalties and shows one rep change `MessageIntel`.
-- Dismiss: `IndEvo_ambassadorRemove1..6` pick text by relation band (`IndEvo_checkForRepResponse`), `IndEvo_ambassadorRemoval` applies `getPenaltyFor()` (-10 to -60) and returns the person to the origin market.
+- Dismiss: `IndEvo_ambassadorRemove1..6` pick text by relation band (`IndEvo_checkForRepResponse.getRepBand`: below -25 inhospitable, below -10 suspicious, up to 10 neutral, up to 25 favorable, up to 50 welcoming, above friendly), `IndEvo_ambassadorRemoval` applies `getPenaltyFor()` (-10 to -60) and returns the person to the origin market.
 - Relocate: option order from param, cost `5000 x lyMult` booked as Embassy upkeep, move done by `moveAmbassadorToMarket` next frame.
 - Removing the Embassy (not for upgrade) runs `removeAmbassadorWithPenalty()` (`Embassy.java:316`). Removing a beta core after it was seen at month end costs -20 (`onNewDay()`, `:129`).
 
@@ -104,7 +104,6 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:47`): `findAmba
 |---|---|
 | `HostileActivityEventSubRegisterScript` | `@Deprecated`, not registered anywhere: dead |
 | Blank rules row after `#END IndEvo PlayerMarketAmbassadorDialogue` | Row with empty id and script `$global.IndEvo_HAASabotage = true` (`rules.csv:681-683`) |
-| `getPenaltyFor()` / `IndEvo_checkForRepResponse` | Gaps between bands (0.10 to 0.11, 0.25 to 0.26, 0.50 to 0.51) give no penalty or no matching rule |
 | `moveAmbassadorToClosestEmbassy` | Fee is booked even if the move script later fails its checks |
 | Changelog_todo | "embassy rep limit"; "embassy rep impact rolling number -> fixed num"; "Add ambassadors as contacts" |
 
