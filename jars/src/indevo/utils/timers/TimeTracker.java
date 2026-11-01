@@ -79,26 +79,24 @@ public class TimeTracker implements EveryFrameScript {
         return timePassed;
     }
 
+    // 4.1.b could leave a second ident + 0 tag, so all matches are merged into the highest
     public static void incrementTagNum(MarketAPI market, String ident, Integer incrementAmount) {
-        for (Iterator<String> i = market.getTags().iterator(); i.hasNext(); ) {
-            String tag = i.next();
+        Integer num = null;
+
+        for (String tag : new ArrayList<>(market.getTags())) {
             if (tag.contains(ident)) {
-                int num = Integer.parseInt(tag.substring(ident.length()));
+                int n = Integer.parseInt(tag.substring(ident.length()));
+                if (num == null || n > num) num = n;
                 market.removeTag(tag);
-                market.addTag(ident + (num + incrementAmount));
-                break;
             }
         }
-        market.addTag(ident + 0);
+
+        market.addTag(ident + (num == null ? 0 : num + incrementAmount));
     }
 
     public static void removeTimeTag(MarketAPI market, String ident) {
-        for (Iterator<String> i = market.getTags().iterator(); i.hasNext(); ) {
-            String tag = i.next();
-            if (tag.contains(ident)) {
-                market.removeTag(tag);
-                break;
-            }
+        for (String tag : new ArrayList<>(market.getTags())) {
+            if (tag.contains(ident)) market.removeTag(tag);
         }
     }
 

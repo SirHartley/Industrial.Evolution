@@ -153,7 +153,6 @@ Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmuniti
 |---|---|
 | `CirclePathData`, `SpriteDistorter`, `ModUpdater` | Unreferenced |
 | `MagicCampaignTrailPlugin.NicToyCustomCampaignTrailObject` | Unused inner class |
-| `TimeTracker.incrementTagNum` (`timers/TimeTracker.java:92`) | Adds `ident + 0` after every increment, so the market keeps two tags (suspected bug) |
 | `TimeTracker.removeMarketTimeTagTracker` (`timers/TimeTracker.java:44`) | Compares `String` with `==` (suspected bug, only works for interned strings) |
 | `MiscIE.stripShipToCargoAndReturnVariant(member, market)` (`helper/MiscIE.java:499`) | Uses `getStorageCargo(market)` instead of the resolved `target` (gathering point), so items go to the local market (suspected bug) |
 | `MiscIE.getMarketForStorage` (`helper/MiscIE.java:564`) | NPE if the faction has no gathering point (unverified whether `getGatheringPoint()` can return null) |
