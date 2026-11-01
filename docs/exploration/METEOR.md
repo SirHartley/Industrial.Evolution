@@ -114,7 +114,6 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 
 | Item | State |
 |---|---|
-| `PlanetoidSwarmSpawner.addStation()` | Every station uses id `<planet id>_loot` (`:203`); with `lootAmt > 2.1` two entities share one id |
 | `MeteorDebrisRenderer.isExpired()` | Always false (`:94`); renderers pile up and render in every location (inferred leak) |
 | `RadiationEffectHandler` sound tokens | `IndEvo_token` entities created in the current location and kept in a list (`:93`); after a location change the list points at tokens elsewhere (inferred) |
 | `MeteorSwarmManager.METEOR_TAG` | Never added to any entity; only used in a commented block (`RadioactiveSwarmSpawner.java:103`) |

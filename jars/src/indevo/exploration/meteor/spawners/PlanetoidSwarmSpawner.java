@@ -181,7 +181,7 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
         if (Settings.getBoolean(Settings.PETS)) picker.add(Ids.ABANDONED_PETSHOP_ENTITY);
 
         String stationType = picker.pick();
-        SectorEntityToken station = planet.getContainingLocation().addCustomEntity(planet.getId() + "_loot", "Dust-covered " +
+        SectorEntityToken station = planet.getContainingLocation().addCustomEntity(null, "Dust-covered " +
                 Global.getSettings().getCustomEntitySpec(stationType).getDefaultName(), stationType, Factions.NEUTRAL);
 
         station.setCircularOrbit(planet, MathUtils.getRandomNumberInRange(0,360), dist, days);
