@@ -98,7 +98,7 @@ Chain: `IndEvo_ApplyEdict -> IndEvo_applyEdict -> market.addCondition -> BaseEdi
 - `Market.addCondition()` calls `plugin.apply()` immediately and `removeCondition()` calls `unapply()` (`obf/campaign/econ/Market.java:1088`, `:1160`). The preview in `IndEvo_DisplayActionPanel_Edict` therefore runs a full apply/unapply on the live market and leaves the time tag (and for Forced Labour the `edict_stab_penalty4` tag) behind.
 - `IndEvo_marketHasEdict` is the "one Edict per market" rule; nothing in Java enforces it.
 - Production quality changes from Deadlines and Clearances go on every player market, not only the local one.
-- `Edict_FastBuild` writes `BaseIndustry.buildTime` (`api/impl/campaign/econ/impl/BaseIndustry.java:103`) through `ReflectionUtils.setWithSuper` ([Utils](../core/UTILS.md)). `unapply()` restores the spec build time, or the upgrade spec build time while upgrading, on every building industry.
+- `Edict_FastBuild` reads and writes `BaseIndustry.buildTime` (`api/impl/campaign/econ/impl/BaseIndustry.java:103`) through `StarReflectionUtils.get` and `ReflectionUtils.setWithSuper` ([Utils](../core/UTILS.md)). `apply()` stores each building industry's current time in `originalBuildTimes` (by industry id, saved with the condition) and sets half of it, so custom times such as a [Ruined Infrastructure](RUINED_INFRASTRUCTURE.md) restore are halved, not replaced by a spec time. `unapply()` writes the stored time back only while the industry still holds the halved value (a build started in between keeps its own time) and clears the map. `reapplyConditions` runs unapply before apply, so the halving never stacks.
 
 ## Known issues and dormant code
 
