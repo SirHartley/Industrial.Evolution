@@ -52,9 +52,12 @@ public class ShippingManager implements NewDayListener {
         if (!allowed) return;
 
         for (ShippingContract c : contractListCopy) {
-            if (!c.isValid() && c.isActive) {
-                c.isActive = false;
-                notifyFailure(c);
+            if (!c.isValid()) {
+                if (c.isActive) {
+                    c.isActive = false;
+                    notifyFailure(c);
+                }
+
                 continue;
             }
 

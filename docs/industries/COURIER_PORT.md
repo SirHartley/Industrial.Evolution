@@ -59,7 +59,7 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 
 ### Scheduler
 
-`ShippingManager.onNewDay()` (`:40-69`) does nothing unless a player market has a functional port. Per contract: invalid and active -> mark inactive and message; active -> `elapsedDays++`; `elapsedDays > recurrentDays` -> reset and ship. One time (`recurrentDays == 0`) active contracts are removed after shipping. "Ship now" sets `elapsedDays = 999`, so inactive contracts still ship the next day ("on demand") (`ContractListSidePanelCreator.java:101`). A shipment is only created if a dry run finds goods.
+`ShippingManager.onNewDay()` (`ShippingManager.java:40-72`) does nothing unless a player market has a functional port. Per contract: invalid -> skip, and if active mark inactive and message; active -> `elapsedDays++`; `elapsedDays > recurrentDays` -> reset and ship. One time (`recurrentDays == 0`) active contracts are removed after shipping. "Ship now" sets `elapsedDays = 999`, so inactive contracts still ship the next day ("on demand") (`ContractListSidePanelCreator.java:101`). A shipment is only created if a dry run finds goods.
 
 ### Goods selection
 
@@ -71,7 +71,7 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 - Cargo: cargo space per stack (personnel and fuel count 0.75 per unit) x `costPerSpace`.
 - Ships: hull deployment points (`getSuppliesToRecover()`) x `costPerShip` (`ShippingCostCalculator.java:101`).
 - Both x distance mult `round((1 + ly * 1000^(1 + ly/250) / 10000) * 10) / 10`, x0.8 with beta core, x `costPerLyMult` (`:41-52`). Alpha core x0.9 on both parts.
-- `chargePlayer` adds the cost to the upkeep of the `IndEvo_PrivatePort` node of the closest port market in the monthly report; without a port it subtracts credits directly (`ShippingManager.java:90-102`).
+- `chargePlayer` adds the cost to the upkeep of the `IndEvo_PrivatePort` node of the closest port market in the monthly report; without a port it subtracts credits directly (`ShippingManager.java:93-105`).
 
 ### Fleet and delivery
 
