@@ -251,7 +251,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
         if (monthLimit - currentWeaponBonusSP > 0) {
             if (currentWeaponBonusSP + dayLimit > monthLimit) {
-                return currentWeaponBonusSP + dayLimit - monthLimit;
+                return monthLimit - currentWeaponBonusSP;
             } else return dayLimit;
         } else return 0;
     }

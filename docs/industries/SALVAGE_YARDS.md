@@ -93,7 +93,6 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | Item | State |
 |---|---|
 | AI core fields not reset (`applyAlphaCoreModifiers` etc., `:521`) | `BaseIndustry.applyAICoreModifiers` calls only one branch (`api/impl/campaign/econ/impl/BaseIndustry.java:246`); switching alpha to beta keeps alpha decay, beta to gamma keeps 90 SP per unit |
-| `getWeaponSPDayLimit` (`:253`) | when the day limit would overshoot it returns `current + day - month` instead of the remaining amount |
 | Contract parts removal (`IndEvo_InitSYCustomProductionDiag.java:497`, `:500`) | removes `IndEvo_rare_parts` instead of `IndEvo_parts` when parts come partly from storage |
 | `costMult` clamp (`IndEvo_InitSYCustomProductionDiag.java:123`, `IndEvo_InitSYMoveDModDiag.java:91`) | the second line overwrites the first, so the upper bound is ignored |
 | Story point bonus (`IndEvo_InitSYCustomProductionDiag.getCapacity`, `:358`) | multiplies only the hull capacity term (operator precedence) |
