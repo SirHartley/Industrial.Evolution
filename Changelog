@@ -140,6 +140,9 @@ Fixed - Detachment auto load takes half the main fleet supplies up to the detach
 Fixed - Invisible detachment orbit markers no longer pile up in the save; unused ones are removed on load
 Fixed - Wrecks of a detachment that lost ships hold the right amount of excess cargo, and none of it vanishes
 
+Consumables
+Fixed - Crash when firing a missile from a hyperspace-only ability slot by hotkey
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 

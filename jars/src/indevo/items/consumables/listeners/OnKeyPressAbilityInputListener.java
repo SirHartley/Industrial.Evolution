@@ -21,6 +21,7 @@ public class OnKeyPressAbilityInputListener implements MissileTargetUIKeypressLi
     //should really be using pressButton through the API instead of whatever this is
 
     public int lastSlotVal = -1;
+    public String lastAbilityId = null;
     public boolean active = false;
     public MissileCampaignRenderer renderer;
 
@@ -75,6 +76,7 @@ public class OnKeyPressAbilityInputListener implements MissileTargetUIKeypressLi
                     if (isMissile && Global.getSector().getPlayerFleet().getAbility(ability).isUsable()) {
                         active = true;
                         lastSlotVal = eventVal;
+                        lastAbilityId = ability;
                         MissileActivationManager.getInstanceOrRegister().setCurrentListener(this);
 
                         //this is trash code, it should really be set externally by passing the required reticule from the ability
@@ -95,14 +97,13 @@ public class OnKeyPressAbilityInputListener implements MissileTargetUIKeypressLi
                         return;
                     }
 
-                    AbilityPlugin p = Global.getSector().getPlayerFleet().getAbility( Global.getSector().getUIData().getAbilitySlotsAPI().getCurrSlotsCopy().get(lastSlotVal -2).getAbilityId());
-                    ((BaseMissileConsumableAbilityPlugin) p).forceActivation();
-                    p.setCooldownLeft(p.getSpec().getDeactivationCooldown());
+                    AbilityPlugin p = Global.getSector().getPlayerFleet().getAbility(lastAbilityId);
+                    if (p instanceof BaseMissileConsumableAbilityPlugin missile) {
+                        missile.forceActivation();
+                        p.setCooldownLeft(p.getSpec().getDeactivationCooldown());
+                    }
 
-                    active = false;
-                    lastSlotVal = -1;
-                    renderer.setDone();
-                    renderer = null;
+                    reset();
 
                     input.consume();
                 }
@@ -113,6 +114,7 @@ public class OnKeyPressAbilityInputListener implements MissileTargetUIKeypressLi
     public void reset(){
         active = false;
         lastSlotVal = -1;
+        lastAbilityId = null;
         if(renderer != null) renderer.setDone();
         renderer = null;
     }

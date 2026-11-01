@@ -146,7 +146,6 @@ NPCs: `FleetConsumableInventoryManager` gives spawned fleets the missile abiliti
 | NPC missile AI | `ExplosiveMissileAbilityAI` unreferenced, `if(true) return` at `:59`; `MissileAIReactionManager.reportFleetUsedMissile` `if (true) return` at `:68`; `reportFleetHitByMissile` is a stub. NPC inventories are never used |
 | `BaseConsumableAbilityPlugin.java:66` | Result of `hasItemOfType` discarded; NPC amount always 0 |
 | `OnClickAbilityInputListener.java:29` | Persistent `addListener(this)` is removed only on the key abort path; each fired missile leaves a dead listener in the save |
-| `OnKeyPressAbilityInputListener.java:98` | Uses `getAbilityId()` where `:66` uses the hyperspace variant |
 | `SmokeMissileEntityPlugin.java:31`, `:36` | Radius formula gives about 360, not 360 to 400; sound volume rises with distance |
 | `SmokeCloudTerrain.java:85`, `:88` | `Math.round(0.3)` shows 0% in the tooltip; uses vanilla `Misc.getBurnMultForTerrain` |
 | `ScoopAbilityPlugin.java:188-196`, `:149` | `closest` never updated, picks the last star in range; NPE with no star (inferred) |
