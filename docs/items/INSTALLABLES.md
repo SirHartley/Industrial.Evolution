@@ -91,7 +91,7 @@ On loot: collects the target's drop data (entity, then salvage spec). For each `
 |---|---|---|
 | `PartsLootAdder.reportFleetSpawned` | `IndEvo_rare_parts` to fleet cargo | factions `omega` 0.5, `remnant` 0.25, `derelict` 0.1, IE derelict faction 0.2, `rat_abyssals`, `zea_*` 0.3, `threat` 0.05, times FP plus random; skips detachments |
 | same | `IndEvo_parts` | `IndEvo_PartsDropInCampaign` and `IndEvo_ScrapYard` on: `0.5 * FP` plus random |
-| `PartsCargoInterceptor`, wreck | `IndEvo_parts` | same settings; `0.3 * FP` plus random |
+| `PartsCargoInterceptor`, wreck | `IndEvo_parts` | same settings; `0.3 * FP` plus up to `0.2 * FP`, seeded by the wreck id |
 | `PartsCargoInterceptor`, fleet (not pirates, not Luddic Path) | `IndEvo_rare_parts` | hard battle: `0.3 * FP destroyed`; automated ships of unlisted factions: `0.2 * destroyed FP` plus random |
 | `PartsCargoInterceptor`, derelict probe / survey ship / mothership / cryosleeper | `IndEvo_rare_parts` | 1-10, 20-200, 150-400, 250-500, salvage seeded |
 
@@ -108,7 +108,6 @@ On loot: collects the target's drop data (entity, then salvage spec). For each `
 |---|---|
 | `IndEvo_ForgeTemplate_5` row | uses `EmptyForgeTemplateItemPlugin`, so a 5 charge template shows no hull name or price (suspected CSV error) |
 | `incrementForgeTemplateData` (`ForgeTemplateItemPlugin.java:383`) | non `ForgeTemplateData` branch passes `-1` instead of `num` |
-| `PartsCargoInterceptor` wreck roll (`ShipComponentLootManager.java:87`) | `Random` seeded by `getClass().hashCode()`, same seed for every wreck |
 | `ForgeTemplateItemPlugin.applyPrintDefects` | `@Deprecated` |
 | Commented effects | `INTERFACES`, `NANITES`, `SALVAGE_DRONES`, `ANALYSER`, experimental log core (`SpecialItemEffectsRepo.java:98-139`, `:230-304`) |
 | `wormhole_anchor` | effect active, item row commented; see [Warehouses](../industries/WAREHOUSES.md) |
