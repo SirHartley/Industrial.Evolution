@@ -11,13 +11,13 @@ IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Toggles Pets, the pet cryochamber 
 IndEvo_Enable_Derelicts,[Exploration] Exploration Events and Industries,Boolean,TRUE,,Enables salvage events as well as derelict infrastructure and industries,,,Exploration & Campaign
 IndEvo_AutomatedShipyardNum,[Exploration] Automated Shipyards Amount,Double,1.5,,"Amount of Coronal Taps * number = amount of automated shipyards. Default taps is 2, so default shipyards is 3 (2 * 1.5). Rounds up.",0,10,Exploration & Campaign
 IndEvo_CrucibleNum,[Exploration] Crucible Amount,Int,1,,Amount of crucibles in the sector. Static number. Defaults to 1.,0,10,Exploration & Campaign
-IndEvo_SpecialApplicationChance,[Exploration] Special Event Application Chance,Double,0.9,,Master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing.,,,Exploration & Campaign
+IndEvo_SpecialApplicationChance,[Exploration] Special Event Application Chance,Double,0.9,,Master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing.,0,1,Exploration & Campaign
 IndEvo_enable_derelict_stations,[Exploration] Additional Station Types,Boolean,TRUE,,Enables the custom station types like orbital labs and arsenal stations,,,Exploration & Campaign
-IndEvo_derelictStationAmount,[Exploration] Additional Station Type Amounts,Double,0.2,,Amount of additional stations with custom types spawned on top of existing ones (0.2 = 20%% additional),,,Exploration & Campaign
+IndEvo_derelictStationAmount,[Exploration] Additional Station Type Amounts,Double,0.2,,Amount of additional stations with custom types spawned on top of existing ones (0.2 = 20%% additional),0,2,Exploration & Campaign
 IndEvo_parts_disclaimer,,Text,"All loot added by this mod is on top of the normal loot you would have gotten. At no point does Industrial Evolution edit, dilute, change or in any other way influence vanilla drop behaviour.",,,,,Exploration & Campaign
 IndEvo_PartsDropInCampaign,[Commodities] Ship Parts Campaign Drops,Boolean,TRUE,,Makes starship components drop from combat - Relic components will still drop even if you disable this.,,,Exploration & Campaign
-IndEvo_relicComponentHardbattleFPAdvantage,[Commodities] Relic Component Hard Battle FP Advantage,Double,1.5,,How much more FP an enemy fleet has to have for it to drop relic components on defeat,,,Exploration & Campaign
-IndEvo_relicComponentFPDestroyedFract,"[Commodities] Relic Component ""Destroy to drop"" Fraction",Double,0.5,,How much of said fleet you have to destroy for it to drop relic components,,,Exploration & Campaign
+IndEvo_relicComponentHardbattleFPAdvantage,[Commodities] Relic Component Hard Battle FP Advantage,Double,1.5,,How much more FP an enemy fleet has to have for it to drop relic components on defeat,1,5,Exploration & Campaign
+IndEvo_relicComponentFPDestroyedFract,"[Commodities] Relic Component ""Destroy to drop"" Fraction",Double,0.5,,How much of said fleet you have to destroy for it to drop relic components,0,1,Exploration & Campaign
 IndEvo_meteor_enabled,[Meteor Swarms] Spawn Meteor Swarms,Boolean,TRUE,,General on-off toggle.,,,Meteor Swarms
 IndEvo_meteor_baseChancePerEconomyTick,[Meteor Swarms] Spawn Chance,Double,0.02,,"Chance for a meteor shower to spawn. One month has 10 ticks, 2 percent per tick = 18 %% chance per month = 92 %% per year. Increasing this by 0.1 raises monthly odds by about 30 %%, so use caution.",0.001,0.1,Meteor Swarms
 IndEvo_meteor_immediateMode,[Meteor Swarms] Immediate Mode,Boolean,FALSE,,Setting this to true will make meteor shower spawn immediately instead of having a delay with an intel entry.,,,Meteor Swarms
@@ -39,18 +39,18 @@ IndEvo_header4,Minefields,Header,Minefields,,,,,Minefields
 IndEvo_minefields_disclaimer,,Text,Tip: You can disable minefields temporarily with an interdiction pulse.,,,,,Minefields
 IndEvo_Enable_minefields,[Minefields] Minefields,Boolean,TRUE,,Needs a new game!,,,Minefields
 IndEvo_Minefield_disable_duration,[Minefields] Disable duration,Double,5,,Time in seconds that a minefield is disabled upon being hit with an interdiction pulse. This is intentionally set to be just enough time to cross once with a large fleet - minefields are intended to be an obstacle! Default: 5,1,30,Minefields
-IndEvo_Minefield_HitChance_frigate,[Minefields] Hit Chance [Frigate],Double,0.02,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,,,Minefields
-IndEvo_Minefield_HitChance_destroyer,[Minefields] Hit Chance [Destroyer],Double,0.04,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,,,Minefields
-IndEvo_Minefield_HitChance_cruiser,[Minefields] Hit Chance [Cruiser],Double,0.06,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,,,Minefields
-IndEvo_Minefield_HitChance_capital,[Minefields] Hit Chance [Capital],Double,0.12,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,,,Minefields
-IndEvo_Minefield_NoHitUntilSum,[Minefields] No Hit Until Sum,Double,0.5,,The minimum fleet size needed before mines can explode in your face when going slow,,,Minefields
-IndEvo_Minefield_CivilianShipImpactMult,[Minefields] Civ Ship Hit Chance Mult,Double,0.5,,Civ ships count half ect for above,,,Minefields
-IndEvo_Minefield_PhaseShipImpactMult,[Minefields] Phase Ship Hit Chance Mult,Double,0.3,,,,,Minefields
+IndEvo_Minefield_HitChance_frigate,[Minefields] Hit Chance [Frigate],Double,0.02,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,0,1,Minefields
+IndEvo_Minefield_HitChance_destroyer,[Minefields] Hit Chance [Destroyer],Double,0.04,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,0,1,Minefields
+IndEvo_Minefield_HitChance_cruiser,[Minefields] Hit Chance [Cruiser],Double,0.06,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,0,1,Minefields
+IndEvo_Minefield_HitChance_capital,[Minefields] Hit Chance [Capital],Double,0.12,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,0,1,Minefields
+IndEvo_Minefield_NoHitUntilSum,[Minefields] No Hit Until Sum,Double,0.5,,The minimum fleet size needed before mines can explode in your face when going slow,0,5,Minefields
+IndEvo_Minefield_CivilianShipImpactMult,[Minefields] Civ Ship Hit Chance Mult,Double,0.5,,Civ ships count half ect for above,0,2,Minefields
+IndEvo_Minefield_PhaseShipImpactMult,[Minefields] Phase Ship Hit Chance Mult,Double,0.3,,,0,2,Minefields
 IndEvo_header5,Artillery,Header,Artillery,,,,,Artillery
 IndEvo_Enable_Artillery,[Artillery] Spawn Artillery Stations,Boolean,TRUE,,Only works on new game. Disabling this means you have weak bones.,,,Artillery
 IndEvo_Artillery_spawnWeight,[Artillery] Spawn Chance,Double,1,,How likely a system is to have an artillery station. Reduce this number to make them rarer. 1 = between 5-10%% of all systems will have one.,0,100,Artillery
 IndEvo_Artillery_starsPerStationInConstellation,[Artillery] Stars per station in a constellation,Double,1,,Specifies how many artillery stations can spawn per X stars in a constellation. Default = One station per 3 stars. The lower the number the more clustered the stations are. Setting this too high will result in no stations spawning.,0,100,Artillery
-IndEvo_Watchtower_faction_reset,[Artillery] Time to watchtower faction reset,Int,31,,"Time in days for watchtowers to reset to the faction controlling the artillery. This is needed to avoid ""dead"" artilleries after being highjacked by a pirate station and subsequently having their watchtowers taken by an invasion.",,,Artillery
+IndEvo_Watchtower_faction_reset,[Artillery] Time to watchtower faction reset,Int,31,,"Time in days for watchtowers to reset to the faction controlling the artillery. This is needed to avoid ""dead"" artilleries after being highjacked by a pirate station and subsequently having their watchtowers taken by an invasion.",1,365,Artillery
 IndEvo_Artillery_minDelayBetweenShots,[Artillery] Min Delay Between Shots,Double,2,,"Delay between shots - if the artillery has two valid targets, it'll take that long to fire at both of them",0,100,Artillery
 IndEvo_Artillery_maxDelayBetweenShots,[Artillery] Max Delay Between Shots,Double,3,,,1,100,Artillery
 IndEvo_Artillery_minCooldown,[Artillery] Min Cooldown,Double,15,,"Cooldown on single target - it shoots at you, then waits this long, then shoots again",0,100,Artillery
@@ -64,8 +64,8 @@ IndEvo_Artillery_mortar_projectilesPerShot,[Mortar Artillery] Projectiles per Sh
 IndEvo_Artillery_mortar_projectilesImpactTime,[Mortar Artillery] Time to Impact,Double,5,,,1,60,Artillery
 IndEvo_Artillery_mortar_explosionSize,[Mortar Artillery] Explosion Radius,Double,300,,,1,1000,Artillery
 IndEvo_Artillery_railgun_projectilesPerShot,[Railgun Artillery] Projectiles per Shot,Int,3,,If you increase this you should also increase the fuzz mult,1,30,Artillery
-IndEvo_Artillery_railgun_projectilesImpactTime,[Railgun Artillery] Time to Impact,Double,1.5,,,,,Artillery
-IndEvo_Artillery_railgun_shotFuzzMult,[Railgun Artillery] Shot Fuzziness,Double,0.4,,"By how much the shots miss their target, higher = mor",,,Artillery
+IndEvo_Artillery_railgun_projectilesImpactTime,[Railgun Artillery] Time to Impact,Double,1.5,,,0.5,60,Artillery
+IndEvo_Artillery_railgun_shotFuzzMult,[Railgun Artillery] Shot Fuzziness,Double,0.4,,"By how much the shots miss their target, higher = mor",0,2,Artillery
 IndEvo_Artillery_missile_projectilesPerShot,[Missile Artillery] Projectiles per Shot,Int,4,,Must be divisible by 2,1,30,Artillery
 IndEvo_Artillery_missile_projectilesImpactTime,[Missile Artillery] Time to Impact,Double,8,,,1,60,Artillery
 IndEvo_Artillery_missile_maxCoveredArea,[Missile Artillery] Missile Roaming Area,Double,800,,Maximum area the missiles cover - also depends on fuzz,1,10000,Artillery
@@ -101,7 +101,7 @@ IndEvo_museum_enabled,[Industries] Museum,Boolean,TRUE,,Enables or disables the 
 IndEvo_header6,Industry Settings,Header,Industry Settings,,,,,Industries
 IndEvo_header_Governance,Governance,Header,Governance,,,,,Industries
 IndEvo_GovernmentLarpMode,[Governance] Government Larping,Boolean,FALSE,,Setting this to true makes planetary governments behave like vanilla pop&infra and turns them into a cosmetic choice.,,,Industries
-IndEvo_GovernmentMaxSize,[Governance] Max size for government change,Int,3,,Specifies how large a colony may be to in order to change the government type. Building up a stable colony and then changing is cheating and takes away from how these are supposed to work: higher rewards for higher difficulties.,,,Industries
+IndEvo_GovernmentMaxSize,[Governance] Max size for government change,Int,3,,Specifies how large a colony may be to in order to change the government type. Building up a stable colony and then changing is cheating and takes away from how these are supposed to work: higher rewards for higher difficulties.,1,10,Industries
 ,,,,,,,,
 IndEvo_header_enghub,Engineering Hub,Header,Engineering Hub,,,,,Industries
 IndEvo_EngHubStrictWhitelist,[Engineering Hub] Use strict whitelist,Boolean,FALSE,,Disable the auto-whitelist and return to the strict manual entry based whitelist system. This means that only ships that are listed in the reverse_engineering.csv whitelist are eligible to be researched.,,,Industries
@@ -111,22 +111,22 @@ IndEvo_AutoshipBPToGatheringPoint,[Engineering Hub] Auto Transfer BP to Gatherin
 IndEvo_header_sy,Salvage Yards,Header,Salvage Yards,,,,,Industries
 IndEvo_RarePartsAmountPerFP,[Salvage Yards] Relic Components per FP,Int,2,,Required Relic Components per FP for zero D-Mods,1,10,Industries
 IndEvo_SYBaseDMods,[Salvage Yards] Base D-Mod Amount,Int,5,,Base D-Mod count on ships built via the Yards,1,10,Industries
-IndEvo_SYPartValueMult,[Salvage Yards] Ship Component Value Mult,Double,1.2,,Mult for how much components contribute towards the budget - default means every component contributes 1.2x its standard cost towards the budget,,,Industries
+IndEvo_SYPartValueMult,[Salvage Yards] Ship Component Value Mult,Double,1.2,,Mult for how much components contribute towards the budget - default means every component contributes 1.2x its standard cost towards the budget,0.1,5,Industries
 IndEvo_SYHullDeliveryTime,[Salvage Yards] Delivery Thyme,Int,60,,Italian Sounds while person on crotch rocket delivers Paragon to hungry space captain,1,365,Industries
-IndEvo_SYDModMoveBaseCostMult,[Salvage Yards] D-Mod Moving Base Cost Mult,Double,0.8,,"How much it costs to move a D-Mod compared to restoring it. By default, it's cheaper to move the D-mod by 0.8x the restoration cost. I think. Can't remember, might also be total cost.",,,Industries
+IndEvo_SYDModMoveBaseCostMult,[Salvage Yards] D-Mod Moving Base Cost Mult,Double,0.8,,"How much it costs to move a D-Mod compared to restoring it. By default, it's cheaper to move the D-mod by 0.8x the restoration cost. I think. Can't remember, might also be total cost.",0.1,5,Industries
 ,,,,,,,,
 IndEvo_header_Courier,Courier Port,Header,Courier Port,,,,,Industries
 IndEvo_courier_costPerSpace,[Courier Port] Base Cost per cargo unit,Int,5,,Transport cost per cargo space used. Some items take more space than others: a nanoforge takes 10 cargo space. Affected by distance.,1,20,Industries
 IndEvo_courier_costPerShip,[Courier Port] Base Cost per ship unit,Int,170,,"Transport cost per ship DP. Larger ship, larger cost. Affected by distance.",10,500,Industries
-IndEvo_courier_baseFee,[Courier Port] Static courier fee,Int,1000,,"The base fee of a shipment, not affected by distance.",,,Industries
-IndEvo_courier_costPerLyMult,[Courier Port] Cost per distance multiplier,Double,1,,"This setting changes how impactful distance is to the cost calculation. The higher the value, the more distance will factor in.",0.1f,2f,Industries
+IndEvo_courier_baseFee,[Courier Port] Static courier fee,Int,1000,,"The base fee of a shipment, not affected by distance.",0,10000,Industries
+IndEvo_courier_costPerLyMult,[Courier Port] Cost per distance multiplier,Double,1,,"This setting changes how impactful distance is to the cost calculation. The higher the value, the more distance will factor in.",0.1,2,Industries
 ,,,,,,,,
 IndEvo_header_Privateer,Privateer Base,Header,Privateer Base,,,,,Industries
 IndEvo_RaidForUnknownOnly,[Privateer Base] Raid only for Unknown BPs,Boolean,FALSE,,"Allows the Privateer base to raid for blueprints you already know. Setting this to TRUE will make it only generate BPs you do not know, instead of a mix",,,Industries
 IndEvo_PrivateerDeliverToGatheringPoint,[Privateer Base] Deliver to Gathering Point,Boolean,FALSE,,Auto-deliver the looted items to the gathering point. Remember - courier port exists.,,,Industries
 ,,,,,,,,
 IndEvo_header_Derelict,Derelict,Header,Derelict,,,,,Industries
-IndEvo_DerInfraBuildRed,[Derelict Infrastructure] Derelict Infra Cost Reduction,Double,0.5,,Derelict infra build cost and time reductions,,,Industries
+IndEvo_DerInfraBuildRed,[Derelict Infrastructure] Derelict Infra Cost Reduction,Double,0.5,,Derelict infra build cost and time reductions,0,1,Industries
 IndEvo_derelictDeliverToGathering,[Derelict Industries] Deliver to Gathering Point,Boolean,FALSE,,All derelict industry output will be delivered to the gathering point instead of local storage. Remember - courier port exists.,,,Industries
 IndEvo_RG_cooldownTime,[Rift Generator] Cooldown,Int,90,,,1,365,Industries
 IndEvo_RG_range,[Rift Generator] Range,Int,9,,in LY,1,100,Industries
@@ -157,8 +157,8 @@ IndEvo_restoFee_CRUISER,[Restoration Docks] Extra Fee [Cruiser],Double,7000,,AI 
 IndEvo_restoFee_CAPITAL,[Restoration Docks] Extra Fee [Capital],Double,10000,,AI mode restoration Fees per dMod,1,100000,Industries
 ,,,,,,,,
 IndEvo_Academy_header,Academy,Header,Academy,,,,,Industries
-IndEvo_dailyOfficerSpawnChance,[Academy] Daily Officer Spawn Chance,Double,0.15,,,,,Industries
-IndEvo_dailyAdminSpawnChance,[Academy] Daily Admin Spawn Chance,Double,0.10,,,,,Industries
+IndEvo_dailyOfficerSpawnChance,[Academy] Daily Officer Spawn Chance,Double,0.15,,,0,1,Industries
+IndEvo_dailyAdminSpawnChance,[Academy] Daily Admin Spawn Chance,Double,0.10,,,0,1,Industries
 IndEvo_personalityTrainingDayCount,[Academy] Personality Training Duration,Int,93,,,1,365,Industries
 IndEvo_personalityTrainingCost,[Academy] Personality Training Cost,Int,30000,,,1,100000,Industries
 IndEvo_adminTrainingDayCount,[Academy] Admin Training Duration,Int,124,,,1,365,Industries

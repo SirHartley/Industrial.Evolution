@@ -174,7 +174,7 @@ Each stage depends on the stages before it. Within a stage, do the subtasks in o
 
 **Stage 1: typed reads and correct data.**
 - [x] 1.1 Replace the 231 `Settings.getX(Settings.NAME)` calls with `Setting.NAME.enabled()`, `value()` or `intValue()`; delete `indevo/utils/helper/Settings.java`. Two reads used the wrong type: `SY_PART_VALUE_MULT` (Double, default 1.2) went through `getInt` and truncated to 1, now `value()` (`IndEvo_InitSYCustomProductionDiag.java:73`); `ARTILLERY_STARS_PER_STATION` (Double) is a count and keeps `intValue()` (`ArtilleryStationPlacer.java:85`). Done when: `grep -rn 'Settings\.get' jars/src` finds only `Global.getSettings()` calls.
-- [ ] 1.2 Explicit bounds for the 21 rows (decision 4), plain numbers for `IndEvo_courier_costPerLyMult`; `Setting` mirrors them.
+- [x] 1.2 Explicit bounds for the 21 rows (decision 4), plain numbers for `IndEvo_courier_costPerLyMult`; `Setting` mirrors them.
   - Done when: the courier base fee slider reaches 1000.
 - [ ] 1.3 Pair rule in `PlayerSettings`.
 - [ ] 1.4 `IndEvo_IntArray` gates the Interstellar Relay (decision 5).

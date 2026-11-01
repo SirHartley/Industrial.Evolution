@@ -43,14 +43,14 @@ if (!Setting.EMBASSY.enabled()) return;
 
 - `enabled()` for `BOOLEAN`, `value()` (float) for `DOUBLE`, `intValue()` for `INT`. `intValue()` on a `DOUBLE` truncates. `Setting.byId(id)` throws `IllegalArgumentException` for an unknown id.
 - `PlayerSettings.install()` runs first in `ModPlugin.onApplicationLoad` and `onGameLoad`: it adds the listener once (`hasSettingsListenerOfClass`) and reloads. `onNewGame` reloads too: LunaLib calls no listener for a Save in the new game settings panel (`LunaSettingsUIModsPanel`, `if (!this.newGame)`), but stores it in `LunaSettingsLoader.getSettings()`.
-- `reload()` forces LunaLib's lazy load, reads `LunaSettingsLoader.getSettings().get("IndEvo")`, runs `Setting.sanitize` on every field (missing or wrong type gives the CSV default, numbers clamp to `min`/`max`, `INT` rounds), writes changed values back and calls `save()`. Rows without CSV bounds have infinite bounds in `Setting` for now. With no LunaLib data it logs an error and uses the defaults. In dev mode it logs `Reloaded IndEvo settings`.
+- `reload()` forces LunaLib's lazy load, reads `LunaSettingsLoader.getSettings().get("IndEvo")`, runs `Setting.sanitize` on every field (missing or wrong type gives the CSV default, numbers clamp to `min`/`max`, `INT` rounds), writes changed values back and calls `save()`. With no LunaLib data it logs an error and uses the defaults. In dev mode it logs `Reloaded IndEvo settings`.
 - The listener reloads on every Save in the LunaLib menu, in the campaign and on the title screen, so a value read at use time applies on the next read. LunaLib logs listener exceptions at debug level only, so `settingsChanged` logs them with `log.error`. A dev mode F8 reload runs no listener (`onDevModeF8Reload`); the cache catches up on the next hook or Save.
 - 16 classes copy settings into `static final` fields at class load (64 fields; `grep -rn 'static final .*= *Setting\.' jars/src`), for example `MuseumConstants`, `CampaignAttackScript`, `MeteorSwarmManager`, `ShippingCostCalculator`. Those settings apply only after a game restart. Prefer reading at use time in new code; do not read in a per frame loop where a daily check works.
 - Industry toggles are read in each industry's `isAvailableToBuild()` and `showWhenUnavailable()` (example: `indevo/industries/embassy/industry/Embassy.java:95`, `:105`). A disabled industry stays on markets that already have it.
 
 ### Adding a setting
 
-1. Add the row to `LunaSettings.csv` in the right tab, with `defaultValue`, `minValue`, `maxValue` and the help text in `fieldDescription`. Help text is player-facing.
+1. Add the row to `LunaSettings.csv` in the right tab, with `defaultValue`, `minValue`, `maxValue` and the help text in `fieldDescription`. Help text is player-facing. Every `Int` and `Double` row needs both bounds as plain numbers: LunaLib uses 0 and 100 for an empty bound and clamps typed values to it.
 2. Add the `Setting` constant with the same `fieldID` (prefix `IndEvo_`), type, default and bounds as the row.
 3. Read it through the constant. Do not call `LunaSettings` or `Global.getSettings()` directly for a LunaLib field.
 4. Add the key to the feature doc's Data and ids table.

@@ -10,12 +10,12 @@ public enum Setting {
     ENABLE_DERELICTS("IndEvo_Enable_Derelicts", true),
     AUTOMATEDSHIPYARD_NUM("IndEvo_AutomatedShipyardNum", 1.5, 0, 10),
     CRUCIBLE_NUM("IndEvo_CrucibleNum", 1, 0, 10),
-    SPECIAL_APPLICATION_CHANCE("IndEvo_SpecialApplicationChance", 0.9),
+    SPECIAL_APPLICATION_CHANCE("IndEvo_SpecialApplicationChance", 0.9, 0, 1),
     ENABLE_DERELICT_STATIONS("IndEvo_enable_derelict_stations", true),
-    DERELICT_STATION_AMOUNT("IndEvo_derelictStationAmount", 0.2),
+    DERELICT_STATION_AMOUNT("IndEvo_derelictStationAmount", 0.2, 0, 2),
     PARTS_DROP_IN_CAMPAIGN("IndEvo_PartsDropInCampaign", true),
-    RELIC_COMPONENT_HARD_BATTLE_FP_ADVANTAGE("IndEvo_relicComponentHardbattleFPAdvantage", 1.5),
-    RELIC_COMPONENT_FP_DESTROYED_FRACT("IndEvo_relicComponentFPDestroyedFract", 0.5),
+    RELIC_COMPONENT_HARD_BATTLE_FP_ADVANTAGE("IndEvo_relicComponentHardbattleFPAdvantage", 1.5, 1, 5),
+    RELIC_COMPONENT_FP_DESTROYED_FRACT("IndEvo_relicComponentFPDestroyedFract", 0.5, 0, 1),
     METEOR_ENABLED("IndEvo_meteor_enabled", true),
     METEOR_BASE_CHANCE_PER_ECONOMY_TICK("IndEvo_meteor_baseChancePerEconomyTick", 0.02, 0.001, 0.1),
     METEOR_IMMEDIATE_MODE("IndEvo_meteor_immediateMode", false),
@@ -35,17 +35,17 @@ public enum Setting {
     METEOR_MIN_ANGLE("IndEvo_meteor_minAngle", 50.0, 1, 360),
     ENABLE_MINEFIELDS("IndEvo_Enable_minefields", true),
     MINEFIELD_DISABLE_DURATION("IndEvo_Minefield_disable_duration", 5.0, 1, 30),
-    MINEFIELD_HITCHANCE_FRIGATE("IndEvo_Minefield_HitChance_frigate", 0.02),
-    MINEFIELD_HITCHANCE_DESTROYER("IndEvo_Minefield_HitChance_destroyer", 0.04),
-    MINEFIELD_HITCHANCE_CRUISER("IndEvo_Minefield_HitChance_cruiser", 0.06),
-    MINEFIELD_HITCHANCE_CAPITAL("IndEvo_Minefield_HitChance_capital", 0.12),
-    MINEFIELD_NOHITUNTILSUM("IndEvo_Minefield_NoHitUntilSum", 0.5),
-    MINEFIELD_CIVILIAN_SHIP_IMPACT_MULT("IndEvo_Minefield_CivilianShipImpactMult", 0.5),
-    MINEFIELD_PHASE_SHIP_IMPACT_MULT("IndEvo_Minefield_PhaseShipImpactMult", 0.3),
+    MINEFIELD_HITCHANCE_FRIGATE("IndEvo_Minefield_HitChance_frigate", 0.02, 0, 1),
+    MINEFIELD_HITCHANCE_DESTROYER("IndEvo_Minefield_HitChance_destroyer", 0.04, 0, 1),
+    MINEFIELD_HITCHANCE_CRUISER("IndEvo_Minefield_HitChance_cruiser", 0.06, 0, 1),
+    MINEFIELD_HITCHANCE_CAPITAL("IndEvo_Minefield_HitChance_capital", 0.12, 0, 1),
+    MINEFIELD_NOHITUNTILSUM("IndEvo_Minefield_NoHitUntilSum", 0.5, 0, 5),
+    MINEFIELD_CIVILIAN_SHIP_IMPACT_MULT("IndEvo_Minefield_CivilianShipImpactMult", 0.5, 0, 2),
+    MINEFIELD_PHASE_SHIP_IMPACT_MULT("IndEvo_Minefield_PhaseShipImpactMult", 0.3, 0, 2),
     ENABLE_ARTILLERY("IndEvo_Enable_Artillery", true),
     ARTILLERY_SPAWN_WEIGHT("IndEvo_Artillery_spawnWeight", 1.0, 0, 100),
     ARTILLERY_STARS_PER_STATION("IndEvo_Artillery_starsPerStationInConstellation", 1.0, 0, 100),
-    ARTILLERY_WATCHTOWER_FACTION_RESET_TIME("IndEvo_Watchtower_faction_reset", 31),
+    ARTILLERY_WATCHTOWER_FACTION_RESET_TIME("IndEvo_Watchtower_faction_reset", 31, 1, 365),
     ARTILLERY_MIN_DELAY_BETWEEN_SHOTS("IndEvo_Artillery_minDelayBetweenShots", 2.0, 0, 100),
     ARTILLERY_MAX_DELAY_BETWEEN_SHOTS("IndEvo_Artillery_maxDelayBetweenShots", 3.0, 1, 100),
     ARTILLERY_MIN_COOLDOWN("IndEvo_Artillery_minCooldown", 15.0, 0, 100),
@@ -59,8 +59,8 @@ public enum Setting {
     ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME("IndEvo_Artillery_mortar_projectilesImpactTime", 5.0, 1, 60),
     ARTILLERY_MORTAR_EXPLOSION_SIZE("IndEvo_Artillery_mortar_explosionSize", 300.0, 1, 1000),
     ARTILLERY_RAILGUN_PROJECTILES_PER_SHOT("IndEvo_Artillery_railgun_projectilesPerShot", 3, 1, 30),
-    ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME("IndEvo_Artillery_railgun_projectilesImpactTime", 1.5),
-    ARTILLERY_RAILGUN_SHOT_FUZZ_MULT("IndEvo_Artillery_railgun_shotFuzzMult", 0.4),
+    ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME("IndEvo_Artillery_railgun_projectilesImpactTime", 1.5, 0.5, 60),
+    ARTILLERY_RAILGUN_SHOT_FUZZ_MULT("IndEvo_Artillery_railgun_shotFuzzMult", 0.4, 0, 2),
     ARTILLERY_MISSILE_PROJECTILES_PER_SHOT("IndEvo_Artillery_missile_projectilesPerShot", 4, 1, 30),
     ARTILLERY_MISSILE_PROJECTILES_IMPACT_TIME("IndEvo_Artillery_missile_projectilesImpactTime", 8.0, 1, 60),
     ARTILLERY_MISSILE_MAX_COVERED_AREA("IndEvo_Artillery_missile_maxCoveredArea", 800.0, 1, 10000),
@@ -90,22 +90,22 @@ public enum Setting {
     SWITCHABLEMINING("IndEvo_SwitchableMining", true),
     MUSEUM_ENABLED("IndEvo_museum_enabled", true),
     GOVERNMENT_LARP_MODE("IndEvo_GovernmentLarpMode", false),
-    GOVERNMENT_MAX_SIZE("IndEvo_GovernmentMaxSize", 3),
+    GOVERNMENT_MAX_SIZE("IndEvo_GovernmentMaxSize", 3, 1, 10),
     ENGHUB_STRICT_WL("IndEvo_EngHubStrictWhitelist", false),
     ENGHUB_IGNORE_WHITELISTS("IndEvo_EngHubIgnoreWhitelists", false),
     AUTO_SHIP_BP_TO_GATHERING_POINT("IndEvo_AutoshipBPToGatheringPoint", false),
     RARE_PARTS_AMOUNT_PER_FP("IndEvo_RarePartsAmountPerFP", 2, 1, 10),
     SY_BASE_DMODS("IndEvo_SYBaseDMods", 5, 1, 10),
-    SY_PART_VALUE_MULT("IndEvo_SYPartValueMult", 1.2),
+    SY_PART_VALUE_MULT("IndEvo_SYPartValueMult", 1.2, 0.1, 5),
     SY_HULL_DELIVERY_TIME("IndEvo_SYHullDeliveryTime", 60, 1, 365),
-    SY_DMOD_MOVE_BASE_COST_MULT("IndEvo_SYDModMoveBaseCostMult", 0.8),
+    SY_DMOD_MOVE_BASE_COST_MULT("IndEvo_SYDModMoveBaseCostMult", 0.8, 0.1, 5),
     COURIER_COST_PER_CARGO_SPACE("IndEvo_courier_costPerSpace", 5, 1, 20),
     COURIER_COST_PER_SHIP_DP("IndEvo_courier_costPerShip", 170, 10, 500),
-    COURIER_BASE_FEE("IndEvo_courier_baseFee", 1000),
+    COURIER_BASE_FEE("IndEvo_courier_baseFee", 1000, 0, 10000),
     COURIER_COST_PER_LY_MULT("IndEvo_courier_costPerLyMult", 1.0, 0.1, 2),
     RAID_FOR_UNKNOWN_ONLY("IndEvo_RaidForUnknownOnly", false),
     PRIVATEER_DELIVER_TO_GATHERING_POINT("IndEvo_PrivateerDeliverToGatheringPoint", false),
-    DERINFRA_BUILD_RED("IndEvo_DerInfraBuildRed", 0.5),
+    DERINFRA_BUILD_RED("IndEvo_DerInfraBuildRed", 0.5, 0, 1),
     DERELICT_DELIVER_TO_GATHERING("IndEvo_derelictDeliverToGathering", false),
     RG_COOLDOWN_TIME("IndEvo_RG_cooldownTime", 90, 1, 365),
     RG_RANGE("IndEvo_RG_range", 9, 1, 100),
@@ -130,8 +130,8 @@ public enum Setting {
     RESTO_FEE_DESTROYER("IndEvo_restoFee_DESTROYER", 3000.0, 1, 100000),
     RESTO_FEE_CRUISER("IndEvo_restoFee_CRUISER", 7000.0, 1, 100000),
     RESTO_FEE_CAPITAL("IndEvo_restoFee_CAPITAL", 10000.0, 1, 100000),
-    DAILY_OFFICER_SPAWN_CHANCE("IndEvo_dailyOfficerSpawnChance", 0.15),
-    DAILY_ADMIN_SPAWN_CHANCE("IndEvo_dailyAdminSpawnChance", 0.1),
+    DAILY_OFFICER_SPAWN_CHANCE("IndEvo_dailyOfficerSpawnChance", 0.15, 0, 1),
+    DAILY_ADMIN_SPAWN_CHANCE("IndEvo_dailyAdminSpawnChance", 0.1, 0, 1),
     PERSONALITY_TRAINING_DAY_COUNT("IndEvo_personalityTrainingDayCount", 93, 1, 365),
     PERSONALITY_TRAINING_COST("IndEvo_personalityTrainingCost", 30000, 1, 100000),
     ADMIN_TRAINING_DAY_COUNT("IndEvo_adminTrainingDayCount", 124, 1, 365),
@@ -173,16 +173,8 @@ public enum Setting {
         this(id, Type.BOOLEAN, fallback, 0, 1);
     }
 
-    Setting(String id, int fallback) {
-        this(id, Type.INT, fallback, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-    }
-
     Setting(String id, int fallback, double min, double max) {
         this(id, Type.INT, fallback, min, max);
-    }
-
-    Setting(String id, double fallback) {
-        this(id, Type.DOUBLE, fallback, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
     }
 
     Setting(String id, double fallback, double min, double max) {
