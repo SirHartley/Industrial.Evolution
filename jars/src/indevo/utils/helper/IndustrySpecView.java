@@ -22,7 +22,12 @@ public class IndustrySpecView implements IndustrySpecAPI {
         this.downgrade = downgrade;
     }
 
-    public boolean isViewOf(IndustrySpecAPI spec, String upgrade, String downgrade) {
+    public static IndustrySpecView of(IndustrySpecView cached, IndustrySpecAPI spec, String upgrade, String downgrade) {
+        if (cached != null && cached.isViewOf(spec, upgrade, downgrade)) return cached;
+        return new IndustrySpecView(spec, upgrade, downgrade);
+    }
+
+    private boolean isViewOf(IndustrySpecAPI spec, String upgrade, String downgrade) {
         return this.spec == spec && Objects.equals(this.upgrade, upgrade) && Objects.equals(this.downgrade, downgrade);
     }
 
