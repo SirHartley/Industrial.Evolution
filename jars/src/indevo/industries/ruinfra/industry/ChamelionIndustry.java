@@ -50,6 +50,12 @@ public class ChamelionIndustry extends BaseIndustry {
     }
 
     @Override
+    public String getUnavailableReason() {
+        if (id.equals(Ids.CHAMELION)) return super.getUnavailableReason();
+        return spec.getNewPluginInstance(market).getUnavailableReason();
+    }
+
+    @Override
     public boolean showWhenUnavailable() {
         return false;
     }

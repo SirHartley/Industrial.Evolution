@@ -90,6 +90,7 @@ Fixed - NPC colonies with Old Industrial Ruins (Nexerelin) now finish upgrading 
 
 Ruined Infrastructure
 Fixed - NPC colonies (Nexerelin) now restore their Ruined Infrastructure
+Fixed - A blocked restoration now shows why, for example only one per star system, instead of "Can not be built"
 
 Embassy
 Fixed - Ambassadors can now be asked to stop sabotaging hostile activity
