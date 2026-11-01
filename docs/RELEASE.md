@@ -31,7 +31,7 @@ Reset the lower parts when a higher one changes. After a release, ask the user w
 
 The jar is built in IntelliJ: module `IndEvo` (`IndEvo.iml`), JDK 17 (`corretto-17`), Kotlin 2.1, output to `jars/`, artifact `IndEvo:jar` writes `jars/IndEvo.jar` on make. Libraries are IntelliJ application libraries on the user's machine. The run configuration `Run Starsector` (`.idea/runConfigurations`) starts the game with a debugger on port 5005 from a local install path.
 
-There is no scripted release builder and no `lib/` folder, so an agent cannot build the jar. The house-style release setup (a `ReleaseBuild` tool, committed `jars/release/IndEvo.jar`, a manual `release.yml`) is not set up for IE.
+There is no scripted release builder. The compile dependencies are in `/mnt/project-files/Libs.zip`, outside the repository, and are not complete yet ([CLAUDE.md](../CLAUDE.md#building)), so an agent cannot build the jar. The house-style release setup (a `ReleaseBuild` tool, committed `jars/release/IndEvo.jar`, a manual `release.yml`) is not set up for IE.
 
 ## Running a release
 

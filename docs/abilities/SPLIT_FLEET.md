@@ -139,6 +139,10 @@ Follow, escort and intercept queue the player's jumps in `jumpInfoMap` from `rep
 | `DeliverAssignmentAI`, `PlayerFleetFollower` | dormant: DELIVER not in `behaviourIndexMap`, follower never registered; Changelog_todo "DEV Added - Behaviour: Deliver", "DEV Deliver fleets still refuse to leave system" |
 | `PatrolAssignmentAI`, `ForceSingleJumpScript`, `FleetDereliction`, `DialogueInterceptListener`, `DerelictFleetLocationIntel`, `SplinterFleetCampignPlugin.clear()` | dead, unreferenced |
 | Gate transit handling | never called, see Contracts; `reportFleetTransitingGate` also checks the player fleet's memory instead of `this.fleet` (`BaseSplinterFleetAssignmentAIV2.java:153`) |
+| Overload drop loop | `while (overloadedByAmount > 0 \|\| safetyCounter > stacks.size())`: the safety check is inverted and never stops the loop; `picker.isEmpty()` is the only exit (`CombatAndDerelictionScript.java:143`) |
+| Supply transfer | `Math.max(toFleet.totalCargoCap, fromFleet.currentSupplies / 2f)` should likely be `min`, so a detachment can be sent more supplies than it holds (`TwoFleetCargoPicker.java:175`) |
+| Escort and intercept AI | `fleet.getCurrentAssignment().getAssignment()` without a null check, NPE when the fleet has no assignment (`EscortAssignmentAI.java:55`, `InterceptAssignmentAI.java:55`) |
+| `OrbitFocus` entities | Created on every behaviour change and never removed (inferred leak) |
 | General | Changelog_todo: "Detachments are still bugged as fuck" |
 | Marine XP | Changelog_todo: "Marine xp get wiped with detachments"; the transaction based fix is disabled with `if (false)` (`TwoFleetCargoPicker.java:75`) |
 | Crew over capacity | Changelog_todo: "Detachments eat crew that is in excess of capacity" |

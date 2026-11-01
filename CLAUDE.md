@@ -199,7 +199,22 @@ Required compile dependencies (from `IndEvo.iml` and the imports):
 - From the game's `starsector-core`: `starfarer.api.jar`, `starfarer_obf.jar` and `fs.common_obf.jar` (IE imports some obfuscated classes), `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`.
 - Mods: GraphicsLib, LazyLib and LazyLib-Kotlin (Kotlin runtime), LunaLib, MagicLib, Console Commands (`lw_Console`), Nexerelin (`ExerelinCore`), Shadowyards (`SHI`), Random Assortment of Things (`assortment_of_things`, used by the courier port).
 
-The repository has no `lib/` folder with these archives yet, so the gate runs only on the user's machine through the IntelliJ module (`IndEvo.iml`, artifact `IndEvo:jar` writing `jars/IndEvo.jar`). Until a scripted build exists, an agent without the dependencies reports the gate as not run and stops before merging runtime changes. See [ARCHITECTURE.md](docs/ARCHITECTURE.md#build).
+Dependency source: `/mnt/project-files/Libs.zip` (project files, not in the repository). It holds the game jars under `Starsector/` and the mods `GraphicsLib`, `LazyLib`, `LunaLib`, `MagicLib`, `Console Commands` (plus `PatchLib` and `SpeedUp`, which IE does not use). Extract it to a temporary directory, never into the repository.
+
+Still missing from it: Nexerelin (`ExerelinCore.jar`), Shadowyards and Random Assortment of Things jars, and a Kotlin 2.1 compiler. Without them `javac` fails only in the files that import those mods or the Kotlin classes (`ManagedDemocracyNexerelinListenerPlugin`, `PirateSubpopulationCondition`, `AmbassadorPersonManager`, `ResourceCondition`, `SalvageYards`, `ShippingContract`, `ShippingTargetHelper`, `Edict_FastBuild`, `RelicBuildTimeReductionButtonAdder`, `ModPlugin`). Until they are added, an agent reports the gate as not run and stops before merging runtime changes; IntelliJ on the user's machine (`IndEvo.iml`, artifact `IndEvo:jar`) stays the reference build. See [ARCHITECTURE.md](docs/ARCHITECTURE.md#build).
+
+Reference command (from the repository root):
+
+```sh
+L=$(mktemp -d); OUT=$(mktemp -d)
+unzip -q /mnt/project-files/Libs.zip -d "$L"
+CP=$(find "$L" -name '*.jar' ! -name '*-sources.jar' | tr '\n' ':')
+find jars/src -name '*.java' -o -name '*.kt' | grep -v -e WIP/converters/ -e exploration/WIP/ -e specials/WIP/ -e itemAbilities/WIP/ -e rules/WIP/ -e industry/WIP/ -e exploration/distress/ -e warehouses/plugin/wi/ > "$OUT/srcs.txt"
+kotlinc -jvm-target 17 -cp "$CP" -d "$OUT" $(cat "$OUT/srcs.txt")
+javac --release 17 -encoding UTF-8 -cp "$CP:$OUT" -d "$OUT" $(grep '\.java$' "$OUT/srcs.txt")
+```
+
+The `grep -v` patterns match the existing `excludeFolder` entries in `IndEvo.iml`; update both together.
 
 ## Repository navigation
 
