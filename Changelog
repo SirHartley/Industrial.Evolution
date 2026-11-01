@@ -129,6 +129,9 @@ Salvage Specials
 Fixed - Ship factory salvage special no longer offers the flagship or story ships for sacrifice
 Fixed - Credit stash ambush no longer flags the player fleet for low reputation impact
 
+Derelict Stations
+Fixed - IE derelict stations no longer spawn in systems that already have a vanilla station
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 

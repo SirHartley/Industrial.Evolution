@@ -58,6 +58,7 @@ Order: `onNewGameAfterEconomyLoad -> DerelictStationPlacer.init -> IndEvo_Salvag
 
 Placement:
 
+- Systems with markets, core themes or a vanilla mining, research or habitat station (`getCustomEntityType`, `:88-97`) are skipped.
 - Lab: vanilla `BaseThemeGenerator.getLocations` with weights 5 each for small nebula, gas giant orbit, near star, L point, in ring; marks the orbited planet used.
 - Arsenal: `pickCommonLocation(random, system, 100, true, null)`. If minefields are enabled and the location is `PLANET_ORBIT`, the condition `IndEvo_mineFieldCondition` is added to the orbited planet's market (or the parent planet if the focus is a moon) and `addMineField()` is called directly (`:143-157`).
 - Pet center: `pickCommonLocation(random, system, 100, false, null)`.
@@ -73,7 +74,6 @@ Placement:
 
 | Item | State |
 |---|---|
-| "skip systems that already have stations" (`:88-97`) | Checks `token.getId()` against entity type ids; ids are generated, so (inferred) this never skips |
 | `addArsenalStation` | NPE at `:143` if `pickCommonLocation` returns null (`loc.type`); `addDerelictPetCenter` returns true even when no location was found, consuming budget |
 | `addDebugStation`, `addStationToFirstPlanet` | Dev helpers, no caller in the codebase |
 | `ADDITIONAL_STATION_AMT` | Static, overwritten from settings on each `init` |

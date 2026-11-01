@@ -87,10 +87,10 @@ public class DerelictStationPlacer {
 
             //skip any systems that already have stations
             for (SectorEntityToken token : s.getEntitiesWithTag("salvageable")) {
-                String id = token.getId();
-                if (id.equals(Entities.STATION_MINING) ||
-                        id.equals(Entities.STATION_RESEARCH) ||
-                        id.equals(Entities.ORBITAL_HABITAT)) {
+                String id = token.getCustomEntityType();
+                if (Entities.STATION_MINING.equals(id) ||
+                        Entities.STATION_RESEARCH.equals(id) ||
+                        Entities.ORBITAL_HABITAT.equals(id)) {
                     hasStations = true;
                     break;
                 }
