@@ -127,6 +127,7 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 
 - `CloudPainter` swaps the vanilla shield for this industry ([World Wonders](WORLD_WONDER.md)). `getId()` returns `planetaryshield`, so `Market.hasIndustry` and `getIndustry`, which match on `Industry.getId()` (skill `obf/campaign/econ/Market.java:200-218`), treat it as the vanilla shield.
 - Option "Change Shield Visuals" cycles market tags FULL -> LOW -> NONE; `apply` uses vanilla texture, the IE translucent texture, or no shield visuals.
+- A market with none of the three tags gets one from `getDefaultTag()`: NONE if `IndEvo_CPShieldRemove`, else LOW if `IndEvo_CPShieldOverride`, else FULL. Markets that already carry a tag keep it.
 
 ### SharedSubmarketUser
 

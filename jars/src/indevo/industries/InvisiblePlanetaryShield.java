@@ -9,6 +9,7 @@ import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PlanetaryShield;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import indevo.utils.helper.Settings;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
 import java.awt.*;
@@ -64,17 +65,22 @@ public class InvisiblePlanetaryShield extends PlanetaryShield {
         super.apply(false);
 
         if (isFunctional()) {
+            if (!market.hasTag(TAG_FULL) && !market.hasTag(TAG_LOW) && !market.hasTag(TAG_NONE)) market.addTag(getDefaultTag());
+
             if (market.hasTag(TAG_FULL)) {
                 applyVisuals(market.getPlanetEntity());
             } else if (market.hasTag(TAG_LOW)) {
                 applyAlternateVisuals(market.getPlanetEntity());
-            } else if (market.hasTag(TAG_NONE)) {
-                PlanetaryShield.unapplyVisuals(market.getPlanetEntity());
             } else {
-                market.addTag(TAG_FULL);
-                applyVisuals(market.getPlanetEntity());
+                PlanetaryShield.unapplyVisuals(market.getPlanetEntity());
             }
         }
+    }
+
+    public static String getDefaultTag() {
+        if (Settings.getBoolean(Settings.CLOUD_PAINTER_SHIELD_REMOVE)) return TAG_NONE;
+        if (Settings.getBoolean(Settings.CLOUD_PAINTER_SHIELD_OVERRIDE)) return TAG_LOW;
+        return TAG_FULL;
     }
 
     @Override

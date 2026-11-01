@@ -35,7 +35,7 @@ All wonders share `WorldWonder`: +10 immigration (independent faction), monthly 
 | Sprites | category `IndEvo`, keys `palace_light_2`, `kadur_megachurch` (CSV `data` column) | `data/config/settings.json:327-328` |
 | List | `IndEvo_cloudList` -> `graphics/clouds/clouds.csv` (`Ids.CLOUD_LIST`) | `data/config/settings.json:225` |
 | List | `IndEvo_treeList` -> `data/config/indEvo/world_tree_whitelist.csv` (`Ids.TREE_LIST`): `jungle`, `terran`, `terran-eccentric` | `data/config/settings.json:227` |
-| Settings | `IndEvo_CPShieldRemove`, `IndEvo_CPShieldOverride` | `data/config/LunaSettings.csv:175-176`; constants in `indevo/utils/helper/Settings.java:113-114`, never read |
+| Settings | `IndEvo_CPShieldRemove`, `IndEvo_CPShieldOverride` | `data/config/LunaSettings.csv:175-176`; constants in `indevo/utils/helper/Settings.java:113-114`, read by `InvisiblePlanetaryShield.getDefaultTag` ([Small industries](SMALL_INDUSTRIES.md)) |
 
 The `parent_item` / `sub_item` tags group the wonders under one build list entry (inferred from the tags). Five wonders are in `ruins_industry_whitelist.csv:22-26`, so [Ruined Infrastructure](RUINED_INFRASTRUCTURE.md) can restore into them.
 
@@ -81,7 +81,6 @@ Chain: `WorldWonder.apply -> system tag IndEvo_hasWonder -> addCondition(IndEvo_
 | Item | State |
 |---|---|
 | `$IndEvo_alternateWonderVisual` | read in `getCurrentImage`, never set; dormant |
-| `IndEvo_CPShieldRemove`, `IndEvo_CPShieldOverride` | LunaLib settings with no reader; shield visuals are chosen by market tags instead (see [Small industries](SMALL_INDUSTRIES.md)) |
 | `WorldWonder.reportEconomyTick`, `upgradeFinished` | empty |
 | Open issue | `Changelog_todo:33`: "World Wonder stability application is wonky and should be handled through a condition instead" |
 
