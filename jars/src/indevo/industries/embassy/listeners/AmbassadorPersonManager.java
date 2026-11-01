@@ -293,7 +293,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
         for (CommDirectoryEntryAPI dir : market.getCommDirectory().getEntriesCopy()) {
             if (dir.getType() != CommDirectoryEntryAPI.EntryType.PERSON) continue;
             PersonAPI person = (PersonAPI) dir.getEntryData();
-            if (person.getPostId().equals(AmbassadorItemHelper.POST_AMBASSADOR))
+            if (AmbassadorItemHelper.POST_AMBASSADOR.equals(person.getPostId()))
                 return person;
         }
         return null;
