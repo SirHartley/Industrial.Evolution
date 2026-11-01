@@ -41,7 +41,7 @@ Outside the package: `indevo/items/specialitemdata/AmbassadorItemData.java`, `in
 | Sector memory | `$IndEvo_HAE_ScriptCleanupDone` | dead script only |
 | Person | rank `factionRep`, post `ambassador`, tag `amb_<originMarketId>` | `AmbassadorPersonManager.createAmbassador()` (`:340`) |
 | Fleet memory | `$IndEvo_bountyHunter`, `$IndEvo_himOrHer`, `$IndEvo_name`, `$IndEvo_theFaction` | `AmbassadorMurderConsequences.java:146` |
-| Rules | `IndEvo_ambassadorGreeting*`, `IndEvo_ambassadorHire*`, `IndEvo_ambassadorNoFreeEmbassy`, `IndEvo_ambassadorConfirm`, `IndEvo_ambassadorMenu`, `IndEvo_ambassadorRemove1..6`, `IndEvo_ambassadorRemovalConfirm`, `IndEvo_ambMoveOption`, `IndEvo_amb(Stop)SabotageRep(_confirm)`, `IndEvo_convEnd(Polite)`, `IndEvo_bountyHunterHail`, `IndEvo_bountyHunterText` | `data/campaign/rules.csv` block `# Embassy`, `# Ambassador Murdered` |
+| Rules | `IndEvo_ambassadorGreeting*`, `IndEvo_ambassadorHire*`, `IndEvo_ambassadorNoFreeEmbassy`, `IndEvo_ambassadorConfirm`, `IndEvo_ambassadorMenu`, `IndEvo_ambassadorMenuSabotage` and `IndEvo_ambassadorMenuStopSabotage` (sabotage toggle by `$global.IndEvo_HAASabotage`), `IndEvo_ambassadorRemove1..6`, `IndEvo_ambassadorRemovalConfirm`, `IndEvo_ambMoveOption`, `IndEvo_amb(Stop)SabotageRep(_confirm)`, `IndEvo_convEnd(Polite)`, `IndEvo_bountyHunterHail`, `IndEvo_bountyHunterText` | `data/campaign/rules.csv` block `# Embassy`, `# Ambassador Murdered` |
 | Strings | `IndEvo_embassy`, `IndEvo_AmbassadorItem` sections | `data/strings/strings.json:171`, `:69` |
 | Sprites | `IndEvo/amb_pers`, `amb_heg`, `amb_tt`, `amb_church`, `amb_sind`, `amb_mod`, `IndEvo/reputation` | `data/config/settings.json:330-335`, picked in `Embassy.getCurrentImage()` |
 
@@ -103,8 +103,7 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:47`): `findAmba
 | Item | State |
 |---|---|
 | `HostileActivityEventSubRegisterScript` | `@Deprecated`, not registered anywhere: dead |
-| `IndEvo_ambStopSabotageRep` | Unreachable: `IndEvo_ambassadorMenu` only offers `IndEvo_ambSabotageRep`, so sabotage cannot be turned off |
-| Blank rules row after `#END IndEvo PlayerMarketAmbassadorDialogue` | Row with empty id and script `$global.IndEvo_HAASabotage = true` (`rules.csv:680-682`) |
+| Blank rules row after `#END IndEvo PlayerMarketAmbassadorDialogue` | Row with empty id and script `$global.IndEvo_HAASabotage = true` (`rules.csv:681-683`) |
 | HA match for Luddic Church | `LuddicChurchHostileActivityFactor.getNameForThreatList()` returns "Knights of Ludd" (`api/impl/campaign/intel/events/LuddicChurchHostileActivityFactor.java:103`), faction name is "Luddic Church": Church ambassadors never affect HA |
 | HA tooltip cap | Shows `BASE_MAX_RELATION` 40 even with beta core cap 55 (`HAAmbassadorEventFactor.java:59`) |
 | `IndEvo_playerHasFreeEmbassy` | `hasListener(AmbassadorItemTrackerPlugin.class)` passes a `Class` to the instance check (`:30`), always false: ambassadors in transit are never counted |

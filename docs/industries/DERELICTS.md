@@ -58,7 +58,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Setting | `IndEvo_hullForge_autoQueueShipsUntilEmpty`, `IndEvo_hullForge_autoDeliverToClosestLab`, `IndEvo_hullForge_days_*` (5/10/15/20) | `data/config/LunaSettings.csv:144-149` |
 | Setting | `IndEvo_ToggleMagicRandomSelector` (settings.json only) | `data/config/settings.json:234`, read at `HullForge.java:287,463` |
 | Config | `IndEvo_labList` -> `data/config/indEvo/lab_commodity_whitelist.csv` | `data/config/settings.json:226` |
-| Rules | `IndEvo_RiftGenTargetOptions`, `IndEvo_RiftTarget_*`, `IndEvo_FireBaseRGOptionList`, `IndEvo_RiftControlMenuPoint*` | `data/campaign/rules.csv:843-921` |
+| Rules | `IndEvo_RiftGenTargetOptions`, `IndEvo_RiftTarget_*`, `IndEvo_FireBaseRGOptionList`, `IndEvo_RiftControlMenuPoint*` | `data/campaign/rules.csv:845-923` |
 | Strings | `IndEvo_HullDecon`, `IndEvo_HullForge` AI core text | `data/strings/strings.json:270,279` |
 
 Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `IndEvo_EmptForgeTemplate`) live in [Installables](../items/INSTALLABLES.md). Settings mechanics: [Settings](../core/SETTINGS.md).

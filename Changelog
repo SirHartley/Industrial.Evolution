@@ -59,6 +59,9 @@ Fixed - Rift Generator crash when only one core system is left as a target
 Fixed - Two ruins planets in one system no longer roll the same derelict industry
 Fixed - Ring terrain around a planet moved by the Rift Generator no longer stays behind in the old system
 
+Embassy
+Fixed - Ambassadors can now be asked to stop sabotaging hostile activity
+
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
 

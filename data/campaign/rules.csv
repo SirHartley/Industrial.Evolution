@@ -623,8 +623,9 @@ IndEvo_marketIsPlayerOwned
 
 Hello, $playerName. Don't mind me, please, I'm just packing my things and will be gone within a day.",IndEvo_convEndPolite:Leave,
 IndEvo_ambassadorMenu,IndEvo_AmbassadorMenu,,,,"1:IndEvo_ambassadorRemove:Dismiss $personName from $hisOrHer duties.
-2:IndEvo_ambSabotageRep:Request adjustments to $hisOrHer political strategy
 3:IndEvo_convEndPolite:Leave",
+IndEvo_ambassadorMenuSabotage,IndEvo_AmbassadorMenu,!$global.IndEvo_HAASabotage,,,2:IndEvo_ambSabotageRep:Request adjustments to $hisOrHer political strategy,
+IndEvo_ambassadorMenuStopSabotage,IndEvo_AmbassadorMenu,$global.IndEvo_HAASabotage,,,2:IndEvo_ambStopSabotageRep:Request a return to $hisOrHer usual political strategy,
 IndEvo_showAmbassadorMenu,DialogOptionSelected,$option == IndEvo_showAmbassadorMenu,"ShowPersonVisual
 FireAll IndEvo_AmbassadorMenu
 ",,,
@@ -671,11 +672,11 @@ $HeOrShe pauses for a second.
 ""And I'll need some R&R after this.""","IndEvo_ambStopSabotageRep_confirm: Confirm
 IndEvo_showAmbassadorMenu: On second thought...",
 IndEvo_ambSabotageRep_confirm,DialogOptionSelected,$option == IndEvo_ambSabotageRep_confirm,"ShowPersonVisual
-FireAll IndEvo_AmbassadorMenu
-$global.IndEvo_HAASabotage = true","""Done! Anything else?""",,
+$global.IndEvo_HAASabotage = true
+FireAll IndEvo_AmbassadorMenu","""Done! Anything else?""",,
 IndEvo_ambStopSabotageRep_confirm,DialogOptionSelected,$option == IndEvo_ambStopSabotageRep_confirm,"ShowPersonVisual
-FireAll IndEvo_AmbassadorMenu
-$global.IndEvo_HAASabotage = false","""Done! Anything else?""",,
+$global.IndEvo_HAASabotage = false
+FireAll IndEvo_AmbassadorMenu","""Done! Anything else?""",,
 #END IndEvo PlayerMarketAmbassadorDialogue,,,,,,
 ,,,"ShowPersonVisual
 FireAll IndEvo_AmbassadorMenu
