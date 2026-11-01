@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.MarketConditionSpecAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.loading.Description;
@@ -146,6 +147,9 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
         if (!current.isInit()) current.init(this);
 
         nameOverride = current.getName();
+
+        // 4.1.b left the managed democracy size cap behind after a switch
+        if (!(current instanceof HelldiversSubIndustry)) market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).unmodify("helldivers");
 
         if(Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE)){
             superApply();

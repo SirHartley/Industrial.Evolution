@@ -364,7 +364,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         market.getStats().getDynamic().getMod(Stats.PATROL_NUM_LIGHT_MOD).unmodifyFlat(id);
         market.getStats().getDynamic().getMod(Stats.PATROL_NUM_MEDIUM_MOD).unmodifyFlat(id);
         market.getStats().getDynamic().getMod(Stats.PATROL_NUM_HEAVY_MOD).unmodifyFlat(id);
-        market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).unmodify(id);
+        market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).unmodify(getId());
 
         Global.getSector().getListenerManager().removeListener(this);
 
