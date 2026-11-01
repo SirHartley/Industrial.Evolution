@@ -1,6 +1,6 @@
 # Settings
 
-How IE reads player settings and config files: LunaLib settings, `settings.json` keys, and the whitelist and blacklist CSVs. Read it before adding, renaming or reading a setting. The settings each feature uses are listed in that feature's doc; this guide owns the mechanism, not the values. A move to a typed, cached model is proposed in [SETTINGS_REWORK.md](SETTINGS_REWORK.md).
+How IE reads player settings and config files: LunaLib settings, `settings.json` keys, and the whitelist and blacklist CSVs. Read it before adding, renaming or reading a setting. The settings each feature uses are listed in that feature's doc; this guide owns the mechanism, not the values. A move to a typed, cached model is planned in [SETTINGS_REWORK.md](SETTINGS_REWORK.md).
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`.
 
