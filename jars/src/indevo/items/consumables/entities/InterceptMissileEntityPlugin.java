@@ -53,9 +53,9 @@ public class InterceptMissileEntityPlugin extends BaseMissileEntityPlugin {
 
             SectorEntityToken.VisibilityLevel vis = other.getVisibilityLevelToPlayerFleet();
 
+            other.addScript(new InterdictionMineAbility.GoSlowScript(other, STUN_SECONDS));
             if (vis == SectorEntityToken.VisibilityLevel.COMPOSITION_AND_FACTION_DETAILS ||
                 vis == SectorEntityToken.VisibilityLevel.COMPOSITION_DETAILS) {
-                other.addScript(new InterdictionMineAbility.GoSlowScript(other, STUN_SECONDS));
                 other.addFloatingText("Slowed & Interdict! (" + (int) Math.round(INTERDICT_SECONDS) + "s)", getTrailColour(), 2f, true);
             }
 

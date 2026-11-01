@@ -146,7 +146,7 @@ NPCs: `FleetConsumableInventoryManager` gives spawned fleets the missile abiliti
 | NPC missile AI | `ExplosiveMissileAbilityAI` unreferenced, `if(true) return` at `:59`; `MissileAIReactionManager.reportFleetUsedMissile` `if (true) return` at `:68`; `reportFleetHitByMissile` is a stub. NPC inventories are never used |
 | `BaseConsumableAbilityPlugin.java:66` | Result of `hasItemOfType` discarded; NPC amount always 0 |
 | `OnClickAbilityInputListener.java:29` | Persistent `addListener(this)` is removed only on the key abort path; each fired missile leaves a dead listener in the save |
-| `InterceptMissileEntityPlugin.java:56`, `:105-106` | GoSlow hits visible fleets only; sets `angle` instead of `currentAngle` |
+| `InterceptMissileEntityPlugin.java:105-106` | Sets `angle` instead of `currentAngle`; harmless, the missile is finishing after `onExplosion` |
 | `SpooferAbilityPlugin.java:93` | Render dead (`\|\| true`) |
 | `SpooferItemKeypressListener` | Left calls `nextFaction`, right `prevFaction`; reacts to arrows whenever no dialog is open |
 | `BeaconConsumableItemPlugin.java:14` | Render returns at once |

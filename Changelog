@@ -147,6 +147,7 @@ Fixed - Chaff cloud tooltip shows the real slowdown values
 Fixed - Fuel scoop crash in starless nebula systems; it now draws from the closest star
 Fixed - Slipstream Catapult shows its Abyss warning only in the Abyss
 Fixed - Tech Locator rates caches, stations and ship wrecks by their actual value
+Fixed - Interceptor missile stuns every fleet caught in the blast, not only fleets you can see in detail
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
