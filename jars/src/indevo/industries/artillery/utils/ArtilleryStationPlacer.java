@@ -18,6 +18,7 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantSeededFleetManag
 import com.fs.starfarer.api.impl.campaign.terrain.RingSystemTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
@@ -25,21 +26,19 @@ import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import indevo.items.consumables.listeners.LocatorSystemRatingUpdater;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Settings;
 
 import java.util.List;
 import java.util.Random;
 
 import static indevo.industries.artillery.scripts.ArtilleryStationScript.SCRIPT_KEY;
 import static indevo.industries.artillery.scripts.ArtilleryStationScript.TYPE_KEY;
-import static indevo.utils.helper.Settings.ARTILLERY_STARS_PER_STATION;
 
 public class ArtilleryStationPlacer {
 
     public static void placeCoreWorldArtilleries() {
 
         if (Global.getSector().getEconomy().getMarket("culann") == null
-                || !Settings.getBoolean(Settings.ENABLE_ARTILLERY)
+                || !Setting.ENABLE_ARTILLERY.enabled()
                 || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedArtilleries")) return;
 
         MarketAPI m = Global.getSector().getEconomy().getMarket("eochu_bres");
@@ -64,7 +63,7 @@ public class ArtilleryStationPlacer {
     }
 
     public static void placeDerelictArtilleries() {
-        if (!Settings.getBoolean(Settings.ENABLE_ARTILLERY) || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedDerelictArtilleries"))
+        if (!Setting.ENABLE_ARTILLERY.enabled() || Global.getSector().getMemoryWithoutUpdate().contains("$IndEvo_placedDerelictArtilleries"))
             return;
 
         int currentCount = 0;
@@ -83,7 +82,7 @@ public class ArtilleryStationPlacer {
             Constellation c = s.getConstellation();
 
             if (c != null){
-                int starsPerStation = Settings.getInt(ARTILLERY_STARS_PER_STATION);
+                int starsPerStation = Setting.ARTILLERY_STARS_PER_STATION.intValue();
                 int constellationStationCount = 0;
 
                 float sysAmt = c.getSystems().size();
@@ -112,7 +111,7 @@ public class ArtilleryStationPlacer {
 
                 float planetMod = baseMod;
                 planetMod += TechMining.getTechMiningRuinSizeModifier(p.getMarket()) * 0.1f;
-                planetMod *= Settings.getFloat(Settings.ARTILLERY_SPAWN_WEIGHT);
+                planetMod *= Setting.ARTILLERY_SPAWN_WEIGHT.value();
 
                 if (r.nextFloat() < planetMod) {
                     if (hasRemnantStation) p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, ArtilleryStationEntityPlugin.TYPE_MISSILE);

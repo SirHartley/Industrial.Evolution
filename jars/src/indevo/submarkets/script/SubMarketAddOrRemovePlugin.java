@@ -8,11 +8,11 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.submarkets.DynamicSubmarket;
 import indevo.submarkets.impl.SharedSubmarketPlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 
 //what the fuck is this trash script
 //update 2025: what the fuck
@@ -53,7 +53,7 @@ public class SubMarketAddOrRemovePlugin implements EveryFrameScript {
         switch (submarketID) {
             case Ids.PETMARKET:
                 id = Ids.PETMARKET;
-                if ((!market.hasIndustry(Ids.PET_STORE) || !Settings.getBoolean(Settings.PETS)) && market.hasSubmarket(id)) {
+                if ((!market.hasIndustry(Ids.PET_STORE) || !Setting.PETS.enabled()) && market.hasSubmarket(id)) {
                     removeSubmarket(id, false);
                     break;
                 }

@@ -18,6 +18,7 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.relay.condition.RelayConditionPlugin;
 import indevo.industries.relay.listener.RelayNetworkBrain;
@@ -25,7 +26,6 @@ import indevo.industries.relay.plugins.NetworkEntry;
 import indevo.items.consumables.scripts.DelayedActionScriptRunWhilePaused;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 import indevo.utils.scripts.EntityRemovalScript;
@@ -303,13 +303,13 @@ public class MilitaryRelay extends MilitaryBase {
 
     @Override
     public boolean isAvailableToBuild() {
-        boolean setting = Settings.getBoolean(Settings.COMARRAY);
+        boolean setting = Setting.COMARRAY.enabled();
         boolean hasMBOrHC = isFunctionAllowed();
         return super.isAvailableToBuild() && setting && hasMBOrHC;
     }
 
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.COMARRAY);
+        return Setting.COMARRAY.enabled();
     }
 
     @Override

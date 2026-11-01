@@ -14,11 +14,11 @@ import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryAPI;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.io.IOException;
@@ -151,7 +151,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
         // 4.1.b left the managed democracy size cap behind after a switch
         if (!(current instanceof HelldiversSubIndustry)) market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).unmodify("helldivers");
 
-        if(Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE)){
+        if(Setting.GOVERNMENT_LARP_MODE.enabled()){
             superApply();
         } else {
             current.apply();
@@ -264,13 +264,13 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
         super.addRightAfterDescriptionSection(tooltip, mode);
 
-        if (Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE)) return;
+        if (Setting.GOVERNMENT_LARP_MODE.enabled()) return;
 
         current.addRightAfterDescription(tooltip, mode);
     }
 
     public boolean canChange() {
-        return Global.getSettings().isDevMode() || (market.getSize() <= Settings.getInt(Settings.GOVERNMENT_MAX_SIZE) && !locked);
+        return Global.getSettings().isDevMode() || (market.getSize() <= Setting.GOVERNMENT_MAX_SIZE.intValue() && !locked);
     }
 
     public boolean isDefault() {
@@ -286,7 +286,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
     }
 
     public float getPatherInterest() {
-        if (Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE)) return super.getPatherInterest();
+        if (Setting.GOVERNMENT_LARP_MODE.enabled()) return super.getPatherInterest();
 
         float currentNum = current.getPatherInterest(this);
         return currentNum > 100000000f ? super.getPatherInterest() : currentNum;
@@ -305,7 +305,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
         tooltip.addSectionHeading("Governance Type", Alignment.MID, opad);
 
-        if (Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE)){
+        if (Setting.GOVERNMENT_LARP_MODE.enabled()){
             SubIndustryData sub = null;
             for (SubIndustryData s : industryList) {if (s.newInstance().isBase()) sub = s; break;} //meh
             if (sub != null) tooltip.addPara(Global.getSettings().getDescription(sub.descriptionID, Description.Type.CUSTOM).getText2(), opad);
@@ -316,7 +316,7 @@ public class SwitchablePopulation extends PopulationAndInfrastructure implements
 
         if (current instanceof OutpostSubIndustry) tooltip.addPara("An Anchorage can always be changed to a different government style.", opad);
         else if(canChange()) tooltip.addPara("Changing the government style is only possible until %s and becomes permanent after %s.", opad, Misc.getHighlightColor(),
-                "colony size " + Settings.getInt(Settings.GOVERNMENT_MAX_SIZE),
+                "colony size " + Setting.GOVERNMENT_MAX_SIZE.intValue(),
                 DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(DAYS_TO_LOCK));
 
         if (!isDefault() && !locked && !(current instanceof OutpostSubIndustry)) {

@@ -11,6 +11,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.entities.MeteorEntity;
 import indevo.exploration.meteor.helper.MeteorFactory;
@@ -23,7 +24,6 @@ import indevo.exploration.meteor.terrain.RadioactiveTerrain;
 import indevo.ids.Ids;
 import indevo.utils.helper.CircularArc;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.awt.*;
@@ -178,7 +178,7 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
         picker.add(Entities.ORBITAL_HABITAT);
         picker.add(Entities.STATION_MINING);
         picker.add(Ids.ARSENAL_ENTITY);
-        if (Settings.getBoolean(Settings.PETS)) picker.add(Ids.ABANDONED_PETSHOP_ENTITY);
+        if (Setting.PETS.enabled()) picker.add(Ids.ABANDONED_PETSHOP_ENTITY);
 
         String stationType = picker.pick();
         SectorEntityToken station = planet.getContainingLocation().addCustomEntity(null, "Dust-covered " +

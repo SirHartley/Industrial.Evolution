@@ -8,10 +8,10 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
+import indevo.config.Setting;
 import indevo.ids.ItemIds;
 import indevo.industries.derelicts.industry.HullForge;
 import indevo.items.ForgeTemplateItemPlugin;
-import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -121,7 +121,7 @@ public class PrintShipSpecial extends BaseSalvageSpecial {
     private void initHullPicker() {
         List<FleetMemberAPI> fleetMemberList = getForgeTemplateFleetMemberList();
 
-        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
+        int shipsPerRow = Setting.SHIP_PICKER_ROW_COUNT.intValue();
         int rows = fleetMemberList.size() > shipsPerRow ? (int) Math.ceil(fleetMemberList.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(fleetMemberList.size(), shipsPerRow);
         cols = Math.max(cols, 4);

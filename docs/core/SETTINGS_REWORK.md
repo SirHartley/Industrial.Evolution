@@ -173,7 +173,7 @@ Each stage depends on the stages before it. Within a stage, do the subtasks in o
   - Done when: values match the old reads; a Save in the campaign settings menu updates the cache (dev log line).
 
 **Stage 1: typed reads and correct data.**
-- [ ] 1.1 Replace the 235 `Settings.getX(Settings.NAME)` calls with `Setting.NAME.enabled()`, `value()` or `intValue()`; delete `indevo/utils/helper/Settings.java`. Two reads use the wrong type today and get the matching read: `SY_PART_VALUE_MULT` (Double, default 1.2) goes through `getInt` and truncates to 1 (`IndEvo_InitSYCustomProductionDiag.java:73`); `ARTILLERY_STARS_PER_STATION` (Double) goes through `getInt` (`ArtilleryStationPlacer.java:86`). Done when: `grep -rn 'Settings\.get' jars/src` finds only `Global.getSettings()` calls.
+- [x] 1.1 Replace the 231 `Settings.getX(Settings.NAME)` calls with `Setting.NAME.enabled()`, `value()` or `intValue()`; delete `indevo/utils/helper/Settings.java`. Two reads used the wrong type: `SY_PART_VALUE_MULT` (Double, default 1.2) went through `getInt` and truncated to 1, now `value()` (`IndEvo_InitSYCustomProductionDiag.java:73`); `ARTILLERY_STARS_PER_STATION` (Double) is a count and keeps `intValue()` (`ArtilleryStationPlacer.java:85`). Done when: `grep -rn 'Settings\.get' jars/src` finds only `Global.getSettings()` calls.
 - [ ] 1.2 Explicit bounds for the 21 rows (decision 4), plain numbers for `IndEvo_courier_costPerLyMult`; `Setting` mirrors them.
   - Done when: the courier base fee slider reaches 1000.
 - [ ] 1.3 Pair rule in `PlayerSettings`.

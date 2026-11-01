@@ -11,9 +11,9 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySp
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.abilities.splitfleet.FleetUtils;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
-import indevo.utils.helper.Settings;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +25,9 @@ public class ShipComponentLootManager {
         Global.getLogger(ShipComponentLootManager.class).info(Text);
     }
 
-    public static float MIN_FLEET_POINT_ADVANTAGE_FOR_DROP = Settings.getFloat(Settings.RELIC_COMPONENT_HARD_BATTLE_FP_ADVANTAGE);
+    public static float MIN_FLEET_POINT_ADVANTAGE_FOR_DROP = Setting.RELIC_COMPONENT_HARD_BATTLE_FP_ADVANTAGE.value();
     public static float HARD_BATTLE_FP_TO_PARTS_RATION = 0.3f;
-    public static float FP_DESTROYED_FRACTION = Settings.getFloat(Settings.RELIC_COMPONENT_FP_DESTROYED_FRACT);
+    public static float FP_DESTROYED_FRACTION = Setting.RELIC_COMPONENT_FP_DESTROYED_FRACT.value();
 
     public static final Map<String, Float> RARE_PARTS_FACTIONS_AND_WEIGHTS = new HashMap<String, Float>() {{
         put(Factions.OMEGA, 0.5f);
@@ -66,7 +66,7 @@ public class ShipComponentLootManager {
                 fleet.getCargo().addCommodity(ItemIds.RARE_PARTS, amt);
             }
 
-            if (Settings.getBoolean(Settings.PARTS_DROP_IN_CAMPAIGN) && Settings.getBoolean(Settings.SCRAPYARD)) {
+            if (Setting.PARTS_DROP_IN_CAMPAIGN.enabled() && Setting.SCRAPYARD.enabled()) {
                 int amt = (int) Math.round(fp * 0.5f + (0.4 * random.nextFloat() * fp));
                 fleet.getCargo().addCommodity(ItemIds.PARTS, amt);
             }
@@ -80,7 +80,7 @@ public class ShipComponentLootManager {
 
         @Override
         public void reportAboutToShowLootToPlayer(CargoAPI loot, InteractionDialogAPI dialog) {
-            if (Settings.getBoolean(Settings.PARTS_DROP_IN_CAMPAIGN) && Settings.getBoolean(Settings.SCRAPYARD)) {
+            if (Setting.PARTS_DROP_IN_CAMPAIGN.enabled() && Setting.SCRAPYARD.enabled()) {
                 if (Entities.WRECK.equals(dialog.getInteractionTarget().getCustomEntityType())) {
                     DerelictShipEntityPlugin plugin = (DerelictShipEntityPlugin) dialog.getInteractionTarget().getCustomPlugin();
                     ShipRecoverySpecial.PerShipData shipData = plugin.getData().ship;

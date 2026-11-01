@@ -35,7 +35,7 @@ IE adds four admin only skills, tagged `npc_only`, so they never show in the pla
 
 - Skills load from `data/characters/skills/*.skill`; each has one `GOVERNED_OUTPOST` effect whose `script` names the inner class (`indevo.abilities.skills.FleetLogistics$Market1` etc.).
 - Admins get them through vanilla `OfficerManagerEvent.createAdmin`, which picks from every `isAdminSkill()` skill that is not deprecated, `player_only` or `ai_core_only` (`api/impl/campaign/events/OfficerManagerEvent.java:322`). `npc_only` only hides them from the player tree (`api/util/SkillData.java:56`).
-- `ModPlugin.setListenersIfNeeded` -> `AdminGovernTimeTracker.getInstanceOrRegister()` (`ModPlugin.java:472`, deduped by `hasListenerOfClass`), persistent.
+- `ModPlugin.setListenersIfNeeded` -> `AdminGovernTimeTracker.getInstanceOrRegister()` (`ModPlugin.java:482`, deduped by `hasListenerOfClass`), persistent.
 - `MicromanagementRemoteItemPatch` is a `@Patch` class; PatchLib installs it when the option menu class loads ([Patches](../ARCHITECTURE.md#patches)).
 
 ## Flow

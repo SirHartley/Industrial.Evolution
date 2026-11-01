@@ -78,14 +78,14 @@ Times in days. The ability tags drive targeting: `indevo_missile` enables hotkey
 
 | Hook | What |
 |---|---|
-| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin:141-152`) | Loads the nanites texture for the codex |
+| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin:133-144`) | Loads the nanites texture for the codex |
 | `onGameLoad:171`, `onNewGameAfterEconomyLoad:312` | `LocatorSystemRatingUpdater.updateAllSystems()` |
 | `onGameLoad:202` | Resets `MissileActivationManager` |
-| `ModPlugin:466` | `LocatorSystemRatingUpdater`, transient |
-| `ModPlugin:467` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
-| `ModPlugin:468` | `ConsumableItemMarketAdder`, transient |
-| `ModPlugin:498`, `beforeGameSave:342` | `OnKeyPressAbilityInputListener.getInstanceOrRegister()`; reset before save |
-| `ModPlugin:499` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
+| `ModPlugin:476` | `LocatorSystemRatingUpdater`, transient |
+| `ModPlugin:477` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
+| `ModPlugin:478` | `ConsumableItemMarketAdder`, transient |
+| `ModPlugin:508`, `beforeGameSave:338` | `OnKeyPressAbilityInputListener.getInstanceOrRegister()`; reset before save |
+| `ModPlugin:509` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
 | each load | `SpooferItemKeypressListener` registered |
 
 `ListenerManager.addListener(Object)` is the persistent variant (`obf/campaign/ListenerManager.java:25-33` in the starsector-knowledge skill), so any listener added without `true` is saved with the game.

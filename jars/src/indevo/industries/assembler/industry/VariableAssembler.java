@@ -13,11 +13,11 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.installable.VPCInstallableItemPlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -196,11 +196,11 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.getBoolean(Settings.ADASSEM);
+        return Setting.ADASSEM.enabled();
     }
 
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.ADASSEM);
+        return Setting.ADASSEM.enabled();
     }
 
     private void applyOutputReduction() {
@@ -250,7 +250,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
             CargoAPI cargo;
 
-            if (Settings.getBoolean(Settings.VARIND_DELIVER_TO_PRODUCTION_POINT) && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
+            if (Setting.VARIND_DELIVER_TO_PRODUCTION_POINT.enabled() && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
                 cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo();
             } else if (MiscIE.getStorageCargo(market) != null) {
                 cargo = MiscIE.getStorageCargo(market);

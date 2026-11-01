@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`.
 
 ## Overview
 
-Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSettings` caches them; callers read them through `indevo.utils.helper.Settings`, which looks up the `indevo.config.Setting` constant by id. Static config (whitelists, production amounts, sprite keys, rule command packages) lives in `data/config/settings.json` and `data/config/indEvo/*.csv`. Caching is covered under [Reading a setting](#reading-a-setting) and [Whitelists](#whitelists).
+Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSettings` caches them; callers read them through the `indevo.config.Setting` constants. Static config (whitelists, production amounts, sprite keys, rule command packages) lives in `data/config/settings.json` and `data/config/indEvo/*.csv`. Caching is covered under [Reading a setting](#reading-a-setting) and [Whitelists](#whitelists).
 
 ## Files
 
@@ -14,7 +14,6 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 |---|---|
 | `indevo/config/Setting.java` | One constant per LunaLib field (150): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`; `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
 | `indevo/config/PlayerSettings.java` | Cache: `install`, `reload`, LunaLib listener, write back |
-| `indevo/utils/helper/Settings.java` | One `public static final String` per field id and `getBoolean`, `getFloat`, `getInt`, which read the cache through `Setting.byId` |
 | `data/config/LunaSettings.csv` | LunaLib fields: id, label, type, default, help text (`fieldDescription`), bounds, tab |
 | `data/config/LunaSettingsConfig.json` | LunaLib mod entry: settings menu icon `graphics/icons/IndEvo.png` |
 | `data/config/settings.json` | Non-player config, sprite keys, `ruleCommandPackages`, `designTypeColors` |
@@ -34,28 +33,27 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 | Consumable Items | 5 | `IndEvo_consumables_*` |
 | Industries | 98 | One enable toggle per industry (`IndEvo_AdManuf`, `IndEvo_embassy`, ...) plus per industry tuning |
 
-Field counts include `Header` and `Text` rows. Every `Settings` constant has a LunaLib row; the rows without a constant are headers and text.
+Field counts include `Header` and `Text` rows. Every `Setting` constant has a LunaLib row; the rows without a constant are headers and text.
 
 ### Reading a setting
 
 ```java
-if (!Settings.getBoolean(Settings.EMBASSY)) return;
+if (!Setting.EMBASSY.enabled()) return;
 ```
 
-- `Settings.getX(id)` returns `Setting.byId(id).enabled()`, `value()` or `intValue()` (`Settings.java:163` to `173`). An unknown id throws `IllegalArgumentException`. `intValue()` truncates a `DOUBLE` value, as LunaLib's `getInt` did.
+- `enabled()` for `BOOLEAN`, `value()` (float) for `DOUBLE`, `intValue()` for `INT`. `intValue()` on a `DOUBLE` truncates. `Setting.byId(id)` throws `IllegalArgumentException` for an unknown id.
 - `PlayerSettings.install()` runs first in `ModPlugin.onApplicationLoad` and `onGameLoad`: it adds the listener once (`hasSettingsListenerOfClass`) and reloads. `onNewGame` reloads too: LunaLib calls no listener for a Save in the new game settings panel (`LunaSettingsUIModsPanel`, `if (!this.newGame)`), but stores it in `LunaSettingsLoader.getSettings()`.
 - `reload()` forces LunaLib's lazy load, reads `LunaSettingsLoader.getSettings().get("IndEvo")`, runs `Setting.sanitize` on every field (missing or wrong type gives the CSV default, numbers clamp to `min`/`max`, `INT` rounds), writes changed values back and calls `save()`. Rows without CSV bounds have infinite bounds in `Setting` for now. With no LunaLib data it logs an error and uses the defaults. In dev mode it logs `Reloaded IndEvo settings`.
 - The listener reloads on every Save in the LunaLib menu, in the campaign and on the title screen, so a value read at use time applies on the next read. LunaLib logs listener exceptions at debug level only, so `settingsChanged` logs them with `log.error`. A dev mode F8 reload runs no listener (`onDevModeF8Reload`); the cache catches up on the next hook or Save.
-- 16 classes copy settings into `static final` fields at class load (64 fields; `grep -rn 'static final .*= *Settings\.get' jars/src`), for example `MuseumConstants`, `CampaignAttackScript`, `MeteorSwarmManager`, `ShippingCostCalculator`. Those settings apply only after a game restart. Prefer reading at use time in new code; do not read in a per frame loop where a daily check works.
+- 16 classes copy settings into `static final` fields at class load (64 fields; `grep -rn 'static final .*= *Setting\.' jars/src`), for example `MuseumConstants`, `CampaignAttackScript`, `MeteorSwarmManager`, `ShippingCostCalculator`. Those settings apply only after a game restart. Prefer reading at use time in new code; do not read in a per frame loop where a daily check works.
 - Industry toggles are read in each industry's `isAvailableToBuild()` and `showWhenUnavailable()` (example: `indevo/industries/embassy/industry/Embassy.java:95`, `:105`). A disabled industry stays on markets that already have it.
 
 ### Adding a setting
 
 1. Add the row to `LunaSettings.csv` in the right tab, with `defaultValue`, `minValue`, `maxValue` and the help text in `fieldDescription`. Help text is player-facing.
-2. Add the constant to `Settings.java`, value equal to `fieldID`, prefix `IndEvo_`.
-3. Add the `Setting` constant with the same id, type, default and bounds as the row.
-4. Read it through `Settings.getX`. Do not call `LunaSettings` or `Global.getSettings()` directly for a LunaLib field.
-5. Add the key to the feature doc's Data and ids table.
+2. Add the `Setting` constant with the same `fieldID` (prefix `IndEvo_`), type, default and bounds as the row.
+3. Read it through the constant. Do not call `LunaSettings` or `Global.getSettings()` directly for a LunaLib field.
+4. Add the key to the feature doc's Data and ids table.
 
 ## settings.json
 
@@ -96,7 +94,7 @@ The feature column is the main consumer; the feature doc is the owner of how the
 
 ## Contracts
 
-- LunaLib field ids have no `settings.json` value. Do not add one: `Settings` never reads it.
+- LunaLib field ids have no `settings.json` value. Do not add one: `PlayerSettings` never reads it.
 - `Ids` reads the whitelist paths from `settings.json` in static initializers, so `Ids` must not be loaded before settings are available (any time after application load is fine).
 
 ## Maintenance

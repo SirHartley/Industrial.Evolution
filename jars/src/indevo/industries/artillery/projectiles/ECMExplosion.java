@@ -15,9 +15,9 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -26,8 +26,8 @@ import java.awt.*;
 import static indevo.items.consumables.entityAbilities.InterdictionMineAbility.getInterdictSeconds;
 
 public class ECMExplosion extends BaseCustomEntityPlugin {
-    public static final float DURATION = Settings.getFloat(Settings.ARTILLERY_MISSILE_DURATION);
-    public static final float BASE_RADIUS = Settings.getFloat(Settings.ARTILLERY_MISSILE_EXPLOSION_RADIUS);
+    public static final float DURATION = Setting.ARTILLERY_MISSILE_DURATION.value();
+    public static final float BASE_RADIUS = Setting.ARTILLERY_MISSILE_EXPLOSION_RADIUS.value();
 
     public static final float RAMPUP_DUR_FRACT = 0.1f;
     public static final float PX_PER_PARTICLE = 100f;

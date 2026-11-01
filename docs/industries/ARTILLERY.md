@@ -37,7 +37,7 @@ Some planets carry the `IndEvo_ArtilleryStationCondition` condition and a statio
 | `indevo/industries/artillery/utils/FleetBasedArtilleryStationPlacer.java` | Older fleet-as-station variant. Dead |
 | `indevo/industries/artillery/hullmods/MagicInvisibator.java` | Hullmod `IndEvo_magicInvisibator`: hides the deco module ship and kills it on the first combat frame |
 
-Combat side, linked only: `data/scripts/weapons/IndEvo_targetingBeamEffect.java` (railgun `everyFrameEffect`), `IndEvo_mortarProjectileOnFireEffect.java`, `IndEvo_missileProjectileOnFireEffect.java`, `ai/IndEvo_mortarProjectileAI.java`, `ai/IndEvo_missileProjectileAI.java`, `combatEntities/IndEvo_CombatSlowFieldTerrain.java`, `combatEntities/IndEvo_ForcedOverload.java`. The two AIs are picked in `ModPlugin.pickMissileAI` (`indevo/utils/ModPlugin.java:386`). See [Combat](../core/COMBAT.md).
+Combat side, linked only: `data/scripts/weapons/IndEvo_targetingBeamEffect.java` (railgun `everyFrameEffect`), `IndEvo_mortarProjectileOnFireEffect.java`, `IndEvo_missileProjectileOnFireEffect.java`, `ai/IndEvo_mortarProjectileAI.java`, `ai/IndEvo_missileProjectileAI.java`, `combatEntities/IndEvo_CombatSlowFieldTerrain.java`, `combatEntities/IndEvo_ForcedOverload.java`. The two AIs are picked in `ModPlugin.pickMissileAI` (`indevo/utils/ModPlugin.java:396`). See [Combat](../core/COMBAT.md).
 
 ## Data and ids
 
@@ -59,8 +59,8 @@ Combat side, linked only: `data/scripts/weapons/IndEvo_targetingBeamEffect.java`
 | Memory, fleets | `$IndEvo_WasSeenByOtherEntity` (seen), `$IndEvo_ForcedTarget`, `$IndEvo_FORCE` (forced target expiry), `$ArtyReaction_<id>`, `$RailReaction_<id>` | `EyeIndicatorScript.java:19`, `CampaignAttackScript.java:44-45`, `MortarProjectileEntityPlugin.java:152`, `RailgunProjectileEntityPlugin.java:117` |
 | Memory, watchtower | `$IndEvo_isArtilleryActive` (AI artillery present, blocks hack/control in rules) | `WatchtowerEntityPlugin.java:36` |
 | Memory, system | `$IndEvo_SystemDisableWatchtowers` (read, never written) | `Ids.java:32` |
-| Memory, sector | `$IndEvo_placedArtilleries`, `$IndEvo_placedDerelictArtilleries` (run-once guards), `$IndEvo_EyeScript` | `ArtilleryStationPlacer.java:43, 67`, `EyeIndicatorScript.java:18` |
-| Settings | `IndEvo_Enable_Artillery`, `IndEvo_Artillery_spawnWeight`, `IndEvo_Artillery_starsPerStationInConstellation`, `IndEvo_Watchtower_faction_reset`, `IndEvo_Artillery_min/maxDelayBetweenShots`, `IndEvo_Artillery_min/maxCooldown`, `IndEvo_Artillery_cooldownNPCMult`, `IndEvo_Artillery_min/maxRange`, `IndEvo_Artillery_WatchtowerRange`, `IndEvo_Artillery_defense_FP2`, `IndEvo_Artillery_mortar_*`, `_railgun_*`, `_missile_*` | `data/config/LunaSettings.csv:49-74`, ids in `indevo/utils/helper/Settings.java:49-72, 117`. See [Settings](../core/SETTINGS.md) |
+| Memory, sector | `$IndEvo_placedArtilleries`, `$IndEvo_placedDerelictArtilleries` (run-once guards), `$IndEvo_EyeScript` | `ArtilleryStationPlacer.java:42, 66`, `EyeIndicatorScript.java:18` |
+| Settings | `IndEvo_Enable_Artillery`, `IndEvo_Artillery_spawnWeight`, `IndEvo_Artillery_starsPerStationInConstellation`, `IndEvo_Watchtower_faction_reset`, `IndEvo_Artillery_min/maxDelayBetweenShots`, `IndEvo_Artillery_min/maxCooldown`, `IndEvo_Artillery_cooldownNPCMult`, `IndEvo_Artillery_min/maxRange`, `IndEvo_Artillery_WatchtowerRange`, `IndEvo_Artillery_defense_FP2`, `IndEvo_Artillery_mortar_*`, `_railgun_*`, `_missile_*` | `data/config/LunaSettings.csv:49-74`, constants in `indevo/config/Setting.java:45-69`. See [Settings](../core/SETTINGS.md) |
 | Rules | `IndEvo_ArtilleryInitialStation`, `IndEvo_ArtilleryCombatInteraction`, `IndEvo_ArtilleryBeatPlanet`, `IndEvo_ArtilleryBeatStation`, `IndEvo_ArtilleryDefeatPopulateOptions`, `IndEvo_ArtilleryInitialPlanet_CircumventionProtection`, `_NexEventDisabler`, `_NexOutpostDisabler`, `_RuinDisabler`; watchtower `IndEvo_derelictWatchtower_notFunctional`, `cob_hackPrompt_watchtower`, `IndEvo_derelictWatchtower_disableControlUnderAI` | `data/campaign/rules.csv:362-414`. Command package `indevo.industries.artillery.rules` in `settings.json:77` |
 | Strings | descriptions `IndEvo_Watchtower`, `IndEvo_artilleryStation`, `IndEvo_Artillery_<type>`, weapon and hull descriptions, `IndEvo_slowfield` | `data/strings/descriptions.csv` |
 | Sprites | `fx/IndEvo_eye_0..3`, `IndEvo_target`, `IndEvo_line`, `IndEvo_danger_notif`, `IndEvo_missile_target`, `IndEvo_carrier_missile`, `IndEvo_sub_missile*`, `IndEvo_trail_foggy`, `IndEvo_stream_core`; `IndEvo/invisibleHull` | `data/config/settings.json` graphics block |
@@ -69,17 +69,17 @@ Combat side, linked only: `data/scripts/weapons/IndEvo_targetingBeamEffect.java`
 
 | Hook | What |
 |---|---|
-| `ModPlugin.onNewGameAfterEconomyLoad` (`ModPlugin.java:305-306`) | `ArtilleryStationPlacer.placeDerelictArtilleries()`, then `placeCoreWorldArtilleries()`. Both guarded by sector memory, both skip if `IndEvo_Enable_Artillery` is off |
-| `ModPlugin.onGameLoad` (`ModPlugin.java:166`) | `ArtilleryStationReplacer.register()` if `newGame` (transient) |
-| `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:470`) | `WatchtowerFactionResetListener.register()` (persistent listener, class-deduped) |
-| `ModPlugin.setScriptsIfNeeded` (`ModPlugin.java:516`) | `EyeIndicatorScript.register()` (persistent sector script, guarded by `$IndEvo_EyeScript`) |
+| `ModPlugin.onNewGameAfterEconomyLoad` (`ModPlugin.java:315-316`) | `ArtilleryStationPlacer.placeDerelictArtilleries()`, then `placeCoreWorldArtilleries()`. Both guarded by sector memory, both skip if `IndEvo_Enable_Artillery` is off |
+| `ModPlugin.onGameLoad` (`ModPlugin.java:170`) | `ArtilleryStationReplacer.register()` if `newGame` (transient) |
+| `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:480`) | `WatchtowerFactionResetListener.register()` (persistent listener, class-deduped) |
+| `ModPlugin.setScriptsIfNeeded` (`ModPlugin.java:526`) | `EyeIndicatorScript.register()` (persistent sector script, guarded by `$IndEvo_EyeScript`) |
 | PatchLib | `WatchtowerStableLocationPatch`, found by PatchLib in the jar, no registration |
-| `ModPlugin.pickMissileAI` (`ModPlugin.java:386`) | Combat AI for mortar and missile projectiles |
+| `ModPlugin.pickMissileAI` (`ModPlugin.java:396`) | Combat AI for mortar and missile projectiles |
 | CSV | industry plugin column, condition plugin, entity `pluginClass`, terrain `plugin`, hullmod class |
 
-Derelict placement chain: `placeDerelictArtilleries -> addArtilleryToPlanet(planet, false) -> new ArtilleryStationScript(market)` added to the planet and stored under `$IndEvo_ArtilleryStationScript` `-> placeWatchtowers` (once per system) `-> addCondition(IndEvo_ArtilleryStationCondition)` (`ArtilleryStationPlacer.java:135-158`).
+Derelict placement chain: `placeDerelictArtilleries -> addArtilleryToPlanet(planet, false) -> new ArtilleryStationScript(market)` added to the planet and stored under `$IndEvo_ArtilleryStationScript` `-> placeWatchtowers` (once per system) `-> addCondition(IndEvo_ArtilleryStationCondition)` (`ArtilleryStationPlacer.java:134-157`).
 
-Core worlds (`ArtilleryStationPlacer.java:39-64`, only if `culann` exists): `eochu_bres` railgun with alpha core, `chicomoztoc` mortar, `kazeron` missile with gamma core, `sindria` missile. Each gets `addArtilleryToPlanet(.., true)` (script starts destroyed) plus the industry.
+Core worlds (`ArtilleryStationPlacer.java:38-63`, only if `culann` exists): `eochu_bres` railgun with alpha core, `chicomoztoc` mortar, `kazeron` missile with gamma core, `sindria` missile. Each gets `addArtilleryToPlanet(.., true)` (script starts destroyed) plus the industry.
 
 Industry chain: `ArtilleryStation.advance -> spawnStation` (first frame with no entity) `-> ArtilleryStationEntityPlugin.placeAtMarket(market, type, true) -> init -> entity.addScript(new CampaignAttackScript(entity, type))`.
 
@@ -128,7 +128,7 @@ Mortar and railgun explosions use `ExplosionFleetDamage.LOW` (`MortarProjectileE
 
 `WatchtowerEntityPlugin.advance` (`:92-123`): about once per 20 s in the player's location marks hostile NPC fleets within `IndEvo_Artillery_WatchtowerRange` as seen for 5 days and shows a range ping. Hacking (vanilla objective hack, rules row `cob_hackPrompt_watchtower`) lasts 30 to 60 days and resets the eye.
 
-Watchtowers are placed per system at each jump point, each gate, one gap per gas giant and one gap in the first star-centred ring (`ArtilleryStationPlacer.java:186-241`), discoverable if the system has no markets. When a watchtower changes hands (`reportObjectiveChangedHands`), after `IndEvo_Watchtower_faction_reset` days it reverts to the nearest artillery faction if that is derelict or remnant (`WatchtowerFactionResetListener.java:32-79`).
+Watchtowers are placed per system at each jump point, each gate, one gap per gas giant and one gap in the first star-centred ring (`ArtilleryStationPlacer.java:185-240`), discoverable if the system has no markets. When a watchtower changes hands (`reportObjectiveChangedHands`), after `IndEvo_Watchtower_faction_reset` days it reverts to the nearest artillery faction if that is derelict or remnant (`WatchtowerFactionResetListener.java:32-79`).
 
 ### Defender fight
 
@@ -141,7 +141,7 @@ Watchtowers carry the `objective` tag (`data/config/custom_entities.json`, entit
 ## Contracts
 
 - Off-screen: `CampaignAttackScript`, `ArtilleryStationScript` and watchtower logic return early outside the player's location, so the off-screen 60-frame throttle (`docs/concepts/campaign-frame.md`) does not apply. Artillery never fires off-screen.
-- All tuning constants read `Settings` in `static final` fields at class load (`CampaignAttackScript.java:28-34`, projectile classes). Inferred: changes in LunaLib need a game restart.
+- All tuning constants read `Setting` in `static final` fields at class load (`CampaignAttackScript.java:28-34`, projectile classes). Inferred: changes in LunaLib need a game restart.
 - `WatchtowerStableLocationPatch` targets `Misc` by API names only (stable). It needs PatchLib (hard dependency); without the patch watchtowers count as stable locations again.
 - Save data: `ArtilleryStationScript` (planet script and memory), `CampaignAttackScript` (entity script, target maps keyed by entity id), the industry's `stationFleet`/`stationEntity` fields, `WatchtowerFactionResetListener.watchtowerTimeoutMap`, `EyeIndicatorScript` all persist. Projectile entities persist while alive.
 - The industry and the derelict script must agree on the type: the script stores it in `$IndEvo_ArtilleryType`; the industry derives it from its id. The rebuild options come from the parent `IndEvo_Artillery_base` (`parent_item`).
@@ -155,7 +155,7 @@ Watchtowers carry the `objective` tag (`data/config/custom_entities.json`, entit
 | Item | State |
 |---|---|
 | `ArtilleryStationReplacer` | Matches `ind.getId().contains("artillery")` but ids are `IndEvo_Artillery_*` (capital A), so it never replaces anything (`ArtilleryStationReplacer.java:36`) |
-| `FleetBasedArtilleryStationPlacer`, `ArtilleryStationPlacer.ArtilleryStationInteractionConfigGen` | Dead. Only caller of `addTestArtilleryToPlanet` is commented out (`ArtilleryStationPlacer.java:120`) |
+| `FleetBasedArtilleryStationPlacer`, `ArtilleryStationPlacer.ArtilleryStationInteractionConfigGen` | Dead. Only caller of `addTestArtilleryToPlanet` is commented out (`ArtilleryStationPlacer.java:119`) |
 | `WatchtowerTerrain` | Dead, not in `terrain.json` |
 | `RenderTemporaryIndicator`, entity `IndEvo_tempIndicator` | Debug only, callers commented out |
 | `MissileSubmunitionEntity.advanceProjectileTowardsEnemy` | `@Deprecated`, unused |

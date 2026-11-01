@@ -121,6 +121,7 @@ Fixed - Salvage Yards now get salvage from blockades, punitive expeditions and h
 Fixed - Weapon salvage limit on the last capped day of the month is now exact
 Fixed - Ship contracts now take ship parts from storage instead of rare parts
 Fixed - Ship contract and D-mod transfer costs are now capped at 150% as intended; at neutral relations contracts cost 150% instead of 180%
+Fixed - The Ship Component Value Mult setting now applies; it was rounded down to a whole number, so the default 1.2 counted as 1
 
 Senate
 Fixed - Construction no longer stays at half time after the fast build edict ends

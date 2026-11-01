@@ -9,12 +9,12 @@ import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.industries.artillery.projectiles.MissileShotScript;
 import indevo.industries.artillery.projectiles.MortarShotScript;
 import indevo.industries.artillery.projectiles.RailgunShotEntity;
 import indevo.industries.artillery.terrain.ArtilleryTerrain;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Settings;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.HashMap;
@@ -25,13 +25,13 @@ import static indevo.industries.artillery.scripts.EyeIndicatorScript.WAS_SEEN_BY
 
 public class CampaignAttackScript implements EveryFrameScript {
 
-    public static final float NPC_RELOAD_FACTOR = Settings.getFloat(Settings.ARTILLERY_COOLDOWN_NPC_MULT);
-    public static final float MIN_DELAY_BETWEEN_SHOTS = Settings.getFloat(Settings.ARTILLERY_MIN_DELAY_BETWEEN_SHOTS);
-    public static final float MAX_DELAY_BETWEEN_SHOTS = Settings.getFloat(Settings.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS);
-    public static final float MIN_RELOAD_TIME = Settings.getFloat(Settings.ARTILLERY_MIN_COOLDOWN);
-    public static final float MAX_RELOAD_TIME = Settings.getFloat(Settings.ARTILLERY_MAX_COOLDOWN);
-    public static final float RANGE = Settings.getFloat(Settings.ARTILLERY_MAX_RANGE);
-    public static final float MIN_RANGE = Settings.getFloat(Settings.ARTILLERY_MIN_RANGE);
+    public static final float NPC_RELOAD_FACTOR = Setting.ARTILLERY_COOLDOWN_NPC_MULT.value();
+    public static final float MIN_DELAY_BETWEEN_SHOTS = Setting.ARTILLERY_MIN_DELAY_BETWEEN_SHOTS.value();
+    public static final float MAX_DELAY_BETWEEN_SHOTS = Setting.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS.value();
+    public static final float MIN_RELOAD_TIME = Setting.ARTILLERY_MIN_COOLDOWN.value();
+    public static final float MAX_RELOAD_TIME = Setting.ARTILLERY_MAX_COOLDOWN.value();
+    public static final float RANGE = Setting.ARTILLERY_MAX_RANGE.value();
+    public static final float MIN_RANGE = Setting.ARTILLERY_MIN_RANGE.value();
 
     //exclusions
     public static final float ARTILLERY_BLOCKOUT_RANGE = 400f;

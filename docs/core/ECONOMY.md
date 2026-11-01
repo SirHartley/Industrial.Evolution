@@ -28,9 +28,9 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad` -> `ResourceConditionApplicator.applyResourceConditionToAllMarkets()` (`indevo/utils/ModPlugin.java:154`) and `ResourceConditionApplicator.register()` (`:454`, transient listener).
+- `ModPlugin.onGameLoad` -> `ResourceConditionApplicator.applyResourceConditionToAllMarkets()` (`indevo/utils/ModPlugin.java:158`) and `ResourceConditionApplicator.register()` (`:464`, transient listener).
 - Economy tick -> `applyResourceConditionToAllMarkets()` -> `ResourceCondition.applyRessourceCond(m)` adds the condition if `m.isInEconomy()` and missing. The condition itself persists in the market.
-- `RelicBuildTimeReductionButtonAdder.register()` (`indevo/utils/ModPlugin.java:495`) adds a transient listener.
+- `RelicBuildTimeReductionButtonAdder.register()` (`indevo/utils/ModPlugin.java:505`) adds a transient listener.
 
 ## Flow
 

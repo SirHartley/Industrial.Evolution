@@ -18,13 +18,13 @@ import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.engineeringhub.industry.EngineeringHub;
 import indevo.industries.changeling.industry.population.HelldiversSubIndustry;
 import indevo.industries.changeling.industry.population.SwitchablePopulation;
 import indevo.industries.privateer.intel.PrivateerBaseRaidIntel;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.RaidTimeout;
 import org.apache.log4j.Logger;
@@ -93,7 +93,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.getBoolean(Settings.PIRATEHAVEN)
+        return Setting.PIRATEHAVEN.enabled()
                 && (Misc.getMaxIndustries(market) - Misc.getNumIndustries(market)) >= 2
                 && super.isAvailableToBuild()
                 && MiscIE.getAmountOfIndustryInSystem(getId(), market.getStarSystem(), market.getFaction()) < 2;
@@ -101,7 +101,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.PIRATEHAVEN);
+        return Setting.PIRATEHAVEN.enabled();
     }
 
     @Override
@@ -280,7 +280,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         float chanceOfExtraDrop = 0.3f + (aiCoreId != null && aiCoreId.equals(Commodities.ALPHA_CORE) ? 0.1f : 0f);
 
         CargoAPI cargo = MiscIE.getStorageCargo(market);
-        if (cargo == null || Settings.getBoolean(Settings.PRIVATEER_DELIVER_TO_GATHERING_POINT))
+        if (cargo == null || Setting.PRIVATEER_DELIVER_TO_GATHERING_POINT.enabled())
             cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket("storage").getCargo();
 
         Random random = new Random();
@@ -292,7 +292,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         // blueprints
         if (withBP) {
             WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
-            boolean raidUnknownOnly = Settings.getBoolean(Settings.RAID_FOR_UNKNOWN_ONLY);
+            boolean raidUnknownOnly = Setting.RAID_FOR_UNKNOWN_ONLY.enabled();
             for (String id : target.getFaction().getKnownShips()) {
                 if (raidUnknownOnly && playerFaction.knowsShip(id)) continue;
                 picker.add(ship + id, 1f);

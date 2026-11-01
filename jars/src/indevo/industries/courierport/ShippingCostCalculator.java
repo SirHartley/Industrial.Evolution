@@ -7,16 +7,16 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.util.Misc;
-import indevo.utils.helper.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
+import indevo.config.Setting;
 
 public class ShippingCostCalculator {
-    public static final float COST_PER_SPACE = Settings.getInt(Settings.COURIER_COST_PER_CARGO_SPACE);;
-    public static final float COST_PER_SHIP_SPACE = Settings.getInt(Settings.COURIER_COST_PER_SHIP_DP);;
-    public static final float CONTRACT_BASE_FEE = Settings.getInt(Settings.COURIER_BASE_FEE);;
-    public static final float COST_PER_LY_SETTING_MULT = Settings.getFloat(Settings.COURIER_COST_PER_LY_MULT);
+    public static final float COST_PER_SPACE = Setting.COURIER_COST_PER_CARGO_SPACE.intValue();;
+    public static final float COST_PER_SHIP_SPACE = Setting.COURIER_COST_PER_SHIP_DP.intValue();;
+    public static final float CONTRACT_BASE_FEE = Setting.COURIER_BASE_FEE.intValue();;
+    public static final float COST_PER_LY_SETTING_MULT = Setting.COURIER_COST_PER_LY_MULT.value();
     public static final float COST_PER_LY_MULT = 250f; //unaffected by setting cause hard to explain to player
 
     //AI cores

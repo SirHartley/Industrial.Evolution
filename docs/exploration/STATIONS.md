@@ -33,7 +33,7 @@ On a new game `DerelictStationPlacer` counts the vanilla salvageable stations (m
 
 ## Registration and lifecycle
 
-`ModPlugin.onNewGameAfterEconomyLoad()` (`indevo/utils/ModPlugin.java:311-312`): if `IndEvo_Enable_Derelicts`, `new DerelictStationPlacer().init()` then `new IndEvo_SalvageSpecialAssigner().init()`. The order matters: the special assigner runs over all salvageables after the stations exist, so new stations get IE specials (see [Salvage](SALVAGE.md)). Runs once per new game; nothing is stored on the placer.
+`ModPlugin.onNewGameAfterEconomyLoad()` (`indevo/utils/ModPlugin.java:321-322`): if `IndEvo_Enable_Derelicts`, `new DerelictStationPlacer().init()` then `new IndEvo_SalvageSpecialAssigner().init()`. The order matters: the special assigner runs over all salvageables after the stations exist, so new stations get IE specials (see [Salvage](SALVAGE.md)). Runs once per new game; nothing is stored on the placer.
 
 Order: `onNewGameAfterEconomyLoad -> DerelictStationPlacer.init -> IndEvo_SalvageSpecialAssigner.init -> spawnMineFields`.
 

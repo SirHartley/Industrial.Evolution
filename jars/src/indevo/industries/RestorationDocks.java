@@ -25,11 +25,11 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -94,12 +94,12 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.getBoolean(Settings.DRYDOCK);
+        return Setting.DRYDOCK.enabled();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.DRYDOCK);
+        return Setting.DRYDOCK.enabled();
     }
 
     public void reportEconomyTick(int iterIndex) {
@@ -260,16 +260,16 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
         float cost;
         switch (size) {
             case FRIGATE:
-                cost = Settings.getFloat(Settings.RESTO_FEE_FRIGATE);
+                cost = Setting.RESTO_FEE_FRIGATE.value();
                 break;
             case DESTROYER:
-                cost = Settings.getFloat(Settings.RESTO_FEE_DESTROYER);
+                cost = Setting.RESTO_FEE_DESTROYER.value();
                 break;
             case CRUISER:
-                cost = Settings.getFloat(Settings.RESTO_FEE_CRUISER);
+                cost = Setting.RESTO_FEE_CRUISER.value();
                 break;
             case CAPITAL_SHIP:
-                cost = Settings.getFloat(Settings.RESTO_FEE_CAPITAL);
+                cost = Setting.RESTO_FEE_CAPITAL.value();
                 break;
             default:
                 cost = 10000f;

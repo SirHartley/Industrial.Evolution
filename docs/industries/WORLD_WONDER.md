@@ -37,7 +37,7 @@ All wonders share `WorldWonder`: +10 immigration (independent faction), monthly 
 | Sprites | category `IndEvo`, keys `palace_light_2`, `kadur_megachurch` (CSV `data` column) | `data/config/settings.json:161-162` |
 | List | `IndEvo_cloudList` -> `graphics/clouds/clouds.csv` (`Ids.CLOUD_LIST`) | `data/config/settings.json:59` |
 | List | `IndEvo_treeList` -> `data/config/indEvo/world_tree_whitelist.csv` (`Ids.TREE_LIST`): `jungle`, `terran`, `terran-eccentric` | `data/config/settings.json:61` |
-| Settings | `IndEvo_CPShieldRemove`, `IndEvo_CPShieldOverride` | `data/config/LunaSettings.csv:172-173`; constants in `indevo/utils/helper/Settings.java:113-114`, read by `CloudPainterShieldPatch.getDefaultTag` |
+| Settings | `IndEvo_CPShieldRemove`, `IndEvo_CPShieldOverride` | `data/config/LunaSettings.csv:172-173`; constants in `indevo/config/Setting.java:141-142`, read by `CloudPainterShieldPatch.getDefaultTag` |
 | Market tags | `IndEvo_PS_FULL`, `IndEvo_PS_LOW`, `IndEvo_PS_NONE` | `CloudPainterShieldPatch` |
 | Sprite | `IndEvo` / `shield_texture` (alternate shield texture) | `data/config/settings.json:194` |
 
@@ -46,7 +46,7 @@ The `parent_item` / `sub_item` tags group the wonders under one build list entry
 ## Registration and lifecycle
 
 - CSV plugin column per row.
-- `ModPlugin.setListenersIfNeeded()`: `WorldWonderAltImageOptionProvider.register()`, `WorldWonderTexChangeOptionProvider.register()` (`ModPlugin.java:459-460`), `ShieldVisualsOptionProvider.register()` (`:488`), all transient and deduped by `hasListenerOfClass`.
+- `ModPlugin.setListenersIfNeeded()`: `WorldWonderAltImageOptionProvider.register()`, `WorldWonderTexChangeOptionProvider.register()` (`ModPlugin.java:469-470`), `ShieldVisualsOptionProvider.register()` (`:498`), all transient and deduped by `hasListenerOfClass`.
 - `CloudPainterShieldPatch` is a `@Patch` class; PatchLib installs it when `PlanetaryShield` loads ([Patches](../ARCHITECTURE.md#patches)).
 - `BaseIndustry.apply` adds the industry as transient immigration modifier because it implements `MarketImmigrationModifier` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:209`).
 - `apply()` adds the industry as transient `EconomyTickListener` (`WorldWonder.java:61`); `ListenerManager.addListener` dedupes the same instance (skill `obf/campaign/ListenerManager.java:29`). `unapply()` removes it.

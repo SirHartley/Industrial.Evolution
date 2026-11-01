@@ -13,9 +13,9 @@ import com.fs.starfarer.api.characters.SkillSpecAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.academy.industry.Academy;
-import indevo.utils.helper.Settings;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
@@ -55,7 +55,7 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
                         opts.setEnabled("IndEvo_MovePersonOption_better", Academy.isOfficerTrainingDirectionAllowed(person, Academy.trainingDirection.BETTER));
 
                         if (!market.isPlayerOwned()) {
-                            if (!Academy.playerCanAffordCost(Settings.getInt(Settings.PERSONALITY_TRAINING_COST))) {
+                            if (!Academy.playerCanAffordCost(Setting.PERSONALITY_TRAINING_COST.intValue())) {
                                 opts.setEnabled("IndEvo_MovePersonOption_better", false);
                                 opts.setTooltip("IndEvo_MovePersonOption_better", "You can't afford the training fee!");
                             }
@@ -65,7 +65,7 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
                         opts.setEnabled("IndEvo_MovePersonOption_worse", Academy.isOfficerTrainingDirectionAllowed(person, Academy.trainingDirection.WEAKER));
 
                         if (!market.isPlayerOwned()) {
-                            if (!Academy.playerCanAffordCost(Settings.getInt(Settings.PERSONALITY_TRAINING_COST))) {
+                            if (!Academy.playerCanAffordCost(Setting.PERSONALITY_TRAINING_COST.intValue())) {
                                 opts.setEnabled("IndEvo_MovePersonOption_worse", false);
                                 opts.setTooltip("IndEvo_MovePersonOption_worse", "You can't afford the training fee!");
                             }
@@ -76,7 +76,7 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
                         opts.addOption("Confirm", "IndEvo_MovePersonOption");
 
                         if (!market.isPlayerOwned()) {
-                            if (!Academy.playerCanAffordCost(Settings.getInt(Settings.ADMIN_TRAINING_COST))) {
+                            if (!Academy.playerCanAffordCost(Setting.ADMIN_TRAINING_COST.intValue())) {
                                 opts.setEnabled("IndEvo_MovePersonOption", false);
                                 opts.setTooltip("IndEvo_MovePersonOption", "You can't afford the training fee!");
                             }
@@ -171,7 +171,7 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
                         text.highlightInLastPara(hl, "administrator skill");
 
                         if (isNotPlayerOwned) {
-                            String cost = Misc.getDGSCredits(Settings.getInt(Settings.ADMIN_TRAINING_COST));
+                            String cost = Misc.getDGSCredits(Setting.ADMIN_TRAINING_COST.intValue());
                             String time = Math.round(academy.getAdminTrainingDays() / 31f) + "";
 
                             text.addParagraph("This will cost " + cost + " and take " + time + " months.");
@@ -191,7 +191,7 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
                         text.highlightInLastPara(hl, "officer personality");
 
                         if (isNotPlayerOwned) {
-                            String cost = Misc.getDGSCredits(Settings.getInt(Settings.PERSONALITY_TRAINING_COST));
+                            String cost = Misc.getDGSCredits(Setting.PERSONALITY_TRAINING_COST.intValue());
                             String time = Math.round(academy.getOfficerTrainingDays() / 31f) + "";
 
                             text.addParagraph("This will cost " + cost + " and take " + time + " months.");
@@ -215,7 +215,7 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
                 break;
             case STORE:
                 if (isNotPlayerOwned) {
-                    String cost = Misc.getDGSCredits(Settings.getInt(Settings.MONTHLY_AI_STORAGE_COST)) + " per month";
+                    String cost = Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue()) + " per month";
                     text.addParagraph("Storing this person here will incur a flat cost of " + cost + " in addition to the usual reduced salary.");
                     text.highlightInLastPara(hl, cost);
                 } else {

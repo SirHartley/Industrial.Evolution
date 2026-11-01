@@ -14,9 +14,9 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGener
 import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
-import indevo.utils.helper.Settings;
 import org.lazywizard.lazylib.MathUtils;
 
 import static indevo.industries.artillery.scripts.EyeIndicatorScript.WAS_SEEN_BY_HOSTILE_ENTITY;
@@ -32,7 +32,7 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     you go do that future me
     */
 
-    public static final float RANGE = Settings.getFloat(Settings.ARTILLERY_WATCHTOWER_RANGE);
+    public static final float RANGE = Setting.ARTILLERY_WATCHTOWER_RANGE.value();
     public static final String MEM_SENSOR_LOCK_ACTIVE = "$IndEvo_isArtilleryActive";
     public static float PINGS_PER_SECOND = 0.05f;
     public static float WATCHTOWER_FLEET_SEEN_DURATION_DAYS = 5f;

@@ -29,6 +29,7 @@ import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.config.PlayerSettings;
+import indevo.config.Setting;
 import indevo.dialogue.beacons.dialogue.BeaconDialogueListener;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.dialogue.research.listeners.*;
@@ -89,7 +90,6 @@ import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.items.listeners.ShipComponentLootManager;
 import indevo.items.listeners.SpecialItemDropsListener;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.timers.RaidTimeout;
 import indevo.utils.timers.TimeTracker;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
@@ -170,7 +170,7 @@ public class ModPlugin extends BaseModPlugin {
         if (newGame) ArtilleryStationReplacer.register();
 
         //pets
-        if (Settings.getBoolean(Settings.PETS)){
+        if (Setting.PETS.enabled()){
             if (!Global.getSector().getPlayerFleet().hasAbility("pet_management")){
                 Global.getSector().getPlayerFleet().addAbility("pet_management");
                 Global.getSector().getCharacterData().addAbility("pet_management");
@@ -318,7 +318,7 @@ public class ModPlugin extends BaseModPlugin {
         //CrucibleSpawner.spawn();
         createAcademyMarket();
 
-        if (Settings.getBoolean(Settings.ENABLE_DERELICTS)) {
+        if (Setting.ENABLE_DERELICTS.enabled()) {
             new DerelictStationPlacer().init();
             new IndEvo_SalvageSpecialAssigner().init();
         }
@@ -368,7 +368,7 @@ public class ModPlugin extends BaseModPlugin {
     }
 
     protected void restoreRemovedEntities() {
-        if (!Settings.getBoolean(Settings.ENABLE_MINEFIELDS)) return;
+        if (!Setting.ENABLE_MINEFIELDS.enabled()) return;
 
         for (SectorEntityToken mine : mines.keySet()) {
             mines.get(mine).addEntity(mine);
@@ -377,7 +377,7 @@ public class ModPlugin extends BaseModPlugin {
     }
 
     public void spawnMineFields() {
-        if (Global.getSector().getEconomy().getMarket("culann") == null || !Settings.getBoolean(Settings.ENABLE_MINEFIELDS))
+        if (Global.getSector().getEconomy().getMarket("culann") == null || !Setting.ENABLE_MINEFIELDS.enabled())
             return;
 
         MarketAPI m = Global.getSector().getEconomy().getMarket("culann");

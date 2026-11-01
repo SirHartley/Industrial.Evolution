@@ -22,13 +22,13 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.museum.data.MuseumConstants;
 import indevo.industries.museum.data.ParadeFleetProfile;
 import indevo.submarkets.RemovablePlayerSubmarketPluginAPI;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.lazywizard.lazylib.MathUtils;
 
@@ -132,12 +132,12 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && Settings.getBoolean(Settings.MUSEUM_ENABLED);
+        return super.isAvailableToBuild() && Setting.MUSEUM_ENABLED.enabled();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.MUSEUM_ENABLED);
+        return Setting.MUSEUM_ENABLED.enabled();
     }
 
     public void setFlyParades(boolean flyParades) {

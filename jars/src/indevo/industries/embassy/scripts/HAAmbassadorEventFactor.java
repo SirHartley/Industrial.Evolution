@@ -9,10 +9,10 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.events.*;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.embassy.industry.Embassy;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.lazywizard.lazylib.MathUtils;
 
@@ -70,7 +70,7 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
 
     @Override
     public boolean shouldShow(BaseEventIntel intel) {
-        return Settings.getBoolean(Settings.EMBASSY) || Global.getSettings().isDevMode();
+        return Setting.EMBASSY.enabled() || Global.getSettings().isDevMode();
     }
 
     public int getProgress(BaseEventIntel intel) {

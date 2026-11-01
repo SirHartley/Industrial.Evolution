@@ -11,6 +11,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.DelayedActionScript;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.exploration.meteor.intel.MeteorShowerLocationIntel;
 import indevo.exploration.meteor.scripts.TutorialEncounterScript;
 import indevo.exploration.meteor.spawners.*;
@@ -41,24 +42,24 @@ public class MeteorSwarmManager implements EconomyTickListener {
     public static final String MEM_TIMEOUT = "$IndEvo_MeteorTimeout";
 
     //parameter
-    public static final boolean ENABLED = Settings.getBoolean(Settings.METEOR_ENABLED);
-    public static final float BASE_CHANCE_PER_ECONOMY_TICK = Settings.getFloat(Settings.METEOR_BASE_CHANCE_PER_ECONOMY_TICK);
-    public static final float MIN_INTENSITY = Settings.getFloat(Settings.METEOR_MIN_INTENSITY);
-    public static final float MAX_INTENSITY = Settings.getFloat(Settings.METEOR_MAX_INTENSITY);
-    public static final float BASE_SHOWER_WIDTH = Settings.getFloat(Settings.METEOR_BASE_SHOWER_WIDTH);
-    public static final float INTENSITY_WIDTH_MODIFIER = Settings.getFloat(Settings.METEOR_INTENSITY_WIDTH_MODIFIER);
-    public static final float MAX_DENSITY = Settings.getFloat(Settings.METEOR_MAX_DENSITY);
-    public static final float MAX_RUNTIME_MULT = Settings.getFloat(Settings.METEOR_MAX_RUNTIME_MULT);
-    public static final float BASE_RUNTIME = Settings.getFloat(Settings.METEOR_BASE_RUNTIME);
-    public static final float LOCATION_TIMEOUT_AFTER_SPAWN_DAYS = Settings.getFloat(Settings.METEOR_LOCATION_TIMEOUT_AFTER_SPAWN_DAYS);
-    public static final float GENERAL_TIMEOUT_AFTER_SPAWN_DAYS = Settings.getFloat(Settings.METEOR_GENERAL_TIMEOUT_AFTER_SPAWN_DAYS);
+    public static final boolean ENABLED = Setting.METEOR_ENABLED.enabled();
+    public static final float BASE_CHANCE_PER_ECONOMY_TICK = Setting.METEOR_BASE_CHANCE_PER_ECONOMY_TICK.value();
+    public static final float MIN_INTENSITY = Setting.METEOR_MIN_INTENSITY.value();
+    public static final float MAX_INTENSITY = Setting.METEOR_MAX_INTENSITY.value();
+    public static final float BASE_SHOWER_WIDTH = Setting.METEOR_BASE_SHOWER_WIDTH.value();
+    public static final float INTENSITY_WIDTH_MODIFIER = Setting.METEOR_INTENSITY_WIDTH_MODIFIER.value();
+    public static final float MAX_DENSITY = Setting.METEOR_MAX_DENSITY.value();
+    public static final float MAX_RUNTIME_MULT = Setting.METEOR_MAX_RUNTIME_MULT.value();
+    public static final float BASE_RUNTIME = Setting.METEOR_BASE_RUNTIME.value();
+    public static final float LOCATION_TIMEOUT_AFTER_SPAWN_DAYS = Setting.METEOR_LOCATION_TIMEOUT_AFTER_SPAWN_DAYS.value();
+    public static final float GENERAL_TIMEOUT_AFTER_SPAWN_DAYS = Setting.METEOR_GENERAL_TIMEOUT_AFTER_SPAWN_DAYS.value();
 
     //position
-    private static final float GRID_LIMIT = Settings.getFloat(Settings.METEOR_GRID_LIMIT);
-    public static final float MAX_DISTANCE_FROM_SUN = Settings.getFloat(Settings.METEOR_MAX_DISTANCE_FROM_SUN);
-    public static final float MIN_DISTANCE_FROM_SUN = Settings.getFloat(Settings.METEOR_MIN_DISTANCE_FROM_SUN);
-    public static final float MAX_ANGLE = Settings.getFloat(Settings.METEOR_MAX_ANGLE);
-    public static final float MIN_ANGLE = Settings.getFloat(Settings.METEOR_MIN_ANGLE);
+    private static final float GRID_LIMIT = Setting.METEOR_GRID_LIMIT.value();
+    public static final float MAX_DISTANCE_FROM_SUN = Setting.METEOR_MAX_DISTANCE_FROM_SUN.value();
+    public static final float MIN_DISTANCE_FROM_SUN = Setting.METEOR_MIN_DISTANCE_FROM_SUN.value();
+    public static final float MAX_ANGLE = Setting.METEOR_MAX_ANGLE.value();
+    public static final float MIN_ANGLE = Setting.METEOR_MIN_ANGLE.value();
 
 
     public static class MeteorShowerData {
@@ -182,7 +183,7 @@ public class MeteorSwarmManager implements EconomyTickListener {
             case PLANETOID -> new PlanetoidSwarmSpawner((StarSystemAPI) loc, arc, runtime, random.nextLong(), density, lootAmt);
         };
 
-        boolean immediateMode = Settings.getBoolean(Settings.METEOR_IMMEDIATE_MODE);
+        boolean immediateMode = Setting.METEOR_IMMEDIATE_MODE.enabled();
         int daysLeft = immediateMode ? 0 : Math.max(2, random.nextInt(6));
 
         loc.addScript(new DelayedActionScript(daysLeft) {

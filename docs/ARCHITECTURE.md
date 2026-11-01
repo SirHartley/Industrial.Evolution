@@ -69,7 +69,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | Anything that happens once per day | `TimeTracker.advance -> onNewDay -> NewDayListener.onNewDay` ([UTILS](core/UTILS.md)) |
 | Something missing after load, or registered twice | `ModPlugin.onGameLoad -> setListenersIfNeeded / setScriptsIfNeeded` ([below](#registration-and-lifecycle)) |
 | Content missing in a new game (ruins, artillery, stations, minefields, gacha) | `ModPlugin.onNewGameAfterEconomyLoad` chain ([below](#registration-and-lifecycle)) |
-| An industry not buildable | Industry `isAvailableToBuild()` -> its `Settings` toggle ([SETTINGS](core/SETTINGS.md)) -> feature doc |
+| An industry not buildable | Industry `isAvailableToBuild()` -> its `Setting` toggle ([SETTINGS](core/SETTINGS.md)) -> feature doc |
 | A colony option or menu missing | `*OptionProvider.register()` -> rules `IndEvo_FireBase*OptionList` ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
 | A special item does nothing | `SpecialItemEffectsRepo.ITEM_EFFECTS` or the industry's `getInstallableItems()` ([INSTALLABLES](items/INSTALLABLES.md)); consumables: `ItemAbilityHelper.ID_MAP` ([CONSUMABLES](items/CONSUMABLES.md)) |
 | A storage or submarket wrong or not removed | `SubMarketAddOrRemovePlugin` ([SUBMARKETS](core/SUBMARKETS.md)) -> feature doc |
@@ -227,7 +227,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 | Meteor | `MissileMemFlags.MEM_CAUGHT_BY_MISSILE` from consumables; spawns lab, arsenal and pet center stations | `MeteorEntity.java:71` |
 | Stations | Arsenal stations add the minefield condition | `DerelictStationPlacer.java:143-157` |
 | Crucible | Artillery `VariableExplosionEntityPlugin`; `TAG_ENABLED` read by a utils renderer | [CRUCIBLE](exploration/CRUCIBLE.md) |
-| Research (Navi) | Unlocks fairy pet sales | `ModPlugin.java:175` |
+| Research (Navi) | Unlocks fairy pet sales | `ModPlugin.java:179` |
 | Beacons, scoop, smoke cloud, mine belt | Split fleet `OrbitFocus` entity | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | `other/legioNuclearOption` | Research `RefitUIOpenChecker` | [MISC](core/MISC.md) |
 | `$IndEvo_ruinsIndustryId` | Read by supercomputer, `LocatorSystemRatingUpdater`, `ModUpdater` | [DERELICTS](industries/DERELICTS.md) |
@@ -242,7 +242,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 
 | Component | State | Doc |
 |---|---|---|
-| Crucible | Spawner commented out (`ModPlugin.java:222`, `:308`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
+| Crucible | Spawner commented out (`ModPlugin.java:226`, `:318`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
 | Distress calls, ghost ships | Excluded, does not compile; hullmod rows and rules still load | [DISTRESS](exploration/DISTRESS.md) |
 | Mobile colony | Compiled and its campaign plugin registered (`:507`), never created | [WIP](core/WIP.md) |
 | Converters | Excluded, does not compile | [WIP](core/WIP.md) |
@@ -251,7 +251,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 | Detachment V3 AI, DELIVER mode, `PlayerFleetFollower` | Stub or unregistered | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | `indevo/other` | Unregistered except the nuclear option checker | [MISC](core/MISC.md) |
 | `compatibility/TechTree`, `ModUpdater` | No references | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md), [UTILS](core/UTILS.md) |
-| `devActions()` | Disabled (`&& false`, `ModPlugin.java:147`) | This file |
+| `devActions()` | Disabled (`&& false`, `ModPlugin.java:151`) | This file |
 
 Each feature doc lists its own dormant classes and suspected bugs under Known issues.
 

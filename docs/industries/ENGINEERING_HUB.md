@@ -36,7 +36,7 @@ Neighbours used: `indevo/industries/SharedSubmarketUser.java` (base class), `ind
 
 - Industry plugin from `industries.csv`. While functional and player owned, `apply()` adds the hub as a transient listener; `TimeTracker` then calls `onNewDay` ([Utils](../core/UTILS.md)). `unapply()` removes it (`EngineeringHub.java:67-101`).
 - `advance()` adds `IndEvo_EngStorage` and the shared storage through `SubMarketAddOrRemovePlugin` while functional; `unapply()` queues their removal (`:79-101`).
-- `ModPlugin.loadTransientMemory()` warms the `IndEvo_reverseList` cache (`indevo/utils/ModPlugin.java:426`).
+- `ModPlugin.loadTransientMemory()` warms the `IndEvo_reverseList` cache (`indevo/utils/ModPlugin.java:436`).
 - `ModUpdater` keeps `currentDeconShipVar` across an industry replacement on mod update (`indevo/utils/update/ModUpdater.java:94,136`).
 
 Daily chain: `TimeTracker -> EngineeringHub.onNewDay -> (idle) initDeconstruction | (done) addProgressToList + message | daysPassed++ -> for first hull at >= 1.0: relic payment or consumeMatchingSpecial -> deliverReverseEngineered -> storeMapInMemory`.

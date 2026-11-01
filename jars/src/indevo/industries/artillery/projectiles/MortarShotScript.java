@@ -3,8 +3,8 @@ package indevo.industries.artillery.projectiles;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Settings;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -15,10 +15,10 @@ import static java.lang.Math.*;
 
 public class MortarShotScript implements EveryFrameScript {
 
-    public static final float AVERAGE_PROJ_IMPACT_TIME = Settings.getFloat(Settings.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME);
+    public static final float AVERAGE_PROJ_IMPACT_TIME = Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value();
     public static final float MIN_TARGET_RADIUS = 250f;
     public static final float MAX_TARGET_RADIUS = 700f;
-    public static final int DEFAULT_PROJECTILE_AMT = Settings.getInt(Settings.ARTILLERY_MORTAR_PROJECTILES_PER_SHOT);
+    public static final int DEFAULT_PROJECTILE_AMT = Setting.ARTILLERY_MORTAR_PROJECTILES_PER_SHOT.intValue();
 
     public SectorEntityToken target;
     public SectorEntityToken origin;

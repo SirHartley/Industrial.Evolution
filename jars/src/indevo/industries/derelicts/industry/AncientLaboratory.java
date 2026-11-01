@@ -12,12 +12,12 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.EmptyForgeTemplateItemPlugin;
 import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -268,7 +268,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
     }
 
     private boolean repairInstalledFT() {
-        if (Settings.getBoolean(Settings.RESLAB_AUTO_DELIVER_TO_CLOSEST_DECON)) {
+        if (Setting.RESLAB_AUTO_DELIVER_TO_CLOSEST_DECON.enabled()) {
             MarketAPI target = MiscIE.getClosestMarketWithIndustry(market, Ids.DECONSTRUCTOR);
 
             if (target != null) {
@@ -281,7 +281,7 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
             }
         }
 
-        boolean toStorage = !Settings.getBoolean(Settings.DERELICT_DELIVER_TO_GATHERING);
+        boolean toStorage = !Setting.DERELICT_DELIVER_TO_GATHERING.enabled();
 
         MarketAPI gather = MiscIE.getMarketForStorage(market);
         MarketAPI target = toStorage ? market : gather;
