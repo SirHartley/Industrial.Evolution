@@ -329,7 +329,7 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
 
                 } else {
                     // otherwise, pick a random one from the list as target
-                    target = targetList.get(new Random().nextInt(targetList.size() - 1));
+                    target = targetList.get(new Random().nextInt(targetList.size()));
                 }
 
                 range *= 0.8f;
@@ -338,7 +338,7 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
             case RANDOM:
             default:
                 //target a random system
-                target = systemList.get(new Random().nextInt(systemList.size() - 1));
+                target = systemList.get(new Random().nextInt(systemList.size()));
 
                 //increase the range for lols
                 range *= 1.3f;
