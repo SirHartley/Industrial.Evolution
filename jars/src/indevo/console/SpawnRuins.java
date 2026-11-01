@@ -89,6 +89,7 @@ public class SpawnRuins implements BaseCommand {
                                 Console.showMessage(Ids.COND_RUINS.toLowerCase() + " found on " + p.getName() + " (" + p.getTypeId() + ") in " + s.getName());
                                 amount++;
                             }
+                            break;
                         case 2:
                             r = new Random();
                             if (r.nextFloat() < (mod / 3f)) {

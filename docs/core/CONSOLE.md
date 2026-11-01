@@ -50,7 +50,6 @@ To add a command:
 
 | Item | State |
 |---|---|
-| `SpawnRuins` (`indevo/console/SpawnRuins.java:85`) | `case 1` has no `break`, so the first ruined planet also rolls the second planet chance (suspected bug; `RuinsManager` uses a `break`) |
 | `SpawnRuins` | Does not call `RuinsManager` seeding or upgrade spec setup, only adds the condition (inferred from `industries/derelicts/utils/RuinsManager.java:152`) |
 | `SpawnStation` (`indevo/console/SpawnStation.java:67`) | Casts the location to `StarSystemAPI`; in hyperspace this is a `ClassCastException` (suspected) |
 | `SpawnStation` | Error text lists only mining, habitat, research |
