@@ -26,6 +26,7 @@ Museum
 Fixed - Parade fleet stability bonus no longer stacks
 Adjusted - Unique ships (Ziggy, MK1) are always max value
 Adjusted - Non-purchasable ships have higher value (PR'd by abel1502, thank you!)
+Fixed - The Museum setting now controls the Museum instead of following the meteor shower setting
 
 Relays
 Fixed - The infamous relay size bug (it was my fault after all!)

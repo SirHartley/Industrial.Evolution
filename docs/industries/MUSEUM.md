@@ -35,7 +35,7 @@ On player markets the Museum adds a hidden ship storage submarket (`IndEvo_Museu
 | Market tag | `indEvo_on_parade` on the parade target market | `ParadeFleetProfile.spawnFleet()` |
 | Fleet tag | `indEvo_parade_returning` after recall | `ParadeFleetAssignmentAI.forceReturnToSource()` |
 | Settings | `IndEvo_museum_maxAdditionalCredits` 1950, `_minAdditionalCredits` 50, `_defaultMaxParades` 1, `_defaultParadeMembersMax` 15, `_minShipsForParade` 3, `_topShipPoolAmtForParadeSelection` 20, `_paradeFleetImmigrationBonus` 5, `_paradeFleetStabilityBonus` 1, `_improveExtraParades` 1, `_alphaCoreExtraParades` 1, `_betaCoreIncomePerStability` 20000, `_betaCoreIncomePerPointImmigration` 3000, `_gammaCoreIncomeMult` 1.3, `_uniqueShipValueMult` 2 | `data/config/LunaSettings.csv:178-192`. No `settings.json` fallback |
-| Setting | `IndEvo_museum_enabled` | `LunaSettings.csv:102`, not read (see issues) |
+| Setting | `IndEvo_museum_enabled` | `LunaSettings.csv:102`; read at use time in `Museum.isAvailableToBuild()` and `showWhenUnavailable()` (`Museum.java:134`, `:139`) |
 | Setting | `IndEvo_shipPickerRowCount` | ship picker layout |
 
 ## Registration and lifecycle
@@ -85,7 +85,6 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> fill profiles -> pic
 
 | Item | State |
 |---|---|
-| `MuseumConstants.MUSEUM_ENABLED` | Reads `Settings.METEOR_ENABLED` (`MuseumConstants.java:9`), not `IndEvo_museum_enabled`: the museum toggle follows the meteor toggle |
 | Parade duration | `paradeOrbitTimeDays` from the profile is stored but unused; orbit is always 31 days (`ParadeFleetAssignmentAI.java:63-66`) |
 | `notifyBeingRemoved()` | Does not remove the submarket; NPEs when `submarket` is null (`Museum.java:341`). `advance()` calls it every frame once the market is no longer player owned (`:127`). Changelog_todo: "museum storage doesn't remove properly", "museum storage gets placed before building complete" |
 | Profile growth | `reportEconomyTick()` adds one new profile per month while enabled profiles < max (`:99`), so disabled profiles pile up |

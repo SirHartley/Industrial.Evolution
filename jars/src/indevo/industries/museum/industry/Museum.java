@@ -131,12 +131,12 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && MuseumConstants.MUSEUM_ENABLED;
+        return super.isAvailableToBuild() && Settings.getBoolean(Settings.MUSEUM_ENABLED);
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return MuseumConstants.MUSEUM_ENABLED;
+        return Settings.getBoolean(Settings.MUSEUM_ENABLED);
     }
 
     public void setFlyParades(boolean flyParades) {
