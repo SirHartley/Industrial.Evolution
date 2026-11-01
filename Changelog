@@ -6,6 +6,7 @@ Fixed - Super weird crash for an industry with a null spec (https://fractalsoftw
 
 Research Projects
 Fixed - Now sorts highest to lowest progress like intended
+Fixed - Galatia Academy posts the Prospector new project notice after a reload
 
 Minefields
 Added - Setting to adjust interdict disable time

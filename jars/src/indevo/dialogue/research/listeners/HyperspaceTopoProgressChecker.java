@@ -12,7 +12,7 @@ public class HyperspaceTopoProgressChecker implements EconomyTickListener {
 
     public static void register(){
         ListenerManagerAPI manager = Global.getSector().getListenerManager();
-        if (manager.hasListenerOfClass(HyperspaceTopographyEventIntel.class)) return;
+        if (manager.hasListenerOfClass(HyperspaceTopoProgressChecker.class)) return;
         manager.addListener(new HyperspaceTopoProgressChecker(), true);
     }
 

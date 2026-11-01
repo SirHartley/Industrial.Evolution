@@ -76,7 +76,7 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 | Class | How | Persists |
 |---|---|---|
 | `DoritoGunFoundChecker` | `addListener(x, true)` every load | transient |
-| `HyperspaceTopoProgressChecker` | `addListener(x, true)` unless guard trips (see issues) | transient |
+| `HyperspaceTopoProgressChecker` | `addListener(x, true)`, deduped by class | transient |
 | `SlowShipInFleetChecker` | `addListener(x, true)` deduped | transient |
 | `AutopulseUseChecker`, `HasUniqueShipChecker` | `addListener(x)` deduped | saved |
 | `RefitUIOpenChecker` | `addTransientScript` deduped | transient |
@@ -101,7 +101,6 @@ Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notify
 
 - Project definitions live only in code; progress and reward randoms live in sector memory and persist. Renaming a project id orphans its progress.
 - `getRandomForProj` stores five `java.util.Random` objects in memory, so a reload reproduces the same rolls (anti save scum). Each roll advances the stored randoms.
-- `BaseEventIntel` adds itself to the `ListenerManager` in its constructor (`api/impl/campaign/intel/events/BaseEventIntel.java:175`). `HyperspaceTopoProgressChecker.register` returns when `hasListenerOfClass(HyperspaceTopographyEventIntel.class)` is true (`:15`), so once the topography event exists the checker is not registered on later loads. Visibility of Prospector does not depend on the checker, only the intel does.
 - Camouflage: the engine marks the player fleet as having a unique signature when any member variant has `ship_unique_signature` (`obf/campaign/fleet/CampaignFleet.java:963`). The emitter works by renaming that tag; the swap only runs on `reportPlayerClosedMarket`, so installing the hullmod takes effect after leaving the market.
 - Shared helper: `indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag` is imported only for an `instanceof` check that is never true (`ResearchProjectDialoguePlugin.java:48`).
 
@@ -112,7 +111,6 @@ Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notify
 | `BurstCapacitors` | unregistered, unfinished tooltip; dead |
 | Mjolnir rolls | uses `getRandomForProj(Ids.PROJ_TRANSISTOR)` (`ResearchProjectTemplateRepo.java:523`), shares randoms with Transistor (suspected copy paste) |
 | Spyglass | `extra` stays null if all five rolls are worth 0; the 1% branch or the caller then hits null (`ResearchProjectTemplateRepo.java:487`, `:492`) |
-| `HyperspaceTopoProgressChecker.register` | guard checks the wrong class, see Contracts |
 | `IndEvo_augfield` tags | `"special no_drop"` lacks a comma, read as one tag (`hull_mods.csv:16`) |
 | `GalatiaNewProjectsIntel` | `getMapLocation` uses entity id `station_galatia_academy`, null if absent |
 | `RefitUIOpenChecker` | polls `getCurrentCoreTab()` every frame; no engine callback for refit open was checked for |
