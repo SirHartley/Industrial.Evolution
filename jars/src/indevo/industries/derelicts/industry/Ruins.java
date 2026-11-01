@@ -81,6 +81,7 @@ public class Ruins extends BaseIndustry {
     private void triggerUpgradeForAI() {
 
         if (isFunctional()
+                && !isBuilding()
                 && market.getFaction() != Global.getSector().getPlayerFaction()
                 && !market.isPlayerOwned()
                 && getUpgradeTarget() != null) {
