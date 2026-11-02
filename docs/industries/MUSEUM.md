@@ -13,7 +13,7 @@ On player markets the Museum adds a hidden ship storage submarket (`IndEvo_Museu
 | File | Owner / role |
 |---|---|
 | `indevo/industries/museum/industry/Museum.java` | Industry plugin. Owns `submarket`, `paradeFleetProfiles`, `maxParades`, `flyParades`, `hullSizeValueMap`, `incomeMult`. Income, value curve, monthly parade spawning, AI cores. `EconomyTickListener` + `MarketImmigrationModifier` |
-| `data/MuseumConstants.java` | Static finals read from settings at class load |
+| `data/MuseumConstants.java` | Fixed constants (submarket colour, parade day options, tags, names CSV) |
 | `data/ParadeFleetProfile.java` | One parade slot: presets, current fleet, member ids on parade. Builds and spawns the fleet; `FleetEventListener` resets state on despawn |
 | `fleet/ParadeFleetAssignmentAI.java` | `BaseAssignmentAI` script on the parade fleet: prepare, travel, parade (adds and removes the condition), return and despawn. `forceReturnToSource()` for recall |
 | `fleet/ParadeConditionScript.java` | Saved `Script` for the parade assignment start and end: adds or removes `IndEvo_Parade` on the target market by id |
@@ -35,7 +35,7 @@ On player markets the Museum adds a hidden ship storage submarket (`IndEvo_Museu
 | Variant tag | `indEvo_on_parade` on stored ships out on parade | `MuseumConstants.ON_PARADE_TAG` |
 | Market tag | `indEvo_on_parade` on the parade target market | `ParadeFleetProfile.spawnFleet()` |
 | Fleet tag | `indEvo_parade_returning` after recall | `ParadeFleetAssignmentAI.forceReturnToSource()` |
-| Settings | `IndEvo_museum_maxAdditionalCredits` 1950, `_minAdditionalCredits` 50, `_defaultMaxParades` 1, `_defaultParadeMembersMax` 15, `_minShipsForParade` 3, `_topShipPoolAmtForParadeSelection` 20, `_paradeFleetImmigrationBonus` 5, `_paradeFleetStabilityBonus` 1, `_improveExtraParades` 1, `_alphaCoreExtraParades` 1, `_betaCoreIncomePerStability` 20000, `_betaCoreIncomePerPointImmigration` 3000, `_gammaCoreIncomeMult` 1.3, `_uniqueShipValueMult` 2 | `data/config/LunaSettings.csv:176-190`. No `settings.json` fallback |
+| Settings | `IndEvo_museum_maxAdditionalCredits` 1950, `_minAdditionalCredits` 50, `_defaultMaxParades` 1, `_defaultParadeMembersMax` 15, `_minShipsForParade` 3, `_topShipPoolAmtForParadeSelection` 20, `_paradeFleetImmigrationBonus` 5, `_paradeFleetStabilityBonus` 1, `_improveExtraParades` 1, `_alphaCoreExtraParades` 1, `_betaCoreIncomePerStability` 20000, `_betaCoreIncomePerPointImmigration` 3000, `_gammaCoreIncomeMult` 1.3, `_uniqueShipValueMult` 2 | `data/config/LunaSettings.csv:176-190`; read at use time |
 | Setting | `IndEvo_museum_enabled` | `LunaSettings.csv:100`; read at use time in `Museum.isAvailableToBuild()` and `showWhenUnavailable()` (`Museum.java:135`, `:140`) |
 | Setting | `IndEvo_shipPickerRowCount` | ship picker layout |
 
@@ -60,7 +60,7 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> fill profiles -> pic
 ### Parades
 
 - Spawn needs: functional, submarket present, at least `minShipsForParade` stored ships for a random profile, a same-faction market in the location without the parade tag.
-- Random profile: top `topShipPoolAmt` stored ships by value not already on parade, pick up to `defaultParadeMembersMax + 1` (loop is `<=`, `ParadeFleetProfile.java:127`). Preset profile: listed member ids not on parade.
+- Random profile: top `topShipPoolAmt` stored ships by value not already on parade, pick up to `defaultParadeMembersMax + 1` (loop is `<=`, `ParadeFleetProfile.java:128`). Preset profile: listed member ids not on parade.
 - Members are tagged `indEvo_on_parade` in storage; the fleet gets clones (`variant.clone()`, original variant cleared, `TAG_NO_AUTOFIT`). Base fleet: `FleetFactoryV3` `TRADE_SMALL` with 10 freighter and 10 tanker points, quality 1. Fleet flags: ignore player comms, ignored by and ignores other fleets, no auto despawn.
 - Assignments (`ParadeFleetAssignmentAI.giveInitialAssignments()`, `:48`): orbit source 7 days, go to target 31, orbit target for the profile duration (31 to 124 days) with start/end scripts adding and removing `IndEvo_Parade`, return and despawn 31.
 - Despawn: profile removes the market tag, clears member tags, removes the condition, clears `fleet` (`ParadeFleetProfile.reportFleetDespawnedToListener()`, `:188`). The AI's own despawn listener removes the condition from the target market only (`ParadeFleetAssignmentAI.java:112-119`).
@@ -76,7 +76,7 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> fill profiles -> pic
 
 ## Contracts
 
-- `MuseumConstants` values are `static final` and read once at class load, so LunaLib changes need a restart ([Settings](../core/SETTINGS.md)).
+- Museum settings are read at use time: income, AI core and bonus values on the next `apply` or tooltip, parade size and selection when a parade spawns. A parade already out keeps its ships ([Settings](../core/SETTINGS.md)).
 - Parade members in the fleet are copies. The real ships never leave storage; the variant tag blocks `PLAYER_BUY` from the submarket (`MuseumSubmarketPlugin.java:28`). Any code that moves museum ships must clear `indEvo_on_parade`.
 - `addAssignment(..., onStart, onCompletion)` takes `Script` callbacks (`api/campaign/CampaignFleetAPI.java:261`) that are saved with the assignment. Use `ParadeConditionScript`, not lambdas: lambdas come back from the save as null. Parades saved by 4.1.b in flight keep null callbacks; the despawn listeners still remove the condition when the fleet gets home.
 - `BaseAssignmentAI.advance()` calls `pickNext()` when the fleet has no assignment (`api/impl/campaign/procgen/themes/BaseAssignmentAI.java`); `pickNext()` sends the fleet home.

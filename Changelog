@@ -54,6 +54,7 @@ Fixed - Parades now stay for the chosen duration instead of always one month
 Fixed - Crash when cancelling Museum construction; removing a Museum now moves its ships to storage and removes the exhibition storage
 Fixed - Parades now give their bonus after a save and load during the trip
 Fixed - A parade coming home no longer ends another Museum's parade on its home colony
+Adjusted - Museum settings now apply without a game restart; parades already out keep their ships
 
 Relays
 Fixed - The infamous relay size bug (it was my fault after all!)
