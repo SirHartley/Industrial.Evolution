@@ -144,7 +144,7 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
                 MeteorSwarmManager.MeteroidShowerType meteorType = MeteorSwarmManager.MeteroidShowerType.ASTEROID;
                 //if above certain density replace some of the default roids with rads
                 if (density > MIN_DENSITY_FOR_RADOID_SPAWN){
-                    float chance = ((density - MIN_DENSITY_FOR_RADOID_SPAWN) / (MeteorSwarmManager.MAX_DENSITY - MIN_DENSITY_FOR_RADOID_SPAWN)) * MAX_IRRADOID_CHANCE; //do not question the ancient one
+                    float chance = ((density - MIN_DENSITY_FOR_RADOID_SPAWN) / (Setting.METEOR_MAX_DENSITY.value() - MIN_DENSITY_FOR_RADOID_SPAWN)) * MAX_IRRADOID_CHANCE; //do not question the ancient one
 
                     if (random.nextFloat() < chance) meteorType = MeteorSwarmManager.MeteroidShowerType.IRRADIOID;
                 }

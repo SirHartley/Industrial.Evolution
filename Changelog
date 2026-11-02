@@ -25,6 +25,7 @@ Fixed - Mines in a minefield spread out around the belt instead of clustering
 
 Meteor Showers
 Added - Setting to make meteor shower spawn immediately instead of having a delay with an intel entry
+Adjusted - Meteor shower settings now apply to the next shower without a game restart
 Fixed - Tutorial intel displaying twice
 Fixed - Rogue planets from planetoid swarms now despawn with their rings and loot stations at the end of their path; leftovers in existing saves are removed on load
 Fixed - Asteroid, ice and radioactive swarms spawn again; random showers were only planetoid swarms
