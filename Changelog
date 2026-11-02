@@ -11,7 +11,7 @@ Added - Quick Settings tab with content switches and the most used values
 Adjusted - Settings sorted into tabs
 Adjusted - Settings apply without a game restart
 Adjusted - Limits for number settings that had none
-Added - Help text for all settings, with defaults and new game requirements
+Added - Brief setting descriptions with defaults, units and new-game requirements
 Fixed - Maximum settings accepting values below their minimum
 Fixed - Ship Picker Row Count accepting 0
 Adjusted - Now requires PatchLib
