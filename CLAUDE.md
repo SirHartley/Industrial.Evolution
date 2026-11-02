@@ -27,7 +27,7 @@ After reading this file, use the task to choose the next document. Read the rele
 | Change, fix or review one feature (an industry, exploration content, ability, item, dialogue system) | The feature doc under `docs/<area>/`, found through the [ARCHITECTURE.md](docs/ARCHITECTURE.md#feature-documents) table. Read its Contracts and Known issues before editing. |
 | Add a new industry, condition, ability, item or other feature | [ARCHITECTURE.md](docs/ARCHITECTURE.md) (registration and package layout), the closest existing feature doc as a model, and the house-style `packages.md`. Write the new feature doc in the same commit. |
 | Add, rename or read a player setting, whitelist or `settings.json` key | [SETTINGS.md](docs/core/SETTINGS.md) |
-| Change the settings mechanism (reader, cache, LunaLib listener, settings checks) | [SETTINGS.md](docs/core/SETTINGS.md), then [SETTINGS_REWORK.md](docs/core/SETTINGS_REWORK.md). The rework is an approved plan, not current behavior. |
+| Change the settings mechanism (reader, cache, LunaLib listener, settings checks) | [SETTINGS.md](docs/core/SETTINGS.md), then [SETTINGS_REWORK.md](docs/core/SETTINGS_REWORK.md) for the decisions behind it. SETTINGS.md describes current behavior; the rework doc is the record of decisions and the baseline it replaced. |
 | Add or reuse a helper, timer, memory accessor, animation or trail | [UTILS.md](docs/core/UTILS.md) before writing a new helper. |
 | Work on `rules.csv`, dialogue or a rule command | [RULE_COMMANDS.md](docs/dialogue/RULE_COMMANDS.md), the feature doc, and the `starsector-rules-writing` skill. |
 | Touch another mod's integration (Nexerelin, Console Commands, Vayra, Prism, Shadowyards, BetterColonies) | [COMPATIBILITY.md](docs/core/COMPATIBILITY.md) |
@@ -87,7 +87,7 @@ Update documents automatically as part of each relevant change. Before committin
 | `docs/ARCHITECTURE.md` | Overview: areas, feature doc index, registration and lifecycle in `ModPlugin`, save data, data layout, cross-feature contracts, dormant code summary | Update the affected route, registration line or contract; remove obsolete owners. Use exact paths and symbols. No feature internals (those go in the feature doc), lore, release history or duplicate policy. |
 | `docs/<area>/<FEATURE>.md` | One feature each: files, ids, registration, flow, contracts, known issues | Update with every change to that feature's code, data or settings. Keep the template sections. Add a row to the ARCHITECTURE.md feature table for a new doc. |
 | `docs/core/SETTINGS.md` | Settings reader, LunaLib tabs, `settings.json` key groups, whitelists | Update when the mechanism, a tab, a key group or a whitelist changes. Setting values belong in the feature doc. |
-| `docs/core/SETTINGS_REWORK.md` | Approved settings rework: decisions, open questions, staged plan | Record decisions; tick subtasks as they merge and move implemented detail to SETTINGS.md and ARCHITECTURE.md. Does not govern setting values or help text. |
+| `docs/core/SETTINGS_REWORK.md` | Settings rework record: decisions, the baseline it replaced, staged plan | Record decisions; tick subtasks as they merge and move implemented detail to SETTINGS.md and ARCHITECTURE.md. Does not govern setting values or help text. |
 | `docs/core/UTILS.md` | Shared helpers in `indevo/utils` | Update when a helper is added, removed or changes its contract. |
 | `docs/core/COMPATIBILITY.md` | Integrations with other mods | Update when an integration, a hard or optional dependency, or a config file for another mod changes. |
 | `docs/RELEASE.md` | Version numbers, release builder, package contents, release workflow, version file and publishing | Keep it in step with the `ReleaseBuild` constants, `.github/workflows/release.yml` and `IndEvo.version`; change them together. |
@@ -117,7 +117,7 @@ Write documentation in short programmer speak with normal capitalization and pun
 
 ## Code layout
 
-- Packages follow `indevo/<area>/<feature>/<role>/`. Areas: `industries`, `exploration`, `abilities`, `items`, `dialogue`, `economy`, `submarkets`, `utils`, `ids`, `console`, `other`, `WIP`, `tools` (release builder, never shipped). Role packages are named for the engine type (`industry`, `conditions`, `listeners`, `plugins`, `scripts`, `rules`, `intel`, `entities`, `hullmods`, `terrain`, `fleet`, `memory`, `patches` for PatchLib patches). See the house-style `packages.md`.
+- Packages follow `indevo/<area>/<feature>/<role>/`. Areas: `industries`, `exploration`, `abilities`, `items`, `dialogue`, `economy`, `submarkets`, `config` (player settings, flat), `utils`, `ids`, `console`, `other`, `WIP`, `tools` (release builder, never shipped). Role packages are named for the engine type (`industry`, `conditions`, `listeners`, `plugins`, `scripts`, `rules`, `intel`, `entities`, `hullmods`, `terrain`, `fleet`, `memory`, `patches` for PatchLib patches). See the house-style `packages.md`.
 - Ids, tags, memory keys and setting keys carry the `IndEvo_` prefix (`$IndEvo_` for memory). Shared ids live in `indevo/ids/Ids.java` and `ItemIds.java`; feature-local keys stay in the feature.
 - Class member order: nested enums; static fields; instance fields; other nested types; constructors; lifecycle and public entry points in execution order; helpers near their callers. Group fields by responsibility. No section header comments.
 - All code is Java 17. Do not add Kotlin: the user's IDE does not compile it.
@@ -191,8 +191,8 @@ Versions use major.minor.letter (current `4.1.b`). See [RELEASE.md](docs/RELEASE
 After the final runtime-affecting commit and before merge:
 
 1. Fetch and build the exact remote task-branch revision.
-2. From the repository root, with JDK 17, run `java jars/src/indevo/tools/ReleaseBuild.java compile` ([toolchain](#toolchain)). It compiles every Java file under `jars/src/` that the IntelliJ module compiles (it reads the `excludeFolder` entries in `IndEvo.iml`) against `lib/`, in a fresh `out/release-build-*` directory, and checks the resulting jar. It never touches `jars/release/IndEvo.jar`.
-3. Require a successful exit with no compile errors.
+2. From the repository root, with JDK 17, run `java jars/src/indevo/tools/ReleaseBuild.java compile` ([toolchain](#toolchain)). It compiles every Java file under `jars/src/` that the IntelliJ module compiles (it reads the `excludeFolder` entries in `IndEvo.iml`) against `lib/`, in a fresh `out/release-build-*` directory, runs the settings checks (`SettingsChecks`, [SETTINGS.md](docs/core/SETTINGS.md#settings-checks)) and checks the resulting jar. It never touches `jars/release/IndEvo.jar`.
+3. Require a successful exit with no compile errors and no failed settings check.
 4. Record the command, branch commit, toolchain versions and result in the pull request. The final reply links the PR and states the result and any untested behavior.
 5. Stop before merge if the build, the toolchain or a required dependency is unavailable.
 

@@ -22,15 +22,15 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 |---|---|---|
 | Condition | `IndEvo_ressCond` (`Ids.COND_RESSOURCES`), tags `hidden, technical` | `data/campaign/market_conditions.csv:28` |
 | Commodity | `IndEvo_parts` (`ItemIds.PARTS`), `IndEvo_rare_parts` (`ItemIds.RARE_PARTS`) | `data/campaign/commodities.csv:2`, `:3` |
-| Setting | `IndEvo_ScrapYard` (parts on/off) | `data/config/LunaSettings.csv:87` |
+| Setting | `IndEvo_ScrapYard` (parts on/off) | `data/config/LunaSettings.csv:97` |
 | Memory key | `$IndEvo_reduceBuildTimeCooldown` (market memory, expires after `COOLDOWN_DAYS` 60) | `RelicBuildTimeReductionButtonAdder` |
 | Modifier ids | condition id (`getModId()`) on `market.getIncomeMult()`; condition id on `Stats.PRODUCTION_QUALITY_MOD` | `ResourceCondition` |
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad` -> `ResourceConditionApplicator.applyResourceConditionToAllMarkets()` (`indevo/utils/ModPlugin.java:152`) and `ResourceConditionApplicator.register()` (`:451`, transient listener).
+- `ModPlugin.onGameLoad` -> `ResourceConditionApplicator.applyResourceConditionToAllMarkets()` (`indevo/utils/ModPlugin.java:155`) and `ResourceConditionApplicator.register()` (`:440`, transient listener).
 - Economy tick -> `applyResourceConditionToAllMarkets()` -> `ResourceCondition.applyRessourceCond(m)` adds the condition if `m.isInEconomy()` and missing. The condition itself persists in the market.
-- `RelicBuildTimeReductionButtonAdder.register()` (`indevo/utils/ModPlugin.java:492`) adds a transient listener.
+- `RelicBuildTimeReductionButtonAdder.register()` (`indevo/utils/ModPlugin.java:481`) adds a transient listener.
 
 ## Flow
 

@@ -23,10 +23,10 @@ All three hold one VPC in their own field instead of the vanilla special item sl
 | Kind | Id / key | Where |
 |---|---|---|
 | Industry | `IndEvo_AdAssem` (structure, upgrade `IndEvo_AdManuf`), `IndEvo_AdManuf` (industry, downgrade `IndEvo_AdAssem`), `IndEvo_ComForge` (structure) | `data/campaign/industries.csv:2,5,8`; `indevo/ids/Ids.java:47-49` |
-| Setting | `IndEvo_AdAssem`, `IndEvo_AdManuf`, `IndEvo_ComForge` (build toggles) | `data/config/LunaSettings.csv:81-83` |
-| Setting | `IndEvo_VarInd_deliverToProductionPoint` (deliver to gathering point instead of local storage) | `data/config/LunaSettings.csv:169` |
-| Config | `IndEvo_AdAssem_amounts`, `IndEvo_AdManuf_amounts`, `IndEvo_ComForge_amounts`: base deposit per commodity and `logIncrease` | `data/config/settings.json:172-209`, read as `getId() + "_amounts"` |
-| Sprites | category `IndEvo`: `assembler`, `manufactorium`, `comforge` (active image), `VPCRemovalIcon` | `data/config/settings.json:336-341` |
+| Setting | `IndEvo_AdAssem`, `IndEvo_AdManuf`, `IndEvo_ComForge` (build toggles) | `data/config/LunaSettings.csv:91-93` |
+| Setting | `IndEvo_VarInd_deliverToProductionPoint` (deliver to gathering point instead of local storage) | `data/config/LunaSettings.csv:120` |
+| Config | `IndEvo_AdAssem_amounts`, `IndEvo_AdManuf_amounts`, `IndEvo_ComForge_amounts`: base deposit per commodity and `logIncrease` | `data/config/settings.json:6-43`, read as `getId() + "_amounts"` |
+| Sprites | category `IndEvo`: `assembler`, `manufactorium`, `comforge` (active image), `VPCRemovalIcon` | `data/config/settings.json:170-175` |
 | Strings | `IndEvo_VarInd`, `IndEvo_AdAssem`, `IndEvo_ComForge` | `data/strings/strings.json:96`, `:109`, `:115` |
 | Item tags | `IndEvo_VPC_common` (70), `IndEvo_VPC_uncommon` (25), `IndEvo_VPC_rare` (5): NPC pick weights | `VariableAssembler.java:180-189`, `indevo/ids/ItemIds.java:31-33` |
 | Whitelist | All three are valid ruin upgrade targets | `data/config/indEvo/ruins_industry_whitelist.csv:5-7` |
@@ -34,7 +34,7 @@ All three hold one VPC in their own field instead of the vanilla special item sl
 ## Registration and lifecycle
 
 - Industry plugins from `industries.csv`. Each `apply()` adds the industry itself as a transient listener (`EconomyTickListener`, Forge also `NewDayListener`) and `unapply()` removes it (`VariableAssembler.java:54,84`, `CommodityForge.java:57,84`).
-- `DepositMessage.register()` in `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:438`), transient, re-added each load.
+- `DepositMessage.register()` in `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:427`), transient, re-added each load.
 - `NewGameIndustryPlacer.placeManufactories()` puts a Manufactory with `IndEvo_vpc_IndEvo_parts` on `eochu_bres` at new game (`indevo/utils/update/NewGameIndustryPlacer.java:44-54`).
 - `initWithParams` accepts a VPC id, so econ files can preinstall one (`VariableAssembler.java:430-439`).
 

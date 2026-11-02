@@ -23,10 +23,10 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
 import org.lwjgl.util.vector.Vector2f;
@@ -88,9 +88,9 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
     public int getCoreUseTimes(String AICoreId) {
         HashMap<String, Integer> list = new HashMap<>();
 
-        list.put(Commodities.ALPHA_CORE, Settings.getInt(Settings.ALPHA_CORE_RUNTIME));
-        list.put(Commodities.BETA_CORE, Settings.getInt(Settings.BETA_CORE_RUNTIME));
-        list.put(Commodities.GAMMA_CORE, Settings.getInt(Settings.GAMMA_CORE_RUNTIME));
+        list.put(Commodities.ALPHA_CORE, Setting.ALPHA_CORE_RUNTIME.intValue());
+        list.put(Commodities.BETA_CORE, Setting.BETA_CORE_RUNTIME.intValue());
+        list.put(Commodities.GAMMA_CORE, Setting.GAMMA_CORE_RUNTIME.intValue());
 
         // modded cores run as long as a gamma core
         return Math.round(list.getOrDefault(AICoreId, list.get(Commodities.GAMMA_CORE)) * runtimeMult);
@@ -363,12 +363,12 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
     }
 
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.SUPCOM);
+        return Setting.SUPCOM.enabled();
     }
 
     @Override
     public boolean isAvailableToBuild() {
-        if (!Settings.getBoolean(Settings.SUPCOM)) return false;
+        if (!Setting.SUPCOM.enabled()) return false;
 
         if (hascond(Conditions.HOT) || hascond(Conditions.VERY_HOT)) {
             return false;

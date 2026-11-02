@@ -18,13 +18,13 @@ import com.fs.starfarer.api.ui.IconRenderMode;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUser;
 import indevo.items.installable.BlueprintInstallableItemPlugin;
 import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
 
@@ -56,12 +56,12 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.getBoolean(Settings.ENGHUB) && super.isAvailableToBuild();
+        return Setting.ENGHUB.enabled() && super.isAvailableToBuild();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.ENGHUB);
+        return Setting.ENGHUB.enabled();
     }
 
     @Override
@@ -144,7 +144,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         }
 
         // Deliver completed blueprints/templates
-        boolean toStorage = !Settings.getBoolean(Settings.AUTO_SHIP_BP_TO_GATHERING_POINT);
+        boolean toStorage = !Setting.AUTO_SHIP_BP_TO_GATHERING_POINT.enabled();
 
         for (Map.Entry<String, Float> entry : researchProgressList.entrySet()) {
             if (entry.getValue() < 1f) continue;

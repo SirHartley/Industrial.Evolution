@@ -9,8 +9,8 @@ import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.impl.campaign.abilities.InterdictionPulseAbility;
 import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.exploration.minefields.MineBeltTerrainPlugin;
-import indevo.utils.helper.Settings;
 import org.lwjgl.util.vector.Vector2f;
 
 public class InterdictionPulseAbilityListener extends BaseCampaignEventListener {
@@ -37,7 +37,7 @@ public class InterdictionPulseAbilityListener extends BaseCampaignEventListener 
                     MineBeltTerrainPlugin mineBeltTerrainPlugin = (MineBeltTerrainPlugin) plugin;
 
                     if (circlesIntersect(t.getLocation(), mineBeltTerrainPlugin.params.middleRadius + mineBeltTerrainPlugin.params.bandWidthInEngine / 2, fleet.getLocation(), range)) {
-                        mineBeltTerrainPlugin.generateDisabledArea(fleet, range, Settings.getFloat(Settings.MINEFIELD_DISABLE_DURATION));
+                        mineBeltTerrainPlugin.generateDisabledArea(fleet, range, Setting.MINEFIELD_DISABLE_DURATION.value());
                     }
                 }
             }

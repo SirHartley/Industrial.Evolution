@@ -13,11 +13,11 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.engineeringhub.industry.EngineeringHub;
 import indevo.submarkets.DynamicSubmarket;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -62,7 +62,7 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin imple
             }
         }
 
-        if (Settings.getBoolean(Settings.ENGHUB_STRICT_WL)) return;
+        if (Setting.ENGHUB_STRICT_WL.enabled()) return;
 
         for (ShipHullSpecAPI spec : Global.getSettings().getAllShipHullSpecs()) {
             for (String tag : spec.getTags()) {
@@ -153,7 +153,7 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin imple
             boolean isPrinted = member.getVariant().hasHullMod(Ids.PRINTING_INDICATOR); //not not printed
             //boolean hasNoDefaultRole = !(roleListings.contains(member.getHullId()) || roleListings.contains(member.getHullSpec().getBaseHullId()));
 
-            boolean ignoreWhiteLists = Settings.getBoolean(Settings.ENGHUB_IGNORE_WHITELISTS);
+            boolean ignoreWhiteLists = Setting.ENGHUB_IGNORE_WHITELISTS.enabled();
 
             if (ignoreWhiteLists) return canNotGenerateRSPoints || isPrinted;
             else return restricted || notAllowed || canNotGenerateRSPoints || isPrinted;

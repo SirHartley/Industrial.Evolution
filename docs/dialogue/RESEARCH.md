@@ -39,14 +39,14 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor` | `indevo/ids/Ids.java:162` to `:175` |
+| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor` | `indevo/ids/Ids.java:163` to `:176` |
 | Hullmods | `IndEvo_augfield`, `IndEvo_CamouflageFieldEmitter` | `data/hullmods/hull_mods.csv:16`, `:17` |
 | Tag | `IndEvo_ship_unique_signature` (parked vanilla tag) | `CamouflageFieldEmitter.TAG_UNIQUE` |
 | Memory, sector | `$IndEvo_ResearchProgress_<id>` (`Progress`), `$IndEvo_ProjRand_<id>` (5 `Random`s) | `ResearchProject.java:39`, `ResearchProjectTemplateRepo.java:590` |
 | Memory, sector | `$IndEvo_HasFoundDoritoGun`, `$IndEvo_HasFoundAutopulse`, `$IndEvo_HasUniqueShipChecker`, `$IndEvo_SlowShipFleetCheckerDone`, `$IndEvo_HyperTopoCheckerDone` | unlock listeners |
 | Memory, combat engine custom data | `$IndEvo_GlitcherOverlayAttached_<shipId>` | `CamouflageFieldEmitter.java:14` |
-| Settings | `IndEvo_pets` (Navi), `IndEvo_consumables_researchProject` (Mjolnir) | `data/config/LunaSettings.csv:10`, `:79`; read through `Settings` (see [Settings](../core/SETTINGS.md)) |
-| Sprite | `IndEvo` / `galatia_proj` | `data/config/settings.json:363` |
+| Settings | `IndEvo_pets` (Navi), `IndEvo_consumables_researchProject` (Mjolnir) | `data/config/LunaSettings.csv:11`, `:35`; read through `Setting` (see [Settings](../core/SETTINGS.md)) |
+| Sprite | `IndEvo` / `galatia_proj` | `data/config/settings.json:197` |
 | Rules | `IndEvo_JobMenuPoint`, `IndEvo_JobMenuInit` | `data/campaign/rules.csv:418`, `:419` |
 | Entity | `station_galatia_academy` (vanilla) | intel map location, rules condition |
 
@@ -70,8 +70,8 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 
 ## Registration and lifecycle
 
-- Entry: rules `IndEvo_JobMenuPoint` adds option 4 "Visit the Research Tracts" on `PopulateOptions` at `$id == station_galatia_academy`; `IndEvo_JobMenuInit` runs the command `ResearchProjectDialoguePlugin` (package `indevo.dialogue.research.dialogue` is in `ruleCommandPackages`, `data/config/settings.json:246`).
-- `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:442` to `:493`):
+- Entry: rules `IndEvo_JobMenuPoint` adds option 4 "Visit the Research Tracts" on `PopulateOptions` at `$id == station_galatia_academy`; `IndEvo_JobMenuInit` runs the command `ResearchProjectDialoguePlugin` (package `indevo.dialogue.research.dialogue` is in `ruleCommandPackages`, `data/config/settings.json:80`).
+- `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:431` to `:482`):
 
 | Class | How | Persists |
 |---|---|---|
@@ -83,7 +83,7 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 | `CamouflageRefitListener` | `addTransientListener` | transient |
 | `SurveyDataTooltipAmender` | `addListener(x, true)` | transient |
 
-- `ModPlugin.onGameLoad` reads Navi's progress to unlock fairy sales (`ModPlugin.java:172`, see [Pets](../industries/PETS.md)).
+- `PetManagementAbilityPlugin.applySetting` reads Navi's progress to unlock fairy sales (`indevo/abilities/pets/PetManagementAbilityPlugin.java:34`, see [Pets](../industries/PETS.md)).
 
 Order: `PopulateOptions -> IndEvo_JobMenuPoint -> option -> IndEvo_JobMenuInit -> ResearchProjectDialoguePlugin.execute -> dialog.setPlugin(this) -> ResearchProjectSidePanelCreator`.
 

@@ -51,10 +51,10 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Variant ids | `base_mining`, `ore_mining`, `rare_mining`, `volatile_mining`, `organics_mining` | `SwitchableMining.java:22-83` |
 | Variant ids | `base_refining`, `ore_refining`, `rare_refining` | `SwitchableRefining.java:19-80` |
 | Descriptions | `IndEvo_pop_*`, `IndEvo_*_mining`, `IndEvo_*_refining` (CUSTOM; text1 = description, text2 = short effect) | `data/strings/descriptions.csv:32-49` |
-| Sprites | category `IndEvo`: `pop_*`, `ore_mining`, `rare_mining`, `volatile_mining`, `organics_mining`, `ore_refining`, `rare_ore_refining` | `data/config/settings.json:309-326` |
-| Setting | `IndEvo_GovernmentLarpMode` (all governments act as vanilla), `IndEvo_GovernmentMaxSize` (default 3) | `data/config/LunaSettings.csv:103-104` |
-| Setting | `IndEvo_SwitchableMining`, `IndEvo_SwitchableRefining` (show the option) | `data/config/LunaSettings.csv:97-98` |
-| Config CSV | `IndEvo_ruralList` (planet types blocked for Rural), `IndEvo_arcologiesList` (blocked for Hidden Arcology), `IndEvo_arcologiesCondList` (conditions suppressed) | `data/config/settings.json:228-230`, `data/config/indEvo/*.csv` |
+| Sprites | category `IndEvo`: `pop_*`, `ore_mining`, `rare_mining`, `volatile_mining`, `organics_mining`, `ore_refining`, `rare_ore_refining` | `data/config/settings.json:143-160` |
+| Setting | `IndEvo_GovernmentLarpMode` (all governments act as vanilla), `IndEvo_GovernmentMaxSize` (default 3) | `data/config/LunaSettings.csv:112-113` |
+| Setting | `IndEvo_SwitchableMining`, `IndEvo_SwitchableRefining` (show the option) | `data/config/LunaSettings.csv:107-108` |
+| Config CSV | `IndEvo_ruralList` (planet types blocked for Rural), `IndEvo_arcologiesList` (blocked for Hidden Arcology), `IndEvo_arcologiesCondList` (conditions suppressed) | `data/config/settings.json:62-64`, `data/config/indEvo/*.csv` |
 | Hullmod | `IndEvo_handBuilt`, `IndEvo_hellpods` | `data/hullmods/hull_mods.csv:14-15` |
 | Memory key | `$IndEvo_HandBuiltMemoryRepo` (sector) | `HandBuiltEffectMemoryRepo.java:10` |
 | Memory key | `$HasBeenExtortedByUnderworld` (fleet, never unset) | `UnderworldSubIndustry.java:56` |
@@ -63,8 +63,8 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:458-466`) registers, transient and deduped by class: the three option providers, `RuralPolityTooltipAdder`, `RuralPolityImageChanger`, `MarineLossAmplifcationHullmodEffectListener`. `ManagedDemocracyNexerelinListenerPlugin` only if `nexerelin` is enabled (`ModPlugin.java:482`).
-- `ModPlugin.setScriptsIfNeeded()` registers `CorporateGovernanceCampaignPlugin` every load (`ModPlugin.java:506`). `BaseCampaignPlugin` is transient with a null id (`api/campaign/BaseCampaignPlugin.java:31-37` in the knowledge base).
+- `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:447-455`) registers, transient and deduped by class: the three option providers, `RuralPolityTooltipAdder`, `RuralPolityImageChanger`, `MarineLossAmplifcationHullmodEffectListener`. `ManagedDemocracyNexerelinListenerPlugin` only if `nexerelin` is enabled (`ModPlugin.java:471`).
+- `ModPlugin.setScriptsIfNeeded()` registers `CorporateGovernanceCampaignPlugin` every load (`ModPlugin.java:495`). `BaseCampaignPlugin` is transient with a null id (`api/campaign/BaseCampaignPlugin.java:31-37` in the knowledge base).
 - The other tooltip adders (`HelldiversTooltipAdder`, `WarhammerTooltipAdder`, `CorpoPolityTooltipAdder`) register themselves from their variant's `apply()`.
 - `HelldiversSubIndustry` and `WarhammerSubIndustry` add themselves as persistent listeners in `apply()` and remove themselves in `unapply()`. `ShipProductionSummaryMessageHandler.getInstanceOrRegister()` adds a persistent listener on first use.
 - Nothing adds a switchable to a market at game start. The first switch on a vanilla industry replaces it: `ChangelingIndustryDialogueDelegate.customDialogConfirm()` (`:139-187`).
@@ -124,7 +124,7 @@ Apply chain: `SwitchableX.init -> setCurrent(list[0])` on first init, then `Swit
 - Persistent listener dedupe: `ListenerManager.addListener` stores into an `ObjectRepository` that ignores an instance already present (`obf/campaign/ListenerManager.java:29-35`, `obf/_common/util/container/repo/ObjectRepository.java:87-90`), so repeated `addListener(this)` from `apply()` is safe.
 - `market.addImmigrationModifier` keeps a persistent `LinkedHashSet` (`obf/campaign/econ/Market.java:98`); the variant object is saved with the market.
 - Other features read the current government by `instanceof` on `getCurrent()`: Privateer (`PrivateerBase.java:71`, `PrivateerBaseRaidIntel.java:76`).
-- Rural, Forge World, Corporate and Monastic rules key on industry spec tags `industrial`, `rural`, `military` from `data/campaign/industries.csv`; Managed Democracy uses `MiscIE.isMilitary`. `ModPlugin.addTypePrefaceToIndustrySpecs` only shows those tags in descriptions (`ModPlugin.java:266`). See [Economy](../core/ECONOMY.md).
+- Rural, Forge World, Corporate and Monastic rules key on industry spec tags `industrial`, `rural`, `military` from `data/campaign/industries.csv`; Managed Democracy uses `MiscIE.isMilitary`. `ModPlugin.addTypePrefaceToIndustrySpecs` only shows those tags in descriptions (`ModPlugin.java:249`). See [Economy](../core/ECONOMY.md).
 - Storage access goes through `MiscIE.getStorageCargo`; see [Utils](../core/UTILS.md). Setting reads: [Settings](../core/SETTINGS.md).
 
 ## Known issues and dormant code

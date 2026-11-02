@@ -22,13 +22,13 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.museum.data.MuseumConstants;
 import indevo.industries.museum.data.ParadeFleetProfile;
 import indevo.submarkets.RemovablePlayerSubmarketPluginAPI;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.lazywizard.lazylib.MathUtils;
 
@@ -53,7 +53,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
     //parades
     private List<ParadeFleetProfile> paradeFleetProfiles = new ArrayList<>();
-    private int maxParades = MuseumConstants.DEFAULT_MAX_PARADES;
+    private int maxParades = Setting.MUSEUM_DEFAULT_MAX_PARADES.intValue();
     private Random random = new Random();
     private boolean flyParades = true;
 
@@ -132,12 +132,12 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && Settings.getBoolean(Settings.MUSEUM_ENABLED);
+        return super.isAvailableToBuild() && Setting.MUSEUM_ENABLED.enabled();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.MUSEUM_ENABLED);
+        return Setting.MUSEUM_ENABLED.enabled();
     }
 
     public void setFlyParades(boolean flyParades) {
@@ -153,7 +153,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     }
 
     public int getMaxParades() {
-        return maxParades + (isImproved() ? MuseumConstants.IMPROVE_EXTRA_PARADES : 0);
+        return maxParades + (isImproved() ? Setting.MUSEUM_IMPROVE_EXTRA_PARADES.intValue() : 0);
     }
 
     public List<CampaignFleetAPI> getParadeFleets() {
@@ -259,7 +259,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
         float value = member.getBaseValue();
 
         Set<String> tags = member.getHullSpec().getTags();
-        if (tags.contains("no_sell") && tags.contains("no_dealer")) value *= MuseumConstants.UNIQUE_SHIP_VALUE_MULT; //ships that are not available on the market have higher value
+        if (tags.contains("no_sell") && tags.contains("no_dealer")) value *= Setting.MUSEUM_UNIQUE_SHIP_VALUE_MULT.value(); //ships that are not available on the market have higher value
 
         float valueAboveAverage = value - valuePair.two;
         float maxAboveAverage = valuePair.one - valuePair.two;
@@ -282,7 +282,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     }
 
     public float getCreditsForValue(float value){
-        return (MuseumConstants.MIN_ADDITIONAL_CREDITS + MuseumConstants.MAX_ADDITIONAL_CREDITS * value) * incomeMult;
+        return (Setting.MUSEUM_MIN_ADDITIONAL_CREDITS.value() + Setting.MUSEUM_MAX_ADDITIONAL_CREDITS.value() * value) * incomeMult;
     }
 
     public float getTotalShipValue(){
@@ -374,11 +374,11 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
         if (mode == ImprovementDescriptionMode.INDUSTRY_TOOLTIP) {
             info.addPara("Maximum active %s increased by %s while sufficient ships are available.", 0f, highlight,
                     "parade fleets",
-                    "" + MuseumConstants.IMPROVE_EXTRA_PARADES);
+                    "" + Setting.MUSEUM_IMPROVE_EXTRA_PARADES.intValue());
         } else {
             info.addPara("Increases the maximum active %s by %s while sufficient ships are available.", 0f, highlight,
                     "parade fleets",
-                    "" + MuseumConstants.IMPROVE_EXTRA_PARADES);
+                    "" + Setting.MUSEUM_IMPROVE_EXTRA_PARADES.intValue());
         }
 
         info.addSpacer(opad);
@@ -405,7 +405,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
             text.addPara(pre + "Increases the maximum active %s by %s while sufficient ships are available.", 0f, highlight,
                     "parade fleets",
-                    "" + MuseumConstants.ALPHA_CORE_EXTRA_PARADES);
+                    "" + Setting.MUSEUM_ALPHA_CORE_EXTRA_PARADES.intValue());
 
             tooltip.addImageWithText(opad);
             return;
@@ -413,7 +413,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
         tooltip.addPara(pre + "Increases the maximum active %s by %s while sufficient ships are available.", opad, highlight,
                 "parade fleets",
-                "" + MuseumConstants.ALPHA_CORE_EXTRA_PARADES);
+                "" + Setting.MUSEUM_ALPHA_CORE_EXTRA_PARADES.intValue());
     }
 
     //Beta: Increase stability and immigration of local planet by x per y
@@ -432,14 +432,14 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48);
 
             text.addPara(pre + "Increases stability by %s per %s in museum income. Increases growth by %s per %s in museum income.", 0f, highlight,
-                    "" + 1, Misc.getDGSCredits(MuseumConstants.BETA_CORE_INCOME_PER_STABILITY), "" + 1, Misc.getDGSCredits(MuseumConstants.BETA_CORE_INCOME_PER_POINT_IMMIGRATION));
+                    "" + 1, Misc.getDGSCredits(Setting.MUSEUM_BETA_CORE_INCOME_PER_STABILITY.intValue()), "" + 1, Misc.getDGSCredits(Setting.MUSEUM_BETA_CORE_INCOME_PER_POINT_IMMIGRATION.intValue()));
 
             tooltip.addImageWithText(opad);
             return;
         }
 
         tooltip.addPara(pre + "Increases stability by %s per %s in museum income. Increases growth by %s per %s in museum income.", opad, highlight,
-                "" + 1, Misc.getDGSCredits(MuseumConstants.BETA_CORE_INCOME_PER_STABILITY), "" + 1, Misc.getDGSCredits(MuseumConstants.BETA_CORE_INCOME_PER_POINT_IMMIGRATION));
+                "" + 1, Misc.getDGSCredits(Setting.MUSEUM_BETA_CORE_INCOME_PER_STABILITY.intValue()), "" + 1, Misc.getDGSCredits(Setting.MUSEUM_BETA_CORE_INCOME_PER_POINT_IMMIGRATION.intValue()));
 
     }
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
@@ -455,14 +455,14 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48);
 
             text.addPara(pre + "Increases museum income by %s", 0f, highlight,
-                    StringHelper.getAbsPercentString(MuseumConstants.GAMMA_CORE_INCOME_MULT, true));
+                    StringHelper.getAbsPercentString(Setting.MUSEUM_GAMMA_CORE_INCOME_MULT.value(), true));
 
             tooltip.addImageWithText(opad);
             return;
         }
 
         tooltip.addPara(pre + "Increases museum income by %s.", opad, highlight,
-                StringHelper.getAbsPercentString(MuseumConstants.GAMMA_CORE_INCOME_MULT, true));
+                StringHelper.getAbsPercentString(Setting.MUSEUM_GAMMA_CORE_INCOME_MULT.value(), true));
 
     }
 
@@ -475,20 +475,20 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     @Override
     protected void applyAlphaCoreModifiers() {
         super.applyAlphaCoreModifiers();
-        maxParades = MuseumConstants.DEFAULT_MAX_PARADES + MuseumConstants.ALPHA_CORE_EXTRA_PARADES;
+        maxParades = Setting.MUSEUM_DEFAULT_MAX_PARADES.intValue() + Setting.MUSEUM_ALPHA_CORE_EXTRA_PARADES.intValue();
     }
 
     @Override
     protected void applyBetaCoreModifiers() {
         super.applyBetaCoreModifiers();
-        market.getStability().modifyFlat(getModId(), (float) Math.floor(getTotalShipValue() / MuseumConstants.BETA_CORE_INCOME_PER_STABILITY), getNameForModifier());
+        market.getStability().modifyFlat(getModId(), (float) Math.floor(getTotalShipValue() / Setting.MUSEUM_BETA_CORE_INCOME_PER_STABILITY.intValue()), getNameForModifier());
         //immigration handled in modifyIncoming
     }
 
     @Override
     protected void applyGammaCoreModifiers() {
         super.applyGammaCoreModifiers();
-        incomeMult = MuseumConstants.GAMMA_CORE_INCOME_MULT;
+        incomeMult = Setting.MUSEUM_GAMMA_CORE_INCOME_MULT.value();
     }
 
     @Override
@@ -499,13 +499,13 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
     public void unapplyAICoreModifiers(){
         incomeMult = MuseumConstants.DEFAULT_INCOME_MULT;
-        maxParades = MuseumConstants.DEFAULT_MAX_PARADES;
+        maxParades = Setting.MUSEUM_DEFAULT_MAX_PARADES.intValue();
         market.getStability().unmodify(getModId());
     }
 
     @Override
     public void modifyIncoming(MarketAPI market, PopulationComposition incoming) {
-        if (Commodities.BETA_CORE.equals(getAICoreId())) incoming.getWeight().modifyFlat(getModId(), (float) Math.floor(getTotalShipValue() / MuseumConstants.BETA_CORE_INCOME_PER_POINT_IMMIGRATION), getNameForModifier());
+        if (Commodities.BETA_CORE.equals(getAICoreId())) incoming.getWeight().modifyFlat(getModId(), (float) Math.floor(getTotalShipValue() / Setting.MUSEUM_BETA_CORE_INCOME_PER_POINT_IMMIGRATION.intValue()), getNameForModifier());
         else incoming.getWeight().unmodify(getModId());
     }
 }

@@ -22,11 +22,11 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.SleeperPodsSpe
 import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.exploration.salvage.specials.*;
 import indevo.ids.Ids;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -48,7 +48,7 @@ public class IndEvo_SalvageSpecialAssigner {
     public void init() {
         Random random = StarSystemGenerator.random;
         log.info("IndEvo Starting salvage special seeding");
-        specialApplicationChance = Settings.getFloat(Settings.SPECIAL_APPLICATION_CHANCE);
+        specialApplicationChance = Setting.SPECIAL_APPLICATION_CHANCE.value();
 
         for (SectorEntityToken entity : Global.getSector().getEntitiesWithTag(Tags.SALVAGEABLE)) {
             if (entity.getContainingLocation().hasTag(Tags.THEME_HIDDEN) || entity.getContainingLocation().hasTag(Tags.THEME_SPECIAL) || entity.getContainingLocation().hasTag(Tags.SYSTEM_ABYSSAL)) continue;

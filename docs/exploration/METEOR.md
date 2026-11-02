@@ -8,7 +8,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 On each economy tick while the player is in a valid system, `MeteorSwarmManager` rolls a shower. A shower is an arc across the system (start and end on the grid boundary, through a point 3000..10000 from the centre); after a 2..5 day delay a spawner script moves meteors along it for a runtime in seconds. Meteors that touch fleets or stations push them, damage ships and break into fragments. Treasure meteors drop salvage on impact. The first valid tick also spawns a roider fleet that sells concussive missiles and schedules a tutorial shower.
 
-Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3, `IRRADIOID` 3, `PLANETOID` 3. The tutorial forces `ASTEROID`.
+Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3, `IRRADIOID` 3, `PLANETOID` 3. The tutorial forces `ASTEROID`.
 
 ## Files
 
@@ -54,24 +54,24 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Settings | `IndEvo_meteor_enabled` (true), `_baseChancePerEconomyTick` (0.02), `_immediateMode` (false), `_minIntensity` (1), `_maxIntensity` (3), `_baseShowerWidth` (5000), `_intensityWidthModifier` (1000), `_maxDensity` (2.5), `_maxRuntimeMult` (2.5), `_baseRuntime` (50 s), `_locationTimeoutAfterSpawnDays` (186), `_generalTimeoutAfterSpawnDays` (31), `_gridLimit` (26000), `_maxDistanceFromSun` (10000), `_minDistanceFromSun` (3000), `_maxAngle` (80), `_minAngle` (50) | `data/config/LunaSettings.csv:21-37`, ids in `indevo/utils/helper/Settings.java:129-145`, read in `MeteorSwarmManager.java:44-61`, `:192` |
+| Settings | `IndEvo_meteor_enabled` (true), `_baseChancePerEconomyTick` (0.02), `_immediateMode` (false), `_minIntensity` (1), `_maxIntensity` (3), `_baseShowerWidth` (5000), `_intensityWidthModifier` (1000), `_maxDensity` (2.5), `_maxRuntimeMult` (2.5), `_baseRuntime` (50 s), `_locationTimeoutAfterSpawnDays` (186), `_generalTimeoutAfterSpawnDays` (31), `_gridLimit` (26000), `_maxDistanceFromSun` (10000), `_minDistanceFromSun` (3000), `_maxAngle` (80), `_minAngle` (50) | `data/config/LunaSettings.csv:10`, `:15`, `:37-52`, constants in `indevo/config/Setting.java:21-37`, read at use time in `MeteorSwarmManager.java:79-205` |
 | Custom entities | `IndEvo_meteor_1..4` (`MeteorEntity`), `IndEvo_icy_rock_1..6` (`IcyRockEntity`), `IndEvo_spicy_rock_1..4` (`SpicyRockEntity`), `IndEvo_spicy_rock_5` (`TreasuradoidEntity`), `IndEvo_meteor_treasure_1` (`TreasuroidEntity`), `IndEvo_meteor_treasure_2` (`IceTreasureoidEntity`), `IndEvo_warning_sign`, `IndEvo_token` | `data/config/custom_entities.json:30-316`, `:410` |
 | Terrain | `IndEvo_radioactive_field` -> `RadioactiveTerrain` | `data/campaign/terrain.json:6` |
-| Memory key | `$IndEvo_MeteorTimeout` (global and location, expiring) | `MeteorSwarmManager.java:41`, set `:195-196` |
-| Memory key | `$IndEvo_MeteorTutorialComplete` (global) | `MeteorSwarmManager.java:39` |
-| Persistent data | `$IndEvo_MeteorRandom` (shared `Random`) | `MeteorSwarmManager.java:40`, `:206` |
+| Memory key | `$IndEvo_MeteorTimeout` (global and location, expiring) | `MeteorSwarmManager.java:42`, set `:175-176` |
+| Memory key | `$IndEvo_MeteorTutorialComplete` (global) | `MeteorSwarmManager.java:40` |
+| Persistent data | `$IndEvo_MeteorRandom` (shared `Random`) | `MeteorSwarmManager.java:41`, `:186` |
 | Memory key | `$IndEvo_RadEffectLevel` (per fleet, 0..1) | `RadiationEffectHandler.java:29` |
 | Memory key | `$IndEvo_warningRenderer` (location, the path renderer instance) | `MeteorSwarmWarningPathRenderer.java:23` |
 | Memory key | `$IndEvo_roider_tutorial`, `$IndEvo_supplyTradeAmt` (tutorial fleet) | `TutorialEncounterScript.java:79-80` |
 | Tags | `indevo_planetoid`, `IndEvo_IceRockNoSplinters`, `IndEvo_IceEntourage_<id>`, `IndEvo_TreasureoidEntrouage_<id>`; loot station id `<entity id>_loot` | spawners and entities |
 | Rules | `IndEvo_roiderTutorial_*` (offer 5 `IndEvo_consumable_missile_concussive` for 10% of supplies, max 100) | `data/campaign/rules.csv:6-62` |
-| Rule command package | `indevo.exploration.meteor.rules` | `data/config/settings.json:251` |
+| Rule command package | `indevo.exploration.meteor.rules` | `data/config/settings.json:85` |
 | Sounds | `IndEvo_radiation0..9` | `data/config/sounds.json:18` |
-| Sprite | `IndEvo/meteor_storm` (intel icon) | `data/config/settings.json:369` |
+| Sprite | `IndEvo/meteor_storm` (intel icon) | `data/config/settings.json:203` |
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:487`) adds a transient listener each load (`MeteorSwarmManager.java:90`).
+- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:476`) adds a transient listener each load (`MeteorSwarmManager.java:70`).
 - Spawners, warning path renderer and delayed spawn are location scripts; meteors are custom entities with saved plugins.
 - `RadiationEffectHandler.get()` adds itself as a transient Luna renderer on first use per session (`:36-45`).
 
@@ -81,9 +81,9 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 
 ### Roll and parameters
 
-- `reportEconomyTick` (`MeteorSwarmManager.java:98`): skip if `IndEvo_meteor_enabled` false or location invalid. Chance per tick `IndEvo_meteor_baseChancePerEconomyTick` (0.1 in dev mode). First valid tick adds `TutorialEncounterScript` and sets `$IndEvo_MeteorTutorialComplete`.
-- `isValidMeteorLoc` (`:118`): no pulsar planet, no global or location timeout, not hyperspace, no markets, not `SYSTEM_CUT_OFF_FROM_HYPER`, `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`.
-- `spawnShower` (`:142`): `width = baseWidth + modifier * intensity`, `lootAmt = max(1, round(intensity * treasureModifier))`, `density = min(maxDensity, intensity)`, `runtime = baseRuntime * min(maxRuntimeMult, intensity)` in seconds. Arc centre at random distance and angle; start and end at `angleToCenter +- (50..80)` intersected with the `gridLimit` square (`intersectWithGridBoundary`), circle through the three points (`TrigHelper.findThreePointCircle`). Delay `max(2, nextInt(6))` days, 0 in immediate mode.
+- `reportEconomyTick` (`MeteorSwarmManager.java:78`): skip if `IndEvo_meteor_enabled` false or location invalid. Chance per tick `IndEvo_meteor_baseChancePerEconomyTick` (0.1 in dev mode). First valid tick adds `TutorialEncounterScript` and sets `$IndEvo_MeteorTutorialComplete`.
+- `isValidMeteorLoc` (`:98`): no pulsar planet, no global or location timeout, not hyperspace, no markets, not `SYSTEM_CUT_OFF_FROM_HYPER`, `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`.
+- `spawnShower` (`:122`): `width = baseWidth + modifier * intensity`, `lootAmt = max(1, round(intensity * treasureModifier))`, `density = min(maxDensity, intensity)`, `runtime = baseRuntime * min(maxRuntimeMult, intensity)` in seconds. Arc centre at random distance and angle; start and end at `angleToCenter +- (50..80)` intersected with the `gridLimit` square (`intersectWithGridBoundary`), circle through the three points (`TrigHelper.findThreePointCircle`). Delay `max(2, nextInt(6))` days, 0 in immediate mode.
 
 ### Collision
 
@@ -99,7 +99,7 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 
 ## Contracts
 
-- All settings are `static final` fields read at class init (`MeteorSwarmManager.java:44-61`); changes apply after a restart. `IndEvo_meteor_immediateMode` is read per shower. Setting mechanics: [Settings](../core/SETTINGS.md).
+- Settings are read at use time: the enable toggle and chance on each economy tick, the shape values when a shower is rolled, the timeouts when it spawns. A change applies to the next tick or shower; a shower already rolled keeps its shape. Setting mechanics: [Settings](../core/SETTINGS.md).
 - One swarm per location: the warning path renderer is a single instance in location memory, the last one wins (`MeteorSwarmWarningPathRenderer.java:16-18`). `RadioactiveTerrain` lives only while that key exists, and relies on being spawned after it (`RadioactiveTerrain.java:90`).
 - `IntelManager.advance` does not advance intel (starsector-knowledge `obf/campaign/comms/v2/IntelManager.java:44`), so `MeteorShowerLocationIntel` adds itself as a sector script (`:31`).
 - `BaseCampaignEntity.runScripts` drops a script as soon as `isDone()` is true (starsector-knowledge `obf/campaign/BaseCampaignEntity.java:636-647`), so `PayloadOnFinishedModuleRunner` runs its payload in the advance that ends the movement and reports done from its own flag (`PayloadOnFinishedModuleRunner.java:20-37`). Payloads are named `Script` classes: lambdas come back from the save as null. A null payload at the arc end throws `IllegalStateException`, since only an IE bug can produce one.

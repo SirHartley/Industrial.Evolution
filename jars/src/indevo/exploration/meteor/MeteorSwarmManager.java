@@ -11,6 +11,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.DelayedActionScript;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.exploration.meteor.intel.MeteorShowerLocationIntel;
 import indevo.exploration.meteor.scripts.TutorialEncounterScript;
 import indevo.exploration.meteor.spawners.*;
@@ -39,27 +40,6 @@ public class MeteorSwarmManager implements EconomyTickListener {
     public static final String MEM_METEOR_TUTORIAL = "$IndEvo_MeteorTutorialComplete";
     public static final String MEM_RANDOM = "$IndEvo_MeteorRandom";
     public static final String MEM_TIMEOUT = "$IndEvo_MeteorTimeout";
-
-    //parameter
-    public static final boolean ENABLED = Settings.getBoolean(Settings.METEOR_ENABLED);
-    public static final float BASE_CHANCE_PER_ECONOMY_TICK = Settings.getFloat(Settings.METEOR_BASE_CHANCE_PER_ECONOMY_TICK);
-    public static final float MIN_INTENSITY = Settings.getFloat(Settings.METEOR_MIN_INTENSITY);
-    public static final float MAX_INTENSITY = Settings.getFloat(Settings.METEOR_MAX_INTENSITY);
-    public static final float BASE_SHOWER_WIDTH = Settings.getFloat(Settings.METEOR_BASE_SHOWER_WIDTH);
-    public static final float INTENSITY_WIDTH_MODIFIER = Settings.getFloat(Settings.METEOR_INTENSITY_WIDTH_MODIFIER);
-    public static final float MAX_DENSITY = Settings.getFloat(Settings.METEOR_MAX_DENSITY);
-    public static final float MAX_RUNTIME_MULT = Settings.getFloat(Settings.METEOR_MAX_RUNTIME_MULT);
-    public static final float BASE_RUNTIME = Settings.getFloat(Settings.METEOR_BASE_RUNTIME);
-    public static final float LOCATION_TIMEOUT_AFTER_SPAWN_DAYS = Settings.getFloat(Settings.METEOR_LOCATION_TIMEOUT_AFTER_SPAWN_DAYS);
-    public static final float GENERAL_TIMEOUT_AFTER_SPAWN_DAYS = Settings.getFloat(Settings.METEOR_GENERAL_TIMEOUT_AFTER_SPAWN_DAYS);
-
-    //position
-    private static final float GRID_LIMIT = Settings.getFloat(Settings.METEOR_GRID_LIMIT);
-    public static final float MAX_DISTANCE_FROM_SUN = Settings.getFloat(Settings.METEOR_MAX_DISTANCE_FROM_SUN);
-    public static final float MIN_DISTANCE_FROM_SUN = Settings.getFloat(Settings.METEOR_MIN_DISTANCE_FROM_SUN);
-    public static final float MAX_ANGLE = Settings.getFloat(Settings.METEOR_MAX_ANGLE);
-    public static final float MIN_ANGLE = Settings.getFloat(Settings.METEOR_MIN_ANGLE);
-
 
     public static class MeteorShowerData {
         public float chance;
@@ -96,14 +76,14 @@ public class MeteorSwarmManager implements EconomyTickListener {
 
     @Override
     public void reportEconomyTick(int iterIndex) {
-        if (!ENABLED) return;
+        if (!Setting.METEOR_ENABLED.enabled()) return;
 
         LocationAPI loc = Global.getSector().getCurrentLocation();
 
         if (!isValidMeteorLoc(loc)) return;
 
         Random random = getRandom();
-        boolean spawn = random.nextFloat() < (Global.getSettings().isDevMode() ? 0.1f : BASE_CHANCE_PER_ECONOMY_TICK);
+        boolean spawn = random.nextFloat() < (Global.getSettings().isDevMode() ? 0.1f : Setting.METEOR_BASE_CHANCE_PER_ECONOMY_TICK.value());
 
         //spawn tutorial if none has been spawned yet
         MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
@@ -149,19 +129,19 @@ public class MeteorSwarmManager implements EconomyTickListener {
         MeteroidShowerType type = forceType != null ? forceType : picker.pick();
 
         //parameters
-        float intensity = intensityOverride > 0 ? intensityOverride : MiscIE.getRandomInRange(MIN_INTENSITY, MAX_INTENSITY, random);
-        float width = BASE_SHOWER_WIDTH + INTENSITY_WIDTH_MODIFIER * intensity;
+        float intensity = intensityOverride > 0 ? intensityOverride : MiscIE.getRandomInRange(Setting.METEOR_MIN_INTENSITY.value(), Setting.METEOR_MAX_INTENSITY.value(), random);
+        float width = Setting.METEOR_BASE_SHOWER_WIDTH.value() + Setting.METEOR_INTENSITY_WIDTH_MODIFIER.value() * intensity;
         int lootAmt = Math.max(1, Math.round(intensity * type.treasureModifier));
-        float density = Math.min(MAX_DENSITY, intensity);
-        float runtime = BASE_RUNTIME * Math.min(MAX_RUNTIME_MULT, intensity);
+        float density = Math.min(Setting.METEOR_MAX_DENSITY.value(), intensity);
+        float runtime = Setting.METEOR_BASE_RUNTIME.value() * Math.min(Setting.METEOR_MAX_RUNTIME_MULT.value(), intensity);
 
         //location
-        float radius = MiscIE.getRandomInRange(MIN_DISTANCE_FROM_SUN, MAX_DISTANCE_FROM_SUN, random) + width / 2;
+        float radius = MiscIE.getRandomInRange(Setting.METEOR_MIN_DISTANCE_FROM_SUN.value(), Setting.METEOR_MAX_DISTANCE_FROM_SUN.value(), random) + width / 2;
         float centerAngle = 360f * random.nextFloat();
         Vector2f arcCenterLoc = MathUtils.getPointOnCircumference(null, radius, centerAngle);
 
         float angleToCenter = Misc.getAngleInDegrees(arcCenterLoc, new Vector2f(0,0));
-        float adjustment = MiscIE.getRandomInRange(MIN_ANGLE, MAX_ANGLE, random);
+        float adjustment = MiscIE.getRandomInRange(Setting.METEOR_MIN_ANGLE.value(), Setting.METEOR_MAX_ANGLE.value(), random);
         float startAngle = MathUtils.clampAngle(angleToCenter + adjustment);
         float endAngle = MathUtils.clampAngle(angleToCenter - adjustment);
 
@@ -182,7 +162,7 @@ public class MeteorSwarmManager implements EconomyTickListener {
             case PLANETOID -> new PlanetoidSwarmSpawner((StarSystemAPI) loc, arc, runtime, random.nextLong(), density, lootAmt);
         };
 
-        boolean immediateMode = Settings.getBoolean(Settings.METEOR_IMMEDIATE_MODE);
+        boolean immediateMode = Setting.METEOR_IMMEDIATE_MODE.enabled();
         int daysLeft = immediateMode ? 0 : Math.max(2, random.nextInt(6));
 
         loc.addScript(new DelayedActionScript(daysLeft) {
@@ -192,8 +172,8 @@ public class MeteorSwarmManager implements EconomyTickListener {
             }
         });
 
-        globalMem.set(MEM_TIMEOUT, true, GENERAL_TIMEOUT_AFTER_SPAWN_DAYS);
-        locMem.set(MEM_TIMEOUT, true, LOCATION_TIMEOUT_AFTER_SPAWN_DAYS);
+        globalMem.set(MEM_TIMEOUT, true, Setting.METEOR_GENERAL_TIMEOUT_AFTER_SPAWN_DAYS.value());
+        locMem.set(MEM_TIMEOUT, true, Setting.METEOR_LOCATION_TIMEOUT_AFTER_SPAWN_DAYS.value());
 
         if (withIntel) Global.getSector().getIntelManager().addIntel(new MeteorShowerLocationIntel(loc, intensity, type, daysLeft));
     }
@@ -222,16 +202,17 @@ public class MeteorSwarmManager implements EconomyTickListener {
         float dy = (float) Math.sin(angleToCenter);
 
         float tMax = Float.POSITIVE_INFINITY;
+        float gridLimit = Setting.METEOR_GRID_LIMIT.value();
 
         if (dx != 0) {
-            float tx1 = (-GRID_LIMIT - loc.x) / dx;
-            float tx2 = (GRID_LIMIT - loc.x) / dx;
+            float tx1 = (-gridLimit - loc.x) / dx;
+            float tx2 = (gridLimit - loc.x) / dx;
             tMax = Math.min(tMax, Math.max(tx1, tx2));
         }
 
         if (dy != 0) {
-            float ty1 = (-GRID_LIMIT - loc.y) / dy;
-            float ty2 = (GRID_LIMIT - loc.y) / dy;
+            float ty1 = (-gridLimit - loc.y) / dy;
+            float ty2 = (gridLimit - loc.y) / dy;
             tMax = Math.min(tMax, Math.max(ty1, ty2));
         }
 

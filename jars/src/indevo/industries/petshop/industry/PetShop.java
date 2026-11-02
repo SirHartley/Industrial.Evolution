@@ -16,12 +16,12 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.memory.Pet;
 import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -166,12 +166,12 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && Settings.getBoolean(Settings.PETS);
+        return super.isAvailableToBuild() && Setting.PETS.enabled();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return super.showWhenUnavailable() && Settings.getBoolean(Settings.PETS);
+        return super.showWhenUnavailable() && Setting.PETS.enabled();
     }
 
     @Override
@@ -179,7 +179,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         super.advance(amount);
 
         //if (petShopStationEntity == null && isFunctional() && !isBuilding()) ensurePetShopCreatedOrAssigned();
-        if(isFunctional() && !market.hasSubmarket(Ids.PETMARKET) && Settings.getBoolean(Settings.PETS)) Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.PETMARKET, false));
+        if(isFunctional() && !market.hasSubmarket(Ids.PETMARKET) && Setting.PETS.enabled()) Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.PETMARKET, false));
     }
 
     @Override
@@ -207,7 +207,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (storageCost > 0) getUpkeep().modifyFlat(STORAGE_UPKEEP_ID, storageCost, "Pet storage");
         else getUpkeep().unmodifyFlat(STORAGE_UPKEEP_ID);
 
-        boolean petsEnabled = Settings.getBoolean(Settings.PETS);
+        boolean petsEnabled = Setting.PETS.enabled();
         //supply(ItemIds.PET_FOOD, market.getSize() - 2);
         demand(Commodities.FOOD, market.getSize() - 2);
 

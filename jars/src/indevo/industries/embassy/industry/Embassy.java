@@ -16,6 +16,7 @@ import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.impl.campaign.intel.events.HostileActivityEventIntel;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.embassy.rules.IndEvo_ambassadorRemoval;
@@ -23,7 +24,6 @@ import indevo.industries.embassy.scripts.HAAmbassadorEventFactor;
 import indevo.items.installable.AmbassadorInstallableItemPlugin;
 import indevo.items.specialitemdata.AmbassadorItemData;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
 
@@ -92,7 +92,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.getBoolean(Settings.EMBASSY) && market.getFactionId().equals("player");
+        return Setting.EMBASSY.enabled() && market.getFactionId().equals("player");
     }
 
     @Override
@@ -102,7 +102,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
     }
 
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.EMBASSY);
+        return Setting.EMBASSY.enabled();
     }
 
     private void monthlyRepIncrease() {

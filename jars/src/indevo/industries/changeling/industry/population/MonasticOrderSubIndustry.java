@@ -25,13 +25,13 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.industries.changeling.hullmods.HandBuiltHullmod;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.listener.ShipProductionSummaryMessageHandler;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.lazywizard.lazylib.MathUtils;
 
@@ -88,7 +88,7 @@ Monastic Orders
         public boolean isSuitable(Industry ind) {
             Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
             boolean isTarget = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof MonasticOrderSubIndustry;
-            return !Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE) && isTarget;
+            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isTarget;
         }
 
         @Override

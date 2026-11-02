@@ -30,12 +30,12 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | Memory key | `$IndEvo_closeDialogueOnNextReturn` | interaction target memory, set by the option provider |
 | Memory key | `$IndEvo_HasSelectedSP_SY` | market memory: story point double capacity bought but not yet used |
 | Setting | `IndEvo_ScrapYard` | enables the industry; `isFunctional()` also checks it |
-| Setting | `IndEvo_SYBaseDMods`, `IndEvo_SYPartValueMult`, `IndEvo_SYHullDeliveryTime`, `IndEvo_RarePartsAmountPerFP`, `IndEvo_SYDModMoveBaseCostMult`, `IndEvo_shipPickerRowCount` | read as static finals in the dialog classes |
+| Setting | `IndEvo_SYBaseDMods`, `IndEvo_SYPartValueMult`, `IndEvo_SYHullDeliveryTime`, `IndEvo_RarePartsAmountPerFP`, `IndEvo_SYDModMoveBaseCostMult`, `IndEvo_shipPickerRowCount` | read at use time in the dialog classes; a contract keeps the delivery time it was accepted with (`YardsCustomProductionIntel.deliveryTime`, saved) |
 | Strings | category `IndEvo_ScrapYard` | `data/strings/strings.json:159` |
 
 ## Registration and lifecycle
 
-- CSV plugin column. `ModPlugin.setListenersIfNeeded()` registers `SalvageYardsOptionProvider` (`ModPlugin.java:475`).
+- CSV plugin column. `ModPlugin.setListenersIfNeeded()` registers `SalvageYardsOptionProvider` (`ModPlugin.java:464`).
 - `apply()` (functional only) registers itself as transient listener (`EconomyTickListener`, `NewDayListener`) and adds itself as `FleetEventListener` to every fleet currently in the system, skipping fleets that carry a `LuddicPathCellsIntel` listener to avoid a vanilla `ConcurrentModificationException` (`SalvageYards.java:202`).
 - `advance` keeps the shared submarket present; `unapply` removes listener, submarket and production quality mod.
 - Dialog commands are found through `ruleCommandPackages` (see [Rule commands](../dialogue/RULE_COMMANDS.md)).
@@ -93,7 +93,7 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | Item | State |
 |---|---|
 | AI core fields not reset (`applyAlphaCoreModifiers` etc., `:506`) | `BaseIndustry.applyAICoreModifiers` calls only one branch (`api/impl/campaign/econ/impl/BaseIndustry.java:246`); switching alpha to beta keeps alpha decay, beta to gamma keeps 90 SP per unit |
-| Story point bonus (`IndEvo_InitSYCustomProductionDiag.getCapacity`, `:357`) | multiplies only the hull capacity term (operator precedence) |
+| Story point bonus (`IndEvo_InitSYCustomProductionDiag.getCapacity`, `:354`) | multiplies only the hull capacity term (operator precedence) |
 | D-mod transfer confirm | no credit check before `subtract`; cost formula `(1.2^n + 1) / n` differs from `RestorationDocks` `1.2^(n+1) / n` |
 | `modifyPlayerCustomProduction` | dead code |
 | Open idea | `Changelog_todo:45`, `:69`: move S-mods with the yards |

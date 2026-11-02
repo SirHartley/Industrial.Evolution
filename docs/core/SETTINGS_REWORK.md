@@ -1,8 +1,8 @@
 # Player settings rework
 
-**Status: approved plan, not implemented.** Philipp took every recommendation on 2026-11-01 ([Decisions](#decisions)) and approved the Quick Settings split. No open questions. This document records how IE moves from the `Settings` string reader to the `Setting` enum and `PlayerSettings` cache that Catch.Release uses, plus the open questions and the work each step needs. Read it before changing the settings mechanism.
+**Status: implemented on PR #22, not merged; waiting for Philipp's in-game test.** Philipp took every recommendation on 2026-11-01 ([Decisions](#decisions)) and approved the Quick Settings split. No open questions. This document records how IE moves from the `Settings` string reader to the `Setting` enum and `PlayerSettings` cache that Catch.Release uses, and the work each step needs. Read it before changing the settings mechanism.
 
-It does not govern setting values, balance or help text wording. [SETTINGS.md](SETTINGS.md) stays the authority on the current mechanism until Stage 0 lands; feature docs own what each setting does; help text goes through the house-style `player-text.md`. Move implemented technical detail to SETTINGS.md and [ARCHITECTURE.md](../ARCHITECTURE.md) and tick the plan here.
+It does not govern setting values, balance or help text wording. [SETTINGS.md](SETTINGS.md) is the authority on the current mechanism; feature docs own what each setting does; help text goes through the house-style `player-text.md`. Move implemented technical detail to SETTINGS.md and [ARCHITECTURE.md](../ARCHITECTURE.md) and tick the plan here.
 
 Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`, byte-identical to the jar in Catch.Release `lib/Lazylib_lunalib.zip`), IE `c51d05e` (PR #18 head) and Catch.Release `03923f43`. LunaLib facts are from that jar, decompiled with the knowledge skill's Vineflower.
 
@@ -21,18 +21,18 @@ Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`, byte-ide
 | Owner | Role | Source |
 |---|---|---|
 | `config/Setting` | Enum, one constant per LunaLib field: `id`, `fallback`, `min`, `max`, radio `choices`. `sanitize(Object)` returns the fallback for a missing, wrong type or non-finite value, clamps numbers to the bounds and accepts only listed radio choices. Typed reads `value()`, `mult()` (value / 100), `enabled()`. | `Setting.java:135-182` |
-| `config/PlayerSettings` | `install()` adds the LunaLib listener once (`hasSettingsListenerOfClass`) and reloads; `ModPlugin` calls it from `onApplicationLoad` and `onGameLoad`. `reload()` forces LunaLib's lazy load, reads the raw `CommonDataJSONObject` for its own mod id, resolves (sanitize, then presets), writes changed values back and saves, rebuilds a status Text row, syncs the open settings UI and applies campaign side effects (bar event weights, quest markers). Runtime callers read an `EnumMap`; derived values have one helper each (`effects()`, `soundVolume(id)`). | `PlayerSettings.java:44` (install), `:70` (reload), `:95` (side effects), `:127` (resolve); `ModPlugin.java:70`, `:96` |
+| `config/PlayerSettings` | `install()` adds the LunaLib listener once (`hasSettingsListenerOfClass`) and reloads; `ModPlugin` calls it from `onApplicationLoad` and `onGameLoad`. `reload()` forces LunaLib's lazy load, reads the raw `CommonDataJSONObject` for its own mod id, resolves (sanitize, then presets), writes changed values back and saves, rebuilds a status Text row, syncs the open settings UI and applies campaign side effects (bar event weights, quest markers). Runtime callers read an `EnumMap`; derived values have one helper each (`effects()`, `soundVolume(id)`). | `PlayerSettings.java:44` (install), `:70` (reload), `:95` (side effects), `:127` (resolve); `ModPlugin.java:116`, `:145` |
 | `config/LunaSettingsBridge` | After a preset, pushes the resolved values into LunaLib's retained pending list and mounted controls, for its own mod id only. Without it, a later Save restores the preset or the old slider value. | `LunaSettingsBridge.java:16-51`, CR `docs/UI.md#lunalib-settings` |
 | `tools/PlayerSettingsChecks` | Headless: every enum constant has a CSV row with the same default, bounds and choices; help text present; `%%` survives LunaLib's `addPara` formatting; mod icon is square; presets apply once; retained UI values sync; Starsector's checked `JSONException` is on the classpath. | `PlayerSettingsChecks.java:69` |
 | `data/config/LunaSettings.csv` | Nine tabs. `fieldDescription` owns the help text and says when a change applies ("Applies to your next catch."). | |
 
-## IE today
+## IE before the rework
 
-Mechanism detail: [SETTINGS.md](SETTINGS.md). Findings that drive this plan:
+The baseline at `c51d05e` that the plan replaces; every finding is fixed by a stage below. Current mechanism: [SETTINGS.md](SETTINGS.md).
 
 1. **No owner object.** 152 string constants in `indevo/utils/helper/Settings.java`; 235 `Settings.getX` calls in 82 files. Each call goes to LunaLib, which looks the key up in its JSON object. LunaLib returns null for a missing key or mod (`LunaSettings.getBoolean` and siblings catch and return null), and `Settings` unboxes it, so a wrong id is a `NullPointerException` at the read site.
 2. **Restart needed.** 67 static fields in 18 classes copy a setting at class load (64 `static final`, plus `MortarProjectileEntityPlugin.EFFECT_SIZE` and two in `ShipComponentLootManager`). The General tab says so in a Text row (`IndEvo_text_application_note`: "Restarting your game client after changing settings is advised"). Affected: `MeteorSwarmManager` (16 fields), `MuseumConstants` (14, used in 40 places), artillery (`CampaignAttackScript`, `WatchtowerEntityPlugin`, `IndEvo_ArtilleryDefenderGen`, five projectile classes), `ShippingCostCalculator`, `MineBeltTerrainPlugin`, both salvage yard dialogs, `ShipComponentLootManager`, `ChamelionIndustry`, `CrucibleSpawner`, `GachaStationSpawner`.
-3. **Nothing reacts to Save.** IE has no `LunaSettingsListener`. The pet ability is added or removed only in `onGameLoad` (`ModPlugin.java:178-198`).
+3. **Nothing reacts to Save.** IE has no `LunaSettingsListener`. The pet ability is added or removed only in `onGameLoad`.
 4. **Bounds.** 21 `Int`/`Double` rows have no `minValue` or `maxValue`. LunaLib then uses 0 and 100 (`LunaSettingsLoader.loadDefault`), and its text field clamps a typed value to the max (`LunaUITextField`, Int, Float and Double branches). `IndEvo_courier_baseFee` defaults to 1000 with that implied max of 100: once a player edits it, 1000 is out of reach. `IndEvo_courier_costPerLyMult` writes its bounds as `0.1f` and `2f` (parsed by `Float.parseFloat`, which accepts the suffix). No min/max pair is checked against its partner.
 5. **Help text.** 27 setting rows have an empty `fieldDescription`: 11 artillery rows, `IndEvo_Minefield_PhaseShipImpactMult`, `IndEvo_RG_cooldownTime`, the eight hull deconstructor and forge day counts, six academy rows. Several others are informal ("ect", "I think").
 6. **Dead toggle.** `IndEvo_IntArray` has no reader. `MilitaryRelay` serves both relay industries and reads only `IndEvo_ComArray` (`MilitaryRelay.java:306`, `:312`), so the Interstellar Relay toggle does nothing and the Military Relay toggle also blocks the upgrade. Not in the suspected bug list yet.
@@ -46,7 +46,7 @@ Mechanism detail: [SETTINGS.md](SETTINGS.md). Findings that drive this plan:
 
 - Package `indevo/config/`, a new area as in Catch.Release.
 - One constant per LunaLib field with the constant names `Settings` uses today (`EMBASSY`, `METEOR_MAX_DENSITY`) and the same `fieldID`s, so the call site swap is mechanical: `Settings.getBoolean(Settings.EMBASSY)` becomes `Setting.EMBASSY.enabled()`.
-- Fields: `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`, `RADIO`), `fallback`, `min`, `max`, `choices`, `apply` (`LIVE`, `NEW_GAME`), `block`. `type`, `apply` and `block` are new against Catch.Release: IE has 42 `Int` rows, several world generation settings and content blocks.
+- Fields: `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`, `apply` (`LIVE`, `NEW_GAME`), `block`. `type`, `apply` and `block` are new against Catch.Release: IE has 41 `Int` rows, several world generation settings and content blocks. IE has no radio rows, so no `choices`.
 - `sanitize(Object)` as Catch.Release; an `INT` value is also rounded to a whole number.
 - Reads: `enabled()`, `value()` (float), `intValue()`. No `mult()`: IE values are raw (0.02 hit chance, 1000 credits).
 - `block` is an optional parent `BOOLEAN` setting. `enabled()` returns false when the block is off, whatever the setting's own value, so turning a block back on restores the player's individual choices. One level only.
@@ -59,7 +59,7 @@ Quick Settings is the first tab. It holds the disclaimers, one switch per conten
 |---|---|---|---|
 | Colony industries | New `IndEvo_block_industries` | Parent of the 19 industry toggles | Build menu at once; built industries stay; NPC placement on new games |
 | Derelict tech | `IndEvo_Enable_Derelicts` | Ruins and derelict industries, ruined infrastructure, derelict stations and their salvage specials (`IndEvo_enable_derelict_stations` becomes a child) | New games |
-| Artillery | `IndEvo_Enable_Artillery` | Artillery stations and watchtowers | Firing at once; placement on new games |
+| Artillery | `IndEvo_Enable_Artillery` | Artillery stations and watchtowers | Building, station setup and firing at once; placement on new games |
 | Minefields | `IndEvo_Enable_minefields` | Minefields around the core worlds and derelict stations | Hits at once; placement on new games |
 | Meteor swarms | `IndEvo_meteor_enabled` | Swarm spawns | At once |
 | Pets | `IndEvo_pets` | Pet shop, pet ability, abandoned pet shops | At once; world placement on new games |
@@ -86,12 +86,12 @@ Tab layout after the split (nine tabs, as Catch.Release):
 ### Shared mechanic: `PlayerSettings`
 
 - `install()` first in `ModPlugin.onApplicationLoad` and `onGameLoad`, as Catch.Release.
-- `reload()`: force LunaLib's load with any `LunaSettings.getX` call, read `LunaSettingsLoader.getSettings().get("IndEvo")`, sanitize every field, apply the pair rule, write changed values back and save, then run `applyCampaignSettings()`.
+- `reload()`: read every field through the public `LunaSettings` getters (they force LunaLib's lazy load), sanitize it, apply the pair rule, then write changed values back through `LunaSettingsLoader.getSettings().get("IndEvo")` and save; the public API has no setter. The listener then runs `applyCampaignSettings()`; `install()` and `onNewGame` reload only.
 - Pair rule (new): when a max is below its min, the max is raised to the min. Pairs: artillery delay between shots, cooldown, range; meteor intensity, distance from sun, angle; museum additional credits.
 - Runtime callers read the cache through `Setting`. An `EnumMap` lookup is cheap enough for per frame reads.
-- `applyCampaignSettings()` runs from `onGameLoad` and from the listener. From the listener it runs only when `Global.getCurrentState() == GameState.CAMPAIGN`: the LunaLib menu also opens on the title screen, where `Global.getSector()` is the previous game's sector (knowledge skill `docs/concepts/lifecycle.md`). Catch.Release gates on `Global.getSector() == null`, which never trips there; the same gap exists in that mod. First content: the pet ability add or remove, moved out of `ModPlugin.onGameLoad`.
+- `applyCampaignSettings()` runs from `onGameLoad` and from the listener. From the listener it runs only when `Global.getCurrentState() == GameState.CAMPAIGN`: the LunaLib menu also opens on the title screen, where `Global.getSector()` is the previous game's sector (knowledge skill `docs/concepts/lifecycle.md`). Catch.Release checks `Global.getSector() == null`, which is never true there; the same gap exists in that mod. First content: the pet ability add or remove, moved out of `ModPlugin.onGameLoad`.
 - LunaLib catches listener exceptions and logs them at debug level (`LunaSettings.reportSettingsChanged`), so `settingsChanged` catches and logs with `log.error` and the stack itself.
-- LunaLib does not call listeners for a Save in the new game settings panel (`LunaSettingsUIModsPanel`, `if (!this.newGame)`), so the `onGameLoad` reload is required, as in Catch.Release.
+- LunaLib does not call listeners for a Save in the new game settings panel (`LunaSettingsUIModsPanel`, `if (!this.newGame)`), so the `onGameLoad` reload is required, as in Catch.Release. LunaLib still stores that Save in `LunaSettingsLoader.getSettings()`, and economy load and world generation read settings before `onGameLoad(true)`, so `onNewGame`, the first new game hook, reloads as well.
 - No `LunaSettingsBridge`: presets are not planned (decision 2), and sanitize and the pair rule give the same result when LunaLib writes a retained pending value again.
 
 ### Apply timing
@@ -100,11 +100,11 @@ Tab layout after the split (nine tabs, as Catch.Release):
 - Help text states the new game part in the short style the CSV already uses ("Needs a new game!", "Only works on new game."), normalised to one line: "Needs a new game."
 - `NEW_GAME` settings only act during world generation; their help text ends with that line: `IndEvo_enable_derelict_stations`, `IndEvo_derelictStationAmount`, `IndEvo_SpecialApplicationChance`, `IndEvo_AutomatedShipyardNum`, `IndEvo_Artillery_spawnWeight`, `IndEvo_Artillery_starsPerStationInConstellation`.
 - Mixed toggles act both in world generation and live: `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_Enable_Derelicts`, `IndEvo_pets`, and the industry toggles `NewGameIndustryPlacer` reads. They stay `LIVE`; help text names the part that needs a new game ("Placement needs a new game.").
-- Values copied into saved objects keep their old value until the object is rebuilt: `CampaignAttackScript` builds its fire interval from the delay settings in its constructor (`CampaignAttackScript.java:50`); courier contracts and museum parades are priced or sized at creation. House rule: new terms use the values at creation, accepted terms stay fixed. Stage 2 decides each case and records it in the feature doc.
+- Values copied into saved objects keep their old value until the object is rebuilt: `CampaignAttackScript` builds its fire interval from the delay settings in its constructor (`CampaignAttackScript.java:50`); each courier shipment fixes its cost at dispatch (`Shipment.java:52`). Museum: nothing saved holds a setting. `Museum.maxParades` is a saved field but `unapplyAICoreModifiers` resets it on every `apply` (`BaseIndustry.apply` calls `applyAICoreModifiers`), and parade size settings are read when a parade spawns (`ParadeFleetProfile.java:93`, `:121`, `:127`); a parade already flying keeps its ships. House rule: new terms use the values at creation, accepted terms stay fixed. Stage 2 decides each case and records it in the feature doc.
 
 ## Dependencies
 
-- LunaLib 2.0.1, already a hard dependency. Uses the public `LunaSettings` API plus `LunaSettingsLoader.getSettings()` from LunaLib's backend package, as Catch.Release.
+- LunaLib 2.0.1, already a hard dependency. Reads through the public `LunaSettings` API; only the write back uses `LunaSettingsLoader.getSettings()` from LunaLib's backend package, since the public API has no setter.
 - Not needed: PatchLib, reflection, any new data file.
 
 ## Decisions
@@ -129,13 +129,14 @@ Philipp, 2026-11-01: every recommendation taken, plus a Quick Settings tab.
    | `IndEvo_GovernmentMaxSize` | 1 to 10 |
    | `IndEvo_SYPartValueMult`, `IndEvo_SYDModMoveBaseCostMult` | 0.1 to 5 |
 
-5. **`IndEvo_IntArray`** gates the Interstellar Relay: `MilitaryRelay` reads the toggle of its own id.
+5. **`IndEvo_IntArray`** turns the Interstellar Relay on or off: `MilitaryRelay` reads the toggle of its own id.
 6. **`IndEvo_CrucibleNum`** row removed while crucibles are dormant; `CrucibleSpawner` uses a plain constant until they return.
 7. **`settings.json`**: all 102 fallback keys removed.
 8. **Quick Settings** with content block switches; split approved as in [the section](#quick-settings-and-content-blocks).
 9. **Relic components are not a block**: they are integral to research projects and salvage yards. `IndEvo_PartsDropInCampaign` (ship component drops; relic components drop either way) stays a normal setting.
 10. **No corruption settings**: corruption leaves IE for its own mod, in a separate change.
 11. **No back-fill**: switching a block on in a running game places no world content; help text says which part needs a new game.
+12. **Artillery off stops firing** (Philipp, 2026-11-01): placed stations stay, but do not fire while the block is off.
 
 ## Open questions
 
@@ -143,17 +144,17 @@ None.
 
 ## Implementation plan
 
-Four stages, done in order. Stage 0 changes no visible behaviour. Help text goes through the house-style `player-text.md`. Stacks on PR #18; Stage 0 touches `ModPlugin`, which PRs #20 and #21 also change, so it starts after they merge.
+Four stages, done in order. Stage 0 changes no visible behaviour. Help text goes through the house-style `player-text.md`. All stages go into the test branch `claude/project-thread-2vk6rz` as one merge.
 
 ### Architecture
 
 | Area | Owner (new or changed) | Role |
 |---|---|---|
-| Declarations | New `indevo/config/Setting` | Ids, type, default, bounds, apply timing, sanitize, typed reads |
-| Cache and lifecycle | New `indevo/config/PlayerSettings` | Install, reload, listener, pair rule, write back, campaign side effects |
-| Old reader | `indevo/utils/helper/Settings` | Delegates to the cache in Stage 0, deleted in Stage 1 |
-| Startup | `indevo/utils/ModPlugin` | `PlayerSettings.install()` first in both hooks; pet ability moves to `applyCampaignSettings()` |
-| Checks | New `indevo/tools/SettingsChecks` | Headless CSV, enum and sanitize checks |
+| Declarations | `indevo/config/Setting` | Implemented in Stage 0 to 2; see [SETTINGS.md](SETTINGS.md#files) |
+| Cache and lifecycle | `indevo/config/PlayerSettings` | Implemented in Stage 0 and 2; see [SETTINGS.md](SETTINGS.md#reading-a-setting) |
+| Old reader | `indevo/utils/helper/Settings` | Deleted in Stage 1 |
+| Startup | `indevo/utils/ModPlugin` | Implemented in Stage 0 and 2.3; see [ARCHITECTURE.md](../ARCHITECTURE.md#registration-and-lifecycle) |
+| Checks | `indevo/tools/SettingsChecks` | Implemented in Stage 3.1; see [SETTINGS.md](SETTINGS.md#settings-checks) |
 
 ### Data files this changes
 
@@ -164,39 +165,41 @@ Four stages, done in order. Stage 0 changes no visible behaviour. Help text goes
 
 ### Stages
 
-Each stage is one pull request and depends on the stages before it. Within a stage, do the subtasks in order, one commit each. Tick a subtask when it is merged. Every stage finishes with the build gate ([CLAUDE.md](../../CLAUDE.md#building)), the checks it names, its Changelog entries and its SETTINGS.md and ARCHITECTURE.md routes.
+Each stage depends on the stages before it. Within a stage, do the subtasks in order, one commit each. Tick a subtask in its own commit. Every stage finishes with the build gate ([CLAUDE.md](../../CLAUDE.md#building)), the checks it names, its Changelog entries and its SETTINGS.md and ARCHITECTURE.md routes.
 
 **Stage 0: one owner.** No visible change.
-- [ ] 0.1 Drop the fallback: `Settings` reads LunaLib only; remove the 102 keys from `settings.json` (decision 7). Done when: no LunaLib id is left in `settings.json`.
-- [ ] 0.2 Add `indevo/config/Setting` (152 constants from the CSV as it is, all `LIVE`) and `PlayerSettings` (install, reload, listener, cache, error logging, title screen gate). `ModPlugin` calls `install()` first in both hooks; `config` joins the CLAUDE.md area list. `Settings.getBoolean`, `getFloat` and `getInt` read the cache by id.
+- [x] 0.1 Drop the fallback: `Settings` reads LunaLib only; remove the 102 keys and the stale `IndEvo_Artillery_defense_FP` from `settings.json` (decision 7). Done when: no LunaLib id is left in `settings.json`.
+- [x] 0.2 Add `indevo/config/Setting` (150 constants from the CSV as it is; rows without bounds get infinite bounds until 1.2; `block` comes with 1.5, `apply` with 2.4) and `PlayerSettings` (install, reload, listener, cache, write back, error logging). `ModPlugin` calls `install()` first in `onApplicationLoad` and `onGameLoad` and `reload()` in `onNewGame`; `config` joins the CLAUDE.md area list. `Settings.getBoolean`, `getFloat` and `getInt` read the cache by id.
   - Done when: values match the old reads; a Save in the campaign settings menu updates the cache (dev log line).
 
 **Stage 1: typed reads and correct data.**
-- [ ] 1.1 Replace the 235 `Settings.getX(Settings.NAME)` calls with `Setting.NAME.enabled()`, `value()` or `intValue()`; delete `indevo/utils/helper/Settings.java`. Done when: `grep -rn 'Settings\.get' jars/src` finds only `Global.getSettings()` calls.
-- [ ] 1.2 Explicit bounds for the 21 rows (decision 4), plain numbers for `IndEvo_courier_costPerLyMult`; `Setting` mirrors them.
+- [x] 1.1 Replace the 231 `Settings.getX(Settings.NAME)` calls with `Setting.NAME.enabled()`, `value()` or `intValue()`; delete `indevo/utils/helper/Settings.java`. Two reads used the wrong type: `SY_PART_VALUE_MULT` (Double, default 1.2) went through `getInt` and truncated to 1, now `value()` (`IndEvo_InitSYCustomProductionDiag.java:73`); `ARTILLERY_STARS_PER_STATION` (Double) is a count and keeps `intValue()` (`ArtilleryStationPlacer.java:85`). Done when: `grep -rn 'Settings\.get' jars/src` finds only `Global.getSettings()` calls.
+- [x] 1.2 Explicit bounds for the 21 rows (decision 4), plain numbers for `IndEvo_courier_costPerLyMult`; `Setting` mirrors them.
   - Done when: the courier base fee slider reaches 1000.
-- [ ] 1.3 Pair rule in `PlayerSettings`.
-- [ ] 1.4 `IndEvo_IntArray` gates the Interstellar Relay (decision 5).
-- [ ] 1.5 Content blocks: `Setting.block`, rows `IndEvo_block_industries` and `IndEvo_block_consumables`, children per the block table, `IndEvo_enable_derelict_stations` under `IndEvo_Enable_Derelicts`.
-  - Done when: with Colony industries off no IE industry shows in the build menu; back on, each industry follows its own toggle again.
-- [ ] 1.6 Remove the `IndEvo_CrucibleNum` row and setting (decision 6).
+- [x] 1.3 Pair rule in `PlayerSettings`.
+- [x] 1.4 `IndEvo_IntArray` turns the Interstellar Relay on or off (decision 5).
+- [x] 1.5 Content blocks: `Setting.block`, rows `IndEvo_block_industries` and `IndEvo_block_consumables`, children per the block table, `IndEvo_enable_derelict_stations` under `IndEvo_Enable_Derelicts`.
+  - Done when: with Colony industries off none of the 19 toggled industries shows in the build menu; back on, each industry follows its own toggle again. The new rows sit in the General tab until 3.3 makes it Quick Settings.
+- [x] 1.6 Remove the `IndEvo_CrucibleNum` row and setting (decision 6).
 
 **Stage 2: live settings.**
-- [ ] 2.1 Replace the 67 class load copies with use time reads, one commit per feature (meteors, museum, artillery, courier port, minefields, salvage yards, loot, small cases). `MuseumConstants` keeps its fixed constants only.
+- [x] 2.1 Replace the 67 class load copies with use time reads, one commit per feature (meteors, museum, artillery, courier port, minefields, salvage yards, loot, small cases). `MuseumConstants` keeps its fixed constants only. `ShipComponentLootManager` fields and `MortarProjectileEntityPlugin.EFFECT_SIZE` went the same way; `YardsCustomProductionIntel` stores `deliveryTime` at contract start. Placed artillery stations still keep their fire interval and range (2.2).
   - Done when: changing a meteor or artillery value in a running campaign applies without a restart.
-- [ ] 2.2 Saved objects: decide each case (fire intervals, contracts, parades), apply it and record it in the feature doc.
-- [ ] 2.3 `applyCampaignSettings()`: pet ability add or remove on Save.
-- [ ] 2.4 `apply` metadata for the `NEW_GAME` list, apply notes in help text, remove `IndEvo_text_application_note`.
+- [x] 2.2 Saved objects: decide each case (fire intervals, contracts, parades), apply it and record it in the feature doc. Artillery follows the settings: the fire interval is rebuilt when a delay setting changes and `getRange()` reads the max range, with the improve bonus in a new `rangeBonus` field ([ARTILLERY.md](../industries/ARTILLERY.md#contracts)). Accepted terms stay fixed: courier shipment cost at dispatch, salvage yard contract delivery time, Ruined Infrastructure restoration time. A parade already out keeps its ships.
+- [x] 2.3 `applyCampaignSettings()` with the `GameState.CAMPAIGN` check: pet ability add or remove on Save. The ability code moved from `ModPlugin.onGameLoad` to `PetManagementAbilityPlugin.applySetting()`; `onGameLoad` calls `applyCampaignSettings()`.
+- [x] 2.4 `apply` metadata for the `NEW_GAME` list, apply notes in help text, remove `IndEvo_text_application_note`. The industry switches `NewGameIndustryPlacer` reads (`IndEvo_AdManuf`, `IndEvo_ScrapYard`, `IndEvo_dryDock`, `IndEvo_Academy`, `IndEvo_ReqCenter`, `IndEvo_PrivatePort`) say "NPC placement needs a new game.". The pets help text no longer mentions pet food.
+- [x] 2.5 `CampaignAttackScript.advance` returns at once while `IndEvo_Enable_Artillery` is off (decision 12); the script stays attached, so firing resumes when it is switched back on. It also removes the range terrain, and `EyeIndicatorScript` counts no hostile station, so the eye stays empty.
+  - Done when: with Artillery off in a running campaign, no placed station fires; back on, they fire again.
 
 **Stage 3: checks and text.**
-- [ ] 3.1 `indevo/tools/SettingsChecks`, run with the build gate, outside the release jar:
-  - CSV against enum: unique ids, a row for every constant and a constant for every non Header, non Text row, type, default, explicit bounds for every number, default inside its bounds, radio choices.
+- [x] 3.1 `indevo/tools/SettingsChecks`, run with the build gate, outside the release jar. `ReleaseBuild.checkSettings` loads it from the compiled classes; the `JSONException` check stays in `ReleaseBuild.build`. The full list is in [SETTINGS.md](SETTINGS.md#settings-checks).
+  - CSV against enum: unique ids, a row for every constant and a constant for every non Header, non Text row, type, default, explicit bounds for every number, default inside its bounds.
   - Text: help text present; `fieldName`, `fieldDescription` and Text rows survive `String.format` (as Catch.Release); `NEW_GAME` help text contains "needs a new game".
   - Logic: sanitize (missing, wrong type, NaN, infinity, clamp, Int rounding), the pair rule, Starsector's checked `JSONException`.
   - Blocks: every block is a `BOOLEAN` in Quick Settings and has no block itself.
   - Source: no `LunaSettings.get` outside `indevo/config`.
-- [ ] 3.2 Help text for the 27 empty rows and a pass over the informal ones, in the CSV's existing short style.
-- [ ] 3.3 Quick Settings and the nine tab layout, rows moved with their ids.
+- [x] 3.2 Help text for the 27 empty rows and a pass over the informal ones, in the CSV's existing short style. Keep the limits the old `settings.json` comments stated: missile projectiles per shot must be even, railgun projectiles need a higher fuzz mult, Supercomputer runtimes should be multiples of 31 (tooltips), Salvage Yards off also stops ship component drops, Embassy off also stops ambassador scripts. Every number and Boolean row has `Default <value>.` before its timing note, and settings that keep accepted terms say so ("Applies to new shipments."), per the house-style setting description; SettingsChecks matches the default.
+- [x] 3.3 Quick Settings and the nine tab layout, rows moved with their ids. Quick Settings holds the seven content switches and the most changed general values; the tabs are listed in [SETTINGS.md](SETTINGS.md#lunalib-settings).
 
 Steps that change what the player sees end with a live test by Philipp: change a setting in a running campaign, Save, and check it applies; start a new game with changed new game settings.
 
@@ -205,4 +208,4 @@ Steps that change what the player sees end with a live test by Philipp: change a
 - Mod order: IE's `onApplicationLoad` runs before LunaLib's (hooks run in mod `name` order, `lifecycle.md`), so `reload()` must force LunaLib's load; LunaLib then skips its own (`getHasLoaded`).
 - LunaLib's `onDevModeF8Reload` reloads settings without calling listeners, and runs after IE's hook. In dev mode, Save again or reload the game after F8.
 - LunaLib writes defaults for missing keys (`saveDefaultsToFile`). A renamed `fieldID` resets that setting for every player.
-- Minefields off: `beforeGameSave` still removes untouched mines, `restoreRemovedEntities` skips them and `createMines` makes none, so turning minefields back on depends on the belts regenerating (`MineBeltTerrainPlugin.createMines`, `ModPlugin.java:372`). Inferred, not tested; recheck in 2.1.
+- Minefields off: hits stop at once (`MineBeltTerrainPlugin.applyEffect`). On the next save `beforeGameSave` removes untouched mines and `restoreRemovedEntities` does not put them back, so they leave the running game too; mines with memory stay. Back on: vanilla calls `regenerateAsteroids()` on every `AsteroidSource` at each game load (`CoreLifecyclePluginImpl.onGameLoad`, `regenAsteroids`), which recreates `params.numMines` mines. Removed mines return at the next load, not at once. Calling `createMines` from the listener instead would double the mines that were never removed.

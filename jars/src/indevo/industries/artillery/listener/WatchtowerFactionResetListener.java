@@ -7,9 +7,9 @@ import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.campaign.listeners.ObjectiveEventListener;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
-import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class WatchtowerFactionResetListener implements ObjectiveEventListener, N
     @Override
     public void reportObjectiveChangedHands(SectorEntityToken objective, FactionAPI from, FactionAPI to) {
         if (objective.getTags().contains(Ids.TAG_WATCHTOWER) && !watchtowerTimeoutMap.containsKey(objective.getId())) {
-            watchtowerTimeoutMap.put(objective.getId(), Settings.getInt(Settings.ARTILLERY_WATCHTOWER_FACTION_RESET_TIME));
+            watchtowerTimeoutMap.put(objective.getId(), Setting.ARTILLERY_WATCHTOWER_FACTION_RESET_TIME.intValue());
         }
     }
 

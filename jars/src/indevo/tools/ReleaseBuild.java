@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
@@ -43,6 +44,7 @@ public final class ReleaseBuild {
     static final String TOOLS = SOURCE + "indevo/tools/";
     static final String TOOL = TOOLS + "ReleaseBuild.java";
     static final String PLUGIN = "indevo/utils/ModPlugin.class";
+    static final String SETTINGS_CHECKS = "indevo.tools.SettingsChecks";
     static final List<String> PACKAGES = List.of("indevo/", "data/scripts/");
     static final String VERSION = "[1-9][0-9]*\\.(?:0|[1-9][0-9]*)\\.[a-z]";
     static final Pattern HEADING = Pattern.compile(
@@ -108,6 +110,7 @@ public final class ReleaseBuild {
                     null, manager.getJavaFileObjectsFromPaths(sources)).call();
             require(passed, "Compilation failed; the release jar was not replaced.");
         }
+        System.out.println("Settings: " + checkSettings(root, classes, dependencies, sources) + " checks passed");
         Map<String, byte[]> entries = new TreeMap<>();
         for (Path path : files(classes)) {
             String name = relative(classes, path);
@@ -133,6 +136,19 @@ public final class ReleaseBuild {
         Files.createDirectories(root.resolve(JAR).getParent());
         Files.move(candidate, root.resolve(JAR), StandardCopyOption.REPLACE_EXISTING);
         System.out.println("Release jar: " + root.resolve(JAR));
+    }
+
+    static int checkSettings(Path root, Path classes, List<Path> dependencies, List<Path> sources) throws Exception {
+        List<URL> urls = new ArrayList<>(List.of(classes.toUri().toURL()));
+        for (Path path : dependencies) urls.add(path.toUri().toURL());
+        // the checks use the compiled Setting enum, this file runs as a single source file and cannot link it
+        try (URLClassLoader loader = new URLClassLoader(urls.toArray(URL[]::new), ClassLoader.getPlatformClassLoader())) {
+            return (int) loader.loadClass(SETTINGS_CHECKS).getMethod("run", Path.class, List.class)
+                    .invoke(null, root, sources);
+        } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof Exception cause) throw cause;
+            throw e;
+        }
     }
 
     static void pack(Path root, String version) throws Exception {

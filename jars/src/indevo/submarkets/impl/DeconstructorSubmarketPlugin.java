@@ -8,16 +8,15 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.submarkets.BaseSubmarketPlugin;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.submarkets.DynamicSubmarket;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static indevo.utils.helper.Settings.DECON_ALLOW_NEX_OMEGA;
 
 public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements DynamicSubmarket {
 
@@ -71,7 +70,7 @@ public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements
         if (market.hasIndustry(Ids.DECONSTRUCTOR)) {
             if (Global.getSettings().isDevMode()) return false;
 
-            if (member.getBuffManager().getBuff("nex_mercBuff") != null && !Settings.getBoolean(DECON_ALLOW_NEX_OMEGA)) return true; //nex mercs can't be deconstructed to avoid players duping the omega ship
+            if (member.getBuffManager().getBuff("nex_mercBuff") != null && !Setting.DECON_ALLOW_NEX_OMEGA.enabled()) return true; //nex mercs can't be deconstructed to avoid players duping the omega ship
 
             //if illegal, return true
             boolean notAllowed = !(allowedShips.contains(member.getHullId()) || allowedShips.contains(member.getHullSpec().getBaseHullId())); //if not allowed, return true
@@ -79,7 +78,7 @@ public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements
             boolean isPrinted = member.getVariant().hasHullMod(Ids.PRINTING_INDICATOR);
             boolean hasUnremovableNonAIOfficer = member.getCaptain() != null && (Misc.isUnremovable(member.getCaptain()) && !member.getCaptain().isAICore());
 
-            boolean ignoreWhiteLists = Settings.getBoolean(Settings.DECON_IGNORE_WHITELISTS);
+            boolean ignoreWhiteLists = Setting.DECON_IGNORE_WHITELISTS.enabled();
 
             if (ignoreWhiteLists) return isPrinted || hasUnremovableNonAIOfficer;
 

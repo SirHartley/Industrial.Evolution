@@ -5,6 +5,15 @@ Adjusted - Brought all mentions of solar units in line with vanilla by renaming 
 Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
 Fixed - Possible crash on market updates with mod industries that do not extend BaseIndustry
 Removed - Colony corruption mode, it is now a separate mod
+Removed - Unused LunaLib setting copies in settings.json
+Removed - Unused Crucible Amount setting
+Added - Quick Settings tab with content switches and the most used values
+Adjusted - Settings sorted into tabs
+Adjusted - Settings apply without a game restart
+Adjusted - Limits for number settings that had none
+Added - Help text for all settings, with defaults and new game requirements
+Fixed - Maximum settings accepting values below their minimum
+Fixed - Ship Picker Row Count accepting 0
 Adjusted - Now requires PatchLib
 Note - Install PatchLib alongside Industrial.Evolution
 Note - Saves from 4.1.b do not load, start a new game
@@ -53,6 +62,7 @@ Relays
 Fixed - Relay size calculations, including percentage fleet size modifiers
 Fixed - Crashes with modded AI cores and colonies outside star systems
 Fixed - Relay updates accumulating and causing slowdown
+Fixed - Interstellar Relay setting doing nothing
 
 Academy
 Fixed - Aggression training charging twice
@@ -77,6 +87,7 @@ Courier Port
 Fixed - Invalid contracts not explaining the problem
 Fixed - Ship transport charging by fleet points instead of deployment points
 Fixed - “Ship now” crashing on invalidated contracts
+Fixed - Base fee setting capped below its default
 
 Derelict Industries
 Fixed - Rift Generator movement lagging behind its animation and leaving planetary rings behind
@@ -117,6 +128,7 @@ Fixed - Missing salvage from blockades, punitive expeditions and hostile activit
 Fixed - Weapon salvage exceeding the monthly cap on the final day
 Fixed - Ship contracts consuming rare parts instead of ship parts
 Fixed - Contract and D-mod transfer costs exceeding the 150% cap
+Fixed - Ship Component Value Mult setting ignoring decimals
 
 Senate
 Fixed - Fast build construction bonus remaining after expiry
@@ -193,6 +205,7 @@ Adjusted - Uses vanilla star dialogs for better mod compatibility
 Fixed - Slow fields and forced overloads expiring during combat pause
 Fixed - Watchtowers appearing as stable locations
 Fixed - Stable location creation ignoring wormholes
+Fixed - Placed stations firing with Artillery turned off
 
 Console Commands
 Fixed - SpawnRuins processing the first planet twice and duplicating ruins

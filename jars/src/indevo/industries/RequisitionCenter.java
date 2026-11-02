@@ -10,13 +10,13 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.embassy.industry.Embassy;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.submarkets.impl.RequisitionsCenterSubmarketPlugin;
 import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -52,12 +52,12 @@ public class RequisitionCenter extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.getBoolean(Settings.REQCENTER);
+        return Setting.REQCENTER.enabled();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.REQCENTER);
+        return Setting.REQCENTER.enabled();
     }
 
     @Override

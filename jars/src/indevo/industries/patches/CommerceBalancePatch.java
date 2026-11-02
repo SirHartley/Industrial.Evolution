@@ -11,9 +11,9 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.TradeCenter;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import patchlib.api.context.AfterContext;
 import patchlib.api.context.BeforeContext;
@@ -117,7 +117,7 @@ public class CommerceBalancePatch {
     }
 
     public static boolean isActive() {
-        return Settings.getBoolean(Settings.COMMERCE_BALANCE_CHANGES);
+        return Setting.COMMERCE_BALANCE_CHANGES.enabled();
     }
 
     private static boolean isOnlyOneInSystem(MarketAPI market) {

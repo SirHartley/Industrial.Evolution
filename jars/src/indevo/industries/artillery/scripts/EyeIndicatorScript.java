@@ -5,6 +5,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEyeIndicator;
@@ -63,7 +64,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         //check if there's a hostile arty, if not, we reset to 0 and cycle
         boolean hostileArtilleryPresent = false;
-        for (SectorEntityToken t : loc.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION)) {
+        if (Setting.ENABLE_ARTILLERY.enabled()) for (SectorEntityToken t : loc.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION)) {
             if (t.getFaction().isHostileTo(player.getFaction())) {
                 hostileArtilleryPresent = true;
                 break;
@@ -114,7 +115,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
             WatchtowerEntityPlugin p = (WatchtowerEntityPlugin) t.getCustomPlugin();
 
             float dist = Misc.getDistance(t, player);
-            if (!p.isHacked() && p.isHostileTo(player) && dist < WatchtowerEntityPlugin.RANGE) {
+            if (!p.isHacked() && p.isHostileTo(player) && dist < Setting.ARTILLERY_WATCHTOWER_RANGE.value()) {
                 if (dist > closestDist) {
                     closestDist = dist;
                     closestTower = t;
@@ -128,7 +129,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
             addition = -amount;
 
         } else { //at this point we are in range because there is a closest hostile tower
-            float distanceFraction = 1 - closestDist / WatchtowerEntityPlugin.RANGE;
+            float distanceFraction = 1 - closestDist / Setting.ARTILLERY_WATCHTOWER_RANGE.value();
             float mult = 1 + distanceFraction;
             addition = amount * mult;
         }

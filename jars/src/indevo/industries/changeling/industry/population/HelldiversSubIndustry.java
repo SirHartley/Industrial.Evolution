@@ -17,11 +17,11 @@ import com.fs.starfarer.api.impl.campaign.submarkets.LocalResourcesSubmarketPlug
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.industries.changeling.hullmods.Hellpods;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
 import org.lazywizard.lazylib.MathUtils;
@@ -108,7 +108,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         public boolean isSuitable(Industry ind) {
             Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
             boolean isTarget = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof HelldiversSubIndustry;
-            return !Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE) && isTarget;
+            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isTarget;
         }
 
         @Override

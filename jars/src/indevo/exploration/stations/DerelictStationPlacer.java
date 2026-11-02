@@ -14,11 +14,11 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.SalvageEntityGeneratorO
 import com.fs.starfarer.api.impl.campaign.procgen.themes.SalvageSpecialAssigner;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
 import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.ids.Ids;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -40,8 +40,8 @@ public class DerelictStationPlacer {
     }
 
     public void init() {
-        if (!Settings.getBoolean(Settings.ENABLE_DERELICT_STATIONS)) return;
-        ADDITIONAL_STATION_AMT = Settings.getFloat(Settings.DERELICT_STATION_AMOUNT);
+        if (!Setting.ENABLE_DERELICT_STATIONS.enabled()) return;
+        ADDITIONAL_STATION_AMT = Setting.DERELICT_STATION_AMOUNT.value();
         random = StarSystemGenerator.random;
 
         float totalStationAmt = 0;
@@ -65,7 +65,7 @@ public class DerelictStationPlacer {
         float arsChance = arsAmt * 3 / systemList.size();
         float petChance = petAmt * 3 / systemList.size();
 
-        if (!Settings.getBoolean(Settings.PETS)){
+        if (!Setting.PETS.enabled()){
             petAmt = 0;
             petChance = 0;
         }
@@ -140,7 +140,7 @@ public class DerelictStationPlacer {
 
         AddedEntity e = addStation(loc, data, type, Factions.NEUTRAL);
 
-        if (Settings.getBoolean(Settings.ENABLE_MINEFIELDS) && loc.type.equals(LocationType.PLANET_ORBIT)) {
+        if (Setting.ENABLE_MINEFIELDS.enabled() && loc.type.equals(LocationType.PLANET_ORBIT)) {
             SectorEntityToken t = e.entity.getOrbitFocus();
             if (t != null) {
                 //if it's a moon, add to primary entity instead

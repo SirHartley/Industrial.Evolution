@@ -26,21 +26,21 @@ Derelict stations (`IndEvo_GachaStation`, display name "Automated Shipyard") orb
 | Constant | `Ids.GACHA_STATION` = `IndEvo_GachaStation` | `indevo/ids/Ids.java:129` |
 | Description | `IndEvo_GachaStation` | `data/strings/descriptions.csv:23` |
 | Memory key | `$IndEvo_stationRepaired` (`HAS_RESTORED_STATION`, entity) | `GachaStationDialoguePlugin.java:40` |
-| Memory key | `$IndEvo_randomSeed` (`RANDOM`, entity, a `java.util.Random` seeded with the entity hash) | `GachaStationDialoguePlugin.java:51`, set in `GachaStationSpawner.java:65` |
+| Memory key | `$IndEvo_randomSeed` (`RANDOM`, entity, a `java.util.Random` seeded with the entity hash) | `GachaStationDialoguePlugin.java:51`, set in `GachaStationSpawner.java:64` |
 | Persistent data | `$IndEvo_hasPlacedStations` | `GachaStationSpawner.java:22` |
-| Setting | `IndEvo_AutomatedShipyardNum` (Double, default 1.5, multiplier on coronal tap count) | `data/config/LunaSettings.csv:12`, `data/config/settings.json:49`, read in `GachaStationSpawner.java:23` |
-| Setting | `IndEvo_shipPickerRowCount` | `LunaSettings.csv:7`, read in `GachaStationDialoguePlugin.java:408` |
+| Setting | `IndEvo_AutomatedShipyardNum` (Double, default 1.5, multiplier on coronal tap count) | `data/config/LunaSettings.csv:18`, read in `GachaStationSpawner.java:27` at placement |
+| Setting | `IndEvo_shipPickerRowCount` | `LunaSettings.csv:14`, read in `GachaStationDialoguePlugin.java:408` |
 | Rules | `IndEvo_GachaStationCargoOpen` -> `OpenStorageTabOnGachaStation` | `data/campaign/rules.csv:266` |
-| Rule command package | `indevo.exploration.gacha.rules` | `data/config/settings.json:248` |
-| Sprite | `IndEvo/log_gachastation` (intel icon, `graphics/icons/intel/IndEvo_gachastation.png`) | `data/config/settings.json:368` |
-| Music | `IndEvo_Haplogynae_derelict_theme` on entity and repaired market | `GachaStationSpawner.java:66`, `GachaStationDialoguePlugin.java:208` |
+| Rule command package | `indevo.exploration.gacha.rules` | `data/config/settings.json:82` |
+| Sprite | `IndEvo/log_gachastation` (intel icon, `graphics/icons/intel/IndEvo_gachastation.png`) | `data/config/settings.json:202` |
+| Music | `IndEvo_Haplogynae_derelict_theme` on entity and repaired market | `GachaStationSpawner.java:65`, `GachaStationDialoguePlugin.java:208` |
 
 Tuning constants (`GachaStationDialoguePlugin.java:41-49`): repair `METALS_REPAIR_COST` 10000, `MACHINERY_REPAIR_COST` 1000, `PARTS_REPAIR_COST` 4000; `RARE_PART_COST_AMT` 100 per roll; `PARTS_PER_DP` 100; `AUTOMATED_CHANCE` 0.1.
 
 ## Registration and lifecycle
 
-- Placement: `ModPlugin.onNewGameAfterEconomyLoad() -> GachaStationSpawner.spawn()` (`indevo/utils/ModPlugin.java:304`). New games only; existing saves never get stations.
-- Dialog: `ModPlugin.onGameLoad() -> setScriptsIfNeeded() -> registerPlugin(new GachaStationCampaignPlugin())` (`ModPlugin.java:503`). `BaseCampaignPlugin.isTransient()` returns true, so it is stripped from saves and re-added each load (starsector-knowledge `api/campaign/BaseCampaignPlugin.java:35`, `api/campaign/CampaignPlugin.java:76-86`).
+- Placement: `ModPlugin.onNewGameAfterEconomyLoad() -> GachaStationSpawner.spawn()` (`indevo/utils/ModPlugin.java:293`). New games only; existing saves never get stations.
+- Dialog: `ModPlugin.onGameLoad() -> setScriptsIfNeeded() -> registerPlugin(new GachaStationCampaignPlugin())` (`ModPlugin.java:492`). `BaseCampaignPlugin.isTransient()` returns true, so it is stripped from saves and re-added each load (starsector-knowledge `api/campaign/BaseCampaignPlugin.java:35`, `api/campaign/CampaignPlugin.java:76-86`).
 - Market: `Misc.setAbandonedStationMarket(id, station)` at spawn gives a size 0 market with paid-unlocked storage (starsector-knowledge `api/util/Misc.java:4177`).
 - Intel: `new GachaStationIntel(...)` in `displayDefaultOptions()` if none exists for the entity; `MapMarkerIntel.init()` adds it to the intel manager (`api/impl/campaign/intel/misc/MapMarkerIntel.java:85`).
 
@@ -48,7 +48,7 @@ Tuning constants (`GachaStationDialoguePlugin.java:41-49`): repair `METALS_REPAI
 
 ### Placement
 
-`GachaStationSpawner.spawn()` (`:25`): count = `ceil(entitiesWithTag(CORONAL_TAP) * IndEvo_AutomatedShipyardNum)`. Candidate systems have no market, no coronal tap and a star; weight 100 `star_red_supergiant`, 50 `star_red_giant`, 10 `star_red_dwarf`, 0.01 anything else. `placeStation()` orbits the star at `radius + 200`, period 31 days.
+`GachaStationSpawner.spawn()` (`:24`): count = `ceil(entitiesWithTag(CORONAL_TAP) * IndEvo_AutomatedShipyardNum)`. Candidate systems have no market, no coronal tap and a star; weight 100 `star_red_supergiant`, 50 `star_red_giant`, 10 `star_red_dwarf`, 0.01 anything else. `placeStation()` orbits the star at `radius + 200`, period 31 days.
 
 ### Repair
 
@@ -69,15 +69,14 @@ Repaired menu (`displayDefaultOptions`, `:110-152`): cargo areas (`FireBest IndE
 
 - The station `Random` lives in entity memory and is saved, so rolls are deterministic per station and save history.
 - Courier deliveries: `ShippingTargetHelper` lists repaired stations (`indevo/industries/courierport/ShippingTargetHelper.java:56-57`), `ShippingContract` resolves the market by tag (`ShippingContract.java:93`). Renaming the tag or `HAS_RESTORED_STATION` breaks the [Courier Port](../industries/COURIER_PORT.md).
-- `AMOUNT_MULT` is a `static final` read at class init (`GachaStationSpawner.java:23`).
 
 ## Known issues and dormant code
 
 | Item | State |
 |---|---|
-| `GachaStationSpawner.spawn()` | `pickAndRemove()` returns null when fewer candidate systems than stations; `placeStation(null)` would NPE (`:54-56`, inferred) |
+| `GachaStationSpawner.spawn()` | `pickAndRemove()` returns null when fewer candidate systems than stations; `placeStation(null)` would NPE (`:53-55`, inferred) |
 | Repair re-creates the market | Second `setAbandonedStationMarket` replaces the market and its storage (`:207`); anything in storage before repair is lost (inferred) |
-| `GachaStationSpawner.placeStation()` | Local `id` used as market id, entity gets a second `genUID` (`:62-63`); harmless |
+| `GachaStationSpawner.placeStation()` | Local `id` used as market id, entity gets a second `genUID` (`:61-62`); harmless |
 
 ## Maintenance
 

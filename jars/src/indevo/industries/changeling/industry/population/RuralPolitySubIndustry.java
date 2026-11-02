@@ -19,11 +19,11 @@ import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -48,7 +48,7 @@ public class RuralPolitySubIndustry extends SubIndustry implements MarketImmigra
         public boolean isSuitable(Industry ind) {
             Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
             boolean isRural = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof RuralPolitySubIndustry;
-            return !Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE) && isRural;
+            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isRural;
         }
 
         @Override

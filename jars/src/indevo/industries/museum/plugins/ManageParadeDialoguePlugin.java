@@ -12,12 +12,12 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import indevo.config.Setting;
 import indevo.dialogue.sidepanel.EscapeBlockingDialoguePluginAPI;
 import indevo.industries.museum.data.ParadeFleetProfile;
 import indevo.industries.museum.industry.Museum;
 import indevo.industries.petshop.listener.EscapeInterceptListener;
 import indevo.industries.petshop.script.EscBlockerMemoryIterator;
-import indevo.utils.helper.Settings;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -81,7 +81,7 @@ public class ManageParadeDialoguePlugin implements InteractionDialogPlugin, Esca
         cargo.initMothballedShips(Factions.PLAYER);
         List<FleetMemberAPI> paradeMembers = new LinkedList<>(cargo.getMothballedShips().getMembersListCopy());
 
-        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
+        int shipsPerRow = Setting.SHIP_PICKER_ROW_COUNT.intValue();
         int rows = paradeMembers.size() > shipsPerRow ? (int) Math.ceil(paradeMembers.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(paradeMembers.size(), shipsPerRow);
 

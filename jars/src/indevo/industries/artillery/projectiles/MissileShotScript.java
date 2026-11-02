@@ -3,8 +3,8 @@ package indevo.industries.artillery.projectiles;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.utils.helper.Circle;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.TrigHelper;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -22,12 +22,8 @@ public class MissileShotScript implements EveryFrameScript {
     //missile dumbfire flies to loc, deploys tracking submunitions
     //the submunitions are slow but track, if the player enters their radius, they intercept and make a slow field
 
-    public static final int DEFAULT_MISSILE_AMT = Settings.getInt(Settings.ARTILLERY_MISSILE_PROJECTILES_PER_SHOT); //MUST BE DIVISIBLE BY 2
     public static final float MISSILE_TRAJECTORY_BENDY_FACTOR = 0.4f; //the higher, the more circular the trajectory, MAXIMUM 1f
-    public static final float AVG_IMPACT_SECONDS = Settings.getFloat(Settings.ARTILLERY_MISSILE_PROJECTILES_IMPACT_TIME);
 
-    public static final float FUZZ_FACTOR = Settings.getFloat(Settings.ARTILLERY_MISSILE_FUZZ); //the higher, the more fuzz
-    public static final float MAX_FUZZ_DIST = Settings.getFloat(Settings.ARTILLERY_MISSILE_MAX_COVERED_AREA);
     public static final float MIN_FUZZ_DIST = 400f;
 
     public boolean done = false;
@@ -71,7 +67,7 @@ public class MissileShotScript implements EveryFrameScript {
         for (int i = 0; i < missileAmt; i++) {
             boolean firstHalf = i <= (missileAmt / 2 - 1);
 
-            Vector2f fuzzedTarget = MathUtils.getPointOnCircumference(anticipatedTargetLoc, Math.min(Math.max(vel, MIN_FUZZ_DIST) * random.nextFloat() * FUZZ_FACTOR, MAX_FUZZ_DIST), MathUtils.getRandomNumberInRange(0, 360));
+            Vector2f fuzzedTarget = MathUtils.getPointOnCircumference(anticipatedTargetLoc, Math.min(Math.max(vel, MIN_FUZZ_DIST) * random.nextFloat() * Setting.ARTILLERY_MISSILE_FUZZ.value(), Setting.ARTILLERY_MISSILE_MAX_COVERED_AREA.value()), MathUtils.getRandomNumberInRange(0, 360));
             //RenderTemporaryIndicator.spawn(origin.getContainingLocation(), fuzzedTarget, Color.RED);
 
             //need 3 points for curved trajectory = a circle section in practice
@@ -101,7 +97,7 @@ public class MissileShotScript implements EveryFrameScript {
             MissileCarrierEntityPlugin.MissileParams params = new MissileCarrierEntityPlugin.MissileParams(
                     origin,
                     fuzzedTarget,
-                    MathUtils.getRandomNumberInRange(AVG_IMPACT_SECONDS * 0.8f, AVG_IMPACT_SECONDS * 1.2f),
+                    MathUtils.getRandomNumberInRange(Setting.ARTILLERY_MISSILE_PROJECTILES_IMPACT_TIME.value() * 0.8f, Setting.ARTILLERY_MISSILE_PROJECTILES_IMPACT_TIME.value() * 1.2f),
                     trajectoryCircleData.center,
                     trajectoryCircleData.radius,
                     splitAngleOnTrajectory);

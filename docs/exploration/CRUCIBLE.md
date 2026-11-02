@@ -8,7 +8,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 A large derelict station (`IndEvo_crucible_top` plus a bottom sprite and gears) placed in a planet-rich, uninhabited procgen system. Every planet gets a catapult (`IndEvo_yeetopult`) paired with a catapult orbiting the crucible; once the crucible is activated, flying into a catapult throws the fleet at its partner. The rules dialog explores, activates and colonizes the crucible.
 
-State: dormant. Nothing calls `CrucibleSpawner.spawn()` (`indevo/utils/ModPlugin.java:305` and `:219` are commented out), so no crucible exists in a normal game. It can only be placed by console runcode (`CrucibleSpawner.spawnInCurrent()`). The package is compiled (not excluded by `IndEvo.iml`).
+State: dormant. Nothing calls `CrucibleSpawner.spawn()` (`indevo/utils/ModPlugin.java:294` and `:202` are commented out), so no crucible exists in a normal game. It can only be placed by console runcode (`CrucibleSpawner.spawnInCurrent()`). The package is compiled (not excluded by `IndEvo.iml`).
 
 ## Files
 
@@ -21,7 +21,7 @@ State: dormant. Nothing calls `CrucibleSpawner.spawn()` (`indevo/utils/ModPlugin
 | `indevo/exploration/crucible/entities/CrucibleMoteEntityPlugin.java` | Ambient mote: crucible -> crucible catapult -> paired planet catapult, then fade |
 | `indevo/exploration/crucible/entities/CrucibleGearEntityPlugin.java` | Gear sprite, spin and orbit speed scaled by activity level |
 | `indevo/exploration/crucible/entities/CrucibleArmEntityPlugin.java` | Arm sprite pinned to crucible, faces its catapult |
-| `indevo/exploration/crucible/entities/CrucibleScaffoldRotationEntityPlugin.java` | Scaffold rotation. Dead: scaffold spawn is commented out (`CrucibleSpawner.java:195`) |
+| `indevo/exploration/crucible/entities/CrucibleScaffoldRotationEntityPlugin.java` | Scaffold rotation. Dead: scaffold spawn is commented out (`CrucibleSpawner.java:194`) |
 | `indevo/exploration/crucible/entities/CrucibleSpikeEntityPlugin.java` | Spike orbit. Dead: nothing spawns `IndEvo_crucible_spike` |
 | `indevo/exploration/crucible/scripts/VariableOrbitScript.java` | Manual circular orbit with a speed `factor`; used for crucible parts, gears and crucible catapults |
 | `indevo/exploration/crucible/scripts/CrucibleStartupAnimationScript.java` | `BaseStagedAnimationScript`: catapults on one by one, gears ramp, crucible on, field spawn |
@@ -48,22 +48,22 @@ State: dormant. Nothing calls `CrucibleSpawner.spawn()` (`indevo/utils/ModPlugin
 | Tag | `IndEvo_yeetopult` (`Ids.TAG_YEETOPULT`), `IndEvo_crucible`, `IndEvo_crucible_part`, `IndEvo_crucible_gear`, `IndEvo_orbits_crucible` | `indevo/ids/Ids.java:33`, `custom_entities.json` |
 | Tag | `crucible_enabled` (`TAG_ENABLED`), `IndEvo_animPlaying` (`TAG_ANIMATION_PLAYING`) | `BaseCrucibleEntityPlugin.java:44`, `:48` |
 | Memory key | `$crucible_activity_Level` (0..1 per entity), `$crucible_catapult_num` (catapult index) | `BaseCrucibleEntityPlugin.java:45-46` |
-| Memory key | `$IndEvo_crucible` (on top entity, rules match on it) | `CrucibleSpawner.java:234` |
-| Persistent data | `$IndEvo_hasPlacedCrucibles` | `CrucibleSpawner.java:38` |
+| Memory key | `$IndEvo_crucible` (on top entity, rules match on it) | `CrucibleSpawner.java:233` |
+| Persistent data | `$IndEvo_hasPlacedCrucibles` | `CrucibleSpawner.java:37` |
 | Terrain | `crucible_field` -> `CrucibleFieldTerrainPlugin` | `data/campaign/terrain.json:35` |
-| Setting | `IndEvo_CrucibleNum` (Int, default 1, extra non-nebula crucibles) | `data/config/LunaSettings.csv:13`, read in `CrucibleSpawner.java:39` |
+| Constant | `CrucibleSpawner.AMOUNT` 1, extra non-nebula crucibles; no setting while crucibles are dormant | `CrucibleSpawner.java:38` |
 | Sounds | `IndEvo_mote_yeet`, `IndEvo_crucible_start`, `_alarm`, `_drone`, `_off`, `_transit` | `data/config/sounds.json:121-146` |
-| Sprites | `IndEvo/crucible_mass`, `IndEvo/whirl_round`, `IndEvo/gearwheel`, `IndEvo/vignette_square` | `data/config/settings.json:305` and graphics block |
+| Sprites | `IndEvo/crucible_mass`, `IndEvo/whirl_round`, `IndEvo/gearwheel`, `IndEvo/vignette_square` | `data/config/settings.json:139` and graphics block |
 | Descriptions | `IndEvo_crucible`, `IndEvo_yeetopult` (no row for `IndEvo_sub_crucible`) | `data/strings/descriptions.csv:27-29` |
 | Rules | `IndEvo_crucible_*` (market and no-market menus, travel options, colonize, explore, activate) | `data/campaign/rules.csv:99-252` |
-| Rule command package | `indevo.exploration.crucible.dialogue` | `data/config/settings.json:250` |
-| Music | `IndEvo_Haplogynae_derelict_theme` via `MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY` | `CrucibleSpawner.java:233` |
+| Rule command package | `indevo.exploration.crucible.dialogue` | `data/config/settings.json:84` |
+| Music | `IndEvo_Haplogynae_derelict_theme` via `MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY` | `CrucibleSpawner.java:232` |
 
 ## Registration and lifecycle
 
-- Spawn: `CrucibleSpawner.spawn()` would run once per sector, guarded by `$IndEvo_hasPlacedCrucibles`. Call sites are commented out (`ModPlugin.java:305`, `:219`).
+- Spawn: `CrucibleSpawner.spawn()` would run once per sector, guarded by `$IndEvo_hasPlacedCrucibles`. Call sites are commented out (`ModPlugin.java:294`, `:202`).
 - Entities: `custom_entities.json` `pluginClass` columns. Plugin state is saved with the entity; sprites are re-fetched in `readResolve()` (`BaseCrucibleEntityPlugin.java:113`, `YeetopultEntityPlugin.java:68`).
-- Rules: commands resolve through `ruleCommandPackages` (`settings.json:250`).
+- Rules: commands resolve through `ruleCommandPackages` (`settings.json:84`).
 - Scripts: `VariableOrbitScript` on each part, startup anim on the crucible entity, move anim on the star system, `YeetScript` on the fleet. All saved (non-transient).
 
 `spawn() -> getTargetSystem() -> getSpawnLoc2() -> spawnCrucible() (top, bottom, gears) -> spawnCatapults() (pairs, arms)`
@@ -72,10 +72,10 @@ State: dormant. Nothing calls `CrucibleSpawner.spawn()` (`indevo/utils/ModPlugin
 
 ### Placement
 
-- `getTargetSystem(nonNebulaOnly)` (`CrucibleSpawner.java:169`): skip systems with a yeetopult, any market, non-procgen, `THEME_CORE`, `THEME_SPECIAL`, `THEME_HIDDEN`, `SYSTEM_ABYSSAL`; take the one with most planets. First pick allows nebulae, the `IndEvo_CrucibleNum` extra picks do not (`:69-82`).
-- `getSpawnLoc2()` (`:129`): ring search from radius 2000 (+ star radius) in steps of 500 until no planet is within `MIN_RADIUS_AROUND_CRUCIBLE` 1500 at any degree, then a random angle on that ring. Unbounded loop (comment says it hangs if nothing fits).
-- `spawnCrucible()` (`:190`): top is discoverable (1000 XP, sensor profile 2000). With a star, parts use `VariableOrbitScript(..., moveWhenNotInLoc=false)` with period `-min(364, 31 / (1000 / dist))` days.
-- `spawnCatapults()` (`:239`): one pair per non-star planet, moons of gas giants skipped. Planet catapult orbits at `radius + max(100, 0.2 * radius)`; crucible catapults ring the crucible at `radius + 45` with `VariableOrbitScript` factor 0.05 and get `$crucible_catapult_num` 1..n and an arm entity.
+- `getTargetSystem(nonNebulaOnly)` (`CrucibleSpawner.java:168`): skip systems with a yeetopult, any market, non-procgen, `THEME_CORE`, `THEME_SPECIAL`, `THEME_HIDDEN`, `SYSTEM_ABYSSAL`; take the one with most planets. First pick allows nebulae, the `IndEvo_CrucibleNum` extra picks do not (`:68-81`).
+- `getSpawnLoc2()` (`:128`): ring search from radius 2000 (+ star radius) in steps of 500 until no planet is within `MIN_RADIUS_AROUND_CRUCIBLE` 1500 at any degree, then a random angle on that ring. Unbounded loop (comment says it hangs if nothing fits).
+- `spawnCrucible()` (`:189`): top is discoverable (1000 XP, sensor profile 2000). With a star, parts use `VariableOrbitScript(..., moveWhenNotInLoc=false)` with period `-min(364, 31 / (1000 / dist))` days.
+- `spawnCatapults()` (`:238`): one pair per non-star planet, moons of gas giants skipped. Planet catapult orbits at `radius + max(100, 0.2 * radius)`; crucible catapults ring the crucible at `radius + 45` with `VariableOrbitScript` factor 0.05 and get `$crucible_catapult_num` 1..n and an arm entity.
 
 ### Activation
 
@@ -105,19 +105,19 @@ Enabled crucible (`BaseCrucibleEntityPlugin.advance`): drone loop by distance, f
 - Catapult pairing is by entity id strings (`targetEntity`, `pairedCatapult`) resolved with `getContainingLocation().getEntityById()`; both ends must stay in the same location.
 - `IndEvo_HasGenericSpecialItemInCargo` checks all submarkets of a non condition-only market first, then the player cargo (`:24-32`).
 - Shared code: `BaseStagedAnimationScript`, `RadialDustCloudEjectionRenderer`, `DeceleratingDustCloudEjectionRenderer`, `BaseCircleTrajectoryFollowingParticle` ([Utils](../core/UTILS.md)); `VariableExplosionEntityPlugin` ([Artillery](../industries/ARTILLERY.md)). `DeceleratingDustCloudEjectionRenderer.java:70` stops on missing `BaseCrucibleEntityPlugin.TAG_ENABLED`, so that util is coupled to this package.
-- `CrucibleSpawner.AMOUNT` is a `static final` read of LunaLib at class init; a settings change applies after restart (inferred from `Settings.getInt` at field init).
+- `CrucibleSpawner.AMOUNT` is a plain constant. Add a setting row back when crucibles return.
 - Mote speed borrows `RailgunProjectileEntityPlugin.PROJECTILE_VELOCITY` (`CrucibleMoteEntityPlugin.java:63`).
 
 ## Known issues and dormant code
 
 | Item | State |
 |---|---|
-| `CrucibleSpawner.spawn()` | Unregistered. Both calls commented out (`ModPlugin.java:219`, `:305`) |
+| `CrucibleSpawner.spawn()` | Unregistered. Both calls commented out (`ModPlugin.java:202`, `:294`) |
 | `rules.csv:152` vs `:154` | Wormhole option shows on `wormhole_anchor`, disabled variant checks `!... coronal_portal`. Mismatched item ids |
 | `rules.csv:158`, `:160` | Gate option checks item `coronal_tap`; the Hypershunt Tap id is `coronal_portal` (starsector-knowledge `data/campaign/special_items.csv:15`). Gate unlock can never show |
 | Options `IndEvo_crucible_useWormhole_select`, `_useGate_select`, `_moveCrucible_select`, `_changeCatapultColour_select`, `IndEvo_c_hab_0`, `IndEvo_c_eng_0`, `IndEvo_c_cont_0`, `IndEvo_c_cargo_0` | No `DialogOptionSelected` rule in `rules.csv`; `IndEvo_c_cargo_0` exists only in the unloaded draft CSV |
-| `CrucibleSpawner.removeFromtLoc(system)` | Ignores its parameter, uses the player's location and `get(0)` of `IndEvo_crucible` (`:41-54`) |
-| `CrucibleSpawner.spawnCrucible()` nebula loop | `break` outside the `if`, only checks the first terrain (`:222-225`); result unused |
+| `CrucibleSpawner.removeFromtLoc(system)` | Ignores its parameter, uses the player's location and `get(0)` of `IndEvo_crucible` (`:40-53`) |
+| `CrucibleSpawner.spawnCrucible()` nebula loop | `break` outside the `if`, only checks the first terrain (`:221-224`); result unused |
 | `getSpawnLoc()`, sub crucible spawn path, `YeetopultEntityPlugin.changeColour()`, `CrucibleSpikeEntityPlugin`, `CrucibleScaffoldRotationEntityPlugin`, `YeetScript.setFleetVelocityNoForce()` | Dead code |
 | `BaseCrucibleEntityPlugin.advance()` dev auto enable | Disabled by `false &&` (`:80`) |
 | Per frame `ModPlugin.log` | `YeetopultEntityPlugin.java:102` while firing, `CrucibleMoveAnimationScript.java:179` during flare |

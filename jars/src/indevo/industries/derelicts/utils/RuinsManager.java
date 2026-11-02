@@ -12,12 +12,12 @@ import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.derelicts.conditions.RuinsCondition;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -102,7 +102,7 @@ public class RuinsManager {
     }
 
     public static void placeIndustrialRuins() {
-        boolean forbidden = !Settings.getBoolean(Settings.ENABLE_DERELICTS);
+        boolean forbidden = !Setting.ENABLE_DERELICTS.enabled();
 
         float amount = 0;
         float total = 0;

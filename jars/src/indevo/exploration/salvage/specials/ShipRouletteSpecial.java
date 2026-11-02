@@ -21,8 +21,8 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpe
 import com.fs.starfarer.api.util.ListMap;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -156,7 +156,7 @@ public class ShipRouletteSpecial extends BaseSalvageSpecial {
     private void initHullPicker() {
         List<FleetMemberAPI> fleetMemberList = getEligibleMembers();
 
-        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
+        int shipsPerRow = Setting.SHIP_PICKER_ROW_COUNT.intValue();
         int rows = fleetMemberList.size() > shipsPerRow ? (int) Math.ceil(fleetMemberList.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(fleetMemberList.size(), shipsPerRow);
 

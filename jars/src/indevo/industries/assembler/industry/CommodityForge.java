@@ -14,6 +14,7 @@ import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUserAPI;
@@ -21,7 +22,6 @@ import indevo.items.VPCItemPlugin;
 import indevo.items.installable.VPCInstallableItemPlugin;
 import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
 import org.json.JSONException;
@@ -103,11 +103,11 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.getBoolean(Settings.COMFORGE);
+        return Setting.COMFORGE.enabled();
     }
 
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.COMFORGE);
+        return Setting.COMFORGE.enabled();
     }
 
     private void autoFeed() {
@@ -144,7 +144,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
             vpcIsLocked = true;
             CargoAPI cargo;
 
-            if (Settings.getBoolean(Settings.VARIND_DELIVER_TO_PRODUCTION_POINT) && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
+            if (Setting.VARIND_DELIVER_TO_PRODUCTION_POINT.enabled() && Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE) != null) {
                 cargo = Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo();
             } else if (MiscIE.getStorageCargo(market) != null) {
                 cargo = MiscIE.getStorageCargo(market);

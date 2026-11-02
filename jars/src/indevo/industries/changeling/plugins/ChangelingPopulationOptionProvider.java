@@ -9,10 +9,10 @@ import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.changeling.dialogue.ChangelingIndustryDialogueDelegate;
 import indevo.industries.changeling.industry.population.SwitchablePopulation;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -39,7 +39,7 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
         boolean isChangeling = ind instanceof SwitchablePopulation;
         // SwitchablePopulation also reports the population id
         boolean isPop = !isChangeling && ind.getId().equals(Industries.POPULATION);
-        boolean isNotTooLarge = ind.getMarket().getSize() <= Settings.getInt(Settings.GOVERNMENT_MAX_SIZE) || Global.getSettings().isDevMode();
+        boolean isNotTooLarge = ind.getMarket().getSize() <= Setting.GOVERNMENT_MAX_SIZE.intValue() || Global.getSettings().isDevMode();
         boolean isValidChangeling = isChangeling && ((SwitchablePopulation) ind).canChange();
         boolean isPlayerOwned = ind.getMarket().isPlayerOwned();
 
@@ -66,7 +66,7 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
             tooltip.addPara("Change the local style of government", 0f);
 
             tooltip.addPara("This is only possible until %s and becomes permanent after %s.", 10f, Misc.getHighlightColor(),
-                    "size " + Settings.getInt(Settings.GOVERNMENT_MAX_SIZE),
+                    "size " + Setting.GOVERNMENT_MAX_SIZE.intValue(),
                     SwitchablePopulation.DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(SwitchablePopulation.DAYS_TO_LOCK));
         }
     }

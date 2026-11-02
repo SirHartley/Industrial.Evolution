@@ -10,9 +10,9 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
-import indevo.utils.helper.Settings;
 
 import java.util.*;
 
@@ -29,7 +29,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placePetShops() {
-        if (!Settings.getBoolean(Settings.PETS)) {
+        if (!Setting.PETS.enabled()) {
             return;
         }
 
@@ -42,7 +42,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeManufactories() {
-        if (!Settings.getBoolean(Settings.ADMANUF)
+        if (!Setting.ADMANUF.enabled()
 ) {
             return;
         }
@@ -54,7 +54,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeSalvageYards() {
-        if (!Settings.getBoolean(Settings.SCRAPYARD)) {
+        if (!Setting.SCRAPYARD.enabled()) {
             return;
         }
 
@@ -67,7 +67,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeDryDocks() {
-        if (!Settings.getBoolean(Settings.DRYDOCK)) {
+        if (!Setting.DRYDOCK.enabled()) {
             return;
         }
 
@@ -90,7 +90,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeCourierPorts() {
-        if (!Settings.getBoolean(Settings.PRIVATEPORT)) {
+        if (!Setting.PRIVATEPORT.enabled()) {
             return;
         }
 
@@ -119,7 +119,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeAcademy() {
-        if (!Settings.getBoolean(Settings.ACADEMY)) {
+        if (!Setting.ACADEMY.enabled()) {
             return;
         }
 
@@ -131,7 +131,7 @@ public class NewGameIndustryPlacer {
     }
 
     public static void placeReqCenter() {
-        if (!Settings.getBoolean(Settings.REQCENTER)) {
+        if (!Setting.REQCENTER.enabled()) {
             return;
         }
 

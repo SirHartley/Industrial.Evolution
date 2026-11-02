@@ -30,11 +30,11 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Setting | `IndEvo_Enable_Derelicts` (runs the assigner) | `LunaSettings.csv:11`; `ModPlugin.java:308` |
-| Setting | `IndEvo_SpecialApplicationChance` (0.9) | `LunaSettings.csv:14`, `settings.json:50`; `init:51` |
-| Setting | `IndEvo_shipPickerRowCount` (8) | `LunaSettings.csv:7`; ship pickers in DModRepair, PrintShip, ShipRoulette |
+| Setting | `IndEvo_Enable_Derelicts` (runs the assigner) | `LunaSettings.csv:7`; `ModPlugin.java:297` |
+| Setting | `IndEvo_SpecialApplicationChance` (0.9) | `LunaSettings.csv:21`; `init:51` |
+| Setting | `IndEvo_shipPickerRowCount` (8) | `LunaSettings.csv:14`; ship pickers in DModRepair, PrintShip, ShipRoulette |
 | Drop groups | `rare_tech` (vanilla), `indEvo_tech_event` | `data/campaign/procgen/drop_groups.csv:72-77`; item pool for `ItemChoiceSpecial` |
-| settings.json | `IndEvo_ComForge_amounts` (per commodity base amounts, `logIncrease`) | `data/config/settings.json:198`; `ConvertVPCSpecial.getDepositAmount` |
+| settings.json | `IndEvo_ComForge_amounts` (per commodity base amounts, `logIncrease`) | `data/config/settings.json:32`; `ConvertVPCSpecial.getDepositAmount` |
 | Item ids | `IndEvo_ForgeTemplate*`, `IndEvo_DegForgeTemplate`, VPC items, `IndEvo_debug` fallback | `indevo/ids/ItemIds.java`; see [Installables](../items/INSTALLABLES.md) |
 | Memory (fleet) | `$IndEvo_poor_spacer`, `$IndEvo_stolen_credit_amt` | `CreditStashSpecial:118-119`; read by rules `IndEvo_ImpoverishedSpacerGreeting` and following (`data/campaign/rules.csv`, rule cmds `indevo/dialogue/rules/IndEvo_AddSpacerFineMenuPoint.java`, `IndEvo_DeductSpacerCreditsAndSetNeutral.java`) |
 | Rep impact ids | `indEvo_creditSpecial`, `csSpecial` | `CreditStashSpecial:120`, `:155` |
@@ -42,7 +42,7 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 
 ## Registration and lifecycle
 
-- `ModPlugin.onNewGameAfterEconomyLoad()` calls `new IndEvo_SalvageSpecialAssigner().init()` after `DerelictStationPlacer.init()` (`indevo/utils/ModPlugin.java:308-310`). New game only; existing saves keep whatever specials they rolled.
+- `ModPlugin.onNewGameAfterEconomyLoad()` calls `new IndEvo_SalvageSpecialAssigner().init()` after `DerelictStationPlacer.init()` (`indevo/utils/ModPlugin.java:297-299`). New game only; existing saves keep whatever specials they rolled.
 - Special data objects are saved on the entity (vanilla salvage special memory). They are `final`-field POJOs; renaming or moving a data class breaks old saves (inferred from XStream class names).
 - Plugins are created per dialog by `SalvageSpecialData.createSpecialPlugin()`; they hold no state across dialogs except what they write back into the data object (`JuicyRumorsSpecial`, `ItemChoiceSpecial` repair their data on open).
 

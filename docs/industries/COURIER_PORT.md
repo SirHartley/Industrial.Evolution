@@ -37,18 +37,18 @@ The Courier Port is a structure with no supply or demand. While the player owns 
 |---|---|---|
 | Industry | `IndEvo_PrivatePort` (`Ids.PORT`) | `data/campaign/industries.csv:45`, `indevo/ids/Ids.java:69` |
 | Faction | `IndEvo_couriers` (courier fleets) | `data/world/factions/IndEvo_couriers.faction` |
-| Setting | `IndEvo_PrivatePort` (build toggle and new game placement) | `data/config/LunaSettings.csv:95` |
-| Setting | `IndEvo_courier_costPerSpace` (5), `IndEvo_courier_costPerShip` (170), `IndEvo_courier_baseFee` (1000), `IndEvo_courier_costPerLyMult` (1.0) | `data/config/LunaSettings.csv:119-122`, read in `ShippingCostCalculator.java:16-19` |
-| Config CSV | `IndEvo_shipingList`: submarket whitelist | `data/config/settings.json:221`, `data/config/indEvo/shipping_submarkets_whitelist.csv` |
+| Setting | `IndEvo_PrivatePort` (build toggle and new game placement) | `data/config/LunaSettings.csv:105` |
+| Setting | `IndEvo_courier_costPerSpace` (5), `IndEvo_courier_costPerShip` (170), `IndEvo_courier_baseFee` (1000), `IndEvo_courier_costPerLyMult` (1.0) | `data/config/LunaSettings.csv:191-194`, read at use time in `ShippingCostCalculator` |
+| Config CSV | `IndEvo_shipingList`: submarket whitelist | `data/config/settings.json:55`, `data/config/indEvo/shipping_submarkets_whitelist.csv` |
 | Memory key | `$IndEvo_ShippingContainerStorage` (sector, contract list) | `ShippingContractMemory.java:11` |
-| Memory key | `$IndEvo_CurrentShippingCore` (sector, last applied core id or `none`) | `ShippingCostCalculator.java:25` |
+| Memory key | `$IndEvo_CurrentShippingCore` (sector, last applied core id or `none`) | `ShippingCostCalculator.java:21` |
 | Memory key | `$IndEvo_ShippingContractMemory` (sector, editor backup, 0 day expiry) | `ContractSidePanelCreator.java:42` |
 | Memory key | `$IndEvo_tempDialogueInstance` (sector, current dialog plugin) | `CourierPortDialoguePlugin.java:47` |
 | Rules | `IndEvo_OpenShippingPortFromIndustryOption`, `IndEvo_ShippingMenuPoint`, `IndEvo_ShippingMenuPoint2`, `IndEvo_IntitiateShippingMenu`, `IndEvo_CommrelayShippingPoint`, `IndEvo_COB_shipping` | `data/campaign/rules.csv:929-943` |
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded()`: `ShippingManager.getInstanceOrRegister()` (persistent listener, one instance) and `CourierPortOptionProvider.register()` (transient) (`indevo/utils/ModPlugin.java:447,476`).
+- `ModPlugin.setListenersIfNeeded()`: `ShippingManager.getInstanceOrRegister()` (persistent listener, one instance) and `CourierPortOptionProvider.register()` (transient) (`indevo/utils/ModPlugin.java:436,468`).
 - `NewGameIndustryPlacer.placeCourierPorts()` puts one port per faction per star system at new game when the setting is on (`indevo/utils/update/NewGameIndustryPlacer.java:92-118`).
 - `NewDayListener` calls come from `TimeTracker`, which collects listeners from the listener manager and sector listeners; see [Utils](../core/UTILS.md).
 - Entry points into the dialog: market menu and colony option point rules, the industry option (fires trigger `IndEvo_FireBaseSPOptionList` with `$IndEvo_closeDialogueOnNextReturn`), and comm relays when `CourierPortIsDisplayInRelay` is true. All end in `CourierPortDialoguePlugin.execute`, which swaps itself in as the dialog plugin and restores the original on Return.
@@ -67,9 +67,9 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 
 ### Cost
 
-`getTotalContractCost = shipCost + cargoCost + baseFee` (`ShippingCostCalculator.java:54-56`).
+`getTotalContractCost = shipCost + cargoCost + baseFee` (`ShippingCostCalculator.java:50-52`).
 - Cargo: cargo space per stack (personnel and fuel count 0.75 per unit) x `costPerSpace`.
-- Ships: hull deployment points (`getSuppliesToRecover()`) x `costPerShip` (`ShippingCostCalculator.java:101`).
+- Ships: hull deployment points (`getSuppliesToRecover()`) x `costPerShip` (`ShippingCostCalculator.java:97`).
 - Both x distance mult `round((1 + ly * 1000^(1 + ly/250) / 10000) * 10) / 10`, x0.8 with beta core, x `costPerLyMult` (`:41-52`). Alpha core x0.9 on both parts.
 - `chargePlayer` adds the cost to the upkeep of the `IndEvo_PrivatePort` node of the closest port market in the monthly report; without a port it subtracts credits directly (`ShippingManager.java:93-105`).
 
@@ -89,7 +89,7 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 
 - Contracts, shipments and the intel are saved: the list lives in sector memory, `ShippingManager` and each `Shipment` are persistent listeners, `Shipment` is also a sector script.
 - The AI core effect is global and set by whichever port last ran `applyAICoreModifiers()` (`CourierPortV2.java:126-145`). Removing a core updates it on the next apply.
-- Cost settings are `static final` and read once at class load (`ShippingCostCalculator.java:16-19`); a LunaLib change applies after restart (inferred).
+- Cost settings are read at use time, so contract screens and new shipments show a LunaLib change at once. A shipment fixes its cost when it is dispatched (`Shipment.java:52`).
 - `ShippingContract` and `ShippingTargetHelper` import `assortment_of_things` classes directly; calls are guarded by `isModEnabled("assortment_of_things")` and the JVM resolves the class lazily (inferred). See [Compatibility](../core/COMPATIBILITY.md).
 - `ShippingContract.equals` compares ids but `hashCode` is not overridden; it is used as a `HashMap` key in `CourierPortV2.getShipmentWithDayList` (identity hash, works because the same objects are used).
 

@@ -26,11 +26,11 @@ import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.scripts.CampaignAttackScript;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Settings;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lazywizard.lazylib.MathUtils;
@@ -605,7 +605,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
             if (!hasOrbital) if (ind.getSpec().hasTag(Tags.STATION)) hasOrbital = true;
         }
 
-        return market.hasCondition(ArtilleryStationCondition.ID) && canBuild && hasOrbital && Settings.getBoolean(Settings.ENABLE_ARTILLERY);
+        return market.hasCondition(ArtilleryStationCondition.ID) && canBuild && hasOrbital && Setting.ENABLE_ARTILLERY.enabled();
     }
 
     @Override
