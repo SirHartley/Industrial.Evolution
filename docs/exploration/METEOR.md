@@ -84,8 +84,8 @@ Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3,
 ### Roll and parameters
 
 - `reportEconomyTick` (`MeteorSwarmManager.java:78`): skip if `IndEvo_meteor_enabled` false or location invalid. Chance per tick `IndEvo_meteor_baseChancePerEconomyTick` (0.1 in dev mode). First valid tick adds `TutorialEncounterScript` and sets `$IndEvo_MeteorTutorialComplete`.
-- `isValidMeteorLoc` (`:118`): no pulsar planet, no global or location timeout, not hyperspace, no markets, not `SYSTEM_CUT_OFF_FROM_HYPER`, `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`.
-- `spawnShower` (`:142`): `width = baseWidth + modifier * intensity`, `lootAmt = max(1, round(intensity * treasureModifier))`, `density = min(maxDensity, intensity)`, `runtime = baseRuntime * min(maxRuntimeMult, intensity)` in seconds. Arc centre at random distance and angle; start and end at `angleToCenter +- (50..80)` intersected with the `gridLimit` square (`intersectWithGridBoundary`), circle through the three points (`TrigHelper.findThreePointCircle`). Delay `max(2, nextInt(6))` days, 0 in immediate mode.
+- `isValidMeteorLoc` (`:98`): no pulsar planet, no global or location timeout, not hyperspace, no markets, not `SYSTEM_CUT_OFF_FROM_HYPER`, `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`.
+- `spawnShower` (`:122`): `width = baseWidth + modifier * intensity`, `lootAmt = max(1, round(intensity * treasureModifier))`, `density = min(maxDensity, intensity)`, `runtime = baseRuntime * min(maxRuntimeMult, intensity)` in seconds. Arc centre at random distance and angle; start and end at `angleToCenter +- (50..80)` intersected with the `gridLimit` square (`intersectWithGridBoundary`), circle through the three points (`TrigHelper.findThreePointCircle`). Delay `max(2, nextInt(6))` days, 0 in immediate mode.
 
 ### Collision
 
