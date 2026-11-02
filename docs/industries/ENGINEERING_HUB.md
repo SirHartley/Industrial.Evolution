@@ -80,7 +80,7 @@ Gamma: upkeep x0.2 while idle. Beta: x0.7 time. Alpha: x0.85 time, one D-mod ign
 - Saved per hub: `currentDeconShipVar`, `daysRequired`, `daysPassed`, `blueprintItem`.
 - `getSpecialItem` / `setSpecialItem` are overridden to the `blueprintItem` field; removing the hub refunds it unless upgrading or it is the relic item (`:474-498`).
 - `createTooltip` is a full copy of the vanilla industry tooltip with the progress sections added (`:624-988`); vanilla tooltip changes do not reach it.
-- `isTiandong` / `isRoider` are also used by Privateer loot (`indevo/industries/privateer/industry/PrivateerBase.java:319-321`); see [Privateer](PRIVATEER.md).
+- `isTiandong` / `isRoider` are also used by Privateer loot (`indevo/industries/privateer/industry/PrivateerBase.java:322-324`); see [Privateer](PRIVATEER.md).
 
 ## Known issues and dormant code
 

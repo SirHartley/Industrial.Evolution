@@ -212,7 +212,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 
 | From | Uses | Where |
 |---|---|---|
-| Privateer | Current changeling government; `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:70,191,200,319` |
+| Privateer | Current changeling government; `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:71,194,203,322` |
 | Courier port | Gacha stations as targets; RAT settlements | `ShippingTargetHelper.java:56-57`, `ShippingContract.java:88,93` |
 | Split fleet | Courier `ShippingTargetHelper` for targets | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | Pets | `Academy.COLOURS_BY_PERSONALITY` | `Pet.java:56` |

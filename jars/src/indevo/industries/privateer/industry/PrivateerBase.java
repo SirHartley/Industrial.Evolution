@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.WeaponAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
+import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.RouteLocationCalculator;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
@@ -154,7 +155,9 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
     public float getBaseRaidFP() {
         //the ai core bonus calculates twice because I fucked up when making this, and it would be a nerf to remove it now (and I don't want to nerf it)
         float alcoholismBonus = 1f + getAlcoholBonus();
-        return ((((market.getSize() * 50) * market.getStats().getDynamic().getMod(Stats.COMBAT_FLEET_SIZE_MULT).getMult()) * (0.75f + (float) Math.random() * 0.5f)) * aiCoreFPBonus) * aiCoreFPBonus * alcoholismBonus;
+        // colony size is a flat in vanilla fleet size, size * 50 already counts it
+        float fleetSizeMult = market.getStats().getDynamic().getMod(Stats.COMBAT_FLEET_SIZE_MULT).computeEffective(0f) / FleetFactoryV3.getNumShipsMultForMarketSize(market.getSize());
+        return ((((market.getSize() * 50) * fleetSizeMult) * (0.75f + (float) Math.random() * 0.5f)) * aiCoreFPBonus) * aiCoreFPBonus * alcoholismBonus;
     }
 
     private float getAlcoholBonus() {
