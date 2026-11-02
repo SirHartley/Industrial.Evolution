@@ -51,8 +51,6 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     private static final float PROD_QUALITY_MOD = -0.2f;
 
     private int availableSalvagePoints = 0;
-    // unused, kept so 4.1.b saves load; counted raids by class hash, which changes per run
-    private final List<Integer> finishedIntel = new ArrayList<>();
     private List<IntelInfoPlugin> countedIntel = new ArrayList<>();
     private Random random = new Random();
     private int baseOutput = 0;
@@ -351,19 +349,6 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
         int total = size + (addition * (random.nextBoolean() ? -1 : 1));
 
         return Math.max(1, total);
-    }
-
-    @Override
-    protected Object readResolve() {
-        Object o = super.readResolve();
-
-        // 4.1.b save: archive again so raids that already paid out stay counted
-        if (countedIntel == null) {
-            countedIntel = new ArrayList<>();
-            hasFinishedIntelArchive = false;
-        }
-
-        return o;
     }
 
     @Override

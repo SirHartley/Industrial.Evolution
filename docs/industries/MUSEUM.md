@@ -42,7 +42,7 @@ On player markets the Museum adds a hidden ship storage submarket (`IndEvo_Museu
 ## Registration and lifecycle
 
 - Industry, submarket and condition plugins from CSV plugin columns.
-- `MuseumManageParadeOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:494`), transient.
+- `MuseumManageParadeOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:492`), transient.
 - `Museum.apply()` (player markets only) refreshes the hull value table, adds itself as a persistent listener (`addListener(this)`, `Museum.java:75`) and as a transient immigration modifier, and sets income. `unapply()` removes all three.
 - `Museum.advance()` adds the submarket once functional and player owned (`:125`). `notifyBeingRemoved()` clears the parade tags, moves the stored ships to the market storage and removes the submarket; `advance()` also calls it when the market changes owner.
 - Parade fleets carry the `ParadeFleetAssignmentAI` script and two fleet event listeners (the profile and the AI).
@@ -78,7 +78,7 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> fill profiles -> pic
 
 - `MuseumConstants` values are `static final` and read once at class load, so LunaLib changes need a restart ([Settings](../core/SETTINGS.md)).
 - Parade members in the fleet are copies. The real ships never leave storage; the variant tag blocks `PLAYER_BUY` from the submarket (`MuseumSubmarketPlugin.java:28`). Any code that moves museum ships must clear `indEvo_on_parade`.
-- `addAssignment(..., onStart, onCompletion)` takes `Script` callbacks (`api/campaign/CampaignFleetAPI.java:261`) that are saved with the assignment. Use `ParadeConditionScript`, not lambdas: lambdas come back from the save as null. Parades saved by 4.1.b in flight keep null callbacks; the despawn listeners still remove the condition when the fleet gets home.
+- `addAssignment(..., onStart, onCompletion)` takes `Script` callbacks (`api/campaign/CampaignFleetAPI.java:261`) that are saved with the assignment. Use `ParadeConditionScript`, not lambdas: lambdas come back from the save as null.
 - `BaseAssignmentAI.advance()` calls `pickNext()` when the fleet has no assignment (`api/impl/campaign/procgen/themes/BaseAssignmentAI.java`); `pickNext()` sends the fleet home.
 - Profile state, presets and the active fleet reference persist as fields on the industry.
 

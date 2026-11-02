@@ -16,7 +16,6 @@ import indevo.exploration.meteor.entities.MeteorEntity;
 import indevo.exploration.meteor.helper.MeteorFactory;
 import indevo.exploration.meteor.movement.ArcingMovementModule;
 import indevo.exploration.meteor.movement.ExternalOrbitMovement;
-import indevo.exploration.meteor.scripts.DespawningMovementModuleRunner;
 import indevo.exploration.meteor.scripts.PayloadOnFinishedModuleRunner;
 import indevo.exploration.meteor.scripts.PlanetoidDespawnScript;
 import indevo.exploration.meteor.terrain.RadioactiveTerrain;
@@ -188,7 +187,6 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
         station.setDiscoverable(true);
         station.setSensorProfile(1000f);
 
-        //station.addScript(new DespawningMovementModuleRunner(new ExternalOrbitMovement(arc), station)); //what was I thinking??
         return station;
     }
 
