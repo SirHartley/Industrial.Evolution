@@ -21,8 +21,6 @@ import static java.lang.Math.random;
 public class RailgunShotEntity extends BaseCustomEntityPlugin {
 
     //render the warning sign and add the X shots
-    public static final int DEFAULT_PROJECTILE_AMT = Setting.ARTILLERY_RAILGUN_PROJECTILES_PER_SHOT.intValue();
-    public static final float AVERAGE_PROJ_IMPACT_TIME = Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value();
     public static final float DANGER_SIGN_FADEOUT_TIME = 8f;
 
     public static float DANGER_SIGN_SIZE = 150f;
@@ -30,7 +28,6 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
     public static final float MAX_FADE_IN_SIZE_MULT = 1.5f;
     public static final float MAX_RETICULE_ALPHA = 0.7f;
 
-    private static final float BASE_FUZZ_MULT = Setting.ARTILLERY_RAILGUN_SHOT_FUZZ_MULT.value();
 
     //dangerSign
     transient private SpriteAPI dangerSign;
@@ -97,7 +94,7 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
 
     public static Vector2f getAnticipatedTargetLoc(SectorEntityToken entity) {
         Vector2f vel = entity.getVelocity();
-        float dist = vel.length() * (AVERAGE_PROJ_IMPACT_TIME + 1f);
+        float dist = vel.length() * (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + 1f);
         float currentNavigationAngle = Misc.getAngleInDegrees(vel);
         Vector2f location = Misc.getUnitVectorAtDegreeAngle(currentNavigationAngle);
         location.scale(dist);
@@ -109,13 +106,13 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
         boolean fuzz = true;
 
         for (int i = 1; i <= num; i++) {
-            float impactTimeSeconds = (float) (AVERAGE_PROJ_IMPACT_TIME + i + 1 * random());
+            float impactTimeSeconds = (float) (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + i + 1 * random());
 
             Vector2f vel = target.getVelocity();
 
             float fuzzMult = 1f;
             if (fuzz) {
-                fuzzMult = BASE_FUZZ_MULT * random.nextFloat();
+                fuzzMult = Setting.ARTILLERY_RAILGUN_SHOT_FUZZ_MULT.value() * random.nextFloat();
                 fuzzMult *= random.nextBoolean() ? -1 : 1;
                 fuzzMult += 1;
 
@@ -146,7 +143,7 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
     }
 
     public void renderTargetReticule() {
-        float timeRemainingMult = 1 - Math.min(timePassedSeconds / AVERAGE_PROJ_IMPACT_TIME, 1);
+        float timeRemainingMult = 1 - Math.min(timePassedSeconds / Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value(), 1);
         int gColour = Math.max((int) Math.round(200 * timeRemainingMult), 0);
         int rColour = Math.max((int) Math.round(100 * timeRemainingMult), 0);
         Color color = new Color(255, gColour, rColour, 255); //Start

@@ -25,13 +25,6 @@ import static indevo.industries.artillery.scripts.EyeIndicatorScript.WAS_SEEN_BY
 
 public class CampaignAttackScript implements EveryFrameScript {
 
-    public static final float NPC_RELOAD_FACTOR = Setting.ARTILLERY_COOLDOWN_NPC_MULT.value();
-    public static final float MIN_DELAY_BETWEEN_SHOTS = Setting.ARTILLERY_MIN_DELAY_BETWEEN_SHOTS.value();
-    public static final float MAX_DELAY_BETWEEN_SHOTS = Setting.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS.value();
-    public static final float MIN_RELOAD_TIME = Setting.ARTILLERY_MIN_COOLDOWN.value();
-    public static final float MAX_RELOAD_TIME = Setting.ARTILLERY_MAX_COOLDOWN.value();
-    public static final float RANGE = Setting.ARTILLERY_MAX_RANGE.value();
-    public static final float MIN_RANGE = Setting.ARTILLERY_MIN_RANGE.value();
 
     //exclusions
     public static final float ARTILLERY_BLOCKOUT_RANGE = 400f;
@@ -47,13 +40,13 @@ public class CampaignAttackScript implements EveryFrameScript {
     private Map<String, IntervalUtil> targetMap = new HashMap<>();
     private Map<Vector2f, IntervalUtil> blockedAreas = new HashMap<>();
 
-    private IntervalUtil stationFireInterval = new IntervalUtil(MIN_DELAY_BETWEEN_SHOTS, MAX_DELAY_BETWEEN_SHOTS);
+    private IntervalUtil stationFireInterval = new IntervalUtil(Setting.ARTILLERY_MIN_DELAY_BETWEEN_SHOTS.value(), Setting.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS.value());
     private Map<String, IntervalUtil> forcedTargetMap = new HashMap<>();
 
     private SectorEntityToken terrain = null;
 
-    public float range = RANGE;
-    public float terrainRange = RANGE; //we save this here because getting the terrain is expensive
+    public float range = Setting.ARTILLERY_MAX_RANGE.value();
+    public float terrainRange = Setting.ARTILLERY_MAX_RANGE.value(); //we save this here because getting the terrain is expensive
 
     public boolean disabled = false;
     public boolean isDone = false;
@@ -183,7 +176,7 @@ public class CampaignAttackScript implements EveryFrameScript {
 
                 //forced target in safe spot would never time out so we remove it in nebula
                 if (loc.isNebula())
-                    target.getMemoryWithoutUpdate().set(FORCE_INVALID, true, MAX_DELAY_BETWEEN_SHOTS + 0.1f);
+                    target.getMemoryWithoutUpdate().set(FORCE_INVALID, true, Setting.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS.value() + 0.1f);
                 return false;
             }
 
@@ -191,13 +184,13 @@ public class CampaignAttackScript implements EveryFrameScript {
 
             switch (type) {
                 case TYPE_RAILGUN:
-                    RailgunShotEntity.spawn(entity, target, RailgunShotEntity.DEFAULT_PROJECTILE_AMT);
+                    RailgunShotEntity.spawn(entity, target, Setting.ARTILLERY_RAILGUN_PROJECTILES_PER_SHOT.intValue());
                     break;
                 case TYPE_MISSILE:
-                    Global.getSector().addScript(new MissileShotScript(entity, target, MissileShotScript.DEFAULT_MISSILE_AMT));
+                    Global.getSector().addScript(new MissileShotScript(entity, target, Setting.ARTILLERY_MISSILE_PROJECTILES_PER_SHOT.intValue()));
                     break;
                 case TYPE_MORTAR:
-                    Global.getSector().addScript(new MortarShotScript(entity, target, MortarShotScript.DEFAULT_PROJECTILE_AMT));
+                    Global.getSector().addScript(new MortarShotScript(entity, target, Setting.ARTILLERY_MORTAR_PROJECTILES_PER_SHOT.intValue()));
                     blockArea(MortarShotScript.getAnticipatedTargetLoc(target));
                     break;
             }
@@ -229,7 +222,7 @@ public class CampaignAttackScript implements EveryFrameScript {
                 && t.isAlive()
                 && isNotNullAI
                 && Misc.getDistance(t, entity) <= range
-                && Misc.getDistance(t, entity) >= MIN_RANGE
+                && Misc.getDistance(t, entity) >= Setting.ARTILLERY_MIN_RANGE.value()
                 && t.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY)
                 && !t.getMemoryWithoutUpdate().getBoolean(MemFlags.ENTITY_MISSION_IMPORTANT);
     }
@@ -238,7 +231,7 @@ public class CampaignAttackScript implements EveryFrameScript {
         return t != null
                 && !t.isExpired()
                 && Misc.getDistance(t, entity) <= range
-                && Misc.getDistance(t, entity) >= MIN_RANGE
+                && Misc.getDistance(t, entity) >= Setting.ARTILLERY_MIN_RANGE.value()
                 && !t.getMemoryWithoutUpdate().contains(FORCE_INVALID);
     }
 
@@ -277,9 +270,9 @@ public class CampaignAttackScript implements EveryFrameScript {
             if (targetMap.containsKey(f.getId())) continue;
 
             if (isHostileTo(f) && isValid(f)) {
-                float reloadTimeFactor = f.isPlayerFleet() ? 1f : NPC_RELOAD_FACTOR;
+                float reloadTimeFactor = f.isPlayerFleet() ? 1f : Setting.ARTILLERY_COOLDOWN_NPC_MULT.value();
 
-                IntervalUtil interval = new IntervalUtil(MIN_RELOAD_TIME * reloadTimeFactor, MAX_RELOAD_TIME * reloadTimeFactor);
+                IntervalUtil interval = new IntervalUtil(Setting.ARTILLERY_MIN_COOLDOWN.value() * reloadTimeFactor, Setting.ARTILLERY_MAX_COOLDOWN.value() * reloadTimeFactor);
                 interval.forceIntervalElapsed();
                 targetMap.put(f.getId(), interval);
             }
@@ -302,7 +295,7 @@ public class CampaignAttackScript implements EveryFrameScript {
     public IntervalUtil devmodeInterval = new IntervalUtil(5f, 5f);
 
     public void blockArea(Vector2f targetLoc) {
-        blockedAreas.put(targetLoc, new IntervalUtil(MortarShotScript.AVERAGE_PROJ_IMPACT_TIME, MortarShotScript.AVERAGE_PROJ_IMPACT_TIME));
+        blockedAreas.put(targetLoc, new IntervalUtil(Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value(), Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value()));
     }
 
     private boolean isBlocked(Vector2f targetLoc) {
@@ -424,7 +417,7 @@ public class CampaignAttackScript implements EveryFrameScript {
     }
 
     public void resetRange() {
-        this.range = RANGE;
+        this.range = Setting.ARTILLERY_MAX_RANGE.value();
     }
 
     public float getRange() {

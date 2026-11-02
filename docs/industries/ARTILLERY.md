@@ -56,10 +56,10 @@ Combat side, linked only: `data/scripts/weapons/IndEvo_targetingBeamEffect.java`
 | Memory, market | `$IndEvo_ArtilleryType` (type), `$IndEvo_ArtilleryStation_Destroyed` | `ArtilleryStationScript.java:61`, `ArtilleryStationCondition.java:14` |
 | Memory, planet | `$IndEvo_ArtilleryStationScript` (script instance), `$IndEvo_ArtilleryStation`, `$hasDefenders`, `$defenderFleetDefeated`, `$IndEvo_debrisFieldList` | `ArtilleryStationScript.java:62-63, 236, 476-478` |
 | Memory, station | `$ArtilleryStation`, `$IndEvo_ArtilleryStation`, `$hasDefenders`, `$defenderFleet` (10 days after a lost fight) | `ArtilleryStationEntityPlugin.java:98`, `IndEvo_SalvageDefenderInteraction.java:126` |
-| Memory, fleets | `$IndEvo_WasSeenByOtherEntity` (seen), `$IndEvo_ForcedTarget`, `$IndEvo_FORCE` (forced target expiry), `$ArtyReaction_<id>`, `$RailReaction_<id>` | `EyeIndicatorScript.java:19`, `CampaignAttackScript.java:44-45`, `MortarProjectileEntityPlugin.java:152`, `RailgunProjectileEntityPlugin.java:117` |
-| Memory, watchtower | `$IndEvo_isArtilleryActive` (AI artillery present, blocks hack/control in rules) | `WatchtowerEntityPlugin.java:36` |
+| Memory, fleets | `$IndEvo_WasSeenByOtherEntity` (seen), `$IndEvo_ForcedTarget`, `$IndEvo_FORCE` (forced target expiry), `$ArtyReaction_<id>`, `$RailReaction_<id>` | `EyeIndicatorScript.java:20`, `CampaignAttackScript.java:37-38`, `MortarProjectileEntityPlugin.java:151`, `RailgunProjectileEntityPlugin.java:118` |
+| Memory, watchtower | `$IndEvo_isArtilleryActive` (AI artillery present, blocks hack/control in rules) | `WatchtowerEntityPlugin.java:35` |
 | Memory, system | `$IndEvo_SystemDisableWatchtowers` (read, never written) | `Ids.java:32` |
-| Memory, sector | `$IndEvo_placedArtilleries`, `$IndEvo_placedDerelictArtilleries` (run-once guards), `$IndEvo_EyeScript` | `ArtilleryStationPlacer.java:42, 66`, `EyeIndicatorScript.java:18` |
+| Memory, sector | `$IndEvo_placedArtilleries`, `$IndEvo_placedDerelictArtilleries` (run-once guards), `$IndEvo_EyeScript` | `ArtilleryStationPlacer.java:42, 66`, `EyeIndicatorScript.java:19` |
 | Settings | `IndEvo_Enable_Artillery`, `IndEvo_Artillery_spawnWeight`, `IndEvo_Artillery_starsPerStationInConstellation`, `IndEvo_Watchtower_faction_reset`, `IndEvo_Artillery_min/maxDelayBetweenShots`, `IndEvo_Artillery_min/maxCooldown`, `IndEvo_Artillery_cooldownNPCMult`, `IndEvo_Artillery_min/maxRange`, `IndEvo_Artillery_WatchtowerRange`, `IndEvo_Artillery_defense_FP2`, `IndEvo_Artillery_mortar_*`, `_railgun_*`, `_missile_*` | `data/config/LunaSettings.csv:50-75`, constants in `indevo/config/Setting.java:46-70`. See [Settings](../core/SETTINGS.md) |
 | Rules | `IndEvo_ArtilleryInitialStation`, `IndEvo_ArtilleryCombatInteraction`, `IndEvo_ArtilleryBeatPlanet`, `IndEvo_ArtilleryBeatStation`, `IndEvo_ArtilleryDefeatPopulateOptions`, `IndEvo_ArtilleryInitialPlanet_CircumventionProtection`, `_NexEventDisabler`, `_NexOutpostDisabler`, `_RuinDisabler`; watchtower `IndEvo_derelictWatchtower_notFunctional`, `cob_hackPrompt_watchtower`, `IndEvo_derelictWatchtower_disableControlUnderAI` | `data/campaign/rules.csv:362-414`. Command package `indevo.industries.artillery.rules` in `settings.json:77` |
 | Strings | descriptions `IndEvo_Watchtower`, `IndEvo_artilleryStation`, `IndEvo_Artillery_<type>`, weapon and hull descriptions, `IndEvo_slowfield` | `data/strings/descriptions.csv` |
@@ -120,7 +120,7 @@ Volleys:
 - Railgun: `RailgunShotEntity -> RailgunProjectileEntityPlugin` x `IndEvo_Artillery_railgun_projectilesPerShot`, alternating lead fuzz `IndEvo_Artillery_railgun_shotFuzzMult`. Explodes on any fleet within 50 su after 30% of flight time.
 - Missile: `MissileShotScript` spawns an even number of `MissileCarrierEntityPlugin` on three-point arcs (`TrigHelper`, see [Utils](../core/UTILS.md)); at 30% of the remaining distance each splits into 3 `MissileSubmunitionEntity` that home on hostiles within 600 su; each ends in `ECMExplosion` (interdict like the interdiction mine, plus `IndEvo_slowfield` terrain for `IndEvo_Artillery_missile_duration` seconds).
 
-Mortar and railgun explosions use `ExplosionFleetDamage.LOW` (`MortarProjectileEntityPlugin.java:234`, `RailgunProjectileEntityPlugin.java:263`).
+Mortar and railgun explosions use `ExplosionFleetDamage.LOW` (`MortarProjectileEntityPlugin.java:233`, `RailgunProjectileEntityPlugin.java:264`).
 
 ### Seen state and watchtowers
 
@@ -132,7 +132,7 @@ Watchtowers are placed per system at each jump point, each gate, one gap per gas
 
 ### Defender fight
 
-`rules.csv` `IndEvo_ArtilleryInitialStation` (station, condition-only market, not defeated) -> option `IndEvo_ArtilleryCombatInteraction -> IndEvo_SalvageDefenderInteraction` (`:27`). Defenders: existing `$defenderFleet` on the station or `createDefenderFleet` (`IndEvo_ArtilleryDefenderGen.java:82-110`): `PATROL_LARGE`, `IndEvo_Artillery_defense_FP2 * (1 + min(1, (200 - hazard) / 100))` FP, officers x1.5, seeded from the planet salvage seed, plus the station variant. Win: station fleet members removed with flash, script goes destroyed, `$defenderFleetDefeated`, `FireBest BeatDefendersContinue` (`:84-101`). Loss with damage: defenders persist 10 days via `FleetAdvanceScript`. Salvage adds AI cores per destroyed hull size. The `PopulateOptions` rows disable survey, salvage and Nexerelin outpost/deciv options while undefeated.
+`rules.csv` `IndEvo_ArtilleryInitialStation` (station, condition-only market, not defeated) -> option `IndEvo_ArtilleryCombatInteraction -> IndEvo_SalvageDefenderInteraction` (`:27`). Defenders: existing `$defenderFleet` on the station or `createDefenderFleet` (`IndEvo_ArtilleryDefenderGen.java:81-109`): `PATROL_LARGE`, `IndEvo_Artillery_defense_FP2 * (1 + min(1, (200 - hazard) / 100))` FP, officers x1.5, seeded from the planet salvage seed, plus the station variant. Win: station fleet members removed with flash, script goes destroyed, `$defenderFleetDefeated`, `FireBest BeatDefendersContinue` (`:83-100`). Loss with damage: defenders persist 10 days via `FleetAdvanceScript`. Salvage adds AI cores per destroyed hull size. The `PopulateOptions` rows disable survey, salvage and Nexerelin outpost/deciv options while undefeated.
 
 ### Stable locations
 
@@ -141,12 +141,12 @@ Watchtowers carry the `objective` tag (`data/config/custom_entities.json`, entit
 ## Contracts
 
 - Off-screen: `CampaignAttackScript`, `ArtilleryStationScript` and watchtower logic return early outside the player's location, so the off-screen 60-frame throttle (`docs/concepts/campaign-frame.md`) does not apply. Artillery never fires off-screen.
-- All tuning constants read `Setting` in `static final` fields at class load (`CampaignAttackScript.java:28-34`, projectile classes). Inferred: changes in LunaLib need a game restart.
+- Tuning settings are read at use time: reload, minimum range, shot counts, impact times, fuzz, explosion sizes, watchtower range and defender FP apply to the next shot or fight. `CampaignAttackScript` keeps two saved copies made at creation: `stationFireInterval` (delay between shots) and `range` (max range).
 - `WatchtowerStableLocationPatch` targets `Misc` by API names only (stable). It needs PatchLib (hard dependency); without the patch watchtowers count as stable locations again.
 - Save data: `ArtilleryStationScript` (planet script and memory), `CampaignAttackScript` (entity script, target maps keyed by entity id), the industry's `stationFleet`/`stationEntity` fields, `WatchtowerFactionResetListener.watchtowerTimeoutMap`, `EyeIndicatorScript` all persist. Projectile entities persist while alive.
 - The industry and the derelict script must agree on the type: the script stores it in `$IndEvo_ArtilleryType`; the industry derives it from its id. The rebuild options come from the parent `IndEvo_Artillery_base` (`parent_item`).
 - `ArtilleryStationScript.getScript(entity)` assumes a non-planet argument orbits the planet (`:79-89`).
-- `$IndEvo_ArtilleryStation` is also set as a tag on defender fleets (`IndEvo_ArtilleryDefenderGen.java:108`); `ConsumableItemDropListener` checks that tag (`indevo/items/consumables/listeners/ConsumableItemDropListener.java:48`).
+- `$IndEvo_ArtilleryStation` is also set as a tag on defender fleets (`IndEvo_ArtilleryDefenderGen.java:107`); `ConsumableItemDropListener` checks that tag (`indevo/items/consumables/listeners/ConsumableItemDropListener.java:48`).
 - `RuinsManager.setUpgradeSpec` excludes the rift generator on artillery planets ([Derelicts](DERELICTS.md)).
 - `MagicInvisibator` sets alpha 0 and applies 1e6 damage every frame to the deco module so it never fights (`MagicInvisibator.java:20-38`).
 
@@ -166,7 +166,7 @@ Watchtowers carry the `objective` tag (`data/config/custom_entities.json`, entit
 Suspected bugs (not fixed): see the return report of the documentation pass; listed here for upkeep.
 
 - `RailgunProjectileEntityPlugin.advance` adds `amount` to `timePassedSeconds` twice (`:121, 130`), so line fade and the failsafe run at double speed.
-- Railgun shells explode on any fleet, friendly included (`RailgunProjectileEntityPlugin.java:177-185`); carriers check hostility.
+- Railgun shells explode on any fleet, friendly included (`RailgunProjectileEntityPlugin.java:178-186`); carriers check hostility.
 - `RailgunShotEntity` never expires; the danger-sign entity stays in the location at alpha 0.
 - `EyeIndicatorScript` picks the farthest tower in range (`closestDist = Float.MIN_VALUE`, `dist > closestDist`, `:110-122`), so fill speed uses the wrong distance.
 - `MissileCarrierEntityPlugin` keeps looping after `finishing` and can spawn several ECM explosions in one frame (`:149-159`).

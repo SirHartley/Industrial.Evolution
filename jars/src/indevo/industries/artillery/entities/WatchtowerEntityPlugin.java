@@ -32,7 +32,6 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     you go do that future me
     */
 
-    public static final float RANGE = Setting.ARTILLERY_WATCHTOWER_RANGE.value();
     public static final String MEM_SENSOR_LOCK_ACTIVE = "$IndEvo_isArtilleryActive";
     public static float PINGS_PER_SECOND = 0.05f;
     public static float WATCHTOWER_FLEET_SEEN_DURATION_DAYS = 5f;
@@ -58,7 +57,7 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         super.init(entity, pluginParams);
 
         checkSensorLockActive();
-        /*entity.setSensorStrength(RANGE);
+        /*entity.setSensorStrength(Setting.ARTILLERY_WATCHTOWER_RANGE.value());
         entity.getMemoryWithoutUpdate().set(MemFlags.SENSOR_INDICATORS_OVERRIDE, 2);
         entity.getMemoryWithoutUpdate().set(MemFlags.EXTRA_SENSOR_INDICATORS, 2);*/
     }
@@ -107,7 +106,7 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
                 if (isLocked && !isHacked() && isFunctional()) showRangePing();
             } else if (!isHacked() && isFunctional()) showRangePing();
 
-            if (isFunctional()) for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, RANGE)) {
+            if (isFunctional()) for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, Setting.ARTILLERY_WATCHTOWER_RANGE.value())) {
                 if (isHostileTo(f)) { //&& f.getVisibilityLevelTo(entity) == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT){
                     if (f.isPlayerFleet()) continue;
 
@@ -138,7 +137,7 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         FactionAPI f = entity.getFaction();
         if (!f.isHostileTo(Factions.PLAYER) || isHacked()) return;
 
-        float range = RANGE / 2f;
+        float range = Setting.ARTILLERY_WATCHTOWER_RANGE.value() / 2f;
 
         CampaignPingSpec custom = new CampaignPingSpec();
         custom.setColor(f.getColor());
@@ -172,7 +171,7 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
                     pad, Misc.getHighlightColor(), "Hacked");
 
         } else text.addPara(BaseIntelPlugin.INDENT + "Transmits target telemetry within %s range",
-                pad, Misc.getHighlightColor(), Math.round(RANGE) + " units");
+                pad, Misc.getHighlightColor(), Math.round(Setting.ARTILLERY_WATCHTOWER_RANGE.value()) + " units");
     }
 
     public boolean isFunctional() {
@@ -196,7 +195,7 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     public void addHackStatusToTooltip(TooltipMakerAPI text, float pad) {
         if (isHacked()) text.addPara("%s your fleet",
                 pad, Misc.getHighlightColor(), "Ignores");
-        else if (entity.isInCurrentLocation() && Misc.getDistance(entity, Global.getSector().getPlayerFleet()) < RANGE)
+        else if (entity.isInCurrentLocation() && Misc.getDistance(entity, Global.getSector().getPlayerFleet()) < Setting.ARTILLERY_WATCHTOWER_RANGE.value())
             text.addPara("%s your fleet",
                     pad, Misc.getHighlightColor(), "Tracking");
         else text.addPara("Out of range", pad);

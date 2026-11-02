@@ -15,10 +15,8 @@ import static java.lang.Math.*;
 
 public class MortarShotScript implements EveryFrameScript {
 
-    public static final float AVERAGE_PROJ_IMPACT_TIME = Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value();
     public static final float MIN_TARGET_RADIUS = 250f;
     public static final float MAX_TARGET_RADIUS = 700f;
-    public static final int DEFAULT_PROJECTILE_AMT = Setting.ARTILLERY_MORTAR_PROJECTILES_PER_SHOT.intValue();
 
     public SectorEntityToken target;
     public SectorEntityToken origin;
@@ -46,10 +44,10 @@ public class MortarShotScript implements EveryFrameScript {
     public void advance(float amount) {
         if (isDone()) return;
 
-        List<Vector2f> targetList = getTargetList(target, AVERAGE_PROJ_IMPACT_TIME);
+        List<Vector2f> targetList = getTargetList(target, Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value());
 
         for (Vector2f t : targetList) {
-            MortarProjectileEntityPlugin.spawn(origin.getContainingLocation(), origin, t, (float) (AVERAGE_PROJ_IMPACT_TIME + 3f * random()));
+            MortarProjectileEntityPlugin.spawn(origin.getContainingLocation(), origin, t, (float) (Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value() + 3f * random()));
         }
 
         done = true;
@@ -57,7 +55,7 @@ public class MortarShotScript implements EveryFrameScript {
 
     public static Vector2f getAnticipatedTargetLoc(SectorEntityToken entity) {
         Vector2f vel = entity.getVelocity();
-        float dist = vel.length() * AVERAGE_PROJ_IMPACT_TIME * 1.1f;
+        float dist = vel.length() * Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value() * 1.1f;
         float currentNavigationAngle = Misc.getAngleInDegrees(vel);
         Vector2f location = Misc.getUnitVectorAtDegreeAngle(currentNavigationAngle);
         location.scale(dist);
