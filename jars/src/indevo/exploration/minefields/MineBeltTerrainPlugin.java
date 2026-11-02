@@ -117,7 +117,7 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
 
         Random rand = new Random(Global.getSector().getClock().getTimestamp() + entity.getId().hashCode());
 
-        List<Pair<Float, Float>> usedAngles = new ArrayList<>();
+        List<Float> usedAngles = new ArrayList<>();
 
         LocationAPI location = entity.getContainingLocation();
         for (int i = 0; i < params.numMines; i++) {
@@ -139,8 +139,8 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
             while (hadToUpdateOrbit && limiter <= 30) {
                 hadToUpdateOrbit = false;
 
-                for (Pair<Float, Float> usedRange : usedAngles) {
-                    if (isBetween(angle, usedRange.one, usedRange.two)) {
+                for (float used : usedAngles) {
+                    if (Misc.getAngleDiff(angle, used) <= 5f) {
                         angle = rand.nextFloat() * 360f;
 
                         hadToUpdateOrbit = true;
@@ -150,17 +150,13 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
                 }
             }
 
-            usedAngles.add(new Pair<>(angle - 5f, angle + 5f));
+            usedAngles.add(angle);
 
             float orbitDays = params.minOrbitDays + rand.nextFloat() * (params.maxOrbitDays - params.minOrbitDays);
             mine.setCircularOrbit(this.entity, angle, currRadius, orbitDays);
             Misc.setAsteroidSource(mine, this);
         }
         needToCreateMines = false;
-    }
-
-    private static boolean isBetween(float check, float lower, float higher) {
-        return (check >= lower && check <= higher);
     }
 
     public static SectorEntityToken addMine(LocationAPI loc, float size) {

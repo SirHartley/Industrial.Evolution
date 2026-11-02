@@ -41,7 +41,7 @@ A planet with the condition `IndEvo_mineFieldCondition` spawns a ring terrain `I
 | Memory (market) | `$IndEvo_MineFieldRefKey` = belt entity id; `$IndEvo_NoAsteroids` = skip ring band visual | `MineFieldCondition:19-20` |
 | Memory (terrain, mine) | `$IndEvo_PlanetMinefieldKey` = controlling planet entity | `MineFieldCondition:21`, copied to every mine in `createMines` |
 | Memory (location) | `$IndEvo_MinesDisabledLocMem` = `List<DisabledArea>` | `MineBeltTerrainPlugin:44` |
-| Memory (fleet) | `$IndEvo_recentlyJumped` (2 s), `$mineImpactTimeout`, `$skippedImpacts`, `$recentImpact` | `MineBeltTerrainPlugin:42`, `:217-219` |
+| Memory (fleet) | `$IndEvo_recentlyJumped` (2 s), `$mineImpactTimeout`, `$skippedImpacts`, `$recentImpact` | `MineBeltTerrainPlugin:42`, `:213-215` |
 | Tips | three minefield loading tips | `data/strings/tips.json:81-82`, `:92` |
 
 ## Registration and lifecycle
@@ -62,17 +62,17 @@ Order: `onNewGameAfterEconomyLoad -> spawnMineFields -> addCondition -> MineFiel
 
 ### Hit roll
 
-`MineBeltTerrainPlugin.applyEffect()` (`:200-267`), per fleet in the terrain:
+`MineBeltTerrainPlugin.applyEffect()` (`:196-263`), per fleet in the terrain:
 
 1. Slow-moving fleets get a 0.1 detected-range mult (hiding like vanilla ring terrain).
 2. Skip if `isFriend()`, in battle, recently jumped, or inside a `DisabledArea` of this belt.
-3. If neither `$mineImpactTimeout` nor `$recentImpact` is set: `chance = skips/0.1 * 0.3 + max(hullSum - NoHitUntilSum, 0) + burn^2 * 0.003` (doubled burn term at burn 10+). `hullSum` is the per-hull-size setting summed over members, scaled by the civilian and phase mults (`getBaseFleetHitChance`, `:299-323`).
+3. If neither `$mineImpactTimeout` nor `$recentImpact` is set: `chance = skips/0.1 * 0.3 + max(hullSum - NoHitUntilSum, 0) + burn^2 * 0.003` (doubled burn term at burn 10+). `hullSum` is the per-hull-size setting summed over members, scaled by the civilian and phase mults (`getBaseFleetHitChance`, `:295-319`).
 4. Slow fleets with `hullSum < NoHitUntilSum` are never hit. On hit: `fleet.addScript(new MineImpact(fleet))`, reset skips, set `$recentImpact` (player 0.05 to 1.05, NPC 5 to 7 days). On miss: grow `$skippedImpacts`.
 5. Always set `$mineImpactTimeout` (player 0.05 to 0.15, NPC 1 to 2 days).
 
-`isFriend()` (`:269-285`): friend if the controlling market is player-owned and the fleet is the player, or same faction, or relationship at worst `INHOSPITABLE`; the player without transponder at a non-player market is never a friend; fleets with `MemFlags.MEMORY_KEY_MISSION_IMPORTANT` are always friends. `getPrimary()` resolves the market from `$IndEvo_PlanetMinefieldKey` or the belt's orbit focus.
+`isFriend()` (`:265-281`): friend if the controlling market is player-owned and the fleet is the player, or same faction, or relationship at worst `INHOSPITABLE`; the player without transponder at a non-player market is never a friend; fleets with `MemFlags.MEMORY_KEY_MISSION_IMPORTANT` are always friends. `getPrimary()` resolves the market from `$IndEvo_PlanetMinefieldKey` or the belt's orbit focus.
 
-`hasAIFlag()` returns `DANGEROUS_UNLESS_GO_SLOW` for non-friends without `$recentImpact` (`:409-413`).
+`hasAIFlag()` returns `DANGEROUS_UNLESS_GO_SLOW` for non-friends without `$recentImpact` (`:405-409`).
 
 ### Impact
 
@@ -80,7 +80,7 @@ Order: `onNewGameAfterEconomyLoad -> spawnMineFields -> addCondition -> MineFiel
 
 ### Interdiction pulse disable
 
-`InterdictionPulseAbilityListener.reportPlayerDeactivatedAbility()` (`:27-46`) uses vanilla `InterdictionPulseAbility.getRange(fleet)` and, for every `MineBeltTerrainPlugin` whose outer circle intersects the pulse circle, calls `generateDisabledArea(fleet, range, duration)` (`MineBeltTerrainPlugin:436-447`). The area is a `SplinterFleet_OrbitFocus` token orbiting the belt at the fleet position; `DisabledArea.advance()` counts down in seconds from the terrain's `advance()` and removes the token at zero.
+`InterdictionPulseAbilityListener.reportPlayerDeactivatedAbility()` (`:27-46`) uses vanilla `InterdictionPulseAbility.getRange(fleet)` and, for every `MineBeltTerrainPlugin` whose outer circle intersects the pulse circle, calls `generateDisabledArea(fleet, range, duration)` (`MineBeltTerrainPlugin:432-443`). The area is a `SplinterFleet_OrbitFocus` token orbiting the belt at the fleet position; `DisabledArea.advance()` counts down in seconds from the terrain's `advance()` and removes the token at zero.
 
 ## Contracts
 
