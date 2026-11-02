@@ -1,25 +1,40 @@
 fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
-IndEvo_header0,Disclaimer,Header,Disclaimer,,,,,General
-IndEvo_text0,,Text,Changing these settings can impact the stability of your game. Only the default configuration is tested to work.,,,,,General
-IndEvo_header1,General,Header,General,,,,,General
-IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,Commerce balance changes. Read up on why this was needed here: bit.ly/commerce_balance. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).,,,General
-IndEvo_shipPickerRowCount,[General] Ship Picker Row Count,Int,8,,The row amount in most of the ship picker dialogues in the mod.,0,100,General
-IndEvo_block_industries,[General] Colony Industries,Boolean,TRUE,,"Master switch for the industries that have a switch in the Industries tab. Off is the same as turning all of them off; built industries stay. On, each industry follows its own switch. NPC placement needs a new game.",,,General
-IndEvo_block_consumables,[General] Consumable Items,Boolean,TRUE,,"Master switch for consumable items: market stock, combat drops and the research project. Off is the same as turning off all three in the Consumable Items tab; items you own stay usable. On, each follows its own switch.",,,General
+IndEvo_header0,Disclaimer,Header,Disclaimer,,,,,Quick Settings
+IndEvo_text0,,Text,Changing these settings can impact the stability of your game. Only the default configuration is tested to work.,,,,,Quick Settings
+IndEvo_header_content,Content,Header,Content,,,,,Quick Settings
+IndEvo_block_industries,[General] Colony Industries,Boolean,TRUE,,"Master switch for the industries that have a switch in the Industries tab. Off is the same as turning all of them off; built industries stay. On, each industry follows its own switch. NPC placement needs a new game.",,,Quick Settings
+IndEvo_block_consumables,[General] Consumable Items,Boolean,TRUE,,"Master switch for consumable items: market stock, combat drops and the research project. Off is the same as turning off all three under Consumable Items in the Exploration & Items tab; items you own stay usable. On, each follows its own switch.",,,Quick Settings
+IndEvo_Enable_Derelicts,[Exploration] Exploration Events and Industries,Boolean,TRUE,,Enables salvage events as well as derelict infrastructure and industries. Off also turns off Additional Station Types. Placement needs a new game.,,,Quick Settings
+IndEvo_Enable_Artillery,[Artillery] Spawn Artillery Stations,Boolean,TRUE,,Artillery stations and watchtowers. Off: placed stations stop firing and can not be built. Placement needs a new game. Disabling this means you have weak bones.,,,Quick Settings
+IndEvo_Enable_minefields,[Minefields] Minefields,Boolean,TRUE,,Minefields around some planets. Off: mines stop hitting fleets. Placement needs a new game.,,,Quick Settings
+IndEvo_meteor_enabled,[Meteor Swarms] Spawn Meteor Swarms,Boolean,TRUE,,Meteor swarms. Off: no new swarms spawn.,,,Quick Settings
+IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Toggles Pets: the Animal Center, the pet management ability, Project Navi and abandoned pet stations. Placement needs a new game.",,,Quick Settings
+IndEvo_header1,General,Header,General,,,,,Quick Settings
+IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,Commerce balance changes. Read up on why this was needed here: bit.ly/commerce_balance. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).,,,Quick Settings
+IndEvo_shipPickerRowCount,[General] Ship Picker Row Count,Int,8,,The row amount in most of the ship picker dialogues in the mod.,0,100,Quick Settings
+IndEvo_meteor_baseChancePerEconomyTick,[Meteor Swarms] Spawn Chance,Double,0.02,,"Chance for a meteor shower to spawn. One month has 10 ticks, 2 percent per tick = 18 %% chance per month = 92 %% per year. Increasing this by 0.1 raises monthly odds by about 30 %%, so use caution.",0.001,0.1,Quick Settings
+IndEvo_Artillery_spawnWeight,[Artillery] Spawn Chance,Double,1,,How likely a system is to have an artillery station. Reduce this number to make them rarer. 1 = between 5-10%% of all systems will have one. Needs a new game.,0,100,Quick Settings
+IndEvo_derelictStationAmount,[Exploration] Additional Station Type Amounts,Double,0.2,,Amount of additional stations with custom types spawned on top of existing ones (0.2 = 20%% additional). Needs a new game.,0,2,Quick Settings
+IndEvo_AutomatedShipyardNum,[Exploration] Automated Shipyards Amount,Double,1.5,,"Amount of Coronal Taps * number = amount of automated shipyards. Default taps is 2, so default shipyards is 3 (2 * 1.5). Rounds up. Needs a new game.",0,10,Quick Settings
 ,,,,,,,,
-IndEvo_header3,Exploration & Campaign,Header,Exploration & Campaign,,,,,Exploration & Campaign
-IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Toggles Pets: the Animal Center, the pet management ability, Project Navi and abandoned pet stations. Placement needs a new game.",,,Exploration & Campaign
-IndEvo_Enable_Derelicts,[Exploration] Exploration Events and Industries,Boolean,TRUE,,Enables salvage events as well as derelict infrastructure and industries. Placement needs a new game.,,,Exploration & Campaign
-IndEvo_AutomatedShipyardNum,[Exploration] Automated Shipyards Amount,Double,1.5,,"Amount of Coronal Taps * number = amount of automated shipyards. Default taps is 2, so default shipyards is 3 (2 * 1.5). Rounds up. Needs a new game.",0,10,Exploration & Campaign
-IndEvo_SpecialApplicationChance,[Exploration] Special Event Application Chance,Double,0.9,,Master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing. Needs a new game.,0,1,Exploration & Campaign
-IndEvo_enable_derelict_stations,[Exploration] Additional Station Types,Boolean,TRUE,,Enables the custom station types like orbital labs and arsenal stations. Needs a new game.,,,Exploration & Campaign
-IndEvo_derelictStationAmount,[Exploration] Additional Station Type Amounts,Double,0.2,,Amount of additional stations with custom types spawned on top of existing ones (0.2 = 20%% additional). Needs a new game.,0,2,Exploration & Campaign
-IndEvo_parts_disclaimer,,Text,"All loot added by this mod is on top of the normal loot you would have gotten. At no point does Industrial Evolution edit, dilute, change or in any other way influence vanilla drop behaviour.",,,,,Exploration & Campaign
-IndEvo_PartsDropInCampaign,[Commodities] Ship Parts Campaign Drops,Boolean,TRUE,,Makes starship components drop from combat - Relic components will still drop even if you disable this.,,,Exploration & Campaign
-IndEvo_relicComponentHardbattleFPAdvantage,[Commodities] Relic Component Hard Battle FP Advantage,Double,1.5,,How much more FP an enemy fleet has to have for it to drop relic components on defeat,1,5,Exploration & Campaign
-IndEvo_relicComponentFPDestroyedFract,"[Commodities] Relic Component ""Destroy to drop"" Fraction",Double,0.5,,How much of said fleet you have to destroy for it to drop relic components,0,1,Exploration & Campaign
-IndEvo_meteor_enabled,[Meteor Swarms] Spawn Meteor Swarms,Boolean,TRUE,,General on-off toggle.,,,Meteor Swarms
-IndEvo_meteor_baseChancePerEconomyTick,[Meteor Swarms] Spawn Chance,Double,0.02,,"Chance for a meteor shower to spawn. One month has 10 ticks, 2 percent per tick = 18 %% chance per month = 92 %% per year. Increasing this by 0.1 raises monthly odds by about 30 %%, so use caution.",0.001,0.1,Meteor Swarms
+IndEvo_header3,Exploration,Header,Exploration,,,,,Exploration & Items
+IndEvo_SpecialApplicationChance,[Exploration] Special Event Application Chance,Double,0.9,,Master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing. Needs a new game.,0,1,Exploration & Items
+IndEvo_enable_derelict_stations,[Exploration] Additional Station Types,Boolean,TRUE,,Enables the custom station types like orbital labs and arsenal stations. Needs a new game.,,,Exploration & Items
+,,,,,,,,
+IndEvo_header_components,Ship Components,Header,Ship Components,,,,,Exploration & Items
+IndEvo_parts_disclaimer,,Text,"All loot added by this mod is on top of the normal loot you would have gotten. At no point does Industrial Evolution edit, dilute, change or in any other way influence vanilla drop behaviour.",,,,,Exploration & Items
+IndEvo_PartsDropInCampaign,[Commodities] Ship Parts Campaign Drops,Boolean,TRUE,,Makes starship components drop from combat - Relic components will still drop even if you disable this.,,,Exploration & Items
+IndEvo_relicComponentHardbattleFPAdvantage,[Commodities] Relic Component Hard Battle FP Advantage,Double,1.5,,How much more FP an enemy fleet has to have for it to drop relic components on defeat,1,5,Exploration & Items
+IndEvo_relicComponentFPDestroyedFract,"[Commodities] Relic Component ""Destroy to drop"" Fraction",Double,0.5,,How much of said fleet you have to destroy for it to drop relic components,0,1,Exploration & Items
+,,,,,,,,
+IndEvo_header_consumables,Consumable Items,Header,Consumable Items,,,,,Exploration & Items
+IndEvo_consumables_disclaimer,,Text,"To completely remove consumable items, go to Industrial.Evolution\data\campaign\procgen\drop_groups.csv and set the relevant group weights to 0. Deleting them will cause a crash.",,,,,Exploration & Items
+IndEvo_consumables_disclaimer2,,Text,"All loot added by this mod is on top of the normal loot you would have gotten. At no point does Industrial Evolution edit, dilute, change or in any other way influence vanilla drop behaviour.",,,,,Exploration & Items
+IndEvo_consumables_addToMarkets,[Consumable Items] Add to markets,Boolean,TRUE,,Toggles if consumable items show up on markets.,,,Exploration & Items
+IndEvo_consumables_addToFleets,[Consumable Items] Drop from combat,Boolean,TRUE,,Toggles if consumable items can drop from fleet encounters.,,,Exploration & Items
+IndEvo_consumables_researchProject,[Consumable Items] Research project,Boolean,TRUE,,Toggles if the research project at galatia is available.,,,Exploration & Items
+,,,,,,,,
+IndEvo_header_meteor,Meteor Swarms,Header,Meteor Swarms,,,,,Meteor Swarms
 IndEvo_meteor_immediateMode,[Meteor Swarms] Immediate Mode,Boolean,FALSE,,Setting this to true will make meteor shower spawn immediately instead of having a delay with an intel entry.,,,Meteor Swarms
 IndEvo_meteor_minIntensity,[Meteor Swarms] Minimum Intensity,Double,1,,Minimum intensity per swarm instance.,1,5,Meteor Swarms
 IndEvo_meteor_maxIntensity,[Meteor Swarms] Maximum Intensity,Double,3,,Maximum intensity per swarm instance. Increasing this past 4 can cause lag.,1,10,Meteor Swarms
@@ -35,9 +50,9 @@ IndEvo_meteor_maxDistanceFromSun,[Meteor Swarms] Max Distance From Star,Double,1
 IndEvo_meteor_minDistanceFromSun,[Meteor Swarms] Min Distance From Star,Double,3000,,Minimum allowed spawn distance from the system primary in game units.,100,26000,Meteor Swarms
 IndEvo_meteor_maxAngle,[Meteor Swarms] Maximum Angle,Double,80,,Upper angle bound for spawn cone relative to reference axis in degrees.,1,360,Meteor Swarms
 IndEvo_meteor_minAngle,[Meteor Swarms] Minimum Angle,Double,50,,Lower angle bound for spawn cone relative to reference axis in degrees.,1,360,Meteor Swarms
+,,,,,,,,
 IndEvo_header4,Minefields,Header,Minefields,,,,,Minefields
 IndEvo_minefields_disclaimer,,Text,Tip: You can disable minefields temporarily with an interdiction pulse.,,,,,Minefields
-IndEvo_Enable_minefields,[Minefields] Minefields,Boolean,TRUE,,Minefields around some planets. Off: mines stop hitting fleets. Placement needs a new game.,,,Minefields
 IndEvo_Minefield_disable_duration,[Minefields] Disable duration,Double,5,,Time in seconds that a minefield is disabled upon being hit with an interdiction pulse. This is intentionally set to be just enough time to cross once with a large fleet - minefields are intended to be an obstacle! Default: 5,1,30,Minefields
 IndEvo_Minefield_HitChance_frigate,[Minefields] Hit Chance [Frigate],Double,0.02,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,0,1,Minefields
 IndEvo_Minefield_HitChance_destroyer,[Minefields] Hit Chance [Destroyer],Double,0.04,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,0,1,Minefields
@@ -46,9 +61,8 @@ IndEvo_Minefield_HitChance_capital,[Minefields] Hit Chance [Capital],Double,0.12
 IndEvo_Minefield_NoHitUntilSum,[Minefields] No Hit Until Sum,Double,0.5,,The minimum fleet size needed before mines can explode in your face when going slow,0,5,Minefields
 IndEvo_Minefield_CivilianShipImpactMult,[Minefields] Civ Ship Hit Chance Mult,Double,0.5,,How much a civilian ship counts toward the hit chance above. 0.5 = half.,0,2,Minefields
 IndEvo_Minefield_PhaseShipImpactMult,[Minefields] Phase Ship Hit Chance Mult,Double,0.3,,How much a phase ship counts toward the hit chance above. 0.3 = 30%%. Applies on top of the civilian mult.,0,2,Minefields
+,,,,,,,,
 IndEvo_header5,Artillery,Header,Artillery,,,,,Artillery
-IndEvo_Enable_Artillery,[Artillery] Spawn Artillery Stations,Boolean,TRUE,,Artillery stations and watchtowers. Off: placed stations stop firing and can not be built. Placement needs a new game. Disabling this means you have weak bones.,,,Artillery
-IndEvo_Artillery_spawnWeight,[Artillery] Spawn Chance,Double,1,,How likely a system is to have an artillery station. Reduce this number to make them rarer. 1 = between 5-10%% of all systems will have one. Needs a new game.,0,100,Artillery
 IndEvo_Artillery_starsPerStationInConstellation,[Artillery] Stars per station in a constellation,Double,1,,Specifies how many artillery stations can spawn per X stars in a constellation. Default = One station per 3 stars. The lower the number the more clustered the stations are. Setting this too high will result in no stations spawning. Needs a new game.,0,100,Artillery
 IndEvo_Watchtower_faction_reset,[Artillery] Time to watchtower faction reset,Int,31,,"Time in days for watchtowers to reset to the faction controlling the artillery. This is needed to avoid ""dead"" artilleries after being highjacked by a pirate station and subsequently having their watchtowers taken by an invasion.",1,365,Artillery
 IndEvo_Artillery_minDelayBetweenShots,[Artillery] Min Delay Between Shots,Double,2,,"Delay between shots - if the artillery has two valid targets, it'll take that long to fire at both of them",0,100,Artillery
@@ -72,11 +86,7 @@ IndEvo_Artillery_missile_maxCoveredArea,[Missile Artillery] Missile Roaming Area
 IndEvo_Artillery_missile_fuzz,[Missile Artillery] Shot Fuzziness,Double,1,,How accurately the missiles anticipate your location; less than 1 makes 'em kinda useless,1,10,Artillery
 IndEvo_Artillery_missile_explosionRadius,[Missile Artillery] Explosion Radius,Double,200,,"Radius of the interdiction and slow field each missile leaves on explosion, in units.",1,1000,Artillery
 IndEvo_Artillery_missile_duration,[Missile Artillery] Roaming Duration,Double,10,,Seconds the slow field of a missile explosion lasts.,1,60,Artillery
-IndEvo_consumables_disclaimer,,Text,"To completely remove consumable items, go to Industrial.Evolution\data\campaign\procgen\drop_groups.csv and set the relevant group weights to 0. Deleting them will cause a crash.",,,,,Consumable Items
-IndEvo_consumables_disclaimer2,,Text,"All loot added by this mod is on top of the normal loot you would have gotten. At no point does Industrial Evolution edit, dilute, change or in any other way influence vanilla drop behaviour.",,,,,Consumable Items
-IndEvo_consumables_addToMarkets,[Consumable Items] Add to markets,Boolean,TRUE,,Toggles if consumable items show up on markets.,,,Consumable Items
-IndEvo_consumables_addToFleets,[Consumable Items] Drop from combat,Boolean,TRUE,,Toggles if consumable items can drop from fleet encounters.,,,Consumable Items
-IndEvo_consumables_researchProject,[Consumable Items] Research project,Boolean,TRUE,,Toggles if the research project at galatia is available.,,,Consumable Items
+,,,,,,,,
 IndEvo_header2,Industry Toggles,Header,Industries,,,,,Industries
 IndEvo_AdManuf,[Industries] Variable Manufactory,Boolean,TRUE,,Enables or disables the Variable Manufactory. Note that disabling the Variable industries will not stop VPCs from dropping - you will have to remove the entries from drop_groups.csv to achieve that. NPC placement needs a new game.,,,Industries
 IndEvo_AdAssem,[Industries] Variable Assembler,Boolean,TRUE,,Enables or disables the Variable Assembler,,,Industries
@@ -98,92 +108,91 @@ IndEvo_SwitchableRefining,[Industries] Specialized Refining,Boolean,TRUE,,Enable
 IndEvo_SwitchableMining,[Industries] Specialized Mining,Boolean,TRUE,,Enables or disables Specialized Mining,,,Industries
 IndEvo_museum_enabled,[Industries] Museum,Boolean,TRUE,,Enables or disables the Museum,,,Industries
 ,,,,,,,,
-IndEvo_header6,Industry Settings,Header,Industry Settings,,,,,Industries
 IndEvo_header_Governance,Governance,Header,Governance,,,,,Industries
 IndEvo_GovernmentLarpMode,[Governance] Government Larping,Boolean,FALSE,,Setting this to true makes planetary governments behave like vanilla pop&infra and turns them into a cosmetic choice.,,,Industries
 IndEvo_GovernmentMaxSize,[Governance] Max size for government change,Int,3,,Specifies how large a colony may be in order to change the government type. Building up a stable colony and then changing is cheating and takes away from how these are supposed to work: higher rewards for higher difficulties.,1,10,Industries
-,,,,,,,,
-IndEvo_header_enghub,Engineering Hub,Header,Engineering Hub,,,,,Industries
-IndEvo_EngHubStrictWhitelist,[Engineering Hub] Use strict whitelist,Boolean,FALSE,,Disable the auto-whitelist and return to the strict manual entry based whitelist system. This means that only ships that are listed in the reverse_engineering.csv whitelist are eligible to be researched.,,,Industries
-IndEvo_EngHubIgnoreWhitelists,[Engineering Hub] Ignore Whitelist,Boolean,FALSE,,"Yes, this is the one you are looking for (NOTE: post version 4.0 has an auto-whitelist that is much broader and you may not need this setting anymore)",,,Industries
-IndEvo_AutoshipBPToGatheringPoint,[Engineering Hub] Auto Transfer BP to Gathering Point,Boolean,FALSE,,Remember - Courier Port Exists,,,Industries
-,,,,,,,,
-IndEvo_header_sy,Salvage Yards,Header,Salvage Yards,,,,,Industries
-IndEvo_RarePartsAmountPerFP,[Salvage Yards] Relic Components per FP,Int,2,,Required Relic Components per FP for zero D-Mods,1,10,Industries
-IndEvo_SYBaseDMods,[Salvage Yards] Base D-Mod Amount,Int,5,,Base D-Mod count on ships built via the Yards,1,10,Industries
-IndEvo_SYPartValueMult,[Salvage Yards] Ship Component Value Mult,Double,1.2,,Mult for how much components contribute towards the budget - default means every component contributes 1.2x its standard cost towards the budget,0.1,5,Industries
-IndEvo_SYHullDeliveryTime,[Salvage Yards] Delivery Thyme,Int,60,,Italian Sounds while person on crotch rocket delivers Paragon to hungry space captain,1,365,Industries
-IndEvo_SYDModMoveBaseCostMult,[Salvage Yards] D-Mod Moving Base Cost Mult,Double,0.8,,"Cost to move one D-Mod, as a multiple of what restoring that D-Mod costs. 0.8 = moving is 20%% cheaper than restoring. Relations still change the final price.",0.1,5,Industries
-,,,,,,,,
-IndEvo_header_Courier,Courier Port,Header,Courier Port,,,,,Industries
-IndEvo_courier_costPerSpace,[Courier Port] Base Cost per cargo unit,Int,5,,Transport cost per cargo space used. Some items take more space than others: a nanoforge takes 10 cargo space. Affected by distance.,1,20,Industries
-IndEvo_courier_costPerShip,[Courier Port] Base Cost per ship unit,Int,170,,"Transport cost per ship DP. Larger ship, larger cost. Affected by distance.",10,500,Industries
-IndEvo_courier_baseFee,[Courier Port] Static courier fee,Int,1000,,"The base fee of a shipment, not affected by distance.",0,10000,Industries
-IndEvo_courier_costPerLyMult,[Courier Port] Cost per distance multiplier,Double,1,,"This setting changes how impactful distance is to the cost calculation. The higher the value, the more distance will factor in.",0.1,2,Industries
-,,,,,,,,
-IndEvo_header_Privateer,Privateer Base,Header,Privateer Base,,,,,Industries
-IndEvo_RaidForUnknownOnly,[Privateer Base] Raid only for Unknown BPs,Boolean,FALSE,,"Allows the Privateer base to raid for blueprints you already know. Setting this to TRUE will make it only generate BPs you do not know, instead of a mix",,,Industries
-IndEvo_PrivateerDeliverToGatheringPoint,[Privateer Base] Deliver to Gathering Point,Boolean,FALSE,,Auto-deliver the looted items to the gathering point. Remember - courier port exists.,,,Industries
-,,,,,,,,
-IndEvo_header_Derelict,Derelict,Header,Derelict,,,,,Industries
-IndEvo_DerInfraBuildRed,[Derelict Infrastructure] Derelict Infra Cost Reduction,Double,0.5,,Cost and time multiplier for restoring Ruined Infrastructure. 0.5 = half the normal cost and time.,0,1,Industries
-IndEvo_derelictDeliverToGathering,[Derelict Industries] Deliver to Gathering Point,Boolean,FALSE,,All derelict industry output will be delivered to the gathering point instead of local storage. Remember - courier port exists.,,,Industries
-IndEvo_RG_cooldownTime,[Rift Generator] Cooldown,Int,90,,Days the Rift Generator needs to recharge after moving a planet. An alpha core cuts 30 days.,1,365,Industries
-IndEvo_RG_range,[Rift Generator] Range,Int,9,,Range in light years for the target system of a planet move. A beta core adds 3.,1,100,Industries
-IndEvo_reslab_autoDeliverToClosestDecon,[Derelict Laboratory] Deliver to Gathering Point,Boolean,FALSE,,Auto-deliver restored forge templates to the closest HullDecon. Remember - courier port exists.,,,Industries
-IndEvo_DeconIgnoreWhitelists,[Hull Deconstructor] Ignore Whitelists,Boolean,TRUE,,"Leave this one alone, you want the engineering hub",,,Industries
-IndEvo_DeconAllowNexOmega,[Hull Deconstructor] Allow Deconstructing the Nex Omega Merc,Boolean,FALSE,,Added on request :),,,Industries
-IndEvo_hullDecon_autoDeliverToClosestForge,[Hull Deconstructor] Deliver to closest Forge,Boolean,FALSE,,Auto-deliver finished forge templates to the closest HullForge. Remember - courier port exists.,,,Industries
-IndEvo_hullDecon_days_FRIGATE,[Hull Deconstructor] Deconstruction Time in Days [Frigate],Int,10,,Days to deconstruct a frigate into a forge template.,1,100,Industries
-IndEvo_hullDecon_days_DESTROYER,[Hull Deconstructor] Deconstruction Time in Days [Destroyer],Int,20,,Days to deconstruct a destroyer into a forge template.,1,100,Industries
-IndEvo_hullDecon_days_CRUISER,[Hull Deconstructor] Deconstruction Time in Days [Cruiser],Int,30,,Days to deconstruct a cruiser into a forge template.,1,100,Industries
-IndEvo_hullDecon_days_CAPITAL_SHIP,[Hull Deconstructor] Deconstruction Time in Days [Capital],Int,40,,Days to deconstruct a capital ship into a forge template.,1,100,Industries
-IndEvo_hullForge_autoQueueShipsUntilEmpty,[Hull Forge] Auto-Queue Ships,Boolean,TRUE,,Print ships off a template until it is empty - FALSE = deposit in storage after one run,,,Industries
-IndEvo_hullForge_autoDeliverToClosestLab,[Hull Forge] Deliver to closest Laboratory,Boolean,FALSE,,Auto-deliver degraded forge templates to the closest lab - or empty ones to a Deconstructor (AI Core Effect only). Remember - courier port exists.,,,Industries
-IndEvo_hullForge_days_FRIGATE,[Hull Forge] Construction Time in Days [Frigate],Int,5,,Days to print a frigate from a forge template.,1,100,Industries
-IndEvo_hullForge_days_DESTROYER,[Hull Forge] Construction Time in Days [Destroyer],Int,10,,Days to print a destroyer from a forge template.,1,100,Industries
-IndEvo_hullForge_days_CRUISER,[Hull Forge] Construction Time in Days [Cruiser],Int,15,,Days to print a cruiser from a forge template.,1,100,Industries
-IndEvo_hullForge_days_CAPITAL_SHIP,[Hull Forge] Construction Time in Days [Capital],Int,20,,Days to print a capital ship from a forge template.,1,100,Industries
-,,,,,,,,
-IndEvo_header_Supercomputer,Supercomputer,Header,Supercomputer,,,,,Industries
-IndEvo_alpha_core_runtime,[Supercomputer] Core Runtime [Alpha],Int,558,,Core run time in days until burn out. Tooltips will be broken if number is not a multiple of 31.,31,3100,Industries
-IndEvo_beta_core_runtime,[Supercomputer] Core Runtime [Beta],Int,279,,Core run time in days until burn out. Tooltips will be broken if number is not a multiple of 31.,31,3100,Industries
-IndEvo_gamma_core_runtime,[Supercomputer] Core Runtime [Gamma],Int,93,,Core run time in days until burn out. Tooltips will be broken if number is not a multiple of 31.,31,3100,Industries
-,,,,,,,,
-IndEvo_header_resdock,Restoration Docks,Header,Restoration Docks,,,,,Industries
-IndEvo_restoFee_FRIGATE,[Restoration Docks] Extra Fee [Frigate],Double,1000,,AI mode restoration Fees per dMod,1,100000,Industries
-IndEvo_restoFee_DESTROYER,[Restoration Docks] Extra Fee [Destroyer],Double,3000,,AI mode restoration Fees per dMod,1,100000,Industries
-IndEvo_restoFee_CRUISER,[Restoration Docks] Extra Fee [Cruiser],Double,7000,,AI mode restoration Fees per dMod,1,100000,Industries
-IndEvo_restoFee_CAPITAL,[Restoration Docks] Extra Fee [Capital],Double,10000,,AI mode restoration Fees per dMod,1,100000,Industries
-,,,,,,,,
-IndEvo_Academy_header,Academy,Header,Academy,,,,,Industries
-IndEvo_dailyOfficerSpawnChance,[Academy] Daily Officer Spawn Chance,Double,0.15,,"Chance per day that a hireable officer shows up at a colony with an Academy, if it has none. 0.15 = 15%%.",0,1,Industries
-IndEvo_dailyAdminSpawnChance,[Academy] Daily Admin Spawn Chance,Double,0.10,,"Chance per day that a hireable administrator shows up at a colony with an Academy, if it has none. 0.10 = 10%%.",0,1,Industries
-IndEvo_personalityTrainingDayCount,[Academy] Personality Training Duration,Int,93,,Days to move an officer's personality one step. AI cores shorten it.,1,365,Industries
-IndEvo_personalityTrainingCost,[Academy] Personality Training Cost,Int,30000,,Credits paid when an officer starts personality training.,1,100000,Industries
-IndEvo_adminTrainingDayCount,[Academy] Admin Training Duration,Int,124,,Days to teach an administrator a new skill. AI cores shorten it.,1,365,Industries
-IndEvo_adminTrainingCost,[Academy] Admin Training Cost,Int,20000,,Credits paid when an administrator starts training.,1,100000,Industries
-IndEvo_monthlyAIStorageCost,[Academy] Monthly Storage Cost,Int,2000,,"For officers and admins, per person, per month",1,10000,Industries
-,,,,,,,,
-IndEvo_VarInd_header,Variable Industries,Header,Variable Industries,,,,,Industries
-IndEvo_VarInd_deliverToProductionPoint,[Variable Industries] Deliver to Gathering Point,Boolean,FALSE,,Auto-deliver to production point (default - To local storage)  Remember - courier port exists.,,,Industries
 ,,,,,,,,
 IndEvo_wonders_header,World Wonders,Header,World Wonders,,,,,Industries
 IndEvo_CPShieldRemove,[World Wonders] Cloud Painter Shield Texture Removal,Boolean,FALSE,,Makes the cloud painter remove the planetary shield texture so clouds stay visible,,,Industries
 IndEvo_CPShieldOverride,[World Wonders] Cloud Painter Shield Alternate Texture,Boolean,FALSE,,"Replaces the planetary shield texture with a colourless alternative texture, making clouds stay visible in addition to having a perceptible shield texture. Does not apply if Shield Texture Removal is set to true!",,,Industries
 ,,,,,,,,
-IndEvo_header_museum,Museum,Header,Museum,,,,,Industries
-IndEvo_museum_maxAdditionalCredits,[Museum] Maximum Additional Credits,Double,1950,,The maximum credits a ship can earn per month while exhibited,1,10000,Industries
-IndEvo_museum_minAdditionalCredits,[Museum] Minimum Additional Credits,Double,50,,"The minimum credits a ship can earn per month while exhibited. If the maximum is lower, it is raised to this value.",1,10000,Industries
-IndEvo_museum_defaultMaxParades,[Museum] Default Maximum Parades,Int,1,,Default parade slots without modifiers,1,10,Industries
-IndEvo_museum_defaultParadeMembersMax,[Museum] Default Parade Members Maximum,Int,15,,Maximum number of ships allowed to participate in a single parade.,1,50,Industries
-IndEvo_museum_minShipsForParade,[Museum] Minimum Ships for Parade,Int,3,,Minimum number of ships required to initiate a parade.,1,50,Industries
-IndEvo_museum_topShipPoolAmtForParadeSelection,[Museum] Top Ship Pool Amount for Parade Selection,Int,20,,"Number ships considered during random parade participant selection, counting down from the highest valued one.",1,50,Industries
-IndEvo_museum_paradeFleetImmigrationBonus,[Museum] Parade Fleet Immigration Bonus,Int,5,,Immigration bonus granted while a parade fleet is active.,1,30,Industries
-IndEvo_museum_paradeFleetStabilityBonus,[Museum] Parade Fleet Stability Bonus,Int,1,,Stability bonus granted while a parade fleet is active.,1,10,Industries
-IndEvo_museum_improveExtraParades,[Museum] Improve Extra Parades,Int,1,,Additional parade capacity gained when the structure is improved.,1,10,Industries
-IndEvo_museum_alphaCoreExtraParades,[Museum] Alpha Core Extra Parades,Int,1,,Extra parade slots provided when an Alpha Core is installed.,1,10,Industries
-IndEvo_museum_betaCoreIncomePerStability,[Museum] Beta Core Income per Stability,Int,20000,,Amount of required income per +1 stability when a Beta Core is installed.,1,100000,Industries
-IndEvo_museum_betaCoreIncomePerPointImmigration,[Museum] Beta Core Income per Point Immigration,Int,3000,,Amount of required income per +1 immigration when a Beta Core is installed.,1,100000,Industries
-IndEvo_museum_gammaCoreIncomeMult,[Museum] Gamma Core Income Multiplier,Double,1.3,,Multiplier applied to total income when a Gamma Core is installed.,0.1,3,Industries
-IndEvo_museum_uniqueShipValueMult,[Museum] Unique Ship Value Multiplier,Double,2,,Multiplier applied to the value of rare / non-learnable ships.,1.0,5,Industries
+IndEvo_VarInd_header,Variable Industries,Header,Variable Industries,,,,,Production
+IndEvo_VarInd_deliverToProductionPoint,[Variable Industries] Deliver to Gathering Point,Boolean,FALSE,,Auto-deliver to production point (default - To local storage)  Remember - courier port exists.,,,Production
+,,,,,,,,
+IndEvo_header_Supercomputer,Supercomputer,Header,Supercomputer,,,,,Production
+IndEvo_alpha_core_runtime,[Supercomputer] Core Runtime [Alpha],Int,558,,Core run time in days until burn out. Tooltips will be broken if number is not a multiple of 31.,31,3100,Production
+IndEvo_beta_core_runtime,[Supercomputer] Core Runtime [Beta],Int,279,,Core run time in days until burn out. Tooltips will be broken if number is not a multiple of 31.,31,3100,Production
+IndEvo_gamma_core_runtime,[Supercomputer] Core Runtime [Gamma],Int,93,,Core run time in days until burn out. Tooltips will be broken if number is not a multiple of 31.,31,3100,Production
+,,,,,,,,
+IndEvo_header_sy,Salvage Yards,Header,Salvage Yards,,,,,Production
+IndEvo_RarePartsAmountPerFP,[Salvage Yards] Relic Components per FP,Int,2,,Required Relic Components per FP for zero D-Mods,1,10,Production
+IndEvo_SYBaseDMods,[Salvage Yards] Base D-Mod Amount,Int,5,,Base D-Mod count on ships built via the Yards,1,10,Production
+IndEvo_SYPartValueMult,[Salvage Yards] Ship Component Value Mult,Double,1.2,,Mult for how much components contribute towards the budget - default means every component contributes 1.2x its standard cost towards the budget,0.1,5,Production
+IndEvo_SYHullDeliveryTime,[Salvage Yards] Delivery Thyme,Int,60,,Italian Sounds while person on crotch rocket delivers Paragon to hungry space captain,1,365,Production
+IndEvo_SYDModMoveBaseCostMult,[Salvage Yards] D-Mod Moving Base Cost Mult,Double,0.8,,"Cost to move one D-Mod, as a multiple of what restoring that D-Mod costs. 0.8 = moving is 20%% cheaper than restoring. Relations still change the final price.",0.1,5,Production
+,,,,,,,,
+IndEvo_header_enghub,Engineering Hub,Header,Engineering Hub,,,,,Production
+IndEvo_EngHubStrictWhitelist,[Engineering Hub] Use strict whitelist,Boolean,FALSE,,Disable the auto-whitelist and return to the strict manual entry based whitelist system. This means that only ships that are listed in the reverse_engineering.csv whitelist are eligible to be researched.,,,Production
+IndEvo_EngHubIgnoreWhitelists,[Engineering Hub] Ignore Whitelist,Boolean,FALSE,,"Yes, this is the one you are looking for (NOTE: post version 4.0 has an auto-whitelist that is much broader and you may not need this setting anymore)",,,Production
+IndEvo_AutoshipBPToGatheringPoint,[Engineering Hub] Auto Transfer BP to Gathering Point,Boolean,FALSE,,Remember - Courier Port Exists,,,Production
+,,,,,,,,
+IndEvo_header_resdock,Restoration Docks,Header,Restoration Docks,,,,,Production
+IndEvo_restoFee_FRIGATE,[Restoration Docks] Extra Fee [Frigate],Double,1000,,AI mode restoration Fees per dMod,1,100000,Production
+IndEvo_restoFee_DESTROYER,[Restoration Docks] Extra Fee [Destroyer],Double,3000,,AI mode restoration Fees per dMod,1,100000,Production
+IndEvo_restoFee_CRUISER,[Restoration Docks] Extra Fee [Cruiser],Double,7000,,AI mode restoration Fees per dMod,1,100000,Production
+IndEvo_restoFee_CAPITAL,[Restoration Docks] Extra Fee [Capital],Double,10000,,AI mode restoration Fees per dMod,1,100000,Production
+,,,,,,,,
+IndEvo_header_Derelict,Derelict,Header,Derelict,,,,,Derelict Industries
+IndEvo_DerInfraBuildRed,[Derelict Infrastructure] Derelict Infra Cost Reduction,Double,0.5,,Cost and time multiplier for restoring Ruined Infrastructure. 0.5 = half the normal cost and time.,0,1,Derelict Industries
+IndEvo_derelictDeliverToGathering,[Derelict Industries] Deliver to Gathering Point,Boolean,FALSE,,All derelict industry output will be delivered to the gathering point instead of local storage. Remember - courier port exists.,,,Derelict Industries
+IndEvo_RG_cooldownTime,[Rift Generator] Cooldown,Int,90,,Days the Rift Generator needs to recharge after moving a planet. An alpha core cuts 30 days.,1,365,Derelict Industries
+IndEvo_RG_range,[Rift Generator] Range,Int,9,,Range in light years for the target system of a planet move. A beta core adds 3.,1,100,Derelict Industries
+IndEvo_reslab_autoDeliverToClosestDecon,[Derelict Laboratory] Deliver to Gathering Point,Boolean,FALSE,,Auto-deliver restored forge templates to the closest HullDecon. Remember - courier port exists.,,,Derelict Industries
+IndEvo_DeconIgnoreWhitelists,[Hull Deconstructor] Ignore Whitelists,Boolean,TRUE,,"Leave this one alone, you want the engineering hub",,,Derelict Industries
+IndEvo_DeconAllowNexOmega,[Hull Deconstructor] Allow Deconstructing the Nex Omega Merc,Boolean,FALSE,,Added on request :),,,Derelict Industries
+IndEvo_hullDecon_autoDeliverToClosestForge,[Hull Deconstructor] Deliver to closest Forge,Boolean,FALSE,,Auto-deliver finished forge templates to the closest HullForge. Remember - courier port exists.,,,Derelict Industries
+IndEvo_hullDecon_days_FRIGATE,[Hull Deconstructor] Deconstruction Time in Days [Frigate],Int,10,,Days to deconstruct a frigate into a forge template.,1,100,Derelict Industries
+IndEvo_hullDecon_days_DESTROYER,[Hull Deconstructor] Deconstruction Time in Days [Destroyer],Int,20,,Days to deconstruct a destroyer into a forge template.,1,100,Derelict Industries
+IndEvo_hullDecon_days_CRUISER,[Hull Deconstructor] Deconstruction Time in Days [Cruiser],Int,30,,Days to deconstruct a cruiser into a forge template.,1,100,Derelict Industries
+IndEvo_hullDecon_days_CAPITAL_SHIP,[Hull Deconstructor] Deconstruction Time in Days [Capital],Int,40,,Days to deconstruct a capital ship into a forge template.,1,100,Derelict Industries
+IndEvo_hullForge_autoQueueShipsUntilEmpty,[Hull Forge] Auto-Queue Ships,Boolean,TRUE,,Print ships off a template until it is empty - FALSE = deposit in storage after one run,,,Derelict Industries
+IndEvo_hullForge_autoDeliverToClosestLab,[Hull Forge] Deliver to closest Laboratory,Boolean,FALSE,,Auto-deliver degraded forge templates to the closest lab - or empty ones to a Deconstructor (AI Core Effect only). Remember - courier port exists.,,,Derelict Industries
+IndEvo_hullForge_days_FRIGATE,[Hull Forge] Construction Time in Days [Frigate],Int,5,,Days to print a frigate from a forge template.,1,100,Derelict Industries
+IndEvo_hullForge_days_DESTROYER,[Hull Forge] Construction Time in Days [Destroyer],Int,10,,Days to print a destroyer from a forge template.,1,100,Derelict Industries
+IndEvo_hullForge_days_CRUISER,[Hull Forge] Construction Time in Days [Cruiser],Int,15,,Days to print a cruiser from a forge template.,1,100,Derelict Industries
+IndEvo_hullForge_days_CAPITAL_SHIP,[Hull Forge] Construction Time in Days [Capital],Int,20,,Days to print a capital ship from a forge template.,1,100,Derelict Industries
+,,,,,,,,
+IndEvo_Academy_header,Academy,Header,Academy,,,,,Colony Services
+IndEvo_dailyOfficerSpawnChance,[Academy] Daily Officer Spawn Chance,Double,0.15,,"Chance per day that a hireable officer shows up at a colony with an Academy, if it has none. 0.15 = 15%%.",0,1,Colony Services
+IndEvo_dailyAdminSpawnChance,[Academy] Daily Admin Spawn Chance,Double,0.10,,"Chance per day that a hireable administrator shows up at a colony with an Academy, if it has none. 0.10 = 10%%.",0,1,Colony Services
+IndEvo_personalityTrainingDayCount,[Academy] Personality Training Duration,Int,93,,Days to move an officer's personality one step. AI cores shorten it.,1,365,Colony Services
+IndEvo_personalityTrainingCost,[Academy] Personality Training Cost,Int,30000,,Credits paid when an officer starts personality training.,1,100000,Colony Services
+IndEvo_adminTrainingDayCount,[Academy] Admin Training Duration,Int,124,,Days to teach an administrator a new skill. AI cores shorten it.,1,365,Colony Services
+IndEvo_adminTrainingCost,[Academy] Admin Training Cost,Int,20000,,Credits paid when an administrator starts training.,1,100000,Colony Services
+IndEvo_monthlyAIStorageCost,[Academy] Monthly Storage Cost,Int,2000,,"For officers and admins, per person, per month",1,10000,Colony Services
+,,,,,,,,
+IndEvo_header_museum,Museum,Header,Museum,,,,,Colony Services
+IndEvo_museum_maxAdditionalCredits,[Museum] Maximum Additional Credits,Double,1950,,The maximum credits a ship can earn per month while exhibited,1,10000,Colony Services
+IndEvo_museum_minAdditionalCredits,[Museum] Minimum Additional Credits,Double,50,,"The minimum credits a ship can earn per month while exhibited. If the maximum is lower, it is raised to this value.",1,10000,Colony Services
+IndEvo_museum_defaultMaxParades,[Museum] Default Maximum Parades,Int,1,,Default parade slots without modifiers,1,10,Colony Services
+IndEvo_museum_defaultParadeMembersMax,[Museum] Default Parade Members Maximum,Int,15,,Maximum number of ships allowed to participate in a single parade.,1,50,Colony Services
+IndEvo_museum_minShipsForParade,[Museum] Minimum Ships for Parade,Int,3,,Minimum number of ships required to initiate a parade.,1,50,Colony Services
+IndEvo_museum_topShipPoolAmtForParadeSelection,[Museum] Top Ship Pool Amount for Parade Selection,Int,20,,"Number ships considered during random parade participant selection, counting down from the highest valued one.",1,50,Colony Services
+IndEvo_museum_paradeFleetImmigrationBonus,[Museum] Parade Fleet Immigration Bonus,Int,5,,Immigration bonus granted while a parade fleet is active.,1,30,Colony Services
+IndEvo_museum_paradeFleetStabilityBonus,[Museum] Parade Fleet Stability Bonus,Int,1,,Stability bonus granted while a parade fleet is active.,1,10,Colony Services
+IndEvo_museum_improveExtraParades,[Museum] Improve Extra Parades,Int,1,,Additional parade capacity gained when the structure is improved.,1,10,Colony Services
+IndEvo_museum_alphaCoreExtraParades,[Museum] Alpha Core Extra Parades,Int,1,,Extra parade slots provided when an Alpha Core is installed.,1,10,Colony Services
+IndEvo_museum_betaCoreIncomePerStability,[Museum] Beta Core Income per Stability,Int,20000,,Amount of required income per +1 stability when a Beta Core is installed.,1,100000,Colony Services
+IndEvo_museum_betaCoreIncomePerPointImmigration,[Museum] Beta Core Income per Point Immigration,Int,3000,,Amount of required income per +1 immigration when a Beta Core is installed.,1,100000,Colony Services
+IndEvo_museum_gammaCoreIncomeMult,[Museum] Gamma Core Income Multiplier,Double,1.3,,Multiplier applied to total income when a Gamma Core is installed.,0.1,3,Colony Services
+IndEvo_museum_uniqueShipValueMult,[Museum] Unique Ship Value Multiplier,Double,2,,Multiplier applied to the value of rare / non-learnable ships.,1.0,5,Colony Services
+,,,,,,,,
+IndEvo_header_Courier,Courier Port,Header,Courier Port,,,,,Colony Services
+IndEvo_courier_costPerSpace,[Courier Port] Base Cost per cargo unit,Int,5,,Transport cost per cargo space used. Some items take more space than others: a nanoforge takes 10 cargo space. Affected by distance.,1,20,Colony Services
+IndEvo_courier_costPerShip,[Courier Port] Base Cost per ship unit,Int,170,,"Transport cost per ship DP. Larger ship, larger cost. Affected by distance.",10,500,Colony Services
+IndEvo_courier_baseFee,[Courier Port] Static courier fee,Int,1000,,"The base fee of a shipment, not affected by distance.",0,10000,Colony Services
+IndEvo_courier_costPerLyMult,[Courier Port] Cost per distance multiplier,Double,1,,"This setting changes how impactful distance is to the cost calculation. The higher the value, the more distance will factor in.",0.1,2,Colony Services
+,,,,,,,,
+IndEvo_header_Privateer,Privateer Base,Header,Privateer Base,,,,,Colony Services
+IndEvo_RaidForUnknownOnly,[Privateer Base] Raid only for Unknown BPs,Boolean,FALSE,,"Allows the Privateer base to raid for blueprints you already know. Setting this to TRUE will make it only generate BPs you do not know, instead of a mix",,,Colony Services
+IndEvo_PrivateerDeliverToGatheringPoint,[Privateer Base] Deliver to Gathering Point,Boolean,FALSE,,Auto-deliver the looted items to the gathering point. Remember - courier port exists.,,,Colony Services

@@ -22,7 +22,7 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 |---|---|---|
 | Condition | `IndEvo_ressCond` (`Ids.COND_RESSOURCES`), tags `hidden, technical` | `data/campaign/market_conditions.csv:28` |
 | Commodity | `IndEvo_parts` (`ItemIds.PARTS`), `IndEvo_rare_parts` (`ItemIds.RARE_PARTS`) | `data/campaign/commodities.csv:2`, `:3` |
-| Setting | `IndEvo_ScrapYard` (parts on/off) | `data/config/LunaSettings.csv:87` |
+| Setting | `IndEvo_ScrapYard` (parts on/off) | `data/config/LunaSettings.csv:97` |
 | Memory key | `$IndEvo_reduceBuildTimeCooldown` (market memory, expires after `COOLDOWN_DAYS` 60) | `RelicBuildTimeReductionButtonAdder` |
 | Modifier ids | condition id (`getModId()`) on `market.getIncomeMult()`; condition id on `Stats.PRODUCTION_QUALITY_MOD` | `ResourceCondition` |
 

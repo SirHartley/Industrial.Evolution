@@ -199,7 +199,7 @@ Each stage depends on the stages before it. Within a stage, do the subtasks in o
   - Blocks: every block is a `BOOLEAN` in Quick Settings and has no block itself.
   - Source: no `LunaSettings.get` outside `indevo/config`.
 - [x] 3.2 Help text for the 27 empty rows and a pass over the informal ones, in the CSV's existing short style. Keep the limits the old `settings.json` comments stated: missile projectiles per shot must be even, railgun projectiles need a higher fuzz mult, Supercomputer runtimes should be multiples of 31 (tooltips), Salvage Yards off also stops ship component drops, Embassy off also stops ambassador scripts.
-- [ ] 3.3 Quick Settings and the nine tab layout, rows moved with their ids.
+- [x] 3.3 Quick Settings and the nine tab layout, rows moved with their ids. Quick Settings holds the seven content switches and the most changed general values; the tabs are listed in [SETTINGS.md](SETTINGS.md#lunalib-settings).
 
 Steps that change what the player sees end with a live test by Philipp: change a setting in a running campaign, Save, and check it applies; start a new game with changed new game settings.
 

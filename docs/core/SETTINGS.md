@@ -25,13 +25,17 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | Tab | Fields | Content |
 |---|---|---|
-| General | 7 | Disclaimer, commerce balance changes, ship picker rows, master switches `IndEvo_block_industries` and `IndEvo_block_consumables` |
-| Exploration & Campaign | 11 | Pets, derelicts, derelict stations, automated shipyards, salvage specials, relic components |
-| Meteor Swarms | 17 | `IndEvo_meteor_*` |
-| Minefields | 11 | `IndEvo_Minefield_*` |
-| Artillery | 26 | `IndEvo_Artillery_*`, watchtower |
-| Consumable Items | 5 | `IndEvo_consumables_*` |
-| Industries | 98 | One enable toggle per industry (`IndEvo_AdManuf`, `IndEvo_embassy`, ...) plus per industry tuning |
+| Quick Settings | 17 | Disclaimer; Content: the content switches `IndEvo_block_industries`, `IndEvo_block_consumables`, `IndEvo_Enable_Derelicts`, `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_meteor_enabled`, `IndEvo_pets`; General: commerce balance changes, ship picker rows, meteor and artillery spawn chance, derelict station and automated shipyard amounts |
+| Exploration & Items | 14 | Salvage specials, derelict stations, relic components, `IndEvo_consumables_*` |
+| Meteor Swarms | 16 | `IndEvo_meteor_*` tuning |
+| Minefields | 10 | `IndEvo_Minefield_*` |
+| Artillery | 24 | `IndEvo_Artillery_*` tuning, watchtower |
+| Industries | 26 | One enable toggle per industry (`IndEvo_AdManuf`, `IndEvo_embassy`, ...), governance, world wonders |
+| Production | 21 | Variable industries, supercomputer, salvage yards, engineering hub, restoration docks |
+| Derelict Industries | 19 | Derelict industry tuning |
+| Colony Services | 31 | Academy, museum, courier port, privateer base |
+
+LunaLib orders tabs by their first row in the CSV and skips rows with an empty `fieldID` (blank spacer rows). Content switches stay in Quick Settings; a block constant's row must be there.
 
 Field counts include `Header` and `Text` rows. Every `Setting` constant has a LunaLib row; the rows without a constant are headers and text.
 

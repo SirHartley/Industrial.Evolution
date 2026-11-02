@@ -37,8 +37,8 @@ The Courier Port is a structure with no supply or demand. While the player owns 
 |---|---|---|
 | Industry | `IndEvo_PrivatePort` (`Ids.PORT`) | `data/campaign/industries.csv:45`, `indevo/ids/Ids.java:69` |
 | Faction | `IndEvo_couriers` (courier fleets) | `data/world/factions/IndEvo_couriers.faction` |
-| Setting | `IndEvo_PrivatePort` (build toggle and new game placement) | `data/config/LunaSettings.csv:95` |
-| Setting | `IndEvo_courier_costPerSpace` (5), `IndEvo_courier_costPerShip` (170), `IndEvo_courier_baseFee` (1000), `IndEvo_courier_costPerLyMult` (1.0) | `data/config/LunaSettings.csv:119-122`, read at use time in `ShippingCostCalculator` |
+| Setting | `IndEvo_PrivatePort` (build toggle and new game placement) | `data/config/LunaSettings.csv:105` |
+| Setting | `IndEvo_courier_costPerSpace` (5), `IndEvo_courier_costPerShip` (170), `IndEvo_courier_baseFee` (1000), `IndEvo_courier_costPerLyMult` (1.0) | `data/config/LunaSettings.csv:191-194`, read at use time in `ShippingCostCalculator` |
 | Config CSV | `IndEvo_shipingList`: submarket whitelist | `data/config/settings.json:55`, `data/config/indEvo/shipping_submarkets_whitelist.csv` |
 | Memory key | `$IndEvo_ShippingContainerStorage` (sector, contract list) | `ShippingContractMemory.java:11` |
 | Memory key | `$IndEvo_CurrentShippingCore` (sector, last applied core id or `none`) | `ShippingCostCalculator.java:21` |
