@@ -8,7 +8,6 @@ import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.NebulaTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.config.Setting;
 import indevo.exploration.crucible.YeetopultColourList;
 import indevo.exploration.crucible.entities.BaseCrucibleEntityPlugin;
 import indevo.exploration.crucible.entities.CrucibleArmEntityPlugin;
@@ -36,7 +35,7 @@ public class CrucibleSpawner {
     public static final float CATAPULT_SUBUNIT_ADDITIONAL_ORBIT_DIST = 53f;
 
     public static final String HAS_PLACED_STATIONS = "$IndEvo_hasPlacedCrucibles";
-    public static final int AMOUNT = Setting.CRUCIBLE_NUM.intValue(); //default 0.5f
+    public static final int AMOUNT = 1;
 
     public static void removeFromtLoc(StarSystemAPI system){
         StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();

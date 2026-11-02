@@ -11,7 +11,6 @@ public enum Setting {
     PETS("IndEvo_pets", true),
     ENABLE_DERELICTS("IndEvo_Enable_Derelicts", true),
     AUTOMATEDSHIPYARD_NUM("IndEvo_AutomatedShipyardNum", 1.5, 0, 10),
-    CRUCIBLE_NUM("IndEvo_CrucibleNum", 1, 0, 10),
     SPECIAL_APPLICATION_CHANCE("IndEvo_SpecialApplicationChance", 0.9, 0, 1),
     ENABLE_DERELICT_STATIONS("IndEvo_enable_derelict_stations", true, ENABLE_DERELICTS),
     DERELICT_STATION_AMOUNT("IndEvo_derelictStationAmount", 0.2, 0, 2),

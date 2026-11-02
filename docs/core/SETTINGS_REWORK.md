@@ -180,7 +180,7 @@ Each stage depends on the stages before it. Within a stage, do the subtasks in o
 - [x] 1.4 `IndEvo_IntArray` gates the Interstellar Relay (decision 5).
 - [x] 1.5 Content blocks: `Setting.block`, rows `IndEvo_block_industries` and `IndEvo_block_consumables`, children per the block table, `IndEvo_enable_derelict_stations` under `IndEvo_Enable_Derelicts`.
   - Done when: with Colony industries off none of the 19 toggled industries shows in the build menu; back on, each industry follows its own toggle again. The new rows sit in the General tab until 3.3 makes it Quick Settings.
-- [ ] 1.6 Remove the `IndEvo_CrucibleNum` row and setting (decision 6).
+- [x] 1.6 Remove the `IndEvo_CrucibleNum` row and setting (decision 6).
 
 **Stage 2: live settings.**
 - [ ] 2.1 Replace the 67 class load copies with use time reads, one commit per feature (meteors, museum, artillery, courier port, minefields, salvage yards, loot, small cases). `MuseumConstants` keeps its fixed constants only.

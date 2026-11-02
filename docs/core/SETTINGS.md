@@ -12,7 +12,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | File | Owner / role |
 |---|---|
-| `indevo/config/Setting.java` | One constant per LunaLib field (152): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`, `block`; `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
+| `indevo/config/Setting.java` | One constant per LunaLib field (151): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`, `block`; `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
 | `indevo/config/PlayerSettings.java` | Cache: `install`, `reload`, LunaLib listener, write back |
 | `data/config/LunaSettings.csv` | LunaLib fields: id, label, type, default, help text (`fieldDescription`), bounds, tab |
 | `data/config/LunaSettingsConfig.json` | LunaLib mod entry: settings menu icon `graphics/icons/IndEvo.png` |
@@ -26,7 +26,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 | Tab | Fields | Content |
 |---|---|---|
 | General | 8 | Disclaimer, commerce balance changes, ship picker rows, master switches `IndEvo_block_industries` and `IndEvo_block_consumables` |
-| Exploration & Campaign | 12 | Derelicts, derelict stations, relic components, crucibles |
+| Exploration & Campaign | 11 | Pets, derelicts, derelict stations, automated shipyards, salvage specials, relic components |
 | Meteor Swarms | 17 | `IndEvo_meteor_*` |
 | Minefields | 11 | `IndEvo_Minefield_*` |
 | Artillery | 26 | `IndEvo_Artillery_*`, watchtower |
