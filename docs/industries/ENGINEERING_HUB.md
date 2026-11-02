@@ -24,9 +24,9 @@ Neighbours used: `indevo/industries/SharedSubmarketUser.java` (base class), `ind
 | Industry | `IndEvo_EngHub` (`Ids.ENGHUB`, structure, `unraidable`) | `data/campaign/industries.csv:42`, `indevo/ids/Ids.java:61` |
 | Submarket | `IndEvo_EngStorage` (`Ids.ENGSTORAGE`), `IndEvo_SharedStore` (`Ids.SHAREDSTORAGE`) | `indevo/ids/Ids.java:40-41` |
 | Memory key | `$IndEvo_researchProgress` (sector, `Map<String, Float>` base hull id -> progress) | `EngineeringHub.java:46` |
-| Setting | `IndEvo_AutoshipBPToGatheringPoint` (deliver to gathering point) | `data/config/LunaSettings.csv:110`, read at `EngineeringHub.java:146` |
-| Setting | `IndEvo_EngHubStrictWhitelist`, `IndEvo_EngHubIgnoreWhitelists` (intake) | `data/config/LunaSettings.csv:108-109`, read in `ReverseEngineeringSubmarketPlugin` |
-| Setting | `IndEvo_EngHub` (build toggle) | `data/config/LunaSettings.csv:95`; read in `isAvailableToBuild()` and `showWhenUnavailable()` (`EngineeringHub.java:57-64`). A hub already built stays |
+| Setting | `IndEvo_AutoshipBPToGatheringPoint` (deliver to gathering point) | `data/config/LunaSettings.csv:109`, read at `EngineeringHub.java:146` |
+| Setting | `IndEvo_EngHubStrictWhitelist`, `IndEvo_EngHubIgnoreWhitelists` (intake) | `data/config/LunaSettings.csv:107-108`, read in `ReverseEngineeringSubmarketPlugin` |
+| Setting | `IndEvo_EngHub` (build toggle) | `data/config/LunaSettings.csv:94`; read in `isAvailableToBuild()` and `showWhenUnavailable()` (`EngineeringHub.java:57-64`). A hub already built stays |
 | Config CSV | `IndEvo_reverseList`: manual hull whitelist | `data/config/settings.json:53`, `data/config/indEvo/reverse_engineering_whitelist.csv` |
 | Item | `ItemIds.RELIC_SPECIAL_ITEM` (relic mode slot item, never in cargo), `ItemIds.RARE_PARTS` (relic components) | `indevo/ids/ItemIds.java` |
 | Item | `ship_bp`, `tiandong_retrofit_bp`, `roider_retrofit_bp` (output and consumed input) | `EngineeringHub.java:237-259`, `:1080-1085` |

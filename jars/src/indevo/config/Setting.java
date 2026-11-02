@@ -10,10 +10,10 @@ public enum Setting {
     BLOCK_CONSUMABLES("IndEvo_block_consumables", true),
     PETS("IndEvo_pets", true),
     ENABLE_DERELICTS("IndEvo_Enable_Derelicts", true),
-    AUTOMATEDSHIPYARD_NUM("IndEvo_AutomatedShipyardNum", 1.5, 0, 10),
-    SPECIAL_APPLICATION_CHANCE("IndEvo_SpecialApplicationChance", 0.9, 0, 1),
-    ENABLE_DERELICT_STATIONS("IndEvo_enable_derelict_stations", true, ENABLE_DERELICTS),
-    DERELICT_STATION_AMOUNT("IndEvo_derelictStationAmount", 0.2, 0, 2),
+    AUTOMATEDSHIPYARD_NUM("IndEvo_AutomatedShipyardNum", 1.5, 0, 10, Apply.NEW_GAME),
+    SPECIAL_APPLICATION_CHANCE("IndEvo_SpecialApplicationChance", 0.9, 0, 1, Apply.NEW_GAME),
+    ENABLE_DERELICT_STATIONS("IndEvo_enable_derelict_stations", true, ENABLE_DERELICTS, Apply.NEW_GAME),
+    DERELICT_STATION_AMOUNT("IndEvo_derelictStationAmount", 0.2, 0, 2, Apply.NEW_GAME),
     PARTS_DROP_IN_CAMPAIGN("IndEvo_PartsDropInCampaign", true),
     RELIC_COMPONENT_HARD_BATTLE_FP_ADVANTAGE("IndEvo_relicComponentHardbattleFPAdvantage", 1.5, 1, 5),
     RELIC_COMPONENT_FP_DESTROYED_FRACT("IndEvo_relicComponentFPDestroyedFract", 0.5, 0, 1),
@@ -44,8 +44,8 @@ public enum Setting {
     MINEFIELD_CIVILIAN_SHIP_IMPACT_MULT("IndEvo_Minefield_CivilianShipImpactMult", 0.5, 0, 2),
     MINEFIELD_PHASE_SHIP_IMPACT_MULT("IndEvo_Minefield_PhaseShipImpactMult", 0.3, 0, 2),
     ENABLE_ARTILLERY("IndEvo_Enable_Artillery", true),
-    ARTILLERY_SPAWN_WEIGHT("IndEvo_Artillery_spawnWeight", 1.0, 0, 100),
-    ARTILLERY_STARS_PER_STATION("IndEvo_Artillery_starsPerStationInConstellation", 1.0, 0, 100),
+    ARTILLERY_SPAWN_WEIGHT("IndEvo_Artillery_spawnWeight", 1.0, 0, 100, Apply.NEW_GAME),
+    ARTILLERY_STARS_PER_STATION("IndEvo_Artillery_starsPerStationInConstellation", 1.0, 0, 100, Apply.NEW_GAME),
     ARTILLERY_WATCHTOWER_FACTION_RESET_TIME("IndEvo_Watchtower_faction_reset", 31, 1, 365),
     ARTILLERY_MIN_DELAY_BETWEEN_SHOTS("IndEvo_Artillery_minDelayBetweenShots", 2.0, 0, 100),
     ARTILLERY_MAX_DELAY_BETWEEN_SHOTS("IndEvo_Artillery_maxDelayBetweenShots", 3.0, 1, 100),
@@ -158,6 +158,8 @@ public enum Setting {
 
     public enum Type {BOOLEAN, INT, DOUBLE}
 
+    public enum Apply {LIVE, NEW_GAME}
+
     private static final Map<String, Setting> BY_ID = new HashMap<>();
 
     static {
@@ -170,30 +172,40 @@ public enum Setting {
     public final double min;
     public final double max;
     public final Setting block;
+    public final Apply apply;
 
     Setting(String id, boolean fallback) {
-        this(id, Type.BOOLEAN, fallback, 0, 1, null);
+        this(id, Type.BOOLEAN, fallback, 0, 1, null, Apply.LIVE);
     }
 
     Setting(String id, boolean fallback, Setting block) {
-        this(id, Type.BOOLEAN, fallback, 0, 1, block);
+        this(id, Type.BOOLEAN, fallback, 0, 1, block, Apply.LIVE);
+    }
+
+    Setting(String id, boolean fallback, Setting block, Apply apply) {
+        this(id, Type.BOOLEAN, fallback, 0, 1, block, apply);
     }
 
     Setting(String id, int fallback, double min, double max) {
-        this(id, Type.INT, fallback, min, max, null);
+        this(id, Type.INT, fallback, min, max, null, Apply.LIVE);
     }
 
     Setting(String id, double fallback, double min, double max) {
-        this(id, Type.DOUBLE, fallback, min, max, null);
+        this(id, Type.DOUBLE, fallback, min, max, null, Apply.LIVE);
     }
 
-    Setting(String id, Type type, Object fallback, double min, double max, Setting block) {
+    Setting(String id, double fallback, double min, double max, Apply apply) {
+        this(id, Type.DOUBLE, fallback, min, max, null, apply);
+    }
+
+    Setting(String id, Type type, Object fallback, double min, double max, Setting block, Apply apply) {
         this.id = id;
         this.type = type;
         this.fallback = fallback;
         this.min = min;
         this.max = max;
         this.block = block;
+        this.apply = apply;
     }
 
     public static Setting byId(String id) {

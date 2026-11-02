@@ -1,7 +1,6 @@
 fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
 IndEvo_header0,Disclaimer,Header,Disclaimer,,,,,General
 IndEvo_text0,,Text,Changing these settings can impact the stability of your game. Only the default configuration is tested to work.,,,,,General
-IndEvo_text_application_note,,Text,"Some settings will not apply unless you start a new game. Restarting your game client after changing settings is advised, some settings will not apply otherwise.",,,,,General
 IndEvo_header1,General,Header,General,,,,,General
 IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,Commerce balance changes. Read up on why this was needed here: bit.ly/commerce_balance. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).,,,General
 IndEvo_shipPickerRowCount,[General] Ship Picker Row Count,Int,8,,The row amount in most of the ship picker dialogues in the mod.,0,100,General
@@ -9,12 +8,12 @@ IndEvo_block_industries,[General] Colony Industries,Boolean,TRUE,,"Master switch
 IndEvo_block_consumables,[General] Consumable Items,Boolean,TRUE,,"Master switch for consumable items: market stock, combat drops and the research project. Off is the same as turning off all three in the Consumable Items tab; items you own stay usable. On, each follows its own switch.",,,General
 ,,,,,,,,
 IndEvo_header3,Exploration & Campaign,Header,Exploration & Campaign,,,,,Exploration & Campaign
-IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Toggles Pets, the pet cryochamber dropping in campaign, abandoned pet stations spawning and the industry being available. To completely remove pet food from your game, go to Industrial.Evolution\data\campaign\commodities.csv and delete the line for pet food. This requires a new save file and will cause a crash unless pets are disabled from the start.",,,Exploration & Campaign
-IndEvo_Enable_Derelicts,[Exploration] Exploration Events and Industries,Boolean,TRUE,,Enables salvage events as well as derelict infrastructure and industries,,,Exploration & Campaign
-IndEvo_AutomatedShipyardNum,[Exploration] Automated Shipyards Amount,Double,1.5,,"Amount of Coronal Taps * number = amount of automated shipyards. Default taps is 2, so default shipyards is 3 (2 * 1.5). Rounds up.",0,10,Exploration & Campaign
-IndEvo_SpecialApplicationChance,[Exploration] Special Event Application Chance,Double,0.9,,Master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing.,0,1,Exploration & Campaign
-IndEvo_enable_derelict_stations,[Exploration] Additional Station Types,Boolean,TRUE,,Enables the custom station types like orbital labs and arsenal stations,,,Exploration & Campaign
-IndEvo_derelictStationAmount,[Exploration] Additional Station Type Amounts,Double,0.2,,Amount of additional stations with custom types spawned on top of existing ones (0.2 = 20%% additional),0,2,Exploration & Campaign
+IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Toggles Pets: the Animal Center, the pet management ability, Project Navi and abandoned pet stations. Placement needs a new game.",,,Exploration & Campaign
+IndEvo_Enable_Derelicts,[Exploration] Exploration Events and Industries,Boolean,TRUE,,Enables salvage events as well as derelict infrastructure and industries. Placement needs a new game.,,,Exploration & Campaign
+IndEvo_AutomatedShipyardNum,[Exploration] Automated Shipyards Amount,Double,1.5,,"Amount of Coronal Taps * number = amount of automated shipyards. Default taps is 2, so default shipyards is 3 (2 * 1.5). Rounds up. Needs a new game.",0,10,Exploration & Campaign
+IndEvo_SpecialApplicationChance,[Exploration] Special Event Application Chance,Double,0.9,,Master chance for a special event to be applied to an entity that does not have one. Note that the chance is actually lower as every entity has a defined chance to resolve to nothing. Needs a new game.,0,1,Exploration & Campaign
+IndEvo_enable_derelict_stations,[Exploration] Additional Station Types,Boolean,TRUE,,Enables the custom station types like orbital labs and arsenal stations. Needs a new game.,,,Exploration & Campaign
+IndEvo_derelictStationAmount,[Exploration] Additional Station Type Amounts,Double,0.2,,Amount of additional stations with custom types spawned on top of existing ones (0.2 = 20%% additional). Needs a new game.,0,2,Exploration & Campaign
 IndEvo_parts_disclaimer,,Text,"All loot added by this mod is on top of the normal loot you would have gotten. At no point does Industrial Evolution edit, dilute, change or in any other way influence vanilla drop behaviour.",,,,,Exploration & Campaign
 IndEvo_PartsDropInCampaign,[Commodities] Ship Parts Campaign Drops,Boolean,TRUE,,Makes starship components drop from combat - Relic components will still drop even if you disable this.,,,Exploration & Campaign
 IndEvo_relicComponentHardbattleFPAdvantage,[Commodities] Relic Component Hard Battle FP Advantage,Double,1.5,,How much more FP an enemy fleet has to have for it to drop relic components on defeat,1,5,Exploration & Campaign
@@ -38,7 +37,7 @@ IndEvo_meteor_maxAngle,[Meteor Swarms] Maximum Angle,Double,80,,Upper angle boun
 IndEvo_meteor_minAngle,[Meteor Swarms] Minimum Angle,Double,50,,Lower angle bound for spawn cone relative to reference axis in degrees.,1,360,Meteor Swarms
 IndEvo_header4,Minefields,Header,Minefields,,,,,Minefields
 IndEvo_minefields_disclaimer,,Text,Tip: You can disable minefields temporarily with an interdiction pulse.,,,,,Minefields
-IndEvo_Enable_minefields,[Minefields] Minefields,Boolean,TRUE,,Needs a new game!,,,Minefields
+IndEvo_Enable_minefields,[Minefields] Minefields,Boolean,TRUE,,Minefields around some planets. Off: mines stop hitting fleets. Placement needs a new game.,,,Minefields
 IndEvo_Minefield_disable_duration,[Minefields] Disable duration,Double,5,,Time in seconds that a minefield is disabled upon being hit with an interdiction pulse. This is intentionally set to be just enough time to cross once with a large fleet - minefields are intended to be an obstacle! Default: 5,1,30,Minefields
 IndEvo_Minefield_HitChance_frigate,[Minefields] Hit Chance [Frigate],Double,0.02,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,0,1,Minefields
 IndEvo_Minefield_HitChance_destroyer,[Minefields] Hit Chance [Destroyer],Double,0.04,,Every ship in the fleet is added up and adds to the chance of getting hit by a mine,0,1,Minefields
@@ -48,9 +47,9 @@ IndEvo_Minefield_NoHitUntilSum,[Minefields] No Hit Until Sum,Double,0.5,,The min
 IndEvo_Minefield_CivilianShipImpactMult,[Minefields] Civ Ship Hit Chance Mult,Double,0.5,,Civ ships count half ect for above,0,2,Minefields
 IndEvo_Minefield_PhaseShipImpactMult,[Minefields] Phase Ship Hit Chance Mult,Double,0.3,,,0,2,Minefields
 IndEvo_header5,Artillery,Header,Artillery,,,,,Artillery
-IndEvo_Enable_Artillery,[Artillery] Spawn Artillery Stations,Boolean,TRUE,,Only works on new game. Disabling this means you have weak bones.,,,Artillery
-IndEvo_Artillery_spawnWeight,[Artillery] Spawn Chance,Double,1,,How likely a system is to have an artillery station. Reduce this number to make them rarer. 1 = between 5-10%% of all systems will have one.,0,100,Artillery
-IndEvo_Artillery_starsPerStationInConstellation,[Artillery] Stars per station in a constellation,Double,1,,Specifies how many artillery stations can spawn per X stars in a constellation. Default = One station per 3 stars. The lower the number the more clustered the stations are. Setting this too high will result in no stations spawning.,0,100,Artillery
+IndEvo_Enable_Artillery,[Artillery] Spawn Artillery Stations,Boolean,TRUE,,Artillery stations and watchtowers. Off: placed stations stop firing and can not be built. Placement needs a new game. Disabling this means you have weak bones.,,,Artillery
+IndEvo_Artillery_spawnWeight,[Artillery] Spawn Chance,Double,1,,How likely a system is to have an artillery station. Reduce this number to make them rarer. 1 = between 5-10%% of all systems will have one. Needs a new game.,0,100,Artillery
+IndEvo_Artillery_starsPerStationInConstellation,[Artillery] Stars per station in a constellation,Double,1,,Specifies how many artillery stations can spawn per X stars in a constellation. Default = One station per 3 stars. The lower the number the more clustered the stations are. Setting this too high will result in no stations spawning. Needs a new game.,0,100,Artillery
 IndEvo_Watchtower_faction_reset,[Artillery] Time to watchtower faction reset,Int,31,,"Time in days for watchtowers to reset to the faction controlling the artillery. This is needed to avoid ""dead"" artilleries after being highjacked by a pirate station and subsequently having their watchtowers taken by an invasion.",1,365,Artillery
 IndEvo_Artillery_minDelayBetweenShots,[Artillery] Min Delay Between Shots,Double,2,,"Delay between shots - if the artillery has two valid targets, it'll take that long to fire at both of them",0,100,Artillery
 IndEvo_Artillery_maxDelayBetweenShots,[Artillery] Max Delay Between Shots,Double,3,,,1,100,Artillery
@@ -79,21 +78,21 @@ IndEvo_consumables_addToMarkets,[Consumable Items] Add to markets,Boolean,TRUE,,
 IndEvo_consumables_addToFleets,[Consumable Items] Drop from combat,Boolean,TRUE,,Toggles if consumable items can drop from fleet encounters.,,,Consumable Items
 IndEvo_consumables_researchProject,[Consumable Items] Research project,Boolean,TRUE,,Toggles if the research project at galatia is available.,,,Consumable Items
 IndEvo_header2,Industry Toggles,Header,Industries,,,,,Industries
-IndEvo_AdManuf,[Industries] Variable Manufactory,Boolean,TRUE,,Enables or disables the Variable Manufactory. Note that disabling the Variable industries will not stop VPCs from dropping - you will have to remove the entries from drop_groups.csv to achieve that.,,,Industries
+IndEvo_AdManuf,[Industries] Variable Manufactory,Boolean,TRUE,,Enables or disables the Variable Manufactory. Note that disabling the Variable industries will not stop VPCs from dropping - you will have to remove the entries from drop_groups.csv to achieve that. NPC placement needs a new game.,,,Industries
 IndEvo_AdAssem,[Industries] Variable Assembler,Boolean,TRUE,,Enables or disables the Variable Assembler,,,Industries
 IndEvo_ComForge,[Industries] Commodity Forge,Boolean,TRUE,,Enables or disables the Commodity Forge,,,Industries
 IndEvo_ComArray,[Industries] Military Relays,Boolean,TRUE,,Enables or disables the Military Relay,,,Industries
 IndEvo_IntArray,[Industries] Interstellar Relay,Boolean,TRUE,,Enables or disables the Interstellar Relay,,,Industries
 IndEvo_AdInfra,[Industries] Centralization Bureau,Boolean,TRUE,,Enables or disables the Centralization Bureau,,,Industries
-IndEvo_ScrapYard,[Industries] Salvage Yards,Boolean,TRUE,,"Enables or disables Salvage Yards, disable this to disable starship components. You can not have one without the other. Edit the drop groups to remove components completely.",,,Industries
+IndEvo_ScrapYard,[Industries] Salvage Yards,Boolean,TRUE,,"Enables or disables Salvage Yards, disable this to disable starship components. You can not have one without the other. Edit the drop groups to remove components completely. NPC placement needs a new game.",,,Industries
 IndEvo_SupCom,[Industries] Supercomputer,Boolean,TRUE,,Enables or disables the Supercomputer,,,Industries
 IndEvo_embassy,[Industries] Embassy,Boolean,TRUE,,"Enables or disables the Embassy, also disables Ambassador management scripts.",,,Industries
 IndEvo_senate,[Industries] Senate,Boolean,TRUE,,Enables or disables the Senate,,,Industries
-IndEvo_dryDock,[Industries] Restoration Docks,Boolean,TRUE,,Enables or disables the Restoration Docks,,,Industries
-IndEvo_Academy,[Industries] Academy,Boolean,TRUE,,Enables or disables the Academy,,,Industries
-IndEvo_ReqCenter,[Industries] Requisitions Centre,Boolean,TRUE,,Enables or disables the Requisitions Centre,,,Industries
+IndEvo_dryDock,[Industries] Restoration Docks,Boolean,TRUE,,Enables or disables the Restoration Docks. NPC placement needs a new game.,,,Industries
+IndEvo_Academy,[Industries] Academy,Boolean,TRUE,,Enables or disables the Academy. NPC placement needs a new game.,,,Industries
+IndEvo_ReqCenter,[Industries] Requisitions Centre,Boolean,TRUE,,Enables or disables the Requisitions Centre. NPC placement needs a new game.,,,Industries
 IndEvo_EngHub,[Industries] Engineering Hub,Boolean,TRUE,,Enables or disables the Engineering Hub,,,Industries
-IndEvo_PrivatePort,[Industries] Courier Port,Boolean,TRUE,,Enables or disables the Courier Port,,,Industries
+IndEvo_PrivatePort,[Industries] Courier Port,Boolean,TRUE,,Enables or disables the Courier Port. NPC placement needs a new game.,,,Industries
 IndEvo_pirateHaven,[Industries] Privateer Base,Boolean,TRUE,,Enables or disables the Privateer Base,,,Industries
 IndEvo_SwitchableRefining,[Industries] Specialized Refining,Boolean,TRUE,,Enables or disables Specialized Refining,,,Industries
 IndEvo_SwitchableMining,[Industries] Specialized Mining,Boolean,TRUE,,Enables or disables Specialized Mining,,,Industries

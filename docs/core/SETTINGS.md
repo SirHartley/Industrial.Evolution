@@ -12,8 +12,8 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | File | Owner / role |
 |---|---|
-| `indevo/config/Setting.java` | One constant per LunaLib field (151): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`, `block`; `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
-| `indevo/config/PlayerSettings.java` | Cache: `install`, `reload`, LunaLib listener, write back |
+| `indevo/config/Setting.java` | One constant per LunaLib field (151): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`, `block`, `apply` (`LIVE`, `NEW_GAME`); `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
+| `indevo/config/PlayerSettings.java` | Cache: `install`, `reload`, LunaLib listener, write back, `applyCampaignSettings` |
 | `data/config/LunaSettings.csv` | LunaLib fields: id, label, type, default, help text (`fieldDescription`), bounds, tab |
 | `data/config/LunaSettingsConfig.json` | LunaLib mod entry: settings menu icon `graphics/icons/IndEvo.png` |
 | `data/config/settings.json` | Non-player config, sprite keys, `ruleCommandPackages`, `designTypeColors` |
@@ -25,7 +25,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | Tab | Fields | Content |
 |---|---|---|
-| General | 8 | Disclaimer, commerce balance changes, ship picker rows, master switches `IndEvo_block_industries` and `IndEvo_block_consumables` |
+| General | 7 | Disclaimer, commerce balance changes, ship picker rows, master switches `IndEvo_block_industries` and `IndEvo_block_consumables` |
 | Exploration & Campaign | 11 | Pets, derelicts, derelict stations, automated shipyards, salvage specials, relic components |
 | Meteor Swarms | 17 | `IndEvo_meteor_*` |
 | Minefields | 11 | `IndEvo_Minefield_*` |
@@ -51,7 +51,7 @@ if (!Setting.EMBASSY.enabled()) return;
 ### Adding a setting
 
 1. Add the row to `LunaSettings.csv` in the right tab, with `defaultValue`, `minValue`, `maxValue` and the help text in `fieldDescription`. Help text is player-facing. Every `Int` and `Double` row needs both bounds as plain numbers: LunaLib uses 0 and 100 for an empty bound and clamps typed values to it.
-2. Add the `Setting` constant with the same `fieldID` (prefix `IndEvo_`), type, default and bounds as the row.
+2. Add the `Setting` constant with the same `fieldID` (prefix `IndEvo_`), type, default and bounds as the row. A setting read only during world generation gets `Apply.NEW_GAME` and its help text ends with "Needs a new game.". A switch that also stops world generation placement stays `LIVE` and its help text says which part needs a new game ("Placement needs a new game.", "NPC placement needs a new game.").
 3. Read it through the constant. Do not call `LunaSettings` or `Global.getSettings()` directly for a LunaLib field.
 4. Add the key to the feature doc's Data and ids table.
 

@@ -68,7 +68,7 @@ Times in days. The ability tags drive targeting: `indevo_missile` enables hotkey
 | Entities used, owned elsewhere | `IndEvo_VariableExplosion` (`:461`, [Artillery](../industries/ARTILLERY.md)), `IndEvo_campaign_trail_custom_entity` (`:485`, [Utils](../core/UTILS.md)) | `custom_entities.json` |
 | Terrain | `IndEvo_SmokeCloud` (`SmokeCloudTerrain`) | `data/config/terrain.json:30`; description `descriptions.csv:71` |
 | Sprites | transpoofer glow, beacon glow; missile sprites | `data/config/settings.json:105-106`, `:134-137` |
-| Settings | `IndEvo_consumables_addToMarkets`, `IndEvo_consumables_addToFleets`, `IndEvo_consumables_researchProject`, all under the master switch `IndEvo_block_consumables` | `data/config/LunaSettings.csv:78-80`, `:9` ([Settings](../core/SETTINGS.md)) |
+| Settings | `IndEvo_consumables_addToMarkets`, `IndEvo_consumables_addToFleets`, `IndEvo_consumables_researchProject`, all under the master switch `IndEvo_block_consumables` | `data/config/LunaSettings.csv:77-79`, `:8` ([Settings](../core/SETTINGS.md)) |
 | Drop groups | `indEvo_consumables` (`:38-49`), `indEvo_consumables_always` (`:51-57`), `indEvo_missiles` (`:59-64`), `indEvo_missiles_always` (`:66-70`); tag rows `indEvo_tech_addition` (`:12`), `indEvo_mining_addition` (`:18`) | `data/campaign/procgen/drop_groups.csv` |
 | Memory (fleet) | `$IndEvo_MissileInventory`, `MissileMemFlags` keys (`$missile_allowedToUse`, `$missile_bonked`, `$missile_recentlyUsed` and more) | `FleetConsumableInventoryManager`, `MissileMemFlags` |
 | Memory (player) | `$IndEvo_consumable_currentFaction`, `$IndEvo_consumable_currentFactionList` (spoofer); `$IndEvo_ArtilleryRemote_hasBeenUsed` | `SpooferAbilityPlugin`, `ArtilleryRemoteAbilityPlugin` |

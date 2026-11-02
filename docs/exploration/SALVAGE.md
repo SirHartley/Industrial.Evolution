@@ -30,9 +30,9 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Setting | `IndEvo_Enable_Derelicts` (runs the assigner) | `LunaSettings.csv:13`; `ModPlugin.java:300` |
-| Setting | `IndEvo_SpecialApplicationChance` (0.9) | `LunaSettings.csv:15`; `init:51` |
-| Setting | `IndEvo_shipPickerRowCount` (8) | `LunaSettings.csv:7`; ship pickers in DModRepair, PrintShip, ShipRoulette |
+| Setting | `IndEvo_Enable_Derelicts` (runs the assigner) | `LunaSettings.csv:12`; `ModPlugin.java:300` |
+| Setting | `IndEvo_SpecialApplicationChance` (0.9) | `LunaSettings.csv:14`; `init:51` |
+| Setting | `IndEvo_shipPickerRowCount` (8) | `LunaSettings.csv:6`; ship pickers in DModRepair, PrintShip, ShipRoulette |
 | Drop groups | `rare_tech` (vanilla), `indEvo_tech_event` | `data/campaign/procgen/drop_groups.csv:72-77`; item pool for `ItemChoiceSpecial` |
 | settings.json | `IndEvo_ComForge_amounts` (per commodity base amounts, `logIncrease`) | `data/config/settings.json:32`; `ConvertVPCSpecial.getDepositAmount` |
 | Item ids | `IndEvo_ForgeTemplate*`, `IndEvo_DegForgeTemplate`, VPC items, `IndEvo_debug` fallback | `indevo/ids/ItemIds.java`; see [Installables](../items/INSTALLABLES.md) |
