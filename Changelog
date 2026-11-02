@@ -11,6 +11,7 @@ Added - Master switches in the General settings tab for all colony industries wi
 Adjusted - 21 number settings without limits now have them, for example 0 to 1 for chances; the settings menu used 0 to 100 for all of them before, and saved values outside the new limits move to the nearest limit
 Fixed - A maximum setting below its minimum is raised to the minimum: artillery shot delay, cooldown and range, meteor shower intensity, distance from the sun and angle, museum extra credits
 Adjusted - Settings apply without a game restart, so the restart note in the settings is gone; help text now says which settings need a new game
+Added - Help text for the 27 settings that had none, mostly artillery, Academy and derelict industry settings; fixed typos and unclear text in a few others
 Adjusted - Now requires PatchLib
 Note - Install PatchLib alongside Industrial.Evolution
 Note - Saves from 4.1.b do not load, start a new game
