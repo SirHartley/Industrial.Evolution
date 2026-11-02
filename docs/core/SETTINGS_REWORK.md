@@ -183,7 +183,7 @@ Each stage depends on the stages before it. Within a stage, do the subtasks in o
 - [x] 1.6 Remove the `IndEvo_CrucibleNum` row and setting (decision 6).
 
 **Stage 2: live settings.**
-- [ ] 2.1 Replace the 67 class load copies with use time reads, one commit per feature (meteors, museum, artillery, courier port, minefields, salvage yards, loot, small cases). `MuseumConstants` keeps its fixed constants only.
+- [x] 2.1 Replace the 67 class load copies with use time reads, one commit per feature (meteors, museum, artillery, courier port, minefields, salvage yards, loot, small cases). `MuseumConstants` keeps its fixed constants only. `ShipComponentLootManager` fields and `MortarProjectileEntityPlugin.EFFECT_SIZE` went the same way; `YardsCustomProductionIntel` stores `deliveryTime` at contract start. Placed artillery stations still keep their fire interval and range (2.2).
   - Done when: changing a meteor or artillery value in a running campaign applies without a restart.
 - [ ] 2.2 Saved objects: decide each case (fire intervals, contracts, parades), apply it and record it in the feature doc.
 - [ ] 2.3 `applyCampaignSettings()` with the `GameState.CAMPAIGN` gate: pet ability add or remove on Save.

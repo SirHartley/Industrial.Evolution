@@ -193,7 +193,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 - Daily logic goes through `NewDayListener`. `TimeTracker.onNewDay()` collects listeners from both `getListenerManager().getListeners(NewDayListener.class)` and `getAllListeners()` and calls each once (`utils/timers/TimeTracker.java:128`). It does not run while paused (`runWhilePaused()` returns false).
 - Monthly and economy logic uses vanilla `EconomyTickListener` (`reportEconomyTick`, `reportEconomyMonthEnd`) on industries and listeners.
 - `register()` listeners are transient and re-added on every load; never make them persistent without removing the `register()` call, or they pile up. `RelayNetworkBrain` is a transient `CampaignEventListener` and looks itself up in `SectorAPI.getAllListeners()`, not the listener manager ([RELAY](industries/RELAY.md)).
-- 16 classes read settings into `static final` fields at class load; those settings need a restart ([SETTINGS](core/SETTINGS.md)).
+- Settings are read at use time from the `PlayerSettings` cache, so a Save in the LunaLib menu applies on the next read; saved objects that copy a value at creation keep it ([SETTINGS](core/SETTINGS.md#reading-a-setting)).
 
 ### Industries and markets
 

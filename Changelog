@@ -105,6 +105,7 @@ Fixed - NPC colonies with Old Industrial Ruins (Nexerelin) now finish upgrading 
 Ruined Infrastructure
 Fixed - NPC colonies (Nexerelin) now restore their Ruined Infrastructure
 Fixed - A blocked restoration now shows why, for example only one per star system, instead of "Can not be built"
+Adjusted - The restoration cost and time setting now applies without a game restart; restorations already running keep their time
 
 Embassy
 Fixed - Ambassadors can now be asked to stop sabotaging hostile activity
@@ -172,6 +173,7 @@ Automated Shipyards
 Fixed - Automated Shipyard shows the ship components lost when the machine runs
 Fixed - Automated Shipyard failure line is highlighted red again
 Fixed - Automated Shipyard can start with relic components kept in station storage
+Adjusted - The Automated Shipyard amount setting now applies to the next new game without a game restart
 
 Salvage Specials
 Fixed - Ship factory salvage special no longer offers the flagship or story ships for sacrifice

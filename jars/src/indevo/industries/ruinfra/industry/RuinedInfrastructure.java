@@ -18,12 +18,12 @@ import com.fs.starfarer.api.ui.IconRenderMode;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 
 import java.awt.*;
 
 import static indevo.industries.ruinfra.conditions.DerelictInfrastructureCondition.RUINED_INFRA_UPGRADE_ID_KEY;
-import static indevo.industries.ruinfra.industry.ChamelionIndustry.BUILD_PARAM_RED;
 
 public class RuinedInfrastructure extends BaseIndustry {
 
@@ -66,7 +66,7 @@ public class RuinedInfrastructure extends BaseIndustry {
         String target = memory.getString(RUINED_INFRA_UPGRADE_ID_KEY);
 
         IndustrySpecAPI upgrade = Global.getSettings().getIndustrySpec(target);
-        buildTime = upgrade.getBuildTime() * BUILD_PARAM_RED;
+        buildTime = upgrade.getBuildTime() * Setting.DERINFRA_BUILD_RED.value();
     }
 
     public void finishBuildingOrUpgrading() {

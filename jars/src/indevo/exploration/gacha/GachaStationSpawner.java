@@ -20,12 +20,11 @@ import static indevo.exploration.gacha.GachaStationDialoguePlugin.RANDOM;
 public class GachaStationSpawner {
 
     public static final String HAS_PLACED_STATIONS = "$IndEvo_hasPlacedStations";
-    public static final float AMOUNT_MULT = Setting.AUTOMATEDSHIPYARD_NUM.value(); //default 1.5f
 
     public static void spawn() {
         if (Global.getSector().getPersistentData().containsKey(HAS_PLACED_STATIONS)) return;
 
-        int amt = (int) Math.ceil(Global.getSector().getEntitiesWithTag(Tags.CORONAL_TAP).size() * AMOUNT_MULT);
+        int amt = (int) Math.ceil(Global.getSector().getEntitiesWithTag(Tags.CORONAL_TAP).size() * Setting.AUTOMATEDSHIPYARD_NUM.value());
 
         Map<String, Float> starTypes = new HashMap<>();
         starTypes.put("star_red_supergiant", 100f);
