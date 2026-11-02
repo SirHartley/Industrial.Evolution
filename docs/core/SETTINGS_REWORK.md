@@ -177,7 +177,7 @@ Each stage depends on the stages before it. Within a stage, do the subtasks in o
 - [x] 1.2 Explicit bounds for the 21 rows (decision 4), plain numbers for `IndEvo_courier_costPerLyMult`; `Setting` mirrors them.
   - Done when: the courier base fee slider reaches 1000.
 - [x] 1.3 Pair rule in `PlayerSettings`.
-- [ ] 1.4 `IndEvo_IntArray` gates the Interstellar Relay (decision 5).
+- [x] 1.4 `IndEvo_IntArray` gates the Interstellar Relay (decision 5).
 - [ ] 1.5 Content blocks: `Setting.block`, rows `IndEvo_block_industries` and `IndEvo_block_consumables`, children per the block table, `IndEvo_enable_derelict_stations` under `IndEvo_Enable_Derelicts`.
   - Done when: with Colony industries off no IE industry shows in the build menu; back on, each industry follows its own toggle again.
 - [ ] 1.6 Remove the `IndEvo_CrucibleNum` row and setting (decision 6).

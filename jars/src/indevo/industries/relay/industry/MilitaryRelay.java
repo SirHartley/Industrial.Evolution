@@ -301,15 +301,24 @@ public class MilitaryRelay extends MilitaryBase {
         return MiscIE.marketHasMilitary(market, false);
     }
 
+    private Setting toggle() {
+        return getId().equals(Ids.INTARRAY) ? Setting.INTARRAY : Setting.COMARRAY;
+    }
+
     @Override
     public boolean isAvailableToBuild() {
-        boolean setting = Setting.COMARRAY.enabled();
+        boolean setting = toggle().enabled();
         boolean hasMBOrHC = isFunctionAllowed();
         return super.isAvailableToBuild() && setting && hasMBOrHC;
     }
 
     public boolean showWhenUnavailable() {
-        return Setting.COMARRAY.enabled();
+        return toggle().enabled();
+    }
+
+    @Override
+    public boolean canUpgrade() {
+        return super.canUpgrade() && Setting.INTARRAY.enabled();
     }
 
     @Override
