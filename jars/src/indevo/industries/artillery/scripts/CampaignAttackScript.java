@@ -72,6 +72,12 @@ public class CampaignAttackScript implements EveryFrameScript {
         terrain = t;
     }
 
+    private void removeTerrain() {
+        if (terrain == null) return;
+        Misc.fadeAndExpire(terrain, 0f);
+        terrain = null;
+    }
+
     @Override
     public boolean isDone() {
         return isDone;
@@ -89,6 +95,11 @@ public class CampaignAttackScript implements EveryFrameScript {
     @Override
     public void advance(float amount) {
         if (!entity.isInCurrentLocation() || isDone) return;
+        if (!Setting.ENABLE_ARTILLERY.enabled()) {
+            removeTerrain();
+            return;
+        }
+
         if (terrain == null) addTerrainToLoc();
 
         matchTerrainRangeAndLoc();

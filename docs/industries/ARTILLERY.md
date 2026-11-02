@@ -106,13 +106,13 @@ Station destroyed in battle (`reportFleetDespawnedToListener`): the industry dis
 
 ### Firing
 
-`CampaignAttackScript.advance` (`:90-103`), only in the player's location: add range terrain once, sync terrain range, then if not `disabled`: advance station interval, blocked areas and per-target cooldowns, `updateTargets`, `fireAtTargets`.
+`CampaignAttackScript.advance` (`:96-114`), only in the player's location. While `IndEvo_Enable_Artillery` is off it removes the range terrain and returns, so placed stations do not fire; the script stays attached and resumes when the setting is back on. Otherwise: add range terrain once, sync terrain range, then if not `disabled`: advance station interval, blocked areas and per-target cooldowns, `updateTargets`, `fireAtTargets`.
 
-- Valid target (`isValid`, `:216-230`): hostile (`isHostileTo`; a null faction is hostile to all but remnants), alive, has AI or is the player, `MIN_RANGE <= dist <= getRange()`, `$IndEvo_WasSeenByOtherEntity` set, not `ENTITY_MISSION_IMPORTANT`.
-- Per-target cooldown `IndEvo_Artillery_min/maxCooldown`, times `IndEvo_Artillery_cooldownNPCMult` for NPCs; one station-wide delay `min/maxDelayBetweenShots` between shots at different targets. `advanceStationFireInterval` rebuilds the interval when either delay setting changes (`:364-366`), which restarts the current wait.
-- Skips: fleet in battle (retry in 10 s), mortar target area blocked by an earlier mortar volley within 400 su, safe spot: fleet or predicted position within `primary radius + 700` of any market primary entity (`isInSafeSpot`, `:324-351`).
-- Forced targets (`forceTarget`, `:129-141`) bypass `isValid` and are cleared after one shot. Called by the decoy mine and the ancient remote ([Consumables](../items/CONSUMABLES.md)) and every 5 s on the player in dev mode (`:283-286`).
-- Range: `getRange()` returns `IndEvo_Artillery_maxRange` plus `rangeBonus` (`:421-431`). `rangeBonus` is `IMPROVE_RANGE_BONUS` 4000 while the industry is improved; `applyImproveModifiers` resets and re-adds it on every industry `apply` (`ArtilleryStation.java:536-550`). The range terrain follows a changed range on the next frame (`matchTerrainRangeAndLoc`).
+- Valid target (`isValid`, `:227-241`): hostile (`isHostileTo`; a null faction is hostile to all but remnants), alive, has AI or is the player, `MIN_RANGE <= dist <= getRange()`, `$IndEvo_WasSeenByOtherEntity` set, not `ENTITY_MISSION_IMPORTANT`.
+- Per-target cooldown `IndEvo_Artillery_min/maxCooldown`, times `IndEvo_Artillery_cooldownNPCMult` for NPCs; one station-wide delay `min/maxDelayBetweenShots` between shots at different targets. `advanceStationFireInterval` rebuilds the interval when either delay setting changes (`:375-377`), which restarts the current wait.
+- Skips: fleet in battle (retry in 10 s), mortar target area blocked by an earlier mortar volley within 400 su, safe spot: fleet or predicted position within `primary radius + 700` of any market primary entity (`isInSafeSpot`, `:335-362`).
+- Forced targets (`forceTarget`, `:140-152`) bypass `isValid` and are cleared after one shot. Called by the decoy mine and the ancient remote ([Consumables](../items/CONSUMABLES.md)) and every 5 s on the player in dev mode (`:294-297`).
+- Range: `getRange()` returns `IndEvo_Artillery_maxRange` plus `rangeBonus` (`:432-442`). `rangeBonus` is `IMPROVE_RANGE_BONUS` 4000 while the industry is improved; `applyImproveModifiers` resets and re-adds it on every industry `apply` (`ArtilleryStation.java:536-550`). The range terrain follows a changed range on the next frame (`matchTerrainRangeAndLoc`).
 
 Volleys:
 
@@ -124,7 +124,7 @@ Mortar and railgun explosions use `ExplosionFleetDamage.LOW` (`MortarProjectileE
 
 ### Seen state and watchtowers
 
-`EyeIndicatorScript.advance` (`:46-138`, every 0.5 s, only in systems tagged `IndEvo_SystemHasArtillery` with a station hostile to the player): any NPC fleet visible to a hostile AI fleet gets seen for 5 days; the player seen by a hostile fleet locks instantly. Near a hostile, unhacked watchtower the eye fills over 20 s (faster when closer); at full the player gets `$IndEvo_WasSeenByOtherEntity` for 0.5 days, renewed while full. Leaving range drains it; at 0 the flag is cleared. Jumping clears it (`reportFleetJumped`).
+`EyeIndicatorScript.advance` (`:46-138`, every 0.5 s, only in systems tagged `IndEvo_SystemHasArtillery` with a station hostile to the player and `IndEvo_Enable_Artillery` on): any NPC fleet visible to a hostile AI fleet gets seen for 5 days; the player seen by a hostile fleet locks instantly. Near a hostile, unhacked watchtower the eye fills over 20 s (faster when closer); at full the player gets `$IndEvo_WasSeenByOtherEntity` for 0.5 days, renewed while full. Leaving range drains it; at 0 the flag is cleared. Jumping clears it (`reportFleetJumped`).
 
 `WatchtowerEntityPlugin.advance` (`:91-122`): about once per 20 s in the player's location marks hostile NPC fleets within `IndEvo_Artillery_WatchtowerRange` as seen for 5 days and shows a range ping. Hacking (vanilla objective hack, rules row `cob_hackPrompt_watchtower`) lasts 30 to 60 days and resets the eye.
 

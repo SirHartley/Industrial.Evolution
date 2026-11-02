@@ -59,7 +59,7 @@ Quick Settings is the first tab. It holds the disclaimers, one switch per conten
 |---|---|---|---|
 | Colony industries | New `IndEvo_block_industries` | Parent of the 19 industry toggles | Build menu at once; built industries stay; NPC placement on new games |
 | Derelict tech | `IndEvo_Enable_Derelicts` | Ruins and derelict industries, ruined infrastructure, derelict stations and their salvage specials (`IndEvo_enable_derelict_stations` becomes a child) | New games |
-| Artillery | `IndEvo_Enable_Artillery` | Artillery stations and watchtowers | Building, station setup and firing at once; placement on new games. Today placed stations keep firing (`CampaignAttackScript` does not read it); subtask 2.5 adds the gate |
+| Artillery | `IndEvo_Enable_Artillery` | Artillery stations and watchtowers | Building, station setup and firing at once; placement on new games |
 | Minefields | `IndEvo_Enable_minefields` | Minefields around the core worlds and derelict stations | Hits at once; placement on new games |
 | Meteor swarms | `IndEvo_meteor_enabled` | Swarm spawns | At once |
 | Pets | `IndEvo_pets` | Pet shop, pet ability, abandoned pet shops | At once; world placement on new games |
@@ -188,7 +188,7 @@ Each stage depends on the stages before it. Within a stage, do the subtasks in o
 - [x] 2.2 Saved objects: decide each case (fire intervals, contracts, parades), apply it and record it in the feature doc. Artillery follows the settings: the fire interval is rebuilt when a delay setting changes and `getRange()` reads the max range, with the improve bonus in a new `rangeBonus` field ([ARTILLERY.md](../industries/ARTILLERY.md#contracts)). Accepted terms stay fixed: courier shipment cost at dispatch, salvage yard contract delivery time, Ruined Infrastructure restoration time. A parade already out keeps its ships.
 - [ ] 2.3 `applyCampaignSettings()` with the `GameState.CAMPAIGN` gate: pet ability add or remove on Save.
 - [ ] 2.4 `apply` metadata for the `NEW_GAME` list, apply notes in help text, remove `IndEvo_text_application_note`.
-- [ ] 2.5 `CampaignAttackScript.advance` returns at once while `IndEvo_Enable_Artillery` is off (decision 12); the script stays attached, so firing resumes when it is switched back on.
+- [x] 2.5 `CampaignAttackScript.advance` returns at once while `IndEvo_Enable_Artillery` is off (decision 12); the script stays attached, so firing resumes when it is switched back on. It also removes the range terrain, and `EyeIndicatorScript` counts no hostile station, so the eye stays empty.
   - Done when: with Artillery off in a running campaign, no placed station fires; back on, they fire again.
 
 **Stage 3: checks and text.**

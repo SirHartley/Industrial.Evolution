@@ -64,7 +64,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         //check if there's a hostile arty, if not, we reset to 0 and cycle
         boolean hostileArtilleryPresent = false;
-        for (SectorEntityToken t : loc.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION)) {
+        if (Setting.ENABLE_ARTILLERY.enabled()) for (SectorEntityToken t : loc.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION)) {
             if (t.getFaction().isHostileTo(player.getFaction())) {
                 hostileArtilleryPresent = true;
                 break;
