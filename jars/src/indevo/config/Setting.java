@@ -6,7 +6,7 @@ import java.util.Map;
 public enum Setting {
 
     COMMERCE_BALANCE_CHANGES("IndEvo_CommerceBalanceChanges", true),
-    SHIP_PICKER_ROW_COUNT("IndEvo_shipPickerRowCount", 8, 0, 100),
+    SHIP_PICKER_ROW_COUNT("IndEvo_shipPickerRowCount", 8, 1, 100),
     BLOCK_INDUSTRIES("IndEvo_block_industries", true),
     BLOCK_CONSUMABLES("IndEvo_block_consumables", true),
     PETS("IndEvo_pets", true),
