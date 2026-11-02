@@ -11,6 +11,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.dialogue.sidepanel.InteractionDialogCustomPanelPlugin;
 import indevo.dialogue.sidepanel.NoFrameCustomPanelPlugin;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
@@ -26,7 +27,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static indevo.industries.courierport.ShippingCostCalculator.CONTRACT_BASE_FEE;
 import static indevo.industries.courierport.ShippingCostCalculator.getTotalContractCost;
 
 public class ContractSidePanelCreator {
@@ -1054,7 +1054,7 @@ public class ContractSidePanelCreator {
 
             int gridPos = 0;
 
-            panelTooltip.addToGrid(0, gridPos, "Base fee", Misc.getDGSCredits(CONTRACT_BASE_FEE));
+            panelTooltip.addToGrid(0, gridPos, "Base fee", Misc.getDGSCredits(Setting.COURIER_BASE_FEE.value()));
 
             if (cargoCost > 0 && (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO || contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING)){
                 gridPos++;

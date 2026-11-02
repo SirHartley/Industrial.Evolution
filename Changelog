@@ -88,6 +88,7 @@ Fixed - Invalid shipping contracts now show why they are invalid
 Fixed - Ship transport cost now uses deployment points like the setting and the contract screen say, instead of fleet points
 Fixed - Possible crash when using Ship now on a contract that became invalid before it shipped
 Fixed - The base fee setting now goes up to 10000; the settings menu capped it at 100 although the default is 1000
+Adjusted - Courier Port cost settings now apply without a game restart; shipments already sent keep their cost
 
 Derelict Industries
 Fixed - Rift Generator planets now move in sync with the warp animation instead of a moment after it ends

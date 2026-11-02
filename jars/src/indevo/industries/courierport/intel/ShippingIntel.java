@@ -20,6 +20,7 @@ import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingCostCalculator;
 import indevo.industries.courierport.ShippingTargetHelper;
@@ -32,7 +33,6 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.industries.courierport.ShippingCostCalculator.CONTRACT_BASE_FEE;
 import static indevo.industries.courierport.ShippingCostCalculator.getTotalContractCost;
 
 public class ShippingIntel extends BaseIntelPlugin {
@@ -210,7 +210,7 @@ public class ShippingIntel extends BaseIntelPlugin {
 
             tooltip.addPara("Cost:", opad);
             tooltip.beginGridFlipped(300, 1, 100f, 3f);
-            tooltip.addToGrid(0, 0, "Base fee", Misc.getDGSCredits(CONTRACT_BASE_FEE));
+            tooltip.addToGrid(0, 0, "Base fee", Misc.getDGSCredits(Setting.COURIER_BASE_FEE.value()));
 
             int pos = 0;
             if (cargoCost > 1) {
