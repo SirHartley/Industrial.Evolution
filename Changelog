@@ -17,6 +17,7 @@ Fixed - Drive Field Tuning modspec is properly kept out of random loot
 Minefields
 Added - Setting to adjust interdict disable time
 Fixed - Mines in a minefield spread out around the belt instead of clustering
+
 Meteor Showers
 Added - Option to spawn showers immediately, without advance warning
 Fixed - Duplicate tutorial intel
