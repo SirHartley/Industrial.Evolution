@@ -1,4 +1,4 @@
-package indevo.utils.helper;
+package indevo.industries.derelicts.utils;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ModSpecAPI;

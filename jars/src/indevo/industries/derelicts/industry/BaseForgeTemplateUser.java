@@ -13,8 +13,8 @@ import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
 import indevo.industries.SharedSubmarketUser;
+import indevo.industries.derelicts.utils.IndustrySpecView;
 import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
-import indevo.utils.helper.IndustrySpecView;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
