@@ -34,6 +34,8 @@ Reset the lower parts when a higher one changes. After a release, ask the user w
 
 The package `indevo.tools` is never shipped: the builder drops it from the release jar.
 
+The builder is the house-style `release/ReleaseBuild.java` template with IE deviations: the `compile` command, sources taken from the `IndEvo.iml` excludes, `data/scripts/` next to `indevo/` in the runtime packages, and every `lib/*.jar` (game jars included) on the classpath and in `Source-SHA256`, where the template takes the game install path and unpacks library zips.
+
 ## Builder: compile and build
 
 ```text

@@ -14,7 +14,7 @@ Reviews, explanations, audits, and proposals are read-only unless the user reque
 2. Use the `starsector-knowledge` skill before answering or changing anything related to Starsector. It covers 0.98a-RC8. Do not rely on memory.
 3. Use the `house-style` skill for every task in this repository. Its personal rules (answers, vocabulary, comments, commits, punctuation) apply everywhere; this file wins on project details.
 4. Use the `starsector-rules-writing` skill for any change to `data/campaign/rules.csv`, dialogue or rule commands. Use the `patchlib` skill only when the official API cannot reach what is needed.
-5. Third-party libraries (GraphicsLib, LazyLib, LunaLib, MagicLib, Console Commands, Nexerelin, Shadowyards) are not in the knowledge skill and not in the repository. Ask the user for the jar, then decompile it with the knowledge skill's Vineflower into a temporary directory, never into the repository.
+5. Third-party libraries (GraphicsLib, LazyLib, LunaLib, MagicLib, PatchLib, Console Commands, Nexerelin, Shadowyards, RAT) are not in the knowledge skill. Their compile jars are in `lib/` ([Compile dependencies](#compile-dependencies)); decompile one with the knowledge skill's Vineflower into a temporary directory, never into the repository. Ask the user for a jar only when it is missing there or a newer version is needed.
 6. Select the required guides using [Which guide to read](#which-guide-to-read). Apply every matching row, including for reviews and fixes to existing behavior.
 
 ### Which guide to read
@@ -117,7 +117,7 @@ Write documentation in short programmer speak with normal capitalization and pun
 
 ## Code layout
 
-- Packages follow `indevo/<area>/<feature>/<role>/`. Areas: `industries`, `exploration`, `abilities`, `items`, `dialogue`, `economy`, `submarkets`, `utils`, `ids`, `console`, `other`, `WIP`, `tools` (release builder, never shipped). Role packages are named for the engine type (`industry`, `conditions`, `listeners`, `plugins`, `scripts`, `rules`, `intel`, `entities`, `hullmods`, `terrain`, `fleet`, `memory`). See the house-style `packages.md`.
+- Packages follow `indevo/<area>/<feature>/<role>/`. Areas: `industries`, `exploration`, `abilities`, `items`, `dialogue`, `economy`, `submarkets`, `utils`, `ids`, `console`, `other`, `WIP`, `tools` (release builder, never shipped). Role packages are named for the engine type (`industry`, `conditions`, `listeners`, `plugins`, `scripts`, `rules`, `intel`, `entities`, `hullmods`, `terrain`, `fleet`, `memory`, `patches` for PatchLib patches). See the house-style `packages.md`.
 - Ids, tags, memory keys and setting keys carry the `IndEvo_` prefix (`$IndEvo_` for memory). Shared ids live in `indevo/ids/Ids.java` and `ItemIds.java`; feature-local keys stay in the feature.
 - Class member order: nested enums; static fields; instance fields; other nested types; constructors; lifecycle and public entry points in execution order; helpers near their callers. Group fields by responsibility. No section header comments.
 - All code is Java 17. Do not add Kotlin: the user's IDE does not compile it.
