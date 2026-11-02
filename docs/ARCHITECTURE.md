@@ -87,22 +87,22 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 
 | Hook | What IE does | Line |
 |---|---|---|
-| `onApplicationLoad()` | `PlayerSettings.install()` first ([SETTINGS](core/SETTINGS.md#reading-a-setting)); GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:118` |
-| `onAboutToStartGeneratingCodex()` | Preloads the nanites icon texture | `:133` |
-| `onNewGame()` | `PlayerSettings.reload()`: picks up the new game settings panel | `:303` |
-| `onNewGameAfterEconomyLoad()` | One-time world generation (chain below) | `:309` |
-| `onGameLoad(newGame)` | `PlayerSettings.install()` first, then every-load registration and fixes (chain below) | `:147` |
-| `beforeGameSave()` | Resets `OnKeyPressAbilityInputListener`; removes untouched mine entities from their locations | `:336` |
-| `afterGameSave()`, `onGameSaveFailed()` | Puts the removed mines back | `:361`, `:366` |
-| `pickMissileAI()` | `IndEvo_mortarProjectileAI`, `IndEvo_missileProjectileAI` at `MOD_SPECIFIC` ([COMBAT](core/COMBAT.md)) | `:396` |
+| `onApplicationLoad()` | `PlayerSettings.install()` first ([SETTINGS](core/SETTINGS.md#reading-a-setting)); GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:117` |
+| `onAboutToStartGeneratingCodex()` | Preloads the nanites icon texture | `:132` |
+| `onNewGame()` | `PlayerSettings.reload()`: picks up the new game settings panel | `:282` |
+| `onNewGameAfterEconomyLoad()` | One-time world generation (chain below) | `:288` |
+| `onGameLoad(newGame)` | `PlayerSettings.install()` first, then every-load registration and fixes (chain below) | `:146` |
+| `beforeGameSave()` | Resets `OnKeyPressAbilityInputListener`; removes untouched mine entities from their locations | `:315` |
+| `afterGameSave()`, `onGameSaveFailed()` | Puts the removed mines back | `:340`, `:345` |
+| `pickMissileAI()` | `IndEvo_mortarProjectileAI`, `IndEvo_missileProjectileAI` at `MOD_SPECIFIC` ([COMBAT](core/COMBAT.md)) | `:375` |
 
-New game, once (`:312` to `:328`):
+New game, once (`:291` to `:307`):
 
 `LocatorSystemRatingUpdater.updateAllSystems -> RuinsManager.forceCleanCoreRuins -> NewGameIndustryPlacer.run -> ArtilleryStationPlacer.placeDerelictArtilleries -> placeCoreWorldArtilleries -> GachaStationSpawner.spawn -> createAcademyMarket -> [IndEvo_Enable_Derelicts] DerelictStationPlacer.init -> IndEvo_SalvageSpecialAssigner.init -> spawnMineFields -> DerelictInfrastructurePlacer.placeRuinedInfrastructure -> RuinsManager.placeIndustrialRuins`
 
 Every load (`:151` to `:196`):
 
-`createAcademyMarket -> setListenersIfNeeded -> setScriptsIfNeeded -> ResourceConditionApplicator.applyResourceConditionToAllMarkets -> loadTransientMemory -> PlanetoidDespawnScript.despawnStrandedPlanetoids -> OrbitFocus.removeUnusedOrbitFoci -> addTypePrefaceToIndustrySpecs -> LocatorSystemRatingUpdater.updateAllSystems -> resetDerelictRep -> [newGame] ArtilleryStationReplacer.register -> pet_management ability add or remove [IndEvo_pets] -> MissileActivationManager reset`
+`createAcademyMarket -> setListenersIfNeeded -> setScriptsIfNeeded -> ResourceConditionApplicator.applyResourceConditionToAllMarkets -> loadTransientMemory -> PlanetoidDespawnScript.despawnStrandedPlanetoids -> OrbitFocus.removeUnusedOrbitFoci -> addTypePrefaceToIndustrySpecs -> LocatorSystemRatingUpdater.updateAllSystems -> resetDerelictRep -> [newGame] ArtilleryStationReplacer.register -> PlayerSettings.applyCampaignSettings -> [newGame, IndEvo_pets] addLordFoogRep -> MissileActivationManager reset`
 
 ### Registration patterns
 
@@ -227,7 +227,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 | Meteor | `MissileMemFlags.MEM_CAUGHT_BY_MISSILE` from consumables; spawns lab, arsenal and pet center stations | `MeteorEntity.java:71` |
 | Stations | Arsenal stations add the minefield condition | `DerelictStationPlacer.java:143-157` |
 | Crucible | Artillery `VariableExplosionEntityPlugin`; `TAG_ENABLED` read by a utils renderer | [CRUCIBLE](exploration/CRUCIBLE.md) |
-| Research (Navi) | Unlocks fairy pet sales | `ModPlugin.java:179` |
+| Research (Navi) | Unlocks fairy pet sales | `PetManagementAbilityPlugin.java:34` |
 | Beacons, scoop, smoke cloud, mine belt | Split fleet `OrbitFocus` entity | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | `other/legioNuclearOption` | Research `RefitUIOpenChecker` | [MISC](core/MISC.md) |
 | `$IndEvo_ruinsIndustryId` | Read by supercomputer, `LocatorSystemRatingUpdater`, `ModUpdater` | [DERELICTS](industries/DERELICTS.md) |
@@ -242,7 +242,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 
 | Component | State | Doc |
 |---|---|---|
-| Crucible | Spawner commented out (`ModPlugin.java:226`, `:318`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
+| Crucible | Spawner commented out (`ModPlugin.java:205`, `:297`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
 | Distress calls, ghost ships | Excluded, does not compile; hullmod rows and rules still load | [DISTRESS](exploration/DISTRESS.md) |
 | Mobile colony | Compiled and its campaign plugin registered (`:507`), never created | [WIP](core/WIP.md) |
 | Converters | Excluded, does not compile | [WIP](core/WIP.md) |
@@ -251,7 +251,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 | Detachment V3 AI, DELIVER mode, `PlayerFleetFollower` | Stub or unregistered | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | `indevo/other` | Unregistered except the nuclear option checker | [MISC](core/MISC.md) |
 | `compatibility/TechTree`, `ModUpdater` | No references | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md), [UTILS](core/UTILS.md) |
-| `devActions()` | Disabled (`&& false`, `ModPlugin.java:151`) | This file |
+| `devActions()` | Disabled (`&& false`, `ModPlugin.java:150`) | This file |
 
 Each feature doc lists its own dormant classes and suspected bugs under Known issues.
 

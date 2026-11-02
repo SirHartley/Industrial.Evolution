@@ -36,6 +36,7 @@ Fixed - Meteor impact dust clouds no longer pile up in the save and slow the gam
 
 Pets
 Removed - Pet food
+Adjusted - Turning pets on or off in the settings during a game now adds or removes the pet management ability at once instead of on the next load
 Fixed - The animal market now closes when the Animal Center is removed or pets are disabled; leftover markets close when opened
 Fixed - Pet storage at your own Animal Center now costs the upkeep its tooltip shows, and the gamma core reduces it
 Fixed - Animal Center description now says the beta core stops pets aging, not the alpha core

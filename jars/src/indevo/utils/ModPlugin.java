@@ -31,7 +31,6 @@ import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.config.PlayerSettings;
 import indevo.config.Setting;
 import indevo.dialogue.beacons.dialogue.BeaconDialogueListener;
-import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.dialogue.research.listeners.*;
 import indevo.dialogue.research.scripts.RefitUIOpenChecker;
 import indevo.economy.listeners.RelicBuildTimeReductionButtonAdder;
@@ -169,28 +168,8 @@ public class ModPlugin extends BaseModPlugin {
 
         if (newGame) ArtilleryStationReplacer.register();
 
-        //pets
-        if (Setting.PETS.enabled()){
-            if (!Global.getSector().getPlayerFleet().hasAbility("pet_management")){
-                Global.getSector().getPlayerFleet().addAbility("pet_management");
-                Global.getSector().getCharacterData().addAbility("pet_management");
-            }
-
-            if (ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(Ids.PROJ_NAVI).getProgress().redeemed) PetDataRepo.get("fairy").tags.remove(PetData.TAG_NO_SELL);
-
-            for(PetData data : PetDataRepo.getAll()) {
-                try {
-                    Global.getSettings().loadTexture(data.icon);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (newGame) addLordFoogRep();
-        } else {
-            Global.getSector().getPlayerFleet().removeAbility("pet_management");
-            Global.getSector().getCharacterData().removeAbility("pet_management");
-        }
+        PlayerSettings.applyCampaignSettings();
+        if (newGame && Setting.PETS.enabled()) addLordFoogRep();
 
         //player fuckery
         if(MissileActivationManager.getInstanceOrRegister().hasActiveListener()) MissileActivationManager.getInstanceOrRegister().getCurrentListener().reset();

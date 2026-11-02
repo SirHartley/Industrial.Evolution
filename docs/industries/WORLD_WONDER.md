@@ -46,7 +46,7 @@ The `parent_item` / `sub_item` tags group the wonders under one build list entry
 ## Registration and lifecycle
 
 - CSV plugin column per row.
-- `ModPlugin.setListenersIfNeeded()`: `WorldWonderAltImageOptionProvider.register()`, `WorldWonderTexChangeOptionProvider.register()` (`ModPlugin.java:469-470`), `ShieldVisualsOptionProvider.register()` (`:498`), all transient and deduped by `hasListenerOfClass`.
+- `ModPlugin.setListenersIfNeeded()`: `WorldWonderAltImageOptionProvider.register()`, `WorldWonderTexChangeOptionProvider.register()` (`ModPlugin.java:448-449`), `ShieldVisualsOptionProvider.register()` (`:477`), all transient and deduped by `hasListenerOfClass`.
 - `CloudPainterShieldPatch` is a `@Patch` class; PatchLib installs it when `PlanetaryShield` loads ([Patches](../ARCHITECTURE.md#patches)).
 - `BaseIndustry.apply` adds the industry as transient immigration modifier because it implements `MarketImmigrationModifier` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:209`).
 - `apply()` adds the industry as transient `EconomyTickListener` (`WorldWonder.java:61`); `ListenerManager.addListener` dedupes the same instance (skill `obf/campaign/ListenerManager.java:29`). `unapply()` removes it.

@@ -39,8 +39,8 @@ CSV rows starting with `#` are skipped by the loader (skill `docs/concepts/spec-
 ## Registration and lifecycle
 
 - CSV plugin column `indevo.industries.warehouses.industry.Warehouses`.
-- `ModPlugin.setListenersIfNeeded()` registers `WarehouseAddSubmarketOptionProvider` and `WarehouseRemoveSubmarketOptionProvider` (`ModPlugin.java:502-503`) via `ListenerManager.addListener(new ..., true)` (transient). Base class `TagBasedSimplifiedIndustryOptionProvider` is in [Utils](../core/UTILS.md).
-- `Warehouses.adjustWormholeAnchorSpec()` is commented out (`ModPlugin.java:128`).
+- `ModPlugin.setListenersIfNeeded()` registers `WarehouseAddSubmarketOptionProvider` and `WarehouseRemoveSubmarketOptionProvider` (`ModPlugin.java:481-482`) via `ListenerManager.addListener(new ..., true)` (transient). Base class `TagBasedSimplifiedIndustryOptionProvider` is in [Utils](../core/UTILS.md).
+- `Warehouses.adjustWormholeAnchorSpec()` is commented out (`ModPlugin.java:127`).
 - Saved state: `warehouseSubMarkets` and `shouldLinkLocalStorage` on the industry; `LinkedStorageManager` in sector memory.
 
 Add chain: `option click -> dialog confirm -> Warehouses.addSubmarket(data) -> market.addSubmarket(id) -> WarehouseSubmarketPlugin.init -> Warehouses.getData(this)`.

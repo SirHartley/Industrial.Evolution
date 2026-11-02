@@ -42,13 +42,13 @@ The player ability `splinter_fleet` opens a control panel with three loadout slo
 | `intel/DerelictFleetLocationIntel.java` | "Dormant Detachment" intel. Never constructed. Dead. |
 | `salvageSpecials/OfficerAndShipRecoverySpecial.java` | Salvage special on detachment wrecks: thaw the officer, then recover the ship with condition based hits and d-mods. |
 | `listeners/DetachmentAbilityAdder.java` | `NewDayListener` that grants the ability once the tutorial is over, then removes itself (`:26`). |
-| `locationFollower/PlayerFleetFollower.java`, `LocationFollowListenerAPI.java` | Token that tracks the player fleet across locations. `register()` is commented out (`ModPlugin.java:527`); only `getToken()` is used by the dormant DELIVER AI. Dormant. |
+| `locationFollower/PlayerFleetFollower.java`, `LocationFollowListenerAPI.java` | Token that tracks the player fleet across locations. `register()` is commented out (`ModPlugin.java:506`); only `getToken()` is used by the dormant DELIVER AI. Dormant. |
 
 ## Data and ids
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Ability | `splinter_fleet` (`Ids.ABILITY_DETACHMENT`) | `data/campaign/abilities.csv:2`, `indevo/ids/Ids.java:140` |
+| Ability | `splinter_fleet` (`Ids.ABILITY_DETACHMENT`) | `data/campaign/abilities.csv:2`, `indevo/ids/Ids.java:141` |
 | Custom entity | `SplinterFleet_OrbitFocus` (hidden), `development_SplinterFleet_OrbitFocus` (visible debug twin) | `data/config/custom_entities.json:420`, `:431` |
 | Entity tag | `SplinterFleet_OF` | `OrbitFocus.ORBIT_FOCUS_TAG` |
 | Fleet tag | `SplinterFleet_DetachmentIsJumping` | `BaseSplinterFleetAssignmentAIV2.CURRENTLY_JUMPING_FLAG` |
@@ -62,8 +62,8 @@ The player ability `splinter_fleet` opens a control panel with three loadout slo
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded` -> `DetachmentAbilityAdder.register()` (`ModPlugin.java:461`); persistent `NewDayListener`, deduped by `hasListenerOfClass`.
-- `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new SplinterFleetCampignPlugin())` on every load (`ModPlugin.java:515`); transient, so it is not saved.
+- `ModPlugin.setListenersIfNeeded` -> `DetachmentAbilityAdder.register()` (`ModPlugin.java:440`); persistent `NewDayListener`, deduped by `hasListenerOfClass`.
+- `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new SplinterFleetCampignPlugin())` on every load (`ModPlugin.java:494`); transient, so it is not saved.
 - `abilities.csv` plugin column -> `SplinterAbilityPlugin`.
 - Per detachment, attached at spawn and saved with the fleet: one `SplinterFleetAssignmentAIV2` script and one `CombatAndDerelictionScript` (`FleetUtils.java:167`, `:168`). The AI adds itself as a sector `CampaignEventListener` on first `advance` (`regsterIfNeeded`, `BaseSplinterFleetAssignmentAIV2.java:500`) and removes itself when done (`:128`).
 

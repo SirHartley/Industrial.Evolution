@@ -1,6 +1,8 @@
 package indevo.config;
 
+import com.fs.starfarer.api.GameState;
 import com.fs.starfarer.api.Global;
+import indevo.abilities.pets.PetManagementAbilityPlugin;
 import lunalib.backend.ui.settings.LunaSettingsLoader;
 import lunalib.lunaSettings.LunaSettings;
 import lunalib.lunaSettings.LunaSettingsListener;
@@ -61,9 +63,15 @@ public final class PlayerSettings implements LunaSettingsListener {
         // lunalib logs listener exceptions at debug level only
         try {
             reload();
+            // the title screen still holds the previous game's sector
+            if (Global.getCurrentState() == GameState.CAMPAIGN) applyCampaignSettings();
         } catch (RuntimeException e) {
-            log.error("Could not reload IndEvo settings", e);
+            log.error("Could not apply IndEvo settings", e);
         }
+    }
+
+    public static void applyCampaignSettings() {
+        PetManagementAbilityPlugin.applySetting();
     }
 
     public static void reload() {
