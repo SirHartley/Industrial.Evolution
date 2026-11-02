@@ -55,7 +55,7 @@ if (!Setting.EMBASSY.enabled()) return;
 
 ### Adding a setting
 
-1. Add the row to `LunaSettings.csv` in the right tab, with `defaultValue`, `minValue`, `maxValue` and the help text in `fieldDescription`. Help text is player-facing (house-style `player-text.md`, setting description): the effect, which direction is stronger, units, `Default <value>.` (`on` or `off` for a `Boolean`), then when it applies. Every `Int` and `Double` row needs both bounds as plain numbers: LunaLib uses 0 and 100 for an empty bound and clamps typed values to it.
+1. Add the row to `LunaSettings.csv` in the right tab, with `defaultValue`, `minValue`, `maxValue` and the help text in `fieldDescription`. Keep help text short: describe the effect and units, then any important limit or application timing. Explain multiplier direction only when unclear. Keep `Default <value>.` (`on` or `off` for a `Boolean`) for the settings checks. Leave implementation details out of the menu. Every `Int` and `Double` row needs both bounds as plain numbers: LunaLib uses 0 and 100 for an empty bound and clamps typed values to it.
 2. Add the `Setting` constant with the same `fieldID` (prefix `IndEvo_`), type, default and bounds as the row. A setting read only during world generation gets `Apply.NEW_GAME` and its help text ends with "Needs a new game.". A switch that also stops world generation placement stays `LIVE` and its help text says which part needs a new game ("Placement needs a new game.", "NPC placement needs a new game.").
 3. Read it through the constant. Do not call `LunaSettings` or `Global.getSettings()` directly for a LunaLib field.
 4. Add the key to the feature doc's Data and ids table.
