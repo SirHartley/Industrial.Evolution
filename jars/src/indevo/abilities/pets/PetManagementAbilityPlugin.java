@@ -37,7 +37,7 @@ public class PetManagementAbilityPlugin extends BaseDurationAbility {
             try {
                 Global.getSettings().loadTexture(data.icon);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new IllegalStateException("IndEvo pet " + data.id + " icon " + data.icon + " failed to load", e);
             }
         }
     }
