@@ -10,15 +10,29 @@ import org.lazywizard.lazylib.JSONUtils.CommonDataJSONObject;
 
 import java.io.IOException;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
+
+import static indevo.config.Setting.*;
 
 public final class PlayerSettings implements LunaSettingsListener {
 
     public static final String MOD_ID = "IndEvo";
     private static final Logger log = Global.getLogger(PlayerSettings.class);
+    private static final List<Pair> PAIRS = List.of(
+            new Pair(ARTILLERY_MIN_DELAY_BETWEEN_SHOTS, ARTILLERY_MAX_DELAY_BETWEEN_SHOTS),
+            new Pair(ARTILLERY_MIN_COOLDOWN, ARTILLERY_MAX_COOLDOWN),
+            new Pair(ARTILLERY_MIN_RANGE, ARTILLERY_MAX_RANGE),
+            new Pair(METEOR_MIN_INTENSITY, METEOR_MAX_INTENSITY),
+            new Pair(METEOR_MIN_DISTANCE_FROM_SUN, METEOR_MAX_DISTANCE_FROM_SUN),
+            new Pair(METEOR_MIN_ANGLE, METEOR_MAX_ANGLE),
+            new Pair(MUSEUM_MIN_ADDITIONAL_CREDITS, MUSEUM_MAX_ADDITIONAL_CREDITS));
 
     private static Map<Setting, Object> current = defaults();
     private static boolean loaded = false;
+
+    private record Pair(Setting min, Setting max) {
+    }
 
     private PlayerSettings() {
     }
@@ -55,7 +69,7 @@ public final class PlayerSettings implements LunaSettingsListener {
     public static void reload() {
         loaded = true;
         // lunalib loads lazily, any getter forces it
-        LunaSettings.getBoolean(MOD_ID, Setting.COMMERCE_BALANCE_CHANGES.id);
+        LunaSettings.getBoolean(MOD_ID, COMMERCE_BALANCE_CHANGES.id);
         CommonDataJSONObject data = LunaSettingsLoader.getSettings().get(MOD_ID);
         if (data == null) {
             log.error("LunaLib has no IndEvo settings, using defaults");
@@ -65,9 +79,17 @@ public final class PlayerSettings implements LunaSettingsListener {
 
         Map<Setting, Object> resolved = new EnumMap<>(Setting.class);
         for (Setting setting : Setting.values()) resolved.put(setting, setting.sanitize(data.opt(setting.id)));
+        applyPairRule(resolved);
         writeBack(data, resolved);
         current = resolved;
         if (Global.getSettings().isDevMode()) log.info("Reloaded IndEvo settings");
+    }
+
+    public static void applyPairRule(Map<Setting, Object> values) {
+        for (Pair pair : PAIRS) {
+            double min = ((Number) values.get(pair.min)).doubleValue();
+            if (((Number) values.get(pair.max)).doubleValue() < min) values.put(pair.max, pair.max.sanitize(min));
+        }
     }
 
     private static void writeBack(CommonDataJSONObject data, Map<Setting, Object> resolved) {

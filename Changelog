@@ -7,6 +7,7 @@ Fixed - Possible crash on market updates with mod industries that do not extend 
 Removed - Colony corruption mode, it is now a separate mod
 Removed - Unused copies of the LunaLib settings in settings.json; change settings in the LunaLib menu
 Adjusted - 21 number settings without limits now have them, for example 0 to 1 for chances; the settings menu used 0 to 100 for all of them before, and saved values outside the new limits move to the nearest limit
+Fixed - A maximum setting below its minimum is raised to the minimum: artillery shot delay, cooldown and range, meteor shower intensity, distance from the sun and angle, museum extra credits
 Adjusted - Now requires PatchLib
 Note - Install PatchLib alongside Industrial.Evolution
 Note - Saves from 4.1.b do not load, start a new game
