@@ -191,8 +191,8 @@ Versions use major.minor.letter (current `4.1.b`). See [RELEASE.md](docs/RELEASE
 After the final runtime-affecting commit and before merge:
 
 1. Fetch and build the exact remote task-branch revision.
-2. From the repository root, with JDK 17, run `java jars/src/indevo/tools/ReleaseBuild.java compile` ([toolchain](#toolchain)). It compiles every Java file under `jars/src/` that the IntelliJ module compiles (it reads the `excludeFolder` entries in `IndEvo.iml`) against `lib/`, in a fresh `out/release-build-*` directory, and checks the resulting jar. It never touches `jars/release/IndEvo.jar`.
-3. Require a successful exit with no compile errors.
+2. From the repository root, with JDK 17, run `java jars/src/indevo/tools/ReleaseBuild.java compile` ([toolchain](#toolchain)). It compiles every Java file under `jars/src/` that the IntelliJ module compiles (it reads the `excludeFolder` entries in `IndEvo.iml`) against `lib/`, in a fresh `out/release-build-*` directory, runs the settings checks (`SettingsChecks`, [SETTINGS.md](docs/core/SETTINGS.md#settings-checks)) and checks the resulting jar. It never touches `jars/release/IndEvo.jar`.
+3. Require a successful exit with no compile errors and no failed settings check.
 4. Record the command, branch commit, toolchain versions and result in the pull request. The final reply links the PR and states the result and any untested behavior.
 5. Stop before merge if the build, the toolchain or a required dependency is unavailable.
 

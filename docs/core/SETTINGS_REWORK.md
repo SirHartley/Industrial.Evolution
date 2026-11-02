@@ -1,6 +1,6 @@
 # Player settings rework
 
-**Status: approved plan, in progress on PR #22.** Philipp took every recommendation on 2026-11-01 ([Decisions](#decisions)) and approved the Quick Settings split. No open questions. This document records how IE moves from the `Settings` string reader to the `Setting` enum and `PlayerSettings` cache that Catch.Release uses, plus the open questions and the work each step needs. Read it before changing the settings mechanism.
+**Status: implemented on PR #22, not merged; waiting for Philipp's in-game test.** Philipp took every recommendation on 2026-11-01 ([Decisions](#decisions)) and approved the Quick Settings split. No open questions. This document records how IE moves from the `Settings` string reader to the `Setting` enum and `PlayerSettings` cache that Catch.Release uses, plus the open questions and the work each step needs. Read it before changing the settings mechanism.
 
 It does not govern setting values, balance or help text wording. [SETTINGS.md](SETTINGS.md) stays the authority on the current mechanism until Stage 0 lands; feature docs own what each setting does; help text goes through the house-style `player-text.md`. Move implemented technical detail to SETTINGS.md and [ARCHITECTURE.md](../ARCHITECTURE.md) and tick the plan here.
 
@@ -192,7 +192,7 @@ Each stage depends on the stages before it. Within a stage, do the subtasks in o
   - Done when: with Artillery off in a running campaign, no placed station fires; back on, they fire again.
 
 **Stage 3: checks and text.**
-- [ ] 3.1 `indevo/tools/SettingsChecks`, run with the build gate, outside the release jar:
+- [x] 3.1 `indevo/tools/SettingsChecks`, run with the build gate, outside the release jar. `ReleaseBuild.checkSettings` loads it from the compiled classes; the `JSONException` check stays in `ReleaseBuild.build`. The full list is in [SETTINGS.md](SETTINGS.md#settings-checks).
   - CSV against enum: unique ids, a row for every constant and a constant for every non Header, non Text row, type, default, explicit bounds for every number, default inside its bounds.
   - Text: help text present; `fieldName`, `fieldDescription` and Text rows survive `String.format` (as Catch.Release); `NEW_GAME` help text contains "needs a new game".
   - Logic: sanitize (missing, wrong type, NaN, infinity, clamp, Int rounding), the pair rule, Starsector's checked `JSONException`.

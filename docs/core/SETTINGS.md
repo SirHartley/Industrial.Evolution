@@ -15,6 +15,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 | `indevo/config/Setting.java` | One constant per LunaLib field (151): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`, `block`, `apply` (`LIVE`, `NEW_GAME`); `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
 | `indevo/config/PlayerSettings.java` | Cache: `install`, `reload`, LunaLib listener, write back, `applyCampaignSettings` |
 | `data/config/LunaSettings.csv` | LunaLib fields: id, label, type, default, help text (`fieldDescription`), bounds, tab |
+| `indevo/tools/SettingsChecks.java` | Build gate checks of the CSV against `Setting` ([Settings checks](#settings-checks)); never shipped |
 | `data/config/LunaSettingsConfig.json` | LunaLib mod entry: settings menu icon `graphics/icons/IndEvo.png` |
 | `data/config/settings.json` | Non-player config, sprite keys, `ruleCommandPackages`, `designTypeColors` |
 | `data/config/indEvo/*.csv` | Whitelists and blacklists, one `id` column each |
@@ -58,6 +59,19 @@ if (!Setting.EMBASSY.enabled()) return;
 2. Add the `Setting` constant with the same `fieldID` (prefix `IndEvo_`), type, default and bounds as the row. A setting read only during world generation gets `Apply.NEW_GAME` and its help text ends with "Needs a new game.". A switch that also stops world generation placement stays `LIVE` and its help text says which part needs a new game ("Placement needs a new game.", "NPC placement needs a new game.").
 3. Read it through the constant. Do not call `LunaSettings` or `Global.getSettings()` directly for a LunaLib field.
 4. Add the key to the feature doc's Data and ids table.
+5. Run the compile gate; [Settings checks](#settings-checks) must pass.
+
+### Settings checks
+
+`ReleaseBuild compile` and `build` run `SettingsChecks.run` after compiling ([RELEASE.md](../RELEASE.md#builder-compile-and-build)). It collects every problem and fails the build with the list.
+
+- CSV: UTF-8 without BOM, no curly quotes, the nine column header, nine cells per record, no stray quote. A record with an empty `fieldID` must be fully empty (LunaLib skips it, `LunaSettingsLoader`). Ids are unique and start with `IndEvo_`.
+- Tabs: every row is in one of the nine tabs and their first rows appear in the [table](#lunalib-settings) order.
+- Text: Headers have a title in `defaultValue`. `fieldName`, `fieldDescription` and Text `defaultValue` are not blank and survive `String.format` with no arguments (LunaLib shows them with `addPara`, so `%` is written `%%`). `fieldDescription` and Text rows keep the `[` before `]` order of LunaLib's highlight loop (`LunaSettingsUISettingsPanel`), which throws otherwise.
+- Constants: a row for every `Setting` and a constant for every `Boolean`, `Int` and `Double` row, with the same type and default (Booleans as `Boolean.parseBoolean` reads them). Numbers have plain number bounds equal to `min` and `max` and a default inside them. Help text has the sentence "Needs a new game." exactly when `apply` is `NEW_GAME`.
+- Blocks: a block is a `BOOLEAN` with no block of its own, and its row is in Quick Settings.
+- Logic: `sanitize` keeps the default and replaces a missing value, a wrong type, NaN and infinity with it; numbers clamp, `INT` rounds. `applyPairRule` leaves the defaults alone and, for every `X_MIN_Y` constant with an `X_MAX_Y`, raises an inverted max to the min, so a new name pair must go into `PlayerSettings.PAIRS`.
+- Source: no `LunaSettings` or `LunaSettingsLoader` outside `indevo/config` (and `indevo/tools`).
 
 ## settings.json
 
