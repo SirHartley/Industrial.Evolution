@@ -111,7 +111,6 @@ public class ModPlugin extends BaseModPlugin {
         if (Global.getSettings().isDevMode()) Global.getLogger(ModPlugin.class).info(Text);
     }
 
-
     @Override
     public void onApplicationLoad() {
         boolean hasGraphicsLib = Global.getSettings().getModManager().isModEnabled("shaderLib");

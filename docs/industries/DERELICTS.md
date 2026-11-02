@@ -66,7 +66,7 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 
 ## Registration and lifecycle
 
-- `ModPlugin.onNewGameAfterEconomyLoad`: `RuinsManager.forceCleanCoreRuins()` (`indevo/utils/ModPlugin.java:301`) -> `RuinsManager.placeIndustrialRuins()` (`:330`).
+- `ModPlugin.onNewGameAfterEconomyLoad`: `RuinsManager.forceCleanCoreRuins()` (`indevo/utils/ModPlugin.java:300`) -> `RuinsManager.placeIndustrialRuins()` (`:329`).
 - `ModPlugin.onGameLoad`, transient listeners re-added each load: `DerelictRuinsPlacer` (PlayerColonizationListener, `:462`), `ResolveRuinsToUpgradeListener` (SurveyPlanetListener, `:463`), `AncientLabCommoditySwitchOptionProvider.register()` (`:478`), `RiftGenOptionProvider.register()` (`:497`), `RemoveIndustryOptionWarningProvider.register()` (`:506`).
 - Each industry adds itself as a transient listener in `apply()` and removes itself in `unapply()`. `onNewDay` comes from IE's `NewDayListener`, driven by `indevo/utils/timers/TimeTracker.java:127`. See [Utils](../core/UTILS.md).
 - Rule commands: package `indevo.industries.derelicts.rules` listed in `data/config/settings.json:240`. `IndEvo_requiresColonyMenuPoint.java:32` also checks `IndEvo_RiftGen`; see [Rule commands](../dialogue/RULE_COMMANDS.md).

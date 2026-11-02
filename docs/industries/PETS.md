@@ -53,13 +53,13 @@ Code paths relative to `jars/src/indevo/`.
 | Entities | `IndEvo_PetShop` (`Ids.PET_SHOP_ENTITY`, legacy), `IndEvo_abandonedPetCenter` | `data/config/custom_entities.json:791`, `:1142` |
 | Variant tag | `PET_DATA_ID_<pet id>` on the pet's ship | `Pet.assign()` |
 | Memory | `$IndEvo_BlockESC` | sector memory |
-| Person | `foogAristo` at `athulf`, sells the `lordandsaviour` pet box for 300000 at cooperative (rules `IndEvo_foog_*`) | `ModPlugin.addLordFoogRep()` (`utils/ModPlugin.java:243`) |
+| Person | `foogAristo` at `athulf`, sells the `lordandsaviour` pet box for 300000 at cooperative (rules `IndEvo_foog_*`) | `ModPlugin.addLordFoogRep()` (`utils/ModPlugin.java:242`) |
 
 ## Registration and lifecycle
 
 - Industry, submarket, item and ability plugins from CSV plugin columns.
-- `ModPlugin.onGameLoad()` (`utils/ModPlugin.java:167-187`): with `IndEvo_pets` on, adds `pet_management` to the player fleet and character, clears `no_sell` on `fairy` once research `Ids.PROJ_NAVI` is redeemed ([Research](../dialogue/RESEARCH.md)), loads pet textures, on new game adds Lord Foog. With the setting off, removes the ability.
-- `PetCenterOptionProvider.register()` from `setListenersIfNeeded()` (`ModPlugin.java:463`). `PetShopCampaignPlugin` via `registerPlugin` on every load (`ModPlugin.java:506`).
+- `ModPlugin.onGameLoad()` (`utils/ModPlugin.java:166-186`): with `IndEvo_pets` on, adds `pet_management` to the player fleet and character, clears `no_sell` on `fairy` once research `Ids.PROJ_NAVI` is redeemed ([Research](../dialogue/RESEARCH.md)), loads pet textures, on new game adds Lord Foog. With the setting off, removes the ability.
+- `PetCenterOptionProvider.register()` from `setListenersIfNeeded()` (`ModPlugin.java:462`). `PetShopCampaignPlugin` via `registerPlugin` on every load (`ModPlugin.java:505`).
 - `PetStatusManager.getInstance()` (`PetStatusManager.java:58`) creates the manager on first use: persistent listener, sector script, player fleet event listener. Found again later by `hasListenerOfClass`.
 - `PetShop.apply()` adds itself as a persistent listener if missing (`PetShop.java:218`). Storage fee: `getTotalStorageCost()` sums `getStorageCost()` over live pets (food x 500 x `petStorageCostMult`, plus 2000 on NPC markets). Player markets pay it as Animal Center upkeep (`IndEvo_petStorage`, `:204-208`), so the hazard and AI core upkeep mults apply; the tooltip total includes them. NPC markets bill it in `reportEconomyTick()` through the monthly report. `advance()` queues `SubMarketAddOrRemovePlugin(market, PETMARKET, false)` every frame while functional, pets enabled and the submarket missing (`:182`). `unapply()` queues the removal (`:243`), which runs once the Animal Center is gone or pets are disabled.
 - Animal Centers are placed at game start at `jangala`, `gilead`, `fikenhild` ([Utils](../core/UTILS.md)).

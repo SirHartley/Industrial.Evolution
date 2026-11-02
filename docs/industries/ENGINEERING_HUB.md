@@ -24,19 +24,19 @@ Neighbours used: `indevo/industries/SharedSubmarketUser.java` (base class), `ind
 | Industry | `IndEvo_EngHub` (`Ids.ENGHUB`, structure, `unraidable`) | `data/campaign/industries.csv:42`, `indevo/ids/Ids.java:61` |
 | Submarket | `IndEvo_EngStorage` (`Ids.ENGSTORAGE`), `IndEvo_SharedStore` (`Ids.SHAREDSTORAGE`) | `indevo/ids/Ids.java:40-41` |
 | Memory key | `$IndEvo_researchProgress` (sector, `Map<String, Float>` base hull id -> progress) | `EngineeringHub.java:46` |
-| Setting | `IndEvo_AutoshipBPToGatheringPoint` (deliver to gathering point) | `data/config/LunaSettings.csv:109`, read at `EngineeringHub.java:146` |
+| Setting | `IndEvo_AutoshipBPToGatheringPoint` (deliver to gathering point) | `data/config/LunaSettings.csv:109`, read at `EngineeringHub.java:147` |
 | Setting | `IndEvo_EngHubStrictWhitelist`, `IndEvo_EngHubIgnoreWhitelists` (intake) | `data/config/LunaSettings.csv:107-108`, read in `ReverseEngineeringSubmarketPlugin` |
-| Setting | `IndEvo_EngHub` (build toggle) | `data/config/LunaSettings.csv:94`; read in `isAvailableToBuild()` and `showWhenUnavailable()` (`EngineeringHub.java:57-64`). A hub already built stays |
+| Setting | `IndEvo_EngHub` (build toggle) | `data/config/LunaSettings.csv:94`; read in `isAvailableToBuild()` and `showWhenUnavailable()` (`EngineeringHub.java:58-65`). A hub already built stays |
 | Config CSV | `IndEvo_reverseList`: manual hull whitelist | `data/config/settings.json:219`, `data/config/indEvo/reverse_engineering_whitelist.csv` |
 | Item | `ItemIds.RELIC_SPECIAL_ITEM` (relic mode slot item, never in cargo), `ItemIds.RARE_PARTS` (relic components) | `indevo/ids/ItemIds.java` |
-| Item | `ship_bp`, `tiandong_retrofit_bp`, `roider_retrofit_bp` (output and consumed input) | `EngineeringHub.java:237-259`, `:1080-1085` |
+| Item | `ship_bp`, `tiandong_retrofit_bp`, `roider_retrofit_bp` (output and consumed input) | `EngineeringHub.java:238-260`, `:1081-1086` |
 | Sprite | category `IndEvo`: `revBP` (finish message icon) | `data/config/settings.json` |
 
 ## Registration and lifecycle
 
-- Industry plugin from `industries.csv`. While functional and player owned, `apply()` adds the hub as a transient listener; `TimeTracker` then calls `onNewDay` ([Utils](../core/UTILS.md)). `unapply()` removes it (`EngineeringHub.java:67-101`).
-- `advance()` adds `IndEvo_EngStorage` and the shared storage through `SubMarketAddOrRemovePlugin` while functional; `unapply()` queues their removal (`:79-101`).
-- `ModPlugin.loadTransientMemory()` warms the `IndEvo_reverseList` cache (`indevo/utils/ModPlugin.java:424`).
+- Industry plugin from `industries.csv`. While functional and player owned, `apply()` adds the hub as a transient listener; `TimeTracker` then calls `onNewDay` ([Utils](../core/UTILS.md)). `unapply()` removes it (`EngineeringHub.java:68-102`).
+- `advance()` adds `IndEvo_EngStorage` and the shared storage through `SubMarketAddOrRemovePlugin` while functional; `unapply()` queues their removal (`:80-102`).
+- `ModPlugin.loadTransientMemory()` warms the `IndEvo_reverseList` cache (`indevo/utils/ModPlugin.java:423`).
 - `ModUpdater` keeps `currentDeconShipVar` across an industry replacement on mod update (`indevo/utils/update/ModUpdater.java:94,136`).
 
 Daily chain: `TimeTracker -> EngineeringHub.onNewDay -> (idle) initDeconstruction | (done) addProgressToList + message | daysPassed++ -> for first hull at >= 1.0: relic payment or consumeMatchingSpecial -> deliverReverseEngineered -> storeMapInMemory`.
@@ -46,17 +46,17 @@ Daily chain: `TimeTracker -> EngineeringHub.onNewDay -> (idle) initDeconstructio
 ### Intake and deconstruction
 
 - Intake: `ReverseEngineeringSubmarketPlugin.isIllegalOnSubmarket` allows a hull if it is on `IndEvo_reverseList` or (unless strict) has any tag containing `_bp`, is not a Prism or Vayra boss hull or tagged `threat` / `dweller`, has research value above 0 and is not printed. `IndEvo_EngHubIgnoreWhitelists` drops the list checks; dev mode allows anything (`ReverseEngineeringSubmarketPlugin.java:45-160`).
-- `initDeconstruction()` takes the first ship in `IndEvo_EngStorage` whose base hull is below 100%, strips weapons and fighters into the gathering point storage (local storage if the gathering point has none) with `MiscIE.stripShipToCargoAndReturnVariant`, removes the ship and stores its variant in `currentDeconShipVar` (`EngineeringHub.java:307-327`).
-- Days: `round(sizeValue * 57) - 5` = 15 (frigate to cruiser) or 21 (capital), x0.7 beta, x0.85 alpha, truncated to int (`:400-424`).
-- Value: 0.35 (frigate to cruiser) or 0.45 (capital), minus `0.05n * (1 + 0.05n * n)` for `n` non built in D-mods (alpha ignores one), rounded to 0.01, floored at 0 (`:372-398`).
-- Base hull: D-hull parent or `getBaseHull()` for restore to base hulls, so skins and D variants share progress (`:346-367`).
+- `initDeconstruction()` takes the first ship in `IndEvo_EngStorage` whose base hull is below 100%, strips weapons and fighters into the gathering point storage (local storage if the gathering point has none) with `MiscIE.stripShipToCargoAndReturnVariant`, removes the ship and stores its variant in `currentDeconShipVar` (`EngineeringHub.java:308-328`).
+- Days: `round(sizeValue * 57) - 5` = 15 (frigate to cruiser) or 21 (capital), x0.7 beta, x0.85 alpha, truncated to int (`:401-425`).
+- Value: 0.35 (frigate to cruiser) or 0.45 (capital), minus `0.05n * (1 + 0.05n * n)` for `n` non built in D-mods (alpha ignores one), rounded to 0.01, floored at 0 (`:373-399`).
+- Base hull: D-hull parent or `getBaseHull()` for restore to base hulls, so skins and D variants share progress (`:347-368`).
 
 ### Completion
 
-- Per day the hub processes at most one hull at >= 100% (`:138-175`).
-- Relic mode (installed item is `RELIC_SPECIAL_ITEM`): pays `round(suppliesToRecover * 10)` relic components from shared storage if enough are there (`:156-168`, `:215-227`).
-- Otherwise `consumeMatchingSpecial` takes the installed item, then any shared storage item, whose hull size matches; for Tiandong or Roider hulls the item must be the matching retrofit item (`:183-224`).
-- Output: `ship_bp` with the hull id, or the retrofit item, to local storage or the gathering point storage. The hull leaves the progress map; overflow above 1.0 is clamped on save (`:158-177`).
+- Per day the hub processes at most one hull at >= 100% (`:139-176`).
+- Relic mode (installed item is `RELIC_SPECIAL_ITEM`): pays `round(suppliesToRecover * 10)` relic components from shared storage if enough are there (`:157-169`, `:216-228`).
+- Otherwise `consumeMatchingSpecial` takes the installed item, then any shared storage item, whose hull size matches; for Tiandong or Roider hulls the item must be the matching retrofit item (`:184-225`).
+- Output: `ship_bp` with the hull id, or the retrofit item, to local storage or the gathering point storage. The hull leaves the progress map; overflow above 1.0 is clamped on save (`:159-178`).
 
 ### Relic components in the install dialog
 
@@ -67,27 +67,27 @@ The vanilla install item dialog (obf `com.fs.starfarer.campaign.ui.marketinfo.OO
 - Redirects every `CargoAPI.addItems` call in the dialog and drops it when the item is `RELIC_SPECIAL_ITEM`. Taking the relic out of storage is a no-op since it is not there.
 - The relic row stays listed while installed; picking it again changes nothing.
 
-`notifyBeingRemoved` does not refund `RELIC_SPECIAL_ITEM` (`EngineeringHub.java:489-498`). Nothing else creates it, so it exists only in the dialog and the hub's slot.
+`notifyBeingRemoved` does not refund `RELIC_SPECIAL_ITEM` (`EngineeringHub.java:490-499`). Nothing else creates it, so it exists only in the dialog and the hub's slot.
 
 ### AI cores
 
-Gamma: upkeep x0.2 while idle. Beta: x0.7 time. Alpha: x0.85 time, one D-mod ignored (`:1063-1075`, `:400-421`).
+Gamma: upkeep x0.2 while idle. Beta: x0.7 time. Alpha: x0.85 time, one D-mod ignored (`:1064-1076`, `:401-422`).
 
 ## Contracts
 
 - Progress is sector wide: every hub reads `$IndEvo_researchProgress` at the start of `onNewDay` and writes it back at the end, so several hubs share and race on one map (each writes its full copy; inferred safe because calls are sequential on the campaign thread).
 - `getMapFromMemory` returns a sorted copy, not the stored map; always write back with `storeMapInMemory` (`indevo/utils/helper/MiscIE.java:385-407`).
 - Saved per hub: `currentDeconShipVar`, `daysRequired`, `daysPassed`, `blueprintItem`.
-- `getSpecialItem` / `setSpecialItem` are overridden to the `blueprintItem` field; removing the hub refunds it unless upgrading or it is the relic item (`:474-498`).
-- `createTooltip` is a full copy of the vanilla industry tooltip with the progress sections added (`:624-988`); vanilla tooltip changes do not reach it.
+- `getSpecialItem` / `setSpecialItem` are overridden to the `blueprintItem` field; removing the hub refunds it unless upgrading or it is the relic item (`:475-499`).
+- `createTooltip` is a full copy of the vanilla industry tooltip with the progress sections added (`:625-989`); vanilla tooltip changes do not reach it.
 - `isTiandong` / `isRoider` are also used by Privateer loot (`indevo/industries/privateer/industry/PrivateerBase.java:322-324`); see [Privateer](PRIVATEER.md).
 
 ## Known issues and dormant code
 
 | Item | State |
 |---|---|
-| Dev mode | `debug = isDevMode()` finishes every deconstruction the next day (`:70`, `:123`) |
-| Any item matches normal hulls | `matchesForFaction` returns true for any item on non Tiandong, non Roider hulls, so a same size retrofit template in shared storage can be consumed for a normal blueprint (`:229-235`) |
+| Dev mode | `debug = isDevMode()` finishes every deconstruction the next day (`:71`, `:124`) |
+| Any item matches normal hulls | `matchesForFaction` returns true for any item on non Tiandong, non Roider hulls, so a same size retrofit template in shared storage can be consumed for a normal blueprint (`:230-236`) |
 | Changelog_todo | "100% progress items in reverse engineering list should be at the top"; "check if BP creation works with relics"; "Allow using relic components to get BPs of ships in engHub" |
 
 ## Maintenance
