@@ -33,7 +33,7 @@ Type roll weights (`MeteorSwarmManager.java:75-78`): `ASTEROID` 12, `ICEROID` 3,
 | `movement/EmptyMovement.java` | No movement (impact fragments) |
 | `movement/RelativeArcingMovement.java` | Dead: no users |
 | `scripts/MovementModuleRunner.java`, `PayloadOnFinishedModuleRunner.java` | Run a movement module on non-meteor entities (entourage focus, planetoid); payload runs a `Script` in the same `advance()` the arc ends, then `isDone()` |
-| `scripts/PlanetoidDespawnScript.java` | Planetoid payload: fades the planet, its ring bands and everything orbiting it. `despawnStrandedPlanetoids()` runs on every load |
+| `scripts/PlanetoidDespawnScript.java` | Planetoid payload: fades the planet, its ring bands and every non fleet entity orbiting it; fleets orbiting it lose the orbit and stay. `despawnStrandedPlanetoids()` runs on every load |
 | `scripts/DespawningMovementModuleRunner.java` | Unused by new code; kept because 4.1.b saves hold it on planetoids, which `despawnStrandedPlanetoids()` converts on load |
 | `scripts/MeteorImpact.java`, `IceroidImpact.java` | 0.2 s push on the hit entity, one ship damaged (weight by hull size, scaled by burn above go-slow), sound, glow, asteroid fragments; ice variant spawns ice fragments |
 | `scripts/RadiationReductionScript.java` | NPC radiation decay |

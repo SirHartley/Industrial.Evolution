@@ -3,6 +3,7 @@ package indevo.exploration.meteor.scripts;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.Script;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.RingBandAPI;
@@ -31,6 +32,12 @@ public class PlanetoidDespawnScript implements Script {
 
         if (loc != null) {
             for (SectorEntityToken t : new ArrayList<>(loc.getAllEntities())) {
+                // fleets orbiting the planetoid have it as orbit focus too
+                if (t instanceof CampaignFleetAPI) {
+                    if (t.getOrbitFocus() == planet) t.setOrbit(null);
+                    continue;
+                }
+
                 boolean isRing = t instanceof RingBandAPI && ((RingBandAPI) t).getFocus() == planet;
                 if (isRing || t.getOrbitFocus() == planet) Misc.fadeAndExpire(t, 0.1f);
             }
