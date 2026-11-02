@@ -213,7 +213,7 @@ Fixed - Artillery slow field and forced overload no longer run out while combat 
 Fixed - Watchtowers no longer count as stable locations anywhere, including the planet search and the planet list
 Fixed - Creating a stable location at a star now counts wormholes again, like vanilla
 Adjusted - Uses the vanilla star dialog again, which improves compatibility with other mods
-Adjusted - Artillery and watchtower settings now apply to the next shot without a game restart; stations already placed keep their shot delay and maximum range
+Adjusted - Artillery and watchtower settings now apply without a game restart, also to stations already placed
 
 Console Commands
 Fixed - SpawnRuins no longer rolls the first planet twice or adds the ruins condition twice

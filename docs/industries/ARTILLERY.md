@@ -106,13 +106,13 @@ Station destroyed in battle (`reportFleetDespawnedToListener`): the industry dis
 
 ### Firing
 
-`CampaignAttackScript.advance` (`:88-101`), only in the player's location: add range terrain once, sync terrain range, then if not `disabled`: advance station interval, blocked areas and per-target cooldowns, `updateTargets`, `fireAtTargets`.
+`CampaignAttackScript.advance` (`:90-103`), only in the player's location: add range terrain once, sync terrain range, then if not `disabled`: advance station interval, blocked areas and per-target cooldowns, `updateTargets`, `fireAtTargets`.
 
-- Valid target (`isValid`, `:221-235`): hostile (`isHostileTo`; a null faction is hostile to all but remnants), alive, has AI or is the player, `MIN_RANGE <= dist <= range`, `$IndEvo_WasSeenByOtherEntity` set, not `ENTITY_MISSION_IMPORTANT`.
-- Per-target cooldown `IndEvo_Artillery_min/maxCooldown`, times `IndEvo_Artillery_cooldownNPCMult` for NPCs; one station-wide delay `min/maxDelayBetweenShots` between shots at different targets.
-- Skips: fleet in battle (retry in 10 s), mortar target area blocked by an earlier mortar volley within 400 su, safe spot: fleet or predicted position within `primary radius + 700` of any market primary entity (`isInSafeSpot`, `:329-356`).
-- Forced targets (`forceTarget`, `:134-146`) bypass `isValid` and are cleared after one shot. Called by the decoy mine and the ancient remote ([Consumables](../items/CONSUMABLES.md)) and every 5 s on the player in dev mode (`:288-291`).
-- Range: `IndEvo_Artillery_maxRange`, plus `IMPROVE_RANGE_BONUS` 4000 when the industry is improved (`ArtilleryStation.java:536-550`).
+- Valid target (`isValid`, `:216-230`): hostile (`isHostileTo`; a null faction is hostile to all but remnants), alive, has AI or is the player, `MIN_RANGE <= dist <= getRange()`, `$IndEvo_WasSeenByOtherEntity` set, not `ENTITY_MISSION_IMPORTANT`.
+- Per-target cooldown `IndEvo_Artillery_min/maxCooldown`, times `IndEvo_Artillery_cooldownNPCMult` for NPCs; one station-wide delay `min/maxDelayBetweenShots` between shots at different targets. `advanceStationFireInterval` rebuilds the interval when either delay setting changes (`:364-366`), which restarts the current wait.
+- Skips: fleet in battle (retry in 10 s), mortar target area blocked by an earlier mortar volley within 400 su, safe spot: fleet or predicted position within `primary radius + 700` of any market primary entity (`isInSafeSpot`, `:324-351`).
+- Forced targets (`forceTarget`, `:129-141`) bypass `isValid` and are cleared after one shot. Called by the decoy mine and the ancient remote ([Consumables](../items/CONSUMABLES.md)) and every 5 s on the player in dev mode (`:283-286`).
+- Range: `getRange()` returns `IndEvo_Artillery_maxRange` plus `rangeBonus` (`:421-431`). `rangeBonus` is `IMPROVE_RANGE_BONUS` 4000 while the industry is improved; `applyImproveModifiers` resets and re-adds it on every industry `apply` (`ArtilleryStation.java:536-550`). The range terrain follows a changed range on the next frame (`matchTerrainRangeAndLoc`).
 
 Volleys:
 
@@ -141,7 +141,7 @@ Watchtowers carry the `objective` tag (`data/config/custom_entities.json`, entit
 ## Contracts
 
 - Off-screen: `CampaignAttackScript`, `ArtilleryStationScript` and watchtower logic return early outside the player's location, so the off-screen 60-frame throttle (`docs/concepts/campaign-frame.md`) does not apply. Artillery never fires off-screen.
-- Tuning settings are read at use time: reload, minimum range, shot counts, impact times, fuzz, explosion sizes, watchtower range and defender FP apply to the next shot or fight. `CampaignAttackScript` keeps two saved copies made at creation: `stationFireInterval` (delay between shots) and `range` (max range).
+- Tuning settings are read at use time and apply to placed stations: delay between shots, reload, range, shot counts, impact times, fuzz, explosion sizes, watchtower range and defender FP apply to the next shot or fight. The saved field `CampaignAttackScript.range` is unused and stays so older saves load. Saves without `rangeBonus` load it as 0; vanilla reapplies all industries on load (`CoreLifecyclePluginImpl.econPostSaveRestore`, skill `api/impl/campaign/CoreLifecyclePluginImpl.java:1306-1318`), which adds the improve bonus back.
 - `WatchtowerStableLocationPatch` targets `Misc` by API names only (stable). It needs PatchLib (hard dependency); without the patch watchtowers count as stable locations again.
 - Save data: `ArtilleryStationScript` (planet script and memory), `CampaignAttackScript` (entity script, target maps keyed by entity id), the industry's `stationFleet`/`stationEntity` fields, `WatchtowerFactionResetListener.watchtowerTimeoutMap`, `EyeIndicatorScript` all persist. Projectile entities persist while alive.
 - The industry and the derelict script must agree on the type: the script stores it in `$IndEvo_ArtilleryType`; the industry derives it from its id. The rebuild options come from the parent `IndEvo_Artillery_base` (`parent_item`).

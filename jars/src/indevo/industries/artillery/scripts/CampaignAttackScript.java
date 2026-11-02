@@ -45,7 +45,9 @@ public class CampaignAttackScript implements EveryFrameScript {
 
     private SectorEntityToken terrain = null;
 
-    public float range = Setting.ARTILLERY_MAX_RANGE.value();
+    // unused, removing a saved field breaks loading saves that hold it
+    private float range;
+    private float rangeBonus = 0f;
     public float terrainRange = Setting.ARTILLERY_MAX_RANGE.value(); //we save this here because getting the terrain is expensive
 
     public boolean disabled = false;
@@ -221,7 +223,7 @@ public class CampaignAttackScript implements EveryFrameScript {
         return hostile
                 && t.isAlive()
                 && isNotNullAI
-                && Misc.getDistance(t, entity) <= range
+                && Misc.getDistance(t, entity) <= getRange()
                 && Misc.getDistance(t, entity) >= Setting.ARTILLERY_MIN_RANGE.value()
                 && t.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY)
                 && !t.getMemoryWithoutUpdate().getBoolean(MemFlags.ENTITY_MISSION_IMPORTANT);
@@ -230,7 +232,7 @@ public class CampaignAttackScript implements EveryFrameScript {
     private boolean isForcedValid(SectorEntityToken t) {
         return t != null
                 && !t.isExpired()
-                && Misc.getDistance(t, entity) <= range
+                && Misc.getDistance(t, entity) <= getRange()
                 && Misc.getDistance(t, entity) >= Setting.ARTILLERY_MIN_RANGE.value()
                 && !t.getMemoryWithoutUpdate().contains(FORCE_INVALID);
     }
@@ -359,6 +361,10 @@ public class CampaignAttackScript implements EveryFrameScript {
     }
 
     private void advanceStationFireInterval(float amount) {
+        float minDelay = Setting.ARTILLERY_MIN_DELAY_BETWEEN_SHOTS.value();
+        float maxDelay = Setting.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS.value();
+        if (stationFireInterval.getMinInterval() != minDelay || stationFireInterval.getMaxInterval() != maxDelay) stationFireInterval.setInterval(minDelay, maxDelay);
+
         //if no targets, reset to give time to turn
         //else, advance until ready
         if (targetMap.isEmpty() && forcedTargetMap.isEmpty()) stationFireInterval.setElapsed(0f);
@@ -385,8 +391,8 @@ public class CampaignAttackScript implements EveryFrameScript {
     }
 
     public void matchTerrainRangeAndLoc() {
-        if (Math.round(range) != Math.round(terrainRange)) {
-            adjustTerrainRange(range);
+        if (Math.round(getRange()) != Math.round(terrainRange)) {
+            adjustTerrainRange(getRange());
         }
 
         if (terrain.getContainingLocation() != entity.getContainingLocation()) {
@@ -413,14 +419,14 @@ public class CampaignAttackScript implements EveryFrameScript {
     }
 
     public void addToRange(float range) {
-        this.range += range;
+        rangeBonus += range;
     }
 
     public void resetRange() {
-        this.range = Setting.ARTILLERY_MAX_RANGE.value();
+        rangeBonus = 0f;
     }
 
     public float getRange() {
-        return range;
+        return Setting.ARTILLERY_MAX_RANGE.value() + rangeBonus;
     }
 }
