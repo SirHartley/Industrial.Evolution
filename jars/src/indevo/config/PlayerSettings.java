@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.lazywizard.lazylib.JSONUtils.CommonDataJSONObject;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -76,19 +77,21 @@ public final class PlayerSettings implements LunaSettingsListener {
 
     public static void reload() {
         loaded = true;
-        // lunalib loads lazily, any getter forces it
-        LunaSettings.getBoolean(MOD_ID, COMMERCE_BALANCE_CHANGES.id);
-        CommonDataJSONObject data = LunaSettingsLoader.getSettings().get(MOD_ID);
-        if (data == null) {
+        if (LunaSettings.getBoolean(MOD_ID, COMMERCE_BALANCE_CHANGES.id) == null) {
             log.error("LunaLib has no IndEvo settings, using defaults");
             current = defaults();
             return;
         }
 
+        Map<Setting, Object> stored = new EnumMap<>(Setting.class);
         Map<Setting, Object> resolved = new EnumMap<>(Setting.class);
-        for (Setting setting : Setting.values()) resolved.put(setting, setting.sanitize(data.opt(setting.id)));
+        for (Setting setting : Setting.values()) {
+            Object value = setting.type == Type.BOOLEAN ? LunaSettings.getBoolean(MOD_ID, setting.id) : LunaSettings.getDouble(MOD_ID, setting.id);
+            stored.put(setting, value);
+            resolved.put(setting, setting.sanitize(value));
+        }
         applyPairRule(resolved);
-        writeBack(data, resolved);
+        writeBack(stored, resolved);
         current = resolved;
         if (Global.getSettings().isDevMode()) log.info("Reloaded IndEvo settings");
     }
@@ -100,16 +103,15 @@ public final class PlayerSettings implements LunaSettingsListener {
         }
     }
 
-    private static void writeBack(CommonDataJSONObject data, Map<Setting, Object> resolved) {
+    private static void writeBack(Map<Setting, Object> stored, Map<Setting, Object> resolved) {
+        List<Setting> changed = Arrays.stream(Setting.values()).filter(setting -> !Setting.same(stored.get(setting), resolved.get(setting))).toList();
+        if (changed.isEmpty()) return;
+
+        // the public lunalib api has no setter
+        CommonDataJSONObject data = LunaSettingsLoader.getSettings().get(MOD_ID);
         try {
-            boolean changed = false;
-            for (Setting setting : Setting.values()) {
-                Object value = resolved.get(setting);
-                if (Setting.same(data.opt(setting.id), value)) continue;
-                data.put(setting.id, value);
-                changed = true;
-            }
-            if (changed) data.save();
+            for (Setting setting : changed) data.put(setting.id, resolved.get(setting));
+            data.save();
         } catch (IOException | JSONException e) {
             log.error("Could not save IndEvo settings", e);
         }

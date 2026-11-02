@@ -86,7 +86,7 @@ Tab layout after the split (nine tabs, as Catch.Release):
 ### Shared mechanic: `PlayerSettings`
 
 - `install()` first in `ModPlugin.onApplicationLoad` and `onGameLoad`, as Catch.Release.
-- `reload()`: force LunaLib's load with any `LunaSettings.getX` call, read `LunaSettingsLoader.getSettings().get("IndEvo")`, sanitize every field, apply the pair rule, write changed values back and save. The listener then runs `applyCampaignSettings()`; `install()` and `onNewGame` reload only.
+- `reload()`: read every field through the public `LunaSettings` getters (they force LunaLib's lazy load), sanitize it, apply the pair rule, then write changed values back through `LunaSettingsLoader.getSettings().get("IndEvo")` and save; the public API has no setter. The listener then runs `applyCampaignSettings()`; `install()` and `onNewGame` reload only.
 - Pair rule (new): when a max is below its min, the max is raised to the min. Pairs: artillery delay between shots, cooldown, range; meteor intensity, distance from sun, angle; museum additional credits.
 - Runtime callers read the cache through `Setting`. An `EnumMap` lookup is cheap enough for per frame reads.
 - `applyCampaignSettings()` runs from `onGameLoad` and from the listener. From the listener it runs only when `Global.getCurrentState() == GameState.CAMPAIGN`: the LunaLib menu also opens on the title screen, where `Global.getSector()` is the previous game's sector (knowledge skill `docs/concepts/lifecycle.md`). Catch.Release gates on `Global.getSector() == null`, which never trips there; the same gap exists in that mod. First content: the pet ability add or remove, moved out of `ModPlugin.onGameLoad`.
@@ -104,7 +104,7 @@ Tab layout after the split (nine tabs, as Catch.Release):
 
 ## Dependencies
 
-- LunaLib 2.0.1, already a hard dependency. Uses the public `LunaSettings` API plus `LunaSettingsLoader.getSettings()` from LunaLib's backend package, as Catch.Release.
+- LunaLib 2.0.1, already a hard dependency. Reads through the public `LunaSettings` API; only the write back uses `LunaSettingsLoader.getSettings()` from LunaLib's backend package, since the public API has no setter.
 - Not needed: PatchLib, reflection, any new data file.
 
 ## Decisions
