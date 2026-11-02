@@ -13,7 +13,7 @@ At new game, uncolonized planets with tech mining ruins may get the `IndEvo_Ruin
 | File | Owner / role |
 |---|---|
 | `indevo/industries/ruinfra/conditions/DerelictInfrastructureCondition.java` | Hidden condition. Picks and stores the target (`setUpgradeSpec`), adds the industry once (`addRuinfraIfNeeded`), removes itself when the industry is gone; static helpers `resetRuinfraState`, `marketPrimedForCondition` |
-| `indevo/industries/ruinfra/industry/RuinedInfrastructure.java` | `IndEvo_RuinedInfra` industry: unbuildable, no AI cores, custom `startUpgrading` and `finishBuildingOrUpgrading`, AI faction auto upgrade, own tooltip ("restore" wording) |
+| `indevo/industries/ruinfra/industry/RuinedInfrastructure.java` | `IndEvo_RuinedInfra` industry: unbuildable, no AI cores, rolls a missing or invalid target in `apply`, custom `startUpgrading` and `finishBuildingOrUpgrading`, AI faction auto upgrade, own tooltip ("restore" wording) |
 | `indevo/industries/ruinfra/industry/ChamelionIndustry.java` | `IndEvo_ChamelionIndustry`: upgrade proxy whose `init` swaps its id to the stored target, so the upgrade dialog shows the target's name, image and stats; cost and time times `IndEvo_DerInfraBuildRed`; `isAvailableToBuild` and `getUnavailableReason` come from a fresh target instance |
 | `indevo/industries/ruinfra/listener/RuinfraOnDecivListener.java` | `ColonyDecivListener`: primes a decivilizing market with a target from its own whitelisted industries |
 | `indevo/industries/ruinfra/utils/DerelictInfrastructurePlacer.java` | New game placement of the condition |
@@ -48,16 +48,18 @@ Chain: `placeRuinedInfrastructure -> condition on planet -> colonized -> Derelic
 
 ### Target and industry
 
-`DerelictInfrastructureCondition.apply` runs only for real markets (not planet condition markets, not `neutral`) that have not placed yet. `setUpgradeSpec(market)` picks from the whitelist with the planet salvage seed and repicks while `getNewPluginInstance(market).isAvailableToBuild()` is false; fallback `IndEvo_AdAssem`. The target is only written if the key is unset. Then the industry is added and `EconomyAPI.tripleStep()` runs.
+`DerelictInfrastructureCondition.apply` runs only for real markets (not planet condition markets, not `neutral`) that have not placed yet. `setUpgradeSpec(market)` picks from the whitelist with the planet salvage seed (the primary entity's on a market without a planet) and repicks while `getNewPluginInstance(market).isAvailableToBuild()` is false; fallback `IndEvo_AdAssem`. The target is only written if the key is unset. Then the industry is added and `EconomyAPI.tripleStep()` runs.
+
+`RuinedInfrastructure.apply` (`RuinedInfrastructure.java:32`) runs on add and on every economy step. When the key is missing or names no industry spec (`hasValidTarget`, `:41`), it unsets the key and calls `setUpgradeSpec(market)`. This covers an industry added without the condition (console `addindustry`) and a target from a removed mod.
 
 `advance` removes the condition once the market has no `IndEvo_RuinedInfra` industry and the placed flag is set.
 
 ### Restore
 
-- `RuinedInfrastructure.startUpgrading` sets `upgradeId` to the CSV upgrade (`IndEvo_ChamelionIndustry`) and `buildTime = target build time * IndEvo_DerInfraBuildRed` (`RuinedInfrastructure.java:60`). A running restoration keeps that time when the setting changes.
-- `finishBuildingOrUpgrading` removes `IndEvo_ChamelionIndustry` and itself, adds the stored target and calls its `finishBuildingOrUpgrading` (`:72`).
+- `RuinedInfrastructure.startUpgrading` sets `upgradeId` to the CSV upgrade (`IndEvo_ChamelionIndustry`) and `buildTime = target build time * IndEvo_DerInfraBuildRed` (`RuinedInfrastructure.java:80`). A running restoration keeps that time when the setting changes.
+- `finishBuildingOrUpgrading` removes `IndEvo_ChamelionIndustry` and itself, adds the stored target and calls its `finishBuildingOrUpgrading` (`:83`).
 - `notifyBeingRemoved` removes the condition.
-- AI markets (`triggerUpgradeForAI`, `RuinedInfrastructure.java:100`, from `apply` on every economy step): not already restoring, a stored target, size above 4, faction owns more than 2 markets, the `IndEvo_ChamelionIndustry` instance (the target) is buildable and, for an industry target, a slot is free.
+- AI markets (`triggerUpgradeForAI`, `RuinedInfrastructure.java:111`, from `apply` on every economy step): not already restoring, a stored target, size above 4, faction owns more than 2 markets, the `IndEvo_ChamelionIndustry` instance (the target) is buildable and, for an industry target, a slot is free.
 
 ### Decivilization
 
@@ -67,7 +69,7 @@ Chain: `placeRuinedInfrastructure -> condition on planet -> colonized -> Derelic
 
 - `ChamelionIndustry.getSpec()` returns the spec for its current `id`; after `finishBuildingOrUpgrading` the id goes back to `IndEvo_ChamelionIndustry`.
 - `RuinedInfrastructure.apply()` does not call `BaseIndustry.apply`, so it has no upkeep, supply or item effects.
-- The target is never re-rolled. A restore blocked by the target's own build rules (one per system, free slots, its setting) stays blocked until they pass, and the upgrade tooltip shows the target's `getUnavailableReason` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:1106-1113`). At full industry slots vanilla adds "Maximum number of industries reached" (`:1046-1051`).
+- A valid target (a known industry id) is never re-rolled; only a missing or unknown one is (`RuinedInfrastructure.apply`). A restore blocked by the target's own build rules (one per system, free slots, its setting) stays blocked until they pass, and the upgrade tooltip shows the target's `getUnavailableReason` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:1106-1113`). At full industry slots vanilla adds "Maximum number of industries reached" (`:1046-1051`).
 - The condition and industry share the string `IndEvo_RuinedInfra`; `RuinfraOnDecivListener` adds the condition with `Ids.RUINFRA`, which is the same value.
 
 ## Known issues and dormant code
@@ -75,7 +77,7 @@ Chain: `placeRuinedInfrastructure -> condition on planet -> colonized -> Derelic
 | Item | State |
 |---|---|
 | Restore cost | open issue `Changelog_todo:8`: "Advertised price for upgrading the ruins to heavy industry was 250K ... zero credits were actually deducted" |
-| `setUpgradeSpec` repick (`DerelictInfrastructureCondition.java:55`) | first pick is seeded, repicks use the picker's own random; not deterministic per planet |
+| `setUpgradeSpec` repick (`DerelictInfrastructureCondition.java:57`) | first pick is seeded, repicks use the picker's own random; not deterministic per planet |
 | `RuinedInfrastructure.finishBuildingOrUpgrading` player message | commented out |
 
 ## Maintenance
