@@ -93,7 +93,7 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | Item | State |
 |---|---|
 | AI core fields not reset (`applyAlphaCoreModifiers` etc., `:521`) | `BaseIndustry.applyAICoreModifiers` calls only one branch (`api/impl/campaign/econ/impl/BaseIndustry.java:246`); switching alpha to beta keeps alpha decay, beta to gamma keeps 90 SP per unit |
-| Story point bonus (`IndEvo_InitSYCustomProductionDiag.getCapacity`, `:357`) | multiplies only the hull capacity term (operator precedence) |
+| Story point bonus (`IndEvo_InitSYCustomProductionDiag.getCapacity`, `:354`) | multiplies only the hull capacity term (operator precedence) |
 | D-mod transfer confirm | no credit check before `subtract`; cost formula `(1.2^n + 1) / n` differs from `RestorationDocks` `1.2^(n+1) / n` |
 | `modifyPlayerCustomProduction` | dead code |
 | Open idea | `Changelog_todo:45`, `:69`: move S-mods with the yards |

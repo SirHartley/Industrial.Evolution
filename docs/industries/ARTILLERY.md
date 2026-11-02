@@ -106,7 +106,7 @@ Station destroyed in battle (`reportFleetDespawnedToListener`): the industry dis
 
 ### Firing
 
-`CampaignAttackScript.advance` (`:95-108`), only in the player's location: add range terrain once, sync terrain range, then if not `disabled`: advance station interval, blocked areas and per-target cooldowns, `updateTargets`, `fireAtTargets`.
+`CampaignAttackScript.advance` (`:88-101`), only in the player's location: add range terrain once, sync terrain range, then if not `disabled`: advance station interval, blocked areas and per-target cooldowns, `updateTargets`, `fireAtTargets`.
 
 - Valid target (`isValid`, `:221-235`): hostile (`isHostileTo`; a null faction is hostile to all but remnants), alive, has AI or is the player, `MIN_RANGE <= dist <= range`, `$IndEvo_WasSeenByOtherEntity` set, not `ENTITY_MISSION_IMPORTANT`.
 - Per-target cooldown `IndEvo_Artillery_min/maxCooldown`, times `IndEvo_Artillery_cooldownNPCMult` for NPCs; one station-wide delay `min/maxDelayBetweenShots` between shots at different targets.
@@ -124,9 +124,9 @@ Mortar and railgun explosions use `ExplosionFleetDamage.LOW` (`MortarProjectileE
 
 ### Seen state and watchtowers
 
-`EyeIndicatorScript.advance` (`:45-137`, every 0.5 s, only in systems tagged `IndEvo_SystemHasArtillery` with a station hostile to the player): any NPC fleet visible to a hostile AI fleet gets seen for 5 days; the player seen by a hostile fleet locks instantly. Near a hostile, unhacked watchtower the eye fills over 20 s (faster when closer); at full the player gets `$IndEvo_WasSeenByOtherEntity` for 0.5 days, renewed while full. Leaving range drains it; at 0 the flag is cleared. Jumping clears it (`reportFleetJumped`).
+`EyeIndicatorScript.advance` (`:46-138`, every 0.5 s, only in systems tagged `IndEvo_SystemHasArtillery` with a station hostile to the player): any NPC fleet visible to a hostile AI fleet gets seen for 5 days; the player seen by a hostile fleet locks instantly. Near a hostile, unhacked watchtower the eye fills over 20 s (faster when closer); at full the player gets `$IndEvo_WasSeenByOtherEntity` for 0.5 days, renewed while full. Leaving range drains it; at 0 the flag is cleared. Jumping clears it (`reportFleetJumped`).
 
-`WatchtowerEntityPlugin.advance` (`:92-123`): about once per 20 s in the player's location marks hostile NPC fleets within `IndEvo_Artillery_WatchtowerRange` as seen for 5 days and shows a range ping. Hacking (vanilla objective hack, rules row `cob_hackPrompt_watchtower`) lasts 30 to 60 days and resets the eye.
+`WatchtowerEntityPlugin.advance` (`:91-122`): about once per 20 s in the player's location marks hostile NPC fleets within `IndEvo_Artillery_WatchtowerRange` as seen for 5 days and shows a range ping. Hacking (vanilla objective hack, rules row `cob_hackPrompt_watchtower`) lasts 30 to 60 days and resets the eye.
 
 Watchtowers are placed per system at each jump point, each gate, one gap per gas giant and one gap in the first star-centred ring (`ArtilleryStationPlacer.java:185-240`), discoverable if the system has no markets. When a watchtower changes hands (`reportObjectiveChangedHands`), after `IndEvo_Watchtower_faction_reset` days it reverts to the nearest artillery faction if that is derelict or remnant (`WatchtowerFactionResetListener.java:32-79`).
 
@@ -165,7 +165,7 @@ Watchtowers carry the `objective` tag (`data/config/custom_entities.json`, entit
 
 Suspected bugs (not fixed): see the return report of the documentation pass; listed here for upkeep.
 
-- `RailgunProjectileEntityPlugin.advance` adds `amount` to `timePassedSeconds` twice (`:121, 130`), so line fade and the failsafe run at double speed.
+- `RailgunProjectileEntityPlugin.advance` adds `amount` to `timePassedSeconds` twice (`:122, 131`), so line fade and the failsafe run at double speed.
 - Railgun shells explode on any fleet, friendly included (`RailgunProjectileEntityPlugin.java:178-186`); carriers check hostility.
 - `RailgunShotEntity` never expires; the danger-sign entity stays in the location at alpha 0.
 - `EyeIndicatorScript` picks the farthest tower in range (`closestDist = Float.MIN_VALUE`, `dist > closestDist`, `:110-122`), so fill speed uses the wrong distance.

@@ -62,7 +62,7 @@ Order: `onNewGameAfterEconomyLoad -> spawnMineFields -> addCondition -> MineFiel
 
 ### Hit roll
 
-`MineBeltTerrainPlugin.applyEffect()` (`:200-267`), per fleet in the terrain:
+`MineBeltTerrainPlugin.applyEffect()` (`:197-264`), per fleet in the terrain:
 
 1. Slow-moving fleets get a 0.1 detected-range mult (hiding like vanilla ring terrain).
 2. Skip if `isFriend()`, in battle, recently jumped, or inside a `DisabledArea` of this belt.
