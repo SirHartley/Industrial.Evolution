@@ -154,6 +154,7 @@ Adjusted - Shield customization requires a working Cloud Painter; removal restor
 
 Automated Shipyards
 Fixed - Missing component loss information and red failure highlighting
+Fixed - Cryosleeper intel showing the Automated Shipyard icon
 Fixed - Relic components in station storage not being recognized
 
 Salvage Specials
@@ -181,7 +182,7 @@ Fixed - Slipstream Catapult showing Abyss warnings elsewhere
 Fixed - Tech Locator misvaluing caches, stations and wrecks
 Fixed - Interceptor missiles missing unidentified fleets and affecting their own launcher
 Fixed - Warning beacon dialogs waiting for the cargo screen to close
-Changed - Non-missile abilities assigned to missile hotkeys now crash with a specific error
+Changed - Abilities tagged as IE missiles without a missile plugin now crash with a specific error
 
 Items
 Fixed - Removing one Relay Hypertransmitter disabling another
