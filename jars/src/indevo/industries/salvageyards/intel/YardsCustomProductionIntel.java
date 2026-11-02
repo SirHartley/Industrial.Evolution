@@ -57,12 +57,6 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
         this.data = data;
     }
 
-    // saves made before deliveryTime existed load it as 0
-    protected Object readResolve() {
-        if (deliveryTime <= 0) deliveryTime = Setting.SY_HULL_DELIVERY_TIME.intValue();
-        return this;
-    }
-
     public void init() {
         Global.getSector().getListenerManager().addListener(this);
         currentStage = Stage.WAITING;

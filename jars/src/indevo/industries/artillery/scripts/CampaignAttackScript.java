@@ -45,8 +45,6 @@ public class CampaignAttackScript implements EveryFrameScript {
 
     private SectorEntityToken terrain = null;
 
-    // unused, removing a saved field breaks loading saves that hold it
-    private float range;
     private float rangeBonus = 0f;
     public float terrainRange = Setting.ARTILLERY_MAX_RANGE.value(); //we save this here because getting the terrain is expensive
 
