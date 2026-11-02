@@ -164,9 +164,11 @@ public class ShipComponentLootManager {
             }
 
             log("Before Player: " + originalPlayerFP + " before enemy: " + totalFPbefore + " destroyed: " + fpDestroyed);
-            log("FP Qualification:" + (totalFPbefore > (originalPlayerFP * Setting.RELIC_COMPONENT_HARD_BATTLE_FP_ADVANTAGE.value())) + " destroyed qualification: " + (fpDestroyed > originalPlayerFP * 0.5f));
+            boolean hardBattle = totalFPbefore > originalPlayerFP * Setting.RELIC_COMPONENT_HARD_BATTLE_FP_ADVANTAGE.value();
+            boolean enoughDestroyed = fpDestroyed > originalPlayerFP * Setting.RELIC_COMPONENT_FP_DESTROYED_FRACT.value();
+            log("FP Qualification:" + hardBattle + " destroyed qualification: " + enoughDestroyed);
 
-            if (totalFPbefore > (originalPlayerFP * Setting.RELIC_COMPONENT_HARD_BATTLE_FP_ADVANTAGE.value()) && fpDestroyed > originalPlayerFP * Setting.RELIC_COMPONENT_FP_DESTROYED_FRACT.value()) {
+            if (hardBattle && enoughDestroyed) {
                 loot.addCommodity(ItemIds.RARE_PARTS, fpDestroyed * HARD_BATTLE_FP_TO_PARTS_RATION);
             }
         }
