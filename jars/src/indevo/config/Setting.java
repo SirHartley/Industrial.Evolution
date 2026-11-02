@@ -6,12 +6,14 @@ import java.util.Map;
 public enum Setting {
     COMMERCE_BALANCE_CHANGES("IndEvo_CommerceBalanceChanges", true),
     SHIP_PICKER_ROW_COUNT("IndEvo_shipPickerRowCount", 8, 0, 100),
+    BLOCK_INDUSTRIES("IndEvo_block_industries", true),
+    BLOCK_CONSUMABLES("IndEvo_block_consumables", true),
     PETS("IndEvo_pets", true),
     ENABLE_DERELICTS("IndEvo_Enable_Derelicts", true),
     AUTOMATEDSHIPYARD_NUM("IndEvo_AutomatedShipyardNum", 1.5, 0, 10),
     CRUCIBLE_NUM("IndEvo_CrucibleNum", 1, 0, 10),
     SPECIAL_APPLICATION_CHANCE("IndEvo_SpecialApplicationChance", 0.9, 0, 1),
-    ENABLE_DERELICT_STATIONS("IndEvo_enable_derelict_stations", true),
+    ENABLE_DERELICT_STATIONS("IndEvo_enable_derelict_stations", true, ENABLE_DERELICTS),
     DERELICT_STATION_AMOUNT("IndEvo_derelictStationAmount", 0.2, 0, 2),
     PARTS_DROP_IN_CAMPAIGN("IndEvo_PartsDropInCampaign", true),
     RELIC_COMPONENT_HARD_BATTLE_FP_ADVANTAGE("IndEvo_relicComponentHardbattleFPAdvantage", 1.5, 1, 5),
@@ -67,28 +69,28 @@ public enum Setting {
     ARTILLERY_MISSILE_FUZZ("IndEvo_Artillery_missile_fuzz", 1.0, 1, 10),
     ARTILLERY_MISSILE_EXPLOSION_RADIUS("IndEvo_Artillery_missile_explosionRadius", 200.0, 1, 1000),
     ARTILLERY_MISSILE_DURATION("IndEvo_Artillery_missile_duration", 10.0, 1, 60),
-    CONSUMABLE_ADD_TO_MARKETS("IndEvo_consumables_addToMarkets", true),
-    CONSUMABLE_DROP_FROM_FLEETS("IndEvo_consumables_addToFleets", true),
-    CONSUMABLE_RESEARCH("IndEvo_consumables_researchProject", true),
-    ADMANUF("IndEvo_AdManuf", true),
-    ADASSEM("IndEvo_AdAssem", true),
-    COMFORGE("IndEvo_ComForge", true),
-    COMARRAY("IndEvo_ComArray", true),
-    INTARRAY("IndEvo_IntArray", true),
-    ADINFRA("IndEvo_AdInfra", true),
-    SCRAPYARD("IndEvo_ScrapYard", true),
-    SUPCOM("IndEvo_SupCom", true),
-    EMBASSY("IndEvo_embassy", true),
-    SENATE("IndEvo_senate", true),
-    DRYDOCK("IndEvo_dryDock", true),
-    ACADEMY("IndEvo_Academy", true),
-    REQCENTER("IndEvo_ReqCenter", true),
-    ENGHUB("IndEvo_EngHub", true),
-    PRIVATEPORT("IndEvo_PrivatePort", true),
-    PIRATEHAVEN("IndEvo_pirateHaven", true),
-    SWITCHABLEREFINING("IndEvo_SwitchableRefining", true),
-    SWITCHABLEMINING("IndEvo_SwitchableMining", true),
-    MUSEUM_ENABLED("IndEvo_museum_enabled", true),
+    CONSUMABLE_ADD_TO_MARKETS("IndEvo_consumables_addToMarkets", true, BLOCK_CONSUMABLES),
+    CONSUMABLE_DROP_FROM_FLEETS("IndEvo_consumables_addToFleets", true, BLOCK_CONSUMABLES),
+    CONSUMABLE_RESEARCH("IndEvo_consumables_researchProject", true, BLOCK_CONSUMABLES),
+    ADMANUF("IndEvo_AdManuf", true, BLOCK_INDUSTRIES),
+    ADASSEM("IndEvo_AdAssem", true, BLOCK_INDUSTRIES),
+    COMFORGE("IndEvo_ComForge", true, BLOCK_INDUSTRIES),
+    COMARRAY("IndEvo_ComArray", true, BLOCK_INDUSTRIES),
+    INTARRAY("IndEvo_IntArray", true, BLOCK_INDUSTRIES),
+    ADINFRA("IndEvo_AdInfra", true, BLOCK_INDUSTRIES),
+    SCRAPYARD("IndEvo_ScrapYard", true, BLOCK_INDUSTRIES),
+    SUPCOM("IndEvo_SupCom", true, BLOCK_INDUSTRIES),
+    EMBASSY("IndEvo_embassy", true, BLOCK_INDUSTRIES),
+    SENATE("IndEvo_senate", true, BLOCK_INDUSTRIES),
+    DRYDOCK("IndEvo_dryDock", true, BLOCK_INDUSTRIES),
+    ACADEMY("IndEvo_Academy", true, BLOCK_INDUSTRIES),
+    REQCENTER("IndEvo_ReqCenter", true, BLOCK_INDUSTRIES),
+    ENGHUB("IndEvo_EngHub", true, BLOCK_INDUSTRIES),
+    PRIVATEPORT("IndEvo_PrivatePort", true, BLOCK_INDUSTRIES),
+    PIRATEHAVEN("IndEvo_pirateHaven", true, BLOCK_INDUSTRIES),
+    SWITCHABLEREFINING("IndEvo_SwitchableRefining", true, BLOCK_INDUSTRIES),
+    SWITCHABLEMINING("IndEvo_SwitchableMining", true, BLOCK_INDUSTRIES),
+    MUSEUM_ENABLED("IndEvo_museum_enabled", true, BLOCK_INDUSTRIES),
     GOVERNMENT_LARP_MODE("IndEvo_GovernmentLarpMode", false),
     GOVERNMENT_MAX_SIZE("IndEvo_GovernmentMaxSize", 3, 1, 10),
     ENGHUB_STRICT_WL("IndEvo_EngHubStrictWhitelist", false),
@@ -168,25 +170,31 @@ public enum Setting {
     public final Object fallback;
     public final double min;
     public final double max;
+    public final Setting block;
 
     Setting(String id, boolean fallback) {
-        this(id, Type.BOOLEAN, fallback, 0, 1);
+        this(id, Type.BOOLEAN, fallback, 0, 1, null);
+    }
+
+    Setting(String id, boolean fallback, Setting block) {
+        this(id, Type.BOOLEAN, fallback, 0, 1, block);
     }
 
     Setting(String id, int fallback, double min, double max) {
-        this(id, Type.INT, fallback, min, max);
+        this(id, Type.INT, fallback, min, max, null);
     }
 
     Setting(String id, double fallback, double min, double max) {
-        this(id, Type.DOUBLE, fallback, min, max);
+        this(id, Type.DOUBLE, fallback, min, max, null);
     }
 
-    Setting(String id, Type type, Object fallback, double min, double max) {
+    Setting(String id, Type type, Object fallback, double min, double max, Setting block) {
         this.id = id;
         this.type = type;
         this.fallback = fallback;
         this.min = min;
         this.max = max;
+        this.block = block;
     }
 
     public static Setting byId(String id) {
@@ -209,6 +217,7 @@ public enum Setting {
     }
 
     public boolean enabled() {
+        if (block != null && !block.enabled()) return false;
         return (Boolean) PlayerSettings.get(this);
     }
 

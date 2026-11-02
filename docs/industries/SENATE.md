@@ -54,7 +54,7 @@ Rows: `data/campaign/market_conditions.csv:2-14`. Military presence is `MiscIE.m
 | Conditions | `IndEvo_edict_*` (12) | `data/campaign/market_conditions.csv` |
 | Item | `IndEvo_neurals` (Neuroconditioning Compounds) | `data/campaign/special_items.csv:41`, effect in `SpecialItemEffectsRepo` |
 | Constants | `RANGE_LY_TWELVE` 12, `NEURAL_COMPOUNDS_UNREST_RED` 0.5 | `indevo/items/installable/SpecialItemEffectsRepo.java:57-58` |
-| Setting | `IndEvo_senate` (toggle) | `data/config/LunaSettings.csv:90`, `Senate.isAvailableToBuild()` |
+| Setting | `IndEvo_senate` (toggle) | `data/config/LunaSettings.csv:92`, `Senate.isAvailableToBuild()` |
 | Market tags | `<conditionModId><days>` runtime counter; `edict_stab_penalty<n>` | `TimeTracker`, `Edict_Conscription` |
 | Market memory | `$IndEvo_WeightMemory` (saved population weight) | `Edict_LockColonySize.java:13` |
 | Dialogue memory | `$IndEvo_EdictList`, `$IndEvo_EdictSubListPage`, `$IndEvo_selectedEdictID` (local, expire 0); option prefix `IndEvo_SelectEdict_` | `IndEvo_EdictVariables` |

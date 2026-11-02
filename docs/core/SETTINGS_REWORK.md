@@ -178,8 +178,8 @@ Each stage depends on the stages before it. Within a stage, do the subtasks in o
   - Done when: the courier base fee slider reaches 1000.
 - [x] 1.3 Pair rule in `PlayerSettings`.
 - [x] 1.4 `IndEvo_IntArray` gates the Interstellar Relay (decision 5).
-- [ ] 1.5 Content blocks: `Setting.block`, rows `IndEvo_block_industries` and `IndEvo_block_consumables`, children per the block table, `IndEvo_enable_derelict_stations` under `IndEvo_Enable_Derelicts`.
-  - Done when: with Colony industries off no IE industry shows in the build menu; back on, each industry follows its own toggle again.
+- [x] 1.5 Content blocks: `Setting.block`, rows `IndEvo_block_industries` and `IndEvo_block_consumables`, children per the block table, `IndEvo_enable_derelict_stations` under `IndEvo_Enable_Derelicts`.
+  - Done when: with Colony industries off none of the 19 toggled industries shows in the build menu; back on, each industry follows its own toggle again. The new rows sit in the General tab until 3.3 makes it Quick Settings.
 - [ ] 1.6 Remove the `IndEvo_CrucibleNum` row and setting (decision 6).
 
 **Stage 2: live settings.**

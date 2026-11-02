@@ -35,8 +35,8 @@ On player markets the Museum adds a hidden ship storage submarket (`IndEvo_Museu
 | Variant tag | `indEvo_on_parade` on stored ships out on parade | `MuseumConstants.ON_PARADE_TAG` |
 | Market tag | `indEvo_on_parade` on the parade target market | `ParadeFleetProfile.spawnFleet()` |
 | Fleet tag | `indEvo_parade_returning` after recall | `ParadeFleetAssignmentAI.forceReturnToSource()` |
-| Settings | `IndEvo_museum_maxAdditionalCredits` 1950, `_minAdditionalCredits` 50, `_defaultMaxParades` 1, `_defaultParadeMembersMax` 15, `_minShipsForParade` 3, `_topShipPoolAmtForParadeSelection` 20, `_paradeFleetImmigrationBonus` 5, `_paradeFleetStabilityBonus` 1, `_improveExtraParades` 1, `_alphaCoreExtraParades` 1, `_betaCoreIncomePerStability` 20000, `_betaCoreIncomePerPointImmigration` 3000, `_gammaCoreIncomeMult` 1.3, `_uniqueShipValueMult` 2 | `data/config/LunaSettings.csv:175-189`. No `settings.json` fallback |
-| Setting | `IndEvo_museum_enabled` | `LunaSettings.csv:99`; read at use time in `Museum.isAvailableToBuild()` and `showWhenUnavailable()` (`Museum.java:135`, `:140`) |
+| Settings | `IndEvo_museum_maxAdditionalCredits` 1950, `_minAdditionalCredits` 50, `_defaultMaxParades` 1, `_defaultParadeMembersMax` 15, `_minShipsForParade` 3, `_topShipPoolAmtForParadeSelection` 20, `_paradeFleetImmigrationBonus` 5, `_paradeFleetStabilityBonus` 1, `_improveExtraParades` 1, `_alphaCoreExtraParades` 1, `_betaCoreIncomePerStability` 20000, `_betaCoreIncomePerPointImmigration` 3000, `_gammaCoreIncomeMult` 1.3, `_uniqueShipValueMult` 2 | `data/config/LunaSettings.csv:177-191`. No `settings.json` fallback |
+| Setting | `IndEvo_museum_enabled` | `LunaSettings.csv:101`; read at use time in `Museum.isAvailableToBuild()` and `showWhenUnavailable()` (`Museum.java:135`, `:140`) |
 | Setting | `IndEvo_shipPickerRowCount` | ship picker layout |
 
 ## Registration and lifecycle

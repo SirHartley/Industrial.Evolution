@@ -12,7 +12,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | File | Owner / role |
 |---|---|
-| `indevo/config/Setting.java` | One constant per LunaLib field (150): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`; `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
+| `indevo/config/Setting.java` | One constant per LunaLib field (152): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`, `block`; `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
 | `indevo/config/PlayerSettings.java` | Cache: `install`, `reload`, LunaLib listener, write back |
 | `data/config/LunaSettings.csv` | LunaLib fields: id, label, type, default, help text (`fieldDescription`), bounds, tab |
 | `data/config/LunaSettingsConfig.json` | LunaLib mod entry: settings menu icon `graphics/icons/IndEvo.png` |
@@ -25,7 +25,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | Tab | Fields | Content |
 |---|---|---|
-| General | 6 | Disclaimer, commerce balance changes, government (changeling) settings, ship picker rows |
+| General | 8 | Disclaimer, commerce balance changes, ship picker rows, master switches `IndEvo_block_industries` and `IndEvo_block_consumables` |
 | Exploration & Campaign | 12 | Derelicts, derelict stations, relic components, crucibles |
 | Meteor Swarms | 17 | `IndEvo_meteor_*` |
 | Minefields | 11 | `IndEvo_Minefield_*` |
@@ -41,7 +41,7 @@ Field counts include `Header` and `Text` rows. Every `Setting` constant has a Lu
 if (!Setting.EMBASSY.enabled()) return;
 ```
 
-- `enabled()` for `BOOLEAN`, `value()` (float) for `DOUBLE`, `intValue()` for `INT`. `intValue()` on a `DOUBLE` truncates. `Setting.byId(id)` throws `IllegalArgumentException` for an unknown id.
+- `enabled()` for `BOOLEAN`, `value()` (float) for `DOUBLE`, `intValue()` for `INT`. `enabled()` returns false while the setting's `block` parent is off and leaves the stored value alone, so switching the block back on restores the player's choices. One level only. Blocks: `BLOCK_INDUSTRIES` over the 19 industry toggles, `BLOCK_CONSUMABLES` over the three consumable toggles, `ENABLE_DERELICTS` over `ENABLE_DERELICT_STATIONS`. A block constant is declared before its children (enum forward references do not compile). `intValue()` on a `DOUBLE` truncates. `Setting.byId(id)` throws `IllegalArgumentException` for an unknown id.
 - `PlayerSettings.install()` runs first in `ModPlugin.onApplicationLoad` and `onGameLoad`: it adds the listener once (`hasSettingsListenerOfClass`) and reloads. `onNewGame` reloads too: LunaLib calls no listener for a Save in the new game settings panel (`LunaSettingsUIModsPanel`, `if (!this.newGame)`), but stores it in `LunaSettingsLoader.getSettings()`.
 - `reload()` forces LunaLib's lazy load, reads `LunaSettingsLoader.getSettings().get("IndEvo")`, runs `Setting.sanitize` on every field (missing or wrong type gives the CSV default, numbers clamp to `min`/`max`, `INT` rounds), applies the pair rule, writes changed values back and calls `save()`. Pair rule (`PlayerSettings.PAIRS`): a max below its min is raised to the min, for artillery delay between shots, cooldown and range, meteor intensity, distance from sun and angle, and museum additional credits. With no LunaLib data it logs an error and uses the defaults. In dev mode it logs `Reloaded IndEvo settings`.
 - The listener reloads on every Save in the LunaLib menu, in the campaign and on the title screen, so a value read at use time applies on the next read. LunaLib logs listener exceptions at debug level only, so `settingsChanged` logs them with `log.error`. A dev mode F8 reload runs no listener (`onDevModeF8Reload`); the cache catches up on the next hook or Save.

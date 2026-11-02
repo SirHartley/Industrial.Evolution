@@ -5,6 +5,8 @@ IndEvo_text_application_note,,Text,"Some settings will not apply unless you star
 IndEvo_header1,General,Header,General,,,,,General
 IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,Commerce balance changes. Read up on why this was needed here: bit.ly/commerce_balance. Can be disabled during an ongoing campaign to revert to vanilla behaviour (might need to re-dock).,,,General
 IndEvo_shipPickerRowCount,[General] Ship Picker Row Count,Int,8,,The row amount in most of the ship picker dialogues in the mod.,0,100,General
+IndEvo_block_industries,[General] Colony Industries,Boolean,TRUE,,"Master switch for the industries that have a switch in the Industries tab. Off is the same as turning all of them off; built industries stay. On, each industry follows its own switch. NPC placement needs a new game.",,,General
+IndEvo_block_consumables,[General] Consumable Items,Boolean,TRUE,,"Master switch for consumable items: market stock, combat drops and the research project. Off is the same as turning off all three in the Consumable Items tab; items you own stay usable. On, each follows its own switch.",,,General
 ,,,,,,,,
 IndEvo_header3,Exploration & Campaign,Header,Exploration & Campaign,,,,,Exploration & Campaign
 IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Toggles Pets, the pet cryochamber dropping in campaign, abandoned pet stations spawning and the industry being available. To completely remove pet food from your game, go to Industrial.Evolution\data\campaign\commodities.csv and delete the line for pet food. This requires a new save file and will cause a crash unless pets are disabled from the start.",,,Exploration & Campaign

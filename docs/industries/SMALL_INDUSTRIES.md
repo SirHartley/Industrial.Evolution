@@ -32,6 +32,8 @@ Every IE row of `data/campaign/industries.csv` (plugin column, paths relative to
 | `IndEvo_HullDecon`, `IndEvo_HullForge`, `IndEvo_ResLab`, `IndEvo_RiftGen`, `IndEvo_Ruins` | 93-97 | `derelicts/industry/HullDeconstructor`, `HullForge`, `AncientLaboratory`, `RiftGenerator`, `Ruins` | [Derelicts](DERELICTS.md) |
 | `IndEvo_BaseFlavourInd` and nine wonders | 105-132 | `worldwonder/industry/WorldWonder` and subclasses | [World Wonders](WORLD_WONDER.md) |
 
+The 19 industries with a switch in the LunaLib Industries tab also follow the `IndEvo_block_industries` master switch (`Setting.BLOCK_INDUSTRIES`, [Settings](../core/SETTINGS.md#reading-a-setting)); the others (governments, Animal Center, Warehouse Complex, artillery, derelict and wonder industries) do not.
+
 IE has no row with a vanilla id. A mod row with a vanilla id would replace the whole vanilla row, and the first sorted mod wins (skill `docs/concepts/csv-json-merging.md:24-26`); vanilla `commerce` is changed by PatchLib hooks instead (see [Commerce balance patches](#commerce-balance-patches-commerce)).
 
 ## Overview
@@ -62,8 +64,8 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | Industry | `commerce` (`Ids.COMMERCE`) | vanilla row, plugin vanilla `TradeCenter` |
 | Submarkets | `IndEvo_RepairStorage` (`Ids.REPSTORAGE`), `IndEvo_ReqCenterMarket` (`Ids.REQMARKET`), `IndEvo_SharedStore` (`Ids.SHAREDSTORAGE`) | `data/campaign/submarkets.csv:2`, `:3`, `:8` |
 | List | `IndEvo_buerauList` (sic) -> `data/config/indEvo/bureau_industry_whitelist.csv` | `data/config/settings.json:57`, `Ids.BUREAU_LIST` |
-| Settings | `IndEvo_alpha_core_runtime` 558, `IndEvo_beta_core_runtime` 279, `IndEvo_gamma_core_runtime` 93 (days) | `LunaSettings.csv:149-151` |
-| Settings | `IndEvo_restoFee_FRIGATE` 1000, `_DESTROYER` 3000, `_CRUISER` 7000, `_CAPITAL` 10000 | `LunaSettings.csv:154-157` |
+| Settings | `IndEvo_alpha_core_runtime` 558, `IndEvo_beta_core_runtime` 279, `IndEvo_gamma_core_runtime` 93 (days) | `LunaSettings.csv:151-153` |
+| Settings | `IndEvo_restoFee_FRIGATE` 1000, `_DESTROYER` 3000, `_CRUISER` 7000, `_CAPITAL` 10000 | `LunaSettings.csv:156-159` |
 | Setting | `IndEvo_CommerceBalanceChanges` (default true) | `LunaSettings.csv:6` |
 | Memory key | `$IndEvo_maxDModMemory` (map `FleetMemberAPI -> Integer`) | sector memory, `RestorationDocks` |
 | Strings | categories `IndEvo_AdInfra`, `IndEvo_dryDock`, `IndEvo_ReqCenter` | `data/strings/strings.json:126`, `:215`, `:256` |
