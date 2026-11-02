@@ -61,7 +61,6 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     protected FleetMemberAPI targetMember = null;
     protected Set<String> selectedMods = new HashSet<>();
 
-    public static final float BASE_COST_MULT = Setting.SY_DMOD_MOVE_BASE_COST_MULT.value();
 
     public static final Logger log = Global.getLogger(IndEvo_InitSYMoveDModDiag.class);
 
@@ -369,7 +368,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
         int numDMods = DModManager.getNumDMods(originMember.getVariant());
         float singleRepairCost = (float) (((baseVal / 2) * (Math.pow(1.2, numDMods) + 1)) / numDMods);
 
-        return singleRepairCost * BASE_COST_MULT * costMult;
+        return singleRepairCost * Setting.SY_DMOD_MOVE_BASE_COST_MULT.value() * costMult;
     }
 
     private void addTooltip(TextPanelAPI panel) {

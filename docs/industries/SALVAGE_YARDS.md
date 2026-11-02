@@ -30,7 +30,7 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | Memory key | `$IndEvo_closeDialogueOnNextReturn` | interaction target memory, set by the option provider |
 | Memory key | `$IndEvo_HasSelectedSP_SY` | market memory: story point double capacity bought but not yet used |
 | Setting | `IndEvo_ScrapYard` | enables the industry; `isFunctional()` also checks it |
-| Setting | `IndEvo_SYBaseDMods`, `IndEvo_SYPartValueMult`, `IndEvo_SYHullDeliveryTime`, `IndEvo_RarePartsAmountPerFP`, `IndEvo_SYDModMoveBaseCostMult`, `IndEvo_shipPickerRowCount` | read as static finals in the dialog classes |
+| Setting | `IndEvo_SYBaseDMods`, `IndEvo_SYPartValueMult`, `IndEvo_SYHullDeliveryTime`, `IndEvo_RarePartsAmountPerFP`, `IndEvo_SYDModMoveBaseCostMult`, `IndEvo_shipPickerRowCount` | read at use time in the dialog classes; a contract keeps the delivery time it was accepted with (`YardsCustomProductionIntel.deliveryTime`, saved) |
 | Strings | category `IndEvo_ScrapYard` | `data/strings/strings.json:159` |
 
 ## Registration and lifecycle
@@ -39,7 +39,7 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 - `apply()` (functional only) registers itself as transient listener (`EconomyTickListener`, `NewDayListener`) and adds itself as `FleetEventListener` to every fleet currently in the system, skipping fleets that carry a `LuddicPathCellsIntel` listener to avoid a vanilla `ConcurrentModificationException` (`SalvageYards.java:204`).
 - `advance` keeps the shared submarket present; `unapply` removes listener, submarket and production quality mod.
 - Dialog commands are found through `ruleCommandPackages` (see [Rule commands](../dialogue/RULE_COMMANDS.md)).
-- `YardsCustomProductionIntel.init()` registers the intel as a persistent listener; it deregisters 60 days after delivery or failure.
+- `YardsCustomProductionIntel.init()` registers the intel as a persistent listener; it deregisters 60 days after delivery or failure. `readResolve` fills `deliveryTime` from the setting for intel saved before the field existed.
 - Saved fields: `availableSalvagePoints`, `countedIntel` (raid intel already paid out, pruned daily once the intel manager drops it), `finishedIntel` (unused, kept for 4.1.b saves; `readResolve` reruns `IntelArchive()` when `countedIntel` is missing), `baseOutput`, `currentWeaponBonusSP`, `outputSalvagePointValue`, `outputDecayMult`.
 
 ## Flow

@@ -69,9 +69,6 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
     protected Map<String, MemoryAPI> memoryMap;
 
     protected static final String HAS_SP_SELECTED = "$IndEvo_HasSelectedSP_SY";
-    protected static final int BASE_D_MODS = Setting.SY_BASE_DMODS.intValue();
-    protected static final float PART_VALUE_MULT = Setting.SY_PART_VALUE_MULT.value();
-    public static final int DELIVERY_TIME = Setting.SY_HULL_DELIVERY_TIME.intValue();
 
     protected static final String RARE_PARTS_SELECTOR_ID = "IndEvo_RareSliderID";
     protected static final String PARTS_SELECTOR_ID = "IndEvo_PartSliderID";
@@ -149,7 +146,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         float partsInCargo = Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(ItemIds.PARTS);
         float partsInMarket = MiscIE.getStorageCargo(getMarket()).getCommodityQuantity(ItemIds.PARTS);
         float partsAvailable = partsInCargo + partsInMarket;
-        float partTradeInPrice = Math.round(Global.getSettings().getCommoditySpec(ItemIds.PARTS).getBasePrice() * PART_VALUE_MULT);
+        float partTradeInPrice = Math.round(Global.getSettings().getCommoditySpec(ItemIds.PARTS).getBasePrice() * Setting.SY_PART_VALUE_MULT.value());
 
         log.info("available parts cargo " + rarePartsInCargo + " market " + rarePartsInMarket);
         log.info("selected ships " + getProductionData().productionList.size());
@@ -400,8 +397,8 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         h.setColors(Misc.getHighlightColor(), repInt.two);
         panel.setHighlightsInLastPara(h);
 
-        panel.addPara("Delivery time: " + DELIVERY_TIME + " " + StringHelper.getDayOrDays(DELIVERY_TIME));
-        panel.highlightInLastPara(Misc.getHighlightColor(), DELIVERY_TIME + " " + StringHelper.getDayOrDays(DELIVERY_TIME));
+        panel.addPara("Delivery time: " + Setting.SY_HULL_DELIVERY_TIME.intValue() + " " + StringHelper.getDayOrDays(Setting.SY_HULL_DELIVERY_TIME.intValue()));
+        panel.highlightInLastPara(Misc.getHighlightColor(), Setting.SY_HULL_DELIVERY_TIME.intValue() + " " + StringHelper.getDayOrDays(Setting.SY_HULL_DELIVERY_TIME.intValue()));
 
         panel.addPara("Selected ships:");
 
@@ -595,7 +592,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         public float baseCost = 0;
 
         public float getCost() {
-            float partCost = Math.round(Global.getSettings().getCommoditySpec(ItemIds.PARTS).getBasePrice() * PART_VALUE_MULT);
+            float partCost = Math.round(Global.getSettings().getCommoditySpec(ItemIds.PARTS).getBasePrice() * Setting.SY_PART_VALUE_MULT.value());
             return baseCost - (partsSpent * partCost);
         }
 
@@ -604,7 +601,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         }
 
         public int getMaxPartsAmt() {
-            float partCost = Math.round(Global.getSettings().getCommoditySpec(ItemIds.PARTS).getBasePrice() * PART_VALUE_MULT);
+            float partCost = Math.round(Global.getSettings().getCommoditySpec(ItemIds.PARTS).getBasePrice() * Setting.SY_PART_VALUE_MULT.value());
             return (int) Math.round((baseCost / 2) / partCost);
         }
 
@@ -622,7 +619,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             int requiredParts = getRequiredParts();
             float percentageFilled = rarePartsSpent / (requiredParts * 1f);
 
-            return (int) Math.ceil(BASE_D_MODS - (BASE_D_MODS * percentageFilled));
+            return (int) Math.ceil(Setting.SY_BASE_DMODS.intValue() - (Setting.SY_BASE_DMODS.intValue() * percentageFilled));
         }
     }
 }
