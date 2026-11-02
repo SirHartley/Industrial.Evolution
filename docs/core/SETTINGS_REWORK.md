@@ -1,6 +1,6 @@
 # Player settings rework
 
-**Status: implemented on PR #22, not merged; waiting for Philipp's in-game test.** Philipp took every recommendation on 2026-11-01 ([Decisions](#decisions)) and approved the Quick Settings split. No open questions. This document records how IE moves from the `Settings` string reader to the `Setting` enum and `PlayerSettings` cache that Catch.Release uses, plus the open questions and the work each step needs. Read it before changing the settings mechanism.
+**Status: implemented on PR #22, not merged; waiting for Philipp's in-game test.** Philipp took every recommendation on 2026-11-01 ([Decisions](#decisions)) and approved the Quick Settings split. No open questions. This document records how IE moves from the `Settings` string reader to the `Setting` enum and `PlayerSettings` cache that Catch.Release uses, and the work each step needs. Read it before changing the settings mechanism.
 
 It does not govern setting values, balance or help text wording. [SETTINGS.md](SETTINGS.md) is the authority on the current mechanism; feature docs own what each setting does; help text goes through the house-style `player-text.md`. Move implemented technical detail to SETTINGS.md and [ARCHITECTURE.md](../ARCHITECTURE.md) and tick the plan here.
 
@@ -89,7 +89,7 @@ Tab layout after the split (nine tabs, as Catch.Release):
 - `reload()`: read every field through the public `LunaSettings` getters (they force LunaLib's lazy load), sanitize it, apply the pair rule, then write changed values back through `LunaSettingsLoader.getSettings().get("IndEvo")` and save; the public API has no setter. The listener then runs `applyCampaignSettings()`; `install()` and `onNewGame` reload only.
 - Pair rule (new): when a max is below its min, the max is raised to the min. Pairs: artillery delay between shots, cooldown, range; meteor intensity, distance from sun, angle; museum additional credits.
 - Runtime callers read the cache through `Setting`. An `EnumMap` lookup is cheap enough for per frame reads.
-- `applyCampaignSettings()` runs from `onGameLoad` and from the listener. From the listener it runs only when `Global.getCurrentState() == GameState.CAMPAIGN`: the LunaLib menu also opens on the title screen, where `Global.getSector()` is the previous game's sector (knowledge skill `docs/concepts/lifecycle.md`). Catch.Release gates on `Global.getSector() == null`, which never trips there; the same gap exists in that mod. First content: the pet ability add or remove, moved out of `ModPlugin.onGameLoad`.
+- `applyCampaignSettings()` runs from `onGameLoad` and from the listener. From the listener it runs only when `Global.getCurrentState() == GameState.CAMPAIGN`: the LunaLib menu also opens on the title screen, where `Global.getSector()` is the previous game's sector (knowledge skill `docs/concepts/lifecycle.md`). Catch.Release checks `Global.getSector() == null`, which is never true there; the same gap exists in that mod. First content: the pet ability add or remove, moved out of `ModPlugin.onGameLoad`.
 - LunaLib catches listener exceptions and logs them at debug level (`LunaSettings.reportSettingsChanged`), so `settingsChanged` catches and logs with `log.error` and the stack itself.
 - LunaLib does not call listeners for a Save in the new game settings panel (`LunaSettingsUIModsPanel`, `if (!this.newGame)`), so the `onGameLoad` reload is required, as in Catch.Release. LunaLib still stores that Save in `LunaSettingsLoader.getSettings()`, and economy load and world generation read settings before `onGameLoad(true)`, so `onNewGame`, the first new game hook, reloads as well.
 - No `LunaSettingsBridge`: presets are not planned (decision 2), and sanitize and the pair rule give the same result when LunaLib writes a retained pending value again.
@@ -129,7 +129,7 @@ Philipp, 2026-11-01: every recommendation taken, plus a Quick Settings tab.
    | `IndEvo_GovernmentMaxSize` | 1 to 10 |
    | `IndEvo_SYPartValueMult`, `IndEvo_SYDModMoveBaseCostMult` | 0.1 to 5 |
 
-5. **`IndEvo_IntArray`** gates the Interstellar Relay: `MilitaryRelay` reads the toggle of its own id.
+5. **`IndEvo_IntArray`** turns the Interstellar Relay on or off: `MilitaryRelay` reads the toggle of its own id.
 6. **`IndEvo_CrucibleNum`** row removed while crucibles are dormant; `CrucibleSpawner` uses a plain constant until they return.
 7. **`settings.json`**: all 102 fallback keys removed.
 8. **Quick Settings** with content block switches; split approved as in [the section](#quick-settings-and-content-blocks).
@@ -144,7 +144,7 @@ None.
 
 ## Implementation plan
 
-Four stages, done in order. Stage 0 changes no visible behaviour. Help text goes through the house-style `player-text.md`. All stages land on PR #22, based on the test branch `claude/project-thread-2vk6rz`, so the test branch takes the rework as one merge (coordinator, 2026-11-01); the house style default is one pull request per stage.
+Four stages, done in order. Stage 0 changes no visible behaviour. Help text goes through the house-style `player-text.md`. All stages go into the test branch `claude/project-thread-2vk6rz` as one merge.
 
 ### Architecture
 
@@ -177,7 +177,7 @@ Each stage depends on the stages before it. Within a stage, do the subtasks in o
 - [x] 1.2 Explicit bounds for the 21 rows (decision 4), plain numbers for `IndEvo_courier_costPerLyMult`; `Setting` mirrors them.
   - Done when: the courier base fee slider reaches 1000.
 - [x] 1.3 Pair rule in `PlayerSettings`.
-- [x] 1.4 `IndEvo_IntArray` gates the Interstellar Relay (decision 5).
+- [x] 1.4 `IndEvo_IntArray` turns the Interstellar Relay on or off (decision 5).
 - [x] 1.5 Content blocks: `Setting.block`, rows `IndEvo_block_industries` and `IndEvo_block_consumables`, children per the block table, `IndEvo_enable_derelict_stations` under `IndEvo_Enable_Derelicts`.
   - Done when: with Colony industries off none of the 19 toggled industries shows in the build menu; back on, each industry follows its own toggle again. The new rows sit in the General tab until 3.3 makes it Quick Settings.
 - [x] 1.6 Remove the `IndEvo_CrucibleNum` row and setting (decision 6).
@@ -186,7 +186,7 @@ Each stage depends on the stages before it. Within a stage, do the subtasks in o
 - [x] 2.1 Replace the 67 class load copies with use time reads, one commit per feature (meteors, museum, artillery, courier port, minefields, salvage yards, loot, small cases). `MuseumConstants` keeps its fixed constants only. `ShipComponentLootManager` fields and `MortarProjectileEntityPlugin.EFFECT_SIZE` went the same way; `YardsCustomProductionIntel` stores `deliveryTime` at contract start. Placed artillery stations still keep their fire interval and range (2.2).
   - Done when: changing a meteor or artillery value in a running campaign applies without a restart.
 - [x] 2.2 Saved objects: decide each case (fire intervals, contracts, parades), apply it and record it in the feature doc. Artillery follows the settings: the fire interval is rebuilt when a delay setting changes and `getRange()` reads the max range, with the improve bonus in a new `rangeBonus` field ([ARTILLERY.md](../industries/ARTILLERY.md#contracts)). Accepted terms stay fixed: courier shipment cost at dispatch, salvage yard contract delivery time, Ruined Infrastructure restoration time. A parade already out keeps its ships.
-- [x] 2.3 `applyCampaignSettings()` with the `GameState.CAMPAIGN` gate: pet ability add or remove on Save. The ability code moved from `ModPlugin.onGameLoad` to `PetManagementAbilityPlugin.applySetting()`; `onGameLoad` calls `applyCampaignSettings()`.
+- [x] 2.3 `applyCampaignSettings()` with the `GameState.CAMPAIGN` check: pet ability add or remove on Save. The ability code moved from `ModPlugin.onGameLoad` to `PetManagementAbilityPlugin.applySetting()`; `onGameLoad` calls `applyCampaignSettings()`.
 - [x] 2.4 `apply` metadata for the `NEW_GAME` list, apply notes in help text, remove `IndEvo_text_application_note`. The industry switches `NewGameIndustryPlacer` reads (`IndEvo_AdManuf`, `IndEvo_ScrapYard`, `IndEvo_dryDock`, `IndEvo_Academy`, `IndEvo_ReqCenter`, `IndEvo_PrivatePort`) say "NPC placement needs a new game.". The pets help text no longer mentions pet food.
 - [x] 2.5 `CampaignAttackScript.advance` returns at once while `IndEvo_Enable_Artillery` is off (decision 12); the script stays attached, so firing resumes when it is switched back on. It also removes the range terrain, and `EyeIndicatorScript` counts no hostile station, so the eye stays empty.
   - Done when: with Artillery off in a running campaign, no placed station fires; back on, they fire again.
