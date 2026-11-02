@@ -71,16 +71,17 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
             tooltip.beginTable(market.getFaction(), 20f, "Name", 190f, "Age", 90f, "Species", 115f); //390 total
 
             int i = 0;
-            float cost = 0f;
             for (Pet pet : storedPets){
                 if (i > 10) break;
                 String name = pet.name.length() > 20 ? pet.name.substring(0, 20) + "..." : pet.name;
                 String species = pet.getData().species.length() > 15 ? pet.getData().species.substring(0, 15) + "..." :  pet.getData().species;
-                cost += getStorageCost(pet);
 
                 tooltip.addRow(name, pet.getAgeString(), species);
                 i++;
             }
+
+            // player markets pay storage as upkeep, so the upkeep mults apply to it
+            float cost = getTotalStorageCost() * (market.isPlayerOwned() ? getUpkeep().getMult() : 1f);
 
             tooltip.addTable("You do not have any pets stored here.", storedPets.size() - 10, opad);
             tooltip.addPara("Total storage costs per Month: %s", 10f, Misc.getHighlightColor(), Misc.getDGSCredits(cost));
@@ -94,6 +95,12 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         return cost;
     }
 
+    public float getTotalStorageCost() {
+        float cost = 0f;
+        for (Pet pet : storedPets) if (!pet.isDead()) cost += getStorageCost(pet);
+        return cost;
+    }
+
     public void reportEconomyTick(int iterIndex) {
         //can't do on month end because monthly report
 
@@ -104,12 +111,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
             MonthlyReport.FDNode iNode = MiscIE.createMonthlyReportNode(this, market, "Pet Storage", Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE);
 
-            if (storedPets.size() > 0) {
-                for (Pet pet : storedPets) {
-                    if (!pet.isDead()) iNode.upkeep += pet.getData().foodPerMonth * PET_STORAGE_AMOUNT;
-                    if (!pet.isDead() && !market.isPlayerOwned()) iNode.upkeep += FLAT_MANAGEMENT_FEE;
-                }
-            }
+            iNode.upkeep += getTotalStorageCost();
         }
     }
 
@@ -200,8 +202,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         super.apply(true);
 
         // npc markets bill storage through the monthly report in reportEconomyTick
-        float storageCost = 0f;
-        if (isFunctional() && market.isPlayerOwned()) for (Pet pet : storedPets) if (!pet.isDead()) storageCost += getStorageCost(pet);
+        float storageCost = isFunctional() && market.isPlayerOwned() ? getTotalStorageCost() : 0f;
 
         if (storageCost > 0) getUpkeep().modifyFlat(STORAGE_UPKEEP_ID, storageCost, "Pet storage");
         else getUpkeep().unmodifyFlat(STORAGE_UPKEEP_ID);
