@@ -40,8 +40,8 @@ A planet with the condition `IndEvo_mineFieldCondition` spawns a ring terrain `I
 | Setting | `IndEvo_Minefield_disable_duration` (5 s) | `LunaSettings.csv:42`; read in `InterdictionPulseAbilityListener:40` |
 | Memory (market) | `$IndEvo_MineFieldRefKey` = belt entity id; `$IndEvo_NoAsteroids` = skip ring band visual | `MineFieldCondition:19-20` |
 | Memory (terrain, mine) | `$IndEvo_PlanetMinefieldKey` = controlling planet entity | `MineFieldCondition:21`, copied to every mine in `createMines` |
-| Memory (location) | `$IndEvo_MinesDisabledLocMem` = `List<DisabledArea>` | `MineBeltTerrainPlugin:44` |
-| Memory (fleet) | `$IndEvo_recentlyJumped` (2 s), `$mineImpactTimeout`, `$skippedImpacts`, `$recentImpact` | `MineBeltTerrainPlugin:42`, `:217-219` |
+| Memory (location) | `$IndEvo_MinesDisabledLocMem` = `List<DisabledArea>` | `MineBeltTerrainPlugin:41` |
+| Memory (fleet) | `$IndEvo_recentlyJumped` (2 s), `$mineImpactTimeout`, `$skippedImpacts`, `$recentImpact` | `MineBeltTerrainPlugin:39`, `:214-216` |
 | Tips | three minefield loading tips | `data/strings/tips.json:81-82`, `:92` |
 
 ## Registration and lifecycle
@@ -80,7 +80,7 @@ Order: `onNewGameAfterEconomyLoad -> spawnMineFields -> addCondition -> MineFiel
 
 ### Interdiction pulse disable
 
-`InterdictionPulseAbilityListener.reportPlayerDeactivatedAbility()` (`:27-46`) uses vanilla `InterdictionPulseAbility.getRange(fleet)` and, for every `MineBeltTerrainPlugin` whose outer circle intersects the pulse circle, calls `generateDisabledArea(fleet, range, duration)` (`MineBeltTerrainPlugin:436-447`). The area is a `SplinterFleet_OrbitFocus` token orbiting the belt at the fleet position; `DisabledArea.advance()` counts down in seconds from the terrain's `advance()` and removes the token at zero.
+`InterdictionPulseAbilityListener.reportPlayerDeactivatedAbility()` (`:27-46`) uses vanilla `InterdictionPulseAbility.getRange(fleet)` and, for every `MineBeltTerrainPlugin` whose outer circle intersects the pulse circle, calls `generateDisabledArea(fleet, range, duration)` (`MineBeltTerrainPlugin:433-444`). The area is a `SplinterFleet_OrbitFocus` token orbiting the belt at the fleet position; `DisabledArea.advance()` counts down in seconds from the terrain's `advance()` and removes the token at zero.
 
 ## Contracts
 
