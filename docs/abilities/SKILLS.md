@@ -35,12 +35,12 @@ IE adds four admin only skills, tagged `npc_only`, so they never show in the pla
 
 - Skills load from `data/characters/skills/*.skill`; each has one `GOVERNED_OUTPOST` effect whose `script` names the inner class (`indevo.abilities.skills.FleetLogistics$Market1` etc.).
 - Admins get them through vanilla `OfficerManagerEvent.createAdmin`, which picks from every `isAdminSkill()` skill that is not deprecated, `player_only` or `ai_core_only` (`api/impl/campaign/events/OfficerManagerEvent.java:322`). `npc_only` only hides them from the player tree (`api/util/SkillData.java:56`).
-- `ModPlugin.setListenersIfNeeded` -> `AdminGovernTimeTracker.getInstanceOrRegister()` (`ModPlugin.java:472`, deduped by `hasListenerOfClass`), persistent.
+- `ModPlugin.setListenersIfNeeded` -> `AdminGovernTimeTracker.getInstanceOrRegister()` (`ModPlugin.java:458`, deduped by `hasListenerOfClass`), persistent.
 - `MicromanagementRemoteItemPatch` is a `@Patch` class; PatchLib installs it when the option menu class loads ([Patches](../ARCHITECTURE.md#patches)).
 
 ## Flow
 
-The vanilla industry option menu (obfuscated `b` in `com.fs.starfarer.campaign.ui.marketinfo`, implements `DialogCreatorUI`, skill `obf/campaign/ui/marketinfo/_c37.java:66`) reads `allowRemoteIndustryItemManagement` once in its constructor (`:112`) through a static `(String) -> boolean` call on `StarfarerSettings`, and uses that value for every item and AI core button in the menu.
+The vanilla industry option menu (obfuscated `b` in `com.fs.starfarer.campaign.ui.marketinfo` on 0.98a-RC8 Windows, implements `DialogCreatorUI`, skill `obf/campaign/ui/marketinfo/_c37.java:66`) reads `allowRemoteIndustryItemManagement` once in its constructor (`:112`) through a static `(String) -> boolean` call on `StarfarerSettings`, and uses that value for every item and AI core button in the menu.
 
 `MicromanagementRemoteItemPatch.redirectSettingRead` runs on that call:
 

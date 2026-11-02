@@ -11,12 +11,12 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.scripts.PlanetMovingScript;
 import indevo.industries.derelicts.utils.IndustrySpecView;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
@@ -394,12 +394,12 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
     }
 
     private float getRangeLY() {
-        rangeRadiusLY = Settings.getInt(Settings.RG_RANGE);
+        rangeRadiusLY = Setting.RG_RANGE.intValue();
         return getAiCoreIdNotNull().equals(Commodities.BETA_CORE) ? rangeRadiusLY + betaCoreRangeIncrease : rangeRadiusLY;
     }
 
     private int getDaysRequired() {
-        daysRequired = Settings.getInt(Settings.RG_COOLDOWN_TIME);
+        daysRequired = Setting.RG_COOLDOWN_TIME.intValue();
         return getAiCoreIdNotNull().equals(Commodities.ALPHA_CORE) ? daysRequired - alphaCoreDayReduction : daysRequired;
     }
 

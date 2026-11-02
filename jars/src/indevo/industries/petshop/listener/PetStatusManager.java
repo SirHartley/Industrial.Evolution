@@ -13,12 +13,12 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -89,7 +89,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     @Override
     public void advance(float amount) {
-        if (!Settings.getBoolean(Settings.PETS)) return;
+        if (!Setting.PETS.enabled()) return;
 
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
         if (!fleet.getEventListeners().contains(this)) fleet.addEventListener(this);
@@ -209,7 +209,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     @Override
     public void reportEconomyMonthEnd() {
-        if (!Settings.getBoolean(Settings.PETS)) return;
+        if (!Setting.PETS.enabled()) return;
 
         doRoutineAliveCheck();
         showFoodMessage();

@@ -17,11 +17,11 @@ import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import exerelin.campaign.DiplomacyManager;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.industry.Embassy;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
@@ -57,7 +57,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
 
     @Override
     public void reportEconomyMonthEnd() {
-        if (!Settings.getBoolean(Settings.EMBASSY)) return;
+        if (!Setting.EMBASSY.enabled()) return;
 
         Map<FactionAPI, Float> mergedMap = new HashMap<>();
 
@@ -100,7 +100,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
 
     @Override
     public void onNewDay() {
-        if (!Settings.getBoolean(Settings.EMBASSY)) return;
+        if (!Setting.EMBASSY.enabled()) return;
         logRepChange();
         updateLastDayRep();
         getWarConsequences();

@@ -14,7 +14,7 @@ There are two install paths. Items in vanilla style (Logistics Core, Neurocondit
 |---|---|
 | `indevo/items/installable/SpecialItemEffectsRepo.java` | `ITEM_EFFECTS` map merged into vanilla repo; `initEffectListeners()` registers colony factor listeners; shared constants |
 | `indevo/items/installable/VPCInstallableItemPlugin.java` | VPC slot for `VariableAssembler` and `CommodityForge`; `IndEvo_VPC_EFFECTS` maps each VPC id to `setSupply` / `setDemand` on `VPCUserIndustryAPI` |
-| `indevo/items/installable/BlueprintInstallableItemPlugin.java` | Blueprint slot for `EngineeringHub`: `IndEvo_relicSpecialItem`, `ship_bp`, `tiandong_retrofit_bp`, `roider_retrofit_bp` |
+| `indevo/items/installable/BlueprintInstallableItemPlugin.java` | Blueprint slot for `EngineeringHub`: `IndEvo_relicSpecialItem`, `ship_bp`, `tiandong_retrofit_bp`, `roider_retrofit_bp`; `getIndustry()` for the relic dialog patch |
 | `indevo/items/installable/ForgeTemplateInstallableItemPlugin.java` | Forge template slot for `BaseForgeTemplateUser`, `HullForge`, `HullDeconstructor`, `AncientLaboratory`; `FORGETEMPLATE_EFFECTS` calls `setForgeShip(hull of data)` |
 | `indevo/items/installable/AmbassadorInstallableItemPlugin.java` | Ambassador slot for `Embassy`; stores via `Embassy.get/setAmbassadorItemData`; strings category `IndEvo_AmbassadorItem` |
 | `indevo/items/VPCItemPlugin.java` | Cargo plugin for `IndEvo_vpc_*`: icon render, tooltip from `IndEvo_VPC_EFFECTS` |
@@ -40,7 +40,7 @@ There are two install paths. Items in vanilla style (Logistics Core, Neurocondit
 | `IndEvo_transmitter` | `GenericSpecialItemPlugin` | `IndEvo_IntArray, militarybase, highcommand`; [Relay](../industries/RELAY.md) | 42 |
 | `IndEvo_simulator` | `GenericSpecialItemPlugin` | `IndEvo_SupCom`; [Small industries](../industries/SMALL_INDUSTRIES.md) | 43 |
 | `IndEvo_alpha_core`, `IndEvo_beta_core`, `IndEvo_gamma_core` | `GenericSpecialItemPlugin` | `no_drop`, display only: `ItemIds.convertAICoreToSpecial`, shown by `Supercomputer.getVisibleInstalledItems` | 64-66 |
-| `IndEvo_relicSpecialItem` | `GenericSpecialItemPlugin` | dummy for the Engineering Hub blueprint slot; params `IndEvo_Warehouse, IndEvo_Warphouse` | 67 |
+| `IndEvo_relicSpecialItem` | `GenericSpecialItemPlugin` | relic mode for the Engineering Hub blueprint slot, never in cargo, listed by `RelicInstallDialogPatch` ([Engineering Hub](../industries/ENGINEERING_HUB.md#relic-components-in-the-install-dialog)); params `IndEvo_Warehouse, IndEvo_Warphouse` | 67 |
 | `IndEvo_debug` | `GenericSpecialItemPlugin` | Debug Fish, `no_drop` | 69 |
 | `#wormhole_anchor` | `WormholeAnchorItemPlugin` | commented out; [Warehouses](../industries/WAREHOUSES.md) | 72 |
 
@@ -55,8 +55,8 @@ There are two install paths. Items in vanilla style (Logistics Core, Neurocondit
 ## Registration and lifecycle
 
 - `ModPlugin.onApplicationLoad`: `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` (`ModPlugin.java:126`), `ItemEffectsRepo.ITEM_EFFECTS.putAll(ITEM_EFFECTS)`. `BaseIndustry` looks up the effect of an installed special item by id in that map (skill `api/impl/campaign/econ/impl/BaseIndustry.java:214`).
-- `ModPlugin.setListenersIfNeeded()`: `SpecialItemEffectsRepo.initEffectListeners()` (`:453`) adds `SuperComputerFactor`, `Senate.SenateFactor`, `MilitaryRelay.RelayFactor`, `CentralizationBureau.BureauFactor` (deduped by class); `PartsCargoInterceptor.register()` (`:458`), `PartsLootAdder.register()` (`:460`, `addTransientListener`), `SpecialItemDropsListener.register()` (`:469`, deduped by class). All transient.
-- Installable plugins are created on demand by the owning industry's `getInstallableItems()` (skill `api/campaign/econ/Industry.java:149`), for example `VariableAssembler.java:425`, `EngineeringHub.java:540`, `Embassy.java:282`, `HullForge.java:486`.
+- `ModPlugin.setListenersIfNeeded()`: `SpecialItemEffectsRepo.initEffectListeners()` (`:425`) adds `SuperComputerFactor`, `Senate.SenateFactor`, `MilitaryRelay.RelayFactor`, `CentralizationBureau.BureauFactor` (deduped by class); `PartsCargoInterceptor.register()` (`:430`), `PartsLootAdder.register()` (`:432`, `addTransientListener`), `SpecialItemDropsListener.register()` (`:441`, deduped by class). All transient.
+- Installable plugins are created on demand by the owning industry's `getInstallableItems()` (skill `api/campaign/econ/Industry.java:149`), for example `VariableAssembler.java:425`, `EngineeringHub.java:541`, `Embassy.java:282`, `HullForge.java:486`.
 - Item cargo plugins come from the `plugin` column.
 
 ## Flow
@@ -75,7 +75,7 @@ There are two install paths. Items in vanilla style (Logistics Core, Neurocondit
 
 - `isInstallableItem` checks the stack id against the plugin's effect map. `get/setCurrentlyInstalledItemData` read and write the industry (`getCurrentVPC`, `getSpecialItem`, `getAmbassadorItemData`).
 - Forge templates: `apply` calls `BaseForgeTemplateUser.setForgeShip(Global.getSettings().getHullSpec(data))`; empty and degraded templates set nothing.
-- Blueprints: `getMenuItemTitle` adds a dummy `IndEvo_relicSpecialItem` to cargo so it shows in the pick list; the hub's `apply` removes it again (code comment "dirtiest hack ever").
+- Blueprints: `IndEvo_relicSpecialItem` is added to the pick list by a PatchLib patch on the vanilla dialog, not through cargo; see [Engineering Hub](../industries/ENGINEERING_HUB.md#relic-components-in-the-install-dialog).
 
 ### Forge template drops
 

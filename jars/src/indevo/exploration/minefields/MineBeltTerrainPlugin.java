@@ -19,8 +19,8 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.campaign.BaseLocation;
+import indevo.config.Setting;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Settings;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
@@ -34,9 +34,6 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
     public static float MIN_MINE_SIZE = 2f;
     public static float MAX_MINE_SIZE = 8f;
 
-    public static final float CIVILIAN_EFFECT_MULT = Settings.getFloat(Settings.MINEFIELD_CIVILIAN_SHIP_IMPACT_MULT);
-    public static final float PHASE_EFFECT_MULT = Settings.getFloat(Settings.MINEFIELD_PHASE_SHIP_IMPACT_MULT);
-    public static final float MAX_FLEET_SIZE_BEFORE_MALUS = Settings.getFloat(Settings.MINEFIELD_NOHITUNTILSUM);
 
     public static final float RECENT_JUMP_TIMEOUT_SECONDS = 2f;
     public static final String RECENT_JUMP_KEY = "$IndEvo_recentlyJumped";
@@ -113,11 +110,11 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
     protected boolean needToCreateMines = true;
 
     protected void createMines() {
-        if (params == null || !Settings.getBoolean(Settings.ENABLE_MINEFIELDS)) return;
+        if (params == null || !Setting.ENABLE_MINEFIELDS.enabled()) return;
 
         Random rand = new Random(Global.getSector().getClock().getTimestamp() + entity.getId().hashCode());
 
-        List<Pair<Float, Float>> usedAngles = new ArrayList<>();
+        List<Float> usedAngles = new ArrayList<>();
 
         LocationAPI location = entity.getContainingLocation();
         for (int i = 0; i < params.numMines; i++) {
@@ -139,8 +136,8 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
             while (hadToUpdateOrbit && limiter <= 30) {
                 hadToUpdateOrbit = false;
 
-                for (Pair<Float, Float> usedRange : usedAngles) {
-                    if (isBetween(angle, usedRange.one, usedRange.two)) {
+                for (float used : usedAngles) {
+                    if (Misc.getAngleDiff(angle, used) <= 5f) {
                         angle = rand.nextFloat() * 360f;
 
                         hadToUpdateOrbit = true;
@@ -150,17 +147,13 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
                 }
             }
 
-            usedAngles.add(new Pair<>(angle - 5f, angle + 5f));
+            usedAngles.add(angle);
 
             float orbitDays = params.minOrbitDays + rand.nextFloat() * (params.maxOrbitDays - params.minOrbitDays);
             mine.setCircularOrbit(this.entity, angle, currRadius, orbitDays);
             Misc.setAsteroidSource(mine, this);
         }
         needToCreateMines = false;
-    }
-
-    private static boolean isBetween(float check, float lower, float higher) {
-        return (check >= lower && check <= higher);
     }
 
     public static SectorEntityToken addMine(LocationAPI loc, float size) {
@@ -198,7 +191,7 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
 
     @Override
     public void applyEffect(SectorEntityToken entity, float days) {
-        if (!Settings.getBoolean(Settings.ENABLE_MINEFIELDS)) return;
+        if (!Setting.ENABLE_MINEFIELDS.enabled()) return;
 
         if (entity instanceof CampaignFleetAPI) {
             CampaignFleetAPI fleet = (CampaignFleetAPI) entity;
@@ -235,10 +228,10 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
                     float speedMult = 1f + ((Math.max(speed, 5f) - 5f) * 0.5f); //= x5 bei 15
                     float speedFlatPow = (float) Math.pow(speed, 2) * 0.003f;
                     float fleetCompBaseHitChance = getBaseFleetHitChance(fleet);
-                    float chance = ((hitProb + Math.max(fleetCompBaseHitChance - MAX_FLEET_SIZE_BEFORE_MALUS, 0f))) + speedFlatPow;
+                    float chance = ((hitProb + Math.max(fleetCompBaseHitChance - Setting.MINEFIELD_NOHITUNTILSUM.value(), 0f))) + speedFlatPow;
                     if (speed >= 10f) chance += speedFlatPow;
 
-                    boolean isSlowAndSmall = (Misc.isSlowMoving(fleet) && fleetCompBaseHitChance < MineBeltTerrainPlugin.MAX_FLEET_SIZE_BEFORE_MALUS);
+                    boolean isSlowAndSmall = (Misc.isSlowMoving(fleet) && fleetCompBaseHitChance < Setting.MINEFIELD_NOHITUNTILSUM.value());
 
                     if (false)
                         log.info("total " + chance + " | hitProb " + hitProb + " | fleetSize " + fleetCompBaseHitChance + " | burn " + speedFlatPow);
@@ -298,10 +291,10 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
 
     public static float getBaseFleetHitChance(CampaignFleetAPI fleet) {
         Map<ShipAPI.HullSize, Float> hullSizeChanceMap = new HashMap<>();
-        hullSizeChanceMap.put(ShipAPI.HullSize.FRIGATE, Settings.getFloat(Settings.MINEFIELD_HITCHANCE_FRIGATE));
-        hullSizeChanceMap.put(ShipAPI.HullSize.DESTROYER, Settings.getFloat(Settings.MINEFIELD_HITCHANCE_DESTROYER));
-        hullSizeChanceMap.put(ShipAPI.HullSize.CRUISER, Settings.getFloat(Settings.MINEFIELD_HITCHANCE_CRUISER));
-        hullSizeChanceMap.put(ShipAPI.HullSize.CAPITAL_SHIP, Settings.getFloat(Settings.MINEFIELD_HITCHANCE_CAPITAL));
+        hullSizeChanceMap.put(ShipAPI.HullSize.FRIGATE, Setting.MINEFIELD_HITCHANCE_FRIGATE.value());
+        hullSizeChanceMap.put(ShipAPI.HullSize.DESTROYER, Setting.MINEFIELD_HITCHANCE_DESTROYER.value());
+        hullSizeChanceMap.put(ShipAPI.HullSize.CRUISER, Setting.MINEFIELD_HITCHANCE_CRUISER.value());
+        hullSizeChanceMap.put(ShipAPI.HullSize.CAPITAL_SHIP, Setting.MINEFIELD_HITCHANCE_CAPITAL.value());
 
         float fleetCompBaseHitChance = 0f;
         for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
@@ -313,8 +306,8 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
             boolean isPhase = m.isPhaseShip();
 
             float effect = hullSizeChanceMap.get(hullSize);
-            if (isCivilian) effect *= CIVILIAN_EFFECT_MULT;
-            if (isPhase) effect *= PHASE_EFFECT_MULT;
+            if (isCivilian) effect *= Setting.MINEFIELD_CIVILIAN_SHIP_IMPACT_MULT.value();
+            if (isPhase) effect *= Setting.MINEFIELD_PHASE_SHIP_IMPACT_MULT.value();
 
             fleetCompBaseHitChance += effect;
         }
@@ -361,7 +354,7 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
                 "Smaller", "slow-moving"
         );
 
-        float fleetCompBaseHitChance = Math.max(getBaseFleetHitChance(Global.getSector().getPlayerFleet()) - MAX_FLEET_SIZE_BEFORE_MALUS, 0f);
+        float fleetCompBaseHitChance = Math.max(getBaseFleetHitChance(Global.getSector().getPlayerFleet()) - Setting.MINEFIELD_NOHITUNTILSUM.value(), 0f);
         Map<Float, Pair<String, Color>> chanceColourMap = new LinkedHashMap<>();
         chanceColourMap.put(0.7f, new Pair<String, Color>("high", Color.ORANGE));
         chanceColourMap.put(0.4f, new Pair<String, Color>("medium", Color.YELLOW));

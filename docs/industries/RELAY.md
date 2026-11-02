@@ -27,15 +27,15 @@ Both ids use `MilitaryRelay`, a subclass of vanilla `MilitaryBase`. On a market 
 | Industry | `IndEvo_IntArray` (`Ids.INTARRAY`), downgrade `IndEvo_ComArray` | `data/campaign/industries.csv` |
 | Condition | `IndEvo_RelayCondition` | `data/campaign/market_conditions.csv`, hidden |
 | Entity | `IndEvo_int_array` (makeshift, `RelayEntityPlugin`), `IndEvo_pristine_int_array` (vanilla `CommRelayEntityPlugin`) | `data/config/custom_entities.json:1036`, `:1065`; tag `IndEvo_intArray` (`Ids.INTARRAY_ENTITY_TAG`) |
-| Setting | `IndEvo_ComArray` | `data/config/LunaSettings.csv`, enables both |
+| Setting | `IndEvo_ComArray`, `IndEvo_IntArray` | `data/config/LunaSettings.csv`; each turns its own industry on or off in `isAvailableToBuild` and `showWhenUnavailable`, `IndEvo_IntArray` also blocks the upgrade (`canUpgrade`) |
 | Memory key | `$IndEvo_RelayUnlocked` (`SpecialItemEffectsRepo.TRANSMITTER_UNLOCK_KEY`) | sector memory, set by the Hypertransmitter effect |
 | Strings | category `IndEvo_ComArray` | `data/strings/strings.json:141` |
 
 ## Registration and lifecycle
 
 - CSV plugin column for both industries.
-- `ModPlugin.setListenersIfNeeded()`: `MilitaryRelay.RelayItemRemovalButtonListener.register()` (`ModPlugin.java:489`), `RelayNetworkBrain.getInstanceOrRegister()` (`:510`), a transient campaign event listener found through `SectorAPI.getAllListeners()`, since the listener manager does not list it (`RelayNetworkBrain.java:22-30`). `RelayFactor` is registered in `SpecialItemEffectsRepo.initEffectListeners()`.
-- `RelayNetworkBrain` is a transient `CampaignEventListener` (`Global.getSector().addTransientListener`) and a `NewDayListener`. `TimeTracker.onNewDay` finds it through `SectorAPI.getAllListeners()` (`TimeTracker.java:132`), which includes transient listeners (`obf/campaign/CampaignEngine.java:2073`).
+- `ModPlugin.setListenersIfNeeded()`: `MilitaryRelay.RelayItemRemovalButtonListener.register()` (`ModPlugin.java:475`), `RelayNetworkBrain.getInstanceOrRegister()` (`:483`), a transient campaign event listener found through `SectorAPI.getAllListeners()`, since the listener manager does not list it (`RelayNetworkBrain.java:22-30`). `RelayFactor` is registered in `SpecialItemEffectsRepo.initEffectListeners()`.
+- `RelayNetworkBrain` is a transient `CampaignEventListener` (`Global.getSector().addTransientListener`) and a `NewDayListener`. `TimeTracker.onNewDay` finds it through `SectorAPI.getAllListeners()` (`TimeTracker.java:129`), which includes transient listeners (`obf/campaign/CampaignEngine.java:2073`).
 - Extra network updates: `finishBuildingOrUpgrading`, `setAICoreId`, and `notifyBeingRemoved` (delayed by `DelayedActionScriptRunWhilePaused(0.01f)` so the industry is gone first).
 - Saved state: the `NetworkEntry` inside each `RelayConditionPlugin`, `addedOrRemovedItem` on the industry. Networks are rebuilt from scratch on every update.
 

@@ -1,6 +1,5 @@
 package indevo.industries.petshop.item;
 
-import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.CargoTransferHandlerAPI;
@@ -8,7 +7,6 @@ import com.fs.starfarer.api.campaign.CoreUITabId;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
-import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -17,7 +15,6 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.industries.petshop.dialogue.PetPickerInteractionDialoguePlugin;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
-import indevo.utils.ModPlugin;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,7 +23,6 @@ import java.util.Random;
 
 public class PetItemPlugin extends BaseSpecialItemPlugin {
 
-    public static final String BOX_ACTIVE = "$petBoxActive";
     protected PetData pet;
 
     @Override
@@ -39,12 +35,9 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
     public void render(float x, float y, float w, float h, float alphaMult,
                        float glowMult, SpecialItemRendererAPI renderer) {
 
-        String petId = stack.getSpecialDataIfSpecial().getData();
+        if (pet == null) return;
 
-        if (petId == null) return;
-
-        String imageName = PetDataRepo.get(petId).icon;
-        SpriteAPI sprite = Global.getSettings().getSprite(imageName);
+        SpriteAPI sprite = Global.getSettings().getSprite(pet.icon);
         float dim = 30f;
 
         Color bgColor = Global.getSector().getPlayerFaction().getDarkUIColor();
@@ -141,8 +134,12 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         Color b = Misc.getButtonTextColor();
         b = Misc.getPositiveHighlightColor();
 
-        PetData pet = PetDataRepo.get(stack.getSpecialDataIfSpecial().getData());
-        if (pet == null) pet = PetDataRepo.get("hampter");
+        if (isInvalid()) {
+            tooltip.addPara("Invalid item: there is no pet with the id %s. Please report this.", opad, n, String.valueOf(stack.getSpecialDataIfSpecial().getData()));
+            return;
+        }
+
+        PetData pet = this.pet != null ? this.pet : PetDataRepo.get("hampter");
 
         Pair<String, Color> rpair = pet.getRarityDesc();
 
@@ -153,12 +150,8 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
         addCostLabel(tooltip, opad, transferHandler, stackSource);
 
-        boolean isActive = Global.getSector().getMemoryWithoutUpdate().contains(BOX_ACTIVE);
-
-        if (isFleetCargo() && !isActive) tooltip.addPara("Right-click to assign", b, opad);
-        else if (!isFleetCargo()) tooltip.addPara("Can only be assigned from fleet cargo", n, opad);
-        else if (isActive) tooltip.addPara("Finish assigning your current pet to activate this!", n, opad);
-        else tooltip.addPara("Can not be used in this situation", n, opad);
+        if (isFleetCargo()) tooltip.addPara("Right-click to assign", b, opad);
+        else tooltip.addPara("Can only be assigned from fleet cargo", n, opad);
     }
 
     public static String getYearDescription(int months) {
@@ -174,7 +167,12 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
     @Override
     public boolean hasRightClickAction() {
-        return isFleetCargo() && !Global.getSector().getMemoryWithoutUpdate().contains(BOX_ACTIVE);
+        return isFleetCargo();
+    }
+
+    public boolean isInvalid() {
+        // codex stacks have no cargo and null data
+        return pet == null && stack.getCargo() != null;
     }
 
     public boolean isFleetCargo() {
@@ -190,46 +188,8 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
     }
 
     @Override
-    public void performRightClickAction() {
-        MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
-        if (mem.contains(BOX_ACTIVE)) return;
-
-        mem.set(BOX_ACTIVE, null, 0f);
-
-        try {
-            Robot r = new Robot();
-
-            r.keyPress(27);
-            r.keyRelease(27);
-
-        } catch (AWTException e) {
-            ModPlugin.log("Could not close inventory on pet cryochamber activation");
-            e.printStackTrace();
-        }
-
-        Global.getSector().addScript(new EveryFrameScript() {
-            boolean done = false;
-
-            @Override
-            public boolean isDone() {
-                return done;
-            }
-
-            @Override
-            public boolean runWhilePaused() {
-                return true;
-            }
-
-            @Override
-            public void advance(float amount) {
-                // Wisp: add pet null check. Very dirty crash fix, didn't look into why the pet is null at all.
-                // <https://fractalsoftworks.com/forum/index.php?topic=18011.msg416779#msg416779>
-                // H: it's been a year and neither did I
-
-                if (!done && pet != null) {
-                    done = Global.getSector().getCampaignUI().showInteractionDialog(new PetPickerInteractionDialoguePlugin(pet), null);
-                }
-            }
-        });
+    public void performRightClickAction(RightClickActionHelper helper) {
+        if (pet == null) throw new IllegalStateException("IndEvo pet box without valid pet data, id " + stack.getSpecialDataIfSpecial().getData());
+        Global.getSector().getCampaignUI().showInteractionDialogFromCargo(new PetPickerInteractionDialoguePlugin(pet, helper), null, null);
     }
 }

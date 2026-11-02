@@ -87,7 +87,7 @@ public class Edict_FastBuild extends BaseEdict {
     }
 
     private static void setBuildTime(BaseIndustry industry, float days) {
-        ReflectionUtils.INSTANCE.setWithSuper("buildTime", industry, days, 5, null);
+        ReflectionUtils.setWithSuper("buildTime", industry, days, 5, null);
     }
 
     @Override

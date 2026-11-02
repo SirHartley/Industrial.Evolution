@@ -32,6 +32,8 @@ Every IE row of `data/campaign/industries.csv` (plugin column, paths relative to
 | `IndEvo_HullDecon`, `IndEvo_HullForge`, `IndEvo_ResLab`, `IndEvo_RiftGen`, `IndEvo_Ruins` | 93-97 | `derelicts/industry/HullDeconstructor`, `HullForge`, `AncientLaboratory`, `RiftGenerator`, `Ruins` | [Derelicts](DERELICTS.md) |
 | `IndEvo_BaseFlavourInd` and nine wonders | 105-132 | `worldwonder/industry/WorldWonder` and subclasses | [World Wonders](WORLD_WONDER.md) |
 
+The 19 industries with a switch in the LunaLib Industries tab also follow the `IndEvo_block_industries` master switch (`Setting.BLOCK_INDUSTRIES`, [Settings](../core/SETTINGS.md#reading-a-setting)); the others (governments, Animal Center, Warehouse Complex, artillery, derelict and wonder industries) do not.
+
 IE has no row with a vanilla id. A mod row with a vanilla id would replace the whole vanilla row, and the first sorted mod wins (skill `docs/concepts/csv-json-merging.md:24-26`); vanilla `commerce` is changed by PatchLib hooks instead (see [Commerce balance patches](#commerce-balance-patches-commerce)).
 
 ## Overview
@@ -61,10 +63,10 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | Industry | `IndEvo_ReqCenter` (`Ids.REQCENTER`) | `industries.csv:38`, upkeep 6 |
 | Industry | `commerce` (`Ids.COMMERCE`) | vanilla row, plugin vanilla `TradeCenter` |
 | Submarkets | `IndEvo_RepairStorage` (`Ids.REPSTORAGE`), `IndEvo_ReqCenterMarket` (`Ids.REQMARKET`), `IndEvo_SharedStore` (`Ids.SHAREDSTORAGE`) | `data/campaign/submarkets.csv:2`, `:3`, `:8` |
-| List | `IndEvo_buerauList` (sic) -> `data/config/indEvo/bureau_industry_whitelist.csv` | `data/config/settings.json:223`, `Ids.BUREAU_LIST` |
-| Settings | `IndEvo_alpha_core_runtime` 558, `IndEvo_beta_core_runtime` 279, `IndEvo_gamma_core_runtime` 93 (days) | `LunaSettings.csv:152-154` |
-| Settings | `IndEvo_restoFee_FRIGATE` 1000, `_DESTROYER` 3000, `_CRUISER` 7000, `_CAPITAL` 10000 | `LunaSettings.csv:157-160` |
-| Setting | `IndEvo_CommerceBalanceChanges` (default true) | `LunaSettings.csv:9` |
+| List | `IndEvo_buerauList` (sic) -> `data/config/indEvo/bureau_industry_whitelist.csv` | `data/config/settings.json:57`, `Ids.BUREAU_LIST` |
+| Settings | `IndEvo_alpha_core_runtime` 558, `IndEvo_beta_core_runtime` 279, `IndEvo_gamma_core_runtime` 93 (days) | `LunaSettings.csv:123-125` |
+| Settings | `IndEvo_restoFee_FRIGATE` 1000, `_DESTROYER` 3000, `_CRUISER` 7000, `_CAPITAL` 10000 | `LunaSettings.csv:140-143` |
+| Setting | `IndEvo_CommerceBalanceChanges` (default true) | `LunaSettings.csv:13` |
 | Memory key | `$IndEvo_maxDModMemory` (map `FleetMemberAPI -> Integer`) | sector memory, `RestorationDocks` |
 | Strings | categories `IndEvo_AdInfra`, `IndEvo_dryDock`, `IndEvo_ReqCenter` | `data/strings/strings.json:126`, `:215`, `:256` |
 
@@ -120,9 +122,9 @@ Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. W
 | `@After` | `TradeCenter.isAvailableToBuild` | false when the faction already has a `commerce` in the system (`MiscIE.isOnlyInstanceInSystemExcludeMarket`) |
 | `@After` | `TradeCenter.getUnavailableReason` | "Can only have one in the star system" for the same case |
 | `@After` | `TradeCenter.addRightAfterDescriptionSection` | adds that line in the build dialog |
-| `@Before` | `TradeCenter.applyAlphaCoreModifiers` | player markets: tariff x0.75 under `getModId(1)` instead of income +25%, skips vanilla |
+| `@Before` | `TradeCenter.applyAlphaCoreModifiers` | player markets: tariff x0.75 under `getModId(1)` instead of income +25%, skips vanilla; does nothing if an earlier patch already skipped it |
 | `@After` | `TradeCenter.applyNoAICoreModifiers` | removes that tariff mod; runs with the setting off too |
-| `@Before` | `TradeCenter.addAlphaCoreDescription` | player markets: tariff text instead of income, skips vanilla |
+| `@Before` | `TradeCenter.addAlphaCoreDescription` | player markets: tariff text instead of income, skips vanilla; does nothing if an earlier patch already skipped it |
 | `@RedirectFieldRead` | `TradeCenter.IMPROVE_BONUS` reads in `TradeCenter` | 10 instead of 25 |
 | `@RedirectFieldRead` | `ItemEffectsRepo.DEALMAKER_INCOME_PERCENT_BONUS` reads in `BaseInstallableItemEffect` subclasses | 25 instead of 50 |
 
@@ -135,6 +137,7 @@ Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. W
 - `BaseIndustry.getModId()` is `"ind_" + id` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:164`, `:266`). Code that unmodifies by the bare id misses the mod.
 - `BaseIndustry.applyAICoreModifiers` calls only the branch for the installed core (skill `BaseIndustry.java:246`); fields set by one branch are not reset by another.
 - Commerce hooks target vanilla `TradeCenter` and the item effect classes only, never `BaseIndustry` ([Patches](../ARCHITECTURE.md#patches)).
+- Both commerce `@Before` hooks skip the vanilla body on player markets with the setting on. Other mods' redirects inside those two bodies do not run there, and their later `@Before` hooks must check `isSkipOriginal()`; `@After` hooks still run.
 - The commerce alpha tariff uses `getModId(1)` (`ind_commerce_1`), the slot vanilla uses for the alpha income bonus; set and unset must use the same id.
 - Bureau mods use `modifyFlatAlways` on other industries' stats; `unapply` must run with the same map or the mod stays (inferred).
 

@@ -20,9 +20,9 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.config.Setting;
 import indevo.industries.RestorationDocks;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
@@ -61,7 +61,6 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     protected FleetMemberAPI targetMember = null;
     protected Set<String> selectedMods = new HashSet<>();
 
-    public static final float BASE_COST_MULT = Settings.getFloat(Settings.SY_DMOD_MOVE_BASE_COST_MULT);
 
     public static final Logger log = Global.getLogger(IndEvo_InitSYMoveDModDiag.class);
 
@@ -275,7 +274,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     private void initOriginHullPicker() {
         List<FleetMemberAPI> validSelectionList = new ArrayList<>(getValidFleetMemberSetForInitialSelection());
 
-        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
+        int shipsPerRow = Setting.SHIP_PICKER_ROW_COUNT.intValue();
         int rows = validSelectionList.size() > shipsPerRow ? (int) Math.ceil(validSelectionList.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(validSelectionList.size(), shipsPerRow);
         cols = Math.max(cols, 4);
@@ -315,7 +314,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
         List<FleetMemberAPI> validSelectionList = new ArrayList<>(getValidTransferTargetsForMember(originMember, combinedFleet));
 
-        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
+        int shipsPerRow = Setting.SHIP_PICKER_ROW_COUNT.intValue();
         int rows = validSelectionList.size() > shipsPerRow ? (int) Math.ceil(validSelectionList.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(validSelectionList.size(), shipsPerRow);
         cols = Math.max(cols, 4);
@@ -369,7 +368,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
         int numDMods = DModManager.getNumDMods(originMember.getVariant());
         float singleRepairCost = (float) (((baseVal / 2) * (Math.pow(1.2, numDMods) + 1)) / numDMods);
 
-        return singleRepairCost * BASE_COST_MULT * costMult;
+        return singleRepairCost * Setting.SY_DMOD_MOVE_BASE_COST_MULT.value() * costMult;
     }
 
     private void addTooltip(TextPanelAPI panel) {

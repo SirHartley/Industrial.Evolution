@@ -18,13 +18,13 @@ import com.fs.starfarer.api.ui.IconRenderMode;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUser;
 import indevo.items.installable.BlueprintInstallableItemPlugin;
 import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
 
@@ -54,13 +54,14 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     private final float alphaCoreTimeMult = 0.85f;
     private final int alphaCoreDModRed = 1;
 
+    @Override
     public boolean isAvailableToBuild() {
-        return Settings.getBoolean(Settings.ENGHUB) && super.isAvailableToBuild();
+        return Setting.ENGHUB.enabled() && super.isAvailableToBuild();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.ENGHUB);
+        return Setting.ENGHUB.enabled();
     }
 
     @Override
@@ -73,8 +74,6 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
             Global.getSector().getListenerManager().addListener(this, true);
             refreshRequiredDays();
         }
-
-        removeDummyRelicComponentFromCargo();
     }
 
     @Override
@@ -145,7 +144,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         }
 
         // Deliver completed blueprints/templates
-        boolean toStorage = !Settings.getBoolean(Settings.AUTO_SHIP_BP_TO_GATHERING_POINT);
+        boolean toStorage = !Setting.AUTO_SHIP_BP_TO_GATHERING_POINT.enabled();
 
         for (Map.Entry<String, Float> entry : researchProgressList.entrySet()) {
             if (entry.getValue() < 1f) continue;
@@ -215,7 +214,11 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     }
 
     public boolean shouldUseRelics(){
-        return getSpecialItem() != null && ItemIds.RELIC_SPECIAL_ITEM.equals(getSpecialItem().getId());
+        return isRelicItem(getSpecialItem());
+    }
+
+    public static boolean isRelicItem(Object data) {
+        return data instanceof SpecialItemData special && ItemIds.RELIC_SPECIAL_ITEM.equals(special.getId());
     }
 
     public float getRelicCostForHullId(String id){
@@ -253,24 +256,6 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
                     Misc.getHighlightColor(), target.getFaction().getBrightUIColor()
             );
         }
-    }
-
-    public void addDummyRelicComponentToCargo(){
-        if (getSpecialItem() != null && ItemIds.RELIC_SPECIAL_ITEM.equals(getSpecialItem().getId())) return;
-
-        CargoAPI storage = Misc.getStorageCargo(market);
-        if (storage != null && storage.getQuantity(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null)) < 1){
-            storage.addSpecial(new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null), 1);
-        }
-    }
-
-    public void removeDummyRelicComponentFromCargo(){
-        CargoAPI storage = Misc.getStorageCargo(market);
-        if (storage != null) storage.removeItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null), 99);
-
-        //items are dumped into fleet cargo once uninstalled
-        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
-        if (playerFleet != null) playerFleet.getCargo().removeItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(ItemIds.RELIC_SPECIAL_ITEM, null), 99);
     }
 
     public ShipAPI.HullSize gethullSize(SpecialItemData data) {
@@ -505,7 +490,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     @Override
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
         super.notifyBeingRemoved(mode, forUpgrade);
-        if (blueprintItem != null && !forUpgrade) {
+        if (blueprintItem != null && !forUpgrade && !isRelicItem(blueprintItem)) {
             CargoAPI cargo = getCargoForInteractionMode(mode);
             if (cargo != null) {
                 cargo.addSpecial(blueprintItem, 1);

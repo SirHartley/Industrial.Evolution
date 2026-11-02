@@ -14,7 +14,7 @@ Reviews, explanations, audits, and proposals are read-only unless the user reque
 2. Use the `starsector-knowledge` skill before answering or changing anything related to Starsector. It covers 0.98a-RC8. Do not rely on memory.
 3. Use the `house-style` skill for every task in this repository. Its personal rules (answers, vocabulary, comments, commits, punctuation) apply everywhere; this file wins on project details.
 4. Use the `starsector-rules-writing` skill for any change to `data/campaign/rules.csv`, dialogue or rule commands. Use the `patchlib` skill only when the official API cannot reach what is needed.
-5. Third-party libraries (GraphicsLib, LazyLib, LunaLib, MagicLib, Console Commands, Nexerelin, Shadowyards) are not in the knowledge skill and not in the repository. Ask the user for the jar, then decompile it with the knowledge skill's Vineflower into a temporary directory, never into the repository.
+5. Third-party libraries (GraphicsLib, LazyLib, LunaLib, MagicLib, PatchLib, Console Commands, Nexerelin, Shadowyards, RAT) are not in the knowledge skill. Their compile jars are in `lib/` ([Compile dependencies](#compile-dependencies)); decompile one with the knowledge skill's Vineflower into a temporary directory, never into the repository. Ask the user for a jar only when it is missing there or a newer version is needed.
 6. Select the required guides using [Which guide to read](#which-guide-to-read). Apply every matching row, including for reviews and fixes to existing behavior.
 
 ### Which guide to read
@@ -27,6 +27,7 @@ After reading this file, use the task to choose the next document. Read the rele
 | Change, fix or review one feature (an industry, exploration content, ability, item, dialogue system) | The feature doc under `docs/<area>/`, found through the [ARCHITECTURE.md](docs/ARCHITECTURE.md#feature-documents) table. Read its Contracts and Known issues before editing. |
 | Add a new industry, condition, ability, item or other feature | [ARCHITECTURE.md](docs/ARCHITECTURE.md) (registration and package layout), the closest existing feature doc as a model, and the house-style `packages.md`. Write the new feature doc in the same commit. |
 | Add, rename or read a player setting, whitelist or `settings.json` key | [SETTINGS.md](docs/core/SETTINGS.md) |
+| Change the settings mechanism (reader, cache, LunaLib listener, settings checks) | [SETTINGS.md](docs/core/SETTINGS.md), then [SETTINGS_REWORK.md](docs/core/SETTINGS_REWORK.md) for the decisions behind it. SETTINGS.md describes current behavior; the rework doc is the record of decisions and the baseline it replaced. |
 | Add or reuse a helper, timer, memory accessor, animation or trail | [UTILS.md](docs/core/UTILS.md) before writing a new helper. |
 | Work on `rules.csv`, dialogue or a rule command | [RULE_COMMANDS.md](docs/dialogue/RULE_COMMANDS.md), the feature doc, and the `starsector-rules-writing` skill. |
 | Touch another mod's integration (Nexerelin, Console Commands, Vayra, Prism, Shadowyards, BetterColonies) | [COMPATIBILITY.md](docs/core/COMPATIBILITY.md) |
@@ -35,7 +36,7 @@ After reading this file, use the task to choose the next document. Read the rele
 | Revive or remove WIP code | [WIP.md](docs/core/WIP.md) |
 | Write or revise any player-facing text (descriptions, intel, dialogue, tooltips, LunaLib help text) | The house-style `player-text.md` and the feature doc. |
 | Edit a guide or add documentation | [Documentation upkeep](#documentation-upkeep), the owning guide and its inbound links. |
-| Change the build or prepare a release | [RELEASE.md](docs/RELEASE.md) and [Building](#building). |
+| Change the build, rebuild the release jar, or prepare a release | [RELEASE.md](docs/RELEASE.md) and [Building](#building). |
 | Any implementation task | [CHANGELOG.md](docs/CHANGELOG.md): add or amend the task's entries in the current unreleased section before merge. |
 
 ### Technical references and conflicts
@@ -51,7 +52,7 @@ The feature docs own feature behavior; [ARCHITECTURE.md](docs/ARCHITECTURE.md) o
 - Commit messages are as short as possible: all lowercase, at most 8 words, programmer speak (`fix museum parade stacking`). One line only. No body, no conventional-commit prefix, no testing notes, agent or model names, co-author trailers, session metadata, links or trailing full stop.
 - Update the affected documentation in the same commit, following [Documentation upkeep](#documentation-upkeep). Do this without a separate user request.
 - Update `Changelog` in the same commit, using [CHANGELOG.md](docs/CHANGELOG.md).
-- Bump versions, build release jars and publish releases only when the user explicitly asks; follow [RELEASE.md](docs/RELEASE.md).
+- Bump versions, rebuild `jars/release/IndEvo.jar` and publish releases only when the user explicitly asks; follow [RELEASE.md](docs/RELEASE.md). Ordinary work leaves the release jar stale.
 - Work only in the current task checkout. Live installations and unrelated checkouts are read-only unless the user explicitly asks you to change them.
 - Do not deploy or synchronize after merge unless the user explicitly requests it.
 - IE is released and players keep saves across versions. Every change to a class stored in the save (fields of scripts, listeners, intel, industries, memory values) needs a save compatibility check, and the changelog states save compatibility at release. Never claim save compatibility without evidence. See [ARCHITECTURE.md](docs/ARCHITECTURE.md#save-data).
@@ -64,7 +65,7 @@ The feature docs own feature behavior; [ARCHITECTURE.md](docs/ARCHITECTURE.md) o
 - Build the exact final remote task-branch revision. Earlier builds, partial builds, IDE analysis, and static checks do not satisfy the gate.
 - Missing compilers or required dependencies are merge blockers. Documentation-only changes do not require a build.
 - A change to `rules.csv` passes the `starsector-rules-writing` checks. A change to any CSV keeps UTF-8 without BOM, straight quotes and the column count.
-- No CI runs on pushes or pull requests. Do not add triggers or check workflows.
+- No CI runs on pushes or pull requests. The only workflow is the manual `release.yml` ([RELEASE.md](docs/RELEASE.md#release-workflow)); start it only on the user's command. Do not add triggers or check workflows.
 - Open a pull request and merge it when the work is complete. Do not leave finished work on an unmerged branch.
 - Use the connected GitHub app to create, inspect, and merge pull requests. Use `gh` only if the app is unavailable.
 - Fetch current remote `master` before branching and again before merging. Integrate intervening changes, push the exact final commit, and verify the merged remote revision.
@@ -86,9 +87,10 @@ Update documents automatically as part of each relevant change. Before committin
 | `docs/ARCHITECTURE.md` | Overview: areas, feature doc index, registration and lifecycle in `ModPlugin`, save data, data layout, cross-feature contracts, dormant code summary | Update the affected route, registration line or contract; remove obsolete owners. Use exact paths and symbols. No feature internals (those go in the feature doc), lore, release history or duplicate policy. |
 | `docs/<area>/<FEATURE>.md` | One feature each: files, ids, registration, flow, contracts, known issues | Update with every change to that feature's code, data or settings. Keep the template sections. Add a row to the ARCHITECTURE.md feature table for a new doc. |
 | `docs/core/SETTINGS.md` | Settings reader, LunaLib tabs, `settings.json` key groups, whitelists | Update when the mechanism, a tab, a key group or a whitelist changes. Setting values belong in the feature doc. |
+| `docs/core/SETTINGS_REWORK.md` | Settings rework record: decisions, the baseline it replaced, staged plan | Record decisions; tick subtasks as they merge and move implemented detail to SETTINGS.md and ARCHITECTURE.md. Does not govern setting values or help text. |
 | `docs/core/UTILS.md` | Shared helpers in `indevo/utils` | Update when a helper is added, removed or changes its contract. |
 | `docs/core/COMPATIBILITY.md` | Integrations with other mods | Update when an integration, a hard or optional dependency, or a config file for another mod changes. |
-| `docs/RELEASE.md` | Version numbers, build, package contents and publishing | Keep it in step with the actual release steps. |
+| `docs/RELEASE.md` | Version numbers, release builder, package contents, release workflow, version file and publishing | Keep it in step with the `ReleaseBuild` constants, `.github/workflows/release.yml` and `IndEvo.version`; change them together. |
 | `Changelog` and `docs/CHANGELOG.md` | Shipped change notes and how agents write them | Add or amend unreleased entries with each implementation task; preserve published entries. |
 | `.claude/agents/*.md` | Subagent definitions | Update when the dispatch rules or model assignments change. |
 
@@ -115,10 +117,10 @@ Write documentation in short programmer speak with normal capitalization and pun
 
 ## Code layout
 
-- Packages follow `indevo/<area>/<feature>/<role>/`. Areas: `industries`, `exploration`, `abilities`, `items`, `dialogue`, `economy`, `submarkets`, `utils`, `ids`, `console`, `other`, `WIP`. Role packages are named for the engine type (`industry`, `conditions`, `listeners`, `plugins`, `scripts`, `rules`, `intel`, `entities`, `hullmods`, `terrain`, `fleet`, `memory`). See the house-style `packages.md`.
+- Packages follow `indevo/<area>/<feature>/<role>/`. Areas: `industries`, `exploration`, `abilities`, `items`, `dialogue`, `economy`, `submarkets`, `config` (player settings, flat), `utils`, `ids`, `console`, `other`, `WIP`, `tools` (release builder, never shipped). Role packages are named for the engine type (`industry`, `conditions`, `listeners`, `plugins`, `scripts`, `rules`, `intel`, `entities`, `hullmods`, `terrain`, `fleet`, `memory`, `patches` for PatchLib patches). See the house-style `packages.md`.
 - Ids, tags, memory keys and setting keys carry the `IndEvo_` prefix (`$IndEvo_` for memory). Shared ids live in `indevo/ids/Ids.java` and `ItemIds.java`; feature-local keys stay in the feature.
 - Class member order: nested enums; static fields; instance fields; other nested types; constructors; lifecycle and public entry points in execution order; helpers near their callers. Group fields by responsibility. No section header comments.
-- New code is Java 17. Three Kotlin files exist (see [ARCHITECTURE.md](docs/ARCHITECTURE.md#build)); do not add Kotlin without asking.
+- All code is Java 17. Do not add Kotlin: the user's IDE does not compile it.
 
 ## Agent behavior
 
@@ -189,32 +191,28 @@ Versions use major.minor.letter (current `4.1.b`). See [RELEASE.md](docs/RELEASE
 After the final runtime-affecting commit and before merge:
 
 1. Fetch and build the exact remote task-branch revision.
-2. Use a clean, empty output directory.
-3. Compile every Java and Kotlin file under `jars/src/` that the IntelliJ module compiles (the `excludeFolder` entries in `IndEvo.iml` are left out) with JDK 17 and Kotlin 2.1 against the dependencies below.
-4. Require a successful exit with no compile errors.
-5. Record the command, branch commit, toolchain version and result in the pull request. The final reply links the PR and states the result and any untested behavior.
-6. Stop before merge if the build or a required dependency is unavailable.
+2. From the repository root, with JDK 17, run `java jars/src/indevo/tools/ReleaseBuild.java compile` ([toolchain](#toolchain)). It compiles every Java file under `jars/src/` that the IntelliJ module compiles (it reads the `excludeFolder` entries in `IndEvo.iml`) against `lib/`, in a fresh `out/release-build-*` directory, runs the settings checks (`SettingsChecks`, [SETTINGS.md](docs/core/SETTINGS.md#settings-checks)) and checks the resulting jar. It never touches `jars/release/IndEvo.jar`.
+3. Require a successful exit with no compile errors and no failed settings check.
+4. Record the command, branch commit, toolchain versions and result in the pull request. The final reply links the PR and states the result and any untested behavior.
+5. Stop before merge if the build, the toolchain or a required dependency is unavailable.
 
-Required compile dependencies (from `IndEvo.iml` and the imports):
+A change to the builder also runs its checks: `javac --release 17 -encoding UTF-8 -d out/release-tools jars/src/indevo/tools/ReleaseBuild.java jars/src/indevo/tools/ReleaseBuildChecks.java`, then `java -cp out/release-tools indevo.tools.ReleaseBuildChecks`. Release jar, packaging and publishing: [RELEASE.md](docs/RELEASE.md).
+
+### Toolchain
+
+- JDK 17; the builder refuses other versions. Cloud sessions ship JDK 21 only and `api.adoptium.net` is blocked there: take Temurin 17.0.13+11 from GitHub, `https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.13%2B11/OpenJDK17U-jdk_x64_linux_hotspot_17.0.13_11.tar.gz`, SHA-256 `8682892fc02965930b9022c066fa164dd6f458ef4a5dc262016aa28333b30f49`.
+- Unpack it outside the repository and verify the hash before use.
+
+### Compile dependencies
+
+From `IndEvo.iml` and the imports:
 
 - From the game's `starsector-core`: `starfarer.api.jar`, `starfarer_obf.jar` and `fs.common_obf.jar` (IE imports some obfuscated classes), `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`.
-- Mods: GraphicsLib, LazyLib (and its Kotlin runtime), LunaLib, MagicLib, PatchLib (API jar only), Console Commands (`lw_Console`), Nexerelin (`ExerelinCore`), Shadowyards (`SHI`), Random Assortment of Things (`assortment_of_things`, used by the courier port).
+- Mods: GraphicsLib, LazyLib, LunaLib, MagicLib, PatchLib (API jar only), Console Commands (`lw_Console`), Nexerelin (`ExerelinCore`), Shadowyards (`SHI`), Random Assortment of Things (`assortment_of_things`, used by the courier port).
 
-Dependency source: `lib/` in the repository, read-only. It holds the game jars (`starfarer.api.jar`, `starfarer_obf.jar`, `fs.common_obf.jar`, `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`) and the mod jars `Graphics.jar` (GraphicsLib 1.9.0), `LazyLib.jar` and `Kotlin-Runtime.jar` (LazyLib 3.0.0), `LunaLib.jar` (2.0.1), `MagicLib.jar` (1.5.1), `PatchLibAPI.jar` (PatchLib 1.0.3), `lw_Console.jar`, `ExerelinCore.jar` (Nexerelin 0.12.2d), `SHI.jar` (Shadowyards 0.9.5-rc4) and `RandomAssortmentofThings.jar` (RAT 3.3.1). Only the jars the gate needs are kept, never full mod folders. Replace a jar only when the user supplies a new version, and note the version here. The game loads only the jars `mod_info.json` lists, so `lib/` never reaches the game; it must stay out of the release zip ([RELEASE.md](docs/RELEASE.md)).
+Dependency source: `lib/` in the repository, read-only. It holds the game jars (`starfarer.api.jar`, `starfarer_obf.jar`, `fs.common_obf.jar`, `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`) and the mod jars `Graphics.jar` (GraphicsLib 1.9.0), `LazyLib.jar` (LazyLib 3.0.0), `LunaLib.jar` (2.0.1), `MagicLib.jar` (1.5.1), `PatchLibAPI.jar` (PatchLib 1.0.3), `lw_Console.jar`, `ExerelinCore.jar` (Nexerelin 0.12.2d), `SHI.jar` (Shadowyards 0.9.5-rc4) and `RandomAssortmentofThings.jar` (RAT 3.3.1). Only the jars the gate needs are kept, never full mod folders. Replace a jar only when the user supplies a new version, and note the version here. The builder puts every `lib/*.jar` on the classpath and hashes them into the release jar's `Source-SHA256`, so a replaced jar makes the release jar stale. The game loads only the jars `mod_info.json` lists, so `lib/` never reaches the game and never ships ([RELEASE.md](docs/RELEASE.md#what-ships)).
 
-Kotlin compiler: not in `lib/` and not installed in agent containers. Download these jars from Maven Central (`https://repo1.maven.org/maven2/`) into a temporary directory outside the repository: `org.jetbrains.kotlin:kotlin-compiler-embeddable:2.1.0`, `kotlin-stdlib:2.1.0`, `kotlin-script-runtime:2.1.0`, `kotlin-daemon-embeddable:2.1.0`, `kotlin-reflect:1.6.10`, `org.jetbrains.intellij.deps:trove4j:1.0.20200330`, `org.jetbrains:annotations:13.0`, `org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4`. Run it as `kotlinc` with `java -cp '<dir>/*' org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect` and add `kotlin-stdlib-2.1.0.jar` to its `-cp`. If the download fails, report the gate as not run and stop before merging runtime changes. Without Kotlin, `javac` fails only in the three Java files that use the Kotlin classes (`Edict_FastBuild`, `RelicBuildTimeReductionButtonAdder`, `RadiationEffectHandler`). IntelliJ on the user's machine (`IndEvo.iml`, artifact `IndEvo:jar`) stays the reference build. See [ARCHITECTURE.md](docs/ARCHITECTURE.md#build).
-
-Reference command (from the repository root):
-
-```sh
-OUT=$(mktemp -d)
-CP=$(ls lib/*.jar | tr '\n' ':')
-find jars/src -name '*.java' -o -name '*.kt' | grep -v -e WIP/converters/ -e exploration/WIP/ -e specials/WIP/ -e itemAbilities/WIP/ -e rules/WIP/ -e industry/WIP/ -e exploration/distress/ -e warehouses/plugin/wi/ > "$OUT/srcs.txt"
-kotlinc -jvm-target 17 -cp "$CP:<dir>/kotlin-stdlib-2.1.0.jar" -d "$OUT" $(cat "$OUT/srcs.txt")
-javac --release 17 -encoding UTF-8 -cp "$CP:$OUT" -d "$OUT" $(grep '\.java$' "$OUT/srcs.txt")
-```
-
-The `grep -v` patterns match the existing `excludeFolder` entries in `IndEvo.iml`; update both together.
+IntelliJ on the user's machine (`IndEvo.iml`, artifact `IndEvo:jar`) builds `jars/IndEvo.jar` for local testing. See [ARCHITECTURE.md](docs/ARCHITECTURE.md#build).
 
 ## Repository navigation
 

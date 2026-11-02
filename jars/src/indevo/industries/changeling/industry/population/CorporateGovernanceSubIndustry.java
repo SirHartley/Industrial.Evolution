@@ -16,9 +16,9 @@ import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 
 import static com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure.*;
@@ -67,7 +67,7 @@ x•	increase military upkeep by x3
         public boolean isSuitable(Industry ind) {
             Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
             boolean isCorpo = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof CorporateGovernanceSubIndustry;
-            return !Settings.getBoolean(Settings.GOVERNMENT_LARP_MODE) && isCorpo;
+            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isCorpo;
         }
 
         @Override

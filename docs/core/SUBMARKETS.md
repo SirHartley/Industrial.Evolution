@@ -37,15 +37,15 @@ Feature submarkets with their plugin outside this package:
 |---|---|---|
 | Submarket | `IndEvo_RepairStorage` (`Ids.REPSTORAGE`), `IndEvo_ReqCenterMarket` (`Ids.REQMARKET`), `IndEvo_DeconstStorage` (`Ids.DECSTORAGE`), `IndEvo_EngStorage` (`Ids.ENGSTORAGE`), `IndEvo_SharedStore` (`Ids.SHAREDSTORAGE`), `IndEvo_PetSubMarket` (`Ids.PETMARKET`), `IndEvo_MuseumStorage`, `IndEvo_WarehouseStorage_1..5`, `IndEvo_tempStorage` (`Ids.TEMPSTORE`) | `data/campaign/submarkets.csv` (faction `player` for all) |
 | Faction (colour only) | `indStorageColour`, `deconStorageColour`, `engHubStorageColour`, `dryDockButtonColor`, `reqSellStorageColour` | `submarket.setFaction` in each plugin's `init` |
-| Whitelist | `IndEvo_printList`, `IndEvo_reverseList`, `IndEvo_custOrderList` (faction blacklist for Requisitions) | `data/config/settings.json:219` to `:222`; see [Settings](SETTINGS.md) |
-| Setting | `IndEvo_DeconIgnoreWhitelists`, `IndEvo_DeconAllowNexOmega`, `IndEvo_EngHubIgnoreWhitelists`, `IndEvo_EngHubStrictWhitelist` | `data/config/LunaSettings.csv:137`, `:138`, `:111`, `:110` |
+| Whitelist | `IndEvo_printList`, `IndEvo_reverseList`, `IndEvo_custOrderList` (faction blacklist for Requisitions) | `data/config/settings.json:53` to `:56`; see [Settings](SETTINGS.md) |
+| Setting | `IndEvo_DeconIgnoreWhitelists`, `IndEvo_DeconAllowNexOmega`, `IndEvo_EngHubIgnoreWhitelists`, `IndEvo_EngHubStrictWhitelist` | `data/config/LunaSettings.csv:151`, `:152`, `:136`, `:135` |
 | Memory key | `$IndEvo_maxDModMemory` (read in dock tooltip) | `RestorationDocksSubmarketPlugin.java:135` |
 | Hullmod | `IndEvo_auto` (`Ids.PRINTING_INDICATOR`): printed ships are refused | Decon and RE plugins |
 
 ## Registration and lifecycle
 
 - CSV `script` column -> engine creates the plugin on `market.addSubmarket(id)`.
-- Add: industry `apply()` -> `Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, id, false))` -> next frame `market.addSubmarket(id)`. Callers: `RestorationDocks.java:75`, `RequisitionCenter.java:42`, `HullDeconstructor.java:76`, `EngineeringHub.java:84`, `SharedSubmarketUser.java:11`, `CommodityForge.java:407`, `PetShop.java:180`.
+- Add: industry `apply()` -> `Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, id, false))` -> next frame `market.addSubmarket(id)`. Callers: `RestorationDocks.java:75`, `RequisitionCenter.java:42`, `HullDeconstructor.java:76`, `EngineeringHub.java:85`, `SharedSubmarketUser.java:11`, `CommodityForge.java:407`, `PetShop.java:182`.
 - Remove: industry `unapply()` / removal -> same script with `true` -> `removeSubMarket()` switch on the id -> if the owning industry is gone: optional `moveContentsToStorage`, `((DynamicSubmarket) plugin).prepareForRemoval()`, `market.removeSubmarket(id)`.
 - Museum and Warehouses add directly (`Museum.java:126`) and remove through `RemovablePlayerSubmarketPluginAPI.notifyBeingRemoved()` then `removeSubmarket` (`Warehouses.java:159`, `:166`).
 

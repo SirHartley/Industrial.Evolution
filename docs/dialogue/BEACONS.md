@@ -27,8 +27,8 @@ Any warning beacon (vanilla or IE) in hyperspace gets an extra option to dismant
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded` -> `BeaconDialogueListener.register()` (`ModPlugin.java:486`): `addTransientListener`, so one instance per load and nothing saved.
-- Rule commands resolve from `ruleCommandPackages` entry `indevo.dialogue.beacons.dialogue` (`data/config/settings.json:249`).
+- `ModPlugin.setListenersIfNeeded` -> `BeaconDialogueListener.register()` (`ModPlugin.java:472`): `addTransientListener`, so one instance per load and nothing saved.
+- Rule commands resolve from `ruleCommandPackages` entry `indevo.dialogue.beacons.dialogue` (`data/config/settings.json:83`).
 
 Order: `OpenInteractionDialog rules -> dialog shown -> BeaconDialogueListener adds option -> IndEvo_beacon_destroyConfirm -> IndEvo_beacon_destroyLeave -> IndEvo_RemoveCurrentInteractionTarget + DismissDialog`.
 

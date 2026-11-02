@@ -11,19 +11,18 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.entities.MeteorEntity;
 import indevo.exploration.meteor.helper.MeteorFactory;
 import indevo.exploration.meteor.movement.ArcingMovementModule;
 import indevo.exploration.meteor.movement.ExternalOrbitMovement;
-import indevo.exploration.meteor.scripts.DespawningMovementModuleRunner;
 import indevo.exploration.meteor.scripts.PayloadOnFinishedModuleRunner;
 import indevo.exploration.meteor.scripts.PlanetoidDespawnScript;
 import indevo.exploration.meteor.terrain.RadioactiveTerrain;
 import indevo.ids.Ids;
 import indevo.utils.helper.CircularArc;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.awt.*;
@@ -144,7 +143,7 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
                 MeteorSwarmManager.MeteroidShowerType meteorType = MeteorSwarmManager.MeteroidShowerType.ASTEROID;
                 //if above certain density replace some of the default roids with rads
                 if (density > MIN_DENSITY_FOR_RADOID_SPAWN){
-                    float chance = ((density - MIN_DENSITY_FOR_RADOID_SPAWN) / (MeteorSwarmManager.MAX_DENSITY - MIN_DENSITY_FOR_RADOID_SPAWN)) * MAX_IRRADOID_CHANCE; //do not question the ancient one
+                    float chance = ((density - MIN_DENSITY_FOR_RADOID_SPAWN) / (Setting.METEOR_MAX_DENSITY.value() - MIN_DENSITY_FOR_RADOID_SPAWN)) * MAX_IRRADOID_CHANCE; //do not question the ancient one
 
                     if (random.nextFloat() < chance) meteorType = MeteorSwarmManager.MeteroidShowerType.IRRADIOID;
                 }
@@ -178,7 +177,7 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
         picker.add(Entities.ORBITAL_HABITAT);
         picker.add(Entities.STATION_MINING);
         picker.add(Ids.ARSENAL_ENTITY);
-        if (Settings.getBoolean(Settings.PETS)) picker.add(Ids.ABANDONED_PETSHOP_ENTITY);
+        if (Setting.PETS.enabled()) picker.add(Ids.ABANDONED_PETSHOP_ENTITY);
 
         String stationType = picker.pick();
         SectorEntityToken station = planet.getContainingLocation().addCustomEntity(null, "Dust-covered " +
@@ -188,7 +187,6 @@ public class PlanetoidSwarmSpawner extends BaseArcingSwarmSpawner{
         station.setDiscoverable(true);
         station.setSensorProfile(1000f);
 
-        //station.addScript(new DespawningMovementModuleRunner(new ExternalOrbitMovement(arc), station)); //what was I thinking??
         return station;
     }
 

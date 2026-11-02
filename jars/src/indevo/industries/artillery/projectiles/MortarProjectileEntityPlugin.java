@@ -11,8 +11,8 @@ import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
-import indevo.utils.helper.Settings;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -26,7 +26,6 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
     public static final float GLOW_SIZE = 30f;
     public static Color GLOW_COLOR = new Color(255, 80, 60, 255);
     public static float GLOW_FREQUENCY = 3f; // on/off cycles per second
-    public static float EFFECT_SIZE = Settings.getFloat(Settings.ARTILLERY_MORTAR_EXPLOSION_SIZE);
 
     public static final float RETICULE_ALPHA_RAMPUP_FRACTION = 0.1f;
     public static final float RETICULE_ALPHA_FADEOUT_FRACTION = 0.8f;
@@ -159,13 +158,13 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
             if (other == entity) continue;
 
             float dist = Misc.getDistance(target, other.getLocation());
-            if (dist > EFFECT_SIZE + 500f) continue;
+            if (dist > Setting.ARTILLERY_MORTAR_EXPLOSION_SIZE.value() + 500f) continue;
 
             float timing = impactSeconds - timePassedSeconds;
             String key = ARTILLERY_REACTION_SCRIPT_KEY + entity.getId();
 
             if (!other.getMemoryWithoutUpdate().contains(key)) {
-                other.addScript(new ArtilleryReactionScript(target, EFFECT_SIZE + 100f, other, timing));
+                other.addScript(new ArtilleryReactionScript(target, Setting.ARTILLERY_MORTAR_EXPLOSION_SIZE.value() + 100f, other, timing));
                 other.getMemoryWithoutUpdate().set(key, true, timing);
             }
         }
@@ -228,7 +227,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
                         color,
                         cl,
                         target,
-                        EFFECT_SIZE,
+                        Setting.ARTILLERY_MORTAR_EXPLOSION_SIZE.value(),
                         0.65f);
 
         params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.LOW;
@@ -253,7 +252,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
 
         targetReticule.setAdditiveBlend();
         targetReticule.setAngle(angle);
-        targetReticule.setSize(EFFECT_SIZE * sizeMult, EFFECT_SIZE * sizeMult);
+        targetReticule.setSize(Setting.ARTILLERY_MORTAR_EXPLOSION_SIZE.value() * sizeMult, Setting.ARTILLERY_MORTAR_EXPLOSION_SIZE.value() * sizeMult);
         targetReticule.setAlphaMult(currentAlpha);
         targetReticule.setColor(color);
         targetReticule.renderAtCenter(target.x, target.y);

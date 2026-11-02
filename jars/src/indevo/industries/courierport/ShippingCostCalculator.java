@@ -7,16 +7,12 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.util.Misc;
-import indevo.utils.helper.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
+import indevo.config.Setting;
 
 public class ShippingCostCalculator {
-    public static final float COST_PER_SPACE = Settings.getInt(Settings.COURIER_COST_PER_CARGO_SPACE);;
-    public static final float COST_PER_SHIP_SPACE = Settings.getInt(Settings.COURIER_COST_PER_SHIP_DP);;
-    public static final float CONTRACT_BASE_FEE = Settings.getInt(Settings.COURIER_BASE_FEE);;
-    public static final float COST_PER_LY_SETTING_MULT = Settings.getFloat(Settings.COURIER_COST_PER_LY_MULT);
     public static final float COST_PER_LY_MULT = 250f; //unaffected by setting cause hard to explain to player
 
     //AI cores
@@ -25,11 +21,11 @@ public class ShippingCostCalculator {
     public static final String AI_CORE_ID_STRING = "$IndEvo_CurrentShippingCore";
 
     public static float getCostForCargoSpace(int space, float lyMult) {
-        return space * COST_PER_SPACE * lyMult * getAlphaCoreRed();
+        return space * Setting.COURIER_COST_PER_CARGO_SPACE.value() * lyMult * getAlphaCoreRed();
     }
 
     public static float getCostForShipSpace(int dp, float lyMult) {
-        return dp * COST_PER_SHIP_SPACE * lyMult * getAlphaCoreRed();
+        return dp * Setting.COURIER_COST_PER_SHIP_DP.value() * lyMult * getAlphaCoreRed();
     }
 
     public static float getLYMult(ShippingContract contract) {
@@ -46,13 +42,13 @@ public class ShippingCostCalculator {
 
         float red = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.BETA_CORE) ? DISTANCE_MULT_REDUCTION : 1f;
         lyMult *= red;
-        lyMult *= COST_PER_LY_SETTING_MULT;
+        lyMult *= Setting.COURIER_COST_PER_LY_MULT.value();
 
         return lyMult;
     }
 
     public static float getTotalContractCost(CargoAPI cargo, ShippingContract contract) {
-        return (getSpecificShipCostForCargo(cargo, contract, false) + getSpecificCargoCostForCargo(cargo, contract, false) + CONTRACT_BASE_FEE);
+        return (getSpecificShipCostForCargo(cargo, contract, false) + getSpecificCargoCostForCargo(cargo, contract, false) + Setting.COURIER_BASE_FEE.value());
     }
 
     public static float getSpecificShipCostForCargo(CargoAPI cargo, ShippingContract contract, boolean ignoreLYMult) {
@@ -79,7 +75,7 @@ public class ShippingCostCalculator {
 
 
     public static float getCostForStack(CargoStackAPI stack) {
-        return (getStackSpace(stack) * COST_PER_SPACE);
+        return (getStackSpace(stack) * Setting.COURIER_COST_PER_CARGO_SPACE.value());
     }
 
     private static float getStackSpace(CargoStackAPI stack) {
@@ -102,7 +98,7 @@ public class ShippingCostCalculator {
             }
         }
 
-        return totalValue * COST_PER_SHIP_SPACE * getAlphaCoreRed();
+        return totalValue * Setting.COURIER_COST_PER_SHIP_DP.value() * getAlphaCoreRed();
     }
 
     private static float getBaseStackCargoSpaceCost(CargoAPI cargo) {
@@ -112,7 +108,7 @@ public class ShippingCostCalculator {
             totalSpace += getStackSpace(s);
         }
 
-        return totalSpace * COST_PER_SPACE * getAlphaCoreRed();
+        return totalSpace * Setting.COURIER_COST_PER_CARGO_SPACE.value() * getAlphaCoreRed();
     }
 
     private static float getAlphaCoreRed() {

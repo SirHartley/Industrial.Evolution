@@ -12,10 +12,10 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.dialogue.research.dialogue.DropDataCreator;
 import indevo.ids.ItemIds;
 import indevo.industries.artillery.scripts.ArtilleryStationScript;
-import indevo.utils.helper.Settings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +43,7 @@ public class ConsumableItemDropListener implements ShowLootListener {
 
     @Override
     public void reportAboutToShowLootToPlayer(CargoAPI loot, InteractionDialogAPI dialog) {
-        if (!Settings.getBoolean(Settings.CONSUMABLE_DROP_FROM_FLEETS)) return;
+        if (!Setting.CONSUMABLE_DROP_FROM_FLEETS.enabled()) return;
 
         if (dialog.getInteractionTarget().hasTag(ArtilleryStationScript.ARTILLERY_KEY)){
             loot.addSpecial(new SpecialItemData(ItemIds.CONSUMABLE_MISSILE_REMOTE, null), 1);

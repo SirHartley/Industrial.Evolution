@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -28,7 +29,7 @@ public class Edict_OpenMarket extends BaseEdict {
         super.apply(id);
         if (market.getPrimaryEntity() == null) return;
 
-        if (market.isPlayerOwned() && !market.hasIndustry("commerce")) {
+        if (market.isPlayerOwned() && !market.hasIndustry(Industries.COMMERCE)) {
             market.getStability().modifyFlat(getModId(), -STABILITY_PELANTY, getName());
 
             SubmarketAPI open = market.getSubmarket(Submarkets.SUBMARKET_OPEN);
@@ -53,7 +54,7 @@ public class Edict_OpenMarket extends BaseEdict {
         if (market.getPrimaryEntity() == null) return;
 
         // commerce owns the open market then, and edict removal does not reapply industries
-        if (market.isPlayerOwned() && !market.hasIndustry("commerce")) {
+        if (market.isPlayerOwned() && !market.hasIndustry(Industries.COMMERCE)) {
             SubmarketAPI open = market.getSubmarket(Submarkets.SUBMARKET_OPEN);
             saved = open;
 

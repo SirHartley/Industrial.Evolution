@@ -4,8 +4,8 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
-import indevo.utils.helper.Settings;
 
 public class ArtilleryStationCondition extends BaseHazardCondition {
 
@@ -20,7 +20,7 @@ public class ArtilleryStationCondition extends BaseHazardCondition {
     public void advance(float amount) {
         super.advance(amount);
 
-        if (!Settings.getBoolean(Settings.ENABLE_ARTILLERY)) return;
+        if (!Setting.ENABLE_ARTILLERY.enabled()) return;
 
         if (setup) {
             ArtilleryStationPlacer.addArtilleryToPlanet(market.getPrimaryEntity(), true);
@@ -30,7 +30,7 @@ public class ArtilleryStationCondition extends BaseHazardCondition {
 
     @Override
     public boolean showIcon() {
-        return super.showIcon() && Settings.getBoolean(Settings.ENABLE_ARTILLERY);
+        return super.showIcon() && Setting.ENABLE_ARTILLERY.enabled();
     }
 
     public boolean isDestroyed() {

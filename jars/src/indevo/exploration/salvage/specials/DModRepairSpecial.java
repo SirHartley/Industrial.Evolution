@@ -14,13 +14,13 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpe
 import com.fs.starfarer.api.loading.HullModSpecAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.utils.helper.Settings;
 
 import java.util.*;
 
 import static com.fs.starfarer.api.impl.campaign.DModManager.getNumNonBuiltInDMods;
 import static indevo.industries.RestorationDocks.getBaseShipHullSpec;
 import static indevo.industries.RestorationDocks.getListNonBuiltInDMods;
+import indevo.config.Setting;
 
 public class DModRepairSpecial extends BaseSalvageSpecial {
 
@@ -144,7 +144,7 @@ public class DModRepairSpecial extends BaseSalvageSpecial {
         for (FleetMemberAPI member : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
             if (DModManager.getNumNonBuiltInDMods(member.getVariant()) > 0 && isRestorable(member)) fleetMemberList.add(member);
         }
-        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
+        int shipsPerRow = Setting.SHIP_PICKER_ROW_COUNT.intValue();
         int rows = fleetMemberList.size() > shipsPerRow ? (int) Math.ceil(fleetMemberList.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(fleetMemberList.size(), shipsPerRow);
 

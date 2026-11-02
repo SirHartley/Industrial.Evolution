@@ -30,17 +30,17 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | Memory key | `$IndEvo_closeDialogueOnNextReturn` | interaction target memory, set by the option provider |
 | Memory key | `$IndEvo_HasSelectedSP_SY` | market memory: story point double capacity bought but not yet used |
 | Setting | `IndEvo_ScrapYard` | enables the industry; `isFunctional()` also checks it |
-| Setting | `IndEvo_SYBaseDMods`, `IndEvo_SYPartValueMult`, `IndEvo_SYHullDeliveryTime`, `IndEvo_RarePartsAmountPerFP`, `IndEvo_SYDModMoveBaseCostMult`, `IndEvo_shipPickerRowCount` | read as static finals in the dialog classes |
+| Setting | `IndEvo_SYBaseDMods`, `IndEvo_SYPartValueMult`, `IndEvo_SYHullDeliveryTime`, `IndEvo_RarePartsAmountPerFP`, `IndEvo_SYDModMoveBaseCostMult`, `IndEvo_shipPickerRowCount` | read at use time in the dialog classes; a contract keeps the delivery time it was accepted with (`YardsCustomProductionIntel.deliveryTime`, saved) |
 | Strings | category `IndEvo_ScrapYard` | `data/strings/strings.json:159` |
 
 ## Registration and lifecycle
 
-- CSV plugin column. `ModPlugin.setListenersIfNeeded()` registers `SalvageYardsOptionProvider` (`ModPlugin.java:478`).
-- `apply()` (functional only) registers itself as transient listener (`EconomyTickListener`, `NewDayListener`) and adds itself as `FleetEventListener` to every fleet currently in the system, skipping fleets that carry a `LuddicPathCellsIntel` listener to avoid a vanilla `ConcurrentModificationException` (`SalvageYards.java:204`).
+- CSV plugin column. `ModPlugin.setListenersIfNeeded()` registers `SalvageYardsOptionProvider` (`ModPlugin.java:464`).
+- `apply()` (functional only) registers itself as transient listener (`EconomyTickListener`, `NewDayListener`) and adds itself as `FleetEventListener` to every fleet currently in the system, skipping fleets that carry a `LuddicPathCellsIntel` listener to avoid a vanilla `ConcurrentModificationException` (`SalvageYards.java:202`).
 - `advance` keeps the shared submarket present; `unapply` removes listener, submarket and production quality mod.
 - Dialog commands are found through `ruleCommandPackages` (see [Rule commands](../dialogue/RULE_COMMANDS.md)).
 - `YardsCustomProductionIntel.init()` registers the intel as a persistent listener; it deregisters 60 days after delivery or failure.
-- Saved fields: `availableSalvagePoints`, `countedIntel` (raid intel already paid out, pruned daily once the intel manager drops it), `finishedIntel` (unused, kept for 4.1.b saves; `readResolve` reruns `IntelArchive()` when `countedIntel` is missing), `baseOutput`, `currentWeaponBonusSP`, `outputSalvagePointValue`, `outputDecayMult`.
+- Saved fields: `availableSalvagePoints`, `countedIntel` (raid intel already paid out, pruned daily once the intel manager drops it), `baseOutput`, `currentWeaponBonusSP`, `outputSalvagePointValue`, `outputDecayMult`.
 
 ## Flow
 
@@ -59,7 +59,7 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 
 ### Output
 
-`applySupDemProfiles()` (`:157`): `base` = 3 + bonus (player), `size` + bonus (player, beta core), `max(3, baseOutput)` + bonus (AI); bonus = `SP / outputSalvagePointValue`, capped at `size + 4`.
+`applySupDemProfiles()` (`:155`): `base` = 3 + bonus (player), `size` + bonus (player, beta core), `max(3, baseOutput)` + bonus (AI); bonus = `SP / outputSalvagePointValue`, capped at `size + 4`.
 
 - demand heavy machinery `base - 2`, ships `base`; supply metals and `IndEvo_parts` `base - 1`
 - with heavy industry (`HeavyIndustry` subclass, or Shadowyards `MS_modularFac` / `MS_fabUpgrader` when `shadow_ships` is enabled): `hi.getSupply(ships).modifyFlat(base - 2)`
@@ -86,14 +86,14 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 
 - The industry only counts battles of fleets present when `apply()` last ran; new arrivals are added on the next reapply.
 - `isFunctional()` returns false while the setting is off, which also stops a saved yards from producing.
-- `custom_production_mod` handling (`modifyPlayerCustomProduction`) is never called; only the unmodify runs. Output reaches custom production through heavy industry `ships` supply instead (inferred from the "now adds onto heavy industry directly" comment, `:82`).
+- `custom_production_mod` handling (`modifyPlayerCustomProduction`) is never called; only the unmodify runs. Output reaches custom production through heavy industry `ships` supply instead (inferred from the "now adds onto heavy industry directly" comment, `:80`).
 
 ## Known issues and dormant code
 
 | Item | State |
 |---|---|
-| AI core fields not reset (`applyAlphaCoreModifiers` etc., `:521`) | `BaseIndustry.applyAICoreModifiers` calls only one branch (`api/impl/campaign/econ/impl/BaseIndustry.java:246`); switching alpha to beta keeps alpha decay, beta to gamma keeps 90 SP per unit |
-| Story point bonus (`IndEvo_InitSYCustomProductionDiag.getCapacity`, `:357`) | multiplies only the hull capacity term (operator precedence) |
+| AI core fields not reset (`applyAlphaCoreModifiers` etc., `:506`) | `BaseIndustry.applyAICoreModifiers` calls only one branch (`api/impl/campaign/econ/impl/BaseIndustry.java:246`); switching alpha to beta keeps alpha decay, beta to gamma keeps 90 SP per unit |
+| Story point bonus (`IndEvo_InitSYCustomProductionDiag.getCapacity`, `:354`) | multiplies only the hull capacity term (operator precedence) |
 | D-mod transfer confirm | no credit check before `subtract`; cost formula `(1.2^n + 1) / n` differs from `RestorationDocks` `1.2^(n+1) / n` |
 | `modifyPlayerCustomProduction` | dead code |
 | Open idea | `Changelog_todo:45`, `:69`: move S-mods with the yards |

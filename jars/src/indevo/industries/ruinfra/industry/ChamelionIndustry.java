@@ -5,14 +5,12 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
+import indevo.config.Setting;
 import indevo.ids.Ids;
-import indevo.utils.helper.Settings;
 
 import static indevo.industries.ruinfra.conditions.DerelictInfrastructureCondition.RUINED_INFRA_UPGRADE_ID_KEY;
 
 public class ChamelionIndustry extends BaseIndustry {
-
-    public static final float BUILD_PARAM_RED = Settings.getFloat(Settings.DERINFRA_BUILD_RED);
 
     // 20.04.2021 check if this properly blocks the actual ind from being built, if not, make check that prohibits upgrading if it is added or stops the current upgrade if it is ongoing.
     // 03/12/2022 it does
@@ -59,12 +57,12 @@ public class ChamelionIndustry extends BaseIndustry {
 
     @Override
     public float getBuildCost() {
-        return super.getBuildCost() * BUILD_PARAM_RED;
+        return super.getBuildCost() * Setting.DERINFRA_BUILD_RED.value();
     }
 
     @Override
     public float getBuildTime() {
-        return super.getBuildTime() * BUILD_PARAM_RED;
+        return super.getBuildTime() * Setting.DERINFRA_BUILD_RED.value();
     }
 
     @Override

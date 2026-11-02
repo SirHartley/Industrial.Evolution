@@ -54,7 +54,7 @@ Rows: `data/campaign/market_conditions.csv:2-14`. Military presence is `MiscIE.m
 | Conditions | `IndEvo_edict_*` (12) | `data/campaign/market_conditions.csv` |
 | Item | `IndEvo_neurals` (Neuroconditioning Compounds) | `data/campaign/special_items.csv:41`, effect in `SpecialItemEffectsRepo` |
 | Constants | `RANGE_LY_TWELVE` 12, `NEURAL_COMPOUNDS_UNREST_RED` 0.5 | `indevo/items/installable/SpecialItemEffectsRepo.java:57-58` |
-| Setting | `IndEvo_senate` (toggle) | `data/config/LunaSettings.csv:93`, `Senate.isAvailableToBuild()` |
+| Setting | `IndEvo_senate` (toggle) | `data/config/LunaSettings.csv:100`, `Senate.isAvailableToBuild()` |
 | Market tags | `<conditionModId><days>` runtime counter; `edict_stab_penalty<n>` | `TimeTracker`, `Edict_Conscription` |
 | Market memory | `$IndEvo_WeightMemory` (saved population weight) | `Edict_LockColonySize.java:13` |
 | Dialogue memory | `$IndEvo_EdictList`, `$IndEvo_EdictSubListPage`, `$IndEvo_selectedEdictID` (local, expire 0); option prefix `IndEvo_SelectEdict_` | `IndEvo_EdictVariables` |
@@ -62,8 +62,8 @@ Rows: `data/campaign/market_conditions.csv:2-14`. Military presence is `MiscIE.m
 
 ## Registration and lifecycle
 
-- Industry and condition plugins from CSV plugin columns; rule commands from `ruleCommandPackages` `indevo.industries.senate.rules` (`data/config/settings.json:240`).
-- `SenateOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:480`). `Senate.SenateFactor` is registered by `SpecialItemEffectsRepo.initEffectListeners()` (`SpecialItemEffectsRepo.java:43`), called at `ModPlugin.java:439`.
+- Industry and condition plugins from CSV plugin columns; rule commands from `ruleCommandPackages` `indevo.industries.senate.rules` (`data/config/settings.json:74`).
+- `SenateOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:466`). `Senate.SenateFactor` is registered by `SpecialItemEffectsRepo.initEffectListeners()` (`SpecialItemEffectsRepo.java:43`), called at `ModPlugin.java:425`.
 - `BaseEdict.apply()` adds the condition as a transient listener (deduped) and a `TimeTracker` market tag tracker; skips both on markets without a primary entity and in the codex (`BaseEdict.java:36`). `TimeTracker` increments the tag daily and calls `onNewDay()`.
 
 Chain: `IndEvo_ApplyEdict -> IndEvo_applyEdict -> market.addCondition -> BaseEdict.apply -> TimeTracker tag -> onNewDay (presence check, auto end) -> removeWithPenalty/removeWithoutPenalty -> market.removeSpecificCondition`.

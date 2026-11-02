@@ -42,13 +42,13 @@ The player ability `splinter_fleet` opens a control panel with three loadout slo
 | `intel/DerelictFleetLocationIntel.java` | "Dormant Detachment" intel. Never constructed. Dead. |
 | `salvageSpecials/OfficerAndShipRecoverySpecial.java` | Salvage special on detachment wrecks: thaw the officer, then recover the ship with condition based hits and d-mods. |
 | `listeners/DetachmentAbilityAdder.java` | `NewDayListener` that grants the ability once the tutorial is over, then removes itself (`:26`). |
-| `locationFollower/PlayerFleetFollower.java`, `LocationFollowListenerAPI.java` | Token that tracks the player fleet across locations. `register()` is commented out (`ModPlugin.java:517`); only `getToken()` is used by the dormant DELIVER AI. Dormant. |
+| `locationFollower/PlayerFleetFollower.java`, `LocationFollowListenerAPI.java` | Token that tracks the player fleet across locations. `register()` is commented out (`ModPlugin.java:503`); only `getToken()` is used by the dormant DELIVER AI. Dormant. |
 
 ## Data and ids
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Ability | `splinter_fleet` (`Ids.ABILITY_DETACHMENT`) | `data/campaign/abilities.csv:2`, `indevo/ids/Ids.java:140` |
+| Ability | `splinter_fleet` (`Ids.ABILITY_DETACHMENT`) | `data/campaign/abilities.csv:2`, `indevo/ids/Ids.java:141` |
 | Custom entity | `SplinterFleet_OrbitFocus` (hidden), `development_SplinterFleet_OrbitFocus` (visible debug twin) | `data/config/custom_entities.json:420`, `:431` |
 | Entity tag | `SplinterFleet_OF` | `OrbitFocus.ORBIT_FOCUS_TAG` |
 | Fleet tag | `SplinterFleet_DetachmentIsJumping` | `BaseSplinterFleetAssignmentAIV2.CURRENTLY_JUMPING_FLAG` |
@@ -62,8 +62,8 @@ The player ability `splinter_fleet` opens a control panel with three loadout slo
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded` -> `DetachmentAbilityAdder.register()` (`ModPlugin.java:451`); persistent `NewDayListener`, deduped by `hasListenerOfClass`.
-- `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new SplinterFleetCampignPlugin())` on every load (`ModPlugin.java:505`); transient, so it is not saved.
+- `ModPlugin.setListenersIfNeeded` -> `DetachmentAbilityAdder.register()` (`ModPlugin.java:437`); persistent `NewDayListener`, deduped by `hasListenerOfClass`.
+- `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new SplinterFleetCampignPlugin())` on every load (`ModPlugin.java:491`); transient, so it is not saved.
 - `abilities.csv` plugin column -> `SplinterAbilityPlugin`.
 - Per detachment, attached at spawn and saved with the fleet: one `SplinterFleetAssignmentAIV2` script and one `CombatAndDerelictionScript` (`FleetUtils.java:167`, `:168`). The AI adds itself as a sector `CampaignEventListener` on first `advance` (`regsterIfNeeded`, `BaseSplinterFleetAssignmentAIV2.java:500`) and removes itself when done (`:128`).
 
@@ -129,7 +129,7 @@ Follow, escort and intercept queue the player's jumps in `jumpInfoMap` from `rep
 - Save data: both slot maps, `Loadout` objects (with `ShipVariantAPI` refs and a cargo), the AI script, its `jumpInfoMap` and the `CombatAndDerelictionScript` persist. `AbilityPanelDialoguePlugin` and `VisualCustomPanel` state do not.
 - Slot numbers `1, 2, 3` are hardcoded in `DetachmentMemory`, `LoadoutMemory`, `Behaviour.updateActiveDetachmentBehaviour` and the panel. Slot `0` from `getNumForFleet` means "not a live detachment".
 - Every orbit focus is a new custom entity tagged `SplinterFleet_OF`; the dormancy focus is removed once its orbit is copied. `ModPlugin.onGameLoad -> OrbitFocus.removeUnusedOrbitFoci()` removes tagged foci that no entity orbits and no fleet assignment, interaction target, detachment AI (`addUsedEntities`: stay and hide focus, queued jumps) or `RecoverableShipIntel` points at. A focus a new script holds in a field must be added to `addUsedEntities`, or it is removed on the next load. Mine disabled areas use the same entity type without the tag and remove themselves.
-- Cross feature: ship component loot skips detachments via `FleetUtils.isDetachmentFleet` (`indevo/items/listeners/ShipComponentLootManager.java:57`); `OrbitFocus` is reused by `BeaconAbilityPlugin`, `ScoopAbilityPlugin`, `SmokeCloudEntityPlugin` (see [Consumables](../items/CONSUMABLES.md)) and `MineBeltTerrainPlugin` spawns `SplinterFleet_OrbitFocus` entities (see [Minefields](../exploration/MINEFIELDS.md)). Market storage access uses `MiscIE.getStorageCargo` (see [Utils](../core/UTILS.md)).
+- Cross feature: ship component loot skips detachments via `FleetUtils.isDetachmentFleet` (`indevo/items/listeners/ShipComponentLootManager.java:55`); `OrbitFocus` is reused by `BeaconAbilityPlugin`, `ScoopAbilityPlugin`, `SmokeCloudEntityPlugin` (see [Consumables](../items/CONSUMABLES.md)) and `MineBeltTerrainPlugin` spawns `SplinterFleet_OrbitFocus` entities (see [Minefields](../exploration/MINEFIELDS.md)). Market storage access uses `MiscIE.getStorageCargo` (see [Utils](../core/UTILS.md)).
 
 ## Known issues and dormant code
 

@@ -17,6 +17,7 @@ import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.config.Setting;
 import indevo.industries.museum.fleet.ParadeFleetAssignmentAI;
 import indevo.industries.museum.industry.Museum;
 import indevo.utils.ModPlugin;
@@ -90,7 +91,7 @@ public class ParadeFleetProfile implements FleetEventListener {
         cargo.initMothballedShips(Factions.PLAYER);
         List<FleetMemberAPI> shipsInStorage = cargo.getMothballedShips().getMembersListCopy();
 
-        if (memberIdPreset == null && shipsInStorage.size() < MIN_SHIPS_FOR_PARADE) return null; //random parades require at least x members
+        if (memberIdPreset == null && shipsInStorage.size() < Setting.MUSEUM_MIN_SHIPS_FOR_PARADE.intValue()) return null; //random parades require at least x members
 
         FleetParamsV3 params = getBaseParams(market);
         params.random = new Random();
@@ -118,13 +119,13 @@ public class ParadeFleetProfile implements FleetEventListener {
 
             for (FleetMemberAPI member : shipsInStorage){
                 if (member.getVariant().hasTag(ON_PARADE_TAG)) continue;
-                if (count >= TOP_SHIP_POOL_AMT_FOR_PARADE_SELECTION) break; //we only get the top X so we don't go on parade with a bunch of trash
+                if (count >= Setting.MUSEUM_TOP_SHIP_POOL_AMT_FOR_PARADE_SELECTION.intValue()) break; //we only get the top X so we don't go on parade with a bunch of trash
 
                 fleetMemberPicker.add(member);
                 count++;
             }
 
-            for (int i = 0; i <= DEFAULT_PARADE_MEMBERS_MAX; i++) {
+            for (int i = 0; i <= Setting.MUSEUM_DEFAULT_PARADE_MEMBERS_MAX.intValue(); i++) {
                 if (fleetMemberPicker.isEmpty()) break;
                 paradeMembers.add(fleetMemberPicker.pickAndRemove());
             }

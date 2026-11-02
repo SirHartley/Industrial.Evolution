@@ -137,6 +137,7 @@ public class Ids {
 
     //abilities
     public static final String ABILITY_DETACHMENT = "splinter_fleet";
+    public static final String ABILITY_PET_MANAGEMENT = "pet_management";
     public static final String ABILITY_NANITES = "IndEvo_ability_nanites";
     public static final String ABILITY_SUPERCHARGER = "IndEvo_ability_supercharger";
     public static final String ABILITY_STABILIZER = "IndEvo_ability_stabilizer";

@@ -9,12 +9,12 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import indevo.config.Setting;
 import indevo.dialogue.sidepanel.EscapeBlockingDialoguePluginAPI;
 import indevo.industries.petshop.listener.EscapeInterceptListener;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.script.EscBlockerMemoryIterator;
-import indevo.utils.helper.Settings;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -82,7 +82,7 @@ public class PetShopDialogPlugin implements InteractionDialogPlugin, EscapeBlock
             if (p == null) membersWithoutPets.add(m);
         }
 
-        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
+        int shipsPerRow = Setting.SHIP_PICKER_ROW_COUNT.intValue();
         int rows = membersWithoutPets.size() > shipsPerRow ? (int) Math.ceil(membersWithoutPets.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(membersWithoutPets.size(), shipsPerRow);
 

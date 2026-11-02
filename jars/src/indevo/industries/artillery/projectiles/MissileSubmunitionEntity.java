@@ -6,6 +6,7 @@ import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -218,8 +219,8 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
         ECMExplosion.ECMExplosionParams p = new ECMExplosion.ECMExplosionParams(
                 entity.getContainingLocation(),
                 entity.getLocation(),
-                ECMExplosion.DURATION,
-                ECMExplosion.BASE_RADIUS);
+                Setting.ARTILLERY_MISSILE_DURATION.value(),
+                Setting.ARTILLERY_MISSILE_EXPLOSION_RADIUS.value());
 
         ECMExplosion.spawn(p);
     }

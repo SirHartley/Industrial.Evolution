@@ -10,9 +10,9 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -36,7 +36,7 @@ public class Senate extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.getBoolean(Settings.SENATE) && MiscIE.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()) && super.isAvailableToBuild();
+        return Setting.SENATE.enabled() && MiscIE.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()) && super.isAvailableToBuild();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class Senate extends BaseIndustry {
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.SENATE);
+        return Setting.SENATE.enabled();
     }
 
     @Override

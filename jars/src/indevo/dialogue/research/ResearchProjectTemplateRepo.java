@@ -13,6 +13,7 @@ import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.dialogue.research.dialogue.DropDataCreator;
 import indevo.dialogue.research.dialogue.RequiredItem;
 import indevo.dialogue.research.dialogue.ResearchProject;
@@ -27,7 +28,6 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Settings;
 
 import java.util.*;
 
@@ -218,7 +218,7 @@ public class ResearchProjectTemplateRepo {
 
             @Override
             public boolean display() {
-                return Settings.getBoolean(Settings.PETS);
+                return Setting.PETS.enabled();
             }
 
             @Override
@@ -515,7 +515,7 @@ public class ResearchProjectTemplateRepo {
 
             @Override
             public boolean display() {
-                return Settings.getBoolean(Settings.CONSUMABLE_RESEARCH);
+                return Setting.CONSUMABLE_RESEARCH.enabled();
             }
 
             @Override

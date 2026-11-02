@@ -10,10 +10,10 @@ import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.changeling.dialogue.ChangelingIndustryDialogueDelegate;
 import indevo.industries.changeling.industry.mining.SwitchableMining;
-import indevo.utils.helper.Settings;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class ChangelingMiningOptionProvider extends BaseIndustryOptionProvider {
         boolean canChange = isChangeling && ((SwitchableMining) ind).canChange();
         boolean isPlayerOwned = ind.getMarket().isPlayerOwned();
 
-        return (isTarget || canChange) && Settings.getBoolean(Settings.SWITCHABLEMINING) && isPlayerOwned;
+        return (isTarget || canChange) && Setting.SWITCHABLEMINING.enabled() && isPlayerOwned;
     }
 
     @Override

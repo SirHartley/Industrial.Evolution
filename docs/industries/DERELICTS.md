@@ -53,12 +53,12 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Memory key | `$IndEvo_LabBonusCommodityID` and `_1/_2/_3`, `$IndEvo_ruinsPickerSeed` (sector) | `AncientLaboratory.java:38` |
 | Memory key | `"$" + industryId` sector flag (template tooltips) | `BaseForgeTemplateUser.java:81-84` |
 | Memory key | `$IndEvo_original_planet_orbit`, `$IndEvo_closeDialogueOnNextReturn` | `PlanetMovingScript`, rift rules |
-| Setting | `IndEvo_Enable_Derelicts` | `data/config/LunaSettings.csv:14` |
-| Setting | `IndEvo_derelictDeliverToGathering`, `IndEvo_RG_cooldownTime` (90), `IndEvo_RG_range` (9), `IndEvo_reslab_autoDeliverToClosestDecon` | `data/config/LunaSettings.csv:133-136` |
-| Setting | `IndEvo_hullDecon_autoDeliverToClosestForge`, `IndEvo_hullDecon_days_*` (10/20/30/40) | `data/config/LunaSettings.csv:139-143` |
-| Setting | `IndEvo_hullForge_autoQueueShipsUntilEmpty`, `IndEvo_hullForge_autoDeliverToClosestLab`, `IndEvo_hullForge_days_*` (5/10/15/20) | `data/config/LunaSettings.csv:144-149` |
-| Setting | `IndEvo_ToggleMagicRandomSelector` (settings.json only) | `data/config/settings.json:234`, read at `HullForge.java:287,463` |
-| Config | `IndEvo_labList` -> `data/config/indEvo/lab_commodity_whitelist.csv` | `data/config/settings.json:226` |
+| Setting | `IndEvo_Enable_Derelicts` | `data/config/LunaSettings.csv:7` |
+| Setting | `IndEvo_derelictDeliverToGathering`, `IndEvo_RG_cooldownTime` (90), `IndEvo_RG_range` (9), `IndEvo_reslab_autoDeliverToClosestDecon` | `data/config/LunaSettings.csv:147-150` |
+| Setting | `IndEvo_hullDecon_autoDeliverToClosestForge`, `IndEvo_hullDecon_days_*` (10/20/30/40) | `data/config/LunaSettings.csv:153-157` |
+| Setting | `IndEvo_hullForge_autoQueueShipsUntilEmpty`, `IndEvo_hullForge_autoDeliverToClosestLab`, `IndEvo_hullForge_days_*` (5/10/15/20) | `data/config/LunaSettings.csv:158-163` |
+| Setting | `IndEvo_ToggleMagicRandomSelector` (settings.json only) | `data/config/settings.json:68`, read at `HullForge.java:287,463` |
+| Config | `IndEvo_labList` -> `data/config/indEvo/lab_commodity_whitelist.csv` | `data/config/settings.json:60` |
 | Rules | `IndEvo_RiftGenTargetOptions`, `IndEvo_RiftTarget_*`, `IndEvo_FireBaseRGOptionList`, `IndEvo_RiftControlMenuPoint*` | `data/campaign/rules.csv:845-923` |
 | Strings | `IndEvo_HullDecon`, `IndEvo_HullForge` AI core text | `data/strings/strings.json:270,279` |
 
@@ -66,10 +66,10 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 
 ## Registration and lifecycle
 
-- `ModPlugin.onNewGameAfterEconomyLoad`: `RuinsManager.forceCleanCoreRuins()` (`indevo/utils/ModPlugin.java:303`) -> `RuinsManager.placeIndustrialRuins()` (`:332`).
-- `ModPlugin.onGameLoad`, transient listeners re-added each load: `DerelictRuinsPlacer` (PlayerColonizationListener, `:462`), `ResolveRuinsToUpgradeListener` (SurveyPlanetListener, `:463`), `AncientLabCommoditySwitchOptionProvider.register()` (`:478`), `RiftGenOptionProvider.register()` (`:497`), `RemoveIndustryOptionWarningProvider.register()` (`:506`).
-- Each industry adds itself as a transient listener in `apply()` and removes itself in `unapply()`. `onNewDay` comes from IE's `NewDayListener`, driven by `indevo/utils/timers/TimeTracker.java:130`. See [Utils](../core/UTILS.md).
-- Rule commands: package `indevo.industries.derelicts.rules` listed in `data/config/settings.json:240`. `IndEvo_requiresColonyMenuPoint.java:32` also checks `IndEvo_RiftGen`; see [Rule commands](../dialogue/RULE_COMMANDS.md).
+- `ModPlugin.onNewGameAfterEconomyLoad`: `RuinsManager.forceCleanCoreRuins()` (`indevo/utils/ModPlugin.java:289`) -> `RuinsManager.placeIndustrialRuins()` (`:304`).
+- `ModPlugin.onGameLoad`, transient listeners re-added each load: `DerelictRuinsPlacer` (PlayerColonizationListener, `:469`), `ResolveRuinsToUpgradeListener` (SurveyPlanetListener, `:470`), `AncientLabCommoditySwitchOptionProvider.register()` (`:485`), `RiftGenOptionProvider.register()` (`:504`), `RemoveIndustryOptionWarningProvider.register()` (`:513`).
+- Each industry adds itself as a transient listener in `apply()` and removes itself in `unapply()`. `onNewDay` comes from IE's `NewDayListener`, driven by `indevo/utils/timers/TimeTracker.java:127`. See [Utils](../core/UTILS.md).
+- Rule commands: package `indevo.industries.derelicts.rules` listed in `data/config/settings.json:74`. `IndEvo_requiresColonyMenuPoint.java:32` also checks `IndEvo_RiftGen`; see [Rule commands](../dialogue/RULE_COMMANDS.md).
 - `PlanetMovingScript` is persistent (`Global.getSector().addScript`, `RiftGenerator.java:384-386`). The animation script is transient.
 - Console command `SpawnRuins`: see [Console](../core/CONSOLE.md).
 
@@ -102,7 +102,7 @@ Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Co
 
 ## Contracts
 
-- `BaseIndustry.spec` is the shared `Global.getSettings().getIndustrySpec(id)` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:160,702`); never write per market values onto it. `Ruins` overrides `getSpec()` with a view instead; every vanilla reader of the upgrade goes through `getSpec()` (the industry option menu, obfuscated `b` in `com.fs.starfarer.campaign.ui.marketinfo` on 0.98a-RC8, skill `obf/campaign/ui/marketinfo/_c37.java:224,259`; `BaseIndustry.java:575,1075`). Forge template users and `RiftGenerator` do the same for the downgrade.
+- `BaseIndustry.spec` is the shared `Global.getSettings().getIndustrySpec(id)` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:160,702`); never write per market values onto it. `Ruins` overrides `getSpec()` with a view instead; every vanilla reader of the upgrade goes through `getSpec()` (the industry option menu, obfuscated `b` in `com.fs.starfarer.campaign.ui.marketinfo` on 0.98a-RC8 Windows, skill `obf/campaign/ui/marketinfo/_c37.java:224,259`; `BaseIndustry.java:575,1075`). Forge template users and `RiftGenerator` do the same for the downgrade.
 - `$IndEvo_ruinsIndustryId` is the single source for which structure a ruin becomes. Set once, persists in market memory. Also read by `Supercomputer.java:213`, `ModUpdater.java:96-141`, `LocatorSystemRatingUpdater.java:121`.
 - Forge templates move between industries only as cargo through `IndEvo_SharedStore` / `IndEvo_DeconstStorage` and storage. Item plugins (`ForgeTemplateItemPlugin.java:132,248,306`, `EmptyForgeTemplateItemPlugin.java:54-61`) own charges, quality and `IndEvo_auto`.
 - Rift move replaces the planet entity, keeping the id. Anything that caches `PlanetAPI` refs to a moved planet holds a dead entity (inferred). `PlanetJumpListener` is the hook for that and has no users.

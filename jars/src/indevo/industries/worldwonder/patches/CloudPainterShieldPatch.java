@@ -5,8 +5,8 @@ import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PlanetaryShield;
+import indevo.config.Setting;
 import indevo.industries.worldwonder.industry.CloudPainter;
-import indevo.utils.helper.Settings;
 import patchlib.api.context.MethodCallContext;
 import patchlib.api.match.ClassMatch;
 import patchlib.api.match.MethodMatch;
@@ -54,8 +54,8 @@ public class CloudPainterShieldPatch {
     }
 
     public static String getDefaultTag() {
-        if (Settings.getBoolean(Settings.CLOUD_PAINTER_SHIELD_REMOVE)) return TAG_NONE;
-        if (Settings.getBoolean(Settings.CLOUD_PAINTER_SHIELD_OVERRIDE)) return TAG_LOW;
+        if (Setting.CLOUD_PAINTER_SHIELD_REMOVE.enabled()) return TAG_NONE;
+        if (Setting.CLOUD_PAINTER_SHIELD_OVERRIDE.enabled()) return TAG_LOW;
         return TAG_FULL;
     }
 

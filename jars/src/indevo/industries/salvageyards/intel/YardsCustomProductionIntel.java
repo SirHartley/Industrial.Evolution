@@ -19,6 +19,7 @@ import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.CountingMap;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
 import indevo.items.ForgeTemplateItemPlugin;
@@ -30,7 +31,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import static indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag.DELIVERY_TIME;
 import static indevo.utils.helper.StringHelper.getDayOrDays;
 
 public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDayListener {
@@ -43,6 +43,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
     }
 
     protected int elapsed = 0;
+    protected int deliveryTime = Setting.SY_HULL_DELIVERY_TIME.intValue();
     boolean isDone = false;
     protected Random genRandom = new Random();
     protected MarketAPI market;
@@ -140,7 +141,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
         float opad = 10f;
         Color h = Misc.getHighlightColor();
         if (currentStage == YardsCustomProductionIntel.Stage.WAITING) {
-            int d = (int) Math.round(DELIVERY_TIME - elapsed);
+            int d = (int) Math.round(deliveryTime - elapsed);
 
             LabelAPI label = info.addPara("The order will be delivered to storage " + market.getOnOrAt() + " " + market.getName() +
                             " in %s " + getDayOrDays(d) + ".", opad,
@@ -178,7 +179,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
     public boolean addNextStepText(TooltipMakerAPI info, Color tc, float pad) {
         Color h = Misc.getHighlightColor();
         if (currentStage == YardsCustomProductionIntel.Stage.WAITING) {
-            addDays(info, "until delivery", DELIVERY_TIME - elapsed, tc, pad);
+            addDays(info, "until delivery", deliveryTime - elapsed, tc, pad);
             return true;
         } else if (currentStage == YardsCustomProductionIntel.Stage.DELIVERED) {
             info.addPara("Delivered to %s", pad, tc, market.getFaction().getBaseUIColor(), market.getName());
@@ -206,7 +207,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
         }
 
         if (currentStage == Stage.WAITING) {
-            if (elapsed >= DELIVERY_TIME) {
+            if (elapsed >= deliveryTime) {
                 currentStage = Stage.DELIVERED;
                 elapsed = 1;
             }

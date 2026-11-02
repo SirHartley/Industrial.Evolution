@@ -16,7 +16,6 @@ import indevo.exploration.crucible.entities.YeetopultEntityPlugin;
 import indevo.exploration.crucible.scripts.VariableOrbitScript;
 import indevo.ids.Ids;
 import indevo.utils.ModPlugin;
-import indevo.utils.helper.Settings;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -36,7 +35,7 @@ public class CrucibleSpawner {
     public static final float CATAPULT_SUBUNIT_ADDITIONAL_ORBIT_DIST = 53f;
 
     public static final String HAS_PLACED_STATIONS = "$IndEvo_hasPlacedCrucibles";
-    public static final int AMOUNT = Settings.getInt(Settings.CRUCIBLE_NUM); //default 0.5f
+    public static final int AMOUNT = 1;
 
     public static void removeFromtLoc(StarSystemAPI system){
         StarSystemAPI targetSystem = (StarSystemAPI) Global.getSector().getPlayerFleet().getContainingLocation();

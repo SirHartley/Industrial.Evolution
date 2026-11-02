@@ -1,0 +1,120 @@
+name: Release
+
+# manual only, actions minutes cost money: no version packages a preview, a version publishes that release
+# and tags the packaged commit, so no tag has to be pushed first; a run on an existing version tag publishes it
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, such as 4.1.c. Leave empty for a preview package."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.package.outputs.version }}
+      release: ${{ steps.package.outputs.release }}
+    steps:
+      # pin actions by commit sha, version in the trailing comment
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Check release tooling
+        run: |
+          mkdir -p out/release-tools
+          javac --release 17 -encoding UTF-8 -d out/release-tools \
+            jars/src/indevo/tools/ReleaseBuild.java \
+            jars/src/indevo/tools/ReleaseBuildChecks.java
+          java -cp out/release-tools indevo.tools.ReleaseBuildChecks
+      - name: Package
+        id: package
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [ "$REF_TYPE" = tag ]; then
+            if [ -n "$VERSION" ] && [ "$VERSION" != "$REF_NAME" ]; then
+              echo "::error::Version $VERSION does not match tag $REF_NAME."
+              exit 1
+            fi
+            VERSION="$REF_NAME"
+          fi
+          args=()
+          if [ -n "$VERSION" ]; then args+=("$VERSION"); fi
+          java -cp out/release-tools indevo.tools.ReleaseBuild package "${args[@]}"
+          echo "version=$(cat out/release/version.txt)" >> "$GITHUB_OUTPUT"
+          if [ -n "$VERSION" ]; then echo "release=true" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Industrial.Evolution-${{ steps.package.outputs.version }}
+          path: |
+            out/release/Industrial.Evolution-*.zip
+            out/release/release-notes.md
+            out/release/IndEvo.version
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    if: needs.package.outputs.release == 'true'
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download checked package and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          VERSION: ${{ needs.package.outputs.version }}
+          REF_TYPE: ${{ github.ref_type }}
+          SHA: ${{ github.sha }}
+        run: |
+          gh run download "$RUN_ID" --repo "$GH_REPO" --name "Industrial.Evolution-$VERSION" --dir release
+          if gh release view "$VERSION" --repo "$GH_REPO" >/dev/null 2>&1; then
+            echo "::error::Release $VERSION already exists; published releases are never overwritten."
+            exit 1
+          fi
+          # from a branch the release creates the tag on the packaged commit; an existing tag would point elsewhere
+          if [ "$REF_TYPE" = tag ]; then
+            target=(--verify-tag)
+          elif gh api "repos/$GH_REPO/git/ref/tags/$VERSION" >/dev/null 2>&1; then
+            echo "::error::Tag $VERSION already exists; run the workflow on that tag instead."
+            exit 1
+          else
+            target=(--target "$SHA")
+          fi
+          gh release create "$VERSION" "release/Industrial.Evolution-$VERSION.zip" \
+            --repo "$GH_REPO" "${target[@]}" --title "Industrial.Evolution $VERSION" \
+            --notes-file release/release-notes.md
+      # master's version file is the online one, so only point it at a release that exists
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: master
+          path: master
+      - name: Point the online version file at this release
+        env:
+          VERSION: ${{ needs.package.outputs.version }}
+        run: |
+          cp release/IndEvo.version master/IndEvo.version
+          cd master
+          if git diff --quiet -- IndEvo.version; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "update version file to $VERSION" -- IndEvo.version
+          git push origin HEAD:master

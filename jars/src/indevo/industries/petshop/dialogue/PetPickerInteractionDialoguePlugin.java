@@ -5,11 +5,10 @@ import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import indevo.ids.ItemIds;
+import indevo.config.Setting;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
-import indevo.utils.helper.Settings;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +18,7 @@ public class PetPickerInteractionDialoguePlugin implements InteractionDialogPlug
 
     public InteractionDialogAPI dialog;
     public PetData data;
+    private final SpecialItemPlugin.RightClickActionHelper helper;
 
     private String name = null;
     private boolean hasShownPicker = false;
@@ -28,8 +28,9 @@ public class PetPickerInteractionDialoguePlugin implements InteractionDialogPlug
         INIT,
     }
 
-    public PetPickerInteractionDialoguePlugin(PetData petData) {
+    public PetPickerInteractionDialoguePlugin(PetData petData, SpecialItemPlugin.RightClickActionHelper helper) {
         this.data = petData;
+        this.helper = helper;
 
         PetStatusManager manager = PetStatusManager.getInstance();
 
@@ -63,7 +64,7 @@ public class PetPickerInteractionDialoguePlugin implements InteractionDialogPlug
 
     public void showShipPicker() {
 
-        int shipsPerRow = Settings.getInt(Settings.SHIP_PICKER_ROW_COUNT);
+        int shipsPerRow = Setting.SHIP_PICKER_ROW_COUNT.intValue();
         int rows = membersWithoutPets.size() > shipsPerRow ? (int) Math.ceil(membersWithoutPets.size() / (float) shipsPerRow) : 1;
         int cols = Math.min(membersWithoutPets.size(), shipsPerRow);
 
@@ -82,7 +83,7 @@ public class PetPickerInteractionDialoguePlugin implements InteractionDialogPlug
                             pet.assign(newHome);
 
                             Global.getSector().getCampaignUI().getMessageDisplay().addMessage("Assigned " + getName() + " to " + newHome.getShipName());//,
-                            Global.getSector().getPlayerFleet().getCargo().removeItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(ItemIds.PET_CHAMBER, data.id), 1);
+                            helper.removeFromClickedStackFirst(1);
 
                             close();
 

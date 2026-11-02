@@ -24,11 +24,11 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import data.campaign.econ.industries.MS_fabUpgrader;
 import data.campaign.econ.industries.MS_modularFac;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUser;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
@@ -51,8 +51,6 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     private static final float PROD_QUALITY_MOD = -0.2f;
 
     private int availableSalvagePoints = 0;
-    // unused, kept so 4.1.b saves load; counted raids by class hash, which changes per run
-    private final List<Integer> finishedIntel = new ArrayList<>();
     private List<IntelInfoPlugin> countedIntel = new ArrayList<>();
     private Random random = new Random();
     private int baseOutput = 0;
@@ -117,7 +115,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     @Override
     public boolean isFunctional() {
-        return Settings.getBoolean(Settings.SCRAPYARD) && super.isFunctional();
+        return Setting.SCRAPYARD.enabled() && super.isFunctional();
     }
 
     public int getHullCapacity() {
@@ -354,19 +352,6 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     }
 
     @Override
-    protected Object readResolve() {
-        Object o = super.readResolve();
-
-        // 4.1.b save: archive again so raids that already paid out stay counted
-        if (countedIntel == null) {
-            countedIntel = new ArrayList<>();
-            hasFinishedIntelArchive = false;
-        }
-
-        return o;
-    }
-
-    @Override
     public void onNewDay() {
         if (!hasFinishedIntelArchive) {
             IntelArchive();
@@ -460,12 +445,12 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.getBoolean(Settings.SCRAPYARD) && isOnlyInstanceInSystem() && super.isAvailableToBuild();
+        return Setting.SCRAPYARD.enabled() && isOnlyInstanceInSystem() && super.isAvailableToBuild();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.SCRAPYARD);
+        return Setting.SCRAPYARD.enabled();
     }
 
     private boolean isOnlyInstanceInSystem() {

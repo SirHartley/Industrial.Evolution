@@ -18,10 +18,10 @@ import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.Settings;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
@@ -265,14 +265,14 @@ public class CentralizationBureau extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Settings.getBoolean(Settings.ADINFRA)
+        return Setting.ADINFRA.enabled()
                 && super.isAvailableToBuild()
                 && isOnlyInfraInSystem();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Settings.getBoolean(Settings.ADINFRA);
+        return Setting.ADINFRA.enabled();
     }
 
     private boolean isOnlyInfraInSystem() {
