@@ -35,8 +35,8 @@ A planet with the condition `IndEvo_mineFieldCondition` spawns a ring terrain `I
 | Sprites | `IndEvo/mine4`, `IndEvo/mineGlow` | `data/config/settings.json:188-189` |
 | Setting | `IndEvo_Enable_minefields` (needs new game) | `LunaSettings.csv:41`; read in `MineBeltTerrainPlugin.createMines/applyEffect`, `ModPlugin.spawnMineFields/restoreRemovedEntities`, `DerelictStationPlacer` |
 | Setting | `IndEvo_Minefield_HitChance_frigate/destroyer/cruiser/capital` (0.02/0.04/0.06/0.12) | `LunaSettings.csv:43-46`; `MineBeltTerrainPlugin.getBaseFleetHitChance` |
-| Setting | `IndEvo_Minefield_NoHitUntilSum` (0.5) | `LunaSettings.csv:47`; `MAX_FLEET_SIZE_BEFORE_MALUS` |
-| Setting | `IndEvo_Minefield_CivilianShipImpactMult` (0.5), `IndEvo_Minefield_PhaseShipImpactMult` (0.3) | `LunaSettings.csv:48-49` |
+| Setting | `IndEvo_Minefield_NoHitUntilSum` (0.5) | `LunaSettings.csv:47`; read at use time in `MineBeltTerrainPlugin` |
+| Setting | `IndEvo_Minefield_CivilianShipImpactMult` (0.5), `IndEvo_Minefield_PhaseShipImpactMult` (0.3) | `LunaSettings.csv:48-49`; read at use time |
 | Setting | `IndEvo_Minefield_disable_duration` (5 s) | `LunaSettings.csv:42`; read in `InterdictionPulseAbilityListener:40` |
 | Memory (market) | `$IndEvo_MineFieldRefKey` = belt entity id; `$IndEvo_NoAsteroids` = skip ring band visual | `MineFieldCondition:19-20` |
 | Memory (terrain, mine) | `$IndEvo_PlanetMinefieldKey` = controlling planet entity | `MineFieldCondition:21`, copied to every mine in `createMines` |

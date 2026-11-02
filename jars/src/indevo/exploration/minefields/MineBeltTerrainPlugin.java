@@ -34,9 +34,6 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
     public static float MIN_MINE_SIZE = 2f;
     public static float MAX_MINE_SIZE = 8f;
 
-    public static final float CIVILIAN_EFFECT_MULT = Setting.MINEFIELD_CIVILIAN_SHIP_IMPACT_MULT.value();
-    public static final float PHASE_EFFECT_MULT = Setting.MINEFIELD_PHASE_SHIP_IMPACT_MULT.value();
-    public static final float MAX_FLEET_SIZE_BEFORE_MALUS = Setting.MINEFIELD_NOHITUNTILSUM.value();
 
     public static final float RECENT_JUMP_TIMEOUT_SECONDS = 2f;
     public static final String RECENT_JUMP_KEY = "$IndEvo_recentlyJumped";
@@ -235,10 +232,10 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
                     float speedMult = 1f + ((Math.max(speed, 5f) - 5f) * 0.5f); //= x5 bei 15
                     float speedFlatPow = (float) Math.pow(speed, 2) * 0.003f;
                     float fleetCompBaseHitChance = getBaseFleetHitChance(fleet);
-                    float chance = ((hitProb + Math.max(fleetCompBaseHitChance - MAX_FLEET_SIZE_BEFORE_MALUS, 0f))) + speedFlatPow;
+                    float chance = ((hitProb + Math.max(fleetCompBaseHitChance - Setting.MINEFIELD_NOHITUNTILSUM.value(), 0f))) + speedFlatPow;
                     if (speed >= 10f) chance += speedFlatPow;
 
-                    boolean isSlowAndSmall = (Misc.isSlowMoving(fleet) && fleetCompBaseHitChance < MineBeltTerrainPlugin.MAX_FLEET_SIZE_BEFORE_MALUS);
+                    boolean isSlowAndSmall = (Misc.isSlowMoving(fleet) && fleetCompBaseHitChance < Setting.MINEFIELD_NOHITUNTILSUM.value());
 
                     if (false)
                         log.info("total " + chance + " | hitProb " + hitProb + " | fleetSize " + fleetCompBaseHitChance + " | burn " + speedFlatPow);
@@ -313,8 +310,8 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
             boolean isPhase = m.isPhaseShip();
 
             float effect = hullSizeChanceMap.get(hullSize);
-            if (isCivilian) effect *= CIVILIAN_EFFECT_MULT;
-            if (isPhase) effect *= PHASE_EFFECT_MULT;
+            if (isCivilian) effect *= Setting.MINEFIELD_CIVILIAN_SHIP_IMPACT_MULT.value();
+            if (isPhase) effect *= Setting.MINEFIELD_PHASE_SHIP_IMPACT_MULT.value();
 
             fleetCompBaseHitChance += effect;
         }
@@ -361,7 +358,7 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
                 "Smaller", "slow-moving"
         );
 
-        float fleetCompBaseHitChance = Math.max(getBaseFleetHitChance(Global.getSector().getPlayerFleet()) - MAX_FLEET_SIZE_BEFORE_MALUS, 0f);
+        float fleetCompBaseHitChance = Math.max(getBaseFleetHitChance(Global.getSector().getPlayerFleet()) - Setting.MINEFIELD_NOHITUNTILSUM.value(), 0f);
         Map<Float, Pair<String, Color>> chanceColourMap = new LinkedHashMap<>();
         chanceColourMap.put(0.7f, new Pair<String, Color>("high", Color.ORANGE));
         chanceColourMap.put(0.4f, new Pair<String, Color>("medium", Color.YELLOW));
