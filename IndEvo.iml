@@ -25,12 +25,12 @@
     <orderEntry type="library" name="MagicLib" level="application" />
     <orderEntry type="library" name="LazyLib" level="application" />
     <orderEntry type="library" name="lw_Console" level="application" />
-    <orderEntry type="library" name="SHI" level="application" />
     <orderEntry type="library" name="ExerelinCore" level="application" />
     <orderEntry type="library" name="RandomAssortmentofThings" level="application" />
     <orderEntry type="library" name="starfarer_obf" level="application" />
     <orderEntry type="library" name="PatchLibAPI" level="application" />
     <orderEntry type="library" name="commons-compiler" level="application" />
     <orderEntry type="library" name="src" level="application" />
+    <orderEntry type="library" name="SHI" level="application" />
   </component>
 </module>
