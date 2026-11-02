@@ -25,9 +25,7 @@ public class ShipComponentLootManager {
         Global.getLogger(ShipComponentLootManager.class).info(Text);
     }
 
-    public static float MIN_FLEET_POINT_ADVANTAGE_FOR_DROP = Setting.RELIC_COMPONENT_HARD_BATTLE_FP_ADVANTAGE.value();
     public static float HARD_BATTLE_FP_TO_PARTS_RATION = 0.3f;
-    public static float FP_DESTROYED_FRACTION = Setting.RELIC_COMPONENT_FP_DESTROYED_FRACT.value();
 
     public static final Map<String, Float> RARE_PARTS_FACTIONS_AND_WEIGHTS = new HashMap<String, Float>() {{
         put(Factions.OMEGA, 0.5f);
@@ -166,9 +164,9 @@ public class ShipComponentLootManager {
             }
 
             log("Before Player: " + originalPlayerFP + " before enemy: " + totalFPbefore + " destroyed: " + fpDestroyed);
-            log("FP Qualification:" + (totalFPbefore > (originalPlayerFP * MIN_FLEET_POINT_ADVANTAGE_FOR_DROP)) + " destroyed qualification: " + (fpDestroyed > originalPlayerFP * 0.5f));
+            log("FP Qualification:" + (totalFPbefore > (originalPlayerFP * Setting.RELIC_COMPONENT_HARD_BATTLE_FP_ADVANTAGE.value())) + " destroyed qualification: " + (fpDestroyed > originalPlayerFP * 0.5f));
 
-            if (totalFPbefore > (originalPlayerFP * MIN_FLEET_POINT_ADVANTAGE_FOR_DROP) && fpDestroyed > originalPlayerFP * FP_DESTROYED_FRACTION) {
+            if (totalFPbefore > (originalPlayerFP * Setting.RELIC_COMPONENT_HARD_BATTLE_FP_ADVANTAGE.value()) && fpDestroyed > originalPlayerFP * Setting.RELIC_COMPONENT_FP_DESTROYED_FRACT.value()) {
                 loot.addCommodity(ItemIds.RARE_PARTS, fpDestroyed * HARD_BATTLE_FP_TO_PARTS_RATION);
             }
         }

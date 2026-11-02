@@ -204,6 +204,7 @@ Changed - Missile hotkey crashes with a clear error instead of failing silently 
 Items
 Fixed - Removing one of two Relay Hypertransmitters no longer turns relays off
 Fixed - Ship parts from wrecks vary per wreck instead of using the same roll all session
+Adjusted - Relic component drop settings now apply without a game restart
 
 Artillery
 Fixed - Artillery slow field and forced overload no longer run out while combat is paused
