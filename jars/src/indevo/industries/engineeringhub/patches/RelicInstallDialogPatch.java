@@ -22,7 +22,7 @@ import patchlib.api.spec.FieldQuerySpec;
 import java.util.ArrayList;
 import java.util.List;
 
-// install item dialog, obf com.fs.starfarer.campaign.ui.marketinfo.OOoo on 0.98a-RC8, lists stacks from copies of real cargo
+// install item dialog, obf com.fs.starfarer.campaign.ui.marketinfo.OOoo on 0.98a-RC8 windows, lists stacks from copies of real cargo
 @Patch(target = @ClassMatch(
         subtype = UIPanelAPI.class,
         packageName = "com.fs.starfarer.campaign.ui.marketinfo",

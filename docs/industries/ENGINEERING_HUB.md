@@ -60,7 +60,7 @@ Daily chain: `TimeTracker -> EngineeringHub.onNewDay -> (idle) initDeconstructio
 
 ### Relic components in the install dialog
 
-The vanilla install item dialog (obf `com.fs.starfarer.campaign.ui.marketinfo.OOoo` on RC8, knowledge skill `obf/campaign/ui/marketinfo/_c35.java`) lists the stacks of copies of the player fleet cargo (local only), storage and local resources that pass `isInstallableItem` (`:134-183`). Picking moves items between the real cargo and the slot: swap and uninstall put the old item back with `CargoAPI.addItems` (`:241-267`), the pick is taken out with `removeItems`, cancel puts the pending item back and takes the original out again (`:224-235`).
+The vanilla install item dialog (obf `com.fs.starfarer.campaign.ui.marketinfo.OOoo` on 0.98a-RC8 Windows, knowledge skill `obf/campaign/ui/marketinfo/_c35.java`) lists the stacks of copies of the player fleet cargo (local only), storage and local resources that pass `isInstallableItem` (`:134-183`). Picking moves items between the real cargo and the slot: swap and uninstall put the old item back with `CargoAPI.addItems` (`:241-267`), the pick is taken out with `removeItems`, cancel puts the pending item back and takes the original out again (`:224-235`).
 
 `RelicInstallDialogPatch` (target picked by shape: `UIPanelAPI` subtype in that package with an `InstallableIndustryItemPlugin` field and the private `(CargoAPI, List, String)` collector; inferred):
 - Redirects `getStacksCopy()` inside the collector. When the dialog's plugin is `BlueprintInstallableItemPlugin` and the cargo is the hub's `Misc.getStorageCargo`, it adds one `RELIC_SPECIAL_ITEM` stack to the copied list. The row shows "In storage"; storage is not changed.

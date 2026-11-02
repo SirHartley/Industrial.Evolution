@@ -15,7 +15,7 @@ import patchlib.api.match.StaticType;
 import patchlib.api.patch.Patch;
 import patchlib.api.patch.RedirectMethodCall;
 
-// industry option menu, obf com.fs.starfarer.campaign.ui.marketinfo.b on 0.98a-RC8, reads the setting once in its constructor
+// industry option menu, obf com.fs.starfarer.campaign.ui.marketinfo.b on 0.98a-RC8 windows, reads the setting once in its constructor
 @Patch(target = @ClassMatch(subtype = DialogCreatorUI.class, packageName = "com.fs.starfarer.campaign.ui.marketinfo"))
 public class MicromanagementRemoteItemPatch {
 

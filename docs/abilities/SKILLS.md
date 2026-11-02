@@ -40,7 +40,7 @@ IE adds four admin only skills, tagged `npc_only`, so they never show in the pla
 
 ## Flow
 
-The vanilla industry option menu (obfuscated `b` in `com.fs.starfarer.campaign.ui.marketinfo`, implements `DialogCreatorUI`, skill `obf/campaign/ui/marketinfo/_c37.java:66`) reads `allowRemoteIndustryItemManagement` once in its constructor (`:112`) through a static `(String) -> boolean` call on `StarfarerSettings`, and uses that value for every item and AI core button in the menu.
+The vanilla industry option menu (obfuscated `b` in `com.fs.starfarer.campaign.ui.marketinfo` on 0.98a-RC8 Windows, implements `DialogCreatorUI`, skill `obf/campaign/ui/marketinfo/_c37.java:66`) reads `allowRemoteIndustryItemManagement` once in its constructor (`:112`) through a static `(String) -> boolean` call on `StarfarerSettings`, and uses that value for every item and AI core button in the menu.
 
 `MicromanagementRemoteItemPatch.redirectSettingRead` runs on that call:
 
