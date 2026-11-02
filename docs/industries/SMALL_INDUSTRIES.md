@@ -120,9 +120,9 @@ Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. W
 | `@After` | `TradeCenter.isAvailableToBuild` | false when the faction already has a `commerce` in the system (`MiscIE.isOnlyInstanceInSystemExcludeMarket`) |
 | `@After` | `TradeCenter.getUnavailableReason` | "Can only have one in the star system" for the same case |
 | `@After` | `TradeCenter.addRightAfterDescriptionSection` | adds that line in the build dialog |
-| `@Before` | `TradeCenter.applyAlphaCoreModifiers` | player markets: tariff x0.75 under `getModId(1)` instead of income +25%, skips vanilla |
+| `@Before` | `TradeCenter.applyAlphaCoreModifiers` | player markets: tariff x0.75 under `getModId(1)` instead of income +25%, skips vanilla; does nothing if an earlier patch already skipped it |
 | `@After` | `TradeCenter.applyNoAICoreModifiers` | removes that tariff mod; runs with the setting off too |
-| `@Before` | `TradeCenter.addAlphaCoreDescription` | player markets: tariff text instead of income, skips vanilla |
+| `@Before` | `TradeCenter.addAlphaCoreDescription` | player markets: tariff text instead of income, skips vanilla; does nothing if an earlier patch already skipped it |
 | `@RedirectFieldRead` | `TradeCenter.IMPROVE_BONUS` reads in `TradeCenter` | 10 instead of 25 |
 | `@RedirectFieldRead` | `ItemEffectsRepo.DEALMAKER_INCOME_PERCENT_BONUS` reads in `BaseInstallableItemEffect` subclasses | 25 instead of 50 |
 
@@ -135,6 +135,7 @@ Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. W
 - `BaseIndustry.getModId()` is `"ind_" + id` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:164`, `:266`). Code that unmodifies by the bare id misses the mod.
 - `BaseIndustry.applyAICoreModifiers` calls only the branch for the installed core (skill `BaseIndustry.java:246`); fields set by one branch are not reset by another.
 - Commerce hooks target vanilla `TradeCenter` and the item effect classes only, never `BaseIndustry` ([Patches](../ARCHITECTURE.md#patches)).
+- Both commerce `@Before` hooks skip the vanilla body on player markets with the setting on. Other mods' redirects inside those two bodies do not run there, and their later `@Before` hooks must check `isSkipOriginal()`; `@After` hooks still run.
 - The commerce alpha tariff uses `getModId(1)` (`ind_commerce_1`), the slot vanilla uses for the alpha income bonus; set and unset must use the same id.
 - Bureau mods use `modifyFlatAlways` on other industries' stats; `unapply` must run with the same map or the mod stays (inferred).
 

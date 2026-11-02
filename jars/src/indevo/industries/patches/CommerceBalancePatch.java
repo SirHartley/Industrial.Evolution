@@ -63,6 +63,8 @@ public class CommerceBalancePatch {
 
     @Before(target = @MethodMatch(methodName = "applyAlphaCoreModifiers", parameterCount = 0))
     public static void beforeApplyAlphaCoreModifiers(BeforeContext context) {
+        if (context.isSkipOriginal()) return;
+
         BaseIndustry industry = (BaseIndustry) context.getSelf();
         MarketAPI market = industry.getMarket();
         if (!isActive() || !market.isPlayerOwned()) return;
@@ -79,6 +81,8 @@ public class CommerceBalancePatch {
 
     @Before(target = @MethodMatch(methodName = "addAlphaCoreDescription", parameterCount = 2))
     public static void beforeAddAlphaCoreDescription(BeforeContext context) {
+        if (context.isSkipOriginal()) return;
+
         Industry industry = (Industry) context.getSelf();
         if (!isActive() || !industry.getMarket().isPlayerOwned()) return;
 
