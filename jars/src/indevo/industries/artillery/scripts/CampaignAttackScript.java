@@ -72,7 +72,7 @@ public class CampaignAttackScript implements EveryFrameScript {
 
     private void removeTerrain() {
         if (terrain == null) return;
-        Misc.fadeAndExpire(terrain, 0f);
+        ((ArtilleryTerrain) ((CampaignTerrainAPI) terrain).getPlugin()).remove();
         terrain = null;
     }
 
