@@ -110,7 +110,7 @@ public final class ReleaseBuild {
                     null, manager.getJavaFileObjectsFromPaths(sources)).call();
             require(passed, "Compilation failed; the release jar was not replaced.");
         }
-        System.out.println("Settings: " + checkSettings(root, classes, dependencies, sources) + " checks passed.");
+        System.out.println("Settings: " + checkSettings(root, classes, dependencies, sources) + " checks passed");
         Map<String, byte[]> entries = new TreeMap<>();
         for (Path path : files(classes)) {
             String name = relative(classes, path);

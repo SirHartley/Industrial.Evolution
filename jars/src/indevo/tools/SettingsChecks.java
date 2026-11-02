@@ -1,5 +1,6 @@
 package indevo.tools;
 
+import com.fs.starfarer.api.Global;
 import indevo.config.PlayerSettings;
 import indevo.config.Setting;
 
@@ -17,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class SettingsChecks {
@@ -32,6 +34,7 @@ public final class SettingsChecks {
     static final Pattern INT = Pattern.compile("-?[0-9]+");
     static final Pattern NUMBER = Pattern.compile("-?[0-9]+(\\.[0-9]+)?");
     static final Pattern NEW_GAME_NOTE = Pattern.compile("(^|\\. )Needs a new game\\.");
+    static final Pattern DEFAULT_NOTE = Pattern.compile("(^|[.!)] )Default (on|off|-?[0-9]+(\\.[0-9]+)?)\\.");
     static final Pattern LUNA_ACCESS = Pattern.compile("\\bLunaSettings(Loader)?\\b(?!\\.csv)");
     static final List<String> OWN_ACCESS = List.of("jars/src/indevo/config/", "jars/src/indevo/tools/");
 
@@ -41,7 +44,15 @@ public final class SettingsChecks {
     private SettingsChecks() {
     }
 
+    public static void main(String[] args) throws IOException {
+        Path root = Path.of("").toAbsolutePath();
+        System.out.println("Settings: " + run(root, ReleaseBuild.sources(root)) + " checks passed");
+    }
+
     public static int run(Path root, List<Path> sources) throws IOException {
+        if (Global.getSector() != null || Global.getSettings() != null) {
+            throw new IllegalStateException("Run in a separate JVM, not inside Starsector.");
+        }
         SettingsChecks run = new SettingsChecks();
         run.checkSelf();
         Map<String, List<String>> rows = run.checkCsv(Files.readAllBytes(root.resolve(CSV)));
@@ -63,6 +74,8 @@ public final class SettingsChecks {
         check(formats("50%% more") && !formats("50% more") && !formats("%s"), "format check");
         check(highlights("a [b] c") && highlights("[]") && !highlights("a [b c") && !highlights("a ]b[ c"),
                 "highlight check");
+        check(DEFAULT_NOTE.matcher("Off. Default on.").find() && DEFAULT_NOTE.matcher("Default 0.5.").find()
+                && !DEFAULT_NOTE.matcher("Defaults vary. Default: 5").find(), "default note check");
     }
 
     private Map<String, List<String>> checkCsv(byte[] bytes) {
@@ -143,6 +156,7 @@ public final class SettingsChecks {
             boolean newGame = setting.apply == Setting.Apply.NEW_GAME;
             check(NEW_GAME_NOTE.matcher(row.get(5)).find() == newGame, setting.id + " help text "
                     + (newGame ? "lacks" : "has") + " \"Needs a new game.\" but apply is " + setting.apply);
+            checkDefaultNote(setting, row.get(5));
             if (setting.block != null && blocks.add(setting.block)) checkBlock(setting.block, rows.get(setting.block.id));
         }
         for (Map.Entry<String, List<String>> entry : rows.entrySet()) {
@@ -166,6 +180,16 @@ public final class SettingsChecks {
                     && Double.parseDouble(text) == ((Number) setting.fallback).doubleValue();
         };
         check(matches, setting.id + " row default " + text + " does not match " + setting.fallback);
+    }
+
+    private void checkDefaultNote(Setting setting, String help) {
+        Matcher note = DEFAULT_NOTE.matcher(help);
+        boolean matches = note.find() && switch (setting.type) {
+            case BOOLEAN -> note.group(2).equals((Boolean) setting.fallback ? "on" : "off");
+            case INT, DOUBLE -> !note.group(2).equals("on") && !note.group(2).equals("off")
+                    && Double.parseDouble(note.group(2)) == ((Number) setting.fallback).doubleValue();
+        };
+        check(matches, setting.id + " help text needs \"Default <value>.\" matching the default " + setting.fallback);
     }
 
     private void checkBounds(Setting setting, String min, String max) {

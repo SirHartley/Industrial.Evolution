@@ -2,7 +2,7 @@
 
 **Status: implemented on PR #22, not merged; waiting for Philipp's in-game test.** Philipp took every recommendation on 2026-11-01 ([Decisions](#decisions)) and approved the Quick Settings split. No open questions. This document records how IE moves from the `Settings` string reader to the `Setting` enum and `PlayerSettings` cache that Catch.Release uses, plus the open questions and the work each step needs. Read it before changing the settings mechanism.
 
-It does not govern setting values, balance or help text wording. [SETTINGS.md](SETTINGS.md) stays the authority on the current mechanism until Stage 0 lands; feature docs own what each setting does; help text goes through the house-style `player-text.md`. Move implemented technical detail to SETTINGS.md and [ARCHITECTURE.md](../ARCHITECTURE.md) and tick the plan here.
+It does not govern setting values, balance or help text wording. [SETTINGS.md](SETTINGS.md) is the authority on the current mechanism; feature docs own what each setting does; help text goes through the house-style `player-text.md`. Move implemented technical detail to SETTINGS.md and [ARCHITECTURE.md](../ARCHITECTURE.md) and tick the plan here.
 
 Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`, byte-identical to the jar in Catch.Release `lib/Lazylib_lunalib.zip`), IE `c51d05e` (PR #18 head) and Catch.Release `03923f43`. LunaLib facts are from that jar, decompiled with the knowledge skill's Vineflower.
 
@@ -26,9 +26,9 @@ Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`, byte-ide
 | `tools/PlayerSettingsChecks` | Headless: every enum constant has a CSV row with the same default, bounds and choices; help text present; `%%` survives LunaLib's `addPara` formatting; mod icon is square; presets apply once; retained UI values sync; Starsector's checked `JSONException` is on the classpath. | `PlayerSettingsChecks.java:69` |
 | `data/config/LunaSettings.csv` | Nine tabs. `fieldDescription` owns the help text and says when a change applies ("Applies to your next catch."). | |
 
-## IE today
+## IE before the rework
 
-Mechanism detail: [SETTINGS.md](SETTINGS.md). Findings that drive this plan:
+The baseline at `c51d05e` that the plan replaces; every finding is fixed by a stage below. Current mechanism: [SETTINGS.md](SETTINGS.md).
 
 1. **No owner object.** 152 string constants in `indevo/utils/helper/Settings.java`; 235 `Settings.getX` calls in 82 files. Each call goes to LunaLib, which looks the key up in its JSON object. LunaLib returns null for a missing key or mod (`LunaSettings.getBoolean` and siblings catch and return null), and `Settings` unboxes it, so a wrong id is a `NullPointerException` at the read site.
 2. **Restart needed.** 67 static fields in 18 classes copy a setting at class load (64 `static final`, plus `MortarProjectileEntityPlugin.EFFECT_SIZE` and two in `ShipComponentLootManager`). The General tab says so in a Text row (`IndEvo_text_application_note`: "Restarting your game client after changing settings is advised"). Affected: `MeteorSwarmManager` (16 fields), `MuseumConstants` (14, used in 40 places), artillery (`CampaignAttackScript`, `WatchtowerEntityPlugin`, `IndEvo_ArtilleryDefenderGen`, five projectile classes), `ShippingCostCalculator`, `MineBeltTerrainPlugin`, both salvage yard dialogs, `ShipComponentLootManager`, `ChamelionIndustry`, `CrucibleSpawner`, `GachaStationSpawner`.
@@ -144,17 +144,17 @@ None.
 
 ## Implementation plan
 
-Four stages, done in order. Stage 0 changes no visible behaviour. Help text goes through the house-style `player-text.md`. All stages land on PR #22, based on the test branch `claude/project-thread-2vk6rz`.
+Four stages, done in order. Stage 0 changes no visible behaviour. Help text goes through the house-style `player-text.md`. All stages land on PR #22, based on the test branch `claude/project-thread-2vk6rz`, so the test branch takes the rework as one merge (coordinator, 2026-11-01); the house style default is one pull request per stage.
 
 ### Architecture
 
 | Area | Owner (new or changed) | Role |
 |---|---|---|
-| Declarations | New `indevo/config/Setting` | Ids, type, default, bounds, apply timing, sanitize, typed reads |
-| Cache and lifecycle | New `indevo/config/PlayerSettings` | Install, reload, listener, pair rule, write back, campaign side effects |
-| Old reader | `indevo/utils/helper/Settings` | Delegates to the cache in Stage 0, deleted in Stage 1 |
-| Startup | `indevo/utils/ModPlugin` | `PlayerSettings.install()` first in both hooks; pet ability moves to `applyCampaignSettings()` |
-| Checks | New `indevo/tools/SettingsChecks` | Headless CSV, enum and sanitize checks |
+| Declarations | `indevo/config/Setting` | Implemented in Stage 0 to 2; see [SETTINGS.md](SETTINGS.md#files) |
+| Cache and lifecycle | `indevo/config/PlayerSettings` | Implemented in Stage 0 and 2; see [SETTINGS.md](SETTINGS.md#reading-a-setting) |
+| Old reader | `indevo/utils/helper/Settings` | Deleted in Stage 1 |
+| Startup | `indevo/utils/ModPlugin` | Implemented in Stage 0 and 2.3; see [ARCHITECTURE.md](../ARCHITECTURE.md#registration-and-lifecycle) |
+| Checks | `indevo/tools/SettingsChecks` | Implemented in Stage 3.1; see [SETTINGS.md](SETTINGS.md#settings-checks) |
 
 ### Data files this changes
 
@@ -198,7 +198,7 @@ Each stage depends on the stages before it. Within a stage, do the subtasks in o
   - Logic: sanitize (missing, wrong type, NaN, infinity, clamp, Int rounding), the pair rule, Starsector's checked `JSONException`.
   - Blocks: every block is a `BOOLEAN` in Quick Settings and has no block itself.
   - Source: no `LunaSettings.get` outside `indevo/config`.
-- [x] 3.2 Help text for the 27 empty rows and a pass over the informal ones, in the CSV's existing short style. Keep the limits the old `settings.json` comments stated: missile projectiles per shot must be even, railgun projectiles need a higher fuzz mult, Supercomputer runtimes should be multiples of 31 (tooltips), Salvage Yards off also stops ship component drops, Embassy off also stops ambassador scripts.
+- [x] 3.2 Help text for the 27 empty rows and a pass over the informal ones, in the CSV's existing short style. Keep the limits the old `settings.json` comments stated: missile projectiles per shot must be even, railgun projectiles need a higher fuzz mult, Supercomputer runtimes should be multiples of 31 (tooltips), Salvage Yards off also stops ship component drops, Embassy off also stops ambassador scripts. Every number and Boolean row has `Default <value>.` before its timing note, and settings that keep accepted terms say so ("Applies to new shipments."), per the house-style setting description; SettingsChecks matches the default.
 - [x] 3.3 Quick Settings and the nine tab layout, rows moved with their ids. Quick Settings holds the seven content switches and the most changed general values; the tabs are listed in [SETTINGS.md](SETTINGS.md#lunalib-settings).
 
 Steps that change what the player sees end with a live test by Philipp: change a setting in a running campaign, Save, and check it applies; start a new game with changed new game settings.

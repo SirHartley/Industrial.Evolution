@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum Setting {
+
     COMMERCE_BALANCE_CHANGES("IndEvo_CommerceBalanceChanges", true),
     SHIP_PICKER_ROW_COUNT("IndEvo_shipPickerRowCount", 8, 0, 100),
     BLOCK_INDUSTRIES("IndEvo_block_industries", true),

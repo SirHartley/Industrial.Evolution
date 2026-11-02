@@ -7,12 +7,11 @@ Fixed - Possible crash on market updates with mod industries that do not extend 
 Removed - Colony corruption mode, it is now a separate mod
 Removed - Unused copies of the LunaLib settings in settings.json; change settings in the LunaLib menu
 Removed - Unused Crucible Amount setting
-Added - Quick Settings tab with the content switches and the most used values; all settings are sorted into nine tabs and keep their values
-Added - Master switches for all colony industries with their own switch and for all consumable items; the individual switches keep their values
+Added - Quick Settings tab with master switches for all colony industries and all consumable items, the other content switches and the most used values; all settings are sorted into nine tabs and keep their values, and switching a master switch back on restores the individual switches
 Adjusted - Settings apply without a game restart; help text says which ones need a new game
 Adjusted - Limits for 21 number settings that had none (0 to 100 before); saved values outside them move to the nearest limit
 Fixed - Maximum settings below their minimum (artillery shot delay, cooldown and range, meteor intensity, distance from the sun and angle, museum extra credits); the maximum is raised to the minimum
-Added - Help text for 27 settings that had none; fixed typos and unclear text in others
+Added - Help text for 27 settings that had none; every setting now names its default and when a change applies; fixed typos and unclear or wrong text in others
 Adjusted - Now requires PatchLib
 Note - Install PatchLib alongside Industrial.Evolution
 Note - Saves from 4.1.b do not load, start a new game

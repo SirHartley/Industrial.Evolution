@@ -8,7 +8,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`.
 |---|---|
 | [CLAUDE.md](../CLAUDE.md) | Workflow, build gate and document upkeep |
 | [SETTINGS.md](core/SETTINGS.md) | Settings cache (`config`), LunaLib tabs, `settings.json`, whitelists |
-| [SETTINGS_REWORK.md](core/SETTINGS_REWORK.md) | Approved move to a typed, cached settings model with Quick Settings; in progress |
+| [SETTINGS_REWORK.md](core/SETTINGS_REWORK.md) | Decisions behind the typed, cached settings model and Quick Settings; implemented, the current mechanism is in SETTINGS.md |
 | [UTILS.md](core/UTILS.md) | Shared helpers in `indevo/utils` |
 | [COMPATIBILITY.md](core/COMPATIBILITY.md) | Hard and optional mod dependencies and every integration |
 | [RULE_COMMANDS.md](dialogue/RULE_COMMANDS.md) | `rules.csv` layout and every rule command class |
@@ -180,7 +180,7 @@ IE is released and players keep saves across patch versions (`Changelog`: "SAVE 
 ## Build
 
 - IntelliJ module `IndEvo.iml`: source root `jars/src`, JDK 17, output `jars/` (`.idea/misc.xml`), artifact `IndEvo:jar` writes `jars/IndEvo.jar` (gitignored). Libraries are IntelliJ application libraries; the same jars for agent builds are in `lib/`. Full dependency list and gate: [CLAUDE.md](../CLAUDE.md#building).
-- Release builder `indevo/tools/ReleaseBuild.java` (run as a single-file program, never shipped): `compile` is the agent compile gate and runs `indevo/tools/SettingsChecks`, `build` writes the committed release jar `jars/release/IndEvo.jar`, `package` writes the release zip. It compiles the same files as the IntelliJ module by reading its `excludeFolder` entries. [RELEASE.md](RELEASE.md).
+- Release builder `indevo/tools/ReleaseBuild.java` (run as a single-file program, never shipped): `compile` is the agent compile gate and runs `indevo/tools/SettingsChecks` (standalone checks of the CSV, the `Setting` enum, `sanitize` and the pair rule against the compiled classes; they do not start the game or LunaLib and do not check the rendered menu), `build` writes the committed release jar `jars/release/IndEvo.jar`, `package` writes the release zip. It compiles the same files as the IntelliJ module by reading its `excludeFolder` entries. [RELEASE.md](RELEASE.md).
 - Java only, no Kotlin ([CLAUDE.md](../CLAUDE.md#code-layout)).
 - `IndEvo.iml` `excludeFolder` entries that exist: `WIP/converters`, `exploration/WIP`, `exploration/distress`, `exploration/salvage/specials/WIP`, `items/consumables/itemAbilities/WIP`, `industries/academy/rules/WIP`, `industries/derelicts/industry/WIP`, `industries/warehouses/plugin/wi`. The others point at old paths. Excluded code does not compile and must not be referenced. The release builder reads the same entries, so change exclusions in `IndEvo.iml` only.
 - IE imports obfuscated game classes in a few places (`com.fs.starfarer.campaign`, `com.fs.starfarer.combat.CombatEngine`, `com.fs.graphics` and `com.fs.state.AppDriver`). Those break on game updates; check them first after one.
