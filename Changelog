@@ -115,7 +115,7 @@ Fixed - Ambassador dismissal errors and missing reputation penalties
 Engineering Hub
 Fixed - Building availability ignoring its setting
 Fixed - Stripped weapons and fighters not reaching the production gathering point
-Fixed - Relic component placeholders remaining after removal
+Fixed - Relic Components no longer show up as an item in storage or cargo
 
 Privateer Base
 Adjusted - Directly occupies two industry slots, including while queued
