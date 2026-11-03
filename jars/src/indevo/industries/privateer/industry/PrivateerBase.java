@@ -95,9 +95,26 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
     @Override
     public boolean isAvailableToBuild() {
         return Setting.PIRATEHAVEN.enabled()
-                && (Misc.getMaxIndustries(market) - Misc.getNumIndustries(market)) >= 2
+                && getFreeIndustrySlots() >= 2
                 && super.isAvailableToBuild()
-                && MiscIE.getAmountOfIndustryInSystem(getId(), market.getStarSystem(), market.getFaction()) < 2;
+                && getAmountInSystem() < 2;
+    }
+
+    // BaseIndustry.createTooltip adds this instance to the shared industry list while it builds
+    private boolean isOnMarket() {
+        return market.getIndustries().contains(this);
+    }
+
+    private int getFreeIndustrySlots() {
+        int used = Misc.getNumIndustries(market);
+        if (isOnMarket()) used -= 2; // vanilla plus PrivateerIndustrySlotPatch
+        return Misc.getMaxIndustries(market) - used;
+    }
+
+    private int getAmountInSystem() {
+        int amount = MiscIE.getAmountOfIndustryInSystem(getId(), market.getStarSystem(), market.getFaction());
+        if (isOnMarket()) amount--;
+        return amount;
     }
 
     @Override
@@ -107,11 +124,11 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     @Override
     public String getUnavailableReason() {
-        if ((Misc.getMaxIndustries(market) - Misc.getNumIndustries(market)) < 2) {
+        if (getFreeIndustrySlots() < 2) {
             return "Requires two industry slots.";
         }
 
-        if (MiscIE.getAmountOfIndustryInSystem(getId(), market.getStarSystem(), market.getFaction()) > 1) {
+        if (getAmountInSystem() > 1) {
             return "Can only have two in a Star System.";
         }
 
