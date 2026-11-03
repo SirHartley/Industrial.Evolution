@@ -30,7 +30,7 @@ Fixed - Mines in a minefield spread out around the belt instead of clustering
 Meteor Showers
 Added - Option to spawn showers immediately, without advance warning
 Fixed - Duplicate tutorial intel
-Fixed - Expired planetoid swarms leaving planets, rings and loot stations behind; existing leftovers are removed on load
+Fixed - Expired planetoid swarms leaving planets, rings and loot stations behind
 Fixed - Asteroid, ice and radioactive swarms not spawning
 Fixed - Incorrect storm arrival dates and intel expiry
 Fixed - Roider tutorial crash when the faction has no markets
@@ -78,7 +78,7 @@ Fixed - Beta core upkeep discount remaining after installing a VPC
 Governments
 Fixed - Permanent governments allowing further changes
 Fixed - Size 5 Managed Democracy missing its two small and one large patrols
-Fixed - Managed Democracy's colony size cap remaining after a government change; existing colonies are corrected on load
+Fixed - Managed Democracy's colony size cap remaining after a government change
 Fixed - Forge World stability checking luxury goods instead of metals and transplutonics
 Fixed - Rural Polity production bonuses remaining after leaving the government or closing the free port
 Fixed - New Forge World experiment ships receiving five effects instead of four
