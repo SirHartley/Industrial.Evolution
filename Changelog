@@ -131,7 +131,7 @@ Fixed - Contract and D-mod transfer costs exceeding the 150% cap
 Fixed - Ship Component Value Mult setting ignoring decimals
 
 Senate
-Added - Fast build: halved construction time shown in the build menu and on queued buildings
+Added - Edict: Mandated Overtime: build menu and queue show halved build times
 Note - Building Menu Overhaul's build menu still shows the normal time
 Fixed - Fast build construction bonus remaining after expiry
 Fixed - Fast build nearly completing infrastructure restoration instead of halving its duration
