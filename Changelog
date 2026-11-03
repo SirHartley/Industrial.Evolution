@@ -97,7 +97,7 @@ Fixed - Dismissing an ambassador at some relation values showed an error or cost
 Engineering Hub
 Fixed - The Engineering Hub setting now controls whether it can be built
 Fixed - Weapons and fighters stripped by the Engineering Hub and Hull Deconstructor go to the production gathering point
-Fixed - The relic components option no longer leaves a placeholder item in storage or your cargo when uninstalled or when the Engineering Hub is removed
+Fixed - Relic Components no longer show up as an item in storage or cargo
 
 Privateer Base
 Fixed - Privateer Base no longer fails to find a raid target when one exists
