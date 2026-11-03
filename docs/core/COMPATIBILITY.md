@@ -43,6 +43,7 @@ The `shaderLib` and `lunalib` checks are redundant while both are hard dependenc
 | Prism Freeport | Optional, data | Boss ship blacklist read for Deconstructor and Reverse Engineering | `data/config/prism/prism_boss_ships.csv`, `prism_ships_blacklist.csv` (placeholders), read by `indevo/utils/helper/MiscIE.java:621`. See [Submarkets](SUBMARKETS.md) |
 | Vayra's Sector bounties | Optional, data | Unique bounty flagships blacklisted the same way (column `flagshipVariantId`) | `data/config/vayraBounties/unique_bounty_data.csv` (header only), `MiscIE.java:650` |
 | Prism / Vayra rows from other mods | Optional, data | Rows from mods named in a row are only used if `canLoadShips(factionOrModId)` (faction exists or mod enabled) | `MiscIE.java:614`, `:637`, `:665` |
+| Building Menu Overhaul (Kaysaar, required by Ashes of the Domain) | None, not patched | Replaces the vanilla build menu and builds its own tooltips, so Mandated Overtime's halved days do not show there. IE never patches it; `FastBuildPickerRowPatch` still runs on the vanilla rows BMO dismisses and stays read only | `indevo/industries/senate/patches/`. See [Senate](../industries/SENATE.md#build-time-display) |
 | Better Colonies | Optional, data | AI industry spawn weights for IE industries | `data/config/BetterColonyConfig/bc_autospindustries.csv` |
 | Version Checker | Optional, data | Update check (GitHub raw master file, thread 18011) | `IndEvo.version`, `data/config/version/version_files.csv` |
 

@@ -123,7 +123,7 @@ When adding a listener, add its `register()` call here in the feature's group an
 
 ### Patches
 
-PatchLib patches change vanilla code where the API has no hook. Each lives in a `patches` package of the feature that owns it; the feature doc describes the behaviour. Rules for writing them: the `patchlib` skill. Never target `BaseIndustry`: PatchLib 1.0.3 notes that patching it breaks with Ashes of the Domain.
+PatchLib patches change vanilla code where the API has no hook. Each lives in a `patches` package of the feature that owns it; the feature doc describes the behaviour. Rules for writing them: the `patchlib` skill. Never target `BaseIndustry`: PatchLib 1.0.3 notes that patching it breaks with Ashes of the Domain. Never patch another mod's classes; where another mod replaces a vanilla screen, IE's patches only have to stay crash free there.
 
 | Patch | Target | Kind | Feature doc |
 |---|---|---|---|
@@ -133,6 +133,10 @@ PatchLib patches change vanilla code where the API has no hook. Each lives in a 
 | `abilities/skills/patches/MicromanagementRemoteItemPatch` | `StarfarerSettings` `(String) -> boolean` call in the industry option menu constructor (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred) | `@RedirectMethodCall` | [SKILLS](abilities/SKILLS.md#flow) |
 | `industries/engineeringhub/patches/RelicInstallDialogPatch` | install item dialog (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred): `getStacksCopy` in its `(CargoAPI, List, String)` collector, `CargoAPI.addItems` calls | `@RedirectMethodCall` | [ENGINEERING_HUB](industries/ENGINEERING_HUB.md#relic-components-in-the-install-dialog) |
 | `industries/patches/DealmakerHolosuitePatch` | `ItemEffectsRepo.DEALMAKER_INCOME_PERCENT_BONUS` reads in `BaseInstallableItemEffect` subclasses (API) | `@RedirectFieldRead` | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md#commerce-balance-patches-commerce) |
+| `industries/senate/patches/FastBuildPickerRowPatch` | build menu row (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred, picked by `getSortBuildTime`): label `create` call in `sizeChanged`, `renderImpl` | `@RedirectMethodCall`, `@After` | [SENATE](industries/SENATE.md#build-time-display) |
+| `industries/senate/patches/FastBuildQueuedIndustryPatch` | industry card (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred, picked by `addCostTimeLabels`): `IndustrySpecAPI.getBuildTime` call in `addCostTimeLabels` | `@RedirectMethodCall` | [SENATE](industries/SENATE.md#build-time-display) |
+| `industries/senate/patches/FastBuildTooltipPatch` | industry tooltip (anonymous `StandardTooltipV2Expandable` in obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred): `Industry.createTooltip` call in `createImpl` | `@RedirectMethodCall` | [SENATE](industries/SENATE.md#build-time-display) |
+| `industries/senate/patches/FastBuildUpgradeConfirmPatch` | industry option menu (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred, `DialogCreatorUI`): `Industry.getBuildTime` call in `actionPerformed` | `@RedirectMethodCall` | [SENATE](industries/SENATE.md#build-time-display) |
 | `industries/worldwonder/patches/CloudPainterShieldPatch` | `applyVisuals` call in `PlanetaryShield.apply` (API) | `@RedirectMethodCall` | [WORLD_WONDER](industries/WORLD_WONDER.md#cloud-painter-shield-visuals) |
 
 After a game update, check inferred targets first (any target outside `com.fs.starfarer.api`). In game, `starsector.log` shows `[PatchLib] Discovered patch ...` at startup and `Installed a ... patch site ...` when the target loads; Console Commands `TogglePatch <class>` switches one off for a test.
