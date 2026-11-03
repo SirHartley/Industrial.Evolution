@@ -17,7 +17,8 @@ import java.util.Map;
 import static java.lang.Math.ceil;
 
 public class Edict_FastBuild extends BaseEdict {
-    private static final float FAST_BUILD_MULT = 0.5f;
+    public static final String ID = "IndEvo_edict_fastBuild";
+    public static final float FAST_BUILD_MULT = 0.5f;
     private static final float OUTPUT_DECREASE_MULT = 0.5f;
 
     private Map<String, Float> originalBuildTimes = new HashMap<>();
@@ -75,6 +76,15 @@ public class Edict_FastBuild extends BaseEdict {
         }
 
         getOriginalBuildTimes().clear();
+    }
+
+    public static boolean isActive(MarketAPI market) {
+        return market != null && market.hasCondition(ID);
+    }
+
+    // same truncation as the vanilla "days left" text once the halved build runs
+    public static int getReducedDays(int days) {
+        return Math.max(1, (int) (days * FAST_BUILD_MULT));
     }
 
     private Map<String, Float> getOriginalBuildTimes() {

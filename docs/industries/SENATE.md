@@ -17,6 +17,7 @@ A Senate allows one Edict per player colony in its star system (one Senate per s
 | `conditions/BaseEdict.java` | Base condition: runtime tracking via market time tags, daily presence check, `removeWithPenalty`/`removeWithoutPenalty`, `senateWithItemInRange`, beta core runtime reduction. `NewDayListener` |
 | `conditions/Edict_*.java` (12 active) | One class per Edict, see table below |
 | `conditions/Edict_GrowthReinvestment.java` | `@Deprecated`, no CSV row: dead |
+| `patches/FastBuildPickerRowPatch.java`, `patches/FastBuildQueuedIndustryPatch.java` | PatchLib patches that show Mandated Overtime's halved days in the build menu and on queued industry cards, see [Build time display](#build-time-display) |
 | `plugins/SenateOptionProvider.java` | Industry "Visit the Senate..." button (player markets only), opens `RuleBasedInteractionDialogPluginImpl("IndEvo_FireBaseSenateOptionList")` |
 | `rules/IndEvo_EdictVariables.java` | Memory keys and constants |
 | `rules/IndEvo_CreateEdictSelectionList.java` | All condition specs whose id contains `IndEvo_edict`, cached in `SessionTransientMemory` key `$IndEvo_EdictKey`, paged by 4 |
@@ -42,7 +43,7 @@ A Senate allows one Edict per player colony in its star system (one Senate per s
 | `IndEvo_edict_clearances` | `Edict_Clearances` | ship hull supply | ship supply -30% (if > 1), production quality +0.2 on all player markets | 186 days |
 | `IndEvo_edict_lockColonySize` | `Edict_LockColonySize` | none | population weight pinned to the current size weight | 186 days |
 | `IndEvo_edict_open_market` | `Edict_OpenMarket` | none | adds an open market submarket (if no Commerce), stability -2; on removal takes the open market away only if there is no Commerce | 186 days |
-| `IndEvo_edict_fastBuild` | `Edict_FastBuild` | none | building and upgrade time halved via reflection on `BaseIndustry.buildTime`, supply and demand x0.5 | 186 days |
+| `IndEvo_edict_fastBuild` | `Edict_FastBuild` | none | building and upgrade time halved via reflection on `BaseIndustry.buildTime`, supply and demand x0.5; build menu and queued cards show the halved days | 186 days |
 
 Rows: `data/campaign/market_conditions.csv:2-14`. Military presence is `MiscIE.marketHasMilitaryIncludeRelays()`.
 
@@ -83,6 +84,16 @@ Chain: `IndEvo_ApplyEdict -> IndEvo_applyEdict -> market.addCondition -> BaseEdi
 - `daysPassed` = time tag value (`BaseEdict.java:44`, `:59`). `getMinRuntime()` = 186, -31 if the system Senate has a beta core. `Edict_Lockdown` and `Edict_Cleanse` override it.
 - Daily: if `isPresenceConditionMet()` fails, `removeWithPenalty()` (`:61`).
 - `removeWithPenalty()`: `applyFinishPenalty()`, then if runtime not passed, `RecentUnrest +ceil(remainingDays/31 x itemRed)`, where `itemRed` is 0.5 with a Compounds Senate in range (`getRemovalPenaltyUnrestDays()`, `:169`).
+
+### Build time display
+
+While `IndEvo_edict_fastBuild` is on the market (`Edict_FastBuild.isActive`), two patches show the halved time. Both use `Edict_FastBuild.getReducedDays` (`days x FAST_BUILD_MULT`, truncated like the vanilla "days left" text, at least 1). Edict apply/unapply are unchanged; the patches only change text.
+
+- Build menu (`IndustryPickerDialog` rows): `FastBuildPickerRowPatch` redirects the days label `create` call in the row's `sizeChanged` to `"<vanilla>  <halved>"`, vanilla days grey, halved days in the vanilla colour, and an `@After` on `renderImpl` draws a grey line over the vanilla days. Rows tagged `parent_item` and 1 day builds are left alone. The label is found by text: it must equal `getSortBuildTime()`.
+- Queued industry cards: `FastBuildQueuedIndustryPatch` redirects the `IndustrySpecAPI.getBuildTime()` call in the card's `addCostTimeLabels` (only queued items reach it) and returns the halved days. Number only, no strike (Philipp's call).
+- Picking only queues the industry; it starts in `Market.advance` (`BaseIndustry.buildNextInQueue`). `Market.addIndustry` does not reapply conditions, so a started build shows the full time until the next economy step runs `reapplyConditions`, normally within a day.
+- Not covered: the hover tooltips in the build menu and on queued cards ("N days to build", `BaseIndustry.createTooltip`) and the upgrade confirm text. No API hook reaches them and `BaseIndustry` is not patched ([Architecture](../ARCHITECTURE.md#patches)).
+- Building Menu Overhaul (and Ashes of the Domain, which requires it) dismisses the vanilla build menu and opens its own, so its menu shows vanilla days. IE does not patch it. The row patch still runs on the dismissed vanilla rows; both patches only read, check `hasField`/`hasMethod` first and call down on every path. Queued cards are vanilla and show the halved days with BMO too. See [Compatibility](../core/COMPATIBILITY.md).
 
 ### Senate AI cores
 
