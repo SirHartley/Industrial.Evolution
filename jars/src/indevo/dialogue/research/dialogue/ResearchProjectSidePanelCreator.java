@@ -22,12 +22,14 @@ import java.util.List;
 public class ResearchProjectSidePanelCreator {
     public static final Logger log = Global.getLogger(ResearchProjectSidePanelCreator.class);
 
-    protected static final float PANEL_WIDTH_1 = 240;
-    protected static final float PANEL_WIDTH_2 = VisualCustomPanel.PANEL_WIDTH - PANEL_WIDTH_1 - 8;
+    protected static final float ROW_WIDTH = VisualCustomPanel.PANEL_WIDTH - 20f;
     protected static final float SHIP_ICON_WIDTH = 48;
     protected static final float ARROW_BUTTON_WIDTH = 20, BUTTON_HEIGHT = 30;
     protected static final float SELECT_BUTTON_WIDTH = 95f;
     protected static final float TEXT_FIELD_WIDTH = 80f;
+    protected static final float TOGGLE_WIDTH = 80f, TOGGLE_HEIGHT = 20f;
+    protected static final float TOOLTIP_WIDTH = 400f;
+    protected static final String OVERFLOW_LABEL = "Overflow";
 
     //create one slot for each research project .json
     //Header with project title
@@ -74,6 +76,7 @@ public class ResearchProjectSidePanelCreator {
 
             boolean isFinished = progress.points >= project.getRequiredPoints() || progress.redeemed;
             boolean isRedeemed = progress.redeemed;
+            boolean overflow = project.allowsOverflow();
 
             int availableItemCount = 0;
             for (RequiredItem item : project.getRequiredItems()) {
@@ -85,7 +88,7 @@ public class ResearchProjectSidePanelCreator {
 
             panelTooltip.addSectionHeading(project.getName(), Alignment.MID, opad);
 
-            CustomPanelAPI buttonPanel = panel.createCustomPanel(PANEL_WIDTH_1, 50f, new NoFrameCustomPanelPlugin());
+            CustomPanelAPI buttonPanel = panel.createCustomPanel(ROW_WIDTH, 50f, new NoFrameCustomPanelPlugin());
 
             //             NAME
             // CHECK INPUT - CONTRIBUTE - REDEEM
@@ -118,7 +121,7 @@ public class ResearchProjectSidePanelCreator {
 
             //CONTRIBUTE
 
-            prerequisiteForActive = !isFinished && playerHasAnyInputInCargo;
+            prerequisiteForActive = (!isFinished || overflow) && playerHasAnyInputInCargo;
 
             baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
             bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
@@ -174,12 +177,14 @@ public class ResearchProjectSidePanelCreator {
             buttonPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);         //last in row
             lastUsedVariableButtonAnchor = variableButtonAnchor;
 
+            if (project.isRepeatable()) addOverflowToggle(buttonPanel, projId, progress, opad, spad);
+
             panelTooltip.addCustom(buttonPanel, opad); //add panel
 
             // PROGRESS BAR SHOW % (+ X ITEMS AVAILABLE)
 
             //the most scuffed progress bar of all time
-            CustomPanelAPI progressPanel = panel.createCustomPanel(VisualCustomPanel.PANEL_WIDTH - 20f, SHIP_ICON_WIDTH + 6f, new FramedCustomPanelPlugin(0.25f, Misc.getBasePlayerColor(), false));
+            CustomPanelAPI progressPanel = panel.createCustomPanel(ROW_WIDTH, SHIP_ICON_WIDTH + 6f, new FramedCustomPanelPlugin(0.25f, Misc.getBasePlayerColor(), false));
 
             float holderWidth = VisualCustomPanel.PANEL_WIDTH - 33f;
             TooltipMakerAPI barHolder = progressPanel.createUIElement(holderWidth, 0, false);
@@ -197,6 +202,43 @@ public class ResearchProjectSidePanelCreator {
         }
 
         VisualCustomPanel.addTooltipToPanel();
+    }
+
+    private void addOverflowToggle(CustomPanelAPI buttonPanel, String projId, final ResearchProject.Progress progress, float opad, float spad) {
+        String buttonId = "button_overflow_" + projId;
+        TooltipMakerAPI anchor = buttonPanel.createUIElement(TOGGLE_WIDTH, TOGGLE_HEIGHT, false);
+        ButtonAPI toggle = anchor.addAreaCheckbox(OVERFLOW_LABEL, buttonId, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), TOGGLE_WIDTH, TOGGLE_HEIGHT, 0f);
+        toggle.setChecked(progress.overflow);
+
+        anchor.addTooltipTo(new TooltipMakerAPI.TooltipCreator() {
+            @Override
+            public boolean isTooltipExpandable(Object tooltipParam) {
+                return false;
+            }
+
+            @Override
+            public float getTooltipWidth(Object tooltipParam) {
+                return TOOLTIP_WIDTH;
+            }
+
+            @Override
+            public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
+                tooltip.addPara("Whether this project takes every item you hand in, or only what it needs to finish.", 0f);
+                tooltip.addPara("When on, progress past %s carries over after each redeem, so one large hand-in can cover several rewards.", 10f, Misc.getHighlightColor(), "100%");
+                tooltip.addPara("When off, items the project does not need stay in your cargo.", 10f);
+            }
+        }, toggle, TooltipMakerAPI.TooltipLocation.LEFT);
+
+        InteractionDialogCustomPanelPlugin.ButtonEntry entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(toggle, buttonId) {
+            @Override
+            public void onToggle() {
+                progress.overflow = state;
+                ResearchProjectDialoguePlugin.getCurrentDialoguePlugin().refreshCustomPanel();
+            }
+        };
+
+        VisualCustomPanel.getPlugin().addButton(entry);
+        buttonPanel.addUIElement(anchor).inTR(spad, opad + (BUTTON_HEIGHT - TOGGLE_HEIGHT) / 2f);
     }
 }
 

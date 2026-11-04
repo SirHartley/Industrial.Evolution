@@ -66,7 +66,7 @@ public class ResearchProjectDonationCargoPicker {
                         }
 
                         float totalPointsFromStack = num * pointsPerItem;
-                        if (project.isRepeatable()) {
+                        if (project.allowsOverflow()) {
                             Global.getSector().getPlayerFleet().getCargo().removeItems(stack.getType(), stack.getData(), stack.getSize());
                             progress.points += totalPointsFromStack;
                             continue;
@@ -107,7 +107,8 @@ public class ResearchProjectDonationCargoPicker {
                 float opad = 10f;
                 //panel.addImage("cargo_loading", width * 1f, 3f);
                 panel.addSectionHeading("Select the items you would like to donate.", Alignment.MID, opad);
-                panel.addPara("If more items than required are handed in, the excess will remain with you.", opad, Misc.getGrayColor());
+                if (project.allowsOverflow()) panel.addPara("All selected items will be handed in. Progress past %s carries over to the next reward.", opad, Misc.getHighlightColor(), "100%");
+                else panel.addPara("If more items than required are handed in, the excess will remain with you.", opad, Misc.getGrayColor());
                 panel.addPara("", opad);
 
                 panel.setGridFontDefault();

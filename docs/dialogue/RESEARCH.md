@@ -6,20 +6,20 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-At `station_galatia_academy` the player opens a side panel listing visible research projects. Each project accepts specific items for points; donating fills progress, and a finished project is redeemed for a cargo reward (weapons and blueprints, hullmods, consumables, salvage rolls). Repeatable projects reset to zero after redeeming. Most projects stay hidden until an unlock listener sees a trigger (an omega weapon, an autopulse, a slow ship, a unique signature ship, hyperspace topography progress) and posts a "New Research Projects Available" intel.
+At `station_galatia_academy` the player opens a side panel listing visible research projects. Each project accepts specific items for points; donating fills progress, and a finished project is redeemed for a cargo reward (weapons and blueprints, hullmods, consumables, salvage rolls). Repeatable projects subtract the requirement on redeem and keep the rest; their Overflow toggle lets a hand-in go past 100%. Most projects stay hidden until an unlock listener sees a trigger (an omega weapon, an autopulse, a slow ship, a unique signature ship, hyperspace topography progress) and posts a "New Research Projects Available" intel.
 
 ## Files
 
 | File | Owner / role |
 |---|---|
 | `indevo/dialogue/research/ResearchProjectTemplateRepo.java` | `RESEARCH_PROJECTS` static map: every project as an anonymous `ResearchProject`. `getRandomForProj` (anti save scum randoms, `:589`), `getNumProjectsPlayerCanContribute` (`:606`). |
-| `dialogue/ResearchProject.java` | Abstract project: id, name, required points, repeatable. `getProgress()` lazily stores a `Progress` (points, redeemed) in sector memory (`:37`). |
+| `dialogue/ResearchProject.java` | Abstract project: id, name, required points, repeatable. `getProgress()` lazily stores a `Progress` (points, redeemed, overflow) in sector memory (`:37`). `allowsOverflow()` is repeatable and overflow on (`:49`). |
 | `dialogue/ResearchProjectAPI.java` | `display`, `getRewards`, `getRequiredItems`, short and long desc. |
 | `dialogue/RequiredItem.java` | Accepted item: id, `CargoItemType`, points per unit. |
 | `dialogue/DropDataCreator.java` | Builds a `SalvageEntityGenDataSpec.DropData` for reward rolls. |
 | `dialogue/ResearchProjectDialoguePlugin.java` | Rule command and dialog plugin. Swaps itself in as the dialog plugin, draws text, returns to the Galatia menu via `gaMeetingEnd` (`:231`). Keeps its instance in `$IndEvo_tempDialogueInstance` (expire 0). |
-| `dialogue/ResearchProjectSidePanelCreator.java` | One block per visible, unredeemed project sorted by points: Show info, Cargo, Redeem buttons, progress bar, item count, short desc. Redeem logic lives here (`:153`). |
-| `dialogue/ResearchProjectDonationCargoPicker.java` | Cargo picker filtered to accepted items; takes only what is needed to finish (`:68`). |
+| `dialogue/ResearchProjectSidePanelCreator.java` | One block per visible, unredeemed project sorted by points: Show info, Cargo, Redeem buttons, Overflow toggle (repeatable only, `addOverflowToggle`, `:207`), progress bar, item count, short desc. Redeem logic lives here (`:157`). |
+| `dialogue/ResearchProjectDonationCargoPicker.java` | Cargo picker filtered to accepted items; takes only what is needed to finish, or everything when `allowsOverflow()` (`:69`). |
 | `intel/GalatiaNewProjectsIntel.java` | Important intel listing new project names; removes itself after 31 days (`:21`). |
 | `intel/HyperspaceTopographyProjectFactor.java` | One-time factor for the vanilla Hyperspace Topography event, added on Prospector redeem. |
 | `listeners/DoritoGunFoundChecker.java` | `ShowLootListener` + `EconomyTickListener`: any weapon tagged `omega` in loot, cargo or fitted unlocks Spitfire, Snowblind, Keyhole, Eureka, Parallax. |
@@ -91,15 +91,17 @@ Order: `PopulateOptions -> IndEvo_JobMenuPoint -> option -> IndEvo_JobMenuInit -
 
 1. `execute` stores the original plugin, swaps in itself, `init` creates the side panel (`VisualCustomPanel.createPanel`) and text.
 2. Show info -> `setProjectIdForInputs` prints long desc and per item progress, owned count and units to finish.
-3. Cargo -> `ResearchProjectDonationCargoPicker.init`: copies matching stacks from player cargo, the picker preview shows percent per stack; on confirm each stack adds `size x points` or only the units needed to finish, removed from the real cargo (`:74`).
-4. Redeem -> `project.getRewards()` added to cargo; repeatable resets points, else `redeemed = true`; text shows `addTooltipOutputOnCompletion` and gain lines.
-5. Return -> clear panel, restore original plugin, set `$option = gaMeetingEnd` and fire `DialogOptionSelected` (vanilla Galatia rule ends the conversation).
+3. Cargo -> `ResearchProjectDonationCargoPicker.init`: copies matching stacks from player cargo, the picker preview shows percent per stack; on confirm each stack adds `size x points` or only the units needed to finish, removed from the real cargo (`:81`). With overflow every picked unit is taken. Cargo is disabled on a finished project unless overflow is on.
+4. Redeem -> `project.getRewards()` added to cargo; repeatable subtracts the required points (floor 0), else `redeemed = true`; text shows `addTooltipOutputOnCompletion` and gain lines. Redeem stays enabled while points still cover another completion.
+5. Overflow toggle -> `addAreaCheckbox` with a vanilla style hover tooltip (`TooltipCreator`, width 400, left), flips `Progress.overflow` and rebuilds the panel.
+6. Return -> clear panel, restore original plugin, set `$option = gaMeetingEnd` and fire `DialogOptionSelected` (vanilla Galatia rule ends the conversation).
 
 Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notifyNewProjects(ids) -> project.display() true`.
 
 ## Contracts
 
 - Project definitions live only in code; progress and reward randoms live in sector memory and persist. Renaming a project id orphans its progress.
+- Overflow is per project and off by default; `Progress.overflow` is false on saves made before the field existed. Turning it off keeps points already past 100%. The progress bar is capped at full width, the label shows the real percentage.
 - `getRandomForProj` stores five `java.util.Random` objects in memory, so a reload reproduces the same rolls (anti save scum). Each roll advances the stored randoms.
 - Camouflage: the engine marks the player fleet as having a unique signature when any member variant has `ship_unique_signature` (`obf/campaign/fleet/CampaignFleet.java:963`). The emitter works by renaming that tag; the swap only runs on `reportPlayerClosedMarket`, so installing the hullmod takes effect after leaving the market.
 - Shared helper: `indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag` is imported only for an `instanceof` check that is never true (`ResearchProjectDialoguePlugin.java:48`).
@@ -112,6 +114,7 @@ Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notify
 | Mjolnir rolls | uses `getRandomForProj(Ids.PROJ_TRANSISTOR)` (`ResearchProjectTemplateRepo.java:523`), shares randoms with Transistor (suspected copy paste) |
 | Spyglass | `extra` stays null if all five rolls are worth 0; the 1% branch or the caller then hits null (`ResearchProjectTemplateRepo.java:487`, `:492`) |
 | `GalatiaNewProjectsIntel` | `getMapLocation` uses entity id `station_galatia_academy`, null if absent |
+| Prospector overflow | points past 100% stay in memory but stop showing once topography progress reaches 1000 and `display()` turns false |
 | `RefitUIOpenChecker` | polls `getCurrentCoreTab()` every frame; no engine callback for refit open was checked for |
 
 ## Maintenance

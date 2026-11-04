@@ -50,10 +50,11 @@ Users:
 
 Layout conventions used by both creators (`SplinterFleetSidePanelCreator.java:36`, `ResearchProjectSidePanelCreator.java:25`):
 
-- Constants: `PANEL_WIDTH_1 = 240`, `BUTTON_HEIGHT = 30`, `SELECT_BUTTON_WIDTH = 95`, `ARROW_BUTTON_WIDTH = 20`, `TEXT_FIELD_WIDTH = 80`, `SHIP_ICON_WIDTH = 48`, pads `opad = 10`, `spad = 3`.
+- Constants: `PANEL_WIDTH_1 = 240` (split fleet; research rows use `ROW_WIDTH = PANEL_WIDTH - 20` so a right aligned toggle fits), `BUTTON_HEIGHT = 30`, `SELECT_BUTTON_WIDTH = 95`, `ARROW_BUTTON_WIDTH = 20`, `TEXT_FIELD_WIDTH = 80`, `SHIP_ICON_WIDTH = 48`, pads `opad = 10`, `spad = 3`.
 - Each block: `addSectionHeading(name, MID, opad)`, then a `NoFrameCustomPanelPlugin` row panel (`PANEL_WIDTH_1 x 50`) holding one `createUIElement` per button, first `inTL(spad, opad)`, rest `rightOfMid(previous, opad)`, then `panelTooltip.addCustom(row, opad)`.
 - Below it a `FramedCustomPanelPlugin(0.25f, Misc.getBasePlayerColor(), false)` panel `PANEL_WIDTH - 20` wide for ship icons or a progress bar (a disabled, checked `addAreaCheckbox` sized to the percentage).
 - Buttons: `addButton(text, id, textColor, bgColor, Alignment.MID, CutStyle.C2_MENU, w, h, 0)`; enabled colours `Misc.getButtonTextColor()` / `Misc.getDarkPlayerColor()`, disabled `Misc.getTextColor()` / `Misc.getGrayColor()`, plus `setEnabled`. Action buttons use fixed fills (green `50,130,0`, red `160,30,20`, amber `200,160,10`).
+- Toggles are small `addAreaCheckbox` buttons with player trio colours (`Misc.getBasePlayerColor()`, `getDarkPlayerColor()`, `getBrightPlayerColor()`), placed `inTR` on the row and given a vanilla style hover tooltip through `addTooltipTo` (research Overflow toggle, `ResearchProjectSidePanelCreator.java:207`).
 - Each button is wrapped in an anonymous `ButtonEntry` with `onToggle()` and added via `VisualCustomPanel.getPlugin().addButton(entry)`. Ids are strings `"button_<action>_<slot or project>"`, used only for logging.
 - Status lines are `panelTooltip.addPara` with highlight or negative highlight colours under the block.
 - Any click handler that changes state rebuilds the whole panel (`refreshCustomPanel()` -> `createPanel(dialog, true)`), so entries never need updating in place. Handlers find the dialog plugin through a static getter on a sector memory key with expire 0.
