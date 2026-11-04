@@ -1,6 +1,7 @@
 package indevo.industries.ruinfra.conditions;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.econ.BaseHazardCondition;
@@ -47,7 +48,8 @@ public class DerelictInfrastructureCondition extends BaseHazardCondition {
         WeightedRandomPicker<String> industryIdPicker = new WeightedRandomPicker<>();
         industryIdPicker.addAll(MiscIE.getCSVSetFromMemory(Ids.RUIND_LIST));
 
-        Random random = new Random(Misc.getSalvageSeed(market.getPlanetEntity()));
+        SectorEntityToken seedEntity = market.getPlanetEntity() != null ? market.getPlanetEntity() : market.getPrimaryEntity();
+        Random random = new Random(Misc.getSalvageSeed(seedEntity));
         String pickedId = industryIdPicker.pick(random);
         log.info("picked " + pickedId);
 

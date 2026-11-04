@@ -20,6 +20,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.ruinfra.conditions.DerelictInfrastructureCondition;
 
 import java.awt.*;
 
@@ -29,7 +30,17 @@ public class RuinedInfrastructure extends BaseIndustry {
 
     @Override
     public void apply() {
+        if (!hasValidTarget()) {
+            market.getMemoryWithoutUpdate().unset(RUINED_INFRA_UPGRADE_ID_KEY);
+            DerelictInfrastructureCondition.setUpgradeSpec(market);
+        }
+
         triggerUpgradeForAI();
+    }
+
+    private boolean hasValidTarget() {
+        String target = market.getMemoryWithoutUpdate().getString(RUINED_INFRA_UPGRADE_ID_KEY);
+        return target != null && Global.getSettings().getIndustrySpec(target) != null;
     }
 
     @Override

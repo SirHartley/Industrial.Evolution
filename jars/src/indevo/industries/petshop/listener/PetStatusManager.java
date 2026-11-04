@@ -3,6 +3,7 @@ package indevo.industries.petshop.listener;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
@@ -106,18 +107,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     }
 
     public boolean feed(Pet pet) {
-        FleetDataAPI fleetData = pet.assignedFleetMember.getFleetData();
-
-        //mothballed means it's in storage
-        CargoAPI cargo;
-
-        if (fleetData == null || fleetData.getFleet() == null) {
-            //fleet is in cargo somewhere
-            //todo this is broken
-            return false;
-        }
-
-        CargoAPI fleetCargo = fleetData.getFleet().getCargo();
+        CargoAPI cargo = getFoodCargo(pet.assignedFleetMember);
+        if (cargo == null) return false;
 
         boolean hasFood = false;
         String foodToEat = "";
@@ -125,7 +116,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         PetData data = pet.getData();
 
         for (String food : data.foodCommodities) {
-            if (fleetCargo.getCommodityQuantity(food) >= data.foodPerMonth) {
+            if (cargo.getCommodityQuantity(food) >= data.foodPerMonth) {
                 hasFood = true;
                 foodToEat = food;
                 break;
@@ -134,13 +125,29 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
         if (!hasFood) return false;
 
-        fleetCargo.removeCommodity(foodToEat, data.foodPerMonth);
+        cargo.removeCommodity(foodToEat, data.foodPerMonth);
 
         if (foodTakenLastMonth.containsKey(foodToEat))
             foodTakenLastMonth.put(foodToEat, foodTakenLastMonth.get(foodToEat) + data.foodPerMonth);
         else foodTakenLastMonth.put(foodToEat, data.foodPerMonth);
 
         return true;
+    }
+
+    private CargoAPI getFoodCargo(FleetMemberAPI member) {
+        FleetDataAPI fleetData = member.getFleetData();
+        if (fleetData == null) return null;
+        if (fleetData.getFleet() != null) return fleetData.getFleet().getCargo();
+
+        // a stored ship's fleet data is the mothballed ships list of the submarket cargo holding it
+        for (MarketAPI market : Global.getSector().getEconomy().getMarketsCopy()) {
+            for (SubmarketAPI submarket : market.getSubmarketsCopy()) {
+                CargoAPI cargo = submarket.getCargoNullOk();
+                if (cargo != null && cargo.getMothballedShips() == fleetData) return Misc.getStorageCargo(market);
+            }
+        }
+
+        return null;
     }
 
     private void doRoutineAliveCheck() {

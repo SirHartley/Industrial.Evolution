@@ -183,7 +183,7 @@ public final class ReleaseBuild {
     }
 
     static Notes notes(String changelog, String version) {
-        if (version != null) require(version.matches(VERSION), "Expected a version such as 4.1.c, without a v prefix.");
+        if (version != null) require(version.matches(VERSION), "Expected a version such as 4.2.a, without a v prefix.");
         List<String> lines = changelog.replace("\r\n", "\n").lines().toList();
         List<Integer> headings = new ArrayList<>();
         Set<String> versions = new HashSet<>();

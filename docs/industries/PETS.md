@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-A pet is a `Pet` object bound to one fleet member (perma hullmod plus variant tag) or stored in an Animal Center. Pets age, eat food commodities from fleet cargo once a month, and die of old age, starvation, combat loss, sale or euthanasia. The pet's hullmod effect grows with time served. The Animal Center sells pets as `IndEvo_PetBox` special items, stores pets and opens the management panel. The `pet_management` ability opens the same panel from anywhere, fleet pets only.
+A pet is a `Pet` object bound to one fleet member (perma hullmod plus variant tag) or stored in an Animal Center. Pets age, eat food commodities from fleet cargo (or from the storage their ship sits in) once a month, and die of old age, starvation, combat loss, sale or euthanasia. The pet's hullmod effect grows with time served. The Animal Center sells pets as `IndEvo_PetBox` special items, stores pets and opens the management panel. The `pet_management` ability opens the same panel from anywhere, fleet pets only.
 
 ## Files
 
@@ -81,9 +81,9 @@ Code paths relative to `jars/src/indevo/`.
 
 ### Daily and monthly
 
-- `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:127`) and feeds it every 31 days. Feeding takes `foodPerMonth` of a listed food commodity from the fleet cargo; no food -> starving -> `STARVED` death.
+- `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:127`) and feeds it every 31 days. Feeding takes `foodPerMonth` of a listed food commodity from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:137`); no food -> starving -> `STARVED` death.
 - Age past `lifetime` -> `NATURAL` death, message from `natural_death` or the hamster CSV.
-- `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:146-158`); `reportPlayerMarketTransaction` -> pet ship sold -> `SOLD` (warns when sold into a free transfer submarket); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
+- `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:153-165`); `reportPlayerMarketTransaction` -> pet ship sold -> `SOLD` (warns when sold into a free transfer submarket); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
 - `reportPetDied()` removes the hullmod and tag, posts a message, keeps `DeathData`.
 
 ### Storage
@@ -109,6 +109,7 @@ Code paths relative to `jars/src/indevo/`.
 - Any code that removes ships from the player fleet without a market transaction or battle does not report a pet death; the pet stays registered with a stale member (inferred).
 - The manager only adds the player fleet event listener on creation; a replaced player fleet object loses it (inferred).
 - `MiscIE.createMonthlyReportNode` is shared with Academy and Repair Docks.
+- A stored ship's `getFleetData()` is the `getMothballedShips()` of the submarket cargo holding it, with no fleet (`obf/campaign/fleet/FleetData.java:482`, `addFleetMember` sets it). `getFoodCargo` finds that cargo by identity over `getEconomy().getMarketsCopy()`, the same markets the vanilla storage list shows (`obf/campaign/command/OutpostListPanel.java:271`); a ship stored on a market outside the economy is not found and its pet starves.
 
 ## Known issues and dormant code
 
@@ -116,8 +117,7 @@ Code paths relative to `jars/src/indevo/`.
 |---|---|
 | Storage fee report | Changelog_todo: "Fix the -1c pet food cost in monthly report"; not explained by the storage fee code |
 | `PetPickerInteractionDialoguePlugin` | `hasShownPicker` is never set to true; `advance()` calls `showShipPicker()` every frame once named (`:122`) |
-| `PetStatusManager.feed()` | Returns false when the member is in no live fleet, marked "todo this is broken" (`:116`) |
-| `reportPetDied()` | NPE when both `assignedFleetMember` and `storage` are null (`PetStatusManager.java:167`) |
+| `reportPetDied()` | NPE when both `assignedFleetMember` and `storage` are null (`PetStatusManager.java:174`) |
 | `YourMod_PetName_PetHullmod` | Checks `isModEnabled("indEvo")` (`:31`, `:48`); the mod id is `IndEvo` and `ModManager.isModEnabled` compares exactly (`obf/launcher/ModManager.java:196`), so a copy of the template never applies effects or tooltip |
 | `PetStatusListenerAPI` | Dead |
 | `PetShop.ensurePetShopCreatedOrAssigned()`, `removeStationEntityAndFleetIfNeeded()`, entity `IndEvo_PetShop`, `PetShopCampaignPlugin` | Legacy station version, deprecated, not called |

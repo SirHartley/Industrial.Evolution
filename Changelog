@@ -1,219 +1,223 @@
 --------------------------- Changelog -----------------------------
-4.1.c - UNRELEASED
+4.2.a - UNRELEASED
 General
-Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
-Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
-Fixed - Possible crash on market updates with mod industries that do not extend BaseIndustry
-Removed - Colony corruption mode, it is now a separate mod
-Removed - Unused LunaLib setting copies in settings.json
-Removed - Unused Crucible Amount setting
-Added - Quick Settings tab with content switches and the most used values
-Adjusted - Settings sorted into tabs
-Adjusted - Settings apply without a game restart
-Adjusted - Limits for number settings that had none
-Added - Brief setting descriptions with defaults, units and new-game requirements
-Fixed - Maximum settings accepting values below their minimum
-Fixed - Ship Picker Row Count accepting 0
 Adjusted - Now requires PatchLib
 Note - Install PatchLib alongside Industrial.Evolution
 Note - Saves from 4.1.b do not load, start a new game
+-
+Added - Quick Settings tab for category toggles
+Added - Settings descriptions updated
+Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
+Adjusted - Settings tabs re-sorted
+Adjusted - Settings now apply without a game restart
+Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
+Fixed - Crash on market updates with some modded industries
+Fixed - Settings no longer accept values below their minimum
+Removed - Colony corruption mode (now a separate mod)
+Removed - Unused settings
 
 Research Projects
-Fixed - Now sorts highest to lowest progress like intended
-Fixed - Galatia Academy posts the Prospector new project notice after a reload
-Fixed - Drive Field Tuning modspec is properly kept out of random loot
+Fixed - Now sorts highest to lowest progress like god intended
+Fixed - Prospector new project notice now properly shows after a reload
+Fixed - Drive Field Tuning modspec no longer drops as random loot
 
 Minefields
 Added - Setting to adjust interdict disable time
-Fixed - Mines in a minefield spread out around the belt instead of clustering
+Fixed - Mines no longer cluster in one spot of the belt
 
 Meteor Showers
-Added - Option to spawn showers immediately, without advance warning
-Fixed - Duplicate tutorial intel
-Fixed - Expired planetoid swarms leaving planets, rings and loot stations behind
-Fixed - Asteroid, ice and radioactive swarms not spawning
-Fixed - Incorrect storm arrival dates and intel expiry
-Fixed - Roider tutorial crash when the faction has no markets
-Fixed - Impact dust accumulating in saves and causing slowdown
+Added - Setting to make meteor shower spawn immediately instead of having a delay with an intel entry
+Fixed - Tutorial intel can no longer show duplicate notifications
+Fixed - Planetoid swarms no longer leave planets, rings and loot stations behind
+Fixed - Meteor Shower intel now shows the right arrival date and expires on time
+Fixed - Crash when the roider tutorial faction has no markets
+Fixed - Impact dust clouds no longer pile up in saves and slow the game down
 
 Pets
+Fixed - Animal market now gets correctly removed if Animal Center is removed or pets disabled
+Fixed - Pet storage fees now match the tooltip
+Fixed - Animal Center AI core bonuses now apply and match the description
+Fixed - Nine rare pets missing from the Animal Center shop now spawn
+Fixed - Pet management ability no longer shows active while a detachment is out
+Fixed - Pets on stored ships in storage at a colony now eat food from colony storage instead of dying
+Fixed - Pet naming dialog now properly opens from the cargo screen
+Fixed - Unknown pet boxes no longer crash (opening one shows an error)
 Removed - Pet food
-Fixed - Animal markets remaining open without an Animal Center or with pets disabled
-Fixed - Incorrect pet storage fees and missing gamma core discount
-Fixed - Incorrect AI core bonuses and descriptions
-Fixed - Nine rare pets missing from shops
-Fixed - Pet management ability appearing active during detachments
-Fixed - Stored pets dying at month end instead of following starvation rules
-Fixed - Pet naming dialogs failing to open from cargo
-Fixed - Unknown pets crashing cargo tooltips; opening their boxes now reports a specific error
 
 Museum
-Adjusted - Unique ships (Ziggy, MK1) always receive maximum value
-Adjusted - Increased value of non-purchasable ships (thanks, abel1502!)
-Fixed - Stacking parade stability bonuses
-Fixed - Museum availability following the meteor shower setting
-Fixed - Parades ignoring their chosen duration
-Fixed - Crash when cancelling construction
-Fixed - Museum removal failing to return ships to storage or remove exhibition storage
-Fixed - Parade bonuses disappearing after loading a save
-Fixed - Returning parades ending another Museum's parade
+Adjusted - Unique ships (Ziggy, MK1) are always max value
+Adjusted - Non-purchasable ships have higher value (PR'd by abel1502, thank you!)
+Fixed - Parade fleet stability bonus no longer stacks
+Fixed - Museum now follows its own setting instead of the meteor shower one
+Fixed - Parades now properly last the chosen duration
+Fixed - Crash when cancelling Museum construction
+Fixed - Museum removal now properly returns ships and removes exhibition storage
+Fixed - Parade bonuses no longer disappear after loading a save
+Fixed - Returning parades no longer end another Museum's parade
 
 Relays
-Fixed - Relay size calculations, including percentage fleet size modifiers
-Fixed - Crashes with modded AI cores and colonies outside star systems
-Fixed - Relay updates accumulating and causing slowdown
-Fixed - Interstellar Relay setting doing nothing
+Fixed - The infamous relay size bug (it was my fault after all!)
+Fixed - Relay size now properly counts percentage fleet size modifiers
+Fixed - No longer crashes when installing a modded AI-Core
+Fixed - Crash when a relay colony is outside a star system
+Fixed - Relay updates no longer pile up and slow the game down
+Fixed - Interstellar Relay setting now properly controls Interstellar Relays
 
 Academy
-Fixed - Aggression training charging twice
-Fixed - Academy transfers exceeding the fleet's officer limit
-Fixed - Old AI core bonuses remaining after a swap
-
-Admin Skills
-Adjusted - Micromanagement allows remote item and AI core management through industry menus without changing global settings
+Fixed - Aggression training no longer bills you twice the amount it should
+Fixed - Academy transfers no longer exceed the fleet's officer limit
+Fixed - Swapping AI cores no longer keeps the old core's bonuses
 
 Commodity Forge
-Fixed - Beta core upkeep discount remaining after installing a VPC
+Fixed - Beta core upkeep discount no longer stays active after installing a VPC
+
+--- cont
 
 Governments
-Fixed - Permanent governments allowing further changes
-Fixed - Size 5 Managed Democracy missing its two small and one large patrols
-Fixed - Managed Democracy's colony size cap remaining after a government change
-Fixed - Forge World stability checking luxury goods instead of metals and transplutonics
-Fixed - Rural Polity production bonuses remaining after leaving the government or closing the free port
-Fixed - New Forge World experiment ships receiving five effects instead of four
+Fixed - Permanent governments can no longer be changed
+Fixed - Size 5 Managed Democracy now gets its two small and one large patrol
+Fixed - Managed Democracy size cap no longer stays after a government change
+Fixed - Forge World stability now follows metals and transplutonics, not luxuries
+Fixed - Rural Polity bonuses now end when leaving it or closing the free port
+Fixed - New Forge World experiment ships now properly roll 4 effects (was 5)
 
 Courier Port
-Fixed - Invalid contracts not explaining the problem
-Fixed - Ship transport charging by fleet points instead of deployment points
-Fixed - “Ship now” crashing on invalidated contracts
-Fixed - Base fee setting capped below its default
+Fixed - Invalid contracts now show why they are invalid
+Fixed - Ship transport now charges by deployment points instead of fleet points
+Fixed - Crash when using "Ship now" on a contract that became invalid
+Fixed - Base fee setting maximum is no longer below its default
 
 Derelict Industries
-Fixed - Rift Generator movement lagging behind its animation and leaving planetary rings behind
-Fixed - Rift Generator crash with only one eligible core system
-Fixed - Ancient Laboratory alpha core missing its third commodity bonus
-Fixed - Duplicate derelict industries spawning in one system
-Fixed - Hull Forge and Ancient Laboratory crashes after losing the last colony
-Fixed - Old Industrial Ruins offering another colony's industry
-Fixed - Ruins added mid-campaign lacking a derelict industry
-Fixed - NPC ruins upgrades repeatedly restarting with Nexerelin
+Fixed - Rift Generator planets now move in sync with the warp animation
+Fixed - Rift Generator no longer leaves planetary rings behind
+Fixed - Crash when the Rift Generator has only one core system left as a target
+Fixed - Ancient Laboratory alpha core now properly boosts the third commodity
+Fixed - Two ruins in one system no longer roll the same derelict industry
+Fixed - Crash in Hull Forge and Ancient Laboratory after losing the last colony
+Fixed - Old Industrial Ruins no longer offer another colony's derelict industry
+Fixed - Ruins added mid-campaign now properly get a derelict industry
+Fixed - NPC ruins upgrades no longer restart over and over (Nexerelin)
 
 Ruined Infrastructure
-Fixed - NPC colonies not restoring infrastructure with Nexerelin
-Fixed - Blocked restorations showing generic errors instead of the reason
+Fixed - NPC colonies now properly restore Ruined Infrastructure (Nexerelin)
+Fixed - Blocked restorations now show the reason instead of a generic error
+Fixed - Ruined Infrastructure without a target can now be restored
 
 Embassy
-Fixed - Ambassadors refusing orders to stop sabotaging hostile activity
-Fixed - Luddic Church ambassadors not reducing hostile activity
-Fixed - Hostile activity tooltips displaying relations above the 40 cap
-Fixed - Hiring more ambassadors than available embassies
-Fixed - Colony screen crash with comm contacts lacking a post, including Approlight contacts
+Fixed - Ambassadors can now properly be told to stop sabotaging hostile activity
+Fixed - Luddic Church ambassadors now properly reduce hostile activity
+Fixed - Hostile activity tooltip no longer shows relations above the 40 cap
+Fixed - Can no longer hire more ambassadors than there are embassies
+Fixed - Crash when a colony has a comm contact without a post (Approlight)
 Fixed - Crash when ambassador murder bounty hunters spawn without ships
-Fixed - Ambassador dismissal errors and missing reputation penalties
+Fixed - Ambassador dismissal no longer errors or skips the reputation penalty
 
 Engineering Hub
-Fixed - Building availability ignoring its setting
-Fixed - Stripped weapons and fighters not reaching the production gathering point
+Fixed - Engineering Hub setting now properly controls whether it can be built
+Fixed - Stripped weapons and fighters now go to the production gathering point
 Fixed - Relic Components no longer show up as an item in storage or cargo
 
 Privateer Base
-Adjusted - Directly occupies two industry slots, including while queued
-Fixed - Raids failing to find valid targets
-Fixed - Raid strength ignoring colony fleet size modifiers
-Fixed - Build tooltip showing the base as unavailable while it can be built
+Adjusted - Now takes two industry slots itself, also while queued
+Fixed - Raids no longer fail to find a target when one exists
+Fixed - Raid strength now properly follows colony fleet size modifiers
+Fixed - Build tooltip no longer shows the base as unavailable when it can be built
 
 Salvage Yards
-Fixed - Missing salvage from repeat raids and duplicate payouts after loading
-Fixed - Missing salvage from blockades, punitive expeditions and hostile activity raids
-Fixed - Weapon salvage exceeding the monthly cap on the final day
-Fixed - Ship contracts consuming rare parts instead of ship parts
-Fixed - Contract and D-mod transfer costs exceeding the 150% cap
-Fixed - Ship Component Value Mult setting ignoring decimals
+Fixed - Salvage Yards now properly get salvage from every raid in their system
+Fixed - Salvage Yards no longer pay out twice after loading a save
+Fixed - Blockades, punitive expeditions and hostile activity raids now give salvage
+Fixed - Weapon salvage no longer goes over the monthly cap on the last day
+Fixed - Ship contracts now take ship parts instead of rare parts
+Fixed - Contract and D-mod transfer costs no longer go over the 150% cap
+Fixed - Ship Component Value Mult setting now properly accepts decimals
 
 Senate
 Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
 Note - Building Menu Overhaul's build menu and tooltips show the normal time
-Fixed - Fast build construction bonus remaining after expiry
-Fixed - Fast build nearly completing infrastructure restoration instead of halving its duration
-Fixed - Fast build increasing demand instead of halving it, and displaying “%%”
-Fixed - Forced relocation transferring too little population growth
-Fixed - Conflicting Lockdown descriptions; ground defense bonus is +200%
-Fixed - Ending Open Market removing markets provided by Commerce
-Fixed - Conscription penalties ending early or carrying into later edicts
-Fixed - Edict timers accelerating after each save and load
+Fixed - Mandated Overtime construction bonus no longer stays after it ends
+Fixed - Mandated Overtime now halves restoration instead of nearly finishing it
+Fixed - Mandated Overtime now properly halves demand instead of raising it
+Fixed - Mandated Overtime effect text no longer shows "%%"
+Fixed - Forced Relocation now moves as much population growth as listed
+Fixed - Wartime Lockdown descriptions now agree on ground defense (+200%)
+Fixed - Ending Trade Incentives no longer removes Commerce open markets
+Fixed - Forced Labour penalty no longer ends early or carries into the next one
+Fixed - Edict timers no longer speed up after each save and load
 
 Supercomputer
-Fixed - Modded AI core crashes; these cores now use gamma core duration
-Fixed - Income bonus remaining after removal
-Fixed - Build menu crash on colonies without planets
+Fixed - Crash with modded AI cores (they now last as long as a gamma core)
+Fixed - Income bonus no longer stays after removal
+Fixed - Crash in the build menu on colonies without a planet
 
 Restoration Docks
-Fixed - Repairing one more D-mod per month than listed
-Fixed - Beta core discount appearing as a price increase
+Fixed - No longer repairs one more D-mod per month than listed
+Fixed - Beta core discount no longer shows as a price increase
 
 Requisitions Centre
-Fixed - Missing ambassador sourcing information and low-standing warnings
+Fixed - Tooltip now properly shows ambassador sourcing and low standing warnings
 
 Commerce
-Adjusted - Modifies vanilla Commerce for better mod compatibility
-Fixed - Loading saves clearing disruptions and restocking markets
-Fixed - Alpha core tariff discount remaining after removal
-Fixed - Incorrect alpha core values with the balance setting
-Fixed - Missing bounty information in tooltips
+Adjusted - Changes vanilla Commerce in place for better mod compatibility
+Fixed - Loading a save no longer clears disruptions or restocks the market
+Fixed - Alpha core tariff discount no longer stays after removal
+Fixed - Alpha core tooltip now shows the right values with the balance setting
+Fixed - Tooltip now properly mentions the Commerce bounty
 
 World Wonders
-Fixed - Cloud Painter ignoring initial shield texture settings
-Fixed - Cloud Painter breaking Planetary Shield defenses, meteor protection, AI cores, improvements and upkeep
-Adjusted - Shield customization requires a working Cloud Painter; removal restores normal visuals
+Adjusted - Custom shield visuals now need a working Cloud Painter
+Fixed - Cloud Painter now uses the shield texture settings for its starting look
+Fixed - Cloud Painter no longer breaks Planetary Shields (effects, AI core, improvement)
 
 Automated Shipyards
-Fixed - Missing component loss information and red failure highlighting
-Fixed - Cryosleeper intel showing the Automated Shipyard icon
-Fixed - Relic components in station storage not being recognized
+Fixed - Automated Shipyard now shows lost components and highlights failures red
+Fixed - Cryosleeper intel no longer shows the Automated Shipyard icon
+Fixed - Relic components in station storage are now properly counted
 
 Salvage Specials
-Fixed - Ship factories accepting flagships and story ships as sacrifices
-Fixed - Credit stash ambushes reducing the player's reputation penalties
-Fixed - Credit stash repayments allowing negative credits
+Fixed - Ship factory no longer offers the flagship or story ships for sacrifice
+Fixed - Credit stash ambush no longer lowers the player's reputation penalties
+Fixed - Credit stash payback no longer allows negative credits
 
 Derelict Stations
-Fixed - IE stations spawning alongside existing vanilla stations
+Fixed - IE stations no longer spawn in systems with a vanilla station
 
 Survey Stories
-Fixed - Desert warlords story not appearing on desert and arid worlds
+Fixed - Desert warlords story now properly appears on desert and arid worlds
 
 Detachments
-Fixed - Auto-load taking all supplies instead of half, limited by cargo capacity
-Fixed - Unused orbit markers accumulating in saves; existing markers are cleaned up
-Fixed - Incorrect or missing excess cargo in detachment wrecks
+Fixed - Auto-load now takes half the supplies, not all (up to cargo space)
+Fixed - Unused orbit markers no longer pile up in saves
+Fixed - Detachment wrecks now properly hold all excess cargo
 
 Consumables
-Fixed - Missile hotkey crashes from hyperspace-only ability slots
-Fixed - Incorrect smoke cloud sizes and explosion volume
-Fixed - Incorrect chaff slowdown descriptions
-Fixed - Fuel scoop crashes in starless nebula systems; scoops now use the nearest star
-Fixed - Slipstream Catapult showing Abyss warnings elsewhere
-Fixed - Tech Locator misvaluing caches, stations and wrecks
-Fixed - Interceptor missiles missing unidentified fleets and affecting their own launcher
-Fixed - Warning beacon dialogs waiting for the cargo screen to close
-Changed - Abilities tagged as IE missiles without a missile plugin now crash with a specific error
+Adjusted - IE missile abilities without a missile plugin now crash with a clear error
+Fixed - Crash when firing a missile by hotkey from a hyperspace-only slot
+Fixed - Smoke cloud size and explosion volume now work as intended
+Fixed - Chaff tooltip now shows the real slowdown values
+Fixed - Fuel scoop crash in starless nebulas (now uses the nearest star)
+Fixed - Slipstream Catapult no longer shows its Abyss warning outside the Abyss
+Fixed - Tech Locator now properly rates caches, stations and wrecks
+Fixed - Interceptor missile now stuns unidentified fleets in the blast too
+Fixed - Interceptor missile no longer affects the fleet that fired it
+Fixed - Warning beacon dialog now opens on top of the cargo screen
 
 Items
-Fixed - Removing one Relay Hypertransmitter disabling another
-Fixed - Wrecks sharing one ship-part roll for the entire session
+Fixed - Removing one of two Relay Hypertransmitters no longer turns relays off
+Fixed - Ship parts from wrecks now roll per wreck instead of once per session
 
 Artillery
 Adjusted - Uses vanilla star dialogs for better mod compatibility
-Fixed - Slow fields and forced overloads expiring during combat pause
-Fixed - Watchtowers appearing as stable locations
-Fixed - Stable location creation ignoring wormholes
-Fixed - Placed stations firing with Artillery turned off
+Fixed - Slow fields and forced overloads no longer expire while paused
+Fixed - Watchtowers no longer count as stable locations
+Fixed - Creating a stable location now properly counts wormholes
+Fixed - Placed stations no longer fire with Artillery turned off
 
 Console Commands
-Fixed - SpawnRuins processing the first planet twice and duplicating ruins
-Fixed - SpawnRuins omitting forge types on surveyed planets
-Fixed - SpawnStation errors in hyperspace and incomplete station listings
+Fixed - SpawnRuins no longer rolls the first planet twice or duplicates ruins
+Fixed - SpawnRuins now properly sets the forge type on surveyed planets
+Fixed - SpawnStation no longer errors in hyperspace
+Fixed - SpawnStation help now lists all station types
 
 4.1.b - CURRENT PUBLIC VERSION
 SAVE COMPATIBLE WITH 4.1 - NOT SAVE COMPATIBLE WITH 4.0
