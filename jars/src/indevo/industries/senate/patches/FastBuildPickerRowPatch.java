@@ -16,6 +16,10 @@ import patchlib.api.match.MethodMatch;
 import patchlib.api.patch.After;
 import patchlib.api.patch.Patch;
 import patchlib.api.patch.RedirectMethodCall;
+import patchlib.api.query.FieldQuery;
+import patchlib.api.query.MethodQuery;
+import patchlib.api.spec.FieldQuerySpec;
+import patchlib.api.spec.MethodQuerySpec;
 
 import java.awt.Color;
 
@@ -28,6 +32,9 @@ public class FastBuildPickerRowPatch {
     private static final String LABEL_KEY = "IndEvo_fastBuildDaysLabel";
     private static final String OLD_DAYS_KEY = "IndEvo_fastBuildOldDays";
     private static final String GAP = "  ";
+    private static final FieldQuerySpec MARKET_FIELD = FieldQuery.create().fieldName("market").build();
+    private static final MethodQuerySpec GET_INDUSTRY = MethodQuery.create().methodName("getIndustry").parameterCount(0).build();
+    private static final MethodQuerySpec GET_SORT_BUILD_TIME = MethodQuery.create().methodName("getSortBuildTime").parameterCount(0).build();
 
     // the days column label is created as days + " " and centred right after, so the text changes before layout
     @RedirectMethodCall(
@@ -87,20 +94,20 @@ public class FastBuildPickerRowPatch {
 
     private static Integer getVanillaDays(Context context, Object text) {
         if (!(text instanceof String str) || str.isEmpty() || !Character.isDigit(str.charAt(0))) return null;
-        if (!Edict_FastBuild.isActive(getMarket(context)) || !context.hasMethod("getSortBuildTime") || !context.hasMethod("getIndustry")) return null;
+        if (!Edict_FastBuild.isActive(getMarket(context)) || !context.hasMethod(GET_SORT_BUILD_TIME) || !context.hasMethod(GET_INDUSTRY)) return null;
 
-        Object industry = context.getMethod("getIndustry").call();
+        Object industry = context.getMethod(GET_INDUSTRY).call();
         if (industry instanceof Industry ind && ind.getSpec() != null && ind.getSpec().hasTag(Industries.TAG_PARENT)) return null;
 
-        Object days = context.getMethod("getSortBuildTime").call();
+        Object days = context.getMethod(GET_SORT_BUILD_TIME).call();
         if (!(days instanceof Integer value) || value <= 1 || !str.trim().equals(String.valueOf(value))) return null;
 
         return value;
     }
 
     private static MarketAPI getMarket(Context context) {
-        if (!context.hasField("market")) return null;
-        Object market = context.getField("market").get();
+        if (!context.hasField(MARKET_FIELD)) return null;
+        Object market = context.getField(MARKET_FIELD).get();
         return market instanceof MarketAPI m ? m : null;
     }
 }
