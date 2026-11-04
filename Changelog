@@ -121,6 +121,7 @@ Privateer Base
 Adjusted - Now takes two industry slots itself, also while queued
 Fixed - Raids no longer fail to find a target when one exists
 Fixed - Raid strength now properly follows colony fleet size modifiers
+Fixed - Build tooltip no longer shows the base as unavailable when it can be built
 
 Salvage Yards
 Fixed - Salvage Yards now properly get salvage from every raid in their system
