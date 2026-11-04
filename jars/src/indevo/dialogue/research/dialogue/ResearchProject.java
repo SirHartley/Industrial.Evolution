@@ -46,6 +46,10 @@ public abstract class ResearchProject implements ResearchProjectAPI {
         }
     }
 
+    public boolean allowsOverflow() {
+        return repeatable && getProgress().overflow;
+    }
+
     public void addTooltipOutputOnCompletion(TooltipMakerAPI tooltip) {
 
     }
@@ -57,5 +61,6 @@ public abstract class ResearchProject implements ResearchProjectAPI {
     public static class Progress {
         public boolean redeemed = false;
         public float points = 0f;
+        public boolean overflow = false;
     }
 }
