@@ -123,7 +123,7 @@ When adding a listener, add its `register()` call here in the feature's group an
 
 ### Patches
 
-PatchLib patches change vanilla code where the API has no hook. Each lives in a `patches` package of the feature that owns it; the feature doc describes the behaviour. Rules for writing them: the `patchlib` skill. Never target `BaseIndustry`: PatchLib 1.0.3 notes that patching it breaks with Ashes of the Domain. Never patch another mod's classes; where another mod replaces a vanilla screen, IE's patches only have to stay crash free there.
+PatchLib patches change vanilla code where the API has no hook. Each lives in a `patches` package of the feature that owns it; the feature doc describes the behaviour. Rules for writing them: the `patchlib` skill. Never target `BaseIndustry`: PatchLib 1.0.3 notes that patching it breaks with Ashes of the Domain. Never patch another mod's classes; where another mod replaces a vanilla screen, IE's patches only have to stay crash free there. Reflection inside a patch (`getField`, `getMethod`, `hasField`, `hasMethod`) takes a `FieldQuerySpec` or `MethodQuerySpec` built once into a `private static final` field of the patch class, never the `String` overloads (deprecated in the PatchLib release after 1.0.3, slower).
 
 | Patch | Target | Kind | Feature doc |
 |---|---|---|---|
