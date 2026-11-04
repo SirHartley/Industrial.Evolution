@@ -68,6 +68,8 @@ Academy
 Fixed - Aggression training no longer bills you twice the amount it should
 Fixed - Academy transfers no longer exceed the fleet's officer limit
 Fixed - Swapping AI cores no longer keeps the old core's bonuses
+Fixed - Crash when officer training finishes in a translated game (PR'd by cwbnga, thank you!)
+Fixed - Officer training tooltip now properly shows the target personality
 
 Commodity Forge
 Fixed - Beta core upkeep discount no longer stays active after installing a VPC
