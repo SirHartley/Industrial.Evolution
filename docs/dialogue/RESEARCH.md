@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-At `station_galatia_academy` the player opens a side panel listing visible research projects. Each project accepts specific items for points; donating fills progress, and a finished project is redeemed for a cargo reward (weapons and blueprints, hullmods, consumables, salvage rolls). Repeatable projects subtract the requirement on redeem and keep the rest; their Bank toggle (overflow) lets a hand-in go past 100%. Most projects stay hidden until an unlock listener sees a trigger (an omega weapon, an autopulse, a slow ship, a unique signature ship, hyperspace topography progress) and posts a "New Research Projects Available" intel.
+At `station_galatia_academy` the player opens a side panel listing visible research projects. Each project accepts specific items for points; donating fills progress, and a finished project is redeemed for a cargo reward (weapons and blueprints, hullmods, consumables, salvage rolls). Repeatable projects subtract the requirement on redeem and keep the rest; their Stock toggle (overflow) lets a hand-in go past 100%. Most projects stay hidden until an unlock listener sees a trigger (an omega weapon, an autopulse, a slow ship, a unique signature ship, hyperspace topography progress) and posts a "New Research Projects Available" intel.
 
 ## Files
 
@@ -18,7 +18,7 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 | `dialogue/RequiredItem.java` | Accepted item: id, `CargoItemType`, points per unit. |
 | `dialogue/DropDataCreator.java` | Builds a `SalvageEntityGenDataSpec.DropData` for reward rolls. |
 | `dialogue/ResearchProjectDialoguePlugin.java` | Rule command and dialog plugin. Swaps itself in as the dialog plugin, draws text, returns to the Galatia menu via `gaMeetingEnd` (`:231`). Keeps its instance in `$IndEvo_tempDialogueInstance` (expire 0). |
-| `dialogue/ResearchProjectSidePanelCreator.java` | One block per visible, unredeemed project sorted by points: Show info, Cargo, Redeem buttons, Bank toggle (repeatable only, `addOverflowToggle`, `:207`), progress bar, item count, short desc. Redeem logic lives here (`:157`). |
+| `dialogue/ResearchProjectSidePanelCreator.java` | One block per visible, unredeemed project sorted by points: Show info, Cargo, Redeem buttons, Stock toggle (repeatable only, `addOverflowToggle`, `:207`), progress bar, item count, short desc. Redeem logic lives here (`:157`). |
 | `dialogue/ResearchProjectDonationCargoPicker.java` | Cargo picker filtered to accepted items; takes only what is needed to finish, or everything when `allowsOverflow()` (`:69`). |
 | `intel/GalatiaNewProjectsIntel.java` | Important intel listing new project names; removes itself after 31 days (`:21`). |
 | `intel/HyperspaceTopographyProjectFactor.java` | One-time factor for the vanilla Hyperspace Topography event, added on Prospector redeem. |
@@ -93,7 +93,7 @@ Order: `PopulateOptions -> IndEvo_JobMenuPoint -> option -> IndEvo_JobMenuInit -
 2. Show info -> `setProjectIdForInputs` prints long desc and per item progress, owned count and units to finish.
 3. Cargo -> `ResearchProjectDonationCargoPicker.init`: copies matching stacks from player cargo, the picker preview shows percent per stack; on confirm each stack adds `size x points` or only the units needed to finish, removed from the real cargo (`:81`). With overflow every picked unit is taken. Cargo is disabled on a finished project unless overflow is on.
 4. Redeem -> `project.getRewards()` added to cargo; repeatable subtracts the required points (floor 0), else `redeemed = true`; text shows `addTooltipOutputOnCompletion` and gain lines. Redeem stays enabled while points still cover another completion.
-5. Bank toggle -> `addAreaCheckbox` (label `OVERFLOW_LABEL`) with a vanilla style hover tooltip (`TooltipCreator`, width 400, left), flips `Progress.overflow` and rebuilds the panel.
+5. Stock toggle -> `addAreaCheckbox` (label `OVERFLOW_LABEL`) with a vanilla style hover tooltip (`TooltipCreator`, width 400, left), flips `Progress.overflow` and rebuilds the panel.
 6. Return -> clear panel, restore original plugin, set `$option = gaMeetingEnd` and fire `DialogOptionSelected` (vanilla Galatia rule ends the conversation).
 
 Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notifyNewProjects(ids) -> project.display() true`.

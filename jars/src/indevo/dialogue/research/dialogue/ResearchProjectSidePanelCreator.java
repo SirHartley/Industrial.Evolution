@@ -29,7 +29,7 @@ public class ResearchProjectSidePanelCreator {
     protected static final float TEXT_FIELD_WIDTH = 80f;
     protected static final float TOGGLE_WIDTH = 80f, TOGGLE_HEIGHT = 20f;
     protected static final float TOOLTIP_WIDTH = 400f;
-    protected static final String OVERFLOW_LABEL = "Bank";
+    protected static final String OVERFLOW_LABEL = "Stock";
 
     //create one slot for each research project .json
     //Header with project title

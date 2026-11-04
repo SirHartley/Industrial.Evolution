@@ -17,7 +17,7 @@ Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
 
 Research Projects
-Added - Bank toggle: repeatable projects carry extra progress over (PR'd by razenpok, thank you!)
+Added - Stock toggle: repeatable projects carry extra progress over (PR'd by razenpok, thank you!)
 Fixed - Now sorts highest to lowest progress like god intended
 Fixed - Prospector new project notice now properly shows after a reload
 Fixed - Drive Field Tuning modspec no longer drops as random loot
