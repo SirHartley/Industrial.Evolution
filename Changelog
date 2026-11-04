@@ -1,25 +1,23 @@
 --------------------------- Changelog -----------------------------
 4.2.a - UNRELEASED
 General
-Added - Quick Settings tab with content switches and the most used values
-Added - Setting descriptions with defaults, units and new game requirements
-Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
-Adjusted - Settings sorted into tabs
-Adjusted - Settings apply without a game restart
-Adjusted - Number settings without limits now have them
 Adjusted - Now requires PatchLib
 Note - Install PatchLib alongside Industrial.Evolution
 Note - Saves from 4.1.b do not load, start a new game
+-
+Added - Quick Settings tab for category toggles
+Added - Settings descriptions updated
+Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
+Adjusted - Settings tabs re-sorted
+Adjusted - Settings now apply without a game restart
 Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
 Fixed - Crash on market updates with some modded industries
-Fixed - Maximum settings no longer accept values below their minimum
-Fixed - Ship Picker Row Count no longer accepts 0
+Fixed - Settings no longer accept values below their minimum
 Removed - Colony corruption mode (now a separate mod)
-Removed - Unused LunaLib setting copies in settings.json
-Removed - Unused Crucible Amount setting
+Removed - Unused settings
 
 Research Projects
-Fixed - Now sorts highest to lowest progress like intended
+Fixed - Now sorts highest to lowest progress like god intended
 Fixed - Prospector new project notice now properly shows after a reload
 Fixed - Drive Field Tuning modspec no longer drops as random loot
 
@@ -29,22 +27,21 @@ Fixed - Mines no longer cluster in one spot of the belt
 
 Meteor Showers
 Added - Setting to make meteor shower spawn immediately instead of having a delay with an intel entry
-Fixed - Tutorial intel displaying twice
+Fixed - Tutorial intel can no longer show duplicate notifications
 Fixed - Planetoid swarms no longer leave planets, rings and loot stations behind
-Fixed - Asteroid, ice and radioactive swarms now properly spawn
-Fixed - Storm intel now shows the right arrival date and expires on time
+Fixed - Meteor Shower intel now shows the right arrival date and expires on time
 Fixed - Crash when the roider tutorial faction has no markets
 Fixed - Impact dust clouds no longer pile up in saves and slow the game down
 
 Pets
-Fixed - Animal market now closes without an Animal Center or with pets disabled
-Fixed - Pet storage fees now match the tooltip, gamma core discount included
+Fixed - Animal market now gets correctly removed if Animal Center is removed or pets disabled
+Fixed - Pet storage fees now match the tooltip
 Fixed - Animal Center AI core bonuses now apply and match the description
-Fixed - Nine rare pets missing from the Animal Center shop
+Fixed - Nine rare pets missing from the Animal Center shop now spawn
 Fixed - Pet management ability no longer shows active while a detachment is out
-Fixed - Pets on stored ships now eat food from that storage instead of dying
+Fixed - Pets on stored ships in storage at a colony now eat food from colony storage instead of dying
 Fixed - Pet naming dialog now properly opens from the cargo screen
-Fixed - Unknown pet boxes no longer crash cargo tooltips (opening one shows an error)
+Fixed - Unknown pet boxes no longer crash (opening one shows an error)
 Removed - Pet food
 
 Museum
@@ -67,15 +64,12 @@ Fixed - Relay updates no longer pile up and slow the game down
 Fixed - Interstellar Relay setting now properly controls Interstellar Relays
 
 Academy
-Fixed - Aggression training no longer charges the fee twice
+Fixed - Aggression training no longer bills you twice the amount it should
 Fixed - Academy transfers no longer exceed the fleet's officer limit
 Fixed - Swapping AI cores no longer keeps the old core's bonuses
 
-Admin Skills
-Adjusted - Micromanagement unlocks remote item and AI core use without changing the game setting
-
 Commodity Forge
-Fixed - Beta core upkeep discount no longer stays after installing a VPC
+Fixed - Beta core upkeep discount no longer stays active after installing a VPC
 
 Governments
 Fixed - Permanent governments can no longer be changed
