@@ -79,6 +79,7 @@ Fixed - Beta core upkeep discount no longer stays active after installing a VPC
 Governments
 Fixed - Permanent governments can no longer be changed
 Fixed - Size 5 Managed Democracy now gets its two small and one large patrol
+Note - These come in addition to the normal patrols, not as a cap
 Fixed - Managed Democracy size cap no longer stays after a government change
 Fixed - Forge World stability now follows metals and transplutonics, not luxuries
 Fixed - Rural Polity bonuses now end when leaving it or closing the free port
