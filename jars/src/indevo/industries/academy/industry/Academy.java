@@ -574,10 +574,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         switch (currentDirection) {
             case BETTER:
                 nextIndex = currentIndex < 4 ? currentIndex + 1 : currentIndex;
-                return personalities.get(nextIndex);
+                return Global.getSettings().getPersonaltySpec(personalities.get(nextIndex)).getDisplayName();
             case WEAKER:
                 nextIndex = currentIndex > 0 ? currentIndex - 1 : currentIndex;
-                return personalities.get(nextIndex);
+                return Global.getSettings().getPersonaltySpec(personalities.get(nextIndex)).getDisplayName();
             default:
                 break;
         }
