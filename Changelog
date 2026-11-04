@@ -43,7 +43,7 @@ Fixed - Incorrect pet storage fees and missing gamma core discount
 Fixed - Incorrect AI core bonuses and descriptions
 Fixed - Nine rare pets missing from shops
 Fixed - Pet management ability appearing active during detachments
-Fixed - Stored pets dying at month end instead of following starvation rules
+Fixed - Pets on stored ships dying, they now eat food from that storage
 Fixed - Pet naming dialogs failing to open from cargo
 Fixed - Unknown pets crashing cargo tooltips; opening their boxes now reports a specific error
 
