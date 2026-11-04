@@ -144,7 +144,7 @@ None.
 
 ## Implementation plan
 
-Four stages, done in order. Stage 0 changes no visible behaviour. Help text goes through the house-style `player-text.md`. All stages go into the test branch `claude/project-thread-2vk6rz` as one merge.
+Four stages, done in order. Stage 0 changes no visible behaviour. Help text goes through the house-style `player-text.md`. All stages go into the test branch `dev` as one merge.
 
 ### Architecture
 
