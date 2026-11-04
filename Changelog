@@ -71,6 +71,8 @@ Fixed - Swapping AI cores no longer keeps the old core's bonuses
 Commodity Forge
 Fixed - Beta core upkeep discount no longer stays active after installing a VPC
 
+--- cont
+
 Governments
 Fixed - Permanent governments can no longer be changed
 Fixed - Size 5 Managed Democracy now gets its two small and one large patrol
