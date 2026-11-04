@@ -143,7 +143,7 @@ After a game update, check inferred targets first (any target outside `com.fs.st
 
 ## Save data
 
-IE is released and players keep saves across patch versions. 4.1.c does not load 4.1.b saves (`Changelog` note), so IE carries no migration code for them. Starsector saves the sector with XStream; what persists is in the knowledge skill `docs/concepts/saves-persistence.md`.
+IE is released and players keep saves across patch versions. 4.2.a does not load 4.1.b saves (`Changelog` note), so IE carries no migration code for them. Starsector saves the sector with XStream; what persists is in the knowledge skill `docs/concepts/saves-persistence.md`.
 
 - Saved: fields of persistent listeners (`getInstanceOrRegister`), saved scripts (`TimeTracker`, feature scripts added with `addScript`), intel, industries and conditions on markets, custom entities and their plugins, memory values, tags.
 - Not saved: transient listeners (`register()`), campaign plugins, `SessionTransientMemory` (whitelist sets, VPC item set).
