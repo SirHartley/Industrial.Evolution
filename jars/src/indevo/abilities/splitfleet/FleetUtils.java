@@ -96,16 +96,7 @@ public class FleetUtils {
         FleetDataAPI splinterFleetData = splinterFleet.getFleetData();
 
         //get all the ships corresponding to the variants in the player fleet
-        List<FleetMemberAPI> fleetMemberlist = new ArrayList<>();
-
-        for (ShipVariantAPI variant : loadout.shipVariantList) {
-            for (FleetMemberAPI member : playerFleetData.getMembersListCopy()) {
-                if (member.getVariant().getHullVariantId().equals(variant.getHullVariantId()) && !fleetMemberlist.contains(member)) {
-                    fleetMemberlist.add(member);
-                    break;
-                }
-            }
-        }
+        List<FleetMemberAPI> fleetMemberlist = getFleetMembersForLoadout(loadout, playerFleet);
 
         //add all the members and move officers
         for (FleetMemberAPI m : fleetMemberlist) {
@@ -208,13 +199,28 @@ public class FleetUtils {
     public static CampaignFleetAPI createFakeFleet(LoadoutMemory.Loadout loadout) {
         CampaignFleetAPI fakeFleet = Global.getFactory().createEmptyFleet(Global.getSector().getPlayerFaction().getId(), loadout.id, true);
 
-        for (ShipVariantAPI v : loadout.shipVariantList) {
-            fakeFleet.getFleetData().addFleetMember(createFakeFleetMember(v));
+        for (FleetMemberAPI member : getFleetMembersForLoadout(loadout, Global.getSector().getPlayerFleet())) {
+            fakeFleet.getFleetData().addFleetMember(createFakeFleetMember(member));
         }
 
         fakeFleet.getCargo().addAll(loadout.targetCargo);
 
         return fakeFleet;
+    }
+
+    public static List<FleetMemberAPI> getFleetMembersForLoadout(LoadoutMemory.Loadout loadout, CampaignFleetAPI sourceFleet) {
+        List<FleetMemberAPI> matchingMembers = new ArrayList<>();
+
+        for (ShipVariantAPI variant : loadout.shipVariantList) {
+            for (FleetMemberAPI member : sourceFleet.getFleetData().getMembersListCopy()) {
+                if (member.getVariant().getHullVariantId().equals(variant.getHullVariantId()) && !matchingMembers.contains(member)) {
+                    matchingMembers.add(member);
+                    break;
+                }
+            }
+        }
+
+        return matchingMembers;
     }
 
     public static CampaignFleetAPI createFakeFleet(String name, List<FleetMemberAPI> memberList, CargoAPI cargo) {
@@ -245,6 +251,7 @@ public class FleetUtils {
     public static FleetMemberAPI createFakeFleetMember(FleetMemberAPI m) {
         FleetMemberAPI fakeMember = Global.getFactory().createFleetMember(FleetMemberType.SHIP, m.getVariant());
         fakeMember.setShipName(m.getShipName());
+        fakeMember.getRepairTracker().setMothballed(m.isMothballed());
 
         PersonAPI actualCaptain = m.getCaptain();
         if (actualCaptain != null) {

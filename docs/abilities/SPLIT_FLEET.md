@@ -14,7 +14,7 @@ The player ability `splinter_fleet` opens a control panel with three loadout slo
 |---|---|
 | `indevo/abilities/splitfleet/SplinterAbilityPlugin.java` | Ability plugin (`abilities.csv`). `activateImpl` opens `AbilityPanelDialoguePlugin` (`:13`). Not usable during hyperspace transition (`:18`). |
 | `indevo/abilities/splitfleet/SplinterFleetCampignPlugin.java` | Transient `BaseCampaignPlugin` (`:33`). Picks `DetachmentDialoguePlugin` with `HIGHEST` for detachment targets not in `COMBAT` (`:38`); picks detachment ability AIs with `MOD_SET` (`:49`). `clear()` (`:80`) unsets both stores, nothing calls it. |
-| `indevo/abilities/splitfleet/FleetUtils.java` | Spawn (`createAndSpawnFleet`, `:86`), merge (`mergeFleetWithPlayerFleet`, `:51`), cargo transfer, fake fleets for previews, assignment AI lookup and swap (`:260`, `:270`). Holds `DETACHMENT_IDENTIFIER_KEY`. |
+| `indevo/abilities/splitfleet/FleetUtils.java` | Spawn (`createAndSpawnFleet`, `:86`), merge (`mergeFleetWithPlayerFleet`, `:51`), loadout ship matching (`getFleetMembersForLoadout`, `:211`), cargo transfer, fake fleets for previews, assignment AI lookup and swap (`:267`, `:277`). Holds `DETACHMENT_IDENTIFIER_KEY`. |
 | `indevo/abilities/splitfleet/OrbitFocus.java` | Creates invisible `SplinterFleet_OrbitFocus` entities and picks orbits for holding, hiding, dormancy and wreck fields. Also used by consumables and smoke clouds. |
 | `fleetManagement/Behaviour.java` | `FleetBehaviour` enum, index map for the UI, colours, tooltips; base behaviour and override memory; `changeBehaviourAndUpdateAI` maps behaviour to AI class (`:196`). |
 | `fleetManagement/DetachmentMemory.java` | Slot `1..3` -> live `CampaignFleetAPI` map in sector memory. |
@@ -77,7 +77,7 @@ Spawn order: `Spawn button -> FleetUtils.createAndSpawnFleet -> spawnFleet near 
 
 `SplinterAbilityPlugin.activateImpl -> AbilityPanelDialoguePlugin.init -> SplinterFleetSidePanelCreator.showPanel`. Every button rebuilds the whole panel through `refreshCustomPanel`. Behaviour arrows edit `Loadout.behaviour` only; for a live detachment the change is applied on "Return" via `Behaviour.updateActiveDetachmentBehaviour` (`Behaviour.java:241`).
 
-Spawn needs (`SplinterFleetSidePanelCreator.java:376`): ships picked and at least one present, fewer ships than the player fleet, non-empty loadout cargo, supplies >= repair cost + one month, not dormant, and for TRANSPORT a target market and fuel > distance x fuel per LY. Ships are matched by `getHullVariantId()` (first unused member per variant, `FleetUtils.java:101`), so duplicate hulls with the same variant id are interchangeable. Target markets come from `ShippingTargetHelper.getValidOriginPlanets()` (see [Courier port](../industries/COURIER_PORT.md)).
+Spawn needs (`SplinterFleetSidePanelCreator.java:365`): ships picked and at least one present, fewer ships than the player fleet, non-empty loadout cargo, supplies >= repair cost + one month, not dormant, and for TRANSPORT a target market and fuel > distance x fuel per LY. Ships are matched by `getHullVariantId()` (first unused member per variant, `FleetUtils.getFleetMembersForLoadout`, `FleetUtils.java:211`), so duplicate hulls with the same variant id are interchangeable. Spawn, the panel status and the loadout cargo picker use the same match, so previews only count ships present in the player fleet. Fake preview members copy the mothball state (`FleetUtils.java:254`); vanilla zeroes cargo, fuel, crew and supply upkeep for mothballed members. Target markets come from `ShippingTargetHelper.getValidOriginPlanets()` (see [Courier port](../industries/COURIER_PORT.md)).
 
 ### Spawn and merge
 
@@ -145,6 +145,7 @@ Follow, escort and intercept queue the player's jumps in `jumpInfoMap` from `rep
 | Marine XP | Changelog_todo: "Marine xp get wiped with detachments"; the transaction based fix is disabled with `if (false)` (`TwoFleetCargoPicker.java:75`) |
 | Crew over capacity | Changelog_todo: "Detachments eat crew that is in excess of capacity" |
 | Other system | Changelog_todo: "Detachments refuse to move when in other system (??)" |
+| Preview without ships | a loadout with cargo set but none of its ships in the player fleet previews an empty fleet: upkeep 0, operating time shows `Integer.MAX_VALUE` months (`FleetStatus.java:77`); spawn is blocked there |
 | Hiding at the sun | Changelog_todo: "? Detachments like to hide in system center (sun)"; `getAlternateHidingPosition` and the centred orbit fallback in `getClosestValidOrbit` orbit the system centre |
 
 ## Maintenance

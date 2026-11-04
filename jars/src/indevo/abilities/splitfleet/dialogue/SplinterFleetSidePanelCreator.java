@@ -7,7 +7,6 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
@@ -25,7 +24,6 @@ import indevo.utils.helper.MiscIE;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -68,10 +66,11 @@ public class SplinterFleetSidePanelCreator {
             boolean prerequisiteForActive = true;
 
             List<FleetMemberAPI> ships = FleetUtils.convertToFleetMemberList(loadout.shipVariantList);
+            List<FleetMemberAPI> availableLoadoutMembers = FleetUtils.getFleetMembersForLoadout(loadout, playerFleet);
 
             final FleetStatus status;
             if (detachmentIsActive) status = FleetStatus.getFleetStatus(detachment);
-            else status = FleetStatus.getFleetStatus(loadout.id, loadout.targetCargo, ships);
+            else status = FleetStatus.getFleetStatus(loadout.id, loadout.targetCargo, availableLoadoutMembers);
 
             MarketAPI transportTargetMarket = loadout.transportTargetMarket != null ? Global.getSector().getEconomy().getMarket(loadout.transportTargetMarket) : null;
 
@@ -79,17 +78,7 @@ public class SplinterFleetSidePanelCreator {
             float currentFuel = status.currentFuel;
             float requiredFuel = loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) ? status.requiredFuelPerLY * distance : status.requiredFuelPerLY * distance * 2.2f;
 
-            List<FleetMemberAPI> fleetMemberlist = new ArrayList<>();
-            for (ShipVariantAPI variant : loadout.shipVariantList) {
-                for (FleetMemberAPI member : playerFleet.getFleetData().getMembersListCopy()) {
-                    if (member.getVariant().getHullVariantId().equals(variant.getHullVariantId()) && !fleetMemberlist.contains(member)) {
-                        fleetMemberlist.add(member);
-                        break;
-                    }
-                }
-            }
-
-            int fleetMembersMatching = fleetMemberlist.size();
+            int fleetMembersMatching = availableLoadoutMembers.size();
 
             boolean allFleetMembersPresent = fleetMembersMatching >= loadout.shipVariantList.size();
             boolean atLeastOneShipPresent = fleetMembersMatching > 0;
