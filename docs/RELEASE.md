@@ -6,7 +6,7 @@ Nothing in this guide runs unless the user asks: no version bumps, no rebuilt re
 
 ## Versions
 
-Scheme `major.minor.letter`, lowercase letter, no `v` prefix. Current public version `4.1.b`; the unreleased section is `4.1.c`.
+Scheme `major.minor.letter`, lowercase letter, no `v` prefix. Current public version `4.1.b`; the unreleased section is `4.2.a`.
 
 | Part | Change | Example |
 |---|---|---|
@@ -63,12 +63,12 @@ Rebuild and commit the release jar only when the user asks, normally right befor
 
 ```text
 java jars/src/indevo/tools/ReleaseBuild.java package            # preview
-java jars/src/indevo/tools/ReleaseBuild.java package 4.1.c      # release
+java jars/src/indevo/tools/ReleaseBuild.java package 4.2.a      # release
 ```
 
 - **Changelog parsing:** the newest heading matching `<version>`, `<version> - UNRELEASED` or `<version> - CURRENT PUBLIC VERSION`; old irregular headings (`2.2.a/b`) are ignored. No duplicate versions; at least one `Added/Adjusted/Fixed/Removed -` line; plain text only.
 - **Preview** (no version): packages the newest section even if `UNRELEASED` and accepts a stale release jar with a warning.
-- **Release** (with version): the version must match `4.1.c` exactly (no `v`), equal the newest section, and that section must not be `UNRELEASED`. The release jar must be fresh.
+- **Release** (with version): the version must match `4.2.a` exactly (no `v`), equal the newest section, and that section must not be `UNRELEASED`. The release jar must be fresh.
 - **Stamping:** `mod_info.json` `version`; `IndEvo.version` `major`, `minor`, `patch` and `directDownloadURL`. The working files are not edited.
 - **Asset references:** every literal `graphics/`, `sounds/`, `data/` or `IndEvo/sounds/` path (`png jpg jpeg ogg wav shader csv json`) inside packaged data must be in the zip if it names IE (`indevo` in any case) or is a tracked file. Vanilla paths are not in the repository and are skipped.
 - **Required files:** `Changelog`, `mod_info.json`, `IndEvo.version`, `data/config/settings.json`, `data/config/LunaSettings.csv`, `data/config/version/version_files.csv`.

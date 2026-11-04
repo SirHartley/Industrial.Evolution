@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to release, such as 4.1.c. Leave empty for a preview package."
+        description: "Version to release, such as 4.2.a. Leave empty for a preview package."
         required: false
         default: ""
 
