@@ -101,6 +101,7 @@ Fixed - NPC ruins upgrades no longer restart over and over (Nexerelin)
 Ruined Infrastructure
 Fixed - NPC colonies now properly restore Ruined Infrastructure (Nexerelin)
 Fixed - Blocked restorations now show the reason instead of a generic error
+Fixed - Ruined Infrastructure without a target can now be restored
 
 Embassy
 Fixed - Ambassadors can now properly be told to stop sabotaging hostile activity
