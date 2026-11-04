@@ -494,11 +494,11 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
             if (officerDaysPassed >= getOfficerTrainingDays() || Global.getSettings().isDevMode()) {
 
-                String oldPersonality = officerInTraining.getPersonalityAPI().getDisplayName();
+                PersonalityAPI oldPersonality = officerInTraining.getPersonalityAPI();
 
                 changeOfficerPersonality(currentDirection);
 
-                String newPersonality = officerInTraining.getPersonalityAPI().getDisplayName();
+                PersonalityAPI newPersonality = officerInTraining.getPersonalityAPI();
 
                 moveOfficerInTrainingToStorage();
 
@@ -508,7 +508,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
                 MessageIntel intel = new MessageIntel("An officer has finished training at %s.",
                         Misc.getTextColor(), new String[]{(market.getName())}, market.getFaction().getBrightUIColor());
-                intel.addLine("Personality changed from %s to %s.", Misc.getTextColor(), new String[]{oldPersonality, newPersonality}, COLOURS_BY_PERSONALITY.get(oldPersonality.toLowerCase()), COLOURS_BY_PERSONALITY.get(newPersonality.toLowerCase()));
+                intel.addLine("Personality changed from %s to %s.", Misc.getTextColor(), new String[]{oldPersonality.getDisplayName(), newPersonality.getDisplayName()}, COLOURS_BY_PERSONALITY.get(oldPersonality.getId()), COLOURS_BY_PERSONALITY.get(newPersonality.getId()));
                 intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
                 intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "trainingdone"));
                 Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
