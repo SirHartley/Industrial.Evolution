@@ -39,7 +39,7 @@ Outside the package: `indevo/items/specialitemdata/AmbassadorItemData.java`, `in
 | Sector memory | `$deconomics_ambAllowed_<factionId>`: true adds a faction, false bans and recalls | `AmbassadorItemHelper.java:18` |
 | Sector memory | `$IndEvo_HAASabotage` (sabotage mode) | `HAAmbassadorEventFactor.java:26`, set by rules |
 | Sector memory | `$IndEvo_HAE_ScriptCleanupDone` | dead script only |
-| Person | rank `factionRep`, post `ambassador`, tag `amb_<originMarketId>` | `AmbassadorPersonManager.createAmbassador()` (`:340`) |
+| Person | rank `factionRep`, post `ambassador`, tag `amb_<originMarketId>` | `AmbassadorPersonManager.createAmbassador()` (`:344`) |
 | Fleet memory | `$IndEvo_bountyHunter`, `$IndEvo_himOrHer`, `$IndEvo_name`, `$IndEvo_theFaction` | `AmbassadorMurderConsequences.java:149` |
 | Rules | `IndEvo_ambassadorGreeting*`, `IndEvo_ambassadorHire*`, `IndEvo_ambassadorNoFreeEmbassy`, `IndEvo_ambassadorConfirm`, `IndEvo_ambassadorMenu`, `IndEvo_ambassadorMenuSabotage` and `IndEvo_ambassadorMenuStopSabotage` (sabotage toggle by `$global.IndEvo_HAASabotage`), `IndEvo_ambassadorRemove1..6`, `IndEvo_ambassadorRemovalConfirm`, `IndEvo_ambMoveOption`, `IndEvo_amb(Stop)SabotageRep(_confirm)`, `IndEvo_convEnd(Polite)`, `IndEvo_bountyHunterHail`, `IndEvo_bountyHunterText` | `data/campaign/rules.csv` block `# Embassy`, `# Ambassador Murdered` |
 | Strings | `IndEvo_embassy`, `IndEvo_AmbassadorItem` sections | `data/strings/strings.json:171`, `:69` |
@@ -49,7 +49,7 @@ Outside the package: `indevo/items/specialitemdata/AmbassadorItemData.java`, `in
 
 - `ModPlugin.setListenersIfNeeded()`: `AmbassadorPersonManager.register()` (`ModPlugin.java:428`, transient, no dedupe needed since transient listeners are dropped on save), `checkAmbassadorPresence.register()` (`:433`, `addTransientListener`), `HostileActivityEventSubRegisterListener.register()` (`:473`, transient).
 - `ModPlugin.loadTransientMemory()` warms the whitelist cache (`ModPlugin.java:409`).
-- `Embassy.apply()` adds itself as a transient listener only when functional and player owned (`Embassy.java:61`).
+- `Embassy.apply()` adds itself as a transient listener only when functional and player owned (`Embassy.java:62`).
 - `AmbassadorItemTrackerPlugin` and `LostAmbassadorRemovalChecker` are persistent listeners (`addListener(obj)`), removed by `setDone()`. `AmbassadorMurderConsequences` is a persistent sector script; `moveAmbassadorToMarket` is a transient script.
 - Rule commands from `ruleCommandPackages` `indevo.industries.embassy.rules` (`settings.json:73`).
 
@@ -66,7 +66,7 @@ Outside the package: `indevo/items/specialitemdata/AmbassadorItemData.java`, `in
 3. `IndEvo_addAmbassadorToCargo`: new `AmbassadorItemData(IndEvo_amb, null, person)` in fleet cargo, new `AmbassadorItemTrackerPlugin`, person removed from the market (still in `ImportantPeople`).
 4. Install through the industry item menu (`Embassy.getInstallableItems()`, `wantsToUseSpecialItem()`). The tracker sees the item on an Embassy with no ambassador person (`getEmptyEmbassyMarket()`), adds the person there and finishes.
 
-Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:47`): `findAmbassadorItem` (last location, player fleet, active detachments (`DetachmentMemory.getFleetMap()`) and Courier Port shipments in transit (`Shipment.cargo` of every `Shipment` listener), installed, station cargo, storage submarkets: any submarket whose plugin is a `StoragePlugin`, which includes IE Warehouses) `-> checkForIllegalPresence` (any other submarket = sold; any entity cargo in any location = suffocated; both -30 rep, murder script; else lost) `-> checkForWarConsequences` (faction gone, relation <= -0.5, or banned: item removed, person home) `-> checkForTimeConsequences` (day 31 warning, 62 -10, 93 -15, 124 -20 and return home).
+Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:52`): `findAmbassadorItem` (last location, player fleet, active detachments (`DetachmentMemory.getFleetMap()`) and Courier Port shipments in transit (`Shipment.cargo` of every `Shipment` listener), installed, station cargo, storage submarkets: any submarket whose plugin is a `StoragePlugin`, which includes IE Warehouses) `-> checkForIllegalPresence` (any other submarket = sold; any entity cargo in any location = suffocated; both -30 rep, murder script; else lost) `-> checkForWarConsequences` (faction gone, relation <= -0.5, or banned: item removed, person home) `-> checkForTimeConsequences` (day 31 warning, 62 -10, 93 -15, 124 -20 and return home).
 
 ### Installed ambassador
 
@@ -76,7 +76,7 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:47`): `findAmba
 - The month end penalty and the monthly gain go through `adjustOwnRelationship()`, which shifts `lastDayRep` by the applied change, so `logRepChange()` never bills IE's own change as a new loss.
 - Dismiss: `IndEvo_ambassadorRemove1..6` pick text by relation band (`IndEvo_checkForRepResponse.getRepBand`: below -25 inhospitable, below -10 suspicious, up to 10 neutral, up to 25 favorable, up to 50 welcoming, above friendly), `IndEvo_ambassadorRemoval` applies `getPenaltyFor()` (-10 to -60) and returns the person to the origin market.
 - Relocate: option order from param, cost `5000 x lyMult` booked as Embassy upkeep, move done by `moveAmbassadorToMarket` next frame.
-- Removing the Embassy (not for upgrade) runs `removeAmbassadorWithPenalty()` (`Embassy.java:316`). Removing a beta core after it was seen at month end costs -20 (`onNewDay()`, `:129`).
+- Removing the Embassy (not for upgrade, `Embassy.notifyBeingRemoved()`, `Embassy.java:310`) runs `removeAmbassadorWithPenalty()` when the ambassador is in office. An installed ambassador not yet in office goes back to the cargo of the interaction mode (storage, then fleet cargo as fallback) and the tracker carries on. Removing a beta core after it was seen at month end costs -20 (`onNewDay()`, `:126`).
 
 ### Hostile Activity
 
@@ -93,7 +93,7 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:47`): `findAmba
 ## Contracts
 
 - The ambassador item is matched by `AmbassadorItemData.equals()` (id, data and `PersonAPI`), so `CargoAPI.getQuantity(SPECIAL, data)` finds the exact person (`indevo/items/specialitemdata/AmbassadorItemData.java:33`).
-- `getAmbassador(market)` scans the comm directory for post `ambassador` (`AmbassadorPersonManager.java:290`). Any other code that reads the ambassador relies on this.
+- `getAmbassador(market)` scans the comm directory for post `ambassador` (`AmbassadorPersonManager.java:294`). Any other code that reads the ambassador relies on this.
 - Loss tracking polls `lastDayRep` once a day. `reportPlayerReputationChange` would be the callback, but `CoreReputationPlugin` fires it only for rep actions (`api/impl/campaign/CoreReputationPlugin.java:562-567`), not for raw `FactionAPI.adjustRelationship` calls from events and other mods.
 - `AmbassadorPersonManager` is transient: `lastDayRep` and the monthly penalty and gain maps reset on every load (inferred from `ListenerManager.transientListeners`, `obf/campaign/ListenerManager.java:11`).
 - `getAllowedFactionID()` adds memory-allowed factions into the cached whitelist set itself, so they stay allowed for the session even after the key turns false (cache in `MiscIE.getCSVSetFromMemory()`, `indevo/utils/helper/MiscIE.java:578`).

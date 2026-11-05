@@ -122,6 +122,7 @@ Fixed - Ambassadors carried by a detachment no longer count as murdered
 Fixed - Ambassadors shipped by a Courier Port are no longer reported lost
 Fixed - Embassy reputation penalties no longer repeat every month on their own
 Fixed - Ambassadors no longer appear on markets while Embassies are disabled
+Fixed - Removing an Embassy before the ambassador took office no longer loses them
 
 Engineering Hub
 Fixed - Engineering Hub setting now properly controls whether it can be built

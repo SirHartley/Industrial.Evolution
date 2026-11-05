@@ -1,6 +1,7 @@
 package indevo.industries.embassy.industry;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.RepLevel;
 import com.fs.starfarer.api.campaign.SpecialItemData;
@@ -308,9 +309,20 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
     @Override
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
         super.notifyBeingRemoved(mode, forUpgrade);
-        if (ambassadorItemData != null && !forUpgrade) {
+        if (ambassadorItemData == null || forUpgrade) return;
+
+        if (AmbassadorPersonManager.hasAmbassador(market)) {
             IndEvo_ambassadorRemoval.removeAmbassadorWithPenalty(market);
+            return;
         }
+
+        // not in office yet, the tracker is still running and finds the item again
+        CargoAPI cargo = getCargoForInteractionMode(mode);
+        if (cargo == null) cargo = Misc.getStorageCargo(market);
+        if (cargo == null) cargo = Global.getSector().getPlayerFleet().getCargo();
+
+        cargo.addSpecial(ambassadorItemData, 1);
+        setSpecialItem(null);
     }
 
     @Override
