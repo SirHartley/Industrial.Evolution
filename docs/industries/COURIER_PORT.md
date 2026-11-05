@@ -91,6 +91,7 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 - The AI core effect is global and set by whichever port last ran `applyAICoreModifiers()` (`CourierPortV2.java:126-145`). Removing a core updates it on the next apply.
 - Cost settings are read at use time, so contract screens and new shipments show a LunaLib change at once. A shipment fixes its cost when it is dispatched (`Shipment.java:52`).
 - `ShippingContract` and `ShippingTargetHelper` import `assortment_of_things` classes directly; calls are guarded by `isModEnabled("assortment_of_things")` and the JVM resolves the class lazily (inferred). See [Compatibility](../core/COMPATIBILITY.md).
+- The Embassy ambassador tracker reads `Shipment.cargo` and `Shipment.done` of every `Shipment` listener to find ambassadors in transit ([Embassy](EMBASSY.md#hire-and-transport)). Keep both fields and the listener registration.
 - `ShippingContract.equals` compares ids but `hashCode` is not overridden; it is used as a `HashMap` key in `CourierPortV2.getShipmentWithDayList` (identity hash, works because the same objects are used).
 
 ## Known issues and dormant code

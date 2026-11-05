@@ -14,6 +14,7 @@ import com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.ids.Ids;
+import indevo.industries.courierport.listeners.Shipment;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.scripts.AmbassadorMurderConsequences;
 import indevo.items.specialitemdata.AmbassadorItemData;
@@ -64,7 +65,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
         targetCargo = lastKnownLocation;
         if (checkCargo(targetCargo, amb, returnHome)) return updateKnownLocation(targetCargo, returnHome);
 
-        for (CargoAPI cargo : getPlayerFleetCargos()) {
+        for (CargoAPI cargo : getPlayerTransportCargos()) {
             if (checkCargo(cargo, amb, returnHome)) return updateKnownLocation(cargo, returnHome);
         }
 
@@ -94,12 +95,16 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
         return false;
     }
 
-    private static List<CargoAPI> getPlayerFleetCargos() {
+    private static List<CargoAPI> getPlayerTransportCargos() {
         List<CargoAPI> cargos = new ArrayList<>();
         cargos.add(Global.getSector().getPlayerFleet().getCargo());
 
         for (CampaignFleetAPI detachment : DetachmentMemory.getFleetMap().values()) {
             if (detachment != null) cargos.add(detachment.getCargo());
+        }
+
+        for (Shipment shipment : Global.getSector().getListenerManager().getListeners(Shipment.class)) {
+            if (!shipment.done && shipment.cargo != null) cargos.add(shipment.cargo);
         }
 
         return cargos;
