@@ -8,14 +8,13 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.scripts.AmbassadorMurderConsequences;
 import indevo.items.specialitemdata.AmbassadorItemData;
-import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
 
 import static indevo.industries.embassy.listeners.AmbassadorPersonManager.adjustRelationship;
@@ -76,22 +75,32 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
             targetCargo = pod.getCargo();
             if (checkCargo(targetCargo, amb, returnHome)) return updateKnownLocation(targetCargo, returnHome);
 
-            MarketAPI m = pod.getMarket();
-            if (m != null && m.hasSubmarket(Submarkets.SUBMARKET_STORAGE)) {
-                targetCargo = MiscIE.getStorageCargo(m);
-                if (checkCargo(targetCargo, amb, returnHome)) return updateKnownLocation(targetCargo, returnHome);
-            }
+            targetCargo = findInStorage(pod.getMarket(), amb, returnHome);
+            if (targetCargo != null) return updateKnownLocation(targetCargo, returnHome);
         }
 
         //is it in a market cargo?
         for (MarketAPI m : Global.getSector().getEconomy().getMarketsCopy()) {
-            if (m != null && m.hasSubmarket(Submarkets.SUBMARKET_STORAGE)) {
-                targetCargo = MiscIE.getStorageCargo(m);
-                if (checkCargo(targetCargo, amb, returnHome)) return updateKnownLocation(targetCargo, returnHome);
-            }
+            targetCargo = findInStorage(m, amb, returnHome);
+            if (targetCargo != null) return updateKnownLocation(targetCargo, returnHome);
         }
 
         return false;
+    }
+
+    private CargoAPI findInStorage(MarketAPI market, AmbassadorItemData data, boolean removeWhenFound) {
+        if (market == null) return null;
+
+        for (SubmarketAPI subMarket : market.getSubmarketsCopy()) {
+            if (isStorage(subMarket) && checkCargo(subMarket.getCargo(), data, removeWhenFound)) return subMarket.getCargo();
+        }
+
+        return null;
+    }
+
+    // ie warehouses extend StoragePlugin
+    private static boolean isStorage(SubmarketAPI subMarket) {
+        return subMarket.getPlugin() instanceof StoragePlugin;
     }
 
     private boolean checkForIllegalPresence() {
@@ -102,7 +111,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
         //they wouldn't sell it, right? It's not even worth anything.
         for (MarketAPI market : Global.getSector().getEconomy().getMarketsCopy()) {
             for (SubmarketAPI subMarket : market.getSubmarketsCopy()) {
-                if (!subMarket.getSpecId().equals(Submarkets.SUBMARKET_STORAGE) && checkCargo(subMarket.getCargo(), amb, true)) {
+                if (!isStorage(subMarket) && checkCargo(subMarket.getCargo(), amb, true)) {
                     adjustRelationship(playerFaction, faction, MURDER_REP_PENALTY);
                     displayMessage("ambassadorSold", "ambassadorSoldFlavour", person, MURDER_REP_PENALTY);
                     Global.getSector().addScript(new AmbassadorMurderConsequences(person));
