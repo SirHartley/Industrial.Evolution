@@ -110,18 +110,14 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
             return;
         }
 
-        FactionAPI baseFaction = market.getFaction();
-        String alignedFactionId = alignedFaction.getId();
-        float currentRelationship = baseFaction.getRelationship(alignedFactionId);
+        float currentRelationship = Global.getSector().getPlayerFaction().getRelationship(alignedFaction.getId());
 
         if (currentRelationship >= maxRelation) return;
 
         //If rel difference smaller than 10, get difference, else it's 10
         float addition = currentRelationship > (maxRelation - 0.10F) ? maxRelation - currentRelationship : 0.1F;
 
-        //adjust and update current relationship level
-        adjustRelationship(baseFaction, alignedFaction, addition);
-        AmbassadorPersonManager.getInstance().reportEmbassyRepChange(alignedFaction, addition);
+        AmbassadorPersonManager.getInstance().applyEmbassyRepGain(alignedFaction, addition);
     }
 
     @Override

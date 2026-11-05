@@ -70,9 +70,10 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:47`): `findAmba
 
 ### Installed ambassador
 
-- `Embassy.reportEconomyTick()` last iteration: `monthlyRepIncrease()` adds min(0.1, cap - current) up to `maxRelation` (0.40, beta core 0.55) and reports it to `AmbassadorPersonManager`. `monthsPassed` counts to 3; relocation unlocks at 3.
+- `Embassy.reportEconomyTick()` last iteration: `monthlyRepIncrease()` adds min(0.1, cap - current) up to `maxRelation` (0.40, beta core 0.55) through `AmbassadorPersonManager.applyEmbassyRepGain()`. `monthsPassed` counts to 3; relocation unlocks at 3.
 - `AmbassadorPersonManager.onNewDay()`: `logRepChange()` records `ceil(delta x mult x 0.5)` of any daily rep drop as an extra penalty per embassy faction (alpha core embassy counts 0.5 instead of 1); `getWarConsequences()` removes ambassadors of dead factions, sends home ambassadors of hostile factions, removes banned ones.
 - `reportEconomyMonthEnd()`: applies the summed penalties and shows one rep change `MessageIntel`.
+- The month end penalty and the monthly gain go through `adjustOwnRelationship()`, which shifts `lastDayRep` by the applied change, so `logRepChange()` never bills IE's own change as a new loss.
 - Dismiss: `IndEvo_ambassadorRemove1..6` pick text by relation band (`IndEvo_checkForRepResponse.getRepBand`: below -25 inhospitable, below -10 suspicious, up to 10 neutral, up to 25 favorable, up to 50 welcoming, above friendly), `IndEvo_ambassadorRemoval` applies `getPenaltyFor()` (-10 to -60) and returns the person to the origin market.
 - Relocate: option order from param, cost `5000 x lyMult` booked as Embassy upkeep, move done by `moveAmbassadorToMarket` next frame.
 - Removing the Embassy (not for upgrade) runs `removeAmbassadorWithPenalty()` (`Embassy.java:316`). Removing a beta core after it was seen at month end costs -20 (`onNewDay()`, `:129`).
@@ -93,6 +94,7 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:47`): `findAmba
 
 - The ambassador item is matched by `AmbassadorItemData.equals()` (id, data and `PersonAPI`), so `CargoAPI.getQuantity(SPECIAL, data)` finds the exact person (`indevo/items/specialitemdata/AmbassadorItemData.java:33`).
 - `getAmbassador(market)` scans the comm directory for post `ambassador` (`AmbassadorPersonManager.java:290`). Any other code that reads the ambassador relies on this.
+- Loss tracking polls `lastDayRep` once a day. `reportPlayerReputationChange` would be the callback, but `CoreReputationPlugin` fires it only for rep actions (`api/impl/campaign/CoreReputationPlugin.java:562-567`), not for raw `FactionAPI.adjustRelationship` calls from events and other mods.
 - `AmbassadorPersonManager` is transient: `lastDayRep` and the monthly penalty and gain maps reset on every load (inferred from `ListenerManager.transientListeners`, `obf/campaign/ListenerManager.java:11`).
 - `getAllowedFactionID()` adds memory-allowed factions into the cached whitelist set itself, so they stay allowed for the session even after the key turns false (cache in `MiscIE.getCSVSetFromMemory()`, `indevo/utils/helper/MiscIE.java:578`).
 - With Nexerelin enabled, relation changes go through `DiplomacyManager.adjustRelations()` (`AmbassadorPersonManager.java:111`).

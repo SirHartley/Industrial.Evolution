@@ -120,6 +120,7 @@ Fixed - Ambassador dismissal no longer errors or skips the reputation penalty
 Fixed - Ambassadors stored in a Warehouse no longer count as sold
 Fixed - Ambassadors carried by a detachment no longer count as murdered
 Fixed - Ambassadors shipped by a Courier Port are no longer reported lost
+Fixed - Embassy reputation penalties no longer repeat every month on their own
 
 Engineering Hub
 Fixed - Engineering Hub setting now properly controls whether it can be built

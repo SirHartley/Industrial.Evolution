@@ -62,8 +62,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
         Map<FactionAPI, Float> mergedMap = new HashMap<>();
 
         for (Map.Entry<FactionAPI, Float> e : thisMonthPenaltyRepChanges.entrySet()) {
-            adjustRelationship(e.getKey(), Global.getSector().getPlayerFaction(), e.getValue());
-            addOrIncrement(mergedMap, e.getKey(), e.getValue());
+            addOrIncrement(mergedMap, e.getKey(), adjustOwnRelationship(e.getKey(), e.getValue()));
         }
 
         for (Map.Entry<FactionAPI, Float> e : thisMonthPositiveRepChanges.entrySet()) {
@@ -372,8 +371,19 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
         return null;
     }
 
-    public void reportEmbassyRepChange(FactionAPI faction, float delta) {
-        addOrIncrement(thisMonthPositiveRepChanges, faction, delta);
+    public void applyEmbassyRepGain(FactionAPI faction, float delta) {
+        addOrIncrement(thisMonthPositiveRepChanges, faction, adjustOwnRelationship(faction, delta));
+    }
+
+    // shifts the daily baseline so logRepChange does not bill ie's own changes as losses
+    private float adjustOwnRelationship(FactionAPI faction, float delta) {
+        FactionAPI player = Global.getSector().getPlayerFaction();
+        float before = player.getRelationship(faction.getId());
+        adjustRelationship(player, faction, delta);
+        float actual = player.getRelationship(faction.getId()) - before;
+
+        lastDayRep.computeIfPresent(faction, (f, rel) -> rel + actual);
+        return actual;
     }
 
     private void addOrIncrement(Map<FactionAPI, Float> map, FactionAPI key, Float delta) {
