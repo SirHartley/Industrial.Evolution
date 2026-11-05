@@ -14,8 +14,9 @@ Reviews, explanations, audits, and proposals are read-only unless the user reque
 2. Use the `starsector-knowledge` skill before answering or changing anything related to Starsector. It covers 0.98a-RC8. Do not rely on memory.
 3. Use the `house-style` skill for every task in this repository. Its personal rules (answers, vocabulary, comments, commits, punctuation) apply everywhere; this file wins on project details.
 4. Use the `starsector-rules-writing` skill for any change to `data/campaign/rules.csv`, dialogue or rule commands. Use the `patchlib` skill only when the official API cannot reach what is needed.
-5. Third-party libraries (GraphicsLib, LazyLib, LunaLib, MagicLib, PatchLib, Console Commands, Nexerelin, Shadowyards, RAT) are not in the knowledge skill. Their compile jars are in `lib/` ([Compile dependencies](#compile-dependencies)); decompile one with the knowledge skill's Vineflower into a temporary directory, never into the repository. Ask the user for a jar only when it is missing there or a newer version is needed.
-6. Select the required guides using [Which guide to read](#which-guide-to-read). Apply every matching row, including for reviews and fixes to existing behavior.
+5. Use the `starsector-native-smoke` skill with [SMOKE_TESTS.md](docs/SMOKE_TESTS.md) when a change must be seen or exercised in the real game.
+6. Third-party libraries (GraphicsLib, LazyLib, LunaLib, MagicLib, PatchLib, Console Commands, Nexerelin, Shadowyards, RAT) are not in the knowledge skill. Their compile jars are in `lib/` ([Compile dependencies](#compile-dependencies)); decompile one with the knowledge skill's Vineflower into a temporary directory, never into the repository. Ask the user for a jar only when it is missing there or a newer version is needed.
+7. Select the required guides using [Which guide to read](#which-guide-to-read). Apply every matching row, including for reviews and fixes to existing behavior.
 
 ### Which guide to read
 
@@ -37,6 +38,7 @@ After reading this file, use the task to choose the next document. Read the rele
 | Write or revise any player-facing text (descriptions, intel, dialogue, tooltips, LunaLib help text) | The house-style `player-text.md` and the feature doc. |
 | Edit a guide or add documentation | [Documentation upkeep](#documentation-upkeep), the owning guide and its inbound links. |
 | Change the build, rebuild the release jar, or prepare a release | [RELEASE.md](docs/RELEASE.md) and [Building](#building). |
+| See or exercise a change in the real game, write a probe, or run a smoke test or live session | [SMOKE_TESTS.md](docs/SMOKE_TESTS.md) and the `starsector-native-smoke` skill. |
 | Any implementation task | [CHANGELOG.md](docs/CHANGELOG.md): add or amend the task's entries in the current unreleased section before merge. |
 
 ### Technical references and conflicts
@@ -64,6 +66,7 @@ The feature docs own feature behavior; [ARCHITECTURE.md](docs/ARCHITECTURE.md) o
 - Every runtime-affecting final branch must pass the full clean build described in [Building](#building).
 - Build the exact final remote task-branch revision. Earlier builds, partial builds, IDE analysis, and static checks do not satisfy the gate.
 - Missing compilers or required dependencies are merge blockers. Documentation-only changes do not require a build.
+- A native smoke test supplements the compile gate and is not a merge requirement. When one ran, record it in the PR ([SMOKE_TESTS.md](docs/SMOKE_TESTS.md#results)).
 - A change to `rules.csv` passes the `starsector-rules-writing` checks. A change to any CSV keeps UTF-8 without BOM, straight quotes and the column count.
 - No CI runs on pushes or pull requests. The only workflow is the manual `release.yml` ([RELEASE.md](docs/RELEASE.md#release-workflow)); start it only on the user's command. Do not add triggers or check workflows.
 - Open a pull request and merge it when the work is complete. Do not leave finished work on an unmerged branch.
@@ -91,6 +94,7 @@ Update documents automatically as part of each relevant change. Before committin
 | `docs/core/UTILS.md` | Shared helpers in `indevo/utils` | Update when a helper is added, removed or changes its contract. |
 | `docs/core/COMPATIBILITY.md` | Integrations with other mods | Update when an integration, a hard or optional dependency, or a config file for another mod changes. |
 | `docs/RELEASE.md` | Version numbers, release builder, package contents, release workflow, version file and publishing | Keep it in step with the `ReleaseBuild` constants, `.github/workflows/release.yml` and `IndEvo.version`; change them together. |
+| `docs/SMOKE_TESTS.md` | Smoke test setup, the `native-smoke/` wrapper and probes, reading and reporting results | Update when `native-smoke/` changes, the modding install or dependency set changes, or the skill's runner contract changes. |
 | `Changelog` and `docs/CHANGELOG.md` | Shipped change notes and how agents write them | Add or amend unreleased entries with each implementation task; preserve published entries. |
 | `.claude/agents/*.md` | Subagent definitions | Update when the dispatch rules or model assignments change. |
 
