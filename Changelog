@@ -57,6 +57,7 @@ Fixed - Crash when cancelling Museum construction
 Fixed - Museum removal now properly returns ships and removes exhibition storage
 Fixed - Parade bonuses no longer disappear after loading a save
 Fixed - Returning parades no longer end another Museum's parade
+Fixed - Ships no longer stay out on parade forever when a parade can not start or its target colony is lost
 
 Relays
 Fixed - The infamous relay size bug (it was my fault after all!)
