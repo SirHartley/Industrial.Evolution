@@ -183,6 +183,11 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
     }
 
     public static void ambassadorPresenceAllowedCheck(MarketAPI market) {
+        if (!market.isPlayerOwned() && !Setting.EMBASSY.enabled()) {
+            if (deleteAmbassador(market)) log("removed ambassador at " + market.getName() + ", embassies disabled");
+            return;
+        }
+
         //remove an ambassador from a market if ownership changes or it no longer meets the conditions
         if (!market.isPlayerOwned() && hasAmbassador(market)) {
             if (!getAmbassador(market).getFaction().getId().equals(market.getFactionId())) {
@@ -216,7 +221,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
     }
 
     public static void createAmbassadorsOnMarkets(MarketAPI market) {
-        if (market == null) {
+        if (market == null || !Setting.EMBASSY.enabled()) {
             return;
         }
 
