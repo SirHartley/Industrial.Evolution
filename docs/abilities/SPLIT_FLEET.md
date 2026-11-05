@@ -123,6 +123,7 @@ Follow, escort and intercept queue the player's jumps in `jumpInfoMap` from `rep
 
 ## Contracts
 
+- The Embassy ambassador tracker reads the cargo of every fleet in `DetachmentMemory.getFleetMap()` to find ambassadors carried by a detachment ([Embassy](../industries/EMBASSY.md#hire-and-transport)).
 - `SectorAPI.reportFleetDespawned` only reaches global `CampaignEventListener`s (`CampaignEngine.reportFleetDespawned`, `obf/campaign/CampaignEngine.java:2149`). The comment at `FleetUtils.java:80` saying it handles slot removal is wrong; `mergeFleetWithPlayerFleet` removes the slot itself (`:83`). `CampaignFleetAPI.despawn` does call fleet `FleetEventListener`s (`obf/campaign/fleet/CampaignFleet.java:1599`), which is how transport and battle losses clear the slot.
 - `GateTransitListener` is dispatched only to listeners in the `ListenerManager` (`ListenerUtil.reportFleetTransitingGate`, `api/campaign/listeners/ListenerUtil.java:268`). The AI is only added through `SectorAPI.addListener`, so the gate overrides never fire (the TODO at `BaseSplinterFleetAssignmentAIV2.java:148` asks exactly this). Gate jumps are still seen via `reportFleetJumped`.
 - `BaseAssignmentAI.advance` calls `pickNext()` whenever the fleet has no assignment (`api/impl/campaign/procgen/themes/BaseAssignmentAI.java:66`). Behaviour AIs return early from `pickNext` when the fleet AI is null, which is how dormancy, combat and hiding stop reassignment.
