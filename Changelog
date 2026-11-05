@@ -30,6 +30,8 @@ Meteor Showers
 Added - Setting to make meteor shower spawn immediately instead of having a delay with an intel entry
 Fixed - Tutorial intel can no longer show duplicate notifications
 Fixed - Planetoid swarms no longer leave planets, rings and loot stations behind
+Fixed - Rogue planets and swarm rocks no longer vanish right after they spawn
+Fixed - Swarm path no longer turns fully red or flashes as a swarm ends
 Fixed - Meteor Shower intel now shows the right arrival date and expires on time
 Fixed - Crash when the roider tutorial faction has no markets
 Fixed - Impact dust clouds no longer pile up in saves and slow the game down
@@ -55,6 +57,7 @@ Fixed - Crash when cancelling Museum construction
 Fixed - Museum removal now properly returns ships and removes exhibition storage
 Fixed - Parade bonuses no longer disappear after loading a save
 Fixed - Returning parades no longer end another Museum's parade
+Fixed - Ships no longer stay out on parade forever when a parade can not start or its target colony is lost
 
 Relays
 Fixed - The infamous relay size bug (it was my fault after all!)

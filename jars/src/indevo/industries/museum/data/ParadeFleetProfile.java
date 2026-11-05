@@ -60,6 +60,7 @@ public class ParadeFleetProfile implements FleetEventListener {
         //Betting there's a modder with a null market adding random industries...
         if (spawnLoc == null){
             ModPlugin.log("Despawning Parade Fleet, primary entity null");
+            fleet = paradeFleet; //reset is handled through listener
             paradeFleet.despawn(CampaignEventListener.FleetDespawnReason.OTHER, null);
             return false;
         }
@@ -92,6 +93,18 @@ public class ParadeFleetProfile implements FleetEventListener {
         List<FleetMemberAPI> shipsInStorage = cargo.getMothballedShips().getMembersListCopy();
 
         if (memberIdPreset == null && shipsInStorage.size() < Setting.MUSEUM_MIN_SHIPS_FOR_PARADE.intValue()) return null; //random parades require at least x members
+
+        //market target, picked before members get tagged so an aborted parade leaves no ship on parade
+        WeightedRandomPicker<String> marketPicker = new WeightedRandomPicker<>(random);
+        for (MarketAPI m : MiscIE.getMarketsInLocation(market.getContainingLocation(), market.getFactionId())) {
+            if (m.hasTag(ON_PARADE_TAG)) continue; //added on spawn, removed with the condition on departure or death - in fleetAI
+
+            marketPicker.add(m.getId());
+        }
+
+        if (marketPicker.isEmpty()) return null; //no market, no parade...
+
+        String targetMarketId = marketPicker.pick();
 
         FleetParamsV3 params = getBaseParams(market);
         params.random = new Random();
@@ -164,21 +177,6 @@ public class ParadeFleetProfile implements FleetEventListener {
 
         fleet.setName("Parade Fleet \"" + name + "\"");
 
-        //market target
-        WeightedRandomPicker<String> marketPicker = new WeightedRandomPicker<>(random);
-        for (MarketAPI m : MiscIE.getMarketsInLocation(market.getContainingLocation(), market.getFactionId())) {
-            if (m.hasTag(ON_PARADE_TAG)) continue; //added on spawn, removed with the condition on departure or death - in fleetAI
-
-            marketPicker.add(m.getId());
-        }
-
-        if (marketPicker.isEmpty()) {
-            fleetMembersOnParade.clear();
-            return null; //no market, no parade...
-        }
-
-        String targetMarketId = marketPicker.pick();
-
         //fleet AI
         fleet.addScript(new ParadeFleetAssignmentAI(fleet, market.getId(), targetMarketId, durationPreset));
 
@@ -202,16 +200,16 @@ public class ParadeFleetProfile implements FleetEventListener {
                     null,
                     Misc.getHighlightColor(), null);
 
-            if (targetMarket != null){
-                SubmarketAPI sub = spawningMuseum.getSubmarket();
-                CargoAPI cargo = sub.getCargo();
+            //the target colony can be gone by now, the ships still come back
+            SubmarketAPI sub = spawningMuseum.getSubmarket();
+            CargoAPI cargo = sub.getCargo();
 
-                cargo.initMothballedShips(Factions.PLAYER);
-                List<FleetMemberAPI> shipsInStorage = cargo.getMothballedShips().getMembersListCopy();
+            cargo.initMothballedShips(Factions.PLAYER);
+            List<FleetMemberAPI> shipsInStorage = cargo.getMothballedShips().getMembersListCopy();
 
-                //go through the preset - members in fleet are copies
-                for (FleetMemberAPI m : shipsInStorage) if (fleetMembersOnParade.contains(m.getId())) m.getVariant().removeTag(MuseumConstants.ON_PARADE_TAG);
-            }
+            //go through the preset - members in fleet are copies
+            for (FleetMemberAPI m : shipsInStorage) if (fleetMembersOnParade.contains(m.getId())) m.getVariant().removeTag(MuseumConstants.ON_PARADE_TAG);
+            fleetMembersOnParade.clear();
 
             if (targetMarket != null) ParadeFleetAssignmentAI.removeParadeConditionFromMarket(targetMarket);
 

@@ -1,0 +1,11 @@
+{
+  "id": "ie_live_checks",
+  "name": "ZZ IE Live Checks",
+  "author": "Local testing",
+  "version": "1.0.0",
+  "description": "Test-only helper for driving a live game in the background. Never ship or enable it in a real mod list.",
+  "gameVersion": "0.98a-RC8",
+  "utility": "true",
+  "jars": ["jars/ie_live_checks.jar"],
+  "modPlugin": "iecheck.CheckPlugin"
+}

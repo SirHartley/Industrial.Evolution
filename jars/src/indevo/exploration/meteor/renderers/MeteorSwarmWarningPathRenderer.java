@@ -10,7 +10,6 @@ import indevo.utils.helper.CircularArc;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -66,17 +65,28 @@ public class MeteorSwarmWarningPathRenderer implements EveryFrameScript {
 
         if (interval.intervalElapsed()){
             if (!angles.isEmpty()){
-                float largest = (float) Math.floor(Collections.max(angles));
-                float smallest = (float) Math.ceil(Collections.min(angles));
+                // compares arc progress, raw angles wrap at 0 and a lone meteor has no span
+                float first = 1f;
+                float last = 0f;
+                for (float angle : angles) {
+                    float progress = arc.getTraversalProgress(angle);
+                    first = Math.min(first, progress);
+                    last = Math.max(last, progress);
+                }
 
+                float margin = 0.5f * DISTANCE_BETWEEN_SIGNS / arc.getArcCircumference();
                 for (SectorEntityToken sign : warningSigns) {
-                    float angle = arc.getAngleForPoint(sign.getLocation());
-                    if (Misc.isBetween(smallest, largest, angle)) sign.setFaction(Factions.PIRATES);
-                    else sign.setFaction(Factions.NEUTRAL);
+                    float progress = arc.getTraversalProgress(sign.getLocation());
+                    boolean active = progress >= first - margin && progress <= last + margin;
+                    sign.setFaction(active ? Factions.PIRATES : Factions.NEUTRAL);
                 }
 
                 angles.clear();
-            } else emptyRounds++;
+                emptyRounds = 0;
+            } else {
+                for (SectorEntityToken sign : warningSigns) sign.setFaction(Factions.NEUTRAL);
+                emptyRounds++;
+            }
 
             if (emptyRounds > 10) {
                 for (SectorEntityToken sign : warningSigns) Misc.fadeAndExpire(sign, 0f);
