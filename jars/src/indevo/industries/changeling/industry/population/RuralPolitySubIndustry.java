@@ -182,7 +182,7 @@ Rural Polity
                 ind.getSupplyBonusFromOther().modifyFlat(getId(), FARMING_BASE_BONUS, getName());
                 ind.supply(getId(), Commodities.ORGANICS, (int) Math.ceil(ind.getSupply(Commodities.FOOD).getQuantity().getModifiedValue() * FARMING_ORGANICS_PER_FOOD), getName());
                 if (market.isFreePort()) ind.supply(getId(), Commodities.DRUGS, (int) Math.ceil(ind.getSupply(Commodities.FOOD).getQuantity().getModifiedValue() * FARMING_DRUGS_PER_FOOD), getName());
-                else ind.supply(getId(), Commodities.DRUGS, 0, getName());
+                else clearSupply(ind, Commodities.DRUGS);
             }
 
             if (ind instanceof LightIndustry) {
@@ -232,8 +232,8 @@ Rural Polity
 
             if (ind instanceof Farming) {
                 ind.getSupplyBonusFromOther().unmodify(getId());
-                ind.supply(getId(), Commodities.ORGANICS, 0, getName());
-                ind.supply(getId(), Commodities.DRUGS, 0, getName());
+                clearSupply(ind, Commodities.ORGANICS);
+                clearSupply(ind, Commodities.DRUGS);
             }
 
             if (ind instanceof LightIndustry) {
@@ -245,6 +245,12 @@ Rural Polity
         for (int i = 0; i < 50; i++) {
             market.getStability().unmodify(getId() + "_" + i);
         }
+    }
+
+    // supply with 0 keeps the ind_sb flat bonus a supply bonus left on the commodity
+    private void clearSupply(Industry ind, String commodity) {
+        ind.supply(getId(), commodity, 0, getName());
+        ind.getSupply(commodity).getQuantity().unmodifyFlat("ind_sb");
     }
 
     @Override
