@@ -10,7 +10,8 @@ A smoke test supplements the compile gate and is not a merge requirement. When o
 |---|---|
 | See a UI change: panels, tooltips, buttons, intel layout built from real objects | Startup probe |
 | Show that a PatchLib patch ([ARCHITECTURE.md](ARCHITECTURE.md#patches)) is discovered and installed | Startup probe, then the PatchLib lines in the log |
-| Anything that needs a running campaign: loaded or old saves, intel, dialogs, markets, days passing, console commands | Live session |
+| Verify campaign behaviour or find bugs in bulk: colonies, industries, edicts, swarms, days passing, save and reload | Live checks |
+| See a screen in a running campaign, or drive one by hand: dialogs, intel, menus | Live session |
 
 Both modes come from the `starsector-native-smoke` skill. Runs happen on the user's Windows machine only; cloud sessions have no game. A startup run opens a game window for up to a minute, so tell the user before starting one.
 
@@ -18,7 +19,7 @@ Both modes come from the `starsector-native-smoke` skill. Runs happen on the use
 
 - **Game:** the modding install `E:\Games\Starsector 0.98\Starsector 098a-RC8 - Modding` (it holds `starsector-core`, `mods` and `jre`). It must have run once, so its licence is in the registry. Runs never change it: mods are linked into an isolated folder per run.
 - **Dependencies:** every id in `mod_info.json` `dependencies` (LazyLib, MagicLib, LunaLib, GraphicsLib, PatchLib) installed in that `mods` folder. Folder names do not matter and folders may be symbolic links: the wrapper finds each one by its `mod_info.json` id.
-- **JDK 17** with `javac`, `jar` and `jdeps`, on `PATH` or in `SMOKE_JAVAC_DIR`. The compile gate refuses other versions.
+- **JDK 17** with `javac`, `jar` and `jdeps`, on `PATH` or in `SMOKE_JAVAC_DIR`. The compile gate refuses other versions. Git Bash for `native-smoke/live/run.sh`.
 - **Skill folder:** the wrapper needs the `starsector-native-smoke` skill folder (`-Skill` or `SMOKE_SKILL`). Claude sees it when the skill loads; for a manual run, unpack the skill anywhere.
 
 ## Run
@@ -55,8 +56,43 @@ powershell -NoProfile -ExecutionPolicy Bypass -File native-smoke\run.ps1 -Skill 
 
 - The output folder holds `launcher.log` (the `NATIVE_SMOKE` lines), the game log in `logs/` and the PNGs. Open every PNG; the exit code alone proves nothing about what a player sees.
 - PatchLib's `Discovered patch` and `Installed a ... patch site` lines show which IE patches loaded. Discovery is not installation, and a target first loaded after startup may not log an install.
-- Delete output folders after inspection. Never `Remove-Item -Recurse` one that still holds junctions (only a killed run leaves them).
+- Delete output folders after inspection. Never `Remove-Item -Recurse` one that still holds junctions (only a killed run leaves them). The same holds for `out/live`: `run.sh` removes its junctions on exit, `KEEP=1` and a killed shell leave them.
 - The PR records the probe, the command, the result, the PNG names and what was not exercised.
+
+## Live checks
+
+`native-smoke/live/` is a test-only mod (`iecheck`) plus `run.sh`: a real campaign driven by script, no clicks. It builds the checked jar, stages it in `out/live/stage`, makes one new game the first time (`out/live/base-saves`), loads that save and runs the groups in one game. The game window stays behind other windows.
+
+```bash
+export SMOKE_SKILL='<skill folder>' SMOKE_JAVAC_DIR='<jdk 17 bin>'
+bash native-smoke/live/run.sh commerce,pets,ruins,colony,industry,senate,misc,path,parade,arcmath,meteor
+```
+
+The full set is about 220 checks in 9 minutes and exits 0 only when all pass. Any ERROR line outside the known noise fails the run.
+
+| Option | Meaning |
+|---|---|
+| `FAST=1` | Fast Rendering, boots 8 s faster. Use it while working, final run without |
+| `JFR=1` | Java Flight Recorder to `out/live/run/profile.jfr`, read it with the skill's `jfr-top.sh` |
+| `LIMIT=<s>` | Seconds before the run counts as timed out (600) |
+| `NOBUILD=1` | Reuse `out/live/IndEvo.jar` |
+| `KEEP=1` | Leave the game open for `gamectl`. Groups `ui0` and `ui94` build the Micromanagement and Fast Build state and wait |
+
+| Group | Covers |
+|---|---|
+| `commerce` | One per system, alpha core tariff, Improve, Holosuite, setting off, open market, reload |
+| `meteor` | Rogue planet despawn, reload mid flight, intel timing, dust clouds, radiation, type roll. Run it last: it leaves delayed swarms behind |
+| `path` | Swarm path indicator on real swarms, sampled per frame |
+| `arcmath` | Real `ArcingMovementModule` over 4000 random arcs |
+| `pets` | Stored pets eat from their storage, starve, die |
+| `ruins` | Ruin upgrades, ruined infrastructure, Fast Build timing |
+| `colony` | Governments, Supercomputer, relay comparison, ambassadors |
+| `industry` | Toggles, Academy, Commodity Forge, transmitters, Museum, Animal Center, Restoration Docks |
+| `senate` | Edicts, stable locations, Privateer slots, Cloud Painter, Salvage Yards raids |
+| `misc` | Settings saved live, artillery settings, Privateer targets, console commands, Prospector notice |
+| `parade` | Parade tags with a full system, a lost target, a normal return |
+
+A new check goes in the group of its feature, or in a new `<Feature>Checks.java` listed in `Groups.java`. Run it on the broken build first, so it is known to fail. Repeat anything random in one step: the rogue planet bug passed a single spawn and failed 348 of 4000 arcs. How steps, day skips and reloads work is in the skill's `references/live-game.md`.
 
 ## Live sessions
 
