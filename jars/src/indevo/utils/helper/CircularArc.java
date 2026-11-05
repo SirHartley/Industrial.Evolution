@@ -43,18 +43,7 @@ public class CircularArc extends Circle{
 
 
     public float getTraversalProgress(Vector2f loc) {
-        float angle = getAngleForPoint(loc);
-        angle = Misc.normalizeAngle(angle);
-        float totalArc = getArcLength();
-
-        float traveled;
-        if (getAngleTravelDir() == 1) {
-            traveled = Misc.normalizeAngle(angle - startAngle);
-        } else {
-            traveled = Misc.normalizeAngle(startAngle - angle);
-        }
-
-        return Math.min(traveled / totalArc, 1f);
+        return getTraversalProgress(getAngleForPoint(loc));
     }
 
     public float getTraversalProgress(float angle) {
@@ -67,6 +56,9 @@ public class CircularArc extends Circle{
         } else {
             traveled = Misc.normalizeAngle(startAngle - angle);
         }
+
+        // float rounding or an orbit can put a point just behind the start, that must not wrap to the end
+        if (traveled - totalArc > 360f - traveled) return 0f;
 
         return Math.min(traveled / totalArc, 1f);
     }
