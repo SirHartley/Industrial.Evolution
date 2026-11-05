@@ -2,6 +2,7 @@
 # scripted live checks: run.sh GROUP[,GROUP...] from git bash, groups in src/iecheck/Groups.java
 # needs SMOKE_SKILL (starsector-native-smoke folder with gamectl.exe built) and SMOKE_JAVAC_DIR (jdk 17 bin)
 # LIMIT seconds before the run is stopped, FAST=1 fast rendering, NOBUILD=1 reuses the jar, KEEP=1 leaves the game open
+# JFR=0 skips the profile, PROFILE_BASE=<older profile.jfr> also writes compare.txt
 HERE=$(cd -- "$(dirname -- "$0")" && pwd)
 REPO=$(cd -- "$HERE/../.." && pwd)
 GAME=${SMOKE_GAME:-"/e/Games/Starsector 0.98/Starsector 098a-RC8 - Modding"}
@@ -68,7 +69,7 @@ fi
 
 rm -rf "$WORK/saves"; cp -r "$LIVE/base-saves" "$WORK/saves"; rm -f "$WORK"/check-*.png
 extra=""
-[[ -n ${JFR:-} ]] && extra=" -XX:StartFlightRecording=filename=$(cygpath -m "$WORK/profile.jfr"),settings=profile,dumponexit=true"
+[[ ${JFR:-1} != 0 ]] && extra=" -XX:StartFlightRecording=filename=$(cygpath -m "$WORK/profile.jfr"),settings=profile,dumponexit=true"
 rm -f "$WORK/profile.jfr"
 launch "-Die.check=$GROUP$extra"
 for i in $(seq 1 60); do
@@ -91,7 +92,7 @@ done
 [[ $verdict != COMPLETE && $verdict != CRASH ]] && { "$GC" bshot "$(cygpath -m "$WORK/stuck.png")" >/dev/null 2>&1; echo "$verdict: open $WORK/stuck.png"; }
 [[ -n ${KEEP:-} ]] && exit 0
 # let the jvm write the recording on exit
-[[ $verdict == COMPLETE && -n ${JFR:-} ]] && for i in $(seq 1 30); do tasklist //FI "IMAGENAME eq java.exe" 2>/dev/null | grep -q java.exe || break; w 1; done
+[[ $verdict == COMPLETE && ${JFR:-1} != 0 ]] && for i in $(seq 1 30); do tasklist //FI "IMAGENAME eq java.exe" 2>/dev/null | grep -q java.exe || break; w 1; done
 stop
 
 grep -E 'LIVE_CHECK' "$L" | sed -E 's/^[0-9]+ +\[[^]]*\] [A-Z]+ +[a-zA-Z.]+ +- //' | grep -vE ' step [0-9]| shot | saving| quick load' > "$WORK/results.txt"
@@ -99,5 +100,10 @@ grep -E 'FAIL|COMPLETE' "$WORK/results.txt" | cut -c1-170
 # vanilla .ship files without a csv row, fast rendering probing plugin classes
 errors=$(grep -E '\] (ERROR|FATAL) ' "$L" | grep -vE 'Ship hull spec \[|ScriptLoader  - Error while initializing plugin|LIVE_CHECK' | sed -E 's/^[0-9]+ +\[[^]]*\] //' | cut -c1-200 | sort | uniq -c | sort -rn)
 [[ -n $errors ]] && { echo "--- log errors"; echo "$errors" | head -20; verdict=LOG_ERRORS; }
+if [[ -s "$WORK/profile.jfr" && -f "$SKILL/scripts/live/jfr-top.sh" ]]; then
+    bash "$SKILL/scripts/live/jfr-top.sh" "$WORK/profile.jfr" indevo > "$WORK/profile.txt" 2>&1
+    grep -E '^PROFILE' "$WORK/profile.txt" | cut -c1-170
+    if [[ -n ${PROFILE_BASE:-} ]]; then bash "$SKILL/scripts/live/jfr-top.sh" --compare "$PROFILE_BASE" "$WORK/profile.jfr" indevo > "$WORK/compare.txt" 2>&1; fi
+fi
 echo "$verdict: $(grep -c ' ok: ' "$WORK/results.txt") ok, $(grep -c 'FAIL' "$WORK/results.txt") failed, $SECONDS s, results in $WORK/results.txt"
 [[ $verdict == COMPLETE ]] && ! grep -q FAIL "$WORK/results.txt"

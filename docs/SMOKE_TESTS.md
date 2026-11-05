@@ -73,7 +73,8 @@ The full set is about 220 checks in 9 minutes and exits 0 only when all pass. An
 | Option | Meaning |
 |---|---|
 | `FAST=1` | Fast Rendering, boots 8 s faster. Use it while working, final run without |
-| `JFR=1` | Java Flight Recorder to `out/live/run/profile.jfr`, read it with the skill's `jfr-top.sh` |
+| `JFR=0` | Skip the profile. On by default: `out/live/run/profile.jfr`, report in `profile.txt`, `PROFILE` lines in the run output, read with the skill's `jfr-top.sh` |
+| `PROFILE_BASE=<file>` | An older `profile.jfr` of the same groups, also writes `compare.txt` |
 | `LIMIT=<s>` | Seconds before the run counts as timed out (600) |
 | `NOBUILD=1` | Reuse `out/live/IndEvo.jar` |
 | `KEEP=1` | Leave the game open for `gamectl`. Groups `ui0` and `ui94` build the Micromanagement and Fast Build state and wait |
