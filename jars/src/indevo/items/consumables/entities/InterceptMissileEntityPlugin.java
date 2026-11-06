@@ -99,8 +99,8 @@ public class InterceptMissileEntityPlugin extends BaseMissileEntityPlugin {
                         init = true;
                     }
 
-                    //had some instances where indicator would time out before anim, not sure why, so we just nullcheck - good enough
-                    if (indicator != null && indicator.length > 0){
+                    //addParticle returns null off screen or in another location
+                    if (indicator != null && indicator.length > 0 && indicator[0] != null){
                         currentAngle += (360f / ROTATIONS_PER_SEC) * amount;
                         if (currentAngle > 360f) angle = 0f;
                         if (currentAngle < 0) angle = 360f;
