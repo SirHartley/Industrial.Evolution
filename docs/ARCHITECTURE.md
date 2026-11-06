@@ -9,6 +9,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`.
 | [CLAUDE.md](../CLAUDE.md) | Workflow, build gate and document upkeep |
 | [SETTINGS.md](core/SETTINGS.md) | Settings cache (`config`), LunaLib tabs, `settings.json`, whitelists |
 | [SETTINGS_REWORK.md](core/SETTINGS_REWORK.md) | Decisions behind the typed, cached settings model and Quick Settings; implemented, the current mechanism is in SETTINGS.md |
+| [NEW_FEATURES.md](NEW_FEATURES.md) | Plans for new features (fleet side quests, Catch.Release lockout); not implemented |
 | [UTILS.md](core/UTILS.md) | Shared helpers in `indevo/utils` |
 | [COMPATIBILITY.md](core/COMPATIBILITY.md) | Hard and optional mod dependencies and every integration |
 | [RULE_COMMANDS.md](dialogue/RULE_COMMANDS.md) | `rules.csv` layout and every rule command class |
