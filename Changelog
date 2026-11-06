@@ -35,6 +35,7 @@ Fixed - Swarm path no longer turns fully red or flashes as a swarm ends
 Fixed - Meteor Shower intel now shows the right arrival date and expires on time
 Fixed - Crash when the roider tutorial faction has no markets
 Fixed - Impact dust clouds no longer pile up in saves and slow the game down
+Fixed - Large swarms on screen no longer slow the game down
 
 Pets
 Fixed - Animal market now gets correctly removed if Animal Center is removed or pets disabled
