@@ -188,8 +188,10 @@ public class ParadeFleetProfile implements FleetEventListener {
         if (fleet != null && fleet == getCurrentFleet()){
 
             MarketAPI originMarket = spawningMuseum.getMarket();
-            MarketAPI targetMarket = Global.getSector().getEconomy().getMarket(ParadeFleetAssignmentAI.get(fleet).getTargetMarketId()); //can't be null: fleet always has AI. If null = mod conflict.
-            if (targetMarket != null) targetMarket.removeTag(MuseumConstants.ON_PARADE_TAG);
+            ParadeFleetAssignmentAI ai = ParadeFleetAssignmentAI.get(fleet);
+            MarketAPI targetMarket = Global.getSector().getEconomy().getMarket(ai.getTargetMarketId()); //can't be null: fleet always has AI. If null = mod conflict.
+            boolean paradeOver = ai.isReturning();
+            if (targetMarket != null && !paradeOver) targetMarket.removeTag(MuseumConstants.ON_PARADE_TAG);
 
             if (reason == CampaignEventListener.FleetDespawnReason.REACHED_DESTINATION && originMarket != null) Global.getSector().getCampaignUI().addMessage("%s has returned to %s.", Misc.getTextColor(),
                     fleet.getName(),
@@ -211,7 +213,7 @@ public class ParadeFleetProfile implements FleetEventListener {
             for (FleetMemberAPI m : shipsInStorage) if (fleetMembersOnParade.contains(m.getId())) m.getVariant().removeTag(MuseumConstants.ON_PARADE_TAG);
             fleetMembersOnParade.clear();
 
-            if (targetMarket != null) ParadeFleetAssignmentAI.removeParadeConditionFromMarket(targetMarket);
+            if (targetMarket != null && !paradeOver) ParadeFleetAssignmentAI.removeParadeConditionFromMarket(targetMarket);
 
             fleet.removeEventListener(this);
             this.fleet = null;

@@ -167,7 +167,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
     @Override
     public boolean hasRightClickAction() {
-        return isFleetCargo();
+        return isFleetCargo() && !isInvalid();
     }
 
     public boolean isInvalid() {

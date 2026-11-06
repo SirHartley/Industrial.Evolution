@@ -8,7 +8,9 @@ public class CheckPlugin extends BaseModPlugin {
     private static final Logger log = Global.getLogger(CheckPlugin.class);
 
     @Override
-    public void onApplicationLoad() {
+    public void onApplicationLoad() throws Exception {
+        // this mod sorts last, so lunalib has loaded the settings by now
+        if ("off".equals(System.getProperty("ie.switches"))) SettingChecks.switchesOff();
         log.info("LIVE_CHECK application loaded");
     }
 

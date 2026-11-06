@@ -90,6 +90,11 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
         fleet.addTag(FLEET_RETURNING_TAG);
     }
 
+    //the parade ended when the fleet left, the target can host the next one by now
+    public boolean isReturning() {
+        return fleet.getCurrentAssignment() != null && fleet.getCurrentAssignment().getAssignment() == FleetAssignment.GO_TO_LOCATION_AND_DESPAWN;
+    }
+
     public String getTargetMarketId() {
         return targetMarketId;
     }
@@ -114,7 +119,7 @@ public class ParadeFleetAssignmentAI extends BaseAssignmentAI implements FleetEv
             fleet.removeEventListener(this);
 
             MarketAPI targetMarket = Global.getSector().getEconomy().getMarket(targetMarketId);
-            if (targetMarket != null) removeParadeConditionFromMarket(targetMarket);
+            if (targetMarket != null && !isReturning()) removeParadeConditionFromMarket(targetMarket);
         }
     }
 

@@ -43,6 +43,8 @@ public class Runner implements EveryFrameScript {
 
         SectorAPI sector = Global.getSector();
         sector.getPlayerFleet().setNoEngaging(100f);
+        // out of supplies vanilla shows an accident report, and that dialog refuses every other dialog and core tab
+        if (!ctx.keepDialog && sector.getPlayerFleet().getCargo().getSupplies() < 100f) sector.getPlayerFleet().getCargo().addSupplies(200f);
         InteractionDialogAPI dialog = sector.getCampaignUI().getCurrentInteractionDialog();
         if (dialog != null && !ctx.reload && !ctx.keepDialog) {
             log.info("LIVE_CHECK note: closing dialog " + dialog.getPlugin());
@@ -67,6 +69,7 @@ public class Runner implements EveryFrameScript {
             Time.fast(false);
             sector.setPaused(true);
         }
+        if (System.currentTimeMillis() < ctx.waitUntil) return;
         if (ctx.waitFrames > 0) {
             ctx.waitFrames--;
             return;

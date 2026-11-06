@@ -82,7 +82,8 @@ public class ShipComponentLootManager {
                 if (Entities.WRECK.equals(dialog.getInteractionTarget().getCustomEntityType())) {
                     DerelictShipEntityPlugin plugin = (DerelictShipEntityPlugin) dialog.getInteractionTarget().getCustomPlugin();
                     ShipRecoverySpecial.PerShipData shipData = plugin.getData().ship;
-                    Random random = new Random(dialog.getInteractionTarget().getId().hashCode());
+                    //entity ids are sequential, seeds that close give the same first roll
+                    Random random = new Random(Misc.getSalvageSeed(dialog.getInteractionTarget()));
 
                     if (shipData != null && shipData.getVariant() != null && shipData.getVariant().getHullSpec() != null) {
                         int fp = shipData.getVariant().getHullSpec().getFleetPoints();
