@@ -44,7 +44,7 @@ Fixed - Nine rare pets missing from the Animal Center shop now spawn
 Fixed - Pet management ability no longer shows active while a detachment is out
 Fixed - Pets on stored ships in storage at a colony now eat food from colony storage instead of dying
 Fixed - Pet naming dialog now properly opens from the cargo screen
-Fixed - Unknown pet boxes no longer crash (opening one shows an error)
+Fixed - Unknown pet boxes no longer crash (the tooltip shows an error)
 Removed - Pet food
 
 Museum
