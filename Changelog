@@ -28,6 +28,7 @@ Fixed - Mines no longer cluster in one spot of the belt
 
 Meteor Showers
 Added - Setting to make meteor shower spawn immediately instead of having a delay with an intel entry
+Added - Catch.Release harpoons can now break meteors
 Fixed - Tutorial intel can no longer show duplicate notifications
 Fixed - Planetoid swarms no longer leave planets, rings and loot stations behind
 Fixed - Rogue planets and swarm rocks no longer vanish right after they spawn

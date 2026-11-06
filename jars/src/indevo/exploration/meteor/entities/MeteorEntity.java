@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
+import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.movement.MeteorMovementModuleAPI;
 import indevo.exploration.meteor.renderers.MeteorDebrisRenderer;
 import indevo.exploration.meteor.scripts.MeteorImpact;
@@ -48,6 +49,7 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
     @Override
     public void init(SectorEntityToken entity, Object pluginParams) {
         super.init(entity, pluginParams);
+        entity.addTag(MeteorSwarmManager.METEOR_TAG);
         if (pluginParams == null) return;
 
         MeteorData data = (MeteorData) pluginParams;
