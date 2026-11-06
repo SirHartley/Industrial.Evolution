@@ -15,6 +15,7 @@ public final class Ctx {
     long waitStart = 0L;
     int waitFrames = 0;
     boolean reload = false;
+    boolean keepDialog = false;
     java.util.function.BooleanSupplier until = null;
     Runnable onFrame = null;
     String untilId = null;
@@ -63,6 +64,10 @@ public final class Ctx {
 
     public void until(java.util.function.BooleanSupplier condition, float maxDays, String id) {
         until(condition, maxDays, id, null);
+    }
+
+    public void keepDialog(boolean keep) {
+        keepDialog = keep;
     }
 
     public void reload() {

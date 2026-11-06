@@ -264,10 +264,9 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
 
         String message = StringHelper.getStringAndSubstituteTokens(Ids.EMBASSY, mainText, toReplace);
         String[] highlights = new String[]{toReplace.get("$factionName"), toReplace.get("$personName")};
-        String flavour = StringHelper.getString(Ids.EMBASSY, flavourText);
 
         MessageIntel intel = new MessageIntel(message, color, highlights, faction.getColor());
-        if (flavourText != null) intel.addLine(flavour, color);
+        if (flavourText != null) intel.addLine(StringHelper.getString(Ids.EMBASSY, flavourText), color);
         if (repDropAmount != 0f) {
             intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getStringAndSubstituteTokens(Ids.EMBASSY, "decreaseMessage", toReplace), color, new String[]{toReplace.get("$factionName"), toReplace.get("$decreasedByPenalty")}, faction.getColor(), Misc.getNegativeHighlightColor());
             intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getString(Ids.EMBASSY, "currentAt"), color, new String[]{repInt.one}, repInt.two);

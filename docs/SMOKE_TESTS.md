@@ -88,6 +88,7 @@ The full set is about 220 checks in 9 minutes and exits 0 only when all pass. An
 | `pets` | Stored pets eat from their storage, starve, die |
 | `ruins` | Ruin upgrades, ruined infrastructure, Fast Build timing |
 | `colony` | Governments, Supercomputer, relay comparison, ambassadors |
+| `embassy` | Hire, carry, install, dismiss through the real dialog, sold, spaced, lost, Warehouse, detachments, Courier Port, monthly gain and penalties, cores, hostile, delay, recall, relocation, sabotage, setting off |
 | `industry` | Toggles, Academy, Commodity Forge, transmitters, Museum, Animal Center, Restoration Docks |
 | `senate` | Edicts, stable locations, Privateer slots, Cloud Painter, Salvage Yards raids |
 | `misc` | Settings saved live, artillery settings, Privateer targets, console commands, Prospector notice |
