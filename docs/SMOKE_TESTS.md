@@ -68,7 +68,7 @@ export SMOKE_SKILL='<skill folder>' SMOKE_JAVAC_DIR='<jdk 17 bin>'
 bash native-smoke/live/run.sh commerce,pets,ruins,colony,industry,senate,misc,path,parade,paradetime,content,consume,shipyard,rest,patches,nextuse,newgame,arcmath,meteor
 ```
 
-The full set is about 220 checks in 9 minutes and exits 0 only when all pass. Any ERROR line outside the known noise fails the run.
+The full set is about 340 checks in 12 minutes and exits 0 only when all pass. Any ERROR line outside the known noise fails the run.
 
 | Option | Meaning |
 |---|---|
