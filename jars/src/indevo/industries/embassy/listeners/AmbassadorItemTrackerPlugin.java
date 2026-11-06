@@ -66,7 +66,8 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
         if (checkCargo(targetCargo, amb, returnHome)) return updateKnownLocation(targetCargo, returnHome);
 
         for (CargoAPI cargo : getPlayerTransportCargos()) {
-            if (checkCargo(cargo, amb, returnHome)) return updateKnownLocation(cargo, returnHome);
+            // not remembered, a merged or dead detachment keeps its stacks in a cargo nothing else reads
+            if (checkCargo(cargo, amb, returnHome)) return updateKnownLocation(null, returnHome);
         }
 
         //has it been installed?
