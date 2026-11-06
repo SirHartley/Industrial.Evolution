@@ -74,6 +74,9 @@ public class HAAmbassadorEventFactor extends BaseEventFactor {
     }
 
     public int getProgress(BaseEventIntel intel) {
+        // BaseEventIntel sums every factor, shouldShow only hides the row
+        if (!Setting.EMBASSY.enabled()) return 0;
+
         float total = 0f;
         for (FactionAPI f : getFactionsWithAmbassadors()) total += getReductionAmtForFaction(f);
 

@@ -13,6 +13,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.courierport.listeners.Shipment;
 import indevo.industries.embassy.AmbassadorItemHelper;
@@ -50,6 +51,8 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
 
     @Override
     public void onNewDay() {
+        if (!Setting.EMBASSY.enabled()) return;
+
         daysPassed++;
 
         if (!isDone) if (!findAmbassadorItem(false)) checkForIllegalPresence();

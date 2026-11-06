@@ -107,7 +107,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
     }
 
     private void monthlyRepIncrease() {
-        if (ambassadorItemData == null || !isFunctional() || !market.isPlayerOwned()) {
+        if (!Setting.EMBASSY.enabled() || ambassadorItemData == null || !isFunctional() || !market.isPlayerOwned()) {
             return;
         }
 
