@@ -44,7 +44,7 @@ public class Runner implements EveryFrameScript {
         SectorAPI sector = Global.getSector();
         sector.getPlayerFleet().setNoEngaging(100f);
         InteractionDialogAPI dialog = sector.getCampaignUI().getCurrentInteractionDialog();
-        if (dialog != null && !ctx.reload) {
+        if (dialog != null && !ctx.reload && !ctx.keepDialog) {
             log.info("LIVE_CHECK note: closing dialog " + dialog.getPlugin());
             dialog.dismiss();
             return;

@@ -22,6 +22,8 @@ public final class Groups {
                 return PetsChecks.steps();
             case "ruins":
                 return RuinsChecks.steps();
+            case "embassy":
+                return EmbassyChecks.steps();
             case "colony":
                 return ColonyChecks.steps();
             case "industry":
