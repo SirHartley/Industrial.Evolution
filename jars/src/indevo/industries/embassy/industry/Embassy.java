@@ -1,6 +1,7 @@
 package indevo.industries.embassy.industry;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.RepLevel;
 import com.fs.starfarer.api.campaign.SpecialItemData;
@@ -110,18 +111,14 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
             return;
         }
 
-        FactionAPI baseFaction = market.getFaction();
-        String alignedFactionId = alignedFaction.getId();
-        float currentRelationship = baseFaction.getRelationship(alignedFactionId);
+        float currentRelationship = Global.getSector().getPlayerFaction().getRelationship(alignedFaction.getId());
 
         if (currentRelationship >= maxRelation) return;
 
         //If rel difference smaller than 10, get difference, else it's 10
         float addition = currentRelationship > (maxRelation - 0.10F) ? maxRelation - currentRelationship : 0.1F;
 
-        //adjust and update current relationship level
-        adjustRelationship(baseFaction, alignedFaction, addition);
-        AmbassadorPersonManager.getInstance().reportEmbassyRepChange(alignedFaction, addition);
+        AmbassadorPersonManager.getInstance().applyEmbassyRepGain(alignedFaction, addition);
     }
 
     @Override
@@ -312,9 +309,20 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
     @Override
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
         super.notifyBeingRemoved(mode, forUpgrade);
-        if (ambassadorItemData != null && !forUpgrade) {
+        if (ambassadorItemData == null || forUpgrade) return;
+
+        if (AmbassadorPersonManager.hasAmbassador(market)) {
             IndEvo_ambassadorRemoval.removeAmbassadorWithPenalty(market);
+            return;
         }
+
+        // not in office yet, the tracker is still running and finds the item again
+        CargoAPI cargo = getCargoForInteractionMode(mode);
+        if (cargo == null) cargo = Misc.getStorageCargo(market);
+        if (cargo == null) cargo = Global.getSector().getPlayerFleet().getCargo();
+
+        cargo.addSpecial(ambassadorItemData, 1);
+        setSpecialItem(null);
     }
 
     @Override
