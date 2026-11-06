@@ -43,7 +43,7 @@ Real status: not built and not running.
 | Hullmod id without row | `vayra_ghost_ship_mystery` (`MYSTERY_HULLMOD`), `vayra_ghost_ship_mystery_nothing` (`MYSTERY_NOTHING_HULLMOD`, row uses the `indEvo_` id), `indEvo_anti_robot` (`ANTI_AI_HULLMOD`) | `indevo/ids/Ids.java:104-121` |
 | Constants | ghost ship hullmod ids, `COND_PLAGUE` `IndEvo_engineered_plague` | `Ids.java:95-121` |
 | Market condition | `IndEvo_engineered_plague` (row commented out) | `data/campaign/market_conditions.csv:24` |
-| Rules (loaded) | `indevo_ghostShipContinueSelected`, `indevo_ghostShipContinueSelectedDestroyed`, `indevo_ghostShipFinishedNoContinueDestroyed` on `$indevo_checkSalvageSpecialAgain` / `$indevo_destroyGhostShip` | `data/campaign/rules.csv:968-972` |
+| Rules (loaded) | `indevo_ghostShipContinueSelected`, `indevo_ghostShipContinueSelectedDestroyed`, `indevo_ghostShipFinishedNoContinueDestroyed` on `$indevo_checkSalvageSpecialAgain` / `$indevo_destroyGhostShip` | `data/campaign/rules.csv:973-977` |
 | Memory key | `$indevo_checkSalvageSpecialAgain`, `$indevo_destroyGhostShip` (entity) | `GhostShipSpecial.java:28-29` |
 | Memory key | `$indevo_hasHyperlostGhostShip` (global), `$indevo_ghostShipTriggeredGate` | `GhostShip.java:86-87` |
 | Config | `distress_call_id`, `distress_call_script` | `data/config/indEvo/distress_call_data.csv` |

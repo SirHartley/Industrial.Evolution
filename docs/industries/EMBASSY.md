@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-NPC markets of whitelisted factions at size 5+ get an ambassador person (post `ambassador`) in their comm directory. The player hires one through rules dialogue; the ambassador becomes an `IndEvo_amb` special item (`AmbassadorItemData` holding the `PersonAPI`) in fleet cargo and must be installed into a player Embassy within about 2 to 4 months. An installed ambassador raises relations with their faction by 10 per month up to a cap, halves the player's daily reputation losses into extra penalties, and reduces (or, in sabotage mode, increases) that faction's Hostile Activity progress. Losing, selling or spacing the item costs reputation and can spawn a bounty hunter fleet.
+NPC markets of whitelisted factions at size 5+ get an ambassador person (post `ambassador`) in their comm directory. The player hires one through rules dialogue, at most one per faction; the ambassador becomes an `IndEvo_amb` special item (`AmbassadorItemData` holding the `PersonAPI`) in fleet cargo and must be installed into a player Embassy within about 2 to 4 months. An installed ambassador raises relations with their faction by 10 per month up to a cap, halves the player's daily reputation losses into extra penalties, and reduces (or, in sabotage mode, increases) that faction's Hostile Activity progress. Losing, selling or spacing the item costs reputation and can spawn a bounty hunter fleet.
 
 ## Files
 
@@ -21,7 +21,7 @@ NPC markets of whitelisted factions at size 5+ get an ambassador person (post `a
 | `scripts/HAAmbassadorEventFactor.java` | Hostile Activity factor "Political Influence" |
 | `scripts/HostileActivityEventSubRegisterListener.java` | `ColonyCrisesSetupListener`: adds the factor at index 0 |
 | `scripts/HostileActivityEventSubRegisterScript.java` | Deprecated, unreferenced |
-| `rules/IndEvo_isAmbassador`, `IndEvo_ambFactionMismatch`, `IndEvo_noActiveAmbInCargo`, `IndEvo_playerHasFreeEmbassy`, `IndEvo_playerHasFreeEmbassyNoCargo`, `IndEvo_checkForRepResponse` | Rule conditions |
+| `rules/IndEvo_isAmbassador`, `IndEvo_ambFactionMismatch`, `IndEvo_noActiveAmbInCargo`, `IndEvo_noInstalledAmbOfFaction`, `IndEvo_playerHasFreeEmbassy`, `IndEvo_playerHasFreeEmbassyNoCargo`, `IndEvo_checkForRepResponse` | Rule conditions |
 | `rules/IndEvo_addAmbassadorToCargo` | Hire: item into fleet cargo, starts tracker, removes person from the market |
 | `rules/IndEvo_ambassadorRemoval` | Dismiss with rep penalty, return person home. `removeAmbassadorWithPenalty()` also called by `Embassy.notifyBeingRemoved()` |
 | `rules/IndEvo_displayAmbassadorMoveOption`, `rules/IndEvo_moveAmbassadorToClosestEmbassy` | Relocate to nearest empty Embassy for a credit fee |
@@ -41,7 +41,7 @@ Outside the package: `indevo/items/specialitemdata/AmbassadorItemData.java`, `in
 | Sector memory | `$IndEvo_HAE_ScriptCleanupDone` | dead script only |
 | Person | rank `factionRep`, post `ambassador`, tag `amb_<originMarketId>` | `AmbassadorPersonManager.createAmbassador()` (`:344`) |
 | Fleet memory | `$IndEvo_bountyHunter`, `$IndEvo_himOrHer`, `$IndEvo_name`, `$IndEvo_theFaction` | `AmbassadorMurderConsequences.java:149` |
-| Rules | `IndEvo_ambassadorGreeting*`, `IndEvo_ambassadorHire*`, `IndEvo_ambassadorNoFreeEmbassy`, `IndEvo_ambassadorConfirm`, `IndEvo_ambassadorMenu`, `IndEvo_ambassadorMenuSabotage` and `IndEvo_ambassadorMenuStopSabotage` (sabotage toggle by `$global.IndEvo_HAASabotage`), `IndEvo_ambassadorRemove1..6`, `IndEvo_ambassadorRemovalConfirm`, `IndEvo_ambMoveOption`, `IndEvo_amb(Stop)SabotageRep(_confirm)`, `IndEvo_convEnd(Polite)`, `IndEvo_bountyHunterHail`, `IndEvo_bountyHunterText` | `data/campaign/rules.csv` block `# Embassy`, `# Ambassador Murdered` |
+| Rules | `IndEvo_ambassadorGreeting*`, `IndEvo_ambassadorHire*`, `IndEvo_ambassadorAlreadyInstalled`, `IndEvo_ambassadorNoFreeEmbassy`, `IndEvo_ambassadorConfirm`, `IndEvo_ambassadorMenu`, `IndEvo_ambassadorMenuSabotage` and `IndEvo_ambassadorMenuStopSabotage` (sabotage toggle by `$global.IndEvo_HAASabotage`), `IndEvo_ambassadorRemove1..6`, `IndEvo_ambassadorRemovalConfirm`, `IndEvo_ambMoveOption`, `IndEvo_amb(Stop)SabotageRep(_confirm)`, `IndEvo_convEnd(Polite)`, `IndEvo_bountyHunterHail`, `IndEvo_bountyHunterText` | `data/campaign/rules.csv` block `# Embassy`, `# Ambassador Murdered` |
 | Strings | `IndEvo_embassy`, `IndEvo_AmbassadorItem` sections | `data/strings/strings.json:171`, `:69` |
 | Sprites | `IndEvo/amb_pers`, `amb_heg`, `amb_tt`, `amb_church`, `amb_sind`, `amb_mod`, `IndEvo/reputation` | `data/config/settings.json:164-169`, picked in `Embassy.getCurrentImage()` |
 
@@ -62,7 +62,7 @@ Outside the package: `indevo/items/specialitemdata/AmbassadorItemData.java`, `in
 ### Hire and transport
 
 1. Greeting `IndEvo_ambassadorGreeting` (`IndEvo_isAmbassador`, `IndEvo_notAtWar`, not player market).
-2. Hire needs `IndEvo_noActiveAmbInCargo` (no tracker for this faction) and `IndEvo_playerHasFreeEmbassy` (free embassies, those without an installed ambassador, must outnumber ambassadors in transit, counted by `AmbassadorItemTrackerPlugin` listeners).
+2. Hire needs `IndEvo_noActiveAmbInCargo` (no tracker for this faction), `IndEvo_noInstalledAmbOfFaction` (no ambassador of this faction in a player Embassy, `getPlayerMarketsWithEmbassy()`) and `IndEvo_playerHasFreeEmbassy` (free embassies, those without an installed ambassador, must outnumber ambassadors in transit, counted by `AmbassadorItemTrackerPlugin` listeners).
 3. `IndEvo_addAmbassadorToCargo`: new `AmbassadorItemData(IndEvo_amb, null, person)` in fleet cargo, new `AmbassadorItemTrackerPlugin`, person removed from the market (still in `ImportantPeople`).
 4. Install through the industry item menu (`Embassy.getInstallableItems()`, `wantsToUseSpecialItem()`). The tracker sees the item on an Embassy with no ambassador person (`getEmptyEmbassyMarket()`), adds the person there and finishes.
 
@@ -105,7 +105,7 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:52`): `findAmba
 | Item | State |
 |---|---|
 | `HostileActivityEventSubRegisterScript` | `@Deprecated`, not registered anywhere: dead |
-| Blank rules row after `#END IndEvo PlayerMarketAmbassadorDialogue` | Row with empty id and script `$global.IndEvo_HAASabotage = true` (`rules.csv:681-683`) |
+| Blank rules row after `#END IndEvo PlayerMarketAmbassadorDialogue` | Row with empty id and script `$global.IndEvo_HAASabotage = true` (`rules.csv:686-688`) |
 | `moveAmbassadorToClosestEmbassy` | Fee is booked even if the move script later fails its checks |
 | Changelog_todo | "embassy rep limit"; "embassy rep impact rolling number -> fixed num"; "Add ambassadors as contacts" |
 

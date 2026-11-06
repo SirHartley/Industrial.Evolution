@@ -594,11 +594,16 @@ $personName seems to be in a hurry to leave this place before someone gets the i
 IndEvo_ambassadorHireFail,DialogOptionSelected,"$option == IndEvo_ambassadorHire
 !IndEvo_noActiveAmbInCargo","ShowPersonVisual
 ","You already have a $theFaction ambassador on board. Please bring them to their post and then come back, should the need for another representative still remain.",IndEvo_convEndPolite:Leave,
+IndEvo_ambassadorAlreadyInstalled,DialogOptionSelected,"$option == IndEvo_ambassadorHire
+IndEvo_noActiveAmbInCargo
+!IndEvo_noInstalledAmbOfFaction","ShowPersonVisual
+","""A colleague of mine already represents $theFaction at one of your Embassies. We only keep one ambassador with you, so I will have to wait until that post is free.""",IndEvo_convEndPolite:Leave,
 IndEvo_ambassadorNoFreeEmbassy,DialogOptionSelected,"$option == IndEvo_ambassadorHire
 !IndEvo_playerHasFreeEmbassy","ShowPersonVisual
 ","""My assistant just let me know that you do not have an office available. I look forward to discussing my potential employment as soon as you have a free post at an Embassy.""",IndEvo_convEndPolite:Leave,
 IndEvo_ambassadorHire,DialogOptionSelected,"$option == IndEvo_ambassadorHire
 IndEvo_noActiveAmbInCargo
+IndEvo_noInstalledAmbOfFaction
 IndEvo_playerHasFreeEmbassy","ShowPersonVisual
 AddTextSmall ""You will have to transfer the Ambassador to an Embassy within 2 months, or someone might come looking for $himOrHer and cause trouble. Losing the Ambassador, or worse, getting $himOrHer killed, will cause a massive incident and permanently damage relations."" marketFlavorTextColor","""I will gladly take on this responsibility. We can depart immediately, if you so wish.""","IndEvo_ambassadorConfirm:Ask the Ambassador to prepare for departure.
 IndEvo_convEndPolite:Reconsider and leave",

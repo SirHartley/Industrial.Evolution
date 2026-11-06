@@ -110,6 +110,7 @@ Fixed - Blocked restorations now show the reason instead of a generic error
 Fixed - Ruined Infrastructure without a target can now be restored
 
 Embassy
+Changed - Only one ambassador per faction can be hired at a time
 Fixed - Ambassadors can now properly be told to stop sabotaging hostile activity
 Fixed - Luddic Church ambassadors now properly reduce hostile activity
 Fixed - Hostile activity tooltip no longer shows relations above the 40 cap
