@@ -65,7 +65,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File native-smoke\run.ps1 -Skill 
 
 ```bash
 export SMOKE_SKILL='<skill folder>' SMOKE_JAVAC_DIR='<jdk 17 bin>'
-bash native-smoke/live/run.sh commerce,pets,ruins,colony,industry,senate,misc,path,parade,arcmath,meteor
+bash native-smoke/live/run.sh commerce,pets,ruins,colony,industry,senate,misc,path,parade,paradetime,content,consume,shipyard,rest,patches,nextuse,newgame,arcmath,meteor
 ```
 
 The full set is about 220 checks in 9 minutes and exits 0 only when all pass. Any ERROR line outside the known noise fails the run.
@@ -78,6 +78,9 @@ The full set is about 220 checks in 9 minutes and exits 0 only when all pass. An
 | `LIMIT=<s>` | Seconds before the run counts as timed out (600) |
 | `NOBUILD=1` | Reuse `out/live/IndEvo.jar` |
 | `KEEP=1` | Leave the game open for `gamectl`. Groups `ui0` and `ui94` build the Micromanagement and Fast Build state and wait |
+| `NEWGAME=1` | Start a new game instead of the base save, `SWITCHES=off` turns the content switches off first |
+| `STAGE=<folder>` | Load that mod folder, an unpacked release, instead of the checkout |
+| `SMOKE_LOCK=<folder>` | Lock folder shared by all runs on the machine (`C:\Modding\.smoke-lock`), `LOCKWAIT=<s>` is how long a run waits for it (1800) |
 
 | Group | Covers |
 |---|---|
@@ -92,6 +95,17 @@ The full set is about 220 checks in 9 minutes and exits 0 only when all pass. An
 | `senate` | Edicts, stable locations, Privateer slots, Cloud Painter, Salvage Yards raids |
 | `misc` | Settings saved live, artillery settings, Privateer targets, console commands, Prospector notice |
 | `parade` | Parade tags with a full system, a lost target, a normal return |
+| `paradetime` | Parade length, bonus through reloads, the trip home, two museums on one colony |
+| `content` | Forge World, hand built ships, Ancient Laboratory, ruins, gathering point, pet ability, Courier Port contract, Rift Generator |
+| `consume` | Consumable tooltips, Tech Locator ratings, interceptor, scoop, missile hotkey by real key press |
+| `shipyard` | Automated Shipyard dialog: relics from storage, lost components, failure line |
+| `rest` | Combat timers, Courier Port cost, ship factory, station placement, survey story, mine spread, `indevo_spawnRuins`, pet fees, unknown pet box, Requisitions tooltip, Rift Generator target, credit stash, ship parts, detachment wrecks and auto load |
+| `patches` | Every IE patch off and back on, the vanilla Commerce rule returns while off |
+| `nextuse` | Museum, minefield and meteor settings on next use |
+| `newgame` | IE content on the base save. With `NEWGAME=1 SWITCHES=off` a new game without any |
+| `boot` | Just the load. With `STAGE=<folder>` the release layout |
+
+Day skips run at 60x. Fleets can overshoot the 50 unit arrival check at that speed and never land, so set `Time.mult = 3f` around a fleet arriving somewhere.
 
 A new check goes in the group of its feature, or in a new `<Feature>Checks.java` listed in `Groups.java`. Run it on the broken build first, so it is known to fail. Repeat anything random in one step: the rogue planet bug passed a single spawn and failed 348 of 4000 arcs. How steps, day skips and reloads work is in the skill's `references/live-game.md`.
 

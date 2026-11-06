@@ -3,6 +3,9 @@
 # needs SMOKE_SKILL (starsector-native-smoke folder with gamectl.exe built) and SMOKE_JAVAC_DIR (jdk 17 bin)
 # LIMIT seconds before the run is stopped, FAST=1 fast rendering, NOBUILD=1 reuses the jar, KEEP=1 leaves the game open
 # JFR=0 skips the profile, PROFILE_BASE=<older profile.jfr> also writes compare.txt
+# SMOKE_LOCK lock folder shared by all runs on this machine, LOCKWAIT seconds to wait for it (default 1800)
+# NEWGAME=1 starts a new game instead of the base save, SWITCHES=off turns the content switches off first
+# STAGE=<folder> loads that mod folder (an unpacked release) instead of the checkout
 HERE=$(cd -- "$(dirname -- "$0")" && pwd)
 REPO=$(cd -- "$HERE/../.." && pwd)
 GAME=${SMOKE_GAME:-"/e/Games/Starsector 0.98/Starsector 098a-RC8 - Modding"}
@@ -11,11 +14,16 @@ LIVE="$REPO/out/live"
 GC="$SKILL/scripts/live/gamectl.exe"
 WORK="$LIVE/run"
 L="$WORK/logs/starsector.log"
+LOCK=${SMOKE_LOCK:-/c/Modding/.smoke-lock}
 GROUP=${1:?group}
 export PATH="$(cygpath -u "${SMOKE_JAVAC_DIR:?set SMOKE_JAVAC_DIR}"):$PATH"
 
 w() { ping -n $(( $1 + 1 )) 127.0.0.1 >/dev/null; }
-stop() { powershell -NoProfile -Command "Get-Process java -ErrorAction SilentlyContinue | Where-Object { \$_.Path -like '*Starsector*' } | Stop-Process -Force -Confirm:\$false" >/dev/null 2>&1; w 2; }
+# the command line names this run's folders, another checkout or the user's own game stays alone
+own() { powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name='java.exe'\" | Where-Object { \$_.CommandLine -and \$_.CommandLine.Contains('$(cygpath -w "$WORK/mods")') } | ForEach-Object { \$_.ProcessId }" 2>/dev/null | tr -d '\r'; }
+stop() { for pid in $(own); do powershell -NoProfile -Command "Stop-Process -Id $pid -Force -Confirm:\$false" >/dev/null 2>&1; done; w 2; }
+running() { [[ -n $(own) ]]; }
+anygame() { powershell -NoProfile -Command "if (Get-Process java -ErrorAction SilentlyContinue | Where-Object { \$_.Path -like '*Starsector*' }) { exit 0 } else { exit 1 }" >/dev/null 2>&1; }
 launch() {
     : > "$L"
     SMOKE_FAST_RENDER=${FAST:-0} SMOKE_JAVA_ARGS="$1" bash "$SKILL/scripts/live/launch-game.sh" "$GAME" "$WORK" > "$WORK/launch.log" 2>&1 &
@@ -30,7 +38,22 @@ unlink() {
     done
     rm -f "$WORK/mods/enabled_mods.json"
 }
-trap unlink EXIT
+
+# one game per machine: gamectl finds the first game window, so two runs would click each other's game
+take_lock() {
+    for _ in $(seq 1 $(( ${LOCKWAIT:-1800} / 5 ))); do
+        mkdir "$LOCK" 2>/dev/null && { echo "$(basename "$REPO") $GROUP" > "$LOCK/owner.txt"; HELD=1; return; }
+        [[ -z ${said:-} ]] && { said=1; echo "Waiting for $(cat "$LOCK/owner.txt" 2>/dev/null)"; }
+        w 5
+    done
+    echo "$LOCK still held by $(cat "$LOCK/owner.txt" 2>/dev/null)"; exit 1
+}
+leave() {
+    unlink
+    [[ -n ${HELD:-} ]] && { rm -f "$LOCK/owner.txt"; rmdir "$LOCK"; }
+}
+trap leave EXIT
+
 
 mkdir -p "$LIVE/stage/Industrial.Evolution/jars" "$WORK/logs"
 if [[ -z ${NOBUILD:-} || ! -f "$LIVE/IndEvo.jar" ]]; then
@@ -52,9 +75,12 @@ rm -rf "$mod"; mkdir -p "$mod"; cp -r "$HERE/src" "$HERE/data" "$HERE/mod_info.j
 bash "$SKILL/scripts/live/build-test-mod.sh" "$GAME" "$mod" ie_live_checks "$LIVE/IndEvo.jar" \
     "$GAME/mods/LunaLib/jars/LunaLib.jar" "$GAME/mods/LunaLib/jars/LunaLib-Kotlin.jar" "$GAME/starsector-core/starfarer_obf.jar" \
     "$GAME/starsector-core/fs.common_obf.jar" "$GAME/mods/LazyLib/jars/LazyLib.jar" "$GAME/mods/MagicLib/jars/MagicLib.jar" \
-    "$GAME/mods/Console Commands/jars/lw_Console.jar" >/dev/null || exit 1
+    "$GAME/mods/Console Commands/jars/lw_Console.jar" "$GAME/mods/PatchLib/jars/PatchLibAPI.jar" >/dev/null || exit 1
 [[ -f "$WORK/mods/enabled_mods.json" ]] || bash "$SKILL/scripts/live/make-modset.sh" "$WORK" "$GAME/mods/LazyLib" "$GAME/mods/MagicLib" \
-    "$GAME/mods/LunaLib" "$GAME/mods/GraphicsLib" "$GAME/mods/PatchLib" "$GAME/mods/Console Commands" "$stage" "$mod" >/dev/null
+    "$GAME/mods/LunaLib" "$GAME/mods/GraphicsLib" "$GAME/mods/PatchLib" "$GAME/mods/Console Commands" "${STAGE:-$stage}" "$mod" >/dev/null
+
+take_lock
+anygame && { echo "A game is running. Close it or wait for its run to end."; exit 1; }
 
 # one new game per checkout: every run starts from this save
 if [[ ! -d "$LIVE/base-saves" ]]; then
@@ -67,16 +93,23 @@ if [[ ! -d "$LIVE/base-saves" ]]; then
     cp -r "$WORK/saves" "$LIVE/base-saves"
 fi
 
-rm -rf "$WORK/saves"; cp -r "$LIVE/base-saves" "$WORK/saves"; rm -f "$WORK"/check-*.png
+rm -rf "$WORK/saves"; rm -f "$WORK"/check-*.png "$WORK"/key-*
+if [[ -n ${NEWGAME:-} ]]; then mkdir -p "$WORK/saves"; else cp -r "$LIVE/base-saves" "$WORK/saves"; fi
 extra=""
 [[ ${JFR:-1} != 0 ]] && extra=" -XX:StartFlightRecording=filename=$(cygpath -m "$WORK/profile.jfr"),settings=profile,dumponexit=true"
 rm -f "$WORK/profile.jfr"
+[[ -n ${SWITCHES:-} ]] && extra=" -Die.switches=$SWITCHES$extra"
 launch "-Die.check=$GROUP$extra"
-for i in $(seq 1 60); do
-    grep -q 'LIVE_CHECK game loaded' "$L" && break
-    grep -q 'Error loading' "$L" && break
-    "$GC" bmove 1220 283 >/dev/null 2>&1; w 1; "$GC" bclick 1234 283 >/dev/null 2>&1; w 1
-done
+if [[ -n ${NEWGAME:-} ]]; then
+    w 8
+    SMOKE_RESOLUTION=1600x900 bash "$SKILL/scripts/live/new-game-1600x900.sh"
+else
+    for i in $(seq 1 60); do
+        grep -q 'LIVE_CHECK game loaded' "$L" && break
+        grep -q 'Error loading' "$L" && break
+        "$GC" bmove 1220 283 >/dev/null 2>&1; w 1; "$GC" bclick 1234 283 >/dev/null 2>&1; w 1
+    done
+fi
 
 limit=${LIMIT:-600}; start=$SECONDS; verdict=TIMEOUT
 while (( SECONDS - start < limit )); do
@@ -85,17 +118,22 @@ while (( SECONDS - start < limit )); do
     for s in $(grep -o 'LIVE_CHECK shot [a-z0-9-]*' "$L" | cut -d' ' -f3); do
         [[ -f "$WORK/check-$s.png" ]] || "$GC" bshot "$WORK/check-$s.png" >/dev/null 2>&1
     done
-    tasklist //FI "IMAGENAME eq java.exe" 2>/dev/null | grep -q java.exe || { verdict=CRASH; break; }
+    for k in $(grep -o 'LIVE_CHECK key [A-Za-z0-9_]*' "$L" | cut -d' ' -f3); do
+        [[ -f "$WORK/key-$k" ]] || { "$GC" bkey "${k%_*}" >/dev/null 2>&1; : > "$WORK/key-$k"; }
+    done
+    running || { verdict=CRASH; break; }
     w 1
 done
+# the game exits on its own when the checks end, sometimes before the last poll
+grep -q 'LIVE_CHECK COMPLETE' "$L" && verdict=COMPLETE
 # a screen says at once what a stuck run is doing
 [[ $verdict != COMPLETE && $verdict != CRASH ]] && { "$GC" bshot "$(cygpath -m "$WORK/stuck.png")" >/dev/null 2>&1; echo "$verdict: open $WORK/stuck.png"; }
 [[ -n ${KEEP:-} ]] && exit 0
 # let the jvm write the recording on exit
-[[ $verdict == COMPLETE && ${JFR:-1} != 0 ]] && for i in $(seq 1 30); do tasklist //FI "IMAGENAME eq java.exe" 2>/dev/null | grep -q java.exe || break; w 1; done
+[[ $verdict == COMPLETE && ${JFR:-1} != 0 ]] && for i in $(seq 1 30); do running || break; w 1; done
 stop
 
-grep -E 'LIVE_CHECK' "$L" | sed -E 's/^[0-9]+ +\[[^]]*\] [A-Z]+ +[a-zA-Z.]+ +- //' | grep -vE ' step [0-9]| shot | saving| quick load' > "$WORK/results.txt"
+grep -E 'LIVE_CHECK' "$L" | sed -E 's/^[0-9]+ +\[[^]]*\] [A-Z]+ +[a-zA-Z.]+ +- //' | grep -vE '^LIVE_CHECK (step [0-9]|shot |key |saving|quick load)' > "$WORK/results.txt"
 grep -E 'FAIL|COMPLETE' "$WORK/results.txt" | cut -c1-170
 # vanilla .ship files without a csv row, fast rendering probing plugin classes
 errors=$(grep -E '\] (ERROR|FATAL) ' "$L" | grep -vE 'Ship hull spec \[|ScriptLoader  - Error while initializing plugin|LIVE_CHECK' | sed -E 's/^[0-9]+ +\[[^]]*\] //' | cut -c1-200 | sort | uniq -c | sort -rn)

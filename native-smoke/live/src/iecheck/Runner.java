@@ -44,7 +44,7 @@ public class Runner implements EveryFrameScript {
         SectorAPI sector = Global.getSector();
         sector.getPlayerFleet().setNoEngaging(100f);
         InteractionDialogAPI dialog = sector.getCampaignUI().getCurrentInteractionDialog();
-        if (dialog != null && !ctx.reload) {
+        if (dialog != null && !ctx.reload && !ctx.keepDialog) {
             log.info("LIVE_CHECK note: closing dialog " + dialog.getPlugin());
             dialog.dismiss();
             return;
@@ -67,6 +67,7 @@ public class Runner implements EveryFrameScript {
             Time.fast(false);
             sector.setPaused(true);
         }
+        if (System.currentTimeMillis() < ctx.waitUntil) return;
         if (ctx.waitFrames > 0) {
             ctx.waitFrames--;
             return;

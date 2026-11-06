@@ -36,6 +36,24 @@ public final class Groups {
                 return UiChecks.steps(0);
             case "ui94":
                 return UiChecks.steps(94);
+            case "content":
+                return ContentChecks.steps();
+            case "consume":
+                return ConsumableChecks.steps();
+            case "shipyard":
+                return ShipyardChecks.steps();
+            case "patches":
+                return PatchChecks.steps();
+            case "nextuse":
+                return SettingChecks.nextUse();
+            case "newgame":
+                return SettingChecks.newGame();
+            case "boot":
+                return new java.util.ArrayList<>();
+            case "rest":
+                return RestChecks.steps();
+            case "paradetime":
+                return ParadeTimeChecks.steps();
             case "parade":
                 return ParadeChecks.steps();
             case "meteor":

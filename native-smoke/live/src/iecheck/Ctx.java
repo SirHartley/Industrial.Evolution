@@ -14,7 +14,10 @@ public final class Ctx {
     float waitDays = 0f;
     long waitStart = 0L;
     int waitFrames = 0;
+    long waitUntil = 0L;
+    private int keys = 0;
     boolean reload = false;
+    boolean keepDialog = false;
     java.util.function.BooleanSupplier until = null;
     Runnable onFrame = null;
     String untilId = null;
@@ -46,7 +49,7 @@ public final class Ctx {
 
     public void shot(String name) {
         log.info("LIVE_CHECK shot " + name);
-        waitFrames = 500;
+        waitUntil = System.currentTimeMillis() + 5000L;
     }
 
     public void frames(int frames) {
@@ -63,6 +66,16 @@ public final class Ctx {
 
     public void until(java.util.function.BooleanSupplier condition, float maxDays, String id) {
         until(condition, maxDays, id, null);
+    }
+
+    public void keepDialog(boolean keep) {
+        keepDialog = keep;
+    }
+
+    // run.sh sees this between its polls, frames say nothing about that time
+    public void key(String key) {
+        log.info("LIVE_CHECK key " + key + "_" + ++keys);
+        waitUntil = System.currentTimeMillis() + 5000L;
     }
 
     public void reload() {
