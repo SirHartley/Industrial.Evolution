@@ -63,6 +63,7 @@ Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3,
 | Memory key | `$IndEvo_RadEffectLevel` (per fleet, 0..1) | `RadiationEffectHandler.java:29` |
 | Memory key | `$IndEvo_warningRenderer` (location, the path renderer instance) | `MeteorSwarmWarningPathRenderer.java:23` |
 | Memory key | `$IndEvo_roider_tutorial`, `$IndEvo_supplyTradeAmt` (tutorial fleet) | `TutorialEncounterScript.java:79-80` |
+| Tag | `IndEvo_MeteorSwarm` (`MeteorSwarmManager.METEOR_TAG`) on every meteor, added in `MeteorEntity.init(SectorEntityToken, Object)`; read by Catch.Release | `MeteorEntity`, `MeteorSwarmManager` |
 | Tags | `indevo_planetoid`, `IndEvo_IceRockNoSplinters`, `IndEvo_IceEntourage_<id>`, `IndEvo_TreasureoidEntrouage_<id>`; loot station id `<entity id>_loot` | spawners and entities |
 | Rules | `IndEvo_roiderTutorial_*` (offer 5 `IndEvo_consumable_missile_concussive` for 10% of supplies, max 100) | `data/campaign/rules.csv:6-62` |
 | Rule command package | `indevo.exploration.meteor.rules` | `data/config/settings.json:85` |
@@ -106,13 +107,13 @@ Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3,
 - Planetoid swarm planets carry `PlanetoidSwarmSpawner.PLANETOID_TAG` (`indevo_planetoid`); the planetoid dialog rules key on it (`rules.csv` `IndEvo_isPlanetoid*`).
 - Spawners use a seeded `Random` per shower; the manager uses one saved `Random` in persistent data.
 - Java 17 features (switch expressions, `instanceof` patterns) are used; the project language level is `JDK_17` (`.idea/misc.xml:6`).
+- Other mods break a meteor by setting `MissileMemFlags.MEM_CAUGHT_BY_MISSILE` (`$missile_bonked`, a `Vector2f` hit point) in its memory. The next `MeteorEntity.advance` collides it with a token at that point, as for a missile: fragments, impact sound, treasure drop, no fleet damage. They find meteors by `METEOR_TAG`. Catch.Release's harpoon uses both as strings, so keep the key, the value type and the tag value. See [Compatibility](../core/COMPATIBILITY.md).
 - Couplings: `MissileMemFlags` ([Consumables](../items/CONSUMABLES.md)); `CircularArc`, `TrigHelper`, `MiscIE`, `NebulaParticle` ([Utils](../core/UTILS.md)); `Ids.LAB_ENTITY`, `Ids.ARSENAL_ENTITY`, `Ids.ABANDONED_PETSHOP_ENTITY` loot stations ([Stations](STATIONS.md)); vanilla `AbyssalRogueStellarObjectEPEC.PLANETOID_TYPES` for planetoid types.
 
 ## Known issues and dormant code
 
 | Item | State |
 |---|---|
-| `MeteorSwarmManager.METEOR_TAG` | Never added to any entity; only used in a commented block (`RadioactiveSwarmSpawner.java:103`) |
 | `RelativeArcingMovement`, `RadiationTrailRenderer` | Dead code |
 | Tutorial rules text | Promises a "core-fragment" swarm (`rules.csv:23`, `:37`) but the tutorial forces `ASTEROID` |
 | Changelog_todo | "bump default meteor storm min treasure to 2" (`Changelog_todo:5`), "Meteor shower bar event" (`Changelog_todo:53`) |

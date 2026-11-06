@@ -35,6 +35,7 @@ import java.util.Random;
 
 public class MeteorSwarmManager implements EconomyTickListener {
 
+    //on every meteor, catch.release harpoons find meteors by this value
     public static final String METEOR_TAG = "IndEvo_MeteorSwarm";
 
     public static final String MEM_METEOR_TUTORIAL = "$IndEvo_MeteorTutorialComplete";
