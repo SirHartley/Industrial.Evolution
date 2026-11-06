@@ -69,7 +69,7 @@ public final class Colony {
 
     // checks that sit in meteor swarms wear the fleet down
     public static void ships() {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 12; i++) {
             Global.getSector().getPlayerFleet().getFleetData().addFleetMember(Global.getFactory().createFleetMember(com.fs.starfarer.api.fleet.FleetMemberType.SHIP, "onslaught_Elite"));
         }
     }
