@@ -62,6 +62,7 @@ import indevo.industries.changeling.plugins.CorporateGovernanceCampaignPlugin;
 import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.courierport.plugin.CourierPortOptionProvider;
 import indevo.industries.derelicts.listeners.AncientLabCommoditySwitchOptionProvider;
+import indevo.industries.derelicts.plugins.AncientLabRelicOptionProvider;
 import indevo.industries.derelicts.plugins.RemoveIndustryOptionWarningProvider;
 import indevo.industries.derelicts.plugins.RiftGenOptionProvider;
 import indevo.industries.derelicts.utils.RuinsManager;
@@ -451,6 +452,7 @@ public class ModPlugin extends BaseModPlugin {
         ChangelingMiningOptionProvider.register();
         ChangelingRefiningOptionProvider.register();
         AncientLabCommoditySwitchOptionProvider.register();
+        AncientLabRelicOptionProvider.register();
         PetCenterOptionProvider.register();
         RuralPolitySubIndustry.RuralPolityTooltipAdder.register();
         RuralPolitySubIndustry.RuralPolityImageChanger.register();
