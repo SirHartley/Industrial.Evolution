@@ -17,7 +17,7 @@ Fixed - Crash on market updates with some modded industries
 Fixed - Settings no longer accept values below their minimum
 Fixed - Industry storage contents are no longer lost on colonies without storage
 Fixed - Leftover storages of removed industries are now cleaned up on load
-Fixed - Other mods' industry tooltip lines now show on IE ruins
+Fixed - Other mods' industry tooltip lines now show on IE ruins and Engineering Hub
 Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
 
@@ -138,6 +138,7 @@ Fixed - Ambassadors no longer appear or have any effect while Embassies are disa
 Fixed - Removing an Embassy before the ambassador took office no longer loses them
 
 Engineering Hub
+Adjusted - Expanded tooltip now also shows the normal tooltip below the progress list
 Fixed - Engineering Hub setting now properly controls whether it can be built
 Fixed - Stripped weapons and fighters now go to the production gathering point
 Fixed - Relic Components no longer show up as an item in storage or cargo
