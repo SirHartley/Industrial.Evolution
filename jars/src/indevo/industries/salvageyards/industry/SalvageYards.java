@@ -421,6 +421,9 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     @Override
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, Industry.IndustryTooltipMode mode) {
+        if (mode == Industry.IndustryTooltipMode.NORMAL && !isBuilding() && !Setting.SCRAPYARD.enabled()) {
+            tooltip.addPara("Salvage Yards are turned off in the mod settings.", Misc.getNegativeHighlightColor(), 10f);
+        }
 
         if (!isBuilding() && currTooltipMode != Industry.IndustryTooltipMode.ADD_INDUSTRY && market.isPlayerOwned()) {
             float opad = 5.0F;

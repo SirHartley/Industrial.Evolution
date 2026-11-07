@@ -86,7 +86,7 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 - `setCommoditySupply()` (player only): every supply and demand of each matched local industry gets `modifyFlatAlways(min(count, max))`. Max: none 0, gamma 1, beta 2, alpha 3, item `LOG_CORE_MAX_BONUS` 4.
 - `isFunctional` needs an AI core or the item. Installing the item moves an installed AI core to storage (`:55`).
 - One per system per faction (`isOnlyInstanceInSystemExcludeMarket`). AI markets get a gamma core once (`AImode`).
-- Tooltip: vanilla `createTooltip`. The missing core line comes from `addRightAfterDescriptionSection` (`:297`), the boosts given to other industries from `addPostSupplySection` and `addPostDemandSection` under their own headings, only while functional (`:339-367`). The bureau has no supply or demand of its own, so vanilla's production and demand blocks stay empty.
+- Tooltip: vanilla `createTooltip`. The missing core line comes from `addRightAfterDescriptionSection` (`:297`), the boosts given to other industries from `addPostSupplySection` and `addPostDemandSection` under their own headings, only while functional (`:339-367`). The bureau has no supply or demand of its own, so vanilla's production and demand blocks stay empty. Without a core or item vanilla also prints "Currently under construction" below the core line, because `isFunctional` is false and vanilla shows that line for any non functional industry that is not disrupted (skill `api/impl/campaign/econ/impl/BaseIndustry.java:1095`); accepted, no hook covers it.
 - Whitelist: vanilla `farming` to `highcommand`, Shadowyards `ms_*`, `loa_void_extraction`.
 
 ### Supercomputer (`IndEvo_SupCom`)

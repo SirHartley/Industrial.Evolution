@@ -352,6 +352,10 @@ public class MilitaryRelay extends MilitaryBase {
 
     @Override
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
+        if (mode == IndustryTooltipMode.NORMAL && !isBuilding() && !isFunctionAllowed()) {
+            tooltip.addPara(StringHelper.getString(STRING_IDENT, "unavailableReason"), Misc.getNegativeHighlightColor(), 10f);
+        }
+
         boolean isIntArray = getId().equals(Ids.INTARRAY);
         float opad = 10.0F;
         float spad = 5f;

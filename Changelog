@@ -76,6 +76,7 @@ Fixed - No longer crashes when installing a modded AI-Core
 Fixed - Crash when a relay colony is outside a star system
 Fixed - Relay updates no longer pile up and slow the game down
 Fixed - Interstellar Relay setting now properly controls Interstellar Relays
+Fixed - Tooltip now shows why a relay without a Military Base is inactive
 
 Academy
 Fixed - Aggression training no longer bills you twice the amount it should
@@ -157,6 +158,7 @@ Fixed - Weapon salvage no longer goes over the monthly cap on the last day
 Fixed - Ship contracts now take ship parts instead of rare parts
 Fixed - Contract and D-mod transfer costs no longer go over the 150% cap
 Fixed - Ship Component Value Mult setting now properly accepts decimals
+Fixed - Tooltip now shows when Salvage Yards are turned off in the settings
 
 Senate
 Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
