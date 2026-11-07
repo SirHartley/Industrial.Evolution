@@ -197,18 +197,6 @@ public class Behaviour {
         return behaviour != FleetBehaviour.TRANSPORT;
     }
 
-    public static int getNextIndex(int index, int step, boolean live) {
-        int size = behaviourIndexMap.size();
-        for (int i = 0; i < size; i++) {
-            index += step;
-            if (index < 1) index = size;
-            if (index > size) index = 1;
-            if (!live || canSwitchLiveTo(getBehaviourForIndex(index))) return index;
-        }
-
-        return index;
-    }
-
     public static void changeBehaviourAndUpdateAI(CampaignFleetAPI fleet, FleetBehaviour newBehaviour) {
         DetachmentAI ai = FleetUtils.getAssignmentAI(fleet);
         if (ai != null && behaviourEquals(newBehaviour, getFleetBehaviour(fleet, true))) return;

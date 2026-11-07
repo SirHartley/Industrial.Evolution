@@ -48,6 +48,7 @@ public class LoadoutMemory {
         public Behaviour.FleetBehaviour behaviour = Behaviour.FleetBehaviour.STAY;
         public CargoAPI targetCargo = Global.getFactory().createCargo(true);
         public String transportTargetMarket = null;
+        public boolean takeMode = false;
 
         public Loadout() {
         }

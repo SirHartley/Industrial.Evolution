@@ -3,7 +3,7 @@ package indevo.abilities.splitfleet.dialogue;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FleetMemberPickerListener;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 
 import java.util.ArrayList;
@@ -19,26 +19,25 @@ public class TwoFleetFleetMemberPicker {
     }
 
     public void init() {
-        List<FleetMemberAPI> fleetMemberListAll = Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy();
         List<FleetMemberAPI> fleetMemberList = new ArrayList<>();
-
-        //remove quest relevant ships from selectables
-        for (FleetMemberAPI m : fleetMemberListAll) {
-            if (m.getHullSpec().getTags().contains(Tags.SHIP_CAN_NOT_SCUTTLE) || m.getVariant().getTags().contains(Tags.SHIP_CAN_NOT_SCUTTLE))
-                continue;
-            fleetMemberList.add(m);
+        for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
+            if (!FleetUtils.staysWithPlayer(m)) fleetMemberList.add(m);
         }
+
+        boolean take = loadout.takeMode;
+        String title = take ? "Select the ships you take with you" : "Select ships for the detachment";
 
         int rows = fleetMemberList.size() > 8 ? (int) Math.ceil(fleetMemberList.size() / 8f) : 1;
         int cols = Math.min(fleetMemberList.size(), 8);
         cols = Math.max(cols, 4);
 
-        dialoguePlugin.dialog.showFleetMemberPickerDialog("Select ships for the detachment", "Confirm", "Cancel", rows,
+        dialoguePlugin.dialog.showFleetMemberPickerDialog(title, "Confirm", "Cancel", rows,
                 cols, 88f, true, true, fleetMemberList, new FleetMemberPickerListener() {
 
                     @Override
                     public void pickedFleetMembers(List<FleetMemberAPI> members) {
-                        if (members != null && !members.isEmpty()) {
+                        //take mode accepts an empty pick: you take only the ships that always stay with you
+                        if (members != null && (take || !members.isEmpty())) {
 
                             loadout.shipVariantList.clear();
                             for (FleetMemberAPI m : members) loadout.addToMembersList(m);

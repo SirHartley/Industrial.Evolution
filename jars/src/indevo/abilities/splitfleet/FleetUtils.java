@@ -153,8 +153,8 @@ public class FleetUtils {
         FleetDataAPI playerFleetData = playerFleet.getFleetData();
         FleetDataAPI splinterFleetData = splinterFleet.getFleetData();
 
-        //get all the ships corresponding to the variants in the player fleet
-        List<FleetMemberAPI> fleetMemberlist = getFleetMembersForLoadout(loadout, playerFleet);
+        List<FleetMemberAPI> fleetMemberlist = getDetachmentMembers(loadout, playerFleet);
+        CargoAPI detachmentCargo = getDetachmentCargo(loadout, playerFleet);
 
         //add all the members and move officers
         for (FleetMemberAPI m : fleetMemberlist) {
@@ -194,8 +194,8 @@ public class FleetUtils {
 
         //transfer cargo
         int playerMarines = playerFleet.getCargo().getMarines();
-        DetachmentMarines.move(splinterFleet, 0, playerMarines, (int) Math.min(playerMarines, loadout.targetCargo.getMarines()));
-        transferCargoBetweenCargos(playerFleet.getCargo(), splinterFleet.getCargo(), loadout.targetCargo);
+        DetachmentMarines.move(splinterFleet, 0, playerMarines, (int) Math.min(playerMarines, detachmentCargo.getMarines()));
+        transferCargoBetweenCargos(playerFleet.getCargo(), splinterFleet.getCargo(), detachmentCargo);
         PlayerFleetPersonnelTracker.getInstance().update();
 
         //set memory stuff
@@ -259,16 +259,48 @@ public class FleetUtils {
         }
     }
 
+    //the side the loadout lists: the detachment in send mode, the ships the player takes in take mode
     public static CampaignFleetAPI createFakeFleet(LoadoutMemory.Loadout loadout) {
-        CampaignFleetAPI fakeFleet = Global.getFactory().createEmptyFleet(Global.getSector().getPlayerFaction().getId(), loadout.id, true);
+        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
+        List<FleetMemberAPI> members = loadout.takeMode ? getTakenMembers(loadout, playerFleet) : getFleetMembersForLoadout(loadout, playerFleet);
+        return createFakeFleet(loadout.id, members, loadout.targetCargo);
+    }
 
-        for (FleetMemberAPI member : getFleetMembersForLoadout(loadout, Global.getSector().getPlayerFleet())) {
-            fakeFleet.getFleetData().addFleetMember(createFakeFleetMember(member));
+    public static boolean staysWithPlayer(FleetMemberAPI member) {
+        return member.isFlagship()
+                || member.getHullSpec().getTags().contains(Tags.SHIP_CAN_NOT_SCUTTLE)
+                || member.getVariant().getTags().contains(Tags.SHIP_CAN_NOT_SCUTTLE);
+    }
+
+    public static List<FleetMemberAPI> getDetachmentMembers(LoadoutMemory.Loadout loadout, CampaignFleetAPI playerFleet) {
+        List<FleetMemberAPI> picked = getFleetMembersForLoadout(loadout, playerFleet);
+        if (!loadout.takeMode) return picked;
+
+        List<FleetMemberAPI> left = new ArrayList<>();
+        for (FleetMemberAPI member : playerFleet.getFleetData().getMembersListCopy()) {
+            if (!picked.contains(member) && !staysWithPlayer(member)) left.add(member);
         }
 
-        fakeFleet.getCargo().addAll(loadout.targetCargo);
+        return left;
+    }
 
-        return fakeFleet;
+    public static List<FleetMemberAPI> getTakenMembers(LoadoutMemory.Loadout loadout, CampaignFleetAPI playerFleet) {
+        List<FleetMemberAPI> taken = new ArrayList<>();
+        for (FleetMemberAPI member : playerFleet.getFleetData().getMembersListCopy()) {
+            if (staysWithPlayer(member)) taken.add(member);
+        }
+
+        taken.addAll(getFleetMembersForLoadout(loadout, playerFleet));
+        return taken;
+    }
+
+    //take mode leaves everything the player does not take, the loadout cargo can be more than the player still has
+    public static CargoAPI getDetachmentCargo(LoadoutMemory.Loadout loadout, CampaignFleetAPI playerFleet) {
+        if (!loadout.takeMode) return loadout.targetCargo;
+
+        CargoAPI left = playerFleet.getCargo().createCopy();
+        left.removeAll(loadout.targetCargo);
+        return left;
     }
 
     public static List<FleetMemberAPI> getFleetMembersForLoadout(LoadoutMemory.Loadout loadout, CampaignFleetAPI sourceFleet) {
@@ -276,7 +308,7 @@ public class FleetUtils {
 
         for (ShipVariantAPI variant : loadout.shipVariantList) {
             for (FleetMemberAPI member : sourceFleet.getFleetData().getMembersListCopy()) {
-                if (member.getVariant().getHullVariantId().equals(variant.getHullVariantId()) && !matchingMembers.contains(member)) {
+                if (member.getVariant().getHullVariantId().equals(variant.getHullVariantId()) && !matchingMembers.contains(member) && !staysWithPlayer(member)) {
                     matchingMembers.add(member);
                     break;
                 }

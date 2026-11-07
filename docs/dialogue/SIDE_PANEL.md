@@ -50,10 +50,10 @@ Users:
 
 `dialog plugin init -> VisualCustomPanel.createPanel(dialog, true) -> creator.showPanel -> build rows into VisualCustomPanel.getTooltip() -> addTooltipToPanel()`.
 
-Layout conventions used by both creators (`SplinterFleetSidePanelCreator.java:32`, `ResearchProjectSidePanelCreator.java:25`):
+Layout conventions of the `VisualCustomPanel` creators (`ResearchProjectSidePanelCreator.java:25`); the split fleet slot rows follow them too:
 
-- Constants: `PANEL_WIDTH_1 = 240` (split fleet; research rows use `ROW_WIDTH = PANEL_WIDTH - 20` so a right aligned toggle fits), `BUTTON_HEIGHT = 30`, `SELECT_BUTTON_WIDTH = 95`, `ARROW_BUTTON_WIDTH = 20`, `TEXT_FIELD_WIDTH = 80`, `SHIP_ICON_WIDTH = 48`, pads `opad = 10`, `spad = 3`.
-- Each block: `addSectionHeading(name, MID, opad)`, then a row panel (`NoFrameCustomPanelPlugin`; split fleet uses `RunnableButtonPanelPlugin`) (`PANEL_WIDTH_1 x 50`) holding one `createUIElement` per button, first `inTL(spad, opad)`, rest `rightOfMid(previous, opad)`, then `panelTooltip.addCustom(row, opad)`.
+- Constants: `ROW_WIDTH = PANEL_WIDTH - 20` so a right aligned toggle fits, `BUTTON_HEIGHT = 30`, `SELECT_BUTTON_WIDTH = 95`, `ARROW_BUTTON_WIDTH = 20`, `TEXT_FIELD_WIDTH = 80`, `SHIP_ICON_WIDTH = 48`, pads `opad = 10`, `spad = 3`.
+- Each block: `addSectionHeading(name, MID, opad)`, then a row panel (`NoFrameCustomPanelPlugin`; split fleet uses `RunnableButtonPanelPlugin`), 50 high, holding one `createUIElement` per button, first `inTL(spad, opad)`, rest `rightOfMid(previous, opad)`, then `panelTooltip.addCustom(row, opad)`.
 - Below it a `FramedCustomPanelPlugin(0.25f, Misc.getBasePlayerColor(), false)` panel `PANEL_WIDTH - 20` wide for ship icons or a progress bar (a disabled, checked `addAreaCheckbox` sized to the percentage).
 - Buttons: `addButton(text, id, textColor, bgColor, Alignment.MID, CutStyle.C2_MENU, w, h, 0)`; enabled colours `Misc.getButtonTextColor()` / `Misc.getDarkPlayerColor()`, disabled `Misc.getTextColor()` / `Misc.getGrayColor()`, plus `setEnabled`. Action buttons use fixed fills (green `50,130,0`, red `160,30,20`, amber `200,160,10`).
 - Toggles are small `addAreaCheckbox` buttons with player trio colours (`Misc.getBasePlayerColor()`, `getDarkPlayerColor()`, `getBrightPlayerColor()`), placed `inTR` on the row and given a vanilla style hover tooltip through `addTooltipTo` (research Stock toggle, `ResearchProjectSidePanelCreator.java:207`).
@@ -63,7 +63,7 @@ Layout conventions used by both creators (`SplinterFleetSidePanelCreator.java:32
 
 ### Visual side panel with press callbacks
 
-`dialog plugin -> new Creator(plugin).showPanel() -> dialog.getVisualPanel().showCustomPanel(w, h, new RunnableButtonPanelPlugin()) -> panel.createUIElement(w, h, true) -> rows -> panel.addUIElement(tooltip)`. Row panels are `panel.createCustomPanel(w, h, new RunnableButtonPanelPlugin())`; buttons are `addButton(text, (Runnable) () -> handler(), ...)`. The creator keeps the dialog plugin in a field, so handlers need no memory key, and each handler ends by rebuilding the panel. Layout conventions are the same as above (`SplinterFleetSidePanelCreator.java:46`).
+`dialog plugin -> new Creator(plugin).showPanel() -> dialog.getVisualPanel().showCustomPanel(w, h, new RunnableButtonPanelPlugin()) -> panel.createUIElement(w, h, true) -> rows -> panel.addUIElement(tooltip)`. Row panels are `panel.createCustomPanel(w, h, new RunnableButtonPanelPlugin())`; buttons are `addButton(text, (Runnable) () -> handler(), ...)`. The creator keeps the dialog plugin in a field, so handlers need no memory key, and each handler ends by rebuilding the panel. Slot rows follow the conventions above (`SplinterFleetSidePanelCreator.java:56`). The Command row on top is a custom panel with one nested custom panel per slot (`row.createCustomPanel`, `row.addComponent(column).inTL(x, 0)`); inside a column every button gets its own `createUIElement` placed with `inTL(x, y)` below a heading element, `y` from its `getHeightSoFar()`. Mode buttons and the Send/Take pair are `addAreaCheckbox` radio buttons: the press runs the `Runnable`, the rebuilt panel sets `setChecked` from the stored state. Hover text uses `addTooltipToPrevious` with `setShowTooltipWhileInactive(true)`.
 
 ### Custom dialog popups
 

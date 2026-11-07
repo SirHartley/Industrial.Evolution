@@ -3,6 +3,7 @@ package indevo.abilities.splitfleet.dialogue;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEntityPickerListener;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
@@ -12,15 +13,16 @@ import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
+import indevo.abilities.splitfleet.fleetManagement.Behaviour.FleetBehaviour;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 import indevo.dialogue.sidepanel.FramedCustomPanelPlugin;
 import indevo.dialogue.sidepanel.RunnableButtonPanelPlugin;
 import indevo.industries.courierport.ShippingTargetHelper;
-import indevo.utils.helper.MiscIE;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -29,12 +31,20 @@ public class SplinterFleetSidePanelCreator {
 
     public static final float PANEL_WIDTH = 600;
     public static final float PANEL_HEIGHT = 600;
-    protected static final float PANEL_WIDTH_1 = 240;
-    protected static final float PANEL_WIDTH_2 = PANEL_WIDTH - PANEL_WIDTH_1 - 8;
+    protected static final float SHIP_AREA_WIDTH = 352f;
     protected static final float SHIP_ICON_WIDTH = 48;
-    protected static final float ARROW_BUTTON_WIDTH = 20, BUTTON_HEIGHT = 30;
+    protected static final float BUTTON_HEIGHT = 30;
     protected static final float SELECT_BUTTON_WIDTH = 95f;
-    protected static final float TEXT_FIELD_WIDTH = 80f;
+    protected static final float TOGGLE_WIDTH = 60f;
+    protected static final float COLUMN_WIDTH = (PANEL_WIDTH - 30f) / 2f;
+    protected static final float COLUMN_HEIGHT = 160f;
+    protected static final float MODE_BUTTON_WIDTH = (COLUMN_WIDTH - 10f) / 3f;
+    protected static final float MODE_BUTTON_HEIGHT = 24f;
+    protected static final float OPAD = 10f, SPAD = 3f;
+
+    protected static final Color SPAWN_COLOUR = new Color(50, 130, 0, 255);
+    protected static final Color RECALL_COLOUR = new Color(160, 30, 20, 255);
+    protected static final Color CANCEL_COLOUR = new Color(200, 160, 10, 255);
 
     protected final AbilityPanelDialoguePlugin plugin;
 
@@ -43,247 +53,253 @@ public class SplinterFleetSidePanelCreator {
     }
 
     public void showPanel() {
-        float opad = 10f;
-        float spad = 3f;
-
         CustomPanelAPI panel = plugin.getDialog().getVisualPanel().showCustomPanel(PANEL_WIDTH, PANEL_HEIGHT, new RunnableButtonPanelPlugin());
         TooltipMakerAPI panelTooltip = panel.createUIElement(PANEL_WIDTH, PANEL_HEIGHT, true);
-        final CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
 
-        TooltipMakerAPI lastUsedVariableButtonAnchor;
-
-        for (int i : DetachmentMemory.SLOTS) {
-            final Integer num = i;
-
-            final LoadoutMemory.Loadout loadout = LoadoutMemory.getLoadout(i);
-            CampaignFleetAPI detachment = DetachmentMemory.getDetachment(i);
-
-            boolean detachmentIsActive = DetachmentMemory.isDetachmentActive(i);
-            boolean isDetachmentReturning = Behaviour.isReturning(detachment);
-            boolean detachmentIsDormant = Behaviour.isDormant(detachment);
-            boolean prerequisiteForActive = true;
-
-            List<FleetMemberAPI> ships = FleetUtils.convertToFleetMemberList(loadout.shipVariantList);
-            List<FleetMemberAPI> availableLoadoutMembers = FleetUtils.getFleetMembersForLoadout(loadout, playerFleet);
-
-            final FleetStatus status;
-            if (detachmentIsActive) status = FleetStatus.getFleetStatus(detachment);
-            else status = FleetStatus.getFleetStatus(loadout.id, loadout.targetCargo, availableLoadoutMembers);
-
-            MarketAPI transportTargetMarket = loadout.transportTargetMarket != null ? Global.getSector().getEconomy().getMarket(loadout.transportTargetMarket) : null;
-
-            float distance = transportTargetMarket != null ? Misc.getDistanceLY(playerFleet, transportTargetMarket.getPrimaryEntity()) : 0f;
-            float currentFuel = status.currentFuel;
-            float requiredFuel = status.requiredFuelPerLY * distance;
-
-            int fleetMembersMatching = availableLoadoutMembers.size();
-
-            boolean allFleetMembersPresent = fleetMembersMatching >= loadout.shipVariantList.size();
-            boolean atLeastOneShipPresent = fleetMembersMatching > 0;
-            boolean loadoutReadyForSettings = detachmentIsActive || (!loadout.shipVariantList.isEmpty() && atLeastOneShipPresent);
-
-            panelTooltip.addSectionHeading("Detachment " + i, Alignment.MID, opad);
-
-            CustomPanelAPI loadoutPanel = panel.createCustomPanel(PANEL_WIDTH_1, 50f, new RunnableButtonPanelPlugin());
-
-            //buttons in a row: Members - Cargo - Behaviour - Spawn/Recall
-            TooltipMakerAPI variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-
-
-            //members
-
-            prerequisiteForActive = !detachmentIsActive;
-
-            Color baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
-            Color bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
-
-            ButtonAPI newLoadoutButton = variableButtonAnchor.addButton("Members", (Runnable) () -> new TwoFleetFleetMemberPicker(plugin, LoadoutMemory.getLoadout(num)).init(), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-            newLoadoutButton.setEnabled(prerequisiteForActive);
-            loadoutPanel.addUIElement(variableButtonAnchor).inTL(spad, opad);       //first in row
-            lastUsedVariableButtonAnchor = variableButtonAnchor;
-
-            //cargo
-
-            prerequisiteForActive = !detachmentIsActive && loadoutReadyForSettings;
-
-            baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
-            bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
-
-            variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-            newLoadoutButton = variableButtonAnchor.addButton("Cargo", (Runnable) () -> new TwoFleetCargoPicker(plugin, Global.getSector().getPlayerFleet(), LoadoutMemory.getLoadout(num), true).init(), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-            newLoadoutButton.setEnabled(prerequisiteForActive);
-            loadoutPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);        //second in row
-            lastUsedVariableButtonAnchor = variableButtonAnchor;
-
-            //behaviour
-
-            prerequisiteForActive = loadoutReadyForSettings && !detachmentIsDormant;
-
-            baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
-            bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
-
-            // "<"
-            variableButtonAnchor = loadoutPanel.createUIElement(ARROW_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-            newLoadoutButton = variableButtonAnchor.addButton("<", (Runnable) () -> cycleBehaviour(num, -1), baseColor, bgColour, ARROW_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-            newLoadoutButton.setEnabled(prerequisiteForActive);
-            loadoutPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);         //third in row
-            lastUsedVariableButtonAnchor = variableButtonAnchor;
-
-            //behaviour text
-            TooltipMakerAPI desc = loadoutPanel.createUIElement(TEXT_FIELD_WIDTH, BUTTON_HEIGHT, false);
-            LabelAPI label = desc.addPara(Misc.ucFirst(loadout.behaviour.toString().toLowerCase()), loadoutReadyForSettings ? Behaviour.getColourForBehaviour(loadout.behaviour) : Misc.getGrayColor(), 0f);
-
-            label.getPosition().inTMid(6f);
-            label.setAlignment(Alignment.MID);
-            label.getPosition().setXAlignOffset(6f);
-
-            loadoutPanel.addUIElement(desc).rightOfMid(lastUsedVariableButtonAnchor, opad);
-            lastUsedVariableButtonAnchor = desc;
-
-            // ">"
-            variableButtonAnchor = loadoutPanel.createUIElement(ARROW_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-            newLoadoutButton = variableButtonAnchor.addButton(">", (Runnable) () -> cycleBehaviour(num, 1), baseColor, bgColour, ARROW_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-            newLoadoutButton.setEnabled(prerequisiteForActive);
-            loadoutPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);         //third in row
-            lastUsedVariableButtonAnchor = variableButtonAnchor;
-
-            //plot course
-
-            if (loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) && !detachmentIsActive) {
-                prerequisiteForActive = true;
-
-                baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
-                bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
-
-                variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-                newLoadoutButton = variableButtonAnchor.addButton("Set Target", (Runnable) () -> showTransportTargetPicker(loadout, status), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-                newLoadoutButton.setEnabled(prerequisiteForActive);
-                loadoutPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);        //second in row
-                lastUsedVariableButtonAnchor = variableButtonAnchor;
-            } else {
-                boolean playerTargetIsDetachment = detachmentIsActive && playerFleet.getInteractionTarget() != null && detachment.getId().equals(playerFleet.getInteractionTarget().getId());
-                prerequisiteForActive = detachmentIsActive && !playerTargetIsDetachment;
-
-                baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
-                bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
-
-                variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-                newLoadoutButton = variableButtonAnchor.addButton("Lay Course", (Runnable) () -> layCourse(num), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-                newLoadoutButton.setEnabled(prerequisiteForActive);
-                loadoutPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);        //second in row
-                lastUsedVariableButtonAnchor = variableButtonAnchor;
-            }
-
-            //spawn/recall
-
-            baseColor = Misc.getTextColor();
-            boolean detachmentSmallerThanFleet = loadout.shipVariantList.size() < playerFleet.getFleetData().getNumMembers();
-
-            prerequisiteForActive = loadoutReadyForSettings && !detachmentIsDormant;
-
-            if (isDetachmentReturning) {
-                bgColour = prerequisiteForActive ? new Color(200, 160, 10, 255) : Misc.getGrayColor();
-                variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-                newLoadoutButton = variableButtonAnchor.addButton("Cancel", (Runnable) () -> cancelRecall(num), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-                newLoadoutButton.setEnabled(prerequisiteForActive);
-
-            } else if (detachmentIsActive) {
-                bgColour = prerequisiteForActive ? new Color(160, 30, 20, 255) : Misc.getGrayColor();
-                variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-                newLoadoutButton = variableButtonAnchor.addButton("Recall", (Runnable) () -> recall(num), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-                newLoadoutButton.setEnabled(prerequisiteForActive);
-            } else {
-                boolean transportRequirements = !loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) || (transportTargetMarket != null && currentFuel > requiredFuel);
-
-                prerequisiteForActive = loadoutReadyForSettings
-                        && detachmentSmallerThanFleet
-                        && !loadout.targetCargo.isEmpty()
-                        && transportRequirements
-                        && !detachmentIsDormant
-                        && !status.isOverCapacity()
-                        && status.currentSupplies >= (status.suppliesToRecover + status.requiredSuppliesPerMonth);
-
-                bgColour = prerequisiteForActive ? new Color(50, 130, 0, 255) : Misc.getGrayColor();
-
-                variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-                newLoadoutButton = variableButtonAnchor.addButton("Spawn", (Runnable) () -> spawn(num), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-                newLoadoutButton.setEnabled(prerequisiteForActive);
-            }
-            loadoutPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);         //last in row
-            lastUsedVariableButtonAnchor = variableButtonAnchor;
-
-            panelTooltip.addCustom(loadoutPanel, opad); //add panel
-
-            //fleet display below it
-
-            CustomPanelAPI fleetPanel = panel.createCustomPanel(PANEL_WIDTH - 20f, SHIP_ICON_WIDTH + 6f, new FramedCustomPanelPlugin(0.25f, Misc.getBasePlayerColor(), false));
-
-            float shipAreaWidth = PANEL_WIDTH_2;
-            TooltipMakerAPI shipHolder = fleetPanel.createUIElement(shipAreaWidth, 0, false);
-
-            int max = Math.min((int) (shipAreaWidth / SHIP_ICON_WIDTH), ships.size());
-            ships = ships.subList(0, max);
-            shipHolder.addShipList(max, 1, SHIP_ICON_WIDTH, Misc.getBasePlayerColor(), ships, 0);
-
-            fleetPanel.addUIElement(shipHolder).inTL(1f, 1f); //add it to top left of fleet panel (?)
-            panelTooltip.addCustom(fleetPanel, 3); //add fleet panel
-
-            //cargo info panel and notification text if required
-
-            if (detachmentIsDormant)
-                panelTooltip.addPara("!!! The detachment is Dormant and urgently needs your assistance !!!", Misc.getNegativeHighlightColor(), opad);
-            if (isDetachmentReturning)
-                panelTooltip.addPara("The detachment is currently returning to the Main Fleet", Misc.getHighlightColor(), opad);
-
-            if (!detachmentIsActive && !detachmentSmallerThanFleet)
-                panelTooltip.addPara("At least one ship must stay with the main fleet!", Misc.getNegativeHighlightColor(), opad);
-            else if (!detachmentIsActive && status.isOverCapacity())
-                panelTooltip.addPara("The ships cannot carry the selected cargo: over %s capacity.", opad, Misc.getNegativeHighlightColor(), Misc.getAndJoined(status.getOverCapacityList()));
-            else if (!detachmentIsActive && status.currentSupplies < (status.suppliesToRecover + status.requiredSuppliesPerMonth)) {
-                panelTooltip.addPara("Not enough supplies to repair and operate all ships for one month", Misc.getNegativeHighlightColor(), opad);
-            } else if (loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT)) {
-                if (transportTargetMarket == null && !detachmentIsActive)
-                    panelTooltip.addPara("Specify a target planet for the transport detachment.", Misc.getNegativeHighlightColor(), opad);
-                else if (!detachmentIsActive && currentFuel < requiredFuel) {
-                    panelTooltip.addPara("Insufficient Fuel to reach the target planet, load at least " + (int) Math.ceil(requiredFuel * 1.10) + " units!", Misc.getNegativeHighlightColor(), opad);
-
-                    panelTooltip.addPara("Note that the detachment can still run out of supplies - provide enough for the journey.", Misc.getTextColor(), opad);
-                } else if (transportTargetMarket != null) {
-                    String isOrWill = detachmentIsActive ? "is heading" : "will head";
-                    SectorEntityToken dist = detachmentIsActive ? detachment : playerFleet;
-                    panelTooltip.addPara("The Detachment " + isOrWill + " to " + transportTargetMarket.getName() + " in the " + transportTargetMarket.getStarSystem().getName() + " (" + (int) Math.floor(Misc.getDistanceLY(dist, transportTargetMarket.getPrimaryEntity())) + " LY)", Misc.getHighlightColor(), opad);
-                }
-            }
-
-            if (!allFleetMembersPresent && !detachmentIsActive && loadoutReadyForSettings)
-                panelTooltip.addPara("Some ships are unavailable, detachment will be spawned without them.", Misc.getHighlightColor(), spad);
-            else if (!detachmentIsActive && !loadout.shipVariantList.isEmpty() && fleetMembersMatching <= 0)
-                panelTooltip.addPara("None of the ships specified in the loadout are present in the main fleet.", Misc.getNegativeHighlightColor(), spad);
-
-            if (!detachmentIsActive && loadoutReadyForSettings && status.currentFuel < 1)
-                panelTooltip.addPara("Without fuel the detachment can not leave this location, or follow you out of it.", Misc.getHighlightColor(), spad);
-
-            if (detachmentIsActive || !loadout.targetCargo.isEmpty()) {
-                if (status.suppliesToRecover > 1)
-                    panelTooltip.addPara("Supplies needed to finish repairs: %s", opad, Misc.getHighlightColor(), status.suppliesToRecover + " units");
-                panelTooltip.addPara("Estimated operating time: %s", opad, Misc.getHighlightColor(), status.operatingTimeString);
-                panelTooltip.addPara("Estimated range: %s", spad, Misc.getHighlightColor(), status.fuelRangeLYString);
-            } else if (!loadoutReadyForSettings)
-                panelTooltip.addPara("%s for the detachment.", opad, Misc.getHighlightColor(), "Specify fleet members");
-            else panelTooltip.addPara("%s for the detachment.", opad, Misc.getHighlightColor(), "Specify cargo");
-        }
+        addCommandSection(panel, panelTooltip);
+        for (int num : DetachmentMemory.SLOTS) addSlotSection(panel, panelTooltip, num);
 
         //added last so the scroller covers everything
         panel.addUIElement(panelTooltip).inTL(0f, 0f);
     }
 
-    private void cycleBehaviour(int num, int step) {
-        LoadoutMemory.Loadout loadout = LoadoutMemory.getLoadout(num);
-        boolean live = DetachmentMemory.isDetachmentActive(num);
-        Behaviour.FleetBehaviour next = Behaviour.getBehaviourForIndex(Behaviour.getNextIndex(Behaviour.getIndexForBehaviour(loadout.behaviour), step, live));
+    private void addCommandSection(CustomPanelAPI panel, TooltipMakerAPI panelTooltip) {
+        panelTooltip.addSectionHeading("Command", Alignment.MID, OPAD);
 
-        if (live) Behaviour.changeBehaviourAndUpdateAI(DetachmentMemory.getDetachment(num), next);
-        else loadout.behaviour = next;
+        CustomPanelAPI row = panel.createCustomPanel(PANEL_WIDTH - 10f, COLUMN_HEIGHT, new RunnableButtonPanelPlugin());
+        float x = 0f;
+
+        for (int num : DetachmentMemory.SLOTS) {
+            CustomPanelAPI column = row.createCustomPanel(COLUMN_WIDTH, COLUMN_HEIGHT, new RunnableButtonPanelPlugin());
+            addCommandColumn(column, num);
+            row.addComponent(column).inTL(x, 0f);
+            x += COLUMN_WIDTH + OPAD;
+        }
+
+        panelTooltip.addCustom(row, OPAD);
+    }
+
+    private void addCommandColumn(CustomPanelAPI column, int num) {
+        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
+        LoadoutMemory.Loadout loadout = LoadoutMemory.getLoadout(num);
+        CampaignFleetAPI detachment = DetachmentMemory.getDetachment(num);
+        boolean live = detachment != null;
+        boolean dormant = Behaviour.isDormant(detachment);
+
+        TooltipMakerAPI head = column.createUIElement(COLUMN_WIDTH, 40f, false);
+        head.addSectionHeading("Detachment " + num, Alignment.MID, 0f);
+
+        if (!live) head.addPara("Not deployed", Misc.getGrayColor(), SPAD);
+        else {
+            String location = detachment.getContainingLocation() != null ? detachment.getContainingLocation().getName() : "an unknown location";
+            String state = FleetStatus.getStateName(Behaviour.getFleetBehaviour(detachment, false));
+            Color stateColour = dormant || Behaviour.isStranded(detachment) ? Misc.getNegativeHighlightColor() : Misc.getHighlightColor();
+
+            if (state != null) head.addPara("%s in %s", SPAD, new Color[]{stateColour, Misc.getHighlightColor()}, Misc.ucFirst(state), location);
+            else head.addPara("Active in %s", SPAD, Misc.getHighlightColor(), location);
+        }
+
+        column.addUIElement(head).inTL(0f, 0f);
+
+        float y = head.getHeightSoFar() + OPAD;
+        FleetBehaviour current = live ? Behaviour.getFleetBehaviour(detachment, true) : loadout.behaviour;
+        int modes = Behaviour.behaviourIndexMap.size();
+
+        for (int i = 1; i <= modes; i++) {
+            FleetBehaviour mode = Behaviour.getBehaviourForIndex(i);
+
+            TooltipMakerAPI el = column.createUIElement(MODE_BUTTON_WIDTH, MODE_BUTTON_HEIGHT, false);
+            ButtonAPI button = el.addAreaCheckbox(Misc.ucFirst(mode.toString().toLowerCase()), (Runnable) () -> setMode(num, mode), Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), MODE_BUTTON_WIDTH, MODE_BUTTON_HEIGHT, 0f);
+            button.setChecked(Behaviour.behaviourEquals(mode, current));
+            button.setEnabled(!dormant && (!live || Behaviour.canSwitchLiveTo(mode)));
+            button.setShowTooltipWhileInactive(true);
+            addTooltip(el, Behaviour.behaviourTooltipMap.get(i));
+
+            int index = i - 1;
+            column.addUIElement(el).inTL((index % 3) * (MODE_BUTTON_WIDTH + 5f), y + (index / 3) * (MODE_BUTTON_HEIGHT + 5f));
+        }
+
+        y += (int) Math.ceil(modes / 3f) * (MODE_BUTTON_HEIGHT + 5f) + 5f;
+        List<TooltipMakerAPI> orders = new ArrayList<>();
+
+        if (live) {
+            if (Behaviour.isReturning(detachment)) orders.add(createButton(column, "Cancel recall", () -> cancelRecall(num), Misc.getTextColor(), CANCEL_COLOUR, !dormant));
+            else orders.add(createButton(column, "Recall", () -> recall(num), Misc.getTextColor(), RECALL_COLOUR, !dormant));
+
+            boolean playerTargetIsDetachment = playerFleet.getInteractionTarget() != null && detachment.getId().equals(playerFleet.getInteractionTarget().getId());
+            orders.add(createButton(column, "Lay Course", () -> layCourse(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !playerTargetIsDetachment));
+        } else if (Behaviour.behaviourEquals(loadout.behaviour, FleetBehaviour.TRANSPORT)) {
+            orders.add(createButton(column, "Set Target", () -> showTransportTargetPicker(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), true));
+        }
+
+        float x = 0f;
+        for (TooltipMakerAPI el : orders) {
+            column.addUIElement(el).inTL(x, y);
+            x += SELECT_BUTTON_WIDTH + OPAD;
+        }
+    }
+
+    private void addSlotSection(CustomPanelAPI panel, TooltipMakerAPI panelTooltip, int num) {
+        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
+        LoadoutMemory.Loadout loadout = LoadoutMemory.getLoadout(num);
+        CampaignFleetAPI detachment = DetachmentMemory.getDetachment(num);
+
+        boolean live = detachment != null;
+        boolean dormant = Behaviour.isDormant(detachment);
+        boolean take = loadout.takeMode;
+
+        List<FleetMemberAPI> detachmentMembers = live ? detachment.getFleetData().getMembersListCopy() : FleetUtils.getDetachmentMembers(loadout, playerFleet);
+        CargoAPI detachmentCargo = live ? detachment.getCargo() : FleetUtils.getDetachmentCargo(loadout, playerFleet);
+        FleetStatus status = live ? FleetStatus.getFleetStatus(detachment) : FleetStatus.getFleetStatus(loadout.id, detachmentCargo, detachmentMembers);
+
+        MarketAPI transportTargetMarket = loadout.transportTargetMarket != null ? Global.getSector().getEconomy().getMarket(loadout.transportTargetMarket) : null;
+        float distance = transportTargetMarket != null ? Misc.getDistanceLY(playerFleet, transportTargetMarket.getPrimaryEntity()) : 0f;
+        float requiredFuel = status.requiredFuelPerLY * distance;
+        boolean transport = Behaviour.behaviourEquals(loadout.behaviour, FleetBehaviour.TRANSPORT);
+
+        int matching = FleetUtils.getFleetMembersForLoadout(loadout, playerFleet).size();
+        boolean ready = live || !detachmentMembers.isEmpty();
+        boolean cargoPicked = !loadout.targetCargo.isEmpty();
+        boolean enoughSupplies = status.currentSupplies >= status.suppliesToRecover + status.requiredSuppliesPerMonth;
+
+        boolean canSpawn = !live
+                && ready
+                && detachmentMembers.size() < playerFleet.getFleetData().getNumMembers()
+                && cargoPicked
+                && !detachmentCargo.isEmpty()
+                && (!transport || (transportTargetMarket != null && status.currentFuel > requiredFuel))
+                && !status.isOverCapacity()
+                && enoughSupplies;
+
+        panelTooltip.addSectionHeading("Detachment " + num, Alignment.MID, OPAD);
+
+        //buttons in a row: Send - Take - Members - Cargo - Spawn
+        CustomPanelAPI row = panel.createCustomPanel(PANEL_WIDTH - 10f, 50f, new RunnableButtonPanelPlugin());
+        List<TooltipMakerAPI> buttons = new ArrayList<>();
+
+        buttons.add(createToggle(row, "Send", !take, !live, () -> setTakeMode(num, false), "Pick the ships and cargo that leave as the detachment. You keep the rest."));
+        buttons.add(createToggle(row, "Take", take, !live, () -> setTakeMode(num, true), "Pick the ships and cargo you take with you. Everything else stays behind as the detachment. Your flagship always stays with you."));
+        buttons.add(createButton(row, "Members", () -> new TwoFleetFleetMemberPicker(plugin, LoadoutMemory.getLoadout(num)).init(), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !live));
+        buttons.add(createButton(row, "Cargo", () -> new TwoFleetCargoPicker(plugin, Global.getSector().getPlayerFleet(), LoadoutMemory.getLoadout(num), true).init(), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !live && ready));
+        if (!live) buttons.add(createButton(row, "Spawn", () -> spawn(num), Misc.getTextColor(), SPAWN_COLOUR, canSpawn));
+
+        TooltipMakerAPI previous = null;
+        for (TooltipMakerAPI el : buttons) {
+            if (previous == null) row.addUIElement(el).inTL(SPAD, OPAD);
+            else row.addUIElement(el).rightOfMid(previous, previous == buttons.get(0) ? SPAD : OPAD);
+            previous = el;
+        }
+
+        panelTooltip.addCustom(row, OPAD);
+
+        //fleet display below it
+        List<FleetMemberAPI> ships;
+        if (live) ships = detachmentMembers;
+        else if (take) {
+            ships = FleetUtils.getTakenMembers(loadout, playerFleet);
+            panelTooltip.addPara("You take these ships, %s stay behind.", SPAD, Misc.getHighlightColor(), detachmentMembers.size() + "");
+        } else ships = FleetUtils.convertToFleetMemberList(loadout.shipVariantList);
+
+        CustomPanelAPI fleetPanel = panel.createCustomPanel(PANEL_WIDTH - 20f, SHIP_ICON_WIDTH + 6f, new FramedCustomPanelPlugin(0.25f, Misc.getBasePlayerColor(), false));
+        TooltipMakerAPI shipHolder = fleetPanel.createUIElement(SHIP_AREA_WIDTH, 0, false);
+
+        int max = Math.min((int) (SHIP_AREA_WIDTH / SHIP_ICON_WIDTH), ships.size());
+        shipHolder.addShipList(max, 1, SHIP_ICON_WIDTH, Misc.getBasePlayerColor(), ships.subList(0, max), 0);
+
+        fleetPanel.addUIElement(shipHolder).inTL(1f, 1f);
+        panelTooltip.addCustom(fleetPanel, 3);
+
+        //notes
+        if (dormant)
+            panelTooltip.addPara("!!! The detachment is Dormant and urgently needs your assistance !!!", Misc.getNegativeHighlightColor(), OPAD);
+        if (Behaviour.isReturning(detachment))
+            panelTooltip.addPara("The detachment is currently returning to the Main Fleet", Misc.getHighlightColor(), OPAD);
+
+        if (!live && take && detachmentMembers.isEmpty())
+            panelTooltip.addPara("Leave at least one ship behind as the detachment.", Misc.getNegativeHighlightColor(), OPAD);
+        else if (!live && ready && status.isOverCapacity()) {
+            String text = take ? "The ships left behind can not carry the rest of the cargo: over %s capacity. Take more with you." : "The ships cannot carry the selected cargo: over %s capacity.";
+            panelTooltip.addPara(text, OPAD, Misc.getNegativeHighlightColor(), Misc.getAndJoined(status.getOverCapacityList()));
+        } else if (!live && ready && cargoPicked && !enoughSupplies) {
+            panelTooltip.addPara("Not enough supplies to repair and operate all ships of the detachment for one month", Misc.getNegativeHighlightColor(), OPAD);
+        } else if (transport) {
+            if (transportTargetMarket == null && !live)
+                panelTooltip.addPara("Specify a target planet for the transport detachment.", Misc.getNegativeHighlightColor(), OPAD);
+            else if (!live && status.currentFuel < requiredFuel) {
+                panelTooltip.addPara("Insufficient Fuel to reach the target planet, load at least " + (int) Math.ceil(requiredFuel * 1.10) + " units!", Misc.getNegativeHighlightColor(), OPAD);
+                panelTooltip.addPara("Note that the detachment can still run out of supplies - provide enough for the journey.", Misc.getTextColor(), OPAD);
+            } else if (transportTargetMarket != null) {
+                String isOrWill = live ? "is heading" : "will head";
+                SectorEntityToken dist = live ? detachment : playerFleet;
+                panelTooltip.addPara("The Detachment " + isOrWill + " to " + transportTargetMarket.getName() + " in the " + transportTargetMarket.getStarSystem().getName() + " (" + (int) Math.floor(Misc.getDistanceLY(dist, transportTargetMarket.getPrimaryEntity())) + " LY)", Misc.getHighlightColor(), OPAD);
+            }
+        }
+
+        if (!live && !take && ready && matching < loadout.shipVariantList.size())
+            panelTooltip.addPara("Some ships are unavailable, detachment will be spawned without them.", Misc.getHighlightColor(), SPAD);
+        else if (!live && !take && !loadout.shipVariantList.isEmpty() && matching <= 0)
+            panelTooltip.addPara("None of the ships specified in the loadout are present in the main fleet.", Misc.getNegativeHighlightColor(), SPAD);
+
+        if (!live && ready && cargoPicked && status.currentFuel < 1)
+            panelTooltip.addPara("Without fuel the detachment can not leave this location, or follow you out of it.", Misc.getHighlightColor(), SPAD);
+
+        if (live || (ready && cargoPicked)) {
+            if (status.suppliesToRecover > 1)
+                panelTooltip.addPara("Supplies needed to finish repairs: %s", OPAD, Misc.getHighlightColor(), status.suppliesToRecover + " units");
+            panelTooltip.addPara("Estimated operating time: %s", OPAD, Misc.getHighlightColor(), status.operatingTimeString);
+            panelTooltip.addPara("Estimated range: %s", SPAD, Misc.getHighlightColor(), status.fuelRangeLYString);
+        } else if (!ready && !take)
+            panelTooltip.addPara("%s for the detachment.", OPAD, Misc.getHighlightColor(), "Specify fleet members");
+        else if (ready)
+            panelTooltip.addPara(take ? "%s you take with you." : "%s for the detachment.", OPAD, Misc.getHighlightColor(), take ? "Specify the cargo" : "Specify cargo");
+    }
+
+    private TooltipMakerAPI createButton(CustomPanelAPI owner, String text, Runnable action, Color textColour, Color bgColour, boolean enabled) {
+        TooltipMakerAPI el = owner.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
+        ButtonAPI button = el.addButton(text, action, enabled ? textColour : Misc.getTextColor(), enabled ? bgColour : Misc.getGrayColor(), Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+        button.setEnabled(enabled);
+        return el;
+    }
+
+    private TooltipMakerAPI createToggle(CustomPanelAPI owner, String text, boolean checked, boolean enabled, Runnable action, String tooltip) {
+        TooltipMakerAPI el = owner.createUIElement(TOGGLE_WIDTH, BUTTON_HEIGHT, false);
+        ButtonAPI button = el.addAreaCheckbox(text, action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), TOGGLE_WIDTH, BUTTON_HEIGHT, 0f);
+        button.setChecked(checked);
+        button.setEnabled(enabled);
+        button.setShowTooltipWhileInactive(true);
+        addTooltip(el, tooltip);
+        return el;
+    }
+
+    private void addTooltip(TooltipMakerAPI el, String text) {
+        el.addTooltipToPrevious(new BaseTooltipCreator() {
+            @Override
+            public float getTooltipWidth(Object tooltipParam) {
+                return 300f;
+            }
+
+            @Override
+            public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
+                tooltip.addPara(text, 0f);
+            }
+        }, TooltipMakerAPI.TooltipLocation.BELOW);
+    }
+
+    private void setMode(int num, FleetBehaviour mode) {
+        if (DetachmentMemory.isDetachmentActive(num)) Behaviour.changeBehaviourAndUpdateAI(DetachmentMemory.getDetachment(num), mode);
+        else LoadoutMemory.getLoadout(num).behaviour = mode;
+
+        plugin.refreshCustomPanel();
+    }
+
+    //the stored ships and cargo flip meaning between the modes
+    private void setTakeMode(int num, boolean take) {
+        LoadoutMemory.Loadout loadout = LoadoutMemory.getLoadout(num);
+        if (loadout.takeMode != take) {
+            loadout.takeMode = take;
+            loadout.shipVariantList.clear();
+            loadout.targetCargo.clear();
+        }
 
         plugin.refreshCustomPanel();
     }
@@ -313,8 +329,12 @@ public class SplinterFleetSidePanelCreator {
         plugin.refreshCustomPanel();
     }
 
-    private void showTransportTargetPicker(LoadoutMemory.Loadout loadout, FleetStatus status) {
-        plugin.getDialog().showCampaignEntityPicker("Select a planet to transport to", "Selected: ", "Confirm", Global.getSector().getPlayerFleet().getFaction(), ShippingTargetHelper.getValidOriginPlanets(), new CampaignEntityPickerListener() {
+    private void showTransportTargetPicker(int num) {
+        LoadoutMemory.Loadout loadout = LoadoutMemory.getLoadout(num);
+        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
+        FleetStatus status = FleetStatus.getFleetStatus(loadout.id, FleetUtils.getDetachmentCargo(loadout, playerFleet), FleetUtils.getDetachmentMembers(loadout, playerFleet));
+
+        plugin.getDialog().showCampaignEntityPicker("Select a planet to transport to", "Selected: ", "Confirm", playerFleet.getFaction(), ShippingTargetHelper.getValidOriginPlanets(), new CampaignEntityPickerListener() {
             @Override
             public String getMenuItemNameOverrideFor(SectorEntityToken entity) {
                 MarketAPI m = entity.getMarket();
@@ -336,7 +356,6 @@ public class SplinterFleetSidePanelCreator {
             @Override
             public String getSelectedTextOverrideFor(SectorEntityToken entity) {
                 MarketAPI m = entity.getMarket();
-                int amt = (int) MiscIE.getStorageCargo(m).getSpaceUsed();
                 return m.getName() + " (" + m.getFaction().getDisplayName() + ")";
             }
 
@@ -344,7 +363,6 @@ public class SplinterFleetSidePanelCreator {
             public void createInfoText(TooltipMakerAPI info, SectorEntityToken entity) {
                 float opad = 10f;
                 MarketAPI m = entity.getMarket();
-                int amt = (int) MiscIE.getStorageCargo(m).getSpaceUsed();
                 info.addPara("Travel to " + m.getName() + " (" + m.getFaction().getDisplayName()
                         + ", size " + m.getSize() + ") and store all ships and cargo in the local storage.", opad);
 
@@ -385,6 +403,3 @@ public class SplinterFleetSidePanelCreator {
         });
     }
 }
-
-
-

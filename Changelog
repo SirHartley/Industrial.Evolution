@@ -203,9 +203,12 @@ Detachments
 Added - Detachments out of fuel away from you now stop and report that they are stranded
 Added - Each active detachment now has an intel entry with its location, status and a recall button
 Added - The detachment panel now warns when a detachment has no fuel to leave the system
+Added - Take mode: pick the ships and cargo you take with you, everything else stays behind as the detachment
+Added - The detachment panel now has a command section with one button per behaviour, recall and lay course
 Adjusted - Detachments now travel with the vanilla fleet AI, across star systems included
 Note - Recall all detachments before updating, active ones break old saves
 Adjusted - Detachment slots reduced from three to two
+Adjusted - Your flagship now always stays with you
 Adjusted - Changing the behaviour of an active detachment now applies at once
 Adjusted - Transport can no longer be picked for an active detachment
 Adjusted - Dormant detachments now only wake up when resupplied

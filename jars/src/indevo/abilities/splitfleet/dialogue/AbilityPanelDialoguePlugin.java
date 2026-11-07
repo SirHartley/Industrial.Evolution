@@ -72,6 +72,7 @@ public class AbilityPanelDialoguePlugin implements InteractionDialogPlugin, Spli
 
         text.clear();
         text.addPara("Split off part of your fleet into a detachment. You will remain in control of your main force, while the detachment will follow the behaviour you specified.");
+        text.addPara("Send picks the ships and cargo that leave. Take picks what you take with you, and everything else stays behind as the detachment. Your flagship always stays with you.");
 
         Behaviour.addBehaviourListTooltip(text);
 
