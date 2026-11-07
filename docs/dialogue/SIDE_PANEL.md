@@ -50,10 +50,10 @@ Users:
 
 `dialog plugin init -> VisualCustomPanel.createPanel(dialog, true) -> creator.showPanel -> build rows into VisualCustomPanel.getTooltip() -> addTooltipToPanel()`.
 
-Layout conventions used by both creators (`SplinterFleetSidePanelCreator.java:36`, `ResearchProjectSidePanelCreator.java:25`):
+Layout conventions used by both creators (`SplinterFleetSidePanelCreator.java:32`, `ResearchProjectSidePanelCreator.java:25`):
 
 - Constants: `PANEL_WIDTH_1 = 240` (split fleet; research rows use `ROW_WIDTH = PANEL_WIDTH - 20` so a right aligned toggle fits), `BUTTON_HEIGHT = 30`, `SELECT_BUTTON_WIDTH = 95`, `ARROW_BUTTON_WIDTH = 20`, `TEXT_FIELD_WIDTH = 80`, `SHIP_ICON_WIDTH = 48`, pads `opad = 10`, `spad = 3`.
-- Each block: `addSectionHeading(name, MID, opad)`, then a `NoFrameCustomPanelPlugin` row panel (`PANEL_WIDTH_1 x 50`) holding one `createUIElement` per button, first `inTL(spad, opad)`, rest `rightOfMid(previous, opad)`, then `panelTooltip.addCustom(row, opad)`.
+- Each block: `addSectionHeading(name, MID, opad)`, then a row panel (`NoFrameCustomPanelPlugin`; split fleet uses `RunnableButtonPanelPlugin`) (`PANEL_WIDTH_1 x 50`) holding one `createUIElement` per button, first `inTL(spad, opad)`, rest `rightOfMid(previous, opad)`, then `panelTooltip.addCustom(row, opad)`.
 - Below it a `FramedCustomPanelPlugin(0.25f, Misc.getBasePlayerColor(), false)` panel `PANEL_WIDTH - 20` wide for ship icons or a progress bar (a disabled, checked `addAreaCheckbox` sized to the percentage).
 - Buttons: `addButton(text, id, textColor, bgColor, Alignment.MID, CutStyle.C2_MENU, w, h, 0)`; enabled colours `Misc.getButtonTextColor()` / `Misc.getDarkPlayerColor()`, disabled `Misc.getTextColor()` / `Misc.getGrayColor()`, plus `setEnabled`. Action buttons use fixed fills (green `50,130,0`, red `160,30,20`, amber `200,160,10`).
 - Toggles are small `addAreaCheckbox` buttons with player trio colours (`Misc.getBasePlayerColor()`, `getDarkPlayerColor()`, `getBrightPlayerColor()`), placed `inTR` on the row and given a vanilla style hover tooltip through `addTooltipTo` (research Stock toggle, `ResearchProjectSidePanelCreator.java:207`).

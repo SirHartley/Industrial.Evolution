@@ -21,7 +21,6 @@ import indevo.utils.helper.MiscIE;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -53,7 +52,7 @@ public class SplinterFleetSidePanelCreator {
 
         TooltipMakerAPI lastUsedVariableButtonAnchor;
 
-        for (int i : Arrays.asList(1, 2, 3)) {
+        for (int i : DetachmentMemory.SLOTS) {
             final Integer num = i;
 
             final LoadoutMemory.Loadout loadout = LoadoutMemory.getLoadout(i);

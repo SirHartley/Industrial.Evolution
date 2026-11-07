@@ -229,7 +229,7 @@ public class Behaviour {
     public static void updateActiveDetachmentBehaviour() {
         if (!DetachmentMemory.isAnyDetachmentActive()) return;
 
-        for (int i : Arrays.asList(1, 2, 3)) {
+        for (int i : DetachmentMemory.SLOTS) {
             if (DetachmentMemory.isDetachmentActive(i)) {
                 CampaignFleetAPI fleet = DetachmentMemory.getDetachment(i);
                 LoadoutMemory.Loadout loadout = LoadoutMemory.getLoadout(i);

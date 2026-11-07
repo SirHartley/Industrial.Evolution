@@ -20,7 +20,7 @@ public class LoadoutMemory {
             loadoutMap = (Map<Integer, Loadout>) mem.get(LOADOUT_STORE_MEMORY_KEY);
         else {
             loadoutMap = new HashMap<>();
-            for (int i : Arrays.asList(1, 2, 3))
+            for (int i : DetachmentMemory.SLOTS)
                 loadoutMap.put(i, new Loadout()); //initial setup to make sure it's never empty
 
             mem.set(LOADOUT_STORE_MEMORY_KEY, loadoutMap);

@@ -205,6 +205,7 @@ Added - Each active detachment now has an intel entry with its location, status 
 Added - The detachment panel now warns when a detachment has no fuel to leave the system
 Adjusted - Detachments now travel with the vanilla fleet AI, across star systems included
 Note - Recall all detachments before updating, active ones break old saves
+Adjusted - Detachment slots reduced from three to two
 Adjusted - Changing the behaviour of an active detachment now applies at once
 Adjusted - Transport can no longer be picked for an active detachment
 Adjusted - Dormant detachments now only wake up when resupplied

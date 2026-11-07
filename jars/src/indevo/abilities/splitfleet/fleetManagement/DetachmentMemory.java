@@ -4,12 +4,13 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DetachmentMemory {
     public static final String DETACHMENT_STORE_MEMORY_KEY = "$SplinterFleetDetachmentStoreMemoryReference";
+    public static final List<Integer> SLOTS = List.of(1, 2);
 
     public static Map<Integer, CampaignFleetAPI> getFleetMap() {
         Map<Integer, CampaignFleetAPI> loadoutMap;
@@ -19,7 +20,7 @@ public class DetachmentMemory {
             loadoutMap = (Map<Integer, CampaignFleetAPI>) mem.get(DETACHMENT_STORE_MEMORY_KEY);
         else {
             loadoutMap = new HashMap<>();
-            for (int i : Arrays.asList(1, 2, 3)) loadoutMap.put(i, null); //initial setup to make sure it's never empty
+            for (int i : SLOTS) loadoutMap.put(i, null); //initial setup to make sure it's never empty
 
             mem.set(DETACHMENT_STORE_MEMORY_KEY, loadoutMap);
         }
@@ -36,8 +37,9 @@ public class DetachmentMemory {
     }
 
     public static int getNumForFleet(CampaignFleetAPI fleet) {
-        for (int i : Arrays.asList(1, 2, 3)) {
-            if (isDetachmentActive(i) && getDetachment(i).getId().equals(fleet.getId())) return i;
+        //walks the stored map so slot 3 entries from older saves still resolve
+        for (Map.Entry<Integer, CampaignFleetAPI> e : getFleetMap().entrySet()) {
+            if (e.getValue() != null && e.getValue().getId().equals(fleet.getId())) return e.getKey();
         }
 
         return 0;
