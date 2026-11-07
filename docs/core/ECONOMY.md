@@ -1,12 +1,12 @@
 # Economy
 
-IE's global economy hooks in `indevo/economy/`: the hidden resource condition on every market (ship parts supply and demand, Supercomputer income) and the relic based construction speed up button. Read it before changing ship parts, Supercomputer income or construction time. It does not cover the industries that produce the inputs; see [Salvage Yards](../industries/SALVAGE_YARDS.md) and [Small industries](../industries/SMALL_INDUSTRIES.md) (Supercomputer).
+IE's global economy hooks in `indevo/economy/`: the hidden resource condition on every market (ship parts supply and demand, Supercomputer income), the relic based construction speed up button, and Express Delivery on the vanilla custom production contract. Read it before changing ship parts, Supercomputer income, construction time or a relic sink. It does not cover the industries that produce the inputs; see [Salvage Yards](../industries/SALVAGE_YARDS.md) and [Small industries](../industries/SMALL_INDUSTRIES.md) (Supercomputer).
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
 
 ## Overview
 
-Every market in the economy gets the hidden condition `IndEvo_ressCond` (`ResourceCondition`). Its `apply` adds Starship Components (`IndEvo_parts`) supply and demand to heavy industries and applies the distance based income bonus of the nearest Supercomputer. Separately, an industry option "Speed up construction..." halves the remaining build time of any building or upgrading industry for Relic Components (`IndEvo_rare_parts`), once per 60 days per colony.
+Every market in the economy gets the hidden condition `IndEvo_ressCond` (`ResourceCondition`). Its `apply` adds Starship Components (`IndEvo_parts`) supply and demand to heavy industries and applies the distance based income bonus of the nearest Supercomputer. Separately, an industry option "Speed up construction..." halves the remaining build time of any building or upgrading industry for Relic Components (`IndEvo_rare_parts`), once per 60 days per colony. Express Delivery halves the delivery time of a vanilla custom production order for Relic Components.
 
 ## Files
 
@@ -15,6 +15,8 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 | `indevo/economy/conditions/ResourceCondition.java` | Condition plugin: `applyParts()`, `applySupComIncome()`; static `applyRessourceCond(market)` adds the condition to markets in the economy |
 | `indevo/economy/listeners/ResourceConditionApplicator.java` | `PlayerColonizationListener` and `EconomyTickListener`: adds the condition on colonization and on every economy tick to all markets |
 | `indevo/economy/listeners/RelicBuildTimeReductionButtonAdder.java` | `BaseSimpleBaseIndustryOptionProvider`: the speed up option, dialog and payment |
+| `indevo/dialogue/rules/IndEvo_CPCExpress.java` | Rule command for Express Delivery: `valid`, `options`, `apply` |
+| `data/campaign/rules.csv` block `# Custom production express delivery` | Express Delivery offer and the two accept paths |
 
 ## Data and ids
 
@@ -24,6 +26,8 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 | Commodity | `IndEvo_parts` (`ItemIds.PARTS`), `IndEvo_rare_parts` (`ItemIds.RARE_PARTS`) | `data/campaign/commodities.csv:2`, `:3` |
 | Setting | `IndEvo_ScrapYard` (parts on/off) | `data/config/LunaSettings.csv:97` |
 | Memory key | `$IndEvo_reduceBuildTimeCooldown` (market memory, expires after `COOLDOWN_DAYS` 60) | `RelicBuildTimeReductionButtonAdder` |
+| Option ids | `IndEvo_cpcExpress` (`IndEvo_CPCExpress.OPTION_EXPRESS`), `IndEvo_cpcStandard` | rules, `IndEvo_CPCExpress` |
+| Rules | `IndEvo_cpcExpressOffer` (trigger `CPCBlueprintsPicked`, score 100), `IndEvo_cpcStandard`, `IndEvo_cpcStandardBar`, `IndEvo_cpcExpress`, `IndEvo_cpcExpressBar` | `data/campaign/rules.csv:860` |
 | Modifier ids | condition id (`getModId()`) on `market.getIncomeMult()`; condition id on `Stats.PRODUCTION_QUALITY_MOD` | `ResourceCondition` |
 
 ## Registration and lifecycle
@@ -55,6 +59,14 @@ If no market of the same faction in the location has `IndEvo_SupCom`: income mul
 
 `isSuitable` (building, or upgrading with an upgrade spec) -> option enabled unless `$IndEvo_reduceBuildTimeCooldown` -> `onClick` reads private `buildTime` via `StarReflectionUtils.get(ind, "buildTime", float.class, true)` -> cost `round(daysLeft * RELICS_PER_DAY)` (1 relic per remaining day) taken from local storage first, then player cargo -> `BaseIndustry.setBuildProgress((buildTime - left) + left / 2)` -> sets cooldown.
 
+### Custom production Express Delivery
+
+Vanilla `CustomProductionContract` fires `CPCBlueprintsPicked` after the production picker; vanilla `cpcBPPicked` / `cpcBPPickedBar` accept the order at once. `IndEvo_cpcExpressOffer` wins with `score:100` when `IndEvo_CPCExpress valid $cpc_ref` resolves the contract, shows the contact's line and two options:
+
+- `IndEvo_CPCExpress options` relabels Express Delivery with the cost (`round(PROD_DAYS * RELICS_PER_DAY)`, 60 at vanilla `PROD_DAYS`), disables it when fleet cargo has too few Relic Components and adds a tooltip with the new delivery time and the cost line.
+- Standard Delivery (`IndEvo_cpcStandard`, `...Bar` on `$cpc_barEvent`) runs the vanilla row's script unchanged.
+- Express Delivery (`IndEvo_cpcExpress`, `...Bar`) runs the same script with `IndEvo_CPCExpress apply $cpc_ref` right after the accept: takes the relics from fleet cargo and sets `getData(Stage.WAITING).elapsed = PROD_DAYS / 2`. The stage connection (`connectWithDaysElapsed`) and the intel both read that value, so delivery and the shown days follow. No save data of its own.
+
 ### Relic sinks
 
 One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its cost constant and flow.
@@ -63,6 +75,7 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 |---|---|---|---|
 | Construction speed up | 1 per remaining day | colony storage, then fleet cargo | [Construction speed up](#construction-speed-up) |
 | Early Edict removal | 1 per remaining day | colony storage, then fleet cargo | [Senate](../industries/SENATE.md#runtime-and-penalties) |
+| Express Delivery | 1 per delivery day (60 at vanilla) | fleet cargo | [Custom production Express Delivery](#custom-production-express-delivery) |
 | Story point derelict recovery | 5 per DP of each recovered ship | fleet cargo | [Salvage](../exploration/SALVAGE.md#relic-recovery) |
 | Project Reforge (Galatia research) | 500, plus 1 Corrupted Nanoforge on Redeem | fleet cargo (relics as points) | [Research](../dialogue/RESEARCH.md#projects) |
 
@@ -71,6 +84,9 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 - The condition applies to every economy market including NPC ones, so parts and the Supercomputer bonus affect AI factions too (`ResourceConditionApplicator.java:13`).
 - `unapply` resets `IndEvo_parts` supply and demand to 0 on every `BaseIndustry` of the market (`ResourceCondition.java:112`); any other source of parts on these industries must reapply after this condition. Inferred from the code: condition unapply order relative to industries is engine controlled.
 - Reflection on `buildTime` (`RelicBuildTimeReductionButtonAdder.java:60`) depends on the `BaseIndustry` field name; `Edict_FastBuild` writes the same field through `ReflectionUtils`. See [Utils](UTILS.md#helper), [Senate](../industries/SENATE.md).
+- Express Delivery has to run after the accept: `BaseHubMission.setCurrentStage` resets the new stage's `elapsed` to 0 (vanilla `BaseHubMission.java:1219`).
+- The IE accept rows copy vanilla `cpcBPPicked` / `cpcBPPickedBar` (`$option = contact_accept 0`, `FireBest DialogOptionSelected`, `Call $cpc_ref repSuccess`, `Call $cpc_ref addContacts`). A game update that changes those rows needs the copy checked.
+- Another mod with a higher scored `CPCBlueprintsPicked` row wins over IE; the Express option is then missing and the order goes through as vanilla.
 - Shadowyards classes are imported at compile time (`ResourceCondition.java:14` to `16`); guarded by `isModEnabled("shadow_ships")`. See [Compatibility](COMPATIBILITY.md).
 
 ## Known issues and dormant code
@@ -84,4 +100,4 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 
 ## Maintenance
 
-Update this doc when parts, Supercomputer income or the speed up cost changes. Industry behaviour belongs in the industry docs; settings mechanics in [Settings](SETTINGS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
+Update this doc when parts, Supercomputer income, a relic sink or its cost changes. Industry behaviour belongs in the industry docs; settings mechanics in [Settings](SETTINGS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).

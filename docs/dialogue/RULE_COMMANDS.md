@@ -17,6 +17,7 @@ The engine resolves the first word of a rules condition or script line to a `Com
 | `IndEvo_marketIsPlayerOwned.java` | Condition: `$market.id` is player owned; falls back to `$faction.id == player`. |
 | `IndEvo_notAtWar.java` | Condition: player relation to the faction of the market's ambassador > -0.5 (`AmbassadorPersonManager.getAmbassador`, see [Embassy](../industries/EMBASSY.md)). |
 | `IndEvo_AddSpacerFineMenuPoint.java` | Adds option `IndEvo_PaySpacerFine` with the stolen amount plus 20% (`PENALTY_AMT_FRACTION`), disabled when the player cannot pay. |
+| `IndEvo_CPCExpress.java` | Express Delivery on vanilla custom production: condition `valid $cpc_ref`, scripts `options` and `apply $cpc_ref`. See [Economy](../core/ECONOMY.md#custom-production-express-delivery). |
 | `IndEvo_DeductSpacerCreditsAndSetNeutral.java` | Takes amount + 20% from player credits, renames the fleet "No longer ...", clears hostile flags, sets non-hostile and non-aggressive, drops its intercept. |
 
 ## Data and ids
@@ -43,6 +44,7 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | `IndEvo_marketIsPlayerOwned` | `indevo.dialogue.rules` | 16 | `IndEvo_ambassadorGreeting:571` | this doc |
 | `IndEvo_notAtWar` | `indevo.dialogue.rules` | 2 | `IndEvo_ambassadorGreeting:571` | this doc |
 | `IndEvo_AddSpacerFineMenuPoint` | `indevo.dialogue.rules` | 1 | `IndEvo_ImpoverishedSpacerGreeting:474` | this doc |
+| `IndEvo_CPCExpress` | `indevo.dialogue.rules` | 3 | `IndEvo_cpcExpressOffer:861` | [Economy](../core/ECONOMY.md) |
 | `IndEvo_DeductSpacerCreditsAndSetNeutral` | `indevo.dialogue.rules` | 1 | `IndEvo_PaySpacerFine:493` | this doc |
 | `IndEvo_RemoveCurrentInteractionTarget` | `indevo.dialogue.beacons.dialogue` | 1 | `IndEvo_beacon_destroyLeave:263` | [Beacons](BEACONS.md) |
 | `IndEvo_IsInHyperspace` | `indevo.dialogue.beacons.dialogue` | 0 | | [Beacons](BEACONS.md) |
@@ -85,7 +87,7 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 
 ## rules.csv layout
 
-`data/campaign/rules.csv`, 859 lines, 292 rows. Blocks start with a `#` comment row in the id column and are separated by empty rows; most rule ids start with `IndEvo_`. Line ranges are physical file lines (cells span lines).
+`data/campaign/rules.csv`, 885 lines, 299 rows. Blocks start with a `#` comment row in the id column and are separated by empty rows; most rule ids start with `IndEvo_`. Line ranges are physical file lines (cells span lines).
 
 | Lines | Block (header) | Id prefix | Doc |
 |---|---|---|---|
@@ -112,6 +114,7 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | 831 to 838 | `# Ambassador Murdered` | `IndEvo_bountyHunter` | [Embassy](../industries/EMBASSY.md) |
 | 840 to 851 | (no header) survey stories | `oldstory_` | [Survey stories](../exploration/SURVEY_STORIES.md) |
 | 853 to 859 | `# Ghost ship interaction rules` | `indevo_ghostShip` | [Distress](../exploration/DISTRESS.md) |
+| 860 to 884 | `# Custom production express delivery` | `IndEvo_cpc` | [Economy](../core/ECONOMY.md#custom-production-express-delivery) |
 
 ### Colony options menu
 

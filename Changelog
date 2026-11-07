@@ -7,6 +7,7 @@ Note - Saves from 4.1.b do not load, start a new game
 -
 Added - Quick Settings tab for category toggles
 Added - Settings descriptions updated
+Added - Express Delivery for custom production orders: halves the delivery time for Relic Components
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Adjusted - Industrial Supply Store moves its contents to colony storage when the colony is lost
 Adjusted - Removed redundant UI text and shortened tooltips
