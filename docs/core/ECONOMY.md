@@ -55,6 +55,15 @@ If no market of the same faction in the location has `IndEvo_SupCom`: income mul
 
 `isSuitable` (building, or upgrading with an upgrade spec) -> option enabled unless `$IndEvo_reduceBuildTimeCooldown` -> `onClick` reads private `buildTime` via `StarReflectionUtils.get(ind, "buildTime", float.class, true)` -> cost `round(daysLeft * RELICS_PER_DAY)` (1 relic per remaining day) taken from local storage first, then player cargo -> `BaseIndustry.setBuildProgress((buildTime - left) + left / 2)` -> sets cooldown.
 
+### Relic sinks
+
+One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its cost constant and flow.
+
+| Sink | Cost | Paid from | Owner |
+|---|---|---|---|
+| Construction speed up | 1 per remaining day | colony storage, then fleet cargo | [Construction speed up](#construction-speed-up) |
+| Story point derelict recovery | 5 per DP of each recovered ship | fleet cargo | [Salvage](../exploration/SALVAGE.md#relic-recovery) |
+
 ## Contracts
 
 - The condition applies to every economy market including NPC ones, so parts and the Supercomputer bonus affect AI factions too (`ResourceConditionApplicator.java:13`).
