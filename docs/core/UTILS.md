@@ -44,17 +44,17 @@ Two reflection helpers exist. Prefer `StarReflectionUtils` for new code (ambigui
 | Area | Methods (line) |
 |---|---|
 | Player and dialog | `getPlayerCargo()` 41, `getCurrentInteractionTargetMarket()` 59 (market of the open dialog target or null) |
-| Storage | `getStorage(market)` 66 (vanilla storage, falls back to RAT `rat_settlement_storage`), `getStorageCargo(market)` 76, `getIndustrialStorageCargo(market)` 111 (`Ids.SHAREDSTORAGE`), `getMarketForStorage(market)` 513 (gathering point if it has storage, else local) |
-| Ship stripping | `stripShipNoCargo(member)` 227, `stripShipToCargoAndReturnVariant(member, cargo)` 396 (also modules, AI core captain), `stripAndReturnVariant(variant, cargo)` 416, `stripShipToCargoAndReturnVariant(member, market)` 447 (into `getMarketForStorage(market)` storage, else fleet cargo) |
-| Fleet members | `finalizeAndUpdateFleetMember(member)` 118 (clone variant, clear original), `createFleetMemberClone(member)` 285, `convertFleetMemberListToIdList(list)` 289, `getCargoCopy(cargo)` 270 (copies mothballed ships too) |
-| Hull lists (session cached) | `getAllLearnableShipHulls()` 128 (tag ending `_bp`, not fighter, not `IndEvo_no_ship_roulette`), `getAllRareShipHulls()` 145 (`rare_bp`), `isLearnable(spec)` 162, `getShipRoleListMap()` 789 (hull ids per role group from all factions) |
-| Whitelists and mod lists (session cached) | `getCSVSetFromMemory(path)` 528 (merged CSV `id` column, master mod `IndEvo`), `getVPCItemSet()` 212, `getPrismBossShips()` 569, `getVayraBossShips()` 598, `canLoadShips(factionOrModId)` 564 |
-| Market queries | `isMilitary(industry)` 80, `marketHasMilitary(market, onlyFunctional)` 649, `marketHasMilitaryIncludeRelays(market[, onlyFunctional])` 631, `getFactionMarkets(faction)` 386 (skips `SalvageMarket` ids), `getMarketsInLocation(loc[, factionId])` 488/499 (skips hidden), `getClosestMarketWithIndustry(market, id)` 299, `getClosestPlayerMarketWithIndustryFromSet` 317, `getAiCoreIdNotNull(ind)` 263 (`"none"`) |
-| System industry counts | `systemHasIndustry(id, system, faction[, withUnfinished])` 690/720, `systemHasIndustryExcludeNotFunctional` 704, `getAmountOfIndustryInSystem` 739, `isOnlyInstanceInSystem` 763, `isOnlyInstanceInSystemExcludeMarket` 663 (both count the construction queue) |
+| Storage | `getStorage(market)` 66 (vanilla storage, falls back to RAT `rat_settlement_storage`), `getStorageCargo(market)` 76, `getIndustrialStorageCargo(market)` 111 (`Ids.SHAREDSTORAGE`), `getMarketForStorage(market)` 498 (gathering point if it has storage, else local) |
+| Ship stripping | `stripShipNoCargo(member)` 212, `stripShipToCargoAndReturnVariant(member, cargo)` 381 (also modules, AI core captain), `stripAndReturnVariant(variant, cargo)` 401, `stripShipToCargoAndReturnVariant(member, market)` 432 (into `getMarketForStorage(market)` storage, else fleet cargo) |
+| Fleet members | `finalizeAndUpdateFleetMember(member)` 118 (clone variant, clear original), `createFleetMemberClone(member)` 270, `convertFleetMemberListToIdList(list)` 274, `getCargoCopy(cargo)` 255 (copies mothballed ships too) |
+| Hull lists (session cached) | `getAllLearnableShipHulls()` 128 (tag ending `_bp`, not fighter, not `IndEvo_no_ship_roulette`), `getAllRareShipHulls()` 145 (`rare_bp`), `isLearnable(spec)` 162, `getShipRoleListMap()` 774 (hull ids per role group from all factions) |
+| Whitelists and mod lists (session cached) | `getCSVSetFromMemory(path)` 513 (merged CSV `id` column, master mod `IndEvo`), `getPrismBossShips()` 554, `getVayraBossShips()` 583, `canLoadShips(factionOrModId)` 549 |
+| Market queries | `isMilitary(industry)` 80, `marketHasMilitary(market, onlyFunctional)` 634, `marketHasMilitaryIncludeRelays(market[, onlyFunctional])` 616, `getFactionMarkets(faction)` 371 (skips `SalvageMarket` ids), `getMarketsInLocation(loc[, factionId])` 473/484 (skips hidden), `getClosestMarketWithIndustry(market, id)` 284, `getClosestPlayerMarketWithIndustryFromSet` 302, `getAiCoreIdNotNull(ind)` 248 (`"none"`) |
+| System industry counts | `systemHasIndustry(id, system, faction[, withUnfinished])` 675/705, `systemHasIndustryExcludeNotFunctional` 689, `getAmountOfIndustryInSystem` 724, `isOnlyInstanceInSystem` 748, `isOnlyInstanceInSystemExcludeMarket` 648 (both count the construction queue) |
 | Economy | `applyDeficitToProduction(ind, index, deficit, commodities...)` 85. Billing and credits: [BillingHelper](#billinghelper) |
-| Planets | `planetHasRings(planet or market)` 454/470 (uses `derelicts/scripts/PlanetMovingScript.getEntitiesWithOrbitTarget`), `getEntitiesInRange(entity, range)` 45 |
-| Sector memory maps | `getMapFromMemory(key)` 335 (sorted copy, creates the key), `storeMapInMemory(map, key)` 355, `getClampedMap` 345, `sortByLargestValue` 364, `addOrIncrement(map, id, by)` 173/183 |
-| Math and lists | `smootherstep(e0, e1, x)` 97, `customLog(base, x)` 359, `getRandomInRange(min, max, random)` 55, `splitList(list or set, perPage)` 194/207, `getDaysOfCurrentMonth()` 257 |
+| Planets | `planetHasRings(planet or market)` 439/455 (uses `derelicts/scripts/PlanetMovingScript.getEntitiesWithOrbitTarget`), `getEntitiesInRange(entity, range)` 45 |
+| Sector memory maps | `getMapFromMemory(key)` 320 (sorted copy, creates the key), `storeMapInMemory(map, key)` 340, `getClampedMap` 330, `sortByLargestValue` 349, `addOrIncrement(map, id, by)` 173/183 |
+| Math and lists | `smootherstep(e0, e1, x)` 97, `customLog(base, x)` 344, `getRandomInRange(min, max, random)` 55, `splitList(list or set, perPage)` 194/207, `getDaysOfCurrentMonth()` 242 |
 
 ### BillingHelper
 
@@ -167,7 +167,7 @@ Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmuniti
 
 | Class | Members |
 |---|---|
-| `update/NewGameIndustryPlacer.java` | `run()` from `ModPlugin.onNewGameAfterEconomyLoad()` (`ModPlugin.java:291`): places IE industries on fixed core world markets if the industry setting is on and the market is not player owned. Market ids and cores: `placeDryDocks` (13 markets), `placeAcademy` (`eochu_bres` beta, `fikenhild`), `placeReqCenter` (`baetis`), `placeSalvageYards` (`donn`, `agreus`, `suddene`), `placeManufactories` (`eochu_bres` with `IndEvo_vpc_IndEvo_parts`), `placePetShops` (`jangala`, `gilead`, `fikenhild`). `placeCourierPorts` is not called |
+| `update/NewGameIndustryPlacer.java` | `run()` from `ModPlugin.onNewGameAfterEconomyLoad()` (`ModPlugin.java:291`): places IE industries on fixed core world markets if the industry setting is on and the market is not player owned. Market ids and cores: `placeDryDocks` (13 markets), `placeAcademy` (`eochu_bres` beta, `fikenhild`), `placeReqCenter` (`baetis`), `placeSalvageYards` (`donn`, `agreus`, `suddene`), `placeManufactories` (`eochu_bres` with an uncommon ship parts VPC), `placePetShops` (`jangala`, `gilead`, `fikenhild`). `placeCourierPorts` is not called |
 | `update/ModUpdater.java` | `run()`: removes every script and listener whose class name contains `IndEvo`, re-adds IE submarkets, industries and player market conditions, then runs `NewGameIndustryPlacer`. Not called anywhere (dead) |
 
 ## Known issues and dormant code

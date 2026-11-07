@@ -2,11 +2,8 @@ package indevo.ids;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SpecialItemData;
-import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
 import com.fs.starfarer.api.campaign.econ.EconomyAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.util.Pair;
-import indevo.utils.helper.StringHelper;
 
 public class ItemIds {
 
@@ -16,21 +13,7 @@ public class ItemIds {
     public static final String RARE_PARTS = "IndEvo_rare_parts";
     public static final String PET_FOOD = "IndEvo_pet_food";
 
-    //VPC
-    public static final String VPC_PARTS = "IndEvo_vpc_IndEvo_parts";
-    public static final String VPC_SUPPLIES = "IndEvo_vpc_supplies";
-    public static final String VPC_MARINES = "IndEvo_vpc_marines";
-    public static final String VPC_HEAVY_MACHINERY = "IndEvo_vpc_heavy_machinery";
-    public static final String VPC_DOMESTIC_GOODS = "IndEvo_vpc_domestic_goods";
-    public static final String VPC_DRUGS = "IndEvo_vpc_drugs";
-    public static final String VPC_HAND_WEAPONS = "IndEvo_vpc_hand_weapons";
-    public static final String VPC_LUXURY_GOODS = "IndEvo_vpc_luxury_goods";
-    public static final String VPC_MARINES_HAND_WEAPONS = "IndEvo_vpc_marines_hand_weapons";
-    public static final String VPC_SUPPLIES_FUEL = "IndEvo_vpc_supply_fuel";
-
-    public static final String TAG_VPC_COMMON = "IndEvo_VPC_common";
-    public static final String TAG_VPC_UNCOMMON = "IndEvo_VPC_uncommon";
-    public static final String TAG_VPC_RARE = "IndEvo_VPC_rare";
+    public static final String VPC = "IndEvo_vpc";
 
     //items
     //consumable
@@ -97,55 +80,6 @@ public class ItemIds {
     public static String getCommodityNameString(String commodityID) {
         EconomyAPI econ = Global.getSector().getEconomy();
         return econ.getCommoditySpec(commodityID) != null ? econ.getCommoditySpec(commodityID).getName() : NO_ENTRY;
-    }
-
-    public static String getVPCOutputString(String itemId) {
-        Pair<String, String> p = getVPCCommodityIds(itemId);
-        boolean dual = !p.two.equals(NO_ENTRY);
-
-        EconomyAPI econ = Global.getSector().getEconomy();
-
-        return dual ? econ.getCommoditySpec(p.one).getName().toLowerCase()
-                + StringHelper.getString("IndEvo_misc", "andWithSpaces")
-                + econ.getCommoditySpec(p.two).getName().toLowerCase()
-                : getCommodityNameString(p.one).toLowerCase();
-    }
-
-    public static Pair<String, String> getVPCCommodityIds(String itemId) {
-        String ident = "IndEvo_vpc_";
-        Pair<String, String> p = new Pair<>();
-
-        switch (itemId) {
-            case VPC_MARINES_HAND_WEAPONS:
-                p.one = Commodities.MARINES;
-                p.two = Commodities.HAND_WEAPONS;
-                return p;
-            case VPC_SUPPLIES_FUEL:
-                p.one = Commodities.SUPPLIES;
-                p.two = Commodities.FUEL;
-                return p;
-            default:
-                p.one = itemId.substring(ident.length());
-                p.two = NO_ENTRY;
-                return p;
-        }
-    }
-
-    public static String getVPCDescriptionString(String itemId) {
-        SpecialItemSpecAPI commSpec = Global.getSettings().getSpecialItemSpec(itemId);
-        if (commSpec.getTags().contains(TAG_VPC_COMMON))
-            return StringHelper.getString("IndEvo_VarInd", "vpc_common_desc");
-        if (commSpec.getTags().contains(TAG_VPC_UNCOMMON))
-            return StringHelper.getString("IndEvo_VarInd", "vpc_uncommon_desc");
-        if (commSpec.getTags().contains(TAG_VPC_RARE))
-            return StringHelper.getString("IndEvo_VarInd", "vpc_rare_desc");
-
-        return NO_ENTRY;
-    }
-
-    public static String getItemNameString(String itemId) {
-        SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(itemId);
-        return spec != null ? spec.getName() : NO_ENTRY;
     }
 }
 	

@@ -46,7 +46,7 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 | Memory, sector | `$IndEvo_HasFoundDoritoGun`, `$IndEvo_HasFoundAutopulse`, `$IndEvo_HasUniqueShipChecker`, `$IndEvo_SlowShipFleetCheckerDone`, `$IndEvo_HyperTopoCheckerDone` | unlock listeners |
 | Memory, combat engine custom data | `$IndEvo_GlitcherOverlayAttached_<shipId>` | `CamouflageFieldEmitter.java:14` |
 | Settings | `IndEvo_pets` (Navi), `IndEvo_consumables_researchProject` (Mjolnir) | `data/config/LunaSettings.csv:11`, `:35`; read through `Setting` (see [Settings](../core/SETTINGS.md)) |
-| Sprite | `IndEvo` / `galatia_proj` | `data/config/settings.json:197` |
+| Sprite | `IndEvo` / `galatia_proj` | `data/config/settings.json:157` |
 | Rules | `IndEvo_JobMenuPoint`, `IndEvo_JobMenuInit` | `data/campaign/rules.csv:418`, `:419` |
 | Entity | `station_galatia_academy` (vanilla) | intel map location, rules condition |
 
@@ -70,7 +70,7 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 
 ## Registration and lifecycle
 
-- Entry: rules `IndEvo_JobMenuPoint` adds option 4 "Visit the Research Tracts" on `PopulateOptions` at `$id == station_galatia_academy`; `IndEvo_JobMenuInit` runs the command `ResearchProjectDialoguePlugin` (package `indevo.dialogue.research.dialogue` is in `ruleCommandPackages`, `data/config/settings.json:80`).
+- Entry: rules `IndEvo_JobMenuPoint` adds option 4 "Visit the Research Tracts" on `PopulateOptions` at `$id == station_galatia_academy`; `IndEvo_JobMenuInit` runs the command `ResearchProjectDialoguePlugin` (package `indevo.dialogue.research.dialogue` is in `ruleCommandPackages`, `data/config/settings.json:39`).
 - `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:432` to `:484`):
 
 | Class | How | Persists |

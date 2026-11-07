@@ -2,6 +2,7 @@ package indevo.exploration.salvage.specials;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoAPI;
+import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
@@ -9,18 +10,15 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageSpecialInteraction;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpecial;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
-import indevo.ids.ItemIds;
-import indevo.utils.helper.MiscIE;
+import indevo.industries.assembler.industry.CommodityForge;
+import indevo.industries.assembler.industry.VariableAssembler;
+import indevo.items.VPCItemPlugin;
+import indevo.items.memory.VPCCommodityRepo.Commodity;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
-import org.json.JSONException;
 
 import java.util.*;
-
-import static indevo.ids.ItemIds.NO_ENTRY;
-import static indevo.industries.assembler.industry.VariableAssembler.DUAL_OUTPUT_REDUCTION_MULT;
 
 public class ConvertVPCSpecial extends BaseSalvageSpecial {
     //convert a VPC into ressources
@@ -45,6 +43,7 @@ public class ConvertVPCSpecial extends BaseSalvageSpecial {
     }
 
     private ConvertVPCSpecial.ConvertVPCSpecialData data;
+    private final List<SpecialItemData> choices = new ArrayList<>();
 
     public ConvertVPCSpecial() {
     }
@@ -65,7 +64,7 @@ public class ConvertVPCSpecial extends BaseSalvageSpecial {
         addText("Deep within the bowels of the " + s + " your crew finds an experimental Variable Commodity Forge.\n\n" +
                 "It seems to be in " + shape + " shape, and is missing a VPC.");
 
-        if (!playercargoHasVPC()) {
+        if (getVPCsInPlayerCargo().isEmpty()) {
             addText("You do not have a VPC to slot into the Forge.\nConsider returning when you have found one.");
             text.highlightLastInLastPara("You do not have a VPC to slot into the Forge.", Misc.getNegativeHighlightColor());
 
@@ -82,34 +81,35 @@ public class ConvertVPCSpecial extends BaseSalvageSpecial {
     public void optionSelected(String optionText, Object optionData) {
         if (SELECT.equals(optionData)) {
             options.clearOptions();
+            choices.clear();
+            choices.addAll(getVPCsInPlayerCargo());
 
-            List<String> vpcList = getVPCFromPlayerCargoList();
-
-            for (String id : vpcList) {
-                String ident = VPC_IDENT + id;
-                options.addOption(ItemIds.getItemNameString(id), ident);
+            for (int i = 0; i < choices.size(); i++) {
+                SpecialItemData vpc = choices.get(i);
+                String ident = VPC_IDENT + i;
+                options.addOption(VPCItemPlugin.getDisplayName(vpc), ident);
                 options.addOptionConfirmation(ident,
-                        "Are you sure? This will convert the VPC into " + ItemIds.getVPCOutputString(id) + ".",
+                        "Are you sure? This will convert the VPC into " + VPCItemPlugin.getOutputString(vpc) + ".",
                         "Confirm",
                         "Return");
             }
 
             options.addOption("Not now", NOT_NOW);
 
-        } else if (optionData.toString().contains(VPC_IDENT)) {
+        } else if (optionData.toString().startsWith(VPC_IDENT)) {
             String prct = StringHelper.getAbsPercentString(data.qualityModifier, false);
-            String id = optionData.toString().substring(VPC_IDENT.length());
+            SpecialItemData vpc = choices.get(Integer.parseInt(optionData.toString().substring(VPC_IDENT.length())));
 
-            addText("The Forge accepts the chip without incident, and starts churning out " + ItemIds.getVPCOutputString(id) + ".\n" +
+            addText("The Forge accepts the chip without incident, and starts churning out " + VPCItemPlugin.getOutputString(vpc) + ".\n" +
                     "After producing " + prct + " of the predicted amount, the entire assembly grinds to a sudden halt.\n\n" +
                     "Judging by the ridiculous amounts of smoke and the concerning noises, it is probably done for good.");
 
             text.highlightLastInLastPara(prct, Misc.getHighlightColor());
 
             CargoAPI cargo = playerFleet.getCargo();
-            cargo.removeItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(id, null), 1);
+            cargo.removeItems(CargoAPI.CargoItemType.SPECIAL, vpc, 1);
 
-            for (Map.Entry<String, Integer> e : getDepositList(id).entrySet()) {
+            for (Map.Entry<String, Integer> e : getDepositList(vpc).entrySet()) {
                 cargo.addCommodity(e.getKey(), e.getValue());
                 AddRemoveCommodity.addCommodityGainText(e.getKey(), e.getValue(), text);
             }
@@ -126,57 +126,23 @@ public class ConvertVPCSpecial extends BaseSalvageSpecial {
         }
     }
 
-    public Map<String, Integer> getDepositList(String id) {
+    public Map<String, Integer> getDepositList(SpecialItemData vpc) {
         Map<String, Integer> map = new LinkedHashMap<>();
-        Pair<String, String> p = ItemIds.getVPCCommodityIds(id);
-        boolean dual = !p.two.equals(NO_ENTRY);
+        float mult = VPCItemPlugin.getDepositMult(vpc) * data.qualityModifier;
 
-        if (p.one != null) map.put(p.one, getDepositAmount(p.one, dual));
-        if (dual) map.put(p.two, getDepositAmount(p.two, true));
+        for (Commodity c : VPCItemPlugin.getOutputs(vpc)) {
+            map.put(c.id(), VariableAssembler.getDepositAmount(c.getDeposit(Ids.COMFORGE), CommodityForge.LOG_INCREASE, 7, mult));
+        }
 
         return map;
     }
 
-    public int getDepositAmount(String commodityId, boolean dual) {
-        int amt;
-        int sizeMult = 7;
-        float logIncrease;
-        float dualReduction = dual ? DUAL_OUTPUT_REDUCTION_MULT : 1f;
-
-        try {
-            amt = Global.getSettings().getJSONObject(Ids.COMFORGE + "_amounts").getInt(commodityId);
-            logIncrease = Global.getSettings().getJSONObject(Ids.COMFORGE + "_amounts").getInt("logIncrease");
-        } catch (JSONException e) {
-            log.error(e.toString());
-            amt = 0;
-            logIncrease = 0;
+    private List<SpecialItemData> getVPCsInPlayerCargo() {
+        List<SpecialItemData> list = new ArrayList<>();
+        for (CargoStackAPI stack : playerFleet.getCargo().getStacksCopy()) {
+            if (VPCItemPlugin.isValid(stack.getSpecialDataIfSpecial())) list.add(stack.getSpecialDataIfSpecial());
         }
 
-        int total = Math.round((Math.round(((logIncrease * Math.log(sizeMult)) + amt) / 10) * 10) * dualReduction * data.qualityModifier);
-        return Math.max(0, total);
-    }
-
-    private boolean playercargoHasVPC() {
-        CargoAPI cargo = playerFleet.getCargo();
-        Set<SpecialItemData> vpcIdSet = MiscIE.getVPCItemSet();
-
-        for (SpecialItemData data : vpcIdSet) {
-            if (cargo.getQuantity(CargoAPI.CargoItemType.SPECIAL, data) > 0) return true;
-        }
-
-        return false;
-    }
-
-    private List<String> getVPCFromPlayerCargoList() {
-        CargoAPI cargo = playerFleet.getCargo();
-        List<String> l = new ArrayList<>();
-
-        Set<SpecialItemData> vpcIdSet = MiscIE.getVPCItemSet();
-
-        for (SpecialItemData data : vpcIdSet) {
-            if (cargo.getQuantity(CargoAPI.CargoItemType.SPECIAL, data) > 0) l.add(data.getId());
-        }
-
-        return l;
+        return list;
     }
 }

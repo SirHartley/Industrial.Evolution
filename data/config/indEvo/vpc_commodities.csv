@@ -1,0 +1,10 @@
+id,pool,supply,demand,IndEvo_AdAssem,IndEvo_AdManuf,IndEvo_ComForge,name,icon,desc
+supplies,common,-2,"metals:-1, organics:-1",90,210,480,,graphics/icons/cargo/VPC_supplies.png,Standard supplies were slightly more extravagant back in the day. These come pre-packed with artificial ice cream!
+heavy_machinery,common,0,"metals:0, rare_metals:-2",60,140,320,,graphics/icons/cargo/VPC_machinery.png,"Machines will always be just that, and with a bit of hotwiring the ones on this chip are perfectly fine for export."
+domestic_goods,common,-1,organics:0,180,420,960,,graphics/icons/cargo/VPC_domgoo.png,"Domestic goods unlike any other of todays' Persean Sector. Some of these have unknown functions, but might still make for high quality paper weights."
+luxury_goods,common,-1,organics:0,90,210,480,,graphics/icons/cargo/VPC_luxgoo.png,Only Tri-Tachyon could ever serialize nonserialized products.
+marines,uncommon,-1,"metals:0, crew:-1",50,90,240,Exo-Armor Suits,graphics/icons/cargo/VPC_marines.png,"Pseudo-AI assisted Exo-Armor Suits. After all, military training can only do so much."
+drugs,uncommon,0,organics:0,50,110,240,,graphics/icons/cargo/VPC_drugs.png,Nothing current can quite compare to the chemistry of past minds - literally.
+hand_weapons,uncommon,-1,"metals:0, rare_metals:-1",20,40,100,,graphics/icons/cargo/VPC_heavwea.png,"Praise be unto Ludd for technological regression, without which, these guns would be worthless."
+IndEvo_parts,uncommon,-2,"metals:-1, rare_metals:-2, organics:-2",55,125,280,,graphics/icons/cargo/VPC_parts.png,"The only source of new components in the degraded sector. The chip went from common, to worth tens of thousands of credits due to this."
+fuel,rare,-2,volatiles:-1,300,600,1200,,,

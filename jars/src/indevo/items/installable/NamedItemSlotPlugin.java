@@ -59,8 +59,12 @@ public class NamedItemSlotPlugin extends GenericInstallableItemPlugin {
             return;
         }
 
-        TooltipMakerAPI text = tooltip.beginImageWithText(Global.getSettings().getSpecialItemSpec(data.getId()).getIconName(), 48);
+        TooltipMakerAPI text = tooltip.beginImageWithText(getIconName(data), 48);
         ItemEffectsRepo.ITEM_EFFECTS.get(data.getId()).addItemDescription(industry, text, data, InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP);
         tooltip.addImageWithText(opad);
+    }
+
+    protected String getIconName(SpecialItemData data) {
+        return Global.getSettings().getSpecialItemSpec(data.getId()).getIconName();
     }
 }

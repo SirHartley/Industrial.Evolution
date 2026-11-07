@@ -22,7 +22,7 @@ When the player picks the vanilla survey option on a planet that is not fully su
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Story CSV | `data/campaign/stories.csv`: `id, optional_planet_types, optional_required_conditions, optional_ruins_sizes, picker_weight, comms_intro_text, story_part_1..3, comms_outro_text`. 6 stories (`IE-desert-warlords-1`, `IE-desert-madmax`, `IE-broken-domes-1`, `IE-empty-1`, `IE-plague-1`, `IE-genocide-1`) and 12 blank rows | path from `settings.json:65` key `oldstory_csv_path` |
+| Story CSV | `data/campaign/stories.csv`: `id, optional_planet_types, optional_required_conditions, optional_ruins_sizes, picker_weight, comms_intro_text, story_part_1..3, comms_outro_text`. 6 stories (`IE-desert-warlords-1`, `IE-desert-madmax`, `IE-broken-domes-1`, `IE-empty-1`, `IE-plague-1`, `IE-genocide-1`) and 12 blank rows | path from `settings.json:24` key `oldstory_csv_path` |
 | Draft CSV | `data/campaign/stories_TODO.csv`: older column set without `optional_required_conditions`; not read by code | |
 | Rule command package | `indevo.exploration.surveystories.dialogue.rules` | `settings.json` `ruleCommandPackages` (`:71`) |
 | Rules | `oldstory_onSurveyIntercept` (trigger `DialogOptionSelected`, `$option == surveyPerform score:1000` + `SurveyStoryReader PREP_STORY`), `oldstory_intro`, `oldstory_readnext`, `oldstory_outro`, `oldstory_addNextOption`, `oldstory_addOutroOption` (trigger `OldStoryReader`) | `data/campaign/rules.csv:928-939` |

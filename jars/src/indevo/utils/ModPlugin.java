@@ -403,7 +403,7 @@ public class ModPlugin extends BaseModPlugin {
     }
 
     private void loadTransientMemory() {
-        MiscIE.getVPCItemSet();
+        indevo.items.memory.VPCCommodityRepo.getAll();
         MiscIE.getVayraBossShips();
         MiscIE.getPrismBossShips();
 

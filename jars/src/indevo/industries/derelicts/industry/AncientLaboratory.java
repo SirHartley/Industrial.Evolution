@@ -148,19 +148,6 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
 
                 if (ind.getId().equals(Ids.ADASSEM)) continue;
 
-                /*if (ind.getId().equals(Ids.ADMANUF) && ind.getSpecialItem() != null) {
-                    Pair<String, String> p = ItemIds.getVPCCommodityIds(ind.getSpecialItem().getId());
-
-                    //ModPlugin.log("AdManuf lab output setup");
-
-                    if (p.one.equals(bonusCommodityId1) || p.two.equals(bonusCommodityId1))
-                        m1.getQuantity().modifyFlat(getModId(), bonusValue, getNameForModifier());
-                    if (p.one.equals(bonusCommodityId2) || p.two.equals(bonusCommodityId2))
-                        m2.getQuantity().modifyFlat(getModId(), bonusValue, getNameForModifier());
-                    if (p.one.equals(bonusCommodityId3) || p.two.equals(bonusCommodityId3))
-                        m3.getQuantity().modifyFlat(getModId(), bonusValue, getNameForModifier());
-                }*/
-
                 if (m1.getQuantity().getModifiedInt() != 0f) {
                     m1.getQuantity().modifyFlat(getModId(), bonusValue, getNameForModifier());
                 }

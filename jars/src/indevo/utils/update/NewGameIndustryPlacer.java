@@ -13,6 +13,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.items.VPCItemPlugin;
 
 import java.util.*;
 
@@ -47,10 +48,17 @@ public class NewGameIndustryPlacer {
             return;
         }
 
+        MarketAPI m = Global.getSector().getEconomy().getMarket("eochu_bres");
+        boolean placed = m != null && !m.hasIndustry(Ids.ADMANUF);
+
         HashMap<String, String> h = new HashMap<>();
-        h.put("eochu_bres", ItemIds.VPC_PARTS);
+        h.put("eochu_bres", null);
 
         placeIndustries(h, Ids.ADMANUF);
+
+        if (placed && m.hasIndustry(Ids.ADMANUF)) {
+            m.getIndustry(Ids.ADMANUF).setSpecialItem(VPCItemPlugin.createItem(VPCItemPlugin.Tier.UNCOMMON, List.of(ItemIds.PARTS)));
+        }
     }
 
     public static void placeSalvageYards() {

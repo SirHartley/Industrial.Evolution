@@ -33,8 +33,8 @@ Outside the package: `indevo/items/AmbassadorItemPlugin.java`, `indevo/items/ins
 | Kind | Id / key | Where |
 |---|---|---|
 | Industry | `IndEvo_embassy` (`Ids.EMBASSY`) | `data/campaign/industries.csv:28` |
-| Special item | `IndEvo_amb` (`ItemIds.AMBASSADOR`), tags `no_drop, hide_in_codex`, params `IndEvo_embassy`; data is the person id | `data/campaign/special_items.csv:23` |
-| Whitelist | `data/config/indEvo/embassy_whitelist.csv` (35 faction ids), path key `IndEvo_embassyList` (`Ids.EMBASSY_LIST`) | `data/config/settings.json:52` |
+| Special item | `IndEvo_amb` (`ItemIds.AMBASSADOR`), tags `no_drop, hide_in_codex`, params `IndEvo_embassy`; data is the person id | `data/campaign/special_items.csv:4` |
+| Whitelist | `data/config/indEvo/embassy_whitelist.csv` (35 faction ids), path key `IndEvo_embassyList` (`Ids.EMBASSY_LIST`) | `data/config/settings.json:11` |
 | Setting | `IndEvo_embassy` (toggle, also disables ambassador scripts and NPC market ambassadors. Off mid game freezes what is already hired: no monthly gain, no HA effect, no tracker days) | `data/config/LunaSettings.csv:99` |
 | Sector memory | `$deconomics_ambAllowed_<factionId>`: true adds a faction, false bans and recalls | `AmbassadorItemHelper.java:18` |
 | Sector memory | `$IndEvo_HAASabotage` (sabotage mode) | `HAAmbassadorEventFactor.java:26`, set by rules |
@@ -43,7 +43,7 @@ Outside the package: `indevo/items/AmbassadorItemPlugin.java`, `indevo/items/ins
 | Fleet memory | `$IndEvo_bountyHunter`, `$IndEvo_himOrHer`, `$IndEvo_name`, `$IndEvo_theFaction` | `AmbassadorMurderConsequences.java:149` |
 | Rules | `IndEvo_ambassadorGreeting*`, `IndEvo_ambassadorHire*`, `IndEvo_ambassadorAlreadyInstalled`, `IndEvo_ambassadorNoFreeEmbassy`, `IndEvo_ambassadorConfirm`, `IndEvo_ambassadorMenu`, `IndEvo_ambassadorMenuSabotage` and `IndEvo_ambassadorMenuStopSabotage` (sabotage toggle by `$global.IndEvo_HAASabotage`), `IndEvo_ambassadorRemove1..6`, `IndEvo_ambassadorRemovalConfirm`, `IndEvo_ambMoveOption`, `IndEvo_amb(Stop)SabotageRep(_confirm)`, `IndEvo_convEnd(Polite)`, `IndEvo_bountyHunterHail`, `IndEvo_bountyHunterText` | `data/campaign/rules.csv` block `# Embassy`, `# Ambassador Murdered` |
 | Strings | `IndEvo_embassy` section | `data/strings/strings.json` |
-| Sprites | `IndEvo/amb_pers`, `amb_heg`, `amb_tt`, `amb_church`, `amb_sind`, `amb_mod`, `IndEvo/reputation` | `data/config/settings.json:164-169`, picked in `Embassy.getCurrentImage()` |
+| Sprites | `IndEvo/amb_pers`, `amb_heg`, `amb_tt`, `amb_church`, `amb_sind`, `amb_mod`, `IndEvo/reputation` | `data/config/settings.json:123-128`, picked in `Embassy.getCurrentImage()` |
 
 ## Registration and lifecycle
 
@@ -51,7 +51,7 @@ Outside the package: `indevo/items/AmbassadorItemPlugin.java`, `indevo/items/ins
 - `ModPlugin.loadTransientMemory()` warms the whitelist cache (`ModPlugin.java:410`).
 - `Embassy.apply()` adds itself as a transient listener only when functional and player owned (`Embassy.java:60`).
 - `AmbassadorItemTrackerPlugin` and `LostAmbassadorRemovalChecker` are persistent listeners (`addListener(obj)`), removed by `setDone()`. `AmbassadorMurderConsequences` is a persistent sector script; `moveAmbassadorToMarket` is a transient script.
-- Rule commands from `ruleCommandPackages` `indevo.industries.embassy.rules` (`settings.json:73`).
+- Rule commands from `ruleCommandPackages` `indevo.industries.embassy.rules` (`settings.json:32`).
 
 ## Flow
 
@@ -97,7 +97,7 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:52`): `findAmba
 - Loss tracking polls `lastDayRep` once a day. `reportPlayerReputationChange` would be the callback, but `CoreReputationPlugin` fires it only for rep actions (`api/impl/campaign/CoreReputationPlugin.java:562-567`), not for raw `FactionAPI.adjustRelationship` calls from events and other mods.
 - Fleet, detachment and shipment cargo is checked fresh each day and never kept as the tracker's last location: `FleetUtils.mergeFleetWithPlayerFleet` copies the cargo and leaves the stacks in the dead fleet's cargo.
 - `AmbassadorPersonManager` is transient: `lastDayRep` and the monthly penalty and gain maps reset on every load (inferred from `ListenerManager.transientListeners`, `obf/campaign/ListenerManager.java:11`).
-- `getAllowedFactionID()` adds memory-allowed factions into the cached whitelist set itself, so they stay allowed for the session even after the key turns false (cache in `MiscIE.getCSVSetFromMemory()`, `indevo/utils/helper/MiscIE.java:528`).
+- `getAllowedFactionID()` adds memory-allowed factions into the cached whitelist set itself, so they stay allowed for the session even after the key turns false (cache in `MiscIE.getCSVSetFromMemory()`, `indevo/utils/helper/MiscIE.java:513`).
 - With Nexerelin enabled, relation changes go through `DiplomacyManager.adjustRelations()` (`AmbassadorPersonManager.java:111`).
 - Users outside the package: `RequisitionCenter`, `RequisitionsCenterSubmarketPlugin`, `JuicyRumorsSpecial`, `IndEvo_SalvageSpecialAssigner` call `getAmbassador`, `hasAmbassador`, `getListOfIncativeFactions` or `adjustRelationship`. Keep these signatures.
 

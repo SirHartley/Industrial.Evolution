@@ -66,9 +66,9 @@ Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3,
 | Tag | `IndEvo_MeteorSwarm` (`MeteorSwarmManager.METEOR_TAG`) on every meteor, added in `MeteorEntity.init(SectorEntityToken, Object)`; read by Catch.Release | `MeteorEntity`, `MeteorSwarmManager` |
 | Tags | `indevo_planetoid`, `IndEvo_IceRockNoSplinters`, `IndEvo_IceEntourage_<id>`, `IndEvo_TreasureoidEntrouage_<id>`; loot station id `<entity id>_loot` | spawners and entities |
 | Rules | `IndEvo_roiderTutorial_*` (offer 5 `IndEvo_consumable_missile_concussive` for 10% of supplies, max 100) | `data/campaign/rules.csv:6-62` |
-| Rule command package | `indevo.exploration.meteor.rules` | `data/config/settings.json:85` |
+| Rule command package | `indevo.exploration.meteor.rules` | `data/config/settings.json:44` |
 | Sounds | `IndEvo_radiation0..9` | `data/config/sounds.json:18` |
-| Sprite | `IndEvo/meteor_storm` (intel icon) | `data/config/settings.json:203` |
+| Sprite | `IndEvo/meteor_storm` (intel icon) | `data/config/settings.json:163` |
 
 ## Registration and lifecycle
 

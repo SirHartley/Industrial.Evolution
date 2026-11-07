@@ -1,17 +1,23 @@
 package indevo.industries.assembler.industry;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import indevo.config.Setting;
 
 public class VariableManufactory extends VariableAssembler {
 
+    public static final float LOG_INCREASE = 150f;
+
     private static final int VPC_MARKET_SIZE_OVERRIDE = 1;
 
     public void apply() {
         Global.getSector().getListenerManager().addListener(this, true);
-        applyIndEvo_VPCEffects();
+
+        if (!market.isPlayerOwned()) {
+            AImode();
+        }
+
+        applyVPCEffects();
         toggleRampUp();
 
         demand(Commodities.HEAVY_MACHINERY, market.getSize() - 1);
@@ -21,10 +27,6 @@ public class VariableManufactory extends VariableAssembler {
             demand.clear();
         }
 
-        if (!market.isPlayerOwned()) {
-            AImode();
-        }
-
         superApply();
         applyDeficits();
     }
@@ -32,6 +34,11 @@ public class VariableManufactory extends VariableAssembler {
     @Override
     public int getVPCMarketSizeOverride() {
         return VPC_MARKET_SIZE_OVERRIDE;
+    }
+
+    @Override
+    protected float getLogIncrease() {
+        return LOG_INCREASE;
     }
 
     @Override
@@ -49,16 +56,7 @@ public class VariableManufactory extends VariableAssembler {
     }
 
     public String getCurrentImage() {
-        return currentVPC != null ? Global.getSettings().getSpriteName("IndEvo", "manufactorium") : super.getCurrentImage();
-    }
-
-    @Override
-    protected void upgradeFinished(Industry previous) {
-        super.upgradeFinished(previous);
-
-        if (previous instanceof VariableAssembler) {
-            setCurrentVPC(((VariableAssembler) previous).getCurrentVPC());
-        }
+        return hasVPC() ? Global.getSettings().getSpriteName("IndEvo", "manufactorium") : super.getCurrentImage();
     }
 }
 

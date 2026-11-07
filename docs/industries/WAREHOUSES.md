@@ -31,8 +31,8 @@ The industry is unreleased: it only shows in the build list if the player factio
 | Submarkets | `IndEvo_WarehouseStorage_1` to `_5` (`Ids.WAREHOUSE_SUBMARKET` + `_n`) | `data/campaign/submarkets.csv:13-17`; also `data/config/indEvo/shipping_submarkets_whitelist.csv:15-19` so courier contracts can use them |
 | Tag | `IndEvo_warehouse` | industry tag that both option providers match |
 | Memory key | `$IndEvo_LinkedStoragePluginInstance` (`LinkedStorageManager.MEMORY_KEY`) | sector memory |
-| Item | `wormhole_anchor` row with `WormholeAnchorItemPlugin` | `data/campaign/special_items.csv:72`, commented out |
-| Item | `IndEvo_relicSpecialItem`, params `IndEvo_Warehouse, IndEvo_Warphouse` | `data/campaign/special_items.csv:67`; dummy item, see [Installables](../items/INSTALLABLES.md) |
+| Item | `wormhole_anchor` row with `WormholeAnchorItemPlugin` | `data/campaign/special_items.csv:49`, commented out |
+| Item | `IndEvo_relicSpecialItem`, params `IndEvo_Warehouse, IndEvo_Warphouse` | `data/campaign/special_items.csv:44`; dummy item, see [Installables](../items/INSTALLABLES.md) |
 
 CSV rows starting with `#` are skipped by the loader (skill `docs/concepts/spec-loading.md:14`).
 

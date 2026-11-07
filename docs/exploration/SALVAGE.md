@@ -33,9 +33,9 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 | Setting | `IndEvo_Enable_Derelicts` (runs the assigner) | `LunaSettings.csv:7`; `ModPlugin.java:298` |
 | Setting | `IndEvo_SpecialApplicationChance` (0.9) | `LunaSettings.csv:21`; `init:51` |
 | Setting | `IndEvo_shipPickerRowCount` (8) | `LunaSettings.csv:14`; ship pickers in DModRepair, PrintShip, ShipRoulette |
-| Drop groups | `rare_tech` (vanilla), `indEvo_tech_event` | `data/campaign/procgen/drop_groups.csv:72-77`; item pool for `ItemChoiceSpecial` |
-| settings.json | `IndEvo_ComForge_amounts` (per commodity base amounts, `logIncrease`) | `data/config/settings.json:32`; `ConvertVPCSpecial.getDepositAmount` |
-| Item ids | `IndEvo_ForgeTemplate*`, `IndEvo_DegForgeTemplate`, VPC items, `IndEvo_debug` fallback | `indevo/ids/ItemIds.java`; see [Installables](../items/INSTALLABLES.md) |
+| Drop groups | `rare_tech` (vanilla), `indEvo_tech_event` | `data/campaign/procgen/drop_groups.csv:75-81`; item pool for `ItemChoiceSpecial` |
+| Config | `IndEvo_ComForge` column of the VPC commodity table (per commodity base amounts) | `data/config/indEvo/vpc_commodities.csv`; `ConvertVPCSpecial.getDepositList` |
+| Item ids | `IndEvo_ForgeTemplate*`, `IndEvo_DegForgeTemplate`, `IndEvo_vpc`, `IndEvo_debug` fallback | `indevo/ids/ItemIds.java`; see [Installables](../items/INSTALLABLES.md) |
 | Memory (fleet) | `$IndEvo_poor_spacer`, `$IndEvo_stolen_credit_amt` | `CreditStashSpecial:118-119`; read by rules `IndEvo_ImpoverishedSpacerGreeting` and following (`data/campaign/rules.csv`, rule cmds `indevo/dialogue/rules/IndEvo_AddSpacerFineMenuPoint.java`, `IndEvo_DeductSpacerCreditsAndSetNeutral.java`) |
 | Rep impact ids | `indEvo_creditSpecial`, `csSpecial` | `CreditStashSpecial:120`, `:155` |
 | CR event id | `indEvo_explosion` | `ExtraFuelSpecial:193` |
@@ -81,11 +81,11 @@ Factions: recoverable ships from vanilla `getNearbyFactions` (remnant systems: T
 All specials call `setDone/setShowAgain/setEndWithContinue` per vanilla `BaseSalvageSpecial`. "Not now" sets `showAgain(true)` so the special returns on the next visit, except in `ItemChoiceSpecial` where declining destroys the item.
 
 - `ChooseBlueprintSpecial`: hull ids rolled at creation from `MiscIE.getAllRareShipHulls()` of the picked size (`ChooseBlueprintSpecialCreator` weights frigate 0.4, destroyer 0.3, cruiser 0.3, capital 0.15, each times 0.8, and 0.2 for the maximum size). Adds `SpecialItemData(SHIP_BP, hullId)`.
-- `ConvertVPCSpecial`: amount `round(round((logIncrease * ln 7 + base) / 10) * 10 * dualReduction * quality)` per output commodity (`:140-157`), dual output reduction from `VariableAssembler.DUAL_OUTPUT_REDUCTION_MULT` ([Assembler](../industries/ASSEMBLER.md)).
+- `ConvertVPCSpecial`: lists every valid VPC stack in the player cargo by its name; amount `round(round((logIncrease * ln 7 + base) / 10) * 10 * outputMult * quality)` per output commodity (`:129-138`) through the static `VariableAssembler.getDepositAmount`, with `CommodityForge.LOG_INCREASE` and `VPCItemPlugin.getDepositMult` ([Assembler](../industries/ASSEMBLER.md)).
 - `CreditStashSpecial`: fleet from `FleetParamsV3` with combat points `rand(min,max) * 5`, faction pirates or independent (coin flip at creation), spawned 2500 to 5000 units away, transponder off, named "Impoverished Pirate/Mercenary", flagged pirate, made aggressive and hostile for 30 days with an `INTERCEPT` assignment (`:105-163`).
 - `DModRepairSpecial`: removes `dModRemovalAmt` (+1 corrupted, +3 pristine forge) random non-built-in d-mods across chosen ships using `RestorationDocks.getListNonBuiltInDMods` and restores the base hull spec when none remain ([Small industries](../industries/SMALL_INDUSTRIES.md)).
 - `ExtraFuelSpecial`: explosion picks a member weighted against frigates and low-CR ships, applies CR loss (capped to keep emergency burn usable) and armor-based hull damage, hull floor 1%.
-- `ItemChoiceSpecial`: on take, if `random < explodeChance`: crew loss `min(ceil(crew * 0.3 * r * explodeChance), 500)`, `ExplosionScript` on the location, and `setShouldAbortSalvageAndRemoveEntity(true)` on exit. Forge templates get a random hull via `ForgeTemplateItemPlugin.pickShip` and 2 charges, or an empty template when no hull qualifies. Invalid item ids fall back to `IndEvo_debug`.
+- `ItemChoiceSpecial`: on take, if `random < explodeChance`: crew loss `min(ceil(crew * 0.3 * r * explodeChance), 500)`, `ExplosionScript` on the location, and `setShouldAbortSalvageAndRemoveEntity(true)` on exit. The item is picked from the `rare_tech` and `indEvo_tech_event` rows that name an item id (`pickItemRow`, `:99-110`); the row's params are stored in `itemParams` and resolved on open through the item plugin's `resolveDropParamsToSpecificItemData`, so forge templates get a hull and VPCs a tier roll. A forge template without params (older saves) resolves as `{charges:2}`, and one with no qualifying hull becomes an empty template. Invalid item ids fall back to `IndEvo_debug`.
 - `JuicyRumorsSpecial`: rep through `AmbassadorPersonManager.adjustRelationship` ([Embassy](../industries/EMBASSY.md)); inactive factions from `AmbassadorPersonManager.getListOfIncativeFactions()` are excluded and re-rolled on open.
 - `PrintShipSpecial`: quality = template quality + special `qualityLevel`; `ForgeTemplateItemPlugin.addPrintDefectDMods`, `HullForge.addBuiltInHullmods(1, ...)`, then the template stack is replaced by `ForgeTemplateItemPlugin.useCharge(data)` ([Derelicts](../industries/DERELICTS.md)).
 - `ShipRouletteSpecial`: one learnable hull per size rolled at creation with its DP; the picker leaves out the flagship and `SHIP_CAN_NOT_SCUTTLE` ships; sacrificed ships are stripped to cargo and removed; the result gets `random(qualityLevel)` d-mods and `prepareShipForRecovery` with weapon retain `1 / qualityLevel`.
@@ -94,17 +94,16 @@ All specials call `setDone/setShowAgain/setEndWithContinue` per vanilla `BaseSal
 
 - Special data is created at world gen and stored in the save; its constructors run hull and item lookups at that time (`ChooseBlueprintSpecialData`, `ShipRouletteSpecialData`, `JuicyRumorsSpecialData`). A mod list change after world gen can leave stale hull or faction ids; only `ItemChoiceSpecial` and `JuicyRumorsSpecial` repair their data on open.
 - `CreditStashSpecial` flags the spawned fleet with `$IndEvo_poor_spacer`, which the rules greeting matches at score 10000.
-- Shared helpers: `MiscIE.getAllRareShipHulls`, `getAllLearnableShipHulls`, `getVPCItemSet`, `stripShipNoCargo`, `stripShipToCargoAndReturnVariant`, `addOrIncrement` ([Utils](../core/UTILS.md)).
+- Shared helpers: `MiscIE.getAllRareShipHulls`, `getAllLearnableShipHulls`, `stripShipNoCargo`, `stripShipToCargoAndReturnVariant`, `addOrIncrement` ([Utils](../core/UTILS.md)).
 
 ## Known issues and dormant code
 
 | Item | State |
 |---|---|
 | `IndEvo_SquatterDanger` | Excluded by `IndEvo.iml` (`specials/WIP`), wrong package, missing `itemID` field; dead |
-| `ItemChoiceSpecialCreator` repick loop | `while (item == null || item.isEmpty() || safeguard > 10)` (`IndEvo_SalvageSpecialAssigner.java:350`): the safeguard never ends the loop; an empty picker hangs world gen |
 | `DModRepairSpecial` repair loop | On `removeOneDMod` failure it does `i--; continue` without removing the member from the picker (`:178-185`); a member counted by `DModManager` but with no entry in `getListNonBuiltInDMods` loops forever (inferred) |
 | `pickSpecialFor` derelict branch | Casts `getCustomPlugin()` to `DerelictShipEntityPlugin` when type is `wreck` (`:152-153`); `variant` is computed and unused |
-| `initNothing()` without return | `DModRepairSpecial:65`, `ItemChoiceSpecial:54`, `JuicyRumorsSpecial:53`, `ShipRouletteSpecial:101` call `initNothing()` and keep building the dialog |
+| `initNothing()` without return | `DModRepairSpecial:65`, `ItemChoiceSpecial:59`, `JuicyRumorsSpecial:53`, `ShipRouletteSpecial:101` call `initNothing()` and keep building the dialog |
 | `ShipRouletteSpecial` | `qualityLevel` 0 is possible (creators with min 0) and gives `retain = 1/0` = Infinity (`:276`), same as level 1 |
 | `ChooseBlueprintSpecialData` | `pickAndRemove()` NPE if fewer rare hulls of that size than `amt` (`:53-55`) |
 | `DerelictStationPlacer.addDebugStation` | Dev-only caller of `PrintShipSpecialCreator` |

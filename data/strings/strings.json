@@ -1,6 +1,5 @@
 {
 	"IndEvo_misc": {
-		"andWithSpaces": " and ",
 		"theLocalStorage": "the local storage.",
 		"unitsWithFrontSpace": " units",
 		"monthWithFrontSpace": " month",
@@ -29,18 +28,7 @@
 
 	"IndEvo_items":{
 		"items": "items",
-		"currentlyInstalled": " currently installed. ",
-		"noItems": "No items installed",
-		"install": "Install $itemName ...",
-		"manage": "Manage $itemName ...",
-		"uninstall": "Uninstall $itemName ",
-		"noCurrent": "No $itemName currently installed",
-		"noAvailable": "No $itemName available",
-		"noStorage": "No $itemName available in storage",
-		"selectForIndustry": "Select $itemName to install for $industryName",
-		"vpcIndTooltip": "Installing a Tri-Tachyon Variable Production Chip (VPC) will change the economic properties of this industry. ",
-		"VPC": "VPC",
-		"VPCs": "VPC"
+		"noItems": "No items installed"
 	},
 
 	"IndEvo_AICores": {
@@ -59,11 +47,6 @@
 	"IndEvo_VarInd": {
 		"vpcNotice": "This structure requires a Variable Production Chip (VPC) to function",
 		"rampUp": "Production ramp up: output temporarily decreased by %s",
-		"singleOutput": "Currently outputs %s $commodityName1 per month.",
-		"doubleOutput": "Currently outputs %s $commodityName1 and %s $commodityName2 per month.",
-		"vpc_rare_desc": "This rare, top of the line chip contains handling and production protocols for both %s.",
-		"vpc_uncommon_desc": "This uncommon chip contains handling and production protocols for %s.",
-		"vpc_common_desc": "This relatively common chip contains handling and production protocols for %s.",
 		"shortageTooltip": "Reduced commodity output due to shortage.",
 		"deliveryNotice": "Commodities have been delivered to $targetLocation",
 		"gCoreEffect":"Reduces upkeep cost by %s."

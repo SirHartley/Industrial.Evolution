@@ -328,32 +328,11 @@ public class IndEvo_SalvageSpecialAssigner {
 
         public Object createSpecial(SectorEntityToken entity, SalvageSpecialAssigner.SpecialCreationContext context) {
             float explosionChance = minEfficiency + random.nextFloat() * (maxEfficiency - minEfficiency);
+            DropGroupRow row = ItemChoiceSpecial.pickItemRow(random);
 
-            WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
-
-            for (DropGroupRow r : DropGroupRow.getPicker("rare_tech").getItems()) {
-                if (r.isNothing()) continue;
-                if (r.isSpecialItem() && r.getSpecialItemId() != null && !r.getSpecialItemId().isEmpty())
-                    picker.add(r.getSpecialItemId());
-            }
-
-            for (DropGroupRow r : DropGroupRow.getPicker("indEvo_tech_event").getItems()) {
-                if (r.isNothing()) continue;
-                if (r.isSpecialItem() && r.getSpecialItemId() != null && !r.getSpecialItemId().isEmpty())
-                    picker.add(r.getSpecialItemId());
-            }
-
-            //used to crash because the chosen item was "", no idea what happened, but we'll pick as long as we have to god damn it (or 10 times)
-            String item = picker.pick();
-            int safeguard = 0;
-
-            while (item == null || item.isEmpty() || safeguard > 10) {
-                item = picker.pick();
-                safeguard++;
-                log.info("Repicking for itemChoiceSpecial: " + safeguard);
-            }
-
-            return new ItemChoiceSpecial.ItemChoiceSpecialData(item, explosionChance);
+            return row != null
+                    ? new ItemChoiceSpecial.ItemChoiceSpecialData(row.getSpecialItemId(), row.getSpecialItemData(), explosionChance)
+                    : new ItemChoiceSpecial.ItemChoiceSpecialData(null, null, explosionChance);
         }
     }
 
