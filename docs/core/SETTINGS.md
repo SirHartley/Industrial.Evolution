@@ -81,7 +81,7 @@ if (!Setting.EMBASSY.enabled()) return;
 | `adminSalaryTier1` to `3` | Vanilla override, marked "do not touch" | Vanilla |
 | `IndEvo_*List` | Paths of the whitelist CSVs | `Ids` |
 | `oldstory_csv_path` | Survey story CSV path | [Survey stories](../exploration/SURVEY_STORIES.md) |
-| `IndEvo_ToggleMagicRandomSelector` | Debug switch for hull forge random picks | `indevo/industries/derelicts/industry/HullForge.java:280` |
+| `IndEvo_ToggleMagicRandomSelector` | Debug switch for hull forge random picks | `indevo/industries/derelicts/industry/HullForge.java:279` |
 | `ruleCommandPackages` | Packages the rules engine searches for IE rule commands | [Rule commands](../dialogue/RULE_COMMANDS.md) |
 | `designTypeColors` | Colors for IE design types (Experimental, Consumable, Cryochamber) | Vanilla |
 | `graphics` | Sprite keys under `IndEvo` and feature categories | Callers via `Global.getSettings().getSprite(category, key)` |

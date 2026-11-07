@@ -2,22 +2,16 @@ package indevo.industries.derelicts.industry;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
-import com.fs.starfarer.api.campaign.FactionAPI;
-import com.fs.starfarer.api.campaign.SpecialItemData;
-import com.fs.starfarer.api.campaign.SpecialItemSpecAPI;
-import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
 import indevo.industries.SharedSubmarketUser;
 import indevo.industries.derelicts.utils.IndustrySpecView;
-import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
+import indevo.items.installable.NamedItemSlotPlugin;
 import org.apache.log4j.Logger;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,8 +22,6 @@ public class BaseForgeTemplateUser extends SharedSubmarketUser {
 
     public static Logger log = Global.getLogger(BaseForgeTemplateUser.class);
 
-    protected SpecialItemData forgeTemplate = null;
-    protected ShipHullSpecAPI forgeShip = null;
     private transient IndustrySpecView specView = null;
 
     @Override
@@ -56,6 +48,15 @@ public class BaseForgeTemplateUser extends SharedSubmarketUser {
     }
 
     @Override
+    public List<InstallableIndustryItemPlugin> getInstallableItems() {
+        List<InstallableIndustryItemPlugin> list = new ArrayList<>();
+        if (!super.getInstallableItems().isEmpty()) list.add(new NamedItemSlotPlugin(this, "Forge Template",
+                "Forge Templates have different uses depending on the structure they are installed in."));
+
+        return list;
+    }
+
+    @Override
     public boolean canDowngrade() {
         return false;
     }
@@ -67,119 +68,12 @@ public class BaseForgeTemplateUser extends SharedSubmarketUser {
 
     public void apply() {
         super.apply(true);
-        applyForgeTemplateEffects();
 
         //needed for Forge template item tooltips
         MemoryAPI memory = Global.getSector().getMemoryWithoutUpdate();
         if (!memory.contains("$" + getId())) {
             Global.getSector().getMemoryWithoutUpdate().set("$" + getId(), true);
         }
-    }
-
-    @Override
-    public void unapply() {
-        super.unapply();
-
-        if (forgeTemplate != null) {
-            ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect effect = ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.get(forgeTemplate.getId());
-            if (effect != null) {
-                effect.unapply(this);
-            }
-        }
-    }
-
-    public void setForgeShip(ShipHullSpecAPI ship) {
-        forgeShip = ship;
-    }
-
-    public void unSetForgeShip() {
-        forgeShip = null;
-    }
-
-    protected void applyForgeTemplateEffects() {
-        if (forgeTemplate != null) {
-            ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect effect = ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.get(forgeTemplate.getId());
-
-            if (effect != null) {
-                effect.apply(this, forgeTemplate);
-            }
-        }
-    }
-
-    public void setForgeTemplate(SpecialItemData forgeTemplate) {
-        if (forgeTemplate == null && this.forgeTemplate != null) {
-            ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect effect = ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.get(this.forgeTemplate.getId());
-            if (effect != null) {
-                effect.unapply(this);
-            }
-        }
-        this.forgeTemplate = forgeTemplate;
-    }
-
-    public SpecialItemData getSpecialItem() {
-        return forgeTemplate;
-    }
-
-    public void setSpecialItem(SpecialItemData special) {
-        forgeTemplate = special;
-    }
-
-    @Override
-    public boolean wantsToUseSpecialItem(SpecialItemData data) {
-        return forgeTemplate == null &&
-                data != null &&
-                ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.containsKey(data.getId());
-    }
-
-    @Override
-    protected boolean addNonAICoreInstalledItems(Industry.IndustryTooltipMode mode, TooltipMakerAPI tooltip, boolean expanded) {
-        if (forgeTemplate == null) return false;
-
-        float opad = 10f;
-
-        FactionAPI faction = market.getFaction();
-        Color color = faction.getBaseUIColor();
-        Color dark = faction.getDarkUIColor();
-
-
-        SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(forgeTemplate.getId());
-
-        TooltipMakerAPI text = tooltip.beginImageWithText(spec.getIconName(), 48);
-        ForgeTemplateInstallableItemPlugin.ForgeTemplateEffect effect = ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.get(forgeTemplate.getId());
-        effect.addItemDescription(text, forgeTemplate, InstallableIndustryItemPlugin.InstallableItemDescriptionMode.INDUSTRY_TOOLTIP);
-        tooltip.addImageWithText(opad);
-
-        return true;
-    }
-
-    @Override
-    public java.util.List<InstallableIndustryItemPlugin> getInstallableItems() {
-        ArrayList<InstallableIndustryItemPlugin> list = new ArrayList<>();
-        list.add(new ForgeTemplateInstallableItemPlugin(this));
-        return list;
-    }
-
-    @Override
-    public void initWithParams(java.util.List<String> params) {
-        super.initWithParams(params);
-
-        for (String str : params) {
-            if (ForgeTemplateInstallableItemPlugin.FORGETEMPLATE_EFFECTS.containsKey(str)) {
-                setForgeTemplate(new SpecialItemData(str, null));
-                break;
-            }
-        }
-    }
-
-    @Override
-    public java.util.List<SpecialItemData> getVisibleInstalledItems() {
-        List<SpecialItemData> result = super.getVisibleInstalledItems();
-
-        if (forgeTemplate != null) {
-            result.add(forgeTemplate);
-        }
-
-        return result;
     }
 
     @Override

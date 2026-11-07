@@ -25,7 +25,6 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.ForgeTemplateItemPlugin;
-import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -134,8 +133,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
         autoFeed();
 
-        if (getSpecialItem() != null
-                && getSpecialItem().getId().contains(ItemIds.FORGETEMPLATE + "_")
+        if (ForgeTemplateItemPlugin.isForgeTemplate(getSpecialItem())
                 && currentShip == null) {
 
             boolean successful = initConstruction();
@@ -236,8 +234,9 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
     }
 
     private boolean initConstruction() {
-        if (Global.getSettings().getHullSpec(getSpecialItem().getData()) != null) {
-            currentShip = Global.getSettings().getHullSpec(getSpecialItem().getData());
+        String hullId = ForgeTemplateItemPlugin.getHullId(getSpecialItem());
+        if (hullId != null && Global.getSettings().getHullSpec(hullId) != null) {
+            currentShip = Global.getSettings().getHullSpec(hullId);
             daysRequired = getRequiredDaysForHull(currentShip);
             return true;
         }
@@ -285,7 +284,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
             toMarket.getSubmarket(Submarkets.SUBMARKET_STORAGE).getCargo().getMothballedShips().addFleetMember(ship);
 
             //reduce charge count
-            setSpecialItem(ForgeTemplateItemPlugin.incrementForgeTemplateData(getSpecialItem(), -1));
+            setSpecialItem(ForgeTemplateItemPlugin.useCharge(getSpecialItem()));
         } else {
             return false;
         }
@@ -473,13 +472,8 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
     @Override
     public java.util.List<InstallableIndustryItemPlugin> getInstallableItems() {
-
-        ArrayList<InstallableIndustryItemPlugin> list = new ArrayList<>();
-        if (currentShip == null) {
-            list.add(new ForgeTemplateInstallableItemPlugin(this));
-        }
-
-        return list;
+        if (currentShip != null) return new ArrayList<>();
+        return super.getInstallableItems();
     }
 
     private String getAiCoreIdNotNull() {
@@ -525,7 +519,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
     }
 
     private void addCompletedMessage(float cost, MarketAPI target) {
-        int c = ForgeTemplateItemPlugin.getForgeTemplateCharges(getSpecialItem().getId());
+        int c = ForgeTemplateItemPlugin.getCharges(getSpecialItem());
         String s = c > 1 ? c + " charges" : c + " charge";
         s = c < 1 ? "no charges" : s;
 
@@ -659,7 +653,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
     @Override
     public boolean isLegalOnSharedSubmarket(CargoStackAPI stack) {
         if (!stack.isSpecialStack()) return false;
-        return stack.getSpecialItemSpecIfSpecial().getId().contains(ItemIds.FORGETEMPLATE);
+        return ForgeTemplateItemPlugin.isForgeTemplate(stack.getSpecialDataIfSpecial());
     }
 
     @Override

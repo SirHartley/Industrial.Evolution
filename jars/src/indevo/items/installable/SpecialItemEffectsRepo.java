@@ -61,6 +61,10 @@ public class SpecialItemEffectsRepo {
 
     public static Map<String, InstallableItemEffect> ITEM_EFFECTS = new HashMap<String, InstallableItemEffect>() {{
 
+        put(ItemIds.FORGETEMPLATE, new ForgeTemplateEffect(ItemIds.FORGETEMPLATE));
+        put(ItemIds.EMPTYFORGETEMPLATE, new ForgeTemplateEffect(ItemIds.EMPTYFORGETEMPLATE));
+        put(ItemIds.BROKENFORGETEMPLATE, new ForgeTemplateEffect(ItemIds.BROKENFORGETEMPLATE));
+
         put(Items.WORMHOLE_ANCHOR, new BaseInstallableItemEffect(Items.WORMHOLE_ANCHOR) {
             public void apply(Industry industry) {
             }

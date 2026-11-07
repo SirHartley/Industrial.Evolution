@@ -105,6 +105,7 @@ Fixed - Crash when using "Ship now" on a contract that became invalid
 Fixed - Base fee setting maximum is no longer below its default
 
 Derelict Industries
+Adjusted - Forge Templates now only install in the structure that can use them
 Fixed - Rift Generator planets now move in sync with the warp animation
 Fixed - Rift Generator no longer leaves planetary rings behind
 Fixed - Crash when the Rift Generator has only one core system left as a target
@@ -115,6 +116,8 @@ Fixed - Old Industrial Ruins no longer offer another colony's derelict industry
 Fixed - Ruins added mid-campaign now properly get a derelict industry
 Fixed - NPC ruins upgrades no longer restart over and over (Nexerelin)
 Fixed - Old Industrial Ruins tooltip now unlocks its Codex entry
+Fixed - 5 charge Forge Templates now show their hull and price
+Fixed - Forge Templates no longer lose their ship data when another mod moves them
 
 Ruined Infrastructure
 Fixed - NPC colonies now properly restore Ruined Infrastructure (Nexerelin)

@@ -16,7 +16,6 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.EmptyForgeTemplateItemPlugin;
-import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
 import org.json.JSONArray;
@@ -327,13 +326,6 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
         } else
             return "According to some old logs, this was a facility researching the next generation of blueprints, along with some other, more minor topics. No standard Domain Blueprint seems to fit the equipment."
                     + "\n\nThere are frequent mentions of something called a Forge Template, and of other structures working on partner programs.";
-    }
-
-    @Override
-    public java.util.List<InstallableIndustryItemPlugin> getInstallableItems() {
-        ArrayList<InstallableIndustryItemPlugin> list = new ArrayList<>();
-        list.add(new ForgeTemplateInstallableItemPlugin(this));
-        return list;
     }
 
     @Override

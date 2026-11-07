@@ -129,8 +129,9 @@ public class ItemChoiceSpecial extends BaseSalvageSpecial {
         if (spec == null) data.itemID = "IndEvo_debug";
 
         //for forge templates
-        if (data.itemID.contains(ItemIds.FORGETEMPLATE)) {
-            specialItemData = new SpecialItemData(data.itemID, ForgeTemplateItemPlugin.pickShip(null, random));
+        if (data.itemID.equals(ItemIds.FORGETEMPLATE)) {
+            String hullId = ForgeTemplateItemPlugin.pickShip(null, random);
+            specialItemData = hullId != null ? ForgeTemplateItemPlugin.createForgeTemplate(hullId, 2) : new SpecialItemData(ItemIds.EMPTYFORGETEMPLATE, null);
         } else {
             specialItemData = new SpecialItemData(data.itemID, null);
         }

@@ -100,7 +100,7 @@ public class PrintShipSpecial extends BaseSalvageSpecial {
     private SpecialItemData reduceFTStack(FleetMemberAPI member) {
         CargoAPI cargo = playerFleet.getCargo();
         CargoStackAPI stack = getForgeTemplateStackForMember(member);
-        SpecialItemData data = ForgeTemplateItemPlugin.incrementForgeTemplateData(stack.getSpecialDataIfSpecial(), -1);
+        SpecialItemData data = ForgeTemplateItemPlugin.useCharge(stack.getSpecialDataIfSpecial());
 
         cargo.removeStack(stack);
         cargo.addSpecial(data, 1);
@@ -185,7 +185,7 @@ public class PrintShipSpecial extends BaseSalvageSpecial {
     private CargoStackAPI getForgeTemplateStackForMember(FleetMemberAPI member) {
         for (CargoStackAPI stack : playerFleet.getCargo().getStacksCopy()) {
             if (!stack.isSpecialStack()) continue;
-            if (isForgeTemplateStack(stack) && ForgeTemplateItemPlugin.getForgeTemplateHullID(stack.getSpecialDataIfSpecial()).equals(member.getHullId())) {
+            if (isForgeTemplateStack(stack) && member.getHullId().equals(ForgeTemplateItemPlugin.getHullId(stack.getSpecialDataIfSpecial()))) {
                 return stack;
             }
         }
@@ -206,7 +206,7 @@ public class PrintShipSpecial extends BaseSalvageSpecial {
     }
 
     private boolean isForgeTemplateStack(CargoStackAPI stack) {
-        return stack.getSpecialItemSpecIfSpecial().getId().contains("IndEvo_ForgeTemplate");
+        return ForgeTemplateItemPlugin.isForgeTemplate(stack.getSpecialDataIfSpecial());
     }
 
     private List<FleetMemberAPI> getForgeTemplateFleetMemberList() {
