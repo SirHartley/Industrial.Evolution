@@ -74,12 +74,16 @@ public class FleetStatus {
         status.currentSupplies = Math.round(cargo.getSupplies());
 
         status.requiredFuelPerLY = Math.round(fleet.getLogistics().getFuelCostPerLightYear());
-        status.requiredSuppliesPerMonth = Math.round(fleet.getLogistics().getShipMaintenanceSupplyCost());
         status.suppliesToRecover = Math.round(fleet.getLogistics().getTotalRepairAndRecoverySupplyCost());
 
-        //fleet.getLogistics().getTotalSuppliesPerDay();
+        //getShipMaintenanceSupplyCost is per day and adds cr recovery, which suppliesToRecover already holds
+        float suppliesPerMonth = 0f;
+        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
+            if (!m.isMothballed()) suppliesPerMonth += m.getStats().getSuppliesPerMonth().getModifiedValue();
+        }
 
-        //tally, skip for selected members
+        status.requiredSuppliesPerMonth = Math.round(suppliesPerMonth);
+
         for (FleetMemberAPI m : fleetMemberAPIList) {
             status.totalCrewCap += m.getMaxCrew();
             status.requiredCrew += m.getMinCrew();
@@ -87,10 +91,11 @@ public class FleetStatus {
             status.totalFuelCap += m.getFuelCapacity();
         }
 
-        float operatingTimeMonths = ((status.currentSupplies * 1f) - status.suppliesToRecover) / (status.requiredSuppliesPerMonth);
+        float operatingTimeMonths = suppliesPerMonth > 0f ? ((status.currentSupplies * 1f) - status.suppliesToRecover) / suppliesPerMonth : 0f;
 
         String operatingTimeString;
-        if (operatingTimeMonths < 1) operatingTimeString = "less than 1 month";
+        if (suppliesPerMonth <= 0f) operatingTimeString = "no active ships";
+        else if (operatingTimeMonths < 1) operatingTimeString = "less than 1 month";
         else if (operatingTimeMonths < 2) operatingTimeString = "1 month";
         else operatingTimeString = (int) Math.floor(operatingTimeMonths) + " months";
 

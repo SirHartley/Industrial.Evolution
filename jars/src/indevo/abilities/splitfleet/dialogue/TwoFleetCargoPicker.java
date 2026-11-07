@@ -184,7 +184,7 @@ public class TwoFleetCargoPicker {
                 CargoAPI fromCargo = fromFleet.cargo;
                 CargoAPI toCargo = toFleet.cargo;
 
-                if (toFleet.currentSupplies < toFleet.requiredSuppliesPerMonth) {
+                if (toFleet.currentSupplies < toFleet.requiredSuppliesPerMonth + toFleet.suppliesToRecover) {
                     //take what you need to repair and enough for one month
                     //if not available, take half the stuff player has available up to your cargo max
                     float amt = (toFleet.requiredSuppliesPerMonth + toFleet.suppliesToRecover) - toFleet.currentSupplies;

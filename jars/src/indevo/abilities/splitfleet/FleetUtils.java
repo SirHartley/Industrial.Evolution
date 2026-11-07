@@ -312,6 +312,8 @@ public class FleetUtils {
         FleetMemberAPI fakeMember = Global.getFactory().createFleetMember(FleetMemberType.SHIP, m.getVariant());
         fakeMember.setShipName(m.getShipName());
         fakeMember.getRepairTracker().setMothballed(m.isMothballed());
+        fakeMember.getRepairTracker().setCR(m.getRepairTracker().getBaseCR());
+        fakeMember.getStatus().setHullFraction(m.getStatus().getHullFraction());
 
         PersonAPI actualCaptain = m.getCaptain();
         if (actualCaptain != null) {

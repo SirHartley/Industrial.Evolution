@@ -211,6 +211,8 @@ Fixed - Auto-load now takes half the supplies, not all (up to cargo space)
 Fixed - Detachments no longer get stuck when recalled from another star system
 Fixed - A detachment that disappears unexpectedly now returns its ships and cargo to the main force
 Fixed - Transport detachments with a lost target now pick the closest market with storage
+Fixed - Detachment supply use, repair cost and operating time now show real values (supply use was per day)
+Note - Spawning a detachment now needs a full month of supplies plus repairs, as the panel says
 Fixed - Staying or dormant detachments and their wrecks no longer drift to the sun
 Fixed - Detachments no longer silently lose crew, fuel and cargo over capacity
 Note - Loading a detachment past its capacity is now refused
