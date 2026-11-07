@@ -12,6 +12,8 @@ Adjusted - Industrial Supply Store moves its contents to colony storage when the
 Adjusted - Removed redundant UI text and shortened tooltips
 Adjusted - Settings tabs re-sorted
 Adjusted - Settings now apply without a game restart
+Adjusted - IE costs and income now show as their own lines in the income report
+Adjusted - Fees at markets you do not own now show under Services in the income report
 Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
 Fixed - Crash on market updates with some modded industries
 Fixed - Settings no longer accept values below their minimum
@@ -79,11 +81,13 @@ Fixed - Interstellar Relay setting now properly controls Interstellar Relays
 Fixed - Tooltip now shows why a relay without a Military Base is inactive
 
 Academy
+Adjusted - Training at your own colonies is now billed in the monthly income report
 Fixed - Aggression training no longer bills you twice the amount it should
 Fixed - Academy transfers no longer exceed the fleet's officer limit
 Fixed - Swapping AI cores no longer keeps the old core's bonuses
 Fixed - Crash when officer training finishes in a translated game (PR'd by cwbnga, thank you!)
 Fixed - Officer training tooltip now properly shows the target personality
+Fixed - Admin training no longer charges the fee when it does not start
 
 Commodity Forge
 Fixed - Beta core upkeep discount no longer stays active after installing a VPC
@@ -158,6 +162,7 @@ Fixed - Weapon salvage no longer goes over the monthly cap on the last day
 Fixed - Ship contracts now take ship parts instead of rare parts
 Fixed - Contract and D-mod transfer costs no longer go over the 150% cap
 Fixed - Ship Component Value Mult setting now properly accepts decimals
+Fixed - D-mod transfer can no longer be confirmed without enough credits
 Fixed - Tooltip now shows when Salvage Yards are turned off in the settings
 
 Senate
@@ -174,6 +179,7 @@ Fixed - Forced Labour penalty no longer ends early or carries into the next one
 Fixed - Edict timers no longer speed up after each save and load
 
 Supercomputer
+Adjusted - Beta core income is now paid with the monthly income
 Fixed - Crash with modded AI cores (they now last as long as a gamma core)
 Fixed - Income bonus no longer stays after removal
 Fixed - Crash in the build menu on colonies without a planet

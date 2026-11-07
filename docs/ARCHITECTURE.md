@@ -207,6 +207,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 
 - Switchable population, mining and refining return the vanilla id from `getId()`. `Market.getIndustry` and `hasIndustry` match on `getId()`, so vanilla and other mods get the IE class for `population`, `mining` and `refining`.
 - `IndustrySpec` objects are shared by every instance of an industry. Never write per market values onto one. `Ruins` (per market upgrade), forge template users and the rift generator (no downgrade) return an `IndustrySpecView` (`indevo/industries/derelicts/utils`) from `getSpec()` ([DERELICTS](industries/DERELICTS.md)).
+- IE costs and income go through `BillingHelper` ([UTILS](core/UTILS.md#billinghelper)): own monthly report lines, and `canAfford` then `chargeNow` for dialog purchases. Never write vanilla report nodes or subtract credits directly. Loot and refunds add credits directly.
 - `BaseIndustry.buildTime` (protected) is read by reflection from `RelicBuildTimeReductionButtonAdder` and read and written from `Edict_FastBuild`.
 - `ModPlugin.addTypePrefaceToIndustrySpecs()` prefixes every industry description (vanilla and other mods) with `Type: ...` based on tags.
 - `createAcademyMarket()` adds a hidden independent market `ACADEMY_MARKET_ID` on `station_galatia_academy` on new game and on load if missing.

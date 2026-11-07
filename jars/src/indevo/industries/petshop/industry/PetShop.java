@@ -5,7 +5,6 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.SubmarketPlugin;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.econ.MonthlyReport;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
@@ -21,7 +20,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.memory.Pet;
 import indevo.submarkets.IndustrySubmarkets;
-import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -107,12 +106,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         int lastIterInMonth = (int) Global.getSettings().getFloat("economyIterPerMonth") - 1;
         if (iterIndex != lastIterInMonth) return;
 
-        if (isFunctional() && !market.isPlayerOwned()) {
-
-            MonthlyReport.FDNode iNode = MiscIE.createMonthlyReportNode(this, market, "Pet Storage", Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE);
-
-            iNode.upkeep += getTotalStorageCost();
-        }
+        if (isFunctional() && !market.isPlayerOwned()) BillingHelper.charge(this, "storage", "Pet storage", getTotalStorageCost());
     }
 
     @Override

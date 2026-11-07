@@ -16,6 +16,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.academy.industry.Academy;
+import indevo.utils.helper.BillingHelper;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
@@ -55,7 +56,7 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
                         opts.setEnabled("IndEvo_MovePersonOption_better", Academy.isOfficerTrainingDirectionAllowed(person, Academy.trainingDirection.BETTER));
 
                         if (!market.isPlayerOwned()) {
-                            if (!Academy.playerCanAffordCost(Setting.PERSONALITY_TRAINING_COST.intValue())) {
+                            if (!BillingHelper.canAfford(Setting.PERSONALITY_TRAINING_COST.intValue())) {
                                 opts.setEnabled("IndEvo_MovePersonOption_better", false);
                                 opts.setTooltip("IndEvo_MovePersonOption_better", "You can't afford the training fee!");
                             }
@@ -65,7 +66,7 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
                         opts.setEnabled("IndEvo_MovePersonOption_worse", Academy.isOfficerTrainingDirectionAllowed(person, Academy.trainingDirection.WEAKER));
 
                         if (!market.isPlayerOwned()) {
-                            if (!Academy.playerCanAffordCost(Setting.PERSONALITY_TRAINING_COST.intValue())) {
+                            if (!BillingHelper.canAfford(Setting.PERSONALITY_TRAINING_COST.intValue())) {
                                 opts.setEnabled("IndEvo_MovePersonOption_worse", false);
                                 opts.setTooltip("IndEvo_MovePersonOption_worse", "You can't afford the training fee!");
                             }
@@ -76,7 +77,7 @@ public class IndEvo_DisplayPersonActionPanel extends BaseCommandPlugin {
                         opts.addOption("Confirm", "IndEvo_MovePersonOption");
 
                         if (!market.isPlayerOwned()) {
-                            if (!Academy.playerCanAffordCost(Setting.ADMIN_TRAINING_COST.intValue())) {
+                            if (!BillingHelper.canAfford(Setting.ADMIN_TRAINING_COST.intValue())) {
                                 opts.setEnabled("IndEvo_MovePersonOption", false);
                                 opts.setTooltip("IndEvo_MovePersonOption", "You can't afford the training fee!");
                             }

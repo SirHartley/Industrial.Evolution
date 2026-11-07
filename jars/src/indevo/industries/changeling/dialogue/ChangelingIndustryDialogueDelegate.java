@@ -16,6 +16,7 @@ import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.industry.SwitchableIndustryAPI;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.BillingHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
 
             int buildTime = Math.round(sub.getBuildTime());
             float cost = sub.getCost();
-            boolean canAfford = Global.getSector().getPlayerFleet().getCargo().getCredits().get() >= cost;
+            boolean canAfford = BillingHelper.canAfford(cost);
             boolean canBuild = sub.isAvailableToBuild();
 
             Color baseColor = Misc.getButtonTextColor();
@@ -145,7 +146,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
 
             if (!swIndustry.getCurrent().getId().equals(selected.id)) {
                 swIndustry.setCurrent(selected.newInstance(), false);
-                Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(selected.cost);
+                BillingHelper.chargeNow(selected.cost);
             }
         } else {
             //it's not and we have to replace
@@ -181,7 +182,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
 
             if (switchable instanceof SwitchableIndustryAPI) {
                 ((SwitchableIndustryAPI) switchable).setCurrent(selected.newInstance(), false);
-                Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(selected.cost);
+                BillingHelper.chargeNow(selected.cost);
             } else throw new IllegalArgumentException("non-switchable industry passed to switchable industry dialogue delegate");
         }
     }

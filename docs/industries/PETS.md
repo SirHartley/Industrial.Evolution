@@ -61,7 +61,7 @@ Code paths relative to `jars/src/indevo/`.
 - `PetManagementAbilityPlugin.applySetting()` (`abilities/pets/PetManagementAbilityPlugin.java:19-43`): with `IndEvo_pets` on, adds `pet_management` (`Ids.ABILITY_PET_MANAGEMENT`) to the player fleet and character, clears `no_sell` on `fairy` once research `Ids.PROJ_NAVI` is redeemed ([Research](../dialogue/RESEARCH.md)) and loads pet textures; a texture that fails to load throws `IllegalStateException`. With the setting off, removes the ability. `PlayerSettings.applyCampaignSettings()` runs it from `ModPlugin.onGameLoad()` (`utils/ModPlugin.java:171`) and after a Save in the LunaLib menu in the campaign ([Settings](../core/SETTINGS.md#reading-a-setting)). On new game with pets on, `onGameLoad` also adds Lord Foog (`:173`).
 - `PetCenterOptionProvider.register()` from `setListenersIfNeeded()` (`ModPlugin.java:453`). `PetShopCampaignPlugin` via `registerPlugin` on every load (`ModPlugin.java:496`).
 - `PetStatusManager.getInstance()` (`PetStatusManager.java:58`) creates the manager on first use: persistent listener, sector script, player fleet event listener. Found again later by `hasListenerOfClass`.
-- `PetShop.apply()` adds itself as a persistent listener if missing (`PetShop.java:220`). Storage fee: `getTotalStorageCost()` sums `getStorageCost()` over live pets (food x 500 x `petStorageCostMult`, plus 2000 on NPC markets). Player markets pay it as Animal Center upkeep (`IndEvo_petStorage`, `:206-210`), so the hazard and AI core upkeep mults apply; the tooltip total includes them. NPC markets bill it in `reportEconomyTick()` through the monthly report. `advance()` keeps the pet submarket through `IndustrySubmarkets.ensure` while pets are enabled and removes it while they are off (`:182-183`); `notifyBeingRemoved()` releases it (`:189`).
+- `PetShop.apply()` adds itself as a persistent listener if missing (`PetShop.java:214`). Storage fee: `getTotalStorageCost()` sums `getStorageCost()` over live pets (food x 500 x `petStorageCostMult`, plus 2000 on NPC markets). Player markets pay it as Animal Center upkeep (`IndEvo_petStorage`, `:200-204`), so the hazard and AI core upkeep mults apply; the tooltip total includes them. NPC markets bill it in `reportEconomyTick()` on the "Pet storage" report line ([BillingHelper](../core/UTILS.md#billinghelper)). `advance()` keeps the pet submarket through `IndustrySubmarkets.ensure` while pets are enabled and removes it while they are off (`:176-177`); `notifyBeingRemoved()` releases it (`:183`).
 - Animal Centers are placed at game start at `jangala`, `gilead`, `fikenhild` ([Utils](../core/UTILS.md)).
 
 ## Flow
@@ -89,7 +89,7 @@ Code paths relative to `jars/src/indevo/`.
 ### Storage
 
 - Store from the manager panel: pet leaves the ship, `storage` = the PetShop.
-- `PetShop.reportEconomyTick()` on the last iteration of the month charges non player markets `foodPerMonth x 500` plus 2000 per live pet through `MiscIE.createMonthlyReportNode` ([Economy](../core/ECONOMY.md)).
+- `PetShop.reportEconomyTick()` on the last iteration of the month charges non player markets `foodPerMonth x 500` plus 2000 per live pet through `BillingHelper.charge`.
 
 ### AI cores
 
@@ -97,7 +97,7 @@ Code paths relative to `jars/src/indevo/`.
 |---|---|---|
 | Alpha | rare pet weight x1.3 in restock | `PetSubMarket.java:39` |
 | Beta | pets stop aging in storage; tariff 0 | `Pet.java:127`, `PetSubMarket.java:68` |
-| Gamma | `petStorageCostMult` 0.7 | `PetShop.java:324` |
+| Gamma | `petStorageCostMult` 0.7 | `PetShop.java:318` |
 
 ## Contracts
 
@@ -108,7 +108,6 @@ Code paths relative to `jars/src/indevo/`.
 - `SelfRepairingBuiltInHullmod` is the base for changeling `HandBuiltHullmod`, Hellpods and distress hullmods ([Changeling](CHANGELING.md), [Distress](../exploration/DISTRESS.md)). `PetHullmod` is the plugin class for the ghost ship rows in `hull_mods.csv:20-59`; those ships have no pet, so `getPet()` returns null there.
 - Any code that removes ships from the player fleet without a market transaction or battle does not report a pet death; the pet stays registered with a stale member (inferred).
 - The manager only adds the player fleet event listener on creation; a replaced player fleet object loses it (inferred).
-- `MiscIE.createMonthlyReportNode` is shared with Academy and Repair Docks.
 - A stored ship's `getFleetData()` is the `getMothballedShips()` of the submarket cargo holding it, with no fleet (`obf/campaign/fleet/FleetData.java:482`, `addFleetMember` sets it). `getFoodCargo` finds that cargo by identity over `getEconomy().getMarketsCopy()`, the same markets the vanilla storage list shows (`obf/campaign/command/OutpostListPanel.java:271`); a ship stored on a market outside the economy is not found and its pet starves.
 
 ## Known issues and dormant code
