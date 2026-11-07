@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
@@ -18,7 +19,6 @@ import indevo.ids.Ids;
 import indevo.industries.courierport.listeners.Shipment;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.scripts.AmbassadorMurderConsequences;
-import indevo.items.specialitemdata.AmbassadorItemData;
 import indevo.utils.timers.NewDayListener;
 
 import java.util.ArrayList;
@@ -37,13 +37,13 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
 
     public final FactionAPI faction;
     protected final PersonAPI person;
-    protected final AmbassadorItemData specialItem;
+    protected final SpecialItemData specialItem;
     private CargoAPI lastKnownLocation = null;
     private boolean isDone = false;
 
     private int daysPassed = 1;
 
-    public AmbassadorItemTrackerPlugin(PersonAPI ambassadorPerson, AmbassadorItemData specialItem) {
+    public AmbassadorItemTrackerPlugin(PersonAPI ambassadorPerson, SpecialItemData specialItem) {
         this.person = ambassadorPerson;
         this.specialItem = specialItem;
         this.faction = ambassadorPerson.getFaction();
@@ -62,7 +62,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
 
     private boolean findAmbassadorItem(boolean returnHome) {
         //check all storage locations for the item, starting with the most likely
-        AmbassadorItemData amb = specialItem;
+        SpecialItemData amb = specialItem;
         CargoAPI targetCargo;
 
         targetCargo = lastKnownLocation;
@@ -114,7 +114,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
         return cargos;
     }
 
-    private CargoAPI findInStorage(MarketAPI market, AmbassadorItemData data, boolean removeWhenFound) {
+    private CargoAPI findInStorage(MarketAPI market, SpecialItemData data, boolean removeWhenFound) {
         if (market == null) return null;
 
         for (SubmarketAPI subMarket : market.getSubmarketsCopy()) {
@@ -131,7 +131,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
 
     private boolean checkForIllegalPresence() {
         FactionAPI playerFaction = Global.getSector().getPlayerFaction();
-        AmbassadorItemData amb = specialItem;
+        SpecialItemData amb = specialItem;
         //past here is fuck up moment
 
         //they wouldn't sell it, right? It's not even worth anything.
@@ -237,7 +237,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
         return null;
     }
 
-    private boolean checkCargo(CargoAPI cargo, AmbassadorItemData data, boolean removeWhenFound) {
+    private boolean checkCargo(CargoAPI cargo, SpecialItemData data, boolean removeWhenFound) {
         if (cargo == null) return false;
 
         if (cargo.getQuantity(CargoAPI.CargoItemType.SPECIAL, data) > 0) {
@@ -282,9 +282,9 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
         setDone();
     }
 
+    // the person stays in important people so the item still resolves if it turns up
     public void setLost() {
         Global.getSector().getListenerManager().addListener(new LostAmbassadorRemovalChecker(person, specialItem));
-        Global.getSector().getImportantPeople().removePerson(person);
         setDone();
     }
 

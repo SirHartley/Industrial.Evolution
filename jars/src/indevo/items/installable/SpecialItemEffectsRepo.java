@@ -64,6 +64,7 @@ public class SpecialItemEffectsRepo {
         put(ItemIds.FORGETEMPLATE, new ForgeTemplateEffect(ItemIds.FORGETEMPLATE));
         put(ItemIds.EMPTYFORGETEMPLATE, new ForgeTemplateEffect(ItemIds.EMPTYFORGETEMPLATE));
         put(ItemIds.BROKENFORGETEMPLATE, new ForgeTemplateEffect(ItemIds.BROKENFORGETEMPLATE));
+        put(ItemIds.AMBASSADOR, new AmbassadorEffect(ItemIds.AMBASSADOR));
 
         put(Items.WORMHOLE_ANCHOR, new BaseInstallableItemEffect(Items.WORMHOLE_ANCHOR) {
             public void apply(Industry industry) {

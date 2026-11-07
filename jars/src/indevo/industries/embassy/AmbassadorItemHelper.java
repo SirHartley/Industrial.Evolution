@@ -6,7 +6,7 @@ import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import indevo.ids.Ids;
-import indevo.items.specialitemdata.AmbassadorItemData;
+import indevo.ids.ItemIds;
 import indevo.utils.helper.MiscIE;
 
 import java.util.Set;
@@ -34,21 +34,27 @@ public class AmbassadorItemHelper {
 
     }
 
-    public static FactionAPI getFactionForItem(SpecialItemData itemData) {
-        if (itemData instanceof AmbassadorItemData) {
-            AmbassadorItemData item = (AmbassadorItemData) itemData;
-            return item.getPerson() != null ? item.getPerson().getFaction() : null;
-        }
+    // data is the person id, the person stays in important people while the item exists
+    public static SpecialItemData createItem(PersonAPI person) {
+        return new SpecialItemData(ItemIds.AMBASSADOR, person.getId());
+    }
 
-        return null;
+    public static boolean isPersonMissing(SpecialItemData itemData) {
+        return findPerson(itemData) == null;
     }
 
     public static PersonAPI getPersonForItem(SpecialItemData itemData) {
-        if (itemData instanceof AmbassadorItemData) {
-            AmbassadorItemData item = (AmbassadorItemData) itemData;
-            return item.getPerson();
-        }
+        PersonAPI person = findPerson(itemData);
+        if (person == null) throw new IllegalStateException("Ambassador item without a person: " + (itemData == null ? null : itemData.getData()));
+        return person;
+    }
 
-        return null;
+    public static FactionAPI getFactionForItem(SpecialItemData itemData) {
+        return getPersonForItem(itemData).getFaction();
+    }
+
+    private static PersonAPI findPerson(SpecialItemData itemData) {
+        if (itemData == null || itemData.getData() == null) return null;
+        return Global.getSector().getImportantPeople().getPerson(itemData.getData());
     }
 }

@@ -10,6 +10,7 @@ import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
+import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
@@ -22,8 +23,7 @@ import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.embassy.rules.IndEvo_ambassadorRemoval;
 import indevo.industries.embassy.scripts.HAAmbassadorEventFactor;
-import indevo.items.installable.AmbassadorInstallableItemPlugin;
-import indevo.items.specialitemdata.AmbassadorItemData;
+import indevo.items.installable.NamedItemSlotPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -40,7 +40,6 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
     private boolean debug = false;
 
     public FactionAPI alignedFaction = null;
-    protected SpecialItemData ambassadorItemData = null;
 
     public static final float BASE_MAX_RELATION = 0.40f;
     public static final float ALPHA_CORE_REP_PENALTY_MULT = 0.50f;
@@ -56,8 +55,6 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
     public void apply() {
         super.apply(true);
         debug = Global.getSettings().isDevMode();
-
-        applyIndEvo_AmbassadorItemEffects();
 
         if (isFunctional() && market.isPlayerOwned()) {
             Global.getSector().getListenerManager().addListener(this, true);
@@ -80,18 +77,6 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
     }
 
     @Override
-    public void initWithParams(java.util.List<String> params) {
-        super.initWithParams(params);
-
-        for (String str : params) {
-            if (AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.containsKey(str)) {
-                setAmbassadorItemData(new SpecialItemData(str, null));
-                break;
-            }
-        }
-    }
-
-    @Override
     public boolean isAvailableToBuild() {
         return Setting.EMBASSY.enabled() && market.getFactionId().equals("player");
     }
@@ -107,7 +92,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
     }
 
     private void monthlyRepIncrease() {
-        if (!Setting.EMBASSY.enabled() || ambassadorItemData == null || !isFunctional() || !market.isPlayerOwned()) {
+        if (!Setting.EMBASSY.enabled() || special == null || !isFunctional() || !market.isPlayerOwned()) {
             return;
         }
 
@@ -204,15 +189,11 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
     @Override
     protected boolean addNonAICoreInstalledItems(IndustryTooltipMode mode, TooltipMakerAPI tooltip, boolean expanded) {
-        if (ambassadorItemData == null) return false;
+        if (special == null || AmbassadorItemHelper.isPersonMissing(special)) return super.addNonAICoreInstalledItems(mode, tooltip, expanded);
 
-        float opad = 10f;
-
-        TooltipMakerAPI text = tooltip.beginImageWithText(AmbassadorItemHelper.getPersonForItem(ambassadorItemData).getPortraitSprite(), 48);
-        AmbassadorInstallableItemPlugin.IndEvo_AmbassadorEffect effect = AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.get(ambassadorItemData.getId());
-        effect.addItemDescription(text, ambassadorItemData, InstallableIndustryItemPlugin.InstallableItemDescriptionMode.INDUSTRY_TOOLTIP);
-
-        tooltip.addImageWithText(opad);
+        TooltipMakerAPI text = tooltip.beginImageWithText(AmbassadorItemHelper.getPersonForItem(special).getPortraitSprite(), 48);
+        ItemEffectsRepo.ITEM_EFFECTS.get(special.getId()).addItemDescription(this, text, special, InstallableIndustryItemPlugin.InstallableItemDescriptionMode.INDUSTRY_TOOLTIP);
+        tooltip.addImageWithText(10f);
 
         return true;
     }
@@ -247,99 +228,68 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
         }
     }
 
-//Special Item handling
-
-    protected void applyIndEvo_AmbassadorItemEffects() {
-        if (ambassadorItemData != null) {
-            AmbassadorInstallableItemPlugin.IndEvo_AmbassadorEffect effect = AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.get(ambassadorItemData.getId());
-            if (effect != null) {
-                effect.apply(this);
-            }
-        }
-    }
-
-    public void setAmbassadorItemData(SpecialItemData data) {
-        if (data == null && ambassadorItemData != null) {
-            AmbassadorInstallableItemPlugin.IndEvo_AmbassadorEffect effect = AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.get(ambassadorItemData.getId());
-            if (effect != null) {
-                effect.unapply(this);
-            }
-        }
-
-        ambassadorItemData = data;
-        alignedFaction = AmbassadorItemHelper.getFactionForItem(data);
+    @Override
+    public void setSpecialItem(SpecialItemData special) {
+        super.setSpecialItem(special);
+        alignedFaction = special != null ? AmbassadorItemHelper.getFactionForItem(special) : null;
         monthsPassed = 0;
     }
 
-    //This adds/removes the menu point to install items in the industry menu when 7d have passed
+    // removing goes through the dismissal dialog, so the slot only shows while the office is empty
     @Override
     public List<InstallableIndustryItemPlugin> getInstallableItems() {
-        if (getAmbassadorItemData() == null && !isBuilding()) {
-            ArrayList<InstallableIndustryItemPlugin> list = new ArrayList<>();
-            list.add(new AmbassadorInstallableItemPlugin(this));
+        List<InstallableIndustryItemPlugin> list = new ArrayList<>();
+        if (special != null || isBuilding()) return list;
 
-            return list;
-        }
+        list.add(new NamedItemSlotPlugin(this, "Ambassador",
+                "Inducting an Ambassador here is required for this structure to have an effect. It will allow the polity to gain reputation with the Ambassador's faction.") {
+            @Override
+            public String getMenuItemTitle() {
+                return "Inaugurate Ambassador...";
+            }
 
-        return new ArrayList<>();
-    }
+            @Override
+            public String getNoItemCurrentlyInstalledText() {
+                return "No Ambassador currently in office";
+            }
 
-    public AmbassadorItemData getAmbassadorItemData() {
-        return (AmbassadorItemData) ambassadorItemData;
-    }
+            @Override
+            public String getSelectItemToAssignToIndustryText() {
+                return "Select Ambassador to induct for this " + industry.getCurrentName();
+            }
+        });
 
-    public SpecialItemData getSpecialItem() {
-        return ambassadorItemData;
-    }
-
-    public void setSpecialItem(SpecialItemData special) {
-        ambassadorItemData = special;
-        alignedFaction = AmbassadorItemHelper.getFactionForItem(special);
-        monthsPassed = 0;
+        return list;
     }
 
     @Override
     public boolean wantsToUseSpecialItem(SpecialItemData data) {
-        return market.getFactionId().equals("player") &&
-                ambassadorItemData == null &&
-                data != null &&
-                AmbassadorInstallableItemPlugin.AMBASSADOR_EFFECTS.containsKey(data.getId());
+        return market.getFactionId().equals(Factions.PLAYER) && super.wantsToUseSpecialItem(data);
     }
 
     @Override
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
+        if (special != null && !forUpgrade) {
+            if (AmbassadorPersonManager.hasAmbassador(market)) IndEvo_ambassadorRemoval.removeAmbassadorWithPenalty(market);
+            else {
+                // not in office yet, the tracker is still running and finds the item again
+                CargoAPI cargo = getCargoForInteractionMode(mode);
+                if (cargo == null) cargo = Misc.getStorageCargo(market);
+                if (cargo == null) cargo = Global.getSector().getPlayerFleet().getCargo();
+
+                cargo.addSpecial(special, 1);
+            }
+
+            setSpecialItem(null);
+        }
+
         super.notifyBeingRemoved(mode, forUpgrade);
-        if (ambassadorItemData == null || forUpgrade) return;
-
-        if (AmbassadorPersonManager.hasAmbassador(market)) {
-            IndEvo_ambassadorRemoval.removeAmbassadorWithPenalty(market);
-            return;
-        }
-
-        // not in office yet, the tracker is still running and finds the item again
-        CargoAPI cargo = getCargoForInteractionMode(mode);
-        if (cargo == null) cargo = Misc.getStorageCargo(market);
-        if (cargo == null) cargo = Global.getSector().getPlayerFleet().getCargo();
-
-        cargo.addSpecial(ambassadorItemData, 1);
-        setSpecialItem(null);
-    }
-
-    @Override
-    public java.util.List<SpecialItemData> getVisibleInstalledItems() {
-        List<SpecialItemData> result = super.getVisibleInstalledItems();
-
-        if (ambassadorItemData != null) {
-            result.add(ambassadorItemData);
-        }
-
-        return result;
     }
 
     @Override
     public String getCurrentImage() {
-        if (getSpecialItem() != null) {
-            switch (AmbassadorItemHelper.getFactionForItem(getSpecialItem()).getId()) {
+        if (alignedFaction != null) {
+            switch (alignedFaction.getId()) {
                 case Factions.PERSEAN:
                     return Global.getSettings().getSpriteName("IndEvo", "amb_pers");
                 case Factions.TRITACHYON:

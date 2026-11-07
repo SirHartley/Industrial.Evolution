@@ -516,15 +516,15 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
                         && targetEmbassy.getSpecialItem() == null) {
 
                     //get stuff
-                    SpecialItemData spec = embassy.getAmbassadorItemData();
+                    SpecialItemData spec = embassy.getSpecialItem();
                     PersonAPI pers = AmbassadorPersonManager.getAmbassador(market);
 
                     //remove the amb
-                    embassy.setAmbassadorItemData(null);
+                    embassy.setSpecialItem(null);
                     AmbassadorPersonManager.removeAmbassadorFromMarket(market);
 
                     //add the amb to new loc
-                    targetEmbassy.setAmbassadorItemData(spec);
+                    targetEmbassy.setSpecialItem(spec);
                     AmbassadorPersonManager.addAmbassadorToMarket(pers, targetMarket);
                 }
 
