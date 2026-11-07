@@ -19,7 +19,6 @@ import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 
-import java.util.List;
 
 public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
 
@@ -114,13 +113,11 @@ public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
 
     public static class CargoAndFleetTransferScript implements Script {
         private CampaignFleetAPI fleet;
-        private List<FleetMemberAPI> membersList;
         private String marketID;
         public boolean finished = false;
 
         public CargoAndFleetTransferScript(CampaignFleetAPI fleet, String marketId) {
             this.fleet = fleet;
-            this.membersList = fleet.getFleetData().getMembersListCopy();
             this.marketID = marketId;
         }
 
@@ -134,7 +131,7 @@ public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
             CargoAPI storage = MiscIE.getStorageCargo(market);
             storage.addAll(fleet.getCargo());
             storage.initMothballedShips("player");
-            for (FleetMemberAPI member : membersList) {
+            for (FleetMemberAPI member : fleet.getFleetData().getMembersListCopy()) {
                 storage.getMothballedShips().addFleetMember(member);
             }
 
