@@ -17,6 +17,7 @@ public class MissileMemFlags {
     public static final String CONFIRMED_OFFENSE_COUNT = "$missile_confirmedOffenseCount";
 
     //any entity
+    //also set by catch.release harpoons on meteors, keep the key and the Vector2f hit point
     public static final String MEM_CAUGHT_BY_MISSILE = "$missile_bonked";
 
 }
