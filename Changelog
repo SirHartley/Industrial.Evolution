@@ -17,6 +17,7 @@ Fixed - Crash on market updates with some modded industries
 Fixed - Settings no longer accept values below their minimum
 Fixed - Industry storage contents are no longer lost on colonies without storage
 Fixed - Leftover storages of removed industries are now cleaned up on load
+Fixed - Other mods' industry tooltip lines now show on all IE industries
 Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
 
@@ -75,6 +76,7 @@ Fixed - No longer crashes when installing a modded AI-Core
 Fixed - Crash when a relay colony is outside a star system
 Fixed - Relay updates no longer pile up and slow the game down
 Fixed - Interstellar Relay setting now properly controls Interstellar Relays
+Fixed - Tooltip now shows why a relay without a Military Base is inactive
 
 Academy
 Fixed - Aggression training no longer bills you twice the amount it should
@@ -112,11 +114,13 @@ Fixed - Crash in Hull Forge and Ancient Laboratory after losing the last colony
 Fixed - Old Industrial Ruins no longer offer another colony's derelict industry
 Fixed - Ruins added mid-campaign now properly get a derelict industry
 Fixed - NPC ruins upgrades no longer restart over and over (Nexerelin)
+Fixed - Old Industrial Ruins tooltip now unlocks its Codex entry
 
 Ruined Infrastructure
 Fixed - NPC colonies now properly restore Ruined Infrastructure (Nexerelin)
 Fixed - Blocked restorations now show the reason instead of a generic error
 Fixed - Ruined Infrastructure without a target can now be restored
+Fixed - Ruined Infrastructure tooltip now unlocks its Codex entry
 
 Embassy
 Changed - Only one ambassador per faction can be hired at a time
@@ -135,6 +139,7 @@ Fixed - Ambassadors no longer appear or have any effect while Embassies are disa
 Fixed - Removing an Embassy before the ambassador took office no longer loses them
 
 Engineering Hub
+Adjusted - Expanded tooltip now also shows the normal tooltip below the progress list
 Fixed - Engineering Hub setting now properly controls whether it can be built
 Fixed - Stripped weapons and fighters now go to the production gathering point
 Fixed - Relic Components no longer show up as an item in storage or cargo
@@ -153,6 +158,7 @@ Fixed - Weapon salvage no longer goes over the monthly cap on the last day
 Fixed - Ship contracts now take ship parts instead of rare parts
 Fixed - Contract and D-mod transfer costs no longer go over the 150% cap
 Fixed - Ship Component Value Mult setting now properly accepts decimals
+Fixed - Tooltip now shows when Salvage Yards are turned off in the settings
 
 Senate
 Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
@@ -265,6 +271,7 @@ Fixed - Slow fields and forced overloads no longer expire while paused
 Fixed - Watchtowers no longer count as stable locations
 Fixed - Creating a stable location now properly counts wormholes
 Fixed - Placed stations no longer fire with Artillery turned off
+Fixed - Orbital Artillery tooltip now unlocks its Codex entry
 
 Console Commands
 Fixed - SpawnRuins no longer rolls the first planet twice or duplicates ruins

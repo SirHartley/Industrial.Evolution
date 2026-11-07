@@ -5,16 +5,12 @@ import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.campaign.listeners.ColonyOtherFactorsListener;
-import com.fs.starfarer.api.combat.MutableStat;
-import com.fs.starfarer.api.impl.campaign.DebugFlags;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
-import com.fs.starfarer.api.impl.campaign.ids.Strings;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.IconRenderMode;
-import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
@@ -299,6 +295,10 @@ public class CentralizationBureau extends BaseIndustry {
 
     @Override
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
+        if (mode != IndustryTooltipMode.QUEUED && !isBuilding() && getAICoreId() == null && getSpecialItem() == null) {
+            tooltip.addPara("%s", 10f, Misc.getHighlightColor(), StringHelper.getString(getId(), "noAICore"));
+        }
+
         if (!market.isPlayerOwned()) {
             return;
         }
@@ -333,6 +333,36 @@ public class CentralizationBureau extends BaseIndustry {
                 }
             }
         }
+    }
+
+    @Override
+    protected void addPostSupplySection(TooltipMakerAPI tooltip, boolean hasSupply, IndustryTooltipMode mode) {
+        super.addPostSupplySection(tooltip, hasSupply, mode);
+        addBoostSection(tooltip, currentModSupply, "additionalOutputs", IconRenderMode.GREEN);
+    }
+
+    @Override
+    protected void addPostDemandSection(TooltipMakerAPI tooltip, boolean hasDemand, IndustryTooltipMode mode) {
+        super.addPostDemandSection(tooltip, hasDemand, mode);
+        addBoostSection(tooltip, currentModDemand, "additionalDemands", IconRenderMode.NORMAL);
+    }
+
+    private void addBoostSection(TooltipMakerAPI tooltip, Map<String, Integer> boosts, String headingKey, IconRenderMode iconMode) {
+        if (boosts.isEmpty() || !isFunctional()) return;
+
+        float opad = 10f;
+        FactionAPI faction = market.getFaction();
+
+        tooltip.addSectionHeading(StringHelper.getString(getId(), headingKey), faction.getBaseUIColor(), faction.getDarkUIColor(), Alignment.MID, opad);
+        tooltip.beginIconGroup();
+        tooltip.setIconSpacingMedium();
+
+        for (Map.Entry<String, Integer> curr : boosts.entrySet()) {
+            int qty = curr.getValue();
+            if (qty > 0) tooltip.addIcons(market.getCommodityData(curr.getKey()), qty, iconMode);
+        }
+
+        tooltip.addIconGroup(32, 3, opad);
     }
 
 //AI core handling
@@ -399,288 +429,6 @@ public class CentralizationBureau extends BaseIndustry {
 
     @Override
     protected void updateAICoreToSupplyAndDemandModifiers() {
-    }
-
-//Tooltip and descriptions:
-
-    @Override
-    public void createTooltip(IndustryTooltipMode mode, TooltipMakerAPI tooltip, boolean expanded) {
-        currTooltipMode = mode;
-        String cat = "IndEvo_BaseIndustryTooltips";
-
-        float pad = 3f;
-        float opad = 10f;
-
-        FactionAPI faction = market.getFaction();
-        Color color = faction.getBaseUIColor();
-        Color dark = faction.getDarkUIColor();
-
-        Color gray = Misc.getGrayColor();
-        Color highlight = Misc.getHighlightColor();
-        Color bad = Misc.getNegativeHighlightColor();
-
-
-        MarketAPI copy = market.clone();
-        MarketAPI orig = market;
-
-        market = copy;
-        boolean needToAddIndustry = !market.hasIndustry(getId());
-        //addDialogMode = true;
-        if (needToAddIndustry) market.getIndustries().add(this);
-
-        if (mode != IndustryTooltipMode.NORMAL) {
-            market.clearCommodities();
-            for (CommodityOnMarketAPI curr : market.getAllCommodities()) {
-                curr.getAvailableStat().setBaseValue(100);
-            }
-        }
-
-        market.reapplyConditions();
-        reapply();
-
-        String type = "";
-        if (isIndustry()) type = StringHelper.getString(cat, "t1");
-        if (isStructure()) type = StringHelper.getString(cat, "t2");
-
-        tooltip.addTitle(getCurrentName() + type, color);
-
-        String desc = spec.getDesc();
-        String override = getDescriptionOverride();
-        if (override != null) {
-            desc = override;
-        }
-        desc = Global.getSector().getRules().performTokenReplacement(null, desc, market.getPrimaryEntity(), null);
-
-        tooltip.addPara(desc, opad);
-
-        if (isIndustry() && (mode == IndustryTooltipMode.ADD_INDUSTRY ||
-                mode == IndustryTooltipMode.UPGRADE ||
-                mode == IndustryTooltipMode.DOWNGRADE)
-        ) {
-            int num = Misc.getNumIndustries(market);
-            int max = Misc.getMaxIndustries(market);
-
-            // during the creation of the tooltip, the market has both the current industry
-            // and the upgrade/downgrade. So if this upgrade/downgrade counts as an industry, it'd count double if
-            // the current one is also an industry. Thus reduce num by 1 if that's the case.
-            if (isIndustry()) {
-                if (mode == IndustryTooltipMode.UPGRADE) {
-                    for (Industry curr : market.getIndustries()) {
-                        if (getSpec().getId().equals(curr.getSpec().getUpgrade())) {
-                            if (curr.isIndustry()) {
-                                num--;
-                            }
-                            break;
-                        }
-                    }
-                } else if (mode == IndustryTooltipMode.DOWNGRADE) {
-                    for (Industry curr : market.getIndustries()) {
-                        if (getSpec().getId().equals(curr.getSpec().getDowngrade())) {
-                            if (curr.isIndustry()) {
-                                num--;
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-
-            Color c = gray;
-            c = Misc.getTextColor();
-            Color h1 = highlight;
-            if (num > max) {// || (num >= max && mode == IndustryTooltipMode.ADD_INDUSTRY)) {
-                //c = bad;
-                h1 = bad;
-                num--;
-
-                tooltip.addPara(StringHelper.getString(cat, "t3"), bad, opad);
-            }
-        }
-
-        addRightAfterDescriptionSection(tooltip, mode);
-
-        if (isDisrupted()) {
-            int left = (int) getDisruptedDays();
-            if (left < 1) left = 1;
-
-            tooltip.addPara(StringHelper.getStringAndSubstituteToken(cat, "t4", "$days", StringHelper.getDayOrDays(left)),
-                    opad, Misc.getNegativeHighlightColor(), highlight, "" + left);
-        }
-
-        if (DebugFlags.COLONY_DEBUG || market.isPlayerOwned()) {
-            if (mode == IndustryTooltipMode.NORMAL) {
-                if (getSpec().getUpgrade() != null && !isBuilding()) {
-                    tooltip.addPara(StringHelper.getString(cat, "t5"), Misc.getPositiveHighlightColor(), opad);
-                } else {
-                    tooltip.addPara(StringHelper.getString(cat, "t6"), Misc.getPositiveHighlightColor(), opad);
-                }
-                //tooltip.addPara("Click to manage", market.getFaction().getBrightUIColor(), opad);
-            }
-        }
-
-        if (mode == IndustryTooltipMode.QUEUED) {
-            tooltip.addPara(StringHelper.getString(cat, "t7"), Misc.getPositiveHighlightColor(), opad);
-            tooltip.addPara(StringHelper.getString(cat, "t8"), opad);
-
-            int left = (int) (getSpec().getBuildTime());
-            if (left < 1) left = 1;
-            tooltip.addPara(StringHelper.getStringAndSubstituteToken(cat, "t9", "$days", StringHelper.getDayOrDays(left)), opad, highlight, "" + left);
-
-            //return;
-        } else if (!isFunctional() && mode == IndustryTooltipMode.NORMAL && isBuilding()) {
-            tooltip.addPara(StringHelper.getString(cat, "t10"), opad);
-
-            int left = (int) (buildTime - buildProgress);
-            if (left < 1) left = 1;
-            tooltip.addPara(StringHelper.getStringAndSubstituteToken(cat, "t11", "$days", StringHelper.getDayOrDays(left)), opad, highlight, "" + left);
-        } else if (!isFunctional() && getAICoreId() == null) {
-            tooltip.addPara("%s", opad, highlight, StringHelper.getString(getId(), "noAICore"));
-        }
-
-        if (!isAvailableToBuild() &&
-                (mode == IndustryTooltipMode.ADD_INDUSTRY ||
-                        mode == IndustryTooltipMode.UPGRADE ||
-                        mode == IndustryTooltipMode.DOWNGRADE)) {
-            String reason = getUnavailableReason();
-            if (reason != null) {
-                tooltip.addPara(reason, bad, opad);
-            }
-        }
-
-        boolean category = getSpec().hasTag(Industries.TAG_PARENT);
-
-        if (!category) {
-            int credits = (int) Global.getSector().getPlayerFleet().getCargo().getCredits().get();
-            String creditsStr = Misc.getDGSCredits(credits);
-            if (mode == IndustryTooltipMode.UPGRADE || mode == IndustryTooltipMode.ADD_INDUSTRY) {
-                int cost = (int) getBuildCost();
-                String costStr = Misc.getDGSCredits(cost);
-
-                int days = (int) getBuildTime();
-
-                LabelAPI label = null;
-                if (mode == IndustryTooltipMode.UPGRADE) {
-                    label = tooltip.addPara(StringHelper.getStringAndSubstituteToken(cat, "t12", "$days", StringHelper.getDayOrDays(days)), opad,
-                            highlight, costStr, "" + days, creditsStr);
-                } else {
-                    label = tooltip.addPara(StringHelper.getStringAndSubstituteToken(cat, "t13", "$days", StringHelper.getDayOrDays(days)), opad,
-                            highlight, costStr, "" + days, creditsStr);
-                }
-                label.setHighlight(costStr, "" + days, creditsStr);
-                if (credits >= cost) {
-                    label.setHighlightColors(highlight, highlight, highlight);
-                } else {
-                    label.setHighlightColors(bad, highlight, highlight);
-                }
-            } else if (mode == IndustryTooltipMode.DOWNGRADE) {
-                float refundFraction = Global.getSettings().getFloat("industryRefundFraction");
-                int cost = (int) (getBuildCost() * refundFraction);
-                String refundStr = Misc.getDGSCredits(cost);
-
-                tooltip.addPara(StringHelper.getString(cat, "t14"), opad, highlight, refundStr);
-            }
-
-
-            addPostDescriptionSection(tooltip, mode);
-
-            if (!getIncome().isUnmodified()) {
-                int income = getIncome().getModifiedInt();
-                tooltip.addPara(StringHelper.getString(cat, "t15"), opad, highlight, Misc.getDGSCredits(income));
-                tooltip.addStatModGrid(250, 65, 10, pad, getIncome(), true, new TooltipMakerAPI.StatModValueGetter() {
-                    public String getPercentValue(MutableStat.StatMod mod) {
-                        return null;
-                    }
-
-                    public String getMultValue(MutableStat.StatMod mod) {
-                        return null;
-                    }
-
-                    public Color getModColor(MutableStat.StatMod mod) {
-                        return null;
-                    }
-
-                    public String getFlatValue(MutableStat.StatMod mod) {
-                        return Misc.getWithDGS(mod.value) + Strings.C;
-                    }
-                });
-            }
-
-            if (!getUpkeep().isUnmodified()) {
-                int upkeep = getUpkeep().getModifiedInt();
-                tooltip.addPara(StringHelper.getString(cat, "t16"), opad, highlight, Misc.getDGSCredits(upkeep));
-                tooltip.addStatModGrid(250, 65, 10, pad, getUpkeep(), true, new TooltipMakerAPI.StatModValueGetter() {
-                    public String getPercentValue(MutableStat.StatMod mod) {
-                        return null;
-                    }
-
-                    public String getMultValue(MutableStat.StatMod mod) {
-                        return null;
-                    }
-
-                    public Color getModColor(MutableStat.StatMod mod) {
-                        return null;
-                    }
-
-                    public String getFlatValue(MutableStat.StatMod mod) {
-                        return Misc.getWithDGS(mod.value) + Strings.C;
-                    }
-                });
-            }
-
-            addPostUpkeepSection(tooltip, mode);
-
-            boolean hasSupply = !currentModSupply.isEmpty();
-            boolean hasDemand = !currentModDemand.isEmpty();
-
-            float maxIconsPerRow = 10f;
-
-            if (hasSupply && isFunctional()) {
-                tooltip.addSectionHeading(StringHelper.getString(getId(), "additionalOutputs"), color, dark, Alignment.MID, opad);
-                tooltip.beginIconGroup();
-                tooltip.setIconSpacingMedium();
-
-                for (Map.Entry<String, Integer> curr : currentModSupply.entrySet()) {
-                    int qty = curr.getValue();
-                    if (qty > 0) tooltip.addIcons(market.getCommodityData(curr.getKey()), qty, IconRenderMode.GREEN);
-                }
-
-                int rows = 3;
-                tooltip.addIconGroup(32, rows, opad);
-            }
-
-            addPostSupplySection(tooltip, hasSupply, mode);
-
-            if (hasDemand && isFunctional()) {
-                tooltip.addSectionHeading(StringHelper.getString(getId(), "additionalDemands"), color, dark, Alignment.MID, opad);
-                tooltip.beginIconGroup();
-                tooltip.setIconSpacingMedium();
-
-                for (Map.Entry<String, Integer> curr : currentModDemand.entrySet()) {
-                    int qty = curr.getValue();
-                    if (qty > 0) tooltip.addIcons(orig.getCommodityData(curr.getKey()), qty, IconRenderMode.NORMAL);
-                }
-
-                int rows = 3;
-                tooltip.addIconGroup(32, rows, opad);
-            }
-
-            addPostDemandSection(tooltip, hasDemand, mode);
-
-            if (!needToAddIndustry) {
-                addInstalledItemsSection(mode, tooltip, expanded);
-            }
-
-            tooltip.addPara(StringHelper.getString(cat, "t19"), gray, opad);
-        }
-
-        if (needToAddIndustry) {
-            unapply();
-            market.getIndustries().remove(this);
-        }
-        market = orig;
-        if (!needToAddIndustry) {
-            reapply();
-        }
     }
 
     public static Pair<MarketAPI, Float> getNearestBureauWithItem(Vector2f locInHyper) {
@@ -764,5 +512,4 @@ public class CentralizationBureau extends BaseIndustry {
             }
         }
     }
-
 }

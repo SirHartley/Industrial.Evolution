@@ -82,10 +82,11 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 
 ### Centralization Bureau (`IndEvo_AdInfra`)
 
-- `getIndustryExistOnMultipleMap()` (`CentralizationBureau.java:75`): for every whitelisted industry on this market, count same faction markets in the system that have it. With a special item (Logistics Core `IndEvo_log_core`) all faction markets within 12 LY count too. Heavy industry and orbital works count for each other.
+- `getIndustryExistOnMultipleMap()` (`CentralizationBureau.java:71`): for every whitelisted industry on this market, count same faction markets in the system that have it. With a special item (Logistics Core `IndEvo_log_core`) all faction markets within 12 LY count too. Heavy industry and orbital works count for each other.
 - `setCommoditySupply()` (player only): every supply and demand of each matched local industry gets `modifyFlatAlways(min(count, max))`. Max: none 0, gamma 1, beta 2, alpha 3, item `LOG_CORE_MAX_BONUS` 4.
-- `isFunctional` needs an AI core or the item. Installing the item moves an installed AI core to storage (`:58`).
+- `isFunctional` needs an AI core or the item. Installing the item moves an installed AI core to storage (`:55`).
 - One per system per faction (`isOnlyInstanceInSystemExcludeMarket`). AI markets get a gamma core once (`AImode`).
+- Tooltip: vanilla `createTooltip`. The missing core line comes from `addRightAfterDescriptionSection` (`:297`), the boosts given to other industries from `addPostSupplySection` and `addPostDemandSection` under their own headings, only while functional (`:339-367`). The bureau has no supply or demand of its own, so vanilla's production and demand blocks stay empty. Without a core or item vanilla also prints "Currently under construction" below the core line, because `isFunctional` is false and vanilla shows that line for any non functional industry that is not disrupted (skill `api/impl/campaign/econ/impl/BaseIndustry.java:1095`); accepted, no hook covers it.
 - Whitelist: vanilla `farming` to `highcommand`, Shadowyards `ms_*`, `loa_void_extraction`.
 
 ### Supercomputer (`IndEvo_SupCom`)
@@ -147,7 +148,7 @@ Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. W
 |---|---|
 | `RestorationDocks.aiCoreBonusMult` | only reset by beta and none branches; alpha or gamma after beta keeps 0.85 |
 | `RequisitionCenter.apply` | `addListener(this)` with no listener interface; no effect |
-| `CentralizationBureau` `ADMANUF` branch (`:98`) | dead: `IndEvo_AdManuf` is not whitelisted; would NPE on `getSpecialItem().getId()` without an item |
+| `CentralizationBureau` `ADMANUF` branch (`:94`) | dead: `IndEvo_AdManuf` is not whitelisted; would NPE on `getSpecialItem().getId()` without an item |
 | Bureau | `Changelog_todo:61`: "Cent Bureau should really run off a condition" |
 | `TechTree` | no reference; Cryo_but_better compat; `researchSaved.get` unboxing NPEs for unknown ids |
 

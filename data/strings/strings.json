@@ -28,28 +28,6 @@
 		"colonySize": "colony size"
 	},
 
-	"IndEvo_BaseIndustryTooltips": {
-		"t1": " - Industry", #this is the vanilla industry tooltip text
-		"t2": " - Structure",
-		"t3": "Maximum number of industries reached",
-		"t4": "Operations disrupted! %s $days until return to normal function.",
-		"t5": "Click to manage or upgrade",
-		"t6": "Click to manage",
-		"t7": "Click to remove or adjust position in queue",
-		"t8": "Currently queued for construction. Does not have any impact on the colony.",
-		"t9": "Requires %s $days to build.",
-		"t10": "Currently under construction and not producing anything or providing other benefits.",
-		"t11": "Requires %s more $days to finish building.",
-		"t12": "%s and %s $days to upgrade. You have %s.",
-		"t13": "%s and %s $days to build. You have %s.",
-		"t14": "%s refunded for downgrade.",
-		"t15": "Monthly income: %s",
-		"t16": "Monthly upkeep: %s",
-		"t17": "Production",
-		"t18": "Demand & effects",
-		"t19": "*Shown production and demand values are already adjusted based on current market size and local conditions."
-	},
-
 	"IndEvo_items":{
 		"items": "items",
 		"currentlyInstalled": " currently installed. ",

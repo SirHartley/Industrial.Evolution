@@ -52,7 +52,7 @@ Update chain: `TimeTracker -> RelayNetworkBrain.onNewDay -> updateNetworks -> Re
 - Military present: only `applyIncomeAndUpkeep(3)`. `BaseIndustry.apply` is not called, so AI core, improve and item effects are not applied through the base class in this mode (AI cores still work, `getFleetSizeTransferFraction` reads `aiCoreId` directly).
 - Build cost and time of `IndEvo_ComArray` without military: patrol HQ build time and cost x1.2 (`getBuildTime`, `getBuildCost`).
 
-`isFunctional()` additionally requires `isFunctionAllowed()`: military base or high command of the faction in the system (`MiscIE.systemHasIndustry`), or `$IndEvo_RelayUnlocked`.
+`isFunctional()` additionally requires `isFunctionAllowed()`: military base or high command of the faction in the system (`MiscIE.systemHasIndustry`), or `$IndEvo_RelayUnlocked`. Without it the card goes dark and the tooltip shows the `unavailableReason` string ("Requires a Military Base or High Command in the star system.") from `addRightAfterDescriptionSection` (`MilitaryRelay.java:354`, `NORMAL` mode, not while building), with vanilla's "Currently under construction" line below it.
 
 ### Networks
 
