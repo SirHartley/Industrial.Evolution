@@ -1,7 +1,6 @@
 package indevo.industries.engineeringhub.memory;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
@@ -9,8 +8,7 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.ids.ItemIds;
-import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.RelicHelper;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -62,32 +60,12 @@ public class RecoveredHullmods {
         return Math.max(MIN_COST, Math.round(spec.getBaseValue() / BASE_VALUE_PER_RELIC));
     }
 
-    public static int getAvailableRelics(MarketAPI market) {
-        CargoAPI storage = Misc.getStorageCargo(market);
-        CargoAPI fleet = MiscIE.getPlayerCargo();
-
-        float amount = 0f;
-        if (storage != null) amount += storage.getCommodityQuantity(ItemIds.RARE_PARTS);
-        if (fleet != null) amount += fleet.getCommodityQuantity(ItemIds.RARE_PARTS);
-        return (int) amount;
-    }
-
     public static void learn(MarketAPI market, String id) {
         HullModSpecAPI spec = Global.getSettings().getHullModSpec(id);
         if (!isLearnable(spec)) throw new IllegalStateException("IndEvo: hullmod " + id + " is not learnable at " + market.getName());
 
         int cost = getCost(spec);
-        if (getAvailableRelics(market) < cost) throw new IllegalStateException("IndEvo: not enough relic components for " + id + " at " + market.getName() + ", need " + cost);
-
-        float remaining = cost;
-        CargoAPI storage = Misc.getStorageCargo(market);
-        if (storage != null) {
-            float take = Math.min(remaining, storage.getCommodityQuantity(ItemIds.RARE_PARTS));
-            storage.removeCommodity(ItemIds.RARE_PARTS, take);
-            remaining -= take;
-        }
-
-        if (remaining > 0) MiscIE.getPlayerCargo().removeCommodity(ItemIds.RARE_PARTS, remaining);
+        RelicHelper.take(market, cost);
 
         Global.getSector().getPlayerFaction().addKnownHullMod(id);
 
@@ -96,7 +74,7 @@ public class RecoveredHullmods {
         market.getMemoryWithoutUpdate().set(MEM_KEY, data);
 
         Global.getSector().getCampaignUI().addMessage("Learned %s, used %s.", Misc.getTextColor(),
-                spec.getDisplayName(), cost + " " + Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName(),
+                spec.getDisplayName(), cost + " " + RelicHelper.getName(),
                 Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
     }
 

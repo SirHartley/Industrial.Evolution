@@ -23,6 +23,7 @@ import indevo.config.Setting;
 import indevo.ids.ItemIds;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.RelicHelper;
 import indevo.utils.helper.StringHelper;
 import org.lwjgl.input.Keyboard;
 
@@ -126,7 +127,7 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
 
                 opts.addOption("Confirm the transfer", Option.CONFIRM);
                 boolean optConfirmAllowed = optModsAllowed && !selectedMods.isEmpty();
-                boolean canAfford = BillingHelper.canAfford(getTotalCredits()) && getAvailableRelics() >= getTotalRelics();
+                boolean canAfford = BillingHelper.canAfford(getTotalCredits()) && RelicHelper.canAfford(getMarket(), getTotalRelics());
                 opts.setEnabled(Option.CONFIRM, optConfirmAllowed && canAfford);
                 if (!optConfirmAllowed) opts.setTooltip(Option.CONFIRM, "Select all the relevant parameters first.");
                 else addConfirmTooltip(opts);
@@ -163,19 +164,16 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
 
     private void addConfirmTooltip(OptionPanelAPI opts) {
         final int relics = getTotalRelics();
-        final int available = getAvailableRelics();
         final int credits = getTotalCredits();
         final int count = selectedMods.size();
 
         opts.addOptionTooltipAppender(Option.CONFIRM, new OptionPanelAPI.OptionTooltipCreator() {
             @Override
             public void createTooltip(TooltipMakerAPI tooltip, boolean hadOtherText) {
-                String relicName = Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName();
-                boolean enough = available >= relics;
                 boolean enoughCredits = BillingHelper.canAfford(credits);
 
                 tooltip.addPara("Moves %s to the target hull. The origin hull loses " + (count == 1 ? "it." : "them."), 0f, Misc.getHighlightColor(), count + " " + (count == 1 ? "S-mod" : "S-mods"));
-                tooltip.addPara("Cost: %s (Available: " + available + ")", 10f, enough ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), relics + " " + relicName);
+                RelicHelper.addCostLine(tooltip, getMarket(), relics, 10f);
                 tooltip.addPara("Credits: %s", 3f, enoughCredits ? Misc.getHighlightColor() : Misc.getNegativeHighlightColor(), Misc.getDGSCredits(credits));
                 tooltip.addPara(LORE, Misc.getGrayColor(), 10f);
             }
@@ -201,7 +199,7 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
         h.setColors(Misc.getHighlightColor(), repInt.two);
         panel.setHighlightsInLastPara(h);
 
-        String relicName = Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName();
+        String relicName = RelicHelper.getName();
 
         if (originMember != null && targetMember != null) {
             String relicStr = getRelicsPerMod() + " " + relicName;
@@ -229,7 +227,7 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
             panel.addTooltip();
 
             int relics = getTotalRelics();
-            int available = getAvailableRelics();
+            int available = RelicHelper.getAvailable(getMarket());
             String relicStr = relics + " " + relicName;
             String creditStr = Misc.getDGSCredits(getTotalCredits());
 
@@ -351,14 +349,6 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
         return Math.round(getCreditsPerMod() * selectedMods.size());
     }
 
-    private int getAvailableRelics() {
-        CargoAPI storage = MiscIE.getStorageCargo(getMarket());
-        float inStorage = storage != null ? storage.getCommodityQuantity(ItemIds.RARE_PARTS) : 0f;
-        float inFleet = Global.getSector().getPlayerFleet().getCargo().getCommodityQuantity(ItemIds.RARE_PARTS);
-
-        return (int) Math.floor(inStorage + inFleet);
-    }
-
     private void initOriginHullPicker() {
         Set<FleetMemberAPI> members = getMembers(getMarket());
         List<FleetMemberAPI> validSelectionList = new ArrayList<>();
@@ -407,7 +397,7 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
         int relics = getTotalRelics();
         int credits = getTotalCredits();
 
-        removeRelics(relics);
+        RelicHelper.take(getMarket(), relics);
         AddRemoveCommodity.addCommodityLossText(ItemIds.RARE_PARTS, relics, panel);
         BillingHelper.chargeNow(credits);
         AddRemoveCommodity.addCreditsLossText(credits, panel);
@@ -434,19 +424,6 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
         panel.setFontInsignia();
 
         returnToMenu();
-    }
-
-    private void removeRelics(int amount) {
-        float remaining = amount;
-        CargoAPI storage = MiscIE.getStorageCargo(getMarket());
-
-        if (storage != null) {
-            float take = Math.min(remaining, storage.getCommodityQuantity(ItemIds.RARE_PARTS));
-            storage.removeCommodity(ItemIds.RARE_PARTS, take);
-            remaining -= take;
-        }
-
-        if (remaining > 0) Global.getSector().getPlayerFleet().getCargo().removeCommodity(ItemIds.RARE_PARTS, remaining);
     }
 
     private void returnToMenu() {

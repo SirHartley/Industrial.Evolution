@@ -101,7 +101,7 @@ Toggle on:
 
 - `tableRowSelected`: `getStoryPoints()` returns `available / cost`, so vanilla allows that many new S-mods. "No story points available" becomes "Not enough Relic Components".
 - Counter widget: `getStoryPoints()` returns the same number, the bonus experience readout (the only `setText` ending in `%`) shows `0%`.
-- Confirm: `spendStoryPoints` is not called (no story point, no bonus experience, no playthrough log text). `Toggle.pay(count)` takes `count x cost` from storage first, then fleet cargo, and shows "Lost N Relic Components".
+- Confirm: `spendStoryPoints` is not called (no story point, no bonus experience, no playthrough log text). `Toggle.pay(count)` takes `count x cost` through `RelicHelper.take` (storage first, then fleet cargo), and shows "Lost N Relic Components".
 
 The checkbox is disabled while new S-mods are selected (`getAddedPermaMods` plus `getAddedSModdedBuiltIns`) and, while off, when relics do not cover one S-mod. Its hover tooltip shows effect, cost line and the lore line in gray. Toggle off: every redirect calls down, vanilla behaviour.
 

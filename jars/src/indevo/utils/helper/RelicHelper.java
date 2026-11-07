@@ -32,7 +32,7 @@ public class RelicHelper {
 
         if (inStorage > 0) {
             float take = Math.min(remaining, inStorage);
-            Misc.getStorageCargo(market).removeCommodity(ItemIds.RARE_PARTS, take);
+            MiscIE.getStorageCargo(market).removeCommodity(ItemIds.RARE_PARTS, take);
             remaining -= take;
         }
 
@@ -46,7 +46,7 @@ public class RelicHelper {
     }
 
     private static float getInStorage(MarketAPI market) {
-        CargoAPI storage = Misc.getStorageCargo(market);
+        CargoAPI storage = MiscIE.getStorageCargo(market);
         return storage != null ? storage.getCommodityQuantity(ItemIds.RARE_PARTS) : 0f;
     }
 }

@@ -2,7 +2,6 @@ package indevo.economy.patches;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
-import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.MessageDisplayAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -11,8 +10,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.coreui.refit.ModPickerDialogV3;
-import indevo.ids.ItemIds;
-import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.RelicHelper;
 import org.apache.log4j.Logger;
 import patchlib.api.context.AfterContext;
 import patchlib.api.context.MethodCallContext;
@@ -107,7 +105,7 @@ public class RelicBuildInPatch {
             owner = @ClassMatch(subtype = MessageDisplayAPI.class))
     public static void redirectRowMessage(MethodCallContext context) {
         if (active(context.getSelf()) != null && NO_STORY_POINTS.equals(context.getCallArg(0))) {
-            context.call("Not enough " + getRelicName(), context.getCallArg(1));
+            context.call("Not enough " + RelicHelper.getName(), context.getCallArg(1));
         } else context.call();
     }
 
@@ -125,10 +123,6 @@ public class RelicBuildInPatch {
     public static Toggle active(Object owner) {
         Toggle toggle = active.get();
         return toggle != null && toggle.on && (toggle.dialog == owner || toggle.widget.get() == owner) ? toggle : null;
-    }
-
-    private static String getRelicName() {
-        return Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName();
     }
 
     public static class Toggle extends BaseCustomUIPanelPlugin {
@@ -172,7 +166,7 @@ public class RelicBuildInPatch {
         private void createToggleTooltip(TooltipMakerAPI tooltip) {
             float opad = 10f;
             int available = getAvailable();
-            String relicName = getRelicName();
+            String relicName = RelicHelper.getName();
             boolean canPay = available >= costPerMod;
 
             tooltip.addPara("Build hullmods into this ship with %s instead of story points. No bonus experience is granted.", 0f, Misc.getHighlightColor(), relicName);
@@ -207,27 +201,14 @@ public class RelicBuildInPatch {
 
         void pay(int count) {
             int cost = count * costPerMod;
-            CargoAPI storage = market != null ? Misc.getStorageCargo(market) : null;
-            if (getAvailable() < cost) throw new IllegalStateException("Relic build in confirmed with " + getAvailable() + " relic components for a cost of " + cost);
+            RelicHelper.take(market, cost);
 
-            int remaining = cost;
-            if (storage != null) {
-                int take = Math.min(remaining, (int) storage.getCommodityQuantity(ItemIds.RARE_PARTS));
-                storage.removeCommodity(ItemIds.RARE_PARTS, take);
-                remaining -= take;
-            }
-
-            if (remaining > 0) MiscIE.getPlayerCargo().removeCommodity(ItemIds.RARE_PARTS, remaining);
-
-            Global.getSector().getCampaignUI().getMessageDisplay().addMessage("Lost " + cost + " " + getRelicName(), "" + cost, Misc.getNegativeHighlightColor());
+            Global.getSector().getCampaignUI().getMessageDisplay().addMessage("Lost " + cost + " " + RelicHelper.getName(), "" + cost, Misc.getNegativeHighlightColor());
             log.info("Built " + count + " hullmods in with " + cost + " relic components");
         }
 
         private int getAvailable() {
-            CargoAPI storage = market != null ? Misc.getStorageCargo(market) : null;
-            float available = MiscIE.getPlayerCargo().getCommodityQuantity(ItemIds.RARE_PARTS);
-            if (storage != null) available += storage.getCommodityQuantity(ItemIds.RARE_PARTS);
-            return (int) available;
+            return RelicHelper.getAvailable(market);
         }
     }
 }

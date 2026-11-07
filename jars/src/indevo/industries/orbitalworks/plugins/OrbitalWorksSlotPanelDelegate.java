@@ -11,10 +11,10 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.ButtonAction;
 import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
-import indevo.ids.ItemIds;
 import indevo.industries.orbitalworks.hullmods.RelicLattice;
 import indevo.industries.orbitalworks.scripts.OrbitalWorksSlotManager;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.RelicHelper;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -74,12 +74,6 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
 
     public static int getCost(FleetMemberAPI member) {
         return COST_PER_DP * Math.max(1, Math.round(member.getHullSpec().getSuppliesToRecover()));
-    }
-
-    public static int getAvailableRelics(MarketAPI market) {
-        CargoAPI storage = MiscIE.getStorageCargo(market);
-        float inStorage = storage != null ? storage.getCommodityQuantity(ItemIds.RARE_PARTS) : 0f;
-        return Math.round(inStorage + MiscIE.getPlayerCargo().getCommodityQuantity(ItemIds.RARE_PARTS));
     }
 
     private static boolean isPickable(FleetMemberAPI member) {
@@ -180,7 +174,7 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
                 cost + "",
                 OrbitalWorksSlotManager.DAYS_REQUIRED + " days"
         };
-        Color[] colors = {text, text, text, text, pos, cost <= getAvailableRelics(market) ? text : Misc.getNegativeHighlightColor(), text};
+        Color[] colors = {text, text, text, text, pos, RelicHelper.canAfford(market, cost) ? text : Misc.getNegativeHighlightColor(), text};
 
         float x = 6f;
         for (int i = 0; i < values.length; i++) {
@@ -196,22 +190,20 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
 
     private void addFooter(float w, float h, final CustomDialogCallback callback) {
         TooltipMakerAPI footer = panel.createUIElement(w, FOOTER_H, false);
-        int available = getAvailableRelics(market);
-        String relicName = Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName();
         boolean canAfford = false;
 
         if (selected == null) {
             footer.addPara("Pick a ship. Cost is %s Relic Components per deployment point.", 0f, Misc.getGrayColor(), Misc.getHighlightColor(), COST_PER_DP + "");
         } else {
             int cost = getCost(selected);
-            canAfford = cost <= available;
-            footer.addPara("Cost: %s (Available: " + available + ")", 0f, canAfford ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), cost + " " + relicName);
+            canAfford = RelicHelper.canAfford(market, cost);
+            RelicHelper.addCostLine(footer, market, cost, 0f);
         }
 
         ButtonAPI confirm = footer.addButton("Confirm", new ButtonAction(this) {
             @Override
             public void execute() {
-                if (selected == null || getCost(selected) > getAvailableRelics(market)) return;
+                if (selected == null || !RelicHelper.canAfford(market, getCost(selected))) return;
                 if (OrbitalWorksSlotManager.getInstanceOrRegister().getJob(market) != null) return;
                 startWork(selected);
                 callback.dismissCustomDialog(1);
@@ -225,7 +217,7 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
     }
 
     private void startWork(FleetMemberAPI member) {
-        payRelics(getCost(member));
+        RelicHelper.take(market, getCost(member));
 
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
         if (fleet.getFleetData().getMembersListCopy().contains(member)) {
@@ -239,16 +231,4 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
         OrbitalWorksSlotManager.getInstanceOrRegister().start(market, member);
     }
 
-    private void payRelics(float amount) {
-        CargoAPI storage = MiscIE.getStorageCargo(market);
-        float remaining = amount;
-
-        if (storage != null) {
-            float take = Math.min(remaining, storage.getCommodityQuantity(ItemIds.RARE_PARTS));
-            storage.removeCommodity(ItemIds.RARE_PARTS, take);
-            remaining -= take;
-        }
-
-        if (remaining > 0) MiscIE.getPlayerCargo().removeCommodity(ItemIds.RARE_PARTS, remaining);
-    }
 }

@@ -21,9 +21,9 @@ import indevo.dialogue.sidepanel.ButtonAction;
 import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
 import indevo.ids.Ids;
-import indevo.ids.ItemIds;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.RelicHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -76,16 +76,6 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
         float width = Math.min(MAX_WIDTH, Global.getSettings().getScreenWidth() - 40f);
         float height = Math.min(MAX_HEIGHT, Global.getSettings().getScreenHeight() - 300f);
         ui.showDialog(width, height, new AncientLabRelicPanelDelegate(market));
-    }
-
-    public static String getRelicName() {
-        return Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName();
-    }
-
-    public static int getAvailableRelics(MarketAPI market) {
-        CargoAPI storage = Misc.getStorageCargo(market);
-        float inStorage = storage != null ? storage.getCommodityQuantity(ItemIds.RARE_PARTS) : 0f;
-        return (int) (inStorage + MiscIE.getPlayerCargo().getCommodityQuantity(ItemIds.RARE_PARTS));
     }
 
     @Override
@@ -141,7 +131,7 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
         TooltipMakerAPI header = panel.createUIElement(width, HEADER_HEIGHT, false);
         header.addSectionHeading("Ancient Laboratory: relic services", Alignment.MID, 0f);
         header.addPara("%s available: %s, taken from colony storage at %s first, then fleet cargo.", OPAD, Misc.getHighlightColor(),
-                getRelicName(), getAvailableRelics(market) + "", market.getName());
+                RelicHelper.getName(), RelicHelper.getAvailable(market) + "", market.getName());
         panel.addUIElement(header).inTL(0f, 0f);
     }
 
@@ -227,10 +217,8 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
         if (tab == Tab.TEMPLATES) addTemplateDetail(detail, entry);
         else addShipDetail(detail, entry);
 
-        int available = getAvailableRelics(market);
-        boolean canPay = entry.cost <= available;
-        detail.addPara("Cost: %s (Available: " + available + ")", OPAD, canPay ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(),
-                entry.cost + " " + getRelicName());
+        boolean canPay = RelicHelper.canAfford(market, entry.cost);
+        RelicHelper.addCostLine(detail, market, entry.cost, OPAD);
 
         panel.addUIElement(detail).inTL(x, y + HEADING_HEIGHT + PAD);
 
@@ -239,8 +227,8 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
         ButtonAPI confirm = actions.addButton("Confirm", action(callback, () -> apply(entry)), Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(),
                 Alignment.MID, CutStyle.TL_BR, BUTTON_WIDTH, BUTTON_HEIGHT, OPAD);
         confirm.setEnabled(canPay);
-        addConfirmTooltip(actions, entry, available);
-        if (!canPay) actions.addPara("Not enough %s.", PAD, Misc.getNegativeHighlightColor(), getRelicName());
+        addConfirmTooltip(actions, entry);
+        if (!canPay) actions.addPara("Not enough %s.", PAD, Misc.getNegativeHighlightColor(), RelicHelper.getName());
 
         actionPanel.addUIElement(actions).inTL(0f, 0f);
         panel.addComponent(actionPanel).inTL(x, y + height - ACTION_HEIGHT);
@@ -274,7 +262,7 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
         detail.addPara("Rate: %s per DP of the hull.", PAD, hl, RELICS_PER_SHIP_DP + "");
     }
 
-    private void addConfirmTooltip(TooltipMakerAPI actions, Entry entry, int available) {
+    private void addConfirmTooltip(TooltipMakerAPI actions, Entry entry) {
         final boolean templates = tab == Tab.TEMPLATES;
 
         actions.addTooltipToPrevious(new BaseTooltipCreator() {
@@ -289,8 +277,7 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
                         ? "Lowers the quality level of this Forge Template by %s."
                         : "Removes the automated ship penalty from this ship for good.";
                 tooltip.addPara(effect, 0f, Misc.getHighlightColor(), "1");
-                tooltip.addPara("Cost: %s (Available: " + available + ")", PAD,
-                        entry.cost <= available ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), entry.cost + " " + getRelicName());
+                RelicHelper.addCostLine(tooltip, market, entry.cost, PAD);
                 tooltip.addPara(templates ? REFINE_LORE : INTEGRATE_LORE, Misc.getGrayColor(), OPAD);
             }
         }, TooltipMakerAPI.TooltipLocation.BELOW);
@@ -328,34 +315,19 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
     }
 
     private void apply(Entry entry) {
-        if (entry.cost > getAvailableRelics(market)) throw new IllegalStateException("IndEvo: not enough relics for " + entry.name);
-
         if (tab == Tab.TEMPLATES) {
             SpecialItemData data = entry.stack.getSpecialDataIfSpecial();
-            pay(entry.cost);
+            RelicHelper.take(market, entry.cost);
             ForgeTemplateItemPlugin.incrementForgeTemplateQualityLevel(data, -1);
-            message = entry.name + " refined to quality level " + ForgeTemplateItemPlugin.getForgeTemplateQualityLevel(data) + ", used " + entry.cost + " " + getRelicName() + ".";
+            message = entry.name + " refined to quality level " + ForgeTemplateItemPlugin.getForgeTemplateQualityLevel(data) + ", used " + entry.cost + " " + RelicHelper.getName() + ".";
         } else {
-            pay(entry.cost);
+            RelicHelper.take(market, entry.cost);
             integrate(entry.member);
             selected = null;
-            message = entry.name + " integrated, the automated ship penalty no longer applies. Used " + entry.cost + " " + getRelicName() + ".";
+            message = entry.name + " integrated, the automated ship penalty no longer applies. Used " + entry.cost + " " + RelicHelper.getName() + ".";
         }
 
         messageColor = Misc.getPositiveHighlightColor();
-    }
-
-    private void pay(int cost) {
-        float remaining = cost;
-        CargoAPI storage = Misc.getStorageCargo(market);
-
-        if (storage != null) {
-            float take = Math.min(remaining, storage.getCommodityQuantity(ItemIds.RARE_PARTS));
-            if (take > 0) storage.removeCommodity(ItemIds.RARE_PARTS, take);
-            remaining -= take;
-        }
-
-        if (remaining > 0) MiscIE.getPlayerCargo().removeCommodity(ItemIds.RARE_PARTS, remaining);
     }
 
     private static void integrate(FleetMemberAPI member) {
