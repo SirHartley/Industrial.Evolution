@@ -181,6 +181,7 @@ Fixed - Alpha core tooltip now shows the right values with the balance setting
 Fixed - Tooltip now properly mentions the Commerce bounty
 
 World Wonders
+Added - Planetary Shield tooltip shows the Cloud Painter shield visuals
 Adjusted - Custom shield visuals now need a working Cloud Painter
 Fixed - Cloud Painter now uses the shield texture settings for its starting look
 Fixed - Cloud Painter no longer breaks Planetary Shields (effects, AI core, improvement)

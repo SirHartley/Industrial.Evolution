@@ -17,7 +17,7 @@ All wonders share `WorldWonder`: +10 immigration (independent faction), monthly 
 | `indevo/industries/worldwonder/industry/LavaFortress.java` | Build check: planet with `very_hot` |
 | `indevo/industries/worldwonder/industry/WorldTree.java` | Build check: `habitable` planet whose type is in the tree list; suppresses `inimical_biosphere`; name "Eggdrasil" when the market name contains "egg" |
 | `indevo/industries/worldwonder/industry/CloudPainter.java` | Build check: planet without `no_atmosphere`. Cloud texture cycle (`nextTexture`, `applyVisuals`) |
-| `indevo/industries/worldwonder/patches/CloudPainterShieldPatch.java` | PatchLib redirect of `applyVisuals` in vanilla `PlanetaryShield.apply`: shield visuals from the market tags while a Cloud Painter works; tag constants, `hasFunctionalCloudPainter`, `getDefaultTag` |
+| `indevo/industries/worldwonder/patches/CloudPainterShieldPatch.java` | PatchLib redirect of `applyVisuals` in vanilla `PlanetaryShield.apply`: shield visuals from the market tags while a Cloud Painter works; `@After` on `PlanetaryShield.addPostDemandSection`: shield visuals tooltip line; tag constants, `hasFunctionalCloudPainter`, `getDefaultTag` |
 | `indevo/industries/worldwonder/patches/PlanetBackgroundRefreshPatch.java` | PatchLib `@After` on the colony screen planet background's `advanceImpl`: rebuilds the background when the planet spec changed |
 | `indevo/industries/worldwonder/conditions/WorldWonderCondition.java` | Hidden condition: +1 stability while any functional wonder of the market faction is in the location |
 | `indevo/industries/worldwonder/plugins/WorldWonderAltImageOptionProvider.java` | Industry option "Change Visuals": toggles `WorldWonder.isAlternateVisual`; only on player wonders with an alternate image |
@@ -77,6 +77,7 @@ Chain: `WorldWonder.apply -> system tag IndEvo_hasWonder -> addCondition(IndEvo_
 - Otherwise a market with none of the three tags gets `getDefaultTag()`: NONE if `IndEvo_CPShieldRemove`, else LOW if `IndEvo_CPShieldOverride`, else FULL. Markets that already carry a tag keep it.
 - FULL calls down, LOW applies the `IndEvo` / `shield_texture` sprite, NONE calls `PlanetaryShield.unapplyVisuals`.
 - Option "Change Shield Visuals" cycles FULL -> LOW -> NONE, then calls `reapply()` on the shield, so the redirect runs at once. Its tooltip lists full, faint and hidden visuals.
+- Shield tooltip: `afterPostDemandSection` adds "Shield visuals: %s" (Full, Faint or Hidden; untagged markets show `getDefaultTag()`) under vanilla's ground defense line, with the same condition (tooltip mode other than `NORMAL`, or a functional shield) and only while a Cloud Painter works. Vanilla `PlanetaryShield` declares `addPostDemandSection` (skill `api/impl/campaign/econ/impl/PlanetaryShield.java:93-99`); the spot right below the description is `addRightAfterDescriptionSection`, a `BaseIndustry` method IE does not patch.
 
 The rest of vanilla `apply` (ground defense x3, upkeep, meteor impact suppression) and the AI core stay untouched; the industry is the vanilla one.
 

@@ -3,13 +3,18 @@ package indevo.industries.worldwonder.patches;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
+import com.fs.starfarer.api.campaign.econ.Industry.IndustryTooltipMode;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PlanetaryShield;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.industries.worldwonder.industry.CloudPainter;
+import patchlib.api.context.AfterContext;
 import patchlib.api.context.MethodCallContext;
 import patchlib.api.match.ClassMatch;
 import patchlib.api.match.MethodMatch;
+import patchlib.api.patch.After;
 import patchlib.api.patch.Patch;
 import patchlib.api.patch.RedirectMethodCall;
 
@@ -43,6 +48,18 @@ public class CloudPainterShieldPatch {
         else context.call();
     }
 
+    // same condition as vanilla's ground defense line, so this sits right below it
+    @After(target = @MethodMatch(methodName = "addPostDemandSection", parameterCount = 3))
+    public static void afterPostDemandSection(AfterContext context) {
+        Industry shield = (Industry) context.getSelf();
+        MarketAPI market = shield.getMarket();
+        if (!hasFunctionalCloudPainter(market)) return;
+        if (context.getArg(2) == IndustryTooltipMode.NORMAL && !shield.isFunctional()) return;
+
+        TooltipMakerAPI tooltip = (TooltipMakerAPI) context.getArg(0);
+        tooltip.addPara("Shield visuals: %s", 10f, Misc.getHighlightColor(), getVisualsName(market));
+    }
+
     public static boolean hasFunctionalCloudPainter(MarketAPI market) {
         if (market == null) return false;
 
@@ -57,6 +74,19 @@ public class CloudPainterShieldPatch {
         if (Setting.CLOUD_PAINTER_SHIELD_REMOVE.enabled()) return TAG_NONE;
         if (Setting.CLOUD_PAINTER_SHIELD_OVERRIDE.enabled()) return TAG_LOW;
         return TAG_FULL;
+    }
+
+    private static String getVisualsName(MarketAPI market) {
+        String tag = market.hasTag(TAG_LOW) ? TAG_LOW
+                : market.hasTag(TAG_NONE) ? TAG_NONE
+                : market.hasTag(TAG_FULL) ? TAG_FULL
+                : getDefaultTag();
+
+        return switch (tag) {
+            case TAG_LOW -> "Faint";
+            case TAG_NONE -> "Hidden";
+            default -> "Full";
+        };
     }
 
     private static void applyAlternateVisuals(PlanetAPI planet) {
