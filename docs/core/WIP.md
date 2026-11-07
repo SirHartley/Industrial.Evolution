@@ -56,7 +56,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Flow
 
-Live today: the Logistics Core only boosts the Centralization Bureau (`indevo/items/installable/SpecialItemEffectsRepo.java:79`); a commented out "experimental log core effect" below it (`:97`) calls `IndEvo_LogCoreCond`. See [Installables](../items/INSTALLABLES.md).
+Live today: the Logistics Core only boosts the Centralization Bureau (`indevo/items/installable/LogCoreEffect.java`); nothing calls `IndEvo_LogCoreCond`. See [Installables](../items/INSTALLABLES.md).
 
 Intended converters flow (from comments and code): core installed -> condition counts months -> takeover roll -> `transferMarketToConverters` -> war manager spreads -> player recaptures -> `resetColonyToOriginalState`.
 

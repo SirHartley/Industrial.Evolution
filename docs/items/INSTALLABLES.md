@@ -6,15 +6,16 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-There are two install paths. Items in vanilla style (Logistics Core, Neuroconditioning Compounds, Relay Hypertransmitter, Simulation Engine, forge templates, ambassadors) use `GenericSpecialItemPlugin` or a subclass with industry ids in `plugin params`, and their `InstallableItemEffect` lives in `SpecialItemEffectsRepo`, merged into vanilla `ItemEffectsRepo.ITEM_EFFECTS`. `BaseIndustry` then owns the slot, the effect calls, the tooltip and the refund; an industry can swap the vanilla slot for a `NamedItemSlotPlugin` to name the item in the menu. Items with their own install slot (VPCs, blueprints) use an IE `BaseInstallableIndustryItemPlugin` subclass that the owning industry returns from `getInstallableItems()`; these keep their own effect maps. Item payloads that do not fit a data string (a deconstructed variant) live in `ItemPayloadMemory`, keyed from the item data. Loot listeners add IE items to salvage and add ship parts and relic components to fleets and wrecks.
+There are two install paths. Items in vanilla style (Logistics Core, Neuroconditioning Compounds, Relay Hypertransmitter, Simulation Engine, forge templates, ambassadors) use `GenericSpecialItemPlugin` or a subclass with industry ids in `plugin params`, and their `InstallableItemEffect` lives in `SpecialItemEffectsRepo`, merged into vanilla `ItemEffectsRepo.ITEM_EFFECTS`. `BaseIndustry` then owns the slot, the effect calls, the tooltip and the refund; an industry can swap the vanilla slot for a `NamedItemSlotPlugin` to name the item in the menu. Items with their own install slot (VPCs, blueprints) use an IE `BaseInstallableIndustryItemPlugin` subclass that the owning industry returns from `getInstallableItems()`; VPCs keep their own effect map, blueprints only have a description. Item payloads that do not fit a data string (a deconstructed variant) live in `ItemPayloadMemory`, keyed from the item data. Loot listeners add IE items to salvage and add ship parts and relic components to fleets and wrecks.
 
 ## Files
 
 | File | Owner / role |
 |---|---|
-| `indevo/items/installable/SpecialItemEffectsRepo.java` | `ITEM_EFFECTS` map merged into vanilla repo; `initEffectListeners()` registers colony factor listeners; shared constants |
+| `indevo/items/installable/SpecialItemEffectsRepo.java` | `ITEM_EFFECTS` map of the effect classes below, merged into vanilla repo; `initEffectListeners()` registers colony factor listeners; shared constants |
+| `indevo/items/installable/LogCoreEffect.java`, `SimulatorEffect.java`, `TransmitterEffect.java`, `NeuralCompoundsEffect.java`, `WormholeAnchorEffect.java` | `BaseInstallableItemEffect` per vanilla style item |
 | `indevo/items/installable/VPCInstallableItemPlugin.java` | VPC slot for `VariableAssembler` and `CommodityForge`; `IndEvo_VPC_EFFECTS` maps each VPC id to `setSupply` / `setDemand` on `VPCUserIndustryAPI` |
-| `indevo/items/installable/BlueprintInstallableItemPlugin.java` | Blueprint slot for `EngineeringHub`: `IndEvo_relicSpecialItem`, `ship_bp`, `tiandong_retrofit_bp`, `roider_retrofit_bp`; `getIndustry()` for the relic dialog patch |
+| `indevo/items/installable/BlueprintInstallableItemPlugin.java` | Blueprint slot for `EngineeringHub`: `BLUEPRINT_IDS` (`IndEvo_relicSpecialItem`, `ship_bp`, `tiandong_retrofit_bp`, `roider_retrofit_bp`), `isBlueprint`, `addBlueprintDescription`; `getIndustry()` for the relic dialog patch |
 | `indevo/items/installable/NamedItemSlotPlugin.java` | `GenericInstallableItemPlugin` with the item name in the menu texts and an own menu tooltip line; used by forge template users and the Embassy |
 | `indevo/items/installable/ForgeTemplateEffect.java` | `BaseInstallableItemEffect` for the three forge template ids; description only, no apply |
 | `indevo/items/installable/AmbassadorEffect.java` | `BaseInstallableItemEffect` for `IndEvo_amb`; description only, no apply |
@@ -57,7 +58,7 @@ There are two install paths. Items in vanilla style (Logistics Core, Neurocondit
 
 - `ModPlugin.onApplicationLoad`: `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` (`ModPlugin.java:129`), `ItemEffectsRepo.ITEM_EFFECTS.putAll(ITEM_EFFECTS)`. `BaseIndustry` looks up the effect of an installed special item by id in that map (skill `api/impl/campaign/econ/impl/BaseIndustry.java:214`).
 - `ModPlugin.setListenersIfNeeded()`: `SpecialItemEffectsRepo.initEffectListeners()` (`:426`) adds `SuperComputerFactor`, `Senate.SenateFactor`, `MilitaryRelay.RelayFactor`, `CentralizationBureau.BureauFactor` (deduped by class); `PartsCargoInterceptor.register()` (`:431`), `PartsLootAdder.register()` (`:433`, `addTransientListener`), `SpecialItemDropsListener.register()` (`:443`, deduped by class). All transient.
-- Installable plugins are created on demand by the owning industry's `getInstallableItems()` (skill `api/campaign/econ/Industry.java:149`), for example `VariableAssembler.java:425`, `EngineeringHub.java:532`, `Embassy.java:240`, `BaseForgeTemplateUser.java:51`.
+- Installable plugins are created on demand by the owning industry's `getInstallableItems()` (skill `api/campaign/econ/Industry.java:149`), for example `VariableAssembler.java:423`, `EngineeringHub.java:484`, `Embassy.java:240`, `BaseForgeTemplateUser.java:51`.
 - Item cargo plugins come from the `plugin` column.
 
 ## Flow
@@ -68,7 +69,7 @@ There are two install paths. Items in vanilla style (Logistics Core, Neurocondit
 |---|---|---|
 | `IndEvo_log_core` | none; `CentralizationBureau` reads `getSpecialItem()` | range 12 LY, max bonus 4 |
 | `IndEvo_simulator` | none; `Supercomputer` reads it | cold or extreme cold; +0.1 income, range 12 LY |
-| `IndEvo_transmitter` | outside a `MilitaryRelay`: set `$IndEvo_RelayUnlocked`; `unapply` unsets it unless another functional non relay industry holds a transmitter (`SpecialItemEffectsRepo.java:165`) | in a relay: pristine relay entity |
+| `IndEvo_transmitter` | outside a `MilitaryRelay`: set `$IndEvo_RelayUnlocked`; `unapply` unsets it unless another functional non relay industry holds a transmitter (`TransmitterEffect.java:35`) | in a relay: pristine relay entity |
 | `IndEvo_neurals` | none; Senate edicts read `NEURAL_COMPOUNDS_UNREST_RED` 0.5 | see [Senate](../industries/SENATE.md) |
 | `IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `IndEvo_EmptForgeTemplate` | none (`ForgeTemplateEffect`); the industries read `getSpecialItem()` | hull, charges, material cost |
 | `IndEvo_amb` | none (`AmbassadorEffect`); `Embassy` reads `getSpecialItem()` | ambassador name and faction; see [Embassy](../industries/EMBASSY.md) |
@@ -76,7 +77,7 @@ There are two install paths. Items in vanilla style (Logistics Core, Neurocondit
 
 ### Own install slots
 
-- `isInstallableItem` checks the stack id against the plugin's effect map. `get/setCurrentlyInstalledItemData` read and write the industry (`getCurrentVPC`, `getSpecialItem`).
+- `isInstallableItem` checks the stack id against the plugin's effect map (VPCs) or `BLUEPRINT_IDS`. `get/setCurrentlyInstalledItemData` read and write the industry (`getCurrentVPC`, `getSpecialItem`).
 - Blueprints: `IndEvo_relicSpecialItem` is added to the pick list by a PatchLib patch on the vanilla dialog, not through cargo; see [Engineering Hub](../industries/ENGINEERING_HUB.md#relic-components-in-the-install-dialog).
 
 ### Forge templates
@@ -114,7 +115,6 @@ On loot: collects the target's drop data (entity, then salvage spec). For each `
 
 | Item | State |
 |---|---|
-| Commented effects | `INTERFACES`, `NANITES`, `SALVAGE_DRONES`, `ANALYSER`, experimental log core (`SpecialItemEffectsRepo.java:98-139`, `:230-304`) |
 | `wormhole_anchor` | effect active, item row commented; see [Warehouses](../industries/WAREHOUSES.md) |
 
 ## Maintenance

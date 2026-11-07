@@ -65,7 +65,6 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     public void apply() {
         super.apply(true);
         debug = Global.getSettings().isDevMode();
-        applyblueprintItemEffects();
 
         if (isFunctional() && market.isPlayerOwned()) {
             Global.getSector().getListenerManager().addListener(this, true);
@@ -84,12 +83,6 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         super.unapply();
 
         Global.getSector().getListenerManager().removeListener(this);
-        if (blueprintItem != null) {
-            BlueprintInstallableItemPlugin.BlueprintEffect effect = BlueprintInstallableItemPlugin.BLUEPRINT_EFFECTS.get(blueprintItem.getId());
-            if (effect != null) {
-                effect.unapply(this);
-            }
-        }
     }
 
     @Override
@@ -444,25 +437,6 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         return Global.getSettings().getHullModSpec(id);
     }
 
-    protected void applyblueprintItemEffects() {
-        if (blueprintItem != null) {
-            BlueprintInstallableItemPlugin.BlueprintEffect effect = BlueprintInstallableItemPlugin.BLUEPRINT_EFFECTS.get(blueprintItem.getId());
-            if (effect != null) {
-                effect.apply(this, blueprintItem);
-            }
-        }
-    }
-
-    public void setblueprintItem(SpecialItemData blueprintItem) {
-        if (blueprintItem == null && this.blueprintItem != null) {
-            BlueprintInstallableItemPlugin.BlueprintEffect effect = BlueprintInstallableItemPlugin.BLUEPRINT_EFFECTS.get(this.blueprintItem.getId());
-            if (effect != null) {
-                effect.unapply(this);
-            }
-        }
-        this.blueprintItem = blueprintItem;
-    }
-
     public SpecialItemData getSpecialItem() {
         return blueprintItem;
     }
@@ -473,9 +447,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
     @Override
     public boolean wantsToUseSpecialItem(SpecialItemData data) {
-        return blueprintItem == null &&
-                data != null &&
-                BlueprintInstallableItemPlugin.BLUEPRINT_EFFECTS.containsKey(data.getId());
+        return blueprintItem == null && BlueprintInstallableItemPlugin.isBlueprint(data);
     }
 
     @Override
@@ -502,8 +474,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(blueprintItem.getId());
 
         TooltipMakerAPI text = tooltip.beginImageWithText(spec.getIconName(), 48);
-        BlueprintInstallableItemPlugin.BlueprintEffect effect = BlueprintInstallableItemPlugin.BLUEPRINT_EFFECTS.get(blueprintItem.getId());
-        effect.addItemDescription(text, blueprintItem, InstallableIndustryItemPlugin.InstallableItemDescriptionMode.INDUSTRY_TOOLTIP);
+        BlueprintInstallableItemPlugin.addBlueprintDescription(text, blueprintItem, InstallableIndustryItemPlugin.InstallableItemDescriptionMode.INDUSTRY_TOOLTIP);
         tooltip.addImageWithText(opad);
 
         return true;
@@ -522,8 +493,8 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         super.initWithParams(params);
 
         for (String str : params) {
-            if (BlueprintInstallableItemPlugin.BLUEPRINT_EFFECTS.containsKey(str)) {
-                setblueprintItem(new SpecialItemData(str, null));
+            if (BlueprintInstallableItemPlugin.BLUEPRINT_IDS.contains(str)) {
+                blueprintItem = new SpecialItemData(str, null);
                 break;
             }
         }
