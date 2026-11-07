@@ -29,7 +29,7 @@ public interface RelicSpeedUpTarget {
     }
 
     default String getSpeedUpScope() {
-        return "on this timer";
+        return "for this operation";
     }
 
     default boolean canSpeedUp() {

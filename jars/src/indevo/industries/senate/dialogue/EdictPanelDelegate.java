@@ -348,7 +348,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
 
         if (isActive) {
             int min = active.getMinRuntime(selectedColony);
-            detail.addPara("Day %s of %s minimum runtime", 0f, hl, Math.min(active.getDaysPassed(), min) + "", min + " days");
+            detail.addPara("Minimum term: %s / %s", 0f, hl, Math.min(active.getDaysPassed(), min) + "", min + " days");
             CustomPanelAPI bar = panel.createCustomPanel(width - 20f, 5f, new RuntimeBarPlugin(getRuntimeFraction(active, selectedColony), getRuntimeColor(active)));
             detail.addCustom(bar, PAD);
         }
@@ -363,7 +363,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
             detail.addCustom(createRequirementRow(requirement, width - 20f), PAD);
         }
 
-        detail.addPara("Runtime", base, OPAD);
+        detail.addPara("Duration", base, OPAD);
         if (isActive) addActiveRuntimeText(detail, active);
         else edict.addRuntimeText(detail, selectedColony, PAD);
 
@@ -379,11 +379,11 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         if (active.getRemainingDays() > 0) {
             String halved = EdictHelper.getCompoundsSenateInRange(selectedColony) != null ? " (early removal unrest halved by " + EdictHelper.COMPOUNDS_NAME + ")" : "";
             detail.addPara("Removing it now causes %s" + halved + ".", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
-            detail.addPara("Paying %s removes it without the early removal unrest.", PAD, Misc.getHighlightColor(), active.getRelicRemovalCost() + " " + RelicHelper.getName());
+            detail.addPara("Early repeal costs %s to avoid the unrest penalty.", PAD, Misc.getHighlightColor(), active.getRelicRemovalCost() + " " + RelicHelper.getName());
         } else if (unrest > 0) {
-            detail.addPara("Minimum runtime passed. Removing it now still causes %s from its end effect.", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
+            detail.addPara("Repealing this edict still causes %s.", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
         } else {
-            detail.addPara("Minimum runtime passed: it can be removed %s.", PAD, Misc.getPositiveHighlightColor(), "without penalty");
+            detail.addPara("Can be repealed %s.", PAD, Misc.getPositiveHighlightColor(), "without penalty");
         }
     }
 
@@ -423,7 +423,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
                 actions.addPara("Requirements not met.", gray, PAD);
             }
         } else if (!isActive) {
-            actions.addPara("Enact %s on %s? Removing it before its minimum runtime causes unrest.", OPAD, hl, edictName, colonyName);
+            actions.addPara("Enact %s on %s? Removing it before its minimum term causes unrest.", OPAD, hl, edictName, colonyName);
             addConfirmButtons(actions, "Confirm", action(callback, this::enactSelected), callback);
         } else if (confirm != Confirm.REMOVE) {
             addActionButton(actions, "Remove Edict", action(callback, () -> confirm = Confirm.REMOVE), OPAD);
@@ -449,7 +449,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         int relicUnrest = active.getRelicRemovalUnrest();
         boolean affordable = RelicHelper.canAfford(selectedColony, cost);
 
-        if (relicUnrest > 0) actions.addPara("With relics: %s from its end effect.", PAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
+        if (relicUnrest > 0) actions.addPara("With relics: %s.", PAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
         else actions.addPara("With relics: %s.", PAD, Misc.getPositiveHighlightColor(), "no unrest");
         RelicHelper.addCostLine(actions, selectedColony, cost, PAD);
 
@@ -472,8 +472,8 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
 
             @Override
             public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
-                tooltip.addPara("Removes the Edict without the early removal unrest.", 0f);
-                if (relicUnrest > 0) tooltip.addPara("Its end effect still causes %s.", PAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
+                tooltip.addPara("Avoids unrest from early repeal.", 0f);
+                if (relicUnrest > 0) tooltip.addPara("Repeal still causes %s.", PAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
                 RelicHelper.addCostLine(tooltip, selectedColony, cost, OPAD);
                 tooltip.addPara(RELIC_LORE, Misc.getGrayColor(), OPAD);
             }

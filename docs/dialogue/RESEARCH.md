@@ -103,6 +103,8 @@ Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notify
 
 ## Contracts
 
+- Project Reforge's description states the nanoforge conversion and delivery requirement; the Redeem tooltip shows the required cargo and available amount.
+
 - Project definitions live only in code; progress and reward randoms live in sector memory and persist. Renaming a project id orphans its progress.
 - A redeem requirement is not a points item: points are interchangeable, so the item is taken only on Redeem, from fleet cargo, never from storage. Cancel and Return take nothing.
 - Overflow is per project and off by default; `Progress.overflow` is false on saves made before the field existed. Turning it off keeps points already past 100%. The progress bar is capped at full width, the label shows the real percentage.

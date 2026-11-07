@@ -119,7 +119,7 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
         float listH = h - HEADER_H - COLUMN_H - FOOTER_H - PAD;
         TooltipMakerAPI list = panel.createUIElement(w, listH, true);
         for (FleetMemberAPI member : ships) list.addCustom(createRow(member, listW, callback), 2f);
-        if (ships.isEmpty()) list.addPara("No ships here can take the work.", Misc.getGrayColor(), OPAD);
+        if (ships.isEmpty()) list.addPara("No eligible ships available.", Misc.getGrayColor(), OPAD);
         panel.addUIElement(list).inTL(0f, HEADER_H + COLUMN_H + PAD);
 
         addFooter(w, h, callback);
@@ -193,7 +193,7 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
         boolean canAfford = false;
 
         if (selected == null) {
-            footer.addPara("Pick a ship. Cost is %s Relic Components per deployment point.", 0f, Misc.getGrayColor(), Misc.getHighlightColor(), COST_PER_DP + "");
+            footer.addPara("Cost: %s Relic Components per deployment point.", 0f, Misc.getGrayColor(), Misc.getHighlightColor(), COST_PER_DP + "");
         } else {
             int cost = getCost(selected);
             canAfford = RelicHelper.canAfford(market, cost);

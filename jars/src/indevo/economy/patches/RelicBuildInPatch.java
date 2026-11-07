@@ -170,7 +170,6 @@ public class RelicBuildInPatch {
             boolean canPay = available >= costPerMod;
 
             tooltip.addPara("Build hullmods into this ship with %s instead of story points. No bonus experience is granted.", 0f, Misc.getHighlightColor(), relicName);
-            tooltip.addPara("While this is on, the counter above shows how many more hullmods your %s pay for.", opad, Misc.getHighlightColor(), relicName);
             tooltip.addPara("Cost: %s per hullmod (Available: " + available + ")", opad, canPay ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), costPerMod + " " + relicName);
             if (getPending() > 0) tooltip.addPara("Clear the selected hullmods to switch.", Misc.getNegativeHighlightColor(), opad);
             tooltip.addPara(LORE, Misc.getGrayColor(), opad);

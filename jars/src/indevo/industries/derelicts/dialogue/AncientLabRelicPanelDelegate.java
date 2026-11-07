@@ -163,8 +163,8 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
         TooltipMakerAPI list = panel.createUIElement(width, height - HEADING_HEIGHT - PAD, true);
         if (entries.isEmpty()) {
             String empty = tab == Tab.TEMPLATES
-                    ? "No Forge Template with a quality level above 0 in the industrial or local storage here."
-                    : "No automated ship with the automated ship penalty in your fleet or the local storage here.";
+                    ? "No templates available for refinement in local or industrial storage."
+                    : "No automated ships available for integration in your fleet or local storage.";
             list.addPara(empty, Misc.getGrayColor(), OPAD);
         }
 
@@ -240,11 +240,11 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
 
         detail.addPara("Quality level: %s -> %s", 0f, new Color[]{Misc.getNegativeHighlightColor(), Misc.getPositiveHighlightColor()},
                 level + "", (level - 1) + "");
-        detail.addPara("The Hull Forge adds this level to its own when it prints. Each level adds print defects and D-mods, %s is best.", PAD, hl, "0");
+        detail.addPara("Lower levels reduce print defects and D-mods. Best quality: %s.", PAD, hl, "0");
         detail.addPara("Charges: %s", PAD, hl, ForgeTemplateItemPlugin.getCharges(entry.stack.getSpecialDataIfSpecial()) + "");
-        detail.addPara("Rate: %s per FP of the hull, per level.", PAD, hl, RELICS_PER_TEMPLATE_FP + "");
+        detail.addPara("Cost per quality level: %s relic components per fleet point.", PAD, hl, RELICS_PER_TEMPLATE_FP + "");
         if (entry.stack.getSize() > 1) {
-            detail.addPara("This stack holds %s templates with the same data, the cost covers all of them.", PAD, hl, (int) entry.stack.getSize() + "");
+            detail.addPara("Refines all %s templates in this stack.", PAD, hl, (int) entry.stack.getSize() + "");
         }
     }
 
@@ -258,8 +258,8 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
                     "-" + Math.round(Automated.MAX_CR_PENALTY * 100f) + "% automated ship penalty", "no penalty");
         }
         detail.addPara("Automated Ships skill: %s -> %s", PAD, new Color[]{hl, pos}, "counts toward its limit", "no longer counts");
-        detail.addPara("Permanent, the ship keeps it through refits.", PAD);
-        detail.addPara("Rate: %s per DP of the hull.", PAD, hl, RELICS_PER_SHIP_DP + "");
+        detail.addPara("Permanent.", PAD);
+        detail.addPara("Cost: %s relic components per deployment point.", PAD, hl, RELICS_PER_SHIP_DP + "");
     }
 
     private void addConfirmTooltip(TooltipMakerAPI actions, Entry entry) {
@@ -275,7 +275,7 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
             public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
                 String effect = templates
                         ? "Lowers the quality level of this Forge Template by %s."
-                        : "Removes the automated ship penalty from this ship for good.";
+                        : "Permanently removes the automated ship penalty.";
                 tooltip.addPara(effect, 0f, Misc.getHighlightColor(), "1");
                 RelicHelper.addCostLine(tooltip, market, entry.cost, PAD);
                 tooltip.addPara(templates ? REFINE_LORE : INTEGRATE_LORE, Misc.getGrayColor(), OPAD);

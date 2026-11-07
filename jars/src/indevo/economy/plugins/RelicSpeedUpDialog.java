@@ -40,18 +40,17 @@ public class RelicSpeedUpDialog extends BaseCustomDialogDelegate {
         int after = target.getSpeedUpDaysAfter();
 
         info.addSectionHeading(target.getSpeedUpLabel(), Alignment.MID, 0f);
-        info.addPara(getEffect(target), opad);
-        info.addPara("Can only be done %s every %s " + target.getSpeedUpScope() + ".", spad, Misc.getHighlightColor(),
+        info.addPara("Available %s every %s " + target.getSpeedUpScope() + ".", spad, Misc.getHighlightColor(),
                 "once", Math.round(RelicSpeedUpTarget.COOLDOWN_DAYS) + " days");
-        info.addPara("Days left: %s", opad, Misc.getHighlightColor(), left + " " + getDayOrDays(left));
-        info.addPara("After: %s", spad, Misc.getPositiveHighlightColor(), after + " " + getDayOrDays(after));
+        info.addPara("Time remaining: %s", opad, Misc.getHighlightColor(), left + " " + getDayOrDays(left));
+        info.addPara("With relics: %s", spad, Misc.getPositiveHighlightColor(), after + " " + getDayOrDays(after));
         RelicHelper.addCostLine(info, target.getMarket(), target.getSpeedUpCost(), spad);
     }
 
     public static void addTooltip(TooltipMakerAPI tooltip, RelicSpeedUpTarget target) {
         float opad = 10f;
 
-        tooltip.addPara(getEffect(target) + " Uses %s.", 0f, Misc.getHighlightColor(), RelicHelper.getName());
+        tooltip.addPara(getEffect(target), 0f);
         RelicHelper.addCostLine(tooltip, target.getMarket(), target.getSpeedUpCost(), opad);
 
         float cooldown = target.getSpeedUpCooldownLeft();
@@ -82,7 +81,7 @@ public class RelicSpeedUpDialog extends BaseCustomDialogDelegate {
     }
 
     private static String getEffect(RelicSpeedUpTarget target) {
-        return target.isSpeedUpInstant() ? "Ends the cooldown at once." : "Halves the days left.";
+        return target.isSpeedUpInstant() ? "Completes recharging immediately." : "Halves the remaining time.";
     }
 
     @Override

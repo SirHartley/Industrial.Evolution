@@ -45,7 +45,7 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
     }
 
     public static final float RELICS_PER_DP = 5f;
-    public static final String LORE = "The modification is woven through the ship's frame. Domain micro-assemblers can separate it at the joints and rebuild it inside an identical hull.";
+    public static final String LORE = "The modification is woven through the ship's frame. Domain micro-assemblers can separate it at the joints and rebuild it inside a compatible hull.";
 
     protected InteractionDialogPlugin originalPlugin;
     protected InteractionDialogAPI dialog;
@@ -117,19 +117,18 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
                 boolean optToAllowed = originMember != null;
                 opts.setEnabled(Option.SELECT_TO, optToAllowed);
                 if (!optToAllowed) opts.setTooltip(Option.SELECT_TO, "Select the origin hull first.");
-                else opts.setTooltip(Option.SELECT_TO, "Select the ship to move the S-mods to. It must already have the hullmod installed and a free S-mod slot.");
+                else opts.setTooltip(Option.SELECT_TO, "Requires the hullmod installed and a free S-mod slot.");
 
                 opts.addOption("Select S-mods", Option.SELECT_MODS);
                 boolean optModsAllowed = targetMember != null && originMember != null;
                 opts.setEnabled(Option.SELECT_MODS, optModsAllowed);
                 if (!optModsAllowed) opts.setTooltip(Option.SELECT_MODS, "Select a ship to transfer to first.");
-                else opts.setTooltip(Option.SELECT_MODS, "Select the S-mods to move to the target hull.");
 
                 opts.addOption("Confirm the transfer", Option.CONFIRM);
                 boolean optConfirmAllowed = optModsAllowed && !selectedMods.isEmpty();
                 boolean canAfford = BillingHelper.canAfford(getTotalCredits()) && RelicHelper.canAfford(getMarket(), getTotalRelics());
                 opts.setEnabled(Option.CONFIRM, optConfirmAllowed && canAfford);
-                if (!optConfirmAllowed) opts.setTooltip(Option.CONFIRM, "Select all the relevant parameters first.");
+                if (!optConfirmAllowed) opts.setTooltip(Option.CONFIRM, "Select both ships and the S-mods to transfer.");
                 else addConfirmTooltip(opts);
 
                 opts.addOption("Return", Option.RETURN);
