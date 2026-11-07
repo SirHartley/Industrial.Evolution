@@ -87,10 +87,14 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     public void init(InteractionDialogAPI dialog) {
         log.info("initializing SY dialog plugin");
 
-        float costMod = 1.5f - getMarket().getFaction().getRelationship(Global.getSector().getPlayerFaction().getId());
-        costMult = Math.max(0.8f, Math.min(1.5f, costMod));
+        costMult = getCostMult(getMarket());
 
         optionSelected(null, Option.MAIN);
+    }
+
+    public static float getCostMult(MarketAPI market) {
+        float costMod = 1.5f - market.getFaction().getRelationship(Global.getSector().getPlayerFaction().getId());
+        return Math.max(0.8f, Math.min(1.5f, costMod));
     }
 
     private MarketAPI getMarket() {
@@ -210,7 +214,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
         return !member.getVariant().hasTag(Tags.VARIANT_UNRESTORABLE) && !member.getHullSpec().hasTag(Tags.HULL_UNRESTORABLE);
     }
 
-    private boolean isSameSizeAndTechtype(FleetMemberAPI a, FleetMemberAPI b) {
+    static boolean isSameSizeAndTechtype(FleetMemberAPI a, FleetMemberAPI b) {
         boolean equalSize = a.getHullSpec().getHullSize().equals(b.getHullSpec().getHullSize());
         boolean equalType = a.getHullSpec().getManufacturer().equals(b.getHullSpec().getManufacturer());
 
@@ -344,7 +348,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
         optionSelected(null, Option.MAIN);
     }
 
-    private void cycleToCustomVariant(FleetMemberAPI member) {
+    static void cycleToCustomVariant(FleetMemberAPI member) {
         ShipVariantAPI variant = member.getVariant();
 
         variant = variant.clone();
@@ -367,9 +371,12 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     public float getSingleCost() {
         if (originMember == null) return 0;
 
-        float baseVal = RestorationDocks.getBaseShipHullSpec(originMember.getVariant(), true).getBaseValue();
-        int numDMods = DModManager.getNumDMods(originMember.getVariant());
-        float singleRepairCost = (float) (((baseVal / 2) * (Math.pow(1.2, numDMods) + 1)) / numDMods);
+        return getCreditCostPerMod(originMember, DModManager.getNumDMods(originMember.getVariant()), costMult);
+    }
+
+    public static float getCreditCostPerMod(FleetMemberAPI origin, int numMods, float costMult) {
+        float baseVal = RestorationDocks.getBaseShipHullSpec(origin.getVariant(), true).getBaseValue();
+        float singleRepairCost = (float) (((baseVal / 2) * (Math.pow(1.2, numMods) + 1)) / numMods);
 
         return singleRepairCost * Setting.SY_DMOD_MOVE_BASE_COST_MULT.value() * costMult;
     }

@@ -64,6 +64,7 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 | Construction speed up | 1 per remaining day | colony storage, then fleet cargo | [Construction speed up](#construction-speed-up) |
 | Early Edict removal | 1 per remaining day | colony storage, then fleet cargo | [Senate](../industries/SENATE.md#runtime-and-penalties) |
 | Story point derelict recovery | 5 per DP of each recovered ship | fleet cargo | [Salvage](../exploration/SALVAGE.md#relic-recovery) |
+| Salvage Yards S-mod transfer | 5 x target DP per S-mod, plus credits | local storage, then fleet cargo | [Salvage Yards](../industries/SALVAGE_YARDS.md#s-mod-transfer) |
 
 ## Contracts
 
