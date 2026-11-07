@@ -27,6 +27,7 @@ public class MuseumManageParadeOptionProvider extends SingleIndustrySimpifiedOpt
 
     public static final float ENTRY_HEIGHT = 166; //MUST be even
     public static final float ENTRY_WIDTH = WIDTH - 10f; //MUST be even
+    public static final float BLOCKER_HEIGHT = 34f; //MUST be even
 
     public static void register(){
         Global.getSector().getListenerManager().addListener(new MuseumManageParadeOptionProvider(), true);

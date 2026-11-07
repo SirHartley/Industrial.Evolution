@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.museum.data.MuseumConstants;
 import indevo.industries.museum.data.ParadeFleetProfile;
@@ -68,6 +69,16 @@ public final class ParadeChecks {
             }
             c.expect(active(museum) == 1, "one parade fits a single colony system");
             c.expect(tagged(a) <= 16, "failed parade attempts leave no ship stuck on parade (" + tagged(a) + " of 78)");
+            ParadeFleetProfile idle = null;
+            for (ParadeFleetProfile profile : museum.getParadeFleetProfiles()) if (profile.isEnabled() && !profile.hasActiveFleet()) idle = profile;
+            String blocker = idle == null ? null : idle.getLaunchBlocker();
+            c.note("idle profile blocker: " + blocker);
+            c.expect("all colonies in the system already have a parade".equals(blocker), "idle profile shows the parade target blocker");
+            int free = 78 - tagged(a);
+            Colony.setting(Setting.MUSEUM_MIN_SHIPS_FOR_PARADE, free + 1);
+            blocker = idle == null ? null : idle.getLaunchBlocker();
+            Colony.setting(Setting.MUSEUM_MIN_SHIPS_FOR_PARADE, 3);
+            c.expect(("too few free ships (" + free + " of " + (free + 1) + ")").equals(blocker), "minimum counts only ships not on parade (" + blocker + ")");
             c.put("tagged", tagged(a));
             c.days(115f);
         });

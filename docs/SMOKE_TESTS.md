@@ -95,7 +95,7 @@ The full set is about 340 checks in 12 minutes and exits 0 only when all pass. A
 | `industry` | Toggles, Academy, Commodity Forge, transmitters, Museum, Animal Center, Restoration Docks |
 | `senate` | Edicts, stable locations, Privateer slots, Cloud Painter, Salvage Yards raids |
 | `misc` | Settings saved live, artillery settings, Privateer targets, console commands, Prospector notice |
-| `parade` | Parade tags with a full system, a lost target, a normal return |
+| `parade` | Parade tags with a full system, launch blockers, a lost target, a normal return |
 | `paradetime` | Parade length, bonus through reloads, the trip home, two museums on one colony |
 | `content` | Forge World, hand built ships, Ancient Laboratory, ruins, gathering point, pet ability, Courier Port contract, Rift Generator |
 | `consume` | Consumable tooltips, Tech Locator ratings, interceptor, scoop, missile hotkey by real key press |

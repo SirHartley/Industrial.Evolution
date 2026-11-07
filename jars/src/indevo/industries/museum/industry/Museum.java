@@ -16,6 +16,7 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -56,6 +57,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     private int maxParades = Setting.MUSEUM_DEFAULT_MAX_PARADES.intValue();
     private Random random = new Random();
     private boolean flyParades = true;
+    private long lastParadeCheck = 0;
 
     //income
     private Map<ShipAPI.HullSize, Pair<Float, Float>> hullSizeValueMap = new HashMap<>(); //a = maxShipValue, b = average for hull size,
@@ -89,7 +91,10 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
     @Override
     public void reportEconomyTick(int iterIndex) {
-        if (!isFunctional() || submarket == null || iterIndex != 5) return;
+        if (iterIndex != 5) return;
+
+        lastParadeCheck = Global.getSector().getClock().getTimestamp();
+        if (!isFunctional() || submarket == null) return;
 
         //fill list if empty spot
         if (paradeFleetProfiles.size() < getMaxParades()) while (paradeFleetProfiles.size() < getMaxParades()) paradeFleetProfiles.add(new ParadeFleetProfile(this));
@@ -184,6 +189,53 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
             }
 
         } else tooltip.addPara("There are currently %s", opad, Misc.getHighlightColor(), "no active parade fleets.");
+
+        addNextParadeTooltip(tooltip, opad);
+    }
+
+    private void addNextParadeTooltip(TooltipMakerAPI tooltip, float pad){
+        Color hl = Misc.getHighlightColor();
+
+        if (!flyParades) {
+            tooltip.addPara("Parades are %s.", pad, Misc.getNegativeHighlightColor(), "turned off");
+            return;
+        }
+
+        if (getParadeFleets().size() >= getMaxParades()) return;
+
+        List<ParadeFleetProfile> idleProfiles = new ArrayList<>();
+        for (ParadeFleetProfile p : paradeFleetProfiles) if (p.isEnabled() && !p.hasActiveFleet()) idleProfiles.add(p);
+        //the next check adds a random profile when no enabled one is idle
+        if (idleProfiles.isEmpty()) idleProfiles.add(new ParadeFleetProfile(this));
+
+        Set<String> blockers = new LinkedHashSet<>();
+        for (ParadeFleetProfile p : idleProfiles) {
+            String blocker = p.getLaunchBlocker();
+            if (blocker == null) {
+                blockers.clear();
+                break;
+            }
+
+            blockers.add(blocker);
+        }
+
+        if (!blockers.isEmpty()) {
+            tooltip.addPara("No parade can launch:", pad);
+            tooltip.setBulletedListMode(BaseIntelPlugin.BULLET);
+            for (String blocker : blockers) tooltip.addPara(Misc.ucFirst(blocker), 0f);
+            tooltip.setBulletedListMode(null);
+            return;
+        }
+
+        float elapsed = Global.getSector().getClock().getElapsedDaysSince(lastParadeCheck);
+        //checks run on economy tick 5, about mid month
+        if (lastParadeCheck == 0 || elapsed > MuseumConstants.PARADE_CHECK_DAYS) {
+            tooltip.addPara("Next parade: %s.", pad, hl, "mid month");
+            return;
+        }
+
+        int days = Math.max(1, Math.round(MuseumConstants.PARADE_CHECK_DAYS - elapsed));
+        tooltip.addPara("Next parade in about %s.", pad, hl, days + " " + StringHelper.getDayOrDays(days));
     }
 
     public void addShipStorageValueTooltip(CargoAPI cargo, TooltipMakerAPI tooltip, boolean expanded) {
