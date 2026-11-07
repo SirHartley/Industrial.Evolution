@@ -88,7 +88,7 @@ Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3,
 
 ### Collision
 
-`MeteorEntity.advance` (`:65`): only when within 1000 of the viewport; targets are stations and fleets minus salvageable entities; hit when centre distance < meteor radius. A meteor hit by a consumable missile (`MissileMemFlags.MEM_CAUGHT_BY_MISSILE` in its memory) collides with a token at the missile location, so treasure drops without hitting a fleet (`:71-83`).
+`MeteorEntity.advance` (`:65`): only when within 1000 of the viewport; targets are stations and fleets minus salvageable entities, built once per frame and location and shared by all meteors (`getCollisionRelevantEntities`, `CollisionTargets`), since a tag lookup walks every entity in the location; hit when centre distance < meteor radius. A meteor hit by a consumable missile (`MissileMemFlags.MEM_CAUGHT_BY_MISSILE` in its memory) collides with a token at the missile location, so treasure drops without hitting a fleet (`:71-83`).
 
 ### Radiation
 

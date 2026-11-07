@@ -14,6 +14,7 @@ import indevo.items.consumables.fleet.MissileMemFlags;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import org.lwjgl.util.vector.Vector2f;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,24 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
     public void init(){
         angleRotation = 0.1f + MAX_ROTATION_PER_SEC - (MAX_ROTATION_PER_SEC * (entity.getRadius() / MAX_SIZE));
         if (Misc.random.nextBoolean()) angleRotation *= -1;
+    }
+
+    //weak so a static can't keep the old sector alive after a load
+    private static WeakReference<CollisionTargets> collisionTargets = new WeakReference<>(null);
+
+    private static class CollisionTargets {
+        final LocationAPI loc;
+        final long timestamp;
+        final List<SectorEntityToken> entities = new ArrayList<>();
+
+        CollisionTargets(LocationAPI loc, long timestamp) {
+            this.loc = loc;
+            this.timestamp = timestamp;
+
+            entities.addAll(loc.getEntitiesWithTag(Tags.STATION));
+            entities.addAll(loc.getFleets());
+            entities.removeAll(loc.getEntitiesWithTag(Tags.SALVAGEABLE));
+        }
     }
 
     public static class MeteorData{
@@ -86,13 +105,7 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
 
             //disable collision checks if out of sensor range
             if (Global.getSector().getViewport().isNearViewport(entity.getLocation(), 1000f)){
-                LocationAPI loc = entity.getContainingLocation();
-                List<SectorEntityToken> collisionRelevantEntities = new ArrayList<>();
-                collisionRelevantEntities.addAll(loc.getEntitiesWithTag(Tags.STATION));
-                collisionRelevantEntities.addAll(loc.getFleets());
-                collisionRelevantEntities.removeAll(loc.getEntitiesWithTag(Tags.SALVAGEABLE));
-
-                for (SectorEntityToken t : collisionRelevantEntities) {
+                for (SectorEntityToken t : getCollisionRelevantEntities(entity.getContainingLocation())) {
                     if (isInCollisionRange(t)) {
                         setCollidingAndFade(t);
                     }
@@ -101,6 +114,19 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
         }
 
         if (movement.isMovementFinished()) Misc.fadeAndExpire(entity, 1f);
+    }
+
+    //a tag lookup walks every entity in the location, swarms have thousands
+    private static List<SectorEntityToken> getCollisionRelevantEntities(LocationAPI loc) {
+        long timestamp = Global.getSector().getClock().getTimestamp();
+        CollisionTargets targets = collisionTargets.get();
+
+        if (targets == null || targets.loc != loc || targets.timestamp != timestamp) {
+            targets = new CollisionTargets(loc, timestamp);
+            collisionTargets = new WeakReference<>(targets);
+        }
+
+        return targets.entities;
     }
 
     public boolean isInCollisionRange(SectorEntityToken t){
