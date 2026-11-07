@@ -162,6 +162,9 @@ Fixed - Engineering Hub setting now properly controls whether it can be built
 Fixed - Stripped weapons and fighters now go to the production gathering point
 Fixed - Relic Components no longer show up as an item in storage or cargo
 
+Orbital Works
+Added - Relic Lattice Work: Orbital Works option, adds one S-mod slot to a ship. Costs relic components, takes 3 months.
+
 Privateer Base
 Adjusted - Now takes two industry slots itself, also while queued
 Fixed - Raids no longer fail to find a target when one exists

@@ -72,6 +72,8 @@ import indevo.industries.embassy.scripts.HostileActivityEventSubRegisterListener
 import indevo.industries.relay.listener.RelayNetworkBrain;
 import indevo.industries.warehouses.plugin.WarehouseAddSubmarketOptionProvider;
 import indevo.industries.museum.plugins.MuseumManageParadeOptionProvider;
+import indevo.industries.orbitalworks.plugins.OrbitalWorksSlotOptionProvider;
+import indevo.industries.orbitalworks.scripts.OrbitalWorksSlotManager;
 import indevo.industries.warehouses.plugin.WarehouseRemoveSubmarketOptionProvider;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
@@ -487,6 +489,8 @@ public class ModPlugin extends BaseModPlugin {
         MuseumManageParadeOptionProvider.register();
         RelicBuildTimeReductionButtonAdder.register();
         HullmodDataOptionProvider.register();
+        OrbitalWorksSlotManager.getInstanceOrRegister();
+        OrbitalWorksSlotOptionProvider.register();
         SurveyDataTooltipAmender.register();
         RelayNetworkBrain.getInstanceOrRegister();
 

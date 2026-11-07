@@ -128,7 +128,7 @@ Industry option buttons (the "..." menu on an industry) through `IndustryOptionP
 | `plugins/SingleIndustrySimpifiedOptionProvider.java` | `isSuitable` = functional industry with `getTargetIndustryId()` on the market of the open dialog |
 | `plugins/TagBasedSimplifiedIndustryOptionProvider.java` | `isSuitable` = industry spec tagged `getTargetTag()` on the market of the open dialog |
 
-Subclasses register themselves as listeners from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:426`). Users: Courier Port, Senate (overrides `isSuitable` without the open dialog check, so it also shows on remote colony screens), Warehouses, Military Relay, Museum, derelicts `RemoveIndustryOptionWarningProvider`, [Economy](ECONOMY.md) `RelicBuildTimeReductionButtonAdder`.
+Subclasses register themselves as listeners from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:426`). Users: Courier Port, Senate (overrides `isSuitable` without the open dialog check, so it also shows on remote colony screens), Warehouses, Military Relay, Museum, derelicts `RemoveIndustryOptionWarningProvider`, [Economy](ECONOMY.md) `RelicBuildTimeReductionButtonAdder`, [Orbital Works slot](../industries/ORBITAL_WORKS_SLOT.md) `OrbitalWorksSlotOptionProvider` (also on remote colony screens).
 
 ## scripts
 
