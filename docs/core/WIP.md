@@ -51,8 +51,8 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Registration and lifecycle
 
-- converters: nothing registered. `ModPlugin.onNewGameAfterEconomyLoad` has `//ConverterRepRestetter.resetConverterRep();` commented out (`indevo/utils/ModPlugin.java:307`). No `market_conditions.csv` row for the log core condition and no `industries.csv` row for the paperclip factory (grep of `data/campaign`).
-- mobilecolony: `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new MobileColonyCampaignPlugin())` every load (`indevo/utils/ModPlugin.java:495`). `BaseCampaignPlugin.isTransient()` returns true (vanilla `BaseCampaignPlugin`), so it does not pile up in saves. `MobileColonyFactory.create()` has no caller.
+- converters: nothing registered. `ModPlugin.onNewGameAfterEconomyLoad` has `//ConverterRepRestetter.resetConverterRep();` commented out (`indevo/utils/ModPlugin.java:309`). No `market_conditions.csv` row for the log core condition and no `industries.csv` row for the paperclip factory (grep of `data/campaign`).
+- mobilecolony: `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new MobileColonyCampaignPlugin())` every load (`indevo/utils/ModPlugin.java:497`). `BaseCampaignPlugin.isTransient()` returns true (vanilla `BaseCampaignPlugin`), so it does not pile up in saves. `MobileColonyFactory.create()` has no caller.
 
 ## Flow
 
@@ -64,7 +64,7 @@ Intended mobile colony flow (from `concept`): `create()` -> spawn fleet and enti
 
 ## Contracts
 
-- converters cannot be built as is: package declarations are `indevo.converters.*` while files live in `indevo/WIP/converters/`, and imports name classes that no longer exist (`indevo.IndEvo_StringHelper`, `indevo.ids.IndEvo_ids`, `indevo.ids.IndEvo_Items`, `indevo.plugins.timers.IndEvo_newDayListener`, `indevo.IndEvo_IndustryHelper`). Current owners: `StringHelper`, `Ids`, `ItemIds`, `NewDayListener`, `MiscIE.addOrRemoveSubmarket` ([Utils](UTILS.md)).
+- converters cannot be built as is: package declarations are `indevo.converters.*` while files live in `indevo/WIP/converters/`, and imports name classes that no longer exist (`indevo.IndEvo_StringHelper`, `indevo.ids.IndEvo_ids`, `indevo.ids.IndEvo_Items`, `indevo.plugins.timers.IndEvo_newDayListener`, `indevo.IndEvo_IndustryHelper`). Current owners: `StringHelper`, `Ids`, `ItemIds`, `NewDayListener` ([Utils](UTILS.md)); `IndEvo_IndustryHelper.addOrRemoveSubmarket` has no current equivalent.
 - `IndEvo_TakeoverScriptWithNex` and `PlayerFactionSetupNag` import Nexerelin unguarded; any revival needs the `isModEnabled("nexerelin")` split that `IndEvo_LogCoreCond` already has.
 - The converter faction, rules block, item and Nexerelin config ship in every build even though the code is excluded.
 

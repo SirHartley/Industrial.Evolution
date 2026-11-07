@@ -14,14 +14,14 @@ import indevo.ids.ItemIds;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
-import indevo.submarkets.DynamicSubmarket;
+import indevo.submarkets.RemovableSubmarketPluginAPI;
 import indevo.utils.ModPlugin;
 
-public class PetSubMarket extends BaseSubmarketPlugin implements DynamicSubmarket {
+public class PetSubMarket extends BaseSubmarketPlugin implements RemovableSubmarketPluginAPI {
 
     public boolean isSetForRemoval = false;
 
-    public void prepareForRemoval() {
+    public void notifyBeingRemoved() {
         this.isSetForRemoval = true;
     }
 

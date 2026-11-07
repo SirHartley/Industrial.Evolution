@@ -149,15 +149,6 @@ public class MiscIE {
         return x;
     }
 
-    public static void addOrRemoveSubmarket(MarketAPI market, String submarketId, boolean shouldHave) {
-        if (market.hasSubmarket(submarketId) && !shouldHave)
-            market.removeSubmarket(submarketId);
-        else if (!market.hasSubmarket(submarketId) && shouldHave) {
-            market.addSubmarket(submarketId);
-            market.getSubmarket(submarketId).getCargo();
-        }
-    }
-
     public static CargoAPI getIndustrialStorageCargo(MarketAPI market) {
         if (market == null) return null;
         SubmarketAPI submarket = market.getSubmarket(Ids.SHAREDSTORAGE);

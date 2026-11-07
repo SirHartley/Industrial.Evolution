@@ -8,12 +8,15 @@ Note - Saves from 4.1.b do not load, start a new game
 Added - Quick Settings tab for category toggles
 Added - Settings descriptions updated
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
+Adjusted - Industrial Supply Store moves its contents to colony storage when the colony is lost
 Adjusted - Removed redundant UI text and shortened tooltips
 Adjusted - Settings tabs re-sorted
 Adjusted - Settings now apply without a game restart
 Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
 Fixed - Crash on market updates with some modded industries
 Fixed - Settings no longer accept values below their minimum
+Fixed - Industry storage contents are no longer lost on colonies without storage
+Fixed - Leftover storages of removed industries are now cleaned up on load
 Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
 

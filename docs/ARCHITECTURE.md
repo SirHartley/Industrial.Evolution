@@ -72,7 +72,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | An industry not buildable | Industry `isAvailableToBuild()` -> its `Setting` toggle ([SETTINGS](core/SETTINGS.md)) -> feature doc |
 | A colony option or menu missing | `*OptionProvider.register()` -> rules `IndEvo_FireBase*OptionList` ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
 | A special item does nothing | `SpecialItemEffectsRepo.ITEM_EFFECTS` or the industry's `getInstallableItems()` ([INSTALLABLES](items/INSTALLABLES.md)); consumables: `ItemAbilityHelper.ID_MAP` ([CONSUMABLES](items/CONSUMABLES.md)) |
-| A storage or submarket wrong or not removed | `SubMarketAddOrRemovePlugin` ([SUBMARKETS](core/SUBMARKETS.md)) -> feature doc |
+| A storage or submarket wrong or not removed | `IndustrySubmarkets` ([SUBMARKETS](core/SUBMARKETS.md)) -> feature doc |
 | Parts, rare parts, supercomputer income | `ResourceConditionApplicator -> ResourceCondition.apply` ([ECONOMY](core/ECONOMY.md)) |
 | A ruin turns into the wrong structure | `$IndEvo_ruinsIndustryId` -> `RuinsManager` ([DERELICTS](industries/DERELICTS.md)) |
 | `getIndustry("population" / "mining" / "refining")` returns an IE class | Switchables return the vanilla id ([contract](#industries-and-markets)) |
@@ -87,22 +87,22 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 
 | Hook | What IE does | Line |
 |---|---|---|
-| `onApplicationLoad()` | `PlayerSettings.install()` first ([SETTINGS](core/SETTINGS.md#reading-a-setting)); GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:116` |
-| `onAboutToStartGeneratingCodex()` | Preloads the nanites icon texture | `:130` |
-| `onNewGame()` | `PlayerSettings.reload()`: picks up the new game settings panel | `:279` |
-| `onNewGameAfterEconomyLoad()` | One-time world generation (chain below) | `:285` |
-| `onGameLoad(newGame)` | `PlayerSettings.install()` first, then every-load registration and fixes (chain below) | `:144` |
-| `beforeGameSave()` | Resets `OnKeyPressAbilityInputListener`; removes untouched mine entities from their locations | `:312` |
-| `afterGameSave()`, `onGameSaveFailed()` | Puts the removed mines back | `:337`, `:342` |
-| `pickMissileAI()` | `IndEvo_mortarProjectileAI`, `IndEvo_missileProjectileAI` at `MOD_SPECIFIC` ([COMBAT](core/COMBAT.md)) | `:372` |
+| `onApplicationLoad()` | `PlayerSettings.install()` first ([SETTINGS](core/SETTINGS.md#reading-a-setting)); GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:117` |
+| `onAboutToStartGeneratingCodex()` | Preloads the nanites icon texture | `:131` |
+| `onNewGame()` | `PlayerSettings.reload()`: picks up the new game settings panel | `:281` |
+| `onNewGameAfterEconomyLoad()` | One-time world generation (chain below) | `:287` |
+| `onGameLoad(newGame)` | `PlayerSettings.install()` first, then every-load registration and fixes (chain below) | `:145` |
+| `beforeGameSave()` | Resets `OnKeyPressAbilityInputListener`; removes untouched mine entities from their locations | `:314` |
+| `afterGameSave()`, `onGameSaveFailed()` | Puts the removed mines back | `:339`, `:344` |
+| `pickMissileAI()` | `IndEvo_mortarProjectileAI`, `IndEvo_missileProjectileAI` at `MOD_SPECIFIC` ([COMBAT](core/COMBAT.md)) | `:374` |
 
-New game, once (`:288` to `:304`):
+New game, once (`:290` to `:306`):
 
 `LocatorSystemRatingUpdater.updateAllSystems -> RuinsManager.forceCleanCoreRuins -> NewGameIndustryPlacer.run -> ArtilleryStationPlacer.placeDerelictArtilleries -> placeCoreWorldArtilleries -> GachaStationSpawner.spawn -> createAcademyMarket -> [IndEvo_Enable_Derelicts] DerelictStationPlacer.init -> IndEvo_SalvageSpecialAssigner.init -> spawnMineFields -> DerelictInfrastructurePlacer.placeRuinedInfrastructure -> RuinsManager.placeIndustrialRuins`
 
-Every load (`:151` to `:172`):
+Every load (`:152` to `:174`):
 
-`createAcademyMarket -> setListenersIfNeeded -> setScriptsIfNeeded -> ResourceConditionApplicator.applyResourceConditionToAllMarkets -> loadTransientMemory -> OrbitFocus.removeUnusedOrbitFoci -> addTypePrefaceToIndustrySpecs -> LocatorSystemRatingUpdater.updateAllSystems -> resetDerelictRep -> [newGame] ArtilleryStationReplacer.register -> PlayerSettings.applyCampaignSettings -> [newGame, IndEvo_pets] addLordFoogRep -> MissileActivationManager reset`
+`createAcademyMarket -> setListenersIfNeeded -> setScriptsIfNeeded -> IndustrySubmarkets.removeOrphans -> ResourceConditionApplicator.applyResourceConditionToAllMarkets -> loadTransientMemory -> OrbitFocus.removeUnusedOrbitFoci -> addTypePrefaceToIndustrySpecs -> LocatorSystemRatingUpdater.updateAllSystems -> resetDerelictRep -> [newGame] ArtilleryStationReplacer.register -> PlayerSettings.applyCampaignSettings -> [newGame, IndEvo_pets] addLordFoogRep -> MissileActivationManager reset`
 
 ### Registration patterns
 
@@ -110,9 +110,9 @@ Every load (`:151` to `:172`):
 |---|---|---|
 | `X.register()` | `getListenerManager().addListener(new X(), true)`: transient, added on every load, not saved | `DepositMessage.register()` |
 | `X.getInstanceOrRegister()` | Returns the saved instance from `getListeners(X.class)` or adds a persistent one | `ShippingManager`, `AdminGovernTimeTracker`; `RelayNetworkBrain` is the transient variant, see below |
-| `registerPlugin(new XCampaignPlugin())` | Campaign plugin; all five IE plugins are transient (`BaseCampaignPlugin.isTransient()` returns true) | `setScriptsIfNeeded()` `:491` to `:495` |
+| `registerPlugin(new XCampaignPlugin())` | Campaign plugin; all five IE plugins are transient (`BaseCampaignPlugin.isTransient()` returns true) | `setScriptsIfNeeded()` `:493` to `:497` |
 | `@Patch` class | PatchLib finds it in `jars/IndEvo.jar` at startup, no registration. A hook installs when its target class loads | [Patches](#patches) |
-| `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:497` |
+| `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:499` |
 | Industry adds itself in `apply()` | `addListener(this)` from the industry; the listener manager skips an instance already present (obf `ObjectRepository.java:87`, per the knowledge skill) | Assembler, engineering hub |
 | CSV plugin column | Industries, conditions, abilities, items, entities, terrain, hullmods, weapons | `data/campaign/*.csv`, `custom_entities.json`, `terrain.json` |
 | `ruleCommandPackages` | Rule commands found by package | `settings.json:70` ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
@@ -214,7 +214,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 
 - `IndEvo_SharedStore` (`SharedSubmarketUser`) is shared by the supercomputer, salvage yards, engineering hub, commodity forge and forge template users. Forge templates move between derelict industries as cargo ([DERELICTS](industries/DERELICTS.md), [INSTALLABLES](items/INSTALLABLES.md)).
 - `MiscIE.getStorage` falls back to RAT `rat_settlement_storage` ([UTILS](core/UTILS.md)).
-- Player submarkets are added and removed only through `SubMarketAddOrRemovePlugin` ([SUBMARKETS](core/SUBMARKETS.md)).
+- Industry submarkets are added and removed only through `IndustrySubmarkets`: `ensure` from the owner's `advance()`, `release` from its `notifyBeingRemoved()`, never from `unapply()` ([SUBMARKETS](core/SUBMARKETS.md)).
 
 ### Cross-feature coupling
 
@@ -249,15 +249,15 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 
 | Component | State | Doc |
 |---|---|---|
-| Crucible | Spawner commented out (`ModPlugin.java:203`, `:295`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
+| Crucible | Spawner commented out (`ModPlugin.java:205`, `:297`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
 | Distress calls, ghost ships | Excluded, does not compile; hullmod rows and rules still load | [DISTRESS](exploration/DISTRESS.md) |
-| Mobile colony | Compiled and its campaign plugin registered (`:493`), never created | [WIP](core/WIP.md) |
+| Mobile colony | Compiled and its campaign plugin registered (`:495`), never created | [WIP](core/WIP.md) |
 | Converters | Excluded, does not compile | [WIP](core/WIP.md) |
 | Wormhole complex (`IndEvo_Warphouse`) | CSV row and item commented out | [WAREHOUSES](industries/WAREHOUSES.md) |
 | `ArtilleryStationReplacer` | Never matches: checks `contains("artillery")` against `IndEvo_Artillery_*` ids | [ARTILLERY](industries/ARTILLERY.md) |
 | `indevo/other` | Unregistered except the nuclear option checker | [MISC](core/MISC.md) |
 | `compatibility/TechTree`, `ModUpdater` | No references | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md), [UTILS](core/UTILS.md) |
-| `devActions()` | Disabled (`&& false`, `ModPlugin.java:149`) | This file |
+| `devActions()` | Disabled (`&& false`, `ModPlugin.java:150`) | This file |
 
 Each feature doc lists its own dormant classes and suspected bugs under Known issues.
 

@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
@@ -20,7 +21,7 @@ import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUserAPI;
 import indevo.items.VPCItemPlugin;
 import indevo.items.installable.VPCInstallableItemPlugin;
-import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
+import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -74,7 +75,13 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
     @Override
     public void advance(float amount) {
         super.advance(amount);
-        addSharedSubmarket();
+        IndustrySubmarkets.ensure(this, Ids.SHAREDSTORAGE);
+    }
+
+    @Override
+    public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
+        super.notifyBeingRemoved(mode, forUpgrade);
+        IndustrySubmarkets.release(this);
     }
 
     @Override
@@ -92,8 +99,6 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
                 effect.unapply(this);
             }
         }
-
-        removeSharedSubmarket();
     }
 
     @Override
@@ -399,18 +404,6 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
         tooltip.addPara(StringHelper.getString("IndEvo_ComForge", "indStorageTooltip"), 10f, Misc.getHighlightColor(), StringHelper.getString("IndEvo_items", "VPCs"));
-    }
-
-    @Override
-    public void addSharedSubmarket() {
-        if (currTooltipMode != IndustryTooltipMode.ADD_INDUSTRY && market.isPlayerOwned() && isFunctional() && !market.hasSubmarket(Ids.SHAREDSTORAGE)) {
-            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.SHAREDSTORAGE, false));
-        }
-    }
-
-    @Override
-    public void removeSharedSubmarket() {
-        Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.SHAREDSTORAGE, true));
     }
 
 }

@@ -88,6 +88,7 @@ import indevo.items.consumables.listeners.*;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.items.listeners.ShipComponentLootManager;
 import indevo.items.listeners.SpecialItemDropsListener;
+import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.RaidTimeout;
 import indevo.utils.timers.TimeTracker;
@@ -152,6 +153,7 @@ public class ModPlugin extends BaseModPlugin {
         createAcademyMarket();
         setListenersIfNeeded();
         setScriptsIfNeeded();
+        IndustrySubmarkets.removeOrphans();
 
         ResourceConditionApplicator.applyResourceConditionToAllMarkets();
         loadTransientMemory();

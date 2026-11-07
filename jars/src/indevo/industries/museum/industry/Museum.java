@@ -27,7 +27,7 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.museum.data.MuseumConstants;
 import indevo.industries.museum.data.ParadeFleetProfile;
-import indevo.submarkets.RemovablePlayerSubmarketPluginAPI;
+import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
@@ -127,11 +127,11 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     public void advance(float amount) {
         super.advance(amount);
 
-        if (isFunctional() && submarket == null && market.isPlayerOwned()) {
-            market.addSubmarket(Ids.MUSEUM_SUBMARKET);
+        if (!market.isPlayerOwned()) {
+            if (submarket != null) notifyBeingRemoved(null, false);
+        } else if (submarket == null) {
+            IndustrySubmarkets.ensure(this, Ids.MUSEUM_SUBMARKET);
             submarket = market.getSubmarket(Ids.MUSEUM_SUBMARKET);
-        } else if (!market.isPlayerOwned() && submarket != null) {
-            notifyBeingRemoved(null, false);
         }
     }
 
@@ -398,13 +398,9 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
             cargo.initMothballedShips(Factions.PLAYER);
             List<FleetMemberAPI> shipsInStorage = cargo.getMothballedShips().getMembersListCopy();
             for (FleetMemberAPI m : shipsInStorage) m.getVariant().removeTag(MuseumConstants.ON_PARADE_TAG);
-
-            if (!forUpgrade) {
-                if (sub.getPlugin() instanceof RemovablePlayerSubmarketPluginAPI removable) removable.notifyBeingRemoved();
-                market.removeSubmarket(Ids.MUSEUM_SUBMARKET);
-            }
         }
 
+        IndustrySubmarkets.release(this);
         submarket = null;
     }
 

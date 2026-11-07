@@ -15,7 +15,7 @@ import indevo.ids.Ids;
 import indevo.industries.warehouses.data.WarehouseConstants;
 import indevo.industries.warehouses.data.WarehouseSubmarketData;
 import indevo.industries.warehouses.plugin.LinkedStorageManager;
-import indevo.submarkets.RemovablePlayerSubmarketPluginAPI;
+import indevo.submarkets.IndustrySubmarkets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -156,17 +156,11 @@ public class Warehouses extends BaseIndustry {
     }
 
     public void removeSubmarket(WarehouseSubmarketData data){
-        ((RemovablePlayerSubmarketPluginAPI) market.getSubmarket(data.submarketID).getPlugin()).notifyBeingRemoved();
-        market.removeSubmarket(data.submarketID);
-        warehouseSubMarkets.remove(data);
+        if (IndustrySubmarkets.remove(market, data.submarketID)) warehouseSubMarkets.remove(data);
     }
 
     public void removeSubmarkets(){
-        for (WarehouseSubmarketData data : new ArrayList<>(warehouseSubMarkets)){
-            ((RemovablePlayerSubmarketPluginAPI) market.getSubmarket(data.submarketID).getPlugin()).notifyBeingRemoved();
-            market.removeSubmarket(data.submarketID);
-            warehouseSubMarkets.remove(data);
-        }
+        for (WarehouseSubmarketData data : new ArrayList<>(warehouseSubMarkets)) removeSubmarket(data);
     }
 
     public List<WarehouseSubmarketData> getWarehouseSubMarkets() {

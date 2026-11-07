@@ -20,17 +20,17 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.RequisitionCenter;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.submarkets.DynamicSubmarket;
+import indevo.submarkets.RemovableSubmarketPluginAPI;
 import indevo.utils.helper.MiscIE;
 
 import java.util.*;
 
-public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin implements DynamicSubmarket {
+public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin implements RemovableSubmarketPluginAPI {
 
     public boolean isSetForRemoval = false;
     private boolean playerPaidToUnlock = false;
 
-    public void prepareForRemoval() {
+    public void notifyBeingRemoved() {
         this.isSetForRemoval = true;
     }
 

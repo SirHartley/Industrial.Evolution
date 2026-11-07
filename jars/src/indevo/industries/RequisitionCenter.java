@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.RepLevel;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.ui.Alignment;
@@ -14,8 +15,8 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.embassy.industry.Embassy;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
+import indevo.submarkets.IndustrySubmarkets;
 import indevo.submarkets.impl.RequisitionsCenterSubmarketPlugin;
-import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 
@@ -38,16 +39,19 @@ public class RequisitionCenter extends BaseIndustry {
     @Override
     public void advance(float amount) {
         super.advance(amount);
-        if (isFunctional() && !market.hasSubmarket(Ids.REQMARKET)) {
-            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.REQMARKET, false));
-        }
+        IndustrySubmarkets.ensure(this, Ids.REQMARKET);
+    }
+
+    @Override
+    public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
+        super.notifyBeingRemoved(mode, forUpgrade);
+        IndustrySubmarkets.release(this);
     }
 
     @Override
     public void unapply() {
         super.unapply();
         Global.getSector().getListenerManager().removeListener(this);
-        Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.REQMARKET, true));
     }
 
     @Override

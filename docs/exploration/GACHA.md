@@ -39,8 +39,8 @@ Tuning constants (`GachaStationDialoguePlugin.java:41-49`): repair `METALS_REPAI
 
 ## Registration and lifecycle
 
-- Placement: `ModPlugin.onNewGameAfterEconomyLoad() -> GachaStationSpawner.spawn()` (`indevo/utils/ModPlugin.java:294`). New games only; existing saves never get stations.
-- Dialog: `ModPlugin.onGameLoad() -> setScriptsIfNeeded() -> registerPlugin(new GachaStationCampaignPlugin())` (`ModPlugin.java:494`). `BaseCampaignPlugin.isTransient()` returns true, so it is stripped from saves and re-added each load (starsector-knowledge `api/campaign/BaseCampaignPlugin.java:35`, `api/campaign/CampaignPlugin.java:76-86`).
+- Placement: `ModPlugin.onNewGameAfterEconomyLoad() -> GachaStationSpawner.spawn()` (`indevo/utils/ModPlugin.java:296`). New games only; existing saves never get stations.
+- Dialog: `ModPlugin.onGameLoad() -> setScriptsIfNeeded() -> registerPlugin(new GachaStationCampaignPlugin())` (`ModPlugin.java:496`). `BaseCampaignPlugin.isTransient()` returns true, so it is stripped from saves and re-added each load (starsector-knowledge `api/campaign/BaseCampaignPlugin.java:35`, `api/campaign/CampaignPlugin.java:76-86`).
 - Market: `Misc.setAbandonedStationMarket(id, station)` at spawn gives a size 0 market with paid-unlocked storage (starsector-knowledge `api/util/Misc.java:4177`).
 - Intel: `new GachaStationIntel(...)` in `displayDefaultOptions()` if none exists for the entity; `MapMarkerIntel.init()` adds it to the intel manager (`api/impl/campaign/intel/misc/MapMarkerIntel.java:85`).
 

@@ -33,8 +33,8 @@ All three hold one VPC in their own field instead of the vanilla special item sl
 
 ## Registration and lifecycle
 
-- Industry plugins from `industries.csv`. Each `apply()` adds the industry itself as a transient listener (`EconomyTickListener`, Forge also `NewDayListener`) and `unapply()` removes it (`VariableAssembler.java:54,84`, `CommodityForge.java:57,84`).
-- `DepositMessage.register()` in `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:428`), transient, re-added each load.
+- Industry plugins from `industries.csv`. Each `apply()` adds the industry itself as a transient listener (`EconomyTickListener`, Forge also `NewDayListener`) and `unapply()` removes it (`VariableAssembler.java:54,84`, `CommodityForge.java:58,91`).
+- `DepositMessage.register()` in `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:430`), transient, re-added each load.
 - `NewGameIndustryPlacer.placeManufactories()` puts a Manufactory with `IndEvo_vpc_IndEvo_parts` on `eochu_bres` at new game (`indevo/utils/update/NewGameIndustryPlacer.java:44-54`).
 - `initWithParams` accepts a VPC id, so econ files can preinstall one (`VariableAssembler.java:430-439`).
 
@@ -63,9 +63,9 @@ Delivery goes to the gathering point storage if `IndEvo_VarInd_deliverToProducti
 
 ### Commodity Forge
 
-- `onNewDay`: counts days while a VPC is installed and unlocked; above 7 days `vpcIsLocked` (`CommodityForge.java:177-185`). Locked means `getInstallableItems()` returns nothing, so the player can not remove it (`:211-221`).
-- Month end: deposit, lock, `depositCounter++`; at `maxDeposits` the VPC is deleted, a burn out message is posted and `autoFeed` loads the first VPC found in `IndEvo_SharedStore` (`:139-175`, `:113-134`).
-- Adds the shared storage submarket through `SubMarketAddOrRemovePlugin` while functional; legal items there are the ten VPC ids (`:381-414`).
+- `onNewDay`: counts days while a VPC is installed and unlocked; above 7 days `vpcIsLocked` (`CommodityForge.java:182-190`). Locked means `getInstallableItems()` returns nothing, so the player can not remove it (`:216-226`).
+- Month end: deposit, lock, `depositCounter++`; at `maxDeposits` the VPC is deleted, a burn out message is posted and `autoFeed` loads the first VPC found in `IndEvo_SharedStore` (`:144-180`, `:118-139`).
+- Keeps the shared storage submarket through `IndustrySubmarkets.ensure` in `advance()` and `release` in `notifyBeingRemoved()` (`:78`, `:84`); legal items there are the ten VPC ids (`:386-407`).
 
 ### AI cores and NPC markets
 
@@ -82,14 +82,14 @@ NPC markets without a VPC get one random VPC by tag weight once (`AImode`, `Vari
 - The VPC lives in `currentVPC`; `getSpecialItem` / `setSpecialItem` are overridden to read and write it, so vanilla item code sees the VPC as the special item (`VariableAssembler.java:376-393`). Removal refunds it unless the removal is an upgrade (`:395-404`); upgrade and downgrade copy it in `upgradeFinished`.
 - `aiCoreMult`, `rampUpExpired`, `lastInstalledSpecialItemId`, Forge `daysPassed`, `depositCounter`, `vpcIsLocked` are saved fields on the industry.
 - `ConvertVPCSpecial` reads `DUAL_OUTPUT_REDUCTION_MULT` (`indevo/exploration/salvage/specials/ConvertVPCSpecial.java:23`); see [Salvage](../exploration/SALVAGE.md).
-- Shared industry storage and `SubMarketAddOrRemovePlugin`: [Submarkets](../core/SUBMARKETS.md). Setting reads: [Settings](../core/SETTINGS.md).
+- Shared industry storage and `IndustrySubmarkets`: [Submarkets](../core/SUBMARKETS.md). Setting reads: [Settings](../core/SETTINGS.md).
 
 ## Known issues and dormant code
 
 | Item | State |
 |---|---|
 | Gamma core `aiCoreMult` | Suspected: no `applyGammaCoreModifiers` override, so switching alpha or beta to gamma keeps the old deposit mult (`VariableAssembler.java:515-525`; dispatch in `api/impl/campaign/econ/impl/BaseIndustry.java:246-257` in the knowledge base) |
-| Forge lock at month end | The first deposit locks the VPC even if 7 days have not passed (`CommodityForge.java:144`) |
+| Forge lock at month end | The first deposit locks the VPC even if 7 days have not passed (`CommodityForge.java:149`) |
 | `VPCUserIndustryAPI` | Only implemented by `VariableAssembler` and its subclasses |
 | Changelog_todo | "Rework VPCs to use random tiered output system" |
 

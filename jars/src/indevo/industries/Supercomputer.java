@@ -79,12 +79,6 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
         Global.getSector().getListenerManager().addListener(this, true);
     }
 
-    @Override
-    public void advance(float amount) {
-        super.advance(amount);
-        addSharedSubmarket();
-    }
-
     public int getCoreUseTimes(String AICoreId) {
         HashMap<String, Integer> list = new HashMap<>();
 
@@ -141,9 +135,6 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
         for (MarketAPI PlayerMarket : PlayerMarketsInSystem) {
             PlayerMarket.getIncomeMult().unmodify(getModId());
         }
-
-        removeSharedSubmarket();
-
     }
 
     private boolean hascond(String id) {

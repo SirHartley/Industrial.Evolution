@@ -43,17 +43,17 @@ Two reflection helpers exist. Prefer `StarReflectionUtils` for new code (ambigui
 | Area | Methods (line) |
 |---|---|
 | Player and dialog | `getPlayerCargo()` 43, `getCurrentInteractionTargetMarket()` 61 (market of the open dialog target or null) |
-| Storage | `getStorage(market)` 68 (vanilla storage, falls back to RAT `rat_settlement_storage`), `getStorageCargo(market)` 78, `getIndustrialStorageCargo(market)` 161 (`Ids.SHAREDSTORAGE`), `getMarketForStorage(market)` 563 (gathering point if it has storage, else local), `addOrRemoveSubmarket(market, id, shouldHave)` 152 |
-| Ship stripping | `stripShipNoCargo(member)` 277, `stripShipToCargoAndReturnVariant(member, cargo)` 446 (also modules, AI core captain), `stripAndReturnVariant(variant, cargo)` 466, `stripShipToCargoAndReturnVariant(member, market)` 497 (into `getMarketForStorage(market)` storage, else fleet cargo) |
-| Fleet members | `finalizeAndUpdateFleetMember(member)` 168 (clone variant, clear original), `createFleetMemberClone(member)` 335, `convertFleetMemberListToIdList(list)` 339, `getCargoCopy(cargo)` 320 (copies mothballed ships too) |
-| Hull lists (session cached) | `getAllLearnableShipHulls()` 178 (tag ending `_bp`, not fighter, not `IndEvo_no_ship_roulette`), `getAllRareShipHulls()` 195 (`rare_bp`), `isLearnable(spec)` 212, `getShipRoleListMap()` 839 (hull ids per role group from all factions) |
-| Whitelists and mod lists (session cached) | `getCSVSetFromMemory(path)` 578 (merged CSV `id` column, master mod `IndEvo`), `getVPCItemSet()` 262, `getPrismBossShips()` 619, `getVayraBossShips()` 648, `canLoadShips(factionOrModId)` 614 |
-| Market queries | `isMilitary(industry)` 82, `marketHasMilitary(market, onlyFunctional)` 699, `marketHasMilitaryIncludeRelays(market[, onlyFunctional])` 681, `getFactionMarkets(faction)` 436 (skips `SalvageMarket` ids), `getMarketsInLocation(loc[, factionId])` 538/549 (skips hidden), `getClosestMarketWithIndustry(market, id)` 349, `getClosestPlayerMarketWithIndustryFromSet` 367, `getAiCoreIdNotNull(ind)` 313 (`"none"`) |
-| System industry counts | `systemHasIndustry(id, system, faction[, withUnfinished])` 740/770, `systemHasIndustryExcludeNotFunctional` 754, `getAmountOfIndustryInSystem` 789, `isOnlyInstanceInSystem` 813, `isOnlyInstanceInSystemExcludeMarket` 713 (both count the construction queue) |
+| Storage | `getStorage(market)` 68 (vanilla storage, falls back to RAT `rat_settlement_storage`), `getStorageCargo(market)` 78, `getIndustrialStorageCargo(market)` 152 (`Ids.SHAREDSTORAGE`), `getMarketForStorage(market)` 554 (gathering point if it has storage, else local) |
+| Ship stripping | `stripShipNoCargo(member)` 268, `stripShipToCargoAndReturnVariant(member, cargo)` 437 (also modules, AI core captain), `stripAndReturnVariant(variant, cargo)` 457, `stripShipToCargoAndReturnVariant(member, market)` 488 (into `getMarketForStorage(market)` storage, else fleet cargo) |
+| Fleet members | `finalizeAndUpdateFleetMember(member)` 159 (clone variant, clear original), `createFleetMemberClone(member)` 326, `convertFleetMemberListToIdList(list)` 330, `getCargoCopy(cargo)` 311 (copies mothballed ships too) |
+| Hull lists (session cached) | `getAllLearnableShipHulls()` 169 (tag ending `_bp`, not fighter, not `IndEvo_no_ship_roulette`), `getAllRareShipHulls()` 186 (`rare_bp`), `isLearnable(spec)` 203, `getShipRoleListMap()` 830 (hull ids per role group from all factions) |
+| Whitelists and mod lists (session cached) | `getCSVSetFromMemory(path)` 569 (merged CSV `id` column, master mod `IndEvo`), `getVPCItemSet()` 253, `getPrismBossShips()` 610, `getVayraBossShips()` 639, `canLoadShips(factionOrModId)` 605 |
+| Market queries | `isMilitary(industry)` 82, `marketHasMilitary(market, onlyFunctional)` 690, `marketHasMilitaryIncludeRelays(market[, onlyFunctional])` 672, `getFactionMarkets(faction)` 427 (skips `SalvageMarket` ids), `getMarketsInLocation(loc[, factionId])` 529/540 (skips hidden), `getClosestMarketWithIndustry(market, id)` 340, `getClosestPlayerMarketWithIndustryFromSet` 358, `getAiCoreIdNotNull(ind)` 304 (`"none"`) |
+| System industry counts | `systemHasIndustry(id, system, faction[, withUnfinished])` 731/761, `systemHasIndustryExcludeNotFunctional` 745, `getAmountOfIndustryInSystem` 780, `isOnlyInstanceInSystem` 804, `isOnlyInstanceInSystemExcludeMarket` 704 (both count the construction queue) |
 | Economy | `createMonthlyReportNode(ind, market, nodeName, excludeFromClearing...)` 87 (custom monthly report node under the colony), `applyDeficitToProduction(ind, index, deficit, commodities...)` 126 |
-| Planets | `planetHasRings(planet or market)` 504/520 (uses `derelicts/scripts/PlanetMovingScript.getEntitiesWithOrbitTarget`), `getEntitiesInRange(entity, range)` 47 |
-| Sector memory maps | `getMapFromMemory(key)` 385 (sorted copy, creates the key), `storeMapInMemory(map, key)` 405, `getClampedMap` 395, `sortByLargestValue` 414, `addOrIncrement(map, id, by)` 223/233 |
-| Math and lists | `smootherstep(e0, e1, x)` 138, `customLog(base, x)` 409, `getRandomInRange(min, max, random)` 57, `splitList(list or set, perPage)` 244/257, `getDaysOfCurrentMonth()` 307 |
+| Planets | `planetHasRings(planet or market)` 495/511 (uses `derelicts/scripts/PlanetMovingScript.getEntitiesWithOrbitTarget`), `getEntitiesInRange(entity, range)` 47 |
+| Sector memory maps | `getMapFromMemory(key)` 376 (sorted copy, creates the key), `storeMapInMemory(map, key)` 396, `getClampedMap` 386, `sortByLargestValue` 405, `addOrIncrement(map, id, by)` 214/224 |
+| Math and lists | `smootherstep(e0, e1, x)` 138, `customLog(base, x)` 400, `getRandomInRange(min, max, random)` 57, `splitList(list or set, perPage)` 235/248, `getDaysOfCurrentMonth()` 298 |
 
 ### StringHelper
 
@@ -90,7 +90,7 @@ Adapted from Histidine (Nexerelin). Default category is `IndEvo_misc` in `data/s
 |---|---|
 | `memory/SessionTransientMemory.java` | Transient `GenericPlugin` key value cache: `getInstance()`, `set(key, obj)` (key must start with `$`, else throws), `get`, `unset`, `contains`, `getSet`, `getString`, `getBoolean` |
 
-`getInstance()` adds the plugin with `addPlugin(plugin, true)` (`memory/SessionTransientMemory.java:21`; `isTransient` overload in `api/campaign/GenericPluginManagerAPI.java:65`), so the cache is rebuilt each session and never saved. Use it for data derived from specs and CSVs. Users: `MiscIE`, `petshop/memory/PetDataRepo`, `surveystories/memory/FileLoader`, `senate/rules/IndEvo_CreateEdictSelectionList`. `ModPlugin.loadTransientMemory()` (`ModPlugin.java:405`) warms it on game load.
+`getInstance()` adds the plugin with `addPlugin(plugin, true)` (`memory/SessionTransientMemory.java:21`; `isTransient` overload in `api/campaign/GenericPluginManagerAPI.java:65`), so the cache is rebuilt each session and never saved. Use it for data derived from specs and CSVs. Users: `MiscIE`, `petshop/memory/PetDataRepo`, `surveystories/memory/FileLoader`, `senate/rules/IndEvo_CreateEdictSelectionList`. `ModPlugin.loadTransientMemory()` (`ModPlugin.java:407`) warms it on game load.
 
 ## plugins
 
@@ -103,7 +103,7 @@ Industry option buttons (the "..." menu on an industry) through `IndustryOptionP
 | `plugins/SingleIndustrySimpifiedOptionProvider.java` | `isSuitable` = functional industry with `getTargetIndustryId()` on the market of the open dialog |
 | `plugins/TagBasedSimplifiedIndustryOptionProvider.java` | `isSuitable` = industry spec tagged `getTargetTag()` on the market of the open dialog |
 
-Subclasses register themselves as listeners from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:425`). Users: Courier Port, Senate, Warehouses, Military Relay, Museum, derelicts `RemoveIndustryOptionWarningProvider`, [Economy](ECONOMY.md) `RelicBuildTimeReductionButtonAdder`.
+Subclasses register themselves as listeners from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:427`). Users: Courier Port, Senate, Warehouses, Military Relay, Museum, derelicts `RemoveIndustryOptionWarningProvider`, [Economy](ECONOMY.md) `RelicBuildTimeReductionButtonAdder`.
 
 ## scripts
 
@@ -121,7 +121,7 @@ Submarket add and remove has its own script: [Submarkets](SUBMARKETS.md).
 | Class | Members |
 |---|---|
 | `timers/NewDayListener.java` | interface `onNewDay()` |
-| `timers/TimeTracker.java` | Persistent sector script added once in `ModPlugin.setScriptsIfNeeded()` (`ModPlugin.java:499`). Detects a day change from `CampaignClockAPI.getDay()` and calls `onNewDay()` on every `NewDayListener` in the listener manager and in `getAllListeners()`. Also keeps market "time tags" (`ident + days`): `addMarketTimeTagTracker`, `removeMarketTimeTagTracker`, static `getTimeTagPassed`, `marketHasTimeTag`, `getTagNum`, `incrementTagNum`, `removeTimeTag`, `getTimeTrackerInstance()`. Trackers match by market and `ident.equals`, one entry per pair; `ident` is the condition mod id, a new `String` after every load |
+| `timers/TimeTracker.java` | Persistent sector script added once in `ModPlugin.setScriptsIfNeeded()` (`ModPlugin.java:501`). Detects a day change from `CampaignClockAPI.getDay()` and calls `onNewDay()` on every `NewDayListener` in the listener manager and in `getAllListeners()`. Also keeps market "time tags" (`ident + days`): `addMarketTimeTagTracker`, `removeMarketTimeTagTracker`, static `getTimeTagPassed`, `marketHasTimeTag`, `getTagNum`, `incrementTagNum`, `removeTimeTag`, `getTimeTrackerInstance()`. Trackers match by market and `ident.equals`, one entry per pair; `ident` is the condition mod id, a new `String` after every load |
 | `timers/IntervalTracker.java` | Transient script with shared 1 s and 2 s `IntervalUtil`s, runs while paused: `getInstance()`, `isElapsed1s()`, `getIntervalFraction1s()`, `isElapsed2s()`, `getIntervalFraction2s()`. User: `consumables/itemPlugins/BaseConsumableItemPlugin` |
 | `timers/RaidTimeout.java` | Transient `EconomyTickListener`: per system raid cooldown in months. `register()`, `addRaidedSystem(system, months, ai)` (keeps the smaller value), `containsSystem(system, ai)`. Decrements on the last economy tick of the month. Memory keys `$IndEvo_RaidTimeout`, `$IndEvo_RaidTimeout_AI` (sector memory, `Map<String, Float>`). User: [Privateer](../industries/PRIVATEER.md); console: `indevo_printRaidTimeout` |
 
@@ -133,7 +133,7 @@ Fixed copy of MagicLib's campaign trail plugin (Nicke535, fix by President Matt 
 
 | Class | Members |
 |---|---|
-| `trails/MagicCampaignTrailPlugin.java` | Persistent sector script, `register()` once (`ModPlugin.java:503`). Static API: `getUniqueID()`, `AddTrailMemberSimple(...)`, `AddTrailMemberAdvanced(...)`, `AddTrailMemberAnimated(...)`, `cutTrailsOnEntity(entity)` (call before teleporting). Builds `org.magiclib.util.MagicTrailObject`s; trails only tick and render in the player's location |
+| `trails/MagicCampaignTrailPlugin.java` | Persistent sector script, `register()` once (`ModPlugin.java:505`). Static API: `getUniqueID()`, `AddTrailMemberSimple(...)`, `AddTrailMemberAdvanced(...)`, `AddTrailMemberAnimated(...)`, `cutTrailsOnEntity(entity)` (call before teleporting). Builds `org.magiclib.util.MagicTrailObject`s; trails only tick and render in the player's location |
 | `trails/MagicCustomCampaignTrailEntityScript.java` | Plugin of custom entity `IndEvo_campaign_trail_custom_entity` (`data/config/custom_entities.json`); forwards `render` to the trail plugin. The plugin moves this entity to the player's location each frame |
 
 Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmunitionEntity`, `MissileCarrierEntityPlugin`), `consumables/entities/BaseMissileEntityPlugin`, WIP `MobileColonyEntityPlugin`.
@@ -142,7 +142,7 @@ Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmuniti
 
 | Class | Members |
 |---|---|
-| `update/NewGameIndustryPlacer.java` | `run()` from `ModPlugin.onNewGameAfterEconomyLoad()` (`ModPlugin.java:291`): places IE industries on fixed core world markets if the industry setting is on and the market is not player owned. Market ids and cores: `placeDryDocks` (13 markets), `placeAcademy` (`eochu_bres` beta, `fikenhild`), `placeReqCenter` (`baetis`), `placeSalvageYards` (`donn`, `agreus`, `suddene`), `placeManufactories` (`eochu_bres` with `IndEvo_vpc_IndEvo_parts`), `placePetShops` (`jangala`, `gilead`, `fikenhild`). `placeCourierPorts` is not called |
+| `update/NewGameIndustryPlacer.java` | `run()` from `ModPlugin.onNewGameAfterEconomyLoad()` (`ModPlugin.java:293`): places IE industries on fixed core world markets if the industry setting is on and the market is not player owned. Market ids and cores: `placeDryDocks` (13 markets), `placeAcademy` (`eochu_bres` beta, `fikenhild`), `placeReqCenter` (`baetis`), `placeSalvageYards` (`donn`, `agreus`, `suddene`), `placeManufactories` (`eochu_bres` with `IndEvo_vpc_IndEvo_parts`), `placePetShops` (`jangala`, `gilead`, `fikenhild`). `placeCourierPorts` is not called |
 | `update/ModUpdater.java` | `run()`: removes every script and listener whose class name contains `IndEvo`, re-adds IE submarkets, industries and player market conditions, then runs `NewGameIndustryPlacer`. Not called anywhere (dead) |
 
 ## Known issues and dormant code

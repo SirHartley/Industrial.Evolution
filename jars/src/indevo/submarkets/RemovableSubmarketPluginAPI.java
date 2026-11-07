@@ -1,5 +1,5 @@
 package indevo.submarkets;
 
-public interface RemovablePlayerSubmarketPluginAPI {
+public interface RemovableSubmarketPluginAPI {
     void notifyBeingRemoved();
 }

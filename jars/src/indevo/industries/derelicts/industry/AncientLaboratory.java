@@ -62,18 +62,11 @@ public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayLi
     }
 
     @Override
-    public void advance(float amount) {
-        super.advance(amount);
-        addSharedSubmarket();
-    }
-
-    @Override
     public void unapply() {
         super.unapply();
 
         unapplyCommodityBonuses();
         Global.getSector().getListenerManager().removeListener(this);
-        removeSharedSubmarket();
     }
 
     private void autoFeed() {

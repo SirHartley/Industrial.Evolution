@@ -30,7 +30,7 @@ import indevo.ids.ItemIds;
 import indevo.items.EmptyForgeTemplateItemPlugin;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
-import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
+import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -72,10 +72,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
     @Override
     public void advance(float amount) {
         super.advance(amount);
-        if (isFunctional() && !market.hasSubmarket(Ids.DECSTORAGE)) {
-            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.DECSTORAGE, false));
-            addSharedSubmarket();
-        }
+        IndustrySubmarkets.ensure(this, Ids.DECSTORAGE);
     }
 
     @Override
@@ -83,12 +80,6 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
         super.unapply();
 
         Global.getSector().getListenerManager().removeListener(this);
-
-        if (currTooltipMode != IndustryTooltipMode.ADD_INDUSTRY) {
-            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.DECSTORAGE, true));
-        }
-
-        removeSharedSubmarket();
     }
 
     private void autoFeed() {

@@ -38,7 +38,7 @@ IE has no row with a vanilla id. A mod row with a vanilla id would replace the w
 
 ## Overview
 
-Each industry here is one class with its CSV row and an enable setting of the same name in `data/config/LunaSettings.csv` (`IndEvo_AdInfra` :89, `IndEvo_SupCom` :91, `IndEvo_dryDock` :94, `IndEvo_ReqCenter` :96). Several add a player submarket through `SubMarketAddOrRemovePlugin` ([Submarkets](../core/SUBMARKETS.md)). Special item effects for the Logistics Core and Simulation Engine are listed in [Installables](../items/INSTALLABLES.md); the industries read `getSpecialItem()` directly.
+Each industry here is one class with its CSV row and an enable setting of the same name in `data/config/LunaSettings.csv` (`IndEvo_AdInfra` :89, `IndEvo_SupCom` :91, `IndEvo_dryDock` :94, `IndEvo_ReqCenter` :96). Several add a submarket through `IndustrySubmarkets` ([Submarkets](../core/SUBMARKETS.md)). Special item effects for the Logistics Core and Simulation Engine are listed in [Installables](../items/INSTALLABLES.md); the industries read `getSpecialItem()` directly.
 
 ## Files
 
@@ -90,10 +90,10 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 
 ### Supercomputer (`IndEvo_SupCom`)
 
-- Extends `SharedSubmarketUser`; only AI core commodities are legal in the shared storage (`Supercomputer.java:616`).
-- `onNewDay` (`:325`): `getNextCore` moves the installed core into `lastApplied`; after `getCoreUseTimes(core)` days (runtime setting times `runtimeMult`; a modded core runs as long as a gamma core) it takes the next core from the shared storage (same type first, then gamma, beta, alpha). Warning 30 days before, message when empty. AI markets get a fresh gamma core.
+- Extends `SharedSubmarketUser`; only AI core commodities are legal in the shared storage (`Supercomputer.java:607`).
+- `onNewDay` (`:316`): `getNextCore` moves the installed core into `lastApplied`; after `getCoreUseTimes(core)` days (runtime setting times `runtimeMult`; a modded core runs as long as a gamma core) it takes the next core from the shared storage (same type first, then gamma, beta, alpha). Warning 30 days before, message when empty. AI markets get a fresh gamma core.
 - `getCurrentIncrease()`: very cold 0.20, cold 0.15, else 0.05; x1.2 with alpha; +0.1 (`SIMULATOR_BASE_INCREASE`) with the Simulation Engine.
-- `modifyAllMarketIncome()` (`:172`), keyed by `getModId()`, which `unapply()` also clears on every market in the system: sums all supercomputers in the system plus the distance scaled bonus of the nearest Simulation Engine supercomputer in another system within 12 LY; one source gives `1 + sum`, several give `1 + sum * 0.88^n`; applied as `getIncomeMult().modifyMult` on every same faction market in the system.
+- `modifyAllMarketIncome()` (`:163`), keyed by `getModId()`, which `unapply()` also clears on every market in the system: sums all supercomputers in the system plus the distance scaled bonus of the nearest Simulation Engine supercomputer in another system within 12 LY; one source gives `1 + sum`, several give `1 + sum * 0.88^n`; applied as `getIncomeMult().modifyMult` on every same faction market in the system.
 - Last economy tick of the month: beta core gives random credits straight to the player; with `IndEvo_ResLab` on the market a cold (5%) or very cold (10%) planet may dump a random AI core into storage (x1.5 with beta).
 - AI cores: gamma upkeep x0.9, beta upkeep x0.8 plus credits, alpha x1.2 income.
 - Build: not on hot or very hot planets, stations, gas giants. Pather interest +6.
@@ -102,9 +102,9 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 ### Restoration Docks (`IndEvo_dryDock`)
 
 - `advance` adds `IndEvo_RepairStorage`; demand `IndEvo_parts` `min(eligible ships, 4)`.
-- `reportEconomyTick` on the last tick of the month (`RestorationDocks.java:105`, before month end because of the report) -> `removeDMods(aiMode)`.
+- `reportEconomyTick` on the last tick of the month (`RestorationDocks.java:109`, before month end because of the report) -> `removeDMods(aiMode)`.
 - `removeDMods`: budget = market size (+3 alpha). Per step: pick a ship (beta: fewest D-mods; else random), remove one random non built in D-mod, add `getSingleDModRepairCost` to the monthly report node (`industries`, or `dryDock` for AI markets). Gamma: one D-mod per ship. A clean ship is restored to its base hull (`getBaseShipHullSpec`).
-- Cost per D-mod = `(baseValue / 2) * 1.2^(maxD + 1) / maxD * aiCoreBonusMult` (`:313`), where `maxD` is the highest D-mod count seen for that member (`$IndEvo_maxDModMemory`). Beta mult 0.85, alpha upkeep x0.2.
+- Cost per D-mod = `(baseValue / 2) * 1.2^(maxD + 1) / maxD * aiCoreBonusMult` (`:317`), where `maxD` is the highest D-mod count seen for that member (`$IndEvo_maxDModMemory`). Beta mult 0.85, alpha upkeep x0.2.
 - AI markets (not hostile, or pirates): the player can use the docks there; a hull size fee scaled by `1 - relation` (clamped to +-0.5) is added.
 - Inferred: the player pays through the monthly report; credits are only checked, not subtracted, during the loop.
 
@@ -130,7 +130,7 @@ Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. W
 
 ### SharedSubmarketUser
 
-`addSharedSubmarket()` queues `SubMarketAddOrRemovePlugin` for `IndEvo_SharedStore` on functional player markets; subclasses call it from `advance`. `SharedSubmarketPlugin` asks every `SharedSubmarketUserAPI` industry on the market `isLegalOnSharedSubmarket` and `addTooltipLine`. Users: `Supercomputer`, `SalvageYards`, `EngineeringHub`, `BaseForgeTemplateUser`; `CommodityForge` implements the interface directly.
+`advance()` keeps `IndEvo_SharedStore` through `IndustrySubmarkets.ensure` and `notifyBeingRemoved()` calls `IndustrySubmarkets.release` (`SharedSubmarketUser.java:13`, `:19`); subclasses that override either call super. The storage is player only and is released when the last user leaves. `SharedSubmarketPlugin` asks every `SharedSubmarketUserAPI` industry on the market `isLegalOnSharedSubmarket` and `addTooltipLine`. Users: `Supercomputer`, `SalvageYards`, `EngineeringHub`, `BaseForgeTemplateUser`; `CommodityForge` implements the interface directly.
 
 ## Contracts
 
