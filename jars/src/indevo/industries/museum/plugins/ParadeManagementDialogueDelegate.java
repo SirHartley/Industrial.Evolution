@@ -144,7 +144,9 @@ class ParadeManagementDialogueDelegate extends ButtonReportingDialogueDelegate {
         //add the profile list
 
         for (ParadeFleetProfile profile : museum.getParadeFleetProfiles()) {
-            CustomPanelAPI entryPanel = panel.createCustomPanel(MuseumManageParadeOptionProvider.ENTRY_WIDTH - spad, MuseumManageParadeOptionProvider.ENTRY_HEIGHT, new ButtonReportingCustomPanel(this, baseColor, -1));
+            String launchBlocker = profile.hasActiveFleet() ? null : profile.getLaunchBlocker();
+            float entryHeight = MuseumManageParadeOptionProvider.ENTRY_HEIGHT + (launchBlocker != null ? MuseumManageParadeOptionProvider.BLOCKER_HEIGHT : 0f);
+            CustomPanelAPI entryPanel = panel.createCustomPanel(MuseumManageParadeOptionProvider.ENTRY_WIDTH - spad, entryHeight, new ButtonReportingCustomPanel(this, baseColor, -1));
 
             //header
 
@@ -422,6 +424,12 @@ class ParadeManagementDialogueDelegate extends ButtonReportingDialogueDelegate {
             entryPanel.addUIElement(buttonAnchor).rightOfMid(lastUsedAnchor, opad);
             lastUsedAnchor = buttonAnchor;
 
+            if (launchBlocker != null) {
+                textAnchor = entryPanel.createUIElement(MuseumManageParadeOptionProvider.ENTRY_WIDTH - spad, MuseumManageParadeOptionProvider.BUTTON_30, false);
+                textAnchor.addPara("Cannot launch: %s", spad, Misc.getNegativeHighlightColor(), launchBlocker);
+
+                entryPanel.addUIElement(textAnchor).belowLeft(lastTextAnchor, spad);
+            }
 
             //finalize
 

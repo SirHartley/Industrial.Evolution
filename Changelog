@@ -51,11 +51,14 @@ Fixed - Unknown pet boxes no longer crash (the tooltip shows an error)
 Removed - Pet food
 
 Museum
+Added - Parade manager and Museum tooltip now show why a parade can't launch
+Added - Museum tooltip shows the days until the next parade
 Adjusted - Unique ships (Ziggy, MK1) are always max value
 Adjusted - Non-purchasable ships have higher value (PR'd by abel1502, thank you!)
 Fixed - Parade fleet stability bonus no longer stacks
 Fixed - Museum now follows its own setting instead of the meteor shower one
 Fixed - Parades now properly last the chosen duration
+Fixed - Random parades no longer launch with too few ships while others are out
 Fixed - Crash when cancelling Museum construction
 Fixed - Museum removal now properly returns ships and removes exhibition storage
 Fixed - Parade bonuses no longer disappear after loading a save
