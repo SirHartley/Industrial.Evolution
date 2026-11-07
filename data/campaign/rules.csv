@@ -857,3 +857,29 @@ indevo_ghostShipContinueSelectedDestroyed,DialogOptionSelected,"$indevo_destroyG
 $option == salSpecialContinue",SalvageEntity demolish,,,
 indevo_ghostShipFinishedNoContinueDestroyed,SalvageSpecialFinishedNoContinue,$indevo_destroyGhostShip score:1000,SalvageEntity demolish,,,
 ,,,,,,
+# Custom production express delivery,,,,,,
+IndEvo_cpcExpressOffer,CPCBlueprintsPicked,IndEvo_CPCExpress valid $cpc_ref score:100,IndEvo_CPCExpress options,"""The forge is running on parts older than the colony. Bring me a few crates of Domain components and I'll put your hulls through while we have it running properly.""","IndEvo_cpcExpress:Express Delivery
+IndEvo_cpcStandard:Standard Delivery",
+IndEvo_cpcStandard,DialogOptionSelected,"$option == IndEvo_cpcStandard
+!$cpc_barEvent","$option = contact_accept 0
+FireBest DialogOptionSelected
+Call $cpc_ref repSuccess
+Call $cpc_ref addContacts",,,
+IndEvo_cpcStandardBar,DialogOptionSelected,"$option == IndEvo_cpcStandard
+$cpc_barEvent","$option = contact_acceptBar 0
+FireBest DialogOptionSelected
+Call $cpc_ref repSuccess
+Call $cpc_ref addContacts",,,
+IndEvo_cpcExpress,DialogOptionSelected,"$option == IndEvo_cpcExpress
+!$cpc_barEvent","$option = contact_accept 0
+FireBest DialogOptionSelected
+IndEvo_CPCExpress apply $cpc_ref
+Call $cpc_ref repSuccess
+Call $cpc_ref addContacts",,,
+IndEvo_cpcExpressBar,DialogOptionSelected,"$option == IndEvo_cpcExpress
+$cpc_barEvent","$option = contact_acceptBar 0
+FireBest DialogOptionSelected
+IndEvo_CPCExpress apply $cpc_ref
+Call $cpc_ref repSuccess
+Call $cpc_ref addContacts",,,
+,,,,,,

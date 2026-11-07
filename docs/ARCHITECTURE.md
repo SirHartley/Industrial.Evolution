@@ -55,7 +55,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [BEACONS](dialogue/BEACONS.md) | Warning beacon dismantling | `dialogue/beacons` |
 | | [SIDE_PANEL](dialogue/SIDE_PANEL.md) | Custom side panels in dialogs (UI) | `dialogue/sidepanel` |
 | | [RULE_COMMANDS](dialogue/RULE_COMMANDS.md) | Generic rule commands, `rules.csv` map | `dialogue/rules` |
-| Core | [ECONOMY](core/ECONOMY.md) | Resource condition, parts, relic build time reduction | `economy` |
+| Core | [ECONOMY](core/ECONOMY.md) | Resource condition, parts, relic build time reduction, custom production Express Delivery | `economy` |
 | | [SUBMARKETS](core/SUBMARKETS.md) | Submarket plugins, adding and removing submarkets | `submarkets` |
 | | [COMBAT](core/COMBAT.md) | Weapon scripts, missile AI, combat terrain | `data/scripts` |
 | | [Skillshot README](../jars/src/indevo/skillshot/README.md) | Aimed campaign abilities framework (missile targeting), shared design and cross mod lock with Catch.Release | `skillshot` |
