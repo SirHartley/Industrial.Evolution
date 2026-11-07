@@ -24,6 +24,7 @@ import indevo.config.Setting;
 import indevo.industries.RestorationDocks;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
+import indevo.utils.helper.BillingHelper;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
@@ -135,8 +136,10 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
                 opts.addOption("Confirm", Option.CONFIRM);
                 boolean optConfirmAllowed = targetMember != null && originMember != null && selectedMods != null && !selectedMods.isEmpty();
-                opts.setEnabled(Option.CONFIRM, optConfirmAllowed);
+                boolean canAfford = BillingHelper.canAfford(Math.round(getSingleCost() * selectedMods.size()));
+                opts.setEnabled(Option.CONFIRM, optConfirmAllowed && canAfford);
                 if (!optConfirmAllowed) opts.setTooltip(Option.CONFIRM, "Select all the relevant parameters first.");
+                else if (!canAfford) opts.setTooltip(Option.CONFIRM, "You do not have enough credits.");
                 else opts.setTooltip(Option.CONFIRM, null);
 
                 opts.addOption("Return", Option.RETURN);
@@ -445,11 +448,9 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     }
 
     private void removeCostFromInventory() {
-        CargoAPI fleetCargo = Global.getSector().getPlayerFleet().getCargo();
-
         //credits
         int total = Math.round(getSingleCost() * selectedMods.size());
-        fleetCargo.getCredits().subtract(total);
+        BillingHelper.chargeNow(total);
         AddRemoveCommodity.addCreditsLossText(total, dialog.getTextPanel());
 
         cycleToCustomVariant(originMember);

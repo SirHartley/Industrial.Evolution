@@ -13,7 +13,6 @@
 		"she": "she",
 		"him": "him",
 		"her": "her",
-		"colonies": "Colonies", #Might cause issues when translated as it is used for the monthly report
 		"frig": "Frigate",
 		"dest": "Destroyer",
 		"cruiser": "Cruiser",

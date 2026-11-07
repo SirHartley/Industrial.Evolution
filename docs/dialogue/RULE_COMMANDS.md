@@ -147,7 +147,7 @@ When a player market has two or more of Senate, Academy, Rift Generator, Courier
 
 | Item | State |
 |---|---|
-| `IndEvo_DeductSpacerCreditsAndSetNeutral` | casts the target to `CampaignFleetAPI` before the `instanceof` check (`:24`); unreachable, the rule only fires in the spacer fleet dialog |
+| `IndEvo_DeductSpacerCreditsAndSetNeutral` | casts the target to `CampaignFleetAPI` before the `instanceof` check (`:25`); unreachable, the rule only fires in the spacer fleet dialog |
 | `IndEvo_notAtWar` | NPE if the market has no ambassador (`AmbassadorPersonManager.getAmbassador` returns null, unchecked at `:20`); both rows list `IndEvo_isAmbassador` first |
 | `IndEvo_IsInHyperspace`, `IndEvo_OfficerCurrentlyTraining`, `IndEvo_playerHasFreeEmbassyNoCargo` | unused by rules |
 | `HasItemAmountAnywhere`, `RemoveItemAmountAnywhere`, `HyperlostGateInteraction`, `IndEvo_InitPersonalityTransferMenu` | not in a listed package |

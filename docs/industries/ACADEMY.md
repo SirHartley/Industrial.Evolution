@@ -32,14 +32,14 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 |---|---|---|
 | Industry | `IndEvo_Academy` (`Ids.ACADEMY`) | `data/campaign/industries.csv:35`, tags `structure, unraidable` |
 | Market | `IndEvo_academyMarket` on entity `station_galatia_academy` | `ModPlugin.createAcademyMarket()` (`indevo/utils/ModPlugin.java:382`) |
-| Setting | `IndEvo_Academy` (toggle) | `data/config/LunaSettings.csv:102`, read in `Academy.isAvailableToBuild()` (`Academy.java:145`) |
+| Setting | `IndEvo_Academy` (toggle) | `data/config/LunaSettings.csv:102`, read in `Academy.isAvailableToBuild()` (`Academy.java:142`) |
 | Setting | `IndEvo_dailyOfficerSpawnChance` 0.15, `IndEvo_dailyAdminSpawnChance` 0.10 | `LunaSettings.csv:166-167`, `Academy.onNewDay()` |
 | Setting | `IndEvo_personalityTrainingDayCount` 93, `IndEvo_personalityTrainingCost` 30000 | `LunaSettings.csv:168-169` |
 | Setting | `IndEvo_adminTrainingDayCount` 124, `IndEvo_adminTrainingCost` 20000 | `LunaSettings.csv:170-171` |
 | Setting | `IndEvo_monthlyAIStorageCost` 2000 (per person, NPC markets) | `LunaSettings.csv:172` |
 | Market memory | `$IndEvo_officerIsTraining`, `$IndEvo_adminIsTraining` | set by `Academy`, read by `IndEvo_MarketIsTraining` |
-| Person memory | `$IndEvo_wasTrainedLevel` (training count) | `Academy.applyTrainingMemoryTag()` (`Academy.java:613`) |
-| Person memory | `$ome_adminTier` incremented, `$ome_hireable`, `$ome_isAdmin` read | `Academy.java:412`, `:714` (vanilla `OfficerManagerEvent` keys) |
+| Person memory | `$IndEvo_wasTrainedLevel` (training count) | `Academy.applyTrainingMemoryTag()` (`Academy.java:590`) |
+| Person memory | `$ome_adminTier` incremented, `$ome_hireable`, `$ome_isAdmin` read | `Academy.java:389`, `:691` (vanilla `OfficerManagerEvent` keys) |
 | Dialogue memory | `$IndEvo_personList`, `$IndEvo_subListPage`, `$IndEvo_actionType`, `$IndEvo_personType`, `$IndEvo_selectedPerson` (local, expire 0) | `IndEvo_AcademyVariables` |
 | Entity memory | `$IndEvo_closeDialogueOnNextReturn` | `AcademyOptionProvider.onClick()` |
 | Rules | `IndEvo_FireBaseAcademyOptionList`, `IndEvo_AcademyBaseMenu*`, `IndEvo_IntitiateAcademyMenu`, `IndEvo_Select*`, `IndEvo_personSelector_*`, `IndEvo_MovePersonOption*`, `IndEvo_LoadAbortDialogue_*`, `IndEvo_personWasSelected` | `data/campaign/rules.csv`, block `# Academy` to `#END Academy` |
@@ -50,7 +50,7 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 - Industry plugin from the `industries.csv` plugin column. Rule commands from `ruleCommandPackages` entry `indevo.industries.academy.rules` (`data/config/settings.json:72`).
 - `ModPlugin.onGameLoad()` and `onNewGameAfterEconomyLoad()` call `createAcademyMarket()` (`ModPlugin.java:154`, `:296`): hidden size 3 independent market with Population and Academy, `NO_CONTACTS_ON_MARKET` and `NO_DECIV_KEY` set, only if the market is missing and `station_galatia_academy` exists.
 - `AcademyOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:469`), transient, deduped by class.
-- `Academy.apply()` adds itself as a transient listener (`Academy.java:88`); `unapply()` removes it. Daily ticks come from IE `TimeTracker`, which collects `NewDayListener` listeners ([Utils](../core/UTILS.md)).
+- `Academy.apply()` adds itself as a transient listener (`Academy.java:86`); `unapply()` removes it. Daily ticks come from IE `TimeTracker`, which collects `NewDayListener` listeners ([Utils](../core/UTILS.md)).
 - `NewGameIndustryPlacer.placeAcademy` seeds NPC Academies; `ModUpdater` restores Academy state on spec swap. Both in [Utils](../core/UTILS.md).
 
 Load chain: `onGameLoad -> createAcademyMarket -> setListenersIfNeeded -> market reapply -> Academy.apply -> addListener(this, true) -> TimeTracker -> onNewDay`.
@@ -70,33 +70,33 @@ Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSe
 
 ### Officer training
 
-- Eligible: in fleet or officer storage, not `Misc.isUnremovable`, `$IndEvo_wasTrainedLevel` 0, or below 2 with an alpha core (`Academy.isOfficerTrainingAllowed(person)`, `:621`).
-- `setOfficerForTraining()` (`:640`) removes the officer from fleet and ship command or from storage, sets direction and charges `IndEvo_personalityTrainingCost` immediately; nothing is charged if training was not allowed (`chargePlayer(..., false)` subtracts credits).
-- `trainOfficerInTraining()` (`:492`) runs daily if functional and the market faction is not hostile to the player. After `getOfficerTrainingDays()` = setting + 1 - AI core reduction, `changeOfficerPersonality()` moves one step, increments `$IndEvo_wasTrainedLevel`, puts the officer into storage, sends a `MessageIntel`. Dev mode finishes on the next day.
-- Direction limits: no `WEAKER` from timid, no `BETTER` from reckless (`isOfficerTrainingDirectionAllowed()`, `:476`), enforced only on the option buttons.
+- Eligible: in fleet or officer storage, not `Misc.isUnremovable`, `$IndEvo_wasTrainedLevel` 0, or below 2 with an alpha core (`Academy.isOfficerTrainingAllowed(person)`, `:598`).
+- `setOfficerForTraining()` (`:617`) removes the officer from fleet and ship command or from storage, sets direction and charges `IndEvo_personalityTrainingCost`; nothing is charged if training was not allowed. `chargeTraining()` books it on the "Training" report line on player markets and takes it at once (`BillingHelper.chargeNow`) on NPC markets, where the dialog checks `canAfford` first ([BillingHelper](../core/UTILS.md#billinghelper)).
+- `trainOfficerInTraining()` (`:469`) runs daily if functional and the market faction is not hostile to the player. After `getOfficerTrainingDays()` = setting + 1 - AI core reduction, `changeOfficerPersonality()` moves one step, increments `$IndEvo_wasTrainedLevel`, puts the officer into storage, sends a `MessageIntel`. Dev mode finishes on the next day.
+- Direction limits: no `WEAKER` from timid, no `BETTER` from reckless (`isOfficerTrainingDirectionAllowed()`, `:453`), enforced only on the option buttons.
 
 ### Admin training
 
-- Eligible: fewer than 2 admin skills and not governing a player market (`canTrainAdminPerson()`, `:363`).
-- `setAdminInTraining()` (`:323`) removes from `CharacterDataAPI` admins or storage and charges `IndEvo_adminTrainingCost`.
-- `addRandomAdminSkill()` (`:385`) picks a random admin skill the person lacks, skipping tags `ai_core_only`, `player_only` and id `ocua_Arc_Cognition`, and bumps `$ome_adminTier`.
+- Eligible: fewer than 2 admin skills and not governing a player market (`canTrainAdminPerson()`, `:340`).
+- `setAdminInTraining()` (`:300`) removes from `CharacterDataAPI` admins or storage and charges `IndEvo_adminTrainingCost` through `chargeTraining()`; nothing is charged if training was not allowed.
+- `addRandomAdminSkill()` (`:362`) picks a random admin skill the person lacks, skipping tags `ai_core_only`, `player_only` and id `ocua_Arc_Cognition`, and bumps `$ome_adminTier`.
 
 ### Storage and fees
 
-- `storeOfficer`/`returnOfficer`, `storeAdmin`/`returnAdmin` move people between fleet or character data and the lists. Storing an admin who governs a player market sets the player as admin there (`storeAdmin()`, `:426`). Retrieval checks officer or admin capacity (dev mode skips the admin check).
-- `reportEconomyTick()` on the last iteration of the month (`economyIterPerMonth - 1`) charges full officer salary, 10% admin salary and, on NPC markets, `IndEvo_monthlyAIStorageCost` per stored person (`:129`). NPC markets book it through `MiscIE.createMonthlyReportNode()`, player markets onto the industry's report node.
+- `storeOfficer`/`returnOfficer`, `storeAdmin`/`returnAdmin` move people between fleet or character data and the lists. Storing an admin who governs a player market sets the player as admin there (`storeAdmin()`, `:403`). Retrieval checks officer or admin capacity (dev mode skips the admin check).
+- `reportEconomyTick()` on the last iteration of the month (`economyIterPerMonth - 1`) charges full officer salary, 10% admin salary and, on NPC markets, `IndEvo_monthlyAIStorageCost` per stored person (`:127`), on the "Personnel storage" report line ([BillingHelper](../core/UTILS.md#billinghelper)).
 
 ### Hireable spawns and officer quality
 
-- Daily, on non-Galatia markets with no hireable officer (or admin) present, rolls the spawn chance and adds an `OfficerManagerEvent.AvailableOfficer` to the running vanilla officer manager event (`createHireablePerson()`, `:725`). Officers: level 1 to 3, independent, hire fee level x 2000. Admins: tier 0 (90%) or 1 (10%), hire fee from `adminHireTier<n>`.
-- `apply()` on non-Galatia markets calls `increaseOfficerQuality()` (`:261`): same-faction markets in the location get `Stats.OFFICER_MAX_LEVEL_MOD` mult 1.5 (local) or 1.3 (others); the local market gets `Stats.OFFICER_PROB_MOD` flat +1.5.
+- Daily, on non-Galatia markets with no hireable officer (or admin) present, rolls the spawn chance and adds an `OfficerManagerEvent.AvailableOfficer` to the running vanilla officer manager event (`createHireablePerson()`, `:702`). Officers: level 1 to 3, independent, hire fee level x 2000. Admins: tier 0 (90%) or 1 (10%), hire fee from `adminHireTier<n>`.
+- `apply()` on non-Galatia markets calls `increaseOfficerQuality()` (`:238`): same-faction markets in the location get `Stats.OFFICER_MAX_LEVEL_MOD` mult 1.5 (local) or 1.3 (others); the local market gets `Stats.OFFICER_PROB_MOD` flat +1.5.
 
 ### AI cores
 
 | Core | Effect | Where |
 |---|---|---|
 | Alpha | officers may be trained a second time | `isOfficerTrainingAllowed()` |
-| Beta | training days -31 (`betacoreReduction`) | `applyAICoreToIncomeAndUpkeep()`, `:846` |
+| Beta | training days -31 (`betacoreReduction`) | `applyAICoreToIncomeAndUpkeep()`, `:823` |
 | Gamma | upkeep x0.9 | same |
 
 ## Contracts
@@ -113,9 +113,9 @@ Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSe
 |---|---|
 | `rules/WIP/IndEvo_InitPersonalityTransferMenu.java` | Excluded by `IndEvo.iml:13`. Wrong package `indevo.industries.acardemy.rules.WIP`, uses removed classes (`IndEvo_Academy`, `IndEvo_ids`, Salvage Yards production code). Officer engram transfer concept only |
 | `IndEvo_OfficerCurrentlyTraining` | Dead: no rule uses it, reads `$IndEvo_isTraining` which nothing sets |
-| `isOfficerTrainingAllowed(person, direction)` | `||` with the direction check (`Academy.java:637`) lets an officer already trained twice pass whenever the direction is allowed |
-| `increaseOfficerQuality()` | `!=` on string ids (`:266`) and `return` instead of `continue` (`:269`) stop the loop at the first already modified market |
-| Abort to fleet (admin) | No admin capacity check (`abortAdminTraining(false)`, `:344`) |
+| `isOfficerTrainingAllowed(person, direction)` | `||` with the direction check (`Academy.java:614`) lets an officer already trained twice pass whenever the direction is allowed |
+| `increaseOfficerQuality()` | `!=` on string ids (`:243`) and `return` instead of `continue` (`:246`) stop the loop at the first already modified market |
+| Abort to fleet (admin) | No admin capacity check (`abortAdminTraining(false)`, `:321`) |
 | Changelog_todo | "Academy can pick forbidden, event only admin skills and should really run off a whitelist"; "Rework academy UI"; "Story point option for academy, Recruit Local Talent" |
 
 ## Maintenance

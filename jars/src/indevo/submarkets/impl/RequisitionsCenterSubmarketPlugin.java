@@ -22,6 +22,7 @@ import indevo.industries.RequisitionCenter;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.submarkets.RemovableSubmarketPluginAPI;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.BillingHelper;
 
 import java.util.*;
 
@@ -397,9 +398,7 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
     }
 
     private boolean canPlayerAffordUnlock() {
-        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
-        int credits = (int) playerFleet.getCargo().getCredits().get();
-        return credits >= getUnlockCost();
+        return BillingHelper.canAfford(getUnlockCost());
     }
 
     public String getDialogText(CoreUIAPI ui) {
@@ -426,8 +425,7 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
             return new DialogOption[]{
                     new DialogOption("Pay", new Script() {
                         public void run() {
-                            CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
-                            playerFleet.getCargo().getCredits().subtract(getUnlockCost());
+                            BillingHelper.chargeNow(getUnlockCost());
                             playerPaidToUnlock = true;
                         }
                     }),

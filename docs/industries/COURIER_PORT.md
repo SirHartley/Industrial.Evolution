@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-The Courier Port is a structure with no supply or demand. While the player owns at least one functional port, saved contracts move cargo and ships between whitelisted submarkets of any two non-hostile markets on a cadence (once, 14, 31, 93 or 186 days). On each due day the scheduler pulls the goods from the origin submarket, spawns a courier fleet that flies to the destination, and deposits the goods on arrival or when a failsafe timer runs out. Cost is charged as upkeep on the nearest port's monthly report. The AI core installed in the most recently applied port is global: alpha cuts total cost, beta cuts the distance multiplier, gamma lets comm relays open the shipping menu.
+The Courier Port is a structure with no supply or demand. While the player owns at least one functional port, saved contracts move cargo and ships between whitelisted submarkets of any two non-hostile markets on a cadence (once, 14, 31, 93 or 186 days). On each due day the scheduler pulls the goods from the origin submarket, spawns a courier fleet that flies to the destination, and deposits the goods on arrival or when a failsafe timer runs out. Cost is booked on the "Shipping contracts" report line of the nearest port. The AI core installed in the most recently applied port is global: alpha cuts total cost, beta cuts the distance multiplier, gamma lets comm relays open the shipping menu.
 
 ## Files
 
@@ -59,7 +59,7 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 
 ### Scheduler
 
-`ShippingManager.onNewDay()` (`ShippingManager.java:40-72`) does nothing unless a player market has a functional port. Per contract: invalid -> skip, and if active mark inactive and message; active -> `elapsedDays++`; `elapsedDays > recurrentDays` -> reset and ship. One time (`recurrentDays == 0`) active contracts are removed after shipping. "Ship now" sets `elapsedDays = 999`, so inactive contracts still ship the next day ("on demand") (`ContractListSidePanelCreator.java:101`). A shipment is only created if a dry run finds goods.
+`ShippingManager.onNewDay()` (`ShippingManager.java:39-71`) does nothing unless a player market has a functional port. Per contract: invalid -> skip, and if active mark inactive and message; active -> `elapsedDays++`; `elapsedDays > recurrentDays` -> reset and ship. One time (`recurrentDays == 0`) active contracts are removed after shipping. "Ship now" sets `elapsedDays = 999`, so inactive contracts still ship the next day ("on demand") (`ContractListSidePanelCreator.java:101`). A shipment is only created if a dry run finds goods.
 
 ### Goods selection
 
@@ -71,7 +71,7 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 - Cargo: cargo space per stack (personnel and fuel count 0.75 per unit) x `costPerSpace`.
 - Ships: hull deployment points (`getSuppliesToRecover()`) x `costPerShip` (`ShippingCostCalculator.java:97`).
 - Both x distance mult `round((1 + ly * 1000^(1 + ly/250) / 10000) * 10) / 10`, x0.8 with beta core, x `costPerLyMult` (`:41-52`). Alpha core x0.9 on both parts.
-- `chargePlayer` adds the cost to the upkeep of the `IndEvo_PrivatePort` node of the closest port market in the monthly report; without a port it subtracts credits directly (`ShippingManager.java:93-105`).
+- `chargePlayer` books the cost on the "Shipping contracts" line of the closest port (`getClosestPort`, the origin faction's ports first, then any player port) through [BillingHelper](../core/UTILS.md#billinghelper). `onNewDay` only ships while the player owns a functional port, so a missing port throws.
 
 ### Fleet and delivery
 
