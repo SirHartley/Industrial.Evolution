@@ -62,6 +62,7 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 | Sink | Cost | Paid from | Owner |
 |---|---|---|---|
 | Construction speed up | 1 per remaining day | colony storage, then fleet cargo | [Construction speed up](#construction-speed-up) |
+| Early Edict removal | 1 per remaining day | colony storage, then fleet cargo | [Senate](../industries/SENATE.md#runtime-and-penalties) |
 | Story point derelict recovery | 5 per DP of each recovered ship | fleet cargo | [Salvage](../exploration/SALVAGE.md#relic-recovery) |
 
 ## Contracts
