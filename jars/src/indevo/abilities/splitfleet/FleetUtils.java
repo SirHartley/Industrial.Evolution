@@ -231,6 +231,11 @@ public class FleetUtils {
         return fleet.getMemoryWithoutUpdate().getBoolean(DETACHMENT_IDENTIFIER_KEY);
     }
 
+    //despawn only starts a fade, isAlive stays true until it ends
+    public static boolean isEnded(CampaignFleetAPI fleet) {
+        return !fleet.isAlive() || fleet.getMemoryWithoutUpdate().getBoolean(CombatAndDerelictionScript.ENDED_KEY);
+    }
+
     public static void transferCargoBetweenCargos(CargoAPI from, CargoAPI to, CargoAPI target) {
         for (CargoStackAPI stack : target.getStacksCopy()) {
             if (stack.isFighterWingStack()) {

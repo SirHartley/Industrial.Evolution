@@ -56,7 +56,7 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
 
     @Override
     public boolean isDone() {
-        return !fleet.isAlive();
+        return FleetUtils.isEnded(fleet);
     }
 
     @Override

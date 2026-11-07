@@ -64,7 +64,7 @@ public class DetachmentAI implements EveryFrameScript {
 
         @Override
         public void run() {
-            if (fleet.isAlive()) FleetUtils.mergeFleetWithPlayerFleet(fleet);
+            if (!FleetUtils.isEnded(fleet)) FleetUtils.mergeFleetWithPlayerFleet(fleet);
         }
     }
 
@@ -77,7 +77,7 @@ public class DetachmentAI implements EveryFrameScript {
 
         @Override
         public void run() {
-            if (fleet.isAlive()) Global.getSector().addTransientScript(new OpenTradeDialogScript(fleet));
+            if (!FleetUtils.isEnded(fleet)) Global.getSector().addTransientScript(new OpenTradeDialogScript(fleet));
         }
     }
 
@@ -103,7 +103,7 @@ public class DetachmentAI implements EveryFrameScript {
         @Override
         public void advance(float amount) {
             if (done) return;
-            if (!fleet.isAlive() || !Behaviour.isOnTradeRun(fleet)) {
+            if (FleetUtils.isEnded(fleet) || !Behaviour.isOnTradeRun(fleet)) {
                 done = true;
                 return;
             }
@@ -144,7 +144,7 @@ public class DetachmentAI implements EveryFrameScript {
 
         @Override
         public boolean isDone() {
-            return elapsed > RUNTIME_SECONDS || !fleet.isAlive();
+            return elapsed > RUNTIME_SECONDS || FleetUtils.isEnded(fleet);
         }
 
         @Override
@@ -173,7 +173,7 @@ public class DetachmentAI implements EveryFrameScript {
 
     @Override
     public boolean isDone() {
-        return !fleet.isAlive() || fleet.getContainingLocation() == null;
+        return FleetUtils.isEnded(fleet) || fleet.getContainingLocation() == null;
     }
 
     @Override
