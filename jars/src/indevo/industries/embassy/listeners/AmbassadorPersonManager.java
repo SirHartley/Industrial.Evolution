@@ -70,7 +70,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
         }
 
         if (!mergedMap.isEmpty()) {
-            MessageIntel intel = new MessageIntel(StringHelper.getString(Ids.EMBASSY, "embassyRepChange"), Misc.getTextColor());
+            MessageIntel intel = new MessageIntel("Your Embassies have caused the following reputation changes:", Misc.getTextColor());
             for (Map.Entry<FactionAPI, Float> e : mergedMap.entrySet()) {
                 FactionAPI faction = e.getKey();
                 String delta = StringHelper.getFloatToIntStrx100(e.getValue());
@@ -159,14 +159,14 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
             PersonAPI person = AmbassadorPersonManager.getAmbassador(market);
 
             if (getListOfIncativeFactions().contains(getAmbassador(market).getFaction())) {
-                displayMessage("ambassadorVacated", "ambassadorFactionEradicatedFlavour", person, market, NO_PENALTY);
+                displayMessage("The ambassador to $factionName at $marketName has vacated their office.", "Considering their position, you will probably never see them again.", person, market, NO_PENALTY);
                 AmbassadorPersonManager.deleteAmbassador(market);
                 market.getIndustry(Ids.EMBASSY).setSpecialItem(null);
                 continue;
             }
 
             if (getAmbassador(market).getFaction().isHostileTo(playerFaction)) {
-                displayMessage("ambassadorVacated", "ambassadorFactionAliveFlavour", person, market, NO_PENALTY);
+                displayMessage("The ambassador to $factionName at $marketName has vacated their office.", "You will have to request a new one after the war has ended.", person, market, NO_PENALTY);
                 returnToHome(person, market);
                 continue;
             }
@@ -175,7 +175,7 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
             String memKey = AmbassadorItemHelper.getFactionMemoryKey(getAmbassador(market).getFaction());
             if (Global.getSector().getMemory().contains(memKey) && !Global.getSector().getMemory().getBoolean(memKey)) {
 
-                displayMessage("ambassadorVacated", "ambassadorRecalledFlavour", person, market, NO_PENALTY);
+                displayMessage("The ambassador to $factionName at $marketName has vacated their office.", "He has been recalled by the faction authorities.", person, market, NO_PENALTY);
                 AmbassadorPersonManager.deleteAmbassador(market);
                 market.getIndustry(Ids.EMBASSY).setSpecialItem(null);
             }
@@ -255,21 +255,17 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
         FactionAPI faction = person.getFaction();
 
         Pair<String, Color> repInt = StringHelper.getRepIntTooltipPair(faction);
-        Map<String, String> toReplace = new HashMap<>();
-        if (market != null) toReplace.put("$marketName", market.getName());
-        toReplace.put("$factionName", faction.getDisplayName());
-        toReplace.put("$personName", person.getNameString());
-        toReplace.put("$heOrShe", StringHelper.getHeOrShe(person));
-        toReplace.put("$decreasedByPenalty", StringHelper.getString(Ids.EMBASSY, "decreasedByInt") + StringHelper.getFloatToIntStrx100(-repDropAmount));
+        String factionName = faction.getDisplayName();
+        String decreasedByPenalty = "decreased by " + StringHelper.getFloatToIntStrx100(-repDropAmount);
 
-        String message = StringHelper.getStringAndSubstituteTokens(Ids.EMBASSY, mainText, toReplace);
-        String[] highlights = new String[]{toReplace.get("$factionName"), toReplace.get("$personName")};
+        String message = fillTokens(mainText, person, market);
+        String[] highlights = new String[]{factionName, person.getNameString()};
 
         MessageIntel intel = new MessageIntel(message, color, highlights, faction.getColor());
-        if (flavourText != null) intel.addLine(StringHelper.getString(Ids.EMBASSY, flavourText), color);
+        if (flavourText != null) intel.addLine(fillTokens(flavourText, person, market), color);
         if (repDropAmount != 0f) {
-            intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getStringAndSubstituteTokens(Ids.EMBASSY, "decreaseMessage", toReplace), color, new String[]{toReplace.get("$factionName"), toReplace.get("$decreasedByPenalty")}, faction.getColor(), Misc.getNegativeHighlightColor());
-            intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getString(Ids.EMBASSY, "currentAt"), color, new String[]{repInt.one}, repInt.two);
+            intel.addLine(BaseIntelPlugin.BULLET + "Relationship with the " + factionName + " " + decreasedByPenalty, color, new String[]{factionName, decreasedByPenalty}, faction.getColor(), Misc.getNegativeHighlightColor());
+            intel.addLine(BaseIntelPlugin.BULLET + "Currently at %s", color, new String[]{repInt.one}, repInt.two);
             Global.getSoundPlayer().playUISound("ui_rep_drop", 1, 1);
         } else intel.setSound(BaseIntelPlugin.getSoundMinorMessage());
         intel.setIcon(faction.getCrest());
@@ -277,6 +273,16 @@ public class AmbassadorPersonManager implements EconomyTickListener, NewDayListe
         if (market != null)
             Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
         else Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.INTEL_TAB);
+    }
+
+    private static String fillTokens(String text, PersonAPI person, MarketAPI market) {
+        String heOrShe = StringHelper.getHeOrShe(person);
+        if (market != null) text = text.replace("$marketName", market.getName());
+
+        return text.replace("$factionName", person.getFaction().getDisplayName())
+                .replace("$personName", person.getNameString())
+                .replace("$HeOrShe", Misc.ucFirst(heOrShe))
+                .replace("$heOrShe", heOrShe);
     }
 
     public static List<MarketAPI> getPlayerMarketsWithEmbassy() {
