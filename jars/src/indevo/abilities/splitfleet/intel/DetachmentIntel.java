@@ -53,6 +53,8 @@ public class DetachmentIntel extends BaseIntelPlugin {
 
         intel.endReason = reason;
         intel.endAfterDelay();
+        //the intel manager never advances intel, the ending delay only counts down as a sector script
+        Global.getSector().addScript(intel);
     }
 
     @Override
