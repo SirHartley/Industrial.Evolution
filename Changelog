@@ -17,7 +17,7 @@ Fixed - Crash on market updates with some modded industries
 Fixed - Settings no longer accept values below their minimum
 Fixed - Industry storage contents are no longer lost on colonies without storage
 Fixed - Leftover storages of removed industries are now cleaned up on load
-Fixed - Other mods' industry tooltip lines now show on IE ruins and Engineering Hub
+Fixed - Other mods' tooltip lines now show on ruins, Engineering Hub, Centralization Bureau
 Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
 
