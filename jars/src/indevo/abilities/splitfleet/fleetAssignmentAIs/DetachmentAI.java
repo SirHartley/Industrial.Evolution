@@ -408,6 +408,8 @@ public class DetachmentAI implements EveryFrameScript {
                 reset();
                 setFlags(false, true, true);
                 lobotomize(fleet, "Out of fuel");
+                //without an ai the fleet keeps flying to its last move destination
+                fleet.setMoveDestination(fleet.getLocation().x, fleet.getLocation().y);
                 fleet.setVelocity(0, 0);
                 break;
             case HEAD_TO_PLAYER_ON_TARGET:
