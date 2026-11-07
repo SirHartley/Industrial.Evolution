@@ -36,6 +36,7 @@ import indevo.dialogue.research.listeners.*;
 import indevo.dialogue.research.scripts.RefitUIOpenChecker;
 import indevo.economy.listeners.RelicBuildTimeReductionButtonAdder;
 import indevo.economy.listeners.RelicSpeedUpOptionProvider;
+import indevo.economy.listeners.TechMiningRelicOptionProvider;
 import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
@@ -493,6 +494,7 @@ public class ModPlugin extends BaseModPlugin {
         OrbitalWorksSlotManager.getInstanceOrRegister();
         OrbitalWorksSlotOptionProvider.register();
         RelicSpeedUpOptionProvider.register();
+        TechMiningRelicOptionProvider.register();
         SurveyDataTooltipAmender.register();
         RelayNetworkBrain.getInstanceOrRegister();
 
