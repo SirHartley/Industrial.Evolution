@@ -12,7 +12,7 @@ Tracking doc for new features, kept like the improvement targets doc: numbered i
 
 ### 1.1 Fleet side quests: lockout with Catch.Release
 
-**Status: proposed, waiting on Philipp (Q1, Q2).**
+**Status: route decided, memory contract in both mods (Philipp, 2026-11-07). Not implemented.**
 
 Goal: IE and CR both hand side quests to NPC fleets. With both installed, they must never put two quests on one fleet, and should not stack offers in one system.
 
@@ -56,7 +56,7 @@ Alternative not taken: one shared manager in a small library mod both depend on.
 
 ### 1.2 Side quest: Return Freight (working name)
 
-**Status: proposed, waiting on Philipp (Q3 to Q8).**
+**Status: proposed, waiting on Philipp (Q3 to Q9).**
 
 Philipp's brief: "fleet heading back to core, offers to take some of your cargo/fleet members with them for a nominal fee and drop them into cargo at planet they are heading to (rolled, random, influenced by fleet type)".
 
@@ -131,8 +131,8 @@ Save: only new saved classes; nothing saved today changes shape. The CR side add
 
 ## 2. Open questions
 
-1. Cross mod route: memory contract in both mods (recommended) or a shared library mod?
-2. OK to change CR for 1.1 stage 2 (claim keys and checks, about 30 lines plus docs)?
+1. Decided (Philipp, 2026-11-07): memory contract in both mods, not a library mod.
+2. Decided with Q1: CR gets the claim keys and checks in stage 2. CR is still only touched when that stage is started.
 3. Risk: goods lost with the carrier (recommended, it is what makes the fee nominal) or always delivered like the Courier Port?
 4. Destination storage still locked: deliver and warn in the pitch (recommended), roll only unlocked destinations, or unlock on delivery (cheap way around the 5000 credit unlock)?
 5. "Core": `theme_core` systems only (recommended), or any market, so fringe colonies can be targets too?
@@ -143,11 +143,10 @@ Save: only new saved classes; nothing saved today changes shape. The CR side add
 
 ## 3. Suggested order
 
-1. Answers to Q1 and Q2.
-2. Stage 0 (IE, no visible change): pull the delivery helpers out of `Shipment`; add `SideQuestClaims` and claim IE's special fleets.
-3. Stage 1 (IE): Return Freight with spawner, dialog, transit, intel, settings, feature doc, changelog. Live test by Philipp.
-4. Stage 2 (CR, after Q2): claim keys and checks in CR, CR docs and changelog.
-5. Stage 3: live test with both mods: no fleet with two quests, no two open offers in one system, the 7 day gap holds.
+1. Stage 0 (IE, no visible change): pull the delivery helpers out of `Shipment`; add `SideQuestClaims` and claim IE's special fleets.
+2. Stage 1 (IE): Return Freight with spawner, dialog, transit, intel, settings, feature doc, changelog. Live test by Philipp.
+3. Stage 2 (CR): claim keys and checks in CR, CR docs and changelog.
+4. Stage 3: live test with both mods: no fleet with two quests, no two open offers in one system, the 7 day gap holds.
 
 Behaviour to keep in mind:
 
