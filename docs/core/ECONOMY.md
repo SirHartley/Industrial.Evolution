@@ -77,6 +77,7 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 | Early Edict removal | 1 per remaining day | colony storage, then fleet cargo | [Senate](../industries/SENATE.md#runtime-and-penalties) |
 | Express Delivery | 1 per delivery day (60 at vanilla) | fleet cargo | [Custom production Express Delivery](#custom-production-express-delivery) |
 | Story point derelict recovery | 5 per DP of each recovered ship | fleet cargo | [Salvage](../exploration/SALVAGE.md#relic-recovery) |
+| Salvage Yards S-mod transfer | 5 x target DP per S-mod, plus credits | local storage, then fleet cargo | [Salvage Yards](../industries/SALVAGE_YARDS.md#s-mod-transfer) |
 | Project Reforge (Galatia research) | 500, plus 1 Corrupted Nanoforge on Redeem | fleet cargo (relics as points) | [Research](../dialogue/RESEARCH.md#projects) |
 | Forge Template refining | 2 per hull FP per quality level | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |
 | Automated ship integration | 10 per hull DP | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |

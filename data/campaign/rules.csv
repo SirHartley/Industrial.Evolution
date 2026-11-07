@@ -560,10 +560,14 @@ IndEvo_SYCustomProductionPanel,IndEvo_YardsBaseMenu,,"SetTooltip IndEvo_SYCustom
 IndEvo_SYMoveDMods,IndEvo_YardsBaseMenu,IndEvo_HasValidShipPair,"SetTooltip IndEvo_SYMoveDMods_init ""The salvage yards can transfer D-Mods between ships of similar make.""",,2:IndEvo_SYMoveDMods_init:Move D-Mods between similar hulls,
 IndEvo_SYMoveDMods_disabled,IndEvo_YardsBaseMenu,!IndEvo_HasValidShipPair,"SetEnabled IndEvo_SYMoveDMods_init false
 SetTooltip IndEvo_SYMoveDMods_init ""The salvage yards can transfer D-Mods between ships of similar make, but you do not have any compatible ships.""",,2:IndEvo_SYMoveDMods_init:Move D-Mods between similar hulls,
+IndEvo_SYMoveSMods,IndEvo_YardsBaseMenu,IndEvo_HasValidSModPair,"SetTooltip IndEvo_SYMoveSMods_init ""The salvage yards can move S-mods between ships of similar make, for relic components and credits.""",,3:IndEvo_SYMoveSMods_init:Move S-mods between similar hulls,
+IndEvo_SYMoveSMods_disabled,IndEvo_YardsBaseMenu,!IndEvo_HasValidSModPair,"SetEnabled IndEvo_SYMoveSMods_init false
+SetTooltip IndEvo_SYMoveSMods_init ""The salvage yards can move S-mods between ships of similar make. You need a ship with an S-mod, and a ship of the same size and manufacturer with that hullmod installed and a free S-mod slot.""",,3:IndEvo_SYMoveSMods_init:Move S-mods between similar hulls,
 IndEvo_SYLeave,IndEvo_YardsBaseMenu,,"SetShortcut IndEvo_SelectreturnToMenu ""ESCAPE""",,9:IndEvo_SelectreturnToMenu:Return,
 ,,,,,,
 IndEvo_SYCustomProductionPanel_init,DialogOptionSelected,$option == IndEvo_SYCustomProductionPanel_init,IndEvo_InitSYCustomProductionDiag,,,
 IndEvo_SYMoveDMods_init,DialogOptionSelected,$option == IndEvo_SYMoveDMods_init,IndEvo_InitSYMoveDModDiag,,,
+IndEvo_SYMoveSMods_init,DialogOptionSelected,$option == IndEvo_SYMoveSMods_init,IndEvo_InitSYMoveSModDiag,,,
 ,,,,,,
 # Embassy,,,,,,
 ,,,,,,

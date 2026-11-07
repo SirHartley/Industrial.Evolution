@@ -168,6 +168,8 @@ Fixed - Raid strength now properly follows colony fleet size modifiers
 Fixed - Build tooltip no longer shows the base as unavailable when it can be built
 
 Salvage Yards
+Added - Move S-mods: transfer S-mods between similar hulls for relic components and credits
+Note - The target ship needs the hullmod installed and a free S-mod slot
 Fixed - Salvage Yards now properly get salvage from every raid in their system
 Fixed - Salvage Yards no longer pay out twice after loading a save
 Fixed - Blockades, punitive expeditions and hostile activity raids now give salvage
