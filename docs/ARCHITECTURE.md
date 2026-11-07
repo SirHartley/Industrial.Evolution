@@ -210,7 +210,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 - IE costs and income go through `BillingHelper` ([UTILS](core/UTILS.md#billinghelper)): own monthly report lines, and `canAfford` then `chargeNow` for dialog purchases. Never write vanilla report nodes or subtract credits directly. Loot and refunds add credits directly.
 - `BaseIndustry.buildTime` (protected) is read by reflection from `RelicBuildTimeReductionButtonAdder` and read and written from `Edict_FastBuild`.
 - `ModPlugin.addTypePrefaceToIndustrySpecs()` prefixes every industry description (vanilla and other mods) with `Type: ...` based on tags.
-- `createAcademyMarket()` adds a hidden independent market `ACADEMY_MARKET_ID` on `station_galatia_academy` on new game and on load if missing.
+- `createAcademyMarket()` adds a hidden independent market `Ids.ACADEMY_MARKET_ID` on `station_galatia_academy` on new game and on load if missing.
 
 ### Storage and submarkets
 

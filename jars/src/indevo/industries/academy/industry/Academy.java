@@ -33,8 +33,6 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.industries.academy.rules.IndEvo_AcademyVariables.ACADEMY_MARKET_ID;
-
 public class Academy extends BaseIndustry implements NewDayListener, EconomyTickListener {
 
     public final String OFFICER_IS_TRAINING_KEY = "$IndEvo_officerIsTraining";
@@ -87,7 +85,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     public void apply() {
         super.apply(true);
         Global.getSector().getListenerManager().addListener(this, true);
-        if (!market.getId().equals(ACADEMY_MARKET_ID)) increaseOfficerQuality();
+        if (!market.getId().equals(Ids.ACADEMY_MARKET_ID)) increaseOfficerQuality();
     }
 
     @Override
@@ -113,7 +111,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     public void onNewDay() {
 
         if (isFunctional()) {
-            if (!market.getId().equals(ACADEMY_MARKET_ID)) {
+            if (!market.getId().equals(Ids.ACADEMY_MARKET_ID)) {
                 //spawn officers/admins if the market has none:
                 if (!marketHasHireableOfficer(false) && getRandomBoolean(Setting.DAILY_OFFICER_SPAWN_CHANCE.value())) {
                     createHireablePerson(false);
@@ -509,14 +507,6 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         return false;
     }
 
-    public static boolean isOfficerTrainingDirectionAllowed(PersonAPI person, trainingDirection direction) {
-        String personality = person.getPersonalityAPI().getId();
-        boolean notTooWeak = !(personality.equals(Personalities.TIMID) && direction.equals(trainingDirection.WEAKER));
-        boolean notTooStrong = !(personality.equals(Personalities.RECKLESS) && direction.equals(trainingDirection.BETTER));
-
-        return notTooStrong && notTooWeak;
-    }
-
     public static int getPersonalitySteps(String fromId, String toId) {
         List<String> ladder = new ArrayList<>(COLOURS_BY_PERSONALITY.keySet());
         int from = ladder.indexOf(fromId);
@@ -624,10 +614,6 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
     }
 
-    public trainingDirection getCurrentDirection() {
-        return currentDirection;
-    }
-
     private void clearOfficerTraining() {
         officerTrainingTarget = null;
         currentDirection = trainingDirection.UNSET;
@@ -667,12 +653,6 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     public boolean isOfficerTrainingAllowed(PersonAPI person) {
         return !Misc.isUnremovable(person) && getOfficerStepsLeft(person) > 0;
-    }
-
-    public void setOfficerForTraining(PersonAPI person, trainingDirection direction) {
-        List<String> ladder = new ArrayList<>(COLOURS_BY_PERSONALITY.keySet());
-        int index = ladder.indexOf(person.getPersonalityAPI().getId()) + (direction == trainingDirection.BETTER ? 1 : -1);
-        if (index >= 0 && index < ladder.size()) setOfficerForTraining(person, ladder.get(index));
     }
 
     public void setOfficerForTraining(PersonAPI person, String targetId) {

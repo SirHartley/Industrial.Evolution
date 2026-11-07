@@ -107,7 +107,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static indevo.industries.academy.rules.IndEvo_AcademyVariables.ACADEMY_MARKET_ID;
+import static indevo.ids.Ids.ACADEMY_MARKET_ID;
 
 public class ModPlugin extends BaseModPlugin {
     public static void log(String Text) {

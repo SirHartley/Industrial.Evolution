@@ -25,7 +25,6 @@ import java.util.List;
 
 // settings that apply on next use, and what a new game takes from the switches
 public final class SettingChecks {
-    private static final String ACADEMY_MARKET_ID = indevo.industries.academy.rules.IndEvo_AcademyVariables.ACADEMY_MARKET_ID;
 
     private SettingChecks() {
     }
@@ -109,7 +108,7 @@ public final class SettingChecks {
             for (MarketAPI market : Global.getSector().getEconomy().getMarketsCopy()) {
                 for (Industry industry : market.getIndustries()) {
                     // the Galatia station is the Academy in any game, the switch only stops new ones
-                    if (!industry.getId().startsWith("IndEvo_") || ACADEMY_MARKET_ID.equals(market.getId())) continue;
+                    if (!industry.getId().startsWith("IndEvo_") || Ids.ACADEMY_MARKET_ID.equals(market.getId())) continue;
                     industries++;
                     if (!on) c.note("left on " + market.getName() + ": " + industry.getId());
                 }

@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-The Academy stores officers and admins taken out of the player fleet, trains one officer and one admin at a time, and spawns extra hireable officers and admins on its market. Officer training moves the personality one step along `timid -> cautious -> steady -> aggressive -> reckless`; admin training adds one random admin skill. NPC Academies charge a training fee and a monthly storage fee; player Academies only charge reduced salaries. IE also creates a hidden market `IndEvo_academyMarket` on the vanilla Galatia Academy station so the same menu works there. All interaction is rules.csv driven.
+The Academy stores officers and admins taken out of the player fleet, trains one officer and one admin at a time, and spawns extra hireable officers and admins on its market. Officer training moves the personality one or two steps along `timid -> cautious -> steady -> aggressive -> reckless`; admin training adds one random admin skill. NPC Academies charge a training fee and a monthly storage fee; player Academies only charge reduced salaries. IE also creates a hidden market `IndEvo_academyMarket` on the vanilla Galatia Academy station so the same panel works there. All interaction runs through one custom panel (`AcademyPanelDelegate`); rules.csv only adds the entry options.
 
 ## Files
 
@@ -17,16 +17,7 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 | `plugins/AcademyDialogPlugin.java` | Panel host: `InteractionDialogPlugin`, `EscapeBlockingDialoguePluginAPI`. Standalone (closes the dialog) or rules mode (returns to the rule dialog). Switches between panel and popup, handles ESC |
 | `plugins/AcademyPanelDelegate.java` | The panel: tabs, fees line, training slot, person rows, buttons with tooltips. Sizes as constants |
 | `plugins/AcademyTrainingPopupDelegate.java` | Officer training popup: five personality squares, summary, confirm |
-| `indevo/industries/academy/rules/IndEvo_AcademyVariables.java` | Memory key, option prefix, enum and market id constants shared by the rule commands |
-| `rules/IndEvo_CreatePersonSelectionList.java` | Builds the eligible person list per action and person type, pages it by 4 into `$IndEvo_personList`; `check` param = condition only. Also `getMarket()` (Galatia special case) and `isInstalled()` |
-| `rules/IndEvo_DesignateSubListPageToLoad.java`, `rules/IndEvo_DisplaySubListPage.java` | Page navigation and the person option list |
-| `rules/IndEvo_OptionStartsWith.java` | Matches `IndEvo_SelectPerson_<personId>` options and stores the person in `$IndEvo_selectedPerson` |
-| `rules/IndEvo_DisplayPersonActionPanel.java` | Person summary, cost and duration text, confirm options. `printPersonCharacterTooltip()` reused by the abort panel |
-| `rules/IndEvo_MovePerson.java` | Executes train, store, retrieve or abort on `Academy` |
-| `rules/IndEvo_PrepareForTrainingAbort.java` | Abort panel |
-| `rules/IndEvo_DisplayTrainingStatus.java` | Status text in the base menu |
-| `rules/IndEvo_MarketIsTraining.java`, `rules/IndEvo_PlayerHasOfficerCapacity.java` | Rule conditions |
-| `rules/IndEvo_OfficerCurrentlyTraining.java` | Dead (see below) |
+| `indevo/industries/academy/rules/IndEvo_ShowAcademyPanel.java` | Rule command `IndEvo_ShowAcademyPanel <returnOption>`: finds the Academy market (Galatia station maps to `Ids.ACADEMY_MARKET_ID`), opens `AcademyDialogPlugin` in rules mode |
 | `rules/WIP/IndEvo_InitPersonalityTransferMenu.java` | Excluded WIP (see below) |
 
 ## Data and ids
@@ -34,17 +25,16 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 | Kind | Id / key | Where |
 |---|---|---|
 | Industry | `IndEvo_Academy` (`Ids.ACADEMY`) | `data/campaign/industries.csv:35`, tags `structure, unraidable` |
-| Market | `IndEvo_academyMarket` on entity `station_galatia_academy` | `ModPlugin.createAcademyMarket()` (`indevo/utils/ModPlugin.java:382`) |
+| Market | `IndEvo_academyMarket` (`Ids.ACADEMY_MARKET_ID`) on entity `station_galatia_academy` | `ModPlugin.createAcademyMarket()` (`indevo/utils/ModPlugin.java:382`) |
 | Setting | `IndEvo_Academy` (toggle) | `data/config/LunaSettings.csv:102`, read in `Academy.isAvailableToBuild()` (`Academy.java:142`) |
 | Setting | `IndEvo_dailyOfficerSpawnChance` 0.15, `IndEvo_dailyAdminSpawnChance` 0.10 | `LunaSettings.csv:166-167`, `Academy.onNewDay()` |
 | Setting | `IndEvo_personalityTrainingDayCount` 93, `IndEvo_personalityTrainingCost` 30000 | `LunaSettings.csv:168-169` |
 | Setting | `IndEvo_adminTrainingDayCount` 124, `IndEvo_adminTrainingCost` 20000 | `LunaSettings.csv:170-171` |
 | Setting | `IndEvo_monthlyAIStorageCost` 2000 (per person, NPC markets) | `LunaSettings.csv:172` |
-| Market memory | `$IndEvo_officerIsTraining`, `$IndEvo_adminIsTraining` | set by `Academy`, read by `IndEvo_MarketIsTraining` |
+| Market memory | `$IndEvo_officerIsTraining`, `$IndEvo_adminIsTraining` | set by `Academy`, no reader left |
 | Person memory | `$IndEvo_wasTrainedLevel` (personality steps used) | `Academy.addTrainedSteps()` |
 | Person memory | `$ome_adminTier` incremented, `$ome_hireable`, `$ome_isAdmin` read | `Academy.java:389`, `:691` (vanilla `OfficerManagerEvent` keys) |
-| Dialogue memory | `$IndEvo_personList`, `$IndEvo_subListPage`, `$IndEvo_actionType`, `$IndEvo_personType`, `$IndEvo_selectedPerson` (local, expire 0) | `IndEvo_AcademyVariables` |
-| Rules | `IndEvo_FireBaseAcademyOptionList`, `IndEvo_AcademyBaseMenu*`, `IndEvo_IntitiateAcademyMenu`, `IndEvo_Select*`, `IndEvo_personSelector_*`, `IndEvo_MovePersonOption*`, `IndEvo_LoadAbortDialogue_*`, `IndEvo_personWasSelected` | `data/campaign/rules.csv`, block `# Academy` to `#END Academy` |
+| Rules | `IndEvo_AcademyBaseMenu`, `IndEvo_AcademyBaseMenu_GA`, `IndEvo_AcademyBaseColonyOptionMenu`, `IndEvo_IntitiateAcademyMenu`, `IndEvo_IntitiateAcademyMenu_GA` | `data/campaign/rules.csv`, block `# Academy` to `#END Academy` |
 | Sprite | `IndEvo/trainingdone` | `data/config/settings.json`, completion message icon |
 
 ## Registration and lifecycle
@@ -59,16 +49,15 @@ Load chain: `onGameLoad -> createAcademyMarket -> setListenersIfNeeded -> market
 
 ## Flow
 
-### Menu
+### Entry points
 
-Entry points, all firing `IndEvo_AcademyBaseMenu`:
-- Market menu option `IndEvo_IntitiateAcademyMenu` (rule `IndEvo_AcademyBaseMenu`, needs `IndEvo_marketHasIndustry IndEvo_Academy`, rep at worst inhospitable).
-- Galatia station option "Visit the Academy proper" (rule `IndEvo_AcademyBaseMenu_GA`, `$id == station_galatia_academy`).
-- IE colony option point `IndEvo_ColonyOptionPoint` and the industry button (`AcademyOptionProvider`).
+| Entry | Opens |
+|---|---|
+| Industry button "Visit the Academy..." (`AcademyOptionProvider`) | `AcademyDialogPlugin` standalone; Return and ESC close the dialog |
+| Market menu option (rule `IndEvo_AcademyBaseMenu`, needs `IndEvo_marketHasIndustry IndEvo_Academy`, rep at worst inhospitable) and IE colony option point (`IndEvo_AcademyBaseColonyOptionMenu`) | `IndEvo_IntitiateAcademyMenu` runs `IndEvo_ShowAcademyPanel IndEvo_SelectreturnToMenu`; Return goes back to the market menu |
+| Galatia station option "Visit the Academy proper" (rule `IndEvo_AcademyBaseMenu_GA`, `$id == station_galatia_academy`) | `IndEvo_IntitiateAcademyMenu_GA` runs `IndEvo_ShowAcademyPanel gaMeetingEnd`; Return ends the vanilla Galatia meeting |
 
-`IndEvo_CreatePersonSelectionList.getMarket()` maps the Galatia station to `IndEvo_academyMarket` (`IndEvo_CreatePersonSelectionList.java:76`). Every other command uses `BaseCommandPlugin.getMarket(memoryMap)`.
-
-Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSelectionList -> IndEvo_DesignateSubListPageToLoad set 1 -> IndEvo_DisplaySubListPage -> IndEvo_personWasSelected (IndEvo_OptionStartsWith) -> IndEvo_DisplayPersonActionPanel -> IndEvo_MovePersonOption* -> IndEvo_MovePerson -> Academy`.
+Rules mode follows the Courier Port pattern: the command swaps in `AcademyDialogPlugin`, which on return restores the original plugin, shows the text and visual panels, runs `ShowDefaultVisual`, sets `$option` to the return option and fires `DialogOptionSelected` one frame after the panel is gone.
 
 ### Panel
 
@@ -115,7 +104,6 @@ Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSe
 ## Contracts
 
 - All Academy state is plain fields on the industry instance and persists with the market. Stored `PersonAPI` objects exist only in those lists; removing the industry loses them (inferred: `notifyBeingRemoved` is not overridden).
-- The dialogue memory keys use expire 0 in local memory and live only for the open dialogue.
 - `Stats.OFFICER_PROB_MOD` on a market is read by vanilla `OfficerManagerEvent` (`api/impl/campaign/events/OfficerManagerEvent.java:118`). `Stats.OFFICER_MAX_LEVEL_MOD` is read from person stats by `FleetFactoryV3` (`api/impl/campaign/fleets/FleetFactoryV3.java:1050`); no read of the market level mod was found in `api/impl` or `obf`, so the max level mult likely has no effect (inferred).
 - `Academy.COLOURS_BY_PERSONALITY` order is the personality ladder; [Pets](PETS.md) also use its key set for pet dispositions. Keys are personality ids: look up with `PersonalityAPI.getId()`, never the display name, which translations change (`data/characters/personalities.csv` `name` column).
 - `ListenerManager.addListener` dedupes by instance and drops transient listeners on save (`obf/campaign/ListenerManager.java:29`, `obf/_common/util/container/repo/ObjectRepository.java:87`), so re-adding in every `apply()` is safe.
@@ -125,10 +113,9 @@ Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSe
 | Item | State |
 |---|---|
 | `rules/WIP/IndEvo_InitPersonalityTransferMenu.java` | Excluded by `IndEvo.iml:13`. Wrong package `indevo.industries.acardemy.rules.WIP`, uses removed classes (`IndEvo_Academy`, `IndEvo_ids`, Salvage Yards production code). Officer engram transfer concept only |
-| `IndEvo_OfficerCurrentlyTraining` | Dead: no rule uses it, reads `$IndEvo_isTraining` which nothing sets |
 | `increaseOfficerQuality()` | `!=` on string ids (`:243`) and `return` instead of `continue` (`:246`) stop the loop at the first already modified market |
-| Changelog_todo | "Academy can pick forbidden, event only admin skills and should really run off a whitelist"; "Rework academy UI"; "Story point option for academy, Recruit Local Talent" |
+| Changelog_todo | "Academy can pick forbidden, event only admin skills and should really run off a whitelist"; "Story point option for academy, Recruit Local Talent" (Philipp 2026-11-07: never) |
 
 ## Maintenance
 
-Update this doc when the Academy menu rules, training rules, fees or settings change. Settings mechanism lives in [Settings](../core/SETTINGS.md); `TimeTracker`, `NewGameIndustryPlacer`, `ModUpdater` and option provider bases live in [Utils](../core/UTILS.md); Galatia research lives in [Research](../dialogue/RESEARCH.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
+Update this doc when the Academy panel, entry rules, training rules, fees or settings change. Settings mechanism lives in [Settings](../core/SETTINGS.md); `TimeTracker`, `NewGameIndustryPlacer`, `ModUpdater` and option provider bases live in [Utils](../core/UTILS.md); Galatia research lives in [Research](../dialogue/RESEARCH.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
