@@ -25,6 +25,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
+import indevo.economy.RelicSpeedUpTarget;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.EmptyForgeTemplateItemPlugin;
@@ -41,7 +42,7 @@ import java.util.*;
 
 import static indevo.utils.helper.MiscIE.addOrIncrement;
 
-public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayListener {
+public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayListener, RelicSpeedUpTarget {
 
     public static Logger log = Global.getLogger(HullDeconstructor.class);
     private boolean debug = false;
@@ -496,5 +497,35 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
         tooltip.addPara("Hull Deconstructor: pulls %s from this storage to use.", 10f, Misc.getHighlightColor(), "Empty Forge Templates");
+    }
+
+    @Override
+    public String getSpeedUpId() {
+        return getId();
+    }
+
+    @Override
+    public String getSpeedUpLabel() {
+        return "Expedite Work";
+    }
+
+    @Override
+    public String getSpeedUpLore() {
+        return "The hull was built to withstand modern weapons. The relic cutting heads were built to take it apart.";
+    }
+
+    @Override
+    public int getSpeedUpDaysLeft() {
+        return currentDeconShipVar != null ? Math.max(daysRequired - daysPassed, 0) : 0;
+    }
+
+    @Override
+    public int getSpeedUpDaysTotal() {
+        return currentDeconShipVar != null ? daysRequired : 0;
+    }
+
+    @Override
+    public void speedUp(int days) {
+        daysPassed += days;
     }
 }

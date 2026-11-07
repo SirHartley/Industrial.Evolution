@@ -13,6 +13,8 @@ import indevo.config.Setting;
 import indevo.dialogue.sidepanel.ButtonAction;
 import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
+import indevo.economy.RelicSpeedUpTarget;
+import indevo.economy.plugins.RelicSpeedUpDialog;
 import indevo.industries.academy.industry.Academy;
 
 import java.awt.*;
@@ -224,7 +226,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         slot.addUIElement(portrait).inTL(PAD, (SLOT_H - PORTRAIT) / 2f);
 
         float infoX = PAD * 2 + PORTRAIT;
-        TooltipMakerAPI info = slot.createUIElement(w - infoX - BUTTON_W - PAD * 2, SLOT_H - PAD, false);
+        TooltipMakerAPI info = slot.createUIElement(w - infoX - BUTTON_W * 2 - PAD * 3, SLOT_H - PAD, false);
         int total;
         int left;
 
@@ -269,6 +271,31 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
             }
         });
         slot.addUIElement(actions).inTR(PAD, (SLOT_H - BUTTON_H * 2 - 8f) / 2f);
+
+        final RelicSpeedUpTarget speedUp = academy.getTrainingSpeedUp(adminTab);
+        TooltipMakerAPI relic = slot.createUIElement(BUTTON_W, BUTTON_H, false);
+        ButtonAPI quick = relic.addButton(speedUp.getSpeedUpLabel(), new ButtonAction(this) {
+            @Override
+            public void execute() {
+                if (externalScroller != null) scrollY = externalScroller.getYOffset();
+                switchingToPopup = true;
+                callback.dismissCustomDialog(1);
+                plugin.showRelicDialog(speedUp);
+            }
+        }, base, Misc.getDarkPlayerColor(), Alignment.MID, CutStyle.ALL, BUTTON_W, BUTTON_H, 0f);
+        quick.setEnabled(RelicSpeedUpDialog.isAvailable(speedUp));
+        relic.addTooltipToPrevious(new BaseTooltipCreator() {
+            @Override
+            public float getTooltipWidth(Object tooltipParam) {
+                return 360f;
+            }
+
+            @Override
+            public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
+                RelicSpeedUpDialog.addTooltip(tooltip, speedUp);
+            }
+        }, TooltipMakerAPI.TooltipLocation.LEFT);
+        slot.addUIElement(relic).inTR(PAD * 2 + BUTTON_W, (SLOT_H - BUTTON_H * 2 - 8f) / 2f);
 
         return slot;
     }

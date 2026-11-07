@@ -87,6 +87,7 @@ Fixed - Tooltip now shows why a relay without a Military Base is inactive
 Academy
 Added - Academy panel: train, store and retrieve officers and administrators in one screen
 Added - Officers can train two personality steps at once with an alpha core (time and fee per step)
+Added - Quick Training: halve the remaining training time with Relic Components
 Adjusted - Training at your own Academy is now free
 Adjusted - Admin training only teaches skills from academy_admin_skill_whitelist.csv (other mods can add theirs)
 Fixed - Aggression training no longer bills you twice the amount it should
@@ -118,6 +119,9 @@ Fixed - Base fee setting maximum is no longer below its default
 
 Derelict Industries
 Added - Ancient Laboratory: relic services to refine Forge Templates and integrate automated ships
+Added - Expedite Work: halve the remaining Hull Deconstructor time with Relic Components
+Added - Expedite Restoration: halve the remaining Ancient Laboratory repair time with Relic Components
+Added - Recharge Now: end the Rift Generator cooldown at once for 3 Relic Components per day left
 Adjusted - Forge Templates now only install in the structure that can use them
 Fixed - Rift Generator planets now move in sync with the warp animation
 Fixed - Rift Generator no longer leaves planetary rings behind
@@ -158,6 +162,7 @@ Fixed - Arrested ambassador message now shows he or she instead of a placeholder
 
 Engineering Hub
 Added - Hullmod Data: learn hullmods from stripped ships for Relic Components
+Added - Rush Research: halve the remaining reverse engineering time with Relic Components
 Adjusted - Expanded tooltip now also shows the normal tooltip below the progress list
 Fixed - Engineering Hub setting now properly controls whether it can be built
 Fixed - Stripped weapons and fighters now go to the production gathering point
@@ -175,6 +180,7 @@ Fixed - Build tooltip no longer shows the base as unavailable when it can be bui
 Salvage Yards
 Added - Move S-mods: transfer S-mods between similar hulls for relic components and credits
 Note - The target ship needs the hullmod installed and a free S-mod slot
+Added - Express Delivery: halve the delivery time of a production order with Relic Components
 Fixed - Salvage Yards now properly get salvage from every raid in their system
 Fixed - Salvage Yards no longer pay out twice after loading a save
 Fixed - Blockades, punitive expeditions and hostile activity raids now give salvage

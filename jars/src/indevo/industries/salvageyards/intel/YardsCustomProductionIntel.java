@@ -14,16 +14,22 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin;
 import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.ui.Alignment;
+import com.fs.starfarer.api.ui.BaseTooltipCreator;
+import com.fs.starfarer.api.ui.ButtonAPI;
+import com.fs.starfarer.api.ui.IntelUIAPI;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.CountingMap;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.economy.RelicSpeedUpTarget;
+import indevo.economy.plugins.RelicSpeedUpDialog;
 import indevo.ids.Ids;
 import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.RelicHelper;
 import indevo.utils.timers.NewDayListener;
 
 import java.awt.*;
@@ -33,7 +39,9 @@ import java.util.Set;
 
 import static indevo.utils.helper.StringHelper.getDayOrDays;
 
-public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDayListener {
+public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDayListener, RelicSpeedUpTarget {
+
+    public static final String BUTTON_EXPRESS = "button_express";
 
     public enum Stage {
         WAITING,
@@ -49,6 +57,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
     protected MarketAPI market;
     protected IndEvo_InitSYCustomProductionDiag.YardsProductionData data;
     protected CargoAPI tooltipCargo;
+    protected long relicSpeedUpTimestamp = 0L;
 
     private Stage currentStage;
 
@@ -149,6 +158,8 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
             label.setHighlight(market.getName(), "" + d);
             label.setHighlightColors(market.getFaction().getBaseUIColor(), h);
 
+            addExpressButton(info, width);
+
             //intel.createSmallDescription(info, width, height);
             showCargoContents(info, width, height);
 
@@ -174,6 +185,91 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
                         market.getFaction().getBaseUIColor(), market.getName());
             }
         }
+    }
+
+    private void addExpressButton(TooltipMakerAPI info, float width) {
+        ButtonAPI button = info.addButton(getSpeedUpLabel(), BUTTON_EXPRESS,
+                getFactionForUIColors().getBaseUIColor(), getFactionForUIColors().getDarkUIColor(),
+                (int) width, 20f, 10f);
+        button.setEnabled(RelicSpeedUpDialog.isAvailable(this) && RelicHelper.canAfford(market, getSpeedUpCost()));
+        info.addTooltipToPrevious(new BaseTooltipCreator() {
+            @Override
+            public float getTooltipWidth(Object tooltipParam) {
+                return 400f;
+            }
+
+            @Override
+            public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
+                RelicSpeedUpDialog.addTooltip(tooltip, YardsCustomProductionIntel.this);
+            }
+        }, TooltipMakerAPI.TooltipLocation.BELOW);
+    }
+
+    @Override
+    public boolean doesButtonHaveConfirmDialog(Object buttonId) {
+        return buttonId == BUTTON_EXPRESS || super.doesButtonHaveConfirmDialog(buttonId);
+    }
+
+    @Override
+    public void createConfirmationPrompt(Object buttonId, TooltipMakerAPI prompt) {
+        if (buttonId == BUTTON_EXPRESS) RelicSpeedUpDialog.addBody(prompt, this);
+        else super.createConfirmationPrompt(buttonId, prompt);
+    }
+
+    @Override
+    public void buttonPressConfirmed(Object buttonId, IntelUIAPI ui) {
+        if (buttonId == BUTTON_EXPRESS) RelicSpeedUpDialog.apply(this);
+        super.buttonPressConfirmed(buttonId, ui);
+    }
+
+    @Override
+    public MarketAPI getMarket() {
+        return market;
+    }
+
+    @Override
+    public String getSpeedUpId() {
+        return "yardsOrder";
+    }
+
+    @Override
+    public String getSpeedUpLabel() {
+        return "Express Delivery";
+    }
+
+    @Override
+    public String getSpeedUpLore() {
+        return "The yards usually spend weeks making salvaged machinery fit. Relic components still match the tolerances stamped on the original plans.";
+    }
+
+    @Override
+    public int getSpeedUpDaysLeft() {
+        return currentStage == Stage.WAITING ? Math.max(0, deliveryTime - elapsed) : 0;
+    }
+
+    @Override
+    public int getSpeedUpDaysTotal() {
+        return deliveryTime;
+    }
+
+    @Override
+    public void speedUp(int days) {
+        elapsed += days;
+    }
+
+    @Override
+    public String getSpeedUpScope() {
+        return "on this order";
+    }
+
+    @Override
+    public float getSpeedUpCooldownLeft() {
+        return Math.max(0f, COOLDOWN_DAYS - Global.getSector().getClock().getElapsedDaysSince(relicSpeedUpTimestamp));
+    }
+
+    @Override
+    public void startSpeedUpCooldown() {
+        relicSpeedUpTimestamp = Global.getSector().getClock().getTimestamp();
     }
 
     public boolean addNextStepText(TooltipMakerAPI info, Color tc, float pad) {

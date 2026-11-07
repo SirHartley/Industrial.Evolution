@@ -1,7 +1,6 @@
 package indevo.industries.senate;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -10,7 +9,6 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
-import indevo.ids.ItemIds;
 import indevo.industries.senate.conditions.EdictAPI;
 import indevo.utils.helper.MiscIE;
 import org.lwjgl.util.vector.Vector2f;
@@ -91,26 +89,6 @@ public class EdictHelper {
     public static boolean senateHasBetaCore(MarketAPI market) {
         MarketAPI senate = getSystemSenate(market);
         return senate != null && Commodities.BETA_CORE.equals(senate.getIndustry(Ids.SENATE).getAICoreId());
-    }
-
-    public static int getAvailableRelics(MarketAPI market) {
-        CargoAPI storage = Misc.getStorageCargo(market);
-        float stored = storage != null ? storage.getCommodityQuantity(ItemIds.RARE_PARTS) : 0f;
-        return (int) (stored + MiscIE.getPlayerCargo().getCommodityQuantity(ItemIds.RARE_PARTS));
-    }
-
-    public static void takeRelics(MarketAPI market, int amount) {
-        if (amount > getAvailableRelics(market)) throw new IllegalStateException("IndEvo: not enough relic components for " + market.getName() + ", need " + amount);
-
-        float remaining = amount;
-        CargoAPI storage = Misc.getStorageCargo(market);
-        if (storage != null) {
-            float take = Math.min(remaining, storage.getCommodityQuantity(ItemIds.RARE_PARTS));
-            storage.removeCommodity(ItemIds.RARE_PARTS, take);
-            remaining -= take;
-        }
-
-        if (remaining > 0) MiscIE.getPlayerCargo().removeCommodity(ItemIds.RARE_PARTS, remaining);
     }
 
     public static MarketConditionAPI getActiveEdict(MarketAPI market) {
