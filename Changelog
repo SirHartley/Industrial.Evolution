@@ -116,6 +116,7 @@ Fixed - Crash when using "Ship now" on a contract that became invalid
 Fixed - Base fee setting maximum is no longer below its default
 
 Derelict Industries
+Added - Ancient Laboratory: relic services to refine Forge Templates and integrate automated ships
 Adjusted - Forge Templates now only install in the structure that can use them
 Fixed - Rift Generator planets now move in sync with the warp animation
 Fixed - Rift Generator no longer leaves planetary rings behind

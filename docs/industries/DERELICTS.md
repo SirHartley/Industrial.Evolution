@@ -28,6 +28,8 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | `indevo/industries/derelicts/hullmods/PrintDefectsLow/Med/High.java` | Print d-mods. |
 | `indevo/industries/derelicts/hullmods/PrintingHullMod.java` | `IndEvo_auto` indicator; raises S-mod cap by the `IndEvo_compN` tag. |
 | `indevo/industries/derelicts/listeners/AncientLabCommoditySwitchOptionProvider.java` | Industry option "change bonus commodity" on the lab. |
+| `indevo/industries/derelicts/plugins/AncientLabRelicOptionProvider.java` | Industry option "Relic services..." on a functional player owned lab, also on remote colony screens. Opens the relic panel. |
+| `indevo/industries/derelicts/dialogue/AncientLabRelicPanelDelegate.java` | Relic services panel (`ButtonReportingDialogueDelegate`): Refine Templates and Integrate Ships tabs, cost, payment, lore tooltips. |
 | `indevo/industries/derelicts/listeners/PlanetJumpListener.java` | Interface fired after a move. No implementers. |
 | `indevo/industries/derelicts/plugins/RiftGenOptionProvider.java` | Industry option that opens the rift rules dialog. |
 | `indevo/industries/derelicts/plugins/RemoveIndustryOptionWarningProvider.java` | Confirm dialog before removing any industry tagged `IndEvo_showDeconstructWarning`. |
@@ -50,6 +52,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Variant tag | `IndEvo_comp1/2/3` | `HullForge.java:422-424` |
 | Variant tag | `IndEvo_hasInbuiltLogMod` | `HullDeconstructor.java:55` |
 | Memory key | `$IndEvo_ruinsIndustryId` (market), `$IndEvo_ruinsPlaced_<marketId>` | `Ruins.java:17`, `RuinsManager` |
+| Variant tag | `no_auto_penalty` (vanilla `Tags.TAG_AUTOMATED_NO_PENALTY`), added by Integrate Ships | `AncientLabRelicPanelDelegate.integrate` |
 | Memory key | `$IndEvo_LabBonusCommodityID` and `_1/_2/_3`, `$IndEvo_ruinsPickerSeed` (sector) | `AncientLaboratory.java:37` |
 | Memory key | `"$" + industryId` sector flag (template tooltips) | `BaseForgeTemplateUser.java:73-76` |
 | Memory key | `$IndEvo_original_planet_orbit`, `$IndEvo_closeDialogueOnNextReturn` | `PlanetMovingScript`, rift rules |
@@ -66,7 +69,7 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 ## Registration and lifecycle
 
 - `ModPlugin.onNewGameAfterEconomyLoad`: `RuinsManager.forceCleanCoreRuins()` (`indevo/utils/ModPlugin.java:290`) -> `RuinsManager.placeIndustrialRuins()` (`:305`).
-- `ModPlugin.onGameLoad`, transient listeners re-added each load: `DerelictRuinsPlacer` (PlayerColonizationListener, `:437`), `ResolveRuinsToUpgradeListener` (SurveyPlanetListener, `:438`), `AncientLabCommoditySwitchOptionProvider.register()` (`:454`), `RiftGenOptionProvider.register()` (`:472`), `RemoveIndustryOptionWarningProvider.register()` (`:481`).
+- `ModPlugin.onGameLoad`, transient listeners re-added each load: `DerelictRuinsPlacer` (PlayerColonizationListener, `:437`), `ResolveRuinsToUpgradeListener` (SurveyPlanetListener, `:438`), `AncientLabCommoditySwitchOptionProvider.register()` (`:454`), `AncientLabRelicOptionProvider.register()` (`:455`), `RiftGenOptionProvider.register()` (`:474`), `RemoveIndustryOptionWarningProvider.register()` (`:483`).
 - Each industry adds itself as a transient listener in `apply()` and removes itself in `unapply()`. `onNewDay` comes from IE's `NewDayListener`, driven by `indevo/utils/timers/TimeTracker.java:127`. See [Utils](../core/UTILS.md).
 - Rule commands: package `indevo.industries.derelicts.rules` listed in `data/config/settings.json:75`. `IndEvo_requiresColonyMenuPoint.java:32` also checks `IndEvo_RiftGen`; see [Rule commands](../dialogue/RULE_COMMANDS.md).
 - `PlanetMovingScript` is persistent (`Global.getSector().addScript`, `RiftGenerator.java:384-386`). The animation script is transient.
@@ -91,6 +94,13 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 - Lab: degraded template -> empty template, 20 days, 10 with gamma (`initRepair`, `AncientLaboratory.java:113`). Commodity bonus +2 on existing supply of a whitelist commodity; beta +3 on one, alpha +1 on three (`getBonusValue :129`, `setAllCommodityBonuses :140`).
 - All three autofeed from the shared storage and deliver to the gathering point when `IndEvo_derelictDeliverToGathering` is on (inferred: `repairInstalledFT :270` pattern repeats in decon and forge).
 
+### Ancient Laboratory relic services
+
+"Relic services..." -> `AncientLabRelicPanelDelegate.show` -> `DialogCreatorUI.showDialog`, so it works on the remote colony screen. Both tabs are instant on payment. Relic Components come from the lab colony's storage first, then fleet cargo (`pay`); the Confirm button is disabled when they do not cover the cost. Its tooltip shows the effect, the cost line and the lore text (`REFINE_LORE`, `INTEGRATE_LORE`).
+
+- Refine Templates: forge templates in `IndEvo_SharedStore` and local storage with a payload variant and quality level above 0. Confirm runs `ForgeTemplateItemPlugin.incrementForgeTemplateQualityLevel(data, -1)` on the payload, so every stack sharing that payload key changes. Cost `RELICS_PER_TEMPLATE_FP` (2) x hull FP x stack size, per level. Templates without a payload (drops, salvage) are always level 0 and never show.
+- Integrate Ships: fleet members and local storage ships where `Misc.isAutomated` and not `Automated.isAutomatedNoPenalty`. Confirm clones the variant, clears the original variant, gives it a new id, adds `no_auto_penalty` and sets it with `member.setVariant(variant, false, true)`. Vanilla then skips the -100% max CR (skill `api/impl/hullmods/Automated.java:20`) and the Automated Ships skill point count (`BaseSkillEffectDescription.java:792`). Cost `RELICS_PER_SHIP_DP` (10) x hull DP (`getSuppliesToRecover`).
+
 ### Rift Generator move
 
 `RiftGenOptionProvider.onClick` -> rules `IndEvo_RiftGenTargetOptions` -> `IndEvo_RiftInit <MODE>` -> `RiftGenerator.initRift` (`:185`) -> `getTarget` (`:261`, modes CORE within 6 LY of Askonia, COLONY, FRINGE, RANDOM; range `IndEvo_RG_range` +3 LY beta) -> `movePlanet` (`:381`): adds `PlanetMovingScript`, `RecentUnrest` +1.
@@ -103,6 +113,7 @@ Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Co
 
 - `BaseIndustry.spec` is the shared `Global.getSettings().getIndustrySpec(id)` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:160,702`); never write per market values onto it. `Ruins` overrides `getSpec()` with a view instead; every vanilla reader of the upgrade goes through `getSpec()` (the industry option menu, obfuscated `b` in `com.fs.starfarer.campaign.ui.marketinfo` on 0.98a-RC8 Windows, skill `obf/campaign/ui/marketinfo/_c37.java:224,259`; `BaseIndustry.java:575,1075`). Forge template users and `RiftGenerator` do the same for the downgrade.
 - `$IndEvo_ruinsIndustryId` is the single source for which structure a ruin becomes. Set once, persists in market memory. Also read by `Supercomputer.java:205`, `ModUpdater.java:96-141`, `LocatorSystemRatingUpdater.java:121`.
+- The relic panel only changes the template payload tag and ship variant tags; it saves nothing of its own.
 - Forge templates move between industries only as cargo through `IndEvo_SharedStore` / `IndEvo_DeconstStorage` and storage. Item plugins own the template data, charges and quality ([Installables](../items/INSTALLABLES.md#forge-templates)). Each template id lists only the structure that uses it in its params, and the Forge and the Deconstructor hide the slot while working.
 - Rift move replaces the planet entity, keeping the id. Anything that caches `PlanetAPI` refs to a moved planet holds a dead entity (inferred). `PlanetJumpListener` is the hook for that and has no users.
 - Transient listeners in `onGameLoad` have no class dedupe; `ListenerManager.addListener` dedupes only the same instance (`obf/campaign/ListenerManager.java:29`). Fine since transient lists are empty at load.

@@ -34,7 +34,7 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 
 - `ModPlugin.onGameLoad` -> `ResourceConditionApplicator.applyResourceConditionToAllMarkets()` (`indevo/utils/ModPlugin.java:159`) and `ResourceConditionApplicator.register()` (`:428`, transient listener).
 - Economy tick -> `applyResourceConditionToAllMarkets()` -> `ResourceCondition.applyRessourceCond(m)` adds the condition if `m.isInEconomy()` and missing. The condition itself persists in the market.
-- `RelicBuildTimeReductionButtonAdder.register()` (`indevo/utils/ModPlugin.java:485`) adds a transient listener.
+- `RelicBuildTimeReductionButtonAdder.register()` (`indevo/utils/ModPlugin.java:487`) adds a transient listener.
 
 ## Flow
 
@@ -78,6 +78,8 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 | Express Delivery | 1 per delivery day (60 at vanilla) | fleet cargo | [Custom production Express Delivery](#custom-production-express-delivery) |
 | Story point derelict recovery | 5 per DP of each recovered ship | fleet cargo | [Salvage](../exploration/SALVAGE.md#relic-recovery) |
 | Project Reforge (Galatia research) | 500, plus 1 Corrupted Nanoforge on Redeem | fleet cargo (relics as points) | [Research](../dialogue/RESEARCH.md#projects) |
+| Forge Template refining | 2 per hull FP per quality level | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |
+| Automated ship integration | 10 per hull DP | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |
 
 ## Contracts
 
