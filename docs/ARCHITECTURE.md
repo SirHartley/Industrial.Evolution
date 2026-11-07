@@ -229,7 +229,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | Museum | Pet shop escape interceptor | [MUSEUM](industries/MUSEUM.md) |
 | Requisitions center, salvage specials, `IndEvo_notAtWar` | Embassy ambassador | [EMBASSY](industries/EMBASSY.md) |
 | Supercomputer | Income applied through `ResourceCondition` | `economy/conditions/ResourceCondition.java:39,47` |
-| Relay | `$IndEvo_RelayUnlocked` set by the hypertransmitter item effect | `SpecialItemEffectsRepo.java:165` |
+| Relay | `$IndEvo_RelayUnlocked` set by the hypertransmitter item effect | `TransmitterEffect.java:26` |
 | Rift generator | Skips planets with artillery | `RuinsManager.java:171-207` |
 | Consumables (remote, decoy) | Artillery `forceTarget`, `ArtilleryTerrain` | [CONSUMABLES](items/CONSUMABLES.md) |
 | Meteor | `MissileMemFlags.MEM_CAUGHT_BY_MISSILE` from consumables; spawns lab, arsenal and pet center stations | `MeteorEntity.java:71` |

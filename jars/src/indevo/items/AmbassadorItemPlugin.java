@@ -2,35 +2,21 @@ package indevo.items;
 
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.CargoTransferHandlerAPI;
-import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.items.specialitemdata.AmbassadorItemData;
+import indevo.industries.embassy.AmbassadorItemHelper;
 
 public class AmbassadorItemPlugin extends BaseSpecialItemPlugin {
 
-    PersonAPI person;
+    private PersonAPI person;
 
     @Override
     public void init(CargoStackAPI stack) {
         super.init(stack);
 
-        if (stack.getSpecialDataIfSpecial() instanceof AmbassadorItemData) {
-            person = ((AmbassadorItemData) stack.getSpecialDataIfSpecial()).getPerson();
-        } else person = null;
-    }
-
-    @Override
-    public void render(float x, float y, float w, float h, float alphaMult,
-                       float glowMult, SpecialItemRendererAPI renderer) {
-    }
-
-    @Override
-    public int getPrice(MarketAPI market, SubmarketAPI submarket) {
-        return super.getPrice(market, submarket);
+        person = AmbassadorItemHelper.isPersonMissing(stack.getSpecialDataIfSpecial()) ? null : AmbassadorItemHelper.getPersonForItem(stack.getSpecialDataIfSpecial());
     }
 
     @Override
@@ -39,18 +25,19 @@ public class AmbassadorItemPlugin extends BaseSpecialItemPlugin {
         float spad = 5f;
         float opad = 10f;
 
-        if (person == null) return;
-
         tooltip.addTitle(getName());
+
+        if (person == null) {
+            tooltip.addPara("Invalid item: the person %s is missing. Please report this.", opad, Misc.getNegativeHighlightColor(), String.valueOf(stack.getSpecialDataIfSpecial().getData()));
+            return;
+        }
 
         tooltip.addPara("Faction: %s", pad, Misc.getGrayColor(), person.getFaction().getColor(), person.getFaction().getDisplayName());
 
         TooltipMakerAPI text = tooltip.beginImageWithText(person.getPortraitSprite(), 48);
-
         text.addPara(person.getNameString() + " is an official faction representative.", pad);
         text.addPara("Treat them well, or face the consequences.", pad);
         tooltip.addImageWithText(opad);
-
 
         TooltipMakerAPI crest = tooltip.beginImageWithText(person.getFaction().getCrest(), 48);
         crest.addPara("Take them to their post as soon as possible to avoid a diplomatic incident with " + person.getFaction().getDisplayNameWithArticle(), opad);
@@ -61,17 +48,6 @@ public class AmbassadorItemPlugin extends BaseSpecialItemPlugin {
 
     @Override
     public String getName() {
-        if (person != null) {
-            return person.getNameString();
-        }
-        return super.getName();
+        return person != null ? person.getNameString() : super.getName();
     }
-
-
 }
-
-
-
-
-
-

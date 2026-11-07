@@ -29,7 +29,6 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.EmptyForgeTemplateItemPlugin;
 import indevo.items.ForgeTemplateItemPlugin;
-import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
 import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
@@ -134,8 +133,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
             if (getAiCoreIdNotNull().equals(Commodities.ALPHA_CORE)) addBuiltInLogisticsHullmods(1, member, random);
 
             //make new item
-            String id = currentDeconShipVar.getHullSpec().getHullId();
-            SpecialItemData newFT = ForgeTemplateItemPlugin.createForgeTemplateData(getCharges(currentDeconShipVar), id, currentDeconShipVar);
+            SpecialItemData newFT = ForgeTemplateItemPlugin.createForgeTemplate(currentDeconShipVar, getCharges(currentDeconShipVar));
             ForgeTemplateItemPlugin.incrementForgeTemplateQualityLevel(newFT, qualityLevel);
 
             shipToCargo(newFT, 1);
@@ -327,12 +325,8 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
 
     @Override
     public java.util.List<InstallableIndustryItemPlugin> getInstallableItems() {
-        ArrayList<InstallableIndustryItemPlugin> list = new ArrayList<>();
-
-        if (currentDeconShipVar == null) {
-            list.add(new ForgeTemplateInstallableItemPlugin(this));
-        }
-        return list;
+        if (currentDeconShipVar != null) return new ArrayList<>();
+        return super.getInstallableItems();
     }
 
     private String getAiCoreIdNotNull() {

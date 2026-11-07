@@ -44,20 +44,6 @@
 		"VPCs": "VPC"
 	},
 
-	"IndEvo_AmbassadorItem": {
-		"currentlyInstalled": " currently in office.",
-		"noItems": "No items installed",
-		"install": "Inaugurate Ambassador ...",
-		"manage": "Manage Ambassador ...",
-		"uninstall": "Remove Ambassador",
-		"noCurrent": "No Ambassador currently in office",
-		"noAvailable": "No Ambassador available",
-		"noStorage": "No Ambassador available in storage",
-		"selectForIndustry": "Select Ambassador to induct for this $industryName",
-		"itemTooltip": "$personName is an official faction representative to $personFaction",
-		"indTooltip": "Inducting an Ambassador here is required for this structure to have an Effect. It will allow the polity to gain reputation with to the Ambassadors' faction."
-	},
-
 	"IndEvo_AICores": {
 		"aiCores": "AI-Cores",
 		"aCoreAssignedLong": "Alpha-level AI core currently assigned. ",

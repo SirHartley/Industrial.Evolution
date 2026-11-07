@@ -3,7 +3,6 @@ package indevo.items.installable;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
-import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.SubmarketSpecAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableIndustryItemPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Items;
@@ -13,149 +12,49 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.engineeringhub.industry.EngineeringHub;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.Color;
+import java.util.Set;
 
 public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemPlugin {
 
-     //SpecialItemData of a ForgeTemplateItemPlugin contains the HullID of the relevant ship as data (SpecialItemData specItem.getData)
-    //SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(specItem.getId());
+    public static final Set<String> BLUEPRINT_IDS = Set.of(ItemIds.RELIC_SPECIAL_ITEM, Items.SHIP_BP, "tiandong_retrofit_bp", "roider_retrofit_bp");
 
-    /**
-     * Very important for implemenations of this to not store *any* references to campaign data in data members, since
-     * this is stored in a static map and persists between game loads etc.
-     * <p>
-     * this is also called a memory leak
-     * don't touch this
-     */
-
-    public interface BlueprintEffect {
-        void apply(Industry industry, SpecialItemData specItem);
-
-        void unapply(Industry industry);
-
-        void addItemDescription(TooltipMakerAPI text, SpecialItemData data, InstallableItemDescriptionMode mode);
+    public static boolean isBlueprint(SpecialItemData data) {
+        return data != null && BLUEPRINT_IDS.contains(data.getId());
     }
 
-    public static final Map<String, BlueprintEffect> BLUEPRINT_EFFECTS = new HashMap<String, BlueprintEffect>() {{
+    public static void addBlueprintDescription(TooltipMakerAPI text, SpecialItemData data, InstallableItemDescriptionMode mode) {
+        boolean relic = ItemIds.RELIC_SPECIAL_ITEM.equals(data.getId());
+        String name = switch (data.getId()) {
+            case ItemIds.RELIC_SPECIAL_ITEM -> Global.getSettings().getSpecialItemSpec(ItemIds.RELIC_SPECIAL_ITEM).getName();
+            case Items.SHIP_BP -> Global.getSettings().getHullSpec(data.getData()).getNameWithDesignationWithDashClass() + " blueprint";
+            default -> Global.getSettings().getHullSpec(data.getData()).getNameWithDesignationWithDashClass() + " Retrofit Template";
+        };
 
-        //IndEvo_relicSpecialItem
-        put(ItemIds.RELIC_SPECIAL_ITEM, new BlueprintEffect() {
-            public void apply(Industry industry, SpecialItemData specItem) {
-            }
+        String pre = "";
+        if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_LIST || mode == InstallableItemDescriptionMode.INDUSTRY_TOOLTIP) {
+            pre = name + ". ";
+        } else if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_INSTALLED || mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP) {
+            pre = relic ? "Using " + name + ". " : name + " currently installed. ";
+        }
 
-            public void unapply(Industry industry) {
-            }
+        float pad = mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP || mode == InstallableItemDescriptionMode.CARGO_TOOLTIP ? 10f : 0f;
+        Color hl = Misc.getHighlightColor();
 
-            public void addItemDescription(TooltipMakerAPI text, SpecialItemData data, InstallableItemDescriptionMode mode) {
-                String name = Global.getSettings().getSpecialItemSpec(ItemIds.RELIC_SPECIAL_ITEM).getName();
-                String pre = "";
-                float pad = 0f;
-                if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_LIST ||
-                        mode == InstallableItemDescriptionMode.INDUSTRY_TOOLTIP) {
-                    pre = name + ". ";
-                } else if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_INSTALLED ||
-                        mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP) {
-                    pre = "Using " + name + ". ";
-                }
-                if (mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP ||
-                        mode == InstallableItemDescriptionMode.CARGO_TOOLTIP) {
-                    pad = 10f;
-                }
-
+        switch (data.getId()) {
+            case ItemIds.RELIC_SPECIAL_ITEM -> {
                 String subName = "";
-                for (SubmarketSpecAPI spec :  Global.getSettings().getAllSubmarketSpecs()) if (Ids.SHAREDSTORAGE.equals(spec.getId())) subName = spec.getName();
-                text.addPara(pre + "Taken from the %s. Consumed quantity depends on ship deployment points. Prioritized over blueprints.",
-                        pad, Misc.getHighlightColor(), new String[]{subName, "replaced"});
+                for (SubmarketSpecAPI spec : Global.getSettings().getAllSubmarketSpecs()) if (Ids.SHAREDSTORAGE.equals(spec.getId())) subName = spec.getName();
+                text.addPara(pre + "Taken from the %s. Consumed quantity depends on ship deployment points. Prioritized over blueprints.", pad, hl, subName);
             }
-        });
-
-        put(Items.SHIP_BP, new BlueprintEffect() {
-            public void apply(Industry industry, SpecialItemData specItem) {
-            }
-
-            public void unapply(Industry industry) {
-            }
-
-            public void addItemDescription(TooltipMakerAPI text, SpecialItemData data, InstallableItemDescriptionMode mode) {
-                String name = Global.getSettings().getHullSpec(data.getData()).getNameWithDesignationWithDashClass() + " blueprint";
-                String pre = "";
-                float pad = 0f;
-                if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_LIST ||
-                        mode == InstallableItemDescriptionMode.INDUSTRY_TOOLTIP) {
-                    pre = name + ". ";
-                } else if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_INSTALLED ||
-                        mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP) {
-                    pre = name + " currently installed. ";
-                }
-                if (mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP ||
-                        mode == InstallableItemDescriptionMode.CARGO_TOOLTIP) {
-                    pad = 10f;
-                }
-
+            case Items.SHIP_BP -> {
                 String size = Misc.ucFirst(Global.getSettings().getHullSpec(data.getData()).getHullSize().name().toLowerCase());
-
-                text.addPara(pre + "Specification: %s. " + "The contents of this item will be %s by the re-writing process.",
-                        pad, Misc.getHighlightColor(), new String[]{size, "replaced"});
+                text.addPara(pre + "Specification: %s. The contents of this item will be %s by the re-writing process.", pad, hl, size, "replaced");
             }
-        });
-
-        put("tiandong_retrofit_bp", new BlueprintEffect() {
-            public void apply(Industry industry, SpecialItemData specItem) {
-            }
-
-            public void unapply(Industry industry) {
-            }
-
-            public void addItemDescription(TooltipMakerAPI text, SpecialItemData data, InstallableItemDescriptionMode mode) {
-                String name = Global.getSettings().getHullSpec(data.getData()).getNameWithDesignationWithDashClass() + " Retrofit Template";
-                String pre = "";
-                float pad = 0f;
-                if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_LIST ||
-                        mode == InstallableItemDescriptionMode.INDUSTRY_TOOLTIP) {
-                    pre = name + ". ";
-                } else if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_INSTALLED ||
-                        mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP) {
-                    pre = name + " currently installed. ";
-                }
-                if (mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP ||
-                        mode == InstallableItemDescriptionMode.CARGO_TOOLTIP) {
-                    pad = 10f;
-                }
-
-                text.addPara(pre + "The contents of this item will be %s by the re-writing process. Only works with Tiandong ships.",
-                        pad, Misc.getHighlightColor(), new String[]{"replaced"});
-            }
-        });
-
-        put("roider_retrofit_bp", new BlueprintEffect() {
-            public void apply(Industry industry, SpecialItemData specItem) {
-            }
-
-            public void unapply(Industry industry) {
-            }
-
-            public void addItemDescription(TooltipMakerAPI text, SpecialItemData data, InstallableItemDescriptionMode mode) {
-                String name = Global.getSettings().getHullSpec(data.getData()).getNameWithDesignationWithDashClass() + " Retrofit Template";
-                String pre = "";
-                float pad = 0f;
-                if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_LIST ||
-                        mode == InstallableItemDescriptionMode.INDUSTRY_TOOLTIP) {
-                    pre = name + ". ";
-                } else if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_INSTALLED ||
-                        mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP) {
-                    pre = name + " currently installed. ";
-                }
-                if (mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP ||
-                        mode == InstallableItemDescriptionMode.CARGO_TOOLTIP) {
-                    pad = 10f;
-                }
-
-                text.addPara(pre + "The contents of this item will be %s by the re-writing process. Only works with Roider Union ships.",
-                        pad, Misc.getHighlightColor(), new String[]{"replaced"});
-            }
-        });
-    }};
+            case "tiandong_retrofit_bp" -> text.addPara(pre + "The contents of this item will be %s by the re-writing process. Only works with Tiandong ships.", pad, hl, "replaced");
+            default -> text.addPara(pre + "The contents of this item will be %s by the re-writing process. Only works with Roider Union ships.", pad, hl, "replaced");
+        }
+    }
 
     private final EngineeringHub industry;
 
@@ -184,7 +83,7 @@ public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemP
     public boolean isInstallableItem(CargoStackAPI stack) {
         if (!stack.isSpecialStack()) return false;
 
-        return BLUEPRINT_EFFECTS.containsKey(stack.getSpecialDataIfSpecial().getId());
+        return isBlueprint(stack.getSpecialDataIfSpecial());
     }
 
     @Override
@@ -220,10 +119,7 @@ public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemP
     @Override
     public void addItemDescription(TooltipMakerAPI text, SpecialItemData data,
                                    InstallableItemDescriptionMode mode) {
-        BlueprintEffect effect = BLUEPRINT_EFFECTS.get(data.getId());
-        if (effect != null) {
-            effect.addItemDescription(text, data, mode);
-        }
+        addBlueprintDescription(text, data, mode);
     }
 
     @Override
@@ -253,8 +149,7 @@ public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemP
         if (data == null) {
             tooltip.addPara(getNoItemCurrentlyInstalledText() + ".", opad);
         } else {
-            BlueprintEffect effect = BLUEPRINT_EFFECTS.get(data.getId());
-            effect.addItemDescription(tooltip, data, InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP);
+            addBlueprintDescription(tooltip, data, InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP);
         }
     }
 }

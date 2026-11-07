@@ -7,7 +7,7 @@ import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.SpecialItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
-import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
+import com.fs.starfarer.api.campaign.impl.items.GenericSpecialItemPlugin;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -15,14 +15,13 @@ import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
-import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
-import indevo.items.specialitemdata.ForgeTemplateData;
+import indevo.items.memory.ItemPayloadMemory;
 import indevo.utils.helper.MiscIE;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,15 +33,25 @@ import java.util.*;
 
 import static indevo.utils.helper.MiscIE.addOrIncrement;
 
-public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
+public class ForgeTemplateItemPlugin extends GenericSpecialItemPlugin {
 
     public static final String DROP_MAP_KEY = "$IndEvo_FT_dropResolveMap";
-    protected ShipHullSpecAPI ship; //ship.getHullId()) for ship building
+    public static final int MAX_CHARGES = 5;
+    public static final String TEMPLATE_QUALITY_LEVEL = "$IndEvo_qualityLevel_";
+    public static final int BASE_FT_QUALITY_LEVEL = 0;
+    public static final int BASE_DMOD_AMOUNT_PER_APPLICATION = 3;
+
+    // data is hullId|charges, plus |payloadKey when a deconstructed variant is kept in ItemPayloadMemory
+    private static final String DATA_SEPARATOR = "|";
+
+    protected ShipHullSpecAPI ship;
 
     @Override
     public void init(CargoStackAPI stack) {
         super.init(stack);
-        ship = Global.getSettings().getHullSpec(stack.getSpecialDataIfSpecial().getData());
+        SpecialItemData data = stack != null ? stack.getSpecialDataIfSpecial() : null;
+        String hullId = getHullId(data);
+        ship = hullId != null ? Global.getSettings().getHullSpec(hullId) : null;
     }
 
     @Override
@@ -60,10 +69,8 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
         float brX = cx + 15f;
         float brY = cy - 18f;
 
-        String hullId = stack.getSpecialDataIfSpecial().getData();
-        if (hullId == null) return;
-        ShipHullSpecAPI shipSpec = Global.getSettings().getHullSpec(stack.getSpecialDataIfSpecial().getData());
-        if (shipSpec.isDHull() || shipSpec.isDefaultDHull()) hullId = shipSpec.getBaseHullId();
+        if (ship == null) return;
+        String hullId = ship.isDHull() || ship.isDefaultDHull() ? ship.getBaseHullId() : ship.getHullId();
 
         float mult = 1f;
         //if (known) mult = 0.5f;
@@ -96,38 +103,36 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
 
     @Override
     public int getPrice(MarketAPI market, SubmarketAPI submarket) {
-        if (ship != null) {
-            float base = super.getPrice(market, submarket);
-            return (int) (base + ((((ship.getBaseValue() * 0.1f) * getItemPriceMult())) * (1 + (getCharges() * 0.2f)))) ;
-        }
-        return super.getPrice(market, submarket);
+        float base = super.getPrice(market, submarket);
+        if (ship == null) return (int) base;
+
+        int charges = getCharges(stack.getSpecialDataIfSpecial());
+        return (int) (base + ship.getBaseValue() * 0.1f * getItemPriceMult() * (1 + charges * 0.2f));
     }
 
     @Override
     public String getName() {
-        if (ship != null) {
-            //return ship.getHullName() + " Blueprint";
-            return ship.getHullName() + "-class Forge Template";
-        }
+        if (ship != null) return ship.getHullName() + "-class Forge Template";
         return super.getName();
     }
 
     @Override
     public String getDesignType() {
-        if (ship != null) {
-            return "Experimental"; //ship.getManufacturer();
-        }
-        return null;
+        return ship != null ? "Experimental" : null;
     }
 
     @Override
     public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, CargoTransferHandlerAPI transferHandler, Object stackSource) {
-        super.createTooltip(tooltip, expanded, transferHandler, stackSource);
+        super.createTooltip(tooltip, expanded, transferHandler, stackSource, false);
 
         float opad = 10f;
+        SpecialItemData data = stack != null ? stack.getSpecialDataIfSpecial() : null;
 
-        String hullId = stack.getSpecialDataIfSpecial().getData();
-        if (hullId == null) hullId = "nebula"; //codex
+        if (isPayloadMissing(data)) {
+            tooltip.addPara("Invalid item: the ship data for %s is missing. Please report this.", opad, Misc.getNegativeHighlightColor(), data.getData());
+            addCostLabel(tooltip, opad, transferHandler, stackSource);
+            return;
+        }
 
         if (Global.getSector().getMemory().getBoolean("$" + Ids.HULLFORGE)) {
             tooltip.addPara("This Forge Template contains ship data. Installing this in a Hull Forge will allow it to construct the ship.", opad);
@@ -135,26 +140,21 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
             tooltip.addPara("This Forge Template contains ship data. It does not seem to fit any standard Domain blueprint readers, but there might be a way to construct a ship based off it. Residual data contains hints towards planets lost to automated fleets in the first AI war.", opad);
         }
 
-        int c = getCharges();
-        String s = c > 1 ? c + " charges" : c + " charge";
-        tooltip.addPara("Current capacity: %s", opad, Misc.getHighlightColor(), new String[]{s});
+        if (ship != null) {
+            int c = getCharges(data);
+            String s = c > 1 ? c + " charges" : c + " charge";
+            tooltip.addPara("Current capacity: %s", opad, Misc.getHighlightColor(), s);
 
-        List<String> hulls = new ArrayList<>();
-        hulls.add(hullId);
-        addShipList(tooltip, "Ship hulls:", hulls, 1, opad);
-        Description desc = Global.getSettings().getDescription(ship.getDescriptionId(), Description.Type.SHIP);
+            List<String> hulls = new ArrayList<>();
+            hulls.add(ship.getHullId());
+            addShipList(tooltip, "Ship hulls:", hulls, 1, opad);
 
-        String prefix = "";
-        if (ship.getDescriptionPrefix() != null) {
-            prefix = ship.getDescriptionPrefix() + "\n\n";
+            Description desc = Global.getSettings().getDescription(ship.getDescriptionId(), Description.Type.SHIP);
+            String prefix = ship.getDescriptionPrefix() != null ? ship.getDescriptionPrefix() + "\n\n" : "";
+            tooltip.addPara(prefix + desc.getText1FirstPara(), opad);
         }
-        tooltip.addPara(prefix + desc.getText1FirstPara(), opad);
 
         addCostLabel(tooltip, opad, transferHandler, stackSource);
-    }
-
-    private int getCharges() {
-        return Integer.parseInt(getId().substring(getId().length() - 1));
     }
 
     @Override
@@ -171,7 +171,8 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
             }
         }
 
-        return pickShip(tags, random);
+        String hullId = pickShip(tags, random);
+        return hullId != null ? toData(hullId, json.optInt("charges", 1), null) : null;
     }
 
     public static String pickShip(Set<String> tags, Random random) {
@@ -230,10 +231,6 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
         }
     }
 
-    public static final String TEMPLATE_QUALITY_LEVEL = "$IndEvo_qualityLevel_";
-    public static final int BASE_FT_QUALITY_LEVEL = 0;
-    public static final int BASE_DMOD_AMOUNT_PER_APPLICATION = 3;
-
     public static void addPrintDefectDMods(FleetMemberAPI member, int qualityLevel, Random random) {
         ShipVariantAPI variant = member.getVariant();
         Set<String> hullmodSet = new HashSet<>(variant.getHullMods());
@@ -288,131 +285,100 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
         return null;
     }
 
-    @Deprecated
-    public static void applyPrintDefects(FleetMemberAPI member, String aiCoreId) {
-        ShipVariantAPI ship = member.getVariant().clone();
-        String ident = "IndEvo_print_";
-        String installed = "none";
-        String id = getApplicablePrintDefectId(ship, aiCoreId);
-
-        for (String inBuiltMod : ship.getPermaMods()) {
-            if (inBuiltMod.contains(ident)) installed = inBuiltMod;
-        }
-
-        if (!installed.equals("none")) {
-            ship.removePermaMod(installed);
-        }
-
-        if (!ship.hasHullMod(Ids.PRINTING_INDICATOR)) ship.addPermaMod(Ids.PRINTING_INDICATOR);
-        ship.addPermaMod(id);
-
-        member.setVariant(ship, false, true);
+    public static SpecialItemData createForgeTemplate(String hullId, int charges) {
+        return new SpecialItemData(ItemIds.FORGETEMPLATE, toData(hullId, charges, null));
     }
 
-    public static String getApplicablePrintDefectId(ShipVariantAPI ship, String aiCoreId) {
-        List<String> levels = new ArrayList<>();
-        levels.add("low");
-        levels.add("med");
-        levels.add("high");
-
-        String ident = "IndEvo_print_";
-        int level = 1;
-
-        for (String inBuiltMod : ship.getPermaMods()) {
-            if (inBuiltMod.contains(ident)) level = levels.indexOf(inBuiltMod.substring(ident.length()));
-        }
-
-        level += Commodities.ALPHA_CORE.equals(aiCoreId) || Commodities.BETA_CORE.equals(aiCoreId) ? 1 : 0;
-        level -= Commodities.GAMMA_CORE.equals(aiCoreId) ? 1 : 0;
-
-        level = Math.min(level, 2);
-        level = Math.max(level, 0);
-
-        return ident + levels.get(level);
+    public static SpecialItemData createForgeTemplate(ShipVariantAPI variant, int charges) {
+        String payloadKey = ItemPayloadMemory.add(variant);
+        return new SpecialItemData(ItemIds.FORGETEMPLATE, toData(variant.getHullSpec().getHullId(), charges, payloadKey));
     }
 
-    public static int incrementForgeTemplateQualityLevel(SpecialItemData data, int toAdd) {
-        int newLevel = getForgeTemplateQualityLevel(data) + toAdd;
-        setForgeTemplateQualityLevel(data, newLevel);
+    public static boolean isForgeTemplate(SpecialItemData data) {
+        return data != null && ItemIds.FORGETEMPLATE.equals(data.getId());
+    }
 
-        return newLevel;
+    public static String getHullId(SpecialItemData data) {
+        String[] parts = split(data);
+        return parts != null ? parts[0] : null;
+    }
+
+    public static int getCharges(SpecialItemData data) {
+        String[] parts = split(data);
+        return parts != null && parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
+    }
+
+    public static ShipVariantAPI getVariant(SpecialItemData data) {
+        return ItemPayloadMemory.get(getPayloadKey(data), ShipVariantAPI.class);
+    }
+
+    public static boolean isPayloadMissing(SpecialItemData data) {
+        String key = getPayloadKey(data);
+        return key != null && !ItemPayloadMemory.contains(key);
+    }
+
+    public static SpecialItemData useCharge(SpecialItemData data) {
+        int charges = getCharges(data) - 1;
+
+        if (charges < 1) {
+            ItemPayloadMemory.remove(getPayloadKey(data));
+            return new SpecialItemData(ItemIds.BROKENFORGETEMPLATE, null);
+        }
+
+        return new SpecialItemData(ItemIds.FORGETEMPLATE, toData(getHullId(data), charges, getPayloadKey(data)));
+    }
+
+    private static String getPayloadKey(SpecialItemData data) {
+        String[] parts = split(data);
+        return parts != null && parts.length > 2 ? parts[2] : null;
+    }
+
+    private static String[] split(SpecialItemData data) {
+        if (!isForgeTemplate(data) || data.getData() == null) return null;
+        return data.getData().split("\\" + DATA_SEPARATOR);
+    }
+
+    private static String toData(String hullId, int charges, String payloadKey) {
+        String data = hullId + DATA_SEPARATOR + Math.max(1, Math.min(charges, MAX_CHARGES));
+        return payloadKey != null ? data + DATA_SEPARATOR + payloadKey : data;
     }
 
     public static int getForgeTemplateQualityLevel(SpecialItemData data) {
-        if (data instanceof ForgeTemplateData) {
-            ForgeTemplateData ftData = (ForgeTemplateData) data;
+        ShipVariantAPI variant = getVariant(data);
+        if (variant == null) return BASE_FT_QUALITY_LEVEL;
 
-            for (String s : ftData.getVariant().getTags()) {
-                if (s.contains(TEMPLATE_QUALITY_LEVEL)) {
-                    char c = s.charAt(s.length() - 1);
-                    return Character.isDigit(c) ? Character.getNumericValue(c) : BASE_FT_QUALITY_LEVEL;
-                }
+        for (String s : variant.getTags()) {
+            if (s.contains(TEMPLATE_QUALITY_LEVEL)) {
+                char c = s.charAt(s.length() - 1);
+                return Character.isDigit(c) ? Character.getNumericValue(c) : BASE_FT_QUALITY_LEVEL;
             }
         }
 
         return BASE_FT_QUALITY_LEVEL;
     }
 
-    public static void setForgeTemplateQualityLevel(SpecialItemData data, int level) {
-        if (data instanceof ForgeTemplateData) {
-            ForgeTemplateData ftData = (ForgeTemplateData) data;
-            ShipVariantAPI var = ftData.getVariant();
+    public static void incrementForgeTemplateQualityLevel(SpecialItemData data, int toAdd) {
+        ShipVariantAPI variant = getVariant(data);
+        if (variant == null) return;
 
-            String toRemove = null;
-            for (String s : var.getTags()) {
-                if (s.contains(TEMPLATE_QUALITY_LEVEL)) {
-                    toRemove = s;
-                }
-            }
+        int newLevel = getForgeTemplateQualityLevel(data) + toAdd;
 
-            if (toRemove != null) var.removeTag(toRemove);
-            var.addTag(TEMPLATE_QUALITY_LEVEL + level);
-        }
-    }
-
-    public static SpecialItemData incrementForgeTemplateData(SpecialItemData data, int num) {
-        if (data == null) return null;
-
-        SpecialItemData newData;
-
-        if (getForgeTemplateCharges(data.getId()) > 1) {
-            if (data instanceof ForgeTemplateData) {
-                ForgeTemplateData ftData = (ForgeTemplateData) data;
-                newData = new ForgeTemplateData(getIncrementedFTId(num, ftData.getId()), ftData.getData(), ftData.getVariant());
-            } else {
-                newData = new SpecialItemData(getIncrementedFTId(-1, data.getId()), data.getData());
-            }
-
-        } else {
-            newData = new SpecialItemData(ItemIds.BROKENFORGETEMPLATE, null);
+        String toRemove = null;
+        for (String s : variant.getTags()) {
+            if (s.contains(TEMPLATE_QUALITY_LEVEL)) toRemove = s;
         }
 
-        return newData;
+        if (toRemove != null) variant.removeTag(toRemove);
+        variant.addTag(TEMPLATE_QUALITY_LEVEL + newLevel);
     }
 
-    public static String getIncrementedFTId(Integer increment, String initial) {
-        int charges = getForgeTemplateCharges(initial);
+    public static FleetMemberAPI createNakedFleetMemberFromForgeTemplate(SpecialItemData data) {
+        if (isPayloadMissing(data)) throw new IllegalStateException("Forge template ship data missing for " + data.getData());
 
-        if (charges > 0) {
-            return ItemIds.FORGETEMPLATE + "_" + (Math.min(charges + increment, 5));
-        } else {
-            return ItemIds.BROKENFORGETEMPLATE;
-        }
-    }
-
-    public static int getForgeTemplateCharges(String id) {
-        char c = id.charAt(id.length() - 1);
-        return Character.isDigit(c) ? Character.getNumericValue(c) : 0;
-    }
-
-    public static FleetMemberAPI createNakedFleetMemberFromForgeTemplate(SpecialItemData forgeTemplateData) {
         FleetMemberAPI ship;
-        ForgeTemplateData data;
+        ShipVariantAPI variant = getVariant(data);
 
-        if (forgeTemplateData instanceof ForgeTemplateData) {
-            data = (ForgeTemplateData) forgeTemplateData;
-            ShipVariantAPI variant = data.getVariant();
-
+        if (variant != null) {
             variant = variant.clone();
             variant.setOriginalVariant(null);
             variant.setHullVariantId(Misc.genUID());
@@ -428,12 +394,10 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
             ship = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant);
 
         } else {
-            String var = getValidVariantIdForHullId(forgeTemplateData.getData()); //Global.getSettings().createEmptyVariant(MiscIE.genUID(), Global.getSettings().getHullSpec(forgeTemplateData.getData()));
-            ship = Global.getFactory().createFleetMember(FleetMemberType.SHIP, var);
+            ship = Global.getFactory().createFleetMember(FleetMemberType.SHIP, getValidVariantIdForHullId(getHullId(data)));
         }
 
         FleetEncounterContext.prepareShipForRecovery(ship, true, true, false, 0.2f, 0f, new Random());
-        //stripShipNoCargo(ship);
         return ship;
     }
 
@@ -458,22 +422,5 @@ public class ForgeTemplateItemPlugin extends BaseSpecialItemPlugin {
         }
 
         return null;
-    }
-
-    public static String getForgeTemplateHullID(SpecialItemData templateData) {
-        if (templateData instanceof ForgeTemplateData) {
-            ForgeTemplateData ftData = (ForgeTemplateData) templateData;
-            return ftData.getVariant().getHullSpec().getHullId();
-        } else {
-            return templateData.getData();
-        }
-    }
-
-    public static ForgeTemplateData createForgeTemplateData(int charges, String hullId) {
-        return new ForgeTemplateData(ItemIds.FORGETEMPLATE + "_" + Math.min(charges, 5), hullId, Global.getSettings().createEmptyVariant(Misc.genUID(), Global.getSettings().getHullSpec(hullId)));
-    }
-
-    public static ForgeTemplateData createForgeTemplateData(int charges, String data, ShipVariantAPI variant) {
-        return new ForgeTemplateData(ItemIds.FORGETEMPLATE + "_" + Math.min(charges, 5), data, variant);
     }
 }

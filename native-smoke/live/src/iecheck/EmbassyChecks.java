@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.CustomCampaignEntityAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
+import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
@@ -30,7 +31,6 @@ import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 import indevo.config.Setting;
 import indevo.ids.Ids;
-import indevo.ids.ItemIds;
 import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingContractMemory;
 import indevo.industries.courierport.listeners.Shipment;
@@ -47,8 +47,6 @@ import indevo.industries.embassy.scripts.AmbassadorMurderConsequences;
 import indevo.industries.embassy.scripts.HAAmbassadorEventFactor;
 import indevo.industries.warehouses.data.WarehouseSubmarketData;
 import indevo.industries.warehouses.industry.Warehouses;
-import indevo.items.installable.AmbassadorInstallableItemPlugin;
-import indevo.items.specialitemdata.AmbassadorItemData;
 import indevo.utils.helper.ReflectionUtils;
 
 import java.util.ArrayList;
@@ -158,8 +156,8 @@ public final class EmbassyChecks {
         return (PersonAPI) c.get(key);
     }
 
-    static AmbassadorItemData item(PersonAPI person) {
-        return new AmbassadorItemData(ItemIds.AMBASSADOR, null, person);
+    static SpecialItemData item(PersonAPI person) {
+        return AmbassadorItemHelper.createItem(person);
     }
 
     static CargoAPI fleet() {
@@ -189,7 +187,7 @@ public final class EmbassyChecks {
 
     static void install(MarketAPI market, PersonAPI person, CargoAPI from) {
         from.removeItems(CargoAPI.CargoItemType.SPECIAL, item(person), 1);
-        new AmbassadorInstallableItemPlugin(embassy(market)).setCurrentlyInstalledItemData(item(person));
+        embassy(market).getInstallableItems().get(0).setCurrentlyInstalledItemData(item(person));
     }
 
     static AmbassadorItemTrackerPlugin tracker(String faction) {
@@ -635,7 +633,7 @@ public final class EmbassyChecks {
         });
         steps.add(c -> {
             c.expect(lost(TT) && tracker(TT) == null, "vanished item reported lost");
-            c.expect(!known(person(c, "lost")), "lost ambassador removed from important people");
+            c.expect(known(person(c, "lost")), "lost ambassador stays in important people until retrieved");
         });
 
         // 717

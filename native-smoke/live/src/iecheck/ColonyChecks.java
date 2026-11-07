@@ -1,6 +1,7 @@
 package iecheck;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
@@ -14,16 +15,15 @@ import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.intel.events.HostileActivityEventIntel;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
-import indevo.ids.ItemIds;
 import indevo.industries.Supercomputer;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.industry.population.SwitchablePopulation;
 import indevo.industries.changeling.plugins.ChangelingPopulationOptionProvider;
+import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.listeners.AmbassadorItemTrackerPlugin;
 import indevo.industries.embassy.rules.IndEvo_playerHasFreeEmbassy;
 import indevo.industries.embassy.scripts.HAAmbassadorEventFactor;
 import indevo.industries.relay.plugins.NetworkEntry;
-import indevo.items.specialitemdata.AmbassadorItemData;
 import indevo.utils.helper.ReflectionUtils;
 
 import java.util.ArrayList;
@@ -164,13 +164,15 @@ public final class ColonyChecks {
 
             PersonAPI person = Global.getFactory().createPerson();
             person.setFaction(Factions.HEGEMONY);
-            AmbassadorItemData item = new AmbassadorItemData(ItemIds.AMBASSADOR, null, person);
+            Global.getSector().getImportantPeople().addPerson(person);
+            SpecialItemData item = AmbassadorItemHelper.createItem(person);
             Global.getSector().getPlayerFleet().getCargo().addSpecial(item, 1);
             AmbassadorItemTrackerPlugin tracker = new AmbassadorItemTrackerPlugin(person, item);
             Global.getSector().getListenerManager().addListener(tracker);
             c.expect(!command.execute("check", null, null, null), "705 second hire refused while the first ambassador is in cargo");
             Global.getSector().getListenerManager().removeListener(tracker);
             Global.getSector().getPlayerFleet().getCargo().removeItems(com.fs.starfarer.api.campaign.CargoAPI.CargoItemType.SPECIAL, item, 1);
+            Global.getSector().getImportantPeople().removePerson(person);
         });
         steps.add(c -> {
             c.note("hostile activity intel " + HostileActivityEventIntel.get());
