@@ -34,6 +34,7 @@ public class FleetStatus {
 
     public CargoAPI cargo;
     public List<FleetMemberAPI> fleetMemberAPIList;
+    public boolean playerSide;
 
     public String operatingTimeString;
     public String fuelRangeLYString;
@@ -51,7 +52,7 @@ public class FleetStatus {
     }
 
     public FleetStatus recalculate() {
-        return getFleetStatus(fleetName, cargo, fleetMemberAPIList);
+        return getFleetStatus(fleetName, cargo, fleetMemberAPIList, playerSide);
     }
 
     public static FleetStatus getFleetStatus(CampaignFleetAPI fleet) {
@@ -59,12 +60,17 @@ public class FleetStatus {
     }
 
     public static FleetStatus getFleetStatus(String fleetName, CargoAPI cargo, List<FleetMemberAPI> fleetMemberAPIList) {
+        return getFleetStatus(fleetName, cargo, fleetMemberAPIList, false);
+    }
+
+    public static FleetStatus getFleetStatus(String fleetName, CargoAPI cargo, List<FleetMemberAPI> fleetMemberAPIList, boolean playerSide) {
         FleetStatus status = new FleetStatus();
 
-        CampaignFleetAPI fleet = FleetUtils.createFakeFleet(fleetName, fleetMemberAPIList, cargo);
+        CampaignFleetAPI fleet = FleetUtils.createFakeFleet(fleetName, fleetMemberAPIList, cargo, playerSide);
 
         status.cargo = cargo;
         status.fleetMemberAPIList = fleetMemberAPIList;
+        status.playerSide = playerSide;
 
         status.fleetName = fleetName;
         status.currentCargo = Math.round(cargo.getSpaceUsed());
@@ -84,7 +90,7 @@ public class FleetStatus {
 
         status.requiredSuppliesPerMonth = Math.round(suppliesPerMonth);
 
-        for (FleetMemberAPI m : fleetMemberAPIList) {
+        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
             status.totalCrewCap += m.getMaxCrew();
             status.requiredCrew += m.getMinCrew();
             status.totalCargoCap += m.getCargoCapacity();

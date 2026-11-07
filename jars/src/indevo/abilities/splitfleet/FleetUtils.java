@@ -319,10 +319,18 @@ public class FleetUtils {
     }
 
     public static CampaignFleetAPI createFakeFleet(String name, List<FleetMemberAPI> memberList, CargoAPI cargo) {
+        return createFakeFleet(name, memberList, cargo, false);
+    }
+
+    //fake fleet commander has no skills like a live detachment; player side gets the player's, as in vanilla's recovery dialog
+    public static CampaignFleetAPI createFakeFleet(String name, List<FleetMemberAPI> memberList, CargoAPI cargo, boolean withPlayerSkills) {
         CampaignFleetAPI fakeFleet = Global.getFactory().createEmptyFleet(Global.getSector().getPlayerFaction().getId(), name, true);
+        PersonAPI player = Global.getSector().getPlayerFleet().getCommander();
 
         for (FleetMemberAPI m : memberList) {
-            fakeFleet.getFleetData().addFleetMember(createFakeFleetMember(m));
+            FleetMemberAPI fake = createFakeFleetMember(m);
+            fakeFleet.getFleetData().addFleetMember(fake);
+            if (withPlayerSkills) fake.setFleetCommanderForStats(player, null);
         }
 
         fakeFleet.getCargo().addAll(cargo.createCopy());

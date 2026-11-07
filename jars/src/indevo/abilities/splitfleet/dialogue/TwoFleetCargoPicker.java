@@ -149,8 +149,8 @@ public class TwoFleetCargoPicker {
                 List<FleetMemberAPI> toFleetList = new ArrayList<>(toFleet.getFleetData().getMembersListCopy());
 
                 CargoAPI fromFleetCargo = removeFromFromFleetCargo ? fromFleet.getCargo() : fromFleetCargoCopy;
-                FleetStatus fromFleetStatus = FleetStatus.getFleetStatus(take ? "Left behind" : "Main Fleet", fromFleetCargo, fromFleetList);
-                FleetStatus toFleetStatus = FleetStatus.getFleetStatus(take ? "You take" : "Detachment", cargo, toFleetList);
+                FleetStatus fromFleetStatus = FleetStatus.getFleetStatus(take ? "Left behind" : "Main Fleet", fromFleetCargo, fromFleetList, !take);
+                FleetStatus toFleetStatus = FleetStatus.getFleetStatus(take ? "You take" : "Detachment", cargo, toFleetList, take);
 
                 //Small hack to save the player some time and have the cargo they selected show up in the "selected" panel
                 //also distributes one month of supplies, fuel ect to the detachment if required and cargo is empty
