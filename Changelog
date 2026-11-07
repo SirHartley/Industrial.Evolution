@@ -17,7 +17,7 @@ Fixed - Crash on market updates with some modded industries
 Fixed - Settings no longer accept values below their minimum
 Fixed - Industry storage contents are no longer lost on colonies without storage
 Fixed - Leftover storages of removed industries are now cleaned up on load
-Fixed - Other mods' tooltip lines now show on ruins, Engineering Hub, Centralization Bureau
+Fixed - Other mods' industry tooltip lines now show on all IE industries
 Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
 
@@ -269,6 +269,7 @@ Fixed - Slow fields and forced overloads no longer expire while paused
 Fixed - Watchtowers no longer count as stable locations
 Fixed - Creating a stable location now properly counts wormholes
 Fixed - Placed stations no longer fire with Artillery turned off
+Fixed - Orbital Artillery tooltip now unlocks its Codex entry
 
 Console Commands
 Fixed - SpawnRuins no longer rolls the first planet twice or duplicates ruins
