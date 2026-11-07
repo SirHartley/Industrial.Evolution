@@ -29,10 +29,10 @@ public class Edict_FastBuild extends BaseEdict {
             if (!ind.isBuilding() || !(ind instanceof BaseIndustry industry)) continue;
 
             float current = getBuildTime(industry);
-            Float original = getOriginalBuildTimes().get(ind.getId());
+            Float original = originalBuildTimes.get(ind.getId());
             if (original == null || current != original * FAST_BUILD_MULT) original = current;
 
-            getOriginalBuildTimes().put(ind.getId(), original);
+            originalBuildTimes.put(ind.getId(), original);
             setBuildTime(industry, original * FAST_BUILD_MULT);
         }
 
@@ -65,14 +65,14 @@ public class Edict_FastBuild extends BaseEdict {
         }
 
         for (Industry ind : market.getIndustries()) {
-            Float original = getOriginalBuildTimes().get(ind.getId());
+            Float original = originalBuildTimes.get(ind.getId());
             if (original == null || !ind.isBuilding() || !(ind instanceof BaseIndustry industry)) continue;
 
             // a build started since apply set its own time, keep that
             if (getBuildTime(industry) == original * FAST_BUILD_MULT) setBuildTime(industry, original);
         }
 
-        getOriginalBuildTimes().clear();
+        originalBuildTimes.clear();
     }
 
     public static boolean isActive(MarketAPI market) {
@@ -82,11 +82,6 @@ public class Edict_FastBuild extends BaseEdict {
     // same truncation as the vanilla "days left" text once the halved build runs
     public static int getReducedDays(int days) {
         return Math.max(1, (int) (days * FAST_BUILD_MULT));
-    }
-
-    private Map<String, Float> getOriginalBuildTimes() {
-        if (originalBuildTimes == null) originalBuildTimes = new HashMap<>();
-        return originalBuildTimes;
     }
 
     private static float getBuildTime(BaseIndustry industry) {
