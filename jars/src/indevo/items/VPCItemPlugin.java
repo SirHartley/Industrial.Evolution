@@ -70,6 +70,8 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
     private static final String COMMODITY_SEPARATOR = ",";
     private static final float[] DEPOSIT_MULT = {1f, 0.8f, 0.65f};
     private static final Color SCREEN_COLOR = new Color(28, 48, 56);
+    // render and apply read the outputs every frame, warn once per id
+    private static final Set<String> WARNED_IDS = new HashSet<>();
 
     protected SpecialItemData data;
 
@@ -186,7 +188,13 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
     }
 
     public static boolean isValid(SpecialItemData data) {
-        return getTier(data) != null && !getCommodityIds(data).isEmpty();
+        if (getTier(data) == null) return false;
+
+        for (String id : getCommodityIds(data)) {
+            if (VPCCommodityRepo.get(id) != null) return true;
+        }
+
+        return false;
     }
 
     public static Tier getTier(SpecialItemData data) {
@@ -219,6 +227,7 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
         for (String id : getCommodityIds(data)) {
             Commodity c = VPCCommodityRepo.get(id);
             if (c != null) outputs.add(c);
+            else if (WARNED_IDS.add(id)) VPCCommodityRepo.log.warn("VPC commodity " + id + " is not in the VPC table, leaving it out");
         }
 
         return outputs;

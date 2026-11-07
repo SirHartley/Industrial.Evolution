@@ -88,7 +88,7 @@ There are two install paths. Items in vanilla style (VPCs, Logistics Core, Neuro
 
 ### VPCs
 
-One item id, `IndEvo_vpc`, with data `tier|commodityId,commodityId` (`rare|supplies,fuel`). Create one only through `VPCItemPlugin.createItem` or `roll` (`VPCItemPlugin.java:164-178`).
+One item id, `IndEvo_vpc`, with data `tier|commodityId,commodityId` (`rare|supplies,fuel`). Create one only through `VPCItemPlugin.createItem` or `roll` (`VPCItemPlugin.java:166-180`).
 
 | Tier | Outputs | Commodity pool | Price | NPC weight | Pather interest |
 |---|---|---|---|---|---|
@@ -97,12 +97,12 @@ One item id, `IndEvo_vpc`, with data `tier|commodityId,commodityId` (`rare|suppl
 | `RARE` | 2 | all | 100000 | 5 | 4 |
 | `ULTRA` (ultra rare) | 3 | all | 200000 | 1 | 6 |
 
-- Commodity table `vpc_commodities.csv`: `id`, `pool` (`common`, `uncommon`, `rare`), `supply` modifier, `demand` as `commodity:modifier` list, one deposit column per industry id, optional `name` (`Exo-Armor Suits`), `icon` (whole chip sprite) and `desc` (flavor). Rows merge by `id` across mods; a row with an unknown commodity or bad values is skipped with a warning (`VPCCommodityRepo.java:59-93`). Rare pool commodities (fuel) only roll on rare and ultra rare chips (`Tier.canRoll`, `VPCItemPlugin.java:53-59`); a roll never repeats a commodity.
+- Commodity table `vpc_commodities.csv`: `id`, `pool` (`common`, `uncommon`, `rare`), `supply` modifier, `demand` as `commodity:modifier` list, one deposit column per industry id, optional `name` (`Exo-Armor Suits`), `icon` (whole chip sprite) and `desc` (flavor). Rows merge by `id` across mods; a row with an unknown commodity or bad values is skipped with a warning, a demand entry on an unknown commodity is dropped with a warning (`VPCCommodityRepo.java:59-93`, `parseDemand`). Rare pool commodities (fuel) only roll on rare and ultra rare chips (`Tier.canRoll`, `VPCItemPlugin.java:53-59`); a roll never repeats a commodity.
 - Package table `vpc_packages.csv`: a commodity set with its own name, chip icon and flavor (`conflict`: marines and hand weapons, `exploration`: fuel and supplies), matched by set equality (`VPCCommodityRepo.getPackage`).
-- Supply: one modifier per output; with 2 or 3 outputs each is at most `-outputs` (`getSupply`, `:227-235`). Demand: the highest modifier per input commodity over all outputs (`getDemand`, `:237-244`). Deposit mult 1, 0.8, 0.65 for 1, 2, 3 outputs (`getDepositMult`, `:246-249`). The industries apply them; see [Assembler](../industries/ASSEMBLER.md).
-- Name: `VPC <commodity>` for one output, else `VPC <package name>`, else `VPC Package` for two and `VPC Suite` for three outputs (`getDisplayName`, `:251-261`). The commodities show on the icon and in the description. Price is the tier price.
-- Icon: the engine draws `VPC_empty.png`, then `render` (`:93-130`) draws the commodity or package chip icon if there is one; otherwise the `VPCRareChip` frame for rare and ultra rare, a screen area and 1 to 3 commodity icons. Industry menus and installed item lists use `getIconName` (`:269-272`): the chip icon, else the item icon.
-- Drops: rows `item_IndEvo_vpc:{tier:<tier>}`, resolved by `resolveDropParamsToSpecificItemData` (`:157-162`); no `tier` means common. Groups `indEvo_tech_addition`, `indEvo_mining_addition`, `indEvo_tech` (research projects) and `indEvo_tech_event` (rare and ultra rare only, `ItemChoiceSpecial`) at `drop_groups.csv:9-12`, `:16-19`, `:25-28`, `:80-81`.
+- Supply: one modifier per output; with 2 or 3 outputs each is at most `-outputs` (`getSupply`, `:236-244`). Demand: the highest modifier per input commodity over all outputs (`getDemand`, `:246-253`). Deposit mult 1, 0.8, 0.65 for 1, 2, 3 outputs (`getDepositMult`, `:255-258`). The industries apply them; see [Assembler](../industries/ASSEMBLER.md).
+- Name: `VPC <commodity>` for one output, else `VPC <package name>`, else `VPC Package` for two and `VPC Suite` for three outputs (`getDisplayName`, `:260-270`). The commodities show on the icon and in the description. Price is the tier price.
+- Icon: the engine draws `VPC_empty.png`, then `render` (`:95-132`) draws the commodity or package chip icon if there is one; otherwise the `VPCRareChip` frame for rare and ultra rare, a screen area and 1 to 3 commodity icons. Industry menus and installed item lists use `getIconName` (`:278-281`): the chip icon, else the item icon.
+- Drops: rows `item_IndEvo_vpc:{tier:<tier>}`, resolved by `resolveDropParamsToSpecificItemData` (`:159-164`); no `tier` means common. Groups `indEvo_tech_addition`, `indEvo_mining_addition`, `indEvo_tech` (research projects) and `indEvo_tech_event` (rare and ultra rare only, `ItemChoiceSpecial`) at `drop_groups.csv:9-12`, `:16-19`, `:25-28`, `:80-81`.
 - NPC markets: `rollForNPC` picks the tier by `npcWeight` ([Assembler](../industries/ASSEMBLER.md#ai-cores-and-npc-markets)).
 - Codex: the codex stack has null data; `VPCEffect` shows a generic line for it (`VPCEffect.java:45-48`).
 
@@ -137,7 +137,7 @@ On loot: collects the target's drop data (entity, then salvage spec). For each `
 - Ambassador items are plain `SpecialItemData` with the person id as data; read them only through `AmbassadorItemHelper`. Users: [Embassy](../industries/EMBASSY.md).
 - Forge templates are plain `SpecialItemData`; everything is in the data string, so a copy as `new SpecialItemData(id, data)` keeps the template. Read it only through the `ForgeTemplateItemPlugin` helpers. Users: [Derelicts](../industries/DERELICTS.md) (`HullForge`, `HullDeconstructor`, `AncientLaboratory`), [Salvage](../exploration/SALVAGE.md) (`PrintShipSpecial`, `ItemChoiceSpecial`).
 - VPC content lives only in the data string; read it only through the `VPCItemPlugin` helpers (`isVPC`, `isValid`, `getTier`, `getOutputs`, `getSupply`, `getDemand`, `getDepositMult`). A copy as `new SpecialItemData(id, data)` keeps the chip. Users: [Assembler](../industries/ASSEMBLER.md), [Salvage](../exploration/SALVAGE.md) (`ConvertVPCSpecial`, `ItemChoiceSpecial`), `NewGameIndustryPlacer`.
-- A VPC with null data, an unknown tier or no commodities is invalid: tooltips name it (`VPCEffect.java:50-53`) and `getOutputs` throws `IllegalStateException` (`VPCItemPlugin.java:216`), so an installed invalid VPC throws on apply and at month end. A commodity id that is no longer in the table is left out of the outputs.
+- A VPC with null data, an unknown tier or no commodity that is in the table is invalid (`isValid`, `VPCItemPlugin.java:190-198`): tooltips name it (`VPCEffect.java:50-53`) and `getOutputs` throws `IllegalStateException` (`:224`), so an installed invalid VPC throws on apply and at month end. A commodity id that is no longer in the table (its mod removed) is left out of the outputs with one warning per id (`:230`).
 - `ForgeTemplateItemPlugin.getValidVariantIdForHullId` is also used by the [Salvage Yards](../industries/SALVAGE_YARDS.md) production intel.
 
 ## Known issues and dormant code

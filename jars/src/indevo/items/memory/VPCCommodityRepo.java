@@ -78,7 +78,7 @@ public class VPCCommodityRepo {
                 map.put(id, new Commodity(id,
                         Pool.valueOf(row.getString("pool").trim().toUpperCase()),
                         row.getInt("supply"),
-                        parseDemand(row.optString("demand", "")),
+                        parseDemand(id, row.optString("demand", "")),
                         deposits,
                         row.optString("name", ""),
                         icon,
@@ -131,12 +131,21 @@ public class VPCCommodityRepo {
         return rows;
     }
 
-    private static Map<String, Integer> parseDemand(String demand) {
+    private static Map<String, Integer> parseDemand(String id, String demand) {
         Map<String, Integer> map = new LinkedHashMap<>();
         for (String entry : demand.split(",")) {
             if (entry.isBlank()) continue;
+
             String[] pair = entry.split(":");
-            map.put(pair[0].trim(), Integer.parseInt(pair[1].trim()));
+            if (pair.length != 2) throw new IllegalArgumentException("Bad demand entry " + entry);
+
+            String input = pair[0].trim();
+            if (Global.getSettings().getCommoditySpec(input) == null) {
+                log.warn("VPC commodity " + id + " demands unknown commodity " + input + ", skipping it");
+                continue;
+            }
+
+            map.put(input, Integer.parseInt(pair[1].trim()));
         }
 
         return map;
