@@ -21,6 +21,8 @@ import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.salvageyards.industry.SalvageYards;
+import indevo.industries.senate.EdictHelper;
+import indevo.industries.senate.dialogue.EdictPanelDelegate;
 import indevo.industries.senate.conditions.Edict_FastBuild;
 import indevo.utils.helper.ReflectionUtils;
 import indevo.utils.timers.TimeTracker;
@@ -139,6 +141,25 @@ public final class SenateChecks {
             int passed = TimeTracker.getTimeTagPassed(a, a.getCondition(OPEN).getIdForPluginModifications());
             int before = (Integer) c.get("passed");
             c.expect(Math.abs(passed - before - 5) <= 1, "3902 edict days count 1 per day over 3 reloads (" + before + " -> " + passed + " in 5 days)");
+        });
+        steps.add(c -> {
+            MarketAPI a = c.market("a");
+            MarketAPI b = c.market("b");
+            c.expect(EdictHelper.getColoniesCoveredBy(b).contains(a), "edict panel: the senate covers the other colony in its system");
+
+            boolean refused = false;
+            try {
+                EdictHelper.enact(a, CONSCRIPTION);
+            } catch (IllegalStateException e) {
+                refused = true;
+            }
+            c.expect(refused && !a.hasCondition(CONSCRIPTION), "edict panel: a second edict on one colony is refused");
+
+            List<String> tags = new ArrayList<>(a.getTags());
+            int conditions = a.getConditions().size();
+            new EdictPanelDelegate(a);
+            new EdictPanelDelegate(b);
+            c.expect(a.getTags().equals(tags) && a.getConditions().size() == conditions, "edict panel: previews leave the colony untouched");
         });
         steps.add(c -> {
             MarketAPI a = c.market("a");

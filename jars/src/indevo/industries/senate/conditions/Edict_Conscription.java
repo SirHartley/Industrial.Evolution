@@ -1,17 +1,17 @@
 package indevo.industries.senate.conditions;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.TimeTracker;
 
-import static java.lang.Math.ceil;
+import java.util.List;
+import java.awt.*;
+import indevo.industries.senate.EdictRequirement;
 
 public class Edict_Conscription extends BaseEdict implements MarketImmigrationModifier, EconomyTickListener {
 
@@ -75,48 +75,13 @@ public class Edict_Conscription extends BaseEdict implements MarketImmigrationMo
     }
 
     @Override
-    protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
-        super.createTooltipAfterDescription(tooltip, expanded);
+    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        Color neg = Misc.getNegativeHighlightColor();
+        int stabilityPenalty = TimeTracker.marketHasTimeTag(market, ident) ? TimeTracker.getTagNum(market, ident) : 4;
 
-        if (getRemainingDays() != 0 && getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) ceil(getRemainingDays() / 31.0) + " Months");
-        } else if (getRemainingDays() != 0 && getRemainingDays() <= 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) getRemainingDays() + " days");
-        } else {
-            tooltip.addPara("This edict can be %s", 10f, Misc.getPositiveHighlightColor(), "removed without penalty.");
-        }
-
-        tooltip.addPara("All buildings on this colony have %s.", 10f, Misc.getHighlightColor(), (int) ((1 - upkeep_mult) * 100) + "% decreased upkeep");
-        tooltip.addPara("Colony growth is %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + (int) (-pop_penalty));
-
-        if (penaltyCounter > 0) {
-            tooltip.addPara("Stability %s, goes down by one point every month.", 5f, Misc.getNegativeHighlightColor(), "reduced by " + penaltyCounter);
-        }
-
-        tooltip.addPara("Requires a %s in the star system and %s on this planet.", 10f, Misc.getHighlightColor(), new String[]{"Senate", "Military Presence"});
-    }
-
-    @Override
-    public void printEdictFlavourText(TextPanelAPI text) {
-        text.addParagraph("The realities of the sector do not allow for such trifles as human rights, and a conscripted workforce is a cheap workforce. Your populace is likely to have a different opinion.");
-    }
-
-    @Override
-    public void printEdictEffectText(TextPanelAPI text, MarketAPI market) {
-
-        String s1 = "reduced by " + (market.getSize() * 2);
-
-        text.addParagraph("All buildings on this colony have 60% decreased upkeep.");
-        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "60% decreased upkeep");
-        text.addPara("Colony growth is " + s1 + ".");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), s1);
-        text.addPara("Stability reduced by 4, goes down by one point every month.");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "reduced by 4");
-    }
-
-    @Override
-    public String getUnavailableReason(MarketAPI market) {
-        return "Requires military presence on this planet.";
+        tooltip.addPara("All buildings on this colony have %s.", pad, Misc.getPositiveHighlightColor(), Math.round((1 - upkeep_mult) * 100) + "% decreased upkeep");
+        tooltip.addPara("Colony growth is %s.", 3f, neg, "reduced by " + market.getSize() * 2);
+        if (stabilityPenalty > 0) tooltip.addPara("Stability %s, goes down by one point every month.", 3f, neg, "reduced by " + stabilityPenalty);
     }
 
     @Override
@@ -125,9 +90,7 @@ public class Edict_Conscription extends BaseEdict implements MarketImmigrationMo
     }
 
     @Override
-    public boolean isPresenceConditionMet(MarketAPI market) {
-        return super.isPresenceConditionMet(market) && MiscIE.marketHasMilitaryIncludeRelays(market);
+    protected void addRequirements(List<EdictRequirement> requirements, MarketAPI market) {
+        requirements.add(military(market));
     }
-
 }
-

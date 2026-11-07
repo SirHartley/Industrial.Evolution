@@ -1,7 +1,6 @@
 package indevo.industries.senate.conditions;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
@@ -10,7 +9,6 @@ import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
-import static java.lang.Math.ceil;
 
 /*Edict:	Substance Legalization
 		Upside	Increase pop growth slightly, increase stab, legalize drug export
@@ -66,41 +64,14 @@ public class Edict_OpenMarket extends BaseEdict {
     }
 
     @Override
-    protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
-        super.createTooltipAfterDescription(tooltip, expanded);
-
-        if (getRemainingDays() != 0 && getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) ceil(getRemainingDays() / 31.0) + " Months");
-        } else if (getRemainingDays() != 0 && getRemainingDays() <= 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) getRemainingDays() + " days");
-        } else {
-            tooltip.addPara("This edict can be %s", 10f, Misc.getPositiveHighlightColor(), "removed without penalty.");
+    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        if (market.hasIndustry(Industries.COMMERCE)) {
+            tooltip.addPara("%s on this colony already runs an open market, so this Edict has no effect here.", pad, Misc.getHighlightColor(), "Commerce");
+            return;
         }
 
-        tooltip.addPara("The stability of this colony is %s.",
-                10f, Misc.getPositiveHighlightColor(), "reduced by " + STABILITY_PELANTY);
-
-        tooltip.addPara("Requires a %s in the star system", 10f, Misc.getHighlightColor(), new String[]{"Senate"});
-    }
-
-    @Override
-    public void printEdictFlavourText(TextPanelAPI text) {
-        text.addParagraph("Buy and sell anything your heart desires! Allowing independent traders to open up their inventory for sale in dedicated areas " +
-                "without additional infrastructure does not have a major impact on colony income, but still allows you to buy from them.");
-    }
-
-    @Override
-    public void printEdictEffectText(TextPanelAPI text, MarketAPI market) {
-        text.addParagraph("Adds an open market to trade on.");
-        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "open market");
-
-        text.addParagraph("Stability reduced by " + STABILITY_PELANTY);
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "reduced by " + Math.round(STABILITY_PELANTY));
-    }
-
-    @Override
-    public String getUnavailableReason(MarketAPI market) {
-        return market.getName() + " does not meet the requirements for this Edict.";
+        tooltip.addPara("Adds an %s to trade on.", pad, Misc.getPositiveHighlightColor(), "open market");
+        tooltip.addPara("Stability %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + Math.round(STABILITY_PELANTY));
     }
 
     @Override

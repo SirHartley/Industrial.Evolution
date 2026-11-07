@@ -173,6 +173,10 @@ Fixed - Tooltip now shows when Salvage Yards are turned off in the settings
 Senate
 Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
 Note - Building Menu Overhaul's build menu and tooltips show the normal time
+Added - New Edict panel: pick a colony and an Edict, see its effects on that colony and a checklist of its requirements, enact or remove it with a confirm
+Added - The Senate can now be visited from remote colony screens
+Adjusted - Visiting the Senate manages the Edicts of every colony in its range, colonies without a Senate get "Enact an Edict" for themselves
+Adjusted - Edict tooltips now list their requirements and mark the unmet ones
 Fixed - Mandated Overtime construction bonus no longer stays after it ends
 Fixed - Mandated Overtime now halves restoration instead of nearly finishing it
 Fixed - Mandated Overtime now properly halves demand instead of raising it
@@ -182,6 +186,9 @@ Fixed - Wartime Lockdown descriptions now agree on ground defense (+200%)
 Fixed - Ending Trade Incentives no longer removes Commerce open markets
 Fixed - Forced Labour penalty no longer ends early or carries into the next one
 Fixed - Edict timers no longer speed up after each save and load
+Fixed - Customs Control now names its real requirement (Megaport) instead of military presence
+Fixed - Looking at an Edict before enacting it no longer leaves timers or penalties on the colony
+Fixed - Subpopulation Cleansing now shows its income penalty as 30% instead of 29%
 
 Supercomputer
 Adjusted - Beta core income is now paid with the monthly income

@@ -1,22 +1,24 @@
 package indevo.industries.senate.conditions;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.BaseMarketConditionPlugin;
 import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.ids.Ids;
+import indevo.industries.senate.EdictHelper;
+import indevo.industries.senate.EdictRepo;
+import indevo.industries.senate.EdictRequirement;
 import indevo.industries.senate.industry.Senate;
-import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
 import indevo.utils.timers.TimeTracker;
 
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
-
-import static indevo.items.installable.SpecialItemEffectsRepo.NEURAL_COMPOUNDS_UNREST_RED;
 
 public abstract class BaseEdict extends BaseMarketConditionPlugin implements EdictAPI, NewDayListener {
 
@@ -32,7 +34,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
 
     public void apply(String id) {
         super.apply(id);
-        //this is needed so it doesn't crash when the condition gets applied to a dummy market for the rules handling, cause there is no star system.
+        // edict panel previews use a dummy market without primary entity
         if (market.getPrimaryEntity() == null || Global.getSettings().isShowingCodex()) return;
 
         if (!Global.getSector().getListenerManager().hasListener(this)) {
@@ -64,14 +66,14 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
     }
 
     public boolean minimumRuntimePassed() {
-        return daysPassed > getMinRuntime();
+        return daysPassed > getMinRuntime(market);
     }
 
     public void removeWithPenalty() {
         applyFinishPenalty();
 
         if (!minimumRuntimePassed()) {
-            RecentUnrest.get(market).add(getRemovalPenaltyUnrestDays(), "Preliminary removal: " + getName());
+            RecentUnrest.get(market).add(getEarlyRemovalUnrest(), "Preliminary removal: " + getName());
 
             Global.getSector().getCampaignUI().addMessage("An Edict at %s was removed before the minimum time passed. The rapid change in policy caused %s",
                     Global.getSettings().getColor("standardTextColor"), market.getName(), "additional unrest.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
@@ -90,103 +92,154 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
         market.removeSpecificCondition(condition.getIdForPluginModifications());
     }
 
-    public boolean isPresenceConditionMet(MarketAPI market) {
-        return senateWithItemInRange(market) || MiscIE.systemHasIndustry(Ids.SENATE, market.getStarSystem(), market.getFaction());
-    }
-
-    public static boolean senateWithItemInRange(MarketAPI localMarket) {
-        boolean senateInRange = false;
-
-        for (MarketAPI market : Misc.getNearbyMarkets(localMarket.getLocationInHyperspace(), SpecialItemEffectsRepo.RANGE_LY_TWELVE)) {
-            if (!market.isPlayerOwned()) continue;
-
-            if (market.hasIndustry(Ids.SENATE) && !market.getIndustry(Ids.SENATE).isBuilding() && market.getIndustry(Ids.SENATE).getSpecialItem() != null) {
-                senateInRange = true;
-                break;
-            }
-        }
-
-        return senateInRange;
-    }
-
-
-    public boolean senateHasBetaCore() {
-        if (!isPresenceConditionMet(market)) {
-            return false;
-        }
-
-        List<MarketAPI> PlayerMarketsInSystem = MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFaction().getId());
-        for (MarketAPI PlayerMarket : PlayerMarketsInSystem) {
-
-            if (PlayerMarket.hasIndustry(Ids.SENATE)) {
-                return PlayerMarket.getIndustry(Ids.SENATE).getAICoreId() != null && PlayerMarket.getIndustry(Ids.SENATE).getAICoreId().equals(Commodities.BETA_CORE);
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public void printRemovalPenaltyText(TextPanelAPI text) {
-        int remainingDays = getRemainingDays();
-        int penalty = getRemovalPenaltyUnrestDays();
-
-        text.setFontSmallInsignia();
-
-        if (remainingDays > 0) {
-            String txt = penalty + " points of unrest";
-
-            text.addParagraph("Removing this will cause " + txt + " in addition to any negative effects the edict would have caused on completion, if any.");
-            text.highlightInLastPara(Misc.getNegativeHighlightColor(), txt);
-        } else {
-            text.addParagraph("There is no penalty for removing the current Edict as the minimum runtime has passed.");
-            text.highlightInLastPara(Misc.getPositiveHighlightColor(), "no penalty");
-        }
-
-        text.setFontInsignia();
-    }
-
-    @Override
-    public void printEdictRuntimeText(TextPanelAPI text) {
-        int minRunTime = (int) Math.ceil(getMinRuntime() / 31f);
-        String s1 = "" + minRunTime + " months";
-
-        text.addPara("The minimum runtime of this Edict is " + s1);
-        text.highlightInLastPara(Misc.getHighlightColor(), s1);
-    }
-
-    @Override
-    public int getMinRuntime() {
-        return senateHasBetaCore() ? BASE_MIN_RUNTIME - Senate.EDICT_RUNTIME_DAY_RED : BASE_MIN_RUNTIME;
-    }
-
-    @Override
-    public int getRemainingDays() {
-        return Math.max((getMinRuntime() - daysPassed), 0);
-    }
-
-    @Override
-    public int getRemovalPenaltyUnrestDays() {
-        boolean hasItemSenate = senateWithItemInRange(market);
-        float itemRed = hasItemSenate ? NEURAL_COMPOUNDS_UNREST_RED : 1f;
-
-        return (int) Math.ceil((((double) getRemainingDays() * 1.0) / 31.0) * itemRed);
-    }
-
     public void applyFinishPenalty() {
+        int unrest = getFinishUnrest(market);
+        if (unrest > 0) RecentUnrest.get(market).add(unrest, getName());
     }
 
-    public boolean conditionUniqueInSystem(MarketAPI market, String condition_ID) {
-        List<MarketAPI> marketsInLocation = MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFaction().getId());
+    @Override
+    public List<EdictRequirement> getRequirements(MarketAPI market) {
+        List<EdictRequirement> requirements = new ArrayList<>();
+        requirements.add(EdictHelper.getSenateRequirement(market));
+        addRequirements(requirements, market);
+        return requirements;
+    }
 
-        for (MarketAPI locMarket : marketsInLocation) {
-            if (locMarket.getId().equals(market.getId())) continue;
+    protected void addRequirements(List<EdictRequirement> requirements, MarketAPI market) {
+    }
 
-            if (locMarket.hasCondition(condition_ID)) return false;
+    @Override
+    public boolean isPresenceConditionMet(MarketAPI market) {
+        for (EdictRequirement requirement : getRequirements(market)) {
+            if (!requirement.met) return false;
         }
 
         return true;
     }
+
+    @Override
+    public int getMinRuntime(MarketAPI market) {
+        return withBetaCore(BASE_MIN_RUNTIME, market);
+    }
+
+    @Override
+    public int getDaysPassed() {
+        return daysPassed;
+    }
+
+    @Override
+    public int getRemainingDays() {
+        return Math.max(getMinRuntime(market) - daysPassed, 0);
+    }
+
+    @Override
+    public int getRemovalUnrest() {
+        return getFinishUnrest(market) + (minimumRuntimePassed() ? 0 : getEarlyRemovalUnrest());
+    }
+
+    public int getFinishUnrest(MarketAPI market) {
+        return 0;
+    }
+
+    public int getEarlyRemovalUnrest() {
+        return (int) Math.ceil(getRemainingDays() / 31.0 * EdictHelper.getEarlyRemovalUnrestMult(market));
+    }
+
+    @Override
+    public void addRuntimeText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        addRuntimeLine(tooltip, market, pad);
+        addEarlyRemovalLine(tooltip, market, 3f);
+    }
+
+    protected void addRuntimeLine(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        tooltip.addPara("Minimum runtime %s.", pad, Misc.getHighlightColor(), getMonthString(getMinRuntime(market)));
+    }
+
+    protected void addEarlyRemovalLine(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        String halved = EdictHelper.getCompoundsSenateInRange(market) != null ? ", halved by " + EdictHelper.COMPOUNDS_NAME : "";
+        tooltip.addPara("Removing it earlier causes %s" + halved + ".", pad, Misc.getNegativeHighlightColor(), "1 unrest per remaining month");
+    }
+
+    protected String getRemainingTimeFormat() {
+        return "This edict must stay in place for another %s before it can be removed without penalty.";
+    }
+
+    @Override
+    protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
+        super.createTooltipAfterDescription(tooltip, expanded);
+        float opad = 10f;
+
+        // codex tooltips have no real colony to read
+        if (Global.CODEX_TOOLTIP_MODE || Global.getSettings().isShowingCodex()) {
+            tooltip.addPara(getShortDesc(), opad);
+            return;
+        }
+
+        int remaining = getRemainingDays();
+        if (remaining > 0) tooltip.addPara(getRemainingTimeFormat(), opad, Misc.getHighlightColor(), getDurationString(remaining));
+        else tooltip.addPara("This edict can be %s.", opad, Misc.getPositiveHighlightColor(), "removed without penalty");
+
+        addEffectText(tooltip, market, opad);
+
+        tooltip.addPara("Requirements:", opad);
+        for (EdictRequirement requirement : getRequirements(market)) {
+            Color color = requirement.met ? Misc.getTextColor() : Misc.getNegativeHighlightColor();
+            tooltip.addPara(BaseIntelPlugin.BULLET + requirement.text, color, 3f);
+        }
+    }
+
+    protected String getEdictName() {
+        return EdictRepo.getShortName(getName());
+    }
+
+    protected int withBetaCore(int days, MarketAPI market) {
+        return EdictHelper.senateHasBetaCore(market) ? days - Senate.EDICT_RUNTIME_DAY_RED : days;
+    }
+
+    public static String getMonthString(int days) {
+        int months = (int) Math.ceil(days / 31f);
+        return months + (months == 1 ? " month" : " months");
+    }
+
+    public static String getDurationString(int days) {
+        if (days > 31) return getMonthString(days);
+        return days + (days == 1 ? " day" : " days");
+    }
+
+    protected static List<MarketAPI> getOtherColoniesInSystem(MarketAPI market) {
+        List<MarketAPI> others = new ArrayList<>();
+        if (market.getStarSystem() == null) return others;
+
+        for (MarketAPI other : MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId())) {
+            if (!other.getId().equals(market.getId())) others.add(other);
+        }
+
+        return others;
+    }
+
+    protected static EdictRequirement military(MarketAPI market) {
+        return new EdictRequirement("Military presence on this colony", "Military presence", MiscIE.marketHasMilitaryIncludeRelays(market));
+    }
+
+    protected static EdictRequirement shipProduction(MarketAPI market) {
+        return new EdictRequirement("Ship hull production on this colony", "Ship hull production", market.getCommodityData(Commodities.SHIPS).getMaxSupply() > 0);
+    }
+
+    protected static EdictRequirement twoColonies(MarketAPI market) {
+        int colonies = getOtherColoniesInSystem(market).size() + 1;
+        return new EdictRequirement("2 or more colonies in the star system (" + colonies + ")", "2+ colonies in system", colonies > 1);
+    }
+
+    protected EdictRequirement uniqueInSystem(MarketAPI market) {
+        MarketAPI holder = null;
+        for (MarketAPI other : getOtherColoniesInSystem(market)) {
+            if (other.hasCondition(condition.getId())) {
+                holder = other;
+                break;
+            }
+        }
+
+        String text = holder == null ? "No other " + getEdictName() + " in the star system" : getEdictName() + " already active on " + holder.getName();
+        return new EdictRequirement(text, "Unique in system", holder == null);
+    }
 }
-
-

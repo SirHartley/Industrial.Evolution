@@ -115,7 +115,7 @@ Adapted from Histidine (Nexerelin). Default category is `IndEvo_misc` in `data/s
 |---|---|
 | `memory/SessionTransientMemory.java` | Transient `GenericPlugin` key value cache: `getInstance()`, `set(key, obj)` (key must start with `$`, else throws), `get`, `unset`, `contains`, `getSet`, `getString`, `getBoolean` |
 
-`getInstance()` adds the plugin with `addPlugin(plugin, true)` (`memory/SessionTransientMemory.java:21`; `isTransient` overload in `api/campaign/GenericPluginManagerAPI.java:65`), so the cache is rebuilt each session and never saved. Use it for data derived from specs and CSVs. Users: `MiscIE`, `petshop/memory/PetDataRepo`, `surveystories/memory/FileLoader`, `senate/rules/IndEvo_CreateEdictSelectionList`. `ModPlugin.loadTransientMemory()` (`ModPlugin.java:405`) warms it on game load.
+`getInstance()` adds the plugin with `addPlugin(plugin, true)` (`memory/SessionTransientMemory.java:21`; `isTransient` overload in `api/campaign/GenericPluginManagerAPI.java:65`), so the cache is rebuilt each session and never saved. Use it for data derived from specs and CSVs. Users: `MiscIE`, `petshop/memory/PetDataRepo`, `surveystories/memory/FileLoader`, `senate/EdictRepo`. `ModPlugin.loadTransientMemory()` (`ModPlugin.java:405`) warms it on game load.
 
 ## plugins
 
@@ -128,7 +128,7 @@ Industry option buttons (the "..." menu on an industry) through `IndustryOptionP
 | `plugins/SingleIndustrySimpifiedOptionProvider.java` | `isSuitable` = functional industry with `getTargetIndustryId()` on the market of the open dialog |
 | `plugins/TagBasedSimplifiedIndustryOptionProvider.java` | `isSuitable` = industry spec tagged `getTargetTag()` on the market of the open dialog |
 
-Subclasses register themselves as listeners from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:425`). Users: Courier Port, Senate, Warehouses, Military Relay, Museum, derelicts `RemoveIndustryOptionWarningProvider`, [Economy](ECONOMY.md) `RelicBuildTimeReductionButtonAdder`.
+Subclasses register themselves as listeners from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:425`). Users: Courier Port, Senate (overrides `isSuitable` without the open dialog check, so it also shows on remote colony screens), Warehouses, Military Relay, Museum, derelicts `RemoveIndustryOptionWarningProvider`, [Economy](ECONOMY.md) `RelicBuildTimeReductionButtonAdder`.
 
 ## scripts
 

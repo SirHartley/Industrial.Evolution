@@ -1,13 +1,11 @@
 package indevo.industries.senate.conditions;
 
-import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
-import static java.lang.Math.ceil;
 
 /*Edict:	Industrial incentives
 		Upside	output of industries +1
@@ -53,45 +51,10 @@ public class Edict_Incentives extends BaseEdict {
         }
     }
 
-
     @Override
-    protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
-        super.createTooltipAfterDescription(tooltip, expanded);
-
-        if (getRemainingDays() != 0 && getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) ceil(getRemainingDays() / 31.0) + " Months");
-        } else if (getRemainingDays() != 0 && getRemainingDays() <= 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) getRemainingDays() + " days");
-        } else {
-            tooltip.addPara("This edict can be %s", 10f, Misc.getPositiveHighlightColor(), "removed without penalty.");
-        }
-
-        tooltip.addPara("%s of all industries on this planet by %s",
-                10f, Misc.getPositiveHighlightColor(), new String[]{"Increases the output", 1 + ""});
-        tooltip.addPara("Upkeep %s for those industries.",
-                10f, Misc.getNegativeHighlightColor(), "doubled");
-
-        tooltip.addPara("Requires a %s in the star system.", 10f, Misc.getHighlightColor(), new String[]{"Senate"});
-    }
-
-    @Override
-    public void printEdictFlavourText(TextPanelAPI text) {
-        text.addParagraph("It's an age old mantra - spend money to earn money.");
-
-    }
-
-    @Override
-    public void printEdictEffectText(TextPanelAPI text, MarketAPI market) {
-        text.addParagraph("All industries on this colony have their output increased by 1.");
-        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "output increased by 1");
-        text.addParagraph("Upkeep for those industries is doubled.");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "Upkeep");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "doubled");
-    }
-
-    @Override
-    public String getUnavailableReason(MarketAPI market) {
-        return market.getName() + " does not meet the requirements for this Edict.";
+    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        tooltip.addPara("All industries on this colony have their output %s.", pad, Misc.getPositiveHighlightColor(), "increased by 1");
+        tooltip.addPara("Upkeep for those industries is %s.", 3f, Misc.getNegativeHighlightColor(), "doubled");
     }
 
     @Override
