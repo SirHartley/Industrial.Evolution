@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.utils.helper.BillingHelper;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class IndEvo_AddSpacerFineMenuPoint extends BaseCommandPlugin {
         float penalty = amt * PENALTY_AMT_FRACTION;
         dialog.getOptionPanel().addOption("Refund the " + Misc.getDGSCredits(amt) + " you took, with an additional " + Misc.getDGSCredits(penalty) + " in interest", OPTION_PAY);
 
-        if (Global.getSector().getPlayerFleet().getCargo().getCredits().get() < amt + penalty) {
+        if (!BillingHelper.canAfford(amt + penalty)) {
             dialog.getOptionPanel().setEnabled(OPTION_PAY, false);
             dialog.getOptionPanel().setTooltip(OPTION_PAY, "You do not have enough credits.");
         }

@@ -91,11 +91,11 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 
 ### Supercomputer (`IndEvo_SupCom`)
 
-- Extends `SharedSubmarketUser`; only AI core commodities are legal in the shared storage (`Supercomputer.java:607`).
-- `onNewDay` (`:316`): `getNextCore` moves the installed core into `lastApplied`; after `getCoreUseTimes(core)` days (runtime setting times `runtimeMult`; a modded core runs as long as a gamma core) it takes the next core from the shared storage (same type first, then gamma, beta, alpha). Warning 30 days before, message when empty. AI markets get a fresh gamma core.
+- Extends `SharedSubmarketUser`; only AI core commodities are legal in the shared storage (`Supercomputer.java:608`).
+- `onNewDay` (`:317`): `getNextCore` moves the installed core into `lastApplied`; after `getCoreUseTimes(core)` days (runtime setting times `runtimeMult`; a modded core runs as long as a gamma core) it takes the next core from the shared storage (same type first, then gamma, beta, alpha). Warning 30 days before, message when empty. AI markets get a fresh gamma core.
 - `getCurrentIncrease()`: very cold 0.20, cold 0.15, else 0.05; x1.2 with alpha; +0.1 (`SIMULATOR_BASE_INCREASE`) with the Simulation Engine.
-- `modifyAllMarketIncome()` (`:163`), keyed by `getModId()`, which `unapply()` also clears on every market in the system: sums all supercomputers in the system plus the distance scaled bonus of the nearest Simulation Engine supercomputer in another system within 12 LY; one source gives `1 + sum`, several give `1 + sum * 0.88^n`; applied as `getIncomeMult().modifyMult` on every same faction market in the system.
-- Last economy tick of the month: beta core gives random credits straight to the player; with `IndEvo_ResLab` on the market a cold (5%) or very cold (10%) planet may dump a random AI core into storage (x1.5 with beta).
+- `modifyAllMarketIncome()` (`:164`), keyed by `getModId()`, which `unapply()` also clears on every market in the system: sums all supercomputers in the system plus the distance scaled bonus of the nearest Simulation Engine supercomputer in another system within 12 LY; one source gives `1 + sum`, several give `1 + sum * 0.88^n`; applied as `getIncomeMult().modifyMult` on every same faction market in the system.
+- Last economy tick of the month: beta core books random credits as "Computing income" on the monthly report ([BillingHelper](../core/UTILS.md#billinghelper)); with `IndEvo_ResLab` on the market a cold (5%) or very cold (10%) planet may dump a random AI core into storage (x1.5 with beta).
 - AI cores: gamma upkeep x0.9, beta upkeep x0.8 plus credits, alpha x1.2 income.
 - Build: not on hot or very hot planets, stations, gas giants. Pather interest +6.
 - `getDistanceIncomeMult` and `getNearestSupCom` are also read by `ResourceCondition` ([Economy](../core/ECONOMY.md)).
@@ -103,11 +103,11 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 ### Restoration Docks (`IndEvo_dryDock`)
 
 - `advance` adds `IndEvo_RepairStorage`; demand `IndEvo_parts` `min(eligible ships, 4)`.
-- `reportEconomyTick` on the last tick of the month (`RestorationDocks.java:109`, before month end because of the report) -> `removeDMods(aiMode)`.
-- `removeDMods`: budget = market size (+3 alpha). Per step: pick a ship (beta: fewest D-mods; else random), remove one random non built in D-mod, add `getSingleDModRepairCost` to the monthly report node (`industries`, or `dryDock` for AI markets). Gamma: one D-mod per ship. A clean ship is restored to its base hull (`getBaseShipHullSpec`).
-- Cost per D-mod = `(baseValue / 2) * 1.2^(maxD + 1) / maxD * aiCoreBonusMult` (`:317`), where `maxD` is the highest D-mod count seen for that member (`$IndEvo_maxDModMemory`). Beta mult 0.85, alpha upkeep x0.2.
+- `reportEconomyTick` on the last tick of the month (`RestorationDocks.java:107`, before month end because of the report) -> `removeDMods()`.
+- `removeDMods`: budget = market size (+3 alpha). Per step: pick a ship (beta: fewest D-mods; else random), remove one random non built in D-mod, add `getSingleDModRepairCost` to the ship's total. Gamma: one D-mod per ship. A clean ship is restored to its base hull (`getBaseShipHullSpec`).
+- Cost per D-mod = `(baseValue / 2) * 1.2^(maxD + 1) / maxD * aiCoreBonusMult` (`:304`), where `maxD` is the highest D-mod count seen for that member (`$IndEvo_maxDModMemory`). Beta mult 0.85, alpha upkeep x0.2.
 - AI markets (not hostile, or pirates): the player can use the docks there; a hull size fee scaled by `1 - relation` (clamped to +-0.5) is added.
-- Inferred: the player pays through the monthly report; credits are only checked, not subtracted, during the loop.
+- The month's total books on the "Ship repairs" report line, the AI market fee on "Dock fees" ([BillingHelper](../core/UTILS.md#billinghelper)). Credits are only checked, not subtracted, during the loop.
 
 ### Requisitions Centre (`IndEvo_ReqCenter`)
 

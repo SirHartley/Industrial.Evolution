@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
-import com.fs.starfarer.api.campaign.econ.MonthlyReport;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
@@ -20,7 +19,6 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -30,6 +28,7 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.submarkets.IndustrySubmarkets;
+import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 
@@ -47,7 +46,6 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
     private static final float BASE_COST_RED_MULT = 1F;
     private static final int GAMMA_CORE_MAX_REPAIR = 1;
     private static final String MAX_DMOD_MEMORY = "$IndEvo_maxDModMemory";
-    private static final String REPAIR_IDENT = "IndEvo_repairIdent";
 
     private float aiCoreBonusMult = 1f;
     private Map<FleetMemberAPI, Float> repairedShipsTooltipList = new HashMap<>();
@@ -111,15 +109,13 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
         int lastIterInMonth = (int) Global.getSettings().getFloat("economyIterPerMonth") - 1;
         if (iterIndex != lastIterInMonth) return;
-        getUpkeep().unmodify(REPAIR_IDENT);
 
         if (isFunctional()) {
             boolean aiMode = !market.isPlayerOwned();
             if (aiMode && (market.getFaction().isHostileTo(Global.getSector().getPlayerFaction()) && !market.getFaction().getId().equals(Factions.PIRATES)))
                 return;
 
-            MonthlyReport.FDNode iNode = aiMode ? MiscIE.createMonthlyReportNode(this, market, getCurrentName(), Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE) : null;
-            Map<FleetMemberAPI, Float> fixedShips = removeDMods(aiMode);
+            Map<FleetMemberAPI, Float> fixedShips = removeDMods();
 
             if (fixedShips.size() > 0) {
                 float totalAmount = 0f;
@@ -139,7 +135,9 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
                     intel.addLine(BaseIntelPlugin.BULLET + name + ": %s", Misc.getTextColor(), new String[]{(Misc.getDGSCredits(amount))}, Misc.getHighlightColor());
                 }
 
-                if (aiMode) iNode.upkeep += feeAmount;
+                BillingHelper.charge(this, "repairs", "Ship repairs", totalAmount);
+                BillingHelper.charge(this, "fees", "Dock fees", feeAmount);
+
                 String header = aiMode ? StringHelper.getString(getId(), "totalCostWIthFee") : StringHelper.getString(getId(), "totalCost");
 
                 intel.addLine(header, Misc.getTextColor(), new String[]{Misc.getDGSCredits(totalAmount), Misc.getDGSCredits(feeAmount)}, Misc.getHighlightColor());
@@ -153,9 +151,8 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
     public void reportEconomyMonthEnd() {
     }
 
-    private Map<FleetMemberAPI, Float> removeDMods(boolean aiMode) {
+    private Map<FleetMemberAPI, Float> removeDMods() {
         Map<FleetMemberAPI, Float> fixedShips = new HashMap<>();
-        getUpkeep().unmodify(REPAIR_IDENT);
 
         repairedShipsAmountList = new HashMap<>();
 
@@ -169,15 +166,6 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
             float playerCredits = MiscIE.getPlayerCargo().getCredits().get();
 
             ArrayList<FleetMemberAPI> eligibleShips = getEligibleShips(storage);
-
-            //get report node
-            String path = aiMode ? "dryDock" : "industries";
-
-            MonthlyReport report = SharedData.getData().getCurrentReport();
-            MonthlyReport.FDNode marketsNode = report.getNode(MonthlyReport.OUTPOSTS);
-            MonthlyReport.FDNode mNode = report.getNode(marketsNode, market.getId());
-            MonthlyReport.FDNode indNode = report.getNode(mNode, path);
-            MonthlyReport.FDNode iNode = report.getNode(indNode, getId());
 
             //run the removal
             while (removalBudget > 0 && !eligibleShips.isEmpty() && playerCredits > 0) {
@@ -224,7 +212,6 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
                 ship.getVariant().removePermaMod(DModList.get(rnd).getId());
 
                 float cost = getSingleDModRepairCost(ship, maxDModMemory);
-                iNode.upkeep += cost;
 
                 log("Repair cost: " + cost);
                 log("BetaCoreBonus: " + aiCoreBonusMult);

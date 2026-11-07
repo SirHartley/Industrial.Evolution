@@ -4,15 +4,14 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.econ.MonthlyReport;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.courierport.ShippingCargoManager;
 import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingContractMemory;
+import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
 
@@ -92,16 +91,10 @@ public class ShippingManager implements NewDayListener {
 
     public static void chargePlayer(float amt, Shipment container) {
         MarketAPI m = getClosestPort(container);
+        // onNewDay only ships while the player owns a port, so getClosestPort always finds one
+        if (m == null) throw new IllegalStateException("no courier port to bill contract " + container.contract.name);
 
-        if (m != null) {
-            MonthlyReport report = SharedData.getData().getCurrentReport();
-            MonthlyReport.FDNode marketsNode = report.getNode(MonthlyReport.OUTPOSTS);
-            MonthlyReport.FDNode mNode = report.getNode(marketsNode, m.getId());
-            MonthlyReport.FDNode indNode = report.getNode(mNode, "industries");
-            MonthlyReport.FDNode iNode = report.getNode(indNode, Ids.PORT);
-
-            iNode.upkeep += amt;
-        } else Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(amt);
+        BillingHelper.charge(m.getIndustry(Ids.PORT), "shipping", "Shipping contracts", amt);
     }
 
     public static MarketAPI getClosestPort(Shipment container) {

@@ -75,7 +75,7 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:52`): `findAmba
 - `reportEconomyMonthEnd()`: applies the summed penalties and shows one rep change `MessageIntel`.
 - The month end penalty and the monthly gain go through `adjustOwnRelationship()`, which shifts `lastDayRep` by the applied change, so `logRepChange()` never bills IE's own change as a new loss.
 - Dismiss: `IndEvo_ambassadorRemove1..6` pick text by relation band (`IndEvo_checkForRepResponse.getRepBand`: below -25 inhospitable, below -10 suspicious, up to 10 neutral, up to 25 favorable, up to 50 welcoming, above friendly), `IndEvo_ambassadorRemoval` applies `getPenaltyFor()` (-10 to -60) and returns the person to the origin market.
-- Relocate: option order from param, cost `5000 x lyMult` booked as Embassy upkeep, move done by `moveAmbassadorToMarket` next frame.
+- Relocate: option order from param, cost `5000 x lyMult` booked on the Embassy's "Ambassador transfer" report line ([BillingHelper](../core/UTILS.md#billinghelper)), move done by `moveAmbassadorToMarket` next frame.
 - Removing the Embassy (not for upgrade, `Embassy.notifyBeingRemoved()`, `Embassy.java:271`) runs `removeAmbassadorWithPenalty()` when the ambassador is in office. An installed ambassador not yet in office goes back to the cargo of the interaction mode (storage, then fleet cargo as fallback) and the tracker carries on. Both clear `special` before the vanilla refund, so the item is never returned twice. Removing a beta core after it was seen at month end costs -20 (`onNewDay()`, `:110`).
 
 ### Hostile Activity
@@ -97,7 +97,7 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:52`): `findAmba
 - Loss tracking polls `lastDayRep` once a day. `reportPlayerReputationChange` would be the callback, but `CoreReputationPlugin` fires it only for rep actions (`api/impl/campaign/CoreReputationPlugin.java:562-567`), not for raw `FactionAPI.adjustRelationship` calls from events and other mods.
 - Fleet, detachment and shipment cargo is checked fresh each day and never kept as the tracker's last location: `FleetUtils.mergeFleetWithPlayerFleet` copies the cargo and leaves the stacks in the dead fleet's cargo.
 - `AmbassadorPersonManager` is transient: `lastDayRep` and the monthly penalty and gain maps reset on every load (inferred from `ListenerManager.transientListeners`, `obf/campaign/ListenerManager.java:11`).
-- `getAllowedFactionID()` adds memory-allowed factions into the cached whitelist set itself, so they stay allowed for the session even after the key turns false (cache in `MiscIE.getCSVSetFromMemory()`, `indevo/utils/helper/MiscIE.java:569`).
+- `getAllowedFactionID()` adds memory-allowed factions into the cached whitelist set itself, so they stay allowed for the session even after the key turns false (cache in `MiscIE.getCSVSetFromMemory()`, `indevo/utils/helper/MiscIE.java:528`).
 - With Nexerelin enabled, relation changes go through `DiplomacyManager.adjustRelations()` (`AmbassadorPersonManager.java:111`).
 - Users outside the package: `RequisitionCenter`, `RequisitionsCenterSubmarketPlugin`, `JuicyRumorsSpecial`, `IndEvo_SalvageSpecialAssigner` call `getAmbassador`, `hasAmbassador`, `getListOfIncativeFactions` or `adjustRelationship`. Keep these signatures.
 

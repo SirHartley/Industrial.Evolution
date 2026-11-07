@@ -47,7 +47,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Hullmod | `IndEvo_auto` (`Ids.PRINTING_INDICATOR`) | `data/hullmods/hull_mods.csv:11` |
 | Entity | `IndEvo_WarpEffect`, `IndEvo_WormHoleEffect` | `data/config/custom_entities.json:1166-1185` |
 | Jump point | id `IndEvo_planet_replacer`, desc `IndEvo_JumpRift` | `PlanetMovingScript.java:50` |
-| Variant tag | `IndEvo_comp1/2/3` | `HullForge.java:423-425` |
+| Variant tag | `IndEvo_comp1/2/3` | `HullForge.java:422-424` |
 | Variant tag | `IndEvo_hasInbuiltLogMod` | `HullDeconstructor.java:55` |
 | Memory key | `$IndEvo_ruinsIndustryId` (market), `$IndEvo_ruinsPlaced_<marketId>` | `Ruins.java:17`, `RuinsManager` |
 | Memory key | `$IndEvo_LabBonusCommodityID` and `_1/_2/_3`, `$IndEvo_ruinsPickerSeed` (sector) | `AncientLaboratory.java:37` |
@@ -57,7 +57,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Setting | `IndEvo_derelictDeliverToGathering`, `IndEvo_RG_cooldownTime` (90), `IndEvo_RG_range` (9), `IndEvo_reslab_autoDeliverToClosestDecon` | `data/config/LunaSettings.csv:147-150` |
 | Setting | `IndEvo_hullDecon_autoDeliverToClosestForge`, `IndEvo_hullDecon_days_*` (10/20/30/40) | `data/config/LunaSettings.csv:153-157` |
 | Setting | `IndEvo_hullForge_autoQueueShipsUntilEmpty`, `IndEvo_hullForge_autoDeliverToClosestLab`, `IndEvo_hullForge_days_*` (5/10/15/20) | `data/config/LunaSettings.csv:158-163` |
-| Setting | `IndEvo_ToggleMagicRandomSelector` (settings.json only) | `data/config/settings.json:68`, read at `HullForge.java:279,455` |
+| Setting | `IndEvo_ToggleMagicRandomSelector` (settings.json only) | `data/config/settings.json:68`, read at `HullForge.java:278,444` |
 | Config | `IndEvo_labList` -> `data/config/indEvo/lab_commodity_whitelist.csv` | `data/config/settings.json:60` |
 | Rules | `IndEvo_RiftGenTargetOptions`, `IndEvo_RiftTarget_*`, `IndEvo_FireBaseRGOptionList`, `IndEvo_RiftControlMenuPoint*` | `data/campaign/rules.csv:850-928` |
 | Strings | `IndEvo_HullDecon`, `IndEvo_HullForge` AI core text | `data/strings/strings.json:270,279` |
@@ -88,7 +88,7 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 ### Forge template loop
 
 - Deconstructor: ship put into `IndEvo_DeconstStorage` (added in `advance`, `HullDeconstructor.java:72`) -> stripped, N days by hull size -> forge template with 2 or 3 charges (+1 beta), quality base 1, alpha/beta 2, gamma 0. Alpha adds a built in logistics hullmod (`addBuiltInLogisticsHullmods`, `:149`). Gamma: upkeep x0.7 while idle. Optional auto delivery to the closest forge.
-- Forge: one ship per charge into storage. Cost 20% of base value, x0.7 with beta, booked on the monthly report industry node (`chargeCosts`, `HullForge.java:441`). D-mods via `ForgeTemplateItemPlugin.addPrintDefectDMods` (template quality + forge quality). Alpha: 2 built in hullmods plus `IndEvo_compN` tag (`compensateInbuilts`, `:427`). Spent template: degraded, or empty with 0.6 chance on beta (`EMPTY_FORGE_TEMPLATE_CHANCE`, `:83`).
+- Forge: one ship per charge into storage. Cost 20% of base value, x0.7 with beta, booked on the "Hull printing" report line ([BillingHelper](../core/UTILS.md#billinghelper)). D-mods via `ForgeTemplateItemPlugin.addPrintDefectDMods` (template quality + forge quality). Alpha: 2 built in hullmods plus `IndEvo_compN` tag (`compensateInbuilts`, `:426`). Spent template: degraded, or empty with 0.6 chance on beta (`EMPTY_FORGE_TEMPLATE_CHANCE`, `:82`).
 - Lab: degraded template -> empty template, 20 days, 10 with gamma (`initRepair`, `AncientLaboratory.java:113`). Commodity bonus +2 on existing supply of a whitelist commodity; beta +3 on one, alpha +1 on three (`getBonusValue :129`, `setAllCommodityBonuses :140`).
 - All three autofeed from the shared storage and deliver to the gathering point when `IndEvo_derelictDeliverToGathering` is on (inferred: `repairInstalledFT :270` pattern repeats in decon and forge).
 
@@ -103,7 +103,7 @@ Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Co
 ## Contracts
 
 - `BaseIndustry.spec` is the shared `Global.getSettings().getIndustrySpec(id)` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:160,702`); never write per market values onto it. `Ruins` overrides `getSpec()` with a view instead; every vanilla reader of the upgrade goes through `getSpec()` (the industry option menu, obfuscated `b` in `com.fs.starfarer.campaign.ui.marketinfo` on 0.98a-RC8 Windows, skill `obf/campaign/ui/marketinfo/_c37.java:224,259`; `BaseIndustry.java:575,1075`). Forge template users and `RiftGenerator` do the same for the downgrade.
-- `$IndEvo_ruinsIndustryId` is the single source for which structure a ruin becomes. Set once, persists in market memory. Also read by `Supercomputer.java:204`, `ModUpdater.java:96-141`, `LocatorSystemRatingUpdater.java:121`.
+- `$IndEvo_ruinsIndustryId` is the single source for which structure a ruin becomes. Set once, persists in market memory. Also read by `Supercomputer.java:205`, `ModUpdater.java:96-141`, `LocatorSystemRatingUpdater.java:121`.
 - Forge templates move between industries only as cargo through `IndEvo_SharedStore` / `IndEvo_DeconstStorage` and storage. Item plugins own the template data, charges and quality ([Installables](../items/INSTALLABLES.md#forge-templates)). Each template id lists only the structure that uses it in its params, and the Forge and the Deconstructor hide the slot while working.
 - Rift move replaces the planet entity, keeping the id. Anything that caches `PlanetAPI` refs to a moved planet holds a dead entity (inferred). `PlanetJumpListener` is the hook for that and has no users.
 - Transient listeners in `onGameLoad` have no class dedupe; `ListenerManager.addListener` dedupes only the same instance (`obf/campaign/ListenerManager.java:29`). Fine since transient lists are empty at load.
@@ -118,7 +118,7 @@ Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Co
 | `RuinsCountMap`, `WarpEffectPlugin`, `HoleEffectPlugin` | Deprecated, unused. |
 | `PlanetJumpListener` | No implementers. |
 | `AncientLaboratory.java:276-288` | Null gathering point returns false, retried daily. |
-| `HullForge.java:284` | NPE if the target market has no storage submarket. |
+| `HullForge.java:283` | NPE if the target market has no storage submarket. |
 | `PlanetMovingScript.java:557` | `removeEntity(null)` when there is no magnetic field. Effect unverified. |
 | Changelog_todo | "riftgen anim sounds" (`Changelog_todo:55,82`), "Change derelict industries to superstructures" (`:140`). |
 

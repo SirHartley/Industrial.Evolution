@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.econ.MonthlyReport;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -18,7 +17,6 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.ConstructionQueue;
 import com.fs.starfarer.api.impl.campaign.econ.impl.MilitaryBase;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
-import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.loading.RoleEntryAPI;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -82,45 +80,6 @@ public class MiscIE {
     public static boolean isMilitary(Industry industry){
         Set<String> tags = industry.getSpec().getTags();
         return tags.contains("military") || tags.contains("patrol") || tags.contains("command") || industry instanceof MilitaryBase;
-    }
-
-    public static MonthlyReport.FDNode createMonthlyReportNode(Industry ind, MarketAPI market, String nodeName, String... excludeFromClearing) {
-        MonthlyReport report = SharedData.getData().getCurrentReport();
-
-        MonthlyReport.FDNode marketsNode = report.getNode(MonthlyReport.OUTPOSTS);
-        marketsNode.name = StringHelper.getString("colonies");
-        marketsNode.custom = MonthlyReport.OUTPOSTS;
-        marketsNode.tooltipCreator = report.getMonthlyReportTooltip();
-
-        MonthlyReport.FDNode mNode = report.getNode(marketsNode, market.getId());
-        mNode.name = market.getName() + " (" + market.getSize() + ")";
-        mNode.custom = market;
-
-        MonthlyReport.FDNode indNode = report.getNode(mNode, "industries");
-
-        for (Industry curr : market.getIndustries()) {
-            if (Arrays.toString(excludeFromClearing).contains(curr.getId())) { //Have to exclude academy or player will not be billed training
-                MonthlyReport.FDNode iNode = report.getNode(indNode, curr.getId());
-                iNode.income = 0;
-                iNode.upkeep = 0;
-            }
-        }
-
-        MonthlyReport.FDNode dryDockNode = report.getNode(mNode, ind.getId());
-        dryDockNode.name = nodeName;
-        dryDockNode.mapEntity = market.getPrimaryEntity();
-        dryDockNode.tooltipCreator = report.getMonthlyReportTooltip();
-        dryDockNode.icon = ind.getCurrentImage();
-        dryDockNode.custom = ind;
-        dryDockNode.custom2 = ind;
-
-        MonthlyReport.FDNode iNode = report.getNode(dryDockNode, ind.getId());
-        iNode.name = ind.getCurrentName();
-        iNode.upkeep = 0;
-        iNode.custom = ind;
-        iNode.mapEntity = market.getPrimaryEntity();
-
-        return iNode;
     }
 
     public static void applyDeficitToProduction(Industry ind, int index, Pair<String, Integer> deficit, String... commodities) {
