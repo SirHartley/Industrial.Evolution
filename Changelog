@@ -82,6 +82,8 @@ Fixed - Interstellar Relay setting now properly controls Interstellar Relays
 Fixed - Tooltip now shows why a relay without a Military Base is inactive
 
 Academy
+Added - Academy panel: train, store and retrieve officers and administrators in one screen
+Added - Officers can train two personality steps at once with an alpha core (time and fee per step)
 Adjusted - Training at your own Academy is now free
 Fixed - Aggression training no longer bills you twice the amount it should
 Fixed - Academy transfers no longer exceed the fleet's officer limit

@@ -24,6 +24,7 @@ import com.fs.starfarer.api.util.DynamicStatsAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
+import indevo.ids.Ids;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
@@ -94,6 +95,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         super.unapply();
         Global.getSector().getListenerManager().removeListener(this);
         unmodifyOfficerQualityIncrease();
+    }
+
+    public static Academy get(MarketAPI market) {
+        return market != null && market.hasIndustry(Ids.ACADEMY) ? (Academy) market.getIndustry(Ids.ACADEMY) : null;
     }
 
     public boolean isTrainingOfficer() {
@@ -307,15 +312,19 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     public void setAdminInTraining(PersonAPI person) {
+        if (adminInTraining != null || !BillingHelper.canAfford(getAdminTrainingFee())) return;
+
         if (canTrainAdminPerson(person)
                 && isAdminInPlayerFleet(person)) {
 
             Global.getSector().getCharacterData().removeAdmin(person);
             adminInTraining = person;
+            adminDaysPassed = 0;
             market.getMemory().set(ADMIN_IS_TRAINING_KEY, true);
         } else if (canTrainAdminPerson(person) && adminStorage.contains(person)) {
             adminStorage.remove(person);
             adminInTraining = person;
+            adminDaysPassed = 0;
             market.getMemory().set(ADMIN_IS_TRAINING_KEY, true);
         } else return;
 
@@ -347,25 +356,76 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     public boolean canTrainAdminPerson(PersonAPI person) {
+        return getAdminSkillCount(person) < 2 && getGovernedMarket(person) == null;
+    }
+
+    public static int getAdminSkillCount(PersonAPI person) {
         int skillCount = 0;
-        boolean notInstalled = true;
 
-        //Admin has less than 2 skills
-        List<String> allSkillIds = Global.getSettings().getSortedSkillIds();
-        for (String skillId : allSkillIds) {
+        for (String skillId : Global.getSettings().getSortedSkillIds()) {
             SkillSpecAPI skill = Global.getSettings().getSkillSpec(skillId);
-            if (skill.isAdminSkill() && personHasSkill(person, skill)) {
-                skillCount++;
-            }
+            if (skill.isAdminSkill() && personHasSkill(person, skill)) skillCount++;
         }
 
+        return skillCount;
+    }
+
+    public static MarketAPI getGovernedMarket(PersonAPI person) {
         for (MarketAPI market : Misc.getFactionMarkets(Global.getSector().getPlayerFaction())) {
-            if (market.getAdmin().getId().equals(person.getId())) {
-                notInstalled = false;
-            }
+            if (market.getAdmin() != null && market.getAdmin().getId().equals(person.getId())) return market;
         }
 
-        return skillCount < 2 && notInstalled;
+        return null;
+    }
+
+    public static FleetMemberAPI getCommandedShip(PersonAPI person) {
+        for (FleetMemberAPI member : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
+            if (member.getCaptain() == person) return member;
+        }
+
+        return null;
+    }
+
+    public List<PersonAPI> getFleetOfficers() {
+        List<PersonAPI> officers = new ArrayList<>();
+        for (OfficerDataAPI data : Global.getSector().getPlayerFleet().getFleetData().getOfficersCopy()) {
+            if (!Misc.isUnremovable(data.getPerson())) officers.add(data.getPerson());
+        }
+
+        return officers;
+    }
+
+    public List<PersonAPI> getStaffAdmins() {
+        List<PersonAPI> admins = new ArrayList<>();
+        for (AdminData data : Global.getSector().getCharacterData().getAdmins()) admins.add(data.getPerson());
+        return admins;
+    }
+
+    public String getOfficerTrainBlocker(PersonAPI person) {
+        if (officerInTraining != null) return "Another officer is in training.";
+        if (getOfficerStepsLeft(person) == 0) {
+            return !hasAlphaCore() && getTrainedSteps(person) < 2 ? "No training steps left. An alpha core allows a second step." : "No training steps left.";
+        }
+        if (!BillingHelper.canAfford(getOfficerTrainingFee(1))) return "Not enough credits.";
+        return null;
+    }
+
+    public String getAdminTrainBlocker(PersonAPI person) {
+        if (adminInTraining != null) return "Another administrator is in training.";
+        if (getAdminSkillCount(person) >= 2) return "Already has two administrator skills.";
+
+        MarketAPI governed = getGovernedMarket(person);
+        if (governed != null) return "Governs " + governed.getName() + ". Store or replace them first.";
+        if (!BillingHelper.canAfford(getAdminTrainingFee())) return "Not enough credits.";
+        return null;
+    }
+
+    public static String getOfficerSlotBlocker() {
+        return playerHasOfficerCapacity() ? null : "No free officer slots.";
+    }
+
+    public static String getAdminSlotBlocker() {
+        return playerHasAdminCapacity() || Global.getSettings().isDevMode() ? null : "No free administrator slots.";
     }
 
     public void addRandomAdminSkill(PersonAPI person) {
@@ -410,11 +470,8 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     //admin Storage
 
     public void storeAdmin(PersonAPI person) {
-        for (MarketAPI market : Misc.getFactionMarkets(Global.getSector().getPlayerFaction())) {
-            if (market.getAdmin().getId().equals(person.getId())) {
-                market.setAdmin(Global.getSector().getPlayerPerson());
-            }
-        }
+        MarketAPI governed = getGovernedMarket(person);
+        if (governed != null) governed.setAdmin(Global.getSector().getPlayerPerson());
 
         Global.getSector().getCharacterData().removeAdmin(person);
         adminStorage.add(person);

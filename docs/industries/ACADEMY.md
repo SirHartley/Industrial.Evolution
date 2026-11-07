@@ -13,7 +13,10 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 | File | Owner / role |
 |---|---|
 | `indevo/industries/academy/industry/Academy.java` | Industry plugin. Owns training state (`officerInTraining`, `officerTrainingTarget`, `adminInTraining`, day counters, `currentDirection`), both storage lists, fees, spawn rolls, officer quality mods, AI core effects. `NewDayListener` + `EconomyTickListener` |
-| `indevo/industries/academy/plugins/AcademyOptionProvider.java` | Industry "Visit the Academy..." button; opens `RuleBasedInteractionDialogPluginImpl("IndEvo_FireBaseAcademyOptionList")` |
+| `indevo/industries/academy/plugins/AcademyOptionProvider.java` | Industry "Visit the Academy..." button; opens `AcademyDialogPlugin` standalone |
+| `plugins/AcademyDialogPlugin.java` | Panel host: `InteractionDialogPlugin`, `EscapeBlockingDialoguePluginAPI`. Standalone (closes the dialog) or rules mode (returns to the rule dialog). Switches between panel and popup, handles ESC |
+| `plugins/AcademyPanelDelegate.java` | The panel: tabs, fees line, training slot, person rows, buttons with tooltips. Sizes as constants |
+| `plugins/AcademyTrainingPopupDelegate.java` | Officer training popup: five personality squares, summary, confirm |
 | `indevo/industries/academy/rules/IndEvo_AcademyVariables.java` | Memory key, option prefix, enum and market id constants shared by the rule commands |
 | `rules/IndEvo_CreatePersonSelectionList.java` | Builds the eligible person list per action and person type, pages it by 4 into `$IndEvo_personList`; `check` param = condition only. Also `getMarket()` (Galatia special case) and `isInstalled()` |
 | `rules/IndEvo_DesignateSubListPageToLoad.java`, `rules/IndEvo_DisplaySubListPage.java` | Page navigation and the person option list |
@@ -41,7 +44,6 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 | Person memory | `$IndEvo_wasTrainedLevel` (personality steps used) | `Academy.addTrainedSteps()` |
 | Person memory | `$ome_adminTier` incremented, `$ome_hireable`, `$ome_isAdmin` read | `Academy.java:389`, `:691` (vanilla `OfficerManagerEvent` keys) |
 | Dialogue memory | `$IndEvo_personList`, `$IndEvo_subListPage`, `$IndEvo_actionType`, `$IndEvo_personType`, `$IndEvo_selectedPerson` (local, expire 0) | `IndEvo_AcademyVariables` |
-| Entity memory | `$IndEvo_closeDialogueOnNextReturn` | `AcademyOptionProvider.onClick()` |
 | Rules | `IndEvo_FireBaseAcademyOptionList`, `IndEvo_AcademyBaseMenu*`, `IndEvo_IntitiateAcademyMenu`, `IndEvo_Select*`, `IndEvo_personSelector_*`, `IndEvo_MovePersonOption*`, `IndEvo_LoadAbortDialogue_*`, `IndEvo_personWasSelected` | `data/campaign/rules.csv`, block `# Academy` to `#END Academy` |
 | Sprite | `IndEvo/trainingdone` | `data/config/settings.json`, completion message icon |
 
@@ -67,6 +69,17 @@ Entry points, all firing `IndEvo_AcademyBaseMenu`:
 `IndEvo_CreatePersonSelectionList.getMarket()` maps the Galatia station to `IndEvo_academyMarket` (`IndEvo_CreatePersonSelectionList.java:76`). Every other command uses `BaseCommandPlugin.getMarket(memoryMap)`.
 
 Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSelectionList -> IndEvo_DesignateSubListPageToLoad set 1 -> IndEvo_DisplaySubListPage -> IndEvo_personWasSelected (IndEvo_OptionStartsWith) -> IndEvo_DisplayPersonActionPanel -> IndEvo_MovePersonOption* -> IndEvo_MovePerson -> Academy`.
+
+### Panel
+
+`AcademyPanelDelegate`, shown with `InteractionDialogAPI.showCustomDialog()` at `getWidth()` x `getHeight()`: `min(1104, screen width - 100)` and `min(850, screen height - 100)` for the whole dialog, minus the 20 x 55 px the custom dialog adds for its frame and button row (translation of obfuscated code, `obf/ui/newui/super.java:52-53`).
+
+- Tabs `Officers n / max` and `Administrators n / max`, credits on the right. Fees line per tab and market owner.
+- In training: the person of the active tab with target, days left and a bar, a paused note when the Academy is not functional or the market is hostile, `Abort to fleet` (disabled without a free slot) and `Abort to storage`. No refund.
+- Rows: fleet officers (`getFleetOfficers()`, unremovable ones left out) or staff admins (`getStaffAdmins()`) first, then stored ones, each by level or admin skill count. Header `Name - In fleet`, `On staff` or `Stored here`. Assignment box left of the portrait: commanded ship (`getCommandedShip()`, `addShipList`), governed market (`getGovernedMarket()`, `showPlanetInfo`, faction crest for markets without a planet), else `Unassigned`. Skill icons with name tooltips, elite skills framed. `Train` plus `Store` or `Retrieve`.
+- Every button is disabled with the reason from `Academy` as tooltip (`getOfficerTrainBlocker()`, `getAdminTrainBlocker()`, `getOfficerSlotBlocker()`, `getAdminSlotBlocker()`); enabled ones show cost and time. Store on a governing admin warns that the player takes over.
+- Officer `Train` dismisses the panel and opens `AcademyTrainingPopupDelegate`: the five personalities in ladder order, current one marked, reachable and affordable ones selectable, the nearest preselected. Confirm calls `setOfficerForTraining(person, targetId)`. Confirm, Cancel and ESC reopen the panel on the next frame (`AcademyDialogPlugin.showPanelNextFrame()`); the custom dialog slot is only free after the dismiss.
+- Admin `Train` starts at once. ESC and Return close the panel. Scroll position is kept across rebuilds and the popup.
 
 ### Officer training
 
