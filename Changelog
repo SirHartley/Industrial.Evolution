@@ -184,6 +184,7 @@ World Wonders
 Adjusted - Custom shield visuals now need a working Cloud Painter
 Fixed - Cloud Painter now uses the shield texture settings for its starting look
 Fixed - Cloud Painter no longer breaks Planetary Shields (effects, AI core, improvement)
+Fixed - Cloud and shield visual changes now show at once, colony screen included
 
 Automated Shipyards
 Fixed - Automated Shipyard now shows lost components and highlights failures red

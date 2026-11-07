@@ -139,6 +139,7 @@ PatchLib patches change vanilla code where the API has no hook. Each lives in a 
 | `industries/senate/patches/FastBuildUpgradeConfirmPatch` | industry option menu (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred, `DialogCreatorUI`): `Industry.getBuildTime` call in `actionPerformed` | `@RedirectMethodCall` | [SENATE](industries/SENATE.md#build-time-display) |
 | `abilities/splitfleet/patches/DetachmentCargoPickerPatch` | cargo picker dialog (obf `com.fs.starfarer.ui.newui`, inferred, picked by its `CargoPickerListener` field): constructor, `advance(float)` | `@After` | [SPLIT_FLEET](abilities/SPLIT_FLEET.md#load-buttons) |
 | `industries/worldwonder/patches/CloudPainterShieldPatch` | `applyVisuals` call in `PlanetaryShield.apply` (API) | `@RedirectMethodCall` | [WORLD_WONDER](industries/WORLD_WONDER.md#cloud-painter-shield-visuals) |
+| `industries/worldwonder/patches/PlanetBackgroundRefreshPatch` | colony screen planet background (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred, picked by `setForce2dMode`): `advanceImpl`, calls `getPlanet` and `setPlanet` | `@After` | [WORLD_WONDER](industries/WORLD_WONDER.md#colony-screen-planet) |
 
 After a game update, check inferred targets first (any target outside `com.fs.starfarer.api`). In game, `starsector.log` shows `[PatchLib] Discovered patch ...` at startup and `Installed a ... patch site ...` when the target loads; Console Commands `TogglePatch <class>` switches one off for a test.
 
