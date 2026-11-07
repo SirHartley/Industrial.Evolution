@@ -1,27 +1,44 @@
 package indevo.items.consumables.itemAbilities.missiles;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.items.consumables.itemAbilities.BaseConsumableAbilityPlugin;
-import indevo.items.consumables.listeners.MissileActivationManager;
-import indevo.items.consumables.listeners.OnClickAbilityInputListener;
-import indevo.items.consumables.scripts.DelayedActionScriptRunWhilePaused;
-import indevo.utils.ModPlugin;
-import org.lwjgl.util.vector.Vector2f;
+import indevo.items.consumables.ItemAbilityHelper;
+import indevo.items.consumables.itemAbilities.SingleUseItemAbility;
+import indevo.skillshot.ability.BaseSkillshotAbility;
 
 import java.awt.*;
 
-public abstract class BaseMissileConsumableAbilityPlugin extends BaseConsumableAbilityPlugin {
+public abstract class BaseMissileConsumableAbilityPlugin extends BaseSkillshotAbility implements SingleUseItemAbility {
 
     @Override
     public boolean isUsable() {
-        boolean otherMissileActive = MissileActivationManager.getInstanceOrRegister().hasActiveListener();
-        boolean dialogueActive = Global.getSector().getCampaignUI().getCurrentInteractionDialog() != null || Global.getSector().getCampaignUI().getCurrentCoreTab() != null;
+        return super.isUsable() && getCargoItemAmt() > 0;
+    }
 
-        return super.isUsable() && !otherMissileActive && !dialogueActive;
+    @Override
+    protected void onConsume() {
+        removeTriggerItem();
+    }
+
+    @Override
+    public void removeTriggerItem() {
+        ItemAbilityHelper.removeItem(entity, getItemID());
+    }
+
+    @Override
+    public String getItemID() {
+        return ItemAbilityHelper.toggle(id);
+    }
+
+    public int getCargoItemAmt() {
+        return ItemAbilityHelper.getItemAmount(entity, getItemID());
+    }
+
+    @Override
+    public void createTooltip(TooltipMakerAPI tooltip, boolean expanded) {
+        addTooltip(tooltip, false);
     }
 
     @Override
@@ -40,67 +57,6 @@ public abstract class BaseMissileConsumableAbilityPlugin extends BaseConsumableA
         }
 
         addTooltip(tooltip);
-
-        boolean otherMissileActive = MissileActivationManager.getInstanceOrRegister().hasActiveListener();
-        boolean dialogueActive = Global.getSector().getCampaignUI().getCurrentInteractionDialog() != null || Global.getSector().getCampaignUI().getCurrentCoreTab() != null;
-
-        if (otherMissileActive) tooltip.addPara("Conflicting item in use!", opad, Misc.getNegativeHighlightColor());
-        if (dialogueActive) tooltip.addPara("Can only be activated from the ability bar.",  opad, Misc.getNegativeHighlightColor());
-    }
-
-    //only gets called on click in this case as the OnKeyPressAbilityInputListener intercepts key presses on it
-    public void pressButton() {
-        if (isUsable() && !turnedOn) {
-            if (entity.isPlayerFleet()) {
-                String soundId = getOnSoundUI();
-                if (soundId != null) {
-                    if (PLAY_UI_SOUNDS_IN_WORLD_SOURCES) {
-                        Global.getSoundPlayer().playSound(soundId, 1f, 1f, Global.getSoundPlayer().getListenerPos(), new Vector2f());
-                    } else {
-                        Global.getSoundPlayer().playUISound(soundId, 1f, 1f);
-                    }
-                }
-
-                final AbilityPlugin p = this;
-
-                ModPlugin.log("Reporting valid missile click: " + getId());
-                //only activate through UI on player fleet!
-                //we have to delay the activation of this by one frame because the UI takes priority over input listeners with priority 0 and we want the key press to run first
-                Global.getSector().getScripts().add(new DelayedActionScriptRunWhilePaused(0f) {
-                    @Override
-                    public void doAction() {
-                        //register listener and go through default programmatic way
-                        OnClickAbilityInputListener listener = new OnClickAbilityInputListener(p);
-                        if (!MissileActivationManager.getInstanceOrRegister().hasActiveListener()) {
-                            ModPlugin.log("Missile activation manager has no active listener, registering new onClickListener");
-                            listener.activate();
-                        }
-                    }
-                });
-            }
-        }
-    }
-
-    //avoid the normal way of activation it since it's used by the click behaviour
-    public void forceActivation(){
-        activateImpl();
-        removeTriggerItem();
-    }
-
-    public abstract void addTooltip(TooltipMakerAPI tooltip);
-
-    @Override
-    protected void applyEffect(float amount, float level) {
-
-    }
-
-    @Override
-    protected void deactivateImpl() {
-
-    }
-
-    @Override
-    protected void cleanupImpl() {
-
+        addBlockedReasonsToTooltip(tooltip);
     }
 }

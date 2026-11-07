@@ -251,6 +251,7 @@ Fixed - Detachment wrecks now properly hold all excess cargo
 Consumables
 Adjusted - IE missile abilities without a missile plugin now crash with a clear error
 Fixed - Crash when firing a missile by hotkey from a hyperspace-only slot
+Fixed - Missiles fired by clicking no longer bloat the save
 Fixed - Smoke cloud size and explosion volume now work as intended
 Fixed - Chaff tooltip now shows the real slowdown values
 Fixed - Fuel scoop crash in starless nebulas (now uses the nearest star)

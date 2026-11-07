@@ -90,7 +90,7 @@ Adapted from Histidine (Nexerelin). Default category is `IndEvo_misc` in `data/s
 |---|---|
 | `memory/SessionTransientMemory.java` | Transient `GenericPlugin` key value cache: `getInstance()`, `set(key, obj)` (key must start with `$`, else throws), `get`, `unset`, `contains`, `getSet`, `getString`, `getBoolean` |
 
-`getInstance()` adds the plugin with `addPlugin(plugin, true)` (`memory/SessionTransientMemory.java:21`; `isTransient` overload in `api/campaign/GenericPluginManagerAPI.java:65`), so the cache is rebuilt each session and never saved. Use it for data derived from specs and CSVs. Users: `MiscIE`, `petshop/memory/PetDataRepo`, `surveystories/memory/FileLoader`, `senate/rules/IndEvo_CreateEdictSelectionList`. `ModPlugin.loadTransientMemory()` (`ModPlugin.java:407`) warms it on game load.
+`getInstance()` adds the plugin with `addPlugin(plugin, true)` (`memory/SessionTransientMemory.java:21`; `isTransient` overload in `api/campaign/GenericPluginManagerAPI.java:65`), so the cache is rebuilt each session and never saved. Use it for data derived from specs and CSVs. Users: `MiscIE`, `petshop/memory/PetDataRepo`, `surveystories/memory/FileLoader`, `senate/rules/IndEvo_CreateEdictSelectionList`. `ModPlugin.loadTransientMemory()` (`ModPlugin.java:405`) warms it on game load.
 
 ## plugins
 
@@ -103,7 +103,7 @@ Industry option buttons (the "..." menu on an industry) through `IndustryOptionP
 | `plugins/SingleIndustrySimpifiedOptionProvider.java` | `isSuitable` = functional industry with `getTargetIndustryId()` on the market of the open dialog |
 | `plugins/TagBasedSimplifiedIndustryOptionProvider.java` | `isSuitable` = industry spec tagged `getTargetTag()` on the market of the open dialog |
 
-Subclasses register themselves as listeners from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:427`). Users: Courier Port, Senate, Warehouses, Military Relay, Museum, derelicts `RemoveIndustryOptionWarningProvider`, [Economy](ECONOMY.md) `RelicBuildTimeReductionButtonAdder`.
+Subclasses register themselves as listeners from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:425`). Users: Courier Port, Senate, Warehouses, Military Relay, Museum, derelicts `RemoveIndustryOptionWarningProvider`, [Economy](ECONOMY.md) `RelicBuildTimeReductionButtonAdder`.
 
 ## scripts
 
@@ -121,7 +121,7 @@ Submarket add and remove has its own script: [Submarkets](SUBMARKETS.md).
 | Class | Members |
 |---|---|
 | `timers/NewDayListener.java` | interface `onNewDay()` |
-| `timers/TimeTracker.java` | Persistent sector script added once in `ModPlugin.setScriptsIfNeeded()` (`ModPlugin.java:501`). Detects a day change from `CampaignClockAPI.getDay()` and calls `onNewDay()` on every `NewDayListener` in the listener manager and in `getAllListeners()`. Also keeps market "time tags" (`ident + days`): `addMarketTimeTagTracker`, `removeMarketTimeTagTracker`, static `getTimeTagPassed`, `marketHasTimeTag`, `getTagNum`, `incrementTagNum`, `removeTimeTag`, `getTimeTrackerInstance()`. Trackers match by market and `ident.equals`, one entry per pair; `ident` is the condition mod id, a new `String` after every load |
+| `timers/TimeTracker.java` | Persistent sector script added once in `ModPlugin.setScriptsIfNeeded()` (`ModPlugin.java:499`). Detects a day change from `CampaignClockAPI.getDay()` and calls `onNewDay()` on every `NewDayListener` in the listener manager and in `getAllListeners()`. Also keeps market "time tags" (`ident + days`): `addMarketTimeTagTracker`, `removeMarketTimeTagTracker`, static `getTimeTagPassed`, `marketHasTimeTag`, `getTagNum`, `incrementTagNum`, `removeTimeTag`, `getTimeTrackerInstance()`. Trackers match by market and `ident.equals`, one entry per pair; `ident` is the condition mod id, a new `String` after every load |
 | `timers/IntervalTracker.java` | Transient script with shared 1 s and 2 s `IntervalUtil`s, runs while paused: `getInstance()`, `isElapsed1s()`, `getIntervalFraction1s()`, `isElapsed2s()`, `getIntervalFraction2s()`. User: `consumables/itemPlugins/BaseConsumableItemPlugin` |
 | `timers/RaidTimeout.java` | Transient `EconomyTickListener`: per system raid cooldown in months. `register()`, `addRaidedSystem(system, months, ai)` (keeps the smaller value), `containsSystem(system, ai)`. Decrements on the last economy tick of the month. Memory keys `$IndEvo_RaidTimeout`, `$IndEvo_RaidTimeout_AI` (sector memory, `Map<String, Float>`). User: [Privateer](../industries/PRIVATEER.md); console: `indevo_printRaidTimeout` |
 
@@ -133,7 +133,7 @@ Fixed copy of MagicLib's campaign trail plugin (Nicke535, fix by President Matt 
 
 | Class | Members |
 |---|---|
-| `trails/MagicCampaignTrailPlugin.java` | Persistent sector script, `register()` once (`ModPlugin.java:505`). Static API: `getUniqueID()`, `AddTrailMemberSimple(...)`, `AddTrailMemberAdvanced(...)`, `AddTrailMemberAnimated(...)`, `cutTrailsOnEntity(entity)` (call before teleporting). Builds `org.magiclib.util.MagicTrailObject`s; trails only tick and render in the player's location |
+| `trails/MagicCampaignTrailPlugin.java` | Persistent sector script, `register()` once (`ModPlugin.java:503`). Static API: `getUniqueID()`, `AddTrailMemberSimple(...)`, `AddTrailMemberAdvanced(...)`, `AddTrailMemberAnimated(...)`, `cutTrailsOnEntity(entity)` (call before teleporting). Builds `org.magiclib.util.MagicTrailObject`s; trails only tick and render in the player's location |
 | `trails/MagicCustomCampaignTrailEntityScript.java` | Plugin of custom entity `IndEvo_campaign_trail_custom_entity` (`data/config/custom_entities.json`); forwards `render` to the trail plugin. The plugin moves this entity to the player's location each frame |
 
 Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmunitionEntity`, `MissileCarrierEntityPlugin`), `consumables/entities/BaseMissileEntityPlugin`, WIP `MobileColonyEntityPlugin`.
@@ -142,7 +142,7 @@ Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmuniti
 
 | Class | Members |
 |---|---|
-| `update/NewGameIndustryPlacer.java` | `run()` from `ModPlugin.onNewGameAfterEconomyLoad()` (`ModPlugin.java:293`): places IE industries on fixed core world markets if the industry setting is on and the market is not player owned. Market ids and cores: `placeDryDocks` (13 markets), `placeAcademy` (`eochu_bres` beta, `fikenhild`), `placeReqCenter` (`baetis`), `placeSalvageYards` (`donn`, `agreus`, `suddene`), `placeManufactories` (`eochu_bres` with `IndEvo_vpc_IndEvo_parts`), `placePetShops` (`jangala`, `gilead`, `fikenhild`). `placeCourierPorts` is not called |
+| `update/NewGameIndustryPlacer.java` | `run()` from `ModPlugin.onNewGameAfterEconomyLoad()` (`ModPlugin.java:291`): places IE industries on fixed core world markets if the industry setting is on and the market is not player owned. Market ids and cores: `placeDryDocks` (13 markets), `placeAcademy` (`eochu_bres` beta, `fikenhild`), `placeReqCenter` (`baetis`), `placeSalvageYards` (`donn`, `agreus`, `suddene`), `placeManufactories` (`eochu_bres` with `IndEvo_vpc_IndEvo_parts`), `placePetShops` (`jangala`, `gilead`, `fikenhild`). `placeCourierPorts` is not called |
 | `update/ModUpdater.java` | `run()`: removes every script and listener whose class name contains `IndEvo`, re-adds IE submarkets, industries and player market conditions, then runs `NewGameIndustryPlacer`. Not called anywhere (dead) |
 
 ## Known issues and dormant code

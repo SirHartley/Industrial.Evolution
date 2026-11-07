@@ -16,16 +16,14 @@ Each consumable is a special item whose `plugin params` names an ability. Using 
 | `itemPlugins/BaseConsumableItemPlugin.java` | Item plugin: ability lookup and add, right-click use, tooltip, cooldown overlay |
 | `itemPlugins/SpooferConsumableItemPlugin.java`, `BeaconConsumableItemPlugin.java` | Spoofer faction display; beacon glow (render is dead, see issues) |
 | `itemAbilities/SingleUseItemAbility.java` | Interface: `removeTriggerItem`, `getItemID`, `addTooltip` |
-| `itemAbilities/BaseConsumableAbilityPlugin.java` | `BaseDurationAbility` base: usable check, item removal (player cargo or NPC inventory) |
+| `itemAbilities/BaseConsumableAbilityPlugin.java` | `BaseDurationAbility` base: usable check, item removal through `ItemAbilityHelper.getItemAmount` and `removeItem` (player cargo or NPC inventory) |
 | `itemAbilities/*AbilityPlugin.java` | Nanites, Locator (+ `LocatorScanData`), Spike, Scoop, Decoy, Spoofer, Relay, Beacon effects |
-| `itemAbilities/missiles/BaseMissileConsumableAbilityPlugin.java` | Missile base: click and hotkey activation, `forceActivation` |
-| `itemAbilities/missiles/{Explosive,Concussive,Smoke,Intercept}MissileAbilityPlugin.java` | Spawn the matching missile entity |
+| `itemAbilities/missiles/BaseMissileConsumableAbilityPlugin.java` | Missile base: extends the skillshot framework's `BaseSkillshotAbility`, adds the item count, removal (`onConsume`) and item tooltip |
+| `itemAbilities/missiles/{Explosive,Concussive,Smoke,Intercept}MissileAbilityPlugin.java` | Pick a reticule (`createReticule`), spawn the matching missile entity (`onSkillshotFired`) |
 | `itemAbilities/missiles/ArtilleryRemoteAbilityPlugin.java`, `SurgeAbilityPlugin.java` | Remote artillery targeting; slipstream catapult |
 | `entities/*` | Missile entities, `SpikeEntityPlugin`, `DecoyEntityPlugin`, `BeaconEntityPlugin`, `SmokeCloudEntityPlugin`, `PlayerTrackingNebulaParticle` (scoop visuals) |
 | `entityAbilities/InterdictionMineAbility.java`, `DecoyMineAbility.java`, `NoWellSlipstreamAbility.java` | Abilities given to spawned entities or temporarily to the player |
 | `terrain/SmokeCloudTerrain.java` | Smoke cloud terrain effect |
-| `listeners/OnClickAbilityInputListener.java`, `OnKeyPressAbilityInputListener.java`, `MissileActivationManager.java`, `MissileTargetUIKeypressListener.java` | Missile targeting input |
-| `listeners/BaseReticuleRenderer.java`, `MissileSkillshotTargetingReticuleRenderer.java`, `MissileAOETargetingReticuleRenderer.java`, `ArtilleryAOEReticuleRenderer.java`, `MissileCampaignRenderer.java` | LunaLib reticule renderers |
 | `listeners/ConsumableItemMarketAdder.java`, `ConsumableItemDropListener.java` | Item sources: markets and combat loot |
 | `listeners/LocatorSystemRatingUpdater.java` | Per-system rating read by the locator |
 | `listeners/SpooferItemKeypressListener.java` | Arrow keys cycle the spoofer faction |
@@ -36,7 +34,7 @@ Each consumable is a special item whose `plugin params` names an ability. Using 
 | `scripts/DelayedActionScriptRunWhilePaused.java`, `FlickerInstance.java` | Helper scripts |
 | `itemAbilities/WIP/*` | Drones, Radar, Stabilizer, Supercharger stubs; excluded in `IndEvo.iml` |
 
-All paths above are under `jars/src/indevo/items/consumables/`.
+All paths above are under `jars/src/indevo/items/consumables/`. Targeting input and reticules are the skillshot framework in `jars/src/indevo/skillshot/` ([README](../../jars/src/indevo/skillshot/README.md)).
 
 ## Data and ids
 
@@ -51,15 +49,15 @@ Items: `data/campaign/special_items.csv:48-61`, plugin `BaseConsumableItemPlugin
 | `IndEvo_consumable_decoy` | `IndEvo_ability_decoy` | 4000 | cd 1 |
 | `IndEvo_consumable_spoofer` | `IndEvo_ability_spoofer` | 7500 | dur 4, cd 3 |
 | `IndEvo_consumable_relay` | `IndEvo_ability_relay` | 8000 | dur 7, cd 3 |
-| `IndEvo_consumable_missile_explosive` | `IndEvo_ability_missile_explosive` | 9000 | cd 3; `indevo_missile` |
-| `IndEvo_consumable_missile_concussive` | `IndEvo_ability_missile_concussive` | 12000 | cd 1; `indevo_missile, aoe` |
-| `IndEvo_consumable_missile_smoke` | `IndEvo_ability_missile_smoke` | 10000 | cd 0.15; `indevo_missile, aoe` |
-| `IndEvo_consumable_missile_intercept` | `IndEvo_ability_missile_intercept` | 8000 | cd 2; `indevo_missile` |
-| `IndEvo_consumable_artillery_remote` | `IndEvo_ability_artillery_target` | 8500 | cd 3; `indevo_missile, aoe, artillery` |
+| `IndEvo_consumable_missile_explosive` | `IndEvo_ability_missile_explosive` | 9000 | cd 3; `IndEvo_skillshot` |
+| `IndEvo_consumable_missile_concussive` | `IndEvo_ability_missile_concussive` | 12000 | cd 1; `IndEvo_skillshot` |
+| `IndEvo_consumable_missile_smoke` | `IndEvo_ability_missile_smoke` | 10000 | cd 0.15; `IndEvo_skillshot` |
+| `IndEvo_consumable_missile_intercept` | `IndEvo_ability_missile_intercept` | 8000 | cd 2; `IndEvo_skillshot` |
+| `IndEvo_consumable_artillery_remote` | `IndEvo_ability_artillery_target` | 8500 | cd 3; `IndEvo_skillshot` |
 | `IndEvo_consumable_warning_beacon` | `IndEvo_ability_beacon` | 3500 | cd 0.25 |
-| `IndEvo_consumable_catapult` | `IndEvo_ability_catapult` | 10000 | cd 3; `indevo_missile` |
+| `IndEvo_consumable_catapult` | `IndEvo_ability_catapult` | 10000 | cd 3; `IndEvo_skillshot` |
 
-Times in days. The ability tags drive targeting: `indevo_missile` enables hotkey targeting, `aoe` picks the AOE reticule, `artillery` the artillery reticule.
+Times in days. `IndEvo_skillshot` enables hotkey targeting; each ability picks its reticule in `createReticule()`: arrow for explosive, intercept and catapult, 400 unit area for concussive and smoke, validated area for the remote.
 
 | Kind | Id / key | Where |
 |---|---|---|
@@ -78,15 +76,14 @@ Times in days. The ability tags drive targeting: `indevo_missile` enables hotkey
 
 | Hook | What |
 |---|---|
-| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin:132-143`) | Loads the nanites texture for the codex |
-| `onGameLoad:171`, `onNewGameAfterEconomyLoad:312` | `LocatorSystemRatingUpdater.updateAllSystems()` |
-| `onGameLoad:202` | Resets `MissileActivationManager` |
-| `ModPlugin:455` | `LocatorSystemRatingUpdater`, transient |
-| `ModPlugin:456` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
-| `ModPlugin:457` | `ConsumableItemMarketAdder`, transient |
-| `ModPlugin:487`, `beforeGameSave:338` | `OnKeyPressAbilityInputListener.getInstanceOrRegister()`; reset before save |
-| `ModPlugin:488` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
-| each load | `SpooferItemKeypressListener` registered |
+| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin.java:133`) | Loads the nanites texture for the codex |
+| `ModPlugin.java:167` (`onGameLoad`), `:289` (`onNewGameAfterEconomyLoad`) | `LocatorSystemRatingUpdater.updateAllSystems()` |
+| `ModPlugin.java:440` | `LocatorSystemRatingUpdater`, transient |
+| `ModPlugin.java:441` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
+| `ModPlugin.java:442` | `ConsumableItemMarketAdder`, transient |
+| `ModPlugin.java:445` | `SpooferItemKeypressListener`, transient |
+| `ModPlugin.java:471`, `:315` (`beforeGameSave`) | `SkillshotFramework.register()` (transient hotkey listener and activation manager, clears the cross mod lock); `SkillshotFramework.reset()` before save |
+| `ModPlugin.java:472` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
 
 `ListenerManager.addListener(Object)` is the persistent variant (`obf/campaign/ListenerManager.java:25-33` in the starsector-knowledge skill), so any listener added without `true` is saved with the game.
 
@@ -96,9 +93,7 @@ Abilities are added lazily: `BaseConsumableItemPlugin.getAbilityPlugin()` adds t
 
 Non-missile use: right-click works in the cargo tab with no dialog open, only if `isUsable`. `activate()` runs `super.activate()` then `removeTriggerItem()`, which removes one item from player cargo or, for NPCs, calls `FleetConsumableInventoryManager.adjustInventoryAmount`. `isUsable` needs at least one item.
 
-Missile click path: `pressButton()` (vanilla `BaseDurationAbility.java:187`) -> `DelayedActionScriptRunWhilePaused(0)` -> `new OnClickAbilityInputListener(p).activate()`, which registers with `MissileActivationManager`, adds itself as a persistent listener and adds a LunaLib reticule (skillshot, AOE or artillery by tag). Mouse up calls `forceActivation()` (`activateImpl` + `removeTriggerItem`) and sets the cooldown. Any key other than space or lshift aborts. Missile `isUsable` also needs no active missile listener and no open dialog or core tab.
-
-Missile hotkey path: `OnKeyPressAbilityInputListener` catches keys 1 to 9 on slots holding `indevo_missile` abilities, shows the reticule while held and fires on release. Release resolves the ability id saved on key down; if that is not a `BaseMissileConsumableAbilityPlugin` on the player fleet it throws (`IllegalStateException`), since only an IE bug gets there. Ctrl or an open dialog resets it. `MissileActivationManager` is a persistent sector script (runs while paused) that tracks the current listener.
+Missile targeting is the skillshot framework ([README](../../jars/src/indevo/skillshot/README.md#how-it-works)): click the ability and click the map, or hold its hotkey (1 to 9) and release. Firing runs `forceActivation()`: `onSkillshotFired(target, angle)`, `onConsume()` (removes one item) and the cooldown. Missile `isUsable` also needs an item, no live targeting session (in IE or a mod holding the [cross mod lock](../../jars/src/indevo/skillshot/README.md#cross-mod-lock)) and no open dialog or core tab. A slot ability tagged `IndEvo_skillshot` whose plugin is not a `SkillshotAbility` throws (`IllegalStateException`) on its hotkey, since only an IE bug gets there.
 
 Missile entities (`BaseMissileEntityPlugin`): fly straight for 4 s, explode on `shouldExplode`, timeout, or reaching the target point (AOE types aim at the cursor). Entities within radius + 50 along the path get `$missile_bonked`; `MeteorEntity.java:71-72` reads it ([Meteor](../exploration/METEOR.md)). Trails use `MagicCampaignTrailPlugin`.
 
@@ -108,7 +103,7 @@ Missile entities (`BaseMissileEntityPlugin`): fly straight for 4 s, explode on `
 | Concussive | 2000, AOE | Explodes within 25 of target; vanilla `ShoveFleetScript` on fleets within 500, strength 2 times falloff, halved for the player; no damage |
 | Smoke | 750, AOE | Spawns `IndEvo_SmokeCloud` entity (360 to 400 radius, 4 days), which adds the terrain: detected range x0.5, burn x`1 - 0.3*fleetRadiusMult` (min 0.1) |
 | Intercept | 2000 | Every fleet within 300 except the firing fleet: `GoSlowScript` 2 s, sensor profile +1000 for 20 s with glow, interdict 6 s (turns off burn abilities and interdiction pulse, sets burn cooldown) |
-| Remote | none | Needs system tag `IndEvo_SystemHasArtillery` and the fleet inside `ArtilleryTerrain` with a live `CampaignAttackScript`; calls `forceTarget` on a token at the cursor. `ArtilleryAOEReticuleRenderer` rejects points within `INHABITED_AREA_SAFE_RADIUS` (700) plus entity radius of a market |
+| Remote | none | Needs system tag `IndEvo_SystemHasArtillery` and the fleet inside `ArtilleryTerrain` with a live `CampaignAttackScript`; calls `forceTarget` on a token at the cursor. Its reticule (`MarketProximityValidator`) rejects points within `INHABITED_AREA_SAFE_RADIUS` (700) plus entity radius of a market |
 | Catapult | none | Hyperspace, not abyss. Adds the temp ability, `activateAtAngle`, removes it; `NoWellSlipstreamAbility` builds a slipstream (burn about 900) and calls vanilla `deductCost` (CR and fuel) |
 
 Other effects:
@@ -134,7 +129,7 @@ NPCs: `FleetConsumableInventoryManager` gives spawned fleets the missile abiliti
 
 - `ID_MAP`, the CSV `plugin params` column and the ability ids must agree; `toggle()` is the only lookup.
 - Ability ids live in saves once added to the player fleet. Renaming one leaves a dead ability on old saves (inferred).
-- New missiles: extend `BaseMissileConsumableAbilityPlugin`, tag the ability row `indevo_missile` (plus `aoe` or `artillery`), add a `BaseMissileEntityPlugin` entity.
+- New missiles: extend `BaseMissileConsumableAbilityPlugin`, implement `createReticule()` and `onSkillshotFired()`, tag the ability row `IndEvo_skillshot`, add a `BaseMissileEntityPlugin` entity.
 - `$missile_bonked` is shared with [Meteor](../exploration/METEOR.md); `forceTarget` and `ArtilleryTerrain` with [Artillery](../industries/ARTILLERY.md).
 - `LocatorSystemRatingUpdater.salvageEntityMap` rates `IndEvo_arsenalStation` 10, `IndEvo_orbitalLaboratory` 20, `IndEvo_GachaStation` 20; ruins conditions 3/5/7/10, `IndEvo_RuinsCondition` and `IndEvo_RuinedInfra` +2, debris +2, populated markets +10 x size.
 - The beacon entity tag `IndEvo_beacon` hooks the rules dialogue in [Beacons](../dialogue/BEACONS.md).
@@ -144,8 +139,7 @@ NPCs: `FleetConsumableInventoryManager` gives spawned fleets the missile abiliti
 | Item | State |
 |---|---|
 | NPC missile AI | `ExplosiveMissileAbilityAI` unreferenced, `if(true) return` at `:59`; `MissileAIReactionManager.reportFleetUsedMissile` `if (true) return` at `:68`; `reportFleetHitByMissile` is a stub. NPC inventories are never used |
-| `BaseConsumableAbilityPlugin.java:66` | Result of `hasItemOfType` discarded; NPC amount always 0 |
-| `OnClickAbilityInputListener.java:29` | Persistent `addListener(this)` is removed only on the key abort path; each fired missile leaves a dead listener in the save |
+| `ItemAbilityHelper.getItemAmount` | NPC fleets always read 0 (the NPC inventory is never asked), so NPC `isUsable` is false |
 | `InterceptMissileEntityPlugin.java:105-106` | Sets `angle` instead of `currentAngle`; harmless, the missile is finishing after `onExplosion` |
 | `SpooferAbilityPlugin.java:93` | Render dead (`\|\| true`) |
 | `SpooferItemKeypressListener` | Left calls `nextFaction`, right `prevFaction`; reacts to arrows whenever no dialog is open |
