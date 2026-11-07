@@ -1,5 +1,6 @@
 package indevo.industries.academy.rules;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -33,7 +34,7 @@ public class IndEvo_DisplayTrainingStatus extends BaseCommandPlugin {
         if (academy.getOfficerInTraining() == null) text.addParagraph("No officer currently in training.");
         else {
             PersonAPI officer = academy.getOfficerInTraining();
-            text.addParagraph("Currently training officer: " + officer.getNameString() + " from " + Misc.ucFirst(officer.getPersonalityAPI().getDisplayName()) + " to " + Misc.ucFirst(academy.getNextPersonalityForTooltip())
+            text.addParagraph("Currently training officer: " + officer.getNameString() + " from " + Misc.ucFirst(officer.getPersonalityAPI().getDisplayName()) + " to " + Misc.ucFirst(Global.getSettings().getPersonaltySpec(academy.getOfficerTrainingTarget()).getDisplayName())
                     + " for another " + academy.getRemainingOfficerTrainingDays() + " " + StringHelper.getDayOrDays(academy.getRemainingOfficerTrainingDays()));
             text.highlightInLastPara(hl, academy.getRemainingOfficerTrainingDays() + " " + StringHelper.getDayOrDays(academy.getRemainingOfficerTrainingDays()));
 

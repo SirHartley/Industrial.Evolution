@@ -9,6 +9,7 @@ import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.events.CampaignEventPlugin;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.*;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
@@ -41,6 +42,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     //officer handling vars
     protected PersonAPI officerInTraining = null;
     protected trainingDirection currentDirection = trainingDirection.UNSET;
+    protected String officerTrainingTarget = null;
     protected PersonAPI adminInTraining = null;
     private final String trainLevelKey = "$IndEvo_wasTrainedLevel";
     private final ArrayList<PersonAPI> officerStorage = new ArrayList<>();
@@ -175,7 +177,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             tooltip.addSectionHeading("Officer in training", color, faction.getDarkUIColor(), Alignment.MID, opad);
 
             String oldPersonality = officer.getPersonalityAPI().getDisplayName();
-            String newPersonality = getNextPersonalityForTooltip();
+            String newPersonality = Global.getSettings().getPersonaltySpec(getOfficerTrainingTarget()).getDisplayName();
             String desc = officer.getNameString() + ", training to change personality from %s to %s";
             String dayCount = getRemainingOfficerTrainingDays() + " days.";
             TooltipMakerAPI text = tooltip.beginImageWithText(officer.getPortraitSprite(), 48);
@@ -224,8 +226,16 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         return 0;
     }
 
+    public float getOfficerTrainingFee(int steps) {
+        return market.isPlayerOwned() ? 0f : steps * Setting.PERSONALITY_TRAINING_COST.intValue();
+    }
+
+    public float getAdminTrainingFee() {
+        return market.isPlayerOwned() ? 0f : Setting.ADMIN_TRAINING_COST.intValue();
+    }
+
     private void chargeTraining(float amount) {
-        if (!market.isPlayerOwned()) BillingHelper.chargeNow(amount);
+        if (amount > 0) BillingHelper.chargeNow(amount);
     }
 
     //officer quality increases
@@ -309,7 +319,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             market.getMemory().set(ADMIN_IS_TRAINING_KEY, true);
         } else return;
 
-        chargeTraining(Setting.ADMIN_TRAINING_COST.intValue());
+        chargeTraining(getAdminTrainingFee());
     }
 
     public void abortAdminTraining(boolean moveToStorage_InsteadOfFleet) {
@@ -450,8 +460,78 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         return notTooStrong && notTooWeak;
     }
 
+    public static int getPersonalitySteps(String fromId, String toId) {
+        List<String> ladder = new ArrayList<>(COLOURS_BY_PERSONALITY.keySet());
+        int from = ladder.indexOf(fromId);
+        int to = ladder.indexOf(toId);
+        return from < 0 || to < 0 ? -1 : Math.abs(to - from);
+    }
+
+    public boolean hasAlphaCore() {
+        return Commodities.ALPHA_CORE.equals(getAICoreId());
+    }
+
+    public int getMaxOfficerSteps() {
+        return hasAlphaCore() ? 2 : 1;
+    }
+
+    public int getTrainedSteps(PersonAPI person) {
+        MemoryAPI mem = person.getMemoryWithoutUpdate();
+        return mem.contains(trainLevelKey) ? (int) mem.getFloat(trainLevelKey) : 0;
+    }
+
+    public int getOfficerStepsLeft(PersonAPI person) {
+        return Math.max(0, getMaxOfficerSteps() - getTrainedSteps(person));
+    }
+
+    public List<String> getReachablePersonalities(PersonAPI person) {
+        List<String> reachable = new ArrayList<>();
+        String current = person.getPersonalityAPI().getId();
+        int stepsLeft = getOfficerStepsLeft(person);
+
+        for (String id : COLOURS_BY_PERSONALITY.keySet()) {
+            int steps = getPersonalitySteps(current, id);
+            if (steps > 0 && steps <= stepsLeft) reachable.add(id);
+        }
+
+        return reachable;
+    }
+
+    public String getOfficerTrainingTarget() {
+        if (officerInTraining == null) return null;
+        if (officerTrainingTarget != null) return officerTrainingTarget;
+
+        // saves from before officerTrainingTarget: one step in currentDirection
+        List<String> ladder = new ArrayList<>(COLOURS_BY_PERSONALITY.keySet());
+        String current = officerInTraining.getPersonalityAPI().getId();
+        int index = ladder.indexOf(current);
+        if (index < 0 || currentDirection == null) return current;
+
+        switch (currentDirection) {
+            case BETTER:
+                return ladder.get(Math.min(index + 1, ladder.size() - 1));
+            case WEAKER:
+                return ladder.get(Math.max(index - 1, 0));
+            default:
+                return current;
+        }
+    }
+
+    public int getCurrentOfficerTrainingSteps() {
+        if (officerInTraining == null) return 0;
+        return Math.max(0, getPersonalitySteps(officerInTraining.getPersonalityAPI().getId(), getOfficerTrainingTarget()));
+    }
+
     public int getRemainingOfficerTrainingDays() {
-        return getOfficerTrainingDays() - officerDaysPassed;
+        return getCurrentOfficerTrainingDays() - officerDaysPassed;
+    }
+
+    public int getCurrentOfficerTrainingDays() {
+        return getOfficerTrainingDays(Math.max(1, getCurrentOfficerTrainingSteps()));
+    }
+
+    public int getOfficerTrainingDays(int steps) {
+        return steps * getOfficerTrainingDays();
     }
 
     public int getOfficerTrainingDays() {
@@ -459,99 +539,47 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     private void trainOfficerInTraining() {
-        if (officerInTraining != null) {
+        if (officerInTraining == null) return;
 
-            if (officerDaysPassed >= getOfficerTrainingDays() || Global.getSettings().isDevMode()) {
-
-                PersonalityAPI oldPersonality = officerInTraining.getPersonalityAPI();
-
-                changeOfficerPersonality(currentDirection);
-
-                PersonalityAPI newPersonality = officerInTraining.getPersonalityAPI();
-
-                moveOfficerInTrainingToStorage();
-
-                currentDirection = null;
-                officerDaysPassed = 0;
-                market.getMemory().set(OFFICER_IS_TRAINING_KEY, false);
-
-                MessageIntel intel = new MessageIntel("An officer has finished training at %s.",
-                        Misc.getTextColor(), new String[]{(market.getName())}, market.getFaction().getBrightUIColor());
-                intel.addLine("Personality changed from %s to %s.", Misc.getTextColor(), new String[]{oldPersonality.getDisplayName(), newPersonality.getDisplayName()}, COLOURS_BY_PERSONALITY.get(oldPersonality.getId()), COLOURS_BY_PERSONALITY.get(newPersonality.getId()));
-                intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
-                intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "trainingdone"));
-                Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
-
-            } else {
-                officerDaysPassed++;
-            }
+        if (officerDaysPassed < getCurrentOfficerTrainingDays() && !Global.getSettings().isDevMode()) {
+            officerDaysPassed++;
+            return;
         }
-    }
 
-    private boolean isOfficerInPlayerFleet(PersonAPI person) {
-        return Global.getSector().getPlayerFleet().getFleetData().getOfficerData(person) != null;
+        PersonalityAPI oldPersonality = officerInTraining.getPersonalityAPI();
+        int steps = getCurrentOfficerTrainingSteps();
+
+        if (steps > 0) {
+            officerInTraining.setPersonality(getOfficerTrainingTarget());
+            addTrainedSteps(officerInTraining, steps);
+        }
+
+        PersonalityAPI newPersonality = officerInTraining.getPersonalityAPI();
+
+        moveOfficerInTrainingToStorage();
+        clearOfficerTraining();
+
+        MessageIntel intel = new MessageIntel("An officer has finished training at %s.",
+                Misc.getTextColor(), new String[]{(market.getName())}, market.getFaction().getBrightUIColor());
+        intel.addLine("Personality changed from %s to %s.", Misc.getTextColor(), new String[]{oldPersonality.getDisplayName(), newPersonality.getDisplayName()}, COLOURS_BY_PERSONALITY.get(oldPersonality.getId()), COLOURS_BY_PERSONALITY.get(newPersonality.getId()));
+        intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
+        intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "trainingdone"));
+        Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
     }
 
     public trainingDirection getCurrentDirection() {
         return currentDirection;
     }
 
-    private void changeOfficerPersonality(trainingDirection direction) {
-        if (officerInTraining == null) {
-            return;
-        }
-
-        List<String> personalities = new LinkedList<>(COLOURS_BY_PERSONALITY.keySet());
-
-        PersonAPI person = officerInTraining;
-        int currentIndex = personalities.indexOf(person.getPersonalityAPI().getId());
-        int nextIndex;
-
-        if (currentIndex == -1) {
-            debugMessage("officer personality is not valid");
-            return;
-        }
-
-        switch (direction) {
-            case BETTER:
-                nextIndex = currentIndex < 4 ? currentIndex + 1 : currentIndex;
-                person.setPersonality(personalities.get(nextIndex));
-                applyTrainingMemoryTag(person);
-                break;
-            case WEAKER:
-                nextIndex = currentIndex > 0 ? currentIndex - 1 : currentIndex;
-                person.setPersonality(personalities.get(nextIndex));
-                applyTrainingMemoryTag(person);
-                break;
-            default:
-                break;
-        }
+    private void clearOfficerTraining() {
+        officerTrainingTarget = null;
+        currentDirection = trainingDirection.UNSET;
+        officerDaysPassed = 0;
+        market.getMemory().set(OFFICER_IS_TRAINING_KEY, false);
     }
 
-    public String getNextPersonalityForTooltip() {
-        List<String> personalities = new LinkedList<>(COLOURS_BY_PERSONALITY.keySet());
-
-        PersonAPI person = officerInTraining;
-        int currentIndex = personalities.indexOf(person.getPersonalityAPI().getId());
-        int nextIndex;
-
-        if (currentIndex == -1) {
-            debugMessage("officer personality is not valid");
-            return null;
-        }
-
-        switch (currentDirection) {
-            case BETTER:
-                nextIndex = currentIndex < 4 ? currentIndex + 1 : currentIndex;
-                return Global.getSettings().getPersonaltySpec(personalities.get(nextIndex)).getDisplayName();
-            case WEAKER:
-                nextIndex = currentIndex > 0 ? currentIndex - 1 : currentIndex;
-                return Global.getSettings().getPersonaltySpec(personalities.get(nextIndex)).getDisplayName();
-            default:
-                break;
-        }
-
-        return null;
+    private boolean isOfficerInPlayerFleet(PersonAPI person) {
+        return Global.getSector().getPlayerFleet().getFleetData().getOfficerData(person) != null;
     }
 
     public void moveOfficerInTrainingToStorage() {
@@ -566,64 +594,49 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     public void abortOfficerTraining(boolean moveToStorage_InsteadOfFleet) {
         if (officerInTraining != null) {
             if (!moveToStorage_InsteadOfFleet && playerHasOfficerCapacity()) {
-                returnOfficer(officerInTraining);
-
+                Global.getSector().getPlayerFleet().getFleetData().addOfficer(officerInTraining);
             } else {
                 officerStorage.add(officerInTraining);
             }
 
-            officerDaysPassed = 0;
-            currentDirection = null;
             officerInTraining = null;
-            market.getMemory().set(OFFICER_IS_TRAINING_KEY, false);
+            clearOfficerTraining();
         }
     }
 
-    private void applyTrainingMemoryTag(PersonAPI person) {
-        if (!person.getMemoryWithoutUpdate().getKeys().contains(trainLevelKey)) {
-            person.getMemory().set(trainLevelKey, 1f);
-        } else {
-            person.getMemory().set(trainLevelKey, person.getMemoryWithoutUpdate().getFloat(trainLevelKey) + 1f);
-        }
+    private void addTrainedSteps(PersonAPI person, int steps) {
+        person.getMemory().set(trainLevelKey, getTrainedSteps(person) + (float) steps);
     }
 
     public boolean isOfficerTrainingAllowed(PersonAPI person) {
-        if (Misc.isUnremovable(person)) return false;
-
-        boolean alphaInstalled = getAICoreId() != null && getAICoreId().equals(Commodities.ALPHA_CORE);
-        float trainLevel = person.getMemoryWithoutUpdate().getKeys().contains(trainLevelKey) ? person.getMemoryWithoutUpdate().getFloat(trainLevelKey) : 0f;
-
-        return trainLevel == 0f
-                || (trainLevel < 2f && alphaInstalled);
-    }
-
-    public boolean isOfficerTrainingAllowed(PersonAPI person, trainingDirection direction) {
-        boolean alphaInstalled = getAICoreId() != null && getAICoreId().equals(Commodities.ALPHA_CORE);
-        float trainLevel = person.getMemoryWithoutUpdate().getKeys().contains(trainLevelKey) ? person.getMemoryWithoutUpdate().getFloat(trainLevelKey) : 0f;
-
-        return trainLevel == 0f
-                || (trainLevel < 2f && alphaInstalled)
-                || isOfficerTrainingDirectionAllowed(person, direction);
+        return !Misc.isUnremovable(person) && getOfficerStepsLeft(person) > 0;
     }
 
     public void setOfficerForTraining(PersonAPI person, trainingDirection direction) {
-        if (isOfficerTrainingAllowed(person, direction) && isOfficerInPlayerFleet(person)) {
-            removeOfficerFromPlayerFleet(person);
-
-            officerInTraining = person;
-            currentDirection = direction;
-            market.getMemory().set(OFFICER_IS_TRAINING_KEY, true);
-        } else if (isOfficerTrainingAllowed(person, direction) && officerStorage.contains(person)) {
-
-            officerStorage.remove(person);
-            officerInTraining = person;
-            currentDirection = direction;
-            market.getMemory().set(OFFICER_IS_TRAINING_KEY, true);
-        } else return;
-
-        chargeTraining(Setting.PERSONALITY_TRAINING_COST.intValue());
+        List<String> ladder = new ArrayList<>(COLOURS_BY_PERSONALITY.keySet());
+        int index = ladder.indexOf(person.getPersonalityAPI().getId()) + (direction == trainingDirection.BETTER ? 1 : -1);
+        if (index >= 0 && index < ladder.size()) setOfficerForTraining(person, ladder.get(index));
     }
 
+    public void setOfficerForTraining(PersonAPI person, String targetId) {
+        int steps = getPersonalitySteps(person.getPersonalityAPI().getId(), targetId);
+        if (officerInTraining != null || !isOfficerTrainingAllowed(person) || steps < 1 || steps > getOfficerStepsLeft(person)) return;
+
+        float fee = getOfficerTrainingFee(steps);
+        if (!BillingHelper.canAfford(fee)) return;
+
+        if (isOfficerInPlayerFleet(person)) removeOfficerFromPlayerFleet(person);
+        else if (!officerStorage.remove(person)) return;
+
+        List<String> ladder = new ArrayList<>(COLOURS_BY_PERSONALITY.keySet());
+        officerInTraining = person;
+        officerTrainingTarget = targetId;
+        currentDirection = ladder.indexOf(targetId) > ladder.indexOf(person.getPersonalityAPI().getId()) ? trainingDirection.BETTER : trainingDirection.WEAKER;
+        officerDaysPassed = 0;
+        market.getMemory().set(OFFICER_IS_TRAINING_KEY, true);
+
+        chargeTraining(fee);
+    }
 
     //officer storage
 
@@ -769,10 +782,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Enables the Academy to %s via training.", 0.0F, highlight, new String[]{"change officer personality a second time"});
+            text.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{"two personality steps"});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Enables the Academy to %s via training.", 0.0F, highlight, new String[]{"change officer personality a second time"});
+            tooltip.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{"two personality steps"});
         }
     }
 

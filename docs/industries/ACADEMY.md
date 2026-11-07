@@ -12,7 +12,7 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 
 | File | Owner / role |
 |---|---|
-| `indevo/industries/academy/industry/Academy.java` | Industry plugin. Owns training state (`officerInTraining`, `adminInTraining`, day counters, `currentDirection`), both storage lists, fees, spawn rolls, officer quality mods, AI core effects. `NewDayListener` + `EconomyTickListener` |
+| `indevo/industries/academy/industry/Academy.java` | Industry plugin. Owns training state (`officerInTraining`, `officerTrainingTarget`, `adminInTraining`, day counters, `currentDirection`), both storage lists, fees, spawn rolls, officer quality mods, AI core effects. `NewDayListener` + `EconomyTickListener` |
 | `indevo/industries/academy/plugins/AcademyOptionProvider.java` | Industry "Visit the Academy..." button; opens `RuleBasedInteractionDialogPluginImpl("IndEvo_FireBaseAcademyOptionList")` |
 | `indevo/industries/academy/rules/IndEvo_AcademyVariables.java` | Memory key, option prefix, enum and market id constants shared by the rule commands |
 | `rules/IndEvo_CreatePersonSelectionList.java` | Builds the eligible person list per action and person type, pages it by 4 into `$IndEvo_personList`; `check` param = condition only. Also `getMarket()` (Galatia special case) and `isInstalled()` |
@@ -38,7 +38,7 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 | Setting | `IndEvo_adminTrainingDayCount` 124, `IndEvo_adminTrainingCost` 20000 | `LunaSettings.csv:170-171` |
 | Setting | `IndEvo_monthlyAIStorageCost` 2000 (per person, NPC markets) | `LunaSettings.csv:172` |
 | Market memory | `$IndEvo_officerIsTraining`, `$IndEvo_adminIsTraining` | set by `Academy`, read by `IndEvo_MarketIsTraining` |
-| Person memory | `$IndEvo_wasTrainedLevel` (training count) | `Academy.applyTrainingMemoryTag()` (`Academy.java:590`) |
+| Person memory | `$IndEvo_wasTrainedLevel` (personality steps used) | `Academy.addTrainedSteps()` |
 | Person memory | `$ome_adminTier` incremented, `$ome_hireable`, `$ome_isAdmin` read | `Academy.java:389`, `:691` (vanilla `OfficerManagerEvent` keys) |
 | Dialogue memory | `$IndEvo_personList`, `$IndEvo_subListPage`, `$IndEvo_actionType`, `$IndEvo_personType`, `$IndEvo_selectedPerson` (local, expire 0) | `IndEvo_AcademyVariables` |
 | Entity memory | `$IndEvo_closeDialogueOnNextReturn` | `AcademyOptionProvider.onClick()` |
@@ -70,10 +70,10 @@ Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSe
 
 ### Officer training
 
-- Eligible: in fleet or officer storage, not `Misc.isUnremovable`, `$IndEvo_wasTrainedLevel` 0, or below 2 with an alpha core (`Academy.isOfficerTrainingAllowed(person)`, `:598`).
-- `setOfficerForTraining()` (`:617`) removes the officer from fleet and ship command or from storage, sets direction and charges `IndEvo_personalityTrainingCost`; nothing is charged if training was not allowed. `chargeTraining()` takes the fee at once (`BillingHelper.chargeNow`) on NPC markets, where the dialog checks `canAfford` first ([BillingHelper](../core/UTILS.md#billinghelper)); training at player markets is free.
-- `trainOfficerInTraining()` (`:469`) runs daily if functional and the market faction is not hostile to the player. After `getOfficerTrainingDays()` = setting + 1 - AI core reduction, `changeOfficerPersonality()` moves one step, increments `$IndEvo_wasTrainedLevel`, puts the officer into storage, sends a `MessageIntel`. Dev mode finishes on the next day.
-- Direction limits: no `WEAKER` from timid, no `BETTER` from reckless (`isOfficerTrainingDirectionAllowed()`, `:453`), enforced only on the option buttons.
+- Steps: the distance on the personality ladder (`getPersonalitySteps()`). An officer has one lifetime step, two with an alpha core (`getMaxOfficerSteps()`); `$IndEvo_wasTrainedLevel` counts the steps used (`getOfficerStepsLeft()`). One training may use all steps left at once.
+- `setOfficerForTraining(person, targetId)` checks that no officer is training, the officer is removable, the target is 1 to steps left away and the fee is affordable, then removes the officer from fleet and ship command or from storage, stores the target in `officerTrainingTarget` and charges the fee. Fee and days are per step: `getOfficerTrainingFee(steps)` (`IndEvo_personalityTrainingCost` per step, 0 on player markets), `getOfficerTrainingDays(steps)` (`IndEvo_personalityTrainingDayCount` + 1 - AI core reduction, per step). The fee is taken at once with `BillingHelper.chargeNow` ([BillingHelper](../core/UTILS.md#billinghelper)).
+- `trainOfficerInTraining()` runs daily if functional and the market faction is not hostile to the player. After `getCurrentOfficerTrainingDays()` it sets the target personality, adds the steps to `$IndEvo_wasTrainedLevel`, puts the officer into storage and sends a `MessageIntel`. Dev mode finishes on the next day.
+- Saves from before `officerTrainingTarget` have it null; `getOfficerTrainingTarget()` then takes one step in `currentDirection`.
 
 ### Admin training
 
@@ -95,7 +95,7 @@ Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSe
 
 | Core | Effect | Where |
 |---|---|---|
-| Alpha | officers may be trained a second time | `isOfficerTrainingAllowed()` |
+| Alpha | officers get a second personality step, usable at once | `getMaxOfficerSteps()` |
 | Beta | training days -31 (`betacoreReduction`) | `applyAICoreToIncomeAndUpkeep()`, `:823` |
 | Gamma | upkeep x0.9 | same |
 
@@ -113,7 +113,6 @@ Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSe
 |---|---|
 | `rules/WIP/IndEvo_InitPersonalityTransferMenu.java` | Excluded by `IndEvo.iml:13`. Wrong package `indevo.industries.acardemy.rules.WIP`, uses removed classes (`IndEvo_Academy`, `IndEvo_ids`, Salvage Yards production code). Officer engram transfer concept only |
 | `IndEvo_OfficerCurrentlyTraining` | Dead: no rule uses it, reads `$IndEvo_isTraining` which nothing sets |
-| `isOfficerTrainingAllowed(person, direction)` | `||` with the direction check (`Academy.java:614`) lets an officer already trained twice pass whenever the direction is allowed |
 | `increaseOfficerQuality()` | `!=` on string ids (`:243`) and `return` instead of `continue` (`:246`) stop the loop at the first already modified market |
 | Changelog_todo | "Academy can pick forbidden, event only admin skills and should really run off a whitelist"; "Rework academy UI"; "Story point option for academy, Recruit Local Talent" |
 
