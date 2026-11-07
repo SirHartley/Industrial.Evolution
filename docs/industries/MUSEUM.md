@@ -42,9 +42,9 @@ On player markets the Museum adds a hidden ship storage submarket (`IndEvo_Museu
 ## Registration and lifecycle
 
 - Industry, submarket and condition plugins from CSV plugin columns.
-- `MuseumManageParadeOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:482`), transient.
+- `MuseumManageParadeOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:484`), transient.
 - `Museum.apply()` (player markets only) refreshes the hull value table, adds itself as a persistent listener (`addListener(this)`, `Museum.java:77`) and as a transient immigration modifier, and sets income. `unapply()` removes all three.
-- `Museum.advance()` adds the submarket once functional and player owned (`:130`). `notifyBeingRemoved()` clears the parade tags, moves the stored ships to the market storage and removes the submarket; `advance()` also calls it when the market changes owner.
+- `Museum.advance()` adds the submarket through `IndustrySubmarkets.ensure` once functional and player owned (`:133`). `notifyBeingRemoved()` despawns parades, clears the parade tags and calls `IndustrySubmarkets.release`, which moves the stored ships to the market storage and removes the submarket (`:403`); `advance()` also calls it when the market changes owner.
 - Parade fleets carry the `ParadeFleetAssignmentAI` script and two fleet event listeners (the profile and the AI).
 
 Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> store lastParadeCheck -> fill profiles -> pick enabled idle profiles -> ParadeFleetProfile.spawnFleet -> getNewParadeFleetFromPresetData -> getLaunchBlocker -> FleetFactoryV3 + cloned members -> ParadeFleetAssignmentAI -> addParadeConditionToMarket -> ... -> GO_TO_LOCATION_AND_DESPAWN -> reportFleetDespawnedToListener -> clear tags and condition`.
@@ -95,7 +95,7 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> store lastParadeChec
 |---|---|
 | Profile growth | `reportEconomyTick()` adds one new profile per month while enabled profiles < max (`:105`), so disabled profiles pile up |
 | `getValueForShip()` | Logs on every call (`:320`), including every tooltip row |
-| Comment blocks in `Museum.java:42-50`, `:441-443` | Design notes, partly outdated (gamma "3000 max") |
+| Comment blocks in `Museum.java:42-50`, `:437-439` | Design notes, partly outdated (gamma "3000 max") |
 | Next parade estimate | A flat 31 day interval; the real gap between two tick 5s is about 30 to 31 days (28 day months less), so the tooltip says "about" |
 | Changelog_todo | "Add settings to museum" |
 

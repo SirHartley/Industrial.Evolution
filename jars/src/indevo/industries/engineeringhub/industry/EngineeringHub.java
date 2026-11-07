@@ -23,7 +23,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUser;
 import indevo.items.installable.BlueprintInstallableItemPlugin;
-import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
+import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
 import org.apache.log4j.Logger;
@@ -79,10 +79,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     @Override
     public void advance(float amount) {
         super.advance(amount);
-        if (isFunctional() && !market.hasSubmarket(Ids.ENGSTORAGE)) {
-            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.ENGSTORAGE, false));
-            addSharedSubmarket();
-        }
+        IndustrySubmarkets.ensure(this, Ids.ENGSTORAGE);
     }
 
     @Override
@@ -96,9 +93,6 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
                 effect.unapply(this);
             }
         }
-
-        removeSharedSubmarket();
-        Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.ENGSTORAGE, true));
     }
 
     @Override

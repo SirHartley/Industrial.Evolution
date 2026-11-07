@@ -39,8 +39,8 @@ CSV rows starting with `#` are skipped by the loader (skill `docs/concepts/spec-
 ## Registration and lifecycle
 
 - CSV plugin column `indevo.industries.warehouses.industry.Warehouses`.
-- `ModPlugin.setListenersIfNeeded()` registers `WarehouseAddSubmarketOptionProvider` and `WarehouseRemoveSubmarketOptionProvider` (`ModPlugin.java:480-481`) via `ListenerManager.addListener(new ..., true)` (transient). Base class `TagBasedSimplifiedIndustryOptionProvider` is in [Utils](../core/UTILS.md).
-- `Warehouses.adjustWormholeAnchorSpec()` is commented out (`ModPlugin.java:126`).
+- `ModPlugin.setListenersIfNeeded()` registers `WarehouseAddSubmarketOptionProvider` and `WarehouseRemoveSubmarketOptionProvider` (`ModPlugin.java:482-483`) via `ListenerManager.addListener(new ..., true)` (transient). Base class `TagBasedSimplifiedIndustryOptionProvider` is in [Utils](../core/UTILS.md).
+- `Warehouses.adjustWormholeAnchorSpec()` is commented out (`ModPlugin.java:127`).
 - Saved state: `warehouseSubMarkets` and `shouldLinkLocalStorage` on the industry; `LinkedStorageManager` in sector memory.
 
 Add chain: `option click -> dialog confirm -> Warehouses.addSubmarket(data) -> market.addSubmarket(id) -> WarehouseSubmarketPlugin.init -> Warehouses.getData(this)`.
@@ -52,8 +52,8 @@ Add chain: `option click -> dialog confirm -> Warehouses.addSubmarket(data) -> m
 - `optionEnabled` allows adding while fewer than 5 exist (`WarehouseAddSubmarketOptionProvider.java:33`). New id is `IndEvo_WarehouseStorage_<count + 1>` (`:39`), default name "Warehouse n".
 - `addSubmarket` adds the data before `market.addSubmarket`, because the plugin looks its data up on `init` (`Warehouses.java:151`).
 - `WarehouseSubmarketPlugin`: name from data, free transfer, cargo stacks illegal when `showInCargoScreen` is off, ships illegal when `showInFleetScreen` is off.
-- Removal always takes the last list entry (`WarehouseRemoveSubmarketOptionProvider.java:51`); `removeSubmarket` calls `RemovablePlayerSubmarketPluginAPI.notifyBeingRemoved()` first, which moves the content to colony storage (dialog text; implementation in [Submarkets](../core/SUBMARKETS.md)).
-- `Warehouses.notifyBeingRemoved` unlinks storage first ("or it dumps the cores/items into the linked cargo"), then calls super, then removes all extra storages (`:183`).
+- Removal always takes the last list entry (`WarehouseRemoveSubmarketOptionProvider.java:51`); `removeSubmarket` calls `IndustrySubmarkets.remove`, which moves the content to colony storage, and drops the list entry only when that succeeded (`Warehouses.java:159`; implementation in [Submarkets](../core/SUBMARKETS.md)).
+- `Warehouses.notifyBeingRemoved` unlinks storage first ("or it dumps the cores/items into the linked cargo"), then calls super, then removes all extra storages (`:177`).
 
 ### Wormhole Complex (dormant)
 

@@ -73,12 +73,6 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
         super.apply(true);
     }
 
-    @Override
-    public void advance(float amount) {
-        super.advance(amount);
-        addSharedSubmarket();
-    }
-
     //now adds onto heavy industry directly
     private void modifyPlayerCustomProduction(int mod) {
         int max = 0;
@@ -109,7 +103,6 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
         Global.getSector().getListenerManager().removeListener(this);
 
         if (!market.isPlayerOwned()) return;
-        removeSharedSubmarket();
         unmodifyPlayerCustomProduction();
     }
 

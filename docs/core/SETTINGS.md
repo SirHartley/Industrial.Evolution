@@ -19,7 +19,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 | `data/config/LunaSettingsConfig.json` | LunaLib mod entry: settings menu icon `graphics/icons/IndEvo.png` |
 | `data/config/settings.json` | Non-player config, sprite keys, `ruleCommandPackages`, `designTypeColors` |
 | `data/config/indEvo/*.csv` | Whitelists and blacklists, one `id` column each |
-| `indevo/utils/helper/MiscIE.java:578` | `getCSVSetFromMemory(path)`: loads and caches a whitelist |
+| `indevo/utils/helper/MiscIE.java:569` | `getCSVSetFromMemory(path)`: loads and caches a whitelist |
 | `indevo/ids/Ids.java` | Whitelist path constants (`EMBASSY_LIST` and so on) read from `settings.json` at class init |
 
 ## LunaLib settings
@@ -81,7 +81,7 @@ if (!Setting.EMBASSY.enabled()) return;
 | `adminSalaryTier1` to `3` | Vanilla override, marked "do not touch" | Vanilla |
 | `IndEvo_*List` | Paths of the whitelist CSVs | `Ids` |
 | `oldstory_csv_path` | Survey story CSV path | [Survey stories](../exploration/SURVEY_STORIES.md) |
-| `IndEvo_ToggleMagicRandomSelector` | Debug switch for hull forge random picks | `indevo/industries/derelicts/industry/HullForge.java:287` |
+| `IndEvo_ToggleMagicRandomSelector` | Debug switch for hull forge random picks | `indevo/industries/derelicts/industry/HullForge.java:280` |
 | `ruleCommandPackages` | Packages the rules engine searches for IE rule commands | [Rule commands](../dialogue/RULE_COMMANDS.md) |
 | `designTypeColors` | Colors for IE design types (Experimental, Consumable, Cryochamber) | Vanilla |
 | `graphics` | Sprite keys under `IndEvo` and feature categories | Callers via `Global.getSettings().getSprite(category, key)` |

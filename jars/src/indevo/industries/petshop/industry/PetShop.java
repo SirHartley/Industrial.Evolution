@@ -20,7 +20,7 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.memory.Pet;
-import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
+import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 
@@ -179,12 +179,14 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         super.advance(amount);
 
         //if (petShopStationEntity == null && isFunctional() && !isBuilding()) ensurePetShopCreatedOrAssigned();
-        if(isFunctional() && !market.hasSubmarket(Ids.PETMARKET) && Setting.PETS.enabled()) Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.PETMARKET, false));
+        if (Setting.PETS.enabled()) IndustrySubmarkets.ensure(this, Ids.PETMARKET);
+        else IndustrySubmarkets.remove(market, Ids.PETMARKET);
     }
 
     @Override
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
         super.notifyBeingRemoved(mode, forUpgrade);
+        IndustrySubmarkets.release(this);
 
         if (!forUpgrade) {
             //removeStationEntityAndFleetIfNeeded();
@@ -240,7 +242,6 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     @Override
     public void unapply() {
         super.unapply();
-        Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.PETMARKET, true));
         Global.getSector().getListenerManager().removeListener(this);
     }
 

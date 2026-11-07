@@ -55,9 +55,9 @@ The player ability `splinter_fleet` opens a control panel with two loadout slots
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded` -> `DetachmentAbilityAdder.register()` (`ModPlugin.java:438`); persistent `NewDayListener`, deduped by `hasListenerOfClass`.
-- `ModPlugin.setListenersIfNeeded` -> `DetachmentPayroll.register()` (`ModPlugin.java:439`); persistent `EconomyTickListener`, deduped by `hasListenerOfClass`.
-- `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new SplinterFleetCampignPlugin())` on every load (`ModPlugin.java:493`); transient, so it is not saved.
+- `ModPlugin.setListenersIfNeeded` -> `DetachmentAbilityAdder.register()` (`ModPlugin.java:440`); persistent `NewDayListener`, deduped by `hasListenerOfClass`.
+- `ModPlugin.setListenersIfNeeded` -> `DetachmentPayroll.register()` (`ModPlugin.java:441`); persistent `EconomyTickListener`, deduped by `hasListenerOfClass`.
+- `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new SplinterFleetCampignPlugin())` on every load (`ModPlugin.java:495`); transient, so it is not saved.
 - `abilities.csv` plugin column -> `SplinterAbilityPlugin`.
 - Per detachment, attached at spawn and saved with the fleet: one `DetachmentAI` script (added by `Behaviour.changeBehaviourAndUpdateAI` when missing, `Behaviour.java:223`) and one `CombatAndDerelictionScript`, which adds itself as the fleet's `FleetEventListener`. Neither registers a sector listener. `FleetUtils.createAndSpawnFleet` adds one `DetachmentIntel` to the intel manager (`FleetUtils.java:222`).
 

@@ -10,7 +10,7 @@ import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
-import indevo.submarkets.DynamicSubmarket;
+import indevo.submarkets.RemovableSubmarketPluginAPI;
 import indevo.utils.helper.MiscIE;
 import org.apache.log4j.Logger;
 
@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements DynamicSubmarket {
+public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements RemovableSubmarketPluginAPI {
 
     public static Logger log = Global.getLogger(DeconstructorSubmarketPlugin.class);
     public boolean isSetForRemoval = false;
@@ -96,7 +96,7 @@ public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements
         return false;
     }
 
-    public void prepareForRemoval() {
+    public void notifyBeingRemoved() {
         this.isSetForRemoval = true;
     }
 

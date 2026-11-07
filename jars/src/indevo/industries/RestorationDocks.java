@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.MonthlyReport;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
@@ -28,7 +29,7 @@ import com.fs.starfarer.api.util.Pair;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
-import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
+import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 
@@ -71,9 +72,13 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
     @Override
     public void advance(float amount) {
         super.advance(amount);
-        if (isFunctional() && !market.hasSubmarket(Ids.REPSTORAGE)) {
-            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.REPSTORAGE, false));
-        }
+        IndustrySubmarkets.ensure(this, Ids.REPSTORAGE);
+    }
+
+    @Override
+    public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
+        super.notifyBeingRemoved(mode, forUpgrade);
+        IndustrySubmarkets.release(this);
     }
 
     private void applyImports() {
@@ -89,7 +94,6 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
         demand.clear();
         Global.getSector().getListenerManager().removeListener(this);
-        Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.REPSTORAGE, true));
     }
 
     @Override

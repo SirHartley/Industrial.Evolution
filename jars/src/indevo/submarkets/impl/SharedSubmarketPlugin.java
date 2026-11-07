@@ -11,13 +11,13 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import indevo.industries.SharedSubmarketUserAPI;
 import indevo.industries.derelicts.industry.HullForge;
-import indevo.submarkets.DynamicSubmarket;
+import indevo.submarkets.RemovableSubmarketPluginAPI;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SharedSubmarketPlugin extends BaseSubmarketPlugin implements DynamicSubmarket {
+public class SharedSubmarketPlugin extends BaseSubmarketPlugin implements RemovableSubmarketPluginAPI {
 
     public static final Logger log = Global.getLogger(HullForge.class);
 
@@ -51,7 +51,7 @@ public class SharedSubmarketPlugin extends BaseSubmarketPlugin implements Dynami
         return !isSetForRemoval || !market.isPlayerOwned();
     }
 
-    public void prepareForRemoval() {
+    public void notifyBeingRemoved() {
         this.isSetForRemoval = true;
     }
 

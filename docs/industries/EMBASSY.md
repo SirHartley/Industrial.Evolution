@@ -47,8 +47,8 @@ Outside the package: `indevo/items/specialitemdata/AmbassadorItemData.java`, `in
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded()`: `AmbassadorPersonManager.register()` (`ModPlugin.java:429`, transient, no dedupe needed since transient listeners are dropped on save), `checkAmbassadorPresence.register()` (`:434`, `addTransientListener`), `HostileActivityEventSubRegisterListener.register()` (`:475`, transient).
-- `ModPlugin.loadTransientMemory()` warms the whitelist cache (`ModPlugin.java:410`).
+- `ModPlugin.setListenersIfNeeded()`: `AmbassadorPersonManager.register()` (`ModPlugin.java:431`, transient, no dedupe needed since transient listeners are dropped on save), `checkAmbassadorPresence.register()` (`:436`, `addTransientListener`), `HostileActivityEventSubRegisterListener.register()` (`:477`, transient).
+- `ModPlugin.loadTransientMemory()` warms the whitelist cache (`ModPlugin.java:412`).
 - `Embassy.apply()` adds itself as a transient listener only when functional and player owned (`Embassy.java:62`).
 - `AmbassadorItemTrackerPlugin` and `LostAmbassadorRemovalChecker` are persistent listeners (`addListener(obj)`), removed by `setDone()`. `AmbassadorMurderConsequences` is a persistent sector script; `moveAmbassadorToMarket` is a transient script.
 - Rule commands from `ruleCommandPackages` `indevo.industries.embassy.rules` (`settings.json:73`).
@@ -97,7 +97,7 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:52`): `findAmba
 - Loss tracking polls `lastDayRep` once a day. `reportPlayerReputationChange` would be the callback, but `CoreReputationPlugin` fires it only for rep actions (`api/impl/campaign/CoreReputationPlugin.java:562-567`), not for raw `FactionAPI.adjustRelationship` calls from events and other mods.
 - Fleet, detachment and shipment cargo is checked fresh each day and never kept as the tracker's last location: `FleetUtils.mergeFleetWithPlayerFleet` copies the cargo and leaves the stacks in the dead fleet's cargo.
 - `AmbassadorPersonManager` is transient: `lastDayRep` and the monthly penalty and gain maps reset on every load (inferred from `ListenerManager.transientListeners`, `obf/campaign/ListenerManager.java:11`).
-- `getAllowedFactionID()` adds memory-allowed factions into the cached whitelist set itself, so they stay allowed for the session even after the key turns false (cache in `MiscIE.getCSVSetFromMemory()`, `indevo/utils/helper/MiscIE.java:578`).
+- `getAllowedFactionID()` adds memory-allowed factions into the cached whitelist set itself, so they stay allowed for the session even after the key turns false (cache in `MiscIE.getCSVSetFromMemory()`, `indevo/utils/helper/MiscIE.java:569`).
 - With Nexerelin enabled, relation changes go through `DiplomacyManager.adjustRelations()` (`AmbassadorPersonManager.java:111`).
 - Users outside the package: `RequisitionCenter`, `RequisitionsCenterSubmarketPlugin`, `JuicyRumorsSpecial`, `IndEvo_SalvageSpecialAssigner` call `getAmbassador`, `hasAmbassador`, `getListOfIncativeFactions` or `adjustRelationship`. Keep these signatures.
 

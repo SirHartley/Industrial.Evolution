@@ -1,18 +1,21 @@
 package indevo.industries;
 
-import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import indevo.ids.Ids;
-import indevo.submarkets.script.SubMarketAddOrRemovePlugin;
+import indevo.submarkets.IndustrySubmarkets;
 
 public abstract class SharedSubmarketUser extends BaseIndustry implements SharedSubmarketUserAPI {
-        public void addSharedSubmarket() {
-        if (market.isPlayerOwned() && isFunctional() && !market.hasSubmarket(Ids.SHAREDSTORAGE)) {
-            Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.SHAREDSTORAGE, false));
-        }
+
+    @Override
+    public void advance(float amount) {
+        super.advance(amount);
+        IndustrySubmarkets.ensure(this, Ids.SHAREDSTORAGE);
     }
 
-    public void removeSharedSubmarket() {
-        Global.getSector().addScript(new SubMarketAddOrRemovePlugin(market, Ids.SHAREDSTORAGE, true));
+    @Override
+    public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
+        super.notifyBeingRemoved(mode, forUpgrade);
+        IndustrySubmarkets.release(this);
     }
 }
