@@ -15,7 +15,6 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.RestorationDocks;
-import indevo.submarkets.RemovableSubmarketPluginAPI;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 
@@ -26,9 +25,8 @@ import java.util.Map;
 
 import static indevo.ids.Ids.REPAIRDOCKS;
 
-public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin implements RemovableSubmarketPluginAPI {
+public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin {
 
-    public boolean isSetForRemoval = false;
     private static final String IDENT = "IndEvo_dryDock";
 
     public void init(SubmarketAPI submarket) {
@@ -38,10 +36,6 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin impleme
 
     public void updateCargoPrePlayerInteraction() {
 
-    }
-
-    public void notifyBeingRemoved() {
-        this.isSetForRemoval = true;
     }
 
     @Override
@@ -101,10 +95,6 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin impleme
 
     public Highlights getTooltipAppendixHighlights(CoreUIAPI ui) {
         return null;
-    }
-
-    public boolean showInFleetScreen() {
-        return !isSetForRemoval;
     }
 
     public boolean showInCargoScreen() {

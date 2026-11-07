@@ -16,7 +16,6 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.engineeringhub.industry.EngineeringHub;
-import indevo.submarkets.RemovableSubmarketPluginAPI;
 import indevo.utils.helper.MiscIE;
 import org.apache.log4j.Logger;
 
@@ -26,7 +25,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin implements RemovableSubmarketPluginAPI {
+public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin {
     public static Logger log = Global.getLogger(ReverseEngineeringSubmarketPlugin.class);
 
     public Set<String> restrictedShips = new HashSet<>();
@@ -34,8 +33,6 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin imple
 
     @Deprecated
     public Set<String> roleListings = new HashSet<>();
-
-    public boolean isSetForRemoval = false;
 
     public void init(SubmarketAPI submarket) {
         super.init(submarket);
@@ -89,10 +86,6 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin imple
 
     public boolean showInCargoScreen() {
         return false;
-    }
-
-    public void notifyBeingRemoved() {
-        this.isSetForRemoval = true;
     }
 
     public boolean isParticipatesInEconomy() {

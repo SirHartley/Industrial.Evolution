@@ -20,20 +20,14 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.industries.RequisitionCenter;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
-import indevo.submarkets.RemovableSubmarketPluginAPI;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.BillingHelper;
 
 import java.util.*;
 
-public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin implements RemovableSubmarketPluginAPI {
+public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin {
 
-    public boolean isSetForRemoval = false;
     private boolean playerPaidToUnlock = false;
-
-    public void notifyBeingRemoved() {
-        this.isSetForRemoval = true;
-    }
 
     public void updateCargoPrePlayerInteraction() {
         if (market.isPlayerOwned() && !playerPaidToUnlock) {
@@ -336,10 +330,6 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin imple
 
     public boolean showInFleetScreen() {
         return false;
-    }
-
-    public boolean showInCargoScreen() {
-        return !isSetForRemoval;
     }
 
     @Override

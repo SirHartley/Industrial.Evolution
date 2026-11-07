@@ -95,8 +95,8 @@ Code paths relative to `jars/src/indevo/`.
 
 | Core | Effect | Where |
 |---|---|---|
-| Alpha | rare pet weight x1.3 in restock | `PetSubMarket.java:39` |
-| Beta | pets stop aging in storage; tariff 0 | `Pet.java:127`, `PetSubMarket.java:68` |
+| Alpha | rare pet weight x1.3 in restock | `PetSubMarket.java:32` |
+| Beta | pets stop aging in storage; tariff 0 | `Pet.java:127`, `PetSubMarket.java:61` |
 | Gamma | `petStorageCostMult` 0.7 | `PetShop.java:318` |
 
 ## Contracts
