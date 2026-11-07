@@ -9,6 +9,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.dialogue.AncientLabRelicPanelDelegate;
+import indevo.utils.helper.RelicHelper;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
 import java.awt.*;
@@ -51,7 +52,7 @@ public class AncientLabRelicOptionProvider extends SingleIndustrySimpifiedOption
     public void createTooltip(TooltipMakerAPI tooltip, IndustryOptionData opt) {
         Color hl = Misc.getHighlightColor();
         tooltip.addSectionHeading("Relic services", Alignment.MID, 0f);
-        tooltip.addPara("Refine Forge Templates or integrate automated ships, paid with %s.", 10f, hl, AncientLabRelicPanelDelegate.getRelicName());
-        tooltip.addPara("Available: %s, from colony storage first, then fleet cargo.", 10f, hl, AncientLabRelicPanelDelegate.getAvailableRelics(opt.ind.getMarket()) + "");
+        tooltip.addPara("Refine Forge Templates or integrate automated ships, paid with %s.", 10f, hl, RelicHelper.getName());
+        tooltip.addPara("Available: %s, from colony storage first, then fleet cargo.", 10f, hl, RelicHelper.getAvailable(opt.ind.getMarket()) + "");
     }
 }

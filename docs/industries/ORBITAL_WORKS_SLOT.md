@@ -36,7 +36,7 @@ The option shows on vanilla Orbital Works (`Industries.ORBITALWORKS`) on player 
 
 Option `isSuitable`: Orbital Works, player owned, not under construction. Enabled when functional or a job runs.
 
-No job: `onClick` -> `OrbitalWorksSlotPanelDelegate` -> row select -> Confirm (enabled when the relics cover the cost) -> relics from local storage first, then fleet cargo -> fleet ship: officer unassigned, removed from the fleet; storage ship: removed from storage -> `OrbitalWorksSlotManager.start`.
+No job: `onClick` -> `OrbitalWorksSlotPanelDelegate` -> row select -> Confirm (enabled when the relics cover the cost) -> relics from local storage first, then fleet cargo (`RelicHelper.take`) -> fleet ship: officer unassigned, removed from the fleet; storage ship: removed from storage -> `OrbitalWorksSlotManager.start`.
 
 Job: `onClick` -> abort dialog -> `OrbitalWorksSlotManager.abort` -> ship to local storage.
 
@@ -62,7 +62,6 @@ Job: `onClick` -> abort dialog -> `OrbitalWorksSlotManager.abort` -> ship to loc
 | Item | Note |
 |---|---|
 | Not tested in game | Cap +1 in the refit, picker layout, tooltip bar, abort, colony loss, vanilla Restore and IE Restoration Docks keeping the hullmod |
-| Payment helper | Local copy of the storage then fleet cargo payment; switch to the shared helper once the relic speed up dialog (WP1) is on `dev` |
 
 ## Maintenance
 

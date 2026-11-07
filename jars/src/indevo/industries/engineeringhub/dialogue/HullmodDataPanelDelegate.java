@@ -9,8 +9,8 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.ButtonAction;
 import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
-import indevo.ids.ItemIds;
 import indevo.industries.engineeringhub.memory.RecoveredHullmods;
+import indevo.utils.helper.RelicHelper;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -62,8 +62,8 @@ public class HullmodDataPanelDelegate extends ButtonReportingDialogueDelegate {
         panel = Global.getSettings().createCustom(width, height, null);
 
         Map<String, String> data = RecoveredHullmods.getLearnable(market);
-        int available = RecoveredHullmods.getAvailableRelics(market);
-        String relicName = Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName();
+        int available = RelicHelper.getAvailable(market);
+        String relicName = RelicHelper.getName();
 
         TooltipMakerAPI header = panel.createUIElement(width, HEADER_HEIGHT, false);
         header.addSectionHeading("Recovered hullmod data", Alignment.MID, 0f);
