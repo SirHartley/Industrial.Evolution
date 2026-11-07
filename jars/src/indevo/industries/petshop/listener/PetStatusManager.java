@@ -20,7 +20,6 @@ import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -299,7 +298,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
             intel.addLine(BaseIntelPlugin.BULLET + name + ": %s",
                     Misc.getTextColor(),
-                    new String[]{(amount + StringHelper.getString("unitsWithFrontSpace"))},
+                    new String[]{(amount + " units")},
                     Misc.getHighlightColor());
         }
 
