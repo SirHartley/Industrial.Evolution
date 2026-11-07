@@ -6,6 +6,7 @@ Note - Install PatchLib alongside Industrial.Evolution
 Note - Saves from 4.1.b do not load, start a new game
 -
 Added - Quick Settings tab for category toggles
+Added - Refit: Build hullmods in with Relic Components instead of story points (5 per DP, no bonus XP)
 Added - Settings descriptions updated
 Added - Express Delivery for custom production orders: halves the delivery time for Relic Components
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
