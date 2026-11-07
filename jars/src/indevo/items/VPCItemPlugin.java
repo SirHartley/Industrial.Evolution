@@ -257,9 +257,7 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
         VPCCommodityRepo.Package p = VPCCommodityRepo.getPackage(getCommodityIds(data));
         if (p != null) return "VPC " + p.name();
 
-        List<String> names = new ArrayList<>();
-        for (Commodity c : outputs) names.add(getName(c));
-        return "VPC " + String.join(" / ", names);
+        return outputs.size() == 2 ? "VPC Package" : "VPC Suite";
     }
 
     public static String getOutputString(SpecialItemData data) {

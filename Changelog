@@ -91,8 +91,8 @@ Fixed - Officer training tooltip now properly shows the target personality
 Fixed - Admin training no longer charges the fee when it does not start
 
 Variable Industries
-Added - Ultra rare VPCs: three commodities on one chip, each at x0.65 output
-Adjusted - VPCs now roll their commodities when found, rare VPCs can mix any two
+Added - Ultra rare VPC Suites: three commodities on one chip, each at x0.65 output
+Adjusted - VPCs now roll their commodities when found, rare VPC Packages can mix any two
 Note - Conflict and Exploration Package keep their names and art
 Adjusted - Fuel only rolls on rare and ultra rare VPCs
 Adjusted - VPC icons now show the commodities they produce
