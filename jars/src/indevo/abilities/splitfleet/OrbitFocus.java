@@ -9,7 +9,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.terrain.*;
 import com.fs.starfarer.api.util.Misc;
-import indevo.abilities.splitfleet.fleetAssignmentAIs.BaseSplinterFleetAssignmentAIV2;
+import indevo.abilities.splitfleet.fleetAssignmentAIs.DetachmentAI;
 import indevo.abilities.splitfleet.intel.RecoverableShipIntel;
 import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.MathUtils;
@@ -46,7 +46,7 @@ public class OrbitFocus {
                 }
 
                 for (EveryFrameScript s : fleet.getScripts()) {
-                    if (s instanceof BaseSplinterFleetAssignmentAIV2 ai) ai.addUsedEntities(used);
+                    if (s instanceof DetachmentAI ai) ai.addUsedEntities(used);
                 }
             }
         }

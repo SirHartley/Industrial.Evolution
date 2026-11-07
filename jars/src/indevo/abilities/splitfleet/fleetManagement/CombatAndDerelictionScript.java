@@ -3,7 +3,9 @@ package indevo.abilities.splitfleet.fleetManagement;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.CargoPodsEntityPlugin;
@@ -21,6 +23,7 @@ import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.intel.RecoverableShipIntel;
 import indevo.abilities.splitfleet.salvageSpecials.OfficerAndShipRecoverySpecial;
+import indevo.utils.helper.MiscIE;
 import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.MathUtils;
 
@@ -37,6 +40,7 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
     public static final Logger log = Global.getLogger(CombatAndDerelictionScript.class);
     public static final String ORBIT_FOCUS_ORBITING_TOKEN_LIST = "$IndEvo_derOrbitList";
     public static final String SHIP_VARIANT_KEY = "$IndEvo_derTokenVarKey";
+    public static final String ENDED_KEY = "$IndEvo_detachmentEnded";
 
     float days = 0;
     float lastDay = 0;
@@ -79,19 +83,43 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
 
     @Override
     public void reportFleetDespawnedToListener(CampaignFleetAPI fleet, CampaignEventListener.FleetDespawnReason reason, Object param) {
+        MemoryAPI mem = fleet.getMemoryWithoutUpdate();
+        if (mem.getBoolean(ENDED_KEY)) return;
+        mem.set(ENDED_KEY, true);
 
-        if (reason == CampaignEventListener.FleetDespawnReason.REACHED_DESTINATION) {
-            if (((SectorEntityToken) param).isPlayerFleet()) {
-                Global.getSector().getCampaignUI().addMessage(fleet.getName() + " has rejoined the Main Force");
-            } else if (param instanceof PlanetAPI) {
-                Global.getSector().getCampaignUI().addMessage(fleet.getName() + " has reached %s in %s, delivered the cargo and docked.", Misc.getTextColor(), ((PlanetAPI) param).getName(), ((PlanetAPI) param).getContainingLocation().getName(), ((PlanetAPI) param).getFaction().getColor(), Misc.getHighlightColor());
-            }
+        String location = fleet.getContainingLocation() != null ? fleet.getContainingLocation().getName() : "nowhere";
+        log.info(fleet.getName() + " despawned in " + location + ", reason " + reason + ", param " + param + ", ships " + fleet.getFleetData().getNumMembers());
 
-        } else if (reason == CampaignEventListener.FleetDespawnReason.DESTROYED_BY_BATTLE) {
+        if (reason == CampaignEventListener.FleetDespawnReason.DESTROYED_BY_BATTLE) {
             Global.getSector().getCampaignUI().addMessage(fleet.getName() + " has been destroyed in battle.", Misc.getNegativeHighlightColor());
-        }
+            DetachmentMarines.clear(fleet);
+
+        } else if (reason == CampaignEventListener.FleetDespawnReason.REACHED_DESTINATION
+                && Behaviour.getFleetBehaviour(fleet, true) == Behaviour.FleetBehaviour.TRANSPORT) {
+
+            MarketAPI market = param instanceof SectorEntityToken t ? t.getMarket() : null;
+            if (market == null || MiscIE.getStorage(market) == null) market = FleetUtils.getClosestStorageMarket(fleet);
+
+            if (market != null) {
+                FleetUtils.storeInMarket(fleet, market);
+                Global.getSector().getCampaignUI().addMessage(fleet.getName() + " has reached %s in %s and stored its ships and cargo.", Misc.getTextColor(), market.getName(), market.getContainingLocation().getName(), market.getFaction().getBaseUIColor(), Misc.getHighlightColor());
+            } else returnContents(fleet, reason);
+
+        } else returnContents(fleet, reason);
 
         DetachmentMemory.removeDetachment(fleet);
+    }
+
+    // a despawn the detachment did not ask for must not delete ships, they go back to the main force
+    private void returnContents(CampaignFleetAPI fleet, CampaignEventListener.FleetDespawnReason reason) {
+        if (fleet.getFleetData().getNumMembers() > 0) {
+            FleetUtils.moveContentsToPlayerFleet(fleet);
+            Global.getSector().getCampaignUI().addMessage(fleet.getName() + " was recalled to the main force (" + reason + ").", Misc.getHighlightColor());
+        } else {
+            if (!fleet.getCargo().isEmpty() && fleet.getContainingLocation() != null) leaveCargoInPods(fleet, fleet.getCargo());
+            DetachmentMarines.clear(fleet);
+            Global.getSector().getCampaignUI().addMessage(fleet.getName() + " has lost all its ships.", Misc.getNegativeHighlightColor());
+        }
     }
 
     @Override

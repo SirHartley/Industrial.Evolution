@@ -149,11 +149,7 @@ public class SplinterFleetSidePanelCreator {
             entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(newLoadoutButton, buttonId) {
                 @Override
                 public void onToggle() {
-                    int newIndex = Behaviour.getIndexForBehaviour(LoadoutMemory.getLoadout(num).behaviour);
-                    newIndex = newIndex - 1;
-                    if (newIndex < 1) newIndex = Behaviour.behaviourIndexMap.size();
-
-                    LoadoutMemory.getLoadout(num).behaviour = Behaviour.getBehaviourForIndex(newIndex);
+                    cycleBehaviour(num, -1);
                     AbilityPanelDialoguePlugin.getCurrentDialoguePlugin().refreshCustomPanel();
                 }
             };
@@ -181,11 +177,7 @@ public class SplinterFleetSidePanelCreator {
             entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(newLoadoutButton, buttonId) {
                 @Override
                 public void onToggle() {
-                    int newIndex = Behaviour.getIndexForBehaviour(LoadoutMemory.getLoadout(num).behaviour);
-                    newIndex = newIndex + 1;
-                    if (newIndex > Behaviour.behaviourIndexMap.size()) newIndex = 1;
-
-                    LoadoutMemory.getLoadout(num).behaviour = Behaviour.getBehaviourForIndex(newIndex);
+                    cycleBehaviour(num, 1);
                     AbilityPanelDialoguePlugin.getCurrentDialoguePlugin().refreshCustomPanel();
                 }
             };
@@ -440,6 +432,15 @@ public class SplinterFleetSidePanelCreator {
         }
 
         VisualCustomPanel.addTooltipToPanel();
+    }
+
+    private static void cycleBehaviour(int num, int step) {
+        LoadoutMemory.Loadout loadout = LoadoutMemory.getLoadout(num);
+        boolean live = DetachmentMemory.isDetachmentActive(num);
+        Behaviour.FleetBehaviour next = Behaviour.getBehaviourForIndex(Behaviour.getNextIndex(Behaviour.getIndexForBehaviour(loadout.behaviour), step, live));
+
+        if (live) Behaviour.changeBehaviourAndUpdateAI(DetachmentMemory.getDetachment(num), next);
+        else loadout.behaviour = next;
     }
 }
 

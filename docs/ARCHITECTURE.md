@@ -76,7 +76,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | Parts, rare parts, supercomputer income | `ResourceConditionApplicator -> ResourceCondition.apply` ([ECONOMY](core/ECONOMY.md)) |
 | A ruin turns into the wrong structure | `$IndEvo_ruinsIndustryId` -> `RuinsManager` ([DERELICTS](industries/DERELICTS.md)) |
 | `getIndustry("population" / "mining" / "refining")` returns an IE class | Switchables return the vanilla id ([contract](#industries-and-markets)) |
-| Detachment AI | `Behaviour.changeBehaviourAndUpdateAI -> BaseSplinterFleetAssignmentAIV2` ([SPLIT_FLEET](abilities/SPLIT_FLEET.md)) |
+| Detachment AI | `Behaviour.changeBehaviourAndUpdateAI -> DetachmentAI` ([SPLIT_FLEET](abilities/SPLIT_FLEET.md)) |
 | Artillery not firing | `CampaignAttackScript -> EyeIndicatorScript / WatchtowerEntityPlugin -> ArtilleryStationScript` ([ARTILLERY](industries/ARTILLERY.md)) |
 | Meteor shower spawn | `MeteorSwarmManager.reportEconomyTick -> spawnShower -> <Type>SwarmSpawner` ([METEOR](exploration/METEOR.md)) |
 | Dialogue or rules row | `rules.csv` block map -> command class ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |

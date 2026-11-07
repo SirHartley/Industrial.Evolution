@@ -200,7 +200,16 @@ Survey Stories
 Fixed - Desert warlords story now properly appears on desert and arid worlds
 
 Detachments
+Added - Detachments out of fuel away from you now stop and report that they are stranded
+Adjusted - Detachments now travel with the vanilla fleet AI, across star systems included
+Note - Recall all detachments before updating, active ones break old saves
+Adjusted - Changing the behaviour of an active detachment now applies at once
+Adjusted - Transport can no longer be picked for an active detachment
+Adjusted - Dormant detachments now only wake up when resupplied
 Fixed - Auto-load now takes half the supplies, not all (up to cargo space)
+Fixed - Detachments no longer get stuck when recalled from another star system
+Fixed - A detachment that disappears unexpectedly now returns its ships and cargo to the main force
+Fixed - Transport detachments with a lost target now pick the closest market with storage
 Fixed - Staying or dormant detachments and their wrecks no longer drift to the sun
 Fixed - Detachments no longer silently lose crew, fuel and cargo over capacity
 Note - Loading a detachment past its capacity is now refused

@@ -102,6 +102,19 @@ public class FleetStatus {
         return status;
     }
 
+    public static String getStateName(Behaviour.FleetBehaviour behaviour) {
+        if (behaviour == null) return null;
+
+        return switch (behaviour) {
+            case COMBAT -> "in combat";
+            case DORMANT -> "dormant, out of supplies";
+            case STRANDED -> "stranded, out of fuel";
+            case HEAD_TO_PLAYER_ON_TARGET -> "moving to the main force";
+            case RETURN_TO_PLAYER_AND_MERGE -> "returning to the main force";
+            default -> null;
+        };
+    }
+
     public static void addFleetStatusTooltip(TextPanelAPI text, CampaignFleetAPI fleet) {
         float opad = 10f;
         float spad = 3f;
@@ -113,8 +126,14 @@ public class FleetStatus {
         tooltip.setParaSmallInsignia();
 
         Behaviour.FleetBehaviour behaviour = Behaviour.getFleetBehaviour(fleet, true);
-        String s = Misc.ucFirst(behaviour.toString());
-        tooltip.addPara("Current Mode: %s", opad, Behaviour.getColourForBehaviour(behaviour), s);
+        String s;
+        if (behaviour != null) {
+            s = Misc.ucFirst(behaviour.toString().toLowerCase());
+            tooltip.addPara("Current Mode: %s", opad, Behaviour.getColourForBehaviour(behaviour), s);
+        }
+
+        String state = getStateName(Behaviour.getFleetBehaviour(fleet, false));
+        if (state != null) tooltip.addPara("Status: %s", spad, Misc.getNegativeHighlightColor(), state);
 
         FleetStatus status = FleetStatus.getFleetStatus(fleet);
 

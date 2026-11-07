@@ -3,24 +3,29 @@ package indevo.abilities.splitfleet;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.PlayerFleetPersonnelTracker;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
 import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.util.Misc;
-import indevo.abilities.splitfleet.fleetAssignmentAIs.SplinterFleetAssignmentAIV2;
+import indevo.abilities.splitfleet.fleetAssignmentAIs.DetachmentAI;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.CombatAndDerelictionScript;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMarines;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
+import indevo.industries.courierport.ShippingTargetHelper;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.MiscIE;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -32,6 +37,10 @@ public class FleetUtils {
     public static final String DETACHMENT_IDENTIFIER_KEY = "$splinterFleetIdentifier";
     public static final float MIN_MERGE_DISTANCE_IN_MENU = 500f;
     public static final String USE_ABILITY_MEM_KEY = "$SplinterFleet_Use_ability";
+
+    //shared side quest lockout with catch.release: their quests skip a fleet that has it
+    public static final String SIDE_QUEST_CLAIM_KEY = "$sirhartley_sideQuest";
+    public static final String SIDE_QUEST_CLAIM_OWNER = "IndEvo";
 
     public static void transferCommodity(CargoAPI from, CargoAPI to, String id, float amt) {
         float available = from.getCommodityQuantity(id);
@@ -54,10 +63,19 @@ public class FleetUtils {
         ModPlugin.log("Merging " + detachment.getName() + " with player fleet");
         Global.getSector().getCampaignUI().addMessage("%s has returned to the main force", Misc.getTextColor(), detachment.getName(), "", Misc.getHighlightColor(), Misc.getTextColor());
 
-        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
-
         int num = DetachmentMemory.getNumForFleet(detachment);
+        //a merge from MergeScript runs inside the fleet advance, which then reports a NO_MEMBERS despawn
+        detachment.getMemoryWithoutUpdate().set(CombatAndDerelictionScript.ENDED_KEY, true);
+        moveContentsToPlayerFleet(detachment);
 
+        Global.getSector().reportFleetDespawned(detachment, CampaignEventListener.FleetDespawnReason.REACHED_DESTINATION, Global.getSector().getPlayerFleet());
+        detachment.getContainingLocation().removeEntity(detachment);
+
+        DetachmentMemory.removeDetachment(num);
+    }
+
+    public static void moveContentsToPlayerFleet(CampaignFleetAPI detachment) {
+        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
         FleetDataAPI playerFleetData = playerFleet.getFleetData();
         FleetDataAPI detachmentFleetData = detachment.getFleetData();
 
@@ -79,12 +97,46 @@ public class FleetUtils {
         CargoAPI cargo = detachment.getCargo();
         DetachmentMarines.moveToPlayer(detachment, playerFleet.getCargo().getMarines());
         playerFleet.getCargo().addAll(cargo);
+        cargo.clear();
+        DetachmentMarines.clear(detachment);
+    }
+
+    public static void storeInMarket(CampaignFleetAPI detachment, MarketAPI market) {
+        SubmarketAPI storageSubmarket = MiscIE.getStorage(market);
+        CargoAPI storage = storageSubmarket.getCargo();
+
+        DetachmentMarines.moveToStorage(detachment, storageSubmarket);
+        storage.addAll(detachment.getCargo());
+        detachment.getCargo().clear();
         DetachmentMarines.clear(detachment);
 
-        Global.getSector().reportFleetDespawned(detachment, CampaignEventListener.FleetDespawnReason.REACHED_DESTINATION, playerFleet); //also handles removal from detachment memory
-        detachment.getContainingLocation().removeEntity(detachment);
+        storage.initMothballedShips(Factions.PLAYER);
+        for (FleetMemberAPI member : detachment.getFleetData().getMembersListCopy()) {
+            detachment.getFleetData().removeFleetMember(member);
+            member.getVariant().removeTag(Tags.TAG_NO_AUTOFIT);
+            storage.getMothballedShips().addFleetMember(member);
+        }
+    }
 
-        DetachmentMemory.removeDetachment(num);
+    public static MarketAPI getClosestStorageMarket(SectorEntityToken from) {
+        MarketAPI best = null;
+        float bestDist = Float.MAX_VALUE;
+
+        for (SectorEntityToken entity : ShippingTargetHelper.getValidOriginPlanets()) {
+            MarketAPI market = entity.getMarket();
+            if (market == null || MiscIE.getStorage(market) == null) continue;
+
+            //markets the player can open storage at come first
+            float dist = Misc.getDistanceLY(from.getLocationInHyperspace(), entity.getLocationInHyperspace());
+            if (!Misc.playerHasStorageAccess(market)) dist += 100000f;
+
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = market;
+            }
+        }
+
+        return best;
     }
 
     public static void createAndSpawnFleet(LoadoutMemory.Loadout loadout, int num) {
@@ -151,6 +203,7 @@ public class FleetUtils {
         splinterFleetMemory.set(MemFlags.MEMORY_KEY_MAKE_NON_HOSTILE, true);
         splinterFleetMemory.set(MemFlags.MEMORY_KEY_NEVER_AVOID_PLAYER_SLOWLY, true);
         splinterFleetMemory.set(MemFlags.MEMORY_KEY_SKIP_TRANSPONDER_STATUS_INFO, true);
+        splinterFleetMemory.set(SIDE_QUEST_CLAIM_KEY, SIDE_QUEST_CLAIM_OWNER);
 
         splinterFleet.setNoAutoDespawn(true);
         splinterFleet.setNoFactionInName(true);
@@ -271,24 +324,11 @@ public class FleetUtils {
         return fakeMember;
     }
 
-    public static SplinterFleetAssignmentAIV2 getAssignmentAI(CampaignFleetAPI fleet) {
+    public static DetachmentAI getAssignmentAI(CampaignFleetAPI fleet) {
         for (EveryFrameScript s : fleet.getScripts()) {
-            if (s instanceof SplinterFleetAssignmentAIV2) {
-                return (SplinterFleetAssignmentAIV2) s;
-            }
+            if (s instanceof DetachmentAI ai) return ai;
         }
 
         return null;
-    }
-
-    public static void setOrReplaceAssignmentAI(CampaignFleetAPI fleet, SplinterFleetAssignmentAIV2 ai) {
-        SplinterFleetAssignmentAIV2 current = getAssignmentAI(fleet);
-
-        if (current != null) {
-            current.setDone();
-            fleet.removeScript(current);
-        }
-
-        fleet.addScript(ai);
     }
 }

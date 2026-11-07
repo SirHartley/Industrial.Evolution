@@ -1,12 +1,12 @@
 # Split fleet (detachments)
 
-Covers the Manage Detachment ability: splitting the player fleet into up to three AI detachments, their behaviour modes, assignment AIs, ability AIs, combat losses and recovery. Read it before touching anything in `indevo/abilities/splitfleet/`. It does not cover the side panel framework the control panel is drawn with; see [Side panel](../dialogue/SIDE_PANEL.md).
+Covers the Manage Detachment ability: splitting the player fleet into up to three AI detachments, their behaviour modes and overrides, the detachment AI, ability AIs, combat losses and recovery. Read it before touching anything in `indevo/abilities/splitfleet/`. It does not cover the side panel framework the control panel is drawn with; see [Side panel](../dialogue/SIDE_PANEL.md).
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
 
 ## Overview
 
-The player ability `splinter_fleet` opens a control panel with three loadout slots. Each loadout stores ship variants, cargo and a behaviour. "Spawn" moves the matching ships, officers and cargo into a new player faction fleet ("Detachment N") that runs one assignment AI script per behaviour (stay, follow, hide, escort, intercept, transport). Detachments return and merge on recall, go dormant when out of supplies (or fuel in hyperspace), and leave recoverable wrecks with cryo-stored officers when they lose ships in battle. The live AI generation is V2 (`BaseSplinterFleetAssignmentAIV2`).
+The player ability `splinter_fleet` opens a control panel with three loadout slots. Each loadout stores ship variants, cargo and a behaviour. "Spawn" moves the matching ships, officers and cargo into a new player faction fleet ("Detachment N") that runs one `DetachmentAI` script. The script gives vanilla assignments for the base behaviour (stay, follow, hide, escort, intercept, transport) or for the highest active override (combat, dormant, head to player, stranded, return); the vanilla fleet AI does all travel, across systems included. Detachments return and merge on recall, go dormant when out of supplies, stop as stranded when out of fuel outside hyperspace, and leave recoverable wrecks with cryo-stored officers when they lose ships in battle.
 
 ## Files
 
@@ -14,24 +14,21 @@ The player ability `splinter_fleet` opens a control panel with three loadout slo
 |---|---|
 | `indevo/abilities/splitfleet/SplinterAbilityPlugin.java` | Ability plugin (`abilities.csv`). `activateImpl` opens `AbilityPanelDialoguePlugin` (`:13`). Not usable during hyperspace transition (`:18`). |
 | `indevo/abilities/splitfleet/SplinterFleetCampignPlugin.java` | Transient `BaseCampaignPlugin`. Picks `DetachmentDialoguePlugin` with `HIGHEST` for detachment targets not in `COMBAT` (`pickInteractionDialogPlugin`); picks detachment ability AIs with `MOD_SET` (`pickAbilityAI`). |
-| `indevo/abilities/splitfleet/FleetUtils.java` | Spawn (`createAndSpawnFleet`, `:86`), merge (`mergeFleetWithPlayerFleet`, `:51`), loadout ship matching (`getFleetMembersForLoadout`, `:211`), cargo transfer, fake fleets for previews, assignment AI lookup and swap (`:267`, `:277`). Holds `DETACHMENT_IDENTIFIER_KEY`. |
+| `indevo/abilities/splitfleet/FleetUtils.java` | Spawn (`createAndSpawnFleet`, `:142`), merge (`mergeFleetWithPlayerFleet`, `:62`, contents in `moveContentsToPlayerFleet`, `:77`), Transport drop (`storeInMarket`, `:104`; `getClosestStorageMarket`, `:121`), loadout ship matching (`getFleetMembersForLoadout`, `:271`), cargo transfer, fake fleets for previews, AI lookup (`getAssignmentAI`, `:327`). Holds `DETACHMENT_IDENTIFIER_KEY` and the side quest claim (`SIDE_QUEST_CLAIM_KEY`, `:41`). |
 | `indevo/abilities/splitfleet/OrbitFocus.java` | Creates invisible `SplinterFleet_OrbitFocus` entities and picks orbits for holding, hiding, dormancy and wreck fields. Also used by consumables and smoke clouds. |
-| `fleetManagement/Behaviour.java` | `FleetBehaviour` enum, index map for the UI, colours, tooltips; base behaviour and override memory; `changeBehaviourAndUpdateAI` maps behaviour to AI class (`:196`). |
+| `fleetManagement/Behaviour.java` | `FleetBehaviour` enum (base modes, then overrides), `OVERRIDE_PRIORITY` (`:43`), index map for the UI, colours, tooltips; base behaviour and override list memory; `getNextIndex` skips modes a live detachment cannot switch to (`:200`); `changeBehaviourAndUpdateAI` stores the base mode and tells the AI (`:212`). |
 | `fleetManagement/DetachmentMemory.java` | Slot `1..3` -> live `CampaignFleetAPI` map in sector memory. |
 | `fleetManagement/DetachmentMarines.java` | Marine XP across split, cargo edit, merge and Transport storage drop: the detachment's share sits in the vanilla `PlayerFleetPersonnelTracker` under the detachment fleet entity, moved with `transferPersonnel(..., null)` (proportional XP). |
 | `fleetManagement/LoadoutMemory.java` | Slot `1..3` -> `Loadout` (variants, behaviour, target cargo, transport market) in sector memory. |
-| `fleetManagement/CombatAndDerelictionScript.java` | Per detachment `EveryFrameScript` + `FleetEventListener`. Despawn messages and slot cleanup (`:80`); after a battle with losses moves cargo, fuel and personnel over the remaining capacity into a wreck per lost ship with `OfficerAndShipRecoverySpecial`, and posts `RecoverableShipIntel` (`reportBattleOccurred`). `advance` only logs in dev mode. |
-| `fleetAssignmentAIs/SplinterFleetAssignmentAIV2.java` | Interface for the assignment AI script (`setDone`, `setFlags`). |
-| `fleetAssignmentAIs/BaseSplinterFleetAssignmentAIV2.java` | Live AI base, extends vanilla `BaseAssignmentAI`, also `CampaignEventListener` and `GateTransitListener`. Combat, dormancy, override modes, jump following, return and merge. |
-| `fleetAssignmentAIs/StayAssignmentAI.java`, `FollowAssignmentAI.java`, `HideAssignmentAI.java`, `EscortAssignmentAI.java`, `InterceptAssignmentAI.java`, `TransportAssignmentAI.java` | Live behaviour AIs (one per selectable mode). |
-| `fleetAssignmentAIs/JumpInfo.java` | Queued jump (from token, `JumpDestination`). `isRegularJump()` means `from` is a `JumpPointAPI`. |
+| `fleetManagement/CombatAndDerelictionScript.java` | Per detachment `EveryFrameScript` + `FleetEventListener`. Despawn handling (`reportFleetDespawnedToListener`, `:85`): battle loss message, Transport storage drop, any other despawn returns ships and cargo to the player fleet, then clears the slot; after a battle with losses moves cargo, fuel and personnel over the remaining capacity into a wreck per lost ship with `OfficerAndShipRecoverySpecial`, and posts `RecoverableShipIntel` (`reportBattleOccurred`). `advance` only logs in dev mode. |
+| `fleetAssignmentAIs/DetachmentAI.java` | The one AI script per detachment (`EveryFrameScript`). Sets and clears the automatic overrides each frame, applies the effective behaviour on change (`apply`, `:259`; `applyBase`, `:294`), runs escort and intercept targeting and the Transport market check (`act`, `:374`). Nested `MergeScript`, `HideArrivalScript`, `GoSlowScript`. |
 | `abilityAIs/DetachmentSustainedBurnAbilityAI.java`, `DetachmentEburnAbilityPlugin.java`, `DetachmentGoDarkAbilityPlugin.java`, `DetachmentTransponderAbilityAI.java` | Ability AIs for detachments: mirror the player's sustained burn, go dark and transponder state; e-burn is a copy of vanilla `EmergencyBurnAbilityAI`. |
 | `dialogue/AbilityPanelDialoguePlugin.java` | Control panel dialog. Stores itself in sector memory under `$SplinterFleet_DialoguePlugin` (expire 0) so panel button callbacks can find it (`:43`). On close applies loadout behaviour changes (`:73`). |
-| `dialogue/SplinterFleetSidePanelCreator.java` | Builds the three slot rows (Members, Cargo, `<` behaviour `>`, Set Target or Lay Course, Spawn/Recall/Cancel) on `VisualCustomPanel`. Owns spawn preconditions (`:376`). |
+| `dialogue/SplinterFleetSidePanelCreator.java` | Builds the three slot rows (Members, Cargo, `<` behaviour `>`, Set Target or Lay Course, Spawn/Recall/Cancel) on `VisualCustomPanel`. Owns spawn preconditions (`:349`). Arrows go through `cycleBehaviour` (`:437`). |
 | `dialogue/TwoFleetFleetMemberPicker.java` | Ship picker for a loadout; hides `SHIP_CAN_NOT_SCUTTLE` ships (`:27`), clears loadout cargo on pick (`:45`). |
 | `dialogue/TwoFleetCargoPicker.java` | Cargo picker between player fleet and a loadout preview or a live detachment; auto loads one month of supplies (within free cargo space), fuel and crew on first open. Refuses a pick over cargo, fuel or personnel capacity and puts everything back (`pickedCargo`). |
-| `dialogue/FleetStatus.java` | Capacity, upkeep, range and operating time numbers from a fake fleet. |
-| `dialogue/DetachmentDialoguePlugin.java` | Dialog when the player interacts with a detachment: move cargo, change behaviour, merge, leave. |
+| `dialogue/FleetStatus.java` | Capacity, upkeep, range and operating time numbers from a fake fleet; status tooltip with the override state (`getStateName`, `:105`). |
+| `dialogue/DetachmentDialoguePlugin.java` | Dialog when the player interacts with a detachment: move cargo, change behaviour (Transport only while it is the current mode), merge, leave. |
 | `dialogue/SplinterFleetDialoguePluginAPI.java` | Shared interface for the two dialog plugins (`showBaseOptions`, `getDialog`). |
 | `intel/RecoverableShipIntel.java` | `FleetLogIntel` for a wreck field; removes itself when its wreck list is empty. |
 | `salvageSpecials/OfficerAndShipRecoverySpecial.java` | Salvage special on detachment wrecks: thaw the officer, then recover the ship with condition based hits and d-mods. |
@@ -44,9 +41,10 @@ The player ability `splinter_fleet` opens a control panel with three loadout slo
 | Ability | `splinter_fleet` (`Ids.ABILITY_DETACHMENT`) | `data/campaign/abilities.csv:2`, `indevo/ids/Ids.java:141` |
 | Custom entity | `SplinterFleet_OrbitFocus` (hidden), `development_SplinterFleet_OrbitFocus` (visible debug twin) | `data/config/custom_entities.json:420`, `:431` |
 | Entity tag | `SplinterFleet_OF` | `OrbitFocus.ORBIT_FOCUS_TAG` |
-| Fleet tag | `SplinterFleet_DetachmentIsJumping` | `BaseSplinterFleetAssignmentAIV2.CURRENTLY_JUMPING_FLAG` |
 | Memory, fleet | `$splinterFleetIdentifier` (is detachment), `$SplinterFleet_Use_ability` (ability the AI wants on) | `FleetUtils.java:30`, `:32` |
-| Memory, fleet | `$SplinterFleetBehaviourMode`, `$SplinterFleetBehaviourModeOverride` | `Behaviour.java:23`, `:24` |
+| Memory, fleet | `$SplinterFleetBehaviourMode` (base mode), `$IndEvo_detachmentOverrides` (active overrides, `ArrayList<FleetBehaviour>`) | `Behaviour.java:21`, `:22` |
+| Memory, fleet | `$IndEvo_detachmentEnded` (despawn already handled, also set on merge) | `CombatAndDerelictionScript.java:43` |
+| Memory, fleet | `$sirhartley_sideQuest` = `IndEvo`: shared side quest claim with Catch.Release, set at spawn and kept while dormant; their quests skip a fleet that has the key. Never rename. | `FleetUtils.java:41` |
 | Memory, sector | `$SplinterFleetDetachmentStoreMemoryReference` (slot -> fleet), `$SplinterFleetLoadoutStoreMemoryReference` (slot -> loadout) | `DetachmentMemory.java:12`, `LoadoutMemory.java:13` |
 | Memory, sector | `$SplinterFleet_DialoguePlugin` (panel instance, expire 0) | `AbilityPanelDialoguePlugin.java:19` |
 | Memory, entity | `$IndEvo_derOrbitList` (wreck list on a focus), `$IndEvo_derTokenVarKey` (variant on a wreck) | `CombatAndDerelictionScript.java:37`, `:38` |
@@ -57,17 +55,17 @@ The player ability `splinter_fleet` opens a control panel with three loadout slo
 - `ModPlugin.setListenersIfNeeded` -> `DetachmentAbilityAdder.register()` (`ModPlugin.java:437`); persistent `NewDayListener`, deduped by `hasListenerOfClass`.
 - `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new SplinterFleetCampignPlugin())` on every load (`ModPlugin.java:491`); transient, so it is not saved.
 - `abilities.csv` plugin column -> `SplinterAbilityPlugin`.
-- Per detachment, attached at spawn and saved with the fleet: one `SplinterFleetAssignmentAIV2` script and one `CombatAndDerelictionScript` (`FleetUtils.java:167`, `:168`). The AI adds itself as a sector `CampaignEventListener` on first `advance` (`regsterIfNeeded`, `BaseSplinterFleetAssignmentAIV2.java:500`) and removes itself when done (`:128`).
+- Per detachment, attached at spawn and saved with the fleet: one `DetachmentAI` script (added by `Behaviour.changeBehaviourAndUpdateAI` when missing, `Behaviour.java:221`) and one `CombatAndDerelictionScript`, which adds itself as the fleet's `FleetEventListener`. Neither registers a sector listener.
 
 Load order: `onGameLoad -> DetachmentAbilityAdder.register -> registerPlugin(SplinterFleetCampignPlugin) -> new day -> ability granted`.
 
-Spawn order: `Spawn button -> FleetUtils.createAndSpawnFleet -> spawnFleet near player -> DetachmentMemory.addDetachment -> Behaviour.changeBehaviourAndUpdateAI -> FleetUtils.setOrReplaceAssignmentAI -> CombatAndDerelictionScript`. The slot must be registered before the AI is set, because `TransportAssignmentAI` reads the loadout by slot number (`FleetUtils.java:163`).
+Spawn order: `Spawn button -> FleetUtils.createAndSpawnFleet -> spawnFleet near player -> DetachmentMemory.addDetachment -> Behaviour.changeBehaviourAndUpdateAI -> new DetachmentAI -> CombatAndDerelictionScript`. The slot must be registered before the AI is set, because `DetachmentAI` reads the Transport market from the loadout by slot number.
 
 ## Flow
 
 ### Control panel
 
-`SplinterAbilityPlugin.activateImpl -> AbilityPanelDialoguePlugin.init -> SplinterFleetSidePanelCreator.showPanel`. Every button rebuilds the whole panel through `refreshCustomPanel`. Behaviour arrows edit `Loadout.behaviour` only; for a live detachment the change is applied on "Return" via `Behaviour.updateActiveDetachmentBehaviour` (`Behaviour.java:241`).
+`SplinterAbilityPlugin.activateImpl -> AbilityPanelDialoguePlugin.init -> SplinterFleetSidePanelCreator.showPanel`. Every button rebuilds the whole panel through `refreshCustomPanel`. Behaviour arrows edit `Loadout.behaviour` for a slot without a detachment. For a live detachment they call `Behaviour.changeBehaviourAndUpdateAI` at once and skip Transport (`Behaviour.canSwitchLiveTo`). Closing the panel or the detachment dialog still runs `Behaviour.updateActiveDetachmentBehaviour` (`Behaviour.java:229`) to sync loadout and fleet.
 
 Spawn needs (`SplinterFleetSidePanelCreator.java:365`): ships picked and at least one present, fewer ships than the player fleet, non-empty loadout cargo within the present ships' cargo, fuel and personnel capacity, supplies >= repair cost + one month, not dormant, and for TRANSPORT a target market and fuel > distance x fuel per LY. Ships are matched by `getHullVariantId()` (first unused member per variant, `FleetUtils.getFleetMembersForLoadout`, `FleetUtils.java:211`), so duplicate hulls with the same variant id are interchangeable. Spawn, the panel status and the loadout cargo picker use the same match, so previews only count ships present in the player fleet. Fake preview members copy the mothball state (`FleetUtils.java:254`); vanilla zeroes cargo, fuel, crew and supply upkeep for mothballed members. Target markets come from `ShippingTargetHelper.getValidOriginPlanets()` (see [Courier port](../industries/COURIER_PORT.md)).
 
@@ -79,33 +77,32 @@ Spawn needs (`SplinterFleetSidePanelCreator.java:365`): ships picked and at leas
 
 ### Behaviours and AI
 
-| Index | Behaviour | AI class | Assignment | Flags (`setFlags`) |
-|---|---|---|---|---|
-| 1 | STAY | `StayAssignmentAI` | `HOLD` on an orbit focus at spawn spot | visible only to player, ignores fleets |
-| 2 | FOLLOW | `FollowAssignmentAI` | `ORBIT_PASSIVE` player, follows jumps | same |
-| 3 | HIDE | `HideAssignmentAI` | `GO_TO_LOCATION` hide focus, then orbit copy and AI removed | ignored by and ignores fleets, go dark |
-| 4 | ESCORT | `EscortAssignmentAI` | `ORBIT_PASSIVE` player, `INTERCEPT` hostiles with FP < 1.6 x own, fleeing ones, ones targeting the player, or the player's target | visible only to player, ignores fleets |
-| 5 | INTERCEPT | `InterceptAssignmentAI` | as escort, only fleets targeting the player or the player's target | same |
-| 6 | TRANSPORT | `TransportAssignmentAI` | go to market, orbit 3 days, `GO_TO_LOCATION_AND_DESPAWN`; script puts cargo and ships into market storage | ignored by and ignores fleets |
+`DetachmentAI.advance` (`DetachmentAI.java:147`) first updates the automatic overrides, then reads the effective behaviour (`Behaviour.getFleetBehaviour(fleet, false)`: the first of `OVERRIDE_PRIORITY` in the override list, else the base mode). When it differs from the applied one it calls `apply`, which resets the fleet (orbit, AI, assignments, AI mode off, transponder on, player faction, flags) and gives new vanilla assignments. `refresh()` forces a reapply on the next frame; the AI also refreshes when the fleet AI runs without an assignment.
 
-Override modes live in `$SplinterFleetBehaviourModeOverride` and are acted on by `BaseSplinterFleetAssignmentAIV2.doOverrideActions` (`:266`), which runs on the edge where the override appears or clears:
+| Index | Base mode | Assignment | Flags (`setFlags`) |
+|---|---|---|---|
+| 1 | STAY | `HOLD` on an orbit focus at the spot where the mode was set | visible only to player, ignores fleets |
+| 2 | FOLLOW | `ORBIT_PASSIVE` player | same |
+| 3 | HIDE | `GO_TO_LOCATION` hide focus, then orbit copy and AI removed (`HideArrivalScript`); heads back when moved more than 100 su | ignored by and ignores fleets, go dark |
+| 4 | ESCORT | `ORBIT_PASSIVE` player, `INTERCEPT` for 3 days the player's hostile target, hostiles targeting the player, fleeing ones, or ones with FP < 1.6 x own (`engage`, `:403`) | visible only to player, ignores fleets |
+| 5 | INTERCEPT | as escort, only the player's target and fleets targeting the player | same |
+| 6 | TRANSPORT | `GO_TO_LOCATION` market, `ORBIT_PASSIVE` 3 days, `GO_TO_LOCATION_AND_DESPAWN`; the despawn listener stores ships and cargo. Picks the closest storage market when the target is gone (daily check). Not selectable for a live detachment. | ignored by and ignores fleets |
 
-| Override | Set by | Effect |
+Overrides live in `$IndEvo_detachmentOverrides`; several can be active, the first in `OVERRIDE_PRIORITY` wins:
+
+| Override (priority order) | Set and cleared by | Effect |
 |---|---|---|
-| `RETURN_TO_PLAYER_AND_MERGE` | Recall button, merge option | `GO_TO_LOCATION` player, merge on arrival (`:293`); follows queued jumps |
-| `DORMANT` | supplies < 1, or in hyperspace with fuel < 1 (`:245`) | neutral faction, AI removed ("Derelict"), transponder off, mission important, orbit at spot |
-| `COMBAT` | `fleet.getBattle() != null` (`:215`) | AI removed ("In Combat"); cleared 3 s after battle ends (`BATTLE_RELEASE_TIME`) |
-| `HEAD_TO_PLAYER_ON_TARGET` | player targets the detachment (`:368`) | move to player and slow down for 3 s near them |
+| `COMBAT` | `fleet.getBattle() != null`; cleared 3 s after the battle (`updateCombat`, `:167`) | assignments cleared, AI removed ("In combat") |
+| `DORMANT` | supplies < 1, cleared when supplies >= 1 (`updateDormancy`, `:176`) | neutral faction, AI mode on (no supply use, accidents or crew needs), transponder off, mission important, AI removed ("Derelict"), orbit at the spot |
+| `HEAD_TO_PLAYER_ON_TARGET` | the player targets the detachment in the same location; STAY only within 1000 su, Transport only while travelling (`updateHeadToPlayer`, `:189`) | `GO_TO_LOCATION` player, slow down for 3 s near them |
+| `STRANDED` | fuel <= 0 outside hyperspace while the travel target is in another location; cleared once that changes (`updateStranded`, `:218`) | AI removed ("Out of fuel"), stops |
+| `RETURN_TO_PLAYER_AND_MERGE` | Recall button, merge option, Transport without a market (`Behaviour.setReturning`) | `GO_TO_LOCATION` player, merge on arrival (`MergeScript`) |
 
-Clearing any override calls `giveInitialAssignments()` again, which resets AI, faction, transponder and flags and calls `pickNext()`. Dormancy clears when supplies >= 1 (and fuel >= 1 in hyperspace, `:232`). The "Leave" option of the detachment dialog adds 1 supply when empty and clears the override (`DetachmentDialoguePlugin.java:132`).
-
-### Following across locations
-
-Follow, escort and intercept queue the player's jumps in `jumpInfoMap` from `reportFleetJumped`. `checkForJumpActions` (`:184`) runs the lowest queued jump with `SectorAPI.doHyperspaceTransition`. `goToPlayerInOtherSystemActions` (`:395`) handles a detachment left behind: exits through `Misc.getDistressJumpPoint` or a hyperspace token, enters through a hyperspace jump point, or brute forces a jump to the largest planet or a temporary focus.
+The detachment dialog's "Leave" clears the player's interaction target and refreshes the AI (`DetachmentDialoguePlugin.java:125`). Dormancy ends only when supplies are moved in.
 
 ### Ability AIs
 
-`SplinterFleetCampignPlugin.pickAbilityAI` returns detachment AIs for sustained burn, emergency burn, go dark and transponder when `$splinterFleetIdentifier` is set. The assignment AI requests go dark through `$SplinterFleet_Use_ability` (`useAbility`, `BaseSplinterFleetAssignmentAIV2.java:391`); go dark and transponder otherwise copy the player state when close.
+`SplinterFleetCampignPlugin.pickAbilityAI` returns detachment AIs for sustained burn, emergency burn, go dark and transponder when `$splinterFleetIdentifier` is set. The detachment AI requests go dark through `$SplinterFleet_Use_ability` (`useAbility`, `DetachmentAI.java:500`); go dark and transponder otherwise copy the player state when close.
 
 ### Combat losses and recovery
 
@@ -116,22 +113,20 @@ Follow, escort and intercept queue the player's jumps in `jumpInfoMap` from `rep
 - Vanilla `StrategicModule.dumpExcessCargoIfNeeded` (`obf/campaign/ai/StrategicModule.java:813`, every 0.5 to 1.5 days while the fleet AI runs) deletes fuel, personnel and cargo over the fleet's capacity. Capacity is the sum of member fuel, cargo and max crew (`FleetData.updateCargoCapacities`). The cargo pickers and spawn refuse anything over it (`FleetStatus.isOverCapacity`), and battle losses move the excess into wrecks before the AI runs again.
 - Marine XP: `DetachmentMarines.move` takes the cargo counts from before the marines move, then the caller moves the cargo and calls `PlayerFleetPersonnelTracker.update()`. The live cargo picker rebuilds the player's count from the delta, because the picker has already moved the player's marines when `pickedCargo` runs. The tracker drops a holder whose entity is gone (`doCleanup`, `api/impl/PlayerFleetPersonnelTracker.java:610`); merge and Transport clear it at once.
 - The Embassy ambassador tracker reads the cargo of every fleet in `DetachmentMemory.getFleetMap()` to find ambassadors carried by a detachment ([Embassy](../industries/EMBASSY.md#hire-and-transport)).
-- `SectorAPI.reportFleetDespawned` only reaches global `CampaignEventListener`s (`CampaignEngine.reportFleetDespawned`, `obf/campaign/CampaignEngine.java:2149`). The comment at `FleetUtils.java:80` saying it handles slot removal is wrong; `mergeFleetWithPlayerFleet` removes the slot itself (`:83`). `CampaignFleetAPI.despawn` does call fleet `FleetEventListener`s (`obf/campaign/fleet/CampaignFleet.java:1599`), which is how transport and battle losses clear the slot.
-- `GateTransitListener` is dispatched only to listeners in the `ListenerManager` (`ListenerUtil.reportFleetTransitingGate`, `api/campaign/listeners/ListenerUtil.java:268`). The AI is only added through `SectorAPI.addListener`, so the gate overrides never fire (the TODO at `BaseSplinterFleetAssignmentAIV2.java:148` asks exactly this). Gate jumps are still seen via `reportFleetJumped`.
-- `BaseAssignmentAI.advance` calls `pickNext()` whenever the fleet has no assignment (`api/impl/campaign/procgen/themes/BaseAssignmentAI.java:66`). Behaviour AIs return early from `pickNext` when the fleet AI is null, which is how dormancy, combat and hiding stop reassignment.
-- Save data: both slot maps, `Loadout` objects (with `ShipVariantAPI` refs and a cargo), the AI script, its `jumpInfoMap` and the `CombatAndDerelictionScript` persist. `AbilityPanelDialoguePlugin` and `VisualCustomPanel` state do not.
+- `SectorAPI.reportFleetDespawned` only reaches global `CampaignEventListener`s (`CampaignEngine.reportFleetDespawned`, `obf/campaign/CampaignEngine.java:2149`); `removeEntity` calls no listener. `mergeFleetWithPlayerFleet` removes the slot itself. `CampaignFleetAPI.despawn` calls fleet `FleetEventListener`s (`obf/campaign/fleet/CampaignFleet.java:1599`): `GO_TO_LOCATION_AND_DESPAWN` reports `REACHED_DESTINATION` with the target entity, battles report `DESTROYED_BY_BATTLE`, and a fleet left without members reports `NO_MEMBERS` at the end of its own `advance` (`:848`). A merge from `MergeScript` runs inside that `advance`, so the merge sets `$IndEvo_detachmentEnded` first or the listener would report the empty fleet as lost.
+- Cross-system travel is vanilla: `StrategicModule` plans jumps to an assignment target in another location, and player faction fleets know where the player jumped. With AI mode off it drops the plan at 0 fuel (`updateJumpPlanTo`); `NoFuelDriftScript` only covers hyperspace. `STRANDED` covers the rest.
+- Lobotomizing is `setAI(null)` plus `setDoNotAdvanceAI(true)` (`DetachmentAI.lobotomize`); `reset()` recreates the AI with `Global.getFactory().createFleetAI`. Supply use (`LogisticsModule`) runs without a fleet AI too; only AI mode stops it, which is why dormancy turns AI mode on.
+- Save data: both slot maps, `Loadout` objects (with `ShipVariantAPI` refs and a cargo), the `DetachmentAI` (foci, Transport market id, applied mode), the override list and the `CombatAndDerelictionScript` persist. `AbilityPanelDialoguePlugin` and `VisualCustomPanel` state do not. Saves with live detachments from before the AI rewrite reference removed AI classes: recall detachments before updating.
 - Slot numbers `1, 2, 3` are hardcoded in `DetachmentMemory`, `LoadoutMemory`, `Behaviour.updateActiveDetachmentBehaviour` and the panel. Slot `0` from `getNumForFleet` means "not a live detachment".
-- Every orbit focus is a new custom entity tagged `SplinterFleet_OF`; the dormancy focus is removed once its orbit is copied. `ModPlugin.onGameLoad -> OrbitFocus.removeUnusedOrbitFoci()` removes tagged foci that no entity orbits and no fleet assignment, interaction target, detachment AI (`addUsedEntities`: stay and hide focus, queued jumps) or `RecoverableShipIntel` points at. A focus a new script holds in a field must be added to `addUsedEntities`, or it is removed on the next load. Mine disabled areas use the same entity type without the tag and remove themselves.
+- Every orbit focus is a new custom entity tagged `SplinterFleet_OF`; the dormancy focus is removed once its orbit is copied. `ModPlugin.onGameLoad -> OrbitFocus.removeUnusedOrbitFoci()` removes tagged foci that no entity orbits and no fleet assignment, interaction target, detachment AI (`addUsedEntities`: stay and hide focus) or `RecoverableShipIntel` points at. A focus a new script holds in a field must be added to `addUsedEntities`, or it is removed on the next load. Mine disabled areas use the same entity type without the tag and remove themselves.
 - Cross feature: ship component loot skips detachments via `FleetUtils.isDetachmentFleet` (`indevo/items/listeners/ShipComponentLootManager.java:55`); `OrbitFocus` is reused by `BeaconAbilityPlugin`, `ScoopAbilityPlugin`, `SmokeCloudEntityPlugin` (see [Consumables](../items/CONSUMABLES.md)) and `MineBeltTerrainPlugin` spawns `SplinterFleet_OrbitFocus` entities (see [Minefields](../exploration/MINEFIELDS.md)). Market storage access uses `MiscIE.getStorageCargo` (see [Utils](../core/UTILS.md)).
 
 ## Known issues and dormant code
 
 | Item | State |
 |---|---|
-| Gate transit handling | never called, see Contracts; `reportFleetTransitingGate` also checks the player fleet's memory instead of `this.fleet` (`BaseSplinterFleetAssignmentAIV2.java:154`) |
-| Escort and intercept AI | `fleet.getCurrentAssignment().getAssignment()` without a null check, NPE when the fleet has no assignment (`EscortAssignmentAI.java:55`, `InterceptAssignmentAI.java:55`) |
 | General | Changelog_todo: "Detachments are still bugged as fuck" |
-| Other system | Changelog_todo: "Detachments refuse to move when in other system (??)" |
+| Other system | Changelog_todo: "Detachments refuse to move when in other system (??)"; travel is vanilla now, needs an in-game check |
 | Preview without ships | a loadout with cargo set but none of its ships in the player fleet previews an empty fleet: upkeep 0, operating time shows `Integer.MAX_VALUE` months (`FleetStatus.java:77`); spawn is blocked there |
 | Hiding at the sun | Changelog_todo: "? Detachments like to hide in system center (sun)"; `getAlternateHidingPosition` and the centred orbit fallback in `getClosestValidOrbit` orbit the system centre |
 
