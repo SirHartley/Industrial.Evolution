@@ -15,12 +15,14 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.dialogue.research.dialogue.DropDataCreator;
+import indevo.dialogue.research.dialogue.RedeemRequirement;
 import indevo.dialogue.research.dialogue.RequiredItem;
 import indevo.dialogue.research.dialogue.ResearchProject;
 import indevo.dialogue.research.dialogue.ResearchProjectDialoguePlugin;
 import indevo.dialogue.research.hullmods.CamouflageFieldEmitter;
 import indevo.dialogue.research.intel.HyperspaceTopographyProjectFactor;
 import indevo.dialogue.research.listeners.AutopulseUseChecker;
+import indevo.dialogue.research.listeners.CorruptedNanoforgeChecker;
 import indevo.dialogue.research.listeners.DoritoGunFoundChecker;
 import indevo.dialogue.research.listeners.HasUniqueShipChecker;
 import indevo.dialogue.research.listeners.SlowShipInFleetChecker;
@@ -582,6 +584,48 @@ public class ResearchProjectTemplateRepo {
             @Override
             public String getShortDesc() {
                 return "Five brand new pieces of tech for random scrap you picked up! Greatest deal of your life, right?";
+            }
+        });
+
+        put(Ids.PROJ_REFORGE, new ResearchProject(Ids.PROJ_REFORGE, "Project Reforge", 500, false) {
+
+            @Override
+            public boolean display() {
+                return CorruptedNanoforgeChecker.isDone();
+            }
+
+            @Override
+            public CargoAPI getRewards() {
+                CargoAPI c = Global.getFactory().createCargo(true);
+                c.addSpecial(new SpecialItemData(Items.PRISTINE_NANOFORGE, null), 1);
+                return c;
+            }
+
+            @Override
+            public List<RequiredItem> getRequiredItems() {
+                List<RequiredItem> list = new ArrayList<>();
+                list.add(new RequiredItem(ItemIds.RARE_PARTS, CargoAPI.CargoItemType.RESOURCES, 1f));
+                return list;
+            }
+
+            @Override
+            public RedeemRequirement getRedeemRequirement() {
+                return new RedeemRequirement(Items.CORRUPTED_NANOFORGE, CargoAPI.CargoItemType.SPECIAL, 1);
+            }
+
+            @Override
+            public String getRedeemLore() {
+                return "Beneath the corrupted nanoforge's burnt-out assemblers, its pattern archive remains intact. Relic components could restore the machinery needed to read it.";
+            }
+
+            @Override
+            public String getLongDesc() {
+                return "A one-off project to restore a Corrupted Nanoforge. Relic Components pay for the research. The nanoforge itself is only needed to redeem the project, which turns it into a Pristine Nanoforge.";
+            }
+
+            @Override
+            public String getShortDesc() {
+                return "Redeeming takes a Corrupted Nanoforge from your fleet cargo and returns a Pristine Nanoforge.";
             }
         });
     }};
