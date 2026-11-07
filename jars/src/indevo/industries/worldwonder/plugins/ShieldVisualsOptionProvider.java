@@ -39,6 +39,8 @@ public class ShieldVisualsOptionProvider extends SingleIndustrySimpifiedOptionPr
             market.removeTag(TAG_NONE);
             market.addTag(TAG_FULL);
         }
+
+        opt.ind.reapply();
     }
 
     @Override

@@ -17,11 +17,12 @@ All wonders share `WorldWonder`: +10 immigration (independent faction), monthly 
 | `indevo/industries/worldwonder/industry/LavaFortress.java` | Build check: planet with `very_hot` |
 | `indevo/industries/worldwonder/industry/WorldTree.java` | Build check: `habitable` planet whose type is in the tree list; suppresses `inimical_biosphere`; name "Eggdrasil" when the market name contains "egg" |
 | `indevo/industries/worldwonder/industry/CloudPainter.java` | Build check: planet without `no_atmosphere`. Cloud texture cycle (`nextTexture`, `applyVisuals`) |
-| `indevo/industries/worldwonder/patches/CloudPainterShieldPatch.java` | PatchLib redirect of `applyVisuals` in vanilla `PlanetaryShield.apply`: shield visuals from the market tags while a Cloud Painter works; tag constants, `hasFunctionalCloudPainter`, `getDefaultTag` |
+| `indevo/industries/worldwonder/patches/CloudPainterShieldPatch.java` | PatchLib redirect of `applyVisuals` in vanilla `PlanetaryShield.apply`: shield visuals from the market tags while a Cloud Painter works; `@After` on `PlanetaryShield.addPostDemandSection`: shield visuals tooltip line; tag constants, `hasFunctionalCloudPainter`, `getDefaultTag` |
+| `indevo/industries/worldwonder/patches/PlanetBackgroundRefreshPatch.java` | PatchLib `@After` on the colony screen planet background's `advanceImpl`: rebuilds the background when the planet spec changed |
 | `indevo/industries/worldwonder/conditions/WorldWonderCondition.java` | Hidden condition: +1 stability while any functional wonder of the market faction is in the location |
 | `indevo/industries/worldwonder/plugins/WorldWonderAltImageOptionProvider.java` | Industry option "Change Visuals": toggles `WorldWonder.isAlternateVisual`; only on player wonders with an alternate image |
 | `indevo/industries/worldwonder/plugins/WorldWonderTexChangeOptionProvider.java` | Industry option "Change cloud texture": calls `CloudPainter.nextTexture()` |
-| `indevo/industries/worldwonder/plugins/ShieldVisualsOptionProvider.java` | Industry option "Change Shield Visuals" on a functional `planetaryshield` of a market with a functional Cloud Painter: cycles the market tags |
+| `indevo/industries/worldwonder/plugins/ShieldVisualsOptionProvider.java` | Industry option "Change Shield Visuals" on a functional `planetaryshield` of a market with a functional Cloud Painter: cycles the market tags, then reapplies the shield |
 
 ## Data and ids
 
@@ -47,7 +48,7 @@ The `parent_item` / `sub_item` tags group the wonders under one build list entry
 
 - CSV plugin column per row.
 - `ModPlugin.setListenersIfNeeded()`: `WorldWonderAltImageOptionProvider.register()`, `WorldWonderTexChangeOptionProvider.register()` (`ModPlugin.java:447-448`), `ShieldVisualsOptionProvider.register()` (`:476`), all transient and deduped by `hasListenerOfClass`.
-- `CloudPainterShieldPatch` is a `@Patch` class; PatchLib installs it when `PlanetaryShield` loads ([Patches](../ARCHITECTURE.md#patches)).
+- `CloudPainterShieldPatch` and `PlanetBackgroundRefreshPatch` are `@Patch` classes; PatchLib installs them when `PlanetaryShield` and the colony screen planet background load ([Patches](../ARCHITECTURE.md#patches)).
 - `BaseIndustry.apply` adds the industry as transient immigration modifier because it implements `MarketImmigrationModifier` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:209`).
 - `apply()` adds the industry as transient `EconomyTickListener` (`WorldWonder.java:61`); `ListenerManager.addListener` dedupes the same instance (skill `obf/campaign/ListenerManager.java:29`). `unapply()` removes it.
 - Lists are loaded by `MiscIE.getCSVSetFromMemory`; see [Utils](../core/UTILS.md).
@@ -75,9 +76,16 @@ Chain: `WorldWonder.apply -> system tag IndEvo_hasWonder -> addCondition(IndEvo_
 - No functional `CloudPainter` on the market: calls down, vanilla visuals.
 - Otherwise a market with none of the three tags gets `getDefaultTag()`: NONE if `IndEvo_CPShieldRemove`, else LOW if `IndEvo_CPShieldOverride`, else FULL. Markets that already carry a tag keep it.
 - FULL calls down, LOW applies the `IndEvo` / `shield_texture` sprite, NONE calls `PlanetaryShield.unapplyVisuals`.
-- Option "Change Shield Visuals" cycles FULL -> LOW -> NONE; its tooltip lists full, faint and hidden visuals. The change shows on the shield's next apply.
+- Option "Change Shield Visuals" cycles FULL -> LOW -> NONE, then calls `reapply()` on the shield, so the redirect runs at once. Its tooltip lists full, faint and hidden visuals.
+- Shield tooltip: `afterPostDemandSection` adds "Shield visuals: %s" (Full, Faint or Hidden; untagged markets show `getDefaultTag()`) under vanilla's ground defense line, with the same condition (tooltip mode other than `NORMAL`, or a functional shield) and only while a Cloud Painter works. Vanilla `PlanetaryShield` declares `addPostDemandSection` (skill `api/impl/campaign/econ/impl/PlanetaryShield.java:93-99`); the spot right below the description is `addRightAfterDescriptionSection`, a `BaseIndustry` method IE does not patch.
 
 The rest of vanilla `apply` (ground defense x3, upkeep, meteor impact suppression) and the AI core stay untouched; the industry is the vanilla one.
+
+### Colony screen planet
+
+The colony screen draws the planet from its own background panel (obf `com.fs.starfarer.campaign.ui.marketinfo`, the core UI's `getPlanetBackground()`). Its `setPlanet` clones the planet renderer and builds the sprites once (skill `obf/campaign/ui/marketinfo/nullnew.java:60-90`), and `CampaignPlanet.applySpecChanges` hands the spec to the renderer, then swaps in a clone (skill `obf/campaign/CampaignPlanet.java:316-319`). So a spec change made while the screen is open (cloud texture, shield visuals) needs the panel rebuilt to show.
+
+`PlanetBackgroundRefreshPatch` hooks the panel's `advanceImpl`: it keeps the planet's `getSpec()` from the last frame in the panel's `getData()` and calls `setPlanet` again when the identity changed. One identity check per frame while the panel is shown; covers spec changes from any source. Every market reapply of a planet with a Cloud Painter or Planetary Shield changes the spec (both call `applySpecChanges` in `apply`), so the background rebuilds once per reapply. `setPlanet` restarts a fader whose value the render code overwrites with 0 (`nullnew.java:200`), so the rebuild has no fade (inferred from code, not tested in game).
 
 ### Tree of Life
 
