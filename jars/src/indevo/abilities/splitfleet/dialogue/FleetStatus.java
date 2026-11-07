@@ -11,6 +11,7 @@ import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FleetStatus {
@@ -36,6 +37,18 @@ public class FleetStatus {
 
     public String operatingTimeString;
     public String fuelRangeLYString;
+
+    public boolean isOverCapacity() {
+        return !getOverCapacityList().isEmpty();
+    }
+
+    public List<String> getOverCapacityList() {
+        List<String> over = new ArrayList<>();
+        if (cargo.getSpaceUsed() > totalCargoCap) over.add("cargo");
+        if (cargo.getFuel() > totalFuelCap) over.add("fuel");
+        if (cargo.getCrew() + cargo.getMarines() > totalCrewCap) over.add("personnel");
+        return over;
+    }
 
     public FleetStatus recalculate() {
         return getFleetStatus(fleetName, cargo, fleetMemberAPIList);

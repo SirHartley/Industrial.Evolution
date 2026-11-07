@@ -369,6 +369,7 @@ public class SplinterFleetSidePanelCreator {
                         && !loadout.targetCargo.isEmpty()
                         && transportRequirements
                         && !detachmentIsDormant
+                        && !status.isOverCapacity()
                         && status.currentSupplies >= (status.suppliesToRecover + status.requiredSuppliesPerMonth);
 
                 bgColour = prerequisiteForActive ? new Color(50, 130, 0, 255) : Misc.getGrayColor();
@@ -415,6 +416,8 @@ public class SplinterFleetSidePanelCreator {
 
             if (!detachmentIsActive && !detachmentSmallerThanFleet)
                 panelTooltip.addPara("At least one ship must stay with the main fleet!", Misc.getNegativeHighlightColor(), opad);
+            else if (!detachmentIsActive && status.isOverCapacity())
+                panelTooltip.addPara("The ships cannot carry the selected cargo: over %s capacity.", opad, Misc.getNegativeHighlightColor(), Misc.getAndJoined(status.getOverCapacityList()));
             else if (!detachmentIsActive && status.currentSupplies < (status.suppliesToRecover + status.requiredSuppliesPerMonth)) {
                 panelTooltip.addPara("Not enough supplies to repair and operate all ships for one month", Misc.getNegativeHighlightColor(), opad);
             } else if (loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) || loadout.behaviour.equals(Behaviour.FleetBehaviour.DELIVER)) {

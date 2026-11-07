@@ -67,6 +67,21 @@ public class TwoFleetCargoPicker {
             protected CargoAPI tempSelectedCargo = Global.getFactory().createCargo(true);
 
             public void pickedCargo(CargoAPI cargo) {
+                FleetStatus newStatus = FleetStatus.getFleetStatus(toFleet.getName(), cargo, toFleet.getFleetData().getMembersListCopy());
+                if (newStatus.isOverCapacity()) {
+                    if (removeFromFromFleetCargo) {
+                        CargoAPI fromCargo = fromFleet.getCargo();
+                        fromCargo.addAll(cargo);
+                        fromCargo.removeAll(tempSelectedCargo);
+                        toFleet.getCargo().addAll(tempSelectedCargo);
+                    }
+
+                    dialoguePlugin.showBaseOptions();
+                    String over = Misc.getAndJoined(newStatus.getOverCapacityList());
+                    dialoguePlugin.getDialog().getTextPanel().addPara("The detachment would be over " + over + " capacity. Nothing was moved.", Misc.getNegativeHighlightColor());
+                    return;
+                }
+
                 if (!cargo.isEmpty()) {
                     CargoAPI toFleetCargo = toFleet.getCargo();
                     toFleetCargo.clear();
@@ -159,7 +174,9 @@ public class TwoFleetCargoPicker {
                 }
 
                 panel.addSectionHeading("Notes", Alignment.MID, opad);
-                panel.addPara("Detachment will become derelict if out of supplies. Estimations do not account for overloading and combat.", opad);
+                panel.addPara("Detachment will become derelict if out of supplies. Estimations do not account for combat.", opad);
+                if (toFleetStatus.isOverCapacity())
+                    panel.addPara("The detachment is over %s capacity and cannot take this cargo.", opad, negativeHighlightColor, Misc.getAndJoined(toFleetStatus.getOverCapacityList()));
 
             }
 
@@ -173,6 +190,7 @@ public class TwoFleetCargoPicker {
                     float amt = (toFleet.requiredSuppliesPerMonth + toFleet.suppliesToRecover) - toFleet.currentSupplies;
                     if (amt > fromFleet.currentSupplies && toFleet.currentSupplies < 1)
                         amt = Math.min(toFleet.totalCargoCap, fromFleet.currentSupplies / 2f);
+                    amt = Math.max(0f, Math.min(amt, toFleet.totalCargoCap - toFleet.cargo.getSpaceUsed()));
 
                     transferCommodity(fromCargo, toCargo, Commodities.SUPPLIES, amt);
                 }

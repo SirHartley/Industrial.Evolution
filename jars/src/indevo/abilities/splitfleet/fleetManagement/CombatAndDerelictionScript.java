@@ -17,6 +17,7 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpe
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySpecial;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.intel.RecoverableShipIntel;
 import indevo.abilities.splitfleet.salvageSpecials.OfficerAndShipRecoverySpecial;
@@ -99,113 +100,121 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
 
         Global.getSector().getCampaignUI().addMessage("Detachment combat concluded.");
 
-        List<FleetMemberAPI> membersLost = Misc.getSnapshotMembersLost(fleet);
+        List<FleetMemberAPI> lostMembers = Misc.getSnapshotMembersLost(fleet);
+        if (lostMembers.isEmpty()) return;
 
-        if (membersLost.size() > 0) {
-            //cargo logging
+        SectorEntityToken focus = OrbitFocus.getOrbitFocusAtTokenPosition(fleet);
+        focus.getMemoryWithoutUpdate().set(ORBIT_FOCUS_ORBITING_TOKEN_LIST, new ArrayList<>());
 
-            SectorEntityToken focus = OrbitFocus.getOrbitFocusAtTokenPosition(fleet);
-            focus.getMemoryWithoutUpdate().set(ORBIT_FOCUS_ORBITING_TOKEN_LIST, new ArrayList<>());
+        CargoAPI excessCargo = removeExcessCargo(fleet);
+        log.info("cargo to distribute to fleet members:");
+        for (CargoStackAPI stack : excessCargo.getStacksCopy()) log.info(stack.getDisplayName() + " " + stack.getSize());
 
-            CargoAPI fleetCargo = fleet.getCargo();
-            fleetCargo.removeEmptyStacks();
-            CargoAPI excessCargo = Global.getFactory().createCargo(true);
+        distributeToWrecks(focus, lostMembers, excessCargo);
 
-            //dropping behaviour
+        Global.getSector().getIntelManager().addIntel(new RecoverableShipIntel(focus));
+    }
 
-            float totalAvailableCargoSpace = 0f;
-            for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
-                totalAvailableCargoSpace += m.getCargoCapacity();
+    // vanilla StrategicModule.dumpExcessCargoIfNeeded deletes anything over capacity, so it goes into the wrecks first
+    private CargoAPI removeExcessCargo(CampaignFleetAPI fleet) {
+        CargoAPI fleetCargo = fleet.getCargo();
+        fleetCargo.removeEmptyStacks();
+        CargoAPI excessCargo = Global.getFactory().createCargo(true);
+
+        float cargoCap = 0f;
+        float fuelCap = 0f;
+        float personnelCap = 0f;
+        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
+            cargoCap += m.getCargoCapacity();
+            fuelCap += m.getFuelCapacity();
+            personnelCap += m.getMaxCrew();
+        }
+
+        float overloadedByAmount = fleetCargo.getSpaceUsed() - cargoCap;
+
+        if (overloadedByAmount > 0) {
+            //get stack% of original cargo
+            //use that as weight for picker and as max amt for removal
+
+            List<CargoStackAPI> stacks = fleetCargo.getStacksCopy();
+            Map<CargoStackAPI, Integer> stackMaxUnitsForAnteilList = new HashMap<>();
+            WeightedRandomPicker<CargoStackAPI> picker = new WeightedRandomPicker<>();
+
+            for (CargoStackAPI stack : stacks) {
+                if (stack.getCargoSpacePerUnit() <= 0f) continue;
+
+                float anteil = stack.getCargoSpace() / fleetCargo.getSpaceUsed();
+                float spacePerUnit = stack.getCargoSpacePerUnit();
+                int unitsForAnteil = (int) Math.min(stack.getSize(), Math.ceil((overloadedByAmount * anteil) / spacePerUnit));
+
+                stackMaxUnitsForAnteilList.put(stack, unitsForAnteil);
+                picker.add(stack, anteil);
             }
 
-            float overloadedByAmount = fleetCargo.getSpaceUsed() - totalAvailableCargoSpace;
+            while (overloadedByAmount > 0 && !picker.isEmpty()) {
+                //pick stacks according to their weight and move their max amount to drop pool, then update the overload amt
+                CargoStackAPI pickedStack = picker.pickAndRemove();
+                if (pickedStack == null || pickedStack.isNull()) continue;
 
-            if (overloadedByAmount > 0) {
-                //overloaded means we have to move some stuff to the new detachment
+                int maxAmt = stackMaxUnitsForAnteilList.get(pickedStack);
+                float space = pickedStack.getCargoSpacePerUnit() * maxAmt;
+                float unitSpace = pickedStack.getCargoSpacePerUnit();
 
-                //get stack% of original cargo
-                //use that as weight for picker and as max amt for removal
+                int amtToRemove = space <= overloadedByAmount ? maxAmt : (int) Math.ceil(overloadedByAmount / unitSpace);
 
-                List<CargoStackAPI> stacks = fleet.getCargo().getStacksCopy(); // TODO: 16.03.2022 it's possible that we have to use the snapshot cargo here if the fleet adjusts cargo after combat
-                Map<CargoStackAPI, Integer> stackMaxUnitsForAnteilList = new HashMap<>();
-                WeightedRandomPicker picker = new WeightedRandomPicker();
+                excessCargo.addItems(pickedStack.getType(), pickedStack.getData(), amtToRemove);
+                fleetCargo.removeItems(pickedStack.getType(), pickedStack.getData(), amtToRemove);
+                overloadedByAmount -= amtToRemove * unitSpace;
+            }
+        }
 
-                for (CargoStackAPI stack : stacks) {
-                    float anteil = stack.getCargoSpace() / fleetCargo.getSpaceUsed();
-                    float spacePerUnit = stack.getCargoSpacePerUnit();
-                    int unitsForAnteil = (int) Math.min(stack.getSize(), Math.ceil((overloadedByAmount * anteil) / spacePerUnit));
+        float fuelOver = (float) Math.ceil(fleetCargo.getFuel() - fuelCap);
+        if (fuelOver > 0) FleetUtils.transferCommodity(fleetCargo, excessCargo, Commodities.FUEL, fuelOver);
 
-                    stackMaxUnitsForAnteilList.put(stack, unitsForAnteil);
-                    picker.add(stack, anteil);
+        float personnelOver = (float) Math.ceil(fleetCargo.getCrew() + fleetCargo.getMarines() - personnelCap);
+        if (personnelOver > 0) {
+            float crew = Math.min(personnelOver, fleetCargo.getCrew());
+            FleetUtils.transferCommodity(fleetCargo, excessCargo, Commodities.CREW, crew);
+            FleetUtils.transferCommodity(fleetCargo, excessCargo, Commodities.MARINES, personnelOver - crew);
+        }
+
+        excessCargo.removeEmptyStacks();
+        return excessCargo;
+    }
+
+    private void distributeToWrecks(SectorEntityToken focus, List<FleetMemberAPI> lostMembers, CargoAPI excessCargo) {
+        //fill the wrecks in order, the last one takes the rest
+        for (int i = 0; i < lostMembers.size(); i++) {
+            FleetMemberAPI member = lostMembers.get(i);
+            CargoAPI extraCargo = Global.getFactory().createCargo(true);
+            float remainingCargoCapacity = member.getCargoCapacity();
+
+            int safetyCounter = 0;
+            while (remainingCargoCapacity >= 1
+                    && !excessCargo.isEmpty()
+                    && safetyCounter < excessCargo.getStacksCopy().size()) {
+
+                for (CargoStackAPI stack : excessCargo.getStacksCopy()) {
+                    float space = stack.getCargoSpace();
+                    float unitSpace = stack.getCargoSpacePerUnit();
+
+                    int amtToRemove = space <= remainingCargoCapacity ? (int) Math.ceil(stack.getSize()) : (int) Math.ceil(remainingCargoCapacity / unitSpace);
+                    extraCargo.addItems(stack.getType(), stack.getData(), amtToRemove);
+                    excessCargo.removeItems(stack.getType(), stack.getData(), amtToRemove);
+                    remainingCargoCapacity -= amtToRemove * unitSpace;
+                    if (remainingCargoCapacity < 1) break;
                 }
 
-                int safetyCounter = 0;
-                while (overloadedByAmount > 0 || safetyCounter > stacks.size()) {
-                    //pick stacks according to their weight and move their max amount to drop pool, then update the overload amt
-                    if (picker.isEmpty()) break;
-
-                    CargoStackAPI pickedStack = (CargoStackAPI) picker.pickAndRemove();
-                    if (pickedStack == null || pickedStack.isNull()) continue;
-
-                    int maxAmt = stackMaxUnitsForAnteilList.get(pickedStack);
-                    float space = pickedStack.getCargoSpacePerUnit() * maxAmt;
-                    float unitSpace = pickedStack.getCargoSpacePerUnit();
-
-                    int amtToRemove = space <= overloadedByAmount ? maxAmt : (int) Math.ceil(overloadedByAmount / unitSpace);
-
-                    excessCargo.addItems(pickedStack.getType(), pickedStack.getData(), amtToRemove);
-                    fleetCargo.removeItems(pickedStack.getType(), pickedStack.getData(), amtToRemove);
-                    overloadedByAmount -= amtToRemove * unitSpace;
-
-                    safetyCounter++;
-                }
-
-                log.info("cargo to distribute to fleet members:");
-                for (CargoStackAPI stack : excessCargo.getStacksCopy())
-                    log.info(stack.getDisplayName() + " " + stack.getSize());
-
-                //distribute said cargo to the dead members, I am lazy, so just fill em up until nothing is left
-
-                List<FleetMemberAPI> lostMembers = Misc.getSnapshotMembersLost(fleet);
-                if (lostMembers.size() == 1) {
-                    addDerelict(focus, lostMembers.get(0), OfficerAndShipRecoverySpecial.ShipCondition.AVERAGE, excessCargo);
-                } else for (int i = 0; i < lostMembers.size(); i++) {
-                    FleetMemberAPI member = lostMembers.get(i);
-                    CargoAPI extraCargo = Global.getFactory().createCargo(true);
-                    float remainingCargoCapacity = member.getCargoCapacity();
-
-                    if (!excessCargo.isEmpty()) {
-                        safetyCounter = 0;
-                        while (remainingCargoCapacity >= 1
-                                && !excessCargo.isEmpty()
-                                && safetyCounter < excessCargo.getStacksCopy().size()) {
-
-                            for (CargoStackAPI stack : excessCargo.getStacksCopy()) {
-                                float space = stack.getCargoSpace();
-                                float unitSpace = stack.getCargoSpacePerUnit();
-
-                                int amtToRemove = space <= remainingCargoCapacity ? (int) Math.ceil(stack.getSize()) : (int) Math.ceil(remainingCargoCapacity / unitSpace);
-                                extraCargo.addItems(stack.getType(), stack.getData(), amtToRemove);
-                                excessCargo.removeItems(stack.getType(), stack.getData(), amtToRemove);
-                                remainingCargoCapacity -= amtToRemove * unitSpace;
-                                if (remainingCargoCapacity < 1) break;
-                            }
-
-                            excessCargo.removeEmptyStacks();
-                            safetyCounter++;
-                        }
-                    }
-
-                    if (i == lostMembers.size() - 1) {
-                        extraCargo.addAll(excessCargo);
-                        excessCargo.clear();
-                    }
-
-                    addDerelict(focus, member, OfficerAndShipRecoverySpecial.ShipCondition.AVERAGE, extraCargo);
-                }
+                excessCargo.removeEmptyStacks();
+                safetyCounter++;
             }
 
-            Global.getSector().getIntelManager().addIntel(new RecoverableShipIntel(focus));
+            if (i == lostMembers.size() - 1) {
+                extraCargo.addAll(excessCargo);
+                excessCargo.clear();
+            }
+
+            addDerelict(focus, member, OfficerAndShipRecoverySpecial.ShipCondition.AVERAGE, extraCargo);
         }
     }
 
