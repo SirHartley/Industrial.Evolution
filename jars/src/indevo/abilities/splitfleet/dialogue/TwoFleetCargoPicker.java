@@ -4,19 +4,17 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.PlayerFleetPersonnelTracker;
-import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
+import indevo.abilities.splitfleet.fleetManagement.DetachmentMarines;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static indevo.abilities.splitfleet.FleetUtils.transferCommodity;
 
 public class TwoFleetCargoPicker {
     protected SplinterFleetDialoguePluginAPI dialoguePlugin;
@@ -54,32 +52,75 @@ public class TwoFleetCargoPicker {
         fromFleetCargoCopy.removeAll(toFleet.getCargo());
     }
 
+    private boolean isTakeMode() {
+        return loadout != null && loadout.takeMode;
+    }
+
+    private List<FleetMemberAPI> getFromFleetMembers() {
+        List<FleetMemberAPI> fromFleetList = new ArrayList<>(fromFleet.getFleetData().getMembersListCopy());
+        if (!removeToFleetShipsFromFromFleetForCalc) return fromFleetList;
+
+        List<FleetMemberAPI> toRemove = new ArrayList<>();
+        for (FleetMemberAPI toFleetMember : toFleet.getFleetData().getMembersListCopy()) {
+            for (FleetMemberAPI fromFleetMember : fromFleetList) {
+                if (fromFleetMember.getVariant().getHullVariantId().equals(toFleetMember.getVariant().getHullVariantId()) && !toRemove.contains(fromFleetMember)) {
+                    toRemove.add(fromFleetMember);
+                    break;
+                }
+            }
+        }
+
+        fromFleetList.removeAll(toRemove);
+        return fromFleetList;
+    }
+
     public void init() {
         final float width = 310;
+        final boolean take = isTakeMode();
         prepFromCargoCopy();
 
         //note- passing the cargo here means that any cargo selected is immediately removed from the original fleet cargo
         //this also means we have to return anything we picked before to the player fleet cargo, check recreateTextPanel
         final CargoAPI fromFleetCargo = removeFromFromFleetCargo ? fromFleet.getCargo() : fromFleetCargoCopy;
 
-        dialoguePlugin.getDialog().showCargoPickerDialog("Select cargo for the detachment", "Confirm", "Cancel", false, width, fromFleetCargo, new CargoPickerListener() {
+        class Listener implements CargoPickerListener, DetachmentCargoLoad.Picker {
             private boolean moveCargoFirstTick = true;
             protected CargoAPI tempSelectedCargo = Global.getFactory().createCargo(true);
+            private CargoAPI selected;
 
             public void pickedCargo(CargoAPI cargo) {
+                //in take mode the picked side is the player's own, the detachment is what stays behind in the source copy
+                FleetStatus newStatus = take
+                        ? FleetStatus.getFleetStatus("Left behind", fromFleetCargoCopy, getFromFleetMembers())
+                        : FleetStatus.getFleetStatus(toFleet.getName(), cargo, toFleet.getFleetData().getMembersListCopy());
+
+                if (newStatus.isOverCapacity()) {
+                    if (removeFromFromFleetCargo) {
+                        CargoAPI fromCargo = fromFleet.getCargo();
+                        fromCargo.addAll(cargo);
+                        fromCargo.removeAll(tempSelectedCargo);
+                        toFleet.getCargo().addAll(tempSelectedCargo);
+                    }
+
+                    dialoguePlugin.showBaseOptions();
+                    String over = Misc.getAndJoined(newStatus.getOverCapacityList());
+                    String who = take ? "The ships left behind" : "The detachment";
+                    dialoguePlugin.getDialog().getTextPanel().addPara(who + " would be over " + over + " capacity. Nothing was moved.", Misc.getNegativeHighlightColor());
+                    return;
+                }
+
                 if (!cargo.isEmpty()) {
+                    if (removeFromFromFleetCargo) {
+                        //the picker already moved the player's marines, counts before the move are rebuilt from the delta
+                        int before = tempSelectedCargo.getMarines();
+                        int delta = cargo.getMarines() - before;
+                        DetachmentMarines.move(toFleet, before, fromFleet.getCargo().getMarines() + delta, delta);
+                    }
+
                     CargoAPI toFleetCargo = toFleet.getCargo();
                     toFleetCargo.clear();
                     toFleetCargo.addAll(cargo.createCopy(), false);
-
-                    if (false) { //removeFromFromFleetCargo, this should have been for marine XP retention, but it doesn't work
-                        PlayerMarketTransaction trans = new PlayerMarketTransaction(null, null, CampaignUIAPI.CoreUITradeMode.OPEN);
-
-                        //if from fleet is player fleet and we transfer stuff from it, it is calculated as "sell action" - otherwise, we buy
-                        CargoAPI toCargo = fromFleet.isPlayerFleet() ? trans.getSold() : trans.getBought();
-                        toCargo.addAll(cargo);
-                        PlayerFleetPersonnelTracker.getInstance().processTransaction(trans, toFleet);
-                    }
+                    PlayerFleetPersonnelTracker.getInstance().update();
 
                     if (loadout != null) {
                         loadout.targetCargo.clear();
@@ -91,57 +132,60 @@ public class TwoFleetCargoPicker {
             }
 
             public void cancelledCargoSelection() {
+                //load min and max move cargo outside the picker's transaction, so its cancel does not put it back
+                if (removeFromFromFleetCargo && selected != null) {
+                    CargoAPI fromCargo = fromFleet.getCargo();
+                    fromCargo.addAll(selected);
+                    fromCargo.removeAll(tempSelectedCargo);
+                }
+
                 toFleet.getCargo().addAll(tempSelectedCargo);
                 dialoguePlugin.showBaseOptions();
             }
 
+            public void load(DetachmentCargoLoad.Mode mode) {
+                if (selected == null) return;
+
+                FleetStatus from = FleetStatus.getFleetStatus(take ? "Left behind" : "Main Fleet", fromFleetCargo, getFromFleetMembers(), !take);
+                FleetStatus to = FleetStatus.getFleetStatus(take ? "You take" : "Detachment", selected, toFleet.getFleetData().getMembersListCopy(), take);
+                DetachmentCargoLoad.apply(mode, take ? from : to, take ? to : from);
+            }
+
             public void recreateTextPanel(TooltipMakerAPI panel, CargoAPI cargo, CargoStackAPI pickedUp, boolean pickedUpFromSource, CargoAPI combined) {
+                selected = cargo;
                 float opad = 10f;
                 float spad = 3f;
                 Color negativeHighlightColor = Misc.getNegativeHighlightColor();
                 Color highlightColor = Misc.getHighlightColor();
                 Color positiveHighlightColour = Misc.getPositiveHighlightColor();
 
-                //player fleet status
-                List<FleetMemberAPI> fromFleetList = new ArrayList<>(fromFleet.getFleetData().getMembersListCopy());
+                List<FleetMemberAPI> fromFleetList = getFromFleetMembers();
                 List<FleetMemberAPI> toFleetList = new ArrayList<>(toFleet.getFleetData().getMembersListCopy());
 
-                if (removeToFleetShipsFromFromFleetForCalc) {
-                    List<FleetMemberAPI> toRemove = new ArrayList<>();
-
-                    for (FleetMemberAPI toFleetMember : toFleetList) {
-                        for (FleetMemberAPI fromFleetMember : fromFleetList) {
-                            if (fromFleetMember.getVariant().getHullVariantId().equals(toFleetMember.getVariant().getHullVariantId())) {
-                                toRemove.add(fromFleetMember);
-                                break;
-                            }
-                        }
-                    }
-
-                    fromFleetList.removeAll(toRemove);
-                }
-
                 CargoAPI fromFleetCargo = removeFromFromFleetCargo ? fromFleet.getCargo() : fromFleetCargoCopy;
-                FleetStatus fromFleetStatus = FleetStatus.getFleetStatus("Main Fleet", fromFleetCargo, fromFleetList);
-                FleetStatus toFleetStatus = FleetStatus.getFleetStatus("Detachment", cargo, toFleetList);
+                FleetStatus fromFleetStatus = FleetStatus.getFleetStatus(take ? "Left behind" : "Main Fleet", fromFleetCargo, fromFleetList, !take);
+                FleetStatus toFleetStatus = FleetStatus.getFleetStatus(take ? "You take" : "Detachment", cargo, toFleetList, take);
 
                 //Small hack to save the player some time and have the cargo they selected show up in the "selected" panel
-                //also distributes one month of supplies, fuel ect to the detachment if required and cargo is empty
+                //an empty pick loads the detachment's minimum in send mode, its maximum in take mode (you take your minimum)
                 if (moveCargoFirstTick) {
                     CargoAPI toFleetCargo = toFleet.getCargo();
                     cargo.addAll(toFleetCargo);
                     tempSelectedCargo.addAll(toFleetCargo);
                     toFleetCargo.clear();
 
-                    if (autoLoadSupplyFuelCrew && cargo.isEmpty())
-                        autoLoadSupplyFuelCrew(fromFleetStatus, toFleetStatus);
+                    if (autoLoadSupplyFuelCrew && cargo.isEmpty()) {
+                        DetachmentCargoLoad.apply(take ? DetachmentCargoLoad.Mode.MAX : DetachmentCargoLoad.Mode.MIN, take ? fromFleetStatus : toFleetStatus, take ? toFleetStatus : fromFleetStatus);
+                        fromFleetStatus = fromFleetStatus.recalculate();
+                        toFleetStatus = toFleetStatus.recalculate();
+                    }
 
                     moveCargoFirstTick = false;
                 }
 
                 //toFleetStatus.currentCrew += (pickedUp != null && pickedUp.isCrewStack() ? pickedUp.getCargo().getCrew() : 0); //adjust for picked up stack - crew is the only one that needs handling, for some reason.
 
-                panel.addPara("Select the cargo you would like to load onto the detachment.", opad);
+                panel.addPara(take ? "Select the cargo you take with you. Everything else stays with the detachment." : "Select the cargo you would like to load onto the detachment.", opad);
 
                 for (FleetStatus status : Arrays.asList(fromFleetStatus, toFleetStatus)) {
                     panel.addSectionHeading(status.fleetName, Alignment.MID, opad);
@@ -159,45 +203,15 @@ public class TwoFleetCargoPicker {
                 }
 
                 panel.addSectionHeading("Notes", Alignment.MID, opad);
-                panel.addPara("Detachment will become derelict if out of supplies. Estimations do not account for overloading and combat.", opad);
+                panel.addPara("Detachment will become derelict if out of supplies. Estimations do not account for combat.", opad);
+                if (take && fromFleetStatus.isOverCapacity())
+                    panel.addPara("The ships left behind are over %s capacity, take more with you.", opad, negativeHighlightColor, Misc.getAndJoined(fromFleetStatus.getOverCapacityList()));
+                else if (!take && toFleetStatus.isOverCapacity())
+                    panel.addPara("The detachment is over %s capacity and cannot take this cargo.", opad, negativeHighlightColor, Misc.getAndJoined(toFleetStatus.getOverCapacityList()));
 
             }
+        }
 
-            private void autoLoadSupplyFuelCrew(FleetStatus fromFleet, FleetStatus toFleet) {
-                CargoAPI fromCargo = fromFleet.cargo;
-                CargoAPI toCargo = toFleet.cargo;
-
-                if (toFleet.currentSupplies < toFleet.requiredSuppliesPerMonth) {
-                    //take what you need to repair and enough for one month
-                    //if not available, take half the stuff player has available up to your cargo max
-                    float amt = (toFleet.requiredSuppliesPerMonth + toFleet.suppliesToRecover) - toFleet.currentSupplies;
-                    if (amt > fromFleet.currentSupplies && toFleet.currentSupplies < 1)
-                        amt = Math.min(toFleet.totalCargoCap, fromFleet.currentSupplies / 2f);
-
-                    transferCommodity(fromCargo, toCargo, Commodities.SUPPLIES, amt);
-                }
-
-                if (toFleet.currentFuel < toFleet.totalFuelCap) {
-                    //if we'd take more than half the fuel of the main fleet, just take half
-                    float amt = toFleet.totalFuelCap - toFleet.currentFuel;
-                    if (amt > fromFleet.currentFuel / 2f && toFleet.currentFuel < 1) amt = fromFleet.currentFuel / 2f;
-
-                    transferCommodity(fromCargo, toCargo, Commodities.FUEL, amt);
-                }
-
-                if (toFleet.currentCrew < toFleet.requiredCrew) {
-                    //load whats needed unless this would mean going below the min crew for the main fleet
-                    float amt = toFleet.requiredCrew - toFleet.currentCrew;
-                    if (fromFleet.currentCrew - amt < fromFleet.requiredCrew && toFleet.currentCrew < 1)
-                        amt = Math.max(0, fromFleet.currentCrew - fromFleet.requiredCrew);
-                    if (fromFleet.currentCrew < fromFleet.requiredCrew) amt = 1;
-
-                    transferCommodity(fromCargo, toCargo, Commodities.CREW, amt);
-                }
-
-                fromFleet.recalculate();
-                toFleet.recalculate();
-            }
-        });
+        dialoguePlugin.getDialog().showCargoPickerDialog(take ? "Select the cargo you take with you" : "Select cargo for the detachment", "Confirm", "Cancel", false, width, fromFleetCargo, new Listener());
     }
 }

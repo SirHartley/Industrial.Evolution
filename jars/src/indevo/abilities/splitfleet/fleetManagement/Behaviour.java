@@ -8,21 +8,18 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
-import indevo.abilities.splitfleet.fleetAssignmentAIs.*;
-import indevo.utils.ModPlugin;
+import indevo.abilities.splitfleet.fleetAssignmentAIs.DetachmentAI;
 import org.apache.log4j.Logger;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 public class Behaviour {
     public static final Logger log = Global.getLogger(Behaviour.class);
 
     public static final String DETACHMENT_BEHAVIOUR_MEMORY_KEY = "$SplinterFleetBehaviourMode";
-    public static final String DETACHMENT_BEHAVIOUR_OVERRIDE_MEMORY_KEY = "$SplinterFleetBehaviourModeOverride";
-    public static final String RETURNING_MEMORY_KEY = "$SplinterFleet_IsReturning";
+    public static final String DETACHMENT_OVERRIDES_MEMORY_KEY = "$IndEvo_detachmentOverrides";
 
     //some highlights may not work unless these are also translated to chinese
     public enum FleetBehaviour {
@@ -33,15 +30,26 @@ public class Behaviour {
         INTERCEPT,
         FOLLOW,
         TRANSPORT,
-        DELIVER,
 
         //overrides
         RETURN_TO_PLAYER_AND_MERGE,
-        CARGO_DETACHMENT_CHEAT_MODE,
         HEAD_TO_PLAYER_ON_TARGET,
+        STRANDED,
         DORMANT,
         COMBAT,
+        ATTACK_TARGET,
+        TRADE_RUN,
     }
+
+    //highest first, the first active override is the effective behaviour
+    public static final List<FleetBehaviour> OVERRIDE_PRIORITY = Arrays.asList(
+            FleetBehaviour.COMBAT,
+            FleetBehaviour.DORMANT,
+            FleetBehaviour.HEAD_TO_PLAYER_ON_TARGET,
+            FleetBehaviour.STRANDED,
+            FleetBehaviour.RETURN_TO_PLAYER_AND_MERGE,
+            FleetBehaviour.ATTACK_TARGET,
+            FleetBehaviour.TRADE_RUN);
 
     public static Map<Integer, FleetBehaviour> behaviourIndexMap = new HashMap<Integer, FleetBehaviour>() {{
         put(1, FleetBehaviour.STAY);
@@ -50,7 +58,6 @@ public class Behaviour {
         put(4, FleetBehaviour.ESCORT);
         put(5, FleetBehaviour.INTERCEPT);
         put(6, FleetBehaviour.TRANSPORT);
-        //put(7, FleetBehaviour.DELIVER);
     }};
 
     public static Map<Integer, String> behaviourTooltipMap = new HashMap<Integer, String>() {{
@@ -60,7 +67,6 @@ public class Behaviour {
         put(4, "Escort the main force, attack equal-strength visible hostile fleets.");
         put(5, "Escort, only intercept enemy fleets that target the main force.");
         put(6, "Travel to selected planet, then store all ships and cargo.");
-        put(7, "Travel to selected planet, deliver cargo, then return to main force.");
     }};
 
     public static Map<FleetBehaviour, Color> behaviourColourMap = new HashMap<FleetBehaviour, Color>() {{
@@ -70,7 +76,6 @@ public class Behaviour {
         put(FleetBehaviour.ESCORT, Color.ORANGE);
         put(FleetBehaviour.INTERCEPT, Color.RED);
         put(FleetBehaviour.TRANSPORT, Color.MAGENTA);
-        put(FleetBehaviour.DELIVER, Color.PINK);
     }};
 
     public static Color getColourForBehaviour(FleetBehaviour behaviour) {
@@ -101,18 +106,6 @@ public class Behaviour {
         }
 
         text.setFontInsignia();
-
-        /*TooltipMakerAPI tooltip = text.beginTooltip();
-        tooltip.addSectionHeading("Behaviour modes", Alignment.MID, opad);
-
-        tooltip.setParaSmallInsignia();
-
-        for (int i = 1; i <= Behaviour.behaviourIndexMap.size(); i++){
-            String s = MiscIE.ucFirst(Behaviour.getBehaviourForIndex(i).toString());
-            tooltip.addPara("%s - " + Behaviour.behaviourTooltipMap.get(i), spad, Behaviour.getColourForBehaviour(i), s);
-        }
-
-        text.addTooltip();*/
     }
 
     public static FleetBehaviour getBehaviourForIndex(int num) {
@@ -138,54 +131,75 @@ public class Behaviour {
     public static FleetBehaviour getFleetBehaviour(CampaignFleetAPI fleet, boolean ignoreOverride) {
         if (fleet == null) return null;
 
+        if (!ignoreOverride) {
+            List<FleetBehaviour> overrides = getOverrides(fleet);
+            for (FleetBehaviour b : OVERRIDE_PRIORITY) if (overrides.contains(b)) return b;
+        }
+
+        return (FleetBehaviour) fleet.getMemoryWithoutUpdate().get(DETACHMENT_BEHAVIOUR_MEMORY_KEY);
+    }
+
+    public static List<FleetBehaviour> getOverrides(CampaignFleetAPI fleet) {
         MemoryAPI mem = fleet.getMemoryWithoutUpdate();
+        Object o = mem.get(DETACHMENT_OVERRIDES_MEMORY_KEY);
+        if (o instanceof List) return (List<FleetBehaviour>) o;
 
-        if (!ignoreOverride && isBehaviourOverridden(fleet))
-            return (FleetBehaviour) mem.get(DETACHMENT_BEHAVIOUR_OVERRIDE_MEMORY_KEY);
-        else return (FleetBehaviour) mem.get(DETACHMENT_BEHAVIOUR_MEMORY_KEY);
+        List<FleetBehaviour> overrides = new ArrayList<>();
+        mem.set(DETACHMENT_OVERRIDES_MEMORY_KEY, overrides);
+        return overrides;
     }
 
-    public static boolean isDormant(CampaignFleetAPI fleet) {
-        return isBehaviour(fleet, FleetBehaviour.DORMANT);
+    public static boolean hasOverride(CampaignFleetAPI fleet, FleetBehaviour behaviour) {
+        return fleet != null && getOverrides(fleet).contains(behaviour);
     }
 
-    private static void changeBehaviour(CampaignFleetAPI fleet, FleetBehaviour behaviour) {
-        int num = DetachmentMemory.getNumForFleet(fleet);
+    public static void addOverride(CampaignFleetAPI fleet, FleetBehaviour behaviour) {
+        List<FleetBehaviour> overrides = getOverrides(fleet);
+        if (overrides.contains(behaviour)) return;
 
-        fleet.getMemoryWithoutUpdate().set(DETACHMENT_BEHAVIOUR_MEMORY_KEY, behaviour);
-        if (num > 0) LoadoutMemory.getLoadout(num).behaviour = behaviour;
-
-        ModPlugin.log("changing detachment behaviour to " + behaviour.toString() + " for detachment " + num);
+        log.info("adding detachment override " + behaviour + " to " + fleet.getName());
+        overrides.add(behaviour);
     }
 
-    public static void setFleetBehaviourOverride(CampaignFleetAPI fleet, FleetBehaviour behaviour) {
-        log.info("Setting detachment behaviour override " + behaviour.toString());
-        fleet.getMemoryWithoutUpdate().set(DETACHMENT_BEHAVIOUR_OVERRIDE_MEMORY_KEY, behaviour);
+    public static void removeOverride(CampaignFleetAPI fleet, FleetBehaviour behaviour) {
+        if (getOverrides(fleet).remove(behaviour)) log.info("removing detachment override " + behaviour + " from " + fleet.getName());
     }
 
     public static boolean isBehaviourOverridden(CampaignFleetAPI fleet) {
-        return fleet.getMemoryWithoutUpdate().get(DETACHMENT_BEHAVIOUR_OVERRIDE_MEMORY_KEY) != null;
+        return !getOverrides(fleet).isEmpty();
     }
 
-    public static void clearBehaviourOverride(CampaignFleetAPI fleet) {
-        log.info("clearing detachment behaviour override");
-        fleet.getMemoryWithoutUpdate().unset(DETACHMENT_BEHAVIOUR_OVERRIDE_MEMORY_KEY);
+    public static boolean isDormant(CampaignFleetAPI fleet) {
+        return hasOverride(fleet, FleetBehaviour.DORMANT);
+    }
+
+    public static boolean isStranded(CampaignFleetAPI fleet) {
+        return hasOverride(fleet, FleetBehaviour.STRANDED);
     }
 
     public static boolean isReturning(CampaignFleetAPI fleet) {
-        return isBehaviour(fleet, FleetBehaviour.RETURN_TO_PLAYER_AND_MERGE);
+        return hasOverride(fleet, FleetBehaviour.RETURN_TO_PLAYER_AND_MERGE);
     }
 
     public static void setReturning(int num, boolean returnToFleet) {
         setReturning(DetachmentMemory.getDetachment(num), returnToFleet);
     }
 
-    public static void setReturning(CampaignFleetAPI fleet, boolean returnToFleet) {
-        if (returnToFleet) Behaviour.setFleetBehaviourOverride(fleet, FleetBehaviour.RETURN_TO_PLAYER_AND_MERGE);
+    public static boolean isAttacking(CampaignFleetAPI fleet) {
+        return hasOverride(fleet, FleetBehaviour.ATTACK_TARGET);
+    }
 
-        if (!returnToFleet && isBehaviour(fleet, FleetBehaviour.RETURN_TO_PLAYER_AND_MERGE)) {
-            Behaviour.clearBehaviourOverride(fleet);
-        }
+    public static boolean isOnTradeRun(CampaignFleetAPI fleet) {
+        return hasOverride(fleet, FleetBehaviour.TRADE_RUN);
+    }
+
+    public static void setReturning(CampaignFleetAPI fleet, boolean returnToFleet) {
+        if (returnToFleet) {
+            removeOverride(fleet, FleetBehaviour.ATTACK_TARGET);
+            removeOverride(fleet, FleetBehaviour.TRADE_RUN);
+            addOverride(fleet, FleetBehaviour.RETURN_TO_PLAYER_AND_MERGE);
+            Global.getSector().getCampaignUI().addMessage(fleet.getName() + " is returning to the main force.");
+        } else removeOverride(fleet, FleetBehaviour.RETURN_TO_PLAYER_AND_MERGE);
     }
 
     public static boolean isBehaviour(CampaignFleetAPI fleet, Behaviour.FleetBehaviour behaviour) {
@@ -193,61 +207,36 @@ public class Behaviour {
         return Behaviour.behaviourEquals(Behaviour.getFleetBehaviour(fleet, false), behaviour);
     }
 
+    public static boolean canSwitchLiveTo(FleetBehaviour behaviour) {
+        return behaviour != FleetBehaviour.TRANSPORT;
+    }
+
     public static void changeBehaviourAndUpdateAI(CampaignFleetAPI fleet, FleetBehaviour newBehaviour) {
-        FleetBehaviour currentBehaviour = getFleetBehaviour(fleet, true);
-        if (behaviourEquals(newBehaviour, currentBehaviour) && FleetUtils.getAssignmentAI(fleet) != null) return;
+        DetachmentAI ai = FleetUtils.getAssignmentAI(fleet);
+        if (ai != null && behaviourEquals(newBehaviour, getFleetBehaviour(fleet, true))) return;
 
-        FleetUtils.log.info("Assigning new detachment AI for behaviour " + newBehaviour);
+        int num = DetachmentMemory.getNumForFleet(fleet);
+        fleet.getMemoryWithoutUpdate().set(DETACHMENT_BEHAVIOUR_MEMORY_KEY, newBehaviour);
+        if (num > 0) LoadoutMemory.getLoadout(num).behaviour = newBehaviour;
+        log.info("changing detachment behaviour to " + newBehaviour + " for detachment " + num);
 
-        switch (newBehaviour) {
-            case HIDE:
-                FleetUtils.setOrReplaceAssignmentAI(fleet, new HideAssignmentAI(fleet));
-                changeBehaviour(fleet, newBehaviour);
-                break;
-            case ESCORT:
-                FleetUtils.setOrReplaceAssignmentAI(fleet, new EscortAssignmentAI(fleet));
-                changeBehaviour(fleet, newBehaviour);
-                break;
-            /*case PATROL:
-                setOrReplaceAssignmentAI(fleet, new PatrolAssignmentAI(fleet, system));
-                break;*/
-            case INTERCEPT:
-                FleetUtils.setOrReplaceAssignmentAI(fleet, new InterceptAssignmentAI(fleet));
-                changeBehaviour(fleet, newBehaviour);
-                break;
-            case FOLLOW:
-                FleetUtils.setOrReplaceAssignmentAI(fleet, new FollowAssignmentAI(fleet));
-                changeBehaviour(fleet, newBehaviour);
-                break;
-            case TRANSPORT:
-                FleetUtils.setOrReplaceAssignmentAI(fleet, new TransportAssignmentAI(fleet));
-                changeBehaviour(fleet, newBehaviour);
-                break;
-            case DELIVER:
-                FleetUtils.setOrReplaceAssignmentAI(fleet, new DeliverAssignmentAI(fleet));
-                changeBehaviour(fleet, newBehaviour);
-                break;
-            case RETURN_TO_PLAYER_AND_MERGE:
-            case DORMANT:
-                setFleetBehaviourOverride(fleet, newBehaviour);
-                break;
-            default:
-                FleetUtils.setOrReplaceAssignmentAI(fleet, new StayAssignmentAI(fleet));
-                changeBehaviour(fleet, newBehaviour);
-                break;
+        if (ai == null) {
+            ai = new DetachmentAI(fleet);
+            fleet.addScript(ai);
         }
+
+        ai.baseBehaviourChanged();
     }
 
     public static void updateActiveDetachmentBehaviour() {
         if (!DetachmentMemory.isAnyDetachmentActive()) return;
 
-        for (int i : Arrays.asList(1, 2, 3)) {
+        for (int i : DetachmentMemory.SLOTS) {
             if (DetachmentMemory.isDetachmentActive(i)) {
                 CampaignFleetAPI fleet = DetachmentMemory.getDetachment(i);
                 LoadoutMemory.Loadout loadout = LoadoutMemory.getLoadout(i);
 
                 if (!behaviourEquals(loadout.behaviour, getFleetBehaviour(fleet, true))) {
-
                     changeBehaviourAndUpdateAI(fleet, loadout.behaviour);
                 }
             }

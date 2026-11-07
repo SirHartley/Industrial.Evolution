@@ -7,7 +7,6 @@ import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
-import indevo.dialogue.sidepanel.VisualCustomPanel;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Map;
@@ -15,12 +14,6 @@ import java.util.Map;
 import static indevo.abilities.splitfleet.fleetManagement.Behaviour.updateActiveDetachmentBehaviour;
 
 public class AbilityPanelDialoguePlugin implements InteractionDialogPlugin, SplinterFleetDialoguePluginAPI {
-
-    public static final String DIALOGUE_PLUGIN_TEMP_INSTANCE_KEY = "$SplinterFleet_DialoguePlugin";
-
-    public static AbilityPanelDialoguePlugin getCurrentDialoguePlugin() {
-        return (AbilityPanelDialoguePlugin) Global.getSector().getMemoryWithoutUpdate().get(DIALOGUE_PLUGIN_TEMP_INSTANCE_KEY);
-    }
 
     private enum Option {
         MAIN,
@@ -39,10 +32,6 @@ public class AbilityPanelDialoguePlugin implements InteractionDialogPlugin, Spli
         this.dialog = dialog;
         this.options = dialog.getOptionPanel();
         this.text = dialog.getTextPanel();
-
-        Global.getSector().getMemoryWithoutUpdate().set(DIALOGUE_PLUGIN_TEMP_INSTANCE_KEY, this, 0f);
-
-        VisualCustomPanel.createPanel(dialog, true);
 
         showBaseOptions();
     }
@@ -69,7 +58,6 @@ public class AbilityPanelDialoguePlugin implements InteractionDialogPlugin, Spli
                 options.setShortcut(Option.CLOSE_PANEL, Keyboard.KEY_ESCAPE, false, false, false, false);
                 break;
             case CLOSE_PANEL:
-                VisualCustomPanel.clearPanel();
                 updateActiveDetachmentBehaviour();
                 dialog.dismiss();
                 break;
@@ -84,6 +72,7 @@ public class AbilityPanelDialoguePlugin implements InteractionDialogPlugin, Spli
 
         text.clear();
         text.addPara("Split off part of your fleet into a detachment. You will remain in control of your main force, while the detachment will follow the behaviour you specified.");
+        text.addPara("Send picks the ships and cargo that leave. Take picks what you take with you, and everything else stays behind as the detachment. Your flagship always stays with you.");
 
         Behaviour.addBehaviourListTooltip(text);
 
@@ -99,7 +88,7 @@ public class AbilityPanelDialoguePlugin implements InteractionDialogPlugin, Spli
 
 
     public void refreshCustomPanel() {
-        new SplinterFleetSidePanelCreator().showPanel(this);
+        new SplinterFleetSidePanelCreator(this).showPanel();
     }
 
     @Override

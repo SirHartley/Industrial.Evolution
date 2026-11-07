@@ -200,7 +200,34 @@ Survey Stories
 Fixed - Desert warlords story now properly appears on desert and arid worlds
 
 Detachments
+Added - Detachments out of fuel away from you now stop and report that they are stranded
+Added - Each active detachment now has an intel entry with its location, status and a recall button
+Added - The detachment panel now warns when a detachment has no fuel to leave the system
+Added - Take mode: pick the ships and cargo you take with you, everything else stays behind as the detachment
+Added - The detachment panel now has a command section with one button per behaviour, recall and lay course
+Added - Detachment orders: Go to a planet, station or jump point in its star system, Attack a hostile fleet you can see, Trade run (comes to you, opens the exchange, then goes back to its orders)
+Added - Detachment toggles: Auto-recall when supplies drop below 15 days, Join fights to take part in your battles nearby
+Added - Load min and Load max buttons in the detachment cargo screen: supplies, fuel and crew for one month or up to capacity
+Adjusted - Detachments now travel with the vanilla fleet AI, across star systems included
+Note - Recall all detachments before updating, active ones break old saves
+Adjusted - Detachment slots reduced from three to two
+Adjusted - Your flagship now always stays with you
+Adjusted - Changing the behaviour of an active detachment now applies at once
+Adjusted - Transport can no longer be picked for an active detachment
+Adjusted - Dormant detachments now only wake up when resupplied
+Adjusted - Detachment crew, marines and officers are now paid like the main fleet, except while dormant
 Fixed - Auto-load now takes half the supplies, not all (up to cargo space)
+Fixed - Detachments no longer get stuck when recalled from another star system
+Fixed - A detachment that disappears unexpectedly now returns its ships and cargo to the main force
+Fixed - Transport detachments with a lost target now pick the closest market with storage
+Fixed - Detachment supply use, repair cost and operating time now show real values (supply use was per day)
+Note - Spawning a detachment now needs a full month of supplies plus repairs, as the panel says
+Fixed - Staying or dormant detachments and their wrecks no longer drift to the sun or away from their planet
+Fixed - Detachments no longer silently lose crew, fuel and cargo over capacity
+Note - Loading a detachment past its capacity is now refused
+Fixed - Detachments now leave a wreck for every ship lost in battle
+Fixed - Transport detachments no longer store ships they lost on the way
+Fixed - Marines keep their experience when moved to and from detachments
 Fixed - Detachment preview no longer counts mothballed ships as active (PR'd by fank, thank you!)
 Fixed - Unused orbit markers no longer pile up in saves
 Fixed - Detachment wrecks now properly hold all excess cargo

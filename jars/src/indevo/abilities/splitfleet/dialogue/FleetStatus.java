@@ -11,6 +11,7 @@ import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FleetStatus {
@@ -33,12 +34,25 @@ public class FleetStatus {
 
     public CargoAPI cargo;
     public List<FleetMemberAPI> fleetMemberAPIList;
+    public boolean playerSide;
 
     public String operatingTimeString;
     public String fuelRangeLYString;
 
+    public boolean isOverCapacity() {
+        return !getOverCapacityList().isEmpty();
+    }
+
+    public List<String> getOverCapacityList() {
+        List<String> over = new ArrayList<>();
+        if (cargo.getSpaceUsed() > totalCargoCap) over.add("cargo");
+        if (cargo.getFuel() > totalFuelCap) over.add("fuel");
+        if (cargo.getCrew() + cargo.getMarines() > totalCrewCap) over.add("personnel");
+        return over;
+    }
+
     public FleetStatus recalculate() {
-        return getFleetStatus(fleetName, cargo, fleetMemberAPIList);
+        return getFleetStatus(fleetName, cargo, fleetMemberAPIList, playerSide);
     }
 
     public static FleetStatus getFleetStatus(CampaignFleetAPI fleet) {
@@ -46,12 +60,17 @@ public class FleetStatus {
     }
 
     public static FleetStatus getFleetStatus(String fleetName, CargoAPI cargo, List<FleetMemberAPI> fleetMemberAPIList) {
+        return getFleetStatus(fleetName, cargo, fleetMemberAPIList, false);
+    }
+
+    public static FleetStatus getFleetStatus(String fleetName, CargoAPI cargo, List<FleetMemberAPI> fleetMemberAPIList, boolean playerSide) {
         FleetStatus status = new FleetStatus();
 
-        CampaignFleetAPI fleet = FleetUtils.createFakeFleet(fleetName, fleetMemberAPIList, cargo);
+        CampaignFleetAPI fleet = FleetUtils.createFakeFleet(fleetName, fleetMemberAPIList, cargo, playerSide);
 
         status.cargo = cargo;
         status.fleetMemberAPIList = fleetMemberAPIList;
+        status.playerSide = playerSide;
 
         status.fleetName = fleetName;
         status.currentCargo = Math.round(cargo.getSpaceUsed());
@@ -61,23 +80,28 @@ public class FleetStatus {
         status.currentSupplies = Math.round(cargo.getSupplies());
 
         status.requiredFuelPerLY = Math.round(fleet.getLogistics().getFuelCostPerLightYear());
-        status.requiredSuppliesPerMonth = Math.round(fleet.getLogistics().getShipMaintenanceSupplyCost());
         status.suppliesToRecover = Math.round(fleet.getLogistics().getTotalRepairAndRecoverySupplyCost());
 
-        //fleet.getLogistics().getTotalSuppliesPerDay();
+        //getShipMaintenanceSupplyCost is per day and adds cr recovery, which suppliesToRecover already holds
+        float suppliesPerMonth = 0f;
+        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
+            if (!m.isMothballed()) suppliesPerMonth += m.getStats().getSuppliesPerMonth().getModifiedValue();
+        }
 
-        //tally, skip for selected members
-        for (FleetMemberAPI m : fleetMemberAPIList) {
+        status.requiredSuppliesPerMonth = Math.round(suppliesPerMonth);
+
+        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
             status.totalCrewCap += m.getMaxCrew();
             status.requiredCrew += m.getMinCrew();
             status.totalCargoCap += m.getCargoCapacity();
             status.totalFuelCap += m.getFuelCapacity();
         }
 
-        float operatingTimeMonths = ((status.currentSupplies * 1f) - status.suppliesToRecover) / (status.requiredSuppliesPerMonth);
+        float operatingTimeMonths = suppliesPerMonth > 0f ? ((status.currentSupplies * 1f) - status.suppliesToRecover) / suppliesPerMonth : 0f;
 
         String operatingTimeString;
-        if (operatingTimeMonths < 1) operatingTimeString = "less than 1 month";
+        if (suppliesPerMonth <= 0f) operatingTimeString = "no active ships";
+        else if (operatingTimeMonths < 1) operatingTimeString = "less than 1 month";
         else if (operatingTimeMonths < 2) operatingTimeString = "1 month";
         else operatingTimeString = (int) Math.floor(operatingTimeMonths) + " months";
 
@@ -89,21 +113,47 @@ public class FleetStatus {
         return status;
     }
 
+    public static String getStateName(Behaviour.FleetBehaviour behaviour) {
+        if (behaviour == null) return null;
+
+        return switch (behaviour) {
+            case COMBAT -> "in combat";
+            case DORMANT -> "dormant, out of supplies";
+            case STRANDED -> "stranded, out of fuel";
+            case HEAD_TO_PLAYER_ON_TARGET -> "moving to the main force";
+            case RETURN_TO_PLAYER_AND_MERGE -> "returning to the main force";
+            case ATTACK_TARGET -> "attacking";
+            case TRADE_RUN -> "coming to trade";
+            default -> null;
+        };
+    }
+
     public static void addFleetStatusTooltip(TextPanelAPI text, CampaignFleetAPI fleet) {
         float opad = 10f;
-        float spad = 3f;
 
         TooltipMakerAPI tooltip = text.beginTooltip();
         tooltip.addSectionHeading("Detachment Status", Alignment.MID, opad);
-
-        //tooltip.setParaSmallInsignia();
         tooltip.setParaSmallInsignia();
 
-        Behaviour.FleetBehaviour behaviour = Behaviour.getFleetBehaviour(fleet, true);
-        String s = Misc.ucFirst(behaviour.toString());
-        tooltip.addPara("Current Mode: %s", opad, Behaviour.getColourForBehaviour(behaviour), s);
+        addStatusLines(tooltip, fleet, getFleetStatus(fleet), opad);
 
-        FleetStatus status = FleetStatus.getFleetStatus(fleet);
+        tooltip.setParaFontDefault();
+        text.addTooltip();
+    }
+
+    public static void addStatusLines(TooltipMakerAPI tooltip, CampaignFleetAPI fleet, FleetStatus status, float pad) {
+        float opad = 10f;
+        float spad = 3f;
+
+        Behaviour.FleetBehaviour behaviour = Behaviour.getFleetBehaviour(fleet, true);
+        String s;
+        if (behaviour != null) {
+            s = Misc.ucFirst(behaviour.toString().toLowerCase());
+            tooltip.addPara("Current Mode: %s", pad, Behaviour.getColourForBehaviour(behaviour), s);
+        }
+
+        String state = getStateName(Behaviour.getFleetBehaviour(fleet, false));
+        if (state != null) tooltip.addPara("Status: %s", spad, Misc.getNegativeHighlightColor(), state);
 
         s = status.currentCargo + " / " + status.totalCargoCap;
         Color color = status.currentCargo > status.totalCargoCap ? Misc.getNegativeHighlightColor() : Misc.getHighlightColor();
@@ -117,12 +167,10 @@ public class FleetStatus {
         color = status.currentCrewAndMarines > status.totalCrewCap ? Misc.getNegativeHighlightColor() : Misc.getHighlightColor();
         tooltip.addPara("Current Personnel: %s", spad, color, s);
 
+        tooltip.addPara("Supplies: %s, %s per month", opad, Misc.getHighlightColor(), status.currentSupplies + "", status.requiredSuppliesPerMonth + "");
         if (status.suppliesToRecover > 1)
-            tooltip.addPara("Supplies needed to finish repairs: %s", opad, Misc.getHighlightColor(), status.suppliesToRecover + " units");
-        tooltip.addPara("Estimated operating time: %s", opad, Misc.getHighlightColor(), status.operatingTimeString);
+            tooltip.addPara("Supplies needed to finish repairs: %s", spad, Misc.getHighlightColor(), status.suppliesToRecover + " units");
+        tooltip.addPara("Estimated operating time: %s", spad, Misc.getHighlightColor(), status.operatingTimeString);
         tooltip.addPara("Estimated range: %s", spad, Misc.getHighlightColor(), status.fuelRangeLYString);
-
-        tooltip.setParaFontDefault();
-        text.addTooltip();
     }
 }

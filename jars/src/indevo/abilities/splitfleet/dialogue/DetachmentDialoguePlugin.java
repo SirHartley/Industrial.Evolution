@@ -4,10 +4,9 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
-import indevo.abilities.splitfleet.fleetAssignmentAIs.BaseSplinterFleetAssignmentAIV2;
+import indevo.abilities.splitfleet.fleetAssignmentAIs.DetachmentAI;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import org.apache.log4j.Logger;
@@ -83,6 +82,7 @@ public class DetachmentDialoguePlugin implements InteractionDialogPlugin, Splint
         this.entity = dialog.getInteractionTarget();
 
         if (entity instanceof CampaignFleetAPI) {
+            Behaviour.removeOverride((CampaignFleetAPI) entity, Behaviour.FleetBehaviour.TRADE_RUN);
             detachmentNum = DetachmentMemory.getNumForFleet((CampaignFleetAPI) entity);
             detachmentBehaviouIndex = Behaviour.getIndexForBehaviour(Behaviour.getFleetBehaviour((CampaignFleetAPI) entity, true));
         } else dialog.dismiss();
@@ -95,6 +95,7 @@ public class DetachmentDialoguePlugin implements InteractionDialogPlugin, Splint
         opts.clearOptions();
 
         for (int i = 1; i <= Behaviour.behaviourIndexMap.size(); i++) {
+            if (i != detachmentBehaviouIndex && !Behaviour.canSwitchLiveTo(Behaviour.getBehaviourForIndex(i))) continue;
 
             String pre = i == detachmentBehaviouIndex ? "> " : "";
             String post = i == detachmentBehaviouIndex ? " <" : "";
@@ -127,13 +128,10 @@ public class DetachmentDialoguePlugin implements InteractionDialogPlugin, Splint
                 CampaignFleetAPI fleet = (CampaignFleetAPI) entity;
                 fleet.setBattle(null);
                 Global.getSector().getPlayerFleet().setBattle(null);
+                Global.getSector().getPlayerFleet().setInteractionTarget(null);
 
-                //if(((CampaignFleetAPI) entity).getCargo().getCommodityQuantity(Commodities.SUPPLIES) < 1) Behaviour.setFleetBehaviourOverride((CampaignFleetAPI) entity, Behaviour.FleetBehaviour.DORMANT);
-                if (fleet.getCargo().getSupplies() < 1) fleet.getCargo().addCommodity(Commodities.SUPPLIES, 1);
-
-                Behaviour.clearBehaviourOverride(fleet);
-                BaseSplinterFleetAssignmentAIV2 ai = (BaseSplinterFleetAssignmentAIV2) FleetUtils.getAssignmentAI(fleet);
-                if (ai != null) ai.advance(0f);
+                DetachmentAI ai = FleetUtils.getAssignmentAI(fleet);
+                if (ai != null) ai.refresh();
 
                 updateActiveDetachmentBehaviour();
 

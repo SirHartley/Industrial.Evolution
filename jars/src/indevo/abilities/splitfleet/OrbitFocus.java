@@ -9,7 +9,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.terrain.*;
 import com.fs.starfarer.api.util.Misc;
-import indevo.abilities.splitfleet.fleetAssignmentAIs.BaseSplinterFleetAssignmentAIV2;
+import indevo.abilities.splitfleet.fleetAssignmentAIs.DetachmentAI;
 import indevo.abilities.splitfleet.intel.RecoverableShipIntel;
 import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.MathUtils;
@@ -46,7 +46,7 @@ public class OrbitFocus {
                 }
 
                 for (EveryFrameScript s : fleet.getScripts()) {
-                    if (s instanceof BaseSplinterFleetAssignmentAIV2 ai) ai.addUsedEntities(used);
+                    if (s instanceof DetachmentAI ai) ai.addUsedEntities(used);
                 }
             }
         }
@@ -74,6 +74,17 @@ public class OrbitFocus {
 
         if (location.isNebula() || location.isHyperspace()) return orbitFocus;
         orbitFocus.setOrbit(getClosestValidOrbit(token));
+
+        return orbitFocus;
+    }
+
+    public static SectorEntityToken getOrbitFocusNear(SectorEntityToken target, SectorEntityToken from, float distance) {
+        SectorEntityToken orbitFocus = target.getContainingLocation().addCustomEntity(Misc.genUID(), null, "SplinterFleet_OrbitFocus", Factions.NEUTRAL);
+        orbitFocus.addTag(ORBIT_FOCUS_TAG);
+
+        float radius = target.getRadius() + distance;
+        float period = 20f * (1 + (radius / 300f) * 0.1f);
+        orbitFocus.setCircularOrbit(target, Misc.getAngleInDegrees(target.getLocation(), from.getLocation()), radius, period);
 
         return orbitFocus;
     }
@@ -113,13 +124,12 @@ public class OrbitFocus {
                         float radius = Misc.getDistance(focus, toToken);
                         float angle = Misc.getAngleInDegrees(focus.getLocation(), toToken.getLocation());
 
-                        //if not forced exact location we correct for size so it's not inside the planet
-                        if (!forceExactLocation) radius = dist < targetEntity.getRadius() ? targetEntity.getRadius() + 100f : dist;
+                        if (!forceExactLocation && dist < targetEntity.getRadius())
+                            radius = Misc.getDistance(focus, targetEntity) + targetEntity.getRadius() + 100f;
 
-                        //adjust the orbit period for distance a bit, makes it feel more natural
-                        //reduce by 10% per X units up to -90%
+                        //the entity's own period keeps a fixed offset to it, detachments and wrecks rely on that; beacons and smoke slow down with distance
                         float distanceToEntity = Misc.getDistance(targetEntity, toToken);
-                        float mult = 1f + MathUtils.clamp((distanceToEntity / FALLOFF_DIST_UNITS_PER_TEN_PERCENT) * 0.1f, 0f, 0.9f);
+                        float mult = forceAdoptClosestOrbit ? 1f + MathUtils.clamp((distanceToEntity / FALLOFF_DIST_UNITS_PER_TEN_PERCENT) * 0.1f, 0f, 0.9f) : 1f;
 
                         return Global.getFactory().createCircularOrbit(focus, angle, radius, period * mult);
                     }

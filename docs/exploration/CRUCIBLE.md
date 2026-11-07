@@ -8,7 +8,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 A large derelict station (`IndEvo_crucible_top` plus a bottom sprite and gears) placed in a planet-rich, uninhabited procgen system. Every planet gets a catapult (`IndEvo_yeetopult`) paired with a catapult orbiting the crucible; once the crucible is activated, flying into a catapult throws the fleet at its partner. The rules dialog explores, activates and colonizes the crucible.
 
-State: dormant. Nothing calls `CrucibleSpawner.spawn()` (`indevo/utils/ModPlugin.java:294` and `:202` are commented out), so no crucible exists in a normal game. It can only be placed by console runcode (`CrucibleSpawner.spawnInCurrent()`). The package is compiled (not excluded by `IndEvo.iml`).
+State: dormant. Nothing calls `CrucibleSpawner.spawn()` (`indevo/utils/ModPlugin.java:295` and `:203` are commented out), so no crucible exists in a normal game. It can only be placed by console runcode (`CrucibleSpawner.spawnInCurrent()`). The package is compiled (not excluded by `IndEvo.iml`).
 
 ## Files
 
@@ -61,7 +61,7 @@ State: dormant. Nothing calls `CrucibleSpawner.spawn()` (`indevo/utils/ModPlugin
 
 ## Registration and lifecycle
 
-- Spawn: `CrucibleSpawner.spawn()` would run once per sector, guarded by `$IndEvo_hasPlacedCrucibles`. Call sites are commented out (`ModPlugin.java:294`, `:202`).
+- Spawn: `CrucibleSpawner.spawn()` would run once per sector, guarded by `$IndEvo_hasPlacedCrucibles`. Call sites are commented out (`ModPlugin.java:295`, `:203`).
 - Entities: `custom_entities.json` `pluginClass` columns. Plugin state is saved with the entity; sprites are re-fetched in `readResolve()` (`BaseCrucibleEntityPlugin.java:113`, `YeetopultEntityPlugin.java:68`).
 - Rules: commands resolve through `ruleCommandPackages` (`settings.json:84`).
 - Scripts: `VariableOrbitScript` on each part, startup anim on the crucible entity, move anim on the star system, `YeetScript` on the fleet. All saved (non-transient).
@@ -112,7 +112,7 @@ Enabled crucible (`BaseCrucibleEntityPlugin.advance`): drone loop by distance, f
 
 | Item | State |
 |---|---|
-| `CrucibleSpawner.spawn()` | Unregistered. Both calls commented out (`ModPlugin.java:202`, `:294`) |
+| `CrucibleSpawner.spawn()` | Unregistered. Both calls commented out (`ModPlugin.java:203`, `:295`) |
 | `rules.csv:152` vs `:154` | Wormhole option shows on `wormhole_anchor`, disabled variant checks `!... coronal_portal`. Mismatched item ids |
 | `rules.csv:158`, `:160` | Gate option checks item `coronal_tap`; the Hypershunt Tap id is `coronal_portal` (starsector-knowledge `data/campaign/special_items.csv:15`). Gate unlock can never show |
 | Options `IndEvo_crucible_useWormhole_select`, `_useGate_select`, `_moveCrucible_select`, `_changeCatapultColour_select`, `IndEvo_c_hab_0`, `IndEvo_c_eng_0`, `IndEvo_c_cont_0`, `IndEvo_c_cargo_0` | No `DialogOptionSelected` rule in `rules.csv`; `IndEvo_c_cargo_0` exists only in the unloaded draft CSV |

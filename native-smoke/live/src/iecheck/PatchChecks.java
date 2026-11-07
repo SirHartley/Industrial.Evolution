@@ -4,6 +4,7 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import indevo.abilities.skills.patches.MicromanagementRemoteItemPatch;
+import indevo.abilities.splitfleet.patches.DetachmentCargoPickerPatch;
 import indevo.industries.artillery.patches.WatchtowerStableLocationPatch;
 import indevo.industries.engineeringhub.patches.RelicInstallDialogPatch;
 import indevo.industries.patches.CommerceBalancePatch;
@@ -24,7 +25,7 @@ public final class PatchChecks {
             MicromanagementRemoteItemPatch.class, WatchtowerStableLocationPatch.class, RelicInstallDialogPatch.class,
             CommerceBalancePatch.class, DealmakerHolosuitePatch.class, PrivateerIndustrySlotPatch.class,
             FastBuildPickerRowPatch.class, FastBuildQueuedIndustryPatch.class, FastBuildTooltipPatch.class,
-            FastBuildUpgradeConfirmPatch.class, CloudPainterShieldPatch.class};
+            FastBuildUpgradeConfirmPatch.class, CloudPainterShieldPatch.class, DetachmentCargoPickerPatch.class};
 
     private PatchChecks() {
     }
