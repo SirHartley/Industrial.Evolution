@@ -14,7 +14,7 @@ A Senate allows one Edict per player colony in its star system (one Senate per s
 |---|---|
 | `indevo/industries/senate/industry/Senate.java` | Industry plugin: build limit, AI core effects, `EDICT_RUNTIME_DAY_RED` 31, `getNearestSenateWithItem()`. Nested `SenateFactor` (`ColonyOtherFactorsListener`, colony info text) |
 | `EdictRepo.java` | Edict specs: every market condition tagged `IndEvo_edict`, sorted by `order` then name, cached in `SessionTransientMemory` key `$IndEvo_EdictSpecs`. `isEdict(id)`, `getShortName()` (drops the `Edict: ` prefix) |
-| `EdictHelper.java` | Senate range (`getSystemSenate`, `getCompoundsSenateInRange`, `isInSenateRange`, `getSenateRequirement`), beta core check, active Edict lookup, `getColoniesCoveredBy(senateMarket)`, `enact()`, relic payment (`getAvailableRelics`, `takeRelics`) |
+| `EdictHelper.java` | Senate range (`getSystemSenate`, `getCompoundsSenateInRange`, `isInSenateRange`, `getSenateRequirement`), beta core check, active Edict lookup, `getColoniesCoveredBy(senateMarket)`, `enact()` |
 | `EdictRequirement.java` | One requirement line: `text`, `shortText`, `met` |
 | `conditions/EdictAPI.java` | Interface used by the panel: requirements, presence check, effect and runtime text into a `TooltipMakerAPI` for any colony, runtime and unrest values, removal |
 | `conditions/BaseEdict.java` | Base condition: runtime tracking via market time tags, daily presence check, `removeWithPenalty`/`removeWithoutPenalty`/`removeEarlyWithRelics`, Senate requirement, shared requirement helpers, condition tooltip. `NewDayListener` |
@@ -103,7 +103,7 @@ With `IndEvo_requiresColonyMenuPoint` the two market options move under "Colony 
 - Daily: if `isPresenceConditionMet()` fails, `removeWithPenalty()`. `isPresenceConditionMet` is true when every `getRequirements()` line is met, so the panel checklist and the check share one source.
 - `removeWithPenalty()`: `applyFinishPenalty()` (`getFinishUnrest`: Forced Relocation 3, Cleanse ceil(size/3), Lockdown 1 on auto end), then if runtime not passed, `RecentUnrest +getEarlyRemovalUnrest()` = ceil(remaining days / 31 x 0.5 with a Compounds Senate in range, else 1). Lockdown overrides it: early end adds the early unrest +3 and no finish penalty.
 - `getRemovalUnrest()` is the total a removal now would cause; the panel shows it before the confirm.
-- `removeEarlyWithRelics()`: `applyFinishPenalty()` then `removeWithoutPenalty()`, so the Edict ends as if its runtime had passed, without its end effect (Cleanse keeps the subpopulations). Waived: the early removal unrest, and Lockdown's +3 early end. Cost `getRelicRemovalCost()` = remaining days x `RELICS_PER_REMAINING_DAY` (1, `BaseEdict`); unrest `getRelicRemovalUnrest()` = `getFinishUnrest`. `EdictHelper.takeRelics` takes from the colony's storage first, then fleet cargo, and throws when both together fall short (the panel disables the button first).
+- `removeEarlyWithRelics()`: `applyFinishPenalty()` then `removeWithoutPenalty()`, so the Edict ends as if its runtime had passed, without its end effect (Cleanse keeps the subpopulations). Waived: the early removal unrest, and Lockdown's +3 early end. Cost `getRelicRemovalCost()` = remaining days x `RELICS_PER_REMAINING_DAY` (1, `BaseEdict`); unrest `getRelicRemovalUnrest()` = `getFinishUnrest`. `RelicHelper.take` ([Utils](../core/UTILS.md#helper)) takes from the colony's storage first, then fleet cargo, and throws when both together fall short (the panel disables the button first).
 
 ### Build time display
 
