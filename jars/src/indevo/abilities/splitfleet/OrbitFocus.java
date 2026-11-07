@@ -127,10 +127,9 @@ public class OrbitFocus {
                         if (!forceExactLocation && dist < targetEntity.getRadius())
                             radius = Misc.getDistance(focus, targetEntity) + targetEntity.getRadius() + 100f;
 
-                        //adjust the orbit period for distance a bit, makes it feel more natural
-                        //reduce by 10% per X units up to -90%
+                        //the entity's own period keeps a fixed offset to it, detachments and wrecks rely on that; beacons and smoke slow down with distance
                         float distanceToEntity = Misc.getDistance(targetEntity, toToken);
-                        float mult = 1f + MathUtils.clamp((distanceToEntity / FALLOFF_DIST_UNITS_PER_TEN_PERCENT) * 0.1f, 0f, 0.9f);
+                        float mult = forceAdoptClosestOrbit ? 1f + MathUtils.clamp((distanceToEntity / FALLOFF_DIST_UNITS_PER_TEN_PERCENT) * 0.1f, 0f, 0.9f) : 1f;
 
                         return Global.getFactory().createCircularOrbit(focus, angle, radius, period * mult);
                     }
