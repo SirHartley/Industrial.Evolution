@@ -176,6 +176,7 @@ public class Ids {
     public static final String PROJ_PULSE = "indevo_proj_pulse";
     public static final String PROJ_MORGANA = "indevo_proj_morgana";
     public static final String PROJ_MJOLNIR = "indevo_proj_mjolnir";
+    public static final String PROJ_REFORGE = "indevo_proj_reforge";
 
     //id
     //IndEvo_cryoartillery

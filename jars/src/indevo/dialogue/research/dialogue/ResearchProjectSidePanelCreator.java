@@ -1,8 +1,10 @@
 package indevo.dialogue.research.dialogue;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
+import com.fs.starfarer.api.campaign.CustomDialogDelegate;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
@@ -30,6 +32,7 @@ public class ResearchProjectSidePanelCreator {
     protected static final float TOGGLE_WIDTH = 80f, TOGGLE_HEIGHT = 20f;
     protected static final float TOOLTIP_WIDTH = 400f;
     protected static final String OVERFLOW_LABEL = "Stock";
+    protected static final float REDEEM_DIALOG_WIDTH = 500f, REDEEM_DIALOG_HEIGHT = 60f;
 
     //create one slot for each research project .json
     //Header with project title
@@ -156,22 +159,12 @@ public class ResearchProjectSidePanelCreator {
                 @Override
                 public void onToggle() {
                     ResearchProject project = ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(projId);
-                    CargoAPI cargo = Global.getSector().getPlayerFleet().getCargo();
-                    CargoAPI rewards = project.getRewards();
-                    cargo.addAll(rewards.createCopy());
-
-                    if (project.isRepeatable()) {
-                        project.getProgress().points = Math.max(0f, project.getProgress().points - project.getRequiredPoints());
-                        project.getProgress().redeemed = false;
-                    } else project.getProgress().redeemed = true;
-
-                    ResearchProjectDialoguePlugin plugin = ResearchProjectDialoguePlugin.getCurrentDialoguePlugin();
-                    plugin.setProjectIdForRewards(projId, rewards);
-                    plugin.refreshCustomPanel();
-
-                    Global.getSoundPlayer().playUISound("ui_rep_raise", 1f, 1f);
+                    if (project.getRedeemRequirement() == null) redeem(project, null);
+                    else showRedeemConfirm(project);
                 }
             };
+
+            if (project.getRedeemRequirement() != null) addRedeemTooltip(variableButtonAnchor, newLoadoutButton, project, cargo);
 
             VisualCustomPanel.getPlugin().addButton(entry);
             buttonPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);         //last in row
@@ -202,6 +195,91 @@ public class ResearchProjectSidePanelCreator {
         }
 
         VisualCustomPanel.addTooltipToPanel();
+    }
+
+    private void addRedeemTooltip(TooltipMakerAPI anchor, ButtonAPI button, final ResearchProject project, final CargoAPI cargo) {
+        anchor.addTooltipTo(new TooltipMakerAPI.TooltipCreator() {
+            @Override
+            public boolean isTooltipExpandable(Object tooltipParam) {
+                return false;
+            }
+
+            @Override
+            public float getTooltipWidth(Object tooltipParam) {
+                return TOOLTIP_WIDTH;
+            }
+
+            @Override
+            public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
+                RedeemRequirement req = project.getRedeemRequirement();
+                int available = req.getAvailable(cargo);
+                tooltip.addPara("Redeeming consumes %s from your fleet cargo (Available: %s).", 0f,
+                        new Color[]{Misc.getHighlightColor(), req.isMet(cargo) ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor()},
+                        req.count + " " + req.getName(), available + "");
+
+                String lore = project.getRedeemLore();
+                if (lore != null) tooltip.addPara(lore, Misc.getGrayColor(), 10f);
+            }
+        }, button, TooltipMakerAPI.TooltipLocation.BELOW);
+    }
+
+    private static void showRedeemConfirm(final ResearchProject project) {
+        final RedeemRequirement req = project.getRedeemRequirement();
+        final CargoAPI cargo = Global.getSector().getPlayerFleet().getCargo();
+        final boolean hasItem = req.isMet(cargo);
+        final int available = req.getAvailable(cargo);
+
+        CustomDialogDelegate delegate = new BaseCustomDialogDelegate() {
+            @Override
+            public void createCustomDialog(CustomPanelAPI panel, CustomDialogCallback callback) {
+                TooltipMakerAPI info = panel.createUIElement(REDEEM_DIALOG_WIDTH, REDEEM_DIALOG_HEIGHT, false);
+                info.setParaInsigniaLarge();
+                info.addPara("Redeeming consumes %s from your fleet cargo (Available: %s).", 0f,
+                        new Color[]{Misc.getHighlightColor(), hasItem ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor()},
+                        req.count + " " + req.getName(), available + "");
+                panel.addUIElement(info).inTL(0, 0);
+            }
+
+            @Override
+            public boolean hasCancelButton() {
+                return hasItem;
+            }
+
+            @Override
+            public String getConfirmText() {
+                return hasItem ? "Confirm" : "Return";
+            }
+
+            @Override
+            public String getCancelText() {
+                return "Cancel";
+            }
+
+            @Override
+            public void customDialogConfirm() {
+                if (!hasItem) return;
+                redeem(project, req.take(cargo));
+            }
+        };
+
+        ResearchProjectDialoguePlugin.getCurrentDialoguePlugin().getDialog().showCustomDialog(REDEEM_DIALOG_WIDTH, REDEEM_DIALOG_HEIGHT, delegate);
+    }
+
+    private static void redeem(ResearchProject project, CargoAPI consumed) {
+        CargoAPI cargo = Global.getSector().getPlayerFleet().getCargo();
+        CargoAPI rewards = project.getRewards();
+        cargo.addAll(rewards.createCopy());
+
+        if (project.isRepeatable()) {
+            project.getProgress().points = Math.max(0f, project.getProgress().points - project.getRequiredPoints());
+            project.getProgress().redeemed = false;
+        } else project.getProgress().redeemed = true;
+
+        ResearchProjectDialoguePlugin plugin = ResearchProjectDialoguePlugin.getCurrentDialoguePlugin();
+        plugin.setProjectIdForRewards(project.getId(), rewards, consumed);
+        plugin.refreshCustomPanel();
+
+        Global.getSoundPlayer().playUISound("ui_rep_raise", 1f, 1f);
     }
 
     private void addOverflowToggle(CustomPanelAPI buttonPanel, String projId, final ResearchProject.Progress progress, float opad, float spad) {

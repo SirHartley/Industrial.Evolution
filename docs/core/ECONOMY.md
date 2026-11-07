@@ -30,7 +30,7 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 
 - `ModPlugin.onGameLoad` -> `ResourceConditionApplicator.applyResourceConditionToAllMarkets()` (`indevo/utils/ModPlugin.java:159`) and `ResourceConditionApplicator.register()` (`:428`, transient listener).
 - Economy tick -> `applyResourceConditionToAllMarkets()` -> `ResourceCondition.applyRessourceCond(m)` adds the condition if `m.isInEconomy()` and missing. The condition itself persists in the market.
-- `RelicBuildTimeReductionButtonAdder.register()` (`indevo/utils/ModPlugin.java:484`) adds a transient listener.
+- `RelicBuildTimeReductionButtonAdder.register()` (`indevo/utils/ModPlugin.java:485`) adds a transient listener.
 
 ## Flow
 
@@ -64,6 +64,7 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 | Construction speed up | 1 per remaining day | colony storage, then fleet cargo | [Construction speed up](#construction-speed-up) |
 | Early Edict removal | 1 per remaining day | colony storage, then fleet cargo | [Senate](../industries/SENATE.md#runtime-and-penalties) |
 | Story point derelict recovery | 5 per DP of each recovered ship | fleet cargo | [Salvage](../exploration/SALVAGE.md#relic-recovery) |
+| Project Reforge (Galatia research) | 500, plus 1 Corrupted Nanoforge on Redeem | fleet cargo (relics as points) | [Research](../dialogue/RESEARCH.md#projects) |
 
 ## Contracts
 

@@ -37,6 +37,7 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
     protected String inputProjId = null;
     protected String rewardProjId = null;
     protected CargoAPI rewardsCargo = null;
+    protected CargoAPI consumedCargo = null;
 
     private static final String DIALOGUE_PLUGIN_TEMP_INSTANCE_KEY = "$IndEvo_tempDialogueInstance";
 
@@ -103,6 +104,10 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
     }
 
 
+    public InteractionDialogAPI getDialog() {
+        return dialog;
+    }
+
     public static ResearchProjectDialoguePlugin getCurrentDialoguePlugin() {
         return (ResearchProjectDialoguePlugin) Global.getSector().getMemoryWithoutUpdate().get(DIALOGUE_PLUGIN_TEMP_INSTANCE_KEY);
     }
@@ -135,6 +140,10 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
             rewardsToolTip.addSectionHeading(project.getName() + " - Rewards", Alignment.MID, 10f);
             project.addTooltipOutputOnCompletion(rewardsToolTip);
             panel.addTooltip();
+
+            if (consumedCargo != null) for (CargoStackAPI stack : consumedCargo.getStacksCopy()) {
+                AddRemoveCommodity.addStackLossText(stack, panel);
+            }
 
             if (rewardsCargo != null) for (CargoStackAPI stack : rewardsCargo.getStacksCopy()) {
                 AddRemoveCommodity.addStackGainText(stack, panel);
@@ -201,31 +210,33 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
         }
     }
 
-    public static float getQuantity(CargoAPI cargo, RequiredItem item){
+    public static float getQuantity(CargoAPI cargo, RequiredItem item) {
+        return getQuantity(cargo, item.type, item.id);
+    }
+
+    public static float getQuantity(CargoAPI cargo, CargoAPI.CargoItemType type, String itemId) {
         float total = 0f;
 
-        for (CargoStackAPI stack : cargo.getStacksCopy()) if (stack.getType().toString().equals(item.type.toString())) {
-            String id = null;
-
-            switch (stack.getType()){
-                case RESOURCES:
-                    id = stack.getCommodityId();
-                    break;
-                case WEAPONS:
-                    id = stack.getWeaponSpecIfWeapon().getWeaponId();
-                    break;
-                case FIGHTER_CHIP:
-                    id = stack.getFighterWingSpecIfWing().getId();
-                    break;
-                case SPECIAL:
-                    id = stack.getSpecialDataIfSpecial().getId();
-                    break;
-            }
-
-            if (item.id.equals(id)) total += stack.getSize();
+        for (CargoStackAPI stack : cargo.getStacksCopy()) {
+            if (stack.getType() == type && itemId.equals(getStackItemId(stack))) total += stack.getSize();
         }
 
         return total;
+    }
+
+    public static String getStackItemId(CargoStackAPI stack) {
+        switch (stack.getType()) {
+            case RESOURCES:
+                return stack.getCommodityId();
+            case WEAPONS:
+                return stack.getWeaponSpecIfWeapon().getWeaponId();
+            case FIGHTER_CHIP:
+                return stack.getFighterWingSpecIfWing().getId();
+            case SPECIAL:
+                return stack.getSpecialDataIfSpecial().getId();
+            default:
+                return null;
+        }
     }
 
     private void returnToMenu() {
@@ -238,9 +249,10 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
         FireAll.fire(null, dialog, memoryMap, "DialogOptionSelected");
     }
 
-    public void setProjectIdForRewards(String id, CargoAPI cargo) {
+    public void setProjectIdForRewards(String id, CargoAPI cargo, CargoAPI consumed) {
         this.inputProjId = null;
         this.rewardsCargo = cargo.createCopy();
+        this.consumedCargo = consumed;
         this.rewardProjId = id;
 
         addTooltip(dialog.getTextPanel());
@@ -249,6 +261,7 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
     public void setProjectIdForInputs(String id) {
         this.inputProjId = id;
         this.rewardsCargo = null;
+        this.consumedCargo = null;
         this.rewardProjId = null;
 
         addTooltip(dialog.getTextPanel());
