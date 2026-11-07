@@ -47,8 +47,8 @@ Outside the package: `indevo/items/specialitemdata/AmbassadorItemData.java`, `in
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded()`: `AmbassadorPersonManager.register()` (`ModPlugin.java:428`, transient, no dedupe needed since transient listeners are dropped on save), `checkAmbassadorPresence.register()` (`:433`, `addTransientListener`), `HostileActivityEventSubRegisterListener.register()` (`:473`, transient).
-- `ModPlugin.loadTransientMemory()` warms the whitelist cache (`ModPlugin.java:409`).
+- `ModPlugin.setListenersIfNeeded()`: `AmbassadorPersonManager.register()` (`ModPlugin.java:429`, transient, no dedupe needed since transient listeners are dropped on save), `checkAmbassadorPresence.register()` (`:434`, `addTransientListener`), `HostileActivityEventSubRegisterListener.register()` (`:475`, transient).
+- `ModPlugin.loadTransientMemory()` warms the whitelist cache (`ModPlugin.java:410`).
 - `Embassy.apply()` adds itself as a transient listener only when functional and player owned (`Embassy.java:62`).
 - `AmbassadorItemTrackerPlugin` and `LostAmbassadorRemovalChecker` are persistent listeners (`addListener(obj)`), removed by `setDone()`. `AmbassadorMurderConsequences` is a persistent sector script; `moveAmbassadorToMarket` is a transient script.
 - Rule commands from `ruleCommandPackages` `indevo.industries.embassy.rules` (`settings.json:73`).

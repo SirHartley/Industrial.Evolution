@@ -28,6 +28,7 @@ import indevo.abilities.skills.scripts.AdminGovernTimeTracker;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
+import indevo.abilities.splitfleet.listeners.DetachmentPayroll;
 import indevo.config.PlayerSettings;
 import indevo.config.Setting;
 import indevo.dialogue.beacons.dialogue.BeaconDialogueListener;
@@ -435,6 +436,7 @@ public class ModPlugin extends BaseModPlugin {
         RuinsManager.ResolveRuinsToUpgradeListener.register();
         ShippingManager.getInstanceOrRegister();
         DetachmentAbilityAdder.register();
+        DetachmentPayroll.register();
         LocatorSystemRatingUpdater.register();
         ConsumableItemDropListener.register();
         ConsumableItemMarketAdder.register();

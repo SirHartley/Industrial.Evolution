@@ -30,7 +30,7 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Setting | `IndEvo_Enable_Derelicts` (runs the assigner) | `LunaSettings.csv:7`; `ModPlugin.java:297` |
+| Setting | `IndEvo_Enable_Derelicts` (runs the assigner) | `LunaSettings.csv:7`; `ModPlugin.java:298` |
 | Setting | `IndEvo_SpecialApplicationChance` (0.9) | `LunaSettings.csv:21`; `init:51` |
 | Setting | `IndEvo_shipPickerRowCount` (8) | `LunaSettings.csv:14`; ship pickers in DModRepair, PrintShip, ShipRoulette |
 | Drop groups | `rare_tech` (vanilla), `indEvo_tech_event` | `data/campaign/procgen/drop_groups.csv:72-77`; item pool for `ItemChoiceSpecial` |
@@ -42,7 +42,7 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 
 ## Registration and lifecycle
 
-- `ModPlugin.onNewGameAfterEconomyLoad()` calls `new IndEvo_SalvageSpecialAssigner().init()` after `DerelictStationPlacer.init()` (`indevo/utils/ModPlugin.java:297-299`). New game only; existing saves keep whatever specials they rolled.
+- `ModPlugin.onNewGameAfterEconomyLoad()` calls `new IndEvo_SalvageSpecialAssigner().init()` after `DerelictStationPlacer.init()` (`indevo/utils/ModPlugin.java:298-300`). New game only; existing saves keep whatever specials they rolled.
 - Special data objects are saved on the entity (vanilla salvage special memory). They are `final`-field POJOs; renaming or moving a data class breaks old saves (inferred from XStream class names).
 - Plugins are created per dialog by `SalvageSpecialData.createSpecialPlugin()`; they hold no state across dialogs except what they write back into the data object (`JuicyRumorsSpecial`, `ItemChoiceSpecial` repair their data on open).
 

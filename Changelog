@@ -206,6 +206,7 @@ Note - Recall all detachments before updating, active ones break old saves
 Adjusted - Changing the behaviour of an active detachment now applies at once
 Adjusted - Transport can no longer be picked for an active detachment
 Adjusted - Dormant detachments now only wake up when resupplied
+Adjusted - Detachment crew, marines and officers are now paid like the main fleet, except while dormant
 Fixed - Auto-load now takes half the supplies, not all (up to cargo space)
 Fixed - Detachments no longer get stuck when recalled from another star system
 Fixed - A detachment that disappears unexpectedly now returns its ships and cargo to the main force

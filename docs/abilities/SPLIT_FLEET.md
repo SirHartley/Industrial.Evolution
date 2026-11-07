@@ -33,6 +33,7 @@ The player ability `splinter_fleet` opens a control panel with three loadout slo
 | `intel/RecoverableShipIntel.java` | `FleetLogIntel` for a wreck field; removes itself when its wreck list is empty. |
 | `salvageSpecials/OfficerAndShipRecoverySpecial.java` | Salvage special on detachment wrecks: thaw the officer, then recover the ship with condition based hits and d-mods. |
 | `listeners/DetachmentAbilityAdder.java` | `NewDayListener` that grants the ability once the tutorial is over, then removes itself (`:26`). |
+| `listeners/DetachmentPayroll.java` | `EconomyTickListener` that bills detachment crew, marines and officers into the monthly report. |
 
 ## Data and ids
 
@@ -52,8 +53,9 @@ The player ability `splinter_fleet` opens a control panel with three loadout slo
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded` -> `DetachmentAbilityAdder.register()` (`ModPlugin.java:437`); persistent `NewDayListener`, deduped by `hasListenerOfClass`.
-- `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new SplinterFleetCampignPlugin())` on every load (`ModPlugin.java:491`); transient, so it is not saved.
+- `ModPlugin.setListenersIfNeeded` -> `DetachmentAbilityAdder.register()` (`ModPlugin.java:438`); persistent `NewDayListener`, deduped by `hasListenerOfClass`.
+- `ModPlugin.setListenersIfNeeded` -> `DetachmentPayroll.register()` (`ModPlugin.java:439`); persistent `EconomyTickListener`, deduped by `hasListenerOfClass`.
+- `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new SplinterFleetCampignPlugin())` on every load (`ModPlugin.java:493`); transient, so it is not saved.
 - `abilities.csv` plugin column -> `SplinterAbilityPlugin`.
 - Per detachment, attached at spawn and saved with the fleet: one `DetachmentAI` script (added by `Behaviour.changeBehaviourAndUpdateAI` when missing, `Behaviour.java:221`) and one `CombatAndDerelictionScript`, which adds itself as the fleet's `FleetEventListener`. Neither registers a sector listener.
 
@@ -104,6 +106,10 @@ The detachment dialog's "Leave" clears the player's interaction target and refre
 
 `SplinterFleetCampignPlugin.pickAbilityAI` returns detachment AIs for sustained burn, emergency burn, go dark and transponder when `$splinterFleetIdentifier` is set. The detachment AI requests go dark through `$SplinterFleet_Use_ability` (`useAbility`, `DetachmentAI.java:500`); go dark and transponder otherwise copy the player state when close.
 
+### Payroll
+
+Vanilla `CoreScript.reportEconomyTick` bills only the player fleet's cargo crew and marines and its `OfficerDataAPI` list. Detachment officers stay captains of their ships but leave the player fleet's officer list, so nothing billed them. `DetachmentPayroll.reportEconomyTick` adds each live detachment's crew and marines to the vanilla `CREW` and `MARINES` nodes under `FLEET` and each officer captain (not default, AI core or player) as a child of `OFFICERS` named "<officer> (Detachment N)", at the vanilla rates (`crewSalary`, `marineSalary`, `Misc.getOfficerSalary`) divided by `economyIterPerMonth`. Dormant detachments and the tutorial are not billed.
+
 ### Combat losses and recovery
 
 `CombatAndDerelictionScript.reportBattleOccurred` creates an orbit focus at the fleet, moves the cargo overload (each stack gives its share), fuel over fuel capacity and crew, then marines, over personnel capacity into the wrecks of lost members, filling them in order with the last wreck taking the rest, spawns `Entities.WRECK` salvage entities with `OfficerAndShipRecoverySpecialData` (condition AVERAGE) and posts `RecoverableShipIntel`. The special thaws the officer first (`initOfficer`, `OfficerAndShipRecoverySpecial.java:82`), then offers recovery of a cloned variant with fresh hull id; skipping scuttles for weapons, wings and supplies.
@@ -128,6 +134,7 @@ The detachment dialog's "Leave" clears the player's interaction target and refre
 | General | Changelog_todo: "Detachments are still bugged as fuck" |
 | Other system | Changelog_todo: "Detachments refuse to move when in other system (??)"; travel is vanilla now, needs an in-game check |
 | Preview without ships | a loadout with cargo set but none of its ships in the player fleet previews an empty fleet: upkeep 0, operating time shows `Integer.MAX_VALUE` months (`FleetStatus.java:77`); spawn is blocked there |
+| Officer limit | officers in a detachment leave the player fleet's officer list, so the player can hire more officers than the limit while detachments are out; merge puts them all back over the limit |
 | Hiding at the sun | Changelog_todo: "? Detachments like to hide in system center (sun)"; `getAlternateHidingPosition` and the centred orbit fallback in `getClosestValidOrbit` orbit the system centre |
 
 ## Maintenance
