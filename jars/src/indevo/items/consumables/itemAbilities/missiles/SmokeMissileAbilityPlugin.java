@@ -1,6 +1,5 @@
 package indevo.items.consumables.itemAbilities.missiles;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -9,6 +8,8 @@ import indevo.items.consumables.entities.SmokeCloudEntityPlugin;
 import indevo.items.consumables.fleet.MissileAIReactionManager;
 import indevo.items.consumables.terrain.SmokeCloudTerrain;
 import indevo.utils.helper.StringHelper;
+import indevo.skillshot.render.AreaReticuleRenderer;
+import indevo.skillshot.render.SkillshotRenderer;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -20,15 +21,13 @@ public class SmokeMissileAbilityPlugin extends BaseMissileConsumableAbilityPlugi
     public static final String MISSILE_ID = "IndEvo_consumable_missile_smoke";
 
     @Override
-    protected void activateImpl() {
-        Vector2f mousePos = new Vector2f(
-                Global.getSector().getViewport().convertScreenXToWorldX(Global.getSettings().getMouseX()),
-                Global.getSector().getViewport().convertScreenYToWorldY(Global.getSettings().getMouseY()));
+    public SkillshotRenderer createReticule() {
+        return new AreaReticuleRenderer();
+    }
 
-        float angleToMouse = Misc.getAngleInDegrees(getFleet().getLocation(), mousePos);
-
-        //IndEvo_consumable_missile_explosive
-        BaseMissileEntityPlugin.ConsumableMissileParams params = new BaseMissileEntityPlugin.ConsumableMissileParams(getFleet(), angleToMouse, MISSILE_DUR, MISSILE_SPEED, mousePos);
+    @Override
+    protected void onSkillshotFired(Vector2f target, float angle) {
+        BaseMissileEntityPlugin.ConsumableMissileParams params = new BaseMissileEntityPlugin.ConsumableMissileParams(getFleet(), angle, MISSILE_DUR, MISSILE_SPEED, target);
         SectorEntityToken t = getFleet().getContainingLocation().addCustomEntity(Misc.genUID(), null,MISSILE_ID,getFleet() != null ? getFleet().getFaction().getId() : null, params);
         t.setLocation(getFleet().getLocation().x, getFleet().getLocation().y);
 

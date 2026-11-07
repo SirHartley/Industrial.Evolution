@@ -1,10 +1,11 @@
 package indevo.items.consumables.itemAbilities.missiles;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.items.consumables.entityAbilities.NoWellSlipstreamAbility;
+import indevo.skillshot.render.DirectionReticuleRenderer;
+import indevo.skillshot.render.SkillshotRenderer;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -16,16 +17,15 @@ public class SurgeAbilityPlugin extends BaseMissileConsumableAbilityPlugin{
     public static String TEMP_ABILITY_ID = "IndEvo_ability_temp_generate_slipstream";
 
     @Override
-    protected void activateImpl() {
-        Vector2f mousePos = new Vector2f(
-                Global.getSector().getViewport().convertScreenXToWorldX(Global.getSettings().getMouseX()),
-                Global.getSector().getViewport().convertScreenYToWorldY(Global.getSettings().getMouseY()));
+    public SkillshotRenderer createReticule() {
+        return new DirectionReticuleRenderer();
+    }
 
-        float angleToMouse = Misc.getAngleInDegrees(getFleet().getLocation(), mousePos);
-
+    @Override
+    protected void onSkillshotFired(Vector2f target, float angle) {
         CampaignFleetAPI fleet = getFleet();
         fleet.addAbility(TEMP_ABILITY_ID);
-        ((NoWellSlipstreamAbility) fleet.getAbility(TEMP_ABILITY_ID)).activateAtAngle(angleToMouse);
+        ((NoWellSlipstreamAbility) fleet.getAbility(TEMP_ABILITY_ID)).activateAtAngle(angle);
         fleet.removeAbility(TEMP_ABILITY_ID);
     }
 

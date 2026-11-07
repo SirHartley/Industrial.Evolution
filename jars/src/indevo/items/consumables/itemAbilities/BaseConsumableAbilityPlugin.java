@@ -1,13 +1,8 @@
 package indevo.items.consumables.itemAbilities;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CampaignFleetAPI;
-import com.fs.starfarer.api.campaign.CargoAPI;
-import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.impl.campaign.abilities.BaseDurationAbility;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.items.consumables.ItemAbilityHelper;
-import indevo.items.consumables.fleet.FleetConsumableInventoryManager;
 
 public abstract class BaseConsumableAbilityPlugin extends BaseDurationAbility implements SingleUseItemAbility {
     /*plugin params	desc
@@ -40,13 +35,7 @@ public abstract class BaseConsumableAbilityPlugin extends BaseDurationAbility im
 
     @Override
     public void removeTriggerItem() {
-        if (entity instanceof CampaignFleetAPI) {
-            if (entity.isPlayerFleet()) Global.getSector().getPlayerFleet().getCargo().removeItems(
-                    CargoAPI.CargoItemType.SPECIAL,
-                    new SpecialItemData(getItemID(), null),
-                    1);
-            else FleetConsumableInventoryManager.adjustInventoryAmount(getItemID(), (CampaignFleetAPI) entity, -1);
-        }
+        ItemAbilityHelper.removeItem(entity, getItemID());
     }
 
     @Override
@@ -61,12 +50,7 @@ public abstract class BaseConsumableAbilityPlugin extends BaseDurationAbility im
     }
 
     public int getCargoItemAmt() {
-        if (entity instanceof CampaignFleetAPI) {
-            if (entity.isPlayerFleet()) return (int) Math.floor(Global.getSector().getPlayerFleet().getCargo().getQuantity(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(getItemID(), null)));
-            else FleetConsumableInventoryManager.hasItemOfType(getItemID(), (CampaignFleetAPI) entity);
-        }
-
-        return 0;
+        return ItemAbilityHelper.getItemAmount(entity, getItemID());
     }
 
     @Override

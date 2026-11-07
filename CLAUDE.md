@@ -121,7 +121,7 @@ Write documentation in short programmer speak with normal capitalization and pun
 
 ## Code layout
 
-- Packages follow `indevo/<area>/<feature>/<role>/`. Areas: `industries`, `exploration`, `abilities`, `items`, `dialogue`, `economy`, `submarkets`, `config` (player settings, flat), `utils`, `ids`, `console`, `other`, `WIP`, `tools` (release builder, never shipped). Role packages are named for the engine type (`industry`, `conditions`, `listeners`, `plugins`, `scripts`, `rules`, `intel`, `entities`, `hullmods`, `terrain`, `fleet`, `memory`, `patches` for PatchLib patches). See the house-style `packages.md`.
+- Packages follow `indevo/<area>/<feature>/<role>/`. Areas: `industries`, `exploration`, `abilities`, `items`, `dialogue`, `economy`, `submarkets`, `config` (player settings, flat), `utils`, `ids`, `console`, `other`, `WIP`, `tools` (release builder, never shipped), `skillshot` (framework kept in Catch.Release's layout, see its README). Role packages are named for the engine type (`industry`, `conditions`, `listeners`, `plugins`, `scripts`, `rules`, `intel`, `entities`, `hullmods`, `terrain`, `fleet`, `memory`, `patches` for PatchLib patches). See the house-style `packages.md`.
 - Ids, tags, memory keys and setting keys carry the `IndEvo_` prefix (`$IndEvo_` for memory). Shared ids live in `indevo/ids/Ids.java` and `ItemIds.java`; feature-local keys stay in the feature.
 - Class member order: nested enums; static fields; instance fields; other nested types; constructors; lifecycle and public entry points in execution order; helpers near their callers. Group fields by responsibility. No section header comments.
 - All code is Java 17. Do not add Kotlin: the user's IDE does not compile it.

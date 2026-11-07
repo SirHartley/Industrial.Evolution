@@ -10,6 +10,9 @@ import indevo.industries.artillery.terrain.ArtilleryTerrain;
 import indevo.utils.animation.particles.SmoothFadingParticleRenderer;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
+import indevo.skillshot.render.SkillshotRenderer;
+import indevo.skillshot.render.ValidatedAreaReticuleRenderer;
+import indevo.skillshot.render.validators.MarketProximityValidator;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -19,11 +22,12 @@ public class ArtilleryRemoteAbilityPlugin extends BaseMissileConsumableAbilityPl
     public static final String HAS_BEEN_USED_KEY = "$IndEvo_ArtilleryRemote_hasBeenUsed";
 
     @Override
-    protected void activateImpl() {
-        Vector2f mousePos = new Vector2f(
-                Global.getSector().getViewport().convertScreenXToWorldX(Global.getSettings().getMouseX()),
-                Global.getSector().getViewport().convertScreenYToWorldY(Global.getSettings().getMouseY()));
+    public SkillshotRenderer createReticule() {
+        return new ValidatedAreaReticuleRenderer(new MarketProximityValidator(CampaignAttackScript.INHABITED_AREA_SAFE_RADIUS));
+    }
 
+    @Override
+    protected void onSkillshotFired(Vector2f target, float angle) {
         //get artillery station
         //Force target loc (may have to do fake entity)
 
@@ -34,7 +38,7 @@ public class ArtilleryRemoteAbilityPlugin extends BaseMissileConsumableAbilityPl
             if (plugin instanceof ArtilleryTerrain) {
                 CampaignAttackScript script = ((ArtilleryTerrain) plugin).getScript(((ArtilleryTerrain) plugin).getRelatedEntity());
                 if (plugin.containsEntity(entity) && !script.disabled) {
-                    SectorEntityToken t = loc.createToken(mousePos);
+                    SectorEntityToken t = loc.createToken(target);
                     loc.addEntity(t);
                     Misc.fadeAndExpire(t, 1f);
                     script.forceTarget(t, 0.1f);
@@ -43,7 +47,7 @@ public class ArtilleryRemoteAbilityPlugin extends BaseMissileConsumableAbilityPl
             }
         }
 
-        LunaCampaignRenderingPlugin renderer = new SmoothFadingParticleRenderer(4f, Global.getSettings().getSpriteName("fx", "IndEvo_danger_notif"), 100f, mousePos, 0f, Misc.getNegativeHighlightColor(), CampaignEngineLayers.TERRAIN_5);
+        LunaCampaignRenderingPlugin renderer = new SmoothFadingParticleRenderer(4f, Global.getSettings().getSpriteName("fx", "IndEvo_danger_notif"), 100f, target, 0f, Misc.getNegativeHighlightColor(), CampaignEngineLayers.TERRAIN_5);
         LunaCampaignRenderer.addRenderer(renderer);
 
         Global.getSector().getMemoryWithoutUpdate().set(HAS_BEEN_USED_KEY, true);

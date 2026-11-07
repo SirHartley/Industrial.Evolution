@@ -1,7 +1,12 @@
 package indevo.items.consumables;
 
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.CargoAPI;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.SpecialItemData;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.items.consumables.fleet.FleetConsumableInventoryManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,5 +40,19 @@ public class ItemAbilityHelper {
         }
 
         return ID_MAP.get(s);
+    }
+
+    // npc fleets always read 0, their inventories are never used
+    public static int getItemAmount(SectorEntityToken entity, String itemId) {
+        if (!(entity instanceof CampaignFleetAPI fleet) || !fleet.isPlayerFleet()) return 0;
+
+        return (int) Math.floor(fleet.getCargo().getQuantity(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(itemId, null)));
+    }
+
+    public static void removeItem(SectorEntityToken entity, String itemId) {
+        if (!(entity instanceof CampaignFleetAPI fleet)) return;
+
+        if (fleet.isPlayerFleet()) fleet.getCargo().removeItems(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(itemId, null), 1);
+        else FleetConsumableInventoryManager.adjustInventoryAmount(itemId, fleet, -1);
     }
 }

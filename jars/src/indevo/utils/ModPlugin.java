@@ -88,6 +88,7 @@ import indevo.items.consumables.listeners.*;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.items.listeners.ShipComponentLootManager;
 import indevo.items.listeners.SpecialItemDropsListener;
+import indevo.skillshot.SkillshotFramework;
 import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.RaidTimeout;
@@ -170,9 +171,6 @@ public class ModPlugin extends BaseModPlugin {
 
         PlayerSettings.applyCampaignSettings();
         if (newGame && Setting.PETS.enabled()) addLordFoogRep();
-
-        //player fuckery
-        if(MissileActivationManager.getInstanceOrRegister().hasActiveListener()) MissileActivationManager.getInstanceOrRegister().getCurrentListener().reset();
     }
 
     public void devActions(boolean active){
@@ -314,7 +312,7 @@ public class ModPlugin extends BaseModPlugin {
     @Override
     public void beforeGameSave() {
         super.beforeGameSave();
-        OnKeyPressAbilityInputListener.getInstanceOrRegister().reset();
+        SkillshotFramework.reset();
 
         mines.clear();
 
@@ -470,7 +468,7 @@ public class ModPlugin extends BaseModPlugin {
         SenateOptionProvider.register();
         AcademyOptionProvider.register();
         RiftGenOptionProvider.register();
-        OnKeyPressAbilityInputListener.getInstanceOrRegister();
+        SkillshotFramework.register();
         FleetConsumableInventoryManager.register();
         if (Global.getSettings().getModManager().isModEnabled("nexerelin")) ManagedDemocracyNexerelinListenerPlugin.register();
         BeaconDialogueListener.register();
