@@ -15,9 +15,7 @@ import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 import indevo.dialogue.sidepanel.FramedCustomPanelPlugin;
-import indevo.dialogue.sidepanel.InteractionDialogCustomPanelPlugin;
-import indevo.dialogue.sidepanel.NoFrameCustomPanelPlugin;
-import indevo.dialogue.sidepanel.VisualCustomPanel;
+import indevo.dialogue.sidepanel.RunnableButtonPanelPlugin;
 import indevo.industries.courierport.ShippingTargetHelper;
 import indevo.utils.helper.MiscIE;
 import org.apache.log4j.Logger;
@@ -30,25 +28,27 @@ import java.util.Set;
 public class SplinterFleetSidePanelCreator {
     public static final Logger log = Global.getLogger(SplinterFleetSidePanelCreator.class);
 
+    public static final float PANEL_WIDTH = 600;
+    public static final float PANEL_HEIGHT = 600;
     protected static final float PANEL_WIDTH_1 = 240;
-    protected static final float PANEL_WIDTH_2 = VisualCustomPanel.PANEL_WIDTH - PANEL_WIDTH_1 - 8;
+    protected static final float PANEL_WIDTH_2 = PANEL_WIDTH - PANEL_WIDTH_1 - 8;
     protected static final float SHIP_ICON_WIDTH = 48;
     protected static final float ARROW_BUTTON_WIDTH = 20, BUTTON_HEIGHT = 30;
     protected static final float SELECT_BUTTON_WIDTH = 95f;
     protected static final float TEXT_FIELD_WIDTH = 80f;
 
-    public void showPanel(AbilityPanelDialoguePlugin plugin) {
-        VisualCustomPanel.createPanel(plugin.getDialog(), true);
-        showCustomPanel();
-    }
-//check Nex_NGCStartFleetOptionsV2
+    protected final AbilityPanelDialoguePlugin plugin;
 
-    private void showCustomPanel() {
+    public SplinterFleetSidePanelCreator(AbilityPanelDialoguePlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    public void showPanel() {
         float opad = 10f;
         float spad = 3f;
 
-        CustomPanelAPI panel = VisualCustomPanel.getPanel();
-        TooltipMakerAPI panelTooltip = VisualCustomPanel.getTooltip();
+        CustomPanelAPI panel = plugin.getDialog().getVisualPanel().showCustomPanel(PANEL_WIDTH, PANEL_HEIGHT, new RunnableButtonPanelPlugin());
+        TooltipMakerAPI panelTooltip = panel.createUIElement(PANEL_WIDTH, PANEL_HEIGHT, true);
         final CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
 
         TooltipMakerAPI lastUsedVariableButtonAnchor;
@@ -85,12 +85,11 @@ public class SplinterFleetSidePanelCreator {
 
             panelTooltip.addSectionHeading("Detachment " + i, Alignment.MID, opad);
 
-            CustomPanelAPI loadoutPanel = panel.createCustomPanel(PANEL_WIDTH_1, 50f, new NoFrameCustomPanelPlugin());
+            CustomPanelAPI loadoutPanel = panel.createCustomPanel(PANEL_WIDTH_1, 50f, new RunnableButtonPanelPlugin());
 
             //buttons in a row: Members - Cargo - Behaviour - Spawn/Recall
             TooltipMakerAPI variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
 
-            String buttonId = "button_members_" + i;
 
             //members
 
@@ -99,16 +98,8 @@ public class SplinterFleetSidePanelCreator {
             Color baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
             Color bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
 
-            ButtonAPI newLoadoutButton = variableButtonAnchor.addButton("Members", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+            ButtonAPI newLoadoutButton = variableButtonAnchor.addButton("Members", (Runnable) () -> new TwoFleetFleetMemberPicker(plugin, LoadoutMemory.getLoadout(num)).init(), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
             newLoadoutButton.setEnabled(prerequisiteForActive);
-            InteractionDialogCustomPanelPlugin.ButtonEntry entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(newLoadoutButton, buttonId) {
-                @Override
-                public void onToggle() {
-                    new TwoFleetFleetMemberPicker(AbilityPanelDialoguePlugin.getCurrentDialoguePlugin(), LoadoutMemory.getLoadout(num)).init();
-                }
-            };
-
-            VisualCustomPanel.getPlugin().addButton(entry);
             loadoutPanel.addUIElement(variableButtonAnchor).inTL(spad, opad);       //first in row
             lastUsedVariableButtonAnchor = variableButtonAnchor;
 
@@ -119,18 +110,9 @@ public class SplinterFleetSidePanelCreator {
             baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
             bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
 
-            buttonId = "button_cargo_" + i;
             variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-            newLoadoutButton = variableButtonAnchor.addButton("Cargo", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+            newLoadoutButton = variableButtonAnchor.addButton("Cargo", (Runnable) () -> new TwoFleetCargoPicker(plugin, Global.getSector().getPlayerFleet(), LoadoutMemory.getLoadout(num), true).init(), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
             newLoadoutButton.setEnabled(prerequisiteForActive);
-            entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(newLoadoutButton, buttonId) {
-                @Override
-                public void onToggle() {
-                    new TwoFleetCargoPicker(AbilityPanelDialoguePlugin.getCurrentDialoguePlugin(), Global.getSector().getPlayerFleet(), LoadoutMemory.getLoadout(num), true).init();
-                }
-            };
-
-            VisualCustomPanel.getPlugin().addButton(entry);
             loadoutPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);        //second in row
             lastUsedVariableButtonAnchor = variableButtonAnchor;
 
@@ -142,19 +124,9 @@ public class SplinterFleetSidePanelCreator {
             bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
 
             // "<"
-            buttonId = "button_behaviour_<_" + i;
             variableButtonAnchor = loadoutPanel.createUIElement(ARROW_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-            newLoadoutButton = variableButtonAnchor.addButton("<", buttonId, baseColor, bgColour, ARROW_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+            newLoadoutButton = variableButtonAnchor.addButton("<", (Runnable) () -> cycleBehaviour(num, -1), baseColor, bgColour, ARROW_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
             newLoadoutButton.setEnabled(prerequisiteForActive);
-            entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(newLoadoutButton, buttonId) {
-                @Override
-                public void onToggle() {
-                    cycleBehaviour(num, -1);
-                    AbilityPanelDialoguePlugin.getCurrentDialoguePlugin().refreshCustomPanel();
-                }
-            };
-
-            VisualCustomPanel.getPlugin().addButton(entry);
             loadoutPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);         //third in row
             lastUsedVariableButtonAnchor = variableButtonAnchor;
 
@@ -170,19 +142,9 @@ public class SplinterFleetSidePanelCreator {
             lastUsedVariableButtonAnchor = desc;
 
             // ">"
-            buttonId = "button_behaviour_>_" + i;
             variableButtonAnchor = loadoutPanel.createUIElement(ARROW_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-            newLoadoutButton = variableButtonAnchor.addButton(">", buttonId, baseColor, bgColour, ARROW_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+            newLoadoutButton = variableButtonAnchor.addButton(">", (Runnable) () -> cycleBehaviour(num, 1), baseColor, bgColour, ARROW_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
             newLoadoutButton.setEnabled(prerequisiteForActive);
-            entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(newLoadoutButton, buttonId) {
-                @Override
-                public void onToggle() {
-                    cycleBehaviour(num, 1);
-                    AbilityPanelDialoguePlugin.getCurrentDialoguePlugin().refreshCustomPanel();
-                }
-            };
-
-            VisualCustomPanel.getPlugin().addButton(entry);
             loadoutPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);         //third in row
             lastUsedVariableButtonAnchor = variableButtonAnchor;
 
@@ -194,86 +156,9 @@ public class SplinterFleetSidePanelCreator {
                 baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
                 bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
 
-                buttonId = "button_set_target_" + i;
                 variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-                newLoadoutButton = variableButtonAnchor.addButton("Set Target", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+                newLoadoutButton = variableButtonAnchor.addButton("Set Target", (Runnable) () -> showTransportTargetPicker(loadout, status), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
                 newLoadoutButton.setEnabled(prerequisiteForActive);
-                entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(newLoadoutButton, buttonId) {
-                    @Override
-                    public void onToggle() {
-                        AbilityPanelDialoguePlugin.getCurrentDialoguePlugin().getDialog().showCampaignEntityPicker("Select a planet to transport to", "Selected: ", "Confirm", playerFleet.getFaction(), ShippingTargetHelper.getValidOriginPlanets(), new CampaignEntityPickerListener() {
-                            @Override
-                            public String getMenuItemNameOverrideFor(SectorEntityToken entity) {
-                                MarketAPI m = entity.getMarket();
-                                return m.getName() + " (" + m.getFaction().getDisplayName() + ")";
-                            }
-
-                            @Override
-                            public void pickedEntity(SectorEntityToken entity) {
-                                loadout.transportTargetMarket = entity.getMarket().getId();
-
-                                AbilityPanelDialoguePlugin.getCurrentDialoguePlugin().refreshCustomPanel();
-                            }
-
-                            @Override
-                            public void cancelledEntityPicking() {
-                                AbilityPanelDialoguePlugin.getCurrentDialoguePlugin().refreshCustomPanel();
-                            }
-
-                            @Override
-                            public String getSelectedTextOverrideFor(SectorEntityToken entity) {
-                                MarketAPI m = entity.getMarket();
-                                int amt = (int) MiscIE.getStorageCargo(m).getSpaceUsed();
-                                return m.getName() + " (" + m.getFaction().getDisplayName() + ")";
-                            }
-
-                            @Override
-                            public void createInfoText(TooltipMakerAPI info, SectorEntityToken entity) {
-                                float opad = 10f;
-                                MarketAPI m = entity.getMarket();
-                                int amt = (int) MiscIE.getStorageCargo(m).getSpaceUsed();
-                                info.addPara("Travel to " + m.getName() + " (" + m.getFaction().getDisplayName()
-                                        + ", size " + m.getSize() + ") and store all ships and cargo in the local storage.", opad);
-
-                                float distance = Misc.getDistanceLY(playerFleet, entity);
-                                float requiredFuel = status.requiredFuelPerLY * distance;
-                                info.addPara("Transport requires " + (int) Math.round(requiredFuel) + " units of fuel.", opad);
-                            }
-
-                            @Override
-                            public boolean canConfirmSelection(SectorEntityToken entity) {
-                                return entity != null && entity.getMarket() != null;
-                            }
-
-                            @Override
-                            public float getFuelColorAlphaMult() {
-                                return 0;
-                            }
-
-                            @Override
-                            public float getFuelRangeMult() {
-                                return 0;
-                            }
-
-                            @Override
-                            public List<IntelInfoPlugin.ArrowData> getArrows() {
-                                return null;
-                            }
-
-                            @Override
-                            public List<MarkerData> getMarkers() {
-                                return null;
-                            }
-
-                            @Override
-                            public Set<StarSystemAPI> getStarSystemsToShow() {
-                                return null;
-                            }
-                        });
-                    }
-                };
-
-                VisualCustomPanel.getPlugin().addButton(entry);
                 loadoutPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);        //second in row
                 lastUsedVariableButtonAnchor = variableButtonAnchor;
             } else {
@@ -283,19 +168,9 @@ public class SplinterFleetSidePanelCreator {
                 baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
                 bgColour = prerequisiteForActive ? Misc.getDarkPlayerColor() : Misc.getGrayColor();
 
-                buttonId = "button_plot_course_" + i;
                 variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-                newLoadoutButton = variableButtonAnchor.addButton("Lay Course", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+                newLoadoutButton = variableButtonAnchor.addButton("Lay Course", (Runnable) () -> layCourse(num), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
                 newLoadoutButton.setEnabled(prerequisiteForActive);
-                entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(newLoadoutButton, buttonId) {
-                    @Override
-                    public void onToggle() {
-                        Global.getSector().getPlayerFleet().setInteractionTarget(DetachmentMemory.getDetachment(num));
-                        AbilityPanelDialoguePlugin.getCurrentDialoguePlugin().refreshCustomPanel();
-                    }
-                };
-
-                VisualCustomPanel.getPlugin().addButton(entry);
                 loadoutPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);        //second in row
                 lastUsedVariableButtonAnchor = variableButtonAnchor;
             }
@@ -309,40 +184,15 @@ public class SplinterFleetSidePanelCreator {
 
             if (isDetachmentReturning) {
                 bgColour = prerequisiteForActive ? new Color(200, 160, 10, 255) : Misc.getGrayColor();
-                buttonId = "button_cancel_recall_" + i;
                 variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-                newLoadoutButton = variableButtonAnchor.addButton("Cancel", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+                newLoadoutButton = variableButtonAnchor.addButton("Cancel", (Runnable) () -> cancelRecall(num), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
                 newLoadoutButton.setEnabled(prerequisiteForActive);
-                entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(newLoadoutButton, buttonId) {
-                    @Override
-                    public void onToggle() {
-                        CampaignFleetAPI fleet = DetachmentMemory.getDetachment(num);
-                        Behaviour.setReturning(fleet, false);
-                        AbilityPanelDialoguePlugin.getCurrentDialoguePlugin().refreshCustomPanel();
-                    }
-                };
 
             } else if (detachmentIsActive) {
                 bgColour = prerequisiteForActive ? new Color(160, 30, 20, 255) : Misc.getGrayColor();
-                buttonId = "button_recall_" + i;
                 variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-                newLoadoutButton = variableButtonAnchor.addButton("Recall", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+                newLoadoutButton = variableButtonAnchor.addButton("Recall", (Runnable) () -> recall(num), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
                 newLoadoutButton.setEnabled(prerequisiteForActive);
-                entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(newLoadoutButton, buttonId) {
-                    @Override
-                    public void onToggle() {
-                        CampaignFleetAPI fleet = DetachmentMemory.getDetachment(num);
-
-                        if (fleet.getBattle() != null && Misc.getDistance(fleet, Global.getSector().getPlayerFleet()) < FleetUtils.MIN_MERGE_DISTANCE_IN_MENU) {
-                            Behaviour.setReturning(fleet, true);
-                            FleetUtils.mergeDetachment(num);
-                        } else {
-                            Behaviour.setReturning(fleet, true);
-                        }
-
-                        AbilityPanelDialoguePlugin.getCurrentDialoguePlugin().refreshCustomPanel();
-                    }
-                };
             } else {
                 boolean transportRequirements = !loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) || (transportTargetMarket != null && currentFuel > requiredFuel);
 
@@ -356,20 +206,10 @@ public class SplinterFleetSidePanelCreator {
 
                 bgColour = prerequisiteForActive ? new Color(50, 130, 0, 255) : Misc.getGrayColor();
 
-                buttonId = "button_spawn_" + i;
                 variableButtonAnchor = loadoutPanel.createUIElement(SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, false);
-                newLoadoutButton = variableButtonAnchor.addButton("Spawn", buttonId, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
+                newLoadoutButton = variableButtonAnchor.addButton("Spawn", (Runnable) () -> spawn(num), baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
                 newLoadoutButton.setEnabled(prerequisiteForActive);
-                entry = new InteractionDialogCustomPanelPlugin.ButtonEntry(newLoadoutButton, buttonId) {
-                    @Override
-                    public void onToggle() {
-                        FleetUtils.createAndSpawnFleet(LoadoutMemory.getLoadout(num), num);
-                        AbilityPanelDialoguePlugin.getCurrentDialoguePlugin().refreshCustomPanel();
-                    }
-                };
             }
-
-            VisualCustomPanel.getPlugin().addButton(entry);
             loadoutPanel.addUIElement(variableButtonAnchor).rightOfMid(lastUsedVariableButtonAnchor, opad);         //last in row
             lastUsedVariableButtonAnchor = variableButtonAnchor;
 
@@ -377,7 +217,7 @@ public class SplinterFleetSidePanelCreator {
 
             //fleet display below it
 
-            CustomPanelAPI fleetPanel = panel.createCustomPanel(VisualCustomPanel.PANEL_WIDTH - 20f, SHIP_ICON_WIDTH + 6f, new FramedCustomPanelPlugin(0.25f, Misc.getBasePlayerColor(), false));
+            CustomPanelAPI fleetPanel = panel.createCustomPanel(PANEL_WIDTH - 20f, SHIP_ICON_WIDTH + 6f, new FramedCustomPanelPlugin(0.25f, Misc.getBasePlayerColor(), false));
 
             float shipAreaWidth = PANEL_WIDTH_2;
             TooltipMakerAPI shipHolder = fleetPanel.createUIElement(shipAreaWidth, 0, false);
@@ -421,6 +261,9 @@ public class SplinterFleetSidePanelCreator {
             else if (!detachmentIsActive && !loadout.shipVariantList.isEmpty() && fleetMembersMatching <= 0)
                 panelTooltip.addPara("None of the ships specified in the loadout are present in the main fleet.", Misc.getNegativeHighlightColor(), spad);
 
+            if (!detachmentIsActive && loadoutReadyForSettings && status.currentFuel < 1)
+                panelTooltip.addPara("Without fuel the detachment can not leave this location, or follow you out of it.", Misc.getHighlightColor(), spad);
+
             if (detachmentIsActive || !loadout.targetCargo.isEmpty()) {
                 if (status.suppliesToRecover > 1)
                     panelTooltip.addPara("Supplies needed to finish repairs: %s", opad, Misc.getHighlightColor(), status.suppliesToRecover + " units");
@@ -431,16 +274,116 @@ public class SplinterFleetSidePanelCreator {
             else panelTooltip.addPara("%s for the detachment.", opad, Misc.getHighlightColor(), "Specify cargo");
         }
 
-        VisualCustomPanel.addTooltipToPanel();
+        //added last so the scroller covers everything
+        panel.addUIElement(panelTooltip).inTL(0f, 0f);
     }
 
-    private static void cycleBehaviour(int num, int step) {
+    private void cycleBehaviour(int num, int step) {
         LoadoutMemory.Loadout loadout = LoadoutMemory.getLoadout(num);
         boolean live = DetachmentMemory.isDetachmentActive(num);
         Behaviour.FleetBehaviour next = Behaviour.getBehaviourForIndex(Behaviour.getNextIndex(Behaviour.getIndexForBehaviour(loadout.behaviour), step, live));
 
         if (live) Behaviour.changeBehaviourAndUpdateAI(DetachmentMemory.getDetachment(num), next);
         else loadout.behaviour = next;
+
+        plugin.refreshCustomPanel();
+    }
+
+    private void layCourse(int num) {
+        Global.getSector().getPlayerFleet().setInteractionTarget(DetachmentMemory.getDetachment(num));
+        plugin.refreshCustomPanel();
+    }
+
+    private void cancelRecall(int num) {
+        Behaviour.setReturning(DetachmentMemory.getDetachment(num), false);
+        plugin.refreshCustomPanel();
+    }
+
+    private void recall(int num) {
+        CampaignFleetAPI fleet = DetachmentMemory.getDetachment(num);
+        Behaviour.setReturning(fleet, true);
+
+        if (fleet.getBattle() != null && Misc.getDistance(fleet, Global.getSector().getPlayerFleet()) < FleetUtils.MIN_MERGE_DISTANCE_IN_MENU)
+            FleetUtils.mergeDetachment(num);
+
+        plugin.refreshCustomPanel();
+    }
+
+    private void spawn(int num) {
+        FleetUtils.createAndSpawnFleet(LoadoutMemory.getLoadout(num), num);
+        plugin.refreshCustomPanel();
+    }
+
+    private void showTransportTargetPicker(LoadoutMemory.Loadout loadout, FleetStatus status) {
+        plugin.getDialog().showCampaignEntityPicker("Select a planet to transport to", "Selected: ", "Confirm", Global.getSector().getPlayerFleet().getFaction(), ShippingTargetHelper.getValidOriginPlanets(), new CampaignEntityPickerListener() {
+            @Override
+            public String getMenuItemNameOverrideFor(SectorEntityToken entity) {
+                MarketAPI m = entity.getMarket();
+                return m.getName() + " (" + m.getFaction().getDisplayName() + ")";
+            }
+
+            @Override
+            public void pickedEntity(SectorEntityToken entity) {
+                loadout.transportTargetMarket = entity.getMarket().getId();
+
+                plugin.refreshCustomPanel();
+            }
+
+            @Override
+            public void cancelledEntityPicking() {
+                plugin.refreshCustomPanel();
+            }
+
+            @Override
+            public String getSelectedTextOverrideFor(SectorEntityToken entity) {
+                MarketAPI m = entity.getMarket();
+                int amt = (int) MiscIE.getStorageCargo(m).getSpaceUsed();
+                return m.getName() + " (" + m.getFaction().getDisplayName() + ")";
+            }
+
+            @Override
+            public void createInfoText(TooltipMakerAPI info, SectorEntityToken entity) {
+                float opad = 10f;
+                MarketAPI m = entity.getMarket();
+                int amt = (int) MiscIE.getStorageCargo(m).getSpaceUsed();
+                info.addPara("Travel to " + m.getName() + " (" + m.getFaction().getDisplayName()
+                        + ", size " + m.getSize() + ") and store all ships and cargo in the local storage.", opad);
+
+                float distance = Misc.getDistanceLY(Global.getSector().getPlayerFleet(), entity);
+                float requiredFuel = status.requiredFuelPerLY * distance;
+                info.addPara("Transport requires " + (int) Math.round(requiredFuel) + " units of fuel.", opad);
+            }
+
+            @Override
+            public boolean canConfirmSelection(SectorEntityToken entity) {
+                return entity != null && entity.getMarket() != null;
+            }
+
+            @Override
+            public float getFuelColorAlphaMult() {
+                return 0;
+            }
+
+            @Override
+            public float getFuelRangeMult() {
+                return 0;
+            }
+
+            @Override
+            public List<IntelInfoPlugin.ArrowData> getArrows() {
+                return null;
+            }
+
+            @Override
+            public List<MarkerData> getMarkers() {
+                return null;
+            }
+
+            @Override
+            public Set<StarSystemAPI> getStarSystemsToShow() {
+                return null;
+            }
+        });
     }
 }
 

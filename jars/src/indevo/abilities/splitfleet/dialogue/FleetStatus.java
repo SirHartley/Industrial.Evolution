@@ -122,25 +122,30 @@ public class FleetStatus {
 
     public static void addFleetStatusTooltip(TextPanelAPI text, CampaignFleetAPI fleet) {
         float opad = 10f;
-        float spad = 3f;
 
         TooltipMakerAPI tooltip = text.beginTooltip();
         tooltip.addSectionHeading("Detachment Status", Alignment.MID, opad);
-
-        //tooltip.setParaSmallInsignia();
         tooltip.setParaSmallInsignia();
+
+        addStatusLines(tooltip, fleet, getFleetStatus(fleet), opad);
+
+        tooltip.setParaFontDefault();
+        text.addTooltip();
+    }
+
+    public static void addStatusLines(TooltipMakerAPI tooltip, CampaignFleetAPI fleet, FleetStatus status, float pad) {
+        float opad = 10f;
+        float spad = 3f;
 
         Behaviour.FleetBehaviour behaviour = Behaviour.getFleetBehaviour(fleet, true);
         String s;
         if (behaviour != null) {
             s = Misc.ucFirst(behaviour.toString().toLowerCase());
-            tooltip.addPara("Current Mode: %s", opad, Behaviour.getColourForBehaviour(behaviour), s);
+            tooltip.addPara("Current Mode: %s", pad, Behaviour.getColourForBehaviour(behaviour), s);
         }
 
         String state = getStateName(Behaviour.getFleetBehaviour(fleet, false));
         if (state != null) tooltip.addPara("Status: %s", spad, Misc.getNegativeHighlightColor(), state);
-
-        FleetStatus status = FleetStatus.getFleetStatus(fleet);
 
         s = status.currentCargo + " / " + status.totalCargoCap;
         Color color = status.currentCargo > status.totalCargoCap ? Misc.getNegativeHighlightColor() : Misc.getHighlightColor();
@@ -154,12 +159,10 @@ public class FleetStatus {
         color = status.currentCrewAndMarines > status.totalCrewCap ? Misc.getNegativeHighlightColor() : Misc.getHighlightColor();
         tooltip.addPara("Current Personnel: %s", spad, color, s);
 
+        tooltip.addPara("Supplies: %s, %s per month", opad, Misc.getHighlightColor(), status.currentSupplies + "", status.requiredSuppliesPerMonth + "");
         if (status.suppliesToRecover > 1)
-            tooltip.addPara("Supplies needed to finish repairs: %s", opad, Misc.getHighlightColor(), status.suppliesToRecover + " units");
-        tooltip.addPara("Estimated operating time: %s", opad, Misc.getHighlightColor(), status.operatingTimeString);
+            tooltip.addPara("Supplies needed to finish repairs: %s", spad, Misc.getHighlightColor(), status.suppliesToRecover + " units");
+        tooltip.addPara("Estimated operating time: %s", spad, Misc.getHighlightColor(), status.operatingTimeString);
         tooltip.addPara("Estimated range: %s", spad, Misc.getHighlightColor(), status.fuelRangeLYString);
-
-        tooltip.setParaFontDefault();
-        text.addTooltip();
     }
 }

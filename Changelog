@@ -201,6 +201,8 @@ Fixed - Desert warlords story now properly appears on desert and arid worlds
 
 Detachments
 Added - Detachments out of fuel away from you now stop and report that they are stranded
+Added - Each active detachment now has an intel entry with its location, status and a recall button
+Added - The detachment panel now warns when a detachment has no fuel to leave the system
 Adjusted - Detachments now travel with the vanilla fleet AI, across star systems included
 Note - Recall all detachments before updating, active ones break old saves
 Adjusted - Changing the behaviour of an active detachment now applies at once

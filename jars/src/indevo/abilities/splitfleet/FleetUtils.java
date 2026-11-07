@@ -20,6 +20,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.fleetAssignmentAIs.DetachmentAI;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.CombatAndDerelictionScript;
+import indevo.abilities.splitfleet.intel.DetachmentIntel;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMarines;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
@@ -67,6 +68,7 @@ public class FleetUtils {
         //a merge from MergeScript runs inside the fleet advance, which then reports a NO_MEMBERS despawn
         detachment.getMemoryWithoutUpdate().set(CombatAndDerelictionScript.ENDED_KEY, true);
         moveContentsToPlayerFleet(detachment);
+        DetachmentIntel.end(detachment, "Returned to the main force.");
 
         Global.getSector().reportFleetDespawned(detachment, CampaignEventListener.FleetDespawnReason.REACHED_DESTINATION, Global.getSector().getPlayerFleet());
         detachment.getContainingLocation().removeEntity(detachment);
@@ -217,6 +219,7 @@ public class FleetUtils {
         //then set behaviour
         Behaviour.changeBehaviourAndUpdateAI(splinterFleet, loadout.behaviour);
         splinterFleet.addScript(new CombatAndDerelictionScript(splinterFleet));
+        DetachmentIntel.create(splinterFleet);
 
         log.info("fleet member ids in splinter");
         for (FleetMemberAPI f : splinterFleet.getFleetData().getMembersListCopy()) {

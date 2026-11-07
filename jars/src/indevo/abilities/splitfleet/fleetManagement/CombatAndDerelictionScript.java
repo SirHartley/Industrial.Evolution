@@ -21,6 +21,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.OrbitFocus;
+import indevo.abilities.splitfleet.intel.DetachmentIntel;
 import indevo.abilities.splitfleet.intel.RecoverableShipIntel;
 import indevo.abilities.splitfleet.salvageSpecials.OfficerAndShipRecoverySpecial;
 import indevo.utils.helper.MiscIE;
@@ -93,6 +94,7 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
         if (reason == CampaignEventListener.FleetDespawnReason.DESTROYED_BY_BATTLE) {
             Global.getSector().getCampaignUI().addMessage(fleet.getName() + " has been destroyed in battle.", Misc.getNegativeHighlightColor());
             DetachmentMarines.clear(fleet);
+            DetachmentIntel.end(fleet, "Destroyed in battle.");
 
         } else if (reason == CampaignEventListener.FleetDespawnReason.REACHED_DESTINATION
                 && Behaviour.getFleetBehaviour(fleet, true) == Behaviour.FleetBehaviour.TRANSPORT) {
@@ -102,6 +104,7 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
 
             if (market != null) {
                 FleetUtils.storeInMarket(fleet, market);
+                DetachmentIntel.end(fleet, "Stored its ships and cargo at " + market.getName() + ".");
                 Global.getSector().getCampaignUI().addMessage(fleet.getName() + " has reached %s in %s and stored its ships and cargo.", Misc.getTextColor(), market.getName(), market.getContainingLocation().getName(), market.getFaction().getBaseUIColor(), Misc.getHighlightColor());
             } else returnContents(fleet, reason);
 
@@ -115,10 +118,12 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
         if (fleet.getFleetData().getNumMembers() > 0) {
             FleetUtils.moveContentsToPlayerFleet(fleet);
             Global.getSector().getCampaignUI().addMessage(fleet.getName() + " was recalled to the main force (" + reason + ").", Misc.getHighlightColor());
+            DetachmentIntel.end(fleet, "Sent back to the main force after an unexpected despawn (" + reason + ").");
         } else {
             if (!fleet.getCargo().isEmpty() && fleet.getContainingLocation() != null) leaveCargoInPods(fleet, fleet.getCargo());
             DetachmentMarines.clear(fleet);
             Global.getSector().getCampaignUI().addMessage(fleet.getName() + " has lost all its ships.", Misc.getNegativeHighlightColor());
+            DetachmentIntel.end(fleet, "Lost all its ships.");
         }
     }
 
