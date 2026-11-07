@@ -31,7 +31,6 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | Memory key | `$IndEvo_HasSelectedSP_SY` | market memory: story point double capacity bought but not yet used |
 | Setting | `IndEvo_ScrapYard` | enables the industry; `isFunctional()` also checks it |
 | Setting | `IndEvo_SYBaseDMods`, `IndEvo_SYPartValueMult`, `IndEvo_SYHullDeliveryTime`, `IndEvo_RarePartsAmountPerFP`, `IndEvo_SYDModMoveBaseCostMult`, `IndEvo_shipPickerRowCount` | read at use time in the dialog classes; a contract keeps the delivery time it was accepted with (`YardsCustomProductionIntel.deliveryTime`, saved) |
-| Strings | category `IndEvo_ScrapYard` | `data/strings/strings.json:159` |
 
 ## Registration and lifecycle
 
