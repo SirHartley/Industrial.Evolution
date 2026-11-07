@@ -117,8 +117,8 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
     private void returnContents(CampaignFleetAPI fleet, CampaignEventListener.FleetDespawnReason reason) {
         if (fleet.getFleetData().getNumMembers() > 0) {
             FleetUtils.moveContentsToPlayerFleet(fleet);
-            Global.getSector().getCampaignUI().addMessage(fleet.getName() + " was recalled to the main force (" + reason + ").", Misc.getHighlightColor());
-            DetachmentIntel.end(fleet, "Sent back to the main force after an unexpected despawn (" + reason + ").");
+            Global.getSector().getCampaignUI().addMessage(fleet.getName() + " returned to the main force.", Misc.getHighlightColor());
+            DetachmentIntel.end(fleet, "Returned to the main force.");
         } else {
             if (!fleet.getCargo().isEmpty() && fleet.getContainingLocation() != null) leaveCargoInPods(fleet, fleet.getCargo());
             DetachmentMarines.clear(fleet);

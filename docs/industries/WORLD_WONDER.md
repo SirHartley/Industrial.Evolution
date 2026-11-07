@@ -75,7 +75,7 @@ Chain: `WorldWonder.apply -> system tag IndEvo_hasWonder -> addCondition(IndEvo_
 - No functional `CloudPainter` on the market: calls down, vanilla visuals.
 - Otherwise a market with none of the three tags gets `getDefaultTag()`: NONE if `IndEvo_CPShieldRemove`, else LOW if `IndEvo_CPShieldOverride`, else FULL. Markets that already carry a tag keep it.
 - FULL calls down, LOW applies the `IndEvo` / `shield_texture` sprite, NONE calls `PlanetaryShield.unapplyVisuals`.
-- Option "Change Shield Visuals" cycles FULL -> LOW -> NONE. The change shows on the shield's next apply.
+- Option "Change Shield Visuals" cycles FULL -> LOW -> NONE; its tooltip lists full, faint and hidden visuals. The change shows on the shield's next apply.
 
 The rest of vanilla `apply` (ground defense x3, upkeep, meteor impact suppression) and the AI core stay untouched; the industry is the vanilla one.
 

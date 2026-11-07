@@ -136,17 +136,17 @@ public class SplinterFleetSidePanelCreator {
             boolean inSystem = detachment.getContainingLocation() instanceof StarSystemAPI && !detachment.isInHyperspace();
             boolean playerTargetIsDetachment = playerFleet.getInteractionTarget() != null && detachment.getId().equals(playerFleet.getInteractionTarget().getId());
 
-            if (returning) orders.add(createOrder(column, "Cancel", () -> cancelRecall(num), Misc.getTextColor(), CANCEL_COLOUR, !dormant, "Stop returning and go back to the current mode."));
+            if (returning) orders.add(createOrder(column, "Cancel", () -> cancelRecall(num), Misc.getTextColor(), CANCEL_COLOUR, !dormant, "Resume the current mode."));
             else orders.add(createOrder(column, "Recall", () -> recall(num), Misc.getTextColor(), RECALL_COLOUR, !dormant, "Return to you and merge into the main force."));
 
-            orders.add(createOrder(column, "Lay Course", () -> layCourse(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !playerTargetIsDetachment, "Set a course to the detachment."));
-            orders.add(createOrder(column, "Go to", () -> showGoToPicker(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), free && inSystem, "Travel to a planet, station or jump point in the detachment's current star system and hold there. Not in hyperspace."));
+            orders.add(createOrder(column, "Lay Course", () -> layCourse(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !playerTargetIsDetachment, null));
+            orders.add(createOrder(column, "Go to", () -> showGoToPicker(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), free && inSystem, "Move to a location in this system and hold position."));
 
-            if (Behaviour.isAttacking(detachment)) orders.add(createOrder(column, "Stop attack", () -> stopOrder(num, FleetBehaviour.ATTACK_TARGET), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), true, "Call off the attack and go back to the current mode."));
-            else orders.add(createOrder(column, "Attack", () -> showAttackPicker(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), free && !getAttackTargets(detachment).isEmpty(), "Attack a hostile fleet you can see in the detachment's star system, then go back to the current mode."));
+            if (Behaviour.isAttacking(detachment)) orders.add(createOrder(column, "Stop attack", () -> stopOrder(num, FleetBehaviour.ATTACK_TARGET), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), true, "Resume the current mode."));
+            else orders.add(createOrder(column, "Attack", () -> showAttackPicker(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), free && !getAttackTargets(detachment).isEmpty(), "Attack a visible hostile fleet in this system, then resume the current mode."));
 
-            if (Behaviour.isOnTradeRun(detachment)) orders.add(createOrder(column, "Stop run", () -> stopOrder(num, FleetBehaviour.TRADE_RUN), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), true, "Call off the trade run and go back to the current mode."));
-            else orders.add(createOrder(column, "Trade run", () -> startTradeRun(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), free, "Come to you and open the exchange, then go back to the current mode."));
+            if (Behaviour.isOnTradeRun(detachment)) orders.add(createOrder(column, "Stop run", () -> stopOrder(num, FleetBehaviour.TRADE_RUN), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), true, "Resume the current mode."));
+            else orders.add(createOrder(column, "Trade run", () -> startTradeRun(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), free, "Meet the main force to exchange cargo, then resume the current mode."));
         } else if (Behaviour.behaviourEquals(loadout.behaviour, FleetBehaviour.TRANSPORT)) {
             orders.add(createOrder(column, "Set Target", () -> showTransportTargetPicker(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), true, "Pick the planet to store the ships and cargo at."));
         }
@@ -161,7 +161,7 @@ public class SplinterFleetSidePanelCreator {
         TooltipMakerAPI recallToggle = createToggle(column, "Auto-recall", loadout.autoRecall, true, () -> toggleAutoRecall(num), toggleWidth, "Return to you when supplies drop below " + (int) DetachmentAI.AUTO_RECALL_DAYS + " days.");
         column.addUIElement(recallToggle).inTL(0f, y);
 
-        TooltipMakerAPI fightToggle = createToggle(column, "Join fights", loadout.joinFights, true, () -> toggleJoinFights(num), toggleWidth, "Join your battles when close enough, like any allied fleet. Off: the detachment stays out of them. Hide, Transport and travel orders always stay out.");
+        TooltipMakerAPI fightToggle = createToggle(column, "Join fights", loadout.joinFights, true, () -> toggleJoinFights(num), toggleWidth, "Join nearby battles involving the main force. Unavailable while hiding, transporting or travelling on orders.");
         column.addUIElement(fightToggle).inTL(toggleWidth + 5f, y);
     }
 
@@ -203,8 +203,8 @@ public class SplinterFleetSidePanelCreator {
         CustomPanelAPI row = panel.createCustomPanel(PANEL_WIDTH - 10f, 50f, new RunnableButtonPanelPlugin());
         List<TooltipMakerAPI> buttons = new ArrayList<>();
 
-        buttons.add(createToggle(row, "Send", !take, !live, () -> setTakeMode(num, false), TOGGLE_WIDTH, "Pick the ships and cargo that leave as the detachment. You keep the rest."));
-        buttons.add(createToggle(row, "Take", take, !live, () -> setTakeMode(num, true), TOGGLE_WIDTH, "Pick the ships and cargo you take with you. Everything else stays behind as the detachment. Your flagship always stays with you."));
+        buttons.add(createToggle(row, "Send", !take, !live, () -> setTakeMode(num, false), TOGGLE_WIDTH, "Select ships and cargo for the detachment."));
+        buttons.add(createToggle(row, "Take", take, !live, () -> setTakeMode(num, true), TOGGLE_WIDTH, "Select ships and cargo to keep; the rest form the detachment. Your flagship stays with you."));
         buttons.add(createButton(row, "Members", () -> new TwoFleetFleetMemberPicker(plugin, LoadoutMemory.getLoadout(num)).init(), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !live));
         buttons.add(createButton(row, "Cargo", () -> new TwoFleetCargoPicker(plugin, Global.getSector().getPlayerFleet(), LoadoutMemory.getLoadout(num), true).init(), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !live && ready));
         if (!live) buttons.add(createButton(row, "Spawn", () -> spawn(num), Misc.getTextColor(), SPAWN_COLOUR, canSpawn));
@@ -235,25 +235,18 @@ public class SplinterFleetSidePanelCreator {
         fleetPanel.addUIElement(shipHolder).inTL(1f, 1f);
         panelTooltip.addCustom(fleetPanel, 3);
 
-        //notes
-        if (dormant)
-            panelTooltip.addPara("!!! The detachment is Dormant and urgently needs your assistance !!!", Misc.getNegativeHighlightColor(), OPAD);
-        if (Behaviour.isReturning(detachment))
-            panelTooltip.addPara("The detachment is currently returning to the Main Fleet", Misc.getHighlightColor(), OPAD);
-
         if (!live && take && detachmentMembers.isEmpty())
             panelTooltip.addPara("Leave at least one ship behind as the detachment.", Misc.getNegativeHighlightColor(), OPAD);
         else if (!live && ready && status.isOverCapacity()) {
-            String text = take ? "The ships left behind can not carry the rest of the cargo: over %s capacity. Take more with you." : "The ships cannot carry the selected cargo: over %s capacity.";
+            String text = take ? "Detachment exceeds %s capacity. Take more cargo with you." : "Detachment exceeds %s capacity.";
             panelTooltip.addPara(text, OPAD, Misc.getNegativeHighlightColor(), Misc.getAndJoined(status.getOverCapacityList()));
         } else if (!live && ready && cargoPicked && !enoughSupplies) {
-            panelTooltip.addPara("Not enough supplies to repair and operate all ships of the detachment for one month", Misc.getNegativeHighlightColor(), OPAD);
+            panelTooltip.addPara("Requires supplies for repairs and one month of operation.", Misc.getNegativeHighlightColor(), OPAD);
         } else if (transport) {
             if (transportTargetMarket == null && !live)
                 panelTooltip.addPara("Specify a target planet for the transport detachment.", Misc.getNegativeHighlightColor(), OPAD);
             else if (!live && status.currentFuel < requiredFuel) {
                 panelTooltip.addPara("Insufficient Fuel to reach the target planet, load at least " + (int) Math.ceil(requiredFuel * 1.10) + " units!", Misc.getNegativeHighlightColor(), OPAD);
-                panelTooltip.addPara("Note that the detachment can still run out of supplies - provide enough for the journey.", Misc.getTextColor(), OPAD);
             } else if (transportTargetMarket != null) {
                 String isOrWill = live ? "is heading" : "will head";
                 SectorEntityToken dist = live ? detachment : playerFleet;
@@ -267,7 +260,7 @@ public class SplinterFleetSidePanelCreator {
             panelTooltip.addPara("None of the ships specified in the loadout are present in the main fleet.", Misc.getNegativeHighlightColor(), SPAD);
 
         if (!live && ready && cargoPicked && status.currentFuel < 1)
-            panelTooltip.addPara("Without fuel the detachment can not leave this location, or follow you out of it.", Misc.getHighlightColor(), SPAD);
+            panelTooltip.addPara("Requires fuel to leave this location.", Misc.getHighlightColor(), SPAD);
 
         if (live || (ready && cargoPicked)) {
             if (status.suppliesToRecover > 1)
@@ -307,6 +300,7 @@ public class SplinterFleetSidePanelCreator {
     }
 
     private void addTooltip(TooltipMakerAPI el, String text) {
+        if (text == null) return;
         el.addTooltipToPrevious(new BaseTooltipCreator() {
             @Override
             public float getTooltipWidth(Object tooltipParam) {

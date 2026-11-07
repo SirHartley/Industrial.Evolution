@@ -223,9 +223,7 @@ public class ResearchProjectSidePanelCreator {
 
             @Override
             public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
-                tooltip.addPara("Whether this project takes every item you hand in, or only what it needs to finish.", 0f);
-                tooltip.addPara("When on, progress past %s carries over after each redeem, so one large hand-in can cover several rewards.", 10f, Misc.getHighlightColor(), "100%");
-                tooltip.addPara("When off, items the project does not need stay in your cargo.", 10f);
+                tooltip.addPara("Accept excess donations toward future rewards. When disabled, excess items stay in your cargo.", 0f);
             }
         }, toggle, TooltipMakerAPI.TooltipLocation.LEFT);
 
@@ -241,6 +239,4 @@ public class ResearchProjectSidePanelCreator {
         buttonPanel.addUIElement(anchor).inTR(spad, opad + (BUTTON_HEIGHT - TOGGLE_HEIGHT) / 2f);
     }
 }
-
-
 

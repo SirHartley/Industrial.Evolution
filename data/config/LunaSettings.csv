@@ -1,6 +1,4 @@
 fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
-IndEvo_header0,Disclaimer,Header,Disclaimer,,,,,Quick Settings
-IndEvo_text0,,Text,Changing these settings can impact the stability of your game. Only the default configuration is tested to work.,,,,,Quick Settings
 IndEvo_header_content,Content,Header,Content,,,,,Quick Settings
 IndEvo_block_industries,[General] Colony Industries,Boolean,TRUE,,Enable colony industries. Individual switches are in the Industries tab. Existing industries remain when disabled. Default on. NPC placement needs a new game.,,,Quick Settings
 IndEvo_block_consumables,[General] Consumable Items,Boolean,TRUE,,"Enable consumable market stock, combat drops and research. Individual switches are under Exploration & Items. Owned items remain usable. Default on.",,,Quick Settings
@@ -22,14 +20,11 @@ IndEvo_SpecialApplicationChance,[Exploration] Special Event Application Chance,D
 IndEvo_enable_derelict_stations,[Exploration] Additional Station Types,Boolean,TRUE,,"Spawn custom stations, including orbital labs and arsenal stations. Default on. Needs a new game.",,,Exploration & Items
 ,,,,,,,,
 IndEvo_header_components,Ship Components,Header,Ship Components,,,,,Exploration & Items
-IndEvo_parts_disclaimer,,Text,"All loot added by this mod is on top of the normal loot you would have gotten. At no point does Industrial Evolution edit, dilute, change or in any other way influence vanilla drop behaviour.",,,,,Exploration & Items
 IndEvo_PartsDropInCampaign,[Commodities] Ship Parts Campaign Drops,Boolean,TRUE,,Add ship components to combat loot. Relic component drops are unaffected. Default on.,,,Exploration & Items
 IndEvo_relicComponentHardbattleFPAdvantage,[Commodities] Relic Drop Enemy Strength,Double,1.5,,Enemy fleet points must exceed your fleet points times this value for relic components to drop. Default 1.5.,1,5,Exploration & Items
 IndEvo_relicComponentFPDestroyedFract,[Commodities] Relic Drop Required Kills,Double,0.5,,"Enemy fleet points you must destroy to earn relic components, as a fraction of your fleet points. 0.5 = half. Default 0.5.",0,1,Exploration & Items
 ,,,,,,,,
 IndEvo_header_consumables,Consumable Items,Header,Consumable Items,,,,,Exploration & Items
-IndEvo_consumables_disclaimer,,Text,"To completely remove consumable items, go to Industrial.Evolution\data\campaign\procgen\drop_groups.csv and set the relevant group weights to 0. Deleting them will cause a crash.",,,,,Exploration & Items
-IndEvo_consumables_disclaimer2,,Text,"All loot added by this mod is on top of the normal loot you would have gotten. At no point does Industrial Evolution edit, dilute, change or in any other way influence vanilla drop behaviour.",,,,,Exploration & Items
 IndEvo_consumables_addToMarkets,[Consumable Items] Add to markets,Boolean,TRUE,,Sell consumable items at markets. Default on.,,,Exploration & Items
 IndEvo_consumables_addToFleets,[Consumable Items] Drop from combat,Boolean,TRUE,,Drop consumable items after fleet battles. Default on.,,,Exploration & Items
 IndEvo_consumables_researchProject,[Consumable Items] Research project,Boolean,TRUE,,Offer consumable research at the Galatia Academy. Default on.,,,Exploration & Items
