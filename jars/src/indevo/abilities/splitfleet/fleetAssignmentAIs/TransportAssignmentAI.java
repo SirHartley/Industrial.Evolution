@@ -14,6 +14,7 @@ import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.fleetManagement.DetachmentMarines;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 import indevo.utils.ModPlugin;
@@ -129,7 +130,9 @@ public class TransportAssignmentAI extends BaseSplinterFleetAssignmentAIV2 {
             if (market == null) market = Global.getSector().getEconomy().getMarket(getAlternateMarket(fleet));
 
             CargoAPI storage = MiscIE.getStorageCargo(market);
+            DetachmentMarines.moveToStorage(fleet, MiscIE.getStorage(market));
             storage.addAll(fleet.getCargo());
+            DetachmentMarines.clear(fleet);
             storage.initMothballedShips("player");
             for (FleetMemberAPI member : fleet.getFleetData().getMembersListCopy()) {
                 storage.getMothballedShips().addFleetMember(member);

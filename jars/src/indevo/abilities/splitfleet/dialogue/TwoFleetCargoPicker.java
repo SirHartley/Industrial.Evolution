@@ -9,6 +9,7 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
+import indevo.abilities.splitfleet.fleetManagement.DetachmentMarines;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 
 import java.awt.*;
@@ -83,18 +84,17 @@ public class TwoFleetCargoPicker {
                 }
 
                 if (!cargo.isEmpty()) {
+                    if (removeFromFromFleetCargo) {
+                        //the picker already moved the player's marines, counts before the move are rebuilt from the delta
+                        int before = tempSelectedCargo.getMarines();
+                        int delta = cargo.getMarines() - before;
+                        DetachmentMarines.move(toFleet, before, fromFleet.getCargo().getMarines() + delta, delta);
+                    }
+
                     CargoAPI toFleetCargo = toFleet.getCargo();
                     toFleetCargo.clear();
                     toFleetCargo.addAll(cargo.createCopy(), false);
-
-                    if (false) { //removeFromFromFleetCargo, this should have been for marine XP retention, but it doesn't work
-                        PlayerMarketTransaction trans = new PlayerMarketTransaction(null, null, CampaignUIAPI.CoreUITradeMode.OPEN);
-
-                        //if from fleet is player fleet and we transfer stuff from it, it is calculated as "sell action" - otherwise, we buy
-                        CargoAPI toCargo = fromFleet.isPlayerFleet() ? trans.getSold() : trans.getBought();
-                        toCargo.addAll(cargo);
-                        PlayerFleetPersonnelTracker.getInstance().processTransaction(trans, toFleet);
-                    }
+                    PlayerFleetPersonnelTracker.getInstance().update();
 
                     if (loadout != null) {
                         loadout.targetCargo.clear();

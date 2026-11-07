@@ -206,6 +206,7 @@ Fixed - Detachments no longer silently lose crew, fuel and cargo over capacity
 Note - Loading a detachment past its capacity is now refused
 Fixed - Detachments now leave a wreck for every ship lost in battle
 Fixed - Transport detachments no longer store ships they lost on the way
+Fixed - Marines keep their experience when moved to and from detachments
 Fixed - Detachment preview no longer counts mothballed ships as active (PR'd by fank, thank you!)
 Fixed - Unused orbit markers no longer pile up in saves
 Fixed - Detachment wrecks now properly hold all excess cargo

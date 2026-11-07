@@ -8,6 +8,7 @@ import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
+import com.fs.starfarer.api.impl.PlayerFleetPersonnelTracker;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.AbilitySpecAPI;
@@ -16,6 +17,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.fleetAssignmentAIs.SplinterFleetAssignmentAIV2;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.CombatAndDerelictionScript;
+import indevo.abilities.splitfleet.fleetManagement.DetachmentMarines;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
 import indevo.utils.ModPlugin;
@@ -75,7 +77,9 @@ public class FleetUtils {
         }
 
         CargoAPI cargo = detachment.getCargo();
+        DetachmentMarines.moveToPlayer(detachment, playerFleet.getCargo().getMarines());
         playerFleet.getCargo().addAll(cargo);
+        DetachmentMarines.clear(detachment);
 
         Global.getSector().reportFleetDespawned(detachment, CampaignEventListener.FleetDespawnReason.REACHED_DESTINATION, playerFleet); //also handles removal from detachment memory
         detachment.getContainingLocation().removeEntity(detachment);
@@ -135,7 +139,10 @@ public class FleetUtils {
         }
 
         //transfer cargo
+        int playerMarines = playerFleet.getCargo().getMarines();
+        DetachmentMarines.move(splinterFleet, 0, playerMarines, (int) Math.min(playerMarines, loadout.targetCargo.getMarines()));
         transferCargoBetweenCargos(playerFleet.getCargo(), splinterFleet.getCargo(), loadout.targetCargo);
+        PlayerFleetPersonnelTracker.getInstance().update();
 
         //set memory stuff
         MemoryAPI splinterFleetMemory = splinterFleet.getMemoryWithoutUpdate();
