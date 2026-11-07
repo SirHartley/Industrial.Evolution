@@ -78,7 +78,7 @@ Node layout in `SharedData.getCurrentReport()`, node id `<industry id>_<line>`, 
 - The report keeps the `Industry` reference until it rolls out of the previous report, the same as vanilla industry nodes. No IE class is stored in the report.
 - Steady costs that should scale with upkeep mults stay on `getUpkeep().modifyFlat` in `apply()` (Pet Shop on player markets) instead of a report line.
 
-Users: Academy (storage, training on player markets; training on NPC markets is `chargeNow`), Restoration Docks (repairs, dock fees), Pet Shop (NPC market storage), Hull Forge (printing), Courier Port (shipping, billed at the closest port), Embassy (ambassador transfer), Supercomputer (income). `chargeNow`: Academy training at NPC markets, Changeling switch, Salvage Yards custom production and D-mod transfer, Requisitions Center unlock, spacer fine.
+Users: Academy (storage; training on NPC markets is `chargeNow`, own markets train free), Restoration Docks (repairs, dock fees), Pet Shop (NPC market storage), Hull Forge (printing), Courier Port (shipping, billed at the closest port), Embassy (ambassador transfer), Supercomputer (income). `chargeNow`: Academy training at NPC markets, Changeling switch, Salvage Yards custom production and D-mod transfer, Requisitions Center unlock, spacer fine.
 
 ### StringHelper
 

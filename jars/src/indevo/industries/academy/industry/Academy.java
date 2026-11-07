@@ -225,8 +225,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     private void chargeTraining(float amount) {
-        if (market.isPlayerOwned()) BillingHelper.charge(this, "training", "Training", amount);
-        else BillingHelper.chargeNow(amount);
+        if (!market.isPlayerOwned()) BillingHelper.chargeNow(amount);
     }
 
     //officer quality increases
@@ -315,8 +314,8 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     public void abortAdminTraining(boolean moveToStorage_InsteadOfFleet) {
         if (adminInTraining != null) {
-            if (moveToStorage_InsteadOfFleet) {
-                moveAdminInTrainingToStorage();
+            if (moveToStorage_InsteadOfFleet || !playerHasAdminCapacity()) {
+                adminStorage.add(adminInTraining);
             } else {
                 Global.getSector().getCharacterData().addAdmin(adminInTraining);
             }
@@ -415,11 +414,13 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         return adminStorage;
     }
 
-    public void returnAdmin(PersonAPI person) {
-        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
-        int max = playerFleet.getCommander().getStats().getAdminNumber().getModifiedInt();
+    public static boolean playerHasAdminCapacity() {
+        int max = Global.getSector().getPlayerFleet().getCommander().getStats().getAdminNumber().getModifiedInt();
+        return Global.getSector().getCharacterData().getAdmins().size() < max;
+    }
 
-        if (Global.getSector().getCharacterData().getAdmins().size() < max || Global.getSettings().isDevMode()) {
+    public void returnAdmin(PersonAPI person) {
+        if (playerHasAdminCapacity() || Global.getSettings().isDevMode()) {
             Global.getSector().getCharacterData().addAdmin(person);
             adminStorage.remove(person);
         }
@@ -429,16 +430,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     public static boolean playerHasOfficerCapacity() {
         CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
-
-        int max = playerFleet.getCommander().getStats().getOfficerNumber().getModifiedInt();
-        int i = 0;
-        for (OfficerDataAPI data : playerFleet.getFleetData().getOfficersCopy()) {
-            if (data.getPerson().isPlayer() || Misc.isMercenary(data.getPerson())) continue;
-
-            i++;
-        }
-
-        return i < max;
+        return Misc.getNumNonMercOfficers(playerFleet) < Misc.getMaxOfficers(playerFleet);
     }
 
     public static boolean personHasSkill(PersonAPI person, SkillSpecAPI skill) {

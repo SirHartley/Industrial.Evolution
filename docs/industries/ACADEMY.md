@@ -71,7 +71,7 @@ Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSe
 ### Officer training
 
 - Eligible: in fleet or officer storage, not `Misc.isUnremovable`, `$IndEvo_wasTrainedLevel` 0, or below 2 with an alpha core (`Academy.isOfficerTrainingAllowed(person)`, `:598`).
-- `setOfficerForTraining()` (`:617`) removes the officer from fleet and ship command or from storage, sets direction and charges `IndEvo_personalityTrainingCost`; nothing is charged if training was not allowed. `chargeTraining()` books it on the "Training" report line on player markets and takes it at once (`BillingHelper.chargeNow`) on NPC markets, where the dialog checks `canAfford` first ([BillingHelper](../core/UTILS.md#billinghelper)).
+- `setOfficerForTraining()` (`:617`) removes the officer from fleet and ship command or from storage, sets direction and charges `IndEvo_personalityTrainingCost`; nothing is charged if training was not allowed. `chargeTraining()` takes the fee at once (`BillingHelper.chargeNow`) on NPC markets, where the dialog checks `canAfford` first ([BillingHelper](../core/UTILS.md#billinghelper)); training at player markets is free.
 - `trainOfficerInTraining()` (`:469`) runs daily if functional and the market faction is not hostile to the player. After `getOfficerTrainingDays()` = setting + 1 - AI core reduction, `changeOfficerPersonality()` moves one step, increments `$IndEvo_wasTrainedLevel`, puts the officer into storage, sends a `MessageIntel`. Dev mode finishes on the next day.
 - Direction limits: no `WEAKER` from timid, no `BETTER` from reckless (`isOfficerTrainingDirectionAllowed()`, `:453`), enforced only on the option buttons.
 
@@ -115,7 +115,6 @@ Selection chain: `IndEvo_personSelector_<type>_<action> -> IndEvo_CreatePersonSe
 | `IndEvo_OfficerCurrentlyTraining` | Dead: no rule uses it, reads `$IndEvo_isTraining` which nothing sets |
 | `isOfficerTrainingAllowed(person, direction)` | `||` with the direction check (`Academy.java:614`) lets an officer already trained twice pass whenever the direction is allowed |
 | `increaseOfficerQuality()` | `!=` on string ids (`:243`) and `return` instead of `continue` (`:246`) stop the loop at the first already modified market |
-| Abort to fleet (admin) | No admin capacity check (`abortAdminTraining(false)`, `:321`) |
 | Changelog_todo | "Academy can pick forbidden, event only admin skills and should really run off a whitelist"; "Rework academy UI"; "Story point option for academy, Recruit Local Talent" |
 
 ## Maintenance

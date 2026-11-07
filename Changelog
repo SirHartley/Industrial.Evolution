@@ -82,13 +82,14 @@ Fixed - Interstellar Relay setting now properly controls Interstellar Relays
 Fixed - Tooltip now shows why a relay without a Military Base is inactive
 
 Academy
-Adjusted - Training at your own colonies is now billed in the monthly income report
+Adjusted - Training at your own Academy is now free
 Fixed - Aggression training no longer bills you twice the amount it should
 Fixed - Academy transfers no longer exceed the fleet's officer limit
 Fixed - Swapping AI cores no longer keeps the old core's bonuses
 Fixed - Crash when officer training finishes in a translated game (PR'd by cwbnga, thank you!)
 Fixed - Officer training tooltip now properly shows the target personality
 Fixed - Admin training no longer charges the fee when it does not start
+Fixed - Aborting admin training no longer goes over the administrator limit
 
 Commodity Forge
 Fixed - Beta core upkeep discount no longer stays active after installing a VPC
