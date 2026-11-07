@@ -78,6 +78,17 @@ public class OrbitFocus {
         return orbitFocus;
     }
 
+    public static SectorEntityToken getOrbitFocusNear(SectorEntityToken target, SectorEntityToken from, float distance) {
+        SectorEntityToken orbitFocus = target.getContainingLocation().addCustomEntity(Misc.genUID(), null, "SplinterFleet_OrbitFocus", Factions.NEUTRAL);
+        orbitFocus.addTag(ORBIT_FOCUS_TAG);
+
+        float radius = target.getRadius() + distance;
+        float period = 20f * (1 + (radius / 300f) * 0.1f);
+        orbitFocus.setCircularOrbit(target, Misc.getAngleInDegrees(target.getLocation(), from.getLocation()), radius, period);
+
+        return orbitFocus;
+    }
+
     public static OrbitAPI getClosestValidOrbit(SectorEntityToken toToken){
         return getClosestValidOrbit(toToken, false, false);
     }

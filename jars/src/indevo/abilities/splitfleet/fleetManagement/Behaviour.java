@@ -37,6 +37,8 @@ public class Behaviour {
         STRANDED,
         DORMANT,
         COMBAT,
+        ATTACK_TARGET,
+        TRADE_RUN,
     }
 
     //highest first, the first active override is the effective behaviour
@@ -45,7 +47,9 @@ public class Behaviour {
             FleetBehaviour.DORMANT,
             FleetBehaviour.HEAD_TO_PLAYER_ON_TARGET,
             FleetBehaviour.STRANDED,
-            FleetBehaviour.RETURN_TO_PLAYER_AND_MERGE);
+            FleetBehaviour.RETURN_TO_PLAYER_AND_MERGE,
+            FleetBehaviour.ATTACK_TARGET,
+            FleetBehaviour.TRADE_RUN);
 
     public static Map<Integer, FleetBehaviour> behaviourIndexMap = new HashMap<Integer, FleetBehaviour>() {{
         put(1, FleetBehaviour.STAY);
@@ -181,8 +185,18 @@ public class Behaviour {
         setReturning(DetachmentMemory.getDetachment(num), returnToFleet);
     }
 
+    public static boolean isAttacking(CampaignFleetAPI fleet) {
+        return hasOverride(fleet, FleetBehaviour.ATTACK_TARGET);
+    }
+
+    public static boolean isOnTradeRun(CampaignFleetAPI fleet) {
+        return hasOverride(fleet, FleetBehaviour.TRADE_RUN);
+    }
+
     public static void setReturning(CampaignFleetAPI fleet, boolean returnToFleet) {
         if (returnToFleet) {
+            removeOverride(fleet, FleetBehaviour.ATTACK_TARGET);
+            removeOverride(fleet, FleetBehaviour.TRADE_RUN);
             addOverride(fleet, FleetBehaviour.RETURN_TO_PLAYER_AND_MERGE);
             Global.getSector().getCampaignUI().addMessage(fleet.getName() + " is returning to the main force.");
         } else removeOverride(fleet, FleetBehaviour.RETURN_TO_PLAYER_AND_MERGE);

@@ -116,6 +116,8 @@ public class FleetStatus {
             case STRANDED -> "stranded, out of fuel";
             case HEAD_TO_PLAYER_ON_TARGET -> "moving to the main force";
             case RETURN_TO_PLAYER_AND_MERGE -> "returning to the main force";
+            case ATTACK_TARGET -> "attacking";
+            case TRADE_RUN -> "coming to trade";
             default -> null;
         };
     }

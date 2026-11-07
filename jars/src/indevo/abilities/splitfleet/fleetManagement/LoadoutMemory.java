@@ -49,6 +49,8 @@ public class LoadoutMemory {
         public CargoAPI targetCargo = Global.getFactory().createCargo(true);
         public String transportTargetMarket = null;
         public boolean takeMode = false;
+        public boolean autoRecall = false;
+        public boolean joinFights = false;
 
         public Loadout() {
         }

@@ -205,6 +205,8 @@ Added - Each active detachment now has an intel entry with its location, status 
 Added - The detachment panel now warns when a detachment has no fuel to leave the system
 Added - Take mode: pick the ships and cargo you take with you, everything else stays behind as the detachment
 Added - The detachment panel now has a command section with one button per behaviour, recall and lay course
+Added - Detachment orders: Go to a planet, station or jump point in its star system, Attack a hostile fleet you can see, Trade run (comes to you, opens the exchange, then goes back to its orders)
+Added - Detachment toggles: Auto-recall when supplies drop below 15 days, Join fights to take part in your battles nearby
 Adjusted - Detachments now travel with the vanilla fleet AI, across star systems included
 Note - Recall all detachments before updating, active ones break old saves
 Adjusted - Detachment slots reduced from three to two

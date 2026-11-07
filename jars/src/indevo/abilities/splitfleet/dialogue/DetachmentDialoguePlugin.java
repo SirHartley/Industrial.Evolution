@@ -82,6 +82,7 @@ public class DetachmentDialoguePlugin implements InteractionDialogPlugin, Splint
         this.entity = dialog.getInteractionTarget();
 
         if (entity instanceof CampaignFleetAPI) {
+            Behaviour.removeOverride((CampaignFleetAPI) entity, Behaviour.FleetBehaviour.TRADE_RUN);
             detachmentNum = DetachmentMemory.getNumForFleet((CampaignFleetAPI) entity);
             detachmentBehaviouIndex = Behaviour.getIndexForBehaviour(Behaviour.getFleetBehaviour((CampaignFleetAPI) entity, true));
         } else dialog.dismiss();

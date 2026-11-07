@@ -4,6 +4,7 @@ import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.Script;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.CampaignUIAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -16,6 +17,7 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.OrbitFocus;
+import indevo.abilities.splitfleet.dialogue.DetachmentDialoguePlugin;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour.FleetBehaviour;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
@@ -34,6 +36,10 @@ public class DetachmentAI implements EveryFrameScript {
     public static final float HEAD_TO_PLAYER_RANGE = 1000f;
     public static final float HIDE_DRIFT_RANGE = 100f;
     public static final float ESCORT_FP_MULT = 1.6f;
+    public static final float HOLD_DISTANCE = 150f;
+    public static final float HOLD_ARRIVAL_RANGE = 300f;
+    public static final float ATTACK_DAYS = 10f;
+    public static final float AUTO_RECALL_DAYS = 15f;
 
     protected CampaignFleetAPI fleet;
     protected FleetBehaviour applied = null;
@@ -43,6 +49,11 @@ public class DetachmentAI implements EveryFrameScript {
     protected float battleReleaseTimer = 0f;
     protected IntervalUtil marketCheck = new IntervalUtil(1f, 1f);
     protected IntervalUtil engageCheck = new IntervalUtil(0.05f, 0.1f);
+    protected IntervalUtil supplyCheck = new IntervalUtil(1f, 1f);
+    protected SectorEntityToken holdTarget = null;
+    protected CampaignFleetAPI attackTarget = null;
+    protected float attackDays = 0f;
+    protected boolean autoRecalled = false;
 
     public static class MergeScript implements Script {
         protected CampaignFleetAPI fleet;
@@ -54,6 +65,53 @@ public class DetachmentAI implements EveryFrameScript {
         @Override
         public void run() {
             if (fleet.isAlive()) FleetUtils.mergeFleetWithPlayerFleet(fleet);
+        }
+    }
+
+    public static class TradeArrivalScript implements Script {
+        protected CampaignFleetAPI fleet;
+
+        public TradeArrivalScript(CampaignFleetAPI fleet) {
+            this.fleet = fleet;
+        }
+
+        @Override
+        public void run() {
+            if (fleet.isAlive()) Global.getSector().addTransientScript(new OpenTradeDialogScript(fleet));
+        }
+    }
+
+    //opened from a sector script, not from inside the fleet's own advance; DetachmentDialoguePlugin.init ends the trade run
+    public static class OpenTradeDialogScript implements EveryFrameScript {
+        protected CampaignFleetAPI fleet;
+        protected boolean done = false;
+
+        public OpenTradeDialogScript(CampaignFleetAPI fleet) {
+            this.fleet = fleet;
+        }
+
+        @Override
+        public boolean isDone() {
+            return done;
+        }
+
+        @Override
+        public boolean runWhilePaused() {
+            return false;
+        }
+
+        @Override
+        public void advance(float amount) {
+            if (done) return;
+            if (!fleet.isAlive() || !Behaviour.isOnTradeRun(fleet)) {
+                done = true;
+                return;
+            }
+
+            CampaignUIAPI ui = Global.getSector().getCampaignUI();
+            if (ui.isShowingDialog() || ui.isShowingMenu() || Global.getSector().getPlayerFleet().getBattle() != null) return;
+
+            done = ui.showInteractionDialog(new DetachmentDialoguePlugin(), fleet);
         }
     }
 
@@ -126,7 +184,11 @@ public class DetachmentAI implements EveryFrameScript {
     public void baseBehaviourChanged() {
         FleetBehaviour base = Behaviour.getFleetBehaviour(fleet, true);
 
-        holdFocus = base == FleetBehaviour.STAY ? OrbitFocus.getOrbitFocusAtTokenPosition(fleet) : null;
+        if (base != FleetBehaviour.STAY) holdFocus = null;
+        else if (holdTarget != null) holdFocus = OrbitFocus.getOrbitFocusNear(holdTarget, fleet, HOLD_DISTANCE);
+        else holdFocus = OrbitFocus.getOrbitFocusAtTokenPosition(fleet);
+
+        holdTarget = null;
         hideFocus = base == FleetBehaviour.HIDE ? OrbitFocus.getHideOrbitFocus(fleet) : null;
 
         int num = DetachmentMemory.getNumForFleet(fleet);
@@ -139,6 +201,33 @@ public class DetachmentAI implements EveryFrameScript {
         applied = null;
     }
 
+    public void goTo(SectorEntityToken target) {
+        Behaviour.removeOverride(fleet, FleetBehaviour.ATTACK_TARGET);
+        Behaviour.removeOverride(fleet, FleetBehaviour.TRADE_RUN);
+
+        holdTarget = target;
+        if (Behaviour.getFleetBehaviour(fleet, true) == FleetBehaviour.STAY) baseBehaviourChanged();
+        else Behaviour.changeBehaviourAndUpdateAI(fleet, FleetBehaviour.STAY);
+    }
+
+    public void attack(CampaignFleetAPI target) {
+        Behaviour.removeOverride(fleet, FleetBehaviour.TRADE_RUN);
+
+        attackTarget = target;
+        attackDays = 0f;
+        Behaviour.addOverride(fleet, FleetBehaviour.ATTACK_TARGET);
+        refresh();
+    }
+
+    public void startTradeRun() {
+        Behaviour.removeOverride(fleet, FleetBehaviour.ATTACK_TARGET);
+        Behaviour.addOverride(fleet, FleetBehaviour.TRADE_RUN);
+    }
+
+    public CampaignFleetAPI getAttackTarget() {
+        return attackTarget;
+    }
+
     public void addUsedEntities(Set<SectorEntityToken> used) {
         if (holdFocus != null) used.add(holdFocus);
         if (hideFocus != null) used.add(hideFocus);
@@ -148,10 +237,14 @@ public class DetachmentAI implements EveryFrameScript {
     public void advance(float amount) {
         if (isDone()) return;
 
+        float days = Global.getSector().getClock().convertToDays(amount);
+
         updateCombat(amount);
         updateDormancy();
+        updateAutoRecall(days);
         updateHeadToPlayer();
         updateStranded();
+        updateAttack(days);
 
         FleetBehaviour current = Behaviour.getFleetBehaviour(fleet, false);
         if (current == null) return;
@@ -185,6 +278,51 @@ public class DetachmentAI implements EveryFrameScript {
             Behaviour.removeOverride(fleet, FleetBehaviour.DORMANT);
             Global.getSector().getCampaignUI().addMessage(fleet.getName() + " has been resupplied and is no longer dormant.");
         }
+    }
+
+    private void updateAutoRecall(float days) {
+        supplyCheck.advance(days);
+        if (!supplyCheck.intervalElapsed()) return;
+
+        float perDay = fleet.getLogistics().getTotalSuppliesPerDay();
+        boolean low = perDay > 0f && fleet.getCargo().getSupplies() / perDay < AUTO_RECALL_DAYS;
+
+        if (!low) autoRecalled = false;
+        else if (!autoRecalled && getLoadout() != null && getLoadout().autoRecall && !Behaviour.isReturning(fleet) && !Behaviour.isDormant(fleet)) {
+            autoRecalled = true;
+            Global.getSector().getCampaignUI().addMessage(fleet.getName() + " is low on supplies.", Misc.getHighlightColor());
+            Behaviour.setReturning(fleet, true);
+        }
+    }
+
+    private void updateAttack(float days) {
+        if (!Behaviour.isAttacking(fleet)) {
+            attackTarget = null;
+            return;
+        }
+
+        attackDays += days;
+        boolean lost = attackTarget == null
+                || !attackTarget.isAlive()
+                || attackTarget.getContainingLocation() != fleet.getContainingLocation()
+                || attackDays > ATTACK_DAYS
+                || (fleet.getBattle() == null && !attackTarget.isVisibleToSensorsOf(fleet) && !attackTarget.isVisibleToPlayerFleet());
+
+        if (lost) {
+            Behaviour.removeOverride(fleet, FleetBehaviour.ATTACK_TARGET);
+            attackTarget = null;
+            fleet.addFloatingText("Standing down", fleet.getFaction().getBaseUIColor(), 1f);
+        }
+    }
+
+    private LoadoutMemory.Loadout getLoadout() {
+        int num = DetachmentMemory.getNumForFleet(fleet);
+        return num > 0 ? LoadoutMemory.getLoadout(num) : null;
+    }
+
+    private boolean ignoresOthers() {
+        LoadoutMemory.Loadout loadout = getLoadout();
+        return loadout == null || !loadout.joinFights;
     }
 
     private void updateHeadToPlayer() {
@@ -235,7 +373,7 @@ public class DetachmentAI implements EveryFrameScript {
 
     public SectorEntityToken getTravelTarget() {
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
-        if (Behaviour.isReturning(fleet)) return player;
+        if (Behaviour.isReturning(fleet) || Behaviour.isOnTradeRun(fleet)) return player;
 
         FleetBehaviour base = Behaviour.getFleetBehaviour(fleet, true);
         if (base == null) return null;
@@ -286,6 +424,19 @@ public class DetachmentAI implements EveryFrameScript {
                 fleet.addFloatingText("Returning to main force", fleet.getFaction().getBaseUIColor(), 1f);
                 fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, Global.getSector().getPlayerFleet(), FOREVER, "Returning to main force", new MergeScript(fleet));
                 break;
+            case ATTACK_TARGET:
+                reset();
+                if (attackTarget == null) break;
+                fleet.addFloatingText("Attacking " + attackTarget.getName(), fleet.getFaction().getBaseUIColor(), 1f);
+                fleet.addAssignment(FleetAssignment.INTERCEPT, attackTarget, FOREVER, "Attacking " + attackTarget.getName());
+                break;
+            case TRADE_RUN:
+                reset();
+                setFlags(true, true, false);
+                fleet.addFloatingText("Coming to trade", fleet.getFaction().getBaseUIColor(), 1f);
+                fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, Global.getSector().getPlayerFleet(), FOREVER, "Coming to trade", new TradeArrivalScript(fleet));
+                fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, Global.getSector().getPlayerFleet(), FOREVER, "Waiting to trade");
+                break;
             default:
                 applyBase(behaviour);
                 break;
@@ -298,12 +449,13 @@ public class DetachmentAI implements EveryFrameScript {
 
         switch (behaviour) {
             case STAY:
-                setFlags(false, true, true);
+                setFlags(false, ignoresOthers(), true);
                 if (holdFocus == null) holdFocus = OrbitFocus.getOrbitFocusAtTokenPosition(fleet);
+                if (Misc.getDistance(fleet, holdFocus) > HOLD_ARRIVAL_RANGE) fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, holdFocus, FOREVER, "Moving to position");
                 fleet.addAssignment(FleetAssignment.HOLD, holdFocus, FOREVER, "Holding position");
                 break;
             case FOLLOW:
-                setFlags(false, true, true);
+                setFlags(false, ignoresOthers(), true);
                 fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, player, FOREVER, "Following");
                 break;
             case HIDE:
@@ -314,11 +466,11 @@ public class DetachmentAI implements EveryFrameScript {
                 useAbility(Abilities.GO_DARK, true);
                 break;
             case ESCORT:
-                setFlags(false, true, true);
+                setFlags(false, ignoresOthers(), true);
                 fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, player, FOREVER, "Escorting");
                 break;
             case INTERCEPT:
-                setFlags(false, true, true);
+                setFlags(false, ignoresOthers(), true);
                 fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, player, FOREVER, "Waiting to intercept");
                 break;
             case TRANSPORT:

@@ -1,7 +1,10 @@
 package indevo.abilities.splitfleet.dialogue;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.BaseCampaignEntityPickerListener;
 import com.fs.starfarer.api.campaign.CampaignEntityPickerListener;
+import com.fs.starfarer.api.campaign.JumpPointAPI;
+import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -9,9 +12,11 @@ import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
+import indevo.abilities.splitfleet.fleetAssignmentAIs.DetachmentAI;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour.FleetBehaviour;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
@@ -23,8 +28,10 @@ import org.apache.log4j.Logger;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class SplinterFleetSidePanelCreator {
     public static final Logger log = Global.getLogger(SplinterFleetSidePanelCreator.class);
@@ -37,9 +44,10 @@ public class SplinterFleetSidePanelCreator {
     protected static final float SELECT_BUTTON_WIDTH = 95f;
     protected static final float TOGGLE_WIDTH = 60f;
     protected static final float COLUMN_WIDTH = (PANEL_WIDTH - 30f) / 2f;
-    protected static final float COLUMN_HEIGHT = 160f;
+    protected static final float COLUMN_HEIGHT = 230f;
     protected static final float MODE_BUTTON_WIDTH = (COLUMN_WIDTH - 10f) / 3f;
     protected static final float MODE_BUTTON_HEIGHT = 24f;
+    protected static final float ORDER_BUTTON_HEIGHT = 26f;
     protected static final float OPAD = 10f, SPAD = 3f;
 
     protected static final Color SPAWN_COLOUR = new Color(50, 130, 0, 255);
@@ -123,20 +131,38 @@ public class SplinterFleetSidePanelCreator {
         List<TooltipMakerAPI> orders = new ArrayList<>();
 
         if (live) {
-            if (Behaviour.isReturning(detachment)) orders.add(createButton(column, "Cancel recall", () -> cancelRecall(num), Misc.getTextColor(), CANCEL_COLOUR, !dormant));
-            else orders.add(createButton(column, "Recall", () -> recall(num), Misc.getTextColor(), RECALL_COLOUR, !dormant));
-
+            boolean returning = Behaviour.isReturning(detachment);
+            boolean free = !dormant && !returning;
+            boolean inSystem = detachment.getContainingLocation() instanceof StarSystemAPI && !detachment.isInHyperspace();
             boolean playerTargetIsDetachment = playerFleet.getInteractionTarget() != null && detachment.getId().equals(playerFleet.getInteractionTarget().getId());
-            orders.add(createButton(column, "Lay Course", () -> layCourse(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !playerTargetIsDetachment));
+
+            if (returning) orders.add(createOrder(column, "Cancel", () -> cancelRecall(num), Misc.getTextColor(), CANCEL_COLOUR, !dormant, "Stop returning and go back to the current mode."));
+            else orders.add(createOrder(column, "Recall", () -> recall(num), Misc.getTextColor(), RECALL_COLOUR, !dormant, "Return to you and merge into the main force."));
+
+            orders.add(createOrder(column, "Lay Course", () -> layCourse(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !playerTargetIsDetachment, "Set a course to the detachment."));
+            orders.add(createOrder(column, "Go to", () -> showGoToPicker(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), free && inSystem, "Travel to a planet, station or jump point in the detachment's current star system and hold there. Not in hyperspace."));
+
+            if (Behaviour.isAttacking(detachment)) orders.add(createOrder(column, "Stop attack", () -> stopOrder(num, FleetBehaviour.ATTACK_TARGET), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), true, "Call off the attack and go back to the current mode."));
+            else orders.add(createOrder(column, "Attack", () -> showAttackPicker(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), free && !getAttackTargets(detachment).isEmpty(), "Attack a hostile fleet you can see in the detachment's star system, then go back to the current mode."));
+
+            if (Behaviour.isOnTradeRun(detachment)) orders.add(createOrder(column, "Stop run", () -> stopOrder(num, FleetBehaviour.TRADE_RUN), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), true, "Call off the trade run and go back to the current mode."));
+            else orders.add(createOrder(column, "Trade run", () -> startTradeRun(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), free, "Come to you and open the exchange, then go back to the current mode."));
         } else if (Behaviour.behaviourEquals(loadout.behaviour, FleetBehaviour.TRANSPORT)) {
-            orders.add(createButton(column, "Set Target", () -> showTransportTargetPicker(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), true));
+            orders.add(createOrder(column, "Set Target", () -> showTransportTargetPicker(num), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), true, "Pick the planet to store the ships and cargo at."));
         }
 
-        float x = 0f;
-        for (TooltipMakerAPI el : orders) {
-            column.addUIElement(el).inTL(x, y);
-            x += SELECT_BUTTON_WIDTH + OPAD;
+        for (int i = 0; i < orders.size(); i++) {
+            column.addUIElement(orders.get(i)).inTL((i % 3) * (MODE_BUTTON_WIDTH + 5f), y + (i / 3) * (ORDER_BUTTON_HEIGHT + 5f));
         }
+
+        y += 2 * (ORDER_BUTTON_HEIGHT + 5f) + 5f;
+        float toggleWidth = (COLUMN_WIDTH - 5f) / 2f;
+
+        TooltipMakerAPI recallToggle = createToggle(column, "Auto-recall", loadout.autoRecall, true, () -> toggleAutoRecall(num), toggleWidth, "Return to you when supplies drop below " + (int) DetachmentAI.AUTO_RECALL_DAYS + " days.");
+        column.addUIElement(recallToggle).inTL(0f, y);
+
+        TooltipMakerAPI fightToggle = createToggle(column, "Join fights", loadout.joinFights, true, () -> toggleJoinFights(num), toggleWidth, "Join your battles when close enough, like any allied fleet. Off: the detachment stays out of them. Hide, Transport and travel orders always stay out.");
+        column.addUIElement(fightToggle).inTL(toggleWidth + 5f, y);
     }
 
     private void addSlotSection(CustomPanelAPI panel, TooltipMakerAPI panelTooltip, int num) {
@@ -177,8 +203,8 @@ public class SplinterFleetSidePanelCreator {
         CustomPanelAPI row = panel.createCustomPanel(PANEL_WIDTH - 10f, 50f, new RunnableButtonPanelPlugin());
         List<TooltipMakerAPI> buttons = new ArrayList<>();
 
-        buttons.add(createToggle(row, "Send", !take, !live, () -> setTakeMode(num, false), "Pick the ships and cargo that leave as the detachment. You keep the rest."));
-        buttons.add(createToggle(row, "Take", take, !live, () -> setTakeMode(num, true), "Pick the ships and cargo you take with you. Everything else stays behind as the detachment. Your flagship always stays with you."));
+        buttons.add(createToggle(row, "Send", !take, !live, () -> setTakeMode(num, false), TOGGLE_WIDTH, "Pick the ships and cargo that leave as the detachment. You keep the rest."));
+        buttons.add(createToggle(row, "Take", take, !live, () -> setTakeMode(num, true), TOGGLE_WIDTH, "Pick the ships and cargo you take with you. Everything else stays behind as the detachment. Your flagship always stays with you."));
         buttons.add(createButton(row, "Members", () -> new TwoFleetFleetMemberPicker(plugin, LoadoutMemory.getLoadout(num)).init(), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !live));
         buttons.add(createButton(row, "Cargo", () -> new TwoFleetCargoPicker(plugin, Global.getSector().getPlayerFleet(), LoadoutMemory.getLoadout(num), true).init(), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !live && ready));
         if (!live) buttons.add(createButton(row, "Spawn", () -> spawn(num), Misc.getTextColor(), SPAWN_COLOUR, canSpawn));
@@ -261,9 +287,18 @@ public class SplinterFleetSidePanelCreator {
         return el;
     }
 
-    private TooltipMakerAPI createToggle(CustomPanelAPI owner, String text, boolean checked, boolean enabled, Runnable action, String tooltip) {
-        TooltipMakerAPI el = owner.createUIElement(TOGGLE_WIDTH, BUTTON_HEIGHT, false);
-        ButtonAPI button = el.addAreaCheckbox(text, action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), TOGGLE_WIDTH, BUTTON_HEIGHT, 0f);
+    private TooltipMakerAPI createOrder(CustomPanelAPI owner, String text, Runnable action, Color textColour, Color bgColour, boolean enabled, String tooltip) {
+        TooltipMakerAPI el = owner.createUIElement(MODE_BUTTON_WIDTH, ORDER_BUTTON_HEIGHT, false);
+        ButtonAPI button = el.addButton(text, action, enabled ? textColour : Misc.getTextColor(), enabled ? bgColour : Misc.getGrayColor(), Alignment.MID, CutStyle.C2_MENU, MODE_BUTTON_WIDTH, ORDER_BUTTON_HEIGHT, 0);
+        button.setEnabled(enabled);
+        button.setShowTooltipWhileInactive(true);
+        addTooltip(el, tooltip);
+        return el;
+    }
+
+    private TooltipMakerAPI createToggle(CustomPanelAPI owner, String text, boolean checked, boolean enabled, Runnable action, float width, String tooltip) {
+        TooltipMakerAPI el = owner.createUIElement(width, BUTTON_HEIGHT, false);
+        ButtonAPI button = el.addAreaCheckbox(text, action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), width, MODE_BUTTON_HEIGHT, 0f);
         button.setChecked(checked);
         button.setEnabled(enabled);
         button.setShowTooltipWhileInactive(true);
@@ -302,6 +337,111 @@ public class SplinterFleetSidePanelCreator {
         }
 
         plugin.refreshCustomPanel();
+    }
+
+    private void toggleAutoRecall(int num) {
+        LoadoutMemory.Loadout loadout = LoadoutMemory.getLoadout(num);
+        loadout.autoRecall = !loadout.autoRecall;
+        plugin.refreshCustomPanel();
+    }
+
+    //the flag is set when the mode is applied, so a live detachment re-applies it
+    private void toggleJoinFights(int num) {
+        LoadoutMemory.Loadout loadout = LoadoutMemory.getLoadout(num);
+        loadout.joinFights = !loadout.joinFights;
+
+        DetachmentAI ai = DetachmentMemory.isDetachmentActive(num) ? FleetUtils.getAssignmentAI(DetachmentMemory.getDetachment(num)) : null;
+        if (ai != null) ai.refresh();
+
+        plugin.refreshCustomPanel();
+    }
+
+    private void startTradeRun(int num) {
+        DetachmentAI ai = FleetUtils.getAssignmentAI(DetachmentMemory.getDetachment(num));
+        if (ai != null) ai.startTradeRun();
+        plugin.refreshCustomPanel();
+    }
+
+    private void stopOrder(int num, FleetBehaviour order) {
+        Behaviour.removeOverride(DetachmentMemory.getDetachment(num), order);
+        plugin.refreshCustomPanel();
+    }
+
+    public static List<SectorEntityToken> getGoToTargets(CampaignFleetAPI detachment) {
+        List<SectorEntityToken> targets = new ArrayList<>();
+        if (!(detachment.getContainingLocation() instanceof StarSystemAPI system) || detachment.isInHyperspace()) return targets;
+
+        for (SectorEntityToken entity : system.getAllEntities()) {
+            boolean planet = entity instanceof PlanetAPI && !entity.isStar();
+            if (planet || entity instanceof JumpPointAPI || entity.hasTag(Tags.STATION) || entity.hasTag(Tags.GATE) || entity.hasTag(Tags.OBJECTIVE)) targets.add(entity);
+        }
+
+        return targets;
+    }
+
+    public static List<SectorEntityToken> getAttackTargets(CampaignFleetAPI detachment) {
+        List<SectorEntityToken> targets = new ArrayList<>();
+        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+        if (!(detachment.getContainingLocation() instanceof StarSystemAPI) || detachment.isInHyperspace()) return targets;
+
+        for (CampaignFleetAPI other : detachment.getContainingLocation().getFleets()) {
+            if (other.isAlive() && !other.isStationMode() && other.isHostileTo(player) && other.isVisibleToPlayerFleet()) targets.add(other);
+        }
+
+        return targets;
+    }
+
+    private void showGoToPicker(int num) {
+        CampaignFleetAPI detachment = DetachmentMemory.getDetachment(num);
+        showEntityPicker("Select where " + detachment.getName() + " should go", getGoToTargets(detachment), detachment, entity -> {
+            DetachmentAI ai = FleetUtils.getAssignmentAI(detachment);
+            if (ai != null) ai.goTo(entity);
+        });
+    }
+
+    private void showAttackPicker(int num) {
+        CampaignFleetAPI detachment = DetachmentMemory.getDetachment(num);
+        showEntityPicker("Select a fleet for " + detachment.getName() + " to attack", getAttackTargets(detachment), detachment, entity -> {
+            DetachmentAI ai = FleetUtils.getAssignmentAI(detachment);
+            if (ai != null && entity instanceof CampaignFleetAPI target) ai.attack(target);
+        });
+    }
+
+    private void showEntityPicker(String title, List<SectorEntityToken> entities, CampaignFleetAPI detachment, Consumer<SectorEntityToken> onPick) {
+        plugin.getDialog().showCampaignEntityPicker(title, "Selected: ", "Confirm", Global.getSector().getPlayerFaction(), entities, new BaseCampaignEntityPickerListener() {
+            @Override
+            public void pickedEntity(SectorEntityToken entity) {
+                onPick.accept(entity);
+                plugin.refreshCustomPanel();
+            }
+
+            @Override
+            public void cancelledEntityPicking() {
+                plugin.refreshCustomPanel();
+            }
+
+            @Override
+            public String getSelectedTextOverrideFor(SectorEntityToken entity) {
+                return entity.getName();
+            }
+
+            @Override
+            public void createInfoText(TooltipMakerAPI info, SectorEntityToken entity) {
+                info.addPara("%s in %s", 10f, Misc.getHighlightColor(), entity.getName(), entity.getContainingLocation().getName());
+            }
+
+            @Override
+            public boolean canConfirmSelection(SectorEntityToken entity) {
+                return entity != null && entities.contains(entity);
+            }
+
+            @Override
+            public Set<StarSystemAPI> getStarSystemsToShow() {
+                Set<StarSystemAPI> systems = new HashSet<>();
+                if (detachment.getStarSystem() != null) systems.add(detachment.getStarSystem());
+                return systems;
+            }
+        });
     }
 
     private void layCourse(int num) {
