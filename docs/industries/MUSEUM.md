@@ -86,7 +86,7 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> store lastParadeChec
 - Parade members in the fleet are copies. The real ships never leave storage; the variant tag blocks `PLAYER_BUY` from the submarket (`MuseumSubmarketPlugin.java:28`). Any code that moves museum ships must clear `indEvo_on_parade`.
 - `addAssignment(..., onStart, onCompletion)` takes `Script` callbacks (`api/campaign/CampaignFleetAPI.java:261`) that are saved with the assignment. Use `ParadeConditionScript`, not lambdas: lambdas come back from the save as null.
 - `BaseAssignmentAI.advance()` calls `pickNext()` when the fleet has no assignment (`api/impl/campaign/procgen/themes/BaseAssignmentAI.java`); `pickNext()` sends the fleet home.
-- Profile state, presets and the active fleet reference persist as fields on the industry. `lastParadeCheck` (long) is saved too; 0, also on saves from before it existed, reads as no check yet.
+- Profile state, presets and the active fleet reference persist as fields on the industry. `lastParadeCheck` (long) is saved too; 0 reads as no check yet.
 - Launch checks have one home, `ParadeFleetProfile.getLaunchBlocker()`. The spawn path, the panel and the tooltip all use it; add a new spawn condition there.
 
 ## Known issues and dormant code
