@@ -93,7 +93,7 @@ Order: `PopulateOptions -> IndEvo_JobMenuPoint -> option -> IndEvo_JobMenuInit -
 2. Show info -> `setProjectIdForInputs` prints long desc and per item progress, owned count and units to finish.
 3. Cargo -> `ResearchProjectDonationCargoPicker.init`: copies matching stacks from player cargo, the picker preview shows percent per stack; on confirm each stack adds `size x points` or only the units needed to finish, removed from the real cargo (`:81`). With overflow every picked unit is taken. Cargo is disabled on a finished project unless overflow is on.
 4. Redeem -> `project.getRewards()` added to cargo; repeatable subtracts the required points (floor 0), else `redeemed = true`; text shows `addTooltipOutputOnCompletion` and gain lines. Redeem stays enabled while points still cover another completion.
-5. Stock toggle -> `addAreaCheckbox` (label `OVERFLOW_LABEL`) with a vanilla style hover tooltip (`TooltipCreator`, width 400, left), flips `Progress.overflow` and rebuilds the panel.
+5. Stock toggle (tooltip: excess donations toward future rewards, otherwise retained cargo) -> `addAreaCheckbox` (label `OVERFLOW_LABEL`) with a vanilla style hover tooltip (`TooltipCreator`, width 400, left), flips `Progress.overflow` and rebuilds the panel.
 6. Return -> clear panel, restore original plugin, set `$option = gaMeetingEnd` and fire `DialogOptionSelected` (vanilla Galatia rule ends the conversation).
 
 Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notifyNewProjects(ids) -> project.display() true`.

@@ -43,7 +43,7 @@ public class ShieldVisualsOptionProvider extends SingleIndustrySimpifiedOptionPr
 
     @Override
     public void createTooltip(TooltipMakerAPI tooltip, IndustryOptionData opt) {
-        tooltip.addPara("Toggles between the visual modes of the planetary shield, from full visibility to invisible mode.", 0f);
+        tooltip.addPara("Cycle between full, faint and hidden shield visuals.", 0f);
     }
 
     @Override
