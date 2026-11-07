@@ -24,6 +24,7 @@ import com.fs.starfarer.api.util.DynamicStatsAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
+import indevo.economy.RelicSpeedUpTarget;
 import indevo.ids.Ids;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
@@ -71,6 +72,54 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         UNSET,
         BETTER,
         WEAKER
+    }
+
+    public static class TrainingSpeedUp implements RelicSpeedUpTarget {
+
+        private final Academy academy;
+        private final boolean admin;
+
+        public TrainingSpeedUp(Academy academy, boolean admin) {
+            this.academy = academy;
+            this.admin = admin;
+        }
+
+        @Override
+        public MarketAPI getMarket() {
+            return academy.getMarket();
+        }
+
+        @Override
+        public String getSpeedUpId() {
+            return academy.getId() + (admin ? "_admin" : "_officer");
+        }
+
+        @Override
+        public String getSpeedUpLabel() {
+            return "Quick Training";
+        }
+
+        @Override
+        public String getSpeedUpLore() {
+            return "The Academy's neural trainers have spent centuries running on substitute parts. Relic hardware restores the more demanding simulation routines.";
+        }
+
+        @Override
+        public int getSpeedUpDaysLeft() {
+            if (admin) return academy.adminInTraining != null ? Math.max(0, academy.getRemainingAdminTrainingDays()) : 0;
+            return academy.officerInTraining != null ? Math.max(0, academy.getRemainingOfficerTrainingDays()) : 0;
+        }
+
+        @Override
+        public int getSpeedUpDaysTotal() {
+            return admin ? academy.getAdminTrainingDays() : academy.getCurrentOfficerTrainingDays();
+        }
+
+        @Override
+        public void speedUp(int days) {
+            if (admin) academy.adminDaysPassed += days;
+            else academy.officerDaysPassed += days;
+        }
     }
 
     //debug-Logger
@@ -295,6 +344,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
                 adminDaysPassed++;
             }
         }
+    }
+
+    public RelicSpeedUpTarget getTrainingSpeedUp(boolean admin) {
+        return new TrainingSpeedUp(this, admin);
     }
 
     public int getRemainingAdminTrainingDays() {

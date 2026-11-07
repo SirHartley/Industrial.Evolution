@@ -17,10 +17,10 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | `indevo/industries/derelicts/conditions/BeaconCondition.java` | Dead. No csv row, nothing references it. |
 | `indevo/industries/derelicts/industry/Ruins.java` | Base industry. `getSpec()` returns a per instance spec view whose upgrade is the market's target, AI auto upgrade, cleans the condition on removal. |
 | `indevo/industries/derelicts/industry/BaseForgeTemplateUser.java` | Abstract base for Lab, Decon, Forge (and RiftGen availability). Build check, `getSpec()` view without the CSV downgrade. The forge template slot is the vanilla item slot (template rows' `plugin params`). Extends `SharedSubmarketUser`. |
-| `indevo/industries/derelicts/industry/AncientLaboratory.java` | Template repair and commodity bonus. |
-| `indevo/industries/derelicts/industry/HullDeconstructor.java` | Ship to forge template. Owns the `IndEvo_DeconstStorage` submarket. |
+| `indevo/industries/derelicts/industry/AncientLaboratory.java` | Template repair and commodity bonus. `RelicSpeedUpTarget` (Expedite Restoration). |
+| `indevo/industries/derelicts/industry/HullDeconstructor.java` | Ship to forge template. Owns the `IndEvo_DeconstStorage` submarket. `RelicSpeedUpTarget` (Expedite Work). |
 | `indevo/industries/derelicts/industry/HullForge.java` | Forge template to ship. Cost, d-mods, built in hullmods. |
-| `indevo/industries/derelicts/industry/RiftGenerator.java` | Cooldown, target pick, starts `PlanetMovingScript`. |
+| `indevo/industries/derelicts/industry/RiftGenerator.java` | Cooldown, target pick, starts `PlanetMovingScript`. `RelicSpeedUpTarget` (Recharge Now). |
 | `indevo/industries/derelicts/industry/WIP/*.java` (3 classes) | `IndEvo_DistGun`, `IndEvo_DroneCont`, `IndEvo_Lighthouse`. Excluded by `IndEvo.iml:11`, old package `industrialevolution.*`, do not compile. |
 | `indevo/industries/derelicts/scripts/PlanetMovingScript.java` | Persistent script. Builds the jump point, moves planet and market, re-applies station. |
 | `indevo/industries/derelicts/scripts/WarpEffectAnimationScript.java` | Staged warp animation via LunaLib campaign renderer. |
@@ -92,6 +92,7 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 - Deconstructor: ship put into `IndEvo_DeconstStorage` (added in `advance`, `HullDeconstructor.java:72`) -> stripped, N days by hull size -> forge template with 2 or 3 charges (+1 beta), quality base 1, alpha/beta 2, gamma 0. Alpha adds a built in logistics hullmod (`addBuiltInLogisticsHullmods`, `:149`). Gamma: upkeep x0.7 while idle. Optional auto delivery to the closest forge.
 - Forge: one ship per charge into storage. Cost 20% of base value, x0.7 with beta, booked on the "Hull printing" report line ([BillingHelper](../core/UTILS.md#billinghelper)). D-mods via `ForgeTemplateItemPlugin.addPrintDefectDMods` (template quality + forge quality). Alpha: 2 built in hullmods plus `IndEvo_compN` tag (`compensateInbuilts`, `:426`). Spent template: degraded, or empty with 0.6 chance on beta (`EMPTY_FORGE_TEMPLATE_CHANCE`, `:82`).
 - Lab: degraded template -> empty template, 20 days, 10 with gamma (`initRepair`, `AncientLaboratory.java:113`). Commodity bonus +2 on existing supply of a whitelist commodity; beta +3 on one, alpha +1 on three (`getBonusValue :129`, `setAllCommodityBonuses :140`).
+- Relic speed up: `HullDeconstructor` (Expedite Work) and `AncientLaboratory` (Expedite Restoration) are `RelicSpeedUpTarget`s. The industry option halves the days left (adds to `daysPassed`) for 1 Relic Component per remaining day, once per 60 days per industry. See [Economy](../core/ECONOMY.md#relic-speed-up).
 - All three autofeed from the shared storage and deliver to the gathering point when `IndEvo_derelictDeliverToGathering` is on (inferred: `repairInstalledFT :270` pattern repeats in decon and forge).
 
 ### Ancient Laboratory relic services
@@ -105,7 +106,7 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 
 `RiftGenOptionProvider.onClick` -> rules `IndEvo_RiftGenTargetOptions` -> `IndEvo_RiftInit <MODE>` -> `RiftGenerator.initRift` (`:185`) -> `getTarget` (`:261`, modes CORE within 6 LY of Askonia, COLONY, FRINGE, RANDOM; range `IndEvo_RG_range` +3 LY beta) -> `movePlanet` (`:381`): adds `PlanetMovingScript`, `RecentUnrest` +1.
 
-Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Cooldown `IndEvo_RG_cooldownTime` days counted in `onNewDay` (`:102`), alpha -30. Gamma allows a second artificial rift per system (`getArtificialRiftAmount`, `:211`). `advance` adds `IndEvo_CryoRevivalDisabler`.
+Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Cooldown `IndEvo_RG_cooldownTime` days counted in `onNewDay` (`:102`), alpha -30. Recharge Now (placeholder label): `RiftGenerator` is an instant `RelicSpeedUpTarget`; the industry option ends the cooldown for 3 Relic Components per remaining day, once per 60 days, not while moving. See [Economy](../core/ECONOMY.md#relic-speed-up). Gamma allows a second artificial rift per system (`getArtificialRiftAmount`, `:211`). `advance` adds `IndEvo_CryoRevivalDisabler`.
 
 `PlanetMovingScript.advance` (`:78`): wait 5 s -> phase 0 starts `WarpEffectAnimationScript` -> phase 2 (forced after 10 s, `:89-92`) -> `createJumpPoint` (`:150`) with magnetic field at the old orbit -> `clearSpecialEntitiesWithOrbitTarget` (`:199`) -> `transferOrbitFocus` (`:177`, obf `CircularOrbit*` classes) -> `movePlanet` (`:367`): new planet in target with same id and copied spec, market removed and re-added, hyperspace jump point destinations cycled (`:435`), old planet expired (`:476`) -> `reApplyStation` (`:517`) -> `triggerJumpListeners` (`:136`) -> `setMoving(false)`.
 

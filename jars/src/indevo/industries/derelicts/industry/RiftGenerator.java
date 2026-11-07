@@ -12,6 +12,7 @@ import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.economy.RelicSpeedUpTarget;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.scripts.PlanetMovingScript;
 import indevo.industries.derelicts.utils.IndustrySpecView;
@@ -27,7 +28,7 @@ import java.util.Random;
 
 import static indevo.industries.derelicts.industry.Ruins.INDUSTRY_ID_MEMORY_KEY;
 
-public class RiftGenerator extends BaseIndustry implements NewDayListener {
+public class RiftGenerator extends BaseIndustry implements NewDayListener, RelicSpeedUpTarget {
     public static final Logger log = Global.getLogger(RiftGenerator.class);
 
     private boolean debug = false;
@@ -470,5 +471,45 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener {
 
     @Override
     protected void updateAICoreToSupplyAndDemandModifiers() {
+    }
+
+    @Override
+    public String getSpeedUpId() {
+        return getId();
+    }
+
+    @Override
+    public String getSpeedUpLabel() {
+        return "Recharge Now";
+    }
+
+    @Override
+    public String getSpeedUpLore() {
+        return "The colony grid charges the generator a little at a time. A set of Domain power cells can fill its capacitors in a single discharge.";
+    }
+
+    @Override
+    public int getSpeedUpDaysLeft() {
+        return getDaysUntilReady();
+    }
+
+    @Override
+    public int getSpeedUpDaysTotal() {
+        return getDaysRequired();
+    }
+
+    @Override
+    public void speedUp(int days) {
+        daysPassed += days;
+    }
+
+    @Override
+    public boolean isSpeedUpInstant() {
+        return true;
+    }
+
+    @Override
+    public boolean canSpeedUp() {
+        return isFunctional() && !isMoving && getDaysUntilReady() > 1;
     }
 }

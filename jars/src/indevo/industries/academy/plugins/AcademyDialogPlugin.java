@@ -12,6 +12,8 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.FireAll;
 import com.fs.starfarer.api.impl.campaign.rulecmd.ShowDefaultVisual;
 import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.EscapeBlockingDialoguePluginAPI;
+import indevo.economy.RelicSpeedUpTarget;
+import indevo.economy.plugins.RelicSpeedUpDialog;
 import indevo.industries.academy.industry.Academy;
 import indevo.industries.petshop.listener.EscapeInterceptListener;
 import indevo.industries.petshop.script.EscBlockerMemoryIterator;
@@ -30,6 +32,7 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
     private InteractionDialogAPI dialog;
     private final AcademyPanelDelegate panel;
     private AcademyTrainingPopupDelegate popup;
+    private RelicSpeedUpDialog relicDialog;
     private boolean showPanelPending = false;
     private boolean returnPending = false;
 
@@ -71,11 +74,13 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
 
     public void showPanel() {
         popup = null;
+        relicDialog = null;
         dialog.showCustomDialog(AcademyPanelDelegate.getWidth(), AcademyPanelDelegate.getHeight(), panel);
     }
 
     public void showPanelNextFrame() {
         popup = null;
+        relicDialog = null;
         showPanelPending = true;
     }
 
@@ -84,9 +89,15 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
         dialog.showCustomDialog(AcademyTrainingPopupDelegate.WIDTH, AcademyTrainingPopupDelegate.HEIGHT, popup);
     }
 
+    public void showRelicDialog(RelicSpeedUpTarget target) {
+        relicDialog = new RelicSpeedUpDialog(target, this::showPanelNextFrame);
+        dialog.showCustomDialog(RelicSpeedUpDialog.WIDTH, RelicSpeedUpDialog.HEIGHT, relicDialog);
+    }
+
     @Override
     public void close() {
-        if (popup != null && popup.isOpen()) popup.cancel();
+        if (relicDialog != null && relicDialog.isOpen()) relicDialog.cancel();
+        else if (popup != null && popup.isOpen()) popup.cancel();
         else if (panel.isOpen()) panel.cancel();
         else leave();
     }
