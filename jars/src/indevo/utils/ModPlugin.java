@@ -464,6 +464,7 @@ public class ModPlugin extends BaseModPlugin {
         RefitUIOpenChecker.register();
         CamouflageRefitListener.register();
         HasUniqueShipChecker.register();
+        CorruptedNanoforgeChecker.register();
         SalvageYardsOptionProvider.register();
         CourierPortOptionProvider.register();
         SenateOptionProvider.register();
