@@ -169,7 +169,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
     }
 
     protected void addRuntimeLine(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
-        tooltip.addPara("Minimum runtime %s.", pad, Misc.getHighlightColor(), getMonthString(getMinRuntime(market)));
+        tooltip.addPara("Minimum term: %s.", pad, Misc.getHighlightColor(), getMonthString(getMinRuntime(market)));
     }
 
     protected void addEarlyRemovalLine(TooltipMakerAPI tooltip, MarketAPI market, float pad) {

@@ -86,9 +86,9 @@ public class TechMiningRelicOptionProvider extends BaseSimpleBaseIndustryOptionP
     public void createTooltip(TooltipMakerAPI tooltip, IndustryOptionData opt) {
         MarketAPI market = opt.ind.getMarket();
 
-        tooltip.addPara("Doubles next month's finds. Uses %s.", 0f, Misc.getHighlightColor(), RelicHelper.getName());
+        tooltip.addPara("Doubles next month's finds.", 0f);
 
-        if (isBoosted(market)) tooltip.addPara("Already boosted. Ends after the next monthly find.", Misc.getNegativeHighlightColor(), 10f);
+        if (isBoosted(market)) tooltip.addPara("Boost already active.", Misc.getNegativeHighlightColor(), 10f);
         else RelicHelper.addCostLine(tooltip, market, getCost(market), 10f);
 
         tooltip.addPara(LORE, Misc.getGrayColor(), 10f);
@@ -112,11 +112,9 @@ public class TechMiningRelicOptionProvider extends BaseSimpleBaseIndustryOptionP
 
                 String findLevel = Math.round(getFindLevel(market) * 100f) + "%";
                 info.addSectionHeading(LABEL, Alignment.MID, 0f);
-                info.addPara("Ruins: %s, find level %s", opad, hl, getRuinsName(market), findLevel);
+                info.addPara("Ruins: %s, remaining yield: %s", opad, hl, getRuinsName(market), findLevel);
                 info.addPara("Next month: %s", spad, Misc.getPositiveHighlightColor(), "finds doubled");
-                info.addPara("Wear: %s", spad, hl, "unchanged");
                 RelicHelper.addCostLine(info, market, cost, opad);
-                info.addPara("Once per month. Ends after the next monthly find.", Misc.getGrayColor(), spad);
 
                 panel.addUIElement(info).inTL(0, 0);
             }

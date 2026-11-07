@@ -620,12 +620,12 @@ public class ResearchProjectTemplateRepo {
 
             @Override
             public String getLongDesc() {
-                return "A one-off project to restore a Corrupted Nanoforge. Relic Components pay for the research. The nanoforge itself is only needed to redeem the project, which turns it into a Pristine Nanoforge.";
+                return "Restore a Corrupted Nanoforge using Relic Components. Deliver the nanoforge from fleet cargo when the research is complete.";
             }
 
             @Override
             public String getShortDesc() {
-                return "Redeeming takes a Corrupted Nanoforge from your fleet cargo and returns a Pristine Nanoforge.";
+                return "Restore a Corrupted Nanoforge to pristine condition.";
             }
         });
     }};

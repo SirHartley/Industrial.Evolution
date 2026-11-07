@@ -215,7 +215,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
 
         if (person == null) {
             TooltipMakerAPI empty = slot.createUIElement(w, 20f, false);
-            LabelAPI label = empty.addPara(adminTab ? "No administrator in training. Pick one below." : "No officer in training. Pick one below.", gray, 0f);
+            LabelAPI label = empty.addPara(adminTab ? "No administrator in training." : "No officer in training.", gray, 0f);
             label.setAlignment(Alignment.MID);
             slot.addUIElement(empty).inTL(0f, SLOT_H / 2f - 10f);
             return slot;
@@ -492,7 +492,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         });
 
         if (stored) {
-            addButton(actions, "Retrieve", dark, base, Academy.getOfficerSlotBlocker(), "Returns to your fleet.", 8f, new ButtonAction(this) {
+            addButton(actions, "Retrieve", dark, base, Academy.getOfficerSlotBlocker(), null, 8f, new ButtonAction(this) {
                 @Override
                 public void execute() {
                     academy.returnOfficer(person);
@@ -525,7 +525,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         });
 
         if (stored) {
-            addButton(actions, "Retrieve", dark, base, Academy.getAdminSlotBlocker(), "Returns to your staff.", 8f, new ButtonAction(this) {
+            addButton(actions, "Retrieve", dark, base, Academy.getAdminSlotBlocker(), null, 8f, new ButtonAction(this) {
                 @Override
                 public void execute() {
                     academy.returnAdmin(person);

@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `85b9135`. Recheck engine facts afte
 
 ## Overview
 
-The option shows on vanilla Orbital Works (`Industries.ORBITALWORKS`) on player owned colonies. It opens a ship picker: ships in local storage, plus fleet ships when the player is docked at the colony. Confirm takes the relics and moves the ship into the work. One ship per colony at a time. The work counts days while Orbital Works is functional; at 93 days the ship gets the permanent hidden hullmod `IndEvo_relicLattice` (+1 S-mod cap) and goes to local storage. With a ship in the work, the same option aborts it (ship to local storage, no refund), and the Orbital Works tooltip shows a progress section.
+The option shows on vanilla Orbital Works (`Industries.ORBITALWORKS`) on player owned colonies. It opens a ship picker: ships in local storage, plus fleet ships when the player is docked at the colony. The picker footer lists relic components per deployment point. Confirm takes the relics and moves the ship into the work. One ship per colony at a time. The work counts days while Orbital Works is functional; at 93 days the ship gets the permanent hidden hullmod `IndEvo_relicLattice` (+1 S-mod cap) and goes to local storage. With a ship in the work, the same option aborts it (ship to local storage, no refund), and the Orbital Works tooltip shows a progress section.
 
 ## Files
 

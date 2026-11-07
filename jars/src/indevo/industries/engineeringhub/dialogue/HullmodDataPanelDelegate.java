@@ -67,7 +67,6 @@ public class HullmodDataPanelDelegate extends ButtonReportingDialogueDelegate {
 
         TooltipMakerAPI header = panel.createUIElement(width, HEADER_HEIGHT, false);
         header.addSectionHeading("Recovered hullmod data", Alignment.MID, 0f);
-        header.addPara("Hullmods found on ships the hub stripped. Learning one adds it to the refit list.", Misc.getGrayColor(), opad);
         panel.addUIElement(header).inTL(0f, 0f);
 
         float listHeight = height - HEADER_HEIGHT - FOOTER_HEIGHT;
@@ -119,7 +118,6 @@ public class HullmodDataPanelDelegate extends ButtonReportingDialogueDelegate {
 
                 @Override
                 public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
-                    tooltip.addPara("Adds %s to the hullmods your faction knows.", 0f, Misc.getHighlightColor(), spec.getDisplayName());
                     tooltip.addPara("Cost: %s (Available: " + available + ")", opad,
                             affordable ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), cost + " " + relicName);
                     tooltip.addPara(LORE, Misc.getGrayColor(), opad);

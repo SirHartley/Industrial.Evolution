@@ -98,6 +98,8 @@ Express Delivery: while the order waits, the intel shows an `Express Delivery` b
 
 ## Contracts
 
+- S-mod transfer tooltips state selection blockers and destination requirements. The lore describes compatible hulls, matching the size and manufacturer checks.
+
 - The industry only counts battles of fleets present when `apply()` last ran; new arrivals are added on the next reapply.
 - `isFunctional()` returns false while the setting is off, which also stops a saved yards from producing. The card goes dark; the tooltip shows "Salvage Yards are turned off in the mod settings." (`addRightAfterDescriptionSection`, `SalvageYards.java:423`, `NORMAL` mode, not while building) and vanilla's "Currently under construction" line below it, since vanilla prints that for any non functional industry that is not disrupted.
 - `custom_production_mod` handling (`modifyPlayerCustomProduction`) is never called; only the unmodify runs. Output reaches custom production through heavy industry `ships` supply instead (inferred from the "now adds onto heavy industry directly" comment, `:76`).
