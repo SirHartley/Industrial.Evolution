@@ -1,12 +1,12 @@
 # Economy
 
-IE's global economy hooks in `indevo/economy/`: the hidden resource condition on every market (ship parts supply and demand, Supercomputer income), the relic based construction speed up button, and Express Delivery on the vanilla custom production contract. Read it before changing ship parts, Supercomputer income, construction time or a relic sink. It does not cover the industries that produce the inputs; see [Salvage Yards](../industries/SALVAGE_YARDS.md) and [Small industries](../industries/SMALL_INDUSTRIES.md) (Supercomputer).
+IE's global economy hooks in `indevo/economy/`: the hidden resource condition on every market (ship parts supply and demand, Supercomputer income), the relic based construction speed up button, Express Delivery on the vanilla custom production contract, and relic payment for the refit build in. Read it before changing ship parts, Supercomputer income, construction time, a relic sink or the build in patch. It does not cover the industries that produce the inputs; see [Salvage Yards](../industries/SALVAGE_YARDS.md) and [Small industries](../industries/SMALL_INDUSTRIES.md) (Supercomputer).
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
 
 ## Overview
 
-Every market in the economy gets the hidden condition `IndEvo_ressCond` (`ResourceCondition`). Its `apply` adds Starship Components (`IndEvo_parts`) supply and demand to heavy industries and applies the distance based income bonus of the nearest Supercomputer. Separately, an industry option "Speed up construction..." halves the remaining build time of any building or upgrading industry for Relic Components (`IndEvo_rare_parts`), once per 60 days per colony. Express Delivery halves the delivery time of a vanilla custom production order for Relic Components.
+Every market in the economy gets the hidden condition `IndEvo_ressCond` (`ResourceCondition`). Its `apply` adds Starship Components (`IndEvo_parts`) supply and demand to heavy industries and applies the distance based income bonus of the nearest Supercomputer. Separately, an industry option "Speed up construction..." halves the remaining build time of any building or upgrading industry for Relic Components (`IndEvo_rare_parts`), once per 60 days per colony. Express Delivery halves the delivery time of a vanilla custom production order for Relic Components. In the refit build in mode a "Use relic components" toggle lets new S-mods be paid with Relic Components instead of story points.
 
 ## Files
 
@@ -17,6 +17,8 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 | `indevo/economy/listeners/RelicBuildTimeReductionButtonAdder.java` | `BaseSimpleBaseIndustryOptionProvider`: the speed up option, dialog and payment |
 | `indevo/dialogue/rules/IndEvo_CPCExpress.java` | Rule command for Express Delivery: `valid`, `options`, `apply` |
 | `data/campaign/rules.csv` block `# Custom production express delivery` | Express Delivery offer and the two accept paths |
+| `indevo/economy/patches/RelicBuildInPatch.java` | PatchLib patch on `ModPickerDialogV3`: adds the toggle, redirects the story point check, message and payment; nested `Toggle` holds the state and pays |
+| `indevo/economy/patches/RelicBuildInCounterPatch.java` | PatchLib patch on `ModPickerDialogV3$PermaModInfoWidget`: counter and bonus experience readout while the toggle is on |
 
 ## Data and ids
 
@@ -35,6 +37,7 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 - `ModPlugin.onGameLoad` -> `ResourceConditionApplicator.applyResourceConditionToAllMarkets()` (`indevo/utils/ModPlugin.java:159`) and `ResourceConditionApplicator.register()` (`:428`, transient listener).
 - Economy tick -> `applyResourceConditionToAllMarkets()` -> `ResourceCondition.applyRessourceCond(m)` adds the condition if `m.isInEconomy()` and missing. The condition itself persists in the market.
 - `RelicBuildTimeReductionButtonAdder.register()` (`indevo/utils/ModPlugin.java:487`) adds a transient listener.
+- `RelicBuildInPatch` and `RelicBuildInCounterPatch` need no registration; PatchLib installs them when the refit build in dialog first loads. The toggle state is transient, nothing is saved.
 
 ## Flow
 
@@ -67,6 +70,20 @@ Vanilla `CustomProductionContract` fires `CPCBlueprintsPicked` after the product
 - Standard Delivery (`IndEvo_cpcStandard`, `...Bar` on `$cpc_barEvent`) runs the vanilla row's script unchanged.
 - Express Delivery (`IndEvo_cpcExpress`, `...Bar`) runs the same script with `IndEvo_CPCExpress apply $cpc_ref` right after the accept: takes the relics from fleet cargo and sets `getData(Stage.WAITING).elapsed = PROD_DAYS / 2`. The stage connection (`connectWithDaysElapsed`) and the intel both read that value, so delivery and the shown days follow. No save data of its own.
 
+### Relic build in
+
+Vanilla flow is translated from obfuscated `com.fs.starfarer.coreui.refit.ModPickerDialogV3` (0.98a-RC8): `tableRowSelected` refuses a new S-mod when `getStoryPoints() - pending <= 0`, `actionPerformed` on Confirm calls `spendStoryPoints(count, true, null, true, bonusXpFraction, text)`, `PermaModInfoWidget.advanceImpl` draws the counter from `getStoryPoints()`.
+
+`createUI` in build in mode (`isPermMode()`, campaign only, the counter widget exists) -> `RelicBuildInPatch.afterCreateUI` moves the widget's hullmod effect list (its only `ScrollPanelAPI` child) down 30 px and shrinks it by 30 px, adds the "Use relic components" area checkbox above it and makes this `Toggle` the active one. Cost per S-mod `max(1, round(5 x unmodified DP))` of the refit ship (`RELICS_PER_DP`). Relics are counted in fleet cargo plus, when the refit was opened from an interaction at a market with storage access, that storage.
+
+Toggle on:
+
+- `tableRowSelected`: `getStoryPoints()` returns `available / cost`, so vanilla allows that many new S-mods. "No story points available" becomes "Not enough Relic Components".
+- Counter widget: `getStoryPoints()` returns the same number, the bonus experience readout (the only `setText` ending in `%`) shows `0%`.
+- Confirm: `spendStoryPoints` is not called (no story point, no bonus experience, no playthrough log text). `Toggle.pay(count)` takes `count x cost` from storage first, then fleet cargo, and shows "Lost N Relic Components".
+
+The checkbox is disabled while new S-mods are selected (`getAddedPermaMods` plus `getAddedSModdedBuiltIns`) and, while off, when relics do not cover one S-mod. Its hover tooltip shows effect, cost line and the lore line in gray. Toggle off: every redirect calls down, vanilla behaviour.
+
 ### Relic sinks
 
 One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its cost constant and flow.
@@ -83,6 +100,7 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 | Automated ship integration | 10 per hull DP | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |
 | Hullmod extraction | `max(25, round(baseValue / 100))` per hullmod | colony storage, then fleet cargo | [Engineering Hub](../industries/ENGINEERING_HUB.md#hullmod-extraction) |
 | Relic Lattice Work (Orbital Works) | 20 per hull DP, +1 S-mod slot after 93 days | colony storage, then fleet cargo | [Orbital Works slot](../industries/ORBITAL_WORKS_SLOT.md) |
+| Refit build in | 5 per DP of the ship, per S-mod | market storage, then fleet cargo | [Relic build in](#relic-build-in) |
 
 ## Contracts
 
@@ -93,6 +111,9 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 - The IE accept rows copy vanilla `cpcBPPicked` / `cpcBPPickedBar` (`$option = contact_accept 0`, `FireBest DialogOptionSelected`, `Call $cpc_ref repSuccess`, `Call $cpc_ref addContacts`). A game update that changes those rows needs the copy checked.
 - Another mod with a higher scored `CPCBlueprintsPicked` row wins over IE; the Express option is then missing and the order goes through as vanilla.
 - Shadowyards classes are imported at compile time (`ResourceCondition.java:14` to `16`); guarded by `isModEnabled("shadow_ships")`. See [Compatibility](COMPATIBILITY.md).
+- `RelicBuildInPatch` and `RelicBuildInCounterPatch` target a readable class and its named inner class in an obfuscated package, every target there is inferred; recheck after a game update. Only `isPermMode`, `getAddedPermaMods` and `getAddedSModdedBuiltIns` are called directly (stable descriptors); `getRefitPanel`, `getMember` and `getChildrenCopy` go through PatchLib reflection. The toggle layout assumes vanilla's widget layout (`ModPickerDialogV3.java:1114-1125` in the knowledge skill).
+- Only one build in dialog is open at a time: the counter widget can not reach the dialog's `PatchData`, so the active `Toggle` is a static weak reference checked by identity against the dialog or widget.
+- `Toggle.pay` throws when relics do not cover the confirmed S-mods; the checkbox lock makes that unreachable.
 
 ## Known issues and dormant code
 
@@ -102,7 +123,8 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 | `RelicBuildTimeReductionButtonAdder.isSuitable` | No player owned or local market check; logs every call in dev mode (`:40`, `:46`) |
 | `RelicBuildTimeReductionButtonAdder` imports | Unused `org.codehaus.janino.Mod` and `RUINED_INFRA_UPGRADE_ID_KEY` |
 | Changelog_todo | "check if BP creation works with relics" (open task, related to relic use) |
+| Relic build in | vanilla still writes an `SModRecord` with 1 story point spent per S-mod; the counter label still reads "Story points remaining" while the toggle is on (the tooltip explains it) |
 
 ## Maintenance
 
-Update this doc when parts, Supercomputer income, a relic sink or its cost changes. Industry behaviour belongs in the industry docs; settings mechanics in [Settings](SETTINGS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
+Update this doc when parts, Supercomputer income, a relic sink or its cost, or the build in patch changes. Industry behaviour belongs in the industry docs; settings mechanics in [Settings](SETTINGS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).

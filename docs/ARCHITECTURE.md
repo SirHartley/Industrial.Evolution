@@ -56,7 +56,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [BEACONS](dialogue/BEACONS.md) | Warning beacon dismantling | `dialogue/beacons` |
 | | [SIDE_PANEL](dialogue/SIDE_PANEL.md) | Custom side panels in dialogs (UI) | `dialogue/sidepanel` |
 | | [RULE_COMMANDS](dialogue/RULE_COMMANDS.md) | Generic rule commands, `rules.csv` map | `dialogue/rules` |
-| Core | [ECONOMY](core/ECONOMY.md) | Resource condition, parts, relic build time reduction, custom production Express Delivery | `economy` |
+| Core | [ECONOMY](core/ECONOMY.md) | Resource condition, parts, relic build time reduction, custom production Express Delivery, relic refit build in | `economy` |
 | | [SUBMARKETS](core/SUBMARKETS.md) | Submarket plugins, adding and removing submarkets | `submarkets` |
 | | [COMBAT](core/COMBAT.md) | Weapon scripts, missile AI, combat terrain | `data/scripts` |
 | | [Skillshot README](../jars/src/indevo/skillshot/README.md) | Aimed campaign abilities framework (missile targeting), shared design and cross mod lock with Catch.Release | `skillshot` |
@@ -141,6 +141,8 @@ PatchLib patches change vanilla code where the API has no hook. Each lives in a 
 | `industries/senate/patches/FastBuildUpgradeConfirmPatch` | industry option menu (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred, `DialogCreatorUI`): `Industry.getBuildTime` call in `actionPerformed` | `@RedirectMethodCall` | [SENATE](industries/SENATE.md#build-time-display) |
 | `abilities/splitfleet/patches/DetachmentCargoPickerPatch` | cargo picker dialog (obf `com.fs.starfarer.ui.newui`, inferred, picked by its `CargoPickerListener` field): constructor, `advance(float)` | `@After` | [SPLIT_FLEET](abilities/SPLIT_FLEET.md#load-buttons) |
 | `industries/worldwonder/patches/CloudPainterShieldPatch` | `applyVisuals` call in `PlanetaryShield.apply`, `PlanetaryShield.addPostDemandSection` (API) | `@RedirectMethodCall`, `@After` | [WORLD_WONDER](industries/WORLD_WONDER.md#cloud-painter-shield-visuals) |
+| `economy/patches/RelicBuildInPatch` | refit build in dialog `com.fs.starfarer.coreui.refit.ModPickerDialogV3` (readable class in obf package, inferred): `createUI`, `getStoryPoints` and `addMessage` calls in `tableRowSelected`, `spendStoryPoints` call in `actionPerformed` | `@After`, `@RedirectMethodCall` | [ECONOMY](core/ECONOMY.md#relic-build-in) |
+| `economy/patches/RelicBuildInCounterPatch` | its inner class `ModPickerDialogV3$PermaModInfoWidget` (inferred): `getStoryPoints` and `LabelAPI.setText` calls in `advanceImpl` | `@RedirectMethodCall` | [ECONOMY](core/ECONOMY.md#relic-build-in) |
 | `industries/worldwonder/patches/PlanetBackgroundRefreshPatch` | colony screen planet background (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred, picked by `setForce2dMode`): `advanceImpl`, calls `getPlanet` and `setPlanet` | `@After` | [WORLD_WONDER](industries/WORLD_WONDER.md#colony-screen-planet) |
 | `exploration/salvage/patches/RelicDerelictRecoveryPatch` | vanilla `ShipRecoverySpecial` (API): `addStoryOptions`, `isStoryPointRecovery`, `optionSelected` | `@Before`, `@After` | [SALVAGE](exploration/SALVAGE.md#relic-recovery) |
 
