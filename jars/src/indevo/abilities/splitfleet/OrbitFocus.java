@@ -113,8 +113,8 @@ public class OrbitFocus {
                         float radius = Misc.getDistance(focus, toToken);
                         float angle = Misc.getAngleInDegrees(focus.getLocation(), toToken.getLocation());
 
-                        //if not forced exact location we correct for size so it's not inside the planet
-                        if (!forceExactLocation) radius = dist < targetEntity.getRadius() ? targetEntity.getRadius() + 100f : dist;
+                        if (!forceExactLocation && dist < targetEntity.getRadius())
+                            radius = Misc.getDistance(focus, targetEntity) + targetEntity.getRadius() + 100f;
 
                         //adjust the orbit period for distance a bit, makes it feel more natural
                         //reduce by 10% per X units up to -90%

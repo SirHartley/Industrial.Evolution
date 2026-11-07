@@ -201,6 +201,7 @@ Fixed - Desert warlords story now properly appears on desert and arid worlds
 
 Detachments
 Fixed - Auto-load now takes half the supplies, not all (up to cargo space)
+Fixed - Staying or dormant detachments and their wrecks no longer drift to the sun
 Fixed - Detachment preview no longer counts mothballed ships as active (PR'd by fank, thank you!)
 Fixed - Unused orbit markers no longer pile up in saves
 Fixed - Detachment wrecks now properly hold all excess cargo
