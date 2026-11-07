@@ -12,6 +12,7 @@ Adjusted - Industrial Supply Store moves its contents to colony storage when the
 Adjusted - Removed redundant UI text and shortened tooltips
 Adjusted - Settings tabs re-sorted
 Adjusted - Settings now apply without a game restart
+Adjusted - IE colony items now list under colony items in the codex
 Fixed - Super weird crash for an industry with a null spec (https://fractalsoftworks.com/forum/index.php?topic=18011.msg511623#msg511623)
 Fixed - Crash on market updates with some modded industries
 Fixed - Settings no longer accept values below their minimum

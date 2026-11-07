@@ -36,10 +36,10 @@ There are two install paths. Items in vanilla style (Logistics Core, Neurocondit
 | `IndEvo_ForgeTemplate` | `ForgeTemplateItemPlugin` | params `IndEvo_HullForge`; data `hullId|charges` or `hullId|charges|payloadKey`; [Derelicts](../industries/DERELICTS.md) | 25 |
 | `IndEvo_DegForgeTemplate`, `IndEvo_EmptForgeTemplate` | `EmptyForgeTemplateItemPlugin` | params `IndEvo_ResLab`, `IndEvo_HullDecon`; tag `IndEvo_FT` | 26, 27 |
 | `IndEvo_PetBox` | `PetItemPlugin` | [Pets](../industries/PETS.md) | 30 |
-| `IndEvo_log_core` | `GenericSpecialItemPlugin` | `IndEvo_AdInfra`; [Small industries](../industries/SMALL_INDUSTRIES.md) | 33 |
-| `IndEvo_neurals` | `GenericSpecialItemPlugin` | `IndEvo_senate`; [Senate](../industries/SENATE.md) | 37 |
-| `IndEvo_transmitter` | `GenericSpecialItemPlugin` | `IndEvo_IntArray, militarybase, highcommand`; [Relay](../industries/RELAY.md) | 38 |
-| `IndEvo_simulator` | `GenericSpecialItemPlugin` | `IndEvo_SupCom`; [Small industries](../industries/SMALL_INDUSTRIES.md) | 39 |
+| `IndEvo_log_core` | `GenericSpecialItemPlugin` | `colony_item`; `IndEvo_AdInfra`; [Small industries](../industries/SMALL_INDUSTRIES.md) | 33 |
+| `IndEvo_neurals` | `GenericSpecialItemPlugin` | `colony_item`; `IndEvo_senate`; [Senate](../industries/SENATE.md) | 37 |
+| `IndEvo_transmitter` | `GenericSpecialItemPlugin` | `colony_item`; `IndEvo_IntArray, militarybase, highcommand`; [Relay](../industries/RELAY.md) | 38 |
+| `IndEvo_simulator` | `GenericSpecialItemPlugin` | `colony_item`, `planet_search`; `IndEvo_SupCom`; [Small industries](../industries/SMALL_INDUSTRIES.md) | 39 |
 | `IndEvo_alpha_core`, `IndEvo_beta_core`, `IndEvo_gamma_core` | `GenericSpecialItemPlugin` | `no_drop`, display only: `ItemIds.convertAICoreToSpecial`, shown by `Supercomputer.getVisibleInstalledItems` | 60-62 |
 | `IndEvo_relicSpecialItem` | `GenericSpecialItemPlugin` | relic mode for the Engineering Hub blueprint slot, never in cargo, listed by `RelicInstallDialogPatch` ([Engineering Hub](../industries/ENGINEERING_HUB.md#relic-components-in-the-install-dialog)); params `IndEvo_Warehouse, IndEvo_Warphouse` | 63 |
 | `IndEvo_debug` | `GenericSpecialItemPlugin` | Debug Fish, `no_drop` | 65 |
@@ -107,6 +107,7 @@ On loot: collects the target's drop data (entity, then salvage spec). For each `
 ## Contracts
 
 - `ITEM_EFFECTS` is merged at application load; it is static and survives save loads.
+- Every `colony_item` row needs an effect in `ITEM_EFFECTS` that works with a null industry: the codex calls `getConditionsRelatedToRequirements(null)` and `getRequirements(null)` (skill `api/impl/codex/CodexDataV2.java:2546-2556`) and links the item to the industries in its params (`:2589-2596`).
 - Ambassador items are plain `SpecialItemData` with the person id as data; read them only through `AmbassadorItemHelper`. Users: [Embassy](../industries/EMBASSY.md).
 - Forge templates are plain `SpecialItemData`; everything is in the data string, so a copy as `new SpecialItemData(id, data)` keeps the template. Read it only through the `ForgeTemplateItemPlugin` helpers. Users: [Derelicts](../industries/DERELICTS.md) (`HullForge`, `HullDeconstructor`, `AncientLaboratory`), [Salvage](../exploration/SALVAGE.md) (`PrintShipSpecial`, `ItemChoiceSpecial`).
 - `ForgeTemplateItemPlugin.getValidVariantIdForHullId` is also used by the [Salvage Yards](../industries/SALVAGE_YARDS.md) production intel.
