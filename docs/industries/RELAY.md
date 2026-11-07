@@ -29,7 +29,6 @@ Both ids use `MilitaryRelay`, a subclass of vanilla `MilitaryBase`. On a market 
 | Entity | `IndEvo_int_array` (makeshift, `RelayEntityPlugin`), `IndEvo_pristine_int_array` (vanilla `CommRelayEntityPlugin`) | `data/config/custom_entities.json:1036`, `:1065`; tag `IndEvo_intArray` (`Ids.INTARRAY_ENTITY_TAG`) |
 | Setting | `IndEvo_ComArray`, `IndEvo_IntArray` | `data/config/LunaSettings.csv`; each turns its own industry on or off in `isAvailableToBuild` and `showWhenUnavailable`, `IndEvo_IntArray` also blocks the upgrade (`canUpgrade`) |
 | Memory key | `$IndEvo_RelayUnlocked` (`SpecialItemEffectsRepo.TRANSMITTER_UNLOCK_KEY`) | sector memory, set by the Hypertransmitter effect |
-| Strings | category `IndEvo_ComArray` | `data/strings/strings.json:141` |
 
 ## Registration and lifecycle
 

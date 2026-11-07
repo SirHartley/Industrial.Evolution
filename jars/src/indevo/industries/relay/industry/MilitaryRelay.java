@@ -84,7 +84,6 @@ public class MilitaryRelay extends MilitaryBase {
         put(Commodities.GAMMA_CORE, 0.1f);
     }};
 
-    public static final String STRING_IDENT = "IndEvo_ComArray";
 
     //Industry effects
     public void apply() {
@@ -94,7 +93,7 @@ public class MilitaryRelay extends MilitaryBase {
         }
 
         if (!marketHasMilitary()) {
-            getUpkeep().modifyMult("ind_patHQ", PATROL_HQ_UPKEEP_MULT, StringHelper.getString(STRING_IDENT, "operateAsHQ"));
+            getUpkeep().modifyMult("ind_patHQ", PATROL_HQ_UPKEEP_MULT, "Operating as Patrol HQ");
             patrolHqApply();
         } else {
             applyIncomeAndUpkeep(3);
@@ -324,7 +323,7 @@ public class MilitaryRelay extends MilitaryBase {
     @Override
     public String getUnavailableReason() {
         if (!isFunctionAllowed()) {
-            return StringHelper.getString(STRING_IDENT, "unavailableReason");
+            return "Requires a Military Base or High Command in the star system.";
         }
 
         return super.getUnavailableReason();
@@ -353,7 +352,7 @@ public class MilitaryRelay extends MilitaryBase {
     @Override
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
         if (mode == IndustryTooltipMode.NORMAL && !isBuilding() && !isFunctionAllowed()) {
-            tooltip.addPara(StringHelper.getString(STRING_IDENT, "unavailableReason"), Misc.getNegativeHighlightColor(), 10f);
+            tooltip.addPara("Requires a Military Base or High Command in the star system.", Misc.getNegativeHighlightColor(), 10f);
         }
 
         boolean isIntArray = getId().equals(Ids.INTARRAY);
@@ -413,7 +412,7 @@ public class MilitaryRelay extends MilitaryBase {
         }
 
         if (isIntArray) {
-            tooltip.addPara(StringHelper.getString(STRING_IDENT, "commRelayNotice"), opad, Misc.getPositiveHighlightColor(), Global.getSettings().getCustomEntitySpec(Entities.COMM_RELAY_MAKESHIFT).getNameInText());
+            tooltip.addPara("The Interstellar Relay acts as %s.", opad, Misc.getPositiveHighlightColor(), Global.getSettings().getCustomEntitySpec(Entities.COMM_RELAY_MAKESHIFT).getNameInText());
         }
     }
 

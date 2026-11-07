@@ -397,16 +397,16 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
                 log.info("Adding raid SP to Yards: " + msg + " " + " at " + market.getName() + ", " + market.getFaction().getId() + ", recovered " + salvagePoints + " units for intel " + intel.getClass().hashCode());
 
                 if (market.isPlayerOwned()) {
-                    Map<String, String> toReplace = new HashMap<>();
-                    toReplace.put("$amt", salvagePoints + "");
-                    toReplace.put("$systemName", market.getStarSystem().getName());
+                    String amt = salvagePoints + "";
+                    String systemName = market.getStarSystem().getName();
+                    String outcome = msg.equals("incursionSuccess") ? " was successful." : " has failed without your interference.";
 
-                    msg = StringHelper.getStringAndSubstituteTokens(getId(), msg, toReplace);
+                    msg = "An incursion or blockade against the " + systemName + outcome + " Salvage units recovered from the carnage: " + amt;
 
                     Global.getSector().getCampaignUI().addMessage(msg,
                             Misc.getTextColor(),
-                            toReplace.get("$systemName"),
-                            toReplace.get("$amt"),
+                            systemName,
+                            amt,
                             market.getFaction().getColor(),
                             Misc.getHighlightColor());
                 }
@@ -430,7 +430,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
             if (this.isFunctional()) {
                 if (market.isPlayerOwned() || currTooltipMode == Industry.IndustryTooltipMode.NORMAL) {
-                    tooltip.addPara(StringHelper.getString(getId(), "sUnitsAvailableTooltip"),
+                    tooltip.addPara("There are %s salvage units available, %s are needed per additional output.",
                             opad, Misc.getHighlightColor(), new String[]{"" + availableSalvagePoints, "" + outputSalvagePointValue});
                 }
             }
@@ -456,7 +456,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     @Override
     public String getUnavailableReason() {
         if (!isOnlyInstanceInSystem()) {
-            return StringHelper.getString(getId(), "unavailableReason");
+            return "There can only be one Salvage Yard in a star system.";
         } else {
             return super.getUnavailableReason();
         }
@@ -465,9 +465,8 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, Industry.AICoreDescriptionMode mode) {
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
-        String suffix = mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
-        String effect = StringHelper.getString(getId(), "aCoreEffect");
+        String pre = mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Alpha-level AI core. " : "Alpha-level AI core currently assigned. ";
+        String effect = "Reduces salvage units required per output by %s, and decreases monthly salvage unit decay to %s";
         String[] highlightString = new String[]{ALPHA_CORE_SALVAGE_POINT_VAL - BASE_SALVAGE_POINT_VAL + "", StringHelper.getAbsPercentString(ALPHA_CORE_DECAY_MULT, true)};
 
         if (mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -484,10 +483,9 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
-        String effect = StringHelper.getString(getId(), "bCoreEffect");
-        String[] highlightString = new String[]{StringHelper.getString("colonySize"), BETA_CORE_SALVAGE_POINT_VAL - BASE_SALVAGE_POINT_VAL + ""};
+        String pre = mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Beta-level AI core. " : "Beta-level AI core currently assigned. ";
+        String effect = "Causes the output to scale with %s, but increases the salvage units required per output by %s";
+        String[] highlightString = new String[]{"colony size", BETA_CORE_SALVAGE_POINT_VAL - BASE_SALVAGE_POINT_VAL + ""};
 
         if (mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -503,9 +501,8 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
-        String effect = StringHelper.getString(getId(), "gCoreEffect");
+        String pre = mode == Industry.AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Gamma-level AI core. " : "Gamma-level AI core currently assigned. ";
+        String effect = "Decreases the monthly salvage unit decay to %s.";
         String highlightString = StringHelper.getAbsPercentString(GAMMA_CORE_DECAY_MULT, true);
 
         if (mode == Industry.AICoreDescriptionMode.INDUSTRY_TOOLTIP) {

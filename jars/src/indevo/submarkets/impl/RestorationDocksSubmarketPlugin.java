@@ -16,7 +16,6 @@ import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.RestorationDocks;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -27,7 +26,6 @@ import static indevo.ids.Ids.REPAIRDOCKS;
 
 public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin {
 
-    private static final String IDENT = "IndEvo_dryDock";
 
     public void init(SubmarketAPI submarket) {
         super.init(submarket);
@@ -63,12 +61,12 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin {
 
     @Override
     public String getBuyVerb() {
-        return StringHelper.getString("take");
+        return "Take";
     }
 
     @Override
     public String getSellVerb() {
-        return StringHelper.getString("leave");
+        return "Leave";
     }
 
     @Override
@@ -76,8 +74,8 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin {
         if (member.getVariant().getTags().contains(Tags.VARIANT_UNRESTORABLE) || member.getHullSpec().getTags().contains(Tags.HULL_UNRESTORABLE)) return "Can not be restored";
 
         if (DModManager.getNumNonBuiltInDMods(member.getVariant()) == 0 && DModManager.getNumDMods(member.getVariant()) > 0)
-            return StringHelper.getString(IDENT, "cannotRepair");
-        else return StringHelper.getString(IDENT, "cannotTransfer");
+            return "Can not be repaired by the Docks";
+        else return "Cannot store ships without D-Mods";
     }
 
     @Override
@@ -127,17 +125,17 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin {
             List<FleetMemberAPI> fleet = restorationDocks.getEligibleShips(submarket);
 
             if (fleet.isEmpty()) {
-                tooltip.addPara("%s", opad, Misc.getNegativeHighlightColor(), StringHelper.getString(IDENT, "costPredictionShips"));
+                tooltip.addPara("%s", opad, Misc.getNegativeHighlightColor(), "Cost prediction only possible if there are ships in storage!");
                 return;
             }
 
-            String subst = StringHelper.getString(IDENT, "shipPredictionHL");
-            tooltip.addPara(StringHelper.getStringAndSubstituteToken(IDENT, "shipPrediction", "$shipPredictionHL", subst), opad, hlColor, subst);
+            String subst = "all ships currently in storage";
+            tooltip.addPara("Cost prediction for " + subst + ":", opad, hlColor, subst);
 
-            String hullType = StringHelper.getString("hulltype");
-            String dMod = StringHelper.getString("dmod");
-            String perDMod = StringHelper.getString("perDMod");
-            String totalMax = StringHelper.getString("totalMax");
+            String hullType = "Hull Type";
+            String dMod = "D-Mod";
+            String perDMod = "Per D-Mod";
+            String totalMax = "Total max.";
 
             tooltip.beginTable(market.getFaction(), 20f, hullType, 140f, dMod, 50f, perDMod, 100f, totalMax, 100f);
             float total = 0;
@@ -157,7 +155,7 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin {
                 tooltip.addRow(shipName, Integer.toString(currentDModAmount), Misc.getDGSCredits(costPerDMod), Misc.getDGSCredits(totalMaximumCost));
             }
 
-            tooltip.addTable(StringHelper.getString(IDENT, "noShips"), 0, opad);
+            tooltip.addTable("There are no ships in storage", 0, opad);
             if (aiCoreId.equals(Commodities.BETA_CORE)) {
                 int dModCounter = 0;
 
@@ -177,7 +175,7 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin {
                     }
 
                     if (min == null) {
-                        tooltip.addPara("%s", 10f, Misc.getNegativeHighlightColor(), StringHelper.getString(IDENT, "shitBroke"));
+                        tooltip.addPara("%s", 10f, Misc.getNegativeHighlightColor(), "Either something broke or there is no eligible ship in storage.");
                         return;
                     }
 
@@ -193,30 +191,30 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin {
                 }
             }
 
-            String exactPredictionHL = StringHelper.getString(IDENT, "exactPredictionHL");
+            String exactPredictionHL = "Exact cost prediction";
             int cap = restorationDocks.getMaxDModRepairAmt();
 
             switch (aiCoreId) {
                 case Commodities.GAMMA_CORE:
                     if (totalDMods > cap) {
-                        tooltip.addPara(StringHelper.getStringAndSubstituteToken(IDENT, "gCoreNoPred", "$exactPredictionHL", exactPredictionHL),
+                        tooltip.addPara(exactPredictionHL + " only possible if total D-Mod amount in storage is lower or equal to repair capacity.",
                                 opad, hlColor, exactPredictionHL);
                     } else {
-                        tooltip.addPara(StringHelper.getStringAndSubstituteToken(IDENT, "pred", "$exactPredictionHL", exactPredictionHL),
+                        tooltip.addPara(exactPredictionHL + " for repairs on the ships currently in storage: %s, excluding possible fees.",
                                 opad, hlColor, exactPredictionHL);
                     }
                     break;
                 case Commodities.BETA_CORE:
-                    tooltip.addPara(StringHelper.getStringAndSubstituteToken(IDENT, "pred", "$exactPredictionHL", exactPredictionHL),
+                    tooltip.addPara(exactPredictionHL + " for repairs on the ships currently in storage: %s, excluding possible fees.",
                             opad, hlColor, exactPredictionHL);
                     break;
                 default:
-                    tooltip.addPara(StringHelper.getStringAndSubstituteToken(IDENT, "noPred", "$exactPredictionHL", exactPredictionHL),
+                    tooltip.addPara(exactPredictionHL + " is possible only with Gamma or Beta core installed.",
                             opad, hlColor, exactPredictionHL);
                     break;
             }
         } else tooltip.addPara("%s",
-                opad, hlColor, StringHelper.getString(IDENT, "expand"));
+                opad, hlColor, "Expand the Tooltip for cost predictions!");
 
         if (market.hasIndustry(REPAIRDOCKS)) {
             if (market.getIndustry(REPAIRDOCKS).getAICoreId() != null) {
@@ -227,8 +225,8 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin {
                 Color color = faction.getBaseUIColor();
                 Color dark = faction.getDarkUIColor();
 
-                tooltip.addSectionHeading(StringHelper.getString("IndEvo_items", "items"), color, dark, Alignment.MID, opad);
-                tooltip.addPara(StringHelper.getString(IDENT, "noCore"), opad);
+                tooltip.addSectionHeading("items", color, dark, Alignment.MID, opad);
+                tooltip.addPara("No AI core, will remove D-Mods from random ships until capacity is reached.", opad);
             }
         }
     }
