@@ -42,6 +42,7 @@ public class DetachmentAI implements EveryFrameScript {
     protected String transportMarketId = null;
     protected float battleReleaseTimer = 0f;
     protected IntervalUtil marketCheck = new IntervalUtil(1f, 1f);
+    protected IntervalUtil engageCheck = new IntervalUtil(0.05f, 0.1f);
 
     public static class MergeScript implements Script {
         protected CampaignFleetAPI fleet;
@@ -386,15 +387,17 @@ public class DetachmentAI implements EveryFrameScript {
             return;
         }
 
+        float days = Global.getSector().getClock().convertToDays(amount);
+
+        //no callback for a hostile fleet coming into view or targeting the player, so escorts scan every 0.05 to 0.1 days
         switch (behaviour) {
             case ESCORT:
-                engage(true);
-                break;
             case INTERCEPT:
-                engage(false);
+                engageCheck.advance(days);
+                if (engageCheck.intervalElapsed()) engage(behaviour == FleetBehaviour.ESCORT);
                 break;
             case TRANSPORT:
-                marketCheck.advance(Global.getSector().getClock().convertToDays(amount));
+                marketCheck.advance(days);
                 if (marketCheck.intervalElapsed()) checkTransportMarket();
                 break;
         }
