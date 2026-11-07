@@ -17,6 +17,7 @@ Fixed - Crash on market updates with some modded industries
 Fixed - Settings no longer accept values below their minimum
 Fixed - Industry storage contents are no longer lost on colonies without storage
 Fixed - Leftover storages of removed industries are now cleaned up on load
+Fixed - Other mods' industry tooltip lines now show on IE ruins
 Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
 
@@ -112,11 +113,13 @@ Fixed - Crash in Hull Forge and Ancient Laboratory after losing the last colony
 Fixed - Old Industrial Ruins no longer offer another colony's derelict industry
 Fixed - Ruins added mid-campaign now properly get a derelict industry
 Fixed - NPC ruins upgrades no longer restart over and over (Nexerelin)
+Fixed - Old Industrial Ruins tooltip now unlocks its Codex entry
 
 Ruined Infrastructure
 Fixed - NPC colonies now properly restore Ruined Infrastructure (Nexerelin)
 Fixed - Blocked restorations now show the reason instead of a generic error
 Fixed - Ruined Infrastructure without a target can now be restored
+Fixed - Ruined Infrastructure tooltip now unlocks its Codex entry
 
 Embassy
 Changed - Only one ambassador per faction can be hired at a time
