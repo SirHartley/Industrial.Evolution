@@ -10,7 +10,6 @@ import java.util.Map;
 
 public class DetachmentMemory {
     public static final String DETACHMENT_STORE_MEMORY_KEY = "$SplinterFleetDetachmentStoreMemoryReference";
-    public static final String DETACHMENT_LOC_KEY = "$SplinterFleet_DetachmentLocation_";
 
     public static Map<Integer, CampaignFleetAPI> getFleetMap() {
         Map<Integer, CampaignFleetAPI> loadoutMap;
@@ -27,11 +26,6 @@ public class DetachmentMemory {
 
         return loadoutMap;
     }
-
-   /* public static CampaignFleetAPI getDetachmentFromLoc(int num){
-        String systemID = Global.getSector().getMemoryWithoutUpdate().getString(DETACHMENT_LOC_KEY + num);
-        Global.getSector().getStarSystem()
-    }*/
 
     public static void addDetachment(CampaignFleetAPI detachment, int num) {
         getFleetMap().put(num, detachment);

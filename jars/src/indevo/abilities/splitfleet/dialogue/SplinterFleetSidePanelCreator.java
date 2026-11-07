@@ -11,7 +11,6 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
-import indevo.abilities.splitfleet.fleetAssignmentAIs.DeliverAssignmentAI;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
@@ -76,7 +75,7 @@ public class SplinterFleetSidePanelCreator {
 
             float distance = transportTargetMarket != null ? Misc.getDistanceLY(playerFleet, transportTargetMarket.getPrimaryEntity()) : 0f;
             float currentFuel = status.currentFuel;
-            float requiredFuel = loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) ? status.requiredFuelPerLY * distance : status.requiredFuelPerLY * distance * 2.2f;
+            float requiredFuel = status.requiredFuelPerLY * distance;
 
             int fleetMembersMatching = availableLoadoutMembers.size();
 
@@ -197,7 +196,7 @@ public class SplinterFleetSidePanelCreator {
 
             //plot course
 
-            if ((loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) || loadout.behaviour.equals(Behaviour.FleetBehaviour.DELIVER)) && !detachmentIsActive) {
+            if (loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) && !detachmentIsActive) {
                 prerequisiteForActive = true;
 
                 baseColor = prerequisiteForActive ? Misc.getButtonTextColor() : Misc.getTextColor();
@@ -241,21 +240,12 @@ public class SplinterFleetSidePanelCreator {
                                 float opad = 10f;
                                 MarketAPI m = entity.getMarket();
                                 int amt = (int) MiscIE.getStorageCargo(m).getSpaceUsed();
-                                boolean transport = loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT);
-
-                                if (transport)
-                                    info.addPara("Travel to " + m.getName() + " (" + m.getFaction().getDisplayName()
-                                            + ", size " + m.getSize() + ") and store all ships and cargo in the local storage.", opad);
-                                else info.addPara("Travel to " + m.getName() + " (" + m.getFaction().getDisplayName()
-                                        + ", size " + m.getSize() + ") and store all cargo in the local storage, then return to the main force.", opad);
+                                info.addPara("Travel to " + m.getName() + " (" + m.getFaction().getDisplayName()
+                                        + ", size " + m.getSize() + ") and store all ships and cargo in the local storage.", opad);
 
                                 float distance = Misc.getDistanceLY(playerFleet, entity);
-                                float requiredFuel = transport ? status.requiredFuelPerLY * distance : status.requiredFuelPerLY * distance * 2;
-
-                                if (transport)
-                                    info.addPara("Transport requires " + (int) Math.round(requiredFuel) + " units of fuel.", opad);
-                                else
-                                    info.addPara("Transport and trip back will require " + (int) Math.round(requiredFuel) + " units of fuel.", opad);
+                                float requiredFuel = status.requiredFuelPerLY * distance;
+                                info.addPara("Transport requires " + (int) Math.round(requiredFuel) + " units of fuel.", opad);
                             }
 
                             @Override
@@ -362,7 +352,7 @@ public class SplinterFleetSidePanelCreator {
                     }
                 };
             } else {
-                boolean transportRequirements = (!loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) && !loadout.behaviour.equals(Behaviour.FleetBehaviour.DELIVER)) || (transportTargetMarket != null && currentFuel > requiredFuel);
+                boolean transportRequirements = !loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) || (transportTargetMarket != null && currentFuel > requiredFuel);
 
                 prerequisiteForActive = loadoutReadyForSettings
                         && detachmentSmallerThanFleet
@@ -420,37 +410,17 @@ public class SplinterFleetSidePanelCreator {
                 panelTooltip.addPara("The ships cannot carry the selected cargo: over %s capacity.", opad, Misc.getNegativeHighlightColor(), Misc.getAndJoined(status.getOverCapacityList()));
             else if (!detachmentIsActive && status.currentSupplies < (status.suppliesToRecover + status.requiredSuppliesPerMonth)) {
                 panelTooltip.addPara("Not enough supplies to repair and operate all ships for one month", Misc.getNegativeHighlightColor(), opad);
-            } else if (loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT) || loadout.behaviour.equals(Behaviour.FleetBehaviour.DELIVER)) {
+            } else if (loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT)) {
                 if (transportTargetMarket == null && !detachmentIsActive)
                     panelTooltip.addPara("Specify a target planet for the transport detachment.", Misc.getNegativeHighlightColor(), opad);
                 else if (!detachmentIsActive && currentFuel < requiredFuel) {
-                    if (loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT))
-                        panelTooltip.addPara("Insufficient Fuel to reach the target planet, load at least " + (int) Math.ceil(requiredFuel * 1.10) + " units!", Misc.getNegativeHighlightColor(), opad);
-                    else
-                        panelTooltip.addPara("Insufficient Fuel to reach target the planet and return, load at least " + (int) Math.ceil(requiredFuel * 1.10) + " units!", Misc.getNegativeHighlightColor(), opad);
+                    panelTooltip.addPara("Insufficient Fuel to reach the target planet, load at least " + (int) Math.ceil(requiredFuel * 1.10) + " units!", Misc.getNegativeHighlightColor(), opad);
 
                     panelTooltip.addPara("Note that the detachment can still run out of supplies - provide enough for the journey.", Misc.getTextColor(), opad);
                 } else if (transportTargetMarket != null) {
-                    if (loadout.behaviour.equals(Behaviour.FleetBehaviour.TRANSPORT)) {
-                        String isOrWill = detachmentIsActive ? "is heading" : "will head";
-                        SectorEntityToken dist = detachmentIsActive ? detachment : playerFleet;
-                        panelTooltip.addPara("The Detachment " + isOrWill + " to " + transportTargetMarket.getName() + " in the " + transportTargetMarket.getStarSystem().getName() + " (" + (int) Math.floor(Misc.getDistanceLY(dist, transportTargetMarket.getPrimaryEntity())) + " LY)", Misc.getHighlightColor(), opad);
-
-                    } else {
-                        String isOrWill = detachmentIsActive ? "is heading" : "will head";
-                        SectorEntityToken dist = detachmentIsActive ? detachment : playerFleet;
-                        boolean hasDelivered = false;
-
-                        if (detachmentIsActive) {
-                            DeliverAssignmentAI ai = (DeliverAssignmentAI) FleetUtils.getAssignmentAI(DetachmentMemory.getDetachment(i));
-                            if (ai != null) hasDelivered = ai.cargoTransferScript.finished;
-                        }
-
-                        if (!hasDelivered)
-                            panelTooltip.addPara("The Detachment " + isOrWill + " to " + transportTargetMarket.getName() + " in the " + transportTargetMarket.getStarSystem().getName() + " (" + (int) Math.floor(Misc.getDistanceLY(dist, transportTargetMarket.getPrimaryEntity())) + " LY)", Misc.getHighlightColor(), opad);
-                        else
-                            panelTooltip.addPara("The Detachment has delivered its cargo and is %s.", opad, Misc.getHighlightColor(), "heading back to the main force");
-                    }
+                    String isOrWill = detachmentIsActive ? "is heading" : "will head";
+                    SectorEntityToken dist = detachmentIsActive ? detachment : playerFleet;
+                    panelTooltip.addPara("The Detachment " + isOrWill + " to " + transportTargetMarket.getName() + " in the " + transportTargetMarket.getStarSystem().getName() + " (" + (int) Math.floor(Misc.getDistanceLY(dist, transportTargetMarket.getPrimaryEntity())) + " LY)", Misc.getHighlightColor(), opad);
                 }
             }
 

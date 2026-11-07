@@ -500,7 +500,6 @@ public class ModPlugin extends BaseModPlugin {
 
         MagicCampaignTrailPlugin.register();
         EyeIndicatorScript.register();
-        //PlayerFleetFollower.register();
     }
 
     public void resetDerelictRep() {

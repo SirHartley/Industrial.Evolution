@@ -231,8 +231,7 @@ public abstract class BaseSplinterFleetAssignmentAIV2 extends BaseAssignmentAI i
     }
 
     private void checkCargoForDormancyRemoval() {
-        if (Behaviour.getFleetBehaviour(fleet, false) != Behaviour.FleetBehaviour.CARGO_DETACHMENT_CHEAT_MODE && !Behaviour.isDormant(fleet))
-            return;
+        if (!Behaviour.isDormant(fleet)) return;
 
         boolean hasFuel = fleet.getCargo().getFuel() >= 1f;
         boolean hasSupplies = fleet.getCargo().getSupplies() >= 1f;
@@ -243,24 +242,11 @@ public abstract class BaseSplinterFleetAssignmentAIV2 extends BaseAssignmentAI i
     }
 
     private void checkCargoForDormancyTriggers() {
-        if (Behaviour.isDormant(fleet) || Behaviour.getFleetBehaviour(fleet, false) == Behaviour.FleetBehaviour.CARGO_DETACHMENT_CHEAT_MODE)
-            return;
+        if (Behaviour.isDormant(fleet)) return;
 
-        if (fleet.getCargo().getCommodityQuantity(Commodities.SUPPLIES) < 1f)
+        if (fleet.getCargo().getCommodityQuantity(Commodities.SUPPLIES) < 1f
+                || (fleet.isInHyperspace() && fleet.getCargo().getFuel() < 1f))
             Behaviour.setFleetBehaviourOverride(fleet, Behaviour.FleetBehaviour.DORMANT);
-        if (fleet.isInHyperspace() && fleet.getCargo().getFuel() < 1f) {
-            if (this instanceof DeliverAssignmentAI) {
-                boolean hasDelivered = false;
-
-                DeliverAssignmentAI ai = (DeliverAssignmentAI) FleetUtils.getAssignmentAI(fleet);
-                if (ai != null) hasDelivered = ai.cargoTransferScript.finished;
-
-                if (hasDelivered)
-                    Behaviour.setFleetBehaviourOverride(fleet, Behaviour.FleetBehaviour.CARGO_DETACHMENT_CHEAT_MODE);
-                else Behaviour.setFleetBehaviourOverride(fleet, Behaviour.FleetBehaviour.DORMANT);
-
-            } else Behaviour.setFleetBehaviourOverride(fleet, Behaviour.FleetBehaviour.DORMANT);
-        }
     }
 
     private void doOverrideActions() {
@@ -346,10 +332,6 @@ public abstract class BaseSplinterFleetAssignmentAIV2 extends BaseAssignmentAI i
                         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, Global.getSector().getPlayerFleet(), ASSIGNMENT_DURATION_FOREVER, "Moving towards Main Force");
 
                         fleet.addScript(new GoSlowThreeSecondsScript(fleet));
-                        break;
-                    case CARGO_DETACHMENT_CHEAT_MODE:
-                        restoreAI();
-                        fleet.setAIMode(false);
                         break;
                 }
             }

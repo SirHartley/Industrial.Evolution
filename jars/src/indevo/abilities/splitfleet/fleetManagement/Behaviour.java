@@ -22,7 +22,6 @@ public class Behaviour {
 
     public static final String DETACHMENT_BEHAVIOUR_MEMORY_KEY = "$SplinterFleetBehaviourMode";
     public static final String DETACHMENT_BEHAVIOUR_OVERRIDE_MEMORY_KEY = "$SplinterFleetBehaviourModeOverride";
-    public static final String RETURNING_MEMORY_KEY = "$SplinterFleet_IsReturning";
 
     //some highlights may not work unless these are also translated to chinese
     public enum FleetBehaviour {
@@ -33,11 +32,9 @@ public class Behaviour {
         INTERCEPT,
         FOLLOW,
         TRANSPORT,
-        DELIVER,
 
         //overrides
         RETURN_TO_PLAYER_AND_MERGE,
-        CARGO_DETACHMENT_CHEAT_MODE,
         HEAD_TO_PLAYER_ON_TARGET,
         DORMANT,
         COMBAT,
@@ -50,7 +47,6 @@ public class Behaviour {
         put(4, FleetBehaviour.ESCORT);
         put(5, FleetBehaviour.INTERCEPT);
         put(6, FleetBehaviour.TRANSPORT);
-        //put(7, FleetBehaviour.DELIVER);
     }};
 
     public static Map<Integer, String> behaviourTooltipMap = new HashMap<Integer, String>() {{
@@ -60,7 +56,6 @@ public class Behaviour {
         put(4, "Escort the main force, attack equal-strength visible hostile fleets.");
         put(5, "Escort, only intercept enemy fleets that target the main force.");
         put(6, "Travel to selected planet, then store all ships and cargo.");
-        put(7, "Travel to selected planet, deliver cargo, then return to main force.");
     }};
 
     public static Map<FleetBehaviour, Color> behaviourColourMap = new HashMap<FleetBehaviour, Color>() {{
@@ -70,7 +65,6 @@ public class Behaviour {
         put(FleetBehaviour.ESCORT, Color.ORANGE);
         put(FleetBehaviour.INTERCEPT, Color.RED);
         put(FleetBehaviour.TRANSPORT, Color.MAGENTA);
-        put(FleetBehaviour.DELIVER, Color.PINK);
     }};
 
     public static Color getColourForBehaviour(FleetBehaviour behaviour) {
@@ -208,9 +202,6 @@ public class Behaviour {
                 FleetUtils.setOrReplaceAssignmentAI(fleet, new EscortAssignmentAI(fleet));
                 changeBehaviour(fleet, newBehaviour);
                 break;
-            /*case PATROL:
-                setOrReplaceAssignmentAI(fleet, new PatrolAssignmentAI(fleet, system));
-                break;*/
             case INTERCEPT:
                 FleetUtils.setOrReplaceAssignmentAI(fleet, new InterceptAssignmentAI(fleet));
                 changeBehaviour(fleet, newBehaviour);
@@ -221,10 +212,6 @@ public class Behaviour {
                 break;
             case TRANSPORT:
                 FleetUtils.setOrReplaceAssignmentAI(fleet, new TransportAssignmentAI(fleet));
-                changeBehaviour(fleet, newBehaviour);
-                break;
-            case DELIVER:
-                FleetUtils.setOrReplaceAssignmentAI(fleet, new DeliverAssignmentAI(fleet));
                 changeBehaviour(fleet, newBehaviour);
                 break;
             case RETURN_TO_PLAYER_AND_MERGE:
