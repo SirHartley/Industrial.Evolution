@@ -7,7 +7,6 @@ import com.fs.starfarer.api.campaign.FleetDataAPI;
 import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.econ.MonthlyReport;
 import com.fs.starfarer.api.campaign.events.CampaignEventPlugin;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.characters.*;
@@ -17,7 +16,6 @@ import com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.plugins.OfficerLevelupPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -25,7 +23,7 @@ import com.fs.starfarer.api.util.DynamicStatsAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
-import indevo.ids.Ids;
+import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
 
@@ -131,8 +129,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
         if (iterIndex != lastIterInMonth) return;
 
-        float total = calculateFeeStorageCost() + calculateSalaryStorageCost(); //only one sum per month or it will overwrite each other!
-        chargePlayer(total, true);
+        BillingHelper.charge(this, "storage", "Personnel storage", calculateFeeStorageCost() + calculateSalaryStorageCost());
     }
 
     @Override
@@ -227,29 +224,9 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         return 0;
     }
 
-    public static boolean playerCanAffordCost(float cost) {
-        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
-        return playerFleet.getCargo().getCredits().get() >= cost;
-    }
-
-    private void chargePlayer(float amount, boolean onMonthEnd) {
-        //this clears the upkeep every time it is called for AI colonies, so only call it once!
-
-        CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
-        if (!onMonthEnd) {
-            playerFleet.getCargo().getCredits().subtract(amount);
-        } else if (!market.isPlayerOwned()) {
-            MonthlyReport.FDNode iNode = MiscIE.createMonthlyReportNode(this, market, getCurrentName(), Ids.ACADEMY, Ids.REPAIRDOCKS, Ids.PET_STORE);
-            iNode.upkeep += amount;
-        } else {
-            MonthlyReport report = SharedData.getData().getCurrentReport();
-            MonthlyReport.FDNode marketsNode = report.getNode(MonthlyReport.OUTPOSTS);
-            MonthlyReport.FDNode mNode = report.getNode(marketsNode, market.getId());
-            MonthlyReport.FDNode indNode = report.getNode(mNode, "industries");
-            MonthlyReport.FDNode iNode = report.getNode(indNode, getId());
-
-            iNode.upkeep += amount;
-        }
+    private void chargeTraining(float amount) {
+        if (market.isPlayerOwned()) BillingHelper.charge(this, "training", "Training", amount);
+        else BillingHelper.chargeNow(amount);
     }
 
     //officer quality increases
@@ -331,9 +308,9 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             adminStorage.remove(person);
             adminInTraining = person;
             market.getMemory().set(ADMIN_IS_TRAINING_KEY, true);
-        }
+        } else return;
 
-        chargePlayer(Setting.ADMIN_TRAINING_COST.intValue(), false);
+        chargeTraining(Setting.ADMIN_TRAINING_COST.intValue());
     }
 
     public void abortAdminTraining(boolean moveToStorage_InsteadOfFleet) {
@@ -652,7 +629,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             market.getMemory().set(OFFICER_IS_TRAINING_KEY, true);
         } else return;
 
-        chargePlayer(Setting.PERSONALITY_TRAINING_COST.intValue(), false);
+        chargeTraining(Setting.PERSONALITY_TRAINING_COST.intValue());
     }
 
 

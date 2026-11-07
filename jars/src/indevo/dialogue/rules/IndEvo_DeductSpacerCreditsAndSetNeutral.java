@@ -10,6 +10,7 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.StringHelper;
+import indevo.utils.helper.BillingHelper;
 
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ public class IndEvo_DeductSpacerCreditsAndSetNeutral extends BaseCommandPlugin {
         float penalty = amt * PENALTY_AMT_FRACTION;
         float total = amt + penalty;
 
-        Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(total);
+        BillingHelper.chargeNow(total);
         AddRemoveCommodity.addCreditsLossText(Math.round(total), dialog.getTextPanel());
 
         fleet.setName("No longer " + StringHelper.lcFirst(fleet.getName()));

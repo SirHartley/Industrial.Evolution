@@ -23,6 +23,7 @@ import indevo.industries.salvageyards.industry.SalvageYards;
 import indevo.industries.salvageyards.intel.YardsCustomProductionIntel;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
+import indevo.utils.helper.BillingHelper;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
@@ -207,7 +208,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
                 opts.addOption("Confirm", Option.CONFIRM);
 
-                boolean allowed = !getProductionData().productionList.isEmpty() && Global.getSector().getPlayerFleet().getCargo().getCredits().get() >= getProductionData().getCost();
+                boolean allowed = !getProductionData().productionList.isEmpty() && BillingHelper.canAfford(getProductionData().getCost());
                 dialog.getOptionPanel().setEnabled(Option.CONFIRM, allowed);
 
                 if (!allowed)
@@ -473,7 +474,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
         CargoAPI fleetCargo = Global.getSector().getPlayerFleet().getCargo();
         CargoAPI storageCargo = MiscIE.getStorageCargo(getMarket());
-        fleetCargo.getCredits().subtract(cost);
+        BillingHelper.chargeNow(cost);
 
         float rarePartsInCargo = fleetCargo.getCommodityQuantity(ItemIds.RARE_PARTS);
 
@@ -555,7 +556,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             productionData.rarePartsSpent = (int) Math.round(dialog.getOptionPanel().getSelectorValue(RARE_PARTS_SELECTOR_ID));
             productionData.partsSpent = (int) Math.round(dialog.getOptionPanel().getSelectorValue(PARTS_SELECTOR_ID));
 
-            boolean allowed = Global.getSector().getPlayerFleet().getCargo().getCredits().get() >= getProductionData().getCost();
+            boolean allowed = BillingHelper.canAfford(getProductionData().getCost());
             dialog.getOptionPanel().setEnabled(Option.CONFIRM, allowed);
 
             if (!allowed) dialog.getOptionPanel().setTooltip(Option.CONFIRM, "You do not have enough credits");

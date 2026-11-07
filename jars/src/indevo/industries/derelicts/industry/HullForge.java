@@ -8,14 +8,12 @@ import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.econ.MonthlyReport;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -26,6 +24,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.items.installable.ForgeTemplateInstallableItemPlugin;
+import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -159,7 +158,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
                 if (successful) {
                     float cost = getConstructionCost(currentShip);
                     addCompletedMessage(cost, target);
-                    chargeCosts(cost);
+                    BillingHelper.charge(this, "printing", "Hull printing", cost);
 
                     //don't reset before the message has been set, as it uses currentDeconShipVar for reporting!
                     resetConstructionVariables();
@@ -437,16 +436,6 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
     private float getConstructionCost(ShipHullSpecAPI ship) {
         float bonus = getAiCoreIdNotNull().equals(Commodities.BETA_CORE) ? BETA_CORE_COST_RED_MULT : 1f;
         return (ship.getBaseValue() * 0.2f) * bonus;
-    }
-
-    private void chargeCosts(float cost) {
-        MonthlyReport report = SharedData.getData().getCurrentReport();
-        MonthlyReport.FDNode marketsNode = report.getNode(MonthlyReport.OUTPOSTS);
-        MonthlyReport.FDNode mNode = report.getNode(marketsNode, market.getId());
-        MonthlyReport.FDNode indNode = report.getNode(mNode, "industries");
-        MonthlyReport.FDNode iNode = report.getNode(indNode, getId());
-
-        iNode.upkeep += cost;
     }
 
     @Override

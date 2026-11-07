@@ -29,6 +29,7 @@ Renderers keep the sprite in a `transient` field and fetch it lazily in `render`
 | Class | Role |
 |---|---|
 | `helper/MiscIE.java` | General campaign helpers, table below |
+| `helper/BillingHelper.java` | Monthly report lines and immediate credit charges, section below |
 | `helper/StringHelper.java` | String lookup and token substitution, table below |
 | `helper/TrigHelper.java` | Geometry, table below |
 | `helper/Circle.java` | `center`, `radius`; `getPointForAngle(angle)`, `getAngleForPoint(point)` |
@@ -42,18 +43,42 @@ Two reflection helpers exist. Prefer `StarReflectionUtils` for new code (ambigui
 
 | Area | Methods (line) |
 |---|---|
-| Player and dialog | `getPlayerCargo()` 43, `getCurrentInteractionTargetMarket()` 61 (market of the open dialog target or null) |
-| Storage | `getStorage(market)` 68 (vanilla storage, falls back to RAT `rat_settlement_storage`), `getStorageCargo(market)` 78, `getIndustrialStorageCargo(market)` 152 (`Ids.SHAREDSTORAGE`), `getMarketForStorage(market)` 554 (gathering point if it has storage, else local) |
-| Ship stripping | `stripShipNoCargo(member)` 268, `stripShipToCargoAndReturnVariant(member, cargo)` 437 (also modules, AI core captain), `stripAndReturnVariant(variant, cargo)` 457, `stripShipToCargoAndReturnVariant(member, market)` 488 (into `getMarketForStorage(market)` storage, else fleet cargo) |
-| Fleet members | `finalizeAndUpdateFleetMember(member)` 159 (clone variant, clear original), `createFleetMemberClone(member)` 326, `convertFleetMemberListToIdList(list)` 330, `getCargoCopy(cargo)` 311 (copies mothballed ships too) |
-| Hull lists (session cached) | `getAllLearnableShipHulls()` 169 (tag ending `_bp`, not fighter, not `IndEvo_no_ship_roulette`), `getAllRareShipHulls()` 186 (`rare_bp`), `isLearnable(spec)` 203, `getShipRoleListMap()` 830 (hull ids per role group from all factions) |
-| Whitelists and mod lists (session cached) | `getCSVSetFromMemory(path)` 569 (merged CSV `id` column, master mod `IndEvo`), `getVPCItemSet()` 253, `getPrismBossShips()` 610, `getVayraBossShips()` 639, `canLoadShips(factionOrModId)` 605 |
-| Market queries | `isMilitary(industry)` 82, `marketHasMilitary(market, onlyFunctional)` 690, `marketHasMilitaryIncludeRelays(market[, onlyFunctional])` 672, `getFactionMarkets(faction)` 427 (skips `SalvageMarket` ids), `getMarketsInLocation(loc[, factionId])` 529/540 (skips hidden), `getClosestMarketWithIndustry(market, id)` 340, `getClosestPlayerMarketWithIndustryFromSet` 358, `getAiCoreIdNotNull(ind)` 304 (`"none"`) |
-| System industry counts | `systemHasIndustry(id, system, faction[, withUnfinished])` 731/761, `systemHasIndustryExcludeNotFunctional` 745, `getAmountOfIndustryInSystem` 780, `isOnlyInstanceInSystem` 804, `isOnlyInstanceInSystemExcludeMarket` 704 (both count the construction queue) |
-| Economy | `createMonthlyReportNode(ind, market, nodeName, excludeFromClearing...)` 87 (custom monthly report node under the colony), `applyDeficitToProduction(ind, index, deficit, commodities...)` 126 |
-| Planets | `planetHasRings(planet or market)` 495/511 (uses `derelicts/scripts/PlanetMovingScript.getEntitiesWithOrbitTarget`), `getEntitiesInRange(entity, range)` 47 |
-| Sector memory maps | `getMapFromMemory(key)` 376 (sorted copy, creates the key), `storeMapInMemory(map, key)` 396, `getClampedMap` 386, `sortByLargestValue` 405, `addOrIncrement(map, id, by)` 214/224 |
-| Math and lists | `smootherstep(e0, e1, x)` 138, `customLog(base, x)` 400, `getRandomInRange(min, max, random)` 57, `splitList(list or set, perPage)` 235/248, `getDaysOfCurrentMonth()` 298 |
+| Player and dialog | `getPlayerCargo()` 41, `getCurrentInteractionTargetMarket()` 59 (market of the open dialog target or null) |
+| Storage | `getStorage(market)` 66 (vanilla storage, falls back to RAT `rat_settlement_storage`), `getStorageCargo(market)` 76, `getIndustrialStorageCargo(market)` 111 (`Ids.SHAREDSTORAGE`), `getMarketForStorage(market)` 513 (gathering point if it has storage, else local) |
+| Ship stripping | `stripShipNoCargo(member)` 227, `stripShipToCargoAndReturnVariant(member, cargo)` 396 (also modules, AI core captain), `stripAndReturnVariant(variant, cargo)` 416, `stripShipToCargoAndReturnVariant(member, market)` 447 (into `getMarketForStorage(market)` storage, else fleet cargo) |
+| Fleet members | `finalizeAndUpdateFleetMember(member)` 118 (clone variant, clear original), `createFleetMemberClone(member)` 285, `convertFleetMemberListToIdList(list)` 289, `getCargoCopy(cargo)` 270 (copies mothballed ships too) |
+| Hull lists (session cached) | `getAllLearnableShipHulls()` 128 (tag ending `_bp`, not fighter, not `IndEvo_no_ship_roulette`), `getAllRareShipHulls()` 145 (`rare_bp`), `isLearnable(spec)` 162, `getShipRoleListMap()` 789 (hull ids per role group from all factions) |
+| Whitelists and mod lists (session cached) | `getCSVSetFromMemory(path)` 528 (merged CSV `id` column, master mod `IndEvo`), `getVPCItemSet()` 212, `getPrismBossShips()` 569, `getVayraBossShips()` 598, `canLoadShips(factionOrModId)` 564 |
+| Market queries | `isMilitary(industry)` 80, `marketHasMilitary(market, onlyFunctional)` 649, `marketHasMilitaryIncludeRelays(market[, onlyFunctional])` 631, `getFactionMarkets(faction)` 386 (skips `SalvageMarket` ids), `getMarketsInLocation(loc[, factionId])` 488/499 (skips hidden), `getClosestMarketWithIndustry(market, id)` 299, `getClosestPlayerMarketWithIndustryFromSet` 317, `getAiCoreIdNotNull(ind)` 263 (`"none"`) |
+| System industry counts | `systemHasIndustry(id, system, faction[, withUnfinished])` 690/720, `systemHasIndustryExcludeNotFunctional` 704, `getAmountOfIndustryInSystem` 739, `isOnlyInstanceInSystem` 763, `isOnlyInstanceInSystemExcludeMarket` 663 (both count the construction queue) |
+| Economy | `applyDeficitToProduction(ind, index, deficit, commodities...)` 85. Billing and credits: [BillingHelper](#billinghelper) |
+| Planets | `planetHasRings(planet or market)` 454/470 (uses `derelicts/scripts/PlanetMovingScript.getEntitiesWithOrbitTarget`), `getEntitiesInRange(entity, range)` 45 |
+| Sector memory maps | `getMapFromMemory(key)` 335 (sorted copy, creates the key), `storeMapInMemory(map, key)` 355, `getClampedMap` 345, `sortByLargestValue` 364, `addOrIncrement(map, id, by)` 173/183 |
+| Math and lists | `smootherstep(e0, e1, x)` 97, `customLog(base, x)` 359, `getRandomInRange(min, max, random)` 55, `splitList(list or set, perPage)` 194/207, `getDaysOfCurrentMonth()` 257 |
+
+### BillingHelper
+
+Owner of IE costs and income: monthly report lines and dialog purchases. Do not write vanilla report nodes or subtract credits directly; loot and refunds add credits directly.
+
+| Member | Contract |
+|---|---|
+| `charge(ind, line, label, amount)` | Adds `amount` to the upkeep of the line node. Callable any time in the month; writes add up, nothing is reset. `amount <= 0` adds nothing |
+| `pay(ind, line, label, amount)` | Same node, adds to income |
+| `canAfford(amount)` | Player credits `>= amount`. Every dialog checks it before it offers a purchase |
+| `chargeNow(amount)` | Subtracts credits immediately for dialog purchases; throws `IllegalStateException` when the player cannot afford it (the caller skipped `canAfford`) |
+
+Node layout in `SharedData.getCurrentReport()`, node id `<industry id>_<line>`, `name` the label, `custom` the industry (the income tab then draws the industry image, shows the industry tooltip and opens the market on the map on click; obfuscated `com.fs.starfarer.campaign.command.IntelIncomePanel` and its row class):
+
+| Market | Path |
+|---|---|
+| Player owned | `MonthlyReport.getMarketNode(market)` / line, next to vanilla "Industries & structures" and "Hazard pay" |
+| Not player owned | `IndEvo_node_services` ("Services", top level) / market id (`custom` the market) / line |
+
+- Vanilla settles the report at month end (`CoreScript.reportEconomyMonthEnd`); a negative total becomes debt, credits never go below 0. A charge after the month rolled over lands in the next month.
+- The report keeps the `Industry` reference until it rolls out of the previous report, the same as vanilla industry nodes. No IE class is stored in the report.
+- Steady costs that should scale with upkeep mults stay on `getUpkeep().modifyFlat` in `apply()` (Pet Shop on player markets) instead of a report line.
+
+Users: Academy (storage, training on player markets; training on NPC markets is `chargeNow`), Restoration Docks (repairs, dock fees), Pet Shop (NPC market storage), Hull Forge (printing), Courier Port (shipping, billed at the closest port), Embassy (ambassador transfer), Supercomputer (income). `chargeNow`: Academy training at NPC markets, Changeling switch, Salvage Yards custom production and D-mod transfer, Requisitions Center unlock, spacer fine.
 
 ### StringHelper
 
@@ -151,7 +176,7 @@ Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmuniti
 |---|---|
 | `CirclePathData`, `SpriteDistorter`, `ModUpdater` | Unreferenced |
 | `MagicCampaignTrailPlugin.NicToyCustomCampaignTrailObject` | Unused inner class |
-| `MiscIE.getStorage` (`helper/MiscIE.java:74`) | Logs every call in dev mode |
+| `MiscIE.getStorage` (`helper/MiscIE.java:72`) | Logs every call in dev mode |
 | `ModUpdater` | Class name filter `contains("IndEvo")` misses classes without `IndEvo` in the name (package is lowercase `indevo`); restores Academy and hub state onto the removed instance `ind` (`update/ModUpdater.java:302` to `315`) |
 
 ## Maintenance

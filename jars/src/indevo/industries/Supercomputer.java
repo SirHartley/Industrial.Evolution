@@ -26,6 +26,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -291,20 +292,20 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
 
                 int amount = (int) ((Math.round(random.nextFloat() * 1.20 * 10F) * (this.market.getSize() - 2)) * 1000);
 
-                Global.getSector().getPlayerFleet().getCargo().getCredits().add(amount);
+                BillingHelper.pay(this, "income", "Computing income", amount);
                 Global.getSector().getCampaignUI().addMessage("The supercomputer at " + this.market.getName() + " has generated " + Misc.getDGSCredits(amount) + " credits.",
                         Global.getSettings().getColor("standardTextColor"), this.market.getName(), Misc.getDGSCredits(amount), Misc.getPositiveHighlightColor(), Misc.getHighlightColor());
 
             } else if (hascond(Conditions.VERY_COLD)) {
                 int amount = (int) ((Math.round(random.nextFloat() * 1.40 * 10F) * (this.market.getSize() - 2)) * 1000);
 
-                Global.getSector().getPlayerFleet().getCargo().getCredits().add(amount);
+                BillingHelper.pay(this, "income", "Computing income", amount);
                 Global.getSector().getCampaignUI().addMessage("The supercomputer at " + this.market.getName() + " has generated " + Misc.getDGSCredits(amount) + " credits.",
                         Global.getSettings().getColor("standardTextColor"), this.market.getName(), Misc.getDGSCredits(amount), Misc.getPositiveHighlightColor(), Misc.getHighlightColor());
             } else {
                 int amount = (int) ((Math.round(random.nextFloat() * 10F) * (this.market.getSize() - 2)) * 750);
 
-                Global.getSector().getPlayerFleet().getCargo().getCredits().add(amount);
+                BillingHelper.pay(this, "income", "Computing income", amount);
                 Global.getSector().getCampaignUI().addMessage("The supercomputer at " + this.market.getName() + " has generated " + Misc.getDGSCredits(amount) + " credits.",
                         Global.getSettings().getColor("standardTextColor"), this.market.getName(), Misc.getDGSCredits(amount), Misc.getPositiveHighlightColor(), Misc.getHighlightColor());
 

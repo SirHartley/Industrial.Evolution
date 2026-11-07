@@ -67,7 +67,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 - `ModPlugin.setScriptsIfNeeded()` registers `CorporateGovernanceCampaignPlugin` every load (`ModPlugin.java:497`). `BaseCampaignPlugin` is transient with a null id (`api/campaign/BaseCampaignPlugin.java:31-37` in the knowledge base).
 - The other tooltip adders (`HelldiversTooltipAdder`, `WarhammerTooltipAdder`, `CorpoPolityTooltipAdder`) register themselves from their variant's `apply()`.
 - `HelldiversSubIndustry` and `WarhammerSubIndustry` add themselves as persistent listeners in `apply()` and remove themselves in `unapply()`. `ShipProductionSummaryMessageHandler.getInstanceOrRegister()` adds a persistent listener on first use.
-- Nothing adds a switchable to a market at game start. The first switch on a vanilla industry replaces it: `ChangelingIndustryDialogueDelegate.customDialogConfirm()` (`:139-187`).
+- Nothing adds a switchable to a market at game start. The first switch on a vanilla industry replaces it: `ChangelingIndustryDialogueDelegate.customDialogConfirm()` (`:140-188`).
 
 Switch chain: `Changeling*OptionProvider.optionSelected -> ChangelingIndustryDialogueDelegate -> customDialogConfirm -> (vanilla: market.removeIndustry + addIndustry(IndEvo_Switchable*)) -> SwitchableIndustryAPI.setCurrent(newInstance, false) -> credits -= SubIndustryData.cost`.
 
@@ -77,10 +77,10 @@ Apply chain: `SwitchableX.init -> setCurrent(list[0])` on first init, then `Swit
 
 ### Switchable shell
 
-- `getId()` returns the vanilla id (`SwitchableMining.java:165`, `SwitchableRefining.java:140`, `SwitchablePopulation.java:191`). `Market.getIndustry` and `hasIndustry` match on `getId()` (`obf/campaign/econ/Market.java:200-218` in the knowledge base). The delegate finds the new industry by `getSpec().getId()` for that reason (`ChangelingIndustryDialogueDelegate.java:159-165`).
+- `getId()` returns the vanilla id (`SwitchableMining.java:165`, `SwitchableRefining.java:140`, `SwitchablePopulation.java:191`). `Market.getIndustry` and `hasIndustry` match on `getId()` (`obf/campaign/econ/Market.java:200-218` in the knowledge base). The delegate finds the new industry by `getSpec().getId()` for that reason (`ChangelingIndustryDialogueDelegate.java:160-166`).
 - `setCurrent` throws `IllegalArgumentException` if the variant id is not in the list; it unapplies the old variant first (`SwitchablePopulation.java:161-180`).
 - Mining and refining are not buildable directly (`isAvailableToBuild` false); they exist only by replacement.
-- `canInstallItem` in the delegate re-slots the special item only if the item spec params list the vanilla id and `ItemEffectsRepo` reports no unmet requirement; otherwise the item goes to storage (`:175-196`).
+- `canInstallItem` in the delegate re-slots the special item only if the item spec params list the vanilla id and `ItemEffectsRepo` reports no unmet requirement; otherwise the item goes to storage (`:176-197`).
 
 ### Mining and refining
 
