@@ -44,7 +44,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [GACHA](exploration/GACHA.md) | Automated shipyard stations | `exploration/gacha` |
 | | [METEOR](exploration/METEOR.md) | Meteor swarms and treasure | `exploration/meteor` |
 | | [MINEFIELDS](exploration/MINEFIELDS.md) | Mine belts and mine fields | `exploration/minefields` |
-| | [SALVAGE](exploration/SALVAGE.md) | Salvage specials | `exploration/salvage` |
+| | [SALVAGE](exploration/SALVAGE.md) | Salvage specials, relic recovery of story point derelicts | `exploration/salvage` |
 | | [STATIONS](exploration/STATIONS.md) | Derelict lab, arsenal and pet center stations | `exploration/stations` |
 | | [SURVEY_STORIES](exploration/SURVEY_STORIES.md) | Survey story texts | `exploration/surveystories` |
 | Abilities | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) | Detachments | `abilities/splitfleet` |
@@ -141,6 +141,7 @@ PatchLib patches change vanilla code where the API has no hook. Each lives in a 
 | `abilities/splitfleet/patches/DetachmentCargoPickerPatch` | cargo picker dialog (obf `com.fs.starfarer.ui.newui`, inferred, picked by its `CargoPickerListener` field): constructor, `advance(float)` | `@After` | [SPLIT_FLEET](abilities/SPLIT_FLEET.md#load-buttons) |
 | `industries/worldwonder/patches/CloudPainterShieldPatch` | `applyVisuals` call in `PlanetaryShield.apply`, `PlanetaryShield.addPostDemandSection` (API) | `@RedirectMethodCall`, `@After` | [WORLD_WONDER](industries/WORLD_WONDER.md#cloud-painter-shield-visuals) |
 | `industries/worldwonder/patches/PlanetBackgroundRefreshPatch` | colony screen planet background (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred, picked by `setForce2dMode`): `advanceImpl`, calls `getPlanet` and `setPlanet` | `@After` | [WORLD_WONDER](industries/WORLD_WONDER.md#colony-screen-planet) |
+| `exploration/salvage/patches/RelicDerelictRecoveryPatch` | vanilla `ShipRecoverySpecial` (API): `addStoryOptions`, `isStoryPointRecovery`, `optionSelected` | `@Before`, `@After` | [SALVAGE](exploration/SALVAGE.md#relic-recovery) |
 
 After a game update, check inferred targets first (any target outside `com.fs.starfarer.api`). In game, `starsector.log` shows `[PatchLib] Discovered patch ...` at startup and `Installed a ... patch site ...` when the target loads; Console Commands `TogglePatch <class>` switches one off for a test.
 

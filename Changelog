@@ -229,6 +229,7 @@ Fixed - Cryosleeper intel no longer shows the Automated Shipyard icon
 Fixed - Relic components in station storage are now properly counted
 
 Salvage Specials
+Added - Story point derelicts can now be rebuilt with Relic Components instead of a story point (5 per DP)
 Fixed - Ship factory no longer offers the flagship or story ships for sacrifice
 Fixed - Credit stash ambush no longer lowers the player's reputation penalties
 Fixed - Credit stash payback no longer allows negative credits

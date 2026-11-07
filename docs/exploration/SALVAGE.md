@@ -1,6 +1,6 @@
 # Salvage specials
 
-IE salvage specials (the extra event that shows before salvaging an entity) and the world-gen script that assigns them. Read it before adding a special, changing special weights or debugging a salvage dialog crash. It does not cover where IE stations spawn; see [Stations](STATIONS.md). The "impoverished spacer" comm dialog that follows the credit stash belongs to [Rule commands](../dialogue/RULE_COMMANDS.md).
+IE salvage specials (the extra event that shows before salvaging an entity), the world-gen script that assigns them, and the relic option on vanilla story point derelicts. Read it before adding a special, changing special weights or debugging a salvage dialog crash. It does not cover where IE stations spawn; see [Stations](STATIONS.md). The "impoverished spacer" comm dialog that follows the credit stash belongs to [Rule commands](../dialogue/RULE_COMMANDS.md).
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
 
@@ -23,6 +23,7 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 | `indevo/exploration/salvage/specials/JuicyRumorsSpecial.java` | Send intel to faction A (+rep) or its worst enemy B (+1.5x rep to B, -0.5x to A) |
 | `indevo/exploration/salvage/specials/PrintShipSpecial.java` | Print a ship from a Forge Template in cargo; adds print d-mods and one built-in hullmod, uses one template charge |
 | `indevo/exploration/salvage/specials/ShipRouletteSpecial.java` | Sacrifice ships; receive the largest pre-rolled hull whose DP is below the sacrificed total |
+| `indevo/exploration/salvage/patches/RelicDerelictRecoveryPatch.java` | PatchLib patch on vanilla `ShipRecoverySpecial`: relic recovery option on story point derelicts, picker without story point cost, payment |
 | `indevo/exploration/salvage/scripts/ExplosionScript.java` | Location script that spawns a vanilla `Entities.EXPLOSION` on the entity after 0.6 s (used by `ItemChoiceSpecial`) |
 | `indevo/exploration/salvage/specials/WIP/IndEvo_SquatterDanger.java` | Excluded by `IndEvo.iml`; old package and imports, does not compile. Copy of `ItemChoiceSpecial` with squatter notes |
 
@@ -39,6 +40,9 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 | Memory (fleet) | `$IndEvo_poor_spacer`, `$IndEvo_stolen_credit_amt` | `CreditStashSpecial:118-119`; read by rules `IndEvo_ImpoverishedSpacerGreeting` and following (`data/campaign/rules.csv`, rule cmds `indevo/dialogue/rules/IndEvo_AddSpacerFineMenuPoint.java`, `IndEvo_DeductSpacerCreditsAndSetNeutral.java`) |
 | Rep impact ids | `indEvo_creditSpecial`, `csSpecial` | `CreditStashSpecial:120`, `:155` |
 | CR event id | `indEvo_explosion` | `ExtraFuelSpecial:193` |
+| Option id | `IndEvo_relicRecover` | `RelicDerelictRecoveryPatch.OPTION_ID` |
+| `PatchData` keys (per special instance, transient) | `IndEvo_relicRecoverPickerOpening`, `IndEvo_relicRecoverPayFrom` | `RelicDerelictRecoveryPatch` |
+| Commodity | `IndEvo_rare_parts` (Relic Components), `RELICS_PER_DP` 5 | `RelicDerelictRecoveryPatch` |
 
 ## Registration and lifecycle
 
@@ -90,10 +94,17 @@ All specials call `setDone/setShowAgain/setEndWithContinue` per vanilla `BaseSal
 - `PrintShipSpecial`: quality = template quality + special `qualityLevel`; `ForgeTemplateItemPlugin.addPrintDefectDMods`, `HullForge.addBuiltInHullmods(1, ...)`, then the template stack is replaced by `ForgeTemplateItemPlugin.useCharge(data)` ([Derelicts](../industries/DERELICTS.md)).
 - `ShipRouletteSpecial`: one learnable hull per size rolled at creation with its DP; the picker leaves out the flagship and `SHIP_CAN_NOT_SCUTTLE` ships; sacrificed ships are stripped to cargo and removed; the result gets `random(qualityLevel)` d-mods and `prepareShipForRecovery` with weapon retain `1 / qualityLevel`.
 
+### Relic recovery
+
+On a story point derelict (vanilla `ShipRecoverySpecial` with `storyPointRecovery`), `RelicDerelictRecoveryPatch` adds "Rebuild it with relic components (N)" between the engineer's report option and "consider my options". N is `5 x unmodified DP` summed over every ship in the special, paid from fleet cargo. The option is disabled when fleet cargo cannot cover N, because the recovery picker cannot limit picks. Its hover tooltip shows the effect, the cost line (`Cost: N Relic Components (Available: Y)`, green or red) and the lore line in gray.
+
+`addStoryOptions` `@After` (adds the option, re-adds `NOT_NOW` with the vanilla text below it) -> pick -> `optionSelected` `@Before` sets `IndEvo_relicRecoverPickerOpening`, stores `recovered.size()` and swaps the option to `RECOVER` -> `isStoryPointRecovery` `@After` returns false while the flag is set, so vanilla puts every ship in the normal pool and the picker shows no story point cost -> `optionSelected` `@After` clears the flag and calls `addStoryOptions` again, so a cancelled picker leaves the story point options -> `RECOVERY_FINISHED` `@Before` takes `5 x DP` for each ship added to `recovered` since the picker opened and shows the loss text. Any other option drops the pending payment, so a later story point recovery is never charged relics.
+
 ## Contracts
 
 - Special data is created at world gen and stored in the save; its constructors run hull and item lookups at that time (`ChooseBlueprintSpecialData`, `ShipRouletteSpecialData`, `JuicyRumorsSpecialData`). A mod list change after world gen can leave stale hull or faction ids; only `ItemChoiceSpecial` and `JuicyRumorsSpecial` repair their data on open.
 - `CreditStashSpecial` flags the spawned fleet with `$IndEvo_poor_spacer`, which the rules greeting matches at score 10000.
+- `RelicDerelictRecoveryPatch` targets `ShipRecoverySpecial` by `subtype` with API impl names (`addStoryOptions`, `isStoryPointRecovery`, `optionSelected`, fields `members`, `recovered`, `options`, `text`), all stable. Nothing is skipped; vanilla runs unchanged unless the relic option is picked. "Not now" after a relic picker keeps the story point rules (no extra salvage, `ShipRecoverySpecial.java:635-638`). Check the `Installed a hook patch site at ...ShipRecoverySpecial` log line after the first salvage dialog.
 - Shared helpers: `MiscIE.getAllRareShipHulls`, `getAllLearnableShipHulls`, `getVPCItemSet`, `stripShipNoCargo`, `stripShipToCargoAndReturnVariant`, `addOrIncrement` ([Utils](../core/UTILS.md)).
 
 ## Known issues and dormant code
