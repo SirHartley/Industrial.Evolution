@@ -24,7 +24,6 @@ import java.util.List;
 
 public class Edict_Cleanse extends BaseEdict implements MarketImmigrationModifier {
 
-    private int stabPenalty = 0;
     private final float income_penalty = 0.70F;
 
     @Override
@@ -32,11 +31,9 @@ public class Edict_Cleanse extends BaseEdict implements MarketImmigrationModifie
         super.apply(id);
         if (market.getPrimaryEntity() == null) return;
 
-        stabPenalty = market.getSize() - 1;
-
         market.addTransientImmigrationModifier(this);
         market.getIncomeMult().modifyMult(id, income_penalty, getName());
-        market.getStability().modifyFlat(id, -stabPenalty, getName());
+        market.getStability().modifyFlat(id, -(market.getSize() - 1), getName());
     }
 
     @Override

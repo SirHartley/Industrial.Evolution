@@ -11,17 +11,14 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Highlights;
 import indevo.industries.SharedSubmarketUserAPI;
 import indevo.industries.derelicts.industry.HullForge;
-import indevo.submarkets.RemovableSubmarketPluginAPI;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SharedSubmarketPlugin extends BaseSubmarketPlugin implements RemovableSubmarketPluginAPI {
+public class SharedSubmarketPlugin extends BaseSubmarketPlugin {
 
     public static final Logger log = Global.getLogger(HullForge.class);
-
-    public boolean isSetForRemoval = false;
 
     public void init(SubmarketAPI submarket) {
         super.init(submarket);
@@ -47,19 +44,7 @@ public class SharedSubmarketPlugin extends BaseSubmarketPlugin implements Remova
         return false;
     }
 
-    public boolean showInCargoScreen() {
-        return !isSetForRemoval || !market.isPlayerOwned();
-    }
-
-    public void notifyBeingRemoved() {
-        this.isSetForRemoval = true;
-    }
-
     public boolean isIllegalOnSubmarket(CargoStackAPI stack, TransferAction action) {
-        if (this.isSetForRemoval) {
-            return true;
-        }
-
         boolean debug = false;
         if (Global.getSettings().isDevMode()) debug = true;
 
@@ -101,9 +86,6 @@ public class SharedSubmarketPlugin extends BaseSubmarketPlugin implements Remova
     }
 
     public String getIllegalTransferText(CargoStackAPI stack, TransferAction action) {
-        if (this.isSetForRemoval) {
-            return "This storage is currently being deconstructed.";
-        }
         return "Can not be stored here.";
     }
 

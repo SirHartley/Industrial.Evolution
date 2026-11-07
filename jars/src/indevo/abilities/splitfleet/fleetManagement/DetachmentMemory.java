@@ -37,7 +37,6 @@ public class DetachmentMemory {
     }
 
     public static int getNumForFleet(CampaignFleetAPI fleet) {
-        //walks the stored map so slot 3 entries from older saves still resolve
         for (Map.Entry<Integer, CampaignFleetAPI> e : getFleetMap().entrySet()) {
             if (e.getValue() != null && e.getValue().getId().equals(fleet.getId())) return e.getKey();
         }

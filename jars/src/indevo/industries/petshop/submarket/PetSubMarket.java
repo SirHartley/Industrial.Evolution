@@ -14,16 +14,9 @@ import indevo.ids.ItemIds;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
-import indevo.submarkets.RemovableSubmarketPluginAPI;
 import indevo.utils.ModPlugin;
 
-public class PetSubMarket extends BaseSubmarketPlugin implements RemovableSubmarketPluginAPI {
-
-    public boolean isSetForRemoval = false;
-
-    public void notifyBeingRemoved() {
-        this.isSetForRemoval = true;
-    }
+public class PetSubMarket extends BaseSubmarketPlugin {
 
     public static final float BASE_AMOUNT_PER_ANIMAL = 3f;
 
@@ -89,10 +82,6 @@ public class PetSubMarket extends BaseSubmarketPlugin implements RemovableSubmar
 
     public boolean showInFleetScreen() {
         return false;
-    }
-
-    public boolean showInCargoScreen() {
-        return !isSetForRemoval;
     }
 
     @Override
