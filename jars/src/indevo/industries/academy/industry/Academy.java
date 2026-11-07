@@ -432,15 +432,16 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         person.getStats().setSkipRefresh(true);
         WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
 
-        List<String> allSkillIds = Global.getSettings().getSortedSkillIds();
-        for (String skillId : allSkillIds) {
+        Set<String> whitelist = MiscIE.getCSVSetFromMemory(Ids.ACADEMY_SKILL_LIST);
+        for (String skillId : Global.getSettings().getSortedSkillIds()) {
+            if (!whitelist.contains(skillId)) continue;
 
             SkillSpecAPI skill = Global.getSettings().getSkillSpec(skillId);
             if (skill.isAdminSkill()
                     && !personHasSkill(person, skill)
-                    && !skill.getTags().contains("ai_core_only")
-                    && !skill.getTags().contains("player_only")
-                    && !skill.getId().equals("ocua_Arc_Cognition")) {
+                    && !skill.hasTag(Skills.TAG_DEPRECATED)
+                    && !skill.hasTag(Skills.TAG_PLAYER_ONLY)
+                    && !skill.hasTag(Skills.TAG_AI_CORE_ONLY)) {
                 picker.add(skillId);
             }
         }

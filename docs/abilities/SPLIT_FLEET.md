@@ -42,7 +42,7 @@ The player ability `splinter_fleet` opens a control panel with two loadout slots
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Ability | `splinter_fleet` (`Ids.ABILITY_DETACHMENT`) | `data/campaign/abilities.csv:2`, `indevo/ids/Ids.java:141` |
+| Ability | `splinter_fleet` (`Ids.ABILITY_DETACHMENT`) | `data/campaign/abilities.csv:2`, `indevo/ids/Ids.java:145` |
 | Custom entity | `SplinterFleet_OrbitFocus` (hidden), `development_SplinterFleet_OrbitFocus` (visible debug twin) | `data/config/custom_entities.json:420`, `:431` |
 | Entity tag | `SplinterFleet_OF` | `OrbitFocus.ORBIT_FOCUS_TAG` |
 | Memory, fleet | `$splinterFleetIdentifier` (is detachment), `$SplinterFleet_Use_ability` (ability the AI wants on) | `FleetUtils.java:38`, `:40` |
@@ -55,9 +55,9 @@ The player ability `splinter_fleet` opens a control panel with two loadout slots
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded` -> `DetachmentAbilityAdder.register()` (`ModPlugin.java:438`); persistent `NewDayListener`, deduped by `hasListenerOfClass`.
-- `ModPlugin.setListenersIfNeeded` -> `DetachmentPayroll.register()` (`ModPlugin.java:439`); persistent `EconomyTickListener`, deduped by `hasListenerOfClass`.
-- `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new SplinterFleetCampignPlugin())` on every load (`ModPlugin.java:493`); transient, so it is not saved.
+- `ModPlugin.setListenersIfNeeded` -> `DetachmentAbilityAdder.register()` (`ModPlugin.java:439`); persistent `NewDayListener`, deduped by `hasListenerOfClass`.
+- `ModPlugin.setListenersIfNeeded` -> `DetachmentPayroll.register()` (`ModPlugin.java:440`); persistent `EconomyTickListener`, deduped by `hasListenerOfClass`.
+- `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new SplinterFleetCampignPlugin())` on every load (`ModPlugin.java:494`); transient, so it is not saved.
 - `abilities.csv` plugin column -> `SplinterAbilityPlugin`.
 - Per detachment, attached at spawn and saved with the fleet: one `DetachmentAI` script (added by `Behaviour.changeBehaviourAndUpdateAI` when missing, `Behaviour.java:223`) and one `CombatAndDerelictionScript`, which adds itself as the fleet's `FleetEventListener`. Neither registers a sector listener. `FleetUtils.createAndSpawnFleet` adds one `DetachmentIntel` to the intel manager (`FleetUtils.java:222`).
 

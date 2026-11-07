@@ -420,6 +420,7 @@ public class ModPlugin extends BaseModPlugin {
         MiscIE.getCSVSetFromMemory(Ids.RURAL_LIST);
         MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_LIST);
         MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_COND_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.ACADEMY_SKILL_LIST);
     }
 
     private void setListenersIfNeeded() {

@@ -43,15 +43,15 @@ Outside the package: `indevo/items/AmbassadorItemPlugin.java`, `indevo/items/ins
 | Fleet memory | `$IndEvo_bountyHunter`, `$IndEvo_himOrHer`, `$IndEvo_name`, `$IndEvo_theFaction` | `AmbassadorMurderConsequences.java:149` |
 | Rules | `IndEvo_ambassadorGreeting*`, `IndEvo_ambassadorHire*`, `IndEvo_ambassadorAlreadyInstalled`, `IndEvo_ambassadorNoFreeEmbassy`, `IndEvo_ambassadorConfirm`, `IndEvo_ambassadorMenu`, `IndEvo_ambassadorMenuSabotage` and `IndEvo_ambassadorMenuStopSabotage` (sabotage toggle by `$global.IndEvo_HAASabotage`), `IndEvo_ambassadorRemove1..6`, `IndEvo_ambassadorRemovalConfirm`, `IndEvo_ambMoveOption`, `IndEvo_amb(Stop)SabotageRep(_confirm)`, `IndEvo_convEnd(Polite)`, `IndEvo_bountyHunterHail`, `IndEvo_bountyHunterText` | `data/campaign/rules.csv` block `# Embassy`, `# Ambassador Murdered` |
 | Strings | `IndEvo_embassy` section | `data/strings/strings.json` |
-| Sprites | `IndEvo/amb_pers`, `amb_heg`, `amb_tt`, `amb_church`, `amb_sind`, `amb_mod`, `IndEvo/reputation` | `data/config/settings.json:164-169`, picked in `Embassy.getCurrentImage()` |
+| Sprites | `IndEvo/amb_pers`, `amb_heg`, `amb_tt`, `amb_church`, `amb_sind`, `amb_mod`, `IndEvo/reputation` | `data/config/settings.json:165-170`, picked in `Embassy.getCurrentImage()` |
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded()`: `AmbassadorPersonManager.register()` (`ModPlugin.java:429`, transient, no dedupe needed since transient listeners are dropped on save), `checkAmbassadorPresence.register()` (`:434`, `addTransientListener`), `HostileActivityEventSubRegisterListener.register()` (`:475`, transient).
+- `ModPlugin.setListenersIfNeeded()`: `AmbassadorPersonManager.register()` (`ModPlugin.java:430`, transient, no dedupe needed since transient listeners are dropped on save), `checkAmbassadorPresence.register()` (`:435`, `addTransientListener`), `HostileActivityEventSubRegisterListener.register()` (`:476`, transient).
 - `ModPlugin.loadTransientMemory()` warms the whitelist cache (`ModPlugin.java:410`).
 - `Embassy.apply()` adds itself as a transient listener only when functional and player owned (`Embassy.java:60`).
 - `AmbassadorItemTrackerPlugin` and `LostAmbassadorRemovalChecker` are persistent listeners (`addListener(obj)`), removed by `setDone()`. `AmbassadorMurderConsequences` is a persistent sector script; `moveAmbassadorToMarket` is a transient script.
-- Rule commands from `ruleCommandPackages` `indevo.industries.embassy.rules` (`settings.json:73`).
+- Rule commands from `ruleCommandPackages` `indevo.industries.embassy.rules` (`settings.json:74`).
 
 ## Flow
 

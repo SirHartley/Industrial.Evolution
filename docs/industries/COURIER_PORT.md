@@ -35,7 +35,7 @@ The Courier Port is a structure with no supply or demand. While the player owns 
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Industry | `IndEvo_PrivatePort` (`Ids.PORT`) | `data/campaign/industries.csv:45`, `indevo/ids/Ids.java:69` |
+| Industry | `IndEvo_PrivatePort` (`Ids.PORT`) | `data/campaign/industries.csv:45`, `indevo/ids/Ids.java:73` |
 | Faction | `IndEvo_couriers` (courier fleets) | `data/world/factions/IndEvo_couriers.faction` |
 | Setting | `IndEvo_PrivatePort` (build toggle and new game placement) | `data/config/LunaSettings.csv:105` |
 | Setting | `IndEvo_courier_costPerSpace` (5), `IndEvo_courier_costPerShip` (170), `IndEvo_courier_baseFee` (1000), `IndEvo_courier_costPerLyMult` (1.0) | `data/config/LunaSettings.csv:191-194`, read at use time in `ShippingCostCalculator` |
@@ -48,7 +48,7 @@ The Courier Port is a structure with no supply or demand. While the player owns 
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded()`: `ShippingManager.getInstanceOrRegister()` (persistent listener, one instance) and `CourierPortOptionProvider.register()` (transient) (`indevo/utils/ModPlugin.java:437,472`).
+- `ModPlugin.setListenersIfNeeded()`: `ShippingManager.getInstanceOrRegister()` (persistent listener, one instance) and `CourierPortOptionProvider.register()` (transient) (`indevo/utils/ModPlugin.java:438,472`).
 - `NewGameIndustryPlacer.placeCourierPorts()` puts one port per faction per star system at new game when the setting is on (`indevo/utils/update/NewGameIndustryPlacer.java:92-118`).
 - `NewDayListener` calls come from `TimeTracker`, which collects listeners from the listener manager and sector listeners; see [Utils](../core/UTILS.md).
 - Entry points into the dialog: market menu and colony option point rules, the industry option (fires trigger `IndEvo_FireBaseSPOptionList` with `$IndEvo_closeDialogueOnNextReturn`), and comm relays when `CourierPortIsDisplayInRelay` is true. All end in `CourierPortDialoguePlugin.execute`, which swaps itself in as the dialog plugin and restores the original on Return.

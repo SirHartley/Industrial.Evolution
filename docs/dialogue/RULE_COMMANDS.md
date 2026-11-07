@@ -23,7 +23,7 @@ The engine resolves the first word of a rules condition or script line to a `Com
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Setting | `ruleCommandPackages` (15 IE packages) | `data/config/settings.json:70` to `:86` |
+| Setting | `ruleCommandPackages` (15 IE packages) | `data/config/settings.json:71` to `:87` |
 | Memory, fleet | `$IndEvo_stolen_credit_amt`, `$IndEvo_poor_spacer` | `indevo/exploration/salvage/specials/CreditStashSpecial.java:103`, `:118` (see [Salvage](../exploration/SALVAGE.md)) |
 | Option ids | `IndEvo_PaySpacerFine`, `IndEvo_NoPaySpacerFine` | `IndEvo_AddSpacerFineMenuPoint.OPTION_PAY`, rules |
 | Rules | `IndEvo_ImpoverishedSpacerGreeting` (`:474`), `IndEvo_PaySpacerFine` (`:493`), `IndEvo_NoPaySpacerFine` (`:511`) | `data/campaign/rules.csv` |
@@ -81,7 +81,7 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | `IndEvo_InitPersonalityTransferMenu` | `indevo.industries.academy.rules.WIP` | 0 | not in packages, folder excluded by `IndEvo.iml` | [Academy](../industries/ACADEMY.md) |
 | `HasItemAmountAnywhere`, `RemoveItemAmountAnywhere` | `indevo.other` | 0 | not in packages, unresolvable from rules | [Misc](../core/MISC.md) |
 
-`indevo.abilities.splitfleet.dialogue` is listed in `ruleCommandPackages` (`settings.json:79`) but holds no command class. Rules also call vanilla commands (`FireAll`, `FireBest`, `AddRemoveAnyItem`, `MakeHostileWhileTOff`, `DoCanAffordCheck`, `ShowResCost`, `SetOptionColor`, `SalvageEntity`, ...), all in `api/impl/campaign/rulecmd/`.
+`indevo.abilities.splitfleet.dialogue` is listed in `ruleCommandPackages` (`settings.json:80`) but holds no command class. Rules also call vanilla commands (`FireAll`, `FireBest`, `AddRemoveAnyItem`, `MakeHostileWhileTOff`, `DoCanAffordCheck`, `ShowResCost`, `SetOptionColor`, `SalvageEntity`, ...), all in `api/impl/campaign/rulecmd/`.
 
 ## rules.csv layout
 
@@ -115,7 +115,7 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 
 ### Colony options menu
 
-When a player market has two or more of Senate, Academy, Rift Generator, Courier Port, Salvage Yards, `IndEvo_ColonyOptionPoint` (`:533`, condition `IndEvo_requiresColonyMenuPoint`) adds one menu option; `IndEvo_fireColonyOptions` fires the custom trigger `IndEvo_ColonyOptionPoint`, and each feature has a `...2` or `...ColonyOptionMenu` rule on that trigger. With fewer than two, each feature's own `PopulateOptions` rule (condition `!IndEvo_requiresColonyMenuPoint`) adds its option directly. Features also have `IndEvo_FireBase<X>OptionList` triggers, fired by `new RuleBasedInteractionDialogPluginImpl(trigger)` from each feature's industry option provider (e.g. `indevo/industries/academy/plugins/AcademyOptionProvider.java:38`).
+When a player market has two or more of Senate, Academy, Rift Generator, Courier Port, Salvage Yards, `IndEvo_ColonyOptionPoint` (`:533`, condition `IndEvo_requiresColonyMenuPoint`) adds one menu option; `IndEvo_fireColonyOptions` fires the custom trigger `IndEvo_ColonyOptionPoint`, and each feature has a `...2` or `...ColonyOptionMenu` rule on that trigger. With fewer than two, each feature's own `PopulateOptions` rule (condition `!IndEvo_requiresColonyMenuPoint`) adds its option directly. Features also have `IndEvo_FireBase<X>OptionList` triggers, fired by `new RuleBasedInteractionDialogPluginImpl(trigger)` from each feature's industry option provider (e.g. `indevo/industries/courierport/plugin/CourierPortOptionProvider.java:38`). The Academy and Senate options open their panels directly.
 
 ## Contracts
 

@@ -24,6 +24,7 @@ public class Ids {
     public static final String RURAL_LIST = Global.getSettings().getString("IndEvo_ruralList");
     public static final String ARCOLOGIES_LIST = Global.getSettings().getString("IndEvo_arcologiesList");
     public static final String ARCOLOGIES_COND_LIST = Global.getSettings().getString("IndEvo_arcologiesCondList");
+    public static final String ACADEMY_SKILL_LIST = Global.getSettings().getString("IndEvo_academySkillList");
 
     //tags
     public static final String TAG_NEVER_REMOVE_RUINS = "IndEvo_RuinsAlways";

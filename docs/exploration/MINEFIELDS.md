@@ -32,7 +32,7 @@ A planet with the condition `IndEvo_mineFieldCondition` spawns a ring terrain `I
 | Custom entity | `IndEvo_mine` (tag `IndEvo_Mine`, layer `ASTEROIDS`) | `data/config/custom_entities.json:1006`. The tag is read by `ModPlugin.beforeGameSave`; the file marks it "DO NOT CHANGE" |
 | Custom entity | `IndEvo_mine_explosion` | `data/config/custom_entities.json:473` |
 | Custom entity | `SplinterFleet_OrbitFocus` (disabled area anchor) | `data/config/custom_entities.json:420`, owned by [Split fleet](../abilities/SPLIT_FLEET.md) |
-| Sprites | `IndEvo/mine4`, `IndEvo/mineGlow` | `data/config/settings.json:188-189` |
+| Sprites | `IndEvo/mine4`, `IndEvo/mineGlow` | `data/config/settings.json:189-190` |
 | Setting | `IndEvo_Enable_minefields` (placement needs a new game; off stops hits at once) | `LunaSettings.csv:9`; read in `MineBeltTerrainPlugin.createMines/applyEffect`, `ModPlugin.spawnMineFields/restoreRemovedEntities`, `DerelictStationPlacer` |
 | Setting | `IndEvo_Minefield_HitChance_frigate/destroyer/cruiser/capital` (0.02/0.04/0.06/0.12) | `LunaSettings.csv:57-60`; `MineBeltTerrainPlugin.getBaseFleetHitChance` |
 | Setting | `IndEvo_Minefield_NoHitUntilSum` (0.5) | `LunaSettings.csv:61`; read at use time in `MineBeltTerrainPlugin` |
@@ -49,7 +49,7 @@ A planet with the condition `IndEvo_mineFieldCondition` spawns a ring terrain `I
 - Spawn on new game: `ModPlugin.onNewGameAfterEconomyLoad()` -> `spawnMineFields()` (`indevo/utils/ModPlugin.java:303`, `:356-370`) adds the condition to `culann`, `chicomoztoc` and `kantas_den` (the latter two with `$IndEvo_NoAsteroids`). Arsenal stations in planet orbit add it too (`indevo/exploration/stations/DerelictStationPlacer.java:143-157`).
 - Condition plugin from the CSV plugin column. `MineFieldCondition.advance()` calls `addMineField()` on the first tick where the market lacks `$IndEvo_MineFieldRefKey` (`MineFieldCondition.java:72-78`).
 - Terrain plugins from `terrain.json`; entity plugins from `custom_entities.json`.
-- Listeners: `RecentJumpListener.register()` and `InterdictionPulseAbilityListener.register()` in `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:444`, `:446`). Both are transient and re-added on each load.
+- Listeners: `RecentJumpListener.register()` and `InterdictionPulseAbilityListener.register()` in `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:445`, `:447`). Both are transient and re-added on each load.
 - Save: `ModPlugin.beforeGameSave()` removes every `IndEvo_Mine` entity that has an asteroid source and empty memory, keeps the rest and calls `reportAsteroidPersisted` on them (`ModPlugin.java:313-335`); `afterGameSave`/`onGameSaveFailed` re-add them (`:338-345`). On load, vanilla `CoreLifecyclePluginImpl.onGameLoad` calls `regenerateAsteroids()` on every terrain plugin that is an `AsteroidSource` (starsector-knowledge `api/impl/campaign/CoreLifecyclePluginImpl.java:513-516`, `:1246-1254`), which re-creates the mines through `createMines()`.
 
 Order: `onNewGameAfterEconomyLoad -> spawnMineFields -> addCondition -> MineFieldCondition.advance -> addMineField -> MineBeltTerrainPlugin.addMineBelt -> advance -> createMines`.

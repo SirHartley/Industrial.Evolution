@@ -12,7 +12,7 @@ Real status: not built and not running.
 
 - `IndEvo.iml` excludes the whole folder (`excludeFolder .../exploration/distress`), and the IntelliJ artifact `.idea/artifacts/IndEvo_jar.xml` packs module output only, so none of these classes are in `jars/IndEvo.jar`.
 - The code does not compile as is: it uses `GhostShipIntel`, `DistressCallIntel`, `ALIEN_ATTACK_TIMER`, `TIMER_HULLMOD_1..6`, `_DEBUG`, `PLAGUE_CONDITION` and intel type constants (`PLAGUE_PLANET`, `GATE_LOST`, `PLAGUE_THRESHOLD`, `NANITE_TRANSMISSION`, `CANNIBAL_ATTACK`), none of which exist; `PlaguePlanetIntel.java:15` calls a `GhostShipIntelBase` constructor that does not exist.
-- The only references from outside are commented out: `//DistressCallManager.getInstanceOrRegister();` and `//HullmodTimeTracker.getInstanceOrRegister();` (`indevo/utils/ModPlugin.java:487-488`).
+- The only references from outside are commented out: `//DistressCallManager.getInstanceOrRegister();` and `//HullmodTimeTracker.getInstanceOrRegister();` (`indevo/utils/ModPlugin.java:488-489`).
 - `data/config/indEvo/distress_call_data.csv` is read only by `DistressCallManager.loadEvents()` (`events/DistressCallManager.java:32`, `:75`), so it is never read. Its one row points at Vayra's `data.scripts.campaign.events.VayraGhostShipDistressCall`, not at `GhostShipDistressCall`.
 - Live leftovers in loaded data: ghost ship hullmod rows, ghost ship rules, the `Ids` constants. See Data and ids.
 
@@ -40,8 +40,8 @@ Real status: not built and not running.
 | Kind | Id / key | Where |
 |---|---|---|
 | Hullmods (loaded, hidden) | `indEvo_ghost_ship_mystery_nothing`, `_mystery_rogue_ai`, `_mystery_hyperlost`, `_mystery_alien`, `_mystery_plague`, `_mystery_nanite`, `_mystery_cannibal`, `_rogue_ai`, `_hyperlost`, `_alien`, `_plague`, `_nanite`, `_cannibal`, `_unique_hyperlost` | `data/hullmods/hull_mods.csv:19-59`, script column `indevo.industries.petshop.hullmods.PetHullmod` (placeholder) |
-| Hullmod id without row | `vayra_ghost_ship_mystery` (`MYSTERY_HULLMOD`), `vayra_ghost_ship_mystery_nothing` (`MYSTERY_NOTHING_HULLMOD`, row uses the `indEvo_` id), `indEvo_anti_robot` (`ANTI_AI_HULLMOD`) | `indevo/ids/Ids.java:104-121` |
-| Constants | ghost ship hullmod ids, `COND_PLAGUE` `IndEvo_engineered_plague` | `Ids.java:95-121` |
+| Hullmod id without row | `vayra_ghost_ship_mystery` (`MYSTERY_HULLMOD`), `vayra_ghost_ship_mystery_nothing` (`MYSTERY_NOTHING_HULLMOD`, row uses the `indEvo_` id), `indEvo_anti_robot` (`ANTI_AI_HULLMOD`) | `indevo/ids/Ids.java:108-125` |
+| Constants | ghost ship hullmod ids, `COND_PLAGUE` `IndEvo_engineered_plague` | `Ids.java:99-125` |
 | Market condition | `IndEvo_engineered_plague` (row commented out) | `data/campaign/market_conditions.csv:24` |
 | Rules (loaded) | `indevo_ghostShipContinueSelected`, `indevo_ghostShipContinueSelectedDestroyed`, `indevo_ghostShipFinishedNoContinueDestroyed` on `$indevo_checkSalvageSpecialAgain` / `$indevo_destroyGhostShip` | `data/campaign/rules.csv:855-859` |
 | Memory key | `$indevo_checkSalvageSpecialAgain`, `$indevo_destroyGhostShip` (entity) | `GhostShipSpecial.java:28-29` |
@@ -74,7 +74,7 @@ The ghost ship rules in `rules.csv` load, but only match on memory keys set by `
 
 | Item | State |
 |---|---|
-| Whole package | Excluded by `IndEvo.iml`; does not compile; unregistered (`ModPlugin.java:487-488` commented) |
+| Whole package | Excluded by `IndEvo.iml`; does not compile; unregistered (`ModPlugin.java:488-489` commented) |
 | `distress_call_data.csv` | Never read; script class is Vayra's, not in IE |
 | `HullmodTimeTracker.getInstanceOrRegister()` | Checks `hasListenerOfClass(AdminGovernTimeTracker.class)` instead of its own class (`:19`); would register a new tracker every call |
 | `GhostShip.advanceInCombat()` | Hyperlost and nanite branches are nested inside the rogue AI `if` (`:158-225`), so they only run on rogue AI ships |

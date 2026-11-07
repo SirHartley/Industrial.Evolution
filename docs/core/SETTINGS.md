@@ -103,6 +103,7 @@ if (!Setting.EMBASSY.enabled()) return;
 | `RURAL_LIST` | `IndEvo_ruralList` | `rural_polity_blacklist.csv` | [Changeling](../industries/CHANGELING.md) |
 | `ARCOLOGIES_LIST` | `IndEvo_arcologiesList` | `hidden_arcologies_blacklist.csv` | [Changeling](../industries/CHANGELING.md) |
 | `ARCOLOGIES_COND_LIST` | `IndEvo_arcologiesCondList` | `hidden_arcologies_supressed_whitelist.csv` | [Changeling](../industries/CHANGELING.md) |
+| `ACADEMY_SKILL_LIST` | `IndEvo_academySkillList` | `academy_admin_skill_whitelist.csv` | [Academy](../industries/ACADEMY.md) |
 
 The feature column is the main consumer; the feature doc is the owner of how the list is applied.
 
