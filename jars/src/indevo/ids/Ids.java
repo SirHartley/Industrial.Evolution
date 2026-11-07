@@ -7,6 +7,9 @@ public class Ids {
     public static final String CONVERTERS_FACTION_ID = "IndEvo_converters";
     public static final String DERELICT_FACTION_ID = "IndEvo_derelict";
 
+    //markets
+    public static final String ACADEMY_MARKET_ID = "IndEvo_academyMarket";
+
     //memory Keys
     public static final String EMBASSY_LIST = Global.getSettings().getString("IndEvo_embassyList");
     public static final String REVERSE_LIST = Global.getSettings().getString("IndEvo_reverseList");
@@ -21,6 +24,7 @@ public class Ids {
     public static final String RURAL_LIST = Global.getSettings().getString("IndEvo_ruralList");
     public static final String ARCOLOGIES_LIST = Global.getSettings().getString("IndEvo_arcologiesList");
     public static final String ARCOLOGIES_COND_LIST = Global.getSettings().getString("IndEvo_arcologiesCondList");
+    public static final String ACADEMY_SKILL_LIST = Global.getSettings().getString("IndEvo_academySkillList");
 
     //tags
     public static final String TAG_NEVER_REMOVE_RUINS = "IndEvo_RuinsAlways";

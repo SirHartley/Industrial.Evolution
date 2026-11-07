@@ -107,7 +107,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static indevo.industries.academy.rules.IndEvo_AcademyVariables.ACADEMY_MARKET_ID;
+import static indevo.ids.Ids.ACADEMY_MARKET_ID;
 
 public class ModPlugin extends BaseModPlugin {
     public static void log(String Text) {
@@ -420,6 +420,7 @@ public class ModPlugin extends BaseModPlugin {
         MiscIE.getCSVSetFromMemory(Ids.RURAL_LIST);
         MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_LIST);
         MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_COND_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.ACADEMY_SKILL_LIST);
     }
 
     private void setListenersIfNeeded() {

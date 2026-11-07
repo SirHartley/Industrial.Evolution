@@ -116,7 +116,7 @@ Every load (`:153` to `:173`):
 | `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:499` |
 | Industry adds itself in `apply()` | `addListener(this)` from the industry; the listener manager skips an instance already present (obf `ObjectRepository.java:87`, per the knowledge skill) | Assembler, engineering hub |
 | CSV plugin column | Industries, conditions, abilities, items, entities, terrain, hullmods, weapons | `data/campaign/*.csv`, `custom_entities.json`, `terrain.json` |
-| `ruleCommandPackages` | Rule commands found by package | `settings.json:70` ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
+| `ruleCommandPackages` | Rule commands found by package | `settings.json:71` ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
 
 `setListenersIfNeeded()` (`:425` to `:489`) by feature: item effects and loot (`SpecialItemEffectsRepo.initEffectListeners`, `ShipComponentLootManager`, `SpecialItemDropsListener`, `ConsumableItemDropListener`, `ConsumableItemMarketAdder`), economy (`ResourceConditionApplicator`, `RelicBuildTimeReductionButtonAdder`), assembler (`DepositMessage`), embassy (`AmbassadorPersonManager`, `HostileActivityEventSubRegisterListener`), privateer and raids (`RaidTimeout`), derelicts (`RuinsManager.*`, `AncientLabCommoditySwitchOptionProvider`, `RiftGenOptionProvider`, `RemoveIndustryOptionWarningProvider`), courier (`ShippingManager`, `CourierPortOptionProvider`), split fleet (`DetachmentAbilityAdder`, `DetachmentPayroll`), consumables (`LocatorSystemRatingUpdater`, `SpooferItemKeypressListener`, `SkillshotFramework.register()`, `FleetConsumableInventoryManager`), minefields (`RecentJumpListener`, `InterdictionPulseAbilityListener`), world wonder, changeling, pets, ruinfra, artillery (`WatchtowerFactionResetListener`), research unlock checkers, skills, salvage yards, senate, academy, beacons, Cloud Painter shield visuals, relay (`MilitaryRelay.RelayItemRemovalButtonListener`, `RelayNetworkBrain`), meteor (`MeteorSwarmManager`), warehouses, museum. Nexerelin only: `ManagedDemocracyNexerelinListenerPlugin`. Commented out: `DistressCallManager`, `HullmodTimeTracker`.
 
@@ -210,7 +210,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 - IE costs and income go through `BillingHelper` ([UTILS](core/UTILS.md#billinghelper)): own monthly report lines, and `canAfford` then `chargeNow` for dialog purchases. Never write vanilla report nodes or subtract credits directly. Loot and refunds add credits directly.
 - `BaseIndustry.buildTime` (protected) is read by reflection from `RelicBuildTimeReductionButtonAdder` and read and written from `Edict_FastBuild`.
 - `ModPlugin.addTypePrefaceToIndustrySpecs()` prefixes every industry description (vanilla and other mods) with `Type: ...` based on tags.
-- `createAcademyMarket()` adds a hidden independent market `ACADEMY_MARKET_ID` on `station_galatia_academy` on new game and on load if missing.
+- `createAcademyMarket()` adds a hidden independent market `Ids.ACADEMY_MARKET_ID` on `station_galatia_academy` on new game and on load if missing.
 
 ### Storage and submarkets
 

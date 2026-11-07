@@ -1,14 +1,13 @@
 package indevo.industries.academy.plugins;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
-import com.fs.starfarer.api.impl.campaign.RuleBasedInteractionDialogPluginImpl;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
+import indevo.industries.academy.industry.Academy;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
 public class AcademyOptionProvider extends SingleIndustrySimpifiedOptionProvider {
@@ -32,11 +31,7 @@ public class AcademyOptionProvider extends SingleIndustrySimpifiedOptionProvider
 
     @Override
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
-        SectorEntityToken target = opt.ind.getMarket().getPrimaryEntity();
-        target.getMemoryWithoutUpdate().set("$IndEvo_closeDialogueOnNextReturn", true, 0);
-
-        RuleBasedInteractionDialogPluginImpl plugin = new RuleBasedInteractionDialogPluginImpl("IndEvo_FireBaseAcademyOptionList");
-        ui.showDialog(target, plugin);
+        ui.showDialog(null, new AcademyDialogPlugin((Academy) opt.ind));
     }
 
     @Override
