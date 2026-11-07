@@ -25,7 +25,13 @@ public interface EdictAPI {
 
     int getRemovalUnrest();
 
+    int getRelicRemovalCost();
+
+    int getRelicRemovalUnrest();
+
     void removeWithPenalty();
 
     void removeWithoutPenalty();
+
+    void removeEarlyWithRelics();
 }

@@ -15,6 +15,7 @@ import indevo.dialogue.sidepanel.ButtonAction;
 import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
 import indevo.ids.Ids;
+import indevo.ids.ItemIds;
 import indevo.industries.senate.EdictHelper;
 import indevo.industries.senate.EdictRepo;
 import indevo.industries.senate.EdictRequirement;
@@ -46,9 +47,14 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
     private static final float FOOTER_HEIGHT = 24f;
     private static final float HEADING_HEIGHT = 20f;
     private static final float ACTION_HEIGHT = 84f;
+    private static final float ACTION_HEIGHT_RELICS = 134f;
     private static final float ROW_MIN_HEIGHT = 44f;
     private static final float BUTTON_WIDTH = 150f;
     private static final float BUTTON_HEIGHT = 25f;
+    private static final float SMALL_BUTTON_WIDTH = 100f;
+    private static final float TOOLTIP_WIDTH = 360f;
+
+    private static final String RELIC_LORE = "Several senators have districts waiting on machinery that nobody makes anymore. A few crates of relic components should settle their objections to an early repeal.";
     private static final float ICON_SIZE = 28f;
 
     private static final Color ACTIVE_HEADING = new Color(140, 70, 20);
@@ -336,7 +342,8 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         heading.addSectionHeading(title, headingText, headingBg, Alignment.MID, 0f);
         panel.addUIElement(heading).inTL(x, y);
 
-        float detailHeight = height - HEADING_HEIGHT - PAD - ACTION_HEIGHT;
+        float actionHeight = isActive && confirm == Confirm.REMOVE && active.getRelicRemovalCost() > 0 ? ACTION_HEIGHT_RELICS : ACTION_HEIGHT;
+        float detailHeight = height - HEADING_HEIGHT - PAD - actionHeight;
         TooltipMakerAPI detail = panel.createUIElement(width, detailHeight, true);
 
         if (isActive) {
@@ -362,7 +369,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
 
         panel.addUIElement(detail).inTL(x, y + HEADING_HEIGHT + PAD);
 
-        addActions(x, y + height - ACTION_HEIGHT, width, activeCondition, active, isActive, met, callback);
+        addActions(x, y + height - actionHeight, width, actionHeight, activeCondition, active, isActive, met, callback);
         return detail;
     }
 
@@ -372,6 +379,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         if (active.getRemainingDays() > 0) {
             String halved = EdictHelper.getCompoundsSenateInRange(selectedColony) != null ? " (early removal unrest halved by " + EdictHelper.COMPOUNDS_NAME + ")" : "";
             detail.addPara("Removing it now causes %s" + halved + ".", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
+            detail.addPara("Paying %s removes it without the early removal unrest.", PAD, Misc.getHighlightColor(), active.getRelicRemovalCost() + " " + getRelicName());
         } else if (unrest > 0) {
             detail.addPara("Minimum runtime passed. Removing it now still causes %s from its end effect.", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
         } else {
@@ -393,7 +401,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         return row;
     }
 
-    private void addActions(float x, float y, float width, MarketConditionAPI activeCondition, EdictAPI active, boolean isActive, boolean met, CustomDialogCallback callback) {
+    private void addActions(float x, float y, float width, float height, MarketConditionAPI activeCondition, EdictAPI active, boolean isActive, boolean met, CustomDialogCallback callback) {
         Color hl = Misc.getHighlightColor();
         Color neg = Misc.getNegativeHighlightColor();
         Color pos = Misc.getPositiveHighlightColor();
@@ -402,8 +410,8 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         String edictName = EdictRepo.getShortName(Global.getSettings().getMarketConditionSpec(selectedEdict).getName());
         String colonyName = selectedColony.getName();
 
-        CustomPanelAPI actionPanel = panel.createCustomPanel(width, ACTION_HEIGHT, new ButtonReportingCustomPanel(this));
-        TooltipMakerAPI actions = actionPanel.createUIElement(width, ACTION_HEIGHT, false);
+        CustomPanelAPI actionPanel = panel.createCustomPanel(width, height, new ButtonReportingCustomPanel(this));
+        TooltipMakerAPI actions = actionPanel.createUIElement(width, height, false);
 
         if (!isActive && confirm != Confirm.ENACT) {
             ButtonAPI enact = addActionButton(actions, "Enact Edict", action(callback, () -> confirm = Confirm.ENACT), OPAD);
@@ -428,11 +436,58 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
             if (unrest > 0) actions.addPara("Remove %s from %s? This causes %s.", OPAD, new Color[]{hl, hl, neg}, edictName, colonyName, unrest + " unrest");
             else actions.addPara("Remove %s from %s? There is %s.", OPAD, new Color[]{hl, hl, pos}, edictName, colonyName, "no penalty");
 
-            addConfirmButtons(actions, "Confirm removal", action(callback, this::removeSelected), callback);
+            int cost = active.getRelicRemovalCost();
+            if (cost > 0) addRelicRemoval(actions, active, cost, callback);
+            else addConfirmButtons(actions, "Confirm removal", action(callback, this::removeSelected), callback);
         }
 
         actionPanel.addUIElement(actions).inTL(0f, 0f);
         panel.addComponent(actionPanel).inTL(x, y);
+    }
+
+    private void addRelicRemoval(TooltipMakerAPI actions, EdictAPI active, int cost, CustomDialogCallback callback) {
+        int relicUnrest = active.getRelicRemovalUnrest();
+        int available = EdictHelper.getAvailableRelics(selectedColony);
+        boolean affordable = cost <= available;
+
+        if (relicUnrest > 0) actions.addPara("With relics: %s from its end effect.", PAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
+        else actions.addPara("With relics: %s.", PAD, Misc.getPositiveHighlightColor(), "no unrest");
+        addRelicCostLine(actions, cost, available, PAD);
+
+        ButtonAPI remove = addActionButton(actions, "Remove", action(callback, this::removeSelected), SMALL_BUTTON_WIDTH, OPAD);
+        ButtonAPI relics = addActionButton(actions, "Remove with relics", action(callback, this::removeSelectedWithRelics), BUTTON_WIDTH, 0f);
+        relics.setEnabled(affordable);
+        relics.getPosition().rightOfTop(remove, OPAD);
+        addRelicTooltip(actions, relicUnrest, cost, available);
+
+        ButtonAPI cancel = addActionButton(actions, "Cancel", action(callback, () -> confirm = Confirm.NONE), SMALL_BUTTON_WIDTH, 0f);
+        cancel.getPosition().rightOfTop(relics, OPAD);
+    }
+
+    private void addRelicTooltip(TooltipMakerAPI actions, int relicUnrest, int cost, int available) {
+        actions.addTooltipToPrevious(new BaseTooltipCreator() {
+            @Override
+            public float getTooltipWidth(Object tooltipParam) {
+                return TOOLTIP_WIDTH;
+            }
+
+            @Override
+            public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
+                tooltip.addPara("Removes the Edict without the early removal unrest.", 0f);
+                if (relicUnrest > 0) tooltip.addPara("Its end effect still causes %s.", PAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
+                addRelicCostLine(tooltip, cost, available, OPAD);
+                tooltip.addPara(RELIC_LORE, Misc.getGrayColor(), OPAD);
+            }
+        }, TooltipMakerAPI.TooltipLocation.BELOW);
+    }
+
+    private static void addRelicCostLine(TooltipMakerAPI tooltip, int cost, int available, float pad) {
+        Color color = cost <= available ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor();
+        tooltip.addPara("Cost: %s (Available: " + available + ")", pad, color, cost + " " + getRelicName());
+    }
+
+    private static String getRelicName() {
+        return Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName();
     }
 
     private void addConfirmButtons(TooltipMakerAPI actions, String confirmText, ButtonAction confirmAction, CustomDialogCallback callback) {
@@ -442,7 +497,11 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
     }
 
     private ButtonAPI addActionButton(TooltipMakerAPI tooltip, String text, ButtonAction action, float pad) {
-        return tooltip.addButton(text, action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Alignment.MID, CutStyle.TL_BR, BUTTON_WIDTH, BUTTON_HEIGHT, pad);
+        return addActionButton(tooltip, text, action, BUTTON_WIDTH, pad);
+    }
+
+    private ButtonAPI addActionButton(TooltipMakerAPI tooltip, String text, ButtonAction action, float width, float pad) {
+        return tooltip.addButton(text, action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Alignment.MID, CutStyle.TL_BR, width, BUTTON_HEIGHT, pad);
     }
 
     private void addFooter(float width, float height) {
@@ -525,6 +584,21 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
 
         message = activeCondition.getName() + " removed from " + selectedColony.getName() + (unrest > 0 ? ", " + unrest + " unrest." : ".");
         messageColor = unrest > 0 ? Misc.getNegativeHighlightColor() : Misc.getHighlightColor();
+        confirm = Confirm.NONE;
+    }
+
+    private void removeSelectedWithRelics() {
+        MarketConditionAPI activeCondition = EdictHelper.getActiveEdict(selectedColony);
+        EdictAPI active = activeCondition == null ? null : EdictHelper.asEdict(activeCondition);
+        if (active == null) throw new IllegalStateException("IndEvo: no Edict to remove on " + selectedColony.getName());
+
+        int cost = active.getRelicRemovalCost();
+        int unrest = active.getRelicRemovalUnrest();
+        EdictHelper.takeRelics(selectedColony, cost);
+        active.removeEarlyWithRelics();
+
+        message = activeCondition.getName() + " removed from " + selectedColony.getName() + " for " + cost + " " + getRelicName() + (unrest > 0 ? ", " + unrest + " unrest." : ".");
+        messageColor = Misc.getHighlightColor();
         confirm = Confirm.NONE;
     }
 
