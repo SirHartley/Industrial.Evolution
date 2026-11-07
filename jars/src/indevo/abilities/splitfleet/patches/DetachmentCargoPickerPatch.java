@@ -110,9 +110,9 @@ public class DetachmentCargoPickerPatch {
             CustomPanelAPI panel = Global.getSettings().createCustom(BUTTON_WIDTH * 2 + BUTTON_GAP, BUTTON_HEIGHT, this);
 
             buttons[0] = addButton(panel, 0f, "Load min", DetachmentCargoLoad.Mode.MIN,
-                    "Sets the detachment's supplies to repairs plus one month and its crew to the minimum. Its fuel tanks are filled, up to half of all fuel.");
+                    "Sets the detachment's supplies to repairs plus one month and its crew to the minimum, moving out marines that take the room. Its fuel tanks are filled, up to half of all fuel. Anything your ships can not hold goes to the detachment if it has room.");
             buttons[1] = addButton(panel, BUTTON_WIDTH + BUTTON_GAP, "Load max", DetachmentCargoLoad.Mode.MAX,
-                    "Fills the detachment's supplies and crew up to its capacity. You keep repairs plus one month of supplies and your minimum crew. Its fuel tanks are filled, up to half of all fuel.");
+                    "Fills the detachment's supplies and crew up to its capacity. You keep repairs plus one month of supplies and your minimum crew. Its fuel tanks are filled, up to half of all fuel. Anything your ships can not hold goes to the detachment if it has room.");
 
             return panel;
         }

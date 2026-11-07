@@ -27,7 +27,7 @@ The player ability `splinter_fleet` opens a control panel with two loadout slots
 | `dialogue/SplinterFleetSidePanelCreator.java` | Builds the panel on its own visual panel (`showPanel`, `:63`): a Command row with one column per slot (status line, one button per mode, orders Recall or Cancel, Lay Course, Go to, Attack or Stop attack, Trade run or Stop run, Set Target before a Transport spawn, toggles Auto-recall and Join fights; `addCommandColumn`, `:90`), then one block per slot (Send, Take, Members, Cargo, Spawn, ship icons, notes; `addSlotSection`, `:168`). Buttons carry a `Runnable` id run by `RunnableButtonPanelPlugin` on press. Owns spawn preconditions (`:191`) and the Go to and Attack target lists (`getGoToTargets`, `:370`; `getAttackTargets`, `:382`). |
 | `dialogue/TwoFleetFleetMemberPicker.java` | Ship picker for a loadout; hides the flagship and `SHIP_CAN_NOT_SCUTTLE` ships (`FleetUtils.staysWithPlayer`, `:24`), clears loadout cargo on pick (`:44`). Take mode accepts an empty pick. |
 | `dialogue/TwoFleetCargoPicker.java` | Cargo picker between player fleet and a loadout preview or a live detachment. Its listener (`Listener`, `:86`) is also the `DetachmentCargoLoad.Picker` the load buttons call (`load`, `:146`). The loadout picker loads the minimum (Send) or the maximum (Take) on first open with an empty pick (`recreateTextPanel`, `:154`). Refuses a pick that puts the detachment over cargo, fuel or personnel capacity and puts everything back (`pickedCargo`, `:91`). In Take mode the picked side is the player's ("You take") and the check runs on the rest ("Left behind"). |
-| `dialogue/DetachmentCargoLoad.java` | Load min and Load max amounts: sets the detachment side's supplies, fuel and crew, the player side keeps the rest (`apply`, `:21`). |
+| `dialogue/DetachmentCargoLoad.java` | Load min and Load max amounts: sets the detachment side's supplies, fuel, crew and marines, the player side keeps the rest (`apply`, `:21`). |
 | `patches/DetachmentCargoPickerPatch.java` | PatchLib patch that adds the Load min and Load max buttons to the vanilla cargo picker dialog when its listener is a `DetachmentCargoLoad.Picker`, see [Load buttons](#load-buttons). |
 | `dialogue/FleetStatus.java` | Capacity, upkeep, range and operating time numbers from a fake fleet, with the player's skills only on the player side (`playerSide`); status tooltip with the override state (`getStateName`, `:116`). |
 | `dialogue/DetachmentDialoguePlugin.java` | Dialog when the player interacts with a detachment: move cargo, change behaviour (Transport only while it is the current mode), merge, leave. Opening it ends a trade run (`init`, `:85`). |
@@ -77,15 +77,16 @@ Spawn needs (`SplinterFleetSidePanelCreator.java:191`): at least one ship for th
 
 Both detachment cargo pickers (the slot's Cargo button and the live exchange in `DetachmentDialoguePlugin`) open the vanilla cargo picker dialog with a `TwoFleetCargoPicker` listener. `DetachmentCargoPickerPatch` hooks that dialog class (obf `com.fs.starfarer.ui.newui`, inferred: the only class there with a `CargoPickerListener` field). After the constructor it adds Load min and Load max left of the vanilla Confirm button, only when the listener implements `DetachmentCargoLoad.Picker`; every other picker is untouched. A press is queued and runs in the dialog's `advance(float)` once the cursor holds no stack: `resetTransaction` clears the dialog's undo list, `Picker.load` moves the commodities directly between the source and the picked cargo, then `updateCargoViews` redraws both grids. The patch reaches the cargo panel, transfer handler and those methods by name through PatchLib reflection; a failure logs an error and leaves the dialog as vanilla.
 
-`DetachmentCargoLoad.apply` only changes supplies, fuel and crew on the detachment side (the picked cargo in Send, the rest in Take) and rounds down:
+`DetachmentCargoLoad.apply` only changes supplies, fuel, crew and marines on the detachment side (the picked cargo in Send, the rest in Take) and rounds down:
 
 | Commodity | Load min | Load max |
 |---|---|---|
 | Supplies | repairs plus one month; when that leaves the player side short, the player side keeps its own repairs plus one month or half of all supplies, whichever is less | all supplies except the player side's repairs plus one month |
 | Fuel | fuel capacity, at most half of all fuel | same |
 | Crew | minimum crew, from the crew over the player side's minimum | all crew over the player side's minimum |
+| Marines | moved to the player side as far as they block the minimum crew | same |
 
-Both stay within the detachment's free cargo space (other cargo counted) and crew capacity minus its marines. Load max never gives less than Load min.
+Both stay within the detachment's free cargo space (other cargo counted), fuel capacity and crew capacity minus its marines. Supplies, fuel and crew the player side can not hold (its capacity, other cargo and marines counted) go to the detachment while it has room, so Take mode with few ships does not leave the player over capacity. Load max never gives less than Load min.
 
 ### Spawn and merge
 
