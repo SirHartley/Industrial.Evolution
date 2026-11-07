@@ -1,7 +1,6 @@
 package indevo.industries.senate.conditions;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
@@ -10,10 +9,12 @@ import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.senate.industry.Senate;
-import indevo.utils.helper.MiscIE;
+import indevo.industries.senate.EdictHelper;
+import indevo.industries.senate.EdictRequirement;
 
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 /*Edict:	Wartime lockdown
 		Upside	+Fleet size/defence, lock the stability at what it currently is (via dynamic addition in case of penalties)
@@ -26,6 +27,7 @@ public class Edict_Lockdown extends BaseEdict {
     private final float exportRed = 0.30F;
     private final int stabBonus = 5;
     public static final int BASE_MIN_RUNTIME = 93;
+    private static final int EARLY_END_UNREST = 3;
 
     @Override
     public void apply(String id) {
@@ -71,8 +73,8 @@ public class Edict_Lockdown extends BaseEdict {
     }
 
     @Override
-    public int getMinRuntime() {
-        return senateHasBetaCore() ? BASE_MIN_RUNTIME - Senate.EDICT_RUNTIME_DAY_RED : BASE_MIN_RUNTIME;
+    public int getMinRuntime(MarketAPI market) {
+        return withBetaCore(BASE_MIN_RUNTIME, market);
     }
 
     @Override
@@ -113,7 +115,7 @@ public class Edict_Lockdown extends BaseEdict {
     @Override
     public void removeWithPenalty() {
         if (!minimumRuntimePassed()) {
-            RecentUnrest.get(market).add(getRemovalPenaltyUnrestDays() + 3, "Preliminary removal: " + getName());
+            RecentUnrest.get(market).add(getEarlyRemovalUnrest() + EARLY_END_UNREST, "Preliminary removal: " + getName());
 
             Global.getSector().getCampaignUI().addMessage("A Lockdown on %s was ended before the minimum time passed. The rapid change in policy caused %s",
                     Global.getSettings().getColor("standardTextColor"), market.getName(), "additional unrest.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
@@ -123,55 +125,42 @@ public class Edict_Lockdown extends BaseEdict {
     }
 
     @Override
-    public void applyFinishPenalty() {
-        RecentUnrest.get(market).add(1, getName());
+    public int getRemovalUnrest() {
+        return minimumRuntimePassed() ? 0 : getEarlyRemovalUnrest() + EARLY_END_UNREST;
     }
 
     @Override
-    protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
-        super.createTooltipAfterDescription(tooltip, expanded);
-
-        if (getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place until the lockdown is lifted, which will take another %s.", 10f, Misc.getHighlightColor(), (int) Math.ceil(getRemainingDays() / 31.0) + " Months");
-        } else {
-            tooltip.addPara("This edict must stay in place until the lockdown is lifted, which will take another %s.", 10f, Misc.getHighlightColor(), getRemainingDays() + " Days");
-        }
-
-        tooltip.addPara("Stability is %s.",
-                10f, Misc.getPositiveHighlightColor(), "increased by " + stabBonus);
-
-        tooltip.addPara("Fleet size %s.",
-                3f, Misc.getHighlightColor(), "increased by 100% (flat)");
-        tooltip.addPara("Ground defence rating %s.",
-                3f, Misc.getHighlightColor(), "increased by 200%");
-        tooltip.addPara("Industry exports %s.",
-                3f, Misc.getNegativeHighlightColor(), "reduced by 70%");
-
-        tooltip.addPara("Requires a %s in the star system and %s on this planet.",
-                10f, Misc.getHighlightColor(), new String[]{"Senate", "Military Presence"});
+    public int getFinishUnrest(MarketAPI market) {
+        return 1;
     }
 
     @Override
-    public void printEdictFlavourText(TextPanelAPI text) {
-        text.addParagraph("Military drafts, mobilization of the wartime " +
-                "industrial complex and full planetary lockdown can drastically increase the defensive potential of a world - at a cost.");
+    protected String getRemainingTimeFormat() {
+        return "This edict must stay in place until the lockdown is lifted, which will take another %s.";
     }
 
     @Override
-    public void printEdictEffectText(TextPanelAPI text, MarketAPI market) {
-        text.addParagraph("Stability increased by 5.");
-        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "increased by 5");
-        text.addParagraph("Fleet size increased by 100% (flat).");
-        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "increased by 100% (flat)");
-        text.addParagraph("Ground defence rating increased by 200%.");
-        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "increased by 200%");
-        text.addParagraph("Industry exports reduced by 70%.");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "reduced by 70%");
+    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        Color pos = Misc.getPositiveHighlightColor();
+
+        tooltip.addPara("Stability %s.", pad, pos, "increased by " + stabBonus);
+        tooltip.addPara("Fleet size %s.", 3f, pos, "increased by 100% (flat)");
+        tooltip.addPara("Ground defence rating %s.", 3f, pos, "increased by 200%");
+        tooltip.addPara("Industry exports %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + Math.round((1 - exportRed) * 100) + "%");
     }
 
     @Override
-    public String getUnavailableReason(MarketAPI market) {
-        return "Requires military presence on this planet.";
+    protected void addRuntimeLine(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        tooltip.addPara("Lasts %s, then ends on its own and causes %s.", pad,
+                new Color[]{Misc.getHighlightColor(), Misc.getNegativeHighlightColor()},
+                getMonthString(getMinRuntime(market)), getFinishUnrest(market) + " unrest");
+    }
+
+    @Override
+    protected void addEarlyRemovalLine(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        String halved = EdictHelper.getCompoundsSenateInRange(market) != null ? " (halved by " + EdictHelper.COMPOUNDS_NAME + ")" : "";
+        tooltip.addPara("Ending it earlier causes %s" + halved + " plus %s instead.", pad, Misc.getNegativeHighlightColor(),
+                "1 unrest per remaining month", EARLY_END_UNREST + " unrest");
     }
 
     @Override
@@ -181,8 +170,7 @@ public class Edict_Lockdown extends BaseEdict {
     }
 
     @Override
-    public boolean isPresenceConditionMet(MarketAPI market) {
-        return super.isPresenceConditionMet(market)
-                && MiscIE.marketHasMilitaryIncludeRelays(market);
+    protected void addRequirements(List<EdictRequirement> requirements, MarketAPI market) {
+        requirements.add(military(market));
     }
 }

@@ -9,19 +9,18 @@ package indevo.industries.senate.conditions;
 */
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
-import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.senate.industry.Senate;
-import indevo.utils.helper.MiscIE;
+import indevo.industries.senate.EdictRequirement;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class Edict_Cleanse extends BaseEdict implements MarketImmigrationModifier {
 
@@ -41,9 +40,8 @@ public class Edict_Cleanse extends BaseEdict implements MarketImmigrationModifie
     }
 
     @Override
-    public int getMinRuntime() {
-        int minRunTime = market.getSize() * 31;
-        return senateHasBetaCore() ? minRunTime - Senate.EDICT_RUNTIME_DAY_RED : minRunTime;
+    public int getMinRuntime(MarketAPI market) {
+        return withBetaCore(market.getSize() * 31, market);
     }
 
     @Override
@@ -93,64 +91,30 @@ public class Edict_Cleanse extends BaseEdict implements MarketImmigrationModifie
     }
 
     @Override
-    public void applyFinishPenalty() {
-        RecentUnrest.get(market).add((int) Math.ceil(market.getSize() / 3.0), getName());
+    public int getFinishUnrest(MarketAPI market) {
+        return (int) Math.ceil(market.getSize() / 3.0);
     }
 
     @Override
-    protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
-        super.createTooltipAfterDescription(tooltip, expanded);
-
-        tooltip.addPara("RemainingDays: %s.", 10f, Misc.getHighlightColor(), getRemainingDays() + " days");
-
-        if (getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place until the cleansing is complete, which will take another %s.", 10f, Misc.getHighlightColor(), (int) Math.ceil(getRemainingDays() / 31.0) + " Months");
-        } else {
-            tooltip.addPara("This edict must stay in place until the cleansing is complete, which will take another %s.", 10f, Misc.getHighlightColor(), getRemainingDays() + " Days");
-        }
-
-        tooltip.addPara("%s.", 3f, Misc.getPositiveHighlightColor(), "All Subpopulations will be removed on completion.");
-
-        tooltip.addPara("Colony income is %s to fund the cleanse.", 10f, Misc.getNegativeHighlightColor(), "reduced by " + (int) ((1 - income_penalty) * 100) + "%");
-        tooltip.addPara("Colony growth is %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + market.getSize() + " points");
-        tooltip.addPara("Stability %s for the duration of this.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + stabPenalty);
-
-        tooltip.addPara("Requires a %s in the star system and %s on this planet.", 10f, Misc.getHighlightColor(), new String[]{"Senate", "Military Presence"});
+    protected String getRemainingTimeFormat() {
+        return "This edict must stay in place until the cleansing is complete, which will take another %s.";
     }
 
     @Override
-    public void printEdictRuntimeText(TextPanelAPI text) {
-        int minRunTime = (int) Math.ceil(getMinRuntime() / 31f);
-        String s1 = "" + minRunTime + " months";
+    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        Color neg = Misc.getNegativeHighlightColor();
 
-        text.addPara("The minimum runtime of this Edict is " + s1 + ", after which it will end automatically.");
-        text.highlightInLastPara(Misc.getHighlightColor(), s1);
+        tooltip.addPara("%s", pad, Misc.getPositiveHighlightColor(), "All subpopulations will be removed on completion.");
+        tooltip.addPara("Colony income is %s to fund the cleanse.", 3f, neg, "reduced by " + Math.round((1 - income_penalty) * 100) + "%");
+        tooltip.addPara("Colony growth is %s.", 3f, neg, "reduced by " + market.getSize());
+        tooltip.addPara("Stability %s for the duration of this.", 3f, neg, "reduced by " + (market.getSize() - 1));
     }
 
     @Override
-    public void printEdictFlavourText(TextPanelAPI text) {
-        text.addParagraph("Purging undesirables from a planet is gruesome work. " +
-                "It's also a lot harder if you can't remove them via strategic measures due to urbanization.");
-    }
-
-    @Override
-    public void printEdictEffectText(TextPanelAPI text, MarketAPI market) {
-        String s1 = "reduced by " + market.getSize();
-        String s2 = "reduced by " + (market.getSize() - 1);
-
-        text.addParagraph("All Subpopulations will be removed on completion.");
-        text.highlightInLastPara(Misc.getHighlightColor(), "All Subpopulations will be removed on completion.");
-        text.addParagraph("Colony income is reduced by 30% to fund the cleanse.");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "reduced by 30%");
-        text.addParagraph("Colony growth is " + s1);
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), s1);
-        text.addParagraph("Stability " + s2 + " for the duration of this.");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), s2);
-    }
-
-    @Override
-    public String getUnavailableReason(MarketAPI market) {
-        return "Requires military presence on this planet and a subpopulation to cleanse.";
+    protected void addRuntimeLine(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        tooltip.addPara("Takes %s (one per colony size), then ends on its own and causes %s.", pad,
+                new Color[]{Misc.getHighlightColor(), Misc.getNegativeHighlightColor()},
+                getMonthString(getMinRuntime(market)), getFinishUnrest(market) + " unrest");
     }
 
     @Override
@@ -159,8 +123,9 @@ public class Edict_Cleanse extends BaseEdict implements MarketImmigrationModifie
     }
 
     @Override
-    public boolean isPresenceConditionMet(MarketAPI market) {
-        return super.isPresenceConditionMet(market) && MiscIE.marketHasMilitaryIncludeRelays(market) && marketHasConditionSubString(market, "ubpopulation");
+    protected void addRequirements(List<EdictRequirement> requirements, MarketAPI market) {
+        requirements.add(military(market));
+        requirements.add(new EdictRequirement("A subpopulation on this colony", "A subpopulation", marketHasConditionSubString(market, "ubpopulation")));
     }
 
     private boolean marketHasConditionSubString(MarketAPI market, String substring) {

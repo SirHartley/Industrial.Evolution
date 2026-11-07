@@ -695,54 +695,23 @@ EndConversation",The comm link is abruptly cut.,,
 #END Embassy,,,,,,
 ,,,,,,
 # Senate,,,,,,
-IndEvo_FireBaseSenateOptionList,IndEvo_FireBaseSenateOptionList,$IndEvo_closeDialogueOnNextReturn,FireAll IndEvo_SenateOptions,,,
-IndEvo_NoEdictMenuPoint2_fb,IndEvo_SenateOptions,"!IndEvo_marketHasEdict
-IndEvo_systemHasSenate",,,1:IndEvo_chooseEdict:Enact an Edict for $marketName,
-IndEvo_HasEdictMenuPoint2_fb,IndEvo_SenateOptions,"IndEvo_marketHasEdict
-IndEvo_systemHasSenate",,,1:IndEvo_removeEdict:Remove the Edict for $marketName,
-IndEvo_SenateOptionsLeave,IndEvo_SenateOptions,,,,9:IndEvo_SelectreturnToMenu:Return,
-,,,,,,
-# IndEvo edicts Menu,,,,,,
-IndEvo_NoEdictMenuPoint,PopulateOptions,"$hasMarket
+IndEvo_SenateMenuPoint,PopulateOptions,"$hasMarket
 $menuState == main
 IndEvo_marketIsPlayerOwned
 IndEvo_systemHasSenate
-!IndEvo_marketHasEdict
-!IndEvo_requiresColonyMenuPoint",,,99:IndEvo_chooseEdict:Enact an Edict for $marketName,
-IndEvo_HasEdictMenuPoint,PopulateOptions,"$hasMarket
+IndEvo_marketHasIndustry IndEvo_senate
+!IndEvo_requiresColonyMenuPoint",,,99:IndEvo_openEdictPanel:Visit the Senate,
+IndEvo_EdictMenuPoint,PopulateOptions,"$hasMarket
 $menuState == main
 IndEvo_marketIsPlayerOwned
 IndEvo_systemHasSenate
-IndEvo_marketHasEdict
-!IndEvo_requiresColonyMenuPoint",,,99:IndEvo_removeEdict:Remove the Edict for $marketName,
-,,,,,,
-IndEvo_NoEdictMenuPoint2,IndEvo_ColonyOptionPoint,"!IndEvo_marketHasEdict
-IndEvo_systemHasSenate",,,1:IndEvo_chooseEdict:Enact an Edict for $marketName,
-IndEvo_HasEdictMenuPoint2,IndEvo_ColonyOptionPoint,"IndEvo_marketHasEdict
-IndEvo_systemHasSenate",,,1:IndEvo_removeEdict:Remove the Edict for $marketName,
-IndEvo_removeEdict,DialogOptionSelected,$option == IndEvo_removeEdict,"IndEvo_PrintActiveEdictInfo
-IndEvo_PrintPenaltyText",,"1:IndEvo_EdictRemovalConfirm:Confirm the removal
-2:IndEvo_SelectreturnToMenu:Return",
-IndEvo_EdictRemovalConfirm,DialogOptionSelected,$option == IndEvo_EdictRemovalConfirm,"IndEvo_removeEdict
-FireAll IndEvo_SenateOptionLeave",The Edict has been removed.,,
-IndEvo_chooseEdict,DialogOptionSelected,$option ==  IndEvo_chooseEdict,"IndEvo_CreateEdictSelectionList
-IndEvo_DesignateSubListPageToLoad_Edict set 1
-IndEvo_DisplaySubListPage_Edict $IndEvo_EdictSubListPage",Choose an Edict to enact for $marketName:,,
-IndEvo_ApplyEdict,DialogOptionSelected,$option ==  IndEvo_ApplyEdict,"IndEvo_applyEdict $IndEvo_selectedEdictID
-FireAll IndEvo_SenateOptionLeave",The Edict has been enacted!,,
-,,,,,,
-IndEvo_SenateOptionLeaveDefault,IndEvo_SenateOptionLeave,,"$menuState = main 0
-FireAll PopulateOptions",,,
-IndEvo_SenateOptionLeaveIndustry,IndEvo_SenateOptionLeave,$IndEvo_closeDialogueOnNextReturn,FireAll IndEvo_SenateOptions,,,
-,,,,,,
-IndEvo_EdictSelector_LoadCurrent,DialogOptionSelected,$option ==  IndEvo_EdictSelector_LoadCurrent,IndEvo_DisplaySubListPage_Edict $IndEvo_EdictSubListPage,,,
-IndEvo_EdictSelector_TriggerNext,DialogOptionSelected,$option ==  IndEvo_EdictSelector_TriggerNext,"IndEvo_DesignateSubListPageToLoad_Edict next
-IndEvo_DisplaySubListPage_Edict $IndEvo_EdictSubListPage",,,
-IndEvo_EdictSelector_TriggerPrevious,DialogOptionSelected,$option ==  IndEvo_EdictSelector_TriggerPrevious,"IndEvo_DesignateSubListPageToLoad_Edict prev
-IndEvo_DisplaySubListPage_Edict $IndEvo_EdictSubListPage",,,
-IndEvo_EdictWasSelected,DialogOptionSelected,IndEvo_OptionStartsWith_Edict IndEvo_SelectEdict_ $option,IndEvo_DisplayActionPanel_Edict,,,
-,,,,,,
-#END IndEvo edicts Menu,,,,,,
+!IndEvo_marketHasIndustry IndEvo_senate
+!IndEvo_requiresColonyMenuPoint",,,99:IndEvo_openEdictPanel:Enact an Edict,
+IndEvo_SenateMenuPoint2,IndEvo_ColonyOptionPoint,"IndEvo_systemHasSenate
+IndEvo_marketHasIndustry IndEvo_senate",,,1:IndEvo_openEdictPanel:Visit the Senate,
+IndEvo_EdictMenuPoint2,IndEvo_ColonyOptionPoint,"IndEvo_systemHasSenate
+!IndEvo_marketHasIndustry IndEvo_senate",,,1:IndEvo_openEdictPanel:Enact an Edict,
+IndEvo_openEdictPanel,DialogOptionSelected,$option == IndEvo_openEdictPanel,IndEvo_OpenEdictPanel,,,
 #END Senate,,,,,,
 ,,,,,,
 # Academy,,,,,,

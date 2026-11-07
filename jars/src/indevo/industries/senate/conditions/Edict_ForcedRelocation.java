@@ -1,10 +1,8 @@
 package indevo.industries.senate.conditions;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
-import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -12,7 +10,9 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.TimeTracker;
 
-import static java.lang.Math.ceil;
+import java.util.List;
+import java.awt.*;
+import indevo.industries.senate.EdictRequirement;
 
 /*Edict:	Forced relocation (relocate people from this planet to other in system colonies at a fast rate - can reduce market size of this planet!)
 		Upside	massively increase pop growth for planets in system other than this one
@@ -78,71 +78,38 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
     }
 
     @Override
-    public void applyFinishPenalty() {
-        RecentUnrest.get(market).add(3, getName());
+    public int getFinishUnrest(MarketAPI market) {
+        return 3;
     }
 
     @Override
-    protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
-        super.createTooltipAfterDescription(tooltip, expanded);
-        int otherPlanetCount = MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId()).size() - 1;
-        float otherPlanetIncrease = (float) ceil((1.0 * this.market.getSize() / otherPlanetCount) * popMult);
+    protected String getRemainingTimeFormat() {
+        return "This edict must stay in place until the population transfer is complete, which will take another %s.";
+    }
 
-        if (getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place until the population transfer is complete, which will take another %s.", 10f, Misc.getHighlightColor(), (int) Math.ceil(getRemainingDays() / 31.0) + " Months");
-        } else {
-            tooltip.addPara("This edict must stay in place until the population transfer is complete, which will take another %s.", 10f, Misc.getHighlightColor(), getRemainingDays() + " Days");
-        }
+    @Override
+    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        List<MarketAPI> others = getOtherColoniesInSystem(market);
 
-        tooltip.addPara("Stability %s for all colonies in the system.",
-                10f, Misc.getNegativeHighlightColor(), "reduced by " + stabPenalty);
-        tooltip.addPara("Population growth of this colony %s.",
-                3f, Misc.getNegativeHighlightColor(), "reduced by " + (int) (market.getSize() * popMult));
-        tooltip.addPara("Population growth for:",
-                3f);
-        for (MarketAPI market : MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
-            if (!market.getId().equals(this.market.getId())) {
-                tooltip.addPara(BaseIntelPlugin.BULLET + market.getName() + ": increased by %s.",
-                        1f, Misc.getPositiveHighlightColor(), (int) otherPlanetIncrease + "");
+        tooltip.addPara("Population growth of this colony %s.", pad, Misc.getNegativeHighlightColor(), "reduced by " + (int) (market.getSize() * popMult));
+
+        if (!others.isEmpty()) {
+            int increase = (int) Math.ceil(1.0 * market.getSize() / others.size() * popMult);
+            tooltip.addPara("Population growth for:", 3f);
+
+            for (MarketAPI other : others) {
+                tooltip.addPara(BaseIntelPlugin.BULLET + other.getName() + ": %s", 1f, Misc.getPositiveHighlightColor(), "increased by " + increase);
             }
         }
 
-        tooltip.addPara("Requires a %s and at least two colonies in the star system, %s on this planet, and the colony must not have the maximum size.", 10f, Misc.getHighlightColor(), new String[]{"Senate", "Military Presence"});
+        tooltip.addPara("Stability %s for all colonies in the star system.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + stabPenalty);
     }
 
     @Override
-    public void printEdictFlavourText(TextPanelAPI text) {
-        text.addParagraph("Relocating your populace to other colonies might sound " +
-                "slightly unethical, but is definitely the most effective way to grow a small colony.");
-
-    }
-
-    @Override
-    public void printEdictEffectText(TextPanelAPI text, MarketAPI market) {
-        int otherPlanetCount = MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId()).size() - 1;
-        int otherPlanetIncrease = (int) ceil((1.0 * market.getSize() / otherPlanetCount) * 10);
-        String s1 = otherPlanetIncrease + "";
-        String s2 = "reduced by " + (market.getSize() * 10);
-
-        text.addParagraph("Population growth for this colony " + s2);
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), s2);
-        text.addParagraph("Population growth for:");
-        for (MarketAPI market1 : MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId())) {
-            if (!market1.getId().equals(market.getId())) {
-                text.addParagraph(BaseIntelPlugin.BULLET + market1.getName() + ": increased by " + s1);
-                text.highlightInLastPara(Misc.getHighlightColor(), market1.getName());
-                text.highlightInLastPara(Misc.getPositiveHighlightColor(), s1);
-            }
-        }
-
-        text.addParagraph("Stability reduced by 3 for all colonies in the star system.");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "reduced by 3");
-    }
-
-    @Override
-    public String getUnavailableReason(MarketAPI market) {
-        return "Requires military presence on this planet, at least two colonies in the system, " +
-                "can only be active on one colony at a time (Star system), and the colony must not have the minimum or the maximum size.";
+    protected void addRuntimeLine(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        tooltip.addPara("Ends on its own after %s or at the maximum colony size, then causes %s.", pad,
+                new Color[]{Misc.getHighlightColor(), Misc.getNegativeHighlightColor()},
+                getMonthString(getMinRuntime(market)), getFinishUnrest(market) + " unrest");
     }
 
     @Override
@@ -152,14 +119,13 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
     }
 
     @Override
-    public boolean isPresenceConditionMet(MarketAPI market) {
-        boolean twoMarkets = MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId()).size() > 1;
+    protected void addRequirements(List<EdictRequirement> requirements, MarketAPI market) {
+        int maxSize = Global.getSettings().getInt("maxColonySize");
+        int size = market.getSize();
 
-        return super.isPresenceConditionMet(market)
-                && MiscIE.marketHasMilitaryIncludeRelays(market)
-                && conditionUniqueInSystem(market, condition.getId())
-                && twoMarkets
-                && market.getSize() < Global.getSettings().getInt("maxColonySize")
-                && market.getSize() > 3;
+        requirements.add(military(market));
+        requirements.add(twoColonies(market));
+        requirements.add(uniqueInSystem(market));
+        requirements.add(new EdictRequirement("Colony size 4 to " + (maxSize - 1) + " (now " + size + ")", "Size 4 to " + (maxSize - 1), size > 3 && size < maxSize));
     }
 }

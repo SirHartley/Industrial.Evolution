@@ -1,6 +1,5 @@
 package indevo.industries.senate.conditions;
 
-import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
@@ -9,12 +8,10 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.ReflectionUtils;
 import indevo.utils.helper.StarReflectionUtils;
-import indevo.utils.helper.StringHelper;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.lang.Math.ceil;
 
 public class Edict_FastBuild extends BaseEdict {
     public static final String ID = "IndEvo_edict_fastBuild";
@@ -101,44 +98,9 @@ public class Edict_FastBuild extends BaseEdict {
     }
 
     @Override
-    protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
-        super.createTooltipAfterDescription(tooltip, expanded);
-
-        if (getRemainingDays() != 0 && getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) ceil(getRemainingDays() / 31.0) + " Months");
-        } else if (getRemainingDays() != 0 && getRemainingDays() <= 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) getRemainingDays() + " days");
-        } else {
-            tooltip.addPara("This edict can be %s", 10f, Misc.getPositiveHighlightColor(), "removed without penalty.");
-        }
-
-        tooltip.addPara("%s of all buildings on this planet by %s",
-                3f, Misc.getPositiveHighlightColor(), new String[]{"Decreases construction time", StringHelper.getAbsPercentString(FAST_BUILD_MULT, false)});
-
-        tooltip.addPara("%s of all industries on this planet by %s",
-                3f, Misc.getNegativeHighlightColor(), new String[]{"Decreases the output and demand", StringHelper.getAbsPercentString(OUTPUT_DECREASE_MULT, false)});
-
-        tooltip.addPara("Requires a %s in the star system.", 10f, Misc.getHighlightColor(), new String[]{"Senate"});
-    }
-
-    @Override
-    public void printEdictFlavourText(TextPanelAPI text) {
-        text.addParagraph("Mandating a 16 hour work day and conscripting labour from non-essential industries " +
-                "will hasten construction projects beyond belief. Anything else is unlikely to get done, though.");
-    }
-
-    @Override
-    public void printEdictEffectText(TextPanelAPI text, MarketAPI market) {
-        text.addParagraph("Construction times reduced by 50%.");
-        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "reduced by 50%");
-        text.addParagraph("All industries on this colony have their output and demand decreased by 50%.");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "output and demand decreased by 50%");
-
-    }
-
-    @Override
-    public String getUnavailableReason(MarketAPI market) {
-        return market.getName() + " does not meet the requirements for this Edict.";
+    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        tooltip.addPara("Construction times on this colony %s.", pad, Misc.getPositiveHighlightColor(), "reduced by " + Math.round((1 - FAST_BUILD_MULT) * 100) + "%");
+        tooltip.addPara("All industries on this colony have their output and demand %s.", 3f, Misc.getNegativeHighlightColor(), "decreased by " + Math.round((1 - OUTPUT_DECREASE_MULT) * 100) + "%");
     }
 
     @Override

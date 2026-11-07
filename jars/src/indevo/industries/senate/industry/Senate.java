@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
 import com.fs.starfarer.api.campaign.listeners.ColonyOtherFactorsListener;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -12,6 +11,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.senate.EdictHelper;
 import indevo.utils.helper.MiscIE;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -54,11 +54,7 @@ public class Senate extends BaseIndustry {
 
     private boolean systemHasEdict() {
         for (MarketAPI market : MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
-            for (MarketConditionAPI cond : market.getConditions()) {
-                if (cond.getIdForPluginModifications().contains("edict")) {
-                    return true;
-                }
-            }
+            if (EdictHelper.getActiveEdict(market) != null) return true;
         }
         return false;
     }
@@ -81,7 +77,7 @@ public class Senate extends BaseIndustry {
                 if (currTooltipMode == IndustryTooltipMode.ADD_INDUSTRY) {
                     tooltip.addPara("%s", 10F, Misc.getHighlightColor(), new String[]{"A senate allows you to issue Edicts on all colonies in the system."});
                 } else {
-                    tooltip.addPara("%s", 10F, Misc.getPositiveHighlightColor(), new String[]{"You can issue an edict from the main colony menu."});
+                    tooltip.addPara("%s", 10F, Misc.getPositiveHighlightColor(), new String[]{"Visit the Senate to issue Edicts on the colonies in its range."});
                 }
             }
         }

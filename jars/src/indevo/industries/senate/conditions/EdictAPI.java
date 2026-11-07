@@ -1,28 +1,29 @@
 package indevo.industries.senate.conditions;
 
-import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import indevo.industries.senate.EdictRequirement;
+
+import java.util.List;
 
 public interface EdictAPI {
-    void printEdictFlavourText(TextPanelAPI text);
-
-    void printEdictEffectText(TextPanelAPI text, MarketAPI market);
-
-    void printEdictRuntimeText(TextPanelAPI text);
-
-    void printRemovalPenaltyText(TextPanelAPI text);
-
-    String getUnavailableReason(MarketAPI market);
-
     String getShortDesc();
+
+    List<EdictRequirement> getRequirements(MarketAPI market);
 
     boolean isPresenceConditionMet(MarketAPI market);
 
-    int getMinRuntime();
+    void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad);
+
+    void addRuntimeText(TooltipMakerAPI tooltip, MarketAPI market, float pad);
+
+    int getMinRuntime(MarketAPI market);
+
+    int getDaysPassed();
 
     int getRemainingDays();
 
-    int getRemovalPenaltyUnrestDays();
+    int getRemovalUnrest();
 
     void removeWithPenalty();
 

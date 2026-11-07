@@ -1,7 +1,6 @@
 package indevo.industries.senate.conditions;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
@@ -9,7 +8,8 @@ import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
-import static java.lang.Math.ceil;
+import java.util.List;
+import indevo.industries.senate.EdictRequirement;
 
 public class Edict_Deadlines extends BaseEdict {
 
@@ -59,55 +59,19 @@ public class Edict_Deadlines extends BaseEdict {
         }
     }
 
-
     @Override
-    protected void createTooltipAfterDescription(TooltipMakerAPI tooltip, boolean expanded) {
-        super.createTooltipAfterDescription(tooltip, expanded);
-
-        if (getRemainingDays() != 0 && getRemainingDays() > 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) ceil(getRemainingDays() / 31.0) + " Months");
-        } else if (getRemainingDays() != 0 && getRemainingDays() <= 31) {
-            tooltip.addPara("This edict must stay in place for another %s before it can be removed without penalty.", 10f, Misc.getHighlightColor(), (int) getRemainingDays() + " days");
-        } else {
-            tooltip.addPara("This edict can be %s", 10f, Misc.getPositiveHighlightColor(), "removed without penalty.");
-        }
-
-        tooltip.addPara("%s of all industries on this planet %s. This also affects production budget.",
-                10f, Misc.getPositiveHighlightColor(), new String[]{"Ship hull output", "increased by 30%"});
-        tooltip.addPara("Production quality %s.",
-                10f, Misc.getNegativeHighlightColor(), "reduced by 20%");
-
-        tooltip.addPara("Requires a %s in the star system, and %s ont this planet.", 10f, Misc.getHighlightColor(), new String[]{"Senate", "ship hull exports"});
-    }
-
-    @Override
-    public void printEdictFlavourText(TextPanelAPI text) {
-        text.addParagraph("Extremely tight deadlines on ship production lead to increased output, " +
-                "increased turnover rates, accidents and quality problems.");
-
-    }
-
-    @Override
-    public void printEdictEffectText(TextPanelAPI text, MarketAPI market) {
-        text.addParagraph("Ship hull output and the production budget provided by this colony increased by 30%.");
-        text.highlightInLastPara(Misc.getPositiveHighlightColor(), "increased by 30%");
-        text.addParagraph("Ship quality reduced by 20%.");
-        text.highlightInLastPara(Misc.getNegativeHighlightColor(), "reduced by 20%");
-    }
-
-    @Override
-    public String getUnavailableReason(MarketAPI market) {
-        return "Requires ship hull production on this planet.";
+    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        tooltip.addPara("Ship hull output and the production budget provided by this colony %s.", pad, Misc.getPositiveHighlightColor(), "increased by 30%");
+        tooltip.addPara("Ship quality %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by 20%");
     }
 
     @Override
     public String getShortDesc() {
-        return "Increases ship hull output and poduction budget, decreases ship quality.";
+        return "Increases ship hull output and production budget, decreases ship quality.";
     }
 
     @Override
-    public boolean isPresenceConditionMet(MarketAPI market) {
-        return super.isPresenceConditionMet(market)
-                && market.getCommodityData(Commodities.SHIPS).getMaxSupply() > 0;
+    protected void addRequirements(List<EdictRequirement> requirements, MarketAPI market) {
+        requirements.add(shipProduction(market));
     }
 }

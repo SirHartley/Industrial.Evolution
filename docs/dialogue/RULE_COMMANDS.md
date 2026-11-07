@@ -52,15 +52,15 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | `IndEvo_StartCrucible` | `indevo.exploration.crucible.dialogue` | 1 | `IndEvo_crucible_startActivate:251` | [Crucible](../exploration/CRUCIBLE.md) |
 | `OpenStorageTabOnGachaStation` | `indevo.exploration.gacha.rules` | 1 | `IndEvo_GachaStationCargoOpen:266` | [Gacha](../exploration/GACHA.md) |
 | `IndEvo_RegisterTutorialMeteorIntel` | `indevo.exploration.meteor.rules` | 1 | `IndEvo_roiderTutorial_acceptOffer:40` | [Meteor](../exploration/METEOR.md) |
-| `SurveyStoryReader` | `indevo.exploration.surveystories.dialogue.rules` | 6 | `oldstory_onSurveyIntercept:958` | [Survey stories](../exploration/SURVEY_STORIES.md) |
+| `SurveyStoryReader` | `indevo.exploration.surveystories.dialogue.rules` | 6 | `oldstory_onSurveyIntercept:927` | [Survey stories](../exploration/SURVEY_STORIES.md) |
 | `HyperlostGateInteraction` | `indevo.exploration.distress.ruleCMD` | 0 | not in packages, folder excluded by `IndEvo.iml` | [Distress](../exploration/DISTRESS.md) |
 | `IndEvo_SalvageDefenderInteraction` | `indevo.industries.artillery.rules` | 1 | `IndEvo_ArtilleryCombatInteraction:377` | [Artillery](../industries/ARTILLERY.md) |
-| `CourierPortDialoguePlugin` | `indevo.industries.courierport.dialogue` | 3 | `IndEvo_OpenShippingPortFromIndustryOption:934` | [Courier port](../industries/COURIER_PORT.md) |
-| `CourierPortIsDisplayInRelay` | `indevo.industries.courierport.dialogue` | 1 | `IndEvo_CommrelayShippingPoint:943` | [Courier port](../industries/COURIER_PORT.md) |
-| `IndEvo_GeneratorAllowedToFire` | `indevo.industries.derelicts.rules` | 6 | `IndEvo_RiftControlMenuPoint:891` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_GeneratorReadyToFire` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftControlMenuPoint:891` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_MoreThanTwoColonies` | `indevo.industries.derelicts.rules` | 2 | `IndEvo_RiftTarget_COLONY:849` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_RiftInit` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftTarget_COLONY_init:873` | [Derelicts](../industries/DERELICTS.md) |
+| `CourierPortDialoguePlugin` | `indevo.industries.courierport.dialogue` | 3 | `IndEvo_OpenShippingPortFromIndustryOption:903` | [Courier port](../industries/COURIER_PORT.md) |
+| `CourierPortIsDisplayInRelay` | `indevo.industries.courierport.dialogue` | 1 | `IndEvo_CommrelayShippingPoint:912` | [Courier port](../industries/COURIER_PORT.md) |
+| `IndEvo_GeneratorAllowedToFire` | `indevo.industries.derelicts.rules` | 6 | `IndEvo_RiftControlMenuPoint:860` | [Derelicts](../industries/DERELICTS.md) |
+| `IndEvo_GeneratorReadyToFire` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftControlMenuPoint:860` | [Derelicts](../industries/DERELICTS.md) |
+| `IndEvo_MoreThanTwoColonies` | `indevo.industries.derelicts.rules` | 2 | `IndEvo_RiftTarget_COLONY:818` | [Derelicts](../industries/DERELICTS.md) |
+| `IndEvo_RiftInit` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftTarget_COLONY_init:842` | [Derelicts](../industries/DERELICTS.md) |
 | `IndEvo_HasValidShipPair` | `indevo.industries.salvageyards.rules` | 2 | `IndEvo_SYMoveDMods:560` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
 | `IndEvo_InitSYCustomProductionDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYCustomProductionPanel_init:565` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
 | `IndEvo_InitSYMoveDModDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYMoveDMods_init:566` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
@@ -75,28 +75,19 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | `IndEvo_noInstalledAmbOfFaction` | `indevo.industries.embassy.rules` | 2 | `IndEvo_ambassadorAlreadyInstalled:597` | [Embassy](../industries/EMBASSY.md) |
 | `IndEvo_playerHasFreeEmbassy` | `indevo.industries.embassy.rules` | 2 | `IndEvo_ambassadorNoFreeEmbassy:601` | [Embassy](../industries/EMBASSY.md) |
 | `IndEvo_playerHasFreeEmbassyNoCargo` | `indevo.industries.embassy.rules` | 0 | | [Embassy](../industries/EMBASSY.md) |
-| `IndEvo_CreateEdictSelectionList` | `indevo.industries.senate.rules` | 1 | `IndEvo_chooseEdict:728` | [Senate](../industries/SENATE.md) |
-| `IndEvo_DesignateSubListPageToLoad_Edict` | `indevo.industries.senate.rules` | 3 | `IndEvo_chooseEdict:728` | [Senate](../industries/SENATE.md) |
-| `IndEvo_DisplayActionPanel_Edict` | `indevo.industries.senate.rules` | 1 | `IndEvo_EdictWasSelected:743` | [Senate](../industries/SENATE.md) |
-| `IndEvo_DisplaySubListPage_Edict` | `indevo.industries.senate.rules` | 4 | `IndEvo_chooseEdict:728` | [Senate](../industries/SENATE.md) |
-| `IndEvo_OptionStartsWith_Edict` | `indevo.industries.senate.rules` | 1 | `IndEvo_EdictWasSelected:743` | [Senate](../industries/SENATE.md) |
-| `IndEvo_PrintActiveEdictInfo` | `indevo.industries.senate.rules` | 1 | `IndEvo_removeEdict:723` | [Senate](../industries/SENATE.md) |
-| `IndEvo_PrintPenaltyText` | `indevo.industries.senate.rules` | 1 | `IndEvo_removeEdict:723` | [Senate](../industries/SENATE.md) |
-| `IndEvo_applyEdict` | `indevo.industries.senate.rules` | 1 | `IndEvo_ApplyEdict:731` | [Senate](../industries/SENATE.md) |
-| `IndEvo_marketHasEdict` | `indevo.industries.senate.rules` | 6 | `IndEvo_NoEdictMenuPoint2_fb:699` | [Senate](../industries/SENATE.md) |
-| `IndEvo_removeEdict` | `indevo.industries.senate.rules` | 1 | `IndEvo_EdictRemovalConfirm:726` | [Senate](../industries/SENATE.md) |
-| `IndEvo_systemHasSenate` | `indevo.industries.senate.rules` | 6 | `IndEvo_NoEdictMenuPoint2_fb:699` | [Senate](../industries/SENATE.md) |
-| `IndEvo_CreatePersonSelectionList` | `indevo.industries.academy.rules` | 19 | `IndEvo_SelectOfficerForTraining:768` | [Academy](../industries/ACADEMY.md) |
-| `IndEvo_DesignateSubListPageToLoad` | `indevo.industries.academy.rules` | 8 | `IndEvo_personSelector_officer_train:773` | [Academy](../industries/ACADEMY.md) |
-| `IndEvo_DisplayPersonActionPanel` | `indevo.industries.academy.rules` | 1 | `IndEvo_personWasSelected:844` | [Academy](../industries/ACADEMY.md) |
-| `IndEvo_DisplaySubListPage` | `indevo.industries.academy.rules` | 9 | `IndEvo_personSelector_officer_train:773` | [Academy](../industries/ACADEMY.md) |
-| `IndEvo_DisplayTrainingStatus` | `indevo.industries.academy.rules` | 2 | `IndEvo_FireBaseAcademyOptionList:749` | [Academy](../industries/ACADEMY.md) |
-| `IndEvo_MarketIsTraining` | `indevo.industries.academy.rules` | 6 | `IndEvo_SelectOfficerForTraining:768` | [Academy](../industries/ACADEMY.md) |
-| `IndEvo_MovePerson` | `indevo.industries.academy.rules` | 5 | `IndEvo_MovePersonOption_better:776` | [Academy](../industries/ACADEMY.md) |
+| `IndEvo_OpenEdictPanel` | `indevo.industries.senate.rules` | 1 | `IndEvo_openEdictPanel:714` | [Senate](../industries/SENATE.md) |
+| `IndEvo_systemHasSenate` | `indevo.industries.senate.rules` | 4 | `IndEvo_SenateMenuPoint:698` | [Senate](../industries/SENATE.md) |
+| `IndEvo_CreatePersonSelectionList` | `indevo.industries.academy.rules` | 19 | `IndEvo_SelectOfficerForTraining:737` | [Academy](../industries/ACADEMY.md) |
+| `IndEvo_DesignateSubListPageToLoad` | `indevo.industries.academy.rules` | 8 | `IndEvo_personSelector_officer_train:742` | [Academy](../industries/ACADEMY.md) |
+| `IndEvo_DisplayPersonActionPanel` | `indevo.industries.academy.rules` | 1 | `IndEvo_personWasSelected:813` | [Academy](../industries/ACADEMY.md) |
+| `IndEvo_DisplaySubListPage` | `indevo.industries.academy.rules` | 9 | `IndEvo_personSelector_officer_train:742` | [Academy](../industries/ACADEMY.md) |
+| `IndEvo_DisplayTrainingStatus` | `indevo.industries.academy.rules` | 2 | `IndEvo_FireBaseAcademyOptionList:718` | [Academy](../industries/ACADEMY.md) |
+| `IndEvo_MarketIsTraining` | `indevo.industries.academy.rules` | 6 | `IndEvo_SelectOfficerForTraining:737` | [Academy](../industries/ACADEMY.md) |
+| `IndEvo_MovePerson` | `indevo.industries.academy.rules` | 5 | `IndEvo_MovePersonOption_better:745` | [Academy](../industries/ACADEMY.md) |
 | `IndEvo_OfficerCurrentlyTraining` | `indevo.industries.academy.rules` | 0 | | [Academy](../industries/ACADEMY.md) |
-| `IndEvo_OptionStartsWith` | `indevo.industries.academy.rules` | 1 | `IndEvo_personWasSelected:844` | [Academy](../industries/ACADEMY.md) |
-| `IndEvo_PlayerHasOfficerCapacity` | `indevo.industries.academy.rules` | 3 | `IndEvo_SelectOfficerForStorageRemoval:791` | [Academy](../industries/ACADEMY.md) |
-| `IndEvo_PrepareForTrainingAbort` | `indevo.industries.academy.rules` | 2 | `IndEvo_LoadAbortDialogue_officer:781` | [Academy](../industries/ACADEMY.md) |
+| `IndEvo_OptionStartsWith` | `indevo.industries.academy.rules` | 1 | `IndEvo_personWasSelected:813` | [Academy](../industries/ACADEMY.md) |
+| `IndEvo_PlayerHasOfficerCapacity` | `indevo.industries.academy.rules` | 3 | `IndEvo_SelectOfficerForStorageRemoval:760` | [Academy](../industries/ACADEMY.md) |
+| `IndEvo_PrepareForTrainingAbort` | `indevo.industries.academy.rules` | 2 | `IndEvo_LoadAbortDialogue_officer:750` | [Academy](../industries/ACADEMY.md) |
 | `IndEvo_InitPersonalityTransferMenu` | `indevo.industries.academy.rules.WIP` | 0 | not in packages, folder excluded by `IndEvo.iml` | [Academy](../industries/ACADEMY.md) |
 | `HasItemAmountAnywhere`, `RemoveItemAmountAnywhere` | `indevo.other` | 0 | not in packages, unresolvable from rules | [Misc](../core/MISC.md) |
 
@@ -104,7 +95,7 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 
 ## rules.csv layout
 
-`data/campaign/rules.csv`, 972 lines, 362 rows. Blocks start with a `#` comment row in the id column and are separated by empty rows; most rule ids start with `IndEvo_`. Line ranges are physical file lines (cells span lines).
+`data/campaign/rules.csv`, 946 lines, 344 rows. Blocks start with a `#` comment row in the id column and are separated by empty rows; most rule ids start with `IndEvo_`. Line ranges are physical file lines (cells span lines).
 
 | Lines | Block (header) | Id prefix | Doc |
 |---|---|---|---|
@@ -124,13 +115,13 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | 532 to 544 | `# Colony options base menu` | `IndEvo_ColonyOptionPoint`, `IndEvo_fireColonyOptions`, `IndEvo_SelectreturnToMenu` | this doc |
 | 546 to 566 | `#Salvage Yards` | `IndEvo_SY`, `IndEvo_SalvageYards` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
 | 568 to 689 | `# Embassy` (foreign, player market, convEnd sub blocks) | `IndEvo_ambassador`, `IndEvo_amb`, `IndEvo_convEnd` | [Embassy](../industries/EMBASSY.md) |
-| 691 to 740 | `# Senate`, `# IndEvo edicts Menu` | `IndEvo_*Edict*`, `IndEvo_Senate` | [Senate](../industries/SENATE.md) |
-| 742 to 840 | `# Academy` (base menu, officer and admin training and storage, person selector) | `IndEvo_Academy`, `IndEvo_Select*`, `IndEvo_personSelector_`, `IndEvo_MovePerson` | [Academy](../industries/ACADEMY.md) |
-| 842 to 925 | `# Rift Generator`, `# Rift Base Menu` | `IndEvo_RiftTarget_`, `IndEvo_RiftControlMenuPoint` | [Derelicts](../industries/DERELICTS.md) |
-| 927 to 941 | `# Shipping Port` | `IndEvo_Shipping`, `IndEvo_COB_shipping` | [Courier port](../industries/COURIER_PORT.md) |
-| 943 to 950 | `# Ambassador Murdered` | `IndEvo_bountyHunter` | [Embassy](../industries/EMBASSY.md) |
-| 952 to 963 | (no header) survey stories | `oldstory_` | [Survey stories](../exploration/SURVEY_STORIES.md) |
-| 965 to 971 | `# Ghost ship interaction rules` | `indevo_ghostShip` | [Distress](../exploration/DISTRESS.md) |
+| 697 to 715 | `# Senate` | `IndEvo_SenateMenuPoint`, `IndEvo_EdictMenuPoint`, `IndEvo_openEdictPanel` | [Senate](../industries/SENATE.md) |
+| 717 to 815 | `# Academy` (base menu, officer and admin training and storage, person selector) | `IndEvo_Academy`, `IndEvo_Select*`, `IndEvo_personSelector_`, `IndEvo_MovePerson` | [Academy](../industries/ACADEMY.md) |
+| 817 to 900 | `# Rift Generator`, `# Rift Base Menu` | `IndEvo_RiftTarget_`, `IndEvo_RiftControlMenuPoint` | [Derelicts](../industries/DERELICTS.md) |
+| 902 to 916 | `# Shipping Port` | `IndEvo_Shipping`, `IndEvo_COB_shipping` | [Courier port](../industries/COURIER_PORT.md) |
+| 918 to 925 | `# Ambassador Murdered` | `IndEvo_bountyHunter` | [Embassy](../industries/EMBASSY.md) |
+| 927 to 938 | (no header) survey stories | `oldstory_` | [Survey stories](../exploration/SURVEY_STORIES.md) |
+| 940 to 946 | `# Ghost ship interaction rules` | `indevo_ghostShip` | [Distress](../exploration/DISTRESS.md) |
 
 ### Colony options menu
 
