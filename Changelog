@@ -221,7 +221,7 @@ Fixed - A detachment that disappears unexpectedly now returns its ships and carg
 Fixed - Transport detachments with a lost target now pick the closest market with storage
 Fixed - Detachment supply use, repair cost and operating time now show real values (supply use was per day)
 Note - Spawning a detachment now needs a full month of supplies plus repairs, as the panel says
-Fixed - Staying or dormant detachments and their wrecks no longer drift to the sun
+Fixed - Staying or dormant detachments and their wrecks no longer drift to the sun or away from their planet
 Fixed - Detachments no longer silently lose crew, fuel and cargo over capacity
 Note - Loading a detachment past its capacity is now refused
 Fixed - Detachments now leave a wreck for every ship lost in battle
