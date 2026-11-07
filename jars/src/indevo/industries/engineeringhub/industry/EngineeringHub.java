@@ -18,6 +18,7 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUser;
+import indevo.industries.engineeringhub.memory.RecoveredHullmods;
 import indevo.items.installable.BlueprintInstallableItemPlugin;
 import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.MiscIE;
@@ -298,6 +299,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         for (FleetMemberAPI ship : engStorage.getMothballedShips().getMembersListCopy()) {
             if (getProgress(getBaseShipHullSpec(ship.getVariant()).getHullId()) >= 1) continue;
 
+            RecoveredHullmods.record(market, ship.getVariant());
             ShipVariantAPI shipVar = MiscIE.stripShipToCargoAndReturnVariant(ship, market);
 
             engStorage.getMothballedShips().removeFleetMember(ship); //remove ship from storage
