@@ -183,7 +183,7 @@ public class ShuttleFlights {
         ShuttleAnchor target = new ShuttleAnchor(planet, ShuttleAnchor.Type.PLANET, ShuttleAnchor.Role.TARGET, planet.getMarket(), null);
 
         for (int i = 0; i < count; i++) {
-            ShuttleHull hull = ShuttleHullPool.createPod(random);
+            ShuttleHull hull = ShuttleHullPool.getPod();
             if (hull == null) break;
 
             float angle = random.nextFloat() * 360f;

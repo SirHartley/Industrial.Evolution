@@ -36,7 +36,7 @@ One transient LunaLib campaign renderer owns everything: anchors, routes, craft,
 |---|---|---|
 | Setting | `IndEvo_shuttleTraffic` (Int, 60, 0 to 120): most craft in flight in the current system, 0 turns traffic and escape pods off | `data/config/LunaSettings.csv:13`, `indevo/config/Setting.java:10`, read every frame in `ShuttleTrafficRenderer.advance` (`:83`) |
 | CSV | `data/config/indEvo/shuttle_traffic.csv`, read with `getMergedSpreadsheetDataForMod("id", path, "IndEvo")`; rows starting with `#` are skipped | `ShuttleHullPool.getBasePool` |
-| Sprites | `campaignEntities` / `fusion_lamp_glow` (engine glow); `misc` / `cargoPods` cut into 32 px cells for escape pods; hull sprites from `ShipHullSpecAPI.getSpriteName()` | `ShuttleTrafficRenderer`, `ShuttleHullPool.createPod` (`:98`) |
+| Sprites | `campaignEntities` / `fusion_lamp_glow` (engine glow); hull sprites from `ShipHullSpecAPI.getSpriteName()`, the vanilla `mining_drone` hull for escape pods | `ShuttleTrafficRenderer`, `ShuttleHullPool.getPod` (`:100`) |
 | Config | `data/config/engine_styles.json` (merged): `engineCampaignColor` or `engineColor` for the glow, `contrailCampaignColor` or `contrailColor` at alpha 75 for the trail, `type` `SMOKE` for a normal blend trail | `ShuttleHullPool.getEngineLook` (`:265`) |
 | Industry ids | `Industries.PATROLHQ`, `MILITARYBASE`, `HIGHCOMMAND`, `MINING`, `Ids.SWITCHABLE_MINING`, `Ids.ACADEMY`, `Ids.EMBASSY`, `Ids.SCRAPYARD` | `ShuttleNetwork.addMarkets` (`:170`) |
 
@@ -123,7 +123,7 @@ Fighters on joyrides and pickets fly as a wing of `wingSize` (at most 3); traini
 - Pods (`getPodCount`, `:354`): from `getFleetData().getSnapshot()`, crewed non automated members only, 1 per frigate or destroyer, 2 per cruiser, 3 per capital, at most 16; an empty snapshot gives 3.
 - Planet (`findPodPlanet`, `:373`): nearest non star planet whose surface is within 2000 su; a non hostile market planet in range wins over a closer one.
 - Queued until `getCampaignUI().isShowingDialog()` is false and the game is unpaused, dropped if the player left the location. At most 32 pods in flight.
-- Each pod (`ShuttleFlights.launchPods`, `:146`): random 32 px cell of the cargo pod sheet at 13 su, appears within 1.5 s, shoots out at 80 to 120 su/s easing to 35 su/s over 2 s, tumbles, curves to a random point on the planet disc and lands with the planet look. Short thin `LOW_TECH` contrail, no engine glow. Pods ignore fleets and threats.
+- Each pod (`ShuttleFlights.launchPods`, `:181`): the vanilla `mining_drone` sprite at 10 su long with its own engine colours (no pods if a mod removed the hull), appears within 1.5 s, shoots out at 80 to 120 su/s easing to 35 su/s over 2 s, tumbles, curves to a random point on the planet disc and lands with the planet look. Short thin contrail, no engine glow. Pods ignore fleets and threats.
 
 ### Look
 

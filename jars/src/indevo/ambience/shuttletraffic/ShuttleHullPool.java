@@ -36,11 +36,8 @@ public final class ShuttleHullPool {
     public static final String CSV_PATH = "data/config/indEvo/shuttle_traffic.csv";
     private static final String ENGINE_STYLES_PATH = "data/config/engine_styles.json";
     private static final String SMALL_FRIGATE = "kite";
-    private static final String POD_CATEGORY = "misc";
-    private static final String POD_KEY = "cargoPods";
-    private static final String POD_STYLE = "LOW_TECH";
-    private static final float POD_CELL = 32f;
-    private static final float POD_SIZE = 13f;
+    private static final String POD_HULL = "mining_drone";
+    private static final float POD_LENGTH = 10f;
     private static final Color DEFAULT_GLOW = new Color(255, 145, 75, 255);
     private static final Logger log = Global.getLogger(ShuttleHullPool.class);
 
@@ -48,6 +45,8 @@ public final class ShuttleHullPool {
     private static final Map<String, List<ShuttleHull>> factionPools = new HashMap<>();
     private static final Map<ShuttleHull, Float> baseWeights = new HashMap<>();
     private static List<ShuttleHull> basePool;
+    private static ShuttleHull podHull;
+    private static boolean podChecked = false;
     private static Set<String> knownHullIds;
     private static JSONObject engineStyles;
     private static boolean reflectionWarned = false;
@@ -60,6 +59,8 @@ public final class ShuttleHullPool {
         factionPools.clear();
         baseWeights.clear();
         basePool = null;
+        podHull = null;
+        podChecked = false;
         knownHullIds = null;
         engineStyles = null;
     }
@@ -95,23 +96,22 @@ public final class ShuttleHullPool {
         return createHull(spec, fighter, wingSize, false, fighter);
     }
 
-    public static ShuttleHull createPod(Random random) {
-        SpriteAPI sprite = Global.getSettings().getSprite(POD_CATEGORY, POD_KEY);
-        if (sprite == null || sprite.getWidth() < POD_CELL) return null;
+    // the vanilla mining drone sprite at a fixed length, null when a mod removed the hull
+    public static ShuttleHull getPod() {
+        if (podChecked) return podHull;
 
-        int cols = Math.max(1, (int) (sprite.getWidth() / POD_CELL));
-        int rows = Math.max(1, (int) (sprite.getHeight() / POD_CELL));
-        float cellWidth = sprite.getTextureWidth() / cols;
-        float cellHeight = sprite.getTextureHeight() / rows;
-        sprite.setTexX(random.nextInt(cols) * cellWidth);
-        sprite.setTexY(random.nextInt(rows) * cellHeight);
-        sprite.setTexWidth(cellWidth);
-        sprite.setTexHeight(cellHeight);
+        podChecked = true;
+        ShipHullSpecAPI spec = hullExists(POD_HULL) ? Global.getSettings().getHullSpec(POD_HULL) : null;
+        SpriteAPI sprite = spec != null ? loadSprite(spec.getSpriteName()) : null;
+        if (sprite == null) {
+            log.warn("Shuttle traffic: no " + POD_HULL + " sprite, escape pods off");
+            return null;
+        }
 
-        JSONObject style = getEngineStyles().optJSONObject(POD_STYLE);
-        Color glow = style != null ? readColor(style, "engineCampaignColor", DEFAULT_GLOW) : DEFAULT_GLOW;
-        Color trail = style != null ? readColor(style, "contrailCampaignColor", Misc.setAlpha(glow, 75)) : Misc.setAlpha(glow, 75);
-        return new ShuttleHull(POD_KEY, sprite, true, false, true, false, false, 1, glow, trail, false, POD_SIZE, POD_SIZE);
+        EngineLook look = getEngineLook(spec);
+        float width = POD_LENGTH * sprite.getWidth() / Math.max(1f, sprite.getHeight());
+        podHull = new ShuttleHull(POD_HULL, sprite, true, false, true, false, false, 1, look.glow, look.trail, look.additive, width, POD_LENGTH);
+        return podHull;
     }
 
     public static ShuttleHull pick(List<ShuttleHull> pool, Random random, Predicate<ShuttleHull> filter) {
