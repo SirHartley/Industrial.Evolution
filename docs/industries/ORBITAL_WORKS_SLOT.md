@@ -12,7 +12,7 @@ The option shows on vanilla Orbital Works (`Industries.ORBITALWORKS`) on player 
 
 | File | Owner / role |
 |---|---|
-| `indevo/industries/orbitalworks/plugins/OrbitalWorksSlotOptionProvider.java` | `BaseSimpleBaseIndustryOptionProvider`: option, option tooltip with the lore text, abort dialog, Orbital Works "Current Project" tooltip section (normal tooltip mode only; vanilla `ListenerUtil.addToIndustryTooltip` places it after the installed items) |
+| `indevo/industries/orbitalworks/plugins/OrbitalWorksSlotOptionProvider.java` | `BaseSimpleBaseIndustryOptionProvider`: option, option tooltip with the lore text, abort dialog, Orbital Works "Current Project" tooltip section (normal tooltip mode only; vanilla `ListenerUtil.addToIndustryTooltip` places it after the installed items; the tooltip runs on a market clone, so `OrbitalWorksSlotManager.getJob` matches by market id) |
 | `indevo/industries/orbitalworks/plugins/OrbitalWorksSlotPanelDelegate.java` | Ship picker dialog (`ButtonReportingDialogueDelegate`), cost (`COST_PER_DP` 20 per hull DP), relic count and payment, start of the work |
 | `indevo/industries/orbitalworks/scripts/OrbitalWorksSlotManager.java` | Persistent `NewDayListener`: job list, day count, finish, abort, colony loss, messages; `DAYS_REQUIRED` 93 |
 | `indevo/industries/orbitalworks/data/OrbitalWorksSlotJob.java` | Saved job: `market`, `member`, `daysDone` |
