@@ -108,7 +108,10 @@ public final class IndustryChecks {
 
             academy.setOfficerForTraining(person, academy.getReachablePersonalities(person).get(0));
             c.expect(academy.getOfficerInTraining() == person, "officer went into training");
-            c.near(credits - fleet.getCargo().getCredits().get(), Setting.PERSONALITY_TRAINING_COST.intValue(), 1f, "102 fee charged once");
+            c.near(credits - fleet.getCargo().getCredits().get(), 0f, 1f, "own academy training is free");
+            MarketAPI galatia = Global.getSector().getEconomy().getMarket(Ids.ACADEMY_MARKET_ID);
+            Academy npc = galatia == null ? null : (Academy) galatia.getIndustry(Ids.ACADEMY);
+            c.expect(npc != null && npc.getOfficerTrainingFee(1) == Setting.PERSONALITY_TRAINING_COST.intValue(), "102 npc academy charges the training fee");
 
             int max = fleet.getCommander().getStats().getOfficerNumber().getModifiedInt();
             while (fleet.getFleetData().getOfficersCopy().size() < max) officer();

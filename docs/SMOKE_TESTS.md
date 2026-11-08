@@ -65,7 +65,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File native-smoke\run.ps1 -Skill 
 
 ```bash
 export SMOKE_SKILL='<skill folder>' SMOKE_JAVAC_DIR='<jdk 17 bin>'
-bash native-smoke/live/run.sh commerce,pets,ruins,colony,industry,senate,misc,path,parade,paradetime,content,consume,shipyard,rest,patches,nextuse,newgame,arcmath,meteor
+bash native-smoke/live/run.sh commerce,pets,ruins,colony,industry,senate,misc,path,parade,paradetime,content,consume,shipyard,rest,patches,relic,nextuse,newgame,arcmath,meteor
 ```
 
 The full set is about 340 checks in 12 minutes and exits 0 only when all pass. Any ERROR line outside the known noise fails the run.
@@ -102,6 +102,7 @@ The full set is about 340 checks in 12 minutes and exits 0 only when all pass. A
 | `shipyard` | Automated Shipyard dialog: relics from storage, lost components, failure line |
 | `rest` | Combat timers, Courier Port cost, ship factory, station placement, survey story, mine spread, `indevo_spawnRuins`, pet fees, unknown pet box, Requisitions tooltip, Rift Generator target, credit stash, ship parts, detachment wrecks and auto load |
 | `patches` | Every IE patch off and back on, the vanilla Commerce rule returns while off |
+| `relic` | Relic payment order, construction speed up and cooldown, Edict relic removal unrest, Lattice job, recorded hullmods, Project Reforge unlock, two step Academy training, Tech Mining boost through reload and month end |
 | `nextuse` | Museum, minefield and meteor settings on next use |
 | `newgame` | IE content on the base save. With `NEWGAME=1 SWITCHES=off` a new game without any |
 | `boot` | Just the load. With `STAGE=<folder>` the release layout |
