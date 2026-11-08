@@ -41,8 +41,8 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 |---|---|---|---|---|
 | `IndEvo_requiresColonyMenuPoint` | `indevo.dialogue.rules` | 9 | `IndEvo_ColonyOptionPoint:533` | this doc |
 | `IndEvo_marketHasIndustry` | `indevo.dialogue.rules` | 14 | `IndEvo_SalvageYardsBaseMenu:551` | this doc |
-| `IndEvo_marketIsPlayerOwned` | `indevo.dialogue.rules` | 16 | `IndEvo_ambassadorGreeting:575` | this doc |
-| `IndEvo_notAtWar` | `indevo.dialogue.rules` | 2 | `IndEvo_ambassadorGreeting:575` | this doc |
+| `IndEvo_marketIsPlayerOwned` | `indevo.dialogue.rules` | 16 | `IndEvo_ambassadorGreeting:571` | this doc |
+| `IndEvo_notAtWar` | `indevo.dialogue.rules` | 2 | `IndEvo_ambassadorGreeting:571` | this doc |
 | `IndEvo_AddSpacerFineMenuPoint` | `indevo.dialogue.rules` | 1 | `IndEvo_ImpoverishedSpacerGreeting:474` | this doc |
 | `IndEvo_CPCExpress` | `indevo.dialogue.rules` | 3 | `IndEvo_cpcExpressOffer:861` | [Economy](../core/ECONOMY.md) |
 | `IndEvo_DeductSpacerCreditsAndSetNeutral` | `indevo.dialogue.rules` | 1 | `IndEvo_PaySpacerFine:493` | this doc |
@@ -57,31 +57,30 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | `SurveyStoryReader` | `indevo.exploration.surveystories.dialogue.rules` | 6 | `oldstory_onSurveyIntercept:844` | [Survey stories](../exploration/SURVEY_STORIES.md) |
 | `HyperlostGateInteraction` | `indevo.exploration.distress.ruleCMD` | 0 | not in packages, folder excluded by `IndEvo.iml` | [Distress](../exploration/DISTRESS.md) |
 | `IndEvo_SalvageDefenderInteraction` | `indevo.industries.artillery.rules` | 1 | `IndEvo_ArtilleryCombatInteraction:377` | [Artillery](../industries/ARTILLERY.md) |
-| `CourierPortDialoguePlugin` | `indevo.industries.courierport.dialogue` | 3 | `IndEvo_OpenShippingPortFromIndustryOption:820` | [Courier port](../industries/COURIER_PORT.md) |
-| `CourierPortIsDisplayInRelay` | `indevo.industries.courierport.dialogue` | 1 | `IndEvo_CommrelayShippingPoint:829` | [Courier port](../industries/COURIER_PORT.md) |
-| `IndEvo_GeneratorAllowedToFire` | `indevo.industries.derelicts.rules` | 6 | `IndEvo_RiftControlMenuPoint:777` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_GeneratorReadyToFire` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftControlMenuPoint:777` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_MoreThanTwoColonies` | `indevo.industries.derelicts.rules` | 2 | `IndEvo_RiftTarget_COLONY:735` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_RiftInit` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftTarget_COLONY_init:759` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_HasValidShipPair` | `indevo.industries.salvageyards.rules` | 2 | `IndEvo_SYMoveDMods:560` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
-| `IndEvo_InitSYCustomProductionDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYCustomProductionPanel_init:568` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
-| `IndEvo_InitSYMoveDModDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYMoveDMods_init:569` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
-| `IndEvo_HasValidSModPair` | `indevo.industries.salvageyards.rules` | 2 | `IndEvo_SYMoveSMods:563` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
-| `IndEvo_InitSYMoveSModDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYMoveSMods_init:570` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
-| `IndEvo_addAmbassadorToCargo` | `indevo.industries.embassy.rules` | 1 | `IndEvo_ambassadorConfirm:614` | [Embassy](../industries/EMBASSY.md) |
-| `IndEvo_ambFactionMismatch` | `indevo.industries.embassy.rules` | 2 | `IndEvo_ambassadorGreetingWar:582` | [Embassy](../industries/EMBASSY.md) |
-| `IndEvo_ambassadorRemoval` | `indevo.industries.embassy.rules` | 1 | `IndEvo_ambassadorRemovalConfirm:666` | [Embassy](../industries/EMBASSY.md) |
-| `IndEvo_checkForRepResponse` | `indevo.industries.embassy.rules` | 6 | `IndEvo_ambassadorRemove1:641` | [Embassy](../industries/EMBASSY.md) |
-| `IndEvo_displayAmbassadorMoveOption` | `indevo.industries.embassy.rules` | 1 | `IndEvo_ambassadorGreetingInstalled:620` | [Embassy](../industries/EMBASSY.md) |
-| `IndEvo_isAmbassador` | `indevo.industries.embassy.rules` | 5 | `IndEvo_ambassadorGreeting:575` | [Embassy](../industries/EMBASSY.md) |
-| `IndEvo_moveAmbassadorToClosestEmbassy` | `indevo.industries.embassy.rules` | 1 | `IndEvo_ambMoveOption:669` | [Embassy](../industries/EMBASSY.md) |
-| `IndEvo_noActiveAmbInCargo` | `indevo.industries.embassy.rules` | 3 | `IndEvo_ambassadorHireFail:598` | [Embassy](../industries/EMBASSY.md) |
-| `IndEvo_noInstalledAmbOfFaction` | `indevo.industries.embassy.rules` | 2 | `IndEvo_ambassadorAlreadyInstalled:601` | [Embassy](../industries/EMBASSY.md) |
-| `IndEvo_playerHasFreeEmbassy` | `indevo.industries.embassy.rules` | 2 | `IndEvo_ambassadorNoFreeEmbassy:605` | [Embassy](../industries/EMBASSY.md) |
+| `CourierPortDialoguePlugin` | `indevo.industries.courierport.dialogue` | 3 | `IndEvo_OpenShippingPortFromIndustryOption:816` | [Courier port](../industries/COURIER_PORT.md) |
+| `CourierPortIsDisplayInRelay` | `indevo.industries.courierport.dialogue` | 1 | `IndEvo_CommrelayShippingPoint:825` | [Courier port](../industries/COURIER_PORT.md) |
+| `IndEvo_GeneratorAllowedToFire` | `indevo.industries.derelicts.rules` | 6 | `IndEvo_RiftControlMenuPoint:773` | [Derelicts](../industries/DERELICTS.md) |
+| `IndEvo_GeneratorReadyToFire` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftControlMenuPoint:773` | [Derelicts](../industries/DERELICTS.md) |
+| `IndEvo_MoreThanTwoColonies` | `indevo.industries.derelicts.rules` | 2 | `IndEvo_RiftTarget_COLONY:731` | [Derelicts](../industries/DERELICTS.md) |
+| `IndEvo_RiftInit` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftTarget_COLONY_init:755` | [Derelicts](../industries/DERELICTS.md) |
+| `IndEvo_InitSYCustomProductionDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYCustomProductionPanel_init:564` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
+| `IndEvo_InitSYMoveDModDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYMoveDMods_init:565` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
+| `IndEvo_SYTransferOption` | `indevo.industries.salvageyards.rules` | 2 | `IndEvo_SYMoveDMods:560`, `IndEvo_SYMoveSMods:561` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
+| `IndEvo_InitSYMoveSModDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYMoveSMods_init:566` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
+| `IndEvo_addAmbassadorToCargo` | `indevo.industries.embassy.rules` | 1 | `IndEvo_ambassadorConfirm:610` | [Embassy](../industries/EMBASSY.md) |
+| `IndEvo_ambFactionMismatch` | `indevo.industries.embassy.rules` | 2 | `IndEvo_ambassadorGreetingWar:578` | [Embassy](../industries/EMBASSY.md) |
+| `IndEvo_ambassadorRemoval` | `indevo.industries.embassy.rules` | 1 | `IndEvo_ambassadorRemovalConfirm:662` | [Embassy](../industries/EMBASSY.md) |
+| `IndEvo_checkForRepResponse` | `indevo.industries.embassy.rules` | 6 | `IndEvo_ambassadorRemove1:637` | [Embassy](../industries/EMBASSY.md) |
+| `IndEvo_displayAmbassadorMoveOption` | `indevo.industries.embassy.rules` | 1 | `IndEvo_ambassadorGreetingInstalled:616` | [Embassy](../industries/EMBASSY.md) |
+| `IndEvo_isAmbassador` | `indevo.industries.embassy.rules` | 5 | `IndEvo_ambassadorGreeting:571` | [Embassy](../industries/EMBASSY.md) |
+| `IndEvo_moveAmbassadorToClosestEmbassy` | `indevo.industries.embassy.rules` | 1 | `IndEvo_ambMoveOption:665` | [Embassy](../industries/EMBASSY.md) |
+| `IndEvo_noActiveAmbInCargo` | `indevo.industries.embassy.rules` | 3 | `IndEvo_ambassadorHireFail:594` | [Embassy](../industries/EMBASSY.md) |
+| `IndEvo_noInstalledAmbOfFaction` | `indevo.industries.embassy.rules` | 2 | `IndEvo_ambassadorAlreadyInstalled:597` | [Embassy](../industries/EMBASSY.md) |
+| `IndEvo_playerHasFreeEmbassy` | `indevo.industries.embassy.rules` | 2 | `IndEvo_ambassadorNoFreeEmbassy:601` | [Embassy](../industries/EMBASSY.md) |
 | `IndEvo_playerHasFreeEmbassyNoCargo` | `indevo.industries.embassy.rules` | 0 | | [Embassy](../industries/EMBASSY.md) |
-| `IndEvo_OpenEdictPanel` | `indevo.industries.senate.rules` | 1 | `IndEvo_openEdictPanel:718` | [Senate](../industries/SENATE.md) |
-| `IndEvo_systemHasSenate` | `indevo.industries.senate.rules` | 4 | `IndEvo_SenateMenuPoint:702` | [Senate](../industries/SENATE.md) |
-| `IndEvo_ShowAcademyPanel` | `indevo.industries.academy.rules` | 2 | `IndEvo_IntitiateAcademyMenu:730` | [Academy](../industries/ACADEMY.md) |
+| `IndEvo_OpenEdictPanel` | `indevo.industries.senate.rules` | 1 | `IndEvo_openEdictPanel:714` | [Senate](../industries/SENATE.md) |
+| `IndEvo_systemHasSenate` | `indevo.industries.senate.rules` | 4 | `IndEvo_SenateMenuPoint:698` | [Senate](../industries/SENATE.md) |
+| `IndEvo_ShowAcademyPanel` | `indevo.industries.academy.rules` | 2 | `IndEvo_IntitiateAcademyMenu:726` | [Academy](../industries/ACADEMY.md) |
 | `IndEvo_InitPersonalityTransferMenu` | `indevo.industries.academy.rules.WIP` | 0 | not in packages, folder excluded by `IndEvo.iml` | [Academy](../industries/ACADEMY.md) |
 | `HasItemAmountAnywhere`, `RemoveItemAmountAnywhere` | `indevo.other` | 0 | not in packages, unresolvable from rules | [Misc](../core/MISC.md) |
 
