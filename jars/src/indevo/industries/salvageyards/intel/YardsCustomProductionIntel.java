@@ -42,6 +42,7 @@ import static indevo.utils.helper.StringHelper.getDayOrDays;
 public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDayListener, RelicSpeedUpTarget {
 
     public static final String BUTTON_EXPRESS = "button_express";
+    public static final String SPEED_UP_LABEL = "Accelerate Construction";
 
     public enum Stage {
         WAITING,
@@ -234,7 +235,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
 
     @Override
     public String getSpeedUpLabel() {
-        return "Express Delivery";
+        return SPEED_UP_LABEL;
     }
 
     @Override

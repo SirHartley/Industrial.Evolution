@@ -102,7 +102,7 @@ The full set is about 340 checks in 12 minutes and exits 0 only when all pass. A
 | `shipyard` | Automated Shipyard dialog: relics from storage, lost components, failure line |
 | `rest` | Combat timers, Courier Port cost, ship factory, station placement, survey story, mine spread, `indevo_spawnRuins`, pet fees, unknown pet box, Requisitions tooltip, Rift Generator target, credit stash, ship parts, detachment wrecks and auto load |
 | `patches` | Every IE patch off and back on, the vanilla Commerce rule returns while off |
-| `vpc` | VPC rolls per tier, drop params, invalid tier data, Assembler and Manufactory supply and demand with an ultra VPC, reload |
+| `vpc` | VPC rolls per tier, drop params, loot resolver, hist3t tag, salvage drops from `indEvo_tech_addition`, invalid tier data, Assembler and Manufactory supply and demand with an ultra VPC, reload |
 | `relic` | Relic payment order, construction speed up and cooldown, Edict relic removal unrest, Lattice job, recorded hullmods, Project Reforge unlock, two step Academy training, Tech Mining boost through reload and month end |
 | `nextuse` | Museum, minefield and meteor settings on next use |
 | `newgame` | IE content on the base save. With `NEWGAME=1 SWITCHES=off` a new game without any |

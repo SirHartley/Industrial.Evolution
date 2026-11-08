@@ -35,6 +35,12 @@ public class Senate extends BaseIndustry {
     }
 
     @Override
+    public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
+        super.notifyBeingRemoved(mode, forUpgrade);
+        if (!forUpgrade) EdictHelper.cancelEdictsOf(market);
+    }
+
+    @Override
     public boolean isAvailableToBuild() {
         return Setting.SENATE.enabled() && MiscIE.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()) && super.isAvailableToBuild();
     }

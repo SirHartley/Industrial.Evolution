@@ -10,6 +10,7 @@ package indevo.industries.senate.conditions;
 
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.MiscIE;
@@ -60,13 +61,27 @@ public class Edict_Customs extends BaseEdict {
         int others = getOtherColoniesInSystem(market).size();
 
         if (others == 0) {
-            tooltip.addPara("Accessibility of this colony is unchanged, as there are %s in the star system.", pad, Misc.getNegativeHighlightColor(), "no other colonies");
+            tooltip.addPara("Accessibility is unchanged, as there are %s in the star system.", pad, Misc.getNegativeHighlightColor(), "no other colonies");
             return;
         }
 
-        tooltip.addPara("Accessibility of this colony %s, %s for every other colony in the star system.", pad,
+        tooltip.addPara("Accessibility %s, %s for every other colony in the star system.", pad,
                 new Color[]{Misc.getPositiveHighlightColor(), Misc.getHighlightColor()}, "increased by " + others * 5 + "%", "5%");
-        tooltip.addPara("Accessibility of all other colonies in the star system %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + Math.round(-foreignAccessMod * 100) + "%");
+    }
+
+    @Override
+    public boolean hasOtherColonyEffects(MarketAPI market) {
+        return !getOtherColoniesInSystem(market).isEmpty();
+    }
+
+    @Override
+    public void addOtherColonyEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        float linePad = pad;
+
+        for (MarketAPI other : getOtherColoniesInSystem(market)) {
+            tooltip.addPara(BaseIntelPlugin.BULLET + other.getName() + ": accessibility %s", linePad, Misc.getNegativeHighlightColor(), "reduced by " + Math.round(-foreignAccessMod * 100) + "%");
+            linePad = 1f;
+        }
     }
 
     @Override

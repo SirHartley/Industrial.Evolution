@@ -22,7 +22,6 @@ import com.fs.starfarer.api.util.Pair;
 import indevo.config.Setting;
 import indevo.ids.ItemIds;
 import indevo.utils.helper.BillingHelper;
-import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.RelicHelper;
 import indevo.utils.helper.StringHelper;
 import org.lwjgl.input.Keyboard;
@@ -77,14 +76,29 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
         optionSelected(null, Option.MAIN);
     }
 
-    public static boolean hasValidPair(MarketAPI market) {
+    public static String getUnavailableReason(MarketAPI market) {
         Set<FleetMemberAPI> members = getMembers(market);
+        boolean hasOrigin = false;
+        boolean hasPartner = false;
+        boolean hasFreeSlot = false;
 
         for (FleetMemberAPI m : members) {
-            if (!getSModList(m).isEmpty() && !getValidTargets(m, members).isEmpty()) return true;
+            if (getSModList(m).isEmpty()) continue;
+            hasOrigin = true;
+
+            for (FleetMemberAPI other : members) {
+                if (other.getId().equals(m.getId()) || !IndEvo_InitSYMoveDModDiag.isSameSizeAndTechtype(m, other)) continue;
+                hasPartner = true;
+                if (getFreeSlots(other) <= 0) continue;
+                hasFreeSlot = true;
+                if (!getTransferableMods(m, other).isEmpty()) return null;
+            }
         }
 
-        return false;
+        if (!hasOrigin) return "None of your ships here have S-mods.";
+        if (!hasPartner) return "None of your ships here match a ship with S-mods in size and manufacturer.";
+        if (!hasFreeSlot) return "No matching ship has a free S-mod slot.";
+        return "No matching ship with a free S-mod slot has the hullmod installed. Install it in the refit screen first.";
     }
 
     private MarketAPI getMarket() {
@@ -267,15 +281,7 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
     }
 
     private static Set<FleetMemberAPI> getMembers(MarketAPI market) {
-        Set<FleetMemberAPI> members = new LinkedHashSet<>(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy());
-
-        CargoAPI storageCargo = MiscIE.getStorageCargo(market);
-        if (storageCargo != null) {
-            storageCargo.initMothballedShips("player");
-            members.addAll(storageCargo.getMothballedShips().getMembersListCopy());
-        }
-
-        return members;
+        return IndEvo_InitSYMoveDModDiag.getMembers(market);
     }
 
     private static List<String> getSModList(FleetMemberAPI member) {

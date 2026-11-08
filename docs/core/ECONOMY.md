@@ -35,7 +35,7 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 | Setting | `IndEvo_ScrapYard` (parts on/off) | `data/config/LunaSettings.csv:97` |
 | Memory key | `$IndEvo_reduceBuildTimeCooldown` (market memory, expires after `COOLDOWN_DAYS` 60) | `RelicBuildTimeReductionButtonAdder` |
 | Option ids | `IndEvo_cpcExpress` (`IndEvo_CPCExpress.OPTION_EXPRESS`), `IndEvo_cpcStandard` | rules, `IndEvo_CPCExpress` |
-| Rules | `IndEvo_cpcExpressOffer` (trigger `CPCBlueprintsPicked`, score 100), `IndEvo_cpcStandard`, `IndEvo_cpcStandardBar`, `IndEvo_cpcExpress`, `IndEvo_cpcExpressBar` | `data/campaign/rules.csv:860` |
+| Rules | `IndEvo_cpcExpressOffer` (trigger `CPCBlueprintsPicked`, score 100), `IndEvo_cpcStandard`, `IndEvo_cpcStandardBar`, `IndEvo_cpcExpress`, `IndEvo_cpcExpressBar` | `data/campaign/rules.csv:856` |
 | Memory key | `$IndEvo_relicSpeedUp_<getSpeedUpId()>` (market memory, expires after `COOLDOWN_DAYS` 60): industry id, `<academy id>_officer`, `<academy id>_admin` | `RelicSpeedUpTarget` |
 | Memory key | `$IndEvo_relicTechMining` (market memory, `true` while a Tech Mining boost is pending) | `TechMiningRelicOptionProvider.MEM_BOOST` |
 | Modifier id | `IndEvo_relicTechMining`, mult `FIND_MULT` 2 on `Stats.TECH_MINING_MULT` | `TechMiningRelicOptionProvider.MOD_ID` |
@@ -80,7 +80,7 @@ Shared by construction and the IE timers. Constants on `RelicSpeedUpTarget`: `RE
 | Ancient Laboratory template repair | Accelerate | `AncientLaboratory` | Industry option |
 | Rift Generator cooldown | Recharge | `RiftGenerator`, `isSpeedUpInstant()` | Industry option |
 | Academy officer and admin training | Accelerate | `Academy.TrainingSpeedUp` (`getTrainingSpeedUp(admin)`) | Button in the training slot of the Academy panel, see [Academy](../industries/ACADEMY.md) |
-| Salvage Yards order delivery | Express Delivery | `YardsCustomProductionIntel` | Intel button with a confirm prompt, see [Salvage Yards](../industries/SALVAGE_YARDS.md) |
+| Salvage Yards order delivery | Accelerate Construction | `YardsCustomProductionIntel` | Intel button with a confirm prompt and an option in the ship assembly dialog, see [Salvage Yards](../industries/SALVAGE_YARDS.md) |
 
 - Halving: days after `left - left / 2`, cost `left * RELICS_PER_DAY`. Instant (Rift Generator): days after 0, cost `left * RELICS_PER_DAY_INSTANT`.
 - `canSpeedUp()` needs more than 1 day left; the industry option only shows then. `RelicSpeedUpDialog.isAvailable` adds the cooldown check, the option or button is disabled while it runs.
@@ -128,7 +128,7 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 | Sink | Cost | Paid from | Owner |
 |---|---|---|---|
 | Construction speed up | 1 per remaining day | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
-| IE timer speed up (Accelerate, Salvage Yards Express Delivery) | 1 per remaining day, halves it | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
+| IE timer speed up (Accelerate, Salvage Yards Accelerate Construction) | 1 per remaining day, halves it | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
 | Rift Generator recharge (Recharge) | 3 per remaining day, ends the cooldown | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
 | Early Edict removal | 1 per remaining day | colony storage, then fleet cargo | [Senate](../industries/SENATE.md#runtime-and-penalties) |
 | Express Delivery | 1 per delivery day (60 at vanilla) | fleet cargo | [Custom production Express Delivery](#custom-production-express-delivery) |

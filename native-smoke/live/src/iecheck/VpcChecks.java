@@ -7,8 +7,11 @@ import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
+import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import indevo.ids.ItemIds;
 import indevo.items.VPCItemPlugin;
+import indevo.items.listeners.VPCLootResolver;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,6 +59,35 @@ public final class VpcChecks {
 
             SpecialItemData ultra = VPCItemPlugin.roll(VPCItemPlugin.Tier.ULTRA, random);
             c.expect(!VPCItemPlugin.isValid(new SpecialItemData(ItemIds.VPC, ultra.getData())), "V1 common id with ultra data is not valid");
+
+            CargoAPI loot = Global.getFactory().createCargo(true);
+            loot.addSpecial(new SpecialItemData(ItemIds.VPC_RARE, null), 2f);
+            new VPCLootResolver().reportAboutToShowLootToPlayer(loot, null);
+            boolean resolved = loot.getStacksCopy().size() >= 1;
+            float count = 0f;
+            for (CargoStackAPI s : loot.getStacksCopy()) {
+                resolved &= VPCItemPlugin.getTier(s.getSpecialDataIfSpecial()) == VPCItemPlugin.Tier.RARE;
+                count += s.getSize();
+            }
+            c.expect(resolved && count == 2f, "V1 loot resolver rolls two null data rare chips");
+            c.expect(Global.getSettings().getSpecialItemSpec(ItemIds.VPC_RARE).hasTag("hist3t"), "V1 rare chip is in the hist3t pool");
+
+            int drops = 0;
+            boolean dropsValid = true;
+            Random dropRandom = new Random(11);
+            for (int i = 0; i < 300; i++) {
+                SalvageEntityGenDataSpec.DropData d = new SalvageEntityGenDataSpec.DropData();
+                d.group = "indEvo_tech_addition";
+                d.chances = 10;
+                d.maxChances = 10;
+                CargoAPI salvage = SalvageEntity.generateSalvage(dropRandom, 1f, 1f, 1f, 1f, null, List.of(d));
+                for (CargoStackAPI s : salvage.getStacksCopy()) {
+                    if (!VPCItemPlugin.isVPC(s.getSpecialDataIfSpecial())) continue;
+                    drops += (int) s.getSize();
+                    dropsValid &= VPCItemPlugin.isValid(s.getSpecialDataIfSpecial());
+                }
+            }
+            c.expect(drops > 0 && dropsValid, "V1 indEvo_tech_addition drops valid VPCs (" + drops + " in 3000 chances)");
 
             Colony.pair(c, 6);
             MarketAPI a = c.market("a");

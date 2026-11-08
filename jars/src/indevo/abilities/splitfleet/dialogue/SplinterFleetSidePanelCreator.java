@@ -42,7 +42,6 @@ public class SplinterFleetSidePanelCreator {
     protected static final float SHIP_ICON_WIDTH = 48;
     protected static final float BUTTON_HEIGHT = 30;
     protected static final float SELECT_BUTTON_WIDTH = 95f;
-    protected static final float TOGGLE_WIDTH = 60f;
     protected static final float COLUMN_WIDTH = (PANEL_WIDTH - 30f) / 2f;
     protected static final float COLUMN_HEIGHT = 230f;
     protected static final float MODE_BUTTON_WIDTH = (COLUMN_WIDTH - 10f) / 3f;
@@ -158,10 +157,10 @@ public class SplinterFleetSidePanelCreator {
         y += 2 * (ORDER_BUTTON_HEIGHT + 5f) + 5f;
         float toggleWidth = (COLUMN_WIDTH - 5f) / 2f;
 
-        TooltipMakerAPI recallToggle = createToggle(column, "Auto-recall", loadout.autoRecall, true, () -> toggleAutoRecall(num), toggleWidth, "Return to you when supplies drop below " + (int) DetachmentAI.AUTO_RECALL_DAYS + " days.");
+        TooltipMakerAPI recallToggle = createToggle(column, "Auto-recall", loadout.autoRecall, true, () -> toggleAutoRecall(num), toggleWidth, MODE_BUTTON_HEIGHT, "Return to you when supplies drop below " + (int) DetachmentAI.AUTO_RECALL_DAYS + " days.");
         column.addUIElement(recallToggle).inTL(0f, y);
 
-        TooltipMakerAPI fightToggle = createToggle(column, "Join fights", loadout.joinFights, true, () -> toggleJoinFights(num), toggleWidth, "Join nearby battles involving the main force. Unavailable while hiding, transporting or travelling on orders.");
+        TooltipMakerAPI fightToggle = createToggle(column, "Join fights", loadout.joinFights, true, () -> toggleJoinFights(num), toggleWidth, MODE_BUTTON_HEIGHT, "Join nearby battles involving the main force. Unavailable while hiding, transporting or travelling on orders.");
         column.addUIElement(fightToggle).inTL(toggleWidth + 5f, y);
     }
 
@@ -203,15 +202,15 @@ public class SplinterFleetSidePanelCreator {
         CustomPanelAPI row = panel.createCustomPanel(PANEL_WIDTH - 10f, 50f, new RunnableButtonPanelPlugin());
         List<TooltipMakerAPI> buttons = new ArrayList<>();
 
-        buttons.add(createToggle(row, "Send", !take, !live, () -> setTakeMode(num, false), TOGGLE_WIDTH, "Select ships and cargo for the detachment."));
-        buttons.add(createToggle(row, "Take", take, !live, () -> setTakeMode(num, true), TOGGLE_WIDTH, "Select ships and cargo to keep; the rest form the detachment. Your flagship stays with you."));
+        buttons.add(createToggle(row, "Send", !take, !live, () -> setTakeMode(num, false), SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, "Select ships and cargo for the detachment."));
+        buttons.add(createToggle(row, "Take", take, !live, () -> setTakeMode(num, true), SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, "Select ships and cargo to keep; the rest form the detachment. Your flagship stays with you."));
         buttons.add(createButton(row, "Members", () -> new TwoFleetFleetMemberPicker(plugin, LoadoutMemory.getLoadout(num)).init(), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !live));
         buttons.add(createButton(row, "Cargo", () -> new TwoFleetCargoPicker(plugin, Global.getSector().getPlayerFleet(), LoadoutMemory.getLoadout(num), true).init(), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !live && ready));
         if (!live) buttons.add(createButton(row, "Deploy", () -> spawn(num), Misc.getTextColor(), SPAWN_COLOUR, canSpawn));
 
         TooltipMakerAPI previous = null;
         for (TooltipMakerAPI el : buttons) {
-            if (previous == null) row.addUIElement(el).inTL(SPAD, OPAD);
+            if (previous == null) row.addUIElement(el).inTL(0f, OPAD);
             else row.addUIElement(el).rightOfMid(previous, previous == buttons.get(0) ? SPAD : OPAD);
             previous = el;
         }
@@ -289,9 +288,9 @@ public class SplinterFleetSidePanelCreator {
         return el;
     }
 
-    private TooltipMakerAPI createToggle(CustomPanelAPI owner, String text, boolean checked, boolean enabled, Runnable action, float width, String tooltip) {
-        TooltipMakerAPI el = owner.createUIElement(width, BUTTON_HEIGHT, false);
-        ButtonAPI button = el.addAreaCheckbox(text, action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), width, MODE_BUTTON_HEIGHT, 0f);
+    private TooltipMakerAPI createToggle(CustomPanelAPI owner, String text, boolean checked, boolean enabled, Runnable action, float width, float height, String tooltip) {
+        TooltipMakerAPI el = owner.createUIElement(width, height, false);
+        ButtonAPI button = el.addAreaCheckbox(text, action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), width, height, 0f);
         button.setChecked(checked);
         button.setEnabled(enabled);
         button.setShowTooltipWhileInactive(true);

@@ -15,6 +15,10 @@ public interface EdictAPI {
 
     void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad);
 
+    boolean hasOtherColonyEffects(MarketAPI market);
+
+    void addOtherColonyEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad);
+
     void addRuntimeText(TooltipMakerAPI tooltip, MarketAPI market, float pad);
 
     int getMinRuntime(MarketAPI market);
