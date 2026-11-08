@@ -33,7 +33,7 @@ public class RelicDerelictRecoveryPatch {
     public static final int RELICS_PER_DP = 5;
 
     private static final String VANILLA_NOT_NOW_TEXT = "\"I'll need to consider my options.\"";
-    private static final String OPTION_TEXT = "Rebuild it with relic components (%s)";
+    private static final String OPTION_TEXT = "Rebuild with relic components (%s)";
     private static final String LORE = "Whole sections of the wreck's machinery are gone. Your engineers can rebuild them around the relic components in your holds.";
 
     private static final String PICKER_OPENING_KEY = "IndEvo_relicRecoverPickerOpening";
