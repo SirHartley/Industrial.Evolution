@@ -110,7 +110,6 @@ Adjusted - Shortened VPC tooltips and removed the generic install hint
 Adjusted - Conflict Package demand now matches its single chips (more crew, fewer metals)
 Adjusted - VPC commodities and outputs moved to data/config/indEvo/vpc_commodities.csv
 Fixed - Beta core upkeep discount no longer stays active after installing a VPC
-Removed - Historian VPC leads (chips are now rolled on drop)
 
 --- cont
 
