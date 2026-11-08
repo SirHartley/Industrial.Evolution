@@ -14,6 +14,8 @@ public class ItemIds {
     public static final String PET_FOOD = "IndEvo_pet_food";
 
     public static final String VPC = "IndEvo_vpc";
+    public static final String VPC_RARE = "IndEvo_vpc_rare";
+    public static final String VPC_ULTRA = "IndEvo_vpc_ultra";
 
     //items
     //consumable

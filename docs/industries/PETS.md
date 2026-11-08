@@ -42,7 +42,7 @@ Code paths relative to `jars/src/indevo/`.
 |---|---|---|
 | Industry | `IndEvo_PetStore` "Animal Center" (`Ids.PET_STORE`) | `data/campaign/industries.csv:54` |
 | Submarket | `IndEvo_PetSubMarket` (`Ids.PETMARKET`) | `data/campaign/submarkets.csv:10` |
-| Special item | `IndEvo_PetBox` (`ItemIds.PET_CHAMBER`) | `data/campaign/special_items.csv:15` |
+| Special item | `IndEvo_PetBox` (`ItemIds.PET_CHAMBER`) | `data/campaign/special_items.csv:17` |
 | Hullmod | `IndEvo_petHullmod` | `data/hullmods/hull_mods.csv:13` |
 | Ability | `pet_management` | `data/campaign/abilities.csv:3` |
 | Pets | 38 rows: `id,name,value,maxlife,tags,foodCommodities,rarity,foodPerMonth,desc,natural_death,icon,hullmod` | `data/campaign/pets.csv` |

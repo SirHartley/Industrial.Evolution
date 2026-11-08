@@ -42,7 +42,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Faction | `IndEvo_converters` (`Ids.CONVERTERS_FACTION_ID`) | `data/world/factions/IndEvo_converters.faction`, `factions.csv:8` |
 | Nexerelin faction config | `IndEvo_converters` | `data/config/exerelinFactionConfig/mod_factions.csv`, `IndEvo_converters.json` |
 | Rules | `greetingConverter` and the converter comm block | `data/campaign/rules.csv:421` to `:461` |
-| Special item | `IndEvo_log_core` | `data/campaign/special_items.csv:18`; drop groups `data/campaign/procgen/drop_groups.csv:2`, `:75` |
+| Special item | `IndEvo_log_core` | `data/campaign/special_items.csv:20`; drop groups `data/campaign/procgen/drop_groups.csv:2`, `:75` |
 | Sound | `IndEvo_converter_hostile` | `data/config/sounds.json:14` |
 | Custom entity | `IndEvo_MobileColony` (tag `IndEvo_mobileColony`) | `data/config/custom_entities.json:2` |
 | Memory key | `$IndEvo_MobileColony`, `$IndEvo_MobileColonyNum` (fleet) | `MobileColonyFactory` |

@@ -43,7 +43,8 @@ public class VPCEffect extends BaseInstallableItemEffect {
     protected void addItemDescriptionImpl(Industry industry, TooltipMakerAPI text, SpecialItemData data,
                                           InstallableItemDescriptionMode mode, String pre, float pad) {
         if (data == null || (data.getData() == null && Global.CODEX_TOOLTIP_MODE)) {
-            text.addPara(pre + "Contains production protocols for one to three commodities, depending on its tier.", pad);
+            int outputs = VPCItemPlugin.Tier.getLowest(id).outputs;
+            text.addPara(pre + "Contains production protocols for " + (outputs == 1 ? "one commodity." : outputs == 2 ? "two commodities." : "three commodities."), pad);
             return;
         }
 

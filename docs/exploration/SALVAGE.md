@@ -36,7 +36,7 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 | Setting | `IndEvo_shipPickerRowCount` (8) | `LunaSettings.csv:14`; ship pickers in DModRepair, PrintShip, ShipRoulette |
 | Drop groups | `rare_tech` (vanilla), `indEvo_tech_event` | `data/campaign/procgen/drop_groups.csv:75-81`; item pool for `ItemChoiceSpecial` |
 | Config | `IndEvo_ComForge` column of the VPC commodity table (per commodity base amounts) | `data/config/indEvo/vpc_commodities.csv`; `ConvertVPCSpecial.getDepositList` |
-| Item ids | `IndEvo_ForgeTemplate*`, `IndEvo_DegForgeTemplate`, `IndEvo_vpc`, `IndEvo_debug` fallback | `indevo/ids/ItemIds.java`; see [Installables](../items/INSTALLABLES.md) |
+| Item ids | `IndEvo_ForgeTemplate*`, `IndEvo_DegForgeTemplate`, `IndEvo_vpc`, `IndEvo_vpc_rare`, `IndEvo_vpc_ultra`, `IndEvo_debug` fallback | `indevo/ids/ItemIds.java`; see [Installables](../items/INSTALLABLES.md) |
 | Memory (fleet) | `$IndEvo_poor_spacer`, `$IndEvo_stolen_credit_amt` | `CreditStashSpecial:118-119`; read by rules `IndEvo_ImpoverishedSpacerGreeting` and following (`data/campaign/rules.csv`, rule cmds `indevo/dialogue/rules/IndEvo_AddSpacerFineMenuPoint.java`, `IndEvo_DeductSpacerCreditsAndSetNeutral.java`) |
 | Rep impact ids | `indEvo_creditSpecial`, `csSpecial` | `CreditStashSpecial:120`, `:155` |
 | CR event id | `indEvo_explosion` | `ExtraFuelSpecial:193` |

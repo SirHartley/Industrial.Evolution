@@ -32,7 +32,7 @@ A planet with the condition `IndEvo_mineFieldCondition` spawns a ring terrain `I
 | Custom entity | `IndEvo_mine` (tag `IndEvo_Mine`, layer `ASTEROIDS`) | `data/config/custom_entities.json:1006`. The tag is read by `ModPlugin.beforeGameSave`; the file marks it "DO NOT CHANGE" |
 | Custom entity | `IndEvo_mine_explosion` | `data/config/custom_entities.json:473` |
 | Custom entity | `SplinterFleet_OrbitFocus` (disabled area anchor) | `data/config/custom_entities.json:420`, owned by [Split fleet](../abilities/SPLIT_FLEET.md) |
-| Sprites | `IndEvo/mine4`, `IndEvo/mineGlow` | `data/config/settings.json:155-156` |
+| Sprites | `IndEvo/mine4`, `IndEvo/mineGlow` | `data/config/settings.json:152-153` |
 | Setting | `IndEvo_Enable_minefields` (placement needs a new game; off stops hits at once) | `LunaSettings.csv:9`; read in `MineBeltTerrainPlugin.createMines/applyEffect`, `ModPlugin.spawnMineFields/restoreRemovedEntities`, `DerelictStationPlacer` |
 | Setting | `IndEvo_Minefield_HitChance_frigate/destroyer/cruiser/capital` (0.02/0.04/0.06/0.12) | `LunaSettings.csv:57-60`; `MineBeltTerrainPlugin.getBaseFleetHitChance` |
 | Setting | `IndEvo_Minefield_NoHitUntilSum` (0.5) | `LunaSettings.csv:61`; read at use time in `MineBeltTerrainPlugin` |

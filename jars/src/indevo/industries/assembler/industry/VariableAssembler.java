@@ -6,7 +6,6 @@ import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -313,25 +312,9 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
     }
 
     @Override
-    protected boolean addNonAICoreInstalledItems(IndustryTooltipMode mode, TooltipMakerAPI tooltip, boolean expanded) {
-        if (special == null) return false;
-
-        TooltipMakerAPI text = tooltip.beginImageWithText(VPCItemPlugin.getIconName(special), 48);
-        ItemEffectsRepo.ITEM_EFFECTS.get(special.getId()).addItemDescription(this, text, special, InstallableIndustryItemPlugin.InstallableItemDescriptionMode.INDUSTRY_TOOLTIP);
-        tooltip.addImageWithText(10f);
-
-        return true;
-    }
-
-    @Override
     public List<InstallableIndustryItemPlugin> getInstallableItems() {
         List<InstallableIndustryItemPlugin> list = new ArrayList<>();
-        list.add(new NamedItemSlotPlugin(this, "VPC", "Installing a Tri-Tachyon Variable Production Chip (VPC) will change the economic properties of this industry.") {
-            @Override
-            protected String getIconName(SpecialItemData data) {
-                return VPCItemPlugin.getIconName(data);
-            }
-        });
+        list.add(new NamedItemSlotPlugin(this, "VPC", "Installing a Tri-Tachyon Variable Production Chip (VPC) will change the economic properties of this industry."));
 
         return list;
     }

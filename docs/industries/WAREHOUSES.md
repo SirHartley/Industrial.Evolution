@@ -32,7 +32,7 @@ The industry is unreleased: it only shows in the build list if the player factio
 | Tag | `IndEvo_warehouse` | industry tag that both option providers match |
 | Memory key | `$IndEvo_LinkedStoragePluginInstance` (`LinkedStorageManager.MEMORY_KEY`) | sector memory |
 | Item | `wormhole_anchor` row with `WormholeAnchorItemPlugin` | `data/campaign/special_items.csv:72`, commented out |
-| Item | `IndEvo_relicSpecialItem`, params `IndEvo_Warehouse, IndEvo_Warphouse` | `data/campaign/special_items.csv:48`; dummy item, see [Installables](../items/INSTALLABLES.md) |
+| Item | `IndEvo_relicSpecialItem`, params `IndEvo_Warehouse, IndEvo_Warphouse` | `data/campaign/special_items.csv:50`; dummy item, see [Installables](../items/INSTALLABLES.md) |
 
 CSV rows starting with `#` are skipped by the loader (skill `docs/concepts/spec-loading.md:14`).
 

@@ -68,7 +68,7 @@ Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3,
 | Rules | `IndEvo_roiderTutorial_*` (offer 5 `IndEvo_consumable_missile_concussive` for 10% of supplies, max 100) | `data/campaign/rules.csv:6-62` |
 | Rule command package | `indevo.exploration.meteor.rules` | `data/config/settings.json:45` |
 | Sounds | `IndEvo_radiation0..9` | `data/config/sounds.json:18` |
-| Sprite | `IndEvo/meteor_storm` (intel icon) | `data/config/settings.json:170` |
+| Sprite | `IndEvo/meteor_storm` (intel icon) | `data/config/settings.json:167` |
 
 ## Registration and lifecycle
 

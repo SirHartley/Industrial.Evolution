@@ -32,18 +32,20 @@ import java.util.*;
 public class VPCItemPlugin extends GenericSpecialItemPlugin {
 
     public enum Tier {
-        COMMON(1, 30000, 70f, 1f, "This relatively common chip contains handling and production protocols for %s."),
-        UNCOMMON(1, 50000, 25f, 2f, "This uncommon chip contains handling and production protocols for %s."),
-        RARE(2, 100000, 5f, 4f, "This rare, top of the line chip contains handling and production protocols for both %s."),
-        ULTRA(3, 200000, 1f, 6f, "This exceedingly rare chip contains handling and production protocols for %s.");
+        COMMON(ItemIds.VPC, 1, 30000, 70f, 1f, "This relatively common chip contains handling and production protocols for %s."),
+        UNCOMMON(ItemIds.VPC, 1, 50000, 25f, 2f, "This uncommon chip contains handling and production protocols for %s."),
+        RARE(ItemIds.VPC_RARE, 2, 100000, 5f, 4f, "This rare, top of the line chip contains handling and production protocols for both %s."),
+        ULTRA(ItemIds.VPC_ULTRA, 3, 200000, 1f, 6f, "This exceedingly rare chip contains handling and production protocols for %s.");
 
+        public final String itemId;
         public final int outputs;
         public final int price;
         public final float npcWeight;
         public final float patherInterest;
         public final String desc;
 
-        Tier(int outputs, int price, float npcWeight, float patherInterest, String desc) {
+        Tier(String itemId, int outputs, int price, float npcWeight, float patherInterest, String desc) {
+            this.itemId = itemId;
             this.outputs = outputs;
             this.price = price;
             this.npcWeight = npcWeight;
@@ -63,6 +65,14 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
             };
         }
 
+        public static Tier getLowest(String itemId) {
+            for (Tier tier : values()) {
+                if (tier.itemId.equals(itemId)) return tier;
+            }
+
+            return null;
+        }
+
         public static Tier pickForNPC(Random random) {
             WeightedRandomPicker<Tier> picker = new WeightedRandomPicker<>(random);
             for (Tier tier : values()) picker.add(tier, tier.npcWeight);
@@ -74,11 +84,11 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
     private static final String TIER_SEPARATOR = "|";
     private static final String COMMODITY_SEPARATOR = ",";
     private static final float[] DEPOSIT_MULT = {1f, 0.8f, 0.65f};
-    // screen corners in icon px from the top left: tl, tr, br, bl
+    // per output count; screen corners in icon px from the top left: tl, tr, br, bl
     private static final Chip[] CHIPS = {
-            new Chip("VPCChip1", "VPCOverlay1", 24f, 18f, 24f, 58f, 19f, 64f, 46f, 24f, 52f),
-            new Chip("VPCChip2", "VPCOverlay2", 18f, 12f, 23.5f, 63f, 23.5f, 66f, 45.5f, 18f, 52.5f),
-            new Chip("VPCChip3", "VPCOverlay3", 15f, 10.5f, 25.5f, 64f, 21f, 70f, 45f, 16f, 53f)
+            new Chip("VPCOverlay1", 24f, 18f, 24f, 58f, 19f, 64f, 46f, 24f, 52f),
+            new Chip("VPCOverlay2", 18f, 12f, 23.5f, 63f, 23.5f, 66f, 45.5f, 18f, 52.5f),
+            new Chip("VPCOverlay3", 15f, 10.5f, 25.5f, 64f, 21f, 70f, 45f, 16f, 53f)
     };
     private static final float ICON_GAP = 0.04f;
     private static final float OVERLAY_ALPHA = 0.4f;
@@ -93,14 +103,12 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
     protected SpecialItemData data;
 
     private static class Chip {
-        private final String sprite;
         private final String overlay;
         private final float iconSize;
         private final Vector2f tl, tr, br, bl;
         private final Vector2f u, v;
 
-        private Chip(String sprite, String overlay, float iconSize, float... corners) {
-            this.sprite = sprite;
+        private Chip(String overlay, float iconSize, float... corners) {
             this.overlay = overlay;
             this.iconSize = iconSize;
             tl = toCenter(corners[0], corners[1]);
@@ -166,15 +174,11 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
         float cx = x + w / 2f;
         float cy = y + h / 2f;
 
-        // the engine draws the trimmed spec icon first, the full chip covers it
-        if (!isValid(data)) {
-            renderSprite(Global.getSettings().getSprite("IndEvo", CHIPS[0].sprite), cx, cy, alphaMult, glowMult);
-            return;
-        }
+        // the engine draws the chip (spec icon) and its hover highlight before this
+        if (!isValid(data)) return;
 
         List<Commodity> outputs = getOutputs(data);
-        Chip chip = getChip(outputs.size());
-        renderSprite(Global.getSettings().getSprite("IndEvo", chip.sprite), cx, cy, alphaMult, glowMult);
+        Chip chip = CHIPS[getTier(data).outputs - 1];
 
         Color bright = Global.getSettings().getBrightPlayerColor();
         SpriteAPI overlay = Global.getSettings().getSprite("IndEvo", chip.overlay);
@@ -238,13 +242,18 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
     @Override
     public String resolveDropParamsToSpecificItemData(String params, Random random) throws JSONException {
         String tierName = params == null || params.isEmpty() ? "" : new JSONObject(params).optString("tier", "");
-        Tier tier = tierName.isEmpty() ? Tier.COMMON : Tier.valueOf(tierName.toUpperCase());
+        Tier tier = tierName.isEmpty() ? Tier.getLowest(getId()) : Tier.valueOf(tierName.toUpperCase());
+        if (!tier.itemId.equals(getId())) {
+            VPCCommodityRepo.log.warn("VPC drop tier " + tierName + " does not belong to " + getId() + ", using its lowest tier");
+            tier = Tier.getLowest(getId());
+        }
+
         SpecialItemData item = roll(tier, random);
         return item != null ? item.getData() : null;
     }
 
     public static SpecialItemData createItem(Tier tier, List<String> commodityIds) {
-        return new SpecialItemData(ItemIds.VPC, tier.name().toLowerCase() + TIER_SEPARATOR + String.join(COMMODITY_SEPARATOR, commodityIds));
+        return new SpecialItemData(tier.itemId, tier.name().toLowerCase() + TIER_SEPARATOR + String.join(COMMODITY_SEPARATOR, commodityIds));
     }
 
     public static SpecialItemData roll(Tier tier, Random random) {
@@ -264,11 +273,12 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
     }
 
     public static boolean isVPC(SpecialItemData data) {
-        return data != null && ItemIds.VPC.equals(data.getId());
+        return data != null && Tier.getLowest(data.getId()) != null;
     }
 
     public static boolean isValid(SpecialItemData data) {
-        if (getTier(data) == null) return false;
+        Tier tier = getTier(data);
+        if (tier == null || !tier.itemId.equals(data.getId())) return false;
 
         for (String id : getCommodityIds(data)) {
             if (VPCCommodityRepo.get(id) != null) return true;
@@ -355,15 +365,6 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
         return Misc.getAndJoined(names);
     }
 
-    public static String getIconName(SpecialItemData data) {
-        if (!isValid(data)) return Global.getSettings().getSpecialItemSpec(data.getId()).getIconName();
-        return Global.getSettings().getSpriteName("IndEvo", getChip(getOutputs(data).size()).sprite);
-    }
-
-    private static Chip getChip(int outputs) {
-        return CHIPS[Math.max(1, Math.min(outputs, CHIPS.length)) - 1];
-    }
-
     // x and y from the bottom left, as fractions of the image, texture rows are stored bottom up
     private static float[] getContentBounds(String path) {
         return CONTENT_BOUNDS.computeIfAbsent(path, VPCItemPlugin::readContentBounds);
@@ -412,17 +413,5 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
 
     private static String getName(Commodity c) {
         return c.name().isEmpty() ? Global.getSettings().getCommoditySpec(c.id()).getName() : c.name();
-    }
-
-    private static void renderSprite(SpriteAPI sprite, float x, float y, float alphaMult, float glowMult) {
-        sprite.setNormalBlend();
-        sprite.setAlphaMult(alphaMult);
-        sprite.renderAtCenter(x, y);
-
-        if (glowMult > 0) {
-            sprite.setAdditiveBlend();
-            sprite.setAlphaMult(alphaMult * glowMult * 0.5f);
-            sprite.renderAtCenter(x, y);
-        }
     }
 }

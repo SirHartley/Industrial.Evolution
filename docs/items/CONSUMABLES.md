@@ -38,7 +38,7 @@ All paths above are under `jars/src/indevo/items/consumables/`. Targeting input 
 
 ## Data and ids
 
-Items: `data/campaign/special_items.csv:29-42`, plugin `BaseConsumableItemPlugin` (spoofer and beacon use their own), tags `IndEvo_consumable, codex_unlockable`. Abilities: `data/campaign/abilities.csv:5-22`, all `DURATION`, tag `hide_in_codex`, empty `ai` column.
+Items: `data/campaign/special_items.csv:31-44`, plugin `BaseConsumableItemPlugin` (spoofer and beacon use their own), tags `IndEvo_consumable, codex_unlockable`. Abilities: `data/campaign/abilities.csv:5-22`, all `DURATION`, tag `hide_in_codex`, empty `ai` column.
 
 | Item id | Ability id | Price | Ability row |
 |---|---|---|---|

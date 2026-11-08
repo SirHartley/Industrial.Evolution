@@ -33,7 +33,7 @@ Outside the package: `indevo/items/AmbassadorItemPlugin.java`, `indevo/items/ins
 | Kind | Id / key | Where |
 |---|---|---|
 | Industry | `IndEvo_embassy` (`Ids.EMBASSY`) | `data/campaign/industries.csv:28` |
-| Special item | `IndEvo_amb` (`ItemIds.AMBASSADOR`), tags `no_drop, hide_in_codex`, params `IndEvo_embassy`; data is the person id | `data/campaign/special_items.csv:4` |
+| Special item | `IndEvo_amb` (`ItemIds.AMBASSADOR`), tags `no_drop, hide_in_codex`, params `IndEvo_embassy`; data is the person id | `data/campaign/special_items.csv:6` |
 | Whitelist | `data/config/indEvo/embassy_whitelist.csv` (35 faction ids), path key `IndEvo_embassyList` (`Ids.EMBASSY_LIST`) | `data/config/settings.json:11` |
 | Setting | `IndEvo_embassy` (toggle, also disables ambassador scripts and NPC market ambassadors. Off mid game freezes what is already hired: no monthly gain, no HA effect, no tracker days) | `data/config/LunaSettings.csv:99` |
 | Sector memory | `$deconomics_ambAllowed_<factionId>`: true adds a faction, false bans and recalls | `AmbassadorItemHelper.java:18` |

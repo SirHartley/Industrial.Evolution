@@ -114,7 +114,7 @@ Enabled crucible (`BaseCrucibleEntityPlugin.advance`): drone loop by distance, f
 |---|---|
 | `CrucibleSpawner.spawn()` | Unregistered. Both calls commented out (`ModPlugin.java:203`, `:295`) |
 | `rules.csv:152` vs `:154` | Wormhole option shows on `wormhole_anchor`, disabled variant checks `!... coronal_portal`. Mismatched item ids |
-| `rules.csv:158`, `:160` | Gate option checks item `coronal_tap`; the Hypershunt Tap id is `coronal_portal` (starsector-knowledge `data/campaign/special_items.csv:15`). Gate unlock can never show |
+| `rules.csv:158`, `:160` | Gate option checks item `coronal_tap`; the Hypershunt Tap id is `coronal_portal` (starsector-knowledge `data/campaign/special_items.csv:17`). Gate unlock can never show |
 | Options `IndEvo_crucible_useWormhole_select`, `_useGate_select`, `_moveCrucible_select`, `_changeCatapultColour_select`, `IndEvo_c_hab_0`, `IndEvo_c_eng_0`, `IndEvo_c_cont_0`, `IndEvo_c_cargo_0` | No `DialogOptionSelected` rule in `rules.csv`; `IndEvo_c_cargo_0` exists only in the unloaded draft CSV |
 | `CrucibleSpawner.removeFromtLoc(system)` | Ignores its parameter, uses the player's location and `get(0)` of `IndEvo_crucible` (`:40-53`) |
 | `CrucibleSpawner.spawnCrucible()` nebula loop | `break` outside the `if`, only checks the first terrain (`:221-224`); result unused |
