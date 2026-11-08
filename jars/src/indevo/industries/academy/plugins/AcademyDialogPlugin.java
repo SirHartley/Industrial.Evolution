@@ -32,6 +32,7 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
     private InteractionDialogAPI dialog;
     private final AcademyPanelDelegate panel;
     private AcademyTrainingPopupDelegate popup;
+    private AcademyAdminTrainingDelegate adminConfirm;
     private RelicSpeedUpDialog relicDialog;
     private boolean showPanelPending = false;
     private boolean returnPending = false;
@@ -74,12 +75,14 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
 
     public void showPanel() {
         popup = null;
+        adminConfirm = null;
         relicDialog = null;
         dialog.showCustomDialog(AcademyPanelDelegate.getWidth(), AcademyPanelDelegate.getHeight(), panel);
     }
 
     public void showPanelNextFrame() {
         popup = null;
+        adminConfirm = null;
         relicDialog = null;
         showPanelPending = true;
     }
@@ -87,6 +90,11 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
     public void showTrainingPopup(PersonAPI officer) {
         popup = new AcademyTrainingPopupDelegate(academy, this, officer);
         dialog.showCustomDialog(AcademyTrainingPopupDelegate.WIDTH, AcademyTrainingPopupDelegate.HEIGHT, popup);
+    }
+
+    public void showAdminTraining(PersonAPI admin) {
+        adminConfirm = new AcademyAdminTrainingDelegate(academy, this, admin);
+        dialog.showCustomDialog(AcademyAdminTrainingDelegate.WIDTH, AcademyAdminTrainingDelegate.HEIGHT, adminConfirm);
     }
 
     public void showRelicDialog(RelicSpeedUpTarget target) {
@@ -98,6 +106,7 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
     public void close() {
         if (relicDialog != null && relicDialog.isOpen()) relicDialog.cancel();
         else if (popup != null && popup.isOpen()) popup.cancel();
+        else if (adminConfirm != null && adminConfirm.isOpen()) adminConfirm.cancel();
         else if (panel.isOpen()) panel.cancel();
         else leave();
     }

@@ -1,6 +1,7 @@
 package indevo.industries.academy.plugins;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
@@ -13,19 +14,20 @@ import indevo.utils.helper.BillingHelper;
 import java.awt.*;
 import java.util.List;
 
+import static indevo.industries.academy.plugins.AcademyPanelDelegate.TOOLTIP_INSET;
 import static indevo.industries.academy.plugins.AcademyPanelDelegate.getPersonalityColor;
 import static indevo.industries.academy.plugins.AcademyPanelDelegate.getPersonalityName;
 
 public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegate {
 
     public static final float WIDTH = 700f;
-    public static final float HEIGHT = 380f;
+    public static final float HEIGHT = 400f;
 
     private static final float PAD = 10f;
-    private static final float SQUARE_W = 124f;
-    private static final float SQUARE_H = 30f;
-    private static final float SQUARE_GAP = 9f;
-    private static final float SQUARE_TEXT_H = 60f;
+    private static final float SQUARE = 124f;
+    private static final float SQUARE_GAP = 12f;
+    private static final float BAR_H = 5f;
+    private static final float HEADER_H = 50f;
 
     private final Academy academy;
     private final AcademyDialogPlugin plugin;
@@ -109,92 +111,109 @@ public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegat
 
         float w = basePanel.getPosition().getWidth();
         float h = basePanel.getPosition().getHeight();
-        panel = Global.getSettings().createCustom(w, h, null);
+        panel = Global.getSettings().createCustom(w, h, new ButtonReportingCustomPanel(this));
 
         Color hl = Misc.getHighlightColor();
         String current = officer.getPersonalityAPI().getId();
 
-        TooltipMakerAPI main = panel.createUIElement(w, h, false);
-        main.addSectionHeading("Personality training - " + officer.getNameString(), Alignment.MID, 0f);
-        main.addPara("Level %s, currently %s. Training steps left: %s.", PAD, new Color[]{hl, getPersonalityColor(current), hl},
+        TooltipMakerAPI header = panel.createUIElement(w, HEADER_H, false);
+        header.addSectionHeading("Personality training - " + officer.getNameString(), Alignment.MID, 0f);
+        header.addPara("Level %s, currently %s. Training steps left: %s.", PAD, new Color[]{hl, getPersonalityColor(current), hl},
                 officer.getStats().getLevel() + "", getPersonalityName(current), academy.getOfficerStepsLeft(officer) + "");
+        panel.addUIElement(header).inTL(0f, 0f);
 
-        main.addCustom(createSquares(w), PAD);
+        float squaresY = HEADER_H + PAD;
+        float x = (w - 5 * SQUARE - 4 * SQUARE_GAP) / 2f;
+        for (String id : Academy.COLOURS_BY_PERSONALITY.keySet()) {
+            addSquare(id, x, squaresY);
+            x += SQUARE + SQUARE_GAP;
+        }
 
         if (selected != null) {
             int steps = Academy.getPersonalitySteps(current, selected);
             float fee = academy.getOfficerTrainingFee(steps);
-            String days = academy.getOfficerTrainingDays(steps) + "";
+            String days = academy.getOfficerTrainingDays(steps) + " days";
 
-            if (fee > 0) main.addPara("%s to %s: %s, %s days, %s.", PAD, new Color[]{getPersonalityColor(current), getPersonalityColor(selected), hl, hl, hl},
-                    getPersonalityName(current), getPersonalityName(selected), getStepsText(steps), days, Misc.getDGSCredits(fee));
-            else main.addPara("%s to %s: %s, %s days.", PAD, new Color[]{getPersonalityColor(current), getPersonalityColor(selected), hl, hl},
-                    getPersonalityName(current), getPersonalityName(selected), getStepsText(steps), days);
+            TooltipMakerAPI summary = panel.createUIElement(w, h - squaresY - SQUARE - PAD, false);
+            if (fee > 0) summary.addPara("%s to %s: %s, %s.", 0f, new Color[]{getPersonalityColor(current), getPersonalityColor(selected), hl, hl},
+                    getPersonalityName(current), getPersonalityName(selected), days, Misc.getDGSCredits(fee));
+            else summary.addPara("%s to %s: %s.", 0f, new Color[]{getPersonalityColor(current), getPersonalityColor(selected), hl},
+                    getPersonalityName(current), getPersonalityName(selected), days);
 
-            main.addPara(Global.getSettings().getPersonaltySpec(selected).getDescription(), Misc.getGrayColor(), PAD);
+            summary.addPara(Global.getSettings().getPersonaltySpec(selected).getDescription(), Misc.getGrayColor(), PAD);
+            panel.addUIElement(summary).inTL(0f, squaresY + SQUARE + PAD * 1.5f);
+        } else {
+            TooltipMakerAPI none = panel.createUIElement(w, 20f, false);
+            none.addPara("No personality can be trained right now.", Misc.getGrayColor(), 0f);
+            panel.addUIElement(none).inTL(0f, squaresY + SQUARE + PAD * 1.5f);
         }
 
-        panel.addUIElement(main).inTL(0f, 0f);
         basePanel.addComponent(panel);
     }
 
-    private CustomPanelAPI createSquares(float w) {
-        Color dark = Misc.getDarkPlayerColor();
-        Color bright = Misc.getBrightPlayerColor();
+    private void addSquare(final String id, float x, float y) {
         Color gray = Misc.getGrayColor();
         Color hl = Misc.getHighlightColor();
-
         String current = officer.getPersonalityAPI().getId();
         List<String> reachable = academy.getReachablePersonalities(officer);
-        int stepsLeft = academy.getOfficerStepsLeft(officer);
-        int trained = academy.getTrainedSteps(officer);
 
-        CustomPanelAPI row = panel.createCustomPanel(w, SQUARE_H + SQUARE_TEXT_H, new ButtonReportingCustomPanel(this));
-        float x = (w - 5 * SQUARE_W - 4 * SQUARE_GAP) / 2f;
+        int steps = Academy.getPersonalitySteps(current, id);
+        float fee = academy.getOfficerTrainingFee(steps);
+        boolean isCurrent = id.equals(current);
+        boolean isReachable = reachable.contains(id);
+        boolean affordable = BillingHelper.canAfford(fee);
+        boolean selectable = isReachable && affordable;
+        Color color = isCurrent || isReachable ? getPersonalityColor(id) : Misc.scaleColorOnly(getPersonalityColor(id), 0.5f);
 
-        for (final String id : Academy.COLOURS_BY_PERSONALITY.keySet()) {
-            int steps = Academy.getPersonalitySteps(current, id);
-            float fee = academy.getOfficerTrainingFee(steps);
-            boolean isCurrent = id.equals(current);
-            boolean affordable = BillingHelper.canAfford(fee);
-            boolean selectable = reachable.contains(id) && affordable;
-
-            TooltipMakerAPI square = row.createUIElement(SQUARE_W, SQUARE_H + SQUARE_TEXT_H, false);
-            Color color = selectable || isCurrent ? getPersonalityColor(id) : gray;
-            ButtonAPI button = square.addAreaCheckbox(getPersonalityName(id), new ButtonAction(this) {
-                @Override
-                public void execute() {
-                    selected = id;
-                    recreatePanel();
-                }
-            }, color, dark, bright, SQUARE_W, SQUARE_H, 0f);
-            button.setEnabled(selectable);
-            button.setChecked(id.equals(selected));
-
-            if (isCurrent) {
-                square.addPara("Current", gray, 5f).setAlignment(Alignment.MID);
-            } else {
-                square.addPara(getStepsText(steps), selectable ? Misc.getTextColor() : gray, 5f).setAlignment(Alignment.MID);
-
-                if (!reachable.contains(id)) {
-                    String reason = !academy.hasAlphaCore() && steps <= 2 - trained && steps > stepsLeft ? "Needs an alpha core" : "Unavailable";
-                    square.addPara(reason, gray, 1f).setAlignment(Alignment.MID);
-                } else if (!affordable) {
-                    square.addPara("Not enough credits", Misc.getNegativeHighlightColor(), 1f).setAlignment(Alignment.MID);
-                } else {
-                    square.addPara("%s days", 1f, hl, academy.getOfficerTrainingDays(steps) + "").setAlignment(Alignment.MID);
-                    if (fee > 0) square.addPara("%s", 1f, hl, Misc.getDGSCredits(fee)).setAlignment(Alignment.MID);
-                }
+        TooltipMakerAPI background = panel.createUIElement(SQUARE, SQUARE, false);
+        ButtonAPI button = background.addAreaCheckbox("", new ButtonAction(this) {
+            @Override
+            public void execute() {
+                selected = id;
+                recreatePanel();
             }
+        }, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), SQUARE, SQUARE, 0f);
+        button.setEnabled(selectable);
+        button.setChecked(id.equals(selected));
+        panel.addUIElement(background).inTL(x - TOOLTIP_INSET, y);
 
-            row.addUIElement(square).inTL(x, 0f);
-            x += SQUARE_W + SQUARE_GAP;
+        panel.addComponent(createBar(color)).inTL(x + 1f, y + 1f);
+
+        float textW = SQUARE - TOOLTIP_INSET * 2;
+        TooltipMakerAPI text = panel.createUIElement(textW, SQUARE - BAR_H - PAD, false);
+        text.setParaInsigniaLarge();
+        text.addPara(getPersonalityName(id), color, 0f).setAlignment(Alignment.MID);
+        text.setParaFontDefault();
+
+        float lineY = 22f;
+        if (isCurrent) {
+            text.addPara("Current", gray, lineY).setAlignment(Alignment.MID);
+        } else if (!isReachable) {
+            boolean needsAlpha = !academy.hasAlphaCore() && steps <= 2 - academy.getTrainedSteps(officer) && steps > academy.getOfficerStepsLeft(officer);
+            String reason = needsAlpha ? "Needs an alpha core" : "Out of reach";
+            text.addPara(reason, gray, lineY).setAlignment(Alignment.MID);
+        } else {
+            text.addPara("%s days", lineY, hl, academy.getOfficerTrainingDays(steps) + "").setAlignment(Alignment.MID);
+            if (fee > 0) text.addPara(Misc.getDGSCredits(fee), affordable ? hl : Misc.getNegativeHighlightColor(), 2f).setAlignment(Alignment.MID);
         }
 
-        return row;
+        panel.addUIElement(text).inTL(x, y + BAR_H + PAD);
     }
 
-    private static String getStepsText(int steps) {
-        return steps + (steps == 1 ? " step" : " steps");
+    private CustomPanelAPI createBar(final Color color) {
+        return panel.createCustomPanel(SQUARE - 2f, BAR_H, new BaseCustomUIPanelPlugin() {
+            private PositionAPI pos;
+
+            @Override
+            public void positionChanged(PositionAPI position) {
+                pos = position;
+            }
+
+            @Override
+            public void render(float alphaMult) {
+                if (pos == null) return;
+                Misc.renderQuad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), color, alphaMult);
+            }
+        });
     }
 }

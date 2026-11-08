@@ -30,16 +30,21 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
     private static final float TAB_H = 28f;
     private static final float BUTTON_W = 150f;
     private static final float BUTTON_H = 26f;
-    private static final float BOX_W = 110f;
     private static final float PORTRAIT = 64f;
+    private static final float BOX = PORTRAIT;
+    private static final float BOX_LABEL_H = 14f;
     private static final float ICON = 28f;
     private static final float SLOT_H = 86f;
     private static final float ROW_HEADER_H = 20f;
-    private static final float ROW_H = ROW_HEADER_H + 84f;
+    private static final float ROW_H = ROW_HEADER_H + 96f;
     private static final float BAR_W = 320f;
 
     private static final Color ABORT_BG = new Color(80, 20, 10, 255);
     private static final Color STORED_BG = new Color(60, 60, 60, 255);
+    private static final Color TRAIN_BG = new Color(50, 130, 0, 255);
+
+    // tooltip elements indent their first item by 5 px
+    public static final float TOOLTIP_INSET = 5f;
 
     private final Academy academy;
     private final AcademyDialogPlugin plugin;
@@ -113,7 +118,8 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         panel = Global.getSettings().createCustom(w, h, null);
 
         TooltipMakerAPI main = panel.createUIElement(w, h, false);
-        main.addSectionHeading(academy.getCurrentName() + " - " + academy.getMarket().getName(), Alignment.MID, 0f);
+        main.addSectionHeading(academy.getCurrentName() + " - " + academy.getMarket().getName(), Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(),
+                Alignment.MID, w - HelpIcon.SIZE - PAD, 0f);
         main.addCustom(createTabs(w), PAD);
 
         main.addSectionHeading("In training", Alignment.MID, PAD);
@@ -129,6 +135,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         main.addCustom(listPanel, SPAD);
 
         panel.addUIElement(main).inTL(0f, 0f);
+        panel.addUIElement(HelpIcon.create(panel, this::addHelp)).inTR(0f, 0f);
         basePanel.addComponent(panel);
 
         ScrollPanelAPI scroller = list.getExternalScroller();
@@ -164,7 +171,6 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
             }
         }, base, dark, bright, TAB_W, TAB_H, 0f).setChecked(adminTab);
         tabs.addUIElement(adminTabElement).inTL(TAB_W + PAD, 0f);
-        tabs.addUIElement(HelpIcon.create(tabs, this::addHelp)).inTL(TAB_W * 2 + PAD * 3, (TAB_H - HelpIcon.SIZE) / 2f);
 
         TooltipMakerAPI credits = tabs.createUIElement(300f, TAB_H, false);
         LabelAPI label = credits.addPara("Credits: %s", 0f, Misc.getHighlightColor(), Misc.getDGSCredits(fleet.getCargo().getCredits().get()));
@@ -281,10 +287,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         ButtonAPI quick = relic.addButton(speedUp.getSpeedUpLabel(), new ButtonAction(this) {
             @Override
             public void execute() {
-                if (externalScroller != null) scrollY = externalScroller.getYOffset();
-                switchingToPopup = true;
-                callback.dismissCustomDialog(1);
-                plugin.showRelicDialog(speedUp);
+                openPopup(() -> plugin.showRelicDialog(speedUp));
             }
         }, base, Misc.getDarkPlayerColor(), Alignment.MID, CutStyle.ALL, BUTTON_W, BUTTON_H, 0f);
         quick.setEnabled(RelicSpeedUpDialog.isAvailable(speedUp));
@@ -302,6 +305,13 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         slot.addUIElement(relic).inTR(PAD * 2 + BUTTON_W, (SLOT_H - BUTTON_H * 2 - 8f) / 2f);
 
         return slot;
+    }
+
+    private void openPopup(Runnable show) {
+        if (externalScroller != null) scrollY = externalScroller.getYOffset();
+        switchingToPopup = true;
+        callback.dismissCustomDialog(1);
+        show.run();
     }
 
     private String getPausedReason() {
@@ -361,13 +371,13 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         row.addUIElement(header).inTL(0f, 0f);
 
         float y = ROW_HEADER_H + PAD;
-        row.addComponent(createAssignmentBox(person, stored)).inTL(PAD, y);
+        addAssignment(row, person, stored, y);
 
         TooltipMakerAPI portrait = row.createUIElement(PORTRAIT, PORTRAIT, false);
         portrait.addImage(person.getPortraitSprite(), PORTRAIT, PORTRAIT, 0f);
-        row.addUIElement(portrait).inTL(PAD * 2 + BOX_W, y);
+        row.addUIElement(portrait).inTL(PAD * 2 + BOX, y);
 
-        float infoX = PAD * 3 + BOX_W + PORTRAIT;
+        float infoX = PAD * 3 + BOX + PORTRAIT;
         float infoW = rowW - infoX - BUTTON_W - PAD * 2;
         TooltipMakerAPI info = row.createUIElement(infoW, PORTRAIT + PAD, false);
         if (adminTab) addAdminInfo(info, person, stored);
@@ -383,20 +393,19 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         return row;
     }
 
-    private CustomPanelAPI createAssignmentBox(PersonAPI person, boolean stored) {
+    private void addAssignment(CustomPanelAPI row, PersonAPI person, boolean stored, float y) {
         Color base = Misc.getButtonTextColor();
-        float iconSize = 40f;
+        float iconSize = BOX - 8f;
 
-        CustomPanelAPI box = panel.createCustomPanel(BOX_W, PORTRAIT, new ButtonReportingCustomPanel(this, base, -1));
+        CustomPanelAPI box = row.createCustomPanel(BOX, BOX, new ButtonReportingCustomPanel(this, base, -1));
         TooltipMakerAPI icon = box.createUIElement(iconSize, iconSize, false);
         String name = null;
-        boolean assigned = false;
 
         if (!stored && !adminTab) {
             FleetMemberAPI ship = Academy.getCommandedShip(person);
             if (ship != null) {
                 icon.addShipList(1, 1, iconSize, base, Collections.singletonList(ship), 0f);
-                assigned = true;
+                name = ship.getShipName();
             }
         } else if (!stored) {
             MarketAPI governed = Academy.getGovernedMarket(person);
@@ -404,28 +413,37 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
                 if (governed.getPlanetEntity() != null) icon.showPlanetInfo(governed.getPlanetEntity(), iconSize, iconSize, false, 0f);
                 else icon.addImage(governed.getFaction().getCrest(), iconSize, iconSize, 0f);
                 name = governed.getName();
-                assigned = true;
             }
         }
 
-        TooltipMakerAPI text = box.createUIElement(BOX_W, 18f, false);
-        text.setParaSmallInsignia();
-
-        if (!assigned) {
-            text.addPara("Unassigned", Misc.getGrayColor(), 0f).setAlignment(Alignment.MID);
-            box.addUIElement(text).inTL(0f, PORTRAIT / 2f - 9f);
-            return box;
-        }
+        row.addComponent(box).inTL(PAD, y);
 
         if (name == null) {
-            box.addUIElement(icon).inTL((BOX_W - iconSize) / 2f, (PORTRAIT - iconSize) / 2f);
-            return box;
+            TooltipMakerAPI text = box.createUIElement(BOX - TOOLTIP_INSET * 2, BOX_LABEL_H, false);
+            text.setParaFont(Fonts.VICTOR_10);
+            text.addPara("Unassigned", Misc.getGrayColor(), 0f).setAlignment(Alignment.MID);
+            box.addUIElement(text).inTL(0f, (BOX - BOX_LABEL_H) / 2f);
+            return;
         }
 
-        box.addUIElement(icon).inTL((BOX_W - iconSize) / 2f, 3f);
-        text.addPara(name, base, 0f).setAlignment(Alignment.MID);
-        box.addUIElement(text).inTL(0f, iconSize + 5f);
-        return box;
+        box.addUIElement(icon).inTL((BOX - iconSize) / 2f - TOOLTIP_INSET, (BOX - iconSize) / 2f);
+
+        float labelW = BOX + PAD;
+        TooltipMakerAPI label = row.createUIElement(labelW, BOX_LABEL_H, false);
+        label.setParaFont(Fonts.VICTOR_10);
+        label.addPara(fitToWidth(name, labelW, Fonts.VICTOR_10), base, 0f).setAlignment(Alignment.MID);
+        row.addUIElement(label).inTL(PAD - PAD / 2f - TOOLTIP_INSET, y + BOX + 3f);
+    }
+
+    private static String fitToWidth(String text, float width, String font) {
+        if (Global.getSettings().computeStringWidth(text, font) <= width) return text;
+
+        String cut = text;
+        while (cut.length() > 1 && Global.getSettings().computeStringWidth(cut + "...", font) > width) {
+            cut = cut.substring(0, cut.length() - 1);
+        }
+
+        return cut.trim() + "...";
     }
 
     private void addOfficerInfo(TooltipMakerAPI info, PersonAPI person) {
@@ -492,13 +510,10 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         Color dark = Misc.getDarkPlayerColor();
 
         String trainBlocker = academy.getOfficerTrainBlocker(person);
-        addButton(actions, "Train", dark, base, trainBlocker, getOfficerTrainTooltip(person), 0f, new ButtonAction(this) {
+        addButton(actions, "Train", TRAIN_BG, base, trainBlocker, getOfficerTrainTooltip(person), 0f, new ButtonAction(this) {
             @Override
             public void execute() {
-                if (externalScroller != null) scrollY = externalScroller.getYOffset();
-                switchingToPopup = true;
-                callback.dismissCustomDialog(1);
-                plugin.showTrainingPopup(person);
+                openPopup(() -> plugin.showTrainingPopup(person));
             }
         });
 
@@ -527,11 +542,10 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
 
         String trainTooltip = "Adds one administrator skill. " + academy.getAdminTrainingDays() + " days"
                 + (academy.getAdminTrainingFee() > 0 ? ", " + Misc.getDGSCredits(academy.getAdminTrainingFee()) + "." : ".");
-        addButton(actions, "Train", dark, base, academy.getAdminTrainBlocker(person), trainTooltip, 0f, new ButtonAction(this) {
+        addButton(actions, "Train", TRAIN_BG, base, academy.getAdminTrainBlocker(person), trainTooltip, 0f, new ButtonAction(this) {
             @Override
             public void execute() {
-                academy.setAdminInTraining(person);
-                recreatePanel();
+                openPopup(() -> plugin.showAdminTraining(person));
             }
         });
 
