@@ -57,7 +57,7 @@ Items: `data/campaign/special_items.csv:31-44`, plugin `BaseConsumableItemPlugin
 | `IndEvo_consumable_warning_beacon` | `IndEvo_ability_beacon` | 3500 | cd 0.25 |
 | `IndEvo_consumable_catapult` | `IndEvo_ability_catapult` | 10000 | cd 3; `IndEvo_skillshot` |
 
-Times in days. `IndEvo_skillshot` enables hotkey targeting; each ability picks its reticule in `createReticule()`: arrow for explosive, intercept and catapult, 400 unit area for concussive and smoke, validated area for the remote.
+Times in days. `IndEvo_skillshot` enables hotkey targeting; each ability picks its reticule in `createReticule()`: arrow with a dotted flight path up to the missile's range (speed x duration) for explosive and intercept, arrow for catapult, 400 unit area for concussive and smoke, validated area for the remote.
 
 | Kind | Id / key | Where |
 |---|---|---|
