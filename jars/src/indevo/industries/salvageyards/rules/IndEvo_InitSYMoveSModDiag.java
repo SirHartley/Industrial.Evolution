@@ -171,7 +171,7 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
             public void createTooltip(TooltipMakerAPI tooltip, boolean hadOtherText) {
                 boolean enoughCredits = BillingHelper.canAfford(credits);
 
-                tooltip.addPara("Moves %s to the target hull. The origin hull loses " + (count == 1 ? "it." : "them."), 0f, Misc.getHighlightColor(), count + " " + (count == 1 ? "S-mod" : "S-mods"));
+                tooltip.addPara("Transfers %s from the source ship to the target ship.", 0f, Misc.getHighlightColor(), count + " " + (count == 1 ? "S-mod" : "S-mods"));
                 RelicHelper.addCostLine(tooltip, getMarket(), relics, 10f);
                 tooltip.addPara("Credits: %s", 3f, enoughCredits ? Misc.getHighlightColor() : Misc.getNegativeHighlightColor(), Misc.getDGSCredits(credits));
                 tooltip.addPara(LORE, Misc.getGrayColor(), 10f);
@@ -185,14 +185,13 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
 
         panel.addPara("The salvage yards can move S-mods between ships of the same size and manufacturer.\n\n");
 
-        panel.addPara("Contract information:");
         panel.setFontSmallInsignia();
         panel.addParagraph("-----------------------------------------------------------------------------");
 
         String costMultStr = StringHelper.getAbsPercentString(costMult, false);
         Pair<String, Color> repInt = StringHelper.getRepIntTooltipPair(getMarket().getFaction());
 
-        panel.addPara("Transfer at cost: " + costMultStr + " " + repInt.one);
+        panel.addPara("Credit fee: " + costMultStr + " " + repInt.one);
         Highlights h = new Highlights();
         h.setText(costMultStr, repInt.one);
         h.setColors(Misc.getHighlightColor(), repInt.two);

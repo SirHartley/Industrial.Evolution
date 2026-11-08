@@ -264,10 +264,10 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
         Color hl = Misc.getHighlightColor();
 
         if (tab == Tab.TEMPLATES) {
-            tooltip.addPara("Lower quality levels mean fewer print defects and D-mods. %s is the best.", 0f, hl, "0");
+            tooltip.addPara("Lower quality levels mean fewer defects and D-mods. The minimum is %s.", 0f, hl, "0");
             tooltip.addPara("Cost: %s %s per fleet point and quality level.", PAD, hl, RELICS_PER_TEMPLATE_FP + "", RelicHelper.getName());
         } else {
-            tooltip.addPara("Removes the automated ship penalty and the ship no longer counts toward the Automated Ships skill limit.", 0f);
+            tooltip.addPara("Permanently removes the automated ship CR penalty and exempts the ship from the Automated Ships skill limit.", 0f);
             tooltip.addPara("Cost: %s %s per deployment point.", PAD, hl, RELICS_PER_SHIP_DP + "", RelicHelper.getName());
         }
     }

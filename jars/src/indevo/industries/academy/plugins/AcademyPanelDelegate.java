@@ -197,7 +197,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
             tooltip.addPara(academy.hasAlphaCore() ? "Up to two steps per officer." : "One step per officer, two with an alpha core.", PAD);
 
             if (own) tooltip.addPara("Stored officers draw their full salary.", PAD);
-            else tooltip.addPara("Storage costs %s per officer and month, plus full salary.", PAD, hl, storageFee);
+            else tooltip.addPara("Storage costs %s per month for each officer, plus full salary.", PAD, hl, storageFee);
         } else {
             String days = academy.getAdminTrainingDays() + " days";
 
@@ -205,7 +205,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
             else tooltip.addPara("Training costs %s and takes %s per skill.", 0f, hl, Misc.getDGSCredits(academy.getAdminTrainingFee()), days);
 
             if (own) tooltip.addPara("Stored administrators draw %s of their salary.", PAD, hl, "10%");
-            else tooltip.addPara("Storage costs %s per administrator and month, plus %s of salary.", PAD, hl, storageFee, "10%");
+            else tooltip.addPara("Storage costs %s per month for each administrator, plus %s of salary.", PAD, hl, storageFee, "10%");
         }
     }
 
@@ -258,7 +258,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
 
         String fleetBlocker = adminTab ? Academy.getAdminSlotBlocker() : Academy.getOfficerSlotBlocker();
         TooltipMakerAPI actions = slot.createUIElement(BUTTON_W, BUTTON_H * 2 + 8f, false);
-        addButton(actions, "Abort to fleet", ABORT_BG, Color.WHITE, fleetBlocker, "No refund, progress is lost.", 0f, new ButtonAction(this) {
+        addButton(actions, "Abort to fleet", ABORT_BG, Color.WHITE, fleetBlocker, "Cancelling forfeits the fee and training progress.", 0f, new ButtonAction(this) {
             @Override
             public void execute() {
                 if (adminTab) academy.abortAdminTraining(false);
@@ -266,7 +266,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
                 recreatePanel();
             }
         });
-        addButton(actions, "Abort to storage", ABORT_BG, Color.WHITE, null, "No refund, progress is lost.", 8f, new ButtonAction(this) {
+        addButton(actions, "Abort to storage", ABORT_BG, Color.WHITE, null, "Cancelling forfeits the fee and training progress.", 8f, new ButtonAction(this) {
             @Override
             public void execute() {
                 if (adminTab) academy.abortAdminTraining(true);

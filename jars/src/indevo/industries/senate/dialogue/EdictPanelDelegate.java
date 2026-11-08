@@ -208,8 +208,8 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
     private void addHelp(TooltipMakerAPI tooltip) {
         Color hl = Misc.getHighlightColor();
 
-        tooltip.addPara("Each colony can hold one Edict. A Senate grants Edicts to the colonies in its star system.", 0f);
-        tooltip.addPara("With %s installed, it also covers colonies within %s and early removal unrest is halved.", OPAD, hl,
+        tooltip.addPara("A Senate allows one Edict per colony in its star system.", 0f);
+        tooltip.addPara("Installing %s extends coverage to %s and halves unrest from early removal.", OPAD, hl,
                 EdictHelper.COMPOUNDS_NAME, RANGE_LY_TWELVE + " LY");
         if (!senateScope) tooltip.addPara("Visit the Senate to manage the Edicts of every colony in its range.", Misc.getGrayColor(), OPAD);
     }

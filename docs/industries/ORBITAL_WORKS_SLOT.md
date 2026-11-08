@@ -51,6 +51,8 @@ Job: `onClick` -> abort dialog -> `OrbitalWorksSlotManager.abort` -> ship to loc
 
 ## Contracts
 
+- Service help states the added slot, duration, ship unavailability and return to local storage. Abort help states that relic components are not refunded.
+
 - The hullmod is a perma mod, not an S-mod: hidden mods never count as S-mods (`Misc.isSpecialMod`, knowledge skill `api/util/Misc.java:5594`). It should show in the ship's installed hullmod list with its description, like `IndEvo_petHullmod` (inferred, not seen in game).
 - The S-mod cap read is `Misc.getMaxPermanentMods`, which reads `Stats.MAX_PERMANENT_HULLMODS_MOD` from the member or ship stats (`Misc.java:5523-5536`); same stat as vanilla Best of the Best (`BestOfTheBest.java:45`).
 - The picker skips fighter wings, stations, the flagship and ships that already have the hullmod.

@@ -126,6 +126,8 @@ While `IndEvo_edict_fastBuild` is on the market (`Edict_FastBuild.isActive`), fo
 
 ## Contracts
 
+- Panel help states the one-Edict limit, Senate coverage and the range and early-removal effects of Neuroconditioning Compounds.
+
 - An Edict is a market condition tagged `IndEvo_edict` whose plugin implements `EdictAPI`. A tagged condition with another plugin is skipped with one warning (`EdictHelper.asEdict`). Use `BaseEdict` and guard `apply`/`unapply` with `market.getPrimaryEntity() == null`: the panel preview adds every Edict to a dummy market.
 - Text and requirement methods take the colony as parameter and must not read the plugin's own `market` or instance state set in `apply`, or the preview shows the dummy. Only the remaining time and removal values (`getRemainingDays`, `getRemovalUnrest`, `getDaysPassed`) read the plugin's market.
 - `Market.addCondition()` calls `plugin.apply()` immediately and `removeCondition()` calls `unapply()` (`obf/campaign/econ/Market.java:1088`, `:1160`).

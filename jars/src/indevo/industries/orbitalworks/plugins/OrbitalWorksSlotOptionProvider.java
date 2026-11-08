@@ -65,14 +65,14 @@ public class OrbitalWorksSlotOptionProvider extends BaseSimpleBaseIndustryOption
         OrbitalWorksSlotJob job = getJob(opt.ind);
 
         if (job == null) {
-            tooltip.addPara("Adds %s S-mod slot to a ship. The ship stays here for %s and is placed in local storage when the work is done.", 0f, hl,
+            tooltip.addPara("Adds %s S-mod slot over %s. The ship is unavailable during the work, then returned to local storage.", 0f, hl,
                     "one", OrbitalWorksSlotManager.DAYS_REQUIRED + " days");
             tooltip.addPara("Cost: %s Relic Components per deployment point.", opad, hl, OrbitalWorksSlotPanelDelegate.COST_PER_DP + "");
             tooltip.addPara("One ship at a time.", Misc.getGrayColor(), 3f);
             if (!opt.ind.isFunctional()) tooltip.addPara("Orbital Works is not functional.", Misc.getNegativeHighlightColor(), opad);
         } else {
             tooltip.addPara("Working on the %s. %s left.", 0f, hl, job.member.getShipName(), getDaysLeft(job) + " days");
-            tooltip.addPara("Select to abort the work. The ship returns to local storage, relic components are not refunded.", opad);
+            tooltip.addPara("Aborting returns the ship to local storage without refunding the relic components.", opad);
         }
 
         tooltip.addPara(LORE, Misc.getGrayColor(), opad);

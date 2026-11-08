@@ -255,7 +255,7 @@ public class SplinterFleetSidePanelCreator {
         }
 
         if (!live && !take && ready && matching < loadout.shipVariantList.size())
-            panelTooltip.addPara("Some ships are unavailable, the detachment deploys without them.", Misc.getHighlightColor(), SPAD);
+            panelTooltip.addPara("Unavailable ships will be left behind.", Misc.getHighlightColor(), SPAD);
         else if (!live && !take && !loadout.shipVariantList.isEmpty() && matching <= 0)
             panelTooltip.addPara("None of the ships specified in the loadout are present in the main fleet.", Misc.getNegativeHighlightColor(), SPAD);
 
