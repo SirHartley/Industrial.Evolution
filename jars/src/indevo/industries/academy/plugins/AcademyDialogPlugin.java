@@ -91,7 +91,7 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
 
     public void showRelicDialog(RelicSpeedUpTarget target) {
         relicDialog = new RelicSpeedUpDialog(target, this::showPanelNextFrame);
-        dialog.showCustomDialog(RelicSpeedUpDialog.WIDTH, RelicSpeedUpDialog.HEIGHT, relicDialog);
+        relicDialog.show(dialog);
     }
 
     @Override
