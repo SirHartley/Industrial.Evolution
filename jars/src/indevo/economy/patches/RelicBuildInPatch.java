@@ -38,6 +38,7 @@ public class RelicBuildInPatch {
     public static final String LORE = "Your engineers have drawn up a permanent installation, but the available parts cannot meet its tolerances. Domain components can.";
 
     private static final String NO_STORY_POINTS = "No " + Misc.STORY + " points available";
+    private static final String CONFIRM_TEXT = "Confirm";
     private static final String CANCEL_TEXT = "Cancel";
     private static final float TOGGLE_PAD = 10f;
     private static final float TOOLTIP_WIDTH = 400f;
@@ -66,23 +67,34 @@ public class RelicBuildInPatch {
             return;
         }
 
+        ScrollPanelAPI effects = null;
+        ButtonAPI confirm = null;
         ButtonAPI cancel = null;
+        TooltipMakerAPI warning = null;
         List<?> children = context.getMethod(GET_CHILDREN, widget).call();
         for (Object child : children) {
-            if (child instanceof ButtonAPI b && b.getText() != null && b.getText().startsWith(CANCEL_TEXT)) {
-                cancel = b;
-                break;
+            if (child instanceof ScrollPanelAPI p) effects = p;
+            else if (child instanceof TooltipMakerAPI t) warning = t;
+            else if (child instanceof ButtonAPI b && b.getText() != null) {
+                if (b.getText().startsWith(CONFIRM_TEXT)) confirm = b;
+                else if (b.getText().startsWith(CANCEL_TEXT)) cancel = b;
             }
         }
 
-        if (cancel == null) {
-            log.warn("No cancel button in the build in panel, relic toggle skipped");
+        if (effects == null || confirm == null || cancel == null || warning == null) {
+            log.warn("Build in panel layout not found, relic toggle skipped");
             return;
         }
 
-        PositionAPI pos = cancel.getPosition();
+        // confirm, cancel and the warning line hang below the effect list, shrink it to make a row for the toggle
+        PositionAPI cancelPos = cancel.getPosition();
+        float row = cancelPos.getHeight() + TOGGLE_PAD;
+        PositionAPI effectsPos = effects.getPosition();
+        effectsPos.setSize(effectsPos.getWidth(), effectsPos.getHeight() - row);
+
         Toggle toggle = new Toggle(dialog, widget, member);
-        widgetPanel.addComponent(toggle.create(pos.getWidth(), pos.getHeight())).belowRight(cancel, TOGGLE_PAD);
+        widgetPanel.addComponent(toggle.create(cancelPos.getWidth(), cancelPos.getHeight())).belowRight(cancel, TOGGLE_PAD);
+        warning.getPosition().belowLeft(confirm, TOGGLE_PAD + row);
         active = new WeakReference<>(toggle);
     }
 
