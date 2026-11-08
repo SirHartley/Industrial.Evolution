@@ -27,10 +27,16 @@ public class EdictHelper {
     private static final Set<String> warnedConditions = new HashSet<>();
 
     public static MarketAPI getSystemSenate(MarketAPI market) {
+        return getSystemSenate(market, null);
+    }
+
+    public static MarketAPI getSystemSenate(MarketAPI market, MarketAPI excluded) {
         StarSystemAPI system = market.getStarSystem();
         if (system == null) return null;
 
         for (MarketAPI other : MiscIE.getMarketsInLocation(system, market.getFactionId())) {
+            if (other == excluded) continue;
+
             Industry senate = other.getIndustry(Ids.SENATE);
             if (senate != null && !senate.isBuilding()) return other;
         }
@@ -39,6 +45,10 @@ public class EdictHelper {
     }
 
     public static Pair<MarketAPI, Float> getCompoundsSenateInRange(MarketAPI market) {
+        return getCompoundsSenateInRange(market, null);
+    }
+
+    public static Pair<MarketAPI, Float> getCompoundsSenateInRange(MarketAPI market, MarketAPI excluded) {
         if (market.getPrimaryEntity() == null) return null;
 
         Vector2f loc = market.getLocationInHyperspace();
@@ -46,7 +56,7 @@ public class EdictHelper {
         float minDist = Float.MAX_VALUE;
 
         for (MarketAPI other : Misc.getNearbyMarkets(loc, RANGE_LY_TWELVE)) {
-            if (!other.isPlayerOwned()) continue;
+            if (!other.isPlayerOwned() || other == excluded) continue;
 
             Industry senate = other.getIndustry(Ids.SENATE);
             if (senate == null || senate.isBuilding() || senate.getSpecialItem() == null) continue;
@@ -138,6 +148,16 @@ public class EdictHelper {
                 .thenComparing(MarketAPI::getName));
 
         return result;
+    }
+
+    public static void cancelEdictsOf(MarketAPI senateMarket) {
+        for (MarketAPI colony : getColoniesCoveredBy(senateMarket)) {
+            EdictAPI edict = getActiveEdictPlugin(colony);
+            if (edict == null) continue;
+            if (getSystemSenate(colony, senateMarket) != null || getCompoundsSenateInRange(colony, senateMarket) != null) continue;
+
+            edict.removeWithPenalty();
+        }
     }
 
     public static String getSystemName(MarketAPI market) {
