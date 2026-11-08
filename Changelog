@@ -302,6 +302,7 @@ Fixed - Unused orbit markers no longer pile up in saves
 Fixed - Detachment wrecks now properly hold all excess cargo
 
 Consumables
+Adjusted - Area targeting reticule now uses the thinner updated sprite
 Adjusted - IE missile abilities without a missile plugin now crash with a clear error
 Fixed - Crash when firing a missile by hotkey from a hyperspace-only slot
 Fixed - Missiles fired by clicking no longer bloat the save

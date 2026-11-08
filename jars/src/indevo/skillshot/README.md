@@ -13,7 +13,7 @@ Read this guide before implementing an ability or changing targeting hooks, regi
 
 ## Install
 
-1. The Java package is `jars/src/indevo/skillshot/`. Its assets are IE's own, set in `SkillshotSettings`: sprites `fx/IndEvo_missile_targetting_reticule`, `fx/IndEvo_missile_targetting_arrow`, `fx/IndEvo_target_reticule` (`data/config/settings.json`) and sound `IndEvo_denied_buzzer` (`data/config/sounds.json`).
+1. The Java package is `jars/src/indevo/skillshot/`. Its assets are IE's own, set in `SkillshotSettings`: sprites `fx/IndEvo_missile_targetting_reticule`, `fx/IndEvo_missile_targetting_arrow`, `fx/IndEvo_skillshot_target` (`data/config/settings.json`, same art as Catch.Release's `skillshot_*` sprites) and sound `IndEvo_denied_buzzer` (`data/config/sounds.json`).
 
 2. Call the framework from the `ModPlugin`:
 

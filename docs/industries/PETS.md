@@ -47,7 +47,7 @@ Code paths relative to `jars/src/indevo/`.
 | Ability | `pet_management` | `data/campaign/abilities.csv:3` |
 | Pets | 38 rows: `id,name,value,maxlife,tags,foodCommodities,rarity,foodPerMonth,desc,natural_death,icon,hullmod` | `data/campaign/pets.csv` |
 | Death texts | `hamster_death_causes.csv` (natural death of hamsters), `combat_death_causes.csv` | `data/strings/` |
-| Sprites | `IndEvo/pets_large`, `IndEvo/pets_small`; icons in `graphics/pets` | `data/config/settings.json:101-102` |
+| Sprites | `IndEvo/pets_large`, `IndEvo/pets_small`; icons in `graphics/pets` | `data/config/settings.json:102-103` |
 | Setting | `IndEvo_pets` | `LunaSettings.csv:11` |
 | Faction (colour only) | `petStoreColour` | `data/world/factions/submarkets/` |
 | Entities | `IndEvo_PetShop` (`Ids.PET_SHOP_ENTITY`, legacy), `IndEvo_abandonedPetCenter` | `data/config/custom_entities.json:791`, `:1142` |
