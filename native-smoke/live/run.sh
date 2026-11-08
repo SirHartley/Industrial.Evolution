@@ -25,7 +25,8 @@ stop() { for pid in $(own); do powershell -NoProfile -Command "Stop-Process -Id 
 running() { [[ -n $(own) ]]; }
 launch() {
     : > "$L"
-    SMOKE_FAST_RENDER=${FAST:-0} SMOKE_JAVA_ARGS="$1" bash "$SKILL/scripts/live/launch-game.sh" "$GAME" "$WORK" > "$WORK/launch.log" 2>&1 &
+    # the save load and new game clicks are measured at 1600x900
+    SMOKE_RESOLUTION=1600x900 SMOKE_FAST_RENDER=${FAST:-0} SMOKE_JAVA_ARGS="$1" bash "$SKILL/scripts/live/launch-game.sh" "$GAME" "$WORK" > "$WORK/launch.log" 2>&1 &
     for i in $(seq 1 40); do grep -q 'LIVE_CHECK application loaded' "$L" 2>/dev/null && break; w 2; done
     # gamectl picks this game's window only, other slots may run games
     export GAMECTL_PID=$(cat "$WORK/game.pid" 2>/dev/null | tr -dc '0-9')
@@ -76,7 +77,8 @@ bash "$SKILL/scripts/live/build-test-mod.sh" "$GAME" "$mod" ie_live_checks "$LIV
     "$GAME/mods/LunaLib/jars/LunaLib.jar" "$GAME/mods/LunaLib/jars/LunaLib-Kotlin.jar" "$GAME/starsector-core/starfarer_obf.jar" \
     "$GAME/starsector-core/fs.common_obf.jar" "$GAME/mods/LazyLib/jars/LazyLib.jar" "$GAME/mods/MagicLib/jars/MagicLib.jar" \
     "$GAME/mods/Console Commands/jars/lw_Console.jar" "$GAME/mods/PatchLib/jars/PatchLibAPI.jar" >/dev/null || exit 1
-[[ -f "$WORK/mods/enabled_mods.json" ]] || bash "$SKILL/scripts/live/make-modset.sh" "$WORK" "$GAME/mods/LazyLib" "$GAME/mods/MagicLib" \
+# a kept game removed by hand leaves enabled_mods.json without its links
+[[ -f "$WORK/mods/enabled_mods.json" && -f "$WORK/mods/ie_live_checks/mod_info.json" && -f "$WORK/mods/$(basename "${STAGE:-$stage}")/mod_info.json" ]] || bash "$SKILL/scripts/live/make-modset.sh" "$WORK" "$GAME/mods/LazyLib" "$GAME/mods/MagicLib" \
     "$GAME/mods/LunaLib" "$GAME/mods/GraphicsLib" "$GAME/mods/PatchLib" "$GAME/mods/Console Commands" "${STAGE:-$stage}" "$mod" >/dev/null
 
 take_slot

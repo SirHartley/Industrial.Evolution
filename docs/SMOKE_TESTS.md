@@ -61,7 +61,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File native-smoke\run.ps1 -Skill 
 
 ## Live checks
 
-`native-smoke/live/` is a test-only mod (`iecheck`) plus `run.sh`: a real campaign driven by script, no clicks. It builds the checked jar, stages it in `out/live/stage`, makes one new game the first time (`out/live/base-saves`), loads that save and runs the groups in one game. The game window stays behind other windows. `gamectl` only drives this run's game (`GAMECTL_PID` from `game.pid`), so other slots may run games meanwhile.
+`native-smoke/live/` is a test-only mod (`iecheck`) plus `run.sh`: a real campaign driven by script, no clicks. It builds the checked jar, stages it in `out/live/stage`, makes one new game the first time (`out/live/base-saves`), loads that save and runs the groups in one game. The game window stays behind other windows. `gamectl` only drives this run's game (`GAMECTL_PID` from `game.pid`), so other slots may run games meanwhile. The game always runs at 1600x900, where the save load and new game clicks are measured. A missing check mod or IE link in `out/live/run/mods` rebuilds the mod set.
 
 ```bash
 export SMOKE_SKILL='<skill folder>' SMOKE_JAVAC_DIR='<jdk 17 bin>'
