@@ -129,6 +129,44 @@ Save: only new saved classes; nothing saved today changes shape. The CR side add
 - Pickers: `InteractionDialogAPI.showFleetMemberPickerDialog` (`:56`), `showCargoPickerDialog` (`:83`, `:107`).
 - `FleetDespawnReason.DESTROYED_BY_BATTLE` (`CampaignEventListener.java:34`); `Tags.THEME_CORE` is `"theme_core"` (`Tags.java:142`).
 
+### 1.3 Rogue asteroids (mini swarms)
+
+**Status: proposed, waiting on Philipp (Q10 to Q14). Checked against `dev` at `3410777`.**
+
+Philipp's brief: "minor 'roid storms or rogue asteroids that sometimes traverse systems without warning or trajectory - just a small mini-swarm that rarely have treasureoids in them".
+
+Framing: a small, unannounced version of the meteor swarms ([METEOR.md](exploration/METEOR.md)). A handful of rocks crosses the system in seconds, no intel, no warning path, no sign, no sound. Mostly a hazard and a moment, sometimes a treasure.
+
+**What already exists (confirmed in code)**
+
+- `MeteorSwarmManager.reportEconomyTick` (`MeteorSwarmManager.java:79`) rolls in the player's current location, 10 economy ticks per month (`LunaSettings.csv:14`). `isValidMeteorLoc` (`:98`) also checks the 31 day global and 186 day location timeouts (`:176-177`).
+- `BaseArcingSwarmSpawner.init()` adds the warning path, the warning sign and the `cr_allied_critical` sound. `StandardSwarmSpawner` spawns asteroids by width, density and runtime and drops `TreasuroidEntity` between 20% and 80% of the runtime.
+- `ArcingMovementModule.reportPosition` reports every meteor's angle to the location's `MeteorSwarmWarningPathRenderer` if one exists (`MeteorSwarmWarningPathRenderer.java:54-57`), so a rogue meteor next to a big swarm would light up the big swarm's path.
+- Meteors only collide within 1000 of the viewport (`MeteorEntity.advance`). A rogue far from the player is invisible and harmless.
+- Every meteor gets `METEOR_TAG` in `MeteorEntity.init`, so consumable missiles and the Catch.Release harpoon work on rogues with no change.
+
+**Plan**
+
+- Roll: second roll in `reportEconomyTick`, only when no big shower was rolled that tick. New setting `IndEvo_meteor_rogueChancePerEconomyTick`, 0.03 proposed (about one rogue per 33 days spent in valid systems), 0 turns rogues off. Also gated by `IndEvo_meteor_enabled`.
+- Location: `isValidRogueLoc`, the same filters as `isValidMeteorLoc` minus the big swarm timeouts, plus: no `$IndEvo_warningRenderer` in the location (no rogue during a big swarm), own location timeout `$IndEvo_RogueMeteorTimeout`, 15 days proposed. A rogue sets no big swarm timeout, so rogues and showers do not block each other.
+- No warning: `RogueSwarmSpawner extends StandardSwarmSpawner` with an empty `init()`. No intel, no delay: spawns on the tick it is rolled. Meteors move on `SilentArcingMovementModule` (`ArcingMovementModule` with `reportPosition` a no op).
+- No trajectory: start and end on the grid boundary at random, middle point close to the chord, so the path is almost straight and crosses the system anywhere, not the inner system arc the showers use. The path passes within 1000 to 4000 of the player fleet so the player can see it (Q11).
+- Size: intensity fixed below the shower minimum: width 1000 to 2000, runtime 8 to 20 s, density 0.5 to 1, asteroids only (Q12).
+- Treasure: 10% chance per rogue for one `TreasuroidEntity`, otherwise none. `StandardSwarmSpawner` forces at least one (`Math.max(1, treasureAmt)`), so the rogue spawner passes its own count and skips that floor.
+- Damage: same `MeteorImpact` as showers (Q13).
+
+**Owners and data**
+
+| Area | Owner (new unless noted) | Role |
+|---|---|---|
+| Roll | `MeteorSwarmManager` (changed) | Rogue roll, `isValidRogueLoc`, `spawnRogue` |
+| Spawner | `indevo/exploration/meteor/spawners/RogueSwarmSpawner` | Silent mini swarm, rare treasure |
+| Movement | `indevo/exploration/meteor/movement/SilentArcingMovementModule` | Arc movement without warning path reports |
+| Settings | `Setting` (changed), `data/config/LunaSettings.csv` | `IndEvo_meteor_rogueChancePerEconomyTick` |
+| Docs | `docs/exploration/METEOR.md` (rogue section, files, ids), `docs/core/SETTINGS.md` | |
+
+Save: the spawner and the movement module are saved with the location and the meteors; new classes only, nothing saved today changes shape.
+
 ## 2. Open questions
 
 1. Decided (Philipp, 2026-11-07): memory contract in both mods, not a library mod.
@@ -140,6 +178,11 @@ Save: only new saved classes; nothing saved today changes shape. The CR side add
 7. Fee: Courier price without base fee x 0.2 to 0.5 by fleet type. Right level?
 8. Hyperspace: offers in systems only for now (recommended, same as CR), or hyperspace too?
 9. Name: "Return Freight" is a placeholder.
+10. Rogues in inhabited systems too, or uninhabited only like showers (recommended: rocks pushing stations in the core is untested ground)?
+11. Path: aimed to pass near the player (recommended, otherwise the player almost never sees one), or fully random through the system?
+12. Types: asteroids only (recommended), or a small weight for ice rocks too?
+13. Damage: same as showers (recommended, it is the risk), or reduced since there is no warning?
+14. Chance 3% per economy tick and a 15 day location timeout: right level?
 
 ## 3. Suggested order
 
@@ -147,6 +190,7 @@ Save: only new saved classes; nothing saved today changes shape. The CR side add
 2. Stage 1 (IE): Return Freight with spawner, dialog, transit, intel, settings, feature doc, changelog. Live test by Philipp.
 3. Stage 2 (CR): claim keys and checks in CR, CR docs and changelog.
 4. Stage 3: live test with both mods: no fleet with two quests, no two open offers in one system, the 7 day gap holds.
+5. Rogue asteroids (1.3): independent of 1.1 and 1.2, one IE change once Q10 to Q14 are answered. Live test by Philipp.
 
 Behaviour to keep in mind:
 
