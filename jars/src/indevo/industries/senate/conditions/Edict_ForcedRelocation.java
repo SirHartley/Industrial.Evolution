@@ -89,20 +89,28 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
 
     @Override
     public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        tooltip.addPara("Population growth %s.", pad, Misc.getNegativeHighlightColor(), "reduced by " + (int) (market.getSize() * popMult));
+        tooltip.addPara("Stability %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + stabPenalty);
+    }
+
+    @Override
+    public boolean hasOtherColonyEffects(MarketAPI market) {
+        return !getOtherColoniesInSystem(market).isEmpty();
+    }
+
+    @Override
+    public void addOtherColonyEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
         List<MarketAPI> others = getOtherColoniesInSystem(market);
+        if (others.isEmpty()) return;
 
-        tooltip.addPara("Population growth of this colony %s.", pad, Misc.getNegativeHighlightColor(), "reduced by " + (int) (market.getSize() * popMult));
+        int increase = (int) Math.ceil(1.0 * market.getSize() / others.size() * popMult);
+        float linePad = pad;
 
-        if (!others.isEmpty()) {
-            int increase = (int) Math.ceil(1.0 * market.getSize() / others.size() * popMult);
-            tooltip.addPara("Population growth for:", 3f);
-
-            for (MarketAPI other : others) {
-                tooltip.addPara(BaseIntelPlugin.BULLET + other.getName() + ": %s", 1f, Misc.getPositiveHighlightColor(), "increased by " + increase);
-            }
+        for (MarketAPI other : others) {
+            tooltip.addPara(BaseIntelPlugin.BULLET + other.getName() + ": population growth %s, stability %s", linePad,
+                    new Color[]{Misc.getPositiveHighlightColor(), Misc.getNegativeHighlightColor()}, "increased by " + increase, "reduced by " + stabPenalty);
+            linePad = 1f;
         }
-
-        tooltip.addPara("Stability %s for all colonies in the star system.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + stabPenalty);
     }
 
     @Override
