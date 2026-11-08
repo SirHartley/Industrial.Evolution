@@ -73,18 +73,18 @@ Shared by construction and the IE timers. Constants on `RelicSpeedUpTarget`: `RE
 | Timer | Label | Target | Entry point |
 |---|---|---|---|
 | Construction or upgrade | Speed up construction | `RelicBuildTimeReductionButtonAdder.ConstructionTarget` | Industry option |
-| Engineering Hub reverse engineering | Rush Research | `EngineeringHub` | Industry option |
-| Hull Deconstructor | Expedite Work | `HullDeconstructor` | Industry option |
-| Ancient Laboratory template repair | Expedite Restoration | `AncientLaboratory` | Industry option |
-| Rift Generator cooldown | Recharge Now (placeholder) | `RiftGenerator`, `isSpeedUpInstant()` | Industry option |
-| Academy officer and admin training | Quick Training | `Academy.TrainingSpeedUp` (`getTrainingSpeedUp(admin)`) | Button in the training slot of the Academy panel, see [Academy](../industries/ACADEMY.md) |
+| Engineering Hub reverse engineering | Accelerate | `EngineeringHub` | Industry option |
+| Hull Deconstructor | Accelerate | `HullDeconstructor` | Industry option |
+| Ancient Laboratory template repair | Accelerate | `AncientLaboratory` | Industry option |
+| Rift Generator cooldown | Recharge | `RiftGenerator`, `isSpeedUpInstant()` | Industry option |
+| Academy officer and admin training | Accelerate | `Academy.TrainingSpeedUp` (`getTrainingSpeedUp(admin)`) | Button in the training slot of the Academy panel, see [Academy](../industries/ACADEMY.md) |
 | Salvage Yards order delivery | Express Delivery | `YardsCustomProductionIntel` | Intel button with a confirm prompt, see [Salvage Yards](../industries/SALVAGE_YARDS.md) |
 
 - Halving: days after `left - left / 2`, cost `left * RELICS_PER_DAY`. Instant (Rift Generator): days after 0, cost `left * RELICS_PER_DAY_INSTANT`.
 - `canSpeedUp()` needs more than 1 day left; the industry option only shows then. `RelicSpeedUpDialog.isAvailable` adds the cooldown check, the option or button is disabled while it runs.
 - `RelicSpeedUpDialog.apply` checks availability and relics again, takes the cost through `RelicHelper.take(getMarket(), cost)` (colony storage, then fleet cargo, [Utils](UTILS.md#helper)), calls `speedUp(left - after)` and starts the cooldown.
-- Cooldowns: market memory per timer by default (`getSpeedUpCooldownLeft`, `startSpeedUpCooldown`). Construction keeps `$IndEvo_reduceBuildTimeCooldown` (per colony, "on this colony"). Salvage Yards orders keep a clock timestamp on the intel (`relicSpeedUpTimestamp`, "on this order").
-- Text: `addBody` writes label, cooldown rule, time remaining, time with relics and the cost line; the dialog and the intel confirm prompt both use it. `addTooltip` writes effect, cost line, cooldown or "Too few days left" and the gray lore (`getSpeedUpLore()`, Philipp's text, RELIC_PLAN section 6; construction has none) for the option or button hover.
+- Cooldowns: market memory per timer by default (`getSpeedUpCooldownLeft`, `startSpeedUpCooldown`). Construction keeps `$IndEvo_reduceBuildTimeCooldown` (per colony, "on this colony"). Salvage Yards orders keep a clock timestamp on the intel (`relicSpeedUpTimestamp`, "on this order"). Default scope text "here".
+- Text: `addBody` writes label, time remaining, time with relics and the cost line; the dialog and the intel confirm prompt both use it. `addTooltip` writes effect, cost line, the cooldown rule (`getSpeedUpScope()`), the cooldown left or "Too few days left" and the gray lore (`getSpeedUpLore()`, Philipp's text, RELIC_PLAN section 6; construction has none) for the option or button hover.
 - Construction: `ConstructionTarget` reads private `buildTime` via `StarReflectionUtils.get(ind, "buildTime", float.class, true)`; days left `round(buildTime - buildProgress)`; `speedUp` adds the days to `BaseIndustry.setBuildProgress`. `isSuitable`: a `BaseIndustry` that is building, or upgrading with an upgrade spec.
 
 ### Custom production Express Delivery
@@ -124,8 +124,8 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 | Sink | Cost | Paid from | Owner |
 |---|---|---|---|
 | Construction speed up | 1 per remaining day | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
-| IE timer speed up (Rush Research, Expedite Work, Expedite Restoration, Quick Training, Salvage Yards Express Delivery) | 1 per remaining day, halves it | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
-| Rift Generator recharge (Recharge Now) | 3 per remaining day, ends the cooldown | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
+| IE timer speed up (Accelerate, Salvage Yards Express Delivery) | 1 per remaining day, halves it | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
+| Rift Generator recharge (Recharge) | 3 per remaining day, ends the cooldown | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
 | Early Edict removal | 1 per remaining day | colony storage, then fleet cargo | [Senate](../industries/SENATE.md#runtime-and-penalties) |
 | Express Delivery | 1 per delivery day (60 at vanilla) | fleet cargo | [Custom production Express Delivery](#custom-production-express-delivery) |
 | Story point derelict recovery | 5 per DP of each recovered ship | fleet cargo | [Salvage](../exploration/SALVAGE.md#relic-recovery) |

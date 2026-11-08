@@ -40,8 +40,6 @@ public class RelicSpeedUpDialog extends BaseCustomDialogDelegate {
         int after = target.getSpeedUpDaysAfter();
 
         info.addSectionHeading(target.getSpeedUpLabel(), Alignment.MID, 0f);
-        info.addPara("Available %s every %s " + target.getSpeedUpScope() + ".", spad, Misc.getHighlightColor(),
-                "once", Math.round(RelicSpeedUpTarget.COOLDOWN_DAYS) + " days");
         info.addPara("Time remaining: %s", opad, Misc.getHighlightColor(), left + " " + getDayOrDays(left));
         info.addPara("With relics: %s", spad, Misc.getPositiveHighlightColor(), after + " " + getDayOrDays(after));
         RelicHelper.addCostLine(info, target.getMarket(), target.getSpeedUpCost(), spad);
@@ -52,6 +50,8 @@ public class RelicSpeedUpDialog extends BaseCustomDialogDelegate {
 
         tooltip.addPara(getEffect(target), 0f);
         RelicHelper.addCostLine(tooltip, target.getMarket(), target.getSpeedUpCost(), opad);
+        tooltip.addPara("Can be used once every %s " + target.getSpeedUpScope() + ".", opad, Misc.getHighlightColor(),
+                Math.round(RelicSpeedUpTarget.COOLDOWN_DAYS) + " days");
 
         float cooldown = target.getSpeedUpCooldownLeft();
         if (cooldown > 0f) {

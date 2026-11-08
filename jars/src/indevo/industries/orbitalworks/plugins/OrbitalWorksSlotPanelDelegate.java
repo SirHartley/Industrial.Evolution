@@ -11,6 +11,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.ButtonAction;
 import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
+import indevo.dialogue.sidepanel.HelpIcon;
 import indevo.industries.orbitalworks.hullmods.RelicLattice;
 import indevo.industries.orbitalworks.scripts.OrbitalWorksSlotManager;
 import indevo.utils.helper.MiscIE;
@@ -26,7 +27,8 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
 
     private static final float OPAD = 10f;
     private static final float PAD = 3f;
-    private static final float HEADER_H = 64f;
+    private static final float HEADER_H = 50f;
+    private static final float HEADER_H_DOCKED = 30f;
     private static final float COLUMN_H = 20f;
     private static final float ROW_H = 28f;
     private static final float FOOTER_H = 60f;
@@ -106,21 +108,21 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
         float h = basePanel.getPosition().getHeight();
         panel = Global.getSettings().createCustom(w, h, null);
 
-        TooltipMakerAPI header = panel.createUIElement(w, HEADER_H, false);
+        float headerH = local ? HEADER_H_DOCKED : HEADER_H;
+        TooltipMakerAPI header = panel.createUIElement(w - HelpIcon.SIZE - PAD, headerH, false);
         header.addSectionHeading(OrbitalWorksSlotOptionProvider.NAME + " - " + market.getName(), Alignment.MID, 0f);
-        header.addPara("The ship stays at the colony for %s. When the work is done it is placed in local storage.", OPAD, Misc.getGrayColor(), Misc.getHighlightColor(),
-                OrbitalWorksSlotManager.DAYS_REQUIRED + " days");
-        if (!local) header.addPara("Only ships in local storage are listed. Dock here to pick ships from your fleet.", Misc.getGrayColor(), PAD);
+        if (!local) header.addPara("Dock here to pick ships from your fleet.", Misc.getGrayColor(), OPAD);
         panel.addUIElement(header).inTL(0f, 0f);
+        panel.addUIElement(HelpIcon.create(panel, this::addHelp)).inTR(0f, 0f);
 
         float listW = w - 20f;
-        panel.addComponent(createColumnHeadings(listW)).inTL(0f, HEADER_H);
+        panel.addComponent(createColumnHeadings(listW)).inTL(0f, headerH);
 
-        float listH = h - HEADER_H - COLUMN_H - FOOTER_H - PAD;
+        float listH = h - headerH - COLUMN_H - FOOTER_H - PAD;
         TooltipMakerAPI list = panel.createUIElement(w, listH, true);
         for (FleetMemberAPI member : ships) list.addCustom(createRow(member, listW, callback), 2f);
         if (ships.isEmpty()) list.addPara("No eligible ships available.", Misc.getGrayColor(), OPAD);
-        panel.addUIElement(list).inTL(0f, HEADER_H + COLUMN_H + PAD);
+        panel.addUIElement(list).inTL(0f, headerH + COLUMN_H + PAD);
 
         addFooter(w, h, callback);
         basePanel.addComponent(panel);
@@ -188,13 +190,21 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
         return row;
     }
 
+    private void addHelp(TooltipMakerAPI tooltip) {
+        Color hl = Misc.getHighlightColor();
+
+        tooltip.addPara("Adds %s S-mod slot. The ship stays here for %s and is placed in local storage when the work is done.", 0f, hl,
+                "one", OrbitalWorksSlotManager.DAYS_REQUIRED + " days");
+        tooltip.addPara("Cost: %s %s per deployment point.", PAD, hl, COST_PER_DP + "", RelicHelper.getName());
+    }
+
     private void addFooter(float w, float h, final CustomDialogCallback callback) {
         CustomPanelAPI holder = panel.createCustomPanel(w, FOOTER_H, new ButtonReportingCustomPanel(this));
         TooltipMakerAPI footer = holder.createUIElement(w, FOOTER_H, false);
         boolean canAfford = false;
 
         if (selected == null) {
-            footer.addPara("Cost: %s Relic Components per deployment point.", 0f, Misc.getGrayColor(), Misc.getHighlightColor(), COST_PER_DP + "");
+            footer.addPara("Select a ship.", Misc.getGrayColor(), 0f);
         } else {
             int cost = getCost(selected);
             canAfford = RelicHelper.canAfford(market, cost);

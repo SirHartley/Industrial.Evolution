@@ -481,7 +481,7 @@ Gamma reduces template refit time*/
 
     @Override
     public String getSpeedUpLabel() {
-        return "Expedite Restoration";
+        return "Accelerate";
     }
 
     @Override

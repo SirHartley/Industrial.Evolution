@@ -20,6 +20,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.ButtonAction;
 import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
+import indevo.dialogue.sidepanel.HelpIcon;
 import indevo.ids.Ids;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.utils.helper.MiscIE;
@@ -129,9 +130,8 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
 
     private void addHeader(float width) {
         TooltipMakerAPI header = panel.createUIElement(width, HEADER_HEIGHT, false);
-        header.addSectionHeading("Ancient Laboratory: relic services", Alignment.MID, 0f);
-        header.addPara("%s available: %s, taken from colony storage at %s first, then fleet cargo.", OPAD, Misc.getHighlightColor(),
-                RelicHelper.getName(), RelicHelper.getAvailable(market) + "", market.getName());
+        header.addSectionHeading("Relic services", Alignment.MID, 0f);
+        header.addPara("%s available: %s", OPAD, Misc.getHighlightColor(), RelicHelper.getName(), RelicHelper.getAvailable(market) + "");
         panel.addUIElement(header).inTL(0f, 0f);
     }
 
@@ -139,8 +139,8 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
         CustomPanelAPI tabs = panel.createCustomPanel(width, TAB_HEIGHT, new ButtonReportingCustomPanel(this));
         TooltipMakerAPI row = tabs.createUIElement(width, TAB_HEIGHT, false);
 
-        ButtonAPI templates = addTabButton(row, "Refine Templates", Tab.TEMPLATES, callback);
-        ButtonAPI ships = addTabButton(row, "Integrate Ships", Tab.SHIPS, callback);
+        ButtonAPI templates = addTabButton(row, "Templates", Tab.TEMPLATES, callback);
+        ButtonAPI ships = addTabButton(row, "Ships", Tab.SHIPS, callback);
         templates.getPosition().inTL(0f, 0f);
         ships.getPosition().rightOfTop(templates, PAD);
 
@@ -163,8 +163,8 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
         TooltipMakerAPI list = panel.createUIElement(width, height - HEADING_HEIGHT - PAD, true);
         if (entries.isEmpty()) {
             String empty = tab == Tab.TEMPLATES
-                    ? "No templates available for refinement in local or industrial storage."
-                    : "No automated ships available for integration in your fleet or local storage.";
+                    ? "No Forge Templates in local or industrial storage."
+                    : "No automated ships in your fleet or local storage.";
             list.addPara(empty, Misc.getGrayColor(), OPAD);
         }
 
@@ -201,9 +201,10 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
     }
 
     private void addDetail(Entry entry, float x, float y, float width, float height, CustomDialogCallback callback) {
-        TooltipMakerAPI heading = panel.createUIElement(width, HEADING_HEIGHT, false);
+        TooltipMakerAPI heading = panel.createUIElement(width - HelpIcon.SIZE - PAD, HEADING_HEIGHT, false);
         heading.addSectionHeading(entry != null ? entry.name : "Details", Alignment.MID, 0f);
         panel.addUIElement(heading).inTL(x, y);
+        panel.addUIElement(HelpIcon.create(panel, this::addHelp)).inTL(x + width - HelpIcon.SIZE, y);
 
         TooltipMakerAPI detail = panel.createUIElement(width, height - HEADING_HEIGHT - PAD - ACTION_HEIGHT, false);
 
@@ -240,9 +241,7 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
 
         detail.addPara("Quality level: %s -> %s", 0f, new Color[]{Misc.getNegativeHighlightColor(), Misc.getPositiveHighlightColor()},
                 level + "", (level - 1) + "");
-        detail.addPara("Lower levels reduce print defects and D-mods. Best quality: %s.", PAD, hl, "0");
         detail.addPara("Charges: %s", PAD, hl, ForgeTemplateItemPlugin.getCharges(entry.stack.getSpecialDataIfSpecial()) + "");
-        detail.addPara("Cost per quality level: %s relic components per fleet point.", PAD, hl, RELICS_PER_TEMPLATE_FP + "");
         if (entry.stack.getSize() > 1) {
             detail.addPara("Refines all %s templates in this stack.", PAD, hl, (int) entry.stack.getSize() + "");
         }
@@ -259,7 +258,18 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
         }
         detail.addPara("Automated Ships skill: %s -> %s", PAD, new Color[]{hl, pos}, "counts toward its limit", "no longer counts");
         detail.addPara("Permanent.", PAD);
-        detail.addPara("Cost: %s relic components per deployment point.", PAD, hl, RELICS_PER_SHIP_DP + "");
+    }
+
+    private void addHelp(TooltipMakerAPI tooltip) {
+        Color hl = Misc.getHighlightColor();
+
+        if (tab == Tab.TEMPLATES) {
+            tooltip.addPara("Lower quality levels mean fewer print defects and D-mods. %s is the best.", 0f, hl, "0");
+            tooltip.addPara("Cost: %s %s per fleet point and quality level.", PAD, hl, RELICS_PER_TEMPLATE_FP + "", RelicHelper.getName());
+        } else {
+            tooltip.addPara("Removes the automated ship penalty and the ship no longer counts toward the Automated Ships skill limit.", 0f);
+            tooltip.addPara("Cost: %s %s per deployment point.", PAD, hl, RELICS_PER_SHIP_DP + "", RelicHelper.getName());
+        }
     }
 
     private void addConfirmTooltip(TooltipMakerAPI actions, Entry entry) {

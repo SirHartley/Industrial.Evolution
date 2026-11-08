@@ -14,6 +14,7 @@ import com.fs.starfarer.api.util.Pair;
 import indevo.dialogue.sidepanel.ButtonAction;
 import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
+import indevo.dialogue.sidepanel.HelpIcon;
 import indevo.ids.Ids;
 import indevo.industries.senate.EdictHelper;
 import indevo.industries.senate.EdictRepo;
@@ -43,7 +44,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
     private static final float GAP = 10f;
     private static final float COLONY_WIDTH = 260f;
     private static final float EDICT_WIDTH = 280f;
-    private static final float HEADER_HEIGHT = 64f;
+    private static final float HEADER_HEIGHT = 50f;
     private static final float FOOTER_HEIGHT = 24f;
     private static final float HEADING_HEIGHT = 20f;
     private static final float ACTION_HEIGHT = 84f;
@@ -183,31 +184,34 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
 
     private void addHeader(float width) {
         Color hl = Misc.getHighlightColor();
-        TooltipMakerAPI header = panel.createUIElement(width, HEADER_HEIGHT, false);
-        header.addSectionHeading("Edict management", Alignment.MID, 0f);
+        TooltipMakerAPI header = panel.createUIElement(width - HelpIcon.SIZE - OPAD, HEADER_HEIGHT, false);
+        header.addSectionHeading("Edicts", Alignment.MID, 0f);
 
         if (senateScope) {
-            header.addPara("Senate at %s, %s. Colonies in its star system can hold one Edict each.", OPAD, hl, origin.getName(), EdictHelper.getSystemName(origin));
-
-            if (origin.getIndustry(Ids.SENATE).getSpecialItem() != null) {
-                header.addPara("%s installed: colonies within %s can hold Edicts and early removal unrest is %s.", PAD, hl,
-                        EdictHelper.COMPOUNDS_NAME, RANGE_LY_TWELVE + " LY", "halved");
-            }
+            header.addPara("Senate at %s, %s", OPAD, hl, origin.getName(), EdictHelper.getSystemName(origin));
         } else {
             MarketAPI systemSenate = EdictHelper.getSystemSenate(origin);
             Pair<MarketAPI, Float> compounds = EdictHelper.getCompoundsSenateInRange(origin);
 
             if (systemSenate != null) {
-                header.addPara("Edicts for %s, granted by the Senate at %s in this star system.", OPAD, hl, origin.getName(), systemSenate.getName());
+                header.addPara("Granted by the Senate at %s", OPAD, hl, systemSenate.getName());
             } else if (compounds != null) {
-                header.addPara("Edicts for %s, granted by the Senate at %s, %s away, through %s.", OPAD, hl,
-                        origin.getName(), compounds.one.getName(), Misc.getRoundedValueMaxOneAfterDecimal(compounds.two) + " LY", EdictHelper.COMPOUNDS_NAME);
+                header.addPara("Granted by the Senate at %s, %s away", OPAD, hl,
+                        compounds.one.getName(), Misc.getRoundedValueMaxOneAfterDecimal(compounds.two) + " LY");
             }
-
-            header.addPara("Visit the Senate to manage the Edicts of every colony in its range.", Misc.getGrayColor(), PAD);
         }
 
         panel.addUIElement(header).inTL(0f, 0f);
+        panel.addUIElement(HelpIcon.create(panel, this::addHelp)).inTR(0f, HEADING_HEIGHT + OPAD - 2f);
+    }
+
+    private void addHelp(TooltipMakerAPI tooltip) {
+        Color hl = Misc.getHighlightColor();
+
+        tooltip.addPara("Each colony can hold one Edict. A Senate grants Edicts to the colonies in its star system.", 0f);
+        tooltip.addPara("With %s installed, it also covers colonies within %s and early removal unrest is halved.", OPAD, hl,
+                EdictHelper.COMPOUNDS_NAME, RANGE_LY_TWELVE + " LY");
+        if (!senateScope) tooltip.addPara("Visit the Senate to manage the Edicts of every colony in its range.", Misc.getGrayColor(), OPAD);
     }
 
     private TooltipMakerAPI addColonyColumn(float x, float y, float height, CustomDialogCallback callback) {
@@ -376,14 +380,10 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
     private void addActiveRuntimeText(TooltipMakerAPI detail, EdictAPI active) {
         int unrest = active.getRemovalUnrest();
 
-        if (active.getRemainingDays() > 0) {
-            String halved = EdictHelper.getCompoundsSenateInRange(selectedColony) != null ? " (early removal unrest halved by " + EdictHelper.COMPOUNDS_NAME + ")" : "";
-            detail.addPara("Removing it now causes %s" + halved + ".", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
-            detail.addPara("Early repeal costs %s to avoid the unrest penalty.", PAD, Misc.getHighlightColor(), active.getRelicRemovalCost() + " " + RelicHelper.getName());
-        } else if (unrest > 0) {
-            detail.addPara("Repealing this edict still causes %s.", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
+        if (active.getRemainingDays() > 0 || unrest > 0) {
+            detail.addPara("Removing it now causes %s.", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
         } else {
-            detail.addPara("Can be repealed %s.", PAD, Misc.getPositiveHighlightColor(), "without penalty");
+            detail.addPara("Can be removed %s.", PAD, Misc.getPositiveHighlightColor(), "without penalty");
         }
     }
 
@@ -414,7 +414,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         TooltipMakerAPI actions = actionPanel.createUIElement(width, height, false);
 
         if (!isActive && confirm != Confirm.ENACT) {
-            ButtonAPI enact = addActionButton(actions, "Enact Edict", action(callback, () -> confirm = Confirm.ENACT), OPAD);
+            ButtonAPI enact = addActionButton(actions, "Enact", action(callback, () -> confirm = Confirm.ENACT), OPAD);
             enact.setEnabled(met && activeCondition == null);
 
             if (activeCondition != null) {
@@ -426,7 +426,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
             actions.addPara("Enact %s on %s? Removing it before its minimum term causes unrest.", OPAD, hl, edictName, colonyName);
             addConfirmButtons(actions, "Confirm", action(callback, this::enactSelected), callback);
         } else if (confirm != Confirm.REMOVE) {
-            addActionButton(actions, "Remove Edict", action(callback, () -> confirm = Confirm.REMOVE), OPAD);
+            addActionButton(actions, "Remove", action(callback, () -> confirm = Confirm.REMOVE), OPAD);
 
             int unrest = active.getRemovalUnrest();
             if (unrest > 0) actions.addPara("Now: %s", PAD, neg, unrest + " unrest");
@@ -438,7 +438,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
 
             int cost = active.getRelicRemovalCost();
             if (cost > 0) addRelicRemoval(actions, active, cost, callback);
-            else addConfirmButtons(actions, "Confirm removal", action(callback, this::removeSelected), callback);
+            else addConfirmButtons(actions, "Confirm", action(callback, this::removeSelected), callback);
         }
 
         actionPanel.addUIElement(actions).inTL(0f, 0f);
@@ -454,7 +454,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         RelicHelper.addCostLine(actions, selectedColony, cost, PAD);
 
         ButtonAPI remove = addActionButton(actions, "Remove", action(callback, this::removeSelected), SMALL_BUTTON_WIDTH, OPAD);
-        ButtonAPI relics = addActionButton(actions, "Remove with relics", action(callback, this::removeSelectedWithRelics), BUTTON_WIDTH, 0f);
+        ButtonAPI relics = addActionButton(actions, "Use Relics", action(callback, this::removeSelectedWithRelics), BUTTON_WIDTH, 0f);
         relics.setEnabled(affordable);
         relics.getPosition().rightOfTop(remove, OPAD);
         addRelicTooltip(actions, relicUnrest, cost);
@@ -472,8 +472,8 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
 
             @Override
             public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
-                tooltip.addPara("Avoids unrest from early repeal.", 0f);
-                if (relicUnrest > 0) tooltip.addPara("Repeal still causes %s.", PAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
+                tooltip.addPara("Removes the Edict without the early removal unrest.", 0f);
+                if (relicUnrest > 0) tooltip.addPara("Removal still causes %s.", PAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
                 RelicHelper.addCostLine(tooltip, selectedColony, cost, OPAD);
                 tooltip.addPara(RELIC_LORE, Misc.getGrayColor(), OPAD);
             }

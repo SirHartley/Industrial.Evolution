@@ -701,7 +701,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
     @Override
     public String getSpeedUpLabel() {
-        return "Rush Research";
+        return "Accelerate";
     }
 
     @Override

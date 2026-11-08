@@ -207,7 +207,7 @@ public class SplinterFleetSidePanelCreator {
         buttons.add(createToggle(row, "Take", take, !live, () -> setTakeMode(num, true), TOGGLE_WIDTH, "Select ships and cargo to keep; the rest form the detachment. Your flagship stays with you."));
         buttons.add(createButton(row, "Members", () -> new TwoFleetFleetMemberPicker(plugin, LoadoutMemory.getLoadout(num)).init(), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !live));
         buttons.add(createButton(row, "Cargo", () -> new TwoFleetCargoPicker(plugin, Global.getSector().getPlayerFleet(), LoadoutMemory.getLoadout(num), true).init(), Misc.getButtonTextColor(), Misc.getDarkPlayerColor(), !live && ready));
-        if (!live) buttons.add(createButton(row, "Spawn", () -> spawn(num), Misc.getTextColor(), SPAWN_COLOUR, canSpawn));
+        if (!live) buttons.add(createButton(row, "Deploy", () -> spawn(num), Misc.getTextColor(), SPAWN_COLOUR, canSpawn));
 
         TooltipMakerAPI previous = null;
         for (TooltipMakerAPI el : buttons) {
@@ -246,7 +246,7 @@ public class SplinterFleetSidePanelCreator {
             if (transportTargetMarket == null && !live)
                 panelTooltip.addPara("Specify a target planet for the transport detachment.", Misc.getNegativeHighlightColor(), OPAD);
             else if (!live && status.currentFuel < requiredFuel) {
-                panelTooltip.addPara("Insufficient Fuel to reach the target planet, load at least " + (int) Math.ceil(requiredFuel * 1.10) + " units!", Misc.getNegativeHighlightColor(), OPAD);
+                panelTooltip.addPara("Not enough fuel to reach the target planet. Load at least " + (int) Math.ceil(requiredFuel * 1.10) + " units.", Misc.getNegativeHighlightColor(), OPAD);
             } else if (transportTargetMarket != null) {
                 String isOrWill = live ? "is heading" : "will head";
                 SectorEntityToken dist = live ? detachment : playerFleet;
@@ -255,7 +255,7 @@ public class SplinterFleetSidePanelCreator {
         }
 
         if (!live && !take && ready && matching < loadout.shipVariantList.size())
-            panelTooltip.addPara("Some ships are unavailable, detachment will be spawned without them.", Misc.getHighlightColor(), SPAD);
+            panelTooltip.addPara("Some ships are unavailable, the detachment deploys without them.", Misc.getHighlightColor(), SPAD);
         else if (!live && !take && !loadout.shipVariantList.isEmpty() && matching <= 0)
             panelTooltip.addPara("None of the ships specified in the loadout are present in the main fleet.", Misc.getNegativeHighlightColor(), SPAD);
 
