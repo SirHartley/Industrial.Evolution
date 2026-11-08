@@ -98,6 +98,8 @@ Express Delivery: while the order waits, the intel shows an `Express Delivery` b
 
 ## Contracts
 
+- The S-mod transfer confirmation states the transfer direction; the fee line identifies the credit charge.
+
 - S-mod transfer tooltips state selection blockers and destination requirements. The lore describes compatible hulls, matching the size and manufacturer checks.
 
 - The industry only counts battles of fleets present when `apply()` last ran; new arrivals are added on the next reapply.

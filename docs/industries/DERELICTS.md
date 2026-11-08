@@ -112,6 +112,8 @@ Rules: `moveIsLegal` (`:154`, no rings, no boggled mirror or shade orbiters). Co
 
 ## Contracts
 
+- Relic service help states the minimum template quality level and the permanent CR and skill-limit effects of ship integration.
+
 - `BaseIndustry.spec` is the shared `Global.getSettings().getIndustrySpec(id)` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:160,702`); never write per market values onto it. `Ruins` overrides `getSpec()` with a view instead; every vanilla reader of the upgrade goes through `getSpec()` (the industry option menu, obfuscated `b` in `com.fs.starfarer.campaign.ui.marketinfo` on 0.98a-RC8 Windows, skill `obf/campaign/ui/marketinfo/_c37.java:224,259`; `BaseIndustry.java:575,1075`). Forge template users and `RiftGenerator` do the same for the downgrade.
 - `$IndEvo_ruinsIndustryId` is the single source for which structure a ruin becomes. Set once, persists in market memory. Also read by `Supercomputer.java:205`, `ModUpdater.java:96-141`, `LocatorSystemRatingUpdater.java:121`.
 - The relic panel only changes the template payload tag and ship variant tags; it saves nothing of its own.

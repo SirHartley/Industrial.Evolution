@@ -193,7 +193,7 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
     private void addHelp(TooltipMakerAPI tooltip) {
         Color hl = Misc.getHighlightColor();
 
-        tooltip.addPara("Adds %s S-mod slot. The ship stays here for %s and is placed in local storage when the work is done.", 0f, hl,
+        tooltip.addPara("Adds %s S-mod slot over %s. The ship is unavailable during the work, then returned to local storage.", 0f, hl,
                 "one", OrbitalWorksSlotManager.DAYS_REQUIRED + " days");
         tooltip.addPara("Cost: %s %s per deployment point.", PAD, hl, COST_PER_DP + "", RelicHelper.getName());
     }

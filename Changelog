@@ -12,7 +12,7 @@ Added - Settings descriptions updated
 Added - Express Delivery for custom production orders: halves the delivery time for Relic Components
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Adjusted - Industrial Supply Store moves its contents to colony storage when the colony is lost
-Adjusted - Removed redundant UI text and shortened service tooltips
+Adjusted - Cut redundant UI text and tightened service and panel descriptions
 Adjusted - Settings tabs re-sorted
 Adjusted - Settings now apply without a game restart
 Adjusted - IE colony items now list under colony items in the codex
