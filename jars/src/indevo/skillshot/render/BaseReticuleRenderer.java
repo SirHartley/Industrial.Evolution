@@ -121,10 +121,8 @@ public abstract class BaseReticuleRenderer implements SkillshotRenderer {
         // start outside the fleet ring so lines do not cross the ring sprite
         float from = reticuleSize * 0.5f;
 
-        float reach = Misc.getDistance(origin, cursorPos);
-        if (length > 0f) reach = Math.min(reach, length);
-
-        float to = reach - getGuideLineEndPadding();
+        float to = Misc.getDistance(origin, cursorPos) - getGuideLineEndPadding();
+        if (length > 0f) to = Math.min(to, length);
 
         if (to <= from) return;
 
