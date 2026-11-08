@@ -50,8 +50,8 @@ public class NamedItemSlotPlugin extends GenericInstallableItemPlugin {
 
     @Override
     public void createMenuItemTooltip(TooltipMakerAPI tooltip, boolean expanded) {
-        float opad = 10f;
-        tooltip.addPara(description, 0f);
+        float opad = description.isEmpty() ? 0f : 10f;
+        if (!description.isEmpty()) tooltip.addPara(description, 0f);
 
         SpecialItemData data = getCurrentlyInstalledItemData();
         if (data == null) {

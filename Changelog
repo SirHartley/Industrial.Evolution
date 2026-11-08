@@ -106,6 +106,7 @@ Note - Conflict and Exploration Package keep their names
 Adjusted - Fuel only rolls on rare and ultra rare VPCs
 Adjusted - New VPC sprites: the chip screen shows the commodities it produces
 Adjusted - VPC Pather interest now follows the tier: 1, 2, 4, 6
+Adjusted - Shortened VPC tooltips and removed the generic install hint
 Adjusted - Conflict Package demand now matches its single chips (more crew, fewer metals)
 Adjusted - VPC commodities and outputs moved to data/config/indEvo/vpc_commodities.csv
 Fixed - Beta core upkeep discount no longer stays active after installing a VPC

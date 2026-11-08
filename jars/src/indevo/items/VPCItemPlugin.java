@@ -32,25 +32,23 @@ import java.util.*;
 public class VPCItemPlugin extends GenericSpecialItemPlugin {
 
     public enum Tier {
-        COMMON(ItemIds.VPC, 1, 30000, 70f, 1f, "This relatively common chip contains handling and production protocols for %s."),
-        UNCOMMON(ItemIds.VPC, 1, 50000, 25f, 2f, "This uncommon chip contains handling and production protocols for %s."),
-        RARE(ItemIds.VPC_RARE, 2, 100000, 5f, 4f, "This rare, top of the line chip contains handling and production protocols for both %s."),
-        ULTRA(ItemIds.VPC_ULTRA, 3, 200000, 1f, 6f, "This exceedingly rare chip contains handling and production protocols for %s.");
+        COMMON(ItemIds.VPC, 1, 30000, 70f, 1f),
+        UNCOMMON(ItemIds.VPC, 1, 50000, 25f, 2f),
+        RARE(ItemIds.VPC_RARE, 2, 100000, 5f, 4f),
+        ULTRA(ItemIds.VPC_ULTRA, 3, 200000, 1f, 6f);
 
         public final String itemId;
         public final int outputs;
         public final int price;
         public final float npcWeight;
         public final float patherInterest;
-        public final String desc;
 
-        Tier(String itemId, int outputs, int price, float npcWeight, float patherInterest, String desc) {
+        Tier(String itemId, int outputs, int price, float npcWeight, float patherInterest) {
             this.itemId = itemId;
             this.outputs = outputs;
             this.price = price;
             this.npcWeight = npcWeight;
             this.patherInterest = patherInterest;
-            this.desc = desc;
         }
 
         public String getName() {

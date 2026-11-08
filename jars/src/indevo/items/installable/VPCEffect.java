@@ -44,15 +44,15 @@ public class VPCEffect extends BaseInstallableItemEffect {
                                           InstallableItemDescriptionMode mode, String pre, float pad) {
         if (data == null || (data.getData() == null && Global.CODEX_TOOLTIP_MODE)) {
             int outputs = VPCItemPlugin.Tier.getLowest(id).outputs;
-            text.addPara(pre + "Contains production protocols for " + (outputs == 1 ? "one commodity." : outputs == 2 ? "two commodities." : "three commodities."), pad);
+            text.addPara(pre + "Enables production of " + (outputs == 1 ? "one commodity." : outputs == 2 ? "two commodities." : "three commodities."), pad);
             return;
         }
 
         if (!VPCItemPlugin.isValid(data)) {
-            text.addPara("Invalid item: the production data %s can not be read. Please report this.", pad, Misc.getNegativeHighlightColor(), String.valueOf(data.getData()));
+            text.addPara("Unreadable VPC data: %s.", pad, Misc.getNegativeHighlightColor(), String.valueOf(data.getData()));
             return;
         }
 
-        text.addPara(pre + VPCItemPlugin.getTier(data).desc, pad, Misc.getHighlightColor(), VPCItemPlugin.getOutputString(data));
+        text.addPara(pre + "Enables production of %s.", pad, Misc.getHighlightColor(), VPCItemPlugin.getOutputString(data));
     }
 }

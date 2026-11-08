@@ -275,7 +275,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
             amounts.add(String.valueOf(e.getValue()));
         }
 
-        tooltip.addPara("Currently outputs " + Misc.getAndJoined(outputs) + " per month.", pad, Misc.getHighlightColor(), amounts.toArray(new String[0]));
+        tooltip.addPara("Delivers " + Misc.getAndJoined(outputs) + " per month.", pad, Misc.getHighlightColor(), amounts.toArray(new String[0]));
     }
 
     @Override
@@ -314,7 +314,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
     @Override
     public List<InstallableIndustryItemPlugin> getInstallableItems() {
         List<InstallableIndustryItemPlugin> list = new ArrayList<>();
-        list.add(new NamedItemSlotPlugin(this, "VPC", "Installing a Tri-Tachyon Variable Production Chip (VPC) will change the economic properties of this industry."));
+        list.add(new NamedItemSlotPlugin(this, "VPC", ""));
 
         return list;
     }
