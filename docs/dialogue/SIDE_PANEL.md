@@ -19,7 +19,7 @@ Three patterns live here. `VisualCustomPanel` (adapted from Histidine's Nexereli
 | `RunnableButtonPanelPlugin.java` | `BaseCustomUIPanelPlugin` whose `buttonPressed` runs a `Runnable` button id. Use it for the visual panel and for every sub panel that holds buttons. |
 | `ButtonReportingCustomPanel.java` | `BaseCustomUIPanelPlugin` that forwards `buttonPressed` to a `ButtonReportingDialogueDelegate`; optional bracket frame with height override. |
 | `ButtonReportingDialogueDelegate.java` | `BaseCustomDialogDelegate`; `reportButtonPressed` runs the id if it is a `ButtonAction` (`:7`). |
-| `HelpIcon.java` | `?` icon for rules and rates that stay out of the panel text: vanilla `fleetScreen` `icon_more_info` sprite tinted with the base player colour, 20 px, hover tooltip. `HelpIcon.create(parent, tooltip -> ...)` returns the element; the caller positions it. Users: Senate, Academy, Ancient Laboratory relic services, Relic Lattice Work panels. |
+| `HelpIcon.java` | `?` icon for rules and rates that stay out of the panel text: vanilla `fleetScreen` `icon_more_info` sprite tinted with the base player colour, 20 px, hover tooltip. `HelpIcon.create(parent, tooltip -> ...)` returns the element; the caller positions it. Users: Senate, Academy, Ancient Laboratory relic services, Relic Lattice Work, Engineering Hub hullmod data panels. |
 | `ButtonAction.java`, `ButtonActionInterface.java` | Abstract button id object holding the `CustomDialogDelegate`; `execute()` is the click handler. |
 | `EscapeBlockingDialoguePluginAPI.java` | `close()` hook. A dialog plugin stores itself in memory `$IndEvo_BlockESC`; `indevo/industries/petshop/listener/EscapeInterceptListener.java:34` consumes ESC and calls `close()`. |
 

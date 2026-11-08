@@ -41,7 +41,7 @@ public class RelicBuildInPatch {
     private static final String CONFIRM_TEXT = "Confirm";
     private static final String CANCEL_TEXT = "Cancel";
     private static final String STORY_LABEL = Misc.ucFirst(Misc.STORY) + " points remaining";
-    private static final String RELIC_LABEL = "Relic builds remaining";
+    private static final String RELIC_LABEL = "Relic components remaining";
     private static final float TOGGLE_PAD = 10f;
     private static final float TOOLTIP_WIDTH = 400f;
 
@@ -50,6 +50,7 @@ public class RelicBuildInPatch {
     private static final MethodQuerySpec GET_MEMBER = MethodQuery.create().methodName("getMember").parameterCount(0).build();
     private static final MethodQuerySpec GET_CHILDREN = MethodQuery.create().methodName("getChildrenCopy").parameterCount(0).build();
     private static final MethodQuerySpec GET_LABEL = MethodQuery.create().methodName("getLabel").parameterCount(0).build();
+    private static final MethodQuerySpec GET_VALUE = MethodQuery.create().methodName("getValue").parameterCount(0).build();
 
     // the counter widget can not reach the dialog's PatchData, only one build in dialog is open at a time
     private static WeakReference<Toggle> active = new WeakReference<>(null);
@@ -75,6 +76,7 @@ public class RelicBuildInPatch {
         ButtonAPI cancel = null;
         TooltipMakerAPI warning = null;
         LabelAPI storyLabel = null;
+        LabelAPI storyValue = null;
         List<?> children = context.getMethod(GET_CHILDREN, widget).call();
         for (Object child : children) {
             if (child instanceof ScrollPanelAPI p) effects = p;
@@ -83,8 +85,12 @@ public class RelicBuildInPatch {
                 if (b.getText().startsWith(CONFIRM_TEXT)) confirm = b;
                 else if (b.getText().startsWith(CANCEL_TEXT)) cancel = b;
             } else if (child instanceof ButtonAPI b && b.getCustomData() != null) {
-                // the counters are buttons around a title and value panel, its getLabel is the title
-                if (context.getMethod(GET_LABEL, b.getCustomData()).call() instanceof LabelAPI l && STORY_LABEL.equals(l.getText())) storyLabel = l;
+                // the counters are buttons around a title and value panel, its getLabel is the title, getValue the number
+                Object counter = b.getCustomData();
+                if (context.getMethod(GET_LABEL, counter).call() instanceof LabelAPI l && STORY_LABEL.equals(l.getText())) {
+                    storyLabel = l;
+                    if (context.getMethod(GET_VALUE, counter).call() instanceof LabelAPI v) storyValue = v;
+                }
             }
         }
 
@@ -99,11 +105,14 @@ public class RelicBuildInPatch {
         PositionAPI effectsPos = effects.getPosition();
         effectsPos.setSize(effectsPos.getWidth(), effectsPos.getHeight() - row);
 
-        if (storyLabel == null) log.warn("No story point counter label in the build in panel, it keeps its text");
+        if (storyLabel == null || storyValue == null) log.warn("No story point counter in the build in panel, it keeps its text");
 
-        Toggle toggle = new Toggle(dialog, widget, member, storyLabel);
-        widgetPanel.addComponent(toggle.create(cancelPos.getWidth(), cancelPos.getHeight())).belowRight(cancel, TOGGLE_PAD);
-        warning.getPosition().belowLeft(confirm, TOGGLE_PAD + row);
+        Toggle toggle = new Toggle(dialog, widget, member, effects, storyLabel, storyValue);
+        CustomPanelAPI togglePanel = toggle.create(effectsPos.getWidth(), cancelPos.getHeight());
+        widgetPanel.addComponent(togglePanel).belowLeft(effects, TOGGLE_PAD);
+        confirm.getPosition().belowLeft(togglePanel, TOGGLE_PAD);
+        cancel.getPosition().belowRight(togglePanel, TOGGLE_PAD);
+        warning.getPosition().belowLeft(confirm, TOGGLE_PAD);
         active = new WeakReference<>(toggle);
     }
 
@@ -138,12 +147,19 @@ public class RelicBuildInPatch {
     }
 
     public static Toggle active(Object owner) {
+        Toggle toggle = of(owner);
+        return toggle != null && toggle.on ? toggle : null;
+    }
+
+    public static Toggle of(Object owner) {
         Toggle toggle = active.get();
-        return toggle != null && toggle.on && (toggle.dialog == owner || toggle.widget.get() == owner) ? toggle : null;
+        return toggle != null && (toggle.dialog == owner || toggle.widget.get() == owner) ? toggle : null;
     }
 
     public static class Toggle extends BaseCustomUIPanelPlugin {
-        private final ModPickerDialogV3 dialog;
+        final ModPickerDialogV3 dialog;
+        final ScrollPanelAPI effects;
+        final LabelAPI counterValue;
         private final WeakReference<Object> widget;
         private final int costPerMod;
         private final MarketAPI market;
@@ -151,9 +167,14 @@ public class RelicBuildInPatch {
         private ButtonAPI checkbox;
         private boolean on = false;
 
-        Toggle(ModPickerDialogV3 dialog, Object widget, FleetMemberAPI member, LabelAPI counterLabel) {
+        CustomPanelAPI list;
+        String listKey;
+
+        Toggle(ModPickerDialogV3 dialog, Object widget, FleetMemberAPI member, ScrollPanelAPI effects, LabelAPI counterLabel, LabelAPI counterValue) {
             this.dialog = dialog;
+            this.effects = effects;
             this.counterLabel = counterLabel;
+            this.counterValue = counterValue;
             this.widget = new WeakReference<>(widget);
             this.costPerMod = Math.max(1, Math.round(member.getUnmodifiedDeploymentPointsCost() * RELICS_PER_DP));
 
@@ -216,7 +237,19 @@ public class RelicBuildInPatch {
             return getAvailable() / costPerMod;
         }
 
-        private int getPending() {
+        int getRemaining() {
+            return getAvailable() - getPending() * costPerMod;
+        }
+
+        int getCostPerMod() {
+            return costPerMod;
+        }
+
+        boolean isOn() {
+            return on;
+        }
+
+        int getPending() {
             return dialog.getAddedPermaMods().size() + dialog.getAddedSModdedBuiltIns().size();
         }
 

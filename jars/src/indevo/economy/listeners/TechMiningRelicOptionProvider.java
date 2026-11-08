@@ -1,8 +1,6 @@
 package indevo.economy.listeners;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
-import com.fs.starfarer.api.campaign.CustomDialogDelegate;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
@@ -13,20 +11,15 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.TechMining;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
-import com.fs.starfarer.api.ui.Alignment;
-import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.economy.plugins.RelicConfirmDialog;
 import indevo.utils.helper.RelicHelper;
 import indevo.utils.plugins.BaseSimpleBaseIndustryOptionProvider;
-
-import java.awt.*;
 
 public class TechMiningRelicOptionProvider extends BaseSimpleBaseIndustryOptionProvider implements EconomyTickListener {
 
     public static final String LABEL = "Boost Extraction";
-    public static final float WIDTH = 500f;
-    public static final float HEIGHT = 200f;
     public static final String MEM_BOOST = "$IndEvo_relicTechMining";
     public static final String MOD_ID = "IndEvo_relicTechMining";
     public static final float FIND_MULT = 2f;
@@ -98,52 +91,22 @@ public class TechMiningRelicOptionProvider extends BaseSimpleBaseIndustryOptionP
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
         MarketAPI market = opt.ind.getMarket();
         int cost = getCost(market);
-        boolean hasEnough = RelicHelper.canAfford(market, cost);
 
-        CustomDialogDelegate delegate = new BaseCustomDialogDelegate() {
+        new RelicConfirmDialog(market, cost, null) {
             @Override
-            public void createCustomDialog(CustomPanelAPI panel, CustomDialogCallback callback) {
-                float opad = 10f;
-                float spad = 5f;
-                Color hl = Misc.getHighlightColor();
-
-                TooltipMakerAPI info = panel.createUIElement(WIDTH, HEIGHT, false);
-                info.setParaInsigniaLarge();
-
+            protected void addDescription(TooltipMakerAPI info) {
                 String findLevel = Math.round(getFindLevel(market) * 100f) + "%";
-                info.addSectionHeading(LABEL, Alignment.MID, 0f);
-                info.addPara("Ruins: %s, remaining yield: %s", opad, hl, getRuinsName(market), findLevel);
-                info.addPara("Next month: %s", spad, Misc.getPositiveHighlightColor(), "finds doubled");
-                RelicHelper.addCostLine(info, market, cost, opad);
-
-                panel.addUIElement(info).inTL(0, 0);
+                info.addPara("Doubles next month's finds. Ruins: %s, remaining yield: %s.", 10f, Misc.getHighlightColor(), getRuinsName(market), findLevel);
             }
 
             @Override
-            public boolean hasCancelButton() {
-                return hasEnough;
-            }
-
-            @Override
-            public void customDialogConfirm() {
-                if (!hasEnough || isBoosted(market)) return;
+            protected void apply() {
+                if (isBoosted(market)) return;
 
                 RelicHelper.take(market, cost);
                 applyBoost(market);
             }
-
-            @Override
-            public String getCancelText() {
-                return "Cancel";
-            }
-
-            @Override
-            public String getConfirmText() {
-                return hasEnough ? "Confirm" : "Return";
-            }
-        };
-
-        ui.showDialog(WIDTH, HEIGHT, delegate);
+        }.show(ui);
     }
 
     @Override

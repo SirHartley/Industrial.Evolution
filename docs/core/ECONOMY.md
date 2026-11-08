@@ -17,12 +17,14 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 | `indevo/economy/listeners/RelicBuildTimeReductionButtonAdder.java` | `BaseSimpleBaseIndustryOptionProvider`: the construction speed up option; nested `ConstructionTarget` adapts a building `BaseIndustry` |
 | `indevo/economy/RelicSpeedUpTarget.java` | Interface for one timer: days left and total, `speedUp(days)`, label, lore; defaults for cost, days after, cooldown and the constants |
 | `indevo/economy/listeners/RelicSpeedUpOptionProvider.java` | `BaseSimpleBaseIndustryOptionProvider`: the speed up option on any player owned industry that implements `RelicSpeedUpTarget` and `canSpeedUp()` |
-| `indevo/economy/plugins/RelicSpeedUpDialog.java` | Shared dialog (`CustomDialogDelegate`) and static `addBody`, `addTooltip`, `isAvailable`, `apply` for every relic speed up |
+| `indevo/economy/plugins/RelicConfirmDialog.java` | Shared relic confirm dialog (`CustomDialogDelegate`), laid out like the vanilla story point dialog: requirement line, description, relic counter left of the buttons; static `addRequirement`, `addCounter` |
+| `indevo/economy/plugins/RelicSpeedUpDialog.java` | `RelicConfirmDialog` for every relic speed up, plus static `addBody`, `addTooltip`, `isAvailable`, `apply` |
 | `indevo/dialogue/rules/IndEvo_CPCExpress.java` | Rule command for Express Delivery: `valid`, `options`, `apply` |
 | `data/campaign/rules.csv` block `# Custom production express delivery` | Express Delivery offer and the two accept paths |
 | `indevo/economy/patches/RelicBuildInPatch.java` | PatchLib patch on `ModPickerDialogV3`: adds the toggle, redirects the story point check, message and payment; nested `Toggle` holds the state and pays |
 | `indevo/economy/listeners/TechMiningRelicOptionProvider.java` | `BaseSimpleBaseIndustryOptionProvider` and `EconomyTickListener`: Boost Extraction option, dialog, industry tooltip line, removal at month end |
 | `indevo/economy/patches/RelicBuildInCounterPatch.java` | PatchLib patch on `ModPickerDialogV3$PermaModInfoWidget`: counter and bonus experience readout while the toggle is on |
+| `indevo/economy/patches/RelicBuildInListPatch.java` | PatchLib patch on `ModPickerDialogV3$PermaModInfoWidget`: replaces the effect list with the relic list while the toggle is on |
 
 ## Data and ids
 
@@ -73,7 +75,7 @@ Shared by construction and the IE timers. Constants on `RelicSpeedUpTarget`: `RE
 | Timer | Label | Target | Entry point |
 |---|---|---|---|
 | Construction or upgrade | Speed up construction | `RelicBuildTimeReductionButtonAdder.ConstructionTarget` | Industry option |
-| Engineering Hub reverse engineering | Accelerate | `EngineeringHub` | Industry option |
+| Engineering Hub reverse engineering | Accelerate Research | `EngineeringHub` | Industry option |
 | Hull Deconstructor | Accelerate | `HullDeconstructor` | Industry option |
 | Ancient Laboratory template repair | Accelerate | `AncientLaboratory` | Industry option |
 | Rift Generator cooldown | Recharge | `RiftGenerator`, `isSpeedUpInstant()` | Industry option |
@@ -84,7 +86,8 @@ Shared by construction and the IE timers. Constants on `RelicSpeedUpTarget`: `RE
 - `canSpeedUp()` needs more than 1 day left; the industry option only shows then. `RelicSpeedUpDialog.isAvailable` adds the cooldown check, the option or button is disabled while it runs.
 - `RelicSpeedUpDialog.apply` checks availability and relics again, takes the cost through `RelicHelper.take(getMarket(), cost)` (colony storage, then fleet cargo, [Utils](UTILS.md#helper)), calls `speedUp(left - after)` and starts the cooldown.
 - Cooldowns: market memory per timer by default (`getSpeedUpCooldownLeft`, `startSpeedUpCooldown`). Construction keeps `$IndEvo_reduceBuildTimeCooldown` (per colony, "on this colony"). Salvage Yards orders keep a clock timestamp on the intel (`relicSpeedUpTimestamp`, "on this order"). Default scope text "here".
-- Text: `addBody` writes label, time remaining, time with relics and the cost line; the dialog and the intel confirm prompt both use it. `addTooltip` writes effect, cost line, the cooldown rule (`getSpeedUpScope()`), the cooldown left or "Too few days left" and the gray lore (`getSpeedUpLore()`, Philipp's text, RELIC_PLAN section 6; construction has none) for the option or button hover.
+- Dialog: `RelicConfirmDialog` sizes itself to its text (`getHeight`) and draws the counter "Relic Components: N" below its own panel, left of the dialog buttons. Without enough relics the only button is Return; Confirm checks the relics again before `apply()`. Subclasses pay in `apply()`.
+- Text: the dialog writes the requirement line, the effect with time remaining before and after, and the relic counter. `addBody` writes the same for the intel confirm prompt. `addTooltip` writes effect, cost line, the cooldown rule (`getSpeedUpScope()`), the cooldown left or "Too few days left" and the gray lore (`getSpeedUpLore()`, Philipp's text, RELIC_PLAN section 6; construction has none) for the option or button hover.
 - Construction: `ConstructionTarget` reads private `buildTime` via `StarReflectionUtils.get(ind, "buildTime", float.class, true)`; days left `round(buildTime - buildProgress)`; `speedUp` adds the days to `BaseIndustry.setBuildProgress`. `isSuitable`: a `BaseIndustry` that is building, or upgrading with an upgrade spec.
 
 ### Custom production Express Delivery
@@ -99,12 +102,13 @@ Vanilla `CustomProductionContract` fires `CPCBlueprintsPicked` after the product
 
 Vanilla flow is translated from obfuscated `com.fs.starfarer.coreui.refit.ModPickerDialogV3` (0.98a-RC8): `tableRowSelected` refuses a new S-mod when `getStoryPoints() - pending <= 0`, `actionPerformed` on Confirm calls `spendStoryPoints(count, true, null, true, bonusXpFraction, text)`, `PermaModInfoWidget.advanceImpl` draws the counter from `getStoryPoints()`.
 
-`createUI` in build in mode (`isPermMode()`, campaign only, the counter widget exists) -> `RelicBuildInPatch.afterCreateUI` shrinks the hullmod effect list (the widget's `ScrollPanelAPI` child) by one button row, adds the "Use Relics" area checkbox below vanilla's Cancel (the `ButtonAPI` child whose text starts with "Cancel", the label carries its shortcut), the same size as Cancel, moves the "Once confirmed" warning line (the `TooltipMakerAPI` child) below that row, and while relics are on renames the counter title "Story points remaining" to "Relic builds remaining" (the counter button's custom data `getLabel()`), and makes this `Toggle` the active one. Cost per S-mod `max(1, round(5 x unmodified DP))` of the refit ship (`RELICS_PER_DP`). Relics are counted in fleet cargo plus, when the refit was opened from an interaction at a market with storage access, that storage.
+`createUI` in build in mode (`isPermMode()`, campaign only, the counter widget exists) -> `RelicBuildInPatch.afterCreateUI` shrinks the hullmod effect list (the widget's `ScrollPanelAPI` child) by one button row, adds the "Use Relics" area checkbox in that row at the full widget width, moves vanilla's Confirm and Cancel (the `ButtonAPI` children whose text starts with "Confirm" / "Cancel", the label carries the shortcut) below it and the "Once confirmed" warning line (the `TooltipMakerAPI` child) below them, and makes this `Toggle` the active one. While relics are on the counter title "Story points remaining" reads "Relic components remaining" (the counter button's custom data `getLabel()`; `getValue()` is the number). Cost per S-mod `max(1, round(5 x unmodified DP))` of the refit ship (`RELICS_PER_DP`). Relics are counted in fleet cargo plus, when the refit was opened from an interaction at a market with storage access, that storage.
 
 Toggle on:
 
 - `tableRowSelected`: `getStoryPoints()` returns `available / cost`, so vanilla allows that many new S-mods. "No story points available" becomes "Not enough Relic Components".
-- Counter widget: `getStoryPoints()` returns the same number, the bonus experience readout (the only `setText` ending in `%`) shows `0%`.
+- Counter widget: `getStoryPoints()` returns the same number (it greys the counter out at 0). The counter value's `setText` gets the relics left after the pending S-mods (`available - pending x cost`), the bonus experience readout (the only other `setText` ending in `%`) shows `0%`.
+- Effect list: vanilla rebuilds it in every `advanceImpl` with `addSModSection` for pending S-mods that have an S-mod effect. `RelicBuildInListPatch` removes vanilla's tooltip from the scroll panel's content container each frame and shows its own list instead, rebuilt only when the pending S-mods change: one row per pending S-mod, the Relic Components icon with the cost per S-mod below it on the left, then `addSModSection` (or a heading with the hullmod name when it has no S-mod effect). The ship comes from `getRefitPanel().getShipDisplay().getShip()`.
 - Confirm: `spendStoryPoints` is not called (no story point, no bonus experience, no playthrough log text). `Toggle.pay(count)` takes `count x cost` through `RelicHelper.take` (storage first, then fleet cargo), and shows "Lost N Relic Components".
 
 The checkbox is disabled while new S-mods are selected (`getAddedPermaMods` plus `getAddedSModdedBuiltIns`) and, while off, when relics do not cover one S-mod. Its hover tooltip shows effect, cost line and the lore line in gray. Toggle off: every redirect calls down, vanilla behaviour.
@@ -113,7 +117,7 @@ The checkbox is disabled while new S-mods are selected (`getAddedPermaMods` plus
 
 Relic sink on vanilla `TechMining` (API impl). The monthly find is `generateCargoForGatheringPoint` (`TechMining.java:198`): its size is ruin size (`getTechMiningRuinSizeModifier`, 0.2 to 1) times `Stats.TECH_MINING_MULT` times the decay value `$core_techMiningMult` (x `techMiningDecay` per month). `CoreScript.reportEconomyMonthEnd` -> `doCustomProduction` calls it on every industry of player markets (`CoreScript.java:1108`, `:1006`).
 
-`isSuitable` (`techmining`, functional, player owned) -> option enabled unless `$IndEvo_relicTechMining` -> dialog shows ruins, remaining yield (`$core_techMiningMult` as a percentage) and the cost line, cost `max(5, round(20 x ruin size x find level))` -> `RelicHelper.take` (colony storage, then fleet cargo) -> `modifyMult(IndEvo_relicTechMining, 2)` on `Stats.TECH_MINING_MULT` and sets the memory key. The decay value is not touched, so the ruins do not wear out faster. The option hover shows effect, cost line and the lore text in gray (`LORE`, RELIC_PLAN section 6); the industry tooltip shows "Boost Extraction: next month's finds doubled" while pending.
+`isSuitable` (`techmining`, functional, player owned) -> option enabled unless `$IndEvo_relicTechMining` -> `RelicConfirmDialog` shows the requirement line, ruins, remaining yield (`$core_techMiningMult` as a percentage) and the relic counter, cost `max(5, round(20 x ruin size x find level))` -> `RelicHelper.take` (colony storage, then fleet cargo) -> `modifyMult(IndEvo_relicTechMining, 2)` on `Stats.TECH_MINING_MULT` and sets the memory key. The decay value is not touched, so the ruins do not wear out faster. The option hover shows effect, cost line and the lore text in gray (`LORE`, RELIC_PLAN section 6); the industry tooltip shows "Boost Extraction: next month's finds doubled" while pending.
 
 `reportEconomyMonthEnd` removes the modifier and key from every market that has them, unless the market is player owned and its Tech Mining exists but is not functional (disrupted or upgrading): then the boost waits for the next month end. The listener runs after the find: `ReachEconomyStepper.doEndOfMonthStuff` calls `SectorAPI.reportEconomyMonthEnd` (sector listeners, `CoreScript` among them) before `ListenerUtil.reportEconomyMonthEnd` (`EconomyTickListener`s). Inferred from obfuscated code (`com.fs.starfarer.campaign.econ.reach.ReachEconomyStepper`); recheck after a game update.
 

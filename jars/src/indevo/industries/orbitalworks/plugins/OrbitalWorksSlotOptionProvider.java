@@ -2,15 +2,15 @@ package indevo.industries.orbitalworks.plugins;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
-import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
+import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
-import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.orbitalworks.data.OrbitalWorksSlotJob;
@@ -85,15 +85,18 @@ public class OrbitalWorksSlotOptionProvider extends BaseSimpleBaseIndustryOption
         OrbitalWorksSlotJob job = getJob(ind);
         if (job == null) return;
 
-        float opad = 10f;
-        FleetMemberAPI member = job.member;
-        float progress = Math.min(1f, job.daysDone / (float) OrbitalWorksSlotManager.DAYS_REQUIRED);
+        if (mode != Industry.IndustryTooltipMode.NORMAL) return;
 
-        tooltip.addPara(NAME, Misc.getHighlightColor(), opad);
-        tooltip.addPara("%s, %s", 3f, Misc.getGrayColor(), Misc.getTextColor(), member.getShipName(), member.getHullSpec().getHullNameWithDashClass());
-        tooltip.addCustom(createProgressBar(width - opad * 2, progress), 5f);
-        tooltip.addPara("%s days left", 3f, Misc.getGrayColor(), Misc.getHighlightColor(), getDaysLeft(job) + "");
-        if (!ind.isFunctional()) tooltip.addPara("Paused while Orbital Works is not functional.", Misc.getNegativeHighlightColor(), 3f);
+        float pad = 5f;
+        FleetMemberAPI member = job.member;
+        FactionAPI faction = ind.getMarket().getFaction();
+
+        tooltip.addSectionHeading("Current Project", faction.getBaseUIColor(), faction.getDarkUIColor(), Alignment.MID, 10f);
+        TooltipMakerAPI text = tooltip.beginImageWithText(member.getHullSpec().getSpriteName(), 48f);
+        text.addPara(NAME + ": %s. Time remaining: %s. This will add %s S-mod slot.", pad, Misc.getHighlightColor(),
+                member.getShipName() + ", " + member.getHullSpec().getHullNameWithDashClass(), getDaysLeft(job) + " days", "one");
+        if (!ind.isFunctional()) text.addPara("Paused while Orbital Works is not functional.", Misc.getNegativeHighlightColor(), pad);
+        tooltip.addImageWithText(pad);
     }
 
     public static int getDaysLeft(OrbitalWorksSlotJob job) {
@@ -103,27 +106,6 @@ public class OrbitalWorksSlotOptionProvider extends BaseSimpleBaseIndustryOption
     private static OrbitalWorksSlotJob getJob(Industry ind) {
         MarketAPI market = ind.getMarket();
         return market == null ? null : OrbitalWorksSlotManager.getInstanceOrRegister().getJob(market);
-    }
-
-    private static CustomPanelAPI createProgressBar(float width, final float progress) {
-        final Color base = Misc.getButtonTextColor();
-        final Color dark = Misc.getDarkPlayerColor();
-
-        return Global.getSettings().createCustom(width, 8f, new BaseCustomUIPanelPlugin() {
-            private PositionAPI pos;
-
-            @Override
-            public void positionChanged(PositionAPI position) {
-                pos = position;
-            }
-
-            @Override
-            public void render(float alphaMult) {
-                if (pos == null) return;
-                Misc.renderQuad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), dark, alphaMult);
-                Misc.renderQuad(pos.getX(), pos.getY(), pos.getWidth() * progress, pos.getHeight(), base, alphaMult);
-            }
-        });
     }
 
     private static class AbortDelegate extends BaseCustomDialogDelegate {
