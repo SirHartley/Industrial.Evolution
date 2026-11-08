@@ -115,8 +115,9 @@ public class SplinterFleetSidePanelCreator {
         for (int i = 1; i <= modes; i++) {
             FleetBehaviour mode = Behaviour.getBehaviourForIndex(i);
 
+            Color colour = Behaviour.getColourForBehaviour(mode);
             TooltipMakerAPI el = column.createUIElement(MODE_BUTTON_WIDTH, MODE_BUTTON_HEIGHT, false);
-            ButtonAPI button = el.addAreaCheckbox(Misc.ucFirst(mode.toString().toLowerCase()), (Runnable) () -> setMode(num, mode), Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), MODE_BUTTON_WIDTH, MODE_BUTTON_HEIGHT, 0f);
+            ButtonAPI button = el.addAreaCheckbox(Misc.ucFirst(mode.toString().toLowerCase()), (Runnable) () -> setMode(num, mode), colour, Misc.scaleAlpha(Misc.scaleColorOnly(colour, 0.4f), 0.7f), Misc.interpolateColor(colour, Color.WHITE, 0.4f), MODE_BUTTON_WIDTH, MODE_BUTTON_HEIGHT, 0f);
             button.setChecked(Behaviour.behaviourEquals(mode, current));
             button.setEnabled(!dormant && (!live || Behaviour.canSwitchLiveTo(mode)));
             button.setShowTooltipWhileInactive(true);
