@@ -46,7 +46,8 @@ public class OrbitalWorksSlotManager implements NewDayListener {
     }
 
     public OrbitalWorksSlotJob getJob(MarketAPI market) {
-        for (OrbitalWorksSlotJob job : jobs) if (job.market == market) return job;
+        // industry tooltips run on a market clone, match by id
+        for (OrbitalWorksSlotJob job : jobs) if (job.market.getId().equals(market.getId())) return job;
         return null;
     }
 
