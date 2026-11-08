@@ -32,7 +32,7 @@ Derelict stations (`IndEvo_GachaStation`, display name "Automated Shipyard") orb
 | Setting | `IndEvo_shipPickerRowCount` | `LunaSettings.csv:14`, read in `GachaStationDialoguePlugin.java:408` |
 | Rules | `IndEvo_GachaStationCargoOpen` -> `OpenStorageTabOnGachaStation` | `data/campaign/rules.csv:266` |
 | Rule command package | `indevo.exploration.gacha.rules` | `data/config/settings.json:42` |
-| Sprite | `IndEvo/log_gachastation` (intel icon, `graphics/icons/intel/IndEvo_gachastation.png`) | `data/config/settings.json:163` |
+| Sprite | `IndEvo/log_gachastation` (intel icon, `graphics/icons/intel/IndEvo_gachastation.png`) | `data/config/settings.json:169` |
 | Music | `IndEvo_Haplogynae_derelict_theme` on entity and repaired market | `GachaStationSpawner.java:65`, `GachaStationDialoguePlugin.java:208` |
 
 Tuning constants (`GachaStationDialoguePlugin.java:41-49`): repair `METALS_REPAIR_COST` 10000, `MACHINERY_REPAIR_COST` 1000, `PARTS_REPAIR_COST` 4000; `RARE_PART_COST_AMT` 100 per roll; `PARTS_PER_DP` 100; `AUTOMATED_CHANCE` 0.1.

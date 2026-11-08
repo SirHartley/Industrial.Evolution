@@ -80,7 +80,7 @@ NPC markets without a VPC get one random VPC once, tier by `Tier.npcWeight` 70/2
 ## Contracts
 
 - The VPC is the vanilla `special` field. `BaseIndustry` refunds it on removal unless the removal is an upgrade, copies it on upgrade and downgrade, and calls `VPCEffect.unapply` (which calls `vpcUnapply`) when it is replaced or the industry unapplies.
-- The slot is a `NamedItemSlotPlugin` labelled "VPC" that shows the chip icon (`VariableAssembler.java:327-337`); the installed items tooltip uses the same icon (`:316-324`).
+- The slot is a `NamedItemSlotPlugin` labelled "VPC" that shows the chip for the output count (`VariableAssembler.java:327-337`); the installed items tooltip uses the same icon (`:316-324`).
 - `hasVPC()` is true for any `IndEvo_vpc` item (`:348-350`). An installed VPC with unreadable data throws `IllegalStateException` on apply; tooltips show it as invalid first.
 - `aiCoreMult`, `rampUpExpired`, `lastInstalledVPC` (a `SpecialItemData`), Forge `daysPassed`, `depositCounter`, `vpcIsLocked` are saved fields on the industry. The ramp up and Forge lock timers restart when the installed `SpecialItemData` changes.
 - `ConvertVPCSpecial` uses the static `getDepositAmount` and `CommodityForge.LOG_INCREASE`; see [Salvage](../exploration/SALVAGE.md).

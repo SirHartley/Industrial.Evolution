@@ -19,8 +19,13 @@ import indevo.items.memory.VPCCommodityRepo.Commodity;
 import indevo.items.memory.VPCCommodityRepo.Pool;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lwjgl.util.vector.Vector2f;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.*;
 
@@ -69,11 +74,76 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
     private static final String TIER_SEPARATOR = "|";
     private static final String COMMODITY_SEPARATOR = ",";
     private static final float[] DEPOSIT_MULT = {1f, 0.8f, 0.65f};
-    private static final Color SCREEN_COLOR = new Color(28, 48, 56);
+    // screen corners in icon px from the top left: tl, tr, br, bl
+    private static final Chip[] CHIPS = {
+            new Chip("VPCChip1", "VPCOverlay1", 24f, 18f, 24f, 58f, 19f, 64f, 46f, 24f, 52f),
+            new Chip("VPCChip2", "VPCOverlay2", 18f, 12f, 23.5f, 63f, 23.5f, 66f, 45.5f, 18f, 52.5f),
+            new Chip("VPCChip3", "VPCOverlay3", 15f, 10.5f, 25.5f, 64f, 21f, 70f, 45f, 16f, 53f)
+    };
+    private static final float ICON_GAP = 0.04f;
+    private static final float OVERLAY_ALPHA = 0.4f;
+    private static final float GLOW_ALPHA = 0.9f;
+    private static final float GLOW_SIZE = 1.9f;
+    private static final int CONTENT_MIN_ALPHA = 40;
+    private static final float[] FULL_BOUNDS = {0f, 0f, 1f, 1f};
+    private static final Map<String, float[]> CONTENT_BOUNDS = new HashMap<>();
     // render and apply read the outputs every frame, warn once per id
     private static final Set<String> WARNED_IDS = new HashSet<>();
 
     protected SpecialItemData data;
+
+    private static class Chip {
+        private final String sprite;
+        private final String overlay;
+        private final float iconSize;
+        private final Vector2f tl, tr, br, bl;
+        private final Vector2f u, v;
+
+        private Chip(String sprite, String overlay, float iconSize, float... corners) {
+            this.sprite = sprite;
+            this.overlay = overlay;
+            this.iconSize = iconSize;
+            tl = toCenter(corners[0], corners[1]);
+            tr = toCenter(corners[2], corners[3]);
+            br = toCenter(corners[4], corners[5]);
+            bl = toCenter(corners[6], corners[7]);
+            // icons follow the screen tilt: average direction of the opposite edges
+            u = average(Vector2f.sub(tr, tl, null), Vector2f.sub(br, bl, null));
+            v = average(Vector2f.sub(bl, tl, null), Vector2f.sub(br, tr, null));
+        }
+
+        private Vector2f getSlot(int i, int n) {
+            float s = n == 1 ? 0.5f : 0.5f + (i - (n - 1) / 2f) * (1f - 2f * ICON_GAP) / n;
+            Vector2f top = lerp(tl, tr, s);
+            Vector2f bottom = lerp(bl, br, s);
+            return lerp(top, bottom, 0.5f);
+        }
+
+        private void renderInBox(SpriteAPI sprite, Vector2f c, float w, float h) {
+            float uw = w / 2f, vh = h / 2f;
+            sprite.renderWithCorners(
+                    c.x - u.x * uw + v.x * vh, c.y - u.y * uw + v.y * vh,
+                    c.x - u.x * uw - v.x * vh, c.y - u.y * uw - v.y * vh,
+                    c.x + u.x * uw - v.x * vh, c.y + u.y * uw - v.y * vh,
+                    c.x + u.x * uw + v.x * vh, c.y + u.y * uw + v.y * vh);
+        }
+
+        private static Vector2f toCenter(float px, float py) {
+            return new Vector2f(px - 40f, 40f - py);
+        }
+
+        private static Vector2f lerp(Vector2f a, Vector2f b, float t) {
+            return new Vector2f(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
+        }
+
+        private static Vector2f average(Vector2f a, Vector2f b) {
+            a.normalise();
+            b.normalise();
+            Vector2f sum = Vector2f.add(a, b, null);
+            sum.normalise();
+            return sum;
+        }
+    }
 
     @Override
     public void init(CargoStackAPI stack) {
@@ -93,42 +163,52 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
 
     @Override
     public void render(float x, float y, float w, float h, float alphaMult, float glowMult, SpecialItemRendererAPI renderer) {
-        if (!isValid(data)) return;
-
         float cx = x + w / 2f;
         float cy = y + h / 2f;
 
-        String icon = getChipIcon(data);
-        if (icon != null) {
-            renderSprite(Global.getSettings().getSprite(icon), cx, cy, alphaMult, glowMult);
+        // the engine draws the trimmed spec icon first, the full chip covers it
+        if (!isValid(data)) {
+            renderSprite(Global.getSettings().getSprite("IndEvo", CHIPS[0].sprite), cx, cy, alphaMult, glowMult);
             return;
         }
 
-        Tier tier = getTier(data);
-        if (tier == Tier.RARE || tier == Tier.ULTRA) {
-            renderSprite(Global.getSettings().getSprite("IndEvo", "VPCRareChip"), cx, cy, alphaMult, glowMult);
-        }
-
-        // screen area of the chip art, pixel offsets from the 80px icon center
-        float blX = cx - 22f, blY = cy - 5f;
-        float tlX = cx - 23f, tlY = cy + 19f;
-        float trX = cx + 22f, trY = cy + 19f;
-        float brX = cx + 22f, brY = cy - 5f;
-        renderer.renderBGWithCorners(SCREEN_COLOR, blX, blY, tlX, tlY, trX, trY, brX, brY, alphaMult, glowMult * 0.5f, false);
-
         List<Commodity> outputs = getOutputs(data);
+        Chip chip = getChip(outputs.size());
+        renderSprite(Global.getSettings().getSprite("IndEvo", chip.sprite), cx, cy, alphaMult, glowMult);
+
+        Color bright = Global.getSettings().getBrightPlayerColor();
+        SpriteAPI overlay = Global.getSettings().getSprite("IndEvo", chip.overlay);
+        overlay.setNormalBlend();
+        overlay.setColor(bright);
+        overlay.setAlphaMult(alphaMult * Math.min(1f, OVERLAY_ALPHA * (1f + 0.5f * glowMult)));
+        overlay.renderAtCenter(cx, cy);
+
         int n = outputs.size();
-        float size = n == 1 ? 24f : n == 2 ? 20f : 16f;
-        float step = n == 2 ? 22f : 14f;
-        float startX = cx - step * (n - 1) / 2f;
-
         for (int i = 0; i < n; i++) {
-            SpriteAPI sprite = Global.getSettings().getSprite(Global.getSettings().getCommoditySpec(outputs.get(i).id()).getIconName());
-            sprite.setSize(size, size);
-            renderSprite(sprite, startX + step * i, cy + 7f, alphaMult, glowMult);
-        }
+            Vector2f c = chip.getSlot(i, n);
+            c.set(cx + c.x, cy + c.y);
 
-        renderer.renderScanlinesWithCorners(blX, blY, tlX, tlY, trX, trY, brX, brY, alphaMult, false);
+            SpriteAPI glow = Global.getSettings().getSprite("IndEvo", "VPCGlow");
+            glow.setAdditiveBlend();
+            glow.setColor(bright);
+            glow.setAlphaMult(alphaMult * GLOW_ALPHA * (1f + 0.6f * glowMult));
+            chip.renderInBox(glow, c, chip.iconSize * GLOW_SIZE, chip.iconSize * GLOW_SIZE);
+
+            String path = Global.getSettings().getCommoditySpec(outputs.get(i).id()).getIconName();
+            SpriteAPI icon = Global.getSettings().getSprite(path);
+            float[] b = getContentBounds(path);
+            icon.setTexX(b[0] * icon.getTextureWidth());
+            icon.setTexY(b[1] * icon.getTextureHeight());
+            icon.setTexWidth(b[2] * icon.getTextureWidth());
+            icon.setTexHeight(b[3] * icon.getTextureHeight());
+            icon.setNormalBlend();
+            icon.setAlphaMult(alphaMult);
+
+            float iw = b[2] * icon.getWidth();
+            float ih = b[3] * icon.getHeight();
+            float scale = chip.iconSize / Math.max(iw, ih);
+            chip.renderInBox(icon, c, iw * scale, ih * scale);
+        }
     }
 
     @Override
@@ -276,16 +356,48 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
     }
 
     public static String getIconName(SpecialItemData data) {
-        String icon = isValid(data) ? getChipIcon(data) : null;
-        return icon != null ? icon : Global.getSettings().getSpecialItemSpec(data.getId()).getIconName();
+        if (!isValid(data)) return Global.getSettings().getSpecialItemSpec(data.getId()).getIconName();
+        return Global.getSettings().getSpriteName("IndEvo", getChip(getOutputs(data).size()).sprite);
     }
 
-    private static String getChipIcon(SpecialItemData data) {
-        List<Commodity> outputs = getOutputs(data);
-        if (outputs.size() == 1) return outputs.get(0).icon().isEmpty() ? null : outputs.get(0).icon();
+    private static Chip getChip(int outputs) {
+        return CHIPS[Math.max(1, Math.min(outputs, CHIPS.length)) - 1];
+    }
 
-        VPCCommodityRepo.Package p = VPCCommodityRepo.getPackage(getCommodityIds(data));
-        return p != null && !p.icon().isEmpty() ? p.icon() : null;
+    // x and y from the bottom left, as fractions of the image, texture rows are stored bottom up
+    private static float[] getContentBounds(String path) {
+        return CONTENT_BOUNDS.computeIfAbsent(path, VPCItemPlugin::readContentBounds);
+    }
+
+    private static float[] readContentBounds(String path) {
+        BufferedImage image;
+        try (InputStream in = Global.getSettings().openStream(path)) {
+            image = ImageIO.read(in);
+        } catch (IOException e) {
+            VPCCommodityRepo.log.warn("Could not read VPC icon " + path + ", drawing it uncropped", e);
+            return FULL_BOUNDS;
+        }
+
+        if (image == null) {
+            VPCCommodityRepo.log.warn("Could not decode VPC icon " + path + ", drawing it uncropped");
+            return FULL_BOUNDS;
+        }
+
+        int w = image.getWidth();
+        int h = image.getHeight();
+        int x0 = w, y0 = h, x1 = -1, y1 = -1;
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                if ((image.getRGB(x, y) >>> 24) <= CONTENT_MIN_ALPHA) continue;
+                x0 = Math.min(x0, x);
+                x1 = Math.max(x1, x);
+                y0 = Math.min(y0, y);
+                y1 = Math.max(y1, y);
+            }
+        }
+
+        if (x1 < 0) return FULL_BOUNDS;
+        return new float[]{x0 / (float) w, (h - 1 - y1) / (float) h, (x1 - x0 + 1) / (float) w, (y1 - y0 + 1) / (float) h};
     }
 
     private static String getFlavor(SpecialItemData data) {

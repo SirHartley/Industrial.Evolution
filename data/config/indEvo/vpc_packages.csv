@@ -1,3 +1,3 @@
-id,commodities,name,icon,desc
-conflict,"marines, hand_weapons",Conflict Package,graphics/icons/cargo/VPC_war.png,War is always the same - and this is what you need to win it.
-exploration,"fuel, supplies",Exploration Package,graphics/icons/cargo/VPC_exp.png,Explore without fear of coming home to empty stores!
+id,commodities,name,desc
+conflict,"marines, hand_weapons",Conflict Package,War is always the same - and this is what you need to win it.
+exploration,"fuel, supplies",Exploration Package,Explore without fear of coming home to empty stores!

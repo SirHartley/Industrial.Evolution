@@ -28,14 +28,14 @@ public class VPCCommodityRepo {
     private static final String[] DEPOSIT_COLUMNS = {Ids.ADASSEM, Ids.ADMANUF, Ids.COMFORGE};
 
     public record Commodity(String id, Pool pool, int supply, Map<String, Integer> demand,
-                            Map<String, Integer> deposits, String name, String icon, String desc) {
+                            Map<String, Integer> deposits, String name, String desc) {
 
         public int getDeposit(String industryId) {
             return deposits.getOrDefault(industryId, 0);
         }
     }
 
-    public record Package(String id, Set<String> commodities, String name, String icon, String desc) {
+    public record Package(String id, Set<String> commodities, String name, String desc) {
     }
 
     public static Collection<Commodity> getAll() {
@@ -72,16 +72,12 @@ public class VPCCommodityRepo {
                 Map<String, Integer> deposits = new HashMap<>();
                 for (String industryId : DEPOSIT_COLUMNS) deposits.put(industryId, row.optInt(industryId, 0));
 
-                String icon = row.optString("icon", "");
-                loadTexture(icon);
-
                 map.put(id, new Commodity(id,
                         Pool.valueOf(row.getString("pool").trim().toUpperCase()),
                         row.getInt("supply"),
                         parseDemand(id, row.optString("demand", "")),
                         deposits,
                         row.optString("name", ""),
-                        icon,
                         row.optString("desc", "")));
             } catch (JSONException | IllegalArgumentException e) {
                 log.warn("Skipping invalid VPC commodity row " + row, e);
@@ -103,10 +99,7 @@ public class VPCCommodityRepo {
                 Set<String> commodities = new HashSet<>();
                 for (String s : row.getString("commodities").split(",")) commodities.add(s.trim());
 
-                String icon = row.optString("icon", "");
-                loadTexture(icon);
-
-                list.add(new Package(row.getString("id"), commodities, row.getString("name"), icon, row.optString("desc", "")));
+                list.add(new Package(row.getString("id"), commodities, row.getString("name"), row.optString("desc", "")));
             } catch (JSONException e) {
                 log.warn("Skipping invalid VPC package row " + row, e);
             }
@@ -149,14 +142,5 @@ public class VPCCommodityRepo {
         }
 
         return map;
-    }
-
-    private static void loadTexture(String path) {
-        if (path.isEmpty()) return;
-        try {
-            Global.getSettings().loadTexture(path);
-        } catch (IOException e) {
-            log.warn("Could not load VPC icon " + path, e);
-        }
     }
 }

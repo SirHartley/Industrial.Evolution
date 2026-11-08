@@ -1,5 +1,5 @@
 name,id,tags,tech/manufacturer,rarity,base price,stack size,cargo space,baseRaidDanger,icon,sound id,sound id drop,plugin,plugin params,desc,order
-Variable Production Chip,IndEvo_vpc,"codex_unlockable, colony_item",,,30000,1000,1,,graphics/icons/cargo/VPC_empty.png,ui_chip_pickup,ui_corrupted_nano_drop,indevo.items.VPCItemPlugin,"IndEvo_AdAssem, IndEvo_AdManuf, IndEvo_ComForge","Remnant of a more advanced age, a Tri-Tachyon Variable Production Chip enables the retooling of variable industries.",96
+Variable Production Chip,IndEvo_vpc,"codex_unlockable, colony_item",,,30000,1000,1,,graphics/icons/cargo/VPC_base.png,ui_chip_pickup,ui_corrupted_nano_drop,indevo.items.VPCItemPlugin,"IndEvo_AdAssem, IndEvo_AdManuf, IndEvo_ComForge","Remnant of a more advanced age, a Tri-Tachyon Variable Production Chip enables the retooling of variable industries.",96
 ,,,,,,,,,,,,,,,
 Base Ambassador Item,IndEvo_amb,"IndEvo_amb, no_drop, hide_in_codex, rural",,,1000,1,1,,graphics/icons/cargo/space_suit.png,ui_cargo_crew,ui_cargo_crew_drop,indevo.items.AmbassadorItemPlugin,IndEvo_embassy,,800
 ,,,,,,,,,,,,,,,
