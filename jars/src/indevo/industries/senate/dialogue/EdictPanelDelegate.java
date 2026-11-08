@@ -56,6 +56,8 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
     private static final float MARK_GAP = 8f;
     private static final float BUTTON_WIDTH = 150f;
     private static final float BUTTON_HEIGHT = 25f;
+    private static final float BOX_PAD = 6f;
+    private static final float BRIBE_CONFIRM_HEIGHT = 200f;
     private static final float TOOLTIP_WIDTH = 360f;
 
     private static final String RELIC_LORE = "Several senators have districts waiting on machinery that nobody makes anymore. A few crates of relic components should settle their objections to an early repeal.";
@@ -355,15 +357,16 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
 
         float detailHeight = height - HEADING_HEIGHT - PAD - ACTION_HEIGHT;
         TooltipMakerAPI detail = panel.createUIElement(width, detailHeight, true);
+        detail.addCustom(createSummaryBox(edict.getShortDesc(), width - 20f), 0f);
 
         if (isActive) {
             int min = active.getMinRuntime(selectedColony);
-            detail.addPara("Minimum term: %s / %s", 0f, hl, Math.min(active.getDaysPassed(), min) + "", min + " days");
+            detail.addPara("Minimum term: %s / %s", OPAD, hl, Math.min(active.getDaysPassed(), min) + "", min + " days");
             CustomPanelAPI bar = panel.createCustomPanel(width - 20f, 5f, new RuntimeBarPlugin(getRuntimeFraction(active, selectedColony), getRuntimeColor(active)));
             detail.addCustom(bar, PAD);
         }
 
-        detail.addPara(spec.getDesc(), Misc.getGrayColor(), isActive ? OPAD : 0f);
+        detail.addPara(spec.getDesc(), Misc.getGrayColor(), OPAD);
 
         detail.addPara((isActive ? "Current effects on " : "Effects on ") + selectedColony.getName(), base, OPAD);
         edict.addEffectText(detail, selectedColony, PAD);
@@ -386,6 +389,18 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
 
         addActions(x, y + height - ACTION_HEIGHT, width, ACTION_HEIGHT, activeCondition, active, isActive, met);
         return detail;
+    }
+
+    private CustomPanelAPI createSummaryBox(String text, float width) {
+        CustomPanelAPI box = panel.createCustomPanel(width, 0f, new BoxPlugin());
+
+        // labels sit ROW_INSET further in than components
+        TooltipMakerAPI label = box.createUIElement(width - 2f * OPAD, 0f, false);
+        label.addPara(text, 0f);
+        box.getPosition().setSize(width, label.getHeightSoFar() + 2f * BOX_PAD);
+        box.addUIElement(label).inTL(OPAD - ROW_INSET, BOX_PAD);
+
+        return box;
     }
 
     private void addActiveRuntimeText(TooltipMakerAPI detail, EdictAPI active) {
@@ -431,15 +446,42 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
                 actions.addPara("Requirements not met.", gray, PAD);
             }
         } else {
-            actions.addButton("Remove", popupAction(this::createRemoveConfirm), Misc.getTextColor(), REMOVE_COLOUR, Alignment.MID, CutStyle.TL_BR, BUTTON_WIDTH, BUTTON_HEIGHT, OPAD);
+            ButtonAPI remove = actions.addButton("Remove", popupAction(this::createRemoveConfirm), Misc.getTextColor(), REMOVE_COLOUR, Alignment.MID, CutStyle.TL_BR, BUTTON_WIDTH, BUTTON_HEIGHT, OPAD);
 
             int unrest = active.getRemovalUnrest();
             if (unrest > 0) actions.addPara("Now: %s", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
             else actions.addPara("%s", PAD, Misc.getPositiveHighlightColor(), "No penalty");
+
+            if (active.getRelicRemovalCost() > 0) addBribeButton(actions, remove, active);
         }
 
         actionPanel.addUIElement(actions).inTL(0f, 0f);
         panel.addComponent(actionPanel).inTL(x, y);
+    }
+
+    private void addBribeButton(TooltipMakerAPI actions, ButtonAPI remove, EdictAPI active) {
+        MarketAPI colony = selectedColony;
+        int cost = active.getRelicRemovalCost();
+        int relicUnrest = active.getRelicRemovalUnrest();
+
+        ButtonAPI bribe = addActionButton(actions, "Bribe Senators", popupAction(this::createBribeConfirm), 0f);
+        bribe.getPosition().rightOfTop(remove, GAP);
+        bribe.setEnabled(RelicHelper.canAfford(colony, cost));
+
+        actions.addTooltipTo(new BaseTooltipCreator() {
+            @Override
+            public float getTooltipWidth(Object tooltipParam) {
+                return TOOLTIP_WIDTH;
+            }
+
+            @Override
+            public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
+                tooltip.addPara("Removes the Edict now without the early removal unrest.", 0f);
+                if (relicUnrest > 0) tooltip.addPara("Removal still causes %s.", PAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
+                RelicHelper.addCostLine(tooltip, colony, cost, OPAD);
+                tooltip.addPara(RELIC_LORE, Misc.getGrayColor(), OPAD);
+            }
+        }, bribe, TooltipMakerAPI.TooltipLocation.ABOVE);
     }
 
     private EdictConfirmDialog createEnactConfirm() {
@@ -461,27 +503,29 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         String edictName = EdictRepo.getShortName(EdictHelper.getActiveEdict(selectedColony).getName());
         MarketAPI colony = selectedColony;
         int unrest = active.getRemovalUnrest();
+
+        return new EdictConfirmDialog("Remove", info -> {
+            if (unrest > 0) info.addPara("Remove %s from %s? This causes %s.", 0f, new Color[]{hl, hl, Misc.getNegativeHighlightColor()}, edictName, colony.getName(), unrest + " unrest");
+            else info.addPara("Remove %s from %s? There is %s.", 0f, new Color[]{hl, hl, Misc.getPositiveHighlightColor()}, edictName, colony.getName(), "no penalty");
+        }, this::removeSelected);
+    }
+
+    private EdictConfirmDialog createBribeConfirm() {
+        EdictAPI active = EdictHelper.getActiveEdictPlugin(selectedColony);
+        if (active == null) throw new IllegalStateException("IndEvo: no Edict to remove on " + selectedColony.getName());
+
+        Color hl = Misc.getHighlightColor();
+        String edictName = EdictRepo.getShortName(EdictHelper.getActiveEdict(selectedColony).getName());
+        MarketAPI colony = selectedColony;
         int cost = active.getRelicRemovalCost();
         int relicUnrest = active.getRelicRemovalUnrest();
 
-        EdictConfirmDialog confirm = new EdictConfirmDialog("Remove", info -> {
-            if (unrest > 0) info.addPara("Remove %s from %s? This causes %s.", 0f, new Color[]{hl, hl, Misc.getNegativeHighlightColor()}, edictName, colony.getName(), unrest + " unrest");
-            else info.addPara("Remove %s from %s? There is %s.", 0f, new Color[]{hl, hl, Misc.getPositiveHighlightColor()}, edictName, colony.getName(), "no penalty");
-
-            if (cost <= 0) return;
-            if (relicUnrest > 0) info.addPara("With relics: %s.", OPAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
-            else info.addPara("With relics: %s.", OPAD, Misc.getPositiveHighlightColor(), "no unrest");
+        return new EdictConfirmDialog("Bribe", BRIBE_CONFIRM_HEIGHT, info -> {
+            info.addPara("Bribe the senators to remove %s from %s now?", 0f, hl, edictName, colony.getName());
+            if (relicUnrest > 0) info.addPara("Removal still causes %s.", OPAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
+            else info.addPara("There is %s.", OPAD, Misc.getPositiveHighlightColor(), "no unrest");
             RelicHelper.addCostLine(info, colony, cost, PAD);
-        }, this::removeSelected);
-
-        if (cost <= 0) return confirm;
-
-        return confirm.withRelics(this::removeSelectedWithRelics, RelicHelper.canAfford(colony, cost), tooltip -> {
-            tooltip.addPara("Removes the Edict without the early removal unrest.", 0f);
-            if (relicUnrest > 0) tooltip.addPara("Removal still causes %s.", PAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
-            RelicHelper.addCostLine(tooltip, colony, cost, OPAD);
-            tooltip.addPara(RELIC_LORE, Misc.getGrayColor(), OPAD);
-        });
+        }, this::removeSelectedWithRelics);
     }
 
     private ButtonAction popupAction(Supplier<EdictConfirmDialog> popup) {
@@ -680,6 +724,43 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
             GL11.glVertex2f(x + w, y + h);
             GL11.glVertex2f(x + w, y);
             GL11.glEnd();
+        }
+    }
+
+    private static class BoxPlugin extends BaseCustomUIPanelPlugin {
+        private PositionAPI pos;
+
+        @Override
+        public void positionChanged(PositionAPI pos) {
+            this.pos = pos;
+        }
+
+        @Override
+        public void renderBelow(float alphaMult) {
+            if (pos == null) return;
+
+            float x = pos.getX();
+            float y = pos.getY();
+            float w = pos.getWidth();
+            float h = pos.getHeight();
+            Color c = Misc.getDarkPlayerColor();
+
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+            RuntimeBarPlugin.drawQuad(x, y, w, h, c, 0.3f * alphaMult);
+
+            GL11.glColor4f(c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, alphaMult);
+            GL11.glLineWidth(1f);
+            GL11.glBegin(GL11.GL_LINE_LOOP);
+            GL11.glVertex2f(x + 0.5f, y + 0.5f);
+            GL11.glVertex2f(x + 0.5f, y + h - 0.5f);
+            GL11.glVertex2f(x + w - 0.5f, y + h - 0.5f);
+            GL11.glVertex2f(x + w - 0.5f, y + 0.5f);
+            GL11.glEnd();
+
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
         }
     }
 

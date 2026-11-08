@@ -187,6 +187,8 @@ public class RelicBuildInPatch {
             CustomPanelAPI panel = Global.getSettings().createCustom(width, height, this);
             TooltipMakerAPI el = panel.createUIElement(width, height, false);
             checkbox = el.addAreaCheckbox("Use Relics", null, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), width, height, 0f);
+            // first tooltip element gets a 5 px x offset, keep it flush with confirm and cancel
+            checkbox.getPosition().setXAlignOffset(0f);
             el.addTooltipTo(new BaseTooltipCreator() {
                 @Override
                 public float getTooltipWidth(Object tooltipParam) {
