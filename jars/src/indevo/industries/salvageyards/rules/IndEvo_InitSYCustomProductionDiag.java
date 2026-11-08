@@ -147,7 +147,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             YardsCustomProductionIntel order = getRunningOrders().get(index);
 
             optionSelected(null, Option.MAIN);
-            dialog.showCustomDialog(RelicSpeedUpDialog.WIDTH, RelicSpeedUpDialog.HEIGHT, new RelicSpeedUpDialog(order, () -> refreshOptions = true));
+            new RelicSpeedUpDialog(order, () -> refreshOptions = true).show(dialog);
             return;
         }
 
