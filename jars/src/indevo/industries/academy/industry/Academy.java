@@ -96,7 +96,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
         @Override
         public String getSpeedUpLabel() {
-            return "Quick Training";
+            return "Accelerate";
         }
 
         @Override

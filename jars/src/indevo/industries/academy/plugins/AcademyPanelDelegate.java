@@ -13,6 +13,7 @@ import indevo.config.Setting;
 import indevo.dialogue.sidepanel.ButtonAction;
 import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
+import indevo.dialogue.sidepanel.HelpIcon;
 import indevo.economy.RelicSpeedUpTarget;
 import indevo.economy.plugins.RelicSpeedUpDialog;
 import indevo.industries.academy.industry.Academy;
@@ -114,7 +115,6 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         TooltipMakerAPI main = panel.createUIElement(w, h, false);
         main.addSectionHeading(academy.getCurrentName() + " - " + academy.getMarket().getName(), Alignment.MID, 0f);
         main.addCustom(createTabs(w), PAD);
-        addFeesLine(main);
 
         main.addSectionHeading("In training", Alignment.MID, PAD);
         main.addCustom(createTrainingSlot(w), SPAD);
@@ -164,6 +164,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
             }
         }, base, dark, bright, TAB_W, TAB_H, 0f).setChecked(adminTab);
         tabs.addUIElement(adminTabElement).inTL(TAB_W + PAD, 0f);
+        tabs.addUIElement(HelpIcon.create(tabs, this::addHelp)).inTL(TAB_W * 2 + PAD * 3, (TAB_H - HelpIcon.SIZE) / 2f);
 
         TooltipMakerAPI credits = tabs.createUIElement(300f, TAB_H, false);
         LabelAPI label = credits.addPara("Credits: %s", 0f, Misc.getHighlightColor(), Misc.getDGSCredits(fleet.getCargo().getCredits().get()));
@@ -183,25 +184,28 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         recreatePanel();
     }
 
-    private void addFeesLine(TooltipMakerAPI main) {
-        Color gray = Misc.getGrayColor();
+    private void addHelp(TooltipMakerAPI tooltip) {
         Color hl = Misc.getHighlightColor();
         boolean own = academy.getMarket().isPlayerOwned();
         String storageFee = Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue());
 
         if (!adminTab) {
-            String days = academy.getOfficerTrainingDays() + "";
-            String steps = academy.hasAlphaCore() ? "Alpha core installed: up to two personality steps per officer." : "One personality step per officer, two with an alpha core.";
+            String days = academy.getOfficerTrainingDays() + " days";
 
-            if (own) main.addPara("Training is free and takes %s days per personality step. " + steps + " Stored officers draw their full salary.", PAD, gray, hl, days);
-            else main.addPara("Training costs %s and takes %s days per personality step. " + steps + " Storage costs %s per officer and month, plus full salary.", PAD, gray, hl,
-                    Misc.getDGSCredits(academy.getOfficerTrainingFee(1)), days, storageFee);
+            if (own) tooltip.addPara("Training is free and takes %s per personality step.", 0f, hl, days);
+            else tooltip.addPara("Training costs %s and takes %s per personality step.", 0f, hl, Misc.getDGSCredits(academy.getOfficerTrainingFee(1)), days);
+            tooltip.addPara(academy.hasAlphaCore() ? "Up to two steps per officer." : "One step per officer, two with an alpha core.", PAD);
+
+            if (own) tooltip.addPara("Stored officers draw their full salary.", PAD);
+            else tooltip.addPara("Storage costs %s per officer and month, plus full salary.", PAD, hl, storageFee);
         } else {
-            String days = academy.getAdminTrainingDays() + "";
+            String days = academy.getAdminTrainingDays() + " days";
 
-            if (own) main.addPara("Training is free and takes %s days per skill. Stored administrators draw %s of their salary.", PAD, gray, hl, days, "10%");
-            else main.addPara("Training costs %s and takes %s days per skill. Storage costs %s per administrator and month, plus %s of salary.", PAD, gray, hl,
-                    Misc.getDGSCredits(academy.getAdminTrainingFee()), days, storageFee, "10%");
+            if (own) tooltip.addPara("Training is free and takes %s per skill.", 0f, hl, days);
+            else tooltip.addPara("Training costs %s and takes %s per skill.", 0f, hl, Misc.getDGSCredits(academy.getAdminTrainingFee()), days);
+
+            if (own) tooltip.addPara("Stored administrators draw %s of their salary.", PAD, hl, "10%");
+            else tooltip.addPara("Storage costs %s per administrator and month, plus %s of salary.", PAD, hl, storageFee, "10%");
         }
     }
 

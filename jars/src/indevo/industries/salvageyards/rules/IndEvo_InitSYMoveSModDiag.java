@@ -111,20 +111,20 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
 
         switch (option) {
             case MAIN:
-                opts.addOption("Select hull to transfer from", Option.SELECT_FROM);
+                opts.addOption("Select source ship", Option.SELECT_FROM);
 
-                opts.addOption("Select hull to transfer to", Option.SELECT_TO);
+                opts.addOption("Select target ship", Option.SELECT_TO);
                 boolean optToAllowed = originMember != null;
                 opts.setEnabled(Option.SELECT_TO, optToAllowed);
-                if (!optToAllowed) opts.setTooltip(Option.SELECT_TO, "Select the origin hull first.");
-                else opts.setTooltip(Option.SELECT_TO, "Requires the hullmod installed and a free S-mod slot.");
+                if (!optToAllowed) opts.setTooltip(Option.SELECT_TO, "Select the source ship first.");
+                else opts.setTooltip(Option.SELECT_TO, "Same size and manufacturer, with the hullmod installed and a free S-mod slot.");
 
                 opts.addOption("Select S-mods", Option.SELECT_MODS);
                 boolean optModsAllowed = targetMember != null && originMember != null;
                 opts.setEnabled(Option.SELECT_MODS, optModsAllowed);
-                if (!optModsAllowed) opts.setTooltip(Option.SELECT_MODS, "Select a ship to transfer to first.");
+                if (!optModsAllowed) opts.setTooltip(Option.SELECT_MODS, "Select the target ship first.");
 
-                opts.addOption("Confirm the transfer", Option.CONFIRM);
+                opts.addOption("Confirm", Option.CONFIRM);
                 boolean optConfirmAllowed = optModsAllowed && !selectedMods.isEmpty();
                 boolean canAfford = BillingHelper.canAfford(getTotalCredits()) && RelicHelper.canAfford(getMarket(), getTotalRelics());
                 opts.setEnabled(Option.CONFIRM, optConfirmAllowed && canAfford);
@@ -183,7 +183,7 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
         TextPanelAPI panel = dialog.getTextPanel();
         panel.clear();
 
-        panel.addPara("The salvage yards can move S-mods between ships of the same size and manufacturer. The target ship must already have the hullmod installed and a free S-mod slot.\n\n");
+        panel.addPara("The salvage yards can move S-mods between ships of the same size and manufacturer.\n\n");
 
         panel.addPara("Contract information:");
         panel.setFontSmallInsignia();
@@ -204,7 +204,7 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
             String relicStr = getRelicsPerMod() + " " + relicName;
             String creditStr = Misc.getDGSCredits(getCreditsPerMod());
             panel.addPara("Cost per S-mod: %s and %s\n", Misc.getHighlightColor(), relicStr, creditStr);
-        } else panel.addPara("Select both ships for cost predictions.");
+        } else panel.addPara("Select both ships to see the cost.");
 
         if (originMember != null)
             panel.addPara("Transfer from " + originMember.getShipName() + " - " + originMember.getHullSpec().getHullName());
@@ -356,12 +356,12 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
             if (!getSModList(m).isEmpty() && !getValidTargets(m, members).isEmpty()) validSelectionList.add(m);
         }
 
-        showPicker("Select hull to transfer from", validSelectionList, true);
+        showPicker("Select source ship", validSelectionList, true);
     }
 
     private void initTargetHullPicker() {
         List<FleetMemberAPI> validSelectionList = new ArrayList<>(getValidTargets(originMember, getMembers(getMarket())));
-        showPicker("Select hull to transfer to", validSelectionList, false);
+        showPicker("Select target ship", validSelectionList, false);
     }
 
     private void showPicker(String title, List<FleetMemberAPI> list, final boolean origin) {

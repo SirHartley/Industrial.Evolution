@@ -150,7 +150,7 @@ public class OrbitalWorksSlotOptionProvider extends BaseSimpleBaseIndustryOption
 
         @Override
         public String getConfirmText() {
-            return "Abort work";
+            return "Abort";
         }
 
         @Override

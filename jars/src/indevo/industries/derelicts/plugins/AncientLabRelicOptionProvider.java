@@ -53,6 +53,6 @@ public class AncientLabRelicOptionProvider extends SingleIndustrySimpifiedOption
         Color hl = Misc.getHighlightColor();
         tooltip.addSectionHeading("Relic services", Alignment.MID, 0f);
         tooltip.addPara("Refine Forge Templates or integrate automated ships, paid with %s.", 10f, hl, RelicHelper.getName());
-        tooltip.addPara("Available: %s, from colony storage first, then fleet cargo.", 10f, hl, RelicHelper.getAvailable(opt.ind.getMarket()) + "");
+        tooltip.addPara("Available: %s", 10f, hl, RelicHelper.getAvailable(opt.ind.getMarket()) + "");
     }
 }

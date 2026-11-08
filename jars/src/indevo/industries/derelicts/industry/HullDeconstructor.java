@@ -506,7 +506,7 @@ public class HullDeconstructor extends BaseForgeTemplateUser implements NewDayLi
 
     @Override
     public String getSpeedUpLabel() {
-        return "Expedite Work";
+        return "Accelerate";
     }
 
     @Override

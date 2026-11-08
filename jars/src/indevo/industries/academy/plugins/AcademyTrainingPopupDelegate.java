@@ -67,7 +67,7 @@ public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegat
 
     @Override
     public String getConfirmText() {
-        return "Start training";
+        return "Train";
     }
 
     @Override
@@ -134,9 +134,6 @@ public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegat
             main.addPara(Global.getSettings().getPersonaltySpec(selected).getDescription(), Misc.getGrayColor(), PAD);
         }
 
-        if (academy.hasAlphaCore()) main.addPara("Alpha core installed: up to two steps at once.", Misc.getPositiveHighlightColor(), PAD);
-        else main.addPara("An alpha core allows a second personality step.", Misc.getGrayColor(), PAD);
-
         panel.addUIElement(main).inTL(0f, 0f);
         basePanel.addComponent(panel);
     }
@@ -180,7 +177,7 @@ public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegat
                 square.addPara(getStepsText(steps), selectable ? Misc.getTextColor() : gray, 5f).setAlignment(Alignment.MID);
 
                 if (!reachable.contains(id)) {
-                    String reason = !academy.hasAlphaCore() && steps <= 2 - trained && steps > stepsLeft ? "Needs an alpha core" : "Out of reach";
+                    String reason = !academy.hasAlphaCore() && steps <= 2 - trained && steps > stepsLeft ? "Needs an alpha core" : "Unavailable";
                     square.addPara(reason, gray, 1f).setAlignment(Alignment.MID);
                 } else if (!affordable) {
                     square.addPara("Not enough credits", Misc.getNegativeHighlightColor(), 1f).setAlignment(Alignment.MID);

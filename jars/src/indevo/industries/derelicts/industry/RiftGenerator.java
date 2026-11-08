@@ -480,7 +480,7 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener, Relic
 
     @Override
     public String getSpeedUpLabel() {
-        return "Recharge Now";
+        return "Recharge";
     }
 
     @Override
