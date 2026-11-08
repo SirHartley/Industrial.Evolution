@@ -51,7 +51,7 @@ There are two install paths. Items in vanilla style (VPCs, Logistics Core, Neuro
 | Drop groups | `indEvo_tech_addition`, `indEvo_mining_addition` | `data/campaign/procgen/drop_groups.csv:2-23` |
 | Config | VPC commodity and package tables | `data/config/indEvo/vpc_commodities.csv`, `vpc_packages.csv` |
 | Session memory | `$IndEvo_vpcCommodities`, `$IndEvo_vpcPackages` (`VPCCommodityRepo`) | `SessionTransientMemory` |
-| Sprite | spec icons `graphics/icons/cargo/VPC_empty.png`, `VPC_epic_empty.png`, `VPC_empty_epic.png` (one chip per id); category `IndEvo`: `VPCOverlay1` to `VPCOverlay3` (screen overlay per chip), `VPCGlow` (icon glow) | `data/campaign/special_items.csv:2-4`, `data/config/settings.json:136-139` |
+| Sprite | spec icons `graphics/icons/cargo/VPC_empty.png`, `VPC_epic_empty.png`, `VPC_empty_epic.png` (one chip per id); category `IndEvo`: `VPCOverlay1` to `VPCOverlay3` (screen overlay per chip), `VPCGlow` (icon glow) | `data/campaign/special_items.csv:2-4`, `data/config/settings.json:137-140` |
 | Memory key | `$IndEvo_FT_dropResolveMap` (`ForgeTemplateItemPlugin.DROP_MAP_KEY`) | sector memory, hull id -> drop weight divisor |
 | Memory key | `$IndEvo_itemPayloads` (`ItemPayloadMemory.PAYLOAD_MAP_KEY`) | sector memory, payload key -> payload (forge template `ShipVariantAPI`) |
 | Memory key | `$IndEvo_RelayUnlocked` (`TRANSMITTER_UNLOCK_KEY`) | sector memory |
