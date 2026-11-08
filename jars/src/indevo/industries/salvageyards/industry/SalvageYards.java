@@ -37,6 +37,8 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
+import static indevo.items.installable.SpecialItemEffectsRepo.SALVAGE_DRONES_SP_SHARE;
+
 public class SalvageYards extends SharedSubmarketUser implements FleetEventListener, EconomyTickListener, NewDayListener {
 
     public static final Logger log = Global.getLogger(SalvageYards.class);
@@ -226,6 +228,21 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     public void reportBattleOccurred(CampaignFleetAPI fleet, CampaignFleetAPI primaryWinner, BattleAPI battle) {
         if (fleet != null && fleet.getFleetData() != null && isFunctional())
             availableSalvagePoints += Math.round(Misc.getSnapshotFPLost(fleet));
+    }
+
+    public boolean hasSalvageDrones() {
+        return isFunctional() && special != null && ItemIds.SALVAGE_DRONES.equals(special.getId());
+    }
+
+    // battles in this system already pay out through the per fleet listener
+    public void reportBattleInDroneRange(BattleAPI battle, boolean sameSystem) {
+        if (sameSystem) return;
+
+        float fpLost = 0f;
+        for (CampaignFleetAPI fleet : battle.getSnapshotSideOne()) fpLost += Misc.getSnapshotFPLost(fleet);
+        for (CampaignFleetAPI fleet : battle.getSnapshotSideTwo()) fpLost += Misc.getSnapshotFPLost(fleet);
+
+        availableSalvagePoints += Math.round(fpLost * SALVAGE_DRONES_SP_SHARE);
     }
 
     private static final int WEAPON_SP_MONTH_LIMIT = 50;

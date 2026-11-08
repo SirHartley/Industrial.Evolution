@@ -46,6 +46,8 @@ public class SpecialItemEffectsRepo {
     public static String TRANSMITTER_UNLOCK_KEY = "$IndEvo_RelayUnlocked";
     public static int LOG_CORE_MAX_BONUS = 4;
     public static int HOLOBENCH_MONTHLY_XP = 20000;
+    public static float SALVAGE_DRONES_RANGE_LY = 6f;
+    public static float SALVAGE_DRONES_SP_SHARE = 0.5f;
 
     public static Map<String, InstallableItemEffect> ITEM_EFFECTS = new HashMap<>();
 
@@ -63,5 +65,6 @@ public class SpecialItemEffectsRepo {
         ITEM_EFFECTS.put(ItemIds.TRANSMITTER, new TransmitterEffect(ItemIds.TRANSMITTER));
         ITEM_EFFECTS.put(ItemIds.NEUAL_COMPOUNDS, new NeuralCompoundsEffect(ItemIds.NEUAL_COMPOUNDS));
         ITEM_EFFECTS.put(ItemIds.HOLOBENCH, new HolobenchEffect(ItemIds.HOLOBENCH));
+        ITEM_EFFECTS.put(ItemIds.SALVAGE_DRONES, new SalvageDronesEffect(ItemIds.SALVAGE_DRONES));
     }
 }

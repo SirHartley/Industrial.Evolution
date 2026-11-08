@@ -1,6 +1,6 @@
 # Salvage Yards
 
-The Salvage Yards industry (`IndEvo_ScrapYard`): salvage points from nearby battles and raids, hull output on top of heavy industry, the custom production contract and the D-mod and S-mod transfer dialogs. Read it before changing salvage point sources, output, or either dialog. Ship parts and relic component drops are in [Installables](../items/INSTALLABLES.md) (`ShipComponentLootManager`); the shared AI core/weapon storage submarket is in [Submarkets](../core/SUBMARKETS.md).
+The Salvage Yards industry (`IndEvo_ScrapYard`): salvage points from nearby battles and raids, hull output on top of heavy industry, the custom production contract, the D-mod and S-mod transfer dialogs and the Salvage Drone Replicator item. Read it before changing salvage point sources, output, or either dialog. Ship parts and relic component drops are in [Installables](../items/INSTALLABLES.md) (`ShipComponentLootManager`); the shared AI core/weapon storage submarket is in [Submarkets](../core/SUBMARKETS.md).
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
 
@@ -18,6 +18,8 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | `indevo/industries/salvageyards/intel/YardsCustomProductionIntel.java` | Production order intel and delivery; `NewDayListener`, `RelicSpeedUpTarget` (Accelerate Construction, `SPEED_UP_LABEL`) |
 | `indevo/industries/salvageyards/rules/IndEvo_InitSYMoveDModDiag.java` | Rule command and dialog plugin for moving D-mods between hulls; static `getUnavailableReason`, `getMembers` (ship pool) |
 | `indevo/industries/salvageyards/rules/IndEvo_InitSYMoveSModDiag.java` | Rule command and dialog plugin for moving S-mods between hulls; static `getUnavailableReason` |
+| `indevo/industries/salvageyards/listeners/SalvageDronesBattleListener.java` | Transient `BaseCampaignEventListener`: on every battle, calls `reportBattleInDroneRange` on each yards with the item whose system is the battle's or within range |
+| `indevo/items/installable/SalvageDronesEffect.java` | Item description; no apply, the yards read `special` |
 | `indevo/industries/salvageyards/rules/IndEvo_SYTransferOption.java` | Rule script `IndEvo_SYTransferOption <option> dmod\|smod`: sets the transfer option tooltip, disables it and appends the reason in negative highlight when no pair is valid |
 
 ## Data and ids
@@ -28,6 +30,7 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | Commodities | `IndEvo_parts`, `IndEvo_rare_parts` (`ItemIds.PARTS`, `RARE_PARTS`) | `data/campaign/commodities.csv` |
 | Submarket | `IndEvo_SharedStore` (`Ids.SHAREDSTORAGE`) | added by `SharedSubmarketUser`; see [Small industries](SMALL_INDUSTRIES.md) |
 | Rules | `IndEvo_SalvageYardsBaseMenu`, `IndEvo_SalvageYardsColonyOptionMenu`, `IndEvo_IntitiateYardsMenu`, `IndEvo_FireSYBaseMenuFromIndustryOption`, `IndEvo_SYCustomProductionPanel(_init)`, `IndEvo_SYMoveDMods(_init)`, `IndEvo_SYMoveSMods(_init)`, `IndEvo_SYLeave`; triggers `IndEvo_YardsBaseMenu`, `IndEvo_FireBaseSYOptionList` | `data/campaign/rules.csv` |
+| Item | `IndEvo_drones` (`ItemIds.SALVAGE_DRONES`), Salvage Drone Replicator | `data/campaign/special_items.csv:55`, params `IndEvo_ScrapYard`; drops in `indEvo_tech_addition` and `indEvo_tech_event` like the other IE colony items |
 | Memory key | `$IndEvo_closeDialogueOnNextReturn` | interaction target memory, set by the option provider |
 | Memory key | `$IndEvo_HasSelectedSP_SY` | market memory: story point double capacity bought but not yet used |
 | Setting | `IndEvo_ScrapYard` | enables the industry; `isFunctional()` also checks it |
@@ -35,7 +38,7 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 
 ## Registration and lifecycle
 
-- CSV plugin column. `ModPlugin.setListenersIfNeeded()` registers `SalvageYardsOptionProvider` (`ModPlugin.java:467`).
+- CSV plugin column. `ModPlugin.setListenersIfNeeded()` registers `SalvageYardsOptionProvider` and `SalvageDronesBattleListener` (`ModPlugin.java:478-479`).
 - `apply()` (functional only) registers itself as transient listener (`EconomyTickListener`, `NewDayListener`) and adds itself as `FleetEventListener` to every fleet currently in the system, skipping fleets that carry a `LuddicPathCellsIntel` listener to avoid a vanilla `ConcurrentModificationException` (`SalvageYards.java:195`).
 - `advance` keeps the shared submarket present; `unapply` removes listener, submarket and production quality mod.
 - Dialog commands are found through `ruleCommandPackages` (see [Rule commands](../dialogue/RULE_COMMANDS.md)).
@@ -53,6 +56,7 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | `RaidIntel` failed in action stage, player absent for the action stage | 70% | `onNewDay` |
 | `GenericRaidFGI` on the system | 30% success, 70% failure of `getTotalFPSpawned()` | `onNewDay`, which reads `getIntel(RaidIntel.class)` plus `getIntel(GenericRaidFGI.class)`: the class lookup only returns subclasses |
 | Pirate activity condition in the system | 3 per day | `onNewDay` |
+| Battle in another system or in hyperspace within 6 LY, Salvage Drone Replicator installed | 50% of `Misc.getSnapshotFPLost` over both snapshot sides | `reportBattleInDroneRange` |
 | Weapons in `IndEvo_SharedStore` | `cargo space * 2` per unit, capped at `size * 50` per month | `autoFeed` |
 
 `IntelArchive()` marks raids that had already ended when the yards came online. Month end resets the weapon cap, rolls `baseOutput` and multiplies SP by `outputDecayMult` (0.5).
@@ -73,6 +77,13 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | Alpha | 40 SP per output unit, decay keeps 60% |
 | Beta | 90 SP per output unit, player base output starts from colony size instead of 3 |
 | Gamma | decay keeps 70% |
+
+### Salvage Drone Replicator
+
+`IndEvo_drones`, installed through the vanilla item slot (`BaseIndustry.getInstallableItems`, params `IndEvo_ScrapYard`). `hasSalvageDrones()` is true while the yards are functional and the item is installed.
+
+- `SalvageDronesBattleListener.reportBattleOccurred(primaryWinner, battle)` checks every market with the yards: same containing location, or `Misc.getDistanceLY` from the winner's hyperspace location to the market's of at most `SALVAGE_DRONES_RANGE_LY` (6). Hyperspace battles count by distance.
+- `reportBattleInDroneRange`: battles in another location add `SALVAGE_DRONES_SP_SHARE` (0.5) of the FP lost on both snapshot sides. Battles in the yards' own system are skipped there, the per fleet listener already pays them.
 
 ### Ship assembly contract
 
