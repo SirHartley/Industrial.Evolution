@@ -339,8 +339,9 @@ public class ShuttleFlights {
         float theta = random.nextFloat() * 360f;
         float turn = 80f * randomSign();
 
-        List<ShuttlePath.Waypoint> points = new ArrayList<>(count + 1);
-        for (int i = 0; i <= count; i++) {
+        int spare = 2;
+        List<ShuttlePath.Waypoint> points = new ArrayList<>(count + 1 + spare * 2);
+        for (int i = 0; i <= count + spare * 2; i++) {
             float baseX = target.offsetX;
             float baseY = target.offsetY;
             if (target.bandRadius > 0f) {
@@ -349,20 +350,41 @@ public class ShuttleFlights {
                 baseY = (float) Math.sin(angle) * target.bandRadius;
             }
 
-            float radius = target.wander * (0.66f + random.nextFloat() * 0.67f);
+            float radius = target.wander * (0.8f + random.nextFloat() * 0.4f);
             theta += turn + spread(20f);
             double rad = Math.toRadians(theta);
             points.add(new ShuttlePath.RelativeWaypoint(target.center, baseX + (float) Math.cos(rad) * radius, baseY + (float) Math.sin(rad) * radius,
                     theta + Math.signum(turn) * 90f));
         }
 
-        float handle = target.wander;
-        List<ShuttlePath.Segment> segments = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) segments.add(new ShuttlePath.BezierSegment(points.get(i), points.get(i + 1), handle, handle, 0f));
+        // enter and leave where the loop already heads away from and back to home, so the transits need no u turn
+        Vector2f loc = home.getLocation();
+        int entry = 0;
+        for (int i = 1; i <= spare * 2; i++) if (getAlignment(points.get(i), loc, false) > getAlignment(points.get(entry), loc, false)) entry = i;
+        int exit = entry + count;
+        for (int i = exit + 1; i < points.size(); i++) if (getAlignment(points.get(i), loc, true) > getAlignment(points.get(exit), loc, true)) exit = i;
+
+        // about the handle of an 80 degree circular arc, longer ones overshoot into cusps
+        float handle = target.wander * 0.5f;
+        List<ShuttlePath.Segment> segments = new ArrayList<>(exit - entry);
+        for (int i = entry; i < exit; i++) segments.add(new ShuttlePath.BezierSegment(points.get(i), points.get(i + 1), handle, handle, 0f));
 
         Vector2f first = new Vector2f();
-        points.get(0).getPosition(first);
-        return connect(home, points.get(0), points.get(count), first, segments, handle);
+        points.get(entry).getPosition(first);
+        return connect(home, points.get(entry), points.get(exit), first, segments, target.wander);
+    }
+
+    private float getAlignment(ShuttlePath.Waypoint point, Vector2f home, boolean toHome) {
+        Vector2f pos = new Vector2f();
+        Vector2f dir = new Vector2f();
+        point.getPosition(pos);
+        point.getDirection(dir);
+        Vector2f away = Vector2f.sub(pos, home, null);
+        if (away.lengthSquared() < 1f) return 0f;
+
+        away.normalise();
+        float dot = Vector2f.dot(dir, away);
+        return toHome ? -dot : dot;
     }
 
     private ShuttlePath loopPath(ShuttleAnchor home, List<ShuttlePath.Segment> segments) {
