@@ -80,7 +80,7 @@ There are two install paths. Items in vanilla style (VPCs, Logistics Core, Neuro
 | `IndEvo_transmitter` | outside a `MilitaryRelay`: set `$IndEvo_RelayUnlocked`; `unapply` unsets it unless another functional non relay industry holds a transmitter (`TransmitterEffect.java:35`) | in a relay: pristine relay entity |
 | `IndEvo_neurals` | none; Senate edicts read `NEURAL_COMPOUNDS_UNREST_RED` 0.5 | see [Senate](../industries/SENATE.md) |
 | `IndEvo_holobench` | none (`HolobenchEffect`); `Academy` reads `special` | +1 step, mentoring, `HOLOBENCH_MONTHLY_XP` 20000 for stored officers; see [Academy](../industries/ACADEMY.md#holobench) |
-| `IndEvo_drones` | none (`SalvageDronesEffect`); `SalvageYards.hasSalvageDrones` reads `special` | `SALVAGE_DRONES_RANGE_LY` 6, `SALVAGE_DRONES_SP_SHARE` 0.5; see [Salvage Yards](../industries/SALVAGE_YARDS.md#salvage-drone-replicator) |
+| `IndEvo_drones` | none (`SalvageDronesEffect`); `SalvageYards.hasSalvageDrones` reads `special` | `SALVAGE_DRONES_RANGE_LY` 6, `SALVAGE_DRONES_SP_SHARE` 0.5, `SALVAGE_DRONES_SP_PER_FP` 10 (Wreck Registry hulls); see [Salvage Yards](../industries/SALVAGE_YARDS.md#salvage-drone-replicator) |
 | `IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `IndEvo_EmptForgeTemplate` | none (`ForgeTemplateEffect`); the industries read `getSpecialItem()` | hull, charges, material cost |
 | `IndEvo_vpc`, `IndEvo_vpc_rare`, `IndEvo_vpc_ultra` | none (`VPCEffect`); the variable industries read `special` in their own `apply`, before `BaseIndustry` runs the effect | tier and commodities; see [VPCs](#vpcs) |
 | `IndEvo_amb` | none (`AmbassadorEffect`); `Embassy` reads `getSpecialItem()` | ambassador name and faction; see [Embassy](../industries/EMBASSY.md) |

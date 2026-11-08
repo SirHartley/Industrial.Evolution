@@ -9,6 +9,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.StringHelper;
 
 import static indevo.items.installable.SpecialItemEffectsRepo.SALVAGE_DRONES_RANGE_LY;
+import static indevo.items.installable.SpecialItemEffectsRepo.SALVAGE_DRONES_SP_PER_FP;
 import static indevo.items.installable.SpecialItemEffectsRepo.SALVAGE_DRONES_SP_SHARE;
 
 public class SalvageDronesEffect extends BaseInstallableItemEffect {
@@ -31,7 +32,9 @@ public class SalvageDronesEffect extends BaseInstallableItemEffect {
         String range = Math.round(SALVAGE_DRONES_RANGE_LY) + " LY";
         String share = StringHelper.getAbsPercentString(SALVAGE_DRONES_SP_SHARE, false);
 
-        text.addPara(pre + "Battles in other systems and in hyperspace within %s give %s of the salvage units a battle in this system gives.",
-                pad, Misc.getHighlightColor(), range, share);
+        text.addPara(pre + "Battles in other systems and in hyperspace within %s give %s of the salvage units a battle in this system gives. "
+                        + "Hulls, weapons and fighter wings lost in battles here or in range go into a Wreck Registry: each can be ordered once from the ship assembly contract without a blueprint. "
+                        + "Registry hulls cost %s salvage units per fleet point and can come as fitted.",
+                pad, Misc.getHighlightColor(), range, share, "" + SALVAGE_DRONES_SP_PER_FP);
     }
 }

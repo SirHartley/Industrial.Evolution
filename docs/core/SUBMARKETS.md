@@ -83,7 +83,7 @@ Max weapon tier by standing (`getMaxTier`): <0.5 -> 0, <0.7 -> 1, <0.9 -> 2, els
 
 ### Whitelist checks (Decon, RE)
 
-`updateCargoPrePlayerInteraction` rebuilds `allowedShips` and `restrictedShips` from `MiscIE.getCSVSetFromMemory`, `getPrismBossShips()`, `getVayraBossShips()` -> `isIllegalOnSubmarket(member)` returns `restricted || notAllowed || printed` (RE also `getResearchValue <= 0`). Dev mode allows everything. Ignore whitelist settings skip the lists. Decon refuses Nexerelin merc ships (`nex_mercBuff` buff) unless `IndEvo_DeconAllowNexOmega`.
+`updateCargoPrePlayerInteraction` rebuilds `allowedShips` and `restrictedShips` from `MiscIE.getCSVSetFromMemory`, `getPrismBossShips()`, `getVayraBossShips()` (RE through its static `getAllowedHulls` / `getRestrictedHulls`, shared with the Wreck Registry) -> `isIllegalOnSubmarket(member)` returns `restricted || notAllowed || printed` (RE also `getResearchValue <= 0`). Dev mode allows everything. Ignore whitelist settings skip the lists. Decon refuses Nexerelin merc ships (`nex_mercBuff` buff) unless `IndEvo_DeconAllowNexOmega`.
 
 ## Contracts
 

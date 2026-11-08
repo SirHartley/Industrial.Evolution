@@ -28,6 +28,7 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUser;
+import indevo.industries.salvageyards.memory.WreckRegistry;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -61,6 +62,9 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     private boolean hasFinishedIntelArchive = false;
 
     private float outputDecayMult = 0.5F;
+
+    // created on first use, yards without the item save nothing
+    private WreckRegistry wreckRegistry = null;
 
     public void apply() {
         //Global.getLogger(SalvageYards.class).info("UPDATING SALVAGE YARDS: market " + market.getName() + " hasSystem" + (market.getStarSystem() != null ? market.getStarSystem().getName() : false));
@@ -234,8 +238,23 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
         return isFunctional() && special != null && ItemIds.SALVAGE_DRONES.equals(special.getId());
     }
 
+    public WreckRegistry getWreckRegistry() {
+        if (wreckRegistry == null) wreckRegistry = new WreckRegistry();
+        return wreckRegistry;
+    }
+
+    public int getAvailableSalvagePoints() {
+        return availableSalvagePoints;
+    }
+
+    public void spendSalvagePoints(int amount) {
+        if (amount > availableSalvagePoints) throw new IllegalStateException("Salvage Yards on " + market.getName() + " spend " + amount + " salvage units but have " + availableSalvagePoints);
+        availableSalvagePoints -= amount;
+    }
+
     // battles in this system already pay out through the per fleet listener
     public void reportBattleInDroneRange(BattleAPI battle, boolean sameSystem) {
+        getWreckRegistry().recordLosses(battle);
         if (sameSystem) return;
 
         float fpLost = 0f;
@@ -449,6 +468,12 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
                 if (market.isPlayerOwned() || currTooltipMode == Industry.IndustryTooltipMode.NORMAL) {
                     tooltip.addPara("There are %s salvage units available, %s are needed per additional output.",
                             opad, Misc.getHighlightColor(), new String[]{"" + availableSalvagePoints, "" + outputSalvagePointValue});
+                }
+
+                if (hasSalvageDrones()) {
+                    WreckRegistry registry = getWreckRegistry();
+                    tooltip.addPara("Wreck Registry: %s hulls, %s weapons, %s fighter wings.", opad, Misc.getHighlightColor(),
+                            "" + registry.getTotalHulls(), "" + registry.getTotalWeapons(), "" + registry.getTotalWings());
                 }
             }
         }

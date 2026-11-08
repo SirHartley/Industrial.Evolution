@@ -48,6 +48,7 @@ public class SpecialItemEffectsRepo {
     public static int HOLOBENCH_MONTHLY_XP = 20000;
     public static float SALVAGE_DRONES_RANGE_LY = 6f;
     public static float SALVAGE_DRONES_SP_SHARE = 0.5f;
+    public static int SALVAGE_DRONES_SP_PER_FP = 10;
 
     public static Map<String, InstallableItemEffect> ITEM_EFFECTS = new HashMap<>();
 

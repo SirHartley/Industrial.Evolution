@@ -1,6 +1,6 @@
 # Salvage Yards
 
-The Salvage Yards industry (`IndEvo_ScrapYard`): salvage points from nearby battles and raids, hull output on top of heavy industry, the custom production contract, the D-mod and S-mod transfer dialogs and the Salvage Drone Replicator item. Read it before changing salvage point sources, output, or either dialog. Ship parts and relic component drops are in [Installables](../items/INSTALLABLES.md) (`ShipComponentLootManager`); the shared AI core/weapon storage submarket is in [Submarkets](../core/SUBMARKETS.md).
+The Salvage Yards industry (`IndEvo_ScrapYard`): salvage points from nearby battles and raids, hull output on top of heavy industry, the custom production contract, the D-mod and S-mod transfer dialogs and the Salvage Drone Replicator item with its Wreck Registry. Read it before changing salvage point sources, output, or either dialog. Ship parts and relic component drops are in [Installables](../items/INSTALLABLES.md) (`ShipComponentLootManager`); the shared AI core/weapon storage submarket is in [Submarkets](../core/SUBMARKETS.md).
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
 
@@ -14,11 +14,12 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 |---|---|
 | `indevo/industries/salvageyards/industry/SalvageYards.java` | Industry plugin. SP state and sources (`reportBattleOccurred`, `onNewDay`, `autoFeed`), monthly decay (`reportEconomyMonthEnd`), supply and demand (`applySupDemProfiles`), `getHullCapacity` for the contract dialog, AI cores |
 | `indevo/industries/salvageyards/plugins/SalvageYardsOptionProvider.java` | Industry option "Visit the Salvage Yards..." opens a `RuleBasedInteractionDialogPluginImpl` firing `IndEvo_FireBaseSYOptionList` |
-| `indevo/industries/salvageyards/rules/IndEvo_InitSYCustomProductionDiag.java` | Rule command and `InteractionDialogPlugin` for the ship assembly contract; nested `YardsProductionData` (order, parts spent, cost, D-mod forecast) |
-| `indevo/industries/salvageyards/intel/YardsCustomProductionIntel.java` | Production order intel and delivery; `NewDayListener`, `RelicSpeedUpTarget` (Accelerate Construction, `SPEED_UP_LABEL`) |
+| `indevo/industries/salvageyards/rules/IndEvo_InitSYCustomProductionDiag.java` | Rule command and `InteractionDialogPlugin` for the ship assembly contract; nested `YardsProductionData` (order, parts spent, cost, D-mod forecast, `registryOrder`) |
+| `indevo/industries/salvageyards/intel/YardsCustomProductionIntel.java` | Production order intel and delivery (registry hulls as fitted, registry weapons and wings); `NewDayListener`, `RelicSpeedUpTarget` (Accelerate Construction, `SPEED_UP_LABEL`) |
 | `indevo/industries/salvageyards/rules/IndEvo_InitSYMoveDModDiag.java` | Rule command and dialog plugin for moving D-mods between hulls; static `getUnavailableReason`, `getMembers` (ship pool) |
 | `indevo/industries/salvageyards/rules/IndEvo_InitSYMoveSModDiag.java` | Rule command and dialog plugin for moving S-mods between hulls; static `getUnavailableReason` |
 | `indevo/industries/salvageyards/listeners/SalvageDronesBattleListener.java` | Transient `BaseCampaignEventListener`: on every battle, calls `reportBattleInDroneRange` on each yards with the item whose system is the battle's or within range |
+| `indevo/industries/salvageyards/memory/WreckRegistry.java` | Saved per yards: hulls (last `MAX_HULLS_PER_ID` fits per hull id), weapon and wing counts; nested `WreckFit` (one lost ship's fit) and `Order` (what a contract takes) |
 | `indevo/items/installable/SalvageDronesEffect.java` | Item description; no apply, the yards read `special` |
 | `indevo/industries/salvageyards/rules/IndEvo_SYTransferOption.java` | Rule script `IndEvo_SYTransferOption <option> dmod\|smod`: sets the transfer option tooltip, disables it and appends the reason in negative highlight when no pair is valid |
 
@@ -43,7 +44,7 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 - `advance` keeps the shared submarket present; `unapply` removes listener, submarket and production quality mod.
 - Dialog commands are found through `ruleCommandPackages` (see [Rule commands](../dialogue/RULE_COMMANDS.md)).
 - `YardsCustomProductionIntel.init()` registers the intel as a persistent listener; it deregisters 60 days after delivery or failure.
-- Saved fields: `availableSalvagePoints`, `countedIntel` (raid intel already paid out, pruned daily once the intel manager drops it), `baseOutput`, `currentWeaponBonusSP`, `outputSalvagePointValue`, `outputDecayMult`.
+- Saved fields: `availableSalvagePoints`, `countedIntel` (raid intel already paid out, pruned daily once the intel manager drops it), `baseOutput`, `currentWeaponBonusSP`, `outputSalvagePointValue`, `outputDecayMult`, `wreckRegistry` (null until `getWreckRegistry()` first runs, so yards without the item save none). The intel saves `YardsProductionData`, whose `registryOrder` is null for orders without registry entries.
 
 ## Flow
 
@@ -83,11 +84,26 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 `IndEvo_drones`, installed through the vanilla item slot (`BaseIndustry.getInstallableItems`, params `IndEvo_ScrapYard`). `hasSalvageDrones()` is true while the yards are functional and the item is installed.
 
 - `SalvageDronesBattleListener.reportBattleOccurred(primaryWinner, battle)` checks every market with the yards: same containing location, or `Misc.getDistanceLY` from the winner's hyperspace location to the market's of at most `SALVAGE_DRONES_RANGE_LY` (6). Hyperspace battles count by distance.
-- `reportBattleInDroneRange`: battles in another location add `SALVAGE_DRONES_SP_SHARE` (0.5) of the FP lost on both snapshot sides. Battles in the yards' own system are skipped there, the per fleet listener already pays them.
+- `reportBattleInDroneRange`: records the battle in the Wreck Registry, then battles in another location add `SALVAGE_DRONES_SP_SHARE` (0.5) of the FP lost on both snapshot sides. Battles in the yards' own system get no SP there, the per fleet listener already pays them.
+- The industry tooltip shows the registry totals while the item is installed.
+
+#### Wreck Registry
+
+`WreckRegistry.recordLosses(battle)` walks `Misc.getSnapshotMembersLost` of every fleet on both snapshot sides:
+
+- Weapons in non built in slots and non built in wings, unless tagged `Tags.NO_DROP` / `Tags.WING_NO_DROP`. Counts per id, capped at `MAX_WEAPONS_PER_ID` (20) and `MAX_WINGS_PER_ID` (10).
+- Hulls: skipped for fleets with `MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY`, stations, fighter wings and `Misc.isUnboardable` hulls. The restored hull (`RestorationDocks.getBaseShipHullSpec(variant, false)`) must pass the Engineering Hub whitelist (`ReverseEngineeringSubmarketPlugin.isWhitelisted`, see [Engineering Hub](ENGINEERING_HUB.md)). Each hull keeps its `WreckFit`, the oldest drops past `MAX_HULLS_PER_ID` (5).
+- `WreckFit` keeps slot weapons, wings, hullmods (not hidden, D-mod, `Tags.HULLMOD_NO_DROP` or perma mods), vents and caps. `createMember(stats)` builds a custom `REFIT` variant of the restored hull, clamps vents and caps to the player's max and drops caps, vents, wings, weapons, then hullmods until `computeOPCost` fits the player's ordnance points. `getValue()` is the base value of its weapons and wings.
 
 ### Ship assembly contract
 
 `IndEvo_InitSYCustomProductionDiag` replaces the dialog plugin, then: pick hulls with `showCustomProductionPicker` (known ships only, `costMult` = 1.8 - relation, clamped to 0.9..1.5; the D-mod transfer uses 1.5 - relation clamped to 0.8..1.5), scrap hulls for extra budget (30% of base value, less per D-mod), story point option doubles capacity. Capacity = `3 + trade in value + getHullCapacity() * productionCapacityPerSWUnit * (2 with story point)`. Rare parts reduce D-mods (`SY_BASE_DMODS` minus the filled share of `FP * RARE_PARTS_AMOUNT_PER_FP`); parts reduce cost by up to 50%. Confirm removes credits, parts and traded hulls and posts `YardsCustomProductionIntel`, which delivers to local storage after `IndEvo_SYHullDeliveryTime` days with the forecast D-mods (`DModManager.addDMods`) and unlocks storage. It fails if the market decivilizes or loses the yards.
+
+Wreck Registry (yards with the Salvage Drone Replicator):
+
+- The picker offers known hulls plus registry hulls, and registry weapons and wings. `notifyProductionSelected` cuts any unknown hull, weapon or wing to its registry count (`production.removeItem`) and lists the cut items in negative highlight.
+- `updateRegistryOrder()` builds `YardsProductionData.registryOrder`: unknown hulls come from the registry; with "Registry hulls: As fitted" known hulls also do. Registry hulls cost `SALVAGE_DRONES_SP_PER_FP` (10) salvage units per FP; weapons and wings cost none. As fitted takes the oldest fits (`getOldestFits`) and adds `getValue() * costMult` credits (`fitCost`, included in `getCost()`).
+- Confirm needs enough SP (`getAvailableSalvagePoints`), then `WreckRegistry.take(order)` and `spendSalvagePoints`. Delivery builds one fitted member per taken fit, then bare hulls, then adds the weapons and wings; D-mods apply to all hulls.
 
 Accelerate Construction: while the order waits, the intel shows an `Accelerate Construction` button (`BUTTON_EXPRESS`), and the ship assembly dialog main menu shows one option per waiting order of this market (`ACCELERATE_PREFIX` + index, label with the days left) that opens `RelicSpeedUpDialog` and refreshes the menu on close. With no waiting order the option is disabled and its tooltip says so in negative highlight. Its confirm prompt is the shared `RelicSpeedUpDialog.addBody`; confirm halves the days left by adding them to `elapsed`, for 1 Relic Component per remaining day from the yards market's storage, then fleet cargo. Once per 60 days per order (`relicSpeedUpTimestamp`); the button is disabled on cooldown, with 1 day or less left or when relics are short, its tooltip shows effect, cost and lore. See [Economy](../core/ECONOMY.md#relic-speed-up).
 
@@ -109,6 +125,8 @@ Accelerate Construction: while the order waits, the intel shows an `Accelerate C
 
 ## Contracts
 
+- Registry entries leave the registry only at contract confirm. `WreckRegistry.take` and `SalvageYards.spendSalvagePoints` throw when counts or SP are short; the dialog checks both first.
+- `Order.fits` holds the oldest fits per hull id, and `take` removes from the front of the same list (`WreckRegistry.java:223`).
 - The S-mod transfer confirmation states the transfer direction; the fee line identifies the credit charge.
 
 - S-mod transfer tooltips state selection blockers and destination requirements. The lore describes compatible hulls, matching the size and manufacturer checks.

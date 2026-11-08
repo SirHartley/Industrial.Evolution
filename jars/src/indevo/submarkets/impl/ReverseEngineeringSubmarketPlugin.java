@@ -40,30 +40,18 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin {
     }
 
     public void updateCargoPrePlayerInteraction() {
-        restrictedShips = new HashSet<>();
-        allowedShips = new HashSet<>();
+        restrictedShips = getRestrictedHulls();
+        allowedShips = getAllowedHulls();
+    }
 
-        Set<String> allowedShipsInternal = MiscIE.getCSVSetFromMemory(Ids.REVERSE_LIST);
-        Set<String> bossShips = MiscIE.getPrismBossShips();
-        Set<String> hvbShips = MiscIE.getVayraBossShips();
+    public static Set<String> getAllowedHulls() {
+        Set<String> allowed = new HashSet<>(MiscIE.getCSVSetFromMemory(Ids.REVERSE_LIST));
 
-        restrictedShips.addAll(bossShips);
-        restrictedShips.addAll(hvbShips);
-        allowedShips.addAll(allowedShipsInternal);
-
-        //blacklist dweller and threat
-        for (FactionSpecAPI faction : Global.getSettings().getAllFactionSpecs()) {
-            for (String id : faction.getKnownShips()) {
-                ShipHullSpecAPI spec = Global.getSettings().getHullSpec(id);
-                if (!Collections.disjoint(spec.getTags(), Arrays.asList("threat", "dweller"))) restrictedShips.add(id);
-            }
-        }
-
-        if (Setting.ENGHUB_STRICT_WL.enabled()) return;
+        if (Setting.ENGHUB_STRICT_WL.enabled()) return allowed;
 
         for (ShipHullSpecAPI spec : Global.getSettings().getAllShipHullSpecs()) {
             for (String tag : spec.getTags()) {
-                if (tag.contains("_bp")) allowedShips.add(spec.getHullId());
+                if (tag.contains("_bp")) allowed.add(spec.getHullId());
             }
         }
 
@@ -78,6 +66,31 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin {
                 if (!Collections.disjoint(spec.getTags(), Arrays.asList("threat", "dweller"))) restrictedShips.add(id);
             }
         }*/
+
+        return allowed;
+    }
+
+    public static Set<String> getRestrictedHulls() {
+        Set<String> restricted = new HashSet<>();
+        restricted.addAll(MiscIE.getPrismBossShips());
+        restricted.addAll(MiscIE.getVayraBossShips());
+
+        //blacklist dweller and threat
+        for (FactionSpecAPI faction : Global.getSettings().getAllFactionSpecs()) {
+            for (String id : faction.getKnownShips()) {
+                ShipHullSpecAPI spec = Global.getSettings().getHullSpec(id);
+                if (!Collections.disjoint(spec.getTags(), Arrays.asList("threat", "dweller"))) restricted.add(id);
+            }
+        }
+
+        return restricted;
+    }
+
+    public static boolean isWhitelisted(ShipHullSpecAPI spec, Set<String> allowed, Set<String> restricted) {
+        if (Setting.ENGHUB_IGNORE_WHITELISTS.enabled()) return true;
+
+        boolean isAllowed = allowed.contains(spec.getHullId()) || allowed.contains(spec.getBaseHullId());
+        return isAllowed && !restricted.contains(spec.getHullId());
     }
 
     public boolean showInFleetScreen() {
@@ -140,16 +153,12 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin {
             float rsVal = ((EngineeringHub) market.getIndustry(Ids.ENGHUB)).getResearchValue(member.getVariant());
 
             //if illegal, return true
-            boolean notAllowed = !(allowedShips.contains(member.getHullId()) || allowedShips.contains(member.getHullSpec().getBaseHullId())); //if not allowed, return true
-            boolean restricted = restrictedShips.contains(member.getHullId()); //if restricted, return true
+            boolean notWhitelisted = !isWhitelisted(member.getHullSpec(), allowedShips, restrictedShips);
             boolean canNotGenerateRSPoints = rsVal <= 0f; //if it can't generate points, return true
             boolean isPrinted = member.getVariant().hasHullMod(Ids.PRINTING_INDICATOR); //not not printed
             //boolean hasNoDefaultRole = !(roleListings.contains(member.getHullId()) || roleListings.contains(member.getHullSpec().getBaseHullId()));
 
-            boolean ignoreWhiteLists = Setting.ENGHUB_IGNORE_WHITELISTS.enabled();
-
-            if (ignoreWhiteLists) return canNotGenerateRSPoints || isPrinted;
-            else return restricted || notAllowed || canNotGenerateRSPoints || isPrinted;
+            return notWhitelisted || canNotGenerateRSPoints || isPrinted;
         }
 
         return true;
