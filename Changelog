@@ -212,7 +212,7 @@ Senate
 Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
 Note - Building Menu Overhaul's build menu and tooltips show the normal time
 Added - New Edict panel: pick a colony and an Edict, see its effects on that colony and its neighbours and a checklist of its requirements, enact or remove it with a confirm
-Added - Use Relics: end an Edict early without the early removal unrest, 1 Relic Component per remaining day
+Added - Bribe Senators: end an Edict early without the early removal unrest, 1 Relic Component per remaining day
 Added - The Senate can now be visited from remote colony screens
 Adjusted - Visiting the Senate manages the Edicts of every colony in its range, colonies without a Senate get "Enact an Edict" for themselves
 Adjusted - Edict tooltips now list their requirements and mark the unmet ones
