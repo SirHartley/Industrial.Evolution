@@ -386,12 +386,13 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         CustomPanelAPI box = panel.createCustomPanel(BOX_W, PORTRAIT, new ButtonReportingCustomPanel(this, base, -1));
         TooltipMakerAPI icon = box.createUIElement(iconSize, iconSize, false);
         String name = null;
+        boolean assigned = false;
 
         if (!stored && !adminTab) {
             FleetMemberAPI ship = Academy.getCommandedShip(person);
             if (ship != null) {
                 icon.addShipList(1, 1, iconSize, base, Collections.singletonList(ship), 0f);
-                name = ship.getShipName();
+                assigned = true;
             }
         } else if (!stored) {
             MarketAPI governed = Academy.getGovernedMarket(person);
@@ -399,15 +400,21 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
                 if (governed.getPlanetEntity() != null) icon.showPlanetInfo(governed.getPlanetEntity(), iconSize, iconSize, false, 0f);
                 else icon.addImage(governed.getFaction().getCrest(), iconSize, iconSize, 0f);
                 name = governed.getName();
+                assigned = true;
             }
         }
 
         TooltipMakerAPI text = box.createUIElement(BOX_W, 18f, false);
         text.setParaSmallInsignia();
 
-        if (name == null) {
+        if (!assigned) {
             text.addPara("Unassigned", Misc.getGrayColor(), 0f).setAlignment(Alignment.MID);
             box.addUIElement(text).inTL(0f, PORTRAIT / 2f - 9f);
+            return box;
+        }
+
+        if (name == null) {
+            box.addUIElement(icon).inTL((BOX_W - iconSize) / 2f, (PORTRAIT - iconSize) / 2f);
             return box;
         }
 
