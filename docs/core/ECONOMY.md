@@ -75,7 +75,7 @@ Shared by construction and the IE timers. Constants on `RelicSpeedUpTarget`: `RE
 | Timer | Label | Target | Entry point |
 |---|---|---|---|
 | Construction or upgrade | Speed up construction | `RelicBuildTimeReductionButtonAdder.ConstructionTarget` | Industry option |
-| Engineering Hub reverse engineering | Accelerate | `EngineeringHub` | Industry option |
+| Engineering Hub reverse engineering | Accelerate Research | `EngineeringHub` | Industry option |
 | Hull Deconstructor | Accelerate | `HullDeconstructor` | Industry option |
 | Ancient Laboratory template repair | Accelerate | `AncientLaboratory` | Industry option |
 | Rift Generator cooldown | Recharge | `RiftGenerator`, `isSpeedUpInstant()` | Industry option |
