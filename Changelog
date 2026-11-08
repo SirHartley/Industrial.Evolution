@@ -201,6 +201,7 @@ Fixed - Contract and D-mod transfer costs no longer go over the 150% cap
 Fixed - Ship Component Value Mult setting now properly accepts decimals
 Fixed - D-mod transfer can no longer be confirmed without enough credits
 Fixed - Tooltip now shows when Salvage Yards are turned off in the settings
+Fixed - Contract and D-mod transfer titles no longer stay on the menu after leaving
 
 Senate
 Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
