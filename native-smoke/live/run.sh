@@ -3,7 +3,7 @@
 # needs SMOKE_SKILL (starsector-native-smoke folder with gamectl.exe built) and SMOKE_JAVAC_DIR (jdk 17 bin)
 # LIMIT seconds before the run is stopped, FAST=1 fast rendering, NOBUILD=1 reuses the jar, KEEP=1 leaves the game open
 # JFR=0 skips the profile, PROFILE_BASE=<older profile.jfr> also writes compare.txt
-# SMOKE_LOCK lock folder shared by all runs on this machine, LOCKWAIT seconds to wait for it (default 1800)
+# takes a slot from the skill's smoke-slot.sh (owner ie.live) unless SMOKE_SLOT holds one, SMOKE_LOCK=0 runs without, LOCKWAIT seconds to wait (default 1800)
 # NEWGAME=1 starts a new game instead of the base save, SWITCHES=off turns the content switches off first
 # STAGE=<folder> loads that mod folder (an unpacked release) instead of the checkout
 HERE=$(cd -- "$(dirname -- "$0")" && pwd)
@@ -14,7 +14,7 @@ LIVE="$REPO/out/live"
 GC="$SKILL/scripts/live/gamectl.exe"
 WORK="$LIVE/run"
 L="$WORK/logs/starsector.log"
-LOCK=${SMOKE_LOCK:-/c/Modding/.smoke-lock}
+SLOTS="$SKILL/scripts/live/smoke-slot.sh"
 GROUP=${1:?group}
 export PATH="$(cygpath -u "${SMOKE_JAVAC_DIR:?set SMOKE_JAVAC_DIR}"):$PATH"
 
@@ -23,11 +23,12 @@ w() { ping -n $(( $1 + 1 )) 127.0.0.1 >/dev/null; }
 own() { powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name='java.exe'\" | Where-Object { \$_.CommandLine -and \$_.CommandLine.Contains('$(cygpath -w "$WORK/mods")') } | ForEach-Object { \$_.ProcessId }" 2>/dev/null | tr -d '\r'; }
 stop() { for pid in $(own); do powershell -NoProfile -Command "Stop-Process -Id $pid -Force -Confirm:\$false" >/dev/null 2>&1; done; w 2; }
 running() { [[ -n $(own) ]]; }
-anygame() { powershell -NoProfile -Command "if (Get-Process java -ErrorAction SilentlyContinue | Where-Object { \$_.Path -like '*Starsector*' }) { exit 0 } else { exit 1 }" >/dev/null 2>&1; }
 launch() {
     : > "$L"
     SMOKE_FAST_RENDER=${FAST:-0} SMOKE_JAVA_ARGS="$1" bash "$SKILL/scripts/live/launch-game.sh" "$GAME" "$WORK" > "$WORK/launch.log" 2>&1 &
-    for i in $(seq 1 40); do grep -q 'LIVE_CHECK application loaded' "$L" 2>/dev/null && return; w 2; done
+    for i in $(seq 1 40); do grep -q 'LIVE_CHECK application loaded' "$L" 2>/dev/null && break; w 2; done
+    # gamectl picks this game's window only, other slots may run games
+    export GAMECTL_PID=$(cat "$WORK/game.pid" 2>/dev/null | tr -dc '0-9')
 }
 
 # junctions must not outlive a run: a recursive delete of this folder would go through them into the real mods
@@ -39,18 +40,17 @@ unlink() {
     rm -f "$WORK/mods/enabled_mods.json"
 }
 
-# one game per machine: gamectl finds the first game window, so two runs would click each other's game
-take_lock() {
-    for _ in $(seq 1 $(( ${LOCKWAIT:-1800} / 5 ))); do
-        mkdir "$LOCK" 2>/dev/null && { echo "$(basename "$REPO") $GROUP" > "$LOCK/owner.txt"; HELD=1; return; }
-        [[ -z ${said:-} ]] && { said=1; echo "Waiting for $(cat "$LOCK/owner.txt" 2>/dev/null)"; }
-        w 5
-    done
-    echo "$LOCK still held by $(cat "$LOCK/owner.txt" 2>/dev/null)"; exit 1
+take_slot() {
+    [[ ${SMOKE_LOCK:-1} == 0 || -n ${SMOKE_SLOT:-} ]] && return
+    SMOKE_SLOT=$(bash "$SLOTS" acquire ie.live --shared --wait ${LOCKWAIT:-1800} --holder $$) || exit $?
+    export SMOKE_SLOT SMOKE_OWNER=ie.live
+    OWN_SLOT=1
 }
 leave() {
     unlink
-    [[ -n ${HELD:-} ]] && { rm -f "$LOCK/owner.txt"; rmdir "$LOCK"; }
+    [[ -z ${OWN_SLOT:-} ]] && return
+    if [[ -n ${KEEP:-} ]]; then bash "$SLOTS" keep "$SMOKE_SLOT"; echo "Slot $SMOKE_SLOT stays held for the open game: bash $SLOTS release $SMOKE_SLOT ie.live"
+    else bash "$SLOTS" release "$SMOKE_SLOT" ie.live 2>/dev/null; fi
 }
 trap leave EXIT
 
@@ -79,11 +79,12 @@ bash "$SKILL/scripts/live/build-test-mod.sh" "$GAME" "$mod" ie_live_checks "$LIV
 [[ -f "$WORK/mods/enabled_mods.json" ]] || bash "$SKILL/scripts/live/make-modset.sh" "$WORK" "$GAME/mods/LazyLib" "$GAME/mods/MagicLib" \
     "$GAME/mods/LunaLib" "$GAME/mods/GraphicsLib" "$GAME/mods/PatchLib" "$GAME/mods/Console Commands" "${STAGE:-$stage}" "$mod" >/dev/null
 
-take_lock
-anygame && { echo "A game is running. Close it or wait for its run to end."; exit 1; }
+take_slot
+running && { echo "A game of this checkout is still running. Stop it first."; exit 1; }
 
 # one new game per checkout: every run starts from this save
 if [[ ! -d "$LIVE/base-saves" ]]; then
+    rm -rf "$WORK/saves"
     launch ""
     w 8
     SMOKE_RESOLUTION=1600x900 bash "$SKILL/scripts/live/new-game-1600x900.sh"
