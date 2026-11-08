@@ -38,8 +38,8 @@ public class RelicBuildInPatch {
     public static final String LORE = "Your engineers have drawn up a permanent installation, but the available parts cannot meet its tolerances. Domain components can.";
 
     private static final String NO_STORY_POINTS = "No " + Misc.STORY + " points available";
-    private static final float TOGGLE_HEIGHT = 22f;
-    private static final float TOGGLE_SHIFT = 30f;
+    private static final String CANCEL_TEXT = "Cancel";
+    private static final float TOGGLE_PAD = 10f;
     private static final float TOOLTIP_WIDTH = 400f;
 
     private static final FieldQuerySpec WIDGET_FIELD = FieldQuery.create().type(ModPickerDialogV3.PermaModInfoWidget.class).build();
@@ -66,27 +66,23 @@ public class RelicBuildInPatch {
             return;
         }
 
-        ScrollPanelAPI scroller = null;
+        ButtonAPI cancel = null;
         List<?> children = context.getMethod(GET_CHILDREN, widget).call();
         for (Object child : children) {
-            if (child instanceof ScrollPanelAPI s) {
-                scroller = s;
+            if (child instanceof ButtonAPI b && CANCEL_TEXT.equals(b.getText())) {
+                cancel = b;
                 break;
             }
         }
 
-        if (scroller == null) {
-            log.warn("No hullmod effect list in the build in panel, relic toggle skipped");
+        if (cancel == null) {
+            log.warn("No cancel button in the build in panel, relic toggle skipped");
             return;
         }
 
-        // vanilla leaves 15 between the story point counter and the effect list, make room and keep its bottom edge
-        PositionAPI pos = scroller.getPosition();
-        pos.setSize(pos.getWidth(), pos.getHeight() - TOGGLE_SHIFT);
-        pos.setYAlignOffset(-TOGGLE_SHIFT);
-
+        PositionAPI pos = cancel.getPosition();
         Toggle toggle = new Toggle(dialog, widget, member);
-        widgetPanel.addComponent(toggle.create(pos.getWidth())).aboveLeft(scroller, (TOGGLE_SHIFT - TOGGLE_HEIGHT) / 2f);
+        widgetPanel.addComponent(toggle.create(pos.getWidth(), pos.getHeight())).belowRight(cancel, TOGGLE_PAD);
         active = new WeakReference<>(toggle);
     }
 
@@ -143,10 +139,10 @@ public class RelicBuildInPatch {
             this.market = m != null && Misc.playerHasStorageAccess(m) ? m : null;
         }
 
-        CustomPanelAPI create(float width) {
-            CustomPanelAPI panel = Global.getSettings().createCustom(width, TOGGLE_HEIGHT, this);
-            TooltipMakerAPI el = panel.createUIElement(width, TOGGLE_HEIGHT, false);
-            checkbox = el.addAreaCheckbox("Use relic components", null, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), width, TOGGLE_HEIGHT, 0f);
+        CustomPanelAPI create(float width, float height) {
+            CustomPanelAPI panel = Global.getSettings().createCustom(width, height, this);
+            TooltipMakerAPI el = panel.createUIElement(width, height, false);
+            checkbox = el.addAreaCheckbox("Use Relics", null, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), width, height, 0f);
             el.addTooltipTo(new BaseTooltipCreator() {
                 @Override
                 public float getTooltipWidth(Object tooltipParam) {
