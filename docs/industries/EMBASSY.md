@@ -105,7 +105,7 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:52`): `findAmba
 | Item | State |
 |---|---|
 | `HostileActivityEventSubRegisterScript` | `@Deprecated`, not registered anywhere: dead |
-| Blank rules row after `#END IndEvo PlayerMarketAmbassadorDialogue` | Row with empty id and script `$global.IndEvo_HAASabotage = true` (`rules.csv:690-692`) |
+| Blank rules row after `#END IndEvo PlayerMarketAmbassadorDialogue` | Row with empty id and script `$global.IndEvo_HAASabotage = true` (`rules.csv:686-688`) |
 | `moveAmbassadorToClosestEmbassy` | Fee is booked even if the move script later fails its checks |
 | Changelog_todo | "embassy rep limit"; "embassy rep impact rolling number -> fixed num"; "Add ambassadors as contacts" |
 

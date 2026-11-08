@@ -44,7 +44,7 @@ The Courier Port is a structure with no supply or demand. While the player owns 
 | Memory key | `$IndEvo_CurrentShippingCore` (sector, last applied core id or `none`) | `ShippingCostCalculator.java:21` |
 | Memory key | `$IndEvo_ShippingContractMemory` (sector, editor backup, 0 day expiry) | `ContractSidePanelCreator.java:42` |
 | Memory key | `$IndEvo_tempDialogueInstance` (sector, current dialog plugin) | `CourierPortDialoguePlugin.java:47` |
-| Rules | `IndEvo_OpenShippingPortFromIndustryOption`, `IndEvo_ShippingMenuPoint`, `IndEvo_ShippingMenuPoint2`, `IndEvo_IntitiateShippingMenu`, `IndEvo_CommrelayShippingPoint`, `IndEvo_COB_shipping` | `data/campaign/rules.csv:820-834` |
+| Rules | `IndEvo_OpenShippingPortFromIndustryOption`, `IndEvo_ShippingMenuPoint`, `IndEvo_ShippingMenuPoint2`, `IndEvo_IntitiateShippingMenu`, `IndEvo_CommrelayShippingPoint`, `IndEvo_COB_shipping` | `data/campaign/rules.csv:816-830` |
 
 ## Registration and lifecycle
 

@@ -190,7 +190,7 @@ Fixed - Build tooltip no longer shows the base as unavailable when it can be bui
 Salvage Yards
 Added - Move S-mods: transfer S-mods between similar hulls for relic components and credits
 Note - The target ship needs the hullmod installed and a free S-mod slot
-Added - Express Delivery: halve the delivery time of a production order with Relic Components
+Added - Accelerate Construction: halve the delivery time of a production order with Relic Components, from the order intel or the ship assembly dialog
 Fixed - Salvage Yards now properly get salvage from every raid in their system
 Fixed - Salvage Yards no longer pay out twice after loading a save
 Fixed - Blockades, punitive expeditions and hostile activity raids now give salvage
@@ -201,6 +201,8 @@ Fixed - Ship Component Value Mult setting now properly accepts decimals
 Fixed - D-mod transfer can no longer be confirmed without enough credits
 Fixed - Tooltip now shows when Salvage Yards are turned off in the settings
 Fixed - Contract and D-mod transfer titles no longer stay on the menu after leaving
+Fixed - D-mod and S-mod transfer tooltips now say why the option is unavailable
+Fixed - D-mod transfer no longer offers hulls whose D-mods are built in and can not be moved
 
 Senate
 Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
