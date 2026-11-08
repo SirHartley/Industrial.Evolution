@@ -21,6 +21,10 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | `indevo/industries/salvageyards/listeners/SalvageDronesBattleListener.java` | Transient `BaseCampaignEventListener`: on every battle, calls `reportBattleInDroneRange` on each yards with the item whose system is the battle's or within range |
 | `indevo/industries/salvageyards/memory/WreckRegistry.java` | Saved per yards: hulls (last `MAX_HULLS_PER_ID` fits per hull id), weapon and wing counts; nested `WreckFit` (one lost ship's fit) and `Order` (what a contract takes) |
 | `indevo/items/installable/SalvageDronesEffect.java` | Item description; no apply, the yards read `special` |
+| `indevo/industries/salvageyards/plugins/RegistryProductionDelegate.java` | Picker delegate interface of a yards with the item: registry hulls, quantity cap, cap message. The patches below act only on pickers with this delegate |
+| `indevo/industries/salvageyards/patches/RegistryProductionTabPatch.java` | Registry hulls tab in the custom production picker (`CustomProductionPanel`) |
+| `indevo/industries/salvageyards/patches/RegistryProductionLimitPatch.java` | Quantity cap on `FactionProduction.addItem` |
+| `indevo/industries/salvageyards/patches/RegistryProductionRowPatch.java` | Orderable amount in front of the registry hull names |
 | `indevo/industries/salvageyards/rules/IndEvo_SYTransferOption.java` | Rule script `IndEvo_SYTransferOption <option> dmod\|smod`: sets the transfer option tooltip, disables it and appends the reason in negative highlight when no pair is valid |
 
 ## Data and ids
@@ -101,9 +105,18 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 
 Wreck Registry (yards with the Salvage Drone Replicator):
 
-- The picker offers known hulls plus registry hulls, and registry weapons and wings. `notifyProductionSelected` cuts any unknown hull, weapon or wing to its registry count (`production.removeItem`) and lists the cut items in negative highlight.
-- `updateRegistryOrder()` builds `YardsProductionData.registryOrder`: unknown hulls come from the registry; with "Registry hulls: As fitted" known hulls also do. Registry hulls cost `SALVAGE_DRONES_SP_PER_FP` (10) salvage units per FP; weapons and wings cost none. As fitted takes the oldest fits (`getOldestFits`) and adds `getValue() * costMult` credits (`fitCost`, included in `getCost()`).
+- The picker gets a `YardsRegistryPickerDelegate` (`RegistryProductionDelegate`). Its Ship hulls tab lists known hulls only; registry hulls without a blueprint (`getRegistryHulls`) get their own Registry hulls tab, second in the row ([Registry hulls tab](#registry-hulls-tab)). Weapons and Fighters list the registry weapons and wings.
+- `getMaxQuantity(production, type, id)`: known hulls have no cap; registry hulls are capped at `min(registry count, salvage units left / unit cost)`, where the salvage units left are the yards' units minus the other registry hulls in the order; weapons and wings at their registry count. `RegistryProductionLimitPatch` applies it on every add, `notifyProductionSelected` cuts anything still over it (`production.removeItem`) and lists the cut items in negative highlight.
+- `updateRegistryOrder()` builds `YardsProductionData.registryOrder`: every hull without a blueprint comes from the registry, always fitted. Registry hulls cost `SALVAGE_DRONES_SP_PER_FP` (10) salvage units per FP; weapons and wings cost none. The order takes the oldest fits (`getOldestFits`) and adds `getValue() * costMult` credits (`fitCost`, included in `getCost()`). Registry hulls get D-mods, rare parts and parts like any yards hull.
 - Confirm needs enough SP (`getAvailableSalvagePoints`), then `WreckRegistry.take(order)` and `spendSalvagePoints`. Delivery builds one fitted member per taken fit, then bare hulls, then adds the weapons and wings; D-mods apply to all hulls.
+
+#### Registry hulls tab
+
+The vanilla custom production picker (`CustomProductionPanel`, readable class in obf `com.fs.starfarer.campaign.command`) has no API to add a tab. Three PatchLib patches act only when the panel's delegate is a `RegistryProductionDelegate`; all targets are inferred:
+
+- `RegistryProductionTabPatch` on `CustomProductionPanel`: in `createIfNeeded` a redirect on the 5 argument static button factory creates a second tab button after the Fighters one (same factory, label `RegistryProductionDelegate.TAB_LABEL`), a constructor redirect builds a second `ShipBlueprintBrowser` and fills its `getKnownHulls()` with the registry hulls before `createUI`. `@After createIfNeeded` adds both to the panel, puts the tab right of Ship hulls and moves Weapons and Fighters right, adds the pair to the panel's tab map and runs `createUI`. The tab is disabled when the registry has no hull; it opens first when Ship hulls is disabled. `@After actionPerformed` switches to the tab (faders and highlights of every map entry), vanilla's own switch already hides it. `@After restoreTableUIState` checks every tag of the extra browser and updates it, as vanilla does for its three.
+- `RegistryProductionLimitPatch` on `FactionProduction` (`DoNotObfuscate`): `@Before addItem(type, id, quantity, max)`, the overload every browser row and plan table click uses. Over the cap it shows `getLimitMessage` ("No more in the Wreck Registry" or "The yards do not have enough salvage units"), sets the max argument, or skips the add when nothing is left.
+- `RegistryProductionRowPatch` on the ship row (obf class found by `getHullId` and `getTypeString`): in `createRow`, registry hull names get the orderable amount as `Nx ` (`getMaxQuantity` with an empty order). A hull id is on one tab only, so the id picks the row.
 
 Accelerate Construction: while the order waits, the intel shows an `Accelerate Construction` button (`BUTTON_EXPRESS`), and the ship assembly dialog main menu shows one option per waiting order of this market (`ACCELERATE_PREFIX` + index, label with the days left) that opens `RelicSpeedUpDialog` and refreshes the menu on close. With no waiting order the option is disabled and its tooltip says so in negative highlight. Its confirm prompt is the shared `RelicSpeedUpDialog.addBody`; confirm halves the days left by adding them to `elapsed`, for 1 Relic Component per remaining day from the yards market's storage, then fleet cargo. Once per 60 days per order (`relicSpeedUpTimestamp`); the button is disabled on cooldown, with 1 day or less left or when relics are short, its tooltip shows effect, cost and lore. See [Economy](../core/ECONOMY.md#relic-speed-up).
 
@@ -143,6 +156,8 @@ Accelerate Construction: while the order waits, the intel shows an `Accelerate C
 | Story point bonus (`IndEvo_InitSYCustomProductionDiag.getCapacity`, `:355`) | multiplies only the hull capacity term (operator precedence) |
 | D-mod transfer cost | formula `(1.2^n + 1) / n` differs from `RestorationDocks` `1.2^(n+1) / n` |
 | `modifyPlayerCustomProduction` | dead code |
+| Registry hulls tab tooltips | vanilla browser text: the cost column and row tooltips say the hull comes without weapons and fighters, registry hulls come fitted |
+| Registry hull amount | the `Nx` in front of the name is set when the row is built and does not drop while the order fills; the cap message shows when the limit is hit |
 
 ## Maintenance
 
