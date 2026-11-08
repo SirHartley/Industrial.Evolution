@@ -206,11 +206,12 @@ Fixed - Contract and D-mod transfer titles no longer stay on the menu after leav
 Senate
 Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
 Note - Building Menu Overhaul's build menu and tooltips show the normal time
-Added - New Edict panel: pick a colony and an Edict, see its effects on that colony and a checklist of its requirements, enact or remove it with a confirm
+Added - New Edict panel: pick a colony and an Edict, see its effects on that colony and its neighbours and a checklist of its requirements, enact or remove it with a confirm
 Added - Use Relics: end an Edict early without the early removal unrest, 1 Relic Component per remaining day
 Added - The Senate can now be visited from remote colony screens
 Adjusted - Visiting the Senate manages the Edicts of every colony in its range, colonies without a Senate get "Enact an Edict" for themselves
 Adjusted - Edict tooltips now list their requirements and mark the unmet ones
+Adjusted - Shutting down a Senate ends the Edicts in its range right away, unless another Senate covers them
 Fixed - Mandated Overtime construction bonus no longer stays after it ends
 Fixed - Mandated Overtime now halves restoration instead of nearly finishing it
 Fixed - Mandated Overtime now properly halves demand instead of raising it
@@ -223,6 +224,7 @@ Fixed - Edict timers no longer speed up after each save and load
 Fixed - Customs Control now names its real requirement (Megaport) instead of military presence
 Fixed - Looking at an Edict before enacting it no longer leaves timers or penalties on the colony
 Fixed - Subpopulation Cleansing now shows its income penalty as 30% instead of 29%
+Fixed - Exact Clearances and Hard Deadlines now say their ship quality change applies to all colonies
 
 Supercomputer
 Adjusted - Beta core income is now paid with the monthly income
