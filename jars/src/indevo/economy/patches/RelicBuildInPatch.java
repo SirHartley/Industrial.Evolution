@@ -40,6 +40,8 @@ public class RelicBuildInPatch {
     private static final String NO_STORY_POINTS = "No " + Misc.STORY + " points available";
     private static final String CONFIRM_TEXT = "Confirm";
     private static final String CANCEL_TEXT = "Cancel";
+    private static final String STORY_LABEL = Misc.ucFirst(Misc.STORY) + " points remaining";
+    private static final String RELIC_LABEL = "Relic builds remaining";
     private static final float TOGGLE_PAD = 10f;
     private static final float TOOLTIP_WIDTH = 400f;
 
@@ -47,6 +49,7 @@ public class RelicBuildInPatch {
     private static final MethodQuerySpec GET_REFIT_PANEL = MethodQuery.create().methodName("getRefitPanel").parameterCount(0).build();
     private static final MethodQuerySpec GET_MEMBER = MethodQuery.create().methodName("getMember").parameterCount(0).build();
     private static final MethodQuerySpec GET_CHILDREN = MethodQuery.create().methodName("getChildrenCopy").parameterCount(0).build();
+    private static final MethodQuerySpec GET_LABEL = MethodQuery.create().methodName("getLabel").parameterCount(0).build();
 
     // the counter widget can not reach the dialog's PatchData, only one build in dialog is open at a time
     private static WeakReference<Toggle> active = new WeakReference<>(null);
@@ -71,6 +74,7 @@ public class RelicBuildInPatch {
         ButtonAPI confirm = null;
         ButtonAPI cancel = null;
         TooltipMakerAPI warning = null;
+        LabelAPI storyLabel = null;
         List<?> children = context.getMethod(GET_CHILDREN, widget).call();
         for (Object child : children) {
             if (child instanceof ScrollPanelAPI p) effects = p;
@@ -78,6 +82,9 @@ public class RelicBuildInPatch {
             else if (child instanceof ButtonAPI b && b.getText() != null) {
                 if (b.getText().startsWith(CONFIRM_TEXT)) confirm = b;
                 else if (b.getText().startsWith(CANCEL_TEXT)) cancel = b;
+            } else if (child instanceof ButtonAPI b && b.getCustomData() != null) {
+                // the counters are buttons around a title and value panel, its getLabel is the title
+                if (context.getMethod(GET_LABEL, b.getCustomData()).call() instanceof LabelAPI l && STORY_LABEL.equals(l.getText())) storyLabel = l;
             }
         }
 
@@ -92,7 +99,9 @@ public class RelicBuildInPatch {
         PositionAPI effectsPos = effects.getPosition();
         effectsPos.setSize(effectsPos.getWidth(), effectsPos.getHeight() - row);
 
-        Toggle toggle = new Toggle(dialog, widget, member);
+        if (storyLabel == null) log.warn("No story point counter label in the build in panel, it keeps its text");
+
+        Toggle toggle = new Toggle(dialog, widget, member, storyLabel);
         widgetPanel.addComponent(toggle.create(cancelPos.getWidth(), cancelPos.getHeight())).belowRight(cancel, TOGGLE_PAD);
         warning.getPosition().belowLeft(confirm, TOGGLE_PAD + row);
         active = new WeakReference<>(toggle);
@@ -138,11 +147,13 @@ public class RelicBuildInPatch {
         private final WeakReference<Object> widget;
         private final int costPerMod;
         private final MarketAPI market;
+        private final LabelAPI counterLabel;
         private ButtonAPI checkbox;
         private boolean on = false;
 
-        Toggle(ModPickerDialogV3 dialog, Object widget, FleetMemberAPI member) {
+        Toggle(ModPickerDialogV3 dialog, Object widget, FleetMemberAPI member, LabelAPI counterLabel) {
             this.dialog = dialog;
+            this.counterLabel = counterLabel;
             this.widget = new WeakReference<>(widget);
             this.costPerMod = Math.max(1, Math.round(member.getUnmodifiedDeploymentPointsCost() * RELICS_PER_DP));
 
@@ -196,6 +207,9 @@ public class RelicBuildInPatch {
 
             boolean enabled = pending == 0 && (on || getAvailable() >= costPerMod);
             if (checkbox.isEnabled() != enabled) checkbox.setEnabled(enabled);
+
+            String label = on ? RELIC_LABEL : STORY_LABEL;
+            if (counterLabel != null && !label.equals(counterLabel.getText())) counterLabel.setText(label);
         }
 
         int getAffordable() {
