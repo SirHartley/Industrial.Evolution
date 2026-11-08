@@ -98,7 +98,7 @@ new AreaReticuleRenderer(400f).withBounds(30f)     // two lines: the edges of a 
 new DirectionReticuleRenderer().withTrajectory().withBounds(30f).withLength(2000f)
 ```
 
-`withLength(range)` stops the lines at that range; without it they run to the cursor. Lines start outside the fleet ring and stop short of the cursor sprite (`getGuideLineEndPadding()`: the area circle's edge, 0 for the arrow). `withLineStyle(GuideLineStyle.DASHED)` picks `SOLID`, `DASHED` or `DOTTED`. Dash lengths are screen pixels, converted through the viewport by `SkillshotUtils.cutDashes()`; no GL stippling. No IE ability uses guide lines yet.
+`withLength(range)` stops the lines at that range; without it they run to the cursor. Lines start outside the fleet ring and stop short of the cursor sprite (`getGuideLineEndPadding()`: the area circle's edge, half the arrow size); the range clamp applies after that padding. `withLineStyle(GuideLineStyle.DASHED)` picks `SOLID`, `DASHED` or `DOTTED`. Dash lengths are screen pixels, converted through the viewport by `SkillshotUtils.cutDashes()`; no GL stippling. The Explosive and Interceptor missiles use a dotted trajectory.
 
 ## Configuration
 
