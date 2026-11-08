@@ -3,8 +3,12 @@ package indevo.ambience.shuttletraffic;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.PlanetAPI;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
@@ -26,25 +30,39 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
     private static final float FADE_ZOOM_END = 3f;
     private static final float LIGHTS_ZOOM = 0.75f;
     private static final float VIEWPORT_MARGIN = 300f;
-    private static final float LANE_OFFSET = 40f;
-    private static final float LANE_JITTER = 10f;
-    private static final float HANDLE_EXTRA = 80f;
+    private static final float ANCHOR_THREAT_RANGE = 600f;
+    private static final float CRAFT_THREAT_RANGE = 400f;
+    private static final float STRANDED_CLEAR_RANGE = 800f;
+    private static final float POD_PLANET_RANGE = 2000f;
+    private static final int POD_CAP = 32;
+    private static final int MAX_PODS_PER_FLEET = 16;
+    private static final int EMPTY_SNAPSHOT_PODS = 3;
+
+    private record PodEvent(LocationAPI location, Vector2f point, PlanetAPI planet, int count) {
+    }
 
     private final ShuttleNetwork network = new ShuttleNetwork();
-    private final List<Shuttle> shuttles = new ArrayList<>();
-    private final ShuttleFleetScan fleetScan = new ShuttleFleetScan();
     private final Random random = new Random();
+    private final ShuttleFlights flights = new ShuttleFlights(this, network, random);
+    private final List<Shuttle> shuttles = new ArrayList<>();
+    private final List<Shuttle> pods = new ArrayList<>();
+    private final List<PodEvent> podQueue = new ArrayList<>();
+    private final ShuttleFleetScan fleetScan = new ShuttleFleetScan();
     private final SpriteAPI glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
 
     private LocationAPI location;
     private float time = 0f;
+    private float days = 0f;
     private float daysSinceRebuild = 0f;
     private float scanTimer = 0f;
 
     public static void register() {
         if (LunaCampaignRenderer.hasRendererOfClass(ShuttleTrafficRenderer.class)) return;
+
         ShuttleHullPool.reset();
-        LunaCampaignRenderer.addTransientRenderer(new ShuttleTrafficRenderer());
+        ShuttleTrafficRenderer renderer = new ShuttleTrafficRenderer();
+        LunaCampaignRenderer.addTransientRenderer(renderer);
+        Global.getSector().addTransientListener(new EscapePodListener(renderer));
     }
 
     public static Shuttle.End getEnd(ShuttleAnchor anchor) {
@@ -71,22 +89,27 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
 
         if (cap <= 0 || current == null || current.isHyperspace()) {
             if (location != null) clear();
+            podQueue.clear();
             return;
         }
 
         time += amount;
+        float elapsedDays = Global.getSector().getClock().convertToDays(amount);
+        days += elapsedDays;
 
         if (current != location) {
             clear();
             location = current;
             network.rebuild(location, random);
             fleetScan.scan(location, player);
+            updateThreats();
             warmStart(cap);
         } else {
-            daysSinceRebuild += Global.getSector().getClock().convertToDays(amount);
+            daysSinceRebuild += elapsedDays;
             if (daysSinceRebuild >= 1f) {
                 daysSinceRebuild = 0f;
                 network.rebuild(location, random);
+                rollRareFlights();
             }
         }
 
@@ -94,40 +117,51 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
         if (scanTimer <= 0f) {
             scanTimer = SCAN_INTERVAL;
             fleetScan.scan(location, player);
-            divertFromClosed();
+            updateThreats();
+            react();
         }
 
         spawn(amount, cap);
-
-        Iterator<Shuttle> iterator = shuttles.iterator();
-        while (iterator.hasNext()) {
-            Shuttle shuttle = iterator.next();
-            shuttle.advance(amount, this);
-            if (!shuttle.done) continue;
-
-            if (shuttle.route != null) shuttle.route.active--;
-            iterator.remove();
-        }
+        launchQueuedPods();
+        advance(shuttles, amount);
+        advance(pods, amount);
     }
 
     @Override
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
-        if (location == null || shuttles.isEmpty() || location != Global.getSector().getCurrentLocation()) return;
+        if (location == null || location != Global.getSector().getCurrentLocation()) return;
+        if (shuttles.isEmpty() && pods.isEmpty()) return;
 
         float zoom = viewport.getViewMult();
         float fade = Math.max(0f, Math.min(1f, (zoom - FADE_ZOOM_START) / (FADE_ZOOM_END - FADE_ZOOM_START)));
         float alphaMult = viewport.getAlphaMult() * (1f - fade);
         if (alphaMult <= 0.01f) return;
 
-        boolean lights = zoom < LIGHTS_ZOOM;
-        for (Shuttle shuttle : shuttles) {
-            if (shuttle.layer != layer || !viewport.isNearViewport(shuttle.pos, VIEWPORT_MARGIN)) continue;
-            shuttle.render(alphaMult, glow, lights, time);
-        }
+        boolean zoomedIn = zoom < LIGHTS_ZOOM;
+        render(shuttles, layer, viewport, alphaMult, zoomedIn);
+        render(pods, layer, viewport, alphaMult, zoomedIn);
+    }
+
+    public void queuePods(CampaignFleetAPI fleet) {
+        if (Setting.SHUTTLE_TRAFFIC.intValue() <= 0) return;
+
+        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+        LocationAPI fleetLocation = fleet.getContainingLocation();
+        if (player == null || fleetLocation == null || fleetLocation != player.getContainingLocation() || fleetLocation.isHyperspace()) return;
+
+        int count = getPodCount(fleet);
+        if (count <= 0) return;
+
+        PlanetAPI planet = findPodPlanet(fleetLocation, fleet.getLocation(), fleet.getFaction());
+        if (planet != null) podQueue.add(new PodEvent(fleetLocation, new Vector2f(fleet.getLocation()), planet, count));
     }
 
     public float getTime() {
         return time;
+    }
+
+    public float getDays() {
+        return days;
     }
 
     public LocationAPI getLocation() {
@@ -138,8 +172,17 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
         return fleetScan;
     }
 
+    public ShuttleFlights getFlights() {
+        return flights;
+    }
+
+    public Random getRandom() {
+        return random;
+    }
+
     private void clear() {
         shuttles.clear();
+        pods.clear();
         network.clear();
         fleetScan.clear();
         location = null;
@@ -149,13 +192,23 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
 
     private void warmStart(int cap) {
         for (ShuttleRoute route : network.routes.values()) {
-            for (int i = 0; i < route.max; i++) {
-                if (shuttles.size() >= cap * route.kind.capShare) break;
+            if (route.isRare()) continue;
 
-                Shuttle shuttle = launch(route);
-                if (shuttle == null) break;
-                shuttle.warmStart(Math.min(0.95f, (i + random.nextFloat()) / route.max));
+            for (int i = 0; i < route.max; i++) {
+                List<Shuttle> launched = flights.launch(route, getRoom(route, cap));
+                if (launched.isEmpty()) break;
+
+                float fraction = Math.min(0.95f, (i + random.nextFloat()) / route.max);
+                for (Shuttle shuttle : launched) shuttle.warmStart(fraction);
+                route.active++;
+                shuttles.addAll(launched);
             }
+        }
+    }
+
+    private void rollRareFlights() {
+        for (ShuttleRoute route : network.routes.values()) {
+            if (route.isRare() && !route.pending && route.active < route.max && random.nextFloat() < route.chancePerDay) route.pending = true;
         }
     }
 
@@ -163,65 +216,184 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
         for (ShuttleRoute route : network.routes.values()) {
             if (route.active >= route.max) continue;
 
-            route.timer -= amount;
-            if (route.timer > 0f) continue;
+            if (route.isRare()) {
+                if (!route.pending) continue;
+            } else {
+                route.timer -= amount;
+                if (route.timer > 0f) continue;
+                route.timer = getInterval(route);
+            }
 
-            route.timer = getInterval(route);
-            if (shuttles.size() >= cap * route.kind.capShare) continue;
-            launch(route);
+            List<Shuttle> launched = flights.launch(route, getRoom(route, cap));
+            if (launched.isEmpty()) continue;
+
+            route.pending = false;
+            route.active++;
+            shuttles.addAll(launched);
         }
+    }
+
+    private int getRoom(ShuttleRoute route, int cap) {
+        return (int) (cap * route.kind.capShare) - shuttles.size();
     }
 
     private float getInterval(ShuttleRoute route) {
+        float jitter = 0.6f + 0.8f * random.nextFloat();
+        if (route.b == null) return route.kind.pause * jitter;
+
         float flightTime = Misc.getDistance(route.a.getLocation(), route.b.getLocation()) / 27f + 6f;
-        return flightTime / Math.max(1, route.max) * (0.6f + 0.8f * random.nextFloat());
+        return flightTime / Math.max(1, route.max) * jitter;
     }
 
-    private Shuttle launch(ShuttleRoute route) {
-        ShuttleAnchor from = route.a;
-        ShuttleAnchor to = route.b;
-        if (random.nextBoolean()) {
-            from = route.b;
-            to = route.a;
+    private void updateThreats() {
+        for (ShuttleAnchor anchor : network.anchors.values()) {
+            anchor.threatened = false;
+            anchor.overrun = false;
+            if (anchor.role == ShuttleAnchor.Role.REMNANT || anchor.faction == null) continue;
+
+            Vector2f loc = anchor.getLocation();
+            if (fleetScan.findThreat(loc.x, loc.y, anchor.getRadius() + ANCHOR_THREAT_RANGE, anchor.faction) < 0) continue;
+
+            anchor.threatened = true;
+            anchor.lastThreatDay = days;
+            anchor.overrun = fleetScan.findThreat(loc.x, loc.y, anchor.getRadius(), anchor.faction) >= 0;
         }
-
-        if (!from.isUsable(location) || !to.isUsable(location)) return null;
-
-        ShuttleHull hull = route.kind == ShuttleRoute.Kind.SUPPLY
-                ? ShuttleHullPool.rollCargo(from.faction, random, 0.8f, true)
-                : ShuttleHullPool.rollCargo(from.faction, random, 0.6f, false);
-        if (hull == null) return null;
-
-        Vector2f p0 = from.getLocation();
-        Vector2f p3 = to.getLocation();
-        float toAngle = Misc.getAngleInDegrees(p0, p3);
-        float chord = Misc.getDistance(p0, p3);
-        float launchAngle = toAngle + (random.nextFloat() - 0.5f) * 2f * LANE_OFFSET;
-        float landAngle = toAngle + 180f + (random.nextFloat() - 0.5f) * 2f * LANE_OFFSET;
-        float startHandle = Math.min(from.getRadius() + HANDLE_EXTRA, chord * 0.45f);
-        float endHandle = Math.min(to.getRadius() + HANDLE_EXTRA, chord * 0.45f);
-        float bend = network.getBend(p0, p3, route.bendFrac * chord, from.entity, to.entity);
-
-        ShuttlePath path = new ShuttlePath().add(new ShuttlePath.BezierSegment(
-                new ShuttlePath.PadWaypoint(from, launchAngle, false),
-                new ShuttlePath.PadWaypoint(to, landAngle, true),
-                startHandle, endHandle, bend));
-
-        Shuttle shuttle = new Shuttle(hull, route, from.faction, from, to, path, getEnd(from), getEnd(to),
-                0.85f + 0.3f * random.nextFloat(), (random.nextFloat() - 0.5f) * 2f * LANE_JITTER, random.nextFloat());
-
-        shuttles.add(shuttle);
-        route.active++;
-        return shuttle;
     }
 
-    private void divertFromClosed() {
+    private void react() {
         for (Shuttle shuttle : shuttles) {
-            if (shuttle.done || shuttle.to == null || shuttle.to.isUsable(location)) continue;
+            if (shuttle.done || shuttle.isDown() || shuttle.leader != null || shuttle.isWaiting()) continue;
 
-            ShuttleAnchor refuge = network.findRefuge(shuttle.to, shuttle.faction, shuttle.pos, location);
-            if (refuge != null) shuttle.redirect(refuge, this);
-            else if (!shuttle.to.entity.isAlive() || shuttle.to.entity.getContainingLocation() != location) shuttle.done = true;
+            if (shuttle.isStranded()) {
+                if (fleetScan.findThreat(shuttle.pos.x, shuttle.pos.y, STRANDED_CLEAR_RANGE, shuttle.faction) >= 0) shuttle.lastThreatNearDay = days;
+                continue;
+            }
+
+            if (shuttle.picket) {
+                int threat = shuttle.home != null && shuttle.home.threatened ? findAnchorThreat(shuttle.home) : -1;
+                if (shuttle.home != null && shuttle.home.overrun) flee(shuttle, threat);
+                else if (threat >= 0) shuttle.screen(fleetScan.x[threat], fleetScan.y[threat], this);
+                else divertIfClosed(shuttle);
+                continue;
+            }
+
+            if (!shuttle.flees) {
+                divertIfClosed(shuttle);
+                continue;
+            }
+
+            boolean destinationThreatened = shuttle.to != null && shuttle.to.threatened;
+            int near = fleetScan.findThreat(shuttle.pos.x, shuttle.pos.y, CRAFT_THREAT_RANGE, shuttle.faction);
+
+            if (destinationThreatened || (near >= 0 && !shuttle.isFleeing())) {
+                flee(shuttle, near >= 0 ? near : findAnchorThreat(shuttle.to));
+                continue;
+            }
+
+            divertIfClosed(shuttle);
         }
+    }
+
+    private void flee(Shuttle shuttle, int threat) {
+        float threatX = threat >= 0 ? fleetScan.x[threat] : shuttle.pos.x;
+        float threatY = threat >= 0 ? fleetScan.y[threat] : shuttle.pos.y;
+
+        List<Shuttle> wing = new ArrayList<>(shuttle.followers);
+        shuttle.flee(network.findRefuge(null, shuttle.faction, shuttle.pos, location), threatX, threatY, this);
+        for (Shuttle follower : wing) follower.flee(network.findRefuge(null, follower.faction, follower.pos, location), threatX, threatY, this);
+    }
+
+    private int findAnchorThreat(ShuttleAnchor anchor) {
+        if (anchor == null) return -1;
+
+        Vector2f loc = anchor.getLocation();
+        return fleetScan.findThreat(loc.x, loc.y, anchor.getRadius() + ANCHOR_THREAT_RANGE, anchor.faction);
+    }
+
+    private void divertIfClosed(Shuttle shuttle) {
+        if (shuttle.to == null || shuttle.isScreening() || shuttle.to.isUsable(location)) return;
+
+        ShuttleAnchor refuge = network.findRefuge(shuttle.to, shuttle.faction, shuttle.pos, location);
+        if (refuge != null) shuttle.redirect(refuge, this);
+        else if (!shuttle.to.entity.isAlive() || shuttle.to.entity.getContainingLocation() != location) shuttle.done = true;
+    }
+
+    private void launchQueuedPods() {
+        if (podQueue.isEmpty() || Global.getSector().getCampaignUI().isShowingDialog()) return;
+
+        for (PodEvent event : podQueue) {
+            int room = POD_CAP - pods.size();
+            if (room <= 0) break;
+            if (event.location() != location || !event.planet().isAlive()) continue;
+
+            pods.addAll(flights.launchPods(event.point(), event.planet(), Math.min(room, event.count())));
+        }
+
+        podQueue.clear();
+    }
+
+    private void advance(List<Shuttle> list, float amount) {
+        Iterator<Shuttle> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            Shuttle shuttle = iterator.next();
+            shuttle.advance(amount, this);
+            if (!shuttle.done) continue;
+
+            if (shuttle.route != null) shuttle.route.active--;
+            iterator.remove();
+        }
+    }
+
+    private void render(List<Shuttle> list, CampaignEngineLayers layer, ViewportAPI viewport, float alphaMult, boolean zoomedIn) {
+        for (Shuttle shuttle : list) {
+            if (shuttle.layer != layer || !viewport.isNearViewport(shuttle.pos, VIEWPORT_MARGIN)) continue;
+            shuttle.render(alphaMult, glow, zoomedIn, time);
+        }
+    }
+
+    private static int getPodCount(CampaignFleetAPI fleet) {
+        List<FleetMemberAPI> snapshot = fleet.getFleetData().getSnapshot();
+        if (snapshot == null || snapshot.isEmpty()) return EMPTY_SNAPSHOT_PODS;
+
+        int count = 0;
+        for (FleetMemberAPI member : snapshot) {
+            if (member.isFighterWing() || Misc.isAutomated(member) || member.getHullSpec().getMinCrew() <= 0f) continue;
+
+            count += switch (member.getHullSpec().getHullSize()) {
+                case FRIGATE, DESTROYER -> 1;
+                case CRUISER -> 2;
+                case CAPITAL_SHIP -> 3;
+                default -> 0;
+            };
+        }
+
+        return Math.min(MAX_PODS_PER_FLEET, count);
+    }
+
+    private static PlanetAPI findPodPlanet(LocationAPI location, Vector2f point, FactionAPI faction) {
+        PlanetAPI nearest = null;
+        PlanetAPI friendly = null;
+        float nearestDist = POD_PLANET_RANGE;
+        float friendlyDist = POD_PLANET_RANGE;
+
+        for (PlanetAPI planet : location.getPlanets()) {
+            if (planet.isStar()) continue;
+
+            float dist = Misc.getDistance(point, planet.getLocation()) - planet.getRadius();
+            if (dist > POD_PLANET_RANGE) continue;
+
+            MarketAPI market = planet.getMarket();
+            if (market != null && market.isInEconomy() && faction != null && !market.getFaction().isHostileTo(faction) && dist < friendlyDist) {
+                friendlyDist = dist;
+                friendly = planet;
+            }
+
+            if (dist < nearestDist) {
+                nearestDist = dist;
+                nearest = planet;
+            }
+        }
+
+        return friendly != null ? friendly : nearest;
     }
 }

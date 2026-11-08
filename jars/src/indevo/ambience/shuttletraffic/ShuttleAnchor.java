@@ -13,6 +13,13 @@ public class ShuttleAnchor {
         STATION
     }
 
+    public enum Role {
+        MARKET,
+        DECIV,
+        REMNANT,
+        TARGET
+    }
+
     public static final float PLANET_PAD_DEPTH = 0.6f;
     public static final float STATION_PAD_DEPTH = 0.15f;
     public static final float STATION_DOCK_LENGTH = 60f;
@@ -20,15 +27,20 @@ public class ShuttleAnchor {
 
     public final SectorEntityToken entity;
     public final Type type;
+    public final Role role;
     public MarketAPI market;
     public FactionAPI faction;
     public boolean closed = false;
     public boolean seen = true;
     public float padBusyUntil = 0f;
+    public boolean threatened = false;
+    public boolean overrun = false;
+    public float lastThreatDay = -100f;
 
-    public ShuttleAnchor(SectorEntityToken entity, Type type, MarketAPI market, FactionAPI faction) {
+    public ShuttleAnchor(SectorEntityToken entity, Type type, Role role, MarketAPI market, FactionAPI faction) {
         this.entity = entity;
         this.type = type;
+        this.role = role;
         this.market = market;
         this.faction = faction;
     }
@@ -59,5 +71,9 @@ public class ShuttleAnchor {
 
     public boolean isUsable(LocationAPI location) {
         return seen && !closed && entity.isAlive() && entity.getContainingLocation() == location;
+    }
+
+    public boolean isSafe(float days) {
+        return !threatened && days - lastThreatDay >= 1f;
     }
 }

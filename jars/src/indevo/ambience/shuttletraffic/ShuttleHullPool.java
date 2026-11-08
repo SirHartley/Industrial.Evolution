@@ -35,6 +35,12 @@ public final class ShuttleHullPool {
 
     public static final String CSV_PATH = "data/config/indEvo/shuttle_traffic.csv";
     private static final String ENGINE_STYLES_PATH = "data/config/engine_styles.json";
+    private static final String SMALL_FRIGATE = "kite";
+    private static final String POD_CATEGORY = "misc";
+    private static final String POD_KEY = "cargoPods";
+    private static final String POD_STYLE = "LOW_TECH";
+    private static final float POD_CELL = 32f;
+    private static final float POD_SIZE = 10f;
     private static final Color DEFAULT_GLOW = new Color(255, 145, 75, 255);
     private static final Logger log = Global.getLogger(ShuttleHullPool.class);
 
@@ -58,11 +64,54 @@ public final class ShuttleHullPool {
         engineStyles = null;
     }
 
-    public static ShuttleHull rollCargo(FactionAPI faction, Random random, float baseShare, boolean smallBaseOnly) {
+    public static ShuttleHull rollCargo(FactionAPI faction, Random random, float baseShare, boolean smallOnly) {
         ShuttleHull hull = null;
-        if (faction != null && random.nextFloat() >= baseShare) hull = pick(getFactionPool(faction), random, h -> h.civilian);
-        if (hull == null) hull = pick(getBasePool(), random, h -> !smallBaseOnly || h.small);
+        if (faction != null && random.nextFloat() >= baseShare) hull = pick(getFactionPool(faction, true), random, h -> h.civilian && (!smallOnly || h.small));
+        if (hull == null) hull = pick(getBasePool(), random, h -> !smallOnly || h.small);
         return hull;
+    }
+
+    public static ShuttleHull rollSmall(FactionAPI faction, Random random) {
+        ShuttleHull hull = faction != null ? pick(getFactionPool(faction, true), random, h -> h.small) : null;
+        if (hull == null) hull = pick(getBasePool(), random, h -> h.small);
+        return hull;
+    }
+
+    public static ShuttleHull rollAny(FactionAPI faction, Random random, float baseShare, boolean crewed) {
+        ShuttleHull hull = null;
+        if (faction != null && random.nextFloat() >= baseShare) hull = pick(getFactionPool(faction, crewed), random, h -> true);
+        if (hull == null) hull = pick(getBasePool(), random, h -> true);
+        return hull;
+    }
+
+    public static ShuttleHull rollBase(Random random, Set<String> hullIds) {
+        return pick(getBasePool(), random, h -> hullIds.contains(h.hullId));
+    }
+
+    public static ShuttleHull getHull(String hullId, boolean fighter, int wingSize) {
+        if (!hullExists(hullId)) return null;
+
+        ShipHullSpecAPI spec = Global.getSettings().getHullSpec(hullId);
+        return createHull(spec, fighter, wingSize, false, fighter);
+    }
+
+    public static ShuttleHull createPod(Random random) {
+        SpriteAPI sprite = Global.getSettings().getSprite(POD_CATEGORY, POD_KEY);
+        if (sprite == null || sprite.getWidth() < POD_CELL) return null;
+
+        int cols = Math.max(1, (int) (sprite.getWidth() / POD_CELL));
+        int rows = Math.max(1, (int) (sprite.getHeight() / POD_CELL));
+        float cellWidth = sprite.getTextureWidth() / cols;
+        float cellHeight = sprite.getTextureHeight() / rows;
+        sprite.setTexX(random.nextInt(cols) * cellWidth);
+        sprite.setTexY(random.nextInt(rows) * cellHeight);
+        sprite.setTexWidth(cellWidth);
+        sprite.setTexHeight(cellHeight);
+
+        JSONObject style = getEngineStyles().optJSONObject(POD_STYLE);
+        Color glow = style != null ? readColor(style, "engineCampaignColor", DEFAULT_GLOW) : DEFAULT_GLOW;
+        Color trail = style != null ? readColor(style, "contrailCampaignColor", Misc.setAlpha(glow, 75)) : Misc.setAlpha(glow, 75);
+        return new ShuttleHull(POD_KEY, sprite, true, false, true, false, false, 1, glow, trail, false, POD_SIZE, POD_SIZE);
     }
 
     public static ShuttleHull pick(List<ShuttleHull> pool, Random random, Predicate<ShuttleHull> filter) {
@@ -114,8 +163,9 @@ public final class ShuttleHullPool {
         return basePool;
     }
 
-    public static List<ShuttleHull> getFactionPool(FactionAPI faction) {
-        List<ShuttleHull> pool = factionPools.get(faction.getId());
+    public static List<ShuttleHull> getFactionPool(FactionAPI faction, boolean crewed) {
+        String key = faction.getId() + (crewed ? "" : "|any");
+        List<ShuttleHull> pool = factionPools.get(key);
         if (pool != null) return pool;
 
         // base rows first, shared hulls keep their csv flags
@@ -124,12 +174,12 @@ public final class ShuttleHullPool {
 
         for (String wingId : faction.getKnownFighters()) {
             FighterWingSpecAPI wing = Global.getSettings().getFighterWingSpec(wingId);
-            if (wing == null || wing.hasTag(Tags.AUTOMATED_FIGHTER)) continue;
+            if (wing == null || (crewed && wing.hasTag(Tags.AUTOMATED_FIGHTER))) continue;
 
             ShipVariantAPI variant = wing.getVariant();
-            if (variant == null || variant.getHullSpec() == null || !isCrewed(variant.getHullSpec())) continue;
+            if (variant == null || variant.getHullSpec() == null || (crewed && !isCrewed(variant.getHullSpec()))) continue;
 
-            ShuttleHull hull = createHull(variant.getHullSpec(), true, Math.max(1, Math.min(3, wing.getNumFighters())), false, false);
+            ShuttleHull hull = createHull(variant.getHullSpec(), true, Math.max(1, Math.min(3, wing.getNumFighters())), false, true);
             if (hull != null && !pool.contains(hull)) pool.add(hull);
         }
 
@@ -137,16 +187,16 @@ public final class ShuttleHullPool {
             if (!hullExists(hullId)) continue;
 
             ShipHullSpecAPI spec = Global.getSettings().getHullSpec(hullId);
-            if (spec.getHullSize() != HullSize.FRIGATE || !isCrewed(spec) || spec.hasTag(Tags.RESTRICTED)) continue;
+            if (spec.getHullSize() != HullSize.FRIGATE || (crewed && !isCrewed(spec)) || spec.hasTag(Tags.RESTRICTED)) continue;
 
             EnumSet<ShipTypeHints> hints = spec.getHints();
             if (hints.contains(ShipTypeHints.STATION) || hints.contains(ShipTypeHints.MODULE)) continue;
 
-            ShuttleHull hull = createHull(spec, false, 1, isCivilian(hints), false);
+            ShuttleHull hull = createHull(spec, false, 1, isCivilian(hints), SMALL_FRIGATE.equals(spec.getBaseHullId()));
             if (hull != null && !pool.contains(hull)) pool.add(hull);
         }
 
-        factionPools.put(faction.getId(), pool);
+        factionPools.put(key, pool);
         return pool;
     }
 

@@ -66,6 +66,60 @@ public class ShuttlePath {
         }
     }
 
+    public static class RelativeWaypoint implements Waypoint {
+        private final SectorEntityToken entity;
+        private final float offsetX;
+        private final float offsetY;
+        private final float dirX;
+        private final float dirY;
+
+        public RelativeWaypoint(SectorEntityToken entity, float offsetX, float offsetY, float angle) {
+            this.entity = entity;
+            this.offsetX = offsetX;
+            this.offsetY = offsetY;
+            this.dirX = (float) Math.cos(Math.toRadians(angle));
+            this.dirY = (float) Math.sin(Math.toRadians(angle));
+        }
+
+        @Override
+        public void getPosition(Vector2f out) {
+            Vector2f loc = entity.getLocation();
+            out.set(loc.x + offsetX, loc.y + offsetY);
+        }
+
+        @Override
+        public void getDirection(Vector2f out) {
+            out.set(dirX, dirY);
+        }
+    }
+
+    public static class SegmentWaypoint implements Waypoint {
+        private final Segment segment;
+        private final float t;
+        private final Vector2f a = new Vector2f();
+        private final Vector2f b = new Vector2f();
+
+        public SegmentWaypoint(Segment segment, float t) {
+            this.segment = segment;
+            this.t = t;
+        }
+
+        @Override
+        public void getPosition(Vector2f out) {
+            segment.evaluate(t, out);
+        }
+
+        @Override
+        public void getDirection(Vector2f out) {
+            segment.evaluate(Math.max(0f, t - 0.01f), a);
+            segment.evaluate(Math.min(1f, t + 0.01f), b);
+            Vector2f.sub(b, a, out);
+            float len = out.length();
+            if (len > 0.0001f) out.scale(1f / len);
+            else out.set(1f, 0f);
+        }
+    }
+
     public abstract static class Segment {
         private final float[] cumulative;
         private float length = 0f;
@@ -169,18 +223,29 @@ public class ShuttlePath {
         private final SectorEntityToken centerEntity;
         private final float offsetX;
         private final float offsetY;
-        private final float radius;
+        private final float radiusX;
+        private final float radiusY;
+        private final float cos;
+        private final float sin;
         private final float startAngle;
         private final float sweep;
         private final float scaleBump;
 
-        // center is centerEntity + offset, or the offset alone when centerEntity is null
         public CircleSegment(SectorEntityToken centerEntity, float offsetX, float offsetY, float radius, float startAngle, float sweep, float scaleBump) {
+            this(centerEntity, offsetX, offsetY, radius, radius, 0f, startAngle, sweep, scaleBump);
+        }
+
+        // center is centerEntity + offset, or the offset alone when centerEntity is null; radiusY and rotation make an ellipse
+        public CircleSegment(SectorEntityToken centerEntity, float offsetX, float offsetY, float radiusX, float radiusY, float rotation,
+                             float startAngle, float sweep, float scaleBump) {
             super(Math.max(16, (int) (Math.abs(sweep) / 22.5f)));
             this.centerEntity = centerEntity;
             this.offsetX = offsetX;
             this.offsetY = offsetY;
-            this.radius = radius;
+            this.radiusX = radiusX;
+            this.radiusY = radiusY;
+            this.cos = (float) Math.cos(Math.toRadians(rotation));
+            this.sin = (float) Math.sin(Math.toRadians(rotation));
             this.startAngle = startAngle;
             this.sweep = sweep;
             this.scaleBump = scaleBump;
@@ -196,7 +261,9 @@ public class ShuttlePath {
             }
 
             double angle = Math.toRadians(startAngle + sweep * t);
-            out.set(cx + (float) Math.cos(angle) * radius, cy + (float) Math.sin(angle) * radius);
+            float ex = (float) Math.cos(angle) * radiusX;
+            float ey = (float) Math.sin(angle) * radiusY;
+            out.set(cx + ex * cos - ey * sin, cy + ex * sin + ey * cos);
         }
 
         @Override
