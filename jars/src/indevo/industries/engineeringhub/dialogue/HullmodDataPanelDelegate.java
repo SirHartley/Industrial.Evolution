@@ -9,6 +9,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.ButtonAction;
 import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
+import indevo.dialogue.sidepanel.HelpIcon;
 import indevo.industries.engineeringhub.memory.RecoveredHullmods;
 import indevo.utils.helper.RelicHelper;
 
@@ -65,9 +66,10 @@ public class HullmodDataPanelDelegate extends ButtonReportingDialogueDelegate {
         int available = RelicHelper.getAvailable(market);
         String relicName = RelicHelper.getName();
 
-        TooltipMakerAPI header = panel.createUIElement(width, HEADER_HEIGHT, false);
+        TooltipMakerAPI header = panel.createUIElement(width - HelpIcon.SIZE - 3f, HEADER_HEIGHT, false);
         header.addSectionHeading("Recovered hullmod data", Alignment.MID, 0f);
         panel.addUIElement(header).inTL(0f, 0f);
+        panel.addUIElement(HelpIcon.create(panel, this::addHelp)).inTR(0f, 0f);
 
         float listHeight = height - HEADER_HEIGHT - FOOTER_HEIGHT;
         TooltipMakerAPI list = panel.createUIElement(width, listHeight, true);
@@ -135,6 +137,12 @@ public class HullmodDataPanelDelegate extends ButtonReportingDialogueDelegate {
         panel.addUIElement(footer).inTL(0f, HEADER_HEIGHT + listHeight);
 
         basePanel.addComponent(panel);
+    }
+
+    private void addHelp(TooltipMakerAPI tooltip) {
+        tooltip.addPara("Ships reverse engineered here leave data on the hullmods they had installed that your faction does not know.", 0f);
+        tooltip.addPara("Learning one costs at least %s %s, more for valuable hullmods.", 3f, Misc.getHighlightColor(),
+                RecoveredHullmods.MIN_COST + "", RelicHelper.getName());
     }
 
     private static Map<String, ShipHullSpecAPI> getHullSpecs(Map<String, String> data) {

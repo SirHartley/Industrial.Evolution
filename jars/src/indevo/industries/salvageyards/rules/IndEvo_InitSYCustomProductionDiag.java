@@ -2,6 +2,7 @@ package indevo.industries.salvageyards.rules;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
@@ -17,11 +18,13 @@ import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.config.Setting;
+import indevo.economy.plugins.RelicSpeedUpDialog;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.salvageyards.industry.SalvageYards;
 import indevo.industries.salvageyards.intel.YardsCustomProductionIntel;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.RelicHelper;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.helper.BillingHelper;
 import org.apache.log4j.Logger;
@@ -73,6 +76,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
     protected static final String RARE_PARTS_SELECTOR_ID = "IndEvo_RareSliderID";
     protected static final String PARTS_SELECTOR_ID = "IndEvo_PartSliderID";
+    protected static final String ACCELERATE_PREFIX = "IndEvo_SYAccelerate_";
 
     protected float costMult = 1f;
     protected float cost = 0f;
@@ -137,6 +141,15 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         OptionPanelAPI opts = dialog.getOptionPanel();
 
         opts.clearOptions();
+
+        if (optionData.toString().startsWith(ACCELERATE_PREFIX)) {
+            int index = Integer.parseInt(optionData.toString().substring(ACCELERATE_PREFIX.length()));
+            YardsCustomProductionIntel order = getRunningOrders().get(index);
+
+            optionSelected(null, Option.MAIN);
+            new RelicSpeedUpDialog(order, () -> refreshOptions = true).show(dialog);
+            return;
+        }
 
         Option option = Option.valueOf(optionData.toString());
 
@@ -206,6 +219,8 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
                 opts.setEnabled(Option.DOUBLE_CAP, !isWantsToSpendSP());
 
+                addAccelerateOptions(opts);
+
                 opts.addOption("Confirm", Option.CONFIRM);
 
                 boolean allowed = !getProductionData().productionList.isEmpty() && BillingHelper.canAfford(getProductionData().getCost());
@@ -237,6 +252,40 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected argument: " + option);
+        }
+    }
+
+    private List<YardsCustomProductionIntel> getRunningOrders() {
+        List<YardsCustomProductionIntel> orders = new ArrayList<>();
+
+        for (IntelInfoPlugin plugin : Global.getSector().getIntelManager().getIntel(YardsCustomProductionIntel.class)) {
+            YardsCustomProductionIntel order = (YardsCustomProductionIntel) plugin;
+            if (order.getMarket() == getMarket() && order.getSpeedUpDaysLeft() > 0) orders.add(order);
+        }
+
+        return orders;
+    }
+
+    private void addAccelerateOptions(OptionPanelAPI opts) {
+        List<YardsCustomProductionIntel> orders = getRunningOrders();
+
+        if (orders.isEmpty()) {
+            String id = ACCELERATE_PREFIX + "none";
+            opts.addOption(YardsCustomProductionIntel.SPEED_UP_LABEL, id);
+            opts.setEnabled(id, false);
+            opts.setTooltip(id, "Halves the remaining time of an order here, for relic components.");
+            opts.addOptionTooltipAppender(id, (tooltip, hadOtherText) -> tooltip.addPara("No order is in progress here.", Misc.getNegativeHighlightColor(), hadOtherText ? 10f : 0f));
+            return;
+        }
+
+        for (int i = 0; i < orders.size(); i++) {
+            final YardsCustomProductionIntel order = orders.get(i);
+            String id = ACCELERATE_PREFIX + i;
+            int days = order.getSpeedUpDaysLeft();
+
+            opts.addOption(order.getSpeedUpLabel() + " (" + days + " " + StringHelper.getDayOrDays(days) + " left)", id);
+            opts.setEnabled(id, RelicSpeedUpDialog.isAvailable(order) && RelicHelper.canAfford(getMarket(), order.getSpeedUpCost()));
+            opts.addOptionTooltipAppender(id, (tooltip, hadOtherText) -> RelicSpeedUpDialog.addTooltip(tooltip, order));
         }
     }
 
@@ -346,7 +395,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
         float total = 0f;
         for (FleetMemberAPI m : tradeInList) {
-            total += m.getBaseValue() * 0.3f * (Math.max(0f, 1f - (IndEvo_HasValidShipPair.getDModList(m).size() / 10f)));
+            total += m.getBaseValue() * 0.3f * (Math.max(0f, 1f - (IndEvo_InitSYMoveDModDiag.getDModList(m).size() / 10f)));
         }
 
         return total;

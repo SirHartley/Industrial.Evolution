@@ -94,6 +94,7 @@ import indevo.items.consumables.listeners.*;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.items.listeners.ShipComponentLootManager;
 import indevo.items.listeners.SpecialItemDropsListener;
+import indevo.items.listeners.VPCLootResolver;
 import indevo.skillshot.SkillshotFramework;
 import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.MiscIE;
@@ -448,6 +449,7 @@ public class ModPlugin extends BaseModPlugin {
         ConsumableItemDropListener.register();
         ConsumableItemMarketAdder.register();
         SpecialItemDropsListener.register();
+        VPCLootResolver.register();
         RecentJumpListener.register();
         SpooferItemKeypressListener.register();
         InterdictionPulseAbilityListener.register();

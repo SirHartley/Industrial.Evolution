@@ -53,7 +53,7 @@ State: dormant. Nothing calls `CrucibleSpawner.spawn()` (`indevo/utils/ModPlugin
 | Terrain | `crucible_field` -> `CrucibleFieldTerrainPlugin` | `data/campaign/terrain.json:35` |
 | Constant | `CrucibleSpawner.AMOUNT` 1, extra non-nebula crucibles; no setting while crucibles are dormant | `CrucibleSpawner.java:38` |
 | Sounds | `IndEvo_mote_yeet`, `IndEvo_crucible_start`, `_alarm`, `_drone`, `_off`, `_transit` | `data/config/sounds.json:121-146` |
-| Sprites | `IndEvo/crucible_mass`, `IndEvo/whirl_round`, `IndEvo/gearwheel`, `IndEvo/vignette_square` | `data/config/settings.json:99` and graphics block |
+| Sprites | `IndEvo/crucible_mass`, `IndEvo/whirl_round`, `IndEvo/gearwheel`, `IndEvo/vignette_square` | `data/config/settings.json:100` and graphics block |
 | Descriptions | `IndEvo_crucible`, `IndEvo_yeetopult` (no row for `IndEvo_sub_crucible`) | `data/strings/descriptions.csv:27-29` |
 | Rules | `IndEvo_crucible_*` (market and no-market menus, travel options, colonize, explore, activate) | `data/campaign/rules.csv:99-252` |
 | Rule command package | `indevo.exploration.crucible.dialogue` | `data/config/settings.json:44` |

@@ -31,7 +31,7 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
     private static final float HEADER_H_DOCKED = 30f;
     private static final float COLUMN_H = 20f;
     private static final float ROW_H = 28f;
-    private static final float FOOTER_H = 60f;
+    private static final float FOOTER_H = 25f;
     private static final float BUTTON_W = 150f;
     private static final float BUTTON_H = 25f;
     private static final String[] COLUMNS = {"Ship", "Hull", "DP", "S-mods", "After", "Cost", "Time"};
@@ -199,19 +199,24 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
     }
 
     private void addFooter(float w, float h, final CustomDialogCallback callback) {
-        CustomPanelAPI holder = panel.createCustomPanel(w, FOOTER_H, new ButtonReportingCustomPanel(this));
-        TooltipMakerAPI footer = holder.createUIElement(w, FOOTER_H, false);
+        TooltipMakerAPI footer = panel.createUIElement(w, FOOTER_H, false);
         boolean canAfford = false;
 
         if (selected == null) {
-            footer.addPara("Select a ship.", Misc.getGrayColor(), 0f);
+            footer.addPara("Select a ship.", Misc.getGrayColor(), 0f).setAlignment(Alignment.RMID);
         } else {
             int cost = getCost(selected);
             canAfford = RelicHelper.canAfford(market, cost);
-            RelicHelper.addCostLine(footer, market, cost, 0f);
+            RelicHelper.addCostLine(footer, market, cost, 0f).setAlignment(Alignment.RMID);
         }
 
-        ButtonAPI confirm = footer.addButton("Confirm", new ButtonAction(this) {
+        panel.addUIElement(footer).inTL(0f, h - FOOTER_H);
+
+        // the dialog puts Return in a row below this panel at the right edge, Confirm goes left of it
+        CustomPanelAPI holder = panel.createCustomPanel(BUTTON_W, BUTTON_H, new ButtonReportingCustomPanel(this));
+        TooltipMakerAPI buttons = holder.createUIElement(BUTTON_W, BUTTON_H, false);
+        buttons.setButtonFontOrbitron20();
+        ButtonAPI confirm = buttons.addButton("Confirm", new ButtonAction(this) {
             @Override
             public void execute() {
                 if (selected == null || !RelicHelper.canAfford(market, getCost(selected))) return;
@@ -219,11 +224,11 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
                 startWork(selected);
                 callback.dismissCustomDialog(1);
             }
-        }, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Alignment.MID, CutStyle.TL_BR, BUTTON_W, BUTTON_H, OPAD);
+        }, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Alignment.MID, CutStyle.TL_BR, BUTTON_W, BUTTON_H, 0f);
         confirm.setEnabled(selected != null && canAfford);
 
-        holder.addUIElement(footer).inTL(0f, 0f);
-        panel.addComponent(holder).inTL(0f, h - FOOTER_H);
+        holder.addUIElement(buttons).inTL(0f, 0f);
+        panel.addComponent(holder).inTL(w - 2f * BUTTON_W - OPAD, h + OPAD);
     }
 
     private void startWork(FleetMemberAPI member) {

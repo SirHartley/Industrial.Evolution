@@ -6,13 +6,13 @@ Checked against Starsector 0.98a-RC8 and IE `85b9135`. Recheck engine facts afte
 
 ## Overview
 
-The option shows on vanilla Orbital Works (`Industries.ORBITALWORKS`) on player owned colonies. It opens a ship picker: ships in local storage, plus fleet ships when the player is docked at the colony. A `HelpIcon` by the heading holds the effect, time and relic components per deployment point; remote, a gray line says to dock for fleet ships. Confirm takes the relics and moves the ship into the work. One ship per colony at a time. The work counts days while Orbital Works is functional; at 93 days the ship gets the permanent hidden hullmod `IndEvo_relicLattice` (+1 S-mod cap) and goes to local storage. With a ship in the work, the same option aborts it (ship to local storage, no refund), and the Orbital Works tooltip shows a progress section.
+The option shows on vanilla Orbital Works (`Industries.ORBITALWORKS`) on player owned colonies. It opens a ship picker: ships in local storage, plus fleet ships when the player is docked at the colony. A `HelpIcon` by the heading holds the effect, time and relic components per deployment point; remote, a gray line says to dock for fleet ships. Confirm takes the relics and moves the ship into the work. One ship per colony at a time. The work counts days while Orbital Works is functional; at 93 days the ship gets the permanent hidden hullmod `IndEvo_relicLattice` (+1 S-mod cap) and goes to local storage. With a ship in the work, the same option aborts it (ship to local storage, no refund), and the Orbital Works tooltip shows a "Current Project" section in the Engineering Hub format (heading, hull sprite, ship, time remaining, added slot).
 
 ## Files
 
 | File | Owner / role |
 |---|---|
-| `indevo/industries/orbitalworks/plugins/OrbitalWorksSlotOptionProvider.java` | `BaseSimpleBaseIndustryOptionProvider`: option, option tooltip with the lore text, abort dialog, Orbital Works tooltip section with the progress bar |
+| `indevo/industries/orbitalworks/plugins/OrbitalWorksSlotOptionProvider.java` | `BaseSimpleBaseIndustryOptionProvider`: option, option tooltip with the lore text, abort dialog, Orbital Works "Current Project" tooltip section (normal tooltip mode only; vanilla `ListenerUtil.addToIndustryTooltip` places it after the installed items) |
 | `indevo/industries/orbitalworks/plugins/OrbitalWorksSlotPanelDelegate.java` | Ship picker dialog (`ButtonReportingDialogueDelegate`), cost (`COST_PER_DP` 20 per hull DP), relic count and payment, start of the work |
 | `indevo/industries/orbitalworks/scripts/OrbitalWorksSlotManager.java` | Persistent `NewDayListener`: job list, day count, finish, abort, colony loss, messages; `DAYS_REQUIRED` 93 |
 | `indevo/industries/orbitalworks/data/OrbitalWorksSlotJob.java` | Saved job: `market`, `member`, `daysDone` |
@@ -36,7 +36,7 @@ The option shows on vanilla Orbital Works (`Industries.ORBITALWORKS`) on player 
 
 Option `isSuitable`: Orbital Works, player owned, not under construction. Enabled when functional or a job runs.
 
-No job: `onClick` -> `OrbitalWorksSlotPanelDelegate` -> row select -> Confirm (enabled when the relics cover the cost) -> relics from local storage first, then fleet cargo (`RelicHelper.take`) -> fleet ship: officer unassigned, removed from the fleet; storage ship: removed from storage -> `OrbitalWorksSlotManager.start`.
+No job: `onClick` -> `OrbitalWorksSlotPanelDelegate` -> row select -> Confirm (left of the dialog's Return, placed below the panel in the button row; enabled when the relics cover the cost; the cost line sits right aligned in the lower right of the panel) -> relics from local storage first, then fleet cargo (`RelicHelper.take`) -> fleet ship: officer unassigned, removed from the fleet; storage ship: removed from storage -> `OrbitalWorksSlotManager.start`.
 
 Job: `onClick` -> abort dialog -> `OrbitalWorksSlotManager.abort` -> ship to local storage.
 
@@ -63,7 +63,7 @@ Job: `onClick` -> abort dialog -> `OrbitalWorksSlotManager.abort` -> ship to loc
 
 | Item | Note |
 |---|---|
-| Not tested in game | Cap +1 in the refit, picker layout, tooltip bar, abort, colony loss, vanilla Restore and IE Restoration Docks keeping the hullmod |
+| Not tested in game | Cap +1 in the refit, picker layout and the Confirm button left of Return, tooltip section, abort, colony loss, vanilla Restore and IE Restoration Docks keeping the hullmod |
 
 ## Maintenance
 

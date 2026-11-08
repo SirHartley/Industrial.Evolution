@@ -163,6 +163,15 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
     }
 
     @Override
+    public boolean hasOtherColonyEffects(MarketAPI market) {
+        return false;
+    }
+
+    @Override
+    public void addOtherColonyEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+    }
+
+    @Override
     public void addRuntimeText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
         addRuntimeLine(tooltip, market, pad);
         addEarlyRemovalLine(tooltip, market, 3f);
@@ -198,6 +207,11 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
 
         addEffectText(tooltip, market, opad);
 
+        if (hasOtherColonyEffects(market)) {
+            tooltip.addPara("Effects on other colonies:", opad);
+            addOtherColonyEffectText(tooltip, market, 3f);
+        }
+
         tooltip.addPara("Requirements:", opad);
         for (EdictRequirement requirement : getRequirements(market)) {
             Color color = requirement.met ? Misc.getTextColor() : Misc.getNegativeHighlightColor();
@@ -229,6 +243,15 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
 
         for (MarketAPI other : MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId())) {
             if (!other.getId().equals(market.getId())) others.add(other);
+        }
+
+        return others;
+    }
+
+    protected static List<MarketAPI> getOtherPlayerColonies(MarketAPI market) {
+        List<MarketAPI> others = new ArrayList<>();
+        for (MarketAPI other : Misc.getFactionMarkets(Global.getSector().getPlayerFaction())) {
+            if (other.isPlayerOwned() && !other.getId().equals(market.getId())) others.add(other);
         }
 
         return others;

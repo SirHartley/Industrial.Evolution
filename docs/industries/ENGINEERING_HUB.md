@@ -14,7 +14,7 @@ When the hub strips a ship it also records the ship's learnable hullmods. The in
 
 | File | Owner / role |
 |---|---|
-| `indevo/industries/engineeringhub/industry/EngineeringHub.java` | Industry: daily deconstruction state machine, progress map, completion and delivery, installed blueprint slot, relic mode, AI cores, tooltip sections. `RelicSpeedUpTarget` (Accelerate) |
+| `indevo/industries/engineeringhub/industry/EngineeringHub.java` | Industry: daily deconstruction state machine, progress map, completion and delivery, installed blueprint slot, relic mode, AI cores, tooltip sections. `RelicSpeedUpTarget` (Accelerate Research) |
 | `indevo/industries/engineeringhub/memory/RecoveredHullmods.java` | Hullmod extraction: record on strip, learnable filter, cost, payment, learning |
 | `indevo/industries/engineeringhub/plugins/HullmodDataOptionProvider.java` | `BaseSimpleBaseIndustryOptionProvider`: "Hullmod Data" option and its tooltip |
 | `indevo/industries/engineeringhub/dialogue/HullmodDataPanelDelegate.java` | `ButtonReportingDialogueDelegate`: recovered hullmod list with Learn buttons |
@@ -55,7 +55,7 @@ Daily chain: `TimeTracker -> EngineeringHub.onNewDay -> (idle) initDeconstructio
 - Intake: `ReverseEngineeringSubmarketPlugin.isIllegalOnSubmarket` allows a hull if it is on `IndEvo_reverseList` or (unless strict) has any tag containing `_bp`, is not a Prism or Vayra boss hull or tagged `threat` / `dweller`, has research value above 0 and is not printed. `IndEvo_EngHubIgnoreWhitelists` drops the list checks; dev mode allows anything (`ReverseEngineeringSubmarketPlugin.java:42-153`).
 - `initDeconstruction()` takes the first ship in `IndEvo_EngStorage` whose base hull is below 100%, strips weapons and fighters into the gathering point storage (local storage if the gathering point has none) with `MiscIE.stripShipToCargoAndReturnVariant`, removes the ship and stores its variant in `currentDeconShipVar` (`EngineeringHub.java:292-312`).
 - Days: `round(sizeValue * 57) - 5` = 15 (frigate to cruiser) or 21 (capital), x0.7 beta, x0.85 alpha, truncated to int (`:385-409`).
-- Accelerate: `EngineeringHub` is a `RelicSpeedUpTarget`. The industry option halves the days left of the current hull (adds to `daysPassed`) for 1 Relic Component per remaining day, once per 60 days. See [Economy](../core/ECONOMY.md#relic-speed-up).
+- Accelerate Research: `EngineeringHub` is a `RelicSpeedUpTarget`. The industry option halves the days left of the current hull (adds to `daysPassed`) for 1 Relic Component per remaining day, once per 60 days. See [Economy](../core/ECONOMY.md#relic-speed-up).
 - Value: 0.35 (frigate to cruiser) or 0.45 (capital), minus `0.05n * (1 + 0.05n * n)` for `n` non built in D-mods (alpha ignores one), rounded to 0.01, floored at 0 (`:357-383`).
 - Base hull: D-hull parent or `getBaseHull()` for restore to base hulls, so skins and D variants share progress (`:331-352`).
 
@@ -85,7 +85,7 @@ The vanilla install item dialog (obf `com.fs.starfarer.campaign.ui.marketinfo.OO
 - Cost: `max(25, round(baseValue / 100))` relic components (`MIN_COST`, `BASE_VALUE_PER_RELIC`); vanilla learnable hullmods cost 25 to 100.
 - Payment: colony storage first, then fleet cargo, also when the option is used from the remote colony screen. Learning an id that is not learnable or not affordable throws (the panel never offers it). Learning calls `FactionAPI.addKnownHullMod`, removes the entry and shows a campaign message. No processing time.
 - Option: shown on a functional, player owned hub, always enabled. Tooltip: effect, recovered count, lore text in gray.
-- Panel: one row per recorded hullmod: icon, name, OP for the source hull size and the source hull, `Cost: X Relics` (green when affordable, red when not), Learn (disabled when not affordable). The Learn hover shows `Cost: X Relic Components (Available: Y)` and the lore text. Footer shows the available relic components. The list is rebuilt after each learn; the dialog keeps its opening height.
+- Panel: one row per recorded hullmod: icon, name, OP for the source hull size and the source hull, `Cost: X Relics` (green when affordable, red when not), Learn (disabled when not affordable). The Learn hover shows `Cost: X Relic Components (Available: Y)` and the lore text. Footer shows the available relic components. A `?` (`HelpIcon`) right of the heading explains where the data comes from and the minimum cost. The list is rebuilt after each learn; the dialog keeps its opening height.
 
 ### AI cores
 

@@ -198,46 +198,61 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
         opts.addOption("Return", Option.RETURN_BASE);
     }
 
-    private Set<FleetMemberAPI> getValidTransferTargetsForMember(FleetMemberAPI member, Set<FleetMemberAPI> fromFleet) {
-        Set<FleetMemberAPI> validTargets = new HashSet<>();
+    public static String getUnavailableReason(MarketAPI market) {
+        Set<FleetMemberAPI> members = getMembers(market);
+        boolean hasOrigin = false;
+        boolean hasPartner = false;
+
+        for (FleetMemberAPI m : members) {
+            if (getRemovableDModList(m).isEmpty() || !isRestorable(m)) continue;
+            hasOrigin = true;
+
+            for (FleetMemberAPI other : members) {
+                if (other.getId().equals(m.getId()) || !isRestorable(other) || !isSameSizeAndTechtype(m, other)) continue;
+                hasPartner = true;
+                if (!getTransferrableHullmodIds(m, other).isEmpty()) return null;
+            }
+        }
+
+        if (!hasOrigin) return "None of your ships here have D-mods that can be moved.";
+        if (!hasPartner) return "None of your ships here match a ship with D-mods in size and manufacturer.";
+        return "Every matching ship already has the same D-mods.";
+    }
+
+    static Set<FleetMemberAPI> getMembers(MarketAPI market) {
+        Set<FleetMemberAPI> members = new LinkedHashSet<>(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy());
+
+        CargoAPI storageCargo = MiscIE.getStorageCargo(market);
+        if (storageCargo != null && storageCargo.getMothballedShips() != null)
+            members.addAll(storageCargo.getMothballedShips().getMembersListCopy());
+
+        return members;
+    }
+
+    private static Set<FleetMemberAPI> getValidTransferTargetsForMember(FleetMemberAPI member, Set<FleetMemberAPI> fromFleet) {
+        Set<FleetMemberAPI> validTargets = new LinkedHashSet<>();
 
         for (FleetMemberAPI m : fromFleet) {
             if (m.getId().equals(member.getId())) continue;
 
-            if (isRestorable(m) && isSameSizeAndTechtype(member, m) && isValidTransferTarget(member, m)) validTargets.add(m);
+            if (isRestorable(m) && isSameSizeAndTechtype(member, m) && !getTransferrableHullmodIds(member, m).isEmpty()) validTargets.add(m);
         }
 
         return validTargets;
     }
 
-    private boolean isRestorable(FleetMemberAPI member){
+    private static boolean isRestorable(FleetMemberAPI member){
         return !member.getVariant().hasTag(Tags.VARIANT_UNRESTORABLE) && !member.getHullSpec().hasTag(Tags.HULL_UNRESTORABLE);
     }
 
     static boolean isSameSizeAndTechtype(FleetMemberAPI a, FleetMemberAPI b) {
         boolean equalSize = a.getHullSpec().getHullSize().equals(b.getHullSpec().getHullSize());
-        boolean equalType = a.getHullSpec().getManufacturer().equals(b.getHullSpec().getManufacturer());
+        boolean equalType = String.valueOf(a.getHullSpec().getManufacturer()).equals(String.valueOf(b.getHullSpec().getManufacturer()));
 
         return equalSize && equalType;
     }
 
-    private boolean isValidTransferTarget(FleetMemberAPI from, FleetMemberAPI to) {
-        return compareLists(getDModList(from), getDModList(to));
-    }
-
-    private boolean compareLists(List<String> a, List<String> b) {
-        for (String s : a) {
-            if (!b.contains(s)) return true;
-        }
-
-        for (String s : b) {
-            if (!a.contains(s)) return true;
-        }
-
-        return false;
-    }
-
-    private List<String> getDModList(FleetMemberAPI member) {
+    public static List<String> getDModList(FleetMemberAPI member) {
         List<String> dmodList = new ArrayList<>();
         for (String s : member.getVariant().getHullMods()) {
             if (Global.getSettings().getHullModSpec(s).getTags().contains(Tags.HULLMOD_DMOD)) dmodList.add(s);
@@ -246,29 +261,27 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
         return dmodList;
     }
 
-    private List<String> getTransferrableHullmodIds(FleetMemberAPI from, FleetMemberAPI to) {
-        List<String> l1 = getDModList(from);
+    // built in d-mods can not be removed from the source hull
+    private static List<String> getRemovableDModList(FleetMemberAPI member) {
+        List<String> list = getDModList(member);
+        list.removeAll(member.getHullSpec().getBuiltInMods());
+        return list;
+    }
+
+    private static List<String> getTransferrableHullmodIds(FleetMemberAPI from, FleetMemberAPI to) {
+        List<String> l1 = getRemovableDModList(from);
         l1.removeAll(getDModList(to));
 
         return l1;
     }
 
     private Set<FleetMemberAPI> getValidFleetMemberSetForInitialSelection() {
-        Set<FleetMemberAPI> combinedFleet = new HashSet<FleetMemberAPI>(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy());
-        CargoAPI storageCargo = MiscIE.getStorageCargo(getMarket());
-        if (storageCargo != null) {
-            storageCargo.initMothballedShips("player");
-            combinedFleet.addAll(storageCargo.getMothballedShips().getMembersListCopy());
-        }
-
-        Set<FleetMemberAPI> validSelectionList = new HashSet<>();
+        Set<FleetMemberAPI> combinedFleet = getMembers(getMarket());
+        Set<FleetMemberAPI> validSelectionList = new LinkedHashSet<>();
 
         for (FleetMemberAPI member : combinedFleet) {
-            if (getDModList(member).isEmpty() || !isRestorable(member)) continue;
-
-            Set<FleetMemberAPI> validTargetList = getValidTransferTargetsForMember(member, combinedFleet);
-
-            if (!validTargetList.isEmpty()) validSelectionList.add(member);
+            if (getRemovableDModList(member).isEmpty() || !isRestorable(member)) continue;
+            if (!getValidTransferTargetsForMember(member, combinedFleet).isEmpty()) validSelectionList.add(member);
         }
 
         return validSelectionList;
@@ -311,15 +324,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
     }
 
     private void initTargetHullPicker() {
-        Set<FleetMemberAPI> combinedFleet = new HashSet<>(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy());
-
-        CargoAPI storageCargo = MiscIE.getStorageCargo(getMarket());
-        if (storageCargo != null) {
-            storageCargo.initMothballedShips("player");
-            combinedFleet.addAll(storageCargo.getMothballedShips().getMembersListCopy());
-        }
-
-        List<FleetMemberAPI> validSelectionList = new ArrayList<>(getValidTransferTargetsForMember(originMember, combinedFleet));
+        List<FleetMemberAPI> validSelectionList = new ArrayList<>(getValidTransferTargetsForMember(originMember, getMembers(getMarket())));
 
         int shipsPerRow = Setting.SHIP_PICKER_ROW_COUNT.intValue();
         int rows = validSelectionList.size() > shipsPerRow ? (int) Math.ceil(validSelectionList.size() / (float) shipsPerRow) : 1;

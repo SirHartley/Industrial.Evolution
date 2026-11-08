@@ -7,6 +7,7 @@ import indevo.items.consumables.entities.BaseMissileEntityPlugin;
 import indevo.items.consumables.entities.InterceptMissileEntityPlugin;
 import indevo.items.consumables.fleet.MissileAIReactionManager;
 import indevo.utils.helper.StringHelper;
+import indevo.skillshot.GuideLineStyle;
 import indevo.skillshot.render.DirectionReticuleRenderer;
 import indevo.skillshot.render.SkillshotRenderer;
 import org.lwjgl.util.vector.Vector2f;
@@ -21,7 +22,10 @@ public class InterceptMissileAbilityPlugin extends BaseMissileConsumableAbilityP
 
     @Override
     public SkillshotRenderer createReticule() {
-        return new DirectionReticuleRenderer();
+        return new DirectionReticuleRenderer()
+                .withTrajectory()
+                .withLength(MISSILE_SPEED * MISSILE_DUR)
+                .withLineStyle(GuideLineStyle.DOTTED);
     }
 
     @Override

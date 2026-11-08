@@ -12,7 +12,7 @@ public class SkillshotSettings {
     public static String SPRITE_CATEGORY = "fx";
     public static String SPRITE_FLEET_RETICULE = "IndEvo_missile_targetting_reticule";
     public static String SPRITE_DIRECTION_ARROW = "IndEvo_missile_targetting_arrow";
-    public static String SPRITE_AREA_TARGET = "IndEvo_target_reticule";
+    public static String SPRITE_AREA_TARGET = "IndEvo_skillshot_target";
     public static String SOUND_INVALID_TARGET = "IndEvo_denied_buzzer";
 
     public static float RETICULE_ALPHA = 0.9f;
