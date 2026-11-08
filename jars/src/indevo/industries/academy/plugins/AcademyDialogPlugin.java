@@ -32,7 +32,7 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
     private InteractionDialogAPI dialog;
     private final AcademyPanelDelegate panel;
     private AcademyTrainingPopupDelegate popup;
-    private AcademyAdminTrainingDelegate adminConfirm;
+    private AcademyAdminTrainingDialog adminTraining;
     private RelicSpeedUpDialog relicDialog;
     private boolean showPanelPending = false;
     private boolean returnPending = false;
@@ -75,14 +75,12 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
 
     public void showPanel() {
         popup = null;
-        adminConfirm = null;
         relicDialog = null;
         dialog.showCustomDialog(AcademyPanelDelegate.getWidth(), AcademyPanelDelegate.getHeight(), panel);
     }
 
     public void showPanelNextFrame() {
         popup = null;
-        adminConfirm = null;
         relicDialog = null;
         showPanelPending = true;
     }
@@ -92,9 +90,14 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
         dialog.showCustomDialog(AcademyTrainingPopupDelegate.WIDTH, AcademyTrainingPopupDelegate.HEIGHT, popup);
     }
 
+    // opens over this dialog, CampaignUIAPI.showConfirmDialog refuses while any interaction dialog is up
     public void showAdminTraining(PersonAPI admin) {
-        adminConfirm = new AcademyAdminTrainingDelegate(academy, this, admin);
-        dialog.showCustomDialog(AcademyAdminTrainingDelegate.WIDTH, AcademyAdminTrainingDelegate.HEIGHT, adminConfirm);
+        final AcademyAdminTrainingDialog confirm = new AcademyAdminTrainingDialog(academy, admin);
+        boolean shown = Global.getSector().getCampaignUI().showInteractionDialogFromCargo(confirm, Global.getSector().getPlayerFleet(), () -> {
+            adminTraining = null;
+            panel.refresh();
+        });
+        if (shown) adminTraining = confirm;
     }
 
     public void showRelicDialog(RelicSpeedUpTarget target) {
@@ -104,9 +107,9 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
 
     @Override
     public void close() {
-        if (relicDialog != null && relicDialog.isOpen()) relicDialog.cancel();
+        if (adminTraining != null) adminTraining.close();
+        else if (relicDialog != null && relicDialog.isOpen()) relicDialog.cancel();
         else if (popup != null && popup.isOpen()) popup.cancel();
-        else if (adminConfirm != null && adminConfirm.isOpen()) adminConfirm.cancel();
         else if (panel.isOpen()) panel.cancel();
         else leave();
     }
@@ -129,7 +132,7 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
 
     @Override
     public void advance(float amount) {
-        if (Global.getSector().getCampaignUI().isShowingDialog())
+        if (Global.getSector().getCampaignUI().isShowingDialog() && adminTraining == null)
             Global.getSector().getMemoryWithoutUpdate().set(BLOCK_ESC, this, 1f);
 
         if (returnPending) {

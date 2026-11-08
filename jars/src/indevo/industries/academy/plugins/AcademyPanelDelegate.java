@@ -109,6 +109,10 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         else plugin.leave();
     }
 
+    public void refresh() {
+        if (open) recreatePanel();
+    }
+
     private void recreatePanel() {
         if (externalScroller != null) scrollY = externalScroller.getYOffset();
         if (panel != null) basePanel.removeComponent(panel);
@@ -545,7 +549,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         addButton(actions, "Train", TRAIN_BG, base, academy.getAdminTrainBlocker(person), trainTooltip, 0f, new ButtonAction(this) {
             @Override
             public void execute() {
-                openPopup(() -> plugin.showAdminTraining(person));
+                plugin.showAdminTraining(person);
             }
         });
 
