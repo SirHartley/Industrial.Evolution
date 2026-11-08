@@ -23,7 +23,7 @@ public class HullmodDataPanelDelegate extends ButtonReportingDialogueDelegate {
     public static final float FOOTER_HEIGHT = 30f;
     public static final float ROW_HEIGHT = 44f;
     public static final float ICON_SIZE = 40f;
-    public static final float COST_WIDTH = 90f;
+    public static final float COST_WIDTH = 120f;
     public static final float BUTTON_WIDTH = 90f;
     public static final float BUTTON_HEIGHT = 26f;
     public static final int MAX_VISIBLE_ROWS = 6;
@@ -98,7 +98,7 @@ public class HullmodDataPanelDelegate extends ButtonReportingDialogueDelegate {
             row.addUIElement(text).rightOfMid(icon, opad);
 
             TooltipMakerAPI costEl = row.createUIElement(COST_WIDTH, ICON_SIZE, false);
-            costEl.addPara("Cost: " + cost, affordable ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), 0f);
+            costEl.addPara("Cost: " + cost + " Relics", affordable ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), 0f);
             row.addUIElement(costEl).rightOfMid(text, opad);
 
             TooltipMakerAPI buttonEl = row.createUIElement(BUTTON_WIDTH, BUTTON_HEIGHT, false);
