@@ -194,7 +194,7 @@ public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegat
         if (isCurrent) {
             text.addPara("Current", gray, 0f).setAlignment(Alignment.MID);
         } else if (!isReachable) {
-            boolean needsAlpha = !academy.hasAlphaCore() && steps <= 2 - academy.getTrainedSteps(officer) && steps > academy.getOfficerStepsLeft(officer);
+            boolean needsAlpha = !academy.hasAlphaCore() && steps <= academy.getMaxOfficerSteps(true) - academy.getTrainedSteps(officer) && steps > academy.getOfficerStepsLeft(officer);
             String reason = needsAlpha ? "Needs an alpha core" : "Out of reach";
             text.addPara(reason, gray, 0f).setAlignment(Alignment.MID);
         } else {

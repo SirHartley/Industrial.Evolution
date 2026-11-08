@@ -17,6 +17,7 @@ import indevo.dialogue.sidepanel.HelpIcon;
 import indevo.economy.RelicSpeedUpTarget;
 import indevo.economy.plugins.RelicSpeedUpDialog;
 import indevo.industries.academy.industry.Academy;
+import indevo.items.installable.SpecialItemEffectsRepo;
 
 import java.awt.*;
 import java.util.List;
@@ -212,7 +213,11 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
 
             if (own) tooltip.addPara("Training is free and takes %s per personality step.", 0f, hl, days);
             else tooltip.addPara("Training costs %s and takes %s per personality step.", 0f, hl, Misc.getDGSCredits(academy.getOfficerTrainingFee(1)), days);
-            tooltip.addPara(academy.hasAlphaCore() ? "Up to two steps per officer." : "One step per officer, two with an alpha core.", PAD);
+            String steps = Academy.getStepCountText(academy.getMaxOfficerSteps());
+            if (academy.hasAlphaCore()) tooltip.addPara("Up to %s per officer.", PAD, hl, steps);
+            else tooltip.addPara("%s per officer, %s with an alpha core.", PAD, hl, Misc.ucFirst(steps), Academy.getStepCountText(academy.getMaxOfficerSteps(true)));
+
+            if (academy.hasHolobench()) tooltip.addPara("Holobench: officers leave training %s. Stored officers gain %s experience per month.", PAD, hl, "mentored", Misc.getWithDGS(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP));
 
             if (own) tooltip.addPara("Stored officers draw their full salary.", PAD);
             else tooltip.addPara("Storage costs %s per month for each officer, plus full salary.", PAD, hl, storageFee);

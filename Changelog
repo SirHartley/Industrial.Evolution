@@ -89,6 +89,7 @@ Academy
 Added - Academy panel: train, store and retrieve officers and administrators in one screen
 Added - Officers can train two personality steps at once with an alpha core (time and fee per step)
 Added - Accelerate: halve the remaining training time with Relic Components
+Added - Holobench: new Academy item. Officers get one more personality step (two with an alpha core), leave training mentored and gain 20,000 XP per month while stored.
 Adjusted - Training at your own Academy is now free
 Adjusted - Admin training only teaches skills from academy_admin_skill_whitelist.csv (other mods can add theirs)
 Fixed - Aggression training no longer bills you twice the amount it should

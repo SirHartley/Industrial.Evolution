@@ -26,6 +26,8 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.economy.RelicSpeedUpTarget;
 import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
@@ -188,7 +190,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     @Override
     public void reportEconomyMonthEnd() {
+        if (!isFunctional() || !hasHolobench() || market.getFaction().isHostileTo(Global.getSector().getPlayerFaction())) return;
 
+        // officer data wrapper only for the xp clamp and merc check, the level up ui makes the picks on return
+        for (PersonAPI person : officerStorage) Global.getFactory().createOfficerData(person).addXP(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP);
     }
 
     @Override
@@ -455,7 +460,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     public String getOfficerTrainBlocker(PersonAPI person) {
         if (officerInTraining != null) return "Another officer is in training.";
         if (getOfficerStepsLeft(person) == 0) {
-            return !hasAlphaCore() && getTrainedSteps(person) < 2 ? "No training steps left. An alpha core allows a second step." : "No training steps left.";
+            return !hasAlphaCore() && getTrainedSteps(person) < getMaxOfficerSteps(true) ? "No training steps left. An alpha core allows more." : "No training steps left.";
         }
         if (!BillingHelper.canAfford(getOfficerTrainingFee(1))) return "Not enough credits.";
         return null;
@@ -572,8 +577,24 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         return Commodities.ALPHA_CORE.equals(getAICoreId());
     }
 
+    public boolean hasHolobench() {
+        return special != null && ItemIds.HOLOBENCH.equals(special.getId());
+    }
+
     public int getMaxOfficerSteps() {
-        return hasAlphaCore() ? 2 : 1;
+        return getMaxOfficerSteps(hasAlphaCore());
+    }
+
+    public int getMaxOfficerSteps(boolean alpha) {
+        int steps = alpha ? 2 : 1;
+        if (hasHolobench()) steps += alpha ? 2 : 1;
+        return steps;
+    }
+
+    public static String getStepCountText(int steps) {
+        String[] words = {"no", "one", "two", "three", "four"};
+        String count = steps >= 0 && steps < words.length ? words[steps] : steps + "";
+        return count + (steps == 1 ? " personality step" : " personality steps");
     }
 
     public int getTrainedSteps(PersonAPI person) {
@@ -655,6 +676,9 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             addTrainedSteps(officerInTraining, steps);
         }
 
+        boolean mentored = hasHolobench() && !Misc.isMentored(officerInTraining);
+        if (mentored) Misc.setMentored(officerInTraining, true);
+
         PersonalityAPI newPersonality = officerInTraining.getPersonalityAPI();
 
         moveOfficerInTrainingToStorage();
@@ -663,6 +687,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         MessageIntel intel = new MessageIntel("An officer has finished training at %s.",
                 Misc.getTextColor(), new String[]{(market.getName())}, market.getFaction().getBrightUIColor());
         intel.addLine("Personality changed from %s to %s.", Misc.getTextColor(), new String[]{oldPersonality.getDisplayName(), newPersonality.getDisplayName()}, COLOURS_BY_PERSONALITY.get(oldPersonality.getId()), COLOURS_BY_PERSONALITY.get(newPersonality.getId()));
+        if (mentored) intel.addLine("The Holobench left them %s.", Misc.getTextColor(), new String[]{"mentored"}, Misc.getHighlightColor());
         intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
         intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "trainingdone"));
         Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
@@ -873,10 +898,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{"two personality steps"});
+            text.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{getStepCountText(getMaxOfficerSteps(true))});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{"two personality steps"});
+            tooltip.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{getStepCountText(getMaxOfficerSteps(true))});
         }
     }
 
