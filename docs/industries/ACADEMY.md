@@ -79,7 +79,7 @@ Rules mode follows the Courier Port pattern: the command swaps in `AcademyDialog
 
 ### Officer training
 
-- Steps: the distance on the personality ladder (`getPersonalitySteps()`). An officer has one lifetime step, two with an alpha core (`getMaxOfficerSteps()`); `$IndEvo_wasTrainedLevel` counts the steps used (`getOfficerStepsLeft()`). One training may use all steps left at once.
+- Steps: the distance on the personality ladder (`getPersonalitySteps()`). An officer has one lifetime step, two with an alpha core; a Holobench adds one, two with an alpha core, so 2 or 4 (`getMaxOfficerSteps(alpha)`, current state `getMaxOfficerSteps()`); `$IndEvo_wasTrainedLevel` counts the steps used (`getOfficerStepsLeft()`). One training may use all steps left at once.
 - `setOfficerForTraining(person, targetId)` checks that no officer is training, the officer is removable, the target is 1 to steps left away and the fee is affordable, then removes the officer from fleet and ship command or from storage, stores the target in `officerTrainingTarget` and charges the fee. Fee and days are per step: `getOfficerTrainingFee(steps)` (`IndEvo_personalityTrainingCost` per step, 0 on player markets), `getOfficerTrainingDays(steps)` (`IndEvo_personalityTrainingDayCount` + 1 - AI core reduction, per step). The fee is taken at once with `BillingHelper.chargeNow` ([BillingHelper](../core/UTILS.md#billinghelper)).
 - `trainOfficerInTraining()` runs daily if functional and the market faction is not hostile to the player. After `getCurrentOfficerTrainingDays()` it sets the target personality, adds the steps to `$IndEvo_wasTrainedLevel`, puts the officer into storage and sends a `MessageIntel`. Dev mode finishes on the next day.
 - Holobench installed at completion (`hasHolobench()`): the officer leaves mentored (`Misc.setMentored`, vanilla `$mentored`), the message says so. Vanilla reads the flag for skill picks per level, 6 instead of 4 (`api/impl/campaign/OfficerLevelupPluginImpl.java:137`, `:200`); vanilla only sets it from the officer screen Mentor button for a story point (translation of obfuscated code, `obf/coreui/ooo0.java:983`). Already mentored officers are left alone.
@@ -105,13 +105,13 @@ Rules mode follows the Courier Port pattern: the command swaps in `AcademyDialog
 
 | Core | Effect | Where |
 |---|---|---|
-| Alpha | officers get a second personality step, usable at once | `getMaxOfficerSteps()` |
+| Alpha | officers get a second personality step, usable at once (four with a Holobench) | `getMaxOfficerSteps()` |
 | Beta | training days -31 (`betacoreReduction`) | `applyAICoreToIncomeAndUpkeep()`, `:866` |
 | Gamma | upkeep x0.9 | same |
 
 ### Holobench
 
-Installable item `IndEvo_holobench`, vanilla slot through `GenericSpecialItemPlugin` params (`BaseIndustry.wantsToUseSpecialItem`). The effect class only adds the description; the Academy reads `special` itself. Effects: mentoring on officer training (above). The officers tab help lists it while installed.
+Installable item `IndEvo_holobench`, vanilla slot through `GenericSpecialItemPlugin` params (`BaseIndustry.wantsToUseSpecialItem`). The effect class only adds the description; the Academy reads `special` itself. Effects: one more lifetime personality step, two with an alpha core (Officer training), and mentoring on officer training (above). The officers tab help lists it while installed.
 
 ## Contracts
 

@@ -24,6 +24,7 @@ public class HolobenchEffect extends BaseInstallableItemEffect {
     @Override
     protected void addItemDescriptionImpl(Industry industry, TooltipMakerAPI text, SpecialItemData data,
                                           InstallableItemDescriptionMode mode, String pre, float pad) {
-        text.addPara(pre + "Officers leave personality training mentored.", pad, Misc.getHighlightColor(), "mentored");
+        text.addPara(pre + "Officers can train %s more personality step, %s more with an alpha core. Officers leave training mentored.",
+                pad, Misc.getHighlightColor(), "one", "two", "mentored");
     }
 }

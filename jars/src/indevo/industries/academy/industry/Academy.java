@@ -456,7 +456,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     public String getOfficerTrainBlocker(PersonAPI person) {
         if (officerInTraining != null) return "Another officer is in training.";
         if (getOfficerStepsLeft(person) == 0) {
-            return !hasAlphaCore() && getTrainedSteps(person) < 2 ? "No training steps left. An alpha core allows a second step." : "No training steps left.";
+            return !hasAlphaCore() && getTrainedSteps(person) < getMaxOfficerSteps(true) ? "No training steps left. An alpha core allows more." : "No training steps left.";
         }
         if (!BillingHelper.canAfford(getOfficerTrainingFee(1))) return "Not enough credits.";
         return null;
@@ -578,7 +578,19 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     public int getMaxOfficerSteps() {
-        return hasAlphaCore() ? 2 : 1;
+        return getMaxOfficerSteps(hasAlphaCore());
+    }
+
+    public int getMaxOfficerSteps(boolean alpha) {
+        int steps = alpha ? 2 : 1;
+        if (hasHolobench()) steps += alpha ? 2 : 1;
+        return steps;
+    }
+
+    public static String getStepCountText(int steps) {
+        String[] words = {"no", "one", "two", "three", "four"};
+        String count = steps >= 0 && steps < words.length ? words[steps] : steps + "";
+        return count + (steps == 1 ? " personality step" : " personality steps");
     }
 
     public int getTrainedSteps(PersonAPI person) {
@@ -882,10 +894,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{"two personality steps"});
+            text.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{getStepCountText(getMaxOfficerSteps(true))});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{"two personality steps"});
+            tooltip.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{getStepCountText(getMaxOfficerSteps(true))});
         }
     }
 
