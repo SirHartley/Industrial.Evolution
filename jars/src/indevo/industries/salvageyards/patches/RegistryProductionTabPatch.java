@@ -26,8 +26,11 @@ import patchlib.api.spec.FieldQuerySpec;
 import patchlib.api.spec.MethodQuerySpec;
 import patchlib.api.store.PatchData;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 // custom production picker, readable classes in an obf package (0.98a-RC8), every target here is inferred
 @Patch(target = @ClassMatch(type = CustomProductionPanel.class))
@@ -49,6 +52,13 @@ public class RegistryProductionTabPatch {
     private static final MethodQuerySpec GET_FADER = MethodQuery.create().methodName("getFader").parameterCount(0).build();
     private static final MethodQuerySpec GET_TAGS = MethodQuery.create().methodName("getTags").parameterCount(0).build();
     private static final MethodQuerySpec CHECK_ALL = MethodQuery.create().methodName("checkAll").parameterCount(0).build();
+
+    // the browser's tooltips are anonymous classes that only reach the browser, not the panel's PatchData
+    private static final Set<Object> registryBrowsers = Collections.newSetFromMap(new WeakHashMap<>());
+
+    public static boolean isRegistryBrowser(Object browser) {
+        return browser != null && registryBrowsers.contains(browser);
+    }
 
     // the tab buttons come from one obf static factory (label, font, Alignment, CutStyle, listener), the fighters tab is the last
     @RedirectMethodCall(
@@ -81,6 +91,7 @@ public class RegistryProductionTabPatch {
         for (String id : delegate.getRegistryHulls()) hulls.add(Global.getSettings().getHullSpec(id));
 
         context.getData().put(BROWSER_KEY, browser);
+        registryBrowsers.add(browser);
     }
 
     @After(target = @MethodMatch(methodName = "createIfNeeded", parameterCount = 0))
