@@ -189,7 +189,8 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
     }
 
     private void addFooter(float w, float h, final CustomDialogCallback callback) {
-        TooltipMakerAPI footer = panel.createUIElement(w, FOOTER_H, false);
+        CustomPanelAPI holder = panel.createCustomPanel(w, FOOTER_H, new ButtonReportingCustomPanel(this));
+        TooltipMakerAPI footer = holder.createUIElement(w, FOOTER_H, false);
         boolean canAfford = false;
 
         if (selected == null) {
@@ -211,7 +212,6 @@ public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelega
         }, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Alignment.MID, CutStyle.TL_BR, BUTTON_W, BUTTON_H, OPAD);
         confirm.setEnabled(selected != null && canAfford);
 
-        CustomPanelAPI holder = panel.createCustomPanel(w, FOOTER_H, new ButtonReportingCustomPanel(this));
         holder.addUIElement(footer).inTL(0f, 0f);
         panel.addComponent(holder).inTL(0f, h - FOOTER_H);
     }
