@@ -37,7 +37,7 @@ public final class ShuttleHullPool {
     private static final String ENGINE_STYLES_PATH = "data/config/engine_styles.json";
     private static final String SMALL_FRIGATE = "kite";
     private static final String POD_HULL = "mining_drone";
-    private static final float POD_LENGTH = 10f;
+    private static final float POD_LENGTH = 3f;
     private static final Color DEFAULT_GLOW = new Color(255, 145, 75, 255);
     private static final Logger log = Global.getLogger(ShuttleHullPool.class);
 
