@@ -209,21 +209,6 @@ public class MiscIE {
         return splitList(l, itemsPerPage);
     }
 
-    public static Set<SpecialItemData> getVPCItemSet() {
-        SessionTransientMemory transientMemory = SessionTransientMemory.getInstance();
-        String key = "$IndEvo_VPC_List_Key";
-
-        if (transientMemory.contains(key)) return (Set<SpecialItemData>) transientMemory.get(key);
-
-        Set<SpecialItemData> set = new HashSet<>();
-        for (SpecialItemSpecAPI spec : Global.getSettings().getAllSpecialItemSpecs()) {
-            if (spec.getId().contains("IndEvo_vpc")) set.add(new SpecialItemData(spec.getId(), null));
-        }
-
-        transientMemory.set(key, set);
-        return set;
-    }
-
     public static ShipVariantAPI stripShipNoCargo(FleetMemberAPI member) {
         ShipVariantAPI shipVar = member.getVariant();
 

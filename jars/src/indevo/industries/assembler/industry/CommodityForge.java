@@ -14,28 +14,25 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.Pair;
 import indevo.config.Setting;
 import indevo.ids.Ids;
-import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUserAPI;
 import indevo.items.VPCItemPlugin;
-import indevo.items.installable.VPCInstallableItemPlugin;
 import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
-import org.json.JSONException;
 
 import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static indevo.ids.ItemIds.NO_ENTRY;
 import static indevo.utils.helper.MiscIE.getDaysOfCurrentMonth;
 
 //this is one of the earliest things I made and is super cursed
 public class CommodityForge extends VariableAssembler implements SharedSubmarketUserAPI, NewDayListener {
+
+    public static final float LOG_INCREASE = 250f;
 
     private static final int VPC_LOCK_TIME_DAYS = 7;
     private static final int ALPHA_CORE_MAX_DEPOSITS = 2;
@@ -56,7 +53,12 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
         super.apply(true);
 
         Global.getSector().getListenerManager().addListener(this, true);
-        applyIndEvo_VPCEffects();
+
+        if (!market.isPlayerOwned()) {
+            AImode();
+        }
+
+        applyVPCEffects();
         toggleVPCLock();
 
         demand(Commodities.HEAVY_MACHINERY, market.getSize());
@@ -66,9 +68,6 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
             demand.clear();
         }
 
-        if (!market.isPlayerOwned()) {
-            AImode();
-        }
         applyDeficits();
     }
 
@@ -92,13 +91,6 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
         supply.clear();
         demand.clear();
-
-        if (currentVPC != null) {
-            VPCInstallableItemPlugin.IndEvo_ItemEffect effect = VPCInstallableItemPlugin.IndEvo_VPC_EFFECTS.get(currentVPC.getId());
-            if (effect != null) {
-                effect.unapply(this);
-            }
-        }
     }
 
     @Override
@@ -122,13 +114,13 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
             CargoAPI cargo = market.getSubmarket(Ids.SHAREDSTORAGE).getCargo();
 
             for (CargoStackAPI stack : cargo.getStacksCopy()) {
-                if (stack.getPlugin() instanceof VPCItemPlugin) {
+                if (VPCItemPlugin.isValid(stack.getSpecialDataIfSpecial())) {
                     setSpecialItem(stack.getSpecialDataIfSpecial());
                     cargo.removeItems(CargoAPI.CargoItemType.SPECIAL, stack.getSpecialDataIfSpecial(), 1);
 
                     Global.getSector().getCampaignUI().addMessage(StringHelper.getString("IndEvo_ComForge", "indStorageMessage"),
                             Global.getSettings().getColor("standardTextColor"),
-                            Global.getSettings().getSpecialItemSpec(stack.getSpecialDataIfSpecial().getId()).getName(),
+                            stack.getDisplayName(),
                             market.getName(),
                             Misc.getHighlightColor(),
                             Misc.getHighlightColor());
@@ -143,7 +135,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
     public void reportEconomyMonthEnd() {
         if (isFunctional()
-                && currentVPC != null
+                && hasVPC()
                 && market.isPlayerOwned()) {
 
             vpcIsLocked = true;
@@ -190,49 +182,24 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
     }
 
     @Override
-    public int getDepositAmount(String commodityId, boolean dual) {
-        int amt;
-        int sizeMult = market.getSize() - 2;
-        float logIncrease;
-        int deficit = getMaxDeficitAllDemand().two;
-        float deficitMult = 1 - (deficit / (getSupply(commodityId).getQuantity().getModifiedValue() + deficit));
-        float dualReduction = dual ? DUAL_OUTPUT_REDUCTION_MULT : 1f;
-        float timeMult = (float) DEFAULT_MAX_DEPOSITS / maxDeposits;
+    protected float getLogIncrease() {
+        return LOG_INCREASE;
+    }
 
-        //gets the category depending on the industry ID
-        try {
-            amt = Global.getSettings().getJSONObject(getId()+ "_amounts").getInt(commodityId);
-            logIncrease = Global.getSettings().getJSONObject(getId()+ "_amounts").getInt("logIncrease");
-        } catch (JSONException e) {
-            log.error(e.toString());
-            amt = 0;
-            logIncrease = 0;
-        }
-
-        int total = Math.round((Math.round(((logIncrease * Math.log(sizeMult)) + amt) / 10) * 10) * aiCoreMult * timeMult * dualReduction * deficitMult);
-        return Math.max(0, total);
+    @Override
+    protected float getTimeMult() {
+        return (float) DEFAULT_MAX_DEPOSITS / maxDeposits;
     }
 
     @Override
     public List<InstallableIndustryItemPlugin> getInstallableItems() {
-        if (!vpcIsLocked) {
-            ArrayList<InstallableIndustryItemPlugin> list = new ArrayList<>();
-            list.add(new VPCInstallableItemPlugin(this));
-
-            return list;
-        }
-
-        return new ArrayList<>();
+        return vpcIsLocked ? new ArrayList<>() : super.getInstallableItems();
     }
 
     public void toggleVPCLock() {
-        if (currentVPC != null) {
-            String id = currentVPC.getId();
-
-            if (!id.equals(lastInstalledSpecialItemId)) {
-                daysPassed = 0;
-                lastInstalledSpecialItemId = id;
-            }
+        if (hasVPC() && !special.equals(lastInstalledVPC)) {
+            daysPassed = 0;
+            lastInstalledVPC = special;
         }
     }
 
@@ -252,12 +219,12 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
             Color highlight = Misc.getHighlightColor();
             Color bad = Misc.getNegativeHighlightColor();
 
-            if (currTooltipMode.equals(IndustryTooltipMode.ADD_INDUSTRY) || currentVPC == null) {
+            if (currTooltipMode.equals(IndustryTooltipMode.ADD_INDUSTRY) || !hasVPC()) {
                 tooltip.addPara("%s", opad, highlight, StringHelper.getString("IndEvo_VarInd", "vpcNotice"));
             }
 
             if (isFunctional()
-                    && currentVPC != null
+                    && hasVPC()
                     && currTooltipMode.equals(IndustryTooltipMode.NORMAL)) {
 
                 if (!vpcIsLocked) {
@@ -266,24 +233,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
                     tooltip.addPara("%s", 10, bad, StringHelper.getString("IndEvo_ComForge", "canNotRemoveVPC"));
                 }
 
-                Pair<String, String> vpcCommodityIds = ItemIds.getVPCCommodityIds(getSpecialItem().getId());
-                boolean dual = !vpcCommodityIds.two.equals(NO_ENTRY);
-
-                Map<String, String> toReplace = new HashMap<>();
-                toReplace.put("$commodityName1", ItemIds.getCommodityNameString(vpcCommodityIds.one));
-
-                if (!dual) {
-                    String str = StringHelper.getStringAndSubstituteTokens("IndEvo_VarInd", "singleOutput", toReplace);
-                    String[] highlightString = new String[]{getDepositAmount(vpcCommodityIds.one, false) + ""};
-
-                    tooltip.addPara(str, opad, highlight, highlightString);
-                } else {
-                    toReplace.put("$commodityName2", ItemIds.getCommodityNameString(vpcCommodityIds.two));
-                    String str = StringHelper.getStringAndSubstituteTokens("IndEvo_VarInd", "doubleOutput", toReplace);
-                    String[] highlightString = new String[]{getDepositAmount(vpcCommodityIds.one, true) + "", getDepositAmount(vpcCommodityIds.two, true) + ""};
-
-                    tooltip.addPara(str, opad, highlight, highlightString);
-                }
+                addOutputLine(tooltip, opad);
 
                 String timeString = "";
                 int remaining = maxDeposits - depositCounter;
@@ -309,7 +259,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
     }
 
     public String getCurrentImage() {
-        return currentVPC != null ? Global.getSettings().getSpriteName("IndEvo", "comforge") : super.getCurrentImage();
+        return hasVPC() ? Global.getSettings().getSpriteName("IndEvo", "comforge") : super.getCurrentImage();
     }
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
@@ -385,25 +335,12 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
     @Override
     public boolean isLegalOnSharedSubmarket(CargoStackAPI stack) {
-        if (!stack.isSpecialStack()) return false;
-
-        return new ArrayList<>(Arrays.asList(
-                ItemIds.VPC_SUPPLIES,
-                ItemIds.VPC_MARINES,
-                ItemIds.VPC_HEAVY_MACHINERY,
-                ItemIds.VPC_DOMESTIC_GOODS,
-                ItemIds.VPC_DRUGS,
-                ItemIds.VPC_HAND_WEAPONS,
-                ItemIds.VPC_LUXURY_GOODS,
-                ItemIds.VPC_MARINES_HAND_WEAPONS,
-                ItemIds.VPC_SUPPLIES_FUEL,
-                ItemIds.VPC_PARTS
-        )).contains(stack.getSpecialDataIfSpecial().getId());
+        return stack.isSpecialStack() && VPCItemPlugin.isVPC(stack.getSpecialDataIfSpecial());
     }
 
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
-        tooltip.addPara(StringHelper.getString("IndEvo_ComForge", "indStorageTooltip"), 10f, Misc.getHighlightColor(), StringHelper.getString("IndEvo_items", "VPCs"));
+        tooltip.addPara(StringHelper.getString("IndEvo_ComForge", "indStorageTooltip"), 10f, Misc.getHighlightColor(), "VPCs");
     }
 
 }

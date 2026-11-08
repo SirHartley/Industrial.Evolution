@@ -53,17 +53,17 @@ State: dormant. Nothing calls `CrucibleSpawner.spawn()` (`indevo/utils/ModPlugin
 | Terrain | `crucible_field` -> `CrucibleFieldTerrainPlugin` | `data/campaign/terrain.json:35` |
 | Constant | `CrucibleSpawner.AMOUNT` 1, extra non-nebula crucibles; no setting while crucibles are dormant | `CrucibleSpawner.java:38` |
 | Sounds | `IndEvo_mote_yeet`, `IndEvo_crucible_start`, `_alarm`, `_drone`, `_off`, `_transit` | `data/config/sounds.json:121-146` |
-| Sprites | `IndEvo/crucible_mass`, `IndEvo/whirl_round`, `IndEvo/gearwheel`, `IndEvo/vignette_square` | `data/config/settings.json:140` and graphics block |
+| Sprites | `IndEvo/crucible_mass`, `IndEvo/whirl_round`, `IndEvo/gearwheel`, `IndEvo/vignette_square` | `data/config/settings.json:99` and graphics block |
 | Descriptions | `IndEvo_crucible`, `IndEvo_yeetopult` (no row for `IndEvo_sub_crucible`) | `data/strings/descriptions.csv:27-29` |
 | Rules | `IndEvo_crucible_*` (market and no-market menus, travel options, colonize, explore, activate) | `data/campaign/rules.csv:99-252` |
-| Rule command package | `indevo.exploration.crucible.dialogue` | `data/config/settings.json:85` |
+| Rule command package | `indevo.exploration.crucible.dialogue` | `data/config/settings.json:44` |
 | Music | `IndEvo_Haplogynae_derelict_theme` via `MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY` | `CrucibleSpawner.java:232` |
 
 ## Registration and lifecycle
 
 - Spawn: `CrucibleSpawner.spawn()` would run once per sector, guarded by `$IndEvo_hasPlacedCrucibles`. Call sites are commented out (`ModPlugin.java:295`, `:203`).
 - Entities: `custom_entities.json` `pluginClass` columns. Plugin state is saved with the entity; sprites are re-fetched in `readResolve()` (`BaseCrucibleEntityPlugin.java:113`, `YeetopultEntityPlugin.java:68`).
-- Rules: commands resolve through `ruleCommandPackages` (`settings.json:85`).
+- Rules: commands resolve through `ruleCommandPackages` (`settings.json:44`).
 - Scripts: `VariableOrbitScript` on each part, startup anim on the crucible entity, move anim on the star system, `YeetScript` on the fleet. All saved (non-transient).
 
 `spawn() -> getTargetSystem() -> getSpawnLoc2() -> spawnCrucible() (top, bottom, gears) -> spawnCatapults() (pairs, arms)`
@@ -114,7 +114,7 @@ Enabled crucible (`BaseCrucibleEntityPlugin.advance`): drone loop by distance, f
 |---|---|
 | `CrucibleSpawner.spawn()` | Unregistered. Both calls commented out (`ModPlugin.java:203`, `:295`) |
 | `rules.csv:152` vs `:154` | Wormhole option shows on `wormhole_anchor`, disabled variant checks `!... coronal_portal`. Mismatched item ids |
-| `rules.csv:158`, `:160` | Gate option checks item `coronal_tap`; the Hypershunt Tap id is `coronal_portal` (starsector-knowledge `data/campaign/special_items.csv:15`). Gate unlock can never show |
+| `rules.csv:158`, `:160` | Gate option checks item `coronal_tap`; the Hypershunt Tap id is `coronal_portal` (starsector-knowledge `data/campaign/special_items.csv:17`). Gate unlock can never show |
 | Options `IndEvo_crucible_useWormhole_select`, `_useGate_select`, `_moveCrucible_select`, `_changeCatapultColour_select`, `IndEvo_c_hab_0`, `IndEvo_c_eng_0`, `IndEvo_c_cont_0`, `IndEvo_c_cargo_0` | No `DialogOptionSelected` rule in `rules.csv`; `IndEvo_c_cargo_0` exists only in the unloaded draft CSV |
 | `CrucibleSpawner.removeFromtLoc(system)` | Ignores its parameter, uses the player's location and `get(0)` of `IndEvo_crucible` (`:40-53`) |
 | `CrucibleSpawner.spawnCrucible()` nebula loop | `break` outside the `if`, only checks the first terrain (`:221-224`); result unused |

@@ -63,7 +63,7 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | Industry | `IndEvo_ReqCenter` (`Ids.REQCENTER`) | `industries.csv:38`, upkeep 6 |
 | Industry | `commerce` (`Ids.COMMERCE`) | vanilla row, plugin vanilla `TradeCenter` |
 | Submarkets | `IndEvo_RepairStorage` (`Ids.REPSTORAGE`), `IndEvo_ReqCenterMarket` (`Ids.REQMARKET`), `IndEvo_SharedStore` (`Ids.SHAREDSTORAGE`) | `data/campaign/submarkets.csv:2`, `:3`, `:8` |
-| List | `IndEvo_buerauList` (sic) -> `data/config/indEvo/bureau_industry_whitelist.csv` | `data/config/settings.json:57`, `Ids.BUREAU_LIST` |
+| List | `IndEvo_buerauList` (sic) -> `data/config/indEvo/bureau_industry_whitelist.csv` | `data/config/settings.json:16`, `Ids.BUREAU_LIST` |
 | Settings | `IndEvo_alpha_core_runtime` 558, `IndEvo_beta_core_runtime` 279, `IndEvo_gamma_core_runtime` 93 (days) | `LunaSettings.csv:123-125` |
 | Settings | `IndEvo_restoFee_FRIGATE` 1000, `_DESTROYER` 3000, `_CRUISER` 7000, `_CAPITAL` 10000 | `LunaSettings.csv:140-143` |
 | Setting | `IndEvo_CommerceBalanceChanges` (default true) | `LunaSettings.csv:13` |
@@ -74,7 +74,7 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 - All via CSV plugin column.
 - `BureauFactor` and `SuperComputerFactor` are registered by `SpecialItemEffectsRepo.initEffectListeners()` ([Installables](../items/INSTALLABLES.md)).
 - `CommerceBalancePatch` and `DealmakerHolosuitePatch` are `@Patch` classes; PatchLib finds and installs them at startup ([Patches](../ARCHITECTURE.md#patches)). Both read `IndEvo_CommerceBalanceChanges` on every call, so the setting takes effect without a restart.
-- `NewGameIndustryPlacer` places Restoration Docks (`NewGameIndustryPlacer.java:69`) and the Requisitions Centre at `baetis` (`:133`) on new game; see [Utils](../core/UTILS.md).
+- `NewGameIndustryPlacer` places Restoration Docks (`NewGameIndustryPlacer.java:77`) and the Requisitions Centre at `baetis` (`:141`) on new game; see [Utils](../core/UTILS.md).
 - Supercomputer, Restoration Docks and Requisitions Centre add themselves as transient listeners in `apply()` and remove themselves in `unapply()`; `ListenerManager.addListener` dedupes the same instance (skill `obf/campaign/ListenerManager.java:29`).
 
 ## Flow

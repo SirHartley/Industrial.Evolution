@@ -45,7 +45,7 @@ All rows in `data/weapons/weapon_data.csv`. Player weapons are tagged `no_dealer
 | Other id | Where |
 |---|---|
 | Sounds `IndEvo_mortar_hit`, `IndEvo_missile_hit`, `IndEvo_hartpulse` | `data/config/sounds.json:101`, `:109`, `:113` |
-| Sprites `fx/IndEvo_mortar_wave`, `_smoke`, `_glow`, `_burn` | `data/config/settings.json:122` to `:125` |
+| Sprites `fx/IndEvo_mortar_wave`, `_smoke`, `_glow`, `_burn` | `data/config/settings.json:81` to `:84` |
 | Projectile trails | `data/config/modFiles/magicTrail_data.csv` (MagicLib) |
 | Lights and normal maps | `data/lights/IndEvo_lights.csv`, `IndEvo_textures.csv` (GraphicsLib) |
 | Stat modifier id | `IndEvo_slowfield_speed_mult` |

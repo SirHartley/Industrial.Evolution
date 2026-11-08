@@ -38,7 +38,7 @@ All paths above are under `jars/src/indevo/items/consumables/`. Targeting input 
 
 ## Data and ids
 
-Items: `data/campaign/special_items.csv:48-61`, plugin `BaseConsumableItemPlugin` (spoofer and beacon use their own), tags `IndEvo_consumable, codex_unlockable`. Abilities: `data/campaign/abilities.csv:5-22`, all `DURATION`, tag `hide_in_codex`, empty `ai` column.
+Items: `data/campaign/special_items.csv:31-44`, plugin `BaseConsumableItemPlugin` (spoofer and beacon use their own), tags `IndEvo_consumable, codex_unlockable`. Abilities: `data/campaign/abilities.csv:5-22`, all `DURATION`, tag `hide_in_codex`, empty `ai` column.
 
 | Item id | Ability id | Price | Ability row |
 |---|---|---|---|
@@ -65,7 +65,7 @@ Times in days. `IndEvo_skillshot` enables hotkey targeting; each ability picks i
 | Entities | `IndEvo_warning_beacon` (`:333`, tag `IndEvo_beacon`), missiles (`:354`, `:365`, `:376`, `:387`), `IndEvo_SmokeCloud` (`:398`), `IndEvo_decoy_mine` (`:502`), `IndEvo_field_spike` (`:995`) | `data/config/custom_entities.json` |
 | Entities used, owned elsewhere | `IndEvo_VariableExplosion` (`:461`, [Artillery](../industries/ARTILLERY.md)), `IndEvo_campaign_trail_custom_entity` (`:485`, [Utils](../core/UTILS.md)) | `custom_entities.json` |
 | Terrain | `IndEvo_SmokeCloud` (`SmokeCloudTerrain`) | `data/config/terrain.json:30`; description `descriptions.csv:71` |
-| Sprites | transpoofer glow, beacon glow; missile sprites | `data/config/settings.json:106-107`, `:135-138` |
+| Sprites | transpoofer glow, beacon glow; missile sprites | `data/config/settings.json:65-66`, `:94-97` |
 | Settings | `IndEvo_consumables_addToMarkets`, `IndEvo_consumables_addToFleets`, `IndEvo_consumables_researchProject`, all under the master switch `IndEvo_block_consumables` | `data/config/LunaSettings.csv:33-35`, `:6` ([Settings](../core/SETTINGS.md)) |
 | Drop groups | `indEvo_consumables` (`:38-49`), `indEvo_consumables_always` (`:51-57`), `indEvo_missiles` (`:59-64`), `indEvo_missiles_always` (`:66-70`); tag rows `indEvo_tech_addition` (`:12`), `indEvo_mining_addition` (`:18`) | `data/campaign/procgen/drop_groups.csv` |
 | Memory (fleet) | `$IndEvo_MissileInventory`, `MissileMemFlags` keys (`$missile_allowedToUse`, `$missile_bonked`, `$missile_recentlyUsed` and more) | `FleetConsumableInventoryManager`, `MissileMemFlags` |

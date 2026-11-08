@@ -2,6 +2,7 @@ package indevo.exploration.salvage.specials;
 
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
@@ -18,7 +19,9 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.exploration.salvage.scripts.ExplosionScript;
 import indevo.ids.ItemIds;
-import indevo.items.ForgeTemplateItemPlugin;
+import org.json.JSONException;
+
+import java.util.Random;
 
 //DropGroupRow.getPicker("tech_high").pick().getSpecialItemSpec().getId();
 public class ItemChoiceSpecial extends BaseSalvageSpecial {
@@ -29,10 +32,12 @@ public class ItemChoiceSpecial extends BaseSalvageSpecial {
 
     public static class ItemChoiceSpecialData implements SalvageSpecialInteraction.SalvageSpecialData {
         public String itemID;
+        public String itemParams;
         public final float explodeChance;
 
-        public ItemChoiceSpecialData(String itemID, float explodeChance) {
+        public ItemChoiceSpecialData(String itemID, String itemParams, float explodeChance) {
             this.itemID = itemID;
+            this.itemParams = itemParams;
             this.explodeChance = explodeChance;
         }
 
@@ -64,15 +69,16 @@ public class ItemChoiceSpecial extends BaseSalvageSpecial {
         if (data.explodeChance > 0.6) chance = "warns against touching anything - this thing could blow at any minute.";
         if (data.explodeChance > 0.8) chance = "takes one look, turns around and starts running for the shuttles.";
 
-        SpecialItemSpecAPI spec1 = Global.getSettings().getSpecialItemSpec(data.itemID);
+        SpecialItemSpecAPI spec1 = Global.getSettings().getSpecialItemSpec(specialItemData.getId());
+        String name = getItemName();
         String s = "The entire $shortName is rigged to explode should the room be breached. ";
         text.addPara(getString("Immediately upon breaching the sturdy hangar bays, your salvage crew runs into problems. Functioning auto-turrets, " +
                 "entire bulkheads rigged to collapse, airlocks repurposed as traps and old corpses in the hallways. " +
                 "Fighting through the defences, your crews finally report a heavily secured room containing valuable technology - and a rather concerning issue:\n\n" + s +
-                "Your explosives squad " + chance + "\n\nYou could recover the " + spec1.getName() + ", or just blow the control room to bits - destroying the tech in the process."));
+                "Your explosives squad " + chance + "\n\nYou could recover the " + name + ", or just blow the control room to bits - destroying the tech in the process."));
 
         Highlights h = new Highlights();
-        h.setText(s, spec1.getName());
+        h.setText(s, name);
         h.setColors(Misc.getNegativeHighlightColor(), Misc.getHighlightColor());
         text.setHighlightsInLastPara(h);
 
@@ -86,55 +92,58 @@ public class ItemChoiceSpecial extends BaseSalvageSpecial {
         text.addTooltip();
 
         options.clearOptions();
-        options.addOption("Take the " + spec1.getName() + " and risk an explosion", ITEM_1);
+        options.addOption("Take the " + name + " and risk an explosion", ITEM_1);
         options.addOption("Destroy the control room including the tech", NOT_NOW);
     }
 
+    public static DropGroupRow pickItemRow(Random random) {
+        WeightedRandomPicker<DropGroupRow> picker = new WeightedRandomPicker<>(random);
+
+        for (String group : new String[]{"rare_tech", "indEvo_tech_event"}) {
+            for (DropGroupRow r : DropGroupRow.getPicker(group).getItems()) {
+                if (r.isNothing()) continue;
+                if (r.isSpecialItem() && r.getSpecialItemId() != null && !r.getSpecialItemId().isEmpty()) picker.add(r);
+            }
+        }
+
+        return picker.pick();
+    }
+
     private void fixSpecialData() {
-        if (data.itemID == null || data.itemID.isEmpty() || data.itemID.equals(" ")) {
-            //for empty items
-            WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
-
-            for (DropGroupRow r : DropGroupRow.getPicker("rare_tech").getItems()) {
-                if (r.isNothing()) continue;
-                if (r.isSpecialItem() && r.getSpecialItemId() != null && !r.getSpecialItemId().isEmpty())
-                    picker.add(r.getSpecialItemId());
-            }
-
-            for (DropGroupRow r : DropGroupRow.getPicker("indEvo_tech_event").getItems()) {
-                if (r.isNothing()) continue;
-                if (r.isSpecialItem() && r.getSpecialItemId() != null && !r.getSpecialItemId().isEmpty())
-                    picker.add(r.getSpecialItemId());
-            }
-
-            //used to crash because the chosen item was "", no idea what happened, but we'll pick as long as we have to god damn it (or 10 times)
-            String item = picker.pick();
-
-            for (int i = 0; i < 10; i++){
-                if (item != null) break;
-                item = picker.pick();
-            }
-
-            data.itemID = item;
+        if (data.itemID == null || data.itemID.isBlank()) {
+            DropGroupRow row = pickItemRow(random);
+            data.itemID = row != null ? row.getSpecialItemId() : null;
+            data.itemParams = row != null ? row.getSpecialItemData() : null;
         }
 
         //ultimate failsafe, just give the player a fish
-        SpecialItemSpecAPI spec = null;
-        try {
-           spec = Global.getSettings().getSpecialItemSpec(data.itemID);
-        } catch (Exception e){
-            data.itemID = "IndEvo_debug";
+        SpecialItemSpecAPI spec = data.itemID != null ? Global.getSettings().getSpecialItemSpec(data.itemID) : null;
+        if (spec == null) {
+            specialItemData = new SpecialItemData("IndEvo_debug", null);
+            return;
         }
 
-        if (spec == null) data.itemID = "IndEvo_debug";
-
-        //for forge templates
-        if (data.itemID.equals(ItemIds.FORGETEMPLATE)) {
-            String hullId = ForgeTemplateItemPlugin.pickShip(null, random);
-            specialItemData = hullId != null ? ForgeTemplateItemPlugin.createForgeTemplate(hullId, 2) : new SpecialItemData(ItemIds.EMPTYFORGETEMPLATE, null);
-        } else {
+        // older saves stored forge templates without params
+        String params = data.itemParams == null && ItemIds.FORGETEMPLATE.equals(data.itemID) ? "{charges:2}" : data.itemParams;
+        if (params == null) {
             specialItemData = new SpecialItemData(data.itemID, null);
+            return;
         }
+
+        String itemData;
+        try {
+            itemData = spec.getNewPluginInstance(null).resolveDropParamsToSpecificItemData(params, random);
+        } catch (JSONException e) {
+            throw new IllegalStateException("Invalid drop params " + params + " for " + data.itemID, e);
+        }
+
+        if (itemData != null) specialItemData = new SpecialItemData(data.itemID, itemData.isEmpty() ? null : itemData);
+        else if (ItemIds.FORGETEMPLATE.equals(data.itemID)) specialItemData = new SpecialItemData(ItemIds.EMPTYFORGETEMPLATE, null);
+        else specialItemData = new SpecialItemData("IndEvo_debug", null);
+    }
+
+    private String getItemName() {
+        return Global.getFactory().createCargoStack(CargoAPI.CargoItemType.SPECIAL, specialItemData, null).getDisplayName();
     }
 
     private boolean exploded = false;
@@ -142,10 +151,10 @@ public class ItemChoiceSpecial extends BaseSalvageSpecial {
     @Override
     public void optionSelected(String optionText, Object optionData) {
         if (ITEM_1.equals(optionData)) {
-            SpecialItemSpecAPI spec1 = Global.getSettings().getSpecialItemSpec(data.itemID);
+            String name = getItemName();
 
             if (random.nextFloat() < data.explodeChance) {
-                addText("Your crew quickly breaches the secure room and takes the " + spec1.getName() + ".\n" +
+                addText("Your crew quickly breaches the secure room and takes the " + name + ".\n" +
                         "Nothing happens. You realize you have been holding your breath, and start exhaling slowly. The crew reports mission complete as the transport leaves the shuttle bay.");
 
                 text.addPara(getString("The transmission gets cut off by the $shortName suddenly exploding."), Misc.getNegativeHighlightColor());
@@ -159,7 +168,7 @@ public class ItemChoiceSpecial extends BaseSalvageSpecial {
                 AddRemoveCommodity.addCommodityLossText(Commodities.CREW, crewPenalty, text);
                 //add another option to keep player in diag until I can trigger explo
             } else {
-                addText("Your crew quickly breaches the secure room and takes the " + spec1.getName() + ".\n" +
+                addText("Your crew quickly breaches the secure room and takes the " + name + ".\n" +
                         "Nothing happens. You realize you have been holding your breath, and start exhaling slowly. " +
                         "The crew reports mission complete as the transport leaves the shuttle bay.\n\n" +
                         "Salvage operations can now commence as usual.");
@@ -168,7 +177,6 @@ public class ItemChoiceSpecial extends BaseSalvageSpecial {
             playerFleet.getCargo().addSpecial(specialItemData, 1);
 
             text.setFontSmallInsignia();
-            String name = spec1.getName();
             text.addParagraph("Gained " + Misc.getWithDGS(1) + Strings.X + " " + name + "", Misc.getPositiveHighlightColor());
             text.highlightInLastPara(Misc.getHighlightColor(), Misc.getWithDGS(1) + Strings.X);
             text.setFontInsignia();

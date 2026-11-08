@@ -21,6 +21,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.RestorationDocks;
 import indevo.industries.academy.industry.Academy;
+import indevo.items.VPCItemPlugin;
 import indevo.items.installable.SpecialItemEffectsRepo;
 
 import java.util.ArrayList;
@@ -121,7 +122,7 @@ public final class IndustryChecks {
             forge.setAICoreId(Commodities.BETA_CORE);
             b.reapplyIndustries();
             c.expect(hasCoreUpkeep(forge), "beta core forge without VPC has the upkeep cut");
-            forge.setSpecialItem(new SpecialItemData(ItemIds.VPC_SUPPLIES, null));
+            forge.setSpecialItem(VPCItemPlugin.createItem(VPCItemPlugin.Tier.COMMON, List.of(Commodities.SUPPLIES)));
             b.reapplyIndustries();
             c.expect(!hasCoreUpkeep(forge), "302 installing a VPC ends the upkeep cut");
         });

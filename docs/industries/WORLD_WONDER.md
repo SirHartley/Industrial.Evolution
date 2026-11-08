@@ -35,12 +35,12 @@ All wonders share `WorldWonder`: +10 immigration (independent faction), monthly 
 | System tag | `IndEvo_hasWonder` (`WorldWonder.TAG_SYSTEM_HAS_WONDER`) | star system tags |
 | Memory key | `$IndEvo_hasAwardedSP` (`HAS_AWARDED_SP`) | market memory |
 | Memory key | `$IndEvo_alternateWonderVisual` (`ALTERNATE_VISUAL`) | market memory; read, never set by IE |
-| Sprites | category `IndEvo`, keys `palace_light_2`, `kadur_megachurch` (CSV `data` column) | `data/config/settings.json:162-163` |
-| List | `IndEvo_cloudList` -> `graphics/clouds/clouds.csv` (`Ids.CLOUD_LIST`) | `data/config/settings.json:59` |
-| List | `IndEvo_treeList` -> `data/config/indEvo/world_tree_whitelist.csv` (`Ids.TREE_LIST`): `jungle`, `terran`, `terran-eccentric` | `data/config/settings.json:61` |
+| Sprites | category `IndEvo`, keys `palace_light_2`, `kadur_megachurch` (CSV `data` column) | `data/config/settings.json:121-122` |
+| List | `IndEvo_cloudList` -> `graphics/clouds/clouds.csv` (`Ids.CLOUD_LIST`) | `data/config/settings.json:18` |
+| List | `IndEvo_treeList` -> `data/config/indEvo/world_tree_whitelist.csv` (`Ids.TREE_LIST`): `jungle`, `terran`, `terran-eccentric` | `data/config/settings.json:20` |
 | Settings | `IndEvo_CPShieldRemove`, `IndEvo_CPShieldOverride` | `data/config/LunaSettings.csv:116-117`; constants in `indevo/config/Setting.java:143-144`, read by `CloudPainterShieldPatch.getDefaultTag` |
 | Market tags | `IndEvo_PS_FULL`, `IndEvo_PS_LOW`, `IndEvo_PS_NONE` | `CloudPainterShieldPatch` |
-| Sprite | `IndEvo` / `shield_texture` (alternate shield texture) | `data/config/settings.json:195` |
+| Sprite | `IndEvo` / `shield_texture` (alternate shield texture) | `data/config/settings.json:158` |
 
 The `parent_item` / `sub_item` tags group the wonders under one build list entry (inferred from the tags). Five wonders are in `ruins_industry_whitelist.csv:22-26`, so [Ruined Infrastructure](RUINED_INFRASTRUCTURE.md) can restore into them.
 

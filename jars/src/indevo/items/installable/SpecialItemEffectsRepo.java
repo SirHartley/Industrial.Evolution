@@ -53,6 +53,9 @@ public class SpecialItemEffectsRepo {
         ITEM_EFFECTS.put(ItemIds.EMPTYFORGETEMPLATE, new ForgeTemplateEffect(ItemIds.EMPTYFORGETEMPLATE));
         ITEM_EFFECTS.put(ItemIds.BROKENFORGETEMPLATE, new ForgeTemplateEffect(ItemIds.BROKENFORGETEMPLATE));
         ITEM_EFFECTS.put(ItemIds.AMBASSADOR, new AmbassadorEffect(ItemIds.AMBASSADOR));
+        ITEM_EFFECTS.put(ItemIds.VPC, new VPCEffect(ItemIds.VPC));
+        ITEM_EFFECTS.put(ItemIds.VPC_RARE, new VPCEffect(ItemIds.VPC_RARE));
+        ITEM_EFFECTS.put(ItemIds.VPC_ULTRA, new VPCEffect(ItemIds.VPC_ULTRA));
         ITEM_EFFECTS.put(Items.WORMHOLE_ANCHOR, new WormholeAnchorEffect(Items.WORMHOLE_ANCHOR));
         ITEM_EFFECTS.put(ItemIds.LOG_CORE, new LogCoreEffect(ItemIds.LOG_CORE));
         ITEM_EFFECTS.put(ItemIds.SIMULATOR, new SimulatorEffect(ItemIds.SIMULATOR));

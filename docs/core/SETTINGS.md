@@ -19,7 +19,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 | `data/config/LunaSettingsConfig.json` | LunaLib mod entry: settings menu icon `graphics/icons/IndEvo.png` |
 | `data/config/settings.json` | Non-player config, sprite keys, `ruleCommandPackages`, `designTypeColors` |
 | `data/config/indEvo/*.csv` | Whitelists and blacklists, one `id` column each |
-| `indevo/utils/helper/MiscIE.java:528` | `getCSVSetFromMemory(path)`: loads and caches a whitelist |
+| `indevo/utils/helper/MiscIE.java:513` | `getCSVSetFromMemory(path)`: loads and caches a whitelist |
 | `indevo/ids/Ids.java` | Whitelist path constants (`EMBASSY_LIST` and so on) read from `settings.json` at class init |
 
 ## LunaLib settings
@@ -77,7 +77,6 @@ if (!Setting.EMBASSY.enabled()) return;
 
 | Key group | Use | Reader |
 |---|---|---|
-| `IndEvo_AdAssem_amounts`, `IndEvo_AdManuf_amounts`, `IndEvo_ComForge_amounts` | Output per commodity for the variable manufactories | [Assembler](../industries/ASSEMBLER.md) |
 | `adminSalaryTier1` to `3` | Vanilla override, marked "do not touch" | Vanilla |
 | `IndEvo_*List` | Paths of the whitelist CSVs | `Ids` |
 | `oldstory_csv_path` | Survey story CSV path | [Survey stories](../exploration/SURVEY_STORIES.md) |
@@ -108,7 +107,7 @@ if (!Setting.EMBASSY.enabled()) return;
 The feature column is the main consumer; the feature doc is the owner of how the list is applied.
 
 - `MiscIE.getCSVSetFromMemory(path)` reads the file with `getMergedSpreadsheetDataForMod("id", path, "IndEvo")`, so other mods can add rows by shipping a CSV at the same path. The set is cached in `SessionTransientMemory` under `"$" + path`.
-- `ModPlugin.loadTransientMemory()` loads every list on game load, together with `getVPCItemSet()`, `getVayraBossShips()` and `getPrismBossShips()` ([Compatibility](COMPATIBILITY.md)).
+- `ModPlugin.loadTransientMemory()` loads every list on game load, together with `getVayraBossShips()`, `getPrismBossShips()` ([Compatibility](COMPATIBILITY.md)) and the VPC tables (`VPCCommodityRepo.getAll()`, [Installables](../items/INSTALLABLES.md#vpcs)).
 - Read a list only through `getCSVSetFromMemory`; never parse the CSV again in a feature.
 
 ## Contracts

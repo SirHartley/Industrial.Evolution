@@ -1,47 +1,6 @@
 {
   #Documentation is for nerds
 
-  #Variable industriy deposition amounts:
-  #This is calculated: Amount = (round(((increase*ln(marketSize-2)+amount)/10))*10)*ai_core_factor
-  "IndEvo_AdAssem_amounts": {
-        "IndEvo_parts":55,
-        "supplies": 90,
-        "fuel": 300,
-        "marines": 50,
-        "heavy_machinery": 60,
-        "domestic_goods": 180,
-        "drugs": 50,
-        "hand_weapons": 20,
-        "luxury_goods": 90,
-        "logIncrease": 55,
-  },
-
-  "IndEvo_AdManuf_amounts": {
-        "IndEvo_parts":125,
-        "supplies": 210,
-        "fuel": 600,
-        "marines": 90,
-        "heavy_machinery": 140,
-        "domestic_goods": 420,
-        "drugs": 110,
-        "hand_weapons": 40,
-        "luxury_goods": 210,
-        "logIncrease": 150,
-  },
-
-  "IndEvo_ComForge_amounts": {
-        "IndEvo_parts":280,
-        "supplies": 480,
-        "fuel": 1200,
-        "marines": 240,
-        "heavy_machinery": 320,
-        "domestic_goods": 960,
-        "drugs": 240,
-        "hand_weapons": 100,
-        "luxury_goods": 480,
-        "logIncrease": 250,
-  },
-
   #vanilla override - do not touch!
   "adminSalaryTier1":10000,
   "adminSalaryTier2":20000,
@@ -174,6 +133,10 @@
           "supcom_cold": "graphics/industry/supcom_cold.png",
           "supcom_vcold": "graphics/industry/supcom_vcold.png",
           "VPCRemovalIcon": "graphics/icons/reports/vpcgone.png",
+          "VPCOverlay1": "graphics/icons/cargo/VPC_empty_overlay.png",
+          "VPCOverlay2": "graphics/icons/cargo/VPC_epic_empty_overlay.png",
+          "VPCOverlay3": "graphics/icons/cargo/VPC_empty_epic_overlay.png",
+          "VPCGlow": "graphics/fx/IndEvo_vpc_glow.png",
           "productionwarning": "graphics/icons/reports/prodwarn.png",
           "alpha_core": "graphics/icons/reports/ai_core_alpha.png",
           "beta_core": "graphics/icons/reports/ai_core_beta.png",

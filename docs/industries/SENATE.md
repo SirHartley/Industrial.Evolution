@@ -50,7 +50,7 @@ Rows: `data/campaign/market_conditions.csv:3-14`, tags `show_in_codex, IndEvo_ed
 |---|---|---|
 | Industry | `IndEvo_senate` (`Ids.SENATE`) | `data/campaign/industries.csv:31` |
 | Conditions | `IndEvo_edict_*` (12), tag `IndEvo_edict` (`EdictRepo.EDICT_TAG`) | `data/campaign/market_conditions.csv` |
-| Item | `IndEvo_neurals` (Neuroconditioning Compounds) | `data/campaign/special_items.csv:41`, effect in `SpecialItemEffectsRepo` |
+| Item | `IndEvo_neurals` (Neuroconditioning Compounds) | `data/campaign/special_items.csv:24`, effect in `SpecialItemEffectsRepo` |
 | Constants | `RANGE_LY_TWELVE` 12, `NEURAL_COMPOUNDS_UNREST_RED` 0.5 | `indevo/items/installable/SpecialItemEffectsRepo.java:44-45` |
 | Setting | `IndEvo_senate` (toggle) | `data/config/LunaSettings.csv:100`, `Senate.isAvailableToBuild()` |
 | Market tags | `<conditionModId><days>` runtime counter; `edict_stab_penalty<n>` | `TimeTracker`, `Edict_Conscription` |
@@ -60,7 +60,7 @@ Rows: `data/campaign/market_conditions.csv:3-14`, tags `show_in_codex, IndEvo_ed
 
 ## Registration and lifecycle
 
-- Industry and condition plugins from CSV plugin columns; rule commands from `ruleCommandPackages` `indevo.industries.senate.rules` (`data/config/settings.json:75`).
+- Industry and condition plugins from CSV plugin columns; rule commands from `ruleCommandPackages` `indevo.industries.senate.rules` (`data/config/settings.json:34`).
 - `SenateOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:469`). `Senate.SenateFactor` is registered by `SpecialItemEffectsRepo.initEffectListeners()` (`SpecialItemEffectsRepo.java:30`), called at `ModPlugin.java:427`.
 - `BaseEdict.apply()` adds the condition as a transient listener (deduped) and a `TimeTracker` market tag tracker; skips both on markets without a primary entity and in the codex (`BaseEdict.java:38`). `TimeTracker` increments the tag daily and calls `onNewDay()`.
 

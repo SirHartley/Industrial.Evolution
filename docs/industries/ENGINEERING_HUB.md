@@ -33,7 +33,7 @@ Neighbours used: `indevo/industries/SharedSubmarketUser.java` (base class), `ind
 | Setting | `IndEvo_AutoshipBPToGatheringPoint` (deliver to gathering point) | `data/config/LunaSettings.csv:137`, read at `EngineeringHub.java:131` |
 | Setting | `IndEvo_EngHubStrictWhitelist`, `IndEvo_EngHubIgnoreWhitelists` (intake) | `data/config/LunaSettings.csv:135-136`, read in `ReverseEngineeringSubmarketPlugin` |
 | Setting | `IndEvo_EngHub` (build toggle) | `data/config/LunaSettings.csv:104`; read in `isAvailableToBuild()` and `showWhenUnavailable()` (`EngineeringHub.java:55-62`). A hub already built stays |
-| Config CSV | `IndEvo_reverseList`: manual hull whitelist | `data/config/settings.json:53`, `data/config/indEvo/reverse_engineering_whitelist.csv` |
+| Config CSV | `IndEvo_reverseList`: manual hull whitelist | `data/config/settings.json:12`, `data/config/indEvo/reverse_engineering_whitelist.csv` |
 | Item | `ItemIds.RELIC_SPECIAL_ITEM` (relic mode slot item, never in cargo), `ItemIds.RARE_PARTS` (relic components) | `indevo/ids/ItemIds.java` |
 | Item | `ship_bp`, `tiandong_retrofit_bp`, `roider_retrofit_bp` (output and consumed input) | `EngineeringHub.java:222-244`, `:682-687` |
 | Sprite | category `IndEvo`: `revBP` (finish message icon) | `data/config/settings.json` |
@@ -94,7 +94,7 @@ Gamma: upkeep x0.2 while idle. Beta: x0.7 time. Alpha: x0.85 time, one D-mod ign
 ## Contracts
 
 - Progress is sector wide: every hub reads `$IndEvo_researchProgress` at the start of `onNewDay` and writes it back at the end, so several hubs share and race on one map (each writes its full copy; inferred safe because calls are sequential on the campaign thread).
-- `getMapFromMemory` returns a sorted copy, not the stored map; always write back with `storeMapInMemory` (`indevo/utils/helper/MiscIE.java:335-357`).
+- `getMapFromMemory` returns a sorted copy, not the stored map; always write back with `storeMapInMemory` (`indevo/utils/helper/MiscIE.java:320-342`).
 - Saved per hub: `currentDeconShipVar`, `daysRequired`, `daysPassed`, `blueprintItem`. Recovered hullmods are saved per market in `$IndEvo_engHubHullmodData` and stay when the hub is removed; the option only shows on a hub.
 - `getSpecialItem` / `setSpecialItem` are overridden to the `blueprintItem` field; removing the hub refunds it unless upgrading or it is the relic item (`:440-462`).
 - Tooltip: vanilla `createTooltip`. The override only stores `expanded` in a transient field for the hooks (`:604`). Collapsed: current project after upkeep (`addPostUpkeepSection`, `:529`). Expanded (`NORMAL` mode only): progress list and current project right after the description (`addRightAfterDescriptionSection`, `:515`), vanilla body below.
