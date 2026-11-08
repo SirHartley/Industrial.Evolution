@@ -1,6 +1,7 @@
 package indevo.ambience.shuttletraffic;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
@@ -8,13 +9,19 @@ import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Conditions;
+import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.ids.Terrain;
+import com.fs.starfarer.api.impl.campaign.terrain.AsteroidFieldTerrainPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.ids.Ids;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
@@ -37,15 +44,22 @@ public class ShuttleNetwork {
         }
     }
 
+    public static final float SMUGGLER_CHANCE = 0.01f;
+    public static final float DIPLOMAT_CHANCE = 0.05f;
+    public static final float HUNT_CHANCE = 0.03f;
+    public static final float MAINTENANCE_CHANCE = 0.02f;
+
     public final Map<SectorEntityToken, ShuttleAnchor> anchors = new LinkedHashMap<>();
     public final Map<String, ShuttleRoute> routes = new LinkedHashMap<>();
     public final List<ShuttleAnchor> marketAnchors = new ArrayList<>();
+    public final List<ShuttleAnchor> decivAnchors = new ArrayList<>();
     public final List<Body> bodies = new ArrayList<>();
 
     public void clear() {
         anchors.clear();
         routes.clear();
         marketAnchors.clear();
+        decivAnchors.clear();
         bodies.clear();
     }
 
@@ -53,45 +67,16 @@ public class ShuttleNetwork {
         for (ShuttleAnchor anchor : anchors.values()) anchor.seen = false;
         for (ShuttleRoute route : routes.values()) route.seen = false;
         marketAnchors.clear();
+        decivAnchors.clear();
 
         Map<ShuttleAnchor, Float> density = new HashMap<>();
-
-        for (MarketAPI market : Global.getSector().getEconomy().getMarkets(location)) {
-            if (!hasTraffic(market, location)) continue;
-
-            SectorEntityToken primary = market.getPrimaryEntity();
-            boolean stationMarket = primary.hasTag(Tags.STATION);
-            ShuttleAnchor anchor = getAnchor(primary, stationMarket ? ShuttleAnchor.Type.STATION : ShuttleAnchor.Type.PLANET, market, market.getFaction());
-            anchor.closed = isPortDisrupted(market);
-            marketAnchors.add(anchor);
-
-            float mult = getDensity(market);
-            density.put(anchor, mult);
-
-            if (stationMarket) continue;
-
-            for (SectorEntityToken entity : market.getConnectedEntities()) {
-                if (entity == primary || !entity.hasTag(Tags.STATION) || entity.getContainingLocation() != location) continue;
-
-                ShuttleAnchor station = getAnchor(entity, ShuttleAnchor.Type.STATION, market, market.getFaction());
-                station.closed = anchor.closed;
-
-                ShuttleRoute route = getRoute(ShuttleRoute.Kind.SUPPLY, anchor, station, random);
-                route.max = Math.max(1, Math.round((1f + market.getSize() / 3f) * mult));
-            }
-        }
-
-        for (int i = 0; i < marketAnchors.size(); i++) {
-            for (int j = i + 1; j < marketAnchors.size(); j++) {
-                ShuttleAnchor a = marketAnchors.get(i);
-                ShuttleAnchor b = marketAnchors.get(j);
-                if (isPirate(a) || isPirate(b) || a.faction.isHostileTo(b.faction)) continue;
-
-                float mult = (density.get(a) + density.get(b)) / 2f;
-                ShuttleRoute route = getRoute(ShuttleRoute.Kind.MARKET, a, b, random);
-                route.max = Math.max(1, Math.round((a.market.getSize() + b.market.getSize()) / 4f * mult));
-            }
-        }
+        addMarkets(location, random, density);
+        addDecivs(location);
+        addMarketLanes(random, density);
+        addPirateHops(random);
+        addHunts(random);
+        addMaintenance(location, random);
+        addRemnants(location, random);
 
         routes.values().removeIf(route -> !route.seen);
         Iterator<ShuttleAnchor> iterator = anchors.values().iterator();
@@ -103,11 +88,14 @@ public class ShuttleNetwork {
     }
 
     public ShuttleAnchor findRefuge(ShuttleAnchor exclude, FactionAPI faction, Vector2f from, LocationAPI location) {
+        boolean pirate = isPirate(faction);
         ShuttleAnchor best = null;
         float bestScore = Float.MAX_VALUE;
 
         for (ShuttleAnchor anchor : anchors.values()) {
-            if (anchor == exclude || !anchor.isUsable(location)) continue;
+            if (anchor == exclude || anchor.threatened || !anchor.isUsable(location)) continue;
+            if (anchor.role == ShuttleAnchor.Role.REMNANT) continue;
+            if (pirate != (anchor.role == ShuttleAnchor.Role.DECIV || isPirate(anchor.faction))) continue;
             if (faction != null && anchor.faction != null && anchor.faction.isHostileTo(faction)) continue;
 
             float score = Misc.getDistance(from, anchor.getLocation());
@@ -152,6 +140,220 @@ public class ShuttleNetwork {
         return Math.max(-chord * 0.6f, Math.min(chord * 0.6f, bend));
     }
 
+    public PlanetAPI findNearestPlanet(SectorEntityToken from, float range) {
+        PlanetAPI best = null;
+        float bestDist = range;
+
+        for (Body body : bodies) {
+            if (!(body.entity instanceof PlanetAPI planet) || planet.isStar() || planet == from) continue;
+
+            float dist = Misc.getDistance(from.getLocation(), planet.getLocation()) - planet.getRadius();
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = planet;
+            }
+        }
+
+        return best;
+    }
+
+    public PlanetAPI pickHuntTarget(SectorEntityToken from, Random random) {
+        WeightedRandomPicker<PlanetAPI> picker = new WeightedRandomPicker<>(random);
+        for (Body body : bodies) {
+            if (!(body.entity instanceof PlanetAPI planet) || planet.isStar() || planet == from) continue;
+            picker.add(planet, hasRuins(planet.getMarket()) ? 3f : 1f);
+        }
+
+        return picker.isEmpty() ? null : picker.pick();
+    }
+
+    private void addMarkets(LocationAPI location, Random random, Map<ShuttleAnchor, Float> density) {
+        for (MarketAPI market : Global.getSector().getEconomy().getMarkets(location)) {
+            if (!hasTraffic(market, location)) continue;
+
+            SectorEntityToken primary = market.getPrimaryEntity();
+            boolean stationMarket = primary.hasTag(Tags.STATION);
+            ShuttleAnchor anchor = getAnchor(primary, stationMarket ? ShuttleAnchor.Type.STATION : ShuttleAnchor.Type.PLANET,
+                    ShuttleAnchor.Role.MARKET, market, market.getFaction());
+            anchor.closed = isPortDisrupted(market);
+            marketAnchors.add(anchor);
+
+            float mult = getDensity(market);
+            density.put(anchor, mult);
+
+            getRoute(ShuttleRoute.Kind.JOYRIDE, anchor, null, random).max = isPirate(anchor.faction) ? 2 : 1;
+
+            int wings = market.hasIndustry(Industries.MILITARYBASE) || market.hasIndustry(Industries.HIGHCOMMAND) ? 2
+                    : market.hasIndustry(Industries.PATROLHQ) ? 1 : 0;
+            if (wings > 0) getRoute(ShuttleRoute.Kind.PICKET, anchor, null, random).max = wings;
+
+            if (market.hasIndustry(Ids.ACADEMY)) getRoute(ShuttleRoute.Kind.TRAINING, anchor, null, random);
+
+            if (market.hasIndustry(Ids.EMBASSY)) getRoute(ShuttleRoute.Kind.DIPLOMAT, anchor, null, random).chancePerDay = DIPLOMAT_CHANCE;
+
+            if (market.hasIndustry(Industries.MINING) || market.hasIndustry(Ids.SWITCHABLE_MINING)) {
+                ShuttleTarget target = findMiningTarget(location, primary);
+                if (target != null) {
+                    ShuttleRoute route = getRoute(ShuttleRoute.Kind.MINING, anchor, null, random);
+                    route.target = target;
+                    route.max = Math.max(1, Math.round((1f + market.getSize() / 4f) * mult));
+                }
+            }
+
+            if (market.hasIndustry(Ids.SCRAPYARD)) {
+                ShuttleTarget target = findSalvageTarget(location, primary);
+                if (target != null) getRoute(ShuttleRoute.Kind.SALVAGE, anchor, null, random).target = target;
+            }
+
+            if (stationMarket) continue;
+
+            for (SectorEntityToken entity : market.getConnectedEntities()) {
+                if (entity == primary || !entity.hasTag(Tags.STATION) || entity.getContainingLocation() != location) continue;
+
+                ShuttleAnchor station = getAnchor(entity, ShuttleAnchor.Type.STATION, ShuttleAnchor.Role.MARKET, market, market.getFaction());
+                station.closed = anchor.closed;
+
+                ShuttleRoute route = getRoute(ShuttleRoute.Kind.SUPPLY, anchor, station, random);
+                route.max = Math.max(1, Math.round((1f + market.getSize() / 3f) * mult));
+            }
+        }
+    }
+
+    private void addDecivs(LocationAPI location) {
+        for (PlanetAPI planet : location.getPlanets()) {
+            MarketAPI market = planet.getMarket();
+            if (planet.isStar() || market == null || market.isInEconomy() || !market.hasCondition(Conditions.DECIVILIZED_SUBPOP)) continue;
+
+            decivAnchors.add(getAnchor(planet, ShuttleAnchor.Type.PLANET, ShuttleAnchor.Role.DECIV, market, market.getFaction()));
+        }
+    }
+
+    private void addMarketLanes(Random random, Map<ShuttleAnchor, Float> density) {
+        for (int i = 0; i < marketAnchors.size(); i++) {
+            for (int j = i + 1; j < marketAnchors.size(); j++) {
+                ShuttleAnchor a = marketAnchors.get(i);
+                ShuttleAnchor b = marketAnchors.get(j);
+                if (isPirate(a.faction) || isPirate(b.faction)) continue;
+
+                if (a.faction.isHostileTo(b.faction)) {
+                    getRoute(ShuttleRoute.Kind.SMUGGLER, a, b, random).chancePerDay = SMUGGLER_CHANCE;
+                    continue;
+                }
+
+                float mult = (density.get(a) + density.get(b)) / 2f;
+                ShuttleRoute route = getRoute(ShuttleRoute.Kind.MARKET, a, b, random);
+                route.max = Math.max(1, Math.round((a.market.getSize() + b.market.getSize()) / 4f * mult));
+            }
+        }
+    }
+
+    private void addPirateHops(Random random) {
+        for (ShuttleAnchor base : marketAnchors) {
+            if (!isPirate(base.faction)) continue;
+            for (ShuttleAnchor deciv : decivAnchors) getRoute(ShuttleRoute.Kind.PIRATE_CARGO, base, deciv, random);
+        }
+    }
+
+    private void addHunts(Random random) {
+        for (ShuttleAnchor deciv : decivAnchors) getRoute(ShuttleRoute.Kind.HUNT, deciv, null, random).chancePerDay = HUNT_CHANCE;
+    }
+
+    private void addMaintenance(LocationAPI location, Random random) {
+        for (SectorEntityToken objective : location.getEntitiesWithTag(Tags.OBJECTIVE)) {
+            if (!objective.hasTag(Tags.COMM_RELAY) && !objective.hasTag(Tags.NAV_BUOY) && !objective.hasTag(Tags.SENSOR_ARRAY)) continue;
+            if (objective.getFaction() == null) continue;
+
+            String owner = objective.getFaction().getId();
+            ShuttleAnchor nearest = null;
+            float bestDist = Float.MAX_VALUE;
+            for (ShuttleAnchor anchor : marketAnchors) {
+                if (!owner.equals(anchor.faction.getId())) continue;
+
+                float dist = Misc.getDistance(anchor.getLocation(), objective.getLocation());
+                if (dist < bestDist) {
+                    bestDist = dist;
+                    nearest = anchor;
+                }
+            }
+
+            if (nearest == null) continue;
+
+            ShuttleRoute route = getRoute(ShuttleRoute.Kind.MAINTENANCE, nearest, null, objective.getId(), random);
+            route.target = new ShuttleTarget(objective, 0f, 0f, 0f, 0f);
+            route.chancePerDay = MAINTENANCE_CHANCE;
+        }
+    }
+
+    private void addRemnants(LocationAPI location, Random random) {
+        for (CampaignFleetAPI fleet : location.getFleets()) {
+            if (!fleet.isStationMode() || !Factions.REMNANTS.equals(fleet.getFaction().getId())) continue;
+            if (!FleetTypes.BATTLESTATION.equals(fleet.getMemoryWithoutUpdate().getString(MemFlags.MEMORY_KEY_FLEET_TYPE))) continue;
+
+            ShuttleAnchor anchor = getAnchor(fleet, ShuttleAnchor.Type.STATION, ShuttleAnchor.Role.REMNANT, null, fleet.getFaction());
+            getRoute(ShuttleRoute.Kind.JOYRIDE, anchor, null, random).max = 2;
+        }
+    }
+
+    private ShuttleTarget findMiningTarget(LocationAPI location, SectorEntityToken from) {
+        ShuttleTarget best = null;
+        float bestDist = Float.MAX_VALUE;
+
+        for (CampaignTerrainAPI terrain : location.getTerrainCopy()) {
+            String type = terrain.getType();
+            if (!Terrain.ASTEROID_BELT.equals(type) && !Terrain.RING.equals(type) && !Terrain.ASTEROID_FIELD.equals(type)) continue;
+            if (!(terrain.getPlugin() instanceof BaseRingTerrain ring)) continue;
+
+            Vector2f center = terrain.getLocation();
+            float angle = Misc.getAngleInDegrees(center, from.getLocation());
+            float toCenter = Misc.getDistance(center, from.getLocation());
+            float bandRadius;
+            float dist;
+
+            if (ring instanceof AsteroidFieldTerrainPlugin field && field.params != null) {
+                bandRadius = field.params.maxRadius * 0.5f;
+                dist = Math.max(0f, toCenter - bandRadius);
+            } else if (ring.params != null) {
+                bandRadius = ring.params.middleRadius;
+                dist = Math.abs(toCenter - bandRadius);
+            } else continue;
+
+            if (dist >= bestDist) continue;
+
+            Vector2f dir = Misc.getUnitVectorAtDegreeAngle(angle);
+            bestDist = dist;
+            best = new ShuttleTarget(terrain, dir.x * bandRadius, dir.y * bandRadius, bandRadius, 30f);
+        }
+
+        return best;
+    }
+
+    private ShuttleTarget findSalvageTarget(LocationAPI location, SectorEntityToken from) {
+        ShuttleTarget best = null;
+        float bestDist = Float.MAX_VALUE;
+
+        for (CampaignTerrainAPI terrain : location.getTerrainCopy()) {
+            if (!Terrain.DEBRIS_FIELD.equals(terrain.getType()) || !(terrain.getPlugin() instanceof BaseRingTerrain ring) || ring.params == null) continue;
+
+            float dist = Misc.getDistance(terrain.getLocation(), from.getLocation());
+            if (dist >= bestDist) continue;
+
+            bestDist = dist;
+            best = new ShuttleTarget(terrain, 0f, 0f, 0f, Math.max(20f, Math.min(60f, ring.params.bandWidthInEngine * 0.5f)));
+        }
+
+        for (SectorEntityToken entity : location.getCustomEntities()) {
+            if (!Entities.WRECK.equals(entity.getCustomEntityType())) continue;
+
+            float dist = Misc.getDistance(entity.getLocation(), from.getLocation());
+            if (dist >= bestDist) continue;
+
+            bestDist = dist;
+            best = new ShuttleTarget(entity, 0f, 0f, 0f, 30f);
+        }
+
+        return best;
+    }
+
     private void rebuildBodies(LocationAPI location) {
         bodies.clear();
 
@@ -174,10 +376,10 @@ public class ShuttleNetwork {
         }
     }
 
-    private ShuttleAnchor getAnchor(SectorEntityToken entity, ShuttleAnchor.Type type, MarketAPI market, FactionAPI faction) {
+    private ShuttleAnchor getAnchor(SectorEntityToken entity, ShuttleAnchor.Type type, ShuttleAnchor.Role role, MarketAPI market, FactionAPI faction) {
         ShuttleAnchor anchor = anchors.get(entity);
-        if (anchor == null || anchor.type != type) {
-            anchor = new ShuttleAnchor(entity, type, market, faction);
+        if (anchor == null || anchor.type != type || anchor.role != role) {
+            anchor = new ShuttleAnchor(entity, type, role, market, faction);
             anchors.put(entity, anchor);
         }
 
@@ -188,7 +390,11 @@ public class ShuttleNetwork {
     }
 
     private ShuttleRoute getRoute(ShuttleRoute.Kind kind, ShuttleAnchor a, ShuttleAnchor b, Random random) {
-        String key = kind.name() + "|" + a.entity.getId() + "|" + (b != null ? b.entity.getId() : "");
+        return getRoute(kind, a, b, b != null ? b.entity.getId() : "", random);
+    }
+
+    private ShuttleRoute getRoute(ShuttleRoute.Kind kind, ShuttleAnchor a, ShuttleAnchor b, String targetId, Random random) {
+        String key = kind.name() + "|" + a.entity.getId() + "|" + targetId;
         ShuttleRoute route = routes.get(key);
         if (route == null || route.a != a || route.b != b) {
             route = new ShuttleRoute(key, kind, a, b, (random.nextFloat() - 0.5f) * 0.5f);
@@ -224,7 +430,12 @@ public class ShuttleNetwork {
         return mult;
     }
 
-    private static boolean isPirate(ShuttleAnchor anchor) {
-        return anchor.faction != null && Factions.PIRATES.equals(anchor.faction.getId());
+    private static boolean hasRuins(MarketAPI market) {
+        return market != null && (market.hasCondition(Conditions.RUINS_SCATTERED) || market.hasCondition(Conditions.RUINS_WIDESPREAD)
+                || market.hasCondition(Conditions.RUINS_EXTENSIVE) || market.hasCondition(Conditions.RUINS_VAST));
+    }
+
+    public static boolean isPirate(FactionAPI faction) {
+        return faction != null && Factions.PIRATES.equals(faction.getId());
     }
 }
