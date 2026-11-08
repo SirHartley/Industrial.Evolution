@@ -24,6 +24,7 @@ import indevo.ids.ItemIds;
 import indevo.industries.salvageyards.industry.SalvageYards;
 import indevo.industries.salvageyards.intel.YardsCustomProductionIntel;
 import indevo.industries.salvageyards.memory.WreckRegistry;
+import indevo.industries.salvageyards.plugins.RegistryProductionDelegate;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.RelicHelper;
 import indevo.utils.helper.StringHelper;
@@ -66,7 +67,6 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         SACRIFICE_SHIPS,
         DOUBLE_CAP,
         SELECT_SHIPS,
-        AS_FITTED,
         CONFIRM,
         RETURN,
     }
@@ -86,7 +86,6 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
     protected float cost = 0f;
     protected boolean refreshOptions = false;
     protected YardsProductionData productionData;
-    protected boolean asFitted = false;
     protected Map<String, Integer> selectedWeapons = new LinkedHashMap<>();
     protected Map<String, Integer> selectedWings = new LinkedHashMap<>();
     protected List<String> cappedItems = new ArrayList<>();
@@ -189,12 +188,6 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             case MAIN:
                 opts.addOption("Select Hulls to build", Option.SELECT_SHIPS);
 
-                if (getRegistry() != null) {
-                    opts.addOption(asFitted ? "Registry hulls: As fitted" : "Registry hulls: Bare", Option.AS_FITTED);
-                    opts.setTooltip(Option.AS_FITTED, "As fitted, hulls from the Wreck Registry come with the weapons, fighter wings and hullmods they had when they were lost, for the value of the weapons and wings. "
-                            + "Hulls you have the blueprint for are then also built from the registry.");
-                }
-
                 opts.addSelector(rarepartsName + " (Reduces D-Mods)", RARE_PARTS_SELECTOR_ID, Misc.getHighlightColor(),
                         300f,
                         50f,
@@ -255,11 +248,6 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             case DOUBLE_CAP:
                 optionSelected(null, Option.MAIN);
                 break;
-            case AS_FITTED:
-                asFitted = !asFitted;
-                updateRegistryOrder();
-                optionSelected(null, Option.MAIN);
-                break;
             case SACRIFICE_SHIPS:
                 initHullPicker();
                 break;
@@ -304,13 +292,13 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
         for (Map.Entry<String, Integer> e : data.productionList.entrySet()) {
             String hullId = e.getKey();
-            int used = player.knowsShip(hullId) && !asFitted ? 0 : Math.min(e.getValue(), registry.getHullCount(hullId));
+            if (player.knowsShip(hullId)) continue;
+
+            int used = Math.min(e.getValue(), registry.getHullCount(hullId));
             if (used <= 0) continue;
 
             order.hulls.put(hullId, used);
-            order.salvageUnitCost += used * Global.getSettings().getHullSpec(hullId).getFleetPoints() * SALVAGE_DRONES_SP_PER_FP;
-
-            if (!asFitted) continue;
+            order.salvageUnitCost += used * getSalvageUnitCost(hullId);
 
             for (WreckRegistry.WreckFit fit : registry.getOldestFits(hullId, used)) {
                 order.fits.add(fit);
@@ -324,18 +312,63 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         data.registryOrder = order.isEmpty() ? null : order;
     }
 
-    private int getMaxQuantity(FactionProductionAPI.ItemInProductionAPI item, WreckRegistry registry) {
-        String id = item.getSpecId();
+    private int getSalvageUnitCost(String hullId) {
+        return Global.getSettings().getHullSpec(hullId).getFleetPoints() * SALVAGE_DRONES_SP_PER_FP;
+    }
 
-        switch (item.getType()) {
+    private Set<String> getRegistryHulls() {
+        WreckRegistry registry = getRegistry();
+        if (registry == null) return new HashSet<>();
+
+        Set<String> hulls = registry.getHullIds();
+        hulls.removeAll(Global.getSector().getPlayerFaction().getKnownShips());
+        return hulls;
+    }
+
+    private int getRegistrySalvageUnits(FactionProductionAPI production, String exceptHullId) {
+        if (production == null) return 0;
+
+        int total = 0;
+        for (FactionProductionAPI.ItemInProductionAPI item : production.getCurrent()) {
+            String id = item.getSpecId();
+            if (item.getType() != FactionProductionAPI.ProductionItemType.SHIP || id.equals(exceptHullId)) continue;
+            if (Global.getSector().getPlayerFaction().knowsShip(id)) continue;
+
+            total += item.getQuantity() * getSalvageUnitCost(id);
+        }
+
+        return total;
+    }
+
+    // registry hulls are capped by their registry count and the salvage units left after the other registry hulls in the order
+    private int getMaxQuantity(FactionProductionAPI production, FactionProductionAPI.ProductionItemType type, String id) {
+        WreckRegistry registry = getRegistry();
+
+        switch (type) {
             case SHIP:
                 if (Global.getSector().getPlayerFaction().knowsShip(id)) return Integer.MAX_VALUE;
-                return registry == null ? 0 : registry.getHullCount(id);
+                if (registry == null) return 0;
+
+                int count = registry.getHullCount(id);
+                int unitCost = getSalvageUnitCost(id);
+                if (unitCost <= 0) return count;
+
+                int free = getYards().getAvailableSalvagePoints() - getRegistrySalvageUnits(production, id);
+                return Math.min(count, Math.max(0, free / unitCost));
             case WEAPON:
                 return registry == null ? 0 : registry.getWeaponCount(id);
             default:
                 return registry == null ? 0 : registry.getWingCount(id);
         }
+    }
+
+    private String getLimitMessage(FactionProductionAPI production, FactionProductionAPI.ProductionItemType type, String id) {
+        WreckRegistry registry = getRegistry();
+        boolean salvageUnitLimit = type == FactionProductionAPI.ProductionItemType.SHIP
+                && registry != null
+                && getMaxQuantity(production, type, id) < registry.getHullCount(id);
+
+        return salvageUnitLimit ? "The yards do not have enough salvage units" : "No more in the Wreck Registry";
     }
 
     private String getItemName(FactionProductionAPI.ItemInProductionAPI item) {
@@ -434,82 +467,96 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
     }
 
     private void initShipPicker() {
-        dialog.showCustomProductionPicker(new BaseCustomProductionPickerDelegateImpl() {
-            @Override
-            public Set<String> getAvailableFighters() {
-                WreckRegistry registry = getRegistry();
-                return registry == null ? new HashSet<>() : registry.getWingIds();
-            }
-
-            @Override
-            public Set<String> getAvailableWeapons() {
-                WreckRegistry registry = getRegistry();
-                return registry == null ? new HashSet<>() : registry.getWeaponIds();
-            }
-
-            @Override
-            public Set<String> getAvailableShipHulls() {
-                Set<String> hulls = new HashSet<>(Global.getSector().getPlayerFaction().getKnownShips());
-                WreckRegistry registry = getRegistry();
-                if (registry != null) hulls.addAll(registry.getHullIds());
-                return hulls;
-            }
-
-            @Override
-            public float getCostMult() {
-                return costMult;
-            }
-
-            @Override
-            public float getMaximumValue() {
-                // TODO: 24/04/2021 get a "used production value" int and subtract it from this to avoid double booking
-                return getCapacity();
-            }
-
-            @Override
-            public void notifyProductionSelected(FactionProductionAPI production) {
-                log.info("finished picking, returning entries");
-
-                YardsProductionData productionData = getProductionData();
-                WreckRegistry registry = getRegistry();
-
-                cappedItems.clear();
-                for (FactionProductionAPI.ItemInProductionAPI item : new ArrayList<>(production.getCurrent())) {
-                    int max = getMaxQuantity(item, registry);
-                    if (item.getQuantity() <= max) continue;
-
-                    cappedItems.add(getItemName(item));
-                    production.removeItem(item.getType(), item.getSpecId(), item.getQuantity() - max);
-                }
-
-                productionData.baseCost = production.getTotalCurrentCost();
-                productionData.productionList.clear();
-                selectedWeapons.clear();
-                selectedWings.clear();
-
-                for (FactionProductionAPI.ItemInProductionAPI item : production.getCurrent()) {
-                    int count = item.getQuantity();
-                    if (count <= 0) continue;
-
-                    switch (item.getType()) {
-                        case SHIP:
-                            productionData.productionList.put(item.getSpecId(), count);
-                            break;
-                        case WEAPON:
-                            selectedWeapons.put(item.getSpecId(), count);
-                            break;
-                        case FIGHTER:
-                            selectedWings.put(item.getSpecId(), count);
-                            break;
-                    }
-                }
-
-                updateRegistryOrder();
-                refreshOptions = true;
-            }
-        });
-
+        dialog.showCustomProductionPicker(getRegistry() != null ? new YardsRegistryPickerDelegate() : new YardsPickerDelegate());
         optionSelected(null, Option.MAIN);
+    }
+
+    private class YardsPickerDelegate extends BaseCustomProductionPickerDelegateImpl {
+        @Override
+        public Set<String> getAvailableFighters() {
+            WreckRegistry registry = getRegistry();
+            return registry == null ? new HashSet<>() : registry.getWingIds();
+        }
+
+        @Override
+        public Set<String> getAvailableWeapons() {
+            WreckRegistry registry = getRegistry();
+            return registry == null ? new HashSet<>() : registry.getWeaponIds();
+        }
+
+        @Override
+        public Set<String> getAvailableShipHulls() {
+            return new HashSet<>(Global.getSector().getPlayerFaction().getKnownShips());
+        }
+
+        @Override
+        public float getCostMult() {
+            return costMult;
+        }
+
+        @Override
+        public float getMaximumValue() {
+            // TODO: 24/04/2021 get a "used production value" int and subtract it from this to avoid double booking
+            return getCapacity();
+        }
+
+        @Override
+        public void notifyProductionSelected(FactionProductionAPI production) {
+            log.info("finished picking, returning entries");
+
+            YardsProductionData productionData = getProductionData();
+
+            cappedItems.clear();
+            for (FactionProductionAPI.ItemInProductionAPI item : new ArrayList<>(production.getCurrent())) {
+                int max = getMaxQuantity(production, item.getType(), item.getSpecId());
+                if (item.getQuantity() <= max) continue;
+
+                cappedItems.add(getItemName(item));
+                production.removeItem(item.getType(), item.getSpecId(), item.getQuantity() - max);
+            }
+
+            productionData.baseCost = production.getTotalCurrentCost();
+            productionData.productionList.clear();
+            selectedWeapons.clear();
+            selectedWings.clear();
+
+            for (FactionProductionAPI.ItemInProductionAPI item : production.getCurrent()) {
+                int count = item.getQuantity();
+                if (count <= 0) continue;
+
+                switch (item.getType()) {
+                    case SHIP:
+                        productionData.productionList.put(item.getSpecId(), count);
+                        break;
+                    case WEAPON:
+                        selectedWeapons.put(item.getSpecId(), count);
+                        break;
+                    case FIGHTER:
+                        selectedWings.put(item.getSpecId(), count);
+                        break;
+                }
+            }
+
+            updateRegistryOrder();
+            refreshOptions = true;
+        }
+    }
+
+    private class YardsRegistryPickerDelegate extends YardsPickerDelegate implements RegistryProductionDelegate {
+        @Override
+        public Set<String> getRegistryHulls() {
+            return IndEvo_InitSYCustomProductionDiag.this.getRegistryHulls();
+        }
+
+        @Override
+        public int getMaxQuantity(FactionProductionAPI production, FactionProductionAPI.ProductionItemType type, String id) {
+            return IndEvo_InitSYCustomProductionDiag.this.getMaxQuantity(production, type, id);
+        }
+
+        @Override
+        public String getLimitMessage(FactionProductionAPI production, FactionProductionAPI.ProductionItemType type, String id) {
+            return IndEvo_InitSYCustomProductionDiag.this.getLimitMessage(production, type, id);
+        }
     }
 
     private float getAdditionalCapByShips() {
@@ -542,7 +589,8 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
         WreckRegistry registry = getRegistry();
         if (registry != null) {
-            panel.addPara("The salvage drones keep a Wreck Registry of hulls, weapons and fighter wings lost nearby. Each entry can be built once without a blueprint.", Misc.getGrayColor());
+            panel.addPara("The salvage drones keep a Wreck Registry of hulls, weapons and fighter wings lost nearby. Each entry can be built once without a blueprint. "
+                    + "Registry hulls come with the weapons, fighter wings and hullmods they had when they were lost, the weapons and wings at their value.", Misc.getGrayColor());
         }
 
         panel.addPara("Contract information:");

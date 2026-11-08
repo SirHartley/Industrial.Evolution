@@ -6,8 +6,8 @@ import java.awt.Color;
 
 public class ShuttleHull {
 
-    public static final float FIGHTER_SCALE = 0.10f;
-    public static final float FRIGATE_SCALE = 0.07f;
+    public static final float FIGHTER_SCALE = 0.13f;
+    public static final float FRIGATE_SCALE = 0.09f;
     public static final float FIGHTER_SPEED = 30f;
     public static final float FRIGATE_SPEED = 24f;
 

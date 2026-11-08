@@ -12,32 +12,93 @@ public class ShuttlePath {
         void getPosition(Vector2f out);
 
         void getDirection(Vector2f out);
+
+        // the entity this point moves with, null for a fixed point
+        default SectorEntityToken getFrame() {
+            return null;
+        }
     }
 
     public static class PadWaypoint implements Waypoint {
         public final ShuttleAnchor anchor;
-        private final float dirX;
-        private final float dirY;
+        private final Waypoint reference;
+        private final float angleCos;
+        private final float angleSin;
+        private final float tiltCos;
+        private final float tiltSin;
         private final boolean inbound;
+        private final Vector2f base = new Vector2f();
 
-        public PadWaypoint(ShuttleAnchor anchor, float angle, boolean inbound) {
+        // the pad sits angle degrees off the live direction toward reference, so it turns with orbiting anchors
+        public PadWaypoint(ShuttleAnchor anchor, Waypoint reference, float angle, float tilt, boolean inbound) {
             this.anchor = anchor;
-            this.dirX = (float) Math.cos(Math.toRadians(angle));
-            this.dirY = (float) Math.sin(Math.toRadians(angle));
+            this.reference = reference;
+            this.angleCos = (float) Math.cos(Math.toRadians(angle));
+            this.angleSin = (float) Math.sin(Math.toRadians(angle));
+            this.tiltCos = (float) Math.cos(Math.toRadians(tilt));
+            this.tiltSin = (float) Math.sin(Math.toRadians(tilt));
             this.inbound = inbound;
         }
 
         @Override
+        public SectorEntityToken getFrame() {
+            return anchor.entity;
+        }
+
+        @Override
         public void getPosition(Vector2f out) {
+            getBase(base);
             Vector2f loc = anchor.getLocation();
             float depth = anchor.getRadius() * anchor.getPadDepth();
-            out.set(loc.x + dirX * depth, loc.y + dirY * depth);
+            out.set(loc.x + base.x * depth, loc.y + base.y * depth);
         }
 
         @Override
         public void getDirection(Vector2f out) {
-            if (inbound) out.set(-dirX, -dirY);
-            else out.set(dirX, dirY);
+            getBase(base);
+            float x = base.x * tiltCos - base.y * tiltSin;
+            float y = base.x * tiltSin + base.y * tiltCos;
+            if (inbound) out.set(-x, -y);
+            else out.set(x, y);
+        }
+
+        private void getBase(Vector2f out) {
+            float x = 1f;
+            float y = 0f;
+            Vector2f loc = anchor.getLocation();
+            reference.getPosition(out);
+            float dx = out.x - loc.x;
+            float dy = out.y - loc.y;
+            float len = (float) Math.sqrt(dx * dx + dy * dy);
+            if (len > 0.001f) {
+                x = dx / len;
+                y = dy / len;
+            }
+
+            out.set(x * angleCos - y * angleSin, x * angleSin + y * angleCos);
+        }
+    }
+
+    public static class EntityWaypoint implements Waypoint {
+        private final SectorEntityToken entity;
+
+        public EntityWaypoint(SectorEntityToken entity) {
+            this.entity = entity;
+        }
+
+        @Override
+        public SectorEntityToken getFrame() {
+            return entity;
+        }
+
+        @Override
+        public void getPosition(Vector2f out) {
+            out.set(entity.getLocation());
+        }
+
+        @Override
+        public void getDirection(Vector2f out) {
+            out.set(1f, 0f);
         }
     }
 
@@ -82,6 +143,11 @@ public class ShuttlePath {
         }
 
         @Override
+        public SectorEntityToken getFrame() {
+            return entity;
+        }
+
+        @Override
         public void getPosition(Vector2f out) {
             Vector2f loc = entity.getLocation();
             out.set(loc.x + offsetX, loc.y + offsetY);
@@ -102,6 +168,11 @@ public class ShuttlePath {
         public SegmentWaypoint(Segment segment, float t) {
             this.segment = segment;
             this.t = t;
+        }
+
+        @Override
+        public SectorEntityToken getFrame() {
+            return segment.getFrame(t);
         }
 
         @Override
@@ -129,6 +200,8 @@ public class ShuttlePath {
         }
 
         public abstract void evaluate(float t, Vector2f out);
+
+        public abstract SectorEntityToken getFrame(float t);
 
         public float getScaleMult(float t) {
             return 1f;
@@ -217,6 +290,11 @@ public class ShuttlePath {
 
             out.set(a * p0.x + b * p1x + c * p2x + d * p3.x, a * p0.y + b * p1y + c * p2y + d * p3.y);
         }
+
+        @Override
+        public SectorEntityToken getFrame(float t) {
+            return t < 0.5f ? start.getFrame() : end.getFrame();
+        }
     }
 
     public static class CircleSegment extends Segment {
@@ -270,6 +348,22 @@ public class ShuttlePath {
         public float getScaleMult(float t) {
             return 1f + scaleBump * (float) Math.sin(Math.PI * t);
         }
+
+        @Override
+        public SectorEntityToken getFrame(float t) {
+            return centerEntity;
+        }
+    }
+
+    public static class Cursor {
+        int segment = 0;
+        // arc length fraction inside the segment, so rebuilding a table never moves the craft
+        float fraction = 0f;
+
+        public void reset() {
+            segment = 0;
+            fraction = 0f;
+        }
     }
 
     private final List<Segment> segments = new ArrayList<>();
@@ -290,8 +384,89 @@ public class ShuttlePath {
         }
     }
 
+    public void refresh(Cursor cursor) {
+        if (segments.isEmpty()) return;
+
+        Segment segment = segments.get(cursor.segment);
+        length -= segment.getLength();
+        segment.rebuild(tmpA, tmpB);
+        length += segment.getLength();
+    }
+
     public float getLength() {
         return length;
+    }
+
+    public float getTraveled(Cursor cursor) {
+        float traveled = 0f;
+        for (int i = 0; i < cursor.segment; i++) traveled += segments.get(i).getLength();
+        return traveled + segments.get(cursor.segment).getLength() * cursor.fraction;
+    }
+
+    public void place(Cursor cursor, float distance) {
+        float remaining = Math.max(0f, distance);
+        for (int i = 0; i < segments.size(); i++) {
+            float segmentLength = segments.get(i).getLength();
+            if (remaining <= segmentLength || i == segments.size() - 1) {
+                cursor.segment = i;
+                cursor.fraction = segmentLength > 0f ? Math.min(1f, remaining / segmentLength) : 1f;
+                return;
+            }
+
+            remaining -= segmentLength;
+        }
+    }
+
+    // returns true once the cursor passes the end of the last segment
+    public boolean move(Cursor cursor, float distance) {
+        float remaining = distance;
+        while (true) {
+            Segment segment = segments.get(cursor.segment);
+            float segmentLength = segment.getLength();
+            float left = segmentLength * (1f - cursor.fraction);
+            if (remaining < left && segmentLength > 0f) {
+                cursor.fraction += remaining / segmentLength;
+                return false;
+            }
+
+            if (cursor.segment == segments.size() - 1) {
+                cursor.fraction = 1f;
+                return true;
+            }
+
+            remaining -= Math.max(0f, left);
+            cursor.segment++;
+            cursor.fraction = 0f;
+            refresh(cursor);
+        }
+    }
+
+    public void getPoint(Cursor cursor, Vector2f out) {
+        Segment segment = segments.get(cursor.segment);
+        segment.evaluate(segment.getT(cursor.fraction * segment.getLength()), out);
+    }
+
+    public void getTangent(Cursor cursor, Vector2f out) {
+        Segment segment = segments.get(cursor.segment);
+        float t = segment.getT(cursor.fraction * segment.getLength());
+        float a = Math.max(0f, t - 0.005f);
+        float b = Math.min(1f, t + 0.005f);
+        segment.evaluate(a, tmpA);
+        segment.evaluate(b, tmpB);
+        Vector2f.sub(tmpB, tmpA, out);
+        float len = out.length();
+        if (len > 0.0001f) out.scale(1f / len);
+        else out.set(1f, 0f);
+    }
+
+    public SectorEntityToken getFrame(Cursor cursor) {
+        Segment segment = segments.get(cursor.segment);
+        return segment.getFrame(segment.getT(cursor.fraction * segment.getLength()));
+    }
+
+    public float getScaleMult(Cursor cursor) {
+        Segment segment = segments.get(cursor.segment);
+        return segment.getScaleMult(segment.getT(cursor.fraction * segment.getLength()));
     }
 
     public void getPoint(float distance, Vector2f out) {
@@ -307,17 +482,6 @@ public class ShuttlePath {
         }
 
         out.set(0f, 0f);
-    }
-
-    public float getScaleMult(float distance) {
-        float remaining = Math.max(0f, distance);
-        for (int i = 0; i < segments.size(); i++) {
-            Segment segment = segments.get(i);
-            if (remaining <= segment.getLength() || i == segments.size() - 1) return segment.getScaleMult(segment.getT(remaining));
-            remaining -= segment.getLength();
-        }
-
-        return 1f;
     }
 
     public void getTangent(float distance, Vector2f out) {

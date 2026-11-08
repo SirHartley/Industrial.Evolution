@@ -24,11 +24,11 @@ import java.util.Random;
 
 public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
 
-    private static final EnumSet<CampaignEngineLayers> LAYERS = EnumSet.of(CampaignEngineLayers.TERRAIN_3, CampaignEngineLayers.BELOW_STATIONS, CampaignEngineLayers.TERRAIN_7);
+    // one layer above planets, rings and stations, below fleets
+    private static final EnumSet<CampaignEngineLayers> LAYERS = EnumSet.of(CampaignEngineLayers.TERRAIN_7);
     private static final float SCAN_INTERVAL = 0.25f;
     private static final float FADE_ZOOM_START = 2f;
     private static final float FADE_ZOOM_END = 3f;
-    private static final float LIGHTS_ZOOM = 0.75f;
     private static final float VIEWPORT_MARGIN = 300f;
     private static final float ANCHOR_THREAT_RANGE = 600f;
     private static final float CRAFT_THREAT_RANGE = 400f;
@@ -137,9 +137,8 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
         float alphaMult = viewport.getAlphaMult() * (1f - fade);
         if (alphaMult <= 0.01f) return;
 
-        boolean zoomedIn = zoom < LIGHTS_ZOOM;
-        render(shuttles, layer, viewport, alphaMult, zoomedIn);
-        render(pods, layer, viewport, alphaMult, zoomedIn);
+        render(shuttles, viewport, alphaMult);
+        render(pods, viewport, alphaMult);
     }
 
     public void queuePods(CampaignFleetAPI fleet) {
@@ -344,10 +343,10 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
         }
     }
 
-    private void render(List<Shuttle> list, CampaignEngineLayers layer, ViewportAPI viewport, float alphaMult, boolean zoomedIn) {
+    private void render(List<Shuttle> list, ViewportAPI viewport, float alphaMult) {
         for (Shuttle shuttle : list) {
-            if (shuttle.layer != layer || !viewport.isNearViewport(shuttle.pos, VIEWPORT_MARGIN)) continue;
-            shuttle.render(alphaMult, glow, zoomedIn, time);
+            if (!viewport.isNearViewport(shuttle.pos, VIEWPORT_MARGIN)) continue;
+            shuttle.render(alphaMult, glow);
         }
     }
 

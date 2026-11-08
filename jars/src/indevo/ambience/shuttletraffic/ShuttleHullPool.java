@@ -40,7 +40,7 @@ public final class ShuttleHullPool {
     private static final String POD_KEY = "cargoPods";
     private static final String POD_STYLE = "LOW_TECH";
     private static final float POD_CELL = 32f;
-    private static final float POD_SIZE = 10f;
+    private static final float POD_SIZE = 13f;
     private static final Color DEFAULT_GLOW = new Color(255, 145, 75, 255);
     private static final Logger log = Global.getLogger(ShuttleHullPool.class);
 

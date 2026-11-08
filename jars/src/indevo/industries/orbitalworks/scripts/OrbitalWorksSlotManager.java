@@ -40,6 +40,11 @@ public class OrbitalWorksSlotManager implements NewDayListener {
         return instance;
     }
 
+    public static OrbitalWorksSlotManager getInstance() {
+        List<OrbitalWorksSlotManager> list = Global.getSector().getListenerManager().getListeners(OrbitalWorksSlotManager.class);
+        return list.isEmpty() ? null : list.get(0);
+    }
+
     public static boolean isWorking(MarketAPI market) {
         Industry works = market.getIndustry(Industries.ORBITALWORKS);
         return works != null && works.isFunctional();
@@ -72,10 +77,7 @@ public class OrbitalWorksSlotManager implements NewDayListener {
             }
 
             if (market.getIndustry(Industries.ORBITALWORKS) == null) {
-                jobs.remove(job);
-                moveToStorage(market, job.member);
-                sendMessage("Relic Lattice Work at %s stopped: the Orbital Works was removed.", market,
-                        "%s was placed in local storage. The work was lost.", job.member.getShipName());
+                onWorksRemoved(market, null);
                 continue;
             }
 
@@ -83,6 +85,23 @@ public class OrbitalWorksSlotManager implements NewDayListener {
 
             job.daysDone++;
             if (job.daysDone >= DAYS_REQUIRED) finish(job);
+        }
+    }
+
+    // docked shut down goes to the fleet, like vanilla returns items to fleet cargo (BaseIndustry.getCargoForInteractionMode)
+    public void onWorksRemoved(MarketAPI market, MarketAPI.MarketInteractionMode mode) {
+        OrbitalWorksSlotJob job = getJob(market);
+        if (job == null) return;
+
+        jobs.remove(job);
+        String title = "Relic Lattice Work at %s stopped: the Orbital Works was removed.";
+
+        if (mode == MarketAPI.MarketInteractionMode.LOCAL) {
+            Global.getSector().getPlayerFleet().getFleetData().addFleetMember(job.member);
+            sendMessage(title, market, "%s returned to your fleet. The work was lost.", job.member.getShipName());
+        } else {
+            moveToStorage(market, job.member);
+            sendMessage(title, market, "%s was placed in local storage. The work was lost.", job.member.getShipName());
         }
     }
 
