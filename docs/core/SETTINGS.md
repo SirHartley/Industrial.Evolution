@@ -12,13 +12,13 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | File | Owner / role |
 |---|---|
-| `indevo/config/Setting.java` | One constant per LunaLib field (151): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`, `block`, `apply` (`LIVE`, `NEW_GAME`); `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
+| `indevo/config/Setting.java` | One constant per LunaLib field (152): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`, `block`, `apply` (`LIVE`, `NEW_GAME`); `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
 | `indevo/config/PlayerSettings.java` | Cache: `install`, `reload`, LunaLib listener, write back, `applyCampaignSettings` |
 | `data/config/LunaSettings.csv` | LunaLib fields: id, label, type, default, help text (`fieldDescription`), bounds, tab |
 | `indevo/tools/SettingsChecks.java` | Build gate checks of the CSV against `Setting` ([Settings checks](#settings-checks)); never shipped |
 | `data/config/LunaSettingsConfig.json` | LunaLib mod entry: settings menu icon `graphics/icons/IndEvo.png` |
 | `data/config/settings.json` | Non-player config, sprite keys, `ruleCommandPackages`, `designTypeColors` |
-| `data/config/indEvo/*.csv` | Whitelists and blacklists, one `id` column each |
+| `data/config/indEvo/*.csv` | Whitelists and blacklists, one `id` column each; `shuttle_traffic.csv` is a data table owned by [Shuttle traffic](SHUTTLE_TRAFFIC.md) |
 | `indevo/utils/helper/MiscIE.java:513` | `getCSVSetFromMemory(path)`: loads and caches a whitelist |
 | `indevo/ids/Ids.java` | Whitelist path constants (`EMBASSY_LIST` and so on) read from `settings.json` at class init |
 
@@ -26,7 +26,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | Tab | Fields | Content |
 |---|---|---|
-| Quick Settings | 15 | Content: the content switches `IndEvo_block_industries`, `IndEvo_block_consumables`, `IndEvo_Enable_Derelicts`, `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_meteor_enabled`, `IndEvo_pets`; General: commerce balance changes, ship picker rows, meteor and artillery spawn chance, derelict station and automated shipyard amounts |
+| Quick Settings | 16 | Content: the content switches `IndEvo_block_industries`, `IndEvo_block_consumables`, `IndEvo_Enable_Derelicts`, `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_meteor_enabled`, `IndEvo_pets`; General: commerce balance changes, ship picker rows, shuttle traffic, meteor and artillery spawn chance, derelict station and automated shipyard amounts |
 | Exploration & Items | 11 | Salvage specials, derelict stations, relic components, `IndEvo_consumables_*` |
 | Meteor Swarms | 16 | `IndEvo_meteor_*` tuning |
 | Minefields | 10 | `IndEvo_Minefield_*` |
