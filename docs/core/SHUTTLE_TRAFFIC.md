@@ -98,7 +98,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 
 ### Formations
 
-Fighters on joyrides and pickets fly as a wing of `wingSize` (at most 3); training groups are 2 or 3. The leader records its position every 4 su (16 points); followers sit on that history `8 su * rank` back and `6 su * rank` out, alternating sides, and copy the leader's scale, alpha and layer. Training followers add +-4 su noise; one in four groups has a straggler that drops back up to 30 su while the leader turns and catches up on straights. Formations skip the docking queue and break up when they flee.
+Fighters on joyrides and pickets fly as a wing of `wingSize` (at most 3); training groups are 2 or 3. The leader records its position every 4 su (16 points); followers sit on that history `8 su * rank` back and `6 su * rank` out, alternating sides, and copy the leader's scale, alpha and layer. Training followers add +-4 su noise; one in four groups has a straggler that drops back up to 30 su while the leader turns and catches up on straights. Formations skip the docking queue and break up when they flee. When the leader starts to dodge a fleet, every follower takes over the leader's path at its own slot, at +-10% speed, spreads out to four times its slot offset and dodges on its own.
 
 ### Fleet avoidance
 

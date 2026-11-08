@@ -83,6 +83,7 @@ public class Shuttle {
     private float traveled = 0f;
     private float avoidOffset = 0f;
     private float lastLateral = 0f;
+    private float sideBias = 0f;
     private float darken = 1f;
     private float glowMult = 1f;
     private float rebuildTimer = 0f;
@@ -457,6 +458,7 @@ public class Shuttle {
         jitter = 0f;
         avoidOffset = 0f;
         lastLateral = 0f;
+        sideBias = 0f;
     }
 
     private void setFleeing(boolean value) {
@@ -480,7 +482,9 @@ public class Shuttle {
         float fraction = total > 0f ? traveled / total : 1f;
         float envelope = (float) Math.sin(Math.PI * fraction);
         float avoidEnvelope = Math.max(0f, Math.min(1f, Math.min(fraction, 1f - fraction) / 0.15f));
-        float target = avoids ? getAvoidanceTarget(renderer.getFleetScan()) * avoidEnvelope : 0f;
+        float avoid = avoids ? getAvoidanceTarget(renderer.getFleetScan()) : 0f;
+        if (avoid != 0f && !followers.isEmpty()) disperse(renderer.getRandom());
+        float target = (avoid + sideBias) * avoidEnvelope;
 
         float step = AVOID_EASE * amount;
         if (avoidOffset < target) avoidOffset = Math.min(target, avoidOffset + step);
@@ -502,6 +506,29 @@ public class Shuttle {
         setFrame(path.getFrame(cursor));
         pushHistoryIfMoved();
         pushTrailAtRear();
+    }
+
+    private void disperse(Random random) {
+        for (Shuttle follower : followers) follower.breakFrom(this, random);
+        followers.clear();
+    }
+
+    // a follower takes over the leader's path at its own slot and spreads out before dodging on its own
+    private void breakFrom(Shuttle lead, Random random) {
+        leader = null;
+        path = lead.path;
+        from = lead.from;
+        to = lead.to;
+        launchEnd = lead.launchEnd;
+        landEnd = lead.landEnd;
+        pace = lead.pace;
+        speedMult = lead.speedMult * (0.9f + 0.2f * random.nextFloat());
+        path.place(cursor, Math.max(0f, path.getTraveled(lead.cursor) - slotBack));
+        traveled = path.getTraveled(cursor);
+        rebuildTimer = random.nextFloat();
+        avoidOffset = slotSide;
+        lastLateral = slotSide;
+        sideBias = slotSide * 4f;
     }
 
     private void updateFacing(float amount, float desired) {
