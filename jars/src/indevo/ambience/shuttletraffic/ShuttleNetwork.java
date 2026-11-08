@@ -321,7 +321,7 @@ public class ShuttleNetwork {
 
             Vector2f dir = Misc.getUnitVectorAtDegreeAngle(angle);
             bestDist = dist;
-            best = new ShuttleTarget(terrain, dir.x * bandRadius, dir.y * bandRadius, bandRadius, 30f);
+            best = new ShuttleTarget(terrain, dir.x * bandRadius, dir.y * bandRadius, bandRadius, 80f);
         }
 
         return best;
@@ -338,7 +338,7 @@ public class ShuttleNetwork {
             if (dist >= bestDist) continue;
 
             bestDist = dist;
-            best = new ShuttleTarget(terrain, 0f, 0f, 0f, Math.max(20f, Math.min(60f, ring.params.bandWidthInEngine * 0.5f)));
+            best = new ShuttleTarget(terrain, 0f, 0f, 0f, Math.max(60f, Math.min(120f, ring.params.bandWidthInEngine * 0.5f)));
         }
 
         for (SectorEntityToken entity : location.getCustomEntities()) {
@@ -348,7 +348,7 @@ public class ShuttleNetwork {
             if (dist >= bestDist) continue;
 
             bestDist = dist;
-            best = new ShuttleTarget(entity, 0f, 0f, 0f, 30f);
+            best = new ShuttleTarget(entity, 0f, 0f, 0f, 70f);
         }
 
         return best;

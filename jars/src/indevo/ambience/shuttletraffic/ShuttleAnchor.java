@@ -23,7 +23,7 @@ public class ShuttleAnchor {
     public static final float PLANET_PAD_DEPTH = 0.6f;
     public static final float STATION_PAD_DEPTH = 0.15f;
     public static final float STATION_DOCK_LENGTH = 60f;
-    public static final float HOLD_RADIUS = 50f;
+    public static final float HOLD_RADIUS = 120f;
 
     public final SectorEntityToken entity;
     public final Type type;

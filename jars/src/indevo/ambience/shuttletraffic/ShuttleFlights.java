@@ -34,6 +34,10 @@ public class ShuttleFlights {
     private static final float HANDLE_EXTRA = 80f;
     private static final float PLANET_LAP_RANGE = 2000f;
     private static final float POD_SPEED = 35f;
+    private static final float PANIC_RADIUS = 60f;
+    private static final float SCREEN_RADIUS = 120f;
+    private static final float MAINTENANCE_RADIUS = 100f;
+    private static final float JOIN_HANDLE = 150f;
 
     private final ShuttleTrafficRenderer renderer;
     private final ShuttleNetwork network;
@@ -79,7 +83,7 @@ public class ShuttleFlights {
         float distance = Misc.getDistance(pos, to.getLocation());
         ShuttlePath.Waypoint start = new ShuttlePath.FixedWaypoint(pos, Misc.getUnitVectorAtDegreeAngle(heading));
         ShuttlePath.Waypoint end = new ShuttlePath.PadWaypoint(to, Misc.getAngleInDegrees(to.getLocation(), pos), true);
-        return new ShuttlePath().add(new ShuttlePath.BezierSegment(start, end, Math.min(80f, distance * 0.3f), getHandle(to, distance), 0f));
+        return new ShuttlePath().add(new ShuttlePath.BezierSegment(start, end, Math.min(JOIN_HANDLE, distance * 0.4f), getHandle(to, distance), 0f));
     }
 
     public ShuttlePath fleePath(Vector2f pos, float heading, ShuttleAnchor refuge, boolean panic) {
@@ -87,7 +91,7 @@ public class ShuttleFlights {
         ShuttlePath.Waypoint start = new ShuttlePath.FixedWaypoint(pos, Misc.getUnitVectorAtDegreeAngle(heading));
 
         if (panic) {
-            ShuttlePath.CircleSegment circle = circleAt(null, pos, heading, 25f + random.nextFloat() * 10f, randomSign(), 0f);
+            ShuttlePath.CircleSegment circle = circleAt(null, pos, heading, PANIC_RADIUS + random.nextFloat() * 30f, randomSign(), 0f);
             path.add(circle);
             start = new ShuttlePath.SegmentWaypoint(circle, 1f);
         }
@@ -102,7 +106,7 @@ public class ShuttleFlights {
         ShuttlePath.Waypoint start = new ShuttlePath.FixedWaypoint(pos, Misc.getUnitVectorAtDegreeAngle(heading));
 
         if (panic) {
-            ShuttlePath.CircleSegment circle = circleAt(null, pos, heading, 25f + random.nextFloat() * 10f, randomSign(), 0f);
+            ShuttlePath.CircleSegment circle = circleAt(null, pos, heading, PANIC_RADIUS + random.nextFloat() * 30f, randomSign(), 0f);
             path.add(circle);
             start = new ShuttlePath.SegmentWaypoint(circle, 1f);
         }
@@ -122,13 +126,12 @@ public class ShuttleFlights {
     public ShuttlePath screenPath(Vector2f pos, float heading, ShuttleAnchor home, float threatX, float threatY) {
         Vector2f loc = home.getLocation();
         Vector2f center = Misc.getUnitVectorAtDegreeAngle(Misc.getAngleInDegrees(loc, new Vector2f(threatX, threatY)));
-        center.scale(home.getRadius() + 200f);
+        center.scale(home.getRadius() + SCREEN_RADIUS + 130f);
         float offsetX = center.x;
         float offsetY = center.y;
         Vector2f.add(center, loc, center);
 
-        float radius = 60f;
-        ShuttlePath.CircleSegment circle = new ShuttlePath.CircleSegment(home.entity, offsetX, offsetY, radius,
+        ShuttlePath.CircleSegment circle = new ShuttlePath.CircleSegment(home.entity, offsetX, offsetY, SCREEN_RADIUS,
                 Misc.getAngleInDegrees(center, pos), 360f, 0f);
 
         Vector2f entry = new Vector2f();
@@ -136,7 +139,7 @@ public class ShuttleFlights {
         float distance = Misc.getDistance(pos, entry);
         if (distance < 5f) return new ShuttlePath().add(circle);
 
-        float handle = Math.min(80f, distance * 0.3f);
+        float handle = Math.min(JOIN_HANDLE, distance * 0.4f);
         return new ShuttlePath()
                 .add(new ShuttlePath.BezierSegment(new ShuttlePath.FixedWaypoint(pos, Misc.getUnitVectorAtDegreeAngle(heading)),
                         new ShuttlePath.SegmentWaypoint(circle, 0f), handle, handle, 0f))
@@ -285,7 +288,6 @@ public class ShuttleFlights {
 
         Shuttle leader = create(hull, route, home.faction, home, home, joyridePath(home, random.nextBoolean() ? Pattern.LOOPS : Pattern.FIGURE_EIGHT), 1f);
         leader.turnRate = 63f;
-        leader.wobble = 6f;
         return formation(leader, 2 + random.nextInt(2), room, true);
     }
 
@@ -312,7 +314,7 @@ public class ShuttleFlights {
 
         SectorEntityToken objective = route.target.center;
         float startAngle = Misc.getAngleInDegrees(objective.getLocation(), home.getLocation());
-        ShuttlePath.CircleSegment lap = new ShuttlePath.CircleSegment(objective, 0f, 0f, 60f, startAngle, 360f * randomSign(), 0f);
+        ShuttlePath.CircleSegment lap = new ShuttlePath.CircleSegment(objective, 0f, 0f, MAINTENANCE_RADIUS, startAngle, 360f * randomSign(), 0f);
         return create(hull, route, home.faction, home, home, loopPath(home, List.of(lap)), 1f);
     }
 
@@ -357,11 +359,11 @@ public class ShuttleFlights {
 
     private ShuttlePath lingerPath(ShuttleAnchor home, ShuttleTarget target, float days, float speed) {
         float length = days * Global.getSector().getClock().getSecondsPerDay() * speed;
-        int count = Math.max(2, Math.min(24, Math.round(length / 60f)));
+        int count = Math.max(2, Math.min(24, Math.round(length / (target.wander * 1.5f))));
         float bandAngle = (float) Math.toDegrees(Math.atan2(target.offsetY, target.offsetX));
         float drift = target.bandRadius > 0f ? (float) Math.toDegrees(40f / target.bandRadius) * randomSign() : 0f;
         float theta = random.nextFloat() * 360f;
-        float turn = 110f * randomSign();
+        float turn = 80f * randomSign();
 
         List<ShuttlePath.Waypoint> points = new ArrayList<>(count + 1);
         for (int i = 0; i <= count; i++) {
@@ -380,7 +382,7 @@ public class ShuttleFlights {
                     theta + Math.signum(turn) * 90f));
         }
 
-        float handle = target.wander * 0.8f;
+        float handle = target.wander;
         List<ShuttlePath.Segment> segments = new ArrayList<>(count);
         for (int i = 0; i < count; i++) segments.add(new ShuttlePath.BezierSegment(points.get(i), points.get(i + 1), handle, handle, 0f));
 

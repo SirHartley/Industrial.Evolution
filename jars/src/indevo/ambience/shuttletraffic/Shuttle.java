@@ -27,13 +27,13 @@ public class Shuttle {
     private static final float HISTORY_SPACING = 4f;
     private static final float TURN_RATE = 90f;
     private static final float AVOID_MARGIN = 40f;
-    private static final float AVOID_EASE = 40f;
+    private static final float AVOID_EASE = 20f;
     private static final float DOCK_CHECK_DISTANCE = 40f;
     private static final float FLEE_PACE = 1.4f;
     private static final float CALM_PACE = 0.6f;
-    private static final float FLEE_WOBBLE = 12f;
+    private static final float FLEE_WOBBLE = 10f;
     private static final float FLEE_WOBBLE_TIME = 3f;
-    private static final float STRANDED_HOLD_RADIUS = 80f;
+    private static final float STRANDED_HOLD_RADIUS = 150f;
     private static final Color RED_LIGHT = new Color(255, 60, 50);
     private static final Color GREEN_LIGHT = new Color(60, 255, 90);
 
@@ -62,7 +62,6 @@ public class Shuttle {
     public float trailWidth = 3f;
     public int trailMax = TRAIL_POINTS;
     public float flicker = 0.2f;
-    public float wobble = 0f;
     public float spinRate = 0f;
     public float stayDays = 0f;
     public float boost = 0f;
@@ -85,6 +84,7 @@ public class Shuttle {
 
     private float traveled = 0f;
     private float avoidOffset = 0f;
+    private float lastLateral = 0f;
     private float darken = 1f;
     private float glowMult = 1f;
     private float rebuildTimer = 0f;
@@ -113,7 +113,6 @@ public class Shuttle {
 
     private final Vector2f base = new Vector2f();
     private final Vector2f tangent = new Vector2f();
-    private final Vector2f prevPos = new Vector2f();
     private final Vector2f tmp = new Vector2f();
     private final float[] trailX = new float[TRAIL_POINTS];
     private final float[] trailY = new float[TRAIL_POINTS];
@@ -150,7 +149,6 @@ public class Shuttle {
         path.getPoint(traveled, base);
         path.getTangent(traveled, tangent);
         pos.set(base);
-        prevPos.set(base);
         facing = Misc.getAngleInDegrees(tangent);
         facingSet = true;
 
@@ -220,7 +218,7 @@ public class Shuttle {
             return;
         }
 
-        updatePosition(amount, renderer, total, launchLength, landLength);
+        updatePosition(amount, renderer, total, launchLength, landLength, speed);
     }
 
     public void redirect(ShuttleAnchor newTarget, ShuttleTrafficRenderer renderer) {
@@ -363,9 +361,8 @@ public class Shuttle {
         float back = slotBack + extraLag + noise * 0.5f * (float) Math.sin(age * 0.5f + phase * 2f);
         lead.getHistoryPoint(back, base, tangent);
 
-        prevPos.set(pos);
         pos.set(base.x - tangent.y * side, base.y + tangent.x * side);
-        updateFacing(amount);
+        updateFacing(amount, Misc.getAngleInDegrees(tangent));
         pushTrailAtRear();
     }
 
@@ -443,6 +440,7 @@ public class Shuttle {
         landEnd = newLand;
         jitter = 0f;
         avoidOffset = 0f;
+        lastLateral = 0f;
     }
 
     private void setFleeing(boolean value) {
@@ -459,7 +457,7 @@ public class Shuttle {
         }
     }
 
-    private void updatePosition(float amount, ShuttleTrafficRenderer renderer, float total, float launchLength, float landLength) {
+    private void updatePosition(float amount, ShuttleTrafficRenderer renderer, float total, float launchLength, float landLength, float speed) {
         path.getPoint(traveled, base);
         path.getTangent(traveled, tangent);
 
@@ -473,26 +471,23 @@ public class Shuttle {
         else avoidOffset = Math.max(target, avoidOffset - step);
 
         float lateral = jitter * envelope + avoidOffset;
-        if (wobble > 0f) lateral += wobble * envelope * (float) Math.sin(age * 1.1f + lightPhase * 6.28f);
         if (fleeing) {
             float since = age - fleeStart;
-            lateral += FLEE_WOBBLE * Math.max(0f, 1f - since / FLEE_WOBBLE_TIME) * (float) Math.sin(since * 5f);
+            lateral += FLEE_WOBBLE * Math.max(0f, 1f - since / FLEE_WOBBLE_TIME) * (float) Math.sin(since * 2f);
         }
 
-        prevPos.set(pos);
+        float lateralRate = amount > 0f ? (lateral - lastLateral) / amount : 0f;
+        lastLateral = lateral;
         pos.set(base.x - tangent.y * lateral, base.y + tangent.x * lateral);
 
-        updateFacing(amount);
+        // face along the path, not the world step, so orbiting anchors do not swing the sprite and trail
+        updateFacing(amount, (float) Math.toDegrees(Math.atan2(tangent.y * speed + tangent.x * lateralRate, tangent.x * speed - tangent.y * lateralRate)));
         updateLook(amount, total, launchLength, landLength);
         pushHistoryIfMoved();
         pushTrailAtRear();
     }
 
-    private void updateFacing(float amount) {
-        float dx = pos.x - prevPos.x;
-        float dy = pos.y - prevPos.y;
-        float desired = dx * dx + dy * dy > 0.0001f && facingSet ? (float) Math.toDegrees(Math.atan2(dy, dx)) : Misc.getAngleInDegrees(tangent);
-
+    private void updateFacing(float amount, float desired) {
         if (!facingSet) {
             facing = desired;
             facingSet = true;

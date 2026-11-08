@@ -66,7 +66,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 | `SMUGGLER` | Market pair with hostile factions, neither pirate | 1, 1% per day | 1.0 |
 | `DIPLOMAT` | Market with an Embassy to another faction's market, picked per flight | 1, 5% per day | 1.0 |
 | `HUNT` | `DECIV` anchor to another non star planet (ruins weight 3, else 1), stays down 2 to 5 days, flies home | 1, 3% per day | 1.0 |
-| `MAINTENANCE` | Nearest same faction market to each comm relay, nav buoy or sensor array; one lap at 60 su | 1, 2% per day | 1.0 |
+| `MAINTENANCE` | Nearest same faction market to each comm relay, nav buoy or sensor array; one lap at 100 su | 1, 2% per day | 1.0 |
 | `MARKET` | Market pair, factions not hostile, neither pirate | `max(1, round((sizeA + sizeB) / 4 * mean density))` | 0.9 |
 | `MINING` | Market with Mining to the nearest asteroid belt, ring or asteroid field; lingers 1 to 3 days | `max(1, round((1 + size / 4) * density))` | 0.8 |
 | `SALVAGE` | Market with Salvage Yards to the nearest debris field or wreck; lingers 2 to 4 days | 1 | 0.8 |
@@ -92,8 +92,8 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 - Lanes: one cubic Bezier between pads (`0.6 * radius` deep on planets, `0.15 * radius` on stations), evaluated live, so orbiting anchors carry the lane. Launch and landing angles toward the other anchor +-40 degrees; handles `min(radius + 80, chord * 0.45)` along the outward radial. Smugglers launch and land on the far sides and bend twice as wide.
 - Bend: control points shift along the chord normal by `bendFrac * chord`, `bendFrac` in +-0.125 per route; the two directions of a lane arc on opposite sides. `ShuttleNetwork.getBend` (`:112`) pushes the bend clear of any star (corona or event horizon outer edge, else `1.5 * radius`) or planet (`1.3 * radius + 30`).
 - Patterns (`ShuttleFlights.joyridePath`, `:319`) are chained circles that share an entry point and tangent, centred relative to the anchor: Planet lap (1 or 2 laps at `1.6 * radius` around the nearest other planet within 2000 su, weight 3, falls back to Loops), Loops (2 or 3 circles of 60 to 120 su, alternating side, weight 3), Looping (one 25 to 40 su circle with a 1.3x scale bump, weight 2), Figure eight (two 50 to 80 su circles, weight 2). Pirates and Remnant double Loops and Looping. A Bezier joins the pad to the pattern and back.
-- Linger (`lingerPath`, `:358`): Beziers between points on 20 to 40 su circles that turn 110 degrees per step, drifting 40 su per step along a belt band; the count follows the linger days at cruise speed.
-- Jitter up to +-10 su and the training leader's 6 su wobble scale with `sin(pi * t)`. Arc length tables of 16 samples, rebuilt every 1 s; progress is distance based, so fast forward is safe.
+- Linger (`lingerPath`, `:358`): Beziers between points on circles of `wander * (0.66..1.33)` that turn 80 degrees per step, handles `wander`, drifting 40 su per step along a belt band; the count follows the linger days at cruise speed. Wander is 80 su for belts and fields, 60 to 120 su for debris fields, 70 su for wrecks.
+- Jitter up to +-10 su scales with `sin(pi * t)`. Paths that join a craft's current position to a pad or circle use handles up to 150 su. Arc length tables of 16 samples, rebuilt every 1 s; progress is distance based, so fast forward is safe.
 
 ### Formations
 
@@ -101,7 +101,7 @@ Fighters on joyrides and pickets fly as a wing of `wingSize` (at most 3); traini
 
 ### Fleet avoidance
 
-`ShuttleFleetScan.scan` (`:25`) every 0.25 s: obstacles are fleets that are not `isStationMode()`, slower than 40 su/s, within 3000 su of the player, and either the player fleet or 5 or more ships. `Shuttle.getAvoidanceTarget` (`:543`) pushes the craft along the path normal to clear `fleet radius + 40`, to the side it is already on, easing at 40 su/s, fading out over the first and last 15% of a path. Fleeing craft also avoid hostile threats at any speed.
+`ShuttleFleetScan.scan` (`:25`) every 0.25 s: obstacles are fleets that are not `isStationMode()`, slower than 40 su/s, within 3000 su of the player, and either the player fleet or 5 or more ships. `Shuttle.getAvoidanceTarget` (`:543`) pushes the craft along the path normal to clear `fleet radius + 40`, to the side it is already on, easing at 20 su/s, fading out over the first and last 15% of a path. Fleeing craft also avoid hostile threats at any speed.
 
 ### Danger
 
@@ -109,9 +109,9 @@ Fighters on joyrides and pickets fly as a wing of `wingSize` (at most 3); traini
 - Anchors (`updateThreats`, `:248`): threatened with a hostile threat within `radius + 600` su, overrun within `radius`. `lastThreatDay` is kept; Remnant anchors are never threatened.
 - Craft (`react`, `:263`): a craft flees when a hostile threat is within 400 su or its destination is threatened. A fleeing craft flees again only when its refuge becomes threatened.
 - Refuge (`ShuttleNetwork.findRefuge`, `:90`): nearest usable, unthreatened, non hostile anchor, other factions x1.5 distance; pirates only use pirate markets and `DECIV` anchors, everyone else neither; Remnant anchors never.
-- Disarray (`Shuttle.flee`, `:233`): heading kick of up to +-70 degrees, one in five flies a tight panic circle first, speed x1.4, turn rate x2, a 12 su wobble fading over 3 s. Formations break up and each craft flees alone. A refugee lands, waits hidden and flies home once its home has been safe for 1 day.
-- No refuge: fly 800 to 1500 su away from the threat, then hold an 80 su circle at 60% speed until no hostile threat has been within 800 su for 1 day, then fly home.
-- Pickets never flee from nearby threats: while their market is threatened they fly 60 su circles at 60% speed `radius + 200` su toward the threat, and land once it leaves. If the market is overrun they scatter like the rest. Remnant drones never flee.
+- Disarray (`Shuttle.flee`, `:233`): heading kick of up to +-70 degrees, one in five flies a 60 to 90 su panic circle first, speed x1.4, turn rate x2, a 10 su swerve fading over 3 s. Formations break up and each craft flees alone. A refugee lands, waits hidden and flies home once its home has been safe for 1 day.
+- No refuge: fly 800 to 1500 su away from the threat, then hold a 150 su circle at 60% speed until no hostile threat has been within 800 su for 1 day, then fly home.
+- Pickets never flee from nearby threats: while their market is threatened they fly 120 su circles at 60% speed centred `radius + 250` su toward the threat, and land once it leaves. If the market is overrun they scatter like the rest. Remnant drones never flee.
 - A closed port (disrupted, or the anchor dropped) diverts inbound craft calmly to a refuge without disarray.
 
 ### Escape pods
@@ -126,13 +126,14 @@ Fighters on joyrides and pickets fly as a wing of `wingSize` (at most 3); traini
 
 - Hull sprites at 0.10 (fighters) and 0.07 (frigates) of sprite size, below vanilla's campaign 0.15 and 0.11. Speed 30 su/s fighters, 24 su/s frigates, +-15% per craft, easing to 35% over launch and landing. Joyrides x1.15, pickets x0.8, hunts, mining and salvage x0.8.
 - Planet launch and landing over `1.2 * radius` (at most 40% of the path): scale to 0.35, alpha to 0, 30% darker, drawn in `TERRAIN_3`. Station docking over 60 su: scale to 0.7, alpha to 0, drawn in `BELOW_STATIONS`. Everything else in `TERRAIN_7`, below fleets. A craft pulled out of a landing (fleeing, holding) fades back over 1 s.
+- Facing follows the path tangent plus the rate of the sideways offset, turning at most 90 degrees per second (joyrides 180, training 63), never the world step, so orbiting anchors do not swing the sprite or trail.
 - Trail: 16 point ring buffer, a point every 8 su, untextured `GL_QUAD_STRIP` 3 su wide, fading to the tail, engine style colour and blend. Smugglers: 30% trail, no glow, no lights. Hunts: 50% trail, heavier glow flicker.
 - Engine glow at the rear, flickering, 1.5x for 2 s around launch and landing. Navigation lights (red port, green starboard, 1 Hz, random phase) when `getViewMult()` is below 0.75.
 - Traffic fades out between view mult 2 and 3 (max campaign zoom is 3). Off viewport craft (300 su margin) are skipped.
 
 ### Docking queue
 
-A station pad is busy while a craft is in its last 100 su and 1 s after. A craft that reaches that point while the pad is busy flies a 50 su circle tangent to its heading and checks again after each lap; when free it claims the pad and flies a short Bezier in. Formations and pods skip the queue.
+A station pad is busy while a craft is in its last 100 su and 1 s after. A craft that reaches that point while the pad is busy flies a 120 su circle tangent to its heading and checks again after each lap; when free it claims the pad and flies a short Bezier in. Formations and pods skip the queue.
 
 ## Contracts
 
