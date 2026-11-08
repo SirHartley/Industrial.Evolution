@@ -26,6 +26,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.economy.RelicSpeedUpTarget;
 import indevo.ids.Ids;
+import indevo.ids.ItemIds;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
@@ -572,6 +573,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         return Commodities.ALPHA_CORE.equals(getAICoreId());
     }
 
+    public boolean hasHolobench() {
+        return special != null && ItemIds.HOLOBENCH.equals(special.getId());
+    }
+
     public int getMaxOfficerSteps() {
         return hasAlphaCore() ? 2 : 1;
     }
@@ -655,6 +660,9 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             addTrainedSteps(officerInTraining, steps);
         }
 
+        boolean mentored = hasHolobench() && !Misc.isMentored(officerInTraining);
+        if (mentored) Misc.setMentored(officerInTraining, true);
+
         PersonalityAPI newPersonality = officerInTraining.getPersonalityAPI();
 
         moveOfficerInTrainingToStorage();
@@ -663,6 +671,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         MessageIntel intel = new MessageIntel("An officer has finished training at %s.",
                 Misc.getTextColor(), new String[]{(market.getName())}, market.getFaction().getBrightUIColor());
         intel.addLine("Personality changed from %s to %s.", Misc.getTextColor(), new String[]{oldPersonality.getDisplayName(), newPersonality.getDisplayName()}, COLOURS_BY_PERSONALITY.get(oldPersonality.getId()), COLOURS_BY_PERSONALITY.get(newPersonality.getId()));
+        if (mentored) intel.addLine("The Holobench left them %s.", Misc.getTextColor(), new String[]{"mentored"}, Misc.getHighlightColor());
         intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
         intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "trainingdone"));
         Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);

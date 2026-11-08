@@ -61,5 +61,6 @@ public class SpecialItemEffectsRepo {
         ITEM_EFFECTS.put(ItemIds.SIMULATOR, new SimulatorEffect(ItemIds.SIMULATOR));
         ITEM_EFFECTS.put(ItemIds.TRANSMITTER, new TransmitterEffect(ItemIds.TRANSMITTER));
         ITEM_EFFECTS.put(ItemIds.NEUAL_COMPOUNDS, new NeuralCompoundsEffect(ItemIds.NEUAL_COMPOUNDS));
+        ITEM_EFFECTS.put(ItemIds.HOLOBENCH, new HolobenchEffect(ItemIds.HOLOBENCH));
     }
 }

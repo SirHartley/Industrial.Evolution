@@ -214,6 +214,8 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
             else tooltip.addPara("Training costs %s and takes %s per personality step.", 0f, hl, Misc.getDGSCredits(academy.getOfficerTrainingFee(1)), days);
             tooltip.addPara(academy.hasAlphaCore() ? "Up to two steps per officer." : "One step per officer, two with an alpha core.", PAD);
 
+            if (academy.hasHolobench()) tooltip.addPara("Holobench: officers leave training %s.", PAD, hl, "mentored");
+
             if (own) tooltip.addPara("Stored officers draw their full salary.", PAD);
             else tooltip.addPara("Storage costs %s per month for each officer, plus full salary.", PAD, hl, storageFee);
         } else {
