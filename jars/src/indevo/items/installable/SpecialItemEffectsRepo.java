@@ -45,6 +45,7 @@ public class SpecialItemEffectsRepo {
     public static float NEURAL_COMPOUNDS_UNREST_RED = 0.5f;
     public static String TRANSMITTER_UNLOCK_KEY = "$IndEvo_RelayUnlocked";
     public static int LOG_CORE_MAX_BONUS = 4;
+    public static int HOLOBENCH_MONTHLY_XP = 20000;
 
     public static Map<String, InstallableItemEffect> ITEM_EFFECTS = new HashMap<>();
 

@@ -111,7 +111,9 @@ Rules mode follows the Courier Port pattern: the command swaps in `AcademyDialog
 
 ### Holobench
 
-Installable item `IndEvo_holobench`, vanilla slot through `GenericSpecialItemPlugin` params (`BaseIndustry.wantsToUseSpecialItem`). The effect class only adds the description; the Academy reads `special` itself. Effects: one more lifetime personality step, two with an alpha core (Officer training), and mentoring on officer training (above). The officers tab help lists it while installed.
+Installable item `IndEvo_holobench`, vanilla slot through `GenericSpecialItemPlugin` params (`BaseIndustry.wantsToUseSpecialItem`). The effect class only adds the description; the Academy reads `special` itself. Effects: one more lifetime personality step, two with an alpha core (Officer training), and mentoring on officer training (above).
+
+Reserve drills: `reportEconomyMonthEnd()` gives every officer in this Academy's storage `HOLOBENCH_MONTHLY_XP` (20000, `SpecialItemEffectsRepo`) while the Academy is functional, has the Holobench and its market is not hostile. The XP goes through a throwaway `OfficerDataAPI` (`FactoryAPI.createOfficerData`) so vanilla clamps at max level and skips mercenaries (translation of obfuscated code, `obf/rpg/OfficerData.java:56-64`). No message, the officer is not in the fleet. Skill picks are made by the vanilla level up screen when picks are empty (translation of obfuscated code, `obf/coreui/B.java:70`). The officer in training gets none. At `officerXPRequiredMult` 4, level 2 takes about 3 months, level 5 about 23 months. The officers tab help lists it while installed.
 
 ## Contracts
 

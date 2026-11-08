@@ -78,7 +78,7 @@ There are two install paths. Items in vanilla style (VPCs, Logistics Core, Neuro
 | `IndEvo_simulator` | none; `Supercomputer` reads it | cold or extreme cold; +0.1 income, range 12 LY |
 | `IndEvo_transmitter` | outside a `MilitaryRelay`: set `$IndEvo_RelayUnlocked`; `unapply` unsets it unless another functional non relay industry holds a transmitter (`TransmitterEffect.java:35`) | in a relay: pristine relay entity |
 | `IndEvo_neurals` | none; Senate edicts read `NEURAL_COMPOUNDS_UNREST_RED` 0.5 | see [Senate](../industries/SENATE.md) |
-| `IndEvo_holobench` | none (`HolobenchEffect`); `Academy` reads `special` | see [Academy](../industries/ACADEMY.md#holobench) |
+| `IndEvo_holobench` | none (`HolobenchEffect`); `Academy` reads `special` | +1 step (+2 with alpha), mentoring, `HOLOBENCH_MONTHLY_XP` 20000 for stored officers; see [Academy](../industries/ACADEMY.md#holobench) |
 | `IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `IndEvo_EmptForgeTemplate` | none (`ForgeTemplateEffect`); the industries read `getSpecialItem()` | hull, charges, material cost |
 | `IndEvo_vpc`, `IndEvo_vpc_rare`, `IndEvo_vpc_ultra` | none (`VPCEffect`); the variable industries read `special` in their own `apply`, before `BaseIndustry` runs the effect | tier and commodities; see [VPCs](#vpcs) |
 | `IndEvo_amb` | none (`AmbassadorEffect`); `Embassy` reads `getSpecialItem()` | ambassador name and faction; see [Embassy](../industries/EMBASSY.md) |

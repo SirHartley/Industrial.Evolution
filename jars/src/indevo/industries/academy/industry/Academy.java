@@ -27,6 +27,7 @@ import indevo.config.Setting;
 import indevo.economy.RelicSpeedUpTarget;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
@@ -189,7 +190,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     @Override
     public void reportEconomyMonthEnd() {
+        if (!isFunctional() || !hasHolobench() || market.getFaction().isHostileTo(Global.getSector().getPlayerFaction())) return;
 
+        // officer data wrapper only for the xp clamp and merc check, the level up ui makes the picks on return
+        for (PersonAPI person : officerStorage) Global.getFactory().createOfficerData(person).addXP(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP);
     }
 
     @Override
