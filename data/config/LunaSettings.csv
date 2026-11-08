@@ -10,7 +10,7 @@ IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Enable pets, Animal Centers, pet m
 IndEvo_header1,General,Header,General,,,,,Quick Settings
 IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,"Limit Commerce to one per faction per system, reduce its improvement bonus, and replace the player alpha core income bonus with a 25%% tariff reduction. Disable to restore vanilla Commerce; re-docking may be needed. Default on.",,,Quick Settings
 IndEvo_shipPickerRowCount,[General] Ship Picker Row Count,Int,8,,Ships per row in most ship selection dialogs. Default 8.,1,100,Quick Settings
-IndEvo_shuttleTraffic,[General] Shuttle Traffic,Int,40,,Most small craft in flight in your current system. Visual only. 0 turns shuttle traffic and escape pods off. Default 40.,0,80,Quick Settings
+IndEvo_shuttleTraffic,[General] Shuttle Traffic,Int,60,,Most small craft in flight in your current system. Visual only. 0 turns shuttle traffic and escape pods off. Default 60.,0,120,Quick Settings
 IndEvo_meteor_baseChancePerEconomyTick,[Meteor Swarms] Spawn Chance,Double,0.02,,"Meteor shower chance per economy tick. 0.02 = 2%% per tick, with 10 ticks per month. Default 0.02.",0.001,0.1,Quick Settings
 IndEvo_Artillery_spawnWeight,[Artillery] Spawn Chance,Double,1,,Artillery spawn multiplier. Higher values add more stations; 1 places them in roughly 5-10%% of systems. Default 1. Needs a new game.,0,100,Quick Settings
 IndEvo_derelictStationAmount,[Exploration] Additional Station Type Amounts,Double,0.2,,Additional custom stations as a fraction of the normal station count. 0.2 = 20%% more stations. Default 0.2. Needs a new game.,0,2,Quick Settings

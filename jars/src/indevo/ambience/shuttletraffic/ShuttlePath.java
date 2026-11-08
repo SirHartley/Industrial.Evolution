@@ -201,7 +201,18 @@ public class ShuttlePath {
 
         public abstract void evaluate(float t, Vector2f out);
 
-        public abstract SectorEntityToken getFrame(float t);
+        public abstract SectorEntityToken getStartFrame();
+
+        public abstract SectorEntityToken getEndFrame();
+
+        // share of the end frame in how a point at t moves when the frames move
+        public float getEndWeight(float t) {
+            return 0f;
+        }
+
+        public SectorEntityToken getFrame(float t) {
+            return getEndWeight(t) < 0.5f ? getStartFrame() : getEndFrame();
+        }
 
         public float getScaleMult(float t) {
             return 1f;
@@ -292,8 +303,19 @@ public class ShuttlePath {
         }
 
         @Override
-        public SectorEntityToken getFrame(float t) {
-            return t < 0.5f ? start.getFrame() : end.getFrame();
+        public SectorEntityToken getStartFrame() {
+            return start.getFrame();
+        }
+
+        @Override
+        public SectorEntityToken getEndFrame() {
+            return end.getFrame();
+        }
+
+        // p0 and p1 move with the start, p2 and p3 with the end
+        @Override
+        public float getEndWeight(float t) {
+            return t * t * (3f - 2f * t);
         }
     }
 
@@ -350,7 +372,12 @@ public class ShuttlePath {
         }
 
         @Override
-        public SectorEntityToken getFrame(float t) {
+        public SectorEntityToken getStartFrame() {
+            return centerEntity;
+        }
+
+        @Override
+        public SectorEntityToken getEndFrame() {
             return centerEntity;
         }
     }
@@ -459,9 +486,13 @@ public class ShuttlePath {
         else out.set(1f, 0f);
     }
 
-    public SectorEntityToken getFrame(Cursor cursor) {
+    public Segment getSegment(Cursor cursor) {
+        return segments.get(cursor.segment);
+    }
+
+    public float getEndWeight(Cursor cursor) {
         Segment segment = segments.get(cursor.segment);
-        return segment.getFrame(segment.getT(cursor.fraction * segment.getLength()));
+        return segment.getEndWeight(segment.getT(cursor.fraction * segment.getLength()));
     }
 
     public float getScaleMult(Cursor cursor) {

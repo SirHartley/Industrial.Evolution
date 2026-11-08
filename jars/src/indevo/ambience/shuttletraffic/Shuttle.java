@@ -111,8 +111,16 @@ public class Shuttle {
     private final Vector2f base = new Vector2f();
     private final Vector2f tangent = new Vector2f();
     private final Vector2f tmp = new Vector2f();
-    // trail and history points are stored relative to frame, so they ride along with an orbiting anchor
+    // entity the craft mostly moves with, join paths start relative to it
     private SectorEntityToken frame;
+    // trail and history points are stored relative to a virtual frame that moves like the path point under the craft
+    private float frameX = 0f;
+    private float frameY = 0f;
+    private float frameDX = 0f;
+    private float frameDY = 0f;
+    private ShuttlePath.Segment frameSegment;
+    private final Vector2f frameStartLoc = new Vector2f();
+    private final Vector2f frameEndLoc = new Vector2f();
     private final float[] trailX = new float[TRAIL_POINTS];
     private final float[] trailY = new float[TRAIL_POINTS];
     private final float[] drawX = new float[TRAIL_POINTS + 1];
@@ -151,7 +159,7 @@ public class Shuttle {
         pos.set(base);
         facing = Misc.getAngleInDegrees(tangent);
         facingSet = true;
-        setFrame(path.getFrame(cursor));
+        moveFrame();
 
         for (int i = HISTORY_POINTS; i >= 1; i--) {
             path.getPoint(Math.max(0f, traveled - i * HISTORY_SPACING), tmp);
@@ -374,7 +382,9 @@ public class Shuttle {
 
         pos.set(base.x - tangent.y * side, base.y + tangent.x * side);
         updateFacing(amount, Misc.getAngleInDegrees(tangent));
-        setFrame(lead.frame);
+        frame = lead.frame;
+        frameSegment = null;
+        shiftFrame(lead.frameDX, lead.frameDY);
         pushTrailAtRear();
     }
 
@@ -500,7 +510,7 @@ public class Shuttle {
         // face along the path, not the world step, so orbiting anchors do not swing the sprite and trail
         updateFacing(amount, (float) Math.toDegrees(Math.atan2(tangent.y * speed + tangent.x * lateralRate, tangent.x * speed - tangent.y * lateralRate)));
         updateLook(amount, total, launchLength, landLength);
-        setFrame(path.getFrame(cursor));
+        moveFrame();
         pushHistoryIfMoved();
         pushTrailAtRear();
     }
@@ -685,32 +695,46 @@ public class Shuttle {
         trailCount = Math.min(TRAIL_POINTS, trailCount + 1);
     }
 
-    private void setFrame(SectorEntityToken next) {
-        if (next == frame) return;
+    // the segment ends move with their anchors, pads also turn, so blend how far both ends moved since the last frame
+    private void moveFrame() {
+        ShuttlePath.Segment segment = path.getSegment(cursor);
+        float weight = path.getEndWeight(cursor);
+        frame = weight < 0.5f ? segment.getStartFrame() : segment.getEndFrame();
 
-        float dx = getFrameX();
-        float dy = getFrameY();
-        frame = next;
-        dx -= getFrameX();
-        dy -= getFrameY();
-
-        for (int i = 0; i < TRAIL_POINTS; i++) {
-            trailX[i] += dx;
-            trailY[i] += dy;
+        if (segment != frameSegment) {
+            // a segment that starts where the last one ended keeps moving from there
+            segment.evaluate(0f, tmp);
+            boolean joined = frameSegment != null && Math.abs(tmp.x - frameEndLoc.x) + Math.abs(tmp.y - frameEndLoc.y) < 10f;
+            if (!joined) frameStartLoc.set(tmp);
+            else frameStartLoc.set(frameEndLoc);
+            segment.evaluate(1f, frameEndLoc);
+            frameSegment = segment;
         }
 
-        for (int i = 0; i < HISTORY_POINTS; i++) {
-            historyX[i] += dx;
-            historyY[i] += dy;
-        }
+        segment.evaluate(0f, tmp);
+        float dx = (tmp.x - frameStartLoc.x) * (1f - weight);
+        float dy = (tmp.y - frameStartLoc.y) * (1f - weight);
+        frameStartLoc.set(tmp);
+        segment.evaluate(1f, tmp);
+        dx += (tmp.x - frameEndLoc.x) * weight;
+        dy += (tmp.y - frameEndLoc.y) * weight;
+        frameEndLoc.set(tmp);
+        shiftFrame(dx, dy);
+    }
+
+    private void shiftFrame(float dx, float dy) {
+        frameDX = dx;
+        frameDY = dy;
+        frameX += dx;
+        frameY += dy;
     }
 
     private float getFrameX() {
-        return frame != null ? frame.getLocation().x : 0f;
+        return frameX;
     }
 
     private float getFrameY() {
-        return frame != null ? frame.getLocation().y : 0f;
+        return frameY;
     }
 
     public void render(float alphaMult, SpriteAPI glow) {

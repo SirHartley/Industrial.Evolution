@@ -45,6 +45,8 @@ public class ShuttleNetwork {
     }
 
     public static final float SMUGGLER_CHANCE = 0.01f;
+    // market lanes keep about one craft per this many su of lane for two size 5 markets
+    private static final float LANE_SPACING = 500f;
     public static final float DIPLOMAT_CHANCE = 0.05f;
     public static final float HUNT_CHANCE = 0.03f;
     public static final float MAINTENANCE_CHANCE = 0.02f;
@@ -223,9 +225,10 @@ public class ShuttleNetwork {
                     continue;
                 }
 
-                float mult = (density.get(a) + density.get(b)) / 2f;
+                float mult = (density.get(a) + density.get(b)) / 2f * (a.market.getSize() + b.market.getSize()) / 10f;
+                float chord = Misc.getDistance(a.getLocation(), b.getLocation());
                 ShuttleRoute route = getRoute(ShuttleRoute.Kind.MARKET, a, b, random);
-                route.max = Math.max(1, Math.round((a.market.getSize() + b.market.getSize()) / 4f * mult));
+                route.max = Math.max(2, Math.round(chord / LANE_SPACING * mult));
             }
         }
     }

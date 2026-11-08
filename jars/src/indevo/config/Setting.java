@@ -7,7 +7,7 @@ public enum Setting {
 
     COMMERCE_BALANCE_CHANGES("IndEvo_CommerceBalanceChanges", true),
     SHIP_PICKER_ROW_COUNT("IndEvo_shipPickerRowCount", 8, 1, 100),
-    SHUTTLE_TRAFFIC("IndEvo_shuttleTraffic", 40, 0, 80),
+    SHUTTLE_TRAFFIC("IndEvo_shuttleTraffic", 60, 0, 120),
     BLOCK_INDUSTRIES("IndEvo_block_industries", true),
     BLOCK_CONSUMABLES("IndEvo_block_consumables", true),
     PETS("IndEvo_pets", true),
