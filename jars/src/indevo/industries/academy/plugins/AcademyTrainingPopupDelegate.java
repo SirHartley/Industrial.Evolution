@@ -14,6 +14,9 @@ import indevo.utils.helper.BillingHelper;
 import java.awt.*;
 import java.util.List;
 
+import static indevo.industries.academy.plugins.AcademyPanelDelegate.CARD_HEADER_H;
+import static indevo.industries.academy.plugins.AcademyPanelDelegate.HEADING_EXTRA;
+import static indevo.industries.academy.plugins.AcademyPanelDelegate.STORED_BG;
 import static indevo.industries.academy.plugins.AcademyPanelDelegate.TOOLTIP_INSET;
 import static indevo.industries.academy.plugins.AcademyPanelDelegate.getPersonalityColor;
 import static indevo.industries.academy.plugins.AcademyPanelDelegate.getPersonalityName;
@@ -26,7 +29,7 @@ public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegat
     private static final float PAD = 10f;
     private static final float SQUARE = 124f;
     private static final float SQUARE_GAP = 12f;
-    private static final float BAR_H = 5f;
+    private static final float BAR_H = 4f;
     private static final float HEADER_H = 50f;
 
     private final Academy academy;
@@ -163,7 +166,8 @@ public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegat
         boolean isReachable = reachable.contains(id);
         boolean affordable = BillingHelper.canAfford(fee);
         boolean selectable = isReachable && affordable;
-        Color color = isCurrent || isReachable ? getPersonalityColor(id) : Misc.scaleColorOnly(getPersonalityColor(id), 0.5f);
+        boolean live = isCurrent || isReachable;
+        Color color = live ? getPersonalityColor(id) : Misc.scaleColorOnly(getPersonalityColor(id), 0.35f);
 
         TooltipMakerAPI background = panel.createUIElement(SQUARE, SQUARE, false);
         ButtonAPI button = background.addAreaCheckbox("", new ButtonAction(this) {
@@ -177,27 +181,29 @@ public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegat
         button.setChecked(id.equals(selected));
         panel.addUIElement(background).inTL(x - TOOLTIP_INSET, y);
 
-        panel.addComponent(createBar(color)).inTL(x + 1f, y + 1f);
+        TooltipMakerAPI header = panel.createUIElement(SQUARE, CARD_HEADER_H, false);
+        header.addSectionHeading(getPersonalityName(id), live ? Misc.getBasePlayerColor() : gray, live ? Misc.getDarkPlayerColor() : STORED_BG,
+                Alignment.MID, SQUARE - HEADING_EXTRA, 0f);
+        panel.addUIElement(header).inTL(x, y);
+        panel.addComponent(createBar(color)).inTL(x + 1f, y + CARD_HEADER_H);
 
+        float bodyY = y + CARD_HEADER_H + BAR_H;
         float textW = SQUARE - TOOLTIP_INSET * 2;
-        TooltipMakerAPI text = panel.createUIElement(textW, SQUARE - BAR_H - PAD, false);
-        text.setParaInsigniaLarge();
-        text.addPara(getPersonalityName(id), color, 0f).setAlignment(Alignment.MID);
-        text.setParaFontDefault();
+        TooltipMakerAPI text = panel.createUIElement(textW, SQUARE - CARD_HEADER_H - BAR_H, false);
 
-        float lineY = 22f;
         if (isCurrent) {
-            text.addPara("Current", gray, lineY).setAlignment(Alignment.MID);
+            text.addPara("Current", gray, 0f).setAlignment(Alignment.MID);
         } else if (!isReachable) {
             boolean needsAlpha = !academy.hasAlphaCore() && steps <= 2 - academy.getTrainedSteps(officer) && steps > academy.getOfficerStepsLeft(officer);
             String reason = needsAlpha ? "Needs an alpha core" : "Out of reach";
-            text.addPara(reason, gray, lineY).setAlignment(Alignment.MID);
+            text.addPara(reason, gray, 0f).setAlignment(Alignment.MID);
         } else {
-            text.addPara("%s days", lineY, hl, academy.getOfficerTrainingDays(steps) + "").setAlignment(Alignment.MID);
+            text.addPara("%s days", 0f, hl, academy.getOfficerTrainingDays(steps) + "").setAlignment(Alignment.MID);
             if (fee > 0) text.addPara(Misc.getDGSCredits(fee), affordable ? hl : Misc.getNegativeHighlightColor(), 2f).setAlignment(Alignment.MID);
         }
 
-        panel.addUIElement(text).inTL(x, y + BAR_H + PAD);
+        float textY = isReachable && fee > 0 ? 35f : 43f;
+        panel.addUIElement(text).inTL(x, bodyY + textY);
     }
 
     private CustomPanelAPI createBar(final Color color) {

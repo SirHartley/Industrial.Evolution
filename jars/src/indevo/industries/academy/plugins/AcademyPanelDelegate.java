@@ -35,16 +35,25 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
     private static final float BOX_LABEL_H = 14f;
     private static final float ICON = 28f;
     private static final float SLOT_H = 86f;
-    private static final float ROW_HEADER_H = 20f;
-    private static final float ROW_H = ROW_HEADER_H + 96f;
     private static final float BAR_W = 320f;
+    private static final int COLUMNS = 4;
+    private static final float CARD_GAP = 8f;
+    private static final float CARD_PAD = 8f;
+    private static final float BOX_GAP = 6f;
+    private static final float LINE_PAD = 2f;
+    static final float CARD_HEADER_H = 18f;
+    private static final float CARD_SKILLS_Y = CARD_HEADER_H + CARD_PAD + BOX + 3f + BOX_LABEL_H + 1f;
+    private static final float CARD_BUTTONS_Y = CARD_SKILLS_Y + ICON + 8f;
+    private static final float CARD_H = CARD_BUTTONS_Y + BUTTON_H + CARD_PAD;
 
     private static final Color ABORT_BG = new Color(80, 20, 10, 255);
-    private static final Color STORED_BG = new Color(60, 60, 60, 255);
+    static final Color STORED_BG = new Color(60, 60, 60, 255);
     private static final Color TRAIN_BG = new Color(50, 130, 0, 255);
 
     // tooltip elements indent their first item by 5 px
     public static final float TOOLTIP_INSET = 5f;
+    // section heading labels are 10 px wider than the width passed
+    public static final float HEADING_EXTRA = 10f;
 
     private final Academy academy;
     private final AcademyDialogPlugin plugin;
@@ -129,14 +138,13 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         main.addSectionHeading("In training", Alignment.MID, PAD);
         main.addCustom(createTrainingSlot(w), SPAD);
 
-        main.addSectionHeading(adminTab ? "Administrators" : "Officers", Alignment.MID, PAD);
-        float listH = h - main.getHeightSoFar() - SPAD * 2;
+        float listH = h - main.getHeightSoFar() - PAD * 2;
 
         CustomPanelAPI listPanel = panel.createCustomPanel(w, listH, new ButtonReportingCustomPanel(this));
         TooltipMakerAPI list = listPanel.createUIElement(w, listH, true);
         addRows(list, w - 20f);
         listPanel.addUIElement(list).inTL(0f, 0f);
-        main.addCustom(listPanel, SPAD);
+        main.addCustom(listPanel, PAD);
 
         panel.addUIElement(main).inTL(0f, 0f);
         panel.addUIElement(HelpIcon.create(panel, this::addHelp)).inTR(0f, 0f);
@@ -355,49 +363,69 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         active.sort(order);
         stored.sort(order);
 
-        for (PersonAPI person : active) list.addCustom(createRow(person, false, rowW), SPAD);
-        for (PersonAPI person : stored) list.addCustom(createRow(person, true, rowW), SPAD);
-
         if (active.isEmpty() && stored.isEmpty()) {
             list.addPara(adminTab ? "You have no administrators, and none are stored here." : "You have no officers, and none are stored here.", Misc.getGrayColor(), PAD);
+            return;
+        }
+
+        addGroup(list, adminTab ? "On staff" : "In fleet", active, false, rowW);
+        addGroup(list, "Stored here", stored, true, rowW);
+    }
+
+    private void addGroup(TooltipMakerAPI list, String label, List<PersonAPI> people, boolean stored, float rowW) {
+        if (people.isEmpty()) return;
+
+        CustomPanelAPI heading = panel.createCustomPanel(rowW, CARD_HEADER_H, null);
+        TooltipMakerAPI headingText = heading.createUIElement(rowW, CARD_HEADER_H, false);
+        headingText.addSectionHeading(label, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Alignment.MID, rowW - HEADING_EXTRA, 0f);
+        heading.addUIElement(headingText).inTL(0f, 0f);
+        list.addCustom(heading, list.getHeightSoFar() > 0f ? PAD : 0f);
+
+        float cardW = (rowW - (COLUMNS - 1) * CARD_GAP) / COLUMNS;
+        for (int i = 0; i < people.size(); i += COLUMNS) {
+            CustomPanelAPI row = panel.createCustomPanel(rowW, CARD_H, null);
+            for (int column = 0; column < COLUMNS && i + column < people.size(); column++) {
+                row.addComponent(createCard(people.get(i + column), stored, cardW)).inTL(column * (cardW + CARD_GAP), 0f);
+            }
+            list.addCustom(row, i == 0 ? SPAD : CARD_GAP);
         }
     }
 
-    private CustomPanelAPI createRow(final PersonAPI person, final boolean stored, float rowW) {
+    private CustomPanelAPI createCard(final PersonAPI person, final boolean stored, float cardW) {
         Color base = Misc.getButtonTextColor();
-        Color dark = Misc.getDarkPlayerColor();
 
-        CustomPanelAPI row = panel.createCustomPanel(rowW, ROW_H, new ButtonReportingCustomPanel(this, base, -1));
+        CustomPanelAPI card = panel.createCustomPanel(cardW, CARD_H, new ButtonReportingCustomPanel(this, base, -1));
 
-        String where = stored ? "Stored here" : adminTab ? "On staff" : "In fleet";
-        TooltipMakerAPI header = row.createUIElement(rowW, ROW_HEADER_H, false);
-        header.addSectionHeading(person.getNameString() + " - " + where, stored ? Misc.getTextColor() : base, stored ? STORED_BG : dark, Alignment.MID, 0f);
-        row.addUIElement(header).inTL(0f, 0f);
+        TooltipMakerAPI header = card.createUIElement(cardW, CARD_HEADER_H, false);
+        header.addSectionHeading(person.getNameString(), stored ? Misc.getTextColor() : base, stored ? STORED_BG : Misc.getDarkPlayerColor(),
+                Alignment.MID, cardW - HEADING_EXTRA, 0f);
+        card.addUIElement(header).inTL(0f, 0f);
 
-        float y = ROW_HEADER_H + PAD;
-        addAssignment(row, person, stored, y);
+        float y = CARD_HEADER_H + CARD_PAD;
+        addAssignment(card, person, stored, CARD_PAD, y);
 
-        TooltipMakerAPI portrait = row.createUIElement(PORTRAIT, PORTRAIT, false);
+        float portraitX = CARD_PAD + BOX + BOX_GAP;
+        TooltipMakerAPI portrait = card.createUIElement(PORTRAIT, PORTRAIT, false);
         portrait.addImage(person.getPortraitSprite(), PORTRAIT, PORTRAIT, 0f);
-        row.addUIElement(portrait).inTL(PAD * 2 + BOX, y);
+        card.addUIElement(portrait).inTL(portraitX - TOOLTIP_INSET, y);
 
-        float infoX = PAD * 3 + BOX + PORTRAIT;
-        float infoW = rowW - infoX - BUTTON_W - PAD * 2;
-        TooltipMakerAPI info = row.createUIElement(infoW, PORTRAIT + PAD, false);
+        float infoX = portraitX + PORTRAIT + CARD_PAD;
+        float infoW = cardW - infoX - CARD_PAD;
+        TooltipMakerAPI info = card.createUIElement(infoW + TOOLTIP_INSET, PORTRAIT + 4f, false);
         if (adminTab) addAdminInfo(info, person, stored);
         else addOfficerInfo(info, person);
-        info.addCustom(createSkillIcons(person, infoW), 4f);
-        row.addUIElement(info).inTL(infoX, y - 2f);
+        card.addUIElement(info).inTL(infoX - TOOLTIP_INSET, y - 2f);
 
-        TooltipMakerAPI actions = row.createUIElement(BUTTON_W, BUTTON_H * 2 + 8f, false);
-        if (adminTab) addAdminButtons(actions, person, stored);
-        else addOfficerButtons(actions, person, stored);
-        row.addUIElement(actions).inTR(PAD, y + 4f);
+        card.addComponent(createSkillIcons(person, cardW - CARD_PAD * 2)).inTL(CARD_PAD, CARD_SKILLS_Y);
 
-        return row;
+        float buttonW = (cardW - CARD_PAD * 3) / 2f;
+        if (adminTab) addAdminButtons(card, person, stored, buttonW);
+        else addOfficerButtons(card, person, stored, buttonW);
+
+        return card;
     }
 
-    private void addAssignment(CustomPanelAPI row, PersonAPI person, boolean stored, float y) {
+    private void addAssignment(CustomPanelAPI row, PersonAPI person, boolean stored, float x, float y) {
         Color base = Misc.getButtonTextColor();
         float iconSize = BOX - 8f;
 
@@ -420,7 +448,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
             }
         }
 
-        row.addComponent(box).inTL(PAD, y);
+        row.addComponent(box).inTL(x, y);
 
         if (name == null) {
             TooltipMakerAPI text = box.createUIElement(BOX - TOOLTIP_INSET * 2, BOX_LABEL_H, false);
@@ -436,7 +464,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         TooltipMakerAPI label = row.createUIElement(labelW, BOX_LABEL_H, false);
         label.setParaFont(Fonts.VICTOR_10);
         label.addPara(fitToWidth(name, labelW, Fonts.VICTOR_10), base, 0f).setAlignment(Alignment.MID);
-        row.addUIElement(label).inTL(PAD - PAD / 2f - TOOLTIP_INSET, y + BOX + 3f);
+        row.addUIElement(label).inTL(x - PAD / 2f - TOOLTIP_INSET, y + BOX + 3f);
     }
 
     private static String fitToWidth(String text, float width, String font) {
@@ -452,20 +480,24 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
 
     private void addOfficerInfo(TooltipMakerAPI info, PersonAPI person) {
         Color hl = Misc.getHighlightColor();
+        Color gray = Misc.getGrayColor();
         String personality = person.getPersonalityAPI().getId();
         int used = academy.getTrainedSteps(person);
 
-        info.addPara("Level %s, %s", 0f, new Color[]{hl, getPersonalityColor(personality)}, person.getStats().getLevel() + "", getPersonalityName(personality));
-        info.addPara("Training steps used %s of %s, salary %s per month", 3f, Misc.getGrayColor(), hl,
-                used + "", Math.max(used, academy.getMaxOfficerSteps()) + "", Misc.getDGSCredits(Misc.getOfficerSalary(person)));
+        info.addPara("Level %s", 0f, hl, person.getStats().getLevel() + "");
+        info.addPara(getPersonalityName(personality), getPersonalityColor(personality), LINE_PAD);
+        info.addPara("Steps %s of %s", LINE_PAD, gray, hl, used + "", Math.max(used, academy.getMaxOfficerSteps()) + "");
+        info.addPara("Salary %s", LINE_PAD, gray, hl, Misc.getDGSCredits(Misc.getOfficerSalary(person)));
     }
 
     private void addAdminInfo(TooltipMakerAPI info, PersonAPI person, boolean stored) {
         Color hl = Misc.getHighlightColor();
+        Color gray = Misc.getGrayColor();
         float salary = Misc.getAdminSalary(person) * (stored ? 0.1f : 1f);
 
         info.addPara("Skills %s of 2", 0f, hl, Academy.getAdminSkillCount(person) + "");
-        info.addPara("Salary %s per month" + (stored ? " while stored" : ""), 3f, Misc.getGrayColor(), hl, Misc.getDGSCredits(salary));
+        info.addPara("Salary %s", LINE_PAD, gray, hl, Misc.getDGSCredits(salary));
+        if (stored) info.addPara("while stored", gray, LINE_PAD);
     }
 
     private CustomPanelAPI createSkillIcons(PersonAPI person, float w) {
@@ -495,7 +527,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
                     tooltip.addPara(spec.getName() + (elite ? " (elite)" : ""), elite ? Misc.getHighlightColor() : Misc.getTextColor(), 0f);
                 }
             }, TooltipMakerAPI.TooltipLocation.ABOVE);
-            frame.addUIElement(image).inTL(0f, 0f);
+            frame.addUIElement(image).inTL(-TOOLTIP_INSET, 0f);
             icons.addComponent(frame).inTL(x, 0f);
             x += ICON + 4f;
         }
@@ -509,12 +541,12 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         return icons;
     }
 
-    private void addOfficerButtons(TooltipMakerAPI actions, final PersonAPI person, final boolean stored) {
+    private void addOfficerButtons(CustomPanelAPI card, final PersonAPI person, final boolean stored, float buttonW) {
         Color base = Misc.getButtonTextColor();
         Color dark = Misc.getDarkPlayerColor();
 
         String trainBlocker = academy.getOfficerTrainBlocker(person);
-        addButton(actions, "Train", TRAIN_BG, base, trainBlocker, getOfficerTrainTooltip(person), 0f, new ButtonAction(this) {
+        addCardButton(card, 0, buttonW, "Train", TRAIN_BG, base, trainBlocker, getOfficerTrainTooltip(person), new ButtonAction(this) {
             @Override
             public void execute() {
                 openPopup(() -> plugin.showTrainingPopup(person));
@@ -522,7 +554,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         });
 
         if (stored) {
-            addButton(actions, "Retrieve", dark, base, Academy.getOfficerSlotBlocker(), null, 8f, new ButtonAction(this) {
+            addCardButton(card, 1, buttonW, "Retrieve", dark, base, Academy.getOfficerSlotBlocker(), null, new ButtonAction(this) {
                 @Override
                 public void execute() {
                     academy.returnOfficer(person);
@@ -530,7 +562,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
                 }
             });
         } else {
-            addButton(actions, "Store", dark, base, null, getStoreTooltip(person), 8f, new ButtonAction(this) {
+            addCardButton(card, 1, buttonW, "Store", dark, base, null, getStoreTooltip(person), new ButtonAction(this) {
                 @Override
                 public void execute() {
                     academy.storeOfficer(person);
@@ -540,13 +572,13 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         }
     }
 
-    private void addAdminButtons(TooltipMakerAPI actions, final PersonAPI person, final boolean stored) {
+    private void addAdminButtons(CustomPanelAPI card, final PersonAPI person, final boolean stored, float buttonW) {
         Color base = Misc.getButtonTextColor();
         Color dark = Misc.getDarkPlayerColor();
 
         String trainTooltip = "Adds one administrator skill. " + academy.getAdminTrainingDays() + " days"
                 + (academy.getAdminTrainingFee() > 0 ? ", " + Misc.getDGSCredits(academy.getAdminTrainingFee()) + "." : ".");
-        addButton(actions, "Train", TRAIN_BG, base, academy.getAdminTrainBlocker(person), trainTooltip, 0f, new ButtonAction(this) {
+        addCardButton(card, 0, buttonW, "Train", TRAIN_BG, base, academy.getAdminTrainBlocker(person), trainTooltip, new ButtonAction(this) {
             @Override
             public void execute() {
                 plugin.showAdminTraining(person);
@@ -554,7 +586,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         });
 
         if (stored) {
-            addButton(actions, "Retrieve", dark, base, Academy.getAdminSlotBlocker(), null, 8f, new ButtonAction(this) {
+            addCardButton(card, 1, buttonW, "Retrieve", dark, base, Academy.getAdminSlotBlocker(), null, new ButtonAction(this) {
                 @Override
                 public void execute() {
                     academy.returnAdmin(person);
@@ -562,7 +594,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
                 }
             });
         } else {
-            addButton(actions, "Store", dark, base, null, getStoreTooltip(person), 8f, new ButtonAction(this) {
+            addCardButton(card, 1, buttonW, "Store", dark, base, null, getStoreTooltip(person), new ButtonAction(this) {
                 @Override
                 public void execute() {
                     academy.storeAdmin(person);
@@ -611,8 +643,19 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
         return text;
     }
 
-    private void addButton(TooltipMakerAPI actions, String label, Color bg, Color text, final String blocker, final String tooltip, float pad, ButtonAction action) {
-        ButtonAPI button = actions.addButton(label, action, text, bg, Alignment.MID, CutStyle.ALL, BUTTON_W, BUTTON_H, pad);
+    private void addCardButton(CustomPanelAPI card, int column, float buttonW, String label, Color bg, Color text, String blocker, String tooltip, ButtonAction action) {
+        TooltipMakerAPI element = card.createUIElement(buttonW, BUTTON_H, false);
+        addButton(element, label, bg, text, blocker, tooltip, buttonW, 0f, TooltipMakerAPI.TooltipLocation.ABOVE, action);
+        card.addUIElement(element).inTL(CARD_PAD + column * (buttonW + CARD_PAD) - TOOLTIP_INSET, CARD_BUTTONS_Y);
+    }
+
+    private void addButton(TooltipMakerAPI actions, String label, Color bg, Color text, String blocker, String tooltip, float pad, ButtonAction action) {
+        addButton(actions, label, bg, text, blocker, tooltip, BUTTON_W, pad, TooltipMakerAPI.TooltipLocation.LEFT, action);
+    }
+
+    private void addButton(TooltipMakerAPI actions, String label, Color bg, Color text, final String blocker, final String tooltip, float width, float pad,
+                           TooltipMakerAPI.TooltipLocation location, ButtonAction action) {
+        ButtonAPI button = actions.addButton(label, action, text, bg, Alignment.MID, CutStyle.ALL, width, BUTTON_H, pad);
         button.setEnabled(blocker == null);
 
         final String tooltipText = blocker != null ? blocker : tooltip;
@@ -628,7 +671,7 @@ public class AcademyPanelDelegate extends ButtonReportingDialogueDelegate {
             public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
                 tooltip.addPara(tooltipText, blocker != null ? Misc.getNegativeHighlightColor() : Misc.getTextColor(), 0f);
             }
-        }, TooltipMakerAPI.TooltipLocation.LEFT);
+        }, location);
     }
 
     public static Color getPersonalityColor(String id) {
