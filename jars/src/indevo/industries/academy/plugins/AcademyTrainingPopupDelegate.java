@@ -177,7 +177,7 @@ public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegat
                 square.addPara(getStepsText(steps), selectable ? Misc.getTextColor() : gray, 5f).setAlignment(Alignment.MID);
 
                 if (!reachable.contains(id)) {
-                    String reason = !academy.hasAlphaCore() && steps <= 2 - trained && steps > stepsLeft ? "Needs an alpha core" : "Unavailable";
+                    String reason = !academy.hasAlphaCore() && steps <= 2 - trained && steps > stepsLeft ? "Required: Alpha core" : "Unavailable";
                     square.addPara(reason, gray, 1f).setAlignment(Alignment.MID);
                 } else if (!affordable) {
                     square.addPara("Not enough credits", Misc.getNegativeHighlightColor(), 1f).setAlignment(Alignment.MID);

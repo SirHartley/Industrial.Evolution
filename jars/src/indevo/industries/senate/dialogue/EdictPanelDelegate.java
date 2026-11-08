@@ -595,7 +595,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
     private String getLocationText(MarketAPI colony) {
         String system = EdictHelper.getSystemName(colony);
 
-        if (colony.hasIndustry(Ids.SENATE)) return system + ", Senate here";
+        if (colony.hasIndustry(Ids.SENATE)) return system + ", Senate";
         if (EdictHelper.getSystemSenate(colony) != null) return system + ", same system";
 
         if (senateScope) {
