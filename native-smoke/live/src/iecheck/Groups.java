@@ -58,6 +58,8 @@ public final class Groups {
                 return ParadeTimeChecks.steps();
             case "parade":
                 return ParadeChecks.steps();
+            case "vpc":
+                return VpcChecks.steps();
             case "relic":
                 return RelicChecks.steps();
             case "meteor":
