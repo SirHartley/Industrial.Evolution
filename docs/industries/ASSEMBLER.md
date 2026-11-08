@@ -59,7 +59,7 @@ Month end chain: `reportEconomyMonthEnd -> getDepositList -> getDepositAmount ->
 - `timeMult`: `getTimeMult()`. Assembler and Manufactory 0.7 for the first month after a new VPC (`toggleRampUp`, `:202-207`), Forge `3 / maxDeposits` (1.5 with alpha).
 - `outputMult`: `VPCItemPlugin.getDepositMult`, 1, 0.8 or 0.65 for 1, 2 or 3 outputs. `deficitMult`: `1 - deficit / (supply + deficit)`.
 
-Delivery goes to the gathering point storage if `IndEvo_VarInd_deliverToProductionPoint` is on and that storage exists, else to local storage (`:212-235`). The tooltip lists every output with its amount (`addOutputLine`, `:271-279`).
+Delivery goes to the gathering point storage if `IndEvo_VarInd_deliverToProductionPoint` is on and that storage exists, else to local storage (`:212-235`). The tooltip lists monthly deliveries separately from market supply, with an amount for each commodity (`addOutputLine`, `:271-279`).
 
 ### Commodity Forge
 

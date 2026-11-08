@@ -88,6 +88,8 @@ There are two install paths. Items in vanilla style (VPCs, Logistics Core, Neuro
 
 ### VPCs
 
+Tooltips list the commodities the chip enables, followed by any commodity or package flavor text. Tier descriptions do not repeat this list. Empty slot descriptions are omitted by `NamedItemSlotPlugin`.
+
 One item id per chip: `IndEvo_vpc` (common and uncommon, 1 commodity), `IndEvo_vpc_rare` (2), `IndEvo_vpc_ultra` (3), set by `Tier.itemId` (`VPCItemPlugin.java:35-38`). All three carry data `tier|commodityId,commodityId` (`rare|supplies,fuel`). Create one only through `VPCItemPlugin.createItem` or `roll` (`:255-269`).
 
 | Tier | Outputs | Commodity pool | Price | NPC weight | Pather interest |
