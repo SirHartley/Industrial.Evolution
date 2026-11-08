@@ -140,23 +140,6 @@ public class ShuttleNetwork {
         return Math.max(-chord * 0.6f, Math.min(chord * 0.6f, bend));
     }
 
-    public PlanetAPI findNearestPlanet(SectorEntityToken from, float range) {
-        PlanetAPI best = null;
-        float bestDist = range;
-
-        for (Body body : bodies) {
-            if (!(body.entity instanceof PlanetAPI planet) || planet.isStar() || planet == from) continue;
-
-            float dist = Misc.getDistance(from.getLocation(), planet.getLocation()) - planet.getRadius();
-            if (dist < bestDist) {
-                bestDist = dist;
-                best = planet;
-            }
-        }
-
-        return best;
-    }
-
     public PlanetAPI pickHuntTarget(SectorEntityToken from, Random random) {
         WeightedRandomPicker<PlanetAPI> picker = new WeightedRandomPicker<>(random);
         for (Body body : bodies) {

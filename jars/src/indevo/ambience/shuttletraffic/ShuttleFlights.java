@@ -17,10 +17,8 @@ import java.util.Set;
 public class ShuttleFlights {
 
     private enum Pattern {
-        PLANET_LAP,
-        LOOPS,
-        LOOPING,
-        FIGURE_EIGHT
+        ORBIT,
+        ARC
     }
 
     private static final Set<String> DIPLOMAT_HULLS = Set.of("hermes", "kite");
@@ -32,7 +30,6 @@ public class ShuttleFlights {
     private static final float LANE_OFFSET = 40f;
     private static final float LANE_JITTER = 10f;
     private static final float HANDLE_EXTRA = 80f;
-    private static final float PLANET_LAP_RANGE = 2000f;
     private static final float POD_SPEED = 35f;
     private static final float PANIC_RADIUS = 60f;
     private static final float SCREEN_RADIUS = 120f;
@@ -90,7 +87,7 @@ public class ShuttleFlights {
         ShuttlePath.Waypoint start = startAt(frame, pos, heading);
 
         if (panic) {
-            ShuttlePath.CircleSegment circle = circleAt(frame, pos, heading, PANIC_RADIUS + random.nextFloat() * 30f, randomSign(), 0f);
+            ShuttlePath.CircleSegment circle = circleAt(frame, pos, heading, PANIC_RADIUS + random.nextFloat() * 30f, randomSign());
             path.add(circle);
             start = new ShuttlePath.SegmentWaypoint(circle, 1f);
         }
@@ -105,7 +102,7 @@ public class ShuttleFlights {
         ShuttlePath.Waypoint start = startAt(frame, pos, heading);
 
         if (panic) {
-            ShuttlePath.CircleSegment circle = circleAt(frame, pos, heading, PANIC_RADIUS + random.nextFloat() * 30f, randomSign(), 0f);
+            ShuttlePath.CircleSegment circle = circleAt(frame, pos, heading, PANIC_RADIUS + random.nextFloat() * 30f, randomSign());
             path.add(circle);
             start = new ShuttlePath.SegmentWaypoint(circle, 1f);
         }
@@ -119,7 +116,7 @@ public class ShuttleFlights {
     }
 
     public ShuttlePath holdPath(SectorEntityToken center, Vector2f pos, float heading, float radius) {
-        return new ShuttlePath().add(circleAt(center, pos, heading, radius, 1f, 0f));
+        return new ShuttlePath().add(circleAt(center, pos, heading, radius, 1f));
     }
 
     public ShuttlePath screenPath(SectorEntityToken frame, Vector2f pos, float heading, ShuttleAnchor home, float threatX, float threatY) {
@@ -245,12 +242,11 @@ public class ShuttleFlights {
         if (!canFly(home, home)) return Collections.emptyList();
 
         boolean remnant = home.role == ShuttleAnchor.Role.REMNANT;
-        boolean showOff = remnant || ShuttleNetwork.isPirate(home.faction);
         ShuttleHull hull = remnant ? ShuttleHullPool.rollAny(home.faction, random, 0f, false) : ShuttleHullPool.rollAny(home.faction, random, 0.2f, true);
         if (hull == null) return Collections.emptyList();
 
-        Shuttle leader = create(hull, route, home.faction, home, home, joyridePath(home, pickPattern(showOff)), 1.15f);
-        leader.turnRate = 180f;
+        Pattern pattern = home.type == ShuttleAnchor.Type.PLANET && random.nextFloat() < 0.6f ? Pattern.ARC : Pattern.ORBIT;
+        Shuttle leader = create(hull, route, home.faction, home, home, joyridePath(home, pattern), 1.1f);
         leader.flees = !remnant;
         return formation(leader, hull.fighter ? hull.wingSize : 1, room, false);
     }
@@ -280,8 +276,7 @@ public class ShuttleFlights {
         if (hull == null) hull = ShuttleHullPool.rollBase(random, TRAINING_HULLS);
         if (hull == null) return Collections.emptyList();
 
-        Shuttle leader = create(hull, route, home.faction, home, home, joyridePath(home, random.nextBoolean() ? Pattern.LOOPS : Pattern.FIGURE_EIGHT), 1f);
-        leader.turnRate = 63f;
+        Shuttle leader = create(hull, route, home.faction, home, home, joyridePath(home, Pattern.ORBIT), 1f);
         return formation(leader, 2 + random.nextInt(2), room, true);
     }
 
@@ -312,43 +307,28 @@ public class ShuttleFlights {
         return create(hull, route, home.faction, home, home, loopPath(home, List.of(lap)), 1f);
     }
 
+    // orbit: one lap well above the anchor; arc: a low hop to another spot on the same planet
     private ShuttlePath joyridePath(ShuttleAnchor home, Pattern pattern) {
-        if (pattern == Pattern.PLANET_LAP) {
-            PlanetAPI planet = network.findNearestPlanet(home.entity, PLANET_LAP_RANGE);
-            if (planet == null) return joyridePath(home, Pattern.LOOPS);
+        boolean arc = pattern == Pattern.ARC;
+        float altitude = arc ? home.getRadius() * 0.25f + 40f + random.nextFloat() * 40f : 100f + random.nextFloat() * 120f;
+        float sweep = (arc ? 60f + random.nextFloat() * 80f : 360f) * randomSign();
+        float side = Math.signum(sweep);
+        float radius = home.getRadius() + altitude;
 
-            float startAngle = Misc.getAngleInDegrees(planet.getLocation(), home.getLocation());
-            float sweep = 360f * (random.nextBoolean() ? 1f : 2f) * randomSign();
-            return loopPath(home, List.of(new ShuttlePath.CircleSegment(planet, 0f, 0f, planet.getRadius() * 1.6f, startAngle, sweep, 0f)));
-        }
+        ShuttlePath.CircleSegment circle = new ShuttlePath.CircleSegment(home.entity, 0f, 0f, radius, random.nextFloat() * 360f, sweep, 0f);
+        ShuttlePath.Waypoint entry = new ShuttlePath.SegmentWaypoint(circle, 0f);
+        ShuttlePath.Waypoint exit = new ShuttlePath.SegmentWaypoint(circle, 1f);
 
-        Vector2f loc = home.getLocation();
-        float dirAngle = random.nextFloat() * 360f;
-        Vector2f point = Misc.getUnitVectorAtDegreeAngle(dirAngle);
-        point.scale(home.getRadius() + 150f + random.nextFloat() * 100f);
-        Vector2f.add(point, loc, point);
+        // pads sit 60 degrees behind the entry and past the exit, so the craft climbs out along the entry radial and spirals in
+        ShuttlePath.Waypoint launch = new ShuttlePath.PadWaypoint(home, entry, -60f * side, 60f * side, false);
+        ShuttlePath.Waypoint land = new ShuttlePath.PadWaypoint(home, exit, 60f * side, -60f * side, true);
+        float padHandle = Math.max(40f, radius * 0.5f);
+        float circleHandle = Math.max(40f, radius * 0.4f);
 
-        float heading = dirAngle + 90f * randomSign();
-        float side = randomSign();
-        int circles = switch (pattern) {
-            case LOOPS -> 2 + random.nextInt(2);
-            case FIGURE_EIGHT -> 2;
-            default -> 1;
-        };
-        float sharedRadius = 50f + random.nextFloat() * 30f;
-
-        List<ShuttlePath.Segment> segments = new ArrayList<>(circles);
-        for (int i = 0; i < circles; i++) {
-            float radius = switch (pattern) {
-                case LOOPS -> 60f + random.nextFloat() * 60f;
-                case LOOPING -> 25f + random.nextFloat() * 15f;
-                default -> sharedRadius;
-            };
-
-            segments.add(circleAt(home.entity, point, heading, radius, i % 2 == 0 ? side : -side, pattern == Pattern.LOOPING ? 0.3f : 0f));
-        }
-
-        return loopPath(home, segments);
+        return new ShuttlePath()
+                .add(new ShuttlePath.BezierSegment(launch, entry, padHandle, circleHandle, 0f))
+                .add(circle)
+                .add(new ShuttlePath.BezierSegment(exit, land, circleHandle, padHandle, 0f));
     }
 
     private ShuttlePath lingerPath(ShuttleAnchor home, ShuttleTarget target, float days, float speed) {
@@ -440,7 +420,7 @@ public class ShuttleFlights {
                 speedMult * (0.85f + 0.3f * random.nextFloat()), spread(LANE_JITTER), random.nextFloat());
     }
 
-    private ShuttlePath.CircleSegment circleAt(SectorEntityToken entity, Vector2f point, float heading, float radius, float side, float scaleBump) {
+    private ShuttlePath.CircleSegment circleAt(SectorEntityToken entity, Vector2f point, float heading, float radius, float side) {
         float centerAngle = heading + 90f * side;
         Vector2f center = Misc.getUnitVectorAtDegreeAngle(centerAngle);
         center.scale(radius);
@@ -453,7 +433,7 @@ public class ShuttleFlights {
             offsetY -= entity.getLocation().y;
         }
 
-        return new ShuttlePath.CircleSegment(entity, offsetX, offsetY, radius, centerAngle + 180f, 360f * side, scaleBump);
+        return new ShuttlePath.CircleSegment(entity, offsetX, offsetY, radius, centerAngle + 180f, 360f * side, 0f);
     }
 
     // a join path starts where the craft is, moving with the frame it flies in
@@ -468,15 +448,6 @@ public class ShuttleFlights {
         float days = renderer.getDays();
         return from.isUsable(renderer.getLocation()) && to.isUsable(renderer.getLocation()) && !from.threatened && !to.threatened
                 && (from.role == ShuttleAnchor.Role.REMNANT || from.isSafe(days));
-    }
-
-    private Pattern pickPattern(boolean showOff) {
-        WeightedRandomPicker<Pattern> picker = new WeightedRandomPicker<>(random);
-        picker.add(Pattern.PLANET_LAP, 3f);
-        picker.add(Pattern.LOOPS, showOff ? 6f : 3f);
-        picker.add(Pattern.LOOPING, showOff ? 4f : 2f);
-        picker.add(Pattern.FIGURE_EIGHT, 2f);
-        return picker.pick();
     }
 
     private float getHandle(ShuttleAnchor anchor, float chord) {
