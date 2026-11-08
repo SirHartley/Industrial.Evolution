@@ -33,6 +33,7 @@ public class ShuttleFlights {
     private static final float TRAFFIC_LANE_ANGLE = 8f;
     private static final float TRAFFIC_LANE_SPREAD = 1.5f;
     private static final float TRAFFIC_LANE_JITTER = 3f;
+    private static final float TRAFFIC_LANE_PASS = 30f;
     private static final float HANDLE_EXTRA = 80f;
     private static final float POD_SPEED = 35f;
     private static final float PANIC_RADIUS = 60f;
@@ -73,10 +74,8 @@ public class ShuttleFlights {
         float offset = LANE_OFFSET * Math.max(0.3f, Math.min(1f, chord / 800f));
         float bend = network.getBend(p0, p3, bendFrac * chord, from.entity, to.entity);
 
-        return new ShuttlePath().add(new ShuttlePath.BezierSegment(
-                new ShuttlePath.PadWaypoint(from, new ShuttlePath.EntityWaypoint(to.entity), side + spread(offset), 0f, false),
-                new ShuttlePath.PadWaypoint(to, new ShuttlePath.EntityWaypoint(from.entity), side + spread(offset), 0f, true),
-                getHandle(from, chord), getHandle(to, chord), bend));
+        return lane(from, to, from, to, new ShuttlePath.PadWaypoint(from, new ShuttlePath.EntityWaypoint(to.entity), side + spread(offset), 0f, false),
+                new ShuttlePath.PadWaypoint(to, new ShuttlePath.EntityWaypoint(from.entity), side + spread(offset), 0f, true), bend, 0f);
     }
 
     // one curve per anchor pair, bent the same way in both directions
@@ -89,10 +88,28 @@ public class ShuttleFlights {
         ShuttleAnchor to = reverse ? route.a : route.b;
         float angle = TRAFFIC_LANE_ANGLE + spread(TRAFFIC_LANE_SPREAD);
 
-        return new ShuttlePath().add(new ShuttlePath.BezierSegment(
-                new ShuttlePath.PadWaypoint(from, new ShuttlePath.EntityWaypoint(to.entity), -angle, 0f, false),
-                new ShuttlePath.PadWaypoint(to, new ShuttlePath.EntityWaypoint(from.entity), angle, 0f, true),
-                getHandle(from, chord), getHandle(to, chord), reverse ? -bend : bend));
+        return lane(route.a, route.b, from, to, new ShuttlePath.PadWaypoint(from, new ShuttlePath.EntityWaypoint(to.entity), -angle, 0f, false),
+                new ShuttlePath.PadWaypoint(to, new ShuttlePath.EntityWaypoint(from.entity), angle, 0f, true), bend, reverse ? TRAFFIC_LANE_PASS : -TRAFFIC_LANE_PASS);
+    }
+
+    // bend and offset are along the left normal of a to b; a lane with a star between its anchors goes through a live pass point beside it
+    private ShuttlePath lane(ShuttleAnchor a, ShuttleAnchor b, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath.Waypoint start, ShuttlePath.Waypoint end,
+                             float bend, float offset) {
+        float chord = Misc.getDistance(a.getLocation(), b.getLocation());
+        boolean reverse = from != a;
+        ShuttleNetwork.Body star = network.getStarAcross(a.getLocation(), b.getLocation());
+        if (star == null) {
+            return new ShuttlePath().add(new ShuttlePath.BezierSegment(start, end, getHandle(from, chord), getHandle(to, chord), reverse ? -bend : bend));
+        }
+
+        ShuttlePath.Waypoint pass = new ShuttlePath.StarPassWaypoint(a.entity, b.entity, star.entity, star.radius * 1.1f, bend, offset, reverse);
+        Vector2f passLoc = new Vector2f();
+        pass.getPosition(passLoc);
+        float first = Misc.getDistance(from.getLocation(), passLoc);
+        float second = Misc.getDistance(passLoc, to.getLocation());
+        return new ShuttlePath()
+                .add(new ShuttlePath.BezierSegment(start, pass, getHandle(from, first), first * 0.35f, 0f))
+                .add(new ShuttlePath.BezierSegment(pass, end, second * 0.35f, getHandle(to, second), 0f));
     }
 
     public ShuttlePath redirectPath(SectorEntityToken frame, Vector2f pos, float heading, ShuttleAnchor to) {

@@ -1,6 +1,7 @@
 package indevo.ambience.shuttletraffic;
 
 import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.util.Misc;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
@@ -99,6 +100,80 @@ public class ShuttlePath {
         @Override
         public void getDirection(Vector2f out) {
             out.set(1f, 0f);
+        }
+    }
+
+    // beside a star on a lane between two orbiting anchors, pushed out to the clearance on one fixed side, so the live lane never sweeps through the star
+    public static class StarPassWaypoint implements Waypoint {
+        private final SectorEntityToken a;
+        private final SectorEntityToken b;
+        private final SectorEntityToken star;
+        private final float clearance;
+        private final float bend;
+        private final float offset;
+        private final boolean reverse;
+        private final float side;
+
+        // bend and offset are along the left normal of a to b
+        public StarPassWaypoint(SectorEntityToken a, SectorEntityToken b, SectorEntityToken star, float clearance, float bend, float offset, boolean reverse) {
+            this.a = a;
+            this.b = b;
+            this.star = star;
+            this.clearance = clearance;
+            this.bend = bend;
+            this.offset = offset;
+            this.reverse = reverse;
+
+            Vector2f base = new Vector2f();
+            float across = getBase(base, 0f);
+            this.side = across != 0f ? Math.signum(across) : (bend < 0f ? -1f : 1f);
+        }
+
+        @Override
+        public void getPosition(Vector2f out) {
+            float across = getBase(out, offset) * side;
+            if (across >= clearance) return;
+
+            Vector2f la = a.getLocation();
+            Vector2f lb = b.getLocation();
+            float len = Math.max(1f, Misc.getDistance(la, lb));
+            float push = (clearance - across) * getFade(len) * side;
+            out.x -= (lb.y - la.y) / len * push;
+            out.y += (lb.x - la.x) / len * push;
+        }
+
+        @Override
+        public void getDirection(Vector2f out) {
+            Vector2f.sub(b.getLocation(), a.getLocation(), out);
+            float len = out.length();
+            if (len > 0.0001f) out.scale((reverse ? -1f : 1f) / len);
+            else out.set(1f, 0f);
+        }
+
+        // point on the bent lane abreast of the star, returns its signed distance from the star along the left normal
+        private float getBase(Vector2f out, float extra) {
+            Vector2f la = a.getLocation();
+            Vector2f lb = b.getLocation();
+            Vector2f ls = star.getLocation();
+            float cx = lb.x - la.x;
+            float cy = lb.y - la.y;
+            float len = Math.max(1f, (float) Math.sqrt(cx * cx + cy * cy));
+            float nx = -cy / len;
+            float ny = cx / len;
+            float u = Math.max(0.2f, Math.min(0.8f, ((ls.x - la.x) * cx + (ls.y - la.y) * cy) / (len * len)));
+            float shift = bend * 3f * u * (1f - u) + extra;
+
+            out.set(la.x + cx * u + nx * shift, la.y + cy * u + ny * shift);
+            return (out.x - ls.x) * nx + (out.y - ls.y) * ny;
+        }
+
+        // no push once the star is no longer between the anchors
+        private float getFade(float len) {
+            Vector2f la = a.getLocation();
+            Vector2f lb = b.getLocation();
+            Vector2f ls = star.getLocation();
+            float u = ((ls.x - la.x) * (lb.x - la.x) + (ls.y - la.y) * (lb.y - la.y)) / (len * len);
+            return Math.max(0f, Math.min(1f, Math.min(u, 1f - u) / 0.1f));
         }
     }
 

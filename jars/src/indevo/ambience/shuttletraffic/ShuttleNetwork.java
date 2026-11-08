@@ -111,6 +111,33 @@ public class ShuttleNetwork {
         return best;
     }
 
+    // nearest star between the two points that the lane could reach while its anchors orbit during the flight
+    public Body getStarAcross(Vector2f p0, Vector2f p3) {
+        float cx = p3.x - p0.x;
+        float cy = p3.y - p0.y;
+        float chord2 = cx * cx + cy * cy;
+        if (chord2 < 1f) return null;
+
+        float chord = (float) Math.sqrt(chord2);
+        Body best = null;
+        float bestAcross = Float.MAX_VALUE;
+        for (Body body : bodies) {
+            if (!(body.entity instanceof PlanetAPI planet) || !planet.isStar()) continue;
+
+            Vector2f loc = body.entity.getLocation();
+            float t = ((loc.x - p0.x) * cx + (loc.y - p0.y) * cy) / chord2;
+            if (t < 0.05f || t > 0.95f) continue;
+
+            float across = Math.abs((loc.x - p0.x) * -cy + (loc.y - p0.y) * cx) / chord;
+            if (across > body.radius + chord * 0.5f || across >= bestAcross) continue;
+
+            best = body;
+            bestAcross = across;
+        }
+
+        return best;
+    }
+
     public float getBend(Vector2f p0, Vector2f p3, float bend, SectorEntityToken fromEntity, SectorEntityToken toEntity) {
         float cx = p3.x - p0.x;
         float cy = p3.y - p0.y;
