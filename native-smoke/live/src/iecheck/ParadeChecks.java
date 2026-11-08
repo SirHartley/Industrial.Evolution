@@ -74,7 +74,12 @@ public final class ParadeChecks {
             String blocker = idle == null ? null : idle.getLaunchBlocker();
             c.note("idle profile blocker: " + blocker);
             c.expect("all colonies in the system already have a parade".equals(blocker), "idle profile shows the parade target blocker");
-            int free = 78 - tagged(a);
+            // the setting caps at 50, so keep the free count below it
+            for (FleetMemberAPI member : cargo(a).getMothballedShips().getMembersListCopy()) {
+                if (cargo(a).getMothballedShips().getNumMembers() - tagged(a) <= 10) break;
+                if (!member.getVariant().hasTag(MuseumConstants.ON_PARADE_TAG)) cargo(a).getMothballedShips().removeFleetMember(member);
+            }
+            int free = cargo(a).getMothballedShips().getNumMembers() - tagged(a);
             Colony.setting(Setting.MUSEUM_MIN_SHIPS_FOR_PARADE, free + 1);
             blocker = idle == null ? null : idle.getLaunchBlocker();
             Colony.setting(Setting.MUSEUM_MIN_SHIPS_FOR_PARADE, 3);

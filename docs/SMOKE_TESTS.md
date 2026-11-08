@@ -61,7 +61,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File native-smoke\run.ps1 -Skill 
 
 ## Live checks
 
-`native-smoke/live/` is a test-only mod (`iecheck`) plus `run.sh`: a real campaign driven by script, no clicks. It builds the checked jar, stages it in `out/live/stage`, makes one new game the first time (`out/live/base-saves`), loads that save and runs the groups in one game. The game window stays behind other windows.
+`native-smoke/live/` is a test-only mod (`iecheck`) plus `run.sh`: a real campaign driven by script, no clicks. It builds the checked jar, stages it in `out/live/stage`, makes one new game the first time (`out/live/base-saves`), loads that save and runs the groups in one game. The game window stays behind other windows. `gamectl` only drives this run's game (`GAMECTL_PID` from `game.pid`), so other slots may run games meanwhile.
 
 ```bash
 export SMOKE_SKILL='<skill folder>' SMOKE_JAVAC_DIR='<jdk 17 bin>'
@@ -80,7 +80,7 @@ The full set is about 340 checks in 12 minutes and exits 0 only when all pass. A
 | `KEEP=1` | Leave the game open for `gamectl`. Groups `ui0` and `ui94` build the Micromanagement and Fast Build state and wait |
 | `NEWGAME=1` | Start a new game instead of the base save, `SWITCHES=off` turns the content switches off first |
 | `STAGE=<folder>` | Load that mod folder, an unpacked release, instead of the checkout |
-| `SMOKE_LOCK=<folder>` | Lock folder shared by all runs on the machine (`C:\Modding\.smoke-lock`), `LOCKWAIT=<s>` is how long a run waits for it (1800) |
+| `SMOKE_SLOT=<n>` | Use a slot the session took from the skill's `smoke-slot.sh`. Without it the run takes one itself (owner `ie.live`, shared mode) and frees it at the end; `KEEP=1` keeps it for the open game. `SMOKE_LOCK=0` runs without a slot, only on a machine where nothing else starts games. `LOCKWAIT=<s>` is how long it waits for a slot (1800) |
 
 | Group | Covers |
 |---|---|

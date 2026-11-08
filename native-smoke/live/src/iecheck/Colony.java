@@ -80,7 +80,8 @@ public final class Colony {
     }
 
     public static void pair(Ctx c, int size) {
-        List<PlanetAPI> planets = planets(2);
+        // three planets so checks can add a third colony in the same system
+        List<PlanetAPI> planets = planets(3);
         MarketAPI a = make(planets.get(0), size);
         MarketAPI b = make(planets.get(1), size);
         c.put("a", a.getId());

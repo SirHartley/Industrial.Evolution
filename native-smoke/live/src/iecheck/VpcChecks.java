@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import indevo.ids.ItemIds;
 import indevo.items.VPCItemPlugin;
 
@@ -60,6 +61,9 @@ public final class VpcChecks {
             MarketAPI a = c.market("a");
             a.addIndustry(ASSEMBLER);
             Industry assembler = a.getIndustry(ASSEMBLER);
+            // inputs available, else deficits zero the outputs on a new colony
+            for (String id : VPCItemPlugin.getDemand(ultra).keySet()) a.getCommodityData(id).getAvailableStat().modifyFlat("ie_check", 20f);
+            a.getCommodityData(Commodities.HEAVY_MACHINERY).getAvailableStat().modifyFlat("ie_check", 20f);
             assembler.setSpecialItem(ultra);
             a.reapplyIndustries();
             boolean supplied = true;

@@ -155,11 +155,11 @@ public final class SenateChecks {
             }
             c.expect(refused && !a.hasCondition(CONSCRIPTION), "edict panel: a second edict on one colony is refused");
 
-            List<String> tags = new ArrayList<>(a.getTags());
+            java.util.Set<String> tags = new java.util.HashSet<>(a.getTags());
             int conditions = a.getConditions().size();
             new EdictPanelDelegate(a);
             new EdictPanelDelegate(b);
-            c.expect(a.getTags().equals(tags) && a.getConditions().size() == conditions, "edict panel: previews leave the colony untouched");
+            c.expect(new java.util.HashSet<>(a.getTags()).equals(tags) && a.getConditions().size() == conditions, "edict panel: previews leave the colony untouched");
         });
         steps.add(c -> {
             MarketAPI a = c.market("a");

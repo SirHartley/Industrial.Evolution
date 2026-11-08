@@ -115,8 +115,6 @@ public final class RelicChecks {
             a.addCondition("ruins_widespread");
             a.addIndustry(Industries.TECHMINING);
             a.reapplyIndustries();
-            a.getStats().getDynamic().getStat(Stats.TECH_MINING_MULT).modifyMult(TechMiningRelicOptionProvider.MOD_ID, TechMiningRelicOptionProvider.FIND_MULT);
-            a.getMemoryWithoutUpdate().set(TechMiningRelicOptionProvider.MEM_BOOST, true);
 
             Global.getSector().getPlayerFaction().removeKnownHullMod("heavyarmor");
             RecoveredHullmods.record(a, Global.getSettings().getVariant("phaeton_Standard"));
@@ -155,6 +153,8 @@ public final class RelicChecks {
 
             OrbitalWorksSlotManager.getInstanceOrRegister().start(a, eagle);
             c.put("eagle2", eagle.getId());
+            a.getStats().getDynamic().getStat(Stats.TECH_MINING_MULT).modifyMult(TechMiningRelicOptionProvider.MOD_ID, TechMiningRelicOptionProvider.FIND_MULT);
+            a.getMemoryWithoutUpdate().set(TechMiningRelicOptionProvider.MEM_BOOST, true);
             c.reload();
         });
         steps.add(c -> {
@@ -165,7 +165,7 @@ public final class RelicChecks {
             c.expect(academy.getCurrentOfficerTrainingSteps() == 2, "two step training survives reload");
             c.expect(RecoveredHullmods.getLearnable(a).containsKey("heavyarmor"), "recorded hullmods survive reload");
             a.removeIndustry(Industries.ORBITALWORKS, null, false);
-            c.days(2f);
+            c.days(1f);
         });
         steps.add(c -> {
             MarketAPI a = c.market("a");

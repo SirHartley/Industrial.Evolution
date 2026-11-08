@@ -76,7 +76,7 @@ public final class ContentChecks {
             memory.set(AncientLaboratory.COMMODITY_KEY, true);
             memory.set(AncientLaboratory.COMMODITY_KEY + "_1", Commodities.SUPPLIES);
             memory.set(AncientLaboratory.COMMODITY_KEY + "_2", Commodities.DOMESTIC_GOODS);
-            memory.set(AncientLaboratory.COMMODITY_KEY + "_3", Commodities.LUXURY_GOODS);
+            memory.set(AncientLaboratory.COMMODITY_KEY + "_3", Commodities.SHIPS);
             a.addIndustry(Industries.HEAVYINDUSTRY);
             a.addIndustry(Industries.LIGHTINDUSTRY);
             a.addIndustry(Ids.LAB);
@@ -85,10 +85,10 @@ public final class ContentChecks {
             lab.setAICoreId(null);
             a.reapplyIndustries();
             c.expect(boosted(a, lab, Commodities.SUPPLIES), "lab boosts its first commodity");
-            c.expect(!boosted(a, lab, Commodities.LUXURY_GOODS), "no core: third commodity not boosted");
+            c.expect(!boosted(a, lab, Commodities.SHIPS), "no core: third commodity not boosted");
             lab.setAICoreId(Commodities.ALPHA_CORE);
             a.reapplyIndustries();
-            c.expect(boosted(a, lab, Commodities.LUXURY_GOODS), "602 alpha core boosts the third commodity");
+            c.expect(boosted(a, lab, Commodities.SHIPS), "602 alpha core boosts the third commodity");
         });
         steps.add(c -> {
             int systems = 0;
