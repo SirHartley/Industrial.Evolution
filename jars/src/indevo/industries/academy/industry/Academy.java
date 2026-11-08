@@ -586,9 +586,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     public int getMaxOfficerSteps(boolean alpha) {
-        int steps = alpha ? 2 : 1;
-        if (hasHolobench()) steps += alpha ? 2 : 1;
-        return steps;
+        return 1 + (alpha ? 1 : 0) + (hasHolobench() ? 1 : 0);
     }
 
     public static String getStepCountText(int steps) {
