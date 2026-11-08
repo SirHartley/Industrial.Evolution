@@ -35,6 +35,7 @@ After reading this file, use the task to choose the next document. Read the rele
 | Write or change a PatchLib patch | [ARCHITECTURE.md](docs/ARCHITECTURE.md#patches), the feature doc, and the `patchlib` skill. |
 | Combat scripts, weapon AI or projectiles under `jars/src/data/scripts` | [COMBAT.md](docs/core/COMBAT.md) and the feature doc that uses the weapon. |
 | Revive or remove WIP code | [WIP.md](docs/core/WIP.md) |
+| Plan, start or check the status of a new feature | [NEW_FEATURES.md](docs/NEW_FEATURES.md): plans, decisions and open questions per feature. It does not govern current behavior; the feature docs do. |
 | Write or revise any player-facing text (descriptions, intel, dialogue, tooltips, LunaLib help text) | The house-style `player-text.md` and the feature doc. |
 | Edit a guide or add documentation | [Documentation upkeep](#documentation-upkeep), the owning guide and its inbound links. |
 | Change the build, rebuild the release jar, or prepare a release | [RELEASE.md](docs/RELEASE.md) and [Building](#building). |
@@ -90,6 +91,7 @@ Update documents automatically as part of each relevant change. Before committin
 | `docs/ARCHITECTURE.md` | Overview: areas, feature doc index, registration and lifecycle in `ModPlugin`, save data, data layout, cross-feature contracts, dormant code summary | Update the affected route, registration line or contract; remove obsolete owners. Use exact paths and symbols. No feature internals (those go in the feature doc), lore, release history or duplicate policy. |
 | `docs/<area>/<FEATURE>.md` | One feature each: files, ids, registration, flow, contracts, known issues | Update with every change to that feature's code, data or settings. Keep the template sections. Add a row to the ARCHITECTURE.md feature table for a new doc. |
 | `docs/core/SETTINGS.md` | Settings reader, LunaLib tabs, `settings.json` key groups, whitelists | Update when the mechanism, a tab, a key group or a whitelist changes. Setting values belong in the feature doc. |
+| `docs/NEW_FEATURES.md` | New feature plans: decisions, open questions, staged plans | Record decisions when made; when a stage merges, move its technical detail to the feature doc and ARCHITECTURE.md and leave a pointer. |
 | `docs/core/SETTINGS_REWORK.md` | Settings rework record: decisions, the baseline it replaced, staged plan | Record decisions; tick subtasks as they merge and move implemented detail to SETTINGS.md and ARCHITECTURE.md. Does not govern setting values or help text. |
 | `docs/core/UTILS.md` | Shared helpers in `indevo/utils` | Update when a helper is added, removed or changes its contract. |
 | `docs/core/COMPATIBILITY.md` | Integrations with other mods | Update when an integration, a hard or optional dependency, or a config file for another mod changes. |
