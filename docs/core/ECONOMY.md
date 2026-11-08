@@ -99,7 +99,7 @@ Vanilla `CustomProductionContract` fires `CPCBlueprintsPicked` after the product
 
 Vanilla flow is translated from obfuscated `com.fs.starfarer.coreui.refit.ModPickerDialogV3` (0.98a-RC8): `tableRowSelected` refuses a new S-mod when `getStoryPoints() - pending <= 0`, `actionPerformed` on Confirm calls `spendStoryPoints(count, true, null, true, bonusXpFraction, text)`, `PermaModInfoWidget.advanceImpl` draws the counter from `getStoryPoints()`.
 
-`createUI` in build in mode (`isPermMode()`, campaign only, the counter widget exists) -> `RelicBuildInPatch.afterCreateUI` adds the "Use Relics" area checkbox below vanilla's Cancel button (the widget's `ButtonAPI` child with text "Cancel"), the same size as Cancel, mirroring the warning line below Confirm, and makes this `Toggle` the active one. Cost per S-mod `max(1, round(5 x unmodified DP))` of the refit ship (`RELICS_PER_DP`). Relics are counted in fleet cargo plus, when the refit was opened from an interaction at a market with storage access, that storage.
+`createUI` in build in mode (`isPermMode()`, campaign only, the counter widget exists) -> `RelicBuildInPatch.afterCreateUI` shrinks the hullmod effect list (the widget's `ScrollPanelAPI` child) by one button row, adds the "Use Relics" area checkbox below vanilla's Cancel (the `ButtonAPI` child whose text starts with "Cancel", the label carries its shortcut), the same size as Cancel, moves the "Once confirmed" warning line (the `TooltipMakerAPI` child) below that row, and makes this `Toggle` the active one. Cost per S-mod `max(1, round(5 x unmodified DP))` of the refit ship (`RELICS_PER_DP`). Relics are counted in fleet cargo plus, when the refit was opened from an interaction at a market with storage access, that storage.
 
 Toggle on:
 
