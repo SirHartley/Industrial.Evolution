@@ -64,6 +64,8 @@ public final class Groups {
                 return RelicChecks.steps();
             case "meteor":
                 return MeteorChecks.steps();
+            case "shuttle":
+                return ShuttleChecks.steps();
             default:
                 throw new IllegalArgumentException("Unknown group " + group);
         }
