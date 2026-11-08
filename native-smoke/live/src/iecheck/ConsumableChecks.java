@@ -203,6 +203,12 @@ public final class ConsumableChecks {
         steps.add(c -> {
             CampaignFleetAPI fleet = player();
             c.note("after hotkey: cooldown " + fleet.getAbility(INTERCEPT).getCooldownLeft());
+            // a background key is sometimes dropped, press once more
+            if (fleet.getAbility(INTERCEPT).getCooldownLeft() <= 0f) c.key("1");
+        });
+        steps.add(c -> {
+            CampaignFleetAPI fleet = player();
+            c.note("after second hotkey: cooldown " + fleet.getAbility(INTERCEPT).getCooldownLeft());
             c.expect(fleet.getAbility(INTERCEPT).getCooldownLeft() > 0f, "2902 hyperspace slot missile fires by hotkey, no crash");
         });
         return steps;

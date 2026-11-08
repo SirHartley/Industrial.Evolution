@@ -69,7 +69,7 @@ public class RelicBuildInPatch {
         ButtonAPI cancel = null;
         List<?> children = context.getMethod(GET_CHILDREN, widget).call();
         for (Object child : children) {
-            if (child instanceof ButtonAPI b && CANCEL_TEXT.equals(b.getText())) {
+            if (child instanceof ButtonAPI b && b.getText() != null && b.getText().startsWith(CANCEL_TEXT)) {
                 cancel = b;
                 break;
             }
