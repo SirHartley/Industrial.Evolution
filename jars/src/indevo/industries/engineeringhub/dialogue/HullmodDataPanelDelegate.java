@@ -132,7 +132,7 @@ public class HullmodDataPanelDelegate extends ButtonReportingDialogueDelegate {
 
         TooltipMakerAPI footer = panel.createUIElement(width, FOOTER_HEIGHT, false);
         footer.addPara(relicName + " available: %s", spad, Misc.getHighlightColor(), available + "");
-        panel.addUIElement(footer).belowLeft(list, 0f);
+        panel.addUIElement(footer).inTL(0f, HEADER_HEIGHT + listHeight);
 
         basePanel.addComponent(panel);
     }
