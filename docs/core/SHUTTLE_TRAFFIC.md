@@ -121,11 +121,11 @@ Fighters on joyrides and pickets fly as a wing of `wingSize` (at most 3); traini
 - Pods (`getPodCount`, `:354`): from `getFleetData().getSnapshot()`, crewed non automated members only, 1 per frigate or destroyer, 2 per cruiser, 3 per capital, at most 16; an empty snapshot gives 3.
 - Planet (`findPodPlanet`, `:373`): nearest non star planet whose surface is within 2000 su; a non hostile market planet in range wins over a closer one.
 - Queued until `getCampaignUI().isShowingDialog()` is false and the game is unpaused, dropped if the player left the location. At most 32 pods in flight.
-- Each pod (`ShuttleFlights.launchPods`, `:146`): random 32 px cell of the cargo pod sheet at 10 su, appears within 1.5 s, shoots out at 80 to 120 su/s easing to 35 su/s over 2 s, tumbles, curves to a random point on the planet disc and lands with the planet look. Short thin `LOW_TECH` contrail, no engine glow. Pods ignore fleets and threats.
+- Each pod (`ShuttleFlights.launchPods`, `:146`): random 32 px cell of the cargo pod sheet at 13 su, appears within 1.5 s, shoots out at 80 to 120 su/s easing to 35 su/s over 2 s, tumbles, curves to a random point on the planet disc and lands with the planet look. Short thin `LOW_TECH` contrail, no engine glow. Pods ignore fleets and threats.
 
 ### Look
 
-- Hull sprites at 0.10 (fighters) and 0.07 (frigates) of sprite size, below vanilla's campaign 0.15 and 0.11. Speed 30 su/s fighters, 24 su/s frigates, +-15% per craft, easing to 35% over launch and landing. Joyrides x1.1, pickets x0.8, hunts, mining and salvage x0.8.
+- Hull sprites at 0.13 (fighters) and 0.09 (frigates) of sprite size, below vanilla's campaign 0.15 and 0.11. Speed 30 su/s fighters, 24 su/s frigates, +-15% per craft, easing to 35% over launch and landing. Joyrides x1.1, pickets x0.8, hunts, mining and salvage x0.8.
 - Everything draws in `TERRAIN_7`: above planets, rings, asteroids and stations, below fleets. Planet launch and landing over `1.2 * radius` (at most 40% of the path): scale to 0.5, 30% darker, and the craft fades only while over the surface, from the limb to the pad. Station docking over 60 su: scale to 0.7, alpha to 0. A craft pulled out of a landing (fleeing, holding) fades back over 1 s.
 - Facing follows the path tangent plus the rate of the sideways offset, turning at most 90 degrees per second, never the world step, so orbiting anchors do not swing the sprite or trail.
 - Trail: 16 point ring buffer, a point every 8 su, untextured `GL_QUAD_STRIP` 3 su wide, fading to the tail, engine style colour and blend. Smugglers: 30% trail, no glow. Hunts: 50% trail, heavier glow flicker.
