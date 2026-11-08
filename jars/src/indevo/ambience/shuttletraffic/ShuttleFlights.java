@@ -168,8 +168,6 @@ public class ShuttleFlights {
             pod.boostTime = 2f;
             pod.delay = random.nextFloat() * 1.5f;
             pod.spinRate = (20f + random.nextFloat() * 40f) * randomSign();
-            pod.beacon = true;
-            pod.lights = false;
             pod.engineGlow = false;
             pod.avoids = false;
             pod.flees = false;
@@ -204,7 +202,6 @@ public class ShuttleFlights {
         Shuttle shuttle = create(hull, route, faction, from, to, lanePath(from, to, route.bendFrac * (smuggler ? 2f : 1f), smuggler), 1f);
         if (smuggler) {
             shuttle.engineGlow = false;
-            shuttle.lights = false;
             shuttle.trailAlpha = 0.3f;
         }
 

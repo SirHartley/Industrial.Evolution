@@ -34,8 +34,6 @@ public class Shuttle {
     private static final float FLEE_WOBBLE = 10f;
     private static final float FLEE_WOBBLE_TIME = 3f;
     private static final float STRANDED_HOLD_RADIUS = 150f;
-    private static final Color RED_LIGHT = new Color(255, 60, 50);
-    private static final Color GREEN_LIGHT = new Color(60, 255, 90);
 
     public final ShuttleHull hull;
     public final FactionAPI faction;
@@ -51,9 +49,7 @@ public class Shuttle {
     public float turnRate = TURN_RATE;
     public boolean done = false;
 
-    public boolean lights = true;
     public boolean engineGlow = true;
-    public boolean beacon = false;
     public boolean avoids = true;
     public boolean queues = true;
     public boolean flees = true;
@@ -109,7 +105,7 @@ public class Shuttle {
     private boolean stranded = false;
     private boolean down = false;
     private boolean waitForSafeHome = false;
-    private final float lightPhase;
+    private final float phase;
 
     private final Vector2f base = new Vector2f();
     private final Vector2f tangent = new Vector2f();
@@ -126,7 +122,7 @@ public class Shuttle {
     private int historyCount = 0;
 
     public Shuttle(ShuttleHull hull, ShuttleRoute route, FactionAPI faction, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath path,
-                   End launchEnd, End landEnd, float speedMult, float jitter, float lightPhase) {
+                   End launchEnd, End landEnd, float speedMult, float jitter, float phase) {
         this.hull = hull;
         this.route = route;
         this.faction = faction;
@@ -138,7 +134,7 @@ public class Shuttle {
         this.landEnd = landEnd;
         this.speedMult = speedMult;
         this.jitter = jitter;
-        this.lightPhase = lightPhase;
+        this.phase = phase;
         if (path != null) path.rebuild();
     }
 
@@ -356,9 +352,9 @@ public class Shuttle {
             else extraLag = Math.max(target, extraLag - 10f * amount);
         }
 
-        float phase = lightPhase * 6.28f;
-        float side = slotSide + noise * (float) Math.sin(age * 0.7f + phase);
-        float back = slotBack + extraLag + noise * 0.5f * (float) Math.sin(age * 0.5f + phase * 2f);
+        float offset = phase * 6.28f;
+        float side = slotSide + noise * (float) Math.sin(age * 0.7f + offset);
+        float back = slotBack + extraLag + noise * 0.5f * (float) Math.sin(age * 0.5f + offset * 2f);
         lead.getHistoryPoint(back, base, tangent);
 
         pos.set(base.x - tangent.y * side, base.y + tangent.x * side);
@@ -637,7 +633,7 @@ public class Shuttle {
         trailCount = Math.min(TRAIL_POINTS, trailCount + 1);
     }
 
-    public void render(float alphaMult, SpriteAPI glow, boolean zoomedIn, float time) {
+    public void render(float alphaMult, SpriteAPI glow) {
         if (delay > 0f || down) return;
 
         float a = alpha * alphaMult;
@@ -664,27 +660,6 @@ public class Shuttle {
             glow.setAdditiveBlend();
             glow.setAlphaMult(a * (1f - flicker + flicker * (float) Math.random()));
             glow.renderAtCenter(pos.x - hx * hull.length * scale * 0.5f, pos.y - hy * hull.length * scale * 0.5f);
-        }
-
-        if (lights && zoomedIn && ((time + lightPhase) % 1f) < 0.15f) {
-            float half = hull.width * scale * 0.5f;
-            glow.setSize(3f, 3f);
-            glow.setAngle(0f);
-            glow.setAdditiveBlend();
-            glow.setAlphaMult(a);
-            glow.setColor(RED_LIGHT);
-            glow.renderAtCenter(pos.x - hy * half, pos.y + hx * half);
-            glow.setColor(GREEN_LIGHT);
-            glow.renderAtCenter(pos.x + hy * half, pos.y - hx * half);
-        }
-
-        if (beacon && ((time + lightPhase) % 0.5f) < 0.1f) {
-            glow.setSize(5f, 5f);
-            glow.setAngle(0f);
-            glow.setAdditiveBlend();
-            glow.setAlphaMult(a);
-            glow.setColor(RED_LIGHT);
-            glow.renderAtCenter(pos.x, pos.y);
         }
     }
 

@@ -36,7 +36,7 @@ One transient LunaLib campaign renderer owns everything: anchors, routes, craft,
 |---|---|---|
 | Setting | `IndEvo_shuttleTraffic` (Int, 40, 0 to 80): most craft in flight in the current system, 0 turns traffic and escape pods off | `data/config/LunaSettings.csv:13`, `indevo/config/Setting.java:10`, read every frame in `ShuttleTrafficRenderer.advance` (`:83`) |
 | CSV | `data/config/indEvo/shuttle_traffic.csv`, read with `getMergedSpreadsheetDataForMod("id", path, "IndEvo")`; rows starting with `#` are skipped | `ShuttleHullPool.getBasePool` |
-| Sprites | `campaignEntities` / `fusion_lamp_glow` (engine glow, navigation lights, pod beacon); `misc` / `cargoPods` cut into 32 px cells for escape pods; hull sprites from `ShipHullSpecAPI.getSpriteName()` | `ShuttleTrafficRenderer`, `ShuttleHullPool.createPod` (`:98`) |
+| Sprites | `campaignEntities` / `fusion_lamp_glow` (engine glow); `misc` / `cargoPods` cut into 32 px cells for escape pods; hull sprites from `ShipHullSpecAPI.getSpriteName()` | `ShuttleTrafficRenderer`, `ShuttleHullPool.createPod` (`:98`) |
 | Config | `data/config/engine_styles.json` (merged): `engineCampaignColor` or `engineColor` for the glow, `contrailCampaignColor` or `contrailColor` at alpha 75 for the trail, `type` `SMOKE` for a normal blend trail | `ShuttleHullPool.getEngineLook` (`:265`) |
 | Industry ids | `Industries.PATROLHQ`, `MILITARYBASE`, `HIGHCOMMAND`, `MINING`, `Ids.SWITCHABLE_MINING`, `Ids.ACADEMY`, `Ids.EMBASSY`, `Ids.SCRAPYARD` | `ShuttleNetwork.addMarkets` (`:170`) |
 
@@ -120,15 +120,15 @@ Fighters on joyrides and pickets fly as a wing of `wingSize` (at most 3); traini
 - Pods (`getPodCount`, `:354`): from `getFleetData().getSnapshot()`, crewed non automated members only, 1 per frigate or destroyer, 2 per cruiser, 3 per capital, at most 16; an empty snapshot gives 3.
 - Planet (`findPodPlanet`, `:373`): nearest non star planet whose surface is within 2000 su; a non hostile market planet in range wins over a closer one.
 - Queued until `getCampaignUI().isShowingDialog()` is false and the game is unpaused, dropped if the player left the location. At most 32 pods in flight.
-- Each pod (`ShuttleFlights.launchPods`, `:146`): random 32 px cell of the cargo pod sheet at 10 su, appears within 1.5 s, shoots out at 80 to 120 su/s easing to 35 su/s over 2 s, tumbles, curves to a random point on the planet disc and lands with the planet look. Red beacon at 2 Hz, short thin `LOW_TECH` contrail. Pods ignore fleets and threats.
+- Each pod (`ShuttleFlights.launchPods`, `:146`): random 32 px cell of the cargo pod sheet at 10 su, appears within 1.5 s, shoots out at 80 to 120 su/s easing to 35 su/s over 2 s, tumbles, curves to a random point on the planet disc and lands with the planet look. Short thin `LOW_TECH` contrail, no engine glow. Pods ignore fleets and threats.
 
 ### Look
 
 - Hull sprites at 0.10 (fighters) and 0.07 (frigates) of sprite size, below vanilla's campaign 0.15 and 0.11. Speed 30 su/s fighters, 24 su/s frigates, +-15% per craft, easing to 35% over launch and landing. Joyrides x1.15, pickets x0.8, hunts, mining and salvage x0.8.
 - Planet launch and landing over `1.2 * radius` (at most 40% of the path): scale to 0.35, alpha to 0, 30% darker, drawn in `TERRAIN_3`. Station docking over 60 su: scale to 0.7, alpha to 0, drawn in `BELOW_STATIONS`. Everything else in `TERRAIN_7`, below fleets. A craft pulled out of a landing (fleeing, holding) fades back over 1 s.
 - Facing follows the path tangent plus the rate of the sideways offset, turning at most 90 degrees per second (joyrides 180, training 63), never the world step, so orbiting anchors do not swing the sprite or trail.
-- Trail: 16 point ring buffer, a point every 8 su, untextured `GL_QUAD_STRIP` 3 su wide, fading to the tail, engine style colour and blend. Smugglers: 30% trail, no glow, no lights. Hunts: 50% trail, heavier glow flicker.
-- Engine glow at the rear, flickering, 1.5x for 2 s around launch and landing. Navigation lights (red port, green starboard, 1 Hz, random phase) when `getViewMult()` is below 0.75.
+- Trail: 16 point ring buffer, a point every 8 su, untextured `GL_QUAD_STRIP` 3 su wide, fading to the tail, engine style colour and blend. Smugglers: 30% trail, no glow. Hunts: 50% trail, heavier glow flicker.
+- Engine glow at the rear, flickering, 1.5x for 2 s around launch and landing. No blinking lights.
 - Traffic fades out between view mult 2 and 3 (max campaign zoom is 3). Off viewport craft (300 su margin) are skipped.
 
 ### Docking queue
