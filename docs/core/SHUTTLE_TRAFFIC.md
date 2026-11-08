@@ -34,7 +34,7 @@ One transient LunaLib campaign renderer owns everything: anchors, routes, craft,
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Setting | `IndEvo_shuttleTraffic` (Int, 40, 0 to 80): most craft in flight in the current system, 0 turns traffic and escape pods off | `data/config/LunaSettings.csv:13`, `indevo/config/Setting.java:10`, read every frame in `ShuttleTrafficRenderer.advance` (`:83`) |
+| Setting | `IndEvo_shuttleTraffic` (Int, 60, 0 to 120): most craft in flight in the current system, 0 turns traffic and escape pods off | `data/config/LunaSettings.csv:13`, `indevo/config/Setting.java:10`, read every frame in `ShuttleTrafficRenderer.advance` (`:83`) |
 | CSV | `data/config/indEvo/shuttle_traffic.csv`, read with `getMergedSpreadsheetDataForMod("id", path, "IndEvo")`; rows starting with `#` are skipped | `ShuttleHullPool.getBasePool` |
 | Sprites | `campaignEntities` / `fusion_lamp_glow` (engine glow); `misc` / `cargoPods` cut into 32 px cells for escape pods; hull sprites from `ShipHullSpecAPI.getSpriteName()` | `ShuttleTrafficRenderer`, `ShuttleHullPool.createPod` (`:98`) |
 | Config | `data/config/engine_styles.json` (merged): `engineCampaignColor` or `engineColor` for the glow, `contrailCampaignColor` or `contrailColor` at alpha 75 for the trail, `type` `SMOKE` for a normal blend trail | `ShuttleHullPool.getEngineLook` (`:265`) |
@@ -67,7 +67,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 | `DIPLOMAT` | Market with an Embassy to another faction's market, picked per flight | 1, 5% per day | 1.0 |
 | `HUNT` | `DECIV` anchor to another non star planet (ruins weight 3, else 1), stays down 2 to 5 days, flies home | 1, 3% per day | 1.0 |
 | `MAINTENANCE` | Nearest same faction market to each comm relay, nav buoy or sensor array; one lap at 100 su | 1, 2% per day | 1.0 |
-| `MARKET` | Market pair, factions not hostile, neither pirate | `max(1, round((sizeA + sizeB) / 4 * mean density))` | 0.9 |
+| `MARKET` | Market pair, factions not hostile, neither pirate | `max(2, round(chord / 500 * mean density * (sizeA + sizeB) / 10))`: about one craft per 500 su of lane for two size 5 markets | 0.9 |
 | `MINING` | Market with Mining to the nearest asteroid belt, ring or asteroid field; lingers 1 to 3 days | `max(1, round((1 + size / 4) * density))` | 0.8 |
 | `SALVAGE` | Market with Salvage Yards to the nearest debris field or wreck; lingers 2 to 4 days | 1 | 0.8 |
 | `PICKET` | Market with Patrol HQ (1) or Military Base / High Command (2); one or two laps of an ellipse at `radius + 150..300` | wings | 0.8 |
@@ -89,11 +89,12 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 
 ### Paths
 
-- Lanes: one cubic Bezier between pads (`0.6 * radius` deep on planets, `0.15 * radius` on stations), evaluated live, so orbiting anchors carry the lane. Pads sit at a fixed offset from the live direction to the other anchor (+-40 degrees, scaled down to +-12 on lanes under 800 su), so the lane turns with orbiting anchors instead of stretching; handles `min(radius + 80, chord * 0.45)` along the outward radial. Smugglers launch and land on the far sides and bend twice as wide.
-- Bend: control points shift along the chord normal by `bendFrac * chord`, `bendFrac` in +-0.125 per route; the two directions of a lane arc on opposite sides. `ShuttleNetwork.getBend` (`:112`) pushes the bend clear of any star (corona or event horizon outer edge, else `1.5 * radius`) or planet (`1.3 * radius + 30`).
+- Market lanes (`trafficLanePath`, `ShuttleFlights.java:83`): one curve per market pair, bent the same way in both directions. Pads sit 8 +-1.5 degrees right of the live line between the anchors and jitter is +-3 su, so each direction keeps to its own side and a pair shows two steady streams about 60 su apart mid lane.
+- Other lanes: one cubic Bezier between pads (`0.6 * radius` deep on planets, `0.15 * radius` on stations), evaluated live, so orbiting anchors carry the lane. Pads sit at a fixed offset from the live direction to the other anchor (+-40 degrees, scaled down to +-12 on lanes under 800 su), so the lane turns with orbiting anchors instead of stretching; handles `min(radius + 80, chord * 0.45)` along the outward radial. Smugglers launch and land on the far sides and bend twice as wide.
+- Bend: control points shift along the chord normal by `bendFrac * chord`, `bendFrac` in +-0.125 per route; outside market lanes the two directions arc on opposite sides. `ShuttleNetwork.getBend` (`:112`) pushes the bend clear of any star (corona or event horizon outer edge, else `1.5 * radius`) or planet (`1.3 * radius + 30`).
 - Joyrides (`ShuttleFlights.joyridePath`): Orbit, one full lap at `radius + 100..220` su around the anchor; Arc, planets only (60%), a low hop at `0.25 * radius + 40..80` su over 60 to 140 degrees to another spot on the same planet. Pads sit 60 degrees behind the entry and past the exit, so the craft climbs out along the entry radial and spirals back in; handles `0.5 * R` at the pads, `0.4 * R` at the circle.
 - Linger (`lingerPath`, `:356`): Beziers between points on circles of `wander * (0.8..1.2)` that turn 80 degrees per step, handles `0.5 * wander` (longer ones overshoot into cusps), drifting 40 su per step along a belt band; the count follows the linger days at cruise speed. Two spare points at each end let the loop start at the point heading most away from home and end at the one heading most toward it, so the transits need no u turn. Wander is 80 su for belts and fields, 60 to 120 su for debris fields, 70 su for wrecks.
-- Jitter up to +-10 su scales with `sin(pi * t)`. Paths that join a craft's current position to a pad or circle use handles up to 150 su. Arc length tables of 16 samples. A craft keeps its progress as a segment and an arc length fraction inside it (`ShuttlePath.Cursor`); the current segment's table is rebuilt every frame and the rest every 1 s, so a rebuild never moves the craft. Progress is distance based, so fast forward is safe.
+- Jitter up to +-10 su (market lanes +-3) scales with `sin(pi * t)`. Paths that join a craft's current position to a pad or circle use handles up to 150 su. Arc length tables of 16 samples. A craft keeps its progress as a segment and an arc length fraction inside it (`ShuttlePath.Cursor`); the current segment's table is rebuilt every frame and the rest every 1 s, so a rebuild never moves the craft. Progress is distance based, so fast forward is safe.
 - Frames: a craft stores its trail and formation history relative to a virtual frame (`Shuttle.moveFrame`, `:699`) that moves each frame by how far the current segment's start and end points moved, blended by `t * t * (3 - 2t)` on a Bezier (how its control points move) and the start on a circle. The trail then rides exactly like the path under the craft and stays in line with the sprite even between two bodies that orbit apart. A segment that starts where the last one ended carries on from that end. Every waypoint also names the entity it moves with (`Waypoint.getFrame`); paths that start at a craft's position (redirect, flee, away, screen, holds) start relative to the current segment's dominant entity.
 
 ### Formations
@@ -149,8 +150,8 @@ A station pad is busy while a craft is in its last 100 su and 1 s after. A craft
 
 | Item | State |
 |---|---|
-| In game look | Tests (2026-11-08) fixed: rubberbanding, nervous trails, blinking lights, loop joyrides, craft vanishing under planets, sprite size, trails out of line with the craft between moving bodies. Untested in game: blended trail frame, look of orbits and arcs, formation break up |
-| Performance | Live smoke `shuttle` group (2026-11-08): 55 craft at Sindria, all of `shuttletraffic` 0.4% of CPU and allocation |
+| In game look | Tests (2026-11-08) fixed: rubberbanding, nervous trails, blinking lights, loop joyrides, craft vanishing under planets, sprite size, trails out of line with the craft between moving bodies. Untested in game: market lanes, blended trail frame, look of orbits and arcs, formation break up |
+| Performance | Live smoke `shuttle` group (2026-11-08, before market lanes): 55 craft at Sindria, all of `shuttletraffic` 0.4% of CPU and allocation |
 
 ## Maintenance
 

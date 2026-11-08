@@ -29,6 +29,10 @@ public class ShuttleFlights {
     private static final String PICKET_FALLBACK = "talon";
     private static final float LANE_OFFSET = 40f;
     private static final float LANE_JITTER = 10f;
+    // market lanes: each direction keeps right of the line between the anchors, so a pair shows two steady streams
+    private static final float TRAFFIC_LANE_ANGLE = 8f;
+    private static final float TRAFFIC_LANE_SPREAD = 1.5f;
+    private static final float TRAFFIC_LANE_JITTER = 3f;
     private static final float HANDLE_EXTRA = 80f;
     private static final float POD_SPEED = 35f;
     private static final float PANIC_RADIUS = 60f;
@@ -73,6 +77,22 @@ public class ShuttleFlights {
                 new ShuttlePath.PadWaypoint(from, new ShuttlePath.EntityWaypoint(to.entity), side + spread(offset), 0f, false),
                 new ShuttlePath.PadWaypoint(to, new ShuttlePath.EntityWaypoint(from.entity), side + spread(offset), 0f, true),
                 getHandle(from, chord), getHandle(to, chord), bend));
+    }
+
+    // one curve per anchor pair, bent the same way in both directions
+    public ShuttlePath trafficLanePath(ShuttleRoute route, boolean reverse) {
+        Vector2f p0 = route.a.getLocation();
+        Vector2f p3 = route.b.getLocation();
+        float chord = Misc.getDistance(p0, p3);
+        float bend = network.getBend(p0, p3, route.bendFrac * chord, route.a.entity, route.b.entity);
+        ShuttleAnchor from = reverse ? route.b : route.a;
+        ShuttleAnchor to = reverse ? route.a : route.b;
+        float angle = TRAFFIC_LANE_ANGLE + spread(TRAFFIC_LANE_SPREAD);
+
+        return new ShuttlePath().add(new ShuttlePath.BezierSegment(
+                new ShuttlePath.PadWaypoint(from, new ShuttlePath.EntityWaypoint(to.entity), -angle, 0f, false),
+                new ShuttlePath.PadWaypoint(to, new ShuttlePath.EntityWaypoint(from.entity), angle, 0f, true),
+                getHandle(from, chord), getHandle(to, chord), reverse ? -bend : bend));
     }
 
     public ShuttlePath redirectPath(SectorEntityToken frame, Vector2f pos, float heading, ShuttleAnchor to) {
@@ -193,7 +213,9 @@ public class ShuttleFlights {
         };
         if (hull == null) return null;
 
-        Shuttle shuttle = create(hull, route, faction, from, to, lanePath(from, to, route.bendFrac * (smuggler ? 2f : 1f), smuggler), 1f);
+        Shuttle shuttle = route.kind == ShuttleRoute.Kind.MARKET
+                ? create(hull, route, faction, from, to, trafficLanePath(route, from == route.b), 1f, TRAFFIC_LANE_JITTER)
+                : create(hull, route, faction, from, to, lanePath(from, to, route.bendFrac * (smuggler ? 2f : 1f), smuggler), 1f);
         if (smuggler) {
             shuttle.engineGlow = false;
             shuttle.trailAlpha = 0.3f;
@@ -438,8 +460,13 @@ public class ShuttleFlights {
     }
 
     private Shuttle create(ShuttleHull hull, ShuttleRoute route, FactionAPI faction, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath path, float speedMult) {
+        return create(hull, route, faction, from, to, path, speedMult, LANE_JITTER);
+    }
+
+    private Shuttle create(ShuttleHull hull, ShuttleRoute route, FactionAPI faction, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath path, float speedMult,
+                           float jitter) {
         return new Shuttle(hull, route, faction, from, to, path, ShuttleTrafficRenderer.getEnd(from), ShuttleTrafficRenderer.getEnd(to),
-                speedMult * (0.85f + 0.3f * random.nextFloat()), spread(LANE_JITTER), random.nextFloat());
+                speedMult * (0.85f + 0.3f * random.nextFloat()), spread(jitter), random.nextFloat());
     }
 
     private ShuttlePath.CircleSegment circleAt(SectorEntityToken entity, Vector2f point, float heading, float radius, float side) {
