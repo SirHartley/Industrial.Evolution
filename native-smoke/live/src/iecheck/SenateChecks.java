@@ -239,7 +239,8 @@ public final class SenateChecks {
         steps.add(c -> {
             SalvageYards yards = (SalvageYards) c.market("a").getIndustry(Ids.SCRAPYARD);
             int points = (Integer) ReflectionUtils.get("availableSalvagePoints", yards);
-            c.expect(points <= (Integer) c.get("paid"), "1401 no double payout after a reload (" + c.get("paid") + " -> " + points + ")");
+            // pirate activity in the system adds 3 a day, a repeated raid payout adds at least 30
+            c.expect(points - (Integer) c.get("paid") < 30, "1401 no double payout after a reload (" + c.get("paid") + " -> " + points + ")");
         });
         return steps;
     }
