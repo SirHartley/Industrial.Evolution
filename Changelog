@@ -10,6 +10,7 @@ Added - Refit: Build hullmods in with Relic Components instead of story points (
 Added - Boost Extraction: pay Relic Components on Tech Mining to double next month's finds
 Added - Settings descriptions updated
 Added - Express Delivery for custom production orders: halves the delivery time for Relic Components
+Added - Shuttle Traffic: small craft fly between the planets and stations of colonized systems, with joyrides, patrols, mining and salvage runs, scavengers, smugglers, traffic that flees hostile fleets and escape pods from destroyed fleets (visual only, Quick Settings)
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Adjusted - Industrial Supply Store moves its contents to colony storage when the colony is lost
 Adjusted - Cut redundant UI text and tightened service and panel descriptions
@@ -89,6 +90,7 @@ Academy
 Added - Academy panel: train, store and retrieve officers and administrators in one screen
 Added - Officers can train two personality steps at once with an alpha core (time and fee per step)
 Added - Accelerate: halve the remaining training time with Relic Components
+Added - Holobench: new Academy item. Officers get one more personality step, leave training mentored and gain 20,000 XP per month while stored.
 Adjusted - Training at your own Academy is now free
 Adjusted - Admin training only teaches skills from academy_admin_skill_whitelist.csv (other mods can add theirs)
 Fixed - Aggression training no longer bills you twice the amount it should
@@ -191,6 +193,8 @@ Salvage Yards
 Added - Move S-mods: transfer S-mods between similar hulls for relic components and credits
 Note - The target ship needs the hullmod installed and a free S-mod slot
 Added - Accelerate Construction: halve the delivery time of a production order with Relic Components, from the order intel or the ship assembly dialog
+Added - Salvage Drone Replicator: battles within 6 LY give 50% salvage, lost ships fill a Wreck Registry
+Note - Registry hulls, weapons and wings can be ordered once without a blueprint, hulls come fitted from their own order tab
 Fixed - Salvage Yards now properly get salvage from every raid in their system
 Fixed - Salvage Yards no longer pay out twice after loading a save
 Fixed - Blockades, punitive expeditions and hostile activity raids now give salvage
@@ -208,7 +212,7 @@ Senate
 Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
 Note - Building Menu Overhaul's build menu and tooltips show the normal time
 Added - New Edict panel: pick a colony and an Edict, see its effects on that colony and its neighbours and a checklist of its requirements, enact or remove it with a confirm
-Added - Use Relics: end an Edict early without the early removal unrest, 1 Relic Component per remaining day
+Added - Bribe Senators: end an Edict early without the early removal unrest, 1 Relic Component per remaining day
 Added - The Senate can now be visited from remote colony screens
 Adjusted - Visiting the Senate manages the Edicts of every colony in its range, colonies without a Senate get "Enact an Edict" for themselves
 Adjusted - Edict tooltips now list their requirements and mark the unmet ones

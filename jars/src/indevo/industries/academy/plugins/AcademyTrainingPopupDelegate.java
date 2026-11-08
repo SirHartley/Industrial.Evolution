@@ -14,20 +14,23 @@ import indevo.utils.helper.BillingHelper;
 import java.awt.*;
 import java.util.List;
 
+import static indevo.industries.academy.plugins.AcademyPanelDelegate.CARD_HEADER_H;
+import static indevo.industries.academy.plugins.AcademyPanelDelegate.STORED_BG;
 import static indevo.industries.academy.plugins.AcademyPanelDelegate.TOOLTIP_INSET;
+import static indevo.industries.academy.plugins.AcademyPanelDelegate.addHeading;
 import static indevo.industries.academy.plugins.AcademyPanelDelegate.getPersonalityColor;
 import static indevo.industries.academy.plugins.AcademyPanelDelegate.getPersonalityName;
 
 public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegate {
 
-    public static final float WIDTH = 700f;
-    public static final float HEIGHT = 400f;
-
     private static final float PAD = 10f;
-    private static final float SQUARE = 124f;
-    private static final float SQUARE_GAP = 12f;
-    private static final float BAR_H = 5f;
-    private static final float HEADER_H = 50f;
+    private static final float TILE_W = 120f;
+    private static final float TILE_H = 66f;
+    private static final float TILE_GAP = 10f;
+    private static final float BAR_H = 4f;
+    private static final float LINE_H = 20f;
+
+    public static final float WIDTH = 5 * TILE_W + 4 * TILE_GAP;
 
     private final Academy academy;
     private final AcademyDialogPlugin plugin;
@@ -90,6 +93,24 @@ public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegat
         plugin.showPanelNextFrame();
     }
 
+    // fits the longest personality description so the dialog never grows
+    public float getHeight() {
+        CustomPanelAPI scratch = Global.getSettings().createCustom(WIDTH, 1000f, null);
+        float text = 0f;
+
+        for (String id : Academy.COLOURS_BY_PERSONALITY.keySet()) {
+            TooltipMakerAPI summary = scratch.createUIElement(WIDTH, 1000f, false);
+            addSummary(summary, officer.getPersonalityAPI().getId(), id);
+            text = Math.max(text, summary.getHeightSoFar());
+        }
+
+        return getTilesY() + TILE_H + PAD + text + PAD;
+    }
+
+    private static float getTilesY() {
+        return CARD_HEADER_H + PAD + LINE_H + PAD;
+    }
+
     private String getNearestSelectable() {
         String current = officer.getPersonalityAPI().getId();
         String nearest = null;
@@ -116,42 +137,48 @@ public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegat
         Color hl = Misc.getHighlightColor();
         String current = officer.getPersonalityAPI().getId();
 
-        TooltipMakerAPI header = panel.createUIElement(w, HEADER_H, false);
-        header.addSectionHeading("Personality training - " + officer.getNameString(), Alignment.MID, 0f);
-        header.addPara("Level %s, currently %s. Training steps left: %s.", PAD, new Color[]{hl, getPersonalityColor(current), hl},
+        addHeading(panel, "Personality training - " + officer.getNameString(), Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), 0f, 0f, w);
+
+        TooltipMakerAPI header = panel.createUIElement(w, LINE_H, false);
+        header.addPara("Level %s, currently %s. Training steps left: %s.", 0f, new Color[]{hl, getPersonalityColor(current), hl},
                 officer.getStats().getLevel() + "", getPersonalityName(current), academy.getOfficerStepsLeft(officer) + "");
-        panel.addUIElement(header).inTL(0f, 0f);
+        panel.addUIElement(header).inTL(-TOOLTIP_INSET, CARD_HEADER_H + PAD);
 
-        float squaresY = HEADER_H + PAD;
-        float x = (w - 5 * SQUARE - 4 * SQUARE_GAP) / 2f;
+        float tilesY = getTilesY();
+        float x = (w - WIDTH) / 2f;
         for (String id : Academy.COLOURS_BY_PERSONALITY.keySet()) {
-            addSquare(id, x, squaresY);
-            x += SQUARE + SQUARE_GAP;
+            addTile(id, x, tilesY);
+            x += TILE_W + TILE_GAP;
         }
 
-        if (selected != null) {
-            int steps = Academy.getPersonalitySteps(current, selected);
-            float fee = academy.getOfficerTrainingFee(steps);
-            String days = academy.getOfficerTrainingDays(steps) + " days";
-
-            TooltipMakerAPI summary = panel.createUIElement(w, h - squaresY - SQUARE - PAD, false);
-            if (fee > 0) summary.addPara("%s to %s: %s, %s.", 0f, new Color[]{getPersonalityColor(current), getPersonalityColor(selected), hl, hl},
-                    getPersonalityName(current), getPersonalityName(selected), days, Misc.getDGSCredits(fee));
-            else summary.addPara("%s to %s: %s.", 0f, new Color[]{getPersonalityColor(current), getPersonalityColor(selected), hl},
-                    getPersonalityName(current), getPersonalityName(selected), days);
-
-            summary.addPara(Global.getSettings().getPersonaltySpec(selected).getDescription(), Misc.getGrayColor(), PAD);
-            panel.addUIElement(summary).inTL(0f, squaresY + SQUARE + PAD * 1.5f);
-        } else {
-            TooltipMakerAPI none = panel.createUIElement(w, 20f, false);
-            none.addPara("No personality can be trained right now.", Misc.getGrayColor(), 0f);
-            panel.addUIElement(none).inTL(0f, squaresY + SQUARE + PAD * 1.5f);
-        }
+        TooltipMakerAPI summary = panel.createUIElement(w, h - tilesY - TILE_H - PAD, false);
+        addSummary(summary, current, selected);
+        panel.addUIElement(summary).inTL(-TOOLTIP_INSET, tilesY + TILE_H + PAD);
 
         basePanel.addComponent(panel);
     }
 
-    private void addSquare(final String id, float x, float y) {
+    private void addSummary(TooltipMakerAPI summary, String current, String target) {
+        Color hl = Misc.getHighlightColor();
+
+        if (target == null) {
+            summary.addPara("No personality can be trained right now.", Misc.getGrayColor(), 0f);
+            return;
+        }
+
+        int steps = Academy.getPersonalitySteps(current, target);
+        float fee = academy.getOfficerTrainingFee(steps);
+        String days = academy.getOfficerTrainingDays(steps) + " days";
+
+        if (fee > 0) summary.addPara("%s to %s: %s, %s.", 0f, new Color[]{getPersonalityColor(current), getPersonalityColor(target), hl, hl},
+                getPersonalityName(current), getPersonalityName(target), days, Misc.getDGSCredits(fee));
+        else summary.addPara("%s to %s: %s.", 0f, new Color[]{getPersonalityColor(current), getPersonalityColor(target), hl},
+                getPersonalityName(current), getPersonalityName(target), days);
+
+        summary.addPara(Global.getSettings().getPersonaltySpec(target).getDescription(), Misc.getGrayColor(), PAD);
+    }
+
+    private void addTile(final String id, float x, float y) {
         Color gray = Misc.getGrayColor();
         Color hl = Misc.getHighlightColor();
         String current = officer.getPersonalityAPI().getId();
@@ -163,45 +190,70 @@ public class AcademyTrainingPopupDelegate extends ButtonReportingDialogueDelegat
         boolean isReachable = reachable.contains(id);
         boolean affordable = BillingHelper.canAfford(fee);
         boolean selectable = isReachable && affordable;
-        Color color = isCurrent || isReachable ? getPersonalityColor(id) : Misc.scaleColorOnly(getPersonalityColor(id), 0.5f);
+        boolean live = isCurrent || isReachable;
+        Color color = live ? getPersonalityColor(id) : Misc.scaleColorOnly(getPersonalityColor(id), 0.5f);
 
-        TooltipMakerAPI background = panel.createUIElement(SQUARE, SQUARE, false);
+        TooltipMakerAPI background = panel.createUIElement(TILE_W, TILE_H, false);
         ButtonAPI button = background.addAreaCheckbox("", new ButtonAction(this) {
             @Override
             public void execute() {
                 selected = id;
                 recreatePanel();
             }
-        }, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), SQUARE, SQUARE, 0f);
+        }, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), TILE_W, TILE_H, 0f);
         button.setEnabled(selectable);
         button.setChecked(id.equals(selected));
         panel.addUIElement(background).inTL(x - TOOLTIP_INSET, y);
 
-        panel.addComponent(createBar(color)).inTL(x + 1f, y + 1f);
+        Color headerText = isCurrent ? hl : live ? Misc.getBasePlayerColor() : gray;
+        addHeading(panel, getPersonalityName(id), headerText, live ? Misc.getDarkPlayerColor() : STORED_BG, x, y, TILE_W);
+        panel.addComponent(createBar(color)).inTL(x + 1f, y + CARD_HEADER_H);
+        if (isCurrent) panel.addComponent(createFrame(hl)).inTL(x, y);
 
-        float textW = SQUARE - TOOLTIP_INSET * 2;
-        TooltipMakerAPI text = panel.createUIElement(textW, SQUARE - BAR_H - PAD, false);
-        text.setParaInsigniaLarge();
-        text.addPara(getPersonalityName(id), color, 0f).setAlignment(Alignment.MID);
-        text.setParaFontDefault();
+        float bodyY = y + CARD_HEADER_H + BAR_H;
+        float bodyH = TILE_H - CARD_HEADER_H - BAR_H;
+        TooltipMakerAPI text = panel.createUIElement(TILE_W, bodyH, false);
 
-        float lineY = 22f;
         if (isCurrent) {
-            text.addPara("Current", gray, lineY).setAlignment(Alignment.MID);
+            text.addPara("Current", hl, 0f).setAlignment(Alignment.MID);
         } else if (!isReachable) {
-            boolean needsAlpha = !academy.hasAlphaCore() && steps <= 2 - academy.getTrainedSteps(officer) && steps > academy.getOfficerStepsLeft(officer);
+            boolean needsAlpha = !academy.hasAlphaCore() && steps <= academy.getMaxOfficerSteps(true) - academy.getTrainedSteps(officer) && steps > academy.getOfficerStepsLeft(officer);
             String reason = needsAlpha ? "Needs an alpha core" : "Out of reach";
-            text.addPara(reason, gray, lineY).setAlignment(Alignment.MID);
+            text.addPara(reason, gray, 0f).setAlignment(Alignment.MID);
         } else {
-            text.addPara("%s days", lineY, hl, academy.getOfficerTrainingDays(steps) + "").setAlignment(Alignment.MID);
-            if (fee > 0) text.addPara(Misc.getDGSCredits(fee), affordable ? hl : Misc.getNegativeHighlightColor(), 2f).setAlignment(Alignment.MID);
+            text.addPara("%s days", 0f, hl, academy.getOfficerTrainingDays(steps) + "").setAlignment(Alignment.MID);
+            if (fee > 0) text.addPara(Misc.getDGSCredits(fee), affordable ? hl : Misc.getNegativeHighlightColor(), 0f).setAlignment(Alignment.MID);
         }
 
-        panel.addUIElement(text).inTL(x, y + BAR_H + PAD);
+        panel.addUIElement(text).inTL(x - TOOLTIP_INSET, bodyY + Math.max(0f, (bodyH - text.getHeightSoFar()) / 2f));
+    }
+
+    private CustomPanelAPI createFrame(final Color color) {
+        return panel.createCustomPanel(TILE_W, TILE_H, new BaseCustomUIPanelPlugin() {
+            private PositionAPI pos;
+
+            @Override
+            public void positionChanged(PositionAPI position) {
+                pos = position;
+            }
+
+            @Override
+            public void render(float alphaMult) {
+                if (pos == null) return;
+                float x = pos.getX();
+                float y = pos.getY();
+                float w = pos.getWidth();
+                float h = pos.getHeight();
+                Misc.renderQuad(x, y, w, 1f, color, alphaMult);
+                Misc.renderQuad(x, y + h - 1f, w, 1f, color, alphaMult);
+                Misc.renderQuad(x, y, 1f, h, color, alphaMult);
+                Misc.renderQuad(x + w - 1f, y, 1f, h, color, alphaMult);
+            }
+        });
     }
 
     private CustomPanelAPI createBar(final Color color) {
-        return panel.createCustomPanel(SQUARE - 2f, BAR_H, new BaseCustomUIPanelPlugin() {
+        return panel.createCustomPanel(TILE_W - 2f, BAR_H, new BaseCustomUIPanelPlugin() {
             private PositionAPI pos;
 
             @Override

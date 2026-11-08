@@ -16,6 +16,7 @@ The option shows on vanilla Orbital Works (`Industries.ORBITALWORKS`) on player 
 | `indevo/industries/orbitalworks/plugins/OrbitalWorksSlotPanelDelegate.java` | Ship picker dialog (`ButtonReportingDialogueDelegate`), cost (`COST_PER_DP` 20 per hull DP), relic count and payment, start of the work |
 | `indevo/industries/orbitalworks/scripts/OrbitalWorksSlotManager.java` | Persistent `NewDayListener`: job list, day count, finish, abort, colony loss, messages; `DAYS_REQUIRED` 93 |
 | `indevo/industries/orbitalworks/data/OrbitalWorksSlotJob.java` | Saved job: `market`, `member`, `daysDone` |
+| `indevo/industries/orbitalworks/patches/OrbitalWorksRemovedPatch.java` | PatchLib `@After` on `BaseIndustry.notifyBeingRemoved` (vanilla Orbital Works, `HeavyIndustry`, inherits it): calls `OrbitalWorksSlotManager.onWorksRemoved` with the interaction mode when an Orbital Works is shut down |
 | `indevo/industries/orbitalworks/hullmods/RelicLattice.java` | Hullmod plugin: `Stats.MAX_PERMANENT_HULLMODS_MOD` +1 in `applyEffectsBeforeShipCreation` |
 
 ## Data and ids
@@ -40,12 +41,14 @@ No job: `onClick` -> `OrbitalWorksSlotPanelDelegate` -> row select -> Confirm (l
 
 Job: `onClick` -> abort dialog -> `OrbitalWorksSlotManager.abort` -> ship to local storage.
 
+Shut down: vanilla `Market.removeIndustry` -> `notifyBeingRemoved(mode, forUpgrade)` -> `OrbitalWorksRemovedPatch` -> `OrbitalWorksSlotManager.onWorksRemoved` right away: docked (`LOCAL`) the ship joins the fleet, remote or `null` it goes to local storage (fleet when the colony has none), as vanilla returns AI cores and items to fleet cargo or storage (`BaseIndustry.getCargoForInteractionMode`). Work lost, message.
+
 `onNewDay` per job:
 
 | State | Result |
 |---|---|
 | Colony not player owned or not in the economy | Ship to the nearest player colony storage (hyperspace distance), or the fleet if there is none; message |
-| Orbital Works removed | Ship to local storage, work lost; message |
+| Orbital Works removed without `notifyBeingRemoved` (fallback) | `onWorksRemoved(market, null)`: ship to local storage, work lost; message |
 | Orbital Works not functional (disrupted) | Paused |
 | Functional | `daysDone + 1`; at 93: variant cloned, `addPermaMod(IndEvo_relicLattice, false)`, `setVariant`, ship to local storage; message |
 
@@ -63,7 +66,7 @@ Job: `onClick` -> abort dialog -> `OrbitalWorksSlotManager.abort` -> ship to loc
 
 | Item | Note |
 |---|---|
-| Not tested in game | Cap +1 in the refit, picker layout and the Confirm button left of Return, tooltip section, abort, colony loss, vanilla Restore and IE Restoration Docks keeping the hullmod |
+| Not tested in game | Cap +1 in the refit, picker layout and the Confirm button left of Return, tooltip section, abort, shut down (docked to fleet, remote to storage), colony loss, vanilla Restore and IE Restoration Docks keeping the hullmod |
 
 ## Maintenance
 

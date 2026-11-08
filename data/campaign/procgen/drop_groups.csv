@@ -3,6 +3,8 @@ item_IndEvo_log_core,indEvo_tech_addition,7
 item_IndEvo_neurals,indEvo_tech_addition,7
 item_IndEvo_transmitter,indEvo_tech_addition,7
 item_IndEvo_simulator,indEvo_tech_addition,7
+item_IndEvo_holobench,indEvo_tech_addition,7
+item_IndEvo_drones,indEvo_tech_addition,7
 "item_IndEvo_ForgeTemplate:{tags:[rare_bp, !no_drop], charges:1}",indEvo_tech_addition,15
 "item_IndEvo_ForgeTemplate:{tags:[rare_bp, !no_drop], charges:2}",indEvo_tech_addition,5
 item_:{tags:[IndEvo_FT]},indEvo_tech_addition,20
@@ -76,6 +78,8 @@ item_IndEvo_log_core,indEvo_tech_event,1
 item_IndEvo_neurals,indEvo_tech_event,1
 item_IndEvo_transmitter,indEvo_tech_event,1
 item_IndEvo_simulator,indEvo_tech_event,1
+item_IndEvo_holobench,indEvo_tech_event,1
+item_IndEvo_drones,indEvo_tech_event,1
 "item_IndEvo_ForgeTemplate:{tags:[rare_bp, !no_drop], charges:2}",indEvo_tech_event,1
 item_IndEvo_vpc_rare:{tier:rare},indEvo_tech_event,1
 item_IndEvo_vpc_ultra:{tier:ultra},indEvo_tech_event,0.25

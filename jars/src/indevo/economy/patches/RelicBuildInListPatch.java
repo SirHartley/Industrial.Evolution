@@ -24,6 +24,8 @@ public class RelicBuildInListPatch {
 
     private static final float OPAD = 10f;
     private static final float ICON_SIZE = 32f;
+    private static final float COST_WIDTH = 48f;
+    private static final float TOOLTIP_WIDTH = 300f;
 
     private static final MethodQuerySpec GET_CONTENT = MethodQuery.create().methodName("getContentContainer").parameterCount(0).build();
     private static final MethodQuerySpec GET_CHILDREN = MethodQuery.create().methodName("getChildrenCopy").parameterCount(0).build();
@@ -85,17 +87,12 @@ public class RelicBuildInListPatch {
     private static CustomPanelAPI createList(ShipAPI ship, List<HullModSpecAPI> specs, int cost, float width) {
         CustomPanelAPI list = Global.getSettings().createCustom(width, 0f, null);
         String icon = Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getIconName();
-        float textWidth = width - ICON_SIZE - OPAD;
+        float textWidth = width - COST_WIDTH - OPAD;
 
         List<TooltipMakerAPI> costs = new ArrayList<>();
         List<TooltipMakerAPI> texts = new ArrayList<>();
 
         for (HullModSpecAPI spec : specs) {
-            TooltipMakerAPI costEl = list.createUIElement(ICON_SIZE, ICON_SIZE * 2f, false);
-            costEl.addImage(icon, ICON_SIZE, ICON_SIZE, OPAD);
-            costEl.addPara(cost + "", Misc.getHighlightColor(), 3f).setAlignment(Alignment.MID);
-            costs.add(costEl);
-
             TooltipMakerAPI text = list.createUIElement(textWidth, 0f, false);
             if (spec.getEffect().hasSModEffectSection(ship.getHullSize(), ship, false)) {
                 spec.getEffect().addSModSection(text, ship.getHullSize(), ship, textWidth, false, true);
@@ -103,6 +100,25 @@ public class RelicBuildInListPatch {
                 text.addSectionHeading(spec.getDisplayName(), Misc.getStoryOptionColor(), Misc.getStoryDarkColor(), Alignment.MID, OPAD);
             }
             texts.add(text);
+
+            // same top pad as the section heading, so the icon sits in line with it
+            TooltipMakerAPI costEl = list.createUIElement(COST_WIDTH, 0f, false);
+            costEl.addImages(COST_WIDTH, ICON_SIZE, OPAD, 0f, icon);
+            // first tooltip element gets a 5 px x offset, the image row is centered in the full width
+            costEl.getPrev().getPosition().setXAlignOffset(0f);
+            costEl.addTooltipToPrevious(new BaseTooltipCreator() {
+                @Override
+                public float getTooltipWidth(Object tooltipParam) {
+                    return TOOLTIP_WIDTH;
+                }
+
+                @Override
+                public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
+                    tooltip.addPara("Use %s relics instead of 1 SP to build in this hullmod", 0f, Misc.getHighlightColor(), cost + "");
+                }
+            }, TooltipMakerAPI.TooltipLocation.LEFT);
+            costEl.addPara("x " + cost, Misc.getHighlightColor(), 3f).setAlignment(Alignment.MID);
+            costs.add(costEl);
         }
 
         float height = 0f;
@@ -111,8 +127,8 @@ public class RelicBuildInListPatch {
 
         float y = 0f;
         for (int i = 0; i < specs.size(); i++) {
-            list.addUIElement(costs.get(i)).inTL(0f, y);
-            list.addUIElement(texts.get(i)).inTL(ICON_SIZE + OPAD, y);
+            list.addUIElement(texts.get(i)).inTL(0f, y);
+            list.addUIElement(costs.get(i)).inTL(width - COST_WIDTH, y);
             y += Math.max(costs.get(i).getHeightSoFar(), texts.get(i).getHeightSoFar());
         }
 

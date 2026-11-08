@@ -46,6 +46,7 @@ public class ItemIds {
     public static final String NANITES = "IndEvo_nanites";
     public static final String SALVAGE_DRONES = "IndEvo_drones";
     public static final String SIMULATOR = "IndEvo_simulator";
+    public static final String HOLOBENCH = "IndEvo_holobench";
 
     public static final String ALPHA = "IndEvo_alpha_core";
     public static final String BETA = "IndEvo_beta_core";
