@@ -1,6 +1,5 @@
 package indevo.ambience.shuttletraffic;
 
-import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -76,7 +75,6 @@ public class Shuttle {
     public float facing = 0f;
     public float scale = 1f;
     public float alpha = 1f;
-    public CampaignEngineLayers layer = CampaignEngineLayers.TERRAIN_7;
     public float lastThreatNearDay = -100f;
 
     private final ShuttlePath.Cursor cursor = new ShuttlePath.Cursor();
@@ -360,7 +358,6 @@ public class Shuttle {
 
         scale = lead.scale;
         alpha = lead.alpha;
-        layer = lead.layer;
         darken = lead.darken;
         glowMult = lead.glowMult;
 
@@ -553,11 +550,10 @@ public class Shuttle {
         scale = path.getScaleMult(cursor);
         alpha = 1f;
         darken = 1f;
-        layer = CampaignEngineLayers.TERRAIN_7;
         glowMult = (launchLength > 0f && traveled < launchLength + speed * 2f) || (landLength > 0f && remaining < landLength + speed * 2f) ? 1.5f : 1f;
 
-        if (launchLength > 0f && traveled < launchLength) applyEnd(launchEnd, 1f - traveled / launchLength);
-        if (landLength > 0f && remaining < landLength) applyEnd(landEnd, 1f - remaining / landLength);
+        if (launchLength > 0f && traveled < launchLength) applyEnd(launchEnd, from, 1f - traveled / launchLength);
+        if (landLength > 0f && remaining < landLength) applyEnd(landEnd, to, 1f - remaining / landLength);
 
         if (appearRamp < 1f) {
             appearRamp = Math.min(1f, appearRamp + amount);
@@ -566,16 +562,22 @@ public class Shuttle {
         }
     }
 
-    private void applyEnd(End end, float progress) {
+    // drawn above the planet: the craft shrinks on approach and fades only once it is over the surface
+    private void applyEnd(End end, ShuttleAnchor anchor, float progress) {
         if (end == End.PLANET) {
-            scale *= 1f - 0.65f * progress;
-            alpha *= 1f - progress;
+            scale *= 1f - 0.5f * progress;
             darken = Math.min(darken, 1f - 0.3f * progress);
-            layer = CampaignEngineLayers.TERRAIN_3;
+            if (anchor != null) {
+                float radius = anchor.getRadius();
+                float pad = radius * anchor.getPadDepth();
+                float dist = Misc.getDistance(pos, anchor.getLocation());
+                alpha *= Math.max(0f, Math.min(1f, (dist - pad) / Math.max(1f, radius - pad)));
+            } else {
+                alpha *= 1f - progress;
+            }
         } else if (end == End.STATION) {
             scale *= 1f - 0.3f * progress;
             alpha *= 1f - progress;
-            layer = CampaignEngineLayers.BELOW_STATIONS;
         }
     }
 
