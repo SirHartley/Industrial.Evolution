@@ -23,6 +23,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.salvageyards.industry.SalvageYards;
 import indevo.industries.salvageyards.intel.YardsCustomProductionIntel;
+import indevo.industries.salvageyards.memory.WreckRegistry;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.RelicHelper;
 import indevo.utils.helper.StringHelper;
@@ -33,6 +34,8 @@ import org.lwjgl.input.Keyboard;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
+
+import static indevo.items.installable.SpecialItemEffectsRepo.SALVAGE_DRONES_SP_PER_FP;
 
 public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin implements InteractionDialogPlugin {
 
@@ -63,6 +66,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         SACRIFICE_SHIPS,
         DOUBLE_CAP,
         SELECT_SHIPS,
+        AS_FITTED,
         CONFIRM,
         RETURN,
     }
@@ -82,6 +86,10 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
     protected float cost = 0f;
     protected boolean refreshOptions = false;
     protected YardsProductionData productionData;
+    protected boolean asFitted = false;
+    protected Map<String, Integer> selectedWeapons = new LinkedHashMap<>();
+    protected Map<String, Integer> selectedWings = new LinkedHashMap<>();
+    protected List<String> cappedItems = new ArrayList<>();
 
     private List<FleetMemberAPI> tradeInList = new ArrayList<>();
 
@@ -132,6 +140,15 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
     }
 
 
+    private SalvageYards getYards() {
+        return (SalvageYards) getMarket().getIndustry(Ids.SCRAPYARD);
+    }
+
+    private WreckRegistry getRegistry() {
+        SalvageYards yards = getYards();
+        return yards != null && yards.hasSalvageDrones() ? yards.getWreckRegistry() : null;
+    }
+
     private boolean isWantsToSpendSP() {
         return memoryMap.get(MemKeys.MARKET).getBoolean(HAS_SP_SELECTED);
     }
@@ -171,6 +188,12 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         switch (option) {
             case MAIN:
                 opts.addOption("Select Hulls to build", Option.SELECT_SHIPS);
+
+                if (getRegistry() != null) {
+                    opts.addOption(asFitted ? "Registry hulls: As fitted" : "Registry hulls: Bare", Option.AS_FITTED);
+                    opts.setTooltip(Option.AS_FITTED, "As fitted, hulls from the Wreck Registry come with the weapons, fighter wings and hullmods they had when they were lost, for the value of the weapons and wings. "
+                            + "Hulls you have the blueprint for are then also built from the registry.");
+                }
 
                 opts.addSelector(rarepartsName + " (Reduces D-Mods)", RARE_PARTS_SELECTOR_ID, Misc.getHighlightColor(),
                         300f,
@@ -222,13 +245,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
                 addAccelerateOptions(opts);
 
                 opts.addOption("Confirm", Option.CONFIRM);
-
-                boolean allowed = !getProductionData().productionList.isEmpty() && BillingHelper.canAfford(getProductionData().getCost());
-                dialog.getOptionPanel().setEnabled(Option.CONFIRM, allowed);
-
-                if (!allowed)
-                    dialog.getOptionPanel().setTooltip(Option.CONFIRM, "Nothing is selected or you do not have enough credits.");
-                else dialog.getOptionPanel().setTooltip(Option.CONFIRM, null);
+                updateConfirmOption();
 
                 opts.addOption("Return", Option.RETURN);
                 opts.setShortcut(Option.RETURN, Keyboard.KEY_ESCAPE, false, false, false, true);
@@ -236,6 +253,11 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
                 updatePanel();
                 break;
             case DOUBLE_CAP:
+                optionSelected(null, Option.MAIN);
+                break;
+            case AS_FITTED:
+                asFitted = !asFitted;
+                updateRegistryOrder();
                 optionSelected(null, Option.MAIN);
                 break;
             case SACRIFICE_SHIPS:
@@ -252,6 +274,78 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected argument: " + option);
+        }
+    }
+
+    private void updateConfirmOption() {
+        YardsProductionData data = getProductionData();
+        OptionPanelAPI opts = dialog.getOptionPanel();
+        String reason = null;
+
+        if (!data.hasOrder()) reason = "Nothing is selected.";
+        else if (!BillingHelper.canAfford(data.getCost())) reason = "You do not have enough credits.";
+        else if (getYards().getAvailableSalvagePoints() < data.getSalvageUnitCost()) reason = "The yards do not have enough salvage units.";
+
+        opts.setEnabled(Option.CONFIRM, reason == null);
+        opts.setTooltip(Option.CONFIRM, reason);
+    }
+
+    private void updateRegistryOrder() {
+        YardsProductionData data = getProductionData();
+        WreckRegistry registry = getRegistry();
+
+        if (registry == null) {
+            data.registryOrder = null;
+            return;
+        }
+
+        WreckRegistry.Order order = new WreckRegistry.Order();
+        FactionAPI player = Global.getSector().getPlayerFaction();
+
+        for (Map.Entry<String, Integer> e : data.productionList.entrySet()) {
+            String hullId = e.getKey();
+            int used = player.knowsShip(hullId) && !asFitted ? 0 : Math.min(e.getValue(), registry.getHullCount(hullId));
+            if (used <= 0) continue;
+
+            order.hulls.put(hullId, used);
+            order.salvageUnitCost += used * Global.getSettings().getHullSpec(hullId).getFleetPoints() * SALVAGE_DRONES_SP_PER_FP;
+
+            if (!asFitted) continue;
+
+            for (WreckRegistry.WreckFit fit : registry.getOldestFits(hullId, used)) {
+                order.fits.add(fit);
+                order.fitCost += fit.getValue() * costMult;
+            }
+        }
+
+        order.weapons.putAll(selectedWeapons);
+        order.wings.putAll(selectedWings);
+
+        data.registryOrder = order.isEmpty() ? null : order;
+    }
+
+    private int getMaxQuantity(FactionProductionAPI.ItemInProductionAPI item, WreckRegistry registry) {
+        String id = item.getSpecId();
+
+        switch (item.getType()) {
+            case SHIP:
+                if (Global.getSector().getPlayerFaction().knowsShip(id)) return Integer.MAX_VALUE;
+                return registry == null ? 0 : registry.getHullCount(id);
+            case WEAPON:
+                return registry == null ? 0 : registry.getWeaponCount(id);
+            default:
+                return registry == null ? 0 : registry.getWingCount(id);
+        }
+    }
+
+    private String getItemName(FactionProductionAPI.ItemInProductionAPI item) {
+        switch (item.getType()) {
+            case SHIP:
+                return item.getShipSpec().getHullName();
+            case WEAPON:
+                return item.getWeaponSpec().getWeaponName();
+            default:
+                return item.getWingSpec().getWingName();
         }
     }
 
@@ -343,17 +437,22 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         dialog.showCustomProductionPicker(new BaseCustomProductionPickerDelegateImpl() {
             @Override
             public Set<String> getAvailableFighters() {
-                return new HashSet<>();
+                WreckRegistry registry = getRegistry();
+                return registry == null ? new HashSet<>() : registry.getWingIds();
             }
 
             @Override
             public Set<String> getAvailableWeapons() {
-                return new HashSet<>();
+                WreckRegistry registry = getRegistry();
+                return registry == null ? new HashSet<>() : registry.getWeaponIds();
             }
 
             @Override
             public Set<String> getAvailableShipHulls() {
-                return Global.getSector().getPlayerFaction().getKnownShips();
+                Set<String> hulls = new HashSet<>(Global.getSector().getPlayerFaction().getKnownShips());
+                WreckRegistry registry = getRegistry();
+                if (registry != null) hulls.addAll(registry.getHullIds());
+                return hulls;
             }
 
             @Override
@@ -372,17 +471,40 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
                 log.info("finished picking, returning entries");
 
                 YardsProductionData productionData = getProductionData();
+                WreckRegistry registry = getRegistry();
+
+                cappedItems.clear();
+                for (FactionProductionAPI.ItemInProductionAPI item : new ArrayList<>(production.getCurrent())) {
+                    int max = getMaxQuantity(item, registry);
+                    if (item.getQuantity() <= max) continue;
+
+                    cappedItems.add(getItemName(item));
+                    production.removeItem(item.getType(), item.getSpecId(), item.getQuantity() - max);
+                }
+
                 productionData.baseCost = production.getTotalCurrentCost();
                 productionData.productionList.clear();
+                selectedWeapons.clear();
+                selectedWings.clear();
 
                 for (FactionProductionAPI.ItemInProductionAPI item : production.getCurrent()) {
                     int count = item.getQuantity();
+                    if (count <= 0) continue;
 
-                    if (item.getType() == FactionProductionAPI.ProductionItemType.SHIP) {
-                        productionData.productionList.put(item.getSpecId(), count);
+                    switch (item.getType()) {
+                        case SHIP:
+                            productionData.productionList.put(item.getSpecId(), count);
+                            break;
+                        case WEAPON:
+                            selectedWeapons.put(item.getSpecId(), count);
+                            break;
+                        case FIGHTER:
+                            selectedWings.put(item.getSpecId(), count);
+                            break;
                     }
                 }
 
+                updateRegistryOrder();
                 refreshOptions = true;
             }
         });
@@ -418,6 +540,11 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         panel.addPara("\"Spend enough time taking 'em apart, you get to know how to make one. It's probably even going to be spaceworthy! Bring us the parts we can't just scrounge up, pay us, and we'll build you a beauty!\" - The foreman lowers his voice, \"Without serial numbers, of course.\"");
         panel.addPara("The Salvage Yards can construct ships for you if you provide the blueprints and components that are too rare to \"acquire\".\n\n");
 
+        WreckRegistry registry = getRegistry();
+        if (registry != null) {
+            panel.addPara("The salvage drones keep a Wreck Registry of hulls, weapons and fighter wings lost nearby. Each entry can be built once without a blueprint.", Misc.getGrayColor());
+        }
+
         panel.addPara("Contract information:");
         panel.setFontSmallInsignia();
 
@@ -450,17 +577,49 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         panel.addPara("Delivery time: " + Setting.SY_HULL_DELIVERY_TIME.intValue() + " " + StringHelper.getDayOrDays(Setting.SY_HULL_DELIVERY_TIME.intValue()));
         panel.highlightInLastPara(Misc.getHighlightColor(), Setting.SY_HULL_DELIVERY_TIME.intValue() + " " + StringHelper.getDayOrDays(Setting.SY_HULL_DELIVERY_TIME.intValue()));
 
-        panel.addPara("Selected ships:");
+        WreckRegistry.Order order = productionData.registryOrder;
+        if (order != null && order.salvageUnitCost > 0) {
+            String su = Misc.getWithDGS(order.salvageUnitCost);
+            String available = Misc.getWithDGS(getYards().getAvailableSalvagePoints());
+            panel.addPara("Salvage units for registry hulls: " + su + " of " + available);
+            panel.highlightInLastPara(Misc.getHighlightColor(), su, available);
+        }
+
+        if (order != null && order.fitCost > 0) {
+            String fits = Misc.getDGSCredits(order.fitCost);
+            panel.addPara("Fitted weapons and wings: " + fits);
+            panel.highlightInLastPara(Misc.getHighlightColor(), fits);
+        }
+
+        if (!cappedItems.isEmpty()) {
+            panel.addPara("Limited to the Wreck Registry: " + String.join(", ", cappedItems), Misc.getNegativeHighlightColor());
+        }
+
+        panel.addPara(registry != null ? "Selected items:" : "Selected ships:");
+
+        List<Pair<String, Integer>> rows = new ArrayList<>();
+        for (Map.Entry<String, Integer> e : productionData.productionList.entrySet()) {
+            ShipHullSpecAPI hs = Global.getSettings().getHullSpec(e.getKey());
+            boolean fromRegistry = order != null && order.hulls.containsKey(e.getKey());
+            rows.add(new Pair<>(hs.getHullNameWithDashClass() + " ship hull" + (fromRegistry ? " (registry)" : ""), e.getValue()));
+        }
+
+        for (Map.Entry<String, Integer> e : selectedWeapons.entrySet()) {
+            rows.add(new Pair<>(Global.getSettings().getWeaponSpec(e.getKey()).getWeaponName(), e.getValue()));
+        }
+
+        for (Map.Entry<String, Integer> e : selectedWings.entrySet()) {
+            rows.add(new Pair<>(Global.getSettings().getFighterWingSpec(e.getKey()).getWingName() + " wing", e.getValue()));
+        }
 
         TooltipMakerAPI tooltip = panel.beginTooltip();
-        if (!productionData.productionList.isEmpty()) {
+        if (!rows.isEmpty()) {
 
             tooltip.beginGridFlipped(300, 1, 30f, 3f);
 
             int i = 0;
-            for (Map.Entry<String, Integer> e : productionData.productionList.entrySet()) {
-                ShipHullSpecAPI hs = Global.getSettings().getHullSpec(e.getKey());
-                tooltip.addToGrid(0, i, hs.getHullNameWithDashClass() + " ship hull", e.getValue() + "");
+            for (Pair<String, Integer> row : rows) {
+                tooltip.addToGrid(0, i, row.one, row.two + "");
                 i++;
 
                 if (i > 9) {
@@ -468,11 +627,11 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
                 }
             }
             tooltip.addGrid(pad);
-            if (i > 9 && productionData.productionList.size() > 10) {
-                tooltip.addPara("... and " + (productionData.productionList.size() - 9) + " additional hulls.", 3f);
+            if (i > 9 && rows.size() > 10) {
+                tooltip.addPara("... and " + (rows.size() - 9) + " more.", 3f);
             }
         } else {
-            panel.addPara("    Select any ships you wish to order.");
+            panel.addPara(registry != null ? "    Select anything you wish to order." : "    Select any ships you wish to order.");
         }
 
         panel.addTooltip();
@@ -482,14 +641,26 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         panel.addParagraph("-----------------------------------------------------------------------------");
         panel.setFontInsignia();
 
-        if (productionData.productionList.isEmpty())
+        if (!productionData.hasOrder())
             panel.addPara("No ships selected yet, D-Mod or cost forecast not possible.");
         else {
-            String appendDModCount = "Average D-Mods per hull: " + productionData.getAverageDModAmount() + "\n" +
-                    "Current total cost: " + Misc.getDGSCredits(productionData.getCost());
-            panel.addPara(appendDModCount);
-            panel.highlightInLastPara(Misc.getHighlightColor(), Integer.toString(productionData.getAverageDModAmount()), Misc.getDGSCredits(productionData.getCost()));
+            panel.addPara(getForecastText());
+            panel.highlightInLastPara(Misc.getHighlightColor(), getForecastHighlights());
         }
+    }
+
+    private String getForecastText() {
+        YardsProductionData data = getProductionData();
+        String cost = "Current total cost: " + Misc.getDGSCredits(data.getCost());
+        if (data.productionList.isEmpty()) return cost;
+        return "Average D-Mods per hull: " + data.getAverageDModAmount() + "\n" + cost;
+    }
+
+    private String[] getForecastHighlights() {
+        YardsProductionData data = getProductionData();
+        String cost = Misc.getDGSCredits(data.getCost());
+        if (data.productionList.isEmpty()) return new String[]{cost};
+        return new String[]{Integer.toString(data.getAverageDModAmount()), cost};
     }
 
     private void returnToMenu() {
@@ -568,6 +739,21 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             panel.setFontInsignia();
         }
 
+        if (data.registryOrder != null) {
+            getYards().getWreckRegistry().take(data.registryOrder);
+
+            int su = data.registryOrder.salvageUnitCost;
+            if (su > 0) {
+                getYards().spendSalvagePoints(su);
+                String s = "Used " + Misc.getWithDGS(su) + " salvage units";
+
+                panel.setFontSmallInsignia();
+                panel.addPara(s);
+                panel.highlightInLastPara(Misc.getNegativeHighlightColor(), s);
+                panel.setFontInsignia();
+            }
+        }
+
         if (isWantsToSpendSP()) {
             String s = "Used a Story Point";
 
@@ -597,7 +783,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             refreshOptions = false;
         }
 
-        if (productionData.productionList.isEmpty()) return;
+        if (!productionData.hasOrder()) return;
 
         updateCounter += amount;
         if (updateCounter > 1) {
@@ -606,17 +792,10 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
             productionData.rarePartsSpent = (int) Math.round(dialog.getOptionPanel().getSelectorValue(RARE_PARTS_SELECTOR_ID));
             productionData.partsSpent = (int) Math.round(dialog.getOptionPanel().getSelectorValue(PARTS_SELECTOR_ID));
 
-            boolean allowed = BillingHelper.canAfford(getProductionData().getCost());
-            dialog.getOptionPanel().setEnabled(Option.CONFIRM, allowed);
+            updateConfirmOption();
 
-            if (!allowed) dialog.getOptionPanel().setTooltip(Option.CONFIRM, "You do not have enough credits");
-            else dialog.getOptionPanel().setTooltip(Option.CONFIRM, null);
-
-
-            String appendDModCount = "Average D-Mods per hull: " + productionData.getAverageDModAmount() + "\n" +
-                    "Current total cost: " + Misc.getDGSCredits(productionData.getCost());
-            dialog.getTextPanel().replaceLastParagraph(appendDModCount);
-            dialog.getTextPanel().highlightInLastPara(Misc.getHighlightColor(), Integer.toString(productionData.getAverageDModAmount()), Misc.getDGSCredits(productionData.getCost()));
+            dialog.getTextPanel().replaceLastParagraph(getForecastText());
+            dialog.getTextPanel().highlightInLastPara(Misc.getHighlightColor(), getForecastHighlights());
         }
     }
 
@@ -641,10 +820,20 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
         public int rarePartsSpent = 0;
         public int partsSpent = 0;
         public float baseCost = 0;
+        public WreckRegistry.Order registryOrder = null;
 
         public float getCost() {
             float partCost = Math.round(Global.getSettings().getCommoditySpec(ItemIds.PARTS).getBasePrice() * Setting.SY_PART_VALUE_MULT.value());
-            return baseCost - (partsSpent * partCost);
+            float fitCost = registryOrder == null ? 0f : registryOrder.fitCost;
+            return baseCost + fitCost - (partsSpent * partCost);
+        }
+
+        public int getSalvageUnitCost() {
+            return registryOrder == null ? 0 : registryOrder.salvageUnitCost;
+        }
+
+        public boolean hasOrder() {
+            return !productionList.isEmpty() || registryOrder != null;
         }
 
         public int getRequiredParts() {

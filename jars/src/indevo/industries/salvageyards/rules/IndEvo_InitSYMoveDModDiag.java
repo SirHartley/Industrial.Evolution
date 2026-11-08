@@ -353,7 +353,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
         optionSelected(null, Option.MAIN);
     }
 
-    static void cycleToCustomVariant(FleetMemberAPI member) {
+    public static void cycleToCustomVariant(FleetMemberAPI member) {
         ShipVariantAPI variant = member.getVariant();
 
         variant = variant.clone();

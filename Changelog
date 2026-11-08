@@ -192,6 +192,8 @@ Salvage Yards
 Added - Move S-mods: transfer S-mods between similar hulls for relic components and credits
 Note - The target ship needs the hullmod installed and a free S-mod slot
 Added - Accelerate Construction: halve the delivery time of a production order with Relic Components, from the order intel or the ship assembly dialog
+Added - Salvage Drone Replicator: battles within 6 LY give 50% salvage, lost ships fill a Wreck Registry
+Note - Registry hulls, weapons and wings can be ordered once without a blueprint, hulls also as fitted
 Fixed - Salvage Yards now properly get salvage from every raid in their system
 Fixed - Salvage Yards no longer pay out twice after loading a save
 Fixed - Blockades, punitive expeditions and hostile activity raids now give salvage
