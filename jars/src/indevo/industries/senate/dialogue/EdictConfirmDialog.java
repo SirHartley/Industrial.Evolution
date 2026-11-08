@@ -1,5 +1,10 @@
 package indevo.industries.senate.dialogue;
 
+import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.InteractionDialogAPI;
+import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
+import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.ButtonAction;
@@ -7,6 +12,7 @@ import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
 import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
 import indevo.dialogue.sidepanel.HelpIcon;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class EdictConfirmDialog extends ButtonReportingDialogueDelegate {
@@ -16,7 +22,6 @@ public class EdictConfirmDialog extends ButtonReportingDialogueDelegate {
     private static final float RELIC_HEIGHT = 70f;
     private static final float BUTTON_HEIGHT = 25f;
 
-    private final EdictDialogPlugin host;
     private final String confirmText;
     private final Consumer<TooltipMakerAPI> body;
     private final Runnable onConfirm;
@@ -25,12 +30,11 @@ public class EdictConfirmDialog extends ButtonReportingDialogueDelegate {
     private boolean relicsEnabled;
     private Consumer<TooltipMakerAPI> relicTooltip;
 
+    private InteractionDialogAPI dialog;
     private CustomDialogCallback callback;
-    private boolean open = false;
     private boolean useRelics = false;
 
-    public EdictConfirmDialog(EdictDialogPlugin host, String confirmText, Consumer<TooltipMakerAPI> body, Runnable onConfirm) {
-        this.host = host;
+    public EdictConfirmDialog(String confirmText, Consumer<TooltipMakerAPI> body, Runnable onConfirm) {
         this.confirmText = confirmText;
         this.body = body;
         this.onConfirm = onConfirm;
@@ -43,6 +47,11 @@ public class EdictConfirmDialog extends ButtonReportingDialogueDelegate {
         return this;
     }
 
+    // opens over the edict panel, showCustomDialog can not stack a second custom dialog in one dialog
+    public void show(Runnable onClose) {
+        Global.getSector().getCampaignUI().showInteractionDialogFromCargo(new Host(), null, onClose::run);
+    }
+
     public float getHeight() {
         return onRelics == null ? HEIGHT : HEIGHT + RELIC_HEIGHT;
     }
@@ -50,7 +59,6 @@ public class EdictConfirmDialog extends ButtonReportingDialogueDelegate {
     @Override
     public void createCustomDialog(CustomPanelAPI panel, CustomDialogCallback callback) {
         this.callback = callback;
-        this.open = true;
 
         float height = getHeight();
         TooltipMakerAPI info = panel.createUIElement(WIDTH, height, false);
@@ -90,14 +98,6 @@ public class EdictConfirmDialog extends ButtonReportingDialogueDelegate {
         panel.addComponent(holder).inBL(0f, 0f);
     }
 
-    public boolean isOpen() {
-        return open;
-    }
-
-    public void cancel() {
-        callback.dismissCustomDialog(1);
-    }
-
     @Override
     public boolean hasCancelButton() {
         return true;
@@ -115,15 +115,51 @@ public class EdictConfirmDialog extends ButtonReportingDialogueDelegate {
 
     @Override
     public void customDialogConfirm() {
-        open = false;
         if (useRelics) onRelics.run();
         else onConfirm.run();
-        host.showPanelNextFrame();
+        dialog.dismiss();
     }
 
     @Override
     public void customDialogCancel() {
-        open = false;
-        host.showPanelNextFrame();
+        dialog.dismiss();
+    }
+
+    private class Host implements InteractionDialogPlugin {
+
+        @Override
+        public void init(InteractionDialogAPI dialog) {
+            EdictConfirmDialog.this.dialog = dialog;
+            dialog.setPromptText("");
+            dialog.hideVisualPanel();
+            dialog.hideTextPanel();
+            dialog.showCustomDialog(WIDTH, getHeight(), EdictConfirmDialog.this);
+        }
+
+        @Override
+        public void optionSelected(String optionText, Object optionData) {
+        }
+
+        @Override
+        public void optionMousedOver(String optionText, Object optionData) {
+        }
+
+        @Override
+        public void advance(float amount) {
+        }
+
+        @Override
+        public void backFromEngagement(EngagementResultAPI battleResult) {
+        }
+
+        @Override
+        public Object getContext() {
+            return null;
+        }
+
+        @Override
+        public Map<String, MemoryAPI> getMemoryMap() {
+            return null;
+        }
     }
 }

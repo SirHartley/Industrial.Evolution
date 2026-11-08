@@ -10,7 +10,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.senate.EdictHelper;
-import indevo.industries.senate.dialogue.EdictDialogPlugin;
+import indevo.industries.senate.dialogue.EdictPanelDelegate;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
 import java.util.List;
@@ -46,7 +46,7 @@ public class SenateOptionProvider extends SingleIndustrySimpifiedOptionProvider 
 
     @Override
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
-        EdictDialogPlugin.show(ui, opt.ind.getMarket());
+        EdictPanelDelegate.show(ui, opt.ind.getMarket());
     }
 
     @Override

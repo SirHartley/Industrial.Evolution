@@ -2,9 +2,11 @@ package indevo.industries.senate.dialogue;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
+import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
+import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.characters.MarketConditionSpecAPI;
 import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
@@ -64,7 +66,6 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
     private static final Color REMOVE_COLOUR = new Color(160, 30, 20);
 
     private final MarketAPI origin;
-    private final EdictDialogPlugin host;
     private final boolean senateScope;
     private final List<MarketAPI> colonies;
     private final List<MarketConditionSpecAPI> specs = new ArrayList<>();
@@ -77,17 +78,14 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
 
     private CustomPanelAPI basePanel;
     private CustomDialogCallback callback;
-    private boolean open = false;
-    private boolean switchingToPopup = false;
     private CustomPanelAPI panel;
     private ScrollPanelAPI colonyScroller;
     private ScrollPanelAPI edictScroller;
     private ScrollPanelAPI detailScroller;
     private boolean resetDetailScroll = false;
 
-    public EdictPanelDelegate(MarketAPI origin, EdictDialogPlugin host) {
+    public EdictPanelDelegate(MarketAPI origin) {
         this.origin = origin;
-        this.host = host;
 
         Industry senate = origin.getIndustry(Ids.SENATE);
         senateScope = senate != null && senate.isFunctional();
@@ -115,34 +113,19 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         return Math.min(MAX_HEIGHT, Global.getSettings().getScreenHeight() - 300f);
     }
 
+    public static void show(DialogCreatorUI ui, MarketAPI market) {
+        ui.showDialog(getPanelWidth(), getPanelHeight(), new EdictPanelDelegate(market));
+    }
+
+    public static void show(InteractionDialogAPI dialog, MarketAPI market) {
+        dialog.showCustomDialog(getPanelWidth(), getPanelHeight(), new EdictPanelDelegate(market));
+    }
+
     @Override
     public void createCustomDialog(CustomPanelAPI panel, CustomDialogCallback callback) {
         this.basePanel = panel;
         this.callback = callback;
-        this.panel = null;
-        this.open = true;
-        this.switchingToPopup = false;
         recreatePanel(callback);
-    }
-
-    public boolean isOpen() {
-        return open;
-    }
-
-    public void cancel() {
-        callback.dismissCustomDialog(1);
-    }
-
-    @Override
-    public void customDialogConfirm() {
-        open = false;
-        host.leave();
-    }
-
-    @Override
-    public void customDialogCancel() {
-        open = false;
-        if (!switchingToPopup) host.leave();
     }
 
     @Override
@@ -464,7 +447,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         MarketAPI colony = selectedColony;
         EdictAPI edict = previews.get(selectedEdict);
 
-        return new EdictConfirmDialog(host, "Enact", info -> {
+        return new EdictConfirmDialog("Enact", info -> {
             info.addPara("Enact %s on %s?", 0f, Misc.getHighlightColor(), edictName, colony.getName());
             edict.addRuntimeText(info, colony, OPAD);
         }, this::enactSelected);
@@ -481,7 +464,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         int cost = active.getRelicRemovalCost();
         int relicUnrest = active.getRelicRemovalUnrest();
 
-        EdictConfirmDialog confirm = new EdictConfirmDialog(host, "Remove", info -> {
+        EdictConfirmDialog confirm = new EdictConfirmDialog("Remove", info -> {
             if (unrest > 0) info.addPara("Remove %s from %s? This causes %s.", 0f, new Color[]{hl, hl, Misc.getNegativeHighlightColor()}, edictName, colony.getName(), unrest + " unrest");
             else info.addPara("Remove %s from %s? There is %s.", 0f, new Color[]{hl, hl, Misc.getPositiveHighlightColor()}, edictName, colony.getName(), "no penalty");
 
@@ -505,10 +488,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         return new ButtonAction(this) {
             @Override
             public void execute() {
-                EdictConfirmDialog confirm = popup.get();
-                switchingToPopup = true;
-                callback.dismissCustomDialog(1);
-                host.showConfirm(confirm);
+                popup.get().show(() -> recreatePanel(callback));
             }
         };
     }

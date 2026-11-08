@@ -43,7 +43,7 @@ Users:
 | own visual panel + `RunnableButtonPanelPlugin` | `SplinterFleetSidePanelCreator` (+ `AbilityPanelDialoguePlugin`) |
 | `ButtonReportingCustomPanel` + `ButtonAction` | `PetManagerDialogueDelegate`, `ParadeManagementDialogueDelegate`, `WarehouseAddSubmarketOptionProvider`, `warehouses/plugin/wi/WarehouseManagementDialogueDelegate` (folder excluded by `IndEvo.iml`) |
 | own copy of `ButtonReportingCustomPanel` | `ChangelingIndustryDialogueDelegate.ButtonReportingCustomPanel` (inner class, `:229`) |
-| `EscapeBlockingDialoguePluginAPI` | `ManageParadeDialoguePlugin`, `ParadeManagementDialogueDelegate`, `PetShopDialogPlugin`, `EdictDialogPlugin` |
+| `EscapeBlockingDialoguePluginAPI` | `ManageParadeDialoguePlugin`, `ParadeManagementDialogueDelegate`, `PetShopDialogPlugin` |
 
 ## Flow
 

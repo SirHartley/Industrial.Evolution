@@ -5,7 +5,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.senate.dialogue.EdictDialogPlugin;
+import indevo.industries.senate.dialogue.EdictPanelDelegate;
 
 import java.util.List;
 import java.util.Map;
@@ -19,7 +19,7 @@ public class IndEvo_OpenEdictPanel extends BaseCommandPlugin {
         MarketAPI market = dialog.getInteractionTarget().getMarket();
         if (market == null) return false;
 
-        EdictDialogPlugin.show(dialog, market);
+        EdictPanelDelegate.show(dialog, market);
         return true;
     }
 }
