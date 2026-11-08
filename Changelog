@@ -230,6 +230,13 @@ Fixed - Crash with modded AI cores (they now last as long as a gamma core)
 Fixed - Income bonus no longer stays after removal
 Fixed - Crash in the build menu on colonies without a planet
 
+Centralization Bureau
+Adjusted - Military Base and High Command now count for each other, like Heavy Industry and Orbital Works
+Fixed - Bonus now applies right away to newly built, upgraded or restored industries
+Fixed - Heavy Industry and Orbital Works on different colonies now properly get the bonus
+Fixed - Bonus no longer depends on the order the industries were built in
+Fixed - No longer raises demand of industries under construction or disrupted
+
 Restoration Docks
 Fixed - No longer repairs one more D-mod per month than listed
 Fixed - Beta core discount no longer shows as a price increase
