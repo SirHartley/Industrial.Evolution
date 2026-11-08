@@ -6,7 +6,9 @@ import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.campaign.command.CustomProductionPanel;
+import com.fs.starfarer.campaign.command.FighterBlueprintBrowser;
 import com.fs.starfarer.campaign.command.ShipBlueprintBrowser;
+import com.fs.starfarer.campaign.command.WeaponBlueprintBrowser;
 import indevo.industries.salvageyards.plugins.RegistryProductionDelegate;
 import org.apache.log4j.Logger;
 import patchlib.api.context.AfterContext;
@@ -41,9 +43,8 @@ public class RegistryProductionTabPatch {
     private static final String BUTTON_KEY = "IndEvo_registryTab";
     private static final String BROWSER_KEY = "IndEvo_registryBrowser";
     private static final String PLACED_KEY = "IndEvo_registryPlaced";
+    private static final String READY_KEY = "IndEvo_registryReady";
 
-    private static final String SHIPS_LABEL = "Ship hulls";
-    private static final String WEAPONS_LABEL = "Weapons";
     private static final String FIGHTERS_LABEL = "Fighters";
     private static final float PAD = 10f;
     private static final float TAB_GAP = 1f;
@@ -110,14 +111,15 @@ public class RegistryProductionTabPatch {
         ButtonAPI fighters = null;
         UIComponentAPI shipBrowser = null;
 
+        // vanilla puts the shortcut key into the button text, the browser type names the tab
         for (Map.Entry<Object, Object> e : tabs.entrySet()) {
             if (!(e.getKey() instanceof ButtonAPI button)) continue;
 
-            if (SHIPS_LABEL.equals(button.getText())) {
+            if (e.getValue() instanceof ShipBlueprintBrowser b) {
                 ships = button;
-                if (e.getValue() instanceof UIComponentAPI c) shipBrowser = c;
-            } else if (WEAPONS_LABEL.equals(button.getText())) weapons = button;
-            else if (FIGHTERS_LABEL.equals(button.getText())) fighters = button;
+                shipBrowser = b;
+            } else if (e.getValue() instanceof WeaponBlueprintBrowser) weapons = button;
+            else if (e.getValue() instanceof FighterBlueprintBrowser) fighters = button;
         }
 
         if (ships == null || weapons == null || fighters == null || shipBrowser == null) {
@@ -134,6 +136,7 @@ public class RegistryProductionTabPatch {
         panel.addComponent(browser).setSize(browserPos.getWidth(), browserPos.getHeight()).belowLeft(ships, PAD);
         browser.createUI();
         tabs.put(tab, browser);
+        data.put(READY_KEY, true);
 
         boolean empty = browser.getKnownHulls().isEmpty();
         tab.setEnabled(!empty);
@@ -149,7 +152,7 @@ public class RegistryProductionTabPatch {
     @After(target = @MethodMatch(methodName = "actionPerformed", parameterCount = 2))
     public static void afterAction(AfterContext context) {
         PatchData data = context.getData();
-        if (!data.has(PLACED_KEY) || context.getArg(1) != data.get(BUTTON_KEY)) return;
+        if (!data.has(READY_KEY) || context.getArg(1) != data.get(BUTTON_KEY)) return;
 
         Map<Object, Object> tabs = context.<Map<Object, Object>>getField(TAB_MAP).get();
         for (Map.Entry<Object, Object> e : tabs.entrySet()) {
@@ -170,7 +173,7 @@ public class RegistryProductionTabPatch {
     @After(target = @MethodMatch(methodName = "restoreTableUIState", parameterCount = 0))
     public static void afterRestore(AfterContext context) {
         PatchData data = context.getData();
-        if (!data.has(PLACED_KEY)) return;
+        if (!data.has(READY_KEY)) return;
 
         ShipBlueprintBrowser browser = data.get(BROWSER_KEY);
         Object tags = context.getMethod(GET_TAGS, browser).call();
