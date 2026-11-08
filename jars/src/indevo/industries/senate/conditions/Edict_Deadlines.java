@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
+import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
@@ -63,6 +64,16 @@ public class Edict_Deadlines extends BaseEdict {
     public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
         tooltip.addPara("Ship hull output and the production budget provided by this colony %s.", pad, Misc.getPositiveHighlightColor(), "increased by 30%");
         tooltip.addPara("Ship quality %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by 20%");
+    }
+
+    @Override
+    public boolean hasOtherColonyEffects(MarketAPI market) {
+        return !getOtherPlayerColonies(market).isEmpty();
+    }
+
+    @Override
+    public void addOtherColonyEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        tooltip.addPara(BaseIntelPlugin.BULLET + "All other colonies: ship quality %s", pad, Misc.getNegativeHighlightColor(), "reduced by 20%");
     }
 
     @Override

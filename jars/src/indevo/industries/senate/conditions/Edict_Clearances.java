@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
+import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
@@ -61,13 +62,23 @@ public class Edict_Clearances extends BaseEdict {
 
     @Override
     public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
-        tooltip.addPara("Local ship quality %s.", pad, Misc.getPositiveHighlightColor(), "increased by 20%");
+        tooltip.addPara("Ship quality %s.", pad, Misc.getPositiveHighlightColor(), "increased by 20%");
         tooltip.addPara("Ship hull output and the production budget provided by this colony %s.", 3f, Misc.getNegativeHighlightColor(), "decreased by 30%");
     }
 
     @Override
+    public boolean hasOtherColonyEffects(MarketAPI market) {
+        return !getOtherPlayerColonies(market).isEmpty();
+    }
+
+    @Override
+    public void addOtherColonyEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+        tooltip.addPara(BaseIntelPlugin.BULLET + "All other colonies: ship quality %s", pad, Misc.getPositiveHighlightColor(), "increased by 20%");
+    }
+
+    @Override
     public String getShortDesc() {
-        return "Increases local ship quality, decreases ship hull output and production budget.";
+        return "Increases ship quality on all your colonies, decreases ship hull output and production budget.";
     }
 
     @Override
