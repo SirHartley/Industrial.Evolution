@@ -29,7 +29,7 @@ public class ResearchProjectSidePanelCreator {
     protected static final float ARROW_BUTTON_WIDTH = 20, BUTTON_HEIGHT = 30;
     protected static final float SELECT_BUTTON_WIDTH = 95f;
     protected static final float TEXT_FIELD_WIDTH = 80f;
-    protected static final float TOGGLE_WIDTH = 80f, TOGGLE_HEIGHT = 20f;
+    protected static final float TOGGLE_WIDTH = 80f;
     protected static final float TOOLTIP_WIDTH = 400f;
     protected static final String OVERFLOW_LABEL = "Stock";
     protected static final float REDEEM_DIALOG_WIDTH = 500f, REDEEM_DIALOG_HEIGHT = 60f;
@@ -284,8 +284,8 @@ public class ResearchProjectSidePanelCreator {
 
     private void addOverflowToggle(CustomPanelAPI buttonPanel, String projId, final ResearchProject.Progress progress, float opad, float spad) {
         String buttonId = "button_overflow_" + projId;
-        TooltipMakerAPI anchor = buttonPanel.createUIElement(TOGGLE_WIDTH, TOGGLE_HEIGHT, false);
-        ButtonAPI toggle = anchor.addAreaCheckbox(OVERFLOW_LABEL, buttonId, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), TOGGLE_WIDTH, TOGGLE_HEIGHT, 0f);
+        TooltipMakerAPI anchor = buttonPanel.createUIElement(TOGGLE_WIDTH, BUTTON_HEIGHT, false);
+        ButtonAPI toggle = anchor.addAreaCheckbox(OVERFLOW_LABEL, buttonId, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), TOGGLE_WIDTH, BUTTON_HEIGHT, 0f);
         toggle.setChecked(progress.overflow);
 
         anchor.addTooltipTo(new TooltipMakerAPI.TooltipCreator() {
@@ -314,7 +314,7 @@ public class ResearchProjectSidePanelCreator {
         };
 
         VisualCustomPanel.getPlugin().addButton(entry);
-        buttonPanel.addUIElement(anchor).inTR(spad, opad + (BUTTON_HEIGHT - TOGGLE_HEIGHT) / 2f);
+        buttonPanel.addUIElement(anchor).inTR(spad, opad);
     }
 }
 
