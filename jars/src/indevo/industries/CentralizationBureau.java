@@ -7,8 +7,8 @@ import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.campaign.listeners.ColonyOtherFactorsListener;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
-import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
+import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.IconRenderMode;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
-import java.util.List;
 import java.util.*;
 
 import static indevo.items.installable.SpecialItemEffectsRepo.RANGE_LY_TWELVE;
@@ -38,8 +37,6 @@ public class CentralizationBureau extends BaseIndustry {
 
     private boolean aiCoreHasBeenSet = false;
     private Map<String, Integer> industryExistOnMultipleMap = new HashMap<>();
-    private Map<String, Integer> currentModSupply = new HashMap<>();
-    private Map<String, Integer> currentModDemand = new HashMap<>();
 
     @Override
     public void init(String id, MarketAPI market) {
@@ -57,23 +54,74 @@ public class CentralizationBureau extends BaseIndustry {
 
         industryExistOnMultipleMap = getIndustryExistOnMultipleMap();
 
-        if (market.isPlayerOwned() && isFunctional()) setCommoditySupply();
+        for (Industry ind : market.getIndustries()) applyBonus(ind);
         if (!market.isPlayerOwned()) AImode();
     }
 
     @Override
     public void unapply() {
         super.unapply();
-        unmodifyMutableSupDemStats();
+        for (Industry ind : market.getIndustries()) unmodify(ind);
+    }
+
+    // also called by CentralizationBureauApplyPatch after every industry apply, so the apply order does not matter
+    public void applyBonus(Industry ind) {
+        unmodify(ind);
+
+        int bonus = getBonus(ind);
+        if (bonus <= 0) return;
+
+        for (MutableCommodityQuantity sup : ind.getAllSupply()) {
+            sup.getQuantity().modifyFlatAlways(getModId(), bonus, getNameForModifier());
+        }
+
+        for (MutableCommodityQuantity dem : ind.getAllDemand()) {
+            dem.getQuantity().modifyFlatAlways(getModId(), bonus, getNameForModifier());
+        }
+    }
+
+    private void unmodify(Industry ind) {
+        if (ind == this) return;
+
+        for (MutableCommodityQuantity sup : ind.getAllSupply()) {
+            sup.getQuantity().unmodify(getModId());
+        }
+
+        for (MutableCommodityQuantity dem : ind.getAllDemand()) {
+            dem.getQuantity().unmodify(getModId());
+        }
+    }
+
+    private int getBonus(Industry ind) {
+        if (ind == this || !market.isPlayerOwned() || !isFunctional() || !ind.isFunctional()) return 0;
+        if (!MiscIE.getCSVSetFromMemory(Ids.BUREAU_LIST).contains(ind.getId())) return 0;
+
+        Integer count = industryExistOnMultipleMap.get(getFamilyId(ind.getId()));
+        return count == null ? 0 : clampToPermittedVal(count);
+    }
+
+    // upgrade chains count as one industry (heavyindustry/orbitalworks), only through whitelisted ids
+    private static String getFamilyId(String id) {
+        Set<String> allowedIds = MiscIE.getCSVSetFromMemory(Ids.BUREAU_LIST);
+        Set<String> seen = new HashSet<>();
+        String current = id;
+
+        while (seen.add(current)) {
+            IndustrySpecAPI spec = Global.getSettings().getIndustrySpec(current);
+            if (spec == null) break;
+
+            String downgrade = spec.getDowngrade();
+            if (downgrade == null || !allowedIds.contains(downgrade)) break;
+            current = downgrade;
+        }
+
+        return current;
     }
 
     private Map<String, Integer> getIndustryExistOnMultipleMap() {
-
-        //check other in system colonies for industries and compare to this one
-        //make a list with a key that contains every Industry with in system multiples found + amount
-
         Map<String, Integer> industryCountMap = new HashMap<>();
-        Set<String> targetIds = convertToLegalIDSet(market.getIndustries());
+        Set<String> localFamilies = getLocalFamilyIds();
+        if (localFamilies.isEmpty()) return industryCountMap;
 
         Set<MarketAPI> targetMarkets = new HashSet<>(MiscIE.getMarketsInLocation(market.getStarSystem(), market.getFactionId()));
 
@@ -89,76 +137,31 @@ public class CentralizationBureau extends BaseIndustry {
         for (MarketAPI m : targetMarkets) {
             if (m.getId().equals(market.getId())) continue;
 
-            for (String id : targetIds) {
-                if (id.equals(Ids.ADMANUF) && m.hasIndustry(Ids.ADMANUF)) {
-                    String localData = market.getIndustry(id).getSpecialItem().getId();
-                    String foreignData = m.getIndustry(id).getSpecialItem().getId();
+            Set<String> foreignFamilies = new HashSet<>();
+            for (Industry ind : m.getIndustries()) foreignFamilies.add(getFamilyId(ind.getId()));
 
-                    if (localData.equals(foreignData)) addOrIncrement(industryCountMap, id);
-
-                    //check for the opposite if it's HI/OW
-                } else if (id.equals(Industries.HEAVYINDUSTRY) || id.equals(Industries.ORBITALWORKS)) {
-                    if (m.hasIndustry(Industries.HEAVYINDUSTRY))
-                        addOrIncrement(industryCountMap, Industries.HEAVYINDUSTRY);
-                    if (m.hasIndustry(Industries.ORBITALWORKS))
-                        addOrIncrement(industryCountMap, Industries.ORBITALWORKS);
-                } else if (m.hasIndustry(id)) {
-                    addOrIncrement(industryCountMap, id);
-                }
+            for (String family : localFamilies) {
+                if (foreignFamilies.contains(family)) addOrIncrement(industryCountMap, family);
             }
         }
 
         return industryCountMap;
     }
 
+    private Set<String> getLocalFamilyIds() {
+        Set<String> s = new HashSet<>();
+        Set<String> allowedIds = MiscIE.getCSVSetFromMemory(Ids.BUREAU_LIST);
+
+        for (Industry industry : market.getIndustries()) {
+            if (allowedIds.contains(industry.getId())) s.add(getFamilyId(industry.getId()));
+        }
+
+        return s;
+    }
+
     @Override
     public boolean canInstallAICores() {
         return getSpecialItem() == null;
-    }
-
-    private void setCommoditySupply() {
-        unmodifyMutableSupDemStats();
-
-        //need two maps with the commodity id and the mod int value to bring to tooltip
-        Map<String, Integer> supplyMap = new HashMap<>();
-        Map<String, Integer> demandMap = new HashMap<>();
-
-        for (Map.Entry<String, Integer> industryExistMapEntry : industryExistOnMultipleMap.entrySet()) {
-            String key = industryExistMapEntry.getKey();
-            int val = industryExistMapEntry.getValue();
-
-            if (!market.hasIndustry(key)) continue;
-            Industry ind = market.getIndustry(key);
-
-            for (MutableCommodityQuantity sup : ind.getAllSupply()) {
-                int maxMod = clampToPermittedVal(val);
-                String commodityID = sup.getCommodityId();
-
-                if (!supplyMap.containsKey(commodityID) || supplyMap.get(commodityID) < maxMod)
-                    supplyMap.put(commodityID, maxMod);
-
-                sup.getQuantity().modifyFlatAlways(
-                        getModId(),
-                        maxMod,
-                        getNameForModifier());
-            }
-
-            for (MutableCommodityQuantity dem : ind.getAllDemand()) {
-                int maxMod = clampToPermittedVal(val);
-                String commodityID = dem.getCommodityId();
-
-                if (!demandMap.containsKey(commodityID) || demandMap.get(commodityID) < maxMod)
-                    demandMap.put(commodityID, maxMod);
-
-                dem.getQuantity().modifyFlatAlways(
-                        getModId(),
-                        maxMod,
-                        getNameForModifier());
-            }
-        }
-
-        currentModSupply = supplyMap;
-        currentModDemand = demandMap;
     }
 
     private boolean coreIdIsAtWorst(String id) {
@@ -213,36 +216,8 @@ public class CentralizationBureau extends BaseIndustry {
         }
     }
 
-    private void unmodifyMutableSupDemStats() {
-        for (Map.Entry<String, Integer> industryExistMapEntry : industryExistOnMultipleMap.entrySet()) {
-            String key = industryExistMapEntry.getKey();
-
-            if (!market.hasIndustry(key)) continue;
-            Industry ind = market.getIndustry(key);
-
-            for (MutableCommodityQuantity sup : ind.getAllSupply()) {
-                sup.getQuantity().unmodify(getModId());
-            }
-
-            for (MutableCommodityQuantity dem : ind.getAllDemand()) {
-                dem.getQuantity().unmodify(getModId());
-            }
-        }
-    }
-
     private int getHighestIndAmt() {
         return industryExistOnMultipleMap == null || industryExistOnMultipleMap.isEmpty() ? 0 : Collections.max(industryExistOnMultipleMap.values());
-    }
-
-    private Set<String> convertToLegalIDSet(List<Industry> indList) {
-        Set<String> s = new HashSet<>();
-        Set<String> allowedIds = MiscIE.getCSVSetFromMemory(Ids.BUREAU_LIST);
-
-        for (Industry industry : indList) {
-            if (allowedIds.contains(industry.getId())) s.add(industry.getId());
-        }
-
-        return s;
     }
 
     private void addOrIncrement(Map<String, Integer> map, String id) {
@@ -337,13 +312,29 @@ public class CentralizationBureau extends BaseIndustry {
     @Override
     protected void addPostSupplySection(TooltipMakerAPI tooltip, boolean hasSupply, IndustryTooltipMode mode) {
         super.addPostSupplySection(tooltip, hasSupply, mode);
-        addBoostSection(tooltip, currentModSupply, "Additional production output", IconRenderMode.GREEN);
+        addBoostSection(tooltip, getBoosts(true), "Additional production output", IconRenderMode.GREEN);
     }
 
     @Override
     protected void addPostDemandSection(TooltipMakerAPI tooltip, boolean hasDemand, IndustryTooltipMode mode) {
         super.addPostDemandSection(tooltip, hasDemand, mode);
-        addBoostSection(tooltip, currentModDemand, "Additional demand requirements", IconRenderMode.NORMAL);
+        addBoostSection(tooltip, getBoosts(false), "Additional demand requirements", IconRenderMode.NORMAL);
+    }
+
+    private Map<String, Integer> getBoosts(boolean supply) {
+        Map<String, Integer> boosts = new HashMap<>();
+
+        for (Industry ind : market.getIndustries()) {
+            int bonus = getBonus(ind);
+            if (bonus <= 0) continue;
+
+            for (MutableCommodityQuantity q : supply ? ind.getAllSupply() : ind.getAllDemand()) {
+                Integer current = boosts.get(q.getCommodityId());
+                if (current == null || current < bonus) boosts.put(q.getCommodityId(), bonus);
+            }
+        }
+
+        return boosts;
     }
 
     private void addBoostSection(TooltipMakerAPI tooltip, Map<String, Integer> boosts, String heading, IconRenderMode iconMode) {
