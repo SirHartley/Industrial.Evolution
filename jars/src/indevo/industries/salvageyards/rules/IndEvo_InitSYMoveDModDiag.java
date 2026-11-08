@@ -53,6 +53,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
     protected SectorEntityToken entity;
     protected InteractionDialogPlugin originalPlugin;
+    protected String originalPrompt;
     protected InteractionDialogAPI dialog;
     protected Map<String, MemoryAPI> memoryMap;
 
@@ -74,6 +75,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
             entity = dialog.getInteractionTarget();
             originalPlugin = dialog.getPlugin();
+            originalPrompt = dialog.getPromptText();
             dialog.setPlugin(this);
         }
 
@@ -435,6 +437,7 @@ public class IndEvo_InitSYMoveDModDiag extends BaseCommandPlugin implements Inte
 
     private void returnToMenu() {
         dialog.setPlugin(originalPlugin);
+        dialog.setPromptText(originalPrompt);
         new ShowDefaultVisual().execute(null, dialog, Misc.tokenize(""), memoryMap);
         FireAll.fire(null, dialog, memoryMap, "IndEvo_YardsBaseMenu");
     }

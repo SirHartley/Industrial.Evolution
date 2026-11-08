@@ -66,6 +66,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
     protected SectorEntityToken entity;
     protected InteractionDialogPlugin originalPlugin;
+    protected String originalPrompt;
     protected InteractionDialogAPI dialog;
     protected Map<String, MemoryAPI> memoryMap;
 
@@ -95,6 +96,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
             entity = dialog.getInteractionTarget();
             originalPlugin = dialog.getPlugin();
+            originalPrompt = dialog.getPromptText();
             dialog.setPlugin(this);
         }
 
@@ -445,6 +447,7 @@ public class IndEvo_InitSYCustomProductionDiag extends BaseCommandPlugin impleme
 
     private void returnToMenu() {
         dialog.setPlugin(originalPlugin);
+        dialog.setPromptText(originalPrompt);
         new ShowDefaultVisual().execute(null, dialog, Misc.tokenize(""), memoryMap);
         FireAll.fire(null, dialog, memoryMap, "IndEvo_YardsBaseMenu");
     }

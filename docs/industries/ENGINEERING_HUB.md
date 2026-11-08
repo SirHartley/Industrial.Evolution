@@ -85,7 +85,7 @@ The vanilla install item dialog (obf `com.fs.starfarer.campaign.ui.marketinfo.OO
 - Cost: `max(25, round(baseValue / 100))` relic components (`MIN_COST`, `BASE_VALUE_PER_RELIC`); vanilla learnable hullmods cost 25 to 100.
 - Payment: colony storage first, then fleet cargo, also when the option is used from the remote colony screen. Learning an id that is not learnable or not affordable throws (the panel never offers it). Learning calls `FactionAPI.addKnownHullMod`, removes the entry and shows a campaign message. No processing time.
 - Option: shown on a functional, player owned hub, always enabled. Tooltip: effect, recovered count, lore text in gray.
-- Panel: one row per recorded hullmod: icon, name, OP for the source hull size and the source hull, `Cost: X` (green when affordable, red when not), Learn (disabled when not affordable). The Learn hover shows `Cost: X Relic Components (Available: Y)` and the lore text. Footer shows the available relic components. The list is rebuilt after each learn; the dialog keeps its opening height.
+- Panel: one row per recorded hullmod: icon, name, OP for the source hull size and the source hull, `Cost: X Relics` (green when affordable, red when not), Learn (disabled when not affordable). The Learn hover shows `Cost: X Relic Components (Available: Y)` and the lore text. Footer shows the available relic components. The list is rebuilt after each learn; the dialog keeps its opening height.
 
 ### AI cores
 

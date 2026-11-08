@@ -48,6 +48,7 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
     public static final String LORE = "The modification is woven through the ship's frame. Domain micro-assemblers can separate it at the joints and rebuild it inside a compatible hull.";
 
     protected InteractionDialogPlugin originalPlugin;
+    protected String originalPrompt;
     protected InteractionDialogAPI dialog;
     protected Map<String, MemoryAPI> memoryMap;
 
@@ -64,6 +65,7 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
         this.dialog = dialog;
         this.memoryMap = memoryMap;
         originalPlugin = dialog.getPlugin();
+        originalPrompt = dialog.getPromptText();
         dialog.setPlugin(this);
         dialog.setPromptText("Move S-mods between ships");
 
@@ -427,6 +429,7 @@ public class IndEvo_InitSYMoveSModDiag extends BaseCommandPlugin implements Inte
 
     private void returnToMenu() {
         dialog.setPlugin(originalPlugin);
+        dialog.setPromptText(originalPrompt);
         new ShowDefaultVisual().execute(null, dialog, Misc.tokenize(""), memoryMap);
         FireAll.fire(null, dialog, memoryMap, "IndEvo_YardsBaseMenu");
     }
