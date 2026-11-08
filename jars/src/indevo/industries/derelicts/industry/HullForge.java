@@ -546,10 +546,9 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
-        String coreHighlights = StringHelper.getString(getId(), "aCoreHighlights");
-        String effect = StringHelper.getStringAndSubstituteToken(getId(), "aCoreEffect", "$aCoreHighlights", coreHighlights);
+        String pre = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Alpha-level AI core. " : "Alpha-level AI core currently assigned. ";
+        String coreHighlights = "increased construction errors.";
+        String effect = "Adds two permanent hullmods to the ship. The AI will try to integrate fitting modifications, causing " + coreHighlights;
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -565,10 +564,9 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
-        String coreHighlights = StringHelper.getString(getId(), "bCoreHighlights");
-        String effect = StringHelper.getStringAndSubstituteToken(getId(), "bCoreEffect", "$bCoreHighlights", coreHighlights);
+        String pre = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Beta-level AI core. " : "Beta-level AI core currently assigned. ";
+        String coreHighlights = "increase construction errors.";
+        String effect = "Causes Forge Templates to have a chance not to degrade when empty, and reduces construction costs - but will " + coreHighlights;
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
@@ -584,10 +582,9 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
-        String coreHighlights = StringHelper.getString(getId(), "gCoreHighlights");
-        String effect = StringHelper.getStringAndSubstituteToken(getId(), "gCoreEffect", "$gCoreHighlights", coreHighlights);
+        String pre = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Gamma-level AI core. " : "Gamma-level AI core currently assigned. ";
+        String coreHighlights = "decreased construction errors.";
+        String effect = "Reduces upkeep by %s while no ship is being deconstructed, and Forge Templates have " + coreHighlights;
         String[] highlightString = new String[]{StringHelper.getAbsPercentString(GAMMA_CORE_UPKEEP_RED_MULT, true), coreHighlights};
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -626,7 +623,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
         switch (MiscIE.getAiCoreIdNotNull(this)) {
             case Commodities.GAMMA_CORE:
-                name = StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
+                name = "Gamma Core assigned";
 
                 if (currentShip == null)
                     this.getUpkeep().modifyMult("ind_core", GAMMA_CORE_UPKEEP_RED_MULT, name);

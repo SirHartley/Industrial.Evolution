@@ -28,7 +28,7 @@ public class LostAmbassadorRemovalChecker implements NewDayListener {
             if (market.hasIndustry(Ids.EMBASSY) && specialItem.equals(market.getIndustry(Ids.EMBASSY).getSpecialItem())) {
                 market.getIndustry(Ids.EMBASSY).setSpecialItem(null);
                 AmbassadorPersonManager.removeAmbassadorFromMarket(market);
-                AmbassadorPersonManager.displayMessage("ambassadorRetrieved", "ambassadorRetrievedFlavour", person, 0f);
+                AmbassadorPersonManager.displayMessage("$personName has been arrested and returned to $factionName space for questioning.", "$HeOrShe is suspected to be compromised.", person, 0f);
                 Global.getSector().getImportantPeople().removePerson(person);
                 setDone();
                 break;

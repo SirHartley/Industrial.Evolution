@@ -21,6 +21,7 @@
   "IndEvo_ruralList": "data/config/indEvo/rural_polity_blacklist.csv",
   "IndEvo_arcologiesList": "data/config/indEvo/hidden_arcologies_blacklist.csv",
   "IndEvo_arcologiesCondList": "data/config/indEvo/hidden_arcologies_supressed_whitelist.csv",
+  "IndEvo_academySkillList": "data/config/indEvo/academy_admin_skill_whitelist.csv",
   "oldstory_csv_path": "data/campaign/stories.csv",
 
   #wheeeeeeeeeeeeeeeeeeeeeeeeee

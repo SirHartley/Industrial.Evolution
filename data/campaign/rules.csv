@@ -560,10 +560,14 @@ IndEvo_SYCustomProductionPanel,IndEvo_YardsBaseMenu,,"SetTooltip IndEvo_SYCustom
 IndEvo_SYMoveDMods,IndEvo_YardsBaseMenu,IndEvo_HasValidShipPair,"SetTooltip IndEvo_SYMoveDMods_init ""The salvage yards can transfer D-Mods between ships of similar make.""",,2:IndEvo_SYMoveDMods_init:Move D-Mods between similar hulls,
 IndEvo_SYMoveDMods_disabled,IndEvo_YardsBaseMenu,!IndEvo_HasValidShipPair,"SetEnabled IndEvo_SYMoveDMods_init false
 SetTooltip IndEvo_SYMoveDMods_init ""The salvage yards can transfer D-Mods between ships of similar make, but you do not have any compatible ships.""",,2:IndEvo_SYMoveDMods_init:Move D-Mods between similar hulls,
+IndEvo_SYMoveSMods,IndEvo_YardsBaseMenu,IndEvo_HasValidSModPair,"SetTooltip IndEvo_SYMoveSMods_init ""The salvage yards can move S-mods between ships of similar make, for relic components and credits.""",,3:IndEvo_SYMoveSMods_init:Move S-mods between similar hulls,
+IndEvo_SYMoveSMods_disabled,IndEvo_YardsBaseMenu,!IndEvo_HasValidSModPair,"SetEnabled IndEvo_SYMoveSMods_init false
+SetTooltip IndEvo_SYMoveSMods_init ""The salvage yards can move S-mods between ships of similar make. You need a ship with an S-mod, and a ship of the same size and manufacturer with that hullmod installed and a free S-mod slot.""",,3:IndEvo_SYMoveSMods_init:Move S-mods between similar hulls,
 IndEvo_SYLeave,IndEvo_YardsBaseMenu,,"SetShortcut IndEvo_SelectreturnToMenu ""ESCAPE""",,9:IndEvo_SelectreturnToMenu:Return,
 ,,,,,,
 IndEvo_SYCustomProductionPanel_init,DialogOptionSelected,$option == IndEvo_SYCustomProductionPanel_init,IndEvo_InitSYCustomProductionDiag,,,
 IndEvo_SYMoveDMods_init,DialogOptionSelected,$option == IndEvo_SYMoveDMods_init,IndEvo_InitSYMoveDModDiag,,,
+IndEvo_SYMoveSMods_init,DialogOptionSelected,$option == IndEvo_SYMoveSMods_init,IndEvo_InitSYMoveSModDiag,,,
 ,,,,,,
 # Embassy,,,,,,
 ,,,,,,
@@ -715,103 +719,16 @@ IndEvo_openEdictPanel,DialogOptionSelected,$option == IndEvo_openEdictPanel,IndE
 #END Senate,,,,,,
 ,,,,,,
 # Academy,,,,,,
-IndEvo_FireBaseAcademyOptionList,IndEvo_FireBaseAcademyOptionList,$IndEvo_closeDialogueOnNextReturn,"FireAll IndEvo_AcademyBaseMenu
-IndEvo_DisplayTrainingStatus","People in official looking uniforms hurry past you as you travel the well trodden corridors of the Academy towards the administrative offices. Casual congregations of students discussing current events contrast sharply with the military personnel present for training, but the atmosphere seems to be harmonious in light of the shared interests of both groups.",,
-,,,,,,
-# Academy Base menu,,,,,,
 IndEvo_AcademyBaseMenu,PopulateOptions,"$hasMarket
 $menuState == main
 IndEvo_marketHasIndustry IndEvo_Academy
 !IndEvo_requiresColonyMenuPoint
 RepIsAtWorst $faction.id INHOSPITABLE",,,99:IndEvo_IntitiateAcademyMenu:Visit the Academy,
 IndEvo_AcademyBaseMenu_GA,PopulateOptions,"$id == station_galatia_academy
-RepIsAtWorst $faction.id INHOSPITABLE",,,3:IndEvo_IntitiateAcademyMenu:Visit the Academy proper,
+RepIsAtWorst $faction.id INHOSPITABLE",,,3:IndEvo_IntitiateAcademyMenu_GA:Visit the Academy proper,
 IndEvo_AcademyBaseColonyOptionMenu,IndEvo_ColonyOptionPoint,IndEvo_marketHasIndustry IndEvo_Academy,,,2:IndEvo_IntitiateAcademyMenu:Visit the Academy,
-IndEvo_IntitiateAcademyMenu,DialogOptionSelected,$option == IndEvo_IntitiateAcademyMenu,"FireAll IndEvo_AcademyBaseMenu
-IndEvo_DisplayTrainingStatus","People in official looking uniforms hurry past you as you travel the well trodden corridors of the Academy towards the administrative offices. Casual congregations of students discussing current events contrast sharply with the military personnel present for training, but the atmosphere seems to be harmonious in light of the shared interests of both groups.",,
-IndEvo_AcademyReturnToColonyScreen,IndEvo_AcademyBaseMenu,$id != station_galatia_academy,"SetShortcut IndEvo_SelectreturnToMenu ""ESCAPE""",,9:IndEvo_SelectreturnToMenu:Return,
-IndEvo_AcademyReturnToColonyScreen_GA,IndEvo_AcademyBaseMenu,$id == station_galatia_academy,"SetShortcut gaMeetingEnd ""ESCAPE""",,9:gaMeetingEnd:Return,
-#END Academy Base menu,,,,,,
-,,,,,,
-# Officer Training,,,,,,
-IndEvo_SelectOfficerForTraining,IndEvo_AcademyBaseMenu,"!IndEvo_MarketIsTraining OFFICER
-IndEvo_CreatePersonSelectionList TRAIN OFFICER check",,,1:IndEvo_personSelector_officer_train:Officer Personality Training,
-IndEvo_SelectOfficerForTraining_Failure,IndEvo_AcademyBaseMenu,"!IndEvo_MarketIsTraining OFFICER
-!IndEvo_CreatePersonSelectionList TRAIN OFFICER check","SetEnabled IndEvo_personSelector_officer_train false
-SetTooltip IndEvo_personSelector_officer_train ""This Academy is unable to train any of your officers, or you don't have any.""",,1:IndEvo_personSelector_officer_train:Officer Personality Training,
-IndEvo_personSelector_officer_train,DialogOptionSelected,$option ==  IndEvo_personSelector_officer_train,"IndEvo_CreatePersonSelectionList TRAIN OFFICER
-IndEvo_DesignateSubListPageToLoad set 1
-IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
-IndEvo_MovePersonOption_better,DialogOptionSelected,$option ==  IndEvo_MovePersonOption_better,"IndEvo_MovePerson better
-FireAll IndEvo_AcademyBaseMenu",,,
-IndEvo_MovePersonOption_worse,DialogOptionSelected,$option ==  IndEvo_MovePersonOption_worse,"IndEvo_MovePerson worse
-FireAll IndEvo_AcademyBaseMenu",,,
-IndEvo_AbortOfficerTraining,IndEvo_AcademyBaseMenu,IndEvo_MarketIsTraining OFFICER,,,1:IndEvo_LoadAbortDialogue_officer:Abort Officer Training,
-IndEvo_LoadAbortDialogue_officer,DialogOptionSelected,$option ==  IndEvo_LoadAbortDialogue_officer,IndEvo_PrepareForTrainingAbort OFFICER,Really abort training?,,
-#END Officer Training,,,,,,
-,,,,,,
-# Officer Storage,,,,,,
-IndEvo_SelectOfficerForStorage,IndEvo_AcademyBaseMenu,IndEvo_CreatePersonSelectionList STORE OFFICER check,,,3:IndEvo_personSelector_officer_store:Leave Officer,
-IndEvo_SelectOfficerForStorage_FAILURE,IndEvo_AcademyBaseMenu,!IndEvo_CreatePersonSelectionList STORE OFFICER check,"SetEnabled IndEvo_personSelector_officer_store false
-SetTooltip IndEvo_personSelector_officer_store ""You do not have any officers to store.""",,3:IndEvo_personSelector_officer_store:Leave Officer,
-IndEvo_personSelector_officer_store,DialogOptionSelected,$option ==  IndEvo_personSelector_officer_store,"IndEvo_CreatePersonSelectionList STORE OFFICER
-IndEvo_DesignateSubListPageToLoad set 1
-IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
-IndEvo_SelectOfficerForStorageRemoval,IndEvo_AcademyBaseMenu,"IndEvo_CreatePersonSelectionList RETRIEVE OFFICER check
-IndEvo_PlayerHasOfficerCapacity",,,4:IndEvo_personSelector_officer_retrieve:Retrieve Officer,
-IndEvo_SelectOfficerForStorageRemoval_FAILURE_NOSTORE,IndEvo_AcademyBaseMenu,"!IndEvo_CreatePersonSelectionList RETRIEVE OFFICER check
-IndEvo_PlayerHasOfficerCapacity","SetEnabled IndEvo_personSelector_officer_retrieve false
-SetTooltip IndEvo_personSelector_officer_retrieve ""You do not have any officers stored here.""",,4:IndEvo_personSelector_officer_retrieve:Retrieve Officer,
-IndEvo_SelectOfficerForStorageRemoval_FAILURE_NOCAP,IndEvo_AcademyBaseMenu,"IndEvo_CreatePersonSelectionList RETRIEVE OFFICER check
-!IndEvo_PlayerHasOfficerCapacity","SetEnabled IndEvo_personSelector_officer_retrieve false
-SetTooltip IndEvo_personSelector_officer_retrieve ""You do not have any free officer slots.""",,4:IndEvo_personSelector_officer_retrieve:Retrieve Officer,
-IndEvo_personSelector_officer_retrieve,DialogOptionSelected,$option ==  IndEvo_personSelector_officer_retrieve,"IndEvo_CreatePersonSelectionList RETRIEVE OFFICER
-IndEvo_DesignateSubListPageToLoad set 1
-IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
-#END Officer Storage,,,,,,
-,,,,,,
-# Admin Training,,,,,,
-IndEvo_SelectAdminForTraining,IndEvo_AcademyBaseMenu,"!IndEvo_MarketIsTraining ADMIN
-IndEvo_CreatePersonSelectionList TRAIN ADMIN check",,,2:IndEvo_personSelector_admin_train:Administrator Skill Training,
-IndEvo_SelectAdminForTraining_FAILURE,IndEvo_AcademyBaseMenu,"!IndEvo_MarketIsTraining ADMIN
-!IndEvo_CreatePersonSelectionList TRAIN ADMIN check","SetEnabled IndEvo_personSelector_admin_train false
-SetTooltip IndEvo_personSelector_admin_train ""This Academy is unable to train any of your administrators, or you don't have any.""",,2:IndEvo_personSelector_admin_train:Administrator Skill Training,
-IndEvo_personSelector_admin_train,DialogOptionSelected,$option ==  IndEvo_personSelector_admin_train,"IndEvo_CreatePersonSelectionList TRAIN ADMIN
-IndEvo_DesignateSubListPageToLoad set 1
-IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
-IndEvo_AbortAdminTraining,IndEvo_AcademyBaseMenu,IndEvo_MarketIsTraining ADMIN,,,2:IndEvo_LoadAbortDialogue_admin:Abort Administrator Training,
-IndEvo_LoadAbortDialogue_admin,DialogOptionSelected,$option ==  IndEvo_LoadAbortDialogue_admin,IndEvo_PrepareForTrainingAbort ADMIN,Really abort training?,,
-#END Admin Training,,,,,,
-,,,,,,
-# Admin Storage,,,,,,
-IndEvo_SelectAdminForStorage,IndEvo_AcademyBaseMenu,IndEvo_CreatePersonSelectionList STORE ADMIN check,,,5:IndEvo_personSelector_admin_store:Leave Administrator,
-IndEvo_SelectAdminForStorage_FAILURE,IndEvo_AcademyBaseMenu,!IndEvo_CreatePersonSelectionList STORE ADMIN check,"SetEnabled IndEvo_personSelector_admin_store false
-SetTooltip IndEvo_personSelector_admin_store ""You do not have any non assigned administrators to store.""",,5:IndEvo_personSelector_admin_store:Leave Administrator,
-IndEvo_personSelector_admin_store,DialogOptionSelected,$option ==  IndEvo_personSelector_admin_store,"IndEvo_CreatePersonSelectionList STORE ADMIN
-IndEvo_DesignateSubListPageToLoad set 1
-IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
-IndEvo_SelectAdminForStorageRemoval,IndEvo_AcademyBaseMenu,IndEvo_CreatePersonSelectionList RETRIEVE ADMIN check,,,6:IndEvo_personSelector_admin_retrieve:Retrieve Administrator,
-IndEvo_SelectAdminForStorageRemoval_FAILURE,IndEvo_AcademyBaseMenu,!IndEvo_CreatePersonSelectionList RETRIEVE ADMIN check,"SetEnabled IndEvo_personSelector_admin_retrieve false
-SetTooltip IndEvo_personSelector_admin_retrieve ""You do not have any administrators stored here.""",,6:IndEvo_personSelector_admin_retrieve:Retrieve Administrator,
-IndEvo_personSelector_admin_retrieve,DialogOptionSelected,$option ==  IndEvo_personSelector_admin_retrieve,"IndEvo_CreatePersonSelectionList RETRIEVE ADMIN
-IndEvo_DesignateSubListPageToLoad set 1
-IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
-#END Admin Storage,,,,,,
-,,,,,,
-# Person Selector sublist handling,,,,,,
-IndEvo_MovePersonOption_fleet,DialogOptionSelected,$option ==  IndEvo_MovePersonOption_fleet,"IndEvo_MovePerson fleet
-FireAll IndEvo_AcademyBaseMenu","Training aborted, the person has been moved to the fleet.",,
-IndEvo_MovePersonOption_storage,DialogOptionSelected,$option ==  IndEvo_MovePersonOption_storage,"IndEvo_MovePerson storage
-FireAll IndEvo_AcademyBaseMenu","Training aborted, the person has been moved to storage.",,
-IndEvo_MovePersonOption,DialogOptionSelected,$option ==  IndEvo_MovePersonOption,"IndEvo_MovePerson
-FireAll IndEvo_AcademyBaseMenu",,,
-IndEvo_personSelector_LoadCurrent,DialogOptionSelected,$option ==  IndEvo_personSelector_LoadCurrent,IndEvo_DisplaySubListPage $IndEvo_subListPage,Select a person,,
-IndEvo_personSelector_TriggerNext,DialogOptionSelected,$option ==  IndEvo_personSelector_TriggerNext,"IndEvo_DesignateSubListPageToLoad next
-IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
-IndEvo_personSelector_TriggerPrevious,DialogOptionSelected,$option ==  IndEvo_personSelector_TriggerPrevious,"IndEvo_DesignateSubListPageToLoad prev
-IndEvo_DisplaySubListPage $IndEvo_subListPage",Select a person,,
-IndEvo_personWasSelected,DialogOptionSelected,IndEvo_OptionStartsWith IndEvo_SelectPerson_ $option,IndEvo_DisplayPersonActionPanel,What would you like to do?,,
-#END Person Selector sublist handling,,,,,,
+IndEvo_IntitiateAcademyMenu,DialogOptionSelected,$option == IndEvo_IntitiateAcademyMenu,IndEvo_ShowAcademyPanel IndEvo_SelectreturnToMenu,,,
+IndEvo_IntitiateAcademyMenu_GA,DialogOptionSelected,$option == IndEvo_IntitiateAcademyMenu_GA,IndEvo_ShowAcademyPanel gaMeetingEnd,,,
 #END Academy,,,,,,
 ,,,,,,
 # Rift Generator,,,,,,
@@ -943,4 +860,30 @@ $option == salSpecialContinue",FireBest CheckSalvageSpecial,,,
 indevo_ghostShipContinueSelectedDestroyed,DialogOptionSelected,"$indevo_destroyGhostShip score:1000
 $option == salSpecialContinue",SalvageEntity demolish,,,
 indevo_ghostShipFinishedNoContinueDestroyed,SalvageSpecialFinishedNoContinue,$indevo_destroyGhostShip score:1000,SalvageEntity demolish,,,
+,,,,,,
+# Custom production express delivery,,,,,,
+IndEvo_cpcExpressOffer,CPCBlueprintsPicked,IndEvo_CPCExpress valid $cpc_ref score:100,IndEvo_CPCExpress options,"""The forge is running on parts older than the colony. Bring me a few crates of Domain components and I'll put your hulls through while we have it running properly.""","IndEvo_cpcExpress:Express Delivery
+IndEvo_cpcStandard:Standard Delivery",
+IndEvo_cpcStandard,DialogOptionSelected,"$option == IndEvo_cpcStandard
+!$cpc_barEvent","$option = contact_accept 0
+FireBest DialogOptionSelected
+Call $cpc_ref repSuccess
+Call $cpc_ref addContacts",,,
+IndEvo_cpcStandardBar,DialogOptionSelected,"$option == IndEvo_cpcStandard
+$cpc_barEvent","$option = contact_acceptBar 0
+FireBest DialogOptionSelected
+Call $cpc_ref repSuccess
+Call $cpc_ref addContacts",,,
+IndEvo_cpcExpress,DialogOptionSelected,"$option == IndEvo_cpcExpress
+!$cpc_barEvent","$option = contact_accept 0
+FireBest DialogOptionSelected
+IndEvo_CPCExpress apply $cpc_ref
+Call $cpc_ref repSuccess
+Call $cpc_ref addContacts",,,
+IndEvo_cpcExpressBar,DialogOptionSelected,"$option == IndEvo_cpcExpress
+$cpc_barEvent","$option = contact_acceptBar 0
+FireBest DialogOptionSelected
+IndEvo_CPCExpress apply $cpc_ref
+Call $cpc_ref repSuccess
+Call $cpc_ref addContacts",,,
 ,,,,,,

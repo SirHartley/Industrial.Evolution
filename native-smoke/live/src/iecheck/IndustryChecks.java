@@ -7,7 +7,6 @@ import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -22,16 +21,12 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.RestorationDocks;
 import indevo.industries.academy.industry.Academy;
-import indevo.industries.academy.rules.IndEvo_AcademyVariables;
-import indevo.industries.academy.rules.IndEvo_MovePerson;
 import indevo.items.VPCItemPlugin;
 import indevo.items.installable.SpecialItemEffectsRepo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public final class IndustryChecks {
@@ -111,15 +106,7 @@ public final class IndustryChecks {
             float credits = fleet.getCargo().getCredits().get();
             PersonAPI person = officer();
 
-            MemoryAPI local = Global.getFactory().createMemory();
-            local.set("$id", "check");
-            local.set(IndEvo_AcademyVariables.CURRENT_PERSON_TYPE, "OFFICER");
-            local.set(IndEvo_AcademyVariables.CURRENT_ACTION_TYPE, "TRAIN");
-            local.set(IndEvo_AcademyVariables.SELECTED_PERSON, person);
-            Map<String, MemoryAPI> memory = new HashMap<>();
-            memory.put(MemKeys.LOCAL, local);
-            memory.put(MemKeys.MARKET, a.getMemory());
-            new IndEvo_MovePerson().execute("check", null, Misc.tokenize("better"), memory);
+            academy.setOfficerForTraining(person, academy.getReachablePersonalities(person).get(0));
             c.expect(academy.getOfficerInTraining() == person, "officer went into training");
             c.near(credits - fleet.getCargo().getCredits().get(), Setting.PERSONALITY_TRAINING_COST.intValue(), 1f, "102 fee charged once");
 

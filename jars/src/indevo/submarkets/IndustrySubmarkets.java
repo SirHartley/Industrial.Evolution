@@ -68,7 +68,6 @@ public final class IndustrySubmarkets {
         if (submarket == null) return true;
         if (owner(submarketId).keepCargo() && !moveCargoToStorage(market, submarket)) return false;
 
-        if (submarket.getPlugin() instanceof RemovableSubmarketPluginAPI removable) removable.notifyBeingRemoved();
         market.removeSubmarket(submarketId);
         return true;
     }

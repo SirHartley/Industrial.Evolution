@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-A Senate allows one Edict per player colony in its star system (one Senate per system per faction). With Neuroconditioning Compounds (`IndEvo_neurals`) installed, a Senate also allows Edicts on player colonies within 12 LY and halves early removal unrest. An Edict is a market condition (`IndEvo_edict_*`, tag `IndEvo_edict`) with a minimum runtime (default 186 days); removing it earlier adds unrest equal to the remaining months. Some Edicts end themselves and apply a finish penalty. Edicts are enacted and removed in the Edict panel, a custom dialog opened from the Senate industry button or the market menu.
+A Senate allows one Edict per player colony in its star system (one Senate per system per faction). With Neuroconditioning Compounds (`IndEvo_neurals`) installed, a Senate also allows Edicts on player colonies within 12 LY and halves early removal unrest. An Edict is a market condition (`IndEvo_edict_*`, tag `IndEvo_edict`) with a minimum runtime (default 186 days); removing it earlier adds unrest equal to the remaining months, or costs Relic Components instead. Some Edicts end themselves and apply a finish penalty. Edicts are enacted and removed in the Edict panel, a custom dialog opened from the Senate industry button or the market menu.
 
 ## Files
 
@@ -17,7 +17,7 @@ A Senate allows one Edict per player colony in its star system (one Senate per s
 | `EdictHelper.java` | Senate range (`getSystemSenate`, `getCompoundsSenateInRange`, `isInSenateRange`, `getSenateRequirement`), beta core check, active Edict lookup, `getColoniesCoveredBy(senateMarket)`, `enact()` |
 | `EdictRequirement.java` | One requirement line: `text`, `shortText`, `met` |
 | `conditions/EdictAPI.java` | Interface used by the panel: requirements, presence check, effect and runtime text into a `TooltipMakerAPI` for any colony, runtime and unrest values, removal |
-| `conditions/BaseEdict.java` | Base condition: runtime tracking via market time tags, daily presence check, `removeWithPenalty`/`removeWithoutPenalty`, Senate requirement, shared requirement helpers, condition tooltip. `NewDayListener` |
+| `conditions/BaseEdict.java` | Base condition: runtime tracking via market time tags, daily presence check, `removeWithPenalty`/`removeWithoutPenalty`/`removeEarlyWithRelics`, Senate requirement, shared requirement helpers, condition tooltip. `NewDayListener` |
 | `conditions/Edict_*.java` (12) | One class per Edict, see table below |
 | `dialogue/EdictPanelDelegate.java` | The Edict panel (`ButtonReportingDialogueDelegate`), see [Edict panel](#edict-panel) |
 | `patches/FastBuildPickerRowPatch.java`, `FastBuildQueuedIndustryPatch.java`, `FastBuildTooltipPatch.java`, `FastBuildUpgradeConfirmPatch.java` | PatchLib patches that show Mandated Overtime's halved days in the build menu, on queued industry cards, in industry tooltips and in the upgrade confirm text, see [Build time display](#build-time-display) |
@@ -50,7 +50,7 @@ Rows: `data/campaign/market_conditions.csv:3-14`, tags `show_in_codex, IndEvo_ed
 |---|---|---|
 | Industry | `IndEvo_senate` (`Ids.SENATE`) | `data/campaign/industries.csv:31` |
 | Conditions | `IndEvo_edict_*` (12), tag `IndEvo_edict` (`EdictRepo.EDICT_TAG`) | `data/campaign/market_conditions.csv` |
-| Item | `IndEvo_neurals` (Neuroconditioning Compounds) | `data/campaign/special_items.csv:18`, effect in `SpecialItemEffectsRepo` |
+| Item | `IndEvo_neurals` (Neuroconditioning Compounds) | `data/campaign/special_items.csv:22`, effect in `SpecialItemEffectsRepo` |
 | Constants | `RANGE_LY_TWELVE` 12, `NEURAL_COMPOUNDS_UNREST_RED` 0.5 | `indevo/items/installable/SpecialItemEffectsRepo.java:44-45` |
 | Setting | `IndEvo_senate` (toggle) | `data/config/LunaSettings.csv:100`, `Senate.isAvailableToBuild()` |
 | Market tags | `<conditionModId><days>` runtime counter; `edict_stab_penalty<n>` | `TimeTracker`, `Edict_Conscription` |
@@ -60,8 +60,8 @@ Rows: `data/campaign/market_conditions.csv:3-14`, tags `show_in_codex, IndEvo_ed
 
 ## Registration and lifecycle
 
-- Industry and condition plugins from CSV plugin columns; rule commands from `ruleCommandPackages` `indevo.industries.senate.rules` (`data/config/settings.json:33`).
-- `SenateOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:468`). `Senate.SenateFactor` is registered by `SpecialItemEffectsRepo.initEffectListeners()` (`SpecialItemEffectsRepo.java:30`), called at `ModPlugin.java:426`.
+- Industry and condition plugins from CSV plugin columns; rule commands from `ruleCommandPackages` `indevo.industries.senate.rules` (`data/config/settings.json:34`).
+- `SenateOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:469`). `Senate.SenateFactor` is registered by `SpecialItemEffectsRepo.initEffectListeners()` (`SpecialItemEffectsRepo.java:30`), called at `ModPlugin.java:427`.
 - `BaseEdict.apply()` adds the condition as a transient listener (deduped) and a `TimeTracker` market tag tracker; skips both on markets without a primary entity and in the codex (`BaseEdict.java:38`). `TimeTracker` increments the tag daily and calls `onNewDay()`.
 
 Chain: `EdictPanelDelegate.enactSelected -> EdictHelper.enact -> market.addCondition -> BaseEdict.apply -> TimeTracker tag -> onNewDay (presence check, auto end) -> removeWithPenalty/removeWithoutPenalty -> market.removeSpecificCondition`.
@@ -87,7 +87,8 @@ With `IndEvo_requiresColonyMenuPoint` the two market options move under "Colony 
 - Size: panel `min(984, screen width - 40)` x `min(795, screen height - 300)` (`EdictPanelDelegate.java:37-38`, `getPanelWidth`/`getPanelHeight`). The custom dialog adds 20 x 55 for its frame and Return button, so the dialog never exceeds the vanilla cargo tab (1004 x 850, the smallest capped core UI panel).
 - Header: the Senate and its range, or for a colony without a Senate the Senate that grants it Edicts.
 - Columns: colonies (name, size, location, active Edict with day count and a runtime bar), Edicts for the selected colony (status: active, needs, one Edict per colony, available), detail (description from the CSV, effects on the selected colony, requirement checklist with marks, runtime and removal unrest).
-- Actions: Enact Edict (disabled while requirements are unmet or another Edict is active) and Remove Edict, each with an inline confirm. A message line shows the last action. Return (confirm) and Esc (cancel) close the panel.
+- Actions: Enact Edict (disabled while requirements are unmet or another Edict is active) and Remove Edict, each with an inline confirm. A message line shows the last action.
+- Remove with relics: while the minimum runtime has not passed, the Remove confirm shows the unrest with relics, the cost line (`Cost: X Relic Components (Available: Y)`, green or red) and three buttons, Remove, Remove with relics (disabled when unaffordable) and Cancel; the action area grows from 84 to 134 px for it. The relic button's tooltip shows the effect, the cost and the lore text in gray (`RELIC_LORE`). The Duration section names the cost and any unrest still caused by repeal. Return (confirm) and Esc (cancel) close the panel.
 - Rebuild: every click rebuilds the panel (`recreatePanel`) and keeps the three scroll offsets; the detail offset resets when the selection changes.
 - Preview: one dummy market per panel (`Global.getFactory().createMarket`) holds every Edict condition. `BaseEdict.apply` skips markets without a primary entity, so the dummy applies nothing; the panel calls the dummy plugins with the selected colony as parameter (`getRequirements(market)`, `addEffectText(tooltip, market, pad)`, `addRuntimeText`, `getMinRuntime(market)`). An active Edict uses its real plugin.
 - Graphics: `RuntimeBarPlugin` (two GL quads) and `RequirementMarkPlugin` (check or cross in GL lines).
@@ -102,6 +103,7 @@ With `IndEvo_requiresColonyMenuPoint` the two market options move under "Colony 
 - Daily: if `isPresenceConditionMet()` fails, `removeWithPenalty()`. `isPresenceConditionMet` is true when every `getRequirements()` line is met, so the panel checklist and the check share one source.
 - `removeWithPenalty()`: `applyFinishPenalty()` (`getFinishUnrest`: Forced Relocation 3, Cleanse ceil(size/3), Lockdown 1 on auto end), then if runtime not passed, `RecentUnrest +getEarlyRemovalUnrest()` = ceil(remaining days / 31 x 0.5 with a Compounds Senate in range, else 1). Lockdown overrides it: early end adds the early unrest +3 and no finish penalty.
 - `getRemovalUnrest()` is the total a removal now would cause; the panel shows it before the confirm.
+- `removeEarlyWithRelics()`: `applyFinishPenalty()` then `removeWithoutPenalty()`, so the Edict ends as if its runtime had passed, without its end effect (Cleanse keeps the subpopulations). Waived: the early removal unrest, and Lockdown's +3 early end. Cost `getRelicRemovalCost()` = remaining days x `RELICS_PER_REMAINING_DAY` (1, `BaseEdict`); unrest `getRelicRemovalUnrest()` = `getFinishUnrest`. `RelicHelper.take` ([Utils](../core/UTILS.md#helper)) takes from the colony's storage first, then fleet cargo, and throws when both together fall short (the panel disables the button first).
 
 ### Build time display
 
@@ -128,7 +130,6 @@ While `IndEvo_edict_fastBuild` is on the market (`Edict_FastBuild.isActive`), fo
 - Text and requirement methods take the colony as parameter and must not read the plugin's own `market` or instance state set in `apply`, or the preview shows the dummy. Only the remaining time and removal values (`getRemainingDays`, `getRemovalUnrest`, `getDaysPassed`) read the plugin's market.
 - `Market.addCondition()` calls `plugin.apply()` immediately and `removeCondition()` calls `unapply()` (`obf/campaign/econ/Market.java:1088`, `:1160`).
 - One Edict per colony: `EdictHelper.enact()` throws `IllegalStateException` when the colony already has one; the panel disables Enact first.
-- Instance fields of the Edict classes are saved with the market. Keep their names and types, even unused ones (`Edict_Cleanse.stabPenalty`), or old saves fail to load.
 - Production quality changes from Deadlines and Clearances go on every player market, not only the local one.
 - `Edict_FastBuild` reads and writes `BaseIndustry.buildTime` (`api/impl/campaign/econ/impl/BaseIndustry.java:103`) through `StarReflectionUtils.get` and `ReflectionUtils.setWithSuper` ([Utils](../core/UTILS.md)). `apply()` stores each building industry's current time in `originalBuildTimes` (by industry id, saved with the condition) and sets half of it, so custom times such as a [Ruined Infrastructure](RUINED_INFRASTRUCTURE.md) restore are halved, not replaced by a spec time. `unapply()` writes the stored time back only while the industry still holds the halved value (a build started in between keeps its own time) and clears the map. `reapplyConditions` runs unapply before apply, so the halving never stacks.
 

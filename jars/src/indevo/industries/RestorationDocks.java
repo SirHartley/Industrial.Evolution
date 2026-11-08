@@ -121,7 +121,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
                 float totalAmount = 0f;
                 float feeAmount = 0f;
 
-                MessageIntel intel = new MessageIntel(StringHelper.getString(getId(), "repairedAt"),
+                MessageIntel intel = new MessageIntel("Ships have been repaired at %s:",
                         Misc.getTextColor(), new String[]{(market.getName())}, Global.getSector().getPlayerFaction().getBrightUIColor());
 
                 for (Map.Entry<FleetMemberAPI, Float> entry : fixedShips.entrySet()) {
@@ -138,7 +138,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
                 BillingHelper.charge(this, "repairs", "Ship repairs", totalAmount);
                 BillingHelper.charge(this, "fees", "Dock fees", feeAmount);
 
-                String header = aiMode ? StringHelper.getString(getId(), "totalCostWIthFee") : StringHelper.getString(getId(), "totalCost");
+                String header = aiMode ? "Total cost: %s, plus %s in repair fees." : "Total cost: %s";
 
                 intel.addLine(header, Misc.getTextColor(), new String[]{Misc.getDGSCredits(totalAmount), Misc.getDGSCredits(feeAmount)}, Misc.getHighlightColor());
                 intel.setIcon(Global.getSettings().getSpriteName("intel", "repairs_finished"));
@@ -363,43 +363,40 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
             String s = StringHelper.getAbsPercentString(discount, true);
             Pair<String, Color> repInt = StringHelper.getRepIntTooltipPair(market.getFaction());
 
-            Map<String, String> toReplace = new HashMap<>();
-            toReplace.put("$factionName", faction.getDisplayName());
-            toReplace.put("$dModAmt", getMaxDModRepairAmt() + " " + StringHelper.getString("dmods"));
-            toReplace.put("$discountAmt", s + "%");
-            toReplace.put("$repInt", repInt.one);
+            String dModAmt = getMaxDModRepairAmt() + " D-Mods";
+            String discountAmt = s + "%";
 
             if (currTooltipMode == IndustryTooltipMode.NORMAL) {
-                if (getAICoreId() == null) tooltip.addPara(StringHelper.getString(getId(), "capTooltip"), opad);
-                tooltip.addPara(StringHelper.getStringAndSubstituteTokens(getId(), "currentCap", toReplace),
+                if (getAICoreId() == null) tooltip.addPara("No AI core - will remove D-Mods from random ships until capacity is reached.", opad);
+                tooltip.addPara("Current capacity: " + dModAmt + " per month, repaired at " + discountAmt + " base price.",
                         2f,
                         Misc.getHighlightColor(),
-                        new String[]{toReplace.get("$dModAmt"), StringHelper.getAbsPercentString(baseRepairPrice, true)});
+                        new String[]{dModAmt, StringHelper.getAbsPercentString(baseRepairPrice, true)});
             }
 
             if (!market.isPlayerOwned()
                     && currTooltipMode == IndustryTooltipMode.NORMAL
                     && (!faction.isHostileTo(Global.getSector().getPlayerFaction()) || faction.getId().equals(Factions.PIRATES))) {
 
-                tooltip.addPara(StringHelper.getStringAndSubstituteTokens(getId(), "addFee", toReplace), opad, Misc.getTextColor(),
+                tooltip.addPara("Restoring ships here will cost an additional fee depending on your standing with " + faction.getDisplayName() + ".", opad, Misc.getTextColor(),
                         faction.getColor(),
                         faction.getDisplayNameWithArticle());
 
                 Map<String, Float> sizeList = new LinkedHashMap<>();
-                sizeList.put(StringHelper.getString("frig"), getHullSizeRepairFee(ShipAPI.HullSize.FRIGATE));
-                sizeList.put(StringHelper.getString("dest"), getHullSizeRepairFee(ShipAPI.HullSize.DESTROYER));
-                sizeList.put(StringHelper.getString("cruiser"), getHullSizeRepairFee(ShipAPI.HullSize.CRUISER));
-                sizeList.put(StringHelper.getString("cap"), getHullSizeRepairFee(ShipAPI.HullSize.CAPITAL_SHIP));
+                sizeList.put("Frigate", getHullSizeRepairFee(ShipAPI.HullSize.FRIGATE));
+                sizeList.put("Destroyer", getHullSizeRepairFee(ShipAPI.HullSize.DESTROYER));
+                sizeList.put("Cruiser", getHullSizeRepairFee(ShipAPI.HullSize.CRUISER));
+                sizeList.put("Capital", getHullSizeRepairFee(ShipAPI.HullSize.CAPITAL_SHIP));
 
-                tooltip.addPara(StringHelper.getString(getId(), "repFee"), opad, repInt.two, new String[]{toReplace.get("$discountAmt"), toReplace.get("$repInt")});
+                tooltip.addPara("Additional repair fees: %s: %s", opad, repInt.two, new String[]{discountAmt, repInt.one});
                 for (Map.Entry<String, Float> e : sizeList.entrySet()) {
-                    tooltip.addPara(StringHelper.getString(getId(), "hsCost"), 2f, Misc.getHighlightColor(), new String[]{e.getKey(), Misc.getDGSCredits(e.getValue())});
+                    tooltip.addPara("Hull size: %s: %s per D-Mod", 2f, Misc.getHighlightColor(), new String[]{e.getKey(), Misc.getDGSCredits(e.getValue())});
                 }
             } else if (!market.isPlayerOwned()
                     && currTooltipMode == IndustryTooltipMode.NORMAL
                     && (faction.isHostileTo(Global.getSector().getPlayerFaction()) || !faction.getId().equals(Factions.PIRATES))) {
 
-                tooltip.addPara(StringHelper.getStringAndSubstituteTokens(getId(), "hostile", toReplace), 2f, Misc.getNegativeHighlightColor(),
+                tooltip.addPara("You are hostile to " + faction.getDisplayName() + " - no repairs will be performed.", 2f, Misc.getNegativeHighlightColor(),
                         faction.getColor(),
                         faction.getDisplayName());
             }
@@ -418,44 +415,42 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
         float repairCost = 0f;
         float feeAmount = 0f;
 
-        tooltip.addSectionHeading(StringHelper.getString(getId(), "lastMonthHeader"), color, faction.getDarkUIColor(), Alignment.MID, opad);
-        tooltip.addPara(StringHelper.getString(getId(), "lastMonthText"), opad);
+        tooltip.addSectionHeading("Repaired last month:", color, faction.getDarkUIColor(), Alignment.MID, opad);
+        tooltip.addPara("The following ships have been worked on:", opad);
         //add repair costs here
         for (Map.Entry<FleetMemberAPI, Float> ship : repairedShipsTooltipList.entrySet()) {
             repairCost += ship.getValue();
             feeAmount += getHullSizeRepairFee(ship.getKey().getHullSpec().getHullSize()) * repairedShipsAmountList.get(ship.getKey());
 
-            Map<String, String> toReplace = new HashMap<>();
-            toReplace.put("$hullName", ship.getKey().getHullSpec().getHullName());
-            toReplace.put("$dModAmt", repairedShipsAmountList.get(ship.getKey()) + " " + StringHelper.getString("dmods"));
-            toReplace.put("$amt", Misc.getDGSCredits(ship.getValue()));
+            String hullName = ship.getKey().getHullSpec().getHullName();
+            String dModAmt = repairedShipsAmountList.get(ship.getKey()) + " D-Mods";
+            String amt = Misc.getDGSCredits(ship.getValue());
 
-            tooltip.addPara(BaseIntelPlugin.BULLET + StringHelper.getStringAndSubstituteTokens(getId(), "repairBullet", toReplace), 2f, Misc.getHighlightColor(),
+            tooltip.addPara(BaseIntelPlugin.BULLET + hullName + ": repaired " + dModAmt + ", cost: " + amt, 2f, Misc.getHighlightColor(),
                     new String[]{
-                            toReplace.get("$hullName"),
-                            toReplace.get("$dModAmt"),
-                            toReplace.get("$amt")});
+                            hullName,
+                            dModAmt,
+                            amt});
         }
 
         if (!market.isPlayerOwned()) {
-            tooltip.addPara(StringHelper.getString(getId(), "commissionFee"), opad, Misc.getHighlightColor(), new String[]{Misc.getDGSCredits(feeAmount)});
-            tooltip.addPara(StringHelper.getString(getId(), "totalRepairCost"), 2F, Misc.getHighlightColor(), new String[]{Misc.getDGSCredits(repairCost + feeAmount)});
-            tooltip.addPara(StringHelper.getString(getId(), "expensesBilled"), 2F);
+            tooltip.addPara("Repair commission fees: %s", opad, Misc.getHighlightColor(), new String[]{Misc.getDGSCredits(feeAmount)});
+            tooltip.addPara("Total repair cost: %s", 2F, Misc.getHighlightColor(), new String[]{Misc.getDGSCredits(repairCost + feeAmount)});
+            tooltip.addPara("Expenses have been billed to you on month end.", 2F);
             return true;
         }
 
-        tooltip.addPara(StringHelper.getString(getId(), "totalRepairCost"), opad, Misc.getHighlightColor(), new String[]{Misc.getDGSCredits(repairCost)});
-        tooltip.addPara(StringHelper.getString(getId(), "expensesDetracted"), 2F);
+        tooltip.addPara("Total repair cost: %s", opad, Misc.getHighlightColor(), new String[]{Misc.getDGSCredits(repairCost)});
+        tooltip.addPara("Expenses have been subtracted with upkeep on month end.", 2F);
         return true;
     }
 
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
-        String coreHighlights = StringHelper.getString(getId(), "aCoreHighlights");
-        String effect = StringHelper.getStringAndSubstituteToken(getId(), "aCoreEffect", "$aCoreHighlights", coreHighlights);
+        String pre = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Alpha-level AI core. " : "Alpha-level AI core currently assigned. ";
+        String coreHighlights = "total repaired D-Mod amount";
+        String effect = "Increases the " + coreHighlights + " by %s, decreases upkeep by %s while no ship is being repaired.";
         String[] highlightString = new String[]{Integer.toString(ALPHA_CORE_BONUS_REPAIR), StringHelper.getAbsPercentString(ALPHA_CORE_UPKEEP_RED_MULT, true), coreHighlights};
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -472,10 +467,9 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
-        String coreHighlights = StringHelper.getString(getId(), "bCoreHighlights");
-        String effect = StringHelper.getStringAndSubstituteToken(getId(), "bCoreEffect", "$bCoreHighlights", coreHighlights);
+        String pre = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Beta-level AI core. " : "Beta-level AI core currently assigned. ";
+        String coreHighlights = "the least damaged ships";
+        String effect = "Reduces the repair cost by %s, changes behaviour to prioritize " + coreHighlights + ".";
         String[] highlightString = new String[]{StringHelper.getAbsPercentString(BETA_CORE_COST_RED_MULT, true), coreHighlights};
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -492,10 +486,9 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
-        String coreHighlights = StringHelper.getString(getId(), "gCoreHighlights");
-        String effect = StringHelper.getStringAndSubstituteToken(getId(), "gCoreEffect", "$gCoreHighlights", coreHighlights);
+        String pre = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Gamma-level AI core. " : "Gamma-level AI core currently assigned. ";
+        String coreHighlights = "D-Mod per ship";
+        String effect = "Caps the repairs to %s " + coreHighlights + " per month.";
         String[] highlightString = new String[]{Integer.toString(GAMMA_CORE_MAX_REPAIR), coreHighlights};
 
 
@@ -518,7 +511,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
         switch (MiscIE.getAiCoreIdNotNull(this)) {
             case Commodities.ALPHA_CORE:
-                name = StringHelper.getString("IndEvo_AICores", "aCoreStatModAssigned");
+                name = "Alpha Core assigned";
                 getUpkeep().modifyMult("ind_core", ALPHA_CORE_UPKEEP_RED_MULT, name);
                 break;
             default:

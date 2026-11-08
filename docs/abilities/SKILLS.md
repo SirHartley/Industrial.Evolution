@@ -26,16 +26,16 @@ IE adds four admin only skills, tagged `npc_only`, so they never show in the pla
 | Skill | `indevo_fleet_logistics` (Fleet Logistics, aptitude `leadership`) | `data/characters/skills/skill_data.csv`, `indevo_fleet_logistics.skill` |
 | Skill | `indevo_industrial_planning` (Distributive Economics, `industry`) | same, `indevo_industrial_planning.skill` |
 | Skill | `indevo_planetary_operations` (Planetary Operations, `leadership`) | same, `indevo_planetary_operations.skill` |
-| Skill | `indevo_Micromanagement` (Micromanagement, `industry`), `Ids.MICROMANAGEMENT` | same, `indevo_Micromanagement.skill`, `indevo/ids/Ids.java:137` |
+| Skill | `indevo_Micromanagement` (Micromanagement, `industry`), `Ids.MICROMANAGEMENT` | same, `indevo_Micromanagement.skill`, `indevo/ids/Ids.java:141` |
 | Skill tags | `npc_only, indevo`; `admin` column `TRUE` | `skill_data.csv` |
 | Vanilla setting | `allowRemoteIndustryItemManagement` | game `data/config/settings.json:300` (default `false`) |
-| Unused ids | `Ids.SKILL_FLEET_LOGISTICS`, `SKILL_INDUSTRIAL_PLANNING`, `SKILL_PLANETARY_OPERATIONS` (`indevo_FleetLogistics` etc.) | `Ids.java:134`; do not match the real skill ids, nothing reads them |
+| Unused ids | `Ids.SKILL_FLEET_LOGISTICS`, `SKILL_INDUSTRIAL_PLANNING`, `SKILL_PLANETARY_OPERATIONS` (`indevo_FleetLogistics` etc.) | `Ids.java:138`; do not match the real skill ids, nothing reads them |
 
 ## Registration and lifecycle
 
 - Skills load from `data/characters/skills/*.skill`; each has one `GOVERNED_OUTPOST` effect whose `script` names the inner class (`indevo.abilities.skills.FleetLogistics$Market1` etc.).
 - Admins get them through vanilla `OfficerManagerEvent.createAdmin`, which picks from every `isAdminSkill()` skill that is not deprecated, `player_only` or `ai_core_only` (`api/impl/campaign/events/OfficerManagerEvent.java:322`). `npc_only` only hides them from the player tree (`api/util/SkillData.java:56`).
-- `ModPlugin.setListenersIfNeeded` -> `AdminGovernTimeTracker.getInstanceOrRegister()` (`ModPlugin.java:460`, deduped by `hasListenerOfClass`), persistent.
+- `ModPlugin.setListenersIfNeeded` -> `AdminGovernTimeTracker.getInstanceOrRegister()` (`ModPlugin.java:461`, deduped by `hasListenerOfClass`), persistent.
 - `MicromanagementRemoteItemPatch` is a `@Patch` class; PatchLib installs it when the option menu class loads ([Patches](../ARCHITECTURE.md#patches)).
 
 ## Flow

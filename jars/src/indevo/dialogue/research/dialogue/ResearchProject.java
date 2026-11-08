@@ -54,6 +54,14 @@ public abstract class ResearchProject implements ResearchProjectAPI {
 
     }
 
+    public RedeemRequirement getRedeemRequirement() {
+        return null;
+    }
+
+    public String getRedeemLore() {
+        return null;
+    }
+
     //create a list with templates
     //create a memory with progress on each of these templates
     //getProgress method in each template obj

@@ -21,14 +21,12 @@ import indevo.industries.senate.EdictRequirement;
 public class Edict_Customs extends BaseEdict {
 
     private final float foreignAccessMod = -0.07F;
-    private float thisAccessIncrease = 0F;
 
     public void apply(String id) {
         super.apply(id);
         if (market.getPrimaryEntity() == null) return;
 
         int foreignCount = 0;
-        thisAccessIncrease = 0.05F;
 
         for (MarketAPI market : MiscIE.getMarketsInLocation(this.market.getStarSystem(), this.market.getFactionId())) {
             if (!market.getId().equals(this.market.getId())) {
@@ -37,9 +35,8 @@ public class Edict_Customs extends BaseEdict {
             }
         }
 
-        thisAccessIncrease *= foreignCount;
         if (foreignCount > 0) {
-            market.getAccessibilityMod().modifyFlat(id, thisAccessIncrease, getName());
+            market.getAccessibilityMod().modifyFlat(id, 0.05F * foreignCount, getName());
         }
     }
 

@@ -6,10 +6,13 @@ Note - Install PatchLib alongside Industrial.Evolution
 Note - Saves from 4.1.b do not load, start a new game
 -
 Added - Quick Settings tab for category toggles
+Added - Refit: Build hullmods in with Relic Components instead of story points (5 per DP, no bonus XP)
+Added - Boost Extraction: pay Relic Components on Tech Mining to double next month's finds
 Added - Settings descriptions updated
+Added - Express Delivery for custom production orders: halves the delivery time for Relic Components
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Adjusted - Industrial Supply Store moves its contents to colony storage when the colony is lost
-Adjusted - Removed redundant UI text and shortened tooltips
+Adjusted - Removed redundant UI text and shortened service tooltips
 Adjusted - Settings tabs re-sorted
 Adjusted - Settings now apply without a game restart
 Adjusted - IE colony items now list under colony items in the codex
@@ -26,6 +29,7 @@ Removed - Unused settings
 
 Research Projects
 Added - Stock toggle: repeatable projects carry extra progress over (PR'd by razenpok, thank you!)
+Added - Project Reforge: turn a Corrupted Nanoforge into a Pristine one for 500 Relic Components
 Fixed - Now sorts highest to lowest progress like god intended
 Fixed - Prospector new project notice now properly shows after a reload
 Fixed - Drive Field Tuning modspec no longer drops as random loot
@@ -82,13 +86,18 @@ Fixed - Interstellar Relay setting now properly controls Interstellar Relays
 Fixed - Tooltip now shows why a relay without a Military Base is inactive
 
 Academy
-Adjusted - Training at your own colonies is now billed in the monthly income report
+Added - Academy panel: train, store and retrieve officers and administrators in one screen
+Added - Officers can train two personality steps at once with an alpha core (time and fee per step)
+Added - Quick Training: halve the remaining training time with Relic Components
+Adjusted - Training at your own Academy is now free
+Adjusted - Admin training only teaches skills from academy_admin_skill_whitelist.csv (other mods can add theirs)
 Fixed - Aggression training no longer bills you twice the amount it should
 Fixed - Academy transfers no longer exceed the fleet's officer limit
 Fixed - Swapping AI cores no longer keeps the old core's bonuses
 Fixed - Crash when officer training finishes in a translated game (PR'd by cwbnga, thank you!)
 Fixed - Officer training tooltip now properly shows the target personality
 Fixed - Admin training no longer charges the fee when it does not start
+Fixed - Aborting admin training no longer goes over the administrator limit
 
 Variable Industries
 Added - Ultra rare VPC Suites: three commodities on one chip, each at x0.65 output
@@ -119,6 +128,10 @@ Fixed - Crash when using "Ship now" on a contract that became invalid
 Fixed - Base fee setting maximum is no longer below its default
 
 Derelict Industries
+Added - Ancient Laboratory: relic services to refine Forge Templates and integrate automated ships
+Added - Expedite Work: halve the remaining Hull Deconstructor time with Relic Components
+Added - Expedite Restoration: halve the remaining Ancient Laboratory repair time with Relic Components
+Added - Recharge Now: end the Rift Generator cooldown at once for 3 Relic Components per day left
 Adjusted - Forge Templates now only install in the structure that can use them
 Fixed - Rift Generator planets now move in sync with the warp animation
 Fixed - Rift Generator no longer leaves planetary rings behind
@@ -155,12 +168,18 @@ Fixed - Embassy reputation penalties no longer repeat every month on their own
 Fixed - Ambassadors no longer appear or have any effect while Embassies are disabled
 Fixed - Removing an Embassy before the ambassador took office no longer loses them
 Fixed - Ambassadors no longer break when another mod moves them
+Fixed - Arrested ambassador message now shows he or she instead of a placeholder
 
 Engineering Hub
+Added - Hullmod Data: learn hullmods from stripped ships for Relic Components
+Added - Rush Research: halve the remaining reverse engineering time with Relic Components
 Adjusted - Expanded tooltip now also shows the normal tooltip below the progress list
 Fixed - Engineering Hub setting now properly controls whether it can be built
 Fixed - Stripped weapons and fighters now go to the production gathering point
 Fixed - Relic Components no longer show up as an item in storage or cargo
+
+Orbital Works
+Added - Relic Lattice Work: Orbital Works option, adds one S-mod slot to a ship. Costs relic components, takes 3 months.
 
 Privateer Base
 Adjusted - Now takes two industry slots itself, also while queued
@@ -169,6 +188,9 @@ Fixed - Raid strength now properly follows colony fleet size modifiers
 Fixed - Build tooltip no longer shows the base as unavailable when it can be built
 
 Salvage Yards
+Added - Move S-mods: transfer S-mods between similar hulls for relic components and credits
+Note - The target ship needs the hullmod installed and a free S-mod slot
+Added - Express Delivery: halve the delivery time of a production order with Relic Components
 Fixed - Salvage Yards now properly get salvage from every raid in their system
 Fixed - Salvage Yards no longer pay out twice after loading a save
 Fixed - Blockades, punitive expeditions and hostile activity raids now give salvage
@@ -183,6 +205,7 @@ Senate
 Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
 Note - Building Menu Overhaul's build menu and tooltips show the normal time
 Added - New Edict panel: pick a colony and an Edict, see its effects on that colony and a checklist of its requirements, enact or remove it with a confirm
+Added - Remove with relics: end an Edict early without the early removal unrest, 1 Relic Component per remaining day
 Added - The Senate can now be visited from remote colony screens
 Adjusted - Visiting the Senate manages the Edicts of every colony in its range, colonies without a Senate get "Enact an Edict" for themselves
 Adjusted - Edict tooltips now list their requirements and mark the unmet ones
@@ -232,6 +255,7 @@ Fixed - Cryosleeper intel no longer shows the Automated Shipyard icon
 Fixed - Relic components in station storage are now properly counted
 
 Salvage Specials
+Added - Story point derelicts can now be rebuilt with Relic Components instead of a story point (5 per DP)
 Fixed - Ship factory no longer offers the flagship or story ships for sacrifice
 Fixed - Credit stash ambush no longer lowers the player's reputation penalties
 Fixed - Credit stash payback no longer allows negative credits

@@ -66,13 +66,13 @@ Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3,
 | Tag | `IndEvo_MeteorSwarm` (`MeteorSwarmManager.METEOR_TAG`) on every meteor, added in `MeteorEntity.init(SectorEntityToken, Object)`; read by Catch.Release | `MeteorEntity`, `MeteorSwarmManager` |
 | Tags | `indevo_planetoid`, `IndEvo_IceRockNoSplinters`, `IndEvo_IceEntourage_<id>`, `IndEvo_TreasureoidEntrouage_<id>`; loot station id `<entity id>_loot` | spawners and entities |
 | Rules | `IndEvo_roiderTutorial_*` (offer 5 `IndEvo_consumable_missile_concussive` for 10% of supplies, max 100) | `data/campaign/rules.csv:6-62` |
-| Rule command package | `indevo.exploration.meteor.rules` | `data/config/settings.json:44` |
+| Rule command package | `indevo.exploration.meteor.rules` | `data/config/settings.json:45` |
 | Sounds | `IndEvo_radiation0..9` | `data/config/sounds.json:18` |
-| Sprite | `IndEvo/meteor_storm` (intel icon) | `data/config/settings.json:163` |
+| Sprite | `IndEvo/meteor_storm` (intel icon) | `data/config/settings.json:164` |
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:478`) adds a transient listener each load (`MeteorSwarmManager.java:70`).
+- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:479`) adds a transient listener each load (`MeteorSwarmManager.java:70`).
 - Spawners, warning path renderer and delayed spawn are location scripts; meteors are custom entities with saved plugins.
 - `RadiationEffectHandler.get()` adds itself as a transient Luna renderer on first use per session (`:36-45`).
 

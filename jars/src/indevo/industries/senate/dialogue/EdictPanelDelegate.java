@@ -19,6 +19,7 @@ import indevo.industries.senate.EdictHelper;
 import indevo.industries.senate.EdictRepo;
 import indevo.industries.senate.EdictRequirement;
 import indevo.industries.senate.conditions.EdictAPI;
+import indevo.utils.helper.RelicHelper;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -46,9 +47,14 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
     private static final float FOOTER_HEIGHT = 24f;
     private static final float HEADING_HEIGHT = 20f;
     private static final float ACTION_HEIGHT = 84f;
+    private static final float ACTION_HEIGHT_RELICS = 134f;
     private static final float ROW_MIN_HEIGHT = 44f;
     private static final float BUTTON_WIDTH = 150f;
     private static final float BUTTON_HEIGHT = 25f;
+    private static final float SMALL_BUTTON_WIDTH = 100f;
+    private static final float TOOLTIP_WIDTH = 360f;
+
+    private static final String RELIC_LORE = "Several senators have districts waiting on machinery that nobody makes anymore. A few crates of relic components should settle their objections to an early repeal.";
     private static final float ICON_SIZE = 28f;
 
     private static final Color ACTIVE_HEADING = new Color(140, 70, 20);
@@ -336,12 +342,13 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         heading.addSectionHeading(title, headingText, headingBg, Alignment.MID, 0f);
         panel.addUIElement(heading).inTL(x, y);
 
-        float detailHeight = height - HEADING_HEIGHT - PAD - ACTION_HEIGHT;
+        float actionHeight = isActive && confirm == Confirm.REMOVE && active.getRelicRemovalCost() > 0 ? ACTION_HEIGHT_RELICS : ACTION_HEIGHT;
+        float detailHeight = height - HEADING_HEIGHT - PAD - actionHeight;
         TooltipMakerAPI detail = panel.createUIElement(width, detailHeight, true);
 
         if (isActive) {
             int min = active.getMinRuntime(selectedColony);
-            detail.addPara("Day %s of %s minimum runtime", 0f, hl, Math.min(active.getDaysPassed(), min) + "", min + " days");
+            detail.addPara("Minimum term: %s / %s", 0f, hl, Math.min(active.getDaysPassed(), min) + "", min + " days");
             CustomPanelAPI bar = panel.createCustomPanel(width - 20f, 5f, new RuntimeBarPlugin(getRuntimeFraction(active, selectedColony), getRuntimeColor(active)));
             detail.addCustom(bar, PAD);
         }
@@ -356,13 +363,13 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
             detail.addCustom(createRequirementRow(requirement, width - 20f), PAD);
         }
 
-        detail.addPara("Runtime", base, OPAD);
+        detail.addPara("Duration", base, OPAD);
         if (isActive) addActiveRuntimeText(detail, active);
         else edict.addRuntimeText(detail, selectedColony, PAD);
 
         panel.addUIElement(detail).inTL(x, y + HEADING_HEIGHT + PAD);
 
-        addActions(x, y + height - ACTION_HEIGHT, width, activeCondition, active, isActive, met, callback);
+        addActions(x, y + height - actionHeight, width, actionHeight, activeCondition, active, isActive, met, callback);
         return detail;
     }
 
@@ -372,10 +379,11 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         if (active.getRemainingDays() > 0) {
             String halved = EdictHelper.getCompoundsSenateInRange(selectedColony) != null ? " (early removal unrest halved by " + EdictHelper.COMPOUNDS_NAME + ")" : "";
             detail.addPara("Removing it now causes %s" + halved + ".", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
+            detail.addPara("Early repeal costs %s to avoid the unrest penalty.", PAD, Misc.getHighlightColor(), active.getRelicRemovalCost() + " " + RelicHelper.getName());
         } else if (unrest > 0) {
-            detail.addPara("Minimum runtime passed. Removing it now still causes %s from its end effect.", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
+            detail.addPara("Repealing this edict still causes %s.", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
         } else {
-            detail.addPara("Minimum runtime passed: it can be removed %s.", PAD, Misc.getPositiveHighlightColor(), "without penalty");
+            detail.addPara("Can be repealed %s.", PAD, Misc.getPositiveHighlightColor(), "without penalty");
         }
     }
 
@@ -393,7 +401,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         return row;
     }
 
-    private void addActions(float x, float y, float width, MarketConditionAPI activeCondition, EdictAPI active, boolean isActive, boolean met, CustomDialogCallback callback) {
+    private void addActions(float x, float y, float width, float height, MarketConditionAPI activeCondition, EdictAPI active, boolean isActive, boolean met, CustomDialogCallback callback) {
         Color hl = Misc.getHighlightColor();
         Color neg = Misc.getNegativeHighlightColor();
         Color pos = Misc.getPositiveHighlightColor();
@@ -402,8 +410,8 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         String edictName = EdictRepo.getShortName(Global.getSettings().getMarketConditionSpec(selectedEdict).getName());
         String colonyName = selectedColony.getName();
 
-        CustomPanelAPI actionPanel = panel.createCustomPanel(width, ACTION_HEIGHT, new ButtonReportingCustomPanel(this));
-        TooltipMakerAPI actions = actionPanel.createUIElement(width, ACTION_HEIGHT, false);
+        CustomPanelAPI actionPanel = panel.createCustomPanel(width, height, new ButtonReportingCustomPanel(this));
+        TooltipMakerAPI actions = actionPanel.createUIElement(width, height, false);
 
         if (!isActive && confirm != Confirm.ENACT) {
             ButtonAPI enact = addActionButton(actions, "Enact Edict", action(callback, () -> confirm = Confirm.ENACT), OPAD);
@@ -415,7 +423,7 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
                 actions.addPara("Requirements not met.", gray, PAD);
             }
         } else if (!isActive) {
-            actions.addPara("Enact %s on %s? Removing it before its minimum runtime causes unrest.", OPAD, hl, edictName, colonyName);
+            actions.addPara("Enact %s on %s? Removing it before its minimum term causes unrest.", OPAD, hl, edictName, colonyName);
             addConfirmButtons(actions, "Confirm", action(callback, this::enactSelected), callback);
         } else if (confirm != Confirm.REMOVE) {
             addActionButton(actions, "Remove Edict", action(callback, () -> confirm = Confirm.REMOVE), OPAD);
@@ -428,11 +436,48 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
             if (unrest > 0) actions.addPara("Remove %s from %s? This causes %s.", OPAD, new Color[]{hl, hl, neg}, edictName, colonyName, unrest + " unrest");
             else actions.addPara("Remove %s from %s? There is %s.", OPAD, new Color[]{hl, hl, pos}, edictName, colonyName, "no penalty");
 
-            addConfirmButtons(actions, "Confirm removal", action(callback, this::removeSelected), callback);
+            int cost = active.getRelicRemovalCost();
+            if (cost > 0) addRelicRemoval(actions, active, cost, callback);
+            else addConfirmButtons(actions, "Confirm removal", action(callback, this::removeSelected), callback);
         }
 
         actionPanel.addUIElement(actions).inTL(0f, 0f);
         panel.addComponent(actionPanel).inTL(x, y);
+    }
+
+    private void addRelicRemoval(TooltipMakerAPI actions, EdictAPI active, int cost, CustomDialogCallback callback) {
+        int relicUnrest = active.getRelicRemovalUnrest();
+        boolean affordable = RelicHelper.canAfford(selectedColony, cost);
+
+        if (relicUnrest > 0) actions.addPara("With relics: %s.", PAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
+        else actions.addPara("With relics: %s.", PAD, Misc.getPositiveHighlightColor(), "no unrest");
+        RelicHelper.addCostLine(actions, selectedColony, cost, PAD);
+
+        ButtonAPI remove = addActionButton(actions, "Remove", action(callback, this::removeSelected), SMALL_BUTTON_WIDTH, OPAD);
+        ButtonAPI relics = addActionButton(actions, "Remove with relics", action(callback, this::removeSelectedWithRelics), BUTTON_WIDTH, 0f);
+        relics.setEnabled(affordable);
+        relics.getPosition().rightOfTop(remove, OPAD);
+        addRelicTooltip(actions, relicUnrest, cost);
+
+        ButtonAPI cancel = addActionButton(actions, "Cancel", action(callback, () -> confirm = Confirm.NONE), SMALL_BUTTON_WIDTH, 0f);
+        cancel.getPosition().rightOfTop(relics, OPAD);
+    }
+
+    private void addRelicTooltip(TooltipMakerAPI actions, int relicUnrest, int cost) {
+        actions.addTooltipToPrevious(new BaseTooltipCreator() {
+            @Override
+            public float getTooltipWidth(Object tooltipParam) {
+                return TOOLTIP_WIDTH;
+            }
+
+            @Override
+            public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
+                tooltip.addPara("Avoids unrest from early repeal.", 0f);
+                if (relicUnrest > 0) tooltip.addPara("Repeal still causes %s.", PAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
+                RelicHelper.addCostLine(tooltip, selectedColony, cost, OPAD);
+                tooltip.addPara(RELIC_LORE, Misc.getGrayColor(), OPAD);
+            }
+        }, TooltipMakerAPI.TooltipLocation.BELOW);
     }
 
     private void addConfirmButtons(TooltipMakerAPI actions, String confirmText, ButtonAction confirmAction, CustomDialogCallback callback) {
@@ -442,7 +487,11 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
     }
 
     private ButtonAPI addActionButton(TooltipMakerAPI tooltip, String text, ButtonAction action, float pad) {
-        return tooltip.addButton(text, action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Alignment.MID, CutStyle.TL_BR, BUTTON_WIDTH, BUTTON_HEIGHT, pad);
+        return addActionButton(tooltip, text, action, BUTTON_WIDTH, pad);
+    }
+
+    private ButtonAPI addActionButton(TooltipMakerAPI tooltip, String text, ButtonAction action, float width, float pad) {
+        return tooltip.addButton(text, action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Alignment.MID, CutStyle.TL_BR, width, BUTTON_HEIGHT, pad);
     }
 
     private void addFooter(float width, float height) {
@@ -525,6 +574,21 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
 
         message = activeCondition.getName() + " removed from " + selectedColony.getName() + (unrest > 0 ? ", " + unrest + " unrest." : ".");
         messageColor = unrest > 0 ? Misc.getNegativeHighlightColor() : Misc.getHighlightColor();
+        confirm = Confirm.NONE;
+    }
+
+    private void removeSelectedWithRelics() {
+        MarketConditionAPI activeCondition = EdictHelper.getActiveEdict(selectedColony);
+        EdictAPI active = activeCondition == null ? null : EdictHelper.asEdict(activeCondition);
+        if (active == null) throw new IllegalStateException("IndEvo: no Edict to remove on " + selectedColony.getName());
+
+        int cost = active.getRelicRemovalCost();
+        int unrest = active.getRelicRemovalUnrest();
+        RelicHelper.take(selectedColony, cost);
+        active.removeEarlyWithRelics();
+
+        message = activeCondition.getName() + " removed from " + selectedColony.getName() + " for " + cost + " " + RelicHelper.getName() + (unrest > 0 ? ", " + unrest + " unrest." : ".");
+        messageColor = Misc.getHighlightColor();
         confirm = Confirm.NONE;
     }
 

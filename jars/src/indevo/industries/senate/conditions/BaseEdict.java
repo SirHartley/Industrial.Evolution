@@ -24,6 +24,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
 
     public int daysPassed = 1;
     public static final int BASE_MIN_RUNTIME = 186; //6M
+    public static final int RELICS_PER_REMAINING_DAY = 1;
 
     public static void debugMessage(String Text) {
         boolean DEBUG = false; //set to false once done
@@ -92,6 +93,12 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
         market.removeSpecificCondition(condition.getIdForPluginModifications());
     }
 
+    @Override
+    public void removeEarlyWithRelics() {
+        applyFinishPenalty();
+        removeWithoutPenalty();
+    }
+
     public void applyFinishPenalty() {
         int unrest = getFinishUnrest(market);
         if (unrest > 0) RecentUnrest.get(market).add(unrest, getName());
@@ -137,6 +144,16 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
         return getFinishUnrest(market) + (minimumRuntimePassed() ? 0 : getEarlyRemovalUnrest());
     }
 
+    @Override
+    public int getRelicRemovalCost() {
+        return getRemainingDays() * RELICS_PER_REMAINING_DAY;
+    }
+
+    @Override
+    public int getRelicRemovalUnrest() {
+        return getFinishUnrest(market);
+    }
+
     public int getFinishUnrest(MarketAPI market) {
         return 0;
     }
@@ -152,7 +169,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
     }
 
     protected void addRuntimeLine(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
-        tooltip.addPara("Minimum runtime %s.", pad, Misc.getHighlightColor(), getMonthString(getMinRuntime(market)));
+        tooltip.addPara("Minimum term: %s.", pad, Misc.getHighlightColor(), getMonthString(getMinRuntime(market)));
     }
 
     protected void addEarlyRemovalLine(TooltipMakerAPI tooltip, MarketAPI market, float pad) {

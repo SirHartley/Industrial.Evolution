@@ -30,6 +30,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [EMBASSY](industries/EMBASSY.md) | Ambassadors and faction relations | `industries/embassy` |
 | | [ENGINEERING_HUB](industries/ENGINEERING_HUB.md) | Reverse engineering of hulls | `industries/engineeringhub` |
 | | [MUSEUM](industries/MUSEUM.md) | Ship exhibits, parade fleets | `industries/museum` |
+| | [ORBITAL_WORKS_SLOT](industries/ORBITAL_WORKS_SLOT.md) | Relic Lattice Work: extra S-mod slot at vanilla Orbital Works | `industries/orbitalworks` |
 | | [PETS](industries/PETS.md) | Pet shop, pets, pet management ability | `industries/petshop`, `abilities/pets` |
 | | [PRIVATEER](industries/PRIVATEER.md) | Privateer base raids | `industries/privateer` |
 | | [RELAY](industries/RELAY.md) | Military and interstellar relays, fleet size sharing | `industries/relay` |
@@ -44,7 +45,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [GACHA](exploration/GACHA.md) | Automated shipyard stations | `exploration/gacha` |
 | | [METEOR](exploration/METEOR.md) | Meteor swarms and treasure | `exploration/meteor` |
 | | [MINEFIELDS](exploration/MINEFIELDS.md) | Mine belts and mine fields | `exploration/minefields` |
-| | [SALVAGE](exploration/SALVAGE.md) | Salvage specials | `exploration/salvage` |
+| | [SALVAGE](exploration/SALVAGE.md) | Salvage specials, relic recovery of story point derelicts | `exploration/salvage` |
 | | [STATIONS](exploration/STATIONS.md) | Derelict lab, arsenal and pet center stations | `exploration/stations` |
 | | [SURVEY_STORIES](exploration/SURVEY_STORIES.md) | Survey story texts | `exploration/surveystories` |
 | Abilities | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) | Detachments | `abilities/splitfleet` |
@@ -55,7 +56,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [BEACONS](dialogue/BEACONS.md) | Warning beacon dismantling | `dialogue/beacons` |
 | | [SIDE_PANEL](dialogue/SIDE_PANEL.md) | Custom side panels in dialogs (UI) | `dialogue/sidepanel` |
 | | [RULE_COMMANDS](dialogue/RULE_COMMANDS.md) | Generic rule commands, `rules.csv` map | `dialogue/rules` |
-| Core | [ECONOMY](core/ECONOMY.md) | Resource condition, parts, relic build time reduction | `economy` |
+| Core | [ECONOMY](core/ECONOMY.md) | Resource condition, parts, relic build time reduction, custom production Express Delivery, relic refit build in, Tech Mining relic boost | `economy` |
 | | [SUBMARKETS](core/SUBMARKETS.md) | Submarket plugins, adding and removing submarkets | `submarkets` |
 | | [COMBAT](core/COMBAT.md) | Weapon scripts, missile AI, combat terrain | `data/scripts` |
 | | [Skillshot README](../jars/src/indevo/skillshot/README.md) | Aimed campaign abilities framework (missile targeting), shared design and cross mod lock with Catch.Release | `skillshot` |
@@ -116,9 +117,9 @@ Every load (`:153` to `:173`):
 | `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:499` |
 | Industry adds itself in `apply()` | `addListener(this)` from the industry; the listener manager skips an instance already present (obf `ObjectRepository.java:87`, per the knowledge skill) | Assembler, engineering hub |
 | CSV plugin column | Industries, conditions, abilities, items, entities, terrain, hullmods, weapons | `data/campaign/*.csv`, `custom_entities.json`, `terrain.json` |
-| `ruleCommandPackages` | Rule commands found by package | `settings.json:29` ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
+| `ruleCommandPackages` | Rule commands found by package | `settings.json:30` ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
 
-`setListenersIfNeeded()` (`:425` to `:489`) by feature: item effects and loot (`SpecialItemEffectsRepo.initEffectListeners`, `ShipComponentLootManager`, `SpecialItemDropsListener`, `ConsumableItemDropListener`, `ConsumableItemMarketAdder`), economy (`ResourceConditionApplicator`, `RelicBuildTimeReductionButtonAdder`), assembler (`DepositMessage`), embassy (`AmbassadorPersonManager`, `HostileActivityEventSubRegisterListener`), privateer and raids (`RaidTimeout`), derelicts (`RuinsManager.*`, `AncientLabCommoditySwitchOptionProvider`, `RiftGenOptionProvider`, `RemoveIndustryOptionWarningProvider`), courier (`ShippingManager`, `CourierPortOptionProvider`), split fleet (`DetachmentAbilityAdder`, `DetachmentPayroll`), consumables (`LocatorSystemRatingUpdater`, `SpooferItemKeypressListener`, `SkillshotFramework.register()`, `FleetConsumableInventoryManager`), minefields (`RecentJumpListener`, `InterdictionPulseAbilityListener`), world wonder, changeling, pets, ruinfra, artillery (`WatchtowerFactionResetListener`), research unlock checkers, skills, salvage yards, senate, academy, beacons, Cloud Painter shield visuals, relay (`MilitaryRelay.RelayItemRemovalButtonListener`, `RelayNetworkBrain`), meteor (`MeteorSwarmManager`), warehouses, museum. Nexerelin only: `ManagedDemocracyNexerelinListenerPlugin`. Commented out: `DistressCallManager`, `HullmodTimeTracker`.
+`setListenersIfNeeded()` (`:431` to `:501`) by feature: item effects and loot (`SpecialItemEffectsRepo.initEffectListeners`, `ShipComponentLootManager`, `SpecialItemDropsListener`, `ConsumableItemDropListener`, `ConsumableItemMarketAdder`), economy (`ResourceConditionApplicator`, `RelicBuildTimeReductionButtonAdder`, `RelicSpeedUpOptionProvider`, `TechMiningRelicOptionProvider`), orbital works (`OrbitalWorksSlotManager.getInstanceOrRegister`, `OrbitalWorksSlotOptionProvider`), assembler (`DepositMessage`), embassy (`AmbassadorPersonManager`, `HostileActivityEventSubRegisterListener`), privateer and raids (`RaidTimeout`), derelicts (`RuinsManager.*`, `AncientLabCommoditySwitchOptionProvider`, `AncientLabRelicOptionProvider`, `RiftGenOptionProvider`, `RemoveIndustryOptionWarningProvider`), courier (`ShippingManager`, `CourierPortOptionProvider`), split fleet (`DetachmentAbilityAdder`, `DetachmentPayroll`), consumables (`LocatorSystemRatingUpdater`, `SpooferItemKeypressListener`, `SkillshotFramework.register()`, `FleetConsumableInventoryManager`), minefields (`RecentJumpListener`, `InterdictionPulseAbilityListener`), world wonder, changeling, pets, ruinfra, artillery (`WatchtowerFactionResetListener`), research unlock checkers, skills, salvage yards, senate, academy, engineering hub (`HullmodDataOptionProvider`), beacons, Cloud Painter shield visuals, relay (`MilitaryRelay.RelayItemRemovalButtonListener`, `RelayNetworkBrain`), meteor (`MeteorSwarmManager`), warehouses, museum. Nexerelin only: `ManagedDemocracyNexerelinListenerPlugin`. Commented out: `DistressCallManager`, `HullmodTimeTracker`.
 
 When adding a listener, add its `register()` call here in the feature's group and list it in the feature doc's Registration section.
 
@@ -140,7 +141,10 @@ PatchLib patches change vanilla code where the API has no hook. Each lives in a 
 | `industries/senate/patches/FastBuildUpgradeConfirmPatch` | industry option menu (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred, `DialogCreatorUI`): `Industry.getBuildTime` call in `actionPerformed` | `@RedirectMethodCall` | [SENATE](industries/SENATE.md#build-time-display) |
 | `abilities/splitfleet/patches/DetachmentCargoPickerPatch` | cargo picker dialog (obf `com.fs.starfarer.ui.newui`, inferred, picked by its `CargoPickerListener` field): constructor, `advance(float)` | `@After` | [SPLIT_FLEET](abilities/SPLIT_FLEET.md#load-buttons) |
 | `industries/worldwonder/patches/CloudPainterShieldPatch` | `applyVisuals` call in `PlanetaryShield.apply`, `PlanetaryShield.addPostDemandSection` (API) | `@RedirectMethodCall`, `@After` | [WORLD_WONDER](industries/WORLD_WONDER.md#cloud-painter-shield-visuals) |
+| `economy/patches/RelicBuildInPatch` | refit build in dialog `com.fs.starfarer.coreui.refit.ModPickerDialogV3` (readable class in obf package, inferred): `createUI`, `getStoryPoints` and `addMessage` calls in `tableRowSelected`, `spendStoryPoints` call in `actionPerformed` | `@After`, `@RedirectMethodCall` | [ECONOMY](core/ECONOMY.md#relic-build-in) |
+| `economy/patches/RelicBuildInCounterPatch` | its inner class `ModPickerDialogV3$PermaModInfoWidget` (inferred): `getStoryPoints` and `LabelAPI.setText` calls in `advanceImpl` | `@RedirectMethodCall` | [ECONOMY](core/ECONOMY.md#relic-build-in) |
 | `industries/worldwonder/patches/PlanetBackgroundRefreshPatch` | colony screen planet background (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred, picked by `setForce2dMode`): `advanceImpl`, calls `getPlanet` and `setPlanet` | `@After` | [WORLD_WONDER](industries/WORLD_WONDER.md#colony-screen-planet) |
+| `exploration/salvage/patches/RelicDerelictRecoveryPatch` | vanilla `ShipRecoverySpecial` (API): `addStoryOptions`, `isStoryPointRecovery`, `optionSelected` | `@Before`, `@After` | [SALVAGE](exploration/SALVAGE.md#relic-recovery) |
 
 After a game update, check inferred targets first (any target outside `com.fs.starfarer.api`). In game, `starsector.log` shows `[PatchLib] Discovered patch ...` at startup and `Installed a ... patch site ...` when the target loads; Console Commands `TogglePatch <class>` switches one off for a test.
 
@@ -210,7 +214,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 - IE costs and income go through `BillingHelper` ([UTILS](core/UTILS.md#billinghelper)): own monthly report lines, and `canAfford` then `chargeNow` for dialog purchases. Never write vanilla report nodes or subtract credits directly. Loot and refunds add credits directly.
 - `BaseIndustry.buildTime` (protected) is read by reflection from `RelicBuildTimeReductionButtonAdder` and read and written from `Edict_FastBuild`.
 - `ModPlugin.addTypePrefaceToIndustrySpecs()` prefixes every industry description (vanilla and other mods) with `Type: ...` based on tags.
-- `createAcademyMarket()` adds a hidden independent market `ACADEMY_MARKET_ID` on `station_galatia_academy` on new game and on load if missing.
+- `createAcademyMarket()` adds a hidden independent market `Ids.ACADEMY_MARKET_ID` on `station_galatia_academy` on new game and on load if missing.
 
 ### Storage and submarkets
 

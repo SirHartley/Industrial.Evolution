@@ -22,19 +22,19 @@ All three hold one VPC in the vanilla special item slot. The VPC sets market sup
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Industry | `IndEvo_AdAssem` (structure, upgrade `IndEvo_AdManuf`), `IndEvo_AdManuf` (industry, downgrade `IndEvo_AdAssem`), `IndEvo_ComForge` (structure) | `data/campaign/industries.csv:2,5,8`; `indevo/ids/Ids.java:47-49` |
+| Industry | `IndEvo_AdAssem` (structure, upgrade `IndEvo_AdManuf`), `IndEvo_AdManuf` (industry, downgrade `IndEvo_AdAssem`), `IndEvo_ComForge` (structure) | `data/campaign/industries.csv:2,5,8`; `indevo/ids/Ids.java:51-53` |
 | Setting | `IndEvo_AdAssem`, `IndEvo_AdManuf`, `IndEvo_ComForge` (build toggles) | `data/config/LunaSettings.csv:86-88` |
 | Setting | `IndEvo_VarInd_deliverToProductionPoint` (deliver to gathering point instead of local storage) | `data/config/LunaSettings.csv:115` |
 | Config | Base deposit per commodity: columns `IndEvo_AdAssem`, `IndEvo_AdManuf`, `IndEvo_ComForge` of the VPC commodity table | `data/config/indEvo/vpc_commodities.csv`, read through `VPCCommodityRepo.Commodity.getDeposit(getId())` |
 | Constant | `LOG_INCREASE`: Assembler 55, Manufactory 150, Forge 250 | `VariableAssembler.java:37`, `VariableManufactory.java:9`, `CommodityForge.java:35` |
-| Sprites | category `IndEvo`: `assembler`, `manufactorium`, `comforge` (active image), `VPCRemovalIcon` | `data/config/settings.json:129-134` |
+| Sprites | category `IndEvo`: `assembler`, `manufactorium`, `comforge` (active image), `VPCRemovalIcon` | `data/config/settings.json:130-135` |
 | Strings | `IndEvo_VarInd`, `IndEvo_AdAssem`, `IndEvo_ComForge` | `data/strings/strings.json:47`, `:55`, `:61` |
 | Whitelist | All three are valid ruin upgrade targets | `data/config/indEvo/ruins_industry_whitelist.csv:5-7` |
 
 ## Registration and lifecycle
 
 - Industry plugins from `industries.csv`. Each `apply()` adds the industry itself as a transient listener (`EconomyTickListener`, Forge also `NewDayListener`) and `unapply()` removes it (`VariableAssembler.java:49,80`, `CommodityForge.java:55,90`).
-- `DepositMessage.register()` in `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:429`), transient, re-added each load.
+- `DepositMessage.register()` in `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:435`), transient, re-added each load.
 - `NewGameIndustryPlacer.placeManufactories()` puts a Manufactory with an uncommon ship parts VPC on `eochu_bres` at new game (`indevo/utils/update/NewGameIndustryPlacer.java:45-62`).
 - `initWithParams`: vanilla preinstalls `IndEvo_vpc` when an econ file lists it; a VPC without data then gets a random NPC roll (`VariableAssembler.java:340-345`).
 

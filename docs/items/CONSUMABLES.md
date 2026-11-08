@@ -38,7 +38,7 @@ All paths above are under `jars/src/indevo/items/consumables/`. Targeting input 
 
 ## Data and ids
 
-Items: `data/campaign/special_items.csv:25-38`, plugin `BaseConsumableItemPlugin` (spoofer and beacon use their own), tags `IndEvo_consumable, codex_unlockable`. Abilities: `data/campaign/abilities.csv:5-22`, all `DURATION`, tag `hide_in_codex`, empty `ai` column.
+Items: `data/campaign/special_items.csv:29-42`, plugin `BaseConsumableItemPlugin` (spoofer and beacon use their own), tags `IndEvo_consumable, codex_unlockable`. Abilities: `data/campaign/abilities.csv:5-22`, all `DURATION`, tag `hide_in_codex`, empty `ai` column.
 
 | Item id | Ability id | Price | Ability row |
 |---|---|---|---|
@@ -65,9 +65,9 @@ Times in days. `IndEvo_skillshot` enables hotkey targeting; each ability picks i
 | Entities | `IndEvo_warning_beacon` (`:333`, tag `IndEvo_beacon`), missiles (`:354`, `:365`, `:376`, `:387`), `IndEvo_SmokeCloud` (`:398`), `IndEvo_decoy_mine` (`:502`), `IndEvo_field_spike` (`:995`) | `data/config/custom_entities.json` |
 | Entities used, owned elsewhere | `IndEvo_VariableExplosion` (`:461`, [Artillery](../industries/ARTILLERY.md)), `IndEvo_campaign_trail_custom_entity` (`:485`, [Utils](../core/UTILS.md)) | `custom_entities.json` |
 | Terrain | `IndEvo_SmokeCloud` (`SmokeCloudTerrain`) | `data/config/terrain.json:30`; description `descriptions.csv:71` |
-| Sprites | transpoofer glow, beacon glow; missile sprites | `data/config/settings.json:64-65`, `:93-96` |
+| Sprites | transpoofer glow, beacon glow; missile sprites | `data/config/settings.json:65-66`, `:94-97` |
 | Settings | `IndEvo_consumables_addToMarkets`, `IndEvo_consumables_addToFleets`, `IndEvo_consumables_researchProject`, all under the master switch `IndEvo_block_consumables` | `data/config/LunaSettings.csv:33-35`, `:6` ([Settings](../core/SETTINGS.md)) |
-| Drop groups | `indEvo_consumables` (`:41-52`), `indEvo_consumables_always` (`:54-60`), `indEvo_missiles` (`:62-67`), `indEvo_missiles_always` (`:69-73`); tag rows `indEvo_tech_addition` (`:13`), `indEvo_mining_addition` (`:20`) | `data/campaign/procgen/drop_groups.csv` |
+| Drop groups | `indEvo_consumables` (`:38-49`), `indEvo_consumables_always` (`:51-57`), `indEvo_missiles` (`:59-64`), `indEvo_missiles_always` (`:66-70`); tag rows `indEvo_tech_addition` (`:12`), `indEvo_mining_addition` (`:18`) | `data/campaign/procgen/drop_groups.csv` |
 | Memory (fleet) | `$IndEvo_MissileInventory`, `MissileMemFlags` keys (`$missile_allowedToUse`, `$missile_bonked`, `$missile_recentlyUsed` and more) | `FleetConsumableInventoryManager`, `MissileMemFlags` |
 | Memory (player) | `$IndEvo_consumable_currentFaction`, `$IndEvo_consumable_currentFactionList` (spoofer); `$IndEvo_ArtilleryRemote_hasBeenUsed` | `SpooferAbilityPlugin`, `ArtilleryRemoteAbilityPlugin` |
 | Memory (system) | `$IndEvo_locatorSystemRating` | `LocatorSystemRatingUpdater` |
@@ -78,12 +78,12 @@ Times in days. `IndEvo_skillshot` enables hotkey targeting; each ability picks i
 |---|---|
 | `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin.java:133`) | Loads the nanites texture for the codex |
 | `ModPlugin.java:167` (`onGameLoad`), `:289` (`onNewGameAfterEconomyLoad`) | `LocatorSystemRatingUpdater.updateAllSystems()` |
-| `ModPlugin.java:440` | `LocatorSystemRatingUpdater`, transient |
-| `ModPlugin.java:441` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
-| `ModPlugin.java:442` | `ConsumableItemMarketAdder`, transient |
-| `ModPlugin.java:445` | `SpooferItemKeypressListener`, transient |
-| `ModPlugin.java:471`, `:315` (`beforeGameSave`) | `SkillshotFramework.register()` (transient hotkey listener and activation manager, clears the cross mod lock); `SkillshotFramework.reset()` before save |
-| `ModPlugin.java:472` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
+| `ModPlugin.java:441` | `LocatorSystemRatingUpdater`, transient |
+| `ModPlugin.java:442` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
+| `ModPlugin.java:443` | `ConsumableItemMarketAdder`, transient |
+| `ModPlugin.java:446` | `SpooferItemKeypressListener`, transient |
+| `ModPlugin.java:472`, `:315` (`beforeGameSave`) | `SkillshotFramework.register()` (transient hotkey listener and activation manager, clears the cross mod lock); `SkillshotFramework.reset()` before save |
+| `ModPlugin.java:473` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
 
 `ListenerManager.addListener(Object)` is the persistent variant (`obf/campaign/ListenerManager.java:25-33` in the starsector-knowledge skill), so any listener added without `true` is saved with the game.
 

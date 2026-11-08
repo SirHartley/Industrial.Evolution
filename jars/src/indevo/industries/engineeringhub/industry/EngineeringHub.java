@@ -15,9 +15,11 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.economy.RelicSpeedUpTarget;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUser;
+import indevo.industries.engineeringhub.memory.RecoveredHullmods;
 import indevo.items.installable.BlueprintInstallableItemPlugin;
 import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.MiscIE;
@@ -30,7 +32,7 @@ import java.util.*;
 
 import static indevo.utils.helper.MiscIE.*;
 
-public class EngineeringHub extends SharedSubmarketUser implements NewDayListener {
+public class EngineeringHub extends SharedSubmarketUser implements NewDayListener, RelicSpeedUpTarget {
 
     public static final Logger log = Global.getLogger(EngineeringHub.class);
     private boolean debug = false;
@@ -298,6 +300,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         for (FleetMemberAPI ship : engStorage.getMothballedShips().getMembersListCopy()) {
             if (getProgress(getBaseShipHullSpec(ship.getVariant()).getHullId()) >= 1) continue;
 
+            RecoveredHullmods.record(market, ship.getVariant());
             ShipVariantAPI shipVar = MiscIE.stripShipToCargoAndReturnVariant(ship, market);
 
             engStorage.getMothballedShips().removeFleetMember(ship); //remove ship from storage
@@ -689,5 +692,35 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
         tooltip.addPara("Engineering Hub: uses %s or %s in this storage to overwrite and consume.", 10f, Misc.getHighlightColor(), "blueprints", Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName());
+    }
+
+    @Override
+    public String getSpeedUpId() {
+        return getId();
+    }
+
+    @Override
+    public String getSpeedUpLabel() {
+        return "Rush Research";
+    }
+
+    @Override
+    public String getSpeedUpLore() {
+        return "Domain scanners can see through armour plating that your engineers would otherwise have to peel away layer by layer.";
+    }
+
+    @Override
+    public int getSpeedUpDaysLeft() {
+        return currentDeconShipVar != null ? Math.max(daysRequired - daysPassed, 0) : 0;
+    }
+
+    @Override
+    public int getSpeedUpDaysTotal() {
+        return currentDeconShipVar != null ? daysRequired : 0;
+    }
+
+    @Override
+    public void speedUp(int days) {
+        daysPassed += days;
     }
 }

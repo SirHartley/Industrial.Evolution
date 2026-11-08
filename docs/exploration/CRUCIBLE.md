@@ -45,7 +45,7 @@ State: dormant. Nothing calls `CrucibleSpawner.spawn()` (`indevo/utils/ModPlugin
 | Custom entity | `IndEvo_crucible_bottom` (no plugin), `IndEvo_crucible_arm`, `IndEvo_crucible_gear`, `IndEvo_crucible_scaffold`, `IndEvo_crucible_spike` | `custom_entities.json:630`, `:649`, `:669`, `:610`, `:686` |
 | Custom entity | `IndEvo_sub_crucible_top`, `_bottom`, `_arm` (sub unit, never spawned) | `custom_entities.json:514`, `:541`, `:559` |
 | Custom entity | `IndEvo_yeetopult` (planet side, map icon), `IndEvo_yeetopult_no_icon` (crucible side, tag `IndEvo_orbits_crucible`), `IndEvo_CrucibleMote` | `custom_entities.json:706`, `:744`, `:732` |
-| Tag | `IndEvo_yeetopult` (`Ids.TAG_YEETOPULT`), `IndEvo_crucible`, `IndEvo_crucible_part`, `IndEvo_crucible_gear`, `IndEvo_orbits_crucible` | `indevo/ids/Ids.java:33`, `custom_entities.json` |
+| Tag | `IndEvo_yeetopult` (`Ids.TAG_YEETOPULT`), `IndEvo_crucible`, `IndEvo_crucible_part`, `IndEvo_crucible_gear`, `IndEvo_orbits_crucible` | `indevo/ids/Ids.java:37`, `custom_entities.json` |
 | Tag | `crucible_enabled` (`TAG_ENABLED`), `IndEvo_animPlaying` (`TAG_ANIMATION_PLAYING`) | `BaseCrucibleEntityPlugin.java:44`, `:48` |
 | Memory key | `$crucible_activity_Level` (0..1 per entity), `$crucible_catapult_num` (catapult index) | `BaseCrucibleEntityPlugin.java:45-46` |
 | Memory key | `$IndEvo_crucible` (on top entity, rules match on it) | `CrucibleSpawner.java:233` |
@@ -53,17 +53,17 @@ State: dormant. Nothing calls `CrucibleSpawner.spawn()` (`indevo/utils/ModPlugin
 | Terrain | `crucible_field` -> `CrucibleFieldTerrainPlugin` | `data/campaign/terrain.json:35` |
 | Constant | `CrucibleSpawner.AMOUNT` 1, extra non-nebula crucibles; no setting while crucibles are dormant | `CrucibleSpawner.java:38` |
 | Sounds | `IndEvo_mote_yeet`, `IndEvo_crucible_start`, `_alarm`, `_drone`, `_off`, `_transit` | `data/config/sounds.json:121-146` |
-| Sprites | `IndEvo/crucible_mass`, `IndEvo/whirl_round`, `IndEvo/gearwheel`, `IndEvo/vignette_square` | `data/config/settings.json:98` and graphics block |
+| Sprites | `IndEvo/crucible_mass`, `IndEvo/whirl_round`, `IndEvo/gearwheel`, `IndEvo/vignette_square` | `data/config/settings.json:99` and graphics block |
 | Descriptions | `IndEvo_crucible`, `IndEvo_yeetopult` (no row for `IndEvo_sub_crucible`) | `data/strings/descriptions.csv:27-29` |
 | Rules | `IndEvo_crucible_*` (market and no-market menus, travel options, colonize, explore, activate) | `data/campaign/rules.csv:99-252` |
-| Rule command package | `indevo.exploration.crucible.dialogue` | `data/config/settings.json:43` |
+| Rule command package | `indevo.exploration.crucible.dialogue` | `data/config/settings.json:44` |
 | Music | `IndEvo_Haplogynae_derelict_theme` via `MusicPlayerPluginImpl.MUSIC_SET_MEM_KEY` | `CrucibleSpawner.java:232` |
 
 ## Registration and lifecycle
 
 - Spawn: `CrucibleSpawner.spawn()` would run once per sector, guarded by `$IndEvo_hasPlacedCrucibles`. Call sites are commented out (`ModPlugin.java:295`, `:203`).
 - Entities: `custom_entities.json` `pluginClass` columns. Plugin state is saved with the entity; sprites are re-fetched in `readResolve()` (`BaseCrucibleEntityPlugin.java:113`, `YeetopultEntityPlugin.java:68`).
-- Rules: commands resolve through `ruleCommandPackages` (`settings.json:43`).
+- Rules: commands resolve through `ruleCommandPackages` (`settings.json:44`).
 - Scripts: `VariableOrbitScript` on each part, startup anim on the crucible entity, move anim on the star system, `YeetScript` on the fleet. All saved (non-transient).
 
 `spawn() -> getTargetSystem() -> getSpawnLoc2() -> spawnCrucible() (top, bottom, gears) -> spawnCatapults() (pairs, arms)`

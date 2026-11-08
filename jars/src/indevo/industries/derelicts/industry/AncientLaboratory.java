@@ -13,6 +13,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
+import indevo.economy.RelicSpeedUpTarget;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.EmptyForgeTemplateItemPlugin;
@@ -25,7 +26,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayListener {
+public class AncientLaboratory extends BaseForgeTemplateUser implements NewDayListener, RelicSpeedUpTarget {
 
     boolean debug = false;
     private SpecialItemData current = null;
@@ -471,5 +472,35 @@ Gamma reduces template refit time*/
     @Override
     public void addTooltipLine(TooltipMakerAPI tooltip, boolean expanded) {
         tooltip.addPara(getCurrentName() + ": pulls %s from this storage to repair.", 10f, Misc.getHighlightColor(), "Degraded Forge Templates");
+    }
+
+    @Override
+    public String getSpeedUpId() {
+        return getId();
+    }
+
+    @Override
+    public String getSpeedUpLabel() {
+        return "Expedite Restoration";
+    }
+
+    @Override
+    public String getSpeedUpLore() {
+        return "The laboratory's repair drones accept the relic components without modification. Several dormant assembly lines begin moving again.";
+    }
+
+    @Override
+    public int getSpeedUpDaysLeft() {
+        return current != null ? Math.max(daysMax - daysPassed, 0) : 0;
+    }
+
+    @Override
+    public int getSpeedUpDaysTotal() {
+        return current != null ? daysMax : 0;
+    }
+
+    @Override
+    public void speedUp(int days) {
+        daysPassed += days;
     }
 }

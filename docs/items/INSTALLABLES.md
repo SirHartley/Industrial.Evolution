@@ -51,7 +51,7 @@ There are two install paths. Items in vanilla style (VPCs, Logistics Core, Neuro
 | Drop groups | `indEvo_tech_addition`, `indEvo_mining_addition` | `data/campaign/procgen/drop_groups.csv:2-23` |
 | Config | VPC commodity and package tables | `data/config/indEvo/vpc_commodities.csv`, `vpc_packages.csv` |
 | Session memory | `$IndEvo_vpcCommodities`, `$IndEvo_vpcPackages` (`VPCCommodityRepo`) | `SessionTransientMemory` |
-| Sprite | category `IndEvo`: `VPCRareChip` (rare and ultra rare chip frame) | `data/config/settings.json:135` |
+| Sprite | category `IndEvo`: `VPCRareChip` (rare and ultra rare chip frame) | `data/config/settings.json:136` |
 | Memory key | `$IndEvo_FT_dropResolveMap` (`ForgeTemplateItemPlugin.DROP_MAP_KEY`) | sector memory, hull id -> drop weight divisor |
 | Memory key | `$IndEvo_itemPayloads` (`ItemPayloadMemory.PAYLOAD_MAP_KEY`) | sector memory, payload key -> payload (forge template `ShipVariantAPI`) |
 | Memory key | `$IndEvo_RelayUnlocked` (`TRANSMITTER_UNLOCK_KEY`) | sector memory |
@@ -62,8 +62,8 @@ There are two install paths. Items in vanilla style (VPCs, Logistics Core, Neuro
 
 - `ModPlugin.onApplicationLoad`: `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` (`ModPlugin.java:129`), `ItemEffectsRepo.ITEM_EFFECTS.putAll(ITEM_EFFECTS)`. `BaseIndustry` looks up the effect of an installed special item by id in that map (skill `api/impl/campaign/econ/impl/BaseIndustry.java:214`).
 - `ModPlugin.setListenersIfNeeded()`: `SpecialItemEffectsRepo.initEffectListeners()` (`:426`) adds `SuperComputerFactor`, `Senate.SenateFactor`, `MilitaryRelay.RelayFactor`, `CentralizationBureau.BureauFactor` (deduped by class); `PartsCargoInterceptor.register()` (`:431`), `PartsLootAdder.register()` (`:433`, `addTransientListener`), `SpecialItemDropsListener.register()` (`:443`, deduped by class). All transient.
-- `ModPlugin.loadTransientMemory()` warms the VPC tables and loads their icons (`ModPlugin.java:406`).
-- Installable plugins are created on demand by the owning industry's `getInstallableItems()` (skill `api/campaign/econ/Industry.java:149`), for example `VariableAssembler.java:327`, `EngineeringHub.java:484`, `Embassy.java:240`, `BaseForgeTemplateUser.java:51`.
+- `ModPlugin.loadTransientMemory()` warms the VPC tables and loads their icons (`ModPlugin.java:412`).
+- Installable plugins are created on demand by the owning industry's `getInstallableItems()` (skill `api/campaign/econ/Industry.java:149`), for example `VariableAssembler.java:327`, `EngineeringHub.java:487`, `Embassy.java:237`, `BaseForgeTemplateUser.java:51`.
 - Item cargo plugins come from the `plugin` column.
 
 ## Flow
@@ -108,7 +108,7 @@ One item id, `IndEvo_vpc`, with data `tier|commodityId,commodityId` (`rare|suppl
 
 ### Forge templates
 
-One id, `IndEvo_ForgeTemplate`, with data `hullId|charges` (drops, salvage) or `hullId|charges|payloadKey` (Hull Deconstructor). Charges are clamped to 1 to `MAX_CHARGES` 5. The payload key points to the deconstructed `ShipVariantAPI` in `ItemPayloadMemory`; the variant keeps the quality tag `$IndEvo_qualityLevel_N` and is cloned for each print. `useCharge` returns the template with one charge less, or `IndEvo_DegForgeTemplate` with the payload removed when the last charge is used. A payload key without a payload is an illegal state: the tooltip names it and `createNakedFleetMemberFromForgeTemplate` throws.
+One id, `IndEvo_ForgeTemplate`, with data `hullId|charges` (drops, salvage) or `hullId|charges|payloadKey` (Hull Deconstructor). Charges are clamped to 1 to `MAX_CHARGES` 5. The payload key points to the deconstructed `ShipVariantAPI` in `ItemPayloadMemory`; the variant keeps the quality tag `$IndEvo_qualityLevel_N` and is cloned for each print. The Ancient Laboratory relic services lower that level by one per payment ([Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services)). `useCharge` returns the template with one charge less, or `IndEvo_DegForgeTemplate` with the payload removed when the last charge is used. A payload key without a payload is an illegal state: the tooltip names it and `createNakedFleetMemberFromForgeTemplate` throws.
 
 The item params send each template to the structure that uses it: charged to the Hull Forge, degraded to the Ancient Laboratory, empty to the Hull Deconstructor. `BaseForgeTemplateUser.getInstallableItems` swaps the vanilla slot for a `NamedItemSlotPlugin` with forge template texts; the Hull Forge and the Deconstructor hide it while working.
 

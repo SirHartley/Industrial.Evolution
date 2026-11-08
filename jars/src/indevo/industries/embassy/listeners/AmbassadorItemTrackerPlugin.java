@@ -139,7 +139,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
             for (SubmarketAPI subMarket : market.getSubmarketsCopy()) {
                 if (!isStorage(subMarket) && checkCargo(subMarket.getCargo(), amb, true)) {
                     adjustRelationship(playerFaction, faction, MURDER_REP_PENALTY);
-                    displayMessage("ambassadorSold", "ambassadorSoldFlavour", person, MURDER_REP_PENALTY);
+                    displayMessage("$personName, the $factionName Ambassador, has been sold on a market like cattle.", "This is not a good way to foster positive relations.", person, MURDER_REP_PENALTY);
                     Global.getSector().addScript(new AmbassadorMurderConsequences(person));
                     setFailed();
                     return true;
@@ -152,7 +152,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
         for (SectorEntityToken pod : Global.getSector().getCurrentLocation().getAllEntities()) {
             if (checkCargo(pod.getCargo(), amb, true)) {
                 adjustRelationship(playerFaction, faction, MURDER_REP_PENALTY);
-                displayMessage("ambassadorSuffocated", "ambassadorSuffocatedFlavour", person, MURDER_REP_PENALTY);
+                displayMessage("$personName, the $factionName Ambassador, has suffocated in a cargo pod.", "What a rotten way to die.", person, MURDER_REP_PENALTY);
                 Global.getSector().addScript(new AmbassadorMurderConsequences(person));
                 setFailed();
                 return true;
@@ -164,7 +164,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
             for (SectorEntityToken pod : location.getAllEntities()) {
                 if (checkCargo(pod.getCargo(), amb, true)) {
                     adjustRelationship(playerFaction, faction, MURDER_REP_PENALTY);
-                    displayMessage("ambassadorSuffocated", "ambassadorSuffocatedFlavour", person, MURDER_REP_PENALTY);
+                    displayMessage("$personName, the $factionName Ambassador, has suffocated in a cargo pod.", "What a rotten way to die.", person, MURDER_REP_PENALTY);
                     Global.getSector().addScript(new AmbassadorMurderConsequences(person));
                     setFailed();
                     return true;
@@ -173,7 +173,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
         }
 
         //nowhere? throw a warning and remove the plugin.
-        displayMessage("ambassadorLost", "ambassadorLostFlavour", person, NO_PENALTY);
+        displayMessage("$factionName Agents failed to track the movement of $personName.", "The Ambassador is now suspected to be compromised.", person, NO_PENALTY);
         setLost();
 
         return false;
@@ -181,20 +181,20 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
 
     private void checkForWarConsequences() {
         if (AmbassadorPersonManager.getListOfIncativeFactions().contains(faction)) {
-            displayMessage("ambassadorSuicide", "ambassadorSuicideFlavour", person, NO_PENALTY);
+            displayMessage("$factionName was eradicated. $personName has taken an escape pod.", "The pod did not have a destination set.", person, NO_PENALTY);
             findAmbassadorItem(true); //return home removes the person when home planet is no longer of the original faction
             return;
         }
 
         if (Global.getSector().getPlayerFaction().getRelationship(faction.getId()) <= -0.5F) {
-            displayMessage("ambassadorChickenedOut", "ambassadorChickenedOutFlavour", person, NO_PENALTY);
+            displayMessage("$personName has taken an escape shuttle and ran for $factionName space.", "You can request a new Ambassador once you are no longer at war.", person, NO_PENALTY);
             findAmbassadorItem(true);
             return;
         }
 
         String memKey = AmbassadorItemHelper.getFactionMemoryKey(faction);
         if (Global.getSector().getMemory().contains(memKey) && !Global.getSector().getMemory().getBoolean(memKey)) {
-            displayMessage("ambassadorRecall", "ambassadorRecallFlavour", person, NO_PENALTY);
+            displayMessage("$personName has taken a shuttle and returned to $factionName space.", "The faction has recalled all ambassadors", person, NO_PENALTY);
             findAmbassadorItem(true);
         }
     }
@@ -204,19 +204,19 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
 
         switch (daysPassed) {
             case 31:
-                displayMessage("warning", null, person, NO_PENALTY);
+                displayMessage("You have another month to bring the $factionName Ambassador, $personName, to an Embassy.", null, person, NO_PENALTY);
                 break;
             case 62:
                 adjustRelationship(playerFaction, faction, DELAY_1_REP_PENALTY);
-                displayMessage("delay1", null, person, DELAY_1_REP_PENALTY);
+                displayMessage("$factionName personnel could not contact $personName at the Embassy $heOrShe was supposed to be at.", null, person, DELAY_1_REP_PENALTY);
                 break;
             case 93:
                 adjustRelationship(playerFaction, faction, DELAY_2_REP_PENALTY);
-                displayMessage("delay2", null, person, DELAY_2_REP_PENALTY);
+                displayMessage("$factionName personnel have issued a notice: should $personName not take office within a month, $heOrShe must return to faction space.", null, person, DELAY_2_REP_PENALTY);
                 break;
             case 124:
                 adjustRelationship(playerFaction, faction, DELAY_3_REP_PENALTY);
-                displayMessage("delay3", null, person, DELAY_3_REP_PENALTY);
+                displayMessage("$personName has returned to $factionName space. This is treated as a Diplomatic incident and has strained relations.", null, person, DELAY_3_REP_PENALTY);
                 findAmbassadorItem(true);
                 break;
         }

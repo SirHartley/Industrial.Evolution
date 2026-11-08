@@ -46,12 +46,12 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Industry | `IndEvo_SwitchablePopulation`, `IndEvo_SwitchableMining`, `IndEvo_SwitchableRefining` | `data/campaign/industries.csv:51-53`; ids in `indevo/ids/Ids.java:75-77` |
+| Industry | `IndEvo_SwitchablePopulation`, `IndEvo_SwitchableMining`, `IndEvo_SwitchableRefining` | `data/campaign/industries.csv:51-53`; ids in `indevo/ids/Ids.java:79-81` |
 | Variant ids | `base_population_and_infrastructure`, `underworld`, `rural`, `hidden`, `outpost`, `helldivers`, `warhammer`, `corpos` (dormant `monks`, `resort`) | `SwitchablePopulation.java:34-127` |
 | Variant ids | `base_mining`, `ore_mining`, `rare_mining`, `volatile_mining`, `organics_mining` | `SwitchableMining.java:22-83` |
 | Variant ids | `base_refining`, `ore_refining`, `rare_refining` | `SwitchableRefining.java:19-80` |
 | Descriptions | `IndEvo_pop_*`, `IndEvo_*_mining`, `IndEvo_*_refining` (CUSTOM; text1 = description, text2 = short effect) | `data/strings/descriptions.csv:32-49` |
-| Sprites | category `IndEvo`: `pop_*`, `ore_mining`, `rare_mining`, `volatile_mining`, `organics_mining`, `ore_refining`, `rare_ore_refining` | `data/config/settings.json:102-119` |
+| Sprites | category `IndEvo`: `pop_*`, `ore_mining`, `rare_mining`, `volatile_mining`, `organics_mining`, `ore_refining`, `rare_ore_refining` | `data/config/settings.json:103-120` |
 | Setting | `IndEvo_GovernmentLarpMode` (all governments act as vanilla), `IndEvo_GovernmentMaxSize` (default 3) | `data/config/LunaSettings.csv:112-113` |
 | Setting | `IndEvo_SwitchableMining`, `IndEvo_SwitchableRefining` (show the option) | `data/config/LunaSettings.csv:107-108` |
 | Config CSV | `IndEvo_ruralList` (planet types blocked for Rural), `IndEvo_arcologiesList` (blocked for Hidden Arcology), `IndEvo_arcologiesCondList` (conditions suppressed) | `data/config/settings.json:21-23`, `data/config/indEvo/*.csv` |
@@ -63,8 +63,8 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:449-457`) registers, transient and deduped by class: the three option providers, `RuralPolityTooltipAdder`, `RuralPolityImageChanger`, `MarineLossAmplifcationHullmodEffectListener`. `ManagedDemocracyNexerelinListenerPlugin` only if `nexerelin` is enabled (`ModPlugin.java:473`).
-- `ModPlugin.setScriptsIfNeeded()` registers `CorporateGovernanceCampaignPlugin` every load (`ModPlugin.java:497`). `BaseCampaignPlugin` is transient with a null id (`api/campaign/BaseCampaignPlugin.java:31-37` in the knowledge base).
+- `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:450-458`) registers, transient and deduped by class: the three option providers, `RuralPolityTooltipAdder`, `RuralPolityImageChanger`, `MarineLossAmplifcationHullmodEffectListener`. `ManagedDemocracyNexerelinListenerPlugin` only if `nexerelin` is enabled (`ModPlugin.java:474`).
+- `ModPlugin.setScriptsIfNeeded()` registers `CorporateGovernanceCampaignPlugin` every load (`ModPlugin.java:498`). `BaseCampaignPlugin` is transient with a null id (`api/campaign/BaseCampaignPlugin.java:31-37` in the knowledge base).
 - The other tooltip adders (`HelldiversTooltipAdder`, `WarhammerTooltipAdder`, `CorpoPolityTooltipAdder`) register themselves from their variant's `apply()`.
 - `HelldiversSubIndustry` and `WarhammerSubIndustry` add themselves as persistent listeners in `apply()` and remove themselves in `unapply()`. `ShipProductionSummaryMessageHandler.getInstanceOrRegister()` adds a persistent listener on first use.
 - Nothing adds a switchable to a market at game start. The first switch on a vanilla industry replaces it: `ChangelingIndustryDialogueDelegate.customDialogConfirm()` (`:140-188`).

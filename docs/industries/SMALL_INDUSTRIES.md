@@ -68,7 +68,6 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | Settings | `IndEvo_restoFee_FRIGATE` 1000, `_DESTROYER` 3000, `_CRUISER` 7000, `_CAPITAL` 10000 | `LunaSettings.csv:140-143` |
 | Setting | `IndEvo_CommerceBalanceChanges` (default true) | `LunaSettings.csv:13` |
 | Memory key | `$IndEvo_maxDModMemory` (map `FleetMemberAPI -> Integer`) | sector memory, `RestorationDocks` |
-| Strings | categories `IndEvo_AdInfra`, `IndEvo_dryDock`, `IndEvo_ReqCenter` | `data/strings/strings.json:72`, `:161`, `:202` |
 
 ## Registration and lifecycle
 

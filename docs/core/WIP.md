@@ -42,7 +42,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Faction | `IndEvo_converters` (`Ids.CONVERTERS_FACTION_ID`) | `data/world/factions/IndEvo_converters.faction`, `factions.csv:8` |
 | Nexerelin faction config | `IndEvo_converters` | `data/config/exerelinFactionConfig/mod_factions.csv`, `IndEvo_converters.json` |
 | Rules | `greetingConverter` and the converter comm block | `data/campaign/rules.csv:421` to `:461` |
-| Special item | `IndEvo_log_core` | `data/campaign/special_items.csv:14`; drop groups `data/campaign/procgen/drop_groups.csv:2`, `:75` |
+| Special item | `IndEvo_log_core` | `data/campaign/special_items.csv:18`; drop groups `data/campaign/procgen/drop_groups.csv:2`, `:75` |
 | Sound | `IndEvo_converter_hostile` | `data/config/sounds.json:14` |
 | Custom entity | `IndEvo_MobileColony` (tag `IndEvo_mobileColony`) | `data/config/custom_entities.json:2` |
 | Memory key | `$IndEvo_MobileColony`, `$IndEvo_MobileColonyNum` (fleet) | `MobileColonyFactory` |
@@ -52,7 +52,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 ## Registration and lifecycle
 
 - converters: nothing registered. `ModPlugin.onNewGameAfterEconomyLoad` has `//ConverterRepRestetter.resetConverterRep();` commented out (`indevo/utils/ModPlugin.java:307`). No `market_conditions.csv` row for the log core condition and no `industries.csv` row for the paperclip factory (grep of `data/campaign`).
-- mobilecolony: `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new MobileColonyCampaignPlugin())` every load (`indevo/utils/ModPlugin.java:495`). `BaseCampaignPlugin.isTransient()` returns true (vanilla `BaseCampaignPlugin`), so it does not pile up in saves. `MobileColonyFactory.create()` has no caller.
+- mobilecolony: `ModPlugin.setScriptsIfNeeded` -> `registerPlugin(new MobileColonyCampaignPlugin())` every load (`indevo/utils/ModPlugin.java:496`). `BaseCampaignPlugin.isTransient()` returns true (vanilla `BaseCampaignPlugin`), so it does not pile up in saves. `MobileColonyFactory.create()` has no caller.
 
 ## Flow
 

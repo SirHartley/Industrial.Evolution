@@ -10,7 +10,6 @@ import com.fs.starfarer.api.util.Highlights;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
-import indevo.submarkets.RemovableSubmarketPluginAPI;
 import indevo.utils.helper.MiscIE;
 import org.apache.log4j.Logger;
 
@@ -18,10 +17,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements RemovableSubmarketPluginAPI {
+public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin {
 
     public static Logger log = Global.getLogger(DeconstructorSubmarketPlugin.class);
-    public boolean isSetForRemoval = false;
 
     public Set<String> restrictedShips = new HashSet<>();
     public Set<String> allowedShips = new HashSet<>();
@@ -96,10 +94,6 @@ public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements
         return false;
     }
 
-    public void notifyBeingRemoved() {
-        this.isSetForRemoval = true;
-    }
-
     public boolean isParticipatesInEconomy() {
         return false;
     }
@@ -124,9 +118,6 @@ public class DeconstructorSubmarketPlugin extends BaseSubmarketPlugin implements
     }
 
     public String getIllegalTransferText(CargoStackAPI stack, TransferAction action) {
-        if (this.isSetForRemoval) {
-            return "This storage is currently being deconstructed.";
-        }
         return "what?";
     }
 

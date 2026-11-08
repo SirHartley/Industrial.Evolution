@@ -35,6 +35,8 @@ import indevo.dialogue.beacons.dialogue.BeaconDialogueListener;
 import indevo.dialogue.research.listeners.*;
 import indevo.dialogue.research.scripts.RefitUIOpenChecker;
 import indevo.economy.listeners.RelicBuildTimeReductionButtonAdder;
+import indevo.economy.listeners.RelicSpeedUpOptionProvider;
+import indevo.economy.listeners.TechMiningRelicOptionProvider;
 import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
@@ -47,6 +49,7 @@ import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.exploration.stations.DerelictStationPlacer;
 import indevo.ids.Ids;
 import indevo.industries.academy.plugins.AcademyOptionProvider;
+import indevo.industries.engineeringhub.plugins.HullmodDataOptionProvider;
 import indevo.industries.artillery.listener.WatchtowerFactionResetListener;
 import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
@@ -62,6 +65,7 @@ import indevo.industries.changeling.plugins.CorporateGovernanceCampaignPlugin;
 import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.courierport.plugin.CourierPortOptionProvider;
 import indevo.industries.derelicts.listeners.AncientLabCommoditySwitchOptionProvider;
+import indevo.industries.derelicts.plugins.AncientLabRelicOptionProvider;
 import indevo.industries.derelicts.plugins.RemoveIndustryOptionWarningProvider;
 import indevo.industries.derelicts.plugins.RiftGenOptionProvider;
 import indevo.industries.derelicts.utils.RuinsManager;
@@ -70,6 +74,8 @@ import indevo.industries.embassy.scripts.HostileActivityEventSubRegisterListener
 import indevo.industries.relay.listener.RelayNetworkBrain;
 import indevo.industries.warehouses.plugin.WarehouseAddSubmarketOptionProvider;
 import indevo.industries.museum.plugins.MuseumManageParadeOptionProvider;
+import indevo.industries.orbitalworks.plugins.OrbitalWorksSlotOptionProvider;
+import indevo.industries.orbitalworks.scripts.OrbitalWorksSlotManager;
 import indevo.industries.warehouses.plugin.WarehouseRemoveSubmarketOptionProvider;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
@@ -107,7 +113,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static indevo.industries.academy.rules.IndEvo_AcademyVariables.ACADEMY_MARKET_ID;
+import static indevo.ids.Ids.ACADEMY_MARKET_ID;
 
 public class ModPlugin extends BaseModPlugin {
     public static void log(String Text) {
@@ -420,6 +426,7 @@ public class ModPlugin extends BaseModPlugin {
         MiscIE.getCSVSetFromMemory(Ids.RURAL_LIST);
         MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_LIST);
         MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_COND_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.ACADEMY_SKILL_LIST);
     }
 
     private void setListenersIfNeeded() {
@@ -450,6 +457,7 @@ public class ModPlugin extends BaseModPlugin {
         ChangelingMiningOptionProvider.register();
         ChangelingRefiningOptionProvider.register();
         AncientLabCommoditySwitchOptionProvider.register();
+        AncientLabRelicOptionProvider.register();
         PetCenterOptionProvider.register();
         RuralPolitySubIndustry.RuralPolityTooltipAdder.register();
         RuralPolitySubIndustry.RuralPolityImageChanger.register();
@@ -463,6 +471,7 @@ public class ModPlugin extends BaseModPlugin {
         RefitUIOpenChecker.register();
         CamouflageRefitListener.register();
         HasUniqueShipChecker.register();
+        CorruptedNanoforgeChecker.register();
         SalvageYardsOptionProvider.register();
         CourierPortOptionProvider.register();
         SenateOptionProvider.register();
@@ -481,6 +490,11 @@ public class ModPlugin extends BaseModPlugin {
         WarehouseRemoveSubmarketOptionProvider.register();
         MuseumManageParadeOptionProvider.register();
         RelicBuildTimeReductionButtonAdder.register();
+        HullmodDataOptionProvider.register();
+        OrbitalWorksSlotManager.getInstanceOrRegister();
+        OrbitalWorksSlotOptionProvider.register();
+        RelicSpeedUpOptionProvider.register();
+        TechMiningRelicOptionProvider.register();
         SurveyDataTooltipAmender.register();
         RelayNetworkBrain.getInstanceOrRegister();
 

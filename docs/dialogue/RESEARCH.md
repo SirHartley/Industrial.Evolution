@@ -6,19 +6,20 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-At `station_galatia_academy` the player opens a side panel listing visible research projects. Each project accepts specific items for points; donating fills progress, and a finished project is redeemed for a cargo reward (weapons and blueprints, hullmods, consumables, salvage rolls). Repeatable projects subtract the requirement on redeem and keep the rest; their Stock toggle (overflow) lets a hand-in go past 100%. Most projects stay hidden until an unlock listener sees a trigger (an omega weapon, an autopulse, a slow ship, a unique signature ship, hyperspace topography progress) and posts a "New Research Projects Available" intel.
+At `station_galatia_academy` the player opens a side panel listing visible research projects. Each project accepts specific items for points; donating fills progress, and a finished project is redeemed for a cargo reward (weapons and blueprints, hullmods, consumables, salvage rolls). Repeatable projects subtract the requirement on redeem and keep the rest; their Stock toggle (overflow) lets a hand-in go past 100%. A project can also name a redeem requirement, an item consumed from fleet cargo on Redeem after a confirm popup. Most projects stay hidden until an unlock listener sees a trigger (an omega weapon, an autopulse, a slow ship, a unique signature ship, a Corrupted Nanoforge, hyperspace topography progress) and posts a "New Research Projects Available" intel.
 
 ## Files
 
 | File | Owner / role |
 |---|---|
 | `indevo/dialogue/research/ResearchProjectTemplateRepo.java` | `RESEARCH_PROJECTS` static map: every project as an anonymous `ResearchProject`. `getRandomForProj` (anti save scum randoms, `:589`), `getNumProjectsPlayerCanContribute` (`:606`). |
-| `dialogue/ResearchProject.java` | Abstract project: id, name, required points, repeatable. `getProgress()` lazily stores a `Progress` (points, redeemed, overflow) in sector memory (`:37`). `allowsOverflow()` is repeatable and overflow on (`:49`). |
+| `dialogue/ResearchProject.java` | Abstract project: id, name, required points, repeatable. `getProgress()` lazily stores a `Progress` (points, redeemed, overflow) in sector memory (`:37`). `allowsOverflow()` is repeatable and overflow on (`:49`). `getRedeemRequirement()` and `getRedeemLore()` default to null. |
+| `dialogue/RedeemRequirement.java` | Item consumed on Redeem: id, `CargoItemType`, count. Name lookup, available count and `take(cargo)` (throws when short). |
 | `dialogue/ResearchProjectAPI.java` | `display`, `getRewards`, `getRequiredItems`, short and long desc. |
 | `dialogue/RequiredItem.java` | Accepted item: id, `CargoItemType`, points per unit. |
 | `dialogue/DropDataCreator.java` | Builds a `SalvageEntityGenDataSpec.DropData` for reward rolls. |
-| `dialogue/ResearchProjectDialoguePlugin.java` | Rule command and dialog plugin. Swaps itself in as the dialog plugin, draws text, returns to the Galatia menu via `gaMeetingEnd` (`:231`). Keeps its instance in `$IndEvo_tempDialogueInstance` (expire 0). |
-| `dialogue/ResearchProjectSidePanelCreator.java` | One block per visible, unredeemed project sorted by points: Show info, Cargo, Redeem buttons, Stock toggle (repeatable only, `addOverflowToggle`, `:207`), progress bar, item count, short desc. Redeem logic lives here (`:157`). |
+| `dialogue/ResearchProjectDialoguePlugin.java` | Rule command and dialog plugin. Swaps itself in as the dialog plugin, draws text, returns to the Galatia menu via `gaMeetingEnd`. Keeps its instance in `$IndEvo_tempDialogueInstance` (expire 0). `getQuantity` and `getStackItemId` match cargo stacks to item ids. |
+| `dialogue/ResearchProjectSidePanelCreator.java` | One block per visible, unredeemed project sorted by points: Show info, Cargo, Redeem buttons, Stock toggle (repeatable only, `addOverflowToggle`, `:207`), progress bar, item count, short desc. Redeem logic lives here: `redeem`, `showRedeemConfirm` and the Redeem hover `addRedeemTooltip`. |
 | `dialogue/ResearchProjectDonationCargoPicker.java` | Cargo picker filtered to accepted items; takes only what is needed to finish, or everything when `allowsOverflow()` (`:69`). |
 | `intel/GalatiaNewProjectsIntel.java` | Important intel listing new project names; removes itself after 31 days (`:21`). |
 | `intel/HyperspaceTopographyProjectFactor.java` | One-time factor for the vanilla Hyperspace Topography event, added on Prospector redeem. |
@@ -26,6 +27,7 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 | `listeners/AutopulseUseChecker.java` | Economy tick: fitted `autopulse` unlocks Pulse. |
 | `listeners/HasUniqueShipChecker.java` | Economy tick: a fleet variant with `ship_unique_signature` unlocks Morgana. |
 | `listeners/SlowShipInFleetChecker.java` | Economy tick: a member with base max burn <= 7 unlocks Sonic. |
+| `listeners/CorruptedNanoforgeChecker.java` | Economy tick: a `corrupted_nanoforge` in fleet cargo unlocks Reforge. |
 | `listeners/HyperspaceTopoProgressChecker.java` | Economy tick: topography progress >= 100 posts the Prospector intel. |
 | `listeners/CamouflageRefitListener.java` | On closing a market, swaps `ship_unique_signature` and `IndEvo_ship_unique_signature` depending on whether the Camouflage Emitter is installed. |
 | `listeners/SurveyDataTooltipAmender.java` | `CommodityTooltipModifier`: "can be traded in at the Galatia Academy" on `survey_data_*`. |
@@ -39,14 +41,14 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor` | `indevo/ids/Ids.java:163` to `:176` |
+| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor`, `_reforge` | `indevo/ids/Ids.java:167` to `:180` |
 | Hullmods | `IndEvo_augfield`, `IndEvo_CamouflageFieldEmitter` | `data/hullmods/hull_mods.csv:16`, `:17` |
 | Tag | `IndEvo_ship_unique_signature` (parked vanilla tag) | `CamouflageFieldEmitter.TAG_UNIQUE` |
 | Memory, sector | `$IndEvo_ResearchProgress_<id>` (`Progress`), `$IndEvo_ProjRand_<id>` (5 `Random`s) | `ResearchProject.java:39`, `ResearchProjectTemplateRepo.java:590` |
-| Memory, sector | `$IndEvo_HasFoundDoritoGun`, `$IndEvo_HasFoundAutopulse`, `$IndEvo_HasUniqueShipChecker`, `$IndEvo_SlowShipFleetCheckerDone`, `$IndEvo_HyperTopoCheckerDone` | unlock listeners |
+| Memory, sector | `$IndEvo_HasFoundDoritoGun`, `$IndEvo_HasFoundAutopulse`, `$IndEvo_HasUniqueShipChecker`, `$IndEvo_SlowShipFleetCheckerDone`, `$IndEvo_HyperTopoCheckerDone`, `$IndEvo_HasHadCorruptedNanoforge` | unlock listeners |
 | Memory, combat engine custom data | `$IndEvo_GlitcherOverlayAttached_<shipId>` | `CamouflageFieldEmitter.java:14` |
 | Settings | `IndEvo_pets` (Navi), `IndEvo_consumables_researchProject` (Mjolnir) | `data/config/LunaSettings.csv:11`, `:35`; read through `Setting` (see [Settings](../core/SETTINGS.md)) |
-| Sprite | `IndEvo` / `galatia_proj` | `data/config/settings.json:157` |
+| Sprite | `IndEvo` / `galatia_proj` | `data/config/settings.json:158` |
 | Rules | `IndEvo_JobMenuPoint`, `IndEvo_JobMenuInit` | `data/campaign/rules.csv:418`, `:419` |
 | Entity | `station_galatia_academy` (vanilla) | intel map location, rules condition |
 
@@ -67,17 +69,18 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 | Spyglass (`indevo_proj_revival`) | 500 | yes | always | rare parts 1 | best value of 5 salvage rolls (AI cores, blueprints, `indEvo_tech`, hullmods, rare tech); 1% chance of 9999 `vulcan` |
 | Mjolnir | 120 | yes | `IndEvo_consumables_researchProject` on | rare parts 1 | 5 rolls of `indEvo_missiles_always` |
 | Transistor | 80 | yes | always | rare parts 1 | 5 rolls of `indEvo_consumables_always` |
+| Reforge | 500 | no | `CorruptedNanoforgeChecker.isDone()` | rare parts 1; Redeem consumes 1 `corrupted_nanoforge` from fleet cargo | `pristine_nanoforge` |
 
 ## Registration and lifecycle
 
-- Entry: rules `IndEvo_JobMenuPoint` adds option 4 "Visit the Research Tracts" on `PopulateOptions` at `$id == station_galatia_academy`; `IndEvo_JobMenuInit` runs the command `ResearchProjectDialoguePlugin` (package `indevo.dialogue.research.dialogue` is in `ruleCommandPackages`, `data/config/settings.json:39`).
-- `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:432` to `:484`):
+- Entry: rules `IndEvo_JobMenuPoint` adds option 4 "Visit the Research Tracts" on `PopulateOptions` at `$id == station_galatia_academy`; `IndEvo_JobMenuInit` runs the command `ResearchProjectDialoguePlugin` (package `indevo.dialogue.research.dialogue` is in `ruleCommandPackages`, `data/config/settings.json:40`).
+- `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:426` to `:491`):
 
 | Class | How | Persists |
 |---|---|---|
 | `DoritoGunFoundChecker` | `addListener(x, true)` every load | transient |
 | `HyperspaceTopoProgressChecker` | `addListener(x, true)`, deduped by class | transient |
-| `SlowShipInFleetChecker` | `addListener(x, true)` deduped | transient |
+| `SlowShipInFleetChecker`, `CorruptedNanoforgeChecker` | `addListener(x, true)` deduped | transient |
 | `AutopulseUseChecker`, `HasUniqueShipChecker` | `addListener(x)` deduped | saved |
 | `RefitUIOpenChecker` | `addTransientScript` deduped | transient |
 | `CamouflageRefitListener` | `addTransientListener` | transient |
@@ -92,7 +95,7 @@ Order: `PopulateOptions -> IndEvo_JobMenuPoint -> option -> IndEvo_JobMenuInit -
 1. `execute` stores the original plugin, swaps in itself, `init` creates the side panel (`VisualCustomPanel.createPanel`) and text.
 2. Show info -> `setProjectIdForInputs` prints long desc and per item progress, owned count and units to finish.
 3. Cargo -> `ResearchProjectDonationCargoPicker.init`: copies matching stacks from player cargo, the picker preview shows percent per stack; on confirm each stack adds `size x points` or only the units needed to finish, removed from the real cargo (`:81`). With overflow every picked unit is taken. Cargo is disabled on a finished project unless overflow is on.
-4. Redeem -> `project.getRewards()` added to cargo; repeatable subtracts the required points (floor 0), else `redeemed = true`; text shows `addTooltipOutputOnCompletion` and gain lines. Redeem stays enabled while points still cover another completion.
+4. Redeem -> with a redeem requirement, a popup (`InteractionDialogAPI.showCustomDialog`) shows "Redeeming consumes N item from your fleet cargo (Available: N).": Confirm and Cancel with the item in fleet cargo, only Return without it. Confirm takes the item, then the normal redeem runs. The Redeem button hover shows the same line and the project's lore in gray. Normal redeem: `project.getRewards()` added to cargo; repeatable subtracts the required points (floor 0), else `redeemed = true`; text shows `addTooltipOutputOnCompletion`, loss lines for a consumed requirement and gain lines. Redeem stays enabled while points still cover another completion.
 5. Stock toggle (tooltip: excess donations toward future rewards, otherwise retained cargo) -> `addAreaCheckbox` (label `OVERFLOW_LABEL`) with a vanilla style hover tooltip (`TooltipCreator`, width 400, left), flips `Progress.overflow` and rebuilds the panel.
 6. Return -> clear panel, restore original plugin, set `$option = gaMeetingEnd` and fire `DialogOptionSelected` (vanilla Galatia rule ends the conversation).
 
@@ -100,7 +103,10 @@ Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notify
 
 ## Contracts
 
+- Project Reforge's description states the nanoforge conversion and delivery requirement; the Redeem tooltip shows the required cargo and available amount.
+
 - Project definitions live only in code; progress and reward randoms live in sector memory and persist. Renaming a project id orphans its progress.
+- A redeem requirement is not a points item: points are interchangeable, so the item is taken only on Redeem, from fleet cargo, never from storage. Cancel and Return take nothing.
 - Overflow is per project and off by default; `Progress.overflow` is false on saves made before the field existed. Turning it off keeps points already past 100%. The progress bar is capped at full width, the label shows the real percentage.
 - `getRandomForProj` stores five `java.util.Random` objects in memory, so a reload reproduces the same rolls (anti save scum). Each roll advances the stored randoms.
 - Camouflage: the engine marks the player fleet as having a unique signature when any member variant has `ship_unique_signature` (`obf/campaign/fleet/CampaignFleet.java:963`). The emitter works by renaming that tag; the swap only runs on `reportPlayerClosedMarket`, so installing the hullmod takes effect after leaving the market.

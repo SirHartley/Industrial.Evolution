@@ -10,7 +10,6 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.ItemIds;
 import indevo.industries.assembler.industry.VPCUserIndustryAPI;
-import indevo.utils.helper.StringHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,10 +68,10 @@ public class DepositMessage implements EconomyTickListener {
 
     private void makeMessage() {
         boolean varIndGath = Setting.VARIND_DELIVER_TO_PRODUCTION_POINT.enabled();
-        String targetLocation = varIndGath ? Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getName() : StringHelper.getString("theLocalStorage");
+        String targetLocation = varIndGath ? Global.getSector().getPlayerFaction().getProduction().getGatheringPoint().getName() : "the local storage.";
 
         MessageIntel intel = new MessageIntel(
-                StringHelper.getStringAndSubstituteToken("IndEvo_VarInd", "deliveryNotice", "$targetLocation", targetLocation),
+                "Commodities have been delivered to " + targetLocation,
                 Misc.getTextColor(),
                 new String[]{(targetLocation)},
                 Global.getSector().getPlayerFaction().getBrightUIColor());
@@ -83,7 +82,7 @@ public class DepositMessage implements EconomyTickListener {
 
             intel.addLine(BaseIntelPlugin.BULLET + name + ": %s",
                     Misc.getTextColor(),
-                    new String[]{(amount + StringHelper.getString("unitsWithFrontSpace"))},
+                    new String[]{(amount + " units")},
                     Misc.getHighlightColor());
         }
 

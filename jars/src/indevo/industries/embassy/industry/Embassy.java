@@ -30,9 +30,7 @@ import indevo.utils.timers.NewDayListener;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static indevo.industries.embassy.listeners.AmbassadorPersonManager.adjustRelationship;
 
@@ -150,8 +148,8 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
             Color highlight = Misc.getHighlightColor();
             Color bad = Misc.getNegativeHighlightColor();
 
-            String warn1 = StringHelper.getString(getId(), "requiresAmbassador");
-            String warn2 = StringHelper.getString(getId(), "canHireAt");
+            String warn1 = "This structure requires an Ambassador to function!";
+            String warn2 = "You can hire one on every larger planet.";
 
             if (currTooltipMode == IndustryTooltipMode.ADD_INDUSTRY) {
                 tooltip.addPara("%s", opad, highlight, warn1);
@@ -163,7 +161,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
             if (currTooltipMode == IndustryTooltipMode.NORMAL && getSpecialItem() != null) {
                 if (AmbassadorPersonManager.getAmbassador(market) == null) {
-                    tooltip.addPara("%s", opad, Misc.getPositiveHighlightColor(), StringHelper.getString(getId(), "currentlyTakingOffice"));
+                    tooltip.addPara("%s", opad, Misc.getPositiveHighlightColor(), "The Ambassador is currently taking office. Please wait a day for this to finish.");
                 } else {
                     FactionAPI player = Global.getSector().getPlayerFaction();
                     RepLevel level = player.getRelationshipLevel(alignedFaction.getId());
@@ -171,9 +169,9 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
                     int repInt = (int) Math.ceil((Math.round(player.getRelationship(alignedFaction.getId()) * 100f)));
                     String standing = "" + repInt + "/" + (int) (maxRelation * 100) + " (" + level.getDisplayName().toLowerCase() + ")";
 
-                    tooltip.addPara(StringHelper.getString(getId(), "currentPersonInOffice"), opad, Misc.getHighlightColor(), AmbassadorPersonManager.getAmbassador(market).getNameString());
-                    tooltip.addPara(StringHelper.getString(getId(), "factionJusrisdiction"), opad, alignedFaction.getColor(), alignedFaction.getDisplayName());
-                    tooltip.addPara(StringHelper.getString(getId(), "currentStanding"), opad, relColor, standing);
+                    tooltip.addPara("Current Ambassador in office: %s", opad, Misc.getHighlightColor(), AmbassadorPersonManager.getAmbassador(market).getNameString());
+                    tooltip.addPara("This Embassy operates under %s jurisdiction", opad, alignedFaction.getColor(), alignedFaction.getDisplayName());
+                    tooltip.addPara("Current status for passive relations increase: %s", opad, relColor, standing);
 
                     if (HostileActivityEventIntel.get() != null) {
                         int pts = Math.round(HAAmbassadorEventFactor.getReductionAmtForFaction(alignedFaction));
@@ -208,18 +206,17 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
             Color relColor = alignedFaction.getRelColor(player.getId());
             String standing = "" + repInt + "/100" + " (" + level.getDisplayName().toLowerCase() + ")";
 
-            Map<String, String> toReplace = new HashMap<>();
-            toReplace.put("$factionName", alignedFaction.getDisplayName());
-            toReplace.put("$decreasedByPenalty", StringHelper.getString(getId(), "decreasedByInt") + StringHelper.getFloatToIntStrx100(-BETA_CORE_REP_PENALTY));
+            String factionName = alignedFaction.getDisplayName();
+            String decreasedByPenalty = "decreased by " + StringHelper.getFloatToIntStrx100(-BETA_CORE_REP_PENALTY);
 
-            MessageIntel intel = new MessageIntel(StringHelper.getStringAndSubstituteTokens(getId(), "betaCorePenalty", toReplace),
+            MessageIntel intel = new MessageIntel("Relationship with the " + factionName + " " + decreasedByPenalty,
                     Misc.getTextColor(),
-                    new String[]{toReplace.get("$factionName"), toReplace.get("$decreasedByPenalty")},
+                    new String[]{factionName, decreasedByPenalty},
                     alignedFaction.getColor(),
                     Misc.getNegativeHighlightColor());
 
-            intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getString(getId(), "currentAt"), null, new String[]{standing}, relColor);
-            intel.addLine(BaseIntelPlugin.BULLET + StringHelper.getStringAndSubstituteToken(getId(), "betaCorePenaltyChange", "$marketName", market.getName()), Misc.getTextColor());
+            intel.addLine(BaseIntelPlugin.BULLET + "Currently at %s", null, new String[]{standing}, relColor);
+            intel.addLine(BaseIntelPlugin.BULLET + "Change caused by removal of a Beta core at the Embassy at " + market.getName(), Misc.getTextColor());
 
             intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "reputation"));
             intel.setSound(BaseIntelPlugin.getSoundMinorMessage());
@@ -311,9 +308,8 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
-        String effect = StringHelper.getString(getId(), "aCoreEffect");
+        String pre = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Alpha-level AI core. " : "Alpha-level AI core currently assigned. ";
+        String effect = "Reduces the reputation penalty on negative change by %s";
         String highlightString = StringHelper.getAbsPercentString(ALPHA_CORE_REP_PENALTY_MULT, true);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -330,9 +326,8 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
-        String effect = StringHelper.getString(getId(), "bCoreEffect");
+        String pre = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Beta-level AI core. " : "Beta-level AI core currently assigned. ";
+        String effect = "Increases the limit for the passive reputation gain to %s. Causes a %s reputation penalty on removal if a month has passed.";
         String[] highlightString = new String[]{StringHelper.getFloatToIntStrx100(BETA_CORE_MAX_RELATION), StringHelper.getFloatToIntStrx100(-BETA_CORE_REP_PENALTY)};
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -349,9 +344,8 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
-        String effect = StringHelper.getString(getId(), "gCoreEffect");
+        String pre = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Gamma-level AI core. " : "Gamma-level AI core currently assigned. ";
+        String effect = "Reduces upkeep cost by %s.";
         String highlightString = StringHelper.getAbsPercentString(GAMMA_CORE_UPKEEP_RED_MULT, true);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -376,7 +370,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
         String name;
         switch (MiscIE.getAiCoreIdNotNull(this)) {
             case Commodities.GAMMA_CORE:
-                name = StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
+                name = "Gamma Core assigned";
                 getUpkeep().modifyMult("ind_core", GAMMA_CORE_UPKEEP_RED_MULT, name);
                 break;
             default:

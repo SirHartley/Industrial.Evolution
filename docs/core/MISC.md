@@ -41,7 +41,7 @@ The package holds code written for other mods or as copy and paste examples (pet
 
 ## Registration and lifecycle
 
-None. Each class documents its own intended hook in comments (for example `SupercapitalShipRemoveAndReplacer.init()` from `onGameLoad`, `SpawnDerelictFleetMembersOnDeathListener.attachToPlayerFleetIfNotPresent()` from `onGameLoad`). The two rule commands are not reachable from `rules.csv`: `indevo.other` is not in `ruleCommandPackages` (`data/config/settings.json:29`). See [Rule commands](../dialogue/RULE_COMMANDS.md).
+None. Each class documents its own intended hook in comments (for example `SupercapitalShipRemoveAndReplacer.init()` from `onGameLoad`, `SpawnDerelictFleetMembersOnDeathListener.attachToPlayerFleetIfNotPresent()` from `onGameLoad`). The two rule commands are not reachable from `rules.csv`: `indevo.other` is not in `ruleCommandPackages` (`data/config/settings.json:30`). See [Rule commands](../dialogue/RULE_COMMANDS.md).
 
 ## Flow
 

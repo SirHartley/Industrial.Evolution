@@ -29,7 +29,6 @@ public class RequisitionCenter extends BaseIndustry {
     public static final float MED_REP_REQUIREMENT = 0.5f;
     public static final float HIGH_REP_REQUIREMENT = 0.7f;
 
-    public static final String IDENT = "IndEvo_ReqCenter";
 
     public void apply() {
         super.apply(true);
@@ -129,16 +128,16 @@ public class RequisitionCenter extends BaseIndustry {
     }
 
     private static String getAmountString(Float reputation, boolean longDesc) {
-        String weaponString = "w0";
+        String weaponString = "nothing cause shit broke, tell @SirHartley on Discord or the Forums.";
 
-        if (reputation < MIN_REP_REQUIREMENT) weaponString = longDesc ? "w1" : "none";
+        if (reputation < MIN_REP_REQUIREMENT) weaponString = longDesc ? "no weapons" : "none";
         else if (reputation >= MIN_REP_REQUIREMENT && reputation < MED_REP_REQUIREMENT)
-            weaponString = longDesc ? "w2" : "low";
+            weaponString = longDesc ? "a low amount" : "low";
         else if (reputation >= MED_REP_REQUIREMENT && reputation < HIGH_REP_REQUIREMENT)
-            weaponString = longDesc ? "w3" : "medium";
-        else if (reputation >= HIGH_REP_REQUIREMENT) weaponString = longDesc ? "w4" : "high";
+            weaponString = longDesc ? "a medium amount" : "medium";
+        else if (reputation >= HIGH_REP_REQUIREMENT) weaponString = longDesc ? "a high amount" : "high";
 
-        return StringHelper.getString(IDENT, weaponString);
+        return weaponString;
     }
 
     /*AI core effect:

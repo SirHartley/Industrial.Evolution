@@ -18,7 +18,6 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.MiscIE;
-import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -282,7 +281,7 @@ public class CentralizationBureau extends BaseIndustry {
         }
 
         if (!isOnlyInfraInSystem()) {
-            return StringHelper.getString(getId(), "onlyOneInstanceAllowed");
+            return "There can only be one Centralization Bureau in a star system.";
         } else {
             return super.getUnavailableReason();
         }
@@ -296,7 +295,7 @@ public class CentralizationBureau extends BaseIndustry {
     @Override
     protected void addRightAfterDescriptionSection(TooltipMakerAPI tooltip, IndustryTooltipMode mode) {
         if (mode != IndustryTooltipMode.QUEUED && !isBuilding() && getAICoreId() == null && getSpecialItem() == null) {
-            tooltip.addPara("%s", 10f, Misc.getHighlightColor(), StringHelper.getString(getId(), "noAICore"));
+            tooltip.addPara("%s", 10f, Misc.getHighlightColor(), "This structure requires an AI core to function.");
         }
 
         if (!market.isPlayerOwned()) {
@@ -309,24 +308,24 @@ public class CentralizationBureau extends BaseIndustry {
             Color bad = Misc.getNegativeHighlightColor();
 
             if (industryExistOnMultipleMap.isEmpty()) {
-                String s = StringHelper.getString(getId(), "noDuplicates");
+                String s = "There are no duplicate industries in this system.";
                 Color c = currTooltipMode == IndustryTooltipMode.ADD_INDUSTRY ? highlight : bad;
                 tooltip.addPara("%s", opad, c, s);
             }
 
             if (isFunctional()) {
                 if (coreIsSufficient()) {
-                    String sufficient = StringHelper.getString(getId(), "sufficient");
+                    String sufficient = "sufficient";
                     tooltip.addPara(
-                            StringHelper.getStringAndSubstituteToken(getId(), "aiCoreSufficient", "$sufficient", sufficient),
+                            "The AI core installed in this structure is " + sufficient + ".",
                             opad,
                             Misc.getPositiveHighlightColor(),
                             sufficient);
 
                 } else if (!industryExistOnMultipleMap.isEmpty()) {
-                    String insufficient = StringHelper.getString(getId(), "insufficient");
+                    String insufficient = "insufficient";
                     tooltip.addPara(
-                            StringHelper.getStringAndSubstituteToken(getId(), "aiCoreInsufficient", "$insufficient", insufficient),
+                            "The AI core installed in this structure is " + insufficient + ". Maximum supported bonus: %s",
                             opad,
                             Misc.getNegativeHighlightColor(),
                             getMaxSupportedInd() + "");
@@ -338,22 +337,22 @@ public class CentralizationBureau extends BaseIndustry {
     @Override
     protected void addPostSupplySection(TooltipMakerAPI tooltip, boolean hasSupply, IndustryTooltipMode mode) {
         super.addPostSupplySection(tooltip, hasSupply, mode);
-        addBoostSection(tooltip, currentModSupply, "additionalOutputs", IconRenderMode.GREEN);
+        addBoostSection(tooltip, currentModSupply, "Additional production output", IconRenderMode.GREEN);
     }
 
     @Override
     protected void addPostDemandSection(TooltipMakerAPI tooltip, boolean hasDemand, IndustryTooltipMode mode) {
         super.addPostDemandSection(tooltip, hasDemand, mode);
-        addBoostSection(tooltip, currentModDemand, "additionalDemands", IconRenderMode.NORMAL);
+        addBoostSection(tooltip, currentModDemand, "Additional demand requirements", IconRenderMode.NORMAL);
     }
 
-    private void addBoostSection(TooltipMakerAPI tooltip, Map<String, Integer> boosts, String headingKey, IconRenderMode iconMode) {
+    private void addBoostSection(TooltipMakerAPI tooltip, Map<String, Integer> boosts, String heading, IconRenderMode iconMode) {
         if (boosts.isEmpty() || !isFunctional()) return;
 
         float opad = 10f;
         FactionAPI faction = market.getFaction();
 
-        tooltip.addSectionHeading(StringHelper.getString(getId(), headingKey), faction.getBaseUIColor(), faction.getDarkUIColor(), Alignment.MID, opad);
+        tooltip.addSectionHeading(heading, faction.getBaseUIColor(), faction.getDarkUIColor(), Alignment.MID, opad);
         tooltip.beginIconGroup();
         tooltip.setIconSpacingMedium();
 
@@ -370,9 +369,8 @@ public class CentralizationBureau extends BaseIndustry {
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
-        String effect = StringHelper.getString(getId(), "aCoreEffect");
+        String pre = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Alpha-level AI core. " : "Alpha-level AI core currently assigned. ";
+        String effect = "The maximum bonus production this high level intelligence can provide is %s";
         String highlightString = ALPHA_MAX_IND + "";
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -389,9 +387,8 @@ public class CentralizationBureau extends BaseIndustry {
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
-        String effect = StringHelper.getString(getId(), "bCoreEffect");
+        String pre = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Beta-level AI core. " : "Beta-level AI core currently assigned. ";
+        String effect = "The maximum bonus production this intelligence can provide is %s";
         String highlightString = BETA_MAX_IND + "";
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -408,9 +405,8 @@ public class CentralizationBureau extends BaseIndustry {
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
-        String effect = StringHelper.getString(getId(), "gCoreEffect");
+        String pre = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Gamma-level AI core. " : "Gamma-level AI core currently assigned. ";
+        String effect = "The maximum bonus production this low level intelligence can provide is %s";
         String highlightString = GAMMA_MAX_IND + "";
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
