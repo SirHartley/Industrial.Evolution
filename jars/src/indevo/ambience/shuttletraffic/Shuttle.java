@@ -3,6 +3,7 @@ package indevo.ambience.shuttletraffic;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.util.Misc;
 import org.lwjgl.opengl.GL11;
@@ -78,6 +79,7 @@ public class Shuttle {
     public CampaignEngineLayers layer = CampaignEngineLayers.TERRAIN_7;
     public float lastThreatNearDay = -100f;
 
+    private final ShuttlePath.Cursor cursor = new ShuttlePath.Cursor();
     private float traveled = 0f;
     private float avoidOffset = 0f;
     private float lastLateral = 0f;
@@ -110,6 +112,8 @@ public class Shuttle {
     private final Vector2f base = new Vector2f();
     private final Vector2f tangent = new Vector2f();
     private final Vector2f tmp = new Vector2f();
+    // trail and history points are stored relative to frame, so they ride along with an orbiting anchor
+    private SectorEntityToken frame;
     private final float[] trailX = new float[TRAIL_POINTS];
     private final float[] trailY = new float[TRAIL_POINTS];
     private final float[] drawX = new float[TRAIL_POINTS + 1];
@@ -142,11 +146,13 @@ public class Shuttle {
         if (path == null) return;
 
         traveled = path.getLength() * fraction;
-        path.getPoint(traveled, base);
-        path.getTangent(traveled, tangent);
+        path.place(cursor, traveled);
+        path.getPoint(cursor, base);
+        path.getTangent(cursor, tangent);
         pos.set(base);
         facing = Misc.getAngleInDegrees(tangent);
         facingSet = true;
+        setFrame(path.getFrame(cursor));
 
         for (int i = HISTORY_POINTS; i >= 1; i--) {
             path.getPoint(Math.max(0f, traveled - i * HISTORY_SPACING), tmp);
@@ -178,13 +184,22 @@ public class Shuttle {
             return;
         }
 
+        // the current segment is rebuilt every frame, the rest only feeds the total for easing
         rebuildTimer -= amount;
         if (rebuildTimer <= 0f) {
             path.rebuild();
             rebuildTimer = 1f;
+        } else {
+            path.refresh(cursor);
         }
 
+        advancePath(amount, renderer, true);
+    }
+
+    // retry runs the same frame on a path that just replaced the old one, so the craft never stalls a frame
+    private void advancePath(float amount, ShuttleTrafficRenderer renderer, boolean retry) {
         float total = path.getLength();
+        traveled = path.getTraveled(cursor);
         float launchLength = getEndLength(launchEnd, from, total);
         float landLength = getEndLength(landEnd, to, total);
         float remaining = total - traveled;
@@ -193,6 +208,7 @@ public class Shuttle {
         if (docking && queues && !cleared) {
             if (to.isPadBusy(renderer.getTime())) {
                 startHolding(renderer);
+                if (retry) advancePath(amount, renderer, false);
                 return;
             }
 
@@ -207,12 +223,13 @@ public class Shuttle {
 
         float speed = hull.getCruiseSpeed() * speedMult * pace * ease;
         if (boostTime > 0f && age < boostTime) speed += boost * (1f - age / boostTime);
-        traveled += speed * amount;
-
-        if (traveled >= total) {
+        if (path.move(cursor, speed * amount)) {
             onPathEnd(renderer);
+            if (retry && !done && !down) advancePath(amount, renderer, false);
             return;
         }
+
+        traveled = path.getTraveled(cursor);
 
         updatePosition(amount, renderer, total, launchLength, landLength, speed);
     }
@@ -221,7 +238,7 @@ public class Shuttle {
         to = newTarget;
         cleared = false;
         holding = false;
-        setPath(renderer.getFlights().redirectPath(pos, facing, newTarget), End.NONE, ShuttleTrafficRenderer.getEnd(newTarget));
+        setPath(renderer.getFlights().redirectPath(frame, pos, facing, newTarget), End.NONE, ShuttleTrafficRenderer.getEnd(newTarget));
     }
 
     public void flee(ShuttleAnchor refuge, float threatX, float threatY, ShuttleTrafficRenderer renderer) {
@@ -243,13 +260,13 @@ public class Shuttle {
         if (refuge != null) {
             to = refuge;
             waitForSafeHome = home != null && refuge != home;
-            setPath(renderer.getFlights().fleePath(pos, heading, refuge, panic), End.NONE, ShuttleTrafficRenderer.getEnd(refuge));
+            setPath(renderer.getFlights().fleePath(frame, pos, heading, refuge, panic), End.NONE, ShuttleTrafficRenderer.getEnd(refuge));
             return;
         }
 
         stranded = true;
         lastThreatNearDay = renderer.getDays();
-        setPath(renderer.getFlights().awayPath(pos, heading, threatX, threatY, panic), End.NONE, End.NONE);
+        setPath(renderer.getFlights().awayPath(frame, pos, heading, threatX, threatY, panic), End.NONE, End.NONE);
     }
 
     public void screen(float threatX, float threatY, ShuttleTrafficRenderer renderer) {
@@ -261,7 +278,7 @@ public class Shuttle {
         holding = false;
         cleared = false;
         pace = CALM_PACE;
-        setPath(renderer.getFlights().screenPath(pos, facing, home, threatX, threatY), End.NONE, End.NONE);
+        setPath(renderer.getFlights().screenPath(frame, pos, facing, home, threatX, threatY), End.NONE, End.NONE);
     }
 
     public boolean isDown() {
@@ -359,6 +376,7 @@ public class Shuttle {
 
         pos.set(base.x - tangent.y * side, base.y + tangent.x * side);
         updateFacing(amount, Misc.getAngleInDegrees(tangent));
+        setFrame(lead.frame);
         pushTrailAtRear();
     }
 
@@ -369,6 +387,7 @@ public class Shuttle {
         }
 
         if (to.isPadBusy(renderer.getTime())) {
+            cursor.reset();
             traveled = 0f;
             return;
         }
@@ -381,7 +400,7 @@ public class Shuttle {
     private void continueScreening(ShuttleTrafficRenderer renderer) {
         LocationAPI location = renderer.getLocation();
         if (home != null && home.isUsable(location) && home.threatened && !home.overrun) {
-            setPath(renderer.getFlights().screenPath(pos, facing, home, screenX, screenY), End.NONE, End.NONE);
+            setPath(renderer.getFlights().screenPath(frame, pos, facing, home, screenX, screenY), End.NONE, End.NONE);
             return;
         }
 
@@ -412,12 +431,12 @@ public class Shuttle {
             return;
         }
 
-        setPath(renderer.getFlights().holdPath(pos, facing, STRANDED_HOLD_RADIUS), End.NONE, End.NONE);
+        setPath(renderer.getFlights().holdPath(frame, pos, facing, STRANDED_HOLD_RADIUS), End.NONE, End.NONE);
     }
 
     private void startHolding(ShuttleTrafficRenderer renderer) {
         holding = true;
-        setPath(renderer.getFlights().holdPath(pos, facing, ShuttleAnchor.HOLD_RADIUS), End.NONE, End.NONE);
+        setPath(renderer.getFlights().holdPath(to.entity, pos, facing, ShuttleAnchor.HOLD_RADIUS), End.NONE, End.NONE);
     }
 
     private void setPath(ShuttlePath newPath, End newLaunch, End newLand) {
@@ -431,6 +450,7 @@ public class Shuttle {
         path = newPath;
         path.rebuild();
         rebuildTimer = 1f;
+        cursor.reset();
         traveled = 0f;
         launchEnd = newLaunch;
         landEnd = newLand;
@@ -454,8 +474,8 @@ public class Shuttle {
     }
 
     private void updatePosition(float amount, ShuttleTrafficRenderer renderer, float total, float launchLength, float landLength, float speed) {
-        path.getPoint(traveled, base);
-        path.getTangent(traveled, tangent);
+        path.getPoint(cursor, base);
+        path.getTangent(cursor, tangent);
 
         float fraction = total > 0f ? traveled / total : 1f;
         float envelope = (float) Math.sin(Math.PI * fraction);
@@ -479,6 +499,7 @@ public class Shuttle {
         // face along the path, not the world step, so orbiting anchors do not swing the sprite and trail
         updateFacing(amount, (float) Math.toDegrees(Math.atan2(tangent.y * speed + tangent.x * lateralRate, tangent.x * speed - tangent.y * lateralRate)));
         updateLook(amount, total, launchLength, landLength);
+        setFrame(path.getFrame(cursor));
         pushHistoryIfMoved();
         pushTrailAtRear();
     }
@@ -502,7 +523,7 @@ public class Shuttle {
         float remaining = total - traveled;
         float speed = hull.getCruiseSpeed() * speedMult;
 
-        scale = path.getScaleMult(traveled);
+        scale = path.getScaleMult(cursor);
         alpha = 1f;
         darken = 1f;
         layer = CampaignEngineLayers.TERRAIN_7;
@@ -561,6 +582,8 @@ public class Shuttle {
     }
 
     private void getHistoryPoint(float distance, Vector2f out, Vector2f dirOut) {
+        float fx = getFrameX();
+        float fy = getFrameY();
         float px = pos.x;
         float py = pos.y;
         float dirX = (float) Math.cos(Math.toRadians(facing));
@@ -569,8 +592,8 @@ public class Shuttle {
 
         for (int i = 1; i <= historyCount; i++) {
             int index = (historyHead - i + HISTORY_POINTS) % HISTORY_POINTS;
-            float dx = px - historyX[index];
-            float dy = py - historyY[index];
+            float dx = px - (historyX[index] + fx);
+            float dy = py - (historyY[index] + fy);
             float length = (float) Math.sqrt(dx * dx + dy * dy);
             if (length < 0.0001f) continue;
 
@@ -583,8 +606,8 @@ public class Shuttle {
             }
 
             remaining -= length;
-            px = historyX[index];
-            py = historyY[index];
+            px = historyX[index] + fx;
+            py = historyY[index] + fy;
         }
 
         out.set(px - dirX * remaining, py - dirY * remaining);
@@ -598,14 +621,14 @@ public class Shuttle {
         }
 
         int last = (historyHead - 1 + HISTORY_POINTS) % HISTORY_POINTS;
-        float dx = pos.x - historyX[last];
-        float dy = pos.y - historyY[last];
+        float dx = pos.x - (historyX[last] + getFrameX());
+        float dy = pos.y - (historyY[last] + getFrameY());
         if (dx * dx + dy * dy >= HISTORY_SPACING * HISTORY_SPACING) pushHistory(pos.x, pos.y);
     }
 
     private void pushHistory(float x, float y) {
-        historyX[historyHead] = x;
-        historyY[historyHead] = y;
+        historyX[historyHead] = x - getFrameX();
+        historyY[historyHead] = y - getFrameY();
         historyHead = (historyHead + 1) % HISTORY_POINTS;
         historyCount = Math.min(HISTORY_POINTS, historyCount + 1);
     }
@@ -621,16 +644,44 @@ public class Shuttle {
         }
 
         int last = (trailHead - 1 + TRAIL_POINTS) % TRAIL_POINTS;
-        float tx = rearX - trailX[last];
-        float ty = rearY - trailY[last];
+        float tx = rearX - (trailX[last] + getFrameX());
+        float ty = rearY - (trailY[last] + getFrameY());
         if (tx * tx + ty * ty >= TRAIL_SPACING * TRAIL_SPACING) pushTrail(rearX, rearY);
     }
 
     private void pushTrail(float x, float y) {
-        trailX[trailHead] = x;
-        trailY[trailHead] = y;
+        trailX[trailHead] = x - getFrameX();
+        trailY[trailHead] = y - getFrameY();
         trailHead = (trailHead + 1) % TRAIL_POINTS;
         trailCount = Math.min(TRAIL_POINTS, trailCount + 1);
+    }
+
+    private void setFrame(SectorEntityToken next) {
+        if (next == frame) return;
+
+        float dx = getFrameX();
+        float dy = getFrameY();
+        frame = next;
+        dx -= getFrameX();
+        dy -= getFrameY();
+
+        for (int i = 0; i < TRAIL_POINTS; i++) {
+            trailX[i] += dx;
+            trailY[i] += dy;
+        }
+
+        for (int i = 0; i < HISTORY_POINTS; i++) {
+            historyX[i] += dx;
+            historyY[i] += dy;
+        }
+    }
+
+    private float getFrameX() {
+        return frame != null ? frame.getLocation().x : 0f;
+    }
+
+    private float getFrameY() {
+        return frame != null ? frame.getLocation().y : 0f;
     }
 
     public void render(float alphaMult, SpriteAPI glow) {
@@ -671,11 +722,13 @@ public class Shuttle {
         float hy = (float) Math.sin(Math.toRadians(facing));
         drawX[0] = pos.x - hx * hull.length * scale * 0.5f;
         drawY[0] = pos.y - hy * hull.length * scale * 0.5f;
+        float fx = getFrameX();
+        float fy = getFrameY();
         int count = 1;
         for (int i = 1; i <= points; i++) {
             int index = (trailHead - i + TRAIL_POINTS) % TRAIL_POINTS;
-            drawX[count] = trailX[index];
-            drawY[count] = trailY[index];
+            drawX[count] = trailX[index] + fx;
+            drawY[count] = trailY[index] + fy;
             count++;
         }
 

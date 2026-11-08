@@ -67,46 +67,45 @@ public class ShuttleFlights {
     public ShuttlePath lanePath(ShuttleAnchor from, ShuttleAnchor to, float bendFrac, boolean farSide) {
         Vector2f p0 = from.getLocation();
         Vector2f p3 = to.getLocation();
-        float toAngle = Misc.getAngleInDegrees(p0, p3);
         float chord = Misc.getDistance(p0, p3);
-        float launchAngle = (farSide ? toAngle + 180f : toAngle) + spread(LANE_OFFSET);
-        float landAngle = (farSide ? toAngle : toAngle + 180f) + spread(LANE_OFFSET);
+        float side = farSide ? 180f : 0f;
+        float offset = LANE_OFFSET * Math.max(0.3f, Math.min(1f, chord / 800f));
         float bend = network.getBend(p0, p3, bendFrac * chord, from.entity, to.entity);
 
         return new ShuttlePath().add(new ShuttlePath.BezierSegment(
-                new ShuttlePath.PadWaypoint(from, launchAngle, false),
-                new ShuttlePath.PadWaypoint(to, landAngle, true),
+                new ShuttlePath.PadWaypoint(from, new ShuttlePath.EntityWaypoint(to.entity), side + spread(offset), 0f, false),
+                new ShuttlePath.PadWaypoint(to, new ShuttlePath.EntityWaypoint(from.entity), side + spread(offset), 0f, true),
                 getHandle(from, chord), getHandle(to, chord), bend));
     }
 
-    public ShuttlePath redirectPath(Vector2f pos, float heading, ShuttleAnchor to) {
+    public ShuttlePath redirectPath(SectorEntityToken frame, Vector2f pos, float heading, ShuttleAnchor to) {
         float distance = Misc.getDistance(pos, to.getLocation());
-        ShuttlePath.Waypoint start = new ShuttlePath.FixedWaypoint(pos, Misc.getUnitVectorAtDegreeAngle(heading));
-        ShuttlePath.Waypoint end = new ShuttlePath.PadWaypoint(to, Misc.getAngleInDegrees(to.getLocation(), pos), true);
+        ShuttlePath.Waypoint start = startAt(frame, pos, heading);
+        ShuttlePath.Waypoint end = new ShuttlePath.PadWaypoint(to, start, 0f, 0f, true);
         return new ShuttlePath().add(new ShuttlePath.BezierSegment(start, end, Math.min(JOIN_HANDLE, distance * 0.4f), getHandle(to, distance), 0f));
     }
 
-    public ShuttlePath fleePath(Vector2f pos, float heading, ShuttleAnchor refuge, boolean panic) {
+    public ShuttlePath fleePath(SectorEntityToken frame, Vector2f pos, float heading, ShuttleAnchor refuge, boolean panic) {
         ShuttlePath path = new ShuttlePath();
-        ShuttlePath.Waypoint start = new ShuttlePath.FixedWaypoint(pos, Misc.getUnitVectorAtDegreeAngle(heading));
+        ShuttlePath.Waypoint start = startAt(frame, pos, heading);
 
         if (panic) {
-            ShuttlePath.CircleSegment circle = circleAt(null, pos, heading, PANIC_RADIUS + random.nextFloat() * 30f, randomSign(), 0f);
+            ShuttlePath.CircleSegment circle = circleAt(frame, pos, heading, PANIC_RADIUS + random.nextFloat() * 30f, randomSign(), 0f);
             path.add(circle);
             start = new ShuttlePath.SegmentWaypoint(circle, 1f);
         }
 
         float distance = Misc.getDistance(pos, refuge.getLocation());
-        ShuttlePath.Waypoint end = new ShuttlePath.PadWaypoint(refuge, Misc.getAngleInDegrees(refuge.getLocation(), pos), true);
+        ShuttlePath.Waypoint end = new ShuttlePath.PadWaypoint(refuge, start, 0f, 0f, true);
         return path.add(new ShuttlePath.BezierSegment(start, end, Math.min(150f, distance * 0.35f), getHandle(refuge, distance), 0f));
     }
 
-    public ShuttlePath awayPath(Vector2f pos, float heading, float threatX, float threatY, boolean panic) {
+    public ShuttlePath awayPath(SectorEntityToken frame, Vector2f pos, float heading, float threatX, float threatY, boolean panic) {
         ShuttlePath path = new ShuttlePath();
-        ShuttlePath.Waypoint start = new ShuttlePath.FixedWaypoint(pos, Misc.getUnitVectorAtDegreeAngle(heading));
+        ShuttlePath.Waypoint start = startAt(frame, pos, heading);
 
         if (panic) {
-            ShuttlePath.CircleSegment circle = circleAt(null, pos, heading, PANIC_RADIUS + random.nextFloat() * 30f, randomSign(), 0f);
+            ShuttlePath.CircleSegment circle = circleAt(frame, pos, heading, PANIC_RADIUS + random.nextFloat() * 30f, randomSign(), 0f);
             path.add(circle);
             start = new ShuttlePath.SegmentWaypoint(circle, 1f);
         }
@@ -119,11 +118,11 @@ public class ShuttleFlights {
         return path.add(new ShuttlePath.BezierSegment(start, new ShuttlePath.FixedWaypoint(end, Misc.getUnitVectorAtDegreeAngle(away)), 150f, 150f, 0f));
     }
 
-    public ShuttlePath holdPath(Vector2f pos, float heading, float radius) {
-        return new ShuttlePath().add(circleAt(null, pos, heading, radius, 1f, 0f));
+    public ShuttlePath holdPath(SectorEntityToken center, Vector2f pos, float heading, float radius) {
+        return new ShuttlePath().add(circleAt(center, pos, heading, radius, 1f, 0f));
     }
 
-    public ShuttlePath screenPath(Vector2f pos, float heading, ShuttleAnchor home, float threatX, float threatY) {
+    public ShuttlePath screenPath(SectorEntityToken frame, Vector2f pos, float heading, ShuttleAnchor home, float threatX, float threatY) {
         Vector2f loc = home.getLocation();
         Vector2f center = Misc.getUnitVectorAtDegreeAngle(Misc.getAngleInDegrees(loc, new Vector2f(threatX, threatY)));
         center.scale(home.getRadius() + SCREEN_RADIUS + 130f);
@@ -141,8 +140,7 @@ public class ShuttleFlights {
 
         float handle = Math.min(JOIN_HANDLE, distance * 0.4f);
         return new ShuttlePath()
-                .add(new ShuttlePath.BezierSegment(new ShuttlePath.FixedWaypoint(pos, Misc.getUnitVectorAtDegreeAngle(heading)),
-                        new ShuttlePath.SegmentWaypoint(circle, 0f), handle, handle, 0f))
+                .add(new ShuttlePath.BezierSegment(startAt(frame, pos, heading), new ShuttlePath.SegmentWaypoint(circle, 0f), handle, handle, 0f))
                 .add(circle);
     }
 
@@ -156,9 +154,8 @@ public class ShuttleFlights {
 
             float angle = random.nextFloat() * 360f;
             float distance = Misc.getDistance(point, planet.getLocation());
-            ShuttlePath path = new ShuttlePath().add(new ShuttlePath.BezierSegment(
-                    new ShuttlePath.FixedWaypoint(point, Misc.getUnitVectorAtDegreeAngle(angle)),
-                    new ShuttlePath.PadWaypoint(target, random.nextFloat() * 360f, true),
+            ShuttlePath.Waypoint start = new ShuttlePath.FixedWaypoint(point, Misc.getUnitVectorAtDegreeAngle(angle));
+            ShuttlePath path = new ShuttlePath().add(new ShuttlePath.BezierSegment(start, new ShuttlePath.PadWaypoint(target, start, spread(60f), 0f, true),
                     120f + random.nextFloat() * 80f, getHandle(target, distance), 0f));
 
             Shuttle pod = new Shuttle(hull, null, null, target, target, path, Shuttle.End.NONE, Shuttle.End.PLANET,
@@ -399,14 +396,13 @@ public class ShuttleFlights {
     private ShuttlePath connect(ShuttleAnchor home, ShuttlePath.Waypoint entry, ShuttlePath.Waypoint exit, Vector2f first,
                                 List<ShuttlePath.Segment> segments, float minHandle) {
         Vector2f loc = home.getLocation();
-        float angle = Misc.getAngleInDegrees(loc, first);
         float chord = Misc.getDistance(loc, first);
         float outHandle = Math.max(minHandle, chord * 0.35f);
 
-        ShuttlePath path = new ShuttlePath().add(new ShuttlePath.BezierSegment(new ShuttlePath.PadWaypoint(home, angle + spread(20f), false), entry,
+        ShuttlePath path = new ShuttlePath().add(new ShuttlePath.BezierSegment(new ShuttlePath.PadWaypoint(home, entry, spread(20f), 0f, false), entry,
                 getHandle(home, chord), outHandle, network.getBend(loc, first, 0f, home.entity, null)));
         for (ShuttlePath.Segment segment : segments) path.add(segment);
-        return path.add(new ShuttlePath.BezierSegment(exit, new ShuttlePath.PadWaypoint(home, angle + spread(20f), true), outHandle,
+        return path.add(new ShuttlePath.BezierSegment(exit, new ShuttlePath.PadWaypoint(home, exit, spread(20f), 0f, true), outHandle,
                 getHandle(home, chord), network.getBend(first, loc, 0f, null, home.entity)));
     }
 
@@ -458,6 +454,14 @@ public class ShuttleFlights {
         }
 
         return new ShuttlePath.CircleSegment(entity, offsetX, offsetY, radius, centerAngle + 180f, 360f * side, scaleBump);
+    }
+
+    // a join path starts where the craft is, moving with the frame it flies in
+    private static ShuttlePath.Waypoint startAt(SectorEntityToken frame, Vector2f pos, float heading) {
+        if (frame == null) return new ShuttlePath.FixedWaypoint(pos, Misc.getUnitVectorAtDegreeAngle(heading));
+
+        Vector2f loc = frame.getLocation();
+        return new ShuttlePath.RelativeWaypoint(frame, pos.x - loc.x, pos.y - loc.y, heading);
     }
 
     private boolean canFly(ShuttleAnchor from, ShuttleAnchor to) {

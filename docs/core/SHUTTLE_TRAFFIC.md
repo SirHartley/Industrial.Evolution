@@ -89,11 +89,12 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 
 ### Paths
 
-- Lanes: one cubic Bezier between pads (`0.6 * radius` deep on planets, `0.15 * radius` on stations), evaluated live, so orbiting anchors carry the lane. Launch and landing angles toward the other anchor +-40 degrees; handles `min(radius + 80, chord * 0.45)` along the outward radial. Smugglers launch and land on the far sides and bend twice as wide.
+- Lanes: one cubic Bezier between pads (`0.6 * radius` deep on planets, `0.15 * radius` on stations), evaluated live, so orbiting anchors carry the lane. Pads sit at a fixed offset from the live direction to the other anchor (+-40 degrees, scaled down to +-12 on lanes under 800 su), so the lane turns with orbiting anchors instead of stretching; handles `min(radius + 80, chord * 0.45)` along the outward radial. Smugglers launch and land on the far sides and bend twice as wide.
 - Bend: control points shift along the chord normal by `bendFrac * chord`, `bendFrac` in +-0.125 per route; the two directions of a lane arc on opposite sides. `ShuttleNetwork.getBend` (`:112`) pushes the bend clear of any star (corona or event horizon outer edge, else `1.5 * radius`) or planet (`1.3 * radius + 30`).
 - Patterns (`ShuttleFlights.joyridePath`, `:319`) are chained circles that share an entry point and tangent, centred relative to the anchor: Planet lap (1 or 2 laps at `1.6 * radius` around the nearest other planet within 2000 su, weight 3, falls back to Loops), Loops (2 or 3 circles of 60 to 120 su, alternating side, weight 3), Looping (one 25 to 40 su circle with a 1.3x scale bump, weight 2), Figure eight (two 50 to 80 su circles, weight 2). Pirates and Remnant double Loops and Looping. A Bezier joins the pad to the pattern and back.
 - Linger (`lingerPath`, `:358`): Beziers between points on circles of `wander * (0.66..1.33)` that turn 80 degrees per step, handles `wander`, drifting 40 su per step along a belt band; the count follows the linger days at cruise speed. Wander is 80 su for belts and fields, 60 to 120 su for debris fields, 70 su for wrecks.
-- Jitter up to +-10 su scales with `sin(pi * t)`. Paths that join a craft's current position to a pad or circle use handles up to 150 su. Arc length tables of 16 samples, rebuilt every 1 s; progress is distance based, so fast forward is safe.
+- Jitter up to +-10 su scales with `sin(pi * t)`. Paths that join a craft's current position to a pad or circle use handles up to 150 su. Arc length tables of 16 samples. A craft keeps its progress as a segment and an arc length fraction inside it (`ShuttlePath.Cursor`); the current segment's table is rebuilt every frame and the rest every 1 s, so a rebuild never moves the craft. Progress is distance based, so fast forward is safe.
+- Frames: every waypoint names the entity it moves with (`Waypoint.getFrame`); a craft takes the frame of its current segment and stores its trail and formation history relative to it, so both ride along with orbiting anchors. Paths that start at a craft's position (redirect, flee, away, screen, holds) start in that frame.
 
 ### Formations
 
@@ -133,7 +134,7 @@ Fighters on joyrides and pickets fly as a wing of `wingSize` (at most 3); traini
 
 ### Docking queue
 
-A station pad is busy while a craft is in its last 100 su and 1 s after. A craft that reaches that point while the pad is busy flies a 120 su circle tangent to its heading and checks again after each lap; when free it claims the pad and flies a short Bezier in. Formations and pods skip the queue.
+A station pad is busy while a craft is in its last 100 su and 1 s after. A craft that reaches that point while the pad is busy flies a 120 su circle around the station, tangent to its heading, and checks again after each lap; when free it claims the pad and flies a short Bezier in. Formations and pods skip the queue.
 
 ## Contracts
 
