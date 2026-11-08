@@ -27,9 +27,12 @@ public class RelicBuildInCounterPatch {
             target = @MethodMatch(methodName = "advanceImpl", parameterTypes = float.class),
             call = @MethodMatch(methodName = "setText", parameterTypes = String.class),
             owner = @ClassMatch(subtype = LabelAPI.class))
-    public static void redirectBonusXpText(MethodCallContext context) {
-        if (RelicBuildInPatch.active(context.getSelf()) != null && context.getCallArg(0) instanceof String text && text.endsWith("%")) {
-            context.call("0%");
-        } else context.call();
+    public static void redirectCounterText(MethodCallContext context) {
+        RelicBuildInPatch.Toggle toggle = RelicBuildInPatch.active(context.getSelf());
+
+        if (toggle == null) context.call();
+        else if (toggle.counterValue != null && context.getCallReceiver() == toggle.counterValue) context.call(toggle.getRemaining() + "");
+        else if (context.getCallArg(0) instanceof String text && text.endsWith("%")) context.call("0%");
+        else context.call();
     }
 }
