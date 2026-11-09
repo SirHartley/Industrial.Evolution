@@ -129,7 +129,12 @@ What vanilla has (confirmed):
 Plan:
 
 - 1 to 3 currents in some systems, on curved paths that sweep round the star and past planets, or as loops. Keep clear of markets, stations and jump points (same keep clear rule as 1.4).
-- `CurrentTerrain extends SlipstreamTerrainPlugin2` with IE params: dusty debris look, lower burn than hyperspace streams (Q21). Fuel use does not matter in systems.
+- `CurrentTerrain extends SlipstreamTerrainPlugin2` with IE params and lower burn than hyperspace streams (Q21). Fuel use does not matter in systems.
+- Visuals: much lighter and less obvious than a vanilla slipstream (Philipp, 2026-11-09). A current should be found by reading it, not seen from across the system:
+  - `render` is overridden: none of the vanilla sprite layers, edges or wobble (`SlipstreamTerrainPlugin2.java:1060`). Only sparse, faint dust motes and small grit drifting along the flow at the flow's speed, low alpha, no glow. The moving dust and the drifting wrecks are the tell.
+  - No fleet wind glow (`forceNoWindVisualEffectOnFleets`, `:55`, read at `:2400`) and no "Entering slipstream" text (`enteringSlipstreamTextOverride` set to `""`, skipped when empty, `:2187-2196`).
+  - No loop sounds in the `terrain.json` row, or one very quiet loop.
+  - Map: not drawn by default (Q31).
 - Bend shove: where the path turns sharply, fleets in the outer half get a sideways push outward that grows with their speed, so a fast fleet gets thrown out of the bend unless it hugs the inner edge. Bends are found once from the segment directions and cached.
 - Drifting salvage: a derelict wreck (vanilla `Entities.WRECK`) or a small debris field is put at the head of the current every few days. Vanilla code carries the wrecks; IE moves the debris fields the same way. Both are removed at the end of the current. Riding the current or waiting at its mouth both pay.
 
@@ -202,6 +207,7 @@ Each has a recommended answer.
 28. Ion storms: transponder flicker for the player only (recommended), or a short detected range spike for every fleet instead?
 29. Ion storms: harmless apart from the blocks and flicker (recommended), or a small CR loss per strike?
 30. Fog banks, nanite drift and ion storms share one cloud shape and drift helper, each with its own look and effect (recommended)?
+31. Currents on the map: hidden (recommended, they are found by flying), a faint line once the player has ridden one, or always shown like vanilla streams?
 
 ## 3. Suggested order
 
