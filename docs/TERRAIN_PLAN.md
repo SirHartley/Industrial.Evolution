@@ -115,9 +115,9 @@ Plan:
 
 ### 1.6 Currents (in-system debris rivers)
 
-**Status: proposed (Philipp picked it, 2026-11-09). Not implemented.**
+**Status: proposed (Philipp, 2026-11-09). Not implemented.**
 
-Brief (suggested in the thread, picked by Philipp): narrow debris rivers that move like vanilla slipstreams, boost burn along the flow, shove fleets sideways at the bends, and carry drifting salvage.
+Philipp: "In-system currents: narrow debris rivers that move like vanilla slipstreams. They boost burn along the flow but shove you sideways at the bends. Fast lanes for anyone who reads them, with salvage drifting in them."
 
 What vanilla has (confirmed):
 
@@ -135,9 +135,9 @@ Plan:
 
 ### 1.7 Nanite drift
 
-**Status: proposed (Philipp picked it, 2026-11-09). Not implemented.**
+**Status: proposed (Philipp, 2026-11-09). Not implemented.**
 
-Brief (suggested in the thread, picked by Philipp): grey clouds that slowly repair hull but eat metals and heavy machinery from cargo, tied to the IE Nanites consumable.
+Philipp: "Nanite drift: grey clouds that slowly repair hull but eat metals and heavy machinery from cargo. It ties into the IE Nanites ability."
 
 What IE has (confirmed): the Nanites consumable (`indevo/items/consumables/itemAbilities/NanitesAbilityPlugin.java`) repairs a 25000 hull and armour budget, flagship first, then officer ships, then the rest, and adds 20% CR up to 50%. Armour goes through the obf `FleetMemberStatus` (`:72-74`, [CONSUMABLES](items/CONSUMABLES.md)).
 
@@ -151,9 +151,9 @@ Plan:
 
 ### 1.8 Ion storms
 
-**Status: proposed (Philipp picked it, 2026-11-09). Not implemented.**
+**Status: proposed (Philipp, 2026-11-09). Not implemented.**
 
-Brief (suggested in the thread, picked by Philipp): drifting clouds that switch off abilities while you are inside (Go Dark, Sustained Burn, Sensor Burst), and make the transponder flicker on now and then.
+Philipp: "Ion storms: drifting clouds that switch off abilities while you're inside them (Go Dark, Sustained Burn, Sensor Burst). The transponder also flickers on now and then, so a storm is a bad place to sneak."
 
 What vanilla has (confirmed):
 
