@@ -113,6 +113,61 @@ Plan:
 - Warning: the star brightens and the corona flares for about a day before the ejection while the player is in the system, plus a short campaign message.
 - The front removes itself once it passes the system edge.
 
+### 1.6 Currents (in-system debris rivers)
+
+**Status: proposed (Philipp picked it, 2026-11-09). Not implemented.**
+
+Brief (suggested in the thread, picked by Philipp): narrow debris rivers that move like vanilla slipstreams, boost burn along the flow, shove fleets sideways at the bends, and carry drifting salvage.
+
+What vanilla has (confirmed):
+
+- `SlipstreamTerrainPlugin2` (`impl/campaign/velfield/SlipstreamTerrainPlugin2.java`) is a segment terrain (`addSegment(loc, width)`, `:344`) built along curves by `SlipstreamBuilder` (`buildToDestination`, `velfield/SlipstreamBuilder.java:191-265`).
+- Fleets inside get the stream's burn on top of their own (`:2305-2309`). Wrecks (`Entities.WRECK`) inside are carried too (`applyEffectToEntities`, `:2093-2110`, `applyEffectToWreck`, `:2531`).
+- Its hyperspace only parts are guarded by `entity.isInHyperspace()` (`:669`); sprites and colours are params (`SlipstreamParams2`, `:52-72`). Vanilla only places streams in hyperspace.
+- Inferred, not tested: it works in a star system as is. The first step of this item is a probe that adds one to a system.
+
+Plan:
+
+- 1 to 3 currents in some systems, on curved paths that sweep round the star and past planets, or as loops. Keep clear of markets, stations and jump points (same keep clear rule as 1.4).
+- `CurrentTerrain extends SlipstreamTerrainPlugin2` with IE params: dusty debris look, lower burn than hyperspace streams (Q21). Fuel use does not matter in systems.
+- Bend shove: where the path turns sharply, fleets in the outer half get a sideways push outward that grows with their speed, so a fast fleet gets thrown out of the bend unless it hugs the inner edge. Bends are found once from the segment directions and cached.
+- Drifting salvage: a derelict wreck (vanilla `Entities.WRECK`) or a small debris field is put at the head of the current every few days. Vanilla code carries the wrecks; IE moves the debris fields the same way. Both are removed at the end of the current. Riding the current or waiting at its mouth both pay.
+
+### 1.7 Nanite drift
+
+**Status: proposed (Philipp picked it, 2026-11-09). Not implemented.**
+
+Brief (suggested in the thread, picked by Philipp): grey clouds that slowly repair hull but eat metals and heavy machinery from cargo, tied to the IE Nanites consumable.
+
+What IE has (confirmed): the Nanites consumable (`indevo/items/consumables/itemAbilities/NanitesAbilityPlugin.java`) repairs a 25000 hull and armour budget, flagship first, then officer ships, then the rest, and adds 20% CR up to 50%. Armour goes through the obf `FleetMemberStatus` (`:72-74`, [CONSUMABLES](items/CONSUMABLES.md)).
+
+Plan:
+
+- Grey, glittering clouds 2000 to 5000 across, drifting slowly through the system (shared cloud shape and drift, Q30).
+- Inside: each day, a hull and armour budget per fleet is repaired in the Nanites order. The repair code moves out of `NanitesAbilityPlugin` into a shared helper that both use.
+- Cost: metals from cargo in proportion to the repair done, then heavy machinery once metals run out (Q25). A small flat feed is eaten each day while inside, even with nothing to repair.
+- Nothing left to eat: the nanites start on the hull at the same rate (Q24).
+- Tooltip shows repair per day and cargo eaten per day for the player's fleet.
+
+### 1.8 Ion storms
+
+**Status: proposed (Philipp picked it, 2026-11-09). Not implemented.**
+
+Brief (suggested in the thread, picked by Philipp): drifting clouds that switch off abilities while you are inside (Go Dark, Sustained Burn, Sensor Burst), and make the transponder flicker on now and then.
+
+What vanilla has (confirmed):
+
+- `AbilityPlugin.forceDisable()` makes an ability unusable for 1 to 2 frames (`characters/AbilityPlugin.java:122-125`, `impl/campaign/abilities/BaseAbilityPlugin.java:180-186`). Calling it every frame keeps the ability off; `deactivate()` stops one already running. Vanilla does exactly this while a slipsurge is generated (`GenerateSlipsurgeAbility.java:228-238`).
+- The transponder is `SectorEntityToken.setTransponderOn` (`campaign/SectorEntityToken.java:167`), normally driven by the transponder toggle (`TransponderAbility.java:46-94`).
+- Vanilla magnetic storms cut sensor range to x0.1 (`MagneticFieldTerrainPlugin.java:84`, `:191`). Ion storms do something else, so the two do not overlap.
+
+Plan:
+
+- Storm clouds 3000 to 8000 across with lightning arcs inside, drifting across the system over a few days.
+- Every fleet inside: the blocked abilities (Q27) are deactivated and kept off with `forceDisable` from the terrain's `applyEffect`. Leaving the storm gives them back at once.
+- Transponder flicker, player only: a lightning strike near the player's fleet with the transponder off turns the transponder ability on for 3 to 5 seconds, then off again. Nearby patrols see who it is, so a storm is a bad place to sneak.
+- Strikes are visual and sound only (Q29).
+
 ## 2. Open questions
 
 Each has a recommended answer.
@@ -136,13 +191,27 @@ Each has a recommended answer.
 17. Flares: storm strike damage with planet shadow (recommended), or CR loss only like vanilla flares?
 18. Flares: warning by star flare plus campaign message (recommended), or an intel entry with a countdown?
 19. Settings: one LunaLib toggle and one intensity per terrain (recommended)?
+20. Currents: build on vanilla `SlipstreamTerrainPlugin2` (recommended, it carries wrecks and handles burn already), or an own terrain?
+21. Currents: flow burn. Recommended 10 to 15, below hyperspace streams.
+22. Currents: bends throw a fast fleet out (recommended), or only slow it down?
+23. Currents: drifting salvage as wrecks and small debris fields every few days (recommended), or wrecks only?
+24. Nanites: with nothing left to eat, they eat hull (recommended, it makes the cloud a choice), or they just stop repairing?
+25. Nanites: rate. Recommended 2500 hull and armour per day per fleet (a tenth of the consumable), 1 metals per 50 points, heavy machinery counts as 5 metals.
+26. Nanites: NPC fleets repaired too, with no cargo cost (recommended), or player only?
+27. Ion storms: blocked abilities. Recommended Go Dark, Sustained Burn, Emergency Burn, Sensor Burst and Interdiction Pulse. Not Transverse Jump, so there is always a way out, and not IE consumables.
+28. Ion storms: transponder flicker for the player only (recommended), or a short detected range spike for every fleet instead?
+29. Ion storms: harmless apart from the blocks and flicker (recommended), or a small CR loss per strike?
+30. Fog banks, nanite drift and ion storms share one cloud shape and drift helper, each with its own look and effect (recommended)?
 
 ## 3. Suggested order
 
 1. Meteor drizzle (1.3): smallest, reuses the meteor code; build the no warning movement module with the rogue asteroids (NEW_FEATURES.md 1.3).
-2. Solar flares (1.5): vanilla wavefront and storm strike models to copy.
-3. Black hole maelstroms (1.2): reuses meteors from step 1.
-4. Unstable fabric (1.4): own heightmap, shader and jump handling.
-5. Fog banks (1.1): the grid simulation and shader are the most work; tune against the video.
+2. Ion storms (1.8): ability blocks are a few vanilla calls; builds the shared drifting cloud.
+3. Nanite drift (1.7): reuses the cloud from step 2 and the Nanites repair code.
+4. Solar flares (1.5): vanilla wavefront and storm strike models to copy.
+5. Currents (1.6): starts with the probe that puts a vanilla stream in a system.
+6. Black hole maelstroms (1.2): reuses meteors from step 1.
+7. Unstable fabric (1.4): own heightmap, shader and jump handling.
+8. Fog banks (1.1): the grid simulation and shader are the most work; tune against the video.
 
 Each step: feature doc, ARCHITECTURE.md row, settings, changelog, live test by Philipp.
