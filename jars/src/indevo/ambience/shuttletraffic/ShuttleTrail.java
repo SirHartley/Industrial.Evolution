@@ -6,22 +6,30 @@ import org.lwjgl.util.vector.Vector2f;
 import java.awt.Color;
 
 // trail and history points are stored relative to a virtual frame that moves like the path point under the craft
+// the trail is where the rear was during the last seconds, so its length follows speed; the history is by distance for formation slots
 public class ShuttleTrail {
 
     public static final int TRAIL_POINTS = 16;
-    public static final float TRAIL_SPACING = 8f;
     public static final int HISTORY_POINTS = 16;
     public static final float HISTORY_SPACING = 4f;
+    // one point past the cut so the tail can be cut between two samples
+    private static final int TRAIL_SLOTS = TRAIL_POINTS + 1;
+
+    private final float seconds;
+    private final float interval;
+    private float sincePush = 0f;
 
     private float frameX = 0f;
     private float frameY = 0f;
     private float frameDX = 0f;
     private float frameDY = 0f;
 
-    private final float[] trailX = new float[TRAIL_POINTS];
-    private final float[] trailY = new float[TRAIL_POINTS];
-    private final float[] drawX = new float[TRAIL_POINTS + 1];
-    private final float[] drawY = new float[TRAIL_POINTS + 1];
+    private final float[] trailX = new float[TRAIL_SLOTS];
+    private final float[] trailY = new float[TRAIL_SLOTS];
+    private final float[] trailAge = new float[TRAIL_SLOTS];
+    private final float[] drawX = new float[TRAIL_SLOTS + 1];
+    private final float[] drawY = new float[TRAIL_SLOTS + 1];
+    private final float[] drawAge = new float[TRAIL_SLOTS + 1];
     private int trailHead = 0;
     private int trailCount = 0;
 
@@ -29,6 +37,11 @@ public class ShuttleTrail {
     private final float[] historyY = new float[HISTORY_POINTS];
     private int historyHead = 0;
     private int historyCount = 0;
+
+    public ShuttleTrail(float seconds) {
+        this.seconds = seconds;
+        this.interval = seconds / (TRAIL_POINTS - 1);
+    }
 
     public void shift(float dx, float dy) {
         frameDX = dx;
@@ -45,9 +58,26 @@ public class ShuttleTrail {
         return frameDY;
     }
 
+    public float getSeconds() {
+        return seconds;
+    }
+
     public void clear() {
         trailCount = 0;
         historyCount = 0;
+        sincePush = 0f;
+    }
+
+    // ages every point, only called unpaused, so a paused trail holds still
+    public void advance(float amount) {
+        sincePush += amount;
+        for (int i = 0; i < TRAIL_SLOTS; i++) trailAge[i] += amount;
+
+        while (trailCount >= 2) {
+            int secondOldest = (trailHead - trailCount + 1 + TRAIL_SLOTS) % TRAIL_SLOTS;
+            if (trailAge[secondOldest] < seconds) break;
+            trailCount--;
+        }
     }
 
     public void pushHistoryIfMoved(float x, float y) {
@@ -69,23 +99,20 @@ public class ShuttleTrail {
         historyCount = Math.min(HISTORY_POINTS, historyCount + 1);
     }
 
-    public void pushTrailIfMoved(float x, float y) {
-        if (trailCount == 0) {
-            pushTrail(x, y);
-            return;
-        }
+    public void pushTrailIfDue(float x, float y) {
+        if (trailCount > 0 && sincePush < interval) return;
 
-        int last = (trailHead - 1 + TRAIL_POINTS) % TRAIL_POINTS;
-        float tx = x - (trailX[last] + frameX);
-        float ty = y - (trailY[last] + frameY);
-        if (tx * tx + ty * ty >= TRAIL_SPACING * TRAIL_SPACING) pushTrail(x, y);
+        sincePush = trailCount == 0 ? 0f : Math.min(interval, sincePush - interval);
+        pushTrail(x, y, 0f);
     }
 
-    public void pushTrail(float x, float y) {
+    // oldest first: ages must not grow toward the head
+    public void pushTrail(float x, float y, float age) {
         trailX[trailHead] = x - frameX;
         trailY[trailHead] = y - frameY;
-        trailHead = (trailHead + 1) % TRAIL_POINTS;
-        trailCount = Math.min(TRAIL_POINTS, trailCount + 1);
+        trailAge[trailHead] = age;
+        trailHead = (trailHead + 1) % TRAIL_SLOTS;
+        trailCount = Math.min(TRAIL_SLOTS, trailCount + 1);
     }
 
     // the point distance back along the recorded path from pos, and the direction toward pos there
@@ -120,6 +147,17 @@ public class ShuttleTrail {
         dirOut.set(dirX, dirY);
     }
 
+    public float getLength(float rearX, float rearY) {
+        int count = build(rearX, rearY);
+        float length = 0f;
+        for (int i = 1; i < count; i++) {
+            float dx = drawX[i] - drawX[i - 1];
+            float dy = drawY[i] - drawY[i - 1];
+            length += (float) Math.sqrt(dx * dx + dy * dy);
+        }
+        return length;
+    }
+
     // every render call sits between beginRender and endRender
     public static void beginRender() {
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT);
@@ -131,20 +169,10 @@ public class ShuttleTrail {
         GL11.glPopAttrib();
     }
 
-    public void render(float rearX, float rearY, int maxPoints, float width, Color color, boolean additive, float alphaMult) {
-        int points = Math.min(trailCount, maxPoints);
-        if (points < 1 || alphaMult <= 0.01f) return;
+    public void render(float rearX, float rearY, float width, Color color, boolean additive, float alphaMult) {
+        if (trailCount < 1 || alphaMult <= 0.01f) return;
 
-        drawX[0] = rearX;
-        drawY[0] = rearY;
-        int count = 1;
-        for (int i = 1; i <= points; i++) {
-            int index = (trailHead - i + TRAIL_POINTS) % TRAIL_POINTS;
-            drawX[count] = trailX[index] + frameX;
-            drawY[count] = trailY[index] + frameY;
-            count++;
-        }
-
+        int count = build(rearX, rearY);
         if (count < 2) return;
 
         float r = color.getRed() / 255f;
@@ -168,7 +196,8 @@ public class ShuttleTrail {
                     len = 1f;
                 }
 
-                float fade = 1f - i / (float) (count - 1);
+                // a growing trail still tapers to nothing at its oldest point
+                float fade = i == count - 1 ? 0f : 1f - drawAge[i] / seconds;
                 float half = width * 0.5f * fade;
                 float px = -dy / len * half * side;
                 float py = dx / len * half * side;
@@ -180,5 +209,36 @@ public class ShuttleTrail {
             }
             GL11.glEnd();
         }
+    }
+
+    // the live rear point, then the stored points newest first, the tail cut at exactly seconds
+    private int build(float rearX, float rearY) {
+        drawX[0] = rearX;
+        drawY[0] = rearY;
+        drawAge[0] = 0f;
+        int count = 1;
+
+        for (int i = 1; i <= trailCount; i++) {
+            int index = (trailHead - i + TRAIL_SLOTS) % TRAIL_SLOTS;
+            float x = trailX[index] + frameX;
+            float y = trailY[index] + frameY;
+            float age = trailAge[index];
+
+            if (age >= seconds) {
+                float prevAge = drawAge[count - 1];
+                float t = age - prevAge > 0.0001f ? (seconds - prevAge) / (age - prevAge) : 1f;
+                drawX[count] = drawX[count - 1] + (x - drawX[count - 1]) * t;
+                drawY[count] = drawY[count - 1] + (y - drawY[count - 1]) * t;
+                drawAge[count] = seconds;
+                return count + 1;
+            }
+
+            drawX[count] = x;
+            drawY[count] = y;
+            drawAge[count] = age;
+            count++;
+        }
+
+        return count;
     }
 }

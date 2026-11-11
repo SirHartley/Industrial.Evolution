@@ -96,9 +96,12 @@ public class PathMover {
             trail.pushHistory(tmp.x, tmp.y);
         }
 
-        for (int i = ShuttleTrail.TRAIL_POINTS; i >= 1; i--) {
-            path.getPoint(Math.max(0f, traveled - i * ShuttleTrail.TRAIL_SPACING), tmp);
-            trail.pushTrail(tmp.x, tmp.y);
+        float speed = shuttle.getSpeed(1f) * path.getSpeedMult(cursor);
+        float seconds = trail.getSeconds();
+        for (int i = ShuttleTrail.TRAIL_POINTS - 1; i >= 0; i--) {
+            float age = seconds * i / (ShuttleTrail.TRAIL_POINTS - 1);
+            path.getPoint(Math.max(0f, traveled - speed * age), tmp);
+            trail.pushTrail(tmp.x, tmp.y, age);
         }
     }
 
@@ -151,6 +154,7 @@ public class PathMover {
         if (landLength > 0f && remaining < landLength) ease = Math.min(ease, 0.35f + 0.65f * smooth(remaining / landLength));
 
         float speed = shuttle.getSpeed(ease) * path.getSpeedMult(cursor);
+        shuttle.setThrottle(speed);
         if (path.move(cursor, speed * amount)) {
             shuttle.onPathEnd(traffic);
             if (retry && !shuttle.isDone() && !shuttle.isDown()) advancePath(amount, traffic, false);

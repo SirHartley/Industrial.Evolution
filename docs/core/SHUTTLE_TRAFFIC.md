@@ -34,15 +34,15 @@ Package `indevo/ambience/shuttletraffic/`:
 | `movement/FollowMover.java` | Moves a formation follower on its leader's history |
 | `Shuttle.java` | One craft: state, traits, route, ends, stays, landing and docking look, docking queue, fleeing, stranded hold, picket screening, rendering |
 | `ShuttleState.java` | Craft states (`CRUISE`, `HOLDING`, `FLEEING`, `FLEEING_HOLDING`, `ESCAPING`, `STRANDED`, `SCREENING`, `DOWN`), pace, turn rate and the legal transitions; an illegal one throws |
-| `ShuttleLook.java` | Immutable look per flight: glow, trail alpha, width and length, glow flicker, pod tumble |
+| `ShuttleLook.java` | Immutable look per flight: glow, trail alpha, width and seconds, glow flicker, pod tumble |
 | `ShuttleBudget.java` | Cap split into lanes, local and rare groups: local reserve, scaled lane counts, room per group |
 | `SpeedClass.java` | Speed classes (`CIVIL`, `SERVICE`, `MILITARY`), the mean speed per class for launch intervals, `canReach` |
-| `ShuttleTrail.java` | Trail and formation history ring buffers relative to the virtual frame, trail rendering |
+| `ShuttleTrail.java` | Trail (by time) and formation history (by distance) ring buffers relative to the virtual frame, trail rendering |
 | `ShuttleFleetScan.java` | Pooled entries for fleets near the player and threat fleets in the location, rebuilt every 0.25 s |
 | `ShuttleHull.java` | Hull look (sprite, engine colours, cached per hull id), size, speed, flags, wing size |
 | `ShuttleHullPool.java` | Base pool from the CSV, faction pools, crew rule, rolls per flight kind, escape pod hull |
 | `listeners/EscapePodListener.java` | Transient `BaseCampaignEventListener`: queues fleets destroyed in battle |
-| `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, budget split, state transitions |
+| `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, budget split, state transitions, trail length by time |
 | `data/config/indEvo/shuttle_traffic.csv` | Base civilian craft: `id, hullId, weight, small` |
 
 ## Data and ids
@@ -95,7 +95,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 - Budget (`ShuttleBudget`, `ShuttleBudget.update` after every rebuild and when the setting changes): the network writes each route's demand, the budget sets `route.max`. Local flights reserve `min(local demand, cap / 4)` craft, local demand counting `Kind.craftPerFlight` per flight (pickets and cruises 2, training 3). Lanes get the rest: when lane demand is higher, every lane's demand is scaled by `budget / demand`, at least 1. A group may launch into free room the other reserve does not hold; rare flights fit wherever there is room. Formations and races count each craft; pods are not counted.
 - Warm start fills routes in rounds, one flight per route per round, so the first routes in the map do not take the whole cap.
 - Timer routes (`ShuttleSpawner.spawn`, `:40`): lanes `(distance / mean speed + 6) / max * (0.6..1.4)` s, mean speed from the kind's `SpeedClass` (27 su/s civil), others `Kind.pause * (0.6..1.4)` s. Rare routes roll their chance once per day (`rollRareFlights`, `:33`) and launch when the roll is pending.
-- Warm start fills every timer route to its limit at spread progress, trails and formation history pre-filled.
+- Warm start fills every timer route to its limit at spread progress, trails (by age) and formation history pre-filled.
 - Nothing launches from or to a threatened anchor, or from an anchor threatened in the last day (`BaseFlights.canFly`, `:40`).
 
 ### Hulls
@@ -153,7 +153,7 @@ Fighters on pickets fly as a wing of `wingSize` (at most 3); training groups are
 - Reach rule (`SpeedClass.canReach`): a flight to a target that expires only launches when `distance / speed` fits in the days left. No flight uses it yet.
 - Everything draws in `TERRAIN_7`: above planets, rings, asteroids and stations, below fleets. Planet launch and landing over `1.2 * radius` (at most 40% of the path): scale to 0.5, 30% darker, and the craft fades only while over the surface, from the limb to the pad. Station docking over 60 su: scale to 0.7, alpha to 0. A craft pulled out of a landing (fleeing, holding) fades back over 1 s.
 - Facing follows the path tangent plus the rate of the sideways offset, turning at most 90 degrees per second, never the world step, so orbiting anchors do not swing the sprite or trail.
-- Trail: 16 point ring buffer, a point every 8 su, untextured `GL_QUAD_STRIP` 3 su wide, fading to the tail, engine style colour and blend. Smugglers: 30% trail, no glow. Hunts: 50% trail, heavier glow flicker.
+- Trail by time (`ShuttleTrail`): where the rear was during the last `ShuttleLook.trailSeconds` (craft 1.5 s, pods 0.8 s), so its length is `speed * trailSeconds`: about 36 su for a civil frigate, 112 su for military craft, 13 su while easing off a pad. Points carry an age, one every `trailSeconds / 15` s from a time accumulator (16 points plus one past the cut); points older than `trailSeconds` drop and the tail is cut at exactly `trailSeconds` between the last two points. Ages only advance in `advance`, so a paused trail holds still. Untextured `GL_QUAD_STRIP`, alpha and width fade by age, the oldest point always fades to nothing. Head width `min(3 su, 0.5 * drawn width)`, so it thins as the craft descends; alpha times throttle, `clamp(speed / class cruise speed, 0.4, 1)`. Engine style colour and blend. The warm start fills the trail by age. Smugglers: 30% trail, no glow. Hunts: 50% trail, heavier glow flicker.
 - Engine glow at the rear, flickering (rolled in `advance`, so it holds still while paused), 1.5x for 2 s around launch and landing. No blinking lights.
 - Traffic fades out between view mult 2 and 3 (max campaign zoom is 3). Off viewport craft (300 su margin) are skipped.
 
@@ -179,7 +179,7 @@ A station pad is busy while a craft is in its last 100 su and 1 s after. A craft
 | Item | State |
 |---|---|
 | In game look | Tests (2026-11-08) fixed: rubberbanding, nervous trails, blinking lights, loop joyrides (now cruises), craft vanishing under planets, sprite size, trails out of line with the craft between moving bodies, lanes through the star. Untested in game: star pass, market lanes, blended trail frame, cruises, pod bursts, formation break up |
-| Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split and states, not flights, reactions or rendering. It runs on its own, not in `ReleaseBuild` |
+| Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split, states and trail length, not flights, reactions or rendering. It runs on its own, not in `ReleaseBuild` |
 | Performance | Live smoke `shuttle` group (2026-11-08, before market lanes): 55 craft at Sindria, all of `shuttletraffic` 0.4% of CPU and allocation |
 
 ## Checks
