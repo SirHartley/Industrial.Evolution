@@ -172,7 +172,7 @@ public class Shuttle {
         }
     }
 
-    public void advance(float amount, ShuttleTrafficRenderer renderer) {
+    public void advance(float amount, ShuttleTraffic traffic) {
         if (delay > 0f) {
             delay -= amount;
             return;
@@ -182,7 +182,7 @@ public class Shuttle {
         spin += spinRate * amount;
 
         if (down) {
-            advanceDown(renderer);
+            advanceDown(traffic);
             return;
         }
 
@@ -200,11 +200,11 @@ public class Shuttle {
             path.refresh(cursor);
         }
 
-        advancePath(amount, renderer, true);
+        advancePath(amount, traffic, true);
     }
 
     // retry runs the same frame on a path that just replaced the old one, so the craft never stalls a frame
-    private void advancePath(float amount, ShuttleTrafficRenderer renderer, boolean retry) {
+    private void advancePath(float amount, ShuttleTraffic traffic, boolean retry) {
         float total = path.getLength();
         traveled = path.getTraveled(cursor);
         float launchLength = getEndLength(launchEnd, from, total);
@@ -213,16 +213,16 @@ public class Shuttle {
         boolean docking = landEnd == End.STATION && to != null && remaining <= landLength + DOCK_CHECK_DISTANCE;
 
         if (docking && queues && !cleared) {
-            if (to.isPadBusy(renderer.getTime())) {
-                startHolding(renderer);
-                if (retry) advancePath(amount, renderer, false);
+            if (to.isPadBusy(traffic.getTime())) {
+                startHolding(traffic);
+                if (retry) advancePath(amount, traffic, false);
                 return;
             }
 
             cleared = true;
         }
 
-        if (docking) to.padBusyUntil = renderer.getTime() + 1f;
+        if (docking) to.padBusyUntil = traffic.getTime() + 1f;
 
         float ease = 1f;
         if (launchLength > 0f && traveled < launchLength) ease = Math.min(ease, 0.35f + 0.65f * smooth(traveled / launchLength));
@@ -231,25 +231,25 @@ public class Shuttle {
         float speed = hull.getCruiseSpeed() * speedMult * pace * ease;
         if (boostTime > 0f && age < boostTime) speed += boost * (1f - age / boostTime);
         if (path.move(cursor, speed * amount)) {
-            onPathEnd(renderer);
-            if (retry && !done && !down) advancePath(amount, renderer, false);
+            onPathEnd(traffic);
+            if (retry && !done && !down) advancePath(amount, traffic, false);
             return;
         }
 
         traveled = path.getTraveled(cursor);
 
-        updatePosition(amount, renderer, total, launchLength, landLength, speed);
+        updatePosition(amount, traffic, total, launchLength, landLength, speed);
     }
 
-    public void redirect(ShuttleAnchor newTarget, ShuttleTrafficRenderer renderer) {
+    public void redirect(ShuttleAnchor newTarget, ShuttleTraffic traffic) {
         to = newTarget;
         cleared = false;
         holding = false;
-        setPath(renderer.getFlights().redirectPath(frame, pos, facing, newTarget), End.NONE, ShuttleTrafficRenderer.getEnd(newTarget));
+        setPath(traffic.getFlights().redirectPath(frame, pos, facing, newTarget), End.NONE, newTarget.getEnd());
     }
 
-    public void flee(ShuttleAnchor refuge, float threatX, float threatY, ShuttleTrafficRenderer renderer) {
-        Random random = renderer.getRandom();
+    public void flee(ShuttleAnchor refuge, float threatX, float threatY, ShuttleTraffic traffic) {
+        Random random = traffic.getRandom();
         leader = null;
         followers.clear();
         setFleeing(true);
@@ -267,16 +267,16 @@ public class Shuttle {
         if (refuge != null) {
             to = refuge;
             waitForSafeHome = home != null && refuge != home;
-            setPath(renderer.getFlights().fleePath(frame, pos, heading, refuge, panic), End.NONE, ShuttleTrafficRenderer.getEnd(refuge));
+            setPath(traffic.getFlights().fleePath(frame, pos, heading, refuge, panic), End.NONE, refuge.getEnd());
             return;
         }
 
         stranded = true;
-        lastThreatNearDay = renderer.getDays();
-        setPath(renderer.getFlights().awayPath(frame, pos, heading, threatX, threatY, panic), End.NONE, End.NONE);
+        lastThreatNearDay = traffic.getDays();
+        setPath(traffic.getFlights().awayPath(frame, pos, heading, threatX, threatY, panic), End.NONE, End.NONE);
     }
 
-    public void screen(float threatX, float threatY, ShuttleTrafficRenderer renderer) {
+    public void screen(float threatX, float threatY, ShuttleTraffic traffic) {
         screenX = threatX;
         screenY = threatY;
         if (screening) return;
@@ -285,7 +285,7 @@ public class Shuttle {
         holding = false;
         cleared = false;
         pace = CALM_PACE;
-        setPath(renderer.getFlights().screenPath(frame, pos, facing, home, threatX, threatY), End.NONE, End.NONE);
+        setPath(traffic.getFlights().screenPath(frame, pos, facing, home, threatX, threatY), End.NONE, End.NONE);
     }
 
     public boolean isDown() {
@@ -308,33 +308,33 @@ public class Shuttle {
         return delay > 0f;
     }
 
-    private void onPathEnd(ShuttleTrafficRenderer renderer) {
+    private void onPathEnd(ShuttleTraffic traffic) {
         if (holding) {
-            finishHoldingLap(renderer);
+            finishHoldingLap(traffic);
             return;
         }
 
         if (screening) {
-            continueScreening(renderer);
+            continueScreening(traffic);
             return;
         }
 
         if (stranded) {
-            continueStranded(renderer);
+            continueStranded(traffic);
             return;
         }
 
         if (to != null && home != null && to != home && landEnd != End.NONE && (stayDays > 0f || waitForSafeHome)) {
             down = true;
-            resumeDay = renderer.getDays() + stayDays;
+            resumeDay = traffic.getDays() + stayDays;
             return;
         }
 
         done = true;
     }
 
-    private void advanceDown(ShuttleTrafficRenderer renderer) {
-        float days = renderer.getDays();
+    private void advanceDown(ShuttleTraffic traffic) {
+        float days = traffic.getDays();
         if (!exists(home) || to == null || !to.entity.isAlive()) {
             done = true;
             return;
@@ -353,8 +353,8 @@ public class Shuttle {
         facingSet = false;
         trailCount = 0;
         historyCount = 0;
-        setPath(renderer.getFlights().lanePath(start, home, (renderer.getRandom().nextFloat() - 0.5f) * 0.5f, false),
-                ShuttleTrafficRenderer.getEnd(start), ShuttleTrafficRenderer.getEnd(home));
+        setPath(traffic.getFlights().lanePath(start, home, (traffic.getRandom().nextFloat() - 0.5f) * 0.5f, false),
+                start.getEnd(), home.getEnd());
     }
 
     private void advanceFollower(float amount) {
@@ -388,27 +388,27 @@ public class Shuttle {
         pushTrailAtRear();
     }
 
-    private void finishHoldingLap(ShuttleTrafficRenderer renderer) {
-        if (to == null || !to.isUsable(renderer.getLocation())) {
+    private void finishHoldingLap(ShuttleTraffic traffic) {
+        if (to == null || !to.isUsable(traffic.getLocation())) {
             done = true;
             return;
         }
 
-        if (to.isPadBusy(renderer.getTime())) {
+        if (to.isPadBusy(traffic.getTime())) {
             cursor.reset();
             traveled = 0f;
             return;
         }
 
-        to.padBusyUntil = renderer.getTime() + 1f;
-        redirect(to, renderer);
+        to.padBusyUntil = traffic.getTime() + 1f;
+        redirect(to, traffic);
         cleared = true;
     }
 
-    private void continueScreening(ShuttleTrafficRenderer renderer) {
-        LocationAPI location = renderer.getLocation();
+    private void continueScreening(ShuttleTraffic traffic) {
+        LocationAPI location = traffic.getLocation();
         if (home != null && home.isUsable(location) && home.threatened && !home.overrun) {
-            setPath(renderer.getFlights().screenPath(frame, pos, facing, home, screenX, screenY), End.NONE, End.NONE);
+            setPath(traffic.getFlights().screenPath(frame, pos, facing, home, screenX, screenY), End.NONE, End.NONE);
             return;
         }
 
@@ -419,10 +419,10 @@ public class Shuttle {
             return;
         }
 
-        redirect(home, renderer);
+        redirect(home, traffic);
     }
 
-    private void continueStranded(ShuttleTrafficRenderer renderer) {
+    private void continueStranded(ShuttleTraffic traffic) {
         setFleeing(false);
         pace = CALM_PACE;
 
@@ -431,20 +431,20 @@ public class Shuttle {
             return;
         }
 
-        float days = renderer.getDays();
-        if (home.isUsable(renderer.getLocation()) && home.isSafe(days) && days - lastThreatNearDay >= 1f) {
+        float days = traffic.getDays();
+        if (home.isUsable(traffic.getLocation()) && home.isSafe(days) && days - lastThreatNearDay >= 1f) {
             stranded = false;
             pace = 1f;
-            redirect(home, renderer);
+            redirect(home, traffic);
             return;
         }
 
-        setPath(renderer.getFlights().holdPath(frame, pos, facing, STRANDED_HOLD_RADIUS), End.NONE, End.NONE);
+        setPath(traffic.getFlights().holdPath(frame, pos, facing, STRANDED_HOLD_RADIUS), End.NONE, End.NONE);
     }
 
-    private void startHolding(ShuttleTrafficRenderer renderer) {
+    private void startHolding(ShuttleTraffic traffic) {
         holding = true;
-        setPath(renderer.getFlights().holdPath(to.entity, pos, facing, ShuttleAnchor.HOLD_RADIUS), End.NONE, End.NONE);
+        setPath(traffic.getFlights().holdPath(to.entity, pos, facing, ShuttleAnchor.HOLD_RADIUS), End.NONE, End.NONE);
     }
 
     private void setPath(ShuttlePath newPath, End newLaunch, End newLand) {
@@ -482,15 +482,15 @@ public class Shuttle {
         }
     }
 
-    private void updatePosition(float amount, ShuttleTrafficRenderer renderer, float total, float launchLength, float landLength, float speed) {
+    private void updatePosition(float amount, ShuttleTraffic traffic, float total, float launchLength, float landLength, float speed) {
         path.getPoint(cursor, base);
         path.getTangent(cursor, tangent);
 
         float fraction = total > 0f ? traveled / total : 1f;
         float envelope = (float) Math.sin(Math.PI * fraction);
         float avoidEnvelope = Math.max(0f, Math.min(1f, Math.min(fraction, 1f - fraction) / 0.15f));
-        float avoid = avoids ? getAvoidanceTarget(renderer.getFleetScan()) : 0f;
-        if (avoid != 0f && !followers.isEmpty()) disperse(renderer.getRandom());
+        float avoid = avoids ? getAvoidanceTarget(traffic.getFleetScan()) : 0f;
+        if (avoid != 0f && !followers.isEmpty()) disperse(traffic.getRandom());
         float target = (avoid + sideBias) * avoidEnvelope;
 
         float step = AVOID_EASE * amount;

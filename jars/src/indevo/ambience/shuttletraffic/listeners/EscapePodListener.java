@@ -1,21 +1,22 @@
-package indevo.ambience.shuttletraffic;
+package indevo.ambience.shuttletraffic.listeners;
 
 import com.fs.starfarer.api.campaign.BaseCampaignEventListener;
 import com.fs.starfarer.api.campaign.CampaignEventListener.FleetDespawnReason;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import indevo.ambience.shuttletraffic.ShuttleTraffic;
 
 public class EscapePodListener extends BaseCampaignEventListener {
 
-    private final ShuttleTrafficRenderer renderer;
+    private final ShuttleTraffic traffic;
 
-    public EscapePodListener(ShuttleTrafficRenderer renderer) {
+    public EscapePodListener(ShuttleTraffic traffic) {
         super(false);
-        this.renderer = renderer;
+        this.traffic = traffic;
     }
 
     @Override
     public void reportFleetDespawned(CampaignFleetAPI fleet, FleetDespawnReason reason, Object param) {
         if (reason != FleetDespawnReason.DESTROYED_BY_BATTLE || fleet == null || fleet.isPlayerFleet()) return;
-        renderer.queuePods(fleet);
+        traffic.queuePods(fleet);
     }
 }

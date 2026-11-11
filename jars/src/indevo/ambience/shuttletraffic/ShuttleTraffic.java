@@ -1,35 +1,24 @@
 package indevo.ambience.shuttletraffic;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
-import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
-import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
+public class ShuttleTraffic {
 
-    // one layer above planets, rings and stations, below fleets
-    private static final EnumSet<CampaignEngineLayers> LAYERS = EnumSet.of(CampaignEngineLayers.TERRAIN_7);
     private static final float SCAN_INTERVAL = 0.25f;
-    private static final float FADE_ZOOM_START = 2f;
-    private static final float FADE_ZOOM_END = 3f;
-    private static final float VIEWPORT_MARGIN = 300f;
     private static final float ANCHOR_THREAT_RANGE = 600f;
     private static final float CRAFT_THREAT_RANGE = 400f;
     private static final float STRANDED_CLEAR_RANGE = 800f;
@@ -38,17 +27,13 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
     private static final int MAX_PODS_PER_FLEET = 16;
     private static final int EMPTY_SNAPSHOT_PODS = 3;
 
-    private record PodEvent(LocationAPI location, Vector2f point, PlanetAPI planet, int count) {
-    }
-
     private final ShuttleNetwork network = new ShuttleNetwork();
     private final Random random = new Random();
+    private final ShuttleFleetScan fleetScan = new ShuttleFleetScan();
     private final ShuttleFlights flights = new ShuttleFlights(this, network, random);
     private final List<Shuttle> shuttles = new ArrayList<>();
     private final List<Shuttle> pods = new ArrayList<>();
     private final List<PodEvent> podQueue = new ArrayList<>();
-    private final ShuttleFleetScan fleetScan = new ShuttleFleetScan();
-    private final SpriteAPI glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
 
     private LocationAPI location;
     private float time = 0f;
@@ -56,36 +41,11 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
     private float daysSinceRebuild = 0f;
     private float scanTimer = 0f;
 
-    public static void register() {
-        if (LunaCampaignRenderer.hasRendererOfClass(ShuttleTrafficRenderer.class)) return;
-
-        ShuttleHullPool.reset();
-        ShuttleTrafficRenderer renderer = new ShuttleTrafficRenderer();
-        LunaCampaignRenderer.addTransientRenderer(renderer);
-        Global.getSector().addTransientListener(new EscapePodListener(renderer));
+    private record PodEvent(LocationAPI location, Vector2f point, PlanetAPI planet, int count) {
     }
 
-    public static Shuttle.End getEnd(ShuttleAnchor anchor) {
-        return anchor.type == ShuttleAnchor.Type.PLANET ? Shuttle.End.PLANET : Shuttle.End.STATION;
-    }
-
-    @Override
-    public boolean isExpired() {
-        return false;
-    }
-
-    @Override
-    public EnumSet<CampaignEngineLayers> getActiveLayers() {
-        return LAYERS;
-    }
-
-    @Override
-    public void advance(float amount) {
-        if (Global.getSector().isPaused()) return;
-
-        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+    public void advance(float amount, CampaignFleetAPI player, int cap) {
         LocationAPI current = player != null ? player.getContainingLocation() : null;
-        int cap = Setting.SHUTTLE_TRAFFIC.intValue();
 
         if (cap <= 0 || current == null || current.isHyperspace()) {
             if (location != null) clear();
@@ -127,20 +87,6 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
         advance(pods, amount);
     }
 
-    @Override
-    public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
-        if (location == null || location != Global.getSector().getCurrentLocation()) return;
-        if (shuttles.isEmpty() && pods.isEmpty()) return;
-
-        float zoom = viewport.getViewMult();
-        float fade = Math.max(0f, Math.min(1f, (zoom - FADE_ZOOM_START) / (FADE_ZOOM_END - FADE_ZOOM_START)));
-        float alphaMult = viewport.getAlphaMult() * (1f - fade);
-        if (alphaMult <= 0.01f) return;
-
-        render(shuttles, viewport, alphaMult);
-        render(pods, viewport, alphaMult);
-    }
-
     public void queuePods(CampaignFleetAPI fleet) {
         if (Setting.SHUTTLE_TRAFFIC.intValue() <= 0) return;
 
@@ -177,6 +123,14 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
 
     public Random getRandom() {
         return random;
+    }
+
+    public List<Shuttle> getShuttles() {
+        return shuttles;
+    }
+
+    public List<Shuttle> getPods() {
+        return pods;
     }
 
     private void clear() {
@@ -340,13 +294,6 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
 
             if (shuttle.route != null) shuttle.route.active--;
             iterator.remove();
-        }
-    }
-
-    private void render(List<Shuttle> list, ViewportAPI viewport, float alphaMult) {
-        for (Shuttle shuttle : list) {
-            if (!viewport.isNearViewport(shuttle.pos, VIEWPORT_MARGIN)) continue;
-            shuttle.render(alphaMult, glow);
         }
     }
 

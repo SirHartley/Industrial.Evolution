@@ -2,9 +2,8 @@ package iecheck;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
-import indevo.ambience.shuttletraffic.ShuttleTrafficRenderer;
+import indevo.ambience.shuttletraffic.renderers.ShuttleTrafficRenderer;
 import indevo.config.Setting;
-import indevo.utils.helper.ReflectionUtils;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ public final class ShuttleChecks {
     private static int count() {
         Object renderer = LunaCampaignRenderer.getRendererOfClass(ShuttleTrafficRenderer.class);
         if (renderer == null) return -1;
-        return ((List<?>) ReflectionUtils.get("shuttles", renderer)).size();
+        return ((ShuttleTrafficRenderer) renderer).getTraffic().getShuttles().size();
     }
 
     private static void timed(Ctx c, int frames, String key) {

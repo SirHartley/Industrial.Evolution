@@ -41,12 +41,12 @@ public class ShuttleFlights {
     private static final float MAINTENANCE_RADIUS = 100f;
     private static final float JOIN_HANDLE = 150f;
 
-    private final ShuttleTrafficRenderer renderer;
+    private final ShuttleTraffic traffic;
     private final ShuttleNetwork network;
     private final Random random;
 
-    public ShuttleFlights(ShuttleTrafficRenderer renderer, ShuttleNetwork network, Random random) {
-        this.renderer = renderer;
+    public ShuttleFlights(ShuttleTraffic traffic, ShuttleNetwork network, Random random) {
+        this.traffic = traffic;
         this.network = network;
         this.random = random;
     }
@@ -482,7 +482,7 @@ public class ShuttleFlights {
 
     private Shuttle create(ShuttleHull hull, ShuttleRoute route, FactionAPI faction, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath path, float speedMult,
                            float jitter) {
-        return new Shuttle(hull, route, faction, from, to, path, ShuttleTrafficRenderer.getEnd(from), ShuttleTrafficRenderer.getEnd(to),
+        return new Shuttle(hull, route, faction, from, to, path, from.getEnd(), to.getEnd(),
                 speedMult * (0.85f + 0.3f * random.nextFloat()), spread(jitter), random.nextFloat());
     }
 
@@ -511,8 +511,8 @@ public class ShuttleFlights {
     }
 
     private boolean canFly(ShuttleAnchor from, ShuttleAnchor to) {
-        float days = renderer.getDays();
-        return from.isUsable(renderer.getLocation()) && to.isUsable(renderer.getLocation()) && !from.threatened && !to.threatened
+        float days = traffic.getDays();
+        return from.isUsable(traffic.getLocation()) && to.isUsable(traffic.getLocation()) && !from.threatened && !to.threatened
                 && (from.role == ShuttleAnchor.Role.REMNANT || from.isSafe(days));
     }
 
