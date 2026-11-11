@@ -11,6 +11,7 @@ public class ShuttleRoute {
         PIRATE_CARGO(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.CIVIL),
         MARKET(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.CIVIL),
         SMUGGLER(ShuttleBudget.Group.RARE, 1, 0f, SpeedClass.CIVIL),
+        DARK(ShuttleBudget.Group.RARE, 1, 0f, SpeedClass.CIVIL),
         DIPLOMAT(ShuttleBudget.Group.RARE, 1, 0f, SpeedClass.CIVIL),
         HUNT(ShuttleBudget.Group.RARE, 1, 0f, SpeedClass.CIVIL),
         MAINTENANCE(ShuttleBudget.Group.RARE, 1, 0f, SpeedClass.CIVIL),

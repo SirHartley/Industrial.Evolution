@@ -52,6 +52,29 @@ public class LaneFlights extends BaseFlights {
                 smuggler ? ShuttleLook.SMUGGLER : ShuttleLook.CRAFT, Shuttle.CIVIL);
     }
 
+    // a hidden base and its partner either way, or a Pather cell craft to a random other planet; small craft, smuggler look
+    public Shuttle launchDark(ShuttleRoute route) {
+        ShuttleAnchor from = route.a;
+        ShuttleAnchor to = route.b;
+        if (to == null) {
+            PlanetAPI planet = network.pickPlanet(from.entity, random);
+            if (planet == null) return null;
+            to = new ShuttleAnchor(planet, ShuttleAnchor.Type.PLANET, ShuttleAnchor.Role.TARGET, planet.getMarket(), null);
+        } else if (random.nextBoolean()) {
+            to = route.a;
+            from = route.b;
+        }
+
+        if (!canFly(from, to)) return null;
+
+        FactionAPI faction = route.a.faction;
+        ShuttleHull hull = ShuttleHullPool.rollSmall(faction, random);
+        if (hull == null) return null;
+
+        return create(hull, route, faction, from, to, paths.lanePath(from, to, route.bendFrac * 2f, true), SpeedClass.CIVIL, 1f, LANE_JITTER,
+                ShuttleLook.SMUGGLER, Shuttle.CIVIL);
+    }
+
     public Shuttle launchDiplomat(ShuttleRoute route) {
         ShuttleAnchor from = route.a;
         WeightedRandomPicker<ShuttleAnchor> picker = new WeightedRandomPicker<>(random);
