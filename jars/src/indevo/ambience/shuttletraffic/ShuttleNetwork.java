@@ -177,7 +177,7 @@ public class ShuttleNetwork {
         WeightedRandomPicker<PlanetAPI> picker = new WeightedRandomPicker<>(random);
         for (Body body : bodies) {
             if (!(body.entity instanceof PlanetAPI planet) || planet.isStar() || planet == from) continue;
-            picker.add(planet, hasRuins(planet.getMarket()) ? 3f : 1f);
+            picker.add(planet, getHuntWeight(planet.getMarket()));
         }
 
         return picker.isEmpty() ? null : picker.pick();
@@ -462,10 +462,15 @@ public class ShuttleNetwork {
         return route;
     }
 
+    // raider and Luddic Path bases stay hidden for life, they count once the player has found them
     private static boolean hasTraffic(MarketAPI market, LocationAPI location) {
         SectorEntityToken primary = market.getPrimaryEntity();
-        return primary != null && primary.getContainingLocation() == location && market.isInEconomy() && !market.isHidden()
-                && market.hasSpaceport() && !primary.isDiscoverable();
+        if (primary == null || primary.getContainingLocation() != location || !market.isInEconomy() || !market.hasSpaceport() || primary.isDiscoverable()) {
+            return false;
+        }
+
+        String faction = market.getFactionId();
+        return !market.isHidden() || Factions.PIRATES.equals(faction) || Factions.LUDDIC_PATH.equals(faction);
     }
 
     private static boolean isPortDisrupted(MarketAPI market) {
@@ -486,9 +491,13 @@ public class ShuttleNetwork {
         return mult;
     }
 
-    private static boolean hasRuins(MarketAPI market) {
-        return market != null && (market.hasCondition(Conditions.RUINS_SCATTERED) || market.hasCondition(Conditions.RUINS_WIDESPREAD)
-                || market.hasCondition(Conditions.RUINS_EXTENSIVE) || market.hasCondition(Conditions.RUINS_VAST));
+    private static float getHuntWeight(MarketAPI market) {
+        if (market == null) return 1f;
+        if (market.hasCondition(Ids.COND_RUINS)) return 5f;
+
+        boolean ruins = market.hasCondition(Conditions.RUINS_SCATTERED) || market.hasCondition(Conditions.RUINS_WIDESPREAD)
+                || market.hasCondition(Conditions.RUINS_EXTENSIVE) || market.hasCondition(Conditions.RUINS_VAST);
+        return ruins ? 3f : 1f;
     }
 
     public static boolean isPirate(FactionAPI faction) {

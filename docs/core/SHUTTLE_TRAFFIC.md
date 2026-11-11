@@ -72,7 +72,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 
 `ShuttleNetwork.rebuild` (`:68`) on location change and once per day.
 
-- A market counts if its primary entity is in the location, `isInEconomy()`, not `isHidden()`, `hasSpaceport()` and not `isDiscoverable()` (`:422`). A primary entity tagged `Tags.STATION` is a station anchor, otherwise a planet anchor.
+- A market counts if its primary entity is in the location, `isInEconomy()`, `hasSpaceport()`, not `isDiscoverable()`, and not `isHidden()` unless it is a `Factions.PIRATES` or `Factions.LUDDIC_PATH` base (`hasTraffic`). Vanilla raider and Luddic Path bases stay hidden for life and start discoverable; `DiscoverEntityPluginImpl.discoverEntity` sets discoverable to null once the player finds them (knowledge skill `api/impl/campaign/DiscoverEntityPluginImpl.java:39`), so a found base gets traffic and an unfound one has none. A primary entity tagged `Tags.STATION` is a station anchor, otherwise a planet anchor.
 - Density (`:434`): Megaport x1.5, Commerce x1.25, stability `clamp(0.5 + stability / 20, 0.5, 1)`, x0.5 while `MemFlags.RECENTLY_RAIDED` or `RECENTLY_BOMBARDED`. A disrupted Spaceport or Megaport closes the market anchor and its stations (`:428`).
 - Anchors and routes not seen in a rebuild are dropped. Routes keep their key `kind|anchor id|destination id`, bend, timer and counts across rebuilds.
 
@@ -82,7 +82,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 | `PIRATE_CARGO` | Pirate owned market to each `DECIV` anchor | 1 | 1.0 |
 | `SMUGGLER` | Market pair with hostile factions, neither pirate | 1, 1% per day | 1.0 |
 | `DIPLOMAT` | Market with an Embassy to another faction's market, picked per flight | 1, 5% per day | 1.0 |
-| `HUNT` | `DECIV` anchor to another non star planet (ruins weight 3, else 1), stays down 2 to 5 days, flies home | 1, 3% per day | 1.0 |
+| `HUNT` | `DECIV` anchor to another non star planet (IE ruins `IndEvo_RuinsCondition` weight 5, vanilla ruins 3, else 1), stays down 2 to 5 days, flies home | 1, 3% per day | 1.0 |
 | `MAINTENANCE` | Nearest same faction market to each comm relay, nav buoy or sensor array; one lap at 100 su | 1, 2% per day | 1.0 |
 | `MARKET` | Market pair, factions not hostile, neither pirate | `max(2, round(chord / 500 * mean density * (sizeA + sizeB) / 10))`: about one craft per 500 su of lane for two size 5 markets | 0.9 |
 | `MINING` | Market with Mining to the nearest asteroid belt, ring or asteroid field; lingers 1 to 3 days | `max(1, round((1 + size / 4) * density))` | 0.8 |
