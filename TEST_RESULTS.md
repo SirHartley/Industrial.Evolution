@@ -1,4 +1,4 @@
-# starsector-native-smoke 2.0.0 on Windows
+# starsector-native-smoke 2.0.0 on Windows (fixed in 2.0.1)
 
 Machine: DESKTOP-EDL72JL, Windows 10 Pro 19045, Git Bash, 16 threads. Game: `E:\Games\Starsector 0.98\Starsector 098a-RC8 - Modding` (0.98a-RC8, jre 17.0.10). JDK: corretto 17.0.12. Skill: worktree `C:\Modding\smoke-skill-test`, branch `smoke-skill-test`, bumped to 2.0.1 with the first fix. P = `C:\Modding\smoketest-p` (id `smoketest`, no jars). Runs went through the Bash tool of the Claude desktop app (Code tab).
 
@@ -28,12 +28,19 @@ Machine: DESKTOP-EDL72JL, Windows 10 Pro 19045, Git Bash, 16 threads. Game: `E:\
 | T18 | PASS | `run-native-smoke.ps1` without a slot: `NO_SLOT: ...` naming `smoke.sh probe` and the `smoke-slot.sh run OWNER -- powershell ...` wrapper, exit 1, no output folder, no game | |
 | T19 | PASS | `smoke.sh probe IE native-smoke/IndEvoNativeSmoke.java` with `SMOKE_MOD_JAR` from IE's compile gate: slot 1 taken, output `work_root/indevo/probe-20261112-000313-slot1`, deps lunalib, lw_lazylib, MagicLib, shaderLib found by id, `NATIVE_SMOKE COMPLETE` with 3 ok, `boot.png` shows the IE tooltip and the Simulation Engine icon, slot freed. With `SMOKE_PATCHLIB=0` (as IE's own `native-smoke/run.ps1` sets) the runner refuses: IE depends on PatchLib now | |
 | T19b | PASS | Installed `starsector-combat-smoke` (it calls the installed native runner, 2.0.0). Bare `run-combat-smoke.ps1`: `NO_SLOT`, exit 1. Through `smoke-slot.sh run smoketest.combat -- powershell ...` with a vanilla probe (wolf firing): `NATIVE_SMOKE COMPLETE`, `wolf.png` shows the ship and its shot, slot freed | |
+| T20 | PASS | IE's `native-smoke/live/run.sh arcmath` with `SMOKE_SKILL` set to this copy: found `scripts/live/gamectl.exe`, `launch-game.sh` took the space separated `-Die.check=arcmath -XX:StartFlightRecording=...` (group ran, profile written), slot 1 taken as `ie.live` and freed. `COMPLETE: 1 ok, 0 failed, 76 s` | |
+| T21 | PASS | `smoke.sh init IE`: `CHECK_DIR="$PROJECT/native-smoke/live"`, nothing copied, compile gate hint printed. `project.sh` set to stage the gate's jar (`stage_mod`), `DEPS=(lw_lazylib MagicLib lunalib shaderLib patchlib lw_console)` as run.sh links them, and `java_args` passing `-Die.check=$GROUP` on the check launch only. Left untracked in the IE checkout, not committed to dev. Init now names a group of the old check mod (it said `example`) and says the property may differ | `55623250` |
+| T22 | PASS after fixes | First run stopped with `STALE_JAR` on `LunaLib/jars/libs/fuzzywuzzy-1.3.0.jar` (an installed release, see Fixes 5). IE's check mod reads `-Die.check`, the runner passes `-Dlive.check`, and `java_args` also ran for the base save game (Fixes 4). After the fixes: `arcmath` `COMPLETE: 1 ok, 166 s` with a new base save (mods `lw_lazylib,MagicLib,lunalib,shaderLib,patchlib,lw_console,IndEvo,ie_live_checks`), `shipyard` `COMPLETE: 5 ok, 83 s` with `check-shipyard.png` (the Automated Shipyard dialog). No `COUNT_MISMATCH` | `55623250`, `21380ca8` |
+| T23 | PASS | `live-check-combat` copied over P's check mod, `Timers.CodeUnderTest` aimed at vanilla `GenericCombatPlugin`, `DEPS=(patchlib)`: `battle` `COMPLETE: 4 ok, 0 failed, 259 s` (with a new base save), `LIVE_CHECK COMPLETE passed=4 failed=0`, PERF lines (ON 24574 us, OFF 23946 us work per frame, 144 ships, shared machine, not a timing result), `check-battle-on.png` shows the battle | |
 
 ## Fixes
 
 1. `8a14bf8a` store real work folder path under msix redirection. The Claude desktop app is an MSIX package: `%LOCALAPPDATA%\starsector-smoke` written from inside it lands in `%LOCALAPPDATA%\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Local\starsector-smoke`. Bash resolves junctions itself and sees through, but a junction whose target is the redirected path does not resolve for Java or cmd (`File Not Found`), so the game found no mods. `lib.sh` gets `smoke_real_dir` (finds the package path with a marker file), setup stores the real `work_root` and tests a junction in it through cmd (FAIL with `--work` fix when it does not resolve). Docs: `0fdff704`.
 2. `1a991743` stop when the game loads no mods. The runner went on after 120 s without `LIVE_CHECK application loaded`, made a base save without the mods and waited out the 600 s limit. Now `MODS_NOT_LOADED` (log says no mods) or `CHECK_MOD_NOT_LOADED` (with `not-loaded.png`), both in the stops table.
 3. `abad49ce` print stopped and exit 4 on stop signal. `smoke.sh stop` sends TERM to the runner, whose trap exited 143 silently.
+4. `55623250` tell java_args base save from check run. `java_args` ran for both launches, so a project could not pass an older check mod's group property (IE: `-Die.check`) without starting the checks inside the base save's new game. The runner sets `LAUNCH=base` or `LAUNCH=checks` before each launch; template `project.sh` and setup.md say so. Init on an old layout names one of its groups instead of `example` and points at `java_args`.
+5. `21380ca8` skip stale jar check for installed releases. A plain folder in `GAME/mods` is only checked for missing jars; linked checkouts (IE, Catch.Release here) are still compared against their sources.
+6. `a27c0c90` update windows platform cells from test run (not a bug fix: the Windows cells of the Platforms table now say what ran).
 
 ## Notes
 
@@ -46,5 +53,16 @@ Machine: DESKTOP-EDL72JL, Windows 10 Pro 19045, Git Bash, 16 threads. Game: `E:\
 ## Open items
 
 - The lock folder (`%LOCALAPPDATA%\starsector-smoke`) is redirected the same way: a Claude Code CLI in a normal terminal sees another, empty lock folder and would not see the desktop app's slots. Not changed; every session on this PC runs in the desktop app.
+- IE's own `native-smoke/run.ps1` sets `SMOKE_PATCHLIB=0`, which the probe runner now refuses because IE depends on PatchLib. IE side, not changed.
+- After a held or kept game is stopped with the printed command, its junctions stay in `run/mods` and `staged/` until the next run or `smoke.sh clean`. Harmless with `clean`, but the printed stop could remove them.
+- A `--keep` or `c.hold()` run prints no PROFILE line (the JVM writes the recording when it exits).
+- IE's `run.sh` takes its slot through the same `smoke-slot.sh` and ran with the new config keys; the old `C:\Modding\.smoke-lock` shows as `free` or `held for the slots` in `status`.
 
 ## Not tested
+
+- Verdicts `COUNT_MISMATCH`, `LOAD_FAILED`, `FATAL`, `CRASH`, `LOG_ERRORS`, `SHARDS_FAILED` (no run produced them), and the new `MODS_NOT_LOADED` / `CHECK_MOD_NOT_LOADED` lines after the fix (the cause was fixed first; the first T4 run showed the case they catch).
+- `--fast` (Fast Rendering is not installed here), `--newbase`, `PROFILE_BASE`, the queue when all slots are full, the memory gate, a pause.
+- Live sessions by hand (`scripts/live/` without `smoke.sh`), `templates/live-test-mod`.
+- Setup on a machine without a JDK or where the game never ran.
+- The Linux runner and WSL.
+- A shell outside the Claude desktop app (see open items).
