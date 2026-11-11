@@ -4,6 +4,7 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.ai.FleetAssignmentDataAPI;
+import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
@@ -77,16 +78,22 @@ public class ShuttleFleetScan {
                     && Misc.getDistance(player.getLocation(), fleet.getLocation()) <= RANGE;
             boolean isThreat = isPlayer || fleet.getFleetData().getFleetPointsUsed() >= THREAT_FP;
             FleetAssignmentDataAPI current = fleet.getAI() != null ? fleet.getAI().getCurrentAssignment() : null;
-            if (!isObstacle && !isThreat && !isTied(current)) continue;
+            if (!isObstacle && !isThreat && !isTied(fleet, current)) continue;
 
             if (count == entries.size()) entries.add(new Entry());
             entries.get(count++).set(fleet, isObstacle, isThreat, current);
         }
     }
 
-    // fleets that may get fleet tied craft
-    private static boolean isTied(FleetAssignmentDataAPI current) {
-        return current != null && current.getAssignment() == FleetAssignment.ORBIT_PASSIVE;
+    // fleets that may get fleet tied craft: orbiting at a market, or scavengers investigating something
+    private static boolean isTied(CampaignFleetAPI fleet, FleetAssignmentDataAPI current) {
+        if (current == null) return false;
+        if (current.getAssignment() == FleetAssignment.ORBIT_PASSIVE) return true;
+        return current.getAssignment() == FleetAssignment.PATROL_SYSTEM && current.getTarget() != null && isScavenger(fleet.getMemoryWithoutUpdate().getString(MemFlags.MEMORY_KEY_FLEET_TYPE));
+    }
+
+    public static boolean isScavenger(String type) {
+        return FleetTypes.SCAVENGER_SMALL.equals(type) || FleetTypes.SCAVENGER_MEDIUM.equals(type) || FleetTypes.SCAVENGER_LARGE.equals(type);
     }
 
     public int getCount() {

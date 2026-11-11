@@ -34,6 +34,8 @@ public class ShuttlePaths {
     private static final float CRUISE_LAP_SPEED = 0.9f;
     private static final float SERVICE_PAD_ANGLE = 30f;
     private static final float SERVICE_HANDLE = 80f;
+    private static final float SURVEY_LAP_EXTRA = 60f;
+    private static final float SURVEY_LAP_SPEED = 0.6f;
 
     private final ShuttleNetwork network;
     private final Random random;
@@ -108,6 +110,32 @@ public class ShuttlePaths {
         ShuttlePath.Waypoint start = toFleet ? padPoint : fleetPoint;
         ShuttlePath.Waypoint end = toFleet ? fleetPoint : padPoint;
         return new ShuttlePath().add(new ShuttlePath.BezierSegment(start, end, handle, handle, 0f));
+    }
+
+    // out of the fleet to a planet pad, the stay and the way back are a normal landing and lane
+    public ShuttlePath surveyLandPath(SectorEntityToken fleet, ShuttleAnchor planet) {
+        ShuttlePath.Waypoint start = new ShuttlePath.FleetWaypoint(fleet, 0f, 0f, new ShuttlePath.EntityWaypoint(planet.entity), true);
+        ShuttlePath.Waypoint end = new ShuttlePath.PadWaypoint(planet, new ShuttlePath.EntityWaypoint(fleet), spread(40f), 0f, true);
+        float distance = Misc.getDistance(fleet.getLocation(), planet.getLocation());
+        return new ShuttlePath().add(new ShuttlePath.BezierSegment(start, end, Math.min(SERVICE_HANDLE, distance * 0.35f), getHandle(planet, distance), 0f));
+    }
+
+    // out of the fleet, two slow laps around a wreck, field or other entity, back into the fleet
+    public ShuttlePath surveyLapPath(SectorEntityToken fleet, SectorEntityToken target) {
+        float radius = target.getRadius() + SURVEY_LAP_EXTRA;
+        float side = randomSign();
+        ShuttlePath.CircleSegment laps = new ShuttlePath.CircleSegment(target, 0f, 0f, radius, Misc.getAngleInDegrees(target.getLocation(), fleet.getLocation()) + spread(40f),
+                720f * side, 0f);
+        laps.withSpeedMult(SURVEY_LAP_SPEED);
+        ShuttlePath.Waypoint entry = new ShuttlePath.SegmentWaypoint(laps, 0f);
+        ShuttlePath.Waypoint exit = new ShuttlePath.SegmentWaypoint(laps, 1f);
+        float distance = Misc.getDistance(fleet.getLocation(), target.getLocation());
+        float handle = Math.min(JOIN_HANDLE, distance * 0.35f);
+
+        return new ShuttlePath()
+                .add(new ShuttlePath.BezierSegment(new ShuttlePath.FleetWaypoint(fleet, 0f, 0f, entry, true), entry, handle, handle, 0f))
+                .add(laps)
+                .add(new ShuttlePath.BezierSegment(exit, new ShuttlePath.FleetWaypoint(fleet, 0f, 0f, exit, false), handle, handle, 0f));
     }
 
     public ShuttlePath redirectPath(SectorEntityToken frame, Vector2f pos, float heading, ShuttleAnchor to) {

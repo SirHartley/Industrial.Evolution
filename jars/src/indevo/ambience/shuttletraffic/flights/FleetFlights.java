@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
+import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.PlayerMarketTransaction;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -20,6 +21,7 @@ import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleHullPool;
 import indevo.ambience.shuttletraffic.ShuttleLook;
 import indevo.ambience.shuttletraffic.ShuttleRoute;
+import indevo.ambience.shuttletraffic.ShuttleTarget;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
 import indevo.ambience.shuttletraffic.SpeedClass;
 import indevo.config.Setting;
@@ -43,6 +45,9 @@ public class FleetFlights extends BaseFlights {
     private static final int TRADE_MAX = 8;
     private static final float TRADE_BURST_TIME = 3f;
     private static final float TRADE_RANGE = 600f;
+    private static final float SURVEY_RANGE = 600f;
+    private static final float SURVEY_MAX_SPEED = 60f;
+    private static final Set<String> SURVEY_HULLS = Set.of("shuttlepod", "kite", "mudskipper");
     private static final Set<Shuttle.Trait> SERVICE_TRAITS = Collections.unmodifiableSet(EnumSet.of(Shuttle.Trait.AVOIDS, Shuttle.Trait.FLEES));
 
     // cargo moved per market while the trade dialog is open
@@ -134,11 +139,16 @@ public class FleetFlights extends BaseFlights {
     // after every fleet scan: routes for serviced fleets, the rest end
     public void update() {
         Map<String, ShuttleRoute> routes = traffic.getFleetRoutes();
-        for (ShuttleRoute route : routes.values()) if (route.kind == ShuttleRoute.Kind.FLEET_SERVICE) route.seen = false;
+        for (ShuttleRoute route : routes.values()) if (route.kind == ShuttleRoute.Kind.FLEET_SERVICE || route.kind == ShuttleRoute.Kind.SURVEY) route.seen = false;
 
         ShuttleFleetScan scan = traffic.getFleetScan();
         for (int i = 0; i < scan.getCount(); i++) {
             ShuttleFleetScan.Entry entry = scan.get(i);
+            if (isSurveying(entry)) {
+                updateSurvey(entry, routes);
+                continue;
+            }
+
             ShuttleAnchor pad = findServicePad(entry);
             if (pad == null) continue;
 
@@ -162,6 +172,8 @@ public class FleetFlights extends BaseFlights {
             ShuttleRoute route = iterator.next();
             boolean over = switch (route.kind) {
                 case FLEET_SERVICE -> !route.seen;
+                // survey craft fly back on their own, they only go with the fleet
+                case SURVEY -> !route.seen && (route.active <= 0 || !route.fleet.isAlive() || route.fleet.getContainingLocation() != traffic.getLocation());
                 // the burst only shows while the player stays near the pad
                 case TRADE -> route.active <= 0 || route.fleet.getContainingLocation() != traffic.getLocation()
                         || Misc.getDistance(route.fleet.getLocation(), route.a.getLocation()) - route.a.getRadius() > TRADE_RANGE;
@@ -193,6 +205,58 @@ public class FleetFlights extends BaseFlights {
         ShuttleAnchor to = toFleet ? route.b : pad;
         Shuttle shuttle = create(hull, route, faction, from, to, paths.servicePath(pad, fleet, toFleet, smuggler), patrol ? SpeedClass.CIVIL : SpeedClass.SERVICE, 1f,
                 0f, smuggler ? ShuttleLook.SMUGGLER : ShuttleLook.SERVICE, SERVICE_TRAITS);
+        shuttle.tieTo(fleet);
+        return shuttle;
+    }
+
+    // 1 to 3 shuttles per investigation, launched once each; the route stays while the fleet investigates so it never sends more
+    private void updateSurvey(ShuttleFleetScan.Entry entry, Map<String, ShuttleRoute> routes) {
+        String key = ShuttleRoute.Kind.SURVEY.name() + "|" + entry.fleet.getId() + "|" + entry.target.getId();
+        ShuttleRoute route = routes.get(key);
+        if (route == null) {
+            route = new ShuttleRoute(key, ShuttleRoute.Kind.SURVEY, ShuttleAnchor.forFleet(entry.fleet), null, 0f);
+            route.fleet = entry.fleet;
+            route.target = new ShuttleTarget(entry.target, 0f, 0f, 0f, 0f);
+            // demand counts the launches left, max the craft in the air
+            route.demand = 1 + random.nextInt(3);
+            route.max = route.demand;
+            route.timer = random.nextFloat() * 3f;
+            routes.put(key, route);
+        }
+
+        route.seen = true;
+    }
+
+    private boolean isSurveying(ShuttleFleetScan.Entry entry) {
+        CampaignFleetAPI fleet = entry.fleet;
+        if (!ShuttleFleetScan.isScavenger(entry.type) || entry.assignment != FleetAssignment.PATROL_SYSTEM || entry.target == null) return false;
+        if (fleet.getVisibilityLevelToPlayerFleet() == SectorEntityToken.VisibilityLevel.NONE || fleet.getVelocity().length() >= SURVEY_MAX_SPEED) return false;
+
+        SectorEntityToken target = entry.target;
+        return target.isAlive() && target.getContainingLocation() == traffic.getLocation()
+                && Misc.getDistance(fleet.getLocation(), target.getLocation()) - target.getRadius() <= SURVEY_RANGE;
+    }
+
+    public Shuttle launchSurvey(ShuttleRoute route) {
+        CampaignFleetAPI fleet = route.fleet;
+        SectorEntityToken target = route.target.center;
+        if (!route.seen || route.demand <= 0 || fleet == null || !fleet.isAlive() || !target.isAlive()) return null;
+
+        ShuttleHull hull = ShuttleHullPool.rollBase(random, SURVEY_HULLS);
+        if (hull == null) return null;
+
+        route.demand--;
+        ShuttleAnchor home = route.a;
+        if (target instanceof PlanetAPI planet && !planet.isStar()) {
+            ShuttleAnchor landing = new ShuttleAnchor(planet, ShuttleAnchor.Type.PLANET, ShuttleAnchor.Role.TARGET, planet.getMarket(), null);
+            Shuttle shuttle = create(hull, route, fleet.getFaction(), home, landing, paths.surveyLandPath(fleet, landing), SpeedClass.SERVICE, 1f, 0f,
+                    ShuttleLook.HUNT, SERVICE_TRAITS);
+            shuttle.stay(1f + random.nextFloat());
+            shuttle.tieTo(fleet);
+            return shuttle;
+        }
+
+        Shuttle shuttle = create(hull, route, fleet.getFaction(), home, home, paths.surveyLapPath(fleet, target), SpeedClass.SERVICE, 1f, 0f, ShuttleLook.HUNT, SERVICE_TRAITS);
         shuttle.tieTo(fleet);
         return shuttle;
     }

@@ -25,7 +25,7 @@ Package `indevo/ambience/shuttletraffic/`:
 | `ShuttleNetwork.java` | Anchors and routes for one location, density, closed ports, mining and salvage targets, refuge lookup, star and planet avoidance (`getBend`), hunt planets |
 | `flights/ShuttleFlights.java` | One `Flight` per `ShuttleRoute.Kind` in an `EnumMap`; throws when a kind has none |
 | `flights/LaneFlights.java`, `LocalFlights.java`, `PodFlights.java` | Lane flights (lanes, diplomats, hunts); local flights (cruises, pickets, training, mining and salvage lingers, maintenance) and formations; escape pod queue and launch |
-| `flights/FleetFlights.java` | Fleet tied flights: service shuttles for fleets in orbit at a market; routes per fleet, launches, ending a route |
+| `flights/FleetFlights.java` | Fleet tied flights: service shuttles for fleets in orbit at a market, player trade shuttles, scavenger survey shuttles; routes per fleet, launches, ending a route |
 | `flights/ShuttlePaths.java`, `BaseFlights.java` | Every path builder (lanes, service hops, redirect, flee, away, hold, screen, cruise, linger, loop); shared flight helpers (`canFly`, `create`) |
 | `ShuttleAnchor.java` | One launch or landing place: type (`PLANET`, `STATION`, `FLEET`), role, pad depth, landing length, pad busy time, threat state, density |
 | `ShuttleRoute.java` | One route: kind, anchors, optional target or fleet, bend, in flight limit, timer or daily chance |
@@ -155,6 +155,12 @@ Fighters on pickets fly as a wing of `wingSize` (at most 3); training groups are
 - `ShuttleCampaignListener.reportPlayerMarketTransaction` sums cargo space, fuel and personnel bought and sold per market while the dialog is open (`FleetFlights.queueTrade`). The submarket is the one the trade screen traded with (`getSubmarketTradedWith()`, knowledge skill `obf/campaign/ui/class.java:693`).
 - When no dialog shows (`FleetFlights.launchQueued`): if the market's primary entity is a traffic anchor and the player is within 600 su of it, `clamp(moved / 200, 2, 8)` craft launch over 3 s (`Shuttle.holdFor`), pad to fleet when more was bought, else fleet to pad. Service speed and look; black market trades (`Submarkets.SUBMARKET_BLACK`) or a transponder off give dark craft with the smuggler look.
 - A `TRADE` route per market pad holds the burst (the spawner never launches it); when the player moves more than 600 su from the pad, craft flying to the fleet turn back.
+
+### Scavenger survey shuttles
+
+- A scavenger fleet (`FleetTypes.SCAVENGER_SMALL`, `_MEDIUM`, `_LARGE`) that is "investigating" has `FleetAssignment.PATROL_SYSTEM` with a target entity (`ScavengerFleetAssignmentAI:63`). While it is visible, within 600 su of the target's surface and slower than 60 su/s, it gets a `SURVEY` route (`FleetFlights.updateSurvey`) that launches 1 to 3 shuttles once, 3 s apart, and keeps the route while the fleet investigates so it never sends more.
+- Shuttle Pod, Kite or Mudskipper, service speed, hunt look. To a planet: out of the fleet to a pad, stay 1 to 2 days, then a lane back into the fleet. To anything else: out of the fleet, two laps 60 su outside the target at 60% speed, back into the fleet (`ShuttlePaths.surveyLapPath`).
+- When the fleet stops investigating, its shuttles fly back on their own; if it despawns, leaves or is out of sight, they are removed.
 
 ### Escape pods
 
