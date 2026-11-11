@@ -70,6 +70,7 @@ public class Shuttle {
     private float boostTime = 0f;
     private float delay = 0f;
     private float lastThreatNearDay = -100f;
+    private ShuttleBudget.Group group = ShuttleBudget.Group.RARE;
 
     private final List<Shuttle> followers = new ArrayList<>(2);
     private final ShuttleTrail trail = new ShuttleTrail();
@@ -335,6 +336,14 @@ public class Shuttle {
 
     public boolean isPicket() {
         return picket;
+    }
+
+    public void setGroup(ShuttleBudget.Group group) {
+        this.group = group;
+    }
+
+    public ShuttleBudget.Group getGroup() {
+        return group;
     }
 
     public ShuttleRoute getRoute() {

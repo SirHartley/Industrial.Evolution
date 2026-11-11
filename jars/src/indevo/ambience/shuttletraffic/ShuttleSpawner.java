@@ -13,19 +13,24 @@ public class ShuttleSpawner {
         this.traffic = traffic;
     }
 
-    public void warmStart(int cap) {
+    // fills the routes in rounds, one flight per route each round, so the first routes in the map do not take the whole cap
+    public void warmStart() {
         Random random = traffic.getRandom();
-        for (ShuttleRoute route : traffic.getNetwork().routes.values()) {
-            if (route.isRare()) continue;
+        ShuttleBudget budget = traffic.getBudget();
+        budget.count(traffic.getShuttles());
 
-            for (int i = 0; i < route.max; i++) {
-                List<Shuttle> launched = traffic.getFlights().launch(route, getRoom(route, cap));
-                if (launched.isEmpty()) break;
+        boolean launchedAny = true;
+        for (int round = 0; launchedAny; round++) {
+            launchedAny = false;
+            for (ShuttleRoute route : traffic.getNetwork().routes.values()) {
+                if (route.isRare() || round >= route.max || route.active > round) continue;
 
-                float fraction = Math.min(0.95f, (i + random.nextFloat()) / route.max);
+                List<Shuttle> launched = launch(route);
+                if (launched.isEmpty()) continue;
+
+                float fraction = Math.min(0.95f, (round + random.nextFloat()) / route.max);
                 for (Shuttle shuttle : launched) shuttle.warmStart(fraction);
-                route.active++;
-                traffic.getShuttles().addAll(launched);
+                launchedAny = true;
             }
         }
     }
@@ -37,7 +42,8 @@ public class ShuttleSpawner {
         }
     }
 
-    public void spawn(float amount, int cap) {
+    public void spawn(float amount) {
+        traffic.getBudget().count(traffic.getShuttles());
         for (ShuttleRoute route : traffic.getNetwork().routes.values()) {
             if (route.active >= route.max) continue;
 
@@ -49,17 +55,23 @@ public class ShuttleSpawner {
                 route.timer = getInterval(route);
             }
 
-            List<Shuttle> launched = traffic.getFlights().launch(route, getRoom(route, cap));
+            List<Shuttle> launched = launch(route);
             if (launched.isEmpty()) continue;
 
             route.pending = false;
-            route.active++;
-            traffic.getShuttles().addAll(launched);
         }
     }
 
-    private int getRoom(ShuttleRoute route, int cap) {
-        return (int) (cap * route.kind.capShare) - traffic.getShuttles().size();
+    private List<Shuttle> launch(ShuttleRoute route) {
+        ShuttleBudget budget = traffic.getBudget();
+        List<Shuttle> launched = traffic.getFlights().launch(route, budget.getRoom(route.kind.group));
+        if (launched.isEmpty()) return launched;
+
+        for (Shuttle shuttle : launched) shuttle.setGroup(route.kind.group);
+        budget.add(route.kind.group, launched.size());
+        route.active++;
+        traffic.getShuttles().addAll(launched);
+        return launched;
     }
 
     private float getInterval(ShuttleRoute route) {

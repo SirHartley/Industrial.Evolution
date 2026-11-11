@@ -19,6 +19,7 @@ public class ShuttleTraffic {
     private final ShuttleNetwork network = new ShuttleNetwork();
     private final Random random = new Random();
     private final ShuttleFleetScan fleetScan = new ShuttleFleetScan();
+    private final ShuttleBudget budget = new ShuttleBudget();
     private final ShuttleFlights flights = new ShuttleFlights(this);
     private final ShuttleSpawner spawner = new ShuttleSpawner(this);
     private final ShuttleReactions reactions = new ShuttleReactions(this);
@@ -48,18 +49,22 @@ public class ShuttleTraffic {
             clear();
             location = current;
             network.rebuild(location, random);
+            budget.update(network.routes.values(), cap);
             fleetScan.scan(location, player);
             reactions.updateThreats();
-            spawner.warmStart(cap);
+            spawner.warmStart();
         } else {
             daysSinceRebuild += elapsedDays;
             if (daysSinceRebuild >= 1f) {
                 daysSinceRebuild = 0f;
                 ShuttleHullPool.dropStaleFactionPools();
                 network.rebuild(location, random);
+                budget.update(network.routes.values(), cap);
                 spawner.rollRareFlights();
             }
         }
+
+        if (cap != budget.getCap()) budget.update(network.routes.values(), cap);
 
         scanTimer -= amount;
         if (scanTimer <= 0f) {
@@ -69,7 +74,7 @@ public class ShuttleTraffic {
             reactions.react();
         }
 
-        spawner.spawn(amount, cap);
+        spawner.spawn(amount);
         flights.getPods().launchQueued();
         advance(shuttles, amount);
         advance(pods, amount);
@@ -93,6 +98,10 @@ public class ShuttleTraffic {
 
     public ShuttleNetwork getNetwork() {
         return network;
+    }
+
+    public ShuttleBudget getBudget() {
+        return budget;
     }
 
     public ShuttleFleetScan getFleetScan() {

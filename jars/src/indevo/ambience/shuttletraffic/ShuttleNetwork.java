@@ -202,7 +202,7 @@ public class ShuttleNetwork {
 
             int wings = market.hasIndustry(Industries.MILITARYBASE) || market.hasIndustry(Industries.HIGHCOMMAND) ? 2
                     : market.hasIndustry(Industries.PATROLHQ) ? 1 : 0;
-            if (wings > 0) getRoute(ShuttleRoute.Kind.PICKET, anchor, null, random).max = wings;
+            if (wings > 0) getRoute(ShuttleRoute.Kind.PICKET, anchor, null, random).demand = wings;
 
             if (market.hasIndustry(Ids.ACADEMY) && sight != null) {
                 getRoute(ShuttleRoute.Kind.TRAINING, anchor, null, random).target = new ShuttleTarget(sight, 0f, 0f, 0f, 0f);
@@ -215,7 +215,7 @@ public class ShuttleNetwork {
                 if (target != null) {
                     ShuttleRoute route = getRoute(ShuttleRoute.Kind.MINING, anchor, null, random);
                     route.target = target;
-                    route.max = Math.max(1, Math.round((1f + market.getSize() / 4f) * mult));
+                    route.demand = Math.max(1, Math.round((1f + market.getSize() / 4f) * mult));
                 }
             }
 
@@ -233,7 +233,7 @@ public class ShuttleNetwork {
                 station.closed = anchor.closed;
 
                 ShuttleRoute route = getRoute(ShuttleRoute.Kind.SUPPLY, anchor, station, random);
-                route.max = Math.max(1, Math.round((1f + market.getSize() / 3f) * mult));
+                route.demand = Math.max(1, Math.round((1f + market.getSize() / 3f) * mult));
             }
         }
     }
@@ -262,7 +262,7 @@ public class ShuttleNetwork {
                 float mult = (density.get(a) + density.get(b)) / 2f * (a.market.getSize() + b.market.getSize()) / 10f;
                 float chord = Misc.getDistance(a.getLocation(), b.getLocation());
                 ShuttleRoute route = getRoute(ShuttleRoute.Kind.MARKET, a, b, random);
-                route.max = Math.max(2, Math.round(chord / LANE_SPACING * mult));
+                route.demand = Math.max(2, Math.round(chord / LANE_SPACING * mult));
             }
         }
     }
