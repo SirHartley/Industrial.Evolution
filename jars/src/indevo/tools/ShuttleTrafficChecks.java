@@ -5,23 +5,36 @@ import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
+import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleBudget;
 import indevo.ambience.shuttletraffic.ShuttleLook;
 import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleState;
 import indevo.ambience.shuttletraffic.ShuttleNetwork;
 import indevo.ambience.shuttletraffic.ShuttleTrail;
+import indevo.ambience.shuttletraffic.dogfights.DogfightFleet;
+import indevo.ambience.shuttletraffic.dogfights.DogfightGroup;
+import indevo.ambience.shuttletraffic.dogfights.DogfightHost;
+import indevo.ambience.shuttletraffic.dogfights.Dogfighter;
+import indevo.ambience.shuttletraffic.dogfights.ShuttleDogfight;
+import indevo.ambience.shuttletraffic.dogfights.ShuttleDogfights;
+import indevo.ambience.shuttletraffic.dogfights.ShuttleProjectiles;
+import indevo.ambience.shuttletraffic.dogfights.WingType;
 import indevo.ambience.shuttletraffic.flights.ShuttlePaths;
 import indevo.ambience.shuttletraffic.movement.Dodge;
 import indevo.ambience.shuttletraffic.movement.SteerMover;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
 import org.lwjgl.util.vector.Vector2f;
 
+import java.awt.Color;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.UnaryOperator;
 
 import static indevo.ambience.shuttletraffic.ShuttleState.CRUISE;
@@ -97,6 +110,8 @@ public final class ShuttleTrafficChecks {
             run.checkFleetHop();
             run.checkDodge();
             run.checkSteer();
+            run.checkRoundRate();
+            run.checkDogfight();
         } finally {
             Global.setSettings(null);
         }
@@ -333,6 +348,132 @@ public final class ShuttleTrafficChecks {
         }
         return trail.getLength(x[0], 0f);
     }
+    // Battle.advance: max / (2 x min) fleet points clamped 1 to 5, x0.25 with a station; fighters launch at 1 round a day or slower
+    private void checkRoundRate() {
+        float[][] cases = {{100f, 100f, 0f, 1f}, {200f, 100f, 0f, 1f}, {300f, 100f, 0f, 1.5f}, {1000f, 10f, 0f, 5f},
+                {800f, 100f, 1f, 1f}, {900f, 100f, 1f, 1.125f}, {0f, 100f, 0f, 1f}, {100f, 100f, 1f, 0.25f}};
+        for (float[] c : cases) {
+            float rate = ShuttleDogfights.getRoundRate(c[0], c[1], c[2] > 0f);
+            check(Math.abs(rate - c[3]) < 0.001f, "round rate " + c[0] + " vs " + c[1] + (c[2] > 0f ? " with station" : "") + ": " + rate + ", expected " + c[3]);
+        }
+    }
+
+    // 12 against 12 for two minutes over three seeds: hit rates, kills, strafing passes, leash, cap, cost; then both ends
+    private void checkDogfight() {
+        for (float rate : new float[]{30f, 60f}) {
+            String at = rate + " Hz: ";
+            int[] totals = new int[6];
+            int strikeGroups = 0;
+            int maxSide = 0;
+            int leash = 0;
+            long nanos = 0L;
+            int frames = 0;
+            float seconds = 120f;
+            ShuttleDogfight fight = null;
+            List<DogfightFleet> fleets = null;
+
+            for (int seed : new int[]{7, 11, 23}) {
+                fleets = new ArrayList<>();
+                fight = newFight(new Random(seed), fleets);
+                Set<DogfightGroup> strike = Collections.newSetFromMap(new IdentityHashMap<>());
+                for (int frame = 0; frame < (int) (seconds * rate); frame++) {
+                    long start = System.nanoTime();
+                    fight.advance(1f / rate);
+                    nanos += System.nanoTime() - start;
+                    frames++;
+
+                    int[] count = new int[2];
+                    for (Dogfighter fighter : fight.getFighters()) {
+                        if (fighter.isDone()) continue;
+                        count[fighter.side]++;
+                        if (fighter.group.role == WingType.Role.STRIKE) strike.add(fighter.group);
+                    }
+                    maxSide = Math.max(maxSide, Math.max(count[0], count[1]));
+                }
+
+                ShuttleProjectiles shots = fight.getProjectiles();
+                for (int side = 0; side < 2; side++) {
+                    totals[0] += shots.getFired(side, false);
+                    totals[1] += shots.getHits(side, false);
+                    totals[2] += shots.getFired(side, true);
+                    totals[3] += shots.getHits(side, true);
+                    totals[4] += fight.getKills(side);
+                    totals[5] += fight.getPasses(side);
+                }
+                strikeGroups += strike.size();
+                leash = Math.max(leash, fight.getMaxLeashOvershoot());
+            }
+
+            float fighterRate = totals[0] > 0 ? totals[1] / (float) totals[0] : 0f;
+            float fleetRate = totals[2] > 0 ? totals[3] / (float) totals[2] : 0f;
+            float killsPerMinute = totals[4] / (seconds * 3f / 60f);
+            float passesPerGroup = strikeGroups > 0 ? totals[5] / (float) strikeGroups : 0f;
+            float frameMicros = nanos / 1000f / frames;
+
+            check(maxSide <= ShuttleDogfight.MAX_PER_SIDE, at + "a side flew " + maxSide + " fighters, cap " + ShuttleDogfight.MAX_PER_SIDE);
+            check(totals[0] > 300, at + "only " + totals[0] + " shots at fighters in three fights");
+            check(fighterRate >= 0.15f && fighterRate <= 0.85f, at + "fighter hit rate " + fighterRate + ", expected 0.15 to 0.85");
+            check(totals[2] > 60 && fleetRate >= 0.5f, at + "fleet hit rate " + fleetRate + " of " + totals[2] + " shots, expected at least 0.5");
+            check(killsPerMinute >= 2f && killsPerMinute <= 60f, at + killsPerMinute + " kills per minute, expected 2 to 60");
+            check(passesPerGroup >= 0.5f, at + passesPerGroup + " strafing passes per strike group, expected at least 0.5");
+            check(leash <= 120, at + "a fighter got " + leash + " su past the leash");
+            check(frameMicros < 2000f, at + frameMicros + " us per frame");
+            notes.add(String.format("dogfight at %s Hz: fighter hit rate %.2f, fleet hit rate %.2f, %.1f kills per minute, %.1f passes per strike group, leash overshoot %d su, %.0f us per frame",
+                    rate, fighterRate, fleetRate, killsPerMinute, passesPerGroup, leash, frameMicros));
+
+            // side 0 won and lives: back to its fleets; side 1's fleets are gone and no port: they explode
+            for (DogfightFleet fleet : fleets) fleet.alive = fleet.side == 0;
+            fight.end(0);
+            float end = 0f;
+            boolean exploded = true;
+            while (!fight.isOver() && end < 40f) {
+                fight.advance(1f / rate);
+                end += 1f / rate;
+                for (Dogfighter fighter : fight.getFighters()) {
+                    if (fighter.side == 1 && end > 2.2f && fighter.getState() != Dogfighter.State.DYING) exploded = false;
+                }
+            }
+            check(fight.isOver(), at + "battle end not over after 40 s, " + fight.getFighters().size() + " fighters left");
+            check(exploded, at + "a fighter of the lost side outlived its 1.5 s");
+        }
+    }
+
+    // side 0: gun escorts and torpedo bombers, side 1: laser escorts and gun support, two fleets each 220 su apart
+    private static ShuttleDogfight newFight(Random random, List<DogfightFleet> fleets) {
+        DogfightHost host = new DogfightHost() {
+            @Override
+            public void particle(Vector2f loc, Vector2f vel, float size, float brightness, float duration, Color color) {
+            }
+
+            @Override
+            public Refuge findRefuge(Dogfighter fighter) {
+                return null;
+            }
+        };
+
+        ShuttleDogfight fight = new ShuttleDogfight(host, random);
+        WingType[][] wings = {
+                {wing(WingType.Role.ESCORT, true, false, false), wing(WingType.Role.STRIKE, false, false, true)},
+                {wing(WingType.Role.ESCORT, false, true, false), wing(WingType.Role.SUPPORT, true, false, false)}};
+        for (int side = 0; side < 2; side++) {
+            for (int i = 0; i < 2; i++) {
+                DogfightFleet fleet = new DogfightFleet(side, List.of(wings[side]));
+                fleet.loc.set(side == 0 ? -110f : 110f, i == 0 ? -60f : 60f);
+                fleet.radius = 40f;
+                fleets.add(fleet);
+                fight.addFleet(fleet);
+            }
+            fight.setWantedGroups(side, 4);
+        }
+        fight.setCenter(0f, 0f, 190f);
+        return fight;
+    }
+
+    private static WingType wing(WingType.Role role, boolean guns, boolean lasers, boolean torpedoes) {
+        ShuttleHull.Look look = new ShuttleHull.Look("check_" + role, null, Color.ORANGE, Color.ORANGE, true);
+        return new WingType(new ShuttleHull(look, true, false, true, false, false, 2, 4f, 6f), role, guns, lasers, torpedoes, Color.RED);
+    }
+
     private void check(boolean passed, String problem) {
         checks++;
         if (!passed) problems.add(problem);

@@ -1,5 +1,6 @@
 package indevo.ambience.shuttletraffic;
 
+import com.fs.starfarer.api.campaign.BattleAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -20,6 +21,7 @@ public class ShuttleFleetScan {
     public static final float THREAT_FP = 30f;
 
     private final List<Entry> entries = new ArrayList<>();
+    private final List<BattleAPI> battles = new ArrayList<>();
     private int count = 0;
 
     // numbers are copied at scan time, the fleet reference gives the live state
@@ -70,6 +72,8 @@ public class ShuttleFleetScan {
         clear();
 
         for (CampaignFleetAPI fleet : location.getFleets()) {
+            BattleAPI battle = fleet.getBattle();
+            if (battle != null && !battles.contains(battle)) battles.add(battle);
             if (fleet.isStationMode() || !fleet.isAlive()) continue;
 
             boolean isPlayer = fleet.isPlayerFleet();
@@ -93,6 +97,11 @@ public class ShuttleFleetScan {
 
     public static boolean isScavenger(String type) {
         return FleetTypes.SCAVENGER_SMALL.equals(type) || FleetTypes.SCAVENGER_MEDIUM.equals(type) || FleetTypes.SCAVENGER_LARGE.equals(type);
+    }
+
+    // distinct battles of the location, station battles too
+    public List<BattleAPI> getBattles() {
+        return battles;
     }
 
     public int getCount() {
@@ -128,5 +137,6 @@ public class ShuttleFleetScan {
     public void clear() {
         for (int i = 0; i < count; i++) entries.get(i).clear();
         count = 0;
+        battles.clear();
     }
 }

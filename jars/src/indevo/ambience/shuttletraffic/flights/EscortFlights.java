@@ -357,7 +357,7 @@ public class EscortFlights extends BaseFlights {
         return true;
     }
 
-    private static List<String> getFittedWings(CampaignFleetAPI fleet) {
+    public static List<String> getFittedWings(CampaignFleetAPI fleet) {
         List<String> fitted = new ArrayList<>();
         for (FleetMemberAPI member : fleet.getFleetData().getMembersListCopy()) {
             if (member.isFighterWing() || member.isMothballed()) continue;

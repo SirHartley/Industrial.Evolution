@@ -8,6 +8,8 @@ import indevo.ambience.shuttletraffic.Shuttle;
 import indevo.ambience.shuttletraffic.ShuttleHullPool;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
 import indevo.ambience.shuttletraffic.ShuttleTrail;
+import indevo.ambience.shuttletraffic.dogfights.Dogfighter;
+import indevo.ambience.shuttletraffic.dogfights.ShuttleDogfight;
 import indevo.ambience.shuttletraffic.listeners.ShuttleCampaignListener;
 import indevo.ambience.shuttletraffic.listeners.ShuttleColonyListener;
 import indevo.config.Setting;
@@ -58,7 +60,7 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
     @Override
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         if (traffic.getLocation() == null || traffic.getLocation() != Global.getSector().getCurrentLocation()) return;
-        if (traffic.getShuttles().isEmpty() && traffic.getPods().isEmpty()) return;
+        if (traffic.getShuttles().isEmpty() && traffic.getPods().isEmpty() && traffic.getDogfights().isEmpty()) return;
 
         float zoom = viewport.getViewMult();
         float fade = Math.max(0f, Math.min(1f, (zoom - FADE_ZOOM_START) / (FADE_ZOOM_END - FADE_ZOOM_START)));
@@ -67,10 +69,26 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
 
         render(traffic.getShuttles(), viewport, alphaMult);
         render(traffic.getPods(), viewport, alphaMult);
+        for (ShuttleDogfight fight : traffic.getDogfights().getFights()) render(fight, viewport, alphaMult);
     }
 
     public ShuttleTraffic getTraffic() {
         return traffic;
+    }
+
+    private void render(ShuttleDogfight fight, ViewportAPI viewport, float alphaMult) {
+        List<Dogfighter> fighters = fight.getFighters();
+        ShuttleTrail.beginRender();
+        for (Dogfighter fighter : fighters) {
+            if (viewport.isNearViewport(fighter.pos, VIEWPORT_MARGIN)) fighter.renderTrail(alphaMult);
+        }
+        ShuttleTrail.endRender();
+
+        for (Dogfighter fighter : fighters) {
+            if (viewport.isNearViewport(fighter.pos, VIEWPORT_MARGIN)) fighter.render(alphaMult, glow);
+        }
+
+        fight.getProjectiles().render(alphaMult);
     }
 
     private void render(List<Shuttle> list, ViewportAPI viewport, float alphaMult) {

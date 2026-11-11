@@ -24,6 +24,17 @@ public class ShuttleCampaignListener extends BaseCampaignEventListener {
         traffic.queuePods(fleet, param instanceof BattleAPI battle ? battle : null);
     }
 
+    // npc autoresolve rounds and ends run in the campaign loop, never in a dialog
+    @Override
+    public void reportBattleOccurred(CampaignFleetAPI primaryWinner, BattleAPI battle) {
+        if (battle != null && !battle.isPlayerInvolved()) traffic.getDogfights().onRound(battle);
+    }
+
+    @Override
+    public void reportBattleFinished(CampaignFleetAPI primaryWinner, BattleAPI battle) {
+        if (battle != null && !battle.isPlayerInvolved()) traffic.getDogfights().onFinished(primaryWinner, battle);
+    }
+
     @Override
     public void reportPlayerMarketTransaction(PlayerMarketTransaction transaction) {
         traffic.getFlights().getFleets().queueTrade(transaction);
