@@ -124,7 +124,7 @@ release_slot() {
 }
 trap release_slot EXIT
 # so the EXIT trap stops the game and frees the slot when smoke-slot.sh cancel or the user ends this script
-trap 'exit 143' TERM
+trap 'echo "STOPPED: this run got a stop signal (smoke.sh stop ${SMOKE_OWNER:-}, or its task was stopped); stopping its game and freeing its slot" >&2; exit 4' TERM
 trap 'exit 130' INT
 smoke_jdk || { echo "NO_JDK: javac (JDK 17+) not found. Run: bash \"$SMOKE_SH\" setup, or set SMOKE_JAVAC_DIR to a JDK's bin folder" >&2; exit 1; }
 smoke_gamectl || { echo "NO_GAMECTL: gamectl.exe could not be built (Windows only), see the lines above" >&2; exit 1; }
