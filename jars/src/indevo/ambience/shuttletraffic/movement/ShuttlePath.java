@@ -1,7 +1,8 @@
-package indevo.ambience.shuttletraffic;
+package indevo.ambience.shuttletraffic.movement;
 
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ambience.shuttletraffic.ShuttleAnchor;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
@@ -304,7 +305,9 @@ public class ShuttlePath {
 
             for (int i = 1; i <= samples; i++) {
                 evaluate(i / (float) samples, next);
-                cumulative[i] = cumulative[i - 1] + Vector2f.sub(next, prev, null).length();
+                float dx = next.x - prev.x;
+                float dy = next.y - prev.y;
+                cumulative[i] = cumulative[i - 1] + (float) Math.sqrt(dx * dx + dy * dy);
                 prev.set(next);
             }
 

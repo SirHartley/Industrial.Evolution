@@ -29,7 +29,7 @@ import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.abilities.splitfleet.listeners.DetachmentPayroll;
-import indevo.ambience.shuttletraffic.ShuttleTrafficRenderer;
+import indevo.ambience.shuttletraffic.renderers.ShuttleTrafficRenderer;
 import indevo.config.PlayerSettings;
 import indevo.config.Setting;
 import indevo.dialogue.beacons.dialogue.BeaconDialogueListener;

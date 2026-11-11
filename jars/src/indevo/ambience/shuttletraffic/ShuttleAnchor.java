@@ -45,6 +45,10 @@ public class ShuttleAnchor {
         this.faction = faction;
     }
 
+    public Shuttle.End getEnd() {
+        return type == Type.PLANET ? Shuttle.End.PLANET : Shuttle.End.STATION;
+    }
+
     public Vector2f getLocation() {
         return entity.getLocation();
     }
