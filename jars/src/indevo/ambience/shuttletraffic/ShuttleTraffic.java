@@ -19,9 +19,6 @@ import java.util.Random;
 public class ShuttleTraffic {
 
     private static final float SCAN_INTERVAL = 0.25f;
-    private static final float ANCHOR_THREAT_RANGE = 600f;
-    private static final float CRAFT_THREAT_RANGE = 400f;
-    private static final float STRANDED_CLEAR_RANGE = 800f;
     private static final float POD_PLANET_RANGE = 2000f;
     private static final int POD_CAP = 32;
     private static final int MAX_PODS_PER_FLEET = 16;
@@ -31,6 +28,8 @@ public class ShuttleTraffic {
     private final Random random = new Random();
     private final ShuttleFleetScan fleetScan = new ShuttleFleetScan();
     private final ShuttleFlights flights = new ShuttleFlights(this, network, random);
+    private final ShuttleSpawner spawner = new ShuttleSpawner(this);
+    private final ShuttleReactions reactions = new ShuttleReactions(this);
     private final List<Shuttle> shuttles = new ArrayList<>();
     private final List<Shuttle> pods = new ArrayList<>();
     private final List<PodEvent> podQueue = new ArrayList<>();
@@ -62,14 +61,14 @@ public class ShuttleTraffic {
             location = current;
             network.rebuild(location, random);
             fleetScan.scan(location, player);
-            updateThreats();
-            warmStart(cap);
+            reactions.updateThreats();
+            spawner.warmStart(cap);
         } else {
             daysSinceRebuild += elapsedDays;
             if (daysSinceRebuild >= 1f) {
                 daysSinceRebuild = 0f;
                 network.rebuild(location, random);
-                rollRareFlights();
+                spawner.rollRareFlights();
             }
         }
 
@@ -77,11 +76,11 @@ public class ShuttleTraffic {
         if (scanTimer <= 0f) {
             scanTimer = SCAN_INTERVAL;
             fleetScan.scan(location, player);
-            updateThreats();
-            react();
+            reactions.updateThreats();
+            reactions.react();
         }
 
-        spawn(amount, cap);
+        spawner.spawn(amount, cap);
         launchQueuedPods();
         advance(shuttles, amount);
         advance(pods, amount);
@@ -113,6 +112,10 @@ public class ShuttleTraffic {
         return location;
     }
 
+    public ShuttleNetwork getNetwork() {
+        return network;
+    }
+
     public ShuttleFleetScan getFleetScan() {
         return fleetScan;
     }
@@ -141,134 +144,6 @@ public class ShuttleTraffic {
         location = null;
         daysSinceRebuild = 0f;
         scanTimer = 0f;
-    }
-
-    private void warmStart(int cap) {
-        for (ShuttleRoute route : network.routes.values()) {
-            if (route.isRare()) continue;
-
-            for (int i = 0; i < route.max; i++) {
-                List<Shuttle> launched = flights.launch(route, getRoom(route, cap));
-                if (launched.isEmpty()) break;
-
-                float fraction = Math.min(0.95f, (i + random.nextFloat()) / route.max);
-                for (Shuttle shuttle : launched) shuttle.warmStart(fraction);
-                route.active++;
-                shuttles.addAll(launched);
-            }
-        }
-    }
-
-    private void rollRareFlights() {
-        for (ShuttleRoute route : network.routes.values()) {
-            if (route.isRare() && !route.pending && route.active < route.max && random.nextFloat() < route.chancePerDay) route.pending = true;
-        }
-    }
-
-    private void spawn(float amount, int cap) {
-        for (ShuttleRoute route : network.routes.values()) {
-            if (route.active >= route.max) continue;
-
-            if (route.isRare()) {
-                if (!route.pending) continue;
-            } else {
-                route.timer -= amount;
-                if (route.timer > 0f) continue;
-                route.timer = getInterval(route);
-            }
-
-            List<Shuttle> launched = flights.launch(route, getRoom(route, cap));
-            if (launched.isEmpty()) continue;
-
-            route.pending = false;
-            route.active++;
-            shuttles.addAll(launched);
-        }
-    }
-
-    private int getRoom(ShuttleRoute route, int cap) {
-        return (int) (cap * route.kind.capShare) - shuttles.size();
-    }
-
-    private float getInterval(ShuttleRoute route) {
-        float jitter = 0.6f + 0.8f * random.nextFloat();
-        if (route.b == null) return route.kind.pause * jitter;
-
-        float flightTime = Misc.getDistance(route.a.getLocation(), route.b.getLocation()) / 27f + 6f;
-        return flightTime / Math.max(1, route.max) * jitter;
-    }
-
-    private void updateThreats() {
-        for (ShuttleAnchor anchor : network.anchors.values()) {
-            anchor.threatened = false;
-            anchor.overrun = false;
-            if (anchor.role == ShuttleAnchor.Role.REMNANT || anchor.faction == null) continue;
-
-            Vector2f loc = anchor.getLocation();
-            if (fleetScan.findThreat(loc.x, loc.y, anchor.getRadius() + ANCHOR_THREAT_RANGE, anchor.faction) < 0) continue;
-
-            anchor.threatened = true;
-            anchor.lastThreatDay = days;
-            anchor.overrun = fleetScan.findThreat(loc.x, loc.y, anchor.getRadius(), anchor.faction) >= 0;
-        }
-    }
-
-    private void react() {
-        for (Shuttle shuttle : shuttles) {
-            if (shuttle.done || shuttle.isDown() || shuttle.leader != null || shuttle.isWaiting()) continue;
-
-            if (shuttle.isStranded()) {
-                if (fleetScan.findThreat(shuttle.pos.x, shuttle.pos.y, STRANDED_CLEAR_RANGE, shuttle.faction) >= 0) shuttle.lastThreatNearDay = days;
-                continue;
-            }
-
-            if (shuttle.picket) {
-                int threat = shuttle.home != null && shuttle.home.threatened ? findAnchorThreat(shuttle.home) : -1;
-                if (shuttle.home != null && shuttle.home.overrun) flee(shuttle, threat);
-                else if (threat >= 0) shuttle.screen(fleetScan.x[threat], fleetScan.y[threat], this);
-                else divertIfClosed(shuttle);
-                continue;
-            }
-
-            if (!shuttle.flees) {
-                divertIfClosed(shuttle);
-                continue;
-            }
-
-            boolean destinationThreatened = shuttle.to != null && shuttle.to.threatened;
-            int near = fleetScan.findThreat(shuttle.pos.x, shuttle.pos.y, CRAFT_THREAT_RANGE, shuttle.faction);
-
-            if (destinationThreatened || (near >= 0 && !shuttle.isFleeing())) {
-                flee(shuttle, near >= 0 ? near : findAnchorThreat(shuttle.to));
-                continue;
-            }
-
-            divertIfClosed(shuttle);
-        }
-    }
-
-    private void flee(Shuttle shuttle, int threat) {
-        float threatX = threat >= 0 ? fleetScan.x[threat] : shuttle.pos.x;
-        float threatY = threat >= 0 ? fleetScan.y[threat] : shuttle.pos.y;
-
-        List<Shuttle> wing = new ArrayList<>(shuttle.followers);
-        shuttle.flee(network.findRefuge(null, shuttle.faction, shuttle.pos, location), threatX, threatY, this);
-        for (Shuttle follower : wing) follower.flee(network.findRefuge(null, follower.faction, follower.pos, location), threatX, threatY, this);
-    }
-
-    private int findAnchorThreat(ShuttleAnchor anchor) {
-        if (anchor == null) return -1;
-
-        Vector2f loc = anchor.getLocation();
-        return fleetScan.findThreat(loc.x, loc.y, anchor.getRadius() + ANCHOR_THREAT_RANGE, anchor.faction);
-    }
-
-    private void divertIfClosed(Shuttle shuttle) {
-        if (shuttle.to == null || shuttle.isScreening() || shuttle.to.isUsable(location)) return;
-
-        ShuttleAnchor refuge = network.findRefuge(shuttle.to, shuttle.faction, shuttle.pos, location);
-        if (refuge != null) shuttle.redirect(refuge, this);
-        else if (!shuttle.to.entity.isAlive() || shuttle.to.entity.getContainingLocation() != location) shuttle.done = true;
     }
 
     private void launchQueuedPods() {
