@@ -296,14 +296,17 @@ while (( i < ${#mods[@]} )); do
     done
 done
 # a jar older than its sources (a pull without a build) crashes at load after a whole game start; catch it here.
-# copies made within 2 minutes of the jar count as current, so a staged copy of a built mod passes
+# copies made within 2 minutes of the jar count as current, so a staged copy of a built mod passes. an installed
+# release (a plain folder in GAME/mods) is not built here: LunaLib ships src next to bundled jars older than it
 stale=()
 jars=()
 IFS=';' read -r -a extra <<< "${CHECK_JARS:-}"
 for jar in "${extra[@]}"; do [[ -n $jar ]] && jars+=("$(cygpath -u "$jar")"); done
 for mod in "${mods[@]}" "${stale_dirs[@]}"; do
     src=
-    for d in "$mod/jars/src" "$mod/src"; do [[ -d $d ]] && { src=$d; break; }; done
+    if [[ ${mod,,} != "${GAME,,}/mods/"* || -L ${mod%/} ]]; then
+        for d in "$mod/jars/src" "$mod/src"; do [[ -d $d ]] && { src=$d; break; }; done
+    fi
     mod_info "$mod"
     [[ $REPLY =~ \"jars\"[[:space:]]*:[[:space:]]*\[([^]]*)\] ]] || continue
     list=${BASH_REMATCH[1]}

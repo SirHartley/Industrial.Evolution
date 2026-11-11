@@ -29,7 +29,7 @@ Variables for rarer needs: `JFR=0` (no profile), `PROFILE_BASE=old.jfr` (compare
 2. **Takes a slot** and waits in the queue when the machine is full ([slots.md](slots.md)). The work folder is `work_root/OWNER/slotN`.
 3. **Builds and stages the mod under test** with the project's `stage_mod`, or links it with its built jars ([setup.md](setup.md#building-and-staging-the-mod-under-test)).
 4. **Resolves the mods**: the staged mod, `DEPS`, and every dependency their `mod_info.json` files name, found by id in `GAME/mods` (highest version wins). Each added one prints `Added dependency ...`.
-5. **Stops on a stale jar.** A mod folder with sources whose jar is missing or more than 2 minutes older than its newest `.java` file ends the run with `STALE_JAR`. Such a jar crashes at load after a whole game start.
+5. **Stops on a stale jar.** A mod folder with sources whose jar is missing or more than 2 minutes older than its newest `.java` file ends the run with `STALE_JAR`. Such a jar crashes at load after a whole game start. An installed release (a plain folder in `GAME/mods`, not a link to a checkout) is only checked for missing jars: LunaLib ships its sources next to bundled jars older than them.
 6. **Compiles the check mod** in a copy inside the work folder, against the game and the jars of every enabled mod.
 7. **Makes or reuses the base save.** One per mod list. The first run of a mod list starts a new game (about 3 minutes on a busy PC) and saves it; later runs load it. A slot without one copies it from another slot of the project, and only one run makes it while the others wait.
 8. **Runs the groups** in one game, answers `c.shot` and `c.key`, and watches the log for the end, a crash or a failed load.
