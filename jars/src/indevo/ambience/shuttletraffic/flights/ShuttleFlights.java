@@ -39,12 +39,16 @@ public class ShuttleFlights {
         flights.put(ShuttleRoute.Kind.MARKET, lane);
         flights.put(ShuttleRoute.Kind.PIRATE_CARGO, lane);
         flights.put(ShuttleRoute.Kind.SMUGGLER, lane);
+        flights.put(ShuttleRoute.Kind.COURIER, (route, room) -> BaseFlights.single(lanes.launchCourier(route)));
+        flights.put(ShuttleRoute.Kind.PILGRIM, (route, room) -> BaseFlights.single(lanes.launchPilgrim(route)));
         flights.put(ShuttleRoute.Kind.DARK, (route, room) -> BaseFlights.single(lanes.launchDark(route)));
         flights.put(ShuttleRoute.Kind.DIPLOMAT, (route, room) -> BaseFlights.single(lanes.launchDiplomat(route)));
         flights.put(ShuttleRoute.Kind.HUNT, (route, room) -> BaseFlights.single(lanes.launchHunt(route)));
         flights.put(ShuttleRoute.Kind.CRUISE, local::launchCruise);
         flights.put(ShuttleRoute.Kind.PICKET, local::launchPicket);
         flights.put(ShuttleRoute.Kind.TRAINING, local::launchTraining);
+        flights.put(ShuttleRoute.Kind.PARADE, local::launchParade);
+        flights.put(ShuttleRoute.Kind.TOW, local::launchTow);
         flights.put(ShuttleRoute.Kind.MINING, (route, room) -> BaseFlights.single(local.launchLinger(route)));
         flights.put(ShuttleRoute.Kind.SALVAGE, (route, room) -> BaseFlights.single(local.launchLinger(route)));
         flights.put(ShuttleRoute.Kind.MAINTENANCE, (route, room) -> BaseFlights.single(local.launchMaintenance(route)));

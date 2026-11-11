@@ -19,7 +19,9 @@ public class LaneFlights extends BaseFlights {
 
     private static final Set<String> DIPLOMAT_HULLS = Set.of("hermes", "kite");
     private static final Set<String> HUNT_HULLS = Set.of("shuttlepod", "kite", "mudskipper");
+    private static final Set<String> COURIER_HULLS = Set.of("kite", "hermes");
     private static final float TRAFFIC_LANE_JITTER = 3f;
+    private static final float PILGRIM_SPEED = 0.7f;
 
     public LaneFlights(ShuttleTraffic traffic, ShuttlePaths paths) {
         super(traffic, paths);
@@ -50,6 +52,37 @@ public class LaneFlights extends BaseFlights {
 
         return create(hull, route, faction, from, to, paths.lanePath(from, to, route.bendFrac * (smuggler ? 2f : 1f), smuggler), SpeedClass.CIVIL, 1f, LANE_JITTER,
                 smuggler ? ShuttleLook.SMUGGLER : ShuttleLook.CRAFT, Shuttle.CIVIL);
+    }
+
+    public Shuttle launchCourier(ShuttleRoute route) {
+        ShuttleAnchor from = route.a;
+        ShuttleAnchor to = route.b;
+        if (random.nextBoolean()) {
+            from = route.b;
+            to = route.a;
+        }
+
+        if (!canFly(from, to)) return null;
+
+        ShuttleHull hull = ShuttleHullPool.rollBase(random, COURIER_HULLS);
+        if (hull == null) return null;
+
+        return create(hull, route, from.faction, from, to, paths.lanePath(from, to, route.bendFrac, false), SpeedClass.MILITARY, 1f, LANE_JITTER, ShuttleLook.CRAFT,
+                Shuttle.CIVIL);
+    }
+
+    // one way, to the shrine
+    public Shuttle launchPilgrim(ShuttleRoute route) {
+        ShuttleAnchor from = route.a;
+        ShuttleAnchor to = route.b;
+        if (!canFly(from, to)) return null;
+
+        ShuttleHull hull = ShuttleHullPool.pick(ShuttleHullPool.getFactionPool(from.faction, true), random, h -> h.civilian && h.liner);
+        if (hull == null) hull = ShuttleHullPool.rollCargo(from.faction, random, 0.6f, false);
+        if (hull == null) return null;
+
+        return create(hull, route, from.faction, from, to, paths.lanePath(from, to, route.bendFrac, false), SpeedClass.CIVIL, PILGRIM_SPEED, LANE_JITTER,
+                ShuttleLook.CRAFT, Shuttle.CIVIL);
     }
 
     // a hidden base and its partner either way, or a Pather cell craft to a random other planet; small craft, smuggler look

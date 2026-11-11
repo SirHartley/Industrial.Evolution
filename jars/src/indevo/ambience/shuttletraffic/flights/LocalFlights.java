@@ -31,6 +31,11 @@ public class LocalFlights extends BaseFlights {
     private static final float TOUR_CHANCE = 0.35f;
     private static final float TOUR_SPACING = 14f;
     private static final int REMNANT_PATROL = 2;
+    private static final float PARADE_RADIUS = 120f;
+    private static final int PARADE_WING = 3;
+    private static final Set<String> TUG_HULLS = Set.of("ox", "mudskipper");
+    private static final float TOW_SPEED = 0.6f;
+    private static final float TOW_SIDE = 10f;
 
     public LocalFlights(ShuttleTraffic traffic, ShuttlePaths paths) {
         super(traffic, paths);
@@ -146,13 +151,49 @@ public class LocalFlights extends BaseFlights {
         return create(hull, route, home.faction, home, home, paths.loopPath(home, List.of(lap)), SpeedClass.CIVIL, 1f, LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
     }
 
-    // formations skip the docking queue
-    private static Set<Shuttle.Trait> leaderTraits(Set<Shuttle.Trait> traits, int count) {
-        if (count <= 1) return traits;
+    // a display wing laps its own planet in tight formation
+    public List<Shuttle> launchParade(ShuttleRoute route, int room) {
+        ShuttleAnchor home = route.a;
+        if (!canFly(home, home)) return Collections.emptyList();
 
-        Set<Shuttle.Trait> set = EnumSet.copyOf(traits);
-        set.remove(Shuttle.Trait.QUEUES);
-        return set;
+        ShuttleHull hull = ShuttleHullPool.pick(ShuttleHullPool.getFactionPool(home.faction, true), random, h -> h.fighter);
+        if (hull == null) hull = ShuttleHullPool.getHull(PICKET_FALLBACK, true, 3);
+        if (hull == null) return Collections.emptyList();
+
+        float startAngle = random.nextFloat() * 360f;
+        ShuttlePath.CircleSegment lap = new ShuttlePath.CircleSegment(home.entity, 0f, 0f, home.getRadius() + PARADE_RADIUS, startAngle, 360f * paths.randomSign(), 0f);
+        int count = Math.min(PARADE_WING, room);
+        Shuttle leader = create(hull, route, home.faction, home, home, paths.loopPath(home, List.of(lap)), SpeedClass.MILITARY, 1f, 0f, ShuttleLook.CRAFT,
+                leaderTraits(Shuttle.CIVIL, count));
+        return formation(leader, count, false);
+    }
+
+    // two tugs side by side pull an unlit frigate hull between planet and station
+    public List<Shuttle> launchTow(ShuttleRoute route, int room) {
+        if (room < 3) return Collections.emptyList();
+
+        ShuttleAnchor from = route.a;
+        ShuttleAnchor to = route.b;
+        if (random.nextBoolean()) {
+            from = route.b;
+            to = route.a;
+        }
+
+        if (!canFly(from, to)) return Collections.emptyList();
+
+        ShuttleHull tug = ShuttleHullPool.rollBase(random, TUG_HULLS);
+        ShuttleHull mate = ShuttleHullPool.rollBase(random, TUG_HULLS);
+        ShuttleHull hulk = ShuttleHullPool.pick(ShuttleHullPool.getFactionPool(from.faction, false), random, h -> !h.fighter && !h.civilian);
+        if (hulk == null) hulk = ShuttleHullPool.rollAny(from.faction, random, 0f, false);
+        if (tug == null || mate == null || hulk == null) return Collections.emptyList();
+
+        Shuttle leader = create(tug, route, from.faction, from, to, paths.lanePath(from, to, route.bendFrac, false), SpeedClass.CIVIL, TOW_SPEED, LANE_JITTER,
+                ShuttleLook.CRAFT, leaderTraits(Shuttle.CIVIL, 3));
+        List<Shuttle> craft = new ArrayList<>(3);
+        craft.add(leader);
+        craft.add(follower(leader, mate, ShuttleLook.CRAFT, 0f, TOW_SIDE, 0f, false));
+        craft.add(follower(leader, hulk, ShuttleLook.TOWED, (tug.length + hulk.length) * 0.5f + 4f, TOW_SIDE * 0.5f, 0f, false));
+        return craft;
     }
 
     private List<Shuttle> formation(Shuttle leader, int count, boolean loose) {
@@ -169,10 +210,7 @@ public class LocalFlights extends BaseFlights {
     }
 
     private Shuttle follower(Shuttle leader, float slotBack, float slotSide, float noise, boolean straggler) {
-        Shuttle follower = new Shuttle(leader.hull, null, leader.faction, leader.getFrom(), leader.getTo(), null, leader.getLaunchEnd(), leader.getLandEnd(),
-                leader.getSpeedClass(), leader.getSpeedMult(), 0f, random.nextFloat(), leader.getLook(), leaderTraits(leader.getTraits(), 2));
-        follower.follow(leader, slotBack, slotSide, noise, straggler);
-        return follower;
+        return follower(leader, leader.hull, leader.getLook(), slotBack, slotSide, noise, straggler);
     }
 
     private SectorEntityToken getSight(ShuttleRoute route) {
