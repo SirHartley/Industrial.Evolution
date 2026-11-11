@@ -10,7 +10,7 @@ Added - Refit: Build hullmods in with Relic Components instead of story points (
 Added - Boost Extraction: pay Relic Components on Tech Mining to double next month's finds
 Added - Settings descriptions updated
 Added - Express Delivery for custom production orders: halves the delivery time for Relic Components
-Added - Shuttle Traffic: small craft fly in traffic lanes between the planets and stations of colonized systems, with pleasure cruises, patrols, mining and salvage runs, scavengers, smugglers, traffic that flees hostile fleets, escape pods from destroyed fleets, service shuttles for fleets in orbit, trade shuttles to your fleet, scavenger survey shuttles, raid dropships and evacuation pods (visual only, Quick Settings)
+Added - Shuttle Traffic: small craft fly in traffic lanes between the planets and stations of colonized systems, with pleasure cruises, patrols, mining and salvage runs, scavengers, smugglers, traffic that flees hostile fleets, escape pods from destroyed fleets, service shuttles for fleets in orbit, trade shuttles to your fleet, scavenger survey shuttles, raid dropships, evacuation pods, honour guards at military markets, escort wings, tenders for passing fleets, and craft that dodge your fleet, stall in interdiction pulses and blow up in explosions or under a fleet on sustained burn (visual only, Quick Settings)
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Adjusted - Industrial Supply Store moves its contents to colony storage when the colony is lost
 Adjusted - Cut redundant UI text and tightened service and panel descriptions
