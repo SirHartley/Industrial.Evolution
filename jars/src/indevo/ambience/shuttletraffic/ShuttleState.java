@@ -8,7 +8,9 @@ public enum ShuttleState {
     ESCAPING(1.4f, 2f),
     STRANDED(0.6f, 1f),
     SCREENING(0.6f, 1f),
-    DOWN(1f, 1f);
+    DOWN(1f, 1f),
+    // engines cut by an interdiction pulse, drifting
+    DISABLED(1f, 1f);
 
     public final float pace;
     public final float turnMult;
@@ -50,7 +52,7 @@ public enum ShuttleState {
     }
 
     public ShuttleState flee(boolean refuge) {
-        if (this == DOWN || isStranded()) throw illegal("flee");
+        if (this == DOWN || this == DISABLED || isStranded()) throw illegal("flee");
         return refuge ? FLEEING : ESCAPING;
     }
 
@@ -77,6 +79,16 @@ public enum ShuttleState {
             case SCREENING, STRANDED, DOWN -> CRUISE;
             default -> throw illegal("calm");
         };
+    }
+
+    public ShuttleState disable() {
+        if (this == DOWN || this == DISABLED) throw illegal("disable");
+        return DISABLED;
+    }
+
+    public ShuttleState restart() {
+        if (this != DISABLED) throw illegal("restart");
+        return CRUISE;
     }
 
     private IllegalStateException illegal(String change) {

@@ -115,6 +115,16 @@ public final class ShuttleHullPool {
         return createHull(spec, fighter, wingSize, false, fighter);
     }
 
+    // a fitted wing as a craft in its fleet's look, Remnant wings in the Remnant look; null when the wing has no usable hull
+    public static ShuttleHull getWingHull(String wingId, FactionAPI faction) {
+        FighterWingSpecAPI wing = Global.getSettings().getFighterWingSpec(wingId);
+        ShipVariantAPI variant = wing != null ? wing.getVariant() : null;
+        if (variant == null || variant.getHullSpec() == null) return null;
+
+        getBasePool();
+        return forFaction(faction, createHull(variant.getHullSpec(), true, Math.max(1, Math.min(3, wing.getNumFighters())), false, true));
+    }
+
     // a faction that learned a hull or wing since its pool was built gets a new pool
     public static void dropStaleFactionPools() {
         factionPools.values().removeIf(pool -> pool.faction().getKnownShips().size() != pool.ships()

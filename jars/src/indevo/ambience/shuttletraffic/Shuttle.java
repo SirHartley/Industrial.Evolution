@@ -9,6 +9,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ambience.shuttletraffic.movement.FollowMover;
 import indevo.ambience.shuttletraffic.movement.PathMover;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
+import indevo.ambience.shuttletraffic.movement.SteerMover;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.Color;
@@ -35,11 +36,22 @@ public class Shuttle {
         PICKET
     }
 
+    // free steering: fills the point the craft steers to and its velocity, returns the top speed; the job ends steering through the shuttle
+    public interface Steering {
+        float aim(Shuttle shuttle, ShuttleTraffic traffic, Vector2f point, Vector2f velocity);
+    }
+
     public static final Set<Trait> CIVIL = Collections.unmodifiableSet(EnumSet.of(Trait.AVOIDS, Trait.QUEUES, Trait.FLEES));
 
     private static final float TURN_RATE = 90f;
     private static final float FLEE_WOBBLE = 10f;
     private static final float FLEE_WOBBLE_TIME = 3f;
+    private static final float NEAR_MISS_WOBBLE_TIME = 2f;
+    private static final float REFORM_TIME = 3f;
+    private static final float REFORM_GIVE_UP = 30f;
+    private static final float WRECK_FADE = 0.5f;
+    // share of the drift speed lost per second
+    private static final float DRIFT_DECAY = 0.3f;
     private static final float STRANDED_HOLD_RADIUS = 150f;
     private static final float REFUGE_WAIT_DAYS = 3f;
     private static final int GREY_STEPS = 32;
@@ -71,6 +83,7 @@ public class Shuttle {
     private float stayDays = 0f;
     private float boost = 0f;
     private float boostTime = 0f;
+    private float boostStart = 0f;
     private float delay = 0f;
     private float lastThreatNearDay = -100f;
     private ShuttleBudget.Group group = ShuttleBudget.Group.RARE;
@@ -81,6 +94,19 @@ public class Shuttle {
     private final ShuttleTrail trail;
     private final PathMover mover;
     private FollowMover follow;
+    private SteerMover steer;
+    private Steering steering;
+    private final Vector2f steerPoint = new Vector2f();
+    private final Vector2f steerVel = new Vector2f();
+    private float steerScale = 1f;
+    private float steerAlpha = 1f;
+    // a craft that broke formation flies back into its slot once nobody dodges for REFORM_TIME
+    private Shuttle formerLeader;
+    private float formerBack;
+    private float formerSide;
+    private float formerNoise;
+    private boolean formerStraggler;
+    private float reformAt;
 
     private float facing = 0f;
     private float scale = 1f;
@@ -101,6 +127,16 @@ public class Shuttle {
     private boolean cleared = false;
     private boolean waitForSafeHome = false;
     private float fleeStart = 0f;
+    private float nearMissStart = -100f;
+    // world velocity of the last frame, a hit craft drifts on with it
+    private float velX = 0f;
+    private float velY = 0f;
+    private boolean velocityKnown = false;
+    private float restartAge = 0f;
+    private float driftTurn = 0f;
+    private float wreckAge = -1f;
+    // the fast fleet this craft already rolled against, cleared once it is clear of it
+    private CampaignFleetAPI runOverBy;
     private float resumeDay = 0f;
     private float landDay = 0f;
     private float glowFlicker = 1f;
@@ -170,17 +206,81 @@ public class Shuttle {
         glowFlicker = 1f - look.flicker() + look.flicker() * (float) Math.random();
         if (isTumbling()) spin += look.tumbleRate() * (1f - age / boostTime) * amount;
 
+        if (wreckAge >= 0f) {
+            advanceWreck(amount);
+            return;
+        }
+
         if (state == ShuttleState.DOWN) {
             advanceDown(traffic);
+            velocityKnown = false;
             return;
         }
 
-        if (follow != null) {
+        if (state == ShuttleState.DISABLED) {
+            advanceDisabled(amount, traffic);
+            return;
+        }
+
+        float oldX = pos.x;
+        float oldY = pos.y;
+        if (steer != null) {
+            advanceSteer(amount, traffic);
+        } else if (follow != null) {
             follow.advance(amount);
-            return;
+        } else {
+            mover.advance(amount, traffic);
+            if (formerLeader != null && !done) tryReform();
         }
 
-        mover.advance(amount, traffic);
+        if (velocityKnown && amount > 0f) {
+            velX = (pos.x - oldX) / amount;
+            velY = (pos.y - oldY) / amount;
+        }
+        velocityKnown = true;
+    }
+
+    // engines cut: no glow, no trail, the craft drifts on and turns slowly until it restarts
+    public void disable(float seconds, Random random) {
+        if (!followers.isEmpty()) disperse(random);
+        leaveFormation();
+        stopSteer();
+        setState(state.disable());
+        restartAge = age + seconds;
+        driftTurn = (10f + random.nextFloat() * 15f) * (random.nextBoolean() ? 1f : -1f);
+    }
+
+    public void explode(ShuttleTraffic traffic) {
+        if (wreckAge >= 0f) return;
+
+        Random random = traffic.getRandom();
+        if (!followers.isEmpty()) disperse(random);
+        leaveFormation();
+        stopSteer();
+        wreckAge = 0f;
+
+        LocationAPI location = traffic.getLocation();
+        for (int i = 0; i < 3; i++) {
+            float size = 15f + random.nextFloat() * 15f;
+            Color color = i == 0 ? Color.WHITE : hull.glowColor;
+            location.addHitParticle(new Vector2f(pos), new Vector2f(velX, velY), size, 1f, 0.4f + random.nextFloat() * 0.4f, color);
+        }
+    }
+
+    public boolean isWrecked() {
+        return wreckAge >= 0f;
+    }
+
+    public boolean isHit() {
+        return wreckAge >= 0f || state == ShuttleState.DISABLED;
+    }
+
+    public CampaignFleetAPI getRunOverBy() {
+        return runOverBy;
+    }
+
+    public void setRunOverBy(CampaignFleetAPI fleet) {
+        runOverBy = fleet;
     }
 
     public void redirect(ShuttleAnchor newTarget, ShuttleTraffic traffic) {
@@ -276,15 +376,64 @@ public class Shuttle {
 
     public float getSpeed(float ease) {
         float speed = getCruiseSpeed() * state.pace * ease;
-        if (boostTime > 0f && age < boostTime) speed += boost * (1f - age / boostTime);
+        float since = age - boostStart;
+        if (boostTime > 0f && since < boostTime) speed += boost * (1f - since / boostTime);
         return speed;
     }
 
-    public float getFleeWobble() {
-        if (!state.isFleeing()) return 0f;
+    // starts free steering from the current spot, appear fades the craft in from half size as it leaves a pad or a fleet
+    public void beginSteer(Steering job, Vector2f startVel, boolean appear) {
+        if (follow != null) leaveFormation();
+        steering = job;
+        steer = new SteerMover(pos, startVel);
+        steerScale = 1f;
+        steerAlpha = 1f;
+        trail.clear();
+        facingSet = startVel.lengthSquared() > 1f;
+        if (facingSet) facing = Misc.getAngleInDegrees(startVel);
+        if (appear) {
+            appearRamp = 0f;
+            appearAlpha = 0f;
+            appearScale = 0.5f;
+        }
+    }
+
+    // the job's look for this frame, folding into a fleet shrinks and fades the craft
+    public void setSteerLook(float scaleMult, float alphaMult) {
+        steerScale = scaleMult;
+        steerAlpha = alphaMult;
+    }
+
+    // from free steering onto a path to an anchor, slowing from the steering speed to cruise over 2 s
+    public void landAt(ShuttleAnchor anchor, ShuttleTraffic traffic) {
+        float speed = steer != null ? steer.vel.length() : 0f;
+        stopSteer();
+        to = anchor;
+        cleared = false;
+        boost = Math.max(0f, speed - getCruiseSpeed());
+        boostTime = 2f;
+        boostStart = age;
+        setPath(traffic.getPaths().redirectPath(null, pos, facing, anchor), End.NONE, anchor.getEnd());
+    }
+
+    public boolean isSteering() {
+        return steer != null;
+    }
+
+    // a near miss: the flee wobble for 2 s and the formation breaks
+    public void nearMiss(Random random) {
+        if (age - nearMissStart >= NEAR_MISS_WOBBLE_TIME) nearMissStart = age;
+        if (!followers.isEmpty()) disperse(random);
+    }
+
+    public float getWobble() {
+        float wobble = 0f;
+        float sinceNearMiss = age - nearMissStart;
+        if (sinceNearMiss < NEAR_MISS_WOBBLE_TIME) wobble += FLEE_WOBBLE * (1f - sinceNearMiss / NEAR_MISS_WOBBLE_TIME) * (float) Math.sin(sinceNearMiss * 6f);
+        if (!state.isFleeing()) return wobble;
 
         float since = age - fleeStart;
-        return FLEE_WOBBLE * Math.max(0f, 1f - since / FLEE_WOBBLE_TIME) * (float) Math.sin(since * 2f);
+        return wobble + FLEE_WOBBLE * Math.max(0f, 1f - since / FLEE_WOBBLE_TIME) * (float) Math.sin(since * 2f);
     }
 
     public void setFacing(float angle) {
@@ -450,7 +599,7 @@ public class Shuttle {
 
     // redirect only leaves holding laps; screening, stranded and landed craft keep their own paths
     public boolean canRedirect() {
-        return !isDone() && (state == ShuttleState.CRUISE || state == ShuttleState.HOLDING || state == ShuttleState.FLEEING
+        return !isDone() && wreckAge < 0f && (state == ShuttleState.CRUISE || state == ShuttleState.HOLDING || state == ShuttleState.FLEEING
                 || state == ShuttleState.FLEEING_HOLDING);
     }
 
@@ -510,7 +659,7 @@ public class Shuttle {
         sprite.setNormalBlend();
         sprite.renderAtCenter(pos.x, pos.y);
 
-        if (look.glow() && !isTumbling()) {
+        if (look.glow() && !isTumbling() && !isHit()) {
             // never wider than the craft: 0.7 * 1.3 at most
             float glowSize = hull.width * scale * 0.7f * glowMult;
             glow.setSize(glowSize, glowSize);
@@ -523,7 +672,7 @@ public class Shuttle {
     }
 
     private boolean isTumbling() {
-        return look.tumbleRate() != 0f && age < boostTime;
+        return look.tumbleRate() != 0f && age - boostStart < boostTime;
     }
 
     // the tumble blends into the heading over the boost
@@ -539,7 +688,8 @@ public class Shuttle {
     private float getRenderAlpha(float alphaMult) {
         if (delay > 0f || state == ShuttleState.DOWN) return 0f;
         float fader = tiedFleet != null && !tiedFleet.isPlayerFleet() ? tiedFleet.getSensorFaderBrightness() : 1f;
-        return alpha * alphaMult * fader;
+        float wreck = wreckAge >= 0f ? Math.max(0f, 1f - wreckAge / WRECK_FADE) : 1f;
+        return alpha * alphaMult * fader * wreck;
     }
 
     private float getRearX() {
@@ -641,10 +791,110 @@ public class Shuttle {
         setPath(traffic.getPaths().holdPath(getFrame(), pos, facing, STRANDED_HOLD_RADIUS), End.NONE, End.NONE);
     }
 
+    private void advanceSteer(float amount, ShuttleTraffic traffic) {
+        float top = steering.aim(this, traffic, steerPoint, steerVel);
+        if (steer == null || done) return;
+
+        steer.steer(amount, steerPoint.x, steerPoint.y, steerVel.x, steerVel.y, top);
+        pos.set(steer.pos);
+        if (steer.vel.lengthSquared() > 25f) updateFacing(amount, Misc.getAngleInDegrees(steer.vel));
+        else turnSpeed = 0f;
+
+        scale = steerScale;
+        alpha = steerAlpha;
+        darken = 1f;
+        glowMult = 1f;
+        throttle = Math.max(0.4f, Math.min(1f, steer.vel.length() / Math.max(1f, getCruiseSpeed())));
+        if (appearRamp < 1f) {
+            appearRamp = Math.min(1f, appearRamp + amount);
+            alpha *= appearAlpha + (1f - appearAlpha) * appearRamp;
+            scale *= appearScale + (1f - appearScale) * appearRamp;
+        }
+
+        trail.shift(0f, 0f);
+        trail.pushHistoryIfMoved(pos.x, pos.y);
+        pushTrailAtRear();
+    }
+
+    private void stopSteer() {
+        steer = null;
+        steering = null;
+    }
+
+    private void advanceWreck(float amount) {
+        wreckAge += amount;
+        drift(amount);
+        if (wreckAge >= WRECK_FADE) done = true;
+    }
+
+    private void advanceDisabled(float amount, ShuttleTraffic traffic) {
+        drift(amount);
+        facing = Misc.normalizeAngle(facing + driftTurn * amount);
+        if (age >= restartAge) restart(traffic);
+    }
+
+    private void drift(float amount) {
+        float decay = Math.max(0f, 1f - DRIFT_DECAY * amount);
+        velX *= decay;
+        velY *= decay;
+        pos.x += velX * amount;
+        pos.y += velY * amount;
+        trail.shift(0f, 0f);
+    }
+
+    // back to where it was going, or home, from wherever it drifted to
+    private void restart(ShuttleTraffic traffic) {
+        setState(state.restart());
+        LocationAPI location = traffic.getLocation();
+        ShuttleAnchor target = to != null && to.isUsable(location) ? to : home != null && home.isUsable(location) ? home : null;
+        if (target == null) {
+            done = true;
+            return;
+        }
+
+        to = target;
+        cleared = false;
+        setPath(traffic.getPaths().redirectPath(null, pos, facing, target), End.NONE, target.getEnd());
+    }
+
+    private void leaveFormation() {
+        if (follow != null) {
+            follow.getLeader().followers.remove(this);
+            follow = null;
+        }
+        formerLeader = null;
+    }
+
+    private void tryReform() {
+        Shuttle lead = formerLeader;
+        if (lead.isDone() || lead.isDown() || lead.isFollower() || age > reformAt + REFORM_GIVE_UP) {
+            formerLeader = null;
+            return;
+        }
+
+        if (mover.isDodging() || lead.mover.isDodging()) {
+            reformAt = age + REFORM_TIME;
+            return;
+        }
+
+        if (age < reformAt || lead.state != state || state != ShuttleState.CRUISE || !mover.sharesPath(lead.mover)) return;
+
+        formerLeader = null;
+        follow = new FollowMover(this, lead, formerBack, formerSide, formerNoise, formerStraggler);
+        follow.blendFrom(pos);
+        lead.followers.add(this);
+    }
+
     private void breakFrom(Shuttle lead, Random random) {
         float slotBack = follow.getSlotBack();
         float slotSide = follow.getSlotSide();
         SectorEntityToken leadFrame = follow.getFrame();
+        formerLeader = lead;
+        formerBack = slotBack;
+        formerSide = slotSide;
+        formerNoise = follow.getNoise();
+        formerStraggler = follow.isStraggler();
+        reformAt = age + REFORM_TIME;
         follow = null;
         from = lead.from;
         to = lead.to;

@@ -72,6 +72,18 @@ public class PodFlights extends BaseFlights {
         queue.add(new PodEvent(fleetLocation, point, planet, bursts, getAwayHeading(fleet, battle, point)));
     }
 
+    // a crewed craft that blew up: one pod toward the nearest planet in pod range, at once
+    public void launchFromWreck(Vector2f point, float heading, FactionAPI faction) {
+        List<Shuttle> pods = traffic.getPods();
+        LocationAPI location = traffic.getLocation();
+        if (pods.size() >= POD_CAP || location == null) return;
+
+        PlanetAPI planet = findPodPlanet(location, point, faction);
+        if (planet == null) return;
+
+        pods.addAll(launch(new PodEvent(location, new Vector2f(point), planet, List.of(1), heading), 1));
+    }
+
     public void queueEvacuation(MarketAPI market, int count) {
         if (Setting.SHUTTLE_TRAFFIC.intValue() > 0 && market != null && market.getPrimaryEntity() instanceof PlanetAPI) evacuations.add(new Evacuation(market, count));
     }
