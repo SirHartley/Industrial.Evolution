@@ -54,6 +54,7 @@ public class ShuttleTraffic {
             daysSinceRebuild += elapsedDays;
             if (daysSinceRebuild >= 1f) {
                 daysSinceRebuild = 0f;
+                ShuttleHullPool.dropStaleFactionPools();
                 network.rebuild(location, random);
                 spawner.rollRareFlights();
             }

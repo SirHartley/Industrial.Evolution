@@ -41,9 +41,10 @@ public final class ShuttleHullPool {
     private static final Color DEFAULT_GLOW = new Color(255, 145, 75, 255);
     private static final Logger log = Global.getLogger(ShuttleHullPool.class);
 
-    private static final Map<String, ShuttleHull> hulls = new HashMap<>();
-    private static final Map<String, List<ShuttleHull>> factionPools = new HashMap<>();
-    private static final Map<ShuttleHull, Float> baseWeights = new HashMap<>();
+    private static final Map<String, ShuttleHull.Look> looks = new HashMap<>();
+    private static final Map<String, FactionPool> factionPools = new HashMap<>();
+    private static final Map<String, ShuttleHull> baseEntries = new HashMap<>();
+    private static final Map<String, Float> baseWeights = new HashMap<>();
     private static List<ShuttleHull> basePool;
     private static ShuttleHull podHull;
     private static boolean podChecked = false;
@@ -51,12 +52,19 @@ public final class ShuttleHullPool {
     private static JSONObject engineStyles;
     private static boolean reflectionWarned = false;
 
+    private record FactionPool(FactionAPI faction, int ships, int fighters, List<ShuttleHull> hulls) {
+    }
+
+    private record EngineLook(Color glow, Color trail, boolean additive) {
+    }
+
     private ShuttleHullPool() {
     }
 
     public static void reset() {
-        hulls.clear();
+        looks.clear();
         factionPools.clear();
+        baseEntries.clear();
         baseWeights.clear();
         basePool = null;
         podHull = null;
@@ -96,6 +104,12 @@ public final class ShuttleHullPool {
         return createHull(spec, fighter, wingSize, false, fighter);
     }
 
+    // a faction that learned a hull or wing since its pool was built gets a new pool
+    public static void dropStaleFactionPools() {
+        factionPools.values().removeIf(pool -> pool.faction().getKnownShips().size() != pool.ships()
+                || pool.faction().getKnownFighters().size() != pool.fighters());
+    }
+
     // the vanilla mining drone sprite at a fixed length, null when a mod removed the hull
     public static ShuttleHull getPod() {
         if (podChecked) return podHull;
@@ -108,9 +122,10 @@ public final class ShuttleHullPool {
             return null;
         }
 
-        EngineLook look = getEngineLook(spec);
+        EngineLook engine = getEngineLook(spec);
         float width = POD_LENGTH * sprite.getWidth() / Math.max(1f, sprite.getHeight());
-        podHull = new ShuttleHull(POD_HULL, sprite, true, false, true, false, false, 1, look.glow, look.trail, look.additive, width, POD_LENGTH);
+        ShuttleHull.Look look = new ShuttleHull.Look(POD_HULL, sprite, engine.glow, engine.trail, engine.additive);
+        podHull = new ShuttleHull(look, true, false, true, false, false, 1, width, POD_LENGTH);
         return podHull;
     }
 
@@ -153,11 +168,15 @@ public final class ShuttleHullPool {
                 continue;
             }
 
-            ShuttleHull hull = createHull(spec, spec.getHullSize() == HullSize.FIGHTER, 1, true, row.optBoolean("small", false));
-            if (hull == null) continue;
+            ShuttleHull.Look look = getLook(spec);
+            if (look == null) continue;
 
+            EnumSet<ShipTypeHints> hints = spec.getHints();
+            ShuttleHull hull = new ShuttleHull(look, spec.getHullSize() == HullSize.FIGHTER, true, row.optBoolean("small", false),
+                    hints.contains(ShipTypeHints.LINER), hints.contains(ShipTypeHints.FREIGHTER), 1);
             basePool.add(hull);
-            baseWeights.put(hull, (float) row.optDouble("weight", 1d));
+            baseEntries.putIfAbsent(hullId, hull);
+            baseWeights.put(hullId, (float) row.optDouble("weight", 1d));
         }
 
         return basePool;
@@ -165,12 +184,12 @@ public final class ShuttleHullPool {
 
     public static List<ShuttleHull> getFactionPool(FactionAPI faction, boolean crewed) {
         String key = faction.getId() + (crewed ? "" : "|any");
-        List<ShuttleHull> pool = factionPools.get(key);
-        if (pool != null) return pool;
+        FactionPool cached = factionPools.get(key);
+        if (cached != null) return cached.hulls();
 
         // base rows first, shared hulls keep their csv flags
         getBasePool();
-        pool = new ArrayList<>();
+        List<ShuttleHull> pool = new ArrayList<>();
 
         for (String wingId : faction.getKnownFighters()) {
             FighterWingSpecAPI wing = Global.getSettings().getFighterWingSpec(wingId);
@@ -180,7 +199,7 @@ public final class ShuttleHullPool {
             if (variant == null || variant.getHullSpec() == null || (crewed && !isCrewed(variant.getHullSpec()))) continue;
 
             ShuttleHull hull = createHull(variant.getHullSpec(), true, Math.max(1, Math.min(3, wing.getNumFighters())), false, true);
-            if (hull != null && !pool.contains(hull)) pool.add(hull);
+            if (hull != null && !contains(pool, hull)) pool.add(hull);
         }
 
         for (String hullId : faction.getKnownShips()) {
@@ -193,15 +212,20 @@ public final class ShuttleHullPool {
             if (hints.contains(ShipTypeHints.STATION) || hints.contains(ShipTypeHints.MODULE)) continue;
 
             ShuttleHull hull = createHull(spec, false, 1, isCivilian(hints), SMALL_FRIGATE.equals(spec.getBaseHullId()));
-            if (hull != null && !pool.contains(hull)) pool.add(hull);
+            if (hull != null && !contains(pool, hull)) pool.add(hull);
         }
 
-        factionPools.put(key, pool);
+        factionPools.put(key, new FactionPool(faction, faction.getKnownShips().size(), faction.getKnownFighters().size(), pool));
         return pool;
     }
 
+    private static boolean contains(List<ShuttleHull> pool, ShuttleHull hull) {
+        for (ShuttleHull entry : pool) if (entry.hullId.equals(hull.hullId) && entry.wingSize == hull.wingSize) return true;
+        return false;
+    }
+
     private static float getWeight(ShuttleHull hull) {
-        Float base = baseWeights.get(hull);
+        Float base = baseWeights.get(hull.hullId);
         if (base != null) return base;
         if (hull.civilian) return 3f;
         if (hull.fighter) return 2f;
@@ -226,24 +250,33 @@ public final class ShuttleHullPool {
         return hullId != null && knownHullIds.contains(hullId);
     }
 
+    // a hull with a csv row keeps the csv flags in every pool, the wing size is per entry
     private static ShuttleHull createHull(ShipHullSpecAPI spec, boolean fighter, int wingSize, boolean civilian, boolean small) {
+        ShuttleHull base = baseEntries.get(spec.getHullId());
+        if (base != null) return base.withWingSize(wingSize);
+
+        ShuttleHull.Look look = getLook(spec);
+        if (look == null) return null;
+
+        EnumSet<ShipTypeHints> hints = spec.getHints();
+        return new ShuttleHull(look, fighter, civilian, small, hints.contains(ShipTypeHints.LINER), hints.contains(ShipTypeHints.FREIGHTER), wingSize);
+    }
+
+    private static ShuttleHull.Look getLook(ShipHullSpecAPI spec) {
         String key = spec.getHullId();
-        if (hulls.containsKey(key)) return hulls.get(key);
+        if (looks.containsKey(key)) return looks.get(key);
 
         SpriteAPI sprite = loadSprite(spec.getSpriteName());
         if (sprite == null) {
             log.warn("Shuttle traffic: no sprite for hull " + key);
-            hulls.put(key, null);
+            looks.put(key, null);
             return null;
         }
 
-        EnumSet<ShipTypeHints> hints = spec.getHints();
-        EngineLook look = getEngineLook(spec);
-        ShuttleHull hull = new ShuttleHull(key, sprite, fighter, civilian, small, hints.contains(ShipTypeHints.LINER),
-                hints.contains(ShipTypeHints.FREIGHTER), wingSize, look.glow, look.trail, look.additive);
-
-        hulls.put(key, hull);
-        return hull;
+        EngineLook engine = getEngineLook(spec);
+        ShuttleHull.Look look = new ShuttleHull.Look(key, sprite, engine.glow, engine.trail, engine.additive);
+        looks.put(key, look);
+        return look;
     }
 
     private static SpriteAPI loadSprite(String path) {
@@ -325,8 +358,5 @@ public final class ShuttleHullPool {
 
     private static int clamp(int value) {
         return Math.max(0, Math.min(255, value));
-    }
-
-    private record EngineLook(Color glow, Color trail, boolean additive) {
     }
 }
