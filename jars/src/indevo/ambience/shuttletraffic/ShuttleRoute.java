@@ -19,7 +19,8 @@ public class ShuttleRoute {
         PICKET(ShuttleBudget.Group.LOCAL, 2, 10f, SpeedClass.MILITARY),
         CRUISE(ShuttleBudget.Group.LOCAL, 2, 15f, SpeedClass.CIVIL),
         TRAINING(ShuttleBudget.Group.LOCAL, 3, 20f, SpeedClass.MILITARY),
-        FLEET_SERVICE(ShuttleBudget.Group.FLEET, 1, 0f, SpeedClass.SERVICE);
+        FLEET_SERVICE(ShuttleBudget.Group.FLEET, 1, 0f, SpeedClass.SERVICE),
+        TRADE(ShuttleBudget.Group.FLEET, 1, 0f, SpeedClass.SERVICE);
 
         public final ShuttleBudget.Group group;
         // typical craft per launch, formations and races count each craft against the cap

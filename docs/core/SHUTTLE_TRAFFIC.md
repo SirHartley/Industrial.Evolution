@@ -42,7 +42,7 @@ Package `indevo/ambience/shuttletraffic/`:
 | `ShuttleFleetScan.java` | Pooled entries for fleets near the player, threat fleets and `ORBIT_PASSIVE` fleets in the location, with assignment, target and fleet type, rebuilt every 0.25 s |
 | `ShuttleHull.java` | Hull look (sprite, engine colours, cached per hull id), size, speed, flags, wing size |
 | `ShuttleHullPool.java` | Base pool from the CSV, faction pools, crew rule, rolls per flight kind, escape pod hull |
-| `listeners/EscapePodListener.java` | Transient `BaseCampaignEventListener`: queues fleets destroyed in battle |
+| `listeners/ShuttleCampaignListener.java` | Transient `BaseCampaignEventListener`: queues fleets destroyed in battle (pods) and player market transactions (trade shuttles) |
 | `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, budget split, state transitions, trail length by time, service hops to a fleet in orbit and the turn back when it leaves |
 | `data/config/indEvo/shuttle_traffic.csv` | Base civilian craft: `id, hullId, weight, small` |
 
@@ -60,7 +60,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> ShuttleTrafficRenderer.register()` (`indevo/utils/ModPlugin.java:493`). Guarded with `LunaCampaignRenderer.hasRendererOfClass`; resets the hull pool caches, adds a transient renderer and a transient `EscapePodListener` (`Global.getSector().addTransientListener`) (`renderers/ShuttleTrafficRenderer.java:30`).
+- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> ShuttleTrafficRenderer.register()` (`indevo/utils/ModPlugin.java:493`). Guarded with `LunaCampaignRenderer.hasRendererOfClass`; resets the hull pool caches, adds a transient renderer and a transient `ShuttleCampaignListener` (`Global.getSector().addTransientListener`) (`renderers/ShuttleTrafficRenderer.java:30`).
 - LunaLib's `luna_campaign_renderer` entity renders the plugin in every layer and only advances it while that entity is in the player's location.
 
 `ShuttleTrafficRenderer.advance -> ShuttleTraffic.advance -> [location changed] network.rebuild -> fleetScan.scan -> reactions.updateThreats -> spawner.warmStart | [1 day] ShuttleHullPool.dropStaleFactionPools -> network.rebuild -> spawner.rollRareFlights -> [0.25 s] fleetScan.scan -> reactions.updateThreats -> reactions.react -> spawner.spawn -> PodFlights.launchQueued -> Shuttle.advance -> PathMover or FollowMover`
@@ -150,9 +150,15 @@ Fighters on pickets fly as a wing of `wingSize` (at most 3); training groups are
 - Service speed (x1.8 of civil, 54 su/s fighters), easing to 15% at the ends, 1 s trail, steadier glow (`ShuttleLook.SERVICE`). Path (`ShuttlePaths.servicePath`): one Bezier from a pad turned toward the fleet (+-30 degrees) to a `FleetWaypoint`, the fleet's location plus a fixed random offset within half its radius; handles `min(80, distance * 0.35)`. Fleet end at the fleet, planet or station look at the pad, no docking queue. They never dodge their own fleet, dodge others and flee like other traffic.
 - Route end (the fleet's assignment changes, it moves past 1500 su, despawns or is no longer visible): no more launches; craft flying to the fleet turn back to the pad on a path that starts where they are (a fleet frame is never used for the turn); craft from the fleet carry on. If the fleet is gone or its sensor fader is at 0, all its craft are removed.
 
+### Player trade shuttles
+
+- `ShuttleCampaignListener.reportPlayerMarketTransaction` sums cargo space, fuel and personnel bought and sold per market while the dialog is open (`FleetFlights.queueTrade`). The submarket is the one the trade screen traded with (`getSubmarketTradedWith()`, knowledge skill `obf/campaign/ui/class.java:693`).
+- When no dialog shows (`FleetFlights.launchQueued`): if the market's primary entity is a traffic anchor and the player is within 600 su of it, `clamp(moved / 200, 2, 8)` craft launch over 3 s (`Shuttle.holdFor`), pad to fleet when more was bought, else fleet to pad. Service speed and look; black market trades (`Submarkets.SUBMARKET_BLACK`) or a transponder off give dark craft with the smuggler look.
+- A `TRADE` route per market pad holds the burst (the spawner never launches it); when the player moves more than 600 su from the pad, craft flying to the fleet turn back.
+
 ### Escape pods
 
-- `EscapePodListener.reportFleetDespawned` (`:18`) on `FleetDespawnReason.DESTROYED_BY_BATTLE`, not the player fleet, in the player's location. `CampaignFleet.despawn` reports while the fleet is still in place (knowledge skill `obf/campaign/fleet/CampaignFleet.java:1599`).
+- `ShuttleCampaignListener.reportFleetDespawned` on `FleetDespawnReason.DESTROYED_BY_BATTLE`, not the player fleet, in the player's location. `CampaignFleet.despawn` reports while the fleet is still in place (knowledge skill `obf/campaign/fleet/CampaignFleet.java:1599`).
 - Bursts (`PodFlights.getBursts`): from `getFleetData().getSnapshot()`, crewed non automated members only, one burst per ship: 2 pods per frigate or destroyer, 3 per cruiser or capital, at most 16 pods per fleet; an empty snapshot gives one burst of 3.
 - Away heading (`getAwayHeading`): `FleetEncounterContext` passes the `BattleAPI` as the despawn param (knowledge skill `api/impl/campaign/FleetEncounterContext.java:827`); pods fan away from the centre of `battle.getOtherSideFor(fleet)`, else from the nearest hostile threat in the scan within 3000 su, else in random directions.
 - Planet (`findPodPlanet`): nearest non star planet whose surface is within 2000 su; a non hostile market planet in range wins over a closer one.

@@ -1,14 +1,20 @@
 package indevo.ambience.shuttletraffic.flights;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
+import com.fs.starfarer.api.campaign.PlayerMarketTransaction;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
+import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ambience.shuttletraffic.Shuttle;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
+import indevo.ambience.shuttletraffic.ShuttleBudget;
 import indevo.ambience.shuttletraffic.ShuttleFleetScan;
 import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleHullPool;
@@ -16,10 +22,12 @@ import indevo.ambience.shuttletraffic.ShuttleLook;
 import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
 import indevo.ambience.shuttletraffic.SpeedClass;
+import indevo.config.Setting;
 
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,10 +38,97 @@ public class FleetFlights extends BaseFlights {
     private static final float ANCHOR_RANGE = 400f;
     private static final float ARRIVED_RANGE = 1500f;
     private static final float BASE_SHARE = 0.7f;
+    private static final float TRADE_SPACE_PER_CRAFT = 200f;
+    private static final int TRADE_MIN = 2;
+    private static final int TRADE_MAX = 8;
+    private static final float TRADE_BURST_TIME = 3f;
+    private static final float TRADE_RANGE = 600f;
     private static final Set<Shuttle.Trait> SERVICE_TRAITS = Collections.unmodifiableSet(EnumSet.of(Shuttle.Trait.AVOIDS, Shuttle.Trait.FLEES));
+
+    // cargo moved per market while the trade dialog is open
+    private final Map<MarketAPI, Trade> trades = new LinkedHashMap<>();
+
+    private static final class Trade {
+        float bought;
+        float sold;
+        boolean dark;
+    }
 
     public FleetFlights(ShuttleTraffic traffic, ShuttlePaths paths) {
         super(traffic, paths);
+    }
+
+    public void queueTrade(PlayerMarketTransaction transaction) {
+        MarketAPI market = transaction.getMarket();
+        if (Setting.SHUTTLE_TRAFFIC.intValue() <= 0 || market == null) return;
+
+        Trade trade = trades.computeIfAbsent(market, m -> new Trade());
+        trade.bought += getMoved(transaction.getBought());
+        trade.sold += getMoved(transaction.getSold());
+        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+        boolean blackMarket = transaction.getSubmarket() != null && Submarkets.SUBMARKET_BLACK.equals(transaction.getSubmarket().getSpecId());
+        trade.dark |= blackMarket || (player != null && !player.isTransponderOn());
+    }
+
+    public void clearQueue() {
+        trades.clear();
+    }
+
+    // a burst of cargo craft between the pad and the player fleet once the dialog closes
+    public void launchQueued() {
+        if (trades.isEmpty() || Global.getSector().getCampaignUI().isShowingDialog()) return;
+
+        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+        for (Map.Entry<MarketAPI, Trade> entry : trades.entrySet()) {
+            MarketAPI market = entry.getKey();
+            Trade trade = entry.getValue();
+            ShuttleAnchor pad = market.getPrimaryEntity() != null ? network.anchors.get(market.getPrimaryEntity()) : null;
+            if (player == null || pad == null || pad.role != ShuttleAnchor.Role.MARKET || player.getContainingLocation() != traffic.getLocation()) continue;
+
+            int count = Math.max(TRADE_MIN, Math.min(TRADE_MAX, Math.round((trade.bought + trade.sold) / TRADE_SPACE_PER_CRAFT)));
+            launchTrade(pad, player, count, trade.bought >= trade.sold, trade.dark);
+        }
+
+        trades.clear();
+    }
+
+    private void launchTrade(ShuttleAnchor pad, CampaignFleetAPI player, int count, boolean toFleet, boolean dark) {
+        if (!canFly(pad, pad) || Misc.getDistance(player.getLocation(), pad.getLocation()) - pad.getRadius() > TRADE_RANGE) return;
+
+        String key = ShuttleRoute.Kind.TRADE.name() + "|" + pad.entity.getId();
+        ShuttleRoute route = traffic.getFleetRoutes().get(key);
+        if (route == null) {
+            route = new ShuttleRoute(key, ShuttleRoute.Kind.TRADE, pad, ShuttleAnchor.forFleet(player), 0f);
+            route.fleet = player;
+            // the spawner never launches a trade route, the burst does
+            route.max = 0;
+            traffic.getFleetRoutes().put(key, route);
+        }
+
+        ShuttleBudget budget = traffic.getBudget();
+        budget.count(traffic.getShuttles());
+        int room = Math.min(count, budget.getRoom(ShuttleBudget.Group.FLEET));
+        for (int i = 0; i < room; i++) {
+            ShuttleHull hull = toFleet ? ShuttleHullPool.rollCargo(pad.faction, random, BASE_SHARE, true) : ShuttleHullPool.rollSmall(player.getFaction(), random);
+            if (hull == null) hull = ShuttleHullPool.rollCargo(null, random, 1f, true);
+            if (hull == null) return;
+
+            ShuttleAnchor from = toFleet ? pad : route.b;
+            ShuttleAnchor to = toFleet ? route.b : pad;
+            Shuttle shuttle = create(hull, route, toFleet ? pad.faction : player.getFaction(), from, to, paths.servicePath(pad, player, toFleet, false), SpeedClass.SERVICE,
+                    1f, 0f, dark ? ShuttleLook.SMUGGLER : ShuttleLook.SERVICE, SERVICE_TRAITS);
+            shuttle.tieTo(player);
+            shuttle.holdFor(TRADE_BURST_TIME * (i + random.nextFloat()) / room);
+            shuttle.setGroup(ShuttleBudget.Group.FLEET);
+            budget.add(ShuttleBudget.Group.FLEET, 1);
+            route.active++;
+            traffic.getShuttles().add(shuttle);
+        }
+    }
+
+    // cargo, fuel and crew all ride the same shuttles
+    private static float getMoved(CargoAPI cargo) {
+        return cargo == null ? 0f : cargo.getSpaceUsed() + cargo.getFuel() + cargo.getTotalPersonnel();
     }
 
     // after every fleet scan: routes for serviced fleets, the rest end
@@ -65,7 +160,14 @@ public class FleetFlights extends BaseFlights {
         Iterator<ShuttleRoute> iterator = routes.values().iterator();
         while (iterator.hasNext()) {
             ShuttleRoute route = iterator.next();
-            if (route.kind != ShuttleRoute.Kind.FLEET_SERVICE || route.seen) continue;
+            boolean over = switch (route.kind) {
+                case FLEET_SERVICE -> !route.seen;
+                // the burst only shows while the player stays near the pad
+                case TRADE -> route.active <= 0 || route.fleet.getContainingLocation() != traffic.getLocation()
+                        || Misc.getDistance(route.fleet.getLocation(), route.a.getLocation()) - route.a.getRadius() > TRADE_RANGE;
+                default -> false;
+            };
+            if (!over) continue;
 
             end(route);
             iterator.remove();
@@ -97,8 +199,8 @@ public class FleetFlights extends BaseFlights {
 
     // no more launches; craft flying to the fleet turn back to the pad, craft from it carry on, all go when the fleet is out of sight
     private void end(ShuttleRoute route) {
-        boolean seen = route.fleet != null && route.fleet.isAlive() && route.fleet.getSensorFaderBrightness() > 0.01f
-                && route.fleet.getContainingLocation() == traffic.getLocation();
+        boolean seen = route.fleet != null && route.fleet.isAlive() && route.fleet.getContainingLocation() == traffic.getLocation()
+                && (route.fleet.isPlayerFleet() || route.fleet.getSensorFaderBrightness() > 0.01f);
 
         for (Shuttle shuttle : traffic.getShuttles()) {
             if (shuttle.getRoute() != route || shuttle.isDone()) continue;

@@ -42,6 +42,7 @@ public class ShuttleFlights {
         flights.put(ShuttleRoute.Kind.SALVAGE, (route, room) -> BaseFlights.single(local.launchLinger(route)));
         flights.put(ShuttleRoute.Kind.MAINTENANCE, (route, room) -> BaseFlights.single(local.launchMaintenance(route)));
         flights.put(ShuttleRoute.Kind.FLEET_SERVICE, (route, room) -> BaseFlights.single(fleets.launchService(route)));
+        flights.put(ShuttleRoute.Kind.TRADE, (route, room) -> Collections.emptyList());
 
         for (ShuttleRoute.Kind kind : ShuttleRoute.Kind.values()) {
             if (!flights.containsKey(kind)) throw new IllegalStateException("Shuttle traffic: no flight for route kind " + kind);

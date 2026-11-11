@@ -42,6 +42,7 @@ public class ShuttleTraffic {
         if (cap <= 0 || current == null || current.isHyperspace()) {
             if (location != null) clear();
             flights.getPods().clearQueue();
+            flights.getFleets().clearQueue();
             return;
         }
 
@@ -81,6 +82,7 @@ public class ShuttleTraffic {
 
         spawner.spawn(amount);
         flights.getPods().launchQueued();
+        flights.getFleets().launchQueued();
         advance(shuttles, amount);
         advance(pods, amount);
     }

@@ -146,6 +146,11 @@ public class Shuttle {
         return tiedFleet;
     }
 
+    // hidden and still until the delay runs out, so a burst leaves one craft after the other
+    public void holdFor(float seconds) {
+        delay = seconds;
+    }
+
     public void stay(float days) {
         stayDays = days;
     }
@@ -533,7 +538,7 @@ public class Shuttle {
 
     private float getRenderAlpha(float alphaMult) {
         if (delay > 0f || state == ShuttleState.DOWN) return 0f;
-        float fader = tiedFleet != null ? tiedFleet.getSensorFaderBrightness() : 1f;
+        float fader = tiedFleet != null && !tiedFleet.isPlayerFleet() ? tiedFleet.getSensorFaderBrightness() : 1f;
         return alpha * alphaMult * fader;
     }
 
