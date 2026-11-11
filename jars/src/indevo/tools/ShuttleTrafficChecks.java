@@ -5,16 +5,54 @@ import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
 import indevo.ambience.shuttletraffic.ShuttlePath;
+import indevo.ambience.shuttletraffic.ShuttleState;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.UnaryOperator;
+
+import static indevo.ambience.shuttletraffic.ShuttleState.CRUISE;
+import static indevo.ambience.shuttletraffic.ShuttleState.DOWN;
+import static indevo.ambience.shuttletraffic.ShuttleState.ESCAPING;
+import static indevo.ambience.shuttletraffic.ShuttleState.FLEEING;
+import static indevo.ambience.shuttletraffic.ShuttleState.FLEEING_HOLDING;
+import static indevo.ambience.shuttletraffic.ShuttleState.HOLDING;
+import static indevo.ambience.shuttletraffic.ShuttleState.SCREENING;
+import static indevo.ambience.shuttletraffic.ShuttleState.STRANDED;
 
 public final class ShuttleTrafficChecks {
 
     private static final float[] RATES = {30f, 60f, 144f};
     private static final float SPEED = 24f;
+    private static final Map<String, UnaryOperator<ShuttleState>> CHANGES = Map.of(
+            "hold", ShuttleState::hold,
+            "redirect", ShuttleState::redirect,
+            "flee", state -> state.flee(true),
+            "escape", state -> state.flee(false),
+            "screen", ShuttleState::screen,
+            "land", ShuttleState::land,
+            "strand", ShuttleState::strand,
+            "calm", ShuttleState::calm);
+    // every change the old flags (holding, fleeing, screening, stranded, down) allowed; any other change throws
+    private static final Object[][] TRANSITIONS = {
+            {CRUISE, "hold", HOLDING}, {FLEEING, "hold", FLEEING_HOLDING},
+            {CRUISE, "redirect", CRUISE}, {HOLDING, "redirect", CRUISE}, {FLEEING, "redirect", FLEEING}, {FLEEING_HOLDING, "redirect", FLEEING},
+            {CRUISE, "flee", FLEEING}, {HOLDING, "flee", FLEEING}, {FLEEING, "flee", FLEEING}, {FLEEING_HOLDING, "flee", FLEEING},
+            {SCREENING, "flee", FLEEING},
+            {CRUISE, "escape", ESCAPING}, {HOLDING, "escape", ESCAPING}, {FLEEING, "escape", ESCAPING}, {FLEEING_HOLDING, "escape", ESCAPING},
+            {SCREENING, "escape", ESCAPING},
+            {CRUISE, "screen", SCREENING}, {HOLDING, "screen", SCREENING}, {SCREENING, "screen", SCREENING},
+            {CRUISE, "land", DOWN}, {FLEEING, "land", DOWN},
+            {ESCAPING, "strand", STRANDED}, {STRANDED, "strand", STRANDED},
+            {SCREENING, "calm", CRUISE}, {STRANDED, "calm", CRUISE}, {DOWN, "calm", CRUISE}};
+    // pace, turn rate mult, fleeing, holding, stranded as the old flags set them
+    private static final Object[][] LOOKS = {
+            {CRUISE, 1f, 1f, false, false, false}, {HOLDING, 1f, 1f, false, true, false}, {FLEEING, 1.4f, 2f, true, false, false},
+            {FLEEING_HOLDING, 1.4f, 2f, true, true, false}, {ESCAPING, 1.4f, 2f, true, false, true}, {STRANDED, 0.6f, 1f, false, false, true},
+            {SCREENING, 0.6f, 1f, false, false, false}, {DOWN, 1f, 1f, false, false, false}};
 
     private final List<String> problems = new ArrayList<>();
     private int checks;
@@ -35,6 +73,7 @@ public final class ShuttleTrafficChecks {
             run.checkRefresh();
             run.checkMoveAcross();
             run.checkStarPass();
+            run.checkStates();
         } finally {
             Global.setSettings(null);
         }
@@ -189,6 +228,32 @@ public final class ShuttleTrafficChecks {
                     check(closest >= star.radius, name + ": star pass came within " + closest + " of a " + star.radius + " su star");
                 }
             }
+        }
+    }
+
+    private void checkStates() {
+        for (ShuttleState from : ShuttleState.values()) {
+            for (Map.Entry<String, UnaryOperator<ShuttleState>> change : CHANGES.entrySet()) {
+                ShuttleState expected = null;
+                for (Object[] row : TRANSITIONS) if (row[0] == from && row[1].equals(change.getKey())) expected = (ShuttleState) row[2];
+
+                ShuttleState result;
+                try {
+                    result = change.getValue().apply(from);
+                } catch (IllegalStateException e) {
+                    result = null;
+                }
+
+                check(result == expected, change.getKey() + " from " + from + " gave " + result + ", expected " + (expected != null ? expected : "a throw"));
+            }
+        }
+
+        check(LOOKS.length == ShuttleState.values().length, "state look table misses a state");
+        for (Object[] row : LOOKS) {
+            ShuttleState state = (ShuttleState) row[0];
+            check(state.pace == (float) row[1] && state.turnMult == (float) row[2], state + " pace " + state.pace + " turn " + state.turnMult);
+            check(state.isFleeing() == (boolean) row[3] && state.isHolding() == (boolean) row[4] && state.isStranded() == (boolean) row[5],
+                    state + " flags differ from the old flags");
         }
     }
 

@@ -465,7 +465,6 @@ public class ShuttleFlights {
             follower.slotSide = 6f * rank * (i % 2 == 1 ? 1f : -1f);
             follower.noise = loose ? 4f : 0f;
             follower.straggler = i == straggler;
-            follower.turnRate = leader.turnRate;
             follower.flees = leader.flees;
             follower.picket = leader.picket;
             follower.queues = false;

@@ -29,8 +29,6 @@ public class Shuttle {
     private static final float AVOID_MARGIN = 40f;
     private static final float AVOID_EASE = 20f;
     private static final float DOCK_CHECK_DISTANCE = 40f;
-    private static final float FLEE_PACE = 1.4f;
-    private static final float CALM_PACE = 0.6f;
     private static final float FLEE_WOBBLE = 10f;
     private static final float FLEE_WOBBLE_TIME = 3f;
     private static final float STRANDED_HOLD_RADIUS = 150f;
@@ -46,7 +44,6 @@ public class Shuttle {
     public End landEnd;
     public float speedMult;
     public float jitter;
-    public float turnRate = TURN_RATE;
     public boolean done = false;
 
     public boolean engineGlow = true;
@@ -89,9 +86,7 @@ public class Shuttle {
     private float spin = 0f;
     private float turnSpeed = 0f;
     private float extraLag = 0f;
-    private float pace = 1f;
     private float fleeStart = 0f;
-    private float calmTurnRate = TURN_RATE;
     private float resumeDay = 0f;
     private float screenX = 0f;
     private float screenY = 0f;
@@ -99,12 +94,9 @@ public class Shuttle {
     private float appearAlpha = 1f;
     private float appearScale = 1f;
     private boolean facingSet = false;
+    private ShuttleState state = ShuttleState.CRUISE;
+    // pad clearance and the wait at a refuge hold across states: a fleeing craft queues at a station like any other
     private boolean cleared = false;
-    private boolean holding = false;
-    private boolean fleeing = false;
-    private boolean screening = false;
-    private boolean stranded = false;
-    private boolean down = false;
     private boolean waitForSafeHome = false;
     private final float phase;
 
@@ -181,7 +173,7 @@ public class Shuttle {
         age += amount;
         spin += spinRate * amount;
 
-        if (down) {
+        if (state == ShuttleState.DOWN) {
             advanceDown(traffic);
             return;
         }
@@ -228,11 +220,11 @@ public class Shuttle {
         if (launchLength > 0f && traveled < launchLength) ease = Math.min(ease, 0.35f + 0.65f * smooth(traveled / launchLength));
         if (landLength > 0f && remaining < landLength) ease = Math.min(ease, 0.35f + 0.65f * smooth(remaining / landLength));
 
-        float speed = hull.getCruiseSpeed() * speedMult * pace * ease;
+        float speed = hull.getCruiseSpeed() * speedMult * state.pace * ease;
         if (boostTime > 0f && age < boostTime) speed += boost * (1f - age / boostTime);
         if (path.move(cursor, speed * amount)) {
             onPathEnd(traffic);
-            if (retry && !done && !down) advancePath(amount, traffic, false);
+            if (retry && !done && state != ShuttleState.DOWN) advancePath(amount, traffic, false);
             return;
         }
 
@@ -244,7 +236,7 @@ public class Shuttle {
     public void redirect(ShuttleAnchor newTarget, ShuttleTraffic traffic) {
         to = newTarget;
         cleared = false;
-        holding = false;
+        setState(state.redirect());
         setPath(traffic.getFlights().redirectPath(frame, pos, facing, newTarget), End.NONE, newTarget.getEnd());
     }
 
@@ -252,10 +244,7 @@ public class Shuttle {
         Random random = traffic.getRandom();
         leader = null;
         followers.clear();
-        setFleeing(true);
-        holding = false;
-        screening = false;
-        stranded = false;
+        setState(state.flee(refuge != null));
         cleared = false;
         picket = false;
         stayDays = 0f;
@@ -271,7 +260,6 @@ public class Shuttle {
             return;
         }
 
-        stranded = true;
         lastThreatNearDay = traffic.getDays();
         setPath(traffic.getFlights().awayPath(frame, pos, heading, threatX, threatY, panic), End.NONE, End.NONE);
     }
@@ -279,29 +267,31 @@ public class Shuttle {
     public void screen(float threatX, float threatY, ShuttleTraffic traffic) {
         screenX = threatX;
         screenY = threatY;
-        if (screening) return;
+        if (state == ShuttleState.SCREENING) return;
 
-        screening = true;
-        holding = false;
+        setState(state.screen());
         cleared = false;
-        pace = CALM_PACE;
         setPath(traffic.getFlights().screenPath(frame, pos, facing, home, threatX, threatY), End.NONE, End.NONE);
     }
 
+    public ShuttleState getState() {
+        return state;
+    }
+
     public boolean isDown() {
-        return down;
+        return state == ShuttleState.DOWN;
     }
 
     public boolean isFleeing() {
-        return fleeing;
+        return state.isFleeing();
     }
 
     public boolean isStranded() {
-        return stranded;
+        return state.isStranded();
     }
 
     public boolean isScreening() {
-        return screening;
+        return state == ShuttleState.SCREENING;
     }
 
     public boolean isWaiting() {
@@ -309,23 +299,23 @@ public class Shuttle {
     }
 
     private void onPathEnd(ShuttleTraffic traffic) {
-        if (holding) {
+        if (state.isHolding()) {
             finishHoldingLap(traffic);
             return;
         }
 
-        if (screening) {
+        if (state == ShuttleState.SCREENING) {
             continueScreening(traffic);
             return;
         }
 
-        if (stranded) {
+        if (state.isStranded()) {
             continueStranded(traffic);
             return;
         }
 
         if (to != null && home != null && to != home && landEnd != End.NONE && (stayDays > 0f || waitForSafeHome)) {
-            down = true;
+            setState(state.land());
             resumeDay = traffic.getDays() + stayDays;
             return;
         }
@@ -343,11 +333,9 @@ public class Shuttle {
         if (days < resumeDay || home.closed || !home.isSafe(days) || to.threatened) return;
 
         ShuttleAnchor start = to;
-        down = false;
+        setState(state.calm());
         waitForSafeHome = false;
         stayDays = 0f;
-        setFleeing(false);
-        pace = 1f;
         from = start;
         to = home;
         facingSet = false;
@@ -359,7 +347,7 @@ public class Shuttle {
 
     private void advanceFollower(float amount) {
         Shuttle lead = leader;
-        if (lead.done || lead.down) {
+        if (lead.done || lead.isDown()) {
             done = true;
             return;
         }
@@ -412,8 +400,7 @@ public class Shuttle {
             return;
         }
 
-        screening = false;
-        pace = 1f;
+        setState(state.calm());
         if (home == null || !home.isUsable(location)) {
             done = true;
             return;
@@ -423,8 +410,7 @@ public class Shuttle {
     }
 
     private void continueStranded(ShuttleTraffic traffic) {
-        setFleeing(false);
-        pace = CALM_PACE;
+        setState(state.strand());
 
         if (!exists(home)) {
             done = true;
@@ -433,8 +419,7 @@ public class Shuttle {
 
         float days = traffic.getDays();
         if (home.isUsable(traffic.getLocation()) && home.isSafe(days) && days - lastThreatNearDay >= 1f) {
-            stranded = false;
-            pace = 1f;
+            setState(state.calm());
             redirect(home, traffic);
             return;
         }
@@ -443,7 +428,7 @@ public class Shuttle {
     }
 
     private void startHolding(ShuttleTraffic traffic) {
-        holding = true;
+        setState(state.hold());
         setPath(traffic.getFlights().holdPath(to.entity, pos, facing, ShuttleAnchor.HOLD_RADIUS), End.NONE, End.NONE);
     }
 
@@ -468,18 +453,9 @@ public class Shuttle {
         sideBias = 0f;
     }
 
-    private void setFleeing(boolean value) {
-        if (value == fleeing) return;
-
-        fleeing = value;
-        if (value) {
-            calmTurnRate = turnRate;
-            turnRate *= 2f;
-            pace = FLEE_PACE;
-        } else {
-            turnRate = calmTurnRate;
-            pace = 1f;
-        }
+    // pace and turn rate come from the state alone
+    private void setState(ShuttleState next) {
+        state = next;
     }
 
     private void updatePosition(float amount, ShuttleTraffic traffic, float total, float launchLength, float landLength, float speed) {
@@ -498,7 +474,7 @@ public class Shuttle {
         else avoidOffset = Math.max(target, avoidOffset - step);
 
         float lateral = jitter * envelope + avoidOffset;
-        if (fleeing) {
+        if (state.isFleeing()) {
             float since = age - fleeStart;
             lateral += FLEE_WOBBLE * Math.max(0f, 1f - since / FLEE_WOBBLE_TIME) * (float) Math.sin(since * 2f);
         }
@@ -528,7 +504,11 @@ public class Shuttle {
         to = lead.to;
         launchEnd = lead.launchEnd;
         landEnd = lead.landEnd;
-        pace = lead.pace;
+        setState(lead.state);
+        cleared = lead.cleared;
+        waitForSafeHome = lead.waitForSafeHome;
+        screenX = lead.screenX;
+        screenY = lead.screenY;
         speedMult = lead.speedMult * (0.9f + 0.2f * random.nextFloat());
         path.place(cursor, Math.max(0f, path.getTraveled(lead.cursor) - slotBack));
         traveled = path.getTraveled(cursor);
@@ -547,7 +527,7 @@ public class Shuttle {
         }
 
         float diff = Misc.getAngleDiff(facing, desired);
-        float turn = Math.min(diff, turnRate * amount);
+        float turn = Math.min(diff, TURN_RATE * state.turnMult * amount);
         float direction = Misc.getClosestTurnDirection(facing, desired);
         facing = Misc.normalizeAngle(facing + turn * direction);
         turnSpeed = amount > 0f ? turn * direction / amount : 0f;
@@ -597,7 +577,7 @@ public class Shuttle {
         float best = 0f;
 
         for (int i = 0; i < scan.count; i++) {
-            if (!scan.obstacle[i] && !(fleeing && scan.isHostileThreat(i, faction))) continue;
+            if (!scan.obstacle[i] && !(state.isFleeing() && scan.isHostileThreat(i, faction))) continue;
 
             float dx = base.x - scan.x[i];
             float dy = base.y - scan.y[i];
@@ -738,7 +718,7 @@ public class Shuttle {
     }
 
     public void render(float alphaMult, SpriteAPI glow) {
-        if (delay > 0f || down) return;
+        if (delay > 0f || state == ShuttleState.DOWN) return;
 
         float a = alpha * alphaMult;
         if (a <= 0.01f) return;
