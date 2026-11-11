@@ -96,7 +96,7 @@ Scripted runs and startup probes record a Java Flight Recorder profile (`profile
 
 | | Scripted checks, live session | Startup probe |
 |---|---|---|
-| Windows, Git Bash | Supported. The 1.x runner was used end to end on 0.98a-RC8; the 2.0.0 scripts were checked against a mock game on Linux and have not run on Windows yet. | `run-native-smoke.ps1` through `smoke.sh probe`. The runner was tested end to end on 0.98a-RC8; the slot check added in 2.0.0 has not run yet. |
+| Windows, Git Bash | Tested on 0.98a-RC8 (Windows 10, from the Claude desktop app): setup, doctor, init, the verdicts `COMPLETE`, `CHECKS_FAILED`, `NO_CHECKS`, `HELD`, `TIMEOUT` and `STOPPED`, `--shards 2`, `--perf`, `--keep`, `--newgame`, `c.hold()`, `smoke.sh stop`, `clean`, a real battle with PatchLib, and Industrial.Evolution with its compile gate and older check mod. Live sessions by hand were not rerun. | `run-native-smoke.ps1` through `smoke.sh probe`: tested on 0.98a-RC8 with Industrial.Evolution, including the slot check (`NO_SLOT` without a slot) and `starsector-combat-smoke` through `smoke-slot.sh run`. |
 | Linux, WSLg with a Linux install | Launch, mod set and log wait are written; background input is untested. | `scripts/run-native-smoke.sh`, the older merged layout: [references/linux-runner.md](references/linux-runner.md). Tested on 0.98a-RC8. |
 | WSL against a Windows install | Written for it, untested. | Not supported. |
 | Fast Rendering installed | Off unless `--fast`; a live session uses it when `fr.jar` is present. | Never loaded. |
