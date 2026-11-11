@@ -131,7 +131,7 @@ Save: only new saved classes; nothing saved today changes shape. The CR side add
 
 ### 1.3 Shuttle traffic: open stages
 
-Status: plan in the project file `SHUTTLE_TRAFFIC_PLAN.md` (sections 13 to 23 hold Philipp's calls of 2026-11-11, section 24 the staged plan), code review in `SHUTTLE_TRAFFIC_REVIEW.md` section 7. Stages 3 (groundwork, no visible change), 4 (fixes), 4a (look fixes from the stage 4 live test: trails by time, sizes and glow, Remnant blue, plan section 25) 5 (fleet tied craft) and 6 (dodging, hits, free steering, escorts, tenders) are in `dev`; current behaviour and files are in [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md).
+Status: plan in the project file `SHUTTLE_TRAFFIC_PLAN.md` (sections 13 to 23 hold Philipp's calls of 2026-11-11, section 24 the staged plan), code review in `SHUTTLE_TRAFFIC_REVIEW.md` section 7. Stages 3 (groundwork, no visible change), 4 (fixes), 4a (look fixes from the stage 4 live test: trails by time, sizes and glow, Remnant blue, plan section 25) 5 (fleet tied craft), 6 (dodging, hits, free steering, escorts, tenders) and 7 (dogfights around NPC battles) are in `dev`; current behaviour and files are in [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md).
 
 - Stages 4a to 6: live test by Philipp pending (plan section 24 lists it); stage 6 leaves the escort layer and how often run over hits open for it.
 - Stages 7 to 9: dogfights, faction profiles, more flights. Approved by Philipp 2026-11-11, built one stage per PR in order.

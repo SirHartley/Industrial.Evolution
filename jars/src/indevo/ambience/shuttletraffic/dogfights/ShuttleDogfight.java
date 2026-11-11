@@ -36,8 +36,8 @@ public class ShuttleDogfight {
     private static final float LASER_GAP = 0.12f;
     private static final float STRAFE_FIRE_RANGE = 300f;
     private static final float TORPEDO_RANGE = 250f;
-    private static final float COOLDOWN_MIN = 0.6f;
-    private static final float COOLDOWN_MAX = 1.2f;
+    private static final float COOLDOWN_MIN = 2f;
+    private static final float COOLDOWN_MAX = 3.5f;
     private static final float HIT_SIZE = 10f;
     private static final float FLEET_HIT_SIZE = 14f;
     private static final float TORPEDO_HIT_SIZE = 30f;
@@ -204,7 +204,6 @@ public class ShuttleDogfight {
             Dogfighter fighter = new Dogfighter(wing, side, group, i, fleet, 2 + random.nextInt(2), random.nextFloat());
             fighter.place(new Vector2f(start.x - (float) Math.cos(Math.toRadians(heading)) * SLOT_BACK * i,
                     start.y - (float) Math.sin(Math.toRadians(heading)) * SLOT_BACK * i), heading);
-            fighter.approachAngle = random.nextFloat() * 360f;
             group.members.add(fighter);
             fighters.add(fighter);
         }
@@ -346,6 +345,7 @@ public class ShuttleDogfight {
         }
 
         fighter.strafeTarget = target;
+        fighter.approachAngle = Dogfighter.angleTo(target.loc, fighter.pos.x, fighter.pos.y) + (random.nextFloat() - 0.5f) * 120f;
         fighter.strafe = Dogfighter.Strafe.SETUP;
         fighter.torpedoDropped = false;
         fighter.setState(Dogfighter.State.STRAFE);
@@ -380,20 +380,33 @@ public class ShuttleDogfight {
         return false;
     }
 
+    // an enemy already chased by others counts as farther, so the fight splits into duels instead of one pile
     private Dogfighter nearestEnemy(Dogfighter fighter, Vector2f around, float range, boolean frontOnly) {
         Dogfighter best = null;
-        float bestDist = range * range;
+        float bestDist = Float.MAX_VALUE;
         for (Dogfighter enemy : fighters) {
             if (!isValidTarget(fighter, enemy)) continue;
             if (frontOnly && Math.abs(Dogfighter.wrap(Dogfighter.angleTo(fighter.pos, enemy.pos.x, enemy.pos.y) - fighter.facing)) > 90f) continue;
 
             float dist = Vector2f.sub(enemy.pos, around, null).lengthSquared();
+            if (dist > range * range) continue;
+
+            int chasers = countChasers(enemy, fighter.group);
+            dist *= (1 + chasers) * (1 + chasers);
             if (dist < bestDist) {
                 bestDist = dist;
                 best = enemy;
             }
         }
         return best;
+    }
+
+    private int countChasers(Dogfighter enemy, DogfightGroup own) {
+        int count = 0;
+        for (Dogfighter other : fighters) {
+            if (other.target == enemy && other.group != own && other.state == Dogfighter.State.PURSUE) count++;
+        }
+        return count;
     }
 
     private DogfightFleet nearestFleet(Dogfighter fighter, int side) {
@@ -432,8 +445,9 @@ public class ShuttleDogfight {
         return false;
     }
 
+    // a fighter still emerging from its fleet is not picked yet
     private static boolean isValidTarget(Dogfighter fighter, Dogfighter enemy) {
-        return enemy != null && enemy.side != fighter.side && enemy.isFighting();
+        return enemy != null && enemy.side != fighter.side && enemy.isFighting() && enemy.state != Dogfighter.State.LAUNCH;
     }
 
     private void steer(Dogfighter fighter, float amount) {

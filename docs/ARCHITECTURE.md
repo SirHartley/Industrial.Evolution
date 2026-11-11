@@ -64,7 +64,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [CONSOLE](core/CONSOLE.md) | Console Commands | `console` |
 | | [MISC](core/MISC.md) | Unregistered leftovers | `other` |
 | | [WIP](core/WIP.md) | Mobile colony, converters | `WIP` |
-| Ambience | [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md) | Visual only shuttle traffic in the current system: lanes, pleasure cruises, patrols, mining, salvage, fleet craft, escorts, dodging and fleeing traffic, hits, escape pods | `ambience/shuttletraffic` |
+| Ambience | [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md) | Visual only shuttle traffic in the current system: lanes, pleasure cruises, patrols, mining, salvage, fleet craft, escorts, dogfights around NPC battles, dodging and fleeing traffic, hits, escape pods | `ambience/shuttletraffic` |
 
 ## Start here
 
@@ -202,7 +202,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 
 - IntelliJ module `IndEvo.iml`: source root `jars/src`, JDK 17, output `jars/` (`.idea/misc.xml`), artifact `IndEvo:jar` writes `jars/IndEvo.jar` (gitignored). Libraries are IntelliJ application libraries; the same jars for agent builds are in `lib/`. Full dependency list and gate: [CLAUDE.md](../CLAUDE.md#building).
 - Release builder `indevo/tools/ReleaseBuild.java` (run as a single-file program, never shipped): `compile` is the agent compile gate and runs `indevo/tools/SettingsChecks` (standalone checks of the CSV, the `Setting` enum, `sanitize` and the pair rule against the compiled classes; they do not start the game or LunaLib and do not check the rendered menu), `build` writes the committed release jar `jars/release/IndEvo.jar`, `package` writes the release zip. It compiles the same files as the IntelliJ module by reading its `excludeFolder` entries. [RELEASE.md](RELEASE.md).
-- `indevo/tools/ShuttleTrafficChecks.java`: headless shuttle path, state, dodge and steering checks, run by hand after the compile gate, never shipped. [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md#checks).
+- `indevo/tools/ShuttleTrafficChecks.java`: headless shuttle path, state, dodge, steering and dogfight checks, run by hand after the compile gate, never shipped. [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md#checks).
 - Java only, no Kotlin ([CLAUDE.md](../CLAUDE.md#code-layout)).
 - `native-smoke/`: test-only probes, the smoke test wrapper and the scripted live checks (`native-smoke/live/`). Never compiled by the builder or shipped. [SMOKE_TESTS.md](SMOKE_TESTS.md).
 - `IndEvo.iml` `excludeFolder` entries that exist: `WIP/converters`, `exploration/WIP`, `exploration/distress`, `exploration/salvage/specials/WIP`, `items/consumables/itemAbilities/WIP`, `industries/academy/rules/WIP`, `industries/derelicts/industry/WIP`, `industries/warehouses/plugin/wi`. The others point at old paths. Excluded code does not compile and must not be referenced. The release builder reads the same entries, so change exclusions in `IndEvo.iml` only.

@@ -39,10 +39,11 @@ public class ShuttleProjectiles {
     private final Kind[] kind = new Kind[SIZE];
     private final Color[] color = new Color[SIZE];
     private final boolean[] live = new boolean[SIZE];
+    private final boolean[] atFleet = new boolean[SIZE];
     private int next = 0;
     private int liveCount = 0;
 
-    // check program counters, per firing side
+    // check program counters, per firing side; a stray shot at a fighter that hits a fleet counts for neither
     final int[] firedAtFighters = new int[2];
     final int[] firedAtFleets = new int[2];
     final int[] hitFighters = new int[2];
@@ -64,6 +65,7 @@ public class ShuttleProjectiles {
         kind[i] = type;
         color[i] = tint;
         live[i] = true;
+        this.atFleet[i] = atFleet;
         if (atFleet) firedAtFleets[from]++;
         else firedAtFighters[from]++;
     }
@@ -100,11 +102,19 @@ public class ShuttleProjectiles {
 
             DogfightFleet fleet = hitFleet(fight.getSide(1 - side[i]), x[i], y[i]);
             if (fleet != null) {
-                hitFleets[side[i]]++;
+                if (atFleet[i]) hitFleets[side[i]]++;
                 fight.onFleetHit(fleet, x[i], y[i], kind[i], color[i]);
                 remove(i);
             }
         }
+    }
+
+    public int getFired(int from, boolean atFleets) {
+        return atFleets ? firedAtFleets[from] : firedAtFighters[from];
+    }
+
+    public int getHits(int from, boolean onFleets) {
+        return onFleets ? hitFleets[from] : hitFighters[from];
     }
 
     public boolean isEmpty() {

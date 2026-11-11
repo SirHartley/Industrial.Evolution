@@ -1,8 +1,8 @@
 # Shuttle traffic
 
-Visual only small craft in the player's current star system: cargo lanes between markets and to orbital stations, pleasure cruises, patrol pickets, training flights, mining and salvage runs, pirate cargo hops, scavenging hunts, smugglers, diplomats, maintenance runs, craft that serve fleets, honour guards, escort wings, tenders, traffic that dodges fleets and scatters from hostile ones, hits from blasts, burns and pulses, and escape pods from fleets destroyed in battle. Read it before touching `indevo/ambience/shuttletraffic/`, `data/config/indEvo/shuttle_traffic.csv` or `IndEvo_shuttleTraffic`. It does not cover real fleets or trade routes; nothing here changes the economy.
+Visual only small craft in the player's current star system: cargo lanes between markets and to orbital stations, pleasure cruises, patrol pickets, training flights, mining and salvage runs, pirate cargo hops, scavenging hunts, smugglers, diplomats, maintenance runs, craft that serve fleets, honour guards, escort wings, tenders, fighters dogfighting around NPC battles, traffic that dodges fleets and scatters from hostile ones, hits from blasts, burns and pulses, and escape pods from fleets destroyed in battle. Read it before touching `indevo/ambience/shuttletraffic/`, `data/config/indEvo/shuttle_traffic.csv` or `IndEvo_shuttleTraffic`. It does not cover real fleets or trade routes; nothing here changes the economy.
 
-Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`) and IE `dev` after stages 3 to 6 of the shuttle traffic plan. Recheck engine facts after a game update.
+Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`) and IE `dev` after stages 3 to 7 of the shuttle traffic plan. Recheck engine facts after a game update.
 
 ## Overview
 
@@ -10,7 +10,7 @@ One transient LunaLib campaign renderer drives one `ShuttleTraffic` context that
 
 - Anchors are places craft launch from or land at: market planets and stations (`MARKET`), Decivilized Subpopulation planets (`DECIV`), Remnant battlestations (`REMNANT`) and one off destinations (`TARGET`: hunt planets, escape pod planets).
 - Routes say what flies where and how often. Most keep a number of flights in the air on a jittered timer; rare routes roll a daily chance.
-- Craft follow a chain of path segments, land with a descend look, dodge fleets, and scatter to other ports when hostile fleets come close. Escorts and tenders steer freely toward a moving point instead.
+- Craft follow a chain of path segments, land with a descend look, dodge fleets, and scatter to other ports when hostile fleets come close. Escorts and tenders steer freely toward a moving point instead; dogfighters steer by heading and throttle.
 
 ## Files
 
@@ -29,6 +29,10 @@ Package `indevo/ambience/shuttletraffic/`:
 | `flights/FleetFlights.java` | Fleet tied flights: service shuttles for fleets in orbit at a market, player trade shuttles, scavenger survey shuttles; routes per fleet, launches, ending a route |
 | `flights/EscortFlights.java` | Honour guards for fleets approaching a military market, escort wings around huge slow fleets and the player |
 | `flights/TenderFlights.java` | Tenders between a market and a huge fleet passing it |
+| `dogfights/ShuttleDogfights.java` | Watched NPC battles (at most 2): start rule, fleets and wings per side, round losses, battle end, `DogfightHost` for one battle |
+| `dogfights/ShuttleDogfight.java` | One battle's fighters: launches, groups, targeting every 0.25 s, steering every frame, weapons, kills, replacements, the end; no game API, so the checks run it |
+| `dogfights/Dogfighter.java`, `DogfightGroup.java`, `DogfightFleet.java`, `WingType.java`, `DogfightHost.java` | One fighter (heading, throttle, states, look); a lone fighter, pair or vic; a battle fleet copied every frame; a wing's hull, role and weapons; hit particles and refuge lookup |
+| `dogfights/ShuttleProjectiles.java` | 256 slot ring buffer of guns, lasers and torpedoes per battle, swept hit tests, one `GL_LINES` batch |
 | `flights/ShuttlePaths.java`, `BaseFlights.java` | Every path builder (lanes, service hops, redirect, flee, away, hold, screen, cruise, linger, loop); shared flight helpers (`canFly`, `create`) |
 | `ShuttleAnchor.java` | One launch or landing place: type (`PLANET`, `STATION`, `FLEET`), role, pad depth, landing length, pad busy time, threat state, density |
 | `ShuttleRoute.java` | One route: kind, anchors, optional target or fleet, bend, in flight limit, timer or daily chance |
@@ -44,12 +48,12 @@ Package `indevo/ambience/shuttletraffic/`:
 | `ShuttleBudget.java` | Cap split into lanes, local and rare groups: local reserve, scaled lane counts, room per group; fleet tied craft have their own cap of `setting / 4` on top, escorts a fixed 12 |
 | `SpeedClass.java` | Speed classes (`CIVIL`, `SERVICE`, `MILITARY`), the mean speed per class for launch intervals, `canReach` |
 | `ShuttleTrail.java` | Trail (by time) and formation history (by distance) ring buffers relative to the virtual frame, trail rendering |
-| `ShuttleFleetScan.java` | Pooled entries for fleets near the player, threat fleets and `ORBIT_PASSIVE` fleets in the location, with assignment, target and fleet type, rebuilt every 0.25 s |
+| `ShuttleFleetScan.java` | Pooled entries for fleets near the player, threat fleets and `ORBIT_PASSIVE` fleets in the location, with assignment, target and fleet type, and the distinct battles of the location, rebuilt every 0.25 s |
 | `ShuttleHull.java` | Hull look (sprite, engine colours, cached per hull id), size, speed, flags, wing size |
 | `ShuttleHullPool.java` | Base pool from the CSV, faction pools, crew rule, rolls per flight kind, fitted wing hulls, escape pod hull |
 | `listeners/ShuttleColonyListener.java` | Transient `ColonyPlayerHostileActListener`: queues raid dropships and evacuation pods |
-| `listeners/ShuttleCampaignListener.java` | Transient `BaseCampaignEventListener`: queues fleets destroyed in battle (pods) and player market transactions (trade shuttles) |
-| `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, budget split, state transitions, trail length by time, service hops to a fleet in orbit and the turn back when it leaves, dodging fleets at burn 2, 9 and 20, steering into a slot at burn 1, 5 and 9, intercept time |
+| `listeners/ShuttleCampaignListener.java` | Transient `BaseCampaignEventListener`: queues fleets destroyed in battle (pods) and player market transactions (trade shuttles); NPC battle rounds and ends for dogfights |
+| `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, budget split, state transitions, trail length by time, service hops to a fleet in orbit and the turn back when it leaves, dodging fleets at burn 2, 9 and 20, steering into a slot at burn 1, 5 and 9, intercept time, battle round rate, a 12 against 12 dogfight |
 | `data/config/indEvo/shuttle_traffic.csv` | Base civilian craft: `id, hullId, weight, small` |
 
 ## Data and ids
@@ -69,7 +73,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 - `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> ShuttleTrafficRenderer.register()` (`indevo/utils/ModPlugin.java:493`). Guarded with `LunaCampaignRenderer.hasRendererOfClass`; resets the hull pool caches, adds a transient renderer, a transient `ShuttleCampaignListener` (`Global.getSector().addTransientListener`) and a transient `ShuttleColonyListener` (`getListenerManager().addListener(x, true)`) (`renderers/ShuttleTrafficRenderer.java:30`).
 - LunaLib's `luna_campaign_renderer` entity renders the plugin in every layer and only advances it while that entity is in the player's location.
 
-`ShuttleTrafficRenderer.advance -> ShuttleTraffic.advance -> [location changed] network.rebuild -> fleetScan.scan -> reactions.updateThreats -> spawner.warmStart | [1 day] ShuttleHullPool.dropStaleFactionPools -> network.rebuild -> spawner.rollRareFlights -> [0.25 s] fleetScan.scan -> reactions.updateThreats -> reactions.react -> FleetFlights.update -> EscortFlights.update -> TenderFlights.update -> ShuttleHits.scan -> ShuttleHits.advance (run over) -> spawner.spawn -> PodFlights.launchQueued -> FleetFlights.launchQueued -> Shuttle.advance -> SteerMover, FollowMover or PathMover`
+`ShuttleTrafficRenderer.advance -> ShuttleTraffic.advance -> [location changed] network.rebuild -> fleetScan.scan -> reactions.updateThreats -> spawner.warmStart | [1 day] ShuttleHullPool.dropStaleFactionPools -> network.rebuild -> spawner.rollRareFlights -> [0.25 s] fleetScan.scan -> reactions.updateThreats -> reactions.react -> FleetFlights.update -> EscortFlights.update -> TenderFlights.update -> ShuttleHits.scan -> ShuttleDogfights.update -> ShuttleHits.advance (run over) -> spawner.spawn -> PodFlights.launchQueued -> FleetFlights.launchQueued -> Shuttle.advance -> SteerMover, FollowMover or PathMover -> ShuttleDogfights.advance`
 
 - Why poll: no callback covers industry changes on NPC markets, port disruption, new debris fields or wrecks, fleet positions, spawned explosion entities (IE alone creates them at 15 sites) or an interdiction pulse, so the network rebuilds once a day and the fleet and hit scans run every 0.25 s. Both only run for the player's current location.
 - A daily rebuild also drops a faction pool whose known ship or fighter count changed (`Faction.getKnownShips` returns the live set, knowledge skill `obf/campaign/Faction.java:431`).
@@ -175,6 +179,20 @@ Fighters on pickets fly as a wing of `wingSize` (at most 3); training groups are
 - Out: the pad faction's small craft from the pad, launched only when the intercept at dash speed meets the fleet within 1500 su of the market; they steer for a lead point up to 4 s ahead of the fleet and fade into it over 30 su. A craft that can no longer catch it turns back and lands.
 - In: the fleet faction's small craft, hidden in the fleet until its turn, out toward the market keeping the fleet's speed for a moment, then after 2 s a path to the pad at service speed.
 
+### Dogfights
+
+`ShuttleDogfights`, visual only: nothing in a battle changes, the fighters follow it. Own cap outside the setting: at most 12 fighters per side, 2 battles at once; none when the setting is 0.
+
+- Which battles: the 0.25 s scan collects the distinct `CampaignFleetAPI.getBattle()` of the location. A battle starts dogfights when it is not done, the player is not in it and at least one of its fleets has `getVisibilityLevelToPlayerFleet()` other than `NONE`.
+- Round rule: `Battle.advance` runs an autoresolve round every day times `max / (2 x min)` fleet points of the two sides (`getFleetPoints()`), clamped 1 to 5, x0.25 with a station (knowledge skill `obf/campaign/fleet/Battle.java:343`). A battle starts only at 1 round a day or slower (sides within 2:1, within 8:1 with a station); a battle that fails at first sight is never picked again. Re-checked every scan: past the limit, or out of sight, no more groups launch.
+- Wings: each fleet flies the wings its members carry (`EscortFlights.getFittedWings`, `ShuttleHullPool.getWingHull`, Remnant wings blue). A side that carries none flies up to 4 of each fleet's faction's known fighters; a faction that knows none launches nothing. No crew rule. Role from `FighterWingSpecAPI.getRole()`: `BOMBER` strikes, `SUPPORT` holds within `fleet radius + 150` of its fleet, the rest escort. Weapons from the wing variant's fitted slots: energy fires lasers, ballistic guns, missile torpedoes; an unarmed wing fires guns.
+- Groups: per side `clamp(ships / 3, 1, 4)`, launched over 3 s from a random fleet of the side; a lone fighter (40%), pair (35%) or vic (25%). A side without bombers sends every third group to strike. A lost group is replaced 4 to 8 s later. A fighter still launching (1.5 s, fading in over 0.6 s) is not picked as a target.
+- Flight: no path; each fighter turns toward a wanted heading at 225 degrees per second and eases to a throttle of 60% to 120% of `2.2 x` its hull's cruise speed. States every 0.25 s: pursue (nearest enemy in the front half, else nearest; an enemy already chased by other groups counts as farther), evade (an enemy within 200 su behind with its nose on me: weave), extend (after an overshoot or 3 s of evading, 1 to 2 s straight), strafe (out to `fleet radius + 250` su near its own side, run at a point within 0.6 of the fleet radius, break past it at 100 su, come around from a new angle), support, form (wingmen keep formation while the leader strafes or launches, then take the leader's target or whoever is on its tail). Escorts take enemy strike craft within `fleet radius + 400` of an own fleet first. Leash: past `battle radius + 300` su from `BattleAPI.computeCenterOfMass()` a fighter turns back.
+- Weapons (`ShuttleProjectiles`): guns, bursts of 6 to 10 tracers at 500 su/s for 0.6 s, +-3 degrees along the nose when the target is within 20 degrees and 300 su, so in a turning fight the stream trails behind it. Lasers, 2 or 3 bolts at 900 su/s for 0.4 s in the wing's glow colour, aimed at the lead point when the target is within 8 degrees and 250 su. Strafing runs fire from 300 su to 100 su; torpedoes, one per run from 250 su at 200 su/s for 2 s. 1.5 to 3 s between bursts. Hits: fighters at half the sprite length + 2 su, fleets at 0.7 of the fleet radius, one hit particle (10 su on fighters, 14 on fleets, 30 for torpedoes). A fighter dies after 2 or 3 hits: 3 hit particles of 20 to 35 su, then the sprite drifts and fades over 0.5 s.
+- Rounds: `reportBattleOccurred` after each autoresolve round (`Battle.doAutoresolveRound`, obf `:448`); `takeSnapshots` runs at the start of each round, so `Misc.getSnapshotMembersLost` gives that round's losses. Each lost ship: 3 hit particles of 25 to 45 su on its fleet, and 1 escape pod for a crewed ship of a fleet that survives (destroyed fleets fire theirs through `reportFleetDespawned`). The side that lost more fleet points loses one group within 0.5 s.
+- End: `reportBattleFinished` gives the winner, otherwise a battle that is done, gone, or joined by the player ends with the side that has fleets and more fleet points. Fighters whose fleet is still in the system fly back and fade into it, the winners after a 2.5 s loop. The rest fly to `ShuttleNetwork.findRefuge` within 1500 su and fade into it, or explode within 1.5 s. Shots in flight finish.
+- Cost: targeting is O(n^2) per 0.25 s; shots test every enemy fighter and fleet per frame. About 10 us per frame for a full 12 against 12 battle in the checks.
+
 ### Danger
 
 - Threats (`ShuttleFleetScan.Entry.isHostileThreat`, `:34`): the player fleet, and fleets with at least 30 fleet points; a threat counts against a faction it is hostile to.
@@ -240,7 +258,8 @@ A station pad is busy while a craft is in its last 100 su and 1 s after. A craft
 
 ## Contracts
 
-- Transient only: no entity, listener field, memory key or script lands in the save. Removing IE never breaks a save through this feature.
+- Transient only: no entity, listener field, memory key or script lands in the save. Removing IE never breaks a save through this feature. Hit particles are saved with the location (`BaseLocation.hitParticles`), vanilla classes only, gone in under a second.
+- `ShuttleDogfight` and its fighter, group and projectile classes use no game API; everything they need from the campaign goes through `DogfightHost` and `DogfightFleet`.
 - Craft state changes go through `ShuttleState` (`hold`, `redirect`, `flee`, `screen`, `land`, `strand`, `calm`, `disable`, `restart`); a change not in its table throws `IllegalStateException`. Reactions skip disabled, wrecked and steering craft.
 - `ShuttleFlights` throws at construction when a `ShuttleRoute.Kind` has no flight.
 - `ShuttleFleetScan.Entry` objects are pooled and reused every scan; never keep one past the frame. `clear` drops the fleet references.
@@ -256,9 +275,10 @@ A station pad is busy while a craft is in its last 100 su and 1 s after. A craft
 | Item | State |
 |---|---|
 | In game look | Tests (2026-11-08) fixed: rubberbanding, nervous trails, blinking lights, loop joyrides (now cruises), craft vanishing under planets, sprite size, trails out of line with the craft between moving bodies, lanes through the star. Untested in game: star pass, market lanes, blended trail frame, cruises, pod bursts, formation break up, trails by time, sizes and glow, engine colours from slots (before this every hull used manufacturer colours, the slot lookup always failed), dodging, formation reform, hits, honour guards, escort wings, tenders |
-| Layer | Everything draws in `TERRAIN_7`, below fleets, escorts included; whether escorts need a layer above fleets is open for the live test |
+| Layer | Everything draws in `TERRAIN_7`, below fleets, escorts and dogfighters included; whether they need a layer above fleets is open for the live test |
+| Dogfights | Untested in game. Not verified: whether NPC fleet variants carry their final wings before the fleet is inflated near the player, how long NPC battles last in practice. The check fight is a meat grinder: fighters live about 10 s and a side that falls behind loses each new group soon after launch |
 | Run over | Dodging clears fleets at burn 20 in the checks, so run over mostly hits craft at launch or landing and pods; open for the live test |
-| Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split, states, trail length, service hops, dodging and steering, not flights, reactions, hits or rendering. It runs on its own, not in `ReleaseBuild` |
+| Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split, states, trail length, service hops, dodging, steering and a dogfight, not flights, reactions, hits or rendering. It runs on its own, not in `ReleaseBuild` |
 | Performance | Live smoke `shuttle` group (2026-11-08, before market lanes): 55 craft at Sindria, all of `shuttletraffic` 0.4% of CPU and allocation |
 
 ## Checks
