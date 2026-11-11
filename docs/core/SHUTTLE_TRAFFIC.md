@@ -42,6 +42,7 @@ Package `indevo/ambience/shuttletraffic/`:
 | `ShuttleFleetScan.java` | Pooled entries for fleets near the player, threat fleets and `ORBIT_PASSIVE` fleets in the location, with assignment, target and fleet type, rebuilt every 0.25 s |
 | `ShuttleHull.java` | Hull look (sprite, engine colours, cached per hull id), size, speed, flags, wing size |
 | `ShuttleHullPool.java` | Base pool from the CSV, faction pools, crew rule, rolls per flight kind, escape pod hull |
+| `listeners/ShuttleColonyListener.java` | Transient `ColonyPlayerHostileActListener`: queues raid dropships and evacuation pods |
 | `listeners/ShuttleCampaignListener.java` | Transient `BaseCampaignEventListener`: queues fleets destroyed in battle (pods) and player market transactions (trade shuttles) |
 | `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, budget split, state transitions, trail length by time, service hops to a fleet in orbit and the turn back when it leaves |
 | `data/config/indEvo/shuttle_traffic.csv` | Base civilian craft: `id, hullId, weight, small` |
@@ -60,7 +61,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> ShuttleTrafficRenderer.register()` (`indevo/utils/ModPlugin.java:493`). Guarded with `LunaCampaignRenderer.hasRendererOfClass`; resets the hull pool caches, adds a transient renderer and a transient `ShuttleCampaignListener` (`Global.getSector().addTransientListener`) (`renderers/ShuttleTrafficRenderer.java:30`).
+- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> ShuttleTrafficRenderer.register()` (`indevo/utils/ModPlugin.java:493`). Guarded with `LunaCampaignRenderer.hasRendererOfClass`; resets the hull pool caches, adds a transient renderer, a transient `ShuttleCampaignListener` (`Global.getSector().addTransientListener`) and a transient `ShuttleColonyListener` (`getListenerManager().addListener(x, true)`) (`renderers/ShuttleTrafficRenderer.java:30`).
 - LunaLib's `luna_campaign_renderer` entity renders the plugin in every layer and only advances it while that entity is in the player's location.
 
 `ShuttleTrafficRenderer.advance -> ShuttleTraffic.advance -> [location changed] network.rebuild -> fleetScan.scan -> reactions.updateThreats -> spawner.warmStart | [1 day] ShuttleHullPool.dropStaleFactionPools -> network.rebuild -> spawner.rollRareFlights -> [0.25 s] fleetScan.scan -> reactions.updateThreats -> reactions.react -> spawner.spawn -> PodFlights.launchQueued -> Shuttle.advance -> PathMover or FollowMover`
@@ -161,6 +162,12 @@ Fighters on pickets fly as a wing of `wingSize` (at most 3); training groups are
 - A scavenger fleet (`FleetTypes.SCAVENGER_SMALL`, `_MEDIUM`, `_LARGE`) that is "investigating" has `FleetAssignment.PATROL_SYSTEM` with a target entity (`ScavengerFleetAssignmentAI:63`). While it is visible, within 600 su of the target's surface and slower than 60 su/s, it gets a `SURVEY` route (`FleetFlights.updateSurvey`) that launches 1 to 3 shuttles once, 3 s apart, and keeps the route while the fleet investigates so it never sends more.
 - Shuttle Pod, Kite or Mudskipper, service speed, hunt look. To a planet: out of the fleet to a pad, stay 1 to 2 days, then a lane back into the fleet. To anything else: out of the fleet, two laps 60 su outside the target at 60% speed, back into the fleet (`ShuttlePaths.surveyLapPath`).
 - When the fleet stops investigating, its shuttles fly back on their own; if it despawns, leaves or is out of sight, they are removed.
+
+### Raids and bombardments
+
+- `ShuttleColonyListener`: `reportRaidForValuablesFinishedBeforeCargoShown` and `reportRaidToDisruptFinished` queue 4 to 8 dropships (`FleetFlights.queueRaid`); `reportSaturationBombardmentFinished` queues 12 to 20 evacuation pods, `reportTacticalBombardmentFinished` 4 to 6 (`PodFlights.queueEvacuation`, planets only). Both launch once no dialog shows.
+- Dropships: the player faction's fighters (fallback Talon), military speed, from the market's pad to the player fleet, 3 s apart, fleet tied (fleet cap), never flee.
+- Evacuation pods: the escape pod hull at 35 su/s, no tumble, on lanes from the planet to a random other usable market anchor, 0.25 s apart, in the pod list (cap 32). No pods without another port.
 
 ### Escape pods
 

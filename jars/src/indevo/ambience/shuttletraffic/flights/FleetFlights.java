@@ -26,6 +26,7 @@ import indevo.ambience.shuttletraffic.ShuttleTraffic;
 import indevo.ambience.shuttletraffic.SpeedClass;
 import indevo.config.Setting;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -45,6 +46,9 @@ public class FleetFlights extends BaseFlights {
     private static final int TRADE_MAX = 8;
     private static final float TRADE_BURST_TIME = 3f;
     private static final float TRADE_RANGE = 600f;
+    private static final float RAID_BURST_TIME = 3f;
+    private static final String RAID_FALLBACK = "talon";
+    private static final Set<Shuttle.Trait> RAID_TRAITS = Collections.unmodifiableSet(EnumSet.of(Shuttle.Trait.AVOIDS));
     private static final float SURVEY_RANGE = 600f;
     private static final float SURVEY_MAX_SPEED = 60f;
     private static final Set<String> SURVEY_HULLS = Set.of("shuttlepod", "kite", "mudskipper");
@@ -52,6 +56,10 @@ public class FleetFlights extends BaseFlights {
 
     // cargo moved per market while the trade dialog is open
     private final Map<MarketAPI, Trade> trades = new LinkedHashMap<>();
+    private final List<Raid> raids = new ArrayList<>();
+
+    private record Raid(MarketAPI market, int count) {
+    }
 
     private static final class Trade {
         float bought;
@@ -75,15 +83,23 @@ public class FleetFlights extends BaseFlights {
         trade.dark |= blackMarket || (player != null && !player.isTransponderOn());
     }
 
+    public void queueRaid(MarketAPI market, int count) {
+        if (Setting.SHUTTLE_TRAFFIC.intValue() > 0 && market != null) raids.add(new Raid(market, count));
+    }
+
     public void clearQueue() {
         trades.clear();
+        raids.clear();
     }
 
     // a burst of cargo craft between the pad and the player fleet once the dialog closes
     public void launchQueued() {
-        if (trades.isEmpty() || Global.getSector().getCampaignUI().isShowingDialog()) return;
+        if ((trades.isEmpty() && raids.isEmpty()) || Global.getSector().getCampaignUI().isShowingDialog()) return;
 
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+        for (Raid raid : raids) launchRaid(raid, player);
+        raids.clear();
+
         for (Map.Entry<MarketAPI, Trade> entry : trades.entrySet()) {
             MarketAPI market = entry.getKey();
             Trade trade = entry.getValue();
@@ -127,6 +143,36 @@ public class FleetFlights extends BaseFlights {
             shuttle.setGroup(ShuttleBudget.Group.FLEET);
             budget.add(ShuttleBudget.Group.FLEET, 1);
             route.active++;
+            traffic.getShuttles().add(shuttle);
+        }
+    }
+
+    // the raid party flies back up to the player fleet in the player's own fighters, at military speed
+    private void launchRaid(Raid raid, CampaignFleetAPI player) {
+        SectorEntityToken entity = raid.market().getPrimaryEntity();
+        if (player == null || entity == null || entity.getContainingLocation() != traffic.getLocation() || player.getContainingLocation() != traffic.getLocation()) return;
+
+        ShuttleAnchor pad = network.anchors.get(entity);
+        if (pad == null) {
+            ShuttleAnchor.Type type = entity instanceof PlanetAPI ? ShuttleAnchor.Type.PLANET : ShuttleAnchor.Type.STATION;
+            pad = new ShuttleAnchor(entity, type, ShuttleAnchor.Role.TARGET, raid.market(), raid.market().getFaction());
+        }
+
+        ShuttleBudget budget = traffic.getBudget();
+        budget.count(traffic.getShuttles());
+        int room = Math.min(raid.count(), budget.getRoom(ShuttleBudget.Group.FLEET));
+        ShuttleAnchor fleetEnd = ShuttleAnchor.forFleet(player);
+        for (int i = 0; i < room; i++) {
+            ShuttleHull hull = ShuttleHullPool.pick(ShuttleHullPool.getFactionPool(player.getFaction(), true), random, h -> h.fighter);
+            if (hull == null) hull = ShuttleHullPool.getHull(RAID_FALLBACK, true, 1);
+            if (hull == null) return;
+
+            Shuttle shuttle = create(hull, null, player.getFaction(), pad, fleetEnd, paths.servicePath(pad, player, true, false), SpeedClass.MILITARY, 1f, 0f,
+                    ShuttleLook.CRAFT, RAID_TRAITS);
+            shuttle.tieTo(player);
+            shuttle.holdFor(RAID_BURST_TIME * (i + random.nextFloat()) / room);
+            shuttle.setGroup(ShuttleBudget.Group.FLEET);
+            budget.add(ShuttleBudget.Group.FLEET, 1);
             traffic.getShuttles().add(shuttle);
         }
     }

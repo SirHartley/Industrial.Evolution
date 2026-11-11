@@ -9,6 +9,7 @@ import indevo.ambience.shuttletraffic.ShuttleHullPool;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
 import indevo.ambience.shuttletraffic.ShuttleTrail;
 import indevo.ambience.shuttletraffic.listeners.ShuttleCampaignListener;
+import indevo.ambience.shuttletraffic.listeners.ShuttleColonyListener;
 import indevo.config.Setting;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderingPlugin;
@@ -34,6 +35,7 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
         ShuttleTrafficRenderer renderer = new ShuttleTrafficRenderer();
         LunaCampaignRenderer.addTransientRenderer(renderer);
         Global.getSector().addTransientListener(new ShuttleCampaignListener(renderer.traffic));
+        Global.getSector().getListenerManager().addListener(new ShuttleColonyListener(renderer.traffic), true);
     }
 
     @Override

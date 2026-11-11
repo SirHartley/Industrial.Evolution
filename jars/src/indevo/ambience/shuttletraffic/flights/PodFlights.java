@@ -15,6 +15,7 @@ import indevo.ambience.shuttletraffic.ShuttleFleetScan;
 import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleHullPool;
 import indevo.ambience.shuttletraffic.ShuttleLook;
+import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
 import indevo.ambience.shuttletraffic.SpeedClass;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
@@ -38,7 +39,13 @@ public class PodFlights extends BaseFlights {
     private static final float BOOST_TIME = 2f;
     private static final float THREAT_RANGE = 3000f;
 
+    private static final float EVACUATION_GAP = 0.25f;
+
     private final List<PodEvent> queue = new ArrayList<>();
+    private final List<Evacuation> evacuations = new ArrayList<>();
+
+    private record Evacuation(MarketAPI market, int count) {
+    }
 
     // heading is NaN when no enemy is known
     private record PodEvent(LocationAPI location, Vector2f point, PlanetAPI planet, List<Integer> bursts, float heading) {
@@ -65,15 +72,23 @@ public class PodFlights extends BaseFlights {
         queue.add(new PodEvent(fleetLocation, point, planet, bursts, getAwayHeading(fleet, battle, point)));
     }
 
+    public void queueEvacuation(MarketAPI market, int count) {
+        if (Setting.SHUTTLE_TRAFFIC.intValue() > 0 && market != null && market.getPrimaryEntity() instanceof PlanetAPI) evacuations.add(new Evacuation(market, count));
+    }
+
     public void clearQueue() {
         queue.clear();
+        evacuations.clear();
     }
 
     // listener callbacks arrive during dialogs, pods wait until the player sees the system again
     public void launchQueued() {
-        if (queue.isEmpty() || Global.getSector().getCampaignUI().isShowingDialog()) return;
+        if ((queue.isEmpty() && evacuations.isEmpty()) || Global.getSector().getCampaignUI().isShowingDialog()) return;
 
         List<Shuttle> pods = traffic.getPods();
+        for (Evacuation evacuation : evacuations) pods.addAll(launchEvacuation(evacuation, POD_CAP - pods.size()));
+        evacuations.clear();
+
         for (PodEvent event : queue) {
             int room = POD_CAP - pods.size();
             if (room <= 0) break;
@@ -115,6 +130,32 @@ public class PodFlights extends BaseFlights {
                 pod.eject(delay + i * BURST_GAP, boost, BOOST_TIME);
                 pods.add(pod);
             }
+        }
+
+        return pods;
+    }
+
+    // pods rise from a bombarded planet toward the other ports of the system, nose first, no tumble
+    private List<Shuttle> launchEvacuation(Evacuation evacuation, int room) {
+        List<Shuttle> pods = new ArrayList<>();
+        ShuttleHull hull = ShuttleHullPool.getPod();
+        PlanetAPI planet = (PlanetAPI) evacuation.market().getPrimaryEntity();
+        if (hull == null || room <= 0 || planet.getContainingLocation() != traffic.getLocation()) return pods;
+
+        ShuttleAnchor from = network.anchors.get(planet);
+        if (from == null) from = new ShuttleAnchor(planet, ShuttleAnchor.Type.PLANET, ShuttleAnchor.Role.TARGET, evacuation.market(), evacuation.market().getFaction());
+
+        List<ShuttleAnchor> ports = new ArrayList<>();
+        for (ShuttleAnchor anchor : network.marketAnchors) if (anchor.entity != planet && anchor.isUsable(traffic.getLocation())) ports.add(anchor);
+        if (ports.isEmpty()) return pods;
+
+        for (int i = 0; i < evacuation.count() && pods.size() < room; i++) {
+            ShuttleAnchor to = ports.get(random.nextInt(ports.size()));
+            Shuttle pod = new Shuttle(hull, null, evacuation.market().getFaction(), from, to, paths.lanePath(from, to, ShuttleRoute.rollBend(random), false),
+                    from.getEnd(), to.getEnd(), SpeedClass.CIVIL, POD_SPEED / hull.getCruiseSpeed(), paths.spread(6f), random.nextFloat(), ShuttleLook.pod(0f),
+                    EnumSet.noneOf(Shuttle.Trait.class));
+            pod.holdFor(i * EVACUATION_GAP + random.nextFloat() * EVACUATION_GAP);
+            pods.add(pod);
         }
 
         return pods;
