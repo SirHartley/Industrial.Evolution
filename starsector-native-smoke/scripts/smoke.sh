@@ -237,7 +237,14 @@ cmd_init() {
     [[ $check == *check-mod* ]] && echo "Wrote $live/check-mod: put checks in src/livecheck/ExampleChecks.java, add groups to Groups.java"
     compgen -G "$project/jars/src/*/tools/ReleaseBuild.java" >/dev/null &&
         echo "This project has a compile gate (ReleaseBuild.java): set stage_mod in project.sh so the game runs the jar the gate built"
-    echo "INIT OK. Next: bash \"$HERE/smoke.sh\" checks \"$project\" example"
+    local first=example groups_file
+    if [[ $check != *check-mod* ]]; then
+        echo "Kept the check mod in $live. The runner passes the groups as -Dlive.check; an older check mod that reads another property gets it from java_args in project.sh (references/setup.md)"
+        groups_file=$(find "$live/src" -name Groups.java 2>/dev/null | head -n 1)
+        first=GROUP
+        [[ -n $groups_file ]] && first=$(grep -o -E 'case +"[^"]+"' "$groups_file" | head -n 1 | sed -E 's/.*"([^"]+)"/\1/')
+    fi
+    echo "INIT OK. Next: bash \"$HERE/smoke.sh\" checks \"$project\" ${first:-GROUP}"
 }
 
 cmd_checks() {

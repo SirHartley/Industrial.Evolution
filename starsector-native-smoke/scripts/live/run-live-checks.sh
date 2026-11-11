@@ -391,6 +391,7 @@ else
         base=new
         echo "Making the base save (a new game, about 90 s)"
         rm -rf "$WORK/saves"
+        LAUNCH=base
         launch "$(jvm_args)"
         made=
         if ! crashed; then
@@ -422,6 +423,7 @@ if [[ ${NEWGAME:-0} == 1 ]]; then mkdir -p "$WORK/saves"; else cp -r "$LIVE/base
 run_args=("-Dlive.check=$GROUP")
 [[ ${KEEP:-0} == 1 ]] && run_args+=(-Dlive.keep=true)
 [[ ${JFR:-1} != 0 ]] && run_args+=("-XX:StartFlightRecording=filename=$(cygpath -m "$WORK/profile.jfr"),settings=profile,dumponexit=true")
+LAUNCH=checks
 launch "$(jvm_args "${run_args[@]}")"
 
 if [[ ${NEWGAME:-0} == 1 ]]; then

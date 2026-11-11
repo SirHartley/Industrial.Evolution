@@ -58,7 +58,7 @@ It writes `native-smoke/live/project.sh` and copies `templates/live-check-mod` t
 | `PROFILE_PKG` | The mod's own Java package prefix, so the profile covers and warns about its code. `init` takes the first part of the `modPlugin` class name; correct it when the package is deeper (`com.me.mymod`). |
 | `CHECK_DIR` | The check mod folder. |
 | `stage_mod()` | Optional. How the mod under test is built and staged. See below. |
-| `java_args()` | Optional. Extra JVM arguments for the game, printed one per line, so an argument may hold spaces. |
+| `java_args()` | Optional. Extra JVM arguments for the game, printed one per line, so an argument may hold spaces. It runs for every launch: `LAUNCH` is `base` while the base save is made and `checks` for the run, `GROUP` holds the groups. An older check mod that reads its own property (IE's `-Die.check`) gets it on `checks` only. |
 
 ### Building and staging the mod under test
 

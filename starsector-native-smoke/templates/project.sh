@@ -23,7 +23,8 @@ CHECK_DIR="$PROJECT/native-smoke/live/check-mod"
 #     bash "$LIVE_SCRIPTS/stage-mod.sh" "$PROJECT" "$STAGE" "$PROJECT/out/compile/MyMod.jar"
 # }
 
-# extra JVM arguments for the game, one per line
+# extra JVM arguments for the game, one per line. LAUNCH is base while the base save is made, checks for the run
+# itself; GROUP holds the groups (an older check mod that reads its own property: -Dmymod.check=$GROUP on checks only)
 # java_args() {
 #     printf '%s\n' "-Dmymod.switch=${SWITCHES:-on}"
 # }
