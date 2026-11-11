@@ -294,7 +294,7 @@ public class Shuttle {
         scale = pathScale;
         alpha = 1f;
         darken = 1f;
-        glowMult = (launchLength > 0f && traveled < launchLength + speed * 2f) || (landLength > 0f && remaining < landLength + speed * 2f) ? 1.5f : 1f;
+        glowMult = (launchLength > 0f && traveled < launchLength + speed * 2f) || (landLength > 0f && remaining < landLength + speed * 2f) ? 1.3f : 1f;
 
         if (launchLength > 0f && traveled < launchLength) applyEnd(mover.getLaunchEnd(), from, 1f - traveled / launchLength);
         if (landLength > 0f && remaining < landLength) applyEnd(mover.getLandEnd(), to, 1f - remaining / landLength);
@@ -486,7 +486,8 @@ public class Shuttle {
         sprite.renderAtCenter(pos.x, pos.y);
 
         if (look.glow() && !isTumbling()) {
-            float glowSize = Math.max(4f, hull.width * scale * 0.9f) * glowMult;
+            // never wider than the craft: 0.7 * 1.3 at most
+            float glowSize = hull.width * scale * 0.7f * glowMult;
             glow.setSize(glowSize, glowSize);
             glow.setAngle(0f);
             glow.setColor(hull.glowColor);

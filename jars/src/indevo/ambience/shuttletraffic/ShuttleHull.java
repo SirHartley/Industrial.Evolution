@@ -7,8 +7,10 @@ import java.awt.Color;
 // one pool entry: role flags and wing size per entry, the look shared by every entry of the hull
 public class ShuttleHull {
 
-    public static final float FIGHTER_SCALE = 0.13f;
+    public static final float FIGHTER_SCALE = 0.18f;
     public static final float FRIGATE_SCALE = 0.075f;
+    // drawn sizes are for looks, not to scale: the longer side is never below this
+    public static final float MIN_SIZE = 5f;
     public static final float FIGHTER_SPEED = 30f;
     public static final float FRIGATE_SPEED = 24f;
 
@@ -32,7 +34,7 @@ public class ShuttleHull {
 
     public ShuttleHull(Look look, boolean fighter, boolean civilian, boolean small, boolean liner, boolean freighter, int wingSize) {
         this(look, fighter, civilian, small, liner, freighter, wingSize,
-                look.sprite().getWidth() * (fighter ? FIGHTER_SCALE : FRIGATE_SCALE), look.sprite().getHeight() * (fighter ? FIGHTER_SCALE : FRIGATE_SCALE));
+                look.sprite().getWidth() * drawScale(look.sprite(), fighter), look.sprite().getHeight() * drawScale(look.sprite(), fighter));
     }
 
     public ShuttleHull(Look look, boolean fighter, boolean civilian, boolean small, boolean liner, boolean freighter, int wingSize, float width, float length) {
@@ -54,6 +56,12 @@ public class ShuttleHull {
 
     public float getCruiseSpeed() {
         return fighter ? FIGHTER_SPEED : FRIGATE_SPEED;
+    }
+
+    public static float drawScale(SpriteAPI sprite, boolean fighter) {
+        float scale = fighter ? FIGHTER_SCALE : FRIGATE_SCALE;
+        float longer = Math.max(sprite.getWidth(), sprite.getHeight()) * scale;
+        return longer < MIN_SIZE ? scale * MIN_SIZE / Math.max(0.01f, longer) : scale;
     }
 
     public ShuttleHull withWingSize(int size) {
