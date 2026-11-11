@@ -86,7 +86,7 @@ The full set is about 340 checks in 12 minutes and exits 0 only when all pass. A
 |---|---|
 | `commerce` | One per system, alpha core tariff, Improve, Holosuite, setting off, open market, reload |
 | `meteor` | Rogue planet despawn, reload mid flight, intel timing, dust clouds, radiation, type roll. Run it last: it leaves delayed swarms behind |
-| `shuttle` | Shuttle traffic cost at Sindria: ms per frame at traffic 0 and 80, read with the profile. Not in the full set |
+| `shuttle` | Shuttle traffic cost at Sindria: ms per frame at traffic 0 and 80, read with the profile; a note with the craft per route kind and a check that local flights (pickets, cruises, mining) still launch at 80. Not in the full set |
 | `path` | Swarm path indicator on real swarms, sampled per frame |
 | `arcmath` | Real `ArcingMovementModule` over 4000 random arcs |
 | `pets` | Stored pets eat from their storage, starve, die |

@@ -131,9 +131,9 @@ Save: only new saved classes; nothing saved today changes shape. The CR side add
 
 ### 1.3 Shuttle traffic: open stages
 
-Status: plan in the project file `SHUTTLE_TRAFFIC_PLAN.md` (sections 13 to 23 hold Philipp's calls of 2026-11-11, section 24 the staged plan), code review in `SHUTTLE_TRAFFIC_REVIEW.md` section 7. Stage 3 (groundwork, no visible change) is in `dev`; current behaviour and files are in [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md).
+Status: plan in the project file `SHUTTLE_TRAFFIC_PLAN.md` (sections 13 to 23 hold Philipp's calls of 2026-11-11, section 24 the staged plan), code review in `SHUTTLE_TRAFFIC_REVIEW.md` section 7. Stages 3 (groundwork, no visible change) and 4 (fixes) are in `dev`; current behaviour and files are in [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md).
 
-- Stage 4: fixes to what flies today (pod look, pleasure cruises in place of joyrides, speed classes, network fixes, budgets, small fixes). Approved.
+- Stage 4: fixes to what flies today (pod look, pleasure cruises in place of joyrides, speed classes, network fixes, budgets, small fixes). Built, live test by Philipp pending (plan section 24 lists it).
 - Stages 5 to 9: new flights. Not approved yet.
 
 ## 2. Open questions

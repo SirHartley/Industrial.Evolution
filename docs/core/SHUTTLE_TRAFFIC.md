@@ -2,7 +2,7 @@
 
 Visual only small craft in the player's current star system: cargo lanes between markets and to orbital stations, pleasure cruises, patrol pickets, training flights, mining and salvage runs, pirate cargo hops, scavenging hunts, smugglers, diplomats, maintenance runs, traffic that scatters from hostile fleets, and escape pods from fleets destroyed in battle. Read it before touching `indevo/ambience/shuttletraffic/`, `data/config/indEvo/shuttle_traffic.csv` or `IndEvo_shuttleTraffic`. It does not cover real fleets or trade routes; nothing here changes the economy.
 
-Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`) and IE `3410777` plus the stage 3 split of the shuttle traffic plan. Recheck engine facts after a game update.
+Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`) and IE `dev` after stages 3 and 4 of the shuttle traffic plan. Recheck engine facts after a game update.
 
 ## Overview
 
@@ -179,7 +179,7 @@ A station pad is busy while a craft is in its last 100 su and 1 s after. A craft
 | Item | State |
 |---|---|
 | In game look | Tests (2026-11-08) fixed: rubberbanding, nervous trails, blinking lights, loop joyrides (now cruises), craft vanishing under planets, sprite size, trails out of line with the craft between moving bodies, lanes through the star. Untested in game: star pass, market lanes, blended trail frame, cruises, pod bursts, formation break up |
-| Checks | `ShuttleTrafficChecks` covers paths and states only, not flights, reactions or rendering. It runs on its own, not in `ReleaseBuild` |
+| Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split and states, not flights, reactions or rendering. It runs on its own, not in `ReleaseBuild` |
 | Performance | Live smoke `shuttle` group (2026-11-08, before market lanes): 55 craft at Sindria, all of `shuttletraffic` 0.4% of CPU and allocation |
 
 ## Checks
@@ -192,7 +192,7 @@ java -cp "out/release-build-<n>/classes:lib/*" indevo.tools.ShuttleTrafficChecks
 
 Use `;` in place of `:` on Windows. It prints `Shuttle traffic: N checks passed` or every failure and exits 1. It refuses to run inside the game. In IntelliJ: an Application run configuration with main class `indevo.tools.ShuttleTrafficChecks`, module `IndEvo`, working directory the repository root.
 
-The native smoke `shuttle` group ([SMOKE_TESTS.md](../SMOKE_TESTS.md)) reads the craft count through `ShuttleTrafficRenderer.getTraffic().getShuttles()`.
+The native smoke `shuttle` group ([SMOKE_TESTS.md](../SMOKE_TESTS.md)) reads the craft list through `ShuttleTrafficRenderer.getTraffic().getShuttles()`: ms per frame, craft per route kind, and a check that local flights still launch.
 
 ## Maintenance
 
