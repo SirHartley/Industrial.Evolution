@@ -87,7 +87,7 @@ public class Shuttle {
     private float delay = 0f;
     private float lastThreatNearDay = -100f;
     private ShuttleBudget.Group group = ShuttleBudget.Group.RARE;
-    // craft tied to a fleet fade with its sensor fader and never dodge it
+    // craft tied to a fleet fade with its sensor fader and never avoid it
     private CampaignFleetAPI tiedFleet;
 
     private final List<Shuttle> followers = new ArrayList<>(2);
@@ -100,7 +100,7 @@ public class Shuttle {
     private final Vector2f steerVel = new Vector2f();
     private float steerScale = 1f;
     private float steerAlpha = 1f;
-    // a craft that broke formation flies back into its slot once nobody dodges for REFORM_TIME
+    // a craft that broke formation flies back into its slot once nobody avoids a fleet for REFORM_TIME
     private Shuttle formerLeader;
     private float formerBack;
     private float formerSide;
@@ -879,7 +879,7 @@ public class Shuttle {
             return;
         }
 
-        if (mover.isDodging() || lead.mover.isDodging()) {
+        if (mover.isAvoiding() || lead.mover.isAvoiding()) {
             reformAt = age + REFORM_TIME;
             return;
         }
