@@ -7,6 +7,7 @@ import indevo.ambience.shuttletraffic.ShuttleAnchor;
 import indevo.ambience.shuttletraffic.ShuttleFleetScan;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
 import indevo.ambience.shuttletraffic.ShuttleTrail;
+import indevo.ambience.shuttletraffic.SpeedClass;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.Random;
@@ -26,6 +27,12 @@ public class PathMover {
     private final ShuttlePath.Cursor cursor = new ShuttlePath.Cursor();
     private float traveled = 0f;
     private float rebuildTimer = 0f;
+    // slewed path speed, negative until the first frame
+    private float pathSpeed = -1f;
+    // world speed above the path speed last frame (moving ends, sideways moves), taken off the path speed to keep inside the cap
+    private float carry = 0f;
+    private final Vector2f lastPos = new Vector2f();
+    private boolean lastKnown = false;
 
     private final Dodge dodge = new Dodge();
     private float spread = 0f;
@@ -94,6 +101,8 @@ public class PathMover {
         shuttle.pos.set(base);
         shuttle.setFacing(Misc.getAngleInDegrees(tangent));
         moveFrame();
+        lastKnown = false;
+        pathSpeed = -1f;
 
         for (int i = ShuttleTrail.HISTORY_POINTS; i >= 1; i--) {
             path.getPoint(Math.max(0f, traveled - i * ShuttleTrail.HISTORY_SPACING), tmp);
@@ -166,7 +175,9 @@ public class PathMover {
         if (launchLength > 0f && traveled < launchLength) ease = Math.min(ease, minEase + (1f - minEase) * smooth(traveled / launchLength));
         if (landLength > 0f && remaining < landLength) ease = Math.min(ease, minEase + (1f - minEase) * smooth(remaining / landLength));
 
-        float speed = shuttle.getSpeed(ease) * path.getSpeedMult(cursor) * dodge.getPace();
+        float wanted = shuttle.getSpeed(ease) * path.getSpeedMult(cursor) * dodge.getPace();
+        pathSpeed = nextPathSpeed(pathSpeed, wanted, carry, amount);
+        float speed = pathSpeed;
         shuttle.setThrottle(speed);
         if (path.move(cursor, speed * amount)) {
             shuttle.onPathEnd(traffic);
@@ -177,6 +188,19 @@ public class PathMover {
         traveled = path.getTraveled(cursor);
 
         updatePosition(amount, traffic, total, launchLength, landLength, speed);
+        measureCarry(amount, speed);
+    }
+
+    private void measureCarry(float amount, float speed) {
+        if (lastKnown && amount > 0f) carry = Math.max(0f, Vector2f.sub(shuttle.pos, lastPos, tmp).length() / amount - speed);
+        lastPos.set(shuttle.pos);
+        lastKnown = true;
+    }
+
+    // slewed towards the wanted speed, then cut so path speed plus last frame's carry stays inside the world cap; negative current snaps
+    public static float nextPathSpeed(float current, float wanted, float carry, float amount) {
+        float speed = current < 0f ? wanted : SpeedClass.slew(current, wanted, amount);
+        return Math.min(speed, Math.max(0f, SpeedClass.WORLD_CAP - carry));
     }
 
     private void updatePosition(float amount, ShuttleTraffic traffic, float total, float launchLength, float landLength, float speed) {

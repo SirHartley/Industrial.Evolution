@@ -2,11 +2,19 @@ package indevo.ambience.shuttletraffic;
 
 import com.fs.starfarer.api.Global;
 
-// one day is 10 s, so cruise speed is also reach per day
+// one day is 10 s, so cruise speed is also reach per day; one burn level is 20 su/s
 public enum SpeedClass {
     CIVIL(1f, 0f, 0.35f),
     SERVICE(1.8f, 0f, 0.15f),
-    MILITARY(0f, 75f, 0.35f);
+    MILITARY(0f, 60f, 0.35f);
+
+    // no craft moves faster than this in the world, frame carry and fleeing included
+    public static final float WORLD_CAP = 75f;
+    // path speed changes per second at most, up and down
+    public static final float SLEW_UP = 12f;
+    public static final float SLEW_DOWN = 20f;
+    // fleet tied craft only fly to a fleet slower than this
+    public static final float FLEET_TIED_MAX_SPEED = 40f;
 
     // mean of the fighter and frigate civil speeds in ShuttleHull
     private static final float MEAN_CIVIL_SPEED = 27f;
@@ -28,6 +36,11 @@ public enum SpeedClass {
 
     public float getMeanSpeed() {
         return fixedSpeed > 0f ? fixedSpeed : MEAN_CIVIL_SPEED * hullMult;
+    }
+
+    public static float slew(float current, float target, float amount) {
+        if (target > current) return Math.min(target, current + SLEW_UP * amount);
+        return Math.max(target, current - SLEW_DOWN * amount);
     }
 
     // a flight to a target that expires only launches when it gets there in time

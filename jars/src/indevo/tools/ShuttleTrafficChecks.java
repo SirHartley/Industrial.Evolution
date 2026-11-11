@@ -11,6 +11,8 @@ import indevo.ambience.shuttletraffic.ShuttleLook;
 import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleState;
 import indevo.ambience.shuttletraffic.ShuttleNetwork;
+import indevo.ambience.shuttletraffic.movement.PathMover;
+import indevo.ambience.shuttletraffic.SpeedClass;
 import indevo.ambience.shuttletraffic.ShuttleTrail;
 import indevo.ambience.shuttletraffic.dogfights.DogfightFleet;
 import indevo.ambience.shuttletraffic.dogfights.DogfightGroup;
@@ -112,6 +114,7 @@ public final class ShuttleTrafficChecks {
             run.checkSteer();
             run.checkRoundRate();
             run.checkRushHour();
+            run.checkSpeedCap();
             run.checkSwarmRange();
             run.checkDogfight();
         } finally {
@@ -361,6 +364,38 @@ public final class ShuttleTrafficChecks {
             float rate = ShuttleDogfights.getRoundRate(c[0], c[1], c[2] > 0f);
             check(Math.abs(rate - c[3]) < 0.001f, "round rate " + c[0] + " vs " + c[1] + (c[2] > 0f ? " with station" : "") + ": " + rate + ", expected " + c[3]);
         }
+    }
+
+    // a fleeing military craft on a path whose end moves along with it at just under the fleet tied limit: no more than the cap in any second, slewed speed
+    private void checkSpeedCap() {
+        for (float rate : RATES) {
+            float dt = 1f / rate;
+            String at = rate + " Hz: ";
+            float wanted = SpeedClass.MILITARY.getCruiseSpeed(null) * ShuttleState.FLEEING.pace;
+            float frame = SpeedClass.FLEET_TIED_MAX_SPEED - 1f;
+            float speed = -1f;
+            float carry = 0f;
+            int window = Math.round(rate);
+            float[] moved = new float[window];
+            float sum = 0f;
+            float worst = 0f;
+            float worstStep = 0f;
+            for (int i = 0; i < rate * 20; i++) {
+                float wantedNow = i < rate * 10 ? wanted : SpeedClass.CIVIL.getMeanSpeed() * 0.35f;
+                float before = Math.max(0f, speed);
+                speed = PathMover.nextPathSpeed(speed, wantedNow, carry, dt);
+                if (i > 0) worstStep = Math.max(worstStep, (speed - before) / dt - SpeedClass.SLEW_UP);
+                if (i > 0 && wantedNow < before) worstStep = Math.max(worstStep, (before - speed) / dt - SpeedClass.SLEW_DOWN);
+                float world = speed + frame;
+                if (i > 0) carry = Math.max(0f, world - speed);
+                sum += world * dt - moved[i % window];
+                moved[i % window] = world * dt;
+                if (i >= window) worst = Math.max(worst, sum);
+            }
+            check(worst <= SpeedClass.WORLD_CAP + 2f, at + "craft moved " + worst + " su in one second, cap " + SpeedClass.WORLD_CAP);
+            check(worstStep <= 0.01f, at + "path speed changed faster than the slew by " + worstStep + " su/s per second");
+        }
+        check(SpeedClass.MILITARY.getMeanSpeed() <= SpeedClass.WORLD_CAP && SpeedClass.SERVICE.getMeanSpeed() <= SpeedClass.WORLD_CAP, "speed class above the world cap");
     }
 
     // every market stays within the swing, peaks near both ends, and repeats within the period range
