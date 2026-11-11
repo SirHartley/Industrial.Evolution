@@ -4,8 +4,8 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
-import indevo.ambience.shuttletraffic.ShuttlePath;
 import indevo.ambience.shuttletraffic.ShuttleState;
+import indevo.ambience.shuttletraffic.movement.ShuttlePath;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.lang.reflect.Proxy;

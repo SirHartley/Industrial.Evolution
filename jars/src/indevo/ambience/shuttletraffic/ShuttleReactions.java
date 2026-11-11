@@ -36,7 +36,7 @@ public class ShuttleReactions {
     public void react() {
         ShuttleFleetScan fleetScan = traffic.getFleetScan();
         for (Shuttle shuttle : traffic.getShuttles()) {
-            if (shuttle.done || shuttle.isDown() || shuttle.leader != null || shuttle.isWaiting()) continue;
+            if (shuttle.done || shuttle.isDown() || shuttle.isFollower() || shuttle.isWaiting()) continue;
 
             if (shuttle.isStranded()) {
                 if (fleetScan.findThreat(shuttle.pos.x, shuttle.pos.y, STRANDED_CLEAR_RANGE, shuttle.faction) >= 0) shuttle.lastThreatNearDay = traffic.getDays();

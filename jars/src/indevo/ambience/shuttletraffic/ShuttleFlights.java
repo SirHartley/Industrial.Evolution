@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.ambience.shuttletraffic.movement.ShuttlePath;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
@@ -457,18 +458,13 @@ public class ShuttleFlights {
         int straggler = loose && count > 1 && random.nextFloat() < 0.25f ? 1 + random.nextInt(count - 1) : -1;
         for (int i = 1; i < count; i++) {
             int rank = (i + 1) / 2;
-            Shuttle follower = new Shuttle(leader.hull, null, leader.faction, leader.from, leader.to, null, leader.launchEnd, leader.landEnd,
+            Shuttle follower = new Shuttle(leader.hull, null, leader.faction, leader.from, leader.to, null, leader.getLaunchEnd(), leader.getLandEnd(),
                     leader.speedMult, 0f, random.nextFloat());
-            follower.leader = leader;
+            follower.follow(leader, 8f * rank, 6f * rank * (i % 2 == 1 ? 1f : -1f), loose ? 4f : 0f, i == straggler);
             follower.home = leader.home;
-            follower.slotBack = 8f * rank;
-            follower.slotSide = 6f * rank * (i % 2 == 1 ? 1f : -1f);
-            follower.noise = loose ? 4f : 0f;
-            follower.straggler = i == straggler;
             follower.flees = leader.flees;
             follower.picket = leader.picket;
             follower.queues = false;
-            leader.followers.add(follower);
             craft.add(follower);
         }
 

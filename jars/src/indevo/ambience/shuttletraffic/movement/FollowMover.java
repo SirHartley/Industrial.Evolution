@@ -1,0 +1,75 @@
+package indevo.ambience.shuttletraffic.movement;
+
+import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.util.Misc;
+import indevo.ambience.shuttletraffic.Shuttle;
+import indevo.ambience.shuttletraffic.ShuttleTrail;
+import org.lwjgl.util.vector.Vector2f;
+
+public class FollowMover {
+
+    private final Shuttle shuttle;
+    private final Shuttle leader;
+    private final float slotBack;
+    private final float slotSide;
+    private final float noise;
+    private final boolean straggler;
+    private float extraLag = 0f;
+    private SectorEntityToken frame;
+
+    private final Vector2f base = new Vector2f();
+    private final Vector2f tangent = new Vector2f();
+
+    public FollowMover(Shuttle shuttle, Shuttle leader, float slotBack, float slotSide, float noise, boolean straggler) {
+        this.shuttle = shuttle;
+        this.leader = leader;
+        this.slotBack = slotBack;
+        this.slotSide = slotSide;
+        this.noise = noise;
+        this.straggler = straggler;
+    }
+
+    public void advance(float amount) {
+        if (leader.done || leader.isDown()) {
+            shuttle.done = true;
+            return;
+        }
+
+        shuttle.copyLook(leader);
+
+        if (straggler) {
+            float target = Math.abs(leader.getTurnSpeed()) > 25f ? 30f : 0f;
+            if (extraLag < target) extraLag = Math.min(target, extraLag + 15f * amount);
+            else extraLag = Math.max(target, extraLag - 10f * amount);
+        }
+
+        float age = shuttle.getAge();
+        float offset = shuttle.getPhase() * 6.28f;
+        float side = slotSide + noise * (float) Math.sin(age * 0.7f + offset);
+        float back = slotBack + extraLag + noise * 0.5f * (float) Math.sin(age * 0.5f + offset * 2f);
+        leader.getTrail().getHistoryPoint(back, leader.pos, leader.facing, base, tangent);
+
+        shuttle.pos.set(base.x - tangent.y * side, base.y + tangent.x * side);
+        shuttle.updateFacing(amount, Misc.getAngleInDegrees(tangent));
+        frame = leader.getFrame();
+        ShuttleTrail leadTrail = leader.getTrail();
+        shuttle.getTrail().shift(leadTrail.getShiftX(), leadTrail.getShiftY());
+        shuttle.pushTrailAtRear();
+    }
+
+    public Shuttle getLeader() {
+        return leader;
+    }
+
+    public SectorEntityToken getFrame() {
+        return frame;
+    }
+
+    public float getSlotBack() {
+        return slotBack;
+    }
+
+    public float getSlotSide() {
+        return slotSide;
+    }
+}
