@@ -20,6 +20,7 @@ public class ShuttleFlights {
     private final PodFlights pods;
     private final FleetFlights fleets;
     private final EscortFlights escorts;
+    private final TenderFlights tenders;
     private final Map<ShuttleRoute.Kind, Flight> flights = new EnumMap<>(ShuttleRoute.Kind.class);
 
     public ShuttleFlights(ShuttleTraffic traffic) {
@@ -27,6 +28,7 @@ public class ShuttleFlights {
         pods = new PodFlights(traffic, paths);
         fleets = new FleetFlights(traffic, paths);
         escorts = new EscortFlights(traffic, paths);
+        tenders = new TenderFlights(traffic, paths);
         LaneFlights lanes = new LaneFlights(traffic, paths);
         LocalFlights local = new LocalFlights(traffic, paths);
 
@@ -71,5 +73,9 @@ public class ShuttleFlights {
 
     public EscortFlights getEscorts() {
         return escorts;
+    }
+
+    public TenderFlights getTenders() {
+        return tenders;
     }
 }

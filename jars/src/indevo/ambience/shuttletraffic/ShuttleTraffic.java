@@ -82,6 +82,7 @@ public class ShuttleTraffic {
             reactions.react();
             flights.getFleets().update();
             flights.getEscorts().update();
+            flights.getTenders().update();
             hits.scan();
             fastFleets.clear();
             for (int i = 0; i < fleetScan.getCount(); i++) {
@@ -160,6 +161,7 @@ public class ShuttleTraffic {
         hits.clear();
         fastFleets.clear();
         flights.getEscorts().clear();
+        flights.getTenders().clear();
         location = null;
         daysSinceRebuild = 0f;
         scanTimer = 0f;
