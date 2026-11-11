@@ -150,7 +150,7 @@ public class Shuttle {
         to = newTarget;
         cleared = false;
         setState(state.redirect());
-        setPath(traffic.getFlights().redirectPath(getFrame(), pos, facing, newTarget), End.NONE, newTarget.getEnd());
+        setPath(traffic.getPaths().redirectPath(getFrame(), pos, facing, newTarget), End.NONE, newTarget.getEnd());
     }
 
     public void flee(ShuttleAnchor refuge, float threatX, float threatY, ShuttleTraffic traffic) {
@@ -170,12 +170,12 @@ public class Shuttle {
         if (refuge != null) {
             to = refuge;
             waitForSafeHome = home != null && refuge != home;
-            setPath(traffic.getFlights().fleePath(frame, pos, heading, refuge, panic), End.NONE, refuge.getEnd());
+            setPath(traffic.getPaths().fleePath(frame, pos, heading, refuge, panic), End.NONE, refuge.getEnd());
             return;
         }
 
         lastThreatNearDay = traffic.getDays();
-        setPath(traffic.getFlights().awayPath(frame, pos, heading, threatX, threatY, panic), End.NONE, End.NONE);
+        setPath(traffic.getPaths().awayPath(frame, pos, heading, threatX, threatY, panic), End.NONE, End.NONE);
     }
 
     public void screen(float threatX, float threatY, ShuttleTraffic traffic) {
@@ -185,7 +185,7 @@ public class Shuttle {
 
         setState(state.screen());
         cleared = false;
-        setPath(traffic.getFlights().screenPath(getFrame(), pos, facing, home, threatX, threatY), End.NONE, End.NONE);
+        setPath(traffic.getPaths().screenPath(getFrame(), pos, facing, home, threatX, threatY), End.NONE, End.NONE);
     }
 
     // true when the pad is busy and the craft starts a holding lap
@@ -193,7 +193,7 @@ public class Shuttle {
         if (traits.contains(Trait.QUEUES) && !cleared) {
             if (to.isPadBusy(traffic.getTime())) {
                 setState(state.hold());
-                setPath(traffic.getFlights().holdPath(to.entity, pos, facing, ShuttleAnchor.HOLD_RADIUS), End.NONE, End.NONE);
+                setPath(traffic.getPaths().holdPath(to.entity, pos, facing, ShuttleAnchor.HOLD_RADIUS), End.NONE, End.NONE);
                 return true;
             }
 
@@ -480,7 +480,7 @@ public class Shuttle {
         to = home;
         facingSet = false;
         trail.clear();
-        setPath(traffic.getFlights().lanePath(start, home, (traffic.getRandom().nextFloat() - 0.5f) * 0.5f, false), start.getEnd(), home.getEnd());
+        setPath(traffic.getPaths().lanePath(start, home, (traffic.getRandom().nextFloat() - 0.5f) * 0.5f, false), start.getEnd(), home.getEnd());
     }
 
     private void finishHoldingLap(ShuttleTraffic traffic) {
@@ -502,7 +502,7 @@ public class Shuttle {
     private void continueScreening(ShuttleTraffic traffic) {
         LocationAPI location = traffic.getLocation();
         if (home != null && home.isUsable(location) && home.threatened && !home.overrun) {
-            setPath(traffic.getFlights().screenPath(getFrame(), pos, facing, home, screenX, screenY), End.NONE, End.NONE);
+            setPath(traffic.getPaths().screenPath(getFrame(), pos, facing, home, screenX, screenY), End.NONE, End.NONE);
             return;
         }
 
@@ -530,7 +530,7 @@ public class Shuttle {
             return;
         }
 
-        setPath(traffic.getFlights().holdPath(getFrame(), pos, facing, STRANDED_HOLD_RADIUS), End.NONE, End.NONE);
+        setPath(traffic.getPaths().holdPath(getFrame(), pos, facing, STRANDED_HOLD_RADIUS), End.NONE, End.NONE);
     }
 
     private void breakFrom(Shuttle lead, Random random) {

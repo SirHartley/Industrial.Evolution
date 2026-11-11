@@ -1,0 +1,60 @@
+package indevo.ambience.shuttletraffic.flights;
+
+import indevo.ambience.shuttletraffic.Shuttle;
+import indevo.ambience.shuttletraffic.ShuttleRoute;
+import indevo.ambience.shuttletraffic.ShuttleTraffic;
+
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+
+public class ShuttleFlights {
+
+    @FunctionalInterface
+    public interface Flight {
+        List<Shuttle> launch(ShuttleRoute route, int room);
+    }
+
+    private final ShuttlePaths paths;
+    private final PodFlights pods;
+    private final Map<ShuttleRoute.Kind, Flight> flights = new EnumMap<>(ShuttleRoute.Kind.class);
+
+    public ShuttleFlights(ShuttleTraffic traffic) {
+        paths = new ShuttlePaths(traffic.getNetwork(), traffic.getRandom());
+        pods = new PodFlights(traffic, paths);
+        LaneFlights lanes = new LaneFlights(traffic, paths);
+        LocalFlights local = new LocalFlights(traffic, paths);
+
+        Flight lane = (route, room) -> BaseFlights.single(lanes.launchLane(route));
+        flights.put(ShuttleRoute.Kind.SUPPLY, lane);
+        flights.put(ShuttleRoute.Kind.MARKET, lane);
+        flights.put(ShuttleRoute.Kind.PIRATE_CARGO, lane);
+        flights.put(ShuttleRoute.Kind.SMUGGLER, lane);
+        flights.put(ShuttleRoute.Kind.DIPLOMAT, (route, room) -> BaseFlights.single(lanes.launchDiplomat(route)));
+        flights.put(ShuttleRoute.Kind.HUNT, (route, room) -> BaseFlights.single(lanes.launchHunt(route)));
+        flights.put(ShuttleRoute.Kind.JOYRIDE, local::launchJoyride);
+        flights.put(ShuttleRoute.Kind.PICKET, local::launchPicket);
+        flights.put(ShuttleRoute.Kind.TRAINING, local::launchTraining);
+        flights.put(ShuttleRoute.Kind.MINING, (route, room) -> BaseFlights.single(local.launchLinger(route)));
+        flights.put(ShuttleRoute.Kind.SALVAGE, (route, room) -> BaseFlights.single(local.launchLinger(route)));
+        flights.put(ShuttleRoute.Kind.MAINTENANCE, (route, room) -> BaseFlights.single(local.launchMaintenance(route)));
+
+        for (ShuttleRoute.Kind kind : ShuttleRoute.Kind.values()) {
+            if (!flights.containsKey(kind)) throw new IllegalStateException("Shuttle traffic: no flight for route kind " + kind);
+        }
+    }
+
+    public List<Shuttle> launch(ShuttleRoute route, int room) {
+        if (room <= 0) return Collections.emptyList();
+        return flights.get(route.kind).launch(route, room);
+    }
+
+    public ShuttlePaths getPaths() {
+        return paths;
+    }
+
+    public PodFlights getPods() {
+        return pods;
+    }
+}
