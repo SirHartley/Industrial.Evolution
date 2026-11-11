@@ -270,6 +270,7 @@ public class ShuttlePath {
     public abstract static class Segment {
         private final float[] cumulative;
         private float length = 0f;
+        private float speedMult = 1f;
 
         protected Segment(int samples) {
             this.cumulative = new float[Math.max(4, samples) + 1];
@@ -292,6 +293,15 @@ public class ShuttlePath {
 
         public float getScaleMult(float t) {
             return 1f;
+        }
+
+        public Segment withSpeedMult(float mult) {
+            speedMult = mult;
+            return this;
+        }
+
+        public float getSpeedMult() {
+            return speedMult;
         }
 
         public float getLength() {
@@ -571,6 +581,10 @@ public class ShuttlePath {
     public float getEndWeight(Cursor cursor) {
         Segment segment = segments.get(cursor.segment);
         return segment.getEndWeight(segment.getT(cursor.fraction * segment.getLength()));
+    }
+
+    public float getSpeedMult(Cursor cursor) {
+        return segments.get(cursor.segment).getSpeedMult();
     }
 
     public float getScaleMult(Cursor cursor) {

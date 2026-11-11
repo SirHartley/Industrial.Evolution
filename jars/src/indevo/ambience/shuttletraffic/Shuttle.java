@@ -39,6 +39,7 @@ public class Shuttle {
     private static final float FLEE_WOBBLE = 10f;
     private static final float FLEE_WOBBLE_TIME = 3f;
     private static final float STRANDED_HOLD_RADIUS = 150f;
+    private static final float REFUGE_WAIT_DAYS = 3f;
     private static final int GREY_STEPS = 32;
     private static final Color[] GREYS = new Color[GREY_STEPS + 1];
 
@@ -56,6 +57,7 @@ public class Shuttle {
     private final ShuttleRoute route;
     private final ShuttleLook look;
     private final Set<Trait> traits;
+    private final SpeedClass speedClass;
     private final float phase;
     private ShuttleAnchor from;
     private ShuttleAnchor to;
@@ -69,6 +71,7 @@ public class Shuttle {
     private float boostTime = 0f;
     private float delay = 0f;
     private float lastThreatNearDay = -100f;
+    private ShuttleBudget.Group group = ShuttleBudget.Group.RARE;
 
     private final List<Shuttle> followers = new ArrayList<>(2);
     private final ShuttleTrail trail = new ShuttleTrail();
@@ -94,11 +97,13 @@ public class Shuttle {
     private boolean waitForSafeHome = false;
     private float fleeStart = 0f;
     private float resumeDay = 0f;
+    private float landDay = 0f;
+    private float glowFlicker = 1f;
     private float screenX = 0f;
     private float screenY = 0f;
 
     public Shuttle(ShuttleHull hull, ShuttleRoute route, FactionAPI faction, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath path,
-                   End launchEnd, End landEnd, float speedMult, float jitter, float phase, ShuttleLook look, Set<Trait> traits) {
+                   End launchEnd, End landEnd, SpeedClass speedClass, float speedMult, float jitter, float phase, ShuttleLook look, Set<Trait> traits) {
         this.hull = hull;
         this.route = route;
         this.look = look;
@@ -108,6 +113,7 @@ public class Shuttle {
         this.from = from;
         this.to = to;
         this.home = from;
+        this.speedClass = speedClass;
         this.speedMult = speedMult;
         this.phase = phase;
         this.mover = new PathMover(this, path, launchEnd, landEnd, jitter);
@@ -121,6 +127,7 @@ public class Shuttle {
     // ejection: hidden for delay seconds, then boost su/s on top of cruise speed, fading over boostTime
     public void eject(float delay, float boost, float boostTime) {
         this.delay = delay;
+        spin = phase * 360f;
         this.boost = boost;
         this.boostTime = boostTime;
     }
@@ -140,7 +147,8 @@ public class Shuttle {
         }
 
         age += amount;
-        spin += look.spinRate() * amount;
+        glowFlicker = 1f - look.flicker() + look.flicker() * (float) Math.random();
+        if (isTumbling()) spin += look.tumbleRate() * (1f - age / boostTime) * amount;
 
         if (state == ShuttleState.DOWN) {
             advanceDown(traffic);
@@ -231,7 +239,8 @@ public class Shuttle {
 
         if (to != null && home != null && to != home && mover.getLandEnd() != End.NONE && (stayDays > 0f || waitForSafeHome)) {
             setState(state.land());
-            resumeDay = traffic.getDays() + stayDays;
+            landDay = traffic.getDays();
+            resumeDay = landDay + stayDays;
             return;
         }
 
@@ -244,7 +253,7 @@ public class Shuttle {
     }
 
     public float getSpeed(float ease) {
-        float speed = hull.getCruiseSpeed() * speedMult * state.pace * ease;
+        float speed = getCruiseSpeed() * state.pace * ease;
         if (boostTime > 0f && age < boostTime) speed += boost * (1f - age / boostTime);
         return speed;
     }
@@ -277,7 +286,7 @@ public class Shuttle {
     }
 
     public void updateLook(float amount, float pathScale, float traveled, float remaining, float launchLength, float landLength) {
-        float speed = hull.getCruiseSpeed() * speedMult;
+        float speed = getCruiseSpeed();
 
         scale = pathScale;
         alpha = 1f;
@@ -302,6 +311,8 @@ public class Shuttle {
     }
 
     public void pushTrailAtRear() {
+        if (isTumbling()) return;
+
         float hx = (float) Math.cos(Math.toRadians(facing));
         float hy = (float) Math.sin(Math.toRadians(facing));
         float back = hull.length * scale * 0.5f;
@@ -332,6 +343,14 @@ public class Shuttle {
         return picket;
     }
 
+    public void setGroup(ShuttleBudget.Group group) {
+        this.group = group;
+    }
+
+    public ShuttleBudget.Group getGroup() {
+        return group;
+    }
+
     public ShuttleRoute getRoute() {
         return route;
     }
@@ -350,6 +369,14 @@ public class Shuttle {
 
     public float getSpeedMult() {
         return speedMult;
+    }
+
+    public SpeedClass getSpeedClass() {
+        return speedClass;
+    }
+
+    public float getCruiseSpeed() {
+        return speedClass.getCruiseSpeed(hull) * speedMult;
     }
 
     public ShuttleLook getLook() {
@@ -386,6 +413,11 @@ public class Shuttle {
 
     public boolean isScreening() {
         return state == ShuttleState.SCREENING;
+    }
+
+    // a refugee waiting hidden for its home to be safe again holds no cap slot
+    public boolean isWaitingAtRefuge() {
+        return state == ShuttleState.DOWN && waitForSafeHome;
     }
 
     public boolean isWaiting() {
@@ -426,7 +458,7 @@ public class Shuttle {
 
     public void renderTrail(float alphaMult) {
         float a = getRenderAlpha(alphaMult);
-        if (a <= 0.01f) return;
+        if (a <= 0.01f || isTumbling()) return;
 
         trail.render(getRearX(), getRearY(), look.trailPoints(), look.trailWidth(), hull.trailColor, hull.additiveTrail, a * look.trailAlpha());
     }
@@ -437,21 +469,35 @@ public class Shuttle {
 
         SpriteAPI sprite = hull.sprite;
         sprite.setSize(hull.width * scale, hull.length * scale);
-        sprite.setAngle(look.spinRate() != 0f ? spin : facing - 90f);
+        sprite.setAngle(getSpriteAngle());
         sprite.setColor(GREYS[Math.max(0, Math.min(GREY_STEPS, Math.round(darken * GREY_STEPS)))]);
         sprite.setAlphaMult(a);
         sprite.setNormalBlend();
         sprite.renderAtCenter(pos.x, pos.y);
 
-        if (look.glow()) {
+        if (look.glow() && !isTumbling()) {
             float glowSize = Math.max(4f, hull.width * scale * 0.9f) * glowMult;
             glow.setSize(glowSize, glowSize);
             glow.setAngle(0f);
             glow.setColor(hull.glowColor);
             glow.setAdditiveBlend();
-            glow.setAlphaMult(a * (1f - look.flicker() + look.flicker() * (float) Math.random()));
+            glow.setAlphaMult(a * glowFlicker);
             glow.renderAtCenter(getRearX(), getRearY());
         }
+    }
+
+    private boolean isTumbling() {
+        return look.tumbleRate() != 0f && age < boostTime;
+    }
+
+    // the tumble blends into the heading over the boost
+    private float getSpriteAngle() {
+        float heading = facing - 90f;
+        if (!isTumbling()) return heading;
+
+        float t = age / boostTime;
+        float blend = t * t * (3f - 2f * t);
+        return spin + Misc.getClosestTurnDirection(spin, heading) * Misc.getAngleDiff(spin, heading) * blend;
     }
 
     private float getRenderAlpha(float alphaMult) {
@@ -490,6 +536,11 @@ public class Shuttle {
             return;
         }
 
+        if (waitForSafeHome && days - landDay >= REFUGE_WAIT_DAYS) {
+            done = true;
+            return;
+        }
+
         if (days < resumeDay || home.closed || !home.isSafe(days) || to.threatened) return;
 
         ShuttleAnchor start = to;
@@ -500,7 +551,7 @@ public class Shuttle {
         to = home;
         facingSet = false;
         trail.clear();
-        setPath(traffic.getPaths().lanePath(start, home, (traffic.getRandom().nextFloat() - 0.5f) * 0.5f, false), start.getEnd(), home.getEnd());
+        setPath(traffic.getPaths().lanePath(start, home, ShuttleRoute.rollBend(traffic.getRandom()), false), start.getEnd(), home.getEnd());
     }
 
     private void finishHoldingLap(ShuttleTraffic traffic) {

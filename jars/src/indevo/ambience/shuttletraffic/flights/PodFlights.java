@@ -1,6 +1,7 @@
 package indevo.ambience.shuttletraffic.flights;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.BattleAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
@@ -10,10 +11,12 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ambience.shuttletraffic.Shuttle;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
+import indevo.ambience.shuttletraffic.ShuttleFleetScan;
 import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleHullPool;
 import indevo.ambience.shuttletraffic.ShuttleLook;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
+import indevo.ambience.shuttletraffic.SpeedClass;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
 import indevo.config.Setting;
 import org.lwjgl.util.vector.Vector2f;
@@ -28,29 +31,38 @@ public class PodFlights extends BaseFlights {
     private static final float POD_PLANET_RANGE = 2000f;
     private static final int POD_CAP = 32;
     private static final int MAX_PODS_PER_FLEET = 16;
-    private static final int EMPTY_SNAPSHOT_PODS = 3;
+    private static final int EMPTY_SNAPSHOT_BURST = 3;
+    private static final float BURST_GAP = 0.3f;
+    private static final float BURST_SPREAD = 1.5f;
+    private static final float FAN = 80f;
+    private static final float BOOST_TIME = 2f;
+    private static final float THREAT_RANGE = 3000f;
 
     private final List<PodEvent> queue = new ArrayList<>();
 
-    private record PodEvent(LocationAPI location, Vector2f point, PlanetAPI planet, int count) {
+    // heading is NaN when no enemy is known
+    private record PodEvent(LocationAPI location, Vector2f point, PlanetAPI planet, List<Integer> bursts, float heading) {
     }
 
     public PodFlights(ShuttleTraffic traffic, ShuttlePaths paths) {
         super(traffic, paths);
     }
 
-    public void queue(CampaignFleetAPI fleet) {
+    public void queue(CampaignFleetAPI fleet, BattleAPI battle) {
         if (Setting.SHUTTLE_TRAFFIC.intValue() <= 0) return;
 
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         LocationAPI fleetLocation = fleet.getContainingLocation();
         if (player == null || fleetLocation == null || fleetLocation != player.getContainingLocation() || fleetLocation.isHyperspace()) return;
 
-        int count = getPodCount(fleet);
-        if (count <= 0) return;
+        List<Integer> bursts = getBursts(fleet);
+        if (bursts.isEmpty()) return;
 
         PlanetAPI planet = findPodPlanet(fleetLocation, fleet.getLocation(), fleet.getFaction());
-        if (planet != null) queue.add(new PodEvent(fleetLocation, new Vector2f(fleet.getLocation()), planet, count));
+        if (planet == null) return;
+
+        Vector2f point = new Vector2f(fleet.getLocation());
+        queue.add(new PodEvent(fleetLocation, point, planet, bursts, getAwayHeading(fleet, battle, point)));
     }
 
     public void clearQueue() {
@@ -67,53 +79,102 @@ public class PodFlights extends BaseFlights {
             if (room <= 0) break;
             if (event.location() != traffic.getLocation() || !event.planet().isAlive()) continue;
 
-            pods.addAll(launch(event.point(), event.planet(), Math.min(room, event.count())));
+            pods.addAll(launch(event, room));
         }
 
         queue.clear();
     }
 
-    private List<Shuttle> launch(Vector2f point, PlanetAPI planet, int count) {
-        List<Shuttle> pods = new ArrayList<>(count);
+    // one burst per lost ship: a string of pods on one shared curve, fanned away from the enemy
+    private List<Shuttle> launch(PodEvent event, int room) {
+        List<Shuttle> pods = new ArrayList<>();
+        PlanetAPI planet = event.planet();
+        Vector2f point = event.point();
         ShuttleAnchor target = new ShuttleAnchor(planet, ShuttleAnchor.Type.PLANET, ShuttleAnchor.Role.TARGET, planet.getMarket(), null);
+        float distance = Misc.getDistance(point, planet.getLocation());
 
-        for (int i = 0; i < count; i++) {
+        for (int size : event.bursts()) {
             ShuttleHull hull = ShuttleHullPool.getPod();
-            if (hull == null) break;
+            if (hull == null || pods.size() >= room) break;
 
-            float angle = random.nextFloat() * 360f;
-            float distance = Misc.getDistance(point, planet.getLocation());
-            ShuttlePath.Waypoint start = new ShuttlePath.FixedWaypoint(point, Misc.getUnitVectorAtDegreeAngle(angle));
-            ShuttlePath path = new ShuttlePath().add(new ShuttlePath.BezierSegment(start, new ShuttlePath.PadWaypoint(target, start, paths.spread(60f), 0f, true),
-                    120f + random.nextFloat() * 80f, paths.getHandle(target, distance), 0f));
+            float heading = Float.isNaN(event.heading()) ? random.nextFloat() * 360f : event.heading() + (random.nextFloat() - 0.5f) * FAN;
+            float padOffset = paths.spread(60f);
+            float startHandle = 120f + random.nextFloat() * 80f;
+            float delay = random.nextFloat() * BURST_SPREAD;
+            float boost = 45f + random.nextFloat() * 40f;
+            float tumble = (20f + random.nextFloat() * 40f) * paths.randomSign();
 
-            Shuttle pod = new Shuttle(hull, null, null, target, target, path, Shuttle.End.NONE, Shuttle.End.PLANET,
-                    POD_SPEED / hull.getCruiseSpeed(), 0f, random.nextFloat(), ShuttleLook.pod((20f + random.nextFloat() * 40f) * paths.randomSign()),
-                    EnumSet.noneOf(Shuttle.Trait.class));
-            pod.eject(random.nextFloat() * 1.5f, 45f + random.nextFloat() * 40f, 2f);
-            pods.add(pod);
+            for (int i = 0; i < size && pods.size() < room; i++) {
+                ShuttlePath.Waypoint start = new ShuttlePath.FixedWaypoint(point, Misc.getUnitVectorAtDegreeAngle(heading));
+                ShuttlePath path = new ShuttlePath().add(new ShuttlePath.BezierSegment(start, new ShuttlePath.PadWaypoint(target, start, padOffset, 0f, true),
+                        startHandle, paths.getHandle(target, distance), 0f));
+
+                Shuttle pod = new Shuttle(hull, null, null, target, target, path, Shuttle.End.NONE, Shuttle.End.PLANET,
+                        SpeedClass.CIVIL, POD_SPEED / hull.getCruiseSpeed(), paths.spread(6f), random.nextFloat(), ShuttleLook.pod(tumble * (0.7f + 0.6f * random.nextFloat())),
+                        EnumSet.noneOf(Shuttle.Trait.class));
+                pod.eject(delay + i * BURST_GAP, boost, BOOST_TIME);
+                pods.add(pod);
+            }
         }
 
         return pods;
     }
 
-    private static int getPodCount(CampaignFleetAPI fleet) {
-        List<FleetMemberAPI> snapshot = fleet.getFleetData().getSnapshot();
-        if (snapshot == null || snapshot.isEmpty()) return EMPTY_SNAPSHOT_PODS;
-
+    private float getAwayHeading(CampaignFleetAPI fleet, BattleAPI battle, Vector2f point) {
+        float sumX = 0f;
+        float sumY = 0f;
         int count = 0;
+
+        List<CampaignFleetAPI> enemies = battle != null ? battle.getOtherSideFor(fleet) : null;
+        if (enemies != null) {
+            for (CampaignFleetAPI enemy : enemies) {
+                if (enemy == null || enemy.getContainingLocation() != fleet.getContainingLocation()) continue;
+                sumX += enemy.getLocation().x;
+                sumY += enemy.getLocation().y;
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            ShuttleFleetScan.Entry threat = traffic.getFleetScan().findThreat(point.x, point.y, THREAT_RANGE, fleet.getFaction());
+            if (threat == null) return Float.NaN;
+            sumX = threat.x;
+            sumY = threat.y;
+            count = 1;
+        }
+
+        float dx = point.x - sumX / count;
+        float dy = point.y - sumY / count;
+        if (dx * dx + dy * dy < 1f) return Float.NaN;
+        return Misc.getAngleInDegrees(new Vector2f(dx, dy));
+    }
+
+    // 2 pods per lost frigate or destroyer, 3 per cruiser or capital, crewed ships only
+    private static List<Integer> getBursts(CampaignFleetAPI fleet) {
+        List<Integer> bursts = new ArrayList<>();
+        List<FleetMemberAPI> snapshot = fleet.getFleetData().getSnapshot();
+        if (snapshot == null || snapshot.isEmpty()) {
+            bursts.add(EMPTY_SNAPSHOT_BURST);
+            return bursts;
+        }
+
+        int total = 0;
         for (FleetMemberAPI member : snapshot) {
             if (member.isFighterWing() || Misc.isAutomated(member) || member.getHullSpec().getMinCrew() <= 0f) continue;
 
-            count += switch (member.getHullSpec().getHullSize()) {
-                case FRIGATE, DESTROYER -> 1;
-                case CRUISER -> 2;
-                case CAPITAL_SHIP -> 3;
+            int size = switch (member.getHullSpec().getHullSize()) {
+                case FRIGATE, DESTROYER -> 2;
+                case CRUISER, CAPITAL_SHIP -> 3;
                 default -> 0;
             };
+            size = Math.min(size, MAX_PODS_PER_FLEET - total);
+            if (size <= 0) continue;
+
+            bursts.add(size);
+            total += size;
         }
 
-        return Math.min(MAX_PODS_PER_FLEET, count);
+        return bursts;
     }
 
     private static PlanetAPI findPodPlanet(LocationAPI location, Vector2f point, FactionAPI faction) {

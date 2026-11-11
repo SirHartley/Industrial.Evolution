@@ -4,7 +4,11 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
+import indevo.ambience.shuttletraffic.ShuttleBudget;
+import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleState;
+import indevo.ambience.shuttletraffic.ShuttleNetwork;
+import indevo.ambience.shuttletraffic.flights.ShuttlePaths;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -12,6 +16,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.function.UnaryOperator;
 
 import static indevo.ambience.shuttletraffic.ShuttleState.CRUISE;
@@ -74,6 +79,8 @@ public final class ShuttleTrafficChecks {
             run.checkMoveAcross();
             run.checkStarPass();
             run.checkStates();
+            run.checkCruise();
+            run.checkBudget();
         } finally {
             Global.setSettings(null);
         }
@@ -255,6 +262,86 @@ public final class ShuttleTrafficChecks {
             check(state.isFleeing() == (boolean) row[3] && state.isHolding() == (boolean) row[4] && state.isStranded() == (boolean) row[5],
                     state + " flags differ from the old flags");
         }
+    }
+
+    // a cruise reaches the sight, laps it outside its radius at 0.9 speed and lands back at home
+    private void checkCruise() {
+        for (int seed = 0; seed < 20; seed++) {
+            Body home = new Body(0f, 0f, 120f);
+            Body sight = new Body(0f, 0f, 200f);
+            orbit(home, 1800f, 20f, 0f);
+            orbit(sight, 3400f, 60f, 0f);
+            ShuttlePaths paths = new ShuttlePaths(new ShuttleNetwork(), new Random(seed));
+            ShuttlePath path = paths.cruisePath(anchor(home), sight.token, paths.rollCruise((seed % 5 - 2) * 0.1f));
+            path.rebuild();
+
+            float time = 0f;
+            float closestSight = Float.MAX_VALUE;
+            float lapSpeed = 0f;
+            ShuttlePath.Cursor cursor = new ShuttlePath.Cursor();
+            Vector2f point = new Vector2f();
+            boolean done = false;
+            while (!done && time < 2000f) {
+                time += 1f / 60f;
+                orbit(home, 1800f, 20f, time);
+                orbit(sight, 3400f, 60f, time);
+                path.refresh(cursor);
+                done = path.move(cursor, SPEED / 60f);
+                path.getPoint(cursor, point);
+                closestSight = Math.min(closestSight, Vector2f.sub(point, sight.loc, null).length());
+                if (path.getSegment(cursor) instanceof ShuttlePath.CircleSegment) lapSpeed = path.getSpeedMult(cursor);
+            }
+
+            String name = "cruise seed " + seed;
+            check(done, name + ": never ended");
+            check(closestSight >= sight.radius * 1.2f, name + ": came within " + closestSight + " of the sight");
+            check(closestSight <= sight.radius * 1.5f + 60f + 1f, name + ": never reached the lap, closest " + closestSight);
+            check(lapSpeed == 0.9f, name + ": lap speed " + lapSpeed);
+            check(Vector2f.sub(point, home.loc, null).length() <= home.radius, name + ": ended " + Vector2f.sub(point, home.loc, null).length() + " from home");
+        }
+    }
+
+    // a busy system keeps room for local flights, lanes scale down but keep one flight each, rare flights fit while there is room
+    private void checkBudget() {
+        List<ShuttleRoute> routes = new ArrayList<>();
+        for (int i = 0; i < 6; i++) routes.add(route(ShuttleRoute.Kind.MARKET, 8));
+        routes.add(route(ShuttleRoute.Kind.PICKET, 2));
+        routes.add(route(ShuttleRoute.Kind.PICKET, 2));
+        for (int i = 0; i < 4; i++) routes.add(route(ShuttleRoute.Kind.CRUISE, 1));
+        routes.add(route(ShuttleRoute.Kind.MINING, 3));
+        routes.add(route(ShuttleRoute.Kind.HUNT, 1));
+
+        ShuttleBudget budget = new ShuttleBudget();
+        budget.update(routes, 60);
+        int lanes = 0;
+        for (ShuttleRoute route : routes) {
+            if (route.kind.group != ShuttleBudget.Group.LANES) check(route.max == route.demand, route.kind + " max " + route.max + " differs from demand");
+            else lanes += route.max;
+        }
+
+        check(lanes <= 45, "lanes take " + lanes + " of 60 with 15 reserved for local flights");
+        check(lanes >= 40, "lanes scaled down to " + lanes + ", more than needed");
+        budget.add(ShuttleBudget.Group.LANES, lanes);
+        check(budget.getRoom(ShuttleBudget.Group.LOCAL) == 60 - lanes, "local room " + budget.getRoom(ShuttleBudget.Group.LOCAL) + " with lanes full");
+        check(budget.getRoom(ShuttleBudget.Group.LANES) == 45 - lanes, "lanes have room " + budget.getRoom(ShuttleBudget.Group.LANES) + " inside the local reserve");
+        budget.add(ShuttleBudget.Group.LOCAL, 10);
+        check(budget.getRoom(ShuttleBudget.Group.RARE) == 50 - lanes, "rare room " + budget.getRoom(ShuttleBudget.Group.RARE));
+
+        budget.update(routes, 6);
+        for (ShuttleRoute route : routes) check(route.max >= 1, route.kind + " lost its last flight at cap 6");
+
+        List<ShuttleRoute> quiet = List.of(route(ShuttleRoute.Kind.MARKET, 3), route(ShuttleRoute.Kind.PICKET, 1));
+        budget.update(quiet, 60);
+        check(quiet.get(0).max == 3, "a quiet system scaled its lane to " + quiet.get(0).max);
+        budget.count(List.of());
+        check(budget.getRoom(ShuttleBudget.Group.LANES) == 58 && budget.getRoom(ShuttleBudget.Group.LOCAL) == 57,
+                "quiet system rooms " + budget.getRoom(ShuttleBudget.Group.LANES) + " and " + budget.getRoom(ShuttleBudget.Group.LOCAL));
+    }
+
+    private static ShuttleRoute route(ShuttleRoute.Kind kind, int demand) {
+        ShuttleRoute route = new ShuttleRoute(kind.name(), kind, null, null, 0f);
+        route.demand = demand;
+        return route;
     }
 
     // one lap per 400 s, far less than real orbits, so the lane turns a lot during one flight

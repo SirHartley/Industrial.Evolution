@@ -8,6 +8,7 @@ import indevo.ambience.shuttletraffic.ShuttleLook;
 import indevo.ambience.shuttletraffic.ShuttleNetwork;
 import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
+import indevo.ambience.shuttletraffic.SpeedClass;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
 
 import java.util.Collections;
@@ -31,9 +32,9 @@ abstract class BaseFlights {
         this.paths = paths;
     }
 
-    protected Shuttle create(ShuttleHull hull, ShuttleRoute route, FactionAPI faction, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath path, float speedMult,
-                           float jitter, ShuttleLook look, Set<Shuttle.Trait> traits) {
-        return new Shuttle(hull, route, faction, from, to, path, from.getEnd(), to.getEnd(),
+    protected Shuttle create(ShuttleHull hull, ShuttleRoute route, FactionAPI faction, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath path, SpeedClass speed,
+                             float speedMult, float jitter, ShuttleLook look, Set<Shuttle.Trait> traits) {
+        return new Shuttle(hull, route, faction, from, to, path, from.getEnd(), to.getEnd(), speed,
                 speedMult * (0.85f + 0.3f * random.nextFloat()), paths.spread(jitter), random.nextFloat(), look, traits);
     }
 

@@ -16,9 +16,8 @@ import java.util.Random;
 
 public class ShuttlePaths {
 
-    public enum Pattern {
-        ORBIT,
-        ARC
+    // one cruise circuit, rolled once so a race flies it twice
+    public record Cruise(float bendFrac, float side, float entryAngle, float launchOffset, float landOffset) {
     }
 
     private static final float LANE_OFFSET = 40f;
@@ -30,6 +29,9 @@ public class ShuttlePaths {
     private static final float PANIC_RADIUS = 60f;
     private static final float SCREEN_RADIUS = 120f;
     private static final float JOIN_HANDLE = 150f;
+    private static final float CRUISE_RADIUS_MULT = 1.5f;
+    private static final float CRUISE_RADIUS_EXTRA = 60f;
+    private static final float CRUISE_LAP_SPEED = 0.9f;
 
     private final ShuttleNetwork network;
     private final Random random;
@@ -68,11 +70,16 @@ public class ShuttlePaths {
     // bend and offset are along the left normal of a to b; a lane with a star between its anchors goes through a live pass point beside it
     private ShuttlePath lane(ShuttleAnchor a, ShuttleAnchor b, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath.Waypoint start, ShuttlePath.Waypoint end,
                              float bend, float offset) {
+        return addLane(new ShuttlePath(), a, b, from, to, start, end, bend, offset);
+    }
+
+    private ShuttlePath addLane(ShuttlePath path, ShuttleAnchor a, ShuttleAnchor b, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath.Waypoint start,
+                                ShuttlePath.Waypoint end, float bend, float offset) {
         float chord = Misc.getDistance(a.getLocation(), b.getLocation());
         boolean reverse = from != a;
         ShuttleNetwork.Body star = network.getStarAcross(a.getLocation(), b.getLocation());
         if (star == null) {
-            return new ShuttlePath().add(new ShuttlePath.BezierSegment(start, end, getHandle(from, chord), getHandle(to, chord), reverse ? -bend : bend));
+            return path.add(new ShuttlePath.BezierSegment(start, end, getHandle(from, chord), getHandle(to, chord), reverse ? -bend : bend));
         }
 
         ShuttlePath.Waypoint pass = new ShuttlePath.StarPassWaypoint(a.entity, b.entity, star.entity, star.radius * 1.1f, bend, offset, reverse);
@@ -80,7 +87,7 @@ public class ShuttlePaths {
         pass.getPosition(passLoc);
         float first = Misc.getDistance(from.getLocation(), passLoc);
         float second = Misc.getDistance(passLoc, to.getLocation());
-        return new ShuttlePath()
+        return path
                 .add(new ShuttlePath.BezierSegment(start, pass, getHandle(from, first), first * 0.35f, 0f))
                 .add(new ShuttlePath.BezierSegment(pass, end, second * 0.35f, getHandle(to, second), 0f));
     }
@@ -151,28 +158,32 @@ public class ShuttlePaths {
                 .add(circle);
     }
 
-    // orbit: one lap well above the anchor; arc: a low hop to another spot on the same planet
-    public ShuttlePath joyridePath(ShuttleAnchor home, Pattern pattern) {
-        boolean arc = pattern == Pattern.ARC;
-        float altitude = arc ? home.getRadius() * 0.25f + 40f + random.nextFloat() * 40f : 100f + random.nextFloat() * 120f;
-        float sweep = (arc ? 60f + random.nextFloat() * 80f : 360f) * randomSign();
-        float side = Math.signum(sweep);
-        float radius = home.getRadius() + altitude;
+    // lane out to the sight, one slow lap around it, lane home on the other side
+    public ShuttlePath cruisePath(ShuttleAnchor home, SectorEntityToken sight, Cruise cruise) {
+        ShuttleAnchor target = new ShuttleAnchor(sight, ShuttleAnchor.Type.PLANET, ShuttleAnchor.Role.TARGET, null, null);
+        Vector2f p0 = home.getLocation();
+        Vector2f p3 = sight.getLocation();
+        float chord = Misc.getDistance(p0, p3);
+        float out = network.getBend(p0, p3, cruise.bendFrac() * chord, home.entity, sight);
+        float back = network.getBend(p0, p3, -cruise.bendFrac() * chord, home.entity, sight);
 
-        ShuttlePath.CircleSegment circle = new ShuttlePath.CircleSegment(home.entity, 0f, 0f, radius, random.nextFloat() * 360f, sweep, 0f);
-        ShuttlePath.Waypoint entry = new ShuttlePath.SegmentWaypoint(circle, 0f);
-        ShuttlePath.Waypoint exit = new ShuttlePath.SegmentWaypoint(circle, 1f);
+        float radius = sight.getRadius() * CRUISE_RADIUS_MULT + CRUISE_RADIUS_EXTRA;
+        ShuttlePath.CircleSegment lap = new ShuttlePath.CircleSegment(sight, 0f, 0f, radius, Misc.getAngleInDegrees(p3, p0) + cruise.entryAngle(),
+                360f * cruise.side(), 0f);
+        lap.withSpeedMult(CRUISE_LAP_SPEED);
+        ShuttlePath.Waypoint entry = new ShuttlePath.SegmentWaypoint(lap, 0f);
+        ShuttlePath.Waypoint exit = new ShuttlePath.SegmentWaypoint(lap, 1f);
 
-        // pads sit 60 degrees behind the entry and past the exit, so the craft climbs out along the entry radial and spirals in
-        ShuttlePath.Waypoint launch = new ShuttlePath.PadWaypoint(home, entry, -60f * side, 60f * side, false);
-        ShuttlePath.Waypoint land = new ShuttlePath.PadWaypoint(home, exit, 60f * side, -60f * side, true);
-        float padHandle = Math.max(40f, radius * 0.5f);
-        float circleHandle = Math.max(40f, radius * 0.4f);
+        ShuttlePath path = new ShuttlePath();
+        addLane(path, home, target, home, target, new ShuttlePath.PadWaypoint(home, entry, cruise.launchOffset(), 0f, false), entry, out, 0f);
+        path.add(lap);
+        return addLane(path, home, target, target, home, exit, new ShuttlePath.PadWaypoint(home, exit, cruise.landOffset(), 0f, true), back, 0f);
+    }
 
-        return new ShuttlePath()
-                .add(new ShuttlePath.BezierSegment(launch, entry, padHandle, circleHandle, 0f))
-                .add(circle)
-                .add(new ShuttlePath.BezierSegment(exit, land, circleHandle, padHandle, 0f));
+    // the lap turns the way the bent lane arrives, so the craft swings onto it without an s bend
+    public Cruise rollCruise(float bendFrac) {
+        float side = bendFrac != 0f ? Math.signum(bendFrac) : randomSign();
+        return new Cruise(bendFrac, side, spread(30f), spread(20f), spread(20f));
     }
 
     public ShuttlePath lingerPath(ShuttleAnchor home, ShuttleTarget target, float days, float speed) {

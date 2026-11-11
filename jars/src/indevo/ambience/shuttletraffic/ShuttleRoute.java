@@ -1,31 +1,41 @@
 package indevo.ambience.shuttletraffic;
 
+import java.util.Random;
+
 public class ShuttleRoute {
 
     public enum Kind {
-        SUPPLY(1f, 0f),
-        PIRATE_CARGO(1f, 0f),
-        SMUGGLER(1f, 0f),
-        DIPLOMAT(1f, 0f),
-        HUNT(1f, 0f),
-        MAINTENANCE(1f, 0f),
-        MARKET(0.9f, 0f),
-        MINING(0.8f, 8f),
-        SALVAGE(0.8f, 20f),
-        PICKET(0.8f, 10f),
-        JOYRIDE(0.7f, 15f),
-        TRAINING(0.7f, 20f);
+        SUPPLY(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.CIVIL),
+        PIRATE_CARGO(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.CIVIL),
+        MARKET(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.CIVIL),
+        SMUGGLER(ShuttleBudget.Group.RARE, 1, 0f, SpeedClass.CIVIL),
+        DIPLOMAT(ShuttleBudget.Group.RARE, 1, 0f, SpeedClass.CIVIL),
+        HUNT(ShuttleBudget.Group.RARE, 1, 0f, SpeedClass.CIVIL),
+        MAINTENANCE(ShuttleBudget.Group.RARE, 1, 0f, SpeedClass.CIVIL),
+        MINING(ShuttleBudget.Group.LOCAL, 1, 8f, SpeedClass.CIVIL),
+        SALVAGE(ShuttleBudget.Group.LOCAL, 1, 20f, SpeedClass.CIVIL),
+        PICKET(ShuttleBudget.Group.LOCAL, 2, 10f, SpeedClass.MILITARY),
+        CRUISE(ShuttleBudget.Group.LOCAL, 2, 15f, SpeedClass.CIVIL),
+        TRAINING(ShuttleBudget.Group.LOCAL, 3, 20f, SpeedClass.MILITARY);
 
-        // share of the traffic cap this kind may still spawn into
-        public final float capShare;
+        public final ShuttleBudget.Group group;
+        // typical craft per launch, formations and races count each craft against the cap
+        public final int craftPerFlight;
         // seconds between flights for routes without a destination anchor
         public final float pause;
+        // speed class most flights of this kind fly, pirate races and Remnant patrols fly military on cruise routes
+        public final SpeedClass speed;
 
-        Kind(float capShare, float pause) {
-            this.capShare = capShare;
+        Kind(ShuttleBudget.Group group, int craftPerFlight, float pause, SpeedClass speed) {
+            this.group = group;
+            this.craftPerFlight = craftPerFlight;
             this.pause = pause;
+            this.speed = speed;
         }
     }
+
+    // lane bend as a share of the chord, either side
+    public static final float LANE_BEND = 0.25f;
 
     public final String key;
     public final Kind kind;
@@ -33,6 +43,9 @@ public class ShuttleRoute {
     public final ShuttleAnchor b;
     public final float bendFrac;
     public ShuttleTarget target;
+    // flights the route asks for, set in the network rebuild
+    public int demand = 1;
+    // flights in the air the budget allows
     public int max = 1;
     public int active = 0;
     public float timer = 0f;
@@ -46,6 +59,10 @@ public class ShuttleRoute {
         this.a = a;
         this.b = b;
         this.bendFrac = bendFrac;
+    }
+
+    public static float rollBend(Random random) {
+        return (random.nextFloat() - 0.5f) * 2f * LANE_BEND;
     }
 
     public boolean isRare() {
