@@ -64,6 +64,10 @@ public class ShuttleHull {
         return longer < MIN_SIZE ? scale * MIN_SIZE / Math.max(0.01f, longer) : scale;
     }
 
+    public ShuttleHull withLook(Look newLook) {
+        return newLook == look ? this : new ShuttleHull(newLook, fighter, civilian, small, liner, freighter, wingSize, width, length);
+    }
+
     public ShuttleHull withWingSize(int size) {
         return size == wingSize ? this : new ShuttleHull(look, fighter, civilian, small, liner, freighter, size, width, length);
     }
