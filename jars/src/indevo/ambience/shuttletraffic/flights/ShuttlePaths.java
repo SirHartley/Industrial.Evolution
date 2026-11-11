@@ -32,6 +32,8 @@ public class ShuttlePaths {
     private static final float CRUISE_RADIUS_MULT = 1.5f;
     private static final float CRUISE_RADIUS_EXTRA = 60f;
     private static final float CRUISE_LAP_SPEED = 0.9f;
+    private static final float SERVICE_PAD_ANGLE = 30f;
+    private static final float SERVICE_HANDLE = 80f;
 
     private final ShuttleNetwork network;
     private final Random random;
@@ -90,6 +92,22 @@ public class ShuttlePaths {
         return path
                 .add(new ShuttlePath.BezierSegment(start, pass, getHandle(from, first), first * 0.35f, 0f))
                 .add(new ShuttlePath.BezierSegment(pass, end, second * 0.35f, getHandle(to, second), 0f));
+    }
+
+    // one bezier between a pad and a live point on the fleet, the pad turned toward the fleet; smugglers use the far side pad
+    public ShuttlePath servicePath(ShuttleAnchor pad, SectorEntityToken fleet, boolean toFleet, boolean farSide) {
+        float offsetRadius = fleet.getRadius() * 0.5f * random.nextFloat();
+        Vector2f offset = Misc.getUnitVectorAtDegreeAngle(random.nextFloat() * 360f);
+        offset.scale(offsetRadius);
+
+        ShuttlePath.Waypoint fleetPoint = new ShuttlePath.FleetWaypoint(fleet, offset.x, offset.y, new ShuttlePath.EntityWaypoint(pad.entity), !toFleet);
+        ShuttlePath.Waypoint padPoint = new ShuttlePath.PadWaypoint(pad, new ShuttlePath.EntityWaypoint(fleet), (farSide ? 180f : 0f) + spread(SERVICE_PAD_ANGLE), 0f, !toFleet);
+        float distance = Misc.getDistance(pad.getLocation(), fleet.getLocation());
+        float handle = Math.min(SERVICE_HANDLE, distance * 0.35f);
+
+        ShuttlePath.Waypoint start = toFleet ? padPoint : fleetPoint;
+        ShuttlePath.Waypoint end = toFleet ? fleetPoint : padPoint;
+        return new ShuttlePath().add(new ShuttlePath.BezierSegment(start, end, handle, handle, 0f));
     }
 
     public ShuttlePath redirectPath(SectorEntityToken frame, Vector2f pos, float heading, ShuttleAnchor to) {

@@ -182,7 +182,9 @@ public class Shuttle {
         to = newTarget;
         cleared = false;
         setState(state.redirect());
-        setPath(traffic.getPaths().redirectPath(getFrame(), pos, facing, newTarget), End.NONE, newTarget.getEnd());
+        // a fleet can leave at burn 20, a turn that moved with it would drag the craft along
+        SectorEntityToken frame = getFrame() instanceof CampaignFleetAPI ? null : getFrame();
+        setPath(traffic.getPaths().redirectPath(frame, pos, facing, newTarget), End.NONE, newTarget.getEnd());
     }
 
     public void flee(ShuttleAnchor refuge, float threatX, float threatY, ShuttleTraffic traffic) {

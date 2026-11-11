@@ -76,6 +76,7 @@ public class ShuttleTraffic {
             fleetScan.scan(location, player);
             reactions.updateThreats();
             reactions.react();
+            flights.getFleets().update();
         }
 
         spawner.spawn(amount);

@@ -3,6 +3,7 @@ package indevo.tools;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.util.Misc;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
 import indevo.ambience.shuttletraffic.ShuttleBudget;
 import indevo.ambience.shuttletraffic.ShuttleLook;
@@ -62,6 +63,7 @@ public final class ShuttleTrafficChecks {
             {SCREENING, 0.6f, 1f, false, false, false}, {DOWN, 1f, 1f, false, false, false}};
 
     private final List<String> problems = new ArrayList<>();
+    private final List<String> notes = new ArrayList<>();
     private int checks;
 
     private ShuttleTrafficChecks() {
@@ -84,6 +86,7 @@ public final class ShuttleTrafficChecks {
             run.checkCruise();
             run.checkBudget();
             run.checkTrail();
+            run.checkFleetHop();
         } finally {
             Global.setSettings(null);
         }
@@ -94,6 +97,7 @@ public final class ShuttleTrafficChecks {
             System.exit(1);
         }
 
+        for (String note : run.notes) System.out.println("NOTE " + note);
         System.out.println("Shuttle traffic: " + run.checks + " checks passed");
     }
 
@@ -127,6 +131,76 @@ public final class ShuttleTrafficChecks {
                 check(stopped < 0.01f, at + "trail after a stop is " + stopped + ", expected 0");
             }
         }
+    }
+
+    // a service hop from a pad on an orbiting planet to a fleet circling it arrives on the fleet; a fleet that leaves mid flight sends the craft back to the pad
+    private void checkFleetHop() {
+        float speed = 30f * 1.8f;
+        float fleetSpeed = 100f;
+        for (float rate : RATES) {
+            float dt = 1f / rate;
+            for (boolean leave : new boolean[]{false, true}) {
+                Body planet = new Body(0f, 0f, 150f);
+                Body fleet = new Body(0f, 0f, 60f);
+                orbit(planet, 2000f, 30f, 0f);
+                fleetOrbit(fleet, planet, 0f);
+                ShuttleAnchor pad = anchor(planet);
+                ShuttlePaths paths = new ShuttlePaths(new ShuttleNetwork(), new Random(7));
+                ShuttlePath path = paths.servicePath(pad, fleet.token, true, false);
+                path.rebuild();
+
+                float launch = Math.min(pad.getLandingLength(), path.getLength() * 0.4f);
+                float land = Math.min(ShuttleAnchor.FLEET_END_LENGTH, path.getLength() * 0.4f);
+                ShuttlePath.Cursor cursor = new ShuttlePath.Cursor();
+                Vector2f point = new Vector2f();
+                Vector2f leftAt = null;
+                float time = 0f;
+                float clear = 0f;
+                boolean done = false;
+                boolean redirected = false;
+                while (!done && time < 200f) {
+                    time += dt;
+                    orbit(planet, 2000f, 30f, time);
+                    if (leftAt == null) fleetOrbit(fleet, planet, time);
+                    else fleet.loc.x += fleetSpeed * dt;
+
+                    path.refresh(cursor);
+                    done = path.move(cursor, speed * dt);
+                    path.getPoint(cursor, point);
+                    float traveled = path.getTraveled(cursor);
+                    if (!redirected && traveled > launch && path.getLength() - traveled > land) clear += dt;
+
+                    if (leave && leftAt == null && traveled > path.getLength() * 0.5f) {
+                        leftAt = new Vector2f(fleet.loc);
+                        ShuttlePath back = paths.redirectPath(null, point, Misc.getAngleInDegrees(new Vector2f(fleet.loc.x - point.x, fleet.loc.y - point.y)), pad);
+                        back.rebuild();
+                        path = back;
+                        cursor = new ShuttlePath.Cursor();
+                        redirected = true;
+                    }
+                }
+
+                String name = rate + " Hz" + (leave ? ", fleet leaves" : "");
+                check(done, name + ": service hop never ended");
+                if (!leave) {
+                    float off = Vector2f.sub(point, fleet.loc, null).length();
+                    check(off <= fleet.radius * 0.5f + 1f, name + ": hop ended " + off + " from the fleet");
+                    check(clear >= 1f, name + ": only " + clear + " s in clear view");
+                    if (rate == 60f) notes.add("service hop to a fleet 120 su off a 150 su planet: " + String.format("%.1f", time) + " s, "
+                            + String.format("%.1f", clear) + " s in clear view at " + speed + " su/s");
+                } else {
+                    float off = Vector2f.sub(point, planet.loc, null).length();
+                    check(off <= planet.radius, name + ": turned back craft ended " + off + " from the planet");
+                }
+            }
+        }
+    }
+
+    // a fleet in orbit 120 su off the surface, a slow lap
+    private static void fleetOrbit(Body fleet, Body planet, float time) {
+        double angle = Math.toRadians(200f + time * 4f);
+        float radius = planet.radius + 120f + fleet.radius;
+        fleet.loc.set(planet.loc.x + (float) Math.cos(angle) * radius, planet.loc.y + (float) Math.sin(angle) * radius);
     }
 
     private static float runTrail(ShuttleTrail trail, float[] x, float speed, float time, float dt) {

@@ -18,11 +18,13 @@ public class ShuttleFlights {
 
     private final ShuttlePaths paths;
     private final PodFlights pods;
+    private final FleetFlights fleets;
     private final Map<ShuttleRoute.Kind, Flight> flights = new EnumMap<>(ShuttleRoute.Kind.class);
 
     public ShuttleFlights(ShuttleTraffic traffic) {
         paths = new ShuttlePaths(traffic.getNetwork(), traffic.getRandom());
         pods = new PodFlights(traffic, paths);
+        fleets = new FleetFlights(traffic, paths);
         LaneFlights lanes = new LaneFlights(traffic, paths);
         LocalFlights local = new LocalFlights(traffic, paths);
 
@@ -39,6 +41,7 @@ public class ShuttleFlights {
         flights.put(ShuttleRoute.Kind.MINING, (route, room) -> BaseFlights.single(local.launchLinger(route)));
         flights.put(ShuttleRoute.Kind.SALVAGE, (route, room) -> BaseFlights.single(local.launchLinger(route)));
         flights.put(ShuttleRoute.Kind.MAINTENANCE, (route, room) -> BaseFlights.single(local.launchMaintenance(route)));
+        flights.put(ShuttleRoute.Kind.FLEET_SERVICE, (route, room) -> BaseFlights.single(fleets.launchService(route)));
 
         for (ShuttleRoute.Kind kind : ShuttleRoute.Kind.values()) {
             if (!flights.containsKey(kind)) throw new IllegalStateException("Shuttle traffic: no flight for route kind " + kind);
@@ -56,5 +59,9 @@ public class ShuttleFlights {
 
     public PodFlights getPods() {
         return pods;
+    }
+
+    public FleetFlights getFleets() {
+        return fleets;
     }
 }

@@ -25,7 +25,8 @@ Package `indevo/ambience/shuttletraffic/`:
 | `ShuttleNetwork.java` | Anchors and routes for one location, density, closed ports, mining and salvage targets, refuge lookup, star and planet avoidance (`getBend`), hunt planets |
 | `flights/ShuttleFlights.java` | One `Flight` per `ShuttleRoute.Kind` in an `EnumMap`; throws when a kind has none |
 | `flights/LaneFlights.java`, `LocalFlights.java`, `PodFlights.java` | Lane flights (lanes, diplomats, hunts); local flights (cruises, pickets, training, mining and salvage lingers, maintenance) and formations; escape pod queue and launch |
-| `flights/ShuttlePaths.java`, `BaseFlights.java` | Every path builder (lanes, redirect, flee, away, hold, screen, cruise, linger, loop); shared flight helpers (`canFly`, `create`) |
+| `flights/FleetFlights.java` | Fleet tied flights: service shuttles for fleets in orbit at a market; routes per fleet, launches, ending a route |
+| `flights/ShuttlePaths.java`, `BaseFlights.java` | Every path builder (lanes, service hops, redirect, flee, away, hold, screen, cruise, linger, loop); shared flight helpers (`canFly`, `create`) |
 | `ShuttleAnchor.java` | One launch or landing place: type (`PLANET`, `STATION`, `FLEET`), role, pad depth, landing length, pad busy time, threat state, density |
 | `ShuttleRoute.java` | One route: kind, anchors, optional target or fleet, bend, in flight limit, timer or daily chance |
 | `ShuttleTarget.java` | A point relative to an entity, for mining belts, debris fields, wrecks and objectives |
@@ -42,7 +43,7 @@ Package `indevo/ambience/shuttletraffic/`:
 | `ShuttleHull.java` | Hull look (sprite, engine colours, cached per hull id), size, speed, flags, wing size |
 | `ShuttleHullPool.java` | Base pool from the CSV, faction pools, crew rule, rolls per flight kind, escape pod hull |
 | `listeners/EscapePodListener.java` | Transient `BaseCampaignEventListener`: queues fleets destroyed in battle |
-| `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, budget split, state transitions, trail length by time |
+| `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, budget split, state transitions, trail length by time, service hops to a fleet in orbit and the turn back when it leaves |
 | `data/config/indEvo/shuttle_traffic.csv` | Base civilian craft: `id, hullId, weight, small` |
 
 ## Data and ids
@@ -139,6 +140,16 @@ Fighters on pickets fly as a wing of `wingSize` (at most 3); training groups are
 - Pickets never flee from nearby threats: while their market is threatened they fly 120 su circles at 60% speed centred `radius + 250` su toward the threat, and land once it leaves. If the market is overrun they scatter like the rest. Remnant drones never flee.
 - A closed port (disrupted, or the anchor dropped) diverts inbound craft calmly to a refuge without disarray.
 
+### Fleet service shuttles
+
+`FleetFlights.update` runs after every fleet scan (0.25 s). No listener covers it: `reportFleetReachedEntity` fires on arrival only and misses fleets spawned in orbit, fleets already orbiting when the player enters, and the end of the orbit.
+
+- A fleet gets a `FLEET_SERVICE` route (key `FLEET_SERVICE|<fleet id>` in `ShuttleTraffic.getFleetRoutes`) while all hold: assignment `FleetAssignment.ORBIT_PASSIVE` (vanilla: trade and smuggling fleets loading or unloading, patrols preparing or standing down, route fleets at their source), not the player, not in station mode, visible to the player (`getVisibilityLevelToPlayerFleet()` not `NONE`), the assignment target is a market anchor or the fleet is within 400 su of one, the anchor is usable and not hostile to the fleet, and the fleet is within 1500 su of the anchor's surface.
+- Craft in the air: trade and every other type `clamp(2 + ships / 3, 3, 8)` times the anchor density; `FleetTypes.TRADE_SMUGGLER` 2 or 3 with the smuggler look and the far side pad; `PATROL_SMALL`, `_MEDIUM`, `_LARGE` 2 or 3 at civil speed. Launch interval as for lanes, flight time / count.
+- Each flight is one way, 50/50 pad to fleet or fleet to pad. Pad to fleet: 70% base small craft, else the pad faction's civilian small craft. Fleet to pad: the fleet faction's small craft.
+- Service speed (x1.8 of civil, 54 su/s fighters), easing to 15% at the ends, 1 s trail, steadier glow (`ShuttleLook.SERVICE`). Path (`ShuttlePaths.servicePath`): one Bezier from a pad turned toward the fleet (+-30 degrees) to a `FleetWaypoint`, the fleet's location plus a fixed random offset within half its radius; handles `min(80, distance * 0.35)`. Fleet end at the fleet, planet or station look at the pad, no docking queue. They never dodge their own fleet, dodge others and flee like other traffic.
+- Route end (the fleet's assignment changes, it moves past 1500 su, despawns or is no longer visible): no more launches; craft flying to the fleet turn back to the pad on a path that starts where they are (a fleet frame is never used for the turn); craft from the fleet carry on. If the fleet is gone or its sensor fader is at 0, all its craft are removed.
+
 ### Escape pods
 
 - `EscapePodListener.reportFleetDespawned` (`:18`) on `FleetDespawnReason.DESTROYED_BY_BATTLE`, not the player fleet, in the player's location. `CampaignFleet.despawn` reports while the fleet is still in place (knowledge skill `obf/campaign/fleet/CampaignFleet.java:1599`).
@@ -181,7 +192,7 @@ A station pad is busy while a craft is in its last 100 su and 1 s after. A craft
 | Item | State |
 |---|---|
 | In game look | Tests (2026-11-08) fixed: rubberbanding, nervous trails, blinking lights, loop joyrides (now cruises), craft vanishing under planets, sprite size, trails out of line with the craft between moving bodies, lanes through the star. Untested in game: star pass, market lanes, blended trail frame, cruises, pod bursts, formation break up, trails by time, sizes and glow, engine colours from slots (before this every hull used manufacturer colours, the slot lookup always failed) |
-| Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split, states and trail length, not flights, reactions or rendering. It runs on its own, not in `ReleaseBuild` |
+| Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split, states, trail length and service hops, not flights, reactions or rendering. It runs on its own, not in `ReleaseBuild` |
 | Performance | Live smoke `shuttle` group (2026-11-08, before market lanes): 55 craft at Sindria, all of `shuttletraffic` 0.4% of CPU and allocation |
 
 ## Checks
