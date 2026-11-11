@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BattleAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
+import indevo.ambience.shuttletraffic.dogfights.ShuttleDogfights;
 import indevo.ambience.shuttletraffic.flights.ShuttleFlights;
 import indevo.ambience.shuttletraffic.flights.ShuttlePaths;
 
@@ -26,6 +27,7 @@ public class ShuttleTraffic {
     private final ShuttleSpawner spawner = new ShuttleSpawner(this);
     private final ShuttleReactions reactions = new ShuttleReactions(this);
     private final ShuttleHits hits = new ShuttleHits(this);
+    private final ShuttleDogfights dogfights = new ShuttleDogfights(this);
     // fleets on sustained burn, refreshed with the scan, their live positions checked every frame
     private final List<ShuttleFleetScan.Entry> fastFleets = new ArrayList<>();
     private final List<Shuttle> shuttles = new ArrayList<>();
@@ -84,6 +86,7 @@ public class ShuttleTraffic {
             flights.getEscorts().update();
             flights.getTenders().update();
             hits.scan();
+            dogfights.update();
             fastFleets.clear();
             for (int i = 0; i < fleetScan.getCount(); i++) {
                 ShuttleFleetScan.Entry entry = fleetScan.get(i);
@@ -98,6 +101,7 @@ public class ShuttleTraffic {
         flights.getFleets().launchQueued();
         advance(shuttles, amount);
         advance(pods, amount);
+        dogfights.advance(amount);
     }
 
     public void queuePods(CampaignFleetAPI fleet, BattleAPI battle) {
@@ -114,6 +118,10 @@ public class ShuttleTraffic {
 
     public LocationAPI getLocation() {
         return location;
+    }
+
+    public ShuttleDogfights getDogfights() {
+        return dogfights;
     }
 
     public ShuttleNetwork getNetwork() {
@@ -159,6 +167,7 @@ public class ShuttleTraffic {
         fleetRoutes.clear();
         fleetScan.clear();
         hits.clear();
+        dogfights.clear();
         fastFleets.clear();
         flights.getEscorts().clear();
         flights.getTenders().clear();
