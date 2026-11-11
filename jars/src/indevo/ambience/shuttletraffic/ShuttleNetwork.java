@@ -93,14 +93,14 @@ public class ShuttleNetwork {
     }
 
     public ShuttleAnchor findRefuge(ShuttleAnchor exclude, FactionAPI faction, Vector2f from, LocationAPI location) {
-        boolean pirate = isPirate(faction);
+        boolean pirate = ShuttleFactionRepo.isPirate(faction);
         ShuttleAnchor best = null;
         float bestScore = Float.MAX_VALUE;
 
         for (ShuttleAnchor anchor : anchors.values()) {
             if (anchor == exclude || anchor.threatened || !anchor.isUsable(location)) continue;
             if (anchor.role == ShuttleAnchor.Role.REMNANT) continue;
-            if (pirate != (anchor.role == ShuttleAnchor.Role.DECIV || isPirate(anchor.faction))) continue;
+            if (pirate != (anchor.role == ShuttleAnchor.Role.DECIV || ShuttleFactionRepo.isPirate(anchor.faction))) continue;
             if (faction != null && anchor.faction != null && anchor.faction.isHostileTo(faction)) continue;
 
             float score = Misc.getDistance(from, anchor.getLocation());
@@ -251,7 +251,7 @@ public class ShuttleNetwork {
             for (int j = i + 1; j < marketAnchors.size(); j++) {
                 ShuttleAnchor a = marketAnchors.get(i);
                 ShuttleAnchor b = marketAnchors.get(j);
-                if (isPirate(a.faction) || isPirate(b.faction)) continue;
+                if (ShuttleFactionRepo.isPirate(a.faction) || ShuttleFactionRepo.isPirate(b.faction)) continue;
 
                 if (a.faction.isHostileTo(b.faction)) {
                     getRoute(ShuttleRoute.Kind.SMUGGLER, a, b, random).chancePerDay = SMUGGLER_CHANCE;
@@ -268,7 +268,7 @@ public class ShuttleNetwork {
 
     private void addPirateHops(Random random) {
         for (ShuttleAnchor base : marketAnchors) {
-            if (!isPirate(base.faction)) continue;
+            if (!ShuttleFactionRepo.isPirate(base.faction)) continue;
             for (ShuttleAnchor deciv : decivAnchors) getRoute(ShuttleRoute.Kind.PIRATE_CARGO, base, deciv, random);
         }
     }
@@ -461,15 +461,14 @@ public class ShuttleNetwork {
         return route;
     }
 
-    // raider and Luddic Path bases stay hidden for life, they count once the player has found them
+    // raider and Luddic Path bases stay hidden for life; a pirate profile's base counts once the player has found it
     private static boolean hasTraffic(MarketAPI market, LocationAPI location) {
         SectorEntityToken primary = market.getPrimaryEntity();
         if (primary == null || primary.getContainingLocation() != location || !market.isInEconomy() || !market.hasSpaceport() || primary.isDiscoverable()) {
             return false;
         }
 
-        String faction = market.getFactionId();
-        return !market.isHidden() || Factions.PIRATES.equals(faction) || Factions.LUDDIC_PATH.equals(faction);
+        return !market.isHidden() || ShuttleFactionRepo.isPirate(market.getFaction());
     }
 
     private static boolean isPortDisrupted(MarketAPI market) {
@@ -497,9 +496,5 @@ public class ShuttleNetwork {
         boolean ruins = market.hasCondition(Conditions.RUINS_SCATTERED) || market.hasCondition(Conditions.RUINS_WIDESPREAD)
                 || market.hasCondition(Conditions.RUINS_EXTENSIVE) || market.hasCondition(Conditions.RUINS_VAST);
         return ruins ? 3f : 1f;
-    }
-
-    public static boolean isPirate(FactionAPI faction) {
-        return faction != null && Factions.PIRATES.equals(faction.getId());
     }
 }
