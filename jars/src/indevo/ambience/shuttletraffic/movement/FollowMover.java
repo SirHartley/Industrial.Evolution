@@ -8,6 +8,8 @@ import org.lwjgl.util.vector.Vector2f;
 
 public class FollowMover {
 
+    private static final float BLEND_TIME = 1f;
+
     private final Shuttle shuttle;
     private final Shuttle leader;
     private final float slotBack;
@@ -15,6 +17,12 @@ public class FollowMover {
     private final float noise;
     private final boolean straggler;
     private float extraLag = 0f;
+    // a craft that flies back into formation starts where it was and closes the gap over BLEND_TIME
+    private final Vector2f blendStart = new Vector2f();
+    private boolean blendPending = false;
+    private float blendX = 0f;
+    private float blendY = 0f;
+    private float blend = 0f;
     private SectorEntityToken frame;
 
     private final Vector2f base = new Vector2f();
@@ -49,12 +57,35 @@ public class FollowMover {
         float back = slotBack + extraLag + noise * 0.5f * (float) Math.sin(age * 0.5f + offset * 2f);
         leader.getTrail().getHistoryPoint(back, leader.pos, leader.getFacing(), base, tangent);
 
-        shuttle.pos.set(base.x - tangent.y * side, base.y + tangent.x * side);
+        float slotX = base.x - tangent.y * side;
+        float slotY = base.y + tangent.x * side;
+        if (blendPending) {
+            blendPending = false;
+            blendX = blendStart.x - slotX;
+            blendY = blendStart.y - slotY;
+            blend = 1f;
+        }
+
+        blend = Math.max(0f, blend - amount / BLEND_TIME);
+        shuttle.pos.set(slotX + blendX * blend, slotY + blendY * blend);
         shuttle.updateFacing(amount, Misc.getAngleInDegrees(tangent));
         frame = leader.getFrame();
         ShuttleTrail leadTrail = leader.getTrail();
         shuttle.getTrail().shift(leadTrail.getShiftX(), leadTrail.getShiftY());
         shuttle.pushTrailAtRear();
+    }
+
+    public void blendFrom(Vector2f pos) {
+        blendStart.set(pos);
+        blendPending = true;
+    }
+
+    public float getNoise() {
+        return noise;
+    }
+
+    public boolean isStraggler() {
+        return straggler;
     }
 
     public Shuttle getLeader() {

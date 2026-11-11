@@ -40,6 +40,9 @@ public class Shuttle {
     private static final float TURN_RATE = 90f;
     private static final float FLEE_WOBBLE = 10f;
     private static final float FLEE_WOBBLE_TIME = 3f;
+    private static final float NEAR_MISS_WOBBLE_TIME = 2f;
+    private static final float REFORM_TIME = 3f;
+    private static final float REFORM_GIVE_UP = 30f;
     private static final float STRANDED_HOLD_RADIUS = 150f;
     private static final float REFUGE_WAIT_DAYS = 3f;
     private static final int GREY_STEPS = 32;
@@ -81,6 +84,13 @@ public class Shuttle {
     private final ShuttleTrail trail;
     private final PathMover mover;
     private FollowMover follow;
+    // a craft that broke formation flies back into its slot once nobody dodges for REFORM_TIME
+    private Shuttle formerLeader;
+    private float formerBack;
+    private float formerSide;
+    private float formerNoise;
+    private boolean formerStraggler;
+    private float reformAt;
 
     private float facing = 0f;
     private float scale = 1f;
@@ -101,6 +111,7 @@ public class Shuttle {
     private boolean cleared = false;
     private boolean waitForSafeHome = false;
     private float fleeStart = 0f;
+    private float nearMissStart = -100f;
     private float resumeDay = 0f;
     private float landDay = 0f;
     private float glowFlicker = 1f;
@@ -181,6 +192,7 @@ public class Shuttle {
         }
 
         mover.advance(amount, traffic);
+        if (formerLeader != null && !done) tryReform();
     }
 
     public void redirect(ShuttleAnchor newTarget, ShuttleTraffic traffic) {
@@ -280,11 +292,20 @@ public class Shuttle {
         return speed;
     }
 
-    public float getFleeWobble() {
-        if (!state.isFleeing()) return 0f;
+    // a near miss: the flee wobble for 2 s and the formation breaks
+    public void nearMiss(Random random) {
+        if (age - nearMissStart >= NEAR_MISS_WOBBLE_TIME) nearMissStart = age;
+        if (!followers.isEmpty()) disperse(random);
+    }
+
+    public float getWobble() {
+        float wobble = 0f;
+        float sinceNearMiss = age - nearMissStart;
+        if (sinceNearMiss < NEAR_MISS_WOBBLE_TIME) wobble += FLEE_WOBBLE * (1f - sinceNearMiss / NEAR_MISS_WOBBLE_TIME) * (float) Math.sin(sinceNearMiss * 6f);
+        if (!state.isFleeing()) return wobble;
 
         float since = age - fleeStart;
-        return FLEE_WOBBLE * Math.max(0f, 1f - since / FLEE_WOBBLE_TIME) * (float) Math.sin(since * 2f);
+        return wobble + FLEE_WOBBLE * Math.max(0f, 1f - since / FLEE_WOBBLE_TIME) * (float) Math.sin(since * 2f);
     }
 
     public void setFacing(float angle) {
@@ -641,10 +662,36 @@ public class Shuttle {
         setPath(traffic.getPaths().holdPath(getFrame(), pos, facing, STRANDED_HOLD_RADIUS), End.NONE, End.NONE);
     }
 
+    private void tryReform() {
+        Shuttle lead = formerLeader;
+        if (lead.isDone() || lead.isDown() || lead.isFollower() || age > reformAt + REFORM_GIVE_UP) {
+            formerLeader = null;
+            return;
+        }
+
+        if (mover.isDodging() || lead.mover.isDodging()) {
+            reformAt = age + REFORM_TIME;
+            return;
+        }
+
+        if (age < reformAt || lead.state != state || state != ShuttleState.CRUISE || !mover.sharesPath(lead.mover)) return;
+
+        formerLeader = null;
+        follow = new FollowMover(this, lead, formerBack, formerSide, formerNoise, formerStraggler);
+        follow.blendFrom(pos);
+        lead.followers.add(this);
+    }
+
     private void breakFrom(Shuttle lead, Random random) {
         float slotBack = follow.getSlotBack();
         float slotSide = follow.getSlotSide();
         SectorEntityToken leadFrame = follow.getFrame();
+        formerLeader = lead;
+        formerBack = slotBack;
+        formerSide = slotSide;
+        formerNoise = follow.getNoise();
+        formerStraggler = follow.isStraggler();
+        reformAt = age + REFORM_TIME;
         follow = null;
         from = lead.from;
         to = lead.to;

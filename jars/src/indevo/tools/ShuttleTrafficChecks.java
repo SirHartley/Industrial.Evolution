@@ -12,6 +12,7 @@ import indevo.ambience.shuttletraffic.ShuttleState;
 import indevo.ambience.shuttletraffic.ShuttleNetwork;
 import indevo.ambience.shuttletraffic.ShuttleTrail;
 import indevo.ambience.shuttletraffic.flights.ShuttlePaths;
+import indevo.ambience.shuttletraffic.movement.Dodge;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -87,6 +88,7 @@ public final class ShuttleTrafficChecks {
             run.checkBudget();
             run.checkTrail();
             run.checkFleetHop();
+            run.checkDodge();
         } finally {
             Global.setSettings(null);
         }
@@ -194,6 +196,63 @@ public final class ShuttleTrafficChecks {
                 }
             }
         }
+    }
+
+    // a fleet that would hit a craft head on, from the side or from behind: the craft stays outside the fleet radius below burn 14 (run over)
+    private void checkDodge() {
+        float runOver = 280f;
+        float[] burns = {2f, 9f, 20f};
+        float[] angles = {90f, 45f, 135f, 180f, 0f};
+        for (float craftSpeed : new float[]{SPEED, 75f}) {
+            for (float radius : new float[]{60f, 150f}) {
+                for (float burn : burns) {
+                    float fleetSpeed = burn * 20f;
+                    float worst = Float.MAX_VALUE;
+                    for (float angle : angles) {
+                        for (float aim : new float[]{0f, 0.5f, -0.5f}) {
+                            for (float rate : RATES) {
+                                float min = runDodge(craftSpeed, radius, fleetSpeed, angle, aim * radius, 1f / rate);
+                                worst = Math.min(worst, min);
+                                if (fleetSpeed < runOver) {
+                                    check(min >= radius, "craft at " + craftSpeed + " su/s, fleet radius " + radius + " at burn " + burn + " from " + angle
+                                            + " deg, aim " + aim + ", " + rate + " Hz: came within " + min);
+                                }
+                            }
+                        }
+                    }
+                    if (craftSpeed == SPEED && radius == 60f) notes.add("dodge at burn " + (int) burn + ": closest " + String.format("%.0f", worst) + " su from a 60 su fleet");
+                }
+            }
+        }
+    }
+
+    // the fleet reaches the craft's unshifted spot well after the lookahead; returns the closest distance between the craft and the fleet centre
+    private static float runDodge(float craftSpeed, float radius, float fleetSpeed, float angle, float aim, float dt) {
+        Dodge dodge = new Dodge();
+        float fvx = fleetSpeed * (float) Math.cos(Math.toRadians(angle));
+        float fvy = fleetSpeed * (float) Math.sin(Math.toRadians(angle));
+        float closing = (float) Math.sqrt((craftSpeed - fvx) * (craftSpeed - fvx) + fvy * fvy);
+        float hitTime = Math.max(6f, (radius + Dodge.MARGIN + 50f) / closing + Dodge.LOOKAHEAD);
+        float hitX = craftSpeed * hitTime + aim;
+        float bx = 0f;
+        float min = Float.MAX_VALUE;
+
+        for (float time = 0f; time < hitTime * 2f; time += dt) {
+            float speed = craftSpeed * dodge.getPace();
+            bx += speed * dt;
+            float fx = hitX + fvx * (time + dt - hitTime);
+            float fy = fvy * (time + dt - hitTime);
+
+            dodge.begin();
+            dodge.add(bx, 0f, speed, 0f, fx, fy, fvx, fvy, radius);
+            dodge.step(dt, 1f);
+
+            float dx = bx + dodge.getShiftX() - fx;
+            float dy = dodge.getShiftY() - fy;
+            min = Math.min(min, (float) Math.sqrt(dx * dx + dy * dy));
+        }
+
+        return min;
     }
 
     // a fleet in orbit 120 su off the surface, a slow lap

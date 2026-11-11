@@ -15,7 +15,6 @@ import java.util.List;
 
 public class ShuttleFleetScan {
 
-    public static final float SLOW_SPEED = 40f;
     public static final int MIN_SHIPS = 5;
     public static final float RANGE = 3000f;
     public static final float THREAT_FP = 30f;
@@ -74,7 +73,7 @@ public class ShuttleFleetScan {
             if (fleet.isStationMode() || !fleet.isAlive()) continue;
 
             boolean isPlayer = fleet.isPlayerFleet();
-            boolean isObstacle = (isPlayer || fleet.getNumShips() >= MIN_SHIPS) && fleet.getVelocity().length() < SLOW_SPEED
+            boolean isObstacle = (isPlayer || fleet.getNumShips() >= MIN_SHIPS)
                     && Misc.getDistance(player.getLocation(), fleet.getLocation()) <= RANGE;
             boolean isThreat = isPlayer || fleet.getFleetData().getFleetPointsUsed() >= THREAT_FP;
             FleetAssignmentDataAPI current = fleet.getAI() != null ? fleet.getAI().getCurrentAssignment() : null;
