@@ -305,7 +305,9 @@ public class ShuttlePath {
 
             for (int i = 1; i <= samples; i++) {
                 evaluate(i / (float) samples, next);
-                cumulative[i] = cumulative[i - 1] + Vector2f.sub(next, prev, null).length();
+                float dx = next.x - prev.x;
+                float dy = next.y - prev.y;
+                cumulative[i] = cumulative[i - 1] + (float) Math.sqrt(dx * dx + dy * dy);
                 prev.set(next);
             }
 

@@ -7,6 +7,7 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import indevo.ambience.shuttletraffic.Shuttle;
 import indevo.ambience.shuttletraffic.ShuttleHullPool;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
+import indevo.ambience.shuttletraffic.ShuttleTrail;
 import indevo.ambience.shuttletraffic.listeners.EscapePodListener;
 import indevo.config.Setting;
 import lunalib.lunaUtil.campaign.LunaCampaignRenderer;
@@ -71,9 +72,14 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
     }
 
     private void render(List<Shuttle> list, ViewportAPI viewport, float alphaMult) {
+        ShuttleTrail.beginRender();
         for (Shuttle shuttle : list) {
-            if (!viewport.isNearViewport(shuttle.pos, VIEWPORT_MARGIN)) continue;
-            shuttle.render(alphaMult, glow);
+            if (viewport.isNearViewport(shuttle.pos, VIEWPORT_MARGIN)) shuttle.renderTrail(alphaMult);
+        }
+        ShuttleTrail.endRender();
+
+        for (Shuttle shuttle : list) {
+            if (viewport.isNearViewport(shuttle.pos, VIEWPORT_MARGIN)) shuttle.renderSprite(alphaMult, glow);
         }
     }
 }

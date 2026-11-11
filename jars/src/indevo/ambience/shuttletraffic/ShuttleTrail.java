@@ -120,6 +120,17 @@ public class ShuttleTrail {
         dirOut.set(dirX, dirY);
     }
 
+    // every render call sits between beginRender and endRender
+    public static void beginRender() {
+        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
+    }
+
+    public static void endRender() {
+        GL11.glPopAttrib();
+    }
+
     public void render(float rearX, float rearY, int maxPoints, float width, Color color, boolean additive, float alphaMult) {
         int points = Math.min(trailCount, maxPoints);
         if (points < 1 || alphaMult <= 0.01f) return;
@@ -141,9 +152,6 @@ public class ShuttleTrail {
         float b = color.getBlue() / 255f;
         float baseAlpha = color.getAlpha() / 255f * alphaMult;
 
-        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, additive ? GL11.GL_ONE : GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         for (int side = -1; side <= 1; side += 2) {
@@ -172,7 +180,5 @@ public class ShuttleTrail {
             }
             GL11.glEnd();
         }
-
-        GL11.glPopAttrib();
     }
 }

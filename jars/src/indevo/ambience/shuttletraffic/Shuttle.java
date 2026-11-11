@@ -39,6 +39,15 @@ public class Shuttle {
     private static final float FLEE_WOBBLE = 10f;
     private static final float FLEE_WOBBLE_TIME = 3f;
     private static final float STRANDED_HOLD_RADIUS = 150f;
+    private static final int GREY_STEPS = 32;
+    private static final Color[] GREYS = new Color[GREY_STEPS + 1];
+
+    static {
+        for (int i = 0; i <= GREY_STEPS; i++) {
+            int v = Math.round(255f * i / GREY_STEPS);
+            GREYS[i] = new Color(v, v, v);
+        }
+    }
 
     public final ShuttleHull hull;
     public final FactionAPI faction;
@@ -415,23 +424,21 @@ public class Shuttle {
         return phase;
     }
 
-    public void render(float alphaMult, SpriteAPI glow) {
-        if (delay > 0f || state == ShuttleState.DOWN) return;
-
-        float a = alpha * alphaMult;
+    public void renderTrail(float alphaMult) {
+        float a = getRenderAlpha(alphaMult);
         if (a <= 0.01f) return;
 
-        float hx = (float) Math.cos(Math.toRadians(facing));
-        float hy = (float) Math.sin(Math.toRadians(facing));
-        float rearX = pos.x - hx * hull.length * scale * 0.5f;
-        float rearY = pos.y - hy * hull.length * scale * 0.5f;
+        trail.render(getRearX(), getRearY(), look.trailPoints(), look.trailWidth(), hull.trailColor, hull.additiveTrail, a * look.trailAlpha());
+    }
 
-        trail.render(rearX, rearY, look.trailPoints(), look.trailWidth(), hull.trailColor, hull.additiveTrail, a * look.trailAlpha());
+    public void renderSprite(float alphaMult, SpriteAPI glow) {
+        float a = getRenderAlpha(alphaMult);
+        if (a <= 0.01f) return;
 
         SpriteAPI sprite = hull.sprite;
         sprite.setSize(hull.width * scale, hull.length * scale);
         sprite.setAngle(look.spinRate() != 0f ? spin : facing - 90f);
-        sprite.setColor(darken >= 1f ? Color.WHITE : new Color((int) (255 * darken), (int) (255 * darken), (int) (255 * darken)));
+        sprite.setColor(GREYS[Math.max(0, Math.min(GREY_STEPS, Math.round(darken * GREY_STEPS)))]);
         sprite.setAlphaMult(a);
         sprite.setNormalBlend();
         sprite.renderAtCenter(pos.x, pos.y);
@@ -443,8 +450,21 @@ public class Shuttle {
             glow.setColor(hull.glowColor);
             glow.setAdditiveBlend();
             glow.setAlphaMult(a * (1f - look.flicker() + look.flicker() * (float) Math.random()));
-            glow.renderAtCenter(rearX, rearY);
+            glow.renderAtCenter(getRearX(), getRearY());
         }
+    }
+
+    private float getRenderAlpha(float alphaMult) {
+        if (delay > 0f || state == ShuttleState.DOWN) return 0f;
+        return alpha * alphaMult;
+    }
+
+    private float getRearX() {
+        return pos.x - (float) Math.cos(Math.toRadians(facing)) * hull.length * scale * 0.5f;
+    }
+
+    private float getRearY() {
+        return pos.y - (float) Math.sin(Math.toRadians(facing)) * hull.length * scale * 0.5f;
     }
 
     private void setPath(ShuttlePath newPath, End newLaunch, End newLand) {
