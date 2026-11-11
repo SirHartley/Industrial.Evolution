@@ -10,6 +10,8 @@ public class ShuttleRoute {
         SUPPLY(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.CIVIL),
         PIRATE_CARGO(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.CIVIL),
         MARKET(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.CIVIL),
+        COURIER(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.MILITARY),
+        PILGRIM(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.CIVIL),
         SMUGGLER(ShuttleBudget.Group.RARE, 1, 0f, SpeedClass.CIVIL),
         DARK(ShuttleBudget.Group.RARE, 1, 0f, SpeedClass.CIVIL),
         DIPLOMAT(ShuttleBudget.Group.RARE, 1, 0f, SpeedClass.CIVIL),
@@ -20,6 +22,8 @@ public class ShuttleRoute {
         PICKET(ShuttleBudget.Group.LOCAL, 2, 10f, SpeedClass.MILITARY),
         CRUISE(ShuttleBudget.Group.LOCAL, 2, 15f, SpeedClass.CIVIL),
         TRAINING(ShuttleBudget.Group.LOCAL, 3, 20f, SpeedClass.MILITARY),
+        PARADE(ShuttleBudget.Group.LOCAL, 3, 20f, SpeedClass.MILITARY),
+        TOW(ShuttleBudget.Group.LOCAL, 3, 30f, SpeedClass.CIVIL),
         FLEET_SERVICE(ShuttleBudget.Group.FLEET, 1, 0f, SpeedClass.SERVICE),
         TRADE(ShuttleBudget.Group.FLEET, 1, 0f, SpeedClass.SERVICE),
         SURVEY(ShuttleBudget.Group.FLEET, 1, 3f, SpeedClass.SERVICE);
@@ -60,6 +64,8 @@ public class ShuttleRoute {
     public float chancePerDay = 0f;
     public boolean pending = false;
     public boolean seen = true;
+    // market lanes: day of the next convoy, negative until the first roll
+    public float nextConvoyDay = -1f;
 
     public ShuttleRoute(String key, Kind kind, ShuttleAnchor a, ShuttleAnchor b, float bendFrac) {
         this.key = key;

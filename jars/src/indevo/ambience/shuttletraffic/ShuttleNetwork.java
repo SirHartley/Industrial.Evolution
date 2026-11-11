@@ -21,6 +21,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.AsteroidFieldTerrainPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.ids.Ids;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -51,6 +52,7 @@ public class ShuttleNetwork {
     public static final float PIRATE_ACTIVITY_LANES = 2f / 3f;
     public static final float CELL_CHANCE = 0.02f;
     public static final float HIDDEN_BASE_CHANCE = 0.01f;
+    public static final float PRIVATEER_CHANCE = 0.03f;
     // market lanes keep about one craft per this many su of lane for two size 5 markets
     private static final float LANE_SPACING = 500f;
     public static final float DIPLOMAT_CHANCE = 0.05f;
@@ -58,12 +60,18 @@ public class ShuttleNetwork {
     public static final float MAINTENANCE_CHANCE = 0.02f;
     private static final float SIGHT_RANGE = 3000f;
     private static final float SIGHT_GAP = 400f;
+    public static final float SWARM_RANGE = 600f;
+    public static final float RUSH_SWING = 0.3f;
+    public static final float RUSH_PERIOD_MIN = 6f;
+    public static final float RUSH_PERIOD_MAX = 10f;
 
     public final Map<SectorEntityToken, ShuttleAnchor> anchors = new LinkedHashMap<>();
     public final Map<String, ShuttleRoute> routes = new LinkedHashMap<>();
     public final List<ShuttleAnchor> marketAnchors = new ArrayList<>();
     public final List<ShuttleAnchor> decivAnchors = new ArrayList<>();
     public final List<Body> bodies = new ArrayList<>();
+    // IE meteors in the system, refreshed with the fleet scan; meteors fly, so their positions are read live
+    private final List<SectorEntityToken> meteors = new ArrayList<>();
 
     public void clear() {
         anchors.clear();
@@ -71,17 +79,50 @@ public class ShuttleNetwork {
         marketAnchors.clear();
         decivAnchors.clear();
         bodies.clear();
+        meteors.clear();
     }
 
-    public void rebuild(LocationAPI location, Random random) {
+    // meteor swarms have no callback for their movement, so this runs with the fleet scan
+    public void updateSwarms(LocationAPI location) {
+        boolean had = !meteors.isEmpty();
+        meteors.clear();
+        for (SectorEntityToken meteor : location.getEntitiesWithTag(MeteorSwarmManager.METEOR_TAG)) {
+            if (meteor.isAlive()) meteors.add(meteor);
+        }
+
+        if (meteors.isEmpty() && !had) return;
+        for (ShuttleAnchor anchor : anchors.values()) anchor.swarmed = isSwarmed(anchor.getLocation(), anchor.getLocation(), anchor.getRadius());
+    }
+
+    // any meteor within SWARM_RANGE of the segment, plus the margin
+    public boolean isSwarmed(Vector2f p0, Vector2f p1, float margin) {
+        float range = SWARM_RANGE + margin;
+        for (SectorEntityToken meteor : meteors) {
+            if (getSegmentDistance(meteor.getLocation(), p0, p1) <= range) return true;
+        }
+        return false;
+    }
+
+    public static float getSegmentDistance(Vector2f point, Vector2f p0, Vector2f p1) {
+        float dx = p1.x - p0.x;
+        float dy = p1.y - p0.y;
+        float len2 = dx * dx + dy * dy;
+        float t = len2 > 0f ? Math.max(0f, Math.min(1f, ((point.x - p0.x) * dx + (point.y - p0.y) * dy) / len2)) : 0f;
+        float cx = point.x - p0.x - dx * t;
+        float cy = point.y - p0.y - dy * t;
+        return (float) Math.sqrt(cx * cx + cy * cy);
+    }
+
+    public void rebuild(LocationAPI location, Random random, float days) {
         for (ShuttleAnchor anchor : anchors.values()) anchor.seen = false;
         for (ShuttleRoute route : routes.values()) route.seen = false;
         marketAnchors.clear();
         decivAnchors.clear();
 
-        addMarkets(location, random);
+        addMarkets(location, random, days);
         addDecivs(location);
         addMarketLanes(random);
+        addPilgrims(location, random);
         addPirateHops(random);
         addHunts(random);
         addMaintenance(location, random);
@@ -187,7 +228,7 @@ public class ShuttleNetwork {
         return picker.isEmpty() ? null : picker.pick();
     }
 
-    private void addMarkets(LocationAPI location, Random random) {
+    private void addMarkets(LocationAPI location, Random random, float days) {
         for (MarketAPI market : Global.getSector().getEconomy().getMarkets(location)) {
             if (!hasTraffic(market, location)) continue;
 
@@ -198,7 +239,7 @@ public class ShuttleNetwork {
             anchor.closed = isPortDisrupted(market);
             marketAnchors.add(anchor);
 
-            float mult = getDensity(market);
+            float mult = getDensity(market) * getRushHour(market.getId(), days);
             anchor.density = mult;
             ShuttleProfile profile = ShuttleFactionRepo.get(market.getFaction());
 
@@ -220,7 +261,11 @@ public class ShuttleNetwork {
                 getRoute(ShuttleRoute.Kind.TRAINING, anchor, null, random).target = new ShuttleTarget(sight, 0f, 0f, 0f, 0f);
             }
 
-            if (market.hasCondition(Conditions.PATHER_CELLS)) getRoute(ShuttleRoute.Kind.DARK, anchor, null, random).chancePerDay = CELL_CHANCE;
+            float dark = market.hasCondition(Conditions.PATHER_CELLS) ? CELL_CHANCE : 0f;
+            if (market.hasIndustry(Ids.PIRATEHAVEN)) dark = Math.max(dark, PRIVATEER_CHANCE);
+            if (dark > 0f) getRoute(ShuttleRoute.Kind.DARK, anchor, null, random).chancePerDay = dark;
+
+            if (market.hasCondition(Ids.COND_PARADE)) getRoute(ShuttleRoute.Kind.PARADE, anchor, null, random);
 
             if (market.hasIndustry(Ids.EMBASSY)) getRoute(ShuttleRoute.Kind.DIPLOMAT, anchor, null, random).chancePerDay = DIPLOMAT_CHANCE;
 
@@ -240,6 +285,7 @@ public class ShuttleNetwork {
 
             if (stationMarket) continue;
 
+            boolean towing = market.hasIndustry(Ids.REPAIRDOCKS);
             for (SectorEntityToken entity : market.getConnectedEntities()) {
                 if (entity == primary || !entity.hasTag(Tags.STATION) || entity.getContainingLocation() != location) continue;
 
@@ -248,6 +294,8 @@ public class ShuttleNetwork {
 
                 ShuttleRoute route = getRoute(ShuttleRoute.Kind.SUPPLY, anchor, station, random);
                 route.demand = Math.max(1, Math.round((1f + market.getSize() / 3f) * mult));
+                if (towing) getRoute(ShuttleRoute.Kind.TOW, anchor, station, random);
+                towing = false;
             }
         }
     }
@@ -281,6 +329,33 @@ public class ShuttleNetwork {
                 float chord = Misc.getDistance(a.getLocation(), b.getLocation());
                 ShuttleRoute route = getRoute(ShuttleRoute.Kind.MARKET, a, b, random);
                 route.demand = Math.max(2, Math.round(chord / LANE_SPACING * mult));
+
+                if (a.market.hasIndustry(Ids.PORT)) getRoute(ShuttleRoute.Kind.COURIER, a, b, random);
+                else if (b.market.hasIndustry(Ids.PORT)) getRoute(ShuttleRoute.Kind.COURIER, b, a, random);
+            }
+        }
+    }
+
+    // Cathedral markets and vanilla shrines; a shrine without a market of its own gets a target anchor
+    private void addPilgrims(LocationAPI location, Random random) {
+        List<ShuttleAnchor> shrines = new ArrayList<>();
+        for (ShuttleAnchor anchor : marketAnchors) {
+            if (anchor.market.hasIndustry(Ids.CHURCH) || anchor.market.hasTag(Tags.LUDDIC_SHRINE) || anchor.entity.hasTag(Tags.LUDDIC_SHRINE)) shrines.add(anchor);
+        }
+
+        for (SectorEntityToken entity : location.getEntitiesWithTag(Tags.LUDDIC_SHRINE)) {
+            ShuttleAnchor known = anchors.get(entity);
+            if (known != null && known.seen) continue;
+            if (!entity.isAlive() || entity.isDiscoverable() || entity.getFaction() == null) continue;
+
+            ShuttleAnchor.Type type = entity instanceof PlanetAPI ? ShuttleAnchor.Type.PLANET : ShuttleAnchor.Type.STATION;
+            shrines.add(getAnchor(entity, type, ShuttleAnchor.Role.TARGET, entity.getMarket(), entity.getFaction()));
+        }
+
+        for (ShuttleAnchor shrine : shrines) {
+            for (ShuttleAnchor source : marketAnchors) {
+                if (source == shrine || ShuttleFactionRepo.isPirate(source.faction) || source.faction.isHostileTo(shrine.faction)) continue;
+                getRoute(ShuttleRoute.Kind.PILGRIM, source, shrine, random);
             }
         }
     }
@@ -296,10 +371,14 @@ public class ShuttleNetwork {
         for (ShuttleAnchor deciv : decivAnchors) getRoute(ShuttleRoute.Kind.HUNT, deciv, null, random).chancePerDay = HUNT_CHANCE;
     }
 
+    // comm relays, nav buoys, sensor arrays, IE watchtowers and artillery stations; the owner is the entity's faction
     private void addMaintenance(LocationAPI location, Random random) {
-        for (SectorEntityToken objective : location.getEntitiesWithTag(Tags.OBJECTIVE)) {
-            if (!objective.hasTag(Tags.COMM_RELAY) && !objective.hasTag(Tags.NAV_BUOY) && !objective.hasTag(Tags.SENSOR_ARRAY)) continue;
-            if (objective.getFaction() == null) continue;
+        List<SectorEntityToken> objectives = new ArrayList<>(location.getEntitiesWithTag(Tags.OBJECTIVE));
+        objectives.addAll(location.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION));
+        for (SectorEntityToken objective : objectives) {
+            if (!objective.hasTag(Tags.COMM_RELAY) && !objective.hasTag(Tags.NAV_BUOY) && !objective.hasTag(Tags.SENSOR_ARRAY)
+                    && !objective.hasTag(Ids.TAG_WATCHTOWER) && !objective.hasTag(Ids.TAG_ARTILLERY_STATION)) continue;
+            if (objective.getFaction() == null || !objective.isAlive()) continue;
 
             String owner = objective.getFaction().getId();
             ShuttleAnchor nearest = null;
@@ -545,6 +624,15 @@ public class ShuttleNetwork {
         if (raided) mult *= 0.5f;
 
         return mult;
+    }
+
+    // each market swings on its own slow sine, period and phase from its id
+    public static float getRushHour(String marketId, float days) {
+        int hash = marketId.hashCode() * 0x9E3779B1;
+        float periodFrac = ((hash >>> 8) & 0xFF) / 255f;
+        float phaseFrac = ((hash >>> 16) & 0xFF) / 255f;
+        float period = RUSH_PERIOD_MIN + periodFrac * (RUSH_PERIOD_MAX - RUSH_PERIOD_MIN);
+        return 1f + RUSH_SWING * (float) Math.sin(2.0 * Math.PI * (days / period + phaseFrac));
     }
 
     private static float getHuntWeight(MarketAPI market) {

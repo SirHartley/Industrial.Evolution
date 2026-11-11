@@ -14,6 +14,7 @@ import indevo.ambience.shuttletraffic.SpeedClass;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -46,7 +47,23 @@ abstract class BaseFlights {
     protected boolean canFly(ShuttleAnchor from, ShuttleAnchor to) {
         float days = traffic.getDays();
         return from.isUsable(traffic.getLocation()) && to.isUsable(traffic.getLocation()) && !from.threatened && !to.threatened
-                && (from.role == ShuttleAnchor.Role.REMNANT || from.isSafe(days));
+                && (from.role == ShuttleAnchor.Role.REMNANT || from.isSafe(days)) && !network.isSwarmed(from.getLocation(), to.getLocation(), 0f);
+    }
+
+    // formations skip the docking queue
+    protected static Set<Shuttle.Trait> leaderTraits(Set<Shuttle.Trait> traits, int count) {
+        if (count <= 1) return traits;
+
+        Set<Shuttle.Trait> set = EnumSet.copyOf(traits);
+        set.remove(Shuttle.Trait.QUEUES);
+        return set;
+    }
+
+    protected Shuttle follower(Shuttle leader, ShuttleHull hull, ShuttleLook look, float slotBack, float slotSide, float noise, boolean straggler) {
+        Shuttle follower = new Shuttle(hull, null, leader.faction, leader.getFrom(), leader.getTo(), null, leader.getLaunchEnd(), leader.getLandEnd(),
+                leader.getSpeedClass(), leader.getSpeedMult(), 0f, random.nextFloat(), look, leaderTraits(leader.getTraits(), 2));
+        follower.follow(leader, slotBack, slotSide, noise, straggler);
+        return follower;
     }
 
     protected static List<Shuttle> single(Shuttle shuttle) {
