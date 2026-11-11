@@ -25,6 +25,9 @@ public class ShuttleTraffic {
     private final ShuttleFlights flights = new ShuttleFlights(this);
     private final ShuttleSpawner spawner = new ShuttleSpawner(this);
     private final ShuttleReactions reactions = new ShuttleReactions(this);
+    private final ShuttleHits hits = new ShuttleHits(this);
+    // fleets on sustained burn, refreshed with the scan, their live positions checked every frame
+    private final List<ShuttleFleetScan.Entry> fastFleets = new ArrayList<>();
     private final List<Shuttle> shuttles = new ArrayList<>();
     private final List<Shuttle> pods = new ArrayList<>();
     // keyed by kind and fleet or market id, outside the daily network rebuild that drops every route it did not re-add
@@ -78,7 +81,15 @@ public class ShuttleTraffic {
             reactions.updateThreats();
             reactions.react();
             flights.getFleets().update();
+            hits.scan();
+            fastFleets.clear();
+            for (int i = 0; i < fleetScan.getCount(); i++) {
+                ShuttleFleetScan.Entry entry = fleetScan.get(i);
+                if (entry.fleet.getVelocity().length() >= ShuttleHits.RUN_OVER_SPEED * 0.8f) fastFleets.add(entry);
+            }
         }
+
+        hits.advance(fastFleets);
 
         spawner.spawn(amount);
         flights.getPods().launchQueued();
@@ -145,6 +156,8 @@ public class ShuttleTraffic {
         network.clear();
         fleetRoutes.clear();
         fleetScan.clear();
+        hits.clear();
+        fastFleets.clear();
         location = null;
         daysSinceRebuild = 0f;
         scanTimer = 0f;

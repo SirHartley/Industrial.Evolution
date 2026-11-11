@@ -24,6 +24,7 @@ import java.util.Random;
 import java.util.function.UnaryOperator;
 
 import static indevo.ambience.shuttletraffic.ShuttleState.CRUISE;
+import static indevo.ambience.shuttletraffic.ShuttleState.DISABLED;
 import static indevo.ambience.shuttletraffic.ShuttleState.DOWN;
 import static indevo.ambience.shuttletraffic.ShuttleState.ESCAPING;
 import static indevo.ambience.shuttletraffic.ShuttleState.FLEEING;
@@ -44,7 +45,9 @@ public final class ShuttleTrafficChecks {
             "screen", ShuttleState::screen,
             "land", ShuttleState::land,
             "strand", ShuttleState::strand,
-            "calm", ShuttleState::calm);
+            "calm", ShuttleState::calm,
+            "disable", ShuttleState::disable,
+            "restart", ShuttleState::restart);
     // every change the old flags (holding, fleeing, screening, stranded, down) allowed; any other change throws
     private static final Object[][] TRANSITIONS = {
             {CRUISE, "hold", HOLDING}, {FLEEING, "hold", FLEEING_HOLDING},
@@ -56,12 +59,15 @@ public final class ShuttleTrafficChecks {
             {CRUISE, "screen", SCREENING}, {HOLDING, "screen", SCREENING}, {SCREENING, "screen", SCREENING},
             {CRUISE, "land", DOWN}, {FLEEING, "land", DOWN},
             {ESCAPING, "strand", STRANDED}, {STRANDED, "strand", STRANDED},
-            {SCREENING, "calm", CRUISE}, {STRANDED, "calm", CRUISE}, {DOWN, "calm", CRUISE}};
+            {SCREENING, "calm", CRUISE}, {STRANDED, "calm", CRUISE}, {DOWN, "calm", CRUISE},
+            {CRUISE, "disable", DISABLED}, {HOLDING, "disable", DISABLED}, {FLEEING, "disable", DISABLED}, {FLEEING_HOLDING, "disable", DISABLED},
+            {ESCAPING, "disable", DISABLED}, {STRANDED, "disable", DISABLED}, {SCREENING, "disable", DISABLED}, {DISABLED, "restart", CRUISE}};
     // pace, turn rate mult, fleeing, holding, stranded as the old flags set them
     private static final Object[][] LOOKS = {
             {CRUISE, 1f, 1f, false, false, false}, {HOLDING, 1f, 1f, false, true, false}, {FLEEING, 1.4f, 2f, true, false, false},
             {FLEEING_HOLDING, 1.4f, 2f, true, true, false}, {ESCAPING, 1.4f, 2f, true, false, true}, {STRANDED, 0.6f, 1f, false, false, true},
-            {SCREENING, 0.6f, 1f, false, false, false}, {DOWN, 1f, 1f, false, false, false}};
+            {SCREENING, 0.6f, 1f, false, false, false}, {DOWN, 1f, 1f, false, false, false},
+            {DISABLED, 1f, 1f, false, false, false}};
 
     private final List<String> problems = new ArrayList<>();
     private final List<String> notes = new ArrayList<>();

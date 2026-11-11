@@ -43,6 +43,9 @@ public class Shuttle {
     private static final float NEAR_MISS_WOBBLE_TIME = 2f;
     private static final float REFORM_TIME = 3f;
     private static final float REFORM_GIVE_UP = 30f;
+    private static final float WRECK_FADE = 0.5f;
+    // share of the drift speed lost per second
+    private static final float DRIFT_DECAY = 0.3f;
     private static final float STRANDED_HOLD_RADIUS = 150f;
     private static final float REFUGE_WAIT_DAYS = 3f;
     private static final int GREY_STEPS = 32;
@@ -112,6 +115,15 @@ public class Shuttle {
     private boolean waitForSafeHome = false;
     private float fleeStart = 0f;
     private float nearMissStart = -100f;
+    // world velocity of the last frame, a hit craft drifts on with it
+    private float velX = 0f;
+    private float velY = 0f;
+    private boolean velocityKnown = false;
+    private float restartAge = 0f;
+    private float driftTurn = 0f;
+    private float wreckAge = -1f;
+    // the fast fleet this craft already rolled against, cleared once it is clear of it
+    private CampaignFleetAPI runOverBy;
     private float resumeDay = 0f;
     private float landDay = 0f;
     private float glowFlicker = 1f;
@@ -181,18 +193,77 @@ public class Shuttle {
         glowFlicker = 1f - look.flicker() + look.flicker() * (float) Math.random();
         if (isTumbling()) spin += look.tumbleRate() * (1f - age / boostTime) * amount;
 
+        if (wreckAge >= 0f) {
+            advanceWreck(amount);
+            return;
+        }
+
         if (state == ShuttleState.DOWN) {
             advanceDown(traffic);
+            velocityKnown = false;
             return;
         }
 
+        if (state == ShuttleState.DISABLED) {
+            advanceDisabled(amount, traffic);
+            return;
+        }
+
+        float oldX = pos.x;
+        float oldY = pos.y;
         if (follow != null) {
             follow.advance(amount);
-            return;
+        } else {
+            mover.advance(amount, traffic);
+            if (formerLeader != null && !done) tryReform();
         }
 
-        mover.advance(amount, traffic);
-        if (formerLeader != null && !done) tryReform();
+        if (velocityKnown && amount > 0f) {
+            velX = (pos.x - oldX) / amount;
+            velY = (pos.y - oldY) / amount;
+        }
+        velocityKnown = true;
+    }
+
+    // engines cut: no glow, no trail, the craft drifts on and turns slowly until it restarts
+    public void disable(float seconds, Random random) {
+        if (!followers.isEmpty()) disperse(random);
+        leaveFormation();
+        setState(state.disable());
+        restartAge = age + seconds;
+        driftTurn = (10f + random.nextFloat() * 15f) * (random.nextBoolean() ? 1f : -1f);
+    }
+
+    public void explode(ShuttleTraffic traffic) {
+        if (wreckAge >= 0f) return;
+
+        Random random = traffic.getRandom();
+        if (!followers.isEmpty()) disperse(random);
+        leaveFormation();
+        wreckAge = 0f;
+
+        LocationAPI location = traffic.getLocation();
+        for (int i = 0; i < 3; i++) {
+            float size = 15f + random.nextFloat() * 15f;
+            Color color = i == 0 ? Color.WHITE : hull.glowColor;
+            location.addHitParticle(new Vector2f(pos), new Vector2f(velX, velY), size, 1f, 0.4f + random.nextFloat() * 0.4f, color);
+        }
+    }
+
+    public boolean isWrecked() {
+        return wreckAge >= 0f;
+    }
+
+    public boolean isHit() {
+        return wreckAge >= 0f || state == ShuttleState.DISABLED;
+    }
+
+    public CampaignFleetAPI getRunOverBy() {
+        return runOverBy;
+    }
+
+    public void setRunOverBy(CampaignFleetAPI fleet) {
+        runOverBy = fleet;
     }
 
     public void redirect(ShuttleAnchor newTarget, ShuttleTraffic traffic) {
@@ -471,7 +542,7 @@ public class Shuttle {
 
     // redirect only leaves holding laps; screening, stranded and landed craft keep their own paths
     public boolean canRedirect() {
-        return !isDone() && (state == ShuttleState.CRUISE || state == ShuttleState.HOLDING || state == ShuttleState.FLEEING
+        return !isDone() && wreckAge < 0f && (state == ShuttleState.CRUISE || state == ShuttleState.HOLDING || state == ShuttleState.FLEEING
                 || state == ShuttleState.FLEEING_HOLDING);
     }
 
@@ -531,7 +602,7 @@ public class Shuttle {
         sprite.setNormalBlend();
         sprite.renderAtCenter(pos.x, pos.y);
 
-        if (look.glow() && !isTumbling()) {
+        if (look.glow() && !isTumbling() && !isHit()) {
             // never wider than the craft: 0.7 * 1.3 at most
             float glowSize = hull.width * scale * 0.7f * glowMult;
             glow.setSize(glowSize, glowSize);
@@ -560,7 +631,8 @@ public class Shuttle {
     private float getRenderAlpha(float alphaMult) {
         if (delay > 0f || state == ShuttleState.DOWN) return 0f;
         float fader = tiedFleet != null && !tiedFleet.isPlayerFleet() ? tiedFleet.getSensorFaderBrightness() : 1f;
-        return alpha * alphaMult * fader;
+        float wreck = wreckAge >= 0f ? Math.max(0f, 1f - wreckAge / WRECK_FADE) : 1f;
+        return alpha * alphaMult * fader * wreck;
     }
 
     private float getRearX() {
@@ -660,6 +732,50 @@ public class Shuttle {
         }
 
         setPath(traffic.getPaths().holdPath(getFrame(), pos, facing, STRANDED_HOLD_RADIUS), End.NONE, End.NONE);
+    }
+
+    private void advanceWreck(float amount) {
+        wreckAge += amount;
+        drift(amount);
+        if (wreckAge >= WRECK_FADE) done = true;
+    }
+
+    private void advanceDisabled(float amount, ShuttleTraffic traffic) {
+        drift(amount);
+        facing = Misc.normalizeAngle(facing + driftTurn * amount);
+        if (age >= restartAge) restart(traffic);
+    }
+
+    private void drift(float amount) {
+        float decay = Math.max(0f, 1f - DRIFT_DECAY * amount);
+        velX *= decay;
+        velY *= decay;
+        pos.x += velX * amount;
+        pos.y += velY * amount;
+        trail.shift(0f, 0f);
+    }
+
+    // back to where it was going, or home, from wherever it drifted to
+    private void restart(ShuttleTraffic traffic) {
+        setState(state.restart());
+        LocationAPI location = traffic.getLocation();
+        ShuttleAnchor target = to != null && to.isUsable(location) ? to : home != null && home.isUsable(location) ? home : null;
+        if (target == null) {
+            done = true;
+            return;
+        }
+
+        to = target;
+        cleared = false;
+        setPath(traffic.getPaths().redirectPath(null, pos, facing, target), End.NONE, target.getEnd());
+    }
+
+    private void leaveFormation() {
+        if (follow != null) {
+            follow.getLeader().followers.remove(this);
+            follow = null;
+        }
+        formerLeader = null;
     }
 
     private void tryReform() {
