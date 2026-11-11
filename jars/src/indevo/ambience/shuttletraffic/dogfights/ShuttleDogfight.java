@@ -2,6 +2,7 @@ package indevo.ambience.shuttletraffic.dogfights;
 
 import org.lwjgl.util.vector.Vector2f;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -25,7 +26,21 @@ public class ShuttleDogfight {
     private static final float SLOT_SIDE = 10f;
     private static final float LAUNCH_TIME = 1.5f;
     private static final float LOOP_TIME = 2.5f;
-    private static final float LEAD_SPEED = 500f;
+    private static final float GUN_RANGE = 300f;
+    private static final float GUN_CONE = 20f;
+    private static final float GUN_SPREAD = 3f;
+    private static final float GUN_GAP = 0.06f;
+    private static final float LASER_RANGE = 250f;
+    private static final float LASER_CONE = 8f;
+    private static final float LASER_SPREAD = 1f;
+    private static final float LASER_GAP = 0.12f;
+    private static final float STRAFE_FIRE_RANGE = 300f;
+    private static final float TORPEDO_RANGE = 250f;
+    private static final float COOLDOWN_MIN = 0.6f;
+    private static final float COOLDOWN_MAX = 1.2f;
+    private static final float HIT_SIZE = 10f;
+    private static final float FLEET_HIT_SIZE = 14f;
+    private static final float TORPEDO_HIT_SIZE = 30f;
 
     private final DogfightHost host;
     private final Random random;
@@ -33,6 +48,7 @@ public class ShuttleDogfight {
     private final List<DogfightFleet>[] sides = new List[]{new ArrayList<>(), new ArrayList<>()};
     private final List<Dogfighter> fighters = new ArrayList<>();
     private final List<DogfightGroup> groups = new ArrayList<>();
+    private final ShuttleProjectiles projectiles = new ShuttleProjectiles();
     private final Vector2f center = new Vector2f();
     private float radius = 0f;
     private final int[] wantedGroups = new int[2];
@@ -44,6 +60,7 @@ public class ShuttleDogfight {
 
     // check program counters
     private final int[] passes = new int[2];
+    private final int[] kills = new int[2];
     private int maxLeashOvershoot = 0;
 
     public ShuttleDogfight(DogfightHost host, Random random) {
@@ -89,8 +106,11 @@ public class ShuttleDogfight {
             }
             steer(fighter, amount);
             fighter.fly(amount);
+            weapons(fighter, amount);
             trackLeash(fighter);
         }
+
+        projectiles.advance(amount, this);
 
         fighters.removeIf(Dogfighter::isDone);
         groups.removeIf(group -> group.members.stream().allMatch(Dogfighter::isDone));
@@ -117,7 +137,7 @@ public class ShuttleDogfight {
     }
 
     public boolean isOver() {
-        return ended && fighters.isEmpty();
+        return ended && fighters.isEmpty() && projectiles.isEmpty();
     }
 
     public boolean isEnded() {
@@ -126,6 +146,15 @@ public class ShuttleDogfight {
 
     public List<Dogfighter> getFighters() {
         return fighters;
+    }
+
+    public ShuttleProjectiles getProjectiles() {
+        return projectiles;
+    }
+
+    // fighters of this side shot down
+    public int getKills(int side) {
+        return kills[side];
     }
 
     public List<DogfightFleet> getSide(int side) {
@@ -477,7 +506,7 @@ public class ShuttleDogfight {
         }
 
         float dist = Vector2f.sub(target.pos, fighter.pos, null).length();
-        float lead = dist / LEAD_SPEED;
+        float lead = dist / ShuttleProjectiles.Kind.GUN.speed;
         float aimX = target.pos.x + target.vel.x * lead;
         float aimY = target.pos.y + target.vel.y * lead;
         fighter.desired = Dogfighter.angleTo(fighter.pos, aimX, aimY);
@@ -538,6 +567,126 @@ public class ShuttleDogfight {
                 }
             }
         }
+    }
+
+    // bursts at a fighter on pursue, at the fleet on a strafing run; wingmen in formation fire with their leader
+    private void weapons(Dogfighter fighter, float amount) {
+        fighter.cooldown -= amount;
+        if (fighter.burstLeft > 0) {
+            fighter.burstTimer -= amount;
+            if (fighter.burstTimer > 0f) return;
+
+            shoot(fighter);
+            fighter.burstLeft--;
+            fighter.burstTimer = fighter.burstLaser ? LASER_GAP : GUN_GAP;
+            if (fighter.burstLeft == 0) fighter.cooldown = COOLDOWN_MIN + random.nextFloat() * (COOLDOWN_MAX - COOLDOWN_MIN);
+            return;
+        }
+        if (!fighter.isFighting() || fighter.state == Dogfighter.State.LAUNCH || fighter.dieDelay >= 0f) return;
+
+        Dogfighter run = getRun(fighter);
+        if (run == null && fighter.state == Dogfighter.State.FORM) fighter.torpedoDropped = false;
+        if (fighter.cooldown > 0f) return;
+
+        WingType wing = fighter.wing;
+        if (run != null) {
+            DogfightFleet fleet = run.strafeTarget;
+            float ax = fleet.loc.x + run.runPoint.x;
+            float ay = fleet.loc.y + run.runPoint.y;
+            float dist = (float) Math.hypot(ax - fighter.pos.x, ay - fighter.pos.y);
+            float bearing = Math.abs(Dogfighter.wrap(Dogfighter.angleTo(fighter.pos, ax, ay) - fighter.facing));
+            if (bearing > GUN_CONE) return;
+
+            if (wing.torpedoes() && !fighter.torpedoDropped && dist <= TORPEDO_RANGE) {
+                fighter.torpedoDropped = true;
+                fighter.cooldown = COOLDOWN_MIN;
+                projectiles.fire(ShuttleProjectiles.Kind.TORPEDO, fighter.side, noseX(fighter), noseY(fighter), Dogfighter.angleTo(fighter.pos, ax, ay),
+                        fighter.vel.x, fighter.vel.y, ShuttleProjectiles.TORPEDO_COLOR, true);
+                return;
+            }
+
+            if (dist <= STRAFE_FIRE_RANGE && dist >= STRAFE_BREAK && (wing.guns() || wing.lasers())) startBurst(fighter, wing.lasers() && !wing.guns(), true);
+            return;
+        }
+
+        Dogfighter target = fighter.target;
+        if (fighter.state != Dogfighter.State.PURSUE || !isValidTarget(fighter, target)) return;
+
+        float dist = Vector2f.sub(target.pos, fighter.pos, null).length();
+        float bearing = Math.abs(Dogfighter.wrap(Dogfighter.angleTo(fighter.pos, target.pos.x, target.pos.y) - fighter.facing));
+        if (wing.lasers() && bearing <= LASER_CONE && dist <= LASER_RANGE) startBurst(fighter, true, false);
+        else if (wing.guns() && bearing <= GUN_CONE && dist <= GUN_RANGE) startBurst(fighter, false, false);
+    }
+
+    // the fighter on a strafing run that this one fires with: itself, or its leader while it flies in formation
+    private static Dogfighter getRun(Dogfighter fighter) {
+        if (fighter.state == Dogfighter.State.STRAFE) return fighter.strafe == Dogfighter.Strafe.RUN && fighter.strafeTarget != null && fighter.strafeTarget.alive ? fighter : null;
+        if (fighter.state != Dogfighter.State.FORM) return null;
+
+        Dogfighter lead = fighter.group.leader();
+        if (lead == null || lead == fighter || lead.state != Dogfighter.State.STRAFE || lead.strafe != Dogfighter.Strafe.RUN) return null;
+        return lead.strafeTarget != null && lead.strafeTarget.alive ? lead : null;
+    }
+
+    private void startBurst(Dogfighter fighter, boolean laser, boolean atFleet) {
+        fighter.burstLaser = laser;
+        fighter.burstAtFleet = atFleet;
+        fighter.burstLeft = laser ? 2 + random.nextInt(2) : 6 + random.nextInt(5);
+        fighter.burstTimer = 0f;
+    }
+
+    // guns fire along the nose, so in a turning fight the stream trails the target; lasers aim at the lead point
+    private void shoot(Dogfighter fighter) {
+        float angle = fighter.facing;
+        float spread = fighter.burstLaser ? LASER_SPREAD : GUN_SPREAD;
+        if (fighter.burstLaser) {
+            Dogfighter run = getRun(fighter);
+            Dogfighter target = fighter.target;
+            if (fighter.burstAtFleet && run != null) {
+                angle = Dogfighter.angleTo(fighter.pos, run.strafeTarget.loc.x + run.runPoint.x, run.strafeTarget.loc.y + run.runPoint.y);
+            } else if (!fighter.burstAtFleet && isValidTarget(fighter, target)) {
+                float dist = Vector2f.sub(target.pos, fighter.pos, null).length();
+                float lead = dist / ShuttleProjectiles.Kind.LASER.speed;
+                float aim = Dogfighter.angleTo(fighter.pos, target.pos.x + target.vel.x * lead, target.pos.y + target.vel.y * lead);
+                if (Math.abs(Dogfighter.wrap(aim - fighter.facing)) <= LASER_CONE) angle = aim;
+            }
+        }
+
+        angle += (random.nextFloat() * 2f - 1f) * spread;
+        ShuttleProjectiles.Kind kind = fighter.burstLaser ? ShuttleProjectiles.Kind.LASER : ShuttleProjectiles.Kind.GUN;
+        Color color = fighter.burstLaser ? fighter.wing.boltColor() : ShuttleProjectiles.GUN_COLOR;
+        projectiles.fire(kind, fighter.side, noseX(fighter), noseY(fighter), angle, fighter.vel.x, fighter.vel.y, color, fighter.burstAtFleet);
+    }
+
+    private static float noseX(Dogfighter fighter) {
+        return fighter.pos.x + fighter.dirX() * fighter.hull.length * 0.5f;
+    }
+
+    private static float noseY(Dogfighter fighter) {
+        return fighter.pos.y + fighter.dirY() * fighter.hull.length * 0.5f;
+    }
+
+    void onFighterHit(Dogfighter fighter, float x, float y, Color color) {
+        host.particle(new Vector2f(x, y), fighter.vel, HIT_SIZE, 0.8f, 0.25f, color);
+        fighter.hits++;
+        if (fighter.hits >= fighter.toughness) kill(fighter);
+    }
+
+    void onFleetHit(DogfightFleet fleet, float x, float y, ShuttleProjectiles.Kind kind, Color color) {
+        boolean torpedo = kind == ShuttleProjectiles.Kind.TORPEDO;
+        host.particle(new Vector2f(x, y), fleet.vel, torpedo ? TORPEDO_HIT_SIZE : FLEET_HIT_SIZE, torpedo ? 1f : 0.8f, torpedo ? 0.5f : 0.25f, color);
+    }
+
+    // 3 hit particles and a drifting fade; a group with nobody left is replaced 4 to 8 s later
+    void kill(Dogfighter fighter) {
+        if (!fighter.canBeHit()) return;
+
+        for (int i = 0; i < 3; i++) {
+            host.particle(fighter.pos, fighter.vel, 20f + random.nextFloat() * 15f, 1f, 0.6f, i == 0 ? Color.WHITE : fighter.hull.glowColor);
+        }
+        fighter.explode();
+        kills[fighter.side]++;
+        if (!fighter.group.isAlive() && !ended) onGroupLost(fighter.side);
     }
 
     private void trackLeash(Dogfighter fighter) {

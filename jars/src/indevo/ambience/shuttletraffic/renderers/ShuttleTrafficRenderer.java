@@ -87,6 +87,8 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
         for (Dogfighter fighter : fighters) {
             if (viewport.isNearViewport(fighter.pos, VIEWPORT_MARGIN)) fighter.render(alphaMult, glow);
         }
+
+        fight.getProjectiles().render(alphaMult);
     }
 
     private void render(List<Shuttle> list, ViewportAPI viewport, float alphaMult) {

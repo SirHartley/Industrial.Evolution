@@ -201,6 +201,10 @@ public class Dogfighter {
         return !done && state != State.DYING && state != State.RETURN && state != State.REFUGE && state != State.LOOP;
     }
 
+    public boolean canBeHit() {
+        return !done && state != State.DYING;
+    }
+
     public boolean isDone() {
         return done;
     }
