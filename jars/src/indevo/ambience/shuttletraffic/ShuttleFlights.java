@@ -11,6 +11,7 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -194,18 +195,9 @@ public class ShuttleFlights {
                     120f + random.nextFloat() * 80f, getHandle(target, distance), 0f));
 
             Shuttle pod = new Shuttle(hull, null, null, target, target, path, Shuttle.End.NONE, Shuttle.End.PLANET,
-                    POD_SPEED / hull.getCruiseSpeed(), 0f, random.nextFloat());
-            pod.home = null;
-            pod.boost = 45f + random.nextFloat() * 40f;
-            pod.boostTime = 2f;
-            pod.delay = random.nextFloat() * 1.5f;
-            pod.spinRate = (20f + random.nextFloat() * 40f) * randomSign();
-            pod.engineGlow = false;
-            pod.avoids = false;
-            pod.flees = false;
-            pod.queues = false;
-            pod.trailWidth = 1.5f;
-            pod.trailMax = 8;
+                    POD_SPEED / hull.getCruiseSpeed(), 0f, random.nextFloat(), ShuttleLook.pod((20f + random.nextFloat() * 40f) * randomSign()),
+                    EnumSet.noneOf(Shuttle.Trait.class));
+            pod.eject(random.nextFloat() * 1.5f, 45f + random.nextFloat() * 40f, 2f);
             pods.add(pod);
         }
 
@@ -231,15 +223,12 @@ public class ShuttleFlights {
         };
         if (hull == null) return null;
 
-        Shuttle shuttle = route.kind == ShuttleRoute.Kind.MARKET
-                ? create(hull, route, faction, from, to, trafficLanePath(route, from == route.b), 1f, TRAFFIC_LANE_JITTER)
-                : create(hull, route, faction, from, to, lanePath(from, to, route.bendFrac * (smuggler ? 2f : 1f), smuggler), 1f);
-        if (smuggler) {
-            shuttle.engineGlow = false;
-            shuttle.trailAlpha = 0.3f;
+        if (route.kind == ShuttleRoute.Kind.MARKET) {
+            return create(hull, route, faction, from, to, trafficLanePath(route, from == route.b), 1f, TRAFFIC_LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
         }
 
-        return shuttle;
+        return create(hull, route, faction, from, to, lanePath(from, to, route.bendFrac * (smuggler ? 2f : 1f), smuggler), 1f, LANE_JITTER,
+                smuggler ? ShuttleLook.SMUGGLER : ShuttleLook.CRAFT, Shuttle.CIVIL);
     }
 
     private Shuttle launchDiplomat(ShuttleRoute route) {
@@ -256,7 +245,7 @@ public class ShuttleFlights {
         if (hull == null) return null;
 
         ShuttleAnchor to = picker.pick();
-        return create(hull, route, from.faction, from, to, lanePath(from, to, route.bendFrac, false), 1f);
+        return create(hull, route, from.faction, from, to, lanePath(from, to, route.bendFrac, false), 1f, LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
     }
 
     private Shuttle launchHunt(ShuttleRoute route) {
@@ -270,10 +259,8 @@ public class ShuttleFlights {
         ShuttleHull hull = ShuttleHullPool.rollBase(random, HUNT_HULLS);
         if (hull == null) return null;
 
-        Shuttle shuttle = create(hull, route, from.faction, from, to, lanePath(from, to, route.bendFrac, false), 0.8f);
-        shuttle.stayDays = 2f + random.nextFloat() * 3f;
-        shuttle.trailAlpha = 0.5f;
-        shuttle.flicker = 0.6f;
+        Shuttle shuttle = create(hull, route, from.faction, from, to, lanePath(from, to, route.bendFrac, false), 0.8f, LANE_JITTER, ShuttleLook.HUNT, Shuttle.CIVIL);
+        shuttle.stay(2f + random.nextFloat() * 3f);
         return shuttle;
     }
 
@@ -286,9 +273,10 @@ public class ShuttleFlights {
         if (hull == null) return Collections.emptyList();
 
         Pattern pattern = home.type == ShuttleAnchor.Type.PLANET && random.nextFloat() < 0.6f ? Pattern.ARC : Pattern.ORBIT;
-        Shuttle leader = create(hull, route, home.faction, home, home, joyridePath(home, pattern), 1.1f);
-        leader.flees = !remnant;
-        return formation(leader, hull.fighter ? hull.wingSize : 1, room, false);
+        int count = Math.min(hull.fighter ? hull.wingSize : 1, room);
+        Set<Shuttle.Trait> traits = remnant ? EnumSet.of(Shuttle.Trait.AVOIDS, Shuttle.Trait.QUEUES) : Shuttle.CIVIL;
+        Shuttle leader = create(hull, route, home.faction, home, home, joyridePath(home, pattern), 1.1f, LANE_JITTER, ShuttleLook.CRAFT, leaderTraits(traits, count));
+        return formation(leader, count, false);
     }
 
     private List<Shuttle> launchPicket(ShuttleRoute route, int room) {
@@ -303,9 +291,10 @@ public class ShuttleFlights {
         ShuttlePath.CircleSegment ellipse = new ShuttlePath.CircleSegment(home.entity, 0f, 0f, radiusX, radiusX * 0.7f, random.nextFloat() * 360f,
                 random.nextFloat() * 360f, 360f * (random.nextBoolean() ? 1f : 2f) * randomSign(), 0f);
 
-        Shuttle leader = create(hull, route, home.faction, home, home, loopPath(home, List.of(ellipse)), 0.8f);
-        leader.picket = true;
-        return formation(leader, hull.wingSize, room, false);
+        int count = Math.min(hull.wingSize, room);
+        Set<Shuttle.Trait> traits = EnumSet.of(Shuttle.Trait.AVOIDS, Shuttle.Trait.QUEUES, Shuttle.Trait.FLEES, Shuttle.Trait.PICKET);
+        Shuttle leader = create(hull, route, home.faction, home, home, loopPath(home, List.of(ellipse)), 0.8f, LANE_JITTER, ShuttleLook.CRAFT, leaderTraits(traits, count));
+        return formation(leader, count, false);
     }
 
     private List<Shuttle> launchTraining(ShuttleRoute route, int room) {
@@ -316,8 +305,10 @@ public class ShuttleFlights {
         if (hull == null) hull = ShuttleHullPool.rollBase(random, TRAINING_HULLS);
         if (hull == null) return Collections.emptyList();
 
-        Shuttle leader = create(hull, route, home.faction, home, home, joyridePath(home, Pattern.ORBIT), 1f);
-        return formation(leader, 2 + random.nextInt(2), room, true);
+        ShuttlePath path = joyridePath(home, Pattern.ORBIT);
+        int count = Math.min(2 + random.nextInt(2), room);
+        Shuttle leader = create(hull, route, home.faction, home, home, path, 1f, LANE_JITTER, ShuttleLook.CRAFT, leaderTraits(Shuttle.CIVIL, count));
+        return formation(leader, count, true);
     }
 
     private Shuttle launchLinger(ShuttleRoute route) {
@@ -331,7 +322,8 @@ public class ShuttleFlights {
 
         float speedMult = 0.8f;
         float days = mining ? 1f + random.nextFloat() * 2f : 2f + random.nextFloat() * 2f;
-        return create(hull, route, home.faction, home, home, lingerPath(home, route.target, days, hull.getCruiseSpeed() * speedMult), speedMult);
+        return create(hull, route, home.faction, home, home, lingerPath(home, route.target, days, hull.getCruiseSpeed() * speedMult), speedMult,
+                LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
     }
 
     private Shuttle launchMaintenance(ShuttleRoute route) {
@@ -344,7 +336,7 @@ public class ShuttleFlights {
         SectorEntityToken objective = route.target.center;
         float startAngle = Misc.getAngleInDegrees(objective.getLocation(), home.getLocation());
         ShuttlePath.CircleSegment lap = new ShuttlePath.CircleSegment(objective, 0f, 0f, MAINTENANCE_RADIUS, startAngle, 360f * randomSign(), 0f);
-        return create(hull, route, home.faction, home, home, loopPath(home, List.of(lap)), 1f);
+        return create(hull, route, home.faction, home, home, loopPath(home, List.of(lap)), 1f, LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
     }
 
     // orbit: one lap well above the anchor; arc: a low hop to another spot on the same planet
@@ -448,37 +440,35 @@ public class ShuttleFlights {
                 getHandle(home, chord), network.getBend(first, loc, 0f, null, home.entity)));
     }
 
-    private List<Shuttle> formation(Shuttle leader, int size, int room, boolean loose) {
-        List<Shuttle> craft = new ArrayList<>(size);
-        craft.add(leader);
+    // formations skip the docking queue
+    private static Set<Shuttle.Trait> leaderTraits(Set<Shuttle.Trait> traits, int count) {
+        if (count <= 1) return traits;
 
-        int count = Math.min(size, room);
-        if (count > 1) leader.queues = false;
+        Set<Shuttle.Trait> set = EnumSet.copyOf(traits);
+        set.remove(Shuttle.Trait.QUEUES);
+        return set;
+    }
+
+    private List<Shuttle> formation(Shuttle leader, int count, boolean loose) {
+        List<Shuttle> craft = new ArrayList<>(count);
+        craft.add(leader);
 
         int straggler = loose && count > 1 && random.nextFloat() < 0.25f ? 1 + random.nextInt(count - 1) : -1;
         for (int i = 1; i < count; i++) {
             int rank = (i + 1) / 2;
-            Shuttle follower = new Shuttle(leader.hull, null, leader.faction, leader.from, leader.to, null, leader.getLaunchEnd(), leader.getLandEnd(),
-                    leader.speedMult, 0f, random.nextFloat());
+            Shuttle follower = new Shuttle(leader.hull, null, leader.faction, leader.getFrom(), leader.getTo(), null, leader.getLaunchEnd(), leader.getLandEnd(),
+                    leader.getSpeedMult(), 0f, random.nextFloat(), leader.getLook(), leaderTraits(leader.getTraits(), 2));
             follower.follow(leader, 8f * rank, 6f * rank * (i % 2 == 1 ? 1f : -1f), loose ? 4f : 0f, i == straggler);
-            follower.home = leader.home;
-            follower.flees = leader.flees;
-            follower.picket = leader.picket;
-            follower.queues = false;
             craft.add(follower);
         }
 
         return craft;
     }
 
-    private Shuttle create(ShuttleHull hull, ShuttleRoute route, FactionAPI faction, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath path, float speedMult) {
-        return create(hull, route, faction, from, to, path, speedMult, LANE_JITTER);
-    }
-
     private Shuttle create(ShuttleHull hull, ShuttleRoute route, FactionAPI faction, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath path, float speedMult,
-                           float jitter) {
+                           float jitter, ShuttleLook look, Set<Shuttle.Trait> traits) {
         return new Shuttle(hull, route, faction, from, to, path, from.getEnd(), to.getEnd(),
-                speedMult * (0.85f + 0.3f * random.nextFloat()), spread(jitter), random.nextFloat());
+                speedMult * (0.85f + 0.3f * random.nextFloat()), spread(jitter), random.nextFloat(), look, traits);
     }
 
     private ShuttlePath.CircleSegment circleAt(SectorEntityToken entity, Vector2f point, float heading, float radius, float side) {

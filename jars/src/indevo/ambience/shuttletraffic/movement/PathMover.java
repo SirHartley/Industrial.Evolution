@@ -136,10 +136,10 @@ public class PathMover {
     private void advancePath(float amount, ShuttleTraffic traffic, boolean retry) {
         float total = path.getLength();
         traveled = path.getTraveled(cursor);
-        float launchLength = getEndLength(launchEnd, shuttle.from, total);
-        float landLength = getEndLength(landEnd, shuttle.to, total);
+        float launchLength = getEndLength(launchEnd, shuttle.getFrom(), total);
+        float landLength = getEndLength(landEnd, shuttle.getTo(), total);
         float remaining = total - traveled;
-        boolean docking = landEnd == Shuttle.End.STATION && shuttle.to != null && remaining <= landLength + DOCK_CHECK_DISTANCE;
+        boolean docking = landEnd == Shuttle.End.STATION && shuttle.getTo() != null && remaining <= landLength + DOCK_CHECK_DISTANCE;
 
         if (docking && shuttle.holdForPad(traffic)) {
             if (retry) advancePath(amount, traffic, false);
@@ -153,7 +153,7 @@ public class PathMover {
         float speed = shuttle.getSpeed(ease);
         if (path.move(cursor, speed * amount)) {
             shuttle.onPathEnd(traffic);
-            if (retry && !shuttle.done && !shuttle.isDown()) advancePath(amount, traffic, false);
+            if (retry && !shuttle.isDone() && !shuttle.isDown()) advancePath(amount, traffic, false);
             return;
         }
 
@@ -169,8 +169,8 @@ public class PathMover {
         float fraction = total > 0f ? traveled / total : 1f;
         float envelope = (float) Math.sin(Math.PI * fraction);
         float avoidEnvelope = Math.max(0f, Math.min(1f, Math.min(fraction, 1f - fraction) / 0.15f));
-        float avoid = shuttle.avoids ? getAvoidanceTarget(traffic.getFleetScan()) : 0f;
-        if (avoid != 0f && !shuttle.followers.isEmpty()) shuttle.disperse(traffic.getRandom());
+        float avoid = shuttle.avoids() ? getAvoidanceTarget(traffic.getFleetScan()) : 0f;
+        if (avoid != 0f && !shuttle.getFollowers().isEmpty()) shuttle.disperse(traffic.getRandom());
         float target = (avoid + sideBias) * avoidEnvelope;
 
         float step = AVOID_EASE * amount;

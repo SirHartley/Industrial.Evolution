@@ -12,8 +12,11 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class Shuttle {
 
@@ -23,6 +26,15 @@ public class Shuttle {
         STATION
     }
 
+    public enum Trait {
+        AVOIDS,
+        QUEUES,
+        FLEES,
+        PICKET
+    }
+
+    public static final Set<Trait> CIVIL = Collections.unmodifiableSet(EnumSet.of(Trait.AVOIDS, Trait.QUEUES, Trait.FLEES));
+
     private static final float TURN_RATE = 90f;
     private static final float FLEE_WOBBLE = 10f;
     private static final float FLEE_WOBBLE_TIME = 3f;
@@ -30,41 +42,33 @@ public class Shuttle {
 
     public final ShuttleHull hull;
     public final FactionAPI faction;
-    public ShuttleRoute route;
-    public ShuttleAnchor from;
-    public ShuttleAnchor to;
-    public ShuttleAnchor home;
-    public float speedMult;
-    public boolean done = false;
-
-    public boolean engineGlow = true;
-    public boolean avoids = true;
-    public boolean queues = true;
-    public boolean flees = true;
-    public boolean picket = false;
-    public float trailAlpha = 1f;
-    public float trailWidth = 3f;
-    public int trailMax = ShuttleTrail.TRAIL_POINTS;
-    public float flicker = 0.2f;
-    public float spinRate = 0f;
-    public float stayDays = 0f;
-    public float boost = 0f;
-    public float boostTime = 0f;
-    public float delay = 0f;
-
-    public final List<Shuttle> followers = new ArrayList<>(2);
-
     public final Vector2f pos = new Vector2f();
-    public float facing = 0f;
-    public float scale = 1f;
-    public float alpha = 1f;
-    public float lastThreatNearDay = -100f;
 
+    private final ShuttleRoute route;
+    private final ShuttleLook look;
+    private final Set<Trait> traits;
     private final float phase;
+    private ShuttleAnchor from;
+    private ShuttleAnchor to;
+    private ShuttleAnchor home;
+    private float speedMult;
+    private boolean done = false;
+    // picket duty ends once the craft flees
+    private boolean picket;
+    private float stayDays = 0f;
+    private float boost = 0f;
+    private float boostTime = 0f;
+    private float delay = 0f;
+    private float lastThreatNearDay = -100f;
+
+    private final List<Shuttle> followers = new ArrayList<>(2);
     private final ShuttleTrail trail = new ShuttleTrail();
     private final PathMover mover;
     private FollowMover follow;
 
+    private float facing = 0f;
+    private float scale = 1f;
+    private float alpha = 1f;
     private float darken = 1f;
     private float glowMult = 1f;
     private float age = 0f;
@@ -85,9 +89,12 @@ public class Shuttle {
     private float screenY = 0f;
 
     public Shuttle(ShuttleHull hull, ShuttleRoute route, FactionAPI faction, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath path,
-                   End launchEnd, End landEnd, float speedMult, float jitter, float phase) {
+                   End launchEnd, End landEnd, float speedMult, float jitter, float phase, ShuttleLook look, Set<Trait> traits) {
         this.hull = hull;
         this.route = route;
+        this.look = look;
+        this.traits = traits.isEmpty() ? EnumSet.noneOf(Trait.class) : EnumSet.copyOf(traits);
+        this.picket = traits.contains(Trait.PICKET);
         this.faction = faction;
         this.from = from;
         this.to = to;
@@ -102,6 +109,17 @@ public class Shuttle {
         leader.followers.add(this);
     }
 
+    // ejection: hidden for delay seconds, then boost su/s on top of cruise speed, fading over boostTime
+    public void eject(float delay, float boost, float boostTime) {
+        this.delay = delay;
+        this.boost = boost;
+        this.boostTime = boostTime;
+    }
+
+    public void stay(float days) {
+        stayDays = days;
+    }
+
     public void warmStart(float fraction) {
         mover.warmStart(fraction);
     }
@@ -113,7 +131,7 @@ public class Shuttle {
         }
 
         age += amount;
-        spin += spinRate * amount;
+        spin += look.spinRate() * amount;
 
         if (state == ShuttleState.DOWN) {
             advanceDown(traffic);
@@ -172,7 +190,7 @@ public class Shuttle {
 
     // true when the pad is busy and the craft starts a holding lap
     public boolean holdForPad(ShuttleTraffic traffic) {
-        if (queues && !cleared) {
+        if (traits.contains(Trait.QUEUES) && !cleared) {
             if (to.isPadBusy(traffic.getTime())) {
                 setState(state.hold());
                 setPath(traffic.getFlights().holdPath(to.entity, pos, facing, ShuttleAnchor.HOLD_RADIUS), End.NONE, End.NONE);
@@ -281,6 +299,66 @@ public class Shuttle {
         trail.pushTrailIfMoved(pos.x - hx * back, pos.y - hy * back);
     }
 
+    public void finish() {
+        done = true;
+    }
+
+    public void markThreatNear(float days) {
+        lastThreatNearDay = days;
+    }
+
+    public boolean isDone() {
+        return done;
+    }
+
+    public boolean avoids() {
+        return traits.contains(Trait.AVOIDS);
+    }
+
+    public boolean flees() {
+        return traits.contains(Trait.FLEES);
+    }
+
+    public boolean isPicket() {
+        return picket;
+    }
+
+    public ShuttleRoute getRoute() {
+        return route;
+    }
+
+    public ShuttleAnchor getFrom() {
+        return from;
+    }
+
+    public ShuttleAnchor getTo() {
+        return to;
+    }
+
+    public ShuttleAnchor getHome() {
+        return home;
+    }
+
+    public float getSpeedMult() {
+        return speedMult;
+    }
+
+    public ShuttleLook getLook() {
+        return look;
+    }
+
+    public Set<Trait> getTraits() {
+        return traits;
+    }
+
+    public List<Shuttle> getFollowers() {
+        return followers;
+    }
+
+    public float getFacing() {
+        return facing;
+    }
+
     public ShuttleState getState() {
         return state;
     }
@@ -348,23 +426,23 @@ public class Shuttle {
         float rearX = pos.x - hx * hull.length * scale * 0.5f;
         float rearY = pos.y - hy * hull.length * scale * 0.5f;
 
-        trail.render(rearX, rearY, trailMax, trailWidth, hull.trailColor, hull.additiveTrail, a * trailAlpha);
+        trail.render(rearX, rearY, look.trailPoints(), look.trailWidth(), hull.trailColor, hull.additiveTrail, a * look.trailAlpha());
 
         SpriteAPI sprite = hull.sprite;
         sprite.setSize(hull.width * scale, hull.length * scale);
-        sprite.setAngle(spinRate != 0f ? spin : facing - 90f);
+        sprite.setAngle(look.spinRate() != 0f ? spin : facing - 90f);
         sprite.setColor(darken >= 1f ? Color.WHITE : new Color((int) (255 * darken), (int) (255 * darken), (int) (255 * darken)));
         sprite.setAlphaMult(a);
         sprite.setNormalBlend();
         sprite.renderAtCenter(pos.x, pos.y);
 
-        if (engineGlow) {
+        if (look.glow()) {
             float glowSize = Math.max(4f, hull.width * scale * 0.9f) * glowMult;
             glow.setSize(glowSize, glowSize);
             glow.setAngle(0f);
             glow.setColor(hull.glowColor);
             glow.setAdditiveBlend();
-            glow.setAlphaMult(a * (1f - flicker + flicker * (float) Math.random()));
+            glow.setAlphaMult(a * (1f - look.flicker() + look.flicker() * (float) Math.random()));
             glow.renderAtCenter(rearX, rearY);
         }
     }

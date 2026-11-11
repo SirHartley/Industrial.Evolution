@@ -30,8 +30,8 @@ public class FollowMover {
     }
 
     public void advance(float amount) {
-        if (leader.done || leader.isDown()) {
-            shuttle.done = true;
+        if (leader.isDone() || leader.isDown()) {
+            shuttle.finish();
             return;
         }
 
@@ -47,7 +47,7 @@ public class FollowMover {
         float offset = shuttle.getPhase() * 6.28f;
         float side = slotSide + noise * (float) Math.sin(age * 0.7f + offset);
         float back = slotBack + extraLag + noise * 0.5f * (float) Math.sin(age * 0.5f + offset * 2f);
-        leader.getTrail().getHistoryPoint(back, leader.pos, leader.facing, base, tangent);
+        leader.getTrail().getHistoryPoint(back, leader.pos, leader.getFacing(), base, tangent);
 
         shuttle.pos.set(base.x - tangent.y * side, base.y + tangent.x * side);
         shuttle.updateFacing(amount, Misc.getAngleInDegrees(tangent));

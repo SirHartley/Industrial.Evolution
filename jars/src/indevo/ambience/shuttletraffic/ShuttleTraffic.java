@@ -165,9 +165,9 @@ public class ShuttleTraffic {
         while (iterator.hasNext()) {
             Shuttle shuttle = iterator.next();
             shuttle.advance(amount, this);
-            if (!shuttle.done) continue;
+            if (!shuttle.isDone()) continue;
 
-            if (shuttle.route != null) shuttle.route.active--;
+            if (shuttle.getRoute() != null) shuttle.getRoute().active--;
             iterator.remove();
         }
     }
