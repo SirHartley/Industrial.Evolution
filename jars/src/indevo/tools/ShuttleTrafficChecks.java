@@ -111,6 +111,7 @@ public final class ShuttleTrafficChecks {
             run.checkDodge();
             run.checkSteer();
             run.checkRoundRate();
+            run.checkSwarmRange();
             run.checkDogfight();
         } finally {
             Global.setSettings(null);
@@ -359,6 +360,18 @@ public final class ShuttleTrafficChecks {
             float rate = ShuttleDogfights.getRoundRate(c[0], c[1], c[2] > 0f);
             check(Math.abs(rate - c[3]) < 0.001f, "round rate " + c[0] + " vs " + c[1] + (c[2] > 0f ? " with station" : "") + ": " + rate + ", expected " + c[3]);
         }
+    }
+
+    // segment distance for the meteor swarm closure, both ends and the middle
+    private void checkSwarmRange() {
+        Vector2f a = new Vector2f(0f, 0f);
+        Vector2f b = new Vector2f(1000f, 0f);
+        float[][] cases = {{500f, 300f, 300f}, {-400f, 300f, 500f}, {1300f, -400f, 500f}, {0f, 0f, 0f}};
+        for (float[] c : cases) {
+            float dist = ShuttleNetwork.getSegmentDistance(new Vector2f(c[0], c[1]), a, b);
+            check(Math.abs(dist - c[2]) < 0.01f, "swarm range at " + c[0] + ", " + c[1] + ": " + dist + ", expected " + c[2]);
+        }
+        check(Math.abs(ShuttleNetwork.getSegmentDistance(new Vector2f(30f, 40f), a, a) - 50f) < 0.01f, "swarm range to a point");
     }
 
     // 12 against 12 for two minutes over three seeds: hit rates, kills, strafing passes, leash, cap, cost; then both ends

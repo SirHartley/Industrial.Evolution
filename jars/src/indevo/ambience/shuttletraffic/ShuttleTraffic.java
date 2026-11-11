@@ -59,6 +59,7 @@ public class ShuttleTraffic {
             clear();
             location = current;
             network.rebuild(location, random);
+            network.updateSwarms(location);
             budget.update(network.routes.values(), cap);
             fleetScan.scan(location, player);
             reactions.updateThreats();
@@ -80,6 +81,7 @@ public class ShuttleTraffic {
         if (scanTimer <= 0f) {
             scanTimer = SCAN_INTERVAL;
             fleetScan.scan(location, player);
+            network.updateSwarms(location);
             reactions.updateThreats();
             reactions.react();
             flights.getFleets().update();

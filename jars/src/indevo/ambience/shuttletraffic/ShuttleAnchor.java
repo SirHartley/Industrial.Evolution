@@ -35,6 +35,8 @@ public class ShuttleAnchor {
     public MarketAPI market;
     public FactionAPI faction;
     public boolean closed = false;
+    // an IE meteor swarm is near, set every scan
+    public boolean swarmed = false;
     public boolean seen = true;
     public float padBusyUntil = 0f;
     public boolean threatened = false;
@@ -99,7 +101,7 @@ public class ShuttleAnchor {
     }
 
     public boolean isUsable(LocationAPI location) {
-        return seen && !closed && entity.isAlive() && entity.getContainingLocation() == location;
+        return seen && !closed && !swarmed && entity.isAlive() && entity.getContainingLocation() == location;
     }
 
     public boolean isSafe(float days) {

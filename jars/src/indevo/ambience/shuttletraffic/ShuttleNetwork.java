@@ -21,6 +21,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.AsteroidFieldTerrainPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.ids.Ids;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -59,12 +60,15 @@ public class ShuttleNetwork {
     public static final float MAINTENANCE_CHANCE = 0.02f;
     private static final float SIGHT_RANGE = 3000f;
     private static final float SIGHT_GAP = 400f;
+    public static final float SWARM_RANGE = 600f;
 
     public final Map<SectorEntityToken, ShuttleAnchor> anchors = new LinkedHashMap<>();
     public final Map<String, ShuttleRoute> routes = new LinkedHashMap<>();
     public final List<ShuttleAnchor> marketAnchors = new ArrayList<>();
     public final List<ShuttleAnchor> decivAnchors = new ArrayList<>();
     public final List<Body> bodies = new ArrayList<>();
+    // IE meteors in the system, refreshed with the fleet scan; meteors fly, so their positions are read live
+    private final List<SectorEntityToken> meteors = new ArrayList<>();
 
     public void clear() {
         anchors.clear();
@@ -72,6 +76,38 @@ public class ShuttleNetwork {
         marketAnchors.clear();
         decivAnchors.clear();
         bodies.clear();
+        meteors.clear();
+    }
+
+    // meteor swarms have no callback for their movement, so this runs with the fleet scan
+    public void updateSwarms(LocationAPI location) {
+        boolean had = !meteors.isEmpty();
+        meteors.clear();
+        for (SectorEntityToken meteor : location.getEntitiesWithTag(MeteorSwarmManager.METEOR_TAG)) {
+            if (meteor.isAlive()) meteors.add(meteor);
+        }
+
+        if (meteors.isEmpty() && !had) return;
+        for (ShuttleAnchor anchor : anchors.values()) anchor.swarmed = isSwarmed(anchor.getLocation(), anchor.getLocation(), anchor.getRadius());
+    }
+
+    // any meteor within SWARM_RANGE of the segment, plus the margin
+    public boolean isSwarmed(Vector2f p0, Vector2f p1, float margin) {
+        float range = SWARM_RANGE + margin;
+        for (SectorEntityToken meteor : meteors) {
+            if (getSegmentDistance(meteor.getLocation(), p0, p1) <= range) return true;
+        }
+        return false;
+    }
+
+    public static float getSegmentDistance(Vector2f point, Vector2f p0, Vector2f p1) {
+        float dx = p1.x - p0.x;
+        float dy = p1.y - p0.y;
+        float len2 = dx * dx + dy * dy;
+        float t = len2 > 0f ? Math.max(0f, Math.min(1f, ((point.x - p0.x) * dx + (point.y - p0.y) * dy) / len2)) : 0f;
+        float cx = point.x - p0.x - dx * t;
+        float cy = point.y - p0.y - dy * t;
+        return (float) Math.sqrt(cx * cx + cy * cy);
     }
 
     public void rebuild(LocationAPI location, Random random) {

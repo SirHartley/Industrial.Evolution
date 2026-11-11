@@ -47,7 +47,7 @@ abstract class BaseFlights {
     protected boolean canFly(ShuttleAnchor from, ShuttleAnchor to) {
         float days = traffic.getDays();
         return from.isUsable(traffic.getLocation()) && to.isUsable(traffic.getLocation()) && !from.threatened && !to.threatened
-                && (from.role == ShuttleAnchor.Role.REMNANT || from.isSafe(days));
+                && (from.role == ShuttleAnchor.Role.REMNANT || from.isSafe(days)) && !network.isSwarmed(from.getLocation(), to.getLocation(), 0f);
     }
 
     // formations skip the docking queue
