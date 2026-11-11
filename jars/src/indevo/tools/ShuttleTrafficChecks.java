@@ -111,6 +111,7 @@ public final class ShuttleTrafficChecks {
             run.checkDodge();
             run.checkSteer();
             run.checkRoundRate();
+            run.checkRushHour();
             run.checkSwarmRange();
             run.checkDogfight();
         } finally {
@@ -360,6 +361,25 @@ public final class ShuttleTrafficChecks {
             float rate = ShuttleDogfights.getRoundRate(c[0], c[1], c[2] > 0f);
             check(Math.abs(rate - c[3]) < 0.001f, "round rate " + c[0] + " vs " + c[1] + (c[2] > 0f ? " with station" : "") + ": " + rate + ", expected " + c[3]);
         }
+    }
+
+    // every market stays within the swing, peaks near both ends, and repeats within the period range
+    private void checkRushHour() {
+        String[] ids = {"jangala", "chicomoztoc", "IndEvo_test_market", "a", ""};
+        float swing = ShuttleNetwork.RUSH_SWING;
+        for (String id : ids) {
+            float min = Float.MAX_VALUE;
+            float max = -Float.MAX_VALUE;
+            for (float day = 1000f; day < 1000f + ShuttleNetwork.RUSH_PERIOD_MAX * 2f; day += 0.05f) {
+                float value = ShuttleNetwork.getRushHour(id, day);
+                min = Math.min(min, value);
+                max = Math.max(max, value);
+            }
+            check(min >= 1f - swing - 0.001f && max <= 1f + swing + 0.001f, "rush hour '" + id + "' leaves the swing: " + min + " to " + max);
+            check(min <= 1f - swing * 0.95f && max >= 1f + swing * 0.95f, "rush hour '" + id + "' does not reach both ends: " + min + " to " + max);
+        }
+
+        check(ShuttleNetwork.getRushHour("jangala", 1000f) != ShuttleNetwork.getRushHour("chicomoztoc", 1000f), "rush hour: two markets share one phase");
     }
 
     // segment distance for the meteor swarm closure, both ends and the middle

@@ -58,7 +58,7 @@ public class ShuttleTraffic {
         if (current != location) {
             clear();
             location = current;
-            network.rebuild(location, random);
+            network.rebuild(location, random, Global.getSector().getClock().getElapsedDaysSince(0L));
             network.updateSwarms(location);
             budget.update(network.routes.values(), cap);
             fleetScan.scan(location, player);
@@ -69,7 +69,7 @@ public class ShuttleTraffic {
             if (daysSinceRebuild >= 1f) {
                 daysSinceRebuild = 0f;
                 ShuttleHullPool.dropStaleFactionPools();
-                network.rebuild(location, random);
+                network.rebuild(location, random, Global.getSector().getClock().getElapsedDaysSince(0L));
                 budget.update(network.routes.values(), cap);
                 spawner.rollRareFlights();
             }

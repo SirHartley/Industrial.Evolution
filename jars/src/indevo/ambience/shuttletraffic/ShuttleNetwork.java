@@ -61,6 +61,9 @@ public class ShuttleNetwork {
     private static final float SIGHT_RANGE = 3000f;
     private static final float SIGHT_GAP = 400f;
     public static final float SWARM_RANGE = 600f;
+    public static final float RUSH_SWING = 0.3f;
+    public static final float RUSH_PERIOD_MIN = 6f;
+    public static final float RUSH_PERIOD_MAX = 10f;
 
     public final Map<SectorEntityToken, ShuttleAnchor> anchors = new LinkedHashMap<>();
     public final Map<String, ShuttleRoute> routes = new LinkedHashMap<>();
@@ -110,13 +113,13 @@ public class ShuttleNetwork {
         return (float) Math.sqrt(cx * cx + cy * cy);
     }
 
-    public void rebuild(LocationAPI location, Random random) {
+    public void rebuild(LocationAPI location, Random random, float days) {
         for (ShuttleAnchor anchor : anchors.values()) anchor.seen = false;
         for (ShuttleRoute route : routes.values()) route.seen = false;
         marketAnchors.clear();
         decivAnchors.clear();
 
-        addMarkets(location, random);
+        addMarkets(location, random, days);
         addDecivs(location);
         addMarketLanes(random);
         addPilgrims(location, random);
@@ -225,7 +228,7 @@ public class ShuttleNetwork {
         return picker.isEmpty() ? null : picker.pick();
     }
 
-    private void addMarkets(LocationAPI location, Random random) {
+    private void addMarkets(LocationAPI location, Random random, float days) {
         for (MarketAPI market : Global.getSector().getEconomy().getMarkets(location)) {
             if (!hasTraffic(market, location)) continue;
 
@@ -236,7 +239,7 @@ public class ShuttleNetwork {
             anchor.closed = isPortDisrupted(market);
             marketAnchors.add(anchor);
 
-            float mult = getDensity(market);
+            float mult = getDensity(market) * getRushHour(market.getId(), days);
             anchor.density = mult;
             ShuttleProfile profile = ShuttleFactionRepo.get(market.getFaction());
 
@@ -621,6 +624,15 @@ public class ShuttleNetwork {
         if (raided) mult *= 0.5f;
 
         return mult;
+    }
+
+    // each market swings on its own slow sine, period and phase from its id
+    public static float getRushHour(String marketId, float days) {
+        int hash = marketId.hashCode() * 0x9E3779B1;
+        float periodFrac = ((hash >>> 8) & 0xFF) / 255f;
+        float phaseFrac = ((hash >>> 16) & 0xFF) / 255f;
+        float period = RUSH_PERIOD_MIN + periodFrac * (RUSH_PERIOD_MAX - RUSH_PERIOD_MIN);
+        return 1f + RUSH_SWING * (float) Math.sin(2.0 * Math.PI * (days / period + phaseFrac));
     }
 
     private static float getHuntWeight(MarketAPI market) {
