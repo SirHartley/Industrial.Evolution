@@ -102,7 +102,7 @@ public class ShuttleDogfight {
         for (Dogfighter fighter : fighters) {
             if (fighter.dieDelay >= 0f) {
                 fighter.dieDelay -= amount;
-                if (fighter.dieDelay < 0f) fighter.explode();
+                if (fighter.dieDelay < 0f) kill(fighter);
             }
             steer(fighter, amount);
             fighter.fly(amount);
@@ -210,6 +210,22 @@ public class ShuttleDogfight {
         }
 
         groups.add(group);
+    }
+
+    // a round the side lost on fleet points: one of its groups goes down within half a second
+    public void loseGroup(int side) {
+        DogfightGroup picked = null;
+        int seen = 0;
+        for (DogfightGroup group : groups) {
+            if (group.side != side || !group.isAlive()) continue;
+            seen++;
+            if (random.nextInt(seen) == 0) picked = group;
+        }
+        if (picked == null) return;
+
+        for (Dogfighter member : picked.members) {
+            if (member.canBeHit() && member.dieDelay < 0f) member.dieDelay = random.nextFloat() * 0.5f;
+        }
     }
 
     // a lost group is replaced 4 to 8 s later, not at once

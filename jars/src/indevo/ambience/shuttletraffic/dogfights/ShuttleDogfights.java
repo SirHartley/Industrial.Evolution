@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.loading.FighterWingSpecAPI;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -36,6 +37,8 @@ public class ShuttleDogfights {
     private static final int FALLBACK_WINGS = 4;
     private static final float REFUGE_RANGE = 1500f;
     private static final Color LASER_COLOR = new Color(255, 120, 120);
+    private static final float BLAST_MIN = 25f;
+    private static final float BLAST_MAX = 45f;
 
     private final ShuttleTraffic traffic;
     private final List<Watch> watches = new ArrayList<>();
@@ -207,6 +210,53 @@ public class ShuttleDogfights {
             watch.fight.advance(amount);
         }
         watches.removeIf(watch -> watch.fight.isOver());
+    }
+
+    // reportBattleOccurred after every autoresolve round: the fleet snapshot is from the round start, so the lost members are this round's
+    public void onRound(BattleAPI battle) {
+        Watch watch = null;
+        for (Watch entry : watches) if (entry.battle == battle && !entry.fight.isEnded()) watch = entry;
+        if (watch == null) return;
+
+        Random random = traffic.getRandom();
+        LocationAPI location = traffic.getLocation();
+        float[] lostPoints = new float[2];
+        for (CampaignFleetAPI fleet : battle.getBothSides()) {
+            DogfightFleet entry = watch.fleets.get(fleet);
+            if (entry == null || fleet.getFleetData().getSnapshot() == null) continue;
+
+            boolean survives = fleet.getFleetData().getNumMembers() > 0;
+            for (FleetMemberAPI member : Misc.getSnapshotMembersLost(fleet)) {
+                if (member.isFighterWing()) continue;
+                lostPoints[entry.side] += member.getFleetPointCost();
+
+                Vector2f point = new Vector2f(entry.loc.x + (random.nextFloat() - 0.5f) * entry.radius, entry.loc.y + (random.nextFloat() - 0.5f) * entry.radius);
+                for (int i = 0; i < 3; i++) {
+                    float size = BLAST_MIN + random.nextFloat() * (BLAST_MAX - BLAST_MIN);
+                    location.addHitParticle(new Vector2f(point), new Vector2f(entry.vel), size, 1f, 0.5f + random.nextFloat() * 0.4f, i == 0 ? Color.WHITE : new Color(255, 170, 90));
+                }
+
+                // a destroyed fleet fires its pods through reportFleetDespawned
+                if (survives && !Misc.isAutomated(member) && member.getHullSpec().getMinCrew() > 0f) {
+                    traffic.getFlights().getPods().launchFromWreck(point, getAwayHeading(watch, entry, point), fleet.getFaction());
+                }
+            }
+        }
+
+        if (lostPoints[0] > lostPoints[1]) watch.fight.loseGroup(0);
+        else if (lostPoints[1] > lostPoints[0]) watch.fight.loseGroup(1);
+    }
+
+    private float getAwayHeading(Watch watch, DogfightFleet own, Vector2f point) {
+        Vector2f sum = new Vector2f();
+        int count = 0;
+        for (DogfightFleet fleet : watch.fleets.values()) {
+            if (fleet.side == own.side || !fleet.alive) continue;
+            Vector2f.add(sum, fleet.loc, sum);
+            count++;
+        }
+        if (count == 0) return traffic.getRandom().nextFloat() * 360f;
+        return Misc.getAngleInDegrees(new Vector2f(sum.x / count, sum.y / count), point);
     }
 
     // reportBattleFinished: the primary winner's side flies its loop
