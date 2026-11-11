@@ -4,13 +4,15 @@ import com.fs.starfarer.api.campaign.BaseCampaignEventListener;
 import com.fs.starfarer.api.campaign.BattleAPI;
 import com.fs.starfarer.api.campaign.CampaignEventListener.FleetDespawnReason;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.PlayerMarketTransaction;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
 
-public class EscapePodListener extends BaseCampaignEventListener {
+// transient, added once by ShuttleTrafficRenderer.register; callbacks arrive during dialogs, so everything is queued
+public class ShuttleCampaignListener extends BaseCampaignEventListener {
 
     private final ShuttleTraffic traffic;
 
-    public EscapePodListener(ShuttleTraffic traffic) {
+    public ShuttleCampaignListener(ShuttleTraffic traffic) {
         super(false);
         this.traffic = traffic;
     }
@@ -20,5 +22,10 @@ public class EscapePodListener extends BaseCampaignEventListener {
         if (reason != FleetDespawnReason.DESTROYED_BY_BATTLE || fleet == null || fleet.isPlayerFleet()) return;
         // FleetEncounterContext passes the battle, the fleet still sits on its side
         traffic.queuePods(fleet, param instanceof BattleAPI battle ? battle : null);
+    }
+
+    @Override
+    public void reportPlayerMarketTransaction(PlayerMarketTransaction transaction) {
+        traffic.getFlights().getFleets().queueTrade(transaction);
     }
 }

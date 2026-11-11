@@ -1,5 +1,6 @@
 package indevo.ambience.shuttletraffic;
 
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -23,7 +24,8 @@ public class Shuttle {
     public enum End {
         NONE,
         PLANET,
-        STATION
+        STATION,
+        FLEET
     }
 
     public enum Trait {
@@ -72,6 +74,8 @@ public class Shuttle {
     private float delay = 0f;
     private float lastThreatNearDay = -100f;
     private ShuttleBudget.Group group = ShuttleBudget.Group.RARE;
+    // craft tied to a fleet fade with its sensor fader and never dodge it
+    private CampaignFleetAPI tiedFleet;
 
     private final List<Shuttle> followers = new ArrayList<>(2);
     private final ShuttleTrail trail;
@@ -134,6 +138,19 @@ public class Shuttle {
         this.boostTime = boostTime;
     }
 
+    public void tieTo(CampaignFleetAPI fleet) {
+        tiedFleet = fleet;
+    }
+
+    public CampaignFleetAPI getTiedFleet() {
+        return tiedFleet;
+    }
+
+    // hidden and still until the delay runs out, so a burst leaves one craft after the other
+    public void holdFor(float seconds) {
+        delay = seconds;
+    }
+
     public void stay(float days) {
         stayDays = days;
     }
@@ -170,7 +187,9 @@ public class Shuttle {
         to = newTarget;
         cleared = false;
         setState(state.redirect());
-        setPath(traffic.getPaths().redirectPath(getFrame(), pos, facing, newTarget), End.NONE, newTarget.getEnd());
+        // a fleet can leave at burn 20, a turn that moved with it would drag the craft along
+        SectorEntityToken frame = getFrame() instanceof CampaignFleetAPI ? null : getFrame();
+        setPath(traffic.getPaths().redirectPath(frame, pos, facing, newTarget), End.NONE, newTarget.getEnd());
     }
 
     public void flee(ShuttleAnchor refuge, float threatX, float threatY, ShuttleTraffic traffic) {
@@ -429,6 +448,12 @@ public class Shuttle {
         return state == ShuttleState.DOWN && waitForSafeHome;
     }
 
+    // redirect only leaves holding laps; screening, stranded and landed craft keep their own paths
+    public boolean canRedirect() {
+        return !isDone() && (state == ShuttleState.CRUISE || state == ShuttleState.HOLDING || state == ShuttleState.FLEEING
+                || state == ShuttleState.FLEEING_HOLDING);
+    }
+
     public boolean isWaiting() {
         return delay > 0f;
     }
@@ -513,7 +538,8 @@ public class Shuttle {
 
     private float getRenderAlpha(float alphaMult) {
         if (delay > 0f || state == ShuttleState.DOWN) return 0f;
-        return alpha * alphaMult;
+        float fader = tiedFleet != null && !tiedFleet.isPlayerFleet() ? tiedFleet.getSensorFaderBrightness() : 1f;
+        return alpha * alphaMult * fader;
     }
 
     private float getRearX() {
@@ -542,7 +568,7 @@ public class Shuttle {
 
     private void advanceDown(ShuttleTraffic traffic) {
         float days = traffic.getDays();
-        if (!exists(home) || to == null || !to.entity.isAlive()) {
+        if (!exists(home) || home.entity.getContainingLocation() != traffic.getLocation() || to == null || !to.entity.isAlive()) {
             done = true;
             return;
         }
@@ -644,7 +670,7 @@ public class Shuttle {
             } else {
                 alpha *= 1f - progress;
             }
-        } else if (end == End.STATION) {
+        } else if (end == End.STATION || end == End.FLEET) {
             scale *= 1f - 0.3f * progress;
             alpha *= 1f - progress;
         }

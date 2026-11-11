@@ -1,6 +1,11 @@
 package indevo.ambience.shuttletraffic;
 
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.FleetAssignment;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.ai.FleetAssignmentDataAPI;
+import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
+import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -30,12 +35,16 @@ public class ShuttleFleetScan {
         public boolean obstacle;
         public boolean threat;
         public boolean visible;
+        // ORBIT_PASSIVE fleets are loading, unloading or preparing; fleet tied flights read assignment, target and type
+        public FleetAssignment assignment;
+        public SectorEntityToken target;
+        public String type;
 
         public boolean isHostileThreat(FactionAPI to) {
             return threat && to != null && faction != null && faction.isHostileTo(to);
         }
 
-        private void set(CampaignFleetAPI fleet, boolean obstacle, boolean threat) {
+        private void set(CampaignFleetAPI fleet, boolean obstacle, boolean threat, FleetAssignmentDataAPI current) {
             this.fleet = fleet;
             this.faction = fleet.getFaction();
             this.x = fleet.getLocation().x;
@@ -46,11 +55,15 @@ public class ShuttleFleetScan {
             this.obstacle = obstacle;
             this.threat = threat;
             this.visible = fleet.isVisibleToPlayerFleet();
+            this.assignment = current != null ? current.getAssignment() : null;
+            this.target = current != null ? current.getTarget() : null;
+            this.type = fleet.getMemoryWithoutUpdate().getString(MemFlags.MEMORY_KEY_FLEET_TYPE);
         }
 
         private void clear() {
             fleet = null;
             faction = null;
+            target = null;
         }
     }
 
@@ -64,11 +77,23 @@ public class ShuttleFleetScan {
             boolean isObstacle = (isPlayer || fleet.getNumShips() >= MIN_SHIPS) && fleet.getVelocity().length() < SLOW_SPEED
                     && Misc.getDistance(player.getLocation(), fleet.getLocation()) <= RANGE;
             boolean isThreat = isPlayer || fleet.getFleetData().getFleetPointsUsed() >= THREAT_FP;
-            if (!isObstacle && !isThreat) continue;
+            FleetAssignmentDataAPI current = fleet.getAI() != null ? fleet.getAI().getCurrentAssignment() : null;
+            if (!isObstacle && !isThreat && !isTied(fleet, current)) continue;
 
             if (count == entries.size()) entries.add(new Entry());
-            entries.get(count++).set(fleet, isObstacle, isThreat);
+            entries.get(count++).set(fleet, isObstacle, isThreat, current);
         }
+    }
+
+    // fleets that may get fleet tied craft: orbiting at a market, or scavengers investigating something
+    private static boolean isTied(CampaignFleetAPI fleet, FleetAssignmentDataAPI current) {
+        if (current == null) return false;
+        if (current.getAssignment() == FleetAssignment.ORBIT_PASSIVE) return true;
+        return current.getAssignment() == FleetAssignment.PATROL_SYSTEM && current.getTarget() != null && isScavenger(fleet.getMemoryWithoutUpdate().getString(MemFlags.MEMORY_KEY_FLEET_TYPE));
+    }
+
+    public static boolean isScavenger(String type) {
+        return FleetTypes.SCAVENGER_SMALL.equals(type) || FleetTypes.SCAVENGER_MEDIUM.equals(type) || FleetTypes.SCAVENGER_LARGE.equals(type);
     }
 
     public int getCount() {

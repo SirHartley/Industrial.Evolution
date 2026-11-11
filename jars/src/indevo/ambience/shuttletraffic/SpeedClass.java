@@ -4,19 +4,22 @@ import com.fs.starfarer.api.Global;
 
 // one day is 10 s, so cruise speed is also reach per day
 public enum SpeedClass {
-    CIVIL(1f, 0f),
-    SERVICE(1.8f, 0f),
-    MILITARY(0f, 75f);
+    CIVIL(1f, 0f, 0.35f),
+    SERVICE(1.8f, 0f, 0.15f),
+    MILITARY(0f, 75f, 0.35f);
 
     // mean of the fighter and frigate civil speeds in ShuttleHull
     private static final float MEAN_CIVIL_SPEED = 27f;
 
     private final float hullMult;
     private final float fixedSpeed;
+    // share of cruise speed at the very end of a launch or landing
+    public final float minEase;
 
-    SpeedClass(float hullMult, float fixedSpeed) {
+    SpeedClass(float hullMult, float fixedSpeed, float minEase) {
         this.hullMult = hullMult;
         this.fixedSpeed = fixedSpeed;
+        this.minEase = minEase;
     }
 
     public float getCruiseSpeed(ShuttleHull hull) {

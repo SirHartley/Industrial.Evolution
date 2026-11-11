@@ -9,7 +9,9 @@ import indevo.ambience.shuttletraffic.flights.ShuttlePaths;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class ShuttleTraffic {
@@ -25,6 +27,8 @@ public class ShuttleTraffic {
     private final ShuttleReactions reactions = new ShuttleReactions(this);
     private final List<Shuttle> shuttles = new ArrayList<>();
     private final List<Shuttle> pods = new ArrayList<>();
+    // keyed by kind and fleet or market id, outside the daily network rebuild that drops every route it did not re-add
+    private final Map<String, ShuttleRoute> fleetRoutes = new LinkedHashMap<>();
 
     private LocationAPI location;
     private float time = 0f;
@@ -38,6 +42,7 @@ public class ShuttleTraffic {
         if (cap <= 0 || current == null || current.isHyperspace()) {
             if (location != null) clear();
             flights.getPods().clearQueue();
+            flights.getFleets().clearQueue();
             return;
         }
 
@@ -72,10 +77,12 @@ public class ShuttleTraffic {
             fleetScan.scan(location, player);
             reactions.updateThreats();
             reactions.react();
+            flights.getFleets().update();
         }
 
         spawner.spawn(amount);
         flights.getPods().launchQueued();
+        flights.getFleets().launchQueued();
         advance(shuttles, amount);
         advance(pods, amount);
     }
@@ -128,10 +135,15 @@ public class ShuttleTraffic {
         return pods;
     }
 
+    public Map<String, ShuttleRoute> getFleetRoutes() {
+        return fleetRoutes;
+    }
+
     private void clear() {
         shuttles.clear();
         pods.clear();
         network.clear();
+        fleetRoutes.clear();
         fleetScan.clear();
         location = null;
         daysSinceRebuild = 0f;

@@ -75,10 +75,9 @@ public class ShuttleNetwork {
         marketAnchors.clear();
         decivAnchors.clear();
 
-        Map<ShuttleAnchor, Float> density = new HashMap<>();
-        addMarkets(location, random, density);
+        addMarkets(location, random);
         addDecivs(location);
-        addMarketLanes(random, density);
+        addMarketLanes(random);
         addPirateHops(random);
         addHunts(random);
         addMaintenance(location, random);
@@ -183,7 +182,7 @@ public class ShuttleNetwork {
         return picker.isEmpty() ? null : picker.pick();
     }
 
-    private void addMarkets(LocationAPI location, Random random, Map<ShuttleAnchor, Float> density) {
+    private void addMarkets(LocationAPI location, Random random) {
         for (MarketAPI market : Global.getSector().getEconomy().getMarkets(location)) {
             if (!hasTraffic(market, location)) continue;
 
@@ -195,7 +194,7 @@ public class ShuttleNetwork {
             marketAnchors.add(anchor);
 
             float mult = getDensity(market);
-            density.put(anchor, mult);
+            anchor.density = mult;
 
             SectorEntityToken sight = findSight(anchor, location, random);
             if (sight != null) getRoute(ShuttleRoute.Kind.CRUISE, anchor, null, random).target = new ShuttleTarget(sight, 0f, 0f, 0f, 0f);
@@ -247,7 +246,7 @@ public class ShuttleNetwork {
         }
     }
 
-    private void addMarketLanes(Random random, Map<ShuttleAnchor, Float> density) {
+    private void addMarketLanes(Random random) {
         for (int i = 0; i < marketAnchors.size(); i++) {
             for (int j = i + 1; j < marketAnchors.size(); j++) {
                 ShuttleAnchor a = marketAnchors.get(i);
@@ -259,7 +258,7 @@ public class ShuttleNetwork {
                     continue;
                 }
 
-                float mult = (density.get(a) + density.get(b)) / 2f * (a.market.getSize() + b.market.getSize()) / 10f;
+                float mult = (a.density + b.density) / 2f * (a.market.getSize() + b.market.getSize()) / 10f;
                 float chord = Misc.getDistance(a.getLocation(), b.getLocation());
                 ShuttleRoute route = getRoute(ShuttleRoute.Kind.MARKET, a, b, random);
                 route.demand = Math.max(2, Math.round(chord / LANE_SPACING * mult));

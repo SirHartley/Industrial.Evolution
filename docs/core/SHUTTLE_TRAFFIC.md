@@ -2,7 +2,7 @@
 
 Visual only small craft in the player's current star system: cargo lanes between markets and to orbital stations, pleasure cruises, patrol pickets, training flights, mining and salvage runs, pirate cargo hops, scavenging hunts, smugglers, diplomats, maintenance runs, traffic that scatters from hostile fleets, and escape pods from fleets destroyed in battle. Read it before touching `indevo/ambience/shuttletraffic/`, `data/config/indEvo/shuttle_traffic.csv` or `IndEvo_shuttleTraffic`. It does not cover real fleets or trade routes; nothing here changes the economy.
 
-Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`) and IE `dev` after stages 3, 4 and 4a of the shuttle traffic plan. Recheck engine facts after a game update.
+Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`) and IE `dev` after stages 3 to 5 of the shuttle traffic plan. Recheck engine facts after a game update.
 
 ## Overview
 
@@ -19,37 +19,39 @@ Package `indevo/ambience/shuttletraffic/`:
 | File | Owner / role |
 |---|---|
 | `renderers/ShuttleTrafficRenderer.java` | `LunaCampaignRenderingPlugin`: registration, pause, zoom fade, viewport cull, render order (trails of a list in one GL state block, then sprites) |
-| `ShuttleTraffic.java` | Context for one location: network, random, fleet scan, flights, spawner, reactions, craft and pod lists, own day count; location change, daily rebuild, 0.25 s scan |
+| `ShuttleTraffic.java` | Context for one location: network, random, fleet scan, flights, spawner, reactions, craft and pod lists, fleet routes (own map, outside the daily rebuild), own day count; location change, daily rebuild, 0.25 s scan |
 | `ShuttleSpawner.java` | Warm start, rare route rolls, timer launches under the cap share |
 | `ShuttleReactions.java` | Anchor threats, fleeing, screening, closed port diverts |
 | `ShuttleNetwork.java` | Anchors and routes for one location, density, closed ports, mining and salvage targets, refuge lookup, star and planet avoidance (`getBend`), hunt planets |
 | `flights/ShuttleFlights.java` | One `Flight` per `ShuttleRoute.Kind` in an `EnumMap`; throws when a kind has none |
 | `flights/LaneFlights.java`, `LocalFlights.java`, `PodFlights.java` | Lane flights (lanes, diplomats, hunts); local flights (cruises, pickets, training, mining and salvage lingers, maintenance) and formations; escape pod queue and launch |
-| `flights/ShuttlePaths.java`, `BaseFlights.java` | Every path builder (lanes, redirect, flee, away, hold, screen, cruise, linger, loop); shared flight helpers (`canFly`, `create`) |
-| `ShuttleAnchor.java` | One launch or landing place: type (`PLANET`, `STATION`), role, pad depth, landing length, pad busy time, threat state |
-| `ShuttleRoute.java` | One route: kind, anchors, optional target, bend, in flight limit, timer or daily chance |
+| `flights/FleetFlights.java` | Fleet tied flights: service shuttles for fleets in orbit at a market, player trade shuttles, scavenger survey shuttles; routes per fleet, launches, ending a route |
+| `flights/ShuttlePaths.java`, `BaseFlights.java` | Every path builder (lanes, service hops, redirect, flee, away, hold, screen, cruise, linger, loop); shared flight helpers (`canFly`, `create`) |
+| `ShuttleAnchor.java` | One launch or landing place: type (`PLANET`, `STATION`, `FLEET`), role, pad depth, landing length, pad busy time, threat state, density |
+| `ShuttleRoute.java` | One route: kind, anchors, optional target or fleet, bend, in flight limit, timer or daily chance |
 | `ShuttleTarget.java` | A point relative to an entity, for mining belts, debris fields, wrecks and objectives |
-| `movement/ShuttlePath.java` | Segment chain with arc length tables: `BezierSegment`, `CircleSegment` (circle or rotated ellipse); waypoints on an anchor pad, fixed, relative to an entity, or at the start or end of another segment |
+| `movement/ShuttlePath.java` | Segment chain with arc length tables: `BezierSegment`, `CircleSegment` (circle or rotated ellipse); waypoints on an anchor pad, on a fleet (`FleetWaypoint`), fixed, relative to an entity, or at the start or end of another segment |
 | `movement/PathMover.java` | Moves a craft along its path: cursor, easing, jitter, fleet avoidance, virtual frame |
 | `movement/FollowMover.java` | Moves a formation follower on its leader's history |
 | `Shuttle.java` | One craft: state, traits, route, ends, stays, landing and docking look, docking queue, fleeing, stranded hold, picket screening, rendering |
 | `ShuttleState.java` | Craft states (`CRUISE`, `HOLDING`, `FLEEING`, `FLEEING_HOLDING`, `ESCAPING`, `STRANDED`, `SCREENING`, `DOWN`), pace, turn rate and the legal transitions; an illegal one throws |
 | `ShuttleLook.java` | Immutable look per flight: glow, trail alpha, width and seconds, glow flicker, pod tumble |
-| `ShuttleBudget.java` | Cap split into lanes, local and rare groups: local reserve, scaled lane counts, room per group |
+| `ShuttleBudget.java` | Cap split into lanes, local and rare groups: local reserve, scaled lane counts, room per group; fleet tied craft have their own cap of `setting / 4` on top |
 | `SpeedClass.java` | Speed classes (`CIVIL`, `SERVICE`, `MILITARY`), the mean speed per class for launch intervals, `canReach` |
 | `ShuttleTrail.java` | Trail (by time) and formation history (by distance) ring buffers relative to the virtual frame, trail rendering |
-| `ShuttleFleetScan.java` | Pooled entries for fleets near the player and threat fleets in the location, rebuilt every 0.25 s |
+| `ShuttleFleetScan.java` | Pooled entries for fleets near the player, threat fleets and `ORBIT_PASSIVE` fleets in the location, with assignment, target and fleet type, rebuilt every 0.25 s |
 | `ShuttleHull.java` | Hull look (sprite, engine colours, cached per hull id), size, speed, flags, wing size |
 | `ShuttleHullPool.java` | Base pool from the CSV, faction pools, crew rule, rolls per flight kind, escape pod hull |
-| `listeners/EscapePodListener.java` | Transient `BaseCampaignEventListener`: queues fleets destroyed in battle |
-| `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, budget split, state transitions, trail length by time |
+| `listeners/ShuttleColonyListener.java` | Transient `ColonyPlayerHostileActListener`: queues raid dropships and evacuation pods |
+| `listeners/ShuttleCampaignListener.java` | Transient `BaseCampaignEventListener`: queues fleets destroyed in battle (pods) and player market transactions (trade shuttles) |
+| `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, budget split, state transitions, trail length by time, service hops to a fleet in orbit and the turn back when it leaves |
 | `data/config/indEvo/shuttle_traffic.csv` | Base civilian craft: `id, hullId, weight, small` |
 
 ## Data and ids
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Setting | `IndEvo_shuttleTraffic` (Int, 60, 0 to 120): most craft in flight in the current system, 0 turns traffic and escape pods off | `data/config/LunaSettings.csv:13`, `indevo/config/Setting.java:10`, read every frame in `ShuttleTrafficRenderer.advance` (`renderers/ShuttleTrafficRenderer.java:53`) |
+| Setting | `IndEvo_shuttleTraffic` (Int, 60, 0 to 120): most craft in flight in the current system; fleet tied craft fly on top, up to `setting / 4`; 0 turns traffic, fleet craft and escape pods off | `data/config/LunaSettings.csv:13`, `indevo/config/Setting.java:10`, read every frame in `ShuttleTrafficRenderer.advance` (`renderers/ShuttleTrafficRenderer.java:53`) |
 | CSV | `data/config/indEvo/shuttle_traffic.csv`, read with `getMergedSpreadsheetDataForMod("id", path, "IndEvo")`; rows starting with `#` are skipped | `ShuttleHullPool.getBasePool` |
 | Sprites | `campaignEntities` / `fusion_lamp_glow` (engine glow); hull sprites from `ShipHullSpecAPI.getSpriteName()`, the vanilla `mining_drone` hull for escape pods | `ShuttleTrafficRenderer`, `ShuttleHullPool.getPod` (`:114`) |
 | Config | `data/config/engine_styles.json` (merged): `engineCampaignColor` or `engineColor` for the glow, `contrailCampaignColor` or `contrailColor` at alpha 75 for the trail, `type` `SMOKE` for a normal blend trail | `ShuttleHullPool.getEngineLook` |
@@ -59,7 +61,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> ShuttleTrafficRenderer.register()` (`indevo/utils/ModPlugin.java:493`). Guarded with `LunaCampaignRenderer.hasRendererOfClass`; resets the hull pool caches, adds a transient renderer and a transient `EscapePodListener` (`Global.getSector().addTransientListener`) (`renderers/ShuttleTrafficRenderer.java:30`).
+- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> ShuttleTrafficRenderer.register()` (`indevo/utils/ModPlugin.java:493`). Guarded with `LunaCampaignRenderer.hasRendererOfClass`; resets the hull pool caches, adds a transient renderer, a transient `ShuttleCampaignListener` (`Global.getSector().addTransientListener`) and a transient `ShuttleColonyListener` (`getListenerManager().addListener(x, true)`) (`renderers/ShuttleTrafficRenderer.java:30`).
 - LunaLib's `luna_campaign_renderer` entity renders the plugin in every layer and only advances it while that entity is in the player's location.
 
 `ShuttleTrafficRenderer.advance -> ShuttleTraffic.advance -> [location changed] network.rebuild -> fleetScan.scan -> reactions.updateThreats -> spawner.warmStart | [1 day] ShuttleHullPool.dropStaleFactionPools -> network.rebuild -> spawner.rollRareFlights -> [0.25 s] fleetScan.scan -> reactions.updateThreats -> reactions.react -> spawner.spawn -> PodFlights.launchQueued -> Shuttle.advance -> PathMover or FollowMover`
@@ -92,7 +94,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 | `CRUISE` | Every market and Remnant battlestation with a sight in range | 1 (a tour, race or patrol counts once) | local |
 | `TRAINING` | Market with an Academy and a sight; a loose group of 2 or 3 flies the cruise circuit | 1 group | local |
 
-- Budget (`ShuttleBudget`, `ShuttleBudget.update` after every rebuild and when the setting changes): the network writes each route's demand, the budget sets `route.max`. Local flights reserve `min(local demand, cap / 4)` craft, local demand counting `Kind.craftPerFlight` per flight (pickets and cruises 2, training 3). Lanes get the rest: when lane demand is higher, every lane's demand is scaled by `budget / demand`, at least 1. A group may launch into free room the other reserve does not hold; rare flights fit wherever there is room. Formations and races count each craft; pods are not counted.
+- Budget (`ShuttleBudget`, `ShuttleBudget.update` after every rebuild and when the setting changes): the network writes each route's demand, the budget sets `route.max`. Local flights reserve `min(local demand, cap / 4)` craft, local demand counting `Kind.craftPerFlight` per flight (pickets and cruises 2, training 3). Lanes get the rest: when lane demand is higher, every lane's demand is scaled by `budget / demand`, at least 1. A group may launch into free room the other reserve does not hold; rare flights fit wherever there is room. Formations and races count each craft; pods are not counted. Fleet tied craft (`Group.FLEET`, routes in `ShuttleTraffic.getFleetRoutes`) have their own cap, `setting / 4` (15 at the default 60), on top of the setting, 0 when the setting is 0.
 - Warm start fills routes in rounds, one flight per route per round, so the first routes in the map do not take the whole cap.
 - Timer routes (`ShuttleSpawner.spawn`, `:40`): lanes `(distance / mean speed + 6) / max * (0.6..1.4)` s, mean speed from the kind's `SpeedClass` (27 su/s civil), others `Kind.pause * (0.6..1.4)` s. Rare routes roll their chance once per day (`rollRareFlights`, `:33`) and launch when the roll is pending.
 - Warm start fills every timer route to its limit at spread progress, trails (by age) and formation history pre-filled.
@@ -126,7 +128,7 @@ Fighters on pickets fly as a wing of `wingSize` (at most 3); training groups are
 
 ### Fleet avoidance
 
-`ShuttleFleetScan.scan` (`:57`) every 0.25 s: obstacles are fleets that are not `isStationMode()`, slower than 40 su/s, within 3000 su of the player, and either the player fleet or 5 or more ships. `PathMover.getAvoidanceTarget` (`:193`) pushes the craft along the path normal to clear `fleet radius + 40`, to the side it is already on, easing at 20 su/s, fading out over the first and last 15% of a path. Fleeing craft also avoid hostile threats at any speed.
+`ShuttleFleetScan.scan` every 0.25 s also keeps every fleet with `FleetAssignment.ORBIT_PASSIVE`, with its assignment, target and `MemFlags.MEMORY_KEY_FLEET_TYPE`, for fleet tied flights. Obstacles are fleets that are not `isStationMode()`, slower than 40 su/s, within 3000 su of the player, and either the player fleet or 5 or more ships. `PathMover.getAvoidanceTarget` (`:193`) pushes the craft along the path normal to clear `fleet radius + 40`, to the side it is already on, easing at 20 su/s, fading out over the first and last 15% of a path. Fleeing craft also avoid hostile threats at any speed. A craft tied to a fleet never avoids that fleet.
 
 ### Danger
 
@@ -139,9 +141,37 @@ Fighters on pickets fly as a wing of `wingSize` (at most 3); training groups are
 - Pickets never flee from nearby threats: while their market is threatened they fly 120 su circles at 60% speed centred `radius + 250` su toward the threat, and land once it leaves. If the market is overrun they scatter like the rest. Remnant drones never flee.
 - A closed port (disrupted, or the anchor dropped) diverts inbound craft calmly to a refuge without disarray.
 
+### Fleet service shuttles
+
+`FleetFlights.update` runs after every fleet scan (0.25 s). No listener covers it: `reportFleetReachedEntity` fires on arrival only and misses fleets spawned in orbit, fleets already orbiting when the player enters, and the end of the orbit.
+
+- A fleet gets a `FLEET_SERVICE` route (key `FLEET_SERVICE|<fleet id>` in `ShuttleTraffic.getFleetRoutes`) while all hold: assignment `FleetAssignment.ORBIT_PASSIVE` (vanilla: trade and smuggling fleets loading or unloading, patrols preparing or standing down, route fleets at their source), not the player, not in station mode, visible to the player (`getVisibilityLevelToPlayerFleet()` not `NONE`), the assignment target is a market anchor or the fleet is within 400 su of one, the anchor is usable and not hostile to the fleet, and the fleet is within 1500 su of the anchor's surface.
+- Craft in the air: trade and every other type `clamp(2 + ships / 3, 3, 8)` times the anchor density; `FleetTypes.TRADE_SMUGGLER` 2 or 3 with the smuggler look and the far side pad; `PATROL_SMALL`, `_MEDIUM`, `_LARGE` 2 or 3 at civil speed. Launch interval as for lanes, flight time / count.
+- Each flight is one way, 50/50 pad to fleet or fleet to pad. Pad to fleet: 70% base small craft, else the pad faction's civilian small craft. Fleet to pad: the fleet faction's small craft.
+- Service speed (x1.8 of civil, 54 su/s fighters), easing to 15% at the ends, 1 s trail, steadier glow (`ShuttleLook.SERVICE`). Path (`ShuttlePaths.servicePath`): one Bezier from a pad turned toward the fleet (+-30 degrees) to a `FleetWaypoint`, the fleet's location plus a fixed random offset within half its radius; handles `min(80, distance * 0.35)`. Fleet end at the fleet, planet or station look at the pad, no docking queue. They never dodge their own fleet, dodge others and flee like other traffic.
+- Route end (the fleet's assignment changes, it moves past 1500 su, despawns or is no longer visible): no more launches; craft flying to the fleet turn back to the pad on a path that starts where they are (a fleet frame is never used for the turn); craft from the fleet carry on. If the fleet is gone or its sensor fader is at 0, all its craft are removed.
+
+### Player trade shuttles
+
+- `ShuttleCampaignListener.reportPlayerMarketTransaction` sums cargo space, fuel and personnel bought and sold per market while the dialog is open (`FleetFlights.queueTrade`). The submarket is the one the trade screen traded with (`getSubmarketTradedWith()`, knowledge skill `obf/campaign/ui/class.java:693`).
+- When no dialog shows (`FleetFlights.launchQueued`): if the market's primary entity is a traffic anchor and the player is within 600 su of it, `clamp(moved / 200, 2, 8)` craft launch over 3 s (`Shuttle.holdFor`), pad to fleet when more was bought, else fleet to pad. Service speed and look; black market trades (`Submarkets.SUBMARKET_BLACK`) or a transponder off give dark craft with the smuggler look.
+- A `TRADE` route per market pad holds the burst (the spawner never launches it); when the player moves more than 600 su from the pad, craft flying to the fleet turn back.
+
+### Scavenger survey shuttles
+
+- A scavenger fleet (`FleetTypes.SCAVENGER_SMALL`, `_MEDIUM`, `_LARGE`) that is "investigating" has `FleetAssignment.PATROL_SYSTEM` with a target entity (`ScavengerFleetAssignmentAI:63`). While it is visible, within 600 su of the target's surface and slower than 60 su/s, it gets a `SURVEY` route (`FleetFlights.updateSurvey`) that launches 1 to 3 shuttles once, 3 s apart, and keeps the route while the fleet investigates so it never sends more.
+- Shuttle Pod, Kite or Mudskipper, service speed, hunt look. To a planet: out of the fleet to a pad, stay 1 to 2 days, then a lane back into the fleet. To anything else: out of the fleet, two laps 60 su outside the target at 60% speed, back into the fleet (`ShuttlePaths.surveyLapPath`).
+- When the fleet stops investigating, its shuttles fly back on their own; if it despawns, leaves or is out of sight, they are removed.
+
+### Raids and bombardments
+
+- `ShuttleColonyListener`: `reportRaidForValuablesFinishedBeforeCargoShown` and `reportRaidToDisruptFinished` queue 4 to 8 dropships (`FleetFlights.queueRaid`); `reportSaturationBombardmentFinished` queues 12 to 20 evacuation pods, `reportTacticalBombardmentFinished` 4 to 6 (`PodFlights.queueEvacuation`, planets only). Both launch once no dialog shows.
+- Dropships: the player faction's fighters (fallback Talon), military speed, from the market's pad to the player fleet, 3 s apart, fleet tied (fleet cap), never flee.
+- Evacuation pods: the escape pod hull at 35 su/s, no tumble, on lanes from the planet to a random other usable market anchor, 0.25 s apart, in the pod list (cap 32). No pods without another port.
+
 ### Escape pods
 
-- `EscapePodListener.reportFleetDespawned` (`:18`) on `FleetDespawnReason.DESTROYED_BY_BATTLE`, not the player fleet, in the player's location. `CampaignFleet.despawn` reports while the fleet is still in place (knowledge skill `obf/campaign/fleet/CampaignFleet.java:1599`).
+- `ShuttleCampaignListener.reportFleetDespawned` on `FleetDespawnReason.DESTROYED_BY_BATTLE`, not the player fleet, in the player's location. `CampaignFleet.despawn` reports while the fleet is still in place (knowledge skill `obf/campaign/fleet/CampaignFleet.java:1599`).
 - Bursts (`PodFlights.getBursts`): from `getFleetData().getSnapshot()`, crewed non automated members only, one burst per ship: 2 pods per frigate or destroyer, 3 per cruiser or capital, at most 16 pods per fleet; an empty snapshot gives one burst of 3.
 - Away heading (`getAwayHeading`): `FleetEncounterContext` passes the `BattleAPI` as the despawn param (knowledge skill `api/impl/campaign/FleetEncounterContext.java:827`); pods fan away from the centre of `battle.getOtherSideFor(fleet)`, else from the nearest hostile threat in the scan within 3000 su, else in random directions.
 - Planet (`findPodPlanet`): nearest non star planet whose surface is within 2000 su; a non hostile market planet in range wins over a closer one.
@@ -155,6 +185,7 @@ Fighters on pickets fly as a wing of `wingSize` (at most 3); training groups are
 - Everything draws in `TERRAIN_7`: above planets, rings, asteroids and stations, below fleets. Planet launch and landing over `1.2 * radius` (at most 40% of the path): scale to 0.5, 30% darker, and the craft fades only while over the surface, from the limb to the pad. Station docking over 60 su: scale to 0.7, alpha to 0. A craft pulled out of a landing (fleeing, holding) fades back over 1 s.
 - Facing follows the path tangent plus the rate of the sideways offset, turning at most 90 degrees per second, never the world step, so orbiting anchors do not swing the sprite or trail.
 - Trail by time (`ShuttleTrail`): where the rear was during the last `ShuttleLook.trailSeconds` (craft 1.5 s, pods 0.8 s), so its length is `speed * trailSeconds`: about 36 su for a civil frigate, 112 su for military craft, 13 su while easing off a pad. Points carry an age, one every `trailSeconds / 15` s from a time accumulator (16 points plus one past the cut); points older than `trailSeconds` drop and the tail is cut at exactly `trailSeconds` between the last two points. Ages only advance in `advance`, so a paused trail holds still. Untextured `GL_QUAD_STRIP`, alpha and width fade by age, the oldest point always fades to nothing. Head width `min(3 su, 0.5 * drawn width)`, so it thins as the craft descends; alpha times throttle, `clamp(speed / class cruise speed, 0.4, 1)`. Engine style colour and blend. The warm start fills the trail by age. Smugglers: 30% trail, no glow. Hunts: 50% trail, heavier glow flicker.
+- Fleet end (`Shuttle.End.FLEET`, an anchor of type `FLEET` around the fleet): over the last or first 30 su the craft shrinks to 0.7 and fades, like station docking. Craft tied to a fleet fade with its `getSensorFaderBrightness()`. Easing at the ends goes down to 35% of cruise speed, 15% for the service class (`SpeedClass.minEase`).
 - Engine glow at the rear, `0.7 * drawn width`, flickering (rolled in `advance`, so it holds still while paused), 1.3x for 2 s around launch and landing. No floor: a glow is never wider than its craft, pods included. No blinking lights.
 - Traffic fades out between view mult 2 and 3 (max campaign zoom is 3). Off viewport craft (300 su margin) are skipped.
 
@@ -180,7 +211,7 @@ A station pad is busy while a craft is in its last 100 su and 1 s after. A craft
 | Item | State |
 |---|---|
 | In game look | Tests (2026-11-08) fixed: rubberbanding, nervous trails, blinking lights, loop joyrides (now cruises), craft vanishing under planets, sprite size, trails out of line with the craft between moving bodies, lanes through the star. Untested in game: star pass, market lanes, blended trail frame, cruises, pod bursts, formation break up, trails by time, sizes and glow, engine colours from slots (before this every hull used manufacturer colours, the slot lookup always failed) |
-| Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split, states and trail length, not flights, reactions or rendering. It runs on its own, not in `ReleaseBuild` |
+| Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split, states, trail length and service hops, not flights, reactions or rendering. It runs on its own, not in `ReleaseBuild` |
 | Performance | Live smoke `shuttle` group (2026-11-08, before market lanes): 55 craft at Sindria, all of `shuttletraffic` 0.4% of CPU and allocation |
 
 ## Checks

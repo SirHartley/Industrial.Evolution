@@ -150,8 +150,9 @@ public class PathMover {
         }
 
         float ease = 1f;
-        if (launchLength > 0f && traveled < launchLength) ease = Math.min(ease, 0.35f + 0.65f * smooth(traveled / launchLength));
-        if (landLength > 0f && remaining < landLength) ease = Math.min(ease, 0.35f + 0.65f * smooth(remaining / landLength));
+        float minEase = shuttle.getSpeedClass().minEase;
+        if (launchLength > 0f && traveled < launchLength) ease = Math.min(ease, minEase + (1f - minEase) * smooth(traveled / launchLength));
+        if (landLength > 0f && remaining < landLength) ease = Math.min(ease, minEase + (1f - minEase) * smooth(remaining / landLength));
 
         float speed = shuttle.getSpeed(ease) * path.getSpeedMult(cursor);
         shuttle.setThrottle(speed);
@@ -202,6 +203,7 @@ public class PathMover {
 
         for (int i = 0; i < scan.getCount(); i++) {
             ShuttleFleetScan.Entry entry = scan.get(i);
+            if (entry.fleet == shuttle.getTiedFleet()) continue;
             if (!entry.obstacle && !(fleeing && entry.isHostileThreat(shuttle.faction))) continue;
 
             float dx = base.x - entry.x;

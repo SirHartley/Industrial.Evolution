@@ -1,5 +1,7 @@
 package indevo.ambience.shuttletraffic;
 
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+
 import java.util.Random;
 
 public class ShuttleRoute {
@@ -16,7 +18,10 @@ public class ShuttleRoute {
         SALVAGE(ShuttleBudget.Group.LOCAL, 1, 20f, SpeedClass.CIVIL),
         PICKET(ShuttleBudget.Group.LOCAL, 2, 10f, SpeedClass.MILITARY),
         CRUISE(ShuttleBudget.Group.LOCAL, 2, 15f, SpeedClass.CIVIL),
-        TRAINING(ShuttleBudget.Group.LOCAL, 3, 20f, SpeedClass.MILITARY);
+        TRAINING(ShuttleBudget.Group.LOCAL, 3, 20f, SpeedClass.MILITARY),
+        FLEET_SERVICE(ShuttleBudget.Group.FLEET, 1, 0f, SpeedClass.SERVICE),
+        TRADE(ShuttleBudget.Group.FLEET, 1, 0f, SpeedClass.SERVICE),
+        SURVEY(ShuttleBudget.Group.FLEET, 1, 3f, SpeedClass.SERVICE);
 
         public final ShuttleBudget.Group group;
         // typical craft per launch, formations and races count each craft against the cap
@@ -43,6 +48,8 @@ public class ShuttleRoute {
     public final ShuttleAnchor b;
     public final float bendFrac;
     public ShuttleTarget target;
+    // fleet tied routes: the fleet the craft fly to and from, b is its fleet anchor
+    public CampaignFleetAPI fleet;
     // flights the route asks for, set in the network rebuild
     public int demand = 1;
     // flights in the air the budget allows
