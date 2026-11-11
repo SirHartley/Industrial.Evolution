@@ -25,6 +25,9 @@ Machine: DESKTOP-EDL72JL, Windows 10 Pro 19045, Git Bash, 16 threads. Game: `E:\
 | T15 | PASS | With `DEPS=(lw_lazylib)` and a held game stopped as printed, five junctions left (LazyLib among them). `clean <work_root>/smoketest`: `Removed ...`; LazyLib still holds its 13 files, P intact. `clean` on the game folder and on P: `REFUSED`, exit 1 | |
 | T16 | PASS | `--perf`: `MODE perf, other games during the run: 0`, COMPLETE | |
 | T17 | PASS | Ran as shard 2 of T13: `listener got the planet`, `market is player owned`, `spaceport exists`, `size (got 4, want 4)` | |
+| T18 | PASS | `run-native-smoke.ps1` without a slot: `NO_SLOT: ...` naming `smoke.sh probe` and the `smoke-slot.sh run OWNER -- powershell ...` wrapper, exit 1, no output folder, no game | |
+| T19 | PASS | `smoke.sh probe IE native-smoke/IndEvoNativeSmoke.java` with `SMOKE_MOD_JAR` from IE's compile gate: slot 1 taken, output `work_root/indevo/probe-20261112-000313-slot1`, deps lunalib, lw_lazylib, MagicLib, shaderLib found by id, `NATIVE_SMOKE COMPLETE` with 3 ok, `boot.png` shows the IE tooltip and the Simulation Engine icon, slot freed. With `SMOKE_PATCHLIB=0` (as IE's own `native-smoke/run.ps1` sets) the runner refuses: IE depends on PatchLib now | |
+| T19b | PASS | Installed `starsector-combat-smoke` (it calls the installed native runner, 2.0.0). Bare `run-combat-smoke.ps1`: `NO_SLOT`, exit 1. Through `smoke-slot.sh run smoketest.combat -- powershell ...` with a vanilla probe (wolf firing): `NATIVE_SMOKE COMPLETE`, `wolf.png` shows the ship and its shot, slot freed | |
 
 ## Fixes
 
