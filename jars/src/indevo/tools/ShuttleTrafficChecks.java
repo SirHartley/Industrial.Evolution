@@ -13,6 +13,7 @@ import indevo.ambience.shuttletraffic.ShuttleNetwork;
 import indevo.ambience.shuttletraffic.ShuttleTrail;
 import indevo.ambience.shuttletraffic.flights.ShuttlePaths;
 import indevo.ambience.shuttletraffic.movement.Dodge;
+import indevo.ambience.shuttletraffic.movement.SteerMover;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -95,6 +96,7 @@ public final class ShuttleTrafficChecks {
             run.checkTrail();
             run.checkFleetHop();
             run.checkDodge();
+            run.checkSteer();
         } finally {
             Global.setSettings(null);
         }
@@ -259,6 +261,61 @@ public final class ShuttleTrafficChecks {
         }
 
         return min;
+    }
+
+    // a craft launched 400 su to the side reaches a slot 45 su ahead and 30 su beside a fleet, then holds it, straight and turning
+    private void checkSteer() {
+        for (float burn : new float[]{1f, 5f, 9f}) {
+            float fleetSpeed = burn * 20f;
+            for (float turnRadius : new float[]{0f, 2000f}) {
+                for (float rate : RATES) {
+                    float dt = 1f / rate;
+                    Vector2f fleet = new Vector2f(0f, 0f);
+                    float heading = 0f;
+                    SteerMover steer = new SteerMover(new Vector2f(0f, 400f), new Vector2f());
+                    Vector2f slot = new Vector2f();
+                    Vector2f slotVel = new Vector2f();
+                    float reached = -1f;
+                    float worst = 0f;
+                    float time = 0f;
+
+                    while (time < 60f) {
+                        time += dt;
+                        float turn = turnRadius > 0f ? fleetSpeed / turnRadius : 0f;
+                        heading += turn * dt;
+                        float hx = (float) Math.cos(heading);
+                        float hy = (float) Math.sin(heading);
+                        fleet.x += hx * fleetSpeed * dt;
+                        fleet.y += hy * fleetSpeed * dt;
+
+                        float ahead = 45f;
+                        float side = 30f;
+                        slot.set(fleet.x + hx * ahead - hy * side, fleet.y + hy * ahead + hx * side);
+                        // slot velocity: fleet velocity plus the turn of the offset
+                        slotVel.set(hx * fleetSpeed - turn * (hy * ahead + hx * side), hy * fleetSpeed + turn * (hx * ahead - hy * side));
+                        steer.steer(dt, slot.x, slot.y, slotVel.x, slotVel.y, SteerMover.getDashSpeed(fleetSpeed));
+
+                        float off = Vector2f.sub(steer.pos, slot, null).length();
+                        // one frame of a burn 9 fleet is 6 su at 30 Hz
+                        if (reached < 0f && off <= 10f) reached = time;
+                        else if (reached >= 0f) worst = Math.max(worst, off);
+                    }
+
+                    String name = "steer at burn " + (int) burn + (turnRadius > 0f ? ", turning" : "") + ", " + rate + " Hz";
+                    check(reached >= 0f, name + ": never reached the slot");
+                    check(worst <= 20f, name + ": drifted " + worst + " su off the slot after reaching it");
+                    if (rate == 60f && turnRadius == 0f) notes.add(name + ": slot reached after " + String.format("%.1f", reached) + " s, off by at most "
+                            + String.format("%.1f", worst) + " su after");
+                }
+            }
+        }
+
+        Vector2f from = new Vector2f(0f, 1000f);
+        float t = SteerMover.interceptTime(from, new Vector2f(0f, 0f), new Vector2f(180f, 0f), 240f);
+        Vector2f meet = new Vector2f(180f * t, 0f);
+        check(!Float.isNaN(t) && Math.abs(Vector2f.sub(meet, from, null).length() - 240f * t) < 1f, "intercept time " + t + " does not meet the target");
+        check(Float.isNaN(SteerMover.interceptTime(from, new Vector2f(0f, 0f), new Vector2f(300f, 0f), 240f)) || SteerMover.interceptTime(from, new Vector2f(0f, 0f), new Vector2f(300f, 0f), 240f) > 0f,
+                "a target faster than the craft gave a negative intercept time");
     }
 
     // a fleet in orbit 120 su off the surface, a slow lap
