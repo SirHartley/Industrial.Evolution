@@ -1,0 +1,9 @@
+id,pirate,dark,laneDiscipline,jitter,speedSpread,weave,formation,queue,nerve,lanes,cruises,pickets,convoys,speed,flicker
+# Shuttle traffic look per faction. Other mods add a row for their faction id; a faction without a row uses default. Empty cells take the default row.
+default,FALSE,FALSE,1,1,0.15,0,1,TRUE,1,1,1,1,1,1,1
+pirates,TRUE,FALSE,0,3,0.35,8,2,FALSE,0.5,1,2,1,1,1,2
+hegemony,FALSE,FALSE,1,0.5,0.15,0,0.5,TRUE,1.5,1,1,1.5,1,1,1
+tritachyon,FALSE,FALSE,1,1,0.15,0,1,TRUE,1,0.8,1.5,1,1,1.2,1
+luddic_church,FALSE,FALSE,1,1,0.15,0,1,TRUE,1,1,0,1,1,0.85,1
+luddic_path,TRUE,TRUE,0,2,0.25,4,1.5,FALSE,0.75,1,0,1,1,1,1.5
+sindrian_diktat,FALSE,FALSE,1,1,0.15,0,0.5,TRUE,1,1,1,2,1,1,1

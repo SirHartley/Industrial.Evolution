@@ -25,6 +25,7 @@ public class ShuttlePaths {
     private static final float TRAFFIC_LANE_ANGLE = 8f;
     private static final float TRAFFIC_LANE_SPREAD = 1.5f;
     private static final float TRAFFIC_LANE_PASS = 30f;
+    private static final float TRAFFIC_LANE_LOOSE = 40f;
     private static final float HANDLE_EXTRA = 80f;
     private static final float PANIC_RADIUS = 60f;
     private static final float SCREEN_RADIUS = 120f;
@@ -58,17 +59,22 @@ public class ShuttlePaths {
     }
 
     // one curve per anchor pair, bent the same way in both directions
-    public ShuttlePath trafficLanePath(ShuttleRoute route, boolean reverse) {
+    public ShuttlePath trafficLanePath(ShuttleRoute route, boolean reverse, float laneDiscipline) {
         Vector2f p0 = route.a.getLocation();
         Vector2f p3 = route.b.getLocation();
         float chord = Misc.getDistance(p0, p3);
         float bend = network.getBend(p0, p3, route.bendFrac * chord, route.a.entity, route.b.entity);
         ShuttleAnchor from = reverse ? route.b : route.a;
         ShuttleAnchor to = reverse ? route.a : route.b;
-        float angle = TRAFFIC_LANE_ANGLE + spread(TRAFFIC_LANE_SPREAD);
+        // discipline 1 keeps two tidy streams right of the line, 0 puts each pad anywhere in +-40 degrees
+        float discipline = Math.max(0f, Math.min(1f, laneDiscipline));
+        float tidy = TRAFFIC_LANE_ANGLE + spread(TRAFFIC_LANE_SPREAD);
+        float start = discipline * tidy + (1f - discipline) * spread(TRAFFIC_LANE_LOOSE);
+        float end = discipline * tidy + (1f - discipline) * spread(TRAFFIC_LANE_LOOSE);
+        float pass = TRAFFIC_LANE_PASS * discipline;
 
-        return lane(route.a, route.b, from, to, new ShuttlePath.PadWaypoint(from, new ShuttlePath.EntityWaypoint(to.entity), -angle, 0f, false),
-                new ShuttlePath.PadWaypoint(to, new ShuttlePath.EntityWaypoint(from.entity), angle, 0f, true), bend, reverse ? TRAFFIC_LANE_PASS : -TRAFFIC_LANE_PASS);
+        return lane(route.a, route.b, from, to, new ShuttlePath.PadWaypoint(from, new ShuttlePath.EntityWaypoint(to.entity), -start, 0f, false),
+                new ShuttlePath.PadWaypoint(to, new ShuttlePath.EntityWaypoint(from.entity), end, 0f, true), bend, reverse ? pass : -pass);
     }
 
     // bend and offset are along the left normal of a to b; a lane with a star between its anchors goes through a live pass point beside it

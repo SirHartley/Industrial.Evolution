@@ -4,6 +4,7 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ambience.shuttletraffic.Shuttle;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
+import indevo.ambience.shuttletraffic.ShuttleFactionRepo;
 import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleHullPool;
 import indevo.ambience.shuttletraffic.ShuttleLook;
@@ -52,7 +53,7 @@ public class LocalFlights extends BaseFlights {
             return formation(leader, count, false);
         }
 
-        if (ShuttleNetwork.isPirate(home.faction)) {
+        if (ShuttleFactionRepo.isPirate(home.faction)) {
             ShuttleHull hull = ShuttleHullPool.rollSmall(home.faction, random);
             if (hull == null) return Collections.emptyList();
 

@@ -140,6 +140,7 @@ public class Shuttle {
     private float resumeDay = 0f;
     private float landDay = 0f;
     private float glowFlicker = 1f;
+    private final ShuttleProfile profile;
     private float screenX = 0f;
     private float screenY = 0f;
 
@@ -151,6 +152,7 @@ public class Shuttle {
         this.traits = traits.isEmpty() ? EnumSet.noneOf(Trait.class) : EnumSet.copyOf(traits);
         this.picket = traits.contains(Trait.PICKET);
         this.faction = faction;
+        this.profile = ShuttleFactionRepo.get(faction);
         this.from = from;
         this.to = to;
         this.home = from;
@@ -162,7 +164,7 @@ public class Shuttle {
     }
 
     public void follow(Shuttle leader, float slotBack, float slotSide, float noise, boolean straggler) {
-        follow = new FollowMover(this, leader, slotBack, slotSide, noise, straggler);
+        follow = new FollowMover(this, leader, slotBack, slotSide, noise * profile.formation() + Math.max(0f, profile.formation() - 1f) * 3f, straggler);
         leader.followers.add(this);
     }
 
@@ -172,6 +174,10 @@ public class Shuttle {
         spin = phase * 360f;
         this.boost = boost;
         this.boostTime = boostTime;
+    }
+
+    public ShuttleProfile getProfile() {
+        return profile;
     }
 
     public void tieTo(CampaignFleetAPI fleet) {
@@ -203,7 +209,8 @@ public class Shuttle {
 
         age += amount;
         trail.advance(amount);
-        glowFlicker = 1f - look.flicker() + look.flicker() * (float) Math.random();
+        float flicker = Math.min(1f, look.flicker() * profile.flicker());
+        glowFlicker = 1f - flicker + flicker * (float) Math.random();
         if (isTumbling()) spin += look.tumbleRate() * (1f - age / boostTime) * amount;
 
         if (wreckAge >= 0f) {
@@ -329,7 +336,7 @@ public class Shuttle {
 
     // true when the pad is busy and the craft starts a holding lap
     public boolean holdForPad(ShuttleTraffic traffic) {
-        if (traits.contains(Trait.QUEUES) && !cleared) {
+        if (traits.contains(Trait.QUEUES) && profile.queue() && !cleared) {
             if (to.isPadBusy(traffic.getTime())) {
                 setState(state.hold());
                 setPath(traffic.getPaths().holdPath(to.entity, pos, facing, ShuttleAnchor.HOLD_RADIUS), End.NONE, End.NONE);

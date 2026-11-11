@@ -21,6 +21,7 @@ public class ShuttleFlights {
     private final FleetFlights fleets;
     private final EscortFlights escorts;
     private final TenderFlights tenders;
+    private final EventFlights events;
     private final Map<ShuttleRoute.Kind, Flight> flights = new EnumMap<>(ShuttleRoute.Kind.class);
 
     public ShuttleFlights(ShuttleTraffic traffic) {
@@ -31,12 +32,14 @@ public class ShuttleFlights {
         tenders = new TenderFlights(traffic, paths);
         LaneFlights lanes = new LaneFlights(traffic, paths);
         LocalFlights local = new LocalFlights(traffic, paths);
+        events = new EventFlights(traffic, paths, local);
 
         Flight lane = (route, room) -> BaseFlights.single(lanes.launchLane(route));
         flights.put(ShuttleRoute.Kind.SUPPLY, lane);
         flights.put(ShuttleRoute.Kind.MARKET, lane);
         flights.put(ShuttleRoute.Kind.PIRATE_CARGO, lane);
         flights.put(ShuttleRoute.Kind.SMUGGLER, lane);
+        flights.put(ShuttleRoute.Kind.DARK, (route, room) -> BaseFlights.single(lanes.launchDark(route)));
         flights.put(ShuttleRoute.Kind.DIPLOMAT, (route, room) -> BaseFlights.single(lanes.launchDiplomat(route)));
         flights.put(ShuttleRoute.Kind.HUNT, (route, room) -> BaseFlights.single(lanes.launchHunt(route)));
         flights.put(ShuttleRoute.Kind.CRUISE, local::launchCruise);
@@ -73,6 +76,10 @@ public class ShuttleFlights {
 
     public EscortFlights getEscorts() {
         return escorts;
+    }
+
+    public EventFlights getEvents() {
+        return events;
     }
 
     public TenderFlights getTenders() {

@@ -15,6 +15,7 @@ public class PathMover {
 
     private static final float SPREAD_EASE = 20f;
     private static final float DOCK_CHECK_DISTANCE = 40f;
+    private static final float WEAVE_LENGTH = 400f;
 
     private final Shuttle shuttle;
 
@@ -47,6 +48,7 @@ public class PathMover {
         this.launchEnd = launchEnd;
         this.landEnd = landEnd;
         this.jitter = jitter;
+        dodge.setNerve(shuttle.getProfile().nerve());
         if (path != null) path.rebuild();
     }
 
@@ -201,7 +203,7 @@ public class PathMover {
 
         float nx = -tangent.y;
         float ny = tangent.x;
-        float lateral = jitter * envelope + spread + shuttle.getWobble();
+        float lateral = jitter * envelope + spread + shuttle.getWobble() + getWeave() * envelope;
         float lateralRate = amount > 0f ? (lateral - lastLateral) / amount : 0f;
         lastLateral = lateral;
         lateralRate += dodge.getShiftRateX() * nx + dodge.getShiftRateY() * ny;
@@ -267,5 +269,12 @@ public class PathMover {
     private static float smooth(float x) {
         float t = Math.max(0f, Math.min(1f, x));
         return t * t * (3f - 2f * t);
+    }
+
+    // a slow s curve along the path, one wave per 400 su, its phase per craft
+    private float getWeave() {
+        float weave = shuttle.getProfile().weave();
+        if (weave <= 0f) return 0f;
+        return weave * (float) Math.sin(traveled / WEAVE_LENGTH * 6.2832f + shuttle.getPhase() * 6.2832f);
     }
 }

@@ -3,9 +3,11 @@ package indevo.ambience.shuttletraffic.flights;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import indevo.ambience.shuttletraffic.Shuttle;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
+import indevo.ambience.shuttletraffic.ShuttleFactionRepo;
 import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleLook;
 import indevo.ambience.shuttletraffic.ShuttleNetwork;
+import indevo.ambience.shuttletraffic.ShuttleProfile;
 import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
 import indevo.ambience.shuttletraffic.SpeedClass;
@@ -34,8 +36,11 @@ abstract class BaseFlights {
 
     protected Shuttle create(ShuttleHull hull, ShuttleRoute route, FactionAPI faction, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath path, SpeedClass speed,
                              float speedMult, float jitter, ShuttleLook look, Set<Shuttle.Trait> traits) {
-        return new Shuttle(hull, route, faction, from, to, path, from.getEnd(), to.getEnd(), speed,
-                speedMult * (0.85f + 0.3f * random.nextFloat()), paths.spread(jitter), random.nextFloat(), look, traits);
+        ShuttleProfile profile = ShuttleFactionRepo.get(faction);
+        float spread = 1f + (random.nextFloat() * 2f - 1f) * profile.speedSpread();
+        float civil = speed == SpeedClass.CIVIL ? profile.speed() : 1f;
+        return new Shuttle(hull, route, faction, from, to, path, from.getEnd(), to.getEnd(), speed, speedMult * spread * civil,
+                paths.spread(jitter * profile.jitter()), random.nextFloat(), profile.dark() ? ShuttleLook.SMUGGLER : look, traits);
     }
 
     protected boolean canFly(ShuttleAnchor from, ShuttleAnchor to) {

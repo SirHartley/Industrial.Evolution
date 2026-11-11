@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class ShuttleTraffic {
 
-    private static final float SCAN_INTERVAL = 0.25f;
+    public static final float SCAN_INTERVAL = 0.25f;
 
     private final ShuttleNetwork network = new ShuttleNetwork();
     private final Random random = new Random();
@@ -85,6 +85,7 @@ public class ShuttleTraffic {
             flights.getFleets().update();
             flights.getEscorts().update();
             flights.getTenders().update();
+            flights.getEvents().update();
             hits.scan();
             dogfights.update();
             fastFleets.clear();
@@ -171,6 +172,7 @@ public class ShuttleTraffic {
         fastFleets.clear();
         flights.getEscorts().clear();
         flights.getTenders().clear();
+        flights.getEvents().clear();
         location = null;
         daysSinceRebuild = 0f;
         scanTimer = 0f;

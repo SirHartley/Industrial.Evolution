@@ -15,6 +15,8 @@ public class Dodge {
     // a craft deep inside a fleet shifts at most this share of the reach, it does not fly off to the edge of the screen
     private static final float MAX_SHIFT = 1.5f;
 
+    private float lookahead = LOOKAHEAD;
+    private float margin = MARGIN;
     private float shiftX = 0f;
     private float shiftY = 0f;
     private float shiftRateX = 0f;
@@ -27,6 +29,13 @@ public class Dodge {
     private float rate;
     private float targetPace;
     private boolean nearMiss;
+
+    // faction nerve: below 1 dodges later and wider, above 1 earlier and tighter
+    public void setNerve(float nerve) {
+        float n = Math.max(0.25f, Math.min(4f, nerve));
+        lookahead = LOOKAHEAD * n;
+        margin = MARGIN / n;
+    }
 
     public void clear() {
         shiftX = 0f;
@@ -70,7 +79,7 @@ public class Dodge {
         }
 
         // the unshifted spot enters the reach circle within the lookahead; a big slow fleet is seen before its closest approach
-        float reach = radius + MARGIN;
+        float reach = radius + margin;
         float rw = rx * wx + ry * wy;
         float r2 = rx * rx + ry * ry;
         float enter = 0f;
@@ -78,7 +87,7 @@ public class Dodge {
             float disc = rw * rw - w2 * (r2 - reach * reach);
             if (rw >= 0f || disc < 0f) return;
             enter = (-rw - (float) Math.sqrt(disc)) / w2;
-            if (enter > LOOKAHEAD) return;
+            if (enter > lookahead) return;
         }
 
         float t = Math.max(0f, -rw / w2);
