@@ -36,7 +36,7 @@ public class ShuttleFlights {
 
         Flight lane = (route, room) -> BaseFlights.single(lanes.launchLane(route));
         flights.put(ShuttleRoute.Kind.SUPPLY, lane);
-        flights.put(ShuttleRoute.Kind.MARKET, lane);
+        flights.put(ShuttleRoute.Kind.MARKET, lanes::launchMarket);
         flights.put(ShuttleRoute.Kind.PIRATE_CARGO, lane);
         flights.put(ShuttleRoute.Kind.SMUGGLER, lane);
         flights.put(ShuttleRoute.Kind.COURIER, (route, room) -> BaseFlights.single(lanes.launchCourier(route)));

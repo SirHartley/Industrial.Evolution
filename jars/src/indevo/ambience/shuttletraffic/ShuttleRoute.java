@@ -64,6 +64,8 @@ public class ShuttleRoute {
     public float chancePerDay = 0f;
     public boolean pending = false;
     public boolean seen = true;
+    // market lanes: day of the next convoy, negative until the first roll
+    public float nextConvoyDay = -1f;
 
     public ShuttleRoute(String key, Kind kind, ShuttleAnchor a, ShuttleAnchor b, float bendFrac) {
         this.key = key;
