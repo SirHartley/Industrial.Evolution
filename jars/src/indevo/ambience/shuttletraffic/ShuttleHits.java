@@ -98,7 +98,7 @@ public class ShuttleHits {
 
     private void runOver(List<Shuttle> list, CampaignFleetAPI fleet, Vector2f loc, float hitRange, float chance, Random random, boolean crewed) {
         for (Shuttle shuttle : list) {
-            if (!canBeHit(shuttle)) continue;
+            if (!canBeHit(shuttle) || shuttle.getTiedFleet() == fleet) continue;
 
             float dx = shuttle.pos.x - loc.x;
             float dy = shuttle.pos.y - loc.y;
