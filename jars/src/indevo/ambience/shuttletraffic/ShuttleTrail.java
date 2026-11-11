@@ -73,9 +73,11 @@ public class ShuttleTrail {
         sincePush += amount;
         for (int i = 0; i < TRAIL_SLOTS; i++) trailAge[i] += amount;
 
-        while (trailCount >= 2) {
-            int secondOldest = (trailHead - trailCount + 1 + TRAIL_SLOTS) % TRAIL_SLOTS;
-            if (trailAge[secondOldest] < seconds) break;
+        // the oldest point stays while the next one is younger, it ends the tail; a lone point goes at seconds too
+        while (trailCount >= 1) {
+            int next = (trailHead - trailCount + 1 + TRAIL_SLOTS) % TRAIL_SLOTS;
+            int check = trailCount >= 2 ? next : (trailHead - 1 + TRAIL_SLOTS) % TRAIL_SLOTS;
+            if (trailAge[check] < seconds) break;
             trailCount--;
         }
     }
@@ -148,7 +150,11 @@ public class ShuttleTrail {
     }
 
     public float getLength(float rearX, float rearY) {
-        int count = build(rearX, rearY);
+        return getLength(rearX, rearY, true);
+    }
+
+    public float getLength(float rearX, float rearY, boolean emitting) {
+        int count = build(rearX, rearY, emitting);
         float length = 0f;
         for (int i = 1; i < count; i++) {
             float dx = drawX[i] - drawX[i - 1];
@@ -169,10 +175,11 @@ public class ShuttleTrail {
         GL11.glPopAttrib();
     }
 
-    public void render(float rearX, float rearY, float width, Color color, boolean additive, float alphaMult) {
+    // emitting false: engines off, the trail no longer reaches the craft and ages out where it was left
+    public void render(float rearX, float rearY, float width, Color color, boolean additive, float alphaMult, boolean emitting) {
         if (trailCount < 1 || alphaMult <= 0.01f) return;
 
-        int count = build(rearX, rearY);
+        int count = build(rearX, rearY, emitting);
         if (count < 2) return;
 
         float r = color.getRed() / 255f;
@@ -211,14 +218,24 @@ public class ShuttleTrail {
         }
     }
 
-    // the live rear point, then the stored points newest first, the tail cut at exactly seconds
-    private int build(float rearX, float rearY) {
-        drawX[0] = rearX;
-        drawY[0] = rearY;
-        drawAge[0] = 0f;
+    // the live rear point when emitting, then the stored points newest first, the tail cut at exactly seconds
+    private int build(float rearX, float rearY, boolean emitting) {
+        int first = 1;
+        if (emitting) {
+            drawX[0] = rearX;
+            drawY[0] = rearY;
+            drawAge[0] = 0f;
+        } else {
+            int newest = (trailHead - 1 + TRAIL_SLOTS) % TRAIL_SLOTS;
+            if (trailCount < 1 || trailAge[newest] >= seconds) return 0;
+            drawX[0] = trailX[newest] + frameX;
+            drawY[0] = trailY[newest] + frameY;
+            drawAge[0] = trailAge[newest];
+            first = 2;
+        }
         int count = 1;
 
-        for (int i = 1; i <= trailCount; i++) {
+        for (int i = first; i <= trailCount; i++) {
             int index = (trailHead - i + TRAIL_SLOTS) % TRAIL_SLOTS;
             float x = trailX[index] + frameX;
             float y = trailY[index] + frameY;

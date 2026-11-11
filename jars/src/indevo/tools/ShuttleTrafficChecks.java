@@ -130,7 +130,7 @@ public final class ShuttleTrafficChecks {
     }
 
 
-    // trail length is speed * trailSeconds within one sample, follows a speed change within trailSeconds, and is 0 after a stop
+    // trail length is speed * trailSeconds within one sample, follows a speed change within trailSeconds, and is 0 after a stop or a stall
     private void checkTrail() {
         float military = 75f;
         for (float seconds : new float[]{ShuttleLook.CRAFT_TRAIL_SECONDS, ShuttleLook.POD_TRAIL_SECONDS}) {
@@ -157,6 +157,16 @@ public final class ShuttleTrafficChecks {
 
                 float stopped = runTrail(trail, x, 0f, seconds + interval + dt, dt);
                 check(stopped < 0.01f, at + "trail after a stop is " + stopped + ", expected 0");
+
+                ShuttleTrail stalled = new ShuttleTrail(seconds);
+                float[] sx = {0f};
+                runTrail(stalled, sx, SPEED, seconds * 2f, dt);
+                for (float t = 0f; t < seconds + dt; t += dt) {
+                    stalled.advance(dt);
+                    sx[0] += SPEED * 0.5f * dt;
+                }
+                float left = stalled.getLength(sx[0], 0f, false);
+                check(left < 0.01f, at + "trail of a craft stalled for " + seconds + " s is " + left + ", expected 0");
             }
         }
     }

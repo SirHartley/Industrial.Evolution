@@ -651,7 +651,7 @@ public class Shuttle {
         if (a <= 0.01f || isTumbling()) return;
 
         float width = Math.min(look.trailWidth(), 0.5f * hull.width * scale);
-        trail.render(getRearX(), getRearY(), width, hull.trailColor, hull.additiveTrail, a * look.trailAlpha() * throttle);
+        trail.render(getRearX(), getRearY(), width, hull.trailColor, hull.additiveTrail, a * look.trailAlpha() * throttle, !isHit());
     }
 
     public void renderSprite(float alphaMult, SpriteAPI glow) {

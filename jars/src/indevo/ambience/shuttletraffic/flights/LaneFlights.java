@@ -100,7 +100,7 @@ public class LaneFlights extends BaseFlights {
         return (CONVOY_GAP_MIN + random.nextFloat() * (CONVOY_GAP_MAX - CONVOY_GAP_MIN)) / mult;
     }
 
-    // freighters in line astern, one fighter wing on one flank
+    // freighters in line astern, one fighter wing in a v on one flank
     private List<Shuttle> launchConvoy(ShuttleRoute route, int room) {
         int count = Math.min(CONVOY_MIN + random.nextInt(CONVOY_MAX - CONVOY_MIN + 1), room - CONVOY_ESCORT);
         if (count < CONVOY_MIN) return List.of();
@@ -129,7 +129,8 @@ public class LaneFlights extends BaseFlights {
 
         float side = CONVOY_ESCORT_SIDE * paths.randomSign();
         float mid = CONVOY_SPACING * (count - 1) * 0.5f;
-        for (int i = 0; i < CONVOY_ESCORT; i++) convoy.add(follower(leader, escort, ShuttleLook.CRAFT, mid + (i - 0.5f) * CONVOY_SPACING, side, 2f, false));
+        // the wing flies its own small v on the flank: each wingman 10 su back and 8 su further out
+        for (int i = 0; i < CONVOY_ESCORT; i++) convoy.add(follower(leader, escort, ShuttleLook.CRAFT, mid + 10f * i, side + Math.signum(side) * 8f * i, 1f, false));
         return convoy;
     }
 

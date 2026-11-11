@@ -194,7 +194,7 @@ public class Dogfighter {
 
         float back = hull.length * scale * 0.5f;
         float width = Math.min(3f, 0.5f * hull.width * scale);
-        trail.render(pos.x - dirX() * back, pos.y - dirY() * back, width, hull.trailColor, hull.additiveTrail, a);
+        trail.render(pos.x - dirX() * back, pos.y - dirY() * back, width, hull.trailColor, hull.additiveTrail, a, true);
     }
 
     public boolean isFighting() {
