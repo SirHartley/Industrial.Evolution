@@ -25,11 +25,11 @@ public class ShuttleReactions {
             if (anchor.role == ShuttleAnchor.Role.REMNANT || anchor.faction == null) continue;
 
             Vector2f loc = anchor.getLocation();
-            if (fleetScan.findThreat(loc.x, loc.y, anchor.getRadius() + ANCHOR_THREAT_RANGE, anchor.faction) < 0) continue;
+            if (fleetScan.findThreat(loc.x, loc.y, anchor.getRadius() + ANCHOR_THREAT_RANGE, anchor.faction) == null) continue;
 
             anchor.threatened = true;
             anchor.lastThreatDay = traffic.getDays();
-            anchor.overrun = fleetScan.findThreat(loc.x, loc.y, anchor.getRadius(), anchor.faction) >= 0;
+            anchor.overrun = fleetScan.findThreat(loc.x, loc.y, anchor.getRadius(), anchor.faction) != null;
         }
     }
 
@@ -39,15 +39,15 @@ public class ShuttleReactions {
             if (shuttle.isDone() || shuttle.isDown() || shuttle.isFollower() || shuttle.isWaiting()) continue;
 
             if (shuttle.isStranded()) {
-                if (fleetScan.findThreat(shuttle.pos.x, shuttle.pos.y, STRANDED_CLEAR_RANGE, shuttle.faction) >= 0) shuttle.markThreatNear(traffic.getDays());
+                if (fleetScan.findThreat(shuttle.pos.x, shuttle.pos.y, STRANDED_CLEAR_RANGE, shuttle.faction) != null) shuttle.markThreatNear(traffic.getDays());
                 continue;
             }
 
             if (shuttle.isPicket()) {
                 ShuttleAnchor home = shuttle.getHome();
-                int threat = home != null && home.threatened ? findAnchorThreat(home) : -1;
+                ShuttleFleetScan.Entry threat = home != null && home.threatened ? findAnchorThreat(home) : null;
                 if (home != null && home.overrun) flee(shuttle, threat);
-                else if (threat >= 0) shuttle.screen(fleetScan.x[threat], fleetScan.y[threat], traffic);
+                else if (threat != null) shuttle.screen(threat.x, threat.y, traffic);
                 else divertIfClosed(shuttle);
                 continue;
             }
@@ -58,10 +58,10 @@ public class ShuttleReactions {
             }
 
             boolean destinationThreatened = shuttle.getTo() != null && shuttle.getTo().threatened;
-            int near = fleetScan.findThreat(shuttle.pos.x, shuttle.pos.y, CRAFT_THREAT_RANGE, shuttle.faction);
+            ShuttleFleetScan.Entry near = fleetScan.findThreat(shuttle.pos.x, shuttle.pos.y, CRAFT_THREAT_RANGE, shuttle.faction);
 
-            if (destinationThreatened || (near >= 0 && !shuttle.isFleeing())) {
-                flee(shuttle, near >= 0 ? near : findAnchorThreat(shuttle.getTo()));
+            if (destinationThreatened || (near != null && !shuttle.isFleeing())) {
+                flee(shuttle, near != null ? near : findAnchorThreat(shuttle.getTo()));
                 continue;
             }
 
@@ -69,19 +69,18 @@ public class ShuttleReactions {
         }
     }
 
-    private void flee(Shuttle shuttle, int threat) {
-        ShuttleFleetScan fleetScan = traffic.getFleetScan();
+    private void flee(Shuttle shuttle, ShuttleFleetScan.Entry threat) {
         ShuttleNetwork network = traffic.getNetwork();
-        float threatX = threat >= 0 ? fleetScan.x[threat] : shuttle.pos.x;
-        float threatY = threat >= 0 ? fleetScan.y[threat] : shuttle.pos.y;
+        float threatX = threat != null ? threat.x : shuttle.pos.x;
+        float threatY = threat != null ? threat.y : shuttle.pos.y;
 
         List<Shuttle> wing = new ArrayList<>(shuttle.getFollowers());
         shuttle.flee(network.findRefuge(null, shuttle.faction, shuttle.pos, traffic.getLocation()), threatX, threatY, traffic);
         for (Shuttle follower : wing) follower.flee(network.findRefuge(null, follower.faction, follower.pos, traffic.getLocation()), threatX, threatY, traffic);
     }
 
-    private int findAnchorThreat(ShuttleAnchor anchor) {
-        if (anchor == null) return -1;
+    private ShuttleFleetScan.Entry findAnchorThreat(ShuttleAnchor anchor) {
+        if (anchor == null) return null;
 
         Vector2f loc = anchor.getLocation();
         return traffic.getFleetScan().findThreat(loc.x, loc.y, anchor.getRadius() + ANCHOR_THREAT_RANGE, anchor.faction);

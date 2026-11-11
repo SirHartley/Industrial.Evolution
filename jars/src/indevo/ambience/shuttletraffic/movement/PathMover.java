@@ -196,12 +196,13 @@ public class PathMover {
         float best = 0f;
         boolean fleeing = shuttle.isFleeing();
 
-        for (int i = 0; i < scan.count; i++) {
-            if (!scan.obstacle[i] && !(fleeing && scan.isHostileThreat(i, shuttle.faction))) continue;
+        for (int i = 0; i < scan.getCount(); i++) {
+            ShuttleFleetScan.Entry entry = scan.get(i);
+            if (!entry.obstacle && !(fleeing && entry.isHostileThreat(shuttle.faction))) continue;
 
-            float dx = base.x - scan.x[i];
-            float dy = base.y - scan.y[i];
-            float radius = scan.radius[i] + AVOID_MARGIN;
+            float dx = base.x - entry.x;
+            float dy = base.y - entry.y;
+            float radius = entry.radius + AVOID_MARGIN;
             float along = dx * tangent.x + dy * tangent.y;
             if (Math.abs(along) >= radius) continue;
 
