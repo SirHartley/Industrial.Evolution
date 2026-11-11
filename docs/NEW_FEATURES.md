@@ -131,10 +131,10 @@ Save: only new saved classes; nothing saved today changes shape. The CR side add
 
 ### 1.3 Shuttle traffic: open stages
 
-Status: plan in the project file `SHUTTLE_TRAFFIC_PLAN.md` (sections 13 to 23 hold Philipp's calls of 2026-11-11, section 24 the staged plan), code review in `SHUTTLE_TRAFFIC_REVIEW.md` section 7. Stages 3 (groundwork, no visible change) and 4 (fixes) are in `dev`; current behaviour and files are in [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md).
+Status: plan in the project file `SHUTTLE_TRAFFIC_PLAN.md` (sections 13 to 23 hold Philipp's calls of 2026-11-11, section 24 the staged plan), code review in `SHUTTLE_TRAFFIC_REVIEW.md` section 7. Stages 3 (groundwork, no visible change), 4 (fixes) and 4a (look fixes from the stage 4 live test: trails by time, sizes and glow, Remnant blue, plan section 25) are in `dev`; current behaviour and files are in [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md).
 
-- Stage 4: fixes to what flies today (pod look, pleasure cruises in place of joyrides, speed classes, network fixes, budgets, small fixes). Built, live test by Philipp pending (plan section 24 lists it).
-- Stages 5 to 9: new flights. Not approved yet.
+- Stage 4a: live test by Philipp pending (plan section 24 lists it).
+- Stages 5 to 9: new flights (fleet tied craft, dodging and steering, dogfights, faction profiles, more flights). Approved by Philipp 2026-11-11, built one stage per PR in order.
 
 ## 2. Open questions
 

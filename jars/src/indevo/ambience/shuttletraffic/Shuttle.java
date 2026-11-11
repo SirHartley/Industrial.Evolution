@@ -74,7 +74,7 @@ public class Shuttle {
     private ShuttleBudget.Group group = ShuttleBudget.Group.RARE;
 
     private final List<Shuttle> followers = new ArrayList<>(2);
-    private final ShuttleTrail trail = new ShuttleTrail();
+    private final ShuttleTrail trail;
     private final PathMover mover;
     private FollowMover follow;
 
@@ -83,6 +83,7 @@ public class Shuttle {
     private float alpha = 1f;
     private float darken = 1f;
     private float glowMult = 1f;
+    private float throttle = 1f;
     private float age = 0f;
     private float spin = 0f;
     private float turnSpeed = 0f;
@@ -116,6 +117,7 @@ public class Shuttle {
         this.speedClass = speedClass;
         this.speedMult = speedMult;
         this.phase = phase;
+        this.trail = new ShuttleTrail(look.trailSeconds());
         this.mover = new PathMover(this, path, launchEnd, landEnd, jitter);
     }
 
@@ -147,6 +149,7 @@ public class Shuttle {
         }
 
         age += amount;
+        trail.advance(amount);
         glowFlicker = 1f - look.flicker() + look.flicker() * (float) Math.random();
         if (isTumbling()) spin += look.tumbleRate() * (1f - age / boostTime) * amount;
 
@@ -291,7 +294,7 @@ public class Shuttle {
         scale = pathScale;
         alpha = 1f;
         darken = 1f;
-        glowMult = (launchLength > 0f && traveled < launchLength + speed * 2f) || (landLength > 0f && remaining < landLength + speed * 2f) ? 1.5f : 1f;
+        glowMult = (launchLength > 0f && traveled < launchLength + speed * 2f) || (landLength > 0f && remaining < landLength + speed * 2f) ? 1.3f : 1f;
 
         if (launchLength > 0f && traveled < launchLength) applyEnd(mover.getLaunchEnd(), from, 1f - traveled / launchLength);
         if (landLength > 0f && remaining < landLength) applyEnd(mover.getLandEnd(), to, 1f - remaining / landLength);
@@ -308,6 +311,7 @@ public class Shuttle {
         alpha = lead.alpha;
         darken = lead.darken;
         glowMult = lead.glowMult;
+        throttle = lead.throttle;
     }
 
     public void pushTrailAtRear() {
@@ -316,7 +320,12 @@ public class Shuttle {
         float hx = (float) Math.cos(Math.toRadians(facing));
         float hy = (float) Math.sin(Math.toRadians(facing));
         float back = hull.length * scale * 0.5f;
-        trail.pushTrailIfMoved(pos.x - hx * back, pos.y - hy * back);
+        trail.pushTrailIfDue(pos.x - hx * back, pos.y - hy * back);
+    }
+
+    // dims the trail while the craft eases out of or into a pad
+    public void setThrottle(float speed) {
+        throttle = Math.max(0.4f, Math.min(1f, speed / Math.max(1f, speedClass.getCruiseSpeed(hull))));
     }
 
     public void finish() {
@@ -460,7 +469,8 @@ public class Shuttle {
         float a = getRenderAlpha(alphaMult);
         if (a <= 0.01f || isTumbling()) return;
 
-        trail.render(getRearX(), getRearY(), look.trailPoints(), look.trailWidth(), hull.trailColor, hull.additiveTrail, a * look.trailAlpha());
+        float width = Math.min(look.trailWidth(), 0.5f * hull.width * scale);
+        trail.render(getRearX(), getRearY(), width, hull.trailColor, hull.additiveTrail, a * look.trailAlpha() * throttle);
     }
 
     public void renderSprite(float alphaMult, SpriteAPI glow) {
@@ -476,7 +486,8 @@ public class Shuttle {
         sprite.renderAtCenter(pos.x, pos.y);
 
         if (look.glow() && !isTumbling()) {
-            float glowSize = Math.max(4f, hull.width * scale * 0.9f) * glowMult;
+            // never wider than the craft: 0.7 * 1.3 at most
+            float glowSize = hull.width * scale * 0.7f * glowMult;
             glow.setSize(glowSize, glowSize);
             glow.setAngle(0f);
             glow.setColor(hull.glowColor);

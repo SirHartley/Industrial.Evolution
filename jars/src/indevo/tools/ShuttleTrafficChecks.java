@@ -5,9 +5,11 @@ import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
 import indevo.ambience.shuttletraffic.ShuttleBudget;
+import indevo.ambience.shuttletraffic.ShuttleLook;
 import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleState;
 import indevo.ambience.shuttletraffic.ShuttleNetwork;
+import indevo.ambience.shuttletraffic.ShuttleTrail;
 import indevo.ambience.shuttletraffic.flights.ShuttlePaths;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
 import org.lwjgl.util.vector.Vector2f;
@@ -81,6 +83,7 @@ public final class ShuttleTrafficChecks {
             run.checkStates();
             run.checkCruise();
             run.checkBudget();
+            run.checkTrail();
         } finally {
             Global.setSettings(null);
         }
@@ -94,6 +97,46 @@ public final class ShuttleTrafficChecks {
         System.out.println("Shuttle traffic: " + run.checks + " checks passed");
     }
 
+
+    // trail length is speed * trailSeconds within one sample, follows a speed change within trailSeconds, and is 0 after a stop
+    private void checkTrail() {
+        float military = 75f;
+        for (float seconds : new float[]{ShuttleLook.CRAFT_TRAIL_SECONDS, ShuttleLook.POD_TRAIL_SECONDS}) {
+            float interval = seconds / (ShuttleTrail.TRAIL_POINTS - 1);
+            for (float rate : RATES) {
+                float dt = 1f / rate;
+                float[] x = {0f};
+                ShuttleTrail trail = new ShuttleTrail(seconds);
+                String at = rate + " Hz, " + seconds + " s: ";
+
+                float grown = runTrail(trail, x, SPEED, seconds * 0.4f, dt);
+                check(grown <= SPEED * seconds * 0.4f + 0.01f && grown >= SPEED * (seconds * 0.4f - interval - dt),
+                        at + "trail after launch is " + grown + ", expected about " + SPEED * seconds * 0.4f);
+
+                float full = runTrail(trail, x, SPEED, seconds * 2f, dt);
+                check(Math.abs(full - SPEED * seconds) <= SPEED * interval, at + "trail at constant speed is " + full + ", expected " + SPEED * seconds);
+
+                float fast = runTrail(trail, x, military, seconds + interval + dt, dt);
+                check(Math.abs(fast - military * seconds) <= military * interval, at + "military trail is " + fast + ", expected " + military * seconds);
+
+                float half = runTrail(trail, x, military * 0.5f, seconds + interval + dt, dt);
+                check(Math.abs(half - military * 0.5f * seconds) <= military * interval,
+                        at + "trail after halving speed is " + half + ", expected " + military * 0.5f * seconds);
+
+                float stopped = runTrail(trail, x, 0f, seconds + interval + dt, dt);
+                check(stopped < 0.01f, at + "trail after a stop is " + stopped + ", expected 0");
+            }
+        }
+    }
+
+    private static float runTrail(ShuttleTrail trail, float[] x, float speed, float time, float dt) {
+        for (float t = 0f; t < time; t += dt) {
+            trail.advance(dt);
+            x[0] += speed * dt;
+            trail.pushTrailIfDue(x[0], 0f);
+        }
+        return trail.getLength(x[0], 0f);
+    }
     private void check(boolean passed, String problem) {
         checks++;
         if (!passed) problems.add(problem);

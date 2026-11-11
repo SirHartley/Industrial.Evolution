@@ -2,7 +2,7 @@
 
 Visual only small craft in the player's current star system: cargo lanes between markets and to orbital stations, pleasure cruises, patrol pickets, training flights, mining and salvage runs, pirate cargo hops, scavenging hunts, smugglers, diplomats, maintenance runs, traffic that scatters from hostile fleets, and escape pods from fleets destroyed in battle. Read it before touching `indevo/ambience/shuttletraffic/`, `data/config/indEvo/shuttle_traffic.csv` or `IndEvo_shuttleTraffic`. It does not cover real fleets or trade routes; nothing here changes the economy.
 
-Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`) and IE `dev` after stages 3 and 4 of the shuttle traffic plan. Recheck engine facts after a game update.
+Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`) and IE `dev` after stages 3, 4 and 4a of the shuttle traffic plan. Recheck engine facts after a game update.
 
 ## Overview
 
@@ -34,15 +34,15 @@ Package `indevo/ambience/shuttletraffic/`:
 | `movement/FollowMover.java` | Moves a formation follower on its leader's history |
 | `Shuttle.java` | One craft: state, traits, route, ends, stays, landing and docking look, docking queue, fleeing, stranded hold, picket screening, rendering |
 | `ShuttleState.java` | Craft states (`CRUISE`, `HOLDING`, `FLEEING`, `FLEEING_HOLDING`, `ESCAPING`, `STRANDED`, `SCREENING`, `DOWN`), pace, turn rate and the legal transitions; an illegal one throws |
-| `ShuttleLook.java` | Immutable look per flight: glow, trail alpha, width and length, glow flicker, pod tumble |
+| `ShuttleLook.java` | Immutable look per flight: glow, trail alpha, width and seconds, glow flicker, pod tumble |
 | `ShuttleBudget.java` | Cap split into lanes, local and rare groups: local reserve, scaled lane counts, room per group |
 | `SpeedClass.java` | Speed classes (`CIVIL`, `SERVICE`, `MILITARY`), the mean speed per class for launch intervals, `canReach` |
-| `ShuttleTrail.java` | Trail and formation history ring buffers relative to the virtual frame, trail rendering |
+| `ShuttleTrail.java` | Trail (by time) and formation history (by distance) ring buffers relative to the virtual frame, trail rendering |
 | `ShuttleFleetScan.java` | Pooled entries for fleets near the player and threat fleets in the location, rebuilt every 0.25 s |
 | `ShuttleHull.java` | Hull look (sprite, engine colours, cached per hull id), size, speed, flags, wing size |
 | `ShuttleHullPool.java` | Base pool from the CSV, faction pools, crew rule, rolls per flight kind, escape pod hull |
 | `listeners/EscapePodListener.java` | Transient `BaseCampaignEventListener`: queues fleets destroyed in battle |
-| `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, budget split, state transitions |
+| `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, budget split, state transitions, trail length by time |
 | `data/config/indEvo/shuttle_traffic.csv` | Base civilian craft: `id, hullId, weight, small` |
 
 ## Data and ids
@@ -95,15 +95,16 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 - Budget (`ShuttleBudget`, `ShuttleBudget.update` after every rebuild and when the setting changes): the network writes each route's demand, the budget sets `route.max`. Local flights reserve `min(local demand, cap / 4)` craft, local demand counting `Kind.craftPerFlight` per flight (pickets and cruises 2, training 3). Lanes get the rest: when lane demand is higher, every lane's demand is scaled by `budget / demand`, at least 1. A group may launch into free room the other reserve does not hold; rare flights fit wherever there is room. Formations and races count each craft; pods are not counted.
 - Warm start fills routes in rounds, one flight per route per round, so the first routes in the map do not take the whole cap.
 - Timer routes (`ShuttleSpawner.spawn`, `:40`): lanes `(distance / mean speed + 6) / max * (0.6..1.4)` s, mean speed from the kind's `SpeedClass` (27 su/s civil), others `Kind.pause * (0.6..1.4)` s. Rare routes roll their chance once per day (`rollRareFlights`, `:33`) and launch when the roll is pending.
-- Warm start fills every timer route to its limit at spread progress, trails and formation history pre-filled.
+- Warm start fills every timer route to its limit at spread progress, trails (by age) and formation history pre-filled.
 - Nothing launches from or to a threatened anchor, or from an anchor threatened in the last day (`BaseFlights.canFly`, `:40`).
 
 ### Hulls
 
 - Crew rule (`ShuttleHullPool.isCrewed`, `:235`): `getMinCrew() > 0`, no built in `HullMods.AUTOMATED`, no `Tags.AUTOMATED`; wings tagged `Tags.AUTOMATED_FIGHTER` are skipped. Remnant drone patrols skip the rule.
 - Faction pool (`getFactionPool`, `:185`), cached per faction id and crew rule, dropped on the daily rebuild when the faction's known ship or fighter count changed: hulls of `getKnownFighters()` (wing size clamped 1 to 3) and the frigates of `getKnownShips()` without `STATION` or `MODULE` hints or `Tags.RESTRICTED`. Civilian hints (`CIVILIAN`, `FREIGHTER`, `TANKER`, `LINER`, `TRANSPORT`) mark a hull civilian; fighters and Kite skins are small. Weights: CSV weight, else civilian 3, fighter 2, other 1.
-- Rolls: supply hops 80% base small craft, else faction civilian small craft; market lanes, smugglers and maintenance 60% base, else faction civilian; pirate cargo hops the pirate faction's small craft; diplomats a faction `LINER` or Hermes / Kite; hunts Shuttle Pod, Kite, Mudskipper; cruises a faction civilian `LINER` if the faction has one, else Kite / Shuttle Pod; pirate races the pirate faction's small craft; Remnant patrols any Remnant hull; pickets faction fighters, fallback Talon; training faction fighters or Kite / Shuttle Pod; mining faction `FREIGHTER` or Shepherd / Mudskipper / Ox; salvage Ox / Mudskipper / Shepherd.
-- Engine colours: `getEngineSlots()` on the game's hull spec class and `getStyleId()` on the first slot, by name through `ReflectionUtils.invoke`; a `CUSTOM` or unknown style uses the slot colour. If reflection fails, manufacturer `Low Tech` / `High Tech` / anything else maps to `LOW_TECH` / `HIGH_TECH` / `MIDLINE`, with one warning.
+- Rolls: supply hops 80% base small craft, else faction civilian small craft; market lanes, smugglers and maintenance 60% base, else faction civilian; pirate cargo hops the pirate faction's small craft; diplomats a faction `LINER` or Hermes / Kite; hunts Shuttle Pod, Kite, Mudskipper; cruises a faction civilian `LINER` if the faction has one, else Kite / Shuttle Pod; pirate races the pirate faction's small craft; Remnant patrols any Remnant hull, never a base pool hull; pickets faction fighters, fallback Talon; training faction fighters or Kite / Shuttle Pod; mining faction `FREIGHTER` or Shepherd / Mudskipper / Ox; salvage Ox / Mudskipper / Shepherd.
+- Engine colours (`ShuttleHullPool.getEngineLook`): `getEngineSlots()` on the game's hull spec class gives slot specs, not `EngineSlot`s; their one no arg method returning `EngineSlotAPI` (found by return type through `StarReflectionUtils.getMethodsMatching`) builds the `EngineSlot`, and `getStyleId()` on it names the style. A `CUSTOM` style resolves to its custom style id; an unknown style uses the slot colour. If reflection fails, manufacturer `Low Tech` / `High Tech` or `Remnant` / anything else maps to `LOW_TECH` / `HIGH_TECH` / `MIDLINE`, with one warning.
+- Remnant craft are always blue: every entry of the `Factions.REMNANTS` pool (`ShuttleHullPool.forFaction`) gets its own look in the `HIGH_TECH` engine style, whatever the hull's own style, so another faction flying the same hull keeps its colours. Remnant rolls always use the faction pool and never fall back to the base pool; with no Remnant hull there is no flight.
 - Unknown or uncrewed CSV hulls are dropped with a warning; a hull without a loadable sprite is skipped.
 
 ### Paths
@@ -121,7 +122,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 
 ### Formations
 
-Fighters on pickets fly as a wing of `wingSize` (at most 3); training groups are 2 or 3, Remnant patrols 2, cruise tours 2 or 3 in line astern. The leader records its position every 4 su (16 points); followers sit on that history `8 su * rank` back and `6 su * rank` out, alternating sides, and copy the leader's scale, alpha and layer. Training followers add +-4 su noise; one in four groups has a straggler that drops back up to 30 su while the leader turns and catches up on straights. Formations skip the docking queue and break up when they flee. When the leader starts to dodge a fleet, every follower takes over the leader's path at its own slot, at +-10% speed, spreads out to four times its slot offset and dodges on its own.
+Fighters on pickets fly as a wing of `wingSize` (at most 3); training groups are 2 or 3, Remnant patrols 2, cruise tours 2 or 3 in line astern. The leader records its position every 4 su (16 points); followers sit on that history `10 su * rank` back and `8 su * rank` out, alternating sides, and copy the leader's scale, alpha and layer. Training followers add +-4 su noise; one in four groups has a straggler that drops back up to 30 su while the leader turns and catches up on straights. Formations skip the docking queue and break up when they flee. When the leader starts to dodge a fleet, every follower takes over the leader's path at its own slot, at +-10% speed, spreads out to four times its slot offset and dodges on its own.
 
 ### Fleet avoidance
 
@@ -145,16 +146,16 @@ Fighters on pickets fly as a wing of `wingSize` (at most 3); training groups are
 - Away heading (`getAwayHeading`): `FleetEncounterContext` passes the `BattleAPI` as the despawn param (knowledge skill `api/impl/campaign/FleetEncounterContext.java:827`); pods fan away from the centre of `battle.getOtherSideFor(fleet)`, else from the nearest hostile threat in the scan within 3000 su, else in random directions.
 - Planet (`findPodPlanet`): nearest non star planet whose surface is within 2000 su; a non hostile market planet in range wins over a closer one.
 - Queued until `getCampaignUI().isShowingDialog()` is false and the game is unpaused, dropped if the player left the location. At most 32 pods in flight.
-- Each burst (`PodFlights.launch`): starts within 1.5 s of the event, its pods 0.3 s apart on one shared curve (one heading inside an 80 degree fan, one pad offset and handle), each with +-6 su jitter, so the burst reads as a string. The vanilla `mining_drone` sprite at 10 su long with its own engine colours (no pods if a mod removed the hull). Pods shoot out at 80 to 120 su/s easing to 35 su/s over 2 s, tumbling at 14 to 84 degrees per second; the tumble decays over those 2 s and the sprite angle blends into the heading. No trail and no glow while tumbling; then a small glow and a short thin contrail. Pods curve to a random point on the planet disc and land with the planet look. Pods ignore fleets and threats.
+- Each burst (`PodFlights.launch`): starts within 1.5 s of the event, its pods 0.3 s apart on one shared curve (one heading inside an 80 degree fan, one pad offset and handle), each with +-6 su jitter, so the burst reads as a string. The vanilla `mining_drone` sprite at 3 su long with its own engine colours (no pods if a mod removed the hull). Pods shoot out at 80 to 120 su/s easing to 35 su/s over 2 s, tumbling at 14 to 84 degrees per second; the tumble decays over those 2 s and the sprite angle blends into the heading. No trail and no glow while tumbling; then a small glow and a short thin contrail. Pods curve to a random point on the planet disc and land with the planet look. Pods ignore fleets and threats.
 
 ### Look
 
-- Hull sprites at 0.13 (fighters) and 0.075 (frigates) of sprite size, below vanilla's campaign 0.15 and 0.11. Speed classes (`SpeedClass`, set per flight): civil 30 su/s fighters and 24 su/s frigates (lanes, supply hops, cruises, mining, salvage, hunts, pirate hops, diplomats, smugglers, maintenance); service x1.8 of civil (not used yet); military 75 su/s for every hull (pickets, training, pirate races, Remnant patrols). +-15% per craft, easing to 35% over launch and landing. Hunts, mining and salvage x0.8. Burn 4 is 80 su/s, so even military craft stay slower than any fleet that is going somewhere.
+- Hull sprites at 0.18 (fighters) and 0.075 (frigates) of sprite size (`ShuttleHull.drawScale`), and the longer side never below 5 su, aspect kept (`ShuttleHull.MIN_SIZE`). Sizes are for looks, not to scale: fighters come out about as large as frigates, the Shuttle Pod hull at 4.1 x 5 su. Escape pods keep their fixed 3 su. Speed classes (`SpeedClass`, set per flight): civil 30 su/s fighters and 24 su/s frigates (lanes, supply hops, cruises, mining, salvage, hunts, pirate hops, diplomats, smugglers, maintenance); service x1.8 of civil (not used yet); military 75 su/s for every hull (pickets, training, pirate races, Remnant patrols). +-15% per craft, easing to 35% over launch and landing. Hunts, mining and salvage x0.8. Burn 4 is 80 su/s, so even military craft stay slower than any fleet that is going somewhere.
 - Reach rule (`SpeedClass.canReach`): a flight to a target that expires only launches when `distance / speed` fits in the days left. No flight uses it yet.
 - Everything draws in `TERRAIN_7`: above planets, rings, asteroids and stations, below fleets. Planet launch and landing over `1.2 * radius` (at most 40% of the path): scale to 0.5, 30% darker, and the craft fades only while over the surface, from the limb to the pad. Station docking over 60 su: scale to 0.7, alpha to 0. A craft pulled out of a landing (fleeing, holding) fades back over 1 s.
 - Facing follows the path tangent plus the rate of the sideways offset, turning at most 90 degrees per second, never the world step, so orbiting anchors do not swing the sprite or trail.
-- Trail: 16 point ring buffer, a point every 8 su, untextured `GL_QUAD_STRIP` 3 su wide, fading to the tail, engine style colour and blend. Smugglers: 30% trail, no glow. Hunts: 50% trail, heavier glow flicker.
-- Engine glow at the rear, flickering (rolled in `advance`, so it holds still while paused), 1.5x for 2 s around launch and landing. No blinking lights.
+- Trail by time (`ShuttleTrail`): where the rear was during the last `ShuttleLook.trailSeconds` (craft 1.5 s, pods 0.8 s), so its length is `speed * trailSeconds`: about 36 su for a civil frigate, 112 su for military craft, 13 su while easing off a pad. Points carry an age, one every `trailSeconds / 15` s from a time accumulator (16 points plus one past the cut); points older than `trailSeconds` drop and the tail is cut at exactly `trailSeconds` between the last two points. Ages only advance in `advance`, so a paused trail holds still. Untextured `GL_QUAD_STRIP`, alpha and width fade by age, the oldest point always fades to nothing. Head width `min(3 su, 0.5 * drawn width)`, so it thins as the craft descends; alpha times throttle, `clamp(speed / class cruise speed, 0.4, 1)`. Engine style colour and blend. The warm start fills the trail by age. Smugglers: 30% trail, no glow. Hunts: 50% trail, heavier glow flicker.
+- Engine glow at the rear, `0.7 * drawn width`, flickering (rolled in `advance`, so it holds still while paused), 1.3x for 2 s around launch and landing. No floor: a glow is never wider than its craft, pods included. No blinking lights.
 - Traffic fades out between view mult 2 and 3 (max campaign zoom is 3). Off viewport craft (300 su margin) are skipped.
 
 ### Docking queue
@@ -171,15 +172,15 @@ A station pad is busy while a craft is in its last 100 su and 1 s after. A craft
 - Advancing stops while `Global.getSector().isPaused()` (`renderers/ShuttleTrafficRenderer.java:51`); the feature keeps its own day count from `convertToDays`, so stays and safe times only pass while the player is in a system with traffic.
 - `ShuttleHullPool` caches are static and reset on every `register()`.
 - `getHullSpec` throws on unknown ids, so every CSV and `getKnownShips()` id is checked against `getAllShipHullSpecs()` first.
-- The engine style reflection names (`getEngineSlots`, `getStyleId`) are unobfuscated public methods of the game's hull spec and `EngineSlot` classes (knowledge skill `obf/loading/specs/_c147.java`, renamed from `g.java`, and `EngineSlot.java:47`); never use an obfuscated name here.
+- The engine style reflection names (`getEngineSlots`, `getStyleId`) are unobfuscated public methods of the game's hull spec and `EngineSlot` classes (knowledge skill `obf/loading/specs/_c147.java`, renamed from `g.java`, and `EngineSlot.java:47`). The slot spec class in between is obfuscated (`obf/loading/specs/_c145.java`) and reached only by return type; never use an obfuscated name here. Checked against `lib/starfarer_obf.jar`: one public no arg method on the slot spec returns `EngineSlot`.
 - Remnant battlestations are fleets in station mode with `MemFlags.MEMORY_KEY_FLEET_TYPE` `FleetTypes.BATTLESTATION` and faction `Factions.REMNANTS`.
 
 ## Known issues and dormant code
 
 | Item | State |
 |---|---|
-| In game look | Tests (2026-11-08) fixed: rubberbanding, nervous trails, blinking lights, loop joyrides (now cruises), craft vanishing under planets, sprite size, trails out of line with the craft between moving bodies, lanes through the star. Untested in game: star pass, market lanes, blended trail frame, cruises, pod bursts, formation break up |
-| Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split and states, not flights, reactions or rendering. It runs on its own, not in `ReleaseBuild` |
+| In game look | Tests (2026-11-08) fixed: rubberbanding, nervous trails, blinking lights, loop joyrides (now cruises), craft vanishing under planets, sprite size, trails out of line with the craft between moving bodies, lanes through the star. Untested in game: star pass, market lanes, blended trail frame, cruises, pod bursts, formation break up, trails by time, sizes and glow, engine colours from slots (before this every hull used manufacturer colours, the slot lookup always failed) |
+| Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split, states and trail length, not flights, reactions or rendering. It runs on its own, not in `ReleaseBuild` |
 | Performance | Live smoke `shuttle` group (2026-11-08, before market lanes): 55 craft at Sindria, all of `shuttletraffic` 0.4% of CPU and allocation |
 
 ## Checks

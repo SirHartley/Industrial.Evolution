@@ -161,7 +161,7 @@ public class LocalFlights extends BaseFlights {
         int straggler = loose && count > 1 && random.nextFloat() < 0.25f ? 1 + random.nextInt(count - 1) : -1;
         for (int i = 1; i < count; i++) {
             int rank = (i + 1) / 2;
-            craft.add(follower(leader, 8f * rank, 6f * rank * (i % 2 == 1 ? 1f : -1f), loose ? 4f : 0f, i == straggler));
+            craft.add(follower(leader, 10f * rank, 8f * rank * (i % 2 == 1 ? 1f : -1f), loose ? 4f : 0f, i == straggler));
         }
 
         return craft;
