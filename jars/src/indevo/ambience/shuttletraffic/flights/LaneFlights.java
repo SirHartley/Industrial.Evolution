@@ -10,6 +10,7 @@ import indevo.ambience.shuttletraffic.ShuttleHullPool;
 import indevo.ambience.shuttletraffic.ShuttleLook;
 import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
+import indevo.ambience.shuttletraffic.SpeedClass;
 
 import java.util.Set;
 
@@ -43,10 +44,10 @@ public class LaneFlights extends BaseFlights {
         if (hull == null) return null;
 
         if (route.kind == ShuttleRoute.Kind.MARKET) {
-            return create(hull, route, faction, from, to, paths.trafficLanePath(route, from == route.b), 1f, TRAFFIC_LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
+            return create(hull, route, faction, from, to, paths.trafficLanePath(route, from == route.b), SpeedClass.CIVIL, 1f, TRAFFIC_LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
         }
 
-        return create(hull, route, faction, from, to, paths.lanePath(from, to, route.bendFrac * (smuggler ? 2f : 1f), smuggler), 1f, LANE_JITTER,
+        return create(hull, route, faction, from, to, paths.lanePath(from, to, route.bendFrac * (smuggler ? 2f : 1f), smuggler), SpeedClass.CIVIL, 1f, LANE_JITTER,
                 smuggler ? ShuttleLook.SMUGGLER : ShuttleLook.CRAFT, Shuttle.CIVIL);
     }
 
@@ -64,7 +65,7 @@ public class LaneFlights extends BaseFlights {
         if (hull == null) return null;
 
         ShuttleAnchor to = picker.pick();
-        return create(hull, route, from.faction, from, to, paths.lanePath(from, to, route.bendFrac, false), 1f, LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
+        return create(hull, route, from.faction, from, to, paths.lanePath(from, to, route.bendFrac, false), SpeedClass.CIVIL, 1f, LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
     }
 
     public Shuttle launchHunt(ShuttleRoute route) {
@@ -78,7 +79,7 @@ public class LaneFlights extends BaseFlights {
         ShuttleHull hull = ShuttleHullPool.rollBase(random, HUNT_HULLS);
         if (hull == null) return null;
 
-        Shuttle shuttle = create(hull, route, from.faction, from, to, paths.lanePath(from, to, route.bendFrac, false), 0.8f, LANE_JITTER, ShuttleLook.HUNT, Shuttle.CIVIL);
+        Shuttle shuttle = create(hull, route, from.faction, from, to, paths.lanePath(from, to, route.bendFrac, false), SpeedClass.CIVIL, 0.8f, LANE_JITTER, ShuttleLook.HUNT, Shuttle.CIVIL);
         shuttle.stay(2f + random.nextFloat() * 3f);
         return shuttle;
     }

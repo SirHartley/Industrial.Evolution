@@ -3,27 +3,30 @@ package indevo.ambience.shuttletraffic;
 public class ShuttleRoute {
 
     public enum Kind {
-        SUPPLY(1f, 0f),
-        PIRATE_CARGO(1f, 0f),
-        SMUGGLER(1f, 0f),
-        DIPLOMAT(1f, 0f),
-        HUNT(1f, 0f),
-        MAINTENANCE(1f, 0f),
-        MARKET(0.9f, 0f),
-        MINING(0.8f, 8f),
-        SALVAGE(0.8f, 20f),
-        PICKET(0.8f, 10f),
-        CRUISE(0.7f, 15f),
-        TRAINING(0.7f, 20f);
+        SUPPLY(1f, 0f, SpeedClass.CIVIL),
+        PIRATE_CARGO(1f, 0f, SpeedClass.CIVIL),
+        SMUGGLER(1f, 0f, SpeedClass.CIVIL),
+        DIPLOMAT(1f, 0f, SpeedClass.CIVIL),
+        HUNT(1f, 0f, SpeedClass.CIVIL),
+        MAINTENANCE(1f, 0f, SpeedClass.CIVIL),
+        MARKET(0.9f, 0f, SpeedClass.CIVIL),
+        MINING(0.8f, 8f, SpeedClass.CIVIL),
+        SALVAGE(0.8f, 20f, SpeedClass.CIVIL),
+        PICKET(0.8f, 10f, SpeedClass.MILITARY),
+        CRUISE(0.7f, 15f, SpeedClass.CIVIL),
+        TRAINING(0.7f, 20f, SpeedClass.MILITARY);
 
         // share of the traffic cap this kind may still spawn into
         public final float capShare;
         // seconds between flights for routes without a destination anchor
         public final float pause;
+        // speed class most flights of this kind fly, pirate races and Remnant patrols fly military on cruise routes
+        public final SpeedClass speed;
 
-        Kind(float capShare, float pause) {
+        Kind(float capShare, float pause, SpeedClass speed) {
             this.capShare = capShare;
             this.pause = pause;
+            this.speed = speed;
         }
     }
 

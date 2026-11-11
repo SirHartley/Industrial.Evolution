@@ -34,7 +34,8 @@ Package `indevo/ambience/shuttletraffic/`:
 | `movement/FollowMover.java` | Moves a formation follower on its leader's history |
 | `Shuttle.java` | One craft: state, traits, route, ends, stays, landing and docking look, docking queue, fleeing, stranded hold, picket screening, rendering |
 | `ShuttleState.java` | Craft states (`CRUISE`, `HOLDING`, `FLEEING`, `FLEEING_HOLDING`, `ESCAPING`, `STRANDED`, `SCREENING`, `DOWN`), pace, turn rate and the legal transitions; an illegal one throws |
-| `ShuttleLook.java` | Immutable look per flight: glow, trail alpha, width and length, glow flicker, spin |
+| `ShuttleLook.java` | Immutable look per flight: glow, trail alpha, width and length, glow flicker, pod tumble |
+| `SpeedClass.java` | Speed classes (`CIVIL`, `SERVICE`, `MILITARY`), the mean speed per class for launch intervals, `canReach` |
 | `ShuttleTrail.java` | Trail and formation history ring buffers relative to the virtual frame, trail rendering |
 | `ShuttleFleetScan.java` | Pooled entries for fleets near the player and threat fleets in the location, rebuilt every 0.25 s |
 | `ShuttleHull.java` | Hull look (sprite, engine colours, cached per hull id), size, speed, flags, wing size |
@@ -91,7 +92,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 | `TRAINING` | Market with an Academy and a sight; a loose group of 2 or 3 flies the cruise circuit | 1 group | 0.7 |
 
 - Cap share: a route only launches while the craft in flight are below `setting * share`, so cruises and training drop first, then mining, salvage and pickets, then market lanes. Formations count each craft.
-- Timer routes (`ShuttleSpawner.spawn`, `:40`): lanes `(distance / 27 + 6) / max * (0.6..1.4)` s, others `Kind.pause * (0.6..1.4)` s. Rare routes roll their chance once per day (`rollRareFlights`, `:33`) and launch when the roll is pending.
+- Timer routes (`ShuttleSpawner.spawn`, `:40`): lanes `(distance / mean speed + 6) / max * (0.6..1.4)` s, mean speed from the kind's `SpeedClass` (27 su/s civil), others `Kind.pause * (0.6..1.4)` s. Rare routes roll their chance once per day (`rollRareFlights`, `:33`) and launch when the roll is pending.
 - Warm start fills every timer route to its limit at spread progress, trails and formation history pre-filled.
 - Nothing launches from or to a threatened anchor, or from an anchor threatened in the last day (`BaseFlights.canFly`, `:40`).
 
@@ -146,7 +147,8 @@ Fighters on pickets fly as a wing of `wingSize` (at most 3); training groups are
 
 ### Look
 
-- Hull sprites at 0.13 (fighters) and 0.075 (frigates) of sprite size, below vanilla's campaign 0.15 and 0.11. Speed 30 su/s fighters, 24 su/s frigates, +-15% per craft, easing to 35% over launch and landing. Pirate races and Remnant patrols x1.1, pickets x0.8, hunts, mining and salvage x0.8.
+- Hull sprites at 0.13 (fighters) and 0.075 (frigates) of sprite size, below vanilla's campaign 0.15 and 0.11. Speed classes (`SpeedClass`, set per flight): civil 30 su/s fighters and 24 su/s frigates (lanes, supply hops, cruises, mining, salvage, hunts, pirate hops, diplomats, smugglers, maintenance); service x1.8 of civil (not used yet); military 75 su/s for every hull (pickets, training, pirate races, Remnant patrols). +-15% per craft, easing to 35% over launch and landing. Hunts, mining and salvage x0.8. Burn 4 is 80 su/s, so even military craft stay slower than any fleet that is going somewhere.
+- Reach rule (`SpeedClass.canReach`): a flight to a target that expires only launches when `distance / speed` fits in the days left. No flight uses it yet.
 - Everything draws in `TERRAIN_7`: above planets, rings, asteroids and stations, below fleets. Planet launch and landing over `1.2 * radius` (at most 40% of the path): scale to 0.5, 30% darker, and the craft fades only while over the surface, from the limb to the pad. Station docking over 60 su: scale to 0.7, alpha to 0. A craft pulled out of a landing (fleeing, holding) fades back over 1 s.
 - Facing follows the path tangent plus the rate of the sideways offset, turning at most 90 degrees per second, never the world step, so orbiting anchors do not swing the sprite or trail.
 - Trail: 16 point ring buffer, a point every 8 su, untextured `GL_QUAD_STRIP` 3 su wide, fading to the tail, engine style colour and blend. Smugglers: 30% trail, no glow. Hunts: 50% trail, heavier glow flicker.

@@ -10,6 +10,7 @@ import indevo.ambience.shuttletraffic.ShuttleLook;
 import indevo.ambience.shuttletraffic.ShuttleNetwork;
 import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
+import indevo.ambience.shuttletraffic.SpeedClass;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
 
 import java.util.ArrayList;
@@ -28,7 +29,6 @@ public class LocalFlights extends BaseFlights {
     private static final float MAINTENANCE_RADIUS = 100f;
     private static final float TOUR_CHANCE = 0.35f;
     private static final float TOUR_SPACING = 14f;
-    private static final float RACE_SPEED = 1.1f;
     private static final int REMNANT_PATROL = 2;
 
     public LocalFlights(ShuttleTraffic traffic, ShuttlePaths paths) {
@@ -47,7 +47,7 @@ public class LocalFlights extends BaseFlights {
             if (hull == null) return Collections.emptyList();
 
             int count = Math.min(REMNANT_PATROL, room);
-            Shuttle leader = create(hull, route, home.faction, home, home, paths.cruisePath(home, sight, cruise), RACE_SPEED, LANE_JITTER, ShuttleLook.CRAFT,
+            Shuttle leader = create(hull, route, home.faction, home, home, paths.cruisePath(home, sight, cruise), SpeedClass.MILITARY, 1f, LANE_JITTER, ShuttleLook.CRAFT,
                     leaderTraits(EnumSet.of(Shuttle.Trait.AVOIDS, Shuttle.Trait.QUEUES), count));
             return formation(leader, count, false);
         }
@@ -57,11 +57,11 @@ public class LocalFlights extends BaseFlights {
             if (hull == null) return Collections.emptyList();
 
             List<Shuttle> racers = new ArrayList<>(2);
-            racers.add(create(hull, route, home.faction, home, home, paths.cruisePath(home, sight, cruise), RACE_SPEED, LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL));
+            racers.add(create(hull, route, home.faction, home, home, paths.cruisePath(home, sight, cruise), SpeedClass.MILITARY, 1f, LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL));
             if (room > 1) {
                 ShuttleHull rival = ShuttleHullPool.rollSmall(home.faction, random);
                 if (rival != null) {
-                    racers.add(create(rival, null, home.faction, home, home, paths.cruisePath(home, sight, cruise), RACE_SPEED, LANE_JITTER, ShuttleLook.CRAFT,
+                    racers.add(create(rival, null, home.faction, home, home, paths.cruisePath(home, sight, cruise), SpeedClass.MILITARY, 1f, LANE_JITTER, ShuttleLook.CRAFT,
                             Shuttle.CIVIL));
                 }
             }
@@ -74,7 +74,7 @@ public class LocalFlights extends BaseFlights {
         if (hull == null) return Collections.emptyList();
 
         int count = Math.min(random.nextFloat() < TOUR_CHANCE ? 2 + random.nextInt(2) : 1, room);
-        Shuttle leader = create(hull, route, home.faction, home, home, paths.cruisePath(home, sight, cruise), 1f, LANE_JITTER, ShuttleLook.CRAFT,
+        Shuttle leader = create(hull, route, home.faction, home, home, paths.cruisePath(home, sight, cruise), SpeedClass.CIVIL, 1f, LANE_JITTER, ShuttleLook.CRAFT,
                 leaderTraits(Shuttle.CIVIL, count));
         List<Shuttle> craft = new ArrayList<>(count);
         craft.add(leader);
@@ -96,7 +96,7 @@ public class LocalFlights extends BaseFlights {
 
         int count = Math.min(hull.wingSize, room);
         Set<Shuttle.Trait> traits = EnumSet.of(Shuttle.Trait.AVOIDS, Shuttle.Trait.QUEUES, Shuttle.Trait.FLEES, Shuttle.Trait.PICKET);
-        Shuttle leader = create(hull, route, home.faction, home, home, paths.loopPath(home, List.of(ellipse)), 0.8f, LANE_JITTER, ShuttleLook.CRAFT, leaderTraits(traits, count));
+        Shuttle leader = create(hull, route, home.faction, home, home, paths.loopPath(home, List.of(ellipse)), SpeedClass.MILITARY, 1f, LANE_JITTER, ShuttleLook.CRAFT, leaderTraits(traits, count));
         return formation(leader, count, false);
     }
 
@@ -113,7 +113,7 @@ public class LocalFlights extends BaseFlights {
 
         ShuttlePath path = paths.cruisePath(home, sight, paths.rollCruise(route.bendFrac));
         int count = Math.min(2 + random.nextInt(2), room);
-        Shuttle leader = create(hull, route, home.faction, home, home, path, 1f, LANE_JITTER, ShuttleLook.CRAFT, leaderTraits(Shuttle.CIVIL, count));
+        Shuttle leader = create(hull, route, home.faction, home, home, path, SpeedClass.MILITARY, 1f, LANE_JITTER, ShuttleLook.CRAFT, leaderTraits(Shuttle.CIVIL, count));
         return formation(leader, count, true);
     }
 
@@ -128,7 +128,7 @@ public class LocalFlights extends BaseFlights {
 
         float speedMult = 0.8f;
         float days = mining ? 1f + random.nextFloat() * 2f : 2f + random.nextFloat() * 2f;
-        return create(hull, route, home.faction, home, home, paths.lingerPath(home, route.target, days, hull.getCruiseSpeed() * speedMult), speedMult,
+        return create(hull, route, home.faction, home, home, paths.lingerPath(home, route.target, days, SpeedClass.CIVIL.getCruiseSpeed(hull) * speedMult), SpeedClass.CIVIL, speedMult,
                 LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
     }
 
@@ -142,7 +142,7 @@ public class LocalFlights extends BaseFlights {
         SectorEntityToken objective = route.target.center;
         float startAngle = Misc.getAngleInDegrees(objective.getLocation(), home.getLocation());
         ShuttlePath.CircleSegment lap = new ShuttlePath.CircleSegment(objective, 0f, 0f, MAINTENANCE_RADIUS, startAngle, 360f * paths.randomSign(), 0f);
-        return create(hull, route, home.faction, home, home, paths.loopPath(home, List.of(lap)), 1f, LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
+        return create(hull, route, home.faction, home, home, paths.loopPath(home, List.of(lap)), SpeedClass.CIVIL, 1f, LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
     }
 
     // formations skip the docking queue
@@ -169,7 +169,7 @@ public class LocalFlights extends BaseFlights {
 
     private Shuttle follower(Shuttle leader, float slotBack, float slotSide, float noise, boolean straggler) {
         Shuttle follower = new Shuttle(leader.hull, null, leader.faction, leader.getFrom(), leader.getTo(), null, leader.getLaunchEnd(), leader.getLandEnd(),
-                leader.getSpeedMult(), 0f, random.nextFloat(), leader.getLook(), leaderTraits(leader.getTraits(), 2));
+                leader.getSpeedClass(), leader.getSpeedMult(), 0f, random.nextFloat(), leader.getLook(), leaderTraits(leader.getTraits(), 2));
         follower.follow(leader, slotBack, slotSide, noise, straggler);
         return follower;
     }

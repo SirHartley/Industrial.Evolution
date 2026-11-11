@@ -66,7 +66,7 @@ public class ShuttleSpawner {
         float jitter = 0.6f + 0.8f * traffic.getRandom().nextFloat();
         if (route.b == null) return route.kind.pause * jitter;
 
-        float flightTime = Misc.getDistance(route.a.getLocation(), route.b.getLocation()) / 27f + 6f;
+        float flightTime = Misc.getDistance(route.a.getLocation(), route.b.getLocation()) / route.kind.speed.getMeanSpeed() + 6f;
         return flightTime / Math.max(1, route.max) * jitter;
     }
 }

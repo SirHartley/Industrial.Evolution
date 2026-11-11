@@ -56,6 +56,7 @@ public class Shuttle {
     private final ShuttleRoute route;
     private final ShuttleLook look;
     private final Set<Trait> traits;
+    private final SpeedClass speedClass;
     private final float phase;
     private ShuttleAnchor from;
     private ShuttleAnchor to;
@@ -98,7 +99,7 @@ public class Shuttle {
     private float screenY = 0f;
 
     public Shuttle(ShuttleHull hull, ShuttleRoute route, FactionAPI faction, ShuttleAnchor from, ShuttleAnchor to, ShuttlePath path,
-                   End launchEnd, End landEnd, float speedMult, float jitter, float phase, ShuttleLook look, Set<Trait> traits) {
+                   End launchEnd, End landEnd, SpeedClass speedClass, float speedMult, float jitter, float phase, ShuttleLook look, Set<Trait> traits) {
         this.hull = hull;
         this.route = route;
         this.look = look;
@@ -108,6 +109,7 @@ public class Shuttle {
         this.from = from;
         this.to = to;
         this.home = from;
+        this.speedClass = speedClass;
         this.speedMult = speedMult;
         this.phase = phase;
         this.mover = new PathMover(this, path, launchEnd, landEnd, jitter);
@@ -245,7 +247,7 @@ public class Shuttle {
     }
 
     public float getSpeed(float ease) {
-        float speed = hull.getCruiseSpeed() * speedMult * state.pace * ease;
+        float speed = getCruiseSpeed() * state.pace * ease;
         if (boostTime > 0f && age < boostTime) speed += boost * (1f - age / boostTime);
         return speed;
     }
@@ -278,7 +280,7 @@ public class Shuttle {
     }
 
     public void updateLook(float amount, float pathScale, float traveled, float remaining, float launchLength, float landLength) {
-        float speed = hull.getCruiseSpeed() * speedMult;
+        float speed = getCruiseSpeed();
 
         scale = pathScale;
         alpha = 1f;
@@ -353,6 +355,14 @@ public class Shuttle {
 
     public float getSpeedMult() {
         return speedMult;
+    }
+
+    public SpeedClass getSpeedClass() {
+        return speedClass;
+    }
+
+    public float getCruiseSpeed() {
+        return speedClass.getCruiseSpeed(hull) * speedMult;
     }
 
     public ShuttleLook getLook() {

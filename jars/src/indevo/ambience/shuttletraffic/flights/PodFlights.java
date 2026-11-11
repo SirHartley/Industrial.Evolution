@@ -16,6 +16,7 @@ import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleHullPool;
 import indevo.ambience.shuttletraffic.ShuttleLook;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
+import indevo.ambience.shuttletraffic.SpeedClass;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
 import indevo.config.Setting;
 import org.lwjgl.util.vector.Vector2f;
@@ -109,7 +110,7 @@ public class PodFlights extends BaseFlights {
                         startHandle, paths.getHandle(target, distance), 0f));
 
                 Shuttle pod = new Shuttle(hull, null, null, target, target, path, Shuttle.End.NONE, Shuttle.End.PLANET,
-                        POD_SPEED / hull.getCruiseSpeed(), paths.spread(6f), random.nextFloat(), ShuttleLook.pod(tumble * (0.7f + 0.6f * random.nextFloat())),
+                        SpeedClass.CIVIL, POD_SPEED / hull.getCruiseSpeed(), paths.spread(6f), random.nextFloat(), ShuttleLook.pod(tumble * (0.7f + 0.6f * random.nextFloat())),
                         EnumSet.noneOf(Shuttle.Trait.class));
                 pod.eject(delay + i * BURST_GAP, boost, BOOST_TIME);
                 pods.add(pod);
