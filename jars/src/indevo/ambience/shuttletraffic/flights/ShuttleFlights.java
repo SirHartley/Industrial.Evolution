@@ -21,6 +21,7 @@ public class ShuttleFlights {
     private final FleetFlights fleets;
     private final EscortFlights escorts;
     private final TenderFlights tenders;
+    private final EventFlights events;
     private final Map<ShuttleRoute.Kind, Flight> flights = new EnumMap<>(ShuttleRoute.Kind.class);
 
     public ShuttleFlights(ShuttleTraffic traffic) {
@@ -31,6 +32,7 @@ public class ShuttleFlights {
         tenders = new TenderFlights(traffic, paths);
         LaneFlights lanes = new LaneFlights(traffic, paths);
         LocalFlights local = new LocalFlights(traffic, paths);
+        events = new EventFlights(traffic, paths, local);
 
         Flight lane = (route, room) -> BaseFlights.single(lanes.launchLane(route));
         flights.put(ShuttleRoute.Kind.SUPPLY, lane);
@@ -74,6 +76,10 @@ public class ShuttleFlights {
 
     public EscortFlights getEscorts() {
         return escorts;
+    }
+
+    public EventFlights getEvents() {
+        return events;
     }
 
     public TenderFlights getTenders() {
