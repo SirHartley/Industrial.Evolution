@@ -5,7 +5,7 @@ description: "Smoke-test a Starsector mod in the real game runtime, isolated fro
 
 # Starsector native smoke test
 
-Version 2.0.0 (`bash scripts/smoke.sh version`), for Starsector 0.98a-RC8.
+Version 2.0.1 (`bash scripts/smoke.sh version`), for Starsector 0.98a-RC8.
 
 Run a mod's code inside the real game, isolated from the user's own mods and saves, and prove the result with check lines and captured frames. A proxy that draws rectangles proves nothing about native rendering, and a passing exit code proves nothing about what a player sees.
 

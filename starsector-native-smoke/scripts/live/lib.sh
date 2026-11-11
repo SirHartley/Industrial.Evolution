@@ -9,6 +9,8 @@
 #   smoke_version     REPLY = the skill's version
 #   smoke_posix_path  REPLY = C:\x or C:/x as /c/x
 #   smoke_mod_info    REPLY = DIR/mod_info.json without its '#' comment lines (loose JSON, read with patterns)
+#   smoke_real_dir    REPLY = DIR as it is stored on disk: the Claude desktop app (MSIX) redirects %LOCALAPPDATA% to
+#                     its package folder, and a junction to the redirected path does not resolve for Java or cmd
 # Every function is safe under set -eu.
 SMOKE_LIB=${BASH_SOURCE[0]%/*}
 [[ $SMOKE_LIB == /* ]] || SMOKE_LIB="$PWD/$SMOKE_LIB"
@@ -92,6 +94,22 @@ smoke_mod_info() {
     while IFS= read -r line || [[ -n $line ]]; do
         if [[ ! $line =~ ^[[:space:]]*# ]]; then REPLY+=$line$'\n'; fi
     done < "$1/mod_info.json"
+    return 0
+}
+
+smoke_real_dir() {
+    local dir=${1%/} base rel mark hit
+    REPLY=$dir
+    (( ${SMOKE_WIN:-0} )) && [[ -n ${LOCALAPPDATA:-} && -d $dir ]] || return 0
+    smoke_posix_path "$LOCALAPPDATA"; base=${REPLY%/}; REPLY=$dir
+    [[ ${dir,,} == "${base,,}"/* && ${dir,,} != "${base,,}"/packages/* ]] || return 0
+    rel=${dir:${#base}}
+    mark=".smoke-where-$$-$RANDOM"
+    : > "$dir/$mark" 2>/dev/null || return 0
+    for hit in "$base"/Packages/*/LocalCache/Local"$rel/$mark"; do
+        [[ -e $hit ]] && { REPLY=${hit%/*}; break; }
+    done
+    rm -f -- "$dir/$mark"
     return 0
 }
 

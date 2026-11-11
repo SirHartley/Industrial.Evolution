@@ -70,6 +70,18 @@ find_jdk() {
     JDK_MAJOR=$best_major; JDK_VERSION=$best_version; REPLY=$best
 }
 
+# the mod sets are junctions in the work folder. bash resolves them itself, so ask cmd, which sees what the game sees
+links_ok() {
+    local t="$1/.smoke-link-test-$$" w seen
+    mkdir -p "$t/target" && : > "$t/target/seen" || return 1
+    w=$(cygpath -w -- "$t")
+    MSYS_NO_PATHCONV=1 cmd.exe /c mklink /J "$w\\link" "$w\\target" >/dev/null 2>&1
+    seen=$(MSYS_NO_PATHCONV=1 cmd.exe /c dir /b "$w\\link\\" 2>/dev/null)
+    MSYS_NO_PATHCONV=1 cmd.exe /c rmdir "$w\\link" >/dev/null 2>&1
+    [[ -e $t/link ]] || rm -rf -- "$t"
+    [[ $seen == *seen* ]]
+}
+
 cmd_setup() {
     local write=$1; shift
     local game= jdk= work= javac_dir= platform=
@@ -142,7 +154,14 @@ cmd_setup() {
     elif (( write )) && ! mkdir -p "$work" 2>/dev/null; then
         fail "cannot create the work folder $work" 'pass a folder this account may write to with --work DIR'
     else
-        ok "work folder $work"
+        smoke_real_dir "$work"
+        [[ $REPLY != "$work" ]] && note "$work is redirected by the app this runs in (MSIX); the runs use $REPLY"
+        work=$REPLY
+        if (( SMOKE_WIN )) && [[ -d $work ]] && ! links_ok "$work"; then
+            fail "a junction in the work folder $work does not resolve for the game" 'pass a work folder outside %LOCALAPPDATA% with --work DIR'
+        else
+            ok "work folder $work"
+        fi
     fi
 
     if [[ -n $javac_dir ]]; then
