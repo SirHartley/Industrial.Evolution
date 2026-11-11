@@ -195,12 +195,19 @@ public class ShuttleNetwork {
 
             float mult = getDensity(market);
             anchor.density = mult;
+            ShuttleProfile profile = ShuttleFactionRepo.get(market.getFaction());
 
             SectorEntityToken sight = findSight(anchor, location, random);
-            if (sight != null) getRoute(ShuttleRoute.Kind.CRUISE, anchor, null, random).target = new ShuttleTarget(sight, 0f, 0f, 0f, 0f);
+            int cruises = Math.round(profile.cruises());
+            if (sight != null && cruises > 0) {
+                ShuttleRoute cruise = getRoute(ShuttleRoute.Kind.CRUISE, anchor, null, random);
+                cruise.target = new ShuttleTarget(sight, 0f, 0f, 0f, 0f);
+                cruise.demand = cruises;
+            }
 
             int wings = market.hasIndustry(Industries.MILITARYBASE) || market.hasIndustry(Industries.HIGHCOMMAND) ? 2
                     : market.hasIndustry(Industries.PATROLHQ) ? 1 : 0;
+            wings = wings > 0 ? Math.max(1, Math.round(wings * profile.pickets())) : 0;
             if (wings > 0) getRoute(ShuttleRoute.Kind.PICKET, anchor, null, random).demand = wings;
 
             if (market.hasIndustry(Ids.ACADEMY) && sight != null) {
@@ -258,7 +265,8 @@ public class ShuttleNetwork {
                     continue;
                 }
 
-                float mult = (a.density + b.density) / 2f * (a.market.getSize() + b.market.getSize()) / 10f;
+                float lanes = (ShuttleFactionRepo.get(a.faction).lanes() + ShuttleFactionRepo.get(b.faction).lanes()) / 2f;
+                float mult = (a.density + b.density) / 2f * (a.market.getSize() + b.market.getSize()) / 10f * lanes;
                 float chord = Misc.getDistance(a.getLocation(), b.getLocation());
                 ShuttleRoute route = getRoute(ShuttleRoute.Kind.MARKET, a, b, random);
                 route.demand = Math.max(2, Math.round(chord / LANE_SPACING * mult));

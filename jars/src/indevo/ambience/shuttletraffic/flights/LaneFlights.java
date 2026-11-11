@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ambience.shuttletraffic.Shuttle;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
+import indevo.ambience.shuttletraffic.ShuttleFactionRepo;
 import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleHullPool;
 import indevo.ambience.shuttletraffic.ShuttleLook;
@@ -44,7 +45,7 @@ public class LaneFlights extends BaseFlights {
         if (hull == null) return null;
 
         if (route.kind == ShuttleRoute.Kind.MARKET) {
-            return create(hull, route, faction, from, to, paths.trafficLanePath(route, from == route.b), SpeedClass.CIVIL, 1f, TRAFFIC_LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
+            return create(hull, route, faction, from, to, paths.trafficLanePath(route, from == route.b, ShuttleFactionRepo.get(faction).laneDiscipline()), SpeedClass.CIVIL, 1f, TRAFFIC_LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
         }
 
         return create(hull, route, faction, from, to, paths.lanePath(from, to, route.bendFrac * (smuggler ? 2f : 1f), smuggler), SpeedClass.CIVIL, 1f, LANE_JITTER,
