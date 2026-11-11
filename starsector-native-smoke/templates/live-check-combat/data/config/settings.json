@@ -1,0 +1,9 @@
+{
+	# By default the game stops its main loop while its window is not in front and the campaign is paused.
+	# Turning this off lets background clicks, key presses and window captures work while you use other windows.
+	"idleWhileWindowNotVisible":false,
+	# combat plugins only run in a real battle when they are registered here
+	"plugins":{
+		"livecheck_battleDriver":"livecheck.BattleDriver",
+	},
+}

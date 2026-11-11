@@ -1,0 +1,11 @@
+{
+  "id": "live_test_helper",
+  "name": "ZZ Live Test Helper",
+  "author": "Local testing",
+  "version": "1.0.0",
+  "description": "Test-only helper for driving a live game in the background. Never ship or enable it in a real mod list.",
+  "gameVersion": "0.98a-RC8",
+  "utility": "true",
+  "jars": ["jars/live_test_helper.jar"],
+  "modPlugin": "livetest.LiveTestPlugin"
+}

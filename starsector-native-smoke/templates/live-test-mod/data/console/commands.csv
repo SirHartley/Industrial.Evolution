@@ -1,0 +1,2 @@
+command,class,tags,syntax,help
+livestatus,livetest.StatusCommand,campaign,livestatus,"Prints player credits and the date. Replace with whatever state your test needs to show."

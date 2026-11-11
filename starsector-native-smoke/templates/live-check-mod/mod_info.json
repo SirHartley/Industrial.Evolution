@@ -1,0 +1,11 @@
+{
+  "id": "live_checks",
+  "name": "ZZ Live Checks",
+  "author": "Local testing",
+  "version": "1.0.0",
+  "description": "Test-only scripted checks for a live game. Never ship or enable it in a real mod list.",
+  "gameVersion": "0.98a-RC8",
+  "utility": "true",
+  "jars": ["jars/live_checks.jar"],
+  "modPlugin": "livecheck.CheckPlugin"
+}
