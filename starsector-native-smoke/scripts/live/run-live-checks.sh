@@ -203,7 +203,20 @@ launch() {
         tail -n 5 "$WORK/launch.log" >&2
         exit 1
     fi
-    for _ in $(seq 1 60); do grep -a -q 'LIVE_CHECK application loaded' "$L" 2>/dev/null && return; crashed && return; running || return; w 2; done
+    for _ in $(seq 1 60); do
+        grep -a -q 'LIVE_CHECK application loaded' "$L" 2>/dev/null && return
+        crashed && return
+        running || return
+        if grep -a -q 'Running vanilla game with no mods' "$L" 2>/dev/null; then
+            echo "MODS_NOT_LOADED: the game found none of the mods in $WORK/mods (its log says 'Running vanilla game with no mods'): the junctions there do not resolve for it. Run: bash \"$SMOKE_SH\" doctor" >&2
+            exit 1
+        fi
+        w 2
+    done
+    # without the check mod nothing would end the run but the time limit
+    shot "$WORK/not-loaded.png"
+    echo "CHECK_MOD_NOT_LOADED: no 'LIVE_CHECK application loaded' line in 120 s. Open $WORK/not-loaded.png and read $L" >&2
+    exit 1
 }
 # one JVM argument per line: the caller's, the project's, then this run's
 jvm_args() {

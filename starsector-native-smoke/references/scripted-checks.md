@@ -77,6 +77,8 @@ Each prints one line that starts with the name. Do what the line says; do not wo
 | `BUILD_FAILED` | The check mod did not compile. | Fix the sources; javac's errors are above the line. |
 | `MODSET_FAILED` | The links for the mod set could not be made. | Read `modset.log`. |
 | `NO_GAME_PID` | The game did not start. | Read the lines it prints from `launch.log`. |
+| `MODS_NOT_LOADED` | The game started without any mod: the junctions in the work folder do not resolve for it (a work folder under a redirected `%LOCALAPPDATA%`). | `smoke.sh doctor`, then `smoke.sh setup`, or `setup --work DIR`. |
+| `CHECK_MOD_NOT_LOADED` | The check mod's `onApplicationLoad` line did not come within 120 s. | Open `not-loaded.png`, read the log. |
 | `NEW_GAME_FAILED` | The new-game clicks for the base save did not end in a save. | Open `new-game-failed.png`. The clicks fit 1600x900 and an unchanged title screen. |
 | `FATAL` | The game crashed while the base save was made. | Open `fatal.png`, read the ERROR lines in the log. |
 | `STOPPED` | The machine is paused, the owner was cancelled, or the shell that started the run has ended. | Read the line and `smoke.sh status`. Do not restart in a loop. |
