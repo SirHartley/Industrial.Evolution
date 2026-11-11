@@ -5,6 +5,8 @@ import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
 import indevo.ambience.shuttletraffic.ShuttleState;
+import indevo.ambience.shuttletraffic.ShuttleNetwork;
+import indevo.ambience.shuttletraffic.flights.ShuttlePaths;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -12,6 +14,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.function.UnaryOperator;
 
 import static indevo.ambience.shuttletraffic.ShuttleState.CRUISE;
@@ -74,6 +77,7 @@ public final class ShuttleTrafficChecks {
             run.checkMoveAcross();
             run.checkStarPass();
             run.checkStates();
+            run.checkCruise();
         } finally {
             Global.setSettings(null);
         }
@@ -254,6 +258,43 @@ public final class ShuttleTrafficChecks {
             check(state.pace == (float) row[1] && state.turnMult == (float) row[2], state + " pace " + state.pace + " turn " + state.turnMult);
             check(state.isFleeing() == (boolean) row[3] && state.isHolding() == (boolean) row[4] && state.isStranded() == (boolean) row[5],
                     state + " flags differ from the old flags");
+        }
+    }
+
+    // a cruise reaches the sight, laps it outside its radius at 0.9 speed and lands back at home
+    private void checkCruise() {
+        for (int seed = 0; seed < 20; seed++) {
+            Body home = new Body(0f, 0f, 120f);
+            Body sight = new Body(0f, 0f, 200f);
+            orbit(home, 1800f, 20f, 0f);
+            orbit(sight, 3400f, 60f, 0f);
+            ShuttlePaths paths = new ShuttlePaths(new ShuttleNetwork(), new Random(seed));
+            ShuttlePath path = paths.cruisePath(anchor(home), sight.token, paths.rollCruise((seed % 5 - 2) * 0.1f));
+            path.rebuild();
+
+            float time = 0f;
+            float closestSight = Float.MAX_VALUE;
+            float lapSpeed = 0f;
+            ShuttlePath.Cursor cursor = new ShuttlePath.Cursor();
+            Vector2f point = new Vector2f();
+            boolean done = false;
+            while (!done && time < 2000f) {
+                time += 1f / 60f;
+                orbit(home, 1800f, 20f, time);
+                orbit(sight, 3400f, 60f, time);
+                path.refresh(cursor);
+                done = path.move(cursor, SPEED / 60f);
+                path.getPoint(cursor, point);
+                closestSight = Math.min(closestSight, Vector2f.sub(point, sight.loc, null).length());
+                if (path.getSegment(cursor) instanceof ShuttlePath.CircleSegment) lapSpeed = path.getSpeedMult(cursor);
+            }
+
+            String name = "cruise seed " + seed;
+            check(done, name + ": never ended");
+            check(closestSight >= sight.radius * 1.2f, name + ": came within " + closestSight + " of the sight");
+            check(closestSight <= sight.radius * 1.5f + 60f + 1f, name + ": never reached the lap, closest " + closestSight);
+            check(lapSpeed == 0.9f, name + ": lap speed " + lapSpeed);
+            check(Vector2f.sub(point, home.loc, null).length() <= home.radius, name + ": ended " + Vector2f.sub(point, home.loc, null).length() + " from home");
         }
     }
 

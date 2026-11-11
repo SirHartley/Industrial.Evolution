@@ -33,7 +33,7 @@ public class ShuttleFlights {
         flights.put(ShuttleRoute.Kind.SMUGGLER, lane);
         flights.put(ShuttleRoute.Kind.DIPLOMAT, (route, room) -> BaseFlights.single(lanes.launchDiplomat(route)));
         flights.put(ShuttleRoute.Kind.HUNT, (route, room) -> BaseFlights.single(lanes.launchHunt(route)));
-        flights.put(ShuttleRoute.Kind.JOYRIDE, local::launchJoyride);
+        flights.put(ShuttleRoute.Kind.CRUISE, local::launchCruise);
         flights.put(ShuttleRoute.Kind.PICKET, local::launchPicket);
         flights.put(ShuttleRoute.Kind.TRAINING, local::launchTraining);
         flights.put(ShuttleRoute.Kind.MINING, (route, room) -> BaseFlights.single(local.launchLinger(route)));

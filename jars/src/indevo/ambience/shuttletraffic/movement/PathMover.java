@@ -150,7 +150,7 @@ public class PathMover {
         if (launchLength > 0f && traveled < launchLength) ease = Math.min(ease, 0.35f + 0.65f * smooth(traveled / launchLength));
         if (landLength > 0f && remaining < landLength) ease = Math.min(ease, 0.35f + 0.65f * smooth(remaining / landLength));
 
-        float speed = shuttle.getSpeed(ease);
+        float speed = shuttle.getSpeed(ease) * path.getSpeedMult(cursor);
         if (path.move(cursor, speed * amount)) {
             shuttle.onPathEnd(traffic);
             if (retry && !shuttle.isDone() && !shuttle.isDown()) advancePath(amount, traffic, false);

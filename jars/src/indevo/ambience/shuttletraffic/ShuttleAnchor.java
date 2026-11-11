@@ -36,6 +36,8 @@ public class ShuttleAnchor {
     public boolean threatened = false;
     public boolean overrun = false;
     public float lastThreatDay = -100f;
+    // body cruises and training flights fly out to and lap, picked once and kept while it stays in range
+    public SectorEntityToken sight;
 
     public ShuttleAnchor(SectorEntityToken entity, Type type, Role role, MarketAPI market, FactionAPI faction) {
         this.entity = entity;

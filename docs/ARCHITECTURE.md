@@ -64,7 +64,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [CONSOLE](core/CONSOLE.md) | Console Commands | `console` |
 | | [MISC](core/MISC.md) | Unregistered leftovers | `other` |
 | | [WIP](core/WIP.md) | Mobile colony, converters | `WIP` |
-| Ambience | [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md) | Visual only shuttle traffic in the current system: lanes, joyrides, patrols, mining, salvage, fleeing traffic, escape pods | `ambience/shuttletraffic` |
+| Ambience | [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md) | Visual only shuttle traffic in the current system: lanes, pleasure cruises, patrols, mining, salvage, fleeing traffic, escape pods | `ambience/shuttletraffic` |
 
 ## Start here
 

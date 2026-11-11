@@ -13,7 +13,7 @@ public class ShuttleRoute {
         MINING(0.8f, 8f),
         SALVAGE(0.8f, 20f),
         PICKET(0.8f, 10f),
-        JOYRIDE(0.7f, 15f),
+        CRUISE(0.7f, 15f),
         TRAINING(0.7f, 20f);
 
         // share of the traffic cap this kind may still spawn into
