@@ -22,7 +22,7 @@ Run it from Git Bash. The game folder is the one that holds `starsector-core`, `
 | Game folder | No path given or stored, or the folder has no `starsector-core`, or `jre\bin\java.exe` is missing. | Ask the user for the folder and pass it. Never search the disk. |
 | JDK 17 or newer | No `javac` and `jar` found. The game ships a JRE only. | Install a JDK 17 and pass `--jdk "<its bin folder>"`. |
 | The game has run | The game's preferences are missing for this Windows account, so there is no licence. | The user starts the game once through its own launcher and enters the key. Never print or copy the preferences. |
-| Work folder | It cannot be created, or it lies inside the game's `mods` or core folder. | Pass `--work DIR` with a folder this account may write to. |
+| Work folder | It cannot be created, it lies inside the game's `mods` or core folder, or a junction in it does not resolve for the game. | Pass `--work DIR` with a folder this account may write to, outside `%LOCALAPPDATA%`. |
 | Tools | `gamectl.exe`, the prefs helper or the cursor guard did not build. | `gamectl` needs the C# compiler that ships with Windows (.NET Framework 4), the other two the JDK. Try another JDK. |
 
 Where the JDK comes from, in this order: `--jdk`, `SMOKE_JAVAC_DIR`, the stored `javac_dir`, then the lowest version from 17 up among `PATH`, `JAVA_HOME`, `GAME\jdk-17\bin`, `~/.jdks`, the usual `Program Files` vendor folders and `/usr/lib/jvm`. The game runs on Java 17, so the lowest fitting JDK wins. `note` lines name missing extras: without `jfr` and `jcmd` there is no profile report or thread dump, without `jdeps` the probe runner skips its gate check.
@@ -33,7 +33,7 @@ What setup stores in `config` of the machine folder (read one with `bash "$SKILL
 |---|---|
 | `game_root` | The game folder. |
 | `javac_dir` | The JDK's `bin` folder. |
-| `work_root` | Where work folders go: `work_root/OWNER/slotN`. Default `work` in the machine folder. |
+| `work_root` | Where work folders go: `work_root/OWNER/slotN`. Default `work` in the machine folder. The Claude desktop app is an MSIX package that redirects `%LOCALAPPDATA%` to `%LOCALAPPDATA%\Packages\<app>\LocalCache\Local`; the junctions of a mod set only resolve through the real path, so setup stores that one (a `note` line says so). |
 | `slots` | Games at once. Setup picks half the CPU threads, at least 1 and at most 3, unless it is set already. |
 | `default`, `mem_mb`, `idle_min`, `perf_wait`, `legacy` | Slot settings: [slots.md](slots.md#slots-and-locks). |
 
