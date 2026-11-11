@@ -1,6 +1,7 @@
 package indevo.ambience.shuttletraffic;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.BattleAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import indevo.ambience.shuttletraffic.flights.ShuttleFlights;
@@ -74,8 +75,8 @@ public class ShuttleTraffic {
         advance(pods, amount);
     }
 
-    public void queuePods(CampaignFleetAPI fleet) {
-        flights.getPods().queue(fleet);
+    public void queuePods(CampaignFleetAPI fleet, BattleAPI battle) {
+        flights.getPods().queue(fleet, battle);
     }
 
     public float getTime() {

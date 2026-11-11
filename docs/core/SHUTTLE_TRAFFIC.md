@@ -136,10 +136,11 @@ Fighters on joyrides and pickets fly as a wing of `wingSize` (at most 3); traini
 ### Escape pods
 
 - `EscapePodListener.reportFleetDespawned` (`:18`) on `FleetDespawnReason.DESTROYED_BY_BATTLE`, not the player fleet, in the player's location. `CampaignFleet.despawn` reports while the fleet is still in place (knowledge skill `obf/campaign/fleet/CampaignFleet.java:1599`).
-- Pods (`PodFlights.getPodCount`, `:100`): from `getFleetData().getSnapshot()`, crewed non automated members only, 1 per frigate or destroyer, 2 per cruiser, 3 per capital, at most 16; an empty snapshot gives 3.
-- Planet (`findPodPlanet`, `:119`): nearest non star planet whose surface is within 2000 su; a non hostile market planet in range wins over a closer one.
+- Bursts (`PodFlights.getBursts`): from `getFleetData().getSnapshot()`, crewed non automated members only, one burst per ship: 2 pods per frigate or destroyer, 3 per cruiser or capital, at most 16 pods per fleet; an empty snapshot gives one burst of 3.
+- Away heading (`getAwayHeading`): `FleetEncounterContext` passes the `BattleAPI` as the despawn param (knowledge skill `api/impl/campaign/FleetEncounterContext.java:827`); pods fan away from the centre of `battle.getOtherSideFor(fleet)`, else from the nearest hostile threat in the scan within 3000 su, else in random directions.
+- Planet (`findPodPlanet`): nearest non star planet whose surface is within 2000 su; a non hostile market planet in range wins over a closer one.
 - Queued until `getCampaignUI().isShowingDialog()` is false and the game is unpaused, dropped if the player left the location. At most 32 pods in flight.
-- Each pod (`PodFlights.launch`, `:76`): the vanilla `mining_drone` sprite at 10 su long with its own engine colours (no pods if a mod removed the hull), appears within 1.5 s, shoots out at 80 to 120 su/s easing to 35 su/s over 2 s, tumbles, curves to a random point on the planet disc and lands with the planet look. Short thin contrail, no engine glow. Pods ignore fleets and threats.
+- Each burst (`PodFlights.launch`): starts within 1.5 s of the event, its pods 0.3 s apart on one shared curve (one heading inside an 80 degree fan, one pad offset and handle), each with +-6 su jitter, so the burst reads as a string. The vanilla `mining_drone` sprite at 10 su long with its own engine colours (no pods if a mod removed the hull). Pods shoot out at 80 to 120 su/s easing to 35 su/s over 2 s, tumbling at 14 to 84 degrees per second; the tumble decays over those 2 s and the sprite angle blends into the heading. No trail and no glow while tumbling; then a small glow and a short thin contrail. Pods curve to a random point on the planet disc and land with the planet look. Pods ignore fleets and threats.
 
 ### Look
 
