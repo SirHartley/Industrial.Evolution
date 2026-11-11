@@ -2,11 +2,11 @@
 
 Visual only small craft in the player's current star system: cargo lanes between markets and to orbital stations, joyrides, patrol pickets, training flights, mining and salvage runs, pirate cargo hops, scavenging hunts, smugglers, diplomats, maintenance runs, traffic that scatters from hostile fleets, and escape pods from fleets destroyed in battle. Read it before touching `indevo/ambience/shuttletraffic/`, `data/config/indEvo/shuttle_traffic.csv` or `IndEvo_shuttleTraffic`. It does not cover real fleets or trade routes; nothing here changes the economy.
 
-Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`) and IE `ba20e5b`. Recheck engine facts after a game update.
+Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`) and IE `3410777` plus the stage 3 split of the shuttle traffic plan. Recheck engine facts after a game update.
 
 ## Overview
 
-One transient LunaLib campaign renderer owns everything: anchors, routes, craft, trails, pods. Nothing is an entity, nothing is clickable, nothing is saved. Only the player's current location is simulated; hyperspace has no traffic.
+One transient LunaLib campaign renderer drives one `ShuttleTraffic` context that owns everything: anchors, routes, craft, trails, pods. Nothing is an entity, nothing is clickable, nothing is saved. Only the player's current location is simulated; hyperspace has no traffic.
 
 - Anchors are places craft launch from or land at: market planets and stations (`MARKET`), Decivilized Subpopulation planets (`DECIV`), Remnant battlestations (`REMNANT`) and one off destinations (`TARGET`: hunt planets, escape pod planets).
 - Routes say what flies where and how often. Most keep a number of flights in the air on a jittered timer; rare routes roll a daily chance.
@@ -14,49 +14,65 @@ One transient LunaLib campaign renderer owns everything: anchors, routes, craft,
 
 ## Files
 
+Package `indevo/ambience/shuttletraffic/`:
+
 | File | Owner / role |
 |---|---|
-| `indevo/ambience/shuttletraffic/ShuttleTrafficRenderer.java` | `LunaCampaignRenderingPlugin`: registration, location change, daily rebuild and rare rolls, fleet scan, anchor threats, fleeing and screening, spawning, warm start, escape pod queue, render |
+| `renderers/ShuttleTrafficRenderer.java` | `LunaCampaignRenderingPlugin`: registration, pause, zoom fade, viewport cull, render order (trails of a list in one GL state block, then sprites) |
+| `ShuttleTraffic.java` | Context for one location: network, random, fleet scan, flights, spawner, reactions, craft and pod lists, own day count; location change, daily rebuild, 0.25 s scan |
+| `ShuttleSpawner.java` | Warm start, rare route rolls, timer launches under the cap share |
+| `ShuttleReactions.java` | Anchor threats, fleeing, screening, closed port diverts |
 | `ShuttleNetwork.java` | Anchors and routes for one location, density, closed ports, mining and salvage targets, refuge lookup, star and planet avoidance (`getBend`), hunt planets |
-| `ShuttleFlights.java` | Builds the craft and path of each flight kind, formations, flee, away, hold and screen paths, escape pods |
+| `flights/ShuttleFlights.java` | One `Flight` per `ShuttleRoute.Kind` in an `EnumMap`; throws when a kind has none |
+| `flights/LaneFlights.java`, `LocalFlights.java`, `PodFlights.java` | Lane flights (lanes, diplomats, hunts); local flights (joyrides, pickets, training, mining and salvage lingers, maintenance) and formations; escape pod queue and launch |
+| `flights/ShuttlePaths.java`, `BaseFlights.java` | Every path builder (lanes, redirect, flee, away, hold, screen, joyride, linger, loop); shared flight helpers (`canFly`, `create`) |
 | `ShuttleAnchor.java` | One launch or landing place: type (`PLANET`, `STATION`), role, pad depth, landing length, pad busy time, threat state |
 | `ShuttleRoute.java` | One route: kind, anchors, optional target, bend, in flight limit, timer or daily chance |
 | `ShuttleTarget.java` | A point relative to an entity, for mining belts, debris fields, wrecks and objectives |
-| `ShuttlePath.java` | Segment chain with arc length tables: `BezierSegment`, `CircleSegment` (circle or rotated ellipse); waypoints on an anchor pad, fixed, relative to an entity, or at the start or end of another segment |
-| `Shuttle.java` | One craft: progress, easing, jitter, wobble, fleet avoidance, facing, landing and docking look, docking queue, formation following, stays, fleeing, stranded hold, picket screening, trail, rendering |
-| `ShuttleFleetScan.java` | Fleets near the player and threat fleets in the location, rebuilt every 0.25 s |
-| `ShuttleHull.java` | Sprite, size, speed, flags and engine colours for one hull |
-| `ShuttleHullPool.java` | Base pool from the CSV, faction pools, crew rule, rolls per flight kind, sprites, engine colours, escape pod sprites |
-| `EscapePodListener.java` | Transient `BaseCampaignEventListener`: queues fleets destroyed in battle |
+| `movement/ShuttlePath.java` | Segment chain with arc length tables: `BezierSegment`, `CircleSegment` (circle or rotated ellipse); waypoints on an anchor pad, fixed, relative to an entity, or at the start or end of another segment |
+| `movement/PathMover.java` | Moves a craft along its path: cursor, easing, jitter, fleet avoidance, virtual frame |
+| `movement/FollowMover.java` | Moves a formation follower on its leader's history |
+| `Shuttle.java` | One craft: state, traits, route, ends, stays, landing and docking look, docking queue, fleeing, stranded hold, picket screening, rendering |
+| `ShuttleState.java` | Craft states (`CRUISE`, `HOLDING`, `FLEEING`, `FLEEING_HOLDING`, `ESCAPING`, `STRANDED`, `SCREENING`, `DOWN`), pace, turn rate and the legal transitions; an illegal one throws |
+| `ShuttleLook.java` | Immutable look per flight: glow, trail alpha, width and length, glow flicker, spin |
+| `ShuttleTrail.java` | Trail and formation history ring buffers relative to the virtual frame, trail rendering |
+| `ShuttleFleetScan.java` | Pooled entries for fleets near the player and threat fleets in the location, rebuilt every 0.25 s |
+| `ShuttleHull.java` | Hull look (sprite, engine colours, cached per hull id), size, speed, flags, wing size |
+| `ShuttleHullPool.java` | Base pool from the CSV, faction pools, crew rule, rolls per flight kind, escape pod hull |
+| `listeners/EscapePodListener.java` | Transient `BaseCampaignEventListener`: queues fleets destroyed in battle |
+| `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, state transitions |
 | `data/config/indEvo/shuttle_traffic.csv` | Base civilian craft: `id, hullId, weight, small` |
 
 ## Data and ids
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Setting | `IndEvo_shuttleTraffic` (Int, 60, 0 to 120): most craft in flight in the current system, 0 turns traffic and escape pods off | `data/config/LunaSettings.csv:13`, `indevo/config/Setting.java:10`, read every frame in `ShuttleTrafficRenderer.advance` (`:83`) |
+| Setting | `IndEvo_shuttleTraffic` (Int, 60, 0 to 120): most craft in flight in the current system, 0 turns traffic and escape pods off | `data/config/LunaSettings.csv:13`, `indevo/config/Setting.java:10`, read every frame in `ShuttleTrafficRenderer.advance` (`renderers/ShuttleTrafficRenderer.java:53`) |
 | CSV | `data/config/indEvo/shuttle_traffic.csv`, read with `getMergedSpreadsheetDataForMod("id", path, "IndEvo")`; rows starting with `#` are skipped | `ShuttleHullPool.getBasePool` |
-| Sprites | `campaignEntities` / `fusion_lamp_glow` (engine glow); hull sprites from `ShipHullSpecAPI.getSpriteName()`, the vanilla `mining_drone` hull for escape pods | `ShuttleTrafficRenderer`, `ShuttleHullPool.getPod` (`:100`) |
-| Config | `data/config/engine_styles.json` (merged): `engineCampaignColor` or `engineColor` for the glow, `contrailCampaignColor` or `contrailColor` at alpha 75 for the trail, `type` `SMOKE` for a normal blend trail | `ShuttleHullPool.getEngineLook` (`:265`) |
-| Industry ids | `Industries.PATROLHQ`, `MILITARYBASE`, `HIGHCOMMAND`, `MINING`, `Ids.SWITCHABLE_MINING`, `Ids.ACADEMY`, `Ids.EMBASSY`, `Ids.SCRAPYARD` | `ShuttleNetwork.addMarkets` (`:170`) |
+| Sprites | `campaignEntities` / `fusion_lamp_glow` (engine glow); hull sprites from `ShipHullSpecAPI.getSpriteName()`, the vanilla `mining_drone` hull for escape pods | `ShuttleTrafficRenderer`, `ShuttleHullPool.getPod` (`:114`) |
+| Config | `data/config/engine_styles.json` (merged): `engineCampaignColor` or `engineColor` for the glow, `contrailCampaignColor` or `contrailColor` at alpha 75 for the trail, `type` `SMOKE` for a normal blend trail | `ShuttleHullPool.getEngineLook` |
+| Industry ids | `Industries.PATROLHQ`, `MILITARYBASE`, `HIGHCOMMAND`, `MINING`, `Ids.SWITCHABLE_MINING`, `Ids.ACADEMY`, `Ids.EMBASSY`, `Ids.SCRAPYARD` | `ShuttleNetwork.addMarkets` (`:182`) |
 
 Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2, `shepherd` 1, `ox` 1. Another mod adds rows by shipping the same path with its own ids.
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> ShuttleTrafficRenderer.register()` (`indevo/utils/ModPlugin.java:493`). Guarded with `LunaCampaignRenderer.hasRendererOfClass`; resets the hull pool caches, adds a transient renderer and a transient `EscapePodListener` (`Global.getSector().addTransientListener`) (`ShuttleTrafficRenderer.java:59`).
+- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> ShuttleTrafficRenderer.register()` (`indevo/utils/ModPlugin.java:493`). Guarded with `LunaCampaignRenderer.hasRendererOfClass`; resets the hull pool caches, adds a transient renderer and a transient `EscapePodListener` (`Global.getSector().addTransientListener`) (`renderers/ShuttleTrafficRenderer.java:30`).
 - LunaLib's `luna_campaign_renderer` entity renders the plugin in every layer and only advances it while that entity is in the player's location.
 
-`advance -> [location changed] network.rebuild -> fleetScan.scan -> updateThreats -> warmStart | [1 day] network.rebuild -> rollRareFlights -> [0.25 s] fleetScan.scan -> updateThreats -> react -> spawn -> launchQueuedPods -> Shuttle.advance`
+`ShuttleTrafficRenderer.advance -> ShuttleTraffic.advance -> [location changed] network.rebuild -> fleetScan.scan -> reactions.updateThreats -> spawner.warmStart | [1 day] ShuttleHullPool.dropStaleFactionPools -> network.rebuild -> spawner.rollRareFlights -> [0.25 s] fleetScan.scan -> reactions.updateThreats -> reactions.react -> spawner.spawn -> PodFlights.launchQueued -> Shuttle.advance -> PathMover or FollowMover`
+
+- Why poll: no callback covers industry changes on NPC markets, port disruption, new debris fields or wrecks, or fleet positions, so the network rebuilds once a day and the fleet scan runs every 0.25 s. Both only run for the player's current location.
+- A daily rebuild also drops a faction pool whose known ship or fighter count changed (`Faction.getKnownShips` returns the live set, knowledge skill `obf/campaign/Faction.java:431`).
 
 ## Flow
 
 ### Anchors and routes
 
-`ShuttleNetwork.rebuild` (`:66`) on location change and once per day.
+`ShuttleNetwork.rebuild` (`:68`) on location change and once per day.
 
-- A market counts if its primary entity is in the location, `isInEconomy()`, not `isHidden()`, `hasSpaceport()` and not `isDiscoverable()` (`:409`). A primary entity tagged `Tags.STATION` is a station anchor, otherwise a planet anchor.
-- Density (`:421`): Megaport x1.5, Commerce x1.25, stability `clamp(0.5 + stability / 20, 0.5, 1)`, x0.5 while `MemFlags.RECENTLY_RAIDED` or `RECENTLY_BOMBARDED`. A disrupted Spaceport or Megaport closes the market anchor and its stations (`:415`).
+- A market counts if its primary entity is in the location, `isInEconomy()`, not `isHidden()`, `hasSpaceport()` and not `isDiscoverable()` (`:422`). A primary entity tagged `Tags.STATION` is a station anchor, otherwise a planet anchor.
+- Density (`:434`): Megaport x1.5, Commerce x1.25, stability `clamp(0.5 + stability / 20, 0.5, 1)`, x0.5 while `MemFlags.RECENTLY_RAIDED` or `RECENTLY_BOMBARDED`. A disrupted Spaceport or Megaport closes the market anchor and its stations (`:428`).
 - Anchors and routes not seen in a rebuild are dropped. Routes keep their key `kind|anchor id|destination id`, bend, timer and counts across rebuilds.
 
 | Kind | Route | In flight | Cap share |
@@ -75,28 +91,28 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 | `TRAINING` | Market with an Academy; a loose group of 2 or 3 flies an orbit | 1 group | 0.7 |
 
 - Cap share: a route only launches while the craft in flight are below `setting * share`, so joyrides and training drop first, then mining, salvage and pickets, then market lanes. Formations count each craft.
-- Timer routes (`ShuttleTrafficRenderer.spawn`, `:215`): lanes `(distance / 27 + 6) / max * (0.6..1.4)` s, others `Kind.pause * (0.6..1.4)` s. Rare routes roll their chance once per day (`rollRareFlights`, `:209`) and launch when the roll is pending.
+- Timer routes (`ShuttleSpawner.spawn`, `:40`): lanes `(distance / 27 + 6) / max * (0.6..1.4)` s, others `Kind.pause * (0.6..1.4)` s. Rare routes roll their chance once per day (`rollRareFlights`, `:33`) and launch when the roll is pending.
 - Warm start fills every timer route to its limit at spread progress, trails and formation history pre-filled.
-- Nothing launches from or to a threatened anchor, or from an anchor threatened in the last day (`ShuttleFlights.canFly`, `:464`).
+- Nothing launches from or to a threatened anchor, or from an anchor threatened in the last day (`BaseFlights.canFly`, `:40`).
 
 ### Hulls
 
-- Crew rule (`ShuttleHullPool.isCrewed`, `:211`): `getMinCrew() > 0`, no built in `HullMods.AUTOMATED`, no `Tags.AUTOMATED`; wings tagged `Tags.AUTOMATED_FIGHTER` are skipped. Remnant joyrides skip the rule.
-- Faction pool (`:166`), cached per faction id and crew rule: hulls of `getKnownFighters()` (wing size clamped 1 to 3) and the frigates of `getKnownShips()` without `STATION` or `MODULE` hints or `Tags.RESTRICTED`. Civilian hints (`CIVILIAN`, `FREIGHTER`, `TANKER`, `LINER`, `TRANSPORT`) mark a hull civilian; fighters and Kite skins are small. Weights: CSV weight, else civilian 3, fighter 2, other 1.
+- Crew rule (`ShuttleHullPool.isCrewed`, `:235`): `getMinCrew() > 0`, no built in `HullMods.AUTOMATED`, no `Tags.AUTOMATED`; wings tagged `Tags.AUTOMATED_FIGHTER` are skipped. Remnant joyrides skip the rule.
+- Faction pool (`getFactionPool`, `:185`), cached per faction id and crew rule, dropped on the daily rebuild when the faction's known ship or fighter count changed: hulls of `getKnownFighters()` (wing size clamped 1 to 3) and the frigates of `getKnownShips()` without `STATION` or `MODULE` hints or `Tags.RESTRICTED`. Civilian hints (`CIVILIAN`, `FREIGHTER`, `TANKER`, `LINER`, `TRANSPORT`) mark a hull civilian; fighters and Kite skins are small. Weights: CSV weight, else civilian 3, fighter 2, other 1.
 - Rolls: supply hops 80% base small craft, else faction civilian small craft; market lanes, smugglers and maintenance 60% base, else faction civilian; pirate cargo hops the pirate faction's small craft; diplomats a faction `LINER` or Hermes / Kite; hunts Shuttle Pod, Kite, Mudskipper; joyrides 20% base, 80% faction; pickets faction fighters, fallback Talon; training faction fighters or Kite / Shuttle Pod; mining faction `FREIGHTER` or Shepherd / Mudskipper / Ox; salvage Ox / Mudskipper / Shepherd.
 - Engine colours: `getEngineSlots()` on the game's hull spec class and `getStyleId()` on the first slot, by name through `ReflectionUtils.invoke`; a `CUSTOM` or unknown style uses the slot colour. If reflection fails, manufacturer `Low Tech` / `High Tech` / anything else maps to `LOW_TECH` / `HIGH_TECH` / `MIDLINE`, with one warning.
 - Unknown or uncrewed CSV hulls are dropped with a warning; a hull without a loadable sprite is skipped.
 
 ### Paths
 
-- Market lanes (`trafficLanePath`, `ShuttleFlights.java:83`): one curve per market pair, bent the same way in both directions. Pads sit 8 +-1.5 degrees right of the live line between the anchors and jitter is +-3 su, so each direction keeps to its own side and a pair shows two steady streams about 60 su apart mid lane.
+- Market lanes (`ShuttlePaths.trafficLanePath`, `flights/ShuttlePaths.java:55`): one curve per market pair, bent the same way in both directions. Pads sit 8 +-1.5 degrees right of the live line between the anchors and jitter is +-3 su, so each direction keeps to its own side and a pair shows two steady streams about 60 su apart mid lane.
 - Other lanes: one cubic Bezier between pads (`0.6 * radius` deep on planets, `0.15 * radius` on stations), evaluated live, so orbiting anchors carry the lane. Pads sit at a fixed offset from the live direction to the other anchor (+-40 degrees, scaled down to +-12 on lanes under 800 su), so the lane turns with orbiting anchors instead of stretching; handles `min(radius + 80, chord * 0.45)` along the outward radial. Smugglers launch and land on the far sides and bend twice as wide.
-- Bend: control points shift along the chord normal by `bendFrac * chord`, `bendFrac` in +-0.125 per route; outside market lanes the two directions arc on opposite sides. `ShuttleNetwork.getBend` (`:112`) pushes the bend clear of any star (corona or event horizon outer edge, else `1.5 * radius`) or planet (`1.3 * radius + 30`). The bend is fixed at launch, so it only clears bodies for the geometry at launch.
-- Star pass (`ShuttleFlights.lane`, `:96`): lanes are evaluated live and a long flight lasts 10 to 30 days, so orbiting anchors can sweep a fixed lane through the star. When a star lies between the anchors (`ShuttleNetwork.getStarAcross`, `:115`: projection inside 5% to 95% of the chord, within `radius + chord / 2` of it), the lane runs through a `StarPassWaypoint` (`ShuttlePath.java:107`): the point on the bent lane abreast of the star, pushed out to `1.1 * radius` on the side it started on, recomputed every evaluation, fading out once the star is no longer between the anchors. Market lane directions pass 30 su apart there. Join paths (redirect, flee, away, screen) do not avoid stars.
-- Joyrides (`ShuttleFlights.joyridePath`): Orbit, one full lap at `radius + 100..220` su around the anchor; Arc, planets only (60%), a low hop at `0.25 * radius + 40..80` su over 60 to 140 degrees to another spot on the same planet. Pads sit 60 degrees behind the entry and past the exit, so the craft climbs out along the entry radial and spirals back in; handles `0.5 * R` at the pads, `0.4 * R` at the circle.
-- Linger (`lingerPath`, `:356`): Beziers between points on circles of `wander * (0.8..1.2)` that turn 80 degrees per step, handles `0.5 * wander` (longer ones overshoot into cusps), drifting 40 su per step along a belt band; the count follows the linger days at cruise speed. Two spare points at each end let the loop start at the point heading most away from home and end at the one heading most toward it, so the transits need no u turn. Wander is 80 su for belts and fields, 60 to 120 su for debris fields, 70 su for wrecks.
+- Bend: control points shift along the chord normal by `bendFrac * chord`, `bendFrac` in +-0.25 per route; outside market lanes the two directions arc on opposite sides. `ShuttleNetwork.getBend` (`:141`) pushes the bend clear of any star (corona or event horizon outer edge, else `1.5 * radius`) or planet (`1.3 * radius + 30`). The bend is fixed at launch, so it only clears bodies for the geometry at launch.
+- Star pass (`ShuttlePaths.lane`): lanes are evaluated live and a long flight lasts 10 to 30 days, so orbiting anchors can sweep a fixed lane through the star. When a star lies between the anchors (`ShuttleNetwork.getStarAcross`, `:115`: projection inside 5% to 95% of the chord, within `radius + chord / 2` of it), the lane runs through a `StarPassWaypoint` (`movement/ShuttlePath.java:108`): the point on the bent lane abreast of the star, pushed out to `1.1 * radius` on the side it started on, recomputed every evaluation, fading out once the star is no longer between the anchors. Market lane directions pass 30 su apart there. Join paths (redirect, flee, away, screen) do not avoid stars.
+- Joyrides (`ShuttlePaths.joyridePath`, `:155`): Orbit, one full lap at `radius + 100..220` su around the anchor; Arc, planets only (60%), a low hop at `0.25 * radius + 40..80` su over 60 to 140 degrees to another spot on the same planet. Pads sit 60 degrees behind the entry and past the exit, so the craft climbs out along the entry radial and spirals back in; handles `0.5 * R` at the pads, `0.4 * R` at the circle.
+- Linger (`lingerPath`, `:178`): Beziers between points on circles of `wander * (0.8..1.2)` that turn 80 degrees per step, handles `0.5 * wander` (longer ones overshoot into cusps), drifting 40 su per step along a belt band; the count follows the linger days at cruise speed. Two spare points at each end let the loop start at the point heading most away from home and end at the one heading most toward it, so the transits need no u turn. Wander is 80 su for belts and fields, 60 to 120 su for debris fields, 70 su for wrecks.
 - Jitter up to +-10 su (market lanes +-3) scales with `sin(pi * t)`. Paths that join a craft's current position to a pad or circle use handles up to 150 su. Arc length tables of 16 samples. A craft keeps its progress as a segment and an arc length fraction inside it (`ShuttlePath.Cursor`); the current segment's table is rebuilt every frame and the rest every 1 s, so a rebuild never moves the craft. Progress is distance based, so fast forward is safe.
-- Frames: a craft stores its trail and formation history relative to a virtual frame (`Shuttle.moveFrame`, `:699`) that moves each frame by how far the current segment's start and end points moved, blended by `t * t * (3 - 2t)` on a Bezier (how its control points move) and the start on a circle. The trail then rides exactly like the path under the craft and stays in line with the sprite even between two bodies that orbit apart. A segment that starts where the last one ended carries on from that end. Every waypoint also names the entity it moves with (`Waypoint.getFrame`); paths that start at a craft's position (redirect, flee, away, screen, holds) start relative to the current segment's dominant entity.
+- Frames: a craft stores its trail and formation history relative to a virtual frame (`PathMover.moveFrame`, `movement/PathMover.java:225`) that moves each frame by how far the current segment's start and end points moved, blended by `t * t * (3 - 2t)` on a Bezier (how its control points move) and the start on a circle. The trail then rides exactly like the path under the craft and stays in line with the sprite even between two bodies that orbit apart. A segment that starts where the last one ended carries on from that end. Every waypoint also names the entity it moves with (`Waypoint.getFrame`); paths that start at a craft's position (redirect, flee, away, screen, holds) start relative to the current segment's dominant entity.
 
 ### Formations
 
@@ -104,26 +120,26 @@ Fighters on joyrides and pickets fly as a wing of `wingSize` (at most 3); traini
 
 ### Fleet avoidance
 
-`ShuttleFleetScan.scan` (`:25`) every 0.25 s: obstacles are fleets that are not `isStationMode()`, slower than 40 su/s, within 3000 su of the player, and either the player fleet or 5 or more ships. `Shuttle.getAvoidanceTarget` (`:543`) pushes the craft along the path normal to clear `fleet radius + 40`, to the side it is already on, easing at 20 su/s, fading out over the first and last 15% of a path. Fleeing craft also avoid hostile threats at any speed.
+`ShuttleFleetScan.scan` (`:57`) every 0.25 s: obstacles are fleets that are not `isStationMode()`, slower than 40 su/s, within 3000 su of the player, and either the player fleet or 5 or more ships. `PathMover.getAvoidanceTarget` (`:193`) pushes the craft along the path normal to clear `fleet radius + 40`, to the side it is already on, easing at 20 su/s, fading out over the first and last 15% of a path. Fleeing craft also avoid hostile threats at any speed.
 
 ### Danger
 
-- Threats (`ShuttleFleetScan`, `:34`): the player fleet, and fleets with at least 30 fleet points; a threat counts against a faction it is hostile to.
-- Anchors (`updateThreats`, `:248`): threatened with a hostile threat within `radius + 600` su, overrun within `radius`. `lastThreatDay` is kept; Remnant anchors are never threatened.
-- Craft (`react`, `:263`): a craft flees when a hostile threat is within 400 su or its destination is threatened. A fleeing craft flees again only when its refuge becomes threatened.
-- Refuge (`ShuttleNetwork.findRefuge`, `:90`): nearest usable, unthreatened, non hostile anchor, other factions x1.5 distance; pirates only use pirate markets and `DECIV` anchors, everyone else neither; Remnant anchors never.
-- Disarray (`Shuttle.flee`, `:233`): heading kick of up to +-70 degrees, one in five flies a 60 to 90 su panic circle first, speed x1.4, turn rate x2, a 10 su swerve fading over 3 s. Formations break up and each craft flees alone. A refugee lands, waits hidden and flies home once its home has been safe for 1 day.
+- Threats (`ShuttleFleetScan.Entry.isHostileThreat`, `:34`): the player fleet, and fleets with at least 30 fleet points; a threat counts against a faction it is hostile to.
+- Anchors (`ShuttleReactions.updateThreats`, `:20`): threatened with a hostile threat within `radius + 600` su, overrun within `radius`. `lastThreatDay` is kept; Remnant anchors are never threatened.
+- Craft (`react`, `:36`): a craft flees when a hostile threat is within 400 su or its destination is threatened. A fleeing craft flees again only when its refuge becomes threatened.
+- Refuge (`ShuttleNetwork.findRefuge`, `:92`): nearest usable, unthreatened, non hostile anchor, other factions x1.5 distance; pirates only use pirate markets and `DECIV` anchors, everyone else neither; Remnant anchors never.
+- Disarray (`Shuttle.flee`, `:165`): heading kick of up to +-70 degrees, one in five flies a 60 to 90 su panic circle first, speed x1.4, turn rate x2, a 10 su swerve fading over 3 s. Formations break up and each craft flees alone. A refugee lands, waits hidden and flies home once its home has been safe for 1 day.
 - No refuge: fly 800 to 1500 su away from the threat, then hold a 150 su circle at 60% speed until no hostile threat has been within 800 su for 1 day, then fly home.
 - Pickets never flee from nearby threats: while their market is threatened they fly 120 su circles at 60% speed centred `radius + 250` su toward the threat, and land once it leaves. If the market is overrun they scatter like the rest. Remnant drones never flee.
 - A closed port (disrupted, or the anchor dropped) diverts inbound craft calmly to a refuge without disarray.
 
 ### Escape pods
 
-- `EscapePodListener.reportFleetDespawned` (`:17`) on `FleetDespawnReason.DESTROYED_BY_BATTLE`, not the player fleet, in the player's location. `CampaignFleet.despawn` reports while the fleet is still in place (knowledge skill `obf/campaign/fleet/CampaignFleet.java:1599`).
-- Pods (`getPodCount`, `:354`): from `getFleetData().getSnapshot()`, crewed non automated members only, 1 per frigate or destroyer, 2 per cruiser, 3 per capital, at most 16; an empty snapshot gives 3.
-- Planet (`findPodPlanet`, `:373`): nearest non star planet whose surface is within 2000 su; a non hostile market planet in range wins over a closer one.
+- `EscapePodListener.reportFleetDespawned` (`:18`) on `FleetDespawnReason.DESTROYED_BY_BATTLE`, not the player fleet, in the player's location. `CampaignFleet.despawn` reports while the fleet is still in place (knowledge skill `obf/campaign/fleet/CampaignFleet.java:1599`).
+- Pods (`PodFlights.getPodCount`, `:100`): from `getFleetData().getSnapshot()`, crewed non automated members only, 1 per frigate or destroyer, 2 per cruiser, 3 per capital, at most 16; an empty snapshot gives 3.
+- Planet (`findPodPlanet`, `:119`): nearest non star planet whose surface is within 2000 su; a non hostile market planet in range wins over a closer one.
 - Queued until `getCampaignUI().isShowingDialog()` is false and the game is unpaused, dropped if the player left the location. At most 32 pods in flight.
-- Each pod (`ShuttleFlights.launchPods`, `:181`): the vanilla `mining_drone` sprite at 10 su long with its own engine colours (no pods if a mod removed the hull), appears within 1.5 s, shoots out at 80 to 120 su/s easing to 35 su/s over 2 s, tumbles, curves to a random point on the planet disc and lands with the planet look. Short thin contrail, no engine glow. Pods ignore fleets and threats.
+- Each pod (`PodFlights.launch`, `:76`): the vanilla `mining_drone` sprite at 10 su long with its own engine colours (no pods if a mod removed the hull), appears within 1.5 s, shoots out at 80 to 120 su/s easing to 35 su/s over 2 s, tumbles, curves to a random point on the planet disc and lands with the planet look. Short thin contrail, no engine glow. Pods ignore fleets and threats.
 
 ### Look
 
@@ -141,7 +157,11 @@ A station pad is busy while a craft is in its last 100 su and 1 s after. A craft
 ## Contracts
 
 - Transient only: no entity, listener field, memory key or script lands in the save. Removing IE never breaks a save through this feature.
-- Advancing stops while `Global.getSector().isPaused()` (`ShuttleTrafficRenderer.java:84`); the feature keeps its own day count from `convertToDays`, so stays and safe times only pass while the player is in a system with traffic.
+- Craft state changes go through `ShuttleState` (`hold`, `redirect`, `flee`, `screen`, `land`, `strand`, `calm`); a change not in its table throws `IllegalStateException`.
+- `ShuttleFlights` throws at construction when a `ShuttleRoute.Kind` has no flight.
+- `ShuttleFleetScan.Entry` objects are pooled and reused every scan; never keep one past the frame. `clear` drops the fleet references.
+- `ShuttleTrail.render` must run between `ShuttleTrail.beginRender` and `endRender`.
+- Advancing stops while `Global.getSector().isPaused()` (`renderers/ShuttleTrafficRenderer.java:51`); the feature keeps its own day count from `convertToDays`, so stays and safe times only pass while the player is in a system with traffic.
 - `ShuttleHullPool` caches are static and reset on every `register()`.
 - `getHullSpec` throws on unknown ids, so every CSV and `getKnownShips()` id is checked against `getAllShipHullSpecs()` first.
 - The engine style reflection names (`getEngineSlots`, `getStyleId`) are unobfuscated public methods of the game's hull spec and `EngineSlot` classes (knowledge skill `obf/loading/specs/_c147.java`, renamed from `g.java`, and `EngineSlot.java:47`); never use an obfuscated name here.
@@ -152,7 +172,20 @@ A station pad is busy while a craft is in its last 100 su and 1 s after. A craft
 | Item | State |
 |---|---|
 | In game look | Tests (2026-11-08) fixed: rubberbanding, nervous trails, blinking lights, loop joyrides, craft vanishing under planets, sprite size, trails out of line with the craft between moving bodies, lanes through the star. Untested in game: star pass, market lanes, blended trail frame, look of orbits and arcs, formation break up |
+| Checks | `ShuttleTrafficChecks` covers paths and states only, not flights, reactions or rendering. It runs on its own, not in `ReleaseBuild` |
 | Performance | Live smoke `shuttle` group (2026-11-08, before market lanes): 55 craft at Sindria, all of `shuttletraffic` 0.4% of CPU and allocation |
+
+## Checks
+
+After the compile gate (`java jars/src/indevo/tools/ReleaseBuild.java compile`), from the repository root:
+
+```sh
+java -cp "out/release-build-<n>/classes:lib/*" indevo.tools.ShuttleTrafficChecks
+```
+
+Use `;` in place of `:` on Windows. It prints `Shuttle traffic: N checks passed` or every failure and exits 1. It refuses to run inside the game. In IntelliJ: an Application run configuration with main class `indevo.tools.ShuttleTrafficChecks`, module `IndEvo`, working directory the repository root.
+
+The native smoke `shuttle` group ([SMOKE_TESTS.md](../SMOKE_TESTS.md)) reads the craft count through `ShuttleTrafficRenderer.getTraffic().getShuttles()`.
 
 ## Maintenance
 
