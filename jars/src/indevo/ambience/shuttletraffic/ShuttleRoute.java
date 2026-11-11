@@ -1,5 +1,7 @@
 package indevo.ambience.shuttletraffic;
 
+import java.util.Random;
+
 public class ShuttleRoute {
 
     public enum Kind {
@@ -32,6 +34,9 @@ public class ShuttleRoute {
         }
     }
 
+    // lane bend as a share of the chord, either side
+    public static final float LANE_BEND = 0.25f;
+
     public final String key;
     public final Kind kind;
     public final ShuttleAnchor a;
@@ -54,6 +59,10 @@ public class ShuttleRoute {
         this.a = a;
         this.b = b;
         this.bendFrac = bendFrac;
+    }
+
+    public static float rollBend(Random random) {
+        return (random.nextFloat() - 0.5f) * 2f * LANE_BEND;
     }
 
     public boolean isRare() {

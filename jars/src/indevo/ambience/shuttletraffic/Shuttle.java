@@ -39,6 +39,7 @@ public class Shuttle {
     private static final float FLEE_WOBBLE = 10f;
     private static final float FLEE_WOBBLE_TIME = 3f;
     private static final float STRANDED_HOLD_RADIUS = 150f;
+    private static final float REFUGE_WAIT_DAYS = 3f;
     private static final int GREY_STEPS = 32;
     private static final Color[] GREYS = new Color[GREY_STEPS + 1];
 
@@ -96,6 +97,8 @@ public class Shuttle {
     private boolean waitForSafeHome = false;
     private float fleeStart = 0f;
     private float resumeDay = 0f;
+    private float landDay = 0f;
+    private float glowFlicker = 1f;
     private float screenX = 0f;
     private float screenY = 0f;
 
@@ -144,6 +147,7 @@ public class Shuttle {
         }
 
         age += amount;
+        glowFlicker = 1f - look.flicker() + look.flicker() * (float) Math.random();
         if (isTumbling()) spin += look.tumbleRate() * (1f - age / boostTime) * amount;
 
         if (state == ShuttleState.DOWN) {
@@ -235,7 +239,8 @@ public class Shuttle {
 
         if (to != null && home != null && to != home && mover.getLandEnd() != End.NONE && (stayDays > 0f || waitForSafeHome)) {
             setState(state.land());
-            resumeDay = traffic.getDays() + stayDays;
+            landDay = traffic.getDays();
+            resumeDay = landDay + stayDays;
             return;
         }
 
@@ -410,6 +415,11 @@ public class Shuttle {
         return state == ShuttleState.SCREENING;
     }
 
+    // a refugee waiting hidden for its home to be safe again holds no cap slot
+    public boolean isWaitingAtRefuge() {
+        return state == ShuttleState.DOWN && waitForSafeHome;
+    }
+
     public boolean isWaiting() {
         return delay > 0f;
     }
@@ -471,7 +481,7 @@ public class Shuttle {
             glow.setAngle(0f);
             glow.setColor(hull.glowColor);
             glow.setAdditiveBlend();
-            glow.setAlphaMult(a * (1f - look.flicker() + look.flicker() * (float) Math.random()));
+            glow.setAlphaMult(a * glowFlicker);
             glow.renderAtCenter(getRearX(), getRearY());
         }
     }
@@ -526,6 +536,11 @@ public class Shuttle {
             return;
         }
 
+        if (waitForSafeHome && days - landDay >= REFUGE_WAIT_DAYS) {
+            done = true;
+            return;
+        }
+
         if (days < resumeDay || home.closed || !home.isSafe(days) || to.threatened) return;
 
         ShuttleAnchor start = to;
@@ -536,7 +551,7 @@ public class Shuttle {
         to = home;
         facingSet = false;
         trail.clear();
-        setPath(traffic.getPaths().lanePath(start, home, (traffic.getRandom().nextFloat() - 0.5f) * 0.5f, false), start.getEnd(), home.getEnd());
+        setPath(traffic.getPaths().lanePath(start, home, ShuttleRoute.rollBend(traffic.getRandom()), false), start.getEnd(), home.getEnd());
     }
 
     private void finishHoldingLap(ShuttleTraffic traffic) {

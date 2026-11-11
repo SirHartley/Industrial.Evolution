@@ -46,7 +46,7 @@ public class ShuttleBudget {
     public void count(List<Shuttle> shuttles) {
         for (int i = 0; i < counts.length; i++) counts[i] = 0;
         for (Shuttle shuttle : shuttles) {
-            counts[shuttle.getGroup().ordinal()]++;
+            if (!shuttle.isWaitingAtRefuge()) counts[shuttle.getGroup().ordinal()]++;
         }
     }
 

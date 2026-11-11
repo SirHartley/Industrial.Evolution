@@ -453,7 +453,7 @@ public class ShuttleNetwork {
         String key = kind.name() + "|" + a.entity.getId() + "|" + targetId;
         ShuttleRoute route = routes.get(key);
         if (route == null || route.a != a || route.b != b) {
-            route = new ShuttleRoute(key, kind, a, b, (random.nextFloat() - 0.5f) * 0.5f);
+            route = new ShuttleRoute(key, kind, a, b, ShuttleRoute.rollBend(random));
             route.timer = random.nextFloat() * 5f;
             routes.put(key, route);
         }
