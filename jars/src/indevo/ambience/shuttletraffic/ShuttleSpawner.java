@@ -2,6 +2,7 @@ package indevo.ambience.shuttletraffic;
 
 import com.fs.starfarer.api.util.Misc;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -44,7 +45,12 @@ public class ShuttleSpawner {
 
     public void spawn(float amount) {
         traffic.getBudget().count(traffic.getShuttles());
-        for (ShuttleRoute route : traffic.getNetwork().routes.values()) {
+        spawn(traffic.getNetwork().routes.values(), amount);
+        spawn(traffic.getFleetRoutes().values(), amount);
+    }
+
+    private void spawn(Collection<ShuttleRoute> routes, float amount) {
+        for (ShuttleRoute route : routes) {
             if (route.active >= route.max) continue;
 
             if (route.isRare()) {

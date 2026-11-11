@@ -1,5 +1,7 @@
 package indevo.ambience.shuttletraffic;
 
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+
 import java.util.Random;
 
 public class ShuttleRoute {
@@ -43,6 +45,8 @@ public class ShuttleRoute {
     public final ShuttleAnchor b;
     public final float bendFrac;
     public ShuttleTarget target;
+    // fleet tied routes: the fleet the craft fly to and from, b is its fleet anchor
+    public CampaignFleetAPI fleet;
     // flights the route asks for, set in the network rebuild
     public int demand = 1;
     // flights in the air the budget allows

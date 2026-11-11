@@ -1,5 +1,6 @@
 package indevo.ambience.shuttletraffic;
 
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -10,20 +11,23 @@ public class ShuttleAnchor {
 
     public enum Type {
         PLANET,
-        STATION
+        STATION,
+        FLEET
     }
 
     public enum Role {
         MARKET,
         DECIV,
         REMNANT,
-        TARGET
+        TARGET,
+        FLEET
     }
 
     public static final float PLANET_PAD_DEPTH = 0.6f;
     public static final float STATION_PAD_DEPTH = 0.15f;
     public static final float STATION_DOCK_LENGTH = 60f;
     public static final float HOLD_RADIUS = 120f;
+    public static final float FLEET_END_LENGTH = 30f;
 
     public final SectorEntityToken entity;
     public final Type type;
@@ -36,6 +40,8 @@ public class ShuttleAnchor {
     public boolean threatened = false;
     public boolean overrun = false;
     public float lastThreatDay = -100f;
+    // traffic multiplier from port, commerce, stability and raids, set in the network rebuild
+    public float density = 1f;
     // body cruises and training flights fly out to and lap, picked once and kept while it stays in range
     public SectorEntityToken sight;
 
@@ -47,8 +53,17 @@ public class ShuttleAnchor {
         this.faction = faction;
     }
 
+    // craft fly to and from a fleet like a station without a pad
+    public static ShuttleAnchor forFleet(CampaignFleetAPI fleet) {
+        return new ShuttleAnchor(fleet, Type.FLEET, Role.FLEET, null, fleet.getFaction());
+    }
+
     public Shuttle.End getEnd() {
-        return type == Type.PLANET ? Shuttle.End.PLANET : Shuttle.End.STATION;
+        return switch (type) {
+            case PLANET -> Shuttle.End.PLANET;
+            case STATION -> Shuttle.End.STATION;
+            case FLEET -> Shuttle.End.FLEET;
+        };
     }
 
     public Vector2f getLocation() {
@@ -68,11 +83,19 @@ public class ShuttleAnchor {
     }
 
     public float getPadDepth() {
-        return type == Type.PLANET ? PLANET_PAD_DEPTH : STATION_PAD_DEPTH;
+        return switch (type) {
+            case PLANET -> PLANET_PAD_DEPTH;
+            case STATION -> STATION_PAD_DEPTH;
+            case FLEET -> 0f;
+        };
     }
 
     public float getLandingLength() {
-        return type == Type.PLANET ? getRadius() * 1.2f : STATION_DOCK_LENGTH;
+        return switch (type) {
+            case PLANET -> getRadius() * 1.2f;
+            case STATION -> STATION_DOCK_LENGTH;
+            case FLEET -> FLEET_END_LENGTH;
+        };
     }
 
     public boolean isUsable(LocationAPI location) {

@@ -178,6 +178,46 @@ public class ShuttlePath {
         }
     }
 
+    // a point on a fleet at a fixed offset, so craft do not converge; it faces along the line to the other end of the hop
+    public static class FleetWaypoint implements Waypoint {
+        private final SectorEntityToken fleet;
+        private final float offsetX;
+        private final float offsetY;
+        private final Waypoint other;
+        private final boolean outbound;
+        private final Vector2f tmp = new Vector2f();
+
+        public FleetWaypoint(SectorEntityToken fleet, float offsetX, float offsetY, Waypoint other, boolean outbound) {
+            this.fleet = fleet;
+            this.offsetX = offsetX;
+            this.offsetY = offsetY;
+            this.other = other;
+            this.outbound = outbound;
+        }
+
+        @Override
+        public SectorEntityToken getFrame() {
+            return fleet;
+        }
+
+        @Override
+        public void getPosition(Vector2f out) {
+            Vector2f loc = fleet.getLocation();
+            out.set(loc.x + offsetX, loc.y + offsetY);
+        }
+
+        @Override
+        public void getDirection(Vector2f out) {
+            getPosition(tmp);
+            other.getPosition(out);
+            float dx = outbound ? out.x - tmp.x : tmp.x - out.x;
+            float dy = outbound ? out.y - tmp.y : tmp.y - out.y;
+            float len = (float) Math.sqrt(dx * dx + dy * dy);
+            if (len > 0.001f) out.set(dx / len, dy / len);
+            else out.set(1f, 0f);
+        }
+    }
+
     public static class FixedWaypoint implements Waypoint {
         private final float x;
         private final float y;
