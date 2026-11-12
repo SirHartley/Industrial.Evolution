@@ -205,7 +205,8 @@ public final class UiData {
         float fromW = Ui.width(from, Ui.INS15) + 2f;
         float toX = x + w - toW;
         float arrowX = toX - 3f - arrowW;
-        float fromX = arrowX - 5f - fromW;
+        // the strike line runs 2 px past the old value, 7 leaves the same gap on both sides of the arrow
+        float fromX = arrowX - 7f - fromW;
 
         Ui.textIn(p, toX, y, toW, h, to, Ui.INS15, Ui.hl(), Ui.RIGHT, new String[0], new Color[0]);
         Ui.textIn(p, arrowX, y, arrowW, h, "->", Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
