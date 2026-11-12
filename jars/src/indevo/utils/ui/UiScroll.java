@@ -102,6 +102,12 @@ public final class UiScroll {
     private UiScroll() {
     }
 
+    // tallest height up to h that ends on a whole row: lead (blocks above the first row), then rows of rowH with gap between
+    public static float wholeRows(float h, float lead, float rowH, float gap) {
+        int n = Math.max(1, (int) Math.floor((h - lead + gap) / (rowH + gap)));
+        return Math.min(h, lead + n * rowH + (n - 1) * gap);
+    }
+
     // the element is built Ui.INSET wider and shifted left so blocks start at x 0 of the rect
     public static Column list(CustomPanelAPI p, float x, float y, float w, float h, Offsets offsets, String id) {
         CustomPanelAPI holder = Ui.panel(p, x, y, w, h);

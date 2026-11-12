@@ -214,7 +214,7 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
                     new float[]{104f, rw - 250f, rw - 150f, rw - 100f}, new float[]{200f, 90f, 50f, 92f}, new Alignment[]{Ui.LEFT, Ui.CENTER, Ui.CENTER, Ui.RIGHT});
 
             int available = RelicHelper.getAvailable(market);
-            UiScroll.Column list = UiScroll.list(p, 0f, BODY_Y + 42f, lw, h - BODY_Y - 42f - MESSAGE_H, view.scroll, AncientLabRelicView.LIST);
+            UiScroll.Column list = UiScroll.list(p, 0f, BODY_Y + 42f, lw, UiScroll.wholeRows(h - BODY_Y - 42f - MESSAGE_H, 0f, ROW_H, ROW_GAP), view.scroll, AncientLabRelicView.LIST);
             for (int i = 0; i < entries.size(); i++) {
                 Entry entry = entries.get(i);
                 boolean selected = entry.key.equals(view.selected);

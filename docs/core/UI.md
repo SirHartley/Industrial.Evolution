@@ -162,6 +162,7 @@ Header layout of the boards: title at y 0, tabs at `HEADER_Y` 30 with `HEADER_H`
 | `Column.block(h, gapBefore)` | Next block, `width()` wide (`w - GUTTER`), its own coordinates |
 | `Column.end()` | Attaches the column and restores its offset |
 | `Offsets` | Offsets by list id: `get`, `set`, `reset(id)` (for example on a new selection), `capture()`, `restore()` |
+| `wholeRows(h, lead, rowH, gap)` | Tallest height up to `h` that ends on a whole row, so a fixed pitch list never shows half a row at rest; the rest becomes the gap below |
 
 Blocks need their height before they are built, so detail columns compute each block's height first (`wrapHeight`, `guardHeight`, row counts).
 

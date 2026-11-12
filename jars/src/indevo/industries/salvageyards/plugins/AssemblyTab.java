@@ -92,7 +92,7 @@ class AssemblyTab {
                 new Alignment[]{Ui.LEFT, Ui.LEFT, Ui.CENTER, Ui.CENTER, Ui.RIGHT});
         y += 20f;
 
-        UiScroll.Column list = UiScroll.list(p, 0f, y, lw, h - 40f, view.scroll, SalvageYardsView.ORDER);
+        UiScroll.Column list = UiScroll.list(p, 0f, y, lw, UiScroll.wholeRows(h - 40f, 0f, ROW_H, 0f), view.scroll, SalvageYardsView.ORDER);
         List<YardsContract.Line> lines = contract.getLines();
         int dmods = contract.getDModForecast();
 
@@ -333,7 +333,7 @@ class AssemblyTab {
         Ui.heading(p, 0f, y, lw, "Orders in progress", Ui.LEFT);
         y += 24f;
 
-        UiScroll.Column list = UiScroll.list(p, 0f, y, lw, h - 24f, view.scroll, SalvageYardsView.RUNNING);
+        UiScroll.Column list = UiScroll.list(p, 0f, y, lw, UiScroll.wholeRows(h - 24f, 0f, ROW_H, RUN_GAP), view.scroll, SalvageYardsView.RUNNING);
         List<YardsCustomProductionIntel> orders = contract.getRunningOrders();
         for (int i = 0; i < orders.size(); i++) addRunningRow(list.block(ROW_H, i == 0 ? 0f : RUN_GAP), list.width(), orders.get(i), i);
         if (orders.isEmpty()) Ui.text(list.block(24f, 4f), 8f, 2f, list.width() - 16f, "No order is in progress here.", Ui.gray());

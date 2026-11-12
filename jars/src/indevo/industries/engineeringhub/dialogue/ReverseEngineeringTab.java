@@ -196,7 +196,7 @@ class ReverseEngineeringTab {
                 new float[]{180f, BAR_W, rw - 8f - nx}, new Alignment[]{Ui.LEFT, Ui.CENTER, Ui.RIGHT});
 
         String inWork = hub.getCurrentDeconShipVar() != null ? hub.getBaseHullId(hub.getCurrentDeconShipVar().getHullSpec()) : null;
-        UiScroll.Column list = UiScroll.list(p, 0f, TABLE_Y + 42f, lw, h - TABLE_Y - 42f, view.scroll, EngineeringHubView.LIST);
+        UiScroll.Column list = UiScroll.list(p, 0f, TABLE_Y + 42f, lw, UiScroll.wholeRows(h - TABLE_Y - 42f, 0f, ROW_H, ROW_GAP), view.scroll, EngineeringHubView.LIST);
         for (int i = 0; i < hulls.size(); i++) {
             Hull hull = hulls.get(i);
             boolean selected = hull.id().equals(view.hull);
@@ -299,7 +299,7 @@ class ReverseEngineeringTab {
         if (sources.isEmpty()) Ui.text(p, x + 8f, listY + 8f, w - 16f, blueprint ? "No " + size + " blueprint in the hub or the " + getSharedName() + "."
                 : "No retrofit item in the hub or the " + getSharedName() + ".", Ui.gray());
         else {
-            UiScroll.Column list = UiScroll.list(p, x, listY, w, listH, view.scroll, EngineeringHubView.PAYMENTS);
+            UiScroll.Column list = UiScroll.list(p, x, listY, w, UiScroll.wholeRows(listH, 0f, PAY_ROW_H, PAY_ROW_GAP), view.scroll, EngineeringHubView.PAYMENTS);
             float rw = list.width();
             for (int i = 0; i < sources.size(); i++) {
                 BlueprintSource source = sources.get(i);

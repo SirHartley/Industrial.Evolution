@@ -197,7 +197,7 @@ public class CourierPanelDelegate extends BaseCustomDialogDelegate {
     }
 
     private void addList(CustomPanelAPI p, float h) {
-        UiScroll.Column list = UiScroll.list(p, 0f, BODY_Y, LIST_W, h, view.scroll, CourierView.LIST);
+        UiScroll.Column list = UiScroll.list(p, 0f, BODY_Y, LIST_W, UiScroll.wholeRows(h, Ui.HEADING_H + FIRST_GAP, ROW_H, ROW_GAP), view.scroll, CourierView.LIST);
         float rw = list.width();
         List<ShippingContract> contracts = ShippingContractMemory.getContractList();
 
