@@ -127,18 +127,18 @@ public class ResearchProjectPanel {
         return 8f + Ui.wrapHeight(getLongDesc(project), Ui.INS15, cw - 20f) + 8f + Ui.HEADING_H + 4f + project.getRequiredItems().size() * TABLE_ROW + 6f;
     }
 
-    // whole sentences on one line; a first sentence longer than the line wraps to a second one
+    // whole sentences on one line; a first sentence longer than the line wraps to up to three
     private static String getDesc(ResearchProject project, float cw) {
         String s = project.getShortDesc() == null ? "" : project.getShortDesc().trim();
         float w = cw - INFO_RIGHT - 20f;
         String one = Ui.sentences(s, Ui.INS15, w);
         if (!one.endsWith(Ui.ELLIPSIS)) return one;
 
-        float twoLines = 2f * Ui.wrapHeight("Ag", Ui.INS15, w) + 1f;
+        float maxH = 3f * Ui.wrapHeight("Ag", Ui.INS15, w) + 1f;
         String out = "";
         for (String sentence : s.split("(?<=[.!?])\\s+")) {
             String next = out.isEmpty() ? sentence : out + " " + sentence;
-            if (Ui.wrapHeight(next, Ui.INS15, w) > twoLines) break;
+            if (Ui.wrapHeight(next, Ui.INS15, w) > maxH) break;
             out = next;
         }
         if (!out.isEmpty()) return out;
@@ -146,7 +146,7 @@ public class ResearchProjectPanel {
         String words = "";
         for (String word : s.split("\\s+")) {
             String next = words.isEmpty() ? word : words + " " + word;
-            if (Ui.wrapHeight(next + Ui.ELLIPSIS, Ui.INS15, w) > twoLines) break;
+            if (Ui.wrapHeight(next + Ui.ELLIPSIS, Ui.INS15, w) > maxH) break;
             words = next;
         }
         return words.replaceAll("[,;:.]+$", "") + Ui.ELLIPSIS;
@@ -155,7 +155,7 @@ public class ResearchProjectPanel {
     private static float getDescExtra(ResearchProject project, float cw) {
         float w = cw - INFO_RIGHT - 20f;
         float line = Ui.wrapHeight("Ag", Ui.INS15, w);
-        return Ui.wrapHeight(getDesc(project, cw), Ui.INS15, w) > line + 1f ? line : 0f;
+        return Math.max(0f, Ui.wrapHeight(getDesc(project, cw), Ui.INS15, w) - line);
     }
 
     private static String getLongDesc(ResearchProject project) {
