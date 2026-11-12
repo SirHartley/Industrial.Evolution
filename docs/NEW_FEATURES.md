@@ -131,10 +131,10 @@ Save: only new saved classes; nothing saved today changes shape. The CR side add
 
 ### 1.3 Shuttle traffic: open stages
 
-Status: plan in the project file `SHUTTLE_TRAFFIC_PLAN.md` (sections 13 to 23 hold Philipp's calls of 2026-11-11, section 24 the staged plan), code review in `SHUTTLE_TRAFFIC_REVIEW.md` section 7. Stages 3 (groundwork, no visible change), 4 (fixes), 4a (look fixes from the stage 4 live test: trails by time, sizes and glow, Remnant blue, plan section 25) 5 (fleet tied craft), 6 (dodging, hits, free steering, escorts, tenders) 7 (dogfights around NPC battles), 8 (faction profiles, economy tells, event flights) and 9 (IE industry flights, convoys, meteor swarms, rush hours) are in `dev`; current behaviour and files are in [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md).
+Status: plan in the project file `SHUTTLE_TRAFFIC_PLAN.md` (sections 13 to 23 hold Philipp's calls of 2026-11-11, section 24 the staged plan), code review in `SHUTTLE_TRAFFIC_REVIEW.md` section 7. Stages 3 (groundwork, no visible change), 4 (fixes), 4a (look fixes from the stage 4 live test: trails by time, sizes and glow, Remnant blue, plan section 25) 5 (fleet tied craft), 6 (dodging, hits, free steering, escorts, tenders) 7 (dogfights around NPC battles), 8 (faction profiles, economy tells, event flights) 9 (IE industry flights, convoys, meteor swarms, rush hours) and 10 (calm down after the second live test: speed cap, stage 4 avoidance, escorts and tenders removed, plan section 26) are in `dev`; current behaviour and files are in [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md).
 
 - Stages 4a to 6: live test by Philipp pending (plan section 24 lists it); stage 6 leaves the escort layer and how often run over hits open for it.
-- Stages 7 to 9: live test by Philipp pending, like 4a to 6.
+- Stage 10: live test by Philipp pending (plan section 24, stage 10).
 
 ## 2. Open questions
 
