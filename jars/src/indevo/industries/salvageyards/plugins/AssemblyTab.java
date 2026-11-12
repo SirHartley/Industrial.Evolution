@@ -438,7 +438,7 @@ class AssemblyTab {
                 new Color[]{left >= 0f ? Ui.hl() : Ui.neg()});
         y += 20f;
 
-        UiData.bar(b, 0f, y, rw, 20f, capacity <= 0f ? 1f : value / capacity, left >= 0f ? Ui.barBlue() : Ui.RED, Ui.num(value) + " / " + Ui.credits(capacity));
+        UiData.bar(b, 0f, y, rw, 20f, capacity <= 0f ? 1f : value / capacity, left >= 0f ? Ui.barBlue() : Ui.barColor("progressBarOverflowColor"), Ui.num(value) + " / " + Ui.credits(capacity));
         y += 28f;
 
         UiData.grid(b, 0f, y, rw, 19f, List.of(

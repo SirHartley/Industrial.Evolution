@@ -448,7 +448,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         String paused = getPausedReason();
         float barW = 200f;
         float rightX = w - 150f;
-        UiData.bar(row, BAR_X, 8f, barW, 20f, progress(total, left), paused != null ? Ui.AMBER : Ui.barBlue(), getDayLabel(total, left));
+        UiData.bar(row, BAR_X, 8f, barW, 20f, progress(total, left), paused != null ? Ui.barColor("progressBarWarningColor") : Ui.barBlue(), getDayLabel(total, left));
         if (paused != null) Ui.text(row, BAR_X, 31f, rightX - 8f - BAR_X, "Paused: " + paused, Ui.neg());
         else Ui.text(row, BAR_X, 31f, rightX - 8f - BAR_X, "Done on " + getDoneDate(left), Ui.gray());
 

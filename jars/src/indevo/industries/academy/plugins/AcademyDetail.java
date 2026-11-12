@@ -322,7 +322,7 @@ class AcademyDetail {
         }
 
         String paused = panel.getPausedReason();
-        add(BAR_H, 2f, b -> UiData.bar(b, 0f, 0f, w, BAR_H, AcademyPanelDelegate.progress(total, left), paused != null ? Ui.AMBER : Ui.barBlue(),
+        add(BAR_H, 2f, b -> UiData.bar(b, 0f, 0f, w, BAR_H, AcademyPanelDelegate.progress(total, left), paused != null ? Ui.barColor("progressBarWarningColor") : Ui.barBlue(),
                 AcademyPanelDelegate.getDayLabel(total, left)));
         if (paused != null) text("Paused: " + paused, Ui.neg(), 4f);
 

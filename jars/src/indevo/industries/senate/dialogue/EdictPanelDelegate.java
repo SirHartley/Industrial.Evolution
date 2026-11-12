@@ -305,7 +305,7 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
         UiImages.img(row, textX, 43f, LINE_ICON, LINE_ICON, condition.getSpec().getIcon());
         Ui.text(row, textX + 24f, 44f, w - textX - 24f - 8f - dw, EdictRepo.getShortName(condition.getName()), accent);
         Ui.text(row, w - 8f - dw, 44f, dw, days, Ui.gray(), Ui.RIGHT);
-        UiData.thinbar(row, textX, 64f, w - textX - 8f, getRuntimeFraction(active, colony, min), accent);
+        UiData.thinbar(row, textX, 64f, w - textX - 8f, getRuntimeFraction(active, colony, min), getRuntimeBarColor(active));
     }
 
     private String getLocationLine(MarketAPI colony) {
@@ -442,6 +442,11 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
 
     static float getRuntimeFraction(EdictAPI edict, MarketAPI colony, int min) {
         return min <= 0 ? 1f : Math.min(1f, edict.getDaysPassed() / (float) min);
+    }
+
+    // early removal still costs while the term runs: the vanilla warning bar, done after it
+    static Color getRuntimeBarColor(EdictAPI edict) {
+        return edict.getRemainingDays() > 0 ? Ui.barColor("progressBarWarningColor") : Ui.GREEN;
     }
 
     static Color getRuntimeColor(EdictAPI edict) {

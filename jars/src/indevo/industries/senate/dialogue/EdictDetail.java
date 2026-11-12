@@ -212,7 +212,7 @@ class EdictDetail {
         int min = active.getMinRuntime(colony);
         int day = Math.min(active.getDaysPassed(), min);
         CustomPanelAPI bar = block(BAR_H, GAP);
-        UiData.bar(bar, 0f, 0f, w, BAR_H, EdictPanelDelegate.getRuntimeFraction(active, colony, min), EdictPanelDelegate.getRuntimeColor(active), "Day " + day + " of " + min);
+        UiData.bar(bar, 0f, 0f, w, BAR_H, EdictPanelDelegate.getRuntimeFraction(active, colony, min), EdictPanelDelegate.getRuntimeBarColor(active), "Day " + day + " of " + min);
 
         int left = active.getRemainingDays();
         CustomPanelAPI b = block(LINE, GAP);

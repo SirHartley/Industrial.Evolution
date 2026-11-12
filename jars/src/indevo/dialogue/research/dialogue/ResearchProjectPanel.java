@@ -197,7 +197,7 @@ public class ResearchProjectPanel {
         UiButtons.area(b, cw - INFO_RIGHT, TOGGLE_Y, INFO_W, TOGGLE_H, "Info", info, true, null, Ui.CENTER, () -> toggleInfo(id));
         if (project.isRepeatable()) addStockToggle(b, cw, progress);
 
-        UiData.bar(b, 10f, ROW_Y + dy, BAR_W, BAR_H, required <= 0 ? 1f : Math.min(1f, points / required), finished ? Ui.pos() : Ui.barBlue(),
+        UiData.bar(b, 10f, ROW_Y + dy, BAR_W, BAR_H, required <= 0 ? 1f : Math.min(1f, points / required), finished ? Ui.GREEN : Ui.barBlue(),
                 format(points) + " / " + format(required));
         addItems(b, ITEMS_X, ROW_Y + dy - 2f, cw - BUTTONS_RIGHT - 8f - ITEMS_X, project, cargo);
         addButtons(b, cw, ROW_Y + dy - 3f, project, cargo, finished, ready);

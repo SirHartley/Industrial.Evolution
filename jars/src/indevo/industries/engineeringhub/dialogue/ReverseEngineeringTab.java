@@ -206,7 +206,7 @@ class ReverseEngineeringTab {
             UiImages.hull(row, 3f, 2f, 42f, hull.spec(), true, false);
             Ui.text(row, 52f, 5f, BAR_X - 60f, hull.spec().getHullNameWithDashClass(), selected ? Ui.bright() : Ui.text());
             Ui.text(row, 52f, 23f, BAR_X - 60f, Misc.getHullSizeStr(hull.spec().getHullSize()), Ui.gray());
-            UiData.bar(row, BAR_X, 12f, BAR_W, BAR_H, hull.progress(), ready ? Ui.pos() : Ui.barBlue(), Math.round(Math.min(1f, hull.progress()) * 100f) + "%");
+            UiData.bar(row, BAR_X, 12f, BAR_W, BAR_H, hull.progress(), ready ? Ui.GREEN : Ui.barBlue(), Math.round(Math.min(1f, hull.progress()) * 100f) + "%");
 
             String next;
             Color color;

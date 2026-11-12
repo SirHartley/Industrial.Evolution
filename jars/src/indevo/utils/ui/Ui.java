@@ -87,6 +87,11 @@ public final class Ui {
         return Misc.setAlpha(Color.BLACK, 200);
     }
 
+    // vanilla progress bar colour by settings key (progressBarStandardColor, ...WarningColor, ...OverflowColor, ...CargoColor)
+    public static Color barColor(String key) {
+        return Global.getSettings().getColor(key);
+    }
+
     public static Color barBlue() {
         return Global.getSettings().getColor("progressBarStandardColor");
     }
