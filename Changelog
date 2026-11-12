@@ -134,7 +134,7 @@ Fixed - Crash when using "Ship now" on a contract that became invalid
 Fixed - Base fee setting maximum is no longer below its default
 
 Derelict Industries
-Added - Ancient Laboratory: relic services to refine Forge Templates and integrate automated ships
+Added - Ancient Laboratory: relic services to refine Forge Templates and integrate automated ships, with the result shown before you pay
 Added - Accelerate: halve the remaining Hull Deconstructor time with Relic Components
 Added - Accelerate: halve the remaining Ancient Laboratory repair time with Relic Components
 Added - Recharge: end the Rift Generator cooldown at once for 3 Relic Components per day left
