@@ -78,9 +78,9 @@ public final class StyleChecks {
                 if (i == 0) log.info("LIVE_CHECK note: STYLE kit button " + b.getPosition().getWidth() + " x " + b.getPosition().getHeight());
             }
             y += ((kinds.length + 1) / 2) * 34f + 6f;
-            UiButtons.guarded(p, 0f, y, 255f, 28f, "Kit guarded", UiButtons.Kind.GREEN, "Red reason line of a blocked button.", () -> {
+            UiButtons.guarded(p, 0f, y, 255f, 28f, "Kit guarded", UiButtons.Kind.STD, "Red reason line of a blocked button.", () -> {
             });
-            UiButtons.confirm(p, 265f, y, 255f, 28f, "Kit confirm", UiButtons.Kind.RED, confirm, "pair", () -> {
+            UiButtons.confirm(p, 265f, y, 255f, 28f, "Kit confirm", UiButtons.Kind.STD, confirm, "pair", () -> {
             }, () -> {
             });
             y += 64f;
