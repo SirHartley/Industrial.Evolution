@@ -104,6 +104,10 @@ public final class ResearchUiChecks {
     }
 
     private static void setup(Ctx c) {
+        // unlock flags of the checkers in dialogue/research/listeners, so every project shows
+        for (String key : new String[]{"$IndEvo_HasFoundAutopulse", "$IndEvo_HasHadCorruptedNanoforge", "$IndEvo_HasFoundDoritoGun", "$IndEvo_HasUniqueShipChecker", "$IndEvo_SlowShipFleetCheckerDone"}) {
+            Global.getSector().getMemoryWithoutUpdate().set(key, true);
+        }
         float i = 0f;
         for (ResearchProject p : ResearchProjectTemplateRepo.RESEARCH_PROJECTS.values()) {
             p.getProgress().redeemed = false;
