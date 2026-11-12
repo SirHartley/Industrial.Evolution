@@ -318,7 +318,7 @@ public final class UiAudit {
         List<Text> texts = new ArrayList<>();
         List<Btn> buttons = new ArrayList<>();
         List<String> out = new ArrayList<>();
-        walk(found.content(), panel, panel, false, panel, texts, buttons, out);
+        walk(found.content(), panel, panel, false, panel, true, texts, buttons, out);
         stats = texts.size() + " texts, " + buttons.size() + " buttons";
 
         for (int i = 0; i < texts.size(); i++) {
@@ -355,7 +355,8 @@ public final class UiAudit {
     }
 
     // clip is the visible area (nearest scroll area or the panel); scrolled marks nodes inside a scroll area
-    private static void walk(Object node, Rect panel, Rect clip, boolean scrolled, Rect scrollArea, List<Text> texts, List<Btn> buttons, List<String> out) {
+    // atTop: every scroll area above the node sits at offset 0, the state a player sees first
+    private static void walk(Object node, Rect panel, Rect clip, boolean scrolled, Rect scrollArea, boolean atTop, List<Text> texts, List<Btn> buttons, List<String> out) {
         if (node instanceof UIComponentAPI c && c.getOpacity() <= 0f) return;
         if (node instanceof LabelAPI l && l.getOpacity() <= 0f) return;
 
@@ -378,6 +379,8 @@ public final class UiAudit {
             String text = button.getText();
             if (text != null && !text.isEmpty()) {
                 float tw = Global.getSettings().computeStringWidth(text, "graphics/fonts/orbitron12condensed.fnt");
+                if (scrolled && atTop && !rect.clip(clip).empty() && (rect.y() < clip.y() - TOL || rect.t() > clip.t() + TOL))
+                    out.add("button cut by its scroll area at rest: '" + cut(text) + "' " + at(rect, panel));
                 if (tw > rect.w() - 4f) out.add("button text wider than the button: '" + cut(text) + "' " + Math.round(tw) + " in " + Math.round(rect.w()) + " " + at(rect, panel));
             }
         }
@@ -385,13 +388,15 @@ public final class UiAudit {
         Rect childClip = clip;
         boolean childScrolled = scrolled;
         Rect childArea = scrollArea;
+        boolean childTop = atTop;
         if (node instanceof ScrollPanelAPI) {
             childClip = rect.clip(clip);
             childScrolled = true;
             childArea = rect;
+            childTop = atTop && ((ScrollPanelAPI) node).getYOffset() <= 0.5f;
         }
 
-        for (Object child : children(node)) walk(child, panel, childClip, childScrolled, childArea, texts, buttons, out);
+        for (Object child : children(node)) walk(child, panel, childClip, childScrolled, childArea, childTop, texts, buttons, out);
     }
 
     private static void label(LabelAPI label, Rect box, Rect panel, Rect clip, boolean scrolled, Rect scrollArea, List<Text> texts, List<String> out) {
