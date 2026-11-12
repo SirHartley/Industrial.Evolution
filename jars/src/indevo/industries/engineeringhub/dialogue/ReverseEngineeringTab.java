@@ -326,8 +326,8 @@ class ReverseEngineeringTab {
         addRadio(relicRow, relics);
         UiImages.icon(relicRow, 36f, 2f, PAY_ICON, UiImages.relicSprite(), RelicHelper.getName());
         String amount = Ui.num(relicCost);
-        String value = amount + " (" + Ui.num(relicStock) + ")";
-        float vw = Math.min(Ui.width(value, Ui.INS15) + 2f, (rw - 14f - 74f) * 0.45f);
+        String value = UiData.withStock(amount, Ui.num(relicStock), (rw - 14f - 74f) * 0.45f);
+        float vw = Ui.width(value, Ui.INS15) + 2f;
         Ui.runs(relicRow, rw - 14f - vw, 8f, vw, Ui.INS15, Ui.gray(), Ui.RIGHT, value, new String[]{amount}, new Color[]{relicsOk ? Ui.hl() : Ui.neg()});
         Ui.text(relicRow, 74f, 8f, rw - 14f - vw - 8f - 74f, RelicHelper.getName() + " instead", relics ? Ui.bright() : Ui.text());
         Ui.tooltip(p, relicRow, RelicHelper.getName() + " instead", "Taken from the " + getSharedName() + ".");

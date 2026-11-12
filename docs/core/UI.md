@@ -133,8 +133,9 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `pips(p, x, y, total, filled, size, gap, color)` | Square pips, the first `filled` lit (quality level, D-mod forecast) |
 | `pips(p, x, y, total, from, to, w, h, gap, color)` | Pips `[from, to)` lit, the rest in base at `PIP_OFF` 0.18 (one lit pip: Academy personality ladder) |
 | `mark(p, x, y, ok)` / `checkrow(p, x, y, w, ok, text)` | 12 px tick or cross; mark and text, red text while unmet |
-| `cost(p, x, y, w, sprite, amount, stock, ok, size)` | Icon, amount in highlight (negative when short), stock in grey brackets |
-| `costrow(p, x, y, w, label, sprite, amount, stock, ok)` | Label left, cost right in a measured column, 22 high |
+| `cost(p, x, y, w, sprite, amount, stock, ok, size)` | Icon, amount in highlight (negative when short), stock in grey brackets while both fit (`withStock`) |
+| `costrow(p, x, y, w, label, sprite, amount, stock, ok)` | Label left, cost right in a measured column, 22 high; the amount is never cut, the stock drops when both do not fit |
+| `withStock(amount, stock, w)` | `amount (stock)` while it fits `w`, else the amount alone; for hand built cost cells |
 | `creditsRow(p, x, y, w, label, amount)`, `relicRow(p, x, y, w, label, amount, market)` | `costrow` with the player's credits or `RelicHelper.getAvailable(market)` |
 | `value(p, x, y, w, h, label, value, color, parts, colors)` | Label left, value right in a measured column |
 | `grid(p, x, y, w, rowH, rows)` | `GridRow.of(label, value[, color])` rows, value in highlight by default |

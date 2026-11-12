@@ -296,8 +296,8 @@ class EdictDetail {
         y += LINE;
         Ui.text(t, 0f, y + 1f, labelW, "Bribe senators");
         String amount = Ui.num(cost);
-        String costText = amount + " (" + Ui.num(have) + ")";
-        float cw = Math.min(Ui.width(costText, Ui.INS15) + 2f, COST_W - SMALL_ICON - 4f);
+        String costText = UiData.withStock(amount, Ui.num(have), COST_W - SMALL_ICON - 4f);
+        float cw = Ui.width(costText, Ui.INS15) + 2f;
         UiImages.img(t, costRight - cw - SMALL_ICON - 4f, y + 1f, SMALL_ICON, SMALL_ICON, UiImages.relicSprite());
         Ui.runs(t, costRight - cw, y + 1f, cw, Ui.INS15, Ui.gray(), Ui.RIGHT, costText, new String[]{amount}, new Color[]{affordable ? Ui.hl() : Ui.neg()});
         unrestCell(t, y, bribeUnrest, false);

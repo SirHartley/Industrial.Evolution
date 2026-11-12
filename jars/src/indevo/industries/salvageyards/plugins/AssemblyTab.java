@@ -504,7 +504,7 @@ class AssemblyTab {
         int su = contract.getSalvageUnits();
         String suText = Ui.num(su);
         boolean suOk = su <= contract.getAvailableSalvageUnits();
-        UiData.value(b, 0f, y + 2f, rw, 20f, "Salvage units", suText + " (" + Ui.num(contract.getAvailableSalvageUnits()) + ")", Ui.gray(),
+        UiData.value(b, 0f, y + 2f, rw, 20f, "Salvage units", UiData.withStock(suText, Ui.num(contract.getAvailableSalvageUnits()), rw * UiData.VALUE_SHARE), Ui.gray(),
                 new String[]{suText}, new Color[]{suOk ? Ui.hl() : Ui.neg()});
         y += 28f;
 

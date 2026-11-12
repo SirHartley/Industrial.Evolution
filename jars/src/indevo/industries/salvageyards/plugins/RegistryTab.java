@@ -347,7 +347,7 @@ class RegistryTab {
         int su = YardsContract.getSalvageUnitCost(id);
         int available = contract.getAvailableSalvageUnits();
         String suText = Ui.num(su);
-        UiData.value(b, 0f, 26f, rw, UiData.COST_ROW_H, "Salvage units", suText + " (" + Ui.num(available) + ")", Ui.gray(),
+        UiData.value(b, 0f, 26f, rw, UiData.COST_ROW_H, "Salvage units", UiData.withStock(suText, Ui.num(available), rw * UiData.VALUE_SHARE), Ui.gray(),
                 new String[]{suText}, new Color[]{su <= available ? Ui.hl() : Ui.neg()});
 
         float fitCost = fit == null ? 0f : Math.round(fit.getValue() * contract.getPriceMult());

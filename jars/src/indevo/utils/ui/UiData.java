@@ -110,16 +110,23 @@ public final class UiData {
     // icon, amount in highlight (negative when short), stock in grey brackets
     public static LabelAPI cost(CustomPanelAPI p, float x, float y, float w, String sprite, String amount, String stock, boolean ok, float size) {
         UiImages.img(p, x, y, size, size, sprite);
-        String s = stock == null ? amount : amount + " (" + stock + ")";
+        String s = withStock(amount, stock, w - size - 5f);
         return Ui.textIn(p, x + size + 5f, y, w - size - 5f, size, s, Ui.INS15, Ui.gray(), Ui.LEFT,
                 new String[]{amount}, new Color[]{ok ? Ui.hl() : Ui.neg()});
     }
 
+    // the stock in brackets only while both fit, the header counters show it too
+    public static String withStock(String amount, String stock, float w) {
+        if (stock == null) return amount;
+        String s = amount + " (" + stock + ")";
+        return Ui.width(s, Ui.INS15) + 2f <= w ? s : amount;
+    }
+
     // label left, icon and amount right aligned in a measured column
     public static float costrow(CustomPanelAPI p, float x, float y, float w, String label, String sprite, String amount, String stock, boolean ok) {
-        String value = stock == null ? amount : amount + " (" + stock + ")";
         float iconW = sprite == null ? 0f : COST_ICON + 4f;
-        float vw = Math.min(Ui.width(value, Ui.INS15) + 2f, w * VALUE_SHARE - iconW);
+        String value = withStock(amount, stock, w * VALUE_SHARE - iconW);
+        float vw = Ui.width(value, Ui.INS15) + 2f;
 
         if (sprite != null) UiImages.img(p, x + w - vw - iconW, y, COST_ICON, COST_ICON, sprite);
         Ui.textIn(p, x + w - vw, y, vw, COST_ROW_H, value, Ui.INS15, Ui.gray(), Ui.RIGHT, new String[]{amount}, new Color[]{ok ? Ui.hl() : Ui.neg()});
