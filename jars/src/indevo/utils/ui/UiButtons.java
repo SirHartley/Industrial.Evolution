@@ -13,6 +13,8 @@ public final class UiButtons {
     }
 
     public static final float REASON_GAP = 4f;
+    // green and amber fills at 60 % read like vanilla buttons; the full state colours stay for strips, bars and marks
+    public static final float FILL = 0.6f;
     public static final float TAB_GAP = 4f;
     public static final float STRIP_W = 4f;
     public static final float ICON_GAP = 5f;
@@ -215,20 +217,22 @@ public final class UiButtons {
 
     public static Color fg(Kind kind) {
         return switch (kind) {
-            case GREEN, RED -> Ui.text();
-            // near black, light or teal text has too little contrast on the amber fill
-            case AMBER -> Misc.setAlpha(Misc.scaleColorOnly(Ui.dark(), 0.2f), 255);
+            case GREEN, RED, AMBER -> Ui.text();
             case STORY -> Ui.story();
             case HOT -> Ui.bright();
             default -> Ui.base();
         };
     }
 
+    public static Color fill(Color state) {
+        return Misc.setAlpha(Misc.scaleColorOnly(state, FILL), 255);
+    }
+
     public static Color bg(Kind kind) {
         return switch (kind) {
-            case GREEN -> Ui.GREEN;
+            case GREEN -> fill(Ui.GREEN);
             case RED -> Ui.RED;
-            case AMBER -> Ui.AMBER;
+            case AMBER -> fill(Ui.AMBER);
             case STORY -> Ui.storyDark();
             case HOT -> Misc.setAlpha(Ui.dark(), 255);
             default -> Ui.dark();

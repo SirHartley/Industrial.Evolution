@@ -61,7 +61,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | LINE | `line()` | base at 0.3 alpha |
 | backdrop | `backdrop()` | black at 200 alpha, behind panels on the dialog picture or starscape |
 | bar blue | `barBlue()` | settings colour `progressBarStandardColor` (0,121,216) |
-| GREEN, RED, AMBER | `GREEN`, `RED`, `AMBER` | (50,130,0), (160,30,20), (200,160,10), the only raw colours |
+| GREEN, RED, AMBER | `GREEN`, `RED`, `AMBER` | (50,130,0), (160,30,20), (200,160,10), the only raw colours; at full strength for state display (strips, bars, marks), button fills use `UiButtons.fill` |
 
 `Ui.credits(n)` is `Misc.getDGSCredits` (`30,000¢`), `Ui.num(n)` is `Misc.getWithDGS`.
 
@@ -95,7 +95,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 
 | Signature | Does |
 |---|---|
-| `button(p, x, y, w, h, label, kind[, cut], action)` | Kinds `STD`, `GREEN` (confirms or starts), `RED` (undoes or removes), `AMBER` (cancels a running order, near black text), `STORY` (costs a story point), `HOT` (bright on opaque dark), `OFF` (disabled). Cut `ALL` by default, `TL_BR` for the buttons of a bank; never `BL_TR` next to `TL_BR`, never `C2_MENU` or `NONE`. `action` null also disables |
+| `button(p, x, y, w, h, label, kind[, cut], action)` | Kinds `STD`, `GREEN` (confirms or starts), `RED` (undoes or removes), `AMBER` (cancels a running order), `STORY` (costs a story point), `HOT` (bright on opaque dark), `OFF` (disabled). GREEN and AMBER fill with their state colour at `FILL` (60 %, `fill(state)`), RED at full; light text on all three. Cut `ALL` by default, `TL_BR` for the buttons of a bank; never `BL_TR` next to `TL_BR`, never `C2_MENU` or `NONE`. `action` null also disables |
 | `button(..., cut, icon, sub, font, action)` | Icon sprite and a highlighted sub text (cost) drawn over the face |
 | `guarded(p, x, y, w, h, label, kind, reason, action)` | `reason` null: normal button. Else grey button and the red reason wrapped below. Takes `guardHeight(w, h, reason)` (one line reserved when not blocked) |
 | `confirm(p, x, y, w, h, label, kind, state, id, action, refresh[, okLabel, cancelLabel])` | Inline confirm: the button arms `id` in a `Confirm` held by the view state; armed, Confirm and Cancel (or the given labels, so the pair never reads like a neighbouring Cancel) stand in its place |
