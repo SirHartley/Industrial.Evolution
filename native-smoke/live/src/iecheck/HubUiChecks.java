@@ -75,6 +75,7 @@ public final class HubUiChecks {
         UiViews.view(steps, "hub-reverse-blocked", c -> {
             CargoAPI shared = MiscIE.getIndustrialStorageCargo(c.market("a"));
             shared.removeAll(shared.createCopy());
+            hub(c).setSpecialItem(null);
             relics(c, 1f);
             hub(c).getMarket().getMemoryWithoutUpdate().set(indevo.economy.RelicSpeedUpTarget.MEM_COOLDOWN_PREFIX + hub(c).getSpeedUpId(), true, 60f);
             open(c, new EngineeringHubView(false, null, "eagle", null));
