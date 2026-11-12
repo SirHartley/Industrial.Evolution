@@ -356,8 +356,10 @@ class AcademyDetail {
 
         heading(target.getSpeedUpLabel(), 0f);
         add(UiData.COST_ROW_H, 4f, b -> UiData.relicRow(b, 0f, 0f, w, RelicHelper.getName(), cost, market));
+        int left = target.getSpeedUpDaysLeft();
         int after = target.getSpeedUpDaysAfter();
-        grid(4f, GridRow.of("Days left after", after + ""));
+        if (after < left) add(GRID_ROW, 4f, b -> UiData.change(b, 0f, 0f, w, GRID_ROW, "Days left", left + "", after + ""));
+        else grid(4f, GridRow.of("Days left", left + ""));
 
         String reason;
         float cooldown = target.getSpeedUpCooldownLeft();

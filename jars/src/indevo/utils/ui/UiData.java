@@ -198,6 +198,23 @@ public final class UiData {
         return h;
     }
 
+    // label left; right the old value struck through in grey, an arrow and the new value in highlight
+    public static float change(CustomPanelAPI p, float x, float y, float w, float h, String label, String from, String to) {
+        float toW = Ui.width(to, Ui.INS15) + 2f;
+        float arrowW = Ui.width("->", Ui.INS15) + 2f;
+        float fromW = Ui.width(from, Ui.INS15) + 2f;
+        float toX = x + w - toW;
+        float arrowX = toX - 5f - arrowW;
+        float fromX = arrowX - 5f - fromW;
+
+        Ui.textIn(p, toX, y, toW, h, to, Ui.INS15, Ui.hl(), Ui.RIGHT, new String[0], new Color[0]);
+        Ui.textIn(p, arrowX, y, arrowW, h, "->", Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
+        Ui.textIn(p, fromX, y, fromW, h, from, Ui.INS15, Ui.gray(), Ui.RIGHT, new String[0], new Color[0]);
+        Ui.rule(p, fromX, y + (float) Math.floor(h / 2f), fromW, Ui.gray());
+        Ui.textIn(p, x, y, fromX - 8f - x, h, label, Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
+        return h;
+    }
+
     public static float grid(CustomPanelAPI p, float x, float y, float w, float rowH, List<GridRow> rows) {
         for (int i = 0; i < rows.size(); i++) {
             GridRow row = rows.get(i);
