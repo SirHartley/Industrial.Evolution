@@ -131,7 +131,7 @@ Use the skill's live mode (`references/live-game.md`) against the modding instal
 
 ## Panel views and the layout audit
 
-The `ui<panel>` groups open each view of a kit panel through its static `show` with a view state (`UiViews.view`): open, wait 45 frames, optionally act on the drawn panel (a click through the `Runnable` the kit stores as button data, `UiAudit.click`), audit, capture `check-<panel>-<view>.png`, close through the dialog's `dismissCustomDialog(1)`. The note `rect <view> x y w h` is the dialog rectangle in screen pixels from the top left, for cropping.
+The `ui<panel>` groups open each view of a kit panel through its static `show` with a view state (`UiViews.view`): open, wait 120 frames (the dialog fades in for about a second, earlier captures show its noise texture), optionally act on the drawn panel (a click through the `Runnable` the kit stores as button data, `UiAudit.click`), audit, capture `check-<panel>-<view>.png`, close through the dialog's `dismissCustomDialog(1)`. The note `rect <view> x y w h` is the dialog rectangle in screen pixels from the top left, for cropping.
 
 `UiAudit` walks the component tree from the custom dialog under the current interaction dialog (dialogs keep their content in `getInnerPanel`, which `getChildrenCopy` does not list) and reports, with x and y from the content panel's top left:
 

@@ -33,7 +33,8 @@ public final class UiViews {
         });
         steps.add(c -> {
             open.open(c);
-            c.frames(45);
+            // the dialog fades in for about a second; earlier captures show its noise texture
+            c.frames(120);
         });
         if (act != null) steps.add(c -> {
             UiAudit.Found found = UiAudit.find();
