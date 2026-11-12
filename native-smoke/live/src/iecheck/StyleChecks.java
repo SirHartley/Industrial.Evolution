@@ -127,11 +127,11 @@ public final class StyleChecks {
                 float by = ry + 22f + i * 34f;
                 Color g = Misc.setAlpha(Misc.scaleColorOnly(Ui.GREEN, levels[i]), 255);
                 Color a = Misc.setAlpha(Misc.scaleColorOnly(Ui.AMBER, levels[i]), 255);
-                Ui.text(p, 0f, by + 6f, 50f, Math.round(levels[i] * 100f) + " %", Ui.ORB12, Ui.text(), Ui.LEFT);
-                fillButton(p, 56f, by, 120f, "Green", g, true);
-                fillButton(p, 182f, by, 120f, "Green off", g, false);
-                fillButton(p, 308f, by, 96f, "Confirm", g, true);
-                fillButton(p, 410f, by, 96f, "Cancel", Ui.dark(), true);
+                Ui.text(p, 0f, by + 6f, 56f, Math.round(levels[i] * 100f) + " %", Ui.ORB12, Ui.text(), Ui.LEFT);
+                fillButton(p, 60f, by, 120f, "Green", g, true);
+                fillButton(p, 186f, by, 120f, "Green off", g, false);
+                fillButton(p, 312f, by, 96f, "Confirm", g, true);
+                fillButton(p, 414f, by, 96f, "Cancel", Ui.dark(), true);
                 fillButton(p, 530f, by, 120f, "Amber", a, true);
                 fillButton(p, 656f, by, 120f, "Amber off", a, false);
                 fillButton(p, 800f, by, 120f, "Red", Ui.RED, true);
