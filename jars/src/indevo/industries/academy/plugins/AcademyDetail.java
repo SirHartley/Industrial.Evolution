@@ -99,10 +99,13 @@ class AcademyDetail {
             panel.refresh();
         });
         else {
-            guarded("Store", UiButtons.Kind.STD, STORE_H, null, GAP, getStoreTooltip(null), () -> {
+            // store is never blocked, no reason line reserved below it
+            CustomPanelAPI b = column.block(STORE_H, GAP);
+            ButtonAPI store = UiButtons.button(b, 0f, 0f, w, STORE_H, "Store", UiButtons.Kind.STD, () -> {
                 academy.storeOfficer(person);
                 panel.refresh();
             });
+            Ui.tooltip(b, store, null, getStoreTooltip(null));
         }
     }
 
