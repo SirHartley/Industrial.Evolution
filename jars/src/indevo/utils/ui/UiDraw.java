@@ -48,8 +48,13 @@ public final class UiDraw {
         end();
     }
 
-    // line of the given width centred on x1,y1 to x2,y2, alpha a1 at the start, a2 in the middle, a3 at the end
     public static void line(float x1, float y1, float x2, float y2, float width, Color c, float a1, float a2, float a3, float alpha, boolean additive) {
+        line(null, x1, y1, x2, y2, width, c, a1, a2, a3, alpha, additive);
+    }
+
+    // line of the given width centred on x1,y1 to x2,y2, alpha a1 at the start, a2 in the middle, a3 at the end;
+    // a texture is stretched along the line with s 0 to 1 and across it with t 0 to 1, as the vanilla line renderer does
+    public static void line(SpriteAPI tex, float x1, float y1, float x2, float y2, float width, Color c, float a1, float a2, float a3, float alpha, boolean additive) {
         float dx = x2 - x1;
         float dy = y2 - y1;
         float len = (float) Math.sqrt(dx * dx + dy * dy);
@@ -58,16 +63,26 @@ public final class UiDraw {
         float ny = -dx / len * width * 0.5f;
 
         begin(c, alpha);
+        if (tex != null) {
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            tex.bindTexture();
+        }
         if (additive) GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
         GL11.glBegin(GL11.GL_QUAD_STRIP);
         color(c, alpha * a1);
+        GL11.glTexCoord2f(0f, 0f);
         GL11.glVertex2f(x1 - nx, y1 - ny);
+        GL11.glTexCoord2f(0f, 1f);
         GL11.glVertex2f(x1 + nx, y1 + ny);
         color(c, alpha * a2);
+        GL11.glTexCoord2f(0.5f, 0f);
         GL11.glVertex2f((x1 + x2) * 0.5f - nx, (y1 + y2) * 0.5f - ny);
+        GL11.glTexCoord2f(0.5f, 1f);
         GL11.glVertex2f((x1 + x2) * 0.5f + nx, (y1 + y2) * 0.5f + ny);
         color(c, alpha * a3);
+        GL11.glTexCoord2f(1f, 0f);
         GL11.glVertex2f(x2 - nx, y2 - ny);
+        GL11.glTexCoord2f(1f, 1f);
         GL11.glVertex2f(x2 + nx, y2 + ny);
         GL11.glEnd();
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
