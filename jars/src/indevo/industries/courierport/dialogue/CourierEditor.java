@@ -240,7 +240,9 @@ class CourierEditor {
         ButtonAPI tile = UiButtons.area(b, x, y, TILE_W, TILE_H, null, on, true, null, Ui.CENTER, act(() -> pickStorage(s, side)));
         Ui.tooltip(b, tile, s.getNameOneLine());
 
+        // the Resource Stockpiles have no icon of their own
         String icon = s.getSpec().getIcon();
+        if (!isLoaded(icon)) icon = s.getMarket().getFaction().getLogo();
         if (isLoaded(icon)) {
             UiImages.img(b, x + 2f, y + 2f, TILE_W - 4f, TILE_H - 4f, icon, null, on ? 1f : 0.75f);
             return;
