@@ -94,21 +94,26 @@ public final class UiButtons {
         return Math.max(Ui.LINE_H, Ui.wrapHeight(reason, Ui.INS15, w) + 4f);
     }
 
-    // armed: Confirm and Cancel stand where the button was
+    // armed: Confirm and Cancel (or the given labels) stand where the button was
     public static ButtonAPI confirm(CustomPanelAPI p, float x, float y, float w, float h, String label, Kind kind,
                                     Confirm state, String id, Runnable action, Runnable refresh) {
+        return confirm(p, x, y, w, h, label, kind, state, id, action, refresh, "Confirm", "Cancel");
+    }
+
+    public static ButtonAPI confirm(CustomPanelAPI p, float x, float y, float w, float h, String label, Kind kind,
+                                    Confirm state, String id, Runnable action, Runnable refresh, String okLabel, String cancelLabel) {
         if (!state.isArmed(id)) return button(p, x, y, w, h, label, kind, action == null ? null : () -> {
             state.arm(id);
             refresh.run();
         });
 
         float half = Math.round((w - 6f) / 2f);
-        ButtonAPI ok = button(p, x, y, half, h, "Confirm", kind == Kind.RED ? Kind.RED : Kind.GREEN, () -> {
+        ButtonAPI ok = button(p, x, y, half, h, okLabel, kind == Kind.RED ? Kind.RED : Kind.GREEN, () -> {
             state.clear();
             action.run();
             refresh.run();
         });
-        button(p, x + w - half, y, half, h, "Cancel", Kind.STD, () -> {
+        button(p, x + w - half, y, half, h, cancelLabel, Kind.STD, () -> {
             state.clear();
             refresh.run();
         });

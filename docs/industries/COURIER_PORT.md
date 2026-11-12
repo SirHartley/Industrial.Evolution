@@ -29,7 +29,7 @@ The Courier Port is a structure with no supply or demand. While the player owns 
 | `indevo/industries/courierport/dialogue/CourierPortDialoguePlugin.java` | Rule command and `InteractionDialogPlugin` that hosts the panel; picker round trip, ESC block, return to rules; static `show` |
 | `indevo/industries/courierport/dialogue/CourierView.java` | Panel view state: selected contract, draft, step flags, scroll offsets; factories for entry points |
 | `indevo/industries/courierport/dialogue/CourierPanelDelegate.java` | Custom dialog: header, AI core slot, contract list, New contract; rebuilds on every change |
-| `indevo/industries/courierport/dialogue/CourierEditor.java` | Editor column: name, Active, route cards, storage tiles, goods, schedule, cost, Remove / Cancel / Save |
+| `indevo/industries/courierport/dialogue/CourierEditor.java` | Editor column: name, Active, route cards, storage tiles, goods, schedule, cost, Remove (armed: Remove and Keep) / Cancel / Save |
 | `indevo/industries/courierport/dialogue/CourierPortIsDisplayInRelay.java` | Rule condition: gamma core installed |
 | `indevo/industries/courierport/plugin/CourierPortOptionProvider.java` | Industry option "Visit the Courier Port..." |
 

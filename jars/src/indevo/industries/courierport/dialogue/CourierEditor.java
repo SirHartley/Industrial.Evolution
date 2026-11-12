@@ -583,7 +583,7 @@ class CourierEditor {
             view.selected = null;
             view.draft = null;
             view.scroll.reset(CourierView.EDITOR);
-        }, panel::refresh);
+        }, panel::refresh, "Remove", "Keep");
 
         if (invalid) return;
 
