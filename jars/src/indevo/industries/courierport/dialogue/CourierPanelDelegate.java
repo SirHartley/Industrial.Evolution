@@ -201,7 +201,7 @@ public class CourierPanelDelegate extends BaseCustomDialogDelegate {
         float rw = list.width();
         List<ShippingContract> contracts = ShippingContractMemory.getContractList();
 
-        Ui.heading(list.block(Ui.HEADING_H, 0f), 0f, 0f, rw, "Contracts", Ui.LEFT);
+        Ui.heading(list.heading(0f), 0f, 0f, rw, "Contracts", Ui.LEFT);
         if (contracts.isEmpty()) Ui.text(list.block(EMPTY_H, FIRST_GAP), 8f, 2f, rw - 16f, "No shipping contracts.", Ui.gray());
 
         for (int i = 0; i < contracts.size(); i++) addRow(list.block(ROW_H, i == 0 ? FIRST_GAP : ROW_GAP), rw, contracts.get(i));

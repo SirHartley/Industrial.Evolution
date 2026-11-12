@@ -298,7 +298,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
     }
 
     private static void heading(UiScroll.Column list, float w, String title, String note, float gap) {
-        CustomPanelAPI block = list.block(Ui.HEADING_H, gap);
+        CustomPanelAPI block = list.heading(gap);
         if (note != null) Ui.heading(block, 0f, 0f, w, title, note);
         else Ui.heading(block, 0f, 0f, w, title, Ui.LEFT);
     }

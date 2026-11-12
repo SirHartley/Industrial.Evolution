@@ -216,7 +216,7 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
         UiScroll.Column column = UiScroll.list(p, x, BODY_Y, w, hullmod == null ? h : h - actionH - 2f * GAP, view.scroll, EngineeringHubView.DETAIL);
 
         if (hullmod == null) {
-            Ui.heading(column.block(Ui.HEADING_H, 0f), 0f, 0f, cw, "Hullmod");
+            Ui.heading(column.heading(0f), 0f, 0f, cw, "Hullmod");
             CustomPanelAPI b = column.block(Ui.LINE_H, GAP);
             Ui.text(b, 0f, 0f, cw, "No hullmod to show.", Ui.gray());
             column.end();
@@ -224,7 +224,7 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
         }
 
         HullModSpecAPI spec = hullmod.spec();
-        Ui.heading(column.block(Ui.HEADING_H, 0f), 0f, 0f, cw, spec.getDisplayName());
+        Ui.heading(column.heading(0f), 0f, 0f, cw, spec.getDisplayName());
 
         String description = getDescription(spec, hullmod.source() != null ? hullmod.source().getHullSize() : HullSize.CRUISER);
         float tw = cw - DETAIL_ICON - 12f;

@@ -73,6 +73,7 @@ public final class UiScroll {
         private final Offsets offsets;
         private final List<CustomPanelAPI> blocks = new ArrayList<>();
         private final List<Float> gaps = new ArrayList<>();
+        private final List<Boolean> headings = new ArrayList<>();
         private float content = 0f;
 
         private Column(CustomPanelAPI holder, float w, float h, String id, Offsets offsets) {
@@ -91,7 +92,15 @@ public final class UiScroll {
             CustomPanelAPI block = holder.createCustomPanel(width(), height, new UiCanvas());
             blocks.add(block);
             gaps.add(gapBefore);
+            headings.add(false);
             content += gapBefore + height;
+            return block;
+        }
+
+        // a Ui.HEADING_H block the view never ends on at rest, it stays with the block below it
+        public CustomPanelAPI heading(float gapBefore) {
+            CustomPanelAPI block = block(Ui.HEADING_H, gapBefore);
+            headings.set(headings.size() - 1, true);
             return block;
         }
 
@@ -107,7 +116,7 @@ public final class UiScroll {
                 for (int i = 0; i < blocks.size(); i++) {
                     float bottom = y + gaps.get(i) + blocks.get(i).getPosition().getHeight();
                     if (bottom > h + 0.5f) break;
-                    fit = bottom;
+                    if (!headings.get(i)) fit = bottom;
                     y = bottom;
                 }
                 if (fit > 0f) viewH = fit;

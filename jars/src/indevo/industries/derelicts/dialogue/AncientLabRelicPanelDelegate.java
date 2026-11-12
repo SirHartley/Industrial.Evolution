@@ -384,7 +384,7 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
     }
 
     private void heading(String title, float gap) {
-        Ui.heading(block(Ui.HEADING_H, gap), 0f, 0f, cw, title);
+        Ui.heading(pinned == null ? column.heading(gap) : block(Ui.HEADING_H, gap), 0f, 0f, cw, title);
     }
 
     private void text(String text, Color color, float gap) {

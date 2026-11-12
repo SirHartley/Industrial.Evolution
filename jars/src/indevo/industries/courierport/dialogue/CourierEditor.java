@@ -341,7 +341,7 @@ class CourierEditor {
         String noCargo = cargo ? null : getHolder(true);
         String noShips = ships ? null : getHolder(false);
 
-        Ui.heading(column.block(Ui.HEADING_H, SECTION_GAP), 0f, 0f, cw, "Goods", Ui.LEFT);
+        Ui.heading(column.heading(SECTION_GAP), 0f, 0f, cw, "Goods", Ui.LEFT);
         CustomPanelAPI b = column.block(AREA_H, SECTION_GAP);
         float bw = (cw - 4f * 4f) / 5f;
         for (int i = 0; i < 5; i++) {
@@ -474,7 +474,7 @@ class CourierEditor {
     }
 
     private void addSchedule() {
-        Ui.heading(column.block(Ui.HEADING_H, SECTION_GAP), 0f, 0f, cw, "Schedule", Ui.LEFT);
+        Ui.heading(column.heading(SECTION_GAP), 0f, 0f, cw, "Schedule", Ui.LEFT);
         CustomPanelAPI b = column.block(AREA_H, SECTION_GAP);
         for (int i = 0; i < CADENCES.length; i++) {
             int days = CADENCES[i];
@@ -497,7 +497,7 @@ class CourierEditor {
 
     private void addCost() {
         List<CostLine> lines = getCostLines();
-        Ui.heading(column.block(Ui.HEADING_H, 10f), 0f, 0f, cw, "Cost per run", Ui.LEFT);
+        Ui.heading(column.heading(10f), 0f, 0f, cw, "Cost per run", Ui.LEFT);
 
         CustomPanelAPI b = column.block(lines.size() * COST_ROW, SECTION_GAP);
         for (int i = 0; i < lines.size(); i++) addCostLine(b, i * COST_ROW, lines.get(i));

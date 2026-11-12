@@ -620,6 +620,6 @@ class DetachmentColumn {
     }
 
     private void heading(String title, float gap) {
-        Ui.heading(column.block(Ui.HEADING_H, gap), 0f, 0f, w, title);
+        Ui.heading(column.heading(gap), 0f, 0f, w, title);
     }
 }

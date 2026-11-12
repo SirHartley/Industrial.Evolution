@@ -44,7 +44,7 @@ class AcademyDetail {
         void draw(CustomPanelAPI b);
     }
 
-    private record Block(float h, float gap, Draw draw) {
+    private record Block(float h, float gap, boolean heading, Draw draw) {
     }
 
     private final Academy academy;
@@ -76,7 +76,7 @@ class AcademyDetail {
         float infoH = actions.isEmpty() ? h : h - actionsH - SECTION_GAP;
 
         UiScroll.Column column = UiScroll.list(p, x, y, width, infoH, view.scroll, AcademyView.DETAIL);
-        for (Block b : info) b.draw().draw(column.block(b.h(), b.gap()));
+        for (Block b : info) b.draw().draw(b.heading() ? column.heading(b.gap()) : column.block(b.h(), b.gap()));
         column.end();
 
         if (actions.isEmpty()) return;
@@ -96,7 +96,7 @@ class AcademyDetail {
     }
 
     private void add(float h, float gap, Draw draw) {
-        target.add(new Block(h, gap, draw));
+        target.add(new Block(h, gap, false, draw));
     }
 
     private void addOfficer(PersonAPI person, boolean stored) {
@@ -412,7 +412,7 @@ class AcademyDetail {
     }
 
     private void heading(String title, float gap) {
-        add(Ui.HEADING_H, gap, b -> Ui.heading(b, 0f, 0f, w, title));
+        target.add(new Block(Ui.HEADING_H, gap, true, b -> Ui.heading(b, 0f, 0f, w, title)));
     }
 
     private void text(String text, Color color, float gap) {
