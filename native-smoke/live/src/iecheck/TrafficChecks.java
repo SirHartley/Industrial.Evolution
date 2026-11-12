@@ -173,6 +173,43 @@ public final class TrafficChecks {
         if (!slow.isEmpty()) c.note(tag + " slow craft: " + slow);
     }
 
+    // arrivals and departures may only appear or vanish where nobody sees it, or at their jump point
+    private static void watchTransit(Ctx c, String tag) {
+        Map<Shuttle, Vector2f> last = new IdentityHashMap<>();
+        int[] seen = {0, 0, 0, 0};
+        int[] frames = {0};
+        wait(c, 1800, tag + " transit watch", () -> c.expect(seen[1] == 0 && seen[3] == 0,
+                tag + " transit craft never vanish or appear in sight (" + seen[0] + " ended, " + seen[1] + " in sight; " + seen[2] + " appeared, " + seen[3] + " in sight)"));
+        Runnable frame = c.onFrame;
+        c.onFrame = () -> {
+            frame.run();
+            ShuttleTraffic t = traffic();
+            if (t == null) return;
+            boolean first = frames[0]++ == 0;
+            Map<Shuttle, Vector2f> now = new IdentityHashMap<>();
+            for (Shuttle s : t.getShuttles()) {
+                if (s.getRoute() == null || s.getRoute().kind != ShuttleRoute.Kind.TRANSIT) continue;
+                now.put(s, new Vector2f(s.pos));
+                if (first || last.containsKey(s)) continue;
+                seen[2]++;
+                if (s.getTo() == s.getRoute().a && !atJump(s.pos, s.getRoute().b.entity) && !t.isOutOfSight(s.pos, 300f)) seen[3]++;
+            }
+            for (Map.Entry<Shuttle, Vector2f> e : last.entrySet()) {
+                if (now.containsKey(e.getKey())) continue;
+                seen[0]++;
+                Shuttle s = e.getKey();
+                if (s.isHit() || s.getTo() != s.getRoute().b) continue;
+                if (!atJump(e.getValue(), s.getRoute().b.entity) && !t.isOutOfSight(e.getValue(), 300f)) seen[1]++;
+            }
+            last.clear();
+            last.putAll(now);
+        };
+    }
+
+    private static boolean atJump(Vector2f pos, SectorEntityToken jump) {
+        return Vector2f.sub(pos, jump.getLocation(), new Vector2f()).length() < jump.getRadius() + 150f;
+    }
+
     // the player sits 500 su off the market like a parked fleet; the base save's move destination would fly it off otherwise
     private static SectorEntityToken pin;
 
@@ -208,6 +245,7 @@ public final class TrafficChecks {
             speeds(c, tag + " t10s");
         }));
         steps.add(c -> c.shot("traffic_" + tag));
+        steps.add(c -> watchTransit(c, tag));
         for (int i = 1; i <= 2; i++) {
             int round = i;
             steps.add(c -> wait(c, 1800, tag + " 30 s round " + round, () -> report(c, tag + " +" + round * 30 + "s")));

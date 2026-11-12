@@ -18,7 +18,7 @@ Package `indevo/ambience/shuttletraffic/`:
 
 | File | Owner / role |
 |---|---|
-| `renderers/ShuttleTrafficRenderer.java` | `LunaCampaignRenderingPlugin`: registration, pause, zoom fade, viewport cull, render order (trails of a list in one GL state block, then sprites) |
+| `renderers/ShuttleTrafficRenderer.java` | `LunaCampaignRenderingPlugin`: registration, pause, zoom fade, viewport cull, hands the view to `ShuttleTraffic.setView` for out of sight checks, render order (trails of a list in one GL state block, then sprites) |
 | `ShuttleTraffic.java` | Context for one location: network, random, fleet scan, flights, spawner, reactions, craft and pod lists, fleet routes (own map, outside the daily rebuild), own day count; location change, daily rebuild, 0.25 s scan |
 | `ShuttleSpawner.java` | Warm start, rare route rolls, timer launches under the cap share |
 | `ShuttleReactions.java` | Anchor threats, fleeing, screening, closed port diverts |
@@ -96,7 +96,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 | Kind | Route | In flight (demand) | Group |
 |---|---|---|---|
 | `SUPPLY` | Planet market to each connected `Tags.STATION` entity | `clamp(round(liveliness), 1, 6)` | local |
-| `TRANSIT` | Arrivals and departures: every market to its 2 nearest jump points (`LocationAPI.getJumpPoints`), either way, as a `JUMP` anchor. The path (`ShuttlePaths.transitPath`) only runs from the pad to a point 2200 su past the surface toward the jump point (+-15 degrees), moving with the market, or to the jump point when it is nearer; the craft fades in or out there over 80 su like a fleet end, so arrivals and departures stay where the player sees them. The launch interval uses that length. Craft fly their market's faction. None in a system without jump points | `clamp(round(2.5 * liveliness), 1, 16)`, split between the jump points | local |
+| `TRANSIT` | Arrivals and departures: every market to its 2 nearest jump points (`LocationAPI.getJumpPoints`), either way, as a `JUMP` anchor. A normal lane the whole way, fading into or out of the jump point over 80 su like a fleet end. A departure past 2200 su from the market's surface vanishes once it is unseen: off the last rendered view by more than 300 su (or traffic faded out by zoom) and more than 3500 su from the player (`LaneFlights.cullTransit`, every scan), so a player flying the same way keeps it to the jump point. An arrival starts at that 2200 su point when the point is unseen, else at the jump point (`placeArrival`). The launch interval uses the 2200 su length. Craft fly their market's faction. None in a system without jump points | `clamp(round(2.5 * liveliness), 1, 16)`, split between the jump points | local |
 | `PIRATE_CARGO` | Market of a `pirate` profile to each `DECIV` anchor | 1 | lanes |
 | `SMUGGLER` | Market pair with hostile factions, neither pirate | 1, 1% per day, 3% with a Free Port at either end | rare |
 | `DARK` | Market with Pather Cells or a Privateer Base to a random other planet; a hidden pirate base to the nearest `DECIV` anchor, else the nearest market, either way. Small craft, smuggler look | 1, 2% (cells), 3% (Privateer Base, the higher one wins) or 1% (hidden base) per day | rare |
