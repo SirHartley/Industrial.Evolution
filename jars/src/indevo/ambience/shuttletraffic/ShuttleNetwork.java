@@ -71,12 +71,26 @@ public class ShuttleNetwork {
     private static final float PICKET_LIVELY_MIN = 0.34f;
     private static final float PICKET_LIVELY_MAX = 1.5f;
     private static final int MAX_CRUISES = 3;
-    private static final int MAX_MINING = 4;
-    private static final int MAX_SUPPLY = 16;
-    private static final float SUPPLY_PER_LIVELINESS = 2.5f;
+    private static final int MAX_MINING = 6;
+    private static final float MINING_PER_LIVELINESS = 1.5f;
+    private static final int MAX_SALVAGE = 3;
+    private static final int MAX_SUPPLY = 6;
+    private static final float SUPPLY_PER_LIVELINESS = 1f;
+    // local hops: craft between a market and its HOP_TARGETS nearest bodies within HOP_RANGE su, neighbouring markets included, split between them
+    private static final int MAX_HOPS = 16;
+    private static final float HOPS_PER_LIVELINESS = 2.5f;
+    private static final int HOP_TARGETS = 2;
+    private static final float HOP_RANGE = 4000f;
+    // share of its hops a hub still flies to a neighbouring market with liveliness near 0
+    private static final float HOP_QUIET_MIN = 0.25f;
     // local flights launch while the player is within NEAR_RANGE su of the anchor's surface, and stop past NEAR_RANGE_OUT
-    public static final float NEAR_RANGE = 3000f;
-    public static final float NEAR_RANGE_OUT = 3500f;
+    public static final float NEAR_RANGE = 4000f;
+    public static final float NEAR_RANGE_OUT = 4600f;
+    // surface hops: craft between two pads of the same planet, the bustle of a hub with no neighbour in hop range
+    private static final int MAX_SURFACE = 10;
+    private static final float SURFACE_PER_LIVELINESS = 1.5f;
+    // a larger market is a world with a garrison, not a garrison
+    private static final int MILITARY_MAX_SIZE = 5;
 
     public final Map<SectorEntityToken, ShuttleAnchor> anchors = new LinkedHashMap<>();
     public final Map<String, ShuttleRoute> routes = new LinkedHashMap<>();
@@ -95,8 +109,8 @@ public class ShuttleNetwork {
         meteors.clear();
     }
 
-    // the player has no callback for moving either, so this runs with the fleet scan; true when an anchor changed
-    public boolean updateNear(Vector2f player) {
+    // the player has no callback for moving either, so this runs with the fleet scan; true when an anchor changed, arrived takes the anchors that came into range
+    public boolean updateNear(Vector2f player, List<ShuttleAnchor> arrived) {
         boolean changed = false;
         for (ShuttleAnchor anchor : anchors.values()) {
             float gap = Misc.getDistance(player, anchor.getLocation()) - anchor.getRadius();
@@ -105,8 +119,13 @@ public class ShuttleNetwork {
 
             anchor.near = near;
             changed = true;
+            if (near && arrived != null) arrived.add(anchor);
         }
         return changed;
+    }
+
+    public void updateMotion(float seconds) {
+        for (ShuttleAnchor anchor : anchors.values()) anchor.updateMotion(seconds);
     }
 
     // meteor swarms have no callback for their movement, so this runs with the fleet scan
@@ -147,6 +166,7 @@ public class ShuttleNetwork {
         decivAnchors.clear();
 
         addMarkets(location, random, days);
+        for (ShuttleAnchor anchor : marketAnchors) addHops(location, anchor, random);
         addDecivs(location);
         addMarketLanes(random);
         addPilgrims(location, random);
@@ -269,7 +289,7 @@ public class ShuttleNetwork {
             float density = getDensity(market);
             float rush = getRushHour(market.getId(), days);
             boolean military = (market.hasIndustry(Industries.MILITARYBASE) || market.hasIndustry(Industries.HIGHCOMMAND))
-                    && !market.hasIndustry(Industries.MEGAPORT) && !market.hasIndustry(Industries.COMMERCE);
+                    && !market.hasIndustry(Industries.MEGAPORT) && !market.hasIndustry(Industries.COMMERCE) && market.getSize() <= MILITARY_MAX_SIZE;
             float lively = getLiveliness(market.getSize(), density, military, stationMarket);
             float mult = lively * rush;
             anchor.density = density * rush;
@@ -301,6 +321,9 @@ public class ShuttleNetwork {
 
             if (market.hasCondition(Ids.COND_PARADE)) getRoute(ShuttleRoute.Kind.PARADE, anchor, null, random);
 
+            int surface = stationMarket ? 0 : Math.min(MAX_SURFACE, Math.round(SURFACE_PER_LIVELINESS * mult));
+            if (surface > 0) getRoute(ShuttleRoute.Kind.SURFACE, anchor, null, random).demand = surface;
+
             if (market.hasIndustry(Ids.EMBASSY)) getRoute(ShuttleRoute.Kind.DIPLOMAT, anchor, null, random).chancePerDay = DIPLOMAT_CHANCE;
 
             if (market.hasIndustry(Industries.MINING) || market.hasIndustry(Ids.SWITCHABLE_MINING)) {
@@ -308,13 +331,17 @@ public class ShuttleNetwork {
                 if (target != null) {
                     ShuttleRoute route = getRoute(ShuttleRoute.Kind.MINING, anchor, null, random);
                     route.target = target;
-                    route.demand = Math.max(1, Math.min(MAX_MINING, Math.round(1f + mult)));
+                    route.demand = Math.max(1, Math.min(MAX_MINING, Math.round(1f + MINING_PER_LIVELINESS * mult)));
                 }
             }
 
             if (market.hasIndustry(Ids.SCRAPYARD)) {
                 ShuttleTarget target = findSalvageTarget(location, primary);
-                if (target != null) getRoute(ShuttleRoute.Kind.SALVAGE, anchor, null, random).target = target;
+                if (target != null) {
+                    ShuttleRoute route = getRoute(ShuttleRoute.Kind.SALVAGE, anchor, null, random);
+                    route.target = target;
+                    route.demand = Math.max(1, Math.min(MAX_SALVAGE, Math.round(mult)));
+                }
             }
 
             if (stationMarket) continue;
@@ -334,6 +361,47 @@ public class ShuttleNetwork {
                 towing = false;
             }
         }
+    }
+
+    // after every market anchor exists, so a neighbouring market is a target as itself
+    private void addHops(LocationAPI location, ShuttleAnchor market, Random random) {
+        Vector2f loc = market.getLocation();
+        List<SectorEntityToken> bodies = new ArrayList<>();
+        for (PlanetAPI planet : location.getPlanets()) {
+            if (!planet.isStar() && !planet.isGasGiant()) bodies.add(planet);
+        }
+        bodies.addAll(location.getEntitiesWithTag(Tags.STATION));
+        bodies.removeIf(body -> body == market.entity || market.market.getConnectedEntities().contains(body)
+                || Misc.getDistance(loc, body.getLocation()) - market.getRadius() - body.getRadius() > HOP_RANGE || !isHopTarget(body, market));
+        if (bodies.isEmpty()) return;
+
+        bodies.sort((p, q) -> Float.compare(Misc.getDistance(loc, p.getLocation()), Misc.getDistance(loc, q.getLocation())));
+        int count = Math.min(HOP_TARGETS, bodies.size());
+        int total = Math.max(1, Math.min(MAX_HOPS, Math.round(HOPS_PER_LIVELINESS * market.liveliness)));
+        for (int i = 0; i < count; i++) {
+            ShuttleAnchor target = getHopTarget(bodies.get(i), market);
+            int demand = total / count + (i < total % count ? 1 : 0);
+            if (target.role == ShuttleAnchor.Role.MARKET) demand = Math.round(demand * Math.max(HOP_QUIET_MIN, Math.min(1f, target.liveliness)));
+            if (demand > 0) getRoute(ShuttleRoute.Kind.HOP, market, target, random).demand = demand;
+        }
+    }
+
+    // a market with traffic counts as itself unless hostile, an entity without a market as a target; decivilized worlds and hidden bases never
+    private boolean isHopTarget(SectorEntityToken body, ShuttleAnchor from) {
+        MarketAPI market = body.getMarket();
+        if (market != null && market.isInEconomy()) {
+            ShuttleAnchor anchor = anchors.get(body);
+            return anchor != null && anchor.role == ShuttleAnchor.Role.MARKET && marketAnchors.contains(anchor) && !anchor.faction.isHostileTo(from.faction);
+        }
+        return market == null || !market.hasCondition(Conditions.DECIVILIZED_SUBPOP);
+    }
+
+    private ShuttleAnchor getHopTarget(SectorEntityToken body, ShuttleAnchor from) {
+        ShuttleAnchor anchor = anchors.get(body);
+        if (anchor != null && anchor.role == ShuttleAnchor.Role.MARKET) return anchor;
+
+        ShuttleAnchor.Type type = body instanceof PlanetAPI ? ShuttleAnchor.Type.PLANET : ShuttleAnchor.Type.STATION;
+        return getAnchor(body, type, ShuttleAnchor.Role.TARGET, body.getMarket(), from.faction);
     }
 
     private void addDecivs(LocationAPI location) {
@@ -359,7 +427,8 @@ public class ShuttleNetwork {
                 }
 
                 float lanes = (ShuttleFactionRepo.get(a.faction).lanes() + ShuttleFactionRepo.get(b.faction).lanes()) / 2f;
-                float mult = (a.liveliness + b.liveliness) / 2f * lanes;
+                // geometric mean: a lane is as busy as its quiet end allows, a hub does not flood a fringe station
+                float mult = (float) Math.sqrt(a.liveliness * b.liveliness) * lanes;
                 if (a.market.hasCondition(Conditions.PIRATE_ACTIVITY)) mult *= PIRATE_ACTIVITY_LANES;
                 if (b.market.hasCondition(Conditions.PIRATE_ACTIVITY)) mult *= PIRATE_ACTIVITY_LANES;
                 float chord = Misc.getDistance(a.getLocation(), b.getLocation());

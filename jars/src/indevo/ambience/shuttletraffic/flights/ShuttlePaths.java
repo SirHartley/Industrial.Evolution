@@ -21,6 +21,8 @@ public class ShuttlePaths {
     }
 
     private static final float LANE_OFFSET = 40f;
+    private static final float SURFACE_ARC_MIN = 40f;
+    private static final float SURFACE_ARC_MAX = 110f;
     // market lanes: each direction keeps right of the line between the anchors, so a pair shows two steady streams
     private static final float TRAFFIC_LANE_ANGLE = 8f;
     private static final float TRAFFIC_LANE_SPREAD = 1.5f;
@@ -56,6 +58,17 @@ public class ShuttlePaths {
 
         return lane(from, to, from, to, new ShuttlePath.PadWaypoint(from, new ShuttlePath.EntityWaypoint(to.entity), side + spread(offset), 0f, false),
                 new ShuttlePath.PadWaypoint(to, new ShuttlePath.EntityWaypoint(from.entity), side + spread(offset), 0f, true), bend, 0f);
+    }
+
+    // between two pads of the same planet, 40 to 110 degrees apart: up over the limb and back down
+    public ShuttlePath surfacePath(ShuttleAnchor planet) {
+        ShuttlePath.Waypoint reference = new ShuttlePath.RelativeWaypoint(planet.entity, 1000f, 0f, 0f);
+        float from = random.nextFloat() * 360f;
+        float arc = SURFACE_ARC_MIN + random.nextFloat() * (SURFACE_ARC_MAX - SURFACE_ARC_MIN);
+        // longer handles for wider arcs, or the middle of the curve dips back under the limb
+        float handle = planet.getRadius() * (0.9f + arc / 90f);
+        return new ShuttlePath().add(new ShuttlePath.BezierSegment(new ShuttlePath.PadWaypoint(planet, reference, from, 0f, false),
+                new ShuttlePath.PadWaypoint(planet, reference, from + arc * randomSign(), 0f, true), handle, handle, 0f));
     }
 
     // one curve per anchor pair, bent the same way in both directions

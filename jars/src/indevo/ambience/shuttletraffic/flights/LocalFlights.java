@@ -28,6 +28,7 @@ public class LocalFlights extends BaseFlights {
     private static final String PICKET_FALLBACK = "talon";
     private static final Set<String> CRUISE_HULLS = Set.of("kite", "shuttlepod");
     private static final float MAINTENANCE_RADIUS = 100f;
+    private static final float SURFACE_JITTER = 4f;
     private static final float TOUR_CHANCE = 0.35f;
     private static final float TOUR_SPACING = 14f;
     private static final int REMNANT_PATROL = 2;
@@ -136,6 +137,17 @@ public class LocalFlights extends BaseFlights {
         float days = mining ? 1f + random.nextFloat() * 2f : 2f + random.nextFloat() * 2f;
         return create(hull, route, home.faction, home, home, paths.lingerPath(home, route.target, days, SpeedClass.CIVIL.getCruiseSpeed(hull) * speedMult), SpeedClass.CIVIL, speedMult,
                 LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
+    }
+
+    // a short hop between two pads of the same planet
+    public Shuttle launchSurface(ShuttleRoute route) {
+        ShuttleAnchor home = route.a;
+        if (!canFly(home, home)) return null;
+
+        ShuttleHull hull = ShuttleHullPool.rollCargo(home.faction, random, 0.8f, true);
+        if (hull == null) return null;
+
+        return create(hull, route, home.faction, home, home, paths.surfacePath(home), SpeedClass.CIVIL, 1f, SURFACE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
     }
 
     public Shuttle launchMaintenance(ShuttleRoute route) {

@@ -49,7 +49,8 @@ public class LaneFlights extends BaseFlights {
         if (!canFly(from, to)) return null;
 
         boolean smuggler = route.kind == ShuttleRoute.Kind.SMUGGLER;
-        FactionAPI faction = route.kind == ShuttleRoute.Kind.PIRATE_CARGO ? route.a.faction : from.faction;
+        // a hop target is shared by every market near it, so hops fly their market's faction both ways
+        FactionAPI faction = route.kind == ShuttleRoute.Kind.PIRATE_CARGO || route.kind == ShuttleRoute.Kind.HOP ? route.a.faction : from.faction;
         ShuttleHull hull = switch (route.kind) {
             case SUPPLY -> ShuttleHullPool.rollCargo(faction, random, 0.8f, true);
             case PIRATE_CARGO -> ShuttleHullPool.rollSmall(faction, random);

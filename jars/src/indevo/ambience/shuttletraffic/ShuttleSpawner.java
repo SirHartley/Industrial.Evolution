@@ -2,11 +2,17 @@ package indevo.ambience.shuttletraffic;
 
 import com.fs.starfarer.api.util.Misc;
 
+import org.lwjgl.util.vector.Vector2f;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Predicate;
 
 public class ShuttleSpawner {
+
+    // a craft placed mid flight closer to the player than this could pop up on screen, it launches from its pad later
+    private static final float WARM_CLEARANCE = 3000f;
 
     private final ShuttleTraffic traffic;
 
@@ -14,8 +20,17 @@ public class ShuttleSpawner {
         this.traffic = traffic;
     }
 
-    // fills the routes in rounds, one flight per route each round, so the first routes in the map do not take the whole cap
     public void warmStart() {
+        warmStart(route -> true, null);
+    }
+
+    // a market that came into range is busy by the time the player gets there
+    public void warmStart(List<ShuttleAnchor> arrived, Vector2f player) {
+        warmStart(route -> route.kind.group == ShuttleBudget.Group.LOCAL && arrived.contains(route.a), player);
+    }
+
+    // fills the routes in rounds, one flight per route each round, so the first routes in the map do not take the whole cap
+    private void warmStart(Predicate<ShuttleRoute> filter, Vector2f player) {
         Random random = traffic.getRandom();
         ShuttleBudget budget = traffic.getBudget();
         budget.count(traffic.getShuttles());
@@ -24,14 +39,15 @@ public class ShuttleSpawner {
         for (int round = 0; launchedAny; round++) {
             launchedAny = false;
             for (ShuttleRoute route : traffic.getNetwork().routes.values()) {
-                if (route.isRare() || round >= route.max || route.active > round) continue;
+                if (route.isRare() || round >= route.max || route.active > round || !filter.test(route)) continue;
 
-                List<Shuttle> launched = launch(route);
+                List<Shuttle> launched = traffic.getFlights().launch(route, budget.getRoom(route.kind.group));
                 if (launched.isEmpty()) continue;
 
+                launchedAny = true;
                 float fraction = Math.min(0.95f, (round + random.nextFloat()) / route.max);
                 for (Shuttle shuttle : launched) shuttle.warmStart(fraction);
-                launchedAny = true;
+                if (player == null || isClear(launched, player)) add(route, launched);
             }
         }
     }
@@ -69,15 +85,23 @@ public class ShuttleSpawner {
     }
 
     private List<Shuttle> launch(ShuttleRoute route) {
-        ShuttleBudget budget = traffic.getBudget();
-        List<Shuttle> launched = traffic.getFlights().launch(route, budget.getRoom(route.kind.group));
-        if (launched.isEmpty()) return launched;
+        List<Shuttle> launched = traffic.getFlights().launch(route, traffic.getBudget().getRoom(route.kind.group));
+        if (!launched.isEmpty()) add(route, launched);
+        return launched;
+    }
 
+    private void add(ShuttleRoute route, List<Shuttle> launched) {
         for (Shuttle shuttle : launched) shuttle.setGroup(route.kind.group);
-        budget.add(route.kind.group, launched.size());
+        traffic.getBudget().add(route.kind.group, launched.size());
         route.active++;
         traffic.getShuttles().addAll(launched);
-        return launched;
+    }
+
+    private static boolean isClear(List<Shuttle> launched, Vector2f player) {
+        for (Shuttle shuttle : launched) {
+            if (Misc.getDistance(shuttle.pos, player) < WARM_CLEARANCE) return false;
+        }
+        return true;
     }
 
     private float getInterval(ShuttleRoute route) {
