@@ -55,7 +55,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [INSTALLABLES](items/INSTALLABLES.md) | Installable special items, item effects, loot listeners, forge template and VPC item plugins | `items/*` (rest) |
 | Dialogue | [RESEARCH](dialogue/RESEARCH.md) | Research projects | `dialogue/research` |
 | | [BEACONS](dialogue/BEACONS.md) | Warning beacon dismantling | `dialogue/beacons` |
-| | [SIDE_PANEL](dialogue/SIDE_PANEL.md) | Custom side panels in dialogs (UI) | `dialogue/sidepanel` |
+| | [SIDE_PANEL](dialogue/SIDE_PANEL.md) | Button objects of the older dialog popups, `?` help icon, ESC hook | `dialogue/sidepanel` |
 | | [RULE_COMMANDS](dialogue/RULE_COMMANDS.md) | Generic rule commands, `rules.csv` map | `dialogue/rules` |
 | Core | [ECONOMY](core/ECONOMY.md) | Resource condition, parts, relic build time reduction, custom production Express Delivery, relic refit build in, Tech Mining relic boost | `economy` |
 | | [SUBMARKETS](core/SUBMARKETS.md) | Submarket plugins, adding and removing submarkets | `submarkets` |

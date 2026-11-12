@@ -171,4 +171,4 @@ Vanilla `CoreScript.reportEconomyTick` bills only the player fleet's cargo crew 
 
 ## Maintenance
 
-Update this doc when a behaviour, override, memory key or slot count changes. Side panel framework facts belong in [Side panel](../dialogue/SIDE_PANEL.md); storage and courier target rules in [Courier port](../industries/COURIER_PORT.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
+Update this doc when a behaviour, override, memory key or slot count changes. Panel kit facts belong in [UI](../core/UI.md); storage and courier target rules in [Courier port](../industries/COURIER_PORT.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
