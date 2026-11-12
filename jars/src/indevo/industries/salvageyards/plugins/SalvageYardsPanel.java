@@ -243,6 +243,7 @@ public class SalvageYardsPanel extends BaseCustomDialogDelegate {
                 t.addPara("The salvage drones keep a Wreck Registry of hulls, weapons and fighter wings lost nearby. Each entry can be built once without a blueprint.", 0f);
                 t.addPara("Registry hulls cost %s salvage units per fleet point and come with the weapons, fighter wings and hullmods they had when they were lost, charged at their value.", pad, hl, SALVAGE_DRONES_SP_PER_FP + "");
                 t.addPara("Weapons and fighter wings cost no salvage units.", pad);
+                t.addPara("D-mods and discounts are set on the Ship assembly tab.", pad);
             }
             case DMODS -> {
                 t.addPara("The salvage yards can transfer D-Mods between ships of the same size and manufacturer. The ship that takes them must be restorable.", 0f);

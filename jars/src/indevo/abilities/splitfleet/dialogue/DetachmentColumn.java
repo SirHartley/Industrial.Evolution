@@ -225,9 +225,6 @@ class DetachmentColumn {
         ButtonAPI keep = UiButtons.area(b, SEND_W + 2f, 0f, SEND_W, ROW_H, "Take", take, true, null, Ui.CENTER, () -> panel.setTakeMode(slot, true));
         Ui.tooltip(b, keep, null, "Select ships and cargo to keep; the rest form the detachment. Your flagship stays with you.");
 
-        float hintX = 2f * SEND_W + 12f;
-        Ui.text(b, hintX, 4f, w - 2f * PICK_W - 6f - 8f - hintX, take ? "Picked ships stay" : "Picked ships leave", Ui.gray());
-
         UiButtons.button(b, w - 2f * PICK_W - 6f, 0f, PICK_W, ROW_H, "Ships...", UiButtons.Kind.STD, CutStyle.TL_BR, () -> panel.showShipPicker(slot));
         UiButtons.button(b, w - PICK_W, 0f, PICK_W, ROW_H, "Cargo...", UiButtons.Kind.STD, CutStyle.TL_BR, members.isEmpty() ? null : () -> panel.showCargoPicker(slot));
     }
@@ -403,34 +400,28 @@ class DetachmentColumn {
             int index = i - 1;
             float x = index % 3 == 2 ? w - bw : (index % 3) * (bw + 6f);
 
-            UiButtons.area(b, x, (index / 3) * MODE_ROW, bw, MODE_H, Misc.ucFirst(mode.toString().toLowerCase()), Behaviour.behaviourEquals(mode, current), enabled,
+            ButtonAPI button = UiButtons.area(b, x, (index / 3) * MODE_ROW, bw, MODE_H, Misc.ucFirst(mode.toString().toLowerCase()), Behaviour.behaviourEquals(mode, current), enabled,
                     Behaviour.getColourForBehaviour(mode), Ui.CENTER, () -> panel.setMode(slot, mode));
+
+            String description = Behaviour.behaviourTooltipMap.get(i);
+            if (live && !Behaviour.canSwitchLiveTo(mode)) Ui.tooltip(b, button, null, description, "Can not be set after deployment.");
+            else Ui.tooltip(b, button, null, description);
         }
-
-        String description = Behaviour.behaviourTooltipMap.get(Behaviour.getIndexForBehaviour(current));
-        float descH = Ui.LINE_H;
-        for (String text : Behaviour.behaviourTooltipMap.values()) descH = Math.max(descH, Ui.wrapHeight(text, Ui.INS15, w));
-
-        CustomPanelAPI d = column.block(descH, 6f);
-        if (description != null) Ui.wrap(d, 0f, 0f, w, description, Ui.gray());
     }
 
     private void addTarget() {
-        CustomPanelAPI b = column.block(ROW_H, 2f);
         FleetBehaviour base = live ? Behaviour.getFleetBehaviour(fleet, true) : loadout.behaviour;
-        boolean transport = Behaviour.behaviourEquals(base, FleetBehaviour.TRANSPORT);
+        if (!Behaviour.behaviourEquals(base, FleetBehaviour.TRANSPORT) || live && target == null) return;
 
+        CustomPanelAPI b = column.block(ROW_H, GAP);
         if (!live) {
-            if (!transport) return;
-
             ButtonAPI button = UiButtons.button(b, w - SET_TARGET_W, 0f, SET_TARGET_W, ROW_H, "Set target...", UiButtons.Kind.STD, () -> panel.showTransportTargetPicker(slot));
             Ui.tooltip(b, button, null, "Pick the planet to store the ships and cargo at.");
 
             float tw = w - SET_TARGET_W - 8f;
             if (target != null) addTargetLine(b, tw, player);
             else Ui.text(b, 0f, 4f, tw, "No target planet set.", Ui.gray());
-        } else if (transport && target != null) addTargetLine(b, w, fleet);
-        else Ui.text(b, 0f, 4f, w, "Transport can not be set after deployment.", Ui.gray());
+        } else addTargetLine(b, w, fleet);
     }
 
     private void addTargetLine(CustomPanelAPI b, float tw, SectorEntityToken from) {

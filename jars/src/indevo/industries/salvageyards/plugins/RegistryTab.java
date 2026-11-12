@@ -286,10 +286,6 @@ class RegistryTab {
         addFit(column, rw, fit);
         addHullmods(column, rw, fit);
         addCost(column, rw, id, fit);
-
-        String note = "D-mods and discounts are set on the Ship assembly tab.";
-        CustomPanelAPI n = column.block(Ui.wrapHeight(note, Ui.INS15, rw) + 4f, 10f);
-        Ui.wrap(n, 0f, 0f, rw, note, Ui.gray());
         column.end();
     }
 

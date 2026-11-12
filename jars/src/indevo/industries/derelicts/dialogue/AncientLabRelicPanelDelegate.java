@@ -15,6 +15,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.hullmods.Automated;
 import com.fs.starfarer.api.ui.Alignment;
+import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -366,7 +367,6 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
         int available = RelicHelper.getAvailable(market);
         boolean ok = entry.cost <= available;
 
-        text(lore, Ui.gray(), 8f);
         pin();
         heading("Cost", GAP);
         CustomPanelAPI c = block(UiData.COST_ROW_H, 6f);
@@ -374,7 +374,8 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
 
         String reason = ok ? null : "Not enough " + RelicHelper.getName() + ".";
         CustomPanelAPI b = block(UiButtons.guardHeight(cw, BUTTON_H, reason), GAP);
-        UiButtons.guarded(b, 0f, 0f, cw, BUTTON_H, action, UiButtons.Kind.GREEN, reason, run);
+        ButtonAPI button = UiButtons.guarded(b, 0f, 0f, cw, BUTTON_H, action, UiButtons.Kind.GREEN, reason, run);
+        Ui.tooltip(b, button, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> t.addPara(lore, Misc.getGrayColor(), 0f));
     }
 
     private void picture(ShipHullSpecAPI hull) {

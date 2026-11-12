@@ -280,7 +280,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
 
         heading(list, rw, "In training", null, 0f);
         if (trainee != null) addStrip(list.block(ROW_H, ROW_GAP), rw, trainee);
-        else empty(list, rw, view.admins ? "No administrator in training." : "No officer in training. Select an officer and pick a personality to start.");
+        else empty(list, rw, view.admins ? "No administrator in training." : "No officer in training.");
 
         heading(list, rw, view.admins ? "On staff" : "In fleet", null, GROUP_GAP);
         List<PersonAPI> active = active();

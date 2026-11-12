@@ -8,6 +8,7 @@ import com.fs.starfarer.api.combat.ShipAPI.HullSize;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
+import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -248,7 +249,6 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
         float nw = Math.min(Ui.width(source, Ui.INS15) + 2f, cw - 140f - HULL - 16f);
         Ui.text(from, cw - nw, 8f, nw, source, Ui.text(), Ui.RIGHT);
         if (hullmod.source() != null) UiImages.hull(from, cw - nw - 8f - HULL, 0f, HULL, hullmod.source(), true, false);
-        Ui.wrap(column.block(Ui.wrapHeight(LORE, Ui.INS15, cw), 10f), 0f, 0f, cw, LORE, Ui.gray());
 
         column.end();
 
@@ -258,12 +258,13 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
         ay += Ui.HEADING_H + 6f;
         UiData.costrow(a, 0f, ay, cw, RelicHelper.getName(), UiImages.relicSprite(), Ui.num(cost), Ui.num(available), cost <= available);
         ay += UiData.COST_ROW_H + GAP;
-        UiButtons.guarded(a, 0f, ay, cw, BUTTON_H, "Learn", UiButtons.Kind.GREEN, reason, () -> {
+        ButtonAPI learn = UiButtons.guarded(a, 0f, ay, cw, BUTTON_H, "Learn", UiButtons.Kind.GREEN, reason, () -> {
             RecoveredHullmods.learn(market, spec.getId());
             view.hullmod = null;
             view.scroll.reset(EngineeringHubView.DETAIL);
             refresh();
         });
+        Ui.tooltip(a, learn, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> t.addPara(LORE, Misc.getGrayColor(), 0f));
     }
 
     private static String getOpLine(HullModSpecAPI spec) {
