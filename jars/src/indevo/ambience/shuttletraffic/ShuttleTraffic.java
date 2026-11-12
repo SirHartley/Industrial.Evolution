@@ -4,9 +4,11 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BattleAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.combat.ViewportAPI;
 import indevo.ambience.shuttletraffic.dogfights.ShuttleDogfights;
 import indevo.ambience.shuttletraffic.flights.ShuttleFlights;
 import indevo.ambience.shuttletraffic.flights.ShuttlePaths;
+import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,6 +42,13 @@ public class ShuttleTraffic {
     private float days = 0f;
     private float daysSinceRebuild = 0f;
     private float scanTimer = 0f;
+    // last rendered view in world units, for craft that may only vanish out of sight; unknown counts as seen
+    private boolean viewKnown = false;
+    private boolean viewHidden = false;
+    private float viewX;
+    private float viewY;
+    private float viewWidth;
+    private float viewHeight;
 
     public void advance(float amount, CampaignFleetAPI player, int cap) {
         LocationAPI current = player != null ? player.getContainingLocation() : null;
@@ -89,6 +98,7 @@ public class ShuttleTraffic {
             reactions.react();
             flights.getFleets().update();
             flights.getEvents().update();
+            flights.getLanes().cullTransit();
             hits.scan();
             dogfights.update();
             fastFleets.clear();
@@ -146,6 +156,21 @@ public class ShuttleTraffic {
 
     public ShuttlePaths getPaths() {
         return flights.getPaths();
+    }
+
+    public void setView(ViewportAPI viewport, boolean hidden) {
+        viewX = viewport.getLLX();
+        viewY = viewport.getLLY();
+        viewWidth = viewport.getVisibleWidth();
+        viewHeight = viewport.getVisibleHeight();
+        viewHidden = hidden;
+        viewKnown = true;
+    }
+
+    public boolean isOutOfSight(Vector2f point, float margin) {
+        if (!viewKnown) return false;
+        if (viewHidden) return true;
+        return point.x < viewX - margin || point.x > viewX + viewWidth + margin || point.y < viewY - margin || point.y > viewY + viewHeight + margin;
     }
 
     public Random getRandom() {

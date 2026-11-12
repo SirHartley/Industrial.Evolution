@@ -1,7 +1,7 @@
 package indevo.ambience.shuttletraffic;
 
 import com.fs.starfarer.api.util.Misc;
-import indevo.ambience.shuttletraffic.flights.ShuttlePaths;
+import indevo.ambience.shuttletraffic.flights.LaneFlights;
 
 import java.util.Collection;
 import java.util.List;
@@ -86,7 +86,7 @@ public class ShuttleSpawner {
         if (route.b == null) return route.kind.pause * jitter;
 
         float distance = Misc.getDistance(route.a.getLocation(), route.b.getLocation());
-        if (route.kind == ShuttleRoute.Kind.TRANSIT) distance = Math.min(distance, route.a.getRadius() + ShuttlePaths.TRANSIT_REACH);
+        if (route.kind == ShuttleRoute.Kind.TRANSIT) distance = Math.min(distance, route.a.getRadius() + LaneFlights.TRANSIT_REACH);
         float flightTime = distance / route.kind.speed.getMeanSpeed() + 6f;
         return flightTime / Math.max(1, route.max) * jitter;
     }
