@@ -275,12 +275,12 @@ public class CourierPanelDelegate extends BaseCustomDialogDelegate {
             case ALL_WEAPONS -> "All weapons";
             case ALL_SHIPS -> "All ships";
             default -> {
-                String text = "Selected goods";
                 int types = c.targetCargo.getStacksCopy().size();
                 int ships = c.variantList.size();
-                if (types > 0) text += ", " + types + (types == 1 ? " cargo type" : " cargo types");
-                if (ships > 0) text += ", " + ships + (ships == 1 ? " ship" : " ships");
-                yield text;
+                String shipText = ships + (ships == 1 ? " ship" : " ships");
+                if (types > 0 && ships > 0) yield types + (types == 1 ? " type, " : " types, ") + shipText;
+                if (types > 0) yield types + (types == 1 ? " cargo type" : " cargo types");
+                yield ships > 0 ? shipText : "Selected goods";
             }
         };
     }
