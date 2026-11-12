@@ -65,7 +65,6 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
         float zoom = viewport.getViewMult();
         float fade = Math.max(0f, Math.min(1f, (zoom - FADE_ZOOM_START) / (FADE_ZOOM_END - FADE_ZOOM_START)));
         float alphaMult = viewport.getAlphaMult() * (1f - fade);
-        traffic.setView(viewport, alphaMult <= 0.01f);
         if (alphaMult <= 0.01f) return;
 
         render(traffic.getShuttles(), viewport, alphaMult);

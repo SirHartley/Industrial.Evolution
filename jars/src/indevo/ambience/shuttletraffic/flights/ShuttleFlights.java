@@ -20,20 +20,19 @@ public class ShuttleFlights {
     private final PodFlights pods;
     private final FleetFlights fleets;
     private final EventFlights events;
-    private final LaneFlights lanes;
     private final Map<ShuttleRoute.Kind, Flight> flights = new EnumMap<>(ShuttleRoute.Kind.class);
 
     public ShuttleFlights(ShuttleTraffic traffic) {
         paths = new ShuttlePaths(traffic.getNetwork(), traffic.getRandom());
         pods = new PodFlights(traffic, paths);
         fleets = new FleetFlights(traffic, paths);
-        lanes = new LaneFlights(traffic, paths);
+        LaneFlights lanes = new LaneFlights(traffic, paths);
         LocalFlights local = new LocalFlights(traffic, paths);
         events = new EventFlights(traffic, paths, local);
 
         Flight lane = (route, room) -> BaseFlights.single(lanes.launchLane(route));
         flights.put(ShuttleRoute.Kind.SUPPLY, lane);
-        flights.put(ShuttleRoute.Kind.TRANSIT, lane);
+        flights.put(ShuttleRoute.Kind.HOP, lane);
         flights.put(ShuttleRoute.Kind.MARKET, lanes::launchMarket);
         flights.put(ShuttleRoute.Kind.PIRATE_CARGO, lane);
         flights.put(ShuttleRoute.Kind.SMUGGLER, lane);
@@ -74,10 +73,6 @@ public class ShuttleFlights {
 
     public FleetFlights getFleets() {
         return fleets;
-    }
-
-    public LaneFlights getLanes() {
-        return lanes;
     }
 
     public EventFlights getEvents() {
