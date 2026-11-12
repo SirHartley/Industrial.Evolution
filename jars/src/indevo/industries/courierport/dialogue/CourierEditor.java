@@ -83,7 +83,7 @@ class CourierEditor {
 
         Ui.text(p, x, y + 5f, NAME_X - 8f, "Name", Ui.gray());
         if (invalid) Ui.text(p, x + NAME_X + 8f, y + 5f, NAME_W - 8f, draft.name);
-        else nameField = UiButtons.field(p, x + NAME_X, y, NAME_W, NAME_H, draft.name, 40);
+        else nameField = UiButtons.field(p, x + NAME_X, y, NAME_W, NAME_H, draft.name, CourierPanelDelegate.getNameMaxChars());
         if (stored != null && !invalid) UiButtons.check(p, x + w - 90f, y + 3f, 90f, "Active", draft.isActive, true, act(() -> {
             draft.isActive = !draft.isActive;
             stored.isActive = draft.isActive;
