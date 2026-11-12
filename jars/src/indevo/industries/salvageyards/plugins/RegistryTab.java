@@ -24,7 +24,6 @@ class RegistryTab {
     static final float HULL_GAP = 4f;
     static final float CELL = 52f;
     static final float CELL_GAP = 4f;
-    static final float WING_ROW_H = 66f;
     static final float RECORDED_X = 300f;
     static final float SU_X = 390f;
     static final float COL_W = 80f;
@@ -86,7 +85,7 @@ class RegistryTab {
     }
 
     private static float bottomHeight(int wingRows) {
-        return 8f + 24f + 2f * (CELL + CELL_GAP) + 8f + 24f + wingRows * (WING_ROW_H + CELL_GAP);
+        return 8f + 24f + 2f * (CELL + CELL_GAP) + 8f + 24f + wingRows * (CELL + CELL_GAP);
     }
 
     private List<String> getHulls() {
@@ -208,11 +207,11 @@ class RegistryTab {
         Ui.heading(p, 0f, y, lw, "Fighter wings", "no salvage units");
         y += 24f;
 
-        UiScroll.Column list = UiScroll.list(p, 0f, y, lw, rows * (WING_ROW_H + CELL_GAP), view.scroll, SalvageYardsView.WINGS);
+        UiScroll.Column list = UiScroll.list(p, 0f, y, lw, rows * (CELL + CELL_GAP), view.scroll, SalvageYardsView.WINGS);
         int per = perRow(list.width());
 
         for (int i = 0; i < ids.size(); i += per) {
-            CustomPanelAPI row = list.block(WING_ROW_H, i == 0 ? 0f : CELL_GAP);
+            CustomPanelAPI row = list.block(CELL, i == 0 ? 0f : CELL_GAP);
             for (int j = i; j < Math.min(ids.size(), i + per); j++) addWingCell(row, (j - i) * (CELL + CELL_GAP), ids.get(j));
         }
 
@@ -230,7 +229,6 @@ class RegistryTab {
                 () -> change(view.order.wings, id, 1));
         UiImages.stack(row, x, 0f, CELL, spec.getVariant().getHullSpec().getSpriteName(), count, inOrder, null);
         if (inOrder > 0) AssemblyTab.xButton(row, x + CELL - AssemblyTab.X_SIZE - 1f, 1f, "Remove one from the order", () -> change(view.order.wings, id, -1));
-        Ui.text(row, x - 1f, CELL + 1f, CELL + 2f, spec.getWingName().replaceFirst("(?i) wing$", ""), Ui.VIC10, Ui.gray(), Ui.CENTER);
 
         String role = spec.getRoleDesc() != null ? spec.getRoleDesc() : "Fighter wing";
         Ui.tooltip(row, area, AssemblyTab.wingName(spec), itemLines(role, count, inOrder, ProductionItemType.FIGHTER, id, reason));
