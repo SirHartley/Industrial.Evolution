@@ -31,6 +31,8 @@ public class EscapeInterceptListener implements CampaignInputListener {
 
             if (input.getEventValue() == Keyboard.KEY_ESCAPE) {
                 input.consume();
+                // vanilla pickers close on key down, the key up then reaches the panel that reopened
+                if (!input.isKeyDownEvent()) continue;
                 if (memory.get(BLOCK_ESC) instanceof EscapeBlockingDialoguePluginAPI) ((EscapeBlockingDialoguePluginAPI) memory.get(BLOCK_ESC)).close();
             }
         }

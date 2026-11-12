@@ -45,7 +45,7 @@ Users:
 
 ### ESC on a dialog plugin without options
 
-`plugin.advance -> memory.set($IndEvo_BlockESC, plugin, 1f)` while no sub dialog is up `-> EscapeInterceptListener` consumes ESC `-> plugin.close()`. `EscBlockerMemoryIterator` (transient script, added by the plugin's `init` when missing) counts the key down, so it is gone two frames after the plugin stops setting it. While a vanilla picker is open the plugin does not set the key (Courier Port also unsets it before the picker opens), so ESC reaches the picker.
+`plugin.advance -> memory.set($IndEvo_BlockESC, plugin, 1f)` while no sub dialog is up `-> EscapeInterceptListener` consumes ESC `-> plugin.close()` on key down only (a vanilla picker closes on key down, so the key up must not close the panel that reopens after it). `EscBlockerMemoryIterator` (transient script, added by the plugin's `init` when missing) counts the key down, so it is gone two frames after the plugin stops setting it. While a vanilla picker is open the plugin does not set the key (Courier Port also unsets it before the picker opens), so ESC reaches the picker.
 
 ## Contracts
 
