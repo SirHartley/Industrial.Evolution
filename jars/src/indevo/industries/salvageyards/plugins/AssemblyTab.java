@@ -180,9 +180,9 @@ class AssemblyTab {
         UiImages.stack(p, x, y, size, spec.getHardpointSpriteName(), count, extra, spec.getWeaponName());
     }
 
-    // small x chip over a sprite corner, the label sits on an empty button face
+    // small red x over a sprite corner, the label sits on an empty button face
     static void xButton(CustomPanelAPI p, float x, float y, String tip, Runnable action) {
-        ButtonAPI b = UiButtons.button(p, x, y, X_SIZE, X_SIZE, "", UiButtons.Kind.STD, CutStyle.ALL, action);
+        ButtonAPI b = UiButtons.button(p, x, y, X_SIZE, X_SIZE, "", UiButtons.Kind.RED, CutStyle.ALL, action);
         Ui.textIn(p, x, y, X_SIZE, X_SIZE, "x", Ui.VIC10, Ui.text(), Ui.CENTER, new String[0], new Color[0]);
         Ui.tooltip(p, b, tip);
     }
@@ -495,7 +495,7 @@ class AssemblyTab {
         column.end();
 
         CustomPanelAPI pinned = Ui.panel(p, x, SalvageYardsPanel.BODY_Y + h - confirmH, rw, confirmH);
-        UiButtons.guarded(pinned, 0f, 0f, rw, 30f, "Confirm", UiButtons.Kind.STD, reason, () -> {
+        UiButtons.guarded(pinned, 0f, 0f, rw, 30f, "Confirm", UiButtons.Kind.GREEN, reason, () -> {
             contract.confirm();
             view.scroll.reset(SalvageYardsView.ORDER);
             panel.refresh();

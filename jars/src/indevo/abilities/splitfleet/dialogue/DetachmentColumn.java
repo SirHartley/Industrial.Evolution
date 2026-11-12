@@ -143,7 +143,7 @@ class DetachmentColumn {
 
         CustomPanelAPI action = Ui.panel(p, x, y + h - actionH, w, actionH);
         if (live) addAction(action);
-        else UiButtons.button(action, 0f, 0f, w, ACTION_H, "Deploy", canDeploy ? UiButtons.Kind.STD : UiButtons.Kind.OFF, canDeploy ? () -> panel.deploy(slot) : null);
+        else UiButtons.button(action, 0f, 0f, w, ACTION_H, "Deploy", canDeploy ? UiButtons.Kind.GREEN : UiButtons.Kind.OFF, canDeploy ? () -> panel.deploy(slot) : null);
     }
 
     private void addHeading(CustomPanelAPI p, float x, float y) {
@@ -451,7 +451,7 @@ class DetachmentColumn {
         order(b, 0f, bw, "Go to...", UiButtons.Kind.STD, CutStyle.TL_BR, goTo ? () -> panel.showGoToPicker(slot) : null,
                 "Move to a location in this system and hold position.");
 
-        if (live && Behaviour.isAttacking(fleet)) order(b, bw + 6f, bw, "Stop attack", UiButtons.Kind.STD, CutStyle.TL_BR,
+        if (live && Behaviour.isAttacking(fleet)) order(b, bw + 6f, bw, "Stop attack", UiButtons.Kind.HOT, CutStyle.TL_BR,
                 () -> panel.stopOrder(slot, FleetBehaviour.ATTACK_TARGET), "Resume the current mode.");
         else {
             boolean attack = free && !DetachmentPanel.getAttackTargets(fleet).isEmpty();
@@ -459,7 +459,7 @@ class DetachmentColumn {
                     "Attack a visible hostile fleet in this system, then resume the current mode.");
         }
 
-        if (live && Behaviour.isOnTradeRun(fleet)) order(b, w - bw, bw, "Stop run", UiButtons.Kind.STD, CutStyle.TL_BR,
+        if (live && Behaviour.isOnTradeRun(fleet)) order(b, w - bw, bw, "Stop run", UiButtons.Kind.HOT, CutStyle.TL_BR,
                 () -> panel.stopOrder(slot, FleetBehaviour.TRADE_RUN), "Resume the current mode.");
         else order(b, w - bw, bw, "Trade run", UiButtons.Kind.STD, CutStyle.TL_BR, free ? () -> panel.startTradeRun(slot) : null,
                 "Meet the main force to exchange cargo, then resume the current mode.");
@@ -605,13 +605,13 @@ class DetachmentColumn {
         ButtonAPI button;
         String tooltip;
         if (met) {
-            button = UiButtons.guarded(b, 0f, 0f, w, ACTION_H, "Merge", UiButtons.Kind.STD, null, () -> panel.merge(slot));
+            button = UiButtons.guarded(b, 0f, 0f, w, ACTION_H, "Merge", UiButtons.Kind.RED, null, () -> panel.merge(slot));
             tooltip = "Merge with the main force.";
         } else if (Behaviour.isReturning(fleet) && reason == null) {
-            button = UiButtons.guarded(b, 0f, 0f, w, ACTION_H, "Cancel", UiButtons.Kind.STD, null, () -> panel.cancelRecall(slot));
+            button = UiButtons.guarded(b, 0f, 0f, w, ACTION_H, "Cancel", UiButtons.Kind.AMBER, null, () -> panel.cancelRecall(slot));
             tooltip = "Resume the current mode.";
         } else {
-            button = UiButtons.guarded(b, 0f, 0f, w, ACTION_H, "Recall", UiButtons.Kind.STD, reason, () -> panel.recall(slot));
+            button = UiButtons.guarded(b, 0f, 0f, w, ACTION_H, "Recall", UiButtons.Kind.RED, reason, () -> panel.recall(slot));
             tooltip = "Return to you and merge into the main force.";
         }
 

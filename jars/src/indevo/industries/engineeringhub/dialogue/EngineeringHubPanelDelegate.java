@@ -257,7 +257,7 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
         ay += Ui.HEADING_H + 6f;
         UiData.costrow(a, 0f, ay, cw, RelicHelper.getName(), UiImages.relicSprite(), Ui.num(cost), Ui.num(available), cost <= available);
         ay += UiData.COST_ROW_H + GAP;
-        UiButtons.guarded(a, 0f, ay, cw, BUTTON_H, "Learn", UiButtons.Kind.STD, reason, () -> {
+        UiButtons.guarded(a, 0f, ay, cw, BUTTON_H, "Learn", UiButtons.Kind.GREEN, reason, () -> {
             RecoveredHullmods.learn(market, spec.getId());
             view.hullmod = null;
             view.scroll.reset(EngineeringHubView.DETAIL);

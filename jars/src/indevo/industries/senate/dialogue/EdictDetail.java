@@ -268,7 +268,7 @@ class EdictDetail {
 
     private void addEnact(String edictId, boolean allowed) {
         CustomPanelAPI b = block(BUTTON_H, SECTION_GAP);
-        UiButtons.button(b, 0f, 0f, w, BUTTON_H, "Enact", allowed ? UiButtons.Kind.STD : UiButtons.Kind.OFF,
+        UiButtons.button(b, 0f, 0f, w, BUTTON_H, "Enact", allowed ? UiButtons.Kind.GREEN : UiButtons.Kind.OFF,
                 allowed ? () -> createEnactConfirm(edictId).show(panel::refresh) : null);
     }
 
@@ -305,7 +305,7 @@ class EdictDetail {
         float half = Math.round((w - 6f) / 2f);
         String reason = affordable ? null : "Not enough " + RelicHelper.getName() + ".";
         CustomPanelAPI b = block(UiButtons.guardHeight(half, BUTTON_H, reason), GAP);
-        UiButtons.button(b, 0f, 0f, half, BUTTON_H, "Remove", UiButtons.Kind.STD, CutStyle.TL_BR, () -> createRemoveConfirm(active, condition).show(panel::refresh));
+        UiButtons.button(b, 0f, 0f, half, BUTTON_H, "Remove", UiButtons.Kind.RED, CutStyle.TL_BR, () -> createRemoveConfirm(active, condition).show(panel::refresh));
 
         ButtonAPI bribe = UiButtons.button(b, w - half, 0f, half, BUTTON_H, "Bribe senators", affordable ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR,
                 UiImages.relicSprite(), amount, Ui.ORB12, affordable ? () -> createBribeConfirm(active, condition).show(panel::refresh) : null);
@@ -336,7 +336,7 @@ class EdictDetail {
 
     private void addRemove(EdictAPI active, MarketConditionAPI condition) {
         CustomPanelAPI b = block(BUTTON_H + 4f + LINE, SECTION_GAP);
-        UiButtons.button(b, 0f, 0f, w, BUTTON_H, "Remove", UiButtons.Kind.STD, () -> createRemoveConfirm(active, condition).show(panel::refresh));
+        UiButtons.button(b, 0f, 0f, w, BUTTON_H, "Remove", UiButtons.Kind.RED, () -> createRemoveConfirm(active, condition).show(panel::refresh));
 
         int unrest = active.getRemovalUnrest();
         if (unrest > 0) Ui.runs(b, 0f, BUTTON_H + 4f, w, Ui.INS15, Ui.gray(), Ui.CENTER, "Removal causes " + unrest + " unrest", new String[]{unrest + " unrest"}, new Color[]{Ui.neg()});

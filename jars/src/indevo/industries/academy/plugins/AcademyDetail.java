@@ -124,7 +124,7 @@ class AcademyDetail {
         pin();
         if (view.rung != null) addFee(fee);
         String rung = view.rung;
-        guarded("Train", UiButtons.Kind.STD, TRAIN_H, blocker, SECTION_GAP, null, () -> {
+        guarded("Train", UiButtons.Kind.GREEN, TRAIN_H, blocker, SECTION_GAP, null, () -> {
             academy.setOfficerForTraining(person, rung);
             view.rung = null;
             panel.refresh();
@@ -252,7 +252,7 @@ class AcademyDetail {
 
         pin();
         addFee(academy.getAdminTrainingFee());
-        guarded("Train", UiButtons.Kind.STD, TRAIN_H, blocker, SECTION_GAP, null, () -> {
+        guarded("Train", UiButtons.Kind.GREEN, TRAIN_H, blocker, SECTION_GAP, null, () -> {
             academy.setAdminInTraining(person);
             panel.refresh();
         });
@@ -376,9 +376,9 @@ class AcademyDetail {
 
         float half = Math.round((w - 7f) / 2f);
         add(UiButtons.guardHeight(w, STORE_H, blocker), GAP, row -> {
-            UiButtons.button(row, 0f, 0f, half, STORE_H, "Abort to fleet", blocker != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
+            UiButtons.button(row, 0f, 0f, half, STORE_H, "Abort to fleet", blocker != null ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
                     blocker != null ? null : () -> abort(false));
-            UiButtons.button(row, w - half, 0f, half, STORE_H, "Abort to storage", UiButtons.Kind.STD, CutStyle.TL_BR, () -> abort(true));
+            UiButtons.button(row, w - half, 0f, half, STORE_H, "Abort to storage", UiButtons.Kind.RED, CutStyle.TL_BR, () -> abort(true));
             if (blocker != null) Ui.wrap(row, 0f, STORE_H + UiButtons.REASON_GAP, w, blocker, Ui.neg());
         });
     }

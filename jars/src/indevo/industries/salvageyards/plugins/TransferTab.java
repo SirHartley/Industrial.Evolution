@@ -464,7 +464,7 @@ class TransferTab {
             cy += 20f;
         }
 
-        UiButtons.guarded(p, toX, cy + 6f, sideW, BUTTON_H, "Transfer", UiButtons.Kind.STD, getConfirmReason(), this::apply);
+        UiButtons.guarded(p, toX, cy + 6f, sideW, BUTTON_H, "Transfer", UiButtons.Kind.GREEN, getConfirmReason(), this::apply);
     }
 
     private void apply() {

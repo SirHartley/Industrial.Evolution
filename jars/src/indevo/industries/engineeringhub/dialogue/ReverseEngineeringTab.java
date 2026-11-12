@@ -360,7 +360,7 @@ class ReverseEngineeringTab {
 
         BlueprintSource pay = picked;
         boolean useRelics = relics;
-        UiButtons.guarded(p, x, y, w, BUTTON_H, "Finish", UiButtons.Kind.STD, reason, () -> {
+        UiButtons.guarded(p, x, y, w, BUTTON_H, "Finish", UiButtons.Kind.GREEN, reason, () -> {
             if (!hub.finish(hull.id(), useRelics ? null : pay)) return;
             view.hull = null;
             view.payment = null;

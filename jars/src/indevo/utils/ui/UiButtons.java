@@ -9,7 +9,7 @@ import java.util.function.IntConsumer;
 public final class UiButtons {
 
     public enum Kind {
-        STD, STORY, OFF
+        STD, GREEN, RED, AMBER, STORY, HOT, OFF
     }
 
     public static final float REASON_GAP = 4f;
@@ -103,7 +103,7 @@ public final class UiButtons {
         });
 
         float half = Math.round((w - 6f) / 2f);
-        ButtonAPI ok = button(p, x, y, half, h, "Confirm", kind, () -> {
+        ButtonAPI ok = button(p, x, y, half, h, "Confirm", kind == Kind.RED ? Kind.RED : Kind.GREEN, () -> {
             state.clear();
             action.run();
             refresh.run();
@@ -209,10 +209,22 @@ public final class UiButtons {
     }
 
     public static Color fg(Kind kind) {
-        return kind == Kind.STORY ? Ui.story() : Ui.base();
+        return switch (kind) {
+            case GREEN, RED, AMBER -> Ui.text();
+            case STORY -> Ui.story();
+            case HOT -> Ui.bright();
+            default -> Ui.base();
+        };
     }
 
     public static Color bg(Kind kind) {
-        return kind == Kind.STORY ? Ui.storyDark() : Ui.dark();
+        return switch (kind) {
+            case GREEN -> Ui.GREEN;
+            case RED -> Ui.RED;
+            case AMBER -> Ui.AMBER;
+            case STORY -> Ui.storyDark();
+            case HOT -> Misc.setAlpha(Ui.dark(), 255);
+            default -> Ui.dark();
+        };
     }
 }

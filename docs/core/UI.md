@@ -23,7 +23,7 @@ Every IE panel follows these rules.
    - A blocked button is grey with one red reason line below in the game's current words (`UiButtons.guarded`); the line height is reserved either way.
    - An empty list keeps its heading and one grey line.
 3. Panel size is `min(board, screen - margin)` per axis (`UiFrame.width/height`, margin 100). List regions take up the difference, fixed blocks keep their size. Everything fits 1600 x 900 and stays usable at 1280 x 768.
-4. Native look. Fonts and colours only through `Ui`; raw RGB only for the three state colours `Ui.GREEN`, `Ui.RED`, `Ui.AMBER` (bars, strips, marks; never a button fill). Buttons keep the vanilla chrome: base text on the dark fill, the story colours for an action that costs a story point, and the engine's own wash when disabled. Cuts follow the vanilla roles: `ALL` for a single button and for a Confirm and Cancel pair, `TL_BR` for every button of a bank that sits side by side, `TOP` for tabs. Use vanilla widgets where they fit (`addShipList`, `showPlanetInfo`, `showCargo`, `showCost`, `addSkillPanel`) through `Ui.element` for their stock tooltips and codex links. Hand drawn cells get a tooltip that names the thing. Sprites come by spec, never by path guess.
+4. Native look. Fonts and colours only through `Ui`; raw RGB only for the three state colours `Ui.GREEN`, `Ui.RED`, `Ui.AMBER` (button fills, bars, strips, marks). The fill of a button says what it does: green confirms or starts, red undoes or removes, amber cancels a running order, the story colours cost a story point, everything else is the vanilla dark fill; disabled buttons get the engine's own wash. Cuts follow the vanilla roles: `ALL` for a single button and for a Confirm and Cancel pair, `TL_BR` for every button of a bank that sits side by side, `TOP` for tabs. Use vanilla widgets where they fit (`addShipList`, `showPlanetInfo`, `showCargo`, `showCost`, `addSkillPanel`) through `Ui.element` for their stock tooltips and codex links. Hand drawn cells get a tooltip that names the thing. Sprites come by spec, never by path guess.
 5. Wording. `?` help icon on the title line holds rules and rates, not the body. Short labels, standard game wording, no rounded edges. Player text follows the house-style `player-text.md`.
 6. Every view is reachable from code: the panel takes one small view state object (tab, selected id, scroll offsets, armed confirm, open sub view) and has one static entry point that opens it for a market or fleet.
 
@@ -59,7 +59,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | STORY | `story()`, `storyDark()` | `Misc.getStoryOptionColor/getStoryDarkColor` |
 | LINE | `line()` | base at 0.3 alpha |
 | bar blue | `barBlue()` | settings colour `progressBarStandardColor` (0,121,216) |
-| GREEN, RED, AMBER | `GREEN`, `RED`, `AMBER` | (50,130,0), (160,30,20), (200,160,10), the only raw colours; for bars, strips and marks, not for buttons |
+| GREEN, RED, AMBER | `GREEN`, `RED`, `AMBER` | (50,130,0), (160,30,20), (200,160,10), the only raw colours |
 
 `Ui.credits(n)` is `Misc.getDGSCredits` (`30,000¢`), `Ui.num(n)` is `Misc.getWithDGS`.
 
@@ -90,7 +90,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 
 | Signature | Does |
 |---|---|
-| `button(p, x, y, w, h, label, kind[, cut], action)` | Kinds `STD`, `STORY` (costs a story point), `OFF` (disabled). Cut `ALL` by default, `TL_BR` for the buttons of a bank; never `BL_TR` next to `TL_BR`, never `C2_MENU` or `NONE`. `action` null also disables |
+| `button(p, x, y, w, h, label, kind[, cut], action)` | Kinds `STD`, `GREEN` (confirms or starts), `RED` (undoes or removes), `AMBER` (cancels a running order), `STORY` (costs a story point), `HOT` (bright on opaque dark), `OFF` (disabled). Cut `ALL` by default, `TL_BR` for the buttons of a bank; never `BL_TR` next to `TL_BR`, never `C2_MENU` or `NONE`. `action` null also disables |
 | `button(..., cut, icon, sub, font, action)` | Icon sprite and a highlighted sub text (cost) drawn over the face |
 | `guarded(p, x, y, w, h, label, kind, reason, action)` | `reason` null: normal button. Else grey button and the red reason wrapped below. Takes `guardHeight(w, h, reason)` (one line reserved when not blocked) |
 | `confirm(p, x, y, w, h, label, kind, state, id, action, refresh)` | Inline confirm: the button arms `id` in a `Confirm` held by the view state; armed, Confirm and Cancel stand in its place |
