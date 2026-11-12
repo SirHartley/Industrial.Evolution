@@ -110,6 +110,7 @@ public final class ShuttleTrafficChecks {
             run.checkFleetHop();
             run.checkRoundRate();
             run.checkRushHour();
+            run.checkLiveliness();
             run.checkSpeedCap();
             run.checkSwarmRange();
             run.checkDogfight();
@@ -661,11 +662,11 @@ public final class ShuttleTrafficChecks {
             else lanes += route.max;
         }
 
-        check(lanes <= 45, "lanes take " + lanes + " of 60 with 15 reserved for local flights");
-        check(lanes >= 40, "lanes scaled down to " + lanes + ", more than needed");
+        check(lanes <= 41, "lanes take " + lanes + " of 60 with 19 reserved for local flights");
+        check(lanes >= 36, "lanes scaled down to " + lanes + ", more than needed");
         budget.add(ShuttleBudget.Group.LANES, lanes);
         check(budget.getRoom(ShuttleBudget.Group.LOCAL) == 60 - lanes, "local room " + budget.getRoom(ShuttleBudget.Group.LOCAL) + " with lanes full");
-        check(budget.getRoom(ShuttleBudget.Group.LANES) == 45 - lanes, "lanes have room " + budget.getRoom(ShuttleBudget.Group.LANES) + " inside the local reserve");
+        check(budget.getRoom(ShuttleBudget.Group.LANES) == 41 - lanes, "lanes have room " + budget.getRoom(ShuttleBudget.Group.LANES) + " inside the local reserve");
         budget.add(ShuttleBudget.Group.LOCAL, 10);
         check(budget.getRoom(ShuttleBudget.Group.RARE) == 50 - lanes, "rare room " + budget.getRoom(ShuttleBudget.Group.RARE));
 
@@ -678,10 +679,41 @@ public final class ShuttleTrafficChecks {
         budget.count(List.of());
         check(budget.getRoom(ShuttleBudget.Group.LANES) == 58 && budget.getRoom(ShuttleBudget.Group.LOCAL) == 57,
                 "quiet system rooms " + budget.getRoom(ShuttleBudget.Group.LANES) + " and " + budget.getRoom(ShuttleBudget.Group.LOCAL));
+
+        // local flights of a market out of the player's sight launch nothing and reserve nothing, lanes keep flying
+        ShuttleAnchor far = new ShuttleAnchor(null, ShuttleAnchor.Type.PLANET, ShuttleAnchor.Role.MARKET, null, null);
+        ShuttleAnchor near = new ShuttleAnchor(null, ShuttleAnchor.Type.PLANET, ShuttleAnchor.Role.MARKET, null, null);
+        near.near = true;
+        List<ShuttleRoute> sight = List.of(route(ShuttleRoute.Kind.MARKET, 10, far), route(ShuttleRoute.Kind.SUPPLY, 4, far), route(ShuttleRoute.Kind.PICKET, 2, far),
+                route(ShuttleRoute.Kind.SUPPLY, 4, near), route(ShuttleRoute.Kind.CRUISE, 1, near));
+        budget.update(sight, 60);
+        check(sight.get(0).max == 10, "a lane from a far market scaled to " + sight.get(0).max);
+        check(sight.get(1).max == 0 && sight.get(2).max == 0, "local flights of a far market keep " + sight.get(1).max + " and " + sight.get(2).max);
+        check(sight.get(3).max == 4 && sight.get(4).max == 1, "local flights of a near market got " + sight.get(3).max + " and " + sight.get(4).max);
+        budget.count(List.of());
+        check(budget.getRoom(ShuttleBudget.Group.LANES) == 54, "far local flights still reserve room: lanes get " + budget.getRoom(ShuttleBudget.Group.LANES));
+        far.near = true;
+        budget.update(sight, 60);
+        check(sight.get(1).max == 4 && sight.get(2).max == 2, "local flights did not come back once the player was near");
+    }
+
+    // a big hub is many times livelier than a small military station, a size 5 market at density 1 is 1
+    private void checkLiveliness() {
+        float hub = ShuttleNetwork.getLiveliness(8, 1.5f, false, false);
+        float fringe = ShuttleNetwork.getLiveliness(4, 1f, true, true);
+        float plain = ShuttleNetwork.getLiveliness(5, 1f, false, false);
+        check(Math.abs(plain - 1f) < 0.001f, "size 5 liveliness " + plain);
+        check(hub > 5f, "Chicomoztoc liveliness " + hub);
+        check(fringe < 0.35f, "Citadel Arcadia liveliness " + fringe);
+        check(ShuttleNetwork.getLiveliness(6, 1f, false, false) > plain && ShuttleNetwork.getLiveliness(4, 1f, false, false) < plain, "liveliness does not grow with size");
     }
 
     private static ShuttleRoute route(ShuttleRoute.Kind kind, int demand) {
-        ShuttleRoute route = new ShuttleRoute(kind.name(), kind, null, null, 0f);
+        return route(kind, demand, null);
+    }
+
+    private static ShuttleRoute route(ShuttleRoute.Kind kind, int demand, ShuttleAnchor from) {
+        ShuttleRoute route = new ShuttleRoute(kind.name(), kind, from, null, 0f);
         route.demand = demand;
         return route;
     }

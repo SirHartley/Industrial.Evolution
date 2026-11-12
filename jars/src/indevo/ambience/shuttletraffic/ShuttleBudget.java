@@ -3,7 +3,7 @@ package indevo.ambience.shuttletraffic;
 import java.util.Collection;
 import java.util.List;
 
-// splits the traffic cap: local flights keep a reserve, rare flights fit while there is room, lanes share the rest
+// splits the traffic cap: local flights near the player keep a reserve, rare flights fit while there is room, lanes share the rest
 // fleet tied craft have their own cap on top of the setting
 public class ShuttleBudget {
 
@@ -14,7 +14,7 @@ public class ShuttleBudget {
         FLEET
     }
 
-    private static final float LOCAL_SHARE = 0.25f;
+    private static final float LOCAL_SHARE = 0.4f;
     private static final int FLEET_DIVISOR = 4;
 
     private final int[] counts = new int[Group.values().length];
@@ -31,7 +31,7 @@ public class ShuttleBudget {
         int localDemand = 0;
         int laneDemand = 0;
         for (ShuttleRoute route : routes) {
-            if (route.kind.group == Group.LOCAL) localDemand += route.demand * route.kind.craftPerFlight;
+            if (route.kind.group == Group.LOCAL) localDemand += isNear(route) ? route.demand * route.kind.craftPerFlight : 0;
             else if (route.kind.group == Group.LANES) laneDemand += route.demand;
         }
 
@@ -41,11 +41,20 @@ public class ShuttleBudget {
 
         laneReserve = 0;
         for (ShuttleRoute route : routes) {
-            route.max = route.kind.group == Group.LANES ? Math.max(1, (int) (route.demand * scale)) : route.demand;
+            route.max = switch (route.kind.group) {
+                case LANES -> Math.max(1, (int) (route.demand * scale));
+                case LOCAL -> isNear(route) ? route.demand : 0;
+                default -> route.demand;
+            };
             if (route.kind.group == Group.LANES) laneReserve += route.max;
         }
 
         laneReserve = Math.min(laneReserve, laneBudget);
+    }
+
+    // local flights only launch where the player can see them, craft already out finish their flight
+    private static boolean isNear(ShuttleRoute route) {
+        return route.a == null || route.a.near;
     }
 
     public void count(List<Shuttle> shuttles) {
