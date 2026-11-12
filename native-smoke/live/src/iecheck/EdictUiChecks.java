@@ -21,7 +21,7 @@ import java.util.List;
 
 // test only: every Senate Edict panel view from code, audited and captured
 public final class EdictUiChecks {
-    private static final String LABOUR = "IndEvo_edict_labour";
+    private static final String LABOUR = "IndEvo_edict_labour_rest";
     private static final String[] INDUSTRIES = {Industries.MINING, Industries.REFINING, Industries.LIGHTINDUSTRY, Industries.FARMING, Industries.FUELPROD,
             Industries.HEAVYINDUSTRY, Industries.ORBITALSTATION, Industries.PATROLHQ, Industries.WAYSTATION, Industries.GROUNDDEFENSES, Industries.AQUACULTURE};
 
