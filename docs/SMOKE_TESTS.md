@@ -119,6 +119,7 @@ The full set is about 340 checks in 12 minutes and exits 0 only when all pass. A
 | `uihub` | Engineering Hub panel views: hullmods empty, 8 and 60 recovered hullmods, short of Relic Components, reverse engineering idle, in work with progress, relic payment, a hull below 100%, 200 cruiser blueprints, 40 dropped off ships, blocked Finish and Accelerate, worst case. Not in the full set |
 | `uistyle` | One dialog with kit headings, the panel strips (heading note, Edict, Research card, Detachment, title) and every button kind beside widgets built the way vanilla intel builds them, sizes logged as `STYLE` notes. Not in the full set |
 | `uiresearch` | Research Tracts side panel at the Galatia Academy (`UiViews.side`, captured as the whole screen): cards, Info open, Project Reforge without a Corrupted Nanoforge, item rows, scrolled with a Stock click, empty. Not in the full set |
+| `holdacademy` ... `holdresearch`, `holdvanilla` | Build one panel's state, open it (`holdvanilla`: a player colony with vanilla industries and 10 officers, no panel), log the click targets and leave the game open (`HELD`) for `gamectl`. Not in the full set |
 
 Day skips run at 60x. Fleets can overshoot the 50 unit arrival check at that speed and never land, so set `Time.mult = 3f` around a fleet arriving somewhere.
 

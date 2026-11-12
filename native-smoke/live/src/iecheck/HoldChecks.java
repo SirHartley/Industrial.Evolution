@@ -1,6 +1,8 @@
 package iecheck;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Personalities;
 import indevo.abilities.splitfleet.dialogue.DetachmentView;
 import indevo.dialogue.research.dialogue.ResearchProjectPanel;
@@ -50,6 +52,21 @@ public final class HoldChecks {
             case "research" -> {
                 steps.add(c -> UiViews.side = new float[]{ResearchProjectPanel.WIDTH, ResearchProjectPanel.HEIGHT});
                 hold(steps, ResearchUiChecks::setup, c -> ResearchUiChecks.open(c, new ResearchUiChecks.Host(0f)));
+            }
+            case "vanilla" -> {
+                steps.add(c -> {
+                    AcademyUiChecks.setup(c);
+                    MarketAPI a = c.market("a");
+                    for (String id : new String[]{Industries.SPACEPORT, Industries.MINING, Industries.FARMING, Industries.LIGHTINDUSTRY, Industries.PATROLHQ}) {
+                        if (!a.hasIndustry(id)) a.addIndustry(id);
+                    }
+                    a.reapplyIndustries();
+                    c.expect(a.isPlayerOwned(), "player colony for the vanilla screens");
+                });
+                steps.add(c -> {
+                    log.info("LIVE_CHECK hold");
+                    c.frames(Integer.MAX_VALUE);
+                });
             }
             default -> throw new IllegalArgumentException("Unknown hold panel " + panel);
         }

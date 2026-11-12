@@ -95,6 +95,7 @@ public final class Groups {
             case "holdlab":
             case "holdhub":
             case "holdresearch":
+            case "holdvanilla":
                 return HoldChecks.steps(group.substring(4));
             case "shuttle":
                 return ShuttleChecks.steps();
