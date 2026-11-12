@@ -115,6 +115,9 @@ The full set is about 340 checks in 12 minutes and exits 0 only when all pass. A
 | `uicourier` | Courier Port panel views: contract list, by load, stockpiles, invalid contract, Remove confirm, beta and alpha core, new contract steps, 11 storages and the expanded `+N` tiles, 60 contracts, worst case, empty. Not in the full set |
 | `uisalvage` | Salvage Yards panel views: empty assembly, D-mod and S-mod tabs without and with matching ships, blocked S-mod target, a confirmed order, sliders, 12 scrapped ships, over budget, no credits, story point confirm, Accelerate armed, 40 lines and 5 orders in progress, Wreck Registry empty, few and filled, worst case. Not in the full set |
 | `uiedict` | Senate Edict panel views: preview with met requirements, an unmet Edict, Labour Restrictions on a colony with 12 industries, active before and after the minimum term, bribe short of Relic Components, one colony view, worst case, a Senate with no colony in range. Not in the full set |
+| `uilab` | Ancient Laboratory relic panel views: both tabs empty, six Forge Templates, a level 1 template, short of Relic Components, nothing picked, automated ships, result line, 40 ships, worst case. Not in the full set |
+| `uihub` | Engineering Hub panel views: hullmods empty, 8 and 60 recovered hullmods, short of Relic Components, reverse engineering idle, in work with progress, relic payment, a hull below 100%, 200 cruiser blueprints, 40 dropped off ships, blocked Finish and Accelerate, worst case. Not in the full set |
+| `uiresearch` | Research Tracts side panel at the Galatia Academy (`UiViews.side`, captured as the whole screen): cards, Info open, Project Reforge without a Corrupted Nanoforge, item rows, scrolled with a Stock click, empty. Not in the full set |
 
 Day skips run at 60x. Fleets can overshoot the 50 unit arrival check at that speed and never land, so set `Time.mult = 3f` around a fleet arriving somewhere.
 
