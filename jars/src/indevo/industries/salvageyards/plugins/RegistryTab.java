@@ -8,6 +8,7 @@ import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.industries.salvageyards.memory.WreckRegistry;
 import indevo.utils.ui.*;
 
@@ -278,7 +279,9 @@ class RegistryTab {
         UiData.grid(head, gx, 30f, rw - gx, 19f, List.of(
                 UiData.GridRow.of("Recorded", Ui.num(registry.getHullCount(id))),
                 UiData.GridRow.of("In order", Ui.num(inOrder), inOrder > 0 ? Ui.pos() : Ui.gray())));
-        Ui.wrap(head, gx, 76f, rw - gx, spec.getDesignation() + ", " + spec.getHullSize().name().toLowerCase().replace('_', ' '), Ui.gray());
+        String size = spec.getHullSize().name().toLowerCase().replace('_', ' ');
+        String kind = spec.getDesignation() == null || spec.getDesignation().equalsIgnoreCase(size) ? Misc.ucFirst(size) : spec.getDesignation() + ", " + size;
+        Ui.wrap(head, gx, 76f, rw - gx, kind, Ui.gray());
 
         addFit(column, rw, fit);
         addHullmods(column, rw, fit);
