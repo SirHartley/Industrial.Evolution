@@ -42,7 +42,8 @@ public final class HoldChecks {
             }, c -> SalvageUiChecks.open(c, SalvageUiChecks.order(new SalvageYardsView(SalvageYardsView.Tab.ASSEMBLY))));
             case "edict" -> hold(steps, c -> {
                 EdictUiChecks.setup(c);
-                EdictUiChecks.relics(c, 1000f);
+                EdictUiChecks.relics(c, 0f);
+                indevo.utils.helper.MiscIE.getPlayerCargo().addCommodity(indevo.ids.ItemIds.RARE_PARTS, 1000f);
             }, c -> EdictUiChecks.open(c, new EdictView(c.market("c1").getId(), null)));
             case "lab" -> hold(steps, c -> {
                 LabUiChecks.setup(c);
