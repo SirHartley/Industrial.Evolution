@@ -6,8 +6,6 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
-import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -31,7 +29,6 @@ import indevo.utils.ui.UiData.GridRow;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
 
@@ -103,7 +100,7 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
     public static boolean show(MarketAPI market, AncientLabRelicView view) {
         Industry lab = market.getIndustry(Ids.LAB);
         if (lab == null) return false;
-        return Global.getSector().getCampaignUI().showInteractionDialog(new Host(lab, view), market.getPrimaryEntity());
+        return UiHost.show(market.getPrimaryEntity(), dialog -> dialog.showCustomDialog(getWidth(), getHeight(), new AncientLabRelicPanelDelegate(lab, view, dialog::dismiss)));
     }
 
     @Override
@@ -469,53 +466,6 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
             entry.location = location;
             entry.cost = RELICS_PER_SHIP_DP * dp;
             entries.add(entry);
-        }
-    }
-
-    // interaction dialog that only hosts the panel, for show(market, view)
-    private static class Host implements InteractionDialogPlugin {
-
-        private final Industry lab;
-        private final AncientLabRelicView view;
-
-        Host(Industry lab, AncientLabRelicView view) {
-            this.lab = lab;
-            this.view = view;
-        }
-
-        @Override
-        public void init(InteractionDialogAPI dialog) {
-            dialog.setPromptText("");
-            dialog.getOptionPanel().clearOptions();
-            dialog.hideVisualPanel();
-            dialog.hideTextPanel();
-            dialog.showCustomDialog(getWidth(), getHeight(), new AncientLabRelicPanelDelegate(lab, view, dialog::dismiss));
-        }
-
-        @Override
-        public void optionSelected(String optionText, Object optionData) {
-        }
-
-        @Override
-        public void optionMousedOver(String optionText, Object optionData) {
-        }
-
-        @Override
-        public void advance(float amount) {
-        }
-
-        @Override
-        public void backFromEngagement(EngagementResultAPI battleResult) {
-        }
-
-        @Override
-        public Object getContext() {
-            return null;
-        }
-
-        @Override
-        public Map<String, MemoryAPI> getMemoryMap() {
-            return null;
         }
     }
 }

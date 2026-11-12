@@ -4,7 +4,7 @@ Shared builder for IE custom panels in `jars/src/indevo/utils/ui/`. Read it befo
 
 Checked against Starsector 0.98a-RC8. Paths below are relative to `jars/src/indevo/utils/ui/`; `obf/` and `api/` paths point into the `starsector-knowledge` skill.
 
-Reference implementation: the Academy panel (`industries/academy/plugins/AcademyPanelDelegate.java`, `AcademyDetail.java`, `AcademyView.java`; [Academy](../industries/ACADEMY.md#panel)).
+Reference implementation: the Academy panel (`industries/academy/plugins/AcademyPanelDelegate.java`, `AcademyDetail.java`, `AcademyView.java`; [Academy](../industries/ACADEMY.md#panel)). The detachment panel, Salvage Yards, Courier Port, Senate Edict, Ancient Laboratory, Engineering Hub and Research panels are built the same way; their feature docs own the content.
 
 The helpers mirror the mockup board kit (`kit.py`): a board line `text(58,7,140,name,'ins15',GRAY)` becomes `Ui.text(row, 58, 7, 140, name, Ui.gray())`.
 
@@ -38,6 +38,7 @@ Every IE panel follows these rules.
 | `UiScroll` | Scroll columns and the per panel scroll offsets |
 | `UiRoot` | Rebuild host |
 | `UiCanvas` | Plugin of every kit panel: runs a `Runnable` button id, paints below and above children |
+| `UiHost` | Interaction dialog that only hosts one custom dialog, for panels opened from code |
 | `UiDraw` | GL primitives for painters (quad, outline, dashed box, fades, mark, contain fit sprite) |
 
 Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordinates and the content, and returns the created element. Panels the kit creates use `UiCanvas`, so a button anywhere below them reports to the nearest kit panel and runs its `Runnable`. No helper keeps global state; view state lives in the panel's state object.
@@ -204,9 +205,21 @@ One custom dialog can be open per interaction dialog. Two ways to confirm:
 - Inline: `UiButtons.confirm` turns the action button into Confirm and Cancel in place. Use it when the button area can hold two buttons.
 - Real dialog (Edict enact, Research redeem): `industries/senate/dialogue/EdictConfirmDialog.show(onClose)` opens a second interaction dialog with `CampaignUIAPI.showInteractionDialogFromCargo(plugin, null, onClose)`; its plugin's `init` calls `dialog.showCustomDialog(w, h, this)` and Confirm or Cancel call `dialog.dismiss()`; `onClose` rebuilds the panel below. `showCustomDialog` can not stack a second custom dialog in one dialog.
 
+## Opening a panel
+
+Every panel has one static `show` per way in, each taking the view state:
+
+- From an industry option: `DialogCreatorUI.showDialog(w, h, delegate)`.
+- From a rule command or another dialog plugin: `InteractionDialogAPI.showCustomDialog(w, h, delegate)`.
+- From code with no dialog open (tests, abilities): `UiHost.show(entity, dialog -> dialog.showCustomDialog(w, h, new FooPanel(..., dialog::dismiss)))`. The host is an empty interaction dialog; the delegate runs the passed `Runnable` in `customDialogConfirm` and `customDialogCancel`, or the empty dialog stays open.
+
+## Vanilla pickers over a panel
+
+A vanilla picker (`showFleetMemberPickerDialog`, `showCargoPickerDialog`, `showCustomProductionPicker`, a second `showCustomDialog`) does nothing while the panel's custom dialog is up. A panel that needs one is hosted by its own dialog plugin, which closes the panel, opens the picker and shows the panel again from `advance` once the picker is gone; the view state object carries selection and scroll offsets across. Owners: `abilities/splitfleet/dialogue/DetachmentDialogPlugin.openPicker`, `industries/salvageyards/plugins/SalvageYardsDialogPlugin.openPicker`, `industries/courierport/dialogue/CourierPortDialoguePlugin.openPicker`. Pickers call their listener before they dismiss themselves, so the listener only changes state and never reopens the panel itself.
+
 ## Side panel
 
-A `VisualPanelAPI.showCustomPanel(600, h, plugin)` side panel (board 15) uses the same pieces without the dialog frame: pass `new UiCanvas()` as the plugin, build into the returned panel with `UiRoot`, take the height from the visual panel area instead of `UiFrame.height`, and draw the title with `UiFrame.title`. There is no Return button; the dialog options close it.
+A `VisualPanelAPI.showCustomPanel(600, h, plugin)` side panel (board 15) uses the same pieces without the dialog frame: pass `new UiCanvas()` as the plugin, build into the returned panel with `UiRoot`, take the height from the visual panel area instead of `UiFrame.height`, and draw the title with `UiFrame.title`. There is no Return button; the dialog options close it. Owner: `dialogue/research/dialogue/ResearchProjectPanel.show` ([Research](../dialogue/RESEARCH.md)).
 
 ## Engine facts
 

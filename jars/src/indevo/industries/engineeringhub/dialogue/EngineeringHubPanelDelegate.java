@@ -2,12 +2,8 @@ package indevo.industries.engineeringhub.dialogue;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
-import com.fs.starfarer.api.campaign.InteractionDialogAPI;
-import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
-import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.combat.ShipAPI.HullSize;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
@@ -79,7 +75,7 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
     // opens the panel for the market's hub in the given view, for code and tests
     public static boolean show(MarketAPI market, EngineeringHubView view) {
         if (!(market.getIndustry(Ids.ENGHUB) instanceof EngineeringHub hub)) return false;
-        return Global.getSector().getCampaignUI().showInteractionDialog(new Host(hub, view), market.getPrimaryEntity());
+        return UiHost.show(market.getPrimaryEntity(), dialog -> dialog.showCustomDialog(getWidth(), getHeight(), new EngineeringHubPanelDelegate(hub, view, dialog::dismiss)));
     }
 
     @Override
@@ -309,53 +305,6 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
         try {
             return Global.getSettings().getHullSpec(id);
         } catch (RuntimeException e) {
-            return null;
-        }
-    }
-
-    // interaction dialog that only hosts the panel, for show(market, view)
-    private static class Host implements InteractionDialogPlugin {
-
-        private final EngineeringHub hub;
-        private final EngineeringHubView view;
-
-        Host(EngineeringHub hub, EngineeringHubView view) {
-            this.hub = hub;
-            this.view = view;
-        }
-
-        @Override
-        public void init(InteractionDialogAPI dialog) {
-            dialog.setPromptText("");
-            dialog.getOptionPanel().clearOptions();
-            dialog.hideVisualPanel();
-            dialog.hideTextPanel();
-            dialog.showCustomDialog(getWidth(), getHeight(), new EngineeringHubPanelDelegate(hub, view, dialog::dismiss));
-        }
-
-        @Override
-        public void optionSelected(String optionText, Object optionData) {
-        }
-
-        @Override
-        public void optionMousedOver(String optionText, Object optionData) {
-        }
-
-        @Override
-        public void advance(float amount) {
-        }
-
-        @Override
-        public void backFromEngagement(EngagementResultAPI battleResult) {
-        }
-
-        @Override
-        public Object getContext() {
-            return null;
-        }
-
-        @Override
-        public Map<String, MemoryAPI> getMemoryMap() {
             return null;
         }
     }

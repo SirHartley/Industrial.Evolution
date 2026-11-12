@@ -3,14 +3,11 @@ package indevo.industries.senate.dialogue;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
-import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
-import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.MarketConditionSpecAPI;
-import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -107,7 +104,7 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
 
     // opens the panel in its own interaction dialog, for code and tests
     public static boolean show(MarketAPI market, EdictView view) {
-        return Global.getSector().getCampaignUI().showInteractionDialog(new Host(market, view), market.getPrimaryEntity());
+        return UiHost.show(market.getPrimaryEntity(), dialog -> dialog.showCustomDialog(getWidth(market), getHeight(), new EdictPanelDelegate(market, view, dialog::dismiss)));
     }
 
     @Override
@@ -442,51 +439,5 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
 
     static Color getRuntimeColor(EdictAPI edict) {
         return edict.getRemainingDays() > 0 ? Ui.AMBER : Ui.pos();
-    }
-
-    // hosts the panel in its own interaction dialog, Return closes it
-    private static class Host implements InteractionDialogPlugin {
-        private final MarketAPI market;
-        private final EdictView view;
-
-        Host(MarketAPI market, EdictView view) {
-            this.market = market;
-            this.view = view;
-        }
-
-        @Override
-        public void init(InteractionDialogAPI dialog) {
-            dialog.setPromptText("");
-            dialog.getOptionPanel().clearOptions();
-            dialog.hideVisualPanel();
-            dialog.hideTextPanel();
-            dialog.showCustomDialog(getWidth(market), getHeight(), new EdictPanelDelegate(market, view, dialog::dismiss));
-        }
-
-        @Override
-        public void optionSelected(String optionText, Object optionData) {
-        }
-
-        @Override
-        public void optionMousedOver(String optionText, Object optionData) {
-        }
-
-        @Override
-        public void advance(float amount) {
-        }
-
-        @Override
-        public void backFromEngagement(EngagementResultAPI battleResult) {
-        }
-
-        @Override
-        public Object getContext() {
-            return null;
-        }
-
-        @Override
-        public Map<String, MemoryAPI> getMemoryMap() {
-            return null;
-        }
     }
 }
