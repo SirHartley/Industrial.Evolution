@@ -43,6 +43,8 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
     static final float PIP_GAP = 2f;
     static final float SALARY_W = 70f;
     static final float ASSIGN_X = 498f;
+    static final float NAME_W = 156f;
+    static final float BAR_X = 316f;
 
     private final Academy academy;
     private final AcademyView view;
@@ -317,11 +319,11 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
 
     private void addOfficerRow(CustomPanelAPI row, float w, PersonAPI person, boolean stored, boolean selected) {
         String personality = person.getPersonalityAPI().getId();
-        Ui.text(row, 58f, 7f, 124f, person.getNameString(), selected ? Ui.bright() : Ui.text());
-        Ui.text(row, 58f, 26f, 124f, "Level " + person.getStats().getLevel(), Ui.gray());
-        Ui.text(row, 190f, 7f, 96f, getPersonalityName(personality), getPersonalityColor(personality));
-        pips(row, 190f, 31f, personality);
-        addSkillIcons(row, 292f, person);
+        Ui.text(row, 58f, 7f, NAME_W, person.getNameString(), selected ? Ui.bright() : Ui.text());
+        Ui.text(row, 58f, 26f, NAME_W, "Level " + person.getStats().getLevel(), Ui.gray());
+        Ui.text(row, 222f, 7f, 80f, getPersonalityName(personality), getPersonalityColor(personality));
+        pips(row, 222f, 31f, personality);
+        addSkillIcons(row, 308f, person);
 
         float textX = ASSIGN_X + PORTRAIT + 8f;
         float textW = w - SALARY_W - 12f - textX;
@@ -403,7 +405,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         }
 
         if (skills.size() <= 6) {
-            for (int i = 0; i < skills.size(); i++) UiImages.skill(row, x + i * (SKILL + 4f), 10f, SKILL, skills.get(i).spec(), skills.get(i).elite());
+            for (int i = 0; i < skills.size(); i++) UiImages.skill(row, x + i * (SKILL + 3f), 10f, SKILL, skills.get(i).spec(), skills.get(i).elite());
             return;
         }
 
@@ -423,22 +425,22 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         CustomPanelAPI row = UiButtons.row(block, 0f, 0f, w, ROW_H, selected, true, null, () -> select(person));
 
         UiImages.portrait(row, 3f, 2f, PORTRAIT, person);
-        Ui.text(row, 58f, 7f, 114f, person.getNameString(), selected ? Ui.bright() : Ui.text());
+        Ui.text(row, 58f, 7f, NAME_W, person.getNameString(), selected ? Ui.bright() : Ui.text());
 
         int total;
         int left;
         if (!view.admins) {
             String from = person.getPersonalityAPI().getId();
             String to = academy.getOfficerTrainingTarget();
-            Ui.text(row, 58f, 26f, 114f, "Level " + person.getStats().getLevel(), Ui.gray());
-            Ui.text(row, 180f, 7f, 112f, getPersonalityName(from), getPersonalityColor(from));
-            Ui.runs(row, 180f, 26f, 112f, Ui.INS15, Ui.gray(), Ui.LEFT, "to " + getPersonalityName(to), new String[]{getPersonalityName(to)}, new Color[]{getPersonalityColor(to)});
+            Ui.text(row, 58f, 26f, NAME_W, "Level " + person.getStats().getLevel(), Ui.gray());
+            Ui.text(row, 222f, 7f, 88f, getPersonalityName(from), getPersonalityColor(from));
+            Ui.runs(row, 222f, 26f, 88f, Ui.INS15, Ui.gray(), Ui.LEFT, "to " + getPersonalityName(to), new String[]{getPersonalityName(to)}, new Color[]{getPersonalityColor(to)});
             total = academy.getCurrentOfficerTrainingDays();
             left = Math.max(0, academy.getRemainingOfficerTrainingDays());
         } else {
-            Ui.text(row, 58f, 26f, 114f, Academy.getAdminSkillCount(person) + " of 2 skills", Ui.gray());
-            Ui.text(row, 180f, 7f, 112f, "Learns one", Ui.gray());
-            Ui.text(row, 180f, 26f, 112f, "random skill", Ui.gray());
+            Ui.text(row, 58f, 26f, NAME_W, Academy.getAdminSkillCount(person) + " of 2 skills", Ui.gray());
+            Ui.text(row, 222f, 7f, 88f, "Learns one", Ui.gray());
+            Ui.text(row, 222f, 26f, 88f, "random skill", Ui.gray());
             total = academy.getAdminTrainingDays();
             left = Math.max(0, academy.getRemainingAdminTrainingDays());
         }
@@ -446,9 +448,9 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         String paused = getPausedReason();
         float barW = 200f;
         float rightX = w - 150f;
-        UiData.bar(row, 300f, 8f, barW, 20f, progress(total, left), paused != null ? Ui.AMBER : Ui.barBlue(), getDayLabel(total, left));
-        if (paused != null) Ui.text(row, 300f, 31f, rightX - 8f - 300f, "Paused: " + paused, Ui.neg());
-        else Ui.text(row, 300f, 31f, rightX - 8f - 300f, "Done on " + getDoneDate(left), Ui.gray());
+        UiData.bar(row, BAR_X, 8f, barW, 20f, progress(total, left), paused != null ? Ui.AMBER : Ui.barBlue(), getDayLabel(total, left));
+        if (paused != null) Ui.text(row, BAR_X, 31f, rightX - 8f - BAR_X, "Paused: " + paused, Ui.neg());
+        else Ui.text(row, BAR_X, 31f, rightX - 8f - BAR_X, "Done on " + getDoneDate(left), Ui.gray());
 
         Ui.text(row, rightX, 7f, 140f, left + " " + (left == 1 ? "day" : "days") + " left", Ui.hl(), Ui.RIGHT);
         String steps = view.admins ? "one skill" : getStepsWord(academy.getCurrentOfficerTrainingSteps());
