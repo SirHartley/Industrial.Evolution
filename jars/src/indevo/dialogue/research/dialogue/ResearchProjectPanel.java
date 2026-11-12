@@ -151,7 +151,7 @@ public class ResearchProjectPanel {
         Ui.textIn(b, cw - 10f - rw, 1f, rw, HEAD_H, right, Ui.ORB12, ready ? Ui.text() : Ui.gray(), Ui.RIGHT, new String[0], new Color[0]);
         Ui.textIn(b, 10f, 1f, cw - 30f - rw, HEAD_H, project.getName(), Ui.ORB12, headColor, Ui.LEFT, new String[0], new Color[0]);
 
-        Ui.text(b, 10f, DESC_Y, cw - INFO_RIGHT - 20f, project.getShortDesc(), Ui.gray());
+        Ui.text(b, 10f, DESC_Y, cw - INFO_RIGHT - 20f, Ui.sentences(project.getShortDesc(), Ui.INS15, cw - INFO_RIGHT - 20f), Ui.gray());
         UiButtons.area(b, cw - INFO_RIGHT, TOGGLE_Y, INFO_W, TOGGLE_H, "Info", info, true, null, Ui.CENTER, () -> toggleInfo(id));
         if (project.isRepeatable()) addStockToggle(b, cw, progress);
 

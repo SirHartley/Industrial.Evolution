@@ -132,6 +132,28 @@ public final class Ui {
         return lo == 0 ? ELLIPSIS : s.substring(0, lo).stripTrailing() + ELLIPSIS;
     }
 
+    public static String sentences(String s, String font, float w) {
+        if (s == null) return "";
+        float max = w - 2f;
+        if (width(s, font) <= max) return s;
+
+        String out = "";
+        for (String sentence : s.trim().split("(?<=[.!?])\\s+")) {
+            String next = out.isEmpty() ? sentence : out + " " + sentence;
+            if (width(next, font) > max) break;
+            out = next;
+        }
+        if (!out.isEmpty()) return out;
+
+        String words = "";
+        for (String word : s.trim().split("\\s+")) {
+            String next = words.isEmpty() ? word : words + " " + word;
+            if (width(next + ELLIPSIS, font) > max) break;
+            words = next;
+        }
+        return words.isEmpty() ? fit(s, font, w) : words.replaceAll("[,;:.]+$", "") + ELLIPSIS;
+    }
+
     public static LabelAPI text(CustomPanelAPI p, float x, float y, float w, String s) {
         return text(p, x, y, w, s, INS15, text(), LEFT);
     }
