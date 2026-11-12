@@ -43,7 +43,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
     static final float PIP_GAP = 2f;
     static final float SALARY_W = 70f;
     static final float ASSIGN_X = 498f;
-    static final float NAME_W = 156f;
+    static final float NAME_W = 162f;
     static final float BAR_X = 316f;
 
     private final Academy academy;
@@ -321,9 +321,9 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         String personality = person.getPersonalityAPI().getId();
         Ui.text(row, 58f, 7f, NAME_W, person.getNameString(), selected ? Ui.bright() : Ui.text());
         Ui.text(row, 58f, 26f, NAME_W, "Level " + person.getStats().getLevel(), Ui.gray());
-        Ui.text(row, 222f, 7f, 80f, getPersonalityName(personality), getPersonalityColor(personality));
-        pips(row, 222f, 31f, personality);
-        addSkillIcons(row, 308f, person);
+        Ui.text(row, 226f, 7f, 80f, getPersonalityName(personality), getPersonalityColor(personality));
+        pips(row, 226f, 31f, personality);
+        addSkillIcons(row, 312f, person);
 
         float textX = ASSIGN_X + PORTRAIT + 8f;
         float textW = w - SALARY_W - 12f - textX;
@@ -433,14 +433,14 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
             String from = person.getPersonalityAPI().getId();
             String to = academy.getOfficerTrainingTarget();
             Ui.text(row, 58f, 26f, NAME_W, "Level " + person.getStats().getLevel(), Ui.gray());
-            Ui.text(row, 222f, 7f, 88f, getPersonalityName(from), getPersonalityColor(from));
-            Ui.runs(row, 222f, 26f, 88f, Ui.INS15, Ui.gray(), Ui.LEFT, "to " + getPersonalityName(to), new String[]{getPersonalityName(to)}, new Color[]{getPersonalityColor(to)});
+            Ui.text(row, 226f, 7f, 84f, getPersonalityName(from), getPersonalityColor(from));
+            Ui.runs(row, 226f, 26f, 84f, Ui.INS15, Ui.gray(), Ui.LEFT, "to " + getPersonalityName(to), new String[]{getPersonalityName(to)}, new Color[]{getPersonalityColor(to)});
             total = academy.getCurrentOfficerTrainingDays();
             left = Math.max(0, academy.getRemainingOfficerTrainingDays());
         } else {
             Ui.text(row, 58f, 26f, NAME_W, Academy.getAdminSkillCount(person) + " of 2 skills", Ui.gray());
-            Ui.text(row, 222f, 7f, 88f, "Learns one", Ui.gray());
-            Ui.text(row, 222f, 26f, 88f, "random skill", Ui.gray());
+            Ui.text(row, 226f, 7f, 84f, "Learns one", Ui.gray());
+            Ui.text(row, 226f, 26f, 84f, "random skill", Ui.gray());
             total = academy.getAdminTrainingDays();
             left = Math.max(0, academy.getRemainingAdminTrainingDays());
         }
