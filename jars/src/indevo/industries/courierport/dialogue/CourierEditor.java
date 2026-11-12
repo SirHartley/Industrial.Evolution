@@ -574,7 +574,7 @@ class CourierEditor {
     }
 
     private void addActions(CustomPanelAPI p, float x, float y, float w, boolean invalid) {
-        if (stored != null) UiButtons.confirm(p, x, y, 140f, ACTION_H, "Remove", UiButtons.Kind.STD, view.confirm, "remove", () -> {
+        if (stored != null) UiButtons.confirm(p, x, y, 150f, ACTION_H, "Remove", UiButtons.Kind.STD, view.confirm, "remove", () -> {
             ShippingContractMemory.removeContract(stored);
             view.selected = null;
             view.draft = null;
