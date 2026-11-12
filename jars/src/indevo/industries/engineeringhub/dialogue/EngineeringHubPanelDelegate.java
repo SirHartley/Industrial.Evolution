@@ -207,8 +207,13 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
     }
 
     private void addHullmodDetail(CustomPanelAPI p, float x, float w, float h, Hullmod hullmod) {
-        UiScroll.Column column = UiScroll.list(p, x, BODY_Y, w, h, view.scroll, EngineeringHubView.DETAIL);
-        float cw = column.width();
+        float cw = w - UiScroll.GUTTER;
+        int cost = hullmod == null ? 0 : RecoveredHullmods.getCost(hullmod.spec());
+        int available = RelicHelper.getAvailable(market);
+        String reason = cost <= available ? null : "Not enough " + RelicHelper.getName() + ".";
+        // cost, Learn and the lore stay pinned at the bottom, the information above scrolls
+        float actionH = hullmod == null ? 0f : Ui.HEADING_H + 6f + UiData.COST_ROW_H + GAP + UiButtons.guardHeight(cw, BUTTON_H, reason) + Ui.wrapHeight(LORE, Ui.INS15, cw);
+        UiScroll.Column column = UiScroll.list(p, x, BODY_Y, w, hullmod == null ? h : h - actionH - 2f * GAP, view.scroll, EngineeringHubView.DETAIL);
 
         if (hullmod == null) {
             Ui.heading(column.block(Ui.HEADING_H, 0f), 0f, 0f, cw, "Recovered hullmod data");
@@ -244,23 +249,22 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
         Ui.text(from, cw - nw, 8f, nw, source, Ui.text(), Ui.RIGHT);
         if (hullmod.source() != null) UiImages.hull(from, cw - nw - 8f - HULL, 0f, HULL, hullmod.source(), true, false);
 
-        int cost = RecoveredHullmods.getCost(spec);
-        int available = RelicHelper.getAvailable(market);
-        Ui.heading(column.block(Ui.HEADING_H, 10f), 0f, 0f, cw, "Cost");
-        UiData.costrow(column.block(UiData.COST_ROW_H, 6f), 0f, 0f, cw, RelicHelper.getName(), UiImages.relicSprite(), Ui.num(cost), Ui.num(available), cost <= available);
+        column.end();
 
-        String reason = cost <= available ? null : "Not enough " + RelicHelper.getName() + ".";
-        CustomPanelAPI b = column.block(UiButtons.guardHeight(cw, BUTTON_H, reason), GAP);
-        UiButtons.guarded(b, 0f, 0f, cw, BUTTON_H, "Learn", UiButtons.Kind.STD, reason, () -> {
+        CustomPanelAPI a = Ui.panel(p, x, BODY_Y + h - actionH, cw, actionH);
+        float ay = 0f;
+        Ui.heading(a, 0f, ay, cw, "Cost");
+        ay += Ui.HEADING_H + 6f;
+        UiData.costrow(a, 0f, ay, cw, RelicHelper.getName(), UiImages.relicSprite(), Ui.num(cost), Ui.num(available), cost <= available);
+        ay += UiData.COST_ROW_H + GAP;
+        UiButtons.guarded(a, 0f, ay, cw, BUTTON_H, "Learn", UiButtons.Kind.STD, reason, () -> {
             RecoveredHullmods.learn(market, spec.getId());
             view.hullmod = null;
             view.scroll.reset(EngineeringHubView.DETAIL);
             refresh();
         });
-
-        CustomPanelAPI lore = column.block(Ui.wrapHeight(LORE, Ui.INS15, cw), 0f);
-        Ui.wrap(lore, 0f, 0f, cw, LORE, Ui.gray());
-        column.end();
+        ay += UiButtons.guardHeight(cw, BUTTON_H, reason);
+        Ui.wrap(a, 0f, ay, cw, LORE, Ui.gray());
     }
 
     private static String getOpLine(HullModSpecAPI spec) {
