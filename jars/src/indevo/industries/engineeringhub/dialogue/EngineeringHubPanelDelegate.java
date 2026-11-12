@@ -211,12 +211,12 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
         int cost = hullmod == null ? 0 : RecoveredHullmods.getCost(hullmod.spec());
         int available = RelicHelper.getAvailable(market);
         String reason = cost <= available ? null : "Not enough " + RelicHelper.getName() + ".";
-        // cost, Learn and the lore stay pinned at the bottom, the information above scrolls
-        float actionH = hullmod == null ? 0f : Ui.HEADING_H + 6f + UiData.COST_ROW_H + GAP + UiButtons.guardHeight(cw, BUTTON_H, reason) + Ui.wrapHeight(LORE, Ui.INS15, cw);
+        // cost and Learn stay pinned at the bottom, the information and the lore above scroll
+        float actionH = hullmod == null ? 0f : Ui.HEADING_H + 6f + UiData.COST_ROW_H + GAP + UiButtons.guardHeight(cw, BUTTON_H, reason);
         UiScroll.Column column = UiScroll.list(p, x, BODY_Y, w, hullmod == null ? h : h - actionH - 2f * GAP, view.scroll, EngineeringHubView.DETAIL);
 
         if (hullmod == null) {
-            Ui.heading(column.block(Ui.HEADING_H, 0f), 0f, 0f, cw, "Recovered hullmod data");
+            Ui.heading(column.block(Ui.HEADING_H, 0f), 0f, 0f, cw, "Hullmod");
             CustomPanelAPI b = column.block(Ui.LINE_H, GAP);
             Ui.text(b, 0f, 0f, cw, "No hullmod to show.", Ui.gray());
             column.end();
@@ -248,6 +248,7 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
         float nw = Math.min(Ui.width(source, Ui.INS15) + 2f, cw - 140f - HULL - 16f);
         Ui.text(from, cw - nw, 8f, nw, source, Ui.text(), Ui.RIGHT);
         if (hullmod.source() != null) UiImages.hull(from, cw - nw - 8f - HULL, 0f, HULL, hullmod.source(), true, false);
+        Ui.wrap(column.block(Ui.wrapHeight(LORE, Ui.INS15, cw), 10f), 0f, 0f, cw, LORE, Ui.gray());
 
         column.end();
 
@@ -263,8 +264,6 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
             view.scroll.reset(EngineeringHubView.DETAIL);
             refresh();
         });
-        ay += UiButtons.guardHeight(cw, BUTTON_H, reason);
-        Ui.wrap(a, 0f, ay, cw, LORE, Ui.gray());
     }
 
     private static String getOpLine(HullModSpecAPI spec) {

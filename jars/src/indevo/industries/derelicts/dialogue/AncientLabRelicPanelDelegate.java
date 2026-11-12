@@ -267,12 +267,11 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
         cw = w - UiScroll.GUTTER;
         pinned = null;
 
-        // the cost, the button and its lore stay pinned at the bottom, the information above scrolls
+        // the cost and the button stay pinned at the bottom, the information and the lore above scroll
         float actionH = 0f;
         if (entry != null) {
             String reason = entry.cost <= RelicHelper.getAvailable(market) ? null : "Not enough " + RelicHelper.getName() + ".";
-            actionH = Ui.HEADING_H + 6f + UiData.COST_ROW_H + GAP + UiButtons.guardHeight(cw, BUTTON_H, reason)
-                    + Ui.wrapHeight(view.ships ? INTEGRATE_LORE : REFINE_LORE, Ui.INS15, cw);
+            actionH = Ui.HEADING_H + 6f + UiData.COST_ROW_H + GAP + UiButtons.guardHeight(cw, BUTTON_H, reason);
         }
 
         detailP = p;
@@ -367,6 +366,7 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
         int available = RelicHelper.getAvailable(market);
         boolean ok = entry.cost <= available;
 
+        text(lore, Ui.gray(), 10f);
         pin();
         heading("Cost", GAP);
         CustomPanelAPI c = block(UiData.COST_ROW_H, 6f);
@@ -375,8 +375,6 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
         String reason = ok ? null : "Not enough " + RelicHelper.getName() + ".";
         CustomPanelAPI b = block(UiButtons.guardHeight(cw, BUTTON_H, reason), GAP);
         UiButtons.guarded(b, 0f, 0f, cw, BUTTON_H, action, UiButtons.Kind.GREEN, reason, run);
-
-        text(lore, Ui.gray(), 0f);
     }
 
     private void picture(ShipHullSpecAPI hull) {
