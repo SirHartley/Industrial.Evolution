@@ -93,6 +93,11 @@ public final class HoldChecks {
             if (found != null) {
                 log.info("LIVE_CHECK note: rect held " + UiAudit.rect(found));
                 for (String target : UiAudit.targets(found)) log.info("LIVE_CHECK note: TARGET " + target);
+                // the audit at the held size, for runs at other resolutions than the views
+                List<String> findings = UiAudit.run(found);
+                for (String finding : findings) log.info("LIVE_CHECK note: AUDIT held: " + finding);
+                for (String note : UiAudit.accepted) log.info("LIVE_CHECK note: AUDIT held: " + note);
+                log.info("LIVE_CHECK note: AUDIT held " + findings.size() + " findings, " + UiAudit.stats);
             }
             log.info("LIVE_CHECK hold");
             c.frames(Integer.MAX_VALUE);
