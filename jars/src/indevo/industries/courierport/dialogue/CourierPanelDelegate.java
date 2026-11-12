@@ -245,12 +245,15 @@ public class CourierPanelDelegate extends BaseCustomDialogDelegate {
         String a = from != null ? from.getName() : "Not available";
         String b = to != null ? to.getName() : "Not available";
         float arrow = 16f;
-        float half = Math.round((w - 2f * (ROUTE_ICON + 6f) - arrow - 4f) / 2f);
+        float names = w - 2f * (ROUTE_ICON + 6f) - arrow - 4f;
+        float half = Math.round(names / 2f);
+        // the origin takes what the destination name leaves, at least half
+        float room = Math.max(half, names - Math.min(Ui.width(b, Ui.INS15) + 2f, half));
 
         float cx = x;
         routeIcon(row, cx, y + 2f, from);
         cx += ROUTE_ICON + 6f;
-        float aw = Math.min(Ui.width(a, Ui.INS15) + 2f, half);
+        float aw = Math.min(Ui.width(a, Ui.INS15) + 2f, room);
         Ui.text(row, cx, y, aw, a, from != null ? Ui.text() : Ui.gray());
         cx += aw + 4f;
         Ui.text(row, cx, y, arrow - 4f, ">", Ui.hl());
