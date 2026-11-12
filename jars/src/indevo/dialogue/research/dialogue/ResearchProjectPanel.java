@@ -30,9 +30,10 @@ public class ResearchProjectPanel {
     static final float DESC_Y = 28f;
     static final float TOGGLE_Y = 25f;
     static final float TOGGLE_H = 20f;
-    static final float INFO_RIGHT = 146f;
+    static final float TOGGLES_RIGHT = 146f;
+    static final float INFO_RIGHT = 62f;
     static final float INFO_W = 52f;
-    static final float STOCK_RIGHT = 84f;
+    static final float STOCK_RIGHT = 144f;
     static final float STOCK_W = 74f;
     static final float ROW_Y = 56f;
     static final float BAR_W = 150f;
@@ -140,7 +141,7 @@ public class ResearchProjectPanel {
     // whole sentences on one line; a first sentence longer than the line wraps to up to three
     private static String getDesc(ResearchProject project, float cw) {
         String s = project.getShortDesc() == null ? "" : project.getShortDesc().trim();
-        float w = cw - INFO_RIGHT - 20f;
+        float w = cw - TOGGLES_RIGHT - 20f;
         String one = Ui.sentences(s, Ui.INS15, w);
         if (!one.endsWith(Ui.ELLIPSIS)) return one;
 
@@ -163,7 +164,7 @@ public class ResearchProjectPanel {
     }
 
     private static float getDescExtra(ResearchProject project, float cw) {
-        float w = cw - INFO_RIGHT - 20f;
+        float w = cw - TOGGLES_RIGHT - 20f;
         float line = Ui.wrapHeight("Ag", Ui.INS15, w);
         return Math.max(0f, Ui.wrapHeight(getDesc(project, cw), Ui.INS15, w) - line);
     }
@@ -193,7 +194,7 @@ public class ResearchProjectPanel {
         Ui.textIn(b, 10f, 1f, cw - 30f - rw, HEAD_H, project.getName(), Ui.ORB12, headColor, Ui.LEFT, new String[0], new Color[0]);
 
         float dy = getDescExtra(project, cw);
-        Ui.wrap(b, 10f, DESC_Y, cw - INFO_RIGHT - 20f, getDesc(project, cw), Ui.gray());
+        Ui.wrap(b, 10f, DESC_Y, cw - TOGGLES_RIGHT - 20f, getDesc(project, cw), Ui.gray());
         UiButtons.area(b, cw - INFO_RIGHT, TOGGLE_Y, INFO_W, TOGGLE_H, "Info", info, true, null, Ui.CENTER, () -> toggleInfo(id));
         if (project.isRepeatable()) addStockToggle(b, cw, progress);
 
