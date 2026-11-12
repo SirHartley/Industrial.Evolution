@@ -40,14 +40,19 @@ public final class HoldChecks {
                 SalvageUiChecks.setup(c);
                 SalvageUiChecks.ships(c);
             }, c -> SalvageUiChecks.open(c, SalvageUiChecks.order(new SalvageYardsView(SalvageYardsView.Tab.ASSEMBLY))));
-            case "edict" -> hold(steps, EdictUiChecks::setup, c -> EdictUiChecks.open(c, new EdictView(c.market("c1").getId(), null)));
+            case "edict" -> hold(steps, c -> {
+                EdictUiChecks.setup(c);
+                EdictUiChecks.relics(c, 1000f);
+            }, c -> EdictUiChecks.open(c, new EdictView(c.market("c1").getId(), null)));
             case "lab" -> hold(steps, c -> {
                 LabUiChecks.setup(c);
                 LabUiChecks.templates(c);
+                LabUiChecks.relics(c, 5000f);
             }, c -> LabUiChecks.open(c, new AncientLabRelicView(false, AncientLabRelicView.FIRST, null)));
             case "hub" -> hold(steps, c -> {
                 HubUiChecks.setup(c);
                 HubUiChecks.reverse(c, 6);
+                HubUiChecks.hullmods(c, 8);
             }, c -> HubUiChecks.open(c, new EngineeringHubView(false, null, "eagle", null)));
             case "research" -> {
                 steps.add(c -> UiViews.side = new float[]{ResearchProjectPanel.WIDTH, ResearchProjectPanel.HEIGHT});
