@@ -273,7 +273,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
             String itemId = dong ? "tiandong_retrofit_bp" : "roider_retrofit_bp";
             cargo.addSpecial(new SpecialItemData(itemId, hullId), 1);
             Global.getSector().getCampaignUI().addMessage(
-                    "A retrofit template for a %s has been reverse engineered and delivered to %s",
+                    "A retrofit template for " + Misc.getAOrAnFor(ship.getHullName()) + " %s has been reverse engineered and delivered to %s",
                     Global.getSettings().getColor("standardTextColor"),
                     ship.getNameWithDesignationWithDashClass(), target.getName(),
                     Misc.getHighlightColor(), target.getFaction().getBrightUIColor()
@@ -281,7 +281,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         } else {
             cargo.addSpecial(new SpecialItemData(Items.SHIP_BP, hullId), 1);
             Global.getSector().getCampaignUI().addMessage(
-                    "A blueprint for a %s has been reverse engineered and delivered to %s",
+                    "A blueprint for " + Misc.getAOrAnFor(ship.getHullName()) + " %s has been reverse engineered and delivered to %s",
                     Global.getSettings().getColor("standardTextColor"),
                     ship.getNameWithDesignationWithDashClass(), target.getName(),
                     Misc.getHighlightColor(), target.getFaction().getBrightUIColor()
