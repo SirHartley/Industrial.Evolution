@@ -1,13 +1,17 @@
 package indevo.utils.ui;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.CustomEntitySpecAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.characters.SkillSpecAPI;
+import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
+import com.fs.starfarer.api.loading.FighterWingSpecAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -22,6 +26,9 @@ public final class UiImages {
 
     public static final float DIM = 0.4f;
     public static final float SHIP_PAD = 4f;
+    public static final float STACK_PAD = 6f;
+    public static final float STACK_TOP = 4f;
+    public static final float STACK_COUNT_Y = 18f;
 
     public interface Cell<T> {
         void render(CustomPanelAPI p, float x, float y, float w, float h, T item);
@@ -76,18 +83,34 @@ public final class UiImages {
 
     // hand drawn framed cell with the hull sprite; use shipIcon for the vanilla icon with its stock tooltip
     public static CustomPanelAPI ship(CustomPanelAPI p, float x, float y, float size, FleetMemberAPI member, boolean framed, boolean dim) {
-        if (framed) Ui.well(p, x, y, size, size);
-        float pad = framed ? SHIP_PAD : 0f;
-        CustomPanelAPI sprite = img(p, x + pad, y + pad, size - 2f * pad, size - 2f * pad, member.getHullSpec().getSpriteName(), null, dim ? DIM : 1f);
+        CustomPanelAPI sprite = framed(p, x, y, size, member.getHullSpec().getSpriteName(), framed, dim);
         Ui.tooltip(p, sprite, member.getShipName(), member.getHullSpec().getHullNameWithDashClass());
         return sprite;
     }
 
+    public static CustomPanelAPI hull(CustomPanelAPI p, float x, float y, float size, ShipHullSpecAPI spec, boolean framed, boolean dim) {
+        CustomPanelAPI sprite = framed(p, x, y, size, spec.getSpriteName(), framed, dim);
+        Ui.tooltip(p, sprite, spec.getHullNameWithDashClass());
+        return sprite;
+    }
+
+    // one fighter hull sprite, not the vanilla formation picture
+    public static CustomPanelAPI wing(CustomPanelAPI p, float x, float y, float size, String wingId, boolean framed, boolean dim) {
+        FighterWingSpecAPI spec = Global.getSettings().getFighterWingSpec(wingId);
+        CustomPanelAPI sprite = framed(p, x, y, size, spec.getVariant().getHullSpec().getSpriteName(), framed, dim);
+        if (spec.getRoleDesc() != null) Ui.tooltip(p, sprite, spec.getWingName(), spec.getRoleDesc());
+        else Ui.tooltip(p, sprite, spec.getWingName());
+        return sprite;
+    }
+
+    private static CustomPanelAPI framed(CustomPanelAPI p, float x, float y, float size, String spriteName, boolean framed, boolean dim) {
+        if (framed) Ui.well(p, x, y, size, size);
+        float pad = framed ? SHIP_PAD : 0f;
+        return img(p, x + pad, y + pad, size - 2f * pad, size - 2f * pad, spriteName, null, dim ? DIM : 1f);
+    }
+
     public static TooltipMakerAPI shipIcon(CustomPanelAPI p, float x, float y, float size, FleetMemberAPI member) {
-        TooltipMakerAPI element = p.createUIElement(size + Ui.INSET, size, false);
-        element.addShipList(1, 1, size, Ui.base(), List.of(member), 0f);
-        p.addUIElement(element).inTL(x - Ui.INSET, y);
-        return element;
+        return Ui.element(p, x, y, size, size, t -> t.addShipList(1, 1, size, Ui.base(), List.of(member), 0f));
     }
 
     public static CustomPanelAPI skill(CustomPanelAPI p, float x, float y, float size, SkillSpecAPI spec, boolean elite) {
@@ -114,18 +137,45 @@ public final class UiImages {
         return icon(p, x, y, size, submarket.getSpec().getIcon(), submarket.getSpec().getName());
     }
 
+    // cargo style cell: count bottom right in highlight (hidden below 0), extra top left in positive colour and a lit frame while above 0
+    public static CustomPanelAPI stack(CustomPanelAPI p, float x, float y, float size, String spriteName, int count, int extra, String name) {
+        Color border = extra > 0 ? Misc.scaleAlpha(Ui.bright(), 0.85f) : Misc.scaleAlpha(Ui.base(), 0.2f);
+        CustomPanelAPI cell = Ui.box(p, x, y, size, size, border, Misc.setAlpha(Color.BLACK, 90));
+        img(cell, STACK_PAD, STACK_TOP, size - 2f * STACK_PAD, size - 2f * STACK_PAD, spriteName);
+        if (count >= 0) Ui.text(cell, 0f, size - STACK_COUNT_Y, size - 3f, Ui.num(count), Ui.hl(), Ui.RIGHT);
+        if (extra > 0) Ui.text(cell, 4f, 2f, size - 8f, "+" + Ui.num(extra), Ui.pos());
+        if (name != null) Ui.tooltip(p, cell, name);
+        return cell;
+    }
+
     // vanilla planet render for a planet market, the faction crest for a station
     public static void planet(CustomPanelAPI p, float x, float y, float size, MarketAPI market) {
         PlanetAPI planet = market.getPlanetEntity();
-        if (planet == null) {
-            icon(p, x, y, size, market.getFaction().getCrest(), market.getName());
-            return;
-        }
+        if (planet == null) icon(p, x, y, size, market.getFaction().getCrest(), market.getName());
+        else render(p, x, y, size, planet, market.getName());
+    }
 
-        TooltipMakerAPI element = p.createUIElement(size + Ui.INSET, size, false);
-        element.showPlanetInfo(planet, size, size, false, 0f);
-        p.addUIElement(element).inTL(x - Ui.INSET, y);
-        Ui.tooltip(p, element, market.getName());
+    // vanilla render for a planet or star, else the custom entity sprite or icon when loaded, else the faction crest
+    public static void planet(CustomPanelAPI p, float x, float y, float size, SectorEntityToken entity) {
+        if (entity instanceof PlanetAPI planet) render(p, x, y, size, planet, entity.getName());
+        else icon(p, x, y, size, entitySprite(entity), entity.getName());
+    }
+
+    private static void render(CustomPanelAPI p, float x, float y, float size, PlanetAPI planet, String name) {
+        TooltipMakerAPI element = Ui.element(p, x, y, size, size, t -> t.showPlanetInfo(planet, size, size, false, 0f));
+        Ui.tooltip(p, element, name);
+    }
+
+    private static String entitySprite(SectorEntityToken entity) {
+        CustomEntitySpecAPI spec = entity.getCustomEntitySpec();
+        if (spec != null && loaded(spec.getSpriteName())) return spec.getSpriteName();
+        if (spec != null && loaded(spec.getIconName())) return spec.getIconName();
+        return entity.getFaction() == null ? null : entity.getFaction().getCrest();
+    }
+
+    // getSprite on a path that was never loaded returns a sprite without texture and zero size
+    private static boolean loaded(String spriteName) {
+        return spriteName != null && Global.getSettings().getSprite(spriteName).getWidth() > 0f;
     }
 
     // fixed cells, wraps to rows, the last cell turns into +N when items do not fit; returns the used height

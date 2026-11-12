@@ -104,6 +104,14 @@ public final class Ui {
         return panel;
     }
 
+    // vanilla widgets at a rect: items start at x, the first item's pad is its y offset, the element grows past h and is not clipped
+    public static TooltipMakerAPI element(CustomPanelAPI p, float x, float y, float w, float h, Content content) {
+        TooltipMakerAPI element = p.createUIElement(w + INSET, h, false);
+        content.create(element);
+        p.addUIElement(element).inTL(x - INSET, y);
+        return element;
+    }
+
     public static float width(String s, String font) {
         return Global.getSettings().computeStringWidth(s, font);
     }

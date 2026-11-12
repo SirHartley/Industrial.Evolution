@@ -18,6 +18,7 @@ public final class UiData {
     public static final float MARK = 12f;
     public static final float THIN_H = 3f;
     public static final float VALUE_SHARE = 0.6f;
+    public static final float PIP_OFF = 0.18f;
 
     public record GridRow(String label, String value, Color color) {
         public static GridRow of(String label, String value) {
@@ -76,6 +77,22 @@ public final class UiData {
         return Ui.painted(p, x, y, w, THIN_H, (pos, a) -> {
             UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), track, a);
             UiDraw.quad(pos.getX(), pos.getY(), Math.round(pos.getWidth() * f), pos.getHeight(), fill, a);
+        }, null);
+    }
+
+    public static CustomPanelAPI pips(CustomPanelAPI p, float x, float y, int total, int filled, float size, float gap, Color color) {
+        return pips(p, x, y, total, 0, filled, size, size, gap, color);
+    }
+
+    // lights pips [from, to), the rest in the track colour
+    public static CustomPanelAPI pips(CustomPanelAPI p, float x, float y, int total, int from, int to, float w, float h, float gap, Color color) {
+        Color off = Misc.scaleAlpha(Ui.base(), PIP_OFF);
+        float pw = Math.max(0f, total * (w + gap) - gap);
+
+        return Ui.painted(p, x, y, pw, h, (pos, a) -> {
+            for (int i = 0; i < total; i++) {
+                UiDraw.quad(pos.getX() + i * (w + gap), pos.getY(), w, h, i >= from && i < to ? color : off, a);
+            }
         }, null);
     }
 
