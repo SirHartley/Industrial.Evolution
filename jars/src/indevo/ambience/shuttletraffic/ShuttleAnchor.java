@@ -44,6 +44,10 @@ public class ShuttleAnchor {
     public float lastThreatDay = -100f;
     // traffic multiplier from port, commerce, stability and raids, set in the network rebuild
     public float density = 1f;
+    // how busy the market feels: size, port, military and station on top of density, set in the network rebuild
+    public float liveliness = 1f;
+    // the player is close enough to see its local flights, set every scan
+    public boolean near = false;
     // body cruises and training flights fly out to and lap, picked once and kept while it stays in range
     public SectorEntityToken sight;
 
