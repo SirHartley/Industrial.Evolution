@@ -87,6 +87,7 @@ class DetachmentColumn {
     private UiScroll.Column column;
     private float w;
     private boolean canDeploy = false;
+    private boolean canLoad = false;
 
     private record Ship(FleetMemberAPI member, ShipVariantAPI missing) {
         String name() {
@@ -124,7 +125,7 @@ class DetachmentColumn {
     void build(CustomPanelAPI p, float x, float y, float colW, float h) {
         // the action button stays pinned at the bottom, the column above scrolls
         w = colW - UiScroll.GUTTER;
-        float actionH = live ? UiButtons.guardHeight(w, ACTION_H, getActionReason()) : ACTION_H;
+        float actionH = live ? UiButtons.guardHeight(w, ACTION_H, getActionReason()) : LOAD_H + 6f + ACTION_H;
         column = UiScroll.list(p, x, y + LIST_Y, colW, h - LIST_Y - actionH - 10f, panel.getView().scroll, DetachmentView.listId(slot));
         addHeading(p, x, y);
 
@@ -143,7 +144,10 @@ class DetachmentColumn {
 
         CustomPanelAPI action = Ui.panel(p, x, y + h - actionH, w, actionH);
         if (live) addAction(action);
-        else UiButtons.button(action, 0f, 0f, w, ACTION_H, "Deploy", canDeploy ? UiButtons.Kind.GREEN : UiButtons.Kind.OFF, canDeploy ? () -> panel.deploy(slot) : null);
+        else {
+            addLoadButtons(action);
+            UiButtons.button(action, 0f, LOAD_H + 6f, w, ACTION_H, "Deploy", canDeploy ? UiButtons.Kind.GREEN : UiButtons.Kind.OFF, canDeploy ? () -> panel.deploy(slot) : null);
+        }
     }
 
     private void addHeading(CustomPanelAPI p, float x, float y) {
@@ -541,27 +545,26 @@ class DetachmentColumn {
                     : new Check(false, "Requires fuel to leave this location.", new String[0], new Color[0], Ui.hl()));
         }
 
-        // the load buttons sit beside the supplies line, or on their own row when the line needs the width
-        float inlineW = w - MARK_X - LOAD_W - 8f;
-        boolean inline = Ui.width(checks.get(2).text(), Ui.INS15) + 2f <= inlineW;
-        CustomPanelAPI b = column.block(checks.size() * CHECK_ROW + (inline ? 0f : LOAD_H + 4f), GAP);
+        CustomPanelAPI b = column.block(checks.size() * CHECK_ROW, GAP);
         for (int i = 0; i < checks.size(); i++) {
             Check check = checks.get(i);
             float y = i * CHECK_ROW;
-            float tw = i == 2 && inline ? inlineW : w - MARK_X;
             UiData.mark(b, 2f, y + 3f, check.ok());
-            Ui.runs(b, MARK_X, y, tw, Ui.INS15, check.color(), Ui.LEFT, check.text(), check.parts(), check.colors());
+            Ui.runs(b, MARK_X, y, w - MARK_X, Ui.INS15, check.color(), Ui.LEFT, check.text(), check.parts(), check.colors());
         }
 
-        float loadY = inline ? 2f * CHECK_ROW - 2f : checks.size() * CHECK_ROW + 2f;
-        ButtonAPI min = UiButtons.button(b, w - LOAD_W, loadY, LOAD_MIN_W, LOAD_H, "Load min", UiButtons.Kind.STD, CutStyle.TL_BR,
-                ready ? () -> panel.load(slot, DetachmentCargoLoad.Mode.MIN) : null);
-        Ui.tooltip(b, min, null, "Sets the detachment's supplies to repairs plus one month and its crew to the minimum, moving out marines that take the room. Its fuel tanks are filled, up to half of all fuel. Anything your ships can not hold goes to the detachment if it has room.");
-        ButtonAPI max = UiButtons.button(b, w - LOAD_MAX_W, loadY, LOAD_MAX_W, LOAD_H, "Load max", UiButtons.Kind.STD, CutStyle.TL_BR,
-                ready ? () -> panel.load(slot, DetachmentCargoLoad.Mode.MAX) : null);
-        Ui.tooltip(b, max, null, "Fills the detachment's supplies and crew up to its capacity. You keep repairs plus one month of supplies and your minimum crew. Its fuel tanks are filled, up to half of all fuel. Anything your ships can not hold goes to the detachment if it has room.");
-
+        canLoad = ready;
         canDeploy = shipsOk && cargoOk && suppliesOk && fuelOk;
+    }
+
+    // pinned above Deploy, right aligned, so they never scroll
+    private void addLoadButtons(CustomPanelAPI b) {
+        ButtonAPI min = UiButtons.button(b, w - LOAD_W, 0f, LOAD_MIN_W, LOAD_H, "Load min", UiButtons.Kind.STD, CutStyle.TL_BR,
+                canLoad ? () -> panel.load(slot, DetachmentCargoLoad.Mode.MIN) : null);
+        Ui.tooltip(b, min, null, "Sets the detachment's supplies to repairs plus one month and its crew to the minimum, moving out marines that take the room. Its fuel tanks are filled, up to half of all fuel. Anything your ships can not hold goes to the detachment if it has room.");
+        ButtonAPI max = UiButtons.button(b, w - LOAD_MAX_W, 0f, LOAD_MAX_W, LOAD_H, "Load max", UiButtons.Kind.STD, CutStyle.TL_BR,
+                canLoad ? () -> panel.load(slot, DetachmentCargoLoad.Mode.MAX) : null);
+        Ui.tooltip(b, max, null, "Fills the detachment's supplies and crew up to its capacity. You keep repairs plus one month of supplies and your minimum crew. Its fuel tanks are filled, up to half of all fuel. Anything your ships can not hold goes to the detachment if it has room.");
     }
 
     private void addOfficers() {
