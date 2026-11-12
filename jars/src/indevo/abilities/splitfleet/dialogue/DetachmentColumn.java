@@ -210,7 +210,8 @@ class DetachmentColumn {
 
             ButtonAPI button;
             if (met) button = UiButtons.button(b, w - bw, 0f, bw, ROW_H, "Move cargo...", UiButtons.Kind.STD, () -> panel.showCargoExchange(slot));
-            else button = UiButtons.button(b, w - bw, 0f, bw, ROW_H, "Lay course", UiButtons.Kind.STD, targeted ? null : () -> panel.layCourse(slot));
+            else button = UiButtons.button(b, w - bw, 0f, bw, ROW_H, "Lay course", dormant || stranded ? UiButtons.Kind.AMBER : UiButtons.Kind.STD,
+                    targeted ? null : () -> panel.layCourse(slot));
             Ui.tooltip(b, button, null, met ? "Move cargo between your fleet and the detachment." : "Set a course to the detachment.");
 
             String deployed = getDeployedText();
