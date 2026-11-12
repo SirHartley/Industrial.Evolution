@@ -182,12 +182,12 @@ public class ResearchProjectPanel {
                 t -> t.addPara("Accept excess donations toward future rewards. When disabled, excess items stay in your cargo.", 0f));
     }
 
-    private float itemsWidth(List<RequiredItem> items, int shown, CargoAPI cargo, boolean owned, float pad, float gap) {
+    private float itemsWidth(List<RequiredItem> items, int shown, CargoAPI cargo, boolean owned, float icon, float pad, float gap) {
         float total = 0f;
         for (int i = 0; i < shown; i++) {
             RequiredItem item = items.get(i);
             String s = owned ? format(item.points) + " (" + Ui.num(ResearchProjectDialoguePlugin.getQuantity(cargo, item)) + ")" : format(item.points);
-            total += ITEM_ICON + pad + Ui.width(s, Ui.INS15) + 2f + gap;
+            total += icon + pad + Ui.width(s, Ui.INS15) + 2f + gap;
         }
         return total;
     }
@@ -199,12 +199,13 @@ public class ResearchProjectPanel {
 
         int shown = n <= 5 ? n : 4;
         float room = w - (n > 5 ? MORE_W : 0f);
-        // cells take their measured width; owned counts go first, then the spacing tightens
-        boolean owned = n <= 3 && itemsWidth(items, shown, cargo, true, 4f, 6f) <= room;
-        boolean loose = itemsWidth(items, shown, cargo, owned, 4f, 6f) <= room;
+        // cells take their measured width; owned counts go first, then spacing and icons shrink
+        boolean owned = n <= 3 && itemsWidth(items, shown, cargo, true, ITEM_ICON, 4f, 6f) <= room;
+        boolean loose = itemsWidth(items, shown, cargo, owned, ITEM_ICON, 4f, 6f) <= room;
         float pad = loose ? 4f : 2f;
         float gap = loose ? 6f : 2f;
-        boolean fits = itemsWidth(items, shown, cargo, owned, pad, gap) <= room;
+        float size = loose ? ITEM_ICON : 20f;
+        boolean fits = itemsWidth(items, shown, cargo, owned, size, pad, gap) <= room;
         float per = room / shown;
 
         for (int i = 0; i < shown; i++) {
@@ -213,12 +214,12 @@ public class ResearchProjectPanel {
             String own = Ui.num(ResearchProjectDialoguePlugin.getQuantity(cargo, item));
             String s = owned ? pointsText + " (" + own + ")" : pointsText;
             float tw = Ui.width(s, Ui.INS15) + 2f;
-            if (!fits) tw = Math.max(0f, Math.min(tw, per - ITEM_ICON - pad - gap));
+            if (!fits) tw = Math.max(0f, Math.min(tw, per - size - pad - gap));
 
-            CustomPanelAPI icon = UiImages.img(b, x, y, ITEM_ICON, ITEM_ICON, item.getSprite());
+            CustomPanelAPI icon = UiImages.img(b, x, y + (ITEM_ICON - size) / 2f, size, size, item.getSprite());
             Ui.tooltip(b, icon, item.getName(), format(item.points) + " points each.", "You have " + own + ".");
-            Ui.textIn(b, x + ITEM_ICON + pad, y, tw, ITEM_ICON, s, Ui.INS15, Ui.gray(), Ui.LEFT, new String[]{pointsText}, new Color[]{Ui.hl()});
-            x += ITEM_ICON + pad + tw + gap;
+            Ui.textIn(b, x + size + pad, y, tw, ITEM_ICON, s, Ui.INS15, Ui.gray(), Ui.LEFT, new String[]{pointsText}, new Color[]{Ui.hl()});
+            x += size + pad + tw + gap;
         }
 
         if (n > 5) {
