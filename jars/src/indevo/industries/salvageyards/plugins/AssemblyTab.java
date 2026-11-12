@@ -135,7 +135,7 @@ class AssemblyTab {
         String sourceSub = null;
         Color sourceSubColor = Ui.gray();
         if (line.capped()) {
-            sourceSub = "Limited to " + Ui.num(line.limit()) + " in the registry";
+            sourceSub = "Registry has only " + Ui.num(line.limit());
             sourceSubColor = Ui.neg();
         } else if (line.type() == YardsContract.Type.REGISTRY_HULL) {
             sourceSub = "as fitted · " + Ui.num(line.salvageUnits()) + " salvage units";

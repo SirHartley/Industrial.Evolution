@@ -107,7 +107,7 @@ class RegistryTab {
         float cw = lw - UiScroll.GUTTER;
         float stepX = cw - STEPPER_W - 4f;
         Ui.thead(p, 0f, y, lw, new String[]{"Hull", "Recorded", "Salvage units", "Hull cost", "Order"},
-                new float[]{AssemblyTab.NAME_X, RECORDED_X, SU_X, COST_X, stepX}, new float[]{RECORDED_X - AssemblyTab.NAME_X - 6f, COL_W, COL_W, COST_W, STEPPER_W},
+                new float[]{AssemblyTab.NAME_X, RECORDED_X, SU_X - 8f, COST_X, stepX}, new float[]{RECORDED_X - AssemblyTab.NAME_X - 6f, COL_W, COL_W + 16f, COST_W, STEPPER_W},
                 new Alignment[]{Ui.LEFT, Ui.CENTER, Ui.CENTER, Ui.RIGHT, Ui.CENTER});
         y += 20f;
 
@@ -230,7 +230,7 @@ class RegistryTab {
                 () -> change(view.order.wings, id, 1));
         UiImages.stack(row, x, 0f, CELL, spec.getVariant().getHullSpec().getSpriteName(), count, inOrder, null);
         if (inOrder > 0) AssemblyTab.xButton(row, x + CELL - AssemblyTab.X_SIZE - 1f, 1f, "Remove one from the order", () -> change(view.order.wings, id, -1));
-        Ui.text(row, x - 1f, CELL + 1f, CELL + 2f, Ui.fit(spec.getWingName(), Ui.VIC10, CELL + 2f), Ui.VIC10, Ui.gray(), Ui.CENTER);
+        Ui.text(row, x - 1f, CELL + 1f, CELL + 2f, spec.getWingName().replaceFirst("(?i) wing$", ""), Ui.VIC10, Ui.gray(), Ui.CENTER);
 
         String role = spec.getRoleDesc() != null ? spec.getRoleDesc() : "Fighter wing";
         Ui.tooltip(row, area, AssemblyTab.wingName(spec), itemLines(role, count, inOrder, ProductionItemType.FIGHTER, id, reason));

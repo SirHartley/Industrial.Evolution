@@ -125,7 +125,7 @@ Orders in progress lists the market's waiting intel with day progress and Accele
 The Wreck Registry tab (yards with the Salvage Drone Replicator) lists registry hulls without a blueprint, sorted by name, then registry weapons and wings as cells. Hull rows add or remove one with the stepper; a weapon or wing cell adds one on click and its x removes one. `YardsContract.canAdd` allows one more while the registry count, the salvage units and the budget left cover it. The detail column shows the fit the next hull would take (weapons, wings, hullmods) and its cost.
 
 - Registry hulls cost `SALVAGE_DRONES_SP_PER_FP` (10) salvage units per FP; weapons and wings cost none. The order takes the oldest fits (`getOldestFits`) and adds `getValue() * costMult` credits (`fitCost`, included in `getCost()`). Registry hulls get D-mods, rare parts and parts like any yards hull.
-- Order amounts are requests: a line shows `min(requested, registry count)` and "Limited to N in the registry" when the registry has fewer. Weapons and wings picked in the production picker are not capped there.
+- Order amounts are requests: a line shows `min(requested, registry count)` and "Registry has only N" when the registry has fewer. Weapons and wings picked in the production picker are not capped there.
 - `toData()` builds `YardsProductionData.registryOrder`. Confirm runs `WreckRegistry.take(order)` and `spendSalvagePoints`. Delivery builds one fitted member per taken fit, then bare hulls, then adds the weapons and wings; D-mods apply to all hulls.
 
 ### D-mod transfer
