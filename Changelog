@@ -31,6 +31,8 @@ Removed - Unused settings
 Research Projects
 Added - Stock toggle: repeatable projects carry extra progress over (PR'd by razenpok, thank you!)
 Added - Project Reforge: turn a Corrupted Nanoforge into a Pristine one for 500 Relic Components
+Adjusted - Projects now show as cards, Info opens in the card with a table of the accepted items
+Adjusted - Accepted items show their icon and how many you have
 Fixed - Now sorts highest to lowest progress like god intended
 Fixed - Prospector new project notice now properly shows after a reload
 Fixed - Drive Field Tuning modspec no longer drops as random loot

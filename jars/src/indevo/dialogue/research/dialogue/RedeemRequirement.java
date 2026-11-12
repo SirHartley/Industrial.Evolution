@@ -17,18 +17,11 @@ public class RedeemRequirement {
     }
 
     public String getName() {
-        switch (type) {
-            case RESOURCES:
-                return Global.getSettings().getCommoditySpec(id).getName();
-            case WEAPONS:
-                return Global.getSettings().getWeaponSpec(id).getWeaponName();
-            case FIGHTER_CHIP:
-                return Global.getSettings().getFighterWingSpec(id).getWingName();
-            case SPECIAL:
-                return Global.getSettings().getSpecialItemSpec(id).getName();
-            default:
-                throw new IllegalStateException("Unsupported redeem requirement type " + type + " for " + id);
-        }
+        return RequiredItem.getName(type, id);
+    }
+
+    public String getSprite() {
+        return RequiredItem.getSprite(type, id);
     }
 
     public int getAvailable(CargoAPI cargo) {

@@ -2,20 +2,16 @@ package indevo.dialogue.research.dialogue;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
-import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.FireAll;
-import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
-import indevo.dialogue.sidepanel.VisualCustomPanel;
-import indevo.utils.ModPlugin;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
@@ -33,7 +29,9 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
     protected InteractionDialogAPI dialog;
     protected Map<String, MemoryAPI> memoryMap;
 
-    protected String inputProjId = null;
+    protected final ResearchView view = new ResearchView();
+    protected ResearchProjectPanel panel;
+
     protected String rewardProjId = null;
     protected CargoAPI rewardsCargo = null;
     protected CargoAPI consumedCargo = null;
@@ -45,10 +43,10 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
     @Override
     public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
 
-        this.dialog = dialog;
-        this.memoryMap = memoryMap;
         if (dialog == null) return false;
 
+        this.dialog = dialog;
+        this.memoryMap = memoryMap;
         entity = dialog.getInteractionTarget();
         originalPlugin = dialog.getPlugin();
         dialog.setPlugin(this);
@@ -62,7 +60,8 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
     @Override
     public void init(InteractionDialogAPI dialog) {
         Global.getSector().getMemoryWithoutUpdate().set(DIALOGUE_PLUGIN_TEMP_INSTANCE_KEY, this, 0f);
-        VisualCustomPanel.createPanel(dialog, true);
+        panel = new ResearchProjectPanel(this, view);
+        panel.show(dialog);
         displayDefaultOptions();
     }
 
@@ -79,12 +78,11 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
     }
 
     public void refreshCustomPanel() {
-        new ResearchProjectSidePanelCreator().showPanel(dialog);
+        if (panel != null) panel.refresh();
     }
 
     @Override
     public void optionSelected(String optionText, Object optionData) {
-        MemoryAPI memory = memoryMap.get(MemKeys.LOCAL);
         OptionPanelAPI opts = dialog.getOptionPanel();
 
         opts.clearOptions();
@@ -118,7 +116,6 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
             panel.addPara("At a glance, are currently " + numOpen + " research projects that you could contribute to.");
         else panel.addPara("There does not appear to be any ongoing project worth your time.");
 
-        // if (inputProjId == null && rewardProjId == null) {
         panel.setFontSmallInsignia();
         panel.addParagraph("-----------------------------------------------------------------------------", Misc.getGrayColor());
 
@@ -129,9 +126,8 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
 
         panel.addParagraph("-----------------------------------------------------------------------------", Misc.getGrayColor());
         panel.setFontInsignia();
-        //}
 
-        if (rewardProjId != null && inputProjId == null) {
+        if (rewardProjId != null) {
             ResearchProject project = ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(rewardProjId);
             TooltipMakerAPI rewardsToolTip = panel.beginTooltip();
             rewardsToolTip.addSectionHeading(project.getName() + " - Rewards", Alignment.MID, 10f);
@@ -146,64 +142,6 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
                 AddRemoveCommodity.addStackGainText(stack, panel);
             }
 
-        } else if (inputProjId != null && rewardProjId == null) {
-            ResearchProject project = ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(inputProjId);
-            if (project != null) {
-
-                TooltipMakerAPI textPanel = panel.beginTooltip();
-                textPanel.addSectionHeading(project.getName(), Alignment.MID, 10f);
-                textPanel.addPara(project.getLongDesc(), 3f);
-
-                textPanel.addSectionHeading("Contribution options:", Alignment.MID, 10f);
-                panel.addTooltip();
-
-                CargoAPI cargo = Global.getSector().getPlayerFleet().getCargo();
-                TooltipMakerAPI tt = panel.beginTooltip();
-                float requiredPoints = project.getRequiredPoints();
-
-                for (RequiredItem item : project.getRequiredItems()) {
-                    String progress = Math.abs(Math.round(item.points / requiredPoints * 1000f)) / 10f + "%";
-                    String requiredToComplete = (int) Math.round((requiredPoints - project.getProgress().points) / item.points) + "";
-
-                    //String progress = StringHelper.getAbsPercentString(item.points / requiredPoints, false);
-                    float count = getQuantity(cargo, item);
-
-                    ModPlugin.log("count " + item.type + " " + item.id + " " + count);
-
-                    if (item.type.equals(CargoAPI.CargoItemType.WEAPONS)) {
-                        WeaponSpecAPI spec = Global.getSettings().getWeaponSpec(item.id);
-                        TooltipMakerAPI imageWithText = tt.beginImageWithText(spec.getTurretSpriteName(), 30f);
-                        imageWithText.addPara("%s  -  Progress: %s  -  Available: %s - To complete project: %s",
-                                5f,
-                                Misc.getHighlightColor(),
-                                new String[]{spec.getWeaponName(), progress, (int) Math.round(count) + "", requiredToComplete});
-
-                        tt.addImageWithText(2f);
-
-                    } else if (item.type.equals(CargoAPI.CargoItemType.RESOURCES)) {
-                        CommoditySpecAPI spec = Global.getSettings().getCommoditySpec(item.id);
-
-                        TooltipMakerAPI imageWithText = tt.beginImageWithText(spec.getIconName(), 30f);
-                        imageWithText.addPara("%s  -  Progress: %s  -  Available: %s - To complete project: %s",
-                                5f,
-                                Misc.getHighlightColor(),
-                                new String[]{spec.getName(), progress, (int) Math.round(count) + "", requiredToComplete});
-                        tt.addImageWithText(2f);
-
-                    } else if (item.type.equals(CargoAPI.CargoItemType.SPECIAL)) {
-                        SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(item.id);
-
-                        TooltipMakerAPI imageWithText = tt.beginImageWithText(spec.getIconName(), 30f);
-                        imageWithText.addPara("%s  -  Progress: %s  -  Available: %s - To complete project: %s",
-                                5f,
-                                Misc.getHighlightColor(),
-                                new String[]{spec.getName(), progress, (int) Math.round(count) + "", requiredToComplete});
-                        tt.addImageWithText(2f);
-                    }
-                }
-
-                panel.addTooltip();
-            }
         }
     }
 
@@ -237,7 +175,6 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
     }
 
     private void returnToMenu() {
-        VisualCustomPanel.clearPanel();
         dialog.getTextPanel().clear();
 
         dialog.setPlugin(originalPlugin);
@@ -247,19 +184,9 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
     }
 
     public void setProjectIdForRewards(String id, CargoAPI cargo, CargoAPI consumed) {
-        this.inputProjId = null;
         this.rewardsCargo = cargo.createCopy();
         this.consumedCargo = consumed;
         this.rewardProjId = id;
-
-        addTooltip(dialog.getTextPanel());
-    }
-
-    public void setProjectIdForInputs(String id) {
-        this.inputProjId = id;
-        this.rewardsCargo = null;
-        this.consumedCargo = null;
-        this.rewardProjId = null;
 
         addTooltip(dialog.getTextPanel());
     }
