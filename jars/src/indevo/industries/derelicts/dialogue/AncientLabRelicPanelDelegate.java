@@ -1,38 +1,36 @@
 package indevo.industries.derelicts.dialogue;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CargoAPI;
-import com.fs.starfarer.api.campaign.CargoStackAPI;
-import com.fs.starfarer.api.campaign.SpecialItemData;
+import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
+import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
-import com.fs.starfarer.api.campaign.FleetDataAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.ids.HullMods;
+import com.fs.starfarer.api.impl.campaign.ids.Skills;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.hullmods.Automated;
-import com.fs.starfarer.api.ui.*;
+import com.fs.starfarer.api.ui.Alignment;
+import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.dialogue.sidepanel.ButtonAction;
-import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
-import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
-import indevo.dialogue.sidepanel.HelpIcon;
 import indevo.ids.Ids;
+import indevo.ids.ItemIds;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.RelicHelper;
+import indevo.utils.ui.*;
+import indevo.utils.ui.UiData.GridRow;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegate {
-
-    private enum Tab {TEMPLATES, SHIPS}
+public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
 
     public static final int RELICS_PER_TEMPLATE_FP = 2;
     public static final int RELICS_PER_SHIP_DP = 10;
@@ -40,49 +38,81 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
     public static final String REFINE_LORE = "Centuries of copying have left gaps in the template. Domain reference cores give the laboratory an intact pattern to work from.";
     public static final String INTEGRATE_LORE = "The automated hulls still expect commands from a Domain control network. Your technicians use relic components to build an interface their systems will recognise.";
 
-    // outer dialog adds 20 x 55, so it stays inside the vanilla cargo tab (1004 x 850)
-    private static final float MAX_WIDTH = 860f;
-    private static final float MAX_HEIGHT = 560f;
+    public static final float BOARD_W = 1004f;
+    public static final float BOARD_H = 560f;
+    static final float DETAIL_W = 384f;
+    static final float COLUMN_GAP = 20f;
+    static final float BODY_Y = 64f;
+    static final float TAB_W = 150f;
+    static final float ROW_H = 48f;
+    static final float ROW_GAP = 4f;
+    static final float MESSAGE_H = 24f;
+    static final float THUMB = 44f;
+    static final float COST_ICON = 20f;
+    static final float PICTURE_H = 96f;
+    static final float PICTURE = 88f;
+    static final float PIP = 9f;
+    static final float PIP_GAP = 3f;
+    static final float BUTTON_H = 28f;
+    static final float GRID_ROW = 19f;
+    static final float GAP = 8f;
 
-    private static final float OPAD = 10f;
-    private static final float PAD = 3f;
-    private static final float GAP = 10f;
-    private static final float HEADER_HEIGHT = 50f;
-    private static final float TAB_HEIGHT = 28f;
-    private static final float TAB_WIDTH = 200f;
-    private static final float FOOTER_HEIGHT = 24f;
-    private static final float HEADING_HEIGHT = 20f;
-    private static final float ACTION_HEIGHT = 60f;
-    private static final float ROW_HEIGHT = 48f;
-    private static final float ICON_SIZE = 40f;
-    private static final float BUTTON_WIDTH = 150f;
-    private static final float BUTTON_HEIGHT = 25f;
-
+    private final Industry lab;
     private final MarketAPI market;
+    private final AncientLabRelicView view;
+    private final Runnable onLeave;
+    private UiRoot root;
+    private UiScroll.Column column;
+    private float cw;
+    private CustomPanelAPI pinned;
+    private float pinY;
+    private CustomPanelAPI detailP;
+    private float detailX;
+    private float detailH;
+    private float detailActionH;
 
-    private Tab tab = Tab.TEMPLATES;
-    private Object selected;
-    private String message;
-    private Color messageColor;
-
-    private CustomPanelAPI basePanel;
-    private CustomPanelAPI panel;
-    private ScrollPanelAPI listScroller;
-
-    public AncientLabRelicPanelDelegate(MarketAPI market) {
-        this.market = market;
+    static class Entry {
+        String key;
+        String name;
+        String sub;
+        int cost;
+        ShipHullSpecAPI hull;
+        CargoStackAPI stack;
+        int level;
+        String location;
+        FleetMemberAPI member;
     }
 
-    public static void show(DialogCreatorUI ui, MarketAPI market) {
-        float width = Math.min(MAX_WIDTH, Global.getSettings().getScreenWidth() - 40f);
-        float height = Math.min(MAX_HEIGHT, Global.getSettings().getScreenHeight() - 300f);
-        ui.showDialog(width, height, new AncientLabRelicPanelDelegate(market));
+    public AncientLabRelicPanelDelegate(Industry lab, AncientLabRelicView view, Runnable onLeave) {
+        this.lab = lab;
+        this.market = lab.getMarket();
+        this.view = view;
+        this.onLeave = onLeave;
+    }
+
+    public static float getWidth() {
+        return UiFrame.width(BOARD_W);
+    }
+
+    public static float getHeight() {
+        return UiFrame.height(BOARD_H);
+    }
+
+    public static void show(DialogCreatorUI ui, Industry lab, AncientLabRelicView view) {
+        ui.showDialog(getWidth(), getHeight(), new AncientLabRelicPanelDelegate(lab, view, null));
+    }
+
+    // opens the panel for the market's lab in the given view, for code and tests
+    public static boolean show(MarketAPI market, AncientLabRelicView view) {
+        Industry lab = market.getIndustry(Ids.LAB);
+        if (lab == null) return false;
+        return UiHost.show(market.getPrimaryEntity(), dialog -> dialog.showCustomDialog(getWidth(), getHeight(), new AncientLabRelicPanelDelegate(lab, view, dialog::dismiss)));
     }
 
     @Override
     public void createCustomDialog(CustomPanelAPI panel, CustomDialogCallback callback) {
-        basePanel = panel;
-        recreatePanel(callback);
+        root = new UiRoot(panel, view.scroll, this::build);
+        root.refresh();
     }
 
     @Override
@@ -95,258 +125,320 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
         return "Return";
     }
 
-    private void recreatePanel(CustomDialogCallback callback) {
-        float listOffset = listScroller != null ? listScroller.getYOffset() : 0f;
-        if (panel != null) basePanel.removeComponent(panel);
+    @Override
+    public void customDialogConfirm() {
+        if (onLeave != null) onLeave.run();
+    }
 
-        float width = basePanel.getPosition().getWidth();
-        float height = basePanel.getPosition().getHeight();
-        panel = Global.getSettings().createCustom(width, height, null);
+    @Override
+    public void customDialogCancel() {
+        if (onLeave != null) onLeave.run();
+    }
 
-        List<Entry> entries = tab == Tab.TEMPLATES ? getTemplateEntries() : getShipEntries();
-        Entry current = null;
+    private void build(CustomPanelAPI p, float w, float h) {
+        List<Entry> entries = view.ships ? getShipEntries() : getTemplateEntries();
+        Entry selected = resolveSelection(entries);
+        float lw = w - DETAIL_W - COLUMN_GAP;
+        float rx = lw + COLUMN_GAP;
+
+        addHeader(p, w);
+        addList(p, lw, h, entries);
+        Ui.vrule(p, rx - 10f, BODY_Y, h - BODY_Y);
+        addDetail(p, rx, w - rx, h - BODY_Y, selected);
+    }
+
+    private Entry resolveSelection(List<Entry> entries) {
+        if (AncientLabRelicView.FIRST.equals(view.selected)) view.selected = entries.isEmpty() ? null : entries.get(0).key;
         for (Entry entry : entries) {
-            if (entry.key.equals(selected)) current = entry;
-        }
-        if (current == null) selected = null;
-
-        addHeader(width);
-        addTabs(width, callback);
-
-        float y = HEADER_HEIGHT + TAB_HEIGHT + GAP;
-        float columnHeight = height - y - FOOTER_HEIGHT;
-        float listWidth = (width - GAP) * 0.55f;
-        float detailX = listWidth + GAP;
-
-        TooltipMakerAPI list = addList(entries, 0f, y, listWidth, columnHeight, callback);
-        addDetail(current, detailX, y, width - detailX, columnHeight, callback);
-        addFooter(width, height);
-
-        basePanel.addComponent(panel);
-
-        listScroller = list.getExternalScroller();
-        if (listScroller != null) listScroller.setYOffset(listOffset);
-    }
-
-    private void addHeader(float width) {
-        TooltipMakerAPI header = panel.createUIElement(width, HEADER_HEIGHT, false);
-        header.addSectionHeading("Relic services", Alignment.MID, 0f);
-        header.addPara("%s available: %s", OPAD, Misc.getHighlightColor(), RelicHelper.getName(), RelicHelper.getAvailable(market) + "");
-        panel.addUIElement(header).inTL(0f, 0f);
-    }
-
-    private void addTabs(float width, CustomDialogCallback callback) {
-        CustomPanelAPI tabs = panel.createCustomPanel(width, TAB_HEIGHT, new ButtonReportingCustomPanel(this));
-        TooltipMakerAPI row = tabs.createUIElement(width, TAB_HEIGHT, false);
-
-        ButtonAPI templates = addTabButton(row, "Templates", Tab.TEMPLATES, callback);
-        ButtonAPI ships = addTabButton(row, "Ships", Tab.SHIPS, callback);
-        templates.getPosition().inTL(0f, 0f);
-        ships.getPosition().rightOfTop(templates, PAD);
-
-        tabs.addUIElement(row).inTL(0f, 0f);
-        panel.addComponent(tabs).inTL(0f, HEADER_HEIGHT);
-    }
-
-    private ButtonAPI addTabButton(TooltipMakerAPI row, String text, Tab target, CustomDialogCallback callback) {
-        ButtonAPI button = row.addAreaCheckbox(text, action(callback, () -> selectTab(target)), Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(),
-                Misc.getBrightPlayerColor(), TAB_WIDTH, TAB_HEIGHT - 4f, 0f);
-        button.setChecked(tab == target);
-        return button;
-    }
-
-    private TooltipMakerAPI addList(List<Entry> entries, float x, float y, float width, float height, CustomDialogCallback callback) {
-        TooltipMakerAPI heading = panel.createUIElement(width, HEADING_HEIGHT, false);
-        heading.addSectionHeading(tab == Tab.TEMPLATES ? "Forge Templates" : "Automated ships", Alignment.MID, 0f);
-        panel.addUIElement(heading).inTL(x, y);
-
-        TooltipMakerAPI list = panel.createUIElement(width, height - HEADING_HEIGHT - PAD, true);
-        if (entries.isEmpty()) {
-            String empty = tab == Tab.TEMPLATES
-                    ? "No Forge Templates in local or industrial storage."
-                    : "No automated ships in your fleet or local storage.";
-            list.addPara(empty, Misc.getGrayColor(), OPAD);
+            if (entry.key.equals(view.selected)) return entry;
         }
 
-        for (Entry entry : entries) {
-            list.addCustom(createRow(entry, width - 15f, callback), PAD);
-        }
-
-        panel.addUIElement(list).inTL(x, y + HEADING_HEIGHT + PAD);
-        return list;
+        view.selected = null;
+        return null;
     }
 
-    private CustomPanelAPI createRow(Entry entry, float width, CustomDialogCallback callback) {
-        CustomPanelAPI row = panel.createCustomPanel(width, ROW_HEIGHT, new ButtonReportingCustomPanel(this));
-
-        TooltipMakerAPI background = row.createUIElement(width, ROW_HEIGHT, false);
-        ButtonAPI button = background.addAreaCheckbox("", action(callback, () -> select(entry.key)), Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(),
-                Misc.getBrightPlayerColor(), width, ROW_HEIGHT, 0f);
-        button.setChecked(entry.key.equals(selected));
-        row.addUIElement(background).inTL(-OPAD, 0f);
-
-        TooltipMakerAPI icon = row.createUIElement(ICON_SIZE, ICON_SIZE, false);
-        List<FleetMemberAPI> members = new ArrayList<>();
-        members.add(entry.display);
-        icon.addShipList(1, 1, ICON_SIZE, Misc.getBasePlayerColor(), members, 0f);
-        row.addUIElement(icon).inTL(-OPAD + 4f, (ROW_HEIGHT - ICON_SIZE) / 2f);
-
-        float textX = ICON_SIZE + 12f;
-        TooltipMakerAPI text = row.createUIElement(width - textX - 6f, ROW_HEIGHT, false);
-        text.addPara(entry.name, Misc.getBasePlayerColor(), 0f);
-        text.addPara(entry.sub, Misc.getGrayColor(), 1f);
-        row.addUIElement(text).inTL(-OPAD + textX, 6f);
-
-        return row;
-    }
-
-    private void addDetail(Entry entry, float x, float y, float width, float height, CustomDialogCallback callback) {
-        TooltipMakerAPI heading = panel.createUIElement(width - HelpIcon.SIZE - PAD, HEADING_HEIGHT, false);
-        heading.addSectionHeading(entry != null ? entry.name : "Details", Alignment.MID, 0f);
-        panel.addUIElement(heading).inTL(x, y);
-        panel.addUIElement(HelpIcon.create(panel, this::addHelp)).inTL(x + width - HelpIcon.SIZE, y);
-
-        TooltipMakerAPI detail = panel.createUIElement(width, height - HEADING_HEIGHT - PAD - ACTION_HEIGHT, false);
-
-        if (entry == null) {
-            String pick = tab == Tab.TEMPLATES ? "Pick a Forge Template to refine." : "Pick a ship to integrate.";
-            detail.addPara(pick, Misc.getGrayColor(), 0f);
-            panel.addUIElement(detail).inTL(x, y + HEADING_HEIGHT + PAD);
-            return;
-        }
-
-        if (tab == Tab.TEMPLATES) addTemplateDetail(detail, entry);
-        else addShipDetail(detail, entry);
-
-        boolean canPay = RelicHelper.canAfford(market, entry.cost);
-        RelicHelper.addCostLine(detail, market, entry.cost, OPAD);
-
-        panel.addUIElement(detail).inTL(x, y + HEADING_HEIGHT + PAD);
-
-        CustomPanelAPI actionPanel = panel.createCustomPanel(width, ACTION_HEIGHT, new ButtonReportingCustomPanel(this));
-        TooltipMakerAPI actions = actionPanel.createUIElement(width, ACTION_HEIGHT, false);
-        ButtonAPI confirm = actions.addButton("Confirm", action(callback, () -> apply(entry)), Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(),
-                Alignment.MID, CutStyle.TL_BR, BUTTON_WIDTH, BUTTON_HEIGHT, OPAD);
-        confirm.setEnabled(canPay);
-        addConfirmTooltip(actions, entry);
-        if (!canPay) actions.addPara("Not enough %s.", PAD, Misc.getNegativeHighlightColor(), RelicHelper.getName());
-
-        actionPanel.addUIElement(actions).inTL(0f, 0f);
-        panel.addComponent(actionPanel).inTL(x, y + height - ACTION_HEIGHT);
-    }
-
-    private void addTemplateDetail(TooltipMakerAPI detail, Entry entry) {
-        Color hl = Misc.getHighlightColor();
-        int level = ForgeTemplateItemPlugin.getForgeTemplateQualityLevel(entry.stack.getSpecialDataIfSpecial());
-
-        detail.addPara("Quality level: %s -> %s", 0f, new Color[]{Misc.getNegativeHighlightColor(), Misc.getPositiveHighlightColor()},
-                level + "", (level - 1) + "");
-        detail.addPara("Charges: %s", PAD, hl, ForgeTemplateItemPlugin.getCharges(entry.stack.getSpecialDataIfSpecial()) + "");
-        if (entry.stack.getSize() > 1) {
-            detail.addPara("Refines all %s templates in this stack.", PAD, hl, (int) entry.stack.getSize() + "");
-        }
-    }
-
-    private void addShipDetail(TooltipMakerAPI detail, Entry entry) {
-        Color hl = Misc.getHighlightColor();
-        Color pos = Misc.getPositiveHighlightColor();
-        Color neg = Misc.getNegativeHighlightColor();
-
-        if (entry.member.getVariant().hasHullMod(HullMods.AUTOMATED)) {
-            detail.addPara("Max CR: %s -> %s", 0f, new Color[]{neg, pos},
-                    "-" + Math.round(Automated.MAX_CR_PENALTY * 100f) + "% automated ship penalty", "no penalty");
-        }
-        detail.addPara("Automated Ships skill: %s -> %s", PAD, new Color[]{hl, pos}, "counts toward its limit", "no longer counts");
-        detail.addPara("Permanent.", PAD);
+    private void addHeader(CustomPanelAPI p, float w) {
+        UiFrame.title(p, w, "Relic services", lab.getCurrentName() + ", " + market.getName(), this::addHelp);
+        UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, TAB_W, UiFrame.HEADER_H, new String[]{"Templates", "Ships"}, view.ships ? 1 : 0, null, i -> switchTab(i == 1));
+        UiFrame.counter(p, w, UiFrame.HEADER_Y, RelicHelper.getName(), UiImages.relicSprite(), Ui.num(RelicHelper.getAvailable(market)));
     }
 
     private void addHelp(TooltipMakerAPI tooltip) {
         Color hl = Misc.getHighlightColor();
 
-        if (tab == Tab.TEMPLATES) {
+        if (!view.ships) {
             tooltip.addPara("Lower quality levels mean fewer defects and D-mods. The minimum is %s.", 0f, hl, "0");
-            tooltip.addPara("Cost: %s %s per fleet point and quality level.", PAD, hl, RELICS_PER_TEMPLATE_FP + "", RelicHelper.getName());
+            tooltip.addPara("Cost: %s %s per fleet point and quality level.", 10f, hl, RELICS_PER_TEMPLATE_FP + "", RelicHelper.getName());
+            tooltip.addPara("Templates in the Industrial Supply Store and in storage are listed.", 10f);
         } else {
             tooltip.addPara("Permanently removes the automated ship CR penalty and exempts the ship from the Automated Ships skill limit.", 0f);
-            tooltip.addPara("Cost: %s %s per deployment point.", PAD, hl, RELICS_PER_SHIP_DP + "", RelicHelper.getName());
+            tooltip.addPara("Cost: %s %s per deployment point.", 10f, hl, RELICS_PER_SHIP_DP + "", RelicHelper.getName());
         }
+
+        tooltip.addPara("%s are taken from storage first, then from your cargo.", 10f, hl, RelicHelper.getName());
     }
 
-    private void addConfirmTooltip(TooltipMakerAPI actions, Entry entry) {
-        final boolean templates = tab == Tab.TEMPLATES;
+    private void switchTab(boolean ships) {
+        if (view.ships != ships) {
+            view.ships = ships;
+            view.selected = null;
+            view.message = null;
+            view.scroll.reset(AncientLabRelicView.LIST);
+            view.scroll.reset(AncientLabRelicView.DETAIL);
+        }
 
-        actions.addTooltipToPrevious(new BaseTooltipCreator() {
-            @Override
-            public float getTooltipWidth(Object tooltipParam) {
-                return 360f;
-            }
-
-            @Override
-            public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
-                String effect = templates
-                        ? "Lowers the quality level of this Forge Template by %s."
-                        : "Permanently removes the automated ship penalty.";
-                tooltip.addPara(effect, 0f, Misc.getHighlightColor(), "1");
-                RelicHelper.addCostLine(tooltip, market, entry.cost, PAD);
-                tooltip.addPara(templates ? REFINE_LORE : INTEGRATE_LORE, Misc.getGrayColor(), OPAD);
-            }
-        }, TooltipMakerAPI.TooltipLocation.BELOW);
+        root.refresh();
     }
 
-    private void addFooter(float width, float height) {
-        if (message == null) return;
+    private void select(Entry entry) {
+        if (!entry.key.equals(view.selected)) {
+            view.selected = entry.key;
+            view.scroll.reset(AncientLabRelicView.DETAIL);
+        }
 
-        TooltipMakerAPI footer = panel.createUIElement(width, FOOTER_HEIGHT, false);
-        footer.addPara(message, messageColor, 4f);
-        panel.addUIElement(footer).inTL(0f, height - FOOTER_HEIGHT);
+        view.message = null;
+        root.refresh();
     }
 
-    private ButtonAction action(CustomDialogCallback callback, Runnable runnable) {
-        return new ButtonAction(this) {
-            @Override
-            public void execute() {
-                runnable.run();
-                recreatePanel(callback);
-            }
-        };
-    }
+    private void addList(CustomPanelAPI p, float lw, float h, List<Entry> entries) {
+        Ui.heading(p, 0f, BODY_Y, lw, view.ships ? "Automated ships" : "Forge Templates", Ui.LEFT);
 
-    private void selectTab(Tab target) {
-        if (tab == target) return;
-        tab = target;
-        selected = null;
-        message = null;
-        listScroller = null;
-    }
-
-    private void select(Object key) {
-        selected = key;
-        message = null;
-    }
-
-    private void apply(Entry entry) {
-        if (tab == Tab.TEMPLATES) {
-            SpecialItemData data = entry.stack.getSpecialDataIfSpecial();
-            RelicHelper.take(market, entry.cost);
-            ForgeTemplateItemPlugin.incrementForgeTemplateQualityLevel(data, -1);
-            message = entry.name + " refined to quality level " + ForgeTemplateItemPlugin.getForgeTemplateQualityLevel(data) + ", used " + entry.cost + " " + RelicHelper.getName() + ".";
+        if (entries.isEmpty()) {
+            String empty = view.ships ? "No automated ships in your fleet or local storage." : "No Forge Templates in local or industrial storage.";
+            Ui.text(p, 8f, BODY_Y + Ui.HEADING_H + 6f, lw - 16f, empty, Ui.gray());
         } else {
-            RelicHelper.take(market, entry.cost);
-            integrate(entry.member);
-            selected = null;
-            message = entry.name + " integrated, the automated ship penalty no longer applies. Used " + entry.cost + " " + RelicHelper.getName() + ".";
+            float rw = lw - UiScroll.GUTTER;
+            if (view.ships) Ui.thead(p, 0f, BODY_Y + 20f, lw, new String[]{"Ship", "Location", "Max CR", "Cost"},
+                    new float[]{56f, rw - 280f, rw - 180f, rw - 100f}, new float[]{200f, 90f, 70f, 92f}, new Alignment[]{Ui.LEFT, Ui.LEFT, Ui.CENTER, Ui.RIGHT});
+            else Ui.thead(p, 0f, BODY_Y + 20f, lw, new String[]{"Template", "Quality level", "Stack", "Cost"},
+                    new float[]{104f, rw - 250f, rw - 150f, rw - 100f}, new float[]{200f, 90f, 50f, 92f}, new Alignment[]{Ui.LEFT, Ui.CENTER, Ui.CENTER, Ui.RIGHT});
+
+            int available = RelicHelper.getAvailable(market);
+            UiScroll.Column list = UiScroll.list(p, 0f, BODY_Y + 42f, lw, UiScroll.wholeRows(h - BODY_Y - 42f - MESSAGE_H, 0f, ROW_H, ROW_GAP), view.scroll, AncientLabRelicView.LIST);
+            for (int i = 0; i < entries.size(); i++) {
+                Entry entry = entries.get(i);
+                boolean selected = entry.key.equals(view.selected);
+                CustomPanelAPI row = UiButtons.row(list.block(ROW_H, i == 0 ? 0f : ROW_GAP), 0f, 0f, rw, ROW_H, selected, true, null, () -> select(entry));
+                if (view.ships) addShipRow(row, rw, entry, selected);
+                else addTemplateRow(row, rw, entry, selected);
+                addCost(row, rw - 8f, 13f, entry.cost, entry.cost <= available);
+            }
+
+            list.end();
         }
 
-        messageColor = Misc.getPositiveHighlightColor();
+        if (view.message != null) Ui.text(p, 0f, h - MESSAGE_H + 4f, lw, view.message, Ui.pos());
     }
 
-    private static void integrate(FleetMemberAPI member) {
+    private void addTemplateRow(CustomPanelAPI row, float w, Entry entry, boolean selected) {
+        float qx = w - 250f;
+        String icon = Global.getSettings().getSpecialItemSpec(ItemIds.FORGETEMPLATE).getIconName();
+        UiImages.icon(row, 3f, 2f, THUMB, icon, entry.stack.getDisplayName());
+        UiImages.hull(row, 50f, 2f, THUMB, entry.hull, true, false);
+        Ui.text(row, 104f, 5f, qx - 110f, entry.name, selected ? Ui.bright() : Ui.text());
+        Ui.text(row, 104f, 23f, qx - 110f, entry.sub, Ui.gray());
+
+        int total = pipCount(entry.level);
+        UiData.pips(row, qx + Math.round((90f - pipWidth(total)) / 2f), 10f, total, entry.level, PIP, PIP_GAP, Ui.neg());
+        Ui.text(row, qx, 23f, 90f, "level " + entry.level, Ui.gray(), Ui.CENTER);
+        Ui.text(row, w - 150f, 13f, 50f, Ui.num(entry.stack.getSize()), Ui.text(), Ui.CENTER);
+    }
+
+    private void addShipRow(CustomPanelAPI row, float w, Entry entry, boolean selected) {
+        float lx = w - 280f;
+        UiImages.ship(row, 3f, 2f, THUMB, entry.member, true, false);
+        Ui.text(row, 56f, 5f, lx - 62f, entry.name, selected ? Ui.bright() : Ui.text());
+        Ui.text(row, 56f, 23f, lx - 62f, entry.sub, Ui.gray());
+        Ui.text(row, lx, 13f, 94f, entry.location, Ui.gray());
+
+        boolean penalty = entry.member.getVariant().hasHullMod(HullMods.AUTOMATED);
+        Ui.text(row, w - 180f, 13f, 70f, penalty ? getCrPenalty() : "none", penalty ? Ui.neg() : Ui.gray(), Ui.CENTER);
+    }
+
+    // relic icon and amount, right aligned at right
+    private static void addCost(CustomPanelAPI row, float right, float y, int cost, boolean ok) {
+        String amount = Ui.num(cost);
+        float aw = Math.min(Ui.width(amount, Ui.INS15) + 2f, 70f);
+        Ui.text(row, right - aw, y, aw, amount, ok ? Ui.hl() : Ui.neg(), Ui.RIGHT);
+        UiImages.img(row, right - aw - 4f - COST_ICON, y - 2f, COST_ICON, COST_ICON, UiImages.relicSprite());
+    }
+
+    private void addDetail(CustomPanelAPI p, float x, float w, float h, Entry entry) {
+        cw = w - UiScroll.GUTTER;
+        pinned = null;
+
+        // the cost and the button stay pinned at the bottom, the information and the lore above scroll
+        float actionH = 0f;
+        if (entry != null) {
+            String reason = entry.cost <= RelicHelper.getAvailable(market) ? null : "Not enough " + RelicHelper.getName() + ".";
+            actionH = Ui.HEADING_H + 6f + UiData.COST_ROW_H + GAP + UiButtons.guardHeight(cw, BUTTON_H, reason);
+        }
+
+        detailP = p;
+        detailX = x;
+        detailH = h;
+        detailActionH = actionH;
+        column = UiScroll.list(p, x, BODY_Y, w, actionH > 0f ? h - actionH - 2f * GAP : h, view.scroll, AncientLabRelicView.DETAIL);
+        if (entry == null) {
+            heading(view.ships ? "Automated ships" : "Forge Templates", 0f);
+            text(view.ships ? "Pick a ship to integrate." : "Pick a Forge Template to refine.", Ui.gray(), GAP);
+        } else if (view.ships) addShipDetail(entry);
+        else addTemplateDetail(entry);
+
+        if (pinned == null) column.end();
+    }
+
+    // starts the pinned action block: ends the scroll column, later blocks stack below it
+    private void pin() {
+        column.end();
+        pinned = Ui.panel(detailP, detailX, BODY_Y + detailH - detailActionH, cw, detailActionH);
+        pinY = 0f;
+    }
+
+    // column blocks until pin, then blocks stack in the pinned panel
+    private CustomPanelAPI block(float h, float gap) {
+        if (pinned == null) return column.block(h, gap);
+        if (pinY > 0f) pinY += gap;
+        CustomPanelAPI b = Ui.panel(pinned, 0f, pinY, cw, h);
+        pinY += h;
+        return b;
+    }
+
+    private void addTemplateDetail(Entry entry) {
+        SpecialItemData data = entry.stack.getSpecialDataIfSpecial();
+        int after = entry.level - 1;
+
+        heading(entry.hull.getHullNameWithDashClass() + " template", 0f);
+        picture(entry.hull);
+
+        CustomPanelAPI b = block(20f, 10f);
+        int total = pipCount(entry.level);
+        float pw = pipWidth(total);
+        float ax = cw - 24f - 6f - pw;
+        float gx = ax - 22f;
+        float bx = gx - 4f - 20f;
+        float px = bx - 6f - pw;
+        Ui.text(b, 0f, 0f, px - 8f, "Quality level");
+        UiData.pips(b, px, 4f, total, entry.level, PIP, PIP_GAP, Ui.neg());
+        Ui.text(b, bx, 0f, 20f, entry.level + "", Ui.text(), Ui.RIGHT);
+        Ui.text(b, gx, 0f, 16f, ">", Ui.hl(), Ui.CENTER);
+        UiData.pips(b, ax, 4f, total, after, PIP, PIP_GAP, Ui.pos());
+        Ui.text(b, cw - 24f, 0f, 24f, after + "", Ui.pos(), Ui.RIGHT);
+
+        String before = getDefectId(entry.level);
+        String afterId = getDefectId(after);
+        CustomPanelAPI d = block(34f, 4f);
+        UiImages.hullmod(d, 0f, 2f, 30f, before);
+        Ui.text(d, 38f, 0f, cw - 38f, Global.getSettings().getHullModSpec(before).getDisplayName());
+        String result = afterId == null ? "is removed" : "becomes " + Global.getSettings().getHullModSpec(afterId).getDisplayName();
+        String part = afterId == null ? "removed" : Global.getSettings().getHullModSpec(afterId).getDisplayName();
+        Ui.runs(d, 38f, 17f, cw - 38f, Ui.INS15, Ui.gray(), Ui.LEFT, result, new String[]{part}, new Color[]{Ui.pos()});
+
+        grid(GAP, GridRow.of("Templates in this stack", Ui.num(entry.stack.getSize())),
+                GridRow.of("Charges each", ForgeTemplateItemPlugin.getCharges(data) + ""),
+                GridRow.of("Stored in", entry.location, Ui.text()));
+
+        int per = RELICS_PER_TEMPLATE_FP * entry.hull.getFleetPoints();
+        addCostAndAction(entry, RelicHelper.getName() + ", " + Ui.num(per) + " per template", "Refine", REFINE_LORE, () -> refine(entry));
+    }
+
+    private void addShipDetail(Entry entry) {
+        heading(entry.member.getShipName(), 0f);
+        picture(entry.member.getHullSpec());
+
+        if (entry.member.getVariant().hasHullMod(HullMods.AUTOMATED)) {
+            String value = getCrPenalty() + " > no penalty";
+            CustomPanelAPI b = block(20f, 10f);
+            UiData.value(b, 0f, 0f, cw, 20f, "Max CR", value, Ui.text(), new String[]{getCrPenalty(), ">", "no penalty"}, new Color[]{Ui.neg(), Ui.hl(), Ui.pos()});
+        }
+
+        CustomPanelAPI s = block(20f, 0f);
+        UiImages.skill(s, 0f, 1f, 18f, Global.getSettings().getSkillSpec(Skills.AUTOMATED_SHIPS), false);
+        UiData.value(s, 24f, 0f, cw - 24f, 20f, "Automated Ships limit", "counts > exempt", Ui.text(), new String[]{"counts", ">", "exempt"}, new Color[]{Ui.neg(), Ui.hl(), Ui.pos()});
+
+        CustomPanelAPI perm = block(20f, 0f);
+        Ui.text(perm, 0f, 0f, cw, "Permanent", Ui.hl());
+
+        addCostAndAction(entry, RelicHelper.getName() + ", " + RELICS_PER_SHIP_DP + " per DP", "Integrate", INTEGRATE_LORE, () -> integrate(entry));
+    }
+
+    private void addCostAndAction(Entry entry, String label, String action, String lore, Runnable run) {
+        int available = RelicHelper.getAvailable(market);
+        boolean ok = entry.cost <= available;
+
+        text(lore, Ui.gray(), 8f);
+        pin();
+        heading("Cost", GAP);
+        CustomPanelAPI c = block(UiData.COST_ROW_H, 6f);
+        UiData.costrow(c, 0f, 0f, cw, label, UiImages.relicSprite(), Ui.num(entry.cost), Ui.num(available), ok);
+
+        String reason = ok ? null : "Not enough " + RelicHelper.getName() + ".";
+        CustomPanelAPI b = block(UiButtons.guardHeight(cw, BUTTON_H, reason), GAP);
+        UiButtons.guarded(b, 0f, 0f, cw, BUTTON_H, action, UiButtons.Kind.GREEN, reason, run);
+    }
+
+    private void picture(ShipHullSpecAPI hull) {
+        CustomPanelAPI b = block(PICTURE_H, 4f);
+        Ui.well(b, 0f, 0f, cw, PICTURE_H);
+        UiImages.hull(b, Math.round((cw - PICTURE) / 2f), 4f, PICTURE, hull, false, false);
+    }
+
+    private void heading(String title, float gap) {
+        Ui.heading(pinned == null ? column.heading(gap) : block(Ui.HEADING_H, gap), 0f, 0f, cw, title);
+    }
+
+    private void text(String text, Color color, float gap) {
+        CustomPanelAPI b = block(Ui.wrapHeight(text, Ui.INS15, cw), gap);
+        Ui.wrap(b, 0f, 0f, cw, text, color);
+    }
+
+    private void grid(float gap, GridRow... rows) {
+        CustomPanelAPI b = block(rows.length * GRID_ROW, gap);
+        UiData.grid(b, 0f, 0f, cw, GRID_ROW, List.of(rows));
+    }
+
+    private void refine(Entry entry) {
+        SpecialItemData data = entry.stack.getSpecialDataIfSpecial();
+        RelicHelper.take(market, entry.cost);
+        ForgeTemplateItemPlugin.incrementForgeTemplateQualityLevel(data, -1);
+        view.message = entry.name + " refined to quality level " + ForgeTemplateItemPlugin.getForgeTemplateQualityLevel(data) + ", used " + entry.cost + " " + RelicHelper.getName() + ".";
+        root.refresh();
+    }
+
+    private void integrate(Entry entry) {
+        RelicHelper.take(market, entry.cost);
+
+        FleetMemberAPI member = entry.member;
         ShipVariantAPI variant = member.getVariant().clone();
         variant.setOriginalVariant(null);
         variant.setHullVariantId(Misc.genUID());
         variant.addTag(Tags.TAG_AUTOMATED_NO_PENALTY);
         member.setVariant(variant, false, true);
         member.updateStats();
+
+        view.selected = null;
+        view.message = entry.name + " integrated, the automated ship penalty no longer applies. Used " + entry.cost + " " + RelicHelper.getName() + ".";
+        root.refresh();
+    }
+
+    private static String getCrPenalty() {
+        return "-" + Math.round(Automated.MAX_CR_PENALTY * 100f) + "%";
+    }
+
+    // printed hulls get the defect of the template level, capped at the third (ForgeTemplateItemPlugin.addPrintDefectDMods)
+    private static String getDefectId(int level) {
+        if (level <= 0) return null;
+        if (level == 1) return Ids.DEFECTS_LOW;
+        if (level == 2) return Ids.DEFECTS_MED;
+        return Ids.DEFECTS_HIGH;
+    }
+
+    private static int pipCount(int level) {
+        return Math.max(3, level);
+    }
+
+    private static float pipWidth(int total) {
+        return total * (PIP + PIP_GAP) - PIP_GAP;
     }
 
     private List<Entry> getTemplateEntries() {
@@ -369,13 +461,15 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
             int level = ForgeTemplateItemPlugin.getForgeTemplateQualityLevel(data);
             if (level <= 0) continue;
 
-            int fp = variant.getHullSpec().getFleetPoints();
-            Entry entry = new Entry(submarket.getSpecId() + "|" + data.getData());
+            Entry entry = new Entry();
+            entry.key = submarket.getSpecId() + "|" + data.getData();
             entry.stack = stack;
-            entry.name = stack.getDisplayName();
-            entry.sub = "Quality level " + level + ", " + fp + " FP, " + submarket.getNameOneLine();
-            entry.cost = RELICS_PER_TEMPLATE_FP * fp * (int) stack.getSize();
-            entry.display = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant.clone());
+            entry.hull = variant.getHullSpec();
+            entry.level = level;
+            entry.name = entry.hull.getHullNameWithDashClass();
+            entry.sub = Misc.getHullSizeStr(entry.hull.getHullSize());
+            entry.location = submarket.getNameOneLine();
+            entry.cost = RELICS_PER_TEMPLATE_FP * entry.hull.getFleetPoints() * (int) stack.getSize();
             entries.add(entry);
         }
     }
@@ -395,28 +489,17 @@ public class AncientLabRelicPanelDelegate extends ButtonReportingDialogueDelegat
         for (FleetMemberAPI member : fleetData.getMembersListCopy()) {
             if (!Misc.isAutomated(member) || Automated.isAutomatedNoPenalty(member)) continue;
 
-            int dp = Math.round(member.getHullSpec().getSuppliesToRecover());
-            Entry entry = new Entry(member.getId());
+            ShipHullSpecAPI hull = member.getHullSpec();
+            int dp = Math.round(hull.getSuppliesToRecover());
+            Entry entry = new Entry();
+            entry.key = member.getId();
             entry.member = member;
-            entry.name = member.getShipName() + ", " + member.getHullSpec().getHullNameWithDashClass();
-            entry.sub = location + ", " + dp + " DP";
+            entry.hull = hull;
+            entry.name = member.getShipName();
+            entry.sub = hull.getHullNameWithDashClass() + " " + Misc.getHullSizeStr(hull.getHullSize()).toLowerCase();
+            entry.location = location;
             entry.cost = RELICS_PER_SHIP_DP * dp;
-            entry.display = member;
             entries.add(entry);
-        }
-    }
-
-    private static class Entry {
-        private final Object key;
-        private String name;
-        private String sub;
-        private int cost;
-        private FleetMemberAPI display;
-        private CargoStackAPI stack;
-        private FleetMemberAPI member;
-
-        Entry(Object key) {
-            this.key = key;
         }
     }
 }

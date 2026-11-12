@@ -40,6 +40,7 @@ public class FleetUtils {
     public static final String USE_ABILITY_MEM_KEY = "$SplinterFleet_Use_ability";
 
     //shared side quest lockout with catch.release: their quests skip a fleet that has it
+    public static final String SPAWN_TIMESTAMP_KEY = "$IndEvo_detachmentSpawned";
     public static final String SIDE_QUEST_CLAIM_KEY = "$sirhartley_sideQuest";
     public static final String SIDE_QUEST_CLAIM_OWNER = "IndEvo";
 
@@ -206,6 +207,7 @@ public class FleetUtils {
         splinterFleetMemory.set(MemFlags.MEMORY_KEY_NEVER_AVOID_PLAYER_SLOWLY, true);
         splinterFleetMemory.set(MemFlags.MEMORY_KEY_SKIP_TRANSPONDER_STATUS_INFO, true);
         splinterFleetMemory.set(SIDE_QUEST_CLAIM_KEY, SIDE_QUEST_CLAIM_OWNER);
+        splinterFleetMemory.set(SPAWN_TIMESTAMP_KEY, Global.getSector().getClock().getTimestamp());
 
         splinterFleet.setNoAutoDespawn(true);
         splinterFleet.setNoFactionInName(true);

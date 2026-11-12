@@ -50,7 +50,7 @@ import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.exploration.stations.DerelictStationPlacer;
 import indevo.ids.Ids;
 import indevo.industries.academy.plugins.AcademyOptionProvider;
-import indevo.industries.engineeringhub.plugins.HullmodDataOptionProvider;
+import indevo.industries.engineeringhub.plugins.EngineeringHubOptionProvider;
 import indevo.industries.artillery.listener.WatchtowerFactionResetListener;
 import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
@@ -496,7 +496,7 @@ public class ModPlugin extends BaseModPlugin {
         WarehouseRemoveSubmarketOptionProvider.register();
         MuseumManageParadeOptionProvider.register();
         RelicBuildTimeReductionButtonAdder.register();
-        HullmodDataOptionProvider.register();
+        EngineeringHubOptionProvider.register();
         OrbitalWorksSlotManager.getInstanceOrRegister();
         OrbitalWorksSlotOptionProvider.register();
         RelicSpeedUpOptionProvider.register();

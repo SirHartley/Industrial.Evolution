@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TwoFleetFleetMemberPicker {
-    protected AbilityPanelDialoguePlugin dialoguePlugin;
+    protected SplinterFleetDialoguePluginAPI dialoguePlugin;
     protected LoadoutMemory.Loadout loadout;
 
-    public TwoFleetFleetMemberPicker(AbilityPanelDialoguePlugin plugin, LoadoutMemory.Loadout loadout) {
+    public TwoFleetFleetMemberPicker(SplinterFleetDialoguePluginAPI plugin, LoadoutMemory.Loadout loadout) {
         this.dialoguePlugin = plugin;
         this.loadout = loadout;
     }
@@ -31,7 +31,7 @@ public class TwoFleetFleetMemberPicker {
         int cols = Math.min(fleetMemberList.size(), 8);
         cols = Math.max(cols, 4);
 
-        dialoguePlugin.dialog.showFleetMemberPickerDialog(title, "Confirm", "Cancel", rows,
+        dialoguePlugin.getDialog().showFleetMemberPickerDialog(title, "Confirm", "Cancel", rows,
                 cols, 88f, true, true, fleetMemberList, new FleetMemberPickerListener() {
 
                     @Override
@@ -44,11 +44,12 @@ public class TwoFleetFleetMemberPicker {
                             loadout.targetCargo.clear(); //this is to reset the cargo so it does not keep excess items for the cargo capacity of the new fleet
                         }
 
-                        dialoguePlugin.refreshCustomPanel();
+                        dialoguePlugin.showBaseOptions();
                     }
 
                     @Override
                     public void cancelledFleetMemberPicking() {
+                        dialoguePlugin.showBaseOptions();
                     }
                 });
     }

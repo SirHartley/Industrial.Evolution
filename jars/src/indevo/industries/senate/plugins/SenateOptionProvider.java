@@ -11,6 +11,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.senate.EdictHelper;
 import indevo.industries.senate.dialogue.EdictPanelDelegate;
+import indevo.industries.senate.dialogue.EdictView;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public class SenateOptionProvider extends SingleIndustrySimpifiedOptionProvider 
 
     @Override
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
-        EdictPanelDelegate.show(ui, opt.ind.getMarket());
+        EdictPanelDelegate.show(ui, opt.ind.getMarket(), new EdictView());
     }
 
     @Override

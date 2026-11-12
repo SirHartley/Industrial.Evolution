@@ -1,14 +1,15 @@
 package indevo.industries.senate.conditions;
 
+import indevo.industries.senate.EdictEffect;
+import indevo.industries.senate.EdictSupplyChange;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
-import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 
+import java.util.ArrayList;
 import java.util.List;
 import indevo.industries.senate.EdictRequirement;
 
@@ -61,19 +62,20 @@ public class Edict_Deadlines extends BaseEdict {
     }
 
     @Override
-    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
-        tooltip.addPara("Ship hull output and the production budget provided by this colony %s.", pad, Misc.getPositiveHighlightColor(), "increased by 30%");
-        tooltip.addPara("Ship quality %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by 20%");
+    public List<EdictEffect> getEffects(MarketAPI market) {
+        List<EdictEffect> effects = new ArrayList<>();
+        effects.add(EdictEffect.good("Ship hull output and production budget", "+30%"));
+        effects.add(EdictEffect.bad("Ship quality", "-20%"));
+        if (!getOtherPlayerColonies(market).isEmpty()) effects.add(EdictEffect.bad("All other colonies: ship quality", "-20%").onOtherColonies());
+        return effects;
     }
 
     @Override
-    public boolean hasOtherColonyEffects(MarketAPI market) {
-        return !getOtherPlayerColonies(market).isEmpty();
-    }
-
-    @Override
-    public void addOtherColonyEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
-        tooltip.addPara(BaseIntelPlugin.BULLET + "All other colonies: ship quality %s", pad, Misc.getNegativeHighlightColor(), "reduced by 20%");
+    public List<EdictSupplyChange> getSupplyChanges(MarketAPI market) {
+        return getSupplyChanges(market, false, Commodities.SHIPS, s -> {
+            int ships = s.getModifiedInt();
+            if (ships > 0) s.modifyFlat(getModId(), (int) Math.ceil(ships * 0.3));
+        });
     }
 
     @Override

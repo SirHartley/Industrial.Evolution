@@ -7,20 +7,21 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingCostCalculator;
-import indevo.industries.courierport.dialogue.ContractSidePanelCreator;
 
 public class SubmarketCargoPicker {
     ShippingContract contract;
     SubmarketAPI from;
     SubmarketAPI to;
 
-    public SubmarketCargoPicker(final InteractionDialogAPI dialogue, final ShippingContract contract) {
-        if (contract.fromMarketId == null || contract.toMarketId == null || contract.toSubmarketId == null || contract.fromSubmarketId == null)
-            return;
-
+    public SubmarketCargoPicker(final InteractionDialogAPI dialogue, final ShippingContract contract, final Runnable onClose) {
         this.from = contract.getFromSubmarket();
         this.to = contract.getToSubmarket();
         this.contract = contract;
+        if (from == null || to == null) {
+            onClose.run();
+            return;
+        }
+
         final float width = 250f;
 
         dialogue.showCargoPickerDialog("Select cargo to transport", "Confirm", "Cancel", false, width, getValidCargoCopy(), new CargoPickerListener() {
@@ -28,31 +29,12 @@ public class SubmarketCargoPicker {
             public void pickedCargo(CargoAPI cargo) {
                 contract.clearTargetCargo();
                 contract.addToCargo(cargo);
-
-                if (cargo.isEmpty()) {
-                    if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO) {
-                        contract.scope = ShippingContract.Scope.EVERYTHING;
-
-                    } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING) {
-                        contract.scope = ShippingContract.Scope.SPECIFIC_SHIPS;
-                    }
-                }
-
-                new ContractSidePanelCreator().showPanel(dialogue, contract);
+                onClose.run();
             }
 
             @Override
             public void cancelledCargoSelection() {
-                contract.clearTargetCargo();
-
-                if (contract.scope == ShippingContract.Scope.SPECIFIC_CARGO) {
-                    contract.scope = ShippingContract.Scope.EVERYTHING;
-
-                } else if (contract.scope == ShippingContract.Scope.SPECIFIC_EVERYTHING) {
-                    contract.scope = ShippingContract.Scope.SPECIFIC_SHIPS;
-                }
-
-                new ContractSidePanelCreator().showPanel(dialogue, contract);
+                onClose.run();
             }
 
             @Override

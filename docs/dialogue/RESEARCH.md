@@ -1,12 +1,12 @@
 # Research projects (Galatia Academy)
 
-Covers the "Research Tracts" menu at the Galatian Academy: project definitions, donation and redeem flow, unlock listeners, the new projects intel, and the two hullmods given as rewards. Read it before adding or changing a project. It does not cover the IE Academy industry (officer and admin training); see [Academy](../industries/ACADEMY.md). The side panel widgets are in [Side panel](SIDE_PANEL.md).
+Covers the "Research Tracts" menu at the Galatian Academy: project definitions, donation and redeem flow, unlock listeners, the new projects intel, and the two hullmods given as rewards. Read it before adding or changing a project. It does not cover the IE Academy industry (officer and admin training); see [Academy](../industries/ACADEMY.md). The side panel is built with the UI kit ([UI](../core/UI.md)).
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
 
 ## Overview
 
-At `station_galatia_academy` the player opens a side panel listing visible research projects. Each project accepts specific items for points; donating fills progress, and a finished project is redeemed for a cargo reward (weapons and blueprints, hullmods, consumables, salvage rolls). Repeatable projects subtract the requirement on redeem and keep the rest; their Stock toggle (overflow) lets a hand-in go past 100%. A project can also name a redeem requirement, an item consumed from fleet cargo on Redeem after a confirm popup. Most projects stay hidden until an unlock listener sees a trigger (an omega weapon, an autopulse, a slow ship, a unique signature ship, a Corrupted Nanoforge, hyperspace topography progress) and posts a "New Research Projects Available" intel.
+At `station_galatia_academy` the player opens a side panel with one card per visible research project. Each project accepts specific items for points; donating fills progress, and a finished project is redeemed for a cargo reward (weapons and blueprints, hullmods, consumables, salvage rolls). Repeatable projects subtract the requirement on redeem and keep the rest; their Stock toggle (overflow) lets a hand-in go past 100%. A project can also name a redeem requirement, an item consumed from fleet cargo on Redeem after a confirm popup. Most projects stay hidden until an unlock listener sees a trigger (an omega weapon, an autopulse, a slow ship, a unique signature ship, a Corrupted Nanoforge, hyperspace topography progress) and posts a "New Research Projects Available" intel.
 
 ## Files
 
@@ -14,12 +14,13 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 |---|---|
 | `indevo/dialogue/research/ResearchProjectTemplateRepo.java` | `RESEARCH_PROJECTS` static map: every project as an anonymous `ResearchProject`. `getRandomForProj` (anti save scum randoms, `:589`), `getNumProjectsPlayerCanContribute` (`:606`). |
 | `dialogue/ResearchProject.java` | Abstract project: id, name, required points, repeatable. `getProgress()` lazily stores a `Progress` (points, redeemed, overflow) in sector memory (`:37`). `allowsOverflow()` is repeatable and overflow on (`:49`). `getRedeemRequirement()` and `getRedeemLore()` default to null. |
-| `dialogue/RedeemRequirement.java` | Item consumed on Redeem: id, `CargoItemType`, count. Name lookup, available count and `take(cargo)` (throws when short). |
+| `dialogue/RedeemRequirement.java` | Item consumed on Redeem: id, `CargoItemType`, count. Name and sprite through `RequiredItem`, available count and `take(cargo)` (throws when short). |
 | `dialogue/ResearchProjectAPI.java` | `display`, `getRewards`, `getRequiredItems`, short and long desc. |
-| `dialogue/RequiredItem.java` | Accepted item: id, `CargoItemType`, points per unit. |
+| `dialogue/RequiredItem.java` | Accepted item: id, `CargoItemType`, points per unit. Static `getName` and `getSprite` per type; weapons use the turret sprite. |
 | `dialogue/DropDataCreator.java` | Builds a `SalvageEntityGenDataSpec.DropData` for reward rolls. |
-| `dialogue/ResearchProjectDialoguePlugin.java` | Rule command and dialog plugin. Swaps itself in as the dialog plugin, draws text, returns to the Galatia menu via `gaMeetingEnd`. Keeps its instance in `$IndEvo_tempDialogueInstance` (expire 0). `getQuantity` and `getStackItemId` match cargo stacks to item ids. |
-| `dialogue/ResearchProjectSidePanelCreator.java` | One block per visible, unredeemed project sorted by points: Show info, Cargo, Redeem buttons, Stock toggle (repeatable only, `addOverflowToggle`, `:207`), progress bar, item count, short desc. Redeem logic lives here: `redeem`, `showRedeemConfirm` and the Redeem hover `addRedeemTooltip`. |
+| `dialogue/ResearchProjectDialoguePlugin.java` | Rule command and dialog plugin. Swaps itself in as the dialog plugin, owns one `ResearchView` and one `ResearchProjectPanel` per visit, prints the intro and the reward text, returns to the Galatia menu via `gaMeetingEnd`. Keeps its instance in `$IndEvo_tempDialogueInstance` (expire 0). `getQuantity` and `getStackItemId` match cargo stacks to item ids. |
+| `dialogue/ResearchView.java` | Panel state: ids of projects with Info open, scroll offsets (`CARDS`). Lives as long as the plugin, so rebuilds keep both. |
+| `dialogue/ResearchProjectPanel.java` | Side panel, `VisualPanelAPI.showCustomPanel(600, 600, UiCanvas)` with a `UiRoot` rebuild. One card per visible, unredeemed project, ready to redeem first, then by points; the list ends on the last card that fits whole at rest. Card: header strip (name, "Repeatable", percent or "Ready"), the short desc as whole sentences on one line, or a first sentence longer than the line on up to three (the card grows with it), Info toggle, Stock checkbox (repeatable only), bar, inline accepted items at their measured width (owned count up to 3 items while they fit, `+N` past 5), Donate... and Redeem. A finished project whose redeem requirement is missing gets a red line with the item icon. Info adds the wrapped long desc and a table: points each, owned, units to finish (ceil). Redeem logic lives here: `onRedeem`, `showRedeemConfirm`, `redeem` and the Redeem hover `addRedeemTooltip`. |
 | `dialogue/ResearchProjectDonationCargoPicker.java` | Cargo picker filtered to accepted items; takes only what is needed to finish, or everything when `allowsOverflow()` (`:69`). |
 | `intel/GalatiaNewProjectsIntel.java` | Important intel listing new project names; removes itself after 31 days (`:21`). |
 | `intel/HyperspaceTopographyProjectFactor.java` | One-time factor for the vanilla Hyperspace Topography event, added on Prospector redeem. |
@@ -88,16 +89,16 @@ At `station_galatia_academy` the player opens a side panel listing visible resea
 
 - `PetManagementAbilityPlugin.applySetting` reads Navi's progress to unlock fairy sales (`indevo/abilities/pets/PetManagementAbilityPlugin.java:34`, see [Pets](../industries/PETS.md)).
 
-Order: `PopulateOptions -> IndEvo_JobMenuPoint -> option -> IndEvo_JobMenuInit -> ResearchProjectDialoguePlugin.execute -> dialog.setPlugin(this) -> ResearchProjectSidePanelCreator`.
+Order: `PopulateOptions -> IndEvo_JobMenuPoint -> option -> IndEvo_JobMenuInit -> ResearchProjectDialoguePlugin.execute -> dialog.setPlugin(this) -> ResearchProjectPanel.show`.
 
 ## Flow
 
-1. `execute` stores the original plugin, swaps in itself, `init` creates the side panel (`VisualCustomPanel.createPanel`) and text.
-2. Show info -> `setProjectIdForInputs` prints long desc and per item progress, owned count and units to finish.
-3. Cargo -> `ResearchProjectDonationCargoPicker.init`: copies matching stacks from player cargo, the picker preview shows percent per stack; on confirm each stack adds `size x points` or only the units needed to finish, removed from the real cargo (`:81`). With overflow every picked unit is taken. Cargo is disabled on a finished project unless overflow is on.
-4. Redeem -> with a redeem requirement, a popup (`InteractionDialogAPI.showCustomDialog`) shows "Redeeming consumes N item from your fleet cargo (Available: N).": Confirm and Cancel with the item in fleet cargo, only Return without it. Confirm takes the item, then the normal redeem runs. The Redeem button hover shows the same line and the project's lore in gray. Normal redeem: `project.getRewards()` added to cargo; repeatable subtracts the required points (floor 0), else `redeemed = true`; text shows `addTooltipOutputOnCompletion`, loss lines for a consumed requirement and gain lines. Redeem stays enabled while points still cover another completion.
-5. Stock toggle (tooltip: excess donations toward future rewards, otherwise retained cargo) -> `addAreaCheckbox` (label `OVERFLOW_LABEL`) with a vanilla style hover tooltip (`TooltipCreator`, width 400, left), flips `Progress.overflow` and rebuilds the panel.
-6. Return -> clear panel, restore original plugin, set `$option = gaMeetingEnd` and fire `DialogOptionSelected` (vanilla Galatia rule ends the conversation).
+1. `execute` stores the original plugin, swaps in itself, `init` shows the side panel (`ResearchProjectPanel.show`) and text. Buttons run `Runnable`s through `UiCanvas`; nothing polls.
+2. Info -> toggles the project id in `ResearchView.info` and rebuilds; the card grows in place. The list keeps its scroll offset.
+3. Donate... -> `ResearchProjectDonationCargoPicker.init`: copies matching stacks from player cargo, the picker preview shows percent per stack; on confirm each stack adds `size x points` or only the units needed to finish, removed from the real cargo (`:81`). With overflow every picked unit is taken. Donate... is disabled on a finished project unless overflow is on, and when the fleet holds none of the accepted items. The picker calls `refreshCustomPanel` on confirm.
+4. Redeem -> with a redeem requirement, a popup (`InteractionDialogAPI.showCustomDialog`) shows "Redeeming consumes N item from your fleet cargo (Available: N).": Confirm and Cancel with the item in fleet cargo, only Return without it. Confirm takes the item, then the normal redeem runs. The Redeem button hover shows the same line and the project's lore in gray. Normal redeem: `project.getRewards()` added to cargo; repeatable subtracts the required points (floor 0), else `redeemed = true`; the text panel shows `addTooltipOutputOnCompletion`, loss lines for a consumed requirement and gain lines. Redeem stays enabled while points still cover another completion. A finished project with a missing redeem requirement keeps Redeem off and shows the red line.
+5. Stock toggle (tooltip: excess donations toward future rewards, otherwise retained cargo) -> `UiButtons.check` (label `OVERFLOW_LABEL`) with a hover tooltip (width 400, left), flips `Progress.overflow` and rebuilds the panel.
+6. Return -> clear text, restore original plugin, set `$option = gaMeetingEnd` and fire `DialogOptionSelected` (vanilla Galatia rule ends the conversation).
 
 Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notifyNewProjects(ids) -> project.display() true`.
 
@@ -110,7 +111,7 @@ Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notify
 - Overflow is per project and off by default; `Progress.overflow` is false on saves made before the field existed. Turning it off keeps points already past 100%. The progress bar is capped at full width, the label shows the real percentage.
 - `getRandomForProj` stores five `java.util.Random` objects in memory, so a reload reproduces the same rolls (anti save scum). Each roll advances the stored randoms.
 - Camouflage: the engine marks the player fleet as having a unique signature when any member variant has `ship_unique_signature` (`obf/campaign/fleet/CampaignFleet.java:963`). The emitter works by renaming that tag; the swap only runs on `reportPlayerClosedMarket`, so installing the hullmod takes effect after leaving the market.
-- Shared helper: `indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag` is imported only for an `instanceof` check that is never true (`ResearchProjectDialoguePlugin.java:48`).
+- `ResearchProjectDonationCargoPicker` reaches the plugin through `$IndEvo_tempDialogueInstance` and reads its protected `dialog` field (same package). The panel holds the plugin directly.
 
 ## Known issues and dormant code
 

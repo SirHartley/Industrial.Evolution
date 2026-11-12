@@ -3,13 +3,10 @@ package indevo.items.installable;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.SpecialItemData;
-import com.fs.starfarer.api.campaign.econ.SubmarketSpecAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableIndustryItemPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Items;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.ids.Ids;
-import indevo.ids.ItemIds;
 import indevo.industries.engineeringhub.industry.EngineeringHub;
 
 import java.awt.Color;
@@ -17,16 +14,14 @@ import java.util.Set;
 
 public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemPlugin {
 
-    public static final Set<String> BLUEPRINT_IDS = Set.of(ItemIds.RELIC_SPECIAL_ITEM, Items.SHIP_BP, "tiandong_retrofit_bp", "roider_retrofit_bp");
+    public static final Set<String> BLUEPRINT_IDS = Set.of(Items.SHIP_BP, "tiandong_retrofit_bp", "roider_retrofit_bp");
 
     public static boolean isBlueprint(SpecialItemData data) {
         return data != null && BLUEPRINT_IDS.contains(data.getId());
     }
 
     public static void addBlueprintDescription(TooltipMakerAPI text, SpecialItemData data, InstallableItemDescriptionMode mode) {
-        boolean relic = ItemIds.RELIC_SPECIAL_ITEM.equals(data.getId());
         String name = switch (data.getId()) {
-            case ItemIds.RELIC_SPECIAL_ITEM -> Global.getSettings().getSpecialItemSpec(ItemIds.RELIC_SPECIAL_ITEM).getName();
             case Items.SHIP_BP -> Global.getSettings().getHullSpec(data.getData()).getNameWithDesignationWithDashClass() + " blueprint";
             default -> Global.getSettings().getHullSpec(data.getData()).getNameWithDesignationWithDashClass() + " Retrofit Template";
         };
@@ -35,18 +30,13 @@ public class BlueprintInstallableItemPlugin extends BaseInstallableIndustryItemP
         if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_LIST || mode == InstallableItemDescriptionMode.INDUSTRY_TOOLTIP) {
             pre = name + ". ";
         } else if (mode == InstallableItemDescriptionMode.MANAGE_ITEM_DIALOG_INSTALLED || mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP) {
-            pre = relic ? "Using " + name + ". " : name + " currently installed. ";
+            pre = name + " currently installed. ";
         }
 
         float pad = mode == InstallableItemDescriptionMode.INDUSTRY_MENU_TOOLTIP || mode == InstallableItemDescriptionMode.CARGO_TOOLTIP ? 10f : 0f;
         Color hl = Misc.getHighlightColor();
 
         switch (data.getId()) {
-            case ItemIds.RELIC_SPECIAL_ITEM -> {
-                String subName = "";
-                for (SubmarketSpecAPI spec : Global.getSettings().getAllSubmarketSpecs()) if (Ids.SHAREDSTORAGE.equals(spec.getId())) subName = spec.getName();
-                text.addPara(pre + "Taken from the %s. Consumed quantity depends on ship deployment points. Prioritized over blueprints.", pad, hl, subName);
-            }
             case Items.SHIP_BP -> {
                 String size = Misc.ucFirst(Global.getSettings().getHullSpec(data.getData()).getHullSize().name().toLowerCase());
                 text.addPara(pre + "Specification: %s. The contents of this item will be %s by the re-writing process.", pad, hl, size, "replaced");

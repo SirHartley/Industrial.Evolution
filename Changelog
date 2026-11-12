@@ -31,6 +31,8 @@ Removed - Unused settings
 Research Projects
 Added - Stock toggle: repeatable projects carry extra progress over (PR'd by razenpok, thank you!)
 Added - Project Reforge: turn a Corrupted Nanoforge into a Pristine one for 500 Relic Components
+Adjusted - Projects now show as cards, Info opens in the card with a table of the accepted items
+Adjusted - Accepted items show their icon and how many you have
 Fixed - Now sorts highest to lowest progress like god intended
 Fixed - Prospector new project notice now properly shows after a reload
 Fixed - Drive Field Tuning modspec no longer drops as random loot
@@ -124,13 +126,15 @@ Fixed - Rural Polity bonuses now end when leaving it or closing the free port
 Fixed - New Forge World experiment ships now properly roll 4 effects (was 5)
 
 Courier Port
+Adjusted - Contracts are now managed in one panel with a contract list and a step by step editor
+Adjusted - Contract edits now apply on Save, cancelling a picker keeps the selection
 Fixed - Invalid contracts now show why they are invalid
 Fixed - Ship transport now charges by deployment points instead of fleet points
 Fixed - Crash when using "Ship now" on a contract that became invalid
 Fixed - Base fee setting maximum is no longer below its default
 
 Derelict Industries
-Added - Ancient Laboratory: relic services to refine Forge Templates and integrate automated ships
+Added - Ancient Laboratory: relic services to refine Forge Templates and integrate automated ships, with the result shown before you pay
 Added - Accelerate: halve the remaining Hull Deconstructor time with Relic Components
 Added - Accelerate: halve the remaining Ancient Laboratory repair time with Relic Components
 Added - Recharge: end the Rift Generator cooldown at once for 3 Relic Components per day left
@@ -175,10 +179,18 @@ Fixed - Arrested ambassador message now shows he or she instead of a placeholder
 Engineering Hub
 Added - Hullmod Data: learn hullmods from stripped ships for Relic Components
 Added - Accelerate Research: halve the remaining reverse engineering time with Relic Components
+Added - Engineering Hub panel: Reverse engineering and Hullmod data tabs, opened from the industry
+Added - Reverse engineering tab: ship in work, drop off storage and progress per hull
+Added - Finish: pick the blueprint to overwrite and finish a hull at 100% with one click
+Added - "Finish on its own" option, off by default
+Adjusted - Hulls at 100% now wait for Finish unless "Finish on its own" is ticked
+Adjusted - Only ship blueprints of the hull's size can be overwritten
+Adjusted - Relic Components are now picked as payment in the panel instead of the item slot
 Adjusted - Expanded tooltip now also shows the normal tooltip below the progress list
 Fixed - Engineering Hub setting now properly controls whether it can be built
 Fixed - Stripped weapons and fighters now go to the production gathering point
 Fixed - Relic Components no longer show up as an item in storage or cargo
+Fixed - Reverse engineering message now says "an Eagle-class" instead of "a Eagle-class"
 
 Orbital Works
 Added - Relic Lattice Work: Orbital Works option, adds one S-mod slot to a ship. Costs relic components, takes 3 months.
@@ -192,9 +204,12 @@ Fixed - Build tooltip no longer shows the base as unavailable when it can be bui
 Salvage Yards
 Added - Move S-mods: transfer S-mods between similar hulls for relic components and credits
 Note - The target ship needs the hullmod installed and a free S-mod slot
-Added - Accelerate Construction: halve the delivery time of a production order with Relic Components, from the order intel or the ship assembly dialog
+Added - Accelerate Construction: halve the delivery time of a production order with Relic Components, from the order intel or the Ship assembly tab
 Added - Salvage Drone Replicator: battles within 6 LY give 50% salvage, lost ships fill a Wreck Registry
-Note - Registry hulls, weapons and wings can be ordered once without a blueprint, hulls come fitted from their own order tab
+Note - Registry hulls, weapons and wings can be ordered once without a blueprint in the Wreck Registry tab, hulls come fitted
+Adjusted - Ship assembly, Wreck Registry and both transfers now share one panel with tabs
+Adjusted - Ship assembly shows the order, budget and cost next to each other
+Adjusted - Transfer options stay selectable, the tab shows what is missing
 Fixed - Salvage Yards now properly get salvage from every raid in their system
 Fixed - Salvage Yards no longer pay out twice after loading a save
 Fixed - Blockades, punitive expeditions and hostile activity raids now give salvage
@@ -211,7 +226,7 @@ Fixed - D-mod transfer no longer offers hulls whose D-mods are built in and can 
 Senate
 Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
 Note - Building Menu Overhaul's build menu and tooltips show the normal time
-Added - New Edict panel: pick a colony and an Edict, see its effects on that colony and its neighbours and a checklist of its requirements, enact or remove it with a confirm
+Added - New Edict panel: pick a colony and an Edict, see its effect values, supply changes, term, requirements and the cost of ending it early, enact or remove it with a confirm
 Added - Bribe Senators: end an Edict early without the early removal unrest, 1 Relic Component per remaining day
 Added - The Senate can now be visited from remote colony screens
 Adjusted - Visiting the Senate manages the Edicts of every colony in its range, colonies without a Senate get "Enact an Edict" for themselves
@@ -287,13 +302,14 @@ Added - Detachments out of fuel away from you now stop and report that they are 
 Added - Each active detachment now has an intel entry with its location, status and a recall button
 Added - The detachment panel now warns when a detachment has no fuel to leave the system
 Added - Take mode: pick the ships and cargo you take with you, everything else stays behind as the detachment
-Added - The detachment panel now has a command section with one button per behaviour, recall and lay course
+Added - Detachment panel: one column per detachment with ships, supplies, behaviour, orders and a deploy checklist
 Added - Detachment orders: Go to a planet, station or jump point in its star system, Attack a hostile fleet you can see, Trade run (comes to you, opens the exchange, then goes back to its orders)
 Added - Detachment toggles: Auto-recall when supplies drop below 15 days, Join fights to take part in your battles nearby
 Added - Load min and Load max buttons in the detachment cargo screen: supplies, fuel and crew for one month or up to capacity
 Adjusted - Detachments now travel with the vanilla fleet AI, across star systems included
 Note - Recall all detachments before updating, active ones break old saves
 Adjusted - Detachment slots reduced from three to two
+Adjusted - Meeting a detachment now opens the detachment panel instead of a text menu
 Adjusted - Your flagship now always stays with you
 Adjusted - Changing the behaviour of an active detachment now applies at once
 Adjusted - Transport can no longer be picked for an active detachment

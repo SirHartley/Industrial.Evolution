@@ -1,6 +1,6 @@
 # Courier Port
 
-Covers the Courier Port industry (`IndEvo_PrivatePort`) and the shipping contract system: contract editor dialog, daily scheduler, courier fleets, cost formula and shipping intel. Read it before changing contracts, shipping costs or courier fleet behaviour. It does not cover the side panel framework the editor draws on; see [Side panel](../dialogue/SIDE_PANEL.md). Which submarkets exist is owned by [Submarkets](../core/SUBMARKETS.md).
+Covers the Courier Port industry (`IndEvo_PrivatePort`) and the shipping contract system: contract panel, daily scheduler, courier fleets, cost formula and shipping intel. Read it before changing contracts, shipping costs or courier fleet behaviour. It does not cover the UI kit the panel is built with; see [UI](../core/UI.md). Which submarkets exist is owned by [Submarkets](../core/SUBMARKETS.md).
 
 Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
 
@@ -21,13 +21,15 @@ The Courier Port is a structure with no supply or demand. While the player owns 
 | `indevo/industries/courierport/ShippingTooltipHelper.java` | Text helpers (cadence, amounts) |
 | `indevo/industries/courierport/listeners/ShippingManager.java` | Persistent `NewDayListener`: daily contract tick, charging |
 | `indevo/industries/courierport/listeners/Shipment.java` | One running delivery: `NewDayListener` + `EveryFrameScript`; failsafe, reroute, transfer |
-| `indevo/industries/courierport/listeners/SubmarketCargoPicker.java`, `SubmarketShipPicker.java` | Vanilla cargo and fleet member pickers for specific scopes |
+| `indevo/industries/courierport/listeners/SubmarketCargoPicker.java`, `SubmarketShipPicker.java` | Vanilla cargo and fleet member pickers for selected goods; run a callback when closed |
+| `indevo/industries/courierport/listeners/ShippingPlanetPicker.java` | Vanilla entity picker for the origin or destination planet |
 | `indevo/industries/courierport/fleet/CourierFleetCreator.java` | Builds the courier fleet with `FleetFactoryV3` |
 | `indevo/industries/courierport/fleet/CourierFleetAssignmentAI.java` | Load, travel, unload, despawn assignments |
 | `indevo/industries/courierport/intel/ShippingIntel.java` | Intel per shipment, ends 7 days after delivery |
-| `indevo/industries/courierport/dialogue/CourierPortDialoguePlugin.java` | Rule command and `InteractionDialogPlugin`: New Contract / Manage Contracts / Return |
-| `indevo/industries/courierport/dialogue/ContractSidePanelCreator.java` | Contract editor side panel; edit backup for cancel |
-| `indevo/industries/courierport/dialogue/ContractListSidePanelCreator.java` | Contract list: Edit, Remove, Ship now, Activate |
+| `indevo/industries/courierport/dialogue/CourierPortDialoguePlugin.java` | Rule command and `InteractionDialogPlugin` that hosts the panel; picker round trip, ESC block, return to rules; static `show` |
+| `indevo/industries/courierport/dialogue/CourierView.java` | Panel view state: selected contract, draft, step flags, scroll offsets; factories for entry points |
+| `indevo/industries/courierport/dialogue/CourierPanelDelegate.java` | Custom dialog: header, AI core slot, contract list, New contract; rebuilds on every change |
+| `indevo/industries/courierport/dialogue/CourierEditor.java` | Editor column: name, Active, route cards, storage tiles, goods, schedule, cost, Remove (armed: Remove and Keep) / Cancel / Save |
 | `indevo/industries/courierport/dialogue/CourierPortIsDisplayInRelay.java` | Rule condition: gamma core installed |
 | `indevo/industries/courierport/plugin/CourierPortOptionProvider.java` | Industry option "Visit the Courier Port..." |
 
@@ -42,8 +44,6 @@ The Courier Port is a structure with no supply or demand. While the player owns 
 | Config CSV | `IndEvo_shipingList`: submarket whitelist | `data/config/settings.json:14`, `data/config/indEvo/shipping_submarkets_whitelist.csv` |
 | Memory key | `$IndEvo_ShippingContainerStorage` (sector, contract list) | `ShippingContractMemory.java:11` |
 | Memory key | `$IndEvo_CurrentShippingCore` (sector, last applied core id or `none`) | `ShippingCostCalculator.java:21` |
-| Memory key | `$IndEvo_ShippingContractMemory` (sector, editor backup, 0 day expiry) | `ContractSidePanelCreator.java:42` |
-| Memory key | `$IndEvo_tempDialogueInstance` (sector, current dialog plugin) | `CourierPortDialoguePlugin.java:47` |
 | Rules | `IndEvo_OpenShippingPortFromIndustryOption`, `IndEvo_ShippingMenuPoint`, `IndEvo_ShippingMenuPoint2`, `IndEvo_IntitiateShippingMenu`, `IndEvo_CommrelayShippingPoint`, `IndEvo_COB_shipping` | `data/campaign/rules.csv:816-830` |
 
 ## Registration and lifecycle
@@ -51,7 +51,7 @@ The Courier Port is a structure with no supply or demand. While the player owns 
 - `ModPlugin.setListenersIfNeeded()`: `ShippingManager.getInstanceOrRegister()` (persistent listener, one instance) and `CourierPortOptionProvider.register()` (transient) (`indevo/utils/ModPlugin.java:438,472`).
 - `NewGameIndustryPlacer.placeCourierPorts()` puts one port per faction per star system at new game when the setting is on (`indevo/utils/update/NewGameIndustryPlacer.java:100-126`).
 - `NewDayListener` calls come from `TimeTracker`, which collects listeners from the listener manager and sector listeners; see [Utils](../core/UTILS.md).
-- Entry points into the dialog: market menu and colony option point rules, the industry option (fires trigger `IndEvo_FireBaseSPOptionList` with `$IndEvo_closeDialogueOnNextReturn`), and comm relays when `CourierPortIsDisplayInRelay` is true. All end in `CourierPortDialoguePlugin.execute`, which swaps itself in as the dialog plugin and restores the original on Return.
+- Entry points into the dialog: market menu and colony option point rules, the industry option (fires trigger `IndEvo_FireBaseSPOptionList` with `$IndEvo_closeDialogueOnNextReturn`), and comm relays when `CourierPortIsDisplayInRelay` is true. All end in `CourierPortDialoguePlugin.execute`, which swaps itself in as the dialog plugin and restores the original on Return. Code and tests open the panel with `CourierPortDialoguePlugin.show(entity, view)` (`CourierPortDialoguePlugin.java:47`), with a view from `CourierView.contract(id)` or `CourierView.newContract(fromMarketId, fromSubmarketId, toMarketId, toSubmarketId, scope)` (`CourierView.java:27,34`); null ids leave that step open, a null scope leaves the goods open. Return then dismisses the dialog.
 
 Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions -> Shipment.create (ShippingCargoManager remove + CourierFleetCreator.createFleet) -> Shipment.init -> spawnFleet + CourierFleetAssignmentAI + ShippingIntel + chargePlayer -> (assignment end or failsafe) Shipment.finalizeAndRemove -> transfer`.
 
@@ -59,7 +59,7 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 
 ### Scheduler
 
-`ShippingManager.onNewDay()` (`ShippingManager.java:39-71`) does nothing unless a player market has a functional port. Per contract: invalid -> skip, and if active mark inactive and message; active -> `elapsedDays++`; `elapsedDays > recurrentDays` -> reset and ship. One time (`recurrentDays == 0`) active contracts are removed after shipping. "Ship now" sets `elapsedDays = 999`, so inactive contracts still ship the next day ("on demand") (`ContractListSidePanelCreator.java:101`). A shipment is only created if a dry run finds goods.
+`ShippingManager.onNewDay()` (`ShippingManager.java:39-71`) does nothing unless a player market has a functional port. Per contract: invalid -> skip, and if active mark inactive and message; active -> `elapsedDays++`; `elapsedDays > recurrentDays` -> reset and ship. One time (`recurrentDays == 0`) active contracts are removed after shipping. "Ship now" sets `elapsedDays = 999`, so inactive contracts still ship the next day ("on demand") (`CourierEditor.java:487-489`). A shipment is only created if a dry run finds goods.
 
 ### Goods selection
 
@@ -81,9 +81,24 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 - Every frame `Shipment.advance` reroutes if the destination market died: target storage of destination, else origin submarket, else origin storage, else the first player market (`:234-240`, `:190-208`).
 - `transfer` puts items illegal on the target submarket into that market's storage instead, and moves stored marine XP with `PlayerFleetPersonnelTracker.transferPersonnel` (`:116-151`).
 
-### Editor
+### Panel
 
-`ContractSidePanelCreator.showPanel` redraws the whole panel after every button. Editing works on the live contract object; the first `showPanel` stores a copy as backup, Cancel puts the copy back and Confirm saves through `ShippingContractMemory.addOrReplaceContract`, which refuses invalid contracts (`ContractSidePanelCreator.java:958,988`, `ShippingContractMemory.java:26-48`). Origin markets: non-hostile markets with storage and a whitelisted submarket, the RAT settlement and restored Gacha stations as targets ([Gacha](../exploration/GACHA.md), [Compatibility](../core/COMPATIBILITY.md)).
+One custom dialog (`CourierPanelDelegate`, 1104 x 709 via `UiFrame`) with the contract list on the left and the editor on the right. Every change rebuilds the panel from `CourierView`; scroll offsets survive the rebuild.
+
+- The editor works on `view.draft`, a copy of the stored contract (`CourierPanelDelegate.java:141-142`). Save writes it through `ShippingContractMemory.addOrReplaceContract`, which refuses invalid contracts and replaces by id in place (`ShippingContractMemory.java:26-42`). Cancel, Return and picking another row drop the draft. Active and Ship now write the stored contract at once (`CourierEditor.java:87-90,487-489`).
+- Steps: route (From card, storage tiles, then To), goods (scope or selected cargo and ships), then schedule and cost once the goods are chosen and the draft is valid. Save shows only then. A stored invalid contract shows the reason and Remove only.
+- Route card: planet, market name (insignia 21 beside Change...; insignia 15 when it does not fit, wrapped to two lines in place of the size line when still too long), size and system line.
+- Name field: capped at the characters that fit the list row beside the widest cost in the widest glyph (`CourierPanelDelegate.getNameMaxChars`); a longer stored name ends in an ellipsis with the full name as tooltip.
+- Origin storages: non-hostile markets with storage and a whitelisted submarket, plus Resource Stockpiles on player colonies; the RAT settlement and restored Gacha stations as targets ([Gacha](../exploration/GACHA.md), [Compatibility](../core/COMPATIBILITY.md)). More tiles than fit one row collapse into a `+N` tile that expands the rows.
+- Cost lines use `ShippingCostCalculator.getShipCostForVariants`, `getCargoSpace` and `getDeploymentPoints` on the draft's cargo and variant list; by load scopes show rates, the total is known on the day.
+
+### Picker round trip
+
+The planet, cargo and ship pickers are vanilla sub dialogs and only open while the interaction dialog has no other sub dialog (`obf/ui/newui/_c192.java:989-1068`). The custom dialog clears that state only after its dismiss returns (`obf/ui/newui/super.java:115-127`, `obf/ui/_c199.java:137-150`, `_c192.java:345-367`).
+
+- `openPicker` unsets `BLOCK_ESC`, closes the panel with `dismissCustomDialog(1)` while `picking` is set (so `customDialogCancel` does not leave), then opens the picker (`CourierPortDialoguePlugin.java:96-100`, `CourierPanelDelegate.java:83-98`).
+- Pickers call their listener before their own dismiss (`obf/ui/newui/CampaignEntityPickerDialog.java:268-295`), so the callback only sets `reopenPending` and `advance` shows the panel again a frame later (`CourierPortDialoguePlugin.java:102-104,135-148`).
+- A cancelled picker keeps the previous selection. Return to rules runs from `advance` too: rules must not fire from inside the custom dialog's dismiss.
 
 ## Contracts
 
@@ -101,9 +116,10 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 | `CourierFleetCreator.createFleet` returns null | Suspected npe in `Shipment.init` (`spawnFleet`, `setFailsafeTimer`) when the factory returns an empty fleet (`CourierFleetCreator.java:85`) |
 | Same market shipment | Calls `fleet.despawn` on a fleet that was never spawned (`Shipment.java:96`); intel added after finalize |
 | Inactive one time contracts | Never removed by the scheduler, only by the player |
+| Planet icons | List rows and route cards draw `showPlanetInfo` planets at 14 and 56 px; cost with 60 contracts unmeasured |
 | `ShippingIntel.removeAll` | Console helper; comment names an old package path |
 | Changelog_todo | "Allow courier to ship to superstructures for restoration", "Courier Port Option for settlements" |
 
 ## Maintenance
 
-Update this doc when the cost formula, scopes, scheduler rules, entry rules or the submarket whitelist change. Side panel mechanics belong in [Side panel](../dialogue/SIDE_PANEL.md); submarket definitions in [Submarkets](../core/SUBMARKETS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
+Update this doc when the cost formula, scopes, scheduler rules, entry rules or the submarket whitelist change. UI kit helpers belong in [UI](../core/UI.md); submarket definitions in [Submarkets](../core/SUBMARKETS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).

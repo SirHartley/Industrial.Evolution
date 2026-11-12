@@ -102,10 +102,10 @@ public class TwoFleetCargoPicker {
                         toFleet.getCargo().addAll(tempSelectedCargo);
                     }
 
-                    dialoguePlugin.showBaseOptions();
                     String over = Misc.getAndJoined(newStatus.getOverCapacityList());
                     String who = take ? "The ships left behind" : "The detachment";
-                    dialoguePlugin.getDialog().getTextPanel().addPara(who + " would be over " + over + " capacity. Nothing was moved.", Misc.getNegativeHighlightColor());
+                    dialoguePlugin.notice(who + " would be over " + over + " capacity. Nothing was moved.");
+                    dialoguePlugin.showBaseOptions();
                     return;
                 }
 

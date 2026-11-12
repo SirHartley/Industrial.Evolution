@@ -13,7 +13,7 @@ import indevo.abilities.splitfleet.abilityAIs.DetachmentEburnAbilityPlugin;
 import indevo.abilities.splitfleet.abilityAIs.DetachmentGoDarkAbilityPlugin;
 import indevo.abilities.splitfleet.abilityAIs.DetachmentSustainedBurnAbilityAI;
 import indevo.abilities.splitfleet.abilityAIs.DetachmentTransponderAbilityAI;
-import indevo.abilities.splitfleet.dialogue.DetachmentDialoguePlugin;
+import indevo.abilities.splitfleet.dialogue.DetachmentDialogPlugin;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 
 import static indevo.abilities.splitfleet.FleetUtils.DETACHMENT_IDENTIFIER_KEY;
@@ -35,7 +35,7 @@ public class SplinterFleetCampignPlugin extends BaseCampaignPlugin {
         if (interactionTarget.getMemoryWithoutUpdate().getBoolean(DETACHMENT_IDENTIFIER_KEY)
                 && !Behaviour.behaviourEquals(Behaviour.getFleetBehaviour((CampaignFleetAPI) interactionTarget, false), Behaviour.FleetBehaviour.COMBAT)) {
 
-            return new PluginPick<InteractionDialogPlugin>(new DetachmentDialoguePlugin(), PickPriority.HIGHEST);
+            return new PluginPick<InteractionDialogPlugin>(new DetachmentDialogPlugin(), PickPriority.HIGHEST);
         }
 
         return super.pickInteractionDialogPlugin(interactionTarget);

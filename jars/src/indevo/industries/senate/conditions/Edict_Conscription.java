@@ -1,16 +1,15 @@
 package indevo.industries.senate.conditions;
 
+import indevo.industries.senate.EdictEffect;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import indevo.utils.timers.TimeTracker;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.awt.*;
 import indevo.industries.senate.EdictRequirement;
 
 public class Edict_Conscription extends BaseEdict implements MarketImmigrationModifier, EconomyTickListener {
@@ -75,13 +74,14 @@ public class Edict_Conscription extends BaseEdict implements MarketImmigrationMo
     }
 
     @Override
-    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
-        Color neg = Misc.getNegativeHighlightColor();
+    public List<EdictEffect> getEffects(MarketAPI market) {
+        List<EdictEffect> effects = new ArrayList<>();
         int stabilityPenalty = TimeTracker.marketHasTimeTag(market, ident) ? TimeTracker.getTagNum(market, ident) : 4;
 
-        tooltip.addPara("All buildings on this colony have %s.", pad, Misc.getPositiveHighlightColor(), Math.round((1 - upkeep_mult) * 100) + "% decreased upkeep");
-        tooltip.addPara("Colony growth is %s.", 3f, neg, "reduced by " + market.getSize() * 2);
-        if (stabilityPenalty > 0) tooltip.addPara("Stability %s, goes down by one point every month.", 3f, neg, "reduced by " + stabilityPenalty);
+        effects.add(EdictEffect.good("Upkeep of all buildings", percent(-(1 - upkeep_mult))));
+        effects.add(EdictEffect.bad("Population growth", signed(-market.getSize() * 2)));
+        if (stabilityPenalty > 0) effects.add(EdictEffect.bad("Stability, eases by 1 per month", signed(-stabilityPenalty)));
+        return effects;
     }
 
     @Override

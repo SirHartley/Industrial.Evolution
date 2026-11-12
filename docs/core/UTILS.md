@@ -30,7 +30,7 @@ Renderers keep the sprite in a `transient` field and fetch it lazily in `render`
 |---|---|
 | `helper/MiscIE.java` | General campaign helpers, table below |
 | `helper/BillingHelper.java` | Monthly report lines and immediate credit charges, section below |
-| `helper/RelicHelper.java` | Relic Component payments for colony side sinks: `getName()`, `getAvailable(market)` (colony storage through `MiscIE.getStorageCargo`, so RAT settlement storage counts, plus fleet cargo; `market` null means fleet cargo only), `canAfford(market, amount)`, `take(market, amount)` (storage first, throws when short, call `canAfford` first), `addCostLine(info, market, cost, pad)` (`Cost: X Relic Components (Available: Y)`, cost green or red). Users: [Economy](ECONOMY.md#relic-speed-up) relic speed up and refit build in (`RelicBuildInPatch`), Senate `EdictPanelDelegate`, Ancient Laboratory relic services, Salvage Yards S-mod transfer, Orbital Works slot, Engineering Hub hullmod extraction |
+| `helper/RelicHelper.java` | Relic Component payments for colony side sinks: `getName()`, `getAvailable(market)` (colony storage through `MiscIE.getStorageCargo`, so RAT settlement storage counts, plus fleet cargo; `market` null means fleet cargo only), `canAfford(market, amount)`, `take(market, amount)` (storage first, throws when short, call `canAfford` first), `addCostLine(info, market, cost, pad)` (`Cost: X Relic Components (Available: Y)`, cost green or red). Users: [Economy](ECONOMY.md#relic-speed-up) relic speed up and refit build in (`RelicBuildInPatch`), Tech Mining Boost Extraction, the Senate Edict, Academy, Ancient Laboratory, Salvage Yards and Engineering Hub panels, Orbital Works slot, the kit's relic cost rows (`UiData`) |
 | `helper/StringHelper.java` | String lookup and token substitution, table below |
 | `helper/TrigHelper.java` | Geometry, table below |
 | `helper/Circle.java` | `center`, `radius`; `getPointForAngle(angle)`, `getAngleForPoint(point)` |
@@ -163,6 +163,10 @@ Fixed copy of MagicLib's campaign trail plugin (Nicke535, fix by President Matt 
 | `trails/MagicCustomCampaignTrailEntityScript.java` | Plugin of custom entity `IndEvo_campaign_trail_custom_entity` (`data/config/custom_entities.json`); forwards `render` to the trail plugin. The plugin moves this entity to the player's location each frame |
 
 Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmunitionEntity`, `MissileCarrierEntityPlugin`), `consumables/entities/BaseMissileEntityPlugin`, WIP `MobileColonyEntityPlugin`.
+
+## ui
+
+Shared UI kit for IE panels (`Ui`, `UiButtons`, `UiImages`, `UiData`, `UiFrame`, `UiScroll`, `UiRoot`, `UiCanvas`, `UiDraw`). Owned by [UI](UI.md): helpers, layout contract, rebuild and scroll pattern.
 
 ## update
 

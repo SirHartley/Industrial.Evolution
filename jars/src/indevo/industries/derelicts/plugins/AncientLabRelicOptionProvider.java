@@ -9,6 +9,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.dialogue.AncientLabRelicPanelDelegate;
+import indevo.industries.derelicts.dialogue.AncientLabRelicView;
 import indevo.utils.helper.RelicHelper;
 import indevo.utils.plugins.SingleIndustrySimpifiedOptionProvider;
 
@@ -45,7 +46,7 @@ public class AncientLabRelicOptionProvider extends SingleIndustrySimpifiedOption
 
     @Override
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
-        AncientLabRelicPanelDelegate.show(ui, opt.ind.getMarket());
+        AncientLabRelicPanelDelegate.show(ui, opt.ind, new AncientLabRelicView());
     }
 
     @Override

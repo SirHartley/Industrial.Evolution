@@ -1,5 +1,7 @@
 package indevo.industries.senate.conditions;
 
+import indevo.industries.senate.EdictEffect;
+import indevo.industries.senate.EdictSupplyChange;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -130,6 +132,16 @@ public class Edict_Lockdown extends BaseEdict {
     }
 
     @Override
+    public boolean endsOnItsOwn() {
+        return true;
+    }
+
+    @Override
+    public int getMaxEarlyRemovalUnrest(MarketAPI market) {
+        return super.getMaxEarlyRemovalUnrest(market) + EARLY_END_UNREST;
+    }
+
+    @Override
     public int getFinishUnrest(MarketAPI market) {
         return 1;
     }
@@ -140,13 +152,19 @@ public class Edict_Lockdown extends BaseEdict {
     }
 
     @Override
-    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
-        Color pos = Misc.getPositiveHighlightColor();
+    public List<EdictEffect> getEffects(MarketAPI market) {
+        List<EdictEffect> effects = new ArrayList<>();
+        effects.add(stability(market, stabBonus));
+        effects.add(EdictEffect.good("Ground defences", "x3"));
+        effects.add(EdictEffect.good("Fleet size", "+100%"));
+        effects.add(EdictEffect.good("Patrol spawn rate", "x2"));
+        effects.add(EdictEffect.bad("Supply and civilian demand", "x" + Misc.getRoundedValueMaxOneAfterDecimal(exportRed)));
+        return effects;
+    }
 
-        tooltip.addPara("Stability %s.", pad, pos, "increased by " + stabBonus);
-        tooltip.addPara("Fleet size %s.", 3f, pos, "increased by 100% (flat)");
-        tooltip.addPara("Ground defence rating %s.", 3f, pos, "increased by 200%");
-        tooltip.addPara("Industry exports %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + Math.round((1 - exportRed) * 100) + "%");
+    @Override
+    public List<EdictSupplyChange> getSupplyChanges(MarketAPI market) {
+        return getSupplyChanges(market, false, null, s -> s.modifyMult(getModId(), exportRed));
     }
 
     @Override

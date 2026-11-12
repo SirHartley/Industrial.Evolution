@@ -1,11 +1,12 @@
 package indevo.industries.senate.conditions;
 
+import indevo.industries.senate.EdictEffect;
+import indevo.industries.senate.EdictSupplyChange;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 
+import java.util.ArrayList;
 import java.util.List;
 import indevo.industries.senate.EdictRequirement;
 
@@ -57,9 +58,16 @@ public class Edict_LabourRestrictions extends BaseEdict {
     }
 
     @Override
-    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
-        tooltip.addPara("Stability %s.", pad, Misc.getPositiveHighlightColor(), "increased by " + stabBonus);
-        tooltip.addPara("All industries on this colony have their output %s.", 3f, Misc.getNegativeHighlightColor(), "decreased by 1");
+    public List<EdictEffect> getEffects(MarketAPI market) {
+        List<EdictEffect> effects = new ArrayList<>();
+        effects.add(stability(market, stabBonus));
+        effects.add(EdictEffect.bad("Supply and demand of all industries", "-1"));
+        return effects;
+    }
+
+    @Override
+    public List<EdictSupplyChange> getSupplyChanges(MarketAPI market) {
+        return getSupplyChanges(market, true, null, s -> s.modifyFlat(getModId(), -1));
     }
 
     @Override
