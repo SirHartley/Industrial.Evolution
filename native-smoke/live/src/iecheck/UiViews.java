@@ -72,6 +72,7 @@ public final class UiViews {
         log.info("LIVE_CHECK note: rect " + name + " " + UiAudit.rect(found) + ", " + UiAudit.stats);
         for (String finding : findings) log.info("LIVE_CHECK note: AUDIT " + name + ": " + finding);
         for (String note : UiAudit.accepted) log.info("LIVE_CHECK note: AUDIT " + name + ": " + note);
+        for (String note : UiAudit.bars) log.info("LIVE_CHECK note: BAR " + name + ": " + note);
         c.expect(findings.isEmpty(), name + " audit, " + findings.size() + " findings");
         c.shot(name);
     }

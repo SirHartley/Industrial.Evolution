@@ -140,6 +140,7 @@ The `ui<panel>` groups open each view of a kit panel through its static `show` w
 - text, buttons, custom panels and leaf components outside the panel, or outside their scroll area horizontally (vertical overflow inside a scroll area is scrolling),
 - sibling buttons that partly intersect (a button fully inside another one, like a stepper on a row, is allowed),
 - a labelled button, a text, or an image or box (a custom panel without children) that its scroll area cuts while every scroll area above it is at offset 0 (what the player sees first),
+- a kit progress bar whose shown fraction (`UiCanvas.shown`) differs by more than 1 % from its label ("a / b", "Day d of t", "N%"); every bar is logged as a `BAR` note,
 - text that ends in `...` (a `Ui.fit` cut; button labels such as "Cargo..." are button text, not labels). Over long test names registered with `UiAudit.acceptLong` (longer than the game or the player can produce) are logged as `accepted: long name`, not as findings.
 
 Hidden components (opacity 0) and anything fully scrolled out of view are skipped; tooltips are not in the tree. A view passes only with zero findings, and every capture is still opened and compared with its board: the audit does not see text over icons or wrong wording.

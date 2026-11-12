@@ -32,6 +32,8 @@ public final class UiAudit {
     // over long test names whose ellipsis is accepted (full text in a tooltip)
     private static final Set<String> LONG = new HashSet<>();
     public static final List<String> accepted = new ArrayList<>();
+    // one note per kit progress bar: the fraction it shows and its label
+    public static final List<String> bars = new ArrayList<>();
 
     private UiAudit() {
     }
@@ -314,6 +316,7 @@ public final class UiAudit {
 
     public static List<String> run(Found found) {
         accepted.clear();
+        bars.clear();
         Rect panel = Rect.of(found.content().getPosition());
         List<Text> texts = new ArrayList<>();
         List<Btn> buttons = new ArrayList<>();
@@ -387,6 +390,8 @@ public final class UiAudit {
             }
         }
 
+        if (node instanceof CustomPanelAPI cp && cp.getPlugin() instanceof indevo.utils.ui.UiCanvas canvas && !Float.isNaN(canvas.shown)) bar(cp, canvas.shown, rect, panel, out);
+
         Rect childClip = clip;
         boolean childScrolled = scrolled;
         Rect childArea = scrollArea;
@@ -437,6 +442,35 @@ public final class UiAudit {
         boolean outside = scrolled ? drawn.x() < scrollArea.x() - TOL || drawn.r() > scrollArea.r() + TOL : !panel.contains(drawn);
         if (outside) out.add("text outside " + (scrolled ? "its scroll area" : "the panel") + ": '" + cut(text) + "' " + at(drawn, panel));
         texts.add(new Text(label, text, drawn, clip));
+    }
+
+    // compares the shown fraction with the label: "a / b", "Day d of t" or "N%"; other labels are only logged
+    private static void bar(CustomPanelAPI bar, float shown, Rect rect, Rect panel, List<String> out) {
+        String label = null;
+        for (Object child : children(bar)) if (child instanceof LabelAPI l && l.getText() != null && !l.getText().isBlank()) label = l.getText();
+        Float expected = null;
+        if (label != null) {
+            String s = label.replace(",", "").replace("¢", "").trim();
+            java.util.regex.Matcher m;
+            if ((m = java.util.regex.Pattern.compile("^(-?[0-9.]+)\\s*/\\s*([0-9.]+)").matcher(s)).find()) {
+                float b = Float.parseFloat(m.group(2));
+                if (b > 0f) expected = Float.parseFloat(m.group(1)) / b;
+            } else if ((m = java.util.regex.Pattern.compile("^Day ([0-9]+) of ([0-9]+)").matcher(s)).find()) {
+                float t = Float.parseFloat(m.group(2));
+                if (t > 0f) expected = Float.parseFloat(m.group(1)) / t;
+            } else if ((m = java.util.regex.Pattern.compile("^([0-9.]+)%$").matcher(s)).find()) {
+                expected = Float.parseFloat(m.group(1)) / 100f;
+            }
+        }
+
+        String note = String.format(Locale.ROOT, "bar %.3f '%s' %s", shown, label == null ? "" : label, at(rect, panel));
+        if (expected == null) {
+            bars.add(note + " (label not a fraction)");
+            return;
+        }
+        float e = Math.max(0f, Math.min(1f, expected));
+        bars.add(note + String.format(Locale.ROOT, " label %.3f", e));
+        if (Math.abs(e - shown) > 0.01f) out.add("bar shows " + String.format(Locale.ROOT, "%.3f", shown) + " but its label says " + String.format(Locale.ROOT, "%.3f", e) + ": '" + label + "' " + at(rect, panel));
     }
 
     // partly visible: something shows, but the viewport edge cuts it vertically
