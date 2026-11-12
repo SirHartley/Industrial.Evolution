@@ -435,7 +435,8 @@ class ReverseEngineeringTab {
 
     static String getSharedName() {
         for (SubmarketSpecAPI spec : Global.getSettings().getAllSubmarketSpecs()) {
-            if (Ids.SHAREDSTORAGE.equals(spec.getId())) return spec.getName();
+            // the submarket name holds a line break for the market tab
+            if (Ids.SHAREDSTORAGE.equals(spec.getId())) return spec.getName().replace('\n', ' ');
         }
 
         return "storage";

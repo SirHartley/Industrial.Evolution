@@ -256,7 +256,7 @@ class RegistryTab {
     }
 
     private void addDetail(CustomPanelAPI p, float x, float w, float h) {
-        UiScroll.Column column = UiScroll.list(p, x, SalvageYardsPanel.BODY_Y, w + UiScroll.GUTTER, h, view.scroll, SalvageYardsView.DETAIL);
+        UiScroll.Column column = UiScroll.list(p, x, SalvageYardsPanel.BODY_Y, w, h, view.scroll, SalvageYardsView.DETAIL);
         float rw = column.width();
         String id = view.registryHull;
 
