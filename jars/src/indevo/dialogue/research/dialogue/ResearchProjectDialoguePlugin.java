@@ -15,7 +15,6 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.dialogue.sidepanel.VisualCustomPanel;
-import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
 import indevo.utils.ModPlugin;
 import org.apache.log4j.Logger;
 import org.lwjgl.input.Keyboard;
@@ -46,15 +45,13 @@ public class ResearchProjectDialoguePlugin extends BaseCommandPlugin implements 
     @Override
     public boolean execute(String ruleId, InteractionDialogAPI dialog, List<Misc.Token> params, Map<String, MemoryAPI> memoryMap) {
 
-        if (!(dialog instanceof IndEvo_InitSYCustomProductionDiag)) {
-            this.dialog = dialog;
-            this.memoryMap = memoryMap;
-            if (dialog == null) return false;
+        this.dialog = dialog;
+        this.memoryMap = memoryMap;
+        if (dialog == null) return false;
 
-            entity = dialog.getInteractionTarget();
-            originalPlugin = dialog.getPlugin();
-            dialog.setPlugin(this);
-        }
+        entity = dialog.getInteractionTarget();
+        originalPlugin = dialog.getPlugin();
+        dialog.setPlugin(this);
 
         dialog.setPromptText("Select an Option");
 

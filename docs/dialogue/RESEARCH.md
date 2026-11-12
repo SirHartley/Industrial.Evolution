@@ -110,7 +110,6 @@ Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notify
 - Overflow is per project and off by default; `Progress.overflow` is false on saves made before the field existed. Turning it off keeps points already past 100%. The progress bar is capped at full width, the label shows the real percentage.
 - `getRandomForProj` stores five `java.util.Random` objects in memory, so a reload reproduces the same rolls (anti save scum). Each roll advances the stored randoms.
 - Camouflage: the engine marks the player fleet as having a unique signature when any member variant has `ship_unique_signature` (`obf/campaign/fleet/CampaignFleet.java:963`). The emitter works by renaming that tag; the swap only runs on `reportPlayerClosedMarket`, so installing the hullmod takes effect after leaving the market.
-- Shared helper: `indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag` is imported only for an `instanceof` check that is never true (`ResearchProjectDialoguePlugin.java:48`).
 
 ## Known issues and dormant code
 
