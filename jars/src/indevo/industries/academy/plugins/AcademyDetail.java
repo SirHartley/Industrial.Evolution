@@ -101,6 +101,8 @@ class AcademyDetail {
 
     private void addOfficer(PersonAPI person, boolean stored) {
         addOfficerInfo(person, stored ? "Stored here" : null);
+        GridRow drills = stored ? panel.getDrillsRow(person) : null;
+        if (drills != null) grid(GAP, drills);
 
         String current = person.getPersonalityAPI().getId();
         heading("Personality training", SECTION_GAP);
