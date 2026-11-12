@@ -2,9 +2,7 @@ package indevo.abilities.splitfleet.dialogue;
 
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
-import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
@@ -31,6 +29,8 @@ public class FleetStatus {
     public int requiredSuppliesPerMonth = 0;
     public int requiredFuelPerLY = 0;
     public int suppliesToRecover = 0;
+    public float suppliesPerDay = 0f;
+    public int burn = 0;
 
     public CargoAPI cargo;
     public List<FleetMemberAPI> fleetMemberAPIList;
@@ -89,6 +89,8 @@ public class FleetStatus {
         }
 
         status.requiredSuppliesPerMonth = Math.round(suppliesPerMonth);
+        status.suppliesPerDay = suppliesPerMonth / 30f;
+        status.burn = Math.round(fleet.getFleetData().getMinBurnLevel());
 
         for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
             status.totalCrewCap += m.getMaxCrew();
@@ -126,19 +128,6 @@ public class FleetStatus {
             case TRADE_RUN -> "coming to trade";
             default -> null;
         };
-    }
-
-    public static void addFleetStatusTooltip(TextPanelAPI text, CampaignFleetAPI fleet) {
-        float opad = 10f;
-
-        TooltipMakerAPI tooltip = text.beginTooltip();
-        tooltip.addSectionHeading("Detachment Status", Alignment.MID, opad);
-        tooltip.setParaSmallInsignia();
-
-        addStatusLines(tooltip, fleet, getFleetStatus(fleet), opad);
-
-        tooltip.setParaFontDefault();
-        text.addTooltip();
     }
 
     public static void addStatusLines(TooltipMakerAPI tooltip, CampaignFleetAPI fleet, FleetStatus status, float pad) {
