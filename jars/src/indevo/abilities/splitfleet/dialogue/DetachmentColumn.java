@@ -541,8 +541,7 @@ class DetachmentColumn {
         } else {
             fuelOk = true;
             boolean any = status.currentFuel >= 1;
-            checks.add(any ? Check.of(true, "Fuel to leave this location")
-                    : new Check(false, "Requires fuel to leave this location.", new String[0], new Color[0], Ui.hl()));
+            checks.add(Check.of(any, any ? "Fuel to leave this location" : "Fuel to leave this location: no fuel"));
         }
 
         CustomPanelAPI b = column.block(checks.size() * CHECK_ROW, GAP);
