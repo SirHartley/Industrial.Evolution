@@ -49,13 +49,18 @@ public class LaneFlights extends BaseFlights {
         if (!canFly(from, to)) return null;
 
         boolean smuggler = route.kind == ShuttleRoute.Kind.SMUGGLER;
-        FactionAPI faction = route.kind == ShuttleRoute.Kind.PIRATE_CARGO ? route.a.faction : from.faction;
+        // a jump point anchor is shared by every market of the system, arrivals fly their market's faction
+        FactionAPI faction = route.kind == ShuttleRoute.Kind.PIRATE_CARGO || route.kind == ShuttleRoute.Kind.TRANSIT ? route.a.faction : from.faction;
         ShuttleHull hull = switch (route.kind) {
             case SUPPLY -> ShuttleHullPool.rollCargo(faction, random, 0.8f, true);
             case PIRATE_CARGO -> ShuttleHullPool.rollSmall(faction, random);
             default -> ShuttleHullPool.rollCargo(faction, random, 0.6f, false);
         };
         if (hull == null) return null;
+
+        if (route.kind == ShuttleRoute.Kind.TRANSIT) {
+            return create(hull, route, faction, from, to, paths.transitPath(route.a, route.b, from == route.a), SpeedClass.CIVIL, 1f, LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
+        }
 
         if (route.kind == ShuttleRoute.Kind.MARKET) {
             return create(hull, route, faction, from, to, paths.trafficLanePath(route, from == route.b, ShuttleFactionRepo.get(faction).laneDiscipline()), SpeedClass.CIVIL, 1f, TRAFFIC_LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);

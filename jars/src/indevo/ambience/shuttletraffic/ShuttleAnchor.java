@@ -12,7 +12,8 @@ public class ShuttleAnchor {
     public enum Type {
         PLANET,
         STATION,
-        FLEET
+        FLEET,
+        JUMP
     }
 
     public enum Role {
@@ -28,6 +29,7 @@ public class ShuttleAnchor {
     public static final float STATION_DOCK_LENGTH = 60f;
     public static final float HOLD_RADIUS = 120f;
     public static final float FLEET_END_LENGTH = 30f;
+    public static final float JUMP_END_LENGTH = 80f;
 
     public final SectorEntityToken entity;
     public final Type type;
@@ -68,7 +70,7 @@ public class ShuttleAnchor {
         return switch (type) {
             case PLANET -> Shuttle.End.PLANET;
             case STATION -> Shuttle.End.STATION;
-            case FLEET -> Shuttle.End.FLEET;
+            case FLEET, JUMP -> Shuttle.End.FLEET;
         };
     }
 
@@ -92,7 +94,7 @@ public class ShuttleAnchor {
         return switch (type) {
             case PLANET -> PLANET_PAD_DEPTH;
             case STATION -> STATION_PAD_DEPTH;
-            case FLEET -> 0f;
+            case FLEET, JUMP -> 0f;
         };
     }
 
@@ -101,6 +103,7 @@ public class ShuttleAnchor {
             case PLANET -> getRadius() * 1.2f;
             case STATION -> STATION_DOCK_LENGTH;
             case FLEET -> FLEET_END_LENGTH;
+            case JUMP -> JUMP_END_LENGTH;
         };
     }
 

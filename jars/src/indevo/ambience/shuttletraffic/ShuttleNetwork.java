@@ -71,9 +71,15 @@ public class ShuttleNetwork {
     private static final float PICKET_LIVELY_MIN = 0.34f;
     private static final float PICKET_LIVELY_MAX = 1.5f;
     private static final int MAX_CRUISES = 3;
-    private static final int MAX_MINING = 4;
-    private static final int MAX_SUPPLY = 16;
-    private static final float SUPPLY_PER_LIVELINESS = 2.5f;
+    private static final int MAX_MINING = 6;
+    private static final float MINING_PER_LIVELINESS = 1.5f;
+    private static final int MAX_SALVAGE = 3;
+    private static final int MAX_SUPPLY = 6;
+    private static final float SUPPLY_PER_LIVELINESS = 1f;
+    // arrivals and departures: craft between a market and its TRANSIT_POINTS nearest jump points, split between them
+    private static final int MAX_TRANSIT = 16;
+    private static final float TRANSIT_PER_LIVELINESS = 2.5f;
+    private static final int TRANSIT_POINTS = 2;
     // local flights launch while the player is within NEAR_RANGE su of the anchor's surface, and stop past NEAR_RANGE_OUT
     public static final float NEAR_RANGE = 3000f;
     public static final float NEAR_RANGE_OUT = 3500f;
@@ -308,14 +314,20 @@ public class ShuttleNetwork {
                 if (target != null) {
                     ShuttleRoute route = getRoute(ShuttleRoute.Kind.MINING, anchor, null, random);
                     route.target = target;
-                    route.demand = Math.max(1, Math.min(MAX_MINING, Math.round(1f + mult)));
+                    route.demand = Math.max(1, Math.min(MAX_MINING, Math.round(1f + MINING_PER_LIVELINESS * mult)));
                 }
             }
 
             if (market.hasIndustry(Ids.SCRAPYARD)) {
                 ShuttleTarget target = findSalvageTarget(location, primary);
-                if (target != null) getRoute(ShuttleRoute.Kind.SALVAGE, anchor, null, random).target = target;
+                if (target != null) {
+                    ShuttleRoute route = getRoute(ShuttleRoute.Kind.SALVAGE, anchor, null, random);
+                    route.target = target;
+                    route.demand = Math.max(1, Math.min(MAX_SALVAGE, Math.round(mult)));
+                }
             }
+
+            addTransit(location, anchor, mult, random);
 
             if (stationMarket) continue;
 
@@ -333,6 +345,23 @@ public class ShuttleNetwork {
                 if (towing) getRoute(ShuttleRoute.Kind.TOW, anchor, station, random);
                 towing = false;
             }
+        }
+    }
+
+    private void addTransit(LocationAPI location, ShuttleAnchor market, float mult, Random random) {
+        List<SectorEntityToken> points = new ArrayList<>(location.getJumpPoints());
+        if (points.isEmpty()) return;
+
+        Vector2f loc = market.getLocation();
+        points.sort((p, q) -> Float.compare(Misc.getDistance(loc, p.getLocation()), Misc.getDistance(loc, q.getLocation())));
+        int count = Math.min(TRANSIT_POINTS, points.size());
+        int total = Math.max(1, Math.min(MAX_TRANSIT, Math.round(TRANSIT_PER_LIVELINESS * mult)));
+        for (int i = 0; i < count; i++) {
+            int demand = total / count + (i < total % count ? 1 : 0);
+            if (demand <= 0) continue;
+
+            ShuttleAnchor jump = getAnchor(points.get(i), ShuttleAnchor.Type.JUMP, ShuttleAnchor.Role.TARGET, null, market.faction);
+            getRoute(ShuttleRoute.Kind.TRANSIT, market, jump, random).demand = demand;
         }
     }
 
