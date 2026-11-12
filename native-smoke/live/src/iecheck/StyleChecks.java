@@ -9,9 +9,11 @@ import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.CutStyle;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.utils.ui.Ui;
 import indevo.utils.ui.UiButtons;
+import indevo.utils.ui.UiData;
 import indevo.utils.ui.UiFrame;
 import indevo.utils.ui.UiHost;
 import org.apache.log4j.Logger;
@@ -33,6 +35,8 @@ public final class StyleChecks {
         List<Step> steps = new ArrayList<>();
         UiViews.view(steps, "style-kit-vs-vanilla", c -> c.expect(UiHost.show(Global.getSector().getPlayerFleet(),
                 dialog -> dialog.showCustomDialog(W, H, new Board(dialog))), "style dialog opens"));
+        UiViews.view(steps, "style-bars", c -> c.expect(UiHost.show(Global.getSector().getPlayerFleet(),
+                dialog -> dialog.showCustomDialog(BarBoard.W, BarBoard.H, new BarBoard(dialog))), "bar dialog opens"));
         steps.add(c -> c.keepDialog(false));
         return steps;
     }
@@ -168,6 +172,76 @@ public final class StyleChecks {
 
         private static String size(LabelAPI label) {
             return label == null ? "none" : label.getPosition().getWidth() + " x " + label.getPosition().getHeight() + " (line " + label.computeTextHeight("Ag") + ")";
+        }
+
+        @Override
+        public boolean hasCancelButton() {
+            return false;
+        }
+
+        @Override
+        public String getConfirmText() {
+            return "Return";
+        }
+
+        @Override
+        public void customDialogConfirm() {
+            dialog.dismiss();
+        }
+
+        @Override
+        public void customDialogCancel() {
+            dialog.dismiss();
+        }
+    }
+
+    // kit bars beside the vanilla bar widget com.fs.starfarer.campaign.ui.N (obfuscated, test only) at the same size and fraction
+    static final class BarBoard extends BaseCustomDialogDelegate {
+        static final float W = 1100f;
+        static final float H = 330f;
+        static final float BW = 110f;
+        static final float BH = 20f;
+        private static final String[] KINDS = {"standard", "ready", "paused", "overflow", "cargo", "fuel", "crew", "danger", "thin row"};
+        private static final float[] LEVELS = {0f, 0.35f, 0.7f, 1f};
+        private final InteractionDialogAPI dialog;
+
+        BarBoard(InteractionDialogAPI dialog) {
+            this.dialog = dialog;
+        }
+
+        private static Color color(String kind) {
+            return switch (kind) {
+                case "ready" -> Ui.GREEN;
+                case "paused" -> Ui.barColor("progressBarWarningColor");
+                case "overflow" -> Ui.barColor("progressBarOverflowColor");
+                case "cargo" -> Ui.barColor("progressBarCargoColor");
+                case "fuel" -> Ui.barColor("progressBarFuelColor");
+                case "crew" -> Ui.barColor("progressBarCrewColor");
+                case "danger" -> Ui.barColor("progressBarDangerColor");
+                default -> Ui.barBlue();
+            };
+        }
+
+        @Override
+        public void createCustomDialog(CustomPanelAPI p, CustomDialogCallback callback) {
+            Ui.text(p, 0f, 0f, W, "Each pair: kit UiData.bar (left), vanilla bar widget (right), at 0, 35, 70 and 100 %; thin row bar is kit only", Ui.ORB12, Ui.hl(), Ui.LEFT);
+            for (int r = 0; r < KINDS.length; r++) {
+                float y = 26f + r * 32f;
+                Ui.text(p, 0f, y + 2f, 80f, KINDS[r], Ui.ORB12, Ui.text(), Ui.LEFT);
+                for (int i = 0; i < LEVELS.length; i++) {
+                    float x = 90f + i * (2f * BW + 24f);
+                    if (r == KINDS.length - 1) {
+                        UiData.thinbar(p, x, y + 8f, BW, LEVELS[i], Ui.barBlue());
+                        continue;
+                    }
+                    UiData.bar(p, x, y, BW, BH, LEVELS[i], color(KINDS[r]), null);
+                    com.fs.starfarer.campaign.ui.N vanilla = new com.fs.starfarer.campaign.ui.N("", 0f, 100f);
+                    vanilla.setShowNoText(true);
+                    vanilla.setBarColor(color(KINDS[r]));
+                    vanilla.setProgress(LEVELS[i] * 100f);
+                    p.addComponent((UIComponentAPI) (Object) vanilla).setSize(BW, BH).inTL(x + BW + 8f, y);
+                }
+            }
         }
 
         @Override
