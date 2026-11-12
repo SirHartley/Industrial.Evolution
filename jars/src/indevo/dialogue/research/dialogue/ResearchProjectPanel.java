@@ -145,7 +145,7 @@ public class ResearchProjectPanel {
         Ui.box(b, 1f, 1f, cw - 2f, HEAD_H, null, ready ? Misc.scaleAlpha(Ui.GREEN, 0.75f) : Ui.dark());
 
         String state = ready ? "Ready" : Math.round(required <= 0 ? 100f : points / required * 100f) + "%";
-        String right = project.isRepeatable() ? "Repeatable  ·  " + state : state;
+        String right = project.isRepeatable() ? "Repeatable, " + state : state;
         float rw = Math.min(Ui.width(right, Ui.ORB12) + 2f, cw / 2f);
         Color headColor = ready ? Ui.text() : Ui.base();
         Ui.textIn(b, cw - 10f - rw, 1f, rw, HEAD_H, right, Ui.ORB12, ready ? Ui.text() : Ui.gray(), Ui.RIGHT, new String[0], new Color[0]);
