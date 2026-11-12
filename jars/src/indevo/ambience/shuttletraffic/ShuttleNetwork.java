@@ -76,10 +76,11 @@ public class ShuttleNetwork {
     private static final int MAX_SALVAGE = 3;
     private static final int MAX_SUPPLY = 6;
     private static final float SUPPLY_PER_LIVELINESS = 1f;
-    // arrivals and departures: craft between a market and its TRANSIT_POINTS nearest jump points, split between them
-    private static final int MAX_TRANSIT = 16;
-    private static final float TRANSIT_PER_LIVELINESS = 2.5f;
-    private static final int TRANSIT_POINTS = 2;
+    // local hops: craft between a market and its HOP_TARGETS nearest bodies within HOP_RANGE su, neighbouring markets included, split between them
+    private static final int MAX_HOPS = 16;
+    private static final float HOPS_PER_LIVELINESS = 2.5f;
+    private static final int HOP_TARGETS = 2;
+    private static final float HOP_RANGE = 4000f;
     // local flights launch while the player is within NEAR_RANGE su of the anchor's surface, and stop past NEAR_RANGE_OUT
     public static final float NEAR_RANGE = 3000f;
     public static final float NEAR_RANGE_OUT = 3500f;
@@ -153,6 +154,7 @@ public class ShuttleNetwork {
         decivAnchors.clear();
 
         addMarkets(location, random, days);
+        for (ShuttleAnchor anchor : marketAnchors) addHops(location, anchor, random);
         addDecivs(location);
         addMarketLanes(random);
         addPilgrims(location, random);
@@ -327,8 +329,6 @@ public class ShuttleNetwork {
                 }
             }
 
-            addTransit(location, anchor, mult, random);
-
             if (stationMarket) continue;
 
             boolean towing = market.hasIndustry(Ids.REPAIRDOCKS);
@@ -348,21 +348,43 @@ public class ShuttleNetwork {
         }
     }
 
-    private void addTransit(LocationAPI location, ShuttleAnchor market, float mult, Random random) {
-        List<SectorEntityToken> points = new ArrayList<>(location.getJumpPoints());
-        if (points.isEmpty()) return;
-
+    // after every market anchor exists, so a neighbouring market is a target as itself
+    private void addHops(LocationAPI location, ShuttleAnchor market, Random random) {
         Vector2f loc = market.getLocation();
-        points.sort((p, q) -> Float.compare(Misc.getDistance(loc, p.getLocation()), Misc.getDistance(loc, q.getLocation())));
-        int count = Math.min(TRANSIT_POINTS, points.size());
-        int total = Math.max(1, Math.min(MAX_TRANSIT, Math.round(TRANSIT_PER_LIVELINESS * mult)));
+        List<SectorEntityToken> bodies = new ArrayList<>();
+        for (PlanetAPI planet : location.getPlanets()) {
+            if (!planet.isStar()) bodies.add(planet);
+        }
+        bodies.addAll(location.getEntitiesWithTag(Tags.STATION));
+        bodies.removeIf(body -> body == market.entity || market.market.getConnectedEntities().contains(body)
+                || Misc.getDistance(loc, body.getLocation()) - market.getRadius() - body.getRadius() > HOP_RANGE || !isHopTarget(body, market));
+        if (bodies.isEmpty()) return;
+
+        bodies.sort((p, q) -> Float.compare(Misc.getDistance(loc, p.getLocation()), Misc.getDistance(loc, q.getLocation())));
+        int count = Math.min(HOP_TARGETS, bodies.size());
+        int total = Math.max(1, Math.min(MAX_HOPS, Math.round(HOPS_PER_LIVELINESS * market.liveliness)));
         for (int i = 0; i < count; i++) {
             int demand = total / count + (i < total % count ? 1 : 0);
-            if (demand <= 0) continue;
-
-            ShuttleAnchor jump = getAnchor(points.get(i), ShuttleAnchor.Type.JUMP, ShuttleAnchor.Role.TARGET, null, market.faction);
-            getRoute(ShuttleRoute.Kind.TRANSIT, market, jump, random).demand = demand;
+            if (demand > 0) getRoute(ShuttleRoute.Kind.HOP, market, getHopTarget(bodies.get(i), market), random).demand = demand;
         }
+    }
+
+    // a market with traffic counts as itself unless hostile, an entity without a market as a target; decivilized worlds and hidden bases never
+    private boolean isHopTarget(SectorEntityToken body, ShuttleAnchor from) {
+        MarketAPI market = body.getMarket();
+        if (market != null && market.isInEconomy()) {
+            ShuttleAnchor anchor = anchors.get(body);
+            return anchor != null && anchor.role == ShuttleAnchor.Role.MARKET && marketAnchors.contains(anchor) && !anchor.faction.isHostileTo(from.faction);
+        }
+        return market == null || !market.hasCondition(Conditions.DECIVILIZED_SUBPOP);
+    }
+
+    private ShuttleAnchor getHopTarget(SectorEntityToken body, ShuttleAnchor from) {
+        ShuttleAnchor anchor = anchors.get(body);
+        if (anchor != null && anchor.role == ShuttleAnchor.Role.MARKET) return anchor;
+
+        ShuttleAnchor.Type type = body instanceof PlanetAPI ? ShuttleAnchor.Type.PLANET : ShuttleAnchor.Type.STATION;
+        return getAnchor(body, type, ShuttleAnchor.Role.TARGET, body.getMarket(), from.faction);
     }
 
     private void addDecivs(LocationAPI location) {

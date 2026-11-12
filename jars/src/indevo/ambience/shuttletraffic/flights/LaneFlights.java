@@ -1,10 +1,7 @@
 package indevo.ambience.shuttletraffic.flights;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ambience.shuttletraffic.Shuttle;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
@@ -12,9 +9,7 @@ import indevo.ambience.shuttletraffic.ShuttleFactionRepo;
 import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleHullPool;
 import indevo.ambience.shuttletraffic.ShuttleLook;
-import indevo.ambience.shuttletraffic.ShuttleNetwork;
 import indevo.ambience.shuttletraffic.ShuttleRoute;
-import indevo.ambience.shuttletraffic.ShuttleState;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
 import indevo.ambience.shuttletraffic.SpeedClass;
 
@@ -39,10 +34,6 @@ public class LaneFlights extends BaseFlights {
     private static final float CONVOY_ESCORT_SIDE = 25f;
     private static final String ESCORT_FALLBACK = "talon";
 
-    // arrivals start and departures may vanish this far past the market's surface, only out of sight and away from the player
-    public static final float TRANSIT_REACH = 2200f;
-    private static final float SIGHT_MARGIN = 300f;
-
     public LaneFlights(ShuttleTraffic traffic, ShuttlePaths paths) {
         super(traffic, paths);
     }
@@ -58,8 +49,8 @@ public class LaneFlights extends BaseFlights {
         if (!canFly(from, to)) return null;
 
         boolean smuggler = route.kind == ShuttleRoute.Kind.SMUGGLER;
-        // a jump point anchor is shared by every market of the system, arrivals fly their market's faction
-        FactionAPI faction = route.kind == ShuttleRoute.Kind.PIRATE_CARGO || route.kind == ShuttleRoute.Kind.TRANSIT ? route.a.faction : from.faction;
+        // a hop target is shared by every market near it, so hops fly their market's faction both ways
+        FactionAPI faction = route.kind == ShuttleRoute.Kind.PIRATE_CARGO || route.kind == ShuttleRoute.Kind.HOP ? route.a.faction : from.faction;
         ShuttleHull hull = switch (route.kind) {
             case SUPPLY -> ShuttleHullPool.rollCargo(faction, random, 0.8f, true);
             case PIRATE_CARGO -> ShuttleHullPool.rollSmall(faction, random);
@@ -67,44 +58,12 @@ public class LaneFlights extends BaseFlights {
         };
         if (hull == null) return null;
 
-        if (route.kind == ShuttleRoute.Kind.TRANSIT) {
-            Shuttle shuttle = create(hull, route, faction, from, to, paths.lanePath(from, to, route.bendFrac, false), SpeedClass.CIVIL, 1f, LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
-            if (to == route.a) placeArrival(shuttle, route);
-            return shuttle;
-        }
-
         if (route.kind == ShuttleRoute.Kind.MARKET) {
             return create(hull, route, faction, from, to, paths.trafficLanePath(route, from == route.b, ShuttleFactionRepo.get(faction).laneDiscipline()), SpeedClass.CIVIL, 1f, TRAFFIC_LANE_JITTER, ShuttleLook.CRAFT, Shuttle.CIVIL);
         }
 
         return create(hull, route, faction, from, to, paths.lanePath(from, to, route.bendFrac * (smuggler ? 2f : 1f), smuggler), SpeedClass.CIVIL, 1f, LANE_JITTER,
                 smuggler ? ShuttleLook.SMUGGLER : ShuttleLook.CRAFT, Shuttle.CIVIL);
-    }
-
-    // an arrival appears TRANSIT_REACH out when nobody can see that spot, else it comes all the way from the jump point
-    private void placeArrival(Shuttle shuttle, ShuttleRoute route) {
-        float chord = Misc.getDistance(route.a.getLocation(), route.b.getLocation());
-        float reach = route.a.getRadius() + TRANSIT_REACH;
-        if (chord <= reach) return;
-
-        shuttle.warmStart(1f - reach / chord);
-        if (!isUnseen(shuttle)) shuttle.warmStart(0f);
-    }
-
-    // departures fly the whole way to the jump point, but vanish past TRANSIT_REACH once unseen, so a player flying along keeps them
-    public void cullTransit() {
-        for (Shuttle shuttle : traffic.getShuttles()) {
-            ShuttleRoute route = shuttle.getRoute();
-            if (route == null || route.kind != ShuttleRoute.Kind.TRANSIT || shuttle.getTo() != route.b || shuttle.isDone() || shuttle.getState() != ShuttleState.CRUISE) continue;
-            if (Misc.getDistance(shuttle.pos, route.a.getLocation()) - route.a.getRadius() < TRANSIT_REACH || !isUnseen(shuttle)) continue;
-
-            shuttle.finish();
-        }
-    }
-
-    private boolean isUnseen(Shuttle shuttle) {
-        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
-        return player != null && Misc.getDistance(shuttle.pos, player.getLocation()) > ShuttleNetwork.NEAR_RANGE_OUT && traffic.isOutOfSight(shuttle.pos, SIGHT_MARGIN);
     }
 
     // a due convoy replaces the single craft of that launch
