@@ -46,6 +46,7 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
     static final float COLUMN_GAP = 10f;
     static final float COLONY_ROW_H = 74f;
     static final float EDICT_ROW_H = 32f;
+    static final float UNMET_ROW_H = 44f;
     static final float ROW_GAP = 4f;
     static final float EDICT_ROW_GAP = 2f;
     static final float GROUP_H = 18f;
@@ -362,12 +363,21 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
     private void addEdictRow(UiScroll.Column list, float w, MarketAPI colony, MarketConditionSpecAPI spec, Row state, String selectedId) {
         boolean selected = spec.getId().equals(selectedId);
         boolean live = state != Row.UNMET;
-        CustomPanelAPI block = list.block(EDICT_ROW_H, EDICT_ROW_GAP);
-        CustomPanelAPI row = UiButtons.row(block, 0f, 0f, w, EDICT_ROW_H, selected, true, state == Row.ACTIVE ? Ui.AMBER : null, () -> selectEdict(spec.getId()));
+        float h = live ? EDICT_ROW_H : UNMET_ROW_H;
+        CustomPanelAPI block = list.block(h, EDICT_ROW_GAP);
+        CustomPanelAPI row = UiButtons.row(block, 0f, 0f, w, h, selected, true, state == Row.ACTIVE ? Ui.AMBER : null, () -> selectEdict(spec.getId()));
         Ui.tooltip(block, row, null, previews.get(spec.getId()).getShortDesc());
 
-        UiImages.img(row, 4f + (state == Row.ACTIVE ? UiButtons.STRIP_W : 0f), 3f, EDICT_ICON, EDICT_ICON, spec.getIcon(), null, live ? 1f : UiImages.DIM);
+        UiImages.img(row, 4f + (state == Row.ACTIVE ? UiButtons.STRIP_W : 0f), Math.round((h - EDICT_ICON) / 2f), EDICT_ICON, EDICT_ICON, spec.getIcon(), null, live ? 1f : UiImages.DIM);
         float nameX = 38f + (state == Row.ACTIVE ? UiButtons.STRIP_W : 0f);
+
+        if (!live) {
+            float textW = w - nameX - 8f;
+            Ui.textIn(row, nameX, 3f, textW, 20f, EdictRepo.getShortName(spec.getName()), Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
+            Ui.textIn(row, nameX, 21f, textW, 20f, getFirstUnmet(spec.getId(), colony), Ui.INS15, Ui.neg(), Ui.LEFT, new String[0], new Color[0]);
+            return;
+        }
+
         float rightW;
 
         if (state == Row.ACTIVE) {
@@ -375,17 +385,12 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
             String days = active == null ? "" : getDayCount(active, colony);
             rightW = Math.min(Ui.width(days, Ui.INS15) + 2f, 90f);
             Ui.textIn(row, w - 8f - rightW, 0f, rightW, EDICT_ROW_H, days, Ui.INS15, active != null ? getRuntimeColor(active) : Ui.AMBER, Ui.RIGHT, new String[0], new Color[0]);
-        } else if (state == Row.MET) {
+        } else {
             rightW = UiData.MARK;
             UiData.mark(row, w - 10f - UiData.MARK, 10f, true);
-        } else {
-            String missing = getFirstUnmet(spec.getId(), colony);
-            float nameW = Ui.width(EdictRepo.getShortName(spec.getName()), Ui.INS15) + 2f;
-            rightW = Math.min(Ui.width(missing, Ui.INS15) + 2f, Math.max(60f, w - nameX - 16f - nameW));
-            Ui.textIn(row, w - 8f - rightW, 0f, rightW, EDICT_ROW_H, missing, Ui.INS15, Ui.neg(), Ui.RIGHT, new String[0], new Color[0]);
         }
 
-        Color nameColor = !live ? Ui.gray() : selected ? Ui.bright() : Ui.text();
+        Color nameColor = selected ? Ui.bright() : Ui.text();
         Ui.textIn(row, nameX, 0f, w - nameX - 16f - rightW, EDICT_ROW_H, EdictRepo.getShortName(spec.getName()), Ui.INS15, nameColor, Ui.LEFT, new String[0], new Color[0]);
     }
 
