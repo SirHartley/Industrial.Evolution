@@ -8,6 +8,7 @@ import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.CutStyle;
 import com.fs.starfarer.api.ui.LabelAPI;
+import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -17,8 +18,11 @@ import indevo.utils.ui.UiData;
 import indevo.utils.ui.UiFrame;
 import indevo.utils.ui.UiHost;
 import org.apache.log4j.Logger;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.Color;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +40,10 @@ public final class StyleChecks {
         UiViews.view(steps, "style-kit-vs-vanilla", c -> c.expect(UiHost.show(Global.getSector().getPlayerFleet(),
                 dialog -> dialog.showCustomDialog(W, H, new Board(dialog))), "style dialog opens"));
         UiViews.view(steps, "style-bars", c -> c.expect(UiHost.show(Global.getSector().getPlayerFleet(),
-                dialog -> dialog.showCustomDialog(BarBoard.W, BarBoard.H, new BarBoard(dialog))), "bar dialog opens"));
+                dialog -> dialog.showCustomDialog(BarBoard.W, BarBoard.H, new BarBoard(dialog))), "bar dialog opens"), (c, panel) -> {
+            c.expect(BarBoard.results.size() == BarBoard.PAIRS, "bar pixels read (" + BarBoard.results.size() + " of " + BarBoard.PAIRS + ")");
+            for (String result : BarBoard.results) c.expect(!result.contains("FAIL"), "bar pixels " + result);
+        });
         steps.add(c -> c.keepDialog(false));
         return steps;
     }
@@ -203,10 +210,21 @@ public final class StyleChecks {
         static final float BH = 20f;
         private static final String[] KINDS = {"standard", "ready", "paused", "overflow", "cargo", "fuel", "crew", "danger", "thin row"};
         private static final float[] LEVELS = {0f, 0.35f, 0.7f, 1f};
+        static final int PAIRS = (KINDS.length - 1) * LEVELS.length;
+        // max difference per channel between a kit pixel and the vanilla pixel at the same offset
+        private static final int TOLERANCE = 12;
+        static final List<String> results = new ArrayList<>();
+        private static final List<PositionAPI[]> pairs = new ArrayList<>();
+        private static final List<String> names = new ArrayList<>();
+        private static int renders;
         private final InteractionDialogAPI dialog;
 
         BarBoard(InteractionDialogAPI dialog) {
             this.dialog = dialog;
+            results.clear();
+            pairs.clear();
+            names.clear();
+            renders = 0;
         }
 
         private static Color color(String kind) {
@@ -234,14 +252,59 @@ public final class StyleChecks {
                         UiData.thinbar(p, x, y + 8f, BW, LEVELS[i], Ui.barBlue());
                         continue;
                     }
-                    UiData.bar(p, x, y, BW, BH, LEVELS[i], color(KINDS[r]), null);
+                    CustomPanelAPI kit = UiData.bar(p, x, y, BW, BH, LEVELS[i], color(KINDS[r]), null);
                     com.fs.starfarer.campaign.ui.N vanilla = new com.fs.starfarer.campaign.ui.N("", 0f, 100f);
                     vanilla.setShowNoText(true);
                     vanilla.setBarColor(color(KINDS[r]));
                     vanilla.setProgress(LEVELS[i] * 100f);
-                    p.addComponent((UIComponentAPI) (Object) vanilla).setSize(BW, BH).inTL(x + BW + 8f, y);
+                    PositionAPI vpos = p.addComponent((UIComponentAPI) (Object) vanilla).setSize(BW, BH).inTL(x + BW + 8f, y);
+                    pairs.add(new PositionAPI[]{kit.getPosition(), vpos});
+                    names.add(KINDS[r] + " " + Math.round(LEVELS[i] * 100f) + "%");
                 }
             }
+            // added last, so it paints after every bar
+            Ui.painted(p, 0f, 0f, W, H, null, (pos, a) -> compare());
+        }
+
+        // reads the back buffer once the dialog is fully faded in; 1 px around each bar for the end lines
+        private static void compare() {
+            if (++renders != 90) return;
+            float s = Global.getSettings().getScreenScaleMult();
+            for (int i = 0; i < pairs.size(); i++) {
+                PositionAPI k = pairs.get(i)[0];
+                PositionAPI v = pairs.get(i)[1];
+                int w = Math.round((k.getWidth() + 2f) * s);
+                int h = Math.round(k.getHeight() * s);
+                ByteBuffer kb = read(k.getX() - 1f, k.getY(), w, h, s);
+                ByteBuffer vb = read(v.getX() - 1f, v.getY(), w, h, s);
+                int worst = 0;
+                int at = 0;
+                int over = 0;
+                for (int px = 0; px < w * h; px++) {
+                    int d = 0;
+                    for (int ch = 0; ch < 3; ch++) d = Math.max(d, Math.abs((kb.get(px * 3 + ch) & 255) - (vb.get(px * 3 + ch) & 255)));
+                    if (d > TOLERANCE) over++;
+                    if (d > worst) {
+                        worst = d;
+                        at = px;
+                    }
+                }
+                int dx = at % w - 1;
+                int row = h - 1 - at / w;
+                results.add(names.get(i) + (over > 0 ? " FAIL" : "") + ": " + over + " of " + w * h + " px over " + TOLERANCE + ", worst " + worst + " at dx " + dx + " row " + row
+                        + " (kit " + rgb(kb, at) + ", vanilla " + rgb(vb, at) + ")");
+            }
+        }
+
+        private static ByteBuffer read(float x, float y, int w, int h, float s) {
+            ByteBuffer b = BufferUtils.createByteBuffer(w * h * 3);
+            GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
+            GL11.glReadPixels(Math.round(x * s), Math.round(y * s), w, h, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, b);
+            return b;
+        }
+
+        private static String rgb(ByteBuffer b, int px) {
+            return (b.get(px * 3) & 255) + "," + (b.get(px * 3 + 1) & 255) + "," + (b.get(px * 3 + 2) & 255);
         }
 
         @Override
