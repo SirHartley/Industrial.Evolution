@@ -182,21 +182,35 @@ public class ResearchProjectPanel {
                 t -> t.addPara("Accept excess donations toward future rewards. When disabled, excess items stay in your cargo.", 0f));
     }
 
+    private float itemsWidth(List<RequiredItem> items, int shown, CargoAPI cargo, boolean owned) {
+        float total = 0f;
+        for (int i = 0; i < shown; i++) {
+            RequiredItem item = items.get(i);
+            String s = owned ? format(item.points) + " (" + Ui.num(ResearchProjectDialoguePlugin.getQuantity(cargo, item)) + ")" : format(item.points);
+            total += ITEM_ICON + 4f + Ui.width(s, Ui.INS15) + 2f + 6f;
+        }
+        return total;
+    }
+
     private void addItems(CustomPanelAPI b, float x, float y, float w, ResearchProject project, CargoAPI cargo) {
         List<RequiredItem> items = project.getRequiredItems();
         int n = items.size();
         if (n == 0) return;
 
-        boolean owned = n <= 3;
         int shown = n <= 5 ? n : 4;
-        float per = (w - (n > 5 ? MORE_W : 0f)) / shown;
+        float room = w - (n > 5 ? MORE_W : 0f);
+        // cells take their measured width; owned counts go first when they do not all fit
+        boolean owned = n <= 3 && itemsWidth(items, shown, cargo, true) <= room;
+        boolean fits = itemsWidth(items, shown, cargo, owned) <= room;
+        float per = room / shown;
 
         for (int i = 0; i < shown; i++) {
             RequiredItem item = items.get(i);
             String pointsText = format(item.points);
             String own = Ui.num(ResearchProjectDialoguePlugin.getQuantity(cargo, item));
             String s = owned ? pointsText + " (" + own + ")" : pointsText;
-            float tw = Math.max(0f, Math.min(Ui.width(s, Ui.INS15) + 2f, per - ITEM_ICON - 4f - 6f));
+            float tw = Ui.width(s, Ui.INS15) + 2f;
+            if (!fits) tw = Math.max(0f, Math.min(tw, per - ITEM_ICON - 4f - 6f));
 
             CustomPanelAPI icon = UiImages.img(b, x, y, ITEM_ICON, ITEM_ICON, item.getSprite());
             Ui.tooltip(b, icon, item.getName(), format(item.points) + " points each.", "You have " + own + ".");
