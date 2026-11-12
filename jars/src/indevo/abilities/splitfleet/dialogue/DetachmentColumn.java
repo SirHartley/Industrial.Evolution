@@ -86,6 +86,7 @@ class DetachmentColumn {
 
     private UiScroll.Column column;
     private float w;
+    private boolean canDeploy = false;
 
     private record Ship(FleetMemberAPI member, ShipVariantAPI missing) {
         String name() {
@@ -121,8 +122,10 @@ class DetachmentColumn {
     }
 
     void build(CustomPanelAPI p, float x, float y, float colW, float h) {
-        column = UiScroll.list(p, x, y + LIST_Y, colW, h - LIST_Y, panel.getView().scroll, DetachmentView.listId(slot));
-        w = column.width();
+        // the action button stays pinned at the bottom, the column above scrolls
+        w = colW - UiScroll.GUTTER;
+        float actionH = live ? UiButtons.guardHeight(w, ACTION_H, getActionReason()) : ACTION_H;
+        column = UiScroll.list(p, x, y + LIST_Y, colW, h - LIST_Y - actionH - 10f, panel.getView().scroll, DetachmentView.listId(slot));
         addHeading(p, x, y);
 
         addTopRow();
@@ -137,6 +140,10 @@ class DetachmentColumn {
         else addDeployment();
 
         column.end();
+
+        CustomPanelAPI action = Ui.panel(p, x, y + h - actionH, w, actionH);
+        if (live) addAction(action);
+        else UiButtons.button(action, 0f, 0f, w, ACTION_H, "Deploy", canDeploy ? UiButtons.Kind.STD : UiButtons.Kind.OFF, canDeploy ? () -> panel.deploy(slot) : null);
     }
 
     private void addHeading(CustomPanelAPI p, float x, float y) {
@@ -554,9 +561,7 @@ class DetachmentColumn {
                 ready ? () -> panel.load(slot, DetachmentCargoLoad.Mode.MAX) : null);
         Ui.tooltip(b, max, null, "Fills the detachment's supplies and crew up to its capacity. You keep repairs plus one month of supplies and your minimum crew. Its fuel tanks are filled, up to half of all fuel. Anything your ships can not hold goes to the detachment if it has room.");
 
-        boolean canDeploy = shipsOk && cargoOk && suppliesOk && fuelOk;
-        CustomPanelAPI d = column.block(ACTION_H, GAP);
-        UiButtons.button(d, 0f, 0f, w, ACTION_H, "Deploy", canDeploy ? UiButtons.Kind.STD : UiButtons.Kind.OFF, canDeploy ? () -> panel.deploy(slot) : null);
+        canDeploy = shipsOk && cargoOk && suppliesOk && fuelOk;
     }
 
     private void addOfficers() {
@@ -587,16 +592,16 @@ class DetachmentColumn {
             String salary = Misc.getDGSCredits(Misc.getOfficerSalary(officer));
             Ui.runs(b, w - SALARY_W, y + 8f, SALARY_W, Ui.INS15, Ui.gray(), Ui.RIGHT, salary + " per month", new String[]{salary}, new Color[]{Ui.hl()});
         }
-
-        addAction();
     }
 
-    private void addAction() {
-        String reason = null;
-        if (!met && dormant) reason = "Out of supplies. Meet it and move supplies over to wake it.";
-        else if (!met && stranded) reason = "Out of fuel. Meet it and move fuel over to get it moving.";
+    private String getActionReason() {
+        if (!met && dormant) return "Out of supplies. Meet it and move supplies over to wake it.";
+        if (!met && stranded) return "Out of fuel. Meet it and move fuel over to get it moving.";
+        return null;
+    }
 
-        CustomPanelAPI b = column.block(UiButtons.guardHeight(w, ACTION_H, reason), 14f);
+    private void addAction(CustomPanelAPI b) {
+        String reason = getActionReason();
         ButtonAPI button;
         String tooltip;
         if (met) {
