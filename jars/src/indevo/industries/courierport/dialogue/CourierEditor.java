@@ -428,7 +428,7 @@ class CourierEditor {
                 (p, x, y, w, h, v) -> UiImages.hull(p, x, y, w, v.getHullSpec(), true, false), v -> v.getHullSpec().getHullNameWithDashClass());
 
         ButtonAPI cargoButton = UiButtons.button(b, cw - PICK_W, 0f, PICK_W, 24f, "Cargo...", UiButtons.Kind.STD, CutStyle.TL_BR, cargo ? this::pickCargo : null);
-        ButtonAPI shipButton = UiButtons.button(b, cw - PICK_W, 28f, PICK_W, 24f, "Ships...", UiButtons.Kind.STD, CutStyle.BL_TR, ships ? this::pickShips : null);
+        ButtonAPI shipButton = UiButtons.button(b, cw - PICK_W, 28f, PICK_W, 24f, "Ships...", UiButtons.Kind.STD, CutStyle.TL_BR, ships ? this::pickShips : null);
         if (!cargo) Ui.tooltip(b, cargoButton, null, getHolder(true));
         if (!ships) Ui.tooltip(b, shipButton, null, getHolder(false));
 
@@ -574,7 +574,7 @@ class CourierEditor {
     }
 
     private void addActions(CustomPanelAPI p, float x, float y, float w, boolean invalid) {
-        if (stored != null) UiButtons.confirm(p, x, y, 140f, ACTION_H, "Remove", UiButtons.Kind.RED, view.confirm, "remove", () -> {
+        if (stored != null) UiButtons.confirm(p, x, y, 140f, ACTION_H, "Remove", UiButtons.Kind.STD, view.confirm, "remove", () -> {
             ShippingContractMemory.removeContract(stored);
             view.selected = null;
             view.draft = null;
@@ -585,7 +585,7 @@ class CourierEditor {
 
         boolean save = isComplete();
         float cancelX = save ? x + w - 354f : x + w - 150f;
-        UiButtons.button(p, cancelX, y, 150f, ACTION_H, "Cancel", UiButtons.Kind.STD, CutStyle.TL_BR, act(() -> {
+        UiButtons.button(p, cancelX, y, 150f, ACTION_H, "Cancel", UiButtons.Kind.STD, CutStyle.ALL, act(() -> {
             view.draft = null;
             view.expanded = null;
             if (view.creating) {
@@ -594,7 +594,7 @@ class CourierEditor {
             }
         }));
 
-        if (save) UiButtons.button(p, x + w - 200f, y, 200f, ACTION_H, "Save", UiButtons.Kind.GREEN, CutStyle.BL_TR, act(() -> {
+        if (save) UiButtons.button(p, x + w - 200f, y, 200f, ACTION_H, "Save", UiButtons.Kind.STD, CutStyle.ALL, act(() -> {
             ShippingContractMemory.addOrReplaceContract(draft);
             if (view.creating) view.select(draft.getId());
             else view.draft = null;

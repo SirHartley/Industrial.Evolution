@@ -338,7 +338,7 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
 
         String reason = ok ? null : "Not enough " + RelicHelper.getName() + ".";
         CustomPanelAPI b = column.block(UiButtons.guardHeight(cw, BUTTON_H, reason), GAP);
-        UiButtons.guarded(b, 0f, 0f, cw, BUTTON_H, action, UiButtons.Kind.GREEN, reason, run);
+        UiButtons.guarded(b, 0f, 0f, cw, BUTTON_H, action, UiButtons.Kind.STD, reason, run);
 
         text(lore, Ui.gray(), 0f);
     }

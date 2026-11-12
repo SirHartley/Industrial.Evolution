@@ -241,7 +241,7 @@ public class ResearchProjectPanel {
         UiButtons.button(b, x, y, BUTTON_W, BUTTON_H, "Donate...", canDonate ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR,
                 canDonate ? () -> ResearchProjectDonationCargoPicker.init(plugin, id) : null);
 
-        ButtonAPI redeem = UiButtons.button(b, x + BUTTON_W + 4f, y, BUTTON_W, BUTTON_H, "Redeem", ready ? UiButtons.Kind.GREEN : UiButtons.Kind.OFF, CutStyle.BL_TR,
+        ButtonAPI redeem = UiButtons.button(b, x + BUTTON_W + 4f, y, BUTTON_W, BUTTON_H, "Redeem", ready ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR,
                 ready ? () -> onRedeem(project) : null);
         if (project.getRedeemRequirement() != null) addRedeemTooltip(b, redeem, project, cargo);
     }

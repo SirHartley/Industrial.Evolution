@@ -39,8 +39,8 @@ public class YardsSlider extends BaseCustomUIPanelPlugin {
 
     public static void create(CustomPanelAPI p, float x, float y, float w, float h, int value, int max, Color fill, IntConsumer onSet) {
         boolean on = max > 0;
-        UiButtons.button(p, x, y, STEP_W, h, "-", on ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR, on && value > 0 ? () -> onSet.accept(value - 1) : null);
-        UiButtons.button(p, x + w - STEP_W, y, STEP_W, h, "+", on ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.BL_TR, on && value < max ? () -> onSet.accept(value + 1) : null);
+        UiButtons.button(p, x, y, STEP_W, h, "-", on ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.ALL, on && value > 0 ? () -> onSet.accept(value - 1) : null);
+        UiButtons.button(p, x + w - STEP_W, y, STEP_W, h, "+", on ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.ALL, on && value < max ? () -> onSet.accept(value + 1) : null);
 
         float tw = w - 2f * STEP_W - 8f;
         YardsSlider slider = new YardsSlider(value, max, fill, onSet);

@@ -9,7 +9,7 @@ import java.util.function.IntConsumer;
 public final class UiButtons {
 
     public enum Kind {
-        STD, GREEN, RED, AMBER, STORY, HOT, OFF
+        STD, STORY, OFF
     }
 
     public static final float REASON_GAP = 4f;
@@ -103,12 +103,12 @@ public final class UiButtons {
         });
 
         float half = Math.round((w - 6f) / 2f);
-        ButtonAPI ok = button(p, x, y, half, h, "Confirm", kind == Kind.RED ? Kind.RED : Kind.GREEN, CutStyle.TL_BR, () -> {
+        ButtonAPI ok = button(p, x, y, half, h, "Confirm", kind, () -> {
             state.clear();
             action.run();
             refresh.run();
         });
-        button(p, x + w - half, y, half, h, "Cancel", Kind.STD, CutStyle.BL_TR, () -> {
+        button(p, x + w - half, y, half, h, "Cancel", Kind.STD, () -> {
             state.clear();
             refresh.run();
         });
@@ -192,9 +192,9 @@ public final class UiButtons {
     public static float stepper(CustomPanelAPI p, float x, float y, int value, boolean enabled, Runnable minus, Runnable plus) {
         float s = 22f;
         Kind kind = enabled ? Kind.STD : Kind.OFF;
-        button(p, x, y, s, s, "-", kind, CutStyle.TL_BR, enabled ? minus : null);
+        button(p, x, y, s, s, "-", kind, enabled ? minus : null);
         Ui.textIn(p, x + s, y, 28f, s, Ui.num(value), Ui.INS15, value > 0 ? Ui.hl() : Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
-        button(p, x + s + 28f, y, s, s, "+", kind, CutStyle.BL_TR, enabled ? plus : null);
+        button(p, x + s + 28f, y, s, s, "+", kind, enabled ? plus : null);
         return 2f * s + 28f;
     }
 
@@ -209,22 +209,10 @@ public final class UiButtons {
     }
 
     public static Color fg(Kind kind) {
-        return switch (kind) {
-            case GREEN, RED, AMBER -> Ui.text();
-            case STORY -> Ui.story();
-            case HOT -> Ui.bright();
-            default -> Ui.base();
-        };
+        return kind == Kind.STORY ? Ui.story() : Ui.base();
     }
 
     public static Color bg(Kind kind) {
-        return switch (kind) {
-            case GREEN -> Ui.GREEN;
-            case RED -> Ui.RED;
-            case AMBER -> Ui.AMBER;
-            case STORY -> Ui.storyDark();
-            case HOT -> Misc.setAlpha(Ui.dark(), 255);
-            default -> Ui.dark();
-        };
+        return kind == Kind.STORY ? Ui.storyDark() : Ui.dark();
     }
 }

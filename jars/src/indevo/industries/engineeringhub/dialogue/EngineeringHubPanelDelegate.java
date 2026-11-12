@@ -251,7 +251,7 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
 
         String reason = cost <= available ? null : "Not enough " + RelicHelper.getName() + ".";
         CustomPanelAPI b = column.block(UiButtons.guardHeight(cw, BUTTON_H, reason), GAP);
-        UiButtons.guarded(b, 0f, 0f, cw, BUTTON_H, "Learn", UiButtons.Kind.GREEN, reason, () -> {
+        UiButtons.guarded(b, 0f, 0f, cw, BUTTON_H, "Learn", UiButtons.Kind.STD, reason, () -> {
             RecoveredHullmods.learn(market, spec.getId());
             view.hullmod = null;
             view.scroll.reset(EngineeringHubView.DETAIL);
