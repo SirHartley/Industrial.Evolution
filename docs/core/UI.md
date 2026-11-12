@@ -132,8 +132,8 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 
 | Signature | Does |
 |---|---|
-| `bar(p, x, y, w, h, fraction, fill, label)` | Progress bar: black track, inset fill, end lines, centred label |
-| `thinbar(p, x, y, w, fraction, fill)` | 3 px bar for list rows |
+| `bar(p, x, y, w, h, fraction, fill, label)` | Progress bar: inset fill at the button level (`barFill`, 60 %), the empty part a dim tint of the same colour (`barTrack`, 22 %) like the vanilla campaign bars, end lines, centred label |
+| `thinbar(p, x, y, w, fraction, fill)` | 3 px bar for list rows, same fill and track colours |
 | `pips(p, x, y, total, filled, size, gap, color)` | Square pips, the first `filled` lit (quality level, D-mod forecast) |
 | `pips(p, x, y, total, from, to, w, h, gap, color)` | Pips `[from, to)` lit, the rest in base at `PIP_OFF` 0.18 (one lit pip: Academy personality ladder) |
 | `mark(p, x, y, ok)` / `checkrow(p, x, y, w, ok, text)` | 12 px tick or cross; mark and text, red text while unmet |

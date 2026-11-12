@@ -34,6 +34,15 @@ public final class UiData {
     }
 
     // vanilla bar chrome: black track, inset fill, doubled end lines, fading corner stubs, label centred on top
+    // fills at the button level, the empty part a dim tint of the same colour, like the vanilla campaign bars
+    public static Color barFill(Color c) {
+        return UiButtons.fill(c);
+    }
+
+    public static Color barTrack(Color c) {
+        return Misc.setAlpha(Misc.scaleColorOnly(c, 0.22f), 255);
+    }
+
     public static CustomPanelAPI bar(CustomPanelAPI p, float x, float y, float w, float h, float fraction, Color fill, String label) {
         float f = Math.max(0f, Math.min(1f, fraction));
         Color edge = Misc.scaleAlpha(Ui.base(), 0.9f);
@@ -48,7 +57,8 @@ public final class UiData {
             float fw = Math.round((bw - 6f) * f);
 
             UiDraw.quad(bx, by, bw, bh, Color.BLACK, a);
-            UiDraw.quad(bx + 3f, by + 1f, fw, bh - 2f, fill, a);
+            UiDraw.quad(bx + 3f, by + 1f, bw - 6f, bh - 2f, barTrack(fill), a);
+            UiDraw.quad(bx + 3f, by + 1f, fw, bh - 2f, barFill(fill), a);
             if (f > 0f && f < 1f) UiDraw.quad(bx + 3f + fw - 1f, by + 1f, 1f, bh - 2f, tick, a);
         }, (pos, a) -> {
             float bx = pos.getX();
@@ -72,11 +82,12 @@ public final class UiData {
 
     public static CustomPanelAPI thinbar(CustomPanelAPI p, float x, float y, float w, float fraction, Color fill) {
         float f = Math.max(0f, Math.min(1f, fraction));
-        Color track = Misc.scaleAlpha(Ui.base(), 0.16f);
+        Color track = barTrack(fill);
+        Color done = barFill(fill);
 
         return Ui.painted(p, x, y, w, THIN_H, (pos, a) -> {
             UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), track, a);
-            UiDraw.quad(pos.getX(), pos.getY(), Math.round(pos.getWidth() * f), pos.getHeight(), fill, a);
+            UiDraw.quad(pos.getX(), pos.getY(), Math.round(pos.getWidth() * f), pos.getHeight(), done, a);
         }, null);
     }
 
