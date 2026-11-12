@@ -204,15 +204,15 @@ public final class UiData {
         float arrowW = Ui.width("->", Ui.INS15) + 2f;
         float fromW = Ui.width(from, Ui.INS15) + 2f;
         float toX = x + w - toW;
-        float arrowX = toX - 5f - arrowW;
+        float arrowX = toX - 3f - arrowW;
         float fromX = arrowX - 5f - fromW;
 
         Ui.textIn(p, toX, y, toW, h, to, Ui.INS15, Ui.hl(), Ui.RIGHT, new String[0], new Color[0]);
         Ui.textIn(p, arrowX, y, arrowW, h, "->", Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
         LabelAPI old = Ui.textIn(p, fromX, y, fromW, h, from, Ui.INS15, Ui.gray(), Ui.RIGHT, new String[0], new Color[0]);
-        // through the middle of the digits, over the glyphs only (right aligned, the box has 2 px slack on the left)
+        // through the middle of the digits and 2 px past them on both sides (right aligned, the box has 2 px slack on the left)
         float lh = Ui.height(old);
-        Ui.rule(p, fromX + 2f, y + (float) Math.floor((h - lh) / 2f) + Math.round(lh / 2f), fromW - 2f, Ui.gray());
+        Ui.rule(p, fromX, y + (float) Math.floor((h - lh) / 2f) + Math.round(lh / 2f), fromW + 2f, Ui.text());
         Ui.textIn(p, x, y, fromX - 8f - x, h, label, Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
         return h;
     }

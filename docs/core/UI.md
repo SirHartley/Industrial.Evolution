@@ -143,7 +143,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `creditsRow(p, x, y, w, label, amount)`, `relicRow(p, x, y, w, label, amount, market)` | `costrow` with the player's credits or `RelicHelper.getAvailable(market)` |
 | `value(p, x, y, w, h, label, value, color, parts, colors)` | Label left, value right in a measured column |
 | `grid(p, x, y, w, rowH, rows)` | `GridRow.of(label, value[, color])` rows, value in highlight by default |
-| `change(p, x, y, w, h, label, from, to)` | Label left; right the old value in grey with a strike line, `->` and the new value in highlight. For the effect of an action on one number |
+| `change(p, x, y, w, h, label, from, to)` | Label left; right the old value in grey with a strike line in the text colour that runs 2 px past the digits, `->` and the new value in highlight. For the effect of an action on one number |
 
 ### UiFrame
 
