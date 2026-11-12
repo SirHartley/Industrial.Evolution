@@ -19,6 +19,7 @@ Every IE panel follows these rules.
    - Right aligned numbers get their own measured column (`UiData.value`, `grid`, `costrow`).
    - Icon rows have fixed cells, at most two rows, then a `+N` cell with the rest as tooltip (`UiImages.iconrow`).
    - Lists scroll and keep their offset across a rebuild (`UiScroll.Offsets`).
+   - At scroll offset 0 nothing is cut in half by a scroll edge: fixed pitch lists end on a whole row (`UiScroll.wholeRows`), every `UiScroll.Column` ends its viewport on the last block that fits whole and leaves the rest empty, and a block that holds several rows is split into one block per row.
    - A detail pane that ends in its actions pins the action block (cost line, buttons with their reason lines, an inline confirm) at the bottom; the information above scrolls in the height left. Every action button is visible without scrolling at 1600 x 900 and 1280 x 768.
    - A blocked button is grey with one red reason line below in the game's current words (`UiButtons.guarded`); the line height is reserved either way.
    - An empty list keeps its heading and one grey line.
@@ -160,7 +161,7 @@ Header layout of the boards: title at y 0, tabs at `HEADER_Y` 30 with `HEADER_H`
 |---|---|
 | `list(p, x, y, w, h, offsets, id)` | Scroll column of fixed outer size; returns a `Column` |
 | `Column.block(h, gapBefore)` | Next block, `width()` wide (`w - GUTTER`), its own coordinates |
-| `Column.end()` | Attaches the column and restores its offset |
+| `Column.end()` | Creates the scroll element (its viewport height is fixed at creation, `obf/ui/newui/int.java` `addUIElement`) at the height of the last block that fits whole, adds the blocks, attaches it and restores its offset |
 | `Offsets` | Offsets by list id: `get`, `set`, `reset(id)` (for example on a new selection), `capture()`, `restore()` |
 | `wholeRows(h, lead, rowH, gap)` | Tallest height up to `h` that ends on a whole row, so a fixed pitch list never shows half a row at rest; the rest becomes the gap below |
 

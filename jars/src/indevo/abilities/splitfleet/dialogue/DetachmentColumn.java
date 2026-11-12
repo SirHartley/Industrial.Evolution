@@ -544,12 +544,11 @@ class DetachmentColumn {
             checks.add(Check.of(any, any ? "Fuel to leave this location" : "Fuel to leave this location: no fuel"));
         }
 
-        CustomPanelAPI b = column.block(checks.size() * CHECK_ROW, GAP);
         for (int i = 0; i < checks.size(); i++) {
+            CustomPanelAPI b = column.block(CHECK_ROW, i == 0 ? GAP : 0f);
             Check check = checks.get(i);
-            float y = i * CHECK_ROW;
-            UiData.mark(b, 2f, y + 3f, check.ok());
-            Ui.runs(b, MARK_X, y, w - MARK_X, Ui.INS15, check.color(), Ui.LEFT, check.text(), check.parts(), check.colors());
+            UiData.mark(b, 2f, 3f, check.ok());
+            Ui.runs(b, MARK_X, 0f, w - MARK_X, Ui.INS15, check.color(), Ui.LEFT, check.text(), check.parts(), check.colors());
         }
 
         canLoad = ready;
@@ -575,8 +574,7 @@ class DetachmentColumn {
             if (officer != null && !officer.isDefault() && !officer.isAICore() && !officer.isPlayer()) led.add(m);
         }
 
-        CustomPanelAPI b = column.block(Math.max(1, led.size()) * OFFICER_ROW, GAP);
-        if (led.isEmpty()) Ui.text(b, 0f, 2f, w, "No officers.", Ui.gray());
+        if (led.isEmpty()) Ui.text(column.block(OFFICER_ROW, GAP), 0f, 2f, w, "No officers.", Ui.gray());
 
         float tw = w - 40f - SALARY_W - 8f;
         for (int i = 0; i < led.size(); i++) {
@@ -584,7 +582,8 @@ class DetachmentColumn {
             PersonAPI officer = m.getCaptain();
             String personality = officer.getPersonalityAPI().getId();
             String personalityName = AcademyPanelDelegate.getPersonalityName(personality);
-            float y = i * OFFICER_ROW;
+            CustomPanelAPI b = column.block(OFFICER_ROW, i == 0 ? GAP : 0f);
+            float y = 0f;
 
             UiImages.portrait(b, 0f, y, PORTRAIT, officer);
             Ui.text(b, 40f, y, tw, officer.getNameString());

@@ -4,7 +4,9 @@ import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.ScrollPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class UiScroll {
@@ -61,13 +63,17 @@ public final class UiScroll {
     }
 
     // a scrolling column of fixed outer size; add blocks top to bottom, then end()
+    // blocks are kept until end(): the viewport height is fixed when the element is created, and at offset 0 it ends on
+    // the last block that fits whole, so nothing is cut in half at rest; the rest of the column stays empty
     public static final class Column {
         private final CustomPanelAPI holder;
-        private final TooltipMakerAPI element;
         private final float w;
         private final float h;
         private final String id;
         private final Offsets offsets;
+        private final List<CustomPanelAPI> blocks = new ArrayList<>();
+        private final List<Float> gaps = new ArrayList<>();
+        private float content = 0f;
 
         private Column(CustomPanelAPI holder, float w, float h, String id, Offsets offsets) {
             this.holder = holder;
@@ -75,7 +81,6 @@ public final class UiScroll {
             this.h = h;
             this.id = id;
             this.offsets = offsets;
-            element = holder.createUIElement(w + Ui.INSET, h, true);
         }
 
         public float width() {
@@ -84,17 +89,34 @@ public final class UiScroll {
 
         public CustomPanelAPI block(float height, float gapBefore) {
             CustomPanelAPI block = holder.createCustomPanel(width(), height, new UiCanvas());
-            element.addCustom(block, gapBefore);
+            blocks.add(block);
+            gaps.add(gapBefore);
+            content += gapBefore + height;
             return block;
         }
 
         public float contentHeight() {
-            return element.getHeightSoFar();
+            return content;
         }
 
         public TooltipMakerAPI end() {
+            float viewH = h;
+            if (content > h + 0.5f) {
+                float y = 0f;
+                float fit = 0f;
+                for (int i = 0; i < blocks.size(); i++) {
+                    float bottom = y + gaps.get(i) + blocks.get(i).getPosition().getHeight();
+                    if (bottom > h + 0.5f) break;
+                    fit = bottom;
+                    y = bottom;
+                }
+                if (fit > 0f) viewH = fit;
+            }
+
+            TooltipMakerAPI element = holder.createUIElement(w + Ui.INSET, viewH, true);
+            for (int i = 0; i < blocks.size(); i++) element.addCustom(blocks.get(i), gaps.get(i));
             holder.addUIElement(element).inTL(-Ui.INSET, 0f);
-            offsets.track(id, element, h);
+            offsets.track(id, element, viewH);
             return element;
         }
     }
