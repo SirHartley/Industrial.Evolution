@@ -24,7 +24,7 @@ import java.util.List;
 public final class StyleChecks {
     private static final Logger log = Global.getLogger(StyleChecks.class);
     private static final float W = 1100f;
-    private static final float H = 640f;
+    private static final float H = 770f;
 
     private StyleChecks() {
     }
@@ -118,6 +118,26 @@ public final class StyleChecks {
                 t.addSectionHeading("addSectionHeading MID", Alignment.MID, 6f);
             });
 
+            // green and amber fills at 100, 75 and 60 %, the kit uses UiButtons.FILL; red at full and a vanilla button for reference
+            float ry = 636f;
+            Ui.text(p, 0f, ry, W, "Button fills: GREEN and AMBER at 100, 75 and 60 % (kit " + Math.round(UiButtons.FILL * 100f) + " %), RED at full, vanilla dark fill at the end",
+                    Ui.ORB12, Ui.hl(), Ui.LEFT);
+            float[] levels = {1f, 0.75f, 0.6f};
+            for (int i = 0; i < levels.length; i++) {
+                float y = ry + 22f + i * 34f;
+                Color g = Misc.setAlpha(Misc.scaleColorOnly(Ui.GREEN, levels[i]), 255);
+                Color a = Misc.setAlpha(Misc.scaleColorOnly(Ui.AMBER, levels[i]), 255);
+                Ui.text(p, 0f, y + 6f, 50f, Math.round(levels[i] * 100f) + " %", Ui.ORB12, Ui.text(), Ui.LEFT);
+                fillButton(p, 56f, y, 120f, "Green", g, true);
+                fillButton(p, 182f, y, 120f, "Green off", g, false);
+                fillButton(p, 308f, y, 96f, "Confirm", g, true);
+                fillButton(p, 410f, y, 96f, "Cancel", Ui.dark(), true);
+                fillButton(p, 530f, y, 120f, "Amber", a, true);
+                fillButton(p, 656f, y, 120f, "Amber off", a, false);
+                fillButton(p, 800f, y, 120f, "Red", Ui.RED, true);
+                fillButton(p, 926f, y, 120f, "Vanilla", Misc.getDarkPlayerColor(), true);
+            }
+
             // vanilla built buttons, same calls as api/impl intel (base and dark faction colours, ALL cut by default)
             Ui.element(p, vx, 140f, half, 400f, t -> {
                 ButtonAPI a = t.addButton("Vanilla intel button 20", null, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), 255f, 20f, 0f);
@@ -134,6 +154,15 @@ public final class StyleChecks {
                 ButtonAPI box = t.addCheckbox(200f, 20f, "Vanilla checkbox", null, ButtonAPI.UICheckboxSize.SMALL, 6f);
                 box.setChecked(true);
                 log.info("LIVE_CHECK note: STYLE vanilla intel button " + a.getPosition().getWidth() + " x " + a.getPosition().getHeight());
+            });
+        }
+
+        // a kit like button with a given fill, light text on coloured fills, base text on the vanilla fill
+        private static void fillButton(CustomPanelAPI p, float x, float y, float w, String label, Color bg, boolean enabled) {
+            Color fg = bg.equals(Ui.dark()) || bg.equals(Misc.getDarkPlayerColor()) ? Ui.base() : Ui.text();
+            Ui.element(p, x, y, w, 28f, t -> {
+                ButtonAPI b = t.addButton(label, null, fg, bg, Alignment.MID, CutStyle.ALL, w, 28f, 0f);
+                if (!enabled) b.setEnabled(false);
             });
         }
 
