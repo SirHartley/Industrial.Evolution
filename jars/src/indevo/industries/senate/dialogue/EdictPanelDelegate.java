@@ -196,7 +196,9 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
     private float addHeader(CustomPanelAPI p, float w) {
         UiFrame.title(p, w, "Edicts", senateScope ? "Senate on " + origin.getName() : origin.getName(), this::addHelp);
 
-        float right = UiFrame.counter(p, w, UiFrame.HEADER_Y, "", UiImages.relicSprite(), Ui.num(RelicHelper.getAvailable(origin)));
+        // the selected colony pays a bribe, so its storage and your cargo are what counts
+        MarketAPI payer = colonies.isEmpty() ? origin : resolveColony();
+        float right = UiFrame.counter(p, w, UiFrame.HEADER_Y, "", UiImages.relicSprite(), Ui.num(RelicHelper.getAvailable(payer)));
         if (getCompoundsSenate() != null) {
             String name = Global.getSettings().getSpecialItemSpec(ItemIds.NEUAL_COMPOUNDS).getName();
             right = UiFrame.slot(p, right, UiFrame.HEADER_Y, Global.getSettings().getSpecialItemSpec(ItemIds.NEUAL_COMPOUNDS).getIconName(), name, name,
