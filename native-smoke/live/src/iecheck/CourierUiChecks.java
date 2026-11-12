@@ -40,15 +40,15 @@ public final class CourierUiChecks {
             open(c, view);
         });
         UiViews.view(steps, "courier-core-beta", c -> {
-            Global.getSector().getMemoryWithoutUpdate().set(ShippingCostCalculator.AI_CORE_ID_STRING, Commodities.BETA_CORE);
+            core(c, Commodities.BETA_CORE);
             open(c, CourierView.contract(id(c, "cargo")));
         });
         UiViews.view(steps, "courier-core-alpha", c -> {
-            Global.getSector().getMemoryWithoutUpdate().set(ShippingCostCalculator.AI_CORE_ID_STRING, Commodities.ALPHA_CORE);
+            core(c, Commodities.ALPHA_CORE);
             open(c, CourierView.contract(id(c, "cargo")));
         });
         UiViews.view(steps, "courier-new-step1", c -> {
-            Global.getSector().getMemoryWithoutUpdate().unset(ShippingCostCalculator.AI_CORE_ID_STRING);
+            core(c, null);
             open(c, CourierView.newContract(null, null, null, null, null));
         });
         UiViews.view(steps, "courier-new-step2", c -> open(c, CourierView.newContract(mid(c, "a"), null, null, null, null)));
@@ -132,6 +132,13 @@ public final class CourierUiChecks {
         // addOrReplaceContract refuses invalid contracts, the invalid view needs one stored
         ShippingContractMemory.getContractList().add(contract);
         return contract;
+    }
+
+    // the port writes its core into the sector memory key on apply, so install it there
+    private static void core(Ctx c, String id) {
+        c.market("a").getIndustry(Ids.PORT).setAICoreId(id);
+        c.market("a").reapplyIndustries();
+        c.note("courier core " + Global.getSector().getMemoryWithoutUpdate().getString(ShippingCostCalculator.AI_CORE_ID_STRING));
     }
 
     private static void open(Ctx c, CourierView view) {
