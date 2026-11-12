@@ -109,20 +109,23 @@ class AcademyDetail {
 
         String blocker = academy.getOfficerTrainBlocker(person);
         float fee = 0f;
+        int days = 0;
         if (view.rung != null) {
             int steps = Academy.getPersonalitySteps(current, view.rung);
-            int days = academy.getOfficerTrainingDays(steps);
+            days = academy.getOfficerTrainingDays(steps);
             fee = academy.getOfficerTrainingFee(steps);
 
             String description = Global.getSettings().getPersonaltySpec(view.rung).getDescription();
             if (description != null && !description.isEmpty()) text(description, Ui.gray(), GAP);
-            grid(GAP, GridRow.of("Duration", days + " " + getDayOrDays(days)),
-                    GridRow.of(stored ? "Done on" : "Leaves the fleet until", AcademyPanelDelegate.getDoneDate(days)));
             if (blocker == null && !BillingHelper.canAfford(fee)) blocker = "Not enough credits.";
         }
 
         pin();
-        if (view.rung != null) addFee(fee);
+        if (view.rung != null) {
+            grid(0f, GridRow.of("Duration", days + " " + getDayOrDays(days)),
+                    GridRow.of(stored ? "Done on" : "Leaves the fleet until", AcademyPanelDelegate.getDoneDate(days)));
+            addFee(fee);
+        }
         String rung = view.rung;
         guarded("Train", UiButtons.Kind.GREEN, TRAIN_H, blocker, SECTION_GAP, null, () -> {
             academy.setOfficerForTraining(person, rung);
@@ -248,11 +251,11 @@ class AcademyDetail {
         String blocker = academy.getAdminTrainBlocker(person);
         int days = academy.getAdminTrainingDays();
         heading("Administrator training", SECTION_GAP);
-        if (blocker == null) grid(GAP, GridRow.of("Gains", "One random skill"), GridRow.of("Duration", days + " " + getDayOrDays(days)),
-                GridRow.of("Away until", AcademyPanelDelegate.getDoneDate(days)));
-        else grid(GAP, GridRow.of("Gains", "One random skill"), GridRow.of("Duration", days + " " + getDayOrDays(days)));
+        grid(GAP, GridRow.of("Gains", "One random skill"));
 
         pin();
+        if (blocker == null) grid(0f, GridRow.of("Duration", days + " " + getDayOrDays(days)), GridRow.of("Away until", AcademyPanelDelegate.getDoneDate(days)));
+        else grid(0f, GridRow.of("Duration", days + " " + getDayOrDays(days)));
         addFee(academy.getAdminTrainingFee());
         guarded("Train", UiButtons.Kind.GREEN, TRAIN_H, blocker, SECTION_GAP, null, () -> {
             academy.setAdminInTraining(person);
