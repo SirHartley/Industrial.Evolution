@@ -19,6 +19,7 @@ Every IE panel follows these rules.
    - Right aligned numbers get their own measured column (`UiData.value`, `grid`, `costrow`).
    - Icon rows have fixed cells, at most two rows, then a `+N` cell with the rest as tooltip (`UiImages.iconrow`).
    - Lists scroll and keep their offset across a rebuild (`UiScroll.Offsets`).
+   - A detail pane that ends in its actions pins the action block (cost line, buttons with their reason lines, an inline confirm) at the bottom; the information above scrolls in the height left. Every action button is visible without scrolling at 1600 x 900 and 1280 x 768.
    - A blocked button is grey with one red reason line below in the game's current words (`UiButtons.guarded`); the line height is reserved either way.
    - An empty list keeps its heading and one grey line.
 3. Panel size is `min(board, screen - margin)` per axis (`UiFrame.width/height`, margin 100). List regions take up the difference, fixed blocks keep their size. Everything fits 1600 x 900 and stays usable at 1280 x 768.
