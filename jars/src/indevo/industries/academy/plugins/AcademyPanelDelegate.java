@@ -333,8 +333,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
             FleetMemberAPI ship = Academy.getCommandedShip(person);
             if (ship != null) {
                 UiImages.ship(row, ASSIGN_X, 2f, PORTRAIT, ship, true, false);
-                Ui.text(row, textX, 7f, textW, ship.getShipName());
-                Ui.text(row, textX, 26f, textW, ship.getHullSpec().getHullNameWithDashClass(), Ui.gray());
+                nameLines(row, textX, textW, ship.getShipName(), ship.getHullSpec().getHullNameWithDashClass());
             } else {
                 Ui.dashbox(row, ASSIGN_X, 2f, PORTRAIT, PORTRAIT);
                 Ui.text(row, textX, 16f, textW, "Unassigned", Ui.gray());
@@ -370,14 +369,30 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         } else if (governed != null) {
             Ui.well(row, ASSIGN_X, 2f, PORTRAIT, PORTRAIT);
             UiImages.planet(row, ASSIGN_X + 5f, 7f, PORTRAIT - 10f, governed);
-            Ui.text(row, textX, 7f, textW, governed.getName());
-            Ui.text(row, textX, 26f, textW, getMarketLine(governed), Ui.gray());
+            nameLines(row, textX, textW, governed.getName(), getMarketLine(governed, textW));
         } else {
             Ui.dashbox(row, ASSIGN_X, 2f, PORTRAIT, PORTRAIT);
             Ui.text(row, textX, 16f, textW, "Unassigned", Ui.gray());
         }
 
         addSalary(row, w, Misc.getAdminSalary(person) * (stored ? 0.1f : 1f));
+    }
+
+    // a name too long for one line takes both lines and drops the grey second line
+    private static void nameLines(CustomPanelAPI row, float x, float w, String name, String second) {
+        if (Ui.width(name, Ui.INS15) + 2f <= w) {
+            Ui.text(row, x, 7f, w, name);
+            Ui.text(row, x, 26f, w, second, Ui.gray());
+            return;
+        }
+        Ui.wrap(row, x, 7f, w, Ui.lines(name, Ui.INS15, w, 2), Ui.text());
+    }
+
+    // size and system, the system alone when both do not fit
+    static String getMarketLine(MarketAPI market, float w) {
+        String line = getMarketLine(market);
+        if (Ui.width(line, Ui.INS15) + 2f <= w || market.getStarSystem() == null) return line;
+        return market.getStarSystem().getBaseName();
     }
 
     static String getMarketLine(MarketAPI market) {

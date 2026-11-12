@@ -287,7 +287,7 @@ class AcademyDetail {
                 Ui.text(b, GRID_X, lineY + GRID_ROW, w - GRID_X, "draws 10% of salary", Ui.gray());
             } else if (governed != null) {
                 UiImages.planet(b, GRID_X, lineY, 30f, governed);
-                Ui.text(b, GRID_X + 36f, lineY + 7f, w - GRID_X - 36f, AcademyPanelDelegate.getMarketLine(governed), Ui.gray());
+                Ui.text(b, GRID_X + 36f, lineY + 7f, w - GRID_X - 36f, AcademyPanelDelegate.getMarketLine(governed, w - GRID_X - 36f), Ui.gray());
             } else if (note != null) Ui.text(b, GRID_X, lineY, w - GRID_X, note, Ui.gray());
         });
     }

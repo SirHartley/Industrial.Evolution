@@ -132,6 +132,21 @@ public final class Ui {
         return lo == 0 ? ELLIPSIS : s.substring(0, lo).stripTrailing() + ELLIPSIS;
     }
 
+    // the leading words that wrap into n lines at w, with "..." when words are left out
+    public static String lines(String s, String font, float w, int n) {
+        if (s == null) return "";
+        float max = n * wrapHeight("Ag", font, w) + 1f;
+        if (wrapHeight(s, font, w) <= max) return s;
+
+        String words = "";
+        for (String word : s.trim().split("\\s+")) {
+            String next = words.isEmpty() ? word : words + " " + word;
+            if (wrapHeight(next + ELLIPSIS, font, w) > max) break;
+            words = next;
+        }
+        return words.isEmpty() ? fit(s, font, w) : words.replaceAll("[,;:.]+$", "") + ELLIPSIS;
+    }
+
     public static String sentences(String s, String font, float w) {
         if (s == null) return "";
         float max = w - 2f;
