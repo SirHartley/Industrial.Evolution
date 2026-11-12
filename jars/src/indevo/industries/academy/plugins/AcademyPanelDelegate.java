@@ -41,8 +41,8 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
     static final float PIP_W = 14f;
     static final float PIP_H = 5f;
     static final float PIP_GAP = 2f;
-    static final float SALARY_W = 80f;
-    static final float ASSIGN_X = 506f;
+    static final float SALARY_W = 70f;
+    static final float ASSIGN_X = 498f;
 
     private final Academy academy;
     private final AcademyView view;
@@ -254,7 +254,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
             if (academy.hasAlphaCore()) tooltip.addPara("Up to %s per officer.", pad, hl, steps);
             else tooltip.addPara("%s per officer, %s with an alpha core.", pad, hl, Misc.ucFirst(steps), Academy.getStepCountText(academy.getMaxOfficerSteps(true)));
 
-            if (academy.hasHolobench()) tooltip.addPara("Holobench: officers leave training %s. Stored officers gain %s experience per month.", pad, hl, "mentored", Misc.getWithDGS(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP));
+            if (academy.hasHolobench()) tooltip.addPara(Global.getSettings().getSpecialItemSpec(ItemIds.HOLOBENCH).getName() + ": officers leave training %s. Stored officers gain %s experience per month.", pad, hl, "mentored", Misc.getWithDGS(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP));
 
             if (own) tooltip.addPara("Stored officers draw their full salary.", pad);
             else tooltip.addPara("Storage costs %s per month for each officer, plus full salary.", pad, hl, storageFee);
@@ -324,7 +324,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         addSkillIcons(row, 292f, person);
 
         float textX = ASSIGN_X + PORTRAIT + 8f;
-        float textW = w - SALARY_W - 18f - textX;
+        float textW = w - SALARY_W - 12f - textX;
         if (stored) {
             String[] lines = getStoredLines(person);
             Ui.text(row, ASSIGN_X, 7f, textW + textX - ASSIGN_X, lines[0], Ui.gray());
@@ -362,7 +362,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         for (int i = skills.size(); i < 2; i++) Ui.dashbox(row, 230f + i * (SKILL + 4f), 10f, SKILL, SKILL);
 
         float textX = ASSIGN_X + PORTRAIT + 8f;
-        float textW = w - SALARY_W - 18f - textX;
+        float textW = w - SALARY_W - 12f - textX;
         MarketAPI governed = stored ? null : Academy.getGovernedMarket(person);
         if (stored) {
             Ui.text(row, ASSIGN_X, 7f, textW + textX - ASSIGN_X, "In storage", Ui.gray());
