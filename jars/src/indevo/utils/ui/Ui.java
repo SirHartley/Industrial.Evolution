@@ -188,7 +188,8 @@ public final class Ui {
     public static LabelAPI textIn(CustomPanelAPI p, float x, float y, float w, float h, String s, String font, Color c, Alignment align,
                                   String[] parts, Color[] colors) {
         LabelAPI label = runs(p, x, y, w, font, c, align, s, parts, colors);
-        label.getPosition().inTL(x, y + Math.round((h - height(label)) / 2f));
+        // the engine centres a label with the odd pixel below, as vanilla section headings show
+        label.getPosition().inTL(x, y + (float) Math.floor((h - height(label)) / 2f));
         return label;
     }
 

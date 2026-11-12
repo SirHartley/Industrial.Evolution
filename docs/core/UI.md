@@ -76,7 +76,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `sentences(s, font, w)` | The leading whole sentences that fit `w - 2`; when the first one does not fit, cut at a word with `...` |
 | `text(p, x, y, w, s[, color[, align]])`, `text(p, x, y, w, s, font, color, align)` | One line, fitted, tooltip with the full text when shortened. Align `LEFT`, `RIGHT`, `CENTER` |
 | `runs(p, x, y, w, font, color, align, s, parts, colors)` | One line with coloured runs (first occurrence of each part) |
-| `textIn(p, x, y, w, h, s, font, color, align, parts, colors)` | `runs` centred vertically in a box of height `h` |
+| `textIn(p, x, y, w, h, s, font, color, align, parts, colors)` | `runs` centred vertically in a box of height `h`, the odd pixel below like the engine (left and right headings, `thead`, notes on heading bars) |
 | `wrap(p, x, y, w, s, color)`, `wrap(..., font, color, align, parts, colors)` | Wrapped at `w`; `height(label)` is the measured height |
 | `wrapHeight(s, font, w)` | Height of wrapped text before placing it |
 | `heading(p, x, y, w, title[, align[, color, bg]])` | Section heading, 18 high, exactly `w` wide. Centred: the vanilla heading label. Left or right: a flat bar of the same colour with the text 8 px in |
