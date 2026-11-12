@@ -64,6 +64,12 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
     private UiRoot root;
     private UiScroll.Column column;
     private float cw;
+    private CustomPanelAPI pinned;
+    private float pinY;
+    private CustomPanelAPI detailP;
+    private float detailX;
+    private float detailH;
+    private float detailActionH;
 
     static class Entry {
         String key;
@@ -258,16 +264,45 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
     }
 
     private void addDetail(CustomPanelAPI p, float x, float w, float h, Entry entry) {
-        column = UiScroll.list(p, x, BODY_Y, w, h, view.scroll, AncientLabRelicView.DETAIL);
-        cw = column.width();
+        cw = w - UiScroll.GUTTER;
+        pinned = null;
 
+        // the cost, the button and its lore stay pinned at the bottom, the information above scrolls
+        float actionH = 0f;
+        if (entry != null) {
+            String reason = entry.cost <= RelicHelper.getAvailable(market) ? null : "Not enough " + RelicHelper.getName() + ".";
+            actionH = Ui.HEADING_H + 6f + UiData.COST_ROW_H + GAP + UiButtons.guardHeight(cw, BUTTON_H, reason)
+                    + Ui.wrapHeight(view.ships ? INTEGRATE_LORE : REFINE_LORE, Ui.INS15, cw);
+        }
+
+        detailP = p;
+        detailX = x;
+        detailH = h;
+        detailActionH = actionH;
+        column = UiScroll.list(p, x, BODY_Y, w, actionH > 0f ? h - actionH - 2f * GAP : h, view.scroll, AncientLabRelicView.DETAIL);
         if (entry == null) {
             heading(view.ships ? "Automated ships" : "Forge Templates", 0f);
             text(view.ships ? "Pick a ship to integrate." : "Pick a Forge Template to refine.", Ui.gray(), GAP);
         } else if (view.ships) addShipDetail(entry);
         else addTemplateDetail(entry);
 
+        if (pinned == null) column.end();
+    }
+
+    // starts the pinned action block: ends the scroll column, later blocks stack below it
+    private void pin() {
         column.end();
+        pinned = Ui.panel(detailP, detailX, BODY_Y + detailH - detailActionH, cw, detailActionH);
+        pinY = 0f;
+    }
+
+    // column blocks until pin, then blocks stack in the pinned panel
+    private CustomPanelAPI block(float h, float gap) {
+        if (pinned == null) return column.block(h, gap);
+        if (pinY > 0f) pinY += gap;
+        CustomPanelAPI b = Ui.panel(pinned, 0f, pinY, cw, h);
+        pinY += h;
+        return b;
     }
 
     private void addTemplateDetail(Entry entry) {
@@ -277,7 +312,7 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
         heading(entry.hull.getHullNameWithDashClass() + " template", 0f);
         picture(entry.hull);
 
-        CustomPanelAPI b = column.block(20f, 10f);
+        CustomPanelAPI b = block(20f, 10f);
         int total = pipCount(entry.level);
         float pw = pipWidth(total);
         float ax = cw - 24f - 6f - pw;
@@ -293,7 +328,7 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
 
         String before = getDefectId(entry.level);
         String afterId = getDefectId(after);
-        CustomPanelAPI d = column.block(34f, 4f);
+        CustomPanelAPI d = block(34f, 4f);
         UiImages.hullmod(d, 0f, 2f, 30f, before);
         Ui.text(d, 38f, 0f, cw - 38f, Global.getSettings().getHullModSpec(before).getDisplayName());
         String result = afterId == null ? "is removed" : "becomes " + Global.getSettings().getHullModSpec(afterId).getDisplayName();
@@ -314,15 +349,15 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
 
         if (entry.member.getVariant().hasHullMod(HullMods.AUTOMATED)) {
             String value = getCrPenalty() + " > no penalty";
-            CustomPanelAPI b = column.block(20f, 10f);
+            CustomPanelAPI b = block(20f, 10f);
             UiData.value(b, 0f, 0f, cw, 20f, "Max CR", value, Ui.text(), new String[]{getCrPenalty(), ">", "no penalty"}, new Color[]{Ui.neg(), Ui.hl(), Ui.pos()});
         }
 
-        CustomPanelAPI s = column.block(20f, 0f);
+        CustomPanelAPI s = block(20f, 0f);
         UiImages.skill(s, 0f, 1f, 18f, Global.getSettings().getSkillSpec(Skills.AUTOMATED_SHIPS), false);
         UiData.value(s, 24f, 0f, cw - 24f, 20f, "Automated Ships limit", "counts > exempt", Ui.text(), new String[]{"counts", ">", "exempt"}, new Color[]{Ui.neg(), Ui.hl(), Ui.pos()});
 
-        CustomPanelAPI perm = column.block(20f, 0f);
+        CustomPanelAPI perm = block(20f, 0f);
         Ui.text(perm, 0f, 0f, cw, "Permanent", Ui.hl());
 
         addCostAndAction(entry, RelicHelper.getName() + ", " + RELICS_PER_SHIP_DP + " per DP", "Integrate", INTEGRATE_LORE, () -> integrate(entry));
@@ -332,34 +367,35 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
         int available = RelicHelper.getAvailable(market);
         boolean ok = entry.cost <= available;
 
+        pin();
         heading("Cost", GAP);
-        CustomPanelAPI c = column.block(UiData.COST_ROW_H, 6f);
+        CustomPanelAPI c = block(UiData.COST_ROW_H, 6f);
         UiData.costrow(c, 0f, 0f, cw, label, UiImages.relicSprite(), Ui.num(entry.cost), Ui.num(available), ok);
 
         String reason = ok ? null : "Not enough " + RelicHelper.getName() + ".";
-        CustomPanelAPI b = column.block(UiButtons.guardHeight(cw, BUTTON_H, reason), GAP);
+        CustomPanelAPI b = block(UiButtons.guardHeight(cw, BUTTON_H, reason), GAP);
         UiButtons.guarded(b, 0f, 0f, cw, BUTTON_H, action, UiButtons.Kind.STD, reason, run);
 
         text(lore, Ui.gray(), 0f);
     }
 
     private void picture(ShipHullSpecAPI hull) {
-        CustomPanelAPI b = column.block(PICTURE_H, 4f);
+        CustomPanelAPI b = block(PICTURE_H, 4f);
         Ui.well(b, 0f, 0f, cw, PICTURE_H);
         UiImages.hull(b, Math.round((cw - PICTURE) / 2f), 4f, PICTURE, hull, false, false);
     }
 
     private void heading(String title, float gap) {
-        Ui.heading(column.block(Ui.HEADING_H, gap), 0f, 0f, cw, title);
+        Ui.heading(block(Ui.HEADING_H, gap), 0f, 0f, cw, title);
     }
 
     private void text(String text, Color color, float gap) {
-        CustomPanelAPI b = column.block(Ui.wrapHeight(text, Ui.INS15, cw), gap);
+        CustomPanelAPI b = block(Ui.wrapHeight(text, Ui.INS15, cw), gap);
         Ui.wrap(b, 0f, 0f, cw, text, color);
     }
 
     private void grid(float gap, GridRow... rows) {
-        CustomPanelAPI b = column.block(rows.length * GRID_ROW, gap);
+        CustomPanelAPI b = block(rows.length * GRID_ROW, gap);
         UiData.grid(b, 0f, 0f, cw, GRID_ROW, List.of(rows));
     }
 
