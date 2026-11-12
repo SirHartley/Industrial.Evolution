@@ -64,6 +64,10 @@ public final class Groups {
                 return RelicChecks.steps();
             case "meteor":
                 return MeteorChecks.steps();
+            case "trafficperf":
+                return TrafficPerfChecks.steps();
+            case "traffic":
+                return TrafficChecks.steps();
             case "shuttle":
                 return ShuttleChecks.steps();
             default:
