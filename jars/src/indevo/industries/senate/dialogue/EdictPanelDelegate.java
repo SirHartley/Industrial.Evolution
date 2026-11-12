@@ -380,7 +380,8 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
             UiData.mark(row, w - 10f - UiData.MARK, 10f, true);
         } else {
             String missing = getFirstUnmet(spec.getId(), colony);
-            rightW = Math.min(Ui.width(missing, Ui.INS15) + 2f, 130f);
+            float nameW = Ui.width(EdictRepo.getShortName(spec.getName()), Ui.INS15) + 2f;
+            rightW = Math.min(Ui.width(missing, Ui.INS15) + 2f, Math.max(60f, w - nameX - 16f - nameW));
             Ui.textIn(row, w - 8f - rightW, 0f, rightW, EDICT_ROW_H, missing, Ui.INS15, Ui.neg(), Ui.RIGHT, new String[0], new Color[0]);
         }
 

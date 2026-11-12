@@ -342,7 +342,7 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
     }
 
     protected static EdictRequirement shipProduction(MarketAPI market) {
-        return new EdictRequirement("Ship hull production on this colony", "Ship hull production", market.getCommodityData(Commodities.SHIPS).getMaxSupply() > 0);
+        return new EdictRequirement("Ship hull production on this colony", "Ship production", market.getCommodityData(Commodities.SHIPS).getMaxSupply() > 0);
     }
 
     protected static EdictRequirement twoColonies(MarketAPI market) {
