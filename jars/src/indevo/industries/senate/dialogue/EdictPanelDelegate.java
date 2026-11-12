@@ -41,7 +41,7 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
     public static final float BOARD_H = 712f;
     static final float BODY_Y = 64f;
     static final float LIST_Y = 88f;
-    static final float COLONY_W = 260f;
+    static final float COLONY_W = 280f;
     static final float EDICT_W = 280f;
     static final float COLUMN_GAP = 10f;
     static final float COLONY_ROW_H = 74f;
@@ -301,7 +301,7 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
         Color accent = getRuntimeColor(active);
 
         UiImages.img(row, textX, 43f, LINE_ICON, LINE_ICON, condition.getSpec().getIcon());
-        Ui.text(row, textX + 24f, 44f, w - textX - 24f - 16f - dw, EdictRepo.getShortName(condition.getName()), accent);
+        Ui.text(row, textX + 24f, 44f, w - textX - 24f - 8f - dw, EdictRepo.getShortName(condition.getName()), accent);
         Ui.text(row, w - 8f - dw, 44f, dw, days, Ui.gray(), Ui.RIGHT);
         UiData.thinbar(row, textX, 64f, w - textX - 8f, getRuntimeFraction(active, colony, min), accent);
     }
@@ -354,7 +354,7 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
 
     private static void group(UiScroll.Column list, float w, String title, String note, float gap) {
         CustomPanelAPI block = list.block(GROUP_H, gap);
-        float nw = note == null ? 0f : Math.min(Ui.width(note, Ui.ORB12) + 2f, w / 2f);
+        float nw = note == null ? 0f : Math.min(Ui.width(note, Ui.ORB12) + 2f, Math.max(w / 2f, w - Ui.width(title, Ui.ORB12) - 12f));
         Ui.text(block, 0f, 1f, w - nw - (nw > 0f ? 8f : 0f), title, Ui.ORB12, Ui.gray(), Ui.LEFT);
         if (note != null) Ui.text(block, w - nw, 1f, nw, note, Ui.ORB12, Ui.gray(), Ui.RIGHT);
     }
