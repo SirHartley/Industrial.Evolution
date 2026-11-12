@@ -35,13 +35,16 @@ public class ShippingCostCalculator {
     }
 
     public static float getLYMult(SectorEntityToken from, SectorEntityToken to) {
+        return getLYMult(from, to, true);
+    }
+
+    public static float getLYMult(SectorEntityToken from, SectorEntityToken to, boolean withBetaCore) {
         if (from == null || to == null) return 0f;
 
         float ly = Misc.getDistanceLY(from, to);
         float lyMult = (float) Math.round((1f + ((ly * Math.pow(1000f, 1f + (ly / COST_PER_LY_MULT))) / 10000f)) * 10f) / 10f;
 
-        float red = ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.BETA_CORE) ? DISTANCE_MULT_REDUCTION : 1f;
-        lyMult *= red;
+        if (withBetaCore && ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.BETA_CORE)) lyMult *= DISTANCE_MULT_REDUCTION;
         lyMult *= Setting.COURIER_COST_PER_LY_MULT.value();
 
         return lyMult;
@@ -74,6 +77,22 @@ public class ShippingCostCalculator {
     }
 
 
+    public static float getShipCostForVariants(List<ShipVariantAPI> variants, ShippingContract contract) {
+        return getBaseAbstractShipSpaceCost(variants) * getLYMult(contract);
+    }
+
+    public static float getCargoSpace(CargoAPI cargo) {
+        float space = 0f;
+        for (CargoStackAPI s : cargo.getStacksCopy()) space += getStackSpace(s);
+        return space;
+    }
+
+    public static float getDeploymentPoints(List<ShipVariantAPI> variants) {
+        float dp = 0f;
+        for (ShipVariantAPI v : variants) dp += v.getHullSpec().getSuppliesToRecover();
+        return dp;
+    }
+
     public static float getCostForStack(CargoStackAPI stack) {
         return (getStackSpace(stack) * Setting.COURIER_COST_PER_CARGO_SPACE.value());
     }
@@ -102,16 +121,10 @@ public class ShippingCostCalculator {
     }
 
     private static float getBaseStackCargoSpaceCost(CargoAPI cargo) {
-        float totalSpace = 0f;
-
-        for (CargoStackAPI s : cargo.getStacksCopy()) {
-            totalSpace += getStackSpace(s);
-        }
-
-        return totalSpace * Setting.COURIER_COST_PER_CARGO_SPACE.value() * getAlphaCoreRed();
+        return getCargoSpace(cargo) * Setting.COURIER_COST_PER_CARGO_SPACE.value() * getAlphaCoreRed();
     }
 
-    private static float getAlphaCoreRed() {
+    public static float getAlphaCoreRed() {
         return ShippingTargetHelper.getMemoryAICoreId().equals(Commodities.ALPHA_CORE) ? TOTAL_FEE_REDUCTION : 1f;
     }
 

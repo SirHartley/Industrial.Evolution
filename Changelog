@@ -124,6 +124,8 @@ Fixed - Rural Polity bonuses now end when leaving it or closing the free port
 Fixed - New Forge World experiment ships now properly roll 4 effects (was 5)
 
 Courier Port
+Adjusted - Contracts are now managed in one panel with a contract list and a step by step editor
+Adjusted - Contract edits now apply on Save, cancelling a picker keeps the selection
 Fixed - Invalid contracts now show why they are invalid
 Fixed - Ship transport now charges by deployment points instead of fleet points
 Fixed - Crash when using "Ship now" on a contract that became invalid
