@@ -19,8 +19,6 @@ public class ShuttleFlights {
     private final ShuttlePaths paths;
     private final PodFlights pods;
     private final FleetFlights fleets;
-    private final EscortFlights escorts;
-    private final TenderFlights tenders;
     private final EventFlights events;
     private final Map<ShuttleRoute.Kind, Flight> flights = new EnumMap<>(ShuttleRoute.Kind.class);
 
@@ -28,8 +26,6 @@ public class ShuttleFlights {
         paths = new ShuttlePaths(traffic.getNetwork(), traffic.getRandom());
         pods = new PodFlights(traffic, paths);
         fleets = new FleetFlights(traffic, paths);
-        escorts = new EscortFlights(traffic, paths);
-        tenders = new TenderFlights(traffic, paths);
         LaneFlights lanes = new LaneFlights(traffic, paths);
         LocalFlights local = new LocalFlights(traffic, paths);
         events = new EventFlights(traffic, paths, local);
@@ -78,15 +74,7 @@ public class ShuttleFlights {
         return fleets;
     }
 
-    public EscortFlights getEscorts() {
-        return escorts;
-    }
-
     public EventFlights getEvents() {
         return events;
-    }
-
-    public TenderFlights getTenders() {
-        return tenders;
     }
 }

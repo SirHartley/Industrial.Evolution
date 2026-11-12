@@ -4,20 +4,18 @@ import java.util.Collection;
 import java.util.List;
 
 // splits the traffic cap: local flights keep a reserve, rare flights fit while there is room, lanes share the rest
-// fleet tied craft have their own cap on top of the setting, escorts a fixed one
+// fleet tied craft have their own cap on top of the setting
 public class ShuttleBudget {
 
     public enum Group {
         LANES,
         LOCAL,
         RARE,
-        FLEET,
-        ESCORT
+        FLEET
     }
 
     private static final float LOCAL_SHARE = 0.25f;
     private static final int FLEET_DIVISOR = 4;
-    private static final int ESCORT_CAP = 12;
 
     private final int[] counts = new int[Group.values().length];
     private int cap = 0;
@@ -69,7 +67,6 @@ public class ShuttleBudget {
             case LOCAL -> free - Math.max(0, laneReserve - counts[Group.LANES.ordinal()]);
             case RARE -> free;
             case FLEET -> fleetCap - counts[Group.FLEET.ordinal()];
-            case ESCORT -> (cap > 0 ? ESCORT_CAP : 0) - counts[Group.ESCORT.ordinal()];
         };
     }
 

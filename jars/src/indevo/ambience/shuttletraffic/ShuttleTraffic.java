@@ -85,8 +85,6 @@ public class ShuttleTraffic {
             reactions.updateThreats();
             reactions.react();
             flights.getFleets().update();
-            flights.getEscorts().update();
-            flights.getTenders().update();
             flights.getEvents().update();
             hits.scan();
             dogfights.update();
@@ -172,8 +170,6 @@ public class ShuttleTraffic {
         hits.clear();
         dogfights.clear();
         fastFleets.clear();
-        flights.getEscorts().clear();
-        flights.getTenders().clear();
         flights.getEvents().clear();
         location = null;
         daysSinceRebuild = 0f;
