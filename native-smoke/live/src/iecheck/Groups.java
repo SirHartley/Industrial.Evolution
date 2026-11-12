@@ -68,6 +68,12 @@ public final class Groups {
                 return TrafficPerfChecks.steps();
             case "traffic":
                 return TrafficChecks.steps();
+            case "uiacademy":
+                return AcademyUiChecks.steps();
+            case "uidetach":
+                return DetachmentUiChecks.steps();
+            case "uicourier":
+                return CourierUiChecks.steps();
             case "shuttle":
                 return ShuttleChecks.steps();
             default:

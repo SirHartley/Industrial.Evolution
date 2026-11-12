@@ -118,3 +118,16 @@ A new check goes in the group of its feature, or in a new `<Feature>Checks.java`
 ## Live sessions
 
 Use the skill's live mode (`references/live-game.md`) against the modding install. The mod set links the repository folder as it is, so IE loads `jars/IndEvo.jar` (the `mod_info.json` entry, gitignored): build the IDE artifact or copy the checked jar from `out/release-build-*` there first. Console commands for a session go in the skill's test mod, never in IE.
+
+## Panel views and the layout audit
+
+The `ui<panel>` groups open each view of a kit panel through its static `show` with a view state (`UiViews.view`): open, wait 45 frames, optionally act on the drawn panel (a click through the `Runnable` the kit stores as button data, `UiAudit.click`), audit, capture `check-<panel>-<view>.png`, close through the dialog's `dismissCustomDialog(1)`. The note `rect <view> x y w h` is the dialog rectangle in screen pixels from the top left, for cropping.
+
+`UiAudit` walks the component tree from the custom dialog under the current interaction dialog (dialogs keep their content in `getInnerPanel`, which `getChildrenCopy` does not list) and reports, with x and y from the content panel's top left:
+
+- two labels whose drawn text rectangles intersect (width from `computeTextWidth`, line height from the label, position from its alignment),
+- one line text wider than its box or wrapping, wrapped text taller than its box,
+- text, buttons, custom panels and leaf components outside the panel, or outside their scroll area horizontally (vertical overflow inside a scroll area is scrolling),
+- sibling buttons that partly intersect (a button fully inside another one, like a stepper on a row, is allowed).
+
+Hidden components (opacity 0) and anything fully scrolled out of view are skipped; tooltips are not in the tree. A view passes only with zero findings, and every capture is still opened and compared with its board: the audit does not see text over icons, ellipsis where the full text fits, or wrong wording.
