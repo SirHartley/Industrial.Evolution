@@ -1,8 +1,10 @@
 package indevo.industries.senate.conditions;
 
+import indevo.industries.senate.EdictEffect;
+
+import java.util.ArrayList;
+import java.util.List;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 
 import static com.fs.starfarer.api.impl.campaign.population.CoreImmigrationPluginImpl.getWeightForMarketSizeStatic;
 
@@ -28,8 +30,10 @@ public class Edict_LockColonySize extends BaseEdict {
     }
 
     @Override
-    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
-        tooltip.addPara("Completely stops this colony from %s.", pad, Misc.getHighlightColor(), "growing");
+    public List<EdictEffect> getEffects(MarketAPI market) {
+        List<EdictEffect> effects = new ArrayList<>();
+        effects.add(EdictEffect.neutral("Population growth", "stopped"));
+        return effects;
     }
 
     @Override

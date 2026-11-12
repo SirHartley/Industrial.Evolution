@@ -1,93 +1,75 @@
 package indevo.industries.senate.dialogue;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
+import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
+import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.MarketConditionSpecAPI;
-import com.fs.starfarer.api.ui.*;
+import com.fs.starfarer.api.combat.EngagementResultAPI;
+import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
-import indevo.dialogue.sidepanel.ButtonAction;
-import indevo.dialogue.sidepanel.ButtonReportingCustomPanel;
-import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
-import indevo.dialogue.sidepanel.HelpIcon;
 import indevo.ids.Ids;
+import indevo.ids.ItemIds;
 import indevo.industries.senate.EdictHelper;
 import indevo.industries.senate.EdictRepo;
 import indevo.industries.senate.EdictRequirement;
+import indevo.industries.senate.conditions.BaseEdict;
 import indevo.industries.senate.conditions.EdictAPI;
 import indevo.utils.helper.RelicHelper;
-import org.lwjgl.opengl.GL11;
+import indevo.utils.ui.*;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import static indevo.items.installable.SpecialItemEffectsRepo.RANGE_LY_TWELVE;
 
-public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
+public class EdictPanelDelegate extends BaseCustomDialogDelegate {
 
-    // outer dialog adds 20 x 55, so it never exceeds the vanilla cargo tab (1004 x 850)
-    public static final float MAX_WIDTH = 984f;
-    public static final float MAX_HEIGHT = 795f;
+    private enum Row {
+        ACTIVE, MET, UNMET
+    }
 
-    private static final float OPAD = 10f;
-    private static final float PAD = 3f;
-    private static final float GAP = 10f;
-    private static final float COLONY_WIDTH = 260f;
-    private static final float EDICT_WIDTH = 280f;
-    private static final float HEADER_HEIGHT = 50f;
-    private static final float FOOTER_HEIGHT = 24f;
-    private static final float HEADING_HEIGHT = 20f;
-    private static final float ACTION_HEIGHT = 84f;
-    private static final float ROW_MIN_HEIGHT = 44f;
-    // list content sits 5 px in, rows give that back so their button reaches the column edge
-    private static final float ROW_INSET = 5f;
-    private static final float ROW_TEXT_PAD = 15f;
-    private static final float MARK_SIZE = 12f;
-    private static final float MARK_GAP = 8f;
-    private static final float BUTTON_WIDTH = 150f;
-    private static final float BUTTON_HEIGHT = 25f;
-    private static final float BOX_PAD = 6f;
-    private static final float BRIBE_CONFIRM_HEIGHT = 200f;
-    private static final float TOOLTIP_WIDTH = 360f;
-
-    private static final String RELIC_LORE = "Several senators have districts waiting on machinery that nobody makes anymore. A few crates of relic components should settle their objections to an early repeal.";
-    private static final float ICON_SIZE = 28f;
-
-    private static final Color ACTIVE_HEADING = new Color(140, 70, 20);
-    private static final Color UNMET_HEADING = new Color(51, 51, 51);
-    private static final Color REMOVE_COLOUR = new Color(160, 30, 20);
+    public static final float BOARD_W = 1004f;
+    public static final float SINGLE_BOARD_W = 744f;
+    public static final float BOARD_H = 712f;
+    static final float BODY_Y = 64f;
+    static final float LIST_Y = 88f;
+    static final float COLONY_W = 260f;
+    static final float EDICT_W = 280f;
+    static final float COLUMN_GAP = 10f;
+    static final float COLONY_ROW_H = 74f;
+    static final float EDICT_ROW_H = 32f;
+    static final float ROW_GAP = 4f;
+    static final float EDICT_ROW_GAP = 2f;
+    static final float GROUP_H = 18f;
+    static final float GROUP_GAP = 6f;
+    static final float PLANET = 40f;
+    static final float EDICT_ICON = 26f;
+    static final float LINE_ICON = 18f;
 
     private final MarketAPI origin;
     private final boolean senateScope;
     private final List<MarketAPI> colonies;
     private final List<MarketConditionSpecAPI> specs = new ArrayList<>();
     private final Map<String, EdictAPI> previews = new LinkedHashMap<>();
+    private final EdictView view;
+    private final Runnable onLeave;
+    private UiRoot root;
 
-    private MarketAPI selectedColony;
-    private String selectedEdict;
-    private String message;
-    private Color messageColor;
-
-    private CustomPanelAPI basePanel;
-    private CustomDialogCallback callback;
-    private CustomPanelAPI panel;
-    private ScrollPanelAPI colonyScroller;
-    private ScrollPanelAPI edictScroller;
-    private ScrollPanelAPI detailScroller;
-    private boolean resetDetailScroll = false;
-
-    public EdictPanelDelegate(MarketAPI origin) {
+    public EdictPanelDelegate(MarketAPI origin, EdictView view, Runnable onLeave) {
         this.origin = origin;
+        this.view = view;
+        this.onLeave = onLeave;
 
         Industry senate = origin.getIndustry(Ids.SENATE);
         senateScope = senate != null && senate.isFunctional();
@@ -103,31 +85,35 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
             specs.add(spec);
             previews.put(spec.getId(), edict);
         }
-
-        selectColony(colonies.contains(origin) ? origin : colonies.isEmpty() ? null : colonies.get(0));
     }
 
-    public static float getPanelWidth() {
-        return Math.min(MAX_WIDTH, Global.getSettings().getScreenWidth() - 40f);
+    public static float getWidth(MarketAPI market) {
+        Industry senate = market.getIndustry(Ids.SENATE);
+        boolean scope = senate != null && senate.isFunctional();
+        return UiFrame.width(scope ? BOARD_W : SINGLE_BOARD_W);
     }
 
-    public static float getPanelHeight() {
-        return Math.min(MAX_HEIGHT, Global.getSettings().getScreenHeight() - 300f);
+    public static float getHeight() {
+        return UiFrame.height(BOARD_H);
     }
 
-    public static void show(DialogCreatorUI ui, MarketAPI market) {
-        ui.showDialog(getPanelWidth(), getPanelHeight(), new EdictPanelDelegate(market));
+    public static void show(DialogCreatorUI ui, MarketAPI market, EdictView view) {
+        ui.showDialog(getWidth(market), getHeight(), new EdictPanelDelegate(market, view, null));
     }
 
-    public static void show(InteractionDialogAPI dialog, MarketAPI market) {
-        dialog.showCustomDialog(getPanelWidth(), getPanelHeight(), new EdictPanelDelegate(market));
+    public static void show(InteractionDialogAPI dialog, MarketAPI market, EdictView view) {
+        dialog.showCustomDialog(getWidth(market), getHeight(), new EdictPanelDelegate(market, view, null));
+    }
+
+    // opens the panel in its own interaction dialog, for code and tests
+    public static boolean show(MarketAPI market, EdictView view) {
+        return Global.getSector().getCampaignUI().showInteractionDialog(new Host(market, view), market.getPrimaryEntity());
     }
 
     @Override
     public void createCustomDialog(CustomPanelAPI panel, CustomDialogCallback callback) {
-        this.basePanel = panel;
-        this.callback = callback;
-        recreatePanel(callback);
+        root = new UiRoot(panel, view.scroll, this::build);
+        root.refresh();
     }
 
     @Override
@@ -140,675 +126,367 @@ public class EdictPanelDelegate extends ButtonReportingDialogueDelegate {
         return "Return";
     }
 
-    private void recreatePanel(CustomDialogCallback callback) {
-        float colonyOffset = colonyScroller != null ? colonyScroller.getYOffset() : 0f;
-        float edictOffset = edictScroller != null ? edictScroller.getYOffset() : 0f;
-        float detailOffset = detailScroller != null && !resetDetailScroll ? detailScroller.getYOffset() : 0f;
-        resetDetailScroll = false;
+    @Override
+    public void customDialogConfirm() {
+        if (onLeave != null) onLeave.run();
+    }
 
-        if (panel != null) basePanel.removeComponent(panel);
+    @Override
+    public void customDialogCancel() {
+        if (onLeave != null) onLeave.run();
+    }
 
-        float width = basePanel.getPosition().getWidth();
-        float height = basePanel.getPosition().getHeight();
-        panel = Global.getSettings().createCustom(width, height, null);
+    void refresh() {
+        root.refresh();
+    }
 
-        addHeader(width);
+    private void build(CustomPanelAPI p, float w, float h) {
+        float right = addHeader(p, w);
+        addHeaderLine(p, right);
+        Ui.rule(p, 0f, UiFrame.HEADER_Y + UiFrame.HEADER_H, w, Misc.scaleAlpha(Ui.base(), 0.55f));
 
-        TooltipMakerAPI colonyList = null;
-        TooltipMakerAPI edictList = null;
-        TooltipMakerAPI detail = null;
-
-        float columnHeight = height - HEADER_HEIGHT - FOOTER_HEIGHT;
-
-        if (selectedColony != null && selectedEdict != null) {
-            float edictX = COLONY_WIDTH + GAP;
-            float detailX = edictX + EDICT_WIDTH + GAP;
-
-            colonyList = addColonyColumn(0f, HEADER_HEIGHT, columnHeight, callback);
-            edictList = addEdictColumn(edictX, HEADER_HEIGHT, columnHeight, callback);
-            detail = addDetailColumn(detailX, HEADER_HEIGHT, width - detailX, columnHeight);
-        } else {
-            TooltipMakerAPI empty = panel.createUIElement(width, columnHeight, false);
-            empty.addPara("No colony is in range of this Senate.", Misc.getGrayColor(), 0f);
-            panel.addUIElement(empty).inTL(0f, HEADER_HEIGHT);
+        if (colonies.isEmpty() || specs.isEmpty()) {
+            Ui.text(p, 0f, BODY_Y + 2f, w, "No colony is in range of this Senate.", Ui.gray());
+            return;
         }
 
-        addFooter(width, height);
-        basePanel.addComponent(panel);
+        MarketAPI colony = resolveColony();
+        String edict = resolveEdict(colony);
 
-        colonyScroller = restoreScroll(colonyList, colonyOffset);
-        edictScroller = restoreScroll(edictList, edictOffset);
-        detailScroller = restoreScroll(detail, detailOffset);
+        float x = 0f;
+        if (senateScope) {
+            addColonies(p, x, h, colony);
+            x += COLONY_W + COLUMN_GAP;
+            Ui.vrule(p, x - 5f, BODY_Y, h - BODY_Y);
+        }
+
+        addEdicts(p, x, h, colony, edict);
+        x += EDICT_W + COLUMN_GAP;
+        Ui.vrule(p, x - 5f, BODY_Y, h - BODY_Y);
+
+        new EdictDetail(this, view).build(p, x, BODY_Y, w - x, h - BODY_Y, colony, edict);
     }
 
-    private ScrollPanelAPI restoreScroll(TooltipMakerAPI element, float offset) {
-        if (element == null) return null;
+    private MarketAPI resolveColony() {
+        for (MarketAPI colony : colonies) {
+            if (colony.getId().equals(view.colony)) return colony;
+        }
 
-        ScrollPanelAPI scroller = element.getExternalScroller();
-        if (scroller != null) scroller.setYOffset(offset);
-        return scroller;
+        MarketAPI colony = colonies.contains(origin) ? origin : colonies.get(0);
+        view.colony = colony.getId();
+        return colony;
     }
 
-    private void addHeader(float width) {
-        Color hl = Misc.getHighlightColor();
-        TooltipMakerAPI header = panel.createUIElement(width - HelpIcon.SIZE - PAD, HEADER_HEIGHT, false);
-        header.addSectionHeading("Edicts", Alignment.MID, 0f);
+    private String resolveEdict(MarketAPI colony) {
+        if (view.edict != null && previews.containsKey(view.edict)) return view.edict;
+
+        MarketConditionAPI active = EdictHelper.getActiveEdict(colony);
+        if (active != null && previews.containsKey(active.getId())) view.edict = active.getId();
+        else {
+            view.edict = specs.get(0).getId();
+            for (MarketConditionSpecAPI spec : specs) {
+                if (isMet(spec.getId(), colony)) {
+                    view.edict = spec.getId();
+                    break;
+                }
+            }
+        }
+
+        return view.edict;
+    }
+
+    private float addHeader(CustomPanelAPI p, float w) {
+        UiFrame.title(p, w, "Edicts", senateScope ? "Senate on " + origin.getName() : origin.getName(), this::addHelp);
+
+        float right = UiFrame.counter(p, w, UiFrame.HEADER_Y, "", UiImages.relicSprite(), Ui.num(RelicHelper.getAvailable(origin)));
+        if (getCompoundsSenate() != null) {
+            String name = Global.getSettings().getSpecialItemSpec(ItemIds.NEUAL_COMPOUNDS).getName();
+            right = UiFrame.slot(p, right, UiFrame.HEADER_Y, Global.getSettings().getSpecialItemSpec(ItemIds.NEUAL_COMPOUNDS).getIconName(), name, name,
+                    "The Senate covers your colonies within " + RANGE_LY_TWELVE + " LY.",
+                    "Unrest from removing an Edict early is halved.");
+        }
+
+        return right;
+    }
+
+    private MarketAPI getCompoundsSenate() {
+        if (senateScope) {
+            Industry senate = origin.getIndustry(Ids.SENATE);
+            return senate.getSpecialItem() != null ? origin : null;
+        }
+
+        Pair<MarketAPI, Float> compounds = EdictHelper.getCompoundsSenateInRange(origin);
+        return compounds == null ? null : compounds.one;
+    }
+
+    private void addHeaderLine(CustomPanelAPI p, float right) {
+        float y = UiFrame.HEADER_Y;
+        float lw = right;
+        String line;
+        String[] parts;
 
         if (senateScope) {
-            header.addPara("Senate at %s, %s", OPAD, hl, origin.getName(), EdictHelper.getSystemName(origin));
+            String count = colonies.size() + "";
+            String noun = colonies.size() == 1 ? " colony" : " colonies";
+            if (getCompoundsSenate() != null) {
+                line = "Covers " + count + noun + ": " + EdictHelper.getSystemName(origin) + " and colonies within " + RANGE_LY_TWELVE + " LY";
+                parts = new String[]{count, RANGE_LY_TWELVE + " LY"};
+            } else {
+                line = "Covers " + count + noun + " in " + EdictHelper.getSystemName(origin);
+                parts = new String[]{count};
+            }
         } else {
             MarketAPI systemSenate = EdictHelper.getSystemSenate(origin);
             Pair<MarketAPI, Float> compounds = EdictHelper.getCompoundsSenateInRange(origin);
 
             if (systemSenate != null) {
-                header.addPara("Granted by the Senate at %s", OPAD, hl, systemSenate.getName());
+                line = "Granted by the Senate at " + systemSenate.getName();
+                parts = new String[]{systemSenate.getName()};
             } else if (compounds != null) {
-                header.addPara("Granted by the Senate at %s, %s away", OPAD, hl,
-                        compounds.one.getName(), Misc.getRoundedValueMaxOneAfterDecimal(compounds.two) + " LY");
-            }
+                String dist = Misc.getRoundedValueMaxOneAfterDecimal(compounds.two) + " LY";
+                line = "Granted by the Senate at " + compounds.one.getName() + ", " + dist + " away";
+                parts = new String[]{compounds.one.getName(), dist};
+            } else return;
         }
 
-        panel.addUIElement(header).inTL(0f, 0f);
-        panel.addUIElement(HelpIcon.create(panel, this::addHelp)).inTR(0f, 0f);
+        Color[] colors = new Color[parts.length];
+        java.util.Arrays.fill(colors, Ui.hl());
+        Ui.textIn(p, 0f, y, lw, UiFrame.HEADER_H, line, Ui.INS15, Ui.gray(), Ui.LEFT, parts, colors);
     }
 
     private void addHelp(TooltipMakerAPI tooltip) {
         Color hl = Misc.getHighlightColor();
+        float pad = 10f;
 
         tooltip.addPara("A Senate allows one Edict per colony in its star system.", 0f);
-        tooltip.addPara("Installing %s extends coverage to %s and halves unrest from early removal.", OPAD, hl,
+        tooltip.addPara("Installing %s extends coverage to %s and halves unrest from early removal.", pad, hl,
                 EdictHelper.COMPOUNDS_NAME, RANGE_LY_TWELVE + " LY");
-        if (!senateScope) tooltip.addPara("Visit the Senate to manage the Edicts of every colony in its range.", Misc.getGrayColor(), OPAD);
+        tooltip.addPara("Removing an Edict before its minimum term causes %s.", pad, Misc.getNegativeHighlightColor(), "1 unrest per remaining month");
+        tooltip.addPara("Bribing the senators costs %s per remaining day and waives that unrest.", pad, hl,
+                BaseEdict.RELICS_PER_REMAINING_DAY + " " + RelicHelper.getName());
+        if (!senateScope) tooltip.addPara("Visit the Senate to manage the Edicts of every colony in its range.", Misc.getGrayColor(), pad);
     }
 
-    private TooltipMakerAPI addColonyColumn(float x, float y, float height, CustomDialogCallback callback) {
-        addColumnHeading("Colonies", x, y, COLONY_WIDTH);
+    private void addColonies(CustomPanelAPI p, float x, float h, MarketAPI selected) {
+        Ui.heading(p, x, BODY_Y, COLONY_W, "Colonies");
+        UiScroll.Column list = UiScroll.list(p, x, LIST_Y, COLONY_W, h - LIST_Y, view.scroll, EdictView.COLONIES);
+        float rw = list.width();
 
-        TooltipMakerAPI list = panel.createUIElement(COLONY_WIDTH, height - HEADING_HEIGHT - PAD, true);
+        float gap = 0f;
         for (MarketAPI colony : colonies) {
-            list.addCustom(createColonyRow(colony, COLONY_WIDTH - ROW_INSET, callback), PAD);
+            addColonyRow(list.block(COLONY_ROW_H, gap), rw, colony, colony == selected);
+            gap = ROW_GAP;
         }
 
-        panel.addUIElement(list).inTL(x, y + HEADING_HEIGHT + PAD);
-        return list;
+        list.end();
     }
 
-    private CustomPanelAPI createColonyRow(MarketAPI colony, float width, CustomDialogCallback callback) {
-        Color hl = Misc.getHighlightColor();
-        Color gray = Misc.getGrayColor();
-        MarketConditionAPI activeCondition = EdictHelper.getActiveEdict(colony);
-        EdictAPI active = activeCondition == null ? null : EdictHelper.asEdict(activeCondition);
+    private void addColonyRow(CustomPanelAPI block, float w, MarketAPI colony, boolean selected) {
+        CustomPanelAPI row = UiButtons.row(block, 0f, 0f, w, COLONY_ROW_H, selected, true, null, () -> selectColony(colony));
+        UiImages.planet(row, 6f, 6f, PLANET, colony);
 
-        CustomPanelAPI row = panel.createCustomPanel(width, ROW_MIN_HEIGHT, new ButtonReportingCustomPanel(this));
+        float textX = 56f;
+        float tagW = colony.hasIndustry(Ids.SENATE) ? Ui.width("Senate", Ui.INS15) + 2f : 0f;
+        Ui.text(row, textX, 5f, w - textX - 8f - (tagW > 0f ? tagW + 8f : 0f), colony.getName(), selected ? Ui.bright() : Ui.text());
+        if (tagW > 0f) Ui.text(row, w - 8f - tagW, 5f, tagW, "Senate", Ui.hl(), Ui.RIGHT);
+        Ui.text(row, textX, 23f, w - textX - 8f, getLocationLine(colony), Ui.gray());
 
-        TooltipMakerAPI text = row.createUIElement(width - ROW_TEXT_PAD, ROW_MIN_HEIGHT, false);
-        text.addPara("%s  size %s", 0f, new Color[]{Misc.getBasePlayerColor(), hl}, colony.getName(), colony.getSize() + "");
-        text.addPara(getLocationText(colony), gray, 1f);
-
+        MarketConditionAPI condition = EdictHelper.getActiveEdict(colony);
+        EdictAPI active = condition == null ? null : EdictHelper.asEdict(condition);
         if (active == null) {
-            text.addPara("No Edict", gray, 1f);
-        } else {
-            String name = EdictRepo.getShortName(activeCondition.getName());
-            int min = active.getMinRuntime(colony);
-
-            if (active.getRemainingDays() > 0) text.addPara("%s, day %s of %s", 1f, hl, name, Math.min(active.getDaysPassed(), min) + "", min + "");
-            else text.addPara("%s, %s", 1f, new Color[]{hl, Misc.getPositiveHighlightColor()}, name, "can end without penalty");
-        }
-
-        float height = Math.max(ROW_MIN_HEIGHT, text.getHeightSoFar() + 16f);
-        row.getPosition().setSize(width, height);
-
-        addRowButton(row, width, height, colony == selectedColony, action(callback, () -> selectColony(colony)), null);
-        row.addUIElement(text).inTL(0f, 4f);
-
-        if (active != null) {
-            CustomPanelAPI bar = row.createCustomPanel(width - ROW_TEXT_PAD, 3f, new RuntimeBarPlugin(getRuntimeFraction(active, colony), getRuntimeColor(active)));
-            row.addComponent(bar).inBL(ROW_INSET, 6f);
-        }
-
-        return row;
-    }
-
-    private TooltipMakerAPI addEdictColumn(float x, float y, float height, CustomDialogCallback callback) {
-        addColumnHeading("Edicts for " + selectedColony.getName(), x, y, EDICT_WIDTH);
-
-        MarketConditionAPI activeCondition = EdictHelper.getActiveEdict(selectedColony);
-        TooltipMakerAPI list = panel.createUIElement(EDICT_WIDTH, height - HEADING_HEIGHT - PAD, true);
-
-        for (MarketConditionSpecAPI spec : specs) {
-            list.addCustom(createEdictRow(spec, activeCondition, EDICT_WIDTH - ROW_INSET, callback), PAD);
-        }
-
-        panel.addUIElement(list).inTL(x, y + HEADING_HEIGHT + PAD);
-        return list;
-    }
-
-    private CustomPanelAPI createEdictRow(MarketConditionSpecAPI spec, MarketConditionAPI activeCondition, float width, CustomDialogCallback callback) {
-        Color hl = Misc.getHighlightColor();
-        Color gray = Misc.getGrayColor();
-
-        boolean isActive = activeCondition != null && activeCondition.getId().equals(spec.getId());
-        List<String> unmet = getUnmetShortTexts(previews.get(spec.getId()).getRequirements(selectedColony));
-
-        String status;
-        Color statusColor;
-        Color nameColor = Misc.getBasePlayerColor();
-
-        if (isActive) {
-            EdictAPI active = EdictHelper.asEdict(activeCondition);
-            int min = active == null ? 0 : active.getMinRuntime(selectedColony);
-            int day = active == null ? 0 : Math.min(active.getDaysPassed(), min);
-            status = "Active, day " + day + " of " + min;
-            statusColor = hl;
-            nameColor = hl;
-        } else if (!unmet.isEmpty()) {
-            status = "Needs: " + String.join(", ", unmet);
-            statusColor = gray;
-            nameColor = gray;
-        } else if (activeCondition != null) {
-            status = "One Edict per colony";
-            statusColor = gray;
-        } else {
-            status = "Available";
-            statusColor = Misc.getPositiveHighlightColor();
-        }
-
-        CustomPanelAPI row = panel.createCustomPanel(width, ROW_MIN_HEIGHT, new ButtonReportingCustomPanel(this));
-
-        float textX = ICON_SIZE + MARK_GAP;
-        TooltipMakerAPI text = row.createUIElement(width - textX - ROW_TEXT_PAD, ROW_MIN_HEIGHT, false);
-        text.addPara(EdictRepo.getShortName(spec.getName()), nameColor, 0f);
-        text.addPara(status, statusColor, 1f);
-
-        float height = Math.max(ROW_MIN_HEIGHT, text.getHeightSoFar() + 10f);
-        row.getPosition().setSize(width, height);
-
-        String shortDesc = previews.get(spec.getId()).getShortDesc();
-        addRowButton(row, width, height, spec.getId().equals(selectedEdict), action(callback, () -> selectEdict(spec.getId())),
-                tooltip -> tooltip.addPara(shortDesc, 0f));
-
-        TooltipMakerAPI icon = row.createUIElement(ICON_SIZE, ICON_SIZE, false);
-        icon.addImage(spec.getIcon(), ICON_SIZE, ICON_SIZE, 0f);
-        row.addUIElement(icon).inTL(0f, (height - ICON_SIZE) / 2f);
-        row.addUIElement(text).inTL(textX, 5f);
-
-        return row;
-    }
-
-    private TooltipMakerAPI addDetailColumn(float x, float y, float width, float height) {
-        Color hl = Misc.getHighlightColor();
-        Color base = Misc.getBasePlayerColor();
-
-        MarketConditionSpecAPI spec = Global.getSettings().getMarketConditionSpec(selectedEdict);
-        MarketConditionAPI activeCondition = EdictHelper.getActiveEdict(selectedColony);
-        EdictAPI active = activeCondition == null ? null : EdictHelper.asEdict(activeCondition);
-        boolean isActive = active != null && activeCondition.getId().equals(selectedEdict);
-        EdictAPI edict = isActive ? active : previews.get(selectedEdict);
-        List<EdictRequirement> requirements = edict.getRequirements(selectedColony);
-        boolean met = getUnmetShortTexts(requirements).isEmpty();
-
-        String title = spec.getName() + (isActive ? " (active)" : "");
-        Color headingText = isActive ? Color.WHITE : met ? base : Misc.getTextColor();
-        Color headingBg = isActive ? ACTIVE_HEADING : met ? Misc.getDarkPlayerColor() : UNMET_HEADING;
-
-        TooltipMakerAPI heading = panel.createUIElement(width, HEADING_HEIGHT, false);
-        heading.addSectionHeading(title, headingText, headingBg, Alignment.MID, 0f);
-        panel.addUIElement(heading).inTL(x, y);
-
-        float detailHeight = height - HEADING_HEIGHT - PAD - ACTION_HEIGHT;
-        TooltipMakerAPI detail = panel.createUIElement(width, detailHeight, true);
-        detail.addCustom(createSummaryBox(edict.getShortDesc(), width - 20f), 0f);
-
-        if (isActive) {
-            int min = active.getMinRuntime(selectedColony);
-            detail.addPara("Minimum term: %s / %s", OPAD, hl, Math.min(active.getDaysPassed(), min) + "", min + " days");
-            CustomPanelAPI bar = panel.createCustomPanel(width - 20f, 5f, new RuntimeBarPlugin(getRuntimeFraction(active, selectedColony), getRuntimeColor(active)));
-            detail.addCustom(bar, PAD);
-        }
-
-        detail.addPara(spec.getDesc(), Misc.getGrayColor(), OPAD);
-
-        detail.addPara((isActive ? "Current effects on " : "Effects on ") + selectedColony.getName(), base, OPAD);
-        edict.addEffectText(detail, selectedColony, PAD);
-
-        if (edict.hasOtherColonyEffects(selectedColony)) {
-            detail.addPara("Effects on other colonies", base, OPAD);
-            edict.addOtherColonyEffectText(detail, selectedColony, PAD);
-        }
-
-        detail.addPara("Requirements", base, OPAD);
-        for (EdictRequirement requirement : requirements) {
-            detail.addCustom(createRequirementRow(requirement, width - 20f), PAD);
-        }
-
-        detail.addPara("Duration", base, OPAD);
-        if (isActive) addActiveRuntimeText(detail, active);
-        else edict.addRuntimeText(detail, selectedColony, PAD);
-
-        panel.addUIElement(detail).inTL(x, y + HEADING_HEIGHT + PAD);
-
-        addActions(x, y + height - ACTION_HEIGHT, width, ACTION_HEIGHT, activeCondition, active, isActive, met);
-        return detail;
-    }
-
-    private CustomPanelAPI createSummaryBox(String text, float width) {
-        CustomPanelAPI box = panel.createCustomPanel(width, 0f, new BoxPlugin());
-
-        // labels sit ROW_INSET further in than components
-        TooltipMakerAPI label = box.createUIElement(width - 2f * OPAD, 0f, false);
-        label.addPara(text, 0f);
-        box.getPosition().setSize(width, label.getHeightSoFar() + 2f * BOX_PAD);
-        box.addUIElement(label).inTL(OPAD - ROW_INSET, BOX_PAD);
-
-        return box;
-    }
-
-    private void addActiveRuntimeText(TooltipMakerAPI detail, EdictAPI active) {
-        int unrest = active.getRemovalUnrest();
-
-        if (active.getRemainingDays() > 0 || unrest > 0) {
-            detail.addPara("Removing it now causes %s.", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
-        } else {
-            detail.addPara("Can be removed %s.", PAD, Misc.getPositiveHighlightColor(), "without penalty");
-        }
-    }
-
-    private CustomPanelAPI createRequirementRow(EdictRequirement requirement, float width) {
-        CustomPanelAPI row = panel.createCustomPanel(width, 18f, new BaseCustomUIPanelPlugin());
-
-        // labels sit ROW_INSET further in than components, so the gap is MARK_GAP
-        float labelX = 2f + MARK_SIZE + MARK_GAP - ROW_INSET;
-        TooltipMakerAPI label = row.createUIElement(width - labelX - ROW_TEXT_PAD, 18f, false);
-        label.addPara(requirement.text, requirement.met ? Misc.getTextColor() : Misc.getNegativeHighlightColor(), 0f);
-        row.getPosition().setSize(width, Math.max(18f, label.getHeightSoFar() + 2f));
-
-        CustomPanelAPI mark = row.createCustomPanel(MARK_SIZE, MARK_SIZE, new RequirementMarkPlugin(requirement.met));
-        row.addComponent(mark).inTL(2f, 2f);
-        row.addUIElement(label).inTL(labelX, 0f);
-
-        return row;
-    }
-
-    private void addActions(float x, float y, float width, float height, MarketConditionAPI activeCondition, EdictAPI active, boolean isActive, boolean met) {
-        Color hl = Misc.getHighlightColor();
-        Color gray = Misc.getGrayColor();
-
-        CustomPanelAPI actionPanel = panel.createCustomPanel(width, height, new ButtonReportingCustomPanel(this));
-        TooltipMakerAPI actions = actionPanel.createUIElement(width, height, false);
-
-        if (!isActive) {
-            ButtonAPI enact = addActionButton(actions, "Enact", popupAction(this::createEnactConfirm), OPAD);
-            enact.setEnabled(met && activeCondition == null);
-
-            if (activeCondition != null) {
-                actions.addPara("Remove %s first: one Edict per colony.", PAD, gray, hl, EdictRepo.getShortName(activeCondition.getName()));
-            } else if (!met) {
-                actions.addPara("Requirements not met.", gray, PAD);
-            }
-        } else {
-            ButtonAPI remove = actions.addButton("Remove", popupAction(this::createRemoveConfirm), Misc.getTextColor(), REMOVE_COLOUR, Alignment.MID, CutStyle.TL_BR, BUTTON_WIDTH, BUTTON_HEIGHT, OPAD);
-
-            int unrest = active.getRemovalUnrest();
-            if (unrest > 0) actions.addPara("Now: %s", PAD, Misc.getNegativeHighlightColor(), unrest + " unrest");
-            else actions.addPara("%s", PAD, Misc.getPositiveHighlightColor(), "No penalty");
-
-            if (active.getRelicRemovalCost() > 0) addBribeButton(actions, remove, active);
-        }
-
-        actionPanel.addUIElement(actions).inTL(0f, 0f);
-        panel.addComponent(actionPanel).inTL(x, y);
-    }
-
-    private void addBribeButton(TooltipMakerAPI actions, ButtonAPI remove, EdictAPI active) {
-        MarketAPI colony = selectedColony;
-        int cost = active.getRelicRemovalCost();
-        int relicUnrest = active.getRelicRemovalUnrest();
-
-        ButtonAPI bribe = addActionButton(actions, "Bribe Senators", popupAction(this::createBribeConfirm), 0f);
-        bribe.getPosition().rightOfTop(remove, GAP);
-        bribe.setEnabled(RelicHelper.canAfford(colony, cost));
-
-        actions.addTooltipTo(new BaseTooltipCreator() {
-            @Override
-            public float getTooltipWidth(Object tooltipParam) {
-                return TOOLTIP_WIDTH;
-            }
-
-            @Override
-            public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
-                tooltip.addPara("Removes the Edict now without the early removal unrest.", 0f);
-                if (relicUnrest > 0) tooltip.addPara("Removal still causes %s.", PAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
-                RelicHelper.addCostLine(tooltip, colony, cost, OPAD);
-                tooltip.addPara(RELIC_LORE, Misc.getGrayColor(), OPAD);
-            }
-        }, bribe, TooltipMakerAPI.TooltipLocation.ABOVE);
-    }
-
-    private EdictConfirmDialog createEnactConfirm() {
-        String edictName = EdictRepo.getShortName(Global.getSettings().getMarketConditionSpec(selectedEdict).getName());
-        MarketAPI colony = selectedColony;
-        EdictAPI edict = previews.get(selectedEdict);
-
-        return new EdictConfirmDialog("Enact", info -> {
-            info.addPara("Enact %s on %s?", 0f, Misc.getHighlightColor(), edictName, colony.getName());
-            edict.addRuntimeText(info, colony, OPAD);
-        }, this::enactSelected);
-    }
-
-    private EdictConfirmDialog createRemoveConfirm() {
-        EdictAPI active = EdictHelper.getActiveEdictPlugin(selectedColony);
-        if (active == null) throw new IllegalStateException("IndEvo: no Edict to remove on " + selectedColony.getName());
-
-        Color hl = Misc.getHighlightColor();
-        String edictName = EdictRepo.getShortName(EdictHelper.getActiveEdict(selectedColony).getName());
-        MarketAPI colony = selectedColony;
-        int unrest = active.getRemovalUnrest();
-
-        return new EdictConfirmDialog("Remove", info -> {
-            if (unrest > 0) info.addPara("Remove %s from %s? This causes %s.", 0f, new Color[]{hl, hl, Misc.getNegativeHighlightColor()}, edictName, colony.getName(), unrest + " unrest");
-            else info.addPara("Remove %s from %s? There is %s.", 0f, new Color[]{hl, hl, Misc.getPositiveHighlightColor()}, edictName, colony.getName(), "no penalty");
-        }, this::removeSelected);
-    }
-
-    private EdictConfirmDialog createBribeConfirm() {
-        EdictAPI active = EdictHelper.getActiveEdictPlugin(selectedColony);
-        if (active == null) throw new IllegalStateException("IndEvo: no Edict to remove on " + selectedColony.getName());
-
-        Color hl = Misc.getHighlightColor();
-        String edictName = EdictRepo.getShortName(EdictHelper.getActiveEdict(selectedColony).getName());
-        MarketAPI colony = selectedColony;
-        int cost = active.getRelicRemovalCost();
-        int relicUnrest = active.getRelicRemovalUnrest();
-
-        return new EdictConfirmDialog("Bribe", BRIBE_CONFIRM_HEIGHT, info -> {
-            info.addPara("Bribe the senators to remove %s from %s now?", 0f, hl, edictName, colony.getName());
-            if (relicUnrest > 0) info.addPara("Removal still causes %s.", OPAD, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
-            else info.addPara("There is %s.", OPAD, Misc.getPositiveHighlightColor(), "no unrest");
-            RelicHelper.addCostLine(info, colony, cost, PAD);
-        }, this::removeSelectedWithRelics);
-    }
-
-    private ButtonAction popupAction(Supplier<EdictConfirmDialog> popup) {
-        return new ButtonAction(this) {
-            @Override
-            public void execute() {
-                popup.get().show(() -> recreatePanel(callback));
-            }
-        };
-    }
-
-    private ButtonAPI addActionButton(TooltipMakerAPI tooltip, String text, ButtonAction action, float pad) {
-        return tooltip.addButton(text, action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Alignment.MID, CutStyle.TL_BR, BUTTON_WIDTH, BUTTON_HEIGHT, pad);
-    }
-
-    private void addFooter(float width, float height) {
-        if (message == null) return;
-
-        TooltipMakerAPI footer = panel.createUIElement(width, FOOTER_HEIGHT, false);
-        footer.addPara(message, messageColor, 4f);
-        panel.addUIElement(footer).inTL(0f, height - FOOTER_HEIGHT);
-    }
-
-    private void addColumnHeading(String text, float x, float y, float width) {
-        TooltipMakerAPI heading = panel.createUIElement(width, HEADING_HEIGHT, false);
-        heading.addSectionHeading(text, Alignment.MID, 0f);
-        panel.addUIElement(heading).inTL(x, y);
-    }
-
-    private void addRowButton(CustomPanelAPI row, float width, float height, boolean checked, ButtonAction action, Consumer<TooltipMakerAPI> tooltip) {
-        float buttonWidth = width + ROW_INSET;
-        TooltipMakerAPI background = row.createUIElement(buttonWidth, height, false);
-        ButtonAPI button = background.addAreaCheckbox("", action, Misc.getBasePlayerColor(), Misc.getDarkPlayerColor(), Misc.getBrightPlayerColor(), buttonWidth, height, 0f);
-        button.setChecked(checked);
-
-        if (tooltip != null) {
-            background.addTooltipToPrevious(new BaseTooltipCreator() {
-                @Override
-                public float getTooltipWidth(Object tooltipParam) {
-                    return TOOLTIP_WIDTH;
-                }
-
-                @Override
-                public void createTooltip(TooltipMakerAPI tooltipMaker, boolean expanded, Object tooltipParam) {
-                    tooltip.accept(tooltipMaker);
-                }
-            }, TooltipMakerAPI.TooltipLocation.RIGHT);
-        }
-
-        row.addUIElement(background).inTL(-ROW_INSET * 2f, 0f);
-    }
-
-    private ButtonAction action(CustomDialogCallback callback, Runnable runnable) {
-        return new ButtonAction(this) {
-            @Override
-            public void execute() {
-                runnable.run();
-                recreatePanel(callback);
-            }
-        };
-    }
-
-    private void selectColony(MarketAPI colony) {
-        selectedColony = colony;
-        resetDetailScroll = true;
-        selectedEdict = null;
-
-        if (colony == null || specs.isEmpty()) return;
-
-        MarketConditionAPI activeCondition = EdictHelper.getActiveEdict(colony);
-        if (activeCondition != null && previews.containsKey(activeCondition.getId())) {
-            selectedEdict = activeCondition.getId();
+            Ui.text(row, textX, 44f, w - textX - 8f, "No Edict", Ui.gray());
             return;
         }
 
+        int min = active.getMinRuntime(colony);
+        String days = getDayCount(active, colony);
+        float dw = Math.min(Ui.width(days, Ui.INS15) + 2f, 80f);
+        Color accent = getRuntimeColor(active);
+
+        UiImages.img(row, textX, 43f, LINE_ICON, LINE_ICON, condition.getSpec().getIcon());
+        Ui.text(row, textX + 24f, 44f, w - textX - 24f - 16f - dw, EdictRepo.getShortName(condition.getName()), accent);
+        Ui.text(row, w - 8f - dw, 44f, dw, days, Ui.gray(), Ui.RIGHT);
+        UiData.thinbar(row, textX, 64f, w - textX - 8f, getRuntimeFraction(active, colony, min), accent);
+    }
+
+    private String getLocationLine(MarketAPI colony) {
+        String line = "Size " + colony.getSize() + " · " + EdictHelper.getSystemName(colony);
+        if (colony.getStarSystem() != null && colony.getStarSystem() == origin.getStarSystem()) return line;
+
+        float dist = Misc.getDistanceLY(origin.getLocationInHyperspace(), colony.getLocationInHyperspace());
+        return line + ", " + Misc.getRoundedValueMaxOneAfterDecimal(dist) + " LY";
+    }
+
+    private void addEdicts(CustomPanelAPI p, float x, float h, MarketAPI colony, String selected) {
+        Ui.heading(p, x, BODY_Y, EDICT_W, "Edicts for " + colony.getName());
+        UiScroll.Column list = UiScroll.list(p, x, LIST_Y, EDICT_W, h - LIST_Y, view.scroll, EdictView.EDICTS);
+        float rw = list.width();
+
+        MarketConditionAPI activeCondition = EdictHelper.getActiveEdict(colony);
+        String activeId = activeCondition == null ? null : activeCondition.getId();
+        List<MarketConditionSpecAPI> met = new ArrayList<>();
+        List<MarketConditionSpecAPI> unmet = new ArrayList<>();
+        MarketConditionSpecAPI active = null;
+
         for (MarketConditionSpecAPI spec : specs) {
-            if (getUnmetShortTexts(previews.get(spec.getId()).getRequirements(colony)).isEmpty()) {
-                selectedEdict = spec.getId();
-                return;
-            }
+            if (spec.getId().equals(activeId)) active = spec;
+            else if (isMet(spec.getId(), colony)) met.add(spec);
+            else unmet.add(spec);
         }
 
-        selectedEdict = specs.get(0).getId();
+        float gap = 0f;
+        if (active != null) {
+            group(list, rw, "Active", null, gap);
+            addEdictRow(list, rw, colony, active, Row.ACTIVE, selected);
+            gap = GROUP_GAP;
+        }
+
+        if (!met.isEmpty()) {
+            group(list, rw, "Requirements met", activeId != null ? "one Edict per colony" : null, gap);
+            for (MarketConditionSpecAPI spec : met) addEdictRow(list, rw, colony, spec, Row.MET, selected);
+            gap = GROUP_GAP;
+        }
+
+        if (!unmet.isEmpty()) {
+            group(list, rw, "Requirements not met", null, gap);
+            for (MarketConditionSpecAPI spec : unmet) addEdictRow(list, rw, colony, spec, Row.UNMET, selected);
+        }
+
+        list.end();
+    }
+
+    private static void group(UiScroll.Column list, float w, String title, String note, float gap) {
+        CustomPanelAPI block = list.block(GROUP_H, gap);
+        float nw = note == null ? 0f : Math.min(Ui.width(note, Ui.ORB12) + 2f, w / 2f);
+        Ui.text(block, 0f, 1f, w - nw - (nw > 0f ? 8f : 0f), title, Ui.ORB12, Ui.gray(), Ui.LEFT);
+        if (note != null) Ui.text(block, w - nw, 1f, nw, note, Ui.ORB12, Ui.gray(), Ui.RIGHT);
+    }
+
+    private void addEdictRow(UiScroll.Column list, float w, MarketAPI colony, MarketConditionSpecAPI spec, Row state, String selectedId) {
+        boolean selected = spec.getId().equals(selectedId);
+        boolean live = state != Row.UNMET;
+        CustomPanelAPI block = list.block(EDICT_ROW_H, EDICT_ROW_GAP);
+        CustomPanelAPI row = UiButtons.row(block, 0f, 0f, w, EDICT_ROW_H, selected, true, state == Row.ACTIVE ? Ui.AMBER : null, () -> selectEdict(spec.getId()));
+        Ui.tooltip(block, row, null, previews.get(spec.getId()).getShortDesc());
+
+        UiImages.img(row, 4f + (state == Row.ACTIVE ? UiButtons.STRIP_W : 0f), 3f, EDICT_ICON, EDICT_ICON, spec.getIcon(), null, live ? 1f : UiImages.DIM);
+        float nameX = 38f + (state == Row.ACTIVE ? UiButtons.STRIP_W : 0f);
+        float rightW;
+
+        if (state == Row.ACTIVE) {
+            EdictAPI active = EdictHelper.getActiveEdictPlugin(colony);
+            String days = active == null ? "" : getDayCount(active, colony);
+            rightW = Math.min(Ui.width(days, Ui.INS15) + 2f, 90f);
+            Ui.textIn(row, w - 8f - rightW, 0f, rightW, EDICT_ROW_H, days, Ui.INS15, active != null ? getRuntimeColor(active) : Ui.AMBER, Ui.RIGHT, new String[0], new Color[0]);
+        } else if (state == Row.MET) {
+            rightW = UiData.MARK;
+            UiData.mark(row, w - 10f - UiData.MARK, 10f, true);
+        } else {
+            String missing = getFirstUnmet(spec.getId(), colony);
+            rightW = Math.min(Ui.width(missing, Ui.INS15) + 2f, 130f);
+            Ui.textIn(row, w - 8f - rightW, 0f, rightW, EDICT_ROW_H, missing, Ui.INS15, Ui.neg(), Ui.RIGHT, new String[0], new Color[0]);
+        }
+
+        Color nameColor = !live ? Ui.gray() : selected ? Ui.bright() : Ui.text();
+        Ui.textIn(row, nameX, 0f, w - nameX - 16f - rightW, EDICT_ROW_H, EdictRepo.getShortName(spec.getName()), Ui.INS15, nameColor, Ui.LEFT, new String[0], new Color[0]);
+    }
+
+    private void selectColony(MarketAPI colony) {
+        if (!colony.getId().equals(view.colony)) {
+            view.colony = colony.getId();
+            view.edict = null;
+            view.scroll.reset(EdictView.EDICTS);
+            view.scroll.reset(EdictView.DETAIL);
+        }
+
+        refresh();
     }
 
     private void selectEdict(String id) {
-        selectedEdict = id;
-        resetDetailScroll = true;
-    }
-
-    private void enactSelected() {
-        String name = Global.getSettings().getMarketConditionSpec(selectedEdict).getName();
-        EdictHelper.enact(selectedColony, selectedEdict);
-
-        message = name + " enacted on " + selectedColony.getName() + ".";
-        messageColor = Misc.getHighlightColor();
-    }
-
-    private void removeSelected() {
-        MarketConditionAPI activeCondition = EdictHelper.getActiveEdict(selectedColony);
-        EdictAPI active = activeCondition == null ? null : EdictHelper.asEdict(activeCondition);
-        if (active == null) throw new IllegalStateException("IndEvo: no Edict to remove on " + selectedColony.getName());
-
-        int unrest = active.getRemovalUnrest();
-        active.removeWithPenalty();
-
-        message = activeCondition.getName() + " removed from " + selectedColony.getName() + (unrest > 0 ? ", " + unrest + " unrest." : ".");
-        messageColor = unrest > 0 ? Misc.getNegativeHighlightColor() : Misc.getHighlightColor();
-    }
-
-    private void removeSelectedWithRelics() {
-        MarketConditionAPI activeCondition = EdictHelper.getActiveEdict(selectedColony);
-        EdictAPI active = activeCondition == null ? null : EdictHelper.asEdict(activeCondition);
-        if (active == null) throw new IllegalStateException("IndEvo: no Edict to remove on " + selectedColony.getName());
-
-        int cost = active.getRelicRemovalCost();
-        int unrest = active.getRelicRemovalUnrest();
-        RelicHelper.take(selectedColony, cost);
-        active.removeEarlyWithRelics();
-
-        message = activeCondition.getName() + " removed from " + selectedColony.getName() + " for " + cost + " " + RelicHelper.getName() + (unrest > 0 ? ", " + unrest + " unrest." : ".");
-        messageColor = Misc.getHighlightColor();
-    }
-
-    private String getLocationText(MarketAPI colony) {
-        String system = EdictHelper.getSystemName(colony);
-
-        if (colony.hasIndustry(Ids.SENATE)) return system + ", Senate";
-        if (EdictHelper.getSystemSenate(colony) != null) return system + ", same system";
-
-        if (senateScope) {
-            float dist = Misc.getDistanceLY(origin.getLocationInHyperspace(), colony.getLocationInHyperspace());
-            return system + ", " + Misc.getRoundedValueMaxOneAfterDecimal(dist) + " LY, Compounds range";
+        if (!id.equals(view.edict)) {
+            view.edict = id;
+            view.scroll.reset(EdictView.DETAIL);
         }
 
-        Pair<MarketAPI, Float> compounds = EdictHelper.getCompoundsSenateInRange(colony);
-        return compounds == null ? system : system + ", " + Misc.getRoundedValueMaxOneAfterDecimal(compounds.two) + " LY, Compounds range";
+        refresh();
     }
 
-    private static List<String> getUnmetShortTexts(List<EdictRequirement> requirements) {
-        List<String> unmet = new ArrayList<>();
-        for (EdictRequirement requirement : requirements) {
-            if (!requirement.met) unmet.add(requirement.shortText);
+    EdictAPI getPreview(String id) {
+        return previews.get(id);
+    }
+
+    boolean isMet(String id, MarketAPI colony) {
+        for (EdictRequirement requirement : previews.get(id).getRequirements(colony)) {
+            if (!requirement.met) return false;
         }
-        return unmet;
+
+        return true;
     }
 
-    private static float getRuntimeFraction(EdictAPI edict, MarketAPI market) {
-        int min = edict.getMinRuntime(market);
+    private String getFirstUnmet(String id, MarketAPI colony) {
+        for (EdictRequirement requirement : previews.get(id).getRequirements(colony)) {
+            if (!requirement.met) return requirement.shortText;
+        }
+
+        return "";
+    }
+
+    static String getDayCount(EdictAPI edict, MarketAPI colony) {
+        int min = edict.getMinRuntime(colony);
+        return Math.min(edict.getDaysPassed(), min) + " / " + min;
+    }
+
+    static float getRuntimeFraction(EdictAPI edict, MarketAPI colony, int min) {
         return min <= 0 ? 1f : Math.min(1f, edict.getDaysPassed() / (float) min);
     }
 
-    private static Color getRuntimeColor(EdictAPI edict) {
-        return edict.getRemainingDays() > 0 ? Misc.getHighlightColor() : Misc.getPositiveHighlightColor();
+    static Color getRuntimeColor(EdictAPI edict) {
+        return edict.getRemainingDays() > 0 ? Ui.AMBER : Ui.pos();
     }
 
-    private static class RuntimeBarPlugin extends BaseCustomUIPanelPlugin {
-        private final float fraction;
-        private final Color color;
-        private PositionAPI pos;
+    // hosts the panel in its own interaction dialog, Return closes it
+    private static class Host implements InteractionDialogPlugin {
+        private final MarketAPI market;
+        private final EdictView view;
 
-        RuntimeBarPlugin(float fraction, Color color) {
-            this.fraction = fraction;
-            this.color = color;
+        Host(MarketAPI market, EdictView view) {
+            this.market = market;
+            this.view = view;
         }
 
         @Override
-        public void positionChanged(PositionAPI pos) {
-            this.pos = pos;
+        public void init(InteractionDialogAPI dialog) {
+            dialog.setPromptText("");
+            dialog.getOptionPanel().clearOptions();
+            dialog.hideVisualPanel();
+            dialog.hideTextPanel();
+            dialog.showCustomDialog(getWidth(market), getHeight(), new EdictPanelDelegate(market, view, dialog::dismiss));
         }
 
         @Override
-        public void renderBelow(float alphaMult) {
-            if (pos == null) return;
-
-            float x = pos.getX();
-            float y = pos.getY();
-            float w = pos.getWidth();
-            float h = pos.getHeight();
-
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
-            GL11.glEnable(GL11.GL_BLEND);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
-            drawQuad(x, y, w, h, Color.BLACK, 0.8f * alphaMult);
-            drawQuad(x, y, w * fraction, h, color, alphaMult);
-
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
-        }
-
-        private static void drawQuad(float x, float y, float w, float h, Color c, float alpha) {
-            GL11.glColor4f(c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, alpha);
-            GL11.glBegin(GL11.GL_QUADS);
-            GL11.glVertex2f(x, y);
-            GL11.glVertex2f(x, y + h);
-            GL11.glVertex2f(x + w, y + h);
-            GL11.glVertex2f(x + w, y);
-            GL11.glEnd();
-        }
-    }
-
-    private static class BoxPlugin extends BaseCustomUIPanelPlugin {
-        private PositionAPI pos;
-
-        @Override
-        public void positionChanged(PositionAPI pos) {
-            this.pos = pos;
+        public void optionSelected(String optionText, Object optionData) {
         }
 
         @Override
-        public void renderBelow(float alphaMult) {
-            if (pos == null) return;
-
-            float x = pos.getX();
-            float y = pos.getY();
-            float w = pos.getWidth();
-            float h = pos.getHeight();
-            Color c = Misc.getDarkPlayerColor();
-
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
-            GL11.glEnable(GL11.GL_BLEND);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
-            RuntimeBarPlugin.drawQuad(x, y, w, h, c, 0.3f * alphaMult);
-
-            GL11.glColor4f(c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, alphaMult);
-            GL11.glLineWidth(1f);
-            GL11.glBegin(GL11.GL_LINE_LOOP);
-            GL11.glVertex2f(x + 0.5f, y + 0.5f);
-            GL11.glVertex2f(x + 0.5f, y + h - 0.5f);
-            GL11.glVertex2f(x + w - 0.5f, y + h - 0.5f);
-            GL11.glVertex2f(x + w - 0.5f, y + 0.5f);
-            GL11.glEnd();
-
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
-        }
-    }
-
-    private static class RequirementMarkPlugin extends BaseCustomUIPanelPlugin {
-        private final boolean met;
-        private PositionAPI pos;
-
-        RequirementMarkPlugin(boolean met) {
-            this.met = met;
+        public void optionMousedOver(String optionText, Object optionData) {
         }
 
         @Override
-        public void positionChanged(PositionAPI pos) {
-            this.pos = pos;
+        public void advance(float amount) {
         }
 
         @Override
-        public void render(float alphaMult) {
-            if (pos == null) return;
+        public void backFromEngagement(EngagementResultAPI battleResult) {
+        }
 
-            Color c = met ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor();
-            float x = pos.getX();
-            float top = pos.getY() + pos.getHeight();
-            float s = Math.min(pos.getWidth(), pos.getHeight()) / 12f;
+        @Override
+        public Object getContext() {
+            return null;
+        }
 
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
-            GL11.glEnable(GL11.GL_BLEND);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            GL11.glColor4f(c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, alphaMult);
-            GL11.glLineWidth(2f);
-
-            // points in a 12 unit box, y grows downwards
-            if (met) {
-                GL11.glBegin(GL11.GL_LINE_STRIP);
-                GL11.glVertex2f(x + 1f * s, top - 6.5f * s);
-                GL11.glVertex2f(x + 4.5f * s, top - 10f * s);
-                GL11.glVertex2f(x + 11f * s, top - 2f * s);
-            } else {
-                GL11.glBegin(GL11.GL_LINES);
-                GL11.glVertex2f(x + 2f * s, top - 2f * s);
-                GL11.glVertex2f(x + 10f * s, top - 10f * s);
-                GL11.glVertex2f(x + 10f * s, top - 2f * s);
-                GL11.glVertex2f(x + 2f * s, top - 10f * s);
-            }
-            GL11.glEnd();
-
-            GL11.glLineWidth(1f);
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
+        @Override
+        public Map<String, MemoryAPI> getMemoryMap() {
+            return null;
         }
     }
 }

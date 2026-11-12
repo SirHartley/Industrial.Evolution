@@ -8,15 +8,13 @@ package indevo.industries.senate.conditions;
 		Min. Runtime:	6M
 */
 
+import indevo.industries.senate.EdictEffect;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
-import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.MiscIE;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.awt.*;
 import indevo.industries.senate.EdictRequirement;
 
 public class Edict_Customs extends BaseEdict {
@@ -57,31 +55,16 @@ public class Edict_Customs extends BaseEdict {
     }
 
     @Override
-    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+    public List<EdictEffect> getEffects(MarketAPI market) {
+        List<EdictEffect> effects = new ArrayList<>();
         int others = getOtherColoniesInSystem(market).size();
-
-        if (others == 0) {
-            tooltip.addPara("Accessibility is unchanged, as there are %s in the star system.", pad, Misc.getNegativeHighlightColor(), "no other colonies");
-            return;
-        }
-
-        tooltip.addPara("Accessibility %s, %s for every other colony in the star system.", pad,
-                new Color[]{Misc.getPositiveHighlightColor(), Misc.getHighlightColor()}, "increased by " + others * 5 + "%", "5%");
-    }
-
-    @Override
-    public boolean hasOtherColonyEffects(MarketAPI market) {
-        return !getOtherColoniesInSystem(market).isEmpty();
-    }
-
-    @Override
-    public void addOtherColonyEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
-        float linePad = pad;
+        if (others == 0) effects.add(EdictEffect.neutral("Accessibility", "no change, no other colonies"));
+        else effects.add(EdictEffect.good("Accessibility", "+" + others * 5 + "%"));
 
         for (MarketAPI other : getOtherColoniesInSystem(market)) {
-            tooltip.addPara(BaseIntelPlugin.BULLET + other.getName() + ": accessibility %s", linePad, Misc.getNegativeHighlightColor(), "reduced by " + Math.round(-foreignAccessMod * 100) + "%");
-            linePad = 1f;
+            effects.add(EdictEffect.bad(other.getName() + ": accessibility", percent(foreignAccessMod)).onOtherColonies());
         }
+        return effects;
     }
 
     @Override

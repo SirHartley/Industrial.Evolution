@@ -1,16 +1,21 @@
 package indevo.industries.senate.conditions;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
+import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.impl.campaign.econ.BaseMarketConditionPlugin;
 import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.senate.EdictEffect;
 import indevo.industries.senate.EdictHelper;
 import indevo.industries.senate.EdictRepo;
 import indevo.industries.senate.EdictRequirement;
+import indevo.industries.senate.EdictSupplyChange;
 import indevo.industries.senate.industry.Senate;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
@@ -18,7 +23,11 @@ import indevo.utils.timers.TimeTracker;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public abstract class BaseEdict extends BaseMarketConditionPlugin implements EdictAPI, NewDayListener {
 
@@ -154,8 +163,20 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
         return getFinishUnrest(market);
     }
 
+    @Override
     public int getFinishUnrest(MarketAPI market) {
         return 0;
+    }
+
+    @Override
+    public boolean endsOnItsOwn() {
+        return false;
+    }
+
+    // unrest of a removal right after enacting
+    @Override
+    public int getMaxEarlyRemovalUnrest(MarketAPI market) {
+        return (int) Math.ceil(getMinRuntime(market) / 31.0 * EdictHelper.getEarlyRemovalUnrestMult(market));
     }
 
     public int getEarlyRemovalUnrest() {
@@ -163,12 +184,8 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
     }
 
     @Override
-    public boolean hasOtherColonyEffects(MarketAPI market) {
-        return false;
-    }
-
-    @Override
-    public void addOtherColonyEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+    public List<EdictSupplyChange> getSupplyChanges(MarketAPI market) {
+        return new ArrayList<>();
     }
 
     @Override
@@ -205,11 +222,20 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
         if (remaining > 0) tooltip.addPara(getRemainingTimeFormat(), opad, Misc.getHighlightColor(), getDurationString(remaining));
         else tooltip.addPara("This edict can be %s.", opad, Misc.getPositiveHighlightColor(), "removed without penalty");
 
-        addEffectText(tooltip, market, opad);
+        List<EdictEffect> effects = getEffects(market);
+        float pad = opad;
+        for (EdictEffect effect : effects) {
+            if (effect.otherColonies()) continue;
+            tooltip.addPara(effect.label() + ": %s", pad, getToneColor(effect.tone()), effect.value());
+            pad = 3f;
+        }
 
-        if (hasOtherColonyEffects(market)) {
-            tooltip.addPara("Effects on other colonies:", opad);
-            addOtherColonyEffectText(tooltip, market, 3f);
+        pad = opad;
+        for (EdictEffect effect : effects) {
+            if (!effect.otherColonies()) continue;
+            if (pad == opad) tooltip.addPara("Effects on other colonies:", opad);
+            tooltip.addPara(BaseIntelPlugin.BULLET + effect.label() + ": %s", 3f, getToneColor(effect.tone()), effect.value());
+            pad = 3f;
         }
 
         tooltip.addPara("Requirements:", opad);
@@ -217,6 +243,60 @@ public abstract class BaseEdict extends BaseMarketConditionPlugin implements Edi
             Color color = requirement.met ? Misc.getTextColor() : Misc.getNegativeHighlightColor();
             tooltip.addPara(BaseIntelPlugin.BULLET + requirement.text, color, 3f);
         }
+    }
+
+    public static Color getToneColor(EdictEffect.Tone tone) {
+        return switch (tone) {
+            case GOOD -> Misc.getPositiveHighlightColor();
+            case BAD -> Misc.getNegativeHighlightColor();
+            default -> Misc.getHighlightColor();
+        };
+    }
+
+    protected static EdictEffect stability(MarketAPI market, int delta) {
+        EdictEffect effect = delta >= 0 ? EdictEffect.good("Stability", signed(delta)) : EdictEffect.bad("Stability", signed(delta));
+        return effect.withNote("now " + Math.round(market.getStabilityValue()));
+    }
+
+    protected static String signed(int value) {
+        return value >= 0 ? "+" + value : String.valueOf(value);
+    }
+
+    protected static String percent(float fraction) {
+        int value = Math.round(fraction * 100f);
+        return (value >= 0 ? "+" : "") + value + "%";
+    }
+
+    // supply per commodity as the max over the colony's industries, with and without the mod; industriesOnly skips non industries
+    protected List<EdictSupplyChange> getSupplyChanges(MarketAPI market, boolean industriesOnly, String commodityOnly, Consumer<MutableStat> mod) {
+        Map<String, int[]> supply = new LinkedHashMap<>();
+
+        for (Industry industry : market.getIndustries()) {
+            boolean affected = !industriesOnly || industry.isIndustry();
+
+            for (MutableCommodityQuantity quantity : industry.getAllSupply()) {
+                String id = quantity.getCommodityId();
+                if (commodityOnly != null && !commodityOnly.equals(id)) continue;
+
+                MutableStat before = quantity.getQuantity().createCopy();
+                before.unmodify(getModId());
+                MutableStat after = before.createCopy();
+                if (affected) mod.accept(after);
+
+                int[] values = supply.computeIfAbsent(id, k -> new int[2]);
+                values[0] = Math.max(values[0], before.getModifiedInt());
+                values[1] = Math.max(values[1], after.getModifiedInt());
+            }
+        }
+
+        List<EdictSupplyChange> changes = new ArrayList<>();
+        for (Map.Entry<String, int[]> e : supply.entrySet()) {
+            int amount = e.getValue()[1] - e.getValue()[0];
+            if (amount != 0 && Global.getSettings().getCommoditySpec(e.getKey()) != null) changes.add(new EdictSupplyChange(e.getKey(), amount));
+        }
+
+        changes.sort(Comparator.comparingDouble(c -> Global.getSettings().getCommoditySpec(c.commodityId()).getOrder()));
+        return changes;
     }
 
     protected String getEdictName() {

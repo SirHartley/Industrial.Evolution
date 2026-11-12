@@ -1,15 +1,16 @@
 package indevo.industries.senate.conditions;
 
+import indevo.industries.senate.EdictEffect;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
-import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.TimeTracker;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.awt.*;
 import indevo.industries.senate.EdictRequirement;
@@ -78,6 +79,11 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
     }
 
     @Override
+    public boolean endsOnItsOwn() {
+        return true;
+    }
+
+    @Override
     public int getFinishUnrest(MarketAPI market) {
         return 3;
     }
@@ -88,29 +94,19 @@ public class Edict_ForcedRelocation extends BaseEdict implements MarketImmigrati
     }
 
     @Override
-    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
-        tooltip.addPara("Population growth %s.", pad, Misc.getNegativeHighlightColor(), "reduced by " + (int) (market.getSize() * popMult));
-        tooltip.addPara("Stability %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + stabPenalty);
-    }
-
-    @Override
-    public boolean hasOtherColonyEffects(MarketAPI market) {
-        return !getOtherColoniesInSystem(market).isEmpty();
-    }
-
-    @Override
-    public void addOtherColonyEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+    public List<EdictEffect> getEffects(MarketAPI market) {
+        List<EdictEffect> effects = new ArrayList<>();
         List<MarketAPI> others = getOtherColoniesInSystem(market);
-        if (others.isEmpty()) return;
+        effects.add(EdictEffect.bad("Population growth", signed(-(int) (market.getSize() * popMult))));
+        effects.add(stability(market, -stabPenalty));
 
+        if (others.isEmpty()) return effects;
         int increase = (int) Math.ceil(1.0 * market.getSize() / others.size() * popMult);
-        float linePad = pad;
-
         for (MarketAPI other : others) {
-            tooltip.addPara(BaseIntelPlugin.BULLET + other.getName() + ": population growth %s, stability %s", linePad,
-                    new Color[]{Misc.getPositiveHighlightColor(), Misc.getNegativeHighlightColor()}, "increased by " + increase, "reduced by " + stabPenalty);
-            linePad = 1f;
+            effects.add(EdictEffect.good(other.getName() + ": population growth", signed(increase)).onOtherColonies());
+            effects.add(EdictEffect.bad(other.getName() + ": stability", signed(-stabPenalty)).onOtherColonies());
         }
+        return effects;
     }
 
     @Override
