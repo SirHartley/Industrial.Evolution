@@ -205,8 +205,12 @@ class CourierEditor {
 
         UiImages.planet(b, x + 8f, CARD_Y + 8f, PLANET, market.getPrimaryEntity());
         float nameW = x + w - (editable ? 100f : 8f) - textX;
-        Ui.text(b, textX, CARD_Y + 10f, nameW, market.getName(), Ui.INS21, Ui.bright(), Ui.LEFT);
-        Ui.text(b, textX, CARD_Y + 38f, x + w - 8f - textX, getMarketLine(market), Ui.gray());
+        if (Ui.width(market.getName(), Ui.INS21) + 2f <= nameW) {
+            Ui.text(b, textX, CARD_Y + 10f, nameW, market.getName(), Ui.INS21, Ui.bright(), Ui.LEFT);
+            Ui.text(b, textX, CARD_Y + 38f, x + w - 8f - textX, getMarketLine(market), Ui.gray());
+        } else {
+            Ui.nameLines(b, textX, CARD_Y + 12f, 26f, nameW, market.getName(), Ui.bright(), getMarketLine(market), x + w - 8f - textX);
+        }
         if (editable) UiButtons.button(b, x + w - 92f, CARD_Y + 8f, 84f, 22f, "Change...", UiButtons.Kind.STD, () -> pickPlanet(origin));
     }
 

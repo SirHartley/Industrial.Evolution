@@ -73,6 +73,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `painted(p, x, y, w, h, below, above)` | Child panel with `UiCanvas.Painter`s |
 | `element(p, x, y, w, h, content)` | Non scrolling `TooltipMakerAPI` for vanilla widgets: made `w + INSET` wide, filled by `content`, then placed at `x - INSET`, so items start at `x`. The first item's pad is its offset below `y`; later items stack `belowLeft` with their own pad. The element grows to its content past `h` and is not clipped: keep the content inside `h` (check `getHeightSoFar()`) or use a scroll column. Fill it inside `content`, before it is attached |
 | `width(s, font)` / `fit(s, font, w)` | Real font width (`SettingsAPI.computeStringWidth`); shorten to `w - 2` with `...` |
+| `nameLines(p, x, y, pitch, w, name, color, second, secondW)` | Name and a grey second line `pitch` below; a name too long for one line wraps to two (ellipsis and tooltip past that) and the second line drops |
 | `lines(s, font, w, n)` | The leading words that wrap into `n` lines, `...` when words are left out |
 | `sentences(s, font, w)` | The leading whole sentences that fit `w - 2`; when the first one does not fit, cut at a word with `...` |
 | `text(p, x, y, w, s[, color[, align]])`, `text(p, x, y, w, s, font, color, align)` | One line, fitted, tooltip with the full text when shortened. Align `LEFT`, `RIGHT`, `CENTER` |

@@ -132,6 +132,20 @@ public final class Ui {
         return lo == 0 ? ELLIPSIS : s.substring(0, lo).stripTrailing() + ELLIPSIS;
     }
 
+    // name on one line and the grey second line below; a name too long for one line wraps to two and the second line drops
+    public static LabelAPI nameLines(CustomPanelAPI p, float x, float y, float pitch, float w, String name, Color c, String second, float secondW) {
+        if (width(name, INS15) + 2f <= w) {
+            LabelAPI label = text(p, x, y, w, name, c);
+            if (second != null) text(p, x, y + pitch, secondW, second, gray());
+            return label;
+        }
+
+        String shown = lines(name, INS15, w, 2);
+        LabelAPI label = wrap(p, x, y, w, shown, c);
+        if (!shown.equals(name)) tooltip(p, label, null, name);
+        return label;
+    }
+
     // the leading words that wrap into n lines at w, with "..." when words are left out
     public static String lines(String s, String font, float w, int n) {
         if (s == null) return "";

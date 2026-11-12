@@ -285,9 +285,8 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
 
         float textX = 56f;
         float tagW = colony.hasIndustry(Ids.SENATE) ? Ui.width("Senate", Ui.INS15) + 2f : 0f;
-        Ui.text(row, textX, 5f, w - textX - 8f - (tagW > 0f ? tagW + 8f : 0f), colony.getName(), selected ? Ui.bright() : Ui.text());
+        Ui.nameLines(row, textX, 5f, 18f, w - textX - 8f - (tagW > 0f ? tagW + 8f : 0f), colony.getName(), selected ? Ui.bright() : Ui.text(), getLocationLine(colony), w - textX - 8f);
         if (tagW > 0f) Ui.text(row, w - 8f - tagW, 5f, tagW, "Senate", Ui.hl(), Ui.RIGHT);
-        Ui.text(row, textX, 23f, w - textX - 8f, getLocationLine(colony), Ui.gray());
 
         MarketConditionAPI condition = EdictHelper.getActiveEdict(colony);
         EdictAPI active = condition == null ? null : EdictHelper.asEdict(condition);
