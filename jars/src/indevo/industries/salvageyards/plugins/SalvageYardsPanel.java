@@ -26,7 +26,7 @@ public class SalvageYardsPanel extends BaseCustomDialogDelegate {
     public static final float BOARD_W = 1024f;
     public static final float BOARD_H = 760f;
     static final float BODY_Y = 64f;
-    static final float TAB_W = 138f;
+    static final float TAB_W = 156f;
     static final float SIDE_W = 304f;
     static final float SIDE_GAP = 20f;
 
