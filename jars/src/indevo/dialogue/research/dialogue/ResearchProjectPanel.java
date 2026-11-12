@@ -117,7 +117,7 @@ public class ResearchProjectPanel {
     }
 
     private float getCardHeight(ResearchProject project, float cw, CargoAPI cargo) {
-        float h = CARD_H + (hasNote(project, cargo) ? NOTE_H : 0f);
+        float h = CARD_H + getDescExtra(project, cw) + (hasNote(project, cargo) ? NOTE_H : 0f);
         if (!view.info.contains(project.getId())) return h;
 
         return h + getInfoHeight(project, cw);
@@ -125,6 +125,37 @@ public class ResearchProjectPanel {
 
     private static float getInfoHeight(ResearchProject project, float cw) {
         return 8f + Ui.wrapHeight(getLongDesc(project), Ui.INS15, cw - 20f) + 8f + Ui.HEADING_H + 4f + project.getRequiredItems().size() * TABLE_ROW + 6f;
+    }
+
+    // whole sentences on one line; a first sentence longer than the line wraps to a second one
+    private static String getDesc(ResearchProject project, float cw) {
+        String s = project.getShortDesc() == null ? "" : project.getShortDesc().trim();
+        float w = cw - INFO_RIGHT - 20f;
+        String one = Ui.sentences(s, Ui.INS15, w);
+        if (!one.endsWith(Ui.ELLIPSIS)) return one;
+
+        float twoLines = 2f * Ui.wrapHeight("Ag", Ui.INS15, w) + 1f;
+        String out = "";
+        for (String sentence : s.split("(?<=[.!?])\\s+")) {
+            String next = out.isEmpty() ? sentence : out + " " + sentence;
+            if (Ui.wrapHeight(next, Ui.INS15, w) > twoLines) break;
+            out = next;
+        }
+        if (!out.isEmpty()) return out;
+
+        String words = "";
+        for (String word : s.split("\\s+")) {
+            String next = words.isEmpty() ? word : words + " " + word;
+            if (Ui.wrapHeight(next + Ui.ELLIPSIS, Ui.INS15, w) > twoLines) break;
+            words = next;
+        }
+        return words.replaceAll("[,;:.]+$", "") + Ui.ELLIPSIS;
+    }
+
+    private static float getDescExtra(ResearchProject project, float cw) {
+        float w = cw - INFO_RIGHT - 20f;
+        float line = Ui.wrapHeight("Ag", Ui.INS15, w);
+        return Ui.wrapHeight(getDesc(project, cw), Ui.INS15, w) > line + 1f ? line : 0f;
     }
 
     private static String getLongDesc(ResearchProject project) {
@@ -151,21 +182,22 @@ public class ResearchProjectPanel {
         Ui.textIn(b, cw - 10f - rw, 1f, rw, HEAD_H, right, Ui.ORB12, ready ? Ui.text() : Ui.gray(), Ui.RIGHT, new String[0], new Color[0]);
         Ui.textIn(b, 10f, 1f, cw - 30f - rw, HEAD_H, project.getName(), Ui.ORB12, headColor, Ui.LEFT, new String[0], new Color[0]);
 
-        Ui.text(b, 10f, DESC_Y, cw - INFO_RIGHT - 20f, Ui.sentences(project.getShortDesc(), Ui.INS15, cw - INFO_RIGHT - 20f), Ui.gray());
+        float dy = getDescExtra(project, cw);
+        Ui.wrap(b, 10f, DESC_Y, cw - INFO_RIGHT - 20f, getDesc(project, cw), Ui.gray());
         UiButtons.area(b, cw - INFO_RIGHT, TOGGLE_Y, INFO_W, TOGGLE_H, "Info", info, true, null, Ui.CENTER, () -> toggleInfo(id));
         if (project.isRepeatable()) addStockToggle(b, cw, progress);
 
-        UiData.bar(b, 10f, ROW_Y, BAR_W, BAR_H, required <= 0 ? 1f : Math.min(1f, points / required), finished ? Ui.pos() : Ui.barBlue(),
+        UiData.bar(b, 10f, ROW_Y + dy, BAR_W, BAR_H, required <= 0 ? 1f : Math.min(1f, points / required), finished ? Ui.pos() : Ui.barBlue(),
                 format(points) + " / " + format(required));
-        addItems(b, ITEMS_X, ROW_Y - 2f, cw - BUTTONS_RIGHT - 8f - ITEMS_X, project, cargo);
-        addButtons(b, cw, project, cargo, finished, ready);
+        addItems(b, ITEMS_X, ROW_Y + dy - 2f, cw - BUTTONS_RIGHT - 8f - ITEMS_X, project, cargo);
+        addButtons(b, cw, ROW_Y + dy - 3f, project, cargo, finished, ready);
 
-        float y = CARD_H - 4f;
+        float y = CARD_H + dy - 4f;
         if (hasNote(project, cargo)) {
             RedeemRequirement requirement = project.getRedeemRequirement();
             String note = "Redeem needs " + requirement.count + " " + requirement.getName() + " in your cargo. You have " + requirement.getAvailable(cargo) + ".";
-            UiImages.img(b, 10f, CARD_H - 8f, NOTE_ICON, NOTE_ICON, requirement.getSprite());
-            Ui.textIn(b, 38f, CARD_H - 8f, cw - 48f, NOTE_ICON, note, Ui.INS15, Ui.neg(), Ui.LEFT, new String[0], new Color[0]);
+            UiImages.img(b, 10f, CARD_H + dy - 8f, NOTE_ICON, NOTE_ICON, requirement.getSprite());
+            Ui.textIn(b, 38f, CARD_H + dy - 8f, cw - 48f, NOTE_ICON, note, Ui.INS15, Ui.neg(), Ui.LEFT, new String[0], new Color[0]);
             y += NOTE_H;
         }
 
@@ -229,14 +261,13 @@ public class ResearchProjectPanel {
         }
     }
 
-    private void addButtons(CustomPanelAPI b, float cw, ResearchProject project, CargoAPI cargo, boolean finished, boolean ready) {
+    private void addButtons(CustomPanelAPI b, float cw, float y, ResearchProject project, CargoAPI cargo, boolean finished, boolean ready) {
         float available = 0f;
         for (RequiredItem item : project.getRequiredItems()) available += Math.max(0f, ResearchProjectDialoguePlugin.getQuantity(cargo, item));
 
         boolean canDonate = (!finished || project.allowsOverflow()) && available > 0f;
         String id = project.getId();
         float x = cw - BUTTONS_RIGHT;
-        float y = ROW_Y - 3f;
 
         UiButtons.button(b, x, y, BUTTON_W, BUTTON_H, "Donate...", canDonate ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR,
                 canDonate ? () -> ResearchProjectDonationCargoPicker.init(plugin, id) : null);
