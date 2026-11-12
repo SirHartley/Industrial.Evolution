@@ -13,6 +13,8 @@ public class UiCanvas extends BaseCustomUIPanelPlugin {
     private final Painter below;
     private final Painter above;
     private PositionAPI pos;
+    // the fraction a kit progress bar shows, NaN for other panels; read by checks to compare it with the bar label
+    public float shown = Float.NaN;
 
     public UiCanvas() {
         this(null, null);

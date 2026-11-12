@@ -40,7 +40,7 @@ Every IE panel follows these rules.
 | `UiFrame` | Dialog sizing, title strip with `?`, header slots and counters |
 | `UiScroll` | Scroll columns and the per panel scroll offsets |
 | `UiRoot` | Rebuild host |
-| `UiCanvas` | Plugin of every kit panel: runs a `Runnable` button id, paints below and above children |
+| `UiCanvas` | Plugin of every kit panel: runs a `Runnable` button id, paints below and above children; `shown` holds the fraction a kit progress bar shows, for checks |
 | `UiHost` | Interaction dialog that only hosts one custom dialog, for panels opened from code |
 | `UiDraw` | GL primitives for painters (quad, outline, dashed box, fades, mark, contain fit sprite) |
 

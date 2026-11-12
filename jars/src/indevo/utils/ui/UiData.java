@@ -80,6 +80,7 @@ public final class UiData {
             UiDraw.line(bx + bw - 1f, by + bh - 1f, bx + bw - 15f, by + bh, 1f, frame, 1f, 0.5f, 0f, a, false);
         });
 
+        ((UiCanvas) bar.getPlugin()).shown = f;
         if (label != null) Ui.textIn(bar, 4f, 0f, w - 8f, h, label, Ui.INS15, Ui.text(), Ui.CENTER, new String[0], new Color[0]);
         return bar;
     }
