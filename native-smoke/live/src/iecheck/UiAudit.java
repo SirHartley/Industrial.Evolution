@@ -364,7 +364,7 @@ public final class UiAudit {
         if (rect != null && !(node instanceof LabelAPI) && rect.clip(clip).empty() && !(node instanceof ScrollPanelAPI)) return;
 
         if (node instanceof LabelAPI label) {
-            label(label, rect, panel, clip, scrolled, scrollArea, texts, out);
+            label(label, rect, panel, clip, scrolled, scrollArea, atTop, texts, out);
             return;
         }
 
@@ -372,6 +372,8 @@ public final class UiAudit {
                 && (node instanceof ButtonAPI || node instanceof CustomPanelAPI || children(node).isEmpty())) {
             boolean outside = scrolled ? rect.x() < scrollArea.x() - TOL || rect.r() > scrollArea.r() + TOL : !panel.contains(rect);
             if (outside) out.add("outside " + (scrolled ? "its scroll area" : "the panel") + ": " + kind(node) + " " + at(rect, panel));
+            if (scrolled && atTop && node instanceof CustomPanelAPI && children(node).isEmpty() && cutAtRest(rect, clip))
+                out.add("image or box cut by its scroll area at rest: " + kind(node) + " " + at(rect, panel));
         }
 
         if (node instanceof ButtonAPI button) {
@@ -379,7 +381,7 @@ public final class UiAudit {
             String text = button.getText();
             if (text != null && !text.isEmpty()) {
                 float tw = Global.getSettings().computeStringWidth(text, "graphics/fonts/orbitron12condensed.fnt");
-                if (scrolled && atTop && !rect.clip(clip).empty() && (rect.y() < clip.y() - TOL || rect.t() > clip.t() + TOL))
+                if (scrolled && atTop && cutAtRest(rect, clip))
                     out.add("button cut by its scroll area at rest: '" + cut(text) + "' " + at(rect, panel));
                 if (tw > rect.w() - 4f) out.add("button text wider than the button: '" + cut(text) + "' " + Math.round(tw) + " in " + Math.round(rect.w()) + " " + at(rect, panel));
             }
@@ -399,7 +401,7 @@ public final class UiAudit {
         for (Object child : children(node)) walk(child, panel, childClip, childScrolled, childArea, childTop, texts, buttons, out);
     }
 
-    private static void label(LabelAPI label, Rect box, Rect panel, Rect clip, boolean scrolled, Rect scrollArea, List<Text> texts, List<String> out) {
+    private static void label(LabelAPI label, Rect box, Rect panel, Rect clip, boolean scrolled, Rect scrollArea, boolean atTop, List<Text> texts, List<String> out) {
         String text = label.getText();
         if (text == null || text.isBlank()) return;
 
@@ -431,9 +433,15 @@ public final class UiAudit {
         }
 
         if (drawn.clip(clip).empty()) return;
+        if (scrolled && atTop && cutAtRest(drawn, clip)) out.add("text cut by its scroll area at rest: '" + cut(text) + "' " + at(drawn, panel));
         boolean outside = scrolled ? drawn.x() < scrollArea.x() - TOL || drawn.r() > scrollArea.r() + TOL : !panel.contains(drawn);
         if (outside) out.add("text outside " + (scrolled ? "its scroll area" : "the panel") + ": '" + cut(text) + "' " + at(drawn, panel));
         texts.add(new Text(label, text, drawn, clip));
+    }
+
+    // partly visible: something shows, but the viewport edge cuts it vertically
+    private static boolean cutAtRest(Rect r, Rect clip) {
+        return !r.clip(clip).empty() && (r.y() < clip.y() - TOL || r.t() > clip.t() + TOL);
     }
 
     private static float lineHeight(LabelAPI label) {
