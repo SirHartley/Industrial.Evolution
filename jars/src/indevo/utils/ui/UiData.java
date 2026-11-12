@@ -17,6 +17,8 @@ public final class UiData {
     public static final float COST_ICON = 22f;
     public static final float MARK = 12f;
     public static final float THIN_H = 3f;
+    // measured against the vanilla bar at 1600 x 900: its textured lines come out at about 0.7 of an untextured line
+    public static final float LINE_TEXTURE = 0.7f;
     public static final float VALUE_SHARE = 0.6f;
     public static final float PIP_OFF = 0.18f;
 
@@ -35,10 +37,10 @@ public final class UiData {
 
     // vanilla bar chrome: black track, inset fill, doubled end lines, fading corner stubs, label centred on top
     // translation of obfuscated code, 0.98a-RC8: the vanilla progress bar com.fs.starfarer.campaign.ui.N (renderImpl) at rest,
-    // its fill com.fs.starfarer.renderers.O and its lines com.fs.starfarer.renderers.E (untextured here); no easing, no overflow part
+    // its fill com.fs.starfarer.renderers.O and its lines com.fs.starfarer.renderers.E; no easing, no overflow part, no hover
     public static CustomPanelAPI bar(CustomPanelAPI p, float x, float y, float w, float h, float fraction, Color fill, String label) {
         float f = Math.max(0f, Math.min(1f, fraction));
-        Color frame = Ui.base();
+        Color frame = Ui.barColor("widgetBorderColorBright");
         Color soft = Misc.interpolateColor(fill, Color.white, 0.15f);
         Color shade = Misc.setAlpha(Color.BLACK, 127);
 
@@ -47,38 +49,50 @@ public final class UiData {
             float by = pos.getY();
             float bw = pos.getWidth();
             float bh = pos.getHeight();
-            float ux = bx + 3f;
-            float uw = bw - 8f;
-            if (bh <= 5f) {
-                ux -= 1f;
-                uw += 2f;
-            }
+            boolean thin = bh <= 5f;
+            float ux = bx + (thin ? 2f : 3f);
+            float uw = bw - (thin ? 6f : 8f);
+            float t = a * LINE_TEXTURE;
 
             UiDraw.quad(bx, by, bw, bh, Color.BLACK, a);
+            UiDraw.line(bx, by, bx, by + bh, 2f, frame, 0.5f, 0.5f, 0.5f, t, false);
+            UiDraw.line(bx + 1f, by, bx + 1f, by + bh, 2f, frame, 1f, 1f, 1f, t, true);
+            UiDraw.line(bx + bw, by, bx + bw, by + bh, 2f, frame, 0.5f, 0.5f, 0.5f, t, false);
+            UiDraw.line(bx + bw - 1f, by, bx + bw - 1f, by + bh, 2f, frame, 1f, 1f, 1f, t, true);
+            if (!thin) {
+                UiDraw.line(bx + 1f, by, bx + 15f, by, 1f, frame, 1f, 0.5f, 0f, t, false);
+                UiDraw.line(bx + 1f, by + bh - 1f, bx + 15f, by + bh, 1f, frame, 1f, 0.5f, 0f, t, false);
+                UiDraw.line(bx + bw - 1f, by, bx + bw - 15f, by, 1f, frame, 1f, 0.5f, 0f, t, false);
+                UiDraw.line(bx + bw - 1f, by + bh - 1f, bx + bw - 15f, by + bh, 1f, frame, 1f, 0.5f, 0f, t, false);
+            }
+
+            // the empty part: edge lines along it, fading in over 10 px at the right end, and a divider where it starts
+            float end = bx + 6f + uw;
+            float empty = uw * (1f - f);
+            if (empty > 0f) {
+                float fade = Math.min(10f, empty);
+                float start = end - empty + 1.5f;
+                if (thin) {
+                    UiDraw.line(end, by + 1f, end - empty - 1f, by + 1f, 1f, frame, 1f, 1f, 1f, t, false);
+                    UiDraw.line(end, by + bh - 2f, end - empty - 1f, by + bh - 2f, 1f, frame, 1f, 1f, 1f, t, false);
+                } else {
+                    for (float ly : new float[]{by + 1f, by + bh - 2f}) {
+                        UiDraw.line(end + 2f, ly, end + 2f - fade, ly, 1f, frame, 0f, 0.5f, 1f, t, false);
+                        UiDraw.line(end + 2f - fade, ly, start, ly, 1f, frame, 1f, 1f, 1f, t, false);
+                    }
+                    UiDraw.line(start, by + 1f, start, by + bh - 1f, 1f, frame, 1f, 1f, 1f, t, false);
+                    UiDraw.line(start, by + 1f, start, by + bh - 1f, 1f, Color.white, 0f, 1f, 0f, t, true);
+                }
+            }
+
             float fw = uw * f + 1f;
             filled(ux, by + 1f, fw, bh - 2f, soft, fill, a);
-
             float rw = uw - fw - 4f;
             if (rw > 0f && bh - 6f > 1f) {
                 UiDraw.quad(ux + fw + 5f, by + 3f, rw, bh - 6f, soft, a * 0.65f * 0.75f);
                 UiDraw.vgradient(ux + fw + 5f, by + 3f, rw, bh - 6f, shade, 0f, 0.65f, a, false);
             }
-        }, (pos, a) -> {
-            float bx = pos.getX();
-            float by = pos.getY();
-            float bw = pos.getWidth();
-            float bh = pos.getHeight();
-
-            UiDraw.line(bx, by, bx, by + bh, 2f, frame, 0.5f, 0.5f, 0.5f, a, false);
-            UiDraw.line(bx + 1f, by, bx + 1f, by + bh, 2f, frame, 1f, 1f, 1f, a, true);
-            UiDraw.line(bx + bw, by, bx + bw, by + bh, 2f, frame, 0.5f, 0.5f, 0.5f, a, false);
-            UiDraw.line(bx + bw - 1f, by, bx + bw - 1f, by + bh, 2f, frame, 1f, 1f, 1f, a, true);
-            if (bh <= 5f) return;
-            UiDraw.line(bx + 1f, by, bx + 15f, by, 1f, frame, 1f, 0.5f, 0f, a, false);
-            UiDraw.line(bx + 1f, by + bh - 1f, bx + 15f, by + bh, 1f, frame, 1f, 0.5f, 0f, a, false);
-            UiDraw.line(bx + bw - 1f, by, bx + bw - 15f, by, 1f, frame, 1f, 0.5f, 0f, a, false);
-            UiDraw.line(bx + bw - 1f, by + bh - 1f, bx + bw - 15f, by + bh, 1f, frame, 1f, 0.5f, 0f, a, false);
-        });
+        }, null);
 
         ((UiCanvas) bar.getPlugin()).shown = f;
         if (label != null) Ui.textIn(bar, 4f, 0f, w - 8f, h, label, Ui.INS15, Ui.text(), Ui.CENTER, new String[0], new Color[0]);
