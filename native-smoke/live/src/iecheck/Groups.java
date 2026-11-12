@@ -13,7 +13,6 @@ public final class Groups {
             return all;
         }
 
-        if (group.startsWith("hold")) return HoldChecks.steps(group.substring(4));
 
         switch (group) {
             case "commerce":
@@ -88,6 +87,15 @@ public final class Groups {
                 return ResearchUiChecks.steps();
             case "uistyle":
                 return StyleChecks.steps();
+            case "holdacademy":
+            case "holddetach":
+            case "holdcourier":
+            case "holdsalvage":
+            case "holdedict":
+            case "holdlab":
+            case "holdhub":
+            case "holdresearch":
+                return HoldChecks.steps(group.substring(4));
             case "shuttle":
                 return ShuttleChecks.steps();
             default:
