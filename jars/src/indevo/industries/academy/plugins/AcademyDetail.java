@@ -177,17 +177,17 @@ class AcademyDetail {
         List<AcademyPanelDelegate.Skill> skills = AcademyPanelDelegate.getSkills(person, admin);
         heading("Skills", SECTION_GAP);
 
-        add(Math.max(1, skills.size()) * LINE, GAP, b -> {
-            if (skills.isEmpty()) Ui.text(b, 0f, 3f, w, admin ? "No administrator skills." : "No skills.", Ui.gray());
+        if (skills.isEmpty()) add(LINE, GAP, b -> Ui.text(b, 0f, 3f, w, admin ? "No administrator skills." : "No skills.", Ui.gray()));
 
-            for (int i = 0; i < skills.size(); i++) {
-                AcademyPanelDelegate.Skill skill = skills.get(i);
-                float y = i * LINE;
-                UiImages.skill(b, 2f, y + 1f, 22f, skill.spec(), skill.elite());
-                Ui.text(b, 32f, y + 3f, w - 32f - (skill.elite() ? 48f : 0f), skill.spec().getName());
-                if (skill.elite()) Ui.text(b, w - 44f, y + 3f, 44f, "Elite", Ui.hl(), Ui.RIGHT);
-            }
-        });
+        // one block per row, so the column ends on a whole row
+        for (int i = 0; i < skills.size(); i++) {
+            AcademyPanelDelegate.Skill skill = skills.get(i);
+            add(LINE, i == 0 ? GAP : 0f, b -> {
+                UiImages.skill(b, 2f, 1f, 22f, skill.spec(), skill.elite());
+                Ui.text(b, 32f, 3f, w - 32f - (skill.elite() ? 48f : 0f), skill.spec().getName());
+                if (skill.elite()) Ui.text(b, w - 44f, 3f, 44f, "Elite", Ui.hl(), Ui.RIGHT);
+            });
+        }
     }
 
     private void addLadder(PersonAPI person, String current) {
@@ -195,52 +195,54 @@ class AcademyDetail {
         List<String> reachable = academy.getReachablePersonalities(person);
         boolean own = academy.getMarket().isPlayerOwned();
 
-        add(ladder.size() * RUNG_STEP - (RUNG_STEP - RUNG_H), GAP, b -> {
-            for (int i = 0; i < ladder.size(); i++) {
-                String id = ladder.get(i);
-                float y = i * RUNG_STEP;
-                boolean isCurrent = id.equals(current);
-                boolean isReachable = reachable.contains(id);
-                boolean selected = id.equals(view.rung);
-                boolean live = isCurrent || isReachable;
-                int steps = Academy.getPersonalitySteps(current, id);
+        // one block per rung, so the column ends on a whole rung
+        for (int i = 0; i < ladder.size(); i++) {
+            String id = ladder.get(i);
+            boolean isCurrent = id.equals(current);
+            boolean isReachable = reachable.contains(id);
+            boolean selected = id.equals(view.rung);
+            boolean live = isCurrent || isReachable;
+            int steps = Academy.getPersonalitySteps(current, id);
 
-                Runnable pick = isReachable ? () -> {
-                    view.rung = id;
-                    panel.refresh();
-                } : isCurrent ? panel::refresh : null;
-                CustomPanelAPI row = UiButtons.row(b, 0f, y, w, RUNG_H, selected, live, AcademyPanelDelegate.getPersonalityColor(id), pick);
+            Runnable pick = isReachable ? () -> {
+                view.rung = id;
+                panel.refresh();
+            } : isCurrent ? panel::refresh : null;
+
+            String right;
+            Color color;
+            String[] parts = new String[0];
+            Color[] colors = new Color[0];
+            if (isCurrent) {
+                right = "Current";
+                color = Ui.hl();
+            } else if (isReachable) {
+                int days = academy.getOfficerTrainingDays(steps);
+                float fee = academy.getOfficerTrainingFee(steps);
+                String feeText = Misc.getDGSCredits(fee);
+                right = own ? days + " days" : days + " days · " + feeText;
+                color = selected ? Ui.hl() : Ui.text();
+                if (!own && !BillingHelper.canAfford(fee)) {
+                    parts = new String[]{feeText};
+                    colors = new Color[]{Ui.neg()};
+                }
+            } else {
+                boolean needsAlpha = !academy.hasAlphaCore() && steps <= academy.getMaxOfficerSteps(true) - academy.getTrainedSteps(person)
+                        && steps > academy.getOfficerStepsLeft(person);
+                right = needsAlpha ? "Needs an alpha core" : "Out of reach";
+                color = Ui.gray();
+            }
+
+            String[] rightParts = parts;
+            Color[] rightColors = colors;
+            add(RUNG_H, i == 0 ? GAP : RUNG_STEP - RUNG_H, b -> {
+                CustomPanelAPI row = UiButtons.row(b, 0f, 0f, w, RUNG_H, selected, live, AcademyPanelDelegate.getPersonalityColor(id), pick);
                 Ui.textIn(row, 14f, 0f, 96f, RUNG_H, AcademyPanelDelegate.getPersonalityName(id), Ui.INS15,
                         live ? AcademyPanelDelegate.getPersonalityColor(id) : Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
-
-                String right;
-                Color color;
-                String[] parts = new String[0];
-                Color[] colors = new Color[0];
-                if (isCurrent) {
-                    right = "Current";
-                    color = Ui.hl();
-                } else if (isReachable) {
-                    int days = academy.getOfficerTrainingDays(steps);
-                    float fee = academy.getOfficerTrainingFee(steps);
-                    String feeText = Misc.getDGSCredits(fee);
-                    right = own ? days + " days" : days + " days · " + feeText;
-                    color = selected ? Ui.hl() : Ui.text();
-                    if (!own && !BillingHelper.canAfford(fee)) {
-                        parts = new String[]{feeText};
-                        colors = new Color[]{Ui.neg()};
-                    }
-                } else {
-                    boolean needsAlpha = !academy.hasAlphaCore() && steps <= academy.getMaxOfficerSteps(true) - academy.getTrainedSteps(person)
-                            && steps > academy.getOfficerStepsLeft(person);
-                    right = needsAlpha ? "Needs an alpha core" : "Out of reach";
-                    color = Ui.gray();
-                }
-
-                Ui.textIn(row, 116f, 0f, w - 126f, RUNG_H, right, Ui.INS15, color, Ui.RIGHT, parts, colors);
-                if (isCurrent) Ui.box(b, 0f, y, w, RUNG_H, Ui.hl(), null);
-            }
-        });
+                Ui.textIn(row, 116f, 0f, w - 126f, RUNG_H, right, Ui.INS15, color, Ui.RIGHT, rightParts, rightColors);
+                if (isCurrent) Ui.box(b, 0f, 0f, w, RUNG_H, Ui.hl(), null);
+            });
+        }
     }
 
     private void addAdmin(PersonAPI person, boolean stored) {
