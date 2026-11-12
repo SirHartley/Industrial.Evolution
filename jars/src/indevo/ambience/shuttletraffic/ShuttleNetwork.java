@@ -64,6 +64,19 @@ public class ShuttleNetwork {
     public static final float RUSH_SWING = 0.3f;
     public static final float RUSH_PERIOD_MIN = 6f;
     public static final float RUSH_PERIOD_MAX = 10f;
+    // liveliness: x LIVELY_SIZE_STEP per market size above or below 5, a military market without Megaport or Commerce and a station market fly less
+    public static final float LIVELY_SIZE_STEP = 1.6f;
+    public static final float LIVELY_MILITARY = 0.6f;
+    public static final float LIVELY_STATION = 0.8f;
+    private static final float PICKET_LIVELY_MIN = 0.34f;
+    private static final float PICKET_LIVELY_MAX = 1.5f;
+    private static final int MAX_CRUISES = 3;
+    private static final int MAX_MINING = 4;
+    private static final int MAX_SUPPLY = 16;
+    private static final float SUPPLY_PER_LIVELINESS = 2.5f;
+    // local flights launch while the player is within NEAR_RANGE su of the anchor's surface, and stop past NEAR_RANGE_OUT
+    public static final float NEAR_RANGE = 3000f;
+    public static final float NEAR_RANGE_OUT = 3500f;
 
     public final Map<SectorEntityToken, ShuttleAnchor> anchors = new LinkedHashMap<>();
     public final Map<String, ShuttleRoute> routes = new LinkedHashMap<>();
@@ -80,6 +93,20 @@ public class ShuttleNetwork {
         decivAnchors.clear();
         bodies.clear();
         meteors.clear();
+    }
+
+    // the player has no callback for moving either, so this runs with the fleet scan; true when an anchor changed
+    public boolean updateNear(Vector2f player) {
+        boolean changed = false;
+        for (ShuttleAnchor anchor : anchors.values()) {
+            float gap = Misc.getDistance(player, anchor.getLocation()) - anchor.getRadius();
+            boolean near = gap <= (anchor.near ? NEAR_RANGE_OUT : NEAR_RANGE);
+            if (near == anchor.near) continue;
+
+            anchor.near = near;
+            changed = true;
+        }
+        return changed;
     }
 
     // meteor swarms have no callback for their movement, so this runs with the fleet scan
@@ -239,12 +266,18 @@ public class ShuttleNetwork {
             anchor.closed = isPortDisrupted(market);
             marketAnchors.add(anchor);
 
-            float mult = getDensity(market) * getRushHour(market.getId(), days);
-            anchor.density = mult;
+            float density = getDensity(market);
+            float rush = getRushHour(market.getId(), days);
+            boolean military = (market.hasIndustry(Industries.MILITARYBASE) || market.hasIndustry(Industries.HIGHCOMMAND))
+                    && !market.hasIndustry(Industries.MEGAPORT) && !market.hasIndustry(Industries.COMMERCE);
+            float lively = getLiveliness(market.getSize(), density, military, stationMarket);
+            float mult = lively * rush;
+            anchor.density = density * rush;
+            anchor.liveliness = mult;
             ShuttleProfile profile = ShuttleFactionRepo.get(market.getFaction());
 
             SectorEntityToken sight = findSight(anchor, location, random);
-            int cruises = Math.round(profile.cruises());
+            int cruises = Math.round(profile.cruises() * Math.min(MAX_CRUISES, lively));
             if (sight != null && cruises > 0) {
                 ShuttleRoute cruise = getRoute(ShuttleRoute.Kind.CRUISE, anchor, null, random);
                 cruise.target = new ShuttleTarget(sight, 0f, 0f, 0f, 0f);
@@ -253,7 +286,8 @@ public class ShuttleNetwork {
 
             int wings = market.hasIndustry(Industries.MILITARYBASE) || market.hasIndustry(Industries.HIGHCOMMAND) ? 2
                     : market.hasIndustry(Industries.PATROLHQ) ? 1 : 0;
-            wings = wings > 0 ? Math.max(1, Math.round(wings * profile.pickets())) : 0;
+            float picketLively = Math.max(PICKET_LIVELY_MIN, Math.min(PICKET_LIVELY_MAX, lively));
+            wings = wings > 0 ? Math.max(1, Math.round(wings * profile.pickets() * picketLively)) : 0;
             if (market.hasCondition(Conditions.PIRATE_ACTIVITY)) wings++;
             if (wings > 0) getRoute(ShuttleRoute.Kind.PICKET, anchor, null, random).demand = wings;
 
@@ -274,7 +308,7 @@ public class ShuttleNetwork {
                 if (target != null) {
                     ShuttleRoute route = getRoute(ShuttleRoute.Kind.MINING, anchor, null, random);
                     route.target = target;
-                    route.demand = Math.max(1, Math.round((1f + market.getSize() / 4f) * mult));
+                    route.demand = Math.max(1, Math.min(MAX_MINING, Math.round(1f + mult)));
                 }
             }
 
@@ -291,9 +325,11 @@ public class ShuttleNetwork {
 
                 ShuttleAnchor station = getAnchor(entity, ShuttleAnchor.Type.STATION, ShuttleAnchor.Role.MARKET, market, market.getFaction());
                 station.closed = anchor.closed;
+                station.density = anchor.density;
+                station.liveliness = mult;
 
                 ShuttleRoute route = getRoute(ShuttleRoute.Kind.SUPPLY, anchor, station, random);
-                route.demand = Math.max(1, Math.round((1f + market.getSize() / 3f) * mult));
+                route.demand = Math.max(1, Math.min(MAX_SUPPLY, Math.round(SUPPLY_PER_LIVELINESS * mult)));
                 if (towing) getRoute(ShuttleRoute.Kind.TOW, anchor, station, random);
                 towing = false;
             }
@@ -323,12 +359,12 @@ public class ShuttleNetwork {
                 }
 
                 float lanes = (ShuttleFactionRepo.get(a.faction).lanes() + ShuttleFactionRepo.get(b.faction).lanes()) / 2f;
-                float mult = (a.density + b.density) / 2f * (a.market.getSize() + b.market.getSize()) / 10f * lanes;
+                float mult = (a.liveliness + b.liveliness) / 2f * lanes;
                 if (a.market.hasCondition(Conditions.PIRATE_ACTIVITY)) mult *= PIRATE_ACTIVITY_LANES;
                 if (b.market.hasCondition(Conditions.PIRATE_ACTIVITY)) mult *= PIRATE_ACTIVITY_LANES;
                 float chord = Misc.getDistance(a.getLocation(), b.getLocation());
                 ShuttleRoute route = getRoute(ShuttleRoute.Kind.MARKET, a, b, random);
-                route.demand = Math.max(2, Math.round(chord / LANE_SPACING * mult));
+                route.demand = Math.max(1, Math.round(chord / LANE_SPACING * mult));
 
                 if (a.market.hasIndustry(Ids.PORT)) getRoute(ShuttleRoute.Kind.COURIER, a, b, random);
                 else if (b.market.hasIndustry(Ids.PORT)) getRoute(ShuttleRoute.Kind.COURIER, b, a, random);
@@ -624,6 +660,14 @@ public class ShuttleNetwork {
         if (raided) mult *= 0.5f;
 
         return mult;
+    }
+
+    // 1 for a size 5 market at density 1; Chicomoztoc (size 8, Megaport) about 6, Citadel Arcadia (size 4 military station) about 0.3
+    public static float getLiveliness(int size, float density, boolean military, boolean station) {
+        float lively = (float) Math.pow(LIVELY_SIZE_STEP, size - 5) * density;
+        if (military) lively *= LIVELY_MILITARY;
+        if (station) lively *= LIVELY_STATION;
+        return lively;
     }
 
     // each market swings on its own slow sine, period and phase from its id

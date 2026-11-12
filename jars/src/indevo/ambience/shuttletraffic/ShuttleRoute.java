@@ -7,7 +7,7 @@ import java.util.Random;
 public class ShuttleRoute {
 
     public enum Kind {
-        SUPPLY(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.CIVIL),
+        SUPPLY(ShuttleBudget.Group.LOCAL, 1, 0f, SpeedClass.CIVIL),
         PIRATE_CARGO(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.CIVIL),
         MARKET(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.CIVIL),
         COURIER(ShuttleBudget.Group.LANES, 1, 0f, SpeedClass.MILITARY),

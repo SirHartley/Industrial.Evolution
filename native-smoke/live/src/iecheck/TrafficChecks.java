@@ -127,6 +127,7 @@ public final class TrafficChecks {
         c.note(tag + " orbit_passive fleets " + passive + ", at 40+ su/s " + fast + ", visible " + visible + ", fleet routes " + t.getFleetRoutes().size() + ": " + sb);
     }
 
+    private static final Map<String, Integer> around = new HashMap<>();
     private static final Map<Shuttle, Vector2f> start = new IdentityHashMap<>();
     private static final Map<Shuttle, Float> startAge = new IdentityHashMap<>();
 
@@ -172,9 +173,23 @@ public final class TrafficChecks {
         if (!slow.isEmpty()) c.note(tag + " slow craft: " + slow);
     }
 
+    // the player sits 500 su off the market like a parked fleet; the base save's move destination would fly it off otherwise
+    private static SectorEntityToken pin;
+
+    private static void pin() {
+        if (pin == null) return;
+        com.fs.starfarer.api.campaign.CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+        float x = pin.getLocation().x + 400f;
+        float y = pin.getLocation().y + 300f;
+        player.setLocation(x, y);
+        player.setMoveDestination(x, y);
+        player.setVelocity(0f, 0f);
+    }
+
     private static void wait(Ctx c, int frames, String id, Runnable atEnd) {
         int[] n = {0};
         c.until(() -> n[0] >= frames, 100f, id, () -> {
+            pin();
             if (++n[0] == frames && atEnd != null) atEnd.run();
         });
     }
@@ -183,6 +198,7 @@ public final class TrafficChecks {
         steps.add(c -> {
             SectorEntityToken e = Global.getSector().getEntityById(entityId);
             Colony.jump(e.getContainingLocation(), e.getLocation().x + 400f, e.getLocation().y + 300f);
+            pin = e;
             wait(c, 120, tag + " entered", () -> report(c, tag + " t0"));
         });
         steps.add(c -> wait(c, 60, tag + " mark", TrafficChecks::markSpeeds));
@@ -191,7 +207,8 @@ public final class TrafficChecks {
             fleets(c, tag + " t10s");
             speeds(c, tag + " t10s");
         }));
-        for (int i = 1; i <= 4; i++) {
+        steps.add(c -> c.shot("traffic_" + tag));
+        for (int i = 1; i <= 2; i++) {
             int round = i;
             steps.add(c -> wait(c, 1800, tag + " 30 s round " + round, () -> report(c, tag + " +" + round * 30 + "s")));
         }
@@ -201,17 +218,26 @@ public final class TrafficChecks {
             fleets(c, tag + " late");
             ShuttleTraffic t = traffic();
             c.expect(t != null && t.getShuttles().size() > 0, tag + " has craft (" + (t == null ? -1 : t.getShuttles().size()) + ")");
+            SectorEntityToken e = Global.getSector().getEntityById(entityId);
+            int n = 0;
+            if (t != null) for (Shuttle s : t.getShuttles()) if (Vector2f.sub(s.pos, e.getLocation(), new Vector2f()).length() < e.getRadius() + 800f) n++;
+            around.put(entityId, n);
+            c.note(tag + " craft within radius + 800 of " + e.getName() + ": " + n);
         }));
     }
 
     public static List<Step> steps() {
         List<Step> steps = new ArrayList<>();
         steps.add(c -> {
-            Colony.setting(Setting.SHUTTLE_TRAFFIC, 40);
-            c.note("setting " + Setting.SHUTTLE_TRAFFIC.id + " 40");
+            Colony.setting(Setting.SHUTTLE_TRAFFIC, 80);
+            c.note("setting " + Setting.SHUTTLE_TRAFFIC.id + " 80");
         });
+        system(steps, "chicomoztoc", "aztlan");
+        system(steps, "arcadia_station", "arcadia");
         system(steps, "sindria", "askonia");
         system(steps, "jangala", "corvus");
+        steps.add(c -> c.expect(around.getOrDefault("chicomoztoc", 0) >= 2 * Math.max(1, around.getOrDefault("arcadia_station", 0)),
+                "Chicomoztoc busier than Citadel Arcadia (" + around + ")"));
         return steps;
     }
 }
