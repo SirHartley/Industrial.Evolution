@@ -129,7 +129,7 @@ public class EventFlights extends BaseFlights {
         add(local.launchMaintenance(route), ShuttleBudget.Group.RARE);
     }
 
-    // from the player fleet while it is near, else from the nearest market, to the new colony
+    // from the player fleet while it is near and slow, else from the nearest market, to the new colony
     private void launchSettler(PlanetAPI planet) {
         ShuttleAnchor pad = network.anchors.get(planet);
         if (pad == null) pad = new ShuttleAnchor(planet, ShuttleAnchor.Type.PLANET, ShuttleAnchor.Role.TARGET, planet.getMarket(), planet.getFaction());
@@ -141,7 +141,7 @@ public class EventFlights extends BaseFlights {
 
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         ShuttleAnchor colony = pad;
-        if (player != null && player.getContainingLocation() == traffic.getLocation() && Misc.getDistance(player.getLocation(), planet.getLocation()) <= SETTLER_FLEET_RANGE) {
+        if (player != null && player.getContainingLocation() == traffic.getLocation() && !FleetFlights.isFast(player) && Misc.getDistance(player.getLocation(), planet.getLocation()) <= SETTLER_FLEET_RANGE) {
             Shuttle shuttle = create(hull, null, faction, ShuttleAnchor.forFleet(player), pad, paths.servicePath(pad, player, false, false), SpeedClass.SERVICE, 1f, 0f,
                     ShuttleLook.SERVICE, TRAITS);
             shuttle.tieTo(player);

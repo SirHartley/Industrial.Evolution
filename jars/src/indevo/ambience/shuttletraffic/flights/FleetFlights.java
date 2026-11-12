@@ -50,7 +50,6 @@ public class FleetFlights extends BaseFlights {
     private static final String RAID_FALLBACK = "talon";
     private static final Set<Shuttle.Trait> RAID_TRAITS = Collections.unmodifiableSet(EnumSet.of(Shuttle.Trait.AVOIDS));
     private static final float SURVEY_RANGE = 600f;
-    private static final float SURVEY_MAX_SPEED = 60f;
     private static final Set<String> SURVEY_HULLS = Set.of("shuttlepod", "kite", "mudskipper");
     private static final Set<Shuttle.Trait> SERVICE_TRAITS = Collections.unmodifiableSet(EnumSet.of(Shuttle.Trait.AVOIDS, Shuttle.Trait.FLEES));
 
@@ -97,6 +96,11 @@ public class FleetFlights extends BaseFlights {
         if ((trades.isEmpty() && raids.isEmpty()) || Global.getSector().getCampaignUI().isShowingDialog()) return;
 
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+        if (player == null || isFast(player)) {
+            clearQueue();
+            return;
+        }
+
         for (Raid raid : raids) launchRaid(raid, player);
         raids.clear();
 
@@ -221,7 +225,7 @@ public class FleetFlights extends BaseFlights {
                 // survey craft fly back on their own, they only go with the fleet
                 case SURVEY -> !route.seen && (route.active <= 0 || !route.fleet.isAlive() || route.fleet.getContainingLocation() != traffic.getLocation());
                 // the burst only shows while the player stays near the pad
-                case TRADE -> route.active <= 0 || route.fleet.getContainingLocation() != traffic.getLocation()
+                case TRADE -> route.active <= 0 || route.fleet.getContainingLocation() != traffic.getLocation() || isFast(route.fleet)
                         || Misc.getDistance(route.fleet.getLocation(), route.a.getLocation()) - route.a.getRadius() > TRADE_RANGE;
                 default -> false;
             };
@@ -229,6 +233,29 @@ public class FleetFlights extends BaseFlights {
 
             end(route);
             iterator.remove();
+        }
+
+        turnBackFromFastFleets();
+    }
+
+    public static boolean isFast(CampaignFleetAPI fleet) {
+        return fleet.getVelocity().length() >= SpeedClass.FLEET_TIED_MAX_SPEED;
+    }
+
+    // craft bound for a fleet that got fast turn back to where they came from, or the nearest refuge; craft from it carry on
+    private void turnBackFromFastFleets() {
+        for (Shuttle shuttle : traffic.getShuttles()) {
+            CampaignFleetAPI fleet = shuttle.getTiedFleet();
+            ShuttleAnchor to = shuttle.getTo();
+            if (fleet == null || to == null || to.type != ShuttleAnchor.Type.FLEET || !isFast(fleet) || !shuttle.canRedirect() || shuttle.isFollower()) continue;
+
+            ShuttleAnchor back = shuttle.getFrom();
+            if (back == null || back.type == ShuttleAnchor.Type.FLEET || !back.isUsable(traffic.getLocation())) {
+                back = network.findRefuge(null, shuttle.faction, shuttle.pos, traffic.getLocation());
+            }
+
+            if (back != null) shuttle.redirect(back, traffic);
+            else shuttle.finish();
         }
     }
 
@@ -276,7 +303,7 @@ public class FleetFlights extends BaseFlights {
     private boolean isSurveying(ShuttleFleetScan.Entry entry) {
         CampaignFleetAPI fleet = entry.fleet;
         if (!ShuttleFleetScan.isScavenger(entry.type) || entry.assignment != FleetAssignment.PATROL_SYSTEM || entry.target == null) return false;
-        if (fleet.getVisibilityLevelToPlayerFleet() == SectorEntityToken.VisibilityLevel.NONE || fleet.getVelocity().length() >= SURVEY_MAX_SPEED) return false;
+        if (fleet.getVisibilityLevelToPlayerFleet() == SectorEntityToken.VisibilityLevel.NONE || isFast(fleet)) return false;
 
         SectorEntityToken target = entry.target;
         return target.isAlive() && target.getContainingLocation() == traffic.getLocation()
@@ -327,7 +354,7 @@ public class FleetFlights extends BaseFlights {
     private ShuttleAnchor findServicePad(ShuttleFleetScan.Entry entry) {
         CampaignFleetAPI fleet = entry.fleet;
         if (fleet == null || fleet.isPlayerFleet() || fleet.isStationMode() || !fleet.isAlive()) return null;
-        if (entry.assignment != FleetAssignment.ORBIT_PASSIVE) return null;
+        if (entry.assignment != FleetAssignment.ORBIT_PASSIVE || isFast(fleet)) return null;
         if (fleet.getVisibilityLevelToPlayerFleet() == SectorEntityToken.VisibilityLevel.NONE) return null;
 
         ShuttleAnchor pad = entry.target != null ? network.anchors.get(entry.target) : null;

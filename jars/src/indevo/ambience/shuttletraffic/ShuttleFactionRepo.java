@@ -78,7 +78,7 @@ public final class ShuttleFactionRepo {
     private static ShuttleProfile read(JSONObject row, ShuttleProfile base) {
         return new ShuttleProfile(row.optString("id"), bool(row, "pirate", base.pirate()), bool(row, "dark", base.dark()),
                 num(row, "laneDiscipline", base.laneDiscipline()), num(row, "jitter", base.jitter()), num(row, "speedSpread", base.speedSpread()),
-                num(row, "weave", base.weave()), num(row, "formation", base.formation()), bool(row, "queue", base.queue()), num(row, "nerve", base.nerve()),
+                num(row, "weave", base.weave()), num(row, "formation", base.formation()), bool(row, "queue", base.queue()),
                 num(row, "lanes", base.lanes()), num(row, "cruises", base.cruises()), num(row, "pickets", base.pickets()), num(row, "convoys", base.convoys()),
                 num(row, "speed", base.speed()), num(row, "flicker", base.flicker()));
     }

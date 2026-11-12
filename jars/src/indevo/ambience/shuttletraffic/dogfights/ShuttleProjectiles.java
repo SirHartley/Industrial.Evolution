@@ -9,8 +9,8 @@ import java.util.List;
 public class ShuttleProjectiles {
 
     public enum Kind {
-        GUN(500f, 0.6f, 14f),
-        LASER(900f, 0.4f, 8f),
+        GUN(500f, 0.6f, 6f),
+        LASER(900f, 0.4f, 6f),
         TORPEDO(200f, 2f, 24f);
 
         public final float speed;
@@ -129,7 +129,7 @@ public class ShuttleProjectiles {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-        GL11.glLineWidth(1.5f);
+        GL11.glLineWidth(1f);
         GL11.glBegin(GL11.GL_LINES);
         for (int i = 0; i < SIZE; i++) {
             if (!live[i]) continue;

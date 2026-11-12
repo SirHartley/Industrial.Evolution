@@ -9,7 +9,6 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ambience.shuttletraffic.movement.FollowMover;
 import indevo.ambience.shuttletraffic.movement.PathMover;
 import indevo.ambience.shuttletraffic.movement.ShuttlePath;
-import indevo.ambience.shuttletraffic.movement.SteerMover;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.Color;
@@ -34,11 +33,6 @@ public class Shuttle {
         QUEUES,
         FLEES,
         PICKET
-    }
-
-    // free steering: fills the point the craft steers to and its velocity, returns the top speed; the job ends steering through the shuttle
-    public interface Steering {
-        float aim(Shuttle shuttle, ShuttleTraffic traffic, Vector2f point, Vector2f velocity);
     }
 
     public static final Set<Trait> CIVIL = Collections.unmodifiableSet(EnumSet.of(Trait.AVOIDS, Trait.QUEUES, Trait.FLEES));
@@ -87,20 +81,14 @@ public class Shuttle {
     private float delay = 0f;
     private float lastThreatNearDay = -100f;
     private ShuttleBudget.Group group = ShuttleBudget.Group.RARE;
-    // craft tied to a fleet fade with its sensor fader and never dodge it
+    // craft tied to a fleet fade with its sensor fader and never avoid it
     private CampaignFleetAPI tiedFleet;
 
     private final List<Shuttle> followers = new ArrayList<>(2);
     private final ShuttleTrail trail;
     private final PathMover mover;
     private FollowMover follow;
-    private SteerMover steer;
-    private Steering steering;
-    private final Vector2f steerPoint = new Vector2f();
-    private final Vector2f steerVel = new Vector2f();
-    private float steerScale = 1f;
-    private float steerAlpha = 1f;
-    // a craft that broke formation flies back into its slot once nobody dodges for REFORM_TIME
+    // a craft that broke formation flies back into its slot once nobody avoids a fleet for REFORM_TIME
     private Shuttle formerLeader;
     private float formerBack;
     private float formerSide;
@@ -231,9 +219,7 @@ public class Shuttle {
 
         float oldX = pos.x;
         float oldY = pos.y;
-        if (steer != null) {
-            advanceSteer(amount, traffic);
-        } else if (follow != null) {
+        if (follow != null) {
             follow.advance(amount);
         } else {
             mover.advance(amount, traffic);
@@ -251,7 +237,6 @@ public class Shuttle {
     public void disable(float seconds, Random random) {
         if (!followers.isEmpty()) disperse(random);
         leaveFormation();
-        stopSteer();
         setState(state.disable());
         restartAge = age + seconds;
         driftTurn = (10f + random.nextFloat() * 15f) * (random.nextBoolean() ? 1f : -1f);
@@ -263,7 +248,6 @@ public class Shuttle {
         Random random = traffic.getRandom();
         if (!followers.isEmpty()) disperse(random);
         leaveFormation();
-        stopSteer();
         wreckAge = 0f;
 
         LocationAPI location = traffic.getLocation();
@@ -386,45 +370,6 @@ public class Shuttle {
         float since = age - boostStart;
         if (boostTime > 0f && since < boostTime) speed += boost * (1f - since / boostTime);
         return speed;
-    }
-
-    // starts free steering from the current spot, appear fades the craft in from half size as it leaves a pad or a fleet
-    public void beginSteer(Steering job, Vector2f startVel, boolean appear) {
-        if (follow != null) leaveFormation();
-        steering = job;
-        steer = new SteerMover(pos, startVel);
-        steerScale = 1f;
-        steerAlpha = 1f;
-        trail.clear();
-        facingSet = startVel.lengthSquared() > 1f;
-        if (facingSet) facing = Misc.getAngleInDegrees(startVel);
-        if (appear) {
-            appearRamp = 0f;
-            appearAlpha = 0f;
-            appearScale = 0.5f;
-        }
-    }
-
-    // the job's look for this frame, folding into a fleet shrinks and fades the craft
-    public void setSteerLook(float scaleMult, float alphaMult) {
-        steerScale = scaleMult;
-        steerAlpha = alphaMult;
-    }
-
-    // from free steering onto a path to an anchor, slowing from the steering speed to cruise over 2 s
-    public void landAt(ShuttleAnchor anchor, ShuttleTraffic traffic) {
-        float speed = steer != null ? steer.vel.length() : 0f;
-        stopSteer();
-        to = anchor;
-        cleared = false;
-        boost = Math.max(0f, speed - getCruiseSpeed());
-        boostTime = 2f;
-        boostStart = age;
-        setPath(traffic.getPaths().redirectPath(null, pos, facing, anchor), End.NONE, anchor.getEnd());
-    }
-
-    public boolean isSteering() {
-        return steer != null;
     }
 
     // a near miss: the flee wobble for 2 s and the formation breaks
@@ -651,7 +596,7 @@ public class Shuttle {
         if (a <= 0.01f || isTumbling()) return;
 
         float width = Math.min(look.trailWidth(), 0.5f * hull.width * scale);
-        trail.render(getRearX(), getRearY(), width, hull.trailColor, hull.additiveTrail, a * look.trailAlpha() * throttle);
+        trail.render(getRearX(), getRearY(), width, hull.trailColor, hull.additiveTrail, a * look.trailAlpha() * throttle, !isHit());
     }
 
     public void renderSprite(float alphaMult, SpriteAPI glow) {
@@ -798,36 +743,6 @@ public class Shuttle {
         setPath(traffic.getPaths().holdPath(getFrame(), pos, facing, STRANDED_HOLD_RADIUS), End.NONE, End.NONE);
     }
 
-    private void advanceSteer(float amount, ShuttleTraffic traffic) {
-        float top = steering.aim(this, traffic, steerPoint, steerVel);
-        if (steer == null || done) return;
-
-        steer.steer(amount, steerPoint.x, steerPoint.y, steerVel.x, steerVel.y, top);
-        pos.set(steer.pos);
-        if (steer.vel.lengthSquared() > 25f) updateFacing(amount, Misc.getAngleInDegrees(steer.vel));
-        else turnSpeed = 0f;
-
-        scale = steerScale;
-        alpha = steerAlpha;
-        darken = 1f;
-        glowMult = 1f;
-        throttle = Math.max(0.4f, Math.min(1f, steer.vel.length() / Math.max(1f, getCruiseSpeed())));
-        if (appearRamp < 1f) {
-            appearRamp = Math.min(1f, appearRamp + amount);
-            alpha *= appearAlpha + (1f - appearAlpha) * appearRamp;
-            scale *= appearScale + (1f - appearScale) * appearRamp;
-        }
-
-        trail.shift(0f, 0f);
-        trail.pushHistoryIfMoved(pos.x, pos.y);
-        pushTrailAtRear();
-    }
-
-    private void stopSteer() {
-        steer = null;
-        steering = null;
-    }
-
     private void advanceWreck(float amount) {
         wreckAge += amount;
         drift(amount);
@@ -879,7 +794,7 @@ public class Shuttle {
             return;
         }
 
-        if (mover.isDodging() || lead.mover.isDodging()) {
+        if (mover.isAvoiding() || lead.mover.isAvoiding()) {
             reformAt = age + REFORM_TIME;
             return;
         }

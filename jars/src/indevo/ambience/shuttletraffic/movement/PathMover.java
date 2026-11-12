@@ -7,6 +7,7 @@ import indevo.ambience.shuttletraffic.ShuttleAnchor;
 import indevo.ambience.shuttletraffic.ShuttleFleetScan;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
 import indevo.ambience.shuttletraffic.ShuttleTrail;
+import indevo.ambience.shuttletraffic.SpeedClass;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.Random;
@@ -14,6 +15,11 @@ import java.util.Random;
 public class PathMover {
 
     private static final float SPREAD_EASE = 20f;
+    // stage 4 avoidance: only fleets slower than SLOW_FLEET, eased sideways at AVOID_EASE, no braking
+    private static final float AVOID_MARGIN = 40f;
+    private static final float AVOID_EASE = 20f;
+    private static final float SLOW_FLEET = 40f;
+    private static final float NEAR_MISS_SPEED = 100f;
     private static final float DOCK_CHECK_DISTANCE = 40f;
     private static final float WEAVE_LENGTH = 400f;
 
@@ -26,8 +32,16 @@ public class PathMover {
     private final ShuttlePath.Cursor cursor = new ShuttlePath.Cursor();
     private float traveled = 0f;
     private float rebuildTimer = 0f;
+    // slewed path speed, negative until the first frame
+    private float pathSpeed = -1f;
+    // world speed above the path speed last frame (moving ends, sideways moves), taken off the path speed to keep inside the cap
+    private float carry = 0f;
+    private final Vector2f lastPos = new Vector2f();
+    private boolean lastKnown = false;
 
-    private final Dodge dodge = new Dodge();
+    private float avoidOffset = 0f;
+    private boolean avoiding = false;
+    private boolean nearMiss = false;
     private float spread = 0f;
     private float lastLateral = 0f;
     private float sideBias = 0f;
@@ -48,7 +62,6 @@ public class PathMover {
         this.launchEnd = launchEnd;
         this.landEnd = landEnd;
         this.jitter = jitter;
-        dodge.setNerve(shuttle.getProfile().nerve());
         if (path != null) path.rebuild();
     }
 
@@ -61,7 +74,8 @@ public class PathMover {
         launchEnd = newLaunch;
         landEnd = newLand;
         jitter = 0f;
-        dodge.clear();
+        avoidOffset = 0f;
+        avoiding = false;
         spread = 0f;
         lastLateral = 0f;
         sideBias = 0f;
@@ -77,7 +91,8 @@ public class PathMover {
         path.place(cursor, Math.max(0f, path.getTraveled(lead.cursor) - slotBack));
         traveled = path.getTraveled(cursor);
         rebuildTimer = random.nextFloat();
-        dodge.clear();
+        avoidOffset = 0f;
+        avoiding = false;
         spread = slotSide;
         lastLateral = slotSide;
         sideBias = slotSide * 4f;
@@ -94,6 +109,8 @@ public class PathMover {
         shuttle.pos.set(base);
         shuttle.setFacing(Misc.getAngleInDegrees(tangent));
         moveFrame();
+        lastKnown = false;
+        pathSpeed = -1f;
 
         for (int i = ShuttleTrail.HISTORY_POINTS; i >= 1; i--) {
             path.getPoint(Math.max(0f, traveled - i * ShuttleTrail.HISTORY_SPACING), tmp);
@@ -134,8 +151,8 @@ public class PathMover {
         return landEnd;
     }
 
-    public boolean isDodging() {
-        return dodge.isShifted();
+    public boolean isAvoiding() {
+        return avoiding || avoidOffset != 0f;
     }
 
     public boolean sharesPath(PathMover other) {
@@ -166,7 +183,9 @@ public class PathMover {
         if (launchLength > 0f && traveled < launchLength) ease = Math.min(ease, minEase + (1f - minEase) * smooth(traveled / launchLength));
         if (landLength > 0f && remaining < landLength) ease = Math.min(ease, minEase + (1f - minEase) * smooth(remaining / landLength));
 
-        float speed = shuttle.getSpeed(ease) * path.getSpeedMult(cursor) * dodge.getPace();
+        float wanted = shuttle.getSpeed(ease) * path.getSpeedMult(cursor);
+        pathSpeed = nextPathSpeed(pathSpeed, wanted, carry, amount);
+        float speed = pathSpeed;
         shuttle.setThrottle(speed);
         if (path.move(cursor, speed * amount)) {
             shuttle.onPathEnd(traffic);
@@ -177,6 +196,19 @@ public class PathMover {
         traveled = path.getTraveled(cursor);
 
         updatePosition(amount, traffic, total, launchLength, landLength, speed);
+        measureCarry(amount, speed);
+    }
+
+    private void measureCarry(float amount, float speed) {
+        if (lastKnown && amount > 0f) carry = Math.max(0f, Vector2f.sub(shuttle.pos, lastPos, tmp).length() / amount - speed);
+        lastPos.set(shuttle.pos);
+        lastKnown = true;
+    }
+
+    // slewed towards the wanted speed, then cut so path speed plus last frame's carry stays inside the world cap; negative current snaps
+    public static float nextPathSpeed(float current, float wanted, float carry, float amount) {
+        float speed = current < 0f ? wanted : SpeedClass.slew(current, wanted, amount);
+        return Math.min(speed, Math.max(0f, SpeedClass.WORLD_CAP - carry));
     }
 
     private void updatePosition(float amount, ShuttleTraffic traffic, float total, float launchLength, float landLength, float speed) {
@@ -185,31 +217,34 @@ public class PathMover {
 
         float fraction = total > 0f ? traveled / total : 1f;
         float envelope = (float) Math.sin(Math.PI * fraction);
-        float dodgeEnvelope = 1f;
-        if (launchLength > 0f) dodgeEnvelope = Math.min(dodgeEnvelope, traveled / launchLength);
-        if (landLength > 0f) dodgeEnvelope = Math.min(dodgeEnvelope, (total - traveled) / landLength);
-        dodgeEnvelope = Math.max(0f, Math.min(1f, dodgeEnvelope));
-
-        dodge.begin();
-        if (shuttle.avoids()) addFleets(traffic.getFleetScan(), speed);
-        if (dodge.isNearMiss()) shuttle.nearMiss(traffic.getRandom());
-        else if (dodge.isActive() && !shuttle.getFollowers().isEmpty()) shuttle.disperse(traffic.getRandom());
-        dodge.step(amount, dodgeEnvelope);
-
-        float spreadTarget = sideBias * dodgeEnvelope;
-        float step = SPREAD_EASE * amount;
-        if (spread < spreadTarget) spread = Math.min(spreadTarget, spread + step);
-        else spread = Math.max(spreadTarget, spread - step);
+        float endEnvelope = 1f;
+        if (launchLength > 0f) endEnvelope = Math.min(endEnvelope, traveled / launchLength);
+        if (landLength > 0f) endEnvelope = Math.min(endEnvelope, (total - traveled) / landLength);
+        endEnvelope = Math.max(0f, Math.min(1f, endEnvelope));
 
         float nx = -tangent.y;
         float ny = tangent.x;
-        float lateral = jitter * envelope + spread + shuttle.getWobble() + getWeave() * envelope;
+        nearMiss = false;
+        float avoid = shuttle.avoids() ? getAvoidanceTarget(traffic.getFleetScan(), nx, ny) : 0f;
+        avoiding = avoid != 0f;
+        if (nearMiss) shuttle.nearMiss(traffic.getRandom());
+
+        float step = AVOID_EASE * amount;
+        float avoidTarget = avoid * endEnvelope;
+        if (avoidOffset < avoidTarget) avoidOffset = Math.min(avoidTarget, avoidOffset + step);
+        else avoidOffset = Math.max(avoidTarget, avoidOffset - step);
+
+        float spreadTarget = sideBias * endEnvelope;
+        step = SPREAD_EASE * amount;
+        if (spread < spreadTarget) spread = Math.min(spreadTarget, spread + step);
+        else spread = Math.max(spreadTarget, spread - step);
+
+        float lateral = jitter * envelope + spread + avoidOffset + shuttle.getWobble() + getWeave() * envelope;
         float lateralRate = amount > 0f ? (lateral - lastLateral) / amount : 0f;
         lastLateral = lateral;
-        lateralRate += dodge.getShiftRateX() * nx + dodge.getShiftRateY() * ny;
-        shuttle.pos.set(base.x + nx * lateral + dodge.getShiftX(), base.y + ny * lateral + dodge.getShiftY());
+        shuttle.pos.set(base.x + nx * lateral, base.y + ny * lateral);
 
-        // face along the path and the sideways part of the dodge, not the world step, so orbiting anchors and braking do not swing the sprite
+        // face along the path and the sideways moves, not the world step, so orbiting anchors do not swing the sprite
         shuttle.updateFacing(amount, (float) Math.toDegrees(Math.atan2(tangent.y * speed + ny * lateralRate, tangent.x * speed + nx * lateralRate)));
         shuttle.updateLook(amount, path.getScaleMult(cursor), traveled, total - traveled, launchLength, landLength);
         moveFrame();
@@ -217,11 +252,10 @@ public class PathMover {
         shuttle.pushTrailAtRear();
     }
 
-    // live fleet positions: a fleet at burn 20 moves 100 su between two scans
-    private void addFleets(ShuttleFleetScan scan, float speed) {
+    // a slow fleet across the path pushes the craft sideways out of fleet radius + AVOID_MARGIN, the side kept by the current offset; a fast fleet only gives a near miss
+    private float getAvoidanceTarget(ShuttleFleetScan scan, float nx, float ny) {
+        float best = 0f;
         boolean fleeing = shuttle.isFleeing();
-        float vx = tangent.x * speed;
-        float vy = tangent.y * speed;
 
         for (int i = 0; i < scan.getCount(); i++) {
             ShuttleFleetScan.Entry entry = scan.get(i);
@@ -229,9 +263,32 @@ public class PathMover {
             if (!entry.obstacle && !(fleeing && entry.isHostileThreat(shuttle.faction))) continue;
 
             Vector2f loc = entry.fleet.getLocation();
-            Vector2f vel = entry.fleet.getVelocity();
-            dodge.add(base.x, base.y, vx, vy, loc.x, loc.y, vel.x, vel.y, entry.fleet.getRadius());
+            float fleetRadius = entry.fleet.getRadius();
+            float dx = shuttle.pos.x - loc.x;
+            float dy = shuttle.pos.y - loc.y;
+            float fleetSpeed = entry.fleet.getVelocity().length();
+            if (fleetSpeed >= NEAR_MISS_SPEED && dx * dx + dy * dy < fleetRadius * fleetRadius) nearMiss = true;
+            if (fleetSpeed >= SLOW_FLEET) continue;
+
+            dx = base.x - loc.x;
+            dy = base.y - loc.y;
+            float radius = fleetRadius + AVOID_MARGIN;
+            float along = dx * tangent.x + dy * tangent.y;
+            if (Math.abs(along) >= radius) continue;
+
+            float across = dx * nx + dy * ny;
+            float side = Math.signum(across + avoidOffset);
+            if (side == 0f) side = 1f;
+
+            float need = (float) Math.sqrt(radius * radius - along * along);
+            float offset = side * need - across;
+            if (side * offset <= 0f) continue;
+
+            offset = Math.max(-radius * 1.5f, Math.min(radius * 1.5f, offset));
+            if (Math.abs(offset) > Math.abs(best)) best = offset;
         }
+
+        return best;
     }
 
     // the segment ends move with their anchors, pads also turn, so blend how far both ends moved since the last frame

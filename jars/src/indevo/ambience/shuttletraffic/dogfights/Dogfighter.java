@@ -3,6 +3,7 @@ package indevo.ambience.shuttletraffic.dogfights;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleTrail;
+import indevo.ambience.shuttletraffic.SpeedClass;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.Color;
@@ -31,11 +32,11 @@ public class Dogfighter {
     }
 
     public static final float SPEED_MULT = 2.2f;
-    public static final float TURN_RATE = 90f * 2.5f;
+    public static final float TURN_RATE = 120f;
     public static final float MIN_THROTTLE = 0.6f;
     public static final float MAX_THROTTLE = 1.2f;
     public static final float TRAIL_SECONDS = 1f;
-    private static final float ACCEL = 80f;
+    private static final float ACCEL = 40f;
     private static final float APPEAR_TIME = 0.6f;
     private static final float DYING_TIME = 0.5f;
     private static final float FOLD_LENGTH = 30f;
@@ -132,7 +133,7 @@ public class Dogfighter {
         float turn = TURN_RATE * amount;
         facing = wrap(facing + Math.max(-turn, Math.min(turn, diff)));
 
-        float wanted = maxSpeed * Math.max(MIN_THROTTLE, Math.min(MAX_THROTTLE, throttle));
+        float wanted = Math.min(SpeedClass.WORLD_CAP, maxSpeed * Math.max(MIN_THROTTLE, Math.min(MAX_THROTTLE, throttle)));
         float step = ACCEL * amount;
         speed = speed < wanted ? Math.min(wanted, speed + step) : Math.max(wanted, speed - step);
         vel.set(dirX() * speed, dirY() * speed);
@@ -194,7 +195,7 @@ public class Dogfighter {
 
         float back = hull.length * scale * 0.5f;
         float width = Math.min(3f, 0.5f * hull.width * scale);
-        trail.render(pos.x - dirX() * back, pos.y - dirY() * back, width, hull.trailColor, hull.additiveTrail, a);
+        trail.render(pos.x - dirX() * back, pos.y - dirY() * back, width, hull.trailColor, hull.additiveTrail, a, true);
     }
 
     public boolean isFighting() {

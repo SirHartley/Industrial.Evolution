@@ -9,6 +9,8 @@ import org.lwjgl.util.vector.Vector2f;
 public class FollowMover {
 
     private static final float BLEND_TIME = 1f;
+    // closing speed into the slot at most, a long gap takes longer than BLEND_TIME
+    private static final float BLEND_SPEED = 20f;
 
     private final Shuttle shuttle;
     private final Shuttle leader;
@@ -17,12 +19,13 @@ public class FollowMover {
     private final float noise;
     private final boolean straggler;
     private float extraLag = 0f;
-    // a craft that flies back into formation starts where it was and closes the gap over BLEND_TIME
+    // a craft that flies back into formation starts where it was and closes the gap over BLEND_TIME or longer
     private final Vector2f blendStart = new Vector2f();
     private boolean blendPending = false;
     private float blendX = 0f;
     private float blendY = 0f;
     private float blend = 0f;
+    private float blendTime = BLEND_TIME;
     private SectorEntityToken frame;
 
     private final Vector2f base = new Vector2f();
@@ -63,10 +66,11 @@ public class FollowMover {
             blendPending = false;
             blendX = blendStart.x - slotX;
             blendY = blendStart.y - slotY;
+            blendTime = Math.max(BLEND_TIME, (float) Math.sqrt(blendX * blendX + blendY * blendY) / BLEND_SPEED);
             blend = 1f;
         }
 
-        blend = Math.max(0f, blend - amount / BLEND_TIME);
+        blend = Math.max(0f, blend - amount / blendTime);
         shuttle.pos.set(slotX + blendX * blend, slotY + blendY * blend);
         shuttle.updateFacing(amount, Misc.getAngleInDegrees(tangent));
         frame = leader.getFrame();

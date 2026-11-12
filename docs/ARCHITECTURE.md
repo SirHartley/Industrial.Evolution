@@ -64,7 +64,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [CONSOLE](core/CONSOLE.md) | Console Commands | `console` |
 | | [MISC](core/MISC.md) | Unregistered leftovers | `other` |
 | | [WIP](core/WIP.md) | Mobile colony, converters | `WIP` |
-| Ambience | [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md) | Visual only shuttle traffic in the current system: lanes, pleasure cruises, patrols, mining, salvage, fleet craft, escorts, dogfights around NPC battles, faction profiles, economy tells, event flights, dodging and fleeing traffic, hits, escape pods | `ambience/shuttletraffic` |
+| Ambience | [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md) | Visual only shuttle traffic in the current system: lanes, pleasure cruises, patrols, mining, salvage, fleet craft, dogfights around NPC battles, faction profiles, economy tells, event flights, IE industry flights, convoys, slow traffic that eases around slow fleets and flees hostile ones, hits, escape pods | `ambience/shuttletraffic` |
 
 ## Start here
 

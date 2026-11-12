@@ -15,7 +15,6 @@ import indevo.ambience.shuttletraffic.ShuttleAnchor;
 import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleHullPool;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
-import indevo.ambience.shuttletraffic.flights.EscortFlights;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.Color;
@@ -103,7 +102,7 @@ public class ShuttleDogfights {
                 if (fleets.containsKey(fleet)) continue;
 
                 DogfightFleet entry = new DogfightFleet(index, new ArrayList<>());
-                for (String wingId : EscortFlights.getFittedWings(fleet)) {
+                for (String wingId : getFittedWings(fleet)) {
                     WingType type = getWingType(wingId, fleet.getFaction());
                     if (type != null && !entry.wings.contains(type)) entry.wings.add(type);
                 }
@@ -351,5 +350,15 @@ public class ShuttleDogfights {
         if (!guns && !lasers && !torpedoes) guns = true;
 
         return new WingType(hull, role, guns, lasers, torpedoes, bolt != null ? bolt : LASER_COLOR);
+    }
+
+    // variants are shared, read only
+    private static List<String> getFittedWings(CampaignFleetAPI fleet) {
+        List<String> fitted = new ArrayList<>();
+        for (FleetMemberAPI member : fleet.getFleetData().getMembersListCopy()) {
+            if (member.isFighterWing() || member.isMothballed()) continue;
+            for (String wingId : member.getVariant().getFittedWings()) if (wingId != null && !wingId.isEmpty()) fitted.add(wingId);
+        }
+        return fitted;
     }
 }

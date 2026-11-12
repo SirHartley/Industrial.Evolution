@@ -28,8 +28,8 @@ public class ShuttleDogfight {
     private static final float LOOP_TIME = 2.5f;
     private static final float GUN_RANGE = 300f;
     private static final float GUN_CONE = 20f;
-    private static final float GUN_SPREAD = 3f;
-    private static final float GUN_GAP = 0.06f;
+    private static final float GUN_SPREAD = 0.5f;
+    private static final float GUN_GAP = 0.15f;
     private static final float LASER_RANGE = 250f;
     private static final float LASER_CONE = 8f;
     private static final float LASER_SPREAD = 1f;
@@ -661,7 +661,7 @@ public class ShuttleDogfight {
     private void startBurst(Dogfighter fighter, boolean laser, boolean atFleet) {
         fighter.burstLaser = laser;
         fighter.burstAtFleet = atFleet;
-        fighter.burstLeft = laser ? 2 + random.nextInt(2) : 6 + random.nextInt(5);
+        fighter.burstLeft = laser ? 2 + random.nextInt(2) : 3 + random.nextInt(3);
         fighter.burstTimer = 0f;
     }
 
