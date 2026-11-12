@@ -123,10 +123,10 @@ public final class SalvageUiChecks {
             open(c, view);
         });
         UiViews.view(steps, "salvage-worst", c -> {
-            c.market("a").setName("Nova Maxios Prime Station");
+            c.market("a").setName("New Maxios Prime Station");
             Global.getSector().getPlayerFleet().getCargo().getCredits().set(987654321f);
             for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
-                if (!m.isFlagship()) m.setShipName("ISS Unreasonably Long Ship Name");
+                if (!m.isFlagship()) m.setShipName("ISS One Foot In The Event Horizon");
             }
             SalvageYardsView view = order(new SalvageYardsView(Tab.ASSEMBLY));
             view.order.hulls.put("onslaught", 5);

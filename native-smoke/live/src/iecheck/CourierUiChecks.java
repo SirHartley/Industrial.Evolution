@@ -11,6 +11,7 @@ import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingContract.Scope;
 import indevo.industries.courierport.ShippingContractMemory;
 import indevo.industries.courierport.ShippingCostCalculator;
+import indevo.industries.courierport.dialogue.CourierPanelDelegate;
 import indevo.industries.courierport.dialogue.CourierPortDialoguePlugin;
 import indevo.industries.courierport.dialogue.CourierView;
 import indevo.utils.helper.MiscIE;
@@ -80,10 +81,12 @@ public final class CourierUiChecks {
             open(c, view);
         }, (c, panel) -> c.expect(UiAudit.clickRow(panel.content(), ShippingContractMemory.getContractList().get(30).name), "selected row clicked again"));
         UiViews.view(steps, "courier-worst", c -> {
-            c.market("a").setName("Nova Maxios Prime Station");
+            c.market("a").setName("New Maxios Prime Station");
             Global.getSector().getPlayerFleet().getCargo().getCredits().set(987654321f);
             ShippingContract worst = ShippingContractMemory.getContract(id(c, "cargo"));
             worst.name = "Monthly relic convoy to the outer stations";
+            UiAudit.acceptLong(worst.name);
+            ShippingContractMemory.getContract(id(c, "byload")).name = "W".repeat(CourierPanelDelegate.getNameMaxChars());
             worst.targetCargo.addCommodity(Commodities.SUPPLIES, 987654f);
             open(c, CourierView.contract(worst.id));
         });

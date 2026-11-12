@@ -71,8 +71,9 @@ public final class EdictUiChecks {
             c.expect(EdictPanelDelegate.show(colony, new EdictView()), "single colony panel opens");
         });
         UiViews.view(steps, "edict-worst", c -> {
-            c.market("c1").setName("Nova Maxios Prime Station");
+            c.market("c1").setName("New Maxios Prime Station");
             c.market("c2").setName("Konstantinopel Orbital Habitat Ring");
+            UiAudit.acceptLong("Konstantinopel Orbital Habitat Ring");
             Global.getSector().getPlayerFleet().getCargo().getCredits().set(987654321f);
             open(c, new EdictView(c.market("c1").getId(), null));
         });

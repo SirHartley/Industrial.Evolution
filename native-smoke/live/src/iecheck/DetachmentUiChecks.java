@@ -55,11 +55,11 @@ public final class DetachmentUiChecks {
             open(c, new DetachmentView());
         });
         UiViews.view(steps, "detach-worst", c -> {
-            market().setName("Nova Maxios Prime Station");
+            market().setName("New Maxios Prime Station");
             Global.getSector().getPlayerFleet().getCargo().getCredits().set(987654321f);
             Global.getSector().getPlayerFleet().getCargo().addSupplies(987654f);
             for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
-                if (!m.isFlagship()) m.setShipName("ISS Unreasonably Long Ship Name");
+                if (!m.isFlagship()) m.setShipName("ISS One Foot In The Event Horizon");
             }
             open(c, new DetachmentView());
         });

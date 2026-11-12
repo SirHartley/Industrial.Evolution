@@ -70,6 +70,7 @@ public final class UiViews {
         List<String> findings = UiAudit.run(found);
         log.info("LIVE_CHECK note: rect " + name + " " + UiAudit.rect(found) + ", " + UiAudit.stats);
         for (String finding : findings) log.info("LIVE_CHECK note: AUDIT " + name + ": " + finding);
+        for (String note : UiAudit.accepted) log.info("LIVE_CHECK note: AUDIT " + name + ": " + note);
         c.expect(findings.isEmpty(), name + " audit, " + findings.size() + " findings");
         c.shot(name);
     }

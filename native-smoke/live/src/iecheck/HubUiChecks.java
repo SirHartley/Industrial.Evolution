@@ -81,7 +81,7 @@ public final class HubUiChecks {
             open(c, new EngineeringHubView(false, null, "eagle", null));
         });
         UiViews.view(steps, "hub-worst", c -> {
-            c.market("a").setName("Nova Maxios Prime Station");
+            c.market("a").setName("New Maxios Prime Station");
             Global.getSector().getPlayerFleet().getCargo().getCredits().set(987654321f);
             relics(c, 987654f);
             open(c, new EngineeringHubView(false, null, "eagle", null));

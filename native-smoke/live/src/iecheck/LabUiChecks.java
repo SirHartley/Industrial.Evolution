@@ -56,10 +56,10 @@ public final class LabUiChecks {
             open(c, new AncientLabRelicView(true, AncientLabRelicView.FIRST, null));
         });
         UiViews.view(steps, "lab-worst", c -> {
-            c.market("a").setName("Nova Maxios Prime Station");
+            c.market("a").setName("New Maxios Prime Station");
             Global.getSector().getPlayerFleet().getCargo().getCredits().set(987654321f);
             for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
-                if (Misc.isAutomated(m)) m.setShipName("ISS Unreasonably Long Ship Name");
+                if (Misc.isAutomated(m)) m.setShipName("ISS One Foot In The Event Horizon");
             }
             open(c, new AncientLabRelicView(true, AncientLabRelicView.FIRST, "A result line long enough to need the whole strip and then some more words to wrap."));
         });

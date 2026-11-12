@@ -18,8 +18,10 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 // layout audit of an open panel: walks the component tree and reports overlapping or cut off text and components
 // positions are screen space, y up; findings print x and y from the panel's top left
@@ -27,6 +29,9 @@ public final class UiAudit {
     private static final float TOL = 1f;
 
     public static String stats = "";
+    // over long test names whose ellipsis is accepted (full text in a tooltip)
+    private static final Set<String> LONG = new HashSet<>();
+    public static final List<String> accepted = new ArrayList<>();
 
     private UiAudit() {
     }
@@ -303,7 +308,12 @@ public final class UiAudit {
         return Math.round(r.x()) + " " + Math.round(sh - r.t()) + " " + Math.round(r.w()) + " " + Math.round(r.h());
     }
 
+    public static void acceptLong(String... names) {
+        LONG.addAll(List.of(names));
+    }
+
     public static List<String> run(Found found) {
+        accepted.clear();
         Rect panel = Rect.of(found.content().getPosition());
         List<Text> texts = new ArrayList<>();
         List<Btn> buttons = new ArrayList<>();
@@ -336,7 +346,10 @@ public final class UiAudit {
         for (Text t : texts) {
             if (!t.text().stripTrailing().endsWith("...")) continue;
             String s = t.text().strip();
-            out.add("text cut with an ellipsis: '" + (s.length() > 50 ? "..." + s.substring(s.length() - 47) : s) + "' " + at(t.rect(), panel));
+            String shown = s.length() > 50 ? "..." + s.substring(s.length() - 47) : s;
+            String head = s.substring(0, s.length() - 3).strip();
+            if (LONG.stream().anyMatch(l -> l.startsWith(head) || head.startsWith(l))) accepted.add("accepted: long name '" + shown + "' " + at(t.rect(), panel));
+            else out.add("text cut with an ellipsis: '" + shown + "' " + at(t.rect(), panel));
         }
         return out;
     }

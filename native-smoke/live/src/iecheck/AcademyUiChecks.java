@@ -208,23 +208,24 @@ public final class AcademyUiChecks {
 
     static void worst(Ctx c) {
         MarketAPI a = c.market("a");
-        a.setName("Nova Maxios Prime Station");
+        a.setName("New Maxios Prime Station");
         credits(c, 987654321f);
         PersonAPI p = person(c, "selected");
         Academy academy = academy(c);
         if (academy.getOfficerInTraining() != null) academy.abortOfficerTraining(true);
         if (academy.getAdminInTraining() != null) academy.abortAdminTraining(true);
-        p.getName().setFirst("Maximiliana Konstantina Wolkenstein");
-        p.getName().setLast("Abernathy-Featherstonehaugh");
+        p.getName().setFirst("Maximilian");
+        p.getName().setLast("Wolkensteiner");
         PersonAPI stored = person(c, "stored");
         stored.getName().setFirst("Bartholomew Theodoric Alexandros");
         stored.getName().setLast("Vanderbijl-Oppenheimer");
         for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
-            if (m.getCaptain() == p) m.setShipName("ISS Unreasonably Long Ship Name");
+            if (m.getCaptain() == p) m.setShipName("ISS One Foot In The Event Horizon");
         }
         PersonAPI governor = person(c, "governor");
         governor.getName().setFirst("Konstantin Leopold Maximilian");
         governor.getName().setLast("von Hohenberg-Lichtenstein");
+        UiAudit.acceptLong("Bartholomew Theodoric Alexandros", "Konstantin Leopold Maximilian");
         c.put("worst", p.getId());
     }
 
