@@ -124,18 +124,18 @@ public final class StyleChecks {
                     Ui.ORB12, Ui.hl(), Ui.LEFT);
             float[] levels = {1f, 0.75f, 0.6f};
             for (int i = 0; i < levels.length; i++) {
-                float y = ry + 22f + i * 34f;
+                float by = ry + 22f + i * 34f;
                 Color g = Misc.setAlpha(Misc.scaleColorOnly(Ui.GREEN, levels[i]), 255);
                 Color a = Misc.setAlpha(Misc.scaleColorOnly(Ui.AMBER, levels[i]), 255);
-                Ui.text(p, 0f, y + 6f, 50f, Math.round(levels[i] * 100f) + " %", Ui.ORB12, Ui.text(), Ui.LEFT);
-                fillButton(p, 56f, y, 120f, "Green", g, true);
-                fillButton(p, 182f, y, 120f, "Green off", g, false);
-                fillButton(p, 308f, y, 96f, "Confirm", g, true);
-                fillButton(p, 410f, y, 96f, "Cancel", Ui.dark(), true);
-                fillButton(p, 530f, y, 120f, "Amber", a, true);
-                fillButton(p, 656f, y, 120f, "Amber off", a, false);
-                fillButton(p, 800f, y, 120f, "Red", Ui.RED, true);
-                fillButton(p, 926f, y, 120f, "Vanilla", Misc.getDarkPlayerColor(), true);
+                Ui.text(p, 0f, by + 6f, 50f, Math.round(levels[i] * 100f) + " %", Ui.ORB12, Ui.text(), Ui.LEFT);
+                fillButton(p, 56f, by, 120f, "Green", g, true);
+                fillButton(p, 182f, by, 120f, "Green off", g, false);
+                fillButton(p, 308f, by, 96f, "Confirm", g, true);
+                fillButton(p, 410f, by, 96f, "Cancel", Ui.dark(), true);
+                fillButton(p, 530f, by, 120f, "Amber", a, true);
+                fillButton(p, 656f, by, 120f, "Amber off", a, false);
+                fillButton(p, 800f, by, 120f, "Red", Ui.RED, true);
+                fillButton(p, 926f, by, 120f, "Vanilla", Misc.getDarkPlayerColor(), true);
             }
 
             // vanilla built buttons, same calls as api/impl intel (base and dark faction colours, ALL cut by default)
