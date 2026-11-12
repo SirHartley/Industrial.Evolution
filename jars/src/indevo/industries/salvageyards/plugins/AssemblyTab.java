@@ -281,6 +281,27 @@ class AssemblyTab {
                 }));
     }
 
+    // classes with counts, as many as fit, then "and N more"
+    private static String getScrapLine(List<FleetMemberAPI> scrapped, float w) {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        for (FleetMemberAPI m : scrapped) counts.merge(m.getHullSpec().getHullNameWithDashClass(), 1, Integer::sum);
+
+        List<String> parts = new ArrayList<>();
+        List<Integer> sizes = new ArrayList<>();
+        for (Map.Entry<String, Integer> e : counts.entrySet()) {
+            parts.add(e.getValue() > 1 ? e.getValue() + " " + e.getKey() : e.getKey());
+            sizes.add(e.getValue());
+        }
+
+        for (int k = parts.size(); k > 0; k--) {
+            int rest = 0;
+            for (int i = k; i < sizes.size(); i++) rest += sizes.get(i);
+            String line = String.join(", ", parts.subList(0, k)) + (rest > 0 ? " and " + rest + " more" : "");
+            if (Ui.width(line, Ui.INS15) + 2f <= w) return line;
+        }
+        return scrapped.size() + (scrapped.size() == 1 ? " ship" : " ships");
+    }
+
     private void addScrapped(CustomPanelAPI p, float lw, float y) {
         Ui.heading(p, 0f, y, lw, "Scrapped for budget", Ui.LEFT);
         y += 24f;
@@ -304,9 +325,7 @@ class AssemblyTab {
         float tx = SCRAP_CELLS_W + 10f;
         float tw = lw - tx - bw - 12f;
 
-        List<String> names = new ArrayList<>();
-        for (FleetMemberAPI m : scrapped) names.add(m.getHullSpec().getHullNameWithDashClass());
-        Ui.text(p, tx, y + 4f, tw, String.join(", ", names));
+        Ui.text(p, tx, y + 4f, tw, getScrapLine(scrapped, tw));
         Ui.text(p, tx, y + 22f, tw, "30% of hull value, less per D-mod", Ui.gray());
         Ui.runs(p, lw - bw, y + 12f, bw, Ui.INS15, Ui.gray(), Ui.RIGHT, "Budget  " + budget, new String[]{budget}, new Color[]{Ui.pos()});
     }
