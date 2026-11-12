@@ -138,7 +138,7 @@ S-mods tab (`TransferTab`, `ModTransfer.Kind.SMOD`), same ship pool and layout a
 
 - Origin: a ship with S-mods (`Misc.getCurrSpecialModsList`: no built ins, D-mods or hidden mods), without `Tags.HULLMOD_NO_BUILD_IN`.
 - Target: same hull size and manufacturer (`ModTransfer.isSameSizeAndTechtype`), below its S-mod cap (`Misc.getCurrSpecialMods` against `Misc.getMaxPermanentMods(member, playerStats)`), with the S-mod already installed as a normal hullmod (in `getHullMods`, not a perma mod, not built into the hull). The campaign has no `ShipAPI` for `HullModEffect.isApplicableToShip`, so the vanilla refit's install check stands in for it.
-- The selection stops at the target's free slots; other rows show why they can not be picked. The slot boxes show built in, incoming and free slots.
+- The selection stops at the target's free slots; other rows show why they can not be picked. The slot boxes show built in, incoming and free slots; a row holds as many boxes as the longest mod name allows, up to three rows.
 - `getUnavailableReason` names the first missing step: no S-mods, no matching hull, no free slot, hullmod not installed on a matching hull.
 - Cost per S-mod: `RELICS_PER_DP` (5) x target `getUnmodifiedDeploymentPointsCost()` Relic Components, plus credits from the D-mod transfer formula (`ModTransfer.getCreditCostPerMod`) with n = origin S-mod count. Relics come from local storage first, then fleet cargo; credits through `BillingHelper.chargeNow`.
 - Apply: both variants are cloned to custom `REFIT` variants; origin `removePermaMod` and `removeMod`, target `addPermaMod(id, true)`. No bonus XP.

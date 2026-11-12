@@ -324,9 +324,12 @@ class TransferTab {
         }
 
         int count = Math.max(1, kind == ModTransfer.Kind.SMOD ? Math.max(max, slots.size()) : 3);
+        float need = 0f;
+        for (Slot s : slots) if (s.id() != null) need = Math.max(need, Ui.width(Global.getSettings().getHullModSpec(s.id()).getDisplayName(), Ui.INS15) + 44f);
+        count = Math.max(1, Math.min(count, (int) ((cw + SLOT_GAP) / (need + SLOT_GAP))));
         float slotW = Math.min(SLOT_MAX_W, (float) Math.floor((cw - (count - 1) * SLOT_GAP) / count));
         int per = Math.max(1, (int) ((cw + SLOT_GAP) / (slotW + SLOT_GAP)));
-        int rows = Math.max(1, Math.min(2, (slots.size() + per - 1) / per));
+        int rows = Math.max(1, Math.min(3, (slots.size() + per - 1) / per));
         float slotsH = slots.isEmpty() ? 20f : rows * (SLOT_H + SLOT_GAP);
 
         CustomPanelAPI b = column.block(24f + slotsH + 4f + 2f * 19f, 0f);
@@ -334,7 +337,7 @@ class TransferTab {
         Ui.heading(b, 0f, 0f, cw, Ui.fit(title, Ui.ORB12, cw - 16f));
 
         if (slots.isEmpty()) Ui.text(b, 8f, 26f, cw - 16f, "It has no S-mod slots.", Ui.gray());
-        else UiImages.iconrow(b, 0f, 24f, cw, slots, slotW, SLOT_H, SLOT_GAP, 2, this::addSlot, s -> s.id() == null ? "Free slot" :
+        else UiImages.iconrow(b, 0f, 24f, cw, slots, slotW, SLOT_H, SLOT_GAP, 3, this::addSlot, s -> s.id() == null ? "Free slot" :
                 Global.getSettings().getHullModSpec(s.id()).getDisplayName());
 
         float gy = 24f + slotsH + 4f;
