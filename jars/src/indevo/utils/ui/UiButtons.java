@@ -147,7 +147,7 @@ public final class UiButtons {
     public static ButtonAPI area(CustomPanelAPI p, float x, float y, float w, float h, String label, boolean on, boolean enabled,
                                  Color strip, Alignment align, Runnable action) {
         boolean centred = align == Ui.CENTER;
-        String text = centred && label != null ? Ui.fit(label, Ui.ORB12, w - 20f) : "";
+        String text = centred && label != null ? Ui.fit(label, Ui.ORB12, w - 12f) : "";
 
         TooltipMakerAPI element = p.createUIElement(w + Ui.INSET, h, false);
         element.setAreaCheckboxFont(Ui.ORB12);
