@@ -209,8 +209,10 @@ public final class UiData {
 
         Ui.textIn(p, toX, y, toW, h, to, Ui.INS15, Ui.hl(), Ui.RIGHT, new String[0], new Color[0]);
         Ui.textIn(p, arrowX, y, arrowW, h, "->", Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
-        Ui.textIn(p, fromX, y, fromW, h, from, Ui.INS15, Ui.gray(), Ui.RIGHT, new String[0], new Color[0]);
-        Ui.rule(p, fromX, y + (float) Math.floor(h / 2f), fromW, Ui.gray());
+        LabelAPI old = Ui.textIn(p, fromX, y, fromW, h, from, Ui.INS15, Ui.gray(), Ui.RIGHT, new String[0], new Color[0]);
+        // through the middle of the digits, over the glyphs only (right aligned, the box has 2 px slack on the left)
+        float lh = Ui.height(old);
+        Ui.rule(p, fromX + 2f, y + (float) Math.floor((h - lh) / 2f) + Math.round(lh / 2f), fromW - 2f, Ui.gray());
         Ui.textIn(p, x, y, fromX - 8f - x, h, label, Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
         return h;
     }
