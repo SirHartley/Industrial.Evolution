@@ -125,8 +125,8 @@ class DetachmentColumn {
     void build(CustomPanelAPI p, float x, float y, float colW, float h) {
         // the action button stays pinned at the bottom, the column above scrolls
         w = colW - UiScroll.GUTTER;
-        float actionH = live ? UiButtons.guardHeight(w, ACTION_H, getActionReason()) : LOAD_H + 6f + ACTION_H;
-        column = UiScroll.list(p, x, y + LIST_Y, colW, h - LIST_Y - actionH - 10f, panel.getView().scroll, DetachmentView.listId(slot));
+        float actionH = live ? UiButtons.guardHeight(w, ACTION_H, getActionReason()) : LOAD_H + 4f + ACTION_H;
+        column = UiScroll.list(p, x, y + LIST_Y, colW, h - LIST_Y - actionH - 6f, panel.getView().scroll, DetachmentView.listId(slot));
         addHeading(p, x, y);
 
         addTopRow();
@@ -146,7 +146,7 @@ class DetachmentColumn {
         if (live) addAction(action);
         else {
             addLoadButtons(action);
-            UiButtons.button(action, 0f, LOAD_H + 6f, w, ACTION_H, "Deploy", canDeploy ? UiButtons.Kind.GREEN : UiButtons.Kind.OFF, canDeploy ? () -> panel.deploy(slot) : null);
+            UiButtons.button(action, 0f, LOAD_H + 4f, w, ACTION_H, "Deploy", canDeploy ? UiButtons.Kind.GREEN : UiButtons.Kind.OFF, canDeploy ? () -> panel.deploy(slot) : null);
         }
     }
 
@@ -389,7 +389,7 @@ class DetachmentColumn {
     }
 
     private void addModes() {
-        heading("Mode", 10f);
+        heading("Mode", 8f);
 
         FleetBehaviour current = live ? Behaviour.getFleetBehaviour(fleet, true) : loadout.behaviour;
         int count = Behaviour.behaviourIndexMap.size();
@@ -411,7 +411,7 @@ class DetachmentColumn {
         float descH = Ui.LINE_H;
         for (String text : Behaviour.behaviourTooltipMap.values()) descH = Math.max(descH, Ui.wrapHeight(text, Ui.INS15, w));
 
-        CustomPanelAPI d = column.block(descH, 8f);
+        CustomPanelAPI d = column.block(descH, 6f);
         if (description != null) Ui.wrap(d, 0f, 0f, w, description, Ui.gray());
     }
 
@@ -504,7 +504,7 @@ class DetachmentColumn {
     }
 
     private void addDeployment() {
-        heading("Deployment", 10f);
+        heading("Deployment", 8f);
 
         boolean ready = !members.isEmpty();
         boolean shipsOk = ready && members.size() < player.getFleetData().getNumMembers();
