@@ -179,7 +179,7 @@ public class ResearchProjectPanel {
         String right = project.isRepeatable() ? "Repeatable, " + state : state;
         float rw = Math.min(Ui.width(right, Ui.ORB12) + 2f, cw / 2f);
         Color headColor = ready ? Ui.text() : Ui.base();
-        Ui.textIn(b, cw - 10f - rw, 1f, rw, HEAD_H, right, Ui.ORB12, ready ? Ui.text() : Ui.gray(), Ui.RIGHT, new String[0], new Color[0]);
+        Ui.textIn(b, cw - 10f - rw, 1f, rw, HEAD_H, right, Ui.ORB12, headColor, Ui.RIGHT, new String[0], new Color[0]);
         Ui.textIn(b, 10f, 1f, cw - 30f - rw, HEAD_H, project.getName(), Ui.ORB12, headColor, Ui.LEFT, new String[0], new Color[0]);
 
         float dy = getDescExtra(project, cw);
