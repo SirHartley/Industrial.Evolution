@@ -136,7 +136,7 @@ public final class SalvageUiChecks {
         return steps;
     }
 
-    private static void setup(Ctx c) {
+    static void setup(Ctx c) {
         Colony.pair(c, 6);
         MarketAPI a = c.market("a");
         a.addIndustry(Ids.SCRAPYARD);
@@ -169,7 +169,7 @@ public final class SalvageUiChecks {
         });
     }
 
-    private static SalvageYardsView order(SalvageYardsView view) {
+    static SalvageYardsView order(SalvageYardsView view) {
         view.order.hulls.put("wolf", 2);
         view.order.hulls.put("hammerhead", 1);
         view.order.weapons.put("heavymg", 4);
@@ -179,7 +179,7 @@ public final class SalvageUiChecks {
     }
 
     // dmod origin and target, smod origin, target and a target without the hullmod; all eagle sized midline cruisers
-    private static void ships(Ctx c) {
+    static void ships(Ctx c) {
         FleetMemberAPI dOrigin = member("eagle_Assault", "ISS Scarred Veteran");
         ShipVariantAPI v = variant(dOrigin);
         for (String id : DMODS) v.addPermaMod(id, false);
@@ -264,7 +264,7 @@ public final class SalvageUiChecks {
         return (SalvageYards) c.market("a").getIndustry(Ids.SCRAPYARD);
     }
 
-    private static void open(Ctx c, SalvageYardsView view) {
+    static void open(Ctx c, SalvageYardsView view) {
         c.expect(SalvageYardsDialogPlugin.show(c.market("a"), view), "salvage yards panel opens");
     }
 }

@@ -89,7 +89,7 @@ public final class EdictUiChecks {
         return steps;
     }
 
-    private static void setup(Ctx c) {
+    static void setup(Ctx c) {
         List<PlanetAPI> planets = Colony.planets(5);
         String[] keys = {"b", "a", "c1", "c2", "c3"};
         for (int i = 0; i < planets.size(); i++) c.put(keys[i], Colony.make(planets.get(i), 6 - i % 3).getId());
@@ -102,7 +102,7 @@ public final class EdictUiChecks {
     }
 
     // first Edict whose requirements on the colony are all met, or the first with one unmet
-    private static String find(MarketAPI colony, boolean met) {
+    static String find(MarketAPI colony, boolean met) {
         MarketAPI dummy = Global.getFactory().createMarket("iecheck_edictPreview", "Edict preview", 3);
         for (MarketConditionSpecAPI spec : EdictRepo.getAll()) {
             dummy.addCondition(spec.getId());
@@ -115,7 +115,7 @@ public final class EdictUiChecks {
         return null;
     }
 
-    private static void relics(Ctx c, float amount) {
+    static void relics(Ctx c, float amount) {
         for (String key : new String[]{"b", "c1"}) {
             MarketAPI m = c.market(key);
             MiscIE.getStorageCargo(m).removeCommodity(ItemIds.RARE_PARTS, MiscIE.getStorageCargo(m).getCommodityQuantity(ItemIds.RARE_PARTS));
@@ -125,7 +125,7 @@ public final class EdictUiChecks {
         if (amount > 0f) MiscIE.getStorageCargo(b).addCommodity(ItemIds.RARE_PARTS, amount);
     }
 
-    private static void open(Ctx c, EdictView view) {
+    static void open(Ctx c, EdictView view) {
         c.expect(EdictPanelDelegate.show(c.market("b"), view), "edict panel opens");
     }
 }

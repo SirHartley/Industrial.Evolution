@@ -279,6 +279,24 @@ public final class UiAudit {
         return out.toString();
     }
 
+    // click and hover targets in screen pixels from the top left, the frame gamectl and the captures use
+    public static List<String> targets(Found found) {
+        List<String> out = new ArrayList<>();
+        float sh = Global.getSettings().getScreenHeight();
+        Rect panel = Rect.of(found.content().getPosition());
+        out.add("HELP " + Math.round(panel.r() - 12f) + "," + Math.round(sh - panel.t() + 10f));
+        for (Object node : all(found.content())) {
+            if (node instanceof ButtonAPI b && b.getOpacity() > 0f) {
+                PositionAPI p = b.getPosition();
+                out.add("BTN " + (b.isEnabled() ? "on " : "off ") + Math.round(p.getCenterX()) + "," + Math.round(sh - p.getCenterY()) + " " + b.getText());
+            } else if (node instanceof LabelAPI l && l.getText() != null && l.getText().endsWith("...")) {
+                PositionAPI p = l.getPosition();
+                out.add("CUT " + Math.round(p.getCenterX()) + "," + Math.round(sh - p.getCenterY()) + " " + l.getText());
+            }
+        }
+        return out;
+    }
+
     public static String rect(Found found) {
         Rect r = Rect.of(found.dialog().getPosition());
         float sh = Global.getSettings().getScreenHeight();

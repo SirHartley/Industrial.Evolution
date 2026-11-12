@@ -13,6 +13,8 @@ public final class Groups {
             return all;
         }
 
+        if (group.startsWith("hold")) return HoldChecks.steps(group.substring(4));
+
         switch (group) {
             case "commerce":
                 return CommerceChecks.steps();

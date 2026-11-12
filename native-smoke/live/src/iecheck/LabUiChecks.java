@@ -67,7 +67,7 @@ public final class LabUiChecks {
         return steps;
     }
 
-    private static void setup(Ctx c) {
+    static void setup(Ctx c) {
         Colony.pair(c, 6);
         MarketAPI a = c.market("a");
         a.addIndustry(Ids.LAB);
@@ -77,7 +77,7 @@ public final class LabUiChecks {
         c.note("lab at " + a.getName() + ", industry " + (a.getIndustry(Ids.LAB) != null));
     }
 
-    private static void templates(Ctx c) {
+    static void templates(Ctx c) {
         MarketAPI a = c.market("a");
         CargoAPI shared = MiscIE.getIndustrialStorageCargo(a);
         CargoAPI storage = Misc.getStorageCargo(a);
@@ -99,7 +99,7 @@ public final class LabUiChecks {
         else Global.getSector().getPlayerFleet().getFleetData().addFleetMember(m);
     }
 
-    private static void relics(Ctx c, float amount) {
+    static void relics(Ctx c, float amount) {
         MarketAPI a = c.market("a");
         for (CargoAPI cargo : new CargoAPI[]{Misc.getStorageCargo(a), MiscIE.getIndustrialStorageCargo(a), MiscIE.getPlayerCargo()}) {
             if (cargo != null) cargo.removeCommodity(ItemIds.RARE_PARTS, cargo.getCommodityQuantity(ItemIds.RARE_PARTS));
@@ -107,7 +107,7 @@ public final class LabUiChecks {
         Misc.getStorageCargo(a).addCommodity(ItemIds.RARE_PARTS, amount);
     }
 
-    private static void open(Ctx c, AncientLabRelicView view) {
+    static void open(Ctx c, AncientLabRelicView view) {
         c.expect(AncientLabRelicPanelDelegate.show(c.market("a"), view), "lab panel opens");
     }
 }

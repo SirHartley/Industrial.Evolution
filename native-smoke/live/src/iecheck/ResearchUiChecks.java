@@ -103,7 +103,7 @@ public final class ResearchUiChecks {
         return steps;
     }
 
-    private static void setup(Ctx c) {
+    static void setup(Ctx c) {
         // unlock flags of the checkers in dialogue/research/listeners, so every project shows
         for (String key : new String[]{"$IndEvo_HasFoundAutopulse", "$IndEvo_HasHadCorruptedNanoforge", "$IndEvo_HasFoundDoritoGun", "$IndEvo_HasUniqueShipChecker", "$IndEvo_SlowShipFleetCheckerDone"}) {
             Global.getSector().getMemoryWithoutUpdate().set(key, true);
@@ -122,7 +122,7 @@ public final class ResearchUiChecks {
         c.note("research at " + galatia.getName());
     }
 
-    private static void open(Ctx c, Host host) {
+    static void open(Ctx c, Host host) {
         SectorEntityToken station = Global.getSector().getEconomy().getMarket(Ids.ACADEMY_MARKET_ID).getPrimaryEntity();
         c.expect(Global.getSector().getCampaignUI().showInteractionDialog(host, station), "research dialog opens");
     }

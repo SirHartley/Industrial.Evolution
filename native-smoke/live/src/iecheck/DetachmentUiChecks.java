@@ -115,7 +115,7 @@ public final class DetachmentUiChecks {
         return steps;
     }
 
-    private static void setup(Ctx c) {
+    static void setup(Ctx c) {
         MarketAPI market = market();
         Colony.jump(market.getContainingLocation(), market.getPrimaryEntity().getLocation().x + 400f, market.getPrimaryEntity().getLocation().y);
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
@@ -156,11 +156,11 @@ public final class DetachmentUiChecks {
         return OfficerManagerEvent.createOfficer(Global.getSector().getPlayerFaction(), 3);
     }
 
-    private static MarketAPI market() {
+    static MarketAPI market() {
         return Global.getSector().getEconomy().getMarket(TARGET);
     }
 
-    private static void open(Ctx c, DetachmentView view) {
+    static void open(Ctx c, DetachmentView view) {
         c.expect(DetachmentDialogPlugin.show(view), "detachment panel opens");
     }
 }

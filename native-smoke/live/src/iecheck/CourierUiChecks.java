@@ -95,7 +95,7 @@ public final class CourierUiChecks {
         return steps;
     }
 
-    private static void setup(Ctx c) {
+    static void setup(Ctx c) {
         Colony.pair(c, 6);
         MarketAPI a = c.market("a");
         MarketAPI b = c.market("b");
@@ -141,15 +141,15 @@ public final class CourierUiChecks {
         c.note("courier core " + Global.getSector().getMemoryWithoutUpdate().getString(ShippingCostCalculator.AI_CORE_ID_STRING));
     }
 
-    private static void open(Ctx c, CourierView view) {
+    static void open(Ctx c, CourierView view) {
         c.expect(CourierPortDialoguePlugin.show(c.market("a").getPrimaryEntity(), view), "courier panel opens");
     }
 
-    private static String id(Ctx c, String key) {
+    static String id(Ctx c, String key) {
         return (String) c.get(key);
     }
 
-    private static String mid(Ctx c, String key) {
+    static String mid(Ctx c, String key) {
         return c.market(key).getId();
     }
 }

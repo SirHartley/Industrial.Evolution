@@ -90,7 +90,7 @@ public final class HubUiChecks {
         return steps;
     }
 
-    private static void setup(Ctx c) {
+    static void setup(Ctx c) {
         Colony.pair(c, 6);
         MarketAPI a = c.market("a");
         a.addIndustry(Ids.ENGHUB);
@@ -101,7 +101,7 @@ public final class HubUiChecks {
         c.note("hub at " + a.getName() + ", hub " + (hub(c) != null));
     }
 
-    private static void hullmods(Ctx c, int count) {
+    static void hullmods(Ctx c, int count) {
         Map<String, String> data = new LinkedHashMap<>();
         for (HullModSpecAPI spec : Global.getSettings().getAllHullModSpecs()) {
             if (data.size() >= count) break;
@@ -127,7 +127,7 @@ public final class HubUiChecks {
         return best;
     }
 
-    private static void reverse(Ctx c, int drop) {
+    static void reverse(Ctx c, int drop) {
         EngineeringHub hub = hub(c);
         Map<String, Float> progress = new LinkedHashMap<>();
         for (int i = 0; i < PROGRESS.length; i++) progress.put(PROGRESS[i], i < 2 ? 1f : 0.15f * i);
@@ -143,7 +143,7 @@ public final class HubUiChecks {
         relics(c, 2000f);
     }
 
-    private static void relics(Ctx c, float amount) {
+    static void relics(Ctx c, float amount) {
         MarketAPI a = c.market("a");
         for (CargoAPI cargo : new CargoAPI[]{MiscIE.getStorageCargo(a), MiscIE.getIndustrialStorageCargo(a), MiscIE.getPlayerCargo()}) {
             if (cargo != null) cargo.removeCommodity(ItemIds.RARE_PARTS, cargo.getCommodityQuantity(ItemIds.RARE_PARTS));
@@ -155,7 +155,7 @@ public final class HubUiChecks {
         return (EngineeringHub) c.market("a").getIndustry(Ids.ENGHUB);
     }
 
-    private static void open(Ctx c, EngineeringHubView view) {
+    static void open(Ctx c, EngineeringHubView view) {
         c.expect(EngineeringHubPanelDelegate.show(c.market("a"), view), "hub panel opens");
     }
 }

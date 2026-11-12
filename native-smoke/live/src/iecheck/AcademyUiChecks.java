@@ -118,7 +118,7 @@ public final class AcademyUiChecks {
         return steps;
     }
 
-    private static void setup(Ctx c) {
+    static void setup(Ctx c) {
         Colony.pair(c, 6);
         MarketAPI a = c.market("a");
         a.addIndustry(Ids.ACADEMY);
@@ -206,7 +206,7 @@ public final class AcademyUiChecks {
         return out;
     }
 
-    private static void worst(Ctx c) {
+    static void worst(Ctx c) {
         MarketAPI a = c.market("a");
         a.setName("Nova Maxios Prime Station");
         credits(c, 987654321f);
@@ -243,11 +243,11 @@ public final class AcademyUiChecks {
         c.market("a").setName("Ward");
     }
 
-    private static void open(Ctx c, AcademyView view) {
+    static void open(Ctx c, AcademyView view) {
         c.expect(AcademyDialogPlugin.show(c.market("a"), view), "academy panel opens");
     }
 
-    private static void relics(Ctx c, float amount) {
+    static void relics(Ctx c, float amount) {
         MarketAPI a = c.market("a");
         MiscIE.getStorageCargo(a).removeCommodity(ItemIds.RARE_PARTS, MiscIE.getStorageCargo(a).getCommodityQuantity(ItemIds.RARE_PARTS));
         MiscIE.getPlayerCargo().removeCommodity(ItemIds.RARE_PARTS, MiscIE.getPlayerCargo().getCommodityQuantity(ItemIds.RARE_PARTS));
@@ -259,15 +259,15 @@ public final class AcademyUiChecks {
         credits.set(amount);
     }
 
-    private static Academy academy(Ctx c) {
+    static Academy academy(Ctx c) {
         return Academy.get(c.market("a"));
     }
 
-    private static String id(Ctx c, String key) {
+    static String id(Ctx c, String key) {
         return (String) c.get(key);
     }
 
-    private static PersonAPI person(Ctx c, String key) {
+    static PersonAPI person(Ctx c, String key) {
         String id = id(c, key);
         Academy academy = academy(c);
         List<PersonAPI> all = new ArrayList<>(academy.getFleetOfficers());
