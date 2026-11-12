@@ -34,7 +34,7 @@ class DetachmentColumn {
     static final float ROW_H = 24f;
     static final float SHIP = 48f;
     static final float SHIP_GAP = 4f;
-    static final float SHIP_TEXT_W = 180f;
+    static final float SHIP_TEXT_W = 90f;
     static final float TAKE_TEXT_W = 260f;
     static final float NOTE_H = 18f;
     static final float ICON_W = 24f;
@@ -53,8 +53,8 @@ class DetachmentColumn {
     static final float CHECK_ROW = 20f;
     static final float MARK_X = 22f;
     static final float LOAD_H = 22f;
-    static final float LOAD_MIN_W = 82f;
-    static final float LOAD_MAX_W = 84f;
+    static final float LOAD_MIN_W = 72f;
+    static final float LOAD_MAX_W = 74f;
     static final float LOAD_W = LOAD_MIN_W + LOAD_MAX_W + 4f;
     static final float ACTION_H = 30f;
     static final float OFFICER_ROW = 36f;
@@ -168,7 +168,7 @@ class DetachmentColumn {
 
         String location = getLocationName(fleet.getContainingLocation());
         if (met) location += ", in contact";
-        Ui.textIn(p, nx, y, nw, Ui.HEADING_H, state + " · " + location, Ui.ORB12, Ui.base(), Ui.RIGHT, new String[]{state}, new Color[]{color});
+        Ui.textIn(p, nx, y, nw, Ui.HEADING_H, state + ", " + location, Ui.ORB12, Ui.base(), Ui.RIGHT, new String[]{state}, new Color[]{color});
     }
 
     private static String getBaseStateName(FleetBehaviour base) {
@@ -534,16 +534,19 @@ class DetachmentColumn {
                     : new Check(false, "Requires fuel to leave this location.", new String[0], new Color[0], Ui.hl()));
         }
 
-        CustomPanelAPI b = column.block(checks.size() * CHECK_ROW, GAP);
+        // the load buttons sit beside the supplies line, or on their own row when the line needs the width
+        float inlineW = w - MARK_X - LOAD_W - 8f;
+        boolean inline = Ui.width(checks.get(2).text(), Ui.INS15) + 2f <= inlineW;
+        CustomPanelAPI b = column.block(checks.size() * CHECK_ROW + (inline ? 0f : LOAD_H + 4f), GAP);
         for (int i = 0; i < checks.size(); i++) {
             Check check = checks.get(i);
             float y = i * CHECK_ROW;
-            float tw = i == 2 ? w - MARK_X - LOAD_W - 8f : w - MARK_X;
+            float tw = i == 2 && inline ? inlineW : w - MARK_X;
             UiData.mark(b, 2f, y + 3f, check.ok());
             Ui.runs(b, MARK_X, y, tw, Ui.INS15, check.color(), Ui.LEFT, check.text(), check.parts(), check.colors());
         }
 
-        float loadY = 2f * CHECK_ROW - 2f;
+        float loadY = inline ? 2f * CHECK_ROW - 2f : checks.size() * CHECK_ROW + 2f;
         ButtonAPI min = UiButtons.button(b, w - LOAD_W, loadY, LOAD_MIN_W, LOAD_H, "Load min", UiButtons.Kind.STD, CutStyle.TL_BR,
                 ready ? () -> panel.load(slot, DetachmentCargoLoad.Mode.MIN) : null);
         Ui.tooltip(b, min, null, "Sets the detachment's supplies to repairs plus one month and its crew to the minimum, moving out marines that take the room. Its fuel tanks are filled, up to half of all fuel. Anything your ships can not hold goes to the detachment if it has room.");
