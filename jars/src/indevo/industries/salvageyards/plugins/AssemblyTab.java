@@ -56,6 +56,28 @@ class AssemblyTab {
     private final SalvageYardsView view;
     private final YardsContract contract;
 
+    // column blocks placed by their top in one continuous layout, the gap is the space since the last block
+    private static final class Rows {
+        private final UiScroll.Column column;
+        private float bottom = 0f;
+
+        Rows(UiScroll.Column column) {
+            this.column = column;
+        }
+
+        CustomPanelAPI at(float y, float h) {
+            CustomPanelAPI b = column.block(h, y - bottom);
+            bottom = y + h;
+            return b;
+        }
+
+        CustomPanelAPI heading(float y) {
+            CustomPanelAPI b = column.heading(y - bottom);
+            bottom = y + Ui.HEADING_H;
+            return b;
+        }
+    }
+
     AssemblyTab(SalvageYardsPanel panel, YardsContract contract) {
         this.panel = panel;
         this.view = panel.getView();
@@ -418,97 +440,81 @@ class AssemblyTab {
     private void addContract(CustomPanelAPI p, float x, float w, float h) {
         String reason = contract.getConfirmReason();
         float confirmH = UiButtons.guardHeight(w - UiScroll.GUTTER, 30f, reason);
-        float blockH = 554f;
 
-        // the confirm button stays pinned at the bottom, the contract above scrolls
+        // the confirm button stays pinned at the bottom, the contract above scrolls, one block per row so it ends on a whole row
         UiScroll.Column column = UiScroll.list(p, x, SalvageYardsPanel.BODY_Y, w, h - confirmH - 8f, view.scroll, SalvageYardsView.CONTRACT);
-        CustomPanelAPI b = column.block(blockH, 0f);
+        Rows rows = new Rows(column);
         float rw = column.width();
-        float y = 0f;
 
-        Ui.heading(b, 0f, y, rw, "Contract");
-        y += 26f;
+        Ui.heading(rows.heading(0f), 0f, 0f, rw, "Contract");
 
         float capacity = contract.getCapacity();
         float value = contract.getOrderValue();
         float left = capacity - value;
-        Ui.text(b, 0f, y, 80f, "Budget");
+        CustomPanelAPI b = rows.at(26f, Ui.LINE_H);
+        Ui.text(b, 0f, 0f, 80f, "Budget");
         String leftText = left >= 0f ? Ui.credits(left) : Ui.credits(-left);
-        Ui.runs(b, 80f, y, rw - 80f, Ui.INS15, Ui.gray(), Ui.RIGHT, left >= 0f ? leftText + " left" : leftText + " over", new String[]{leftText},
+        Ui.runs(b, 80f, 0f, rw - 80f, Ui.INS15, Ui.gray(), Ui.RIGHT, left >= 0f ? leftText + " left" : leftText + " over", new String[]{leftText},
                 new Color[]{left >= 0f ? Ui.hl() : Ui.neg()});
-        y += 20f;
 
-        UiData.bar(b, 0f, y, rw, 20f, capacity <= 0f ? 1f : value / capacity, left >= 0f ? Ui.barBlue() : Ui.barColor("progressBarOverflowColor"), Ui.num(value) + " / " + Ui.credits(capacity));
-        y += 28f;
+        UiData.bar(rows.at(46f, 20f), 0f, 0f, rw, 20f, capacity <= 0f ? 1f : value / capacity, left >= 0f ? Ui.barBlue() : Ui.barColor("progressBarOverflowColor"),
+                Ui.num(value) + " / " + Ui.credits(capacity));
 
-        UiData.grid(b, 0f, y, rw, 19f, List.of(
-                UiData.GridRow.of("Yard capacity", Ui.credits(capacity - contract.getScrapValue())),
-                UiData.GridRow.of("Scrapped ships", "+" + Ui.credits(contract.getScrapValue()), Ui.pos())));
-        y += 44f;
+        UiData.grid(rows.at(74f, 19f), 0f, 0f, rw, 19f, List.of(UiData.GridRow.of("Yard capacity", Ui.credits(capacity - contract.getScrapValue()))));
+        UiData.grid(rows.at(93f, 19f), 0f, 0f, rw, 19f, List.of(UiData.GridRow.of("Scrapped ships", "+" + Ui.credits(contract.getScrapValue()), Ui.pos())));
 
-        addStoryPoint(b, rw, y);
-        y += 58f;
+        addStoryPoint(rows.at(118f, BUTTON_H + 24f), rw, 0f);
 
-        Ui.heading(b, 0f, y, rw, Global.getSettings().getCommoditySpec(ItemIds.PARTS).getName());
-        y += 26f;
+        Ui.heading(rows.heading(176f), 0f, 0f, rw, Global.getSettings().getCommoditySpec(ItemIds.PARTS).getName());
         int maxParts = contract.getMaxParts();
-        UiImages.commodity(b, 0f, y - 2f, SLIDER_ICON, ItemIds.PARTS);
-        YardsSlider.create(b, SLIDER_ICON + 8f, y + 2f, rw - SLIDER_ICON - 8f, 20f, view.order.parts, maxParts, Misc.scaleAlpha(Ui.base(), 0.55f), v -> {
+        b = rows.at(200f, SLIDER_ICON);
+        UiImages.commodity(b, 0f, 0f, SLIDER_ICON, ItemIds.PARTS);
+        YardsSlider.create(b, SLIDER_ICON + 8f, 4f, rw - SLIDER_ICON - 8f, 20f, view.order.parts, maxParts, Misc.scaleAlpha(Ui.base(), 0.55f), v -> {
             view.order.parts = v;
             panel.refresh();
         });
-        y += 32f;
 
         float discount = contract.getBaseCost() <= 0f ? 0f : contract.getPartsDiscount() / contract.getBaseCost();
-        UiData.grid(b, 0f, y, rw, 19f, List.of(
-                UiData.GridRow.of("Used", Ui.num(view.order.parts) + " of " + Ui.num(maxParts)),
-                UiData.GridRow.of("Cost reduction, up to 50%", Math.round(discount * 100f) + "%", Ui.pos())));
-        y += 46f;
+        UiData.grid(rows.at(234f, 19f), 0f, 0f, rw, 19f, List.of(UiData.GridRow.of("Used", Ui.num(view.order.parts) + " of " + Ui.num(maxParts))));
+        UiData.grid(rows.at(253f, 19f), 0f, 0f, rw, 19f, List.of(UiData.GridRow.of("Cost reduction, up to 50%", Math.round(discount * 100f) + "%", Ui.pos())));
 
-        Ui.heading(b, 0f, y, rw, RelicHelper.getName());
-        y += 26f;
+        Ui.heading(rows.heading(280f), 0f, 0f, rw, RelicHelper.getName());
         int maxRelics = contract.getMaxRelics();
-        UiImages.commodity(b, 0f, y - 2f, SLIDER_ICON, ItemIds.RARE_PARTS);
-        YardsSlider.create(b, SLIDER_ICON + 8f, y + 2f, rw - SLIDER_ICON - 8f, 20f, view.order.relics, maxRelics, Misc.scaleAlpha(Ui.hl(), 0.6f), v -> {
+        b = rows.at(304f, SLIDER_ICON);
+        UiImages.commodity(b, 0f, 0f, SLIDER_ICON, ItemIds.RARE_PARTS);
+        YardsSlider.create(b, SLIDER_ICON + 8f, 4f, rw - SLIDER_ICON - 8f, 20f, view.order.relics, maxRelics, Misc.scaleAlpha(Ui.hl(), 0.6f), v -> {
             view.order.relics = v;
             panel.refresh();
         });
-        y += 32f;
 
         int required = contract.toData().getRequiredParts();
-        UiData.grid(b, 0f, y, rw, 19f, List.of(UiData.GridRow.of("Used", Ui.num(view.order.relics) + " of " + Ui.num(required))));
-        y += 19f;
+        UiData.grid(rows.at(338f, 19f), 0f, 0f, rw, 19f, List.of(UiData.GridRow.of("Used", Ui.num(view.order.relics) + " of " + Ui.num(required))));
 
         int base = Setting.SY_BASE_DMODS.intValue();
         int dmods = contract.hasHulls() ? contract.getDModForecast() : base;
         String dmodText = dmods + " of " + base;
         float tw = Ui.width(dmodText, Ui.INS15) + 4f;
-        Ui.text(b, 0f, y, rw - tw - 120f, "D-mods per hull");
-        dmodPips(b, rw - tw - 112f, y + 4f, 104f, dmods);
-        Ui.runs(b, rw - tw, y, tw, Ui.INS15, Ui.gray(), Ui.RIGHT, dmodText, new String[]{dmods + ""}, new Color[]{Ui.hl()});
-        y += 28f;
+        b = rows.at(357f, Ui.LINE_H);
+        Ui.text(b, 0f, 0f, rw - tw - 120f, "D-mods per hull");
+        dmodPips(b, rw - tw - 112f, 4f, 104f, dmods);
+        Ui.runs(b, rw - tw, 0f, tw, Ui.INS15, Ui.gray(), Ui.RIGHT, dmodText, new String[]{dmods + ""}, new Color[]{Ui.hl()});
 
-        Ui.heading(b, 0f, y, rw, "Cost");
-        y += 24f;
+        Ui.heading(rows.heading(385f), 0f, 0f, rw, "Cost");
         float credits = contract.getTotalCredits();
-        UiData.creditsRow(b, 0f, y, rw, "Credits", credits);
-        y += 24f;
-        UiData.costrow(b, 0f, y, rw, Global.getSettings().getCommoditySpec(ItemIds.PARTS).getName(), UiImages.partsSprite(),
+        UiData.creditsRow(rows.at(409f, UiData.COST_ROW_H), 0f, 0f, rw, "Credits", credits);
+        UiData.costrow(rows.at(433f, UiData.COST_ROW_H), 0f, 0f, rw, Global.getSettings().getCommoditySpec(ItemIds.PARTS).getName(), UiImages.partsSprite(),
                 Ui.num(view.order.parts), Ui.num(contract.getPartsAvailable()), true);
-        y += 24f;
-        UiData.costrow(b, 0f, y, rw, RelicHelper.getName(), UiImages.relicSprite(), Ui.num(view.order.relics), Ui.num(contract.getRelicsAvailable()), true);
-        y += 24f;
+        UiData.costrow(rows.at(457f, UiData.COST_ROW_H), 0f, 0f, rw, RelicHelper.getName(), UiImages.relicSprite(), Ui.num(view.order.relics),
+                Ui.num(contract.getRelicsAvailable()), true);
 
         int su = contract.getSalvageUnits();
         String suText = Ui.num(su);
         boolean suOk = su <= contract.getAvailableSalvageUnits();
-        UiData.value(b, 0f, y + 2f, rw, 20f, "Salvage units", UiData.withStock(suText, Ui.num(contract.getAvailableSalvageUnits()), rw * UiData.VALUE_SHARE), Ui.gray(),
+        UiData.value(rows.at(483f, 20f), 0f, 0f, rw, 20f, "Salvage units", UiData.withStock(suText, Ui.num(contract.getAvailableSalvageUnits()), rw * UiData.VALUE_SHARE), Ui.gray(),
                 new String[]{suText}, new Color[]{suOk ? Ui.hl() : Ui.neg()});
-        y += 28f;
 
-        priceLine(b, 0f, y, rw, "Price", panel.getMarket().getFaction(), contract.getPriceMult());
-        y += 19f;
-        UiData.grid(b, 0f, y, rw, 19f, List.of(UiData.GridRow.of("Delivery", YardsContract.getDeliveryText())));
+        priceLine(rows.at(509f, 19f), 0f, 0f, rw, "Price", panel.getMarket().getFaction(), contract.getPriceMult());
+        UiData.grid(rows.at(528f, 19f), 0f, 0f, rw, 19f, List.of(UiData.GridRow.of("Delivery", YardsContract.getDeliveryText())));
         column.end();
 
         CustomPanelAPI pinned = Ui.panel(p, x, SalvageYardsPanel.BODY_Y + h - confirmH, rw, confirmH);
