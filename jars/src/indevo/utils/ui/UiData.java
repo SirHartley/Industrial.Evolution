@@ -34,60 +34,73 @@ public final class UiData {
     }
 
     // vanilla bar chrome: black track, inset fill, doubled end lines, fading corner stubs, label centred on top
-    // fills at the button level, the empty part a dim tint of the same colour, like the vanilla campaign bars
-    public static Color barFill(Color c) {
-        return UiButtons.fill(c);
-    }
-
-    public static Color barTrack(Color c) {
-        return Misc.setAlpha(Misc.scaleColorOnly(c, 0.22f), 255);
-    }
-
+    // translation of obfuscated code, 0.98a-RC8: the vanilla progress bar com.fs.starfarer.campaign.ui.N (renderImpl) at rest,
+    // its fill com.fs.starfarer.renderers.O and its lines com.fs.starfarer.renderers.E (untextured here); no easing, no overflow part
     public static CustomPanelAPI bar(CustomPanelAPI p, float x, float y, float w, float h, float fraction, Color fill, String label) {
         float f = Math.max(0f, Math.min(1f, fraction));
-        Color edge = Misc.scaleAlpha(Ui.base(), 0.9f);
-        Color inner = Misc.scaleAlpha(Ui.base(), 0.4f);
-        Color tick = Misc.scaleAlpha(Ui.bright(), 0.8f);
+        Color frame = Ui.base();
+        Color soft = Misc.interpolateColor(fill, Color.white, 0.15f);
+        Color shade = Misc.setAlpha(Color.BLACK, 127);
 
         CustomPanelAPI bar = Ui.painted(p, x, y, w, h, (pos, a) -> {
             float bx = pos.getX();
             float by = pos.getY();
             float bw = pos.getWidth();
             float bh = pos.getHeight();
-            float fw = Math.round((bw - 6f) * f);
+            float ux = bx + 3f;
+            float uw = bw - 8f;
+            if (bh <= 5f) {
+                ux -= 1f;
+                uw += 2f;
+            }
 
             UiDraw.quad(bx, by, bw, bh, Color.BLACK, a);
-            UiDraw.quad(bx + 3f, by + 1f, bw - 6f, bh - 2f, barTrack(fill), a);
-            UiDraw.quad(bx + 3f, by + 1f, fw, bh - 2f, barFill(fill), a);
-            if (f > 0f && f < 1f) UiDraw.quad(bx + 3f + fw - 1f, by + 1f, 1f, bh - 2f, tick, a);
+            float fw = uw * f + 1f;
+            filled(ux, by + 1f, fw, bh - 2f, soft, fill, a);
+
+            float rw = uw - fw - 4f;
+            if (rw > 0f && bh - 6f > 1f) {
+                UiDraw.quad(ux + fw + 5f, by + 3f, rw, bh - 6f, soft, a * 0.65f * 0.75f);
+                UiDraw.vgradient(ux + fw + 5f, by + 3f, rw, bh - 6f, shade, 0f, 0.65f, a, false);
+            }
         }, (pos, a) -> {
             float bx = pos.getX();
             float by = pos.getY();
             float bw = pos.getWidth();
             float bh = pos.getHeight();
 
-            UiDraw.quad(bx, by, 1f, bh, edge, a);
-            UiDraw.quad(bx + bw - 1f, by, 1f, bh, edge, a);
-            UiDraw.quad(bx + 1f, by, 1f, bh, inner, a);
-            UiDraw.quad(bx + bw - 2f, by, 1f, bh, inner, a);
-            UiDraw.fadeRight(bx, by, 14f, edge, a);
-            UiDraw.fadeRight(bx, by + bh - 1f, 14f, edge, a);
-            UiDraw.fadeLeft(bx + bw - 14f, by, 14f, edge, a);
-            UiDraw.fadeLeft(bx + bw - 14f, by + bh - 1f, 14f, edge, a);
+            UiDraw.line(bx, by, bx, by + bh, 2f, frame, 0.5f, 0.5f, 0.5f, a, false);
+            UiDraw.line(bx + 1f, by, bx + 1f, by + bh, 2f, frame, 1f, 1f, 1f, a, true);
+            UiDraw.line(bx + bw, by, bx + bw, by + bh, 2f, frame, 0.5f, 0.5f, 0.5f, a, false);
+            UiDraw.line(bx + bw - 1f, by, bx + bw - 1f, by + bh, 2f, frame, 1f, 1f, 1f, a, true);
+            if (bh <= 5f) return;
+            UiDraw.line(bx + 1f, by, bx + 15f, by, 1f, frame, 1f, 0.5f, 0f, a, false);
+            UiDraw.line(bx + 1f, by + bh - 1f, bx + 15f, by + bh, 1f, frame, 1f, 0.5f, 0f, a, false);
+            UiDraw.line(bx + bw - 1f, by, bx + bw - 15f, by, 1f, frame, 1f, 0.5f, 0f, a, false);
+            UiDraw.line(bx + bw - 1f, by + bh - 1f, bx + bw - 15f, by + bh, 1f, frame, 1f, 0.5f, 0f, a, false);
         });
 
         if (label != null) Ui.textIn(bar, 4f, 0f, w - 8f, h, label, Ui.INS15, Ui.text(), Ui.CENTER, new String[0], new Color[0]);
         return bar;
     }
 
+    // the vanilla fill: the colour 15 % toward white at 0.75, then an additive vertical gradient of the colour, 0 at the edges, 0.75 in the middle
+    private static void filled(float x, float y, float w, float h, Color soft, Color fill, float a) {
+        if (h <= 1f) return;
+        UiDraw.quad(x, y, w, h, soft, a * 0.75f);
+        UiDraw.vgradient(x, y, w, h, fill, 0f, 0.75f, a, true);
+    }
+
+    // vanilla draws no fill under 2 px of height, so the 3 px row bar is the vanilla fill colour flat, the empty part at 0.65
     public static CustomPanelAPI thinbar(CustomPanelAPI p, float x, float y, float w, float fraction, Color fill) {
         float f = Math.max(0f, Math.min(1f, fraction));
-        Color track = barTrack(fill);
-        Color done = barFill(fill);
+        Color soft = Misc.interpolateColor(fill, Color.white, 0.15f);
 
         return Ui.painted(p, x, y, w, THIN_H, (pos, a) -> {
-            UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), track, a);
-            UiDraw.quad(pos.getX(), pos.getY(), Math.round(pos.getWidth() * f), pos.getHeight(), done, a);
+            float fw = Math.round(pos.getWidth() * f);
+            UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), Color.BLACK, a);
+            UiDraw.quad(pos.getX(), pos.getY(), fw, pos.getHeight(), soft, a * 0.75f);
+            UiDraw.quad(pos.getX() + fw, pos.getY(), pos.getWidth() - fw, pos.getHeight(), soft, a * 0.65f * 0.75f * 0.4f);
         }, null);
     }
 

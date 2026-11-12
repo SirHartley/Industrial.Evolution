@@ -25,6 +25,55 @@ public final class UiDraw {
         end();
     }
 
+    // vertical gradient: edge alpha at bottom and top, mid alpha in the vertical middle; additive blends GL_SRC_ALPHA, GL_ONE
+    public static void vgradient(float x, float y, float w, float h, Color c, float edge, float mid, float alpha, boolean additive) {
+        if (w <= 0f || h <= 0f) return;
+
+        begin(c, alpha);
+        if (additive) GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+        GL11.glBegin(GL11.GL_QUADS);
+        color(c, alpha * edge);
+        GL11.glVertex2f(x, y);
+        GL11.glVertex2f(x + w, y);
+        color(c, alpha * mid);
+        GL11.glVertex2f(x + w, y + h / 2f);
+        GL11.glVertex2f(x, y + h / 2f);
+        GL11.glVertex2f(x + w, y + h / 2f);
+        GL11.glVertex2f(x, y + h / 2f);
+        color(c, alpha * edge);
+        GL11.glVertex2f(x, y + h);
+        GL11.glVertex2f(x + w, y + h);
+        GL11.glEnd();
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        end();
+    }
+
+    // line of the given width centred on x1,y1 to x2,y2, alpha a1 at the start, a2 in the middle, a3 at the end
+    public static void line(float x1, float y1, float x2, float y2, float width, Color c, float a1, float a2, float a3, float alpha, boolean additive) {
+        float dx = x2 - x1;
+        float dy = y2 - y1;
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
+        if (len <= 0f) return;
+        float nx = dy / len * width * 0.5f;
+        float ny = -dx / len * width * 0.5f;
+
+        begin(c, alpha);
+        if (additive) GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+        GL11.glBegin(GL11.GL_QUAD_STRIP);
+        color(c, alpha * a1);
+        GL11.glVertex2f(x1 - nx, y1 - ny);
+        GL11.glVertex2f(x1 + nx, y1 + ny);
+        color(c, alpha * a2);
+        GL11.glVertex2f((x1 + x2) * 0.5f - nx, (y1 + y2) * 0.5f - ny);
+        GL11.glVertex2f((x1 + x2) * 0.5f + nx, (y1 + y2) * 0.5f + ny);
+        color(c, alpha * a3);
+        GL11.glVertex2f(x2 - nx, y2 - ny);
+        GL11.glVertex2f(x2 + nx, y2 + ny);
+        GL11.glEnd();
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        end();
+    }
+
     public static void outline(float x, float y, float w, float h, Color c, float alpha) {
         quad(x, y, w, 1f, c, alpha);
         quad(x, y + h - 1f, w, 1f, c, alpha);
