@@ -400,10 +400,11 @@ class AssemblyTab {
 
     private void addContract(CustomPanelAPI p, float x, float w, float h) {
         String reason = contract.getConfirmReason();
-        float confirmH = UiButtons.guardHeight(w, 30f, reason);
-        float blockH = 554f + confirmH;
+        float confirmH = UiButtons.guardHeight(w - UiScroll.GUTTER, 30f, reason);
+        float blockH = 554f;
 
-        UiScroll.Column column = UiScroll.list(p, x, SalvageYardsPanel.BODY_Y, w, h, view.scroll, SalvageYardsView.CONTRACT);
+        // the confirm button stays pinned at the bottom, the contract above scrolls
+        UiScroll.Column column = UiScroll.list(p, x, SalvageYardsPanel.BODY_Y, w, h - confirmH - 8f, view.scroll, SalvageYardsView.CONTRACT);
         CustomPanelAPI b = column.block(blockH, 0f);
         float rw = column.width();
         float y = 0f;
@@ -491,15 +492,14 @@ class AssemblyTab {
         priceLine(b, 0f, y, rw, "Price", panel.getMarket().getFaction(), contract.getPriceMult());
         y += 19f;
         UiData.grid(b, 0f, y, rw, 19f, List.of(UiData.GridRow.of("Delivery", YardsContract.getDeliveryText())));
-        y += 26f;
+        column.end();
 
-        UiButtons.guarded(b, 0f, y, rw, 30f, "Confirm", UiButtons.Kind.STD, reason, () -> {
+        CustomPanelAPI pinned = Ui.panel(p, x, SalvageYardsPanel.BODY_Y + h - confirmH, rw, confirmH);
+        UiButtons.guarded(pinned, 0f, 0f, rw, 30f, "Confirm", UiButtons.Kind.STD, reason, () -> {
             contract.confirm();
             view.scroll.reset(SalvageYardsView.ORDER);
             panel.refresh();
         });
-
-        column.end();
     }
 
     // "<label>, <standing>" left in the relation colour, the price percentage right

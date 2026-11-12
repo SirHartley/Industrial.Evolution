@@ -20,7 +20,7 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | `indevo/industries/salvageyards/plugins/SalvageYardsView.java` | View state: tab, selected registry hull, transfer origin, target and mods, the order, confirm and scroll state |
 | `indevo/industries/salvageyards/plugins/YardsOrder.java` | The order being built: blueprint hulls, registry hulls, weapons, wings (requested amounts), scrapped ships, parts, relics |
 | `indevo/industries/salvageyards/plugins/YardsContract.java` | Prices, budget, limits and confirm of the order; nested `Line` (one order line, capped to the registry) |
-| `indevo/industries/salvageyards/plugins/AssemblyTab.java` | Ship assembly tab: order lines, pickers, scrapped hulls, running orders with Accelerate, contract column |
+| `indevo/industries/salvageyards/plugins/AssemblyTab.java` | Ship assembly tab: order lines, pickers, scrapped hulls, running orders with Accelerate, contract column (scrolls; Confirm pinned below it) |
 | `indevo/industries/salvageyards/plugins/RegistryTab.java` | Wreck Registry tab: registry hulls, weapons and wings, fit of the selected hull |
 | `indevo/industries/salvageyards/plugins/TransferTab.java` | D-mods and S-mods tabs: origin and target strips, mod selection, slots, costs, Transfer |
 | `indevo/industries/salvageyards/plugins/ModTransfer.java` | Transfer rules shared by both transfer tabs: ship pool, checks, reasons, costs, `moveDMods`, `moveSMods`, `cycleToCustomVariant` |
