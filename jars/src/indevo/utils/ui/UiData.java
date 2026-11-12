@@ -92,6 +92,7 @@ public final class UiData {
                 UiDraw.quad(ux + fw + 5f, by + 3f, rw, bh - 6f, soft, a * 0.65f * 0.75f);
                 UiDraw.vgradient(ux + fw + 5f, by + 3f, rw, bh - 6f, shade, 0f, 0.65f, a, false);
             }
+            UiDraw.line(bx + uw * f + 5.5f, by, bx + uw * f + 5.5f, by + bh, 1f, frame, 0.5f, 1f, 0.5f, t, false);
         }, null);
 
         ((UiCanvas) bar.getPlugin()).shown = f;
