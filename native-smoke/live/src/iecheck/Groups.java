@@ -84,6 +84,8 @@ public final class Groups {
                 return HubUiChecks.steps();
             case "uiresearch":
                 return ResearchUiChecks.steps();
+            case "uistyle":
+                return StyleChecks.steps();
             case "shuttle":
                 return ShuttleChecks.steps();
             default:
