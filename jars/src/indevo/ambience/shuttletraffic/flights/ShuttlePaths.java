@@ -21,6 +21,9 @@ public class ShuttlePaths {
     }
 
     private static final float LANE_OFFSET = 40f;
+    // arrivals and departures fade this far past the market's surface toward the jump point, where the player still sees them
+    public static final float TRANSIT_REACH = 2200f;
+    private static final float TRANSIT_SPREAD = 15f;
     // market lanes: each direction keeps right of the line between the anchors, so a pair shows two steady streams
     private static final float TRAFFIC_LANE_ANGLE = 8f;
     private static final float TRAFFIC_LANE_SPREAD = 1.5f;
@@ -56,6 +59,22 @@ public class ShuttlePaths {
 
         return lane(from, to, from, to, new ShuttlePath.PadWaypoint(from, new ShuttlePath.EntityWaypoint(to.entity), side + spread(offset), 0f, false),
                 new ShuttlePath.PadWaypoint(to, new ShuttlePath.EntityWaypoint(from.entity), side + spread(offset), 0f, true), bend, 0f);
+    }
+
+    // between a pad and a point TRANSIT_REACH out toward the jump point that moves with the market, or the jump point itself when nearer
+    public ShuttlePath transitPath(ShuttleAnchor market, ShuttleAnchor jump, boolean outbound) {
+        Vector2f toJump = Vector2f.sub(jump.getLocation(), market.getLocation(), new Vector2f());
+        float reach = Math.min(toJump.length(), market.getRadius() + TRANSIT_REACH);
+        float angle = Misc.getAngleInDegrees(toJump) + spread(TRANSIT_SPREAD);
+        Vector2f offset = Misc.getUnitVectorAtDegreeAngle(angle);
+        offset.scale(reach);
+
+        ShuttlePath.Waypoint far = new ShuttlePath.RelativeWaypoint(market.entity, offset.x, offset.y, outbound ? angle : angle + 180f);
+        ShuttlePath.Waypoint pad = new ShuttlePath.PadWaypoint(market, new ShuttlePath.EntityWaypoint(jump.entity), spread(LANE_OFFSET), 0f, !outbound);
+        float padHandle = getHandle(market, reach);
+        float farHandle = reach * 0.35f;
+        return new ShuttlePath().add(outbound ? new ShuttlePath.BezierSegment(pad, far, padHandle, farHandle, 0f)
+                : new ShuttlePath.BezierSegment(far, pad, farHandle, padHandle, 0f));
     }
 
     // one curve per anchor pair, bent the same way in both directions
