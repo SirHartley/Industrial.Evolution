@@ -17,7 +17,8 @@ When the hub strips a ship it also records the ship's learnable hullmods. The in
 | `indevo/industries/engineeringhub/industry/EngineeringHub.java` | Industry: daily deconstruction state machine, progress map, completion and delivery, installed blueprint slot, relic mode, AI cores, tooltip sections. `RelicSpeedUpTarget` (Accelerate Research) |
 | `indevo/industries/engineeringhub/memory/RecoveredHullmods.java` | Hullmod extraction: record on strip, learnable filter, cost, payment, learning |
 | `indevo/industries/engineeringhub/plugins/HullmodDataOptionProvider.java` | `BaseSimpleBaseIndustryOptionProvider`: "Hullmod Data" option and its tooltip |
-| `indevo/industries/engineeringhub/dialogue/HullmodDataPanelDelegate.java` | `ButtonReportingDialogueDelegate`: recovered hullmod list with Learn buttons |
+| `indevo/industries/engineeringhub/dialogue/EngineeringHubPanelDelegate.java` | Hub panel (`BaseCustomDialogDelegate` on the [UI kit](../core/UI.md)): Hullmod data tab as list and detail. Static `show(market, view)` opens it in its own interaction dialog (nested `Host`) |
+| `indevo/industries/engineeringhub/dialogue/EngineeringHubView.java` | View state: tab, selected hullmod id (null picks the first row), scroll offsets |
 | `indevo/industries/engineeringhub/patches/RelicInstallDialogPatch.java` | PatchLib patch on the vanilla install item dialog: lists relic components, keeps the relic item out of cargo |
 
 Neighbours used: `indevo/industries/SharedSubmarketUser.java` (base class), `indevo/items/installable/BlueprintInstallableItemPlugin.java` (install slot, [Installables](../items/INSTALLABLES.md)), `indevo/submarkets/impl/ReverseEngineeringSubmarketPlugin.java` (intake rules).
@@ -85,7 +86,7 @@ The vanilla install item dialog (obf `com.fs.starfarer.campaign.ui.marketinfo.OO
 - Cost: `max(25, round(baseValue / 100))` relic components (`MIN_COST`, `BASE_VALUE_PER_RELIC`); vanilla learnable hullmods cost 25 to 100.
 - Payment: colony storage first, then fleet cargo, also when the option is used from the remote colony screen. Learning an id that is not learnable or not affordable throws (the panel never offers it). Learning calls `FactionAPI.addKnownHullMod`, removes the entry and shows a campaign message. No processing time.
 - Option: shown on a functional, player owned hub, always enabled. Tooltip: effect, recovered count, lore text in gray.
-- Panel: one row per recorded hullmod: icon, name, OP for the source hull size and the source hull, `Cost: X Relics` (green when affordable, red when not), Learn (disabled when not affordable). The Learn hover shows `Cost: X Relic Components (Available: Y)` and the lore text. Footer shows the available relic components. A `?` (`HelpIcon`) right of the heading explains where the data comes from and the minimum cost. The list is rebuilt after each learn; the dialog keeps its opening height.
+- Panel, Hullmod data tab (board 13): title with `?` (where the data comes from, minimum cost, where relics are taken), the Relic Components stock right. Left: scrolling rows with the hullmod icon, name, OP per hull size (`4 / 8 / 15 / 25 OP`), the source hull sprite and name, cost with the relic icon (red when short). Right: scrolling detail with the vanilla description (`HullModSpecAPI.getDescription` for the source hull size; empty if the effect throws with a null ship), the OP table, the source hull, the cost row, a green Learn (grey with "Not enough Relic Components." when short) and the lore text in grey. Empty list: heading and "No recovered hullmod data.". The panel is rebuilt after each learn and keeps its scroll offsets.
 
 ### AI cores
 
