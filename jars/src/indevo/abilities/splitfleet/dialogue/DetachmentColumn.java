@@ -354,7 +354,7 @@ class DetachmentColumn {
     }
 
     private void logRow(CustomPanelAPI b, float y, String icon, String label, int amount, int capacity, String colorKey, String right, String[] parts, Color[] colors) {
-        float fraction = capacity > 0 ? amount / (float) capacity : 0f;
+        float fraction = capacity > 0 ? amount / (float) capacity : amount > 0 ? 1f : 0f;
         Color fill = Global.getSettings().getColor(amount > capacity ? "progressBarOverflowColor" : colorKey);
         String barLabel = Ui.num(amount) + " / " + Ui.num(capacity);
         logRow(b, y, icon, label, fraction, fill, barLabel, right, parts, colors);
