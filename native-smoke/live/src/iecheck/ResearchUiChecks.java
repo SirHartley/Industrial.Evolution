@@ -2,6 +2,10 @@ package iecheck;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
+import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
+import com.fs.starfarer.api.campaign.rules.MemKeys;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
+import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -14,6 +18,8 @@ import indevo.ids.Ids;
 import indevo.utils.helper.ReflectionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 // test only: the Research Tracts side panel at the Galatia Academy from code, audited and captured as the whole screen
@@ -23,7 +29,8 @@ public final class ResearchUiChecks {
     }
 
     // empty dialog that runs the rule command the way IndEvo_JobMenuInit does, with the wanted view
-    static final class Host extends Ui.Bare {
+    static final class Host implements InteractionDialogPlugin {
+        private final Map<String, MemoryAPI> memory = new HashMap<>();
         private final String[] info;
         private final float scroll;
 
@@ -34,12 +41,39 @@ public final class ResearchUiChecks {
 
         @Override
         public void init(InteractionDialogAPI dialog) {
-            super.init(dialog);
+            memory.put(MemKeys.LOCAL, dialog.getInteractionTarget().getMemoryWithoutUpdate());
+            memory.put(MemKeys.ENTITY, dialog.getInteractionTarget().getMemoryWithoutUpdate());
             ResearchProjectDialoguePlugin plugin = new ResearchProjectDialoguePlugin();
             ResearchView view = (ResearchView) ReflectionUtils.get("view", plugin);
             for (String id : info) view.info.add(id);
             if (scroll > 0f) view.scroll.set(ResearchView.CARDS, scroll);
-            plugin.execute(null, dialog, Misc.tokenize(""), getMemoryMap());
+            plugin.execute(null, dialog, Misc.tokenize(""), memory);
+        }
+
+        @Override
+        public void optionSelected(String text, Object data) {
+        }
+
+        @Override
+        public void optionMousedOver(String text, Object data) {
+        }
+
+        @Override
+        public void advance(float amount) {
+        }
+
+        @Override
+        public void backFromEngagement(EngagementResultAPI result) {
+        }
+
+        @Override
+        public Object getContext() {
+            return null;
+        }
+
+        @Override
+        public Map<String, MemoryAPI> getMemoryMap() {
+            return memory;
         }
     }
 
