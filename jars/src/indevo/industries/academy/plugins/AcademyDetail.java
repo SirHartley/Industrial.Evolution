@@ -34,8 +34,8 @@ class AcademyDetail {
     static final float LINE = 24f;
     static final float RUNG_H = 28f;
     static final float RUNG_STEP = 30f;
-    static final float GAP = 6f;
-    static final float SECTION_GAP = 10f;
+    static final float GAP = 4f;
+    static final float SECTION_GAP = 6f;
     static final float TRAIN_H = 28f;
     static final float STORE_H = 26f;
     static final float BAR_H = 20f;
