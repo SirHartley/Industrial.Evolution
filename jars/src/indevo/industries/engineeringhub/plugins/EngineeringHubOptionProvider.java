@@ -7,19 +7,18 @@ import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
-import indevo.ids.ItemIds;
 import indevo.industries.engineeringhub.dialogue.EngineeringHubPanelDelegate;
 import indevo.industries.engineeringhub.dialogue.EngineeringHubView;
 import indevo.industries.engineeringhub.industry.EngineeringHub;
 import indevo.industries.engineeringhub.memory.RecoveredHullmods;
 import indevo.utils.plugins.BaseSimpleBaseIndustryOptionProvider;
 
-public class HullmodDataOptionProvider extends BaseSimpleBaseIndustryOptionProvider {
+public class EngineeringHubOptionProvider extends BaseSimpleBaseIndustryOptionProvider {
 
     public static void register() {
         ListenerManagerAPI listeners = Global.getSector().getListenerManager();
-        if (!listeners.hasListenerOfClass(HullmodDataOptionProvider.class)) {
-            listeners.addListener(new HullmodDataOptionProvider(), true);
+        if (!listeners.hasListenerOfClass(EngineeringHubOptionProvider.class)) {
+            listeners.addListener(new EngineeringHubOptionProvider(), true);
         }
     }
 
@@ -43,14 +42,13 @@ public class HullmodDataOptionProvider extends BaseSimpleBaseIndustryOptionProvi
         float opad = 10f;
         int recovered = RecoveredHullmods.getLearnable(opt.ind.getMarket()).size();
 
-        tooltip.addPara("Learn hullmods recovered from ships the hub stripped, paid with %s.", 0f, Misc.getHighlightColor(),
-                Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName());
+        tooltip.addPara("Follow the reverse engineering, finish blueprints and learn hullmods recovered from ships the hub stripped.", 0f);
         tooltip.addPara("Recovered: %s", opad, Misc.getHighlightColor(), recovered + "");
         tooltip.addPara(EngineeringHubPanelDelegate.LORE, Misc.getGrayColor(), opad);
     }
 
     @Override
     public String getOptionLabel(Industry ind) {
-        return "Hullmod Data";
+        return "Visit the " + ind.getCurrentName() + "...";
     }
 }

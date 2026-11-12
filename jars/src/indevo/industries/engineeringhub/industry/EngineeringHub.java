@@ -46,12 +46,16 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     private ShipVariantAPI currentDeconShipVar = null;
     private int daysRequired = 999;
     private int daysPassed = 0;
+    private boolean finishOnOwn = false;
     private transient boolean expanded = false;
 
     private final float gammaCoreUpkeepRed = 0.2f;
     private final float betaCoreTimeMult = 0.7f;
     private final float alphaCoreTimeMult = 0.85f;
     private final int alphaCoreDModRed = 1;
+
+    public record BlueprintSource(SpecialItemData item, boolean installed, int count) {
+    }
 
     @Override
     public boolean isAvailableToBuild() {
@@ -129,47 +133,19 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
             daysPassed++;
         }
 
-        // Deliver completed blueprints/templates
-        boolean toStorage = !Setting.AUTO_SHIP_BP_TO_GATHERING_POINT.enabled();
+        // off by default, a hull then waits at 100% until the player finishes it in the panel
+        if (finishOnOwn) {
+            for (Map.Entry<String, Float> entry : researchProgressList.entrySet()) {
+                if (entry.getValue() < 1f) continue;
 
-        for (Map.Entry<String, Float> entry : researchProgressList.entrySet()) {
-            if (entry.getValue() < 1f) continue;
+                String id = entry.getKey();
+                List<BlueprintSource> sources = getBlueprintSources(id);
+                if (sources.isEmpty() || !consume(sources.get(0))) continue;
 
-            String id = entry.getKey();
-            boolean dong = isTiandong(id);
-            boolean roider = isRoider(id);
-
-            //Relic item installed
-            boolean usedRelics = false;
-            if (shouldUseRelics()){
-
-                float relicCost = getRelicCostForHullId(id);
-
-                CargoAPI marketCargo = market.hasSubmarket(Ids.SHAREDSTORAGE) ? market.getSubmarket(Ids.SHAREDSTORAGE).getCargo() : null;
-                float relicsInMarketCargo = marketCargo != null ? marketCargo.getCommodityQuantity(ItemIds.RARE_PARTS) : 0f;
-
-                if (marketCargo != null && relicsInMarketCargo >= relicCost){
-                    marketCargo.removeCommodity(ItemIds.RARE_PARTS, relicCost);
-                    usedRelics = true;
-                }
+                researchProgressList.remove(id);
+                deliver(id);
+                break; // one completion per day
             }
-
-            if (!usedRelics){
-                ShipAPI.HullSize shipSize = Global.getSettings().getHullSpec(id).getHullSize();
-
-                // Find and consume a matching special item (checks slotted item first, then shared storage)
-                SpecialItemData consumed = consumeMatchingSpecial(shipSize, dong, roider);
-                if (consumed == null) continue;
-            }
-
-            researchProgressList.remove(id);
-
-            MarketAPI gather = market.getFaction().getProduction().getGatheringPoint();
-            MarketAPI target = toStorage ? market : gather;
-            CargoAPI cargo = MiscIE.getStorageCargo(target);
-
-            deliverReverseEngineered(id, dong, roider, target, cargo);
-            break; // one completion processed per day, as in original
         }
 
         storeMapInMemory(getClampedMap(researchProgressList, 1f), RESEARCH_LIST_KEY);
@@ -177,34 +153,101 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
     /* ----------------------------- Helpers ----------------------------- */
 
-    private SpecialItemData consumeMatchingSpecial(ShipAPI.HullSize size, boolean dong, boolean roider) {
-        // Check currently slotted special item first
-        SpecialItemData current = getSpecialItem();
-        if (matchesForFaction(current, dong, roider) && gethullSize(current) == size) {
+    public boolean isFinishOnOwn() {
+        return finishOnOwn;
+    }
+
+    public void setFinishOnOwn(boolean finishOnOwn) {
+        this.finishOnOwn = finishOnOwn;
+    }
+
+    // installed item first, then the shared storage stacks; only ship blueprints, or the retrofit item for Tiandong and Roider hulls
+    public List<BlueprintSource> getBlueprintSources(String hullId) {
+        List<BlueprintSource> sources = new ArrayList<>();
+        ShipHullSpecAPI hull = getHullSpecOrNull(hullId);
+        if (hull == null) return sources;
+
+        String itemId = getPaymentItemId(hullId);
+        if (paysFor(blueprintItem, itemId, hull)) sources.add(new BlueprintSource(blueprintItem, true, 1));
+
+        CargoAPI cargo = MiscIE.getIndustrialStorageCargo(market);
+        if (cargo == null) return sources;
+
+        for (CargoStackAPI stack : cargo.getStacksCopy()) {
+            SpecialItemData data = stack.getSpecialDataIfSpecial();
+            if (paysFor(data, itemId, hull)) sources.add(new BlueprintSource(data, false, (int) stack.getSize()));
+        }
+
+        return sources;
+    }
+
+    public boolean paysFor(SpecialItemData item, String hullId) {
+        ShipHullSpecAPI hull = getHullSpecOrNull(hullId);
+        return hull != null && paysFor(item, getPaymentItemId(hullId), hull);
+    }
+
+    private static boolean paysFor(SpecialItemData item, String itemId, ShipHullSpecAPI hull) {
+        if (item == null || item.getData() == null || !itemId.equals(item.getId())) return false;
+
+        ShipHullSpecAPI written = getHullSpecOrNull(item.getData());
+        return written != null && hull.getHullSize() == written.getHullSize();
+    }
+
+    public static String getPaymentItemId(String hullId) {
+        if (isTiandong(hullId)) return "tiandong_retrofit_bp";
+        if (isRoider(hullId)) return "roider_retrofit_bp";
+        return Items.SHIP_BP;
+    }
+
+    public int getRelicStock() {
+        CargoAPI cargo = MiscIE.getIndustrialStorageCargo(market);
+        return cargo != null ? (int) cargo.getCommodityQuantity(ItemIds.RARE_PARTS) : 0;
+    }
+
+    public int getRelicCost(String hullId) {
+        return Math.round(getRelicCostForHullId(hullId));
+    }
+
+    // completes a hull at 100% at once; source null pays with relic components from the shared storage
+    public boolean finish(String hullId, BlueprintSource source) {
+        refreshResearchProgressList();
+        Float progress = researchProgressList.get(hullId);
+        if (progress == null || progress < 1f || getHullSpecOrNull(hullId) == null) return false;
+
+        if (source == null) {
+            int cost = getRelicCost(hullId);
+            if (getRelicStock() < cost) return false;
+            MiscIE.getIndustrialStorageCargo(market).removeCommodity(ItemIds.RARE_PARTS, cost);
+        } else if (!paysFor(source.item(), hullId) || !consume(source)) return false;
+
+        researchProgressList.remove(hullId);
+        deliver(hullId);
+        storeMapInMemory(getClampedMap(researchProgressList, 1f), RESEARCH_LIST_KEY);
+        return true;
+    }
+
+    private boolean consume(BlueprintSource source) {
+        if (source.installed()) {
+            if (blueprintItem == null || !blueprintItem.equals(source.item())) return false;
             setSpecialItem(null);
-            return current;
+            return true;
         }
 
-        // Then check shared storage cargo
-        if (market.hasSubmarket(Ids.SHAREDSTORAGE)) {
-            CargoAPI cargo = market.getSubmarket(Ids.SHAREDSTORAGE).getCargo();
-            for (CargoStackAPI stack : cargo.getStacksCopy()) {
-                SpecialItemData spec = stack.getSpecialDataIfSpecial();
-                if (matchesForFaction(spec, dong, roider) && gethullSize(spec) == size) {
-                    cargo.removeItems(stack.getType(), stack.getData(), 1);
-                    return spec;
-                }
-            }
-        }
-        return null;
+        CargoAPI cargo = MiscIE.getIndustrialStorageCargo(market);
+        if (cargo == null || cargo.getQuantity(CargoAPI.CargoItemType.SPECIAL, source.item()) < 1f) return false;
+        cargo.removeItems(CargoAPI.CargoItemType.SPECIAL, source.item(), 1);
+        return true;
     }
 
-    public boolean shouldUseRelics(){
-        return isRelicItem(getSpecialItem());
+    public MarketAPI getDeliveryMarket() {
+        MarketAPI gather = market.getFaction().getProduction().getGatheringPoint();
+        if (Setting.AUTO_SHIP_BP_TO_GATHERING_POINT.enabled() && gather != null && MiscIE.getStorageCargo(gather) != null) return gather;
+        return market;
     }
 
-    public static boolean isRelicItem(Object data) {
-        return data instanceof SpecialItemData special && ItemIds.RELIC_SPECIAL_ITEM.equals(special.getId());
+    private void deliver(String hullId) {
+        MarketAPI target = getDeliveryMarket();
+        deliverReverseEngineered(hullId, isTiandong(hullId), isRoider(hullId), target, MiscIE.getStorageCargo(target));
     }
 
     public float getRelicCostForHullId(String id){
@@ -213,12 +256,14 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
         return Math.round(dp * RELICS_PER_DP_FOR_BP_CREATION);
     }
 
-    private boolean matchesForFaction(SpecialItemData s, boolean dong, boolean roider) {
-        if (s == null) return false;
-        String sid = s.getId();
-        if (dong)   return isTiandong(sid);
-        if (roider) return isRoider(sid);
-        return true; // any item allowed for non-tiandong/non-roider hulls
+    // getHullSpec throws on an id whose mod is gone
+    public static ShipHullSpecAPI getHullSpecOrNull(String id) {
+        if (id == null) return null;
+        try {
+            return Global.getSettings().getHullSpec(id);
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 
     private void deliverReverseEngineered(String hullId, boolean dong, boolean roider, MarketAPI target, CargoAPI cargo) {
@@ -242,12 +287,6 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
                     Misc.getHighlightColor(), target.getFaction().getBrightUIColor()
             );
         }
-    }
-
-    public ShipAPI.HullSize gethullSize(SpecialItemData data) {
-        if (data.getData() == null) return ShipAPI.HullSize.DEFAULT;
-
-        return Global.getSettings().getHullSpec(data.getData()).getHullSize();
     }
 
     private static boolean isHullSpecsContainsId(String id) {
@@ -386,10 +425,12 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     }
 
     private int getRequiredDaysForHull(ShipVariantAPI ship) {
-        int baseMod = Math.round(getBaseHullSizeValueMap().get(ship.getHullSize()) * 57); //what?
-        baseMod -= 5; //reduce by 5 to get the day count I want, fuck you (future me - what??)
+        return getBaseDays(ship.getHullSize());
+    }
 
-        return baseMod;
+    // 15 days up to cruisers, 21 for capitals, before AI cores
+    public int getBaseDays(ShipAPI.HullSize size) {
+        return Math.round(getCleanResearchValue(size) * 57) - 5;
     }
 
     private void refreshRequiredDays() {
@@ -413,6 +454,24 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
             return getAICoreId();
         }
         return "none";
+    }
+
+    // what one ship without D-mods adds
+    public float getCleanResearchValue(ShipAPI.HullSize size) {
+        Float value = getBaseHullSizeValueMap().get(size);
+        return value != null ? value : 0f;
+    }
+
+    public int getDaysRequired() {
+        return daysRequired;
+    }
+
+    public int getDaysPassed() {
+        return daysPassed;
+    }
+
+    public String getBaseHullId(ShipHullSpecAPI spec) {
+        return getBaseShipHullSpec(spec).getHullId();
     }
 
     private Map<ShipAPI.HullSize, Float> getBaseHullSizeValueMap() {
@@ -456,7 +515,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
     @Override
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
         super.notifyBeingRemoved(mode, forUpgrade);
-        if (blueprintItem != null && !forUpgrade && !isRelicItem(blueprintItem)) {
+        if (blueprintItem != null && !forUpgrade) {
             CargoAPI cargo = getCargoForInteractionMode(mode);
             if (cargo != null) {
                 cargo.addSpecial(blueprintItem, 1);
@@ -576,11 +635,10 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
         tooltip.addSectionHeading("Research Progress", color, dark, Alignment.MID, 10f);
 
-        tooltip.addPara("At 100%% progress, install a %s to override with the new ship data, or use %s.",
+        tooltip.addPara("At 100%% progress, finish a hull in the hub's menu with a %s or %s.",
                 opad, Misc.getHighlightColor(), new String[]{"blueprint of the same hull size", "relic components"});
 
-        if (shouldUseRelics()) tooltip.beginTable(marketFaction, 20f, "Ship Hull", 170, "Total Progress", 120, "Relic cost", 100);
-        else tooltip.beginTable(marketFaction, 20f, "Ship Hull", 250f, "Total Progress", 140f);
+        tooltip.beginTable(marketFaction, 20f, "Ship Hull", 250f, "Total Progress", 140f);
 
 
         for (Map.Entry<String, Float> ship : researchProgressList.entrySet()) {
@@ -588,11 +646,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
             String designation = Global.getSettings().getHullSpec(ship.getKey()).getHullNameWithDashClass();
             String progress = Math.round(ship.getValue() * 100) + "%";
 
-            String relicCost = shouldUseRelics() ? (int) Math.round(getRelicCostForHullId(ship.getKey())) + "" : "0";
-
-            //add the row
-            if (shouldUseRelics()) tooltip.addRow(designation, progress, relicCost);
-            else tooltip.addRow(designation, progress);
+            tooltip.addRow(designation, progress);
         }
 
         tooltip.addTable("You have not reverse engineered any ships yet.", 0, opad);

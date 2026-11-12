@@ -115,16 +115,34 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
     private void build(CustomPanelAPI p, float w, float h) {
         List<Hullmod> hullmods = getHullmods();
         addHeader(p, w, hullmods.size());
-        addHullmodTab(p, w, h, hullmods);
+        if (view.hullmods) addHullmodTab(p, w, h, hullmods);
+        else new ReverseEngineeringTab(this).build(p, w, h);
     }
 
     private void addHeader(CustomPanelAPI p, float w, int recovered) {
         UiFrame.title(p, w, hub.getCurrentName(), market.getName(), this::addHelp);
-        UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, TAB_W, UiFrame.HEADER_H, new String[]{"Hullmod data (" + recovered + ")"}, 0, null, i -> refresh());
+        UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, TAB_W, UiFrame.HEADER_H, new String[]{"Reverse engineering", "Hullmod data (" + recovered + ")"},
+                view.hullmods ? 1 : 0, null, i -> switchTab(i == 1));
         UiFrame.counter(p, w, UiFrame.HEADER_Y, RelicHelper.getName(), UiImages.relicSprite(), Ui.num(RelicHelper.getAvailable(market)));
     }
 
+    private void switchTab(boolean hullmods) {
+        if (view.hullmods != hullmods) {
+            view.hullmods = hullmods;
+            view.scroll.reset(EngineeringHubView.LIST);
+            view.scroll.reset(EngineeringHubView.DETAIL);
+            view.scroll.reset(EngineeringHubView.PAYMENTS);
+        }
+
+        refresh();
+    }
+
     private void addHelp(TooltipMakerAPI tooltip) {
+        if (!view.hullmods) {
+            ReverseEngineeringTab.addHelp(tooltip, hub);
+            return;
+        }
+
         Color hl = Misc.getHighlightColor();
         tooltip.addPara("Ships reverse engineered here leave data on the hullmods they had installed that your faction does not know.", 0f);
         tooltip.addPara("Learning one costs at least %s %s, more for valuable hullmods.", 10f, hl, RecoveredHullmods.MIN_COST + "", RelicHelper.getName());
