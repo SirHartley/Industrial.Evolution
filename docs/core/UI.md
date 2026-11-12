@@ -4,6 +4,8 @@ Shared builder for IE custom panels in `jars/src/indevo/utils/ui/`. Read it befo
 
 Checked against Starsector 0.98a-RC8. Paths below are relative to `jars/src/indevo/utils/ui/`; `obf/` and `api/` paths point into the `starsector-knowledge` skill.
 
+Reference implementation: the Academy panel (`industries/academy/plugins/AcademyPanelDelegate.java`, `AcademyDetail.java`, `AcademyView.java`; [Academy](../industries/ACADEMY.md#panel)).
+
 The helpers mirror the mockup board kit (`kit.py`): a board line `text(58,7,140,name,'ins15',GRAY)` becomes `Ui.text(row, 58, 7, 140, name, Ui.gray())`.
 
 ## Layout contract
@@ -67,9 +69,9 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 |---|---|
 | `panel(p, x, y, w, h)` | Child panel with its own coordinates |
 | `painted(p, x, y, w, h, below, above)` | Child panel with `UiCanvas.Painter`s |
+| `element(p, x, y, w, h, content)` | Non scrolling `TooltipMakerAPI` for vanilla widgets: made `w + INSET` wide, filled by `content`, then placed at `x - INSET`, so items start at `x`. The first item's pad is its offset below `y`; later items stack `belowLeft` with their own pad. The element grows to its content past `h` and is not clipped: keep the content inside `h` (check `getHeightSoFar()`) or use a scroll column. Fill it inside `content`, before it is attached |
 | `width(s, font)` / `fit(s, font, w)` | Real font width (`SettingsAPI.computeStringWidth`); shorten to `w - 2` with `...` |
 | `text(p, x, y, w, s[, color[, align]])`, `text(p, x, y, w, s, font, color, align)` | One line, fitted, tooltip with the full text when shortened. Align `LEFT`, `RIGHT`, `CENTER` |
-| `element(p, x, y, w, h, content)` | Non scrolling `TooltipMakerAPI` for vanilla widgets: made `w + INSET` wide, filled by `content`, then placed at `x - INSET`, so items start at `x`. The first item's pad is its offset below `y`; later items stack `belowLeft` with their own pad. The element grows to its content past `h` and is not clipped: keep the content inside `h` (check `getHeightSoFar()`) or use a scroll column. Fill it inside `content`, before it is attached |
 | `runs(p, x, y, w, font, color, align, s, parts, colors)` | One line with coloured runs (first occurrence of each part) |
 | `textIn(p, x, y, w, h, s, font, color, align, parts, colors)` | `runs` centred vertically in a box of height `h` |
 | `wrap(p, x, y, w, s, color)`, `wrap(..., font, color, align, parts, colors)` | Wrapped at `w`; `height(label)` is the measured height |
@@ -106,16 +108,16 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `icon(p, x, y, size, sprite, name)` | Square sprite with a name tooltip |
 | `portrait(p, x, y, size, person)` | Portrait with the name as tooltip |
 | `ship(p, x, y, size, member, framed, dim)` | Hand drawn hull sprite in a well, ship name and class as tooltip |
-| `shipIcon(p, x, y, size, member)` | Vanilla `addShipList` icon with the stock ship tooltip |
-| `skill(p, x, y, size, spec, elite)` | Skill icon, elite framed in highlight |
 | `hull(p, x, y, size, spec, framed, dim)` | Same for a `ShipHullSpecAPI` that is no fleet member, hull name and class as tooltip |
 | `wing(p, x, y, size, wingId, framed, dim)` | One fighter hull sprite of the wing (not the vanilla formation picture), wing name and role as tooltip |
+| `shipIcon(p, x, y, size, member)` | Vanilla `addShipList` icon with the stock ship tooltip |
+| `skill(p, x, y, size, spec, elite)` | Skill icon, elite framed in highlight |
 | `commodity`, `hullmod`, `item` (ids), `submarket` (`SubmarketAPI`) | Spec icons with name tooltip |
-| `planet(p, x, y, size, market)` | Vanilla `showPlanetInfo` for a planet, faction crest for a station; market name tooltip |
-| `iconrow(p, x, y, w, items, cw, ch, gap, rows, cell, name)` | Fixed cells, wraps to `rows`, last cell `+N` with the rest; returns the used height |
 | `stack(p, x, y, size, sprite, count, extra, name)` | Cargo style cell in a well: sprite inset 6, `count` bottom right in highlight (hidden below 0), `extra` as `+N` top left in positive colour with a lit frame while above 0, `name` tooltip |
-| `morecell(p, x, y, w, h, rest)` | The `+N` cell |
+| `planet(p, x, y, size, market)` | Vanilla `showPlanetInfo` for a planet, faction crest for a station; market name tooltip |
 | `planet(p, x, y, size, entity)` | `SectorEntityToken`: vanilla render for a planet or star, else the custom entity sprite, else its icon, else the faction crest; entity name tooltip |
+| `iconrow(p, x, y, w, items, cw, ch, gap, rows, cell, name)` | Fixed cells, wraps to `rows`, last cell `+N` with the rest; returns the used height |
+| `morecell(p, x, y, w, h, rest)` | The `+N` cell |
 | `creditsSprite()`, `relicSprite()`, `partsSprite()`, `commoditySprite(id)` | Sprite names by key or spec |
 
 ### UiData
@@ -124,10 +126,10 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 |---|---|
 | `bar(p, x, y, w, h, fraction, fill, label)` | Progress bar: black track, inset fill, end lines, centred label |
 | `thinbar(p, x, y, w, fraction, fill)` | 3 px bar for list rows |
-| `mark(p, x, y, ok)` / `checkrow(p, x, y, w, ok, text)` | 12 px tick or cross; mark and text, red text while unmet |
-| `cost(p, x, y, w, sprite, amount, stock, ok, size)` | Icon, amount in highlight (negative when short), stock in grey brackets |
 | `pips(p, x, y, total, filled, size, gap, color)` | Square pips, the first `filled` lit (quality level, D-mod forecast) |
 | `pips(p, x, y, total, from, to, w, h, gap, color)` | Pips `[from, to)` lit, the rest in base at `PIP_OFF` 0.18 (one lit pip: Academy personality ladder) |
+| `mark(p, x, y, ok)` / `checkrow(p, x, y, w, ok, text)` | 12 px tick or cross; mark and text, red text while unmet |
+| `cost(p, x, y, w, sprite, amount, stock, ok, size)` | Icon, amount in highlight (negative when short), stock in grey brackets |
 | `costrow(p, x, y, w, label, sprite, amount, stock, ok)` | Label left, cost right in a measured column, 22 high |
 | `creditsRow(p, x, y, w, label, amount)`, `relicRow(p, x, y, w, label, amount, market)` | `costrow` with the player's credits or `RelicHelper.getAvailable(market)` |
 | `value(p, x, y, w, h, label, value, color, parts, colors)` | Label left, value right in a measured column |
@@ -217,11 +219,11 @@ Verified in the decompiled 0.98a-RC8 source unless noted.
 - Labels: `SettingsAPI.createLabel(text, font)` is the obf label `com.fs.starfarer.ui.d`, which implements `UIComponentAPI`, so the kit adds it with `addComponent((UIComponentAPI) label)` (knowledge skill `docs/ui/widgets.md`). Labels only react to mouse moves, never consume clicks (`obf/ui/_c177.java:652-666`). Panels hand input to children top first and never consume it themselves (`obf/ui/interfacenew.java:144-157`); a custom panel runs its plugin's `processInput` after its children (`obf/ui/newui/int.java:127-131`). So labels and painted panels on top of an area checkbox let the click through to it.
 - `addTooltipTo(tc, component, loc)` works on any component that is an obf `w` (labels, buttons, custom panels) and is static in effect: any element can attach it (`StandardTooltipV2Expandable.java:2210-2232`).
 - Scroll element: `createUIElement(w, h, true)` lays content out `w - 5` wide; the scrollbar is 3 px at the right edge and widens by `BAR_PAD` 6 on hover (`obf/ui/_c179.java:51,718-790`); content fades near the top and bottom edges. `getExternalScroller()` is non null after `addUIElement`; `setYOffset` restores the offset (`api/ui/ScrollPanelAPI.java`).
-- `Misc.renderQuad` does not disable textures; `UiDraw` sets `GL_TEXTURE_2D` off, blend on, and turns textures back on after each primitive (knowledge skill `docs/ui/custom-elements.md` section 2).
-- Credits icon: sprite `fleetScreen/icon_logistics_credits` (`graphics/ui/icons/fleettab/credits_24x24.png`, `data/config/settings.json`). Relic and Ship Components: `CommoditySpecAPI.getIconName()` of `IndEvo_rare_parts` and `IndEvo_parts`.
 - Non scrolling elements: `addUIElement` sizes the element to `max(getHeightSoFar(), h)` and adds it as is (`obf/ui/newui/int.java:97-100`); panels do not clip children unless `setClipping(true)` (`obf/ui/interfacenew.java:18,174`). So `Ui.element` content past `h` draws over what lies below.
 - `SettingsAPI.getSprite(path)` needs a loaded texture (`api/SettingsAPI.java:115`); for a path never loaded it returns a sprite without texture and 0 x 0 (`obf/_common/graphics/_c7.java:23`, `obf/_common/graphics/Sprite.java:460-470`). `UiImages.planet(entity)` checks the size before it uses a custom entity sprite or icon.
 - Weapon icons have no single sprite: the vanilla cell draws the hardpoint sprite, the hardpoint gun sprite of projectile weapons and, for missile weapons, the missile sprite from the projectile spec, which only obf code reaches (`obf/ui/B/_c172.java:59-105`). The kit has no weapon helper; show weapons through `Ui.element` with `showCargo`, or use `stack` with `getHardpointSpriteName()` and accept missing barrels and missiles.
+- `Misc.renderQuad` does not disable textures; `UiDraw` sets `GL_TEXTURE_2D` off, blend on, and turns textures back on after each primitive (knowledge skill `docs/ui/custom-elements.md` section 2).
+- Credits icon: sprite `fleetScreen/icon_logistics_credits` (`graphics/ui/icons/fleettab/credits_24x24.png`, `data/config/settings.json`). Relic and Ship Components: `CommoditySpecAPI.getIconName()` of `IndEvo_rare_parts` and `IndEvo_parts`.
 - There is no plain vanilla progress bar widget (knowledge skill `docs/ui/widgets.md`); `UiData.bar` draws the cargo bar chrome by eye (`docs/ui/custom-elements.md` section 3).
 - `showPlanetInfo(planet, w, h, withName, pad)` draws the vanilla planet render at that size; there is no market level planet widget, so `planet(market)` shows the faction crest for a station and `planet(entity)` the entity sprite.
 - `CampaignClockAPI.getShortDate()` is `cycle.month.day` and `getDateString()` is `Mon d, cN` (`obf/campaign/CampaignClock.java:30-36`).
