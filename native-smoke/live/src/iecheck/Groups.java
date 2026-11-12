@@ -78,6 +78,12 @@ public final class Groups {
                 return SalvageUiChecks.steps();
             case "uiedict":
                 return EdictUiChecks.steps();
+            case "uilab":
+                return LabUiChecks.steps();
+            case "uihub":
+                return HubUiChecks.steps();
+            case "uiresearch":
+                return ResearchUiChecks.steps();
             case "shuttle":
                 return ShuttleChecks.steps();
             default:

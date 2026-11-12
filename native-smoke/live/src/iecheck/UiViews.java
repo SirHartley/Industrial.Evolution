@@ -37,6 +37,7 @@ public final class UiViews {
         });
         if (act != null) steps.add(c -> {
             UiAudit.Found found = UiAudit.find();
+            if (found == null && side != null) found = UiAudit.findSide(side[0], side[1]);
             c.expect(found != null, name + " panel opens");
             if (found != null) act.act(c, found);
             c.frames(20);
@@ -53,8 +54,12 @@ public final class UiViews {
         });
     }
 
+    // width and height of a side panel to audit when no custom dialog is open
+    public static float[] side = null;
+
     public static void audit(Ctx c, String name) {
         UiAudit.Found found = UiAudit.find();
+        if (found == null && side != null) found = UiAudit.findSide(side[0], side[1]);
         if (found == null) {
             Object d = Global.getSector().getCampaignUI().getCurrentInteractionDialog();
             log.info("LIVE_CHECK note: no panel, tree " + UiAudit.dump(d, 0) + " screen " + UiAudit.dump(UiAudit.screen(), 0));

@@ -98,12 +98,12 @@ public final class SalvageUiChecks {
             open(c, view);
         });
         UiViews.view(steps, "salvage-assembly-accelerate", c -> open(c, order(new SalvageYardsView(Tab.ASSEMBLY))),
-                (c, panel) -> c.expect(UiAudit.click(panel.content(), "Accelerate"), "accelerate armed"));
+                (c, panel) -> c.expect(UiAudit.clickLabel(panel.content(), "Accelerate"), "accelerate armed"));
         for (int i = 0; i < 4; i++) confirmOrder(steps);
         UiViews.view(steps, "salvage-assembly-many", c -> {
             SalvageYardsView view = order(new SalvageYardsView(Tab.ASSEMBLY));
-            for (String id : REG_WEAPONS) view.order.weapons.put(id, 2);
-            for (String id : REG_WINGS) view.order.wings.put(id, 1);
+            for (String id : weapons()) view.order.weapons.put(id, 2);
+            for (String id : wings()) view.order.wings.put(id, 1);
             open(c, view);
         });
         UiViews.view(steps, "salvage-registry-empty", c -> {
@@ -231,8 +231,33 @@ public final class SalvageUiChecks {
             for (int n = 0; n <= i % 5; n++) fits.add(new WreckRegistry.WreckFit(id, variant));
             hullMap.put(id, fits);
         }
-        for (int i = 0; i < weapons; i++) weaponMap.put(REG_WEAPONS[i], 1 + i % 20);
-        for (int i = 0; i < wings; i++) wingMap.put(REG_WINGS[i], 1 + i % 10);
+        List<String> w = weapons();
+        List<String> f = wings();
+        for (int i = 0; i < Math.min(weapons, w.size()); i++) weaponMap.put(w.get(i), 1 + i % 20);
+        for (int i = 0; i < Math.min(wings, f.size()); i++) wingMap.put(f.get(i), 1 + i % 10);
+    }
+
+    // only ids this game has, getWeaponSpec throws on a missing one
+    private static List<String> weapons() {
+        List<String> out = new ArrayList<>();
+        for (String id : REG_WEAPONS) {
+            try {
+                if (Global.getSettings().getWeaponSpec(id) != null) out.add(id);
+            } catch (RuntimeException ignored) {
+            }
+        }
+        return out;
+    }
+
+    private static List<String> wings() {
+        List<String> out = new ArrayList<>();
+        for (String id : REG_WINGS) {
+            try {
+                if (Global.getSettings().getFighterWingSpec(id) != null) out.add(id);
+            } catch (RuntimeException ignored) {
+            }
+        }
+        return out;
     }
 
     private static SalvageYards yards(Ctx c) {

@@ -112,6 +112,19 @@ public final class UiAudit {
         return content == null ? null : new Found((UIComponentAPI) dialog, content);
     }
 
+    // a side panel in the dialog's visual area (VisualPanelAPI.showCustomPanel) of the given size
+    public static Found findSide(float w, float h) {
+        InteractionDialogAPI interaction = Global.getSector().getCampaignUI().getCurrentInteractionDialog();
+        if (interaction == null) return null;
+        List<Object> queue = new ArrayList<>(children(interaction));
+        while (!queue.isEmpty()) {
+            Object node = queue.remove(0);
+            if (node instanceof CustomPanelAPI panel && Math.abs(panel.getPosition().getWidth() - w) < 1f && Math.abs(panel.getPosition().getHeight() - h) < 1f) return new Found(panel, panel);
+            queue.addAll(children(node));
+        }
+        return null;
+    }
+
     private static Object findDialog(Object node) {
         if (node instanceof CustomDialogDelegate.CustomDialogCallback) return node;
         for (Object child : children(node)) {
@@ -147,6 +160,23 @@ public final class UiAudit {
         if (button == null || !button.isEnabled() || !(button.getCustomData() instanceof Runnable action)) return false;
         action.run();
         return true;
+    }
+
+    // the enabled button under the centre of the label holding text: icon buttons and rows draw their text as separate labels
+    public static boolean clickLabel(Object root, String text) {
+        LabelAPI label = label(root, text);
+        if (label == null) return false;
+        float x = label.getPosition().getCenterX();
+        float y = label.getPosition().getCenterY();
+        for (Object node : all(root)) {
+            if (!(node instanceof ButtonAPI b) || !b.isEnabled() || !(b.getCustomData() instanceof Runnable action)) continue;
+            PositionAPI p = b.getPosition();
+            if (x >= p.getX() && x <= p.getX() + p.getWidth() && y >= p.getY() && y <= p.getY() + p.getHeight()) {
+                action.run();
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean clickPrefix(Object root, String prefix) {

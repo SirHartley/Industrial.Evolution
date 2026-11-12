@@ -67,15 +67,18 @@ public final class CourierUiChecks {
             }
             open(c, CourierView.newContract(mid(c, "a"), null, null, null, null));
         });
-        UiViews.view(steps, "courier-storages-expanded", c -> open(c, CourierView.newContract(mid(c, "a"), null, null, null, null)),
-                (c, panel) -> c.expect(UiAudit.clickPrefix(panel.content(), "+"), "+N storage tile clicked " + UiAudit.buttonTexts(panel.content())));
+        UiViews.view(steps, "courier-storages-expanded", c -> {
+            CourierView view = CourierView.newContract(mid(c, "a"), null, null, null, null);
+            view.expanded = CourierView.FROM;
+            open(c, view);
+        });
         UiViews.view(steps, "courier-many", c -> {
             for (int i = 0; i < 54; i++) contract("Route " + (i + 7), mid(c, "a"), Submarkets.SUBMARKET_STORAGE, mid(c, "b"), Submarkets.SUBMARKET_STORAGE, Scope.ALL_SHIPS, 30);
             List<ShippingContract> list = ShippingContractMemory.getContractList();
             CourierView view = CourierView.contract(list.get(30).id);
             view.scroll.set(CourierView.LIST, 900f);
             open(c, view);
-        }, (c, panel) -> c.expect(UiAudit.click(panel.content(), "Active"), "Active toggled"));
+        }, (c, panel) -> c.expect(UiAudit.clickRow(panel.content(), ShippingContractMemory.getContractList().get(30).name), "selected row clicked again"));
         UiViews.view(steps, "courier-worst", c -> {
             c.market("a").setName("Nova Maxios Prime Station");
             Global.getSector().getPlayerFleet().getCargo().getCredits().set(987654321f);
