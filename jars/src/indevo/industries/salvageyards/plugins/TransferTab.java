@@ -400,14 +400,12 @@ class TransferTab {
     }
 
     private float getTransferHeight(float sideW) {
-        float left = 3f * CHECK_H + 4f + Ui.wrapHeight(getSummary(), Ui.INS15, sideW);
+        float left = 3f * CHECK_H;
         float right = (kind == ModTransfer.Kind.SMOD ? 2f * COST_H : COST_H + 20f) + 6f + UiButtons.guardHeight(sideW, BUTTON_H, getConfirmReason());
         return 10f + 24f + Math.max(left, right);
     }
 
     private String getSummary() {
-        if (origin == null || target == null) return "Select a ship on both sides.";
-
         String o = origin.getShipName();
         String t = target.getShipName();
         if (kind == ModTransfer.Kind.SMOD) return o + " loses the selected S-mods and their hullmods. " + t + " gets them built in.";
@@ -450,7 +448,6 @@ class TransferTab {
             UiData.checkrow(p, 0f, y + CHECK_H, sideW, restorable, Ui.fit(tName + " can be restored", Ui.INS15, sideW - 20f));
         }
         UiData.checkrow(p, 0f, y + 2f * CHECK_H, sideW, n > 0, noun + " selected: " + n);
-        Ui.wrap(p, 0f, y + 3f * CHECK_H + 4f, sideW, getSummary(), Ui.gray());
 
         float perMod = origin == null ? 0f : ModTransfer.getCreditsPerMod(kind, origin, costMult);
         float cy = y;
@@ -467,7 +464,8 @@ class TransferTab {
             cy += 20f;
         }
 
-        UiButtons.guarded(p, toX, cy + 6f, sideW, BUTTON_H, "Transfer", UiButtons.Kind.GREEN, getConfirmReason(), this::apply);
+        ButtonAPI transfer = UiButtons.guarded(p, toX, cy + 6f, sideW, BUTTON_H, "Transfer", UiButtons.Kind.GREEN, getConfirmReason(), this::apply);
+        if (origin != null && target != null) Ui.tooltip(p, transfer, null, getSummary());
     }
 
     private void apply() {

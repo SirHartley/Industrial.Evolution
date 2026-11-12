@@ -52,6 +52,11 @@ public final class AcademyUiChecks {
             c.market("a").reapplyIndustries();
             open(c, new AcademyView(false, id(c, "stored"), null));
         });
+        UiViews.view(steps, "academy-stored-holobench-list", c -> {
+            AcademyView view = new AcademyView(false, id(c, "laststored"), null);
+            view.scroll.set(AcademyView.LIST, 100000f);
+            open(c, view);
+        });
         UiViews.view(steps, "academy-officer-skills", c -> open(c, new AcademyView(false, id(c, "skilled"), null)));
         UiViews.view(steps, "academy-trainee", c -> {
             Academy academy = academy(c);

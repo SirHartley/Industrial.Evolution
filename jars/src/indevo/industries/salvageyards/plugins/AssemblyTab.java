@@ -222,7 +222,8 @@ class AssemblyTab {
 
     private void addButtons(CustomPanelAPI p, float lw, float y) {
         UiButtons.button(p, 0f, y, BUTTON_W, BUTTON_H, "Select hulls...", UiButtons.Kind.STD, CutStyle.TL_BR, this::selectHulls);
-        UiButtons.button(p, BUTTON_W + 6f, y, BUTTON_W, BUTTON_H, "Scrap ships...", UiButtons.Kind.STD, CutStyle.TL_BR, this::scrapShips);
+        ButtonAPI scrap = UiButtons.button(p, BUTTON_W + 6f, y, BUTTON_W, BUTTON_H, "Scrap ships...", UiButtons.Kind.STD, CutStyle.TL_BR, this::scrapShips);
+        Ui.tooltip(p, scrap, null, "Scrapped hulls add to the budget: 30% of hull value, less per D-mod.");
 
         String value = Ui.credits(contract.getOrderValue());
         float x = 2f * BUTTON_W + 20f;
@@ -329,7 +330,7 @@ class AssemblyTab {
 
         List<FleetMemberAPI> scrapped = view.order.scrapped;
         if (scrapped.isEmpty()) {
-            Ui.text(p, 8f, y + 12f, lw - 16f, "No ships scrapped. Scrapped hulls add to the budget.", Ui.gray());
+            Ui.text(p, 8f, y + 12f, lw - 16f, "No ships scrapped.", Ui.gray());
             return;
         }
 
@@ -346,8 +347,7 @@ class AssemblyTab {
         float tx = SCRAP_CELLS_W + 10f;
         float tw = lw - tx - bw - 12f;
 
-        Ui.text(p, tx, y + 4f, tw, getScrapLine(scrapped, tw));
-        Ui.text(p, tx, y + 22f, tw, "30% of hull value, less per D-mod", Ui.gray());
+        Ui.text(p, tx, y + 12f, tw, getScrapLine(scrapped, tw));
         Ui.runs(p, lw - bw, y + 12f, bw, Ui.INS15, Ui.gray(), Ui.RIGHT, "Budget  " + budget, new String[]{budget}, new Color[]{Ui.pos()});
     }
 

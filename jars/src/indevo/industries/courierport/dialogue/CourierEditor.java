@@ -240,7 +240,9 @@ class CourierEditor {
         ButtonAPI tile = UiButtons.area(b, x, y, TILE_W, TILE_H, null, on, true, null, Ui.CENTER, act(() -> pickStorage(s, side)));
         Ui.tooltip(b, tile, s.getNameOneLine());
 
+        // the Resource Stockpiles have no icon of their own
         String icon = s.getSpec().getIcon();
+        if (!isLoaded(icon)) icon = s.getMarket().getFaction().getLogo();
         if (isLoaded(icon)) {
             UiImages.img(b, x + 2f, y + 2f, TILE_W - 4f, TILE_H - 4f, icon, null, on ? 1f : 0.75f);
             return;
@@ -353,14 +355,10 @@ class CourierEditor {
             Runnable action = !enabled ? null : selectedArea ? () -> pickGoods(cargo) : act(() -> chooseScope(scope));
             ButtonAPI area = UiButtons.area(b, i * (bw + 4f), 0f, bw, AREA_H, SCOPE_LABELS[i], on, enabled, null, Ui.CENTER, action);
             if (!enabled) Ui.tooltip(b, area, null, scope == ShippingContract.Scope.ALL_SHIPS ? noShips : noCargo != null ? noCargo : noShips);
+            else if (!selectedArea) Ui.tooltip(b, area, null, getScopeLine(scope, noCargo, noShips));
         }
 
-        if (!view.goodsChosen) return;
-        if (isSpecific(draft.scope)) addSelectedGoods(cargo, ships);
-        else {
-            String text = getScopeLine(noCargo, noShips);
-            Ui.wrap(column.block(Ui.wrapHeight(text, Ui.INS15, cw), 8f), 0f, 0f, cw, text, Ui.gray());
-        }
+        if (view.goodsChosen && isSpecific(draft.scope)) addSelectedGoods(cargo, ships);
     }
 
     // the end that can not hold cargo or ships, in its own words
@@ -372,17 +370,17 @@ class CourierEditor {
         return name + (name.endsWith("s") ? " hold no " : " holds no ") + (cargo ? "cargo." : "ships.");
     }
 
-    private String getScopeLine(String noCargo, String noShips) {
+    private String getScopeLine(ShippingContract.Scope scope, String noCargo, String noShips) {
         String where = draft.getFromSubmarket().getNameOneLine();
-        String text = switch (draft.scope) {
+        String text = switch (scope) {
             case ALL_CARGO -> "Ships all cargo in the " + where + " on the day.";
             case ALL_WEAPONS -> "Ships all weapons and fighter wings in the " + where + " on the day.";
             case ALL_SHIPS -> "Ships all ships in the " + where + " on the day.";
             default -> "Ships whatever lies in the " + where + " on the day.";
         };
 
-        if (noShips != null && draft.scope != ShippingContract.Scope.ALL_SHIPS) text += " " + noShips;
-        if (noCargo != null && draft.scope == ShippingContract.Scope.EVERYTHING) text += " " + noCargo;
+        if (noShips != null && scope != ShippingContract.Scope.ALL_SHIPS) text += " " + noShips;
+        if (noCargo != null && scope == ShippingContract.Scope.EVERYTHING) text += " " + noCargo;
         return text;
     }
 

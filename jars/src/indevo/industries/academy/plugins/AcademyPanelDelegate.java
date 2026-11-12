@@ -18,6 +18,7 @@ import indevo.industries.academy.industry.Academy;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.ui.*;
+import indevo.utils.ui.UiData.GridRow;
 
 import java.awt.*;
 import java.util.List;
@@ -42,6 +43,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
     static final float PIP_H = 5f;
     static final float PIP_GAP = 2f;
     static final float SALARY_W = 70f;
+    static final float SKILL_X = 366f;
     static final float ASSIGN_X = 498f;
     static final float NAME_W = 162f;
     static final float BAR_X = 316f;
@@ -280,7 +282,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
 
         heading(list, rw, "In training", null, 0f);
         if (trainee != null) addStrip(list.block(ROW_H, ROW_GAP), rw, trainee);
-        else empty(list, rw, view.admins ? "No administrator in training." : "No officer in training. Select an officer and pick a personality to start.");
+        else empty(list, rw, view.admins ? "No administrator in training." : "No officer in training.");
 
         heading(list, rw, view.admins ? "On staff" : "In fleet", null, GROUP_GAP);
         List<PersonAPI> active = active();
@@ -288,7 +290,9 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         if (active.isEmpty()) empty(list, rw, view.admins ? "No administrators on staff." : "No officers in your fleet.");
 
         boolean own = academy.getMarket().isPlayerOwned();
-        String note = own ? null : Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue()) + " storage fee per month each";
+        String note;
+        if (!own) note = Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue()) + " storage fee per month each";
+        else note = !view.admins && academy.hasHolobench() ? "reserve drills +" + Misc.getWithDGS(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP) + " XP per month" : null;
         heading(list, rw, "Stored here", note, GROUP_GAP);
         List<PersonAPI> stored = stored();
         for (PersonAPI person : stored) addRow(list, rw, person, true);
@@ -323,35 +327,27 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         Ui.text(row, 58f, 26f, NAME_W, "Level " + person.getStats().getLevel(), Ui.gray());
         Ui.text(row, 226f, 7f, 80f, getPersonalityName(personality), getPersonalityColor(personality));
         pips(row, 226f, 31f, personality);
-        addSkillIcons(row, 312f, person);
 
-        float textX = ASSIGN_X + PORTRAIT + 8f;
-        float textW = w - SALARY_W - 12f - textX;
-        if (stored) {
-            String[] lines = getStoredLines(person);
-            Ui.text(row, ASSIGN_X, 7f, textW + textX - ASSIGN_X, lines[0], Ui.gray());
-            Ui.text(row, ASSIGN_X, 26f, textW + textX - ASSIGN_X, lines[1], lines[1].startsWith("+") ? Ui.pos() : Ui.gray());
-        } else {
-            FleetMemberAPI ship = Academy.getCommandedShip(person);
-            if (ship != null) {
-                UiImages.ship(row, ASSIGN_X, 2f, PORTRAIT, ship, true, false);
-                Ui.nameLines(row, textX, 7f, 19f, textW, ship.getShipName(), Ui.text(), ship.getHullSpec().getHullNameWithDashClass(), textW);
-            } else {
-                Ui.dashbox(row, ASSIGN_X, 2f, PORTRAIT, PORTRAIT);
-                Ui.text(row, textX, 16f, textW, "Unassigned", Ui.gray());
-            }
-        }
+        // ship slot mirrors the portrait at the right end, salary left of it
+        float shipX = w - 3f - PORTRAIT;
+        float salaryX = shipX - 12f - SALARY_W;
+        addSkillIcons(row, SKILL_X, salaryX - 12f, person);
+        addSalary(row, salaryX, Misc.getOfficerSalary(person));
+        if (stored) return;
 
-        addSalary(row, w, Misc.getOfficerSalary(person));
+        FleetMemberAPI ship = Academy.getCommandedShip(person);
+        if (ship != null) UiImages.ship(row, shipX, 2f, PORTRAIT, ship, true, false);
+        else Ui.tooltip(row, Ui.dashbox(row, shipX, 2f, PORTRAIT, PORTRAIT), null, "Unassigned");
     }
 
-    private String[] getStoredLines(PersonAPI person) {
-        if (!academy.hasHolobench()) return new String[]{"In storage", "draws full salary"};
-        if (Misc.isMercenary(person)) return new String[]{"Mercenary", "No reserve drills"};
+    // null without a Holobench
+    GridRow getDrillsRow(PersonAPI person) {
+        if (!academy.hasHolobench()) return null;
+        if (Misc.isMercenary(person)) return GridRow.of("Reserve drills", "None, mercenary", Ui.gray());
 
         OfficerLevelupPlugin levels = (OfficerLevelupPlugin) Global.getSettings().getPlugin("officerLevelUp");
-        if (person.getStats().getLevel() >= levels.getMaxLevel(person)) return new String[]{"Max level", "No reserve drills"};
-        return new String[]{"Reserve drills", "+" + Misc.getWithDGS(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP) + " XP per month"};
+        if (person.getStats().getLevel() >= levels.getMaxLevel(person)) return GridRow.of("Reserve drills", "None, max level", Ui.gray());
+        return GridRow.of("Reserve drills", "+" + Misc.getWithDGS(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP) + " XP per month", Ui.pos());
     }
 
     private void addAdminRow(CustomPanelAPI row, float w, PersonAPI person, boolean stored, boolean selected) {
@@ -377,7 +373,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
             Ui.text(row, textX, 16f, textW, "Unassigned", Ui.gray());
         }
 
-        addSalary(row, w, Misc.getAdminSalary(person) * (stored ? 0.1f : 1f));
+        addSalary(row, w - SALARY_W - 10f, Misc.getAdminSalary(person) * (stored ? 0.1f : 1f));
     }
 
     // size and system, the system alone when both do not fit
@@ -392,24 +388,24 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         return market.getStarSystem() != null ? size + " · " + market.getStarSystem().getBaseName() : size;
     }
 
-    private static void addSalary(CustomPanelAPI row, float w, float salary) {
-        Ui.text(row, w - SALARY_W - 10f, 7f, SALARY_W, Misc.getDGSCredits(salary), Ui.hl(), Ui.RIGHT);
-        Ui.text(row, w - SALARY_W - 10f, 26f, SALARY_W, "per month", Ui.gray(), Ui.RIGHT);
+    private static void addSalary(CustomPanelAPI row, float x, float salary) {
+        Ui.text(row, x, 7f, SALARY_W, Misc.getDGSCredits(salary), Ui.hl(), Ui.RIGHT);
+        Ui.text(row, x, 26f, SALARY_W, "per month", Ui.gray(), Ui.RIGHT);
     }
 
-    private void addSkillIcons(CustomPanelAPI row, float x, PersonAPI person) {
+    private void addSkillIcons(CustomPanelAPI row, float x, float right, PersonAPI person) {
         List<Skill> skills = getSkills(person, false);
         if (skills.isEmpty()) {
-            Ui.text(row, x, 16f, ASSIGN_X - 8f - x, "No skills", Ui.gray());
+            Ui.text(row, x, 16f, right - x, "No skills", Ui.gray());
             return;
         }
 
-        if (skills.size() <= 6) {
+        if (skills.size() * (SKILL + 3f) - 3f <= right - x) {
             for (int i = 0; i < skills.size(); i++) UiImages.skill(row, x + i * (SKILL + 3f), 10f, SKILL, skills.get(i).spec(), skills.get(i).elite());
             return;
         }
 
-        UiImages.iconrow(row, x, 3f, ASSIGN_X - 6f - x, skills, SKILL_SMALL, SKILL_SMALL, 4f, 2, AcademyPanelDelegate::skillCell, AcademyPanelDelegate::skillName);
+        UiImages.iconrow(row, x, 3f, right - x, skills, SKILL_SMALL, SKILL_SMALL, 4f, 2, AcademyPanelDelegate::skillCell, AcademyPanelDelegate::skillName);
     }
 
     private static void skillCell(CustomPanelAPI p, float x, float y, float w, float h, Skill skill) {

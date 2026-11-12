@@ -89,7 +89,7 @@ One custom dialog (`CourierPanelDelegate`, 1104 x 709 via `UiFrame`) with the co
 - Steps: route (From card, storage tiles, then To), goods (scope or selected cargo and ships), then schedule and cost once the goods are chosen and the draft is valid. Save shows only then. A stored invalid contract shows the reason and Remove only.
 - Route card: planet, market name (insignia 21 beside Change...; insignia 15 when it does not fit, wrapped to two lines in place of the size line when still too long), size and system line.
 - Name field: capped at the characters that fit the list row beside the widest cost in the widest glyph (`CourierPanelDelegate.getNameMaxChars`); a longer stored name ends in an ellipsis with the full name as tooltip.
-- Origin storages: non-hostile markets with storage and a whitelisted submarket, plus Resource Stockpiles on player colonies; the RAT settlement and restored Gacha stations as targets ([Gacha](../exploration/GACHA.md), [Compatibility](../core/COMPATIBILITY.md)). More tiles than fit one row collapse into a `+N` tile that expands the rows.
+- Origin storages: non-hostile markets with storage and a whitelisted submarket, plus Resource Stockpiles on player colonies; the RAT settlement and restored Gacha stations as targets ([Gacha](../exploration/GACHA.md), [Compatibility](../core/COMPATIBILITY.md)). A tile shows the submarket icon, or the market faction's logo when the submarket has none (Resource Stockpiles). More tiles than fit one row collapse into a `+N` tile that expands the rows.
 - Cost lines use `ShippingCostCalculator.getShipCostForVariants`, `getCargoSpace` and `getDeploymentPoints` on the draft's cargo and variant list; by load scopes show rates, the total is known on the day.
 
 ### Picker round trip

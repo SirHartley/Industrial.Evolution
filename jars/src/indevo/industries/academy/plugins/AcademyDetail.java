@@ -101,6 +101,8 @@ class AcademyDetail {
 
     private void addOfficer(PersonAPI person, boolean stored) {
         addOfficerInfo(person, stored ? "Stored here" : null);
+        GridRow drills = stored ? panel.getDrillsRow(person) : null;
+        if (drills != null) grid(GAP, drills);
 
         String current = person.getPersonalityAPI().getId();
         heading("Personality training", SECTION_GAP);
@@ -114,8 +116,6 @@ class AcademyDetail {
             days = academy.getOfficerTrainingDays(steps);
             fee = academy.getOfficerTrainingFee(steps);
 
-            String description = Global.getSettings().getPersonaltySpec(view.rung).getDescription();
-            if (description != null && !description.isEmpty()) text(description, Ui.gray(), GAP);
             if (blocker == null && !BillingHelper.canAfford(fee)) blocker = "Not enough credits.";
         }
         // reference only, the list row shows them too, so they are what scrolls
@@ -236,8 +236,14 @@ class AcademyDetail {
 
             String[] rightParts = parts;
             Color[] rightColors = colors;
+            String description = Global.getSettings().getPersonaltySpec(id).getDescription();
             add(RUNG_H, i == 0 ? GAP : RUNG_STEP - RUNG_H, b -> {
-                CustomPanelAPI row = UiButtons.row(b, 0f, 0f, w, RUNG_H, selected, live, AcademyPanelDelegate.getPersonalityColor(id), pick);
+                CustomPanelAPI row = Ui.panel(b, 0f, 0f, w, RUNG_H);
+                ButtonAPI area = UiButtons.area(row, 0f, 0f, w, RUNG_H, null, selected, live, AcademyPanelDelegate.getPersonalityColor(id), Ui.CENTER, pick);
+                if (description != null && !description.isEmpty()) Ui.tooltip(row, area, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> {
+                    t.addPara(AcademyPanelDelegate.getPersonalityName(id), AcademyPanelDelegate.getPersonalityColor(id), 0f);
+                    t.addPara(description, 10f);
+                });
                 Ui.textIn(row, 14f, 0f, 96f, RUNG_H, AcademyPanelDelegate.getPersonalityName(id), Ui.INS15,
                         live ? AcademyPanelDelegate.getPersonalityColor(id) : Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
                 Ui.textIn(row, 116f, 0f, w - 126f, RUNG_H, right, Ui.INS15, color, Ui.RIGHT, rightParts, rightColors);
@@ -351,10 +357,11 @@ class AcademyDetail {
         MarketAPI market = academy.getMarket();
 
         heading(target.getSpeedUpLabel(), 0f);
-        text("Halves the days left. Usable once every " + Math.round(RelicSpeedUpTarget.COOLDOWN_DAYS) + " days.", Ui.gray(), GAP);
         add(UiData.COST_ROW_H, 4f, b -> UiData.relicRow(b, 0f, 0f, w, RelicHelper.getName(), cost, market));
+        int left = target.getSpeedUpDaysLeft();
         int after = target.getSpeedUpDaysAfter();
-        grid(4f, GridRow.of("Days left after", after + ""));
+        if (after < left) add(GRID_ROW, 4f, b -> UiData.change(b, 0f, 0f, w, GRID_ROW, "Days left", left + "", after + ""));
+        else grid(4f, GridRow.of("Days left", left + ""));
 
         String reason;
         float cooldown = target.getSpeedUpCooldownLeft();
@@ -380,13 +387,22 @@ class AcademyDetail {
     private void addAbort() {
         String blocker = view.admins ? Academy.getAdminSlotBlocker() : Academy.getOfficerSlotBlocker();
         heading("Abort", SECTION_GAP);
-        text("The fee and the progress are lost.", Ui.gray(), GAP);
 
+        String who = view.admins ? "administrator" : "officer";
+        String lost = "The fee and the progress are lost.";
         float half = Math.round((w - 7f) / 2f);
         add(UiButtons.guardHeight(w, STORE_H, blocker), GAP, row -> {
-            UiButtons.button(row, 0f, 0f, half, STORE_H, "Abort to fleet", blocker != null ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
+            ButtonAPI fleet = UiButtons.button(row, 0f, 0f, half, STORE_H, "Abort to fleet", blocker != null ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
                     blocker != null ? null : () -> abort(false));
-            UiButtons.button(row, w - half, 0f, half, STORE_H, "Abort to storage", UiButtons.Kind.RED, CutStyle.TL_BR, () -> abort(true));
+            Ui.tooltip(row, fleet, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> {
+                t.addPara("Ends the training and returns the " + who + " to you.", 0f);
+                t.addPara(lost, 10f);
+            });
+            ButtonAPI storage = UiButtons.button(row, w - half, 0f, half, STORE_H, "Abort to storage", UiButtons.Kind.RED, CutStyle.TL_BR, () -> abort(true));
+            Ui.tooltip(row, storage, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> {
+                t.addPara("Ends the training and stores the " + who + " here.", 0f);
+                t.addPara(lost, 10f);
+            });
             if (blocker != null) Ui.wrap(row, 0f, STORE_H + UiButtons.REASON_GAP, w, blocker, Ui.neg());
         });
     }
