@@ -211,8 +211,8 @@ public final class UiButtons {
     public static Color fg(Kind kind) {
         return switch (kind) {
             case GREEN, RED -> Ui.text();
-            // light text has too little contrast on the amber fill
-            case AMBER -> Misc.setAlpha(Ui.dark(), 255);
+            // near black, light or teal text has too little contrast on the amber fill
+            case AMBER -> Misc.setAlpha(Misc.scaleColorOnly(Ui.dark(), 0.2f), 255);
             case STORY -> Ui.story();
             case HOT -> Ui.bright();
             default -> Ui.base();
