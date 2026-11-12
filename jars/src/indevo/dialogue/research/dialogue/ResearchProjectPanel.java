@@ -82,8 +82,18 @@ public class ResearchProjectPanel {
         projects.sort(Comparator.comparing((ResearchProject project) -> !isReady(project, cargo))
                 .thenComparing(Comparator.comparingDouble((ResearchProject project) -> project.getProgress().points).reversed()));
 
-        UiScroll.Column list = UiScroll.list(p, 0f, LIST_Y, w, h - LIST_Y, view.scroll, ResearchView.CARDS);
-        float cw = list.width();
+        // cards differ in height, the list ends on the last card that fits whole at rest
+        float cw = w - UiScroll.GUTTER;
+        float listH = h - LIST_Y;
+        float fit = 0f;
+        for (ResearchProject project : projects) {
+            float next = fit + (fit > 0f ? CARD_GAP : 0f) + getCardHeight(project, cw, cargo);
+            if (next > listH) break;
+            fit = next;
+        }
+        if (fit > 0f && fit < listH && projects.size() > 1) listH = fit;
+
+        UiScroll.Column list = UiScroll.list(p, 0f, LIST_Y, w, listH, view.scroll, ResearchView.CARDS);
 
         if (projects.isEmpty()) Ui.text(list.block(Ui.LINE_H + 4f, 0f), 8f, 2f, cw - 16f, "No open research projects.", Ui.gray());
 
