@@ -297,7 +297,8 @@ A station pad is busy while a craft is in its last 100 su and 1 s after. A craft
 | Dogfights | Untested in game. Not verified: whether NPC fleet variants carry their final wings before the fleet is inflated near the player, how long NPC battles last in practice. The check fight is a meat grinder: fighters live about 10 s and a side that falls behind loses each new group soon after launch |
 | Run over | Craft do not get out of the way of fleets at 40 su/s or more, so run over can hit any craft in a fast fleet's way; how often is open for the live test |
 | Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split, states, trail length, service hops, the speed cap and slew, a dogfight, rush hour range and the meteor swarm distance, not flights, reactions, hits or rendering. It runs on its own, not in `ReleaseBuild` |
-| Performance | Live smoke `shuttle` group (2026-11-08, before market lanes): 55 craft at Sindria, all of `shuttletraffic` 0.4% of CPU and allocation |
+| Performance | Live smoke `trafficperf` group (2026-11-12, `--perf`, after stage 10): worst case in Askonia at 120 (about 100 craft, 32 pods, 2 dogfights with 30 fighters, 6 fleet routes) ran at 5.5 ms per frame against 6.2 ms with traffic off in the same scene; all of `shuttletraffic` 0.9% of CPU and 1.4% of allocation over the run. Frame time is too noisy to show the feature's own cost, and JFR does not see GL driver time |
+| Density | Live smoke `traffic` group (2026-11-12): most of the cap flies mid lane. At setting 40 in Askonia, market lanes want 80 to 94 craft and get 22, station supply hops get 3 of 16, pickets 0 to 3 of 8 (local reserve 10); 3 to 13 craft within 800 su of Sindria. Parked `ORBIT_PASSIVE` fleets often move at 20 to 60 su/s, so the 40 su/s fleet tied gate turns their service craft on and off |
 
 ## Checks
 
@@ -309,7 +310,7 @@ java -cp "out/release-build-<n>/classes:lib/*" indevo.tools.ShuttleTrafficChecks
 
 Use `;` in place of `:` on Windows. It prints `Shuttle traffic: N checks passed` or every failure and exits 1. It refuses to run inside the game. In IntelliJ: an Application run configuration with main class `indevo.tools.ShuttleTrafficChecks`, module `IndEvo`, working directory the repository root.
 
-The native smoke `shuttle` group ([SMOKE_TESTS.md](../SMOKE_TESTS.md)) reads the craft list through `ShuttleTrafficRenderer.getTraffic().getShuttles()`: ms per frame, craft per route kind, and a check that local flights still launch.
+The native smoke `shuttle` group ([SMOKE_TESTS.md](../SMOKE_TESTS.md)) reads the craft list through `ShuttleTrafficRenderer.getTraffic().getShuttles()`: ms per frame, craft per route kind, and a check that local flights still launch. The `traffic` group counts route demand, max and active per market and the craft near each market; `trafficperf` is the worst case for performance.
 
 ## Maintenance
 
