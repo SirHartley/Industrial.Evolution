@@ -195,6 +195,17 @@ public final class UiAudit {
         return null;
     }
 
+    // the n-th enabled button without own text (toggles, rows, checkboxes draw their text elsewhere)
+    public static boolean clickUntitled(Object root, int n) {
+        for (Object node : all(root)) {
+            if (node instanceof ButtonAPI b && b.getText() == null && b.isEnabled() && b.getCustomData() instanceof Runnable action && n-- == 0) {
+                action.run();
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static String buttonTexts(Object node) {
         StringBuilder out = new StringBuilder();
         for (Object child : all(node)) if (child instanceof ButtonAPI b) out.append("[").append(b.getText()).append(b.getCustomData() instanceof Runnable ? " r" : "").append("]");

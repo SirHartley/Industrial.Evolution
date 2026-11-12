@@ -82,11 +82,15 @@ public final class LabUiChecks {
         CargoAPI shared = MiscIE.getIndustrialStorageCargo(a);
         CargoAPI storage = Misc.getStorageCargo(a);
         for (int i = 0; i < TEMPLATES.length; i++) {
-            SpecialItemData data = ForgeTemplateItemPlugin.createForgeTemplate(TEMPLATES[i], 3 + i % 3);
+            SpecialItemData data = ForgeTemplateItemPlugin.createForgeTemplate(variant(TEMPLATES[i]), 3 + i % 3);
             ForgeTemplateItemPlugin.incrementForgeTemplateQualityLevel(data, 1 + i % 3);
             (i % 2 == 0 ? shared : storage).addSpecial(data, 1 + i % 2);
             if (i == 0) c.put("level1", Ids.SHAREDSTORAGE + "|" + data.getData());
         }
+    }
+
+    private static com.fs.starfarer.api.combat.ShipVariantAPI variant(String hullId) {
+        return Global.getSettings().getVariant(Global.getSettings().getHullIdToVariantListMap().get(hullId).get(0)).clone();
     }
 
     private static void ship(Ctx c, String variant, boolean storage) {

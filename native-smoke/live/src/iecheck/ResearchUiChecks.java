@@ -91,7 +91,7 @@ public final class ResearchUiChecks {
         });
         UiViews.view(steps, "research-items", c -> open(c, new Host(0f, Ids.PROJ_KEYHOLE, Ids.PROJ_TRANSISTOR)));
         UiViews.view(steps, "research-scrolled", c -> open(c, new Host(100000f, Ids.PROJ_PULSE)),
-                (c, panel) -> c.note("stock clicked " + UiAudit.click(panel.content(), "Stock") + " " + UiAudit.buttonTexts(panel.content())));
+                (c, panel) -> c.expect(UiAudit.clickUntitled(panel.content(), 0), "first card toggle clicked"));
         UiViews.view(steps, "research-empty", c -> {
             for (ResearchProject p : ResearchProjectTemplateRepo.RESEARCH_PROJECTS.values()) p.getProgress().redeemed = true;
             open(c, new Host(0f));

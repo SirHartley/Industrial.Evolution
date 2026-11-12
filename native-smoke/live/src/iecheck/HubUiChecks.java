@@ -128,7 +128,10 @@ public final class HubUiChecks {
 
     private static void reverse(Ctx c, int drop) {
         EngineeringHub hub = hub(c);
-        for (int i = 0; i < PROGRESS.length; i++) hub.researchProgressList.put(PROGRESS[i], i < 2 ? 1f : 0.15f * i);
+        Map<String, Float> progress = new LinkedHashMap<>();
+        for (int i = 0; i < PROGRESS.length; i++) progress.put(PROGRESS[i], i < 2 ? 1f : 0.15f * i);
+        // the hub reloads its list from this sector memory key (EngineeringHub.RESEARCH_LIST_KEY)
+        MiscIE.storeMapInMemory(progress, "$IndEvo_researchProgress");
         hub.setCurrentDeconShipVar(Global.getSettings().getVariant("hammerhead_Balanced").clone());
         ReflectionUtils.set("daysPassed", hub, 3);
         CargoAPI dropCargo = c.market("a").getSubmarket(Ids.ENGSTORAGE).getCargo();
@@ -144,7 +147,7 @@ public final class HubUiChecks {
         for (CargoAPI cargo : new CargoAPI[]{MiscIE.getStorageCargo(a), MiscIE.getIndustrialStorageCargo(a), MiscIE.getPlayerCargo()}) {
             if (cargo != null) cargo.removeCommodity(ItemIds.RARE_PARTS, cargo.getCommodityQuantity(ItemIds.RARE_PARTS));
         }
-        MiscIE.getIndustrialStorageCargo(a).addCommodity(ItemIds.RARE_PARTS, amount);
+        MiscIE.getStorageCargo(a).addCommodity(ItemIds.RARE_PARTS, amount);
     }
 
     private static EngineeringHub hub(Ctx c) {
