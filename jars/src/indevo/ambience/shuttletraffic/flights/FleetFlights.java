@@ -25,6 +25,7 @@ import indevo.ambience.shuttletraffic.ShuttleTarget;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
 import indevo.ambience.shuttletraffic.SpeedClass;
 import indevo.config.Setting;
+import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -96,7 +97,7 @@ public class FleetFlights extends BaseFlights {
         if ((trades.isEmpty() && raids.isEmpty()) || Global.getSector().getCampaignUI().isShowingDialog()) return;
 
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
-        if (player == null || isFast(player)) {
+        if (player == null) {
             clearQueue();
             return;
         }
@@ -118,7 +119,7 @@ public class FleetFlights extends BaseFlights {
     }
 
     private void launchTrade(ShuttleAnchor pad, CampaignFleetAPI player, int count, boolean toFleet, boolean dark) {
-        if (!canFly(pad, pad) || Misc.getDistance(player.getLocation(), pad.getLocation()) - pad.getRadius() > TRADE_RANGE) return;
+        if (!canFly(pad, pad) || isFast(player, pad) || Misc.getDistance(player.getLocation(), pad.getLocation()) - pad.getRadius() > TRADE_RANGE) return;
 
         String key = ShuttleRoute.Kind.TRADE.name() + "|" + pad.entity.getId();
         ShuttleRoute route = traffic.getFleetRoutes().get(key);
@@ -161,6 +162,8 @@ public class FleetFlights extends BaseFlights {
             ShuttleAnchor.Type type = entity instanceof PlanetAPI ? ShuttleAnchor.Type.PLANET : ShuttleAnchor.Type.STATION;
             pad = new ShuttleAnchor(entity, type, ShuttleAnchor.Role.TARGET, raid.market(), raid.market().getFaction());
         }
+
+        if (isFast(player, pad)) return;
 
         ShuttleBudget budget = traffic.getBudget();
         budget.count(traffic.getShuttles());
@@ -225,7 +228,7 @@ public class FleetFlights extends BaseFlights {
                 // survey craft fly back on their own, they only go with the fleet
                 case SURVEY -> !route.seen && (route.active <= 0 || !route.fleet.isAlive() || route.fleet.getContainingLocation() != traffic.getLocation());
                 // the burst only shows while the player stays near the pad
-                case TRADE -> route.active <= 0 || route.fleet.getContainingLocation() != traffic.getLocation() || isFast(route.fleet)
+                case TRADE -> route.active <= 0 || route.fleet.getContainingLocation() != traffic.getLocation() || isFast(route.fleet, route.a)
                         || Misc.getDistance(route.fleet.getLocation(), route.a.getLocation()) - route.a.getRadius() > TRADE_RANGE;
                 default -> false;
             };
@@ -238,8 +241,21 @@ public class FleetFlights extends BaseFlights {
         turnBackFromFastFleets();
     }
 
-    public static boolean isFast(CampaignFleetAPI fleet) {
-        return fleet.getVelocity().length() >= SpeedClass.FLEET_TIED_MAX_SPEED;
+    // speed against the pad the fleet is at: a planet moves up to 40 su/s on its orbit and a fleet in orbit moves with it
+    public static boolean isFast(CampaignFleetAPI fleet, ShuttleAnchor pad) {
+        Vector2f velocity = fleet.getVelocity();
+        float vx = velocity.x - (pad != null ? pad.velocity.x : 0f);
+        float vy = velocity.y - (pad != null ? pad.velocity.y : 0f);
+        return vx * vx + vy * vy >= SpeedClass.FLEET_TIED_MAX_SPEED * SpeedClass.FLEET_TIED_MAX_SPEED;
+    }
+
+    // the planet or station end of a craft tied to a fleet
+    private static ShuttleAnchor getPad(Shuttle shuttle) {
+        ShuttleAnchor from = shuttle.getFrom();
+        if (from != null && from.type != ShuttleAnchor.Type.FLEET) return from;
+
+        ShuttleAnchor to = shuttle.getTo();
+        return to != null && to.type != ShuttleAnchor.Type.FLEET ? to : null;
     }
 
     // craft bound for a fleet that got fast turn back to where they came from, or the nearest refuge; craft from it carry on
@@ -247,7 +263,7 @@ public class FleetFlights extends BaseFlights {
         for (Shuttle shuttle : traffic.getShuttles()) {
             CampaignFleetAPI fleet = shuttle.getTiedFleet();
             ShuttleAnchor to = shuttle.getTo();
-            if (fleet == null || to == null || to.type != ShuttleAnchor.Type.FLEET || !isFast(fleet) || !shuttle.canRedirect() || shuttle.isFollower()) continue;
+            if (fleet == null || to == null || to.type != ShuttleAnchor.Type.FLEET || !isFast(fleet, getPad(shuttle)) || !shuttle.canRedirect() || shuttle.isFollower()) continue;
 
             ShuttleAnchor back = shuttle.getFrom();
             if (back == null || back.type == ShuttleAnchor.Type.FLEET || !back.isUsable(traffic.getLocation())) {
@@ -303,7 +319,7 @@ public class FleetFlights extends BaseFlights {
     private boolean isSurveying(ShuttleFleetScan.Entry entry) {
         CampaignFleetAPI fleet = entry.fleet;
         if (!ShuttleFleetScan.isScavenger(entry.type) || entry.assignment != FleetAssignment.PATROL_SYSTEM || entry.target == null) return false;
-        if (fleet.getVisibilityLevelToPlayerFleet() == SectorEntityToken.VisibilityLevel.NONE || isFast(fleet)) return false;
+        if (fleet.getVisibilityLevelToPlayerFleet() == SectorEntityToken.VisibilityLevel.NONE || isFast(fleet, network.anchors.get(entry.target))) return false;
 
         SectorEntityToken target = entry.target;
         return target.isAlive() && target.getContainingLocation() == traffic.getLocation()
@@ -354,12 +370,12 @@ public class FleetFlights extends BaseFlights {
     private ShuttleAnchor findServicePad(ShuttleFleetScan.Entry entry) {
         CampaignFleetAPI fleet = entry.fleet;
         if (fleet == null || fleet.isPlayerFleet() || fleet.isStationMode() || !fleet.isAlive()) return null;
-        if (entry.assignment != FleetAssignment.ORBIT_PASSIVE || isFast(fleet)) return null;
+        if (entry.assignment != FleetAssignment.ORBIT_PASSIVE) return null;
         if (fleet.getVisibilityLevelToPlayerFleet() == SectorEntityToken.VisibilityLevel.NONE) return null;
 
         ShuttleAnchor pad = entry.target != null ? network.anchors.get(entry.target) : null;
         if (pad == null || pad.role != ShuttleAnchor.Role.MARKET) pad = findNearestMarket(fleet);
-        if (pad == null || !pad.isUsable(traffic.getLocation()) || pad.faction == null || pad.faction.isHostileTo(fleet.getFaction())) return null;
+        if (pad == null || !pad.isUsable(traffic.getLocation()) || pad.faction == null || pad.faction.isHostileTo(fleet.getFaction()) || isFast(fleet, pad)) return null;
 
         float gap = Misc.getDistance(fleet.getLocation(), pad.getLocation()) - pad.getRadius();
         return gap <= ARRIVED_RANGE ? pad : null;

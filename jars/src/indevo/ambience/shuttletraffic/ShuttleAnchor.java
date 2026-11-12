@@ -48,6 +48,10 @@ public class ShuttleAnchor {
     public float liveliness = 1f;
     // the player is close enough to see its local flights, set every scan
     public boolean near = false;
+    // world velocity from the last two scans: planets and stations move on orbits, and a fleet parked at one moves with it
+    public final Vector2f velocity = new Vector2f();
+    private final Vector2f lastLoc = new Vector2f();
+    private boolean lastKnown = false;
     // body cruises and training flights fly out to and lap, picked once and kept while it stays in range
     public SectorEntityToken sight;
 
@@ -62,6 +66,13 @@ public class ShuttleAnchor {
     // craft fly to and from a fleet like a station without a pad
     public static ShuttleAnchor forFleet(CampaignFleetAPI fleet) {
         return new ShuttleAnchor(fleet, Type.FLEET, Role.FLEET, null, fleet.getFaction());
+    }
+
+    public void updateMotion(float seconds) {
+        Vector2f loc = entity.getLocation();
+        if (lastKnown && seconds > 0f) velocity.set((loc.x - lastLoc.x) / seconds, (loc.y - lastLoc.y) / seconds);
+        lastLoc.set(loc);
+        lastKnown = true;
     }
 
     public Shuttle.End getEnd() {

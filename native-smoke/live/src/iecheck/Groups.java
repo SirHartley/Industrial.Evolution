@@ -66,6 +66,8 @@ public final class Groups {
                 return MeteorChecks.steps();
             case "trafficperf":
                 return TrafficPerfChecks.steps();
+            case "trafficapproach":
+                return TrafficChecks.approachSteps();
             case "traffic":
                 return TrafficChecks.steps();
             case "shuttle":

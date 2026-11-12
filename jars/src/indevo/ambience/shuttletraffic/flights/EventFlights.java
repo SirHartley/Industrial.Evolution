@@ -141,7 +141,7 @@ public class EventFlights extends BaseFlights {
 
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         ShuttleAnchor colony = pad;
-        if (player != null && player.getContainingLocation() == traffic.getLocation() && !FleetFlights.isFast(player) && Misc.getDistance(player.getLocation(), planet.getLocation()) <= SETTLER_FLEET_RANGE) {
+        if (player != null && player.getContainingLocation() == traffic.getLocation() && !FleetFlights.isFast(player, pad) && Misc.getDistance(player.getLocation(), planet.getLocation()) <= SETTLER_FLEET_RANGE) {
             Shuttle shuttle = create(hull, null, faction, ShuttleAnchor.forFleet(player), pad, paths.servicePath(pad, player, false, false), SpeedClass.SERVICE, 1f, 0f,
                     ShuttleLook.SERVICE, TRAITS);
             shuttle.tieTo(player);

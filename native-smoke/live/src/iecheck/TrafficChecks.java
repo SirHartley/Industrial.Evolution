@@ -132,7 +132,19 @@ public final class TrafficChecks {
         c.note(tag + " orbit_passive fleets " + passive + ", at 40+ su/s " + fast + ", visible " + visible + ", fleet routes " + t.getFleetRoutes().size() + ": " + sb);
     }
 
-    private static final Map<String, Integer> around = new HashMap<>();
+    // craft around each market over the samples of its system: one sample swings too much to compare markets
+    private static final Map<String, int[]> around = new HashMap<>();
+
+    private static void sample(String entityId) {
+        int[] sum = around.computeIfAbsent(entityId, x -> new int[2]);
+        sum[0] += around(Global.getSector().getEntityById(entityId));
+        sum[1]++;
+    }
+
+    private static float mean(String entityId) {
+        int[] sum = around.get(entityId);
+        return sum == null || sum[1] == 0 ? 0f : sum[0] / (float) sum[1];
+    }
     private static final Map<Shuttle, Vector2f> start = new IdentityHashMap<>();
     private static final Map<Shuttle, Float> startAge = new IdentityHashMap<>();
 
@@ -180,12 +192,14 @@ public final class TrafficChecks {
 
     // the player sits 500 su off the market like a parked fleet; the base save's move destination would fly it off otherwise
     private static SectorEntityToken pin;
+    private static float pinX = 400f;
+    private static float pinY = 300f;
 
     private static void pin() {
         if (pin == null) return;
         com.fs.starfarer.api.campaign.CampaignFleetAPI player = Global.getSector().getPlayerFleet();
-        float x = pin.getLocation().x + 400f;
-        float y = pin.getLocation().y + 300f;
+        float x = pin.getLocation().x + pinX;
+        float y = pin.getLocation().y + pinY;
         player.setLocation(x, y);
         player.setMoveDestination(x, y);
         player.setVelocity(0f, 0f);
@@ -204,18 +218,24 @@ public final class TrafficChecks {
             SectorEntityToken e = Global.getSector().getEntityById(entityId);
             Colony.jump(e.getContainingLocation(), e.getLocation().x + 400f, e.getLocation().y + 300f);
             pin = e;
+            pinX = 400f;
+            pinY = 300f;
             wait(c, 120, tag + " entered", () -> report(c, tag + " t0"));
         });
         steps.add(c -> wait(c, 60, tag + " mark", TrafficChecks::markSpeeds));
         steps.add(c -> wait(c, 600, tag + " 10 s", () -> {
             report(c, tag + " t10s");
+            sample(entityId);
             fleets(c, tag + " t10s");
             speeds(c, tag + " t10s");
         }));
         steps.add(c -> c.shot("traffic_" + tag));
         for (int i = 1; i <= 2; i++) {
             int round = i;
-            steps.add(c -> wait(c, 1800, tag + " 30 s round " + round, () -> report(c, tag + " +" + round * 30 + "s")));
+            steps.add(c -> wait(c, 1800, tag + " 30 s round " + round, () -> {
+                report(c, tag + " +" + round * 30 + "s");
+                sample(entityId);
+            }));
         }
         steps.add(c -> wait(c, 60, tag + " mark2", TrafficChecks::markSpeeds));
         steps.add(c -> wait(c, 600, tag + " 10 s again", () -> {
@@ -223,16 +243,72 @@ public final class TrafficChecks {
             fleets(c, tag + " late");
             ShuttleTraffic t = traffic();
             c.expect(t != null && t.getShuttles().size() > 0, tag + " has craft (" + (t == null ? -1 : t.getShuttles().size()) + ")");
-            SectorEntityToken e = Global.getSector().getEntityById(entityId);
-            int n = 0;
-            if (t != null) for (Shuttle s : t.getShuttles()) if (Vector2f.sub(s.pos, e.getLocation(), new Vector2f()).length() < e.getRadius() + 800f) n++;
-            around.put(entityId, n);
-            c.note(tag + " craft within radius + 800 of " + e.getName() + ": " + n);
+            sample(entityId);
+            c.note(tag + " craft within radius + 800 of " + Global.getSector().getEntityById(entityId).getName() + ": mean " + mean(entityId) + " of " + around.get(entityId)[1] + " samples");
         }));
+    }
+
+    private static int around(SectorEntityToken e) {
+        ShuttleTraffic t = traffic();
+        int n = 0;
+        if (t != null) for (Shuttle s : t.getShuttles()) if (!s.isDown() && Vector2f.sub(s.pos, e.getLocation(), new Vector2f()).length() < e.getRadius() + 800f) n++;
+        return n;
+    }
+
+    // what a player gets: enter the system far from the hub, let it run, cross the near range, arrive 10 s later
+    private static void approach(List<Step> steps, String entityId, String tag, int want) {
+        int[] arrival = {0};
+        steps.add(c -> {
+            SectorEntityToken e = Global.getSector().getEntityById(entityId);
+            Vector2f loc = e.getLocation();
+            float len = Math.max(1f, loc.length());
+            pin = e;
+            pinX = loc.x / len * 9000f;
+            pinY = loc.y / len * 9000f;
+            Colony.jump(e.getContainingLocation(), loc.x + pinX, loc.y + pinY);
+            wait(c, 3600, tag + " approach: 60 s far out", () -> {
+                ShuttleTraffic t = traffic();
+                c.note(tag + " approach far out: " + (t == null ? -1 : t.getShuttles().size()) + " craft in the system, " + around(e) + " at the hub");
+            });
+        });
+        steps.add(c -> {
+            SectorEntityToken e = Global.getSector().getEntityById(entityId);
+            float scale = (e.getRadius() + 3600f) / 9000f;
+            pinX *= scale;
+            pinY *= scale;
+            wait(c, 600, tag + " approach: 10 s inside the near range", () -> c.note(tag + " approach 3600 su out for 10 s: " + around(e) + " at the hub"));
+        });
+        steps.add(c -> {
+            SectorEntityToken e = Global.getSector().getEntityById(entityId);
+            pinX = 400f;
+            pinY = 300f;
+            wait(c, 30, tag + " approach: arrival", () -> {
+                arrival[0] = around(e);
+                report(c, tag + " approach arrival");
+                fleets(c, tag + " approach arrival");
+            });
+        });
+        steps.add(c -> c.shot("approach_" + tag));
+        steps.add(c -> wait(c, 600, tag + " approach: 10 s at the hub", () -> c.note(tag + " approach +10 s: " + around(Global.getSector().getEntityById(entityId)) + " at the hub")));
+        steps.add(c -> wait(c, 1200, tag + " approach: 30 s at the hub", () -> {
+            int late = around(Global.getSector().getEntityById(entityId));
+            c.note(tag + " approach +30 s: " + late + " at the hub");
+            c.expect(arrival[0] >= want, tag + " greets the player with " + want + " craft or more on arrival (" + arrival[0] + ", " + late + " after 30 s)");
+        }));
+    }
+
+    public static List<Step> approachSteps() {
+        List<Step> steps = new ArrayList<>();
+        steps.add(c -> Colony.setting(Setting.SHUTTLE_TRAFFIC, 80));
+        approach(steps, "chicomoztoc", "aztlan", 20);
+        approach(steps, "sindria", "askonia", 16);
+        approach(steps, "jangala", "corvus", 8);
+        return steps;
     }
 
     public static List<Step> steps() {
         List<Step> steps = new ArrayList<>();
+        around.clear();
         steps.add(c -> {
             Colony.setting(Setting.SHUTTLE_TRAFFIC, 80);
             c.note("setting " + Setting.SHUTTLE_TRAFFIC.id + " 80");
@@ -241,8 +317,9 @@ public final class TrafficChecks {
         system(steps, "arcadia_station", "arcadia");
         system(steps, "sindria", "askonia");
         system(steps, "jangala", "corvus");
-        steps.add(c -> c.expect(around.getOrDefault("chicomoztoc", 0) >= 2 * Math.max(1, around.getOrDefault("arcadia_station", 0)),
-                "Chicomoztoc busier than Citadel Arcadia (" + around + ")"));
+        steps.add(c -> c.expect(mean("chicomoztoc") >= 2f * Math.max(1f, mean("arcadia_station")),
+                "Chicomoztoc at least twice as busy as Citadel Arcadia (means: Chicomoztoc " + mean("chicomoztoc") + ", Sindria " + mean("sindria") + ", Jangala " + mean("jangala")
+                        + ", Citadel Arcadia " + mean("arcadia_station") + ")"));
         return steps;
     }
 }
