@@ -40,6 +40,8 @@ public class ShuttleTraffic {
     private float days = 0f;
     private float daysSinceRebuild = 0f;
     private float scanTimer = 0f;
+    private float sinceMotion = 0f;
+    private final List<ShuttleAnchor> arrived = new ArrayList<>();
 
     public void advance(float amount, CampaignFleetAPI player, int cap) {
         LocationAPI current = player != null ? player.getContainingLocation() : null;
@@ -60,7 +62,7 @@ public class ShuttleTraffic {
             location = current;
             network.rebuild(location, random, Global.getSector().getClock().getElapsedDaysSince(0L));
             network.updateSwarms(location);
-            network.updateNear(player.getLocation());
+            network.updateNear(player.getLocation(), null);
             budget.update(network.routes.values(), cap);
             fleetScan.scan(location, player);
             reactions.updateThreats();
@@ -71,7 +73,7 @@ public class ShuttleTraffic {
                 daysSinceRebuild = 0f;
                 ShuttleHullPool.dropStaleFactionPools();
                 network.rebuild(location, random, Global.getSector().getClock().getElapsedDaysSince(0L));
-                network.updateNear(player.getLocation());
+                network.updateNear(player.getLocation(), null);
                 budget.update(network.routes.values(), cap);
                 spawner.rollRareFlights();
             }
@@ -80,11 +82,18 @@ public class ShuttleTraffic {
         if (cap != budget.getCap()) budget.update(network.routes.values(), cap);
 
         scanTimer -= amount;
+        sinceMotion += amount;
         if (scanTimer <= 0f) {
             scanTimer = SCAN_INTERVAL;
             fleetScan.scan(location, player);
             network.updateSwarms(location);
-            if (network.updateNear(player.getLocation())) budget.update(network.routes.values(), cap);
+            network.updateMotion(sinceMotion);
+            sinceMotion = 0f;
+            arrived.clear();
+            if (network.updateNear(player.getLocation(), arrived)) {
+                budget.update(network.routes.values(), cap);
+                if (!arrived.isEmpty()) spawner.warmStart(arrived, player.getLocation());
+            }
             reactions.updateThreats();
             reactions.react();
             flights.getFleets().update();

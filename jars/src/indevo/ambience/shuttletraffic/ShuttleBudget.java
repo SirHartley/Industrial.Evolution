@@ -3,7 +3,7 @@ package indevo.ambience.shuttletraffic;
 import java.util.Collection;
 import java.util.List;
 
-// splits the traffic cap: local flights near the player keep a reserve, rare flights fit while there is room, lanes share the rest
+// splits the traffic cap: local flights keep a reserve that only markets near the player fly, rare flights fit while there is room, lanes share the rest
 // fleet tied craft have their own cap on top of the setting
 public class ShuttleBudget {
 
@@ -29,21 +29,28 @@ public class ShuttleBudget {
         this.fleetCap = Math.max(0, cap / FLEET_DIVISOR);
 
         int localDemand = 0;
+        int nearDemand = 0;
         int laneDemand = 0;
         for (ShuttleRoute route : routes) {
-            if (route.kind.group == Group.LOCAL) localDemand += isNear(route) ? route.demand * route.kind.craftPerFlight : 0;
-            else if (route.kind.group == Group.LANES) laneDemand += route.demand;
+            if (route.kind.group == Group.LOCAL) {
+                localDemand += route.demand * route.kind.craftPerFlight;
+                if (isNear(route)) nearDemand += route.demand * route.kind.craftPerFlight;
+            } else if (route.kind.group == Group.LANES) {
+                laneDemand += route.demand;
+            }
         }
 
+        // held from lanes even with no market near: a lane flight takes minutes, a hub must not wait for lane craft to land
         localReserve = Math.min(localDemand, (int) (cap * LOCAL_SHARE));
         int laneBudget = Math.max(0, cap - localReserve);
         float scale = laneDemand > laneBudget ? laneBudget / (float) laneDemand : 1f;
+        float localScale = nearDemand > localReserve ? localReserve / (float) nearDemand : 1f;
 
         laneReserve = 0;
         for (ShuttleRoute route : routes) {
             route.max = switch (route.kind.group) {
                 case LANES -> Math.max(1, (int) (route.demand * scale));
-                case LOCAL -> isNear(route) ? route.demand : 0;
+                case LOCAL -> isNear(route) ? Math.max(1, (int) (route.demand * localScale)) : 0;
                 default -> route.demand;
             };
             if (route.kind.group == Group.LANES) laneReserve += route.max;

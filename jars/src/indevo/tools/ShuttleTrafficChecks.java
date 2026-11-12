@@ -105,6 +105,7 @@ public final class ShuttleTrafficChecks {
             run.checkStarPass();
             run.checkStates();
             run.checkCruise();
+            run.checkSurfaceHop();
             run.checkBudget();
             run.checkTrail();
             run.checkFleetHop();
@@ -644,6 +645,42 @@ public final class ShuttleTrafficChecks {
         }
     }
 
+    // a surface hop starts and ends on its planet, clears the limb in between and stays close
+    private void checkSurfaceHop() {
+        for (int seed = 0; seed < 40; seed++) {
+            Body home = new Body(0f, 0f, 60f + seed * 6f);
+            orbit(home, 2500f, 30f, 0f);
+            ShuttlePath path = new ShuttlePaths(new ShuttleNetwork(), new Random(seed)).surfacePath(anchor(home));
+            path.rebuild();
+
+            float time = 0f;
+            float farthest = 0f;
+            float atHalf = 0f;
+            float total = path.getLength();
+            ShuttlePath.Cursor cursor = new ShuttlePath.Cursor();
+            Vector2f point = new Vector2f();
+            path.getPoint(cursor, point);
+            float start = Vector2f.sub(point, home.loc, null).length();
+            boolean done = false;
+            while (!done && time < 300f) {
+                time += 1f / 60f;
+                orbit(home, 2500f, 30f, time);
+                path.refresh(cursor);
+                done = path.move(cursor, SPEED / 60f);
+                path.getPoint(cursor, point);
+                float dist = Vector2f.sub(point, home.loc, null).length();
+                farthest = Math.max(farthest, dist);
+                if (Math.abs(path.getTraveled(cursor) - total * 0.5f) < SPEED / 60f) atHalf = dist;
+            }
+
+            String name = "surface hop seed " + seed;
+            check(done, name + ": never ended");
+            check(start <= home.radius && Vector2f.sub(point, home.loc, null).length() <= home.radius, name + ": does not start and end on the planet");
+            check(atHalf >= home.radius * 1.05f, name + ": half way only " + atHalf / home.radius + " radii out");
+            check(farthest <= home.radius * 2.2f, name + ": flies " + farthest / home.radius + " radii out");
+        }
+    }
+
     // a busy system keeps room for local flights, lanes scale down but keep one flight each, rare flights fit while there is room
     private void checkBudget() {
         List<ShuttleRoute> routes = new ArrayList<>();
@@ -680,7 +717,7 @@ public final class ShuttleTrafficChecks {
         check(budget.getRoom(ShuttleBudget.Group.LANES) == 58 && budget.getRoom(ShuttleBudget.Group.LOCAL) == 57,
                 "quiet system rooms " + budget.getRoom(ShuttleBudget.Group.LANES) + " and " + budget.getRoom(ShuttleBudget.Group.LOCAL));
 
-        // local flights of a market out of the player's sight launch nothing and reserve nothing, lanes keep flying
+        // local flights of a market out of the player's sight launch nothing but keep their reserve, lanes keep flying
         ShuttleAnchor far = new ShuttleAnchor(null, ShuttleAnchor.Type.PLANET, ShuttleAnchor.Role.MARKET, null, null);
         ShuttleAnchor near = new ShuttleAnchor(null, ShuttleAnchor.Type.PLANET, ShuttleAnchor.Role.MARKET, null, null);
         near.near = true;
@@ -691,10 +728,25 @@ public final class ShuttleTrafficChecks {
         check(sight.get(1).max == 0 && sight.get(2).max == 0, "local flights of a far market keep " + sight.get(1).max + " and " + sight.get(2).max);
         check(sight.get(3).max == 4 && sight.get(4).max == 1, "local flights of a near market got " + sight.get(3).max + " and " + sight.get(4).max);
         budget.count(List.of());
-        check(budget.getRoom(ShuttleBudget.Group.LANES) == 54, "far local flights still reserve room: lanes get " + budget.getRoom(ShuttleBudget.Group.LANES));
+        check(budget.getRoom(ShuttleBudget.Group.LANES) == 46, "lanes took the reserve of far local flights: lanes get " + budget.getRoom(ShuttleBudget.Group.LANES));
         far.near = true;
         budget.update(sight, 60);
         check(sight.get(1).max == 4 && sight.get(2).max == 2, "local flights did not come back once the player was near");
+
+        // a hub the player flies to after the lanes filled up launches its local flights at once, scaled into the reserve
+        ShuttleAnchor hub = new ShuttleAnchor(null, ShuttleAnchor.Type.PLANET, ShuttleAnchor.Role.MARKET, null, null);
+        List<ShuttleRoute> busy = List.of(route(ShuttleRoute.Kind.MARKET, 100, hub), route(ShuttleRoute.Kind.SUPPLY, 20, hub), route(ShuttleRoute.Kind.SURFACE, 16, hub),
+                route(ShuttleRoute.Kind.PICKET, 2, hub));
+        budget.update(busy, 60);
+        int lanesOut = busy.get(0).max;
+        check(lanesOut == 36, "lanes fly " + lanesOut + " of 60 with a far hub, want 36");
+        budget.count(List.of());
+        budget.add(ShuttleBudget.Group.LANES, lanesOut);
+        hub.near = true;
+        budget.update(busy, 60);
+        check(budget.getRoom(ShuttleBudget.Group.LOCAL) == 24, "a hub gets " + budget.getRoom(ShuttleBudget.Group.LOCAL) + " local craft on arrival with the lanes full, want 24");
+        int localMax = busy.get(1).max + busy.get(2).max + busy.get(3).max * ShuttleRoute.Kind.PICKET.craftPerFlight;
+        check(localMax <= 24 && localMax >= 20 && busy.get(3).max >= 1, "local flights over the reserve scaled to " + localMax + " craft, want 20 to 24");
     }
 
     // a big hub is many times livelier than a small military station, a size 5 market at density 1 is 1
