@@ -48,7 +48,7 @@ class RegistryTab {
         }
 
         String name() {
-            return wing ? Global.getSettings().getFighterWingSpec(id).getWingName() + " wing" : Global.getSettings().getWeaponSpec(id).getWeaponName();
+            return wing ? AssemblyTab.wingName(Global.getSettings().getFighterWingSpec(id)) : Global.getSettings().getWeaponSpec(id).getWeaponName();
         }
     }
 
@@ -233,7 +233,7 @@ class RegistryTab {
         Ui.text(row, x - 1f, CELL + 1f, CELL + 2f, Ui.fit(spec.getWingName(), Ui.VIC10, CELL + 2f), Ui.VIC10, Ui.gray(), Ui.CENTER);
 
         String role = spec.getRoleDesc() != null ? spec.getRoleDesc() : "Fighter wing";
-        Ui.tooltip(row, area, spec.getWingName() + " wing", itemLines(role, count, inOrder, ProductionItemType.FIGHTER, id, reason));
+        Ui.tooltip(row, area, AssemblyTab.wingName(spec), itemLines(role, count, inOrder, ProductionItemType.FIGHTER, id, reason));
     }
 
     private int perRow(float w) {

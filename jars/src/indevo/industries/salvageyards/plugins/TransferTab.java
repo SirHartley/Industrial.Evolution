@@ -34,7 +34,7 @@ class TransferTab {
     static final float MOD_ICON = 28f;
     static final float SLOT_H = 44f;
     static final float SLOT_GAP = 6f;
-    static final float SLOT_MAX_W = 150f;
+    static final float SLOT_MAX_W = 230f;
     static final float CHECK_H = 20f;
     static final float COST_H = 24f;
     static final float BUTTON_H = 30f;
@@ -293,7 +293,7 @@ class TransferTab {
     }
 
     private void addSlots(CustomPanelAPI p, float x, float y, float w, float h) {
-        UiScroll.Column column = UiScroll.list(p, x, y, w + UiScroll.GUTTER, h, view.scroll, SalvageYardsView.SLOTS);
+        UiScroll.Column column = UiScroll.list(p, x, y, w, h, view.scroll, SalvageYardsView.SLOTS);
         float cw = column.width();
 
         if (target == null) {

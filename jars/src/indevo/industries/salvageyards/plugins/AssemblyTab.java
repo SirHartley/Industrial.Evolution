@@ -48,7 +48,7 @@ class AssemblyTab {
     static final float BUTTON_H = 26f;
     static final float SCRAP_CELLS_W = 140f;
     static final float SLIDER_ICON = 28f;
-    static final float ACCEL_W = 132f;
+    static final float ACCEL_W = 150f;
     // rule gap, buttons, scrapped heading and row, running heading, two running rows
     static final float BOTTOM_H = 10f + 40f + 24f + 54f + 24f + RUN_H;
 
@@ -122,7 +122,7 @@ class AssemblyTab {
             default -> {
                 FighterWingSpecAPI spec = Global.getSettings().getFighterWingSpec(line.id());
                 UiImages.wing(row, 4f, 2f, SPRITE, line.id(), true, false);
-                name = spec.getWingName() + " wing";
+                name = wingName(spec);
                 sub = spec.getRoleDesc() != null ? spec.getRoleDesc() : "Fighter wing";
             }
         }
@@ -135,7 +135,7 @@ class AssemblyTab {
         String sourceSub = null;
         Color sourceSubColor = Ui.gray();
         if (line.capped()) {
-            sourceSub = "Limited to the Wreck Registry: " + Ui.num(line.limit());
+            sourceSub = "Limited to " + Ui.num(line.limit()) + " in the registry";
             sourceSubColor = Ui.neg();
         } else if (line.type() == YardsContract.Type.REGISTRY_HULL) {
             sourceSub = "as fitted · " + Ui.num(line.salvageUnits()) + " salvage units";
@@ -349,12 +349,18 @@ class AssemblyTab {
         int total = order.getSpeedUpDaysTotal();
         int left = order.getSpeedUpDaysLeft();
         float done = total <= 0 ? 1f : Math.max(0f, Math.min(1f, (total - left) / (float) total));
-        UiData.bar(row, 250f, 13f, 190f, 20f, done, Ui.barBlue(), "Day " + Math.max(0, total - left) + " of " + total);
+        UiData.bar(row, 250f, 13f, 170f, 20f, done, Ui.barBlue(), "Day " + Math.max(0, total - left) + " of " + total);
 
         String days = Ui.num(left);
-        Ui.runs(row, 446f, 15f, 84f, Ui.INS15, Ui.gray(), Ui.LEFT, days + (left == 1 ? " day left" : " days left"), new String[]{days}, new Color[]{Ui.hl()});
+        Ui.runs(row, 426f, 15f, 84f, Ui.INS15, Ui.gray(), Ui.LEFT, days + (left == 1 ? " day left" : " days left"), new String[]{days}, new Color[]{Ui.hl()});
 
         addAccelerate(row, cw, order);
+    }
+
+    // vanilla wing names already end in wing (talon_wing is "Talon Wing")
+    static String wingName(FighterWingSpecAPI spec) {
+        String name = spec.getWingName();
+        return name.toLowerCase().endsWith("wing") ? name : name + " wing";
     }
 
     private void addAccelerate(CustomPanelAPI row, float cw, YardsCustomProductionIntel order) {
@@ -397,7 +403,7 @@ class AssemblyTab {
         float confirmH = UiButtons.guardHeight(w, 30f, reason);
         float blockH = 554f + confirmH;
 
-        UiScroll.Column column = UiScroll.list(p, x, SalvageYardsPanel.BODY_Y, w + UiScroll.GUTTER, h, view.scroll, SalvageYardsView.CONTRACT);
+        UiScroll.Column column = UiScroll.list(p, x, SalvageYardsPanel.BODY_Y, w, h, view.scroll, SalvageYardsView.CONTRACT);
         CustomPanelAPI b = column.block(blockH, 0f);
         float rw = column.width();
         float y = 0f;
