@@ -150,7 +150,7 @@ class EdictDetail {
         float th = Ui.wrapHeight(desc, Ui.INS15, w - 20f);
         float bh = Math.max(BOX_MIN_H, th + 2f * BOX_PAD);
         CustomPanelAPI b = block(bh, 8f);
-        Ui.box(b, 0f, 0f, w, bh, Misc.scaleAlpha(Ui.base(), 0.35f), Misc.scaleAlpha(Ui.dark(), 0.35f));
+        Ui.box(b, 0f, 0f, w, bh, Misc.scaleAlpha(Ui.base(), 0.35f), null);
         Ui.wrap(b, 10f, Math.round((bh - th) / 2f), w - 20f, desc, Ui.text());
     }
 

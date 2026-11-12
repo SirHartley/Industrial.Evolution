@@ -172,7 +172,7 @@ public class ResearchProjectPanel {
         boolean info = view.info.contains(id);
         float ch = b.getPosition().getHeight();
 
-        Ui.box(b, 0f, 0f, cw, ch, Misc.scaleAlpha(ready ? Ui.pos() : Ui.base(), ready ? 0.55f : 0.3f), Misc.scaleAlpha(Ui.dark(), 0.3f));
+        Ui.box(b, 0f, 0f, cw, ch, Misc.scaleAlpha(ready ? Ui.pos() : Ui.base(), ready ? 0.55f : 0.3f), Ui.backdrop());
         Ui.box(b, 1f, 1f, cw - 2f, HEAD_H, null, ready ? Misc.scaleAlpha(Ui.GREEN, 0.75f) : Ui.dark());
 
         String state = ready ? "Ready" : Math.round(required <= 0 ? 100f : points / required * 100f) + "%";

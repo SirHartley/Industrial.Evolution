@@ -373,7 +373,7 @@ class TransferTab {
             default -> "Incoming";
         };
 
-        CustomPanelAPI box = Ui.box(p, x, y, w, h, Misc.scaleAlpha(c, 0.8f), Misc.scaleAlpha(c, 0.08f));
+        CustomPanelAPI box = Ui.box(p, x, y, w, h, Misc.scaleAlpha(c, 0.8f), null);
         UiImages.hullmod(box, 6f, (h - 24f) / 2f, 24f, slot.id());
         float tw = w - 40f;
         Ui.text(box, 36f, 4f, tw, Ui.fit(Global.getSettings().getHullModSpec(slot.id()).getDisplayName(), Ui.INS15, tw));

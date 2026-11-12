@@ -22,6 +22,7 @@ Every IE panel follows these rules.
    - A detail pane that ends in its actions pins the action block (cost line, buttons with their reason lines, an inline confirm) at the bottom; the information above scrolls in the height left. Every action button is visible without scrolling at 1600 x 900 and 1280 x 768.
    - A blocked button is grey with one red reason line below in the game's current words (`UiButtons.guarded`); the line height is reserved either way.
    - An empty list keeps its heading and one grey line.
+   - Interiors stay black: boxes, cards, rows and cells get a 1 px border and no fill. Only a selected row, a button, heading bars and table header strips are filled; vanilla never tints a tile. A panel on the dialog picture or starscape gets the black `Ui.backdrop()` behind it.
 3. Panel size is `min(board, screen - margin)` per axis (`UiFrame.width/height`, margin 100). List regions take up the difference, fixed blocks keep their size. Everything fits 1600 x 900 and stays usable at 1280 x 768.
 4. Native look. Fonts and colours only through `Ui`; raw RGB only for the three state colours `Ui.GREEN`, `Ui.RED`, `Ui.AMBER` (button fills, bars, strips, marks). The fill of a button says what it does: green confirms or starts, red undoes or removes, amber cancels a running order, the story colours cost a story point, everything else is the vanilla dark fill; disabled buttons get the engine's own wash. Cuts follow the vanilla roles: `ALL` for a single button and for a Confirm and Cancel pair, `TL_BR` for every button of a bank that sits side by side, `TOP` for tabs. Use vanilla widgets where they fit (`addShipList`, `showPlanetInfo`, `showCargo`, `showCost`, `addSkillPanel`) through `Ui.element` for their stock tooltips and codex links. Hand drawn cells get a tooltip that names the thing. Sprites come by spec, never by path guess.
 5. Wording. `?` help icon on the title line holds rules and rates, not the body. Short labels, standard game wording, no rounded edges. Player text follows the house-style `player-text.md`.
@@ -58,6 +59,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | POS, NEG | `pos()`, `neg()` | `Misc.getPositive/NegativeHighlightColor` (colourblind aware) |
 | STORY | `story()`, `storyDark()` | `Misc.getStoryOptionColor/getStoryDarkColor` |
 | LINE | `line()` | base at 0.3 alpha |
+| backdrop | `backdrop()` | black at 200 alpha, behind panels on the dialog picture or starscape |
 | bar blue | `barBlue()` | settings colour `progressBarStandardColor` (0,121,216) |
 | GREEN, RED, AMBER | `GREEN`, `RED`, `AMBER` | (50,130,0), (160,30,20), (200,160,10), the only raw colours |
 
@@ -84,7 +86,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `heading(p, x, y, w, title[, align[, color, bg]])` | Section heading, 18 high, exactly `w` wide. Centred: the vanilla heading label. Left or right: a flat bar of the same colour with the text 8 px in |
 | `heading(p, x, y, w, title, note)` | Left heading with a grey orb12 note at the right end |
 | `rule(p, x, y, w[, color])`, `vrule(p, x, y, h)` | 1 px line, `line()` colour |
-| `box(p, x, y, w, h, border, fill)`, `card`, `well`, `dashbox` | Framed box; card (base 0.3 frame, dark fill); recessed cell behind pictures; dashed empty slot |
+| `box(p, x, y, w, h, border, fill)`, `card`, `well`, `dashbox` | Framed box; card (base 0.3 frame, no fill); recessed cell behind pictures; dashed empty slot |
 | `thead(p, x, y, w, labels, xs, ws, aligns)` | Table header strip with orb12 column labels |
 | `tooltip(p, target, title, lines...)` | Text tooltip below any panel, label or button (title in highlight, lines 10 px apart); buttons show it while disabled |
 | `tooltip(p, target, width, loc, content)` | Same with free content |

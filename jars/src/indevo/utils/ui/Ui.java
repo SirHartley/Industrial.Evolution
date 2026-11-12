@@ -82,6 +82,11 @@ public final class Ui {
         return Misc.scaleAlpha(base(), 0.3f);
     }
 
+    // black behind panels that sit on the dialog picture or starscape, so text stays readable
+    public static Color backdrop() {
+        return Misc.setAlpha(Color.BLACK, 200);
+    }
+
     public static Color barBlue() {
         return Global.getSettings().getColor("progressBarStandardColor");
     }
@@ -324,9 +329,9 @@ public final class Ui {
         });
     }
 
-    // framed card: base frame at 0.3, dark fill
+    // framed card: base frame at 0.3, no fill (vanilla keeps interiors black)
     public static CustomPanelAPI card(CustomPanelAPI p, float x, float y, float w, float h) {
-        return box(p, x, y, w, h, Misc.scaleAlpha(base(), 0.3f), Misc.scaleAlpha(dark(), 0.5f));
+        return box(p, x, y, w, h, Misc.scaleAlpha(base(), 0.3f), null);
     }
 
     // recessed cell behind a ship or item picture

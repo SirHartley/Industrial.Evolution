@@ -102,7 +102,6 @@ class AssemblyTab {
     }
 
     private void addLine(CustomPanelAPI row, float cw, YardsContract.Line line, int index, int dmods) {
-        if (index % 2 == 0) Ui.box(row, 0f, 0f, cw, ROW_H, null, Misc.scaleAlpha(Ui.base(), 0.05f));
 
         String name;
         String sub;
@@ -342,7 +341,6 @@ class AssemblyTab {
     }
 
     private void addRunningRow(CustomPanelAPI row, float cw, YardsCustomProductionIntel order, int index) {
-        if (index % 2 == 0) Ui.box(row, 0f, 0f, cw, ROW_H, null, Misc.scaleAlpha(Ui.base(), 0.05f));
 
         List<ShipHullSpecAPI> hulls = new ArrayList<>();
         int items = 0;
