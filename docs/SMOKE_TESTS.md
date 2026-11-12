@@ -110,6 +110,11 @@ The full set is about 340 checks in 12 minutes and exits 0 only when all pass. A
 | `nextuse` | Museum, minefield and meteor settings on next use |
 | `newgame` | IE content on the base save. With `NEWGAME=1 SWITCHES=off` a new game without any |
 | `boot` | Just the load. With `STAGE=<folder>` the release layout |
+| `uiacademy` | Academy panel views ([Panel views](#panel-views-and-the-layout-audit)): officers, scrolled list, Neural Interface and alpha core slots, many skills, trainee, paused, Accelerate used and short, blocked Train and Retrieve, NPC Academy without credits, administrators, governor, admin trainee, worst case, empty. Not in the full set |
+| `uidetach` | Detachment panel views: setup, blocked, Take, 30 ships, worst case, deployed, met in space, attack order, dormant and returning, empty. Not in the full set |
+| `uicourier` | Courier Port panel views: contract list, by load, stockpiles, invalid contract, Remove confirm, beta and alpha core, new contract steps, 11 storages and the expanded `+N` tiles, 60 contracts, worst case, empty. Not in the full set |
+| `uisalvage` | Salvage Yards panel views: empty assembly, D-mod and S-mod tabs without and with matching ships, blocked S-mod target, a confirmed order, sliders, 12 scrapped ships, over budget, no credits, story point confirm, Accelerate armed, 40 lines and 5 orders in progress, Wreck Registry empty, few and filled, worst case. Not in the full set |
+| `uiedict` | Senate Edict panel views: preview with met requirements, an unmet Edict, Labour Restrictions on a colony with 12 industries, active before and after the minimum term, bribe short of Relic Components, one colony view, worst case, a Senate with no colony in range. Not in the full set |
 
 Day skips run at 60x. Fleets can overshoot the 50 unit arrival check at that speed and never land, so set `Time.mult = 3f` around a fleet arriving somewhere.
 

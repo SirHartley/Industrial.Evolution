@@ -165,6 +165,12 @@ public final class UiAudit {
         return null;
     }
 
+    public static String buttonTexts(Object node) {
+        StringBuilder out = new StringBuilder();
+        for (Object child : all(node)) if (child instanceof ButtonAPI b) out.append("[").append(b.getText()).append(b.getCustomData() instanceof Runnable ? " r" : "").append("]");
+        return out.toString();
+    }
+
     public static ButtonAPI button(Object node, String text) {
         if (node instanceof ButtonAPI b && text.equals(b.getText())) return b;
         for (Object child : children(node)) {

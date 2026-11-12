@@ -74,6 +74,10 @@ public final class Groups {
                 return DetachmentUiChecks.steps();
             case "uicourier":
                 return CourierUiChecks.steps();
+            case "uisalvage":
+                return SalvageUiChecks.steps();
+            case "uiedict":
+                return EdictUiChecks.steps();
             case "shuttle":
                 return ShuttleChecks.steps();
             default:

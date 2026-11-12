@@ -68,7 +68,7 @@ public final class CourierUiChecks {
             open(c, CourierView.newContract(mid(c, "a"), null, null, null, null));
         });
         UiViews.view(steps, "courier-storages-expanded", c -> open(c, CourierView.newContract(mid(c, "a"), null, null, null, null)),
-                (c, panel) -> c.expect(UiAudit.clickPrefix(panel.content(), "+"), "+N storage tile clicked"));
+                (c, panel) -> c.expect(UiAudit.clickPrefix(panel.content(), "+"), "+N storage tile clicked " + UiAudit.buttonTexts(panel.content())));
         UiViews.view(steps, "courier-many", c -> {
             for (int i = 0; i < 54; i++) contract("Route " + (i + 7), mid(c, "a"), Submarkets.SUBMARKET_STORAGE, mid(c, "b"), Submarkets.SUBMARKET_STORAGE, Scope.ALL_SHIPS, 30);
             List<ShippingContract> list = ShippingContractMemory.getContractList();
