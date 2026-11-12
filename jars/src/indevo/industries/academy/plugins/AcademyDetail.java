@@ -394,9 +394,15 @@ class AcademyDetail {
         add(UiButtons.guardHeight(w, STORE_H, blocker), GAP, row -> {
             ButtonAPI fleet = UiButtons.button(row, 0f, 0f, half, STORE_H, "Abort to fleet", blocker != null ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
                     blocker != null ? null : () -> abort(false));
-            Ui.tooltip(row, fleet, null, "Ends the training and returns the " + who + " to you.", lost);
+            Ui.tooltip(row, fleet, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> {
+                t.addPara("Ends the training and returns the " + who + " to you.", 0f);
+                t.addPara(lost, 10f);
+            });
             ButtonAPI storage = UiButtons.button(row, w - half, 0f, half, STORE_H, "Abort to storage", UiButtons.Kind.RED, CutStyle.TL_BR, () -> abort(true));
-            Ui.tooltip(row, storage, null, "Ends the training and stores the " + who + " here.", lost);
+            Ui.tooltip(row, storage, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> {
+                t.addPara("Ends the training and stores the " + who + " here.", 0f);
+                t.addPara(lost, 10f);
+            });
             if (blocker != null) Ui.wrap(row, 0f, STORE_H + UiButtons.REASON_GAP, w, blocker, Ui.neg());
         });
     }
