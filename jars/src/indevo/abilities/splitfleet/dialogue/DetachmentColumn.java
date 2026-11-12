@@ -53,8 +53,8 @@ class DetachmentColumn {
     static final float CHECK_ROW = 20f;
     static final float MARK_X = 22f;
     static final float LOAD_H = 22f;
-    static final float LOAD_MIN_W = 72f;
-    static final float LOAD_MAX_W = 74f;
+    static final float LOAD_MIN_W = 82f;
+    static final float LOAD_MAX_W = 84f;
     static final float LOAD_W = LOAD_MIN_W + LOAD_MAX_W + 4f;
     static final float ACTION_H = 30f;
     static final float OFFICER_ROW = 36f;
