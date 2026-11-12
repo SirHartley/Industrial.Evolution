@@ -49,8 +49,8 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
     static final float MESSAGE_H = 24f;
     static final float THUMB = 44f;
     static final float COST_ICON = 20f;
-    static final float PICTURE_H = 112f;
-    static final float PICTURE = 104f;
+    static final float PICTURE_H = 96f;
+    static final float PICTURE = 88f;
     static final float PIP = 9f;
     static final float PIP_GAP = 3f;
     static final float BUTTON_H = 28f;
@@ -366,7 +366,7 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
         int available = RelicHelper.getAvailable(market);
         boolean ok = entry.cost <= available;
 
-        text(lore, Ui.gray(), 10f);
+        text(lore, Ui.gray(), 8f);
         pin();
         heading("Cost", GAP);
         CustomPanelAPI c = block(UiData.COST_ROW_H, 6f);
