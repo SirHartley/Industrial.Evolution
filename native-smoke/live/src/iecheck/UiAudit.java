@@ -332,13 +332,11 @@ public final class UiAudit {
             }
         }
 
-        // Ui.fit cuts with "...", labels drawn over a button face are button labels such as "Cargo..."
+        // Ui.fit cuts with "...", button labels such as "Cargo..." are button text, not labels
         for (Text t : texts) {
             if (!t.text().stripTrailing().endsWith("...")) continue;
-            boolean onButton = false;
-            for (Btn b : buttons) if (b.rect().contains(t.rect())) onButton = true;
             String s = t.text().strip();
-            if (!onButton) out.add("text cut with an ellipsis: '" + (s.length() > 50 ? "..." + s.substring(s.length() - 47) : s) + "' " + at(t.rect(), panel));
+            out.add("text cut with an ellipsis: '" + (s.length() > 50 ? "..." + s.substring(s.length() - 47) : s) + "' " + at(t.rect(), panel));
         }
         return out;
     }

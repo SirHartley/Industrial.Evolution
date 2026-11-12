@@ -138,6 +138,6 @@ The `ui<panel>` groups open each view of a kit panel through its static `show` w
 - one line text wider than its box or wrapping, wrapped text taller than its box,
 - text, buttons, custom panels and leaf components outside the panel, or outside their scroll area horizontally (vertical overflow inside a scroll area is scrolling),
 - sibling buttons that partly intersect (a button fully inside another one, like a stepper on a row, is allowed),
-- text that ends in `...` (a `Ui.fit` cut), unless it lies on a button face (button labels such as "Cargo...").
+- text that ends in `...` (a `Ui.fit` cut; button labels such as "Cargo..." are button text, not labels).
 
 Hidden components (opacity 0) and anything fully scrolled out of view are skipped; tooltips are not in the tree. A view passes only with zero findings, and every capture is still opened and compared with its board: the audit does not see text over icons or wrong wording.
