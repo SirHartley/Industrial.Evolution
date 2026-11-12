@@ -151,7 +151,10 @@ class AcademyDetail {
         int used = academy.getTrainedSteps(person);
 
         heading(person.getNameString(), 0f);
-        add(PORTRAIT, GAP, b -> {
+        FleetMemberAPI ship = assignment == null ? Academy.getCommandedShip(person) : null;
+        float shipW = w - GRID_X - 24f;
+        float infoH = ship != null && Ui.width(ship.getShipName(), Ui.INS15) + 2f > shipW ? Math.max(PORTRAIT, 2f + 4f * GRID_ROW + 2f * Ui.wrapHeight("Ag", Ui.INS15, shipW) + 2f) : PORTRAIT;
+        add(infoH, GAP, b -> {
             UiImages.portrait(b, 0f, 0f, PORTRAIT, person);
             UiData.grid(b, GRID_X, 2f, w - GRID_X, GRID_ROW, List.of(
                     GridRow.of("Level", person.getStats().getLevel() + ""),
@@ -160,10 +163,9 @@ class AcademyDetail {
                     GridRow.of("Steps used", used + " of " + Math.max(used, academy.getMaxOfficerSteps()))));
 
             float lineY = 2f + 4f * GRID_ROW;
-            FleetMemberAPI ship = assignment == null ? Academy.getCommandedShip(person) : null;
             if (ship != null) {
                 UiImages.ship(b, GRID_X, lineY, 18f, ship, false, false);
-                Ui.text(b, GRID_X + 24f, lineY, w - GRID_X - 24f, ship.getShipName(), Ui.gray());
+                Ui.wrap(b, GRID_X + 24f, lineY, shipW, Ui.lines(ship.getShipName(), Ui.INS15, shipW, 2), Ui.gray());
             } else Ui.text(b, GRID_X, lineY, w - GRID_X, assignment != null ? assignment : "Unassigned", Ui.gray());
         });
     }

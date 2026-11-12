@@ -269,7 +269,7 @@ public class CourierPanelDelegate extends BaseCustomDialogDelegate {
     }
 
     // a typed name of this length fits the row beside the widest cost, even in the widest glyph
-    static int getNameMaxChars() {
+    public static int getNameMaxChars() {
         float w = LIST_W - UiScroll.GUTTER - 24f - COST_W - 8f;
         return Math.max(8, (int) ((w - 2f) / Ui.width("W", Ui.INS15)));
     }
