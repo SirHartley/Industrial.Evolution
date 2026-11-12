@@ -135,7 +135,7 @@ class DetachmentColumn {
         addLogistics(note ? GAP : 10f);
         addModes();
         addTarget();
-        addOrders();
+        if (live && !dormant && !stranded) addOrders();
 
         if (live) addOfficers();
         else addDeployment();
@@ -407,6 +407,8 @@ class DetachmentColumn {
             if (live && !Behaviour.canSwitchLiveTo(mode)) Ui.tooltip(b, button, null, description, "Can not be set after deployment.");
             else Ui.tooltip(b, button, null, description);
         }
+
+        addToggles(bw);
     }
 
     private void addTarget() {
@@ -436,9 +438,8 @@ class DetachmentColumn {
     private void addOrders() {
         heading("Orders", 8f);
 
-        boolean returning = Behaviour.isReturning(fleet);
-        boolean free = live && !dormant && !stranded && !returning;
-        boolean inSystem = live && fleet.getContainingLocation() instanceof StarSystemAPI && !fleet.isInHyperspace();
+        boolean free = !Behaviour.isReturning(fleet);
+        boolean inSystem = fleet.getContainingLocation() instanceof StarSystemAPI && !fleet.isInHyperspace();
         float bw = Math.round((w - 12f) / 3f);
 
         CustomPanelAPI b = column.block(ORDER_H, GAP);
@@ -446,7 +447,7 @@ class DetachmentColumn {
         order(b, 0f, bw, "Go to...", UiButtons.Kind.STD, CutStyle.TL_BR, goTo ? () -> panel.showGoToPicker(slot) : null,
                 "Move to a location in this system and hold position.");
 
-        if (live && Behaviour.isAttacking(fleet)) order(b, bw + 6f, bw, "Stop attack", UiButtons.Kind.HOT, CutStyle.TL_BR,
+        if (Behaviour.isAttacking(fleet)) order(b, bw + 6f, bw, "Stop attack", UiButtons.Kind.HOT, CutStyle.TL_BR,
                 () -> panel.stopOrder(slot, FleetBehaviour.ATTACK_TARGET), "Resume the current mode.");
         else {
             boolean attack = free && !DetachmentPanel.getAttackTargets(fleet).isEmpty();
@@ -454,12 +455,10 @@ class DetachmentColumn {
                     "Attack a visible hostile fleet in this system, then resume the current mode.");
         }
 
-        if (live && Behaviour.isOnTradeRun(fleet)) order(b, w - bw, bw, "Stop run", UiButtons.Kind.HOT, CutStyle.TL_BR,
+        if (Behaviour.isOnTradeRun(fleet)) order(b, w - bw, bw, "Stop run", UiButtons.Kind.HOT, CutStyle.TL_BR,
                 () -> panel.stopOrder(slot, FleetBehaviour.TRADE_RUN), "Resume the current mode.");
         else order(b, w - bw, bw, "Trade run", UiButtons.Kind.STD, CutStyle.TL_BR, free ? () -> panel.startTradeRun(slot) : null,
                 "Meet the main force to exchange cargo, then resume the current mode.");
-
-        addToggles(bw);
     }
 
     private void order(CustomPanelAPI b, float x, float bw, String label, UiButtons.Kind kind, CutStyle cut, Runnable action, String tooltip) {
