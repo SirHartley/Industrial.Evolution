@@ -16,6 +16,7 @@ import indevo.utils.ui.UiFrame;
 import indevo.utils.ui.UiHost;
 import org.apache.log4j.Logger;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,6 +101,22 @@ public final class StyleChecks {
             UiButtons.button(p, 0f, y + 30f, 255f, 28f, "Kit icon + sub", UiButtons.Kind.STD, CutStyle.ALL, Global.getSettings().getCommoditySpec("IndEvo_rare_parts").getIconName(),
                     "120", Ui.ORB12, () -> {
                     });
+
+            // strips built the way the panels build them, text placed by Ui.textIn
+            float sy = 500f;
+            Ui.heading(p, 0f, sy, half, "Ui.heading note", "grey note");
+            Ui.heading(p, 0f, sy + 24f, half, "Edict gold strip", Ui.CENTER, Ui.text(), Misc.scaleAlpha(Ui.AMBER, 0.6f));
+            Ui.textIn(p, half - 8f - 60f, sy + 24f, 60f, Ui.HEADING_H, "Active", Ui.ORB12, Ui.text(), Ui.RIGHT, new String[0], new Color[0]);
+            Ui.box(p, 1f, sy + 48f, half - 2f, 20f, null, Ui.dark());
+            Ui.textIn(p, 10f, sy + 48f, 200f, 20f, "Research card head", Ui.ORB12, Ui.bright(), Ui.LEFT, new String[0], new Color[0]);
+            Ui.textIn(p, half - 110f, sy + 48f, 100f, 20f, "Ready", Ui.ORB12, Ui.text(), Ui.RIGHT, new String[0], new Color[0]);
+            Ui.heading(p, 0f, sy + 74f, half, "Detachment strip", (String) null);
+            Ui.textIn(p, 200f, sy + 74f, half - 208f, Ui.HEADING_H, "Following, Corvus", Ui.ORB12, Ui.base(), Ui.RIGHT, new String[]{"Following"}, new Color[]{Ui.hl()});
+            UiFrame.title(Ui.panel(p, 0f, sy + 98f, half, Ui.HEADING_H), half, "Title strip", "sub text", null);
+            Ui.element(p, vx, sy, half, 120f, t -> {
+                t.addSectionHeading("addSectionHeading LMID", Alignment.LMID, 0f);
+                t.addSectionHeading("addSectionHeading MID", Alignment.MID, 6f);
+            });
 
             // vanilla built buttons, same calls as api/impl intel (base and dark faction colours, ALL cut by default)
             Ui.element(p, vx, 140f, half, 400f, t -> {
