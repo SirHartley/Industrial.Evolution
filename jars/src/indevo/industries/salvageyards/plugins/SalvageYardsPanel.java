@@ -26,7 +26,7 @@ public class SalvageYardsPanel extends BaseCustomDialogDelegate {
     public static final float BOARD_W = 1024f;
     public static final float BOARD_H = 760f;
     static final float BODY_Y = 64f;
-    static final float TAB_W = 156f;
+    static final float TAB_W = 116f;
     static final float SIDE_W = 304f;
     static final float SIDE_GAP = 20f;
 
@@ -161,8 +161,17 @@ public class SalvageYardsPanel extends BaseCustomDialogDelegate {
         String[] labels = new String[tabs.size()];
         for (int i = 0; i < tabs.size(); i++) labels[i] = getTabLabel(tabs.get(i), contract);
 
-        UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, TAB_W, UiFrame.HEADER_H, labels, tabs.indexOf(view.tab), null, i -> switchTab(tabs.get(i)));
-        return tabs.size() * (TAB_W + UiButtons.TAB_GAP);
+        // each tab as wide as its label needs, so the header keeps room for the counters
+        float x = 0f;
+        for (int i = 0; i < tabs.size(); i++) {
+            SalvageYardsView.Tab tab = tabs.get(i);
+            float tw = Math.max(TAB_W, Ui.width(labels[i], Ui.ORB12) + 28f);
+            UiButtons.tab(p, x, UiFrame.HEADER_Y, tw, UiFrame.HEADER_H, labels[i], tab == view.tab, true, () -> switchTab(tab));
+            x += tw + UiButtons.TAB_GAP;
+        }
+
+        Ui.rule(p, 0f, UiFrame.HEADER_Y + UiFrame.HEADER_H, w, Misc.scaleAlpha(Ui.base(), 0.55f));
+        return x;
     }
 
     private static String getTabLabel(SalvageYardsView.Tab tab, YardsContract contract) {
