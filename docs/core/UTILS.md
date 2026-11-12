@@ -164,6 +164,10 @@ Fixed copy of MagicLib's campaign trail plugin (Nicke535, fix by President Matt 
 
 Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmunitionEntity`, `MissileCarrierEntityPlugin`), `consumables/entities/BaseMissileEntityPlugin`, WIP `MobileColonyEntityPlugin`.
 
+## ui
+
+Shared UI kit for IE panels (`Ui`, `UiButtons`, `UiImages`, `UiData`, `UiFrame`, `UiScroll`, `UiRoot`, `UiCanvas`, `UiDraw`). Owned by [UI](UI.md): helpers, layout contract, rebuild and scroll pattern.
+
 ## update
 
 | Class | Members |

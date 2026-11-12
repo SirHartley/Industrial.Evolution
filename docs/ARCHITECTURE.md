@@ -59,6 +59,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [RULE_COMMANDS](dialogue/RULE_COMMANDS.md) | Generic rule commands, `rules.csv` map | `dialogue/rules` |
 | Core | [ECONOMY](core/ECONOMY.md) | Resource condition, parts, relic build time reduction, custom production Express Delivery, relic refit build in, Tech Mining relic boost | `economy` |
 | | [SUBMARKETS](core/SUBMARKETS.md) | Submarket plugins, adding and removing submarkets | `submarkets` |
+| | [UI](core/UI.md) | Shared UI kit and layout contract for IE panels | `utils/ui` |
 | | [COMBAT](core/COMBAT.md) | Weapon scripts, missile AI, combat terrain | `data/scripts` |
 | | [Skillshot README](../jars/src/indevo/skillshot/README.md) | Aimed campaign abilities framework (missile targeting), shared design and cross mod lock with Catch.Release | `skillshot` |
 | | [CONSOLE](core/CONSOLE.md) | Console Commands | `console` |
