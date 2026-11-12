@@ -101,7 +101,6 @@ class AcademyDetail {
 
     private void addOfficer(PersonAPI person, boolean stored) {
         addOfficerInfo(person, stored ? "Stored here" : null);
-        addSkills(person, false);
 
         String current = person.getPersonalityAPI().getId();
         heading("Personality training", SECTION_GAP);
@@ -119,6 +118,8 @@ class AcademyDetail {
             if (description != null && !description.isEmpty()) text(description, Ui.gray(), GAP);
             if (blocker == null && !BillingHelper.canAfford(fee)) blocker = "Not enough credits.";
         }
+        // reference only, the list row shows them too, so they are what scrolls
+        addSkills(person, false);
 
         pin();
         if (view.rung != null) {
@@ -248,12 +249,12 @@ class AcademyDetail {
     private void addAdmin(PersonAPI person, boolean stored) {
         MarketAPI governed = stored ? null : Academy.getGovernedMarket(person);
         addAdminInfo(person, stored, governed, null);
-        if (Academy.getAdminSkillCount(person) > 0) addSkills(person, true);
 
         String blocker = academy.getAdminTrainBlocker(person);
         int days = academy.getAdminTrainingDays();
         heading("Administrator training", SECTION_GAP);
         grid(GAP, GridRow.of("Gains", "One random skill"));
+        if (Academy.getAdminSkillCount(person) > 0) addSkills(person, true);
 
         pin();
         if (blocker == null) grid(0f, GridRow.of("Duration", days + " " + getDayOrDays(days)), GridRow.of("Away until", AcademyPanelDelegate.getDoneDate(days)));
