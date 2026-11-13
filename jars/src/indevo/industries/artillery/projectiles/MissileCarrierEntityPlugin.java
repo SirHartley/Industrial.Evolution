@@ -66,6 +66,8 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
     //render the warning sign and add the X shots
     public static final float AVERAGE_PROJ_IMPACT_TIME = 10f;
+    public static final float MIN_LAUNCH_DELAY = 0.3f;
+    public static final float LAUNCH_DELAY_SPREAD = 0.4f;
     public static final float DANGER_SIGN_FADEOUT_TIME = 10f;
 
     public static float DANGER_SIGN_SIZE = 150f;
@@ -238,9 +240,10 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
     private void updateProjectileFlightTime() {
         this.originLocation = new Vector2f(origin.getLocation());
-        ;
         this.projectileFlightTime = getTotalDistToTarget() / PROJECTILE_VELOCITY;
-        this.projectileDelaySeconds = impactSeconds - projectileFlightTime;
+        // long flights would launch on the first frame and skip the station wind-up, so they land later instead
+        this.projectileDelaySeconds = Math.max(impactSeconds - projectileFlightTime, MIN_LAUNCH_DELAY + MathUtils.getRandomNumberInRange(0f, LAUNCH_DELAY_SPREAD));
+        this.impactSeconds = projectileDelaySeconds + projectileFlightTime;
     }
 
     public float getTotalDistToTarget() {

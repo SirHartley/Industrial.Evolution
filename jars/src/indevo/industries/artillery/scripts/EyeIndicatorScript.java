@@ -190,9 +190,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
     public void reportFleetJumped(CampaignFleetAPI fleet, SectorEntityToken from, JumpPointAPI.JumpDestination to) {
         fleet.getMemoryWithoutUpdate().unset(WAS_SEEN_BY_HOSTILE_ENTITY);
 
-        if (fleet.isPlayerFleet()) {
-            transferStateToEntity(WatchtowerEyeIndicator.State.NONE, false);
-        }
+        if (fleet.isPlayerFleet()) reset();
     }
 
     @Override

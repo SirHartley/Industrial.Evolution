@@ -19,6 +19,7 @@ public class CheckPlugin extends BaseModPlugin {
         String group = System.getProperty("ie.check");
         if (group == null) return;
         log.info("LIVE_CHECK game loaded, group " + group);
+        ArtilleryChecks.loaded();
         Global.getSector().addTransientScript(new Runner(group));
     }
 }

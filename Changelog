@@ -372,6 +372,7 @@ Fixed - Watchtowers no longer count as stable locations
 Fixed - Creating a stable location now properly counts wormholes
 Fixed - Placed stations no longer fire with Artillery turned off
 Fixed - Orbital Artillery tooltip now unlocks its Codex entry
+Fixed - Jumping out of a system now empties the watchtower eye
 
 Console Commands
 Fixed - SpawnRuins no longer rolls the first planet twice or duplicates ruins

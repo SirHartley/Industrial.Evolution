@@ -89,6 +89,8 @@ public final class Groups {
                 return ResearchUiChecks.steps();
             case "uistyle":
                 return StyleChecks.steps();
+            case "holdnest":
+                return ArtilleryChecks.holdNest();
             case "holdacademy":
             case "holddetach":
             case "holdcourier":
@@ -99,6 +101,12 @@ public final class Groups {
             case "holdresearch":
             case "holdvanilla":
                 return HoldChecks.steps(group.substring(4));
+            case "artillery":
+                return ArtilleryChecks.steps();
+            case "artillerynest":
+                return ArtilleryChecks.nest();
+            case "artilleryplace":
+                return ArtilleryChecks.placement();
             case "shuttle":
                 return ShuttleChecks.steps();
             default:
