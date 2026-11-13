@@ -1676,7 +1676,10 @@ public final class ArtilleryChecks {
                     max = Math.max(max, n);
                 }
                 c.note("D3 debris drop " + debris.getDropRandom().get(0).group + " chances " + debris.getDropRandom().get(0).chances + " maxChances " + debris.getDropRandom().get(0).maxChances + " value " + debris.getDropRandom().get(0).value);
-                c.expect(min >= 6 && max <= 10, "D3 debris field holds 6 to 10 " + RELICS + " (40 rolls: " + min + " to " + max + ")");
+                // generateSalvage scales chances by easySalvageMult on easy
+                float easy = Misc.isEasy() ? Global.getSettings().getFloat("easySalvageMult") : 1f;
+                int lo = (int) Math.floor(DroneNetScript.MIN_NEST_RELICS * easy), hi = (int) Math.ceil(DroneNetScript.MAX_NEST_RELICS * easy);
+                c.expect(min >= lo && max <= hi, "D3 debris field holds " + lo + " to " + hi + " " + RELICS + " (6 to 10 x" + easy + ", 40 rolls: " + min + " to " + max + ")");
                 int dmin = Integer.MAX_VALUE, dmax = 0;
                 for (int i = 0; i < 40; i++) {
                     int n = Math.round(SalvageEntity.generateSalvage(new java.util.Random(), 1f, 1f, 1f, null, List.of(DroneNetScript.createNestDrop())).getCommodityQuantity(RELICS));
