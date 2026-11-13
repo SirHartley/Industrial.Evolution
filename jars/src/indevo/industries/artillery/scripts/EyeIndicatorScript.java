@@ -86,7 +86,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         for (CampaignFleetAPI f : loc.getFleets()) {
             //check if visible to other fleet
             for (CampaignFleetAPI otherFLeet : loc.getFleets()) {
-                if (otherFLeet == f) continue;
+                if (otherFLeet == f || otherFLeet.hasTag(DroneNetScript.TAG_DRONE)) continue;
 
                 if (otherFLeet.isHostileTo(f)
                         && otherFLeet.getAI() != null
@@ -104,6 +104,13 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
                     break;
                 }
             }
+        }
+
+        DroneNetScript droneNet = DroneNetScript.get(loc);
+        if (droneNet != null && droneNet.isPlayerSpotted()) {
+            elapsed = MAX_TIME_TO_TARGET_LOCK;
+            isLocked = true;
+            spotted = true;
         }
 
         List<SectorEntityToken> watchtowerList = loc.getEntitiesWithTag(Ids.TAG_WATCHTOWER);

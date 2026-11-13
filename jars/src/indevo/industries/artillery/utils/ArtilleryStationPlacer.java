@@ -26,6 +26,7 @@ import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.LighthouseEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationScript;
+import indevo.industries.artillery.scripts.DroneNetScript;
 import indevo.items.consumables.listeners.LocatorSystemRatingUpdater;
 import indevo.utils.ModPlugin;
 
@@ -39,11 +40,14 @@ import static indevo.industries.artillery.scripts.ArtilleryStationScript.TYPE_KE
 
 public class ArtilleryStationPlacer {
 
-    public enum VisionType {WATCHTOWER, LIGHTHOUSE}
+    public enum VisionType {WATCHTOWER, LIGHTHOUSE, DRONES}
 
     public static final int MIN_LIGHTHOUSES_PER_SYSTEM = 4;
     public static final float LIGHTHOUSE_MIN_ORBIT = 1500f;
     public static final float LIGHTHOUSE_MAX_ORBIT = 16000f;
+    public static final int MIN_DRONE_NESTS = 3;
+    public static final int MAX_DRONE_NESTS = 6;
+    public static final float EXTENT_PER_DRONE_NEST = 4000f;
 
     public static void placeCoreWorldArtilleries() {
 
@@ -201,6 +205,7 @@ public class ArtilleryStationPlacer {
         switch (type) {
             case WATCHTOWER -> placeTowers(system, factionId, WatchtowerEntityPlugin.ENTITY_ID, random);
             case LIGHTHOUSE -> placeLighthouses(system, factionId, random);
+            case DRONES -> placeDroneNet(system, factionId, random);
         }
     }
 
@@ -208,6 +213,7 @@ public class ArtilleryStationPlacer {
         WeightedRandomPicker<VisionType> picker = new WeightedRandomPicker<>(random);
         picker.add(VisionType.WATCHTOWER, Setting.ARTILLERY_VISION_WEIGHT_WATCHTOWER.value());
         picker.add(VisionType.LIGHTHOUSE, Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE.value());
+        picker.add(VisionType.DRONES, Setting.ARTILLERY_VISION_WEIGHT_DRONES.value());
 
         VisionType type = picker.pick();
         return type != null ? type : VisionType.WATCHTOWER;
@@ -219,19 +225,52 @@ public class ArtilleryStationPlacer {
         if (extra <= 0) return;
 
         SectorEntityToken center = system.getCenter();
-        float minRadius = LIGHTHOUSE_MIN_ORBIT;
-        if (system.getStar() != null) minRadius += system.getStar().getRadius() * 2f;
-        float extent = Math.max(minRadius * 2f, Math.min(LIGHTHOUSE_MAX_ORBIT, getSystemExtent(system)));
+        float minRadius = getMinCenterOrbit(system);
+        float extent = getCenterOrbitExtent(system, minRadius);
 
         for (int i = 0; i < extra; i++) {
-            float fraction = (i + random.nextFloat()) / extra;
-            float radius = minRadius + (extent - minRadius) * fraction;
+            float radius = getSpreadRadius(minRadius, extent, i, extra, random);
             float orbitDays = radius / (20f + random.nextFloat() * 5f);
 
             SectorEntityToken t = addTower(system, factionId, LighthouseEntityPlugin.ENTITY_ID, null);
             t.setOrbit(Global.getFactory().createCircularOrbitWithSpin(center,
                     random.nextFloat() * 360f, radius, orbitDays, random.nextFloat() * 10f + 1f));
         }
+    }
+
+    public static void placeDroneNet(StarSystemAPI system, String factionId, Random random) {
+        float minRadius = getMinCenterOrbit(system);
+        float extent = getCenterOrbitExtent(system, minRadius);
+        int count = Math.max(MIN_DRONE_NESTS, Math.min(MAX_DRONE_NESTS, Math.round(extent / EXTENT_PER_DRONE_NEST)));
+
+        DroneNetScript net = DroneNetScript.getInstanceOrRegister(system, factionId, extent);
+        int placed = 0;
+
+        for (int i = 0; i < count; i++) {
+            float radius = getSpreadRadius(minRadius, extent, i, count, random);
+            float orbitDays = radius / (20f + random.nextFloat() * 5f);
+            if (net.addNest(random.nextFloat() * 360f, radius, orbitDays, random)) placed++;
+        }
+
+        // no drone hulls for this faction, the system must not stay blind
+        if (placed == 0) {
+            system.getMemoryWithoutUpdate().set(Ids.MEM_SYSTEM_ARTILLERY_VISION, VisionType.WATCHTOWER.name());
+            placeTowers(system, factionId, WatchtowerEntityPlugin.ENTITY_ID, random);
+        }
+    }
+
+    private static float getMinCenterOrbit(StarSystemAPI system) {
+        float minRadius = LIGHTHOUSE_MIN_ORBIT;
+        if (system.getStar() != null) minRadius += system.getStar().getRadius() * 2f;
+        return minRadius;
+    }
+
+    private static float getCenterOrbitExtent(StarSystemAPI system, float minRadius) {
+        return Math.max(minRadius * 2f, Math.min(LIGHTHOUSE_MAX_ORBIT, getSystemExtent(system)));
+    }
+
+    private static float getSpreadRadius(float minRadius, float extent, int index, int count, Random random) {
+        return minRadius + (extent - minRadius) * (index + random.nextFloat()) / count;
     }
 
     private static float getSystemExtent(StarSystemAPI system) {
